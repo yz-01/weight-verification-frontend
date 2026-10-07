@@ -28,6 +28,7 @@ import {
   createMaterialOutgoing,
   createSiteProgressRecord,
   recordEquipmentEntry,
+  recordEquipmentExit,
   recordEquipmentMovement,
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
@@ -336,10 +337,12 @@ async function sendJob(job: OfflineJob): Promise<void> {
     return;
   }
 
-  if (job.kind === "EQUIPMENT_MOVEMENT" && job.payload.entry) {
-    // One entry is one machine (F3): no quantity, unit or application.
+  if (job.kind === "EQUIPMENT_MOVEMENT" && (job.payload.entry || job.payload.exit)) {
+    // One movement is one machine (F3): no quantity, unit or application.
+    // The exit goes the entry's way since Q27; the job carries the one
+    // client_event_id across every retry, so a resend is the same movement.
     const entry = job.payload;
-    await recordEquipmentEntry({
+    const movement = {
       project: entry.project,
       equipment: entry.equipment || undefined,
       equipment_name: entry.equipment_name,
@@ -366,7 +369,10 @@ async function sendJob(job: OfflineJob): Promise<void> {
       supplier_signature: entry.supplier_signature
         ? restoreFile(entry.supplier_signature)
         : undefined,
-    });
+    };
+    // Both called by name, so the reachability guard sees the two routes.
+    if (entry.exit) await recordEquipmentExit(movement);
+    else await recordEquipmentEntry(movement);
     return;
   }
 

@@ -772,12 +772,14 @@ function ColumnRecordsDialog({
     null,
   );
   // An equipment class lists machine profiles (2026-10 B2); one opens in its
-  // own profile dialog to edit, not in the read-only record sheet.
+  // own profile dialog to edit - for whoever may edit machines. Anybody else
+  // reads it in the record sheet (Fable B4 #5: saving would be refused).
+  const { can } = useAuth();
   const [machine, setMachine] = useState<SiteEquipment | null>(null);
   const [machineError, setMachineError] = useState("");
   const isEquipment = moduleKey === "equipment";
   const openRow = (row: ArchiveQueueRow<CategoryRecordKind>) => {
-    if (!isEquipment || row.kind !== "SITE_EQUIPMENT") {
+    if (!isEquipment || row.kind !== "SITE_EQUIPMENT" || !can("equipment.manage")) {
       setOpen(row);
       return;
     }

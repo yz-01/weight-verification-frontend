@@ -89,6 +89,10 @@ export function FieldStaffWorkspace() {
   const requestedIncidentId = searchParams.get("incident") ?? "";
   // 公司公告 (C18): the notice links here; the announcement opens over home.
   const announcement = searchParams.get("announcement");
+  // An equipment entry or exit the office accepted or not (Fable B4 #15):
+  // it opens under 我提交过的 on home, not the capture form the same old
+  // link also names as its `record`.
+  const requestedMovement = searchParams.get("movement");
   const clearAnnouncement = useClearSearchParam("announcement");
 
   return (
@@ -98,10 +102,10 @@ export function FieldStaffWorkspace() {
     )}
     <FieldStaffWorkspaceContent
       requestedTaskId={requestedTaskId}
-      requestedTab={requestedIncidentId ? "incidents" : requestedTab}
+      requestedTab={requestedIncidentId ? "incidents" : requestedMovement ? "home" : requestedTab}
       // A link to a particular hazard means that hazard, not the report form
-      // the same link also names as its `record`.
-      requestedRecord={requestedIncidentId ? null : requestedRecord}
+      // the same link also names as its `record`; the same for a movement.
+      requestedRecord={requestedIncidentId || requestedMovement ? null : requestedRecord}
       requestedIncidentId={requestedIncidentId}
       supplierToken={supplierToken}
     />

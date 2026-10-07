@@ -46,12 +46,6 @@ import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import {
-  ApplyExitDialog,
-  MachineStep,
-  OpenApplicationsFailed,
-  useOpenEquipmentApplications,
-} from "@/components/contractor-ops/equipment-applications";
-import {
   EquipmentClassSelect,
   InlineClassCreator,
   useEquipmentClasses,
@@ -148,7 +142,10 @@ import {
 import { getRoles } from "@/services/users.service";
 import { OutgoingSupplierField } from "@/components/contractor-ops/outgoing-supplier-field";
 import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/return-note";
-import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
+import {
+  SupplierReturnBadge,
+  type ReturnBadgeSupplier,
+} from "@/components/suppliers/supplier-return-badge";
 import { columnAutofill } from "@/lib/material-autofill";
 import {
   submitEquipmentMovementOfflineAware,
@@ -165,18 +162,6 @@ type Coordinates = { latitude: string; longitude: string; accuracy: string };
  * 4-5.
  */
 const EQUIPMENT_PHOTO_MIN = 4;
-type EquipmentUnit = "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
-
-const EQUIPMENT_UNITS: EquipmentUnit[] = [
-  "UNIT",
-  "PIECE",
-  "SET",
-  "LOAD",
-  "TONNE",
-  "KG",
-  "M3",
-  "OTHER",
-];
 
 export function ProjectFilter({
   value,
@@ -1801,21 +1786,22 @@ export function machineLabeller(rows: readonly SiteEquipment[]) {
 }
 
 /**
- * The phone's 设备进退场 (D-273, T-393; 2026-10 C8, F3, A9).
+ * The phone's 设备进退场 (D-273, T-393; 2026-10 C8, F3, A9, Q27).
  *
  * 「设备进退场的数据是不需要显示的，他们的工作就只是拍照而已」: the field
  * worker takes the photos, the office reads the figures. So this screen has no
  * totals, no equipment data cards and no movement history - those live on the
  * office list (`SiteEquipmentOffice`).
  *
- * What is left: the project (locked to the worker's site), one dropdown -
- * 「新设备」 first, because nobody knows in advance which machine will arrive
- * (Lucas 2026-10-07), then the machines already on file for this site,
- * 「名称 · 车牌」, for one coming back; no category anywhere on the phone
- * (F3) - and the one next step for the machine chosen. An entry is taken in one step
- * like 材料进场 (X2): photos, DO, the supplier's QR, both signatures, GPS -
- * then the office accepts it. An exit still goes the B13 way until the Return
- * Note flow replaces it (X3).
+ * What is left: the project (locked to the worker's site), 进场 or 退场, and
+ * one dropdown, 「名称 · 车牌」 with no category anywhere on the phone (F3).
+ * 进场 offers 「新设备」 first, because nobody knows in advance which machine
+ * will arrive (Lucas 2026-10-07), then the machines on file that are not on
+ * site, for one coming back. 退场 offers the machines on site on this
+ * project (Q27). Either way the movement is taken in one step like 材料进场
+ * (X2): photos, DO, the supplier's QR, both signatures, GPS - and the office
+ * accepts it. A machine whose movement is waiting for that says so instead of
+ * offering a second one. Nothing is applied for (F3: no 「申请」 on the phone).
  *
  * Only the phone mounts this component (field-records-panel.tsx).
  */
@@ -1826,13 +1812,15 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const searchParams = useSearchParams();
   const [project, setProject] = useState(initialProject);
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
-  // Kept in the draft, so tapping this 挂号 again reopens the machine and the
-  // form it was in (D-259). Outside a draft this is ordinary state.
+  // Kept in the draft, so tapping this 挂号 again reopens the way, the
+  // machine and the form it was in (D-259). Outside a draft this is ordinary
+  // state.
+  const [direction, setDirection] = useDraftState<"ENTRY" | "EXIT">(
+    "open:equipmentDirection",
+    searchParams.get("direction") === "EXIT" ? "EXIT" : "ENTRY",
+  );
   const [chosen, setChosen] = useDraftState("open:chosenEquipment", "");
   const [entering, setEntering] = useDraftState("open:enteringEquipment", false);
-  const [movingId, setMovingId] = useDraftState<string | null>("open:movingEquipment", null);
-  const [applyingExit, setApplyingExit] = useState<SiteEquipment | null>(null);
-  const open = useOpenEquipmentApplications(project || undefined);
   const rows = useQuery({
     queryKey: ["site-equipment", "field", project],
     queryFn: () =>
@@ -1841,13 +1829,13 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         page_size: 200,
       }),
   });
-  // A machine switched off is not offered for a new entry or exit.
+  const going = direction === "EXIT";
+  // A machine switched off is not offered for a new entry or exit. 退场 takes
+  // a machine on site on this project; 进场 one that is not (Q27).
   const equipment = (rows.data?.results ?? []).filter((row) => row.is_active);
-  const machine = equipment.find((row) => row.id === chosen) ?? null;
-  const isNew = chosen === NEW_MACHINE;
-  const moving = equipment.find((row) => row.id === movingId) ?? null;
-  const movingApplication = moving ? open.byEquipment.get(moving.id) : undefined;
-  const machineOpen = machine ? open.byEquipment.get(machine.id) : undefined;
+  const offered = equipment.filter((row) => (row.status === "ON_SITE") === going);
+  const machine = offered.find((row) => row.id === chosen) ?? null;
+  const isNew = !going && chosen === NEW_MACHINE;
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["site-equipment"] });
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
@@ -1856,10 +1844,10 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const equipmentError =
     rows.error instanceof Error ? rows.error.message : undefined;
   const label = machineLabeller(equipment);
-  // What the machine chosen does next: wait for the office, go out (B13), or
-  // come in (X2). A legacy entry application still open comes in the new way.
-  const waitingAcceptance = machineOpen?.status === "SUBMITTED";
-  const goingOut = !waitingAcceptance && machine?.status === "ON_SITE";
+  // 「进场待验收」 / 「退场待验收」: already submitted this way, so not again.
+  const waitingWord = t(going ? "equipment.exitWaiting" : "equipment.entryWaiting");
+  const isWaiting = (row: SiteEquipment) => row.awaiting_acceptance === direction;
+  const waiting = machine ? isWaiting(machine) : false;
   return (
     <div className="space-y-5">
       <ListHeader
@@ -1897,7 +1885,25 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         errorMessage={equipmentError}
         empty={false}
       />
-      <OpenApplicationsFailed open={open} />
+      {/* 进场 or 退场 first (Q27): it decides which machines are offered. */}
+      <div className="grid grid-cols-2 gap-2" data-testid="field-equipment-direction">
+        {(["ENTRY", "EXIT"] as const).map((way) => (
+          <Button
+            key={way}
+            type="button"
+            variant={direction === way ? "default" : "outline"}
+            aria-pressed={direction === way}
+            className="h-12 text-base"
+            onClick={() => {
+              setDirection(way);
+              setChosen("");
+              setEntering(false);
+            }}
+          >
+            {t(`direction.${way}`)}
+          </Button>
+        ))}
+      </div>
       {/* A9: one dropdown instead of the long list of every machine. */}
       <FieldWrapper label={t("equipment.chooseMachine")} required>
         <Select
@@ -1909,21 +1915,26 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           disabled={!project || rows.isLoading}
         >
           <SelectTrigger className="h-12 w-full" data-testid="field-equipment-select">
-            <SelectValue placeholder={t("equipment.chooseMachinePlaceholder")} />
+            <SelectValue
+              placeholder={t(going ? "equipment.chooseOnSiteMachine" : "equipment.chooseMachinePlaceholder")}
+            />
           </SelectTrigger>
           <SelectContent>
             {/* First, not a fallback (2026-10-07): nobody knows in advance
                 which machine will arrive, so most entries start here. */}
-            {can("equipment.capture") && (
+            {!going && can("equipment.capture") && (
               <SelectItem value={NEW_MACHINE}>{t("equipment.newMachine")}</SelectItem>
             )}
-            {equipment.map((row) => (
+            {offered.map((row) => (
               <SelectItem key={row.id} value={row.id}>
-                {label(row)}
+                {isWaiting(row) ? `${label(row)} · ${waitingWord}` : label(row)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        {going && rows.isSuccess && offered.length === 0 && (
+          <p className="mt-1 text-sm text-muted-foreground">{t("equipment.noMachineOnSite")}</p>
+        )}
       </FieldWrapper>
       {machine && (
         <section
@@ -1931,20 +1942,13 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-3 py-3 shadow-sm"
         >
           <span className="min-w-0 flex-1 truncate font-medium">{label(machine)}</span>
-          {waitingAcceptance ? (
-            <span className="text-sm text-warning">{t("equipmentMovementStatus.SUBMITTED")}</span>
-          ) : goingOut ? (
-            <MachineStep
-              machine={machine}
-              open={machineOpen}
-              onApply={() => setApplyingExit(machine)}
-              onHandover={() => setMovingId(machine.id)}
-            />
+          {waiting ? (
+            <span className="text-sm text-warning">{waitingWord}</span>
           ) : (
             can("equipment.capture") && (
               <Button onClick={() => setEntering(true)}>
                 <Camera />
-                {t("equipment.recordEntry")}
+                {t(going ? "equipment.recordExit" : "equipment.recordEntry")}
               </Button>
             )
           )}
@@ -1966,8 +1970,9 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           }}
         />
       )}
-      {entering && (machine || isNew) && (
+      {entering && (machine || isNew) && !waiting && (
         <EquipmentEntryDialog
+          direction={direction}
           project={project || machine?.project || ""}
           machine={isNew ? null : machine}
           fieldTaskId={fieldTaskId}
@@ -1976,29 +1981,6 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
             refresh();
             setEntering(false);
             setChosen("");
-            onRecordSaved?.();
-          }}
-        />
-      )}
-      {applyingExit && (
-        <ApplyExitDialog
-          machine={applyingExit}
-          onClose={() => setApplyingExit(null)}
-          onSaved={() => {
-            refresh();
-            setApplyingExit(null);
-          }}
-        />
-      )}
-      {moving && movingApplication?.status === "APPROVED" && movingApplication.direction === "EXIT" && (
-        <MovementDialog
-          row={moving}
-          movement={movingApplication}
-          fieldTaskId={fieldTaskId}
-          onClose={() => setMovingId(null)}
-          onSaved={() => {
-            refresh();
-            setMovingId(null);
             onRecordSaved?.();
           }}
         />
@@ -2035,6 +2017,7 @@ export function EquipmentDialog({
     queryKey: ["suppliers", "equipment-options"],
     queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
   });
+  const [createdClassName, setCreatedClassName] = useState<string | null>(null);
   const [form, setForm] = useState<EquipmentPayload>({
     project: equipment?.project ?? project,
     code: equipment?.code ?? "",
@@ -2173,7 +2156,7 @@ export function EquipmentDialog({
                 <EquipmentClassSelect
                   tree={classes.tree}
                   value={form.category ?? null}
-                  currentName={equipment?.category_name}
+                  currentName={createdClassName ?? equipment?.category_name}
                   disabled={!hasSubClasses && !form.category}
                   onChange={(value) => set("category", value)}
                 />
@@ -2189,7 +2172,12 @@ export function EquipmentDialog({
                   <InlineClassCreator
                     project={form.project}
                     tree={classes.tree}
-                    onCreated={(subClass) => set("category", subClass)}
+                    onCreated={(subClass) => {
+                      // Its name at once, not its id, until the list refetches
+                      // (Fable B4 #22).
+                      setCreatedClassName(subClass.name);
+                      set("category", subClass.id);
+                    }}
                   />
                 )}
               </>
@@ -2254,6 +2242,9 @@ export function EquipmentDialog({
           {equipment && (
             <Link
               href={`/site-equipment?equipment=${equipment.id}`}
+              // Closes the dialog: on /site-equipment the list changes under it
+              // otherwise (Fable B4 #22).
+              onClick={onClose}
               className="text-sm text-primary underline-offset-2 hover:underline sm:col-span-2"
             >
               {t("equipment.movementsLink")}
@@ -2298,16 +2289,27 @@ export function EquipmentDialog({
  * signatures and the GPS fix. No category, no quantity, no unit: one entry is
  * one machine, and its class is the office's business. Offline-capable
  * through the same queue as every capture; the office then accepts it.
+ *
+ * 设备退场 is this same form (Lucas 2026-10-08, Q27: 「跟设备进场一样」): a
+ * machine on site, the same evidence - DO number required - and an optional
+ * reason; no application and no Return Note. Until the office accepts it the
+ * machine stays on site.
  */
 export function EquipmentEntryDialog({
+  direction = "ENTRY",
   project,
   machine,
   fieldTaskId,
   onClose,
   onSaved,
 }: {
+  /**
+   * 进场, or 退场 (2026-10 Q27): the exit takes the same evidence in the same
+   * one step, for a machine on site, and adds an optional reason.
+   */
+  direction?: "ENTRY" | "EXIT";
   project: string;
-  /** Null for a 「新设备」 nobody registered yet. */
+  /** Null for a 「新设备」 nobody registered yet (an entry only). */
   machine: SiteEquipment | null;
   fieldTaskId?: string;
   onClose: () => void;
@@ -2317,13 +2319,16 @@ export function EquipmentEntryDialog({
   const field = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const key = machine?.id ?? "new";
+  const going = direction === "EXIT";
+  // The exit's draft is its own: an exit begun for a machine must not
+  // reopen as that machine's next entry.
+  const key = going ? `exit:${machine?.id ?? ""}` : machine?.id ?? "new";
   const [newName, setNewName] = useDraftState(`entryName:${key}`, "");
   // Optional: not every machine has a plate. One already on file is that
   // machine coming back - the server files the entry on it.
   const [newPlate, setNewPlate] = useDraftState(`entryPlate:${key}`, "");
   const [deliveryNote, setDeliveryNote] = useDraftState(`entryDeliveryNote:${key}`, "");
-  const [supplier, setSupplier] = useDraftState<{ id: string; name: string } | null>(`entrySupplier:${key}`, null);
+  const [supplier, setSupplier] = useDraftState<ReturnBadgeSupplier | null>(`entrySupplier:${key}`, null);
   const [notes, setNotes] = useDraftState(`entryNotes:${key}`, "");
   const [photos, setPhotos] = useDraftState<File[]>(`entryPhotos:${key}`, []);
   const [fieldEvidence, setFieldEvidence] = useDraftState(`entryEvidence:${key}`, createEmptyFieldEvidence);
@@ -2358,7 +2363,8 @@ export function EquipmentEntryDialog({
   const scan = useMutation({
     mutationFn: (token: string) => scanSupplierQr(token),
     onMutate: () => setError(""),
-    onSuccess: (row) => setSupplier({ id: row.id, name: row.name }),
+    onSuccess: (row) =>
+      setSupplier({ id: row.id, name: row.name, completed_return_count: row.completed_return_count }),
     onError: (reason) =>
       setError(reason instanceof ApiError ? reason.message : t("equipment.scanFailed")),
   });
@@ -2366,13 +2372,15 @@ export function EquipmentEntryDialog({
     mutationFn: () => {
       if (!user) throw new Error("Authentication required.");
       return submitEquipmentMovementOfflineAware(user.id, {
-        entry: true,
+        // One client_event_id for the job, kept across every retry of it.
+        entry: !going,
+        exit: going,
         project,
         equipment: machine?.id ?? "",
         equipment_name: machine ? undefined : newName.trim(),
         registration_no: machine ? undefined : newPlate.trim().toUpperCase() || undefined,
         supplier: supplier?.id,
-        direction: "ENTRY",
+        direction,
         operator_name: user.full_name,
         delivery_note_no: deliveryNote.trim(),
         vehicle_plate: machine?.registration_no || undefined,
@@ -2415,10 +2423,12 @@ export function EquipmentEntryDialog({
         <DialogHeader>
           <DialogTitle>
             {machine
-              ? t("equipment.entryTitle", { name: machineLabeller([machine])(machine) })
+              ? t(going ? "equipment.exitTitle" : "equipment.entryTitle", {
+                  name: machineLabeller([machine])(machine),
+                })
               : t("equipment.newMachineEntry")}
           </DialogTitle>
-          <DialogDescription>{t("equipment.entryHelp")}</DialogDescription>
+          <DialogDescription>{t(going ? "equipment.exitHelp" : "equipment.entryHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           {!machine && (
@@ -2506,6 +2516,8 @@ export function EquipmentEntryDialog({
             {supplier ? (
               <div className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
                 <span className="min-w-0 flex-1 truncate font-medium">{supplier.name}</span>
+                {/* 「有退场资料」 (2026-10 C10), as wherever a supplier is chosen. */}
+                <SupplierReturnBadge supplier={supplier} />
                 <Button size="sm" variant="ghost" onClick={() => setSupplier(null)}>
                   {t("action.remove")}
                 </Button>
@@ -2549,8 +2561,15 @@ export function EquipmentEntryDialog({
             required
             error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
           />
-          <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <FieldWrapper
+            label={going ? t("equipment.exitReason") : t("field.notes")}
+            className="sm:col-span-2"
+          >
+            <Textarea
+              aria-label={going ? t("equipment.exitReason") : t("field.notes")}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
           </FieldWrapper>
         </div>
         {error && (
@@ -2580,7 +2599,7 @@ export function EquipmentEntryDialog({
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Camera />}
-            {t("equipment.entrySubmit")}
+            {t(going ? "equipment.exitSubmit" : "equipment.entrySubmit")}
           </Button>
         </DialogFooter>
         <SupplierQrScanner
@@ -2597,9 +2616,13 @@ export function EquipmentEntryDialog({
 }
 
 /**
- * The handover of an approved application (B13): at least four photographs,
- * no ceiling (B14), and both signatures - the site person and the supplier or
- * driver. This is the moment the machine is on or off site.
+ * 「直接交接」 of an application made before the one-step flow (B13, then X2
+ * for entries and Q27 for exits): at least four photographs, no ceiling
+ * (B14), and both signatures - the site person and the supplier or driver.
+ * It then waits for the office's acceptance like any movement recorded on
+ * site. One movement is one machine (F3): no quantity or unit is asked.
+ * Opened from the office's detail of the old application; the phone records
+ * an exit in one step instead, which finishes the old application too.
  */
 export function MovementDialog({
   row,
@@ -2609,7 +2632,7 @@ export function MovementDialog({
   onSaved,
 }: {
   row: SiteEquipment;
-  /** The approved application this handover completes. */
+  /** The open application this handover completes. */
   movement: EquipmentMovement;
   fieldTaskId?: string;
   onClose: () => void;
@@ -2629,8 +2652,6 @@ export function MovementDialog({
   const [operator, setOperator] = useDraftState(`operator:${row.id}`, "");
   const [vehicle, setVehicle] = useDraftState(`vehicle:${row.id}`, "");
   const [deliveryNote, setDeliveryNote] = useDraftState(`deliveryNote:${row.id}`, "");
-  const [quantity, setQuantity] = useDraftState(`quantity:${row.id}`, String(Number(movement.quantity) || 1));
-  const [unit, setUnit] = useDraftState<EquipmentUnit>(`unit:${row.id}`, movement.unit ?? "UNIT");
   const [notes, setNotes] = useDraftState(`notes:${row.id}`, "");
   const [photos, setPhotos] = useDraftState<File[]>(`photos:${row.id}`, []);
   const [fieldEvidence, setFieldEvidence] = useDraftState(`fieldEvidence:${row.id}`, createEmptyFieldEvidence);
@@ -2660,10 +2681,6 @@ export function MovementDialog({
       const suggestions = result.suggestions as Record<string, string | undefined>;
       if (suggestions.delivery_note_no) setDeliveryNote(suggestions.delivery_note_no);
       if (suggestions.vehicle_plate) setVehicle(suggestions.vehicle_plate);
-      const suggestedUnit = String(
-        result.line_items?.[0]?.unit || suggestions.unit || "",
-      ).toUpperCase() as EquipmentUnit;
-      if (EQUIPMENT_UNITS.includes(suggestedUnit)) setUnit(suggestedUnit);
     },
     // A new or removed photo: the old read no longer describes it.
     onReset: () => setOcrProof(""),
@@ -2675,8 +2692,6 @@ export function MovementDialog({
         project: row.project,
         equipment: row.id,
         direction,
-        quantity: direction === "EXIT" ? quantity : undefined,
-        unit: direction === "EXIT" ? unit : undefined,
         operator_name: isFieldStaff ? user.full_name : operator.trim(),
         vehicle_plate: vehicle.trim(),
         delivery_note_no: deliveryNote.trim(),
@@ -2709,8 +2724,6 @@ export function MovementDialog({
         setFieldErrors(reason.errors);
         const inlineFields = new Set([
           "operator_name",
-          "quantity",
-          "unit",
           "photos",
           "latitude",
           "longitude",
@@ -2758,44 +2771,6 @@ export function MovementDialog({
               />
             </FieldWrapper>
           ) : null}
-          {/* One entry is one machine (F3): an old entry application handed
-              over directly (「直接交接」) asks no quantity or unit. */}
-          {direction === "EXIT" && (<>
-          <FieldWrapper
-            label={t("field.quantity")}
-            required
-            error={fieldErrors.quantity}
-          >
-            <Input
-              type="number"
-              min="0.001"
-              step="0.001"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
-          </FieldWrapper>
-          <FieldWrapper
-            label={t("field.unit")}
-            required
-            error={fieldErrors.unit}
-          >
-            <Select
-              value={unit}
-              onValueChange={(value) => setUnit(value as EquipmentUnit)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {EQUIPMENT_UNITS.map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          </>)}
           <FieldWrapper label={t("field.vehiclePlate")}>
             <Input
               value={vehicle}
@@ -2909,7 +2884,6 @@ export function MovementDialog({
           <Button
             requires={[
               [isFieldStaff || operator, t("field.operator")],
-              [direction === "ENTRY" || (quantity && Number(quantity) > 0), t("field.quantity")],
               [
                 // The office counts four too now (L6), the delivery-order
                 // photo included, the way the server counts.

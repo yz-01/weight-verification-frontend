@@ -45,7 +45,7 @@ vi.mock("@/components/ui/dialog", () => {
 const { SiteEquipmentWorkspace, EquipmentDialog, EquipmentEntryDialog, machineLabeller } = await import(
   "@/components/contractor-ops/operations-workspaces"
 );
-const { EntryAcceptance, EquipmentMovementActions } = await import(
+const { MovementAcceptance: EntryAcceptance, EquipmentMovementActions } = await import(
   "@/components/contractor-ops/equipment-applications"
 );
 const { equipmentClassTree } = await import("@/components/contractor-ops/equipment-classes");
@@ -250,7 +250,7 @@ describe("「新设备」 comes first on the phone (2026-10-07)", () => {
     const body = code.slice(code.indexOf("export function SiteEquipmentWorkspace("));
     const content = body.slice(body.indexOf("<SelectContent>"), body.indexOf("</SelectContent>"));
     expect(content.indexOf("NEW_MACHINE")).toBeGreaterThan(-1);
-    expect(content.indexOf("NEW_MACHINE")).toBeLessThan(content.indexOf("equipment.map"));
+    expect(content.indexOf("NEW_MACHINE")).toBeLessThan(content.indexOf("offered.map"));
   });
 });
 
@@ -305,11 +305,15 @@ describe("the office accepts the entry like a delivery (C8)", () => {
     expect(html).not.toContain(`>${messages.contractorOps.action.approve}</button>`);
   });
 
-  it("an exit application is still approved or returned (B13, until C9)", () => {
+  it("an old exit application is handed over directly too, not approved (Q27)", () => {
     const html = render(
-      <EquipmentMovementActions movement={movement({ direction: "EXIT", status: "PENDING" })} onDone={() => {}} />,
+      <EquipmentMovementActions
+        movement={movement({ direction: "EXIT", status: "PENDING" })}
+        onDone={() => {}}
+        onHandover={() => {}}
+      />,
     );
-    expect(html).toContain(`${messages.contractorOps.action.approve}</button>`);
-    expect(html).not.toContain(messages.contractorOps.equipment.directHandover);
+    expect(html).toContain(messages.contractorOps.equipment.directHandover);
+    expect(html).not.toContain(`${messages.contractorOps.action.approve}</button>`);
   });
 });

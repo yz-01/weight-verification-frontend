@@ -9,10 +9,7 @@ import { useRef, useState } from "react";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { ConsultantApplicationDetail } from "@/components/consultant-workflow/application-detail";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
-import { EquipmentMovementActions } from "@/components/contractor-ops/equipment-applications";
 import {
-  EquipmentDialog,
-  MovementDialog,
   OutgoingActions,
   OutgoingDetailDialog,
   RejectOutgoingDialog,
@@ -35,15 +32,11 @@ import type { ApprovalRow } from "@/interfaces/contractor-dashboard";
 import type {
   ArchiveQueueRow,
   CategoryRecordKind,
-  EquipmentMovement,
   MaterialOutgoing,
-  SiteEquipment,
 } from "@/interfaces/contractor-ops";
 import {
   getCategoryRecord,
   getDisposalRequest,
-  getEquipmentMovements,
-  getSiteEquipmentItem,
   reviewMaterialOutgoing,
 } from "@/services/contractor-ops.service";
 import { getWasteOutgoingRecord } from "@/services/waste-outgoing.service";
@@ -61,11 +54,14 @@ import { getWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 const SHEET_KIND: Partial<Record<string, CategoryRecordKind>> = {
   DISPOSAL_REQUEST: "DISPOSAL_REQUEST",
   WASTE_OUTGOING: "WASTE_OUTGOING",
-  EQUIPMENT_MOVEMENT: "EQUIPMENT_MOVEMENT",
 };
 
 export const APPROVAL_PAGE_LINKS: Record<string, (id: string) => string> = {
   APPROVAL: (id) => `/approvals?approval=${encodeURIComponent(id)}`,
+  // An equipment entry or exit is accepted on its own page, where both
+  // signatures, the supplier and the photographs are in front of the office
+  // (Fable B4 #4): never blind from a summary sheet.
+  EQUIPMENT_MOVEMENT: (id) => `/site-equipment?movement=${encodeURIComponent(id)}`,
 };
 
 export function useApprovalOpener() {
@@ -152,7 +148,6 @@ function OpenedApproval({ row, onClose }: { row: ApprovalRow; onClose: () => voi
 function SheetDecision({ row, onDone }: { row: ApprovalRow; onDone: () => void }) {
   if (row.source === "DISPOSAL_REQUEST") return <DisposalDecision id={row.id} onDone={onDone} />;
   if (row.source === "WASTE_OUTGOING") return <WasteOutgoingDecision id={row.id} onDone={onDone} />;
-  if (row.source === "EQUIPMENT_MOVEMENT") return <MovementDecision id={row.id} onDone={onDone} />;
   // 工程进度 is decided by the sheet's own 确认归档.
   return null;
 }
@@ -230,56 +225,6 @@ function WasteOutgoingDecision({ id, onDone }: { id: string; onDone: () => void 
           onClose={() => setReviewing(false)}
           onSaved={() => {
             setReviewing(false);
-            onDone();
-          }}
-        />
-      )}
-    </>
-  );
-}
-
-/**
- * 设备进场 waiting for acceptance (C8), an exit to approve (B13), or an old
- * entry application to hand over directly - the module's own buttons.
- */
-function MovementDecision({ id, onDone }: { id: string; onDone: () => void }) {
-  const movement = useQuery({
-    queryKey: ["equipment-movements", "one", id],
-    queryFn: () => getEquipmentMovements({ id, page_size: 1 }),
-  });
-  const [profile, setProfile] = useState<SiteEquipment | null>(null);
-  const [handover, setHandover] = useState<{ machine: SiteEquipment; movement: EquipmentMovement } | null>(null);
-  if (movement.isError) return <LoadFailed onRetry={() => void movement.refetch()} />;
-  const row = movement.data?.results[0];
-  if (!row) return null;
-  return (
-    <>
-      <EquipmentMovementActions
-        movement={row}
-        onDone={() => onDone()}
-        onHandover={async (open) =>
-          setHandover({ machine: await getSiteEquipmentItem(open.equipment), movement: open })
-        }
-        onCompleteProfile={async (machineId) => setProfile(await getSiteEquipmentItem(machineId))}
-      />
-      {profile && (
-        <EquipmentDialog
-          project={profile.project}
-          equipment={profile}
-          onClose={() => setProfile(null)}
-          onSaved={() => {
-            setProfile(null);
-            void movement.refetch();
-          }}
-        />
-      )}
-      {handover && (
-        <MovementDialog
-          row={handover.machine}
-          movement={handover.movement}
-          onClose={() => setHandover(null)}
-          onSaved={() => {
-            setHandover(null);
             onDone();
           }}
         />

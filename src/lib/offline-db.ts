@@ -187,6 +187,11 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
      * the handover of an application. Absent on older queued jobs.
      */
     entry?: boolean;
+    /**
+     * 设备退场 in one step (2026-10 Q27): sent to `record_exit`. Like the
+     * entry, no quantity, unit or application.
+     */
+    exit?: boolean;
     /** A 「新设备」 reported from the phone: its name, `equipment` empty. */
     equipment_name?: string;
     /** …and its plate, if it has one (optional). */

@@ -71,8 +71,6 @@ const FORMS: FormCase[] = [
       'useDraftState(`operator:${row.id}`',
       'useDraftState(`vehicle:${row.id}`',
       'useDraftState(`deliveryNote:${row.id}`',
-      'useDraftState(`quantity:${row.id}`',
-      'useDraftState<EquipmentUnit>(`unit:${row.id}`',
       'useDraftState(`notes:${row.id}`',
       'useDraftState<File[]>(`photos:${row.id}`',
       'useDraftState(`fieldEvidence:${row.id}`',
@@ -80,8 +78,9 @@ const FORMS: FormCase[] = [
     ],
   },
   {
-    // 设备进场 in one step (2026-10 C8): namespaced by the machine, or "new"
-    // for a 「新设备」, for the reason MovementDialog's are by row.
+    // 设备进场 / 设备退场 in one step (2026-10 C8, Q27): namespaced by the
+    // machine, or "new" for a 「新设备」, and an exit by "exit:<machine>",
+    // for the reason MovementDialog's are by row.
     mode: "equipment entry",
     file: "src/components/contractor-ops/operations-workspaces.tsx",
     component: "EquipmentEntryDialog",
@@ -89,7 +88,7 @@ const FORMS: FormCase[] = [
       'useDraftState(`entryName:${key}`',
       'useDraftState(`entryPlate:${key}`',
       'useDraftState(`entryDeliveryNote:${key}`',
-      'useDraftState<{ id: string; name: string } | null>(`entrySupplier:${key}`',
+      'useDraftState<ReturnBadgeSupplier | null>(`entrySupplier:${key}`',
       'useDraftState(`entryNotes:${key}`',
       'useDraftState<File[]>(`entryPhotos:${key}`',
       'useDraftState(`entryEvidence:${key}`',
