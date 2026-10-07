@@ -8039,6 +8039,11 @@
     },
     "what": {
       "conversation": "The rectification discussion"
+    },
+    "popup": {
+      "region": "Hazard rectification alerts",
+      "open": "Open",
+      "dismiss": "Close"
     }
   },
   "headquarters": {
@@ -15099,8 +15104,7 @@
     "confirmer": {
       "safetyLeads": "The project's safety leads",
       "legacy": "Any authorised verifier except the rectifier",
-      "me": "Me (default)",
-      "initiator": "You - whoever raises it from the office or as a consultant confirms it"
+      "initiator": "You - whoever raises it confirms it is done"
     },
     "field": {
       "origin": "Raised from",
@@ -15135,14 +15139,10 @@
       "confirm": "Confirm completed"
     },
     "form": {
-      "selectConfirmer": "Choose who confirms it",
-      "confirmerHint": "Only this person can confirm it is done. The rectifier cannot.",
-      "confirmerConflict": "The confirmer and the rectifier must be different people.",
+      "confirmerHint": "Only the person who raised it can confirm it is done. The rectifier cannot.",
+      "confirmerConflict": "The person who raised it confirms it, so they cannot also be the rectifier.",
       "rectifier": "Rectifier",
       "noRectifier": "Not yet - a supervisor assigns it"
-    },
-    "what": {
-      "confirmers": "The people who can confirm"
     }
   },
   "materialRequest": {

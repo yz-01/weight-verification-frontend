@@ -8039,6 +8039,11 @@
     },
     "what": {
       "conversation": "整改沟通"
+    },
+    "popup": {
+      "region": "隐患整改提醒",
+      "open": "打开",
+      "dismiss": "关闭"
     }
   },
   "headquarters": {
@@ -15099,8 +15104,7 @@
     "confirmer": {
       "safetyLeads": "项目安全负责人",
       "legacy": "有验收权限的人员（整改人除外）",
-      "me": "我自己（默认）",
-      "initiator": "你——后台或顾问发起的，由发起人确认"
+      "initiator": "你——谁发起，谁确认完成"
     },
     "field": {
       "origin": "发起来源",
@@ -15135,14 +15139,10 @@
       "confirm": "确认完成"
     },
     "form": {
-      "selectConfirmer": "选择确认人",
-      "confirmerHint": "只有确认人能确认完成，整改人不能自己确认。",
-      "confirmerConflict": "确认人和整改人不能是同一人。",
+      "confirmerHint": "只有发起人能确认完成，整改人不能自己确认。",
+      "confirmerConflict": "发起人要确认完成，不能同时当整改人。",
       "rectifier": "整改人",
       "noRectifier": "暂不指定，由主管分配"
-    },
-    "what": {
-      "confirmers": "可选的确认人"
     }
   },
   "materialRequest": {

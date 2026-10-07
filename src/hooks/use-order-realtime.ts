@@ -1,9 +1,10 @@
 "use client";
 
 import { useQueryClient, type QueryKey } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { getAccessToken } from "@/lib/auth-token";
+import type { RealtimeEvent } from "@/lib/hazard-popup";
 
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000"
@@ -120,13 +121,22 @@ export function canUseRealtime(
  * `queryKeys` is a dependency of the effect, so callers must pass a memoised
  * array. An inline literal would be a new reference on every render and would
  * tear down and rebuild the connection each time.
+ *
+ * `onEvent` hears every event the stream delivers (the office's hazard pop-up
+ * card, C3). It is read through a ref, so a new function each render does not
+ * reconnect.
  */
 export function useOrderRealtime(
   queryKeys: readonly QueryKey[],
   refreshAllEvents = false,
   enabled = true,
+  onEvent?: (event: RealtimeEvent) => void,
 ): void {
   const queryClient = useQueryClient();
+  const onEventRef = useRef(onEvent);
+  useEffect(() => {
+    onEventRef.current = onEvent;
+  }, [onEvent]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -225,12 +235,10 @@ export function useOrderRealtime(
               .split("\n")
               .find((part) => part.startsWith("data: "));
             if (!line) continue;
-            const event = JSON.parse(line.slice(6)) as {
-              event_type?: string;
-              occurred_at?: string;
-            };
+            const event = JSON.parse(line.slice(6)) as RealtimeEvent;
             if (event.occurred_at) cursor = event.occurred_at;
             if (refreshAllEvents || shouldRefresh(event.event_type)) refresh();
+            onEventRef.current?.(event);
           }
         }
       } catch {

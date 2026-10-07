@@ -8,6 +8,10 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardToolbar } from "@/components/layout/dashboard-toolbar";
 import { PageTitleOverrideProvider } from "@/components/layout/page-title-override";
 import {
+  HazardPopupStack,
+  useHazardPopup,
+} from "@/components/notifications/hazard-popup";
+import {
   TaskCardDockProvider,
   TaskCardDockSlot,
 } from "@/components/notifications/task-card-dock";
@@ -50,11 +54,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
   const isFieldStaff = user?.is_field_staff ?? false;
   // One stream at the signed-in shell keeps every list/detail screen current,
-  // including pages that do not have a feature-specific subscription.
+  // including pages that do not have a feature-specific subscription. The
+  // same stream brings the hazard pop-up cards (C3).
+  const hazardPopup = useHazardPopup();
   useOrderRealtime(
     GLOBAL_REALTIME_KEYS,
     true,
     canUseRealtime(user?.permissions ?? [], Boolean(user?.is_platform_staff)),
+    hazardPopup.onEvent,
   );
 
   useEffect(() => {
@@ -129,6 +136,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <TaskCardDockSlot />
         </SidebarInset>
       </SidebarProvider>
+      {/* Hazard cards float for eight seconds, then go (C3). */}
+      <HazardPopupStack
+        cards={hazardPopup.cards}
+        now={hazardPopup.now}
+        onDismiss={hazardPopup.dismiss}
+      />
     </TaskCardDockProvider>
   );
 }
