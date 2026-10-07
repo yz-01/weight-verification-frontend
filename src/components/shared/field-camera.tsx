@@ -290,12 +290,12 @@ export function FieldCamera({
               className={`h-full w-full object-cover ${facing === "user" ? "-scale-x-100" : ""}`}
             />
             {starting ? (
-              <div className="absolute inset-0 grid place-items-center bg-black/70 text-white">
+              <div className="absolute inset-0 grid place-items-center bg-overlay text-overlay-foreground">
                 <Loader2 className="size-8 animate-spin" />
               </div>
             ) : null}
             {error ? (
-              <div className="absolute inset-0 grid place-items-center bg-black/80 p-6 text-center text-sm text-white">
+              <div className="absolute inset-0 grid place-items-center bg-overlay p-6 text-center text-sm text-overlay-foreground">
                 <div>
                   <CameraIcon className="mx-auto size-9" />
                   <p className="mt-3">{error}</p>

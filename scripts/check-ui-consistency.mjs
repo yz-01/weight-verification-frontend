@@ -28,7 +28,12 @@
  *    so. This is the "no sideways scrolling at phone width" half of the
  *    acceptance, expressed as something a machine can read.
  *
- * This is a wall, not a ratchet: all three counts are at zero, so anything new
+ * 5. OFF-SCALE SPACING (UI phase, Lucas 2026-10-08: 「确保要整齐」). Padding,
+ *    margin and gaps come from the one spacing scale (4/8/12/16/24/32 px:
+ *    p-1 ... p-8). A hand-typed `p-[13px]` or `gap-[7px]` is how two panels
+ *    end up a pixel apart. Only SPACING_ALLOWED may do it, each with why.
+ *
+ * This is a wall, not a ratchet: all the counts are at zero, so anything new
  * is a regression and there is no budget to spend.
  */
 
@@ -228,6 +233,16 @@ let tablesSeen = 0;
 let columnsCompared = 0;
 let wideChecked = 0;
 
+/**
+ * Padding, margin and gaps typed in pixels instead of taken from the scale.
+ * Positions (`left-[7px]`) and sizes are not spacing and are not matched.
+ */
+const OFF_SCALE = /(?<![\w-])-?(?:p|px|py|ps|pe|pt|pr|pb|pl|m|mx|my|ms|me|mt|mr|mb|ml|gap|gap-x|gap-y|space-x|space-y)-\[\d+(?:\.\d+)?px\]/g;
+
+/** Files allowed an off-scale spacing value, and why. Empty on purpose. */
+const SPACING_ALLOWED = new Map([]);
+let spacingChecked = 0;
+
 const files = walkFiles(ROOT, /\.tsx$/);
 
 for (const relative of files) {
@@ -252,6 +267,18 @@ for (const relative of files) {
       problems.push(
         `${relative}: ${count} row-action cluster(s) written as ${stray}. ` +
           `The house spacing is ${ACTIONS_CLUSTER}.`,
+      );
+    }
+  }
+
+  // 5. spacing from the scale
+  spacingChecked += 1;
+  if (!SPACING_ALLOWED.has(relative)) {
+    for (const match of source.matchAll(OFF_SCALE)) {
+      problems.push(
+        `${relative}:${lineAt(source, match.index)}: ${match[0]} is spacing ` +
+          `typed in pixels. Use the spacing scale (p-1 = 4px … p-8 = 32px) ` +
+          `so it lines up with every other panel.`,
       );
     }
   }
@@ -327,5 +354,6 @@ if (problems.length) {
 console.log(
   `UI consistency: ${tablesSeen} tables across ${columnsCompared} files, ` +
     `every column square, every row-action cluster on the house spacing, ` +
-    `${wideChecked} element(s) wider than a phone all inside a scroll region.`,
+    `${wideChecked} element(s) wider than a phone all inside a scroll region, ` +
+    `spacing on the scale in all ${spacingChecked} files.`,
 );

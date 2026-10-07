@@ -581,7 +581,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="contractors"
                         name={t("trends.contractors")}
-                        stroke="#087f8c"
+                        stroke="var(--chart-1)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -589,7 +589,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="recyclers"
                         name={t("trends.recyclers")}
-                        stroke="#9a3412"
+                        stroke="var(--chart-7)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -597,7 +597,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="orders"
                         name={t("trends.orders")}
-                        stroke="#2563eb"
+                        stroke="var(--chart-2)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -605,7 +605,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="weight"
                         name={t("trends.weight")}
-                        stroke="#16825d"
+                        stroke="var(--chart-4)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -643,7 +643,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="saasRevenue"
                         name={t("trends.saasRevenue")}
-                        stroke="#7c3aed"
+                        stroke="var(--chart-3)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -651,7 +651,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="commissionRevenue"
                         name={t("trends.commissionRevenue")}
-                        stroke="#ca8a04"
+                        stroke="var(--chart-5)"
                         strokeWidth={2}
                         dot={false}
                       />

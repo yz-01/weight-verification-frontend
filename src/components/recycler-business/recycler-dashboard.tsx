@@ -74,10 +74,10 @@ interface QuickAction {
 }
 
 const CHART_COLORS = {
-  platform: "#087f8c",
-  private: "#9a3412",
-  total: "#2563eb",
-  outbound: "#16825d",
+  platform: "var(--chart-1)",
+  private: "var(--chart-7)",
+  total: "var(--chart-2)",
+  outbound: "var(--chart-4)",
 } as const;
 
 /** Sentinel for "the whole company"; an empty string is not a valid id. */
@@ -565,7 +565,7 @@ function RecyclerDriverMap() {
         center: [Number(position.project_latitude), Number(position.project_longitude)] as [number, number],
         radiusM: position.project_geofence_radius_m,
         label: position.project_name ?? t("recyclerBusiness.liveDrivers.project"),
-        color: "#087f8c",
+        color: "#0891b2",
       }];
     });
   }, [positions, t]);
