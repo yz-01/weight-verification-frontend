@@ -320,7 +320,7 @@ export function ArchiveQueue() {
                     <div className="flex items-center gap-3">
                       {/* The record's photograph, every photo of it on click (E3). */}
                       <PhotoThumb
-                        coverUrl={row.cover_photo_url ?? row.photo}
+                        coverUrl={row.cover_photo_url}
                         count={row.photo_count}
                         icon={recordKindIcon(row.kind)}
                         reference={row.reference}

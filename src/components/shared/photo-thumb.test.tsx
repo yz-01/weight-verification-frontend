@@ -7,7 +7,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { PhotoThumb, recordPhotos, toShellPhotos } from "@/components/shared/photo-thumb";
+import { InsideRowControl } from "@/components/shared/inside-row-control";
+import { PhotoThumb, recordPhotos, rowPhotos, toShellPhotos } from "@/components/shared/photo-thumb";
 import en from "@/messages/en.json";
 import ms from "@/messages/ms.json";
 import zh from "@/messages/zh.json";
@@ -26,7 +27,7 @@ const COVER = "https://api.example/media/evidence/thumbnails/v2/a.jpg";
 describe("PhotoThumb", () => {
   it("shows the thumbnail, the count over its corner, and says it opens the photos", () => {
     const markup = render(
-      <PhotoThumb coverUrl={COVER} count={3} icon={ClipboardList} reference="RC-001" />,
+      <PhotoThumb coverUrl={COVER} count={3} icon={ClipboardList} reference="RC-001" photos={[]} />,
     );
     expect(markup).toContain('data-photo-thumb="photo"');
     expect(markup).toContain(COVER);
@@ -66,7 +67,7 @@ describe("PhotoThumb", () => {
         render(<PhotoThumb coverUrl={null} icon={ClipboardList} reference="X" />, messages, locale),
       ).toContain(none);
       expect(
-        render(<PhotoThumb coverUrl={COVER} count={2} icon={ClipboardList} reference="X" />, messages, locale),
+        render(<PhotoThumb coverUrl={COVER} count={2} icon={ClipboardList} reference="X" photos={[]} />, messages, locale),
       ).toMatch(/aria-label="[^"]*X[^"]*2[^"]*"/);
     }
   });
@@ -81,5 +82,47 @@ describe("PhotoThumb", () => {
     expect(
       toShellPhotos([{ id: "a", url: "u1", caption: "" }, { id: "b", url: "" }], "RC-9"),
     ).toEqual([{ id: "a", url: "u1", label: "RC-9" }]);
+  });
+
+  it("is a picture, not a button, when there is nothing of the record's to open (audit #4)", () => {
+    // A notice about no record: opening it would only blow up the 240 px thumbnail.
+    const markup = render(
+      <PhotoThumb coverUrl={COVER} count={2} icon={ClipboardList} reference="N-1" />,
+    );
+    expect(markup).toContain('data-photo-thumb="photo"');
+    expect(markup).toContain('role="img"');
+    expect(markup).not.toContain("<button");
+  });
+
+  it("is a picture inside a row that is itself the control (audit #11)", () => {
+    const markup = render(
+      <InsideRowControl.Provider value>
+        <PhotoThumb
+          coverUrl={COVER}
+          count={2}
+          icon={ClipboardList}
+          reference="RC-7"
+          photos={recordPhotos("MATERIAL_RECEIPT", "1", "RC-7")}
+        />
+      </InsideRowControl.Provider>,
+    );
+    expect(markup).toContain('role="img"');
+    expect(markup).not.toContain("<button");
+  });
+
+  it("never opens an unstamped original: a photograph without its stamped copy is left out (audit #10, Q30.2)", () => {
+    expect(
+      rowPhotos(
+        [
+          { id: "raw", image: "https://api.example/media/raw.jpg", watermarked: null },
+          { id: "stamped", image: "https://api.example/media/raw2.jpg", watermarked: "https://api.example/media/w.jpg" },
+          { id: 3, url: "https://api.example/media/evidence/watermarked/v2/s.jpg" },
+        ],
+        "RC-8",
+      ),
+    ).toEqual([
+      { id: "stamped", url: "https://api.example/media/w.jpg", label: "RC-8" },
+      { id: "3", url: "https://api.example/media/evidence/watermarked/v2/s.jpg", label: "RC-8" },
+    ]);
   });
 });

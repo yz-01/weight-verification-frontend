@@ -212,6 +212,12 @@ export interface NotificationRow {
   message: string;
   created_at: string | null;
   state: string;
+  /**
+   * The record the notice is about, by its record-centre kind, and its id -
+   * what the thumbnail opens (audit #4). Null for a notice about no record.
+   */
+  subject_kind: string | null;
+  subject_id: string | null;
 }
 
 export interface DashboardPersonnel {

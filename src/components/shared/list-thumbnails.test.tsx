@@ -31,6 +31,7 @@ vi.mock("next/navigation", () => ({
 
 const { photoColumn } = await import("@/components/shared/photo-thumb");
 const { MySubmissions } = await import("@/components/field-staff/my-submissions");
+const { DataTable } = await import("@/components/shared/data-table");
 
 const COVER = "https://api.example/media/evidence/thumbnails/v2/x.jpg";
 
@@ -93,6 +94,50 @@ describe("the office list column", () => {
   });
 });
 
+describe("a list whose row opens the record (audit #11)", () => {
+  const rows: Row[] = [{ id: "1", ref: "MO-1", cover_photo_url: COVER, photo_count: 3 }];
+  const columns = [
+    photoColumn<Row>({ label: "照片", icon: HardHat, reference: (row) => row.ref, photos: () => [] }),
+  ];
+  const noop = () => {};
+  const table = (onRowClick?: (row: Row) => void) =>
+    render(
+      <DataTable<Row>
+        columns={columns}
+        rows={rows}
+        totalCount={1}
+        page={1}
+        pageSize={20}
+        isLoading={false}
+        isError={false}
+        hasFilters={false}
+        search=""
+        sortBy=""
+        sortOrder="desc"
+        storageKey="test.thumbs"
+        onRowClick={onRowClick}
+        onSearchChange={noop}
+        onSortChange={noop}
+        onPageChange={noop}
+        onPageSizeChange={noop}
+        onClearFilters={noop}
+      />,
+    );
+
+  it("draws the photograph as a picture, not a button inside the row's button", () => {
+    const body = table(noop).split("<tbody")[1].split("</tbody>")[0];
+    expect(body).toContain('role="button"');
+    expect(body).toContain('data-photo-thumb="photo"');
+    expect(body).not.toContain("<button");
+  });
+
+  it("keeps the photograph a button where the row itself does not open anything", () => {
+    const body = table().split("<tbody")[1].split("</tbody>")[0];
+    expect(body).not.toContain('role="button"');
+    expect(body).toMatch(/<button[^>]*data-photo-thumb="photo"/);
+  });
+});
+
 describe("the phone's own submissions", () => {
   const row = {
     id: "mo-1",
@@ -115,6 +160,16 @@ describe("the phone's own submissions", () => {
     expect(html).not.toContain("full.jpg");
     // The card is the button; the picture is not a second one inside it.
     expect(html).toMatch(/<span role="img" aria-label="2 张照片" data-photo-thumb="photo"/);
+  });
+
+  it("shows the kind's icon, never the full photograph, when there is no thumbnail (Q30.2)", () => {
+    // A photograph from before the evidence ledger has no thumbnail; the row
+    // keeps its icon rather than loading the full-size picture.
+    const html = render(<MySubmissions />, [
+      [["my-submissions"], { results: [{ ...row, cover_photo_url: null, photo_count: 1 }], count: 1 }],
+    ]);
+    expect(html).toContain('data-photo-thumb="none"');
+    expect(html).not.toContain("full.jpg");
   });
 
   it("shows the kind's icon when the submission has no photograph", () => {
@@ -142,8 +197,8 @@ describe("every list draws its rows' photograph (E3)", () => {
     ["src/components/consultant-workflow/applications-list.tsx", /coverUrl=\{application\.cover_photo_url\}/],
     ["src/components/contractor-ops/operations-workspaces.tsx", /coverUrl=\{row\.cover_photo_url\}/],
     ["src/components/field-staff/field-staff-workspace.tsx", /coverUrl=\{task\.cover_photo_url\}/],
-    ["src/components/contractor-ops/archive-queue.tsx", /coverUrl=\{row\.cover_photo_url \?\? row\.photo\}/],
-    ["src/components/contractor-ops/category-management.tsx", /coverUrl=\{row\.cover_photo_url \?\? row\.photo\}/],
+    ["src/components/contractor-ops/archive-queue.tsx", /coverUrl=\{row\.cover_photo_url\}/],
+    ["src/components/contractor-ops/category-management.tsx", /coverUrl=\{row\.cover_photo_url\}/],
     ["src/components/document-workflow/documents.tsx", /coverUrl=\{row\.original\.cover_photo_url\}/],
     ["src/components/dashboard/dashboard-cards.tsx", /photo: \{ url: row\.cover_photo_url/],
     ["src/components/dashboard/contractor-dashboard.tsx", /coverUrl=\{row\.cover_photo_url\}/],
@@ -159,6 +214,29 @@ describe("every list draws its rows' photograph (E3)", () => {
       expect(source(file)).not.toMatch(/<TypeBadge label=\{String\(row\.original\.(photos|evidence|attachments)\.length\)\}/);
       expect(source(file)).not.toMatch(/<TypeBadge label=\{String\(row\.original\.photo_count/);
     }
+  });
+
+  it("no row falls back to the record's full photograph when it has no thumbnail (Q30.2)", () => {
+    for (const file of [
+      ...new Set(lists.map(([path]) => path)),
+      "src/components/field-staff/my-submissions.tsx",
+    ]) {
+      expect(source(file)).not.toMatch(/cover_photo_url \?\? row\.photo/);
+    }
+  });
+
+  it("opens a notice's own record's photographs, and only a notice about a record (audit #4)", () => {
+    const code = source("src/components/dashboard/contractor-dashboard.tsx");
+    expect(code).toMatch(/recordPhotos\(row\.subject_kind, row\.subject_id, row\.title\)/);
+    expect(source("src/interfaces/contractor-dashboard.ts")).toMatch(
+      /export interface NotificationRow \{[^}]*subject_kind: string \| null;[^}]*subject_id: string \| null;/,
+    );
+  });
+
+  it("opens a material request's pictures as their stamped copies (audit #3, Q30.1)", () => {
+    const code = source("src/components/material-requests/material-requests-office.tsx");
+    expect(code).not.toMatch(/url: file\.file/);
+    expect(code).toMatch(/watermarked: file\.watermarked/);
   });
 
   it("puts the receipt's photograph between 材料 and 数量", () => {
