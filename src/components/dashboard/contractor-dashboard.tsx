@@ -487,7 +487,7 @@ export function ContractorDashboard({
                 workers: data.personnel.unique_workers,
               })}
             >
-              {data.personnel.by_project.length === 0 ? (
+              {data.personnel.unique_workers === 0 ? (
                 <Empty label={t("personnel.empty")} />
               ) : (
                 <>
@@ -522,19 +522,24 @@ export function ContractorDashboard({
                       })}
                     </p>
                   )}
-                  <ul className="divide-y">
-                    {data.personnel.by_project.map((row) => (
-                      <li
-                        key={row.project}
-                        className="flex items-center justify-between gap-3 py-2"
-                      >
-                        <span className="truncate text-sm">{row.project}</span>
-                        <span className="shrink-0 text-sm font-semibold tabular-nums">
-                          {format.number(row.events)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  {/* Per project only with two or more: one line would be the
+                      今日进出打卡 card's number again (F7, Q21), and the server
+                      sends none then. */}
+                  {data.personnel.by_project.length > 1 && (
+                    <ul className="divide-y">
+                      {data.personnel.by_project.map((row) => (
+                        <li
+                          key={row.project}
+                          className="flex items-center justify-between gap-3 py-2"
+                        >
+                          <span className="truncate text-sm">{row.project}</span>
+                          <span className="shrink-0 text-sm font-semibold tabular-nums">
+                            {format.number(row.events)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </>
               )}
             </DashboardSection>
