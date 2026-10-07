@@ -7279,7 +7279,11 @@
       "material_request_reviewer_not_eligible": "所選的人不能批准這個項目的申請，請從名單裡重新選擇。",
       "document_file_type_not_allowed": "只能上傳 PDF、Word、Excel 或照片。",
       "document_is_system_file": "從系統裡選的檔案不能上傳新版本，新版本請放在原記錄裡。",
-      "document_system_file_not_found": "有檔案找不到，或你沒有權限查看。"
+      "document_system_file_not_found": "有檔案找不到，或你沒有權限查看。",
+      "equipment_hours_equipment_unavailable": "這台設備現在不能選（已停用或已報廢），請選工地上在用的設備。",
+      "equipment_hours_day_not_found": "這台設備那天沒有照片，沒有可以補的結束時間。",
+      "equipment_hours_end_before_start": "結束時間要在第一張照片之後。",
+      "equipment_hours_end_too_late": "結束時間不能超過第一張照片後 24 小時。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -7855,7 +7859,8 @@
       "waste": "環保材料出場申請",
       "sundry": "雜費報銷",
       "request": "MR / 其他申請",
-      "gate": "門崗拍照記錄"
+      "gate": "門崗拍照記錄",
+      "operatorHours": "設備操作員工時"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -9956,7 +9961,8 @@
       "equipmentEntry": "設備進場",
       "equipmentExit": "設備退場",
       "targetReport": "目標與達成",
-      "manufacturers": "製造廠商"
+      "manufacturers": "製造廠商",
+      "equipmentOperatorHours": "設備操作員工時"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -10118,7 +10124,8 @@
       "TASK_TRANSITION": "行程進度",
       "TRIP_ASSIGN": "指派行程",
       "WASTE_OUTGOING": "環保材料出場申請",
-      "SUNDRY_CLAIM": "雜費報銷"
+      "SUNDRY_CLAIM": "雜費報銷",
+      "EQUIPMENT_HOURS_PHOTO": "設備操作員工時"
     },
     "pageDescription": "此頁面尚未緩存。請先恢復網絡並打開一次，之後即可離線使用。",
     "queue": {
@@ -15487,6 +15494,105 @@
       "offline": "新增廠商需要網路。請先從名單選，或先不填。",
       "failed": "廠商新增失敗。",
       "fromColumn": "按分類自動帶出"
+    }
+  },
+  "equipmentHours": {
+    "subtitle": "開工拍一張、收工拍一張：第一張是開始，最後一張是結束，相減就是工時（不扣午休）。",
+    "allProjects": "全部項目",
+    "photoAlt": "設備照片",
+    "photoCount": "{count} 張",
+    "view": {
+      "day": "按日",
+      "month": "按月"
+    },
+    "filter": {
+      "from": "從",
+      "to": "到",
+      "month": "月份"
+    },
+    "field": {
+      "date": "日期",
+      "equipment": "設備",
+      "plate": "車牌號碼",
+      "project": "項目",
+      "start": "開始",
+      "end": "結束",
+      "hours": "工時（小時）",
+      "status": "狀態",
+      "photos": "照片",
+      "operators": "拍照人",
+      "reason": "補錄原因",
+      "adjustedBy": "補錄人",
+      "daysWorked": "工作天數",
+      "totalHours": "合計工時（小時）",
+      "missingEndDays": "缺收工天數",
+      "adjustedDays": "後台補錄天數",
+      "actions": "操作"
+    },
+    "status": {
+      "MISSING_END": "缺收工",
+      "ADJUSTED": "後台已補",
+      "OK": "正常"
+    },
+    "export": {
+      "range": "{from} 至 {to}",
+      "summaryTitle": "每台設備合計"
+    },
+    "day": {
+      "empty": "這段時間沒有設備照片。"
+    },
+    "month": {
+      "empty": "這個月沒有設備照片。",
+      "total": "合計"
+    },
+    "what": {
+      "days": "每日工時",
+      "month": "每月合計"
+    },
+    "adjust": {
+      "add": "補結束時間",
+      "edit": "改結束時間",
+      "help": "只改這一天的結束時間，照片不會被改動；每次修改都會留下記錄。",
+      "endAt": "結束時間",
+      "reason": "原因",
+      "reasonPlaceholder": "例如：操作員忘了收工拍照，按工地日誌 17:30 收工",
+      "save": "保存",
+      "failed": "保存失敗，請再試一次。"
+    },
+    "dialog": {
+      "summary": "開始 {start} · 結束 {end} · {hours} 小時",
+      "photos": "當天照片"
+    },
+    "history": {
+      "title": "修改記錄",
+      "empty": "還沒有後台修改。",
+      "end": "結束時間改為 {end}",
+      "current": "現在用這條",
+      "by": "{name} · {at}",
+      "photoEnd": "照片上的最後時間：{end}"
+    },
+    "toast": {
+      "endSaved": "結束時間已保存",
+      "uploaded": "照片已上傳"
+    },
+    "phone": {
+      "howTo": "開工時拍一張設備照片，收工時再拍一張。系統按第一張和最後一張算工時。",
+      "project": "項目",
+      "machine": "設備",
+      "pickMachine": "選擇設備",
+      "machines": "設備名單",
+      "noMachines": "這個項目還沒有可以選的設備，請後台先建檔。",
+      "photo": "設備照片",
+      "takePhoto": "拍照",
+      "photoReady": "已拍好，可以重拍",
+      "location": "位置",
+      "locationReady": "已取得位置",
+      "send": "上傳",
+      "failed": "上傳失敗，請再試一次。",
+      "queued": "已存在手機裡，有網絡會自動上傳。",
+      "today": "今天 {count} 張照片，開始 {start}",
+      "stopHint": "收工時再拍一張",
+      "soFar": "到 {end} 共 {hours} 小時"
     }
   }
 }

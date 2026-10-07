@@ -7279,7 +7279,11 @@
       "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list.",
       "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded.",
       "document_is_system_file": "A file picked from the system takes no new versions. Put the new version on its record.",
-      "document_system_file_not_found": "One of those files was not found, or you cannot see it."
+      "document_system_file_not_found": "One of those files was not found, or you cannot see it.",
+      "equipment_hours_equipment_unavailable": "This machine cannot be chosen (inactive or retired). Choose a machine in use on the site.",
+      "equipment_hours_day_not_found": "This machine has no photo on that day, so there is no end time to enter.",
+      "equipment_hours_end_before_start": "The end time must be after the first photo.",
+      "equipment_hours_end_too_late": "The end time must be within 24 hours of the first photo."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7855,7 +7859,8 @@
       "waste": "Environmental material outgoing",
       "sundry": "Sundry claims",
       "request": "MR / Other Request",
-      "gate": "Gate photo records"
+      "gate": "Gate photo records",
+      "operatorHours": "Equipment operator hours"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -9956,7 +9961,8 @@
       "equipmentEntry": "Equipment entry",
       "equipmentExit": "Equipment exit",
       "targetReport": "Targets and achievement",
-      "manufacturers": "Manufacturers"
+      "manufacturers": "Manufacturers",
+      "equipmentOperatorHours": "Equipment operator hours"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -10118,7 +10124,8 @@
       "TASK_TRANSITION": "Trip progress",
       "TRIP_ASSIGN": "Assign trip",
       "WASTE_OUTGOING": "Environmental material outgoing",
-      "SUNDRY_CLAIM": "Sundry claims"
+      "SUNDRY_CLAIM": "Sundry claims",
+      "EQUIPMENT_HOURS_PHOTO": "Equipment operator hours"
     },
     "pageDescription": "This page is not cached yet. Reconnect once, then open it again for offline use.",
     "queue": {
@@ -15487,6 +15494,105 @@
       "offline": "Adding a manufacturer needs a connection. Choose one from the list, or leave it empty.",
       "failed": "The manufacturer could not be added.",
       "fromColumn": "Filled in from the category"
+    }
+  },
+  "equipmentHours": {
+    "subtitle": "One photo when the machine starts, one when it stops: the first photo is the start, the last is the end, and the hours are the time between (no lunch deducted).",
+    "allProjects": "All projects",
+    "photoAlt": "Machine photo",
+    "photoCount": "{count, plural, one {# photo} other {# photos}}",
+    "view": {
+      "day": "By day",
+      "month": "By month"
+    },
+    "filter": {
+      "from": "From",
+      "to": "To",
+      "month": "Month"
+    },
+    "field": {
+      "date": "Date",
+      "equipment": "Equipment",
+      "plate": "Plate number",
+      "project": "Project",
+      "start": "Start",
+      "end": "End",
+      "hours": "Hours",
+      "status": "Status",
+      "photos": "Photos",
+      "operators": "Photographed by",
+      "reason": "Reason for the end time",
+      "adjustedBy": "End time entered by",
+      "daysWorked": "Days worked",
+      "totalHours": "Total hours",
+      "missingEndDays": "Days missing a stop photo",
+      "adjustedDays": "Days corrected by the office",
+      "actions": "Actions"
+    },
+    "status": {
+      "MISSING_END": "No stop photo",
+      "ADJUSTED": "Corrected",
+      "OK": "OK"
+    },
+    "export": {
+      "range": "{from} to {to}",
+      "summaryTitle": "Total per machine"
+    },
+    "day": {
+      "empty": "No machine photos in this period."
+    },
+    "month": {
+      "empty": "No machine photos this month.",
+      "total": "Total"
+    },
+    "what": {
+      "days": "daily hours",
+      "month": "monthly totals"
+    },
+    "adjust": {
+      "add": "Add end time",
+      "edit": "Change end time",
+      "help": "Only this day's end time changes. The photos are not touched, and every change is kept in the history.",
+      "endAt": "End time",
+      "reason": "Reason",
+      "reasonPlaceholder": "For example: the operator forgot the stop photo; site diary says 17:30",
+      "save": "Save",
+      "failed": "Could not save. Please try again."
+    },
+    "dialog": {
+      "summary": "Start {start} · End {end} · {hours} h",
+      "photos": "Photos of the day"
+    },
+    "history": {
+      "title": "Change history",
+      "empty": "No changes by the office yet.",
+      "end": "End time set to {end}",
+      "current": "In use",
+      "by": "{name} · {at}",
+      "photoEnd": "Last photo taken at {end}"
+    },
+    "toast": {
+      "endSaved": "End time saved",
+      "uploaded": "Photo uploaded"
+    },
+    "phone": {
+      "howTo": "Take a photo of the machine when you start it, and another when you stop. The hours run from the first photo to the last.",
+      "project": "Project",
+      "machine": "Equipment",
+      "pickMachine": "Choose the machine",
+      "machines": "machine list",
+      "noMachines": "No machine is registered for this project yet. Ask the office to add it.",
+      "photo": "Machine photo",
+      "takePhoto": "Take photo",
+      "photoReady": "Photo taken - tap to retake",
+      "location": "Location",
+      "locationReady": "Location found",
+      "send": "Upload",
+      "failed": "Upload failed. Please try again.",
+      "queued": "Saved on this phone. It uploads by itself when there is signal.",
+      "today": "Today: {count, plural, one {# photo} other {# photos}}, started {start}",
+      "stopHint": "Take another photo when you stop",
+      "soFar": "Up to {end}: {hours} h"
     }
   }
 }

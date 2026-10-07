@@ -159,6 +159,18 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "fieldStaffPwa.type.PHOTO",
     ],
   },
+  // 设备操作员工时 (2026-10 B15): the office page under 设备管理 (its menu entry
+  // and page title), the phone's tile and the screen it opens, and the photo
+  // waiting in the offline queue. Its own name, not 人员进场's - attendance
+  // stays as it is.
+  {
+    module: "equipment operator hours",
+    keys: [
+      "nav.submodule.equipmentOperatorHours",
+      "fieldStaffPwa.records.operatorHours",
+      "offline.kind.EQUIPMENT_HOURS_PHOTO",
+    ],
+  },
   {
     module: "attendance",
     keys: [
