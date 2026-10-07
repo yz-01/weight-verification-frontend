@@ -120,7 +120,7 @@ export function RecyclerInventoryWorkspace() {
         </TabsList>
         <TabsContent
           value="balances"
-          className="min-h-0 flex-none overflow-auto rounded-lg border bg-card shadow-sm"
+          className="min-h-0 flex-none overflow-auto surface-panel rounded-xl"
         >
           <Table className="min-w-[720px] table-fixed">
             <TableHeader className="sticky top-0 bg-card">

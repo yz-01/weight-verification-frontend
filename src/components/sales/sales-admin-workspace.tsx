@@ -160,7 +160,7 @@ function Overview() {
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
       <div>
-        <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid overflow-hidden surface-panel rounded-xl sm:grid-cols-2 xl:grid-cols-4">
           {[
             ["total", summary.data?.total ?? 0],
             ["active", summary.data?.active ?? 0],
@@ -179,7 +179,7 @@ function Overview() {
         </div>
         <QueryFailedNote query={summary} what={t("what.summary")} className="mt-2" />
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+      <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
         <div className="grid md:grid-cols-2 xl:grid-cols-3">
           {SUBMODULES.map((module) => (
             <Link
@@ -211,7 +211,7 @@ function PanelState({
   const t = useTranslations("adminSales");
   if (loading)
     return (
-      <div className="flex min-h-40 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm">
+      <div className="flex min-h-40 flex-1 items-center justify-center surface-panel rounded-xl">
         <Loader2 className="mr-2 animate-spin" />
         {t("loading")}
       </div>
@@ -221,7 +221,7 @@ function PanelState({
       <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>
     );
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
       {children}
     </div>
   );
@@ -1752,7 +1752,7 @@ function PerformancePanel() {
     enabled: Boolean(id),
   });
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card p-4 shadow-sm">
+    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl p-4">
       <select
         className="h-8 w-full max-w-md rounded-md border bg-background px-2"
         value={id}
@@ -1844,7 +1844,7 @@ function ReportsPanel() {
       ),
   });
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
       <div className="divide-y">
         {(["salespeople", "assignments", "payouts"] as const).map(
           (endpoint) => (

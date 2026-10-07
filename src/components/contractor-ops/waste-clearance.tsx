@@ -257,7 +257,7 @@ function MergedList() {
   const pageHref = (target: number) => `/waste-clearance?kind=all&page=${target}`;
 
   return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <section className="overflow-hidden surface-panel rounded-xl">
       <QueryFailedNote query={disposals} what={t("kind.disposal")} />
       <QueryFailedNote query={dispatches} what={t("kind.dispatch")} />
       <Table>

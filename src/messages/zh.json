@@ -15979,5 +15979,11 @@
       "soFar": "到 {end} 共 {hours} 小时",
       "shift": "{date} 这一班：{count} 张照片，开始 {start}"
     }
+  },
+  "theme": {
+    "label": "外观",
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色"
   }
 }

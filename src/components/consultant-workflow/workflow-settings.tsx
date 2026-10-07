@@ -96,7 +96,7 @@ export function ConsultantWorkflowSettings() {
         subtitle={t("workflow.subtitle")}
         action={<Button size="sm" requires={[[project, t("field.project")]]} onClick={() => setCreating(true)}><Plus />{t("workflow.create")}</Button>}
       />
-      <div className="rounded-lg border bg-card p-3 shadow-sm">
+      <div className="surface-panel rounded-xl p-3">
         <FieldWrapper label={t("field.project")} required>
           <ConsultantProjectPicker value={project} onChange={onProjectChange} />
         </FieldWrapper>
@@ -112,7 +112,7 @@ export function ConsultantWorkflowSettings() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
           {rows.data.results.map((workflow) => (
-            <section key={workflow.id} className="overflow-hidden rounded-lg border bg-card shadow-sm">
+            <section key={workflow.id} className="overflow-hidden surface-panel rounded-xl">
               <div className="flex items-start gap-3 border-b p-4">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Settings2 className="size-5" /></span>
                 <div className="min-w-0 flex-1">

@@ -697,7 +697,7 @@ export function MaterialCapturePanel({
   });
 
   return (
-    <div className="space-y-4 rounded-xl border bg-card p-4 shadow-sm">
+    <div className="space-y-4 surface-panel rounded-xl p-4">
       <Button
         className="h-12 w-full text-sm"
         variant="outline"
@@ -1132,7 +1132,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   });
 
   return (
-    <div className="space-y-4 rounded-xl border bg-card p-4 shadow-sm">
+    <div className="space-y-4 surface-panel rounded-xl p-4">
       <FieldWrapper label={t("consultantCapture.project")} required>
         <ProjectPicker
           value={project}

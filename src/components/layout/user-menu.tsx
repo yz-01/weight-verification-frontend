@@ -1,7 +1,6 @@
 "use client";
 
-import { LogOut, Moon, Sun, User as UserIcon } from "lucide-react";
-import { useTheme } from "next-themes";
+import { LogOut, User as UserIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
@@ -29,7 +28,6 @@ function initials(name: string): string {
 export function UserMenu() {
   const t = useTranslations();
   const { user, signOut } = useAuth();
-  const { resolvedTheme, setTheme } = useTheme();
 
   if (user === null) return null;
 
@@ -65,22 +63,8 @@ export function UserMenu() {
             {t("common.profile")}
           </Link>
         </DropdownMenuItem>
-        {/* The active theme is only known on the client, so the label and icon
-            are swapped with CSS against the `dark` class next-themes puts on
-            the root. Deciding in JavaScript would either need a mounted flag or
-            produce a hydration mismatch on every page load. */}
-        <DropdownMenuItem
-          onSelect={(event) => {
-            // Keep the menu open so the change is visible where it was made.
-            event.preventDefault();
-            setTheme(resolvedTheme === "dark" ? "light" : "dark");
-          }}
-        >
-          <Moon className="h-4 w-4 dark:hidden" />
-          <Sun className="hidden h-4 w-4 dark:block" />
-          <span className="dark:hidden">{t("common.themeDark")}</span>
-          <span className="hidden dark:inline">{t("common.themeLight")}</span>
-        </DropdownMenuItem>
+        {/* 外观 (跟随系统 / 浅色 / 深色) moved to the top bar's own button
+            (lib/theme, 2026-10-08), so it is one press away on every page. */}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"

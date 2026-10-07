@@ -335,7 +335,7 @@ export function ConsultantAccessManagement() {
               {organizationRows.map((row) => (
                 <article
                   key={row.id}
-                  className="rounded-lg border bg-card p-4 shadow-sm"
+                  className="surface-panel rounded-xl p-4"
                 >
                   <div className="flex items-start gap-3">
                     {row.logo ? (
@@ -413,7 +413,7 @@ export function ConsultantAccessManagement() {
               {memberRows.map((row) => (
                 <article
                   key={row.id}
-                  className="rounded-lg border bg-card p-4 shadow-sm"
+                  className="surface-panel rounded-xl p-4"
                 >
                   <div className="flex items-start gap-3">
                     <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-info/10 text-info">
@@ -482,7 +482,7 @@ export function ConsultantAccessManagement() {
               {grantRows.map((row) => (
                 <article
                   key={row.id}
-                  className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm lg:flex-row lg:items-center"
+                  className="flex flex-col gap-4 surface-panel rounded-xl p-4 lg:flex-row lg:items-center"
                 >
                   <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-success/10 text-success">
                     <ShieldCheck className="size-5" />
@@ -605,7 +605,7 @@ function StepTile({
   done: boolean;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border bg-card p-4 shadow-sm">
+    <div className="flex items-start gap-3 surface-panel rounded-xl p-4">
       <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
         <Icon className="size-5" />
       </span>

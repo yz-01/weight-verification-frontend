@@ -75,7 +75,7 @@ export function ApprovalCredentialSettings() {
         title={t("credential.title")}
         subtitle={t("credential.subtitle")}
       />
-      <section className="rounded-lg border bg-card p-5 shadow-sm">
+      <section className="surface-panel rounded-xl p-5">
         <div className="mb-5 flex items-start gap-3 border-b pb-5">
           <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <ShieldCheck className="size-5" />
@@ -135,7 +135,7 @@ export function ApprovalCredentialSettings() {
         </div>
       </section>
 
-      <section className="rounded-lg border bg-card p-5 shadow-sm">
+      <section className="surface-panel rounded-xl p-5">
         <div className="mb-5 flex items-start gap-3 border-b pb-5">
           <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-info/10 text-info"><KeyRound className="size-5" /></span>
           <div><h2 className="font-semibold">{t("credential.pinTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("credential.pinHelp")}</p></div>

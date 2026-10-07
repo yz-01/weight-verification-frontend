@@ -72,7 +72,7 @@ export function RecordNo({
       onTouchMove={stopPress}
     >
       <div className="flex items-center gap-1">
-        <span className="tabular whitespace-nowrap font-semibold text-foreground">
+        <span className="tabular whitespace-nowrap text-[0.9375rem] font-semibold text-foreground">
           {parsed ? parsed.short : full}
         </span>
         {copyable && (
@@ -81,7 +81,7 @@ export function RecordNo({
             onClick={copy}
             aria-label={t("copy", { number: full })}
             title={t("copy", { number: full })}
-            className="rounded p-0.5 text-muted-foreground opacity-60 hover:bg-muted hover:text-foreground group-hover:opacity-100"
+            className="rounded-md p-1 text-muted-foreground opacity-60 hover:bg-accent hover:text-accent-foreground group-hover:opacity-100"
           >
             <Copy className="h-3 w-3" />
           </button>

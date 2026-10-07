@@ -161,7 +161,7 @@ function ThreadCard({
 
   return (
     <article
-      className="cursor-pointer rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md"
+      className="cursor-pointer surface-panel rounded-xl p-4 transition-all hover:shadow-md"
       onClick={onClick}
     >
       <div className="flex items-start justify-between gap-3">

@@ -80,12 +80,12 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
   ];
   const hrefs = Object.fromEntries(tabs) as Record<MaterialTab, string>;
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="surface-panel flex flex-wrap items-center gap-2 rounded-xl p-3">
       <Select
         value={active}
         onValueChange={(next) => router.push(withFilters(hrefs[next as MaterialTab]))}
       >
-        <SelectTrigger size="sm" className="w-[170px]" aria-label={t("choose")}>
+        <SelectTrigger size="sm" className="w-44 border-tone-blue/50" aria-label={t("choose")}>
           <SelectValue placeholder={t("choose")} />
         </SelectTrigger>
         <SelectContent>
@@ -170,7 +170,7 @@ export function NetTotalsView({
             onChange={(event) => setTerm(event.target.value)}
             placeholder={t("receipts.net.searchMaterial")}
             aria-label={t("receipts.net.searchMaterial")}
-            className="h-8 pl-8 text-sm"
+            className="pl-8 text-sm"
           />
         </div>
         {can("report.export") ? (
@@ -180,7 +180,7 @@ export function NetTotalsView({
         ) : null}
       </div>
       <p className="text-xs text-muted-foreground">{t("receipts.net.note")}</p>
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="surface-panel overflow-x-auto rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>

@@ -712,7 +712,7 @@ function Metric({
  */
 function ReportTable({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <section className="overflow-hidden surface-panel rounded-xl">
       <h3 className="border-b px-3 py-2 text-sm font-semibold">{title}</h3>
       <div className="[&_td]:px-3 [&_td]:py-1 [&_th]:h-8 [&_th]:px-3">{children}</div>
     </section>

@@ -1040,7 +1040,7 @@ function CloseRemedialDialog({
 }
 
 function Section({ id, title, action, children }: { id?: string; title: string; action?: React.ReactNode; children: React.ReactNode }) {
-  return <section id={id} className="scroll-mt-20 rounded-lg border bg-card p-4 shadow-sm"><div className="mb-4 flex items-center justify-between gap-3"><SectionHeader title={title} />{action}</div>{children}</section>;
+  return <section id={id} className="scroll-mt-20 surface-panel rounded-xl p-4"><div className="mb-4 flex items-center justify-between gap-3"><SectionHeader title={title} />{action}</div>{children}</section>;
 }
 
 function AttachmentDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {

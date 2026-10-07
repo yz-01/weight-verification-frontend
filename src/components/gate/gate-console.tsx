@@ -374,7 +374,7 @@ export function GateConsole() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card shadow-sm">
+        <div className="surface-panel rounded-xl">
           <div className="flex items-center gap-2 border-b px-6 py-4">
             <ScanLine className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

@@ -69,7 +69,7 @@ export function FeatureFlagPanel() {
   });
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">

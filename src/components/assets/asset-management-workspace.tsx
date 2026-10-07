@@ -91,10 +91,10 @@ function Overview() {
   return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
     <ListHeader title={t("title")} subtitle={t("subtitle")} />
     <QueryFailedNote query={summary} what={t("what.summary")} />
-    <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid overflow-hidden surface-panel rounded-xl sm:grid-cols-2 xl:grid-cols-4">
       {(summary.isError ? [["total", "—"], ["available", "—"], ["deployed", "—"], ["value", "—"]] : [["total", summary.data?.total_assets ?? 0], ["available", summary.data?.by_status?.IN_STOCK ?? 0], ["deployed", summary.data?.by_status?.DEPLOYED ?? 0], ["value", `RM ${summary.data?.total_value ?? "0.00"}`]]).map(([key, value]) => <div key={key} className="border-b border-r px-5 py-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p></div>)}
     </div>
-    <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm"><div className="grid md:grid-cols-2 xl:grid-cols-3">
+    <div className="min-h-0 flex-1 overflow-auto surface-panel rounded-xl"><div className="grid md:grid-cols-2 xl:grid-cols-3">
       {SUBMODULES.map((item) => <Link key={item.section} href={`/assets/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}
     </div></div>
   </div>;
@@ -102,9 +102,9 @@ function Overview() {
 
 function Panel({ loading, error, children }: { loading: boolean; error: boolean; children: React.ReactNode }) {
   const t = useTranslations("adminAssetManagement");
-  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm"><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t("loading")}</div>;
+  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center surface-panel rounded-xl"><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t("loading")}</div>;
   if (error) return <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>;
-  return <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">{children}</div>;
+  return <div className="min-h-0 flex-1 overflow-auto surface-panel rounded-xl">{children}</div>;
 }
 
 function SelectField({ value, onChange, children, className = "" }: { value: string; onChange: (value: string) => void; children: React.ReactNode; className?: string }) {

@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { usePhotoOpener } from "@/components/dashboard/headquarters-photos";
 import { projectTone } from "@/components/dashboard/headquarters-map";
 import { useAuth } from "@/components/providers/auth-provider";
+import { ThemeSegmented } from "@/components/layout/theme-choice";
 import { KpiCard } from "@/components/shared/kpi-card";
 import {
   LocationMap,
@@ -56,7 +57,9 @@ const BAR_TONES: Tone[] = ["cyan", "blue", "purple", "green", "amber", "rose", "
 
 /**
  * 总部大屏 (E1, the canvas's 「总部大屏」 artboard): the company's live
- * picture on a wall screen. Fixed dark (the command-centre look), full
+ * picture on a wall screen. It follows the app's 外观 like every page, and
+ * carries that same switch in its top-right corner (Lucas 2026-10-08); in
+ * light the colours stay and the glow goes, as the canvas says. Full
  * screen over the console, sized for 1920×1080 and scaled up on a 4K panel,
  * refreshed every 30 seconds. Esc or 【退出大屏】 goes back to the 公司总部
  * dashboard.
@@ -118,7 +121,7 @@ export function HeadquartersWall() {
   return (
     <div
       data-headquarters-wall
-      className="dark fixed inset-0 z-50 overflow-y-auto bg-background text-foreground"
+      className="fixed inset-0 z-50 overflow-y-auto bg-background text-foreground"
       style={{ backgroundImage: "var(--canvas-glow)" }}
     >
       <div className="mx-auto flex min-h-dvh max-w-[240rem] flex-col gap-4 p-4 xl:h-dvh xl:min-h-0 xl:px-6 xl:pb-6">
@@ -202,10 +205,10 @@ function WallHeader() {
           <p className="text-xs text-muted-foreground">{t("banner.companyView")}</p>
         </div>
       </div>
-      <h1 className="border-b-2 border-primary bg-gradient-to-b from-transparent to-primary/12 px-10 py-2 text-center text-2xl font-bold tracking-widest text-foreground [text-shadow:0_0_18px_var(--primary)] lg:text-3xl">
+      <h1 className="border-b-2 border-primary bg-gradient-to-b from-transparent to-primary/12 px-10 py-2 text-center text-2xl font-bold tracking-widest text-foreground dark:[text-shadow:0_0_18px_var(--primary)] lg:text-3xl">
         {t("wall.title")}
       </h1>
-      <div className="flex items-center justify-start gap-4 lg:justify-end">
+      <div className="flex flex-wrap items-center justify-start gap-4 lg:justify-end">
         <div className="text-left lg:text-right">
           <p className="kpi-figure text-2xl text-foreground" suppressHydrationWarning>
             {now ? df.precise(now.toISOString()) : " "}
@@ -214,6 +217,7 @@ function WallHeader() {
             {t("wall.refresh")} · {t("wall.escHint")}
           </p>
         </div>
+        <ThemeSegmented className="shrink-0" />
         <Link
           href="/dashboard"
           className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border border-primary/40 px-4 text-sm text-tone-cyan-fg hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

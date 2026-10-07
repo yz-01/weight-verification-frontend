@@ -42,7 +42,7 @@ export function ApplicationFormCard({
   const printing = useMutation({ mutationFn: onPrint });
   return (
     <section
-      className="rounded-lg border bg-card p-4 shadow-sm"
+      className="surface-panel rounded-xl p-4"
       data-testid="application-form-card"
     >
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

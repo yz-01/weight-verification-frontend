@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 
 import { GlobalModuleSearch } from "@/components/layout/global-module-search";
 import { PageSwitcher } from "@/components/layout/page-switcher";
+import { ThemeMenu } from "@/components/layout/theme-choice";
 import { usePageTitleOverride } from "@/components/layout/page-title-override";
 import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -94,6 +95,7 @@ export function DashboardToolbar() {
         {/* B13: the global 「当前项目」 picker takes its place here, before the
             search, so the bar reads: where I am · which project · find · alerts. */}
         <GlobalModuleSearch />
+        <ThemeMenu />
         <NotificationButton />
       </div>
     </header>

@@ -654,7 +654,7 @@ function MetricCard({
     return (
       <Link
         href={href}
-        className="min-h-28 rounded-lg border bg-card p-4 shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="min-h-28 surface-panel rounded-xl p-4 transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {content}
       </Link>
@@ -662,7 +662,7 @@ function MetricCard({
   }
 
   return (
-    <article className="min-h-28 rounded-lg border bg-card p-4 shadow-sm">
+    <article className="min-h-28 surface-panel rounded-xl p-4">
       {content}
     </article>
   );
@@ -837,7 +837,7 @@ function FeeSummary({
     <section className="space-y-3" aria-labelledby="recycler-fees-title">
       <SectionHeading id="recycler-fees-title" title={t("billing.title")} />
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <div className="surface-panel rounded-xl p-4">
           <div className="flex items-center gap-2">
             <WalletCards className="size-4 text-primary" aria-hidden="true" />
             <h3 className="text-sm font-semibold">{t("billing.kind.SAAS")}</h3>
@@ -857,7 +857,7 @@ function FeeSummary({
             />
           </dl>
         </div>
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <div className="surface-panel rounded-xl p-4">
           <div className="flex items-center gap-2">
             <CircleDollarSign
               className="size-4 text-primary"
@@ -908,7 +908,7 @@ function ChartPanel({
   children: React.ReactElement;
 }) {
   return (
-    <div className="space-y-3 rounded-lg border bg-card p-4 shadow-sm">
+    <div className="space-y-3 surface-panel rounded-xl p-4">
       <h3 className="text-sm font-semibold">{title}</h3>
       <div className="h-72 min-w-0">
         <ResponsiveContainer width="100%" height="100%">

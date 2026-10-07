@@ -160,7 +160,7 @@ export function ConsultantDashboard() {
               empty={t("due.empty")}
               showDue
             />
-            <section className="rounded-lg border bg-card p-4 shadow-sm">
+            <section className="surface-panel rounded-xl p-4">
               <div className="flex items-start justify-between gap-3 border-b pb-3">
                 <div>
                   <h2 className="flex items-center gap-2 text-sm font-semibold"><Bell className="size-4 text-primary" />{t("notifications.title")}</h2>
@@ -283,7 +283,7 @@ function LifecycleStep({
   return (
     <Link
       href={href}
-      className="group flex min-h-40 flex-col rounded-lg border bg-card p-4 shadow-sm transition-colors hover:border-primary/35 hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group flex min-h-40 flex-col surface-panel rounded-xl p-4 transition-colors hover:border-primary/35 hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -317,7 +317,7 @@ function ApplicationList({
   const t = useTranslations("consultantDashboard");
   const df = useDateFormat();
   return (
-    <section className="rounded-lg border bg-card p-4 shadow-sm">
+    <section className="surface-panel rounded-xl p-4">
       <div className="flex items-start justify-between gap-3 border-b pb-3">
         <div>
           <h2 className="text-sm font-semibold">{title}</h2>

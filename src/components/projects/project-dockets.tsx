@@ -68,7 +68,7 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
   });
 
   return (
-    <div className="rounded-lg border bg-card shadow-sm">
+    <div className="surface-panel rounded-xl">
       <div className="flex items-start justify-between gap-4 px-6 py-5">
         <div className="min-w-0">
           <h3 className="text-base font-semibold">{t("qrCodes.title")}</h3>

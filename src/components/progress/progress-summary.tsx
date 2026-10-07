@@ -298,7 +298,7 @@ export function SummaryChart({ block }: { block: SummaryChartBlock }) {
   const data = chartData(block);
   const name = block.series || t("value");
   return (
-    <section className="rounded-lg border bg-card p-3 shadow-sm">
+    <section className="surface-panel rounded-xl p-3">
       {block.title && <h3 className="mb-2 text-sm font-medium">{block.title}</h3>}
       {data.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("chartEmpty")}</p>
@@ -438,7 +438,7 @@ export function SummaryEditor({
               }}
               onDragEnd={() => setDragging(null)}
               className={cn(
-                "rounded-lg border bg-card shadow-sm",
+                "surface-panel rounded-xl",
                 dragging === index && "opacity-50",
               )}
             >

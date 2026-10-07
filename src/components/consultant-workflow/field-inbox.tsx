@@ -138,7 +138,7 @@ export function ConsultantFieldInbox({
             <article
               key={task.id}
               data-testid="field-inbox-card"
-              className={`rounded-lg border bg-card p-3 shadow-sm ${
+              className={`surface-panel rounded-xl p-3 ${
                 task.id === focusedTaskId ? "ring-2 ring-primary" : ""
               }`}
             >

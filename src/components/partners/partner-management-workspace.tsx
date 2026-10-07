@@ -69,9 +69,9 @@ function Overview() {
 
 function Panel({ loading, error, children }: { loading: boolean; error: boolean; children: React.ReactNode }) {
   const t = useTranslations("adminPartnerManagement");
-  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
+  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center surface-panel rounded-xl"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
   if (error) return <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>;
-  return <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">{children}</div>;
+  return <div className="min-h-0 flex-1 overflow-auto surface-panel rounded-xl">{children}</div>;
 }
 
 /** Screen label key -> the field name the partner serializer returns. */

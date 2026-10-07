@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { ThemeMenu } from "@/components/layout/theme-choice";
 import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { SessionUnreachable } from "@/components/shared/session-unreachable";
@@ -86,8 +87,9 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
           <div className="flex shrink-0 items-center gap-0.5">
             <OfflineStatus />
             <NotificationButton />
-            <LanguageSwitcher className="size-9 rounded-lg px-0 [&_span]:hidden sm:w-auto sm:px-3 sm:[&_span]:inline" />
-            <Button variant="ghost" size="icon" className="size-9" title={t("common.signOut")} onClick={() => void signOut()}>
+            <ThemeMenu className="size-10 border-transparent bg-transparent" />
+            <LanguageSwitcher className="size-10 rounded-lg px-0 [&_span]:hidden sm:w-auto sm:px-3 sm:[&_span]:inline" />
+            <Button variant="ghost" size="icon" className="size-10" title={t("common.signOut")} onClick={() => void signOut()}>
               <LogOut className="h-4 w-4" />
             </Button>
           </div>

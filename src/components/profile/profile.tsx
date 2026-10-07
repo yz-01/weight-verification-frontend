@@ -107,7 +107,7 @@ export function Profile() {
         <p className="mt-0.5 text-sm text-muted-foreground">{user.email}</p>
       </div>
 
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           <h3 className="text-base font-semibold text-foreground">
             {user.full_name}
@@ -205,7 +205,7 @@ export function Profile() {
       </div>
 
       {!user.is_field_staff && (
-        <div className="rounded-xl border bg-card shadow-sm">
+        <div className="surface-panel rounded-xl">
           <div className="flex flex-wrap items-center gap-3 px-6 py-5">
             <h3 className="text-base font-semibold text-foreground">
               {t("auth.changePassword.title")}

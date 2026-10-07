@@ -212,7 +212,7 @@ export function DataTable<T>({
         )}
 
         <div className="flex flex-wrap items-center gap-2 px-4 py-4 sm:px-6">
-          <div className="relative min-w-52 flex-1 sm:max-w-sm">
+          <div className="relative w-full min-w-0 flex-1 sm:w-auto sm:min-w-52 sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchDraft}
@@ -223,7 +223,7 @@ export function DataTable<T>({
           </div>
 
           {toolbarActions && (
-            <div className="ml-auto flex items-center gap-2">{toolbarActions}</div>
+            <div className="ml-auto flex max-w-full flex-wrap items-center gap-2 [&>div]:flex-wrap">{toolbarActions}</div>
           )}
 
           <DropdownMenu>

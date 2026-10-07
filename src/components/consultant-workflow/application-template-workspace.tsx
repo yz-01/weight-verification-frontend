@@ -86,7 +86,7 @@ export function ApplicationTemplateWorkspace() {
               (version) => version.version === template.current_version,
             );
             return (
-              <article key={template.id} className="rounded-lg border bg-card p-5 shadow-sm">
+              <article key={template.id} className="surface-panel rounded-xl p-5">
                 <div className="flex items-start gap-3">
                   <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                     <FileCog className="size-5" />

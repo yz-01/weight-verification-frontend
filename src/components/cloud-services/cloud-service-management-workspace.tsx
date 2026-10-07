@@ -239,7 +239,7 @@ function Panel({
   const t = useTranslations("adminCloudServiceManagement");
   if (loading)
     return (
-      <div className="flex min-h-48 items-center justify-center rounded-lg border bg-card shadow-sm">
+      <div className="flex min-h-48 items-center justify-center surface-panel rounded-xl">
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         {t("loading")}
       </div>
@@ -251,7 +251,7 @@ function Panel({
       </div>
     );
   return (
-    <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+    <div className="overflow-x-auto surface-panel rounded-xl">
       {children}
     </div>
   );

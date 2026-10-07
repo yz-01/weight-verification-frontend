@@ -133,7 +133,7 @@ export function SystemSettingsWorkspace({
         }
       />
       {section === "overview" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+        <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
           <div className="grid md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <Link
@@ -195,7 +195,7 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
   const isError = company ? companyCatalogue.isError : catalogue.isError;
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
       {supportsCompanyOverrides && (
         <div className="border-b bg-muted/25 px-5 py-4">
           <div className="mx-auto flex max-w-5xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

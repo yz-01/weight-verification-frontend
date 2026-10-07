@@ -117,7 +117,7 @@ export function PublicDeliveryNote({ token }: { token: string }) {
         <h1 className="mt-1 text-2xl font-semibold">{t("title")}</h1>
         <p className="mt-1 font-mono text-sm text-muted-foreground">{noteData.note_no}</p>
       </header>
-      <section className="mt-4 rounded-xl border bg-card p-4 shadow-sm">
+      <section className="mt-4 surface-panel rounded-xl p-4">
         <div className="flex items-start gap-3"><span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><PackageCheck /></span><div className="min-w-0"><h2 className="font-semibold">{noteData.material_name}</h2><p className="mt-1 text-sm text-muted-foreground">{noteData.project_name} · {noteData.supplier_name}</p><p className="mt-1 text-sm text-muted-foreground">{noteData.vehicle_plate} · {noteData.driver_name}</p><p className="mt-1 text-sm font-medium">{noteData.expected_quantity} {noteData.unit}</p>{noteData.category_name && <p className="mt-1 text-xs text-muted-foreground">{t("compare.column")}: {noteData.category_name}</p>}</div></div>
         <div className="mt-4"><StatusBadge label={t(`status.${noteData.status}`)} tone={isStopped ? "danger" : isComplete ? "positive" : "info"} /></div>
       </section>
