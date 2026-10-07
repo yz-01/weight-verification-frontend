@@ -601,6 +601,8 @@ function DisposalDetailDialog({
         // The conversation bound to this Record ID (T-316, C-014, D-233), on
         // the screen where the work is done rather than in the archive queue.
         conversation={{ kind: "DISPOSAL_REQUEST", recordId: row.id }}
+        // 【确认归档】 once the disposal is completed (C4).
+        closure={{ kind: "DISPOSAL_REQUEST", recordId: row.id }}
       />
     </RecordDetailDialog>
   );

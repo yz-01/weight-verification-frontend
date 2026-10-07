@@ -3035,9 +3035,6 @@
   },
   "archiveQueue": {
     "allModules": "全部模組",
-    "alreadyArchived": "你已看過",
-    "archive": "我看過了",
-    "archiveHelp": "只從你自己的待看清單移走，同事的清單裡照樣還在，記錄本身不會改變。",
     "column": {
       "record": "記錄",
       "module": "所屬模組",
@@ -3048,7 +3045,7 @@
       "archived": "歸檔",
       "seen": "我"
     },
-    "emptyArchived": "你還沒有在這裡標過「看過了」。",
+    "emptyArchived": "你還沒有在這裡打開過記錄。",
     "emptyPending": "這裡沒有等你看的記錄。",
     "failed": "列表載入失敗，請重試。",
     "firstPage": "已經是第一頁了。",
@@ -3076,7 +3073,7 @@
     "next": "下一頁",
     "open": "查看",
     "pageOf": "第 {page} / {pages} 頁",
-    "perPersonHelp": "「未看」指的是**你**還沒標過「看過了」。每個帳號各自計算，你標過之後不會從同事的列表裡消失。",
+    "perPersonHelp": "這裡只能查看。「未看」指的是**你**還沒打開過的記錄，打開一筆就算你看過了；每個帳號各自計算，不會從同事的列表裡消失。確認歸檔在各業務頁面的詳情裡做。",
     "previous": "上一頁",
     "state": {
       "pending": "未看",
@@ -3084,9 +3081,6 @@
     },
     "subtitle": "所有已完成的記錄，等你看過。",
     "title": "現場記錄中心",
-    "toast": {
-      "archived": "已為你標成「看過了」。"
-    },
     "people": "{count} 人",
     "closure": {
       "label": "是否已歸檔",
@@ -3095,11 +3089,15 @@
       "closed": "已歸檔",
       "notApplicable": "不需要歸檔"
     },
-    "notInQueue": "這筆記錄還沒完成，還不在你的待看清單裡。完成以後才可以標「看過了」。",
     "categoryManagement": "分類管理",
     "openPhoto": "放大查看照片",
     "noPhoto": "無照片",
-    "goToReceipt": "去材料進場處理"
+    "goToReceipt": "去材料進場處理",
+    "hazardClosure": {
+      "closed": "已閉環",
+      "open": "未閉環",
+      "openHelp": "發起人在隱患整改裡確認完成後就閉環。"
+    }
   },
   "assets": {
     "category": {
@@ -5250,7 +5248,7 @@
       "project": "項目",
       "selectProject": "選擇項目"
     },
-    "liveStopped": "即時部分已經停止更新。下面的動態、異常和未讀數量是打開這一頁時的，不是現在的。",
+    "liveStopped": "即時部分已經停止更新。下面的動態、異常和待確認數量是打開這一頁時的，不是現在的。",
     "locationMap": {
       "allProjects": "全部項目",
       "empty": "所選項目還沒有可顯示的位置或電子圍欄。",
@@ -9857,7 +9855,8 @@
     "waitingForYou": "{count} 項等你處理",
     "waitingUnknown": "待處理數量沒有載入，無法知道有沒有事情在等你",
     "materialManagement": "材料管理",
-    "material_requests": "MR / 其他申請"
+    "material_requests": "MR / 其他申請",
+    "waitingConfirm": "{count} 筆待確認"
   },
   "notifications": {
     "compose": {

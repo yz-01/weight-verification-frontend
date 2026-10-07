@@ -1041,6 +1041,8 @@ export function SiteEquipmentOffice() {
               kind: "EQUIPMENT_MOVEMENT",
               recordId: viewingMovement.id,
             }}
+            // 【确认归档】 with the movement itself (C4), once it is done.
+            closure={{ kind: "EQUIPMENT_MOVEMENT", recordId: viewingMovement.id }}
           />
         </RecordDetailDialog>
       )}
@@ -1663,6 +1665,8 @@ export function SiteProgressOffice() {
               </div>
             }
             conversation={{ kind: "PROGRESS", recordId: shown.id }}
+            // 【确认归档】 with the record itself (C4).
+            closure={{ kind: "PROGRESS", recordId: shown.id }}
           />
         </RecordDetailDialog>
       )}

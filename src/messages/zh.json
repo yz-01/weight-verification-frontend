@@ -3035,9 +3035,6 @@
   },
   "archiveQueue": {
     "allModules": "全部模块",
-    "alreadyArchived": "你已看过",
-    "archive": "我看过了",
-    "archiveHelp": "只从你自己的待看清单移走，同事的清单里照样还在，记录本身不会改变。",
     "column": {
       "record": "记录",
       "module": "所属模块",
@@ -3048,7 +3045,7 @@
       "archived": "归档",
       "seen": "我"
     },
-    "emptyArchived": "你还没有在这里标过「看过了」。",
+    "emptyArchived": "你还没有在这里打开过记录。",
     "emptyPending": "这里没有等你看的记录。",
     "failed": "列表载入失败，请重试。",
     "firstPage": "已经是第一页了。",
@@ -3076,7 +3073,7 @@
     "next": "下一页",
     "open": "查看",
     "pageOf": "第 {page} / {pages} 页",
-    "perPersonHelp": "「未看」指的是**你**还没标过「看过了」。每个账号各自计算，你标过之后不会从同事的列表里消失。",
+    "perPersonHelp": "这里只能查看。「未看」指的是**你**还没打开过的记录，打开一条就算你看过了；每个账号各自计算，不会从同事的列表里消失。确认归档在各业务页面的详情里做。",
     "previous": "上一页",
     "state": {
       "pending": "未看",
@@ -3084,9 +3081,6 @@
     },
     "subtitle": "所有已完成的记录，等你看过。",
     "title": "现场记录中心",
-    "toast": {
-      "archived": "已为你标成「看过了」。"
-    },
     "people": "{count} 人",
     "closure": {
       "label": "是否已归档",
@@ -3095,11 +3089,15 @@
       "closed": "已归档",
       "notApplicable": "不需要归档"
     },
-    "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。",
     "categoryManagement": "分类管理",
     "openPhoto": "放大查看照片",
     "noPhoto": "无照片",
-    "goToReceipt": "去材料进场处理"
+    "goToReceipt": "去材料进场处理",
+    "hazardClosure": {
+      "closed": "已闭环",
+      "open": "未闭环",
+      "openHelp": "发起人在隐患整改里确认完成后就闭环。"
+    }
   },
   "assets": {
     "category": {
@@ -5250,7 +5248,7 @@
       "project": "项目",
       "selectProject": "选择项目"
     },
-    "liveStopped": "实时部分已经停止更新。下面的动态、异常和未读数量是打开这一页时的，不是现在的。",
+    "liveStopped": "实时部分已经停止更新。下面的动态、异常和待确认数量是打开这一页时的，不是现在的。",
     "locationMap": {
       "allProjects": "全部项目",
       "empty": "所选项目还没有可显示的位置或电子围栏。",
@@ -9857,7 +9855,8 @@
     "waitingForYou": "{count} 项等你处理",
     "waitingUnknown": "待处理数量没有载入，无法知道有没有事情在等你",
     "materialManagement": "材料管理",
-    "material_requests": "MR / 其他申请"
+    "material_requests": "MR / 其他申请",
+    "waitingConfirm": "{count} 笔待确认"
   },
   "notifications": {
     "compose": {

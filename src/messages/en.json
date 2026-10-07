@@ -3035,9 +3035,6 @@
   },
   "archiveQueue": {
     "allModules": "All modules",
-    "alreadyArchived": "You've seen it",
-    "archive": "I've seen it",
-    "archiveHelp": "Only takes it off your own to-see list. Your colleagues still see it on theirs, and the record itself does not change.",
     "column": {
       "record": "Record",
       "module": "Module",
@@ -3048,7 +3045,7 @@
       "archived": "Archived",
       "seen": "You"
     },
-    "emptyArchived": "You haven't marked anything as seen here yet.",
+    "emptyArchived": "You haven't opened any records here yet.",
     "emptyPending": "Nothing waiting for you here.",
     "failed": "That list could not be loaded. Try again.",
     "firstPage": "You are on the first page.",
@@ -3076,7 +3073,7 @@
     "next": "Next",
     "open": "Open",
     "pageOf": "Page {page} of {pages}",
-    "perPersonHelp": "Not seen means you have not marked it yet. Every account keeps its own list, so marking a record here never clears it from anybody else's.",
+    "perPersonHelp": "This page is for reading. Not seen means you have not opened the record yet - opening one counts as seeing it. Every account keeps its own list, so it never clears anybody else's. Records are confirmed on their own module's page.",
     "previous": "Previous",
     "state": {
       "pending": "Not seen",
@@ -3084,9 +3081,6 @@
     },
     "subtitle": "Everything finished, waiting for you to look at it.",
     "title": "Site Record Center",
-    "toast": {
-      "archived": "Marked as seen, for you only."
-    },
     "people": "{count, plural, one {# person} other {# people}}",
     "closure": {
       "label": "Archived or not",
@@ -3095,11 +3089,15 @@
       "closed": "Archived",
       "notApplicable": "Not archived by anyone"
     },
-    "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished.",
     "categoryManagement": "Category management",
     "openPhoto": "Open the photo",
     "noPhoto": "No photo",
-    "goToReceipt": "Go to Material receipts to handle it"
+    "goToReceipt": "Go to Material receipts to handle it",
+    "hazardClosure": {
+      "closed": "Closed",
+      "open": "Not closed",
+      "openHelp": "It closes when the person who raised it confirms the fix on the hazard page."
+    }
   },
   "assets": {
     "category": {
@@ -5250,7 +5248,7 @@
       "project": "Project",
       "selectProject": "Select project"
     },
-    "liveStopped": "The live sections have stopped updating. The feed, alerts and unread counts below are from when the page was opened, not from now.",
+    "liveStopped": "The live sections have stopped updating. The feed, alerts and counts waiting for confirmation below are from when the page was opened, not from now.",
     "locationMap": {
       "allProjects": "All projects",
       "empty": "The selected project has no location or geofence to display.",
@@ -9857,7 +9855,8 @@
     "waitingForYou": "{count} waiting for you",
     "waitingUnknown": "Could not load how many are waiting for you",
     "materialManagement": "Material management",
-    "material_requests": "MR / Other Request"
+    "material_requests": "MR / Other Request",
+    "waitingConfirm": "{count} waiting for confirmation"
   },
   "notifications": {
     "compose": {

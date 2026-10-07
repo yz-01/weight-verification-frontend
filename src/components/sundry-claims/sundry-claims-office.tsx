@@ -462,6 +462,8 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
           </div>
         }
         conversation={{ kind: "SUNDRY_CLAIM", recordId: claim.id }}
+        // 【确认归档】 once paid or rejected (C4).
+        closure={{ kind: "SUNDRY_CLAIM", recordId: claim.id }}
       />
       {filing && (
         <FileIntoColumnDialog

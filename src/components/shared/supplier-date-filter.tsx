@@ -12,16 +12,22 @@
  *
  * The supplier is a dropdown you can type into: a company can have a hundred
  * suppliers, and scrolling a plain list for one is the slow part of the job.
+ * What is typed is searched on the server (`?search=`), because one page is
+ * at most 100 rows (`core/pagination.py`) and a company with more suppliers
+ * than that could never have found the rest in a list loaded once.
  */
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
-import { OptionCombobox } from "@/components/material-requests/option-combobox";
+import { OptionCombobox, type ComboOption } from "@/components/material-requests/option-combobox";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/use-debounce";
 import type { useListQuery } from "@/hooks/use-list-query";
-import { getSuppliers } from "@/services/contractor.service";
+import type { ListQuery } from "@/interfaces/api";
+import { getSupplier, getSuppliers } from "@/services/contractor.service";
 
 export interface SupplierDateValue {
   supplier?: string;
@@ -31,6 +37,30 @@ export interface SupplierDateValue {
 
 // The "every supplier" entry needs a value of its own; "" means "nothing typed".
 const ALL = "__all__";
+
+/** The server's page ceiling (`core/pagination.py`); asking for more gets this. */
+export const SUPPLIER_PAGE_SIZE = 100;
+
+/** One page of suppliers matching what was typed, by name. */
+export function supplierSearchQuery(term: string): ListQuery {
+  const search = term.trim();
+  return { page_size: SUPPLIER_PAGE_SIZE, sort_by: "name", ...(search ? { search } : {}) };
+}
+
+/**
+ * The picker's rows: "every supplier", then this page of results. The chosen
+ * supplier's name is carried separately (`selectedLabel`) when it is not on
+ * this page, so the button never falls back to showing an id.
+ */
+export function supplierOptions(
+  results: readonly { id: string; name: string }[],
+  allLabel: string,
+): ComboOption[] {
+  return [
+    { value: ALL, label: allLabel },
+    ...results.map((row) => ({ value: row.id, label: row.name })),
+  ];
+}
 
 export function SupplierDateFilter({
   value,
@@ -46,15 +76,32 @@ export function SupplierDateFilter({
   showDates?: boolean;
 }) {
   const t = useTranslations("supplierDateFilter");
+  const [term, setTerm] = useState("");
+  const search = useDebounce(term.trim(), 300);
   const suppliers = useQuery({
-    queryKey: ["suppliers", "filter-options"],
-    queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
+    queryKey: ["suppliers", "filter-options", search],
+    queryFn: () => getSuppliers(supplierSearchQuery(search)),
     enabled: showSupplier,
+    // The last page stays up while the next word is fetched, rather than the
+    // list flashing empty between letters.
+    placeholderData: keepPreviousData,
   });
-  const options = [
-    { value: ALL, label: t("allSuppliers") },
-    ...(suppliers.data?.results ?? []).map((row) => ({ value: row.id, label: row.name })),
-  ];
+  const results = suppliers.data?.results ?? [];
+  const options = supplierOptions(results, t("allSuppliers"));
+  // The name of the chosen one, remembered from when it was picked, or read
+  // once when the filter arrives from a link with only its id.
+  const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
+  const chosen = value.supplier;
+  const onPage = chosen ? results.some((row) => row.id === chosen) : true;
+  const known = picked && picked.id === chosen ? picked.name : undefined;
+  // query-failure: only the button's label; the picker's own failure note covers the list
+  const chosenRow = useQuery({
+    queryKey: ["suppliers", "filter-label", chosen],
+    queryFn: () => getSupplier(chosen!),
+    enabled: showSupplier && Boolean(chosen) && !onPage && !known,
+    staleTime: 5 * 60_000,
+  });
+  const selectedLabel = known ?? chosenRow.data?.name;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -63,8 +110,14 @@ export function SupplierDateFilter({
           <div className="w-[200px] max-w-full">
             <OptionCombobox
               value={value.supplier ?? ALL}
-              onChange={(next) => onChange({ supplier: next === ALL ? undefined : next })}
+              onChange={(next) => {
+                const row = results.find((option) => option.id === next);
+                if (row) setPicked({ id: row.id, name: row.name });
+                onChange({ supplier: next === ALL ? undefined : next });
+              }}
               options={options}
+              onSearch={setTerm}
+              selectedLabel={selectedLabel}
               placeholder={t("allSuppliers")}
               searchPlaceholder={t("search")}
               emptyLabel={t("noMatch")}

@@ -21,10 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AddToPackageButton,
-  canGoInAPackage,
-} from "@/components/contractor-ops/add-to-package";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
@@ -42,7 +38,7 @@ import {
   getArchiveQueue,
   getArchiveRecord,
   isExportableKind,
-  markRecordsArchived,
+  markRecordsSeen,
 } from "@/services/contractor-ops.service";
 
 /**
@@ -67,12 +63,18 @@ import {
  * column two meanings, which is what D-125 forbids - a reader would deactivate
  * a column believing they were archiving a delivery.
  *
- * ## Opening and archiving are two actions
+ * ## Read-only (2026-10 C4, X10)
  *
- * Opening a row fetches its detail and does not archive it. Archiving is the
- * button in the sheet. A GET that changed the next reader's list would fire on
- * a refresh, a prefetch or a link preview, and somebody's queue would empty
- * itself without them having read anything.
+ * This screen looks; it does not decide. 【确认归档】 lives on each module's
+ * own detail page, where 「等你处理」 leads, and the sheet here has no button
+ * that changes a record. A hazard shows whether it is closed (已闭环 /
+ * 未闭环): its raiser's 确认完成 closes it, not a confirmation.
+ *
+ * 「未看 / 已看」 stays each reader's own (D-063) and is still read by Claim
+ * Engine's 已查看 count, so it is kept: clicking a row to open it is the
+ * look, and the screen sends that mark with the click. Not on the GET that
+ * loads the record - a GET that changed the next reader's list would fire on
+ * a refresh, a prefetch or a link preview.
  */
 
 const KINDS: ArchiveRecordKind[] = [
@@ -103,6 +105,21 @@ export function ArchiveQueue() {
   const [project, setProject] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState<ArchiveQueueRow | null>(null);
+  const queryClient = useQueryClient();
+  // Opening a row is this reader's look (D-063): marked with the click, for
+  // them only, and the 未看 / 已看 lists refetched - not the open record.
+  const markSeen = useMutation({
+    mutationFn: (row: ArchiveQueueRow) => markRecordsSeen([{ kind: row.kind, id: row.id }]),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({
+        queryKey: ["archive-queue"],
+        predicate: (entry) => entry.queryKey[1] !== "detail",
+      }),
+  });
+  const openRow = (row: ArchiveQueueRow) => {
+    setOpen(row);
+    if (!row.seen_at && isQueueKind(row.kind)) markSeen.mutate(row);
+  };
 
   const query = useQuery({
     queryKey: ["archive-queue", state, closure, kind, project, page],
@@ -264,7 +281,7 @@ export function ArchiveQueue() {
                         <button
                           type="button"
                           className="shrink-0 overflow-hidden rounded-md border bg-muted"
-                          onClick={() => setOpen(row)}
+                          onClick={() => openRow(row)}
                           title={t("openPhoto")}
                         >
                           <Image
@@ -337,7 +354,7 @@ export function ArchiveQueue() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setOpen(row)}
+                      onClick={() => openRow(row)}
                     >
                       {t("open")}
                     </Button>
@@ -405,7 +422,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   onClose,
   fetchRecord,
   actions,
-  readOnly = false,
+  confirm = false,
 }: {
   row: ArchiveQueueRow<K>;
   onClose: () => void;
@@ -417,18 +434,17 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
    */
   actions?: React.ReactNode;
   /**
-   * Look, do not decide. Used for a record opened from a category (2026-10
-   * B4: 分类里不做验收) and for a dashboard photo whose module has no detail
-   * page of its own (F9). Opened from a category's
-   * records, the sheet shows the record and its conversation and offers no
-   * button that changes anything - no archive, no confirmation, no adding to a
-   * package. A delivery still waiting for acceptance links to the receipt,
-   * where it is accepted.
+   * Offer this record's 【确认归档】 (2026-10 C4). Only for a 「等你处理」 row
+   * whose module has no detail page of its own yet (progress, an equipment
+   * movement): the confirm belongs on the business page, and this sheet
+   * stands in for one. Everywhere else - 现场记录中心, a category's records
+   * (B4: 分类里不做验收), a dashboard photo (F9) - the sheet only reads: no
+   * confirmation, no 「我看过了」, no adding to a package. A delivery still
+   * waiting for acceptance links to the receipt, where it is accepted.
    */
-  readOnly?: boolean;
+  confirm?: boolean;
 }) {
   const t = useTranslations();
-  const queryClient = useQueryClient();
   const formatter = useDateFormat();
   // Which photograph is open on its own, full size (B06).
   const [viewingPhoto, setViewingPhoto] = useState<number | null>(null);
@@ -447,31 +463,12 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
           ? getArchiveRecord(row.kind, row.id)
           : Promise.reject(new Error(`${row.kind} is not an archive queue kind`)),
   });
-  // 「我看过了」 is the queue's own mark: `mark_records_seen` takes its kinds
-  // and nothing else - and none of it when the sheet is read-only.
-  const queueKind = !readOnly && isQueueKind(row.kind) ? row.kind : null;
-  const canPackage = !readOnly && canGoInAPackage(row.kind);
   // A delivery waiting for acceptance is accepted on its own page (B4).
   const pendingReceipt =
-    readOnly && row.kind === "MATERIAL_RECEIPT" && row.status === "PENDING";
-  // Set when the server matched nothing: a record opened from a column that
-  // has not finished yet is not in anybody's queue, so there was nothing to
-  // mark - said here rather than closed as if it had worked.
-  const [notInQueue, setNotInQueue] = useState(false);
-  const archive = useMutation({
-    mutationFn: () =>
-      queueKind
-        ? markRecordsArchived([{ kind: queueKind, id: row.id }])
-        : Promise.resolve({ marked: 0, matched: 0 }),
-    onSuccess: (result) => {
-      if (result.matched === 0) {
-        setNotInQueue(true);
-        return;
-      }
-      queryClient.invalidateQueries({ queryKey: ["archive-queue"] });
-      onClose();
-    },
-  });
+    row.kind === "MATERIAL_RECEIPT" && row.status === "PENDING";
+  // A hazard closes by its raiser's 确认完成 (X10), so it is said, not offered.
+  const hazardClosure =
+    row.kind === "HAZARD" ? (row.archived ?? detail.data?.archived ?? null) : undefined;
 
   return (
     <div
@@ -606,13 +603,14 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
               {canDiscuss(row.kind) && (
                 <RecordConversationPanel kind={row.kind} recordId={row.id} />
               )}
-              {/* And the one action that ends it (D-234). Here for the same
-                  reason as the conversation: this sheet is where a record of
-                  any kind is opened, so one panel covers every kind rather
-                  than eight copies that would drift. The same eight kinds:
-                  the closure endpoint finds its record the way the chat does,
-                  and a hazard closes through its own verification. */}
-              {!readOnly && canConfirmClosure(row.kind) && (
+              {hazardClosure !== undefined && (
+                <HazardClosureLine closure={hazardClosure} />
+              )}
+              {/* The one action that ends a record (D-234) is on its module's
+                  page (C4). Here only for a 「等你处理」 row whose module has
+                  no detail page yet, so the reader is not sent somewhere
+                  nothing can be confirmed. */}
+              {confirm && canConfirmClosure(row.kind) && (
                 <RecordClosurePanel kind={row.kind} recordId={row.id} />
               )}
             </>
@@ -620,17 +618,6 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
         </div>
 
         <footer className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
-          {/* Said out loud next to the button, because "archive" reads as a
-              record-wide action and this one is not (D-106). */}
-          {queueKind && (
-            <p className="w-full text-xs text-muted-foreground sm:w-auto">
-              {t(notInQueue ? "archiveQueue.notInQueue" : "archiveQueue.archiveHelp")}
-            </p>
-          )}
-          {/* From the record rather than from Multi Engine (T-238). This sheet
-              is the one place that opens a record of any of the nine kinds, so
-              putting the shortcut here reaches all of them without nine copies
-              of the same button (D-154). */}
           {pendingReceipt && (
             <Button asChild size="sm" variant="outline">
               <Link href={`/receipts/${row.id}`}>
@@ -639,40 +626,49 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
               </Link>
             </Button>
           )}
-          {!readOnly && canGoInAPackage(row.kind) && (
-            <AddToPackageButton
-              kind={row.kind}
-              recordId={row.id}
-              projectId={row.project_id}
-              reference={row.reference}
-            />
-          )}
-          {!queueKind ? null : detail.data?.is_seen ? (
-            /* A sentence rather than a greyed-out button: a button that is
-               disabled for any reason other than a request in flight has to
-               say why it is grey, and "you have already archived this" is
-               something to read, not something to click. */
-            <p className="ml-auto text-sm font-medium">
-              {t("archiveQueue.alreadyArchived")}
-            </p>
-          ) : notInQueue ? null : (
-            <Button
-              className="ml-auto"
-              disabled={archive.isPending}
-              onClick={() => archive.mutate()}
-            >
-              {t("archiveQueue.archive")}
-            </Button>
-          )}
-          {/* Nothing left to press on a kind with none of these parts, so the
-              footer still closes the sheet rather than standing empty. */}
-          {!queueKind && !canPackage && (
-            <Button className="ml-auto" variant="outline" onClick={onClose}>
-              {t("common.close")}
-            </Button>
-          )}
+          {/* Nothing here changes the record (C4): adding to a package and
+              the confirm are on the module's own page. */}
+          <Button className="ml-auto" variant="outline" onClick={onClose}>
+            {t("common.close")}
+          </Button>
         </footer>
       </div>
     </div>
+  );
+}
+
+/**
+ * 已闭环 / 未闭环 for a hazard (2026-10 C4, X10). A hazard is closed by its
+ * raiser's 确认完成 (VERIFIED) on the hazard page, so the sheet says which it
+ * is and who closed it, with no button.
+ */
+export function HazardClosureLine({
+  closure,
+}: {
+  closure: { by: string; at: string | null } | null;
+}) {
+  const t = useTranslations("archiveQueue.hazardClosure");
+  const formatter = useDateFormat();
+  return closure ? (
+    <p
+      className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm"
+      data-hazard-closure="closed"
+    >
+      <span className="font-semibold text-success">{t("closed")}</span>
+      {closure.by && (
+        <span className="ml-2 text-muted-foreground">
+          {closure.by}
+          {closure.at ? ` · ${formatter.dateTime(closure.at)}` : ""}
+        </span>
+      )}
+    </p>
+  ) : (
+    <p
+      className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm"
+      data-hazard-closure="open"
+    >
+      <span className="font-semibold text-warning">{t("open")}</span>
+      <span className="ml-2 text-muted-foreground">{t("openHelp")}</span>
+    </p>
   );
 }

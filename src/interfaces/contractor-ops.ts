@@ -747,7 +747,7 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   supplier_name?: string;
   /** A material receipt's direction (B10), so a return is not named 材料进场. */
   movement_type?: "ENTRY" | "RETURN";
-  /** When this reader marked it 「我看过了」, or null (T-391). */
+  /** When this reader opened it in 现场记录中心 (未看 / 已看), or null (T-391, C4). */
   seen_at: string | null;
   /** Whether anything archives this kind at all; an attendance day does not. */
   archivable: boolean;

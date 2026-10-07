@@ -7,20 +7,27 @@ import type { PortalFeatureKey } from "@/lib/navigation";
 import { getContractorDashboard } from "@/services/contractor-dashboard.service";
 
 /**
+ * What each sidebar badge counts, said in its label (2026-10 C4).
+ *
+ * The 材料进场 badge is `unread.receipts`: accepted deliveries waiting for
+ * their 【确认归档】 (X10) - not deliveries nobody has opened, which is what
+ * it counted before. So its label says 待确认. The approvals badge is work
+ * waiting on this reader.
+ */
+export function badgeLabelKey(
+  feature: PortalFeatureKey,
+): "nav.waitingConfirm" | "nav.waitingForYou" {
+  return feature === "material_receipts" ? "nav.waitingConfirm" : "nav.waitingForYou";
+}
+
+/**
  * How many things are waiting on *this reader*, per sidebar entry.
  *
- * The user asked for the unread pile to be obvious: "the contractor dashboard
- * should show all the unread columns, and opening one files it away"
- * (2026-09-05). The filing half already worked - the receipt screen marks a
- * delivery seen when it is opened - but nothing anywhere said something was
- * waiting, so there was nothing to open. T-155 got as far as sending the
- * notification; this is the badge beside the door.
- *
- * Two things to know about the numbers:
- *
- * They are per reader, never shared. Head office and the project manager wait
- * on the same delivery and clear it separately (D-063), so a shared count
- * would let whichever of them opened it first empty the other's pile.
+ * The user asked for what is waiting to be obvious (2026-09-05); T-155 got as
+ * far as sending the notification, and this is the badge beside the door.
+ * Since X10 the 材料进场 number is the deliveries waiting for a confirm - it
+ * drops when somebody confirms one on its page, for everybody, because
+ * confirmed is a fact about the record (D-234).
  *
  * They get their own query key rather than sharing the dashboard's. Sharing
  * looked tempting - one request instead of two on the home page - but the two

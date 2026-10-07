@@ -3956,6 +3956,8 @@ export function OutgoingDetailDialog({
             </>
           }
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
+          // 【确认归档】 once the return is finished (C4).
+          closure={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
         />
       )}
     </RecordDetailDialog>

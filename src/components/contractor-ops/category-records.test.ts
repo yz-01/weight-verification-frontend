@@ -84,7 +84,6 @@ describe("the kinds a column can hold (T-396)", () => {
     for (const kind of CATEGORY_KINDS) {
       expect(typeof messages.archiveQueue.kind[kind], `${locale}: ${kind}`).toBe("string");
     }
-    expect(typeof messages.archiveQueue.notInQueue, locale).toBe("string");
     for (const key of ["title", "help", "count", "empty"]) {
       expect(typeof messages.categoryManagement.records[key], `${locale}: ${key}`).toBe(
         "string",
@@ -196,14 +195,12 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     }
   });
 
-  it("draws the conversation, the closure, the package and 我看过了 only where they work", () => {
+  it("draws the conversation, and the confirm only where a 「等你处理」 row asked for it", () => {
     expect(sheet).toMatch(/canDiscuss\(row\.kind\) && \(\s*<RecordConversationPanel/);
-    // ...and, since 2026-10 B4 (a category's records) and F9 (a dashboard photo), none of the three that change anything when
-    // the sheet is read-only.
-    expect(sheet).toMatch(/!readOnly && canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
-    expect(sheet).toMatch(/!readOnly && canGoInAPackage\(row\.kind\) && \(\s*<AddToPackageButton/);
-    expect(sheet).toMatch(/const queueKind = !readOnly && isQueueKind\(row\.kind\) \? row\.kind : null;/);
-    expect(sheet).toMatch(/!queueKind \? null :/);
+    // Since 2026-10 C4 the sheet only reads: the confirm is on the module's
+    // own page, and here only for a waiting row whose module has none yet.
+    expect(sheet).toMatch(/confirm && canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
+    expect(sheet).not.toMatch(/AddToPackageButton|markRecordsSeen|markRecordsArchived/);
     for (const kind of QUEUE_ONLY_NOT) {
       expect(canDiscuss(kind), kind).toBe(false);
       expect(canConfirmClosure(kind), kind).toBe(false);
@@ -216,13 +213,12 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     expect(isQueueKind("HAZARD")).toBe(true);
   });
 
-  it("does not claim a mark it did not make", () => {
-    // An unfinished record is in nobody's queue, so the server matches nothing.
+  it("marks 已看 when the queue opens a row, silently, and nowhere else", () => {
     const service = read(SERVICE);
-    const mark = service.slice(service.indexOf("export async function markRecordsArchived("));
-    expect(mark).toMatch(/if \(result\.matched > 0\) toastSuccess\("archiveQueue\.toast\.archived"\)/);
-    expect(sheet).toMatch(/if \(result\.matched === 0\) \{\s*setNotInQueue\(true\);/);
-    expect(sheet).toMatch(/archiveQueue\.notInQueue/);
+    const mark = service.slice(service.indexOf("export function markRecordsSeen("));
+    expect(mark).toMatch(/\{ silent: true \}/);
+    const queue = functionBody(read(QUEUE), "ArchiveQueue");
+    expect(queue).toMatch(/if \(!row\.seen_at && isQueueKind\(row\.kind\)\) markSeen\.mutate\(row\);/);
   });
 });
 
@@ -232,13 +228,15 @@ describe("a category's records are looked at, not decided (2026-10 B3, B4)", () 
   const sheet = functionBody(read(QUEUE), "RecordSheet");
 
   it("opens every record read-only", () => {
-    expect(dialog).toMatch(/<RecordSheet\s+row=\{open\}\s+fetchRecord=\{getCategoryRecord\}[\s\S]*?readOnly\s/);
-    expect(sheet).toMatch(/readOnly = false,/);
+    const opened = dialog.match(/<RecordSheet[\s\S]*?\/>/)?.[0] ?? "";
+    expect(opened).toMatch(/fetchRecord=\{getCategoryRecord\}/);
+    expect(opened).not.toMatch(/\bconfirm\b/);
+    expect(sheet).toMatch(/confirm = false,/);
   });
 
   it("sends a pending delivery to its own page to be accepted", () => {
     expect(sheet).toMatch(
-      /const pendingReceipt =\s*readOnly && row\.kind === "MATERIAL_RECEIPT" && row\.status === "PENDING";/,
+      /const pendingReceipt =\s*row\.kind === "MATERIAL_RECEIPT" && row\.status === "PENDING";/,
     );
     expect(sheet).toMatch(/pendingReceipt && \([\s\S]*?<Link href=\{`\/receipts\/\$\{row\.id\}`\}>/);
     expect(sheet).toMatch(/t\("archiveQueue\.goToReceipt"\)/);

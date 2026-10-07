@@ -634,6 +634,8 @@ export function WasteOutgoingWorkspace() {
             }
             actions={renderActions(shown)}
             conversation={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
+            // 【确认归档】 once the dispatch is completed (C4).
+            closure={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
           />
         </RecordDetailDialog>
       )}
