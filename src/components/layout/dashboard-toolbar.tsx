@@ -50,8 +50,8 @@ export function DashboardToolbar() {
   }, [autoSelect]);
 
   return (
-    <header className="relative z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-card/95 px-3 shadow-[0_1px_0_rgb(0_0_0/0.02)] backdrop-blur lg:px-5">
-      <SidebarTrigger className="size-9" />
+    <header className="relative z-40 flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border bg-background/85 px-2 backdrop-blur-md sm:px-4 lg:px-6">
+      <SidebarTrigger className="size-10" />
       {showBack && (
         <Button
           variant="ghost"
@@ -71,7 +71,7 @@ export function DashboardToolbar() {
         {user?.account_type === "CONSULTANT" && (
           <select
             aria-label={t("consultantProject.label")}
-            className="h-9 min-w-0 max-w-56 rounded-md border bg-background px-2 text-sm"
+            className="h-10 min-w-0 max-w-56 rounded-lg border border-input bg-card px-3 text-sm pointer-coarse:text-base"
             value={user.active_project?.project_id ?? ""}
             onChange={(event) => void switchConsultantProject(event.target.value)}
           >
@@ -91,6 +91,8 @@ export function DashboardToolbar() {
               ))}
           </select>
         )}
+        {/* B13: the global 「当前项目」 picker takes its place here, before the
+            search, so the bar reads: where I am · which project · find · alerts. */}
         <GlobalModuleSearch />
         <NotificationButton />
       </div>
@@ -111,8 +113,8 @@ function PageTitle({
   const page = override ?? (current.leaf ? t(current.leaf.labelKey) : null);
   const showPage = page !== null && page !== entry;
   return (
-    <div className="flex min-w-0 shrink items-center gap-2 text-sm">
-      <span className="hidden size-7 shrink-0 place-items-center rounded-md bg-primary/10 text-primary sm:grid">
+    <div className="flex min-w-0 shrink items-center gap-2 text-sm sm:text-base">
+      <span className="hidden size-8 shrink-0 place-items-center rounded-lg bg-primary/12 text-primary shadow-glow-sm sm:grid">
         <Icon className="size-4" />
       </span>
       <span

@@ -149,7 +149,7 @@ export function QueryFailedNote({
 /** Section heading inside a card. */
 export function SectionHeader({ title }: { title: string }) {
   return (
-    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <h3 className="panel-title mb-4">
       {title}
     </h3>
   );
@@ -211,7 +211,7 @@ export function ReadField({
   return (
     <div className={cn("space-y-1.5", className)}>
       <Label className="text-sm font-medium">{label}</Label>
-      <div className={cn("flex items-center rounded-md border border-input bg-muted/40 px-3 text-sm", surface === "dialog" ? "min-h-9 py-1.5" : "min-h-[2.5rem] py-2")}>
+      <div className={cn("flex items-center rounded-lg border border-input bg-muted/50 px-3 text-sm", surface === "dialog" ? "min-h-10 py-2" : "min-h-10 py-2")}>
         {isEmpty ? (
           <span className="italic text-muted-foreground">—</span>
         ) : (
@@ -317,20 +317,26 @@ export function ListHeader({
     : [];
 
   return (
-    <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 border-b pb-3">
+    <div
+      data-slot="list-header"
+      className="flex min-h-12 flex-wrap items-end justify-between gap-x-4 gap-y-3 pb-4"
+    >
       <div className="flex min-w-0 items-center gap-3">
         <span
-          className="h-8 w-1 shrink-0 rounded-full bg-primary"
+          className="h-10 w-1 shrink-0 rounded-full bg-primary shadow-glow-sm"
           aria-hidden="true"
         />
         <div className="min-w-0">
-          <h2 className="truncate text-lg font-semibold leading-tight text-foreground">
+          <h2
+            className="truncate text-xl font-semibold leading-tight text-foreground sm:text-2xl"
+            title={title}
+          >
             {title}
           </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex max-w-full flex-wrap items-center gap-2">
         {action}
         {sections.length > 0 && (
           <Dialog>
@@ -354,7 +360,7 @@ export function ListHeader({
                 {sections.map((name) => (
                   <div
                     key={name}
-                    className="rounded-lg border bg-muted/20 px-3 py-3"
+                    className="rounded-lg border bg-muted/40 p-3"
                   >
                     <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       {guide(`section.${name}`)}

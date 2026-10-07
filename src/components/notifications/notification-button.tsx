@@ -185,7 +185,7 @@ export function NotificationButton() {
         <Button
           variant="outline"
           size="icon"
-          className="relative size-9 bg-card shadow-sm hover:border-primary/30 hover:bg-accent"
+          className="relative size-10 bg-card hover:border-primary/40 hover:bg-accent"
           title={t("notifications.title")}
           aria-label={
             countFailed

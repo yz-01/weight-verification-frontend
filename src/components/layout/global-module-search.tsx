@@ -75,7 +75,7 @@ export function GlobalModuleSearch() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="h-9 min-w-0 max-w-full shrink justify-start bg-card px-2.5 text-muted-foreground shadow-sm hover:border-primary/30 hover:bg-accent sm:w-56 sm:flex-none lg:w-72"
+          className="h-10 min-w-0 max-w-full shrink justify-start bg-card px-3 text-muted-foreground hover:border-primary/40 hover:bg-accent sm:w-56 sm:flex-none lg:w-72"
           aria-label={t("globalSearch.open")}
         >
           <Search className="size-4" />

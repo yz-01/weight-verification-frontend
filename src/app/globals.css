@@ -87,6 +87,9 @@
   --color-card: var(--card);
   --color-panel-border: var(--panel-border);
   --color-overlay: var(--overlay);
+  --color-scrim: var(--scrim);
+  --color-field: var(--field);
+  --color-switch-thumb: var(--switch-thumb);
   --color-overlay-foreground: var(--overlay-foreground);
 
   /* The six data colours and orange: `bg-tone-blue/12`, `text-tone-blue-fg`. */
@@ -220,6 +223,11 @@
   /* Text over a photograph: a count, a caption. */
   --overlay: rgb(4 8 15 / 78%);
   --overlay-foreground: #f1f5f9;
+  /* Behind a dialog or sheet. */
+  --scrim: rgb(15 23 42 / 38%);
+  /* Inside an input, a select, a text box. */
+  --field: #ffffff;
+  --switch-thumb: #ffffff;
 
   --sidebar: #ffffff;
   --sidebar-foreground: #1e293b;
@@ -312,6 +320,9 @@
   --photo-hatch: rgb(148 163 184 / 8%);
   --overlay: rgb(6 11 22 / 85%);
   --overlay-foreground: #e2e8f0;
+  --scrim: rgb(2 6 15 / 72%);
+  --field: rgb(4 8 15 / 55%);
+  --switch-thumb: #ffffff;
 
   --sidebar: #070d1a;
   --sidebar-foreground: #cbd5e1;
