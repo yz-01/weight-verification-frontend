@@ -31,11 +31,8 @@ import Link from "next/link";
 
 import { MaterialTabs } from "@/components/receipts/material-tabs";
 import {
-  ApplyExitDialog,
   EquipmentMovementActions,
-  MachineStep,
   movementTone,
-  useOpenEquipmentApplications,
 } from "@/components/contractor-ops/equipment-applications";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -539,11 +536,10 @@ export function SiteEquipmentOffice() {
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   const [editing, setEditing] = useState<SiteEquipment | null>(null);
-  // The handover of an approved exit, or of an old entry application handed
-  // over directly (C8); and the machine an exit is applied for (B13).
+  // 「直接交接」 of an application made before the one-step flow (C8, Q27).
+  // Nothing is applied for any more, entry or exit: the site records the
+  // movement on the phone and the office accepts it here.
   const [moving, setMoving] = useState<{ machine: SiteEquipment; movement: EquipmentMovement } | null>(null);
-  const [applyingFor, setApplyingFor] = useState<SiteEquipment | null>(null);
-  const open = useOpenEquipmentApplications(list.filters.project || undefined);
   const [viewingMovement, setViewingMovement] =
     useState<EquipmentMovement | null>(null);
   const [viewingMachine, setViewingMachine] = useState<SiteEquipment | null>(
@@ -627,7 +623,9 @@ export function SiteEquipmentOffice() {
         ),
       },
       {
-        // 申请 → 批准 → 交接 (B13); rows from before 10-02 are all handed over.
+        // 等待后台验收 / 已验收 / 未通过 (C8, Q27); an application from before
+        // the one-step flow keeps its own state; rows from before 10-02 are
+        // all handed over.
         id: "status",
         meta: { label: t("field.status") },
         header: () => <PlainHeader label={t("field.status")} />,
@@ -731,10 +729,23 @@ export function SiteEquipmentOffice() {
         meta: { label: t("field.status") },
         header: sortable(t("field.status")),
         cell: ({ row }) => (
-          <StatusBadge
-            label={t(`equipmentStatus.${row.original.status}`)}
-            tone={tone(row.original.status)}
-          />
+          <div className="flex flex-wrap items-center gap-1">
+            <StatusBadge
+              label={t(`equipmentStatus.${row.original.status}`)}
+              tone={tone(row.original.status)}
+            />
+            {/* An exit waiting for 验收 is still on site (Q27): both say so. */}
+            {row.original.awaiting_acceptance && (
+              <StatusBadge
+                label={t(
+                  row.original.awaiting_acceptance === "EXIT"
+                    ? "equipment.exitWaiting"
+                    : "equipment.entryWaiting",
+                )}
+                tone="warning"
+              />
+            )}
+          </div>
         ),
       },
       {
@@ -1003,13 +1014,29 @@ export function SiteEquipmentOffice() {
               ...(shownMovement.approved_by_name
                 ? [
                     {
-                      label: t("equipment.reviewedBy"),
+                      // 验收人 since the one-step flow (the office decides
+                      // after the site); 审批人 on an application from before.
+                      label: t(
+                        acceptedAfterSubmission(shownMovement)
+                          ? "equipment.acceptedBy"
+                          : "equipment.reviewedBy",
+                      ),
                       value: `${shownMovement.approved_by_name}${shownMovement.approved_at ? ` · ${df.dateTime(shownMovement.approved_at)}` : ""}`,
                     },
                   ]
                 : []),
               ...(shownMovement.review_note
-                ? [{ label: t("equipment.returnReason"), value: shownMovement.review_note, wide: true }]
+                ? [
+                    {
+                      label: t(
+                        shownMovement.status === "REJECTED"
+                          ? "equipment.acceptance.reason"
+                          : "equipment.returnReason",
+                      ),
+                      value: shownMovement.review_note,
+                      wide: true,
+                    },
+                  ]
                 : []),
               {
                 label: t("field.project"),
@@ -1019,8 +1046,9 @@ export function SiteEquipmentOffice() {
                 label: t("field.name"),
                 value: `${shownMovement.equipment_name} · ${shownMovement.equipment_registration_no || shownMovement.equipment_code}`,
               },
-              // One entry is one machine (F3); an exit still says how many.
-              ...(shownMovement.direction === "EXIT"
+              // One movement is one machine (F3, Q27); a record from before
+              // that in another quantity still says how many.
+              ...(Number(shownMovement.quantity) !== 1
                 ? [
                     {
                       label: t("field.quantity"),
@@ -1044,10 +1072,23 @@ export function SiteEquipmentOffice() {
                 label: t("field.vehiclePlate"),
                 value: shownMovement.vehicle_plate,
               },
+              ...(shownMovement.latitude && shownMovement.longitude
+                ? [
+                    {
+                      label: t("field.location"),
+                      value: `${shownMovement.latitude}, ${shownMovement.longitude}`,
+                    },
+                  ]
+                : []),
               ...(shownMovement.notes
                 ? [
                     {
-                      label: t("field.notes"),
+                      // Why it went, for an exit (Q27); a remark otherwise.
+                      label: t(
+                        shownMovement.direction === "EXIT"
+                          ? "equipment.exitReason"
+                          : "field.notes",
+                      ),
                       value: shownMovement.notes,
                       wide: true,
                     },
@@ -1112,8 +1153,8 @@ export function SiteEquipmentOffice() {
               .map(([who, source]) => ({ label: t(`equipment.${who}`), url: source as string }))}
             actions={
               <div className="flex flex-col gap-2">
-                {/* Accept an entry (C8), approve / return an exit (B13), or
-                    hand over an old entry application directly. */}
+                {/* Accept an entry or an exit (C8, Q27), or hand over an
+                    application from before directly (「直接交接」). */}
                 <EquipmentMovementActions
                   movement={shownMovement}
                   onDone={(row) => setViewingMovement(row)}
@@ -1238,12 +1279,17 @@ export function SiteEquipmentOffice() {
             actions={
               can("equipment.capture") || can("equipment.manage") ? (
                 <div className="flex flex-col gap-2">
-                  <MachineStep
-                    machine={shownMachine}
-                    open={open.byEquipment.get(shownMachine.id)}
-                    onApply={() => setApplyingFor(shownMachine)}
-                    onHandover={(movement) => setMoving({ machine: shownMachine, movement })}
-                  />
+                  {/* Recorded on the phone, accepted on the movement (Q27). */}
+                  {shownMachine.awaiting_acceptance && (
+                    <StatusBadge
+                      label={t(
+                        shownMachine.awaiting_acceptance === "EXIT"
+                          ? "equipment.exitWaiting"
+                          : "equipment.entryWaiting",
+                      )}
+                      tone="warning"
+                    />
+                  )}
                   {can("equipment.manage") && (
                     <Button
                       variant="outline"
@@ -1296,16 +1342,6 @@ export function SiteEquipmentOffice() {
           }}
         />
       )}
-      {applyingFor && (
-        <ApplyExitDialog
-          machine={applyingFor}
-          onClose={() => setApplyingFor(null)}
-          onSaved={() => {
-            refresh();
-            setApplyingFor(null);
-          }}
-        />
-      )}
       {moving && (
         <MovementDialog
           row={moving.machine}
@@ -1321,6 +1357,15 @@ export function SiteEquipmentOffice() {
       )}
     </>
   );
+}
+
+/**
+ * Whether the office decided after the site recorded it - an acceptance (C8,
+ * Q27) - rather than approving an application before the handover (B13).
+ */
+function acceptedAfterSubmission(movement: EquipmentMovement) {
+  if (!movement.approved_at || !movement.completed_at) return false;
+  return new Date(movement.approved_at).getTime() >= new Date(movement.completed_at).getTime();
 }
 
 const PHOTO_KIND = {

@@ -81,10 +81,11 @@ describe("phone 设备进退场 is photos only (D-273)", () => {
     expect(body).toMatch(/t\("equipment\.add"\)/);
   });
 
-  it("still records an exit the B13 way until the Return Note flow (X3)", () => {
-    expect(body).toMatch(/<MachineStep/);
-    expect(body).toMatch(/onApply=\{\(\) => setApplyingExit\(machine\)\}/);
-    expect(body).toMatch(/<ApplyExitDialog/);
+  it("records an exit in one step like the entry, never applied for (Q27, F3)", () => {
+    // 进场 / 退场 chosen first; the exit is the entry's form, the other way.
+    expect(body).toMatch(/data-testid="field-equipment-direction"/);
+    expect(body).toMatch(/<EquipmentEntryDialog[\s\S]*?direction=\{direction\}/);
+    expect(body).not.toMatch(/ApplyExitDialog|MachineStep|<MovementDialog|applyExit/);
   });
 
   it("names a machine 「名称 · 车牌」, the code only for twins (F3)", () => {
@@ -111,14 +112,14 @@ describe("phone 设备进退场 is photos only (D-273)", () => {
   });
 
   it("still takes the photographs, at least 4 and no ceiling (L6, replacing D-257's 4-5)", () => {
-    expect(body).toMatch(/<MovementDialog[\s\S]*?fieldTaskId=\{fieldTaskId\}/);
     expect(body).toMatch(/<EquipmentEntryDialog[\s\S]*?fieldTaskId=\{fieldTaskId\}/);
     const entry = componentBody(code, "EquipmentEntryDialog");
     expect(entry).toMatch(/<FieldEvidenceGrid/);
     expect(entry).toMatch(/hasRequiredFieldEvidence\(fieldEvidence\)/);
     expect(entry).toMatch(/<FieldSignaturePad[\s\S]*?<FieldSignaturePad/);
     expect(entry).toMatch(/submitEquipmentMovementOfflineAware/);
-    expect(entry).toMatch(/entry: true/);
+    expect(entry).toMatch(/entry: !going/);
+    expect(entry).toMatch(/exit: going/);
     const dialog = componentBody(code, "MovementDialog");
     expect(dialog).toMatch(/<FieldEvidenceGrid/);
     expect(dialog).not.toMatch(/maxFiles=/);

@@ -171,7 +171,11 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     expect(dialog).toMatch(/onClick=\{\(\) => openRow\(row\)\}/);
     // Every kind but a machine profile opens the record sheet (2026-10 B2:
     // a machine opens its own profile to edit).
-    expect(dialog).toMatch(/if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT"\) \{\s+setOpen\(row\);/);
+    // A machine profile opens in its own editable dialog only for whoever may
+    // edit machines; everybody else reads it here (Fable B4 #5).
+    expect(dialog).toMatch(
+      /if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT" \|\| !can\("equipment\.manage"\)\) \{\s+setOpen\(row\);/,
+    );
     expect(dialog).toMatch(/<EquipmentDialog/);
     expect(dialog).toMatch(/<RecordSheet\s+row=\{open\}\s+fetchRecord=\{getCategoryRecord\}/);
     expect(sheet).toMatch(/role="dialog"/);

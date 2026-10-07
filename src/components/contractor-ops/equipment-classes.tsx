@@ -136,7 +136,8 @@ export function InlineClassCreator({
 }: {
   project: string;
   tree: EquipmentClassTree;
-  onCreated: (subClass: string) => void;
+  /** The sub class just made - its name too, shown before the list refetches. */
+  onCreated: (subClass: { id: string; name: string }) => void;
 }) {
   const t = useTranslations("contractorOps");
   const qc = useQueryClient();
@@ -160,7 +161,7 @@ export function InlineClassCreator({
       setOpen(false);
       setName("");
       setMajorName("");
-      onCreated(row.id);
+      onCreated({ id: row.id, name: row.name });
     },
     onError: (failure) =>
       setError(

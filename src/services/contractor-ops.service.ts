@@ -315,50 +315,10 @@ export async function ocrEquipmentDeliveryNote(project: string, image: File) {
     silent: true,
   });
 }
-/**
- * Apply to take a machine out (B13). Exits only since 2026-10 (X2): an entry
- * is recorded on site in one step (`recordEquipmentEntry`) and accepted by
- * the office.
- */
-export async function requestEquipmentMovement(payload: {
+/** What the phone sends for one movement recorded on site (C8, F3, Q27). */
+export interface OnSiteMovementPayload {
   project: string;
-  equipment: string;
-  direction: "EXIT";
-  quantity?: string;
-  unit?: EquipmentMovement["unit"];
-  notes?: string;
-  client_event_id: string;
-}) {
-  const row = await api.post<EquipmentMovement>(
-    "/api/site-equipment/request_movement/",
-    payload,
-  );
-  toastSuccess("contractorOps.toast.movementRequested");
-  return row;
-}
-
-/** The office's only part (B13): Approve, or Return with a reason. */
-export async function reviewEquipmentMovement(
-  id: string,
-  status: "APPROVED" | "RETURNED",
-  note = "",
-) {
-  const row = await api.post<EquipmentMovement>(
-    `/api/site-equipment/${id}/review_movement/`,
-    { status, note },
-  );
-  toastSuccess("contractorOps.toast.movementReviewed");
-  return row;
-}
-
-/**
- * 设备进场 in one step (2026-10 X2, C8, F3): the machine (or a 「新设备」's
- * name), photos, DO number, the scanned supplier, both signatures and GPS.
- * No quantity or unit - one entry is one machine. The office then accepts it.
- */
-export async function recordEquipmentEntry(payload: {
-  project: string;
-  /** Empty for a 「新设备」, which sends `equipment_name` instead. */
+  /** Empty for a 「新设备」, which sends `equipment_name` instead (entry only). */
   equipment?: string;
   equipment_name?: string;
   /**
@@ -369,6 +329,7 @@ export async function recordEquipmentEntry(payload: {
   supplier?: string;
   delivery_note_no: string;
   vehicle_plate?: string;
+  /** An entry's remark, or why the machine is going out (optional, Q27). */
   notes?: string;
   latitude?: string;
   longitude?: string;
@@ -382,7 +343,9 @@ export async function recordEquipmentEntry(payload: {
   delivery_note_photo?: File;
   receiver_signature?: File;
   supplier_signature?: File;
-}) {
+}
+
+function onSiteMovementForm(payload: OnSiteMovementPayload) {
   const data = new FormData();
   for (const [key, value] of Object.entries(payload)) {
     if (
@@ -397,12 +360,36 @@ export async function recordEquipmentEntry(payload: {
   if (payload.delivery_note_photo) data.append("delivery_note_photo", payload.delivery_note_photo);
   if (payload.receiver_signature) data.append("receiver_signature", payload.receiver_signature);
   if (payload.supplier_signature) data.append("supplier_signature", payload.supplier_signature);
+  return data;
+}
+
+/**
+ * 设备进场 in one step (2026-10 X2, C8, F3): the machine (or a 「新设备」's
+ * name), photos, DO number, the scanned supplier, both signatures and GPS.
+ * No quantity or unit - one entry is one machine. The office then accepts it.
+ */
+export async function recordEquipmentEntry(payload: OnSiteMovementPayload) {
   const row = await api.post<EquipmentMovement>(
     "/api/site-equipment/record_entry/",
-    data,
+    onSiteMovementForm(payload),
     { silent: true },
   );
   toastSuccess("contractorOps.toast.entrySubmitted");
+  return row;
+}
+
+/**
+ * 设备退场 in one step, like the entry (2026-10 Q27): a machine on site, the
+ * same evidence, and - if the worker says - why it is going. No application,
+ * no Return Note. The office then accepts it; only then is it off site.
+ */
+export async function recordEquipmentExit(payload: OnSiteMovementPayload) {
+  const row = await api.post<EquipmentMovement>(
+    "/api/site-equipment/record_exit/",
+    onSiteMovementForm(payload),
+    { silent: true },
+  );
+  toastSuccess("contractorOps.toast.exitSubmitted");
   return row;
 }
 
@@ -436,7 +423,27 @@ export async function reviewEquipmentEntry(
   return row;
 }
 
-/** The handover of an approved application: photos and both signatures (B13). */
+/**
+ * The office accepts an exit recorded on site - the machine is then off site
+ * - or rejects it with a reason, and it stays on site (Q27).
+ */
+export async function reviewEquipmentExit(
+  id: string,
+  decision: "ACCEPTED" | "REJECTED",
+  reason = "",
+) {
+  const row = await api.post<EquipmentMovement>(
+    `/api/site-equipment/${id}/review_exit/`,
+    { decision, reason },
+  );
+  toastSuccess("contractorOps.toast.entryReviewed");
+  return row;
+}
+
+/**
+ * 「直接交接」 of an application made before the one-step flow (X2, Q27):
+ * photos and both signatures; it then waits for the office's acceptance.
+ */
 export async function recordEquipmentMovement(payload: {
   project: string; equipment: string; direction: "ENTRY" | "EXIT"; delivery_note_no?: string;
   movement?: string; receiver_signature?: File; supplier_signature?: File;

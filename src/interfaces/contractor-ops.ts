@@ -360,6 +360,11 @@ export interface SiteEquipment {
   movement_count: number;
   quantity_on_site: string;
   /**
+   * The way this machine's movement waiting for the office's acceptance goes,
+   * else null (2026-10 C8, Q27): shown as 「进场待验收」 / 「退场待验收」.
+   */
+  awaiting_acceptance?: "ENTRY" | "EXIT" | null;
+  /**
    * Every photograph of the machine (T-298): its own, uploaded onto the
    * register (`REGISTER`), and those taken at each entry and exit.
    */
