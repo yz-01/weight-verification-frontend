@@ -20,6 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { toneOf, type StatusTone } from "@/lib/tones";
 import { cn } from "@/lib/utils";
 
 /**
@@ -221,21 +222,25 @@ export function ReadField({
   );
 }
 
-export type StatusTone = "neutral" | "positive" | "warning" | "danger" | "info";
+export type { StatusTone } from "@/lib/tones";
 
 /**
  * The dot colour of each tone. Exported so a timeline dot (E2) is the same
- * colour as the badge beside it, by construction rather than by copying.
+ * colour as the badge beside it, by construction rather than by copying. The
+ * colours come from the one status-to-colour map in `lib/tones`.
  */
 export const STATUS_DOT_CLASS: Record<StatusTone, string> = {
-  positive: "bg-success",
-  warning: "bg-warning",
-  danger: "bg-destructive",
-  info: "bg-info",
-  neutral: "bg-muted-foreground/40",
+  positive: toneOf("positive").dot,
+  warning: toneOf("warning").dot,
+  danger: toneOf("danger").dot,
+  info: toneOf("info").dot,
+  neutral: toneOf("neutral").dot,
+  primary: toneOf("primary").dot,
+  equipment: toneOf("equipment").dot,
+  attention: toneOf("attention").dot,
 };
 
-/** Pill with a leading dot, for lifecycle state. */
+/** Pill with a leading dot, for lifecycle state. One height everywhere. */
 export function StatusBadge({
   label,
   tone = "neutral",
@@ -243,23 +248,14 @@ export function StatusBadge({
   label: string;
   tone?: StatusTone;
 }) {
-  const tones = {
-    positive: "bg-success/10 text-success ring-success/20",
-    warning: "bg-warning/12 text-warning ring-warning/25",
-    danger: "bg-destructive/10 text-destructive ring-destructive/20",
-    info: "bg-info/10 text-info ring-info/20",
-    neutral: "bg-muted text-muted-foreground ring-border",
-  } as const;
-  const dots = STATUS_DOT_CLASS;
-
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset",
-        tones[tone],
+        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-xs font-medium leading-none ring-1 ring-inset",
+        toneOf(tone).soft,
       )}
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", dots[tone])} />
+      <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOT_CLASS[tone])} />
       {label}
     </span>
   );
@@ -276,7 +272,7 @@ export function TypeBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20",
+        "inline-flex h-6 items-center whitespace-nowrap rounded-full bg-tone-blue/12 px-2.5 text-xs font-medium leading-none text-tone-blue-fg ring-1 ring-inset ring-tone-blue/25",
         className,
       )}
     >
