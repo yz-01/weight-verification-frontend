@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { DrillNote } from "@/components/shared/drill-note";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
@@ -51,7 +52,9 @@ export function Dispatches() {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery(["state", "project", "waste_type"]);
+  // `counted=1` arrives from the head office's 原废料订单 card (F8): only the
+  // orders it counts - not a draft, not cancelled.
+  const list = useListQuery(["state", "project", "waste_type", "counted"]);
   const [removing, setRemoving] = useState<WasteDispatch | null>(null);
 
   const { data, isLoading, isError } = useQuery({
@@ -304,6 +307,13 @@ export function Dispatches() {
           ) : undefined
         }
       />
+      {list.filters.counted === "1" && (
+        <DrillNote
+          label={t("dispatches.countedOnly")}
+          clearLabel={t("dispatches.showAll")}
+          params={["counted"]}
+        />
+      )}
 
       <DataTable
         columns={columns}

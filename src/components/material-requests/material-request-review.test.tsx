@@ -227,3 +227,36 @@ describe("「提交给」 on the request form (D2, Q15)", () => {
     expect(html).toContain("这个项目还没有人能批准申请");
   });
 });
+
+describe("approving settles the supplier and the manufacturer (2026-10 D1, D2)", () => {
+  beforeEach(() => {
+    reader.id = HQ_ONE;
+    reader.codes = REVIEW;
+  });
+
+  it("puts both pickers beside approve, and holds approve back until both are chosen", () => {
+    const html = detail(request());
+    expect(html).toContain("批准就是采购决定");
+    expect(html).toMatch(/还差这些没填：[^<]*供应商[^<]*制造厂商/);
+  });
+
+  it("starts from what the applicant suggested, so nothing is missing", () => {
+    const html = detail(
+      request({
+        supplier: "s-1",
+        supplier_name: "Steel Trader",
+        manufacturer: "m-1",
+        manufacturer_name: "Southern Steel",
+      }),
+    );
+    expect(html).toContain("Steel Trader");
+    expect(html).toContain("Southern Steel");
+    expect(html).not.toMatch(/还差这些没填：[^<]*供应商/);
+  });
+
+  it("asks for neither on an other request", () => {
+    const html = detail(request({ request_type: "OTHER", material_name: "", quantity: null, unit: "" }));
+    expect(html).not.toContain("批准就是采购决定");
+    expect(html).toMatch(APPROVE);
+  });
+});

@@ -40,8 +40,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PAGE_SIZE_OPTIONS, useListQuery } from "@/hooks/use-list-query";
-import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
+import { type MaterialReceipt } from "@/interfaces/contractor";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
+import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
+import { materialExportSubtitle } from "@/lib/report-menu";
 import { cn } from "@/lib/utils";
 import {
   exportReceipts,
@@ -59,14 +63,17 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // `category` and `supplier` are the 【选择报表】 levels under the report
   // (B04): the figures, the records, their photos and the export all read
   // them from the address, so one choice updates all four together.
-  const list = useListQuery(["project", "date_from", "date_to", "category", "supplier"]);
+  const list = useListQuery(["project", "date_from", "date_to", "category", "supplier", "manufacturer"]);
   const filters = {
     project: list.filters.project,
     date_from: list.filters.date_from,
     date_to: list.filters.date_to,
     category: list.filters.category,
     supplier: list.filters.supplier,
+    // Whose make (2026-10 D1): the figures, the records and the export.
+    manufacturer: list.filters.manufacturer,
   };
+  const unitValues = useUnitExportValues();
 
   const summary = useQuery({
     queryKey: ["receipts", "summary", mode, filters],
@@ -82,17 +89,19 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const supplierName = filters.supplier
     ? summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name
     : t("reportSelector.allSuppliers");
-  const chosen = [
-    t(`materialReports.${mode}.title`),
-    materialName ?? "…",
-    supplierName ?? "…",
-  ].join(" › ");
+  const level = [materialName ?? "…", supplierName ?? "…"].join(" › ");
+  const chosen = [t(`materialReports.${mode}.title`), level].join(" › ");
 
   function runExport(format: ExportFormat) {
     return exportReceipts({
       format,
       title: t(`materialReports.${mode}.title`),
-      subtitle: t("materialReports.export.subtitle"),
+      // What the file was narrowed to: the period and the level (B3 #15).
+      subtitle: materialExportSubtitle(t, {
+        level,
+        dateFrom: filters.date_from,
+        dateTo: filters.date_to,
+      }),
       emptyLabel: t("table.noResults"),
       query: filters,
       // The file ends with each material's 累计总数量 (E5, Q24).
@@ -117,15 +126,17 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
               { key: "supplier_name", label: t("receipts.field.supplier") },
+              // DO and plate head every delivery (2026-10 C12).
+              { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
+              { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
+              { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
               { key: "material_name", label: t("receipts.field.materialName") },
               { key: "quantity", label: t("receipts.field.quantity") },
               { key: "cumulative_quantity", label: t("receipts.field.cumulativeQuantity") },
               {
                 key: "unit",
                 label: t("receipts.field.unit"),
-                values: Object.fromEntries(
-                  MATERIAL_UNITS.map((unit) => [unit, t(`receipts.unit.${unit}`)]),
-                ),
+                values: unitValues,
               },
             ]
           : [
@@ -133,14 +144,16 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
               { key: "supplier_name", label: t("receipts.field.supplier") },
+              // DO and plate head every delivery (2026-10 C12).
+              { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
+              { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
+              { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
               { key: "material_name", label: t("receipts.field.materialName") },
               { key: "quantity", label: t("receipts.field.quantity") },
               {
                 key: "unit",
                 label: t("receipts.field.unit"),
-                values: Object.fromEntries(
-                  MATERIAL_UNITS.map((unit) => [unit, t(`receipts.unit.${unit}`)]),
-                ),
+                values: unitValues,
               },
               { key: "unit_price", label: t("receipts.field.unitPrice") },
               { key: "total_value", label: t("receipts.field.totalValue") },
@@ -163,7 +176,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         ) : undefined}
       />
 
-      <div className="grid gap-3 rounded-lg border bg-card/50 p-3 shadow-sm md:grid-cols-[minmax(220px,1fr)_180px_180px_auto] md:items-end">
+      <div className="grid gap-3 rounded-lg border bg-card/50 p-3 shadow-sm md:grid-cols-[minmax(220px,1fr)_210px_180px_180px_auto] md:items-end">
         {can("project.view") && (
           <div className="space-y-1.5">
             <Label>{t("reports.filter.project")}</Label>
@@ -179,6 +192,16 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             />
           </div>
         )}
+        <div className="space-y-1.5">
+          <Label>{t("receipts.field.manufacturer")}</Label>
+          <SupplierDateFilter
+            value={{ manufacturer: list.filters.manufacturer }}
+            onChange={(next) => list.setFilter("manufacturer", next.manufacturer)}
+            showSupplier={false}
+            showDates={false}
+            showManufacturer
+          />
+        </div>
         <div className="space-y-1.5">
           <Label>{t("reports.filter.dateFrom")}</Label>
           <Input
@@ -261,6 +284,7 @@ function ReportRecords({
   onPageSizeChange: (pageSize: number) => void;
 }) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const df = useDateFormat();
   const records = useQuery({
     queryKey: ["receipts", "report-records", filters, page, pageSize],
@@ -280,6 +304,7 @@ function ReportRecords({
             <TableHead>{t("receipts.field.capturedAt")}</TableHead>
             <TableHead>{t("receipts.field.receiptNo")}</TableHead>
             <TableHead>{t("receipts.field.supplier")}</TableHead>
+            <TableHead>{t("receipts.field.manufacturer")}</TableHead>
             <TableHead>{t("receipts.field.materialName")}</TableHead>
             <TableHead className="text-right">{t("receipts.field.quantity")}</TableHead>
             <TableHead>{t("materialReports.records.photos")}</TableHead>
@@ -292,9 +317,12 @@ function ReportRecords({
               <TableCell className="tabular text-muted-foreground">{df.dateTime(row.captured_at)}</TableCell>
               <TableCell className="tabular font-medium">{row.receipt_no}</TableCell>
               <TableCell>{row.supplier_name}</TableCell>
+              <TableCell>
+                <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
+              </TableCell>
               <TableCell>{row.material_name}</TableCell>
               <TableCell className="tabular text-right">
-                {row.quantity} {t(`receipts.unit.${row.unit}`)}
+                {row.quantity} {unitName(row.unit, row.unit_label)}
               </TableCell>
               <TableCell>
                 <RecordPhotos record={row} />
@@ -458,6 +486,7 @@ function QuantityReport({
   data: Awaited<ReturnType<typeof getReceiptSummary>> | undefined;
 }) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const formatter = useFormatter();
 
   if (!data || data.total_receipts === 0) return <EmptyReport />;
@@ -474,7 +503,7 @@ function QuantityReport({
           <Metric
             key={row.unit}
             icon={Package}
-            label={t(`receipts.unit.${row.unit}`)}
+            label={unitName(row.unit)}
             value={row.quantity}
             detail={t("materialReports.quantity.deliveryCount", {
               count: row.receipts,
@@ -506,7 +535,7 @@ function QuantityReport({
                 <TableCell className="text-muted-foreground">
                   {row.material_specification || t("common.emptyValue")}
                 </TableCell>
-                <TableCell><TypeBadge label={t(`receipts.unit.${row.unit}`)} /></TableCell>
+                <TableCell><TypeBadge label={unitName(row.unit)} /></TableCell>
                 <TableCell className="tabular text-right">{row.quantity}</TableCell>
                 <TableCell className="tabular text-right">{row.cumulative_quantity}</TableCell>
                 <TableCell className="tabular text-right text-muted-foreground">
@@ -531,6 +560,7 @@ function CostReport({
   data: Awaited<ReturnType<typeof getReceiptSummary>> | undefined;
 }) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const formatter = useFormatter();
 
   if (!data || data.total_receipts === 0) return <EmptyReport />;
@@ -617,7 +647,7 @@ function CostReport({
               {data.by_material.map((row) => (
                 <TableRow key={`${row.material_name}-${row.unit}`}>
                   <TableCell className="font-medium">{row.material_name}</TableCell>
-                  <TableCell><TypeBadge label={t(`receipts.unit.${row.unit}`)} /></TableCell>
+                  <TableCell><TypeBadge label={unitName(row.unit)} /></TableCell>
                   <TableCell className="tabular text-right">{money(row.total_cost)}</TableCell>
                   <TableCell className="tabular text-right">
                     {row.unpriced_receipts > 0 ? (

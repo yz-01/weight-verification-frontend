@@ -3097,6 +3097,11 @@
       "closed": "已閉環",
       "open": "未閉環",
       "openHelp": "發起人在隱患整改裡確認完成後就閉環。"
+    },
+    "waiting": {
+      "only": "只顯示等你確認的記錄，和儀表板「等你處理」是同一批。點「打開」到它的業務頁面確認。",
+      "showAll": "顯示全部記錄",
+      "empty": "沒有等你確認的記錄。"
     }
   },
   "assets": {
@@ -3183,7 +3188,8 @@
       "project": "選擇項目",
       "outsideFence": "圍欄外打卡",
       "since": "{date} 起",
-      "onDay": "{date} 當天"
+      "onDay": "{date} 當天",
+      "onePerson": "只看 {name}"
     },
     "title": "人員進場記錄",
     "toast": {
@@ -3989,8 +3995,19 @@
       "amountHint": "不計預算的分類留空",
       "alerts": "在這些百分比提醒",
       "alertsHint": "用逗號分隔，例如 80, 100。改了預算會重新算已經越過哪幾條線。",
-      "alertsInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
-      "none": "沒有設預算"
+      "alertsInvalid": "請填 1 到 1000 之間的整數，用逗號分隔。",
+      "none": "沒有設預算",
+      "mode": "預算按",
+      "modeAmount": "金額（RM，按送貨單）",
+      "modeQuantity": "數量（按分類單位）",
+      "quantity": "預算數量",
+      "quantityHint": "單位：{unit}。噸和公斤會換算後一起累計。",
+      "quantityNeedsUnit": "請先選分類的單位。",
+      "thresholdAmounts": "另外在這些數值提醒",
+      "thresholdAmountsHint": "選填。用逗號分隔，例如 400000, 450000（RM）；數量模式填數量。",
+      "thresholdAmountsInvalid": "請填大於 0 的數字，用逗號分隔。",
+      "recipients": "提醒發給公司管理員和項目負責人，每條線只發一次；總數回落到線下會撤回。",
+      "quantityUsed": "已進場 {used} / {budget} {unit}"
     },
     "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
     "viewRecords": "查看記錄",
@@ -4005,7 +4022,44 @@
       "emptyFiltered": "這個分類裡沒有符合篩選條件的記錄。",
       "deliveryNoteNo": "DO"
     },
-    "quantityReturned": "退場 {quantity}"
+    "quantityReturned": "退場 {quantity}",
+    "units": {
+      "title": "單位管理",
+      "open": "單位管理",
+      "help": "材料用的計量單位。分類的單位從這裡選；6 個內建單位一直都在。",
+      "label": "單位名稱",
+      "add": "新增單位",
+      "builtIn": "內建",
+      "active": "使用中",
+      "inactive": "已停用",
+      "switchOff": "停用",
+      "switchOn": "啟用",
+      "rename": "改名",
+      "save": "保存",
+      "offHint": "停用後不再供選擇；已用這個單位的記錄不受影響。",
+      "duplicate": "這個單位已經在名單裡。",
+      "what": "單位列表",
+      "toast": {
+        "created": "已新增單位",
+        "updated": "已保存單位"
+      }
+    },
+    "material": {
+      "title": "現場自動帶出",
+      "help": "在這裡設好，手機選這個分類時會自動帶出。",
+      "defaultUnit": "單位",
+      "defaultUnitHint": "手機只顯示，不用填。",
+      "noUnit": "不固定單位",
+      "suppliers": "供應商",
+      "suppliersHint": "只有一家：自動帶出；多家：手機只能從這幾家選；掃供應商二維碼優先。",
+      "manufacturers": "指定廠商",
+      "manufacturersHint": "記錄的廠商不在名單裡會標「非指定廠商」，只提醒、不阻擋。",
+      "search": "輸入搜尋",
+      "noneChosen": "未選擇",
+      "what": {
+        "suppliers": "供應商列表"
+      }
+    }
   },
   "cloudServices": {
     "count": "{count} 項服務",
@@ -5420,6 +5474,12 @@
       "title": "待處理事項",
       "showAll": "顯示全部 {count} 項",
       "showFewer": "收起"
+    },
+    "cards": {
+      "viewAll": "查看全部",
+      "empty": "現在沒有。",
+      "loading": "載入中",
+      "what": "這張卡的前 5 條"
     }
   },
   "contractorOps": {
@@ -5729,7 +5789,13 @@
       },
       "title": "工程進度",
       "plannedWeight": "進度權重",
-      "plannedWeightHelp": "這個階段相對於本項目其他階段所佔的比重。1 表示與其他階段相同。"
+      "plannedWeightHelp": "這個階段相對於本項目其他階段所佔的比重。1 表示與其他階段相同。",
+      "phaseRemove": {
+        "switch": "刪除這個階段",
+        "hint": "只有沒有任何進度記錄指著的階段可以刪除（例如建錯的）；在用的請在上面關掉。",
+        "confirm": "刪除階段",
+        "failed": "階段沒有刪除成功，請再試一次。"
+      }
     },
     "progressEvidence": {
       "activity": "2. 施工活動",
@@ -6538,7 +6604,9 @@
       "tracking": "收運進度",
       "projects": "項目列表",
       "recyclers": "本項目的回收商列表"
-    }
+    },
+    "countedOnly": "只顯示總部「原廢料訂單」計入數量的訂單：不含草稿和已取消。",
+    "showAll": "顯示全部"
   },
   "documents": {
     "downloading": "下載中",
@@ -6555,7 +6623,13 @@
       "add": "新增分類",
       "create": "建立分類",
       "edit": "編輯分類",
-      "title": "分類"
+      "title": "分類",
+      "remove": {
+        "switch": "刪除這個分類",
+        "hint": "只有沒有文檔、也沒有子分類的分類可以刪除；在用的請在上面停用，舊文檔仍保留這個分類。",
+        "confirm": "刪除分類",
+        "failed": "分類沒有刪除成功，請再試一次。"
+      }
     },
     "companyWide": "公司級",
     "count": "共 {count} 份文檔",
@@ -7073,6 +7147,7 @@
       "evidence_file_unavailable": "此證據文件當前無法使用。",
       "export_no_columns": "請至少選擇一列再導出。",
       "export_too_large": "這次選擇的數據量太大，無法導出。請先用篩選縮小範圍。",
+      "export_too_many_with_photos": "這次導出有 {count} 筆帶照片的記錄，一次最多 {limit} 筆。請用日期、項目或供應商縮小篩選範圍後再導出。",
       "export_unavailable": "PDF 導出暫時不可用，請改用表格格式。",
       "feedback_not_found": "找不到該客戶反饋。",
       "field_device_already_bound": "此現場人員賬號已綁定一臺設備。如需換機，請先讓管理員重置設備。",
@@ -7735,7 +7810,11 @@
       "supplierGuessUse": "用這家",
       "documentAmount": "送貨單金額 (RM)",
       "documentAmountRead": "已從送貨單讀出，請對照紙本核對。",
-      "documentAmountTypeHint": "讀不到金額時，請照送貨單上的總金額填寫（可不填）。"
+      "documentAmountTypeHint": "讀不到金額時，請照送貨單上的總金額填寫（可不填）。",
+      "autoFilledFromCategory": "按分類自動帶出",
+      "supplierLimited": "只列這個分類設定的供應商",
+      "manufacturer": "製造廠商",
+      "chooseColumnFirst": "請先選分類"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -8039,6 +8118,11 @@
     },
     "what": {
       "conversation": "整改溝通"
+    },
+    "popup": {
+      "region": "隱患整改提醒",
+      "open": "打開",
+      "dismiss": "關閉"
     }
   },
   "headquarters": {
@@ -9354,7 +9438,6 @@
       "fields": "欄位",
       "photos": "照片",
       "documents": "單據（DO）",
-      "messages": "事項溝通",
       "files": "文件"
     },
     "itemAccepted": "已接受",
@@ -9392,7 +9475,7 @@
     "oneProjectHelp": "一個資料包屬於一個項目。裡面的資料來自這個項目的各個分類，別的項目的記錄會被拒絕。",
     "open": "開啟",
     "pageOf": "第 {page} / {pages} 頁",
-    "partsSummary": "{fields} 個欄位 · {photos} 張照片 · {documents} 張單據 · {files} 個文件 · {messages} 則溝通",
+    "partsSummary": "{fields} 個欄位 · {photos} 張照片 · {documents} 張單據 · {files} 個文件",
     "previous": "上一頁",
     "remarksHelp": "幾個月後，這段話是唯一能說明當初為什麼把這些資料收在一起的東西。",
     "rename": "改名",
@@ -9440,7 +9523,7 @@
     },
     "include": {
       "title": "這些事項要放進資料包的內容",
-      "hint": "欄位一定會放入。照片預設勾選；DO、文件、事項溝通需要時才勾選。加入後仍可開啟每個事項再調整。"
+      "hint": "欄位一定會放入。照片預設勾選；DO、文件需要時才勾選。聊天記錄不放進 PDF，在系統裡照樣能看。加入後仍可開啟每個事項再調整。"
     },
     "loadMore": "載入更多（已顯示 {shown} / {total}）"
   },
@@ -9525,7 +9608,8 @@
       "decided_by": "批准 / 退回人",
       "original_quantity": "原數量",
       "correction_reason": "更正原因",
-      "assigned_reviewer": "提交給"
+      "assigned_reviewer": "提交給",
+      "manufacturer": "製造廠商"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -9871,7 +9955,8 @@
       "wasteClearance": "垃圾清運",
       "equipmentEntry": "設備進場",
       "equipmentExit": "設備退場",
-      "targetReport": "目標與達成"
+      "targetReport": "目標與達成",
+      "manufacturers": "製造廠商"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -11322,7 +11407,8 @@
       "documentAmountSource": {
         "OCR": "從送貨單讀出",
         "MANUAL": "人工填寫"
-      }
+      },
+      "manufacturer": "製造廠商"
     },
     "locationCaptured": "已記錄位置",
     "locationMissing": "無位置",
@@ -12161,6 +12247,7 @@
       "updated": "安全事故已更新"
     },
     "update": {
+      "closeHint": "這裡只能標記處理中或重新打開。要閉環：先指派整改人，整改提交後由發起人確認完成。",
       "description": "更新 {incident} 並保留處理歷史。",
       "title": "更新事故狀態"
     },
@@ -12169,6 +12256,11 @@
       "responsiblePeople": "負責人列表",
       "requestedIncident": "連結中的事故",
       "workers": "可通知人員"
+    },
+    "drill": {
+      "waitingForMe": "只顯示等你處理的整改：要你指派、整改或確認的。",
+      "overdue": "只顯示逾期整改：過了期限、還沒驗收通過的。",
+      "showAll": "顯示全部"
     }
   },
   "safetyRectification": {
@@ -13413,7 +13505,9 @@
       "note": "備註",
       "submit": "提交後台",
       "photos": "照片"
-    }
+    },
+    "countedOnly": "只顯示總部「原工地清運」計入數量的申請：不含已拒絕和已取消。",
+    "showAll": "顯示全部"
   },
   "siteGps": {
     "allProjects": "全部項目",
@@ -15099,8 +15193,7 @@
     "confirmer": {
       "safetyLeads": "專案安全負責人",
       "legacy": "有驗收權限的人員（整改人除外）",
-      "me": "我自己（預設）",
-      "initiator": "你——後台或顧問發起的，由發起人確認"
+      "initiator": "你——誰發起，誰確認完成"
     },
     "field": {
       "origin": "發起來源",
@@ -15135,14 +15228,10 @@
       "confirm": "確認完成"
     },
     "form": {
-      "selectConfirmer": "選擇確認人",
-      "confirmerHint": "只有確認人能確認完成，整改人不能自己確認。",
-      "confirmerConflict": "確認人和整改人不能是同一人。",
+      "confirmerHint": "只有發起人能確認完成，整改人不能自己確認。",
+      "confirmerConflict": "發起人要確認完成，不能同時當整改人。",
       "rectifier": "整改人",
       "noRectifier": "暫不指定，由主管分配"
-    },
-    "what": {
-      "confirmers": "可選的確認人"
     }
   },
   "materialRequest": {
@@ -15193,7 +15282,9 @@
       "remark": "備註",
       "attachments": "附件",
       "assignedReviewer": "提交給",
-      "reassignHistory": "改派記錄"
+      "reassignHistory": "改派記錄",
+      "supplier": "供應商",
+      "manufacturer": "製造廠商"
     },
     "action": {
       "view": "查看",
@@ -15261,7 +15352,8 @@
       "assignedReviewerHint": "只列出這個項目能批准申請的人。",
       "chooseReviewer": "選擇審批人",
       "projectFirst": "請先選擇項目",
-      "noReviewers": "這個項目還沒有人能批准申請。請公司管理員在「角色權限」裡，給審批人的角色勾上「批准或退回 MR / 其他申請」。"
+      "noReviewers": "這個項目還沒有人能批准申請。請公司管理員在「角色權限」裡，給審批人的角色勾上「批准或退回 MR / 其他申請」。",
+      "suggestHint": "選填，總部批准時決定。"
     },
     "options": {
       "open": "材料選項",
@@ -15297,7 +15389,13 @@
     "waitingFor": "等待 {name} 審批。",
     "reassigned": "{by} 改派給自己 · {at}",
     "reassignedFrom": "{by} 從 {from} 改派給自己 · {at}",
-    "reassignHelp": "改派後由你批准或退回，原來的審批人不能再批，系統會留下改派記錄。"
+    "reassignHelp": "改派後由你批准或退回，原來的審批人不能再批，系統會留下改派記錄。",
+    "approve": {
+      "title": "批准 {reference}",
+      "help": "批准就是採購決定：選好向哪家供應商買、用哪家廠商。",
+      "chooseSupplier": "選擇供應商",
+      "confirm": "批准"
+    }
   },
   "filePreview": {
     "unsupported": "瀏覽器無法直接顯示 {ext} 檔案。",
@@ -15338,11 +15436,57 @@
     "from": "開始日期",
     "to": "至",
     "toLabel": "結束日期",
-    "what": "供應商列表"
+    "what": "供應商列表",
+    "allManufacturers": "全部廠商",
+    "manufacturer": "製造廠商",
+    "whatManufacturers": "廠商名單"
   },
   "recordNo": {
     "copy": "複製 {number}",
     "copied": "已複製 {number}",
     "copyFailed": "複製失敗。長按編號可以看到完整編號。"
+  },
+  "manufacturers": {
+    "title": "製造廠商",
+    "description": "生產材料的工廠。材料分類可以設「指定廠商」；記錄上的廠商不在名單裡會標「非指定廠商」。",
+    "new": "新增廠商",
+    "createTitle": "新增廠商",
+    "editTitle": "編輯廠商",
+    "field": {
+      "name": "廠商名稱",
+      "country": "國家",
+      "isActive": "啟用",
+      "sortOrder": "排序",
+      "createdAt": "新增時間"
+    },
+    "empty": "還沒有廠商",
+    "what": "廠商名單",
+    "duplicate": "這個廠商已經在名單裡。",
+    "inUse": "已有記錄用了這個廠商，請改為停用。",
+    "switchedOff": "已停用",
+    "remove": {
+      "title": "刪除 {name}？",
+      "description": "只有還沒被任何記錄用過的廠商可以刪除；已用過的請停用，舊記錄仍保留廠商名稱。",
+      "confirm": "刪除"
+    },
+    "toast": {
+      "created": "已新增廠商",
+      "updated": "已更新廠商",
+      "removed": "已刪除廠商"
+    },
+    "column": "製造廠商",
+    "offList": "非指定廠商",
+    "offListHint": "這個分類指定了其他廠商，仍然可以提交。",
+    "picker": {
+      "choose": "選擇製造廠商",
+      "none": "未填寫",
+      "designated": "指定廠商",
+      "addNew": "名單裡沒有？新增",
+      "newName": "新廠商名稱",
+      "add": "新增",
+      "offline": "新增廠商需要網路。請先從名單選，或先不填。",
+      "failed": "廠商新增失敗。",
+      "fromColumn": "按分類自動帶出"
+    }
   }
 }

@@ -15,6 +15,8 @@ import {
 import {
   HeadquartersPresence,
   HeadquartersWork,
+  WORK_TABS,
+  type WorkTab,
 } from "@/components/dashboard/headquarters-work";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,13 +42,21 @@ export function HeadquartersHome() {
 
 /**
  * 公司总部 Dashboard (C11, C19), top to bottom: the company banner; the
- * company's figures (what is waiting comes first - each opens its projects);
+ * company's figures (what is waiting comes first - each opens the list of
+ * exactly what it counts, F8);
  * the 交互总览地图 with 项目总览 as the main overview; what waits on a decision
  * and what is overdue, beside 在场人数 by project; then today's site photos.
  * Every row and figure leads to the item, the list or the project.
  */
 export function HeadquartersDashboard() {
   const t = useTranslations("headquarters");
+  // 待审批 cards (here and on the project dashboard) open 总部集中审批 with
+  // `?work=approvals&work_project=` (F8, B8). Keyed on them, so a second card
+  // click on this page opens the tab and project it names.
+  const searchParams = useSearchParams();
+  const asked = searchParams.get("work") as WorkTab | null;
+  const workTab = asked && WORK_TABS.includes(asked) ? asked : "approvals";
+  const workProject = searchParams.get("work_project") ?? "";
   const overview = useQuery({
     queryKey: ["contractor-dashboard", "headquarters"],
     queryFn: getHeadquarters,
@@ -77,12 +87,17 @@ export function HeadquartersDashboard() {
           <HeadquartersMap
             projects={data.projects}
             withoutLocation={data.without_location}
+            date={data.date}
             onOpenPhoto={photos.open}
           />
         </div>
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
           <div className="xl:col-span-2">
-            <HeadquartersWork />
+            <HeadquartersWork
+              key={`${workTab}:${workProject}`}
+              initialTab={workTab}
+              approvalsProject={workProject}
+            />
           </div>
           <HeadquartersPresence data={data} />
         </div>

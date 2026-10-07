@@ -251,9 +251,14 @@ describe("the record sheet only reads", () => {
 
   it("is opened read-only by every caller except 「等你处理」", () => {
     const read = (file: string) => readFileSync(path.join(process.cwd(), "src", file), "utf8");
-    const dashboard = read("components/dashboard/contractor-dashboard.tsx");
-    expect(dashboard).toMatch(/const waitingOpener = useRecordOpener\(\{ confirm: true \}\);/);
-    expect(dashboard).toMatch(/<WaitingRow [^>]*onOpen=\{waitingOpener\.open\}/);
+    // 「等你处理」 is the dashboard card's pop-up now (B8, F6) and its full
+    // list, the record centre with `?waiting=1`.
+    const cards = read("components/dashboard/dashboard-cards.tsx");
+    expect(cards).toMatch(/const waitingOpener = useRecordOpener\(\{ confirm: true \}\);/);
+    expect(cards).toMatch(/waitingOpener\.open\(row\.kind, row\.id, heading\)/);
+    const queue = read("components/contractor-ops/archive-queue.tsx");
+    expect(queue).toMatch(/const confirmOpener = useRecordOpener\(\{ confirm: true \}\);/);
+    expect(queue).toMatch(/waiting &&\s+confirmOpener\.open\(/);
     // The photo strip, the timeline and the head-office photos keep the reading one.
     expect(read("components/dashboard/headquarters-photos.tsx")).toMatch(/useRecordOpener\(\)/);
     expect(read("components/contractor-ops/archive-queue.tsx")).toMatch(

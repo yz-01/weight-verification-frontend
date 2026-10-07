@@ -250,9 +250,20 @@ export interface DeliveryNotePublic {
   evidence: DeliveryNoteEvidence[];
 }
 
-export type MaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
+/** The six codes every company starts with; the screens translate these. */
+export type BuiltInMaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
 
-export const MATERIAL_UNITS: MaterialUnit[] = [
+/**
+ * A code from the company's unit list (2026-10 A4, 「单位管理」): one of the six
+ * built-in codes, or one the office added - which carries its own label.
+ */
+export type MaterialUnit = string;
+
+/**
+ * The built-in codes, for translating - never the list a form offers. What a
+ * form offers comes from the company's unit list (`useMaterialUnits`).
+ */
+export const BUILT_IN_MATERIAL_UNITS: readonly BuiltInMaterialUnit[] = [
   "TONNE",
   "KG",
   "M3",
@@ -260,6 +271,38 @@ export const MATERIAL_UNITS: MaterialUnit[] = [
   "LOAD",
   "BAG",
 ];
+
+export function isBuiltInMaterialUnit(code: string): code is BuiltInMaterialUnit {
+  return (BUILT_IN_MATERIAL_UNITS as readonly string[]).includes(code);
+}
+
+/** One unit on the company's list (2026-10 A4). */
+export interface MaterialUnitOption {
+  id: string;
+  code: string;
+  label: string;
+  sort_order: number;
+  is_active: boolean;
+  /** One of the six every company starts with: named by translation. */
+  built_in: boolean;
+}
+
+/** One factory on the company's manufacturer list (2026-10 D1). */
+export interface Manufacturer {
+  id: string;
+  name: string;
+  country: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface ManufacturerPayload {
+  name: string;
+  country?: string;
+  is_active?: boolean;
+  sort_order?: number;
+}
 
 export type PhotoKind = "DELIVERY_NOTE" | "VEHICLE" | "UNLOADING" | "OTHER";
 
@@ -293,6 +336,13 @@ export interface MaterialReceipt {
   project_name: string;
   supplier: string;
   supplier_name: string;
+  /** The factory that made it (2026-10 D1); null when nobody said. */
+  manufacturer?: string | null;
+  manufacturer_name?: string | null;
+  /** Made by a factory the column does not designate: 「非指定厂商」, a warning. */
+  manufacturer_off_list?: boolean;
+  /** A unit the company added says its own name; null for a built-in code. */
+  unit_label?: string | null;
   movement_type: "ENTRY" | "RETURN";
   return_reason: string;
   /** Which material column this delivery is filed in; null when unfiled. */
@@ -507,6 +557,8 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
 export interface MaterialReceiptPayload {
   project: string;
   supplier: string;
+  /** The factory that made it (2026-10 D1); optional. */
+  manufacturer?: string | null;
   qr_code?: string | null;
   movement_type?: "ENTRY" | "RETURN";
   return_reason?: string;

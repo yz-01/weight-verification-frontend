@@ -51,6 +51,14 @@ export interface MaterialRequest {
   quantity: string | null;
   unit: string;
   remark: string;
+  /**
+   * Who to buy from and whose make (2026-10 D1, D2): the applicant may
+   * suggest them, approving settles both.
+   */
+  supplier?: string | null;
+  supplier_name?: string | null;
+  manufacturer?: string | null;
+  manufacturer_name?: string | null;
   submitted_by: string | null;
   submitted_by_name: string | null;
   submitted_at: string;
@@ -109,6 +117,8 @@ export interface MaterialRequestDraft {
   remark?: string;
   /** 「提交给」 (D2): required by the server. */
   assigned_reviewer?: string;
+  /** Whose make, suggested (2026-10 D1); the approver settles it. */
+  manufacturer?: string;
   client_event_id?: string;
   attachments: File[];
 }

@@ -14,6 +14,7 @@ import {
   Loader2,
   Pencil,
   Plus,
+  Trash2,
   Upload,
   X,
 } from "lucide-react";
@@ -90,6 +91,7 @@ import {
   archiveDocument,
   createDocumentCategory,
   createDocumentSubcategory,
+  deleteDocumentCategory,
   documentVersionObjectUrl,
   downloadDocumentVersion,
   downloadSystemFile,
@@ -635,10 +637,12 @@ function SourceTag({
 
 /**
  * How a system file is shown: a photograph comes back as its watermarked
- * JPEG whatever it was uploaded as; anything else as the server says.
+ * JPEG whatever it was uploaded as; anything else as the server says. Not
+ * keyed on the thumbnail: a list leaves a photo not stamped yet without one
+ * (Fable #17), and opening it is what stamps it.
  */
 function systemFilePreviewType(source: DocumentSystemFileInfo): string | null {
-  if (source.kind === "PHOTO" && source.thumbnail_url) return "image/jpeg";
+  if (source.kind === "PHOTO") return "image/jpeg";
   return source.preview_type;
 }
 
@@ -1738,6 +1742,12 @@ function TaxonomyList({
 /**
  * One document category's form. Exported so Category Management can open it
  * in a dialog in place (D-264) - one form, two places it is shown.
+ *
+ * Correcting an existing category also offers removing it (p23): this dialog
+ * is the only place document categories are managed since B1 took them out of
+ * 分类管理 (Q5). Armed by a switch, never a confirm dialog (spec rule 8). A
+ * category documents or subcategories still use is refused by the server,
+ * which names them; that sentence is shown here, beside the switch.
  */
 export function CategoryForm({
   category,
@@ -1754,6 +1764,16 @@ export function CategoryForm({
   const [description, setDescription] = useState(category?.description ?? "");
   const [active, setActive] = useState(category?.is_active ?? true);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [removeArmed, setRemoveArmed] = useState(false);
+  const [removeRefusal, setRemoveRefusal] = useState("");
+  const removal = useMutation({
+    mutationFn: () => deleteDocumentCategory(category!.id),
+    onSuccess: onDone,
+    onError: (error) =>
+      setRemoveRefusal(
+        error instanceof ApiError ? error.message : t("documents.categories.remove.failed"),
+      ),
+  });
   const mutation = useMutation({
     mutationFn: () => {
       const payload: DocumentCategoryPayload = {
@@ -1812,6 +1832,49 @@ export function CategoryForm({
         </div>
         <Switch checked={active} onCheckedChange={setActive} />
       </div>
+      {category && (
+        <div className="space-y-2 rounded-md border border-destructive/20 px-3 py-2 sm:col-span-2">
+          <label className="flex items-start gap-3">
+            <Switch
+              checked={removeArmed}
+              onCheckedChange={(next) => {
+                setRemoveArmed(next);
+                setRemoveRefusal("");
+              }}
+              aria-label={t("documents.categories.remove.switch")}
+            />
+            <span>
+              <span className="block text-sm font-medium">
+                {t("documents.categories.remove.switch")}
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                {t("documents.categories.remove.hint")}
+              </span>
+            </span>
+          </label>
+          {removeArmed && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="w-full"
+              disabled={removal.isPending || mutation.isPending}
+              onClick={() => removal.mutate()}
+            >
+              {removal.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              {t("documents.categories.remove.confirm")}
+            </Button>
+          )}
+          {removeRefusal && (
+            <p role="alert" className="text-sm text-destructive">
+              {removeRefusal}
+            </p>
+          )}
+        </div>
+      )}
     </TaxonomyFormShell>
   );
 }

@@ -3097,6 +3097,11 @@
       "closed": "已闭环",
       "open": "未闭环",
       "openHelp": "发起人在隐患整改里确认完成后就闭环。"
+    },
+    "waiting": {
+      "only": "只显示等你确认的记录，和仪表板「等你处理」是同一批。点「打开」到它的业务页面确认。",
+      "showAll": "显示全部记录",
+      "empty": "没有等你确认的记录。"
     }
   },
   "assets": {
@@ -3183,7 +3188,8 @@
       "project": "选择项目",
       "outsideFence": "围栏外打卡",
       "since": "{date} 起",
-      "onDay": "{date} 当天"
+      "onDay": "{date} 当天",
+      "onePerson": "只看 {name}"
     },
     "title": "人员进场记录",
     "toast": {
@@ -3989,8 +3995,19 @@
       "amountHint": "不计预算的分类留空",
       "alerts": "在这些百分比提醒",
       "alertsHint": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
-      "alertsInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
-      "none": "没有设预算"
+      "alertsInvalid": "请填 1 到 1000 之间的整数，用逗号分隔。",
+      "none": "没有设预算",
+      "mode": "预算按",
+      "modeAmount": "金额（RM，按送货单）",
+      "modeQuantity": "数量（按分类单位）",
+      "quantity": "预算数量",
+      "quantityHint": "单位：{unit}。吨和公斤会换算后一起累计。",
+      "quantityNeedsUnit": "请先选分类的单位。",
+      "thresholdAmounts": "另外在这些数值提醒",
+      "thresholdAmountsHint": "选填。用逗号分隔，例如 400000, 450000（RM）；数量模式填数量。",
+      "thresholdAmountsInvalid": "请填大于 0 的数字，用逗号分隔。",
+      "recipients": "提醒发给公司管理员和项目负责人，每条线只发一次；总数回落到线下会撤回。",
+      "quantityUsed": "已进场 {used} / {budget} {unit}"
     },
     "saveFailed": "没有成功。请再试一次，或者刷新页面。",
     "viewRecords": "查看记录",
@@ -4005,7 +4022,44 @@
       "emptyFiltered": "这个分类里没有符合筛选条件的记录。",
       "deliveryNoteNo": "DO"
     },
-    "quantityReturned": "退场 {quantity}"
+    "quantityReturned": "退场 {quantity}",
+    "units": {
+      "title": "单位管理",
+      "open": "单位管理",
+      "help": "材料用的计量单位。分类的单位从这里选；6 个内建单位一直都在。",
+      "label": "单位名称",
+      "add": "新增单位",
+      "builtIn": "内建",
+      "active": "使用中",
+      "inactive": "已停用",
+      "switchOff": "停用",
+      "switchOn": "启用",
+      "rename": "改名",
+      "save": "保存",
+      "offHint": "停用后不再供选择；已用这个单位的记录不受影响。",
+      "duplicate": "这个单位已经在名单里。",
+      "what": "单位列表",
+      "toast": {
+        "created": "已新增单位",
+        "updated": "已保存单位"
+      }
+    },
+    "material": {
+      "title": "现场自动带出",
+      "help": "在这里设好，手机选这个分类时会自动带出。",
+      "defaultUnit": "单位",
+      "defaultUnitHint": "手机只显示，不用填。",
+      "noUnit": "不固定单位",
+      "suppliers": "供应商",
+      "suppliersHint": "只有一家：自动带出；多家：手机只能从这几家选；扫供应商二维码优先。",
+      "manufacturers": "指定厂商",
+      "manufacturersHint": "记录的厂商不在名单里会标「非指定厂商」，只提醒、不阻挡。",
+      "search": "输入搜索",
+      "noneChosen": "未选择",
+      "what": {
+        "suppliers": "供应商列表"
+      }
+    }
   },
   "cloudServices": {
     "count": "{count} 项服务",
@@ -5420,6 +5474,12 @@
       "title": "待处理事项",
       "showAll": "显示全部 {count} 项",
       "showFewer": "收起"
+    },
+    "cards": {
+      "viewAll": "查看全部",
+      "empty": "现在没有。",
+      "loading": "载入中",
+      "what": "这张卡的前 5 条"
     }
   },
   "contractorOps": {
@@ -5729,7 +5789,13 @@
       },
       "title": "工程进度",
       "plannedWeight": "进度权重",
-      "plannedWeightHelp": "这个阶段相对于本项目其他阶段所占的比重。1 表示与其他阶段相同。"
+      "plannedWeightHelp": "这个阶段相对于本项目其他阶段所占的比重。1 表示与其他阶段相同。",
+      "phaseRemove": {
+        "switch": "删除这个阶段",
+        "hint": "只有没有任何进度记录指着的阶段可以删除（例如建错的）；在用的请在上面关掉。",
+        "confirm": "删除阶段",
+        "failed": "阶段没有删除成功，请再试一次。"
+      }
     },
     "progressEvidence": {
       "activity": "2. 施工活动",
@@ -6538,7 +6604,9 @@
       "tracking": "收运进度",
       "projects": "项目列表",
       "recyclers": "本项目的回收商列表"
-    }
+    },
+    "countedOnly": "只显示总部「原废料订单」计入数量的订单：不含草稿和已取消。",
+    "showAll": "显示全部"
   },
   "documents": {
     "downloading": "下载中",
@@ -6555,7 +6623,13 @@
       "add": "新增分类",
       "create": "建立分类",
       "edit": "编辑分类",
-      "title": "分类"
+      "title": "分类",
+      "remove": {
+        "switch": "删除这个分类",
+        "hint": "只有没有文档、也没有子分类的分类可以删除；在用的请在上面停用，旧文档仍保留这个分类。",
+        "confirm": "删除分类",
+        "failed": "分类没有删除成功，请再试一次。"
+      }
     },
     "companyWide": "公司级",
     "count": "共 {count} 份文档",
@@ -7073,6 +7147,7 @@
       "evidence_file_unavailable": "此证据文件当前无法使用。",
       "export_no_columns": "请至少选择一列再导出。",
       "export_too_large": "这次选择的数据量太大，无法导出。请先用筛选缩小范围。",
+      "export_too_many_with_photos": "这次导出有 {count} 笔带照片的记录，一次最多 {limit} 笔。请用日期、项目或供应商缩小筛选范围后再导出。",
       "export_unavailable": "PDF 导出暂时不可用，请改用表格格式。",
       "feedback_not_found": "找不到该客户反馈。",
       "field_device_already_bound": "此现场人员账号已绑定一台设备。如需换机，请先让管理员重置设备。",
@@ -7735,7 +7810,11 @@
       "supplierGuessUse": "用这家",
       "documentAmount": "送货单金额 (RM)",
       "documentAmountRead": "已从送货单读出，请对照纸本核对。",
-      "documentAmountTypeHint": "读不到金额时，请照送货单上的总金额填写（可不填）。"
+      "documentAmountTypeHint": "读不到金额时，请照送货单上的总金额填写（可不填）。",
+      "autoFilledFromCategory": "按分类自动带出",
+      "supplierLimited": "只列这个分类设定的供应商",
+      "manufacturer": "制造厂商",
+      "chooseColumnFirst": "请先选分类"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -8039,6 +8118,11 @@
     },
     "what": {
       "conversation": "整改沟通"
+    },
+    "popup": {
+      "region": "隐患整改提醒",
+      "open": "打开",
+      "dismiss": "关闭"
     }
   },
   "headquarters": {
@@ -9354,7 +9438,6 @@
       "fields": "字段",
       "photos": "照片",
       "documents": "单据（DO）",
-      "messages": "事项沟通",
       "files": "文件"
     },
     "itemAccepted": "已接受",
@@ -9392,7 +9475,7 @@
     "oneProjectHelp": "一个资料包属于一个项目。里面的资料来自这个项目的各个分类，别的项目的记录会被拒绝。",
     "open": "打开",
     "pageOf": "第 {page} / {pages} 页",
-    "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据 · {files} 个文件 · {messages} 条沟通",
+    "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据 · {files} 个文件",
     "previous": "上一页",
     "remarksHelp": "几个月后，这段话是唯一能说明当初为什么把这些资料收在一起的东西。",
     "rename": "改名",
@@ -9440,7 +9523,7 @@
     },
     "include": {
       "title": "这些事项要放进资料包的内容",
-      "hint": "字段一定会放入。照片预设勾选；DO、文件、事项沟通需要时才勾选。加入后仍可打开每个事项再调整。"
+      "hint": "字段一定会放入。照片预设勾选；DO、文件需要时才勾选。聊天记录不放进 PDF，在系统里照样能看。加入后仍可打开每个事项再调整。"
     },
     "loadMore": "载入更多（已显示 {shown} / {total}）"
   },
@@ -9525,7 +9608,8 @@
       "decided_by": "批准 / 退回人",
       "original_quantity": "原数量",
       "correction_reason": "更正原因",
-      "assigned_reviewer": "提交给"
+      "assigned_reviewer": "提交给",
+      "manufacturer": "制造厂商"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -9871,7 +9955,8 @@
       "wasteClearance": "垃圾清运",
       "equipmentEntry": "设备进场",
       "equipmentExit": "设备退场",
-      "targetReport": "目标与达成"
+      "targetReport": "目标与达成",
+      "manufacturers": "制造厂商"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -11322,7 +11407,8 @@
       "documentAmountSource": {
         "OCR": "从送货单读出",
         "MANUAL": "人工填写"
-      }
+      },
+      "manufacturer": "制造厂商"
     },
     "locationCaptured": "已记录位置",
     "locationMissing": "无位置",
@@ -12161,6 +12247,7 @@
       "updated": "安全事故已更新"
     },
     "update": {
+      "closeHint": "这里只能标记处理中或重新打开。要闭环：先指派整改人，整改提交后由发起人确认完成。",
       "description": "更新 {incident} 并保留处理历史。",
       "title": "更新事故状态"
     },
@@ -12169,6 +12256,11 @@
       "responsiblePeople": "负责人列表",
       "requestedIncident": "链接中的事故",
       "workers": "可通知人员"
+    },
+    "drill": {
+      "waitingForMe": "只显示等你处理的整改：要你指派、整改或确认的。",
+      "overdue": "只显示逾期整改：过了期限、还没验收通过的。",
+      "showAll": "显示全部"
     }
   },
   "safetyRectification": {
@@ -13413,7 +13505,9 @@
       "note": "备注",
       "submit": "提交后台",
       "photos": "照片"
-    }
+    },
+    "countedOnly": "只显示总部「原工地清运」计入数量的申请：不含已拒绝和已取消。",
+    "showAll": "显示全部"
   },
   "siteGps": {
     "allProjects": "全部项目",
@@ -15099,8 +15193,7 @@
     "confirmer": {
       "safetyLeads": "项目安全负责人",
       "legacy": "有验收权限的人员（整改人除外）",
-      "me": "我自己（默认）",
-      "initiator": "你——后台或顾问发起的，由发起人确认"
+      "initiator": "你——谁发起，谁确认完成"
     },
     "field": {
       "origin": "发起来源",
@@ -15135,14 +15228,10 @@
       "confirm": "确认完成"
     },
     "form": {
-      "selectConfirmer": "选择确认人",
-      "confirmerHint": "只有确认人能确认完成，整改人不能自己确认。",
-      "confirmerConflict": "确认人和整改人不能是同一人。",
+      "confirmerHint": "只有发起人能确认完成，整改人不能自己确认。",
+      "confirmerConflict": "发起人要确认完成，不能同时当整改人。",
       "rectifier": "整改人",
       "noRectifier": "暂不指定，由主管分配"
-    },
-    "what": {
-      "confirmers": "可选的确认人"
     }
   },
   "materialRequest": {
@@ -15193,7 +15282,9 @@
       "remark": "备注",
       "attachments": "附件",
       "assignedReviewer": "提交给",
-      "reassignHistory": "改派记录"
+      "reassignHistory": "改派记录",
+      "supplier": "供应商",
+      "manufacturer": "制造厂商"
     },
     "action": {
       "view": "查看",
@@ -15261,7 +15352,8 @@
       "assignedReviewerHint": "只列出这个项目能批准申请的人。",
       "chooseReviewer": "选择审批人",
       "projectFirst": "请先选择项目",
-      "noReviewers": "这个项目还没有人能批准申请。请公司管理员在「角色权限」里，给审批人的角色勾上「批准或退回 MR / 其他申请」。"
+      "noReviewers": "这个项目还没有人能批准申请。请公司管理员在「角色权限」里，给审批人的角色勾上「批准或退回 MR / 其他申请」。",
+      "suggestHint": "选填，总部批准时决定。"
     },
     "options": {
       "open": "材料选项",
@@ -15297,7 +15389,13 @@
     "waitingFor": "等待 {name} 审批。",
     "reassigned": "{by} 改派给自己 · {at}",
     "reassignedFrom": "{by} 从 {from} 改派给自己 · {at}",
-    "reassignHelp": "改派后由你批准或退回，原来的审批人不能再批，系统会留下改派记录。"
+    "reassignHelp": "改派后由你批准或退回，原来的审批人不能再批，系统会留下改派记录。",
+    "approve": {
+      "title": "批准 {reference}",
+      "help": "批准就是采购决定：选好向哪家供应商买、用哪家厂商。",
+      "chooseSupplier": "选择供应商",
+      "confirm": "批准"
+    }
   },
   "filePreview": {
     "unsupported": "浏览器无法直接显示 {ext} 文件。",
@@ -15338,11 +15436,57 @@
     "from": "开始日期",
     "to": "至",
     "toLabel": "结束日期",
-    "what": "供应商列表"
+    "what": "供应商列表",
+    "allManufacturers": "全部厂商",
+    "manufacturer": "制造厂商",
+    "whatManufacturers": "厂商名单"
   },
   "recordNo": {
     "copy": "复制 {number}",
     "copied": "已复制 {number}",
     "copyFailed": "复制失败。长按编号可以看到完整编号。"
+  },
+  "manufacturers": {
+    "title": "制造厂商",
+    "description": "生产材料的工厂。材料分类可以设「指定厂商」；记录上的厂商不在名单里会标「非指定厂商」。",
+    "new": "新增厂商",
+    "createTitle": "新增厂商",
+    "editTitle": "编辑厂商",
+    "field": {
+      "name": "厂商名称",
+      "country": "国家",
+      "isActive": "启用",
+      "sortOrder": "排序",
+      "createdAt": "新增时间"
+    },
+    "empty": "还没有厂商",
+    "what": "厂商名单",
+    "duplicate": "这个厂商已经在名单里。",
+    "inUse": "已有记录用了这个厂商，请改为停用。",
+    "switchedOff": "已停用",
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "只有还没被任何记录用过的厂商可以删除；已用过的请停用，旧记录仍保留厂商名称。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "已新增厂商",
+      "updated": "已更新厂商",
+      "removed": "已删除厂商"
+    },
+    "column": "制造厂商",
+    "offList": "非指定厂商",
+    "offListHint": "这个分类指定了其他厂商，仍然可以提交。",
+    "picker": {
+      "choose": "选择制造厂商",
+      "none": "未填写",
+      "designated": "指定厂商",
+      "addNew": "名单里没有？新增",
+      "newName": "新厂商名称",
+      "add": "新增",
+      "offline": "新增厂商需要网络。请先从名单选，或先不填。",
+      "failed": "厂商新增失败。",
+      "fromColumn": "按分类自动带出"
+    }
   }
 }

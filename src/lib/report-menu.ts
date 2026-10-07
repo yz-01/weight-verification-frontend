@@ -132,10 +132,23 @@ const PHOTO_SOURCE_MODULE: Record<string, string> = {
   "waste.dispatchphoto": "nav.submodule.wasteDispatches",
 };
 
+/** Every source one module owns, in the order of the table above. */
+function moduleSources(module: string): string[] {
+  return Object.entries(PHOTO_SOURCE_MODULE)
+    .filter(([, owner]) => owner === module)
+    .map(([source]) => source);
+}
+
 /**
  * Photo sources as the menu lists them: one row per module, its value every
- * source of that module joined by commas (the report reads it that way). A
+ * source that module owns joined by commas (the report reads it that way). A
  * source no module claims keeps the server's own name.
+ *
+ * Every source the module owns, not only the ones that happen to hold a
+ * photograph in this list (Fable B3 #6): the menu lists one project's sources
+ * and the 照片来源 dropdown every project's, so a value built from what was
+ * present differed between the two - the dropdown went blank, and the report
+ * skipped a source the module had.
  */
 export function groupPhotoSources(
   rows: readonly ReportLevelRow[],
@@ -143,16 +156,36 @@ export function groupPhotoSources(
 ): ReportLevelRow[] {
   const grouped = new Map<string, ReportLevelRow>();
   for (const row of rows) {
-    const key = PHOTO_SOURCE_MODULE[row.value];
-    const label = key ? translate(key) : row.label;
+    const owner = PHOTO_SOURCE_MODULE[row.value];
+    const label = owner ? translate(owner) : row.label;
     const existing = grouped.get(label);
     if (existing) {
-      existing.value = `${existing.value},${row.value}`;
+      if (!existing.value.split(",").includes(row.value)) {
+        existing.value = `${existing.value},${row.value}`;
+      }
     } else {
-      grouped.set(label, { ...row, label, has_children: false });
+      const value = owner ? moduleSources(owner).join(",") : row.value;
+      grouped.set(label, { ...row, value, label, has_children: false });
     }
   }
   return [...grouped.values()];
+}
+
+/**
+ * A photo source as the report reads it: each source named widened to every
+ * source its module owns - the value the menu and the dropdown both use. So
+ * an address written before the menu named whole modules still shows its
+ * module and still reads all of it. A source no module claims stays as it is.
+ */
+export function photoSourceValue(category: string): string {
+  const sources: string[] = [];
+  for (const source of category.split(",").filter(Boolean)) {
+    const owner = PHOTO_SOURCE_MODULE[source];
+    for (const owned of owner ? moduleSources(owner) : [source]) {
+      if (!sources.includes(owned)) sources.push(owned);
+    }
+  }
+  return sources.join(",");
 }
 
 /**
@@ -176,3 +209,28 @@ export const CONSULTANT_TYPES = [
   "RFI",
   "OTHER",
 ] as const;
+
+/**
+ * A material report's export subtitle (Fable B3 #15): the period, then the
+ * level 【选择报表】 opened it at - 「期间：… · 混凝土 › 某供应商」 - the way the
+ * other reports' exports say it. It was one fixed line, so a file of one
+ * supplier's concrete for one week did not say so anywhere. No dates chosen
+ * is the whole history, and the period is left out.
+ */
+export function materialExportSubtitle(
+  translate: (key: string, values?: Record<string, string>) => string,
+  {
+    level,
+    dateFrom,
+    dateTo,
+  }: { level: string; dateFrom?: string; dateTo?: string },
+): string {
+  const period =
+    dateFrom || dateTo
+      ? translate("contractorReports.period", {
+          from: dateFrom ?? "…",
+          to: dateTo ?? "…",
+        })
+      : "";
+  return [period, level].filter(Boolean).join(" · ");
+}

@@ -40,11 +40,12 @@ const SOURCES: ApprovalSource[] = [
  * module's own approve / return and the record's conversation are; a site
  * task and a document approval open on their own page.
  */
-export function HeadquartersApprovals() {
+export function HeadquartersApprovals({ initialProject = "" }: { initialProject?: string }) {
   const t = useTranslations("headquarters.approvals");
   const sources = useTranslations("contractorDashboard.approvals.source");
   const df = useDateFormat();
-  const [project, setProject] = useState("");
+  // A 待审批 card on one project opens this list on that project (F8, B8).
+  const [project, setProject] = useState(initialProject);
   const [source, setSource] = useState<ApprovalSource | "">("");
   const opener = useApprovalOpener();
   const query = useInfiniteQuery({

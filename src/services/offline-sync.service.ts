@@ -388,8 +388,13 @@ async function sendJob(job: OfflineJob): Promise<void> {
   }
 
   if (job.kind === "SAFETY_INCIDENT") {
+    // A report queued before X8 may still name somebody to confirm it. The
+    // raiser confirms now and the server refuses anyone else, so the old
+    // choice is dropped rather than losing the report.
+    const payload = { ...job.payload };
+    delete payload.confirmer;
     await createSafetyIncident({
-      ...job.payload,
+      ...payload,
       photos: job.payload.photos.map(restoreFile),
       attachments: (job.payload.attachments ?? []).map(restoreFile),
     });

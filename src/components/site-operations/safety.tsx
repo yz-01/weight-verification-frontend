@@ -77,6 +77,7 @@ import {
   submitSafetyIncidentOfflineAware,
   type SafetyIncidentSubmission,
 } from "@/services/offline-sync.service";
+import { DrillNote } from "@/components/shared/drill-note";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getProjectAssignments } from "@/services/contractor.service";
 import {
@@ -91,10 +92,9 @@ import {
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
-const STATUSES: IncidentStatus[] = [
-  "OPEN", "ASSIGNED", "RECTIFICATION_SUBMITTED", "RETURNED", "VERIFIED",
-];
-const MANUAL_STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING", "RESOLVED"];
+// Open or being looked into - never closed here. X8: only the raiser's
+// confirm closes a hazard; the server refuses RESOLVED from this dialog.
+const MANUAL_STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING"];
 
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
 // they would have been the kind of constant a later reader assumes is used.
@@ -126,8 +126,8 @@ export function isPermit(incident: SafetyIncident): boolean {
 }
 
 /**
- * Who closes this item, in words (B21): the named confirmer, the safety leads
- * for a permit, or - on an item raised before the rule - any verifier.
+ * Who closes this item, in words (B21, X8): its raiser, the safety leads for a
+ * permit, or - on an item raised before the rule - any verifier.
  */
 export function confirmerLabel(
   incident: SafetyIncident,
@@ -135,6 +135,24 @@ export function confirmerLabel(
 ): string {
   if (incident.confirmer_name) return incident.confirmer_name;
   return te(isPermit(incident) ? "confirmer.safetyLeads" : "confirmer.legacy");
+}
+
+/**
+ * Whose move it is on an open item, in words, for the office list (C3): the
+ * rectifier while it is being fixed, the confirmer once it is handed in.
+ * Nothing for an item waiting to be assigned (its status says so) or closed.
+ */
+export function nextActor(
+  incident: SafetyIncident,
+  te: (key: string, values?: Record<string, string>) => string,
+): string {
+  if (["ASSIGNED", "RETURNED"].includes(incident.status) && incident.responsible_person_name) {
+    return te("phone.rectifierLine", { name: incident.responsible_person_name });
+  }
+  if (incident.status === "RECTIFICATION_SUBMITTED") {
+    return te("phone.confirmerLine", { name: confirmerLabel(incident, te) });
+  }
+  return "";
 }
 
 export const STATUS_TONE: Record<
@@ -164,8 +182,6 @@ interface SafetyDraft {
   /** 上报 → 指派 in one step (B22); empty leaves it 待分配. */
   rectifier?: string;
   rectifierDueAt?: string;
-  /** The phone's 指定确认人 (B21); empty means the reporter. */
-  confirmer?: string;
   /** A permit's other pages (C20). */
   attachments?: File[];
 }
@@ -181,7 +197,6 @@ const EMPTY_DRAFT: SafetyDraft = {
   notifyUsers: [],
   rectifier: "",
   rectifierDueAt: "",
-  confirmer: "",
   attachments: [],
 };
 
@@ -232,6 +247,9 @@ export function Safety({
   // is counted with - a link that opened the whole list would make the number
   // above it decorative.
   const overdueOnly = searchParams.get("overdue") === "1";
+  // The dashboard's 「待处理整改 / EHS」 card (C15, B8): the items this reader
+  // moves on next - assign, rectify or confirm - as the card counted them.
+  const waitingForMe = searchParams.get("waiting") === "me";
   // Kept in the draft, so tapping this 挂号 again reopens the form it was in
   // (D-259). Outside a draft (the office) this is ordinary state.
   const [createOpen, setCreateOpen] = useDraftState("open:createIncident", Boolean(fieldTaskId) || searchParams.get("create") === "1");
@@ -253,12 +271,13 @@ export function Safety({
   const clearIncidentParam = useClearSearchParam("incident");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["safety", mode, list.query, overdueOnly],
+    queryKey: ["safety", mode, list.query, overdueOnly, waitingForMe],
     queryFn: () => getSafetyIncidents({
       ...list.query,
       workflow: mode === "rectification" ? "rectification" : undefined,
       involving: fieldMode ? "me" : undefined,
       overdue: overdueOnly ? "1" : undefined,
+      waiting: waitingForMe ? "me" : undefined,
     }),
   });
   const focusedIncident = useQuery({
@@ -422,12 +441,19 @@ export function Safety({
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
-        cell: ({ row }) => (
-          <StatusBadge
-            label={t(`safetyRectification.status.${row.original.status}`)}
-            tone={STATUS_TONE[row.original.status]}
-          />
-        ),
+        // Plain words, not a coloured tag (C3: 「不要增加一堆「待处理 / 整改中 /
+        // 待验收」状态…整个页面就很干净」): where it stands, and whose move it is.
+        cell: ({ row }) => {
+          const waitingOn = nextActor(row.original, te);
+          return (
+            <div className="min-w-0">
+              <p className="whitespace-nowrap">{t(`safetyRectification.status.${row.original.status}`)}</p>
+              {waitingOn && (
+                <p className="max-w-[160px] truncate text-xs text-muted-foreground">{waitingOn}</p>
+              )}
+            </div>
+          );
+        },
       },
       {
         id: "evidence",
@@ -623,6 +649,20 @@ export function Safety({
         )}
       </div>
       <QueryFailedNote query={focusedIncident} what={t("safety.what.requestedIncident")} />
+      {!fieldMode && waitingForMe && (
+        <DrillNote
+          label={t("safety.drill.waitingForMe")}
+          clearLabel={t("safety.drill.showAll")}
+          params={["waiting"]}
+        />
+      )}
+      {!fieldMode && overdueOnly && (
+        <DrillNote
+          label={t("safety.drill.overdue")}
+          clearLabel={t("safety.drill.showAll")}
+          params={["overdue"]}
+        />
+      )}
 
       {fieldMode ? (
         <div className="grid gap-3">
@@ -692,20 +732,6 @@ export function Safety({
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
         storageKey="trace-safety"
-        filterPills={[
-          {
-            key: "all",
-            label: t("common.all"),
-            active: !list.filters.status,
-            onSelect: () => list.setFilter("status", undefined),
-          },
-          ...STATUSES.map((status) => ({
-            key: status,
-            label: t(`safetyRectification.status.${status}`),
-            active: list.filters.status === status,
-            onSelect: () => list.setFilter("status", status),
-          })),
-        ]}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
         onPageChange={list.setPage}
@@ -884,33 +910,17 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
   const [dueAt, setDueAt] = useState(incident.rectification_due_at ? incident.rectification_due_at.slice(0, 16) : "");
   const [note, setNote] = useState(incident.rectification_note);
   const te = useTranslations("ehs");
-  // 「手机现场发起 → 指定确认人」 (B21): whoever assigns a phone-raised hazard
-  // may name its confirmer. The office and a consultant confirm what they
-  // raised, so for those it is only shown.
-  const namesConfirmer = incident.origin === "SITE";
-  const [confirmer, setConfirmer] = useState(incident.confirmer ?? "");
-  const confirmers = useQuery({
-    queryKey: ["incident-recipient-options", incident.project],
-    queryFn: () => getIncidentRecipientOptions(incident.project),
-    enabled: namesConfirmer,
-  });
-  // The recipient list leaves the reader out; the assigner can name themselves.
-  const confirmerOptions = [
-    ...(user ? [{ id: user.id, full_name: user.full_name }] : []),
-    ...(confirmers.data ?? []).filter((row) => row.id !== user?.id),
-  ];
-  if (incident.confirmer && !confirmerOptions.some((row) => row.id === incident.confirmer)) {
-    confirmerOptions.unshift({ id: incident.confirmer, full_name: incident.confirmer_name ?? "" });
-  }
-  // 「整改执行人不能自己确认」: caught here rather than by the server's refusal.
-  const sameAsConfirmer = Boolean(person) && person === (namesConfirmer ? confirmer : incident.confirmer);
+  // X8 (2026-10): 「整改完成后，由原发起人确认完成」 - whoever raised it confirms
+  // it, wherever it was raised, so the confirmer is only shown here. And
+  // 「整改执行人不能自己确认」: the raiser cannot be the one fixing it, caught
+  // here rather than by the server's refusal.
+  const sameAsConfirmer = Boolean(person) && person === incident.confirmer;
   const save = useMutation({
     mutationFn: () =>
       assignSafetyRectification(incident.id, {
         responsible_person: person,
         due_at: new Date(dueAt).toISOString(),
         note,
-        confirmer: namesConfirmer && confirmer && confirmer !== incident.confirmer ? confirmer : undefined,
       }),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); },
   });
@@ -931,17 +941,9 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
         <FieldWrapper label={t("field.dueAt")} required>
           <Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={te("field.confirmer")} required>
-          {namesConfirmer ? (
-            <Select value={confirmer || undefined} onValueChange={setConfirmer}>
-              <SelectTrigger className="w-full" aria-label={te("field.confirmer")}><SelectValue placeholder={te("form.selectConfirmer")} /></SelectTrigger>
-              <SelectContent>{confirmerOptions.map((row) => <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>)}</SelectContent>
-            </Select>
-          ) : (
-            <p className="text-sm">{confirmerLabel(incident, te)}</p>
-          )}
+        <FieldWrapper label={te("field.confirmer")}>
+          <p className="text-sm">{confirmerLabel(incident, te)}</p>
           <p className="mt-1.5 text-xs text-muted-foreground">{te("form.confirmerHint")}</p>
-          {namesConfirmer && <QueryFailedNote query={confirmers} what={te("what.confirmers")} />}
           {sameAsConfirmer && <p role="alert" className="mt-1.5 text-xs text-destructive">{te("form.confirmerConflict")}</p>}
         </FieldWrapper>
         <FieldWrapper label={t("field.instructions")}>
@@ -949,7 +951,7 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")], [!sameAsConfirmer, te("field.confirmer")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button>
+          <Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")], [!sameAsConfirmer, t("field.responsible")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1215,10 +1217,6 @@ function SafetyCreateDialog({
   const photosReady = permit || !fieldMode
     ? completedPhotos.length >= requiredPhotos
     : completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos);
-  // 「整改执行人不能自己确认」 (B21). On the phone an empty confirmer is the
-  // reporter; from a desk the initiator always is.
-  const confirmerId = (fieldMode && draft.confirmer) || user?.id || "";
-  const rectifierIsConfirmer = !permit && Boolean(draft.rectifier) && draft.rectifier === confirmerId;
   const fieldEvidenceLabels = [
     t("safety.fieldEvidence.overview"),
     t("safety.fieldEvidence.detail"),
@@ -1256,7 +1254,6 @@ function SafetyCreateDialog({
         ...(permit
           ? { record_type: "PERMIT" as const, attachments: draft.attachments ?? [] }
           : {
-              confirmer: fieldMode && draft.confirmer ? draft.confirmer : undefined,
               responsible_person: draft.rectifier || undefined,
               due_at:
                 draft.rectifier && draft.rectifierDueAt
@@ -1522,31 +1519,12 @@ function SafetyCreateDialog({
               )}
             </FieldWrapper>
           )}
+          {/* X8: whoever raises it confirms it. Said, not asked. The rectifier
+              list above never offers the raiser (the server leaves the reader
+              out of it), so 「整改执行人不能自己确认」 cannot arise here. */}
           {!permit && (
-            <FieldWrapper label={t("ehs.field.confirmer")} required className="sm:col-span-2">
-              {fieldMode ? (
-                <Select
-                  value={draft.confirmer || "self"}
-                  onValueChange={(value) =>
-                    setDraft((current) => ({ ...current, confirmer: value === "self" ? "" : value }))
-                  }
-                  disabled={!draft.project}
-                >
-                  <SelectTrigger className="w-full" aria-label={t("ehs.field.confirmer")}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="self">{t("ehs.confirmer.me")}</SelectItem>
-                    {selectableWorkers.map((row) => (
-                      <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <p className="text-sm">{t("ehs.confirmer.initiator")}</p>
-              )}
-              <p className="mt-1.5 text-xs text-muted-foreground">{t("ehs.form.confirmerHint")}</p>
-              {rectifierIsConfirmer && (
-                <p role="alert" className="mt-1.5 text-xs text-destructive">{t("ehs.form.confirmerConflict")}</p>
-              )}
+            <FieldWrapper label={t("ehs.field.confirmer")} className="sm:col-span-2">
+              <p className="text-sm">{t("ehs.confirmer.initiator")}</p>
             </FieldWrapper>
           )}
           {/* 「知道由谁处理就当场指定，不知道就直接提交」. Required used to be
@@ -1631,7 +1609,6 @@ function SafetyCreateDialog({
               ? []
               : [
                   [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
-                  [!rectifierIsConfirmer, t("ehs.field.confirmer")],
                 ]),
           ] as Array<[unknown, string]>} disabled={create.isPending} onClick={() => create.mutate()}>
 
@@ -1695,17 +1672,17 @@ function SafetyStatusDialog({
           </FieldWrapper>
           <FieldWrapper
             label={t("safety.field.resolutionNote")}
-            required={status === "RESOLVED"}
-            optional={status === "RESOLVED" ? undefined : t("common.optional")}
+            optional={t("common.optional")}
           >
             <Textarea rows={4} value={note} onChange={(event) => setNote(event.target.value)} />
           </FieldWrapper>
+          <p className="text-xs text-muted-foreground">{t("safety.update.closeHint")}</p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button requires={[[status !== "RESOLVED" || note, t("safety.field.resolutionNote")]]} disabled={update.isPending} onClick={() => update.mutate()}>
+          <Button disabled={update.isPending} onClick={() => update.mutate()}>
             {update.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

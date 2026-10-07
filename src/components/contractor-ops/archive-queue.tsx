@@ -7,10 +7,13 @@ import { recordKindKey } from "@/lib/record-kind";
 import { PhotoViewer } from "@/components/shared/record-detail-shell";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
+import { DrillNote } from "@/components/shared/drill-note";
+import { useRecordOpener } from "@/components/shared/record-opener";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +28,7 @@ import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { RecordNo } from "@/components/shared/record-no";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { canConfirmClosure, canDiscuss, isQueueKind } from "@/lib/record-chat";
 import { recordStatusLabel } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
@@ -102,7 +106,14 @@ export function ArchiveQueue() {
   // named person - not whether *this reader* has looked, which is `state`.
   const [closure, setClosure] = useState<"" | "open" | "closed">("");
   const [kind, setKind] = useState<ArchiveRecordKind | "">("");
-  const [project, setProject] = useState("");
+  const searchParams = useSearchParams();
+  // The dashboard's 「等你处理」 card (B8) opens this screen with
+  // `?waiting=1&project=`: what waits for this reader's 【确认】, counted the
+  // way the card was. A row then opens on its module's page, where the
+  // confirm is (C4), not in the read-only sheet.
+  const waiting = searchParams.get("waiting") === "1";
+  const confirmOpener = useRecordOpener({ confirm: true });
+  const [project, setProject] = useState(() => searchParams.get("project") ?? "");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState<ArchiveQueueRow | null>(null);
   const queryClient = useQueryClient();
@@ -117,16 +128,29 @@ export function ArchiveQueue() {
       }),
   });
   const openRow = (row: ArchiveQueueRow) => {
+    if (
+      waiting &&
+      confirmOpener.open(row.kind, row.id, {
+        reference: row.reference,
+        project_id: row.project_id,
+        project_name: row.project_name,
+        submitted_at: row.submitted_at,
+        photo: row.photo,
+      })
+    ) {
+      return;
+    }
     setOpen(row);
     if (!row.seen_at && isQueueKind(row.kind)) markSeen.mutate(row);
   };
 
   const query = useQuery({
-    queryKey: ["archive-queue", state, closure, kind, project, page],
+    queryKey: ["archive-queue", state, closure, kind, project, page, waiting],
     queryFn: () =>
       getArchiveQueue({
         state,
         closure: closure || undefined,
+        waiting: waiting ? "1" : undefined,
         kind: kind || undefined,
         project: project || undefined,
         page,
@@ -169,11 +193,22 @@ export function ArchiveQueue() {
       {/* Said once, at the top, because it is the thing about this screen a
           reader will otherwise get wrong: their colleague's queue is not
           theirs, and neither list is the site's backlog. */}
-      <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
-        {t("perPersonHelp")}
-      </p>
+      {waiting ? (
+        <DrillNote
+          label={t("waiting.only")}
+          clearLabel={t("waiting.showAll")}
+          params={["waiting"]}
+        />
+      ) : (
+        <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
+          {t("perPersonHelp")}
+        </p>
+      )}
 
       <div className="flex flex-wrap items-center gap-2">
+        {/* 未看 / 已看 and 未归档 / 已归档 do not apply to 「等你处理」: that
+            pile is defined by the confirmation alone. */}
+        {!waiting && (
         <div className="flex rounded-lg border p-0.5">
           {(["pending", "archived"] as const).map((half) => (
             <button
@@ -191,6 +226,8 @@ export function ArchiveQueue() {
             </button>
           ))}
         </div>
+        )}
+        {!waiting && (
         <div className="flex rounded-lg border p-0.5" aria-label={t("closure.label")}>
           {(["", "open", "closed"] as const).map((value) => (
             <button
@@ -208,6 +245,7 @@ export function ArchiveQueue() {
             </button>
           ))}
         </div>
+        )}
         <ProjectFilter value={project} onChange={(next) => reset(() => setProject(next))} />
       </div>
 
@@ -253,7 +291,9 @@ export function ArchiveQueue() {
       ) : rows.length === 0 ? (
         <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
           <Inbox className="size-4" />
-          {t(state === "pending" ? "emptyPending" : "emptyArchived")}
+          {waiting
+            ? t("waiting.empty")
+            : t(state === "pending" ? "emptyPending" : "emptyArchived")}
         </p>
       ) : (
         <div className="overflow-x-auto rounded-lg border">
@@ -304,6 +344,17 @@ export function ArchiveQueue() {
                         {row.detail && (
                           <span className="block max-w-[16rem] truncate text-xs font-normal text-muted-foreground">
                             {row.detail}
+                          </span>
+                        )}
+                        {/* Who sold it and whose make (2026-10 D1): material
+                            receipts and returns carry both. */}
+                        {(row.supplier_name || row.manufacturer_name) && (
+                          <span className="flex max-w-[18rem] flex-wrap items-center gap-1 text-xs font-normal">
+                            {row.supplier_name && <span className="truncate">{row.supplier_name}</span>}
+                            {row.supplier_name && row.manufacturer_name && <span aria-hidden>·</span>}
+                            {row.manufacturer_name && (
+                              <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
+                            )}
                           </span>
                         )}
                       </span>
@@ -398,6 +449,7 @@ export function ArchiveQueue() {
       )}
 
       {open && <RecordSheet row={open} onClose={() => setOpen(null)} />}
+      {confirmOpener.sheet}
     </div>
   );
 }
