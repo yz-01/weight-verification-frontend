@@ -5,6 +5,7 @@ import type {
   MaterialRequestOption,
   MaterialRequestOptionKind,
   MaterialRequestOptions,
+  MaterialRequestReviewerOption,
   MaterialRequestTotal,
 } from "@/interfaces/material-request";
 import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
@@ -40,6 +41,17 @@ export async function reviewMaterialRequest(id: string, decision: "APPROVED" | "
     note,
   });
   toastSuccess(decision === "APPROVED" ? "materialRequest.toast.approved" : "materialRequest.toast.returned");
+  return row;
+}
+
+/** 「提交给」 (D2): who may approve a request on this project, never the reader. */
+export const getMaterialRequestReviewerOptions = (project: string) =>
+  api.get<MaterialRequestReviewerOption[]>("/api/material-requests/reviewer_options/", { project });
+
+/** 「改派给我」 (D2): another approver takes a waiting request over; the history keeps it. */
+export async function reassignMaterialRequestToMe(id: string) {
+  const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/reassign/`, {});
+  toastSuccess("materialRequest.toast.reassigned");
   return row;
 }
 

@@ -7169,7 +7169,9 @@
       "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
       "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。",
       "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
-      "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。"
+      "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。",
+      "material_request_assigned_to_other": "这个申请已提交给别人审批。要由你审批，请先按「改派给我」。",
+      "material_request_reviewer_not_eligible": "所选的人不能批准这个项目的申请，请从名单里重新选择。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9486,7 +9488,8 @@
       "remark": "备注",
       "decided_by": "批准 / 退回人",
       "original_quantity": "原数量",
-      "correction_reason": "更正原因"
+      "correction_reason": "更正原因",
+      "assigned_reviewer": "提交给"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -10785,6 +10788,12 @@
       "yard": {
         "manage": "新增及管理回收场",
         "view": "查看回收场"
+      },
+      "material_request": {
+        "view": "查看 MR / 其他申请",
+        "submit": "提交 MR / 其他申请",
+        "review": "批准或退回 MR / 其他申请",
+        "config": "维护 MR 材料选项"
       }
     },
     "group": {
@@ -10807,7 +10816,8 @@
       "ticket": "客服",
       "user": "用户",
       "weighing": "称重",
-      "yard": "回收场"
+      "yard": "回收场",
+      "material_request": "MR / 其他申请"
     }
   },
   "photoApprovals": {
@@ -15124,7 +15134,9 @@
       "returnReason": "退回原因",
       "decisionNote": "批准备注",
       "remark": "备注",
-      "attachments": "附件"
+      "attachments": "附件",
+      "assignedReviewer": "提交给",
+      "reassignHistory": "改派记录"
     },
     "action": {
       "view": "查看",
@@ -15136,7 +15148,8 @@
       "preview": "预览",
       "print": "打印",
       "exportPdf": "导出 PDF",
-      "raiseAgain": "新建申请"
+      "raiseAgain": "新建申请",
+      "reassignToMe": "改派给我"
     },
     "empty": "暂无申请",
     "loading": "加载中…",
@@ -15187,7 +15200,11 @@
       "removeFile": "移除 {name}",
       "fileTooBig": "{name} 超过 {limit} MB。",
       "fileOrRemark": "文件或备注",
-      "submit": "提交"
+      "submit": "提交",
+      "assignedReviewerHint": "只列出这个项目能批准申请的人。",
+      "chooseReviewer": "选择审批人",
+      "projectFirst": "请先选择项目",
+      "noReviewers": "这个项目还没有人能批准申请。请公司管理员在「角色权限」里，给审批人的角色勾上「批准或退回 MR / 其他申请」。"
     },
     "options": {
       "open": "材料选项",
@@ -15213,12 +15230,17 @@
       "submitted": "申请已提交。",
       "approved": "申请已批准。",
       "returned": "申请已退回并结束。",
-      "optionSaved": "已保存。"
+      "optionSaved": "已保存。",
+      "reassigned": "已改派给你，现在由你审批。"
     },
     "capture": {
       "mine": "我的申请",
       "mineHelp": "提交后可在「我提交过的」查看状态和沟通。"
-    }
+    },
+    "waitingFor": "等待 {name} 审批。",
+    "reassigned": "{by} 改派给自己 · {at}",
+    "reassignedFrom": "{by} 从 {from} 改派给自己 · {at}",
+    "reassignHelp": "改派后由你批准或退回，原来的审批人不能再批，系统会留下改派记录。"
   },
   "filePreview": {
     "unsupported": "浏览器无法直接显示 {ext} 文件。",

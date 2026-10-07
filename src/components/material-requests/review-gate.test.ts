@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { materialRequestReviewView } from "@/components/material-requests/review-gate";
+import { chosenReviewer, materialRequestReviewView } from "@/components/material-requests/review-gate";
 
 /**
  * The applicant never approves their own material request (D2, Q14).
@@ -42,6 +42,18 @@ describe("who sees approve / return on a material request (D2)", () => {
     }
   });
 
+  it("shows them only to the person it was sent to (Q15)", () => {
+    const sent = { ...pending, assigned_reviewer: REVIEWER };
+    expect(materialRequestReviewView(sent, REVIEWER, true)).toBe("decide");
+    // Another approver takes it over first (「改派给我」).
+    expect(materialRequestReviewView(sent, "user-other-approver", true)).toBe("takeOver");
+    // Somebody without the permission only waits; the applicant is still "own".
+    expect(materialRequestReviewView(sent, "user-other", false)).toBe("waiting");
+    expect(materialRequestReviewView(sent, APPLICANT, true)).toBe("own");
+    // A request from before D2 names nobody: any approver but the applicant.
+    expect(materialRequestReviewView({ ...pending, assigned_reviewer: null }, REVIEWER, true)).toBe("decide");
+  });
+
   it("is what the request detail actually renders the buttons from", () => {
     const detail = readFileSync(
       path.join(process.cwd(), "src/components/material-requests/material-requests-office.tsx"),
@@ -55,5 +67,25 @@ describe("who sees approve / return on a material request (D2)", () => {
     // The permission is read once, into the gate, not straight into the JSX.
     expect(detail.match(/can\("material_request\.review"\)/g)).toHaveLength(1);
     expect(detail).toMatch(/materialRequestReviewView\(row, user\?\.id, can\("material_request\.review"\)\)/);
+  });
+});
+
+describe("「提交给」 picks who approves (D2, Q15)", () => {
+  const one = [{ id: "hq-1" }];
+  const two = [{ id: "hq-1" }, { id: "hq-2" }];
+
+  it("chooses the only person for the applicant", () => {
+    expect(chosenReviewer(one, "")).toBe("hq-1");
+    expect(chosenReviewer(one, "someone-else")).toBe("hq-1");
+  });
+
+  it("leaves the choice to the applicant when there are several", () => {
+    expect(chosenReviewer(two, "")).toBe("");
+    expect(chosenReviewer(two, "hq-2")).toBe("hq-2");
+  });
+
+  it("never sends somebody who is not on this project's list", () => {
+    expect(chosenReviewer(two, "left-the-company")).toBe("");
+    expect(chosenReviewer([], "hq-1")).toBe("");
   });
 });

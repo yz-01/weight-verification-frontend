@@ -7169,7 +7169,9 @@
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
-      "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead."
+      "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead.",
+      "material_request_assigned_to_other": "This request was sent to somebody else to approve. To decide it yourself, press \"Take it over\" first.",
+      "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9486,7 +9488,8 @@
       "remark": "Remark",
       "decided_by": "Approved / returned by",
       "original_quantity": "Original quantity",
-      "correction_reason": "Reason for correction"
+      "correction_reason": "Reason for correction",
+      "assigned_reviewer": "Submitted to"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -10785,6 +10788,12 @@
       "yard": {
         "manage": "Create and manage recycling yards",
         "view": "View recycling yards"
+      },
+      "material_request": {
+        "view": "View MR / Other Requests",
+        "submit": "Raise MR / Other Requests",
+        "review": "Approve or return MR / Other Requests",
+        "config": "Keep the MR material lists"
       }
     },
     "group": {
@@ -10807,7 +10816,8 @@
       "ticket": "Support",
       "user": "Users",
       "weighing": "Weighing",
-      "yard": "Recycling yards"
+      "yard": "Recycling yards",
+      "material_request": "MR / Other Request"
     }
   },
   "photoApprovals": {
@@ -15124,7 +15134,9 @@
       "returnReason": "Reason for return",
       "decisionNote": "Approval note",
       "remark": "Remark",
-      "attachments": "Attachments"
+      "attachments": "Attachments",
+      "assignedReviewer": "Submit to",
+      "reassignHistory": "Take-over record"
     },
     "action": {
       "view": "View",
@@ -15136,7 +15148,8 @@
       "preview": "Preview",
       "print": "Print",
       "exportPdf": "Export PDF",
-      "raiseAgain": "Raise a new request"
+      "raiseAgain": "Raise a new request",
+      "reassignToMe": "Take it over"
     },
     "empty": "No requests yet",
     "loading": "Loading…",
@@ -15187,7 +15200,11 @@
       "removeFile": "Remove {name}",
       "fileTooBig": "{name} is over {limit} MB.",
       "fileOrRemark": "A file or a remark",
-      "submit": "Submit"
+      "submit": "Submit",
+      "assignedReviewerHint": "Only people who can approve requests on this project are listed.",
+      "chooseReviewer": "Choose who approves",
+      "projectFirst": "Choose the project first",
+      "noReviewers": "Nobody can approve requests on this project yet. Ask your company admin to tick \"Approve or return MR / Other Requests\" on the approver's role in Roles."
     },
     "options": {
       "open": "Material lists",
@@ -15213,12 +15230,17 @@
       "submitted": "Request submitted.",
       "approved": "Request approved.",
       "returned": "Request returned and closed.",
-      "optionSaved": "Saved."
+      "optionSaved": "Saved.",
+      "reassigned": "It is now yours to approve."
     },
     "capture": {
       "mine": "My requests",
       "mineHelp": "Your requests and their status are on 「My submissions」, with the conversation for each."
-    }
+    },
+    "waitingFor": "Waiting for {name} to approve.",
+    "reassigned": "{by} took it over · {at}",
+    "reassignedFrom": "{by} took it over from {from} · {at}",
+    "reassignHelp": "Once you take it over, you approve or return it. The first approver no longer can, and the take-over is recorded."
   },
   "filePreview": {
     "unsupported": "{ext} files cannot be shown in the browser.",

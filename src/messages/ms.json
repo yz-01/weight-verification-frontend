@@ -7169,7 +7169,9 @@
       "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah.",
       "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka.",
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
-      "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada."
+      "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada.",
+      "material_request_assigned_to_other": "Permohonan ini dihantar kepada orang lain untuk diluluskan. Untuk memutuskannya sendiri, tekan \"Ambil alih\" dahulu.",
+      "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9486,7 +9488,8 @@
       "remark": "Catatan",
       "decided_by": "Diluluskan / dikembalikan oleh",
       "original_quantity": "Kuantiti asal",
-      "correction_reason": "Sebab pembetulan"
+      "correction_reason": "Sebab pembetulan",
+      "assigned_reviewer": "Dihantar kepada"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -10785,6 +10788,12 @@
       "yard": {
         "manage": "Cipta dan urus tapak kitar semula",
         "view": "Lihat tapak kitar semula"
+      },
+      "material_request": {
+        "view": "Lihat MR / Permohonan Lain",
+        "submit": "Hantar MR / Permohonan Lain",
+        "review": "Lulus atau kembalikan MR / Permohonan Lain",
+        "config": "Selenggara senarai bahan MR"
       }
     },
     "group": {
@@ -10807,7 +10816,8 @@
       "ticket": "Sokongan",
       "user": "Pengguna",
       "weighing": "Penimbangan",
-      "yard": "Tapak kitar semula"
+      "yard": "Tapak kitar semula",
+      "material_request": "MR / Permohonan Lain"
     }
   },
   "photoApprovals": {
@@ -15124,7 +15134,9 @@
       "returnReason": "Sebab dikembalikan",
       "decisionNote": "Catatan kelulusan",
       "remark": "Catatan",
-      "attachments": "Lampiran"
+      "attachments": "Lampiran",
+      "assignedReviewer": "Hantar kepada",
+      "reassignHistory": "Rekod ambil alih"
     },
     "action": {
       "view": "Lihat",
@@ -15136,7 +15148,8 @@
       "preview": "Pratonton",
       "print": "Cetak",
       "exportPdf": "Eksport PDF",
-      "raiseAgain": "Buat permohonan baharu"
+      "raiseAgain": "Buat permohonan baharu",
+      "reassignToMe": "Ambil alih"
     },
     "empty": "Tiada permohonan lagi",
     "loading": "Memuatkan…",
@@ -15187,7 +15200,11 @@
       "removeFile": "Buang {name}",
       "fileTooBig": "{name} melebihi {limit} MB.",
       "fileOrRemark": "Fail atau catatan",
-      "submit": "Hantar"
+      "submit": "Hantar",
+      "assignedReviewerHint": "Hanya orang yang boleh meluluskan permohonan bagi projek ini disenaraikan.",
+      "chooseReviewer": "Pilih pelulus",
+      "projectFirst": "Pilih projek dahulu",
+      "noReviewers": "Belum ada sesiapa yang boleh meluluskan permohonan bagi projek ini. Minta pentadbir syarikat menanda \"Lulus atau kembalikan MR / Permohonan Lain\" pada peranan pelulus di Peranan."
     },
     "options": {
       "open": "Senarai bahan",
@@ -15213,12 +15230,17 @@
       "submitted": "Permohonan dihantar.",
       "approved": "Permohonan diluluskan.",
       "returned": "Permohonan dikembalikan dan ditutup.",
-      "optionSaved": "Disimpan."
+      "optionSaved": "Disimpan.",
+      "reassigned": "Kini anda yang meluluskannya."
     },
     "capture": {
       "mine": "Permohonan saya",
       "mineHelp": "Permohonan anda dan statusnya ada di 「Hantaran saya」, bersama perbualannya."
-    }
+    },
+    "waitingFor": "Menunggu {name} meluluskan.",
+    "reassigned": "{by} mengambil alih · {at}",
+    "reassignedFrom": "{by} mengambil alih daripada {from} · {at}",
+    "reassignHelp": "Selepas anda mengambil alih, anda yang meluluskan atau mengembalikannya. Pelulus asal tidak lagi boleh, dan pengambilalihan direkodkan."
   },
   "filePreview": {
     "unsupported": "Fail {ext} tidak boleh dipaparkan dalam pelayar.",
