@@ -1,5 +1,5 @@
 import type { DeliveryNoteOCRResult } from "@/interfaces/contractor";
-import type { ListQuery, Paginated } from "@/interfaces/api";
+import { ApiError, type ListQuery, type Paginated } from "@/interfaces/api";
 import {
   exportBody,
   exportQuery,
@@ -904,6 +904,22 @@ export async function acceptDisposalTrip(id: string, trip: string) {
   return row;
 }
 
+/**
+ * Correct one load's weight and/or DO number, with a reason (Q29.7).
+ *
+ * A blank value leaves that one as it is. The server keeps the original and
+ * every change; the load shows the current value.
+ */
+export async function correctDisposalTrip(
+  id: string,
+  trip: string,
+  correction: { weight_kg?: string; do_no?: string; reason: string },
+) {
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/correct_trip/`, { trip, ...correction });
+  toastSuccess("siteDisposal.toast.tripCorrected");
+  return row;
+}
+
 /** 「加一车」 (X11): one more lorry after the last. */
 export async function addDisposalTrip(id: string) {
   const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/add_trip/`, {});
@@ -1000,9 +1016,17 @@ async function externalDisposalFetch<T>(token: string, body?: FormData | Record<
           body: body instanceof FormData ? body : JSON.stringify(body),
         },
   );
-  const envelope = (await response.json()) as { success: boolean; data?: T; message?: string };
+  let envelope: { success: boolean; data?: T; message?: string; code?: string };
+  try {
+    envelope = await response.json();
+  } catch {
+    envelope = { success: false };
+  }
   if (!response.ok || !envelope.success || envelope.data === undefined) {
-    throw new Error(envelope.message || "external_disposal_failed");
+    // The same shape as every other failure in the app (FABLE_AUDIT_B4 #9):
+    // the code is what the driver's page words in the driver's language; the
+    // server's English is only the fallback text.
+    throw new ApiError(envelope.message || "external_disposal_failed", response.status, {}, envelope.code ?? "");
   }
   return envelope.data;
 }
