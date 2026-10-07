@@ -32,6 +32,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import type {
   DocumentCategory,
   DocumentSubcategory,
+  DocumentSystemFileInfo,
   DocumentVersion,
 } from "@/interfaces/document-workflow";
 import { cn } from "@/lib/utils";
@@ -209,10 +210,15 @@ function extensionOf(name: string): string {
  */
 export function thumbnailKind(version: DocumentVersion | null | undefined): ThumbnailKind {
   if (!version) return "none";
-  const extension = extensionOf(version.original_name);
   if (version.preview_type?.startsWith("image/") && version.byte_size <= THUMBNAIL_MAX_BYTES) {
     return "image";
   }
+  return fileKindOf(version.original_name);
+}
+
+/** What a file is by its name: the icon a file that is not drawn gets. */
+export function fileKindOf(name: string): Exclude<ThumbnailKind, "image" | "none"> {
+  const extension = extensionOf(name);
   if (PHOTO_EXTENSIONS.has(extension)) return "photo";
   if (extension === "pdf") return "pdf";
   if (extension === "doc" || extension === "docx") return "word";
@@ -240,16 +246,38 @@ const KIND_TONE = {
   none: "text-muted-foreground/50",
 } as const;
 
+/** A file's type icon and extension, for a file that is not drawn. */
+export function DocumentFileIcon({ name }: { name: string }) {
+  const kind = fileKindOf(name);
+  const Icon = KIND_ICON[kind];
+  const extension = extensionOf(name).toUpperCase();
+  return (
+    <span className="flex flex-col items-center justify-center" data-file-kind={kind}>
+      <Icon className={cn("h-5 w-5", KIND_TONE[kind])} />
+      {extension && (
+        <span className="mt-0.5 text-[9px] font-semibold leading-none text-muted-foreground">{extension}</span>
+      )}
+    </span>
+  );
+}
+
 export function DocumentThumb({
   version,
+  systemFile,
   onOpen,
 }: {
   version: DocumentVersion | null;
+  /** E4: a file picked from the system brings its own watermarked thumbnail. */
+  systemFile?: DocumentSystemFileInfo | null;
   onOpen: () => void;
 }) {
   const t = useTranslations();
-  const kind = thumbnailKind(version);
-  const versionId = version?.id;
+  const kind: ThumbnailKind = systemFile
+    ? systemFile.thumbnail_url
+      ? "image"
+      : fileKindOf(systemFile.file_name)
+    : thumbnailKind(version);
+  const versionId = systemFile ? undefined : version?.id;
   const button = useRef<HTMLButtonElement>(null);
   const [url, setUrl] = useState<string | null>(null);
 
@@ -293,20 +321,22 @@ export function DocumentThumb({
   }, [kind, versionId]);
 
   const Icon = KIND_ICON[kind];
-  const extension = version ? extensionOf(version.original_name).toUpperCase() : "";
+  const fileName = systemFile?.file_name ?? version?.original_name ?? "";
+  const extension = extensionOf(fileName).toUpperCase();
+  const shown = systemFile?.thumbnail_url ?? url;
   return (
     <button
       ref={button}
       type="button"
       className="flex h-10 w-10 shrink-0 flex-col items-center justify-center overflow-hidden rounded-md border bg-muted/40 transition-colors hover:border-primary/50"
-      title={version ? `${t("filePreview.preview")} · ${version.original_name}` : t("documents.noFile")}
-      aria-label={version ? `${t("filePreview.preview")} · ${version.original_name}` : t("documents.noFile")}
+      title={fileName ? `${t("filePreview.preview")} · ${fileName}` : t("documents.noFile")}
+      aria-label={fileName ? `${t("filePreview.preview")} · ${fileName}` : t("documents.noFile")}
       data-thumbnail={kind}
       onClick={onOpen}
     >
-      {kind === "image" && url ? (
-        // eslint-disable-next-line @next/next/no-img-element -- a blob: URL fetched with the session; next/image cannot load it.
-        <img src={url} alt="" className="h-full w-full object-cover" />
+      {kind === "image" && shown ? (
+        // eslint-disable-next-line @next/next/no-img-element -- a blob: URL fetched with the session, or the server's watermarked copy; next/image cannot load either.
+        <img src={shown} alt="" className="h-full w-full object-cover" />
       ) : (
         <>
           <Icon className={cn("h-4 w-4", KIND_TONE[kind])} />

@@ -10,6 +10,7 @@ import {
   FilePlus2,
   Folder,
   FolderCog,
+  FolderInput,
   Loader2,
   Pencil,
   Plus,
@@ -21,6 +22,11 @@ import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import {
+  SystemFilePicker,
+  useSourceLabel,
+} from "@/components/document-workflow/system-file-picker";
+import { useRecordOpener } from "@/components/shared/record-opener";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FilePreview } from "@/components/shared/file-preview";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
@@ -50,6 +56,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -71,21 +78,26 @@ import type {
   DocumentRecord,
   DocumentSubcategory,
   DocumentSubcategoryPayload,
+  DocumentSystemFileInfo,
   DocumentVersion,
+  SystemFile,
 } from "@/interfaces/document-workflow";
 import { useDateFormat } from "@/lib/dates";
 import { getProjects } from "@/services/contractor.service";
 import { getUsers } from "@/services/users.service";
 import {
+  addSystemFiles,
   archiveDocument,
   createDocumentCategory,
   createDocumentSubcategory,
   documentVersionObjectUrl,
   downloadDocumentVersion,
+  downloadSystemFile,
   getDocument,
   getDocumentCategories,
   getDocuments,
   getDocumentSubcategories,
+  systemFileObjectUrl,
   updateDocument,
   updateDocumentCategory,
   updateDocumentSubcategory,
@@ -97,6 +109,7 @@ import {
   DocumentCategoryPicker,
   DocumentThumb,
 } from "@/components/document-workflow/document-archive-parts";
+import { cn } from "@/lib/utils";
 
 export function Documents() {
   const t = useTranslations();
@@ -124,6 +137,8 @@ export function Documents() {
   const [archiving, setArchiving] = useState<DocumentRecord | null>(null);
   const [archiveReason, setArchiveReason] = useState("");
   const [taxonomyOpen, setTaxonomyOpen] = useState(false);
+  // E4: a system file's source tag opens the record it came from (F9 routes).
+  const opener = useRecordOpener();
 
   const documents = useQuery({
     queryKey: ["documents", list.query],
@@ -201,6 +216,7 @@ export function Documents() {
         cell: ({ row }) => (
           <DocumentThumb
             version={row.original.latest_version}
+            systemFile={row.original.system_file}
             onOpen={() => setViewingId(row.original.id)}
           />
         ),
@@ -223,10 +239,17 @@ export function Documents() {
             >
               {row.original.title}
             </p>
-            <p className="max-w-[260px] truncate text-xs text-muted-foreground">
-              {row.original.latest_version?.original_name ??
-                t("documents.noFile")}
-            </p>
+            {row.original.system_file ? (
+              <SourceTag
+                source={row.original.system_file}
+                onOpen={() => openSource(row.original)}
+              />
+            ) : (
+              <p className="max-w-[260px] truncate text-xs text-muted-foreground">
+                {row.original.latest_version?.original_name ??
+                  t("documents.noFile")}
+              </p>
+            )}
           </div>
         ),
       },
@@ -325,7 +348,7 @@ export function Documents() {
               </Button>
               {/* A new version: anybody on the project; a company-wide
                   document only from the manager (the server says the same). */}
-              {active && (manages || (canUpload && record.project)) && (
+              {active && !record.system_file && (manages || (canUpload && record.project)) && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -363,8 +386,21 @@ export function Documents() {
         },
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- openSource reads the opener, which is stable per render of this page.
     [can, canUpload, df, manages, t],
   );
+
+  function openSource(record: DocumentRecord) {
+    const source = record.system_file;
+    if (!source) return;
+    opener.open(source.record.kind, source.record.id, {
+      reference: source.record.reference,
+      project_id: record.project,
+      project_name: record.project_name ?? "",
+      submitted_at: source.captured_at,
+      photo: source.thumbnail_url,
+    });
+  }
 
   const rows = documents.data?.results ?? [];
   const totalCount = documents.data?.count ?? 0;
@@ -510,9 +546,11 @@ export function Documents() {
       {viewingId && (
         <DocumentDetailDialog
           documentId={viewingId}
+          onOpenSource={openSource}
           onClose={() => setViewingId(null)}
         />
       )}
+      {opener.sheet}
 
       {taxonomyOpen && (
         <TaxonomyDialog
@@ -565,6 +603,45 @@ function uploadErrors(error: unknown): Record<string, string> {
   return error.errors;
 }
 
+/**
+ * 「来自 RC-005 · 材料进场」 under a system file's title (E4), opening the
+ * record it came from; 「原记录已删除」 when that record is gone (Q23).
+ */
+function SourceTag({
+  source,
+  onOpen,
+}: {
+  source: DocumentSystemFileInfo;
+  onOpen: () => void;
+}) {
+  const t = useTranslations();
+  const label = useSourceLabel()(source);
+  return (
+    <p className="flex max-w-[260px] min-w-0 items-center gap-1.5 text-xs">
+      <button
+        type="button"
+        className="min-w-0 truncate text-primary underline-offset-2 hover:underline"
+        title={t("documents.source.open")}
+        onClick={onOpen}
+      >
+        {label}
+      </button>
+      {source.record.deleted && (
+        <StatusBadge label={t("documents.source.deleted")} tone="neutral" />
+      )}
+    </p>
+  );
+}
+
+/**
+ * How a system file is shown: a photograph comes back as its watermarked
+ * JPEG whatever it was uploaded as; anything else as the server says.
+ */
+function systemFilePreviewType(source: DocumentSystemFileInfo): string | null {
+  if (source.kind === "PHOTO" && source.thumbnail_url) return "image/jpeg";
+  return source.preview_type;
+}
+
 function fileStem(name: string): string {
   const dot = name.lastIndexOf(".");
   return (dot > 0 ? name.slice(0, dot) : name).slice(0, 255);
@@ -614,6 +691,10 @@ function UploadDocumentDialog({
   );
   const [done, setDone] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // E4: 「从电脑上传」｜「从系统里选」.
+  const [origin, setOrigin] = useState<"computer" | "system">("computer");
+  const [picked, setPicked] = useState<Record<string, SystemFile>>({});
+  const pickedIds = Object.keys(picked);
   const availableSubcategories = subcategories.filter(
     (item) => item.category === category && item.is_active,
   );
@@ -649,16 +730,62 @@ function UploadDocumentDialog({
       setErrors(uploadErrors(error));
     },
   });
+  const filing = useMutation({
+    mutationFn: () =>
+      addSystemFiles({
+        files: pickedIds,
+        category,
+        subcategory: subcategory === "none" ? null : subcategory,
+        keywords: keywords.trim(),
+      }),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+    onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
+  });
+  const pending = mutation.isPending || filing.isPending;
 
   return (
-    <Dialog open onOpenChange={(next) => !next && !mutation.isPending && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-[680px] [&>button]:hidden">
+    <Dialog open onOpenChange={(next) => !next && !pending && onClose()}>
+      <DialogContent
+        className={cn(
+          "max-h-[92dvh] overflow-y-auto [&>button]:hidden",
+          origin === "system" ? "sm:max-w-[1040px]" : "sm:max-w-[680px]",
+        )}
+      >
         <DialogHeader>
           <DialogTitle>{t("documents.uploadFile.title")}</DialogTitle>
-          <DialogDescription>{t("documents.uploadFile.description")}</DialogDescription>
+          <DialogDescription>
+            {t(origin === "system" ? "documents.pickFromSystem.description" : "documents.uploadFile.description")}
+          </DialogDescription>
         </DialogHeader>
 
+        <Tabs value={origin} onValueChange={(value) => setOrigin(value as "computer" | "system")}>
+          <TabsList>
+            <TabsTrigger value="computer">{t("documents.uploadFile.fromComputer")}</TabsTrigger>
+            <TabsTrigger value="system">{t("documents.pickFromSystem.tab")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         <div className="grid gap-4 sm:grid-cols-2">
+          {origin === "system" ? (
+            <FieldWrapper
+              label={t("documents.pickFromSystem.files")}
+              required
+              error={errors.files}
+              hint={t("documents.pickFromSystem.hint")}
+              className="sm:col-span-2"
+            >
+              <SystemFilePicker
+                projects={projects}
+                initialProject={initialProject}
+                selected={picked}
+                onSelectedChange={setPicked}
+              />
+            </FieldWrapper>
+          ) : (
+          <>
           <FieldWrapper
             label={t("documents.field.file")}
             required
@@ -681,6 +808,8 @@ function UploadDocumentDialog({
                 </li>
               ))}
             </ul>
+          )}
+          </>
           )}
           <FieldWrapper label={t("documents.field.category")} required error={errors.category}>
             <Select
@@ -728,6 +857,8 @@ function UploadDocumentDialog({
               {[categoryName, subcategoryName].filter(Boolean).join(" / ") || t("common.emptyValue")}
             </span>
           </p>
+          {origin === "computer" && (
+          <>
           <FieldWrapper
             label={t("documents.field.project")}
             required={!manages}
@@ -771,6 +902,8 @@ function UploadDocumentDialog({
           >
             <Input value={referenceNo} onChange={(event) => setReferenceNo(event.target.value)} />
           </FieldWrapper>
+          </>
+          )}
           <FieldWrapper
             label={t("documents.field.keywords")}
             optional={t("common.optional")}
@@ -783,6 +916,7 @@ function UploadDocumentDialog({
               onChange={(event) => setKeywords(event.target.value)}
             />
           </FieldWrapper>
+          {origin === "computer" && (
           <FieldWrapper
             label={t("documents.field.description")}
             optional={t("common.optional")}
@@ -791,6 +925,7 @@ function UploadDocumentDialog({
           >
             <Textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
           </FieldWrapper>
+          )}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
@@ -798,12 +933,27 @@ function UploadDocumentDialog({
             variant="outline"
             size="sm"
             className="rounded-full px-4"
-            disabled={mutation.isPending}
+            disabled={pending}
             onClick={onClose}
           >
             <X className="h-4 w-4" />
             {t("common.cancel")}
           </Button>
+          {origin === "system" ? (
+            <Button
+              size="sm"
+              className="rounded-full px-4 shadow-sm"
+              requires={[
+                [pickedIds.length > 0, t("documents.pickFromSystem.files")],
+                [category, t("documents.field.category")],
+              ]}
+              disabled={filing.isPending}
+              onClick={() => filing.mutate()}
+            >
+              {filing.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderInput className="h-4 w-4" />}
+              {t("documents.pickFromSystem.confirm", { count: pickedIds.length })}
+            </Button>
+          ) : (
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
@@ -820,6 +970,7 @@ function UploadDocumentDialog({
               ? t("documents.uploadFile.progress", { done, total: files.length })
               : t("documents.uploadFile.confirm")}
           </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1120,9 +1271,11 @@ function VersionUploadDialog({
 
 function DocumentDetailDialog({
   documentId,
+  onOpenSource,
   onClose,
 }: {
   documentId: string;
+  onOpenSource: (record: DocumentRecord) => void;
   onClose: () => void;
 }) {
   const t = useTranslations();
@@ -1178,7 +1331,22 @@ function DocumentDetailDialog({
                   </span>
                 )}
               </div>
-              {shown ? (
+              {detail.data.system_file ? (
+                <>
+                  <SourceTag
+                    source={detail.data.system_file}
+                    onOpen={() => onOpenSource(detail.data)}
+                  />
+                  <FilePreview
+                    key={detail.data.id}
+                    load={() => systemFileObjectUrl(detail.data.id)}
+                    previewType={systemFilePreviewType(detail.data.system_file)}
+                    filename={detail.data.system_file.file_name}
+                    onDownload={() => downloadSystemFile(detail.data)}
+                    className="h-[52dvh] lg:h-[64dvh]"
+                  />
+                </>
+              ) : shown ? (
                 <FilePreview
                   key={shown.id}
                   load={() => documentVersionObjectUrl(shown)}

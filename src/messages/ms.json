@@ -6610,7 +6610,8 @@
       "subcategoryUpdated": "Subkategori dikemas kini",
       "updated": "Dokumen dikemas kini",
       "versionUploaded": "Versi dokumen dimuat naik",
-      "uploaded": "Fail dimuat naik"
+      "uploaded": "Fail dimuat naik",
+      "systemFilesAdded": "Difailkan dalam arkib"
     },
     "upload": {
       "action": "Muat naik versi",
@@ -6642,11 +6643,39 @@
       "titleHint": "Jika kosong, nama fail digunakan.",
       "confirm": "Muat naik",
       "progress": "Memuat naik {done}/{total}",
-      "noCategory": "Sediakan kategori dokumen dahulu"
+      "noCategory": "Sediakan kategori dokumen dahulu",
+      "fromComputer": "Dari komputer ini"
     },
     "categoryPicker": {
       "expand": "Tunjukkan subkategori {name}",
       "collapse": "Sembunyikan subkategori {name}"
+    },
+    "source": {
+      "from": "Dari {reference} · {module}",
+      "fromModule": "Dari {module}",
+      "deleted": "Rekod dipadam",
+      "open": "Buka rekod"
+    },
+    "pickFromSystem": {
+      "tab": "Dari sistem",
+      "description": "Cari foto dan fail yang sudah ada dalam sistem, tandakan atau seret ke kawasan arkib, kemudian failkan. Tiada fail disalin.",
+      "files": "Fail sistem",
+      "hint": "Hanya fail yang anda sudah boleh lihat disenaraikan.",
+      "searchPlaceholder": "Cari nombor (cth. MR-002), bahan atau nama fail",
+      "module": "Modul",
+      "allModules": "Semua modul",
+      "what": "Fail sistem",
+      "empty": "Tiada fail ditemui.",
+      "alreadyFiled": "Sudah dalam arkib",
+      "dropArea": "Kawasan arkib",
+      "dropHint": "Seret foto ke sini, atau ketik foto untuk menandakannya.",
+      "selected": "{count} dipilih",
+      "remove": "Buang {name}",
+      "confirm": "Failkan dalam arkib ({count})",
+      "previous": "Halaman sebelumnya",
+      "next": "Halaman seterusnya",
+      "firstPage": "Ini halaman pertama",
+      "lastPage": "Ini halaman terakhir"
     }
   },
   "driver": {
@@ -7158,7 +7187,9 @@
       "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka.",
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
       "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada.",
-      "document_file_type_not_allowed": "Hanya fail PDF, Word, Excel atau gambar boleh dimuat naik."
+      "document_file_type_not_allowed": "Hanya fail PDF, Word, Excel atau gambar boleh dimuat naik.",
+      "document_is_system_file": "Fail yang dipilih daripada sistem tidak menerima versi baharu. Letakkan versi baharu pada rekodnya.",
+      "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {

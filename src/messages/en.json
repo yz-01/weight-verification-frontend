@@ -6610,7 +6610,8 @@
       "subcategoryUpdated": "Subcategory updated",
       "updated": "Document updated",
       "versionUploaded": "Document version uploaded",
-      "uploaded": "File uploaded"
+      "uploaded": "File uploaded",
+      "systemFilesAdded": "Filed in the archive"
     },
     "upload": {
       "action": "Upload version",
@@ -6642,11 +6643,39 @@
       "titleHint": "Left empty, the file name is used.",
       "confirm": "Upload",
       "progress": "Uploading {done}/{total}",
-      "noCategory": "Set up a document category first"
+      "noCategory": "Set up a document category first",
+      "fromComputer": "From this computer"
     },
     "categoryPicker": {
       "expand": "Show the subcategories of {name}",
       "collapse": "Hide the subcategories of {name}"
+    },
+    "source": {
+      "from": "From {reference} · {module}",
+      "fromModule": "From {module}",
+      "deleted": "Record deleted",
+      "open": "Open the record"
+    },
+    "pickFromSystem": {
+      "tab": "From the system",
+      "description": "Find photos and files already in the system, tick them or drag them to the archive area, then file them. Nothing is copied.",
+      "files": "System files",
+      "hint": "Only files you can already see are listed.",
+      "searchPlaceholder": "Search a number (e.g. MR-002), material or file name",
+      "module": "Module",
+      "allModules": "All modules",
+      "what": "System files",
+      "empty": "No files found.",
+      "alreadyFiled": "Already in the archive",
+      "dropArea": "Archive area",
+      "dropHint": "Drag photos here, or tap a photo to tick it.",
+      "selected": "{count} selected",
+      "remove": "Remove {name}",
+      "confirm": "File in archive ({count})",
+      "previous": "Previous page",
+      "next": "Next page",
+      "firstPage": "This is the first page",
+      "lastPage": "This is the last page"
     }
   },
   "driver": {
@@ -7158,7 +7187,9 @@
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
       "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead.",
-      "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded."
+      "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded.",
+      "document_is_system_file": "A file picked from the system takes no new versions. Put the new version on its record.",
+      "document_system_file_not_found": "One of those files was not found, or you cannot see it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

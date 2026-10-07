@@ -6610,7 +6610,8 @@
       "subcategoryUpdated": "子分类已更新",
       "updated": "文档已更新",
       "versionUploaded": "文档版本已上传",
-      "uploaded": "文件已上传"
+      "uploaded": "文件已上传",
+      "systemFilesAdded": "已放进档案"
     },
     "upload": {
       "action": "上传新版本",
@@ -6642,11 +6643,39 @@
       "titleHint": "留空就用文件名。",
       "confirm": "上传",
       "progress": "上传中 {done}/{total}",
-      "noCategory": "请先建立文件分类"
+      "noCategory": "请先建立文件分类",
+      "fromComputer": "从电脑上传"
     },
     "categoryPicker": {
       "expand": "展开 {name} 的子分类",
       "collapse": "收起 {name} 的子分类"
+    },
+    "source": {
+      "from": "来自 {reference} · {module}",
+      "fromModule": "来自{module}",
+      "deleted": "原记录已删除",
+      "open": "打开原记录"
+    },
+    "pickFromSystem": {
+      "tab": "从系统里选",
+      "description": "在系统里找已有的照片和文件，勾选或拖到右边的档案区，再放进档案。不会复制文件。",
+      "files": "系统文件",
+      "hint": "只列出你本来就看得到的文件。",
+      "searchPlaceholder": "搜编号（如 MR-002）、材料或文件名",
+      "module": "模块",
+      "allModules": "全部模块",
+      "what": "系统文件",
+      "empty": "没有找到文件。",
+      "alreadyFiled": "已在档案里",
+      "dropArea": "档案区",
+      "dropHint": "把照片拖到这里，或点一下照片勾选。",
+      "selected": "已选 {count} 个",
+      "remove": "移除 {name}",
+      "confirm": "放进档案（{count}）",
+      "previous": "上一页",
+      "next": "下一页",
+      "firstPage": "已经是第一页",
+      "lastPage": "已经是最后一页"
     }
   },
   "driver": {
@@ -7158,7 +7187,9 @@
       "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。",
       "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
       "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。",
-      "document_file_type_not_allowed": "只能上传 PDF、Word、Excel 或照片。"
+      "document_file_type_not_allowed": "只能上传 PDF、Word、Excel 或照片。",
+      "document_is_system_file": "从系统里选的文件不能上传新版本，新版本请放在原记录里。",
+      "document_system_file_not_found": "有文件找不到，或你没有权限查看。"
     },
     "backToDashboard": "返回仪表板",
     "field": {

@@ -2,6 +2,7 @@
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
+  AddSystemFilesPayload,
   ApprovalDetail,
   ApprovalHistory,
   ApprovalPayload,
@@ -15,6 +16,7 @@ import type {
   DocumentSubcategory,
   DocumentSubcategoryPayload,
   DocumentVersion,
+  SystemFile,
   WorkflowStep,
   WorkflowStepPayload,
   WorkflowTemplate,
@@ -191,6 +193,34 @@ export function documentVersionThumbnailUrl(versionId: string): Promise<string> 
   return fetchObjectUrl(`/api/document-versions/${versionId}/download/`, {
     query: { inline: "1" },
     silent: true,
+  });
+}
+
+/**
+ * Files already in the system this reader may file here (E4). The server
+ * returns only what the reader could already open.
+ */
+export function searchSystemFiles(query: ListQuery): Promise<Paginated<SystemFile>> {
+  return api.list<SystemFile>("/api/documents/search_system_files/", query);
+}
+
+/** File picked system files into a category - as references, not copies (Q23). */
+export async function addSystemFiles(payload: AddSystemFilesPayload): Promise<DocumentRecord[]> {
+  const rows = await api.post<DocumentRecord[]>("/api/documents/add_system_files/", payload);
+  toastSuccess("documents.toast.systemFilesAdded");
+  return rows;
+}
+
+/** The file a system-file document points at, to show in the page. */
+export function systemFileObjectUrl(documentId: string): Promise<string> {
+  return fetchObjectUrl(`/api/documents/${documentId}/open_system_file/`, {
+    query: { inline: "1" },
+  });
+}
+
+export function downloadSystemFile(document: DocumentRecord): Promise<void> {
+  return download(`/api/documents/${document.id}/open_system_file/`, {
+    fallbackFilename: document.system_file?.file_name ?? document.title,
   });
 }
 
