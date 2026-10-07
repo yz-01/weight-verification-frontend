@@ -199,7 +199,7 @@ export const addFieldTaskPhoto = async (
 
 export async function createConsultantFieldSubmission(payload: {
   project: string;
-  category: string;
+  category?: string;
   note?: string;
   application_category: string;
   description: string;
@@ -486,7 +486,7 @@ export const getSiteProgressSummary = (project?: string) =>
     project ? { project } : undefined,
   );
 export async function createSiteProgressRecord(payload: {
-  project: string; category: string; phase: string; percent_complete: string; description?: string;
+  project: string; category?: string; phase: string; percent_complete: string; description?: string;
   captured_at: string; latitude?: string; longitude?: string; client_event_id: string; photos: File[];
   field_task?: string;
 }) {
@@ -500,24 +500,6 @@ export async function createSiteProgressRecord(payload: {
   toastSuccess("contractorOps.toast.progressSubmitted");
   return row;
 }
-
-/**
- * File a progress record under one of the project's progress columns.
- *
- * `null` unfiles it, which the server accepts on purpose: the office files a
- * record after the fact and may have to take it back out (D-108).
- */
-export const fileProgressRecord = async (
-  id: string,
-  payload: { category: string | null; reason?: string },
-) => {
-  const row = await api.post<SiteProgressRecord>(
-    `/api/site-progress/${id}/file_record/`,
-    payload,
-  );
-  toastSuccess("contractorOps.toast.saved");
-  return row;
-};
 
 export const getMaterialOutgoing = (query: ListQuery = {}): Promise<Paginated<MaterialOutgoing>> =>
   api.list<MaterialOutgoing>("/api/material-outgoing/get_records/", query);
@@ -643,7 +625,7 @@ export const getDisposalRequest = (id: string) =>
 
 export async function createDisposalRequest(payload: {
   project: string;
-  category: string;
+  category?: string;
   waste_description: string;
   location_description: string;
   estimated_volume_m3?: string;
@@ -668,19 +650,6 @@ export async function createDisposalRequest(payload: {
   toastSuccess("siteDisposal.toast.requested");
   return row;
 }
-
-/** File a disposal request under one of the project's debris columns. */
-export const fileDisposalRequest = async (
-  id: string,
-  payload: { category: string | null; reason?: string },
-) => {
-  const row = await api.post<DisposalRequest>(
-    `/api/site-disposals/${id}/file_request/`,
-    payload,
-  );
-  toastSuccess("contractorOps.toast.saved");
-  return row;
-};
 
 /**
  * Approve or reject a disposal request.

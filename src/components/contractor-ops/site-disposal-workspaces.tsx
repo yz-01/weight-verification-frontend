@@ -6,7 +6,6 @@ import {
   ClipboardCheck,
   Camera,
   Copy,
-  FolderOpen,
   Hash,
   Link2,
   Loader2,
@@ -26,7 +25,6 @@ import { useSearchParams } from "next/navigation";
 
 import { LocationField } from "@/components/field-staff/location-field";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
-import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
@@ -38,7 +36,6 @@ import { ExportButton } from "@/components/shared/export-button";
 import { RecordNo } from "@/components/shared/record-no";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
-  ColumnFilter,
   FilterSelect,
   ModuleRecordsTable,
   PlainHeader,
@@ -51,7 +48,6 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
-import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -91,7 +87,6 @@ import {
   getInternalDisposalTask,
   regenerateDisposalExternalLink,
   exportDisposalRequests,
-  fileDisposalRequest,
   recordDisposalNumbers,
   reviewDisposalRequest,
   startExternalDisposalTask,
@@ -132,9 +127,7 @@ function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "wa
 export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("siteDisposal");
   const { can } = useAuth();
-  // The filing dialog's words live in the `contractorOps` namespace, with the
-  // one component that shows them on both this screen and the progress screen
-  // - so they are read from there rather than copied into this one.
+  // The word 「分类」 for an old record's category lives in `contractorOps`.
   const ops = useTranslations("contractorOps");
   const qc = useQueryClient();
   const [project, setProject] = useState(initialProject);
@@ -142,8 +135,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   // (D-259). Outside a draft (the office) this is ordinary state.
   const [creating, setCreating] = useDraftState("open:creating", Boolean(fieldTaskId));
   const [viewing, setViewing] = useState<DisposalRequest | null>(null);
-  // Which step dialog is open, and for which request (filing under a
-  // construction-waste column is one of them, T-232).
+  // Which step dialog is open, and for which request.
   const [step, setStep] = useState<{ step: DisposalStep; row: DisposalRequest } | null>(null);
   const rows = useQuery({
     queryKey: ["site-disposals", project],
@@ -213,7 +205,9 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                 <div><p className="text-xs text-muted-foreground">{t("field.executor")}</p><p className="mt-1 font-medium">{row.assigned_staff_name || row.collector_company_name || t("notAssigned")}</p></div>
               </div>
               <div className="mt-3 flex flex-wrap justify-end gap-2">
-                <span className="mr-auto self-center text-xs text-muted-foreground">{ops("filing.fileInto")}: <span className="font-medium text-foreground">{row.category_name || ops("filing.unfiled")}</span></span>
+                {/* Clearance has no categories since 2026-10 (B1, X5); one
+                    filed before keeps it, shown as it was. */}
+                <span className="mr-auto self-center text-xs text-muted-foreground">{row.category_name ? <>{ops("field.category")}: <span className="font-medium text-foreground">{row.category_name}</span></> : null}</span>
                 <Button size="sm" variant="outline" onClick={() => setViewing(row)}>{t("action.view")}</Button>
                 <DisposalActions row={row} onStep={(next) => setStep({ step: next, row })} />
               </div>
@@ -240,14 +234,13 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
 
 function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSaved }: { initialProject?: string; fieldTaskId?: string; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
-  const columnT = useTranslations("contractorOps");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   // F-282. Saved even when this dialog is opened from the office console:
   // `useDraftState` falls back to plain component state when there is no
   // `<FieldDraft>` above it, so one call site serves both without a branch.
   const [project, setProject] = useDraftState("project", initialProject);
-  const [category, setCategory] = useDraftState("category", "");
+  // No category (2026-10 B1, X5): a draft saved with one leaves it unread.
   const [description, setDescription] = useDraftState("description", "");
   const [locationDescription, setLocationDescription] = useDraftState("locationDescription", "");
   const [volume, setVolume] = useDraftState("volume", "");
@@ -272,7 +265,6 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
       if (!user) throw new Error("Authentication required.");
       return submitDisposalRequestOfflineAware(user.id, {
         project,
-        category,
         waste_description: description,
         location_description: isFieldStaff ? "GPS captured site location" : locationDescription,
         estimated_volume_m3: isFieldStaff ? "" : volume,
@@ -298,8 +290,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
       <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-2xl">
         <DialogHeader className="shrink-0"><DialogTitle>{t("create.title")}</DialogTitle><DialogDescription>{t("create.description")}</DialogDescription></DialogHeader>
         <div className="grid min-h-0 min-w-0 flex-1 gap-4 overflow-y-auto overflow-x-hidden pr-1 sm:grid-cols-2">
-          <FieldWrapper label={t("field.project")} required className="sm:col-span-2"><ProjectPicker value={project} onValueChange={(value) => { setProject(value); setCategory(""); }} placeholder={t("field.project")} /></FieldWrapper>
-          <ProjectColumnPicker project={project} kind="CONSTRUCTION_WASTE" value={category} onChange={setCategory} className="sm:col-span-2" />
+          <FieldWrapper label={t("field.project")} required className="sm:col-span-2"><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.project")} /></FieldWrapper>
           <FieldWrapper label={t("field.waste")} required className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} /></FieldWrapper>
           {!isFieldStaff ? <>
             <FieldWrapper label={t("field.siteLocation")} required className="sm:col-span-2"><Input value={locationDescription} onChange={(e) => setLocationDescription(e.target.value)} /></FieldWrapper>
@@ -333,7 +324,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
           </FieldWrapper>
           <FieldWrapper label={t("field.note")} optional={t("optional")} className="sm:col-span-2"><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
-        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [category, columnT("field.category")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [isFieldStaff || submissionPhotos.length >= 1, t("field.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
+        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [isFieldStaff || submissionPhotos.length >= 1, t("field.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -602,7 +593,7 @@ function DisposalDetailDialog({
   );
 }
 
-type DisposalStep = "filing" | "reviewing" | "assigning" | "regenerating" | "numbers" | "siteEvidence" | "cancelling";
+type DisposalStep = "reviewing" | "assigning" | "regenerating" | "numbers" | "siteEvidence" | "cancelling";
 
 /** Approved and not yet finished: the only time the job takes photographs. */
 const RUNNING: DisposalRequestStatus[] = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"];
@@ -616,13 +607,9 @@ const RUNNING: DisposalRequestStatus[] = ["APPROVED", "ASSIGNED", "IN_PROGRESS",
  */
 function DisposalActions({ row, onStep }: { row: DisposalRequest; onStep: (step: DisposalStep) => void }) {
   const t = useTranslations("siteDisposal");
-  const ops = useTranslations("contractorOps");
   const { can } = useAuth();
   return (
     <>
-      {/* Construction waste had no column at all until T-232, so this is the
-          only way one of those columns ever gets used. */}
-      {can("disposal.manage") && <Button size="sm" variant="outline" onClick={() => onStep("filing")}><FolderOpen />{ops("filing.action")}</Button>}
       {can("disposal.manage") && row.status === "REQUESTED" && <Button size="sm" onClick={() => onStep("reviewing")}><ClipboardCheck />{t("action.review")}</Button>}
       {can("disposal.manage") && ["APPROVED", "ASSIGNED", "RETURNED"].includes(row.status) && <Button size="sm" onClick={() => onStep("assigning")}><Send />{t("action.assign")}</Button>}
       {can("disposal.manage") && row.assignment_type === "EXTERNAL" && ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("regenerating")}><RefreshCw />{t("action.regenerateLink")}</Button>}
@@ -654,18 +641,6 @@ function DisposalStepDialogs({
     onClose();
   };
   switch (step) {
-    case "filing":
-      return (
-        <FileIntoColumnDialog
-          projectId={row.project}
-          kind="CONSTRUCTION_WASTE"
-          current={row.category ?? null}
-          reference={row.reference_no}
-          onFile={(category, reason) => fileDisposalRequest(row.id, { category, reason })}
-          onFiled={onChanged}
-          onClose={onClose}
-        />
-      );
     case "reviewing":
       return <ReviewDisposalDialog row={row} onClose={onClose} onSaved={done} />;
     case "assigning":
@@ -688,13 +663,12 @@ function DisposalStepDialogs({
  */
 export function SiteDisposalOffice() {
   const t = useTranslations("siteDisposal");
-  const ops = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
-  const list = useListQuery(["project", "status", "category", "uncategorised"]);
+  const list = useListQuery(["project", "status"]);
   const rows = useQuery({
     queryKey: ["site-disposals", "office", list.query],
     queryFn: () => getDisposalRequests(list.query),
@@ -735,12 +709,6 @@ export function SiteDisposalOffice() {
             {row.original.disposal_evidence_is_overdue && <StatusBadge label={t("overdue.badge")} tone="danger" />}
           </div>
         ),
-      },
-      {
-        accessorKey: "category_name",
-        meta: { label: ops("field.category") },
-        header: () => <PlainHeader label={ops("field.category")} />,
-        cell: ({ row }) => row.original.category_name || <span className="text-muted-foreground">{ops("filing.unfiled")}</span>,
       },
       {
         accessorKey: "waste_description",
@@ -793,7 +761,7 @@ export function SiteDisposalOffice() {
         cell: ({ row }) => <TypeBadge label={String(row.original.evidence.length)} />,
       },
     ],
-    [t, ops, tRoot, df],
+    [t, tRoot, df],
   );
 
   return (
@@ -820,7 +788,6 @@ export function SiteDisposalOffice() {
         toolbar={
           <>
             <ProjectListFilter list={list} />
-            <ColumnFilter list={list} kind="CONSTRUCTION_WASTE" />
             <FilterSelect
               list={list}
               param="status"
@@ -840,7 +807,6 @@ export function SiteDisposalOffice() {
                     columns: [
                       { key: "reference_no", label: tRoot("moduleTable.reference") },
                       { key: "project_name", label: t("field.project") },
-                      { key: "category_name", label: ops("field.category") },
                       {
                         key: "status",
                         label: t("field.status"),

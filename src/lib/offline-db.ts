@@ -213,7 +213,7 @@ export interface SiteProgressOfflineJob extends OfflineJobBase {
   kind: "SITE_PROGRESS";
   payload: {
     project: string;
-    category: string;
+    category?: string;
     phase: string;
     percent_complete: string;
     description?: string;
@@ -287,7 +287,7 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
   kind: "DISPOSAL_REQUEST";
   payload: {
     project: string;
-    category: string;
+    category?: string;
     waste_description: string;
     location_description: string;
     estimated_volume_m3?: string;
@@ -331,7 +331,7 @@ export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
   kind: "CONSULTANT_SUBMISSION";
   payload: {
     project: string;
-    category: string;
+    category?: string;
     note?: string;
     application_category: string;
     description: string;

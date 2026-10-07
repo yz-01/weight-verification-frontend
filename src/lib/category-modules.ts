@@ -9,19 +9,16 @@
 
 // No "field" (现场资料分类, D-285) and no "claim" (D-286): the first was never
 // a business module the customer defined, the second duplicated 杂费报销分类.
+//
+// 2026-10 B1 (Q5, X5): 分类管理只留四组 - 材料、设备、隐患整改、环保材料出场.
+// Progress, clearance, consultant and sundry records file under no category
+// any more; 文件分类 is managed on 文档档案 and 施工阶段 on 施工进度. Their old
+// rows stay in the database, unlisted here.
 export const CATEGORY_MODULE_KEYS = [
   "material",
-  "document",
   "equipment",
-  "progress",
-  "phase",
   "ehs",
   "recycle",
-  "debris",
-  // D-274, D-275: consultant submissions and sundry claims each file under
-  // categories of their own.
-  "consultant",
-  "sundry",
 ] as const;
 
 export type CategoryModuleKey = (typeof CATEGORY_MODULE_KEYS)[number];
@@ -30,11 +27,7 @@ export type CategoryModuleKey = (typeof CATEGORY_MODULE_KEYS)[number];
 export const KIND_MODULE: Record<string, CategoryModuleKey> = {
   MATERIAL: "material",
   EQUIPMENT: "equipment",
-  PROGRESS: "progress",
   EHS: "ehs",
-  CONSTRUCTION_WASTE: "debris",
-  CONSULTANT: "consultant",
-  SUNDRY: "sundry",
 };
 
 export const isCategoryModuleKey = (value: string): value is CategoryModuleKey =>
@@ -50,8 +43,9 @@ const first = (value: Param) =>
  * `/project-categories?kind=EQUIPMENT&project=…&create=1` keeps its project,
  * its module and its "open the create form" request, so a bookmark or a
  * dashboard shortcut still arrives where it meant to. An unknown or missing
- * kind - including the retired site-record and period-claim kinds - lands on
- * the material categories, the first module on the screen.
+ * kind - including every retired kind (site records, period claims, and since
+ * 2026-10 progress, clearance, consultant and sundry) - lands on the material
+ * categories, the first module on the screen.
  */
 export function categoryManagementAddress(
   params: Record<string, Param>,

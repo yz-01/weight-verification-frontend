@@ -45,18 +45,34 @@ function modulesBlock(): string {
 }
 
 describe("every module is managed on this one page (D-264)", () => {
-  it("lists all ten modules, without 现场资料分类 or Claim 分类", () => {
+  it("lists only the four groups the client uses (2026-10 B1)", () => {
     const block = modulesBlock();
     const keys = [
       ...[...block.matchAll(/columnModule\("([a-z]+)"/g)].map((m) => m[1]),
       ...[...block.matchAll(/\bkey: "([a-z]+)"/g)].map((m) => m[1]),
     ];
     expect(keys.sort()).toEqual([...CATEGORY_MODULE_KEYS].sort());
+    // 分类管理只留四组: 材料、设备、隐患整改、环保材料出场 (Q5, X5).
+    expect([...CATEGORY_MODULE_KEYS].sort()).toEqual(["ehs", "equipment", "material", "recycle"]);
     // 现场资料分类 was never a business module (D-285); Claim 分类
-    // duplicated 杂费报销分类 (D-286).
-    expect(keys).toHaveLength(10);
-    expect(keys).not.toContain("field");
-    expect(keys).not.toContain("claim");
+    // duplicated 杂费报销分类 (D-286); 文件分类 lives on 文档档案, 施工阶段 on
+    // 施工进度, and progress, clearance, consultant and sundry have none.
+    for (const gone of [
+      "field", "claim", "document", "phase", "progress", "debris", "consultant", "sundry",
+    ]) {
+      expect(keys).not.toContain(gone);
+    }
+  });
+
+  it("shows 隐患整改分类 read-only: no create, edit, delete or reorder", () => {
+    const source = read(MANAGEMENT);
+    expect(modulesBlock()).toContain('{ ...columnModule("ehs", "EHS"), readOnly: true }');
+    // Every create, edit, delete and reorder button hangs off canManage.
+    expect(source).toMatch(/const canManage = can\(active\.manage\) && !active\.readOnly;/);
+    expect(source).toMatch(/const createButton = canManage &&/);
+    expect(source).toMatch(/const canReorder = Boolean\(active\.columnKind\) && canManage/);
+    // And `?create=1` cannot open the form on it either.
+    expect(source).toMatch(/!initialModule\.readOnly &&/);
   });
 
   it("gives every module a delete", () => {
@@ -66,11 +82,7 @@ describe("every module is managed on this one page (D-264)", () => {
     expect(functionBody(source, "const columnModule")).toMatch(
       /remove: deleteProjectCategory/,
     );
-    for (const [key, remove] of [
-      ["document", "deleteDocumentCategory"],
-      ["phase", "deleteConstructionPhase"],
-      ["recycle", "deleteWasteCategory"],
-    ]) {
+    for (const [key, remove] of [["recycle", "deleteWasteCategory"]]) {
       const entry = block.slice(block.indexOf(`key: "${key}"`));
       expect(entry, `${key} deletes`).toMatch(
         new RegExp(`^[\\s\\S]*?remove: ${remove},`),
@@ -81,9 +93,9 @@ describe("every module is managed on this one page (D-264)", () => {
   it("opens an editor in place for every module, never another screen", () => {
     const editor = functionBody(read(MANAGEMENT), "function CategoryEditor(");
     expect(editor).toMatch(/if \(module\.columnKind\)[\s\S]*?<CategoryDialog/);
-    expect(editor).toMatch(/module\.key === "document"[\s\S]*?<DocumentCategoryDialog/);
-    expect(editor).toMatch(/module\.key === "phase"[\s\S]*?<PhaseDialog/);
     expect(editor).toMatch(/<WasteCategoryDialog/);
+    // 文件分类 and 施工阶段 are managed on their own pages now (Q5).
+    expect(editor).not.toMatch(/DocumentCategoryDialog|PhaseDialog/);
   });
 
   it("has no link, 「打开该模块」 or 「到该模块新增」 left", () => {
@@ -167,9 +179,13 @@ describe("the retired screens (D-263)", () => {
     expect(
       categoryManagementAddress({ kind: "equipment", project: "p1", create: "1" }),
     ).toBe("/category-management?project=p1&module=equipment&create=1");
+    // A retired module's old address lands on the first module (2026-10 B1).
     expect(
       categoryManagementAddress({ kind: "CONSTRUCTION_WASTE" }),
-    ).toBe("/category-management?module=debris");
+    ).toBe("/category-management?module=material");
+    expect(categoryManagementAddress({ module: "document" })).toBe(
+      "/category-management?module=material",
+    );
     expect(categoryManagementAddress({ module: "material" })).toBe(
       "/category-management?module=material",
     );

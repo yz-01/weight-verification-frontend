@@ -38,74 +38,90 @@ const SUNDRY_OFFICE = "src/components/sundry-claims/sundry-claims-office.tsx";
 const SUNDRY_PHONE = "src/components/field-staff/sundry-claim-capture.tsx";
 const CLAIMS = "src/components/contractor-ops/claim-engine.tsx";
 
-describe("consultant submissions file under their own columns (D-274)", () => {
-  it("asks the phone for CONSULTANT columns, not the site-record ones", () => {
-    const panel = functionBody(read(PHONE), "function ConsultantCapturePanel(");
-    expect(panel).toMatch(/<ProjectColumnPicker[^>]*kind="CONSULTANT"/);
-    expect(panel).not.toMatch(/kind="FIELD"/);
-  });
-});
+describe("the phone's 顾问资料提交 has no category at all (2026-10 B1, F4, Q19)", () => {
+  const panel = () => functionBody(read(PHONE), "function ConsultantCapturePanel(");
 
-describe("two more modules on Category Management", () => {
-  // Claim 分类 is gone: it duplicated 杂费报销分类 (D-286).
-  const modules: Array<[string, string, string]> = [
-    ["consultant", "CONSULTANT", "顾问资料分类"],
-    ["sundry", "SUNDRY", "杂费报销分类"],
-  ];
-
-  it.each(modules)(
-    "%s is a column module, so it creates, edits, reorders and deletes in place",
-    (key, kind) => {
-      // `columnModule` gives the shared column dialog, `deleteProjectCategory`
-      // and the reorder - the same as the other column modules.
-      expect(read(MANAGEMENT)).toContain(`columnModule("${key}", "${kind}")`);
-      expect(KIND_MODULE[kind]).toBe(key);
-    },
-  );
-
-  it.each(modules)(
-    "%s can be chosen in the column form, under the module's own name",
-    (key, kind) => {
-      const dialog = functionBody(read(WORKSPACES), "export function CategoryDialog(");
-      expect(dialog).toMatch(
-        new RegExp(`<SelectItem value="${kind}">\\s*\\{modules\\("module\\.${key}"\\)\\}`),
-      );
-    },
-  );
-
-  it.each(modules)("%s is named, explained and sourced in all four languages", (key, _kind, zhName) => {
-    for (const locale of ["en", "zh", "zh-TW", "ms"]) {
-      const messages = JSON.parse(read(`src/messages/${locale}.json`));
-      const cm = messages.categoryManagement;
-      expect(cm.module[key], `${locale} module.${key}`).toBeTruthy();
-      expect(cm.moduleHelp[key], `${locale} moduleHelp.${key}`).toBeTruthy();
-      expect(cm.moduleSource[key], `${locale} moduleSource.${key}`).toBeTruthy();
-    }
-    const zh = JSON.parse(read("src/messages/zh.json"));
-    expect(zh.categoryManagement.module[key]).toBe(zhName);
-  });
-});
-
-describe("sundry claims are filed in the office, never on the phone (D-275)", () => {
-  it("offers 【归入栏目】 in the detail to the reviewer, on SUNDRY columns", () => {
-    const detail = functionBody(read(SUNDRY_OFFICE), "function SundryClaimDetail(");
-    expect(detail).toMatch(/can\("sundry_claim\.review"\) && \(\s*<Button[^>]*onClick=\{\(\) => setFiling\(true\)\}/);
-    expect(detail).toMatch(/\{ops\("filing\.title"\)\}/);
-    expect(detail).toMatch(/<FileIntoColumnDialog[\s\S]*?kind="SUNDRY"[\s\S]*?fileSundryClaim\(claim\.id, \{ category, reason: why \}\)/);
-    // The facts say where it is, or 未归类.
-    expect(detail).toMatch(/claim\.category_name \|\| ops\("filing\.unfiled"\)/);
+  it("asks for no column of any kind", () => {
+    // 「为什么会有整改 VO？」: the 「材料分类」 list held hazard categories.
+    expect(panel()).not.toMatch(/ProjectColumnPicker|getProjectCategories|kind="/);
+    expect(panel()).not.toMatch(/\bcategory: column\b|consultantCapture\.category/);
   });
 
-  it("filters the list by SUNDRY column, 未归类 included", () => {
-    const office = read(SUNDRY_OFFICE);
-    expect(office).toMatch(/useListQuery\(\[[^\]]*"category", "uncategorised"\]\)/);
-    expect(office).toContain('<ColumnFilter list={list} kind="SUNDRY" />');
-  });
-
-  it("posts to the filing endpoint", () => {
-    expect(read("src/services/sundry-claim.service.ts")).toContain(
-      "`/api/sundry-claims/${id}/file_claim/`",
+  it("asks one question with four big buttons, the four types of Q2", () => {
+    const source = read(PHONE);
+    expect(source).toMatch(
+      /CONSULTANT_ASK_FOR = \[\s*"MATERIAL_APPROVAL",\s*"MATERIAL_CERT_SUBMISSION",\s*"RFI",\s*"OTHER",\s*\]/,
     );
+    expect(panel()).toMatch(/t\("consultantCapture\.askFor"\)/);
+    expect(panel()).toMatch(/application_category: chosen/);
+    const zh = JSON.parse(read("src/messages/zh.json")).fieldStaffPwa.consultantCapture;
+    expect(zh.askFor).toBe("这次要顾问看什么");
+    expect(zh.askOption).toEqual({
+      MATERIAL_APPROVAL: "材料申请",
+      MATERIAL_CERT_SUBMISSION: "材料证书提交",
+      RFI: "RFI（问顾问问题）",
+      OTHER: "其他",
+    });
+  });
+
+  it("needs one photo, and the four old subjects are only a hint", () => {
+    expect(panel()).toMatch(/\[photos\.length >= 1, t\("consultantCapture\.photos"\)\]/);
+    expect(panel()).not.toMatch(/hasRequiredFieldEvidence|FieldEvidenceGrid/);
+    expect(panel()).toMatch(/hint=\{t\("consultantCapture\.photoHint"\)\}/);
+    for (const locale of ["en", "zh", "zh-TW", "ms"]) {
+      const capture = JSON.parse(read(`src/messages/${locale}.json`)).fieldStaffPwa.consultantCapture;
+      for (const key of ["askFor", "photoHint", "description", "optional", "takePhoto", "morePhoto"]) {
+        expect(capture[key], `${locale} ${key}`).toBeTruthy();
+      }
+      for (const gone of ["category", "categoryOption"]) {
+        expect(capture, `${locale} ${gone}`).not.toHaveProperty(gone);
+      }
+    }
+  });
+
+  it("leaves an old draft's category unread rather than shown", () => {
+    expect(panel()).not.toMatch(/useDraftState\("category"|useDraftState\("column"/);
+    // The photographs of an old draft are kept: the same key, empty slots dropped.
+    expect(panel()).toMatch(/useDraftState\("evidence", createEmptyFieldEvidence\)/);
+    expect(panel()).toMatch(/completedFieldEvidence\(evidence\)/);
+  });
+});
+
+describe("consultant and sundry categories are retired (2026-10 B1, X5)", () => {
+  it.each(["consultant", "sundry"])("%s is no module on Category Management", (key) => {
+    expect(read(MANAGEMENT)).not.toMatch(new RegExp(`columnModule\\("${key}"`));
+    expect(Object.values(KIND_MODULE)).not.toContain(key);
+  });
+
+  it.each(["CONSULTANT", "SUNDRY"])("%s cannot be chosen in the column form", (kind) => {
+    const dialog = functionBody(read(WORKSPACES), "export function CategoryDialog(");
+    // The kind picker, not the submission-mode one with its 顾问审批 option.
+    const start = dialog.indexOf('label={t("categories.kind")}');
+    expect(start).toBeGreaterThan(-1);
+    const picker = dialog.slice(start, dialog.indexOf("</Select>", start));
+    expect(picker).not.toContain(`<SelectItem value="${kind}">`);
+  });
+});
+
+describe("sundry claims are not filed under a category (2026-10 B1)", () => {
+  it("has no filing button, dialog or category filter in the office", () => {
+    const office = read(SUNDRY_OFFICE);
+    for (const gone of [
+      /setFiling/,
+      /<FileIntoColumnDialog/,
+      /fileSundryClaim/,
+      /<ColumnFilter/,
+      /"uncategorised"/,
+      /filing\.unfiled/,
+    ]) {
+      expect(office).not.toMatch(gone);
+    }
+    // A claim filed before keeps its category, shown in the facts.
+    expect(office).toMatch(/claim\.category_name\s*\?\s*\[\{ label: ops\("field\.category"\), value: claim\.category_name \}\]/);
+  });
+
+  it("no longer calls the filing endpoint", () => {
+    expect(read("src/services/sundry-claim.service.ts")).not.toContain("file_claim");
   });
 
   it("has no column picker on the phone form", () => {

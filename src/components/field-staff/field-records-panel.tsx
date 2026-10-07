@@ -51,7 +51,7 @@ import {
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
-import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
+import { FieldCamera } from "@/components/shared/field-camera";
 import { Safety } from "@/components/site-operations/safety";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -945,42 +945,61 @@ function numericSuggestion(value?: string): string {
   return match?.[0] ?? "";
 }
 
+/**
+ * What the phone asks the consultant to look at (2026-10 Q2, Q19, F4) - the
+ * consultant application types of the same names, so the office's
+ * 「整理成顾问申请」 opens on the right one.
+ */
+export const CONSULTANT_ASK_FOR = [
+  "MATERIAL_APPROVAL",
+  "MATERIAL_CERT_SUBMISSION",
+  "RFI",
+  "OTHER",
+] as const;
+
+type ConsultantAskFor = (typeof CONSULTANT_ASK_FOR)[number];
+
+const isConsultantAskFor = (value: string): value is ConsultantAskFor =>
+  (CONSULTANT_ASK_FOR as readonly string[]).includes(value);
+
+/**
+ * 顾问资料提交, the way the client reads it (2026-10 F4, Q19).
+ *
+ * 「这里要选择的是什么？为什么会有整改 VO？」 - the form showed a 「材料分类」
+ * list holding hazard categories and a 「申请类别」 nobody had explained. Now
+ * there is no category of any kind: project (locked) → one question with four
+ * big buttons → photos (at least one; the four subjects that used to be
+ * compulsory are a hint) → an optional description → submit.
+ *
+ * A draft saved by the old form keeps its photographs (the same `evidence`
+ * key, its empty slots dropped); its old `category` and `column` values are
+ * simply not read, so nothing old is shown and nothing errors.
+ */
 function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: { initialProject?: string; fieldTaskId?: string; onSaved: () => void }) {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const qc = useQueryClient();
-  // F-282: these were plain `useState` inside a `<FieldDraft>` wrapper, so the
-  // banner said "saved" while a mis-tap threw the whole form away.
+  // F-282: draft state, so a mis-tap does not throw the form away.
   const [project, setProject] = useDraftState("project", initialProject);
+  const [askFor, setAskFor] = useDraftState("askFor", "");
   const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
-  const [category, setCategory] = useDraftState("category", "RFI");
-  const [column, setColumn] = useDraftState("column", "");
   const [note, setNote] = useDraftState("note", "");
   const clearDraft = useClearDraft();
   // Deliberately *not* saved. A restored draft submitted the next day would
   // send `captured_at: now` with yesterday's coordinates - a false evidence
-  // record rather than a recovered one. Re-acquiring is one tap on
-  // `LocationField`, and the material panel this pattern comes from keeps
-  // location on plain state for the same reason.
+  // record rather than a recovered one.
   const [location, setLocation] = useState<Coordinates>();
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
-  const evidenceLabels = [
-    t("consultantEvidence.overview"),
-    t("consultantEvidence.detail"),
-    t("consultantEvidence.location"),
-    t("consultantEvidence.reference"),
-  ];
-
+  const chosen = isConsultantAskFor(askFor) ? askFor : "";
 
   const save = useMutation({
     mutationFn: () => {
-      if (!user || !location) throw new Error("missing_evidence");
+      if (!user || !location || !chosen) throw new Error("missing_evidence");
       return submitConsultantSubmissionOfflineAware(user.id, {
         project,
-        category: column,
         note: note.trim(),
-        application_category: category,
+        application_category: chosen,
         description: note.trim(),
         captured_at: new Date().toISOString(),
         latitude: location.latitude,
@@ -1009,52 +1028,65 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
       <FieldWrapper label={t("consultantCapture.project")} required>
         <ProjectPicker
           value={project}
-          onValueChange={(next) => { setProject(next); setColumn(""); }}
+          onValueChange={setProject}
           placeholder={t("consultantCapture.chooseProject")}
           className="h-12 w-full"
           disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
-      {/* The consultant's own columns, not the site-record ones (D-274): the
-          server refuses a FIELD column here, and a draft that still holds one
-          is cleared by the picker because it is not on the list. */}
-      <FieldWrapper label={t("material.column")} required>
-        <ProjectColumnPicker bare project={project} kind="CONSULTANT" value={column} onChange={setColumn} />
+      <FieldWrapper label={t("consultantCapture.askFor")} required>
+        <div role="radiogroup" aria-label={t("consultantCapture.askFor")} className="grid grid-cols-2 gap-2">
+          {CONSULTANT_ASK_FOR.map((value) => (
+            <Button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={chosen === value}
+              variant={chosen === value ? "default" : "outline"}
+              className="h-16 whitespace-normal text-base"
+              onClick={() => setAskFor(value)}
+            >
+              {t(`consultantCapture.askOption.${value}`)}
+            </Button>
+          ))}
+        </div>
       </FieldWrapper>
-      <FieldWrapper label={t("consultantCapture.category")} required>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {(["RFI", "WIR", "MATERIAL", "SAFETY", "OTHER"] as const).map((value) => (
-              <SelectItem key={value} value={value}>{t(`consultantCapture.categoryOption.${value}`)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FieldWrapper>
-      <FieldWrapper label={t("consultantEvidence.title")} required>
-        <FieldEvidenceGrid
-          labels={evidenceLabels}
-          files={evidence}
-          progressLabel={t("evidenceProgress", {
-            current: photos.length,
-            required: FIELD_EVIDENCE_PHOTO_COUNT,
-          })}
-          onChange={setEvidence}
-        />
+      <FieldWrapper label={t("consultantCapture.photos")} required hint={t("consultantCapture.photoHint")}>
+        <div className="grid grid-cols-2 gap-2">
+          {photos.map((file, index) => (
+            <FieldCamera
+              key={`${file.name}-${file.lastModified}-${index}`}
+              label={t("consultantCapture.photoNumber", { number: index + 1 })}
+              file={file}
+              fileCount={1}
+              onCapture={(replacement) =>
+                setEvidence(photos.map((current, itemIndex) => (itemIndex === index ? replacement : current)))
+              }
+              onClear={() => setEvidence(photos.filter((_, itemIndex) => itemIndex !== index))}
+            />
+          ))}
+          <FieldCamera
+            label={t(photos.length ? "consultantCapture.morePhoto" : "consultantCapture.takePhoto")}
+            fileCount={0}
+            onCapture={(file) => setEvidence([...photos, file])}
+          />
+        </div>
       </FieldWrapper>
       <LocationField
-        label={t("consultantEvidence.location")}
+        label={t("consultantCapture.location")}
         actionLabel={t("attendance.getLocation")}
         readyLabel={t("attendance.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
         required
       />
-      <Textarea
-        value={note}
-        onChange={(event) => setNote(event.target.value)}
-        placeholder={t("consultantCapture.note")}
-      />
+      <FieldWrapper label={t("consultantCapture.description")} optional={t("consultantCapture.optional")}>
+        <Textarea
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          placeholder={t("consultantCapture.descriptionPlaceholder")}
+        />
+      </FieldWrapper>
       {error && (
         <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
@@ -1064,10 +1096,9 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         className="h-12 w-full text-sm"
         requires={[
           [project, t("consultantCapture.project")],
-          [category, t("consultantCapture.category")],
-          [column, t("material.column")],
-          [hasRequiredFieldEvidence(evidence), t("consultantEvidence.title")],
-          [location, t("consultantEvidence.location")],
+          [chosen, t("consultantCapture.askFor")],
+          [photos.length >= 1, t("consultantCapture.photos")],
+          [location, t("consultantCapture.location")],
         ]}
         disabled={save.isPending}
         onClick={() => save.mutate()}
