@@ -485,7 +485,6 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                               photos: item.photos.length,
                               documents: item.documents.length,
                               files: (item.files ?? []).length,
-                              messages: (item.messages ?? []).length,
                             })}
                           </p>
                           {item.source_missing && (
@@ -853,7 +852,9 @@ function AddRecordsDialog({
 
         <FieldWrapper label={t("include.title")} hint={t("include.hint")}>
           <div className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border p-3">
-            {(["photos", "documents", "files", "messages"] as const).map((part) => (
+            {/* No chat box (E7, Q25): 「全部的 PDF…都不需要聊天记录」. The chat
+                stays on the record in the system; no package prints it. */}
+            {(["photos", "documents", "files"] as const).map((part) => (
               <label key={part} className="flex items-center gap-2 text-sm">
                 <Checkbox
                   checked={include.includes(part)}
@@ -1029,7 +1030,6 @@ function TickPartsDialog({
     photos: initial("photos", all.photos.map((shot) => shot.id ?? "")),
     documents: initial("documents", all.documents.map((doc) => doc.id)),
     files: initial("files", (all.files ?? []).map((file) => file.id)),
-    messages: initial("messages", (all.messages ?? []).map((message) => message.id)),
   };
 
   const save = useMutation({
@@ -1058,10 +1058,10 @@ function TickPartsDialog({
         <section className="space-y-2">
           {/*
             Every part can be ticked (D-236): 「资料包里的资料**全部都要能由当事人
-            自己勾选** —— 照片、DO、文件、事项沟通记录…都在内」. What starts
-            ticked changed with D12: 「不默认把所有非照片全加」 - a record joins
-            with its fields and photographs, and the packer ticks the DO, the
-            files and the conversation in.
+            自己勾选**」. What starts ticked changed with D12: 「不默认把所有非照片
+            全加」 - a record joins with its fields and photographs, and the
+            packer ticks the DO and the files in. The conversation is no longer
+            a part at all (E7, Q25): no PDF prints the chat.
           */}
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {t("group.fields")}
@@ -1154,28 +1154,6 @@ function TickPartsDialog({
                   />
                   <span className="min-w-0 flex-1 truncate text-sm">{file.name}</span>
                   <span className="shrink-0 text-xs text-muted-foreground">{file.uploaded_by_name}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-        {(all.messages ?? []).length > 0 && (
-          <section className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t("group.messages")}
-            </h3>
-            <ul className="divide-y rounded-lg border">
-              {(all.messages ?? []).map((message) => (
-                <li key={message.id} className="flex items-start gap-3 p-2.5">
-                  <Checkbox
-                    checked={(selection.messages ?? []).includes(message.id)}
-                    onCheckedChange={() => toggle("messages", message.id)}
-                    aria-label={message.body || t("group.messages")}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">{message.author_name}</p>
-                    <p className="break-words text-sm">{message.body}</p>
-                  </div>
                 </li>
               ))}
             </ul>
@@ -1326,7 +1304,6 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                       photos: item.photos.length,
                       documents: item.documents.length,
                       files: (item.files ?? []).length,
-                      messages: (item.messages ?? []).length,
                     })}
                   </p>
 

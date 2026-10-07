@@ -9425,7 +9425,6 @@
       "fields": "欄位",
       "photos": "照片",
       "documents": "單據（DO）",
-      "messages": "事項溝通",
       "files": "文件"
     },
     "itemAccepted": "已接受",
@@ -9463,7 +9462,7 @@
     "oneProjectHelp": "一個資料包屬於一個項目。裡面的資料來自這個項目的各個分類，別的項目的記錄會被拒絕。",
     "open": "開啟",
     "pageOf": "第 {page} / {pages} 頁",
-    "partsSummary": "{fields} 個欄位 · {photos} 張照片 · {documents} 張單據 · {files} 個文件 · {messages} 則溝通",
+    "partsSummary": "{fields} 個欄位 · {photos} 張照片 · {documents} 張單據 · {files} 個文件",
     "previous": "上一頁",
     "remarksHelp": "幾個月後，這段話是唯一能說明當初為什麼把這些資料收在一起的東西。",
     "rename": "改名",
@@ -9511,7 +9510,7 @@
     },
     "include": {
       "title": "這些事項要放進資料包的內容",
-      "hint": "欄位一定會放入。照片預設勾選；DO、文件、事項溝通需要時才勾選。加入後仍可開啟每個事項再調整。"
+      "hint": "欄位一定會放入。照片預設勾選；DO、文件需要時才勾選。聊天記錄不放進 PDF，在系統裡照樣能看。加入後仍可開啟每個事項再調整。"
     },
     "loadMore": "載入更多（已顯示 {shown} / {total}）"
   },

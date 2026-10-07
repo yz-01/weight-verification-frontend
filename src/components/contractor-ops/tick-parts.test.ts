@@ -9,7 +9,8 @@ import { describe, expect, it } from "vitest";
  * It used to build its boxes from the member row, which carries only the parts
  * already ticked - so a photograph unticked once could never be ticked again,
  * and a group deliberately emptied reopened fully ticked (D-162 says an empty
- * list is none). And the conversation is a group of its own (D-233).
+ * list is none). The conversation used to be a group of its own (D-233); since
+ * E7 / Q25 no PDF prints the chat, so it is not offered at all.
  */
 const source = readFileSync(path.join(process.cwd(), "src/components/contractor-ops/multi-engine.tsx"), "utf8");
 const dialog = source.slice(source.indexOf("function TickPartsDialog("));
@@ -24,8 +25,11 @@ describe("ticking parts of a packaged record", () => {
     expect(dialog).toMatch(/group in item\.selection/);
   });
 
-  it("offers the record's conversation", () => {
-    expect(dialog).toMatch(/toggle\("messages", message\.id\)/);
+  it("never offers the record's conversation (E7)", () => {
+    expect(dialog).not.toMatch(/toggle\("messages"/);
+    expect(dialog).not.toMatch(/all\.messages/);
+    expect(source).not.toMatch(/\["photos", "documents", "files", "messages"\]/);
+    expect(source).toMatch(/\["photos", "documents", "files"\] as const/);
   });
 
   it("can preview a confirmed package without downloading it", () => {
