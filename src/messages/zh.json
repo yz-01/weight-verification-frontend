@@ -4059,6 +4059,13 @@
       "what": {
         "suppliers": "供应商列表"
       }
+    },
+    "equipment": {
+      "majorClass": "大类",
+      "subClass": "小类",
+      "majorClassOf": "上级（大类）",
+      "majorClassHint": "不选就是大类。设备要登记在小类下面。",
+      "isMajorClass": "（这是大类）"
     }
   },
   "cloudServices": {
@@ -5567,7 +5574,7 @@
       "editTitle": "编辑这台设备",
       "entryTitle": "记录 {name} 进场",
       "exitTitle": "记录 {name} 退场",
-      "formHelp": "请填写实体设备上的设备编号或注册号码。",
+      "formHelp": "设备编号、车牌号码和小类。可以先建好，也可以等现场报来新设备时在验收时补齐。",
       "movementHelp": "请拍摄当前照片并获取位置；该记录会成为不可修改的现场证据。",
       "occurredAt": "进退场时间",
       "ocrManual": "无法读取 Delivery Order，请手动填写资料。",
@@ -5608,7 +5615,46 @@
       "returnReason": "退回原因",
       "returnConfirm": "退回（申请结束）",
       "requestedBy": "申请人",
-      "reviewedBy": "审批人"
+      "reviewedBy": "审批人",
+      "chooseMachine": "设备",
+      "chooseMachinePlaceholder": "选设备",
+      "newMachine": "新设备",
+      "newMachineEntry": "新设备进场",
+      "newMachineName": "新设备名称",
+      "newMachineHelp": "填名称就可以；其他资料由后台验收时补齐。",
+      "entryHelp": "拍照、DO、扫供应商二维码、双方签名，提交后由后台验收。",
+      "entrySubmit": "提交进场",
+      "scanSupplier": "扫供应商二维码",
+      "scanFailed": "扫码没有成功，可以再扫一次，或先不填供应商。",
+      "movementsLink": "查看这台设备的进退场记录",
+      "needsProfile": "待补档",
+      "needsProfileHelp": "这台是现场报的新设备。选好小类（没有合适的可以在下面新增），再填至少一个到期日，就能验收它的进场。",
+      "directHandover": "直接交接",
+      "directHandoverHelp": "这是改流程前的进场申请，不用再批准：直接交接（拍照、双方签名），之后由后台验收。",
+      "acceptance": {
+        "title": "进场验收",
+        "accept": "验收通过",
+        "reject": "不通过",
+        "reason": "不通过原因",
+        "armReject": "允许不通过这笔进场",
+        "armRejectHelp": "设备不对才打开。打开后才能填写原因并判为不通过。",
+        "failed": "验收没有成功，请重试。",
+        "profileMissing": "先补齐档案：{fields}",
+        "completeProfile": "补齐档案",
+        "missing": {
+          "registration_no": "车牌号码",
+          "category": "小类",
+          "expiry": "到期日"
+        }
+      },
+      "oneMachineOnly": "只看这台设备的进退场",
+      "newMachinePlateHelp": "有车牌就填；没有可以留空。以前来过的设备会自动对上。",
+      "addClass": "新增小类",
+      "classMajor": "大类",
+      "classNewMajor": "新的大类…",
+      "classNewMajorName": "新大类名称",
+      "classSubName": "小类名称",
+      "classCreate": "加入"
     },
     "equipmentEvidence": {
       "condition": "4. 设备状况细节",
@@ -5703,7 +5749,14 @@
       "vehiclePlate": "车牌",
       "workLocation": "工作区域 / 位置",
       "pmaExpiresOn": "PMA 到期日",
-      "permitExpiresOn": "准证到期日"
+      "permitExpiresOn": "准证到期日",
+      "plateNo": "车牌号码",
+      "roadTaxExpiresOn": "路税到期",
+      "chooseProjectFirst": "请先选项目",
+      "equipmentSubClass": "设备小类",
+      "chooseEquipmentSubClass": "选择小类",
+      "noEquipmentSubClassYet": "这个项目还没有设备小类，可以在下面直接新增。",
+      "deliveryNoteNo": "DO 号码"
     },
     "filing": {
       "action": "归入分类",
@@ -5850,7 +5903,8 @@
       "locationError": "无法获取当前 GPS，请开启精确定位后重试。",
       "noDescription": "没有说明",
       "noIdentifier": "没有序列号或注册号码",
-      "unknown": "未知"
+      "unknown": "未知",
+      "noPlate": "未填车牌"
     },
     "status": {
       "accessAll": "所有项目人员可见",
@@ -5958,7 +6012,9 @@
       "outgoingProcessed": "已提交退场，待后台确认。",
       "movementRequested": "申请已送交后台",
       "movementReviewed": "申请已处理",
-      "returnNoteSaved": "Return Note 已保存"
+      "returnNoteSaved": "Return Note 已保存",
+      "entrySubmitted": "设备进场已提交，等待后台验收",
+      "entryReviewed": "验收结果已记录"
     },
     "what": {
       "roles": "角色列表",
@@ -5976,7 +6032,9 @@
       "PENDING": "等待后台批准",
       "APPROVED": "已批准，待交接签名",
       "RETURNED": "已退回（申请结束）",
-      "COMPLETED": "已交接"
+      "COMPLETED": "已交接",
+      "SUBMITTED": "等待后台验收",
+      "REJECTED": "未通过验收"
     },
     "returnNote": {
       "title": "Return Note",
@@ -7348,7 +7406,8 @@
       "equipment_hours_equipment_unavailable": "这台设备现在不能选（已停用或已报废），请选工地上在用的设备。",
       "equipment_hours_day_not_found": "这台设备那天没有照片，没有可以补的结束时间。",
       "equipment_hours_end_before_start": "结束时间要在第一张照片之后。",
-      "equipment_hours_end_too_late": "结束时间不能超过第一张照片后 24 小时。"
+      "equipment_hours_end_too_late": "结束时间不能超过第一张照片后 24 小时。",
+      "equipment_profile_incomplete": "先补齐这台设备的档案（小类、到期日），才能验收。"
     },
     "backToDashboard": "返回仪表板",
     "field": {

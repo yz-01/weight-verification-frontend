@@ -4059,6 +4059,13 @@
       "what": {
         "suppliers": "The supplier list"
       }
+    },
+    "equipment": {
+      "majorClass": "Major class",
+      "subClass": "Sub class",
+      "majorClassOf": "Major class it belongs to",
+      "majorClassHint": "Leave it to make this a major class. Machines are registered under a sub class.",
+      "isMajorClass": "(This is a major class)"
     }
   },
   "cloudServices": {
@@ -5567,7 +5574,7 @@
       "editTitle": "Edit this equipment",
       "entryTitle": "Record {name} entering site",
       "exitTitle": "Record {name} leaving site",
-      "formHelp": "Use the equipment or registration number found on the physical machine.",
+      "formHelp": "The machine's number, plate and sub class. Set it up now, or complete it when the site reports it and you accept the entry.",
       "movementHelp": "Take current photos and location. This movement becomes permanent site evidence.",
       "occurredAt": "Movement time",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -5608,7 +5615,46 @@
       "returnReason": "Why it is returned",
       "returnConfirm": "Return - the application ends",
       "requestedBy": "Applied by",
-      "reviewedBy": "Approved / returned by"
+      "reviewedBy": "Approved / returned by",
+      "chooseMachine": "Machine",
+      "chooseMachinePlaceholder": "Choose the machine",
+      "newMachine": "New machine",
+      "newMachineEntry": "New machine coming in",
+      "newMachineName": "New machine's name",
+      "newMachineHelp": "The name is enough - the office completes the rest when it accepts the entry.",
+      "entryHelp": "Photos, the DO, the supplier's QR and both signatures. The office accepts it after you submit.",
+      "entrySubmit": "Submit entry",
+      "scanSupplier": "Scan the supplier's QR",
+      "scanFailed": "The scan did not work. Scan again, or leave the supplier blank.",
+      "movementsLink": "See this machine's entries and exits",
+      "needsProfile": "Profile to complete",
+      "needsProfileHelp": "Reported from site as a new machine. Choose its sub class (or add one below) and at least one expiry date, then its entry can be accepted.",
+      "directHandover": "Hand over directly",
+      "directHandoverHelp": "An entry applied for before the change: no approval needed. Hand it over directly (photos, both signatures); the office then accepts it.",
+      "acceptance": {
+        "title": "Entry acceptance",
+        "accept": "Accept",
+        "reject": "Do not accept",
+        "reason": "Why it is not accepted",
+        "armReject": "Allow not accepting this entry",
+        "armRejectHelp": "Only when the machine is wrong. Turn it on to give the reason and refuse it.",
+        "failed": "The acceptance did not go through. Try again.",
+        "profileMissing": "Complete the profile first: {fields}",
+        "completeProfile": "Complete the profile",
+        "missing": {
+          "registration_no": "plate number",
+          "category": "sub class",
+          "expiry": "an expiry date"
+        }
+      },
+      "oneMachineOnly": "Showing this machine's entries and exits only",
+      "newMachinePlateHelp": "If it has one. Leave it blank if not. A machine that came before is matched by its plate.",
+      "addClass": "Add a sub class",
+      "classMajor": "Major class",
+      "classNewMajor": "A new major class…",
+      "classNewMajorName": "New major class name",
+      "classSubName": "Sub class name",
+      "classCreate": "Add"
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -5703,7 +5749,14 @@
       "vehiclePlate": "Vehicle plate",
       "workLocation": "Work area / location",
       "pmaExpiresOn": "PMA expires on",
-      "permitExpiresOn": "Permit expires on"
+      "permitExpiresOn": "Permit expires on",
+      "plateNo": "Plate number",
+      "roadTaxExpiresOn": "Road tax expires",
+      "chooseProjectFirst": "Choose a project first",
+      "equipmentSubClass": "Equipment sub class",
+      "chooseEquipmentSubClass": "Choose a sub class",
+      "noEquipmentSubClassYet": "This project has no equipment sub class yet - add one below.",
+      "deliveryNoteNo": "DO number"
     },
     "filing": {
       "action": "File under a category",
@@ -5850,7 +5903,8 @@
       "locationError": "Current GPS could not be obtained. Enable precise location and try again.",
       "noDescription": "No description",
       "noIdentifier": "No serial or registration number",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "noPlate": "No plate yet"
     },
     "status": {
       "accessAll": "Visible to all project members",
@@ -5958,7 +6012,9 @@
       "outgoingProcessed": "Exit recorded. The office will confirm it.",
       "movementRequested": "Application sent to the office",
       "movementReviewed": "Application updated",
-      "returnNoteSaved": "Return Note saved"
+      "returnNoteSaved": "Return Note saved",
+      "entrySubmitted": "Entry submitted - waiting for the office to accept it",
+      "entryReviewed": "Decision recorded"
     },
     "what": {
       "roles": "The role list",
@@ -5976,7 +6032,9 @@
       "PENDING": "Waiting for approval",
       "APPROVED": "Approved - waiting for the handover",
       "RETURNED": "Returned - closed",
-      "COMPLETED": "Handed over"
+      "COMPLETED": "Handed over",
+      "SUBMITTED": "Waiting for the office to accept",
+      "REJECTED": "Not accepted"
     },
     "returnNote": {
       "title": "Return Note",
@@ -7348,7 +7406,8 @@
       "equipment_hours_equipment_unavailable": "This machine cannot be chosen (inactive or retired). Choose a machine in use on the site.",
       "equipment_hours_day_not_found": "This machine has no photo on that day, so there is no end time to enter.",
       "equipment_hours_end_before_start": "The end time must be after the first photo.",
-      "equipment_hours_end_too_late": "The end time must be within 24 hours of the first photo."
+      "equipment_hours_end_too_late": "The end time must be within 24 hours of the first photo.",
+      "equipment_profile_incomplete": "Complete this machine's profile - its sub class and an expiry date - before accepting it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

@@ -80,6 +80,25 @@ const FORMS: FormCase[] = [
     ],
   },
   {
+    // 设备进场 in one step (2026-10 C8): namespaced by the machine, or "new"
+    // for a 「新设备」, for the reason MovementDialog's are by row.
+    mode: "equipment entry",
+    file: "src/components/contractor-ops/operations-workspaces.tsx",
+    component: "EquipmentEntryDialog",
+    fields: [
+      'useDraftState(`entryName:${key}`',
+      'useDraftState(`entryPlate:${key}`',
+      'useDraftState(`entryDeliveryNote:${key}`',
+      'useDraftState<{ id: string; name: string } | null>(`entrySupplier:${key}`',
+      'useDraftState(`entryNotes:${key}`',
+      'useDraftState<File[]>(`entryPhotos:${key}`',
+      'useDraftState(`entryEvidence:${key}`',
+      'useDraftState<File | undefined>(`entryDeliveryNotePhoto:${key}`',
+      'useDraftState<File | undefined>(`entryReceiverSignature:${key}`',
+      'useDraftState<File | undefined>(`entrySupplierSignature:${key}`',
+    ],
+  },
+  {
     mode: "progress",
     file: "src/components/contractor-ops/operations-workspaces.tsx",
     component: "ProgressDialog",

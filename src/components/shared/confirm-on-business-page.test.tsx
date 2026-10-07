@@ -142,7 +142,7 @@ describe("every business detail hands its record to the confirm panel - C4", () 
   const DETAILS: [string, string, RegExp][] = [
     ["MATERIAL_RECEIPT", "components/receipts/view-receipt.tsx", /\{ kind: "MATERIAL_RECEIPT", recordId: data\.id \}/],
     ["MATERIAL_OUTGOING", "components/contractor-ops/operations-workspaces.tsx", /closure=\{\{ kind: "MATERIAL_OUTGOING", recordId: row\.id \}\}/],
-    ["EQUIPMENT_MOVEMENT", "components/contractor-ops/office-module-lists.tsx", /closure=\{\{ kind: "EQUIPMENT_MOVEMENT", recordId: viewingMovement\.id \}\}/],
+    ["EQUIPMENT_MOVEMENT", "components/contractor-ops/office-module-lists.tsx", /closure=\{\{ kind: "EQUIPMENT_MOVEMENT", recordId: shownMovement\.id \}\}/],
     ["PROGRESS", "components/contractor-ops/office-module-lists.tsx", /closure=\{\{ kind: "PROGRESS", recordId: shown\.id \}\}/],
     ["WASTE_OUTGOING", "components/contractor-ops/waste-outgoing-workspace.tsx", /closure=\{\{ kind: "WASTE_OUTGOING", recordId: shown\.id \}\}/],
     ["DISPOSAL_REQUEST", "components/contractor-ops/site-disposal-workspaces.tsx", /closure=\{\{ kind: "DISPOSAL_REQUEST", recordId: row\.id \}\}/],

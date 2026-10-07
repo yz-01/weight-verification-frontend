@@ -4059,6 +4059,13 @@
       "what": {
         "suppliers": "Senarai pembekal"
       }
+    },
+    "equipment": {
+      "majorClass": "Kelas utama",
+      "subClass": "Subkelas",
+      "majorClassOf": "Kelas utama",
+      "majorClassHint": "Biarkan untuk jadikan kelas utama. Mesin didaftarkan di bawah subkelas.",
+      "isMajorClass": "(Ini kelas utama)"
     }
   },
   "cloudServices": {
@@ -5567,7 +5574,7 @@
       "editTitle": "Sunting peralatan ini",
       "entryTitle": "Rekod {name} masuk tapak",
       "exitTitle": "Rekod {name} keluar tapak",
-      "formHelp": "Gunakan nombor peralatan atau nombor pendaftaran pada mesin sebenar.",
+      "formHelp": "Nombor, plat dan subkelas mesin. Sediakan sekarang, atau lengkapkan apabila tapak melaporkannya dan anda menerima kemasukan.",
       "movementHelp": "Ambil foto dan lokasi semasa. Pergerakan ini menjadi bukti tapak kekal.",
       "occurredAt": "Masa pergerakan",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Masukkan maklumat secara manual.",
@@ -5608,7 +5615,46 @@
       "returnReason": "Sebab dikembalikan",
       "returnConfirm": "Kembalikan - permohonan tamat",
       "requestedBy": "Dipohon oleh",
-      "reviewedBy": "Diluluskan / dikembalikan oleh"
+      "reviewedBy": "Diluluskan / dikembalikan oleh",
+      "chooseMachine": "Mesin",
+      "chooseMachinePlaceholder": "Pilih mesin",
+      "newMachine": "Mesin baharu",
+      "newMachineEntry": "Mesin baharu masuk",
+      "newMachineName": "Nama mesin baharu",
+      "newMachineHelp": "Nama sudah cukup - pejabat melengkapkan yang lain semasa menerima kemasukan.",
+      "entryHelp": "Foto, DO, kod QR pembekal dan kedua-dua tandatangan. Pejabat menerimanya selepas anda hantar.",
+      "entrySubmit": "Hantar kemasukan",
+      "scanSupplier": "Imbas QR pembekal",
+      "scanFailed": "Imbasan tidak berjaya. Imbas semula, atau biarkan pembekal kosong.",
+      "movementsLink": "Lihat kemasukan dan keluar mesin ini",
+      "needsProfile": "Profil belum lengkap",
+      "needsProfileHelp": "Dilaporkan dari tapak sebagai mesin baharu. Pilih subkelasnya (atau tambah di bawah) dan sekurang-kurangnya satu tarikh tamat, kemudian kemasukannya boleh diterima.",
+      "directHandover": "Serah terus",
+      "directHandoverHelp": "Permohonan kemasukan sebelum perubahan: tiada kelulusan diperlukan. Serah terus (foto, kedua-dua tandatangan); pejabat kemudian menerimanya.",
+      "acceptance": {
+        "title": "Penerimaan kemasukan",
+        "accept": "Terima",
+        "reject": "Tidak diterima",
+        "reason": "Sebab tidak diterima",
+        "armReject": "Benarkan kemasukan ini tidak diterima",
+        "armRejectHelp": "Hanya jika mesin salah. Hidupkan untuk beri sebab dan menolaknya.",
+        "failed": "Penerimaan tidak berjaya. Cuba lagi.",
+        "profileMissing": "Lengkapkan profil dahulu: {fields}",
+        "completeProfile": "Lengkapkan profil",
+        "missing": {
+          "registration_no": "nombor plat",
+          "category": "subkelas",
+          "expiry": "tarikh tamat"
+        }
+      },
+      "oneMachineOnly": "Hanya kemasukan dan keluar mesin ini",
+      "newMachinePlateHelp": "Jika ada. Biarkan kosong jika tiada. Mesin yang pernah datang dipadankan melalui nombor platnya.",
+      "addClass": "Tambah subkelas",
+      "classMajor": "Kelas utama",
+      "classNewMajor": "Kelas utama baharu…",
+      "classNewMajorName": "Nama kelas utama baharu",
+      "classSubName": "Nama subkelas",
+      "classCreate": "Tambah"
     },
     "equipmentEvidence": {
       "condition": "4. Butiran keadaan peralatan",
@@ -5703,7 +5749,14 @@
       "vehiclePlate": "Nombor plat",
       "workLocation": "Kawasan / lokasi kerja",
       "pmaExpiresOn": "PMA tamat pada",
-      "permitExpiresOn": "Permit tamat pada"
+      "permitExpiresOn": "Permit tamat pada",
+      "plateNo": "Nombor plat",
+      "roadTaxExpiresOn": "Cukai jalan tamat",
+      "chooseProjectFirst": "Pilih projek dahulu",
+      "equipmentSubClass": "Subkelas peralatan",
+      "chooseEquipmentSubClass": "Pilih subkelas",
+      "noEquipmentSubClassYet": "Projek ini belum ada subkelas peralatan - tambah di bawah.",
+      "deliveryNoteNo": "Nombor DO"
     },
     "filing": {
       "action": "Failkan di bawah kategori",
@@ -5850,7 +5903,8 @@
       "locationError": "GPS semasa tidak dapat diperoleh. Aktifkan lokasi tepat dan cuba lagi.",
       "noDescription": "Tiada penerangan",
       "noIdentifier": "Tiada nombor siri atau pendaftaran",
-      "unknown": "Tidak diketahui"
+      "unknown": "Tidak diketahui",
+      "noPlate": "Tiada nombor plat"
     },
     "status": {
       "accessAll": "Semua ahli projek boleh melihat",
@@ -5958,7 +6012,9 @@
       "outgoingProcessed": "Keluar direkod. Pejabat akan mengesahkannya.",
       "movementRequested": "Permohonan dihantar ke pejabat",
       "movementReviewed": "Permohonan dikemas kini",
-      "returnNoteSaved": "Return Note disimpan"
+      "returnNoteSaved": "Return Note disimpan",
+      "entrySubmitted": "Kemasukan dihantar - menunggu penerimaan pejabat",
+      "entryReviewed": "Keputusan direkodkan"
     },
     "what": {
       "roles": "Senarai peranan",
@@ -5976,7 +6032,9 @@
       "PENDING": "Menunggu kelulusan",
       "APPROVED": "Diluluskan - menunggu serahan",
       "RETURNED": "Dikembalikan - ditutup",
-      "COMPLETED": "Telah diserahkan"
+      "COMPLETED": "Telah diserahkan",
+      "SUBMITTED": "Menunggu penerimaan pejabat",
+      "REJECTED": "Tidak diterima"
     },
     "returnNote": {
       "title": "Return Note",
@@ -7348,7 +7406,8 @@
       "equipment_hours_equipment_unavailable": "Mesin ini tidak boleh dipilih (tidak aktif atau telah dilupuskan). Pilih mesin yang digunakan di tapak.",
       "equipment_hours_day_not_found": "Mesin ini tiada foto pada hari itu, jadi tiada masa tamat untuk dimasukkan.",
       "equipment_hours_end_before_start": "Masa tamat mesti selepas foto pertama.",
-      "equipment_hours_end_too_late": "Masa tamat mesti dalam 24 jam selepas foto pertama."
+      "equipment_hours_end_too_late": "Masa tamat mesti dalam 24 jam selepas foto pertama.",
+      "equipment_profile_incomplete": "Lengkapkan profil mesin ini - subkelas dan tarikh tamat - sebelum menerimanya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
