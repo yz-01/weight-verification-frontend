@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+import { clearanceFigureFilters } from "@/lib/waste-clearance-figures";
 import { getDispatchSummary, getDispatches } from "@/services/contractor.service";
 import { getDisposalRequests, getDisposalTotals } from "@/services/contractor-ops.service";
 
@@ -64,15 +65,18 @@ export function WasteClearance() {
   const asked = searchParams.get("kind") as Kind | null;
   const kind: Kind = asked && kinds.includes(asked) ? asked : kinds[0] ?? "all";
 
+  // The header describes the list under it: opened from a head-office card
+  // (`counted=1`, one project) it counts what that list shows (F8).
+  const figureFilters = clearanceFigureFilters(kind, searchParams);
   // The two counts, apart (D06). Page size 1: only `count` is read.
   const disposalCount = useQuery({
-    queryKey: ["site-disposals", "count", "waste-clearance"],
-    queryFn: () => getDisposalRequests({ page_size: 1 }),
+    queryKey: ["site-disposals", "count", "waste-clearance", figureFilters.disposal],
+    queryFn: () => getDisposalRequests({ page_size: 1, ...figureFilters.disposal }),
     enabled: hasDisposals,
   });
   const dispatchCount = useQuery({
-    queryKey: ["dispatches", "count", "waste-clearance"],
-    queryFn: () => getDispatches({ page_size: 1 }),
+    queryKey: ["dispatches", "count", "waste-clearance", figureFilters.dispatch],
+    queryFn: () => getDispatches({ page_size: 1, ...figureFilters.dispatch }),
     enabled: hasDispatches,
   });
   const countText = (query: typeof disposalCount | typeof dispatchCount) =>
@@ -80,13 +84,13 @@ export function WasteClearance() {
   // D06: each kind's own 数量 / 车次 / 重量, read from its own module and
   // shown on its own line - never added together.
   const disposalTotals = useQuery({
-    queryKey: ["site-disposals", "totals", "waste-clearance"],
-    queryFn: () => getDisposalTotals(),
+    queryKey: ["site-disposals", "totals", "waste-clearance", figureFilters.disposal],
+    queryFn: () => getDisposalTotals(figureFilters.disposal),
     enabled: hasDisposals && can("disposal.view"),
   });
   const dispatchTotals = useQuery({
-    queryKey: ["dispatches", "summary", "waste-clearance"],
-    queryFn: () => getDispatchSummary({}),
+    queryKey: ["dispatches", "summary", "waste-clearance", figureFilters.dispatch],
+    queryFn: () => getDispatchSummary(figureFilters.dispatch),
     enabled: hasDispatches && can("dispatch.view"),
   });
   const dispatchFigures = dispatchTotals.data?.clearance_totals;

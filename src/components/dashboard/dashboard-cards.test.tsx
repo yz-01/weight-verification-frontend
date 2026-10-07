@@ -135,6 +135,14 @@ describe("the sections under the cards (F7)", () => {
     }
   });
 
+  it("人员进出 lists projects only when there are two (audit #18)", () => {
+    // One project's line is the 今日进出打卡 card's number again; the server
+    // sends no breakdown then, so "nobody clocked in" is read from the people.
+    expect(source).not.toContain("personnel.by_project.length === 0");
+    expect(source).toContain("personnel.unique_workers === 0");
+    expect(source).toContain("personnel.by_project.length > 1");
+  });
+
   it("puts every section under the cards in a DashboardSection", () => {
     for (const id of [
       "overview",

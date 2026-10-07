@@ -87,6 +87,7 @@ export function HeadquartersDashboard() {
           <HeadquartersMap
             projects={data.projects}
             withoutLocation={data.without_location}
+            date={data.date}
             onOpenPhoto={photos.open}
           />
         </div>
