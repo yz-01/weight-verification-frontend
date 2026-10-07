@@ -26,6 +26,7 @@ import { useSearchParams } from "next/navigation";
 import { LocationField } from "@/components/field-staff/location-field";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
+import { DrillNote } from "@/components/shared/drill-note";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   completedFieldEvidence,
@@ -674,7 +675,9 @@ export function SiteDisposalOffice() {
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
-  const list = useListQuery(["project", "status"]);
+  // `counted=1` arrives from the head office's 原工地清运 card (F8): only the
+  // jobs it counts - not rejected, not cancelled.
+  const list = useListQuery(["project", "status", "counted"]);
   const rows = useQuery({
     queryKey: ["site-disposals", "office", list.query],
     queryFn: () => getDisposalRequests(list.query),
@@ -773,6 +776,13 @@ export function SiteDisposalOffice() {
   return (
     <>
       <QueryFailedNote query={viewingRecord} what={tRoot("notifications.actionCards.linkedRecord")} />
+      {list.filters.counted === "1" && (
+        <DrillNote
+          label={t("countedOnly")}
+          clearLabel={t("showAll")}
+          params={["counted"]}
+        />
+      )}
       <ModuleRecordsTable
         title={tRoot("nav.submodule.siteDisposals")}
         countLabel={tRoot("moduleTable.count", { count: total })}

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlarmClock, ClipboardCheck, ListTodo, Megaphone, Users } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { HeadquartersAnnouncements } from "@/components/dashboard/headquarters-announcements";
 import { HeadquartersApprovals } from "@/components/dashboard/headquarters-approvals";
@@ -12,20 +12,38 @@ import { HeadquartersTasks } from "@/components/dashboard/headquarters-tasks";
 import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { HeadquartersOverview } from "@/interfaces/headquarters";
-import { drillHref } from "@/lib/headquarters-links";
+import { cardHref } from "@/lib/headquarters-links";
 import { recordTarget } from "@/lib/record-routes";
 import { getSafetyIncidents } from "@/services/site-operations.service";
 
-type WorkTab = "approvals" | "tasks" | "announcements" | "overdue";
+export type WorkTab = "approvals" | "tasks" | "announcements" | "overdue";
+
+export const WORK_TABS: readonly WorkTab[] = ["approvals", "tasks", "announcements", "overdue"];
 
 /**
  * 总部工作 on the company page (C16-C19): what waits on a decision across
  * every project, the tasks head office has set, its announcements, and the
  * rectifications past their deadline - each row opening the item itself.
  */
-export function HeadquartersWork() {
+export function HeadquartersWork({
+  initialTab = "approvals",
+  approvalsProject = "",
+}: {
+  /** From `?work=` - a card elsewhere opened this tab (F8, B8). */
+  initialTab?: WorkTab;
+  /** From `?work_project=` - the 集中审批 list narrowed to one project. */
+  approvalsProject?: string;
+}) {
   const t = useTranslations("headquarters.work");
-  const [tab, setTab] = useState<WorkTab>("approvals");
+  const [tab, setTab] = useState<WorkTab>(initialTab);
+  // A card's link ends in `#headquarters-work`, but this section only exists
+  // once the page's numbers have loaded - after the browser looked for it.
+  const section = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (window.location.hash === "#headquarters-work") {
+      section.current?.scrollIntoView({ block: "start" });
+    }
+  }, []);
   const tabs: Array<{ key: WorkTab; label: string; icon: typeof ClipboardCheck }> = [
     { key: "approvals", label: t("tabApprovals"), icon: ClipboardCheck },
     { key: "tasks", label: t("tabTasks"), icon: ListTodo },
@@ -34,8 +52,10 @@ export function HeadquartersWork() {
   ];
   return (
     <section
+      ref={section}
+      id="headquarters-work"
       aria-label={t("title")}
-      className="space-y-3 rounded-lg border bg-card p-3 shadow-sm"
+      className="scroll-mt-4 space-y-3 rounded-lg border bg-card p-3 shadow-sm"
       data-headquarters-work
     >
       <div role="tablist" aria-label={t("title")} className="flex flex-wrap gap-1 border-b pb-1.5">
@@ -57,7 +77,7 @@ export function HeadquartersWork() {
         ))}
       </div>
       {tab === "approvals" ? (
-        <HeadquartersApprovals />
+        <HeadquartersApprovals initialProject={approvalsProject} />
       ) : tab === "tasks" ? (
         <HeadquartersTasks />
       ) : tab === "announcements" ? (
@@ -179,7 +199,7 @@ export function HeadquartersPresence({ data }: { data: HeadquartersOverview }) {
           {rows.map((row) => (
             <li key={row.id}>
               <Link
-                href={drillHref("on_site_now", row.id)}
+                href={cardHref("on_site_now", { project: row.id, date: data.date }) ?? "/attendance"}
                 className="block rounded-md px-1 py-0.5 hover:bg-muted/40"
               >
                 <span className="flex items-center justify-between gap-2 text-sm">

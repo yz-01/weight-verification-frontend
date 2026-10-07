@@ -3097,6 +3097,11 @@
       "closed": "Ditutup",
       "open": "Belum ditutup",
       "openHelp": "Ia ditutup apabila orang yang membangkitkannya mengesahkan pembaikan di halaman bahaya."
+    },
+    "waiting": {
+      "only": "Hanya rekod yang menunggu pengesahan anda - sama seperti “Menunggu anda” di papan pemuka. Buka satu untuk mengesahkannya di halamannya sendiri.",
+      "showAll": "Tunjuk semua rekod",
+      "empty": "Tiada rekod yang menunggu pengesahan anda."
     }
   },
   "assets": {
@@ -3183,7 +3188,8 @@
       "project": "Pilih projek",
       "outsideFence": "Di luar sempadan",
       "since": "Sejak {date}",
-      "onDay": "Pada {date}"
+      "onDay": "Pada {date}",
+      "onePerson": "Hanya {name}"
     },
     "title": "Rekod kemasukan tapak",
     "toast": {
@@ -5420,6 +5426,12 @@
       "title": "Menunggu anda",
       "showAll": "Tunjuk semua {count}",
       "showFewer": "Tunjuk kurang"
+    },
+    "cards": {
+      "viewAll": "Lihat semua",
+      "empty": "Tiada buat masa ini.",
+      "loading": "Memuatkan",
+      "what": "lima item pertama kad ini"
     }
   },
   "contractorOps": {
@@ -6538,7 +6550,9 @@
       "tracking": "Kemajuan kutipan",
       "projects": "Senarai projek",
       "recyclers": "Senarai pengitar semula untuk projek ini"
-    }
+    },
+    "countedOnly": "Hanya pesanan yang dikira oleh ibu pejabat - tiada draf, tiada yang dibatalkan.",
+    "showAll": "Tunjuk semua"
   },
   "documents": {
     "downloading": "Sedang memuat turun",
@@ -12174,6 +12188,11 @@
       "responsiblePeople": "Senarai orang yang bertanggungjawab",
       "requestedIncident": "Insiden dalam pautan",
       "workers": "Orang yang boleh dimaklumkan"
+    },
+    "drill": {
+      "waitingForMe": "Hanya item yang menunggu anda - untuk diagihkan, dibetulkan atau disahkan.",
+      "overdue": "Hanya pembetulan lewat - melepasi tarikh akhir dan belum disahkan.",
+      "showAll": "Tunjuk semua"
     }
   },
   "safetyRectification": {
@@ -13418,7 +13437,9 @@
       "note": "Catatan",
       "submit": "Hantar ke pejabat",
       "photos": "Foto"
-    }
+    },
+    "countedOnly": "Hanya permohonan yang dikira oleh ibu pejabat - tiada yang ditolak atau dibatalkan.",
+    "showAll": "Tunjuk semua"
   },
   "siteGps": {
     "allProjects": "Semua projek",

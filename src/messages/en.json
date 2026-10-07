@@ -3097,6 +3097,11 @@
       "closed": "Closed",
       "open": "Not closed",
       "openHelp": "It closes when the person who raised it confirms the fix on the hazard page."
+    },
+    "waiting": {
+      "only": "Only the records waiting for your confirmation - the same ones as the dashboard's “Waiting for you”. Open one to confirm it on its own page.",
+      "showAll": "Show all records",
+      "empty": "Nothing is waiting for your confirmation."
     }
   },
   "assets": {
@@ -3183,7 +3188,8 @@
       "project": "Choose project",
       "outsideFence": "Outside the fence",
       "since": "Since {date}",
-      "onDay": "On {date}"
+      "onDay": "On {date}",
+      "onePerson": "Only {name}"
     },
     "title": "Site entry records",
     "toast": {
@@ -5420,6 +5426,12 @@
       "title": "Waiting on you",
       "showAll": "Show all {count}",
       "showFewer": "Show fewer"
+    },
+    "cards": {
+      "viewAll": "View all",
+      "empty": "Nothing here right now.",
+      "loading": "Loading",
+      "what": "this card's first five"
     }
   },
   "contractorOps": {
@@ -6538,7 +6550,9 @@
       "tracking": "The collection progress",
       "projects": "The project list",
       "recyclers": "The recycler list for this project"
-    }
+    },
+    "countedOnly": "Only the orders head office counts - no drafts, nothing cancelled.",
+    "showAll": "Show all"
   },
   "documents": {
     "downloading": "Downloading",
@@ -12174,6 +12188,11 @@
       "responsiblePeople": "The responsible people",
       "requestedIncident": "The incident in the link",
       "workers": "The people to notify"
+    },
+    "drill": {
+      "waitingForMe": "Only the items waiting on you - to assign, to rectify or to confirm.",
+      "overdue": "Only overdue rectifications - past their deadline and not yet verified.",
+      "showAll": "Show all"
     }
   },
   "safetyRectification": {
@@ -13418,7 +13437,9 @@
       "note": "Note",
       "submit": "Send to the office",
       "photos": "Photos"
-    }
+    },
+    "countedOnly": "Only the requests head office counts - nothing rejected or cancelled.",
+    "showAll": "Show all"
   },
   "siteGps": {
     "allProjects": "All projects",
