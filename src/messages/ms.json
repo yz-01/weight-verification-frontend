@@ -5789,7 +5789,13 @@
       },
       "title": "Kemajuan projek",
       "plannedWeight": "Pemberat kemajuan",
-      "plannedWeightHelp": "Sejauh mana fasa ini dikira berbanding fasa lain dalam projek. 1 bermaksud sama dengan fasa lain."
+      "plannedWeightHelp": "Sejauh mana fasa ini dikira berbanding fasa lain dalam projek. 1 bermaksud sama dengan fasa lain.",
+      "phaseRemove": {
+        "switch": "Buang fasa ini",
+        "hint": "Hanya fasa yang tidak dirujuk oleh mana-mana rekod kemajuan boleh dibuang - contohnya yang ditambah secara silap. Yang sedang digunakan boleh dimatikan di atas.",
+        "confirm": "Buang fasa",
+        "failed": "Fasa tidak dapat dibuang. Cuba lagi."
+      }
     },
     "progressEvidence": {
       "activity": "2. Aktiviti kerja",
@@ -6617,7 +6623,13 @@
       "add": "Tambah kategori",
       "create": "Cipta kategori",
       "edit": "Sunting kategori",
-      "title": "Kategori"
+      "title": "Kategori",
+      "remove": {
+        "switch": "Buang kategori ini",
+        "hint": "Hanya kategori tanpa dokumen dan tanpa subkategori boleh dibuang. Yang sedang digunakan boleh dinyahaktifkan di atas, supaya dokumen lama kekal kategorinya.",
+        "confirm": "Buang kategori",
+        "failed": "Kategori tidak dapat dibuang. Cuba lagi."
+      }
     },
     "companyWide": "Seluruh syarikat",
     "count": "{count} dokumen",

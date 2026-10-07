@@ -471,8 +471,9 @@ export interface SiteProgressRecord {
    *
    * Separate from the phase: the phase carries the weight the completion
    * percentage is computed against, the column is the customer'''s filing
-   * dimension (D-127). Set by the office through `file_record`, never on
-   * create - the site does not choose columns (D-108).
+   * dimension (D-127). Only old records carry one: the PROGRESS kind was
+   * retired (2026-10 B1, X7) and the office's `file_record` action went with
+   * it (p23), so a stored column is still shown but no longer set.
    */
   category: string | null;
   category_name: string | null;
