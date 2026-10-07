@@ -635,10 +635,12 @@ function SourceTag({
 
 /**
  * How a system file is shown: a photograph comes back as its watermarked
- * JPEG whatever it was uploaded as; anything else as the server says.
+ * JPEG whatever it was uploaded as; anything else as the server says. Not
+ * keyed on the thumbnail: a list leaves a photo not stamped yet without one
+ * (Fable #17), and opening it is what stamps it.
  */
 function systemFilePreviewType(source: DocumentSystemFileInfo): string | null {
-  if (source.kind === "PHOTO" && source.thumbnail_url) return "image/jpeg";
+  if (source.kind === "PHOTO") return "image/jpeg";
   return source.preview_type;
 }
 

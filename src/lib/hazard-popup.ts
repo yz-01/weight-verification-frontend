@@ -13,6 +13,11 @@ import { recordTarget } from "@/lib/record-routes";
  * hazard closes when its raiser confirms it (VERIFIED, X10); the notice that
  * says so is news, not something to act on, and gets no card.
  *
+ * Hazards only: a work permit rides the same item and the same `safety.*`
+ * notices (C20), so the notice's `record_type` decides. A notice filed before
+ * the server sent it falls back to the kind - `safety.permit_submitted` is a
+ * permit's.
+ *
  * Kept free of React so the rules - which events, how many, how long - are
  * tested without a DOM.
  */
@@ -24,7 +29,7 @@ export const HAZARD_POPUP_EXIT_MS = 250;
 /** At most this many at once; a fourth pushes the oldest out. */
 export const HAZARD_POPUP_MAX = 3;
 
-/** States in which a hazard (or permit) is finished. */
+/** States in which a hazard is finished. */
 const CLOSED_STATUSES = new Set(["VERIFIED", "RESOLVED"]);
 
 export interface RealtimeEvent {
@@ -69,7 +74,10 @@ export function hazardCardFromEvent(
   const kind = text(payload.kind);
   if (!kind.startsWith("safety.")) return null;
   if (kind === "safety.rectification_verified") return null;
+  if (kind === "safety.permit_submitted") return null;
   const data = payload.data ?? {};
+  const recordType = text(data.record_type);
+  if (recordType && recordType !== "HAZARD") return null;
   if (CLOSED_STATUSES.has(text(data.record_status))) return null;
   const id = text(payload.notification_id);
   const target = recordTarget("HAZARD", text(data.incident_id));
