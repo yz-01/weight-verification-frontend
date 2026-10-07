@@ -299,6 +299,8 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
     estimated_weight_kg?: string;
     preferred_at?: string;
     request_note?: string;
+    /** 「预计车次」 (X11); absent on a job queued before it existed. */
+    planned_trips?: string;
     captured_at: string;
     latitude: string;
     longitude: string;

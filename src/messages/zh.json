@@ -7279,7 +7279,11 @@
       "material_request_reviewer_not_eligible": "所选的人不能批准这个项目的申请，请从名单里重新选择。",
       "document_file_type_not_allowed": "只能上传 PDF、Word、Excel 或照片。",
       "document_is_system_file": "从系统里选的文件不能上传新版本，新版本请放在原记录里。",
-      "document_system_file_not_found": "有文件找不到，或你没有权限查看。"
+      "document_system_file_not_found": "有文件找不到，或你没有权限查看。",
+      "disposal_trip_not_waiting": "这一车不是待验收状态（还没送，或已经验收过）。",
+      "disposal_all_trips_sent": "预计的车次都已送出。如果还有车要去，请联系工地在后台「加一车」。",
+      "disposal_trips_closed": "这项清运已完成或已结束，车次不能再改。",
+      "disposal_nothing_sent": "还没有任何一车送出，不能提前结束。不需要的话请用「取消清运」。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9609,7 +9613,10 @@
       "original_quantity": "原数量",
       "correction_reason": "更正原因",
       "assigned_reviewer": "提交给",
-      "manufacturer": "制造厂商"
+      "manufacturer": "制造厂商",
+      "trips_progress": "已验收 / 车次",
+      "trip_checked": "已验收的车",
+      "trip_waiting": "待验收的车"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -13298,7 +13305,7 @@
     "external": {
       "action": {
         "start": "开始清运",
-        "submit": "提交最终处理证明（结束任务）"
+        "submit": "送出这一车"
       },
       "error": {
         "action": "操作无法完成，请检查网络后重试。"
@@ -13333,9 +13340,9 @@
       "tapCamera": "按这里打开相机",
       "title": "清运任务",
       "uploaded": "已上传",
-      "waitingBody": "最终处理证明已提交，链接已失效，不能再加照片。",
+      "waitingBody": "全部车次已验收，这项清运已完成，链接已失效。",
       "waitingTitle": "任务已结束",
-      "photosBody": "把垃圾送到合法处理地点后拍照。最多 4 张，不限类别；至少 1 张才能提交。提交后任务结束、链接失效。"
+      "photosBody": "每一车送到合法处理地点后拍照。最多 4 张，不限类别；至少 1 张才能送出。送出后后台会验收，下一车用同一条链接。"
     },
     "externalActor": "外部执行人员",
     "field": {
@@ -13369,7 +13376,11 @@
       "volume": "预计体积（m³）",
       "waste": "杂物/废弃物说明",
       "finalProofSubmitted": "最终处理证明已提交",
-      "legacyConfirmation": "后台验收（旧流程）"
+      "legacyConfirmation": "后台验收（旧流程）",
+      "plannedTrips": "预计车次",
+      "tripsProgress": "车次验收",
+      "tripsAccepted": "已验收车次",
+      "tripsTotal": "计划车次"
     },
     "fieldEvidence": {
       "access": "3. 清运入口或车辆路线",
@@ -13382,7 +13393,7 @@
       "action": {
         "photosRequired": "先拍最终处理证明",
         "start": "开始清运",
-        "submit": "提交最终处理证明（结束任务）"
+        "submit": "送出这一车"
       },
       "error": {
         "action": "操作无法完成，请检查网络和 GPS 后重试。"
@@ -13390,11 +13401,10 @@
       "field": {
         "doNo": "Disposal DO 编号",
         "note": "工作备注",
-        "trips": "车次数量",
         "weight": "实际重量（kg）"
       },
       "invalid": "无法打开这项清运任务，请刷新任务列表后重试。",
-      "photosBody": "把垃圾送到合法处理地点后拍照。每次最多 4 张，不限类别；至少 1 张才能提交。提交即结束任务，不需要后台验收。",
+      "photosBody": "每一车送到合法处理地点后拍照。每车最多 4 张，不限类别；至少 1 张才能送出。送出后由后台验收这一车。",
       "photosTitle": "最终处理证明",
       "status": {
         "APPROVED": "已批准",
@@ -13408,7 +13418,7 @@
         "RETURNED": "已退回（旧流程）"
       },
       "submitTitle": "清运结果",
-      "waitingBody": "最终处理证明已提交，这项清运已完成。",
+      "waitingBody": "全部车次已验收，这项清运已完成。",
       "waitingTitle": "任务已结束"
     },
     "notAssigned": "尚未指派",
@@ -13429,7 +13439,8 @@
     "review": {
       "title": "审批清运申请",
       "linkTitle": "把这条链接发给申请人",
-      "linkHelp": "请现在复制 —— 只显示这一次。申请人转给司机，司机通过这条链接上传处理照片。"
+      "linkHelp": "请现在复制 —— 只显示这一次。申请人转给司机，司机通过这条链接上传处理照片。",
+      "tripsHelp": "批准后按这个数生成车次。司机每送一车，后台收到一条待办，验收完最后一车，清运自动完成。"
     },
     "status": {
       "APPROVED": "已批准",
@@ -13448,7 +13459,7 @@
       "APPROVED": "申请已批准",
       "CANCELLED": "申请已取消",
       "COLLECTOR_ASSIGNED": "已指派外部清运商",
-      "COMPLETED": "管理人员已验收完成（旧流程）",
+      "COMPLETED": "全部车次已验收，清运完成",
       "EVIDENCE_DISPOSAL_DO": "已上传 Disposal DO",
       "EVIDENCE_LOADING": "已上传装车照片",
       "EVIDENCE_OTHER": "已上传其他现场照片",
@@ -13465,7 +13476,11 @@
       "CLOSED_ON_SUBMISSION": "已结束：最终处理证明已提交（新规则）",
       "NUMBERS_RECORDED": "后台已补录重量 / 车次 / DO",
       "SITE_EVIDENCE": "现场已上传车辆出场 / Gate Pass 照片",
-      "EVIDENCE_DISPOSAL_PROOF": "已上传最终处理证明照片"
+      "EVIDENCE_DISPOSAL_PROOF": "已上传最终处理证明照片",
+      "TRIP_SUBMITTED": "已送出一车，等待后台验收",
+      "TRIP_ACCEPTED": "后台已验收一车",
+      "TRIP_ADDED": "后台加了一车",
+      "ENDED_EARLY": "后台提前结束，未送的车次已取消"
     },
     "title": "工地清运",
     "toast": {
@@ -13476,11 +13491,14 @@
       "requested": "清运申请已提交",
       "reviewed": "清运审批已保存",
       "numbersRecorded": "已保存重量 / 车次 / DO",
-      "siteEvidence": "现场照片已发送后台"
+      "siteEvidence": "现场照片已发送后台",
+      "tripAccepted": "这一车已验收",
+      "tripAdded": "已加一车",
+      "endedEarly": "清运已提前结束"
     },
     "overdue": {
       "badge": "异常",
-      "help": "批准后 36 小时仍未提交最终处理证明，请跟进。"
+      "help": "批准后 36 小时仍没有送出任何一车，请跟进。"
     },
     "what": {
       "fieldStaff": "本项目的现场工作人员"
@@ -13507,7 +13525,30 @@
       "photos": "照片"
     },
     "countedOnly": "只显示总部「原工地清运」计入数量的申请：不含已拒绝和已取消。",
-    "showAll": "显示全部"
+    "showAll": "显示全部",
+    "trips": {
+      "title": "车次",
+      "progress": "已验收 {accepted} / {total} 车",
+      "seq": "第 {seq} 车",
+      "accept": "验收这一车",
+      "add": "加一车",
+      "endSwitch": "提前结束这项清运",
+      "endHint": "打开开关才能结束。还没送的车次取消、司机链接失效；已送达的车次仍要验收。",
+      "end": "提前结束",
+      "ended": "后台已提前结束，不会再有新的车次。",
+      "checkedBy": "{name} 已验收 · {at}",
+      "sentProgress": "已送出 {sent} / {total} 车",
+      "justSent": "第 {seq} 车已送出，后台会验收。",
+      "loadTitle": "第 {seq} / {total} 车：处理证明（最多 4 张）",
+      "allSentTitle": "全部车次已送出",
+      "allSentBody": "等待后台验收。如果还有车要去，请联系工地在后台「加一车」。"
+    },
+    "tripStatus": {
+      "PLANNED": "还没送",
+      "SUBMITTED": "待验收",
+      "ACCEPTED": "已验收",
+      "CANCELLED": "已取消（提前结束）"
+    }
   },
   "siteGps": {
     "allProjects": "全部项目",
