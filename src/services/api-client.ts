@@ -349,7 +349,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") throw error;
     const failure = noAnswer(error);
-    toast.error(failure.message);
+    if (!options.silent) toast.error(failure.message);
     throw failure;
   }
 
@@ -371,7 +371,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
       envelope.success ? "" : envelope.message,
       envelope.success ? undefined : envelope.values,
     );
-    toast.error(message);
+    if (!options.silent) toast.error(message);
     throw new ApiError(message, response.status, {}, code);
   }
   return response;

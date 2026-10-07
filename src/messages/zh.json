@@ -6532,7 +6532,6 @@
     "downloading": "下载中",
     "allCategories": "全部分类",
     "allProjects": "全部项目",
-    "allSubcategories": "全部子分类",
     "allUploaders": "全部上传人",
     "archive": {
       "action": "归档",
@@ -6548,11 +6547,6 @@
     },
     "companyWide": "公司级",
     "count": "共 {count} 份文档",
-    "create": {
-      "action": "新建文档",
-      "description": "先建立档案记录，再上传第一份不可修改的文件版本。",
-      "title": "建立文档"
-    },
     "detail": {
       "title": "文档详情"
     },
@@ -6584,7 +6578,8 @@
       "version": "版本",
       "versionNote": "版本备注",
       "versions": "版本数",
-      "path": "保存路径"
+      "path": "保存路径",
+      "thumbnail": "缩略图"
     },
     "keywordsPlaceholder": "多个关键词请用逗号分隔",
     "noFile": "尚未上传文件",
@@ -6611,7 +6606,6 @@
       "archived": "文档已归档",
       "categoryCreated": "分类已建立",
       "categoryUpdated": "分类已更新",
-      "created": "文档已建立",
       "subcategoryCreated": "子分类已建立",
       "subcategoryUpdated": "子分类已更新",
       "updated": "文档已更新",
@@ -6622,7 +6616,7 @@
       "action": "上传新版本",
       "confirm": "上传",
       "description": "为 {name} 新增一个不可修改的版本。",
-      "limit": "上传时会执行系统设定的文件大小限制。",
+      "limit": "只能上传 PDF、Word、Excel 或照片；上传时会执行系统设定的文件大小限制。",
       "title": "上传文档版本"
     },
     "versions": {
@@ -6638,21 +6632,21 @@
     "preview": {
       "title": "在线预览"
     },
-    "folders": {
-      "title": "分类",
-      "all": "全部文件"
-    },
     "uploadFile": {
       "action": "上传文件",
       "title": "上传到文件档案",
       "description": "选择文件和保存的分类路径。每个文件各自成为一份档案；已有的档案不会被改动。",
-      "fileHint": "照片、PDF、单据、证书、图纸等任何文件，可一次选多个。",
+      "fileHint": "PDF、Word、Excel 或照片，可一次选多个。",
       "pathPreview": "将保存到：",
       "projectHint": "只能选你所在的项目；全公司共用的文件由文件管理员上传。",
       "titleHint": "留空就用文件名。",
       "confirm": "上传",
       "progress": "上传中 {done}/{total}",
       "noCategory": "请先建立文件分类"
+    },
+    "categoryPicker": {
+      "expand": "展开 {name} 的子分类",
+      "collapse": "收起 {name} 的子分类"
     }
   },
   "driver": {
@@ -7163,7 +7157,8 @@
       "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
       "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。",
       "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
-      "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。"
+      "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。",
+      "document_file_type_not_allowed": "只能上传 PDF、Word、Excel 或照片。"
     },
     "backToDashboard": "返回仪表板",
     "field": {

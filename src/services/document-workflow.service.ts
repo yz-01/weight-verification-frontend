@@ -108,17 +108,6 @@ export function getDocument(id: string): Promise<DocumentDetail> {
   return api.get<DocumentDetail>(`/api/documents/${id}/get_document/`);
 }
 
-export async function createDocument(
-  payload: DocumentPayload,
-): Promise<DocumentDetail> {
-  const document = await api.post<DocumentDetail>(
-    "/api/documents/create_document/",
-    payload,
-  );
-  toastSuccess("documents.toast.created");
-  return document;
-}
-
 /**
  * File one document with its first version in one step (B28): the file, its
  * category / subcategory path and its project together.
@@ -190,6 +179,18 @@ export function downloadDocumentVersion(version: DocumentVersion): Promise<void>
 export function documentVersionObjectUrl(version: DocumentVersion): Promise<string> {
   return fetchObjectUrl(`/api/document-versions/${version.id}/download/`, {
     query: { inline: "1" },
+  });
+}
+
+/**
+ * One photograph, fetched for the table's thumbnail (D5); the caller revokes
+ * it. Silent: a thumbnail that fails keeps its icon, and a page of them must
+ * not stack up a toast per row.
+ */
+export function documentVersionThumbnailUrl(versionId: string): Promise<string> {
+  return fetchObjectUrl(`/api/document-versions/${versionId}/download/`, {
+    query: { inline: "1" },
+    silent: true,
   });
 }
 

@@ -10,7 +10,6 @@ import {
   FilePlus2,
   Folder,
   FolderCog,
-  FolderOpen,
   Loader2,
   Pencil,
   Plus,
@@ -79,7 +78,6 @@ import { getProjects } from "@/services/contractor.service";
 import { getUsers } from "@/services/users.service";
 import {
   archiveDocument,
-  createDocument,
   createDocumentCategory,
   createDocumentSubcategory,
   documentVersionObjectUrl,
@@ -94,7 +92,11 @@ import {
   uploadDocument,
   uploadDocumentVersion,
 } from "@/services/document-workflow.service";
-import { cn } from "@/lib/utils";
+import {
+  DOCUMENT_FILE_ACCEPT,
+  DocumentCategoryPicker,
+  DocumentThumb,
+} from "@/components/document-workflow/document-archive-parts";
 
 export function Documents() {
   const t = useTranslations();
@@ -187,6 +189,20 @@ export function Documents() {
               {row.original.reference_no || t("common.emptyValue")}
             </p>
           </div>
+        ),
+      },
+      {
+        // D5: a photo shows itself in small, any other file its type; a tap
+        // opens the same preview as the eye button.
+        id: "thumbnail",
+        enableSorting: false,
+        meta: { label: t("documents.field.thumbnail") },
+        header: () => <span className="sr-only">{t("documents.field.thumbnail")}</span>,
+        cell: ({ row }) => (
+          <DocumentThumb
+            version={row.original.latest_version}
+            onOpen={() => setViewingId(row.original.id)}
+          />
         ),
       },
       {
@@ -397,14 +413,6 @@ export function Documents() {
         }
       />
 
-      <div className="flex min-h-0 flex-1 gap-4">
-      <FolderTree
-        categories={categoryRows}
-        subcategories={subcategoryRows}
-        category={list.filters.category}
-        subcategory={list.filters.subcategory}
-        onSelect={(category, subcategory) => list.setFilters({ category, subcategory })}
-      />
       <DataTable
         columns={columns}
         rows={rows}
@@ -438,14 +446,14 @@ export function Documents() {
               <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.project")}><SelectValue placeholder={t("documents.field.project")} /></SelectTrigger>
               <SelectContent><SelectItem value="all">{t("documents.allProjects")}</SelectItem>{(projects.data?.results ?? []).map((project) => <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>)}</SelectContent>
             </Select>
-            <Select value={list.filters.category ?? "all"} onValueChange={(value) => list.setFilters({ category: value === "all" ? undefined : value, subcategory: undefined })}>
-              <SelectTrigger size="sm" className="h-9 w-[170px] bg-card" aria-label={t("documents.field.category")}><SelectValue placeholder={t("documents.field.category")} /></SelectTrigger>
-              <SelectContent><SelectItem value="all">{t("documents.allCategories")}</SelectItem>{categoryRows.map((category) => <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>)}</SelectContent>
-            </Select>
-            <Select value={list.filters.subcategory ?? "all"} onValueChange={(value) => list.setFilter("subcategory", value === "all" ? undefined : value)}>
-              <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.subcategory")}><SelectValue placeholder={t("documents.field.subcategory")} /></SelectTrigger>
-              <SelectContent><SelectItem value="all">{t("documents.allSubcategories")}</SelectItem>{subcategoryRows.filter((item) => !list.filters.category || item.category === list.filters.category).map((subcategory) => <SelectItem key={subcategory.id} value={subcategory.id}>{subcategory.name}</SelectItem>)}</SelectContent>
-            </Select>
+            {/* B6 / D5 (X16): one dropdown sets category and subcategory together. */}
+            <DocumentCategoryPicker
+              categories={categoryRows}
+              subcategories={subcategoryRows}
+              category={list.filters.category}
+              subcategory={list.filters.subcategory}
+              onChange={(category, subcategory) => list.setFilters({ category, subcategory })}
+            />
             <Select value={list.filters.uploaded_by ?? "all"} onValueChange={(value) => list.setFilter("uploaded_by", value === "all" ? undefined : value)}>
               <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.uploadedBy")}><SelectValue placeholder={t("documents.field.uploadedBy")} /></SelectTrigger>
               <SelectContent><SelectItem value="all">{t("documents.allUploaders")}</SelectItem>{(users.data?.results ?? []).map((user) => <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>)}</SelectContent>
@@ -464,7 +472,6 @@ export function Documents() {
         onPageSizeChange={list.setPageSize}
         onClearFilters={list.clearFilters}
       />
-      </div>
 
       {filing && (
         <UploadDocumentDialog
@@ -546,83 +553,16 @@ export function Documents() {
 }
 
 /**
- * The archive's folders: every category with what is filed in it, and the
- * open category's subcategories (B28 「分类管理、筛选清楚」). Choosing one is
- * the same filter as the selects in the toolbar, which stay for the phone.
+ * Field errors from a failed upload. A refused file type (B6) is worded from
+ * the catalogue - the field's own message is the server's English - and put
+ * under the file input, where the reader is looking.
  */
-function FolderTree({
-  categories,
-  subcategories,
-  category,
-  subcategory,
-  onSelect,
-}: {
-  categories: DocumentCategory[];
-  subcategories: DocumentSubcategory[];
-  category: string | undefined;
-  subcategory: string | undefined;
-  onSelect: (category: string | undefined, subcategory: string | undefined) => void;
-}) {
-  const t = useTranslations();
-  const total = categories.reduce((sum, item) => sum + (item.record_count ?? 0), 0);
-  const item = (active: boolean) =>
-    cn(
-      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
-      active ? "bg-primary/10 font-medium text-primary" : "text-foreground hover:bg-muted",
-    );
-  return (
-    <nav
-      aria-label={t("documents.folders.title")}
-      className="hidden w-64 shrink-0 flex-col overflow-y-auto rounded-lg border bg-card p-2 shadow-sm lg:flex"
-    >
-      <p className="px-2 pb-1 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {t("documents.folders.title")}
-      </p>
-      <button type="button" className={item(!category)} onClick={() => onSelect(undefined, undefined)}>
-        <FolderOpen className="h-4 w-4 shrink-0" />
-        <span className="min-w-0 flex-1 truncate">{t("documents.folders.all")}</span>
-        <span className="text-xs tabular-nums text-muted-foreground">{total}</span>
-      </button>
-      {categories.map((folder) => {
-        const open = category === folder.id;
-        const children = subcategories.filter((child) => child.category === folder.id);
-        return (
-          <div key={folder.id}>
-            <button
-              type="button"
-              className={item(open && !subcategory)}
-              aria-expanded={children.length ? open : undefined}
-              onClick={() => onSelect(folder.id, undefined)}
-            >
-              {open ? <FolderOpen className="h-4 w-4 shrink-0" /> : <Folder className="h-4 w-4 shrink-0" />}
-              <span className={cn("min-w-0 flex-1 truncate", !folder.is_active && "text-muted-foreground")}>
-                {folder.name}
-              </span>
-              <span className="text-xs tabular-nums text-muted-foreground">{folder.record_count ?? 0}</span>
-            </button>
-            {open && children.length > 0 && (
-              <div className="ml-4 border-l pl-2">
-                {children.map((child) => (
-                  <button
-                    key={child.id}
-                    type="button"
-                    className={item(subcategory === child.id)}
-                    onClick={() => onSelect(folder.id, child.id)}
-                  >
-                    <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    <span className={cn("min-w-0 flex-1 truncate", !child.is_active && "text-muted-foreground")}>
-                      {child.name}
-                    </span>
-                    <span className="text-xs tabular-nums text-muted-foreground">{child.record_count ?? 0}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </nav>
-  );
+function uploadErrors(error: unknown): Record<string, string> {
+  if (!(error instanceof ApiError)) return {};
+  if (error.code === "document_file_type_not_allowed") {
+    return { ...error.errors, file: error.message };
+  }
+  return error.errors;
 }
 
 function fileStem(name: string): string {
@@ -661,6 +601,7 @@ function UploadDocumentDialog({
   const [files, setFiles] = useState<File[]>([]);
   const [title, setTitle] = useState("");
   const [referenceNo, setReferenceNo] = useState("");
+  const [keywords, setKeywords] = useState("");
   const [note, setNote] = useState("");
   const [category, setCategory] = useState(
     active.find((item) => item.id === initialCategory)?.id ?? active[0]?.id ?? "",
@@ -687,6 +628,7 @@ function UploadDocumentDialog({
           {
             title: files.length === 1 && title.trim() ? title.trim() : fileStem(file.name),
             reference_no: referenceNo.trim(),
+            keywords: keywords.trim(),
             description: note.trim(),
             project: project === "none" || project === "" ? null : project,
             category,
@@ -704,7 +646,7 @@ function UploadDocumentDialog({
     },
     onError: (error) => {
       onDone();
-      setErrors(error instanceof ApiError ? error.errors : {});
+      setErrors(uploadErrors(error));
     },
   });
 
@@ -727,6 +669,7 @@ function UploadDocumentDialog({
             <Input
               type="file"
               multiple
+              accept={DOCUMENT_FILE_ACCEPT}
               onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
             />
           </FieldWrapper>
@@ -829,6 +772,18 @@ function UploadDocumentDialog({
             <Input value={referenceNo} onChange={(event) => setReferenceNo(event.target.value)} />
           </FieldWrapper>
           <FieldWrapper
+            label={t("documents.field.keywords")}
+            optional={t("common.optional")}
+            error={errors.keywords}
+            className="sm:col-span-2"
+          >
+            <Input
+              value={keywords}
+              placeholder={t("documents.keywordsPlaceholder")}
+              onChange={(event) => setKeywords(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper
             label={t("documents.field.description")}
             optional={t("common.optional")}
             error={errors.description}
@@ -880,7 +835,7 @@ function DocumentEditorDialog({
   onClose,
   onDone,
 }: {
-  document: DocumentRecord | null;
+  document: DocumentRecord;
   categories: DocumentCategory[];
   subcategories: DocumentSubcategory[];
   projects: Project[];
@@ -889,15 +844,13 @@ function DocumentEditorDialog({
   onDone: () => void;
 }) {
   const t = useTranslations();
-  const [title, setTitle] = useState(document?.title ?? "");
-  const [referenceNo, setReferenceNo] = useState(document?.reference_no ?? "");
-  const [description, setDescription] = useState(document?.description ?? "");
-  const [keywords, setKeywords] = useState(document?.keywords ?? "");
-  const [project, setProject] = useState(document?.project ?? "none");
-  const [category, setCategory] = useState(
-    document?.category ?? categories.find((item) => item.is_active)?.id ?? "",
-  );
-  const [subcategory, setSubcategory] = useState(document?.subcategory ?? "none");
+  const [title, setTitle] = useState(document.title);
+  const [referenceNo, setReferenceNo] = useState(document.reference_no);
+  const [description, setDescription] = useState(document.description);
+  const [keywords, setKeywords] = useState(document.keywords);
+  const [project, setProject] = useState(document.project ?? "none");
+  const [category, setCategory] = useState(document.category);
+  const [subcategory, setSubcategory] = useState(document.subcategory ?? "none");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const mutation = useMutation({
@@ -911,9 +864,7 @@ function DocumentEditorDialog({
         category,
         subcategory: subcategory === "none" ? null : subcategory,
       };
-      return document
-        ? updateDocument(document.id, payload)
-        : createDocument(payload);
+      return updateDocument(document.id, payload);
     },
     onSuccess: () => {
       onDone();
@@ -925,19 +876,15 @@ function DocumentEditorDialog({
   });
 
   const availableSubcategories = subcategories.filter(
-    (item) => item.category === category && (item.is_active || item.id === document?.subcategory),
+    (item) => item.category === category && (item.is_active || item.id === document.subcategory),
   );
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[720px] [&>button]:hidden">
         <DialogHeader>
-          <DialogTitle>
-            {t(document ? "documents.edit.title" : "documents.create.title")}
-          </DialogTitle>
-          <DialogDescription>
-            {t(document ? "documents.edit.description" : "documents.create.description")}
-          </DialogDescription>
+          <DialogTitle>{t("documents.edit.title")}</DialogTitle>
+          <DialogDescription>{t("documents.edit.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -965,11 +912,8 @@ function DocumentEditorDialog({
               optional={t("common.optional")}
               error={errors.project}
             >
-              <Select
-                value={project}
-                onValueChange={setProject}
-                disabled={document !== null}
-              >
+              {/* A document never moves project; the server refuses it too. */}
+              <Select value={project} onValueChange={setProject} disabled>
                 <SelectTrigger className="w-full bg-card">
                   <SelectValue />
                 </SelectTrigger>
@@ -1001,7 +945,7 @@ function DocumentEditorDialog({
               </SelectTrigger>
               <SelectContent>
                 {categories
-                  .filter((item) => item.is_active || item.id === document?.category)
+                  .filter((item) => item.is_active || item.id === document.category)
                   .map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.name} ({item.code})
@@ -1078,12 +1022,10 @@ function DocumentEditorDialog({
           >
             {mutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
-            ) : document ? (
-              <Pencil className="h-4 w-4" />
             ) : (
-              <FilePlus2 className="h-4 w-4" />
+              <Pencil className="h-4 w-4" />
             )}
-            {t(document ? "common.save" : "common.create")}
+            {t("common.save")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1111,7 +1053,7 @@ function VersionUploadDialog({
       onClose();
     },
     onError: (error) => {
-      setErrors(error instanceof ApiError ? error.errors : {});
+      setErrors(uploadErrors(error));
     },
   });
 
@@ -1133,6 +1075,7 @@ function VersionUploadDialog({
           >
             <Input
               type="file"
+              accept={DOCUMENT_FILE_ACCEPT}
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
             />
           </FieldWrapper>

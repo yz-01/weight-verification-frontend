@@ -6532,7 +6532,6 @@
     "downloading": "Downloading",
     "allCategories": "All categories",
     "allProjects": "All projects",
-    "allSubcategories": "All subcategories",
     "allUploaders": "All uploaders",
     "archive": {
       "action": "Archive",
@@ -6548,11 +6547,6 @@
     },
     "companyWide": "Company-wide",
     "count": "{count} documents",
-    "create": {
-      "action": "New document",
-      "description": "Create the archive record first, then upload its first immutable file version.",
-      "title": "Create document"
-    },
     "detail": {
       "title": "Document details"
     },
@@ -6584,7 +6578,8 @@
       "version": "Version",
       "versionNote": "Version note",
       "versions": "Versions",
-      "path": "Filed under"
+      "path": "Filed under",
+      "thumbnail": "Thumbnail"
     },
     "keywordsPlaceholder": "Separate keywords with commas",
     "noFile": "No file uploaded",
@@ -6611,7 +6606,6 @@
       "archived": "Document archived",
       "categoryCreated": "Category created",
       "categoryUpdated": "Category updated",
-      "created": "Document created",
       "subcategoryCreated": "Subcategory created",
       "subcategoryUpdated": "Subcategory updated",
       "updated": "Document updated",
@@ -6622,7 +6616,7 @@
       "action": "Upload version",
       "confirm": "Upload",
       "description": "Add a new immutable version to {name}.",
-      "limit": "The configured file-size limit is enforced during upload.",
+      "limit": "PDF, Word, Excel or photos only. The configured file-size limit is enforced during upload.",
       "title": "Upload document version"
     },
     "versions": {
@@ -6638,21 +6632,21 @@
     "preview": {
       "title": "Preview"
     },
-    "folders": {
-      "title": "Folders",
-      "all": "All documents"
-    },
     "uploadFile": {
       "action": "Upload file",
       "title": "Upload to the document archive",
       "description": "Choose the files and the folder they are filed in. Each file becomes its own document; anything already filed is not touched.",
-      "fileHint": "Photos, PDFs, receipts, certificates, drawings - any file. You can choose several at once.",
+      "fileHint": "PDF, Word, Excel or photos. You can choose several at once.",
       "pathPreview": "Will be filed under:",
       "projectHint": "Only a project you are on. Filing company-wide is for a document manager.",
       "titleHint": "Left empty, the file name is used.",
       "confirm": "Upload",
       "progress": "Uploading {done}/{total}",
       "noCategory": "Set up a document category first"
+    },
+    "categoryPicker": {
+      "expand": "Show the subcategories of {name}",
+      "collapse": "Hide the subcategories of {name}"
     }
   },
   "driver": {
@@ -7163,7 +7157,8 @@
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
-      "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead."
+      "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead.",
+      "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
