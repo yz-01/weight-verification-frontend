@@ -2961,6 +2961,9 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
         { key: "quantity", label: t("field.quantity") },
         { key: "unit", label: t("field.unit") },
         { key: "destination", label: t("field.destination") },
+        // DO and plate head every record that has them (2026-10 C12).
+        { key: "delivery_note_no", label: t("field.deliveryNote") },
+        { key: "vehicle_plate", label: t("field.vehiclePlate") },
         { key: "status", label: t("field.status") },
         { key: "submitted_by_name", label: t("outgoing.submittedBy") },
         { key: "captured_at", label: t("outgoing.capturedAt") },

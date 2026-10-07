@@ -117,6 +117,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
               { key: "supplier_name", label: t("receipts.field.supplier") },
+              // DO and plate head every delivery (2026-10 C12).
+              { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
+              { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
               { key: "material_name", label: t("receipts.field.materialName") },
               { key: "quantity", label: t("receipts.field.quantity") },
               { key: "cumulative_quantity", label: t("receipts.field.cumulativeQuantity") },
@@ -133,6 +136,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
               { key: "supplier_name", label: t("receipts.field.supplier") },
+              // DO and plate head every delivery (2026-10 C12).
+              { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
+              { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
               { key: "material_name", label: t("receipts.field.materialName") },
               { key: "quantity", label: t("receipts.field.quantity") },
               {
