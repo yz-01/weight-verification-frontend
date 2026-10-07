@@ -17,7 +17,6 @@ import {
   Pencil,
   Plus,
   RotateCcw,
-  Send,
   ShieldCheck,
   BadgeCheck,
   ExternalLink,
@@ -37,6 +36,10 @@ import {
   RelatedRecordRemove,
   RemoveSwitch,
 } from "@/components/consultant-workflow/application-draft-edit";
+import {
+  ApplicationFormCard,
+  printPdf,
+} from "@/components/consultant-workflow/application-form-card";
 import { useAuth } from "@/components/providers/auth-provider";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordExportButton } from "@/components/shared/record-export-button";
@@ -76,6 +79,7 @@ import type {
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
 import { recordConversationKey } from "@/lib/record-chat";
+import { recordPdfObjectUrl } from "@/services/contractor-ops.service";
 import {
   addApplicationAttachment,
   addRemedialItem,
@@ -172,16 +176,12 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
   );
   const action = (
     <div className="flex flex-wrap justify-end gap-2">
+      {/* Sending is on the A4 form card below (C1): the form it sends is
+          the form shown there. */}
       {application.status === "DRAFT" && can("consultant.submit") && (
-        <>
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/consultant-applications/${id}/edit`}><Pencil />{t("action.edit")}</Link>
-          </Button>
-          <Button size="sm" disabled={submit.isPending} onClick={() => submit.mutate()}>
-            {submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}
-            {t("action.submit")}
-          </Button>
-        </>
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/consultant-applications/${id}/edit`}><Pencil />{t("action.edit")}</Link>
+        </Button>
       )}
       {application.status === "REVISE_RESUBMIT" && can("consultant.submit") && (
         <Button size="sm" disabled={revision.isPending} onClick={() => revision.mutate()}>
@@ -210,13 +210,6 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
           <Download />{t("action.downloadReport")}
         </Button>
       )}
-      {/* 「单独导出」 (T-386): the application itself as a PDF, last in the
-          header row so it sits at the top right like every other detail. */}
-      <RecordExportButton
-        kind="CONSULTANT_APPLICATION"
-        recordId={application.id}
-        reference={application.application_no}
-      />
     </div>
   );
 
@@ -258,6 +251,30 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
         </div>
       </div>
 
+      {/*
+        The A4 application form (C1): 预览 / 导出 PDF are the record export,
+        which for an application is this form (C17); 打印 prints the same
+        bytes; 发送给顾问 is the in-system send.
+      */}
+      <ApplicationFormCard
+        consultantName={application.consultant_name}
+        attachmentCount={application.attachments.length}
+        canSend={application.status === "DRAFT" && can("consultant.submit")}
+        isSubmitting={submit.isPending}
+        onSend={() => submit.mutate()}
+        onPrint={() => printPdf(() => recordPdfObjectUrl("CONSULTANT_APPLICATION", application.id))}
+        onShowAttachments={() =>
+          document.getElementById("application-attachments")?.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+        exportButtons={
+          <RecordExportButton
+            kind="CONSULTANT_APPLICATION"
+            recordId={application.id}
+            reference={application.application_no}
+          />
+        }
+      />
+
       <ApplicationLifecycle application={application} />
 
       <section className="rounded-lg border border-primary/25 bg-primary/5 p-4 sm:p-5">
@@ -295,9 +312,16 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
           <Section title={t("detail.section.application")}>
             <div className="grid gap-4 sm:grid-cols-2">
               <ReadField label={t("field.applicationType")} value={application.application_type_custom || application.application_type_label} />
-              <ReadField label={t("field.discipline")} value={application.discipline_custom || application.discipline_label} />
-              <ReadField label={t("field.workType")} value={application.work_type_custom || application.work_type_label} />
-              <ReadField label={t("field.priority")} value={application.priority_custom || application.priority_label} />
+              {/* Optional since 2026-10 (C1): shown only when given. */}
+              {(application.discipline_custom || application.discipline_label) && (
+                <ReadField label={t("field.discipline")} value={application.discipline_custom || application.discipline_label} />
+              )}
+              {(application.work_type_custom || application.work_type_label) && (
+                <ReadField label={t("field.workType")} value={application.work_type_custom || application.work_type_label} />
+              )}
+              {(application.priority_custom || application.priority_label) && (
+                <ReadField label={t("field.priority")} value={application.priority_custom || application.priority_label} />
+              )}
               <ReadField label={t("field.workflow")} value={application.workflow_name} />
               <ReadField label={t("field.template")} value={application.template_name ? `${application.template_name} (v${application.template_version_number})` : ""} />
               <ReadField label={t("field.scheduleTask")} value={application.schedule_task_wbs ? `${application.schedule_task_wbs} - ${application.schedule_task_name}` : ""} />
@@ -307,7 +331,7 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
           <Section title={t("detail.section.site")}>
             <div className="grid gap-4 sm:grid-cols-2">
               <ReadField label={t("field.location")} value={application.location} />
-              <ReadField label={t("field.component")} value={application.component} />
+              <ReadField label={t(application.application_type_code === "MATERIAL_APPROVAL" || application.application_type_code === "MATERIAL_CERT_SUBMISSION" ? "field.material" : "field.component")} value={application.component} />
               <ReadField label={t("field.description")} value={application.description} className="sm:col-span-2" />
               <ReadField label={t("field.remarks")} value={application.remarks} className="sm:col-span-2" />
               <ReadField label={t("field.drawingNo")} value={application.drawing_no} />
@@ -410,6 +434,7 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
             )}
           </Section>
           <Section
+            id="application-attachments"
             title={t("detail.section.attachments")}
             action={
               draftEditable ? (
@@ -1014,8 +1039,8 @@ function CloseRemedialDialog({
   );
 }
 
-function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
-  return <section className="rounded-lg border bg-card p-4 shadow-sm"><div className="mb-4 flex items-center justify-between gap-3"><SectionHeader title={title} />{action}</div>{children}</section>;
+function Section({ id, title, action, children }: { id?: string; title: string; action?: React.ReactNode; children: React.ReactNode }) {
+  return <section id={id} className="scroll-mt-20 rounded-lg border bg-card p-4 shadow-sm"><div className="mb-4 flex items-center justify-between gap-3"><SectionHeader title={title} />{action}</div>{children}</section>;
 }
 
 function AttachmentDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {

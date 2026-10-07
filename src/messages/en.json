@@ -4587,7 +4587,11 @@
       "empty": "No consultant firm has been registered yet.",
       "formHelp": "Use the firm's real registration and contact details.",
       "subtitle": "Each firm is registered under your contractor company and cannot see another contractor's records.",
-      "title": "Consultant firms"
+      "title": "Consultant firms",
+      "logo": "Company logo",
+      "logoHint": "Printed top right on the consultant application form. PNG or JPG, under 2 MB.",
+      "noLogo": "No logo",
+      "removeLogo": "Remove logo"
     },
     "permission": {
       "approval_review": "Review and decide applications",
@@ -4744,7 +4748,8 @@
         "approval": "Approval",
         "archive": "Archive",
         "draft": "Application",
-        "final": "Final PDF"
+        "final": "Final PDF",
+        "inbox": "Site submissions to organise"
       },
       "stageLabel": "Application stage",
       "subtitle": "{count} project applications and approval records",
@@ -4894,7 +4899,8 @@
       "help": "Use an existing, immutable site photograph. The original file is not uploaded twice.",
       "link": "Link evidence",
       "noCandidates": "No unlinked evidence is available in this project.",
-      "title": "Link site evidence"
+      "title": "Link site evidence",
+      "open": "Open {name}"
     },
     "field": {
       "inspectionTimezone": "Inspection time zone",
@@ -4940,7 +4946,8 @@
       "scheduleTask": "Schedule activity / WBS",
       "template": "RFI form template",
       "workType": "Inspection / work type",
-      "workflow": "Approval workflow"
+      "workflow": "Approval workflow",
+      "material": "Material"
     },
     "form": {
       "editTitle": "Edit consultant application draft",
@@ -4950,8 +4957,8 @@
       "saveReusableOptionHelp": "Add this value to the project's list so the team can select it next time.",
       "section": {
         "consultant": "Assigned consultant",
-        "inspection": "Site and inspection details",
-        "project": "Application classification"
+        "project": "Application classification",
+        "content": "Application content"
       },
       "sourceGps": "Open source GPS",
       "sourceHelp": "The project, location, description and original evidence from this field submission are carried into the application.",
@@ -4963,7 +4970,9 @@
       "subtitle": "Prepare the site request, attach evidence, then submit it through the project's approval flow.",
       "title": "Create consultant application",
       "advanced": "Advanced (optional)",
-      "advancedHelp": "Leave blank to use the project's default route, “Consultant review”: one step, to the consultant you choose, signed. A template is optional too."
+      "advancedHelp": "Leave blank to use the project's default route, “Consultant review”: one step, to the consultant you choose, signed. A template is optional too.",
+      "more": "More (optional)",
+      "moreHelp": "This type usually needs none of these; open it when it does."
     },
     "inspectionCategory": {
       "H": "H - Hold point",
@@ -5221,6 +5230,25 @@
       "consultantGrants": "The consultants with access to this project",
       "applicationTypes": "The application types",
       "reviewerChoices": "The reviewer list"
+    },
+    "inbox": {
+      "what": "Site submissions to organise",
+      "empty": "Nothing to organise. What the site sends with the phone's Consultant submission appears here.",
+      "help": "Tick the photos the consultant should see, then press \"Make a consultant application\".",
+      "tickAll": "Tick all",
+      "untickAll": "Untick all",
+      "tickPhoto": "Tick photo {number}",
+      "viewPhoto": "Enlarge photo {number}",
+      "ticked": "{count} of {total} ticked",
+      "tickFirst": "Tick at least one photo first",
+      "organize": "Make a consultant application"
+    },
+    "formCard": {
+      "title": "Consultant application form (A4)",
+      "help": "Preview, print and export are the same A4 page: your company on the left, the consultant on the right, then the content, photos and attachment list.",
+      "print": "Print",
+      "attachments": "Attachments ({count})",
+      "send": "Send to {name}"
     }
   },
   "contractorDashboard": {
@@ -5847,7 +5875,7 @@
       "assign": "Assign task",
       "assignedBy": "Assigned by {name}",
       "consultantInboxSubtitle": "Review photo evidence sent directly by field staff before attaching it to a consultant application.",
-      "consultantInboxTitle": "Consultant field inbox",
+      "consultantInboxTitle": "Site submissions to organise",
       "createTitle": "Assign a site task",
       "dueAt": "Due: {value}",
       "edit": "Edit task",
@@ -9792,7 +9820,7 @@
       "consultantAccess": "Consultant access",
       "consultantApplications": "Consultant applications",
       "consultantDashboard": "Consultant dashboard",
-      "consultantFieldInbox": "Field evidence inbox",
+      "consultantFieldInbox": "Site submissions to organise",
       "consultantTemplates": "RFI form templates",
       "consultantWorkflows": "Approval workflow",
       "contractorNotifications": "Contractor notifications",

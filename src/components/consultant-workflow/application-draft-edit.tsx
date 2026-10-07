@@ -23,6 +23,7 @@ import {
   ArrowDown,
   ArrowUp,
   Loader2,
+  ZoomIn,
   Lock,
   Paperclip,
   Pencil,
@@ -36,6 +37,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { FieldWrapper } from "@/components/shared/page-primitives";
+import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -114,6 +116,23 @@ export function LockedNote() {
   );
 }
 
+/**
+ * The linked photos as the shared viewer pages through them (2026-10 C1):
+ * the stamped copy when there is one - it is the evidence - else the file.
+ */
+export function evidenceViewerPhotos(
+  links: ConsultantApplication["evidence_links"],
+): ShellPhoto[] {
+  return links.map((link) => ({
+    id: link.id,
+    url: link.evidence_watermarked_file || link.evidence_file,
+    label: link.caption || link.original_filename,
+    takenAt: link.captured_at,
+    latitude: link.latitude,
+    longitude: link.longitude,
+  }));
+}
+
 export function EvidenceLinkCards({
   application,
   editable,
@@ -128,7 +147,11 @@ export function EvidenceLinkCards({
   const t = useTranslations("consultantWorkflow");
   const [editing, setEditing] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
+  // A tap opens the shared viewer - zoom, print, download (C1) - instead of
+  // a bare link to the file.
+  const [viewing, setViewing] = useState<number | null>(null);
   const links = application.evidence_links;
+  const photos = evidenceViewerPhotos(links);
   const unlink = useMutation({
     mutationFn: (ids: string[]) => unlinkApplicationEvidence(application.id, ids),
     onSuccess: onChanged,
@@ -161,11 +184,12 @@ export function EvidenceLinkCards({
           className="group min-w-0 overflow-hidden rounded-lg border bg-background"
           data-evidence-link={link.id}
         >
-          <a
-            href={link.evidence_watermarked_file || link.evidence_file}
-            target="_blank"
-            rel="noreferrer"
-            className="block transition-colors hover:bg-muted/20"
+          <button
+            type="button"
+            data-photo-open={index}
+            aria-label={t("evidence.open", { name: link.caption || link.original_filename })}
+            onClick={() => setViewing(index)}
+            className="block w-full transition-colors hover:bg-muted/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-muted">
               <Image
@@ -175,8 +199,11 @@ export function EvidenceLinkCards({
                 unoptimized
                 className="object-cover transition-transform group-hover:scale-[1.02]"
               />
+              <span className="absolute right-1.5 bottom-1.5 grid size-7 place-items-center rounded-full bg-background/85 text-foreground shadow-sm">
+                <ZoomIn className="size-4" />
+              </span>
             </div>
-          </a>
+          </button>
           <div className="space-y-1 p-3">
             {editing === link.id ? (
               <div className="flex items-center gap-1.5">
@@ -267,6 +294,15 @@ export function EvidenceLinkCards({
           </div>
         </div>
       ))}
+      {viewing !== null && photos[viewing] ? (
+        <PhotoViewer
+          photos={photos}
+          index={viewing}
+          reference={application.application_no}
+          onIndex={setViewing}
+          onClose={() => setViewing(null)}
+        />
+      ) : null}
     </div>
   );
 }

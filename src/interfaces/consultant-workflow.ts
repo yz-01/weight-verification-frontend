@@ -75,6 +75,8 @@ export interface ConsultantOrganizationOption {
   contact_email: string;
   contact_phone: string;
   address: string;
+  /** Printed top right on the A4 application form (2026-10 C1). */
+  logo?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -312,9 +314,12 @@ export interface ConsultantApplication {
   application_date: string;
   application_type: string;
   application_type_label: string;
+  /** Decides which fields the form and the A4 page show (2026-10 C1). */
+  application_type_code?: string;
   application_type_custom: string;
-  discipline: string;
-  discipline_label: string;
+  /** Optional since 2026-10 (C1): the four new types need none of the three. */
+  discipline: string | null;
+  discipline_label: string | null;
   discipline_custom: string;
   /**
    * The other trades and activities this one inspection also covers. Both
@@ -329,11 +334,11 @@ export interface ConsultantApplication {
   inspection_timezone: string;
   /** Work owed after a conditional approval, and how it was discharged. */
   remedial_items: RemedialItem[];
-  work_type: string;
-  work_type_label: string;
+  work_type: string | null;
+  work_type_label: string | null;
   work_type_custom: string;
-  priority: string;
-  priority_label: string;
+  priority: string | null;
+  priority_label: string | null;
   priority_custom: string;
   applicant_name: string;
   consultant_organization: string;
@@ -450,15 +455,20 @@ export interface ConsultantApplicationPayload {
   template_version?: string | null;
   schedule_task?: string | null;
   source_field_task?: string | null;
+  /**
+   * The photos of `source_field_task` ticked in 「待整理现场资料」 (C1); only
+   * these are linked to the new draft. Absent links all of them.
+   */
+  source_photos?: string[];
   application_type: string;
   application_type_custom?: string;
-  discipline: string;
+  discipline: string | null;
   discipline_custom?: string;
   additional_disciplines?: string[];
   additional_work_types?: string[];
-  work_type: string;
+  work_type: string | null;
   work_type_custom?: string;
-  priority: string;
+  priority: string | null;
   priority_custom?: string;
   consultant_organization: string;
   consultant: string;

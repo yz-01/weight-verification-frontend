@@ -10,7 +10,7 @@ import CreateRoute from "@/app/(dashboard)/consultant-applications/create/page";
  * the full page, which is how the old links and bookmarks keep working.
  */
 export default function ModalConsultantApplicationCreate(props: {
-  searchParams: Promise<{ source_field_task?: string }>;
+  searchParams: Promise<{ source_field_task?: string; photos?: string }>;
 }) {
   return (
     <FormDialog>

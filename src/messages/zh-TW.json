@@ -4587,7 +4587,11 @@
       "empty": "還沒有登記顧問單位。",
       "formHelp": "請填寫顧問單位真實的註冊與聯繫人資料。",
       "subtitle": "每個顧問單位登記在你的建築商公司名下，無法查看其他建築商資料。",
-      "title": "顧問單位"
+      "title": "顧問單位",
+      "logo": "公司標誌",
+      "logoHint": "印在顧問申請表的右上角。PNG 或 JPG，2 MB 以內。",
+      "noLogo": "沒有標誌",
+      "removeLogo": "移除標誌"
     },
     "permission": {
       "approval_review": "審核並決定申請",
@@ -4744,7 +4748,8 @@
         "approval": "審批",
         "archive": "歸檔",
         "draft": "申請",
-        "final": "最終 PDF"
+        "final": "最終 PDF",
+        "inbox": "待整理現場資料"
       },
       "stageLabel": "申請階段",
       "subtitle": "共 {count} 項項目申請與審批記錄",
@@ -4894,7 +4899,8 @@
       "help": "選擇現有且不可修改的現場照片，無需重複上傳原圖。",
       "link": "關聯證據",
       "noCandidates": "此項目沒有可關聯的新證據。",
-      "title": "關聯現場證據"
+      "title": "關聯現場證據",
+      "open": "放大查看 {name}"
     },
     "field": {
       "inspectionTimezone": "驗收時區",
@@ -4940,7 +4946,8 @@
       "scheduleTask": "施工計劃活動 / WBS",
       "template": "RFI 表格模板",
       "workType": "檢查／工作類型",
-      "workflow": "審批流程"
+      "workflow": "審批流程",
+      "material": "材料名稱"
     },
     "form": {
       "editTitle": "編輯顧問申請草稿",
@@ -4950,8 +4957,8 @@
       "saveReusableOptionHelp": "把這個內容加入本項目的選項，下次團隊可直接選擇。",
       "section": {
         "consultant": "指定顧問",
-        "inspection": "現場與檢查資料",
-        "project": "申請分類"
+        "project": "申請分類",
+        "content": "申請內容"
       },
       "sourceGps": "打開來源 GPS",
       "sourceHelp": "現場資料中的項目、位置、說明和原始證據會帶入申請。",
@@ -4963,7 +4970,9 @@
       "subtitle": "填寫現場申請、關聯證據，再按項目審批流程提交。",
       "title": "建立顧問申請",
       "advanced": "進階設定（可不填）",
-      "advancedHelp": "不選就用這個項目的預設流程「顧問審批」：一步，送給你選的顧問簽名審批。模板也可以不選。"
+      "advancedHelp": "不選就用這個項目的預設流程「顧問審批」：一步，送給你選的顧問簽名審批。模板也可以不選。",
+      "more": "更多（選填）",
+      "moreHelp": "這個類型一般不用填這些，需要時再打開。"
     },
     "inspectionCategory": {
       "H": "H - 停檢點",
@@ -5221,6 +5230,25 @@
       "consultantGrants": "有本項目權限的顧問",
       "applicationTypes": "申請類型",
       "reviewerChoices": "審批人列表"
+    },
+    "inbox": {
+      "what": "待整理現場資料",
+      "empty": "沒有待整理的現場資料。現場用手機「顧問資料提交」發來的會出現在這裡。",
+      "help": "勾選要給顧問看的照片，再按「整理成顧問申請」。",
+      "tickAll": "全選",
+      "untickAll": "全部取消",
+      "tickPhoto": "勾選第 {number} 張照片",
+      "viewPhoto": "放大第 {number} 張照片",
+      "ticked": "已勾 {count} / {total} 張",
+      "tickFirst": "先勾選至少一張照片",
+      "organize": "整理成顧問申請"
+    },
+    "formCard": {
+      "title": "顧問申請表（A4）",
+      "help": "預覽、列印、匯出的都是同一張 A4：左邊是我方公司，右邊是顧問公司，下面是申請內容、照片和附件清單。",
+      "print": "列印",
+      "attachments": "看附件（{count}）",
+      "send": "發送給顧問 {name}"
     }
   },
   "contractorDashboard": {
@@ -5847,7 +5875,7 @@
       "assign": "派發任務",
       "assignedBy": "指派人：{name}",
       "consultantInboxSubtitle": "審核現場人員直接提交的照片，再整理到顧問申請。",
-      "consultantInboxTitle": "顧問現場資料收件箱",
+      "consultantInboxTitle": "待整理現場資料",
       "createTitle": "派發現場任務",
       "dueAt": "期限：{value}",
       "edit": "編輯任務",
@@ -9792,7 +9820,7 @@
       "consultantAccess": "顧問賬號與項目授權",
       "consultantApplications": "顧問申請",
       "consultantDashboard": "顧問首頁",
-      "consultantFieldInbox": "現場資料收件箱",
+      "consultantFieldInbox": "待整理現場資料",
       "consultantTemplates": "RFI 表格模板",
       "consultantWorkflows": "審批流程",
       "contractorNotifications": "建築商通知",

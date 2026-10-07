@@ -522,6 +522,20 @@ export const updateConsultantOrganization = async (
   return row;
 };
 
+/**
+ * The consultant firm's logo, printed top right on the A4 application form
+ * (2026-10 C1). `null` takes it off.
+ */
+export const uploadConsultantOrganizationLogo = async (id: string, file: File | null) => {
+  const data = new FormData();
+  if (file) data.append("logo", file);
+  else data.append("clear", "true");
+  return api.post<ConsultantOrganizationOption>(
+    `/api/consultant-access/${id}/upload_organization_logo/`,
+    data,
+  );
+};
+
 export const getConsultantMembers = (query: ListQuery = {}) =>
   api.list<ConsultantOrganizationMember>(
     "/api/consultant-access/get_consultants/",

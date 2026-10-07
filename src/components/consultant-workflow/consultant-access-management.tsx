@@ -15,10 +15,11 @@ import {
   ShieldCheck,
   UserPlus,
   Users,
+  X,
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -70,6 +71,7 @@ import {
   revokeConsultantAccessGrant,
   updateConsultantAccessGrant,
   updateConsultantOrganization,
+  uploadConsultantOrganizationLogo,
 } from "@/services/consultant-workflow.service";
 
 /**
@@ -270,9 +272,19 @@ export function ConsultantAccessManagement() {
                   className="rounded-lg border bg-card p-4 shadow-sm"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                      <Building2 className="size-5" />
-                    </span>
+                    {row.logo ? (
+                      // The logo the A4 application form prints (C1).
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={row.logo}
+                        alt={t("organization.logo")}
+                        className="size-10 shrink-0 rounded-lg border bg-white object-contain p-0.5"
+                      />
+                    ) : (
+                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                        <Building2 className="size-5" />
+                      </span>
+                    )}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="font-semibold">{row.name}</h2>
@@ -600,11 +612,30 @@ function OrganizationDialog({
   });
   const set = (key: keyof typeof form, value: string | boolean) =>
     setForm((old) => ({ ...old, [key]: value }));
+  // The logo printed on the A4 application form (C1). Applied with the rest
+  // on 保存, so choosing or removing one is undone by 取消.
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [clearLogo, setClearLogo] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  useEffect(() => {
+    if (!logoFile) return;
+    const url = URL.createObjectURL(logoFile);
+    const timer = window.setTimeout(() => setLogoPreview(url), 0);
+    return () => {
+      window.clearTimeout(timer);
+      URL.revokeObjectURL(url);
+    };
+  }, [logoFile]);
+  const shownLogo = logoFile ? logoPreview : clearLogo ? null : row?.logo ?? null;
   const save = useMutation({
-    mutationFn: () =>
-      row
-        ? updateConsultantOrganization(row.id, form)
-        : createConsultantOrganization(form),
+    mutationFn: async () => {
+      const saved = row
+        ? await updateConsultantOrganization(row.id, form)
+        : await createConsultantOrganization(form);
+      if (logoFile) await uploadConsultantOrganizationLogo(saved.id, logoFile);
+      else if (clearLogo && row?.logo) await uploadConsultantOrganizationLogo(saved.id, null);
+      return saved;
+    },
     onSuccess: onSaved,
   });
   return (
@@ -632,6 +663,51 @@ function OrganizationDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.address")} className="sm:col-span-2">
             <Textarea value={form.address} onChange={(event) => set("address", event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("organization.logo")}
+            hint={t("organization.logoHint")}
+            className="sm:col-span-2"
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              {shownLogo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={shownLogo}
+                  alt={t("organization.logo")}
+                  data-testid="organization-logo-preview"
+                  className="h-14 w-24 rounded-md border bg-white object-contain p-1"
+                />
+              ) : (
+                <span className="grid h-14 w-24 place-items-center rounded-md border border-dashed text-xs text-muted-foreground">
+                  {t("organization.noLogo")}
+                </span>
+              )}
+              <Input
+                type="file"
+                accept="image/png,image/jpeg"
+                aria-label={t("organization.logo")}
+                className="max-w-xs"
+                onChange={(event) => {
+                  setLogoFile(event.target.files?.[0] ?? null);
+                  setClearLogo(false);
+                }}
+              />
+              {shownLogo ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setLogoFile(null);
+                    setClearLogo(true);
+                  }}
+                >
+                  <X />
+                  {t("organization.removeLogo")}
+                </Button>
+              ) : null}
+            </div>
           </FieldWrapper>
           {row && (
             <label className="flex items-center justify-between gap-3 rounded-lg border p-3 sm:col-span-2">
