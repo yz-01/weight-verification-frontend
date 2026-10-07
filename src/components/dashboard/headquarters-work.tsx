@@ -13,7 +13,8 @@ import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { HeadquartersOverview } from "@/interfaces/headquarters";
 import { drillHref } from "@/lib/headquarters-links";
-import { getContractorDashboard } from "@/services/contractor-dashboard.service";
+import { recordTarget } from "@/lib/record-routes";
+import { getSafetyIncidents } from "@/services/site-operations.service";
 
 type WorkTab = "approvals" | "tasks" | "announcements" | "overdue";
 
@@ -68,49 +69,73 @@ export function HeadquartersWork() {
   );
 }
 
-/** Rectifications past their deadline, each opening the hazard. */
+/** Whole days past `due`, as the hazard list counts lateness. */
+function daysOverdue(due: string | null): number {
+  if (!due) return 0;
+  return Math.max(0, Math.floor((Date.now() - new Date(due).getTime()) / 86_400_000));
+}
+
+/**
+ * Rectifications past their deadline, each opening the hazard.
+ *
+ * Read from the hazard list's own `overdue=1` - the definition the head-office
+ * figure is counted with - rather than the project dashboard's old 「待处理异常」
+ * card, which C15 turned into the reader's own open items.
+ */
 function OverdueRectifications() {
   const t = useTranslations("headquarters.work");
   const format = useFormatter();
   const work = useQuery({
-    queryKey: ["contractor-dashboard", "headquarters-overdue"],
-    queryFn: () => getContractorDashboard({ sections: ["anomalies"] }),
+    queryKey: ["safety", "headquarters-overdue"],
+    queryFn: () =>
+      getSafetyIncidents({
+        overdue: "1",
+        page_size: 20,
+        sort_by: "rectification_due_at",
+        sort_order: "asc",
+      }),
     refetchInterval: 60_000,
   });
-  const overdue = work.data?.anomalies;
+  const overdue = work.data;
   if (work.isError) return <LoadFailed onRetry={() => void work.refetch()} />;
   if (!overdue) return <Skeleton className="h-32 w-full" />;
   return (
     <div>
       <p className="text-xs text-muted-foreground">
-        {t("overdue", { count: format.number(overdue.overdue_total) })}
+        {t("overdue", { count: format.number(overdue.count) })}
       </p>
-      {overdue.overdue_rectifications.length === 0 ? (
+      {overdue.results.length === 0 ? (
         <p className="py-3 text-center text-sm text-muted-foreground">{t("noOverdue")}</p>
       ) : (
         <ul className="divide-y">
-          {overdue.overdue_rectifications.map((row) => (
-            <li key={row.id} className="flex items-center justify-between gap-3 py-1.5">
-              <div className="min-w-0">
-                <Link
-                  href={`/hazard-rectifications?incident=${row.id}`}
-                  className="block truncate text-sm font-medium hover:underline"
-                >
-                  {row.incident_no} · {row.title}
-                </Link>
-                <p className="truncate text-xs text-muted-foreground">{row.project}</p>
-              </div>
-              <StatusBadge label={t("daysOverdue", { days: row.days_overdue })} tone="danger" />
-            </li>
-          ))}
+          {overdue.results.map((row) => {
+            const target = recordTarget("SAFETY_INCIDENT", row.id);
+            return (
+              <li key={row.id} className="flex items-center justify-between gap-3 py-1.5">
+                <div className="min-w-0">
+                  <Link
+                    href={target && "href" in target ? target.href : "/hazard-rectifications?overdue=1"}
+                    className="block truncate text-sm font-medium hover:underline"
+                  >
+                    {row.incident_no} · {row.title}
+                  </Link>
+                  <p className="truncate text-xs text-muted-foreground">{row.project_name}</p>
+                </div>
+                <StatusBadge
+                  label={t("daysOverdue", { days: daysOverdue(row.rectification_due_at) })}
+                  tone="danger"
+                />
+              </li>
+            );
+          })}
         </ul>
       )}
-      {overdue.overdue_total > overdue.overdue_rectifications.length && (
+      {overdue.count > overdue.results.length && (
         <Link
           href="/hazard-rectifications?overdue=1"
           className="mt-1 inline-block text-xs font-medium text-primary hover:underline"
         >
-          {t("allOverdue", { count: overdue.overdue_total })}
+          {t("allOverdue", { count: overdue.count })}
         </Link>
       )}
     </div>

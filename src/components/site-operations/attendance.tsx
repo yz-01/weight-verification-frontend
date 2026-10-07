@@ -77,7 +77,17 @@ export function Attendance() {
   const df = useDateFormat();
   const { can, user } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery(["project", "event"]);
+  // `geofence_result` and the dates arrive from the dashboard's 越界打卡
+  // figure (C15), which opens this list filtered the way it counted.
+  const list = useListQuery([
+    "project",
+    "event",
+    "geofence_result",
+    "date_from",
+    "date_to",
+  ]);
+  const dateFrom = list.filters.date_from;
+  const dateTo = list.filters.date_to;
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<ClockDraft>(EMPTY_DRAFT);
   const [locating, setLocating] = useState(false);
@@ -299,6 +309,32 @@ export function Attendance() {
             active: list.filters.event === event,
             onSelect: () => list.setFilter("event", event),
           })),
+          {
+            key: "outside",
+            label: t("attendance.filter.outsideFence"),
+            active: list.filters.geofence_result === "OUTSIDE",
+            onSelect: () =>
+              list.setFilter(
+                "geofence_result",
+                list.filters.geofence_result === "OUTSIDE" ? undefined : "OUTSIDE",
+              ),
+          },
+          // Shown only while a date came in with the link, so the reader can
+          // see why the list is short and take the limit off.
+          ...(dateFrom || dateTo
+            ? [
+                {
+                  key: "dates",
+                  label:
+                    dateFrom && dateFrom === dateTo
+                      ? t("attendance.filter.onDay", { date: df.date(dateFrom) })
+                      : t("attendance.filter.since", { date: df.date(dateFrom ?? dateTo) }),
+                  active: true,
+                  onSelect: () =>
+                    list.setFilters({ date_from: undefined, date_to: undefined }),
+                },
+              ]
+            : []),
         ]}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

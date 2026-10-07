@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
+  AlarmClock,
   BellPlus,
   CalendarClock,
   CalendarRange,
@@ -11,14 +12,22 @@ import {
   Download,
   FilePlus2,
   FileSpreadsheet,
+  FileText,
   FolderPlus,
   HardHat,
   Inbox,
+  KeyRound,
+  ListTodo,
   LogOut,
+  type LucideIcon,
+  MapPinOff,
   PackageCheck,
+  PackageMinus,
   Plus,
+  Recycle,
   Search,
   ShieldAlert,
+  Trash2,
   Truck,
   Undo2,
 } from "lucide-react";
@@ -36,6 +45,7 @@ import {
   LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import { Timeline } from "@/components/shared/timeline";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,14 +53,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type {
   ApprovalRow,
   ContractorDashboardSection,
-  DashboardAnomalies,
   DashboardOverview,
+  DashboardRectifications,
   ProjectStatusKey,
+  RectificationStep,
   TimelineEntry,
   WaitingRecord,
 } from "@/interfaces/contractor-dashboard";
 import { activityHref } from "@/lib/activity-href";
 import { recordTarget } from "@/lib/record-routes";
+import {
+  expiringPassesHref,
+  geofenceBreachesHref,
+  timelineTarget,
+  timelineTone,
+} from "@/lib/timeline-targets";
 import { useDateFormat } from "@/lib/dates";
 import {
   exportContractorDashboard,
@@ -61,14 +78,14 @@ import {
 /**
  * How often the volatile sections are re-fetched (CTR-1.2.13).
  *
- * Only `activity`, `anomalies` and `notifications` are polled. The rest change
+ * Only `activity`, `rectifications` and `notifications` are polled. The rest change
  * on a human timescale, so refreshing them every 30s would cost eight section
  * groups of queries to redraw numbers that had not moved.
  */
 const REFRESH_MS = 30_000;
 const LIVE_SECTIONS: ContractorDashboardSection[] = [
   "activity",
-  "anomalies",
+  "rectifications",
   "notifications",
   // The unread pile moves while the page is open - this reader opens a
   // delivery in another tab and the number here has to follow, or the home
@@ -93,11 +110,20 @@ const EXPORT_COLUMNS = [
   "status",
 ] as const;
 
-function severityTone(severity: TimelineEntry["severity"]) {
-  if (severity === "DANGER") return "danger" as const;
-  if (severity === "WARNING") return "warning" as const;
-  return "neutral" as const;
-}
+/** The small type icon on each timeline row (E2). */
+const TIMELINE_ICONS: Record<string, LucideIcon> = {
+  MATERIAL_OUTGOING: PackageMinus,
+  EQUIPMENT_MOVEMENT: Truck,
+  SITE_PROGRESS: ClipboardCheck,
+  DISPOSAL: Trash2,
+  WASTE_DISPATCH: Recycle,
+  SAFETY_INCIDENT: ShieldAlert,
+  CONSULTANT_APPLICATION: FileText,
+  FIELD_TASK: ListTodo,
+  GEOFENCE_FAILURE: MapPinOff,
+  OVERDUE_RECTIFICATION: AlarmClock,
+  MATERIAL_RECEIPT: PackageCheck,
+};
 
 /**
  * Where the decision on one waiting row is actually taken.
@@ -191,7 +217,7 @@ export function ContractorDashboard({
   // Prefer the polled copy where it exists so the feed is never staler than
   // the numbers beside it.
   const activity = live.data?.activity ?? data?.activity;
-  const anomalies = live.data?.anomalies ?? data?.anomalies;
+  const rectifications = live.data?.rectifications ?? data?.rectifications;
   const notifications = live.data?.notifications ?? data?.notifications;
   const unread = live.data?.unread ?? data?.unread;
 
@@ -226,12 +252,12 @@ export function ContractorDashboard({
             tone={data.approvals.total > 0 ? "info" : undefined}
           />
         )}
-        {anomalies && (
+        {rectifications && (
           <PriorityCount
-            label={t("anomalies.title")}
-            value={anomalies.total}
-            target="dashboard-anomalies"
-            tone={anomalies.total > 0 ? "danger" : undefined}
+            label={t("rectifications.title")}
+            value={rectifications.total}
+            target="dashboard-rectifications"
+            tone={rectifications.total > 0 ? "danger" : undefined}
           />
         )}
       </div>
@@ -319,7 +345,9 @@ export function ContractorDashboard({
           </Block>
         )}
 
-        {anomalies && <AnomalyBlock anomalies={anomalies} />}
+        {rectifications && (
+          <RectificationBlock rectifications={rectifications} />
+        )}
       </div>
     </section>
   ) : null;
@@ -461,6 +489,36 @@ export function ContractorDashboard({
                   href="/site-equipment?expiring=1"
                   tone={
                     data.overview.today.equipment_expiring > 0
+                      ? "warning"
+                      : undefined
+                  }
+                />
+                {/* Off the old 「待处理异常」 card (C15), which is now
+                    rectification / EHS only. Each opens its own list,
+                    filtered the way the number was counted. */}
+                <Metric
+                  label={t("overview.geofenceFailures", {
+                    days: data.overview.today.geofence_window_days,
+                  })}
+                  value={data.overview.today.geofence_failures}
+                  icon={MapPinOff}
+                  href={geofenceBreachesHref({
+                    from: data.overview.today.geofence_since,
+                    project: project || undefined,
+                  })}
+                  tone={
+                    data.overview.today.geofence_failures > 0
+                      ? "warning"
+                      : undefined
+                  }
+                />
+                <Metric
+                  label={t("overview.expiringPasses")}
+                  value={data.overview.today.expiring_permits}
+                  icon={KeyRound}
+                  href={expiringPassesHref(project || undefined)}
+                  tone={
+                    data.overview.today.expiring_permits > 0
                       ? "warning"
                       : undefined
                   }
@@ -696,33 +754,10 @@ export function ContractorDashboard({
               empty={data.timeline.entries.length === 0}
               emptyLabel={t("timeline.empty")}
             >
-              <ol className="relative space-y-3 border-l pl-5">
-                {data.timeline.entries.map((entry, index) => (
-                  <li key={`${entry.kind}-${index}`} className="relative">
-                    <span
-                      aria-hidden
-                      className="absolute -left-[1.4rem] top-1.5 size-2 rounded-full bg-border ring-2 ring-background"
-                    />
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm">
-                        <span className="font-medium">{entry.label}</span>
-                        {entry.project && (
-                          <span className="text-muted-foreground"> · {entry.project}</span>
-                        )}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <StatusBadge
-                          label={t(`timelineKind.${entry.kind}`)}
-                          tone={severityTone(entry.severity)}
-                        />
-                        <span className="text-xs text-muted-foreground">
-                          {df.dateTime(entry.at)}
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              <DashboardTimeline
+                entries={data.timeline.entries}
+                onOpen={opener.open}
+              />
             </Block>
           )}
         </>
@@ -898,96 +933,141 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
   );
 }
 
-function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
+/**
+ * 「待处理整改 / EHS」 (C15): open hazards and permits waiting on this reader,
+ * most urgent first. A row opens the hazard, where the dialog for the next
+ * step - assign, submit the rectification, confirm - opens by itself.
+ */
+function RectificationBlock({
+  rectifications,
+}: {
+  rectifications: DashboardRectifications;
+}) {
   const t = useTranslations("contractorDashboard");
-  const df = useDateFormat();
-  // From the totals, not the lists: the lists stop at fifty, so a busy
-  // month of anomalies would have said "nothing to see" on the fifty-first.
-  const nothing = anomalies.total === 0;
-  const row = (
-    key: string,
-    href: string,
-    title: string,
-    detail: string,
-    badge: React.ReactNode,
-  ) => (
-    <li key={key} className="flex items-center justify-between gap-3 py-1.5">
-      <div className="flex min-w-0 flex-1 items-baseline gap-2">
-        <Link
-          href={href}
-          className="min-w-0 shrink truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {title}
-        </Link>
-        <span className="hidden min-w-0 shrink-[2] truncate text-xs text-muted-foreground sm:inline">
-          {detail}
-        </span>
-      </div>
-      {badge}
-    </li>
-  );
-
+  const nav = useTranslations("nav");
+  const stepTone: Record<RectificationStep, "warning" | "info" | "positive"> = {
+    ASSIGN: "warning",
+    RECTIFY: "info",
+    CONFIRM: "positive",
+  };
   return (
     <Block
-      id="dashboard-anomalies"
-      title={t("anomalies.title")}
-      subtitle={t("anomalies.subtitle", { count: anomalies.total })}
-      empty={nothing}
-      emptyLabel={t("anomalies.empty")}
+      id="dashboard-rectifications"
+      title={t("rectifications.title")}
+      subtitle={
+        t("rectifications.subtitle", { count: rectifications.total }) +
+        (rectifications.overdue > 0
+          ? " " + t("rectifications.overdue", { count: rectifications.overdue })
+          : "")
+      }
+      // From the total, not the list: the list stops at fifty.
+      empty={rectifications.total === 0}
+      emptyLabel={t("rectifications.empty")}
+      action={
+        <Link
+          href="/hazard-rectifications"
+          className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {nav("submodule.hazardRectifications")}
+        </Link>
+      }
     >
-      {anomalies.geofence_total > 0 && (
-        <p className="mb-1 text-xs text-muted-foreground">
-          {t("anomalies.geofenceWindow", {
-            days: anomalies.geofence_window_days,
-            count: anomalies.geofence_total,
-          })}
-        </p>
-      )}
       <ShortList
-        rows={[
-          ...anomalies.overdue_rectifications.map((item) =>
-            row(
-              `hazard-${item.id}`,
-              `/hazard-rectifications?incident=${item.id}`,
-              `${item.incident_no} · ${item.title}`,
-              item.project,
-              <StatusBadge
-                label={t("anomalies.daysOverdue", { days: item.days_overdue })}
-                tone="danger"
-              />,
-            ),
-          ),
-          ...anomalies.geofence_failures.map((item) =>
-            row(
-              `geofence-${item.id}`,
-              "/attendance",
-              `${t("anomalies.geofenceFailure")} · ${item.worker}`,
-              `${item.project} · ${df.dateTime(item.occurred_at)}`,
-              <StatusBadge
-                label={
-                  item.distance_m
-                    ? t("anomalies.distance", { metres: Number(item.distance_m) })
-                    : t("anomalies.outside")
-                }
-                tone="warning"
-              />,
-            ),
-          ),
-          ...anomalies.expiring_permits.map((item) =>
-            row(
-              `permit-${item.id}`,
-              "/site-access",
-              `${item.pass_no} · ${item.subject_name}`,
-              item.project,
-              <StatusBadge
-                label={t("anomalies.expiresAt", { at: df.date(item.valid_until) })}
-                tone="warning"
-              />,
-            ),
-          ),
-        ]}
+        rows={rectifications.rows.map((row) => {
+          const target = recordTarget(row.kind, row.id);
+          return (
+            <li key={row.id} className="flex items-center justify-between gap-3 py-1.5">
+              <div className="flex min-w-0 flex-1 items-baseline gap-2">
+                {target && "href" in target ? (
+                  <Link
+                    href={target.href}
+                    className="min-w-0 shrink truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {row.incident_no} · {row.title}
+                  </Link>
+                ) : (
+                  <span className="min-w-0 shrink truncate text-sm font-medium">
+                    {row.incident_no} · {row.title}
+                  </span>
+                )}
+                <span className="hidden min-w-0 shrink-[2] truncate text-xs text-muted-foreground sm:inline">
+                  {row.project}
+                </span>
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5">
+                {row.days_overdue !== null && (
+                  <StatusBadge
+                    label={t("rectifications.daysOverdue", { days: row.days_overdue })}
+                    tone="danger"
+                  />
+                )}
+                <StatusBadge
+                  label={t(`rectifications.step.${row.next_step}`)}
+                  tone={stepTone[row.next_step]}
+                />
+              </div>
+            </li>
+          );
+        })}
       />
     </Block>
+  );
+}
+
+/**
+ * The dashboard timeline (E2): the shared `Timeline`, a type icon per row, the
+ * dot in the colour of the row's badge, and the whole row opening its record
+ * through the shared record route.
+ */
+function DashboardTimeline({
+  entries,
+  onOpen,
+}: {
+  entries: TimelineEntry[];
+  onOpen: (kind: string, id: string, heading: OpenedRecordHeading) => boolean;
+}) {
+  const t = useTranslations("contractorDashboard");
+  const df = useDateFormat();
+  return (
+    <Timeline
+      label={t("timeline.title")}
+      items={entries.map((entry, index) => {
+        const target = timelineTarget(entry);
+        const tone = timelineTone(entry.severity);
+        const id = entry.id;
+        return {
+          key: `${entry.kind}-${id ?? index}`,
+          title: entry.label,
+          meta: entry.project || undefined,
+          at: df.dateTime(entry.at),
+          tone,
+          badge: (
+            <StatusBadge
+              label={
+                t.has(`timelineKind.${entry.kind}`)
+                  ? t(`timelineKind.${entry.kind}`)
+                  : entry.kind
+              }
+              tone={tone}
+            />
+          ),
+          icon: TIMELINE_ICONS[entry.kind],
+          thumbnail: entry.cover_photo_url,
+          href: target && "href" in target ? target.href : undefined,
+          onOpen:
+            target && "sheet" in target && id
+              ? () => {
+                  onOpen(entry.kind, id, {
+                    reference: entry.label,
+                    project_id: null,
+                    project_name: entry.project,
+                    submitted_at: entry.at,
+                  });
+                }
+              : undefined,
+        };
+      })}
+    />
   );
 }
 

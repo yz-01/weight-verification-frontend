@@ -221,13 +221,27 @@ export function ReadField({
   );
 }
 
+export type StatusTone = "neutral" | "positive" | "warning" | "danger" | "info";
+
+/**
+ * The dot colour of each tone. Exported so a timeline dot (E2) is the same
+ * colour as the badge beside it, by construction rather than by copying.
+ */
+export const STATUS_DOT_CLASS: Record<StatusTone, string> = {
+  positive: "bg-success",
+  warning: "bg-warning",
+  danger: "bg-destructive",
+  info: "bg-info",
+  neutral: "bg-muted-foreground/40",
+};
+
 /** Pill with a leading dot, for lifecycle state. */
 export function StatusBadge({
   label,
   tone = "neutral",
 }: {
   label: string;
-  tone?: "neutral" | "positive" | "warning" | "danger" | "info";
+  tone?: StatusTone;
 }) {
   const tones = {
     positive: "bg-success/10 text-success ring-success/20",
@@ -236,13 +250,7 @@ export function StatusBadge({
     info: "bg-info/10 text-info ring-info/20",
     neutral: "bg-muted text-muted-foreground ring-border",
   } as const;
-  const dots = {
-    positive: "bg-success",
-    warning: "bg-warning",
-    danger: "bg-destructive",
-    info: "bg-info",
-    neutral: "bg-muted-foreground/40",
-  } as const;
+  const dots = STATUS_DOT_CLASS;
 
   return (
     <span

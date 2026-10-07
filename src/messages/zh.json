@@ -3182,7 +3182,10 @@
     },
     "filter": {
       "allProjects": "所有项目",
-      "project": "选择项目"
+      "project": "选择项目",
+      "outsideFence": "围栏外打卡",
+      "since": "{date} 起",
+      "onDay": "{date} 当天"
     },
     "title": "人员进场记录",
     "toast": {
@@ -5182,16 +5185,17 @@
       "SITE_PROGRESS": "工程进度",
       "WASTE_DISPATCH": "回收派车"
     },
-    "anomalies": {
+    "rectifications": {
       "daysOverdue": "{days, plural, =0 {今天到期} other {逾期 # 天}}",
-      "distance": "距离 {metres} 米",
-      "empty": "没有需要处理的异常。",
-      "expiresAt": "{at} 到期",
-      "geofenceFailure": "超出电子围栏",
-      "outside": "围栏外",
-      "subtitle": "{count} 项需要处理。",
-      "title": "待处理异常",
-      "geofenceWindow": "越界打卡：近 {days} 天共 {count} 次。"
+      "empty": "没有等你处理的整改或 EHS 事项。",
+      "overdue": "其中逾期 {count} 项。",
+      "step": {
+        "ASSIGN": "待指派",
+        "RECTIFY": "待整改",
+        "CONFIRM": "待确认"
+      },
+      "subtitle": "{count} 项等你处理。",
+      "title": "待处理整改 / EHS"
     },
     "approvals": {
       "companyWide": "公司级",
@@ -5292,7 +5296,9 @@
       "equipmentIn": "今日设备进场",
       "equipmentOut": "今日设备退场",
       "materialPendingAcceptance": "待验收材料",
-      "equipmentExpiring": "证书即将到期"
+      "equipmentExpiring": "证书即将到期",
+      "geofenceFailures": "越界打卡（近 {days} 天）",
+      "expiringPasses": "通行证即将到期"
     },
     "personnel": {
       "empty": "今天没有人员进场记录。",
@@ -12783,7 +12789,8 @@
       "vehiclePlate": "车牌",
       "visitorHours": "访客证默认时长（小时）",
       "website": "公司网站",
-      "worker": "工地人员"
+      "worker": "工地人员",
+      "expiringSoon": "7 天内到期"
     },
     "gate": {
       "cameraError": "无法启动相机。请允许相机权限后重试，或上传二维码图片。",

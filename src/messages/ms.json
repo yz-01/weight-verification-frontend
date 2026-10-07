@@ -3182,7 +3182,10 @@
     },
     "filter": {
       "allProjects": "Semua projek",
-      "project": "Pilih projek"
+      "project": "Pilih projek",
+      "outsideFence": "Di luar sempadan",
+      "since": "Sejak {date}",
+      "onDay": "Pada {date}"
     },
     "title": "Rekod kemasukan tapak",
     "toast": {
@@ -5182,16 +5185,17 @@
       "SITE_PROGRESS": "Kemajuan",
       "WASTE_DISPATCH": "Penghantaran"
     },
-    "anomalies": {
+    "rectifications": {
       "daysOverdue": "{days, plural, =0 {Tamat hari ini} other {Lewat # hari}}",
-      "distance": "{metres}m jauh",
-      "empty": "Tiada yang perlu tindakan.",
-      "expiresAt": "Tamat {at}",
-      "geofenceFailure": "Di luar geofen",
-      "outside": "Di luar",
-      "subtitle": "{count} perlu tindakan.",
-      "title": "Anomali belum selesai",
-      "geofenceWindow": "Di luar sempadan: {count} dalam {days} hari lepas."
+      "empty": "Tiada pembetulan atau item EHS menunggu anda.",
+      "overdue": "{count} lewat tarikh.",
+      "step": {
+        "ASSIGN": "Untuk ditugaskan",
+        "RECTIFY": "Untuk dibetulkan",
+        "CONFIRM": "Untuk disahkan"
+      },
+      "subtitle": "{count} menunggu tindakan anda.",
+      "title": "Pembetulan belum selesai / EHS"
     },
     "approvals": {
       "companyWide": "Seluruh syarikat",
@@ -5292,7 +5296,9 @@
       "equipmentIn": "Jentera masuk hari ini",
       "equipmentOut": "Jentera keluar hari ini",
       "materialPendingAcceptance": "Menunggu penerimaan",
-      "equipmentExpiring": "Dokumen akan luput"
+      "equipmentExpiring": "Dokumen akan luput",
+      "geofenceFailures": "Di luar sempadan ({days} hari)",
+      "expiringPasses": "Pas hampir tamat"
     },
     "personnel": {
       "empty": "Tiada kemasukan tapak direkodkan hari ini.",
@@ -12783,7 +12789,8 @@
       "vehiclePlate": "No. kenderaan",
       "visitorHours": "Tempoh pas pelawat (jam)",
       "website": "Laman web",
-      "worker": "Pekerja tapak"
+      "worker": "Pekerja tapak",
+      "expiringSoon": "Tamat dalam 7 hari"
     },
     "gate": {
       "cameraError": "Kamera tidak dapat dimulakan. Benarkan akses kamera dan cuba lagi, atau muat naik imej QR.",

@@ -237,6 +237,27 @@ describe("the names that are meant to differ still do", () => {
     expect(at(messages("zh"), "nav.submodule.equipmentExit")).toBe("设备退场");
   });
 
+  /**
+   * The dashboard card for open hazard work says what it is (C15). It was
+   * 「待处理异常」 and added out-of-bounds clock-ins and expiring passes to the
+   * hazards; the client asked for 「待处理整改 / EHS」. It ends in the module's
+   * own "/ EHS", so the card and the menu name the same thing.
+   */
+  it("names the dashboard's open-rectification card after its module (C15)", () => {
+    for (const locale of LOCALES) {
+      const catalogue = messages(locale);
+      const card = String(at(catalogue, "contractorDashboard.rectifications.title"));
+      const moduleName = String(at(catalogue, "nav.submodule.hazardRectifications"));
+      expect(moduleName.endsWith(" / EHS"), `${locale}: ${moduleName}`).toBe(true);
+      expect(card.endsWith(" / EHS"), `${locale}: ${card}`).toBe(true);
+      expect(card).not.toBe(moduleName);
+      expect(at(catalogue, "contractorDashboard.anomalies")).toBeUndefined();
+    }
+    expect(at(messages("zh"), "contractorDashboard.rectifications.title")).toBe(
+      "待处理整改 / EHS",
+    );
+  });
+
   it("gives every module a name of its own", () => {
     for (const locale of LOCALES) {
       const catalogue = messages(locale);
