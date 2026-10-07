@@ -581,7 +581,26 @@ export interface ReceiptSummary {
   total_cost: string | null;
   priced_receipts: number;
   unpriced_receipts: number;
-  by_unit: Array<{ unit: MaterialUnit; quantity: string; receipts: number }>;
+  /**
+   * 数量 is the filter period; 累计数量 runs from the first delivery to the
+   * period's last day. Both count deliveries not rejected and never take a
+   * return off (E5, Q24, Q4).
+   */
+  by_unit: Array<{
+    unit: MaterialUnit;
+    quantity: string;
+    cumulative_quantity: string;
+    receipts: number;
+  }>;
+  /** 「按材料统计数量」: per material, specification and unit (E5). */
+  quantity_by_material: Array<{
+    material_name: string;
+    material_specification: string;
+    unit: MaterialUnit;
+    quantity: string;
+    cumulative_quantity: string;
+    receipts: number;
+  }>;
   by_material: Array<{
     material_name: string;
     unit: MaterialUnit;

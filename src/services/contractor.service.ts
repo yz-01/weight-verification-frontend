@@ -63,7 +63,12 @@ export interface ExportSummary {
    * `material`: the net quantity per material, specification and unit -
    * received, returned, net (B09). Only the receipts export reads it.
    */
-  groupBy: "unit" | "material";
+  /**
+   * `material_cumulative`: the material quantity report's closing
+   * 「累计总数量」 - per material, specification and unit: the period, the
+   * running total from the first delivery, and the deliveries (E5).
+   */
+  groupBy: "unit" | "material" | "material_cumulative";
   title: string;
   unitLabel: string;
   quantityLabel: string;
@@ -75,6 +80,7 @@ export interface ExportSummary {
   receivedLabel?: string;
   returnedLabel?: string;
   netLabel?: string;
+  cumulativeLabel?: string;
 }
 
 export interface ExportRequest {
@@ -123,6 +129,13 @@ export function exportBody(request: ExportRequest) {
                   received_label: request.summary.receivedLabel ?? "",
                   returned_label: request.summary.returnedLabel ?? "",
                   net_label: request.summary.netLabel ?? "",
+                }
+              : {}),
+            ...(request.summary.groupBy === "material_cumulative"
+              ? {
+                  material_label: request.summary.materialLabel ?? "",
+                  specification_label: request.summary.specificationLabel ?? "",
+                  cumulative_label: request.summary.cumulativeLabel ?? "",
                 }
               : {}),
           },

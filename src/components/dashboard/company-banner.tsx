@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Bell, Building2, FolderKanban, UserRound } from "lucide-react";
+import { BarChart3, Bell, Building2, FolderKanban, UserRound } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 
@@ -17,13 +17,17 @@ import { getContractorDashboard } from "@/services/contractor-dashboard.service"
  * notifications, and which level the reader is on - the whole company, or one
  * named project. Nothing here is sample data: a company with no logo or
  * background shows none, and the date is the server's.
+ *
+ * The report centre opens with it too (B12, X15), as 「报表中心」 and without
+ * the dashboard's level switch; there a company with no background picture
+ * gets a solid band rather than a blank one.
  */
 export function CompanyBanner({
   scope,
   projectName,
   date,
 }: {
-  scope: "company" | "project";
+  scope: "company" | "project" | "reports";
   /** The project being read; required on the project level. */
   projectName?: string;
   /** The server's date for the figures below, so a wrong PC clock cannot lie. */
@@ -51,12 +55,17 @@ export function CompanyBanner({
   const companyName = branding?.company_name || user.company_name || "";
   const background = branding?.company_background_url;
   const logo = branding?.company_logo_url;
+  // Light words on the picture, or on the report centre's solid band.
+  const onColour = Boolean(background) || scope === "reports";
 
   return (
     <section
       aria-label={t("label")}
       data-company-banner={scope}
-      className="relative overflow-hidden rounded-xl border bg-card shadow-sm"
+      className={cn(
+        "relative overflow-hidden rounded-xl border shadow-sm",
+        !background && scope === "reports" ? "bg-slate-800 text-white" : "bg-card",
+      )}
     >
       {background && (
         // The company's own picture, dimmed so the words on it stay readable.
@@ -87,10 +96,15 @@ export function CompanyBanner({
             <p
               className={cn(
                 "flex flex-wrap items-center gap-x-2 text-sm",
-                background ? "text-white/85" : "text-muted-foreground",
+                onColour ? "text-white/85" : "text-muted-foreground",
               )}
             >
-              {scope === "company" ? (
+              {scope === "reports" ? (
+                <span className="inline-flex items-center gap-1 font-medium">
+                  <BarChart3 className="size-3.5" aria-hidden />
+                  {t("reportsView")}
+                </span>
+              ) : scope === "company" ? (
                 <span className="inline-flex items-center gap-1 font-medium">
                   <Building2 className="size-3.5" aria-hidden />
                   {t("companyView")}
@@ -116,7 +130,7 @@ export function CompanyBanner({
             <UserRound className="size-4" aria-hidden />
             <span className="font-medium">{user.full_name}</span>
             {user.role_name && (
-              <span className={background ? "text-white/75" : "text-muted-foreground"}>
+              <span className={onColour ? "text-white/75" : "text-muted-foreground"}>
                 · {user.role_name}
               </span>
             )}
@@ -125,7 +139,7 @@ export function CompanyBanner({
             href="/notifications"
             className={cn(
               "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              background ? "border-white/40" : "bg-background",
+              onColour ? "border-white/40" : "bg-background",
             )}
           >
             <Bell className="size-3.5" aria-hidden />
@@ -133,6 +147,7 @@ export function CompanyBanner({
               ? t("notifications")
               : t("notificationsCount", { count: format.number(outstanding) })}
           </Link>
+          {scope !== "reports" && (
           <nav
             aria-label={levels("label")}
             className="flex rounded-lg border bg-card p-0.5 text-foreground shadow-sm"
@@ -153,6 +168,7 @@ export function CompanyBanner({
               </Link>
             ))}
           </nav>
+          )}
         </div>
       </div>
     </section>

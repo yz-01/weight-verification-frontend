@@ -9,14 +9,18 @@ export type ContractorReportType =
   | "recycling"
   | "schedule"
   | "target"
-  | "photos";
+  | "photos"
+  | "documents";
 
 export interface ContractorReportFilters {
   report_type: ContractorReportType;
   date_from?: string;
   date_to?: string;
   project?: string;
+  /** The report menu's level under the report (D6). */
   category?: string;
+  /** Its level below that, for equipment and documents. */
+  subcategory?: string;
   actor?: string;
   keyword?: string;
 }
@@ -37,6 +41,16 @@ export interface ContractorReportOptions {
   projects: Array<{ id: string; code: string; name: string }>;
   photo_categories: Array<{ value: string; label: string }>;
   photo_uploaders: Array<{ id: string; name: string }>;
+}
+
+/** One row of a report menu level (D6): what to filter by and its name. */
+export interface ReportLevelRow {
+  value: string;
+  label: string;
+  /** Beside a name two projects share, when no project is chosen. */
+  project_code: string;
+  /** Whether hovering it opens another level. */
+  has_children: boolean;
 }
 
 export interface ContractorReportExportRecord {

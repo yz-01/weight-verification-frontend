@@ -5,7 +5,11 @@ import { FileClock, FileSpreadsheet, FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { ReportSelector } from "@/components/reports/report-selector";
+import { CompanyBanner } from "@/components/dashboard/company-banner";
+import {
+  ReportSelector,
+  useReportLevelName,
+} from "@/components/reports/report-selector";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import { Button } from "@/components/ui/button";
@@ -30,7 +34,9 @@ import type {
   ContractorReportFilters,
   ContractorReportType,
 } from "@/interfaces/contractor-report";
+import { useListQuery } from "@/hooks/use-list-query";
 import { useDateFormat } from "@/lib/dates";
+import { groupPhotoSources } from "@/lib/report-menu";
 import {
   exportContractorReport,
   getContractorReport,
@@ -121,16 +127,37 @@ export function ContractorReportWorkspace({
   reportType: ContractorReportType;
 }) {
   const t = useTranslations("contractorReports");
+  const tRoot = useTranslations();
   const common = useTranslations("common");
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const now = new Date();
-  const [dateFrom, setDateFrom] = useState(
-    dateValue(new Date(now.getFullYear(), now.getMonth(), 1)),
+  // Project, dates and the report menu's levels live in the address (D6):
+  // 【选择报表】 opens a report at a category by writing them there, and keeps
+  // the reader's project and dates when they move to another report.
+  const list = useListQuery(["project", "date_from", "date_to", "category", "subcategory"]);
+  const dateFrom =
+    list.filters.date_from ?? dateValue(new Date(now.getFullYear(), now.getMonth(), 1));
+  const dateTo = list.filters.date_to ?? dateValue(now);
+  const project = list.filters.project ?? "all";
+  const category = list.filters.category ?? "";
+  const subcategory = list.filters.subcategory ?? "";
+  const setDateFrom = (value: string) => list.setFilter("date_from", value || undefined);
+  const setDateTo = (value: string) => list.setFilter("date_to", value || undefined);
+  // Another project's categories are not this one's: a new project starts
+  // from the whole report.
+  const setProject = (value: string) =>
+    list.setFilters({
+      project: value === "all" ? undefined : value,
+      category: undefined,
+      subcategory: undefined,
+    });
+  const level = useReportLevelName(
+    reportType,
+    list.filters.project,
+    category || undefined,
+    subcategory || undefined,
   );
-  const [dateTo, setDateTo] = useState(dateValue(now));
-  const [project, setProject] = useState("all");
-  const [category, setCategory] = useState("all");
   const [actor, setActor] = useState("all");
   const [keyword, setKeyword] = useState("");
   const options = useQuery({
@@ -143,13 +170,13 @@ export function ContractorReportWorkspace({
       date_from: dateFrom,
       date_to: dateTo,
       project: project === "all" ? undefined : project,
-      category:
-        reportType === "photos" && category !== "all" ? category : undefined,
+      category: category || undefined,
+      subcategory: subcategory || undefined,
       actor: reportType === "photos" && actor !== "all" ? actor : undefined,
       keyword:
         reportType === "photos" && keyword.trim() ? keyword.trim() : undefined,
     }),
-    [actor, category, dateFrom, dateTo, keyword, project, reportType],
+    [actor, category, dateFrom, dateTo, keyword, project, reportType, subcategory],
   );
   const report = useQuery({
     queryKey: ["contractor-reports", "report", filters],
@@ -162,7 +189,10 @@ export function ContractorReportWorkspace({
         ...filters,
         format,
         title: t(`type.${reportType}`),
-        subtitle: t("period", { from: dateFrom, to: dateTo }),
+        // The file says what it was narrowed to, as the screen does.
+        subtitle: [t("period", { from: dateFrom, to: dateTo }), level.name]
+          .filter(Boolean)
+          .join(" · "),
         column_labels: Object.fromEntries(
           (report.data?.columns ?? []).map((key) => [key, t(`column.${key}`)]),
         ),
@@ -170,6 +200,20 @@ export function ContractorReportWorkspace({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["contractor-reports", "history"] }),
   });
+  // The same module names as the menu's 照片来源 level.
+  const photoSources = useMemo(
+    () =>
+      groupPhotoSources(
+        (options.data?.photo_categories ?? []).map((row) => ({
+          value: row.value,
+          label: row.label,
+          project_code: "",
+          has_children: false,
+        })),
+        (key) => tRoot(key),
+      ),
+    [options.data?.photo_categories, tRoot],
+  );
   const previewWidth = (report.data?.columns ?? []).reduce(
     (total, key) => total + reportColumnWidth(key),
     0,
@@ -191,7 +235,14 @@ export function ContractorReportWorkspace({
 
   return (
     <div className="space-y-5">
-      <ReportSelector />
+      <CompanyBanner scope="reports" />
+      <ReportSelector
+        summary={
+          category
+            ? [t(`type.${reportType}`), level.name ?? (level.failed ? "-" : "…")].join(" › ")
+            : undefined
+        }
+      />
       {reportType === "target" && <BusinessTargetManagement />}
       <ListHeader
         title={
@@ -246,11 +297,16 @@ export function ContractorReportWorkspace({
           <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-3">
             <label className="space-y-1.5 text-sm font-medium">
               {t("filter.category")}
-              <Select value={category} onValueChange={setCategory}>
+              <Select
+                value={category || "all"}
+                onValueChange={(value) =>
+                  list.setFilter("category", value === "all" ? undefined : value)
+                }
+              >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("filter.allCategories")}</SelectItem>
-                  {(options.data?.photo_categories ?? []).map((row) => (
+                  {photoSources.map((row) => (
                     <SelectItem key={row.value} value={row.value}>{row.label}</SelectItem>
                   ))}
                 </SelectContent>
@@ -363,6 +419,7 @@ export function ContractorReportHistoryWorkspace() {
 
   return (
     <div className="space-y-5">
+      <CompanyBanner scope="reports" />
       <ReportSelector />
       <ListHeader title={t("history.title")} subtitle={t("history.subtitle")} />
       <section className="overflow-hidden rounded-lg border bg-card">

@@ -5962,7 +5962,11 @@
       "vehicle_plate": "车牌",
       "verified_at": "验收时间",
       "wbs_code": "WBS",
-      "worker": "人员"
+      "worker": "人员",
+      "document_no": "文档编号",
+      "subcategory": "子分类",
+      "version_count": "版本数",
+      "created_at": "上传时间"
     },
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
@@ -5973,7 +5977,8 @@
       "recycling": "查看清运工作与回收订单直至完成。",
       "safety": "追踪安全问题从分配、整改到验收的过程。",
       "schedule": "对比当前确认计划与现场实际进度。",
-      "target": "对比计划和实际进度及项目活动指标。"
+      "target": "对比计划和实际进度及项目活动指标。",
+      "documents": "按文档分类查看项目文件、版本与上传人。"
     },
     "empty": "此项目和日期范围没有符合的记录。",
     "filter": {
@@ -6017,7 +6022,8 @@
       "recycling": "清运与回收报表",
       "safety": "安全与整改报表",
       "schedule": "计划与实际对比报表",
-      "target": "目标与达成报表"
+      "target": "目标与达成报表",
+      "documents": "项目资料报表"
     },
     "what": {
       "filterOptions": "筛选选项（项目、照片来源、上传人员）"
@@ -8009,7 +8015,8 @@
       "allProjectsView": "项目视图 · 全部项目",
       "notifications": "通知",
       "notificationsCount": "通知 {count}",
-      "projectUnreadable": "（项目名称读取失败）"
+      "projectUnreadable": "（项目名称读取失败）",
+      "reportsView": "报表中心"
     },
     "figures": {
       "title": "全公司数字",
@@ -8758,7 +8765,9 @@
       "unpricedReceipts": "未定价收货"
     },
     "export": {
-      "subtitle": "MSE Trace 筛选后的材料进场记录"
+      "subtitle": "MSE Trace 筛选后的材料进场记录",
+      "cumulativeTitle": "累计总数量",
+      "periodQuantity": "期间数量"
     },
     "quantity": {
       "byMaterial": "按材料统计数量",
@@ -8766,7 +8775,8 @@
       "subtitle": "按单位统计收货数量，不混合不同计量单位。",
       "title": "材料数量报表",
       "totalDeliveries": "收货总数",
-      "unitNote": "数量始终按单位分组；吨、件和车次不会相加。"
+      "unitNote": "数量始终按单位分组；吨、件和车次不会相加。",
+      "cumulativeHint": "数量 = 所选期间；累计数量 = 从第一笔收货到期间结束日。没选日期时两栏相同。不合格不计，退场不扣。"
     },
     "records": {
       "title": "收货明细（{total}）",
@@ -9825,7 +9835,8 @@
       "materialReports": "材料报表",
       "wasteClearance": "垃圾清运",
       "equipmentEntry": "设备进场",
-      "equipmentExit": "设备退场"
+      "equipmentExit": "设备退场",
+      "targetReport": "目标与达成"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -14987,7 +14998,26 @@
     "allSuppliers": "全部供应商",
     "materialsFailed": "无法载入材料列表。",
     "suppliersFailed": "无法载入供应商列表。",
-    "noSuppliers": "此选择还没有进场记录。"
+    "noSuppliers": "此选择还没有进场记录。",
+    "level": {
+      "photos": "照片来源",
+      "progress": "施工分类",
+      "safety": "隐患整改分类",
+      "consultant": "申请类型",
+      "equipment": "设备大类",
+      "equipmentClass": "小类",
+      "recycling": "环保材料出场分类",
+      "documents": "文档大分类",
+      "documentSubcategory": "子分类"
+    },
+    "consultantType": {
+      "MATERIAL_APPROVAL": "材料申请",
+      "MATERIAL_CERT_SUBMISSION": "材料证书提交",
+      "RFI": "RFI",
+      "OTHER": "其他"
+    },
+    "categoriesFailed": "无法载入分类列表。",
+    "noCategories": "此报表还没有分类，点报表名称直接打开。"
   },
   "wasteClearance": {
     "title": "垃圾清运",

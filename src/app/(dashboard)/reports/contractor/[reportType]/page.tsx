@@ -9,7 +9,7 @@ import type { ContractorReportType } from "@/interfaces/contractor-report";
 const TYPES = new Set<ContractorReportType>([
   "progress", "safety", "consultant", "attendance",
   "equipment", "recycling", "schedule", "target",
-  "photos",
+  "photos", "documents",
 ]);
 
 export default async function ContractorReportPage({
