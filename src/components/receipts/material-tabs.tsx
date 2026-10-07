@@ -158,17 +158,7 @@ export function NetTotalsView({
       subtitle: t("receipts.net.note"),
       emptyLabel: t("table.noResults"),
       query,
-      columns: [
-        { key: "supplier_name", label: t("receipts.net.supplier") },
-        { key: "material_name", label: t("receipts.field.materialName") },
-        { key: "material_specification", label: t("receipts.field.materialSpecification") },
-        { key: "unit", label: t("receipts.field.unit"), values: unitValues },
-        { key: "received", label: t("receipts.net.received") },
-        { key: "returned", label: t("receipts.net.returned") },
-        { key: "net", label: t("receipts.net.net") },
-        { key: "rejected", label: t("receipts.net.rejected") },
-        { key: "project_name", label: t("receipts.field.project") },
-      ],
+      columns: netTotalsExportColumns(t, unitValues),
     });
   return (
     <section className="space-y-2">
@@ -283,7 +273,32 @@ export function NetTotalsView({
   );
 }
 
-/** The supplier groups, in the server's order, with how many returns each has. */
+/**
+ * The export's columns: the screen's lines, in the screen's words. A line
+ * naming no supplier prints 「未填供应商」 as the screen does (Q29.9).
+ */
+export function netTotalsExportColumns(
+  t: (key: string) => string,
+  unitValues: Record<string, string>,
+) {
+  return [
+    { key: "supplier_name", label: t("receipts.net.supplier"), values: { "": t("receipts.net.noSupplier") } },
+    { key: "material_name", label: t("receipts.field.materialName") },
+    { key: "material_specification", label: t("receipts.field.materialSpecification") },
+    { key: "unit", label: t("receipts.field.unit"), values: unitValues },
+    { key: "received", label: t("receipts.net.received") },
+    { key: "returned", label: t("receipts.net.returned") },
+    { key: "net", label: t("receipts.net.net") },
+    { key: "rejected", label: t("receipts.net.rejected") },
+    { key: "project_name", label: t("receipts.field.project") },
+  ];
+}
+
+/**
+ * The supplier groups, in the server's order, with how many finished returns
+ * each supplier has - all time, the count every other 「有退场资料」 reads
+ * (audit #23), not just the returns that fall in this view.
+ */
 export function groupBySupplier(rows: readonly MaterialNetTotalRow[]) {
   const groups: Array<{
     supplier: string;
@@ -300,7 +315,7 @@ export function groupBySupplier(rows: readonly MaterialNetTotalRow[]) {
       groups.push(group);
     }
     group.rows.push(row);
-    group.returnCount += (row.items ?? []).filter((item) => item.kind === "RETURN").length;
+    group.returnCount = Math.max(group.returnCount, row.supplier_return_count ?? 0);
   }
   // By supplier name; the lines that name none last.
   return groups.sort((a, b) =>

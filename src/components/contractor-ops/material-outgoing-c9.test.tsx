@@ -85,7 +85,7 @@ function client() {
   const page = <T,>(results: T[]) => ({ results, count: results.length });
   qc.setQueryData(["projects", "options"], page([{ id: "p-1", code: "SITE", name: "Site" }]));
   qc.setQueryData(["project-categories", "outgoing", "p-1"], page([STEEL]));
-  qc.setQueryData(["suppliers", "outgoing"], page([SUPPLIER]));
+  qc.setQueryData(["suppliers", "picker", ""], page([SUPPLIER]));
   qc.setQueryData(["material-units", "active"], [
     { id: "u-t", code: "TONNE", label: "Tonne", sort_order: 0, is_active: true, built_in: true },
   ]);

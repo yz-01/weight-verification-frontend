@@ -5792,6 +5792,7 @@
       "rejectReason": "Reason for sending it back",
       "viewDetail": "Details",
       "returnProcessing": "Record the exit (both sign)",
+      "exitWaitingUpload": "This exit is already saved on this phone and uploads by itself when there is signal - no need to do it again. Follow it in What I sent.",
       "waitingForSite": "Approved / waiting to leave site: the site records the exit with both signatures.",
       "finalConfirm": "Confirm the exit",
       "waitingForOffice": "The material has left. Waiting for the office to confirm.",
@@ -7403,6 +7404,7 @@
       "disposal_trips_closed": "This disposal has finished or was ended; its loads can no longer change.",
       "disposal_nothing_sent": "No load has been sent yet, so there is nothing to end. Cancel the job instead.",
       "return_note_required": "Fill in the Return Note before approving.",
+      "return_note_locked": "This return has already been decided, so its Return Note can no longer be changed. The latest state is now shown.",
       "equipment_hours_equipment_unavailable": "This machine cannot be chosen (inactive or retired). Choose a machine in use on the site.",
       "equipment_hours_day_not_found": "This machine has no photo on that day, so there is no end time to enter.",
       "equipment_hours_end_before_start": "The end time must be after the first photo.",
@@ -10251,6 +10253,7 @@
       "FIELD_TASK_PHOTO": "Field task photo",
       "FIELD_TASK_TRANSITION": "Field task update",
       "MATERIAL_OUTGOING": "Material outgoing",
+      "MATERIAL_OUTGOING_EXIT": "Material outgoing · exit",
       "MATERIAL_RECEIPT": "Material receipt",
       "SAFETY_INCIDENT": "Safety incident",
       "SITE_PROGRESS": "Site progress",
@@ -15813,6 +15816,7 @@
     "title": "Returns to {name}",
     "help": "Every finished return to this supplier, with its Return Note, photos, both signatures and approval.",
     "empty": "No finished returns.",
+    "truncated": "Showing the latest {shown} of {total}. Narrow it by project or date.",
     "what": "The returns",
     "column": {
       "date": "Date",
@@ -15823,7 +15827,8 @@
       "returnNote": "Return Note",
       "photos": "Photos",
       "signatures": "Both signatures",
-      "approval": "Approval"
+      "approval": "Approval",
+      "completedAt": "Completed on"
     },
     "site": "Site",
     "supplierSide": "Supplier / driver",

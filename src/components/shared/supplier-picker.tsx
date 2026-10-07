@@ -13,7 +13,7 @@ import { useState } from "react";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { supplierSearchQuery } from "@/components/shared/supplier-date-filter";
-import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
+import { SupplierReturnBadge, type ReturnBadgeSupplier } from "@/components/suppliers/supplier-return-badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getSuppliers } from "@/services/contractor.service";
 
@@ -23,6 +23,9 @@ export function SupplierPicker({
   knownName,
   placeholder,
   allowNone = false,
+  noneLabel,
+  allowedIds = null,
+  known = null,
   triggerClassName,
 }: {
   value: string;
@@ -32,6 +35,12 @@ export function SupplierPicker({
   placeholder: string;
   /** Offer 「未填写」 to clear it - for a suggestion, not for an approval. */
   allowNone?: boolean;
+  /** The words for that empty choice, when the screen has its own. */
+  noneLabel?: string;
+  /** Only these (a material category's own suppliers, A4 / Q1), when given. */
+  allowedIds?: readonly string[] | null;
+  /** The chosen one as known some other way - scanned from its QR card. */
+  known?: ReturnBadgeSupplier | null;
   triggerClassName?: string;
 }) {
   const t = useTranslations("supplierDateFilter");
@@ -44,10 +53,15 @@ export function SupplierPicker({
     placeholderData: keepPreviousData,
     staleTime: 60_000,
   });
-  const rows = (suppliers.data?.results ?? []).filter((row) => row.is_active || row.id === value);
+  const rows = (suppliers.data?.results ?? []).filter(
+    (row) =>
+      (row.is_active || row.id === value) &&
+      (!allowedIds || allowedIds.includes(row.id) || row.id === value),
+  );
+  const knownChosen = known && known.id === value ? known : null;
   const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
   const options = [
-    ...(allowNone ? [{ value: "__none__", label: none("none") }] : []),
+    ...(allowNone ? [{ value: "__none__", label: noneLabel ?? none("none") }] : []),
     ...rows.map((row) => ({
       value: row.id,
       label: row.name,
@@ -60,6 +74,7 @@ export function SupplierPicker({
   const selectedLabel =
     rows.find((row) => row.id === value)?.name ??
     (picked && picked.id === value ? picked.name : undefined) ??
+    knownChosen?.name ??
     knownName ??
     undefined;
   return (
@@ -81,7 +96,7 @@ export function SupplierPicker({
         triggerClassName={triggerClassName}
       />
       {/* The chosen one's returns, one press away (2026-10 C10). */}
-      <SupplierReturnBadge supplier={rows.find((row) => row.id === value)} />
+      <SupplierReturnBadge supplier={rows.find((row) => row.id === value) ?? knownChosen} />
       <QueryFailedNote query={suppliers} what={t("what")} />
     </div>
   );

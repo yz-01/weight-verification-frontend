@@ -44,6 +44,8 @@ function line(overrides: Partial<MaterialNetTotalRow>): MaterialNetTotalRow {
 
 const ROWS = [
   line({
+    // All time, from the server (audit #23) - not the one return in view.
+    supplier_return_count: 4,
     items: [
       { kind: "DELIVERY", id: "r-1", reference: "RC-1", date: "2026-10-01T02:00:00Z", quantity: "10.000", unit: "TONNE", delivery_note_no: "DO-11", vehicle_plate: "ABC 1", supplier_name: "Rebar Supply", manufacturer_name: "Ann Joo", return_note_no: "" },
       { kind: "RETURN", id: "o-1", reference: "MO-1", date: "2026-10-05T02:00:00Z", quantity: "4.000", unit: "TONNE", delivery_note_no: "DO-R", vehicle_plate: "WXY 1", supplier_name: "Rebar Supply", manufacturer_name: "", return_note_no: "RN-1" },
@@ -67,10 +69,10 @@ function render(node: React.ReactNode, rows = ROWS) {
 }
 
 describe("累计净数量 by supplier", () => {
-  it("groups by supplier name, the lines naming none last, and counts each group's returns", () => {
+  it("groups by supplier name, the lines naming none last, and badges each by the supplier's returns", () => {
     const groups = groupBySupplier(ROWS);
     expect(groups.map((group) => group.supplierName)).toEqual(["Aggregate Co", "Rebar Supply", ""]);
-    expect(groups.find((group) => group.supplier === "s-1")?.returnCount).toBe(1);
+    expect(groups.find((group) => group.supplier === "s-1")?.returnCount).toBe(4);
   });
 
   it("shows gross and net side by side, under each supplier, with a material search and export", () => {

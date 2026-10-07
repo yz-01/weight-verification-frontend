@@ -5792,6 +5792,7 @@
       "rejectReason": "Sebab dihantar kembali",
       "viewDetail": "Butiran",
       "returnProcessing": "Rekod keluar (kedua-dua tandatangan)",
+      "exitWaitingUpload": "Rekod keluar ini sudah disimpan dalam telefon ini dan dimuat naik sendiri apabila ada isyarat - tidak perlu buat semula. Ikuti dalam Apa yang saya hantar.",
       "waitingForSite": "Diluluskan / menunggu keluar tapak: tapak merekod keluar dengan kedua-dua tandatangan.",
       "finalConfirm": "Sahkan keluar",
       "waitingForOffice": "Bahan telah keluar. Menunggu pengesahan pejabat.",
@@ -7403,6 +7404,7 @@
       "disposal_trips_closed": "Pelupusan ini telah selesai atau ditamatkan; muatannya tidak boleh diubah lagi.",
       "disposal_nothing_sent": "Belum ada muatan dihantar, jadi tiada apa untuk ditamatkan. Batalkan kerja ini.",
       "return_note_required": "Isi Return Note sebelum meluluskan.",
+      "return_note_locked": "Pemulangan ini sudah diputuskan, jadi Return Note tidak boleh diubah lagi. Keadaan terkini kini dipaparkan.",
       "equipment_hours_equipment_unavailable": "Mesin ini tidak boleh dipilih (tidak aktif atau telah dilupuskan). Pilih mesin yang digunakan di tapak.",
       "equipment_hours_day_not_found": "Mesin ini tiada foto pada hari itu, jadi tiada masa tamat untuk dimasukkan.",
       "equipment_hours_end_before_start": "Masa tamat mesti selepas foto pertama.",
@@ -10251,6 +10253,7 @@
       "FIELD_TASK_PHOTO": "Foto tugasan tapak",
       "FIELD_TASK_TRANSITION": "Kemas kini tugasan tapak",
       "MATERIAL_OUTGOING": "Bahan keluar",
+      "MATERIAL_OUTGOING_EXIT": "Bahan keluar · keluar tapak",
       "MATERIAL_RECEIPT": "Bahan masuk",
       "SAFETY_INCIDENT": "Insiden keselamatan",
       "SITE_PROGRESS": "Kemajuan tapak",
@@ -15813,6 +15816,7 @@
     "title": "Pemulangan kepada {name}",
     "help": "Setiap pemulangan yang selesai kepada pembekal ini, dengan Return Note, foto, kedua-dua tandatangan dan kelulusan.",
     "empty": "Tiada pemulangan yang selesai.",
+    "truncated": "Menunjukkan {shown} terkini daripada {total}. Kecilkan mengikut projek atau tarikh.",
     "what": "Senarai pemulangan",
     "column": {
       "date": "Tarikh",
@@ -15823,7 +15827,8 @@
       "returnNote": "Return Note",
       "photos": "Foto",
       "signatures": "Kedua-dua tandatangan",
-      "approval": "Kelulusan"
+      "approval": "Kelulusan",
+      "completedAt": "Tarikh selesai"
     },
     "site": "Tapak",
     "supplierSide": "Pembekal / pemandu",

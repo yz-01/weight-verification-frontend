@@ -33,8 +33,8 @@ import { useRef, useState } from "react";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
-import { useClearSearchParam } from "@/hooks/use-url-selection";
-import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
+import { useClearSearchParam, useUrlSelection } from "@/hooks/use-url-selection";
+import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
@@ -126,7 +126,6 @@ import {
   exportMaterialOutgoing,
   getMaterialOutgoing,
   getMaterialOutgoingRecord,
-  returnMaterialOutgoingProcessing,
   ocrEquipmentDeliveryNote,
   getProjectCategories,
   getSiteEquipment,
@@ -151,7 +150,10 @@ import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/r
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { columnAutofill } from "@/lib/material-autofill";
 import {
+  newClientEventId,
+  queuedOutgoingExit,
   submitEquipmentMovementOfflineAware,
+  submitMaterialOutgoingExitOfflineAware,
   submitMaterialOutgoingOfflineAware,
   submitSiteProgressOfflineAware,
 } from "@/services/offline-sync.service";
@@ -3606,6 +3608,19 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
   // people's steps and never open together.
   const [returning, setReturning] = useState<MaterialOutgoing | null>(null);
   const [viewing, setViewing] = useState<MaterialOutgoing | null>(null);
+  // The 「已批准」 notice links `/field-staff?...&outgoing=<id>` (audit #15):
+  // that return opens at the step it is at - the exit, for the site, while it
+  // waits for the lorry; otherwise its detail. Closing takes the id back out
+  // of the address, so the same notice pressed again opens it again.
+  const [linkedId, setLinkedId] = useUrlSelection("outgoing");
+  const linked = useQuery({
+    queryKey: ["material-outgoing", "detail", linkedId],
+    queryFn: () => getMaterialOutgoingRecord(linkedId as string),
+    enabled: Boolean(linkedId),
+  });
+  const linkedRow = linkedId && linked.data?.id === linkedId ? linked.data : null;
+  const linkedExit =
+    linkedRow?.status === "APPROVED" && can("material_outgoing.submit") ? linkedRow : null;
   const runExport = (format: "xlsx" | "pdf") =>
     exportMaterialOutgoing({
       format,
@@ -3668,6 +3683,9 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
         }
       />
       <ProjectFilter value={project} onChange={setProject} />
+      {linkedId && linked.isError ? (
+        <LoadFailed what={t("what.outgoingRecord")} onRetry={() => void linked.refetch()} />
+      ) : null}
       <WorkspaceState
         loading={rows.isLoading}
         error={rows.isError}
@@ -3735,21 +3753,28 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
           ))}
         </div>
       )}
-      {returning && (
+      {(returning ?? linkedExit) && (
         <ReturnProcessingDialog
-          row={returning}
-          onClose={() => setReturning(null)}
+          row={(returning ?? linkedExit) as MaterialOutgoing}
+          onClose={() => {
+            setReturning(null);
+            setLinkedId(null);
+          }}
           onSaved={() => {
             void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
             void qc.invalidateQueries({ queryKey: ["my-submissions"] });
             setReturning(null);
+            setLinkedId(null);
           }}
         />
       )}
-      {viewing && (
+      {(viewing ?? (linkedRow && !linkedExit ? linkedRow : null)) && (
         <OutgoingDetailDialog
-          id={viewing.id}
-          onClose={() => setViewing(null)}
+          id={(viewing ?? linkedRow)!.id}
+          onClose={() => {
+            setViewing(null);
+            setLinkedId(null);
+          }}
           renderActions={(current) => (
             <OutgoingActions
               row={current}
@@ -4310,6 +4335,11 @@ function ReturnReasonDialog({
  *
  * Reads the record itself, so the phone's history sheet - which only holds
  * the id and the number - opens it with everything filled in.
+ *
+ * Works without signal (Q29.3): what is typed, photographed and signed is
+ * kept in this exit's own draft until it has gone - uploaded, or into the
+ * phone's queue with its photos and both signatures - and an exit already
+ * waiting in the queue is said so, not asked for a second time.
  */
 export function ReturnProcessingDialog({
   row,
@@ -4323,9 +4353,16 @@ export function ReturnProcessingDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("contractorOps");
+  const { user } = useAuth();
   const record = useQuery({
     queryKey: ["material-outgoing", "detail", row.id],
     queryFn: () => getMaterialOutgoingRecord(row.id),
+  });
+  // query-failure: a phone that cannot read its own queue shows the form, as before
+  const queued = useQuery({
+    queryKey: ["material-outgoing", "exit-queued", row.id],
+    queryFn: () => queuedOutgoingExit(user!.id, row.id),
+    enabled: Boolean(user?.id),
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -4336,14 +4373,20 @@ export function ReturnProcessingDialog({
             {t("outgoing.returnHelp", { reference: row.reference_no })}
           </DialogDescription>
         </DialogHeader>
-        {record.isError ? (
+        {queued.data ? (
+          <p role="status" className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm">
+            {t("outgoing.exitWaitingUpload")}
+          </p>
+        ) : record.isError ? (
           <LoadFailed what={t("what.outgoingRecord")} onRetry={() => void record.refetch()} />
         ) : !record.data ? (
           <div className="grid min-h-32 place-items-center">
             <Loader2 className="size-7 animate-spin text-primary" />
           </div>
         ) : (
-          <ExitForm record={record.data} onClose={onClose} onSaved={onSaved} />
+          <FieldDraft scope={`outgoing-exit:${record.data.id}`}>
+            <ExitForm record={record.data} onClose={onClose} onSaved={onSaved} />
+          </FieldDraft>
         )}
       </DialogContent>
     </Dialog>
@@ -4365,17 +4408,28 @@ function ExitForm({
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   const unitName = useUnitName();
-  const [photos, setPhotos] = useState(createEmptyFieldEvidence);
-  const [note, setNote] = useState("");
-  const [category, setCategory] = useState(record.category ?? "");
-  const [returned, setReturned] = useState(
+  // In this exit's draft (Q29.3): a send that fails, a closed dialog or a
+  // reload at the gate loses none of the photos or signatures.
+  const draft = (name: string) => `exit:${record.id}:${name}`;
+  const [photos, setPhotos] = useDraftState(draft("photos"), createEmptyFieldEvidence);
+  const [note, setNote] = useDraftState(draft("note"), "");
+  const [category, setCategory] = useDraftState(draft("category"), record.category ?? "");
+  const [returned, setReturned] = useDraftState(
+    draft("returned"),
     String(Number(record.return_note_quantity ?? record.quantity ?? 0) || ""),
   );
-  const [plate, setPlate] = useState(record.vehicle_plate ?? "");
-  const [doNo, setDoNo] = useState(record.delivery_note_no || record.return_note_delivery_note_no || "");
-  const [supplier, setSupplier] = useState(record.supplier ?? "");
-  const [siteSignature, setSiteSignature] = useState<File | undefined>();
-  const [supplierSignature, setSupplierSignature] = useState<File | undefined>();
+  const [plate, setPlate] = useDraftState(draft("plate"), record.vehicle_plate ?? "");
+  const [doNo, setDoNo] = useDraftState(
+    draft("doNo"),
+    record.delivery_note_no || record.return_note_delivery_note_no || "",
+  );
+  const [supplier, setSupplier] = useDraftState(draft("supplier"), record.supplier ?? "");
+  const [siteSignature, setSiteSignature] = useDraftState<File | undefined>(draft("siteSignature"));
+  const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>(draft("supplierSignature"));
+  // One id for this exit, minted at the first press and kept with the draft:
+  // every try - online, queued, replayed - is the same exit to the server.
+  const [clientEventId, setClientEventId] = useDraftState(draft("clientEventId"), "");
+  const clearDraft = useClearDraft();
   const [location, setLocation] = useState<LocationFix | null>(null);
   const [error, setError] = useState("");
   const columns = useQuery({
@@ -4396,8 +4450,13 @@ function ExitForm({
   const unit = chosen?.default_unit || record.unit;
   const taken = photos.filter((file): file is File => Boolean(file));
   const save = useMutation({
-    mutationFn: () =>
-      returnMaterialOutgoingProcessing(record.id, {
+    mutationFn: () => {
+      if (!user) throw new Error("Authentication required.");
+      const eventId = clientEventId || newClientEventId("outgoing-exit");
+      if (!clientEventId) setClientEventId(eventId);
+      return submitMaterialOutgoingExitOfflineAware(user.id, {
+        outgoing: record.id,
+        reference_no: record.reference_no,
         photos: taken,
         note: note.trim() || undefined,
         latitude: location ? String(location.latitude) : undefined,
@@ -4409,8 +4468,14 @@ function ExitForm({
         delivery_note_no: doNo.trim() || undefined,
         supplier: supplier || undefined,
         category: category && category !== record.category ? category : undefined,
-      }),
-    onSuccess: onSaved,
+        client_event_id: eventId,
+      });
+    },
+    // Uploaded, or safely in the phone's queue: the draft has done its job.
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
     onError: (failure) =>
       setError(failure instanceof ApiError ? Object.values(failure.errors).join("; ") || failure.message : t("outgoing.returnFailed")),
   });

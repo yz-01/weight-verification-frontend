@@ -11,7 +11,7 @@
  * `save` - see `ReturnNoteSource`.
  */
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FileSignature, Loader2, Save } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -90,6 +90,7 @@ export function ReturnNoteDialog({
   });
   const [signature, setSignature] = useState<File | undefined>();
   const [error, setError] = useState("");
+  const qc = useQueryClient();
   const set = (key: keyof typeof form, value: string) =>
     setForm((old) => ({ ...old, [key]: value }));
   const unit = (filled ? row.return_note_unit : row.unit) || row.unit;
@@ -106,12 +107,20 @@ export function ReturnNoteDialog({
         approver_signature: signature,
       }),
     onSuccess: onSaved,
-    onError: (failure) =>
+    onError: (failure) => {
+      if (failure instanceof ApiError && failure.code === "return_note_locked") {
+        // Decided on another screen meanwhile (audit #16): say so in its own
+        // words and bring this record up to date behind the dialog.
+        setError(failure.message);
+        void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
+        return;
+      }
       setError(
         failure instanceof ApiError
           ? Object.values(failure.errors).join("; ") || failure.message
           : t("saveFailed"),
-      ),
+      );
+    },
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

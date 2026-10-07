@@ -5792,6 +5792,7 @@
       "rejectReason": "退回理由",
       "viewDetail": "查看詳情",
       "returnProcessing": "實際退場（雙方簽名）",
+      "exitWaitingUpload": "這次實際退場已經保存在手機上，有網絡時會自動上傳，不用重做。可在「我提交過的」查看。",
       "waitingForSite": "已批准 / 等待退場：等待現場實際退場並雙方簽名。",
       "finalConfirm": "確認退場完成",
       "waitingForOffice": "現場已退場，待後台確認。",
@@ -7403,6 +7404,7 @@
       "disposal_trips_closed": "這項清運已完成或已結束，車次不能再改。",
       "disposal_nothing_sent": "還沒有任何一車送出，不能提前結束。不需要的話請用「取消清運」。",
       "return_note_required": "請先填寫 Return Note 再批准。",
+      "return_note_locked": "這筆退場已經審批過，Return Note 不能再修改。已刷新為最新狀態。",
       "equipment_hours_equipment_unavailable": "這台設備現在不能選（已停用或已報廢），請選工地上在用的設備。",
       "equipment_hours_day_not_found": "這台設備那天沒有照片，沒有可以補的結束時間。",
       "equipment_hours_end_before_start": "結束時間要在第一張照片之後。",
@@ -10251,6 +10253,7 @@
       "FIELD_TASK_PHOTO": "現場任務照片",
       "FIELD_TASK_TRANSITION": "現場任務更新",
       "MATERIAL_OUTGOING": "材料出場",
+      "MATERIAL_OUTGOING_EXIT": "材料出場 · 實際退場",
       "MATERIAL_RECEIPT": "材料進場",
       "SAFETY_INCIDENT": "安全事件",
       "SITE_PROGRESS": "工地進度",
@@ -15813,6 +15816,7 @@
     "title": "{name} 的退場資料",
     "help": "這家供應商所有已完成的退場：Return Note、照片、雙方簽名和批准資料。",
     "empty": "沒有已完成的退場。",
+    "truncated": "只顯示最近 {shown} 筆（共 {total} 筆）。請按項目或日期縮小範圍。",
     "what": "退場資料",
     "column": {
       "date": "日期",
@@ -15823,7 +15827,8 @@
       "returnNote": "Return Note",
       "photos": "照片",
       "signatures": "雙方簽名",
-      "approval": "批准資料"
+      "approval": "批准資料",
+      "completedAt": "完成日期"
     },
     "site": "現場",
     "supplierSide": "供應商 / 司機",

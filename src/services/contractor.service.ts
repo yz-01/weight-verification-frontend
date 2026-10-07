@@ -477,6 +477,8 @@ export interface MaterialNetTotalRow {
   /** Grouped by supplier since 2026-10 C11; empty when none was named. */
   supplier: string;
   supplier_name: string;
+  /** The supplier's finished returns, all time (C10's badge count, audit #23). */
+  supplier_return_count?: number;
   material_name: string;
   material_specification: string;
   unit: string;
@@ -508,8 +510,21 @@ export function exportReceiptNetTotals(request: ExportRequest): Promise<void> {
  */
 export function getSupplierReturns(
   id: string,
-): Promise<{ supplier: string; supplier_name: string; count: number; results: MaterialOutgoing[] }> {
-  return api.get(`/api/suppliers/${id}/returns/`);
+  filters: { project?: string; date_from?: string; date_to?: string } = {},
+): Promise<{
+  supplier: string;
+  supplier_name: string;
+  count: number;
+  /** All that match; the list stops at `limit` (audit #24). */
+  total?: number;
+  limit?: number;
+  truncated?: boolean;
+  results: MaterialOutgoing[];
+}> {
+  const query = Object.fromEntries(
+    Object.entries(filters).filter(([, value]) => Boolean(value)),
+  );
+  return api.get(`/api/suppliers/${id}/returns/`, query);
 }
 
 /** Net per project, material, specification and unit (B09). */
