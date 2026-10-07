@@ -4824,6 +4824,25 @@
       "raisedOnSite": "Dibangkitkan di tapak oleh {name} {when}",
       "forwardedBy": "Dihantar kepada perunding oleh {name} {when}"
     },
+    "draftEdit": {
+      "armRemove": "Benarkan alih keluar",
+      "armRemoveHelp": "Hidupkan suis dahulu, kemudian tekan Alih keluar. Ia berkuat kuasa serta-merta.",
+      "locked": "Sudah dihantar. Boleh diubah semula hanya selepas dikembalikan untuk semakan.",
+      "remove": "Alih keluar",
+      "unlink": "Nyahpaut",
+      "edit": "Ubah",
+      "moveUp": "Naik",
+      "moveDown": "Turun",
+      "editCaption": "Ubah kapsyen",
+      "saveCaption": "Simpan kapsyen",
+      "attachmentTitle": "Ubah lampiran",
+      "attachmentHelp": "Tukar jenis atau nota lampiran, atau ganti failnya. Fail lama kekal dalam log audit.",
+      "replaceFile": "Ganti dengan fail baharu",
+      "replaceFileHint": "Biarkan kosong untuk mengekalkan fail semasa.",
+      "save": "Simpan",
+      "recordUnlinkHint": "Mengalih keluar rekod juga menyahpaut gambarnya.",
+      "failed": "Tidak berjaya disimpan. Sila cuba lagi."
+    },
     "evidence": {
       "selectPhotos": "Foto untuk dipautkan",
       "selectRecord": "Pilih rekod lengkap ini",
@@ -5061,7 +5080,11 @@
       "submitted": "Permohonan dihantar untuk kelulusan",
       "templateSaved": "Templat borang RFI disimpan",
       "templateVersionSaved": "Versi templat borang RFI disimpan",
-      "workflowSaved": "Aliran kelulusan disimpan"
+      "workflowSaved": "Aliran kelulusan disimpan",
+      "attachmentRemoved": "Lampiran dialih keluar",
+      "attachmentUpdated": "Lampiran dikemas kini",
+      "evidenceUnlinked": "Dinyahpaut",
+      "evidenceUpdated": "Bukti tapak dikemas kini"
     },
     "verification": {
       "applicationNo": "Nombor permohonan",
@@ -7006,6 +7029,7 @@
       "config_unknown": "Kunci konfigurasi ini tidak disokong.",
       "conflict": "Itu tidak boleh dilakukan dalam keadaan rekod sekarang.",
       "consultant_grant_not_current": "Perunding yang dipilih tidak lagi mempunyai akses ke projek ini, jadi permohonan masih draf. Pilih perunding lain atau perbaharui akses mereka dahulu.",
+      "consultant_application_locked": "Permohonan ini sudah dihantar, jadi lampiran dan bukti terpautnya tidak boleh diubah lagi. Selepas dikembalikan untuk semakan, ubahnya dalam versi baharu.",
       "consultant_grant_not_found": "Akses projek perunding itu tidak dijumpai.",
       "consultant_organization_not_found": "Organisasi perunding itu tidak dijumpai.",
       "customer_assignment_not_found": "Rekod pemilikan pelanggan itu tidak dijumpai.",

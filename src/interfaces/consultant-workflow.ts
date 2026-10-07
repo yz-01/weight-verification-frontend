@@ -225,6 +225,10 @@ export interface ApplicationRelatedRecord {
   created_by_name: string;
   href: string;
   source_model: string;
+  /** The linked photos that bring this record here (E6). */
+  evidence_link_ids: string[];
+  /** False for the application's own origin and schedule activity. */
+  removable: boolean;
 }
 
 export interface ApplicationRelatedRecordGroup {

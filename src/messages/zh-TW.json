@@ -4824,6 +4824,25 @@
       "raisedOnSite": "現場提交：{name} {when}",
       "forwardedBy": "經理轉給顧問：{name} {when}"
     },
+    "draftEdit": {
+      "armRemove": "允許移除",
+      "armRemoveHelp": "先打開開關，再按「移除」，按下立即生效。",
+      "locked": "已提交，退回修改後才能改",
+      "remove": "移除",
+      "unlink": "取消關聯",
+      "edit": "修改",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "editCaption": "改說明",
+      "saveCaption": "儲存說明",
+      "attachmentTitle": "修改附件",
+      "attachmentHelp": "可以改附件類型和備註，也可以換一個檔案。換下來的舊檔案會留在稽核記錄裡。",
+      "replaceFile": "換新檔案",
+      "replaceFileHint": "不換檔案就不用選。",
+      "save": "儲存",
+      "recordUnlinkHint": "移除會把這筆資料的照片一起取消關聯。",
+      "failed": "沒有改成，請再試一次。"
+    },
     "evidence": {
       "selectPhotos": "要關聯的照片",
       "selectRecord": "選擇整筆現場資料",
@@ -5061,7 +5080,11 @@
       "submitted": "申請已提交審批",
       "templateSaved": "RFI 表格模板已保存",
       "templateVersionSaved": "RFI 表格模板版本已保存",
-      "workflowSaved": "審批流程已保存"
+      "workflowSaved": "審批流程已保存",
+      "attachmentRemoved": "附件已移除",
+      "attachmentUpdated": "附件已修改",
+      "evidenceUnlinked": "已取消關聯",
+      "evidenceUpdated": "現場證據已更新"
     },
     "verification": {
       "applicationNo": "申請編號",
@@ -7006,6 +7029,7 @@
       "config_unknown": "系統不支持該配置鍵。",
       "conflict": "這項資料現在的狀態不允許這個操作。",
       "consultant_grant_not_current": "選的顧問已經沒有這個專案的授權，申請仍是草稿。請換一位顧問，或先在顧問授權裡續期。",
+      "consultant_application_locked": "這份申請已經提交，附件和關聯證據不能再改。退回修改後，在新版本裡改。",
       "consultant_grant_not_found": "找不到該顧問項目授權。",
       "consultant_organization_not_found": "找不到該顧問單位。",
       "customer_assignment_not_found": "找不到該客戶歸屬記錄。",

@@ -4824,6 +4824,25 @@
       "raisedOnSite": "Raised on site by {name} {when}",
       "forwardedBy": "Sent to the consultant by {name} {when}"
     },
+    "draftEdit": {
+      "armRemove": "Allow removing",
+      "armRemoveHelp": "Turn the switch on, then press Remove. It takes effect at once.",
+      "locked": "Submitted. It can be changed again only after it is returned for revision.",
+      "remove": "Remove",
+      "unlink": "Unlink",
+      "edit": "Edit",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "editCaption": "Edit caption",
+      "saveCaption": "Save caption",
+      "attachmentTitle": "Edit attachment",
+      "attachmentHelp": "Change the attachment type or note, or replace the file. The replaced file stays in the audit log.",
+      "replaceFile": "Replace with a new file",
+      "replaceFileHint": "Leave empty to keep the current file.",
+      "save": "Save",
+      "recordUnlinkHint": "Removing a record also unlinks its photos.",
+      "failed": "That did not save. Please try again."
+    },
     "evidence": {
       "selectPhotos": "Photos to link",
       "selectRecord": "Select this complete record",
@@ -5061,7 +5080,11 @@
       "submitted": "Application submitted for approval",
       "templateSaved": "RFI form template saved",
       "templateVersionSaved": "RFI form template version saved",
-      "workflowSaved": "Approval workflow saved"
+      "workflowSaved": "Approval workflow saved",
+      "attachmentRemoved": "Attachment removed",
+      "attachmentUpdated": "Attachment updated",
+      "evidenceUnlinked": "Unlinked",
+      "evidenceUpdated": "Site evidence updated"
     },
     "verification": {
       "applicationNo": "Application number",
@@ -7006,6 +7029,7 @@
       "config_unknown": "This configuration key is not supported.",
       "conflict": "That cannot be done while the record is in its current state.",
       "consultant_grant_not_current": "The chosen consultant no longer has access to this project, so the application is still a draft. Choose another consultant or renew their access first.",
+      "consultant_application_locked": "This application has been submitted, so its attachments and linked evidence can no longer change. Once it is returned for revision, change them in the new version.",
       "consultant_grant_not_found": "That consultant project access record could not be found.",
       "consultant_organization_not_found": "That consultant organization could not be found.",
       "customer_assignment_not_found": "That customer assignment could not be found.",

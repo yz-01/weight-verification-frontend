@@ -4824,6 +4824,25 @@
       "raisedOnSite": "现场提交：{name} {when}",
       "forwardedBy": "经理转给顾问：{name} {when}"
     },
+    "draftEdit": {
+      "armRemove": "允许移除",
+      "armRemoveHelp": "先打开开关，再按「移除」，按下立即生效。",
+      "locked": "已提交，退回修改后才能改",
+      "remove": "移除",
+      "unlink": "取消关联",
+      "edit": "修改",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "editCaption": "改说明",
+      "saveCaption": "保存说明",
+      "attachmentTitle": "修改附件",
+      "attachmentHelp": "可以改附件类型和备注，也可以换一个文件。换下来的旧文件会留在审计记录里。",
+      "replaceFile": "换新文件",
+      "replaceFileHint": "不换文件就不用选。",
+      "save": "保存",
+      "recordUnlinkHint": "移除会把这条资料的照片一起取消关联。",
+      "failed": "没有改成，请再试一次。"
+    },
     "evidence": {
       "selectPhotos": "要关联的照片",
       "selectRecord": "选择整条现场资料",
@@ -5061,7 +5080,11 @@
       "submitted": "申请已提交审批",
       "templateSaved": "RFI 表格模板已保存",
       "templateVersionSaved": "RFI 表格模板版本已保存",
-      "workflowSaved": "审批流程已保存"
+      "workflowSaved": "审批流程已保存",
+      "attachmentRemoved": "附件已移除",
+      "attachmentUpdated": "附件已修改",
+      "evidenceUnlinked": "已取消关联",
+      "evidenceUpdated": "现场证据已更新"
     },
     "verification": {
       "applicationNo": "申请编号",
@@ -7006,6 +7029,7 @@
       "config_unknown": "系统不支持该配置键。",
       "conflict": "这项资料现在的状态不允许这个操作。",
       "consultant_grant_not_current": "选的顾问已经没有这个项目的授权，申请仍是草稿。请换一位顾问，或先在顾问授权里续期。",
+      "consultant_application_locked": "这份申请已经提交，附件和关联证据不能再改。退回修改后，在新版本里改。",
       "consultant_grant_not_found": "找不到该顾问项目授权。",
       "consultant_organization_not_found": "找不到该顾问单位。",
       "customer_assignment_not_found": "找不到该客户归属记录。",
