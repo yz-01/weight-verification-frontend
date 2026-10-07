@@ -293,8 +293,6 @@ export interface SafetyIncidentPayload {
   notify_users?: string[];
   /** C20: a permit, rather than a hazard. */
   record_type?: EhsRecordType;
-  /** The phone names who confirms it (B21); the reporter when left out. */
-  confirmer?: string;
   /** 上报 → 指派 in one step (B22). */
   responsible_person?: string;
   due_at?: string;

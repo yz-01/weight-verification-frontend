@@ -8039,6 +8039,11 @@
     },
     "what": {
       "conversation": "Perbincangan pembetulan"
+    },
+    "popup": {
+      "region": "Makluman pembetulan bahaya",
+      "open": "Buka",
+      "dismiss": "Tutup"
     }
   },
   "headquarters": {
@@ -15099,8 +15104,7 @@
     "confirmer": {
       "safetyLeads": "Ketua keselamatan projek",
       "legacy": "Mana-mana pengesah yang diberi kuasa kecuali pembaik",
-      "me": "Saya (lalai)",
-      "initiator": "Anda - yang membangkitkannya dari pejabat atau sebagai perunding yang mengesahkannya"
+      "initiator": "Anda - sesiapa yang membangkitkannya mengesahkan ia selesai"
     },
     "field": {
       "origin": "Dibangkitkan dari",
@@ -15135,14 +15139,10 @@
       "confirm": "Sahkan selesai"
     },
     "form": {
-      "selectConfirmer": "Pilih siapa yang mengesahkan",
-      "confirmerHint": "Hanya orang ini boleh mengesahkan ia selesai. Pembaik tidak boleh.",
-      "confirmerConflict": "Pengesah dan pembaik mesti orang yang berbeza.",
+      "confirmerHint": "Hanya orang yang membangkitkannya boleh mengesahkan ia selesai. Pembaik tidak boleh.",
+      "confirmerConflict": "Orang yang membangkitkannya mengesahkannya, jadi dia tidak boleh juga menjadi pembaik.",
       "rectifier": "Pembaik",
       "noRectifier": "Belum - penyelia akan menugaskannya"
-    },
-    "what": {
-      "confirmers": "Orang yang boleh mengesahkan"
     }
   },
   "materialRequest": {

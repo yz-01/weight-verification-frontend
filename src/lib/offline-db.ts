@@ -320,6 +320,7 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
     photos: StoredFile[];
     notify_users?: string[];
     record_type?: "HAZARD" | "PERMIT";
+    /** Only on reports queued before X8; dropped when they are sent. */
     confirmer?: string;
     responsible_person?: string;
     due_at?: string;

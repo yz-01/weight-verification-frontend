@@ -8039,6 +8039,11 @@
     },
     "what": {
       "conversation": "整改溝通"
+    },
+    "popup": {
+      "region": "隱患整改提醒",
+      "open": "打開",
+      "dismiss": "關閉"
     }
   },
   "headquarters": {
@@ -15099,8 +15104,7 @@
     "confirmer": {
       "safetyLeads": "專案安全負責人",
       "legacy": "有驗收權限的人員（整改人除外）",
-      "me": "我自己（預設）",
-      "initiator": "你——後台或顧問發起的，由發起人確認"
+      "initiator": "你——誰發起，誰確認完成"
     },
     "field": {
       "origin": "發起來源",
@@ -15135,14 +15139,10 @@
       "confirm": "確認完成"
     },
     "form": {
-      "selectConfirmer": "選擇確認人",
-      "confirmerHint": "只有確認人能確認完成，整改人不能自己確認。",
-      "confirmerConflict": "確認人和整改人不能是同一人。",
+      "confirmerHint": "只有發起人能確認完成，整改人不能自己確認。",
+      "confirmerConflict": "發起人要確認完成，不能同時當整改人。",
       "rectifier": "整改人",
       "noRectifier": "暫不指定，由主管分配"
-    },
-    "what": {
-      "confirmers": "可選的確認人"
     }
   },
   "materialRequest": {
