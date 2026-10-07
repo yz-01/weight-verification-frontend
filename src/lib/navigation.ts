@@ -832,6 +832,13 @@ export const PORTAL_NAVIGATION = {
           "/site-equipment",
           "equipment",
         ),
+        // 设备操作员工时 (2026-10 B15): each machine's hours per day and month.
+        child(
+          "6.2.2",
+          "nav.submodule.equipmentOperatorHours",
+          "/equipment-operator-hours",
+          "equipment",
+        ),
       ],
     ),
     item(

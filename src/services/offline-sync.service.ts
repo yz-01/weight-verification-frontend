@@ -32,6 +32,11 @@ import {
 import { createSafetyIncident } from "@/services/site-operations.service";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 import { createSundryClaim } from "@/services/sundry-claim.service";
+import { uploadEquipmentHoursPhoto } from "@/services/equipment-hours.service";
+import type {
+  EquipmentHoursPhotoDraft,
+  EquipmentHoursUpload,
+} from "@/interfaces/equipment-hours";
 import {
   cleanupSettledDriverSnapshots,
   recordDriverTaskPhotoLocally,
@@ -414,6 +419,11 @@ async function sendJob(job: OfflineJob): Promise<void> {
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
     });
+    return;
+  }
+
+  if (job.kind === "EQUIPMENT_HOURS_PHOTO") {
+    await sendEquipmentHoursPhoto(job);
     return;
   }
 
@@ -955,6 +965,73 @@ export async function submitSafetyIncidentOfflineAware(
   return { status: "queued" };
 }
 
+function sendEquipmentHoursPhoto(
+  job: Extract<OfflineJob, { kind: "EQUIPMENT_HOURS_PHOTO" }>,
+): Promise<EquipmentHoursUpload> {
+  const payload = job.payload;
+  return uploadEquipmentHoursPhoto({
+    equipment: payload.equipment,
+    photo: restoreFile(payload.photo),
+    capturedAt: payload.capturedAt,
+    clientEventId: payload.clientEventId,
+    latitude: payload.latitude,
+    longitude: payload.longitude,
+    locationAccuracyM: payload.locationAccuracyM,
+  });
+}
+
+export type EquipmentHoursSubmission =
+  | { status: "uploaded"; upload: EquipmentHoursUpload }
+  | { status: "queued" };
+
+/**
+ * 设备操作员工时 (2026-10 B15): one photo of one machine.
+ *
+ * The moment of the photo is fixed here, on the phone, when the operator
+ * presses send - not when the queue finally reaches the server, which is
+ * what the day's start and end are counted from. One `clientEventId` for the
+ * online attempt and every replay, so a photo whose answer was lost on the
+ * way back is still one photo.
+ */
+export async function submitEquipmentHoursPhotoOfflineAware(
+  ownerId: string,
+  draft: EquipmentHoursPhotoDraft,
+): Promise<EquipmentHoursSubmission> {
+  const now = new Date().toISOString();
+  const job: Extract<OfflineJob, { kind: "EQUIPMENT_HOURS_PHOTO" }> = {
+    id: newId("equipment-hours-job"),
+    ownerId,
+    kind: "EQUIPMENT_HOURS_PHOTO",
+    queuedAt: now,
+    attempts: 0,
+    lastError: "",
+    payload: {
+      equipment: draft.equipment,
+      equipmentLabel: draft.equipmentLabel,
+      capturedAt: now,
+      clientEventId: newId("equipment-hours"),
+      latitude: draft.latitude,
+      longitude: draft.longitude,
+      locationAccuracyM: draft.locationAccuracyM,
+      // Compressed on the way in, like every capture screen (A5, A9).
+      photo: await storePhoto(draft.photo),
+    },
+  };
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      const upload = await withOfflineProvenance(job.queuedAt, () =>
+        sendEquipmentHoursPhoto(job),
+      );
+      toastSuccess("equipmentHours.toast.uploaded");
+      return { status: "uploaded", upload };
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  await enqueue(job);
+  return { status: "queued" };
+}
+
 export async function submitConsultantSubmissionOfflineAware(
   ownerId: string,
   draft: Omit<
@@ -1362,6 +1439,7 @@ const QUEUED_FIELD_LABELS: Record<string, string> = {
   pickup_address: "pickup_address",
   work_location: "work_location",
   instructions: "instructions",
+  equipmentLabel: "equipment_name",
 };
 
 /** What a queued submission looks like when opened, read off this phone. */

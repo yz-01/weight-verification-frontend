@@ -7344,7 +7344,11 @@
       "disposal_all_trips_sent": "Semua muatan yang dirancang telah dihantar. Jika ada lori lagi, minta tapak menambah satu muatan.",
       "disposal_trips_closed": "Pelupusan ini telah selesai atau ditamatkan; muatannya tidak boleh diubah lagi.",
       "disposal_nothing_sent": "Belum ada muatan dihantar, jadi tiada apa untuk ditamatkan. Batalkan kerja ini.",
-      "return_note_required": "Isi Return Note sebelum meluluskan."
+      "return_note_required": "Isi Return Note sebelum meluluskan.",
+      "equipment_hours_equipment_unavailable": "Mesin ini tidak boleh dipilih (tidak aktif atau telah dilupuskan). Pilih mesin yang digunakan di tapak.",
+      "equipment_hours_day_not_found": "Mesin ini tiada foto pada hari itu, jadi tiada masa tamat untuk dimasukkan.",
+      "equipment_hours_end_before_start": "Masa tamat mesti selepas foto pertama.",
+      "equipment_hours_end_too_late": "Masa tamat mesti dalam 24 jam selepas foto pertama."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7920,7 +7924,8 @@
       "waste": "Permohonan bahan alam sekitar keluar",
       "sundry": "Tuntutan pelbagai",
       "request": "MR / Permohonan Lain",
-      "gate": "Rekod foto pintu"
+      "gate": "Rekod foto pintu",
+      "operatorHours": "Jam operator peralatan"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -10032,7 +10037,8 @@
       "equipmentEntry": "Peralatan masuk",
       "equipmentExit": "Peralatan keluar",
       "targetReport": "Sasaran dan pencapaian",
-      "manufacturers": "Pengilang"
+      "manufacturers": "Pengilang",
+      "equipmentOperatorHours": "Jam operator peralatan"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -10194,7 +10200,8 @@
       "TASK_TRANSITION": "Kemajuan perjalanan",
       "TRIP_ASSIGN": "Tugaskan perjalanan",
       "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
-      "SUNDRY_CLAIM": "Tuntutan pelbagai"
+      "SUNDRY_CLAIM": "Tuntutan pelbagai",
+      "EQUIPMENT_HOURS_PHOTO": "Jam operator peralatan"
     },
     "pageDescription": "Halaman ini belum dicache. Sambung semula sekali dan buka halaman ini semula untuk kegunaan luar talian.",
     "queue": {
@@ -15766,5 +15773,104 @@
     "export": "Eksport",
     "share": "Kongsi",
     "open": "Buka rekod"
+  },
+  "equipmentHours": {
+    "subtitle": "Satu foto semasa mesin mula, satu semasa berhenti: foto pertama ialah mula, foto terakhir ialah tamat, dan jam ialah tempoh di antaranya (rehat makan tidak ditolak).",
+    "allProjects": "Semua projek",
+    "photoAlt": "Foto mesin",
+    "photoCount": "{count} foto",
+    "view": {
+      "day": "Ikut hari",
+      "month": "Ikut bulan"
+    },
+    "filter": {
+      "from": "Dari",
+      "to": "Hingga",
+      "month": "Bulan"
+    },
+    "field": {
+      "date": "Tarikh",
+      "equipment": "Peralatan",
+      "plate": "Nombor plat",
+      "project": "Projek",
+      "start": "Mula",
+      "end": "Tamat",
+      "hours": "Jam",
+      "status": "Status",
+      "photos": "Foto",
+      "operators": "Diambil oleh",
+      "reason": "Sebab masa tamat",
+      "adjustedBy": "Masa tamat dimasukkan oleh",
+      "daysWorked": "Hari bekerja",
+      "totalHours": "Jumlah jam",
+      "missingEndDays": "Hari tanpa foto berhenti",
+      "adjustedDays": "Hari dibetulkan pejabat",
+      "actions": "Tindakan"
+    },
+    "status": {
+      "MISSING_END": "Tiada foto berhenti",
+      "ADJUSTED": "Dibetulkan",
+      "OK": "OK"
+    },
+    "export": {
+      "range": "{from} hingga {to}",
+      "summaryTitle": "Jumlah setiap mesin"
+    },
+    "day": {
+      "empty": "Tiada foto mesin dalam tempoh ini."
+    },
+    "month": {
+      "empty": "Tiada foto mesin bulan ini.",
+      "total": "Jumlah"
+    },
+    "what": {
+      "days": "jam harian",
+      "month": "jumlah bulanan"
+    },
+    "adjust": {
+      "add": "Tambah masa tamat",
+      "edit": "Tukar masa tamat",
+      "help": "Hanya masa tamat hari ini berubah. Foto tidak disentuh, dan setiap perubahan disimpan dalam sejarah.",
+      "endAt": "Masa tamat",
+      "reason": "Sebab",
+      "reasonPlaceholder": "Contoh: operator terlupa foto berhenti; diari tapak tulis 17:30",
+      "save": "Simpan",
+      "failed": "Tidak dapat disimpan. Sila cuba lagi."
+    },
+    "dialog": {
+      "summary": "Mula {start} · Tamat {end} · {hours} jam",
+      "photos": "Foto hari ini"
+    },
+    "history": {
+      "title": "Sejarah perubahan",
+      "empty": "Belum ada perubahan oleh pejabat.",
+      "end": "Masa tamat ditetapkan kepada {end}",
+      "current": "Sedang digunakan",
+      "by": "{name} · {at}",
+      "photoEnd": "Foto terakhir diambil pada {end}"
+    },
+    "toast": {
+      "endSaved": "Masa tamat disimpan",
+      "uploaded": "Foto dimuat naik"
+    },
+    "phone": {
+      "howTo": "Ambil foto mesin semasa anda mula, dan satu lagi semasa berhenti. Jam dikira dari foto pertama hingga terakhir.",
+      "project": "Projek",
+      "machine": "Peralatan",
+      "pickMachine": "Pilih mesin",
+      "machines": "senarai mesin",
+      "noMachines": "Belum ada mesin didaftarkan untuk projek ini. Minta pejabat menambahnya.",
+      "photo": "Foto mesin",
+      "takePhoto": "Ambil foto",
+      "photoReady": "Foto diambil - ketik untuk ambil semula",
+      "location": "Lokasi",
+      "locationReady": "Lokasi diperoleh",
+      "send": "Muat naik",
+      "failed": "Gagal dimuat naik. Sila cuba lagi.",
+      "queued": "Disimpan dalam telefon ini. Ia dimuat naik sendiri apabila ada isyarat.",
+      "today": "Hari ini: {count} foto, mula {start}",
+      "stopHint": "Ambil satu lagi foto semasa berhenti",
+      "soFar": "Hingga {end}: {hours} jam"
+    }
   }
 }

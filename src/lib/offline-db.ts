@@ -15,6 +15,7 @@ export type OfflineJobKind =
   | "SAFETY_INCIDENT"
   | "CONSULTANT_SUBMISSION"
   | "CATEGORY_EVIDENCE"
+  | "EQUIPMENT_HOURS_PHOTO"
   | "DISPATCH_ACCEPT"
   | "DISPATCH_COLLECT"
   | "TRIP_ASSIGN";
@@ -410,6 +411,26 @@ export interface TripAssignOfflineJob extends OfflineJobBase {
   };
 }
 
+/**
+ * 设备操作员工时 (2026-10 B15): one photo of one machine, taken when the
+ * operator starts or stops it. `capturedAt` is the moment of the photo - the
+ * hours are counted from it, however late the job reaches the server.
+ */
+export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
+  kind: "EQUIPMENT_HOURS_PHOTO";
+  payload: {
+    equipment: string;
+    /** 「名称 · 车牌」, so the queue says which machine is waiting. */
+    equipmentLabel: string;
+    capturedAt: string;
+    clientEventId: string;
+    latitude?: string;
+    longitude?: string;
+    locationAccuracyM?: string;
+    photo: StoredFile;
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
@@ -427,6 +448,7 @@ export type OfflineJob =
   | SafetyIncidentOfflineJob
   | ConsultantSubmissionOfflineJob
   | CategoryEvidenceOfflineJob
+  | EquipmentHoursPhotoOfflineJob
   | DispatchAcceptOfflineJob
   | DispatchCollectOfflineJob
   | TripAssignOfflineJob;
