@@ -18,7 +18,24 @@
  * every photograph of every row just to show one.
  */
 
-import type { LucideIcon } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  ChartNoAxesCombined,
+  ClipboardCheck,
+  ClipboardList,
+  FilePlus2,
+  FileText,
+  HardHat,
+  Image as ImageIcon,
+  ListTodo,
+  MapPin,
+  PackageMinus,
+  ReceiptText,
+  Recycle,
+  ShieldAlert,
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
@@ -43,6 +60,11 @@ export interface PhotoThumbProps {
   photos?: PhotoThumbPhotos;
   /** 48 px in a list (default); 40 px in the dashboard's compact rows. */
   size?: "md" | "sm";
+  /**
+   * False inside something that is itself a button (a phone card that opens
+   * its record): the picture is shown, the card's own click opens the record.
+   */
+  openable?: boolean;
   className?: string;
 }
 
@@ -55,6 +77,7 @@ export function PhotoThumb({
   reference,
   photos,
   size = "md",
+  openable = true,
   className,
 }: PhotoThumbProps) {
   const t = useTranslations("photos");
@@ -108,6 +131,42 @@ export function PhotoThumb({
   };
 
   const label = `${t("open", { reference })} · ${t("count", { count: total })}`;
+  const picture = (
+    <>
+      <Image
+        src={coverUrl}
+        alt=""
+        fill
+        sizes={size === "md" ? "48px" : "40px"}
+        className="object-cover"
+        unoptimized
+      />
+      {total > 1 ? (
+        <span
+          aria-hidden
+          className="absolute bottom-0.5 right-0.5 rounded bg-black/65 px-1 text-[10px] font-semibold leading-4 text-white tabular-nums"
+        >
+          {total}
+        </span>
+      ) : null}
+    </>
+  );
+  if (!openable) {
+    return (
+      <span
+        role="img"
+        aria-label={t("count", { count: total })}
+        data-photo-thumb="photo"
+        className={cn(
+          "relative block shrink-0 overflow-hidden rounded-md border bg-muted/40",
+          SIZE[size],
+          className,
+        )}
+      >
+        {picture}
+      </span>
+    );
+  }
   return (
     <>
       <button
@@ -124,22 +183,7 @@ export function PhotoThumb({
           className,
         )}
       >
-        <Image
-          src={coverUrl}
-          alt=""
-          fill
-          sizes={size === "md" ? "48px" : "40px"}
-          className="object-cover"
-          unoptimized
-        />
-        {total > 1 ? (
-          <span
-            aria-hidden
-            className="absolute bottom-0.5 right-0.5 rounded bg-black/65 px-1 text-[10px] font-semibold leading-4 text-white tabular-nums"
-          >
-            {total}
-          </span>
-        ) : null}
+        {picture}
       </button>
       {opened ? (
         <PhotoViewer
@@ -206,4 +250,98 @@ export function recordPhotos(kind: string, id: string, label: string) {
   const sheet = SHEET_KIND[kind];
   if (!sheet) return undefined;
   return async () => toShellPhotos((await getCategoryRecord(sheet, id)).photos ?? [], label);
+}
+
+/** Photographs a list row already carries - each with its stamped copy when it has one. */
+export function rowPhotos(
+  list: ReadonlyArray<{
+    id?: string | number | null;
+    url?: string | null;
+    watermarked?: string | null;
+    image?: string | null;
+    caption?: string | null;
+  }> | null | undefined,
+  label: string,
+): ShellPhoto[] {
+  return toShellPhotos(
+    (list ?? []).map((photo) => ({
+      id: photo.id == null ? null : String(photo.id),
+      url: photo.url || photo.watermarked || photo.image || null,
+      caption: photo.caption,
+    })),
+    label,
+  );
+}
+
+interface CoveredRow {
+  cover_photo_url?: string | null;
+  photo_count?: number | null;
+}
+
+/**
+ * The photograph column of an office list (E3), for `DataTable` /
+ * `ModuleRecordsTable`. Not sortable and not hideable by accident: it is the
+ * column the client asked for.
+ */
+export function photoColumn<T extends CoveredRow>({
+  label,
+  icon,
+  reference,
+  photos,
+}: {
+  label: string;
+  icon: LucideIcon;
+  reference: (row: T) => string;
+  photos?: (row: T) => PhotoThumbPhotos | undefined;
+}): ColumnDef<T, unknown> {
+  return {
+    id: "cover_photo",
+    meta: { label },
+    enableSorting: false,
+    header: () => (
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
+    ),
+    cell: ({ row }) => (
+      <PhotoThumb
+        coverUrl={row.original.cover_photo_url}
+        count={row.original.photo_count}
+        icon={icon}
+        reference={reference(row.original)}
+        photos={photos?.(row.original)}
+      />
+    ),
+  };
+}
+
+/** The icon a record without a photograph shows, by the kind its row names. */
+const KIND_ICON: Record<string, LucideIcon> = {
+  MATERIAL_RECEIPT: ClipboardList,
+  DELIVERY_NOTE: FileText,
+  MATERIAL_OUTGOING: PackageMinus,
+  EQUIPMENT_MOVEMENT: HardHat,
+  SITE_EQUIPMENT: HardHat,
+  HAZARD: ShieldAlert,
+  SAFETY_INCIDENT: ShieldAlert,
+  OVERDUE_RECTIFICATION: ShieldAlert,
+  WASTE_OUTGOING: Recycle,
+  WASTE_DISPATCH: Recycle,
+  DISPOSAL_REQUEST: Trash2,
+  DISPOSAL: Trash2,
+  PROGRESS: ChartNoAxesCombined,
+  SITE_PROGRESS: ChartNoAxesCombined,
+  CONSULTANT_APPLICATION: ClipboardCheck,
+  SUNDRY_CLAIM: ReceiptText,
+  CLAIM: ReceiptText,
+  MATERIAL_REQUEST: FilePlus2,
+  FIELD_TASK: ListTodo,
+  SITE_RECORD: ListTodo,
+  ATTENDANCE_DAY: MapPin,
+  GEOFENCE_FAILURE: MapPin,
+  DOCUMENT: FileText,
+};
+
+export function recordKindIcon(kind: string | null | undefined): LucideIcon {
+  return (kind && KIND_ICON[kind]) || ImageIcon;
 }

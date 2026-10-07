@@ -11,6 +11,7 @@ import {
   ListTree,
   Loader2,
   Plus,
+  Recycle,
   Repeat,
   SendHorizonal,
   Scale,
@@ -37,6 +38,7 @@ import {
   SummaryStrip,
 } from "@/components/shared/module-records-table";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
@@ -48,7 +50,6 @@ import {
   LoadFailed,
   QueryFailedNote,
   StatusBadge,
-  TypeBadge,
 } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -367,6 +368,13 @@ export function WasteOutgoingWorkspace() {
       // Short number big, project small (2026-10 D4).
       cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
     },
+    // The load's photograph beside its number (E3).
+    photoColumn<WasteOutgoingRecord>({
+      label: tRoot("moduleTable.photos"),
+      icon: Recycle,
+      reference: (row) => row.reference_no,
+      photos: (row) => rowPhotos(row.photos, row.reference_no),
+    }),
     {
       accessorKey: "status",
       meta: { label: t("export.status") },
@@ -427,12 +435,6 @@ export function WasteOutgoingWorkspace() {
       meta: { label: t("field.project") },
       header: () => <PlainHeader label={t("field.project")} />,
       cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
-    },
-    {
-      id: "photos",
-      meta: { label: tRoot("moduleTable.photos") },
-      header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-      cell: ({ row }) => <TypeBadge label={String(row.original.photos.length)} />,
     },
   ];
 

@@ -125,6 +125,10 @@ export interface ActivityRow {
 }
 
 export interface ApprovalRow {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   approval_no: string;
   title: string;
@@ -161,6 +165,10 @@ export type RectificationStep = "ASSIGN" | "RECTIFY" | "CONFIRM";
 
 /** One open hazard or permit the reader moves on (C15). */
 export interface RectificationRow {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   /** Always `SAFETY_INCIDENT`: the kind `recordTarget` opens it by. */
   kind: string;
@@ -192,6 +200,10 @@ export interface DashboardRectifications {
 }
 
 export interface NotificationRow {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   kind: string;
   /** The kind by name, in the reader's language (T-176). */
@@ -239,6 +251,8 @@ export interface PhotoRow {
 }
 
 export interface TimelineEntry {
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   /** The record the row opens. Absent from older servers. */
   id?: string;
   at: string | null;
@@ -252,6 +266,10 @@ export interface TimelineEntry {
 
 /** One record in 「等你处理」: finished, not yet confirmed (X10, C4). */
 export interface WaitingRecord {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   /** The record kind, as the archive queue names it (`MATERIAL_RECEIPT`, `PROGRESS`...). */
   kind: string;
   id: string;

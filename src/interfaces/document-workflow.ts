@@ -96,6 +96,10 @@ export interface AddSystemFilesPayload {
 }
 
 export interface DocumentRecord {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   document_no: string;
   reference_no: string;

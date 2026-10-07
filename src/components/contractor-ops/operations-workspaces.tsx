@@ -4,22 +4,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Camera,
   Check,
-  ClipboardList,
   ChevronRight,
-  FileText,
+  ClipboardList,
+  Eye,
   FilePlus2,
+  FileText,
+  ImagePlus,
+  ListTodo,
   ListTree,
   Loader2,
   MapPin,
   PackageOpen,
   Paperclip,
-  ScanLine,
   Pencil,
   Plus,
   RotateCcw,
   Save,
-  Eye,
-  ImagePlus,
+  ScanLine,
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
@@ -27,6 +28,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { useRef, useState } from "react";
 
@@ -1079,17 +1081,14 @@ export function FieldTasksWorkspace({
                       required: row.evidence_required,
                     })}
                   >
-                    {row.photos.slice(0, 3).map((photo) => (
-                      <Image
-                        key={photo.id}
-                        src={photo.watermarked || photo.image}
-                        alt=""
-                        width={64}
-                        height={64}
-                        unoptimized
-                        className="size-8 rounded border object-cover"
-                      />
-                    ))}
+                    {/* The task's photograph, all of them on click (E3). */}
+                    <PhotoThumb
+                      coverUrl={row.cover_photo_url}
+                      count={row.photo_count}
+                      icon={ListTodo}
+                      reference={row.title}
+                      photos={rowPhotos(row.photos, row.title)}
+                    />
                     <span className="tabular text-xs text-muted-foreground">
                       {row.photos.length}/{row.evidence_required}
                     </span>

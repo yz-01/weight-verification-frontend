@@ -25,12 +25,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { BadgeCheck, Check, FileText, Loader2, Upload, XCircle } from "lucide-react";
+import { BadgeCheck, Check, FileText, Loader2, ReceiptText, Upload, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import {
   FilterSelect,
@@ -39,7 +40,7 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { FieldWrapper, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { VoucherSource } from "@/components/sundry-claims/voucher-source";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,13 @@ export function SundryClaimsOffice() {
         // Short number big, project small (2026-10 D4).
         cell: ({ row }) => <RecordNo value={row.original.claim_no} />,
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<SundryClaim>({
+        label: tRoot("moduleTable.photos"),
+        icon: ReceiptText,
+        reference: (row) => row.claim_no,
+        photos: (row) => rowPhotos(row.attachments, row.claim_no),
+      }),
       {
         id: "state",
         meta: { label: t("field.status") },
@@ -144,12 +152,6 @@ export function SundryClaimsOffice() {
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
-      },
-      {
-        id: "attachments",
-        meta: { label: tRoot("moduleTable.photos") },
-        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-        cell: ({ row }) => <TypeBadge label={String(row.original.attachments.length)} />,
       },
     ],
     [t, tRoot, df],

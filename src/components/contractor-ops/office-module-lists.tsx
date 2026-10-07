@@ -19,10 +19,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Camera,
+  ChartNoAxesCombined,
+  HardHat,
   ImagePlus,
   ListTree,
   Loader2,
   MapPin,
+  PackageMinus,
   Pencil,
   Plus,
 } from "lucide-react";
@@ -51,6 +54,7 @@ import {
 import { usePageTitle } from "@/components/layout/page-title-override";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
@@ -64,7 +68,7 @@ import {
   sortable,
   SummaryStrip,
 } from "@/components/shared/module-records-table";
-import { FieldWrapper, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import {
   RecordDetailDialog,
@@ -245,6 +249,13 @@ export function MaterialOutgoingOffice() {
         // Short number big, project small (2026-10 D4).
         cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<MaterialOutgoing>({
+        label: tRoot("moduleTable.photos"),
+        icon: PackageMinus,
+        reference: (row) => row.reference_no,
+        photos: (row) => rowPhotos(row.photos, row.reference_no),
+      }),
       {
         accessorKey: "status",
         meta: { label: t("field.status") },
@@ -344,14 +355,6 @@ export function MaterialOutgoingOffice() {
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
           <p className="max-w-[180px] truncate">{row.original.project_name}</p>
-        ),
-      },
-      {
-        id: "photos",
-        meta: { label: tRoot("moduleTable.photos") },
-        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-        cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photos.length)} />
         ),
       },
     ],
@@ -611,6 +614,13 @@ export function SiteEquipmentOffice() {
           </div>
         ),
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<EquipmentMovement>({
+        label: tRoot("moduleTable.photos"),
+        icon: HardHat,
+        reference: (row) => row.equipment_name,
+        photos: (row) => rowPhotos(row.photos, row.equipment_name),
+      }),
       {
         accessorKey: "direction",
         meta: { label: t("equipment.directionLabel") },
@@ -685,14 +695,6 @@ export function SiteEquipmentOffice() {
           <p className="max-w-[180px] truncate">{row.original.project_name}</p>
         ),
       },
-      {
-        id: "photos",
-        meta: { label: tRoot("moduleTable.photos") },
-        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-        cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photos.length)} />
-        ),
-      },
     ],
     [t, tRoot, df],
   );
@@ -714,6 +716,13 @@ export function SiteEquipmentOffice() {
           </div>
         ),
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<SiteEquipment>({
+        label: tRoot("moduleTable.photos"),
+        icon: HardHat,
+        reference: (row) => row.name,
+        photos: (row) => rowPhotos(row.photos, row.name),
+      }),
       {
         accessorKey: "name",
         meta: { label: t("field.name") },
@@ -785,7 +794,7 @@ export function SiteEquipmentOffice() {
         ),
       },
     ],
-    [t],
+    [t, tRoot],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -1447,6 +1456,13 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
           </div>
         ),
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<SiteProgressRecord>({
+        label: tRoot("moduleTable.photos"),
+        icon: ChartNoAxesCombined,
+        reference: (row) => row.phase_name,
+        photos: (row) => rowPhotos(row.photos, row.phase_name),
+      }),
       {
         id: "phase__name",
         accessorFn: (row) => row.phase_name,
@@ -1501,14 +1517,6 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
           <p className="max-w-[180px] truncate">{row.original.project_name}</p>
-        ),
-      },
-      {
-        id: "photos",
-        meta: { label: tRoot("moduleTable.photos") },
-        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-        cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photos.length)} />
         ),
       },
     ],

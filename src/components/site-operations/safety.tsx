@@ -29,6 +29,7 @@ import {
   FieldEvidenceGrid,
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
+import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { RecordNo } from "@/components/shared/record-no";
 import { ExportButton } from "@/components/shared/export-button";
@@ -459,35 +460,28 @@ export function Safety({
         id: "evidence",
         meta: { label: t("safety.field.evidence") },
         header: () => t("safety.field.evidence"),
+        // The hazard's photograph (E3), opened on click with every photo of
+        // it; the pin says it was located.
         cell: ({ row }) => (
-          <div className="flex max-w-[18rem] items-center gap-1 overflow-x-auto py-1 [scrollbar-width:thin]">
+          <div className="flex items-center gap-1.5">
+            <PhotoThumb
+              coverUrl={row.original.cover_photo_url}
+              count={row.original.photo_count}
+              icon={ShieldAlert}
+              reference={row.original.incident_no}
+              photos={rowPhotos(
+                [
+                  ...(row.original.initial_evidence ?? []),
+                  ...(row.original.rectification_evidence ?? []),
+                ],
+                row.original.incident_no,
+              )}
+            />
             {row.original.latitude && (
               <LocateFixed
                 className="h-4 w-4 shrink-0 text-success"
                 aria-label={t("safety.evidence.location")}
               />
-            )}
-            {(row.original.initial_evidence ?? []).map((item, index) => (
-              <a
-                key={item.id}
-                href={item.watermarked || item.image}
-                target="_blank"
-                rel="noreferrer"
-                className="relative shrink-0 overflow-hidden rounded-md border"
-                title={`${t("safety.evidence.photo")} ${index + 1}`}
-              >
-                <Image
-                  src={item.watermarked || item.image}
-                  alt={`${t("safety.evidence.photo")} ${index + 1}`}
-                  width={32}
-                  height={32}
-                  unoptimized
-                  className="size-7 object-cover"
-                />
-              </a>
-            ))}
-            {!row.original.latitude && !(row.original.initial_evidence?.length ?? 0) && (
-              <span className="text-muted-foreground">{t("common.emptyValue")}</span>
             )}
           </div>
         ),
@@ -689,7 +683,14 @@ export function Safety({
                 aria-label={t("hazard.conversationTitle")}
                 className="flex w-full items-start gap-3 rounded-lg p-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
-                <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-warning/15 text-warning"><ShieldAlert /></span>
+                {/* The hazard's photograph on the left (E3); the icon when it has none. */}
+                <PhotoThumb
+                  coverUrl={incident.cover_photo_url}
+                  count={incident.photo_count}
+                  icon={ShieldAlert}
+                  reference={incident.incident_no}
+                  openable={false}
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold">{incident.title}</p>

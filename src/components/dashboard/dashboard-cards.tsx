@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { useApprovalOpener } from "@/components/dashboard/approval-opener";
 import {
   type OpenedRecordHeading,
@@ -45,6 +46,8 @@ interface PreviewItem {
   meta?: string;
   href?: string;
   onOpen?: () => void;
+  /** The record's photograph (E3): its thumbnail, count and kind for the icon. */
+  photo?: { url?: string | null; count?: number; kind: string };
 }
 
 /**
@@ -101,6 +104,7 @@ export function DashboardCards({
           key: `${row.kind}:${row.id}`,
           label: [row.reference, row.title].filter(Boolean).join(" · "),
           meta: [kind(row.kind), row.project].filter(Boolean).join(" · "),
+          photo: { url: row.cover_photo_url, count: row.photo_count, kind: row.kind },
           onOpen: recordTarget(row.kind, row.id)
             ? () => waitingOpener.open(row.kind, row.id, heading)
             : undefined,
@@ -121,6 +125,7 @@ export function DashboardCards({
             : row.resource_type,
           row.project || t("contractorDashboard.approvals.companyWide"),
         ].join(" · "),
+        photo: { url: row.cover_photo_url, count: row.photo_count, kind: row.source },
         onOpen: () => approvalOpener.open(row),
       })),
     },
@@ -143,6 +148,7 @@ export function DashboardCards({
           ]
             .filter(Boolean)
             .join(" · "),
+          photo: { url: row.cover_photo_url, count: row.photo_count, kind: row.kind },
           href: target && "href" in target ? target.href : undefined,
         };
       }),
@@ -325,13 +331,30 @@ function PreviewList({ items }: { items: PreviewItem[] }) {
   return (
     <ul className="divide-y">
       {items.map((item) => {
-        const body = (
+        const text = (
           <>
             <span className="block text-sm font-medium leading-snug">{item.label}</span>
             {item.meta && (
               <span className="block text-xs text-muted-foreground">{item.meta}</span>
             )}
           </>
+        );
+        // The record's photograph on the left (E3). Not a button of its own:
+        // the line already opens the record, where every photo is.
+        const body = item.photo ? (
+          <span className="flex items-center gap-2">
+            <PhotoThumb
+              coverUrl={item.photo.url}
+              count={item.photo.count}
+              icon={recordKindIcon(item.photo.kind)}
+              reference={item.label}
+              size="sm"
+              openable={false}
+            />
+            <span className="min-w-0 flex-1">{text}</span>
+          </span>
+        ) : (
+          text
         );
         return (
           <li key={item.key}>

@@ -48,6 +48,7 @@ import { recordStatusLabel } from "@/lib/record-status";
  */
 const PHONE_STATUS = { SITE_RECORD: "fieldStaffPwa.status" };
 
+import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
 import { useEffect, useMemo, useState } from "react";
 
@@ -267,20 +268,15 @@ export function MySubmissions({
                 }}
               >
               <div className="flex items-start gap-3">
-                {row.photo ? (
-                  // A plain <img>: these are the worker's own photographs
-                  // served from the API host, not build-time assets.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={row.photo}
-                    alt={row.reference}
-                    className="size-14 shrink-0 rounded-md border object-cover"
-                  />
-                ) : (
-                  <span className="grid size-14 shrink-0 place-items-center rounded-md border bg-muted/40 text-[10px] text-muted-foreground">
-                    {t(`mySubmissions.kind.${row.kind}`)}
-                  </span>
-                )}
+                {/* The submission's photograph on the left (E3); the card
+                    itself opens it, so the picture is not a second button. */}
+                <PhotoThumb
+                  coverUrl={row.cover_photo_url ?? row.photo}
+                  count={row.photo_count}
+                  icon={recordKindIcon(row.kind)}
+                  reference={row.reference}
+                  openable={false}
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{row.reference}</p>
                   <p className="truncate text-xs text-muted-foreground">

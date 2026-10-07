@@ -219,6 +219,7 @@ export function Documents() {
           <DocumentThumb
             version={row.original.latest_version}
             systemFile={row.original.system_file}
+            coverUrl={row.original.cover_photo_url}
             onOpen={() => setViewingId(row.original.id)}
           />
         ),

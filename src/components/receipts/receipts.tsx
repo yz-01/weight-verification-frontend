@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil } from "lucide-react";
+import { ClipboardList, Eye, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -10,9 +10,10 @@ import { useMemo } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
+import { photoColumn, recordPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
-import { ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -173,6 +174,14 @@ export function Receipts() {
           </span>
         ),
       },
+      // The delivery's photograph, between 材料 and 数量 as the client drew
+      // it (E3): the arrival photo before the DO's, opened on click.
+      photoColumn<MaterialReceipt>({
+        label: t("moduleTable.photos"),
+        icon: ClipboardList,
+        reference: (row) => row.receipt_no,
+        photos: (row) => recordPhotos("MATERIAL_RECEIPT", row.id, row.receipt_no),
+      }),
       {
         accessorKey: "quantity",
         meta: { label: t("receipts.field.quantity") },
@@ -253,18 +262,6 @@ export function Receipts() {
         ),
         cell: ({ row }) => (
           <span className="tabular whitespace-nowrap">{row.original.vehicle_plate || "—"}</span>
-        ),
-      },
-      {
-        accessorKey: "photo_count",
-        meta: { label: t("receipts.field.photoCount") },
-        header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("receipts.field.photoCount")}
-          </span>
-        ),
-        cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photo_count ?? 0)} />
         ),
       },
       {
@@ -416,8 +413,9 @@ export function Receipts() {
         sortOrder={list.sortOrder}
         // `.v2` since the columns changed (2026-10 C13): a reader's saved
         // choice of the old columns would otherwise hide the DO and plate.
-        // `.v3` with the manufacturer column (2026-10 D1).
-        storageKey="receipts.v3"
+        // `.v3` with the manufacturer column (2026-10 D1); `.v4` with the
+        // photograph in place of the photo count (E3).
+        storageKey="receipts.v4"
         toolbarActions={
           <div className="ml-auto flex items-center gap-2">
             <Select
