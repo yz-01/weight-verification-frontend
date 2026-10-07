@@ -16,6 +16,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import messages from "@/messages/zh.json";
 
@@ -58,17 +59,17 @@ function Cells({ rows }: { rows: Row[] }) {
     getCoreRowModel: getCoreRowModel(),
   });
   return (
-    <table>
-      <tbody>
+    <Table>
+      <TableBody>
         {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
+          <TableRow key={row.id}>
             {row.getVisibleCells().map((cell) => (
-              <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+              <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
             ))}
-          </tr>
+          </TableRow>
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 }
 
@@ -82,7 +83,7 @@ describe("the office list column", () => {
         ]}
       />,
     );
-    const [withPhoto, without] = html.split("<tr>").slice(1);
+    const [withPhoto, without] = html.split(/<tr[\s>]/).slice(1);
     expect(withPhoto).toContain(COVER);
     expect(withPhoto).toContain('data-photo-thumb="photo"');
     expect(withPhoto).toContain(">4</span>");
