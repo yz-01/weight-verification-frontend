@@ -7135,6 +7135,7 @@
       "evidence_file_unavailable": "此證據文件當前無法使用。",
       "export_no_columns": "請至少選擇一列再導出。",
       "export_too_large": "這次選擇的數據量太大，無法導出。請先用篩選縮小範圍。",
+      "export_too_many_with_photos": "這次導出有 {count} 筆帶照片的記錄，一次最多 {limit} 筆。請用日期、項目或供應商縮小篩選範圍後再導出。",
       "export_unavailable": "PDF 導出暫時不可用，請改用表格格式。",
       "feedback_not_found": "找不到該客戶反饋。",
       "field_device_already_bound": "此現場人員賬號已綁定一臺設備。如需換機，請先讓管理員重置設備。",

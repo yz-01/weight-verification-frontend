@@ -3,13 +3,18 @@
  * pick at any level leads. B12 / X15: the toolbar's page switcher stays off
  * the pages that carry the menu.
  */
+import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
+
+import zh from "@/messages/zh.json";
 
 import type { ReportLevelRow } from "@/interfaces/contractor-report";
 import { navLeaves, visibleNavigation } from "@/lib/navigation";
 import {
   groupPhotoSources,
   isReportCenterPage,
+  materialExportSubtitle,
+  photoSourceValue,
   levelRowName,
   reportHref,
   reportMenuKind,
@@ -130,9 +135,43 @@ describe("rows as the menu names them", () => {
     );
     expect(grouped.map((entry) => [entry.label, entry.value])).toEqual([
       ["工程进度", "contractor_ops.siteprogressphoto,site_operations.progressupdate"],
-      ["材料进场", "receiving.receiptphoto"],
+      ["材料进场", "receiving.receiptphoto,receiving.deliverynoteevidence"],
       ["Driver task", "haulage.taskphoto"],
     ]);
+  });
+
+  it("gives a module one value in the menu and in the 照片来源 dropdown (B3 #6)", () => {
+    // The menu lists one project's sources; the dropdown every project's.
+    // This site's hazards have only report photographs so far; another
+    // site's have rectification photographs too.
+    const translate = (key: string) => key;
+    const menu = groupPhotoSources(
+      [row("site_operations.safetyincident", "Safety")],
+      translate,
+    );
+    const dropdown = groupPhotoSources(
+      [
+        row("site_operations.safetyincident", "Safety"),
+        row("site_operations.safetyrectificationevidence", "Safetyrectificationevidence"),
+      ],
+      translate,
+    );
+    expect(menu.map((entry) => entry.value)).toEqual(dropdown.map((entry) => entry.value));
+    // And the report reads the whole module: the rectification photographs
+    // taken tomorrow are in it too.
+    expect(menu[0].value).toBe(
+      "site_operations.safetyincident,site_operations.safetyrectificationevidence",
+    );
+  });
+
+  it("reads an address naming one source as its whole module", () => {
+    expect(photoSourceValue("receiving.receiptphoto")).toBe(
+      "receiving.receiptphoto,receiving.deliverynoteevidence",
+    );
+    expect(
+      photoSourceValue("site_operations.progressupdate,contractor_ops.siteprogressphoto"),
+    ).toBe("contractor_ops.siteprogressphoto,site_operations.progressupdate");
+    expect(photoSourceValue("haulage.taskphoto")).toBe("haulage.taskphoto");
   });
 
   it("names the project beside a name two projects share, only with no project chosen", () => {
@@ -143,5 +182,31 @@ describe("rows as the menu names them", () => {
       "屋顶",
     ]);
     expect(levelRowName(rows[0], rows, true)).toBe("打桩");
+  });
+});
+
+describe("a material report's export says what it was narrowed to (B3 #15)", () => {
+  const t = createTranslator({ locale: "zh", messages: zh }) as unknown as (
+    key: string,
+    values?: Record<string, string>,
+  ) => string;
+
+  it("names the period and the material and supplier chosen", () => {
+    expect(
+      materialExportSubtitle(t, {
+        level: "混凝土 › 南方建材",
+        dateFrom: "2026-10-01",
+        dateTo: "2026-10-07",
+      }),
+    ).toBe("期间：2026-10-01 至 2026-10-07 · 混凝土 › 南方建材");
+  });
+
+  it("leaves the period out when no dates are chosen, and marks an open end", () => {
+    expect(materialExportSubtitle(t, { level: "全部材料 › 全部供应商" })).toBe(
+      "全部材料 › 全部供应商",
+    );
+    expect(
+      materialExportSubtitle(t, { level: "混凝土 › 全部供应商", dateFrom: "2026-10-01" }),
+    ).toBe("期间：2026-10-01 至 … · 混凝土 › 全部供应商");
   });
 });

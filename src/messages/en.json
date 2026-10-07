@@ -7135,6 +7135,7 @@
       "evidence_file_unavailable": "This evidence file is unavailable.",
       "export_no_columns": "Choose at least one column to export.",
       "export_too_large": "This selection is too large to export. Narrow it with a filter and try again.",
+      "export_too_many_with_photos": "This export has {count} records with photos; at most {limit} can be exported at once. Narrow the filter (dates, project or supplier) and export again.",
       "export_unavailable": "PDF export is not available right now. Try the spreadsheet instead.",
       "feedback_not_found": "That customer feedback could not be found.",
       "field_device_already_bound": "This field account already has a bound device. Ask an administrator to reset it before changing devices.",

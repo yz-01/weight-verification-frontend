@@ -45,6 +45,7 @@ import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
+import { materialExportSubtitle } from "@/lib/report-menu";
 import { cn } from "@/lib/utils";
 import {
   exportReceipts,
@@ -88,17 +89,19 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const supplierName = filters.supplier
     ? summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name
     : t("reportSelector.allSuppliers");
-  const chosen = [
-    t(`materialReports.${mode}.title`),
-    materialName ?? "…",
-    supplierName ?? "…",
-  ].join(" › ");
+  const level = [materialName ?? "…", supplierName ?? "…"].join(" › ");
+  const chosen = [t(`materialReports.${mode}.title`), level].join(" › ");
 
   function runExport(format: ExportFormat) {
     return exportReceipts({
       format,
       title: t(`materialReports.${mode}.title`),
-      subtitle: t("materialReports.export.subtitle"),
+      // What the file was narrowed to: the period and the level (B3 #15).
+      subtitle: materialExportSubtitle(t, {
+        level,
+        dateFrom: filters.date_from,
+        dateTo: filters.date_to,
+      }),
       emptyLabel: t("table.noResults"),
       query: filters,
       // The file ends with each material's 累计总数量 (E5, Q24).

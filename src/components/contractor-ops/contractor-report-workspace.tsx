@@ -36,7 +36,7 @@ import type {
 } from "@/interfaces/contractor-report";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useDateFormat } from "@/lib/dates";
-import { groupPhotoSources } from "@/lib/report-menu";
+import { groupPhotoSources, photoSourceValue } from "@/lib/report-menu";
 import {
   exportContractorReport,
   getContractorReport,
@@ -140,7 +140,11 @@ export function ContractorReportWorkspace({
     list.filters.date_from ?? dateValue(new Date(now.getFullYear(), now.getMonth(), 1));
   const dateTo = list.filters.date_to ?? dateValue(now);
   const project = list.filters.project ?? "all";
-  const category = list.filters.category ?? "";
+  // A photo source is read as its whole module, as the menu names it (B3 #6).
+  const category =
+    reportType === "photos" && list.filters.category
+      ? photoSourceValue(list.filters.category)
+      : (list.filters.category ?? "");
   const subcategory = list.filters.subcategory ?? "";
   const setDateFrom = (value: string) => list.setFilter("date_from", value || undefined);
   const setDateTo = (value: string) => list.setFilter("date_to", value || undefined);
