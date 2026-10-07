@@ -28,9 +28,12 @@ import { useDebounce } from "@/hooks/use-debounce";
 import type { useListQuery } from "@/hooks/use-list-query";
 import type { ListQuery } from "@/interfaces/api";
 import { getSupplier, getSuppliers } from "@/services/contractor.service";
+import { getManufacturers } from "@/services/material-setup.service";
 
 export interface SupplierDateValue {
   supplier?: string;
+  /** By whose make (2026-10 D1) - material lists only. */
+  manufacturer?: string;
   date_from?: string;
   date_to?: string;
 }
@@ -67,6 +70,7 @@ export function SupplierDateFilter({
   onChange,
   showSupplier = true,
   showDates = true,
+  showManufacturer = false,
 }: {
   value: SupplierDateValue;
   /** Only the keys that changed; `undefined` clears one. */
@@ -74,6 +78,8 @@ export function SupplierDateFilter({
   /** Off where the records have no supplier (a hazard, a progress photo). */
   showSupplier?: boolean;
   showDates?: boolean;
+  /** The manufacturer too (2026-10 D1): material records only. */
+  showManufacturer?: boolean;
 }) {
   const t = useTranslations("supplierDateFilter");
   const [term, setTerm] = useState("");
@@ -128,6 +134,12 @@ export function SupplierDateFilter({
           <QueryFailedNote query={suppliers} what={t("what")} />
         </>
       )}
+      {showManufacturer && (
+        <ManufacturerFilter
+          value={value.manufacturer}
+          onChange={(manufacturer) => onChange({ manufacturer })}
+        />
+      )}
       {showDates && (
         <div className="flex items-center gap-1">
           <Input
@@ -155,19 +167,71 @@ export function SupplierDateFilter({
   );
 }
 
+/**
+ * The manufacturer half (2026-10 D1): the company's list, searched on the
+ * server like the suppliers, switched-off ones included - an old record's
+ * factory must still be findable.
+ */
+function ManufacturerFilter({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange: (next: string | undefined) => void;
+}) {
+  const t = useTranslations("supplierDateFilter");
+  const [term, setTerm] = useState("");
+  const search = useDebounce(term.trim(), 300);
+  const manufacturers = useQuery({
+    queryKey: ["manufacturers", "filter-options", search],
+    queryFn: () => getManufacturers({ page_size: SUPPLIER_PAGE_SIZE, ...(search ? { search } : {}) }),
+    placeholderData: keepPreviousData,
+  });
+  const results = manufacturers.data?.results ?? [];
+  const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
+  return (
+    <>
+      <div className="w-[200px] max-w-full">
+        <OptionCombobox
+          value={value ?? ALL}
+          onChange={(next) => {
+            const row = results.find((option) => option.id === next);
+            if (row) setPicked({ id: row.id, name: row.name });
+            onChange(next === ALL ? undefined : next);
+          }}
+          options={supplierOptions(results, t("allManufacturers"))}
+          onSearch={setTerm}
+          selectedLabel={picked && picked.id === value ? picked.name : undefined}
+          placeholder={t("allManufacturers")}
+          searchPlaceholder={t("search")}
+          emptyLabel={t("noMatch")}
+          ariaLabel={t("manufacturer")}
+          triggerClassName="h-8 text-sm"
+        />
+      </div>
+      <QueryFailedNote query={manufacturers} what={t("whatManufacturers")} />
+    </>
+  );
+}
+
 /** The same control bound to a list's URL parameters (`useListQuery`). */
 export function SupplierDateListFilter({
   list,
+  showManufacturer = false,
 }: {
   list: ReturnType<typeof useListQuery>;
+  /** Material lists also filter by manufacturer (2026-10 D1). */
+  showManufacturer?: boolean;
 }) {
   return (
     <SupplierDateFilter
       value={{
         supplier: list.filters.supplier,
+        manufacturer: list.filters.manufacturer,
         date_from: list.filters.date_from,
         date_to: list.filters.date_to,
       }}
+      showManufacturer={showManufacturer}
       onChange={(next) => list.setFilters(next as Record<string, string | undefined>)}
     />
   );

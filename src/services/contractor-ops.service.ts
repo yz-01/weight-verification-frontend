@@ -517,6 +517,8 @@ export async function createMaterialOutgoing(payload: {
   project: string;
   /** Supplier first, then that supplier's delivery; the material comes from it. */
   supplier?: string; source_receipt?: string;
+  /** Whose make (2026-10 D1); the server takes the delivery's when absent. */
+  manufacturer?: string;
   category?: string; material_name?: string; quantity: string; unit?: string; destination?: string;
   executor_name: string; vehicle_plate?: string; delivery_note_no?: string; reason: string;
   latitude?: string; longitude?: string; client_event_id?: string;
@@ -945,6 +947,8 @@ export function getCategoryRecords(query: {
   page_size?: number;
   /** 2026-10 B3: narrowed by supplier, date range and the search box. */
   supplier?: string;
+  /** 2026-10 D1: by whose make (material only). */
+  manufacturer?: string;
   date_from?: string;
   date_to?: string;
   search?: string;

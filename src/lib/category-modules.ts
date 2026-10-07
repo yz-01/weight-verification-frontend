@@ -70,7 +70,8 @@ export function categoryManagementAddress(
  * Null rather than an empty list, because an empty list is a legitimate
  * answer meaning "do not warn me". Sending it for a typo like "80, ninety"
  * would turn a slip into switching the warnings off, with the form showing
- * nothing wrong. The server checks the same 1-500 range (F-466).
+ * nothing wrong. The server checks the same 1-1000 range (F-466; the two
+ * agreed on 1-1000 in 2026-10 A6 - the screen had said 500).
  */
 export function parseAlertPercentages(text: string): number[] | null {
   const trimmed = text.trim();
@@ -83,7 +84,28 @@ export function parseAlertPercentages(text: string): number[] | null {
         parts[index] === "" ||
         !Number.isInteger(value) ||
         value < 1 ||
-        value > 500,
+        value > 1000,
+    )
+  ) {
+    return null;
+  }
+  return [...new Set(numbers)].sort((a, b) => a - b);
+}
+
+/**
+ * The absolute warning lines as typed (2026-10 A6): RM figures in amount
+ * mode, quantities in quantity mode. Null when they cannot be read, for the
+ * reason `parseAlertPercentages` gives; empty means "none".
+ */
+export function parseAlertAmounts(text: string): number[] | null {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+  const parts = trimmed.split(",").map((part) => part.trim().replace(/\s+/g, ""));
+  const numbers = parts.map(Number);
+  if (
+    numbers.some(
+      (value, index) =>
+        parts[index] === "" || !Number.isFinite(value) || value <= 0 || value >= 1e11,
     )
   ) {
     return null;

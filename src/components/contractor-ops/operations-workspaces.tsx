@@ -61,7 +61,10 @@ import {
 } from "@/components/shared/page-primitives";
 import { LocationField } from "@/components/field-staff/location-field";
 import type { LocationFix } from "@/lib/field-location";
-import { parseAlertPercentages } from "@/lib/category-modules";
+import { parseAlertAmounts, parseAlertPercentages } from "@/lib/category-modules";
+import { MultiPickList } from "@/components/shared/multi-pick-list";
+import { useDebounce } from "@/hooks/use-debounce";
+import { getManufacturers } from "@/services/material-setup.service";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -93,10 +96,12 @@ import type {
   ProjectCategoryKind,
   CategorySubmissionMode,
   ProjectCategoryPayload,
+  BudgetMode,
   SiteEquipment,
 } from "@/interfaces/contractor-ops";
 import { ApiError } from "@/interfaces/api";
-import { MATERIAL_UNITS } from "@/interfaces/contractor";
+import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
+import { ManufacturerCell, ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import {
   createConstructionPhase,
   updateConstructionPhase,
@@ -274,6 +279,7 @@ export function CategoryDialog({
 }) {
   const t = useTranslations("contractorOps");
   const modules = useTranslations("categoryManagement");
+  const tRoot = useTranslations();
   const { can } = useAuth();
   const roles = useQuery({
     queryKey: ["roles", "category-access"],
@@ -310,10 +316,46 @@ export function CategoryDialog({
   const [alerts, setAlerts] = useState(
     (row?.budget_alert_percentages ?? []).join(", "),
   );
+  // 2026-10 A6 (X17): the budget counts money (default) or the quantity in
+  // the category's unit, and warns at percentages and/or absolute figures.
+  const [budgetMode, setBudgetMode] = useState<BudgetMode>(row?.budget_mode ?? "AMOUNT");
+  const [budgetQuantity, setBudgetQuantity] = useState(row?.budget_quantity ?? "");
+  const [alertAmounts, setAlertAmounts] = useState(
+    (row?.budget_alert_amounts ?? []).join(", "),
+  );
+  // 2026-10 A4, D1 (Q1, Q13): what the phone fills in when this category is
+  // chosen - its one unit, its suppliers, its designated manufacturers.
+  const [defaultUnit, setDefaultUnit] = useState(row?.default_unit ?? "");
+  const [supplierIds, setSupplierIds] = useState<string[]>(row?.suppliers ?? []);
+  const [manufacturerIds, setManufacturerIds] = useState<string[]>(row?.manufacturers ?? []);
+  const [supplierTerm, setSupplierTerm] = useState("");
+  const [manufacturerTerm, setManufacturerTerm] = useState("");
+  const supplierSearch = useDebounce(supplierTerm.trim(), 300);
+  const manufacturerSearch = useDebounce(manufacturerTerm.trim(), 300);
   const [error, setError] = useState("");
   const isMaterial = form.kind === "MATERIAL";
+  const units = useMaterialUnits({ enabled: isMaterial });
+  const unitName = useUnitName();
+  const supplierChoices = useQuery({
+    queryKey: ["suppliers", "category-dialog", supplierSearch],
+    queryFn: () =>
+      getSuppliers({ page_size: 100, sort_by: "name", ...(supplierSearch ? { search: supplierSearch } : {}) }),
+    enabled: isMaterial,
+  });
+  const manufacturerChoices = useQuery({
+    queryKey: ["manufacturers", "category-dialog", manufacturerSearch],
+    queryFn: () =>
+      getManufacturers({ page_size: 100, ...(manufacturerSearch ? { search: manufacturerSearch } : {}) }),
+    enabled: isMaterial,
+  });
   const parsedAlerts = parseAlertPercentages(alerts);
   const alertsInvalid = isMaterial && tracksSpend && parsedAlerts === null;
+  const parsedAmounts = parseAlertAmounts(alertAmounts);
+  const amountsInvalid = isMaterial && tracksSpend && parsedAmounts === null;
+  const quantityMode = budgetMode === "QUANTITY";
+  // 500 what? A quantity budget is counted in the category's unit.
+  const quantityNeedsUnit =
+    isMaterial && tracksSpend && quantityMode && Boolean(budgetQuantity.trim()) && !defaultUnit;
   const save = useMutation({
     mutationFn: () => {
       const payload: ProjectCategoryPayload = isMaterial
@@ -325,6 +367,13 @@ export function CategoryDialog({
             budget_amount: tracksSpend && budget.trim() ? budget.trim() : null,
             budget_alert_percentages:
               parsedAlerts ?? row?.budget_alert_percentages ?? [],
+            budget_mode: budgetMode,
+            budget_quantity:
+              tracksSpend && quantityMode && budgetQuantity.trim() ? budgetQuantity.trim() : null,
+            budget_alert_amounts: parsedAmounts ?? row?.budget_alert_amounts ?? [],
+            default_unit: defaultUnit,
+            suppliers: supplierIds,
+            manufacturers: manufacturerIds,
           }
         : form;
       return row
@@ -528,6 +577,71 @@ export function CategoryDialog({
           {isMaterial && (
             <div className="grid gap-4 border-t pt-4 sm:col-span-2">
               <div>
+                <h4 className="text-sm font-semibold">{modules("material.title")}</h4>
+                <p className="mt-1 text-xs text-muted-foreground">{modules("material.help")}</p>
+              </div>
+              <FieldWrapper
+                label={modules("material.defaultUnit")}
+                hint={modules("material.defaultUnitHint")}
+                error={quantityNeedsUnit ? modules("budget.quantityNeedsUnit") : undefined}
+              >
+                <Select
+                  value={defaultUnit || "__none__"}
+                  onValueChange={(value) => setDefaultUnit(value === "__none__" ? "" : value)}
+                >
+                  <SelectTrigger className="w-full sm:w-64"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">{modules("material.noUnit")}</SelectItem>
+                    {(units.data ?? []).map((unit) => (
+                      <SelectItem key={unit.code} value={unit.code}>{unitName(unit.code, unit.label)}</SelectItem>
+                    ))}
+                    {/* A unit switched off since it was chosen stays chosen. */}
+                    {defaultUnit && !(units.data ?? []).some((unit) => unit.code === defaultUnit) && (
+                      <SelectItem value={defaultUnit}>{unitName(defaultUnit, row?.default_unit_label)}</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                <QueryFailedNote query={units} what={modules("units.what")} />
+              </FieldWrapper>
+              <FieldWrapper label={modules("material.suppliers")} hint={modules("material.suppliersHint")}>
+                <MultiPickList
+                  selected={supplierIds}
+                  onChange={setSupplierIds}
+                  options={(supplierChoices.data?.results ?? []).filter(
+                    (option) => option.is_active || supplierIds.includes(option.id),
+                  )}
+                  knownNames={Object.fromEntries(
+                    (row?.supplier_options ?? []).map((option) => [option.id, option.name]),
+                  )}
+                  search={supplierTerm}
+                  onSearch={setSupplierTerm}
+                  searchPlaceholder={modules("material.search")}
+                  ariaLabel={modules("material.suppliers")}
+                />
+                <QueryFailedNote query={supplierChoices} what={modules("material.what.suppliers")} />
+              </FieldWrapper>
+              <FieldWrapper label={modules("material.manufacturers")} hint={modules("material.manufacturersHint")}>
+                <MultiPickList
+                  selected={manufacturerIds}
+                  onChange={setManufacturerIds}
+                  options={(manufacturerChoices.data?.results ?? []).filter(
+                    (option) => option.is_active || manufacturerIds.includes(option.id),
+                  )}
+                  knownNames={Object.fromEntries(
+                    (row?.manufacturer_options ?? []).map((option) => [option.id, option.name]),
+                  )}
+                  search={manufacturerTerm}
+                  onSearch={setManufacturerTerm}
+                  searchPlaceholder={modules("material.search")}
+                  ariaLabel={modules("material.manufacturers")}
+                />
+                <QueryFailedNote query={manufacturerChoices} what={tRoot("manufacturers.what")} />
+              </FieldWrapper>
+            </div>
+          )}
+          {isMaterial && (
+            <div className="grid gap-4 border-t pt-4 sm:col-span-2">
+              <div>
                 <h4 className="text-sm font-semibold">{modules("budget.title")}</h4>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {modules("budget.help")}
@@ -542,19 +656,49 @@ export function CategoryDialog({
               </label>
               {tracksSpend && (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldWrapper
-                    label={modules("budget.amount")}
-                    hint={modules("budget.amountHint")}
-                  >
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      min="0"
-                      step="0.01"
-                      value={budget}
-                      onChange={(event) => setBudget(event.target.value)}
-                    />
+                  <FieldWrapper label={modules("budget.mode")} className="sm:col-span-2">
+                    <Select value={budgetMode} onValueChange={(value) => setBudgetMode(value as BudgetMode)}>
+                      <SelectTrigger className="w-full sm:w-80"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AMOUNT">{modules("budget.modeAmount")}</SelectItem>
+                        <SelectItem value="QUANTITY">{modules("budget.modeQuantity")}</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FieldWrapper>
+                  {quantityMode ? (
+                    <FieldWrapper
+                      label={modules("budget.quantity")}
+                      hint={
+                        defaultUnit
+                          ? modules("budget.quantityHint", { unit: unitName(defaultUnit, row?.default_unit_label) })
+                          : modules("budget.quantityNeedsUnit")
+                      }
+                      error={quantityNeedsUnit ? modules("budget.quantityNeedsUnit") : undefined}
+                    >
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        step="0.001"
+                        value={budgetQuantity}
+                        onChange={(event) => setBudgetQuantity(event.target.value)}
+                      />
+                    </FieldWrapper>
+                  ) : (
+                    <FieldWrapper
+                      label={modules("budget.amount")}
+                      hint={modules("budget.amountHint")}
+                    >
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        step="0.01"
+                        value={budget}
+                        onChange={(event) => setBudget(event.target.value)}
+                      />
+                    </FieldWrapper>
+                  )}
                   <FieldWrapper
                     label={modules("budget.alerts")}
                     hint={modules("budget.alertsHint")}
@@ -565,6 +709,20 @@ export function CategoryDialog({
                       onChange={(event) => setAlerts(event.target.value)}
                     />
                   </FieldWrapper>
+                  <FieldWrapper
+                    label={modules("budget.thresholdAmounts")}
+                    hint={modules("budget.thresholdAmountsHint")}
+                    error={amountsInvalid ? modules("budget.thresholdAmountsInvalid") : undefined}
+                    className="sm:col-span-2"
+                  >
+                    <Input
+                      value={alertAmounts}
+                      onChange={(event) => setAlertAmounts(event.target.value)}
+                    />
+                  </FieldWrapper>
+                  <p className="text-xs text-muted-foreground sm:col-span-2">
+                    {modules("budget.recipients")}
+                  </p>
                 </div>
               )}
             </div>
@@ -627,9 +785,15 @@ export function CategoryDialog({
             // on a field that is not required. What is wrong when they cannot
             // be read is the text itself, and the field says so inline.
             disabledReason={
-              alertsInvalid ? modules("budget.alertsInvalid") : undefined
+              alertsInvalid
+                ? modules("budget.alertsInvalid")
+                : amountsInvalid
+                  ? modules("budget.thresholdAmountsInvalid")
+                  : quantityNeedsUnit
+                    ? modules("budget.quantityNeedsUnit")
+                    : undefined
             }
-            disabled={save.isPending || alertsInvalid}
+            disabled={save.isPending || alertsInvalid || amountsInvalid || quantityNeedsUnit}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
@@ -3233,6 +3397,8 @@ export function OutgoingDialog({
     executor_name: "",
     vehicle_plate: "",
     reason: "",
+    // Whose make (2026-10 D1): starts as the delivery's.
+    manufacturer: "",
   });
   const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
@@ -3265,10 +3431,8 @@ export function OutgoingDialog({
   );
   const set = (key: keyof typeof form, value: string) =>
     setForm((old) => ({ ...old, [key]: value }));
-  const unitLabel = (unit: string) =>
-    (MATERIAL_UNITS as readonly string[]).includes(unit)
-      ? tRoot(`receipts.unit.${unit as (typeof MATERIAL_UNITS)[number]}`)
-      : unit;
+  const unitName = useUnitName();
+  const unitLabel = (unit: string) => unitName(unit);
   const save = useMutation({
     mutationFn: () => {
       if (!user) throw new Error("Authentication required.");
@@ -3276,6 +3440,7 @@ export function OutgoingDialog({
         project,
         supplier: form.supplier,
         source_receipt: form.source_receipt,
+        manufacturer: form.manufacturer || undefined,
         quantity: form.quantity,
         vehicle_plate: form.vehicle_plate,
         reason: form.reason,
@@ -3341,7 +3506,15 @@ export function OutgoingDialog({
             <Select
               value={form.source_receipt || undefined}
               disabled={!project || !form.supplier}
-              onValueChange={(source_receipt) => set("source_receipt", source_receipt)}
+              onValueChange={(source_receipt) =>
+                setForm((old) => ({
+                  ...old,
+                  source_receipt,
+                  manufacturer:
+                    (deliveries.data?.results ?? []).find((row) => row.id === source_receipt)
+                      ?.manufacturer ?? "",
+                }))
+              }
             >
               <SelectTrigger className="h-auto min-h-11 w-full whitespace-normal text-left">
                 <SelectValue placeholder={t("outgoing.chooseSourceReceipt")} />
@@ -3375,6 +3548,16 @@ export function OutgoingDialog({
               <dt className="text-muted-foreground">{t("outgoing.supplier")}</dt>
               <dd className="font-medium">{delivery.supplier_name}</dd>
             </dl>
+          ) : null}
+          {delivery ? (
+            <FieldWrapper label={tRoot("manufacturers.column")} className="sm:col-span-2">
+              <ManufacturerPicker
+                value={form.manufacturer ?? ""}
+                onChange={(manufacturer) => set("manufacturer", manufacturer)}
+                designated={delivery.designated_manufacturers ?? []}
+                triggerClassName="h-11"
+              />
+            </FieldWrapper>
           ) : null}
           <FieldWrapper label={t("outgoing.returnQuantity")} required>
             <Input
@@ -3759,6 +3942,8 @@ export function OutgoingDetailDialog({
   renderActions?: (row: MaterialOutgoing) => React.ReactNode;
 }) {
   const t = useTranslations("contractorOps");
+  const tRootDetail = useTranslations();
+  const unitNameDetail = useUnitName();
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
@@ -3812,6 +3997,13 @@ export function OutgoingDetailDialog({
             // B11: the supplier and the delivery it sends back, on the same
             // record as the application, the approval and the signatures.
             ...(row.supplier_name ? [{ label: t("outgoing.supplier"), value: row.supplier_name }] : []),
+            // D1: whose make, with 「非指定厂商」 when the category names others.
+            ...(row.manufacturer_name
+              ? [{
+                  label: tRootDetail("manufacturers.column"),
+                  value: <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />,
+                }]
+              : []),
             ...(row.source_receipt_no
               ? [{ label: t("outgoing.sourceReceipt"), value: row.source_receipt_no }]
               : []),
@@ -3819,9 +4011,9 @@ export function OutgoingDetailDialog({
               label: t("field.material"),
               value: [row.material_name, row.material_specification].filter(Boolean).join(" · "),
             },
-            { label: t("outgoing.returnQuantity"), value: `${row.quantity} ${row.unit}` },
+            { label: t("outgoing.returnQuantity"), value: `${row.quantity} ${unitNameDetail(row.unit, row.unit_label)}` },
             ...(row.returned_quantity
-              ? [{ label: t("outgoing.returnedQuantity"), value: `${row.returned_quantity} ${row.unit}` }]
+              ? [{ label: t("outgoing.returnedQuantity"), value: `${row.returned_quantity} ${unitNameDetail(row.unit, row.unit_label)}` }]
               : []),
             { label: t("field.destination"), value: row.destination },
             { label: t("outgoing.executor"), value: row.executor_name },

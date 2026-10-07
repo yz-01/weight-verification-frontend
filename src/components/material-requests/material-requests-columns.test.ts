@@ -36,8 +36,15 @@ describe("MR table columns (D3)", () => {
     );
   });
 
+  it("shows whose make and who sells it (D3 with D1)", () => {
+    expect(columns).toMatch(/accessorKey: "manufacturer_name"/);
+    expect(columns).toMatch(/accessorKey: "supplier_name"/);
+  });
+
   it("remembers columns under a new key, so an old saved set cannot bring the dropped ones back", () => {
-    expect(source).toContain('storageKey="material-requests.v2"');
+    // `.v3` since the manufacturer and supplier columns came in (2026-10 D1).
+    expect(source).toContain('storageKey="material-requests.v3"');
+    expect(source).not.toContain('storageKey="material-requests.v2"');
     expect(source).not.toContain('storageKey="material-requests"');
   });
 });

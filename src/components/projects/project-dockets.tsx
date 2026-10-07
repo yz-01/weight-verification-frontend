@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { DeliveryNote, MaterialUnit, Supplier } from "@/interfaces/contractor";
+import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import type { ProjectCategory } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories } from "@/services/contractor-ops.service";
@@ -36,7 +37,6 @@ import {
   voidDeliveryNote,
 } from "@/services/contractor.service";
 
-const UNITS: MaterialUnit[] = ["TONNE", "KG", "M3", "PIECE", "LOAD", "BAG"];
 
 export function ProjectDockets({ projectId }: { projectId: string }) {
   const t = useTranslations();
@@ -195,6 +195,9 @@ function IssueDeliveryNoteDialog({
   const [materialName, setMaterialName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState<MaterialUnit>("TONNE");
+  // The company's unit list (2026-10 A4), named in the reader's language.
+  const units = useMaterialUnits();
+  const unitName = useUnitName();
   const [expectedAt, setExpectedAt] = useState("");
   const [notes, setNotes] = useState("");
   // Optional on purpose: a project that has not set up its columns yet
@@ -281,8 +284,9 @@ function IssueDeliveryNoteDialog({
           <FieldWrapper label={t("qrCodes.field.unit")} required error={errors.unit}>
             <Select value={unit} onValueChange={(value) => setUnit(value as MaterialUnit)}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>{UNITS.map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent>
+              <SelectContent>{(units.data ?? []).map((row) => <SelectItem key={row.code} value={row.code}>{unitName(row.code, row.label)}</SelectItem>)}</SelectContent>
             </Select>
+            <QueryFailedNote query={units} what={t("qrCodes.field.unit")} />
           </FieldWrapper>
           <FieldWrapper label={t("qrCodes.field.expectedAt")} required error={errors.expected_delivery_at} className="sm:col-span-2">
             <Input type="datetime-local" value={expectedAt} onChange={(event) => setExpectedAt(event.target.value)} />

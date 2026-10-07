@@ -24,8 +24,10 @@ describe("a material category adds up per unit (D-281)", () => {
   it("shows the per-unit quantities, not tonnes only", () => {
     expect(source).toMatch(/<QuantityCell quantities=\{row\.column\.quantities \?\? \[\]\} \/>/);
     expect(source).not.toMatch(/tonnes_received \?\? "0"/);
-    // Units are named in the reader's language, and a return is its own figure.
-    expect(source).toMatch(/root\(`receipts\.unit\.\$\{unit\}`\)/);
+    // Units are named in the reader's language - a unit the company added by
+    // its own label (2026-10 A4) - and a return is its own figure.
+    expect(source).toMatch(/const unitName = useUnitName\(\);/);
+    expect(source).toMatch(/\{quantity\.received\} \{unitName\(quantity\.unit\)\}/);
     expect(source).toMatch(/quantityReturned/);
   });
 

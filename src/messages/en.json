@@ -3989,8 +3989,19 @@
       "amountHint": "Leave empty for a category that does not count against a budget",
       "alerts": "Warn at these percentages",
       "alertsHint": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
-      "alertsInvalid": "Use whole numbers between 1 and 500, separated by commas.",
-      "none": "No budget set"
+      "alertsInvalid": "Use whole numbers between 1 and 1000, separated by commas.",
+      "none": "No budget set",
+      "mode": "Budget counts",
+      "modeAmount": "Money (RM, from delivery orders)",
+      "modeQuantity": "Quantity (in the category's unit)",
+      "quantity": "Budget quantity",
+      "quantityHint": "In {unit}. Tonnes and kilograms are added together.",
+      "quantityNeedsUnit": "Choose the category's unit first.",
+      "thresholdAmounts": "Also warn at these figures",
+      "thresholdAmountsHint": "Optional. Comma separated, for example 400000, 450000 (RM) - or the quantity in quantity mode.",
+      "thresholdAmountsInvalid": "Use numbers above zero, separated by commas.",
+      "recipients": "Warnings go to the company administrators and the project lead, once per line; if the total falls back below a line, its warning is withdrawn.",
+      "quantityUsed": "{used} of {budget} {unit}"
     },
     "saveFailed": "That did not go through. Try again, or reload the page.",
     "viewRecords": "View records",
@@ -4005,7 +4016,44 @@
       "emptyFiltered": "Nothing in this category matches these filters.",
       "deliveryNoteNo": "DO"
     },
-    "quantityReturned": "{quantity} returned"
+    "quantityReturned": "{quantity} returned",
+    "units": {
+      "title": "Units",
+      "open": "Units",
+      "help": "The units material is measured in. A category's unit is chosen from this list; the six built-in units are always here.",
+      "label": "Unit name",
+      "add": "Add unit",
+      "builtIn": "Built in",
+      "active": "In use",
+      "inactive": "Switched off",
+      "switchOff": "Switch off",
+      "switchOn": "Switch on",
+      "rename": "Rename",
+      "save": "Save",
+      "offHint": "A switched-off unit is not offered any more; deliveries already measured in it keep it.",
+      "duplicate": "That unit is already on the list.",
+      "what": "The unit list",
+      "toast": {
+        "created": "Unit added",
+        "updated": "Unit saved"
+      }
+    },
+    "material": {
+      "title": "What the site fills in",
+      "help": "Set once here and the phone fills them in when this category is chosen.",
+      "defaultUnit": "Unit",
+      "defaultUnitHint": "Shown on the phone, not typed.",
+      "noUnit": "No fixed unit",
+      "suppliers": "Suppliers",
+      "suppliersHint": "One: filled in by itself. Several: the phone offers only these. A scanned supplier QR code always wins.",
+      "manufacturers": "Designated manufacturers",
+      "manufacturersHint": "A record made by another manufacturer is flagged 「Not designated」 - a warning, it is not refused.",
+      "search": "Type to search",
+      "noneChosen": "None chosen",
+      "what": {
+        "suppliers": "The supplier list"
+      }
+    }
   },
   "cloudServices": {
     "count": "{count} services",
@@ -7735,7 +7783,11 @@
       "supplierGuessUse": "Use this supplier",
       "documentAmount": "Delivery order amount (RM)",
       "documentAmountRead": "Read from the delivery order. Check it against the paper.",
-      "documentAmountTypeHint": "If the amount was not read, type the total from the delivery order (optional)."
+      "documentAmountTypeHint": "If the amount was not read, type the total from the delivery order (optional).",
+      "autoFilledFromCategory": "Filled in from the category",
+      "supplierLimited": "Only the suppliers set for this category",
+      "manufacturer": "Manufacturer",
+      "chooseColumnFirst": "Choose the category first"
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -9525,7 +9577,8 @@
       "decided_by": "Approved / returned by",
       "original_quantity": "Original quantity",
       "correction_reason": "Reason for correction",
-      "assigned_reviewer": "Submitted to"
+      "assigned_reviewer": "Submitted to",
+      "manufacturer": "Manufacturer"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -9871,7 +9924,8 @@
       "wasteClearance": "Waste clearance",
       "equipmentEntry": "Equipment entry",
       "equipmentExit": "Equipment exit",
-      "targetReport": "Targets and achievement"
+      "targetReport": "Targets and achievement",
+      "manufacturers": "Manufacturers"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -11322,7 +11376,8 @@
       "documentAmountSource": {
         "OCR": "Read from the delivery order",
         "MANUAL": "Entered by a person"
-      }
+      },
+      "manufacturer": "Manufacturer"
     },
     "locationCaptured": "Location captured",
     "locationMissing": "No location",
@@ -15193,7 +15248,9 @@
       "remark": "Remark",
       "attachments": "Attachments",
       "assignedReviewer": "Submit to",
-      "reassignHistory": "Take-over record"
+      "reassignHistory": "Take-over record",
+      "supplier": "Supplier",
+      "manufacturer": "Manufacturer"
     },
     "action": {
       "view": "View",
@@ -15261,7 +15318,8 @@
       "assignedReviewerHint": "Only people who can approve requests on this project are listed.",
       "chooseReviewer": "Choose who approves",
       "projectFirst": "Choose the project first",
-      "noReviewers": "Nobody can approve requests on this project yet. Ask your company admin to tick \"Approve or return MR / Other Requests\" on the approver's role in Roles."
+      "noReviewers": "Nobody can approve requests on this project yet. Ask your company admin to tick \"Approve or return MR / Other Requests\" on the approver's role in Roles.",
+      "suggestHint": "Optional - head office decides when approving."
     },
     "options": {
       "open": "Material lists",
@@ -15297,7 +15355,13 @@
     "waitingFor": "Waiting for {name} to approve.",
     "reassigned": "{by} took it over · {at}",
     "reassignedFrom": "{by} took it over from {from} · {at}",
-    "reassignHelp": "Once you take it over, you approve or return it. The first approver no longer can, and the take-over is recorded."
+    "reassignHelp": "Once you take it over, you approve or return it. The first approver no longer can, and the take-over is recorded.",
+    "approve": {
+      "title": "Approve {reference}",
+      "help": "Approving is the purchase decision: choose who it is bought from and whose make.",
+      "chooseSupplier": "Choose supplier",
+      "confirm": "Approve"
+    }
   },
   "filePreview": {
     "unsupported": "{ext} files cannot be shown in the browser.",
@@ -15338,11 +15402,57 @@
     "from": "From date",
     "to": "to",
     "toLabel": "To date",
-    "what": "the supplier list"
+    "what": "the supplier list",
+    "allManufacturers": "All manufacturers",
+    "manufacturer": "Manufacturer",
+    "whatManufacturers": "The manufacturer list"
   },
   "recordNo": {
     "copy": "Copy {number}",
     "copied": "Copied {number}",
     "copyFailed": "Could not copy. Hold the number to see it in full."
+  },
+  "manufacturers": {
+    "title": "Manufacturers",
+    "description": "The factories that make your materials. A category can name the ones the contract allows; anything else is flagged 「Not designated」.",
+    "new": "New manufacturer",
+    "createTitle": "New manufacturer",
+    "editTitle": "Edit manufacturer",
+    "field": {
+      "name": "Manufacturer name",
+      "country": "Country",
+      "isActive": "Active",
+      "sortOrder": "Order",
+      "createdAt": "Added"
+    },
+    "empty": "No manufacturers yet",
+    "what": "The manufacturer list",
+    "duplicate": "That manufacturer is already on the list.",
+    "inUse": "Records already name this manufacturer. Switch it off instead.",
+    "switchedOff": "Switched off",
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "Only a manufacturer no record names can be removed. One already used is switched off instead, so old records keep its name.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Manufacturer added",
+      "updated": "Manufacturer updated",
+      "removed": "Manufacturer removed"
+    },
+    "column": "Manufacturer",
+    "offList": "Not designated",
+    "offListHint": "This category names other manufacturers. It can still be submitted.",
+    "picker": {
+      "choose": "Choose manufacturer",
+      "none": "Not specified",
+      "designated": "Designated",
+      "addNew": "Not on the list? Add it",
+      "newName": "New manufacturer name",
+      "add": "Add",
+      "offline": "Adding a manufacturer needs a connection. Choose one from the list, or leave it empty.",
+      "failed": "The manufacturer could not be added.",
+      "fromColumn": "Filled in from the category"
+    }
   }
 }

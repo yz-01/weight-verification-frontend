@@ -21,15 +21,16 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
-import { ReadField } from "@/components/shared/page-primitives";
+import { FieldWrapper, ReadField } from "@/components/shared/page-primitives";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { ApiError } from "@/interfaces/api";
 import {
-  MATERIAL_UNITS,
   type MaterialReceiptDetail,
   type MaterialReceiptPayload,
   type MaterialUnit,
 } from "@/interfaces/contractor";
+import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
+import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { correctReceipt, getReceipt } from "@/services/contractor.service";
 
 /**
@@ -78,6 +79,17 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
     },
   });
 
+  // The company's unit list (2026-10 A4), plus the receipt's own unit when
+  // it has since been switched off - a correction must not lose it.
+  // query-failure: the receipt's own unit is always offered below, so the correction still saves
+  const units = useMaterialUnits();
+  const unitName = useUnitName();
+  const unitOptions = [
+    ...(units.data ?? []).map((row) => ({ value: row.code, label: unitName(row.code, row.label) })),
+    ...((units.data ?? []).some((row) => row.code === receipt.unit) || !receipt.unit
+      ? []
+      : [{ value: receipt.unit, label: unitName(receipt.unit, receipt.unit_label) }]),
+  ];
   const form = useForm({
     defaultValues: {
       project: receipt.project ?? "",
@@ -86,6 +98,8 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
       material_specification: receipt.material_specification ?? "",
       quantity: receipt.quantity ?? "",
       unit: (receipt.unit ?? "TONNE") as MaterialUnit,
+      // Whose make (2026-10 D1): a wrong factory is put right like the rest.
+      manufacturer: receipt.manufacturer ?? "",
       total_weight_kg: receipt.total_weight_kg ?? "",
       unit_price: receipt.unit_price ?? "",
       // The DO's money, which the material budget counts (2026-10 A6): OCR
@@ -119,6 +133,7 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
         notes: value.notes,
         received_by_name: value.received_by_name,
         category: value.category,
+        manufacturer: value.manufacturer || null,
       };
 
       try {
@@ -167,6 +182,13 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
             </form.Field>
           )}
         </form.Subscribe>
+        <form.Field name="manufacturer">
+          {(field) => (
+            <FieldWrapper label={t("manufacturers.column")}>
+              <ManufacturerPicker value={field.state.value} onChange={field.handleChange} />
+            </FieldWrapper>
+          )}
+        </form.Field>
       </FormSection>
 
       <FormSection title={t("receipts.correction.title")}>
@@ -234,10 +256,7 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
             <SelectField
               field={field as unknown as BoundField}
               label={t("receipts.field.unit")}
-              options={MATERIAL_UNITS.map((unit) => ({
-                value: unit,
-                label: t(`receipts.unit.${unit}`),
-              }))}
+              options={unitOptions}
               required
             />
           )}

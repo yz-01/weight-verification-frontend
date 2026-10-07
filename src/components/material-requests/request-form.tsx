@@ -24,6 +24,7 @@ import { FilePlus2, Loader2, Paperclip, Settings2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { chosenReviewer } from "@/components/material-requests/review-gate";
@@ -96,6 +97,8 @@ export function MaterialRequestForm({
   const [remark, setRemark] = useDraftState("remark", prefill?.remark ?? "");
   const [attachments, setAttachments] = useDraftState<File[]>("attachments", []);
   const [assignedReviewer, setAssignedReviewer] = useDraftState("assignedReviewer", "");
+  // Whose make (2026-10 D1): optional on the form - approving settles it.
+  const [manufacturer, setManufacturer] = useDraftState("manufacturer", "");
   const [clientId] = useState(() => crypto.randomUUID());
   const [error, setError] = useState("");
 
@@ -134,7 +137,9 @@ export function MaterialRequestForm({
       createMaterialRequest({
         project,
         request_type: requestType,
-        ...(isMaterial ? { material_name: material, specification, quantity, unit } : {}),
+        ...(isMaterial
+          ? { material_name: material, specification, quantity, unit, manufacturer: manufacturer || undefined }
+          : {}),
         remark: remark.trim(),
         assigned_reviewer: reviewer,
         client_event_id: `${user?.id ?? "user"}:${clientId}`,
@@ -303,6 +308,13 @@ export function MaterialRequestForm({
               />
             </FieldWrapper>
           </div>
+          <FieldWrapper
+            label={t("field.manufacturer")}
+            optional={common("optional")}
+            hint={t("form.suggestHint")}
+          >
+            <ManufacturerPicker value={manufacturer} onChange={setManufacturer} />
+          </FieldWrapper>
         </>
       )}
 

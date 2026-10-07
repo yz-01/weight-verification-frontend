@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   CATEGORY_MODULE_KEYS,
   categoryManagementAddress,
+  parseAlertAmounts,
   parseAlertPercentages,
 } from "@/lib/category-modules";
 
@@ -251,7 +252,18 @@ describe("the budget warning lines", () => {
     expect(parseAlertPercentages("100, 80, 80")).toEqual([80, 100]);
     expect(parseAlertPercentages("80, ninety")).toBeNull();
     expect(parseAlertPercentages("0")).toBeNull();
-    expect(parseAlertPercentages("501")).toBeNull();
+    // FE and BE agree on 1-1000 (2026-10 A6).
+    expect(parseAlertPercentages("1000")).toEqual([1000]);
+    expect(parseAlertPercentages("1001")).toBeNull();
     expect(parseAlertPercentages("80,")).toBeNull();
+  });
+
+  it("reads absolute warning lines as positive figures (2026-10 A6)", () => {
+    expect(parseAlertAmounts("")).toEqual([]);
+    expect(parseAlertAmounts("450000, 400000, 400000")).toEqual([400000, 450000]);
+    expect(parseAlertAmounts("12.5")).toEqual([12.5]);
+    expect(parseAlertAmounts("0")).toBeNull();
+    expect(parseAlertAmounts("lots")).toBeNull();
+    expect(parseAlertAmounts("400000,")).toBeNull();
   });
 });
