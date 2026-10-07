@@ -254,6 +254,8 @@ export function WasteOutgoingWorkspace() {
         },
         { key: "recycler_name", label: t("field.recycler") },
         { key: "dispatch_no", label: t("export.dispatchNo") },
+        // The lorry that collected it (2026-10 C12). No DO on this record.
+        { key: "vehicle_plate", label: t("field.vehiclePlate") },
         { key: "recorded_by_name", label: t("export.recordedBy") },
       ],
     });

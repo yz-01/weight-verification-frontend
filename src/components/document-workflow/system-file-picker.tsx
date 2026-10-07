@@ -47,6 +47,8 @@ export const SYSTEM_FILE_MODULES: Record<string, string> = {
   FIELD_TASK: "nav.field_tasks",
   MATERIAL_REQUEST: "nav.material_requests",
   SUNDRY_CLAIM: "nav.submodule.sundryClaims",
+  // 顾问申请附件 (E4): only the applications the reader can open.
+  CONSULTANT_APPLICATION: "nav.consultant_applications",
 };
 
 /** The drag payload's type: only a thumbnail from this picker drops here. */
