@@ -379,7 +379,7 @@ function FieldStaffWorkspaceContent({
         />
       )}
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-sidebar-border bg-background/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-panel backdrop-blur">
         {/* Four buttons since 「位置」 was removed (T-321). The column count has
             to match or the icons bunch to the left of an empty cell. */}
         <div className="mx-auto grid max-w-2xl grid-cols-4 gap-1 px-3">
@@ -417,7 +417,7 @@ function FieldHomePanel({
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold">{t("home.title")}</h2>
+          <h2 className="text-xl font-bold leading-tight">{t("home.title")}</h2>
           <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
         </div>
       </div>
@@ -535,7 +535,7 @@ function FieldDeviceHandoff() {
 }
 
 function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
+  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/12 text-tone-cyan-fg" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
 }
 
 function taskRecordMode(task: FieldTask): FieldRecordMode | null {
