@@ -27,6 +27,7 @@ import {
 } from "@/lib/dashboard-cards";
 import { useDateFormat } from "@/lib/dates";
 import { recordTarget } from "@/lib/record-routes";
+import { TONES, type Tone as DataTone } from "@/lib/tones";
 import { cn } from "@/lib/utils";
 import { getReceipts } from "@/services/contractor.service";
 import {
@@ -36,6 +37,15 @@ import {
 
 /** How many items a card's pop-up lists (Q20). */
 const PREVIEW = 5;
+
+const CARD_TONE: Record<DashboardCard, DataTone> = {
+  waiting: "cyan",
+  approvals: "amber",
+  rectifications: "rose",
+  receipts: "green",
+  attendance: "blue",
+  safety: "purple",
+};
 
 type Tone = "primary" | "info" | "danger" | "warning";
 
@@ -240,16 +250,10 @@ function SmallCard({
     keep();
     closing.current = setTimeout(() => setOpen(false), 150);
   };
-  const colour =
-    tone === "danger"
-      ? "text-destructive"
-      : tone === "info"
-        ? "text-info"
-        : tone === "primary"
-          ? "text-primary"
-          : tone === "warning"
-            ? "text-warning"
-            : "text-foreground";
+  // The canvas's six data colours, one per card (design 「项目仪表板」).
+  // `tone` still says what the figure means; the card's colour is its own.
+  void tone;
+  const colours = TONES[CARD_TONE[card]];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -280,13 +284,16 @@ function SmallCard({
             }
             router.push(href);
           }}
-          className="flex min-w-0 items-center justify-between gap-2 rounded-md border bg-card px-2.5 py-1.5 text-left shadow-sm transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(
+            "flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition hover:-translate-y-px hover:shadow-panel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            colours.surface,
+          )}
         >
           {/* Never cut: the name is the whole point of a card this small. */}
           <span className="min-w-0 text-xs font-medium leading-tight text-muted-foreground">
             {label}
           </span>
-          <span className={cn("shrink-0 text-base font-semibold tabular-nums", colour)}>
+          <span className={cn("kpi-figure shrink-0 text-xl", colours.text)}>
             {format.number(value)}
           </span>
         </button>
@@ -302,7 +309,7 @@ function SmallCard({
           if (event.pointerType === "mouse") hideSoon();
         }}
       >
-        <p className="flex items-baseline justify-between gap-2 border-b pb-1 text-sm font-semibold">
+        <p className="flex items-baseline justify-between gap-2 border-b border-panel-border pb-2 text-sm font-semibold">
           <span>{label}</span>
           <span className="tabular-nums">{format.number(value)}</span>
         </p>

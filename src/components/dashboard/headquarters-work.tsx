@@ -55,10 +55,10 @@ export function HeadquartersWork({
       ref={section}
       id="headquarters-work"
       aria-label={t("title")}
-      className="scroll-mt-4 space-y-3 rounded-lg border bg-card p-3 shadow-sm"
+      className="scroll-mt-4 space-y-3 surface-panel rounded-xl p-4"
       data-headquarters-work
     >
-      <div role="tablist" aria-label={t("title")} className="flex flex-wrap gap-1 border-b pb-1.5">
+      <div role="tablist" aria-label={t("title")} className="flex flex-wrap gap-1 border-b border-panel-border pb-2">
         {tabs.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -176,10 +176,10 @@ export function HeadquartersPresence({ data }: { data: HeadquartersOverview }) {
   return (
     <section
       aria-label={t("presence")}
-      className="space-y-2 rounded-lg border bg-card p-3 shadow-sm"
+      className="space-y-2 surface-panel rounded-xl p-4"
       data-headquarters-presence
     >
-      <h2 className="flex items-center justify-between gap-2 border-b pb-1.5 text-sm font-semibold">
+      <h2 className="flex items-center justify-between gap-2 border-b border-panel-border pb-2 text-sm font-semibold">
         <span className="flex items-center gap-2">
           <Users className="size-4 text-primary" aria-hidden />
           {t("presence")}

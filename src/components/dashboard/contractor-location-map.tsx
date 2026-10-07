@@ -253,7 +253,7 @@ export function ContractorLocationMap({
           <div className="min-w-0 border-y xl:h-[18rem]">
             <div className="flex items-center justify-between gap-3 border-b py-3">
               <div>
-                <h3 className="text-sm font-semibold">{t("staffStatus")}</h3>
+                <h3 className="text-base font-semibold">{t("staffStatus")}</h3>
                 <p className="text-xs text-muted-foreground">
                   {t("staffCount", { count: positionRows.length })}
                 </p>

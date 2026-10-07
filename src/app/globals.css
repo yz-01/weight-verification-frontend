@@ -449,6 +449,15 @@
   border: 0;
 }
 
+/* Dark mode: the street map is drawn in the canvas's night colours rather
+ * than as a white sheet in a dark room. Markers and overlays are untouched. */
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.88) contrast(0.92) saturate(0.7);
+}
+.dark .leaflet-container {
+  background: var(--background);
+}
+
 .mse-map-marker span {
   display: grid;
   width: 28px;
@@ -458,7 +467,7 @@
   border: 2px solid white;
   border-radius: 999px;
   background: var(--marker-color);
-  box-shadow: 0 1px 6px rgb(15 23 42 / 35%);
+  box-shadow: 0 1px 6px rgb(15 23 42 / 35%), 0 0 12px var(--marker-color);
 }
 
 /* Leaflet gives its internal panes z-index values from 200 to 700. Without a

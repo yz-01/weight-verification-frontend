@@ -335,7 +335,7 @@ export function AdminDashboard({
       )}
       {show("map") && (
         <section
-          className="overflow-hidden rounded-lg border bg-card shadow-sm"
+          className="overflow-hidden surface-panel rounded-xl"
           aria-labelledby="admin-map-title"
         >
           <div className="flex flex-col gap-4 border-b px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
@@ -562,7 +562,7 @@ export function AdminDashboard({
                 >
                   {t("trends.operatingTitle")}
                 </h2>
-                <div className="h-80 rounded-lg border bg-card p-4 shadow-sm">
+                <div className="h-80 surface-panel rounded-xl p-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={trendRows}
@@ -624,7 +624,7 @@ export function AdminDashboard({
                 >
                   {t("trends.revenueTitle")}
                 </h2>
-                <div className="h-72 rounded-lg border bg-card p-4 shadow-sm">
+                <div className="h-72 surface-panel rounded-xl p-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={trendRows}
@@ -848,7 +848,7 @@ function MetricSection({
             <Link
               key={metric.key}
               href={metric.href}
-              className="min-h-28 rounded-lg border bg-card p-4 shadow-sm transition hover:border-primary/30 hover:shadow-md"
+              className="min-h-28 surface-panel rounded-xl p-4 transition hover:border-primary/30 hover:shadow-md"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-medium text-muted-foreground">

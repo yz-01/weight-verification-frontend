@@ -33,7 +33,7 @@ import { cn } from "@/lib/utils";
  * amber with anything waiting, green otherwise. A project that is not active
  * is drawn faded.
  */
-function projectTone(project: HeadquartersProject): LocationMapMarker["tone"] {
+export function projectTone(project: HeadquartersProject): LocationMapMarker["tone"] {
   if (project.overdue_tasks + project.overdue_rectifications > 0) return "danger";
   if (project.pending_approvals + project.open_tasks > 0) return "warning";
   return "positive";
@@ -91,13 +91,13 @@ export function HeadquartersMap({
   return (
     <section
       aria-label={t("title")}
-      className="space-y-2 rounded-lg border bg-card p-3 shadow-sm"
+      className="space-y-2 surface-panel rounded-xl p-4"
       data-headquarters-map
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-panel-border pb-2">
         <div className="flex items-center gap-2">
           <MapPinned className="size-4 text-primary" aria-hidden />
-          <h2 className="text-sm font-semibold">{t("title")}</h2>
+          <h2 className="text-base font-semibold">{t("title")}</h2>
           <span className="text-xs text-muted-foreground">
             {t("placed", {
               placed: format.number(placed.length),
@@ -367,7 +367,7 @@ function ProjectOverview({
   const figures = useTranslations("headquarters.figures");
   return (
     <div className="space-y-1.5" data-project-overview>
-      <h3 className="text-sm font-semibold">{t("overview")}</h3>
+      <h3 className="text-base font-semibold">{t("overview")}</h3>
       {projects.length === 0 ? (
         <p className="py-3 text-center text-sm text-muted-foreground">{t("noProjects")}</p>
       ) : (

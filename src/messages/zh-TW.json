@@ -8471,6 +8471,19 @@
       "fixedHelp": "發布後不能修改。要更正請發布新公告；舊公告可以撤回，原文會保留。",
       "cancel": "取消",
       "publishAction": "發布"
+    },
+    "wall": {
+      "open": "大屏模式",
+      "exit": "退出大屏",
+      "title": "數位化智慧工地 · 總部大屏",
+      "refresh": "每 30 秒刷新",
+      "escHint": "按 Esc 退出",
+      "projectStatus": "即時項目狀態",
+      "activeProjects": "在建項目",
+      "todayByProject": "各項目今日現場記錄",
+      "todayByKind": "今日記錄 · 按類別",
+      "latestPhoto": "最新現場照片",
+      "photoStream": "照片流水"
     }
   },
   "home": {

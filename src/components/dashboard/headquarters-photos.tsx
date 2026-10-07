@@ -65,11 +65,11 @@ export function HeadquartersPhotos({
   return (
     <section
       aria-label={t("title")}
-      className="space-y-2 rounded-lg border bg-card p-3 shadow-sm"
+      className="surface-panel space-y-4 rounded-xl p-4"
       data-headquarters-photos
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b pb-1.5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="panel-title">
           <Camera className="size-4 text-primary" aria-hidden />
           {t("title")}
         </h2>
@@ -82,21 +82,22 @@ export function HeadquartersPhotos({
       {query.isError ? (
         <LoadFailed onRetry={() => void query.refetch()} />
       ) : query.isLoading ? (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="aspect-[4/3] w-full" />
+            <Skeleton key={index} className="aspect-[4/3] w-full rounded-xl" />
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <p className="py-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
+        <p className="rounded-xl border border-dashed border-panel-border py-8 text-center text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
         <>
-          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-6">
-            {rows.map((photo) => {
+          {/* 照片说话 (E1, E3): a photo wall, the newest one large. */}
+          <ul className="grid grid-flow-row-dense grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
+            {rows.map((photo, index) => {
               const opens = photoTarget(photo) !== null;
               const card = (
                 <>
-                  <span className="relative block aspect-[4/3] bg-muted">
+                  <span className="photo-hatch relative block aspect-[4/3]">
                     {photo.image && (
                       <img
                         src={photo.image}
@@ -108,35 +109,35 @@ export function HeadquartersPhotos({
                         loading="lazy"
                       />
                     )}
-                    <span className="absolute left-1.5 top-1.5 rounded bg-black/65 px-1.5 py-0.5 text-[11px] font-medium text-white">
+                    <span className="absolute left-2 top-2 rounded-full bg-overlay px-2 py-0.5 text-[11px] font-medium text-overlay-foreground">
                       {kinds(photo.record_kind)}
                     </span>
-                  </span>
-                  <span className="block space-y-0.5 p-1.5">
-                    <span className="block truncate text-xs font-semibold">{photo.project}</span>
-                    <span className="flex items-center gap-0.5 truncate text-[11px] text-muted-foreground">
-                      <UserRound className="size-3 shrink-0" aria-hidden />
-                      {photo.photographer || t("unknownPhotographer")}
-                    </span>
-                    <span className="block truncate text-[11px] text-muted-foreground">
-                      {df.dateTime(photo.captured_at)}
+                    <span className="absolute inset-x-0 bottom-0 block space-y-0.5 bg-overlay px-2 py-1.5 text-overlay-foreground">
+                      <span className="block truncate text-xs font-semibold">{photo.project}</span>
+                      <span className="flex items-center gap-1 truncate text-[11px] opacity-90">
+                        <UserRound className="size-3 shrink-0" aria-hidden />
+                        {photo.photographer || t("unknownPhotographer")}
+                        <span aria-hidden>·</span>
+                        <span className="truncate">{df.dateTime(photo.captured_at)}</span>
+                      </span>
                     </span>
                   </span>
                 </>
               );
+              const hero = index === 0 ? "sm:col-span-2 sm:row-span-2" : "";
               return (
-                <li key={photo.id} className="min-w-0">
+                <li key={photo.id} className={`min-w-0 ${hero}`}>
                   {opens ? (
                     <button
                       type="button"
                       onClick={() => onOpen(photo)}
-                      className="group block w-full overflow-hidden rounded-lg border text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="group block w-full overflow-hidden rounded-xl border border-panel-border text-left transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {card}
                     </button>
                   ) : (
                     // A photo whose record could not be found: shown, not linked.
-                    <div className="block overflow-hidden rounded-lg border">{card}</div>
+                    <div className="block overflow-hidden rounded-xl border border-panel-border">{card}</div>
                   )}
                 </li>
               );
