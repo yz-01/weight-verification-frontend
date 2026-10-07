@@ -7147,6 +7147,7 @@
       "evidence_file_unavailable": "Fail bukti ini tidak tersedia.",
       "export_no_columns": "Pilih sekurang-kurangnya satu lajur untuk dieksport.",
       "export_too_large": "Pilihan ini terlalu besar untuk dieksport. Tapiskan dahulu dan cuba lagi.",
+      "export_too_many_with_photos": "Eksport ini mempunyai {count} rekod bergambar; paling banyak {limit} boleh dieksport sekali gus. Kecilkan tapisan (tarikh, projek atau pembekal) dan eksport semula.",
       "export_unavailable": "Eksport PDF tidak tersedia buat masa ini. Cuba format hamparan.",
       "feedback_not_found": "Maklum balas pelanggan itu tidak dijumpai.",
       "field_device_already_bound": "Akaun kakitangan tapak ini sudah mempunyai satu peranti terikat. Minta pentadbir menetapkan semula peranti sebelum menukarnya.",

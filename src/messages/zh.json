@@ -7147,6 +7147,7 @@
       "evidence_file_unavailable": "此证据文件当前无法使用。",
       "export_no_columns": "请至少选择一列再导出。",
       "export_too_large": "这次选择的数据量太大，无法导出。请先用筛选缩小范围。",
+      "export_too_many_with_photos": "这次导出有 {count} 笔带照片的记录，一次最多 {limit} 笔。请用日期、项目或供应商缩小筛选范围后再导出。",
       "export_unavailable": "PDF 导出暂时不可用，请改用表格格式。",
       "feedback_not_found": "找不到该客户反馈。",
       "field_device_already_bound": "此现场人员账号已绑定一台设备。如需换机，请先让管理员重置设备。",
