@@ -33,11 +33,17 @@ export function getContractorDashboard(input: {
    * that they lack permission for a screen they are already standing on.
    */
   silent?: boolean;
+  /**
+   * False for a poll that reads counts only (the sidebar badge, the banner):
+   * the server then reads no photographs for the rows' thumbnails (E3).
+   */
+  covers?: boolean;
 } = {}): Promise<ContractorDashboard> {
   const query: ListQuery = {};
   if (input.date) query.date = input.date;
   if (input.project) query.project = input.project;
   if (input.sections?.length) query.sections = input.sections.join(",");
+  if (input.covers === false) query.covers = "0";
   return api.get<ContractorDashboard>(
     "/api/contractor-dashboard/get_dashboard/",
     query,

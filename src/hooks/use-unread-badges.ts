@@ -61,7 +61,7 @@ export function useUnreadBadges(): Partial<Record<PortalFeatureKey, number | nul
   const query = useQuery({
     queryKey: ["contractor-dashboard", "unread-badges"],
     queryFn: () =>
-      getContractorDashboard({ sections: ["unread"], silent: true }),
+      getContractorDashboard({ sections: ["unread"], silent: true, covers: false }),
     enabled,
     // The sidebar is mounted on every page. Without this it would refetch on
     // each navigation to redraw a number that moves a few times a day.

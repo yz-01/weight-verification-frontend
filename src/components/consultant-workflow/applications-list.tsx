@@ -5,8 +5,8 @@ import {
   Archive,
   ClipboardCheck,
   FileCheck2,
-  FileText,
   FilePlus2,
+  FileText,
   Images,
   KeyRound,
   Loader2,
@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
+import { PhotoThumb } from "@/components/shared/photo-thumb";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantHowTo } from "@/components/consultant-workflow/consultant-how-to";
 import { ConsultantFieldInbox } from "@/components/consultant-workflow/field-inbox";
@@ -216,9 +217,15 @@ export function ConsultantApplicationsList() {
                 className="grid gap-3 p-4 transition-colors hover:bg-muted/35 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] sm:items-center"
               >
                 <div className="flex min-w-0 items-start gap-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                    <ClipboardCheck className="size-5" />
-                  </span>
+                  {/* The linked site photograph (E3); the row is a link to
+                      the application, so the picture is not a second one. */}
+                  <PhotoThumb
+                    coverUrl={application.cover_photo_url}
+                    count={application.photo_count}
+                    icon={ClipboardCheck}
+                    reference={application.application_no}
+                    openable={false}
+                  />
                   <div className="min-w-0">
                     {/* Short number big, project small (2026-10 D4). The row is a link, so no copy button
                         inside it; the whole number is on hover. */}

@@ -19,6 +19,7 @@ import { recordKindKey } from "@/lib/record-kind";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import { CategoryDialog, EquipmentDialog } from "@/components/contractor-ops/operations-workspaces";
 import { equipmentClassTree } from "@/components/contractor-ops/equipment-classes";
 import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-dialog";
@@ -913,6 +914,14 @@ function ColumnRecordsDialog({
                       }}
                       className="flex w-full cursor-pointer items-start gap-3 px-3 py-2 text-left hover:bg-muted/40"
                     >
+                      {/* The record's photograph on the left (E3). */}
+                      <PhotoThumb
+                        coverUrl={row.cover_photo_url ?? row.photo}
+                        count={row.photo_count}
+                        icon={recordKindIcon(row.kind)}
+                        reference={row.reference}
+                        photos={recordPhotos(row.kind, row.id, row.reference)}
+                      />
                       <span className="min-w-0 flex-1">
                         {/* The short number big, the project small (D4). */}
                         <RecordNo value={row.reference} projectCode={row.project_code} />

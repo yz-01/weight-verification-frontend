@@ -245,6 +245,8 @@ export interface FieldTaskReference {
 }
 
 export interface FieldTask {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
   id: string;
   project: string;
   project_name: string;
@@ -322,6 +324,10 @@ export interface FieldTaskPayload {
 
 export type EquipmentStatus = "OFF_SITE" | "ON_SITE" | "MAINTENANCE" | "RETIRED";
 export interface SiteEquipment {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   project: string;
   project_name: string;
@@ -418,6 +424,10 @@ export type EquipmentMovementStatus =
   | "REJECTED";
 
 export interface EquipmentMovement {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   project: string;
   project_name: string;
@@ -495,6 +505,10 @@ export interface ConstructionPhase {
 }
 
 export interface SiteProgressRecord {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   project: string;
   project_name: string;
@@ -529,6 +543,10 @@ export interface SiteProgressRecord {
 }
 
 export interface MaterialOutgoing {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   reference_no: string;
   project: string;
@@ -714,6 +732,10 @@ export interface DisposalTimelineEntry {
 }
 
 export interface DisposalRequest {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   reference_no: string;
   project: string;
@@ -865,6 +887,10 @@ export type RecordSheetKind = ArchiveRecordKind | CategoryRecordKind;
  * same shape for a wider set of kinds; the queue itself is the default.
  */
 export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   kind: K;
   reference: string;

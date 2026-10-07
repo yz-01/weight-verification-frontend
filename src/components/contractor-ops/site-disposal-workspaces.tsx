@@ -14,6 +14,7 @@ import {
   Plus,
   RefreshCw,
   Send,
+  Trash2,
   Truck,
   UserRound,
   XCircle,
@@ -35,6 +36,7 @@ import {
   FieldEvidenceGrid,
 } from "@/components/field-staff/field-evidence-grid";
 import { ExportButton } from "@/components/shared/export-button";
+import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
@@ -44,7 +46,7 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -995,6 +997,13 @@ export function SiteDisposalOffice() {
         // Short number big, project small (2026-10 D4).
         cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<DisposalRequest>({
+        label: tRoot("moduleTable.photos"),
+        icon: Trash2,
+        reference: (row) => row.reference_no,
+        photos: (row) => rowPhotos(row.evidence, row.reference_no),
+      }),
       {
         accessorKey: "status",
         meta: { label: t("field.status") },
@@ -1060,12 +1069,6 @@ export function SiteDisposalOffice() {
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
-      },
-      {
-        id: "photos",
-        meta: { label: tRoot("moduleTable.photos") },
-        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-        cell: ({ row }) => <TypeBadge label={String(row.original.evidence.length)} />,
       },
     ],
     [t, tRoot, df],

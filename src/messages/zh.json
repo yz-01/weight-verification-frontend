@@ -11121,6 +11121,11 @@
     },
     "loadMore": "载入更多（已显示 {shown} / {total}）"
   },
+  "photos": {
+    "count": "{count} 张照片",
+    "none": "没有照片",
+    "open": "查看 {reference} 的照片"
+  },
   "profile": {
     "section": {
       "identity": "基本资料",

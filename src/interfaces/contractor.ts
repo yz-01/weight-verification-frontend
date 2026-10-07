@@ -331,6 +331,8 @@ export interface ReceiptPhoto {
 }
 
 export interface MaterialReceipt {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
   id: string;
   receipt_no: string;
   project: string;
@@ -426,6 +428,10 @@ export interface ReceiptCorrectionStep {
  * defect the customer reported as `PENDING_APPROVAL` in front of them (F-225).
  */
 export interface MySubmissionRow {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   kind:
     | "MATERIAL_RECEIPT"

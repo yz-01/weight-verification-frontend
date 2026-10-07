@@ -264,16 +264,19 @@ export function DocumentFileIcon({ name }: { name: string }) {
 export function DocumentThumb({
   version,
   systemFile,
+  coverUrl,
   onOpen,
 }: {
   version: DocumentVersion | null;
   /** E4: a file picked from the system brings its own watermarked thumbnail. */
   systemFile?: DocumentSystemFileInfo | null;
+  /** E3: the list row's small stamped copy, when the document is a photograph. */
+  coverUrl?: string | null;
   onOpen: () => void;
 }) {
   const t = useTranslations();
   const kind: ThumbnailKind = systemFile
-    ? systemFile.thumbnail_url
+    ? coverUrl || systemFile.thumbnail_url
       ? "image"
       : fileKindOf(systemFile.file_name)
     : thumbnailKind(version);
@@ -323,7 +326,7 @@ export function DocumentThumb({
   const Icon = KIND_ICON[kind];
   const fileName = systemFile?.file_name ?? version?.original_name ?? "";
   const extension = extensionOf(fileName).toUpperCase();
-  const shown = systemFile?.thumbnail_url ?? url;
+  const shown = coverUrl || systemFile?.thumbnail_url || url;
   return (
     <button
       ref={button}
