@@ -55,7 +55,10 @@ describe("垃圾清运 header figures follow the list's filters", () => {
       path.join(process.cwd(), "src/components/contractor-ops/waste-clearance.tsx"),
       "utf8",
     );
-    expect(source).toContain("clearanceFigureFilters(kind, searchParams)");
+    // The address's parameters with the top bar's 「当前项目」 in place of
+    // its `project` (B13).
+    expect(source).toContain("clearanceFigureFilters(kind, figureParams)");
+    expect(source).toContain("new URLSearchParams(searchParams.toString())");
     for (const call of [
       "getDisposalRequests({ page_size: 1, ...figureFilters.disposal })",
       "getDispatches({ page_size: 1, ...figureFilters.dispatch })",

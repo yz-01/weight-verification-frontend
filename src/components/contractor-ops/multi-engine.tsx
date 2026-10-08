@@ -20,6 +20,7 @@ import { useState } from "react";
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { FieldWrapper, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -102,9 +103,12 @@ export function MultiEngineWorkspace() {
   const t = useTranslations("multiEngine");
   const formatter = useDateFormat();
   const { can } = useAuth();
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 (B13): 「Multi Engine 又要选一次项目」 was the
+  // client's complaint, so the list is on it and has no project box.
+  const [project, setProject] = usePageProject();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  useOnProjectChange(project, () => setPage(1));
   const [openId, setOpenId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 

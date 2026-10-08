@@ -10,6 +10,7 @@ import { LocationMap, type LocationMapZone } from "@/components/shared/location-
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -30,7 +31,9 @@ export function GeofenceWorkspace() {
   const t = useTranslations("siteControl");
   const { can } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("all");
+  // The top bar's 「当前项目」 when it is in force (B13).
+  const [project, setProject] = usePageProject("", { all: "all" });
+  const projectBoxShown = useProjectBoxShown("filter");
   const [editing, setEditing] = useState<SiteGeofence | "new" | null>(null);
   const [removing, setRemoving] = useState<SiteGeofence | null>(null);
   const rows = useQuery({
@@ -87,9 +90,9 @@ export function GeofenceWorkspace() {
   return <div className="space-y-5">
     <ListHeader title={t("geofence.title")} subtitle={t("geofence.subtitle")} action={can("geofence.manage") ? <Button size="sm" onClick={() => setEditing("new")}><Plus />{t("geofence.new")}</Button> : undefined} />
     <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
-      <FieldWrapper label={t("field.project")} className="min-w-64 flex-1" error={projects.isError ? t("state.projectLoadError") : undefined} hint={!projects.isLoading && !projects.isError && !projectOptions.length ? t("noProjects") : undefined}>
+      {projectBoxShown && <FieldWrapper label={t("field.project")} className="min-w-64 flex-1" error={projects.isError ? t("state.projectLoadError") : undefined} hint={!projects.isLoading && !projects.isError && !projectOptions.length ? t("noProjects") : undefined}>
         <ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.chooseProject")} allowAll allLabel={t("field.allProjects")} projects={projectOptions} projectsLoading={projects.isLoading} projectsError={projects.isError} />
-      </FieldWrapper>
+      </FieldWrapper>}
       <div className="rounded-lg bg-muted/40 px-4 py-2 text-sm"><span className="text-muted-foreground">{t("geofence.activeZones")}</span><strong className="ml-2 tabular-nums">{zones.length}</strong></div>
     </div>
     <LocationMap center={center} markers={[]} zones={zones} className="rounded-lg" />

@@ -23,6 +23,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantHowTo } from "@/components/consultant-workflow/consultant-how-to";
 import { ConsultantFieldInbox } from "@/components/consultant-workflow/field-inbox";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { usePageProject } from "@/components/providers/current-project-provider";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordNo } from "@/components/shared/record-no";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,9 @@ export function ConsultantApplicationsList() {
   const df = useDateFormat();
   // The 「待整理现场资料」 notice names the submission's project, so the
   // inbox opens on that site (C1, B4 audit #12).
-  const [project, setProject] = useState(searchParams.get("project") ?? "");
+  // For the contractor's office, the top bar's 「当前项目」 (B13), which the
+  // notice's `?project=` moves.
+  const [project, setProject] = usePageProject(searchParams.get("project") ?? "");
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const stageParam = searchParams.get("stage");
   const canOrganize =
@@ -72,7 +75,7 @@ export function ConsultantApplicationsList() {
   const stage: ApplicationStage = stages.includes(stageParam as ApplicationStage)
     ? (stageParam as ApplicationStage)
     : "all";
-  const onProjectChange = useCallback((id: string) => setProject(id), []);
+  const onProjectChange = useCallback((id: string) => setProject(id), [setProject]);
   const needsProject = user?.account_type === "CONSULTANT";
   // query-failure: only the tab's number; the tab itself says when it fails.
   const toOrganize = useQuery({

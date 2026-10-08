@@ -14,6 +14,7 @@ import {
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -53,7 +54,8 @@ export function HeadquartersTasks() {
   const df = useDateFormat();
   const { can } = useAuth();
   const [pile, setPile] = useState<Pile>("open");
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 in the office (B13).
+  const [project, setProject] = usePageProject();
   const [opened, setOpened] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const query = useInfiniteQuery({

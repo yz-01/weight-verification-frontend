@@ -6266,6 +6266,11 @@
       "visitCreated": "Customer follow-up recorded"
     }
   },
+  "currentProject": {
+    "label": "Current project",
+    "all": "All projects",
+    "pageHint": "This page shows one project. Once chosen, the whole system is on that project (the top bar switches with it)."
+  },
   "dashboard": {
     "admin": {
       "error": "Unable to load the platform dashboard.",

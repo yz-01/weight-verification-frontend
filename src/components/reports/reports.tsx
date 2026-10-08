@@ -16,6 +16,7 @@ import {
 
 import { useUnitName } from "@/hooks/use-material-units";
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,7 @@ const ALL_PROJECTS = "__all__";
 export function Reports() {
   const t = useTranslations();
   const list = useListQuery(["project", "date_from", "date_to"]);
+  const topBar = useCurrentProject();
 
   const projectQuery = useQuery({
     queryKey: ["projects", "options"],
@@ -100,6 +102,8 @@ export function Reports() {
 
       <div className="rounded-lg border bg-card p-4 shadow-sm">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
+          {!topBar.active && (
           <div className="space-y-1.5">
             <Label className="text-sm font-medium">
               {t("reports.filter.project")}
@@ -129,6 +133,7 @@ export function Reports() {
             </Select>
             <QueryFailedNote query={projectQuery} what={t("reports.what.projects")} />
           </div>
+          )}
 
           <div className="space-y-1.5">
             <Label className="text-sm font-medium">

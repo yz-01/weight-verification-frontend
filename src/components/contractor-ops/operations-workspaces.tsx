@@ -34,6 +34,7 @@ import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
 import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
 import { useClearSearchParam, useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
@@ -175,6 +176,14 @@ export function ProjectFilter({
   onChange: (value: string) => void;
 }) {
   const t = useTranslations("contractorOps");
+  // The top bar's 「当前项目」 is this filter (B13); the picker still keeps a
+  // page that holds its own copy of the project on it.
+  const topBar = useCurrentProject();
+  if (topBar.active) {
+    return (
+      <ProjectPicker value={value} onValueChange={(next) => onChange(next === "all" ? "" : next)} placeholder="" allowAll />
+    );
+  }
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card px-3 py-2 shadow-sm">
       <span className="text-xs font-medium text-muted-foreground">
@@ -869,7 +878,8 @@ export function FieldTasksWorkspace({
   // A task card links here with ?task=<id>: show that one task, with a way
   // back to the whole list.
   const searchParams = useSearchParams();
-  const [project, setProject] = useState(() => searchParams.get("project") ?? "");
+  // The top bar's 「当前项目」 (B13); a link's `?project=` moves it.
+  const [project, setProject] = usePageProject(searchParams.get("project") ?? "");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<FieldTask | null>(null);
   const referenceInput = useRef<HTMLInputElement>(null);

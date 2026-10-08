@@ -14,6 +14,7 @@ import {
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -168,7 +169,8 @@ export function EquipmentOperatorHours() {
   const { can } = useAuth();
   const today = isoDay(new Date());
   const [view, setView] = useState<View>("day");
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 in the office (B13).
+  const [project, setProject] = usePageProject();
   const [dateFrom, setDateFrom] = useState(today);
   const [dateTo, setDateTo] = useState(today);
   const [capped, setCapped] = useState(false);

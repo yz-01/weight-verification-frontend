@@ -135,7 +135,11 @@ export function NetTotalsView({
   const totals = useQuery({
     queryKey: ["receipts", "net-totals", query],
     queryFn: () => getReceiptNetTotals(query),
-    placeholderData: keepPreviousData,
+    // Not another project's totals while the top bar's next one loads (B13).
+    placeholderData: (previous, previousQuery) =>
+      (previousQuery?.queryKey[2] as Record<string, string> | undefined)?.project === query.project
+        ? keepPreviousData(previous)
+        : undefined,
   });
   if (totals.isError) {
     return <LoadFailed what={t("receipts.tabs.totals")} onRetry={() => totals.refetch()} />;

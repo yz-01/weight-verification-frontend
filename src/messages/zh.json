@@ -6266,6 +6266,11 @@
       "visitCreated": "客户回访已记录"
     }
   },
+  "currentProject": {
+    "label": "当前项目",
+    "all": "全部项目",
+    "pageHint": "这一页只看一个项目。选好后，整个系统都在这个项目上（顶栏会跟着换）。"
+  },
   "dashboard": {
     "admin": {
       "error": "无法加载平台仪表板。",

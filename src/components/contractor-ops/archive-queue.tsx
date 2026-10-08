@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
 import { useRecordOpener } from "@/components/shared/record-opener";
@@ -114,8 +115,10 @@ export function ArchiveQueue() {
   // confirm is (C4), not in the read-only sheet.
   const waiting = searchParams.get("waiting") === "1";
   const confirmOpener = useRecordOpener({ confirm: true });
-  const [project, setProject] = useState(() => searchParams.get("project") ?? "");
+  // The top bar's 「当前项目」 (B13); the card's `?project=` moves it.
+  const [project, setProject] = usePageProject(searchParams.get("project") ?? "");
   const [page, setPage] = useState(1);
+  useOnProjectChange(project, () => setPage(1));
   const [open, setOpen] = useState<ArchiveQueueRow | null>(null);
   const queryClient = useQueryClient();
   // Opening a row is this reader's look (D-063): marked with the click, for

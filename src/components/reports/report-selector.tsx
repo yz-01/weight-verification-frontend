@@ -12,6 +12,7 @@ import {
 import { useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -123,7 +124,10 @@ export function ReportMenu({
 }) {
   const t = useTranslations("reportSelector");
   const tRoot = useTranslations();
-  const project = searchParams.get("project") ?? undefined;
+  // The reader's project: the top bar's 「当前项目」 when it is in force (B13).
+  const topBar = useCurrentProject();
+  const project =
+    (topBar.active ? topBar.projectId : searchParams.get("project")) || undefined;
 
   return (
     // Not modal: the report behind has to stay readable while the menu is

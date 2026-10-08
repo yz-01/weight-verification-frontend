@@ -19,6 +19,7 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { usePageProject } from "@/components/providers/current-project-provider";
 import {
   LoadFailed,
   StatusBadge,
@@ -37,7 +38,8 @@ export function ConsultantDashboard() {
   const router = useRouter();
   const { can, user } = useAuth();
   const [search, setSearch] = useState("");
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 for the contractor's office (B13).
+  const [project, setProject] = usePageProject();
   const needsProject = user?.account_type === "CONSULTANT";
   const dashboard = useQuery({
     queryKey: ["consultant-dashboard", project],
