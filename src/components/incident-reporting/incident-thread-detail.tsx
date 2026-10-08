@@ -14,7 +14,11 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { ChatPhotoThumbnail, useChatPhotoViewer } from "@/components/shared/conversation";
+import {
+  ChatPhotoThumbnail,
+  useChatPhotoViewer,
+  usePhotoLocation,
+} from "@/components/shared/conversation";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
@@ -62,6 +66,10 @@ export function IncidentThreadDetail({
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
+  // Where the photo was taken, as every in-app camera photo carries it.
+  const place = usePhotoLocation();
+  // Waiting for that position takes a moment; one tap is one message.
+  const [preparing, setPreparing] = useState(false);
 
   const thread = useQuery({
     queryKey: ["incident-thread", threadId],
@@ -114,23 +122,28 @@ export function IncidentThreadDetail({
     },
   });
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!body.trim() && !photo) {
       toast.error(t("fillRequired"));
       return;
     }
 
     const clientEventId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    setPreparing(true);
+    const where = photo ? await place.read() : {};
+    setPreparing(false);
 
     sendMessage.mutate({
       body: body.trim(),
       photo: photo ?? undefined,
+      ...where,
       client_event_id: clientEventId,
     });
   };
 
   const handlePhotoCapture = (file: File) => {
     setPhoto(file);
+    place.start();
     const reader = new FileReader();
     reader.onloadend = () => {
       setPhotoPreview(reader.result as string);
@@ -308,10 +321,10 @@ export function IncidentThreadDetail({
                     className="size-11 shrink-0"
                     title={t("action.create")}
                     requires={[[body || photo, t("field.messagePlaceholder")]]}
-                    disabled={sendMessage.isPending}
-                    onClick={handleSend}
+                    disabled={sendMessage.isPending || preparing}
+                    onClick={() => void handleSend()}
                   >
-                    {sendMessage.isPending ? (
+                    {sendMessage.isPending || preparing ? (
                       <Loader2 className="size-5 animate-spin" />
                     ) : (
                       <Send className="size-5" />

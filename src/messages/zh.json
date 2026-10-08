@@ -8243,6 +8243,7 @@
     "recordStop": "停止",
     "recordingFor": "已录 {seconds} 秒，上限 {limit} 秒",
     "attach": "发送文件",
+    "takePhoto": "拍照",
     "photo": "照片",
     "closed": "这条隐患已验收并闭环归档。记录仍可查看，但不能再发新消息。",
     "participants": "本次参与的人",
