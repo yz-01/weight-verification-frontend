@@ -448,6 +448,98 @@
   }
 }
 
+/* Printing: paper is white, so a page printed while the screen is in dark
+ * mode is printed with the light tokens - black text on white, never the
+ * dark mode's pale text on a background the printer leaves out. The selector
+ * is repeated to outrank the dark-mode media block above. */
+@media print {
+  :root:root:root {
+    color-scheme: light;
+    --background: #f3f6fa;
+    --foreground: #0f172a;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    --primary: #0e7490;
+    --primary-foreground: #ffffff;
+    --secondary: #e9eff6;
+    --secondary-foreground: #1e293b;
+    --muted: #eef2f7;
+    --muted-foreground: #475569;
+    --accent: #e0f4f9;
+    --accent-foreground: #0b4f63;
+    --destructive: #be123c;
+    --destructive-foreground: #ffffff;
+    --success: #047857;
+    --success-foreground: #ffffff;
+    --info: #1d4ed8;
+    --info-foreground: #ffffff;
+    --warning: #b45309;
+    --warning-foreground: #ffffff;
+    --border: #d8e0ea;
+    --input: #a9b6c6;
+    --ring: #0891b2;
+    --tone-cyan: #0891b2;
+    --tone-cyan-fg: #0e6378;
+    --tone-blue: #2563eb;
+    --tone-blue-fg: #1d4ed8;
+    --tone-purple: #7c3aed;
+    --tone-purple-fg: #6d28d9;
+    --tone-green: #059669;
+    --tone-green-fg: #047857;
+    --tone-amber: #d97706;
+    --tone-amber-fg: #a14a06;
+    --tone-rose: #e11d48;
+    --tone-rose-fg: #be123c;
+    --tone-orange: #ea580c;
+    --tone-orange-fg: #b93d0b;
+    --tone-slate: #64748b;
+    --tone-slate-fg: #334155;
+    --tone-soft: 10%;
+    --tone-edge: 32%;
+    --chart-1: #0e7490;
+    --chart-2: #2563eb;
+    --chart-3: #7c3aed;
+    --chart-4: #059669;
+    --chart-5: #d97706;
+    --chart-6: #e11d48;
+    --chart-7: #ea580c;
+    --chart-8: #64748b;
+    --radius: 0.625rem;
+    --panel-bg: var(--card);
+    --panel-border: #d8e0ea;
+    --panel-shadow: 0 1px 2px rgb(15 23 42 / 5%), 0 4px 14px rgb(15 23 42 / 4%);
+    --glow-primary: 0 4px 14px rgb(14 116 144 / 22%);
+    --glow-primary-sm: 0 1px 4px rgb(14 116 144 / 18%);
+    --num-glow: 0px;
+    --primary-gradient: linear-gradient(135deg, #0e7490, #1d4ed8);
+    --canvas-glow: radial-gradient(1200px 520px at 85% -12%, rgb(8 145 178 / 7%), transparent 60%);
+    --photo-bg: #e6edf5;
+    --photo-hatch: rgb(100 116 139 / 9%);
+    --overlay: rgb(4 8 15 / 78%);
+    --overlay-foreground: #f1f5f9;
+    --scrim: rgb(15 23 42 / 38%);
+    --field: #ffffff;
+    --switch-thumb: #ffffff;
+    --paper: #ffffff;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #1e293b;
+    --sidebar-primary: #0e7490;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #e8f6fa;
+    --sidebar-accent-foreground: #0b4f63;
+    --sidebar-border: #dde4ee;
+    --sidebar-ring: #0891b2;
+  }
+  body {
+    background-image: none;
+  }
+  .surface-panel {
+    box-shadow: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

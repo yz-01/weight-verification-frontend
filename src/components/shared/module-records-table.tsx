@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import type { useListQuery } from "@/hooks/use-list-query";
 import type { ProjectCategoryKind } from "@/interfaces/contractor-ops";
+import { cn } from "@/lib/utils";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 
 export function ModuleRecordsTable<T extends { id: string }>({
@@ -186,7 +187,7 @@ export function FilterSelect({
       value={list.filters[param] ?? ALL}
       onValueChange={(value) => list.setFilter(param, value === ALL ? undefined : value)}
     >
-      <SelectTrigger size="sm" className={width} aria-label={allLabel}>
+      <SelectTrigger className={cn("max-sm:w-full", width)} aria-label={allLabel}>
         <SelectValue placeholder={allLabel} />
       </SelectTrigger>
       <SelectContent>
@@ -244,7 +245,7 @@ export function ColumnFilter({
           })
         }
       >
-        <SelectTrigger size="sm" className="w-45" aria-label={t("allColumns")}>
+        <SelectTrigger className="w-full sm:w-45" aria-label={t("allColumns")}>
           <SelectValue placeholder={t("allColumns")} />
         </SelectTrigger>
         <SelectContent>

@@ -38,7 +38,7 @@ export function SessionUnreachable() {
     <div className="flex min-h-dvh items-center justify-center p-6">
       <div
         role="alert"
-        className="w-full max-w-sm space-y-4 rounded-xl border bg-card p-6 text-center"
+        className="surface-panel w-full max-w-sm space-y-4 rounded-xl p-6 text-center"
       >
         <span className="mx-auto grid size-11 place-items-center rounded-full bg-muted">
           <WifiOff className="size-5 text-muted-foreground" />
