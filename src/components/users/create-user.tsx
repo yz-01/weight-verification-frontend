@@ -4,10 +4,11 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Save, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
   TextField,
@@ -48,7 +49,7 @@ function isDriverRole(role: Role): boolean {
 
 export function CreateUser({ user }: { user?: UserDetail }) {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { user: me } = useAuth();
@@ -95,7 +96,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
           ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["users"] });
-      router.push(companyReturnHref ?? userListHref);
+      finish(companyReturnHref ?? userListHref);
     },
   });
 

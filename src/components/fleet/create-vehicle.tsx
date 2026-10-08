@@ -4,9 +4,9 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ImageUp, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
   TextAreaField,
@@ -47,7 +47,7 @@ import {
  */
 export function CreateVehicle({ vehicle }: { vehicle?: Vehicle }) {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const queryClient = useQueryClient();
   const isEdit = vehicle !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export function CreateVehicle({ vehicle }: { vehicle?: Vehicle }) {
       isEdit ? updateVehicle(vehicle.id, values) : createVehicle(values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-      router.push("/vehicles");
+      finish("/vehicles");
     },
   });
 

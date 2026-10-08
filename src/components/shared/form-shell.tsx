@@ -3,9 +3,12 @@
 import { Loader2, Save, X, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { z } from "zod";
 
+import {
+  useDismissDialog,
+  useRegisterDismissFallback,
+} from "@/components/shared/dialog-navigation";
 import { useFormSurface } from "@/components/shared/form-surface";
 import { DetailHeader } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -56,7 +59,11 @@ export function FormShell({
 }) {
   const t = useTranslations();
   const surface = useFormSurface();
-  const router = useRouter();
+  // Cancel, Escape and the dialog's X all leave the same way: back to where
+  // the dialog was opened from, or to `backHref` when there is no history.
+  // The dialog learns `backHref` from here, so its X agrees with Cancel.
+  useRegisterDismissFallback(backHref);
+  const dismiss = useDismissDialog(backHref);
 
   if (surface === "dialog") {
     return (
@@ -91,7 +98,7 @@ export function FormShell({
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.back()}
+            onClick={dismiss}
           >
             <X className="h-4 w-4" />
             {t("common.cancel")}
@@ -276,6 +283,8 @@ export function LoadErrorCard({
 }) {
   const t = useTranslations();
   const surface = useFormSurface();
+  // So the dialog's X still knows the list when the record never loaded.
+  useRegisterDismissFallback(backHref);
 
   const words = (
     <>

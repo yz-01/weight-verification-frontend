@@ -14,6 +14,7 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { OwnerAccountPanel } from "@/components/companies/owner-account-panel";
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
   TextField,
@@ -73,6 +74,7 @@ export function CreateCompany({
 }) {
   const t = useTranslations();
   const router = useRouter();
+  const finish = useFinishForm();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const isEdit = company !== undefined;
@@ -135,7 +137,7 @@ export function CreateCompany({
         setOwnerLink(saved.owner_invitation_url);
         return;
       }
-      router.push(listHref);
+      finish(listHref);
     },
   });
 
@@ -323,7 +325,7 @@ export function CreateCompany({
             <Copy />
             {t("common.copy")}
           </Button>
-          <Button onClick={() => router.push(listHref)}>
+          <Button onClick={() => finish(listHref)}>
             {t("common.close")}
           </Button>
         </div>

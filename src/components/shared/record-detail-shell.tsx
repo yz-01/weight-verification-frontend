@@ -38,9 +38,9 @@ import {
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
 import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
@@ -794,9 +794,11 @@ export function RecordDetailFrame({
   backLabel: string;
   children: React.ReactNode;
 }) {
-  const router = useRouter();
+  // Back when there is somewhere to go, `backHref` otherwise - the same rule
+  // as every other intercepted dialog (`dialog-navigation.tsx`).
+  const dismiss = useDismissDialog(backHref, presentation);
   return presentation === "dialog" ? (
-    <RecordDetailDialog {...rest} onClose={onClose ?? (() => router.back())} />
+    <RecordDetailDialog {...rest} onClose={onClose ?? dismiss} />
   ) : (
     <RecordDetailPage {...rest} backHref={backHref} backLabel={backLabel} />
   );

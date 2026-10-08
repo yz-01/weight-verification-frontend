@@ -4,11 +4,11 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lock, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { PermissionMatrix } from "@/components/roles/permission-matrix";
 import { CURRENT_USER_KEY } from "@/components/providers/auth-provider";
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   TextAreaField,
   TextField,
@@ -27,7 +27,7 @@ import { createRole, updateRole } from "@/services/users.service";
 /** The role form, shared by create and edit. */
 export function CreateRole({ role }: { role?: Role }) {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const queryClient = useQueryClient();
   const isEdit = role !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
@@ -43,7 +43,7 @@ export function CreateRole({ role }: { role?: Role }) {
         queryClient.invalidateQueries({ queryKey: ["roles"] }),
         queryClient.invalidateQueries({ queryKey: CURRENT_USER_KEY }),
       ]);
-      router.push(`/roles/${saved.id}`);
+      finish(`/roles/${saved.id}`);
     },
   });
 

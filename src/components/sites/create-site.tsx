@@ -4,9 +4,9 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import { SelectField, TextField, type BoundField } from "@/components/shared/form-fields";
 import {
   FormSection,
@@ -23,7 +23,7 @@ import { createSite, getSite, updateSite } from "@/services/weighing.service";
 /** The yard form, shared by create and edit. */
 export function CreateSite({ site }: { site?: RecyclingSite }) {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const queryClient = useQueryClient();
   const isEdit = site !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function CreateSite({ site }: { site?: RecyclingSite }) {
       isEdit ? updateSite(site.id, values) : createSite(values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["sites"] });
-      router.push("/sites");
+      finish("/sites");
     },
   });
 

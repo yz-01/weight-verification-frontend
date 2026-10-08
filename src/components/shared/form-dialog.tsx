@@ -1,7 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
+import {
+  DismissFallbackProvider,
+  useDismissDialog,
+} from "@/components/shared/dialog-navigation";
 import { FormSurfaceProvider } from "@/components/shared/form-surface";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -22,18 +24,32 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
  *   with its filters, its page and its scroll position intact.
  * - **The list pages did not change.** They still link to the same address.
  *
- * Dismissing goes through `router.back()` rather than a push to the list: the
- * only way to be inside this component is to have navigated here from
- * somewhere in the app, and that somewhere is where the person was.
+ * Dismissing goes *back* rather than pushing the list: the only way to be
+ * inside this component is to have navigated here from somewhere in the app,
+ * and that somewhere is where the person was. Saving, cancelling and the
+ * history rules are all in `dialog-navigation.tsx`; neither this file nor the
+ * forms call the router themselves.
  */
 export function FormDialog({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  // The surface is provided above the frame, not only around the children,
+  // so the dismiss rule inside the frame knows it is in a dialog.
+  return (
+    <FormSurfaceProvider value="dialog">
+      <DismissFallbackProvider>
+        <FormDialogFrame>{children}</FormDialogFrame>
+      </DismissFallbackProvider>
+    </FormSurfaceProvider>
+  );
+}
+
+function FormDialogFrame({ children }: { children: React.ReactNode }) {
+  const dismiss = useDismissDialog();
 
   return (
     <Dialog
       open
       onOpenChange={(next) => {
-        if (!next) router.back();
+        if (!next) dismiss();
       }}
     >
       {/*
@@ -45,7 +61,7 @@ export function FormDialog({ children }: { children: React.ReactNode }) {
        * this task exists to answer.
        */}
       <DialogContent className="h-[calc(100dvh-2rem)] max-h-none grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden sm:max-w-[min(96vw,80rem)]">
-        <FormSurfaceProvider value="dialog">{children}</FormSurfaceProvider>
+        {children}
       </DialogContent>
     </Dialog>
   );

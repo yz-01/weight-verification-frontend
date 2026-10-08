@@ -25,7 +25,6 @@ import {
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import {
@@ -41,6 +40,7 @@ import {
   printPdf,
 } from "@/components/consultant-workflow/application-form-card";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import {
   RecordDetailFrame,
@@ -125,7 +125,9 @@ export function ConsultantApplicationDetail({
 }) {
   const t = useTranslations("consultantWorkflow");
   const { user, can } = useAuth();
-  const router = useRouter();
+  // The frame draws its own dialog without the form-surface provider, so the
+  // rule is told which surface this is.
+  const finish = useFinishForm(presentation);
   const queryClient = useQueryClient();
   const [attachmentOpen, setAttachmentOpen] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
@@ -161,7 +163,10 @@ export function ConsultantApplicationDetail({
   });
   const revision = useMutation({
     mutationFn: () => createApplicationRevision(id),
-    onSuccess: (row) => router.push(`/consultant-applications/${row.id}`),
+    // In the popup a push left the superseded revision in history: two closes
+    // to reach the list (audit S3). The shared rule replaces it there, and on
+    // a page of its own still moves forward.
+    onSuccess: (row) => finish(`/consultant-applications/${row.id}`),
   });
   const receive = useMutation({
     mutationFn: () => receiveConsultantApplication(id),
