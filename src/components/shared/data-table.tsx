@@ -212,7 +212,17 @@ export function DataTable<T>({
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2 px-4 py-4 sm:px-6">
+        {/*
+         * One row on a desktop: search on the left, the page's filters and
+         * buttons on the right. On a phone the filters take a full row each
+         * and the buttons (导出, 字段) share the last one, instead of each
+         * landing wherever the wrap happened to put it. The page's own wrapper
+         * div is flattened (`contents`) so its controls line up with 字段.
+         */}
+        <div
+          data-slot="list-toolbar"
+          className="flex flex-wrap items-center gap-2 px-4 py-4 sm:px-6"
+        >
           <div className="relative w-full min-w-0 flex-1 sm:w-auto sm:min-w-52 sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -223,20 +233,12 @@ export function DataTable<T>({
             />
           </div>
 
-          {toolbarActions && (
-            <div className="ml-auto flex max-w-full flex-wrap items-center gap-2 [&>div]:flex-wrap">{toolbarActions}</div>
-          )}
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:ml-auto sm:w-auto sm:max-w-full sm:justify-end [&>div]:contents max-sm:[&_[data-slot=select-trigger]]:w-full max-sm:[&>[data-slot=button]]:flex-1 max-sm:[&>input]:w-full">
+          {toolbarActions}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "h-10 rounded-lg bg-card px-4 pointer-coarse:h-11",
-                  !toolbarActions && "ml-auto",
-                )}
-              >
+              <Button variant="outline">
                 <SlidersHorizontal className="size-4" />
                 {t("common.columns")}
               </Button>
@@ -261,6 +263,7 @@ export function DataTable<T>({
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
       </div>
 
@@ -295,7 +298,7 @@ export function DataTable<T>({
                 <TableRow key={`skeleton-${rowIndex}`}>
                   {Array.from({ length: columnCount }).map((__, cellIndex) => (
                     <TableCell key={`skeleton-cell-${cellIndex}`} className="px-4 py-3 sm:px-6">
-                      <Skeleton className="h-4 w-full max-w-[160px]" />
+                      <Skeleton className="h-4 w-full max-w-40" />
                     </TableCell>
                   ))}
                 </TableRow>

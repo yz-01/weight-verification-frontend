@@ -1686,7 +1686,7 @@ function DevicePanel({ installations }: { installations: boolean }) {
           )}
         </Button>
       </div>
-      <Table className="min-w-[1880px]">
+      <Table className="min-w-470">
         <TableHeader>
           <TableRow>
             {[

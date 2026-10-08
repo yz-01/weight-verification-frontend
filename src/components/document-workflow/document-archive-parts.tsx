@@ -109,7 +109,7 @@ export function DocumentCategoryPicker({
         <Button
           variant="outline"
           size="sm"
-          className="h-9 w-[220px] justify-between bg-card font-normal"
+          className="h-9 w-55 justify-between bg-card font-normal"
           aria-label={t("documents.field.category")}
         >
           <span className="flex min-w-0 items-center gap-1.5">
@@ -255,7 +255,7 @@ export function DocumentFileIcon({ name }: { name: string }) {
     <span className="flex flex-col items-center justify-center" data-file-kind={kind}>
       <Icon className={cn("h-5 w-5", KIND_TONE[kind])} />
       {extension && (
-        <span className="mt-0.5 text-[9px] font-semibold leading-none text-muted-foreground">{extension}</span>
+        <span className="mt-0.5 text-2xs font-semibold leading-none text-muted-foreground">{extension}</span>
       )}
     </span>
   );
@@ -344,7 +344,7 @@ export function DocumentThumb({
         <>
           <Icon className={cn("h-4 w-4", KIND_TONE[kind])} />
           {extension && (
-            <span className="mt-0.5 max-w-full truncate px-0.5 text-[9px] font-semibold leading-none text-muted-foreground">
+            <span className="mt-0.5 max-w-full truncate px-0.5 text-2xs font-semibold leading-none text-muted-foreground">
               {extension}
             </span>
           )}

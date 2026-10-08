@@ -138,7 +138,7 @@ export function Recyclers() {
         header: () => t("recyclers.field.recycler"),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[240px] truncate font-medium text-foreground">
+            <p className="max-w-60 truncate font-medium text-foreground">
               {row.original.recycler_name}
             </p>
             <p className="tabular text-xs text-muted-foreground">
@@ -175,7 +175,7 @@ export function Recyclers() {
                 ? t("recyclers.request.outgoing")
                 : t("recyclers.request.incoming")}
             </p>
-            <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+            <p className="max-w-45 truncate text-xs text-muted-foreground">
               {row.original.requested_by_company_name}
             </p>
           </div>
@@ -186,7 +186,7 @@ export function Recyclers() {
         meta: { label: t("recyclers.field.projects") },
         header: () => t("recyclers.field.projects"),
         cell: ({ row }) => (
-          <div className="flex max-w-[260px] flex-wrap gap-1">
+          <div className="flex max-w-65 flex-wrap gap-1">
             {row.original.project_bindings.length === 0 ? (
               <span className="text-muted-foreground">
                 {t("common.emptyValue")}

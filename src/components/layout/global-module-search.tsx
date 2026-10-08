@@ -82,7 +82,7 @@ export function GlobalModuleSearch() {
           <span className="hidden flex-1 truncate text-left font-normal sm:inline">
             {t("globalSearch.placeholder")}
           </span>
-          <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium sm:inline">Ctrl K</kbd>
+          <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-2xs font-medium sm:inline">Ctrl K</kbd>
         </Button>
       </PopoverTrigger>
       <PopoverContent

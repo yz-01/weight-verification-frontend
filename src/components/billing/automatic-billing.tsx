@@ -82,7 +82,7 @@ export function AutomaticBilling() {
       <section>
         <div className="mb-3 flex items-center gap-2"><Clock3 className="size-4 text-muted-foreground" /><h3 className="text-sm font-semibold">{t("history")}</h3></div>
         <div className="overflow-hidden rounded-lg border bg-card">
-          <Table className="min-w-[760px]">
+          <Table className="min-w-190">
             <TableHeader><TableRow><TableHead>{t("field.scheduledFor")}</TableHead><TableHead>{t("field.state")}</TableHead><TableHead>{t("field.attempt")}</TableHead><TableHead>{t("field.saasIssued")}</TableHead><TableHead>{t("field.commissionIssued")}</TableHead><TableHead>{t("field.overdueUpdated")}</TableHead><TableHead>{t("field.error")}</TableHead></TableRow></TableHeader>
             <TableBody>{runs.length === 0 ? <TableRow><TableCell colSpan={7} className="h-24 justify-center text-center text-muted-foreground">{t("empty")}</TableCell></TableRow> : runs.map((run) => <TableRow key={run.id}><TableCell className="tabular-nums">{df.dateTime(run.scheduled_for)}</TableCell><TableCell><StatusBadge label={t(`state.${run.state}`)} tone={STATE_TONE[run.state]} /></TableCell><TableCell className="tabular-nums">{run.attempt}/{run.max_attempts}</TableCell><TableCell className="tabular-nums">{numberResult(run.result.saas_issued)}</TableCell><TableCell className="tabular-nums">{numberResult(run.result.commission_issued)}</TableCell><TableCell className="tabular-nums">{numberResult(run.result.overdue_updated)}</TableCell><TableCell className="max-w-64 truncate text-destructive" title={run.error}>{run.error || common("emptyValue")}</TableCell></TableRow>)}</TableBody>
           </Table>

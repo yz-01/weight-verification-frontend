@@ -446,7 +446,7 @@ export function FieldStaffGps({
             <FieldWrapper
               label={t("siteGps.project")}
               required={!managedAutomatically && can("field_position.submit")}
-              className="w-full sm:w-[280px]"
+              className="w-full sm:w-70"
             >
               <ProjectPicker
                 value={projectId || "all"}
@@ -545,7 +545,7 @@ export function FieldStaffGps({
               allowAll
               allLabel={t("siteGps.allProjects")}
               placeholder={t("siteGps.project")}
-              className="w-full sm:w-[280px]"
+              className="w-full sm:w-70"
             />
           </div>
           )}

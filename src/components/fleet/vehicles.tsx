@@ -88,7 +88,7 @@ export function Vehicles() {
         accessorKey: "vehicle_type",
         meta: { label: t("vehicles.field.vehicleType") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("vehicles.field.vehicleType")}
           </span>
         ),
@@ -100,7 +100,7 @@ export function Vehicles() {
         accessorKey: "tare_weight_kg",
         meta: { label: t("vehicles.field.tareWeight") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("vehicles.field.tareWeight")}
           </span>
         ),
@@ -124,12 +124,12 @@ export function Vehicles() {
         accessorKey: "brand",
         meta: { label: t("vehicles.field.brandModel") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("vehicles.field.brandModel")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="block max-w-[200px] truncate">
+          <span className="block max-w-50 truncate">
             {[row.original.brand, row.original.model].filter(Boolean).join(" ") ||
               row.original.make_model ||
               t("common.emptyValue")}
@@ -140,7 +140,7 @@ export function Vehicles() {
         accessorKey: "work_status",
         meta: { label: t("vehicles.field.workStatus") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("vehicles.field.workStatus")}
           </span>
         ),
@@ -318,7 +318,7 @@ function TareDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[520px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-130 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("vehicles.tare.title")}</DialogTitle>
           <DialogDescription>{vehicle.plate_no}</DialogDescription>

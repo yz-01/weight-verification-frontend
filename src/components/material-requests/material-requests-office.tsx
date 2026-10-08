@@ -412,7 +412,7 @@ function TextFilter({
       placeholder={placeholder}
       value={value}
       onChange={(event) => setValue(event.target.value)}
-      className="h-9 w-[150px]"
+      className="h-9 w-37.5"
     />
   );
 }
@@ -483,7 +483,7 @@ function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, stri
         <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">{t("totals.empty")}</p>
       ) : (
         <div className="rounded-xl border">
-          <Table className="min-w-[720px]">
+          <Table className="min-w-180">
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.project")}</TableHead>
@@ -515,11 +515,11 @@ function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, stri
                   <TableCell>{unitLabel(row.unit)}</TableCell>
                   <TableCell className="text-right">
                     <span className="tabular font-semibold text-success">{row.approved_quantity}</span>
-                    <span className="block text-[11px] text-muted-foreground">{t("totals.requests", { count: row.approved_count })}</span>
+                    <span className="block text-2xs text-muted-foreground">{t("totals.requests", { count: row.approved_count })}</span>
                   </TableCell>
                   <TableCell className="text-right">
                     <span className="tabular font-semibold text-warning">{row.pending_quantity}</span>
-                    <span className="block text-[11px] text-muted-foreground">{t("totals.requests", { count: row.pending_count })}</span>
+                    <span className="block text-2xs text-muted-foreground">{t("totals.requests", { count: row.pending_count })}</span>
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">
                     {t("totals.requests", { count: row.returned_count })}

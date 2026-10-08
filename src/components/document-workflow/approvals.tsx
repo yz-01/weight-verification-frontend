@@ -182,12 +182,12 @@ export function Approvals() {
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[270px] truncate font-medium text-foreground"
+              className="max-w-67.5 truncate font-medium text-foreground"
               title={row.original.title}
             >
               {row.original.title}
             </p>
-            <p className="max-w-[270px] truncate text-xs text-muted-foreground">
+            <p className="max-w-67.5 truncate text-xs text-muted-foreground">
               {row.original.resource_label || row.original.resource_id}
             </p>
           </div>
@@ -426,7 +426,7 @@ export function Approvals() {
                 list.setFilter("mine", value === "all" ? undefined : "true")
               }
             >
-              <SelectTrigger size="sm" className="h-9 w-[145px] bg-card">
+              <SelectTrigger size="sm" className="h-9 w-36.25 bg-card">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -443,7 +443,7 @@ export function Approvals() {
                 )
               }
             >
-              <SelectTrigger size="sm" className="h-9 w-[155px] bg-card">
+              <SelectTrigger size="sm" className="h-9 w-38.75 bg-card">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -624,7 +624,7 @@ function ApprovalEditorDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[760px] [&>button]:hidden">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-190 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>
             {t(approval ? "approvals.edit.title" : "approvals.create.title")}
@@ -851,7 +851,7 @@ function ApprovalDetailDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-[980px] [&>button]:hidden">
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-245 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("approvals.detail.title")}</DialogTitle>
           <DialogDescription>
@@ -1083,7 +1083,7 @@ function ApprovalDetailBody({
                     </TableCell>
                     <TableCell>{entry.acted_by_name}</TableCell>
                     <TableCell>
-                      <p className="max-w-[240px] whitespace-pre-wrap text-muted-foreground">
+                      <p className="max-w-60 whitespace-pre-wrap text-muted-foreground">
                         {entry.comment || t("common.emptyValue")}
                       </p>
                     </TableCell>
@@ -1126,7 +1126,7 @@ function ApprovalActionDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[500px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-125 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>
             {t(`approvals.actionDialog.${action}.title`, { name: approval.title })}

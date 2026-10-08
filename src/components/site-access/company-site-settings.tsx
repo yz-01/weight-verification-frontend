@@ -144,7 +144,7 @@ export function CompanySiteSettingsWorkspace() {
             {backgroundPreview || profileForm.background_image ? <img src={backgroundPreview || profileForm.background_image || ""} alt={t("profile.background")} className="h-full w-full object-cover" /> : <ImageUp className="size-8 text-muted-foreground" />}
           </div>
           {canManage && <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4" /><span className="truncate">{backgroundFile?.name || t("profile.chooseBackground")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setBackgroundFile(event.target.files?.[0] ?? null)} /></label>}
-          <p className="text-[11px] text-muted-foreground">{t("profile.imageHint")}</p>
+          <p className="text-2xs text-muted-foreground">{t("profile.imageHint")}</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.companyName")} required><Input disabled={!canManage} value={profileForm.name} onChange={(event) => setCompany({ ...profileForm, name: event.target.value })} /></FieldWrapper>

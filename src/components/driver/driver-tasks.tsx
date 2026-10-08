@@ -68,7 +68,7 @@ export function DriverTasks() {
 
       {done.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <h2 className="panel-title">
             {t("driver.finished")}
           </h2>
           {done.map((task) => (

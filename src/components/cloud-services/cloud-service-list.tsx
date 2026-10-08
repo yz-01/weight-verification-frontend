@@ -49,7 +49,7 @@ export function CloudServiceList() {
         accessorKey: "vendor",
         meta: { label: t("cloudServices.field.vendor") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("cloudServices.field.vendor")}
           </span>
         ),
@@ -61,7 +61,7 @@ export function CloudServiceList() {
         accessorKey: "type",
         meta: { label: t("cloudServices.field.type") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("cloudServices.field.type")}
           </span>
         ),
@@ -73,7 +73,7 @@ export function CloudServiceList() {
         accessorKey: "name",
         meta: { label: t("cloudServices.field.name") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("cloudServices.field.name")}
           </span>
         ),
@@ -85,7 +85,7 @@ export function CloudServiceList() {
         accessorKey: "status",
         meta: { label: t("cloudServices.field.status") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("cloudServices.field.status")}
           </span>
         ),
@@ -100,7 +100,7 @@ export function CloudServiceList() {
         accessorKey: "base_cost",
         meta: { label: t("cloudServices.field.baseCost") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("cloudServices.field.baseCost")}
           </span>
         ),

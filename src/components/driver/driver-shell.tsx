@@ -146,7 +146,7 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[11px] font-medium ${
+                className={`flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-2xs font-medium ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >

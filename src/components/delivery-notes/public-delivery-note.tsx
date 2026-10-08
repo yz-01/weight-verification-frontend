@@ -113,7 +113,7 @@ export function PublicDeliveryNote({ token }: { token: string }) {
   return (
     <main className="mx-auto min-h-dvh max-w-xl bg-background px-4 py-5 pb-12">
       <header className="border-b pb-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-primary">{noteData.company_name}</p>
+        <p className="text-xs font-semibold text-primary">{noteData.company_name}</p>
         <h1 className="mt-1 text-2xl font-semibold">{t("title")}</h1>
         <p className="mt-1 font-mono text-sm text-muted-foreground">{noteData.note_no}</p>
       </header>
@@ -128,7 +128,7 @@ export function PublicDeliveryNote({ token }: { token: string }) {
         <section className="mt-6 space-y-4 rounded-xl border bg-card p-4"><h2 className="font-semibold">{t("decisionTitle")}</h2><div className="grid grid-cols-2 gap-2"><Button type="button" variant={decision === "RECEIVED" ? "default" : "outline"} onClick={() => { setDecision("RECEIVED"); setMatch(""); setQuantity(""); }}><CheckCircle2 />{t("action.receive")}</Button><Button type="button" variant={decision === "REJECTED" ? "destructive" : "outline"} onClick={() => { setDecision("REJECTED"); setMatch(""); setQuantity(""); }}><XCircle />{t("action.reject")}</Button></div>{decision === "RECEIVED" ? (
         <div className="space-y-3">
           <div className="rounded-lg border bg-muted/40 p-4 text-center">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("compare.onDocket")}</p>
+            <p className="text-xs font-semibold text-muted-foreground">{t("compare.onDocket")}</p>
             <p className="mt-1 text-4xl font-bold tabular-nums">{noteData.expected_quantity}</p>
             <p className="text-sm text-muted-foreground">{noteData.unit}</p>
           </div>

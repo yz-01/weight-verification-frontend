@@ -91,7 +91,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
       </header>
 
       <main className="flex flex-1 items-center justify-center px-6 pb-16">
-        <div className="w-full max-w-[400px]">
+        <div className="w-full max-w-100">
           <div className="mb-8">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {PORTAL_LABELS[portal]} {t("auth.login.title")}

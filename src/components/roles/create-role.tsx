@@ -125,7 +125,7 @@ export function CreateRole({ role }: { role?: Role }) {
 
       <section className="px-6 py-5">
         <div className="mb-4 flex items-center gap-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <h3 className="panel-title">
             {t("roles.section.permissions")}
           </h3>
           {role?.is_system && (

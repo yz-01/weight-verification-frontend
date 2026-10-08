@@ -210,7 +210,7 @@ export function Documents() {
             <p className="font-medium tabular-nums text-foreground">
               {row.original.document_no}
             </p>
-            <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+            <p className="max-w-45 truncate text-xs text-muted-foreground">
               {row.original.reference_no || t("common.emptyValue")}
             </p>
           </div>
@@ -245,7 +245,7 @@ export function Documents() {
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[260px] truncate font-medium text-foreground"
+              className="max-w-65 truncate font-medium text-foreground"
               title={row.original.title}
             >
               {row.original.title}
@@ -256,7 +256,7 @@ export function Documents() {
                 onOpen={() => openSource(row.original)}
               />
             ) : (
-              <p className="max-w-[260px] truncate text-xs text-muted-foreground">
+              <p className="max-w-65 truncate text-xs text-muted-foreground">
                 {row.original.latest_version?.original_name ??
                   t("documents.noFile")}
               </p>
@@ -271,7 +271,7 @@ export function Documents() {
         header: () => t("documents.field.path"),
         cell: ({ row }) => (
           <p
-            className="flex max-w-[240px] min-w-0 items-center gap-1 text-sm"
+            className="flex max-w-60 min-w-0 items-center gap-1 text-sm"
             title={[row.original.category_name, row.original.subcategory_name].filter(Boolean).join(" / ")}
           >
             <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -491,7 +491,7 @@ export function Documents() {
           <div className="flex flex-wrap items-center gap-2">
             {!topBar.active && (
             <Select value={list.filters.project ?? "all"} onValueChange={(value) => list.setFilter("project", value === "all" ? undefined : value)}>
-              <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.project")}><SelectValue placeholder={t("documents.field.project")} /></SelectTrigger>
+              <SelectTrigger size="sm" className="h-9 w-45 bg-card" aria-label={t("documents.field.project")}><SelectValue placeholder={t("documents.field.project")} /></SelectTrigger>
               <SelectContent><SelectItem value="all">{t("documents.allProjects")}</SelectItem>{(projects.data?.results ?? []).map((project) => <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>)}</SelectContent>
             </Select>
             )}
@@ -504,11 +504,11 @@ export function Documents() {
               onChange={(category, subcategory) => list.setFilters({ category, subcategory })}
             />
             <Select value={list.filters.uploaded_by ?? "all"} onValueChange={(value) => list.setFilter("uploaded_by", value === "all" ? undefined : value)}>
-              <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.uploadedBy")}><SelectValue placeholder={t("documents.field.uploadedBy")} /></SelectTrigger>
+              <SelectTrigger size="sm" className="h-9 w-45 bg-card" aria-label={t("documents.field.uploadedBy")}><SelectValue placeholder={t("documents.field.uploadedBy")} /></SelectTrigger>
               <SelectContent><SelectItem value="all">{t("documents.allUploaders")}</SelectItem>{(users.data?.results ?? []).map((user) => <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>)}</SelectContent>
             </Select>
-            <Input type="date" className="h-9 w-[145px] bg-card" aria-label={t("documents.field.dateFrom")} value={list.filters.date_from ?? ""} max={list.filters.date_to} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
-            <Input type="date" className="h-9 w-[145px] bg-card" aria-label={t("documents.field.dateTo")} value={list.filters.date_to ?? ""} min={list.filters.date_from} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
+            <Input type="date" className="h-9 w-36.25 bg-card" aria-label={t("documents.field.dateFrom")} value={list.filters.date_from ?? ""} max={list.filters.date_to} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
+            <Input type="date" className="h-9 w-36.25 bg-card" aria-label={t("documents.field.dateTo")} value={list.filters.date_to ?? ""} min={list.filters.date_from} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
             <QueryFailedNote query={projects} what={t("documents.what.projects")} className="basis-full" />
             <QueryFailedNote query={categories} what={t("documents.what.categories")} className="basis-full" />
             <QueryFailedNote query={subcategories} what={t("documents.what.subcategories")} className="basis-full" />
@@ -630,7 +630,7 @@ function SourceTag({
   const t = useTranslations();
   const label = useSourceLabel()(source);
   return (
-    <p className="flex max-w-[260px] min-w-0 items-center gap-1.5 text-xs">
+    <p className="flex max-w-65 min-w-0 items-center gap-1.5 text-xs">
       <button
         type="button"
         className="min-w-0 truncate text-primary underline-offset-2 hover:underline"
@@ -766,7 +766,7 @@ function UploadDocumentDialog({
       <DialogContent
         className={cn(
           "max-h-[92dvh] overflow-y-auto [&>button]:hidden",
-          origin === "system" ? "sm:max-w-[1040px]" : "sm:max-w-[680px]",
+          origin === "system" ? "sm:max-w-260" : "sm:max-w-170",
         )}
       >
         <DialogHeader>
@@ -1047,7 +1047,7 @@ function DocumentEditorDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[720px] [&>button]:hidden">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-180 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.edit.title")}</DialogTitle>
           <DialogDescription>{t("documents.edit.description")}</DialogDescription>
@@ -1225,7 +1225,7 @@ function VersionUploadDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[520px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-130 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.upload.title")}</DialogTitle>
           <DialogDescription>
@@ -1318,7 +1318,7 @@ function DocumentDetailDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[94dvh] overflow-y-auto sm:max-w-[1180px] [&>button]:hidden">
+      <DialogContent className="max-h-[94dvh] overflow-y-auto sm:max-w-295 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.detail.title")}</DialogTitle>
           <DialogDescription>
@@ -1501,7 +1501,7 @@ function DocumentDetailBody({
                       v{version.version_number}
                     </TableCell>
                     <TableCell>
-                      <p className="max-w-[220px] truncate" title={version.original_name}>
+                      <p className="max-w-55 truncate" title={version.original_name}>
                         {version.original_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -1511,7 +1511,7 @@ function DocumentDetailBody({
                     </TableCell>
                     <TableCell>{version.uploaded_by_name ?? t("common.emptyValue")}</TableCell>
                     <TableCell className="hidden xl:table-cell">
-                      <code className="block max-w-[170px] truncate text-xs" title={version.sha256}>
+                      <code className="block max-w-42.5 truncate text-xs" title={version.sha256}>
                         {version.sha256}
                       </code>
                     </TableCell>
@@ -1588,7 +1588,7 @@ function TaxonomyDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-[980px] [&>button]:hidden">
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-245 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.taxonomy.title")}</DialogTitle>
           <DialogDescription>{t("documents.taxonomy.description")}</DialogDescription>
@@ -1615,7 +1615,7 @@ function TaxonomyDialog({
             }}
           />
         ) : (
-          <div className="grid min-h-[380px] gap-6 lg:grid-cols-2">
+          <div className="grid min-h-95 gap-6 lg:grid-cols-2">
             <TaxonomyList
               title={t("documents.categories.title")}
               addLabel={t("documents.categories.add")}
@@ -1698,7 +1698,7 @@ function TaxonomyList({
           {addLabel}
         </Button>
       </div>
-      <div className="max-h-[420px] overflow-y-auto rounded-md border">
+      <div className="max-h-105 overflow-y-auto rounded-md border">
         {isLoading ? (
           <p className="p-8 text-center text-sm text-muted-foreground">
             {t("common.loading")}

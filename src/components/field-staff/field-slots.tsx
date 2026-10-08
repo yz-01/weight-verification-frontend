@@ -310,10 +310,10 @@ function SlotBoundary({
                 ))}
               </ul>
             )}
-            <p className="mt-1 text-[11px] text-muted-foreground">{t("help")}</p>
+            <p className="mt-1 text-2xs text-muted-foreground">{t("help")}</p>
           </>
         ) : (
-          <p className="mt-1 text-[11px] text-muted-foreground">{t("offHelp")}</p>
+          <p className="mt-1 text-2xs text-muted-foreground">{t("offHelp")}</p>
         )}
         {!stored && (
           <p role="alert" className="mt-1 text-xs font-medium text-destructive">{t("notStored")}</p>

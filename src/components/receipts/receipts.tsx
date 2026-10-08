@@ -167,7 +167,7 @@ export function Receipts() {
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[200px] truncate font-medium text-foreground"
+            className="block max-w-50 truncate font-medium text-foreground"
             title={row.original.material_name}
           >
             {row.original.material_name}
@@ -202,13 +202,13 @@ export function Receipts() {
         accessorKey: "supplier_name",
         meta: { label: t("receipts.field.supplier") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("receipts.field.supplier")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[180px] truncate"
+            className="block max-w-45 truncate"
             title={row.original.supplier_name}
           >
             {row.original.supplier_name}
@@ -221,12 +221,12 @@ export function Receipts() {
         accessorKey: "manufacturer_name",
         meta: { label: t("receipts.field.manufacturer") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("receipts.field.manufacturer")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="block max-w-[200px]">
+          <span className="block max-w-50">
             <ManufacturerCell
               name={row.original.manufacturer_name}
               offList={row.original.manufacturer_off_list}
@@ -242,12 +242,12 @@ export function Receipts() {
         accessorKey: "delivery_note_no",
         meta: { label: t("receipts.field.deliveryNoteNo") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("receipts.field.deliveryNoteNo")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="tabular block max-w-[140px] truncate" title={row.original.delivery_note_no ?? ""}>
+          <span className="tabular block max-w-35 truncate" title={row.original.delivery_note_no ?? ""}>
             {row.original.delivery_note_no || "—"}
           </span>
         ),
@@ -256,7 +256,7 @@ export function Receipts() {
         accessorKey: "vehicle_plate",
         meta: { label: t("receipts.field.vehiclePlate") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("receipts.field.vehiclePlate")}
           </span>
         ),

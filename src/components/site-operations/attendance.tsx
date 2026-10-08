@@ -271,7 +271,7 @@ export function Attendance() {
               placeholder={t("attendance.filter.project")}
               allowAll
               allLabel={t("attendance.filter.allProjects")}
-              className="hidden w-[220px] sm:flex"
+              className="hidden w-55 sm:flex"
             />
             {can("attendance.clock") && (
               <Button size="sm" onClick={openClockDialog}>

@@ -301,8 +301,8 @@ function MergedList() {
               </TableCell>
               <TableCell className="tabular font-medium">{row.reference}</TableCell>
               <TableCell>{row.statusBadge}</TableCell>
-              <TableCell className="max-w-[180px] truncate">{row.project}</TableCell>
-              <TableCell className="max-w-[260px] truncate">{row.content}</TableCell>
+              <TableCell className="max-w-45 truncate">{row.project}</TableCell>
+              <TableCell className="max-w-65 truncate">{row.content}</TableCell>
               <TableCell className="tabular text-muted-foreground">
                 {row.at ? df.dateTime(row.at) : "—"}
               </TableCell>

@@ -173,7 +173,7 @@ export function ProgressSummaryTab() {
                 onClick={() => choose(row.id)}
                 aria-current={shown?.id === row.id ? "true" : undefined}
                 className={cn(
-                  "min-w-[160px] rounded-md border px-3 py-2 text-left text-sm lg:min-w-0",
+                  "min-w-40 rounded-md border px-3 py-2 text-left text-sm lg:min-w-0",
                   shown?.id === row.id ? "border-primary bg-primary/5" : "bg-card hover:bg-muted/50",
                 )}
               >

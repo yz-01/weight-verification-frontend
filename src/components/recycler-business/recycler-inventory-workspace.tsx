@@ -122,7 +122,7 @@ export function RecyclerInventoryWorkspace() {
           value="balances"
           className="min-h-0 flex-none overflow-auto surface-panel rounded-xl"
         >
-          <Table className="min-w-[720px] table-fixed">
+          <Table className="min-w-180 table-fixed">
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
                 <TableHead>{t("field.material")}</TableHead>

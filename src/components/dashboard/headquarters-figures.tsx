@@ -220,15 +220,15 @@ function ClearanceCard({
         <span className="block text-xs font-medium text-muted-foreground">{label}</span>
         <span className="mt-0.5 grid grid-cols-3 gap-2 text-sm">
           <span>
-            <span className="block text-[11px] text-muted-foreground">{t("records")}</span>
+            <span className="block text-2xs text-muted-foreground">{t("records")}</span>
             <span className="font-semibold tabular-nums">{format.number(records)}</span>
           </span>
           <span>
-            <span className="block text-[11px] text-muted-foreground">{t("trips")}</span>
+            <span className="block text-2xs text-muted-foreground">{t("trips")}</span>
             <span className="font-semibold tabular-nums">{format.number(trips)}</span>
           </span>
           <span>
-            <span className="block text-[11px] text-muted-foreground">{weightLabel}</span>
+            <span className="block text-2xs text-muted-foreground">{weightLabel}</span>
             <span className="font-semibold tabular-nums">
               {format.number(Number(weight), { maximumFractionDigits: 2 })}
             </span>
@@ -284,7 +284,7 @@ function TodayRecordsDialog({
                 <TableCell>
                   <span className="font-medium">{project.name}</span>
                   {project.today_records > 0 && (
-                    <span className="block text-[11px] text-muted-foreground">
+                    <span className="block text-2xs text-muted-foreground">
                       {kindSummary(project.today_records_by_kind)}
                     </span>
                   )}

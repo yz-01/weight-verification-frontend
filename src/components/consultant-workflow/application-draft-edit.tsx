@@ -237,7 +237,7 @@ export function EvidenceLinkCards({
             <p className="truncate text-xs text-muted-foreground">
               {link.photographer_name || t("common.unknown")} - {new Date(link.captured_at).toLocaleString()}
             </p>
-            <p className="truncate font-mono text-[10px] text-muted-foreground">{link.sha256}</p>
+            <p className="truncate font-mono text-2xs text-muted-foreground">{link.sha256}</p>
             {editable && (
               <div className="flex flex-wrap items-center gap-1 pt-1" data-draft-controls>
                 {editing !== link.id && (

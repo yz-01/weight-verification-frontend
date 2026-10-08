@@ -73,7 +73,7 @@ export function VersionList() {
       {
         accessorKey: "release_name",
         meta: { label: t("versions.field.releaseName") },
-        header: () => <span className="text-xs font-semibold uppercase text-muted-foreground">{t("versions.field.releaseName")}</span>,
+        header: () => <span className="text-xs font-semibold text-muted-foreground">{t("versions.field.releaseName")}</span>,
         cell: ({ row }) => row.original.release_name || t("common.emptyValue"),
       },
       {
@@ -91,13 +91,13 @@ export function VersionList() {
       {
         accessorKey: "rollout_percentage",
         meta: { label: t("versions.field.rollout") },
-        header: () => <span className="text-xs font-semibold uppercase text-muted-foreground">{t("versions.field.rollout")}</span>,
+        header: () => <span className="text-xs font-semibold text-muted-foreground">{t("versions.field.rollout")}</span>,
         cell: ({ row }) => <span className="tabular-nums">{row.original.rollout_percentage}%</span>,
       },
       {
         accessorKey: "is_current",
         meta: { label: t("versions.field.isCurrent") },
-        header: () => <span className="text-xs font-semibold uppercase text-muted-foreground">{t("versions.field.isCurrent")}</span>,
+        header: () => <span className="text-xs font-semibold text-muted-foreground">{t("versions.field.isCurrent")}</span>,
         cell: ({ row }) => row.original.is_current ? (
           <StatusBadge label={t("versions.current")} tone="positive" />
         ) : row.original.force_update ? (

@@ -2,13 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  DoorOpen,
   Hand,
   Info,
   Loader2,
   ScanLine,
   TriangleAlert,
-  Truck,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -99,8 +97,7 @@ function ReleasePanel({
   return (
     <div className="space-y-2 rounded-lg border bg-card/60 p-3">
       <div className="flex items-center gap-2">
-        <DoorOpen className="h-4 w-4 text-muted-foreground" />
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="panel-title">
           {t("gate.release.title")}
         </span>
         <span className="ml-auto">
@@ -289,8 +286,7 @@ export function GateConsole() {
           )}
         >
           <div className="flex items-center gap-2 border-b px-6 py-4">
-            <Truck className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h3 className="panel-title">
               {t("gate.waiting")}
             </h3>
             {waiting && !expired && (
@@ -376,8 +372,7 @@ export function GateConsole() {
 
         <div className="surface-panel rounded-xl">
           <div className="flex items-center gap-2 border-b px-6 py-4">
-            <ScanLine className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h3 className="panel-title">
               {t("gate.scan")}
             </h3>
           </div>

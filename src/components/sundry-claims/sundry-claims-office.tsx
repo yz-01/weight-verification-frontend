@@ -130,7 +130,7 @@ export function SundryClaimsOffice() {
         meta: { label: t("field.description") },
         header: () => <PlainHeader label={t("field.description")} />,
         cell: ({ row }) => (
-          <span className="block max-w-[240px] truncate" title={row.original.description}>
+          <span className="block max-w-60 truncate" title={row.original.description}>
             {row.original.description}
           </span>
         ),
@@ -151,7 +151,7 @@ export function SundryClaimsOffice() {
         accessorKey: "project_name",
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
-        cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
+        cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
       },
     ],
     [t, tRoot, df],

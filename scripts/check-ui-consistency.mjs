@@ -98,7 +98,9 @@ const PHONE_WIDTH = 400;
 /** How far back to look for the scroll region that should contain it. */
 const SCROLL_WINDOW = 400;
 
-const WIDE = /min-w-\[(\d+)px\]/g;
+// Pixels in brackets, or the spacing scale (`min-w-200` = 200 × 4px), since
+// the UI sweep moved every pixel width onto the scale.
+const WIDE = /min-w-(?:\[(\d+)px\]|(\d+(?:\.\d+)?)(?![\w.\[-]))/g;
 
 const TAG = /<(\/?)(Table|TableHeader|TableBody|TableRow|TableHead|TableCell)\b/g;
 
@@ -239,9 +241,33 @@ let wideChecked = 0;
  */
 const OFF_SCALE = /(?<![\w-])-?(?:p|px|py|ps|pe|pt|pr|pb|pl|m|mx|my|ms|me|mt|mr|mb|ml|gap|gap-x|gap-y|space-x|space-y)-\[\d+(?:\.\d+)?px\]/g;
 
+/**
+ * Any other size typed in pixels (`w-[160px]`, `text-[11px]`, `rounded-[4px]`).
+ * Widths and type have scales too: `w-40`, `max-w-45`, `text-2xs`.
+ */
+const ARBITRARY_PX = /(?<![\w-])(?:[a-z0-9-]+:)*-?[a-z][a-z0-9-]*-\[\d+(?:\.\d+)?px\]/g;
+
+/**
+ * Record-detail files that still type pixel sizes, at most this many each.
+ * They belong to the record-detail package (p45), which restyles them in
+ * parallel with this sweep; a ceiling rather than an exact count, so that
+ * package converting them does not trip this check. Remove each entry once
+ * its file is clean.
+ */
+const SIZE_CEILING = new Map([
+  ["components/consultant-workflow/application-detail.tsx", 1],
+  ["components/dispatches/view-dispatch.tsx", 2],
+  ["components/incident-reporting/incident-thread-detail.tsx", 2],
+  ["components/projects/view-project.tsx", 1],
+  ["components/receipts/view-receipt.tsx", 1],
+  ["components/settlements/view-settlement.tsx", 1],
+  ["components/shared/record-detail-shell.tsx", 1],
+]);
+
 /** Files allowed an off-scale spacing value, and why. Empty on purpose. */
 const SPACING_ALLOWED = new Map([]);
 let spacingChecked = 0;
+const OFF_SCALE_TEST = new RegExp(`^(?:[a-z0-9-]+:)*${OFF_SCALE.source.replace("(?<![\w-])", "")}$`);
 
 const files = walkFiles(ROOT, /\.tsx$/);
 
@@ -283,11 +309,27 @@ for (const relative of files) {
     }
   }
 
+  // 5b. sizes from their scales
+  if (!SPACING_ALLOWED.has(relative)) {
+    const sized = [...source.matchAll(ARBITRARY_PX)].filter(
+      (match) => !OFF_SCALE_TEST.test(match[0]), // spacing: reported above
+    );
+    const ceiling = SIZE_CEILING.get(relative);
+    for (const match of ceiling !== undefined && sized.length <= ceiling ? [] : sized) {
+      problems.push(
+        `${relative}:${lineAt(source, match.index)}: ${match[0]} is a size ` +
+          `typed in pixels. Use the scale (w-40 = 160px, max-w-45 = 180px, ` +
+          `text-2xs / text-xs, rounded-sm) so it lines up with every other screen.`,
+      );
+    }
+  }
+
   // 4. anything wider than a phone needs its own scroll region
   WIDE.lastIndex = 0;
   let wide = WIDE.exec(source);
   while (wide) {
-    if (Number(wide[1]) >= PHONE_WIDTH) {
+    const widthPx = wide[1] ? Number(wide[1]) : Number(wide[2]) * 4;
+    if (widthPx >= PHONE_WIDTH) {
       wideChecked += 1;
       const before = source.slice(
         Math.max(0, wide.index - SCROLL_WINDOW),
@@ -302,7 +344,7 @@ for (const relative of files) {
       if (!scrolls) {
         problems.push(
           `${relative}:${lineAt(source, wide.index)}: ` +
-            `min-w-[${wide[1]}px] is wider than a phone and has no scroll ` +
+            `${wide[0]} (${widthPx}px) is wider than a phone and has no scroll ` +
             `region around it, so it drags the whole page sideways. Put it ` +
             `in an overflow-x-auto parent, or on the shared table.`,
         );

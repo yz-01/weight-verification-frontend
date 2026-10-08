@@ -442,7 +442,7 @@ export function ContractorReportHistoryWorkspace() {
           <p className="p-10 text-center text-sm text-muted-foreground">{t("history.empty")}</p>
         ) : (
           <div className="overflow-auto">
-            <Table className="min-w-[1040px] table-fixed">
+            <Table className="min-w-260 table-fixed">
               <colgroup>
                 <col className="w-64" />
                 <col className="w-36" />

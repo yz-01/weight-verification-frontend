@@ -622,7 +622,7 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 <p className="text-xs text-muted-foreground">
                   {t("confirmedHelp")}
                 </p>
-                <p className="break-all font-mono text-[11px] text-muted-foreground">
+                <p className="break-all font-mono text-2xs text-muted-foreground">
                   {t("digest", { digest: data.pdf_sha256 })}
                 </p>
                 {data.exported_at && (
@@ -1067,7 +1067,7 @@ function TickPartsDialog({
             packer ticks the DO and the files in. The conversation is no longer
             a part at all (E7, Q25): no PDF prints the chat.
           */}
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <h3 className="panel-title">
             {t("group.fields")}
           </h3>
           <ul className="divide-y rounded-lg border">
@@ -1091,7 +1091,7 @@ function TickPartsDialog({
 
         {all.photos.length > 0 && (
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h3 className="panel-title">
               {t("group.photos")}
             </h3>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -1126,7 +1126,7 @@ function TickPartsDialog({
 
         {all.documents.length > 0 && (
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h3 className="panel-title">
               {t("group.documents")}
             </h3>
               <ul className="divide-y rounded-lg border">
@@ -1145,7 +1145,7 @@ function TickPartsDialog({
         )}
         {(all.files ?? []).length > 0 && (
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h3 className="panel-title">
               {t("group.files")}
             </h3>
             <ul className="divide-y rounded-lg border">

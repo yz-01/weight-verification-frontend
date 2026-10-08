@@ -138,14 +138,14 @@ export function SystemFilePicker({
       <div className="min-w-0 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Input
-            className="h-9 min-w-[180px] flex-1 bg-card"
+            className="h-9 min-w-45 flex-1 bg-card"
             value={search}
             placeholder={t("documents.pickFromSystem.searchPlaceholder")}
             aria-label={t("documents.pickFromSystem.searchPlaceholder")}
             onChange={(event) => filter(() => setSearch(event.target.value))}
           />
           <Select value={moduleFilter} onValueChange={(value) => filter(() => setModuleFilter(value))}>
-            <SelectTrigger size="sm" className="h-9 w-[160px] bg-card" aria-label={t("documents.pickFromSystem.module")}>
+            <SelectTrigger size="sm" className="h-9 w-40 bg-card" aria-label={t("documents.pickFromSystem.module")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -158,7 +158,7 @@ export function SystemFilePicker({
             </SelectContent>
           </Select>
           <Select value={project} onValueChange={(value) => filter(() => setProject(value))}>
-            <SelectTrigger size="sm" className="h-9 w-[170px] bg-card" aria-label={t("documents.field.project")}>
+            <SelectTrigger size="sm" className="h-9 w-42.5 bg-card" aria-label={t("documents.field.project")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -172,7 +172,7 @@ export function SystemFilePicker({
           </Select>
           <Input
             type="date"
-            className="h-9 w-[145px] bg-card"
+            className="h-9 w-36.25 bg-card"
             aria-label={t("documents.field.dateFrom")}
             value={dateFrom}
             max={dateTo || undefined}
@@ -180,7 +180,7 @@ export function SystemFilePicker({
           />
           <Input
             type="date"
-            className="h-9 w-[145px] bg-card"
+            className="h-9 w-36.25 bg-card"
             aria-label={t("documents.field.dateTo")}
             value={dateTo}
             min={dateFrom || undefined}
@@ -232,11 +232,11 @@ export function SystemFilePicker({
                     )}
                     <span className="min-w-0 space-y-0.5 p-1.5">
                       <span className="block truncate text-xs font-medium text-foreground">{sourceLabel(row)}</span>
-                      <span className="block truncate text-[11px] text-muted-foreground">
+                      <span className="block truncate text-2xs text-muted-foreground">
                         {[row.project_name, row.uploaded_by_name, df.date(row.captured_at)].filter(Boolean).join(" · ")}
                       </span>
                       {row.filed && (
-                        <span className="block truncate text-[11px] text-warning">{t("documents.pickFromSystem.alreadyFiled")}</span>
+                        <span className="block truncate text-2xs text-warning">{t("documents.pickFromSystem.alreadyFiled")}</span>
                       )}
                     </span>
                   </button>
@@ -279,7 +279,7 @@ export function SystemFilePicker({
         aria-label={t("documents.pickFromSystem.dropArea")}
         data-drop-area
         className={cn(
-          "flex min-h-[160px] flex-col gap-2 rounded-md border-2 border-dashed p-2 transition-colors",
+          "flex min-h-40 flex-col gap-2 rounded-md border-2 border-dashed p-2 transition-colors",
           dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
         )}
         onDragOver={(event) => {

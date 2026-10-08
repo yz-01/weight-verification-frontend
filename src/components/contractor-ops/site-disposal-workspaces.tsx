@@ -1031,7 +1031,7 @@ export function SiteDisposalOffice() {
         meta: { label: t("field.waste") },
         header: () => <PlainHeader label={t("field.waste")} />,
         cell: ({ row }) => (
-          <span className="block max-w-[220px] truncate font-medium text-foreground" title={row.original.waste_description}>
+          <span className="block max-w-55 truncate font-medium text-foreground" title={row.original.waste_description}>
             {row.original.waste_description}
           </span>
         ),
@@ -1040,7 +1040,7 @@ export function SiteDisposalOffice() {
         accessorKey: "location_description",
         meta: { label: t("field.siteLocation") },
         header: () => <PlainHeader label={t("field.siteLocation")} />,
-        cell: ({ row }) => <span className="block max-w-[180px] truncate">{row.original.location_description}</span>,
+        cell: ({ row }) => <span className="block max-w-45 truncate">{row.original.location_description}</span>,
       },
       {
         accessorKey: "preferred_at",
@@ -1068,7 +1068,7 @@ export function SiteDisposalOffice() {
         accessorKey: "project_name",
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
-        cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
+        cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
       },
     ],
     [t, tRoot, df],

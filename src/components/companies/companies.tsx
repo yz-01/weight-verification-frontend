@@ -148,7 +148,7 @@ export function Companies({
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[240px] truncate font-medium text-foreground"
+            className="block max-w-60 truncate font-medium text-foreground"
             title={row.original.name}
           >
             {row.original.name}
@@ -223,7 +223,7 @@ export function Companies({
         accessorKey: "contact_person",
         meta: { label: t("companies.field.contactPerson") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("companies.field.contactPerson")}
           </span>
         ),
@@ -244,7 +244,7 @@ export function Companies({
         accessorKey: "user_count",
         meta: { label: t("companies.field.userCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("companies.field.userCount")}
           </span>
         ),

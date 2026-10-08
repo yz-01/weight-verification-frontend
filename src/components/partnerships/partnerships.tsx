@@ -131,7 +131,7 @@ export function Partnerships() {
         accessorKey: "contractor_name",
         meta: { label: t("partnerships.field.contractor") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.contractor")}
           </span>
         ),
@@ -146,7 +146,7 @@ export function Partnerships() {
         accessorKey: "recycler_name",
         meta: { label: t("partnerships.field.recycler") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.recycler")}
           </span>
         ),
@@ -178,12 +178,12 @@ export function Partnerships() {
         accessorKey: "requested_by_company_name",
         meta: { label: t("partnerships.field.requestedBy") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.requestedBy")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="block max-w-[180px] truncate">
+          <span className="block max-w-45 truncate">
             {row.original.requested_by_company_name}
           </span>
         ),
@@ -192,7 +192,7 @@ export function Partnerships() {
         id: "projects",
         meta: { label: t("partnerships.field.projects") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.projects")}
           </span>
         ),
@@ -201,7 +201,7 @@ export function Partnerships() {
             <TypeBadge label={String(row.original.project_bindings.length)} />
             {row.original.project_bindings[0] && (
               <span
-                className="max-w-[150px] truncate text-xs text-muted-foreground"
+                className="max-w-37.5 truncate text-xs text-muted-foreground"
                 title={row.original.project_bindings
                   .map((binding) => binding.project_name)
                   .join(", ")}
@@ -216,13 +216,13 @@ export function Partnerships() {
         accessorKey: "response_note",
         meta: { label: t("partnerships.field.note") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.note")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[200px] truncate text-muted-foreground"
+            className="block max-w-50 truncate text-muted-foreground"
             title={row.original.response_note}
           >
             {row.original.response_note || t("common.emptyValue")}
@@ -462,7 +462,7 @@ export function Partnerships() {
 function CompanyIdentity({ name, code }: { name: string; code: string }) {
   return (
     <div className="min-w-0">
-      <p className="max-w-[210px] truncate font-medium text-foreground" title={name}>
+      <p className="max-w-52.5 truncate font-medium text-foreground" title={name}>
         {name}
       </p>
       <p className="tabular truncate text-xs text-muted-foreground">{code}</p>
@@ -505,7 +505,7 @@ function RequestPartnershipDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[520px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-130 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("partnerships.request.title")}</DialogTitle>
           <DialogDescription>
@@ -637,7 +637,7 @@ function ManageProjectsDialog({
   return (
     <>
       <Dialog open onOpenChange={(next) => !next && onClose()}>
-        <DialogContent className="max-h-[90dvh] overflow-hidden sm:max-w-[680px] [&>button]:hidden">
+        <DialogContent className="max-h-[90dvh] overflow-hidden sm:max-w-170 [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>{t("partnerships.projects.title")}</DialogTitle>
             <DialogDescription>

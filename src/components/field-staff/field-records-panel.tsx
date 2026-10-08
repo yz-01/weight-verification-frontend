@@ -858,7 +858,7 @@ export function MaterialCapturePanel({
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
           <div className="border-b bg-muted/40 px-3 py-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold text-muted-foreground">
               {t("material.ocrItems.title")}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">

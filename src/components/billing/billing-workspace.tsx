@@ -105,7 +105,7 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
         </span>
       </div>
       <div className="overflow-x-auto bg-background/60">
-        <div className="grid min-w-[760px] divide-x sm:min-w-0 sm:grid-cols-5">
+        <div className="grid min-w-190 divide-x sm:min-w-0 sm:grid-cols-5">
         {WORKFLOW_STEPS.map((step, index) => {
           const Icon = icons[step.key];
           const active = activeStep === step.key;
@@ -120,7 +120,7 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
                 <Icon className="size-3.5" />
               </span>
               <div className="min-w-0">
-                <p className="text-[11px] text-muted-foreground">{t("workflow.stepLabel", { number: index + 1 })}</p>
+                <p className="text-2xs text-muted-foreground">{t("workflow.stepLabel", { number: index + 1 })}</p>
                 <p className="text-xs font-semibold leading-5">{t(`workflow.step.${step.key}`)}</p>
               </div>
             </Link>

@@ -34,7 +34,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
   return (
     <div className="overflow-hidden surface-panel rounded-xl">
       <div className="overflow-x-auto">
-        <div className="min-w-[920px]">
+        <div className="min-w-230">
           <div className="grid grid-cols-[250px_1fr] border-b bg-muted/35 text-xs font-semibold text-muted-foreground">
             <div className="px-4 py-3">{t("field.task")}</div>
             <div className="flex items-center justify-between border-l px-4 py-3">
@@ -104,7 +104,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
                       }
                       style={{ width: actual + "%" }}
                     />
-                    <span className="absolute inset-0 grid place-items-center text-[11px] font-semibold text-foreground">
+                    <span className="absolute inset-0 grid place-items-center text-2xs font-semibold text-foreground">
                       {actual}%
                     </span>
                   </div>

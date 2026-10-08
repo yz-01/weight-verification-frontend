@@ -69,7 +69,7 @@ export function ConfirmDialog({
         if (!next) onOpenChange(false);
       }}
     >
-      <DialogContent className="sm:max-w-[440px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-110 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

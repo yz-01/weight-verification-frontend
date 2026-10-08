@@ -134,7 +134,7 @@ function OptionColumn({
             {builtIn.map((label) => (
               <li key={`built-in-${label}`} className="flex items-center justify-between rounded-md px-2 py-1 text-sm text-muted-foreground">
                 <span>{label}</span>
-                <span className="text-[11px]">{t("builtIn")}</span>
+                <span className="text-2xs">{t("builtIn")}</span>
               </li>
             ))}
             {rows.length === 0 && builtIn.length === 0 && <li className="px-2 py-1 text-xs text-muted-foreground">{t("empty")}</li>}

@@ -296,7 +296,7 @@ export function MaterialOutgoingOffice() {
         header: sortable(t("field.material")),
         cell: ({ row }) => (
           <span
-            className="block max-w-[200px] truncate font-medium text-foreground"
+            className="block max-w-50 truncate font-medium text-foreground"
             title={row.original.material_name}
           >
             {row.original.material_name}
@@ -323,7 +323,7 @@ export function MaterialOutgoingOffice() {
         header: () => <PlainHeader label={t("field.supplier")} />,
         cell: ({ row }) => (
           <span
-            className="block max-w-[180px] truncate"
+            className="block max-w-45 truncate"
             title={row.original.supplier_name ?? ""}
           >
             {row.original.supplier_name || "—"}
@@ -336,7 +336,7 @@ export function MaterialOutgoingOffice() {
         meta: { label: tRoot("manufacturers.column") },
         header: () => <PlainHeader label={tRoot("manufacturers.column")} />,
         cell: ({ row }) => (
-          <span className="block max-w-[200px]">
+          <span className="block max-w-50">
             <ManufacturerCell
               name={row.original.manufacturer_name}
               offList={row.original.manufacturer_off_list}
@@ -354,7 +354,7 @@ export function MaterialOutgoingOffice() {
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
-          <p className="max-w-[180px] truncate">{row.original.project_name}</p>
+          <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
     ],
@@ -652,7 +652,7 @@ export function SiteEquipmentOffice() {
         header: () => <PlainHeader label={t("field.name")} />,
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[200px] truncate font-medium text-foreground">
+            <p className="max-w-50 truncate font-medium text-foreground">
               {row.original.equipment_name}
             </p>
             <p className="tabular truncate text-xs text-muted-foreground">
@@ -692,7 +692,7 @@ export function SiteEquipmentOffice() {
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
-          <p className="max-w-[180px] truncate">{row.original.project_name}</p>
+          <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
     ],
@@ -790,7 +790,7 @@ export function SiteEquipmentOffice() {
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
-          <p className="max-w-[180px] truncate">{row.original.project_name}</p>
+          <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
     ],
@@ -1516,7 +1516,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
-          <p className="max-w-[180px] truncate">{row.original.project_name}</p>
+          <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
     ],

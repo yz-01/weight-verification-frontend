@@ -80,8 +80,8 @@ export function PaymentProofs() {
         header: () => t("paymentProofs.field.project"),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[220px] truncate">{row.original.project_name}</p>
-            <p className="max-w-[220px] truncate text-xs text-muted-foreground">
+            <p className="max-w-55 truncate">{row.original.project_name}</p>
+            <p className="max-w-55 truncate text-xs text-muted-foreground">
               {row.original.recycler_name}
             </p>
           </div>
@@ -210,7 +210,7 @@ export function PaymentProofs() {
             placeholder={t("paymentProofs.filter.project")}
             allowAll
             allLabel={t("paymentProofs.filter.allProjects")}
-            className="w-full sm:w-[260px]"
+            className="w-full sm:w-65"
           />
         )}
         <div className="space-y-1">
@@ -219,7 +219,7 @@ export function PaymentProofs() {
           </label>
           <Input
             type="date"
-            className="w-[170px]"
+            className="w-42.5"
             value={list.filters.date_from ?? ""}
             onChange={(event) =>
               list.setFilter("date_from", event.target.value || undefined)
@@ -232,7 +232,7 @@ export function PaymentProofs() {
           </label>
           <Input
             type="date"
-            className="w-[170px]"
+            className="w-42.5"
             value={list.filters.date_to ?? ""}
             onChange={(event) =>
               list.setFilter("date_to", event.target.value || undefined)
@@ -326,7 +326,7 @@ function PaymentProofDialog({
                       <TypeBadge label={t(`settlements.method.${payment.method}`)} />
                     </TableCell>
                     <TableCell>
-                      <div className="max-w-[180px]">
+                      <div className="max-w-45">
                         <p className="tabular truncate">
                           {payment.reference || t("common.emptyValue")}
                         </p>

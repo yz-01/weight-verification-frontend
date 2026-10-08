@@ -76,7 +76,7 @@ export function Drivers() {
         accessorKey: "phone",
         meta: { label: t("drivers.field.phone") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("drivers.field.phone")}
           </span>
         ),
@@ -88,7 +88,7 @@ export function Drivers() {
         accessorKey: "default_vehicle_plate",
         meta: { label: t("drivers.field.defaultVehicle") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("drivers.field.defaultVehicle")}
           </span>
         ),
@@ -102,7 +102,7 @@ export function Drivers() {
         accessorKey: "licence_expires_on",
         meta: { label: t("drivers.field.licenceExpires") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("drivers.field.licenceExpires")}
           </span>
         ),
@@ -137,7 +137,7 @@ export function Drivers() {
         accessorKey: "work_status",
         meta: { label: t("drivers.field.workStatus") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("drivers.field.workStatus")}
           </span>
         ),

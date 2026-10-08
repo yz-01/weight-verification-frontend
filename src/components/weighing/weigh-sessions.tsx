@@ -97,7 +97,7 @@ export function WeighSessions() {
         accessorKey: "ticket_status",
         meta: { label: t("weighing.field.ticketStatus") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("weighing.field.ticketStatus")}
           </span>
         ),
@@ -144,7 +144,7 @@ export function WeighSessions() {
         accessorKey: "anomaly_count",
         meta: { label: t("weighing.field.anomalyCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("weighing.field.anomalyCount")}
           </span>
         ),
@@ -165,7 +165,7 @@ export function WeighSessions() {
         accessorKey: "vehicle_plate",
         meta: { label: t("weighing.field.vehiclePlate") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("weighing.field.vehiclePlate")}
           </span>
         ),
@@ -180,7 +180,7 @@ export function WeighSessions() {
         accessorKey: "direction",
         meta: { label: t("weighing.field.direction") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("weighing.field.direction")}
           </span>
         ),
@@ -192,14 +192,14 @@ export function WeighSessions() {
         accessorKey: "scale_name",
         meta: { label: t("weighing.field.scale") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("weighing.field.scale")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[180px] truncate">{row.original.scale_name}</p>
-            <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+            <p className="max-w-45 truncate">{row.original.scale_name}</p>
+            <p className="max-w-45 truncate text-xs text-muted-foreground">
               {row.original.site_name}
             </p>
           </div>
@@ -209,17 +209,17 @@ export function WeighSessions() {
         accessorKey: "dispatch_no",
         meta: { label: t("dispatches.field.dispatchNo") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("dispatches.field.dispatchNo")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[180px] truncate">
+            <p className="max-w-45 truncate">
               {row.original.dispatch_no ?? t("tasks.noDispatch")}
             </p>
             {row.original.project_name && (
-              <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+              <p className="max-w-45 truncate text-xs text-muted-foreground">
                 {row.original.project_code} - {row.original.project_name}
               </p>
             )}
@@ -230,12 +230,12 @@ export function WeighSessions() {
         accessorKey: "recycler_name",
         meta: { label: t("dispatches.field.recycler") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("dispatches.field.recycler")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="block max-w-[180px] truncate">
+          <span className="block max-w-45 truncate">
             {row.original.recycler_name ?? t("common.emptyValue")}
           </span>
         ),

@@ -394,7 +394,7 @@ export function Safety({
         header: () => t("safety.field.title"),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[260px] truncate font-medium text-foreground">
+            <p className="max-w-65 truncate font-medium text-foreground">
               {isPermit(row.original) && (
                 <span className="mr-1.5 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
                   {te("permit.badge")}
@@ -402,7 +402,7 @@ export function Safety({
               )}
               {row.original.title}
             </p>
-            <p className="max-w-[260px] truncate text-xs text-muted-foreground">
+            <p className="max-w-65 truncate text-xs text-muted-foreground">
               {row.original.description}
             </p>
           </div>
@@ -413,7 +413,7 @@ export function Safety({
         meta: { label: t("safety.field.project") },
         header: () => t("safety.field.project"),
         cell: ({ row }) => (
-          <span className="block max-w-[200px] truncate">
+          <span className="block max-w-50 truncate">
             {row.original.project_name}
           </span>
         ),
@@ -423,7 +423,7 @@ export function Safety({
         meta: { label: t("safety.field.category") },
         header: () => t("safety.field.category"),
         cell: ({ row }) => (
-          <span className="block max-w-[180px] truncate">
+          <span className="block max-w-45 truncate">
             {row.original.category_name || t("common.emptyValue")}
           </span>
         ),
@@ -450,7 +450,7 @@ export function Safety({
             <div className="min-w-0">
               <p className="whitespace-nowrap">{t(`safetyRectification.status.${row.original.status}`)}</p>
               {waitingOn && (
-                <p className="max-w-[160px] truncate text-xs text-muted-foreground">{waitingOn}</p>
+                <p className="max-w-40 truncate text-xs text-muted-foreground">{waitingOn}</p>
               )}
             </div>
           );
@@ -582,7 +582,7 @@ export function Safety({
           placeholder={t("safety.filter.project")}
           allowAll
           allLabel={t("safety.filter.allProjects")}
-          className="w-full sm:w-[260px]"
+          className="w-full sm:w-65"
         />
         {/* Severity filter removed with the column (T-189). */}
         {!fieldMode && (
@@ -592,7 +592,7 @@ export function Safety({
               list.setFilter("category", value === "all" ? undefined : value)
             }
           >
-            <SelectTrigger className="w-full sm:w-[210px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-52.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("safety.filter.allCategories")}</SelectItem>
               {(filterCategories.data?.results ?? []).map((category) => (
@@ -608,7 +608,7 @@ export function Safety({
               list.setFilter("responsible_person", value === "all" ? undefined : value)
             }
           >
-            <SelectTrigger className="w-full sm:w-[210px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-52.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("safety.filter.allResponsible")}</SelectItem>
               {(responsiblePeople.data?.results ?? []).map((person) => (
@@ -623,7 +623,7 @@ export function Safety({
             aria-label={t("safety.filter.dateFrom")}
             value={list.filters.date_from ?? ""}
             onChange={(event) => list.setFilter("date_from", event.target.value || undefined)}
-            className="w-full sm:w-[165px]"
+            className="w-full sm:w-41.25"
           />
         )}
         {!fieldMode && (
@@ -632,7 +632,7 @@ export function Safety({
             aria-label={t("safety.filter.dateTo")}
             value={list.filters.date_to ?? ""}
             onChange={(event) => list.setFilter("date_to", event.target.value || undefined)}
-            className="w-full sm:w-[165px]"
+            className="w-full sm:w-41.25"
           />
         )}
         {!fieldMode && (

@@ -298,7 +298,7 @@ export function AdminDashboard({
       {section === undefined && (
         <header className="flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase text-primary">
+            <p className="text-xs font-semibold text-primary">
               MSE Trace
             </p>
             <h1 className="mt-1 text-2xl font-semibold">{t("title")}</h1>
@@ -1109,7 +1109,7 @@ function MapFilter({
 }) {
   return (
     <label className="min-w-0 space-y-1">
-      <span className="block text-[11px] font-medium text-muted-foreground">
+      <span className="block text-2xs font-medium text-muted-foreground">
         {label}
       </span>
       {children}

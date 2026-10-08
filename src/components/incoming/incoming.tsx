@@ -149,7 +149,7 @@ export function Incoming() {
         accessorKey: "state",
         meta: { label: t("incoming.field.state") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.state")}
           </span>
         ),
@@ -164,14 +164,14 @@ export function Incoming() {
         accessorKey: "project_name",
         meta: { label: t("incoming.field.project") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.project")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[200px] truncate font-medium">{row.original.contractor_name}</p>
-            <p className="max-w-[200px] truncate text-xs">{row.original.project_name}</p>
+            <p className="max-w-50 truncate font-medium">{row.original.contractor_name}</p>
+            <p className="max-w-50 truncate text-xs">{row.original.project_name}</p>
             <p className="tabular truncate text-xs text-muted-foreground">
               {row.original.project_code}
             </p>
@@ -185,14 +185,14 @@ export function Incoming() {
         accessorKey: "pickup_address",
         meta: { label: t("incoming.field.pickupAddress") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.pickupAddress")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[220px] truncate"
+              className="max-w-55 truncate"
               title={row.original.pickup_address}
             >
               {row.original.pickup_address || t("common.emptyValue")}
@@ -212,7 +212,7 @@ export function Incoming() {
         accessorKey: "waste_type",
         meta: { label: t("incoming.field.wasteType") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.wasteType")}
           </span>
         ),
@@ -226,7 +226,7 @@ export function Incoming() {
         accessorKey: "estimated_weight_kg",
         meta: { label: t("incoming.field.estimatedWeight") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.estimatedWeight")}
           </span>
         ),
@@ -240,7 +240,7 @@ export function Incoming() {
         accessorKey: "vehicle_plate",
         meta: { label: t("incoming.field.vehiclePlate") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.vehiclePlate")}
           </span>
         ),
@@ -518,7 +518,7 @@ function OrderAssignmentDialog({
           </p>
           {/* Repeated here rather than left to the list column because this is
               the screen where the yard commits a driver to the run. */}
-          <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="mt-2 text-xs font-semibold text-muted-foreground">
             {t("incoming.field.pickupAddress")}
           </p>
           <p className="text-sm">
@@ -662,7 +662,7 @@ function CollectDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[480px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-120 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("incoming.collect.title")}</DialogTitle>
           <DialogDescription>

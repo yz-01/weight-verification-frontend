@@ -848,7 +848,7 @@ function ColumnRecordsDialog({
               onChange={(event) => setTyped(event.target.value)}
               placeholder={t("records.search")}
               aria-label={t("records.search")}
-              className="h-8 w-[200px] max-w-full text-sm"
+              className="h-8 w-50 max-w-full text-sm"
             />
             <SupplierDateFilter
               value={filters}

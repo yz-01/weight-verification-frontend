@@ -89,7 +89,7 @@ export function Suppliers() {
           />
         ),
         cell: ({ row }) => (
-          <div className="flex max-w-[320px] items-center gap-1.5">
+          <div className="flex max-w-80 items-center gap-1.5">
             <span
               className="truncate font-medium text-foreground"
               title={row.original.name}
@@ -107,12 +107,12 @@ export function Suppliers() {
         accessorKey: "industry",
         meta: { label: t("suppliers.field.industry") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.industry")}
           </span>
         ),
         cell: ({ row }) => (
-          <div className="min-w-0 max-w-[260px]">
+          <div className="min-w-0 max-w-65">
             <p className="truncate" title={row.original.industry || undefined}>
               {row.original.industry || t("common.emptyValue")}
             </p>
@@ -131,7 +131,7 @@ export function Suppliers() {
         accessorKey: "contact_person",
         meta: { label: t("suppliers.field.contactPerson") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.contactPerson")}
           </span>
         ),
@@ -152,7 +152,7 @@ export function Suppliers() {
         accessorKey: "qr_code_count",
         meta: { label: t("suppliers.field.qrCodeCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.qrCodeCount")}
           </span>
         ),
@@ -164,7 +164,7 @@ export function Suppliers() {
         accessorKey: "is_active",
         meta: { label: t("suppliers.field.isActive") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.isActive")}
           </span>
         ),

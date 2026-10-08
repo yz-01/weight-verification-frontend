@@ -165,12 +165,12 @@ export function Users({
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[220px] truncate font-medium text-foreground"
+              className="max-w-55 truncate font-medium text-foreground"
               title={row.original.full_name}
             >
               {row.original.full_name}
             </p>
-            <p className="max-w-[220px] truncate text-xs text-muted-foreground">
+            <p className="max-w-55 truncate text-xs text-muted-foreground">
               {row.original.email}
             </p>
           </div>
@@ -194,7 +194,7 @@ export function Users({
         accessorKey: "role_name",
         meta: { label: t("users.field.role") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("users.field.role")}
           </span>
         ),
@@ -232,7 +232,7 @@ export function Users({
         accessorKey: "phone",
         meta: { label: t("users.field.phone") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("users.field.phone")}
           </span>
         ),

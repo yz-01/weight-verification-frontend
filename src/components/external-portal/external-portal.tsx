@@ -76,7 +76,7 @@ export function ExternalPortal({ token }: { token: string }) {
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
       <header className="border-b pb-5">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{data.grant.company_name}</p>
+        <p className="text-xs font-medium text-muted-foreground">{data.grant.company_name}</p>
         <h1 className="mt-2 text-2xl font-semibold">{data.grant.name}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{t("externalPortal.expiry", { date: new Date(data.grant.expires_at).toLocaleString() })}</p>
       </header>

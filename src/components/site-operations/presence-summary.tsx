@@ -80,7 +80,7 @@ export function PresenceSummary({ project }: { project?: string }) {
           </button>
           {open && (
             <div className="border-t">
-              <Table className="min-w-[640px]">
+              <Table className="min-w-160">
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("project")}</TableHead>

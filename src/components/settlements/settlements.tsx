@@ -59,7 +59,7 @@ export function Settlements() {
         accessorKey: "state",
         meta: { label: t("settlements.field.state") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("settlements.field.state")}
           </span>
         ),
@@ -74,14 +74,14 @@ export function Settlements() {
         accessorKey: "dispatch_no",
         meta: { label: t("settlements.field.dispatchNo") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("settlements.field.dispatchNo")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
             <p className="tabular truncate">{row.original.dispatch_no}</p>
-            <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+            <p className="max-w-45 truncate text-xs text-muted-foreground">
               {row.original.project_name}
             </p>
           </div>
@@ -130,7 +130,7 @@ export function Settlements() {
         accessorKey: "outstanding",
         meta: { label: t("settlements.field.outstanding") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("settlements.field.outstanding")}
           </span>
         ),

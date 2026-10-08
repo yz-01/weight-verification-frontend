@@ -371,7 +371,7 @@ function SummaryValue({
       title={label}
       onClick={onClick}
     >
-      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-2xs text-muted-foreground">{label}</p>
       <span className="mt-0.5 inline-flex items-center gap-1">
         <span
           className={`text-lg font-semibold tabular-nums ${tone ? "text-warning" : ""}`}
@@ -1508,13 +1508,13 @@ function InventoryMode({
   return (
     <div className="space-y-1.5 whitespace-nowrap">
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-2xs text-muted-foreground">
           {t("connectionMode.requested")}
         </span>
         <TypeBadge label={t(`mode.${requested}`)} />
       </div>
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-2xs text-muted-foreground">
           {t("connectionMode.actual")}
         </span>
         <TypeBadge label={t(`mode.${actual}`)} />
@@ -1916,7 +1916,7 @@ function RecentCapturesPanel() {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <h3 className="panel-title">
         {t("captures.title")}
       </h3>
       {captures.isError ? (
@@ -2022,7 +2022,7 @@ function PlateReadsPanel() {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <h3 className="panel-title">
         {t("plateReads.title")}
       </h3>
       {events.isError ? (

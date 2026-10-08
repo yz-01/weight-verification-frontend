@@ -85,10 +85,10 @@ export function Scales() {
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[220px] truncate font-medium text-foreground">
+            <p className="max-w-55 truncate font-medium text-foreground">
               {row.original.name}
             </p>
-            <p className="max-w-[220px] truncate text-xs text-muted-foreground">
+            <p className="max-w-55 truncate text-xs text-muted-foreground">
               {row.original.site_name}
             </p>
           </div>
@@ -98,7 +98,7 @@ export function Scales() {
         accessorKey: "protocol",
         meta: { label: t("scales.field.protocol") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("scales.field.protocol")}
           </span>
         ),
@@ -112,7 +112,7 @@ export function Scales() {
         accessorKey: "capacity_kg",
         meta: { label: t("scales.field.capacityKg") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("scales.field.capacityKg")}
           </span>
         ),
@@ -131,7 +131,7 @@ export function Scales() {
         accessorKey: "gateway_count",
         meta: { label: t("scales.field.gatewayCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("scales.field.gatewayCount")}
           </span>
         ),
@@ -176,7 +176,7 @@ export function Scales() {
         accessorKey: "is_active",
         meta: { label: t("scales.field.isActive") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("scales.field.isActive")}
           </span>
         ),

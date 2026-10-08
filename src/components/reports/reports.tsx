@@ -222,7 +222,7 @@ function PanelShell({
           <p className="tabular text-2xl font-semibold text-foreground">
             {total === null ? t("common.emptyValue") : formatter.number(total)}
           </p>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             {totalLabel}
           </p>
         </div>
@@ -405,7 +405,7 @@ function ReceiptsPanel({
           {units.map((unit) => (
             <section key={unit.unit} className="space-y-3 px-6 py-5">
               <div className="flex flex-wrap items-baseline gap-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <h4 className="panel-title">
                   {unitName(unit.unit)}
                 </h4>
                 <span className="tabular text-sm font-medium text-foreground">
@@ -467,7 +467,7 @@ function DispatchesPanel({
       ) : (
         <div className="divide-y">
           <section className="space-y-3 px-6 py-5">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h4 className="panel-title">
               {t("reports.dispatches.byType")}
             </h4>
             {chartData.length > 0 && (
@@ -507,7 +507,7 @@ function DispatchesPanel({
           </section>
 
           <section className="space-y-3 px-6 py-5">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h4 className="panel-title">
               {t("reports.dispatches.byState")}
             </h4>
             <div className="flex flex-wrap gap-2">

@@ -503,7 +503,7 @@ function StoredDetailSheet({
                       <a key={proof.id} href={proof.url} target="_blank" rel="noreferrer" className="block">
                         {/\.pdf$/i.test(proof.name ?? "") ? (
                           // The bank's PDF (D11): a file to open, not a photo.
-                          <span className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-md border p-2 text-center text-[11px]">
+                          <span className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-md border p-2 text-center text-2xs">
                             <FileText className="size-6 text-muted-foreground" />
                             <span className="line-clamp-2 break-all">{proof.name}</span>
                           </span>

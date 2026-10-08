@@ -129,7 +129,7 @@ export function PermissionMatrix({
         return (
           <div key={group.key}>
             <div className="mb-2 flex items-center gap-2">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h4 className="panel-title">
                 {t(`permissions.group.${group.key}`)}
               </h4>
               {!readOnly && (

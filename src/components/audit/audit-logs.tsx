@@ -211,7 +211,7 @@ export function AuditLogs({
         accessorKey: "result",
         meta: { label: t("audit.field.result") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("audit.field.result")}
           </span>
         ),
@@ -234,7 +234,7 @@ export function AuditLogs({
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[200px] truncate">
+            <p className="max-w-50 truncate">
               {row.original.actor_name ??
                 row.original.actor_email ??
                 t("common.emptyValue")}
@@ -256,14 +256,14 @@ export function AuditLogs({
         accessorKey: "object_repr",
         meta: { label: t("audit.field.objectRepr") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("audit.field.objectRepr")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[240px] truncate"
+              className="max-w-60 truncate"
               title={row.original.object_repr}
             >
               {row.original.object_repr || t("common.emptyValue")}
@@ -280,13 +280,13 @@ export function AuditLogs({
         accessorKey: "reason",
         meta: { label: t("audit.field.reason") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("audit.field.reason")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[200px] truncate text-muted-foreground"
+            className="block max-w-50 truncate text-muted-foreground"
             title={row.original.reason}
           >
             {row.original.reason || t("common.emptyValue")}
@@ -297,7 +297,7 @@ export function AuditLogs({
         accessorKey: "ip_address",
         meta: { label: t("audit.field.ipAddress") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("audit.field.ipAddress")}
           </span>
         ),

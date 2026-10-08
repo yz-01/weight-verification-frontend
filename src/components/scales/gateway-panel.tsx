@@ -114,7 +114,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
   return (
     <section className="px-6 py-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h3 className="panel-title">
           {t("gateways.title")}
         </h3>
         {can("scale.manage") && (
@@ -209,7 +209,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
         open={registering}
         onOpenChange={(next) => !next && setRegistering(false)}
       >
-        <DialogContent className="sm:max-w-[440px] [&>button]:hidden">
+        <DialogContent className="sm:max-w-110 [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>{t("gateways.new")}</DialogTitle>
             <DialogDescription>{t("gateways.secretBody")}</DialogDescription>
@@ -259,7 +259,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
 
       {revealed === null && manifest === null && dtu !== null && (
         <Dialog open onOpenChange={(next) => !next && setDtu(null)}>
-          <DialogContent className="sm:max-w-[640px]">
+          <DialogContent className="sm:max-w-160">
             <DialogHeader>
               <DialogTitle>{t("gateways.dtu.rotatedTitle")}</DialogTitle>
               <DialogDescription>
@@ -340,7 +340,7 @@ function ManifestDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[640px]">
+      <DialogContent className="sm:max-w-160">
         <DialogHeader>
           <DialogTitle>{t("gateways.manifestTitle")}</DialogTitle>
           <DialogDescription>{t("gateways.manifestBody")}</DialogDescription>
@@ -394,8 +394,7 @@ function DtuPanel({ dtu }: { dtu: GatewayDtuBlock | undefined }) {
   return (
     <section className="space-y-3 rounded-md border p-3">
       <div className="flex items-center gap-2">
-        <RadioTower className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h4 className="panel-title">
           {t("gateways.dtu.title")}
         </h4>
       </div>
@@ -509,7 +508,7 @@ function SecretDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[520px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-130 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <TriangleAlert className="h-4 w-4 text-warning" />

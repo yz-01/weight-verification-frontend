@@ -93,7 +93,7 @@ export function Deductions() {
         accessorKey: "dispatch_no",
         meta: { label: t("deductions.field.dispatchNo") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("deductions.field.dispatchNo")}
           </span>
         ),
@@ -102,7 +102,7 @@ export function Deductions() {
             <p className="tabular font-medium text-foreground">
               {row.original.dispatch_no}
             </p>
-            <p className="max-w-[200px] truncate text-xs text-muted-foreground">
+            <p className="max-w-50 truncate text-xs text-muted-foreground">
               {row.original.project_name}
             </p>
           </div>
@@ -129,7 +129,7 @@ export function Deductions() {
         accessorKey: "kind",
         meta: { label: t("deductions.field.kind") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("deductions.field.kind")}
           </span>
         ),
@@ -157,13 +157,13 @@ export function Deductions() {
         accessorKey: "reason",
         meta: { label: t("deductions.field.reason") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("deductions.field.reason")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[280px] truncate"
+            className="block max-w-70 truncate"
             title={row.original.reason}
           >
             {row.original.reason}
@@ -449,7 +449,7 @@ function RespondDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-[680px] [&>button]:hidden">
+      <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-170 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("deductions.respond.title")}</DialogTitle>
           <DialogDescription>

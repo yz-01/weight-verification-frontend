@@ -106,13 +106,13 @@ export function Projects() {
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[240px] truncate font-medium text-foreground"
+              className="max-w-60 truncate font-medium text-foreground"
               title={row.original.name}
             >
               {row.original.name}
             </p>
             {row.original.client_name && (
-              <p className="max-w-[240px] truncate text-xs text-muted-foreground">
+              <p className="max-w-60 truncate text-xs text-muted-foreground">
                 {row.original.client_name}
               </p>
             )}
@@ -140,7 +140,7 @@ export function Projects() {
         accessorKey: "city",
         meta: { label: t("projects.field.city") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("projects.field.city")}
           </span>
         ),
@@ -161,7 +161,7 @@ export function Projects() {
         accessorKey: "assigned_user_count",
         meta: { label: t("projects.field.assignedUsers") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("projects.field.assignedUsers")}
           </span>
         ),

@@ -103,7 +103,7 @@ export function IncidentThreadList() {
             placeholder={safetyT("project")}
             allowAll
             allLabel={safetyT("allProjects")}
-            className="w-full sm:w-[280px]"
+            className="w-full sm:w-70"
           />
         </div>
 

@@ -150,7 +150,7 @@ export function VoucherSource({
                 </>
               )}
             </a>
-            <figcaption className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+            <figcaption className="flex items-center justify-between gap-2 text-2xs text-muted-foreground">
               <span className="min-w-0 truncate">
                 {value?.source === "chat"
                   ? t("fromChat", { name: value.photo.author || "—" })

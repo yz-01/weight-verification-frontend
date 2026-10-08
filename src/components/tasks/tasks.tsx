@@ -96,7 +96,7 @@ export function Tasks() {
         accessorKey: "dispatch_no",
         meta: { label: t("tasks.field.dispatch") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("tasks.field.dispatch")}
           </span>
         ),
@@ -120,7 +120,7 @@ export function Tasks() {
         accessorKey: "driver_name",
         meta: { label: t("tasks.field.driver") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("tasks.field.driver")}
           </span>
         ),
@@ -137,12 +137,12 @@ export function Tasks() {
         accessorKey: "site_name",
         meta: { label: t("tasks.field.site") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("tasks.field.site")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="block max-w-[160px] truncate">
+          <span className="block max-w-40 truncate">
             {row.original.site_name}
           </span>
         ),
@@ -169,7 +169,7 @@ export function Tasks() {
         accessorKey: "photo_count",
         meta: { label: t("tasks.field.photoCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("tasks.field.photoCount")}
           </span>
         ),

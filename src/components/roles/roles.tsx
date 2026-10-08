@@ -87,7 +87,7 @@ export function Roles() {
         accessorKey: "permissions",
         meta: { label: t("roles.field.permissions") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("roles.field.permissions")}
           </span>
         ),
@@ -103,7 +103,7 @@ export function Roles() {
         accessorKey: "user_count",
         meta: { label: t("roles.field.userCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("roles.field.userCount")}
           </span>
         ),
@@ -115,13 +115,13 @@ export function Roles() {
         accessorKey: "description",
         meta: { label: t("roles.field.description") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("roles.field.description")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[280px] truncate text-muted-foreground"
+            className="block max-w-70 truncate text-muted-foreground"
             title={roleDescription(row.original, t)}
           >
             {roleDescription(row.original, t) || t("common.emptyValue")}
