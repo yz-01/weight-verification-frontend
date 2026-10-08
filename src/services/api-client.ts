@@ -92,26 +92,47 @@ function buildUrl(path: string, query?: ListQuery): string {
  */
 let refreshInFlight: Promise<boolean> | null = null;
 
+/**
+ * How long renewing the session may take before it counts as no answer.
+ *
+ * The access token lasts 30 minutes, so a delivery typed in over a longer
+ * stretch is sent, refused with 401, and renewed first. On a weak site signal
+ * that renewal could hang with nothing to end it, and 提交 spun for good.
+ */
+export const REFRESH_TIMEOUT_MS = 30_000;
+
 async function refreshAccessToken(): Promise<boolean> {
   const refresh = getRefreshToken();
   if (!refresh) return false;
 
-  const response = await fetch(buildUrl("/api/auth/refresh_token/"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh }),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REFRESH_TIMEOUT_MS);
+  try {
+    const response = await fetch(buildUrl("/api/auth/refresh_token/"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+      signal: controller.signal,
+    });
 
-  if (!response.ok) return false;
+    if (!response.ok) return false;
 
-  const envelope = (await response.json()) as ApiEnvelope<{
-    access: string;
-    refresh: string;
-  }>;
-  if (!envelope.success) return false;
+    const envelope = (await response.json()) as ApiEnvelope<{
+      access: string;
+      refresh: string;
+    }>;
+    if (!envelope.success) return false;
 
-  setTokens(envelope.data);
-  return true;
+    setTokens(envelope.data);
+    return true;
+  } catch {
+    // No answer, or cut off at the limit. Not a refusal - the session may be
+    // fine - so `request` reports it as no answer, and a queued record waits
+    // for a better signal instead of being refused.
+    throw new Error("refresh_no_answer");
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function ensureRefresh(): Promise<boolean> {
@@ -255,10 +276,21 @@ export async function request<T>(
     options.auth !== false &&
     !isCredentialExchange(path)
   ) {
-    const refreshed = await ensureRefresh();
-    if (refreshed) {
-      response = await send(path, options);
-    } else {
+    let refreshed: boolean;
+    try {
+      refreshed = await ensureRefresh();
+      if (refreshed) response = await send(path, options);
+    } catch (error) {
+      // The renewal or the resend got no answer: the same as the first send
+      // getting none. Uncaught, it reached the form as a bare error, so a
+      // delivery 提交 on a weak signal said 「操作失败」 instead of going into
+      // the offline queue.
+      if (error instanceof DOMException && error.name === "AbortError") throw error;
+      const failure = noAnswer(error);
+      if (!options.silent) toast.error(failure.message);
+      throw failure;
+    }
+    if (!refreshed) {
       endSession();
       throw new ApiError(t("auth.sessionExpired"), 401);
     }

@@ -2,10 +2,11 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ApiError } from "@/interfaces/api";
 import type { DeliveryNoteOCRResult } from "@/interfaces/contractor";
+import { OCR_READ_TIMEOUT_MS, readWithin } from "@/lib/delivery-note-read";
 
 type Target = { project: string; image: File };
 
@@ -23,26 +24,75 @@ type Target = { project: string; image: File };
  * `read` is the module's endpoint - each returns the same result
  * (`receiving.ocr.read_delivery_note` on the server). `onRead` fills the
  * module's own form; `onReset` clears whatever it kept from the last read.
+ *
+ * A read never holds the form back (hotfix after the October deploy): it
+ * stops waiting after `OCR_READ_TIMEOUT_MS` and says to type the details in,
+ * and a field the worker typed into while it was reading is theirs - pass
+ * its name to `noteTyped`, and `onRead` is told not to overwrite it.
  */
 export function useDeliveryNoteReader({
   read,
   onRead,
   onReset,
 }: {
-  read: (project: string, image: File) => Promise<DeliveryNoteOCRResult>;
-  onRead: (result: DeliveryNoteOCRResult) => void;
+  read: (project: string, image: File, signal?: AbortSignal) => Promise<DeliveryNoteOCRResult>;
+  onRead: (result: DeliveryNoteOCRResult, typed: ReadonlySet<string>) => void;
   onReset?: () => void;
 }) {
   const t = useTranslations("fieldStaffPwa.material");
   const [message, setMessage] = useState("");
   const [succeeded, setSucceeded] = useState(false);
+  // A read is in progress for the current photo. Not the mutation's own
+  // pending flag: a read that timed out or was cancelled may still be on the
+  // wire, but nobody is waiting on it any more.
+  const [reading, setReading] = useState(false);
   // The photo being read. An answer for any other photo is stale and dropped.
   const target = useRef<Target | null>(null);
+  // Fields the worker typed into while this read was running.
+  const typed = useRef(new Set<string>());
+  // The read on the wire. Stopped once nobody waits for it - out of time,
+  // retaken, cancelled, the form closed - so the photo it is still sending
+  // does not share a weak site signal with the delivery's own upload.
+  const inFlight = useRef<AbortController | null>(null);
+  const stopUpload = () => {
+    inFlight.current?.abort();
+    inFlight.current = null;
+  };
+  // A form that closed (submitted, or dismissed) takes no late answer: it
+  // would write the last delivery's DO into the next one's draft.
+  useEffect(() => {
+    const reads = inFlight;
+    return () => {
+      target.current = null;
+      reads.current?.abort();
+    };
+  }, []);
 
   const mutation = useMutation({
-    mutationFn: ({ project, image }: Target) => read(project, image),
-    onSuccess: (result, sent) => {
+    mutationFn: async ({ project, image }: Target) => {
+      const upload = new AbortController();
+      inFlight.current = upload;
+      const outcome = await readWithin(() => read(project, image, upload.signal), OCR_READ_TIMEOUT_MS);
+      if (outcome.kind === "timedOut") upload.abort();
+      if (inFlight.current === upload) inFlight.current = null;
+      return outcome;
+    },
+    onSuccess: (outcome, sent) => {
       if (target.current !== sent) return;
+      setReading(false);
+      if (outcome.kind !== "read") {
+        // Failed, or out of time: the worker types it in, nothing waits.
+        target.current = null;
+        setSucceeded(false);
+        setMessage(
+          outcome.kind === "failed" && outcome.reason instanceof ApiError
+            ? outcome.reason.message
+            : t("ocrManual"),
+        );
+        onReset?.();
+        return;
+      }
+      const result = outcome.result;
       setSucceeded(true);
       const doubtful = result.low_confidence_fields ?? [];
       setMessage(
@@ -52,19 +102,15 @@ export function useDeliveryNoteReader({
             })
           : t("ocrReady"),
       );
-      onRead(result);
-    },
-    onError: (reason, sent) => {
-      if (target.current !== sent) return;
-      setSucceeded(false);
-      setMessage(reason instanceof ApiError ? reason.message : t("ocrManual"));
-      onReset?.();
+      onRead(result, new Set(typed.current));
     },
   });
 
   /** Forget the last read: a new project, or the photo was removed. */
   const cancel = () => {
     target.current = null;
+    stopUpload();
+    setReading(false);
     setSucceeded(false);
     setMessage("");
     onReset?.();
@@ -84,10 +130,17 @@ export function useDeliveryNoteReader({
     }
     const next = { project, image };
     target.current = next;
+    typed.current = new Set();
+    setReading(true);
     mutation.mutate(next);
   };
 
-  return { inspect, cancel, reading: mutation.isPending, message, succeeded };
+  /** The worker typed into this field: a read that lands later leaves it alone. */
+  const noteTyped = (field: string) => {
+    if (reading) typed.current.add(field);
+  };
+
+  return { inspect, cancel, noteTyped, reading, message, succeeded };
 }
 
 /** The one line that says how the read went, the same on every screen. */

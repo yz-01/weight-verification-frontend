@@ -142,14 +142,28 @@ export function requestLocation(
     return Promise.reject(new LocationRefused("unsupported"));
   }
   return new Promise((resolve, reject) => {
+    // The browser's own `timeout` only starts once permission is settled, and
+    // some phones (iOS Safari with the prompt dismissed, or Location Services
+    // in a bad state) then never call back at all. The form sat on 「定位中」
+    // for good, and a required position kept 提交 locked with no 【重试】 to
+    // press. Past this the request counts as timed out; an answer that comes
+    // later is ignored, and 【重试】 asks again.
+    const ownLimit = Number.isFinite(options.timeout) ? Number(options.timeout) : LOCATION_TIMEOUT_MS;
+    const watchdog = setTimeout(
+      () => reject(new LocationRefused("timeout")),
+      ownLimit + LOCATION_GRACE_MS,
+    );
     navigator.geolocation.getCurrentPosition(
-      (position) =>
+      (position) => {
+        clearTimeout(watchdog);
         resolve({
           latitude: position.coords.latitude.toFixed(7),
           longitude: position.coords.longitude.toFixed(7),
           accuracy: position.coords.accuracy.toFixed(2),
-        }),
+        });
+      },
       (error) => {
+        clearTimeout(watchdog);
         if (error.code === error.PERMISSION_DENIED) {
           reject(new LocationRefused("denied"));
         } else if (error.code === error.TIMEOUT) {
@@ -162,6 +176,15 @@ export function requestLocation(
     );
   });
 }
+
+/** The fix's own time limit when the caller gives none. */
+const LOCATION_TIMEOUT_MS = 15_000;
+
+/**
+ * Time on top of the fix's own limit for the person to answer the browser's
+ * permission prompt, before a request that never answered counts as timed out.
+ */
+export const LOCATION_GRACE_MS = 45_000;
 
 export function problemOf(error: unknown): LocationProblem {
   return error instanceof LocationRefused ? error.problem : "unavailable";

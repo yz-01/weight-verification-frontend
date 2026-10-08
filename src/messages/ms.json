@@ -11552,6 +11552,7 @@
       "MANUAL": "Dimasukkan secara manual",
       "NOT_CONFIGURED": "Pembaca belum dikonfigurasi",
       "NOT_REQUESTED": "Tidak dibaca",
+      "PENDING": "Menunggu dibaca",
       "SUCCEEDED": "Dibaca"
     },
     "editNote": "Kuantiti dan harga boleh dibetulkan. Projek, nota hantar dan masa rekod tidak boleh — itulah yang dibuktikan oleh resit ini.",
@@ -13619,6 +13620,7 @@
       "MANUAL": "Diisi manual",
       "NOT_CONFIGURED": "OCR belum dikonfigurasi",
       "NOT_REQUESTED": "Belum dibaca",
+      "PENDING": "Menunggu dibaca",
       "SUCCEEDED": "Dibaca oleh Azure OCR"
     },
     "optional": "pilihan",

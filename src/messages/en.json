@@ -11552,6 +11552,7 @@
       "MANUAL": "Entered by hand",
       "NOT_CONFIGURED": "Reader not configured",
       "NOT_REQUESTED": "Not read",
+      "PENDING": "Waiting to be read",
       "SUCCEEDED": "Read"
     },
     "editNote": "The quantity and price can be corrected. The project, the docket and the recorded time cannot — they are what the receipt is evidence of.",
@@ -13619,6 +13620,7 @@
       "MANUAL": "Entered manually",
       "NOT_CONFIGURED": "OCR not configured",
       "NOT_REQUESTED": "Not read",
+      "PENDING": "Waiting to be read",
       "SUCCEEDED": "Read by Azure OCR"
     },
     "optional": "optional",
