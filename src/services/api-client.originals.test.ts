@@ -8,9 +8,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  */
 
 const originals = new Map<string, Record<string, unknown>>();
+/** Set to make IndexedDB stall, as iOS Safari's does after a resume. */
+let stalled = false;
 
 vi.mock("@/lib/offline-db", () => ({
-  getLocalOriginal: async (id: string) => originals.get(id) ?? null,
+  getLocalOriginal: (id: string) =>
+    stalled ? new Promise(() => undefined) : Promise.resolve(originals.get(id) ?? null),
   getLocalOriginals: async () => [...originals.values()],
   putLocalOriginal: async () => undefined,
   updateLocalOriginal: async (id: string, change: Record<string, unknown>) => {
@@ -22,7 +25,7 @@ vi.mock("@/lib/offline-db", () => ({
 }));
 
 const { api } = await import("./api-client");
-const { MANIFEST_FIELD, nameWithOriginal } = await import("@/lib/original-photos");
+const { MANIFEST_FIELD, MANIFEST_WAIT_MS, nameWithOriginal } = await import("@/lib/original-photos");
 
 const ID = "0123456789abcdef0123456789abcdef";
 
@@ -45,6 +48,7 @@ function upload() {
 
 describe("a photo upload declares its originals", () => {
   beforeEach(() => {
+    stalled = false;
     originals.clear();
     originals.set(ID, {
       id: ID,
@@ -57,7 +61,10 @@ describe("a photo upload declares its originals", () => {
     });
   });
 
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
 
   it("sends the manifest and marks the original waiting once the upload landed", async () => {
     respond(201, { success: true, data: {} });
@@ -71,6 +78,22 @@ describe("a photo upload declares its originals", () => {
   it("leaves the original as it was when the upload was refused", async () => {
     respond(400, { success: false, message: "no", code: "validation_failed", errors: {} });
     await expect(api.post("/api/field-tasks/t-1/add_photo/", upload(), { silent: true })).rejects.toThrow();
+    expect(originals.get(ID)).toMatchObject({ state: "captured" });
+  });
+
+  it("still sends the photo, without the manifest, when IndexedDB stalls", async () => {
+    vi.useFakeTimers();
+    stalled = true;
+    respond(201, { success: true, data: {} });
+    const sent = api.post("/api/field-tasks/t-1/add_photo/", upload(), { silent: true });
+    await vi.advanceTimersByTimeAsync(MANIFEST_WAIT_MS - 100);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(200);
+    await sent;
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(sentBody().has(MANIFEST_FIELD)).toBe(false);
+    // Left `captured`: 「同步原图」 sends it with `photo_sha256` and the server
+    // declares it on arrival.
     expect(originals.get(ID)).toMatchObject({ state: "captured" });
   });
 });

@@ -156,6 +156,9 @@ export async function keepOriginal(input: {
 /** Originals being written right now, by id (see `trackOriginal`). */
 const keeping = new Map<string, Promise<boolean>>();
 
+/** The longest an upload waits for its manifest before it goes without one. */
+export const MANIFEST_WAIT_MS = 8_000;
+
 /** How long an upload waits for an original still being written. */
 const KEEP_WAIT_MS = 5_000;
 
@@ -225,18 +228,54 @@ export function carriesOriginals(body: FormData): boolean {
  * now and 「原图已备份」 only when exactly these bytes arrive (三.6, 三.7).
  *
  * Never throws and never blocks the upload: a photo whose original cannot be
- * found or hashed simply goes without a declaration.
+ * found or hashed simply goes without a declaration, and the whole step gives
+ * up after `waitMs` (the upload then goes without any manifest).
  */
-export async function attachOriginalManifest(body: FormData): Promise<Declared[]> {
+export async function attachOriginalManifest(
+  body: FormData,
+  waitMs: number = MANIFEST_WAIT_MS,
+): Promise<Declared[]> {
+  if (body.has(MANIFEST_FIELD)) return [];
+  // IndexedDB can stall (iOS Safari after the tab is resumed, a version change
+  // blocked by another tab). The application photo must never wait on that:
+  // past the bound the upload goes without the manifest, the original stays
+  // `captured`, and 「同步原图」 sends it with `photo_sha256` so the server
+  // declares it on arrival.
+  let abandoned = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const work = buildManifest(body).then(({ entries, declared }) => {
+    if (abandoned || entries.length === 0 || body.has(MANIFEST_FIELD)) return [];
+    body.append(MANIFEST_FIELD, JSON.stringify(entries));
+    return declared;
+  });
+  const giveUp = new Promise<Declared[]>((resolve) => {
+    timer = setTimeout(() => {
+      abandoned = true;
+      resolve([]);
+    }, waitMs);
+  });
   try {
-    if (body.has(MANIFEST_FIELD) || !canHash()) return [];
+    return await Promise.race([work, giveUp]);
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function buildManifest(
+  body: FormData,
+): Promise<{ entries: ManifestEntry[]; declared: Declared[] }> {
+  const none = { entries: [], declared: [] };
+  try {
+    if (!canHash()) return none;
     const photos: File[] = [];
     body.forEach((value) => {
       if (typeof File !== "undefined" && value instanceof File && originalIdOf(value.name)) {
         photos.push(value);
       }
     });
-    if (photos.length === 0) return [];
+    if (photos.length === 0) return none;
     const entries: ManifestEntry[] = [];
     const declared: Declared[] = [];
     for (const photo of photos) {
@@ -254,10 +293,9 @@ export async function attachOriginalManifest(body: FormData): Promise<Declared[]
       });
       declared.push({ id, photoSha256 });
     }
-    if (entries.length) body.append(MANIFEST_FIELD, JSON.stringify(entries));
-    return declared;
+    return { entries, declared };
   } catch {
-    return [];
+    return none;
   }
 }
 
