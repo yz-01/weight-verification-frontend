@@ -150,7 +150,11 @@
    * CJK glyphs, so Chinese characters fall through to Noto while Latin words
    * and digits inside a Chinese sentence stay in Plex: one consistent face for
    * every number in the system. The platform fonts after them are the
-   * fallback while the web fonts load, and if they ever fail to. */
+   * fallback while the web fonts load, and if they ever fail to.
+   * The Noto families are declared by the @fontsource-variable imports in
+   * app/layout.tsx; the Plex, Chakra and Geist variables come from next/font. */
+  --font-noto-sc: "Noto Sans SC Variable", "Microsoft YaHei", "PingFang SC";
+  --font-noto-tc: "Noto Sans TC Variable", "Microsoft JhengHei", "PingFang TC";
   --font-cjk: var(--font-noto-sc);
   --font-body-stack:
     var(--font-plex), var(--font-cjk), "Microsoft YaHei", "PingFang SC",
