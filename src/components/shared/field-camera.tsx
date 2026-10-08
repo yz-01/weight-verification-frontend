@@ -3,10 +3,10 @@
 import { Camera, CameraIcon, Loader2, RefreshCw, SwitchCamera, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { startOriginal } from "@/lib/original-capture";
+import { applicationPhotoCanvas, startOriginal } from "@/lib/original-capture";
 
 import { Button } from "@/components/ui/button";
-import { canvasJpeg, encodeWithinTarget, fitWithin } from "@/lib/photo-compression";
+import { canvasJpeg, encodeWithinTarget } from "@/lib/photo-compression";
 import {
   Dialog,
   DialogContent,
@@ -178,21 +178,13 @@ export function FieldCamera({
     // every other photo the queue holds (`lib/photo-compression`), here at no
     // extra cost because the frame is drawn onto a canvas anyway. It also
     // keeps the DO photo that OCR reads the moment it is taken small enough
-    // to get through on a weak signal.
-    const size = fitWithin(video.videoWidth, video.videoHeight);
-    const canvas = document.createElement("canvas");
-    canvas.width = size.width;
-    canvas.height = size.height;
-    const context = canvas.getContext("2d");
-    if (!context) {
+    // to get through on a weak signal. Drawn from the original's frame when
+    // there is one, so both are the same moment.
+    const canvas = applicationPhotoCanvas(video, facing === "user", original);
+    if (!canvas) {
       setError(t("captureError"));
       return;
     }
-    if (facing === "user") {
-      context.translate(canvas.width, 0);
-      context.scale(-1, 1);
-    }
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
     // At 0.8, stepped down toward 500 KB but never below the floor that keeps
     // a DO's print readable (client 2026-10-09 一.2-一.4).
     void encodeWithinTarget((quality) => canvasJpeg(canvas, quality)).then((blob) => {

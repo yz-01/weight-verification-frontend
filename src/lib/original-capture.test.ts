@@ -19,10 +19,12 @@ vi.mock("@/lib/offline-db", () => ({
   updateLocalOriginal: async () => null,
 }));
 
-import { startOriginal } from "@/lib/original-capture";
+import { applicationPhotoCanvas, startOriginal } from "@/lib/original-capture";
 import { ORIGINAL_QUALITY, originalIdOf } from "@/lib/original-photos";
 
 const calls: string[] = [];
+/** What each drawImage drew from, in order. */
+const sources: unknown[] = [];
 let quality: number | undefined;
 
 function fakeCanvas() {
@@ -32,8 +34,10 @@ function fakeCanvas() {
     getContext: () => ({
       translate: () => calls.push("translate"),
       scale: () => calls.push("scale"),
-      drawImage: (_source: unknown, _x: number, _y: number, width: number, height: number) =>
-        calls.push(`draw ${width}x${height}`),
+      drawImage: (source: unknown, _x: number, _y: number, width: number, height: number) => {
+        sources.push(source);
+        calls.push(`draw ${width}x${height}`);
+      },
     }),
     toBlob: (done: (blob: Blob | null) => void, _type: string, q?: number) => {
       quality = q;
@@ -48,6 +52,7 @@ const video = { videoWidth: 1920, videoHeight: 1080 } as HTMLVideoElement;
 beforeEach(() => {
   stored.length = 0;
   calls.length = 0;
+  sources.length = 0;
   quality = undefined;
   const payload = btoa(JSON.stringify({ user_id: "worker-1" })).replace(/=+$/, "");
   token = `h.${payload}.s`;
@@ -91,5 +96,36 @@ describe("startOriginal", () => {
   it("keeps nothing when nobody is signed in", () => {
     token = null;
     expect(startOriginal(video, false)).toBeNull();
+  });
+});
+
+describe("one frame for the original and the application photo (audit S4)", () => {
+  const big = { videoWidth: 4000, videoHeight: 3000 } as HTMLVideoElement;
+
+  it("reads the video once and draws the photo from the original's frame", () => {
+    const pending = startOriginal(big, false);
+    const photo = applicationPhotoCanvas(big, false, pending);
+    expect(photo).not.toBeNull();
+    // The video is drawn once, at full size; the photo comes from that frame.
+    expect(sources.filter((source) => source === big)).toHaveLength(1);
+    expect(sources).toEqual([big, pending!.frame]);
+    expect(calls).toEqual(["draw 4000x3000", "draw 1920x1440"]);
+    expect([photo!.width, photo!.height]).toEqual([1920, 1440]);
+  });
+
+  it("mirrors the front camera once, not twice", () => {
+    const pending = startOriginal(video, true);
+    applicationPhotoCanvas(video, true, pending);
+    expect(calls).toEqual(["translate", "scale", "draw 1920x1080", "draw 1920x1080"]);
+    expect(sources).toEqual([video, pending!.frame]);
+  });
+
+  it("without an original the photo is drawn from the video as before", () => {
+    token = null;
+    const pending = startOriginal(video, true);
+    expect(pending).toBeNull();
+    applicationPhotoCanvas(video, true, pending);
+    expect(calls).toEqual(["translate", "scale", "draw 1920x1080"]);
+    expect(sources).toEqual([video]);
   });
 });

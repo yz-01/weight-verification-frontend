@@ -12,6 +12,7 @@
  */
 
 import { getAccessToken } from "@/lib/auth-token";
+import { fitWithin } from "@/lib/photo-compression";
 import {
   canHash,
   keepOriginal,
@@ -23,6 +24,13 @@ import {
 } from "@/lib/original-photos";
 
 export interface PendingOriginal {
+  /**
+   * The frame itself, drawn once from the video (already mirrored for the
+   * front camera). The application photo is drawn from this same canvas, so
+   * the kept original is exactly the original *of* the photo the server holds
+   * - not a neighbouring video frame on a moving truck.
+   */
+  frame: HTMLCanvasElement;
   /**
    * Hand over the application photo: returns it under a name that carries the
    * original's id, and starts keeping the original. Called once.
@@ -56,6 +64,7 @@ export function startOriginal(video: HTMLVideoElement, mirrored: boolean): Pendi
   const id = newOriginalId();
 
   return {
+    frame,
     attach(photo) {
       const named = new File([photo], nameWithOriginal(photo.name, id), {
         type: photo.type,
@@ -90,4 +99,37 @@ export function startOriginal(video: HTMLVideoElement, mirrored: boolean): Pendi
       return named;
     },
   };
+}
+
+/**
+ * The application photo's canvas, at upload size (A5, A9: the same long-edge
+ * cap as every other photo the queue holds).
+ *
+ * With an original it is drawn from the original's frame - one frame for
+ * both, and the frame is already mirrored. Without one (nobody signed in, no
+ * hashing) it is drawn from the video as it always was. `null` when the
+ * browser gives no 2D context.
+ */
+export function applicationPhotoCanvas(
+  video: HTMLVideoElement,
+  mirrored: boolean,
+  original: PendingOriginal | null,
+): HTMLCanvasElement | null {
+  const source = original?.frame ?? null;
+  const size = fitWithin(source?.width ?? video.videoWidth, source?.height ?? video.videoHeight);
+  const canvas = document.createElement("canvas");
+  canvas.width = size.width;
+  canvas.height = size.height;
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+  if (source) {
+    context.drawImage(source, 0, 0, canvas.width, canvas.height);
+    return canvas;
+  }
+  if (mirrored) {
+    context.translate(canvas.width, 0);
+    context.scale(-1, 1);
+  }
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  return canvas;
 }
