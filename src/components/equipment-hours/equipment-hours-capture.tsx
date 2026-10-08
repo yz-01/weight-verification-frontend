@@ -205,7 +205,7 @@ export function LastSentNote({ last }: { last: LastSent }) {
       ? siteDay(newest) !== last.day.work_date
       : false;
   return (
-    <section className="rounded-lg border bg-card p-3 text-sm shadow-sm" aria-live="polite">
+    <section className="rounded-lg border bg-card p-3 text-sm" aria-live="polite">
       <p className="font-semibold">{last.label}</p>
       {last.status === "queued" ? (
         <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">

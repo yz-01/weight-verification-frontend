@@ -9,6 +9,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   FieldWrapper,
+  FilterBar,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -259,7 +260,7 @@ export function EquipmentOperatorHours() {
         }
       />
 
-      <div className="flex flex-wrap items-end gap-3">
+      <FilterBar>
         <Tabs value={view} onValueChange={(value) => setView(value as View)}>
           <TabsList>
             <TabsTrigger value="day">{t("view.day")}</TabsTrigger>
@@ -272,25 +273,25 @@ export function EquipmentOperatorHours() {
           placeholder={t("field.project")}
           allowAll
           allLabel={t("allProjects")}
-          className="h-9 w-56"
+          className="w-full sm:w-56"
         />
         {view === "day" ? (
           <>
-            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
               {t("filter.from")}
               <Input
                 type="date"
-                className="h-9 w-40"
+                className="w-full sm:w-40"
                 value={dateFrom}
                 max={dateTo}
                 onChange={(event) => setRange(event.target.value || today, dateTo, "from")}
               />
             </label>
-            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
               {t("filter.to")}
               <Input
                 type="date"
-                className="h-9 w-40"
+                className="w-full sm:w-40"
                 value={dateTo}
                 min={dateFrom}
                 onChange={(event) => setRange(dateFrom, event.target.value || today, "to")}
@@ -298,17 +299,17 @@ export function EquipmentOperatorHours() {
             </label>
           </>
         ) : (
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
             {t("filter.month")}
             <Input
               type="month"
-              className="h-9 w-44"
+              className="w-full sm:w-44"
               value={month}
               onChange={(event) => setMonth(event.target.value || today.slice(0, 7))}
             />
           </label>
         )}
-      </div>
+      </FilterBar>
 
       {view === "day" && narrowed ? (
         <p className="text-xs text-muted-foreground" role="status">
@@ -317,7 +318,7 @@ export function EquipmentOperatorHours() {
       ) : null}
 
       {view === "day" ? (
-        <div className="rounded-lg border bg-card">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <QueryFailedNote query={days} what={t("what.days")} className="p-3" />
           <Table>
             <TableHeader>
@@ -327,7 +328,7 @@ export function EquipmentOperatorHours() {
                 <TableHead>{t("field.plate")}</TableHead>
                 <TableHead>{t("field.start")}</TableHead>
                 <TableHead>{t("field.end")}</TableHead>
-                <TableHead className="text-right">{t("field.hours")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.hours")}</TableHead>
                 <TableHead>{t("field.photos")}</TableHead>
                 <TableHead className="text-right">
                   <span className="sr-only">{t("field.actions")}</span>
@@ -350,16 +351,16 @@ export function EquipmentOperatorHours() {
               ) : (
                 rows.map((row) => (
                   <TableRow key={row.key} className="cursor-pointer" onClick={() => setOpened(row)}>
-                    <TableCell className="tabular-nums">{df.date(row.work_date)}</TableCell>
+                    <TableCell className="tabular">{df.date(row.work_date)}</TableCell>
                     <TableCell>
                       <p className="font-medium">{row.equipment_name}</p>
                       <p className="text-xs text-muted-foreground">{row.project_name}</p>
                     </TableCell>
                     <TableCell>{row.plate || "-"}</TableCell>
-                    <TableCell className="tabular-nums">
+                    <TableCell className="tabular">
                       <ShiftTime at={row.start_at} workDate={row.work_date} />
                     </TableCell>
-                    <TableCell className="tabular-nums">
+                    <TableCell className="tabular">
                       {row.missing_end ? (
                         <StatusBadge label={t("status.MISSING_END")} tone="warning" />
                       ) : (
@@ -369,7 +370,7 @@ export function EquipmentOperatorHours() {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right font-medium tabular-nums">{row.hours}</TableCell>
+                    <TableCell className="tabular text-right font-medium">{row.hours}</TableCell>
                     <TableCell>
                       <PhotoStrip day={row} />
                     </TableCell>
@@ -397,17 +398,17 @@ export function EquipmentOperatorHours() {
           </Table>
         </div>
       ) : (
-        <div className="rounded-lg border bg-card">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <QueryFailedNote query={monthly} what={t("what.month")} className="p-3" />
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.equipment")}</TableHead>
                 <TableHead>{t("field.plate")}</TableHead>
-                <TableHead className="text-right">{t("field.daysWorked")}</TableHead>
-                <TableHead className="text-right">{t("field.totalHours")}</TableHead>
-                <TableHead className="text-right">{t("field.missingEndDays")}</TableHead>
-                <TableHead className="text-right">{t("field.adjustedDays")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.daysWorked")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.totalHours")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.missingEndDays")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.adjustedDays")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -432,23 +433,23 @@ export function EquipmentOperatorHours() {
                         <p className="text-xs text-muted-foreground">{row.project_name}</p>
                       </TableCell>
                       <TableCell>{row.plate || "-"}</TableCell>
-                      <TableCell className="text-right tabular-nums">{row.days_worked}</TableCell>
-                      <TableCell className="text-right font-medium tabular-nums">{row.total_hours}</TableCell>
-                      <TableCell className="text-right tabular-nums">
+                      <TableCell className="tabular text-right">{row.days_worked}</TableCell>
+                      <TableCell className="tabular text-right font-medium">{row.total_hours}</TableCell>
+                      <TableCell className="tabular text-right">
                         {row.missing_end_days > 0 ? (
                           <StatusBadge label={String(row.missing_end_days)} tone="warning" />
                         ) : (
                           0
                         )}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums">{row.adjusted_days}</TableCell>
+                      <TableCell className="tabular text-right">{row.adjusted_days}</TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
                     <TableCell className="font-semibold">{t("month.total")}</TableCell>
                     <TableCell />
                     <TableCell className="text-right" />
-                    <TableCell className="text-right font-semibold tabular-nums">
+                    <TableCell className="tabular text-right font-semibold">
                       {monthly.data?.total_hours}
                     </TableCell>
                     <TableCell className="text-right" />
@@ -572,7 +573,7 @@ function DayDialog({
         </DialogHeader>
 
         <section className="space-y-2">
-          <h3 className="text-sm font-semibold">{t("dialog.photos")}</h3>
+          <h3 className="panel-title">{t("dialog.photos")}</h3>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {day.photos.map((photo) => (
               <a
@@ -580,7 +581,7 @@ function DayDialog({
                 href={photo.watermarked_photo ?? undefined}
                 target="_blank"
                 rel="noreferrer"
-                className="block overflow-hidden rounded-md border bg-muted/20"
+                className="block overflow-hidden rounded-lg border bg-muted/30"
               >
                 {photo.watermarked_photo ? (
                   // eslint-disable-next-line @next/next/no-img-element -- a stamped evidence file served by the API
@@ -599,8 +600,8 @@ function DayDialog({
         </section>
 
         {canAdjust && (
-          <section className="space-y-3 rounded-lg border p-3">
-            <h3 className="text-sm font-semibold">
+          <section className="space-y-3 rounded-lg border bg-muted/30 p-3">
+            <h3 className="panel-title">
               {day.missing_end ? t("adjust.add") : t("adjust.edit")}
             </h3>
             <p className="text-xs text-muted-foreground">{t("adjust.help")}</p>
@@ -654,13 +655,13 @@ export function AdjustmentHistory({ day }: { day: EquipmentHoursDay }) {
   const df = useDateFormat();
   return (
     <section className="space-y-2">
-      <h3 className="text-sm font-semibold">{t("history.title")}</h3>
+      <h3 className="panel-title">{t("history.title")}</h3>
       {day.adjustments.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("history.empty")}</p>
       ) : (
         <ol className="space-y-2">
           {day.adjustments.map((entry, index) => (
-            <li key={entry.id} className="rounded-md border p-2 text-sm">
+            <li key={entry.id} className="rounded-lg border p-3 text-sm">
               <p className="font-medium">
                 {t("history.end", { end: df.dateTime(entry.end_at) })}
                 {index === 0 && (

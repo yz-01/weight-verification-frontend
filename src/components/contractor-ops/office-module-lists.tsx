@@ -129,9 +129,7 @@ function CreateButton({
 }) {
   return (
     <Button
-      size="sm"
       variant={variant}
-      className="rounded-full px-4 shadow-sm"
       onClick={onClick}
     >
       {icon}
@@ -415,11 +413,11 @@ export function MaterialOutgoingOffice() {
         // date filter beside them (B5). Returns typed 退场 on the receipt
         // form before 10-02 are listed on their own, one click away.
         above={
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-col gap-2">
             <MaterialTabs>
               <SupplierDateListFilter list={list} showManufacturer />
             </MaterialTabs>
-            <Link href="/receipts?direction=OUT" className="text-xs text-primary underline-offset-2 hover:underline">
+            <Link href="/receipts?direction=OUT" className="self-end text-xs text-primary underline-offset-2 hover:underline">
               {tRoot("receipts.tabs.legacyReturns")}
             </Link>
           </div>
@@ -780,9 +778,13 @@ export function SiteEquipmentOffice() {
       {
         accessorKey: "quantity_on_site",
         meta: { label: t("field.quantity") },
-        header: () => <PlainHeader label={t("field.quantity")} />,
+        header: () => (
+          <div className="tabular text-right">
+            <PlainHeader label={t("field.quantity")} />
+          </div>
+        ),
         cell: ({ row }) => (
-          <span className="tabular">{row.original.quantity_on_site}</span>
+          <span className="tabular block text-right">{row.original.quantity_on_site}</span>
         ),
       },
       {
@@ -856,7 +858,7 @@ export function SiteEquipmentOffice() {
       <QueryFailedNote query={summary} what={t("what.equipmentSummary")} />
       {/* Opened from a machine's profile (B2): its entries and exits only. */}
       {list.filters.equipment && !register && (
-        <p className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-1.5 text-xs">
+        <p className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-xs">
           {t("equipment.oneMachineOnly")}
           <button
             type="button"
@@ -868,7 +870,7 @@ export function SiteEquipmentOffice() {
         </p>
       )}
       {expiring && (
-        <p className="flex items-center gap-2 rounded-md border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs">
+        <p className="flex flex-wrap items-center gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
           {tRoot("moduleTable.expiringOnly")}
           <button
             type="button"
@@ -879,7 +881,7 @@ export function SiteEquipmentOffice() {
           </button>
         </p>
       )}
-      <div className="ml-auto inline-flex w-fit rounded-lg border bg-muted/30 p-0.5 text-sm">
+      <div className="ml-auto inline-flex h-10 w-fit rounded-lg border bg-muted/30 p-1 text-sm pointer-coarse:h-11">
         {(["movements", "register"] as const).map((view) => {
           const active = (view === "register") === register;
           return (
@@ -887,7 +889,7 @@ export function SiteEquipmentOffice() {
               key={view}
               type="button"
               aria-pressed={active}
-              className={`rounded-md px-3 py-1 font-medium transition ${active ? "bg-card shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              className={`rounded-md px-3 font-medium transition ${active ? "bg-card shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               onClick={() =>
                 list.setFilters({
                   view: view === "register" ? "register" : undefined,
@@ -1588,12 +1590,12 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
       <QueryFailedNote query={summary} what={t("what.progressSummary")} />
       <QueryFailedNote query={phases} what={t("what.phases")} />
       {noPhases && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed bg-muted/20 px-3 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-panel-border p-3">
           <p className="text-sm text-muted-foreground">
             {t("progress.noPhasesHelp")}
           </p>
           {can("progress.manage") && (
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline">
               <Link href={`/progress?tab=phases&project=${encodeURIComponent(project)}`}>
                 <ListTree />
                 {t("progress.addFirstPhase")}

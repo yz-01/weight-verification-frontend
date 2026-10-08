@@ -427,7 +427,7 @@ export function Receipts() {
                 })
               }
             >
-              <SelectTrigger size="sm" className="w-full sm:w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder={t("receipts.allColumns")} />
               </SelectTrigger>
               <SelectContent>
@@ -448,7 +448,7 @@ export function Receipts() {
                 list.setFilter("acceptance", value === ALL_STATES ? undefined : value)
               }
             >
-              <SelectTrigger size="sm" className="w-full sm:w-40">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder={t("receipts.allStates")} />
               </SelectTrigger>
               <SelectContent>

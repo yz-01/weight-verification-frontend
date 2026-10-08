@@ -150,12 +150,12 @@ export function DayRange({
 }) {
   const t = useTranslations("progressPage");
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex min-w-0 items-center gap-2">
       <Input
         type="date"
         aria-label={t("dateFrom")}
         title={t("dateFrom")}
-        className="h-8 w-35"
+        className="min-w-0 flex-1 sm:w-40 sm:flex-none"
         value={from}
         onChange={(event) => onChange({ date_from: event.target.value || undefined, date_to: to || undefined })}
       />
@@ -164,7 +164,7 @@ export function DayRange({
         type="date"
         aria-label={t("dateTo")}
         title={t("dateTo")}
-        className="h-8 w-35"
+        className="min-w-0 flex-1 sm:w-40 sm:flex-none"
         value={to}
         onChange={(event) => onChange({ date_from: from || undefined, date_to: event.target.value || undefined })}
       />
@@ -223,7 +223,7 @@ export function ProgressPhotoPicker({
     return <p className="text-sm text-muted-foreground">{t("chooseProjectFirst")}</p>;
   }
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <DayRange
           from={from}

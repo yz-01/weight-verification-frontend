@@ -51,7 +51,7 @@ import {
 } from "@/components/progress/progress-photos";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
-import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
+import { FieldWrapper, FilterBar, QueryFailedNote } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -142,29 +142,28 @@ export function ProgressSummaryTab() {
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-4">
+      <FilterBar>
         <ProjectListFilter list={list} />
         {canWrite && (
           <Button
-            size="sm"
-            className="ml-auto rounded-full px-4"
+            className="sm:ml-auto"
             onClick={() => setEditing("new")}
           >
             <Plus />
             {t("new")}
           </Button>
         )}
-      </div>
+      </FilterBar>
       <QueryFailedNote query={summaries} what={tPage("tabs.summary")} />
       {summaries.isLoading ? (
         <Loader2 className="size-4 animate-spin text-muted-foreground" />
       ) : rows.length === 0 ? (
-        <p className="rounded-lg border border-dashed py-10 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {summaries.isError ? "—" : t("empty")}
         </p>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
           <nav aria-label={tPage("tabs.summary")} className="flex gap-1 overflow-x-auto lg:flex-col">
             {rows.map((row) => (
               <button
@@ -173,7 +172,7 @@ export function ProgressSummaryTab() {
                 onClick={() => choose(row.id)}
                 aria-current={shown?.id === row.id ? "true" : undefined}
                 className={cn(
-                  "min-w-40 rounded-md border px-3 py-2 text-left text-sm lg:min-w-0",
+                  "min-w-40 rounded-lg border px-3 py-2 text-left text-sm lg:min-w-0",
                   shown?.id === row.id ? "border-primary bg-primary/5" : "bg-card hover:bg-muted/50",
                 )}
               >
@@ -185,7 +184,7 @@ export function ProgressSummaryTab() {
             ))}
           </nav>
           {shown && (
-            <article className="min-w-0 space-y-3">
+            <article className="surface-panel min-w-0 space-y-4 rounded-xl p-4 sm:p-6">
               <header className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <h2 className="text-lg font-semibold">{shown.title}</h2>
@@ -197,7 +196,7 @@ export function ProgressSummaryTab() {
                   </p>
                 </div>
                 {canWrite && (
-                  <Button variant="outline" size="sm" onClick={() => setEditing(shown)}>
+                  <Button variant="outline" onClick={() => setEditing(shown)}>
                     <Pencil />
                     {t("edit")}
                   </Button>
@@ -251,7 +250,7 @@ function BlockView({ block, reference }: { block: SummaryBlock; reference: strin
 
 function NumberCard({ block }: { block: SummaryNumberBlock }) {
   return (
-    <section className="h-full rounded-lg border bg-card px-4 py-3 shadow-sm">
+    <section className="h-full rounded-lg border bg-card p-3">
       <p className="truncate text-xs text-muted-foreground">{block.label || "—"}</p>
       <p className="mt-1 flex items-baseline gap-1">
         <span className="tabular text-3xl font-semibold text-foreground">{block.value || "—"}</span>
@@ -298,7 +297,7 @@ export function SummaryChart({ block }: { block: SummaryChartBlock }) {
   const data = chartData(block);
   const name = block.series || t("value");
   return (
-    <section className="surface-panel rounded-xl p-3">
+    <section className="rounded-lg border bg-card p-3">
       {block.title && <h3 className="mb-2 text-sm font-medium">{block.title}</h3>}
       {data.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("chartEmpty")}</p>
@@ -388,7 +387,7 @@ export function SummaryEditor({
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="surface-panel grid gap-4 rounded-xl p-4 sm:grid-cols-2 sm:p-6">
         <FieldWrapper label={tPage("project")} required>
           {summary ? (
             <p className="py-2 text-sm font-medium">{summary.project_name}</p>
@@ -414,7 +413,7 @@ export function SummaryEditor({
       </div>
 
       {blocks.length === 0 && (
-        <p className="rounded-lg border border-dashed py-6 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {t("noBlocksYet")}
         </p>
       )}
@@ -442,7 +441,7 @@ export function SummaryEditor({
                 dragging === index && "opacity-50",
               )}
             >
-              <div className="flex items-center gap-1 border-b px-2 py-1.5">
+              <div className="flex items-center gap-2 border-b border-panel-border px-3 py-2">
                 <GripVertical
                   className="size-4 cursor-grab text-muted-foreground"
                   aria-label={t("drag")}
@@ -511,7 +510,6 @@ export function SummaryEditor({
             <Button
               key={type}
               variant="outline"
-              size="sm"
               onClick={() => setBlocks((current) => [...current, newBlock(type)])}
             >
               <Icon />
@@ -522,7 +520,7 @@ export function SummaryEditor({
       </div>
 
       {summary && (
-        <div className="space-y-2 rounded-md border border-destructive/20 p-3">
+        <div className="space-y-3 rounded-xl border border-tone-rose/25 bg-tone-rose/6 p-3">
           <label className="flex items-start gap-3">
             <Switch
               checked={removeArmed}
@@ -556,7 +554,7 @@ export function SummaryEditor({
         </div>
       )}
 
-      <div className="flex flex-wrap justify-end gap-2 border-t pt-3">
+      <div className="flex flex-wrap justify-end gap-2 border-t pt-4">
         <Button variant="outline" onClick={onCancel}>
           {tPage("cancel")}
         </Button>
@@ -601,7 +599,7 @@ function BlockFields({
       );
     case "number":
       return (
-        <div className="grid gap-2 sm:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-4">
           <FieldWrapper label={t("label")}>
             <Input value={block.label} maxLength={120} onChange={(event) => onChange({ ...block, label: event.target.value })} />
           </FieldWrapper>
@@ -640,7 +638,7 @@ function BlockFields({
               ))}
             </PhotoGrid>
           )}
-          <Button variant="outline" size="sm" onClick={() => setPicking(true)}>
+          <Button variant="outline" onClick={() => setPicking(true)}>
             <Images />
             {t("pickPhotos")}
           </Button>
@@ -679,9 +677,9 @@ function ChartFields({
     });
   return (
     <div className="space-y-3">
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <FieldWrapper label={t("chartKind")}>
-          <div className="inline-flex rounded-md border p-0.5 text-xs" role="group">
+          <div className="inline-flex h-10 rounded-lg border bg-card p-1 text-sm pointer-coarse:h-11" role="group">
             {(["bar", "line"] as const).map((kind) => (
               <button
                 key={kind}
@@ -689,7 +687,7 @@ function ChartFields({
                 aria-pressed={block.chart === kind}
                 onClick={() => onChange({ ...block, chart: kind })}
                 className={cn(
-                  "rounded px-2.5 py-1 font-medium",
+                  "rounded-md px-3 font-medium",
                   block.chart === kind ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
                 )}
               >
@@ -712,14 +710,12 @@ function ChartFields({
         {block.points.map((point, index) => (
           <Fragment key={index}>
             <Input
-              className="h-8"
               aria-label={t("pointLabel")}
               maxLength={40}
               value={point.label}
               onChange={(event) => setPoint(index, "label", event.target.value)}
             />
             <Input
-              className="h-8"
               inputMode="decimal"
               aria-label={t("pointValue")}
               value={String(point.value ?? "")}
@@ -728,7 +724,6 @@ function ChartFields({
             <Button
               variant="ghost"
               size="icon"
-              className="size-7"
               aria-label={t("removePoint")}
               title={t("removePoint")}
               onClick={() =>
@@ -743,7 +738,6 @@ function ChartFields({
       {block.points.length < 40 && (
         <Button
           variant="outline"
-          size="sm"
           onClick={() => onChange({ ...block, points: [...block.points, { label: "", value: "" }] })}
         >
           <Plus />

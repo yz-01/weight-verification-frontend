@@ -9,7 +9,7 @@ import { Fragment, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
-import { LoadFailed } from "@/components/shared/page-primitives";
+import { FilterBar, LoadFailed } from "@/components/shared/page-primitives";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,12 +80,12 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
   ];
   const hrefs = Object.fromEntries(tabs) as Record<MaterialTab, string>;
   return (
-    <div className="surface-panel flex flex-wrap items-center gap-2 rounded-xl p-3">
+    <FilterBar>
       <Select
         value={active}
         onValueChange={(next) => router.push(withFilters(hrefs[next as MaterialTab]))}
       >
-        <SelectTrigger size="sm" className="w-44 border-tone-blue/50" aria-label={t("choose")}>
+        <SelectTrigger className="w-full border-tone-blue/50 sm:w-44" aria-label={t("choose")}>
           <SelectValue placeholder={t("choose")} />
         </SelectTrigger>
         <SelectContent>
@@ -97,7 +97,7 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
         </SelectContent>
       </Select>
       {children}
-    </div>
+    </FilterBar>
   );
 }
 
@@ -192,10 +192,10 @@ export function NetTotalsView({
               <TableHead>{t("receipts.field.materialName")}</TableHead>
               <TableHead>{t("receipts.field.materialSpecification")}</TableHead>
               <TableHead>{t("receipts.field.unit")}</TableHead>
-              <TableHead className="text-right">{t("receipts.net.received")}</TableHead>
-              <TableHead className="text-right">{t("receipts.net.returned")}</TableHead>
-              <TableHead className="text-right">{t("receipts.net.net")}</TableHead>
-              <TableHead className="text-right">{t("receipts.net.rejected")}</TableHead>
+              <TableHead className="tabular text-right">{t("receipts.net.received")}</TableHead>
+              <TableHead className="tabular text-right">{t("receipts.net.returned")}</TableHead>
+              <TableHead className="tabular text-right">{t("receipts.net.net")}</TableHead>
+              <TableHead className="tabular text-right">{t("receipts.net.rejected")}</TableHead>
               <TableHead>{t("receipts.field.project")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -347,7 +347,7 @@ export function NetLineItems({
           <TableHead>{t("item.date")}</TableHead>
           <TableHead />
           <TableHead>{t("item.reference")}</TableHead>
-          <TableHead className="text-right">{t("item.quantity")}</TableHead>
+          <TableHead className="tabular text-right">{t("item.quantity")}</TableHead>
           <TableHead>{t("item.doNo")}</TableHead>
           <TableHead>{t("item.plate")}</TableHead>
           <TableHead>{t("supplier")}</TableHead>

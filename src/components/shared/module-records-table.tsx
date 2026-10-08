@@ -281,7 +281,7 @@ export function ProjectListFilter({ list }: { list: ReturnType<typeof useListQue
       placeholder={t("allProjects")}
       allowAll
       allLabel={t("allProjects")}
-      className="h-8 w-45"
+      className="w-full sm:w-45"
     />
   );
 }
