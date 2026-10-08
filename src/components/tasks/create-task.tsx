@@ -64,7 +64,7 @@ export function CreateTask({ id }: { id?: string } = {}) {
   });
 
   if (id && existing.isLoading) return <FormSkeleton sections={2} />;
-  if (id && (existing.isError || !existing.data)) {
+  if (id && (existing.isLoadingError || !existing.data)) {
     return <LoadErrorCard backHref="/tasks" backLabel={t("tasks.title")} />;
   }
 

@@ -378,7 +378,11 @@ export interface SiteEquipment {
    */
   photos?: Array<{
     id: string;
-    url: string;
+    /**
+     * Always the stamped copy (audit S2); null only when a stamp cannot be
+     * made (an unreadable file) - never the unstamped original.
+     */
+    url: string | null;
     source: "REGISTER" | "ENTRY" | "EXIT";
     kind: string;
     caption: string;

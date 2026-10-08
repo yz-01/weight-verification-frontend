@@ -34,6 +34,7 @@ import {
   getRecyclerReportExports,
   getRecyclerReportOptions,
 } from "@/services/recycler-report.service";
+import { NOT_LIVE } from "@/lib/live-refresh";
 
 function initialDates() {
   const today = new Date();
@@ -107,6 +108,8 @@ export function RecyclerReportCenter() {
   const report = useQuery({
     queryKey: ["recycler-reports", filters],
     queryFn: () => getRecyclerReport(filters),
+    // An aggregation: refreshed by the person, not by the realtime layer (S1).
+    meta: NOT_LIVE,
   });
   const exportHistory = useQuery({
     queryKey: ["recycler-reports", "exports"],

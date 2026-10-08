@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { getAccessToken } from "@/lib/auth-token";
 import type { RealtimeEvent } from "@/lib/hazard-popup";
+import { refreshChanged, refreshStale } from "@/lib/live-refresh";
 
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000"
@@ -85,8 +86,10 @@ const FALLBACK_POLL_MS = 15_000;
  * not emit for some record, one dropped between a reconnect's cursor and the
  * next, or a proxy holding the response back all left a screen stale until
  * the person navigated — that was the office's experience of a phone's
- * submission (Lucas, 2026-10). One refetch a minute, only while the tab is
- * visible, bounds that staleness at a cost of one page load per minute.
+ * submission (Lucas, 2026-10). One pass a minute, only while the tab is
+ * visible, bounds that staleness. It refetches only what is on screen and
+ * already stale by its own `staleTime` (`refreshStale`, audit S1): not every
+ * query, not report aggregations, not cards that poll themselves.
  */
 export const SAFETY_POLL_MS = 60_000;
 const RECONNECT_MS = 1_000;
@@ -169,26 +172,37 @@ export function useOrderRealtime(
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let fallbackTimer: ReturnType<typeof setInterval> | null = null;
     let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+    // Whether anything in the coalescing window said the data changed (an
+    // event, the stream-down fallback) rather than only the safety poll.
+    let changedPending = false;
 
-    const refresh = () => {
+    /**
+     * `changed`: an event or the fallback - the data moved, so live queries
+     * are invalidated even if fresh. Otherwise (the safety poll) only what is
+     * on screen and already stale refetches (`@/lib/live-refresh`).
+     */
+    const refresh = (changed: boolean) => {
+      if (changed) changedPending = true;
       if (refreshTimer !== null) return;
       refreshTimer = setTimeout(() => {
         refreshTimer = null;
-        if (queryKeys.length === 0) {
-          void queryClient.invalidateQueries();
+        const dataChanged = changedPending;
+        changedPending = false;
+        if (queryKeys.length === 0 || queryKeys.some((key) => key.length === 0)) {
+          void (dataChanged ? refreshChanged(queryClient) : refreshStale(queryClient));
           return;
         }
         for (const key of queryKeys) {
-          void queryClient.invalidateQueries(
-            key.length === 0 ? undefined : { queryKey: key },
-          );
+          void (dataChanged
+            ? queryClient.invalidateQueries({ queryKey: key })
+            : queryClient.refetchQueries({ queryKey: key, type: "active", stale: true }));
         }
       }, COALESCE_MS);
     };
 
     const enableFallback = () => {
       if (fallbackTimer === null) {
-        fallbackTimer = setInterval(refresh, FALLBACK_POLL_MS);
+        fallbackTimer = setInterval(() => refresh(true), FALLBACK_POLL_MS);
       }
     };
 
@@ -252,7 +266,7 @@ export function useOrderRealtime(
             if (!line) continue;
             const event = JSON.parse(line.slice(6)) as RealtimeEvent;
             if (event.occurred_at) cursor = event.occurred_at;
-            if (refreshAllEvents || shouldRefresh(event.event_type)) refresh();
+            if (refreshAllEvents || shouldRefresh(event.event_type)) refresh(true);
             onEventRef.current?.(event);
           }
         }
@@ -272,7 +286,7 @@ export function useOrderRealtime(
       // A hidden tab refetches when it is next focused instead
       // (`refetchOnWindowFocus`), so it costs nothing while hidden.
       if (typeof document !== "undefined" && document.hidden) return;
-      refresh();
+      refresh(false);
     }, SAFETY_POLL_MS);
     return () => {
       controller.abort();

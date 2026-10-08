@@ -61,7 +61,7 @@ export function ViewTask({
   const [cancelling, setCancelling] = useState(false);
   const [closing, setClosing] = useState(false);
   const [reason, setReason] = useState("");
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["tasks", "detail", id],
     queryFn: () => getTask(id),
   });
@@ -111,7 +111,7 @@ export function ViewTask({
       </RecordDetailFrame>
     );
   }
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return (
       <RecordDetailFrame {...frame} title={t("tasks.title")}>
         <LoadErrorCard backHref="/tasks" backLabel={t("tasks.title")} />

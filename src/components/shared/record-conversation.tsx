@@ -64,7 +64,7 @@ function RecordConversationContent({
   const [file, setFile] = useDraftState<File | null>("file", null);
   const clearDraft = useClearDraft();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: recordConversationKey(kind, recordId),
     queryFn: () => getRecordConversation(kind, recordId),
   });
@@ -104,7 +104,7 @@ function RecordConversationContent({
   // Said rather than shown as an empty thread: a conversation that failed to
   // load and one that nobody has started look identical otherwise, and only
   // one of them means "go ahead and ask your question".
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return (
       <p role="alert" className="rounded-md border p-4 text-sm text-destructive">
         {t("recordChat.failed")}

@@ -420,7 +420,7 @@ function StoredDetailSheet({
         <div className="grid min-h-32 place-items-center">
           <Loader2 className="size-7 animate-spin text-primary" />
         </div>
-      ) : detail.isError || !detail.data ? (
+      ) : detail.isLoadingError || !detail.data ? (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           {t("mySubmissions.loadFailed")}
         </p>

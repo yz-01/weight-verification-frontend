@@ -161,7 +161,7 @@ export function ViewDispatch({
   const [releasing, setReleasing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["dispatches", "detail", id],
     queryFn: () => getDispatch(id),
   });
@@ -198,7 +198,7 @@ export function ViewDispatch({
       </RecordDetailFrame>
     );
   }
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return (
       <RecordDetailFrame {...frame} title={backLabel}>
         <LoadErrorCard backHref={backHref} backLabel={backLabel} />

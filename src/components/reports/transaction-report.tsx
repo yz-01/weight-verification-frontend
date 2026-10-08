@@ -36,6 +36,7 @@ import {
   exportTransactions,
   getTransactionReport,
 } from "@/services/recycler.service";
+import { NOT_LIVE } from "@/lib/live-refresh";
 
 const ALL_STATES = "__all__";
 
@@ -63,6 +64,8 @@ export function TransactionReport() {
   const report = useQuery({
     queryKey: ["transactions", "report", filters],
     queryFn: () => getTransactionReport(filters),
+    // An aggregation: refreshed by the person, not by the realtime layer (S1).
+    meta: NOT_LIVE,
   });
 
   async function handleExport(format: "xlsx" | "pdf") {

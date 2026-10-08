@@ -35,6 +35,7 @@ import {
   getAdminReportFilterOptions,
   getAdminReportHistory,
 } from "@/services/admin-report.service";
+import { NOT_LIVE } from "@/lib/live-refresh";
 
 export type AdminReportSection =
   | "overview"
@@ -151,6 +152,8 @@ function ReportPanel({
   const report = useQuery({
     queryKey: ["admin-reports", filters],
     queryFn: () => getAdminReport(filters),
+    // An aggregation: refreshed by the person, not by the realtime layer (S1).
+    meta: NOT_LIVE,
   });
   const exportMutation = useMutation({
     mutationFn: (exportFormat: "PDF" | "EXCEL") =>

@@ -34,13 +34,13 @@ export function ViewUser({ id }: { id: string }) {
   const df = useDateFormat();
   const { can } = useAuth();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["users", "detail", id],
     queryFn: () => getUser(id),
   });
 
   if (isLoading) return <FormSkeleton sections={3} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/users" backLabel={t("users.title")} />;
   }
 

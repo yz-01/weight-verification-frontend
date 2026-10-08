@@ -286,13 +286,13 @@ export function CreateScale({ scale }: { scale?: Scale }) {
 /** Fetches the record, then hands it to the shared form. */
 export function EditScale({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["scales", "detail", id],
     queryFn: () => getScale(id),
   });
 
   if (isLoading) return <FormSkeleton sections={3} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/scales" backLabel={t("scales.title")} />;
   }
   return <CreateScale scale={data} />;

@@ -242,13 +242,13 @@ export function CreateSite({ site }: { site?: RecyclingSite }) {
 /** Fetches the record, then hands it to the shared form. */
 export function EditSite({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["sites", "detail", id],
     queryFn: () => getSite(id),
   });
 
   if (isLoading) return <FormSkeleton sections={3} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/sites" backLabel={t("sites.title")} />;
   }
   return <CreateSite site={data} />;
