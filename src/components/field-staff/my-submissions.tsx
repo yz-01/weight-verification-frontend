@@ -33,6 +33,7 @@ import {
   Camera,
   ChevronRight,
   CloudUpload,
+  EyeOff,
   FileText,
   Loader2,
   MessagesSquare,
@@ -86,6 +87,16 @@ import {
   queueErrorKey,
 } from "@/services/offline-sync.service";
 import { prunePhotoCache } from "@/lib/photo-cache";
+import { PhoneStoragePanel } from "@/components/field-staff/phone-storage-panel";
+import { ArmRow } from "@/components/shared/page-primitives";
+import { useHiddenSubmissions } from "@/hooks/use-hidden-submissions";
+import {
+  canHideRow,
+  hiddenKey,
+  hideSubmission,
+  pruneHiddenSubmissions,
+  withoutHidden,
+} from "@/lib/hidden-submissions";
 
 /** Queue kinds that are a submission somebody is waiting on, and their label. */
 const QUEUED_KINDS: Record<string, string> = {
@@ -173,10 +184,19 @@ export function MySubmissions({
   // Thumbnails the phone keeps (`public/sw.js`) go when their records leave
   // the company's window (四.2): a picture first kept longer ago than the
   // window belongs to a record older than it.
+  // The worker's own 「从我的列表移除」 entries leave with the window too.
   const windowDays = stored.data?.history_window_days;
   useEffect(() => {
-    if (windowDays) prunePhotoCache(windowDays);
-  }, [windowDays]);
+    if (!windowDays) return;
+    prunePhotoCache(windowDays);
+    if (user?.id) pruneHiddenSubmissions(user.id, windowDays);
+  }, [windowDays, user?.id]);
+
+  // Records this worker took off their own list (四.4): this phone only.
+  const hidden = useHiddenSubmissions(user?.id);
+  const hiddenCount = Object.keys(hidden).length;
+  // The row whose 「从我的列表移除」 is open in place (tap, then confirm).
+  const [removing, setRemoving] = useState<string | null>(null);
 
   const queued = useQuery({
     queryKey: ["my-submissions", "queued", user?.id],
@@ -199,6 +219,7 @@ export function MySubmissions({
       return true;
     });
   }, [stored.data, older.data]);
+  const visibleRows = withoutHidden(rows, hidden);
   const linkedRow = linkedMovement
     ? rows.find((row) => row.kind === "EQUIPMENT_MOVEMENT" && row.id === linkedMovement) ?? null
     : null;
@@ -292,8 +313,9 @@ export function MySubmissions({
         </p>
       ) : (
         <ul className="space-y-2">
-          {rows.map((row) => (
+          {visibleRows.map((row) => (
             <li key={`${row.kind}:${row.id}`}>
+              <div className="relative">
               {/*
                 A button, not a `<li>` with a click handler (T-210). Every row
                 here was an inert list item, which is the customer's complaint
@@ -302,7 +324,7 @@ export function MySubmissions({
               */}
               <button
                 type="button"
-                className="surface-panel w-full rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:bg-muted/60"
+                className={`surface-panel w-full rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:bg-muted/60 ${canHideRow(row) ? "pr-12" : ""}`}
                 onClick={() => {
                   if (row.kind === "HAZARD" && onOpenHazard) {
                     onOpenHazard({
@@ -343,16 +365,72 @@ export function MySubmissions({
                 )}
               </div>
               </button>
+              {/*
+                「从我的列表移除」 (四.4): this worker's phone only - nothing
+                is deleted, the office and everyone else are unaffected.
+                Two steps in place, no dialog: the first tap opens the
+                sentence saying so, the second removes. Never on a queued
+                row (not on the server yet) nor on one whose originals are
+                still owed (四.6) - `canHideRow`.
+              */}
+              {canHideRow(row) && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="absolute bottom-1.5 right-1.5 size-9 text-muted-foreground"
+                  title={t("mySubmissions.removeFromList")}
+                  aria-expanded={removing === hiddenKey(row)}
+                  onClick={() =>
+                    setRemoving((current) => (current === hiddenKey(row) ? null : hiddenKey(row)))
+                  }
+                  data-remove-from-list
+                >
+                  <EyeOff />
+                </Button>
+              )}
+              </div>
+              {removing === hiddenKey(row) && user?.id && (
+                <div className="mt-1" data-remove-strip>
+                <ArmRow>
+                  <p className="min-w-0 flex-1 basis-full text-xs leading-5 text-muted-foreground">
+                    {t("mySubmissions.removeHelp")}
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      hideSubmission(user.id, row);
+                      setRemoving(null);
+                    }}
+                    data-confirm-remove
+                  >
+                    <EyeOff />
+                    {t("mySubmissions.removeFromList")}
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" onClick={() => setRemoving(null)}>
+                    {t("common.cancel")}
+                  </Button>
+                </ArmRow>
+                </div>
+              )}
             </li>
           ))}
         </ul>
+      )}
+
+      {hiddenCount > 0 && (
+        <p className="text-center text-xs text-muted-foreground" data-hidden-note>
+          {t("mySubmissions.hiddenNote", { count: hiddenCount })}
+        </p>
       )}
 
       {/* Said rather than implied: a list of twenty out of sixty that claims
           to be "everything I sent" is a worse answer than no list. */}
       {hasOlder && stored.data?.count != null && (
         <p className="text-center text-xs text-muted-foreground">
-          {t("mySubmissions.truncated", { shown: rows.length, total: stored.data.count })}
+          {t("mySubmissions.truncated", { shown: visibleRows.length, total: stored.data.count })}
         </p>
       )}
       {older.isError ? (
@@ -389,6 +467,8 @@ export function MySubmissions({
           })}
         </p>
       )}
+
+      <PhoneStoragePanel windowDays={windowDays} />
 
       {shownRow && (
         <StoredDetailSheet
