@@ -487,6 +487,9 @@ function StoredDetailSheet({
       ) : (
         <RecordDetailShell
           reference={row.reference}
+          // The field app: even the large first photo is its thumbnail; the
+          // full photo loads only when one is opened (client 2026-10-09 二.4).
+          heroFromThumbnail
           // No 记录人 here: the worker is looking at their own record.
           /*
             A returned application is over (D-227).

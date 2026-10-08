@@ -32,6 +32,7 @@ vi.mock("@/components/shared/record-export-button", () => ({
 
 const { RECORDER, renderDetail } = await import("@/components/shared/record-detail-test-kit");
 const { MySubmissions } = await import("@/components/field-staff/my-submissions");
+const { RecordDetailShell } = await import("@/components/shared/record-detail-shell");
 
 const row = {
   id: "mv-7",
@@ -100,10 +101,32 @@ describe("the phone's history saves data (2026-10-09)", () => {
     });
   }
 
-  it("draws the record's photos from their thumbnails, not the full photos", () => {
+  /** The `src` of the large first photo. */
+  const heroSrc = (html: string) =>
+    /data-shell-hero[^>]*>(?:(?!<\/button>)[\s\S])*?<img[^>]*src="([^"]+)"/.exec(html)?.[1] ?? null;
+
+  it("on the phone, draws every photo - the large first one too - from its thumbnail", () => {
     const html = renderDetail(<MySubmissions />, (client) => withThumbnails(client));
-    expect(html).toContain(THUMB);
+    expect(heroSrc(html)).toBe(THUMB);
+    expect(html).toContain(`${THUMB}?2`);
     expect(html).not.toContain(FULL);
+  });
+
+  it("in the office, keeps the large first photo full size; only the strip uses thumbnails", () => {
+    const html = renderDetail(
+      <RecordDetailShell
+        reference="EQ-SITE-007"
+        facts={[]}
+        photos={[
+          { id: "p1", url: FULL, thumbnailUrl: THUMB, label: "Exit gate" },
+          { id: "p2", url: `${FULL}?2`, thumbnailUrl: `${THUMB}?2`, label: "Plate" },
+        ]}
+      />,
+    );
+    expect(heroSrc(html)).toBe(FULL);
+    // The 80 px strip: the thumbnail, never the second full photo.
+    expect(html).toContain(`${THUMB}?2`);
+    expect(html).not.toContain(`${FULL}?2`);
   });
 
   it("offers the next page only when the server says there is one", () => {
