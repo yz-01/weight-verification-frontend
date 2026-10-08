@@ -119,10 +119,17 @@ function perform(router: Router, exit: DialogExit) {
   else router.push(exit.href);
 }
 
-/** `finish(href)`: leave the form after a successful save. */
-export function useFinishForm(): (href: string) => void {
+/**
+ * `finish(href)`: leave the form after a successful save.
+ *
+ * `surface` is read from context unless the caller draws its own dialog
+ * without the provider (a record detail in the shared record-detail frame
+ * knows it from its `presentation`) and says so.
+ */
+export function useFinishForm(surfaceOverride?: FormSurface): (href: string) => void {
   const router = useRouter();
-  const surface = useFormSurface();
+  const contextSurface = useFormSurface();
+  const surface = surfaceOverride ?? contextSurface;
   return (href: string) => perform(router, decideFormExit({ surface, href }));
 }
 
