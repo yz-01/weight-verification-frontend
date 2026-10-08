@@ -7384,6 +7384,8 @@
       "user_not_found": "找不到這位用戶。",
       "user_suspended": "此賬號已停用，請聯繫管理員。",
       "validation_failed": "請檢查標紅的字段後重試。",
+      "request_unreadable": "上傳沒有完整送達，請檢查網絡後重新提交，這次沒有保存任何內容。",
+      "equipment_not_found": "這台設備已不在設備檔案裡（已停用、刪除或不在這個項目）。請重新選擇設備，或按「新設備」提交。",
       "vehicle_has_tasks": "該車輛已有出車記錄，請停用而不是刪除。",
       "vehicle_not_found": "找不到該車輛。",
       "version_already_exists": "該平臺版本已經存在。",

@@ -42,7 +42,7 @@ vi.mock("@/components/ui/dialog", () => {
   };
 });
 
-const { SiteEquipmentWorkspace, EquipmentDialog, EquipmentEntryDialog, machineLabeller } = await import(
+const { SiteEquipmentWorkspace, EquipmentDialog, EquipmentEntryDialog, machineLabeller, entryInlineFields, entryRefusalText } = await import(
   "@/components/contractor-ops/operations-workspaces"
 );
 const { MovementAcceptance: EntryAcceptance, EquipmentMovementActions } = await import(
@@ -315,5 +315,38 @@ describe("the office accepts the entry like a delivery (C8)", () => {
     );
     expect(html).toContain(messages.contractorOps.equipment.directHandover);
     expect(html).not.toContain(`${messages.contractorOps.action.approve}</button>`);
+  });
+});
+
+/*
+ * 2026-10-08, Lucas on an iPhone: 设备进场 for a machine picked from the list
+ * showed only 「请检查标红的字段后重试。」 with nothing red. A refusal on a field
+ * the dialog does not draw - the picked machine, the project - has to be said
+ * in the alert, named; one about drawn fields leaves the envelope's sentence.
+ */
+describe("what the entry dialog says when the server refuses it", () => {
+  const labels = { equipment: "crane50t", project: "项目" };
+
+  it("names the picked machine when the refusal is about it", () => {
+    const text = entryRefusalText(
+      { equipment: "这台设备已不在设备档案里。" },
+      { inline: entryInlineFields(true), labels },
+    );
+    expect(text).toBe("crane50t: 这台设备已不在设备档案里。");
+  });
+
+  it("says a project refusal in the alert", () => {
+    expect(
+      entryRefusalText({ project: "请选择你所在的项目。" }, { inline: entryInlineFields(true), labels }),
+    ).toBe("项目: 请选择你所在的项目。");
+  });
+
+  it("leaves refusals on drawn fields to the fields themselves", () => {
+    const inline = entryInlineFields(true);
+    for (const name of ["photos", "receiver_signature", "supplier_signature", "latitude", "delivery_note_no"]) {
+      expect(entryRefusalText({ [name]: "Required." }, { inline, labels })).toBe("");
+    }
+    // A 「新设备」's name is drawn, so its refusal goes under it.
+    expect(entryRefusalText({ equipment: "x" }, { inline: entryInlineFields(false), labels })).toBe("");
   });
 });
