@@ -166,3 +166,86 @@ describe("the detail dialogs", () => {
     expect(primitives).toContain("useFormSurface");
   });
 });
+
+/**
+ * Every dialog closes once, whichever way it is closed (2026-10).
+ *
+ * Lucas, of 编辑用户: 「为什么我保存了不会自动关掉，然后要点两次取消才可以
+ * 关掉？」. The forms pushed the list after saving; on a soft navigation Next
+ * keeps the modal slot's previous content when the new address matches
+ * nothing in it, so the dialog stayed, and each cancel went back through one
+ * of the two history entries. The rule now lives in one file; these make
+ * sure nothing goes round it.
+ */
+describe("closing the dialogs", () => {
+  const SHARED = path.join(process.cwd(), "src", "components", "shared");
+  const COMPONENTS = path.join(process.cwd(), "src", "components");
+
+  /** Every component file that renders a form through `FormShell`. */
+  function formComponents(): string[] {
+    const found: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir)) {
+        const full = path.join(dir, entry);
+        if (statSync(full).isDirectory()) {
+          walk(full);
+          continue;
+        }
+        if (!entry.endsWith(".tsx") || entry.endsWith(".test.tsx")) continue;
+        if (entry === "form-shell.tsx") continue;
+        const source = readFileSync(full, "utf8");
+        if (source.includes("<FormShell")) found.push(full);
+      }
+    };
+    walk(COMPONENTS);
+    return found.sort();
+  }
+
+  it("has a catch-all in the slot, so leaving a dialog for any other address empties it", () => {
+    // `default.tsx` only applies on a hard load; on a soft navigation only a
+    // matching route changes what the slot shows.
+    const catchAll = path.join(MODAL, "[...catchAll]", "page.tsx");
+    expect(existsSync(catchAll), `${catchAll} is missing`).toBe(true);
+    expect(readFileSync(catchAll, "utf8")).toContain("return null");
+  });
+
+  it("records in-app navigations from the dashboard layout, so a dialog knows whether it can go back", () => {
+    const layout = readFileSync(path.join(APP, "layout.tsx"), "utf8");
+    expect(layout).toContain("<InAppNavigationTracker />");
+  });
+
+  const forms = formComponents();
+
+  it("finds the forms", () => {
+    expect(forms.length).toBeGreaterThanOrEqual(14);
+  });
+
+  it.each(forms)("%s leaves through the shared rule after saving, not the router", (file) => {
+    const source = readFileSync(file, "utf8");
+    expect(source, "router.push after a save reopens or strands the dialog").not.toMatch(
+      /router\.push\(/,
+    );
+    expect(source).toContain("useFinishForm");
+  });
+
+  it.each([
+    "form-dialog.tsx",
+    "detail-dialog.tsx",
+    "form-shell.tsx",
+    "record-detail-shell.tsx",
+  ])("shared/%s closes through the shared rule, never router.back() on its own", (name) => {
+    const source = readFileSync(path.join(SHARED, name), "utf8");
+    expect(source).not.toMatch(/router\.back\(\)/);
+    expect(source).toContain("useDismissDialog");
+  });
+
+  it("the consultant application form, which draws its own footer, follows the same rule", () => {
+    const source = readFileSync(
+      path.join(COMPONENTS, "consultant-workflow", "application-form.tsx"),
+      "utf8",
+    );
+    expect(source).not.toMatch(/router\.(push|back)\(/);
+    expect(source).toContain("useFinishForm");
+    expect(source).toContain("useDismissDialog");
+  });
+});
