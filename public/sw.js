@@ -40,6 +40,8 @@ function isOfflineNavigation(pathname) {
 const PHOTO_CACHE = "mse-trace-photos-v1";
 const PHOTO_CACHE_MAX = 2000;
 const PHOTO_KEPT_AT = "x-mse-kept-at";
+// Its size, so 「清理本地记录」 can say how much it frees (`lib/local-cleanup.ts`).
+const PHOTO_BYTES = "x-mse-bytes";
 const DAY_MS = 24 * 60 * 60 * 1000;
 let photoWindowDays = 180;
 let photoPutsSinceTrim = 0;
@@ -83,6 +85,7 @@ async function keepPhoto(cache, key, response) {
   const headers = new Headers(response.headers);
   headers.set(PHOTO_KEPT_AT, String(Date.now()));
   const body = await response.blob();
+  headers.set(PHOTO_BYTES, String(body.size));
   await cache.put(
     key,
     new Response(body, { status: response.status, statusText: response.statusText, headers }),

@@ -9833,7 +9833,10 @@
     "returnedClosed": "This application is closed. The record, the reason and the conversation are kept; raise a new one if you still need it done.",
     "paymentProofs": "Payment vouchers",
     "noPaymentProofs": "Vouchers appear here once finance has paid.",
-    "conversation": "Record communication"
+    "conversation": "Record communication",
+    "removeFromList": "Remove from my list",
+    "removeHelp": "Only takes it off the list on this phone. The cloud record, the office and everyone else are not affected; you can show it again under \"Phone storage and clean-up\".",
+    "hiddenNote": "{count} removed from my list."
   },
   "nav": {
     "activity_logs": "Activity logs",
@@ -10331,7 +10334,10 @@
       "retry": "Retry now",
       "heldHint": "An earlier step for the same order has not gone through yet, so this one waits to keep them in order.",
       "recent": "Synced just now",
-      "needsAttentionHint": "The server did not accept this one, so it is no longer sent by itself. Once it is sorted out, press Retry now, or discard it."
+      "needsAttentionHint": "The server did not accept this one, so it is no longer sent by itself. Once it is sorted out, press Retry now, or discard it.",
+      "armDiscard": "Discard actions not uploaded yet",
+      "armDiscardHelp": "Turn this on before you can press discard beside an action. A discarded action is deleted from the phone and never uploaded.",
+      "armFirst": "Turn on the switch above first"
     },
     "queued": "Saved offline and queued for upload",
     "status": {
@@ -16105,5 +16111,26 @@
       "missingHere": "{count, plural, one {# original is} other {# originals are}} not on this phone (taken on another phone, or cleared by the system) and cannot be synced from here.",
       "sync": "Sync this record's originals"
     }
+  },
+  "phoneStorage": {
+    "open": "Phone storage and clean-up",
+    "title": "Phone storage",
+    "intro": "This only concerns what is on this phone. Photos, records, approvals and evidence already saved in the cloud are not affected by anything here.",
+    "cachedPhotos": "Cached photos: {count}, about {mb} MB",
+    "cachedHelp": "Thumbnails you have seen stay on the phone, so opening them again uses no data. Once cleared, they download again when needed.",
+    "autoNote": "Cached photos older than {days} days are cleared automatically.",
+    "appUsage": "This app uses about {mb} MB on this phone in total.",
+    "keptTitle": "Always kept, never cleared",
+    "unsent": "Records not uploaded yet: {count}",
+    "drafts": "Drafts not submitted yet: {count}",
+    "originals": "Originals not backed up yet: {count} (about {mb} MB)",
+    "hidden": "Removed from my list: {count}",
+    "showHidden": "Show them all again",
+    "armClean": "Clear local records: clears {photos} cached photos (about {mb} MB); keeps {unsent} records not uploaded yet, {drafts} drafts and {originals} originals not backed up yet. Cloud data is not affected.",
+    "clean": "Clear local records",
+    "armFirst": "Turn on the switch above first",
+    "nothingToClean": "No cached photos to clear",
+    "cleaned": "Cleared {count} cached photos (about {mb} MB)",
+    "cleanFailed": "The clean-up did not finish. Please try again."
   }
 }

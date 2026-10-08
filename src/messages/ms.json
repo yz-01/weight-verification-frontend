@@ -9833,7 +9833,10 @@
     "returnedClosed": "Permohonan ini telah ditutup. Rekod, sebab dan perbualan dikekalkan; buka permohonan baharu jika ia masih perlu dilakukan.",
     "paymentProofs": "Baucar bayaran",
     "noPaymentProofs": "Baucar dipaparkan di sini selepas kewangan membayar.",
-    "conversation": "Komunikasi rekod"
+    "conversation": "Komunikasi rekod",
+    "removeFromList": "Keluarkan daripada senarai saya",
+    "removeHelp": "Hanya dikeluarkan daripada senarai dalam telefon ini. Rekod di awan, pejabat dan pengguna lain tidak terjejas; anda boleh menunjukkannya semula di \"Storan telefon dan pembersihan\".",
+    "hiddenNote": "{count} dikeluarkan daripada senarai saya."
   },
   "nav": {
     "activity_logs": "Log aktiviti",
@@ -10331,7 +10334,10 @@
       "retry": "Cuba semula sekarang",
       "heldHint": "Langkah sebelumnya untuk pesanan yang sama belum berjaya, jadi langkah ini menunggu supaya susunannya kekal betul.",
       "recent": "Baru disegerakkan",
-      "needsAttentionHint": "Pelayan tidak menerima tindakan ini, jadi ia tidak lagi dihantar sendiri. Selepas diuruskan, tekan Cuba semula sekarang, atau buang tindakan ini."
+      "needsAttentionHint": "Pelayan tidak menerima tindakan ini, jadi ia tidak lagi dihantar sendiri. Selepas diuruskan, tekan Cuba semula sekarang, atau buang tindakan ini.",
+      "armDiscard": "Buang tindakan yang belum dimuat naik",
+      "armDiscardHelp": "Hidupkan ini dahulu sebelum boleh menekan buang di sebelah tindakan. Tindakan yang dibuang dipadam daripada telefon dan tidak akan dimuat naik.",
+      "armFirst": "Hidupkan suis di atas dahulu"
     },
     "queued": "Disimpan di luar talian dan menunggu muat naik",
     "status": {
@@ -16105,5 +16111,26 @@
       "missingHere": "{count} foto asal tiada di telefon ini (diambil di telefon lain, atau dikosongkan oleh sistem) dan tidak boleh disegerak dari sini.",
       "sync": "Segerak foto asal rekod ini"
     }
+  },
+  "phoneStorage": {
+    "open": "Storan telefon dan pembersihan",
+    "title": "Storan telefon",
+    "intro": "Ini hanya melibatkan apa yang ada dalam telefon ini. Foto, rekod, kelulusan dan bukti yang sudah disimpan di awan tidak terjejas oleh apa-apa di sini.",
+    "cachedPhotos": "Foto cache: {count}, kira-kira {mb} MB",
+    "cachedHelp": "Gambar kecil yang pernah dilihat kekal dalam telefon, jadi membukanya semula tidak menggunakan data. Selepas dibersihkan, ia dimuat turun semula apabila perlu.",
+    "autoNote": "Foto cache yang lebih lama daripada {days} hari dibersihkan secara automatik.",
+    "appUsage": "Aplikasi ini menggunakan kira-kira {mb} MB dalam telefon ini.",
+    "keptTitle": "Sentiasa disimpan, tidak dibersihkan",
+    "unsent": "Rekod belum dimuat naik: {count}",
+    "drafts": "Draf belum dihantar: {count}",
+    "originals": "Foto asal belum disandarkan: {count} (kira-kira {mb} MB)",
+    "hidden": "Dikeluarkan daripada senarai saya: {count}",
+    "showHidden": "Tunjukkan semula semuanya",
+    "armClean": "Bersihkan rekod tempatan: membersihkan {photos} foto cache (kira-kira {mb} MB); menyimpan {unsent} rekod belum dimuat naik, {drafts} draf dan {originals} foto asal belum disandarkan. Data awan tidak terjejas.",
+    "clean": "Bersihkan rekod tempatan",
+    "armFirst": "Hidupkan suis di atas dahulu",
+    "nothingToClean": "Tiada foto cache untuk dibersihkan",
+    "cleaned": "{count} foto cache dibersihkan (kira-kira {mb} MB)",
+    "cleanFailed": "Pembersihan tidak selesai. Sila cuba lagi."
   }
 }

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 import { OriginalBackupPanel } from "@/components/shared/original-backup";
+import { ArmRow } from "@/components/shared/page-primitives";
 import { useLocalOriginals, useOriginalAutoSync } from "@/hooks/use-local-originals";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { useDateFormat } from "@/lib/dates";
 import {
   discardOfflineJob,
@@ -42,6 +44,9 @@ export function OfflineStatus() {
   const { isOnline, isSyncing, pendingCount, failedCount, syncNow } =
     useOfflineSync();
   const [open, setOpen] = useState(false);
+  // 「放弃」 deletes work the server never received (四.6): live only while
+  // this switch is on (spec rule 8), and off again whenever the panel closes.
+  const [discardArmed, setDiscardArmed] = useState(false);
   const [entries, setEntries] = useState<OfflineQueueEntry[]>([]);
   const [synced, setSynced] = useState<SyncedQueueEntry[]>([]);
   // Photo originals (H5 三, WP1): their own queue, shown in this same panel -
@@ -75,12 +80,6 @@ export function OfflineStatus() {
 
   if (isOnline && pendingCount === 0 && !isSyncing && originalsWaiting === 0) return null;
 
-  /** The stored reason in words: no-answer reasons are stored as a code. */
-  const reasonText = (lastError: string) => {
-    const key = queueErrorKey(lastError);
-    return key ? t(key) : lastError;
-  };
-
   const label = !isOnline
     ? t("offline.status.offline", { count: pendingCount })
     : isSyncing
@@ -91,7 +90,13 @@ export function OfflineStatus() {
   const Icon = !isOnline ? CloudOff : isSyncing ? RefreshCw : CloudUpload;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) setDiscardArmed(false);
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           type="button"
@@ -152,69 +157,16 @@ export function OfflineStatus() {
               {t("offline.queue.empty")}
             </p>
           ) : (
-            <ul className="divide-y">
-              {entries.map((entry) => (
-                <li key={entry.id} className="flex items-start gap-2 px-3 py-2.5">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {t(`offline.kind.${entry.kind}`)}
-                      {entry.reference && (
-                        <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                          {entry.reference}
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      <span className={`font-medium ${STATE_CLASS[entry.state]}`}>
-                        {t(`offline.state.${entry.state}`)}
-                      </span>
-                      {" · "}
-                      {df.dateTime(entry.queuedAt)}
-                    </p>
-                    {(entry.state === "failed" || entry.state === "retrying") && (
-                      <p
-                        className={`mt-0.5 text-xs font-medium ${STATE_CLASS[entry.state]}`}
-                      >
-                        {t("offline.queue.attemptFailed", {
-                          count: entry.attempts,
-                        })}
-                        {entry.lastError ? ` · ${reasonText(entry.lastError)}` : ""}
-                      </p>
-                    )}
-                    {entry.state === "failed" && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t("offline.queue.needsAttentionHint")}
-                      </p>
-                    )}
-                    {entry.hint && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t(entry.hint)}
-                      </p>
-                    )}
-                    {entry.state === "held" && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t("offline.queue.heldHint")}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
-                    title={t("offline.queue.discard")}
-                    onClick={() =>
-                      void discardOfflineJob(entry.id).then(() =>
-                        setEntries((current) =>
-                          current.filter((row) => row.id !== entry.id),
-                        ),
-                      )
-                    }
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </li>
-              ))}
-            </ul>
+            <QueueEntries
+              entries={entries}
+              armed={discardArmed}
+              onArmedChange={setDiscardArmed}
+              onDiscard={(id) =>
+                void discardOfflineJob(id).then(() =>
+                  setEntries((current) => current.filter((row) => row.id !== id)),
+                )
+              }
+            />
           )}
           {originalsWaiting > 0 && (
             <div className="border-t">
@@ -252,5 +204,110 @@ export function OfflineStatus() {
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+/**
+ * The queued actions, each with its 「放弃」 (四.6). Discarding deletes work
+ * the server never received, so every discard button stays grey until the
+ * switch above them is on (spec rule 8) - no dialog.
+ */
+export function QueueEntries({
+  entries,
+  armed,
+  onArmedChange,
+  onDiscard,
+}: {
+  entries: OfflineQueueEntry[];
+  armed: boolean;
+  onArmedChange: (armed: boolean) => void;
+  onDiscard: (id: string) => void;
+}) {
+  const t = useTranslations();
+  const df = useDateFormat();
+  /** The stored reason in words: no-answer reasons are stored as a code. */
+  const reasonText = (lastError: string) => {
+    const key = queueErrorKey(lastError);
+    return key ? t(key) : lastError;
+  };
+  return (
+    <>
+      <ArmRow className="m-2 p-2">
+        <label className="flex min-w-0 flex-1 items-start gap-2.5">
+          <Switch
+            tone="danger"
+            size="sm"
+            className="mt-0.5"
+            checked={armed}
+            onCheckedChange={onArmedChange}
+            aria-label={t("offline.queue.armDiscard")}
+            data-arm-discard
+          />
+          <span className="text-xs leading-5 text-muted-foreground">
+            {t("offline.queue.armDiscardHelp")}
+          </span>
+        </label>
+      </ArmRow>
+      <ul className="divide-y">
+        {entries.map((entry) => (
+          <li key={entry.id} className="flex items-start gap-2 px-3 py-2.5">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">
+                {t(`offline.kind.${entry.kind}`)}
+                {entry.reference && (
+                  <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                    {entry.reference}
+                  </span>
+                )}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                <span className={`font-medium ${STATE_CLASS[entry.state]}`}>
+                  {t(`offline.state.${entry.state}`)}
+                </span>
+                {" · "}
+                {df.dateTime(entry.queuedAt)}
+              </p>
+              {(entry.state === "failed" || entry.state === "retrying") && (
+                <p
+                  className={`mt-0.5 text-xs font-medium ${STATE_CLASS[entry.state]}`}
+                >
+                  {t("offline.queue.attemptFailed", {
+                    count: entry.attempts,
+                  })}
+                  {entry.lastError ? ` · ${reasonText(entry.lastError)}` : ""}
+                </p>
+              )}
+              {entry.state === "failed" && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t("offline.queue.needsAttentionHint")}
+                </p>
+              )}
+              {entry.hint && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t(entry.hint)}
+                </p>
+              )}
+              {entry.state === "held" && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t("offline.queue.heldHint")}
+                </p>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
+              title={t("offline.queue.discard")}
+              disabled={!armed}
+              disabledReason={t("offline.queue.armFirst")}
+              data-discard
+              onClick={() => onDiscard(entry.id)}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

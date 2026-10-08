@@ -9833,7 +9833,10 @@
     "returnedClosed": "這筆申請已經結束。原申請、退回原因和溝通記錄都會保留；還需要做的話請新建一條。",
     "paymentProofs": "付款憑證",
     "noPaymentProofs": "財務付款後，憑證會出現在這裡。",
-    "conversation": "事項溝通"
+    "conversation": "事項溝通",
+    "removeFromList": "從我的列表移除",
+    "removeHelp": "只從你這台手機的列表拿掉。雲端記錄、後台和其他人都不受影響；可以在「本機儲存與清理」裡重新顯示。",
+    "hiddenNote": "已從我的列表移除 {count} 條。"
   },
   "nav": {
     "activity_logs": "活動日誌",
@@ -10331,7 +10334,10 @@
       "retry": "立即重試",
       "heldHint": "同一張單的前一步還沒成功，這一步先不送，免得順序錯亂。",
       "recent": "剛剛已同步",
-      "needsAttentionHint": "服務器沒有接收這一條，不會再自動上傳。處理好後按「立即重試」，或放棄這條。"
+      "needsAttentionHint": "服務器沒有接收這一條，不會再自動上傳。處理好後按「立即重試」，或放棄這條。",
+      "armDiscard": "放棄還沒上傳的動作",
+      "armDiscardHelp": "打開後才能按每條旁邊的放棄。放棄的資料會從手機刪掉，不會再上傳。",
+      "armFirst": "先打開上面的開關"
     },
     "queued": "已離線保存，等待自動上傳",
     "status": {
@@ -16105,5 +16111,26 @@
       "missingHere": "{count} 張原圖不在這台手機上（可能是在別的手機拍的，或已被系統清掉），無法從這裡同步。",
       "sync": "同步這條記錄的原圖"
     }
+  },
+  "phoneStorage": {
+    "open": "本機儲存與清理",
+    "title": "本機儲存",
+    "intro": "這裡只管這台手機上的東西。雲端已經保存的照片、記錄、審批和證據，不受這裡任何操作影響。",
+    "cachedPhotos": "快取照片 {count} 張，約 {mb} MB",
+    "cachedHelp": "看過的照片縮圖留在手機上，再打開不耗流量。清掉後，需要時會重新下載。",
+    "autoNote": "超過 {days} 天的快取照片會自動清掉。",
+    "appUsage": "本 App 在這台手機上一共約佔 {mb} MB。",
+    "keptTitle": "一定保留，不會被清理",
+    "unsent": "還沒上傳的記錄：{count} 條",
+    "drafts": "還沒提交的草稿：{count} 份",
+    "originals": "還沒備份的原圖：{count} 張（約 {mb} MB）",
+    "hidden": "已從我的列表移除：{count} 條",
+    "showHidden": "全部重新顯示",
+    "armClean": "清理本地記錄：會清掉快取照片 {photos} 張（約 {mb} MB）；會保留還沒上傳的記錄 {unsent} 條、草稿 {drafts} 份、還沒備份的原圖 {originals} 張。雲端資料不受影響。",
+    "clean": "清理本地記錄",
+    "armFirst": "先打開上面的開關",
+    "nothingToClean": "沒有快取照片需要清理",
+    "cleaned": "已清理快取照片 {count} 張（約 {mb} MB）",
+    "cleanFailed": "沒有清理成功，請再試一次"
   }
 }

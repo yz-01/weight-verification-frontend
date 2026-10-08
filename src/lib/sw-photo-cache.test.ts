@@ -153,6 +153,15 @@ describe("the service worker keeps thumbnails", () => {
     expect([...(await photos(sw)).entries.keys()]).toEqual([THUMB]);
   });
 
+  it("writes each kept picture's size, so 「清理本地记录」 can say what it frees", async () => {
+    const sw = worker(async () => picture(21_000));
+
+    await sw.get(`${THUMB}?sig=1`);
+
+    const entry = (await photos(sw)).entries.get(THUMB);
+    expect(entry?.headers.get("x-mse-bytes")).toBe("21000");
+  });
+
   it("falls back to the plain request when the bucket sends no CORS headers, and keeps nothing", async () => {
     const sw = worker(async (_input, init) => {
       if (init?.mode === "cors") throw new TypeError("Failed to fetch");
