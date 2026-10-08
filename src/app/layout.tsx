@@ -4,10 +4,10 @@ import { getLocale } from "next-intl/server";
 import {
   Chakra_Petch,
   Geist_Mono,
-  IBM_Plex_Sans,
   Noto_Sans_SC,
   Noto_Sans_TC,
 } from "next/font/google";
+import localFont from "next/font/local";
 
 import { AppProviders } from "@/components/providers/app-providers";
 import { BRANDING_BOOTSTRAP_SCRIPT } from "@/lib/branding";
@@ -29,14 +29,28 @@ import "./globals.css";
  * - Chakra Petch: the canvas's techy figure face, used ONLY for large KPI
  *   numbers on the dashboards and the HQ big screen (`.kpi-figure`).
  *
- * All are self-hosted by next/font at build time; nothing is fetched from
- * Google by the browser. Weights are the ones the theme uses: 400 body, 500
- * labels, 600 titles, 700 figures.
+ * All are self-hosted by next/font; nothing is fetched from Google by the
+ * browser. Weights are the ones the theme uses: 400 body, 500 labels, 600
+ * titles, 700 figures.
+ *
+ * IBM Plex Sans is committed under ./fonts rather than loaded through
+ * next/font/google. Google sometimes answers the build with font URLs that
+ * carry `&skey=`, which Turbopack cannot resolve, and the production build
+ * failed on that (#43) with no code change. The files are IBM's own release
+ * (@ibm/plex-sans 1.1.0, OFL) cut to Latin, Latin Extended, Vietnamese and
+ * common symbols with every OpenType feature kept; its digits are tabular by
+ * default. The CJK faces stay on Google: they are about a hundred slices per
+ * weight and cannot be committed sensibly.
  */
-const plexSans = IBM_Plex_Sans({
+const plexSans = localFont({
   variable: "--font-plex",
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700"],
+  src: [
+    { path: "./fonts/ibm-plex-sans/IBMPlexSans-Regular.woff2", weight: "400" },
+    { path: "./fonts/ibm-plex-sans/IBMPlexSans-Medium.woff2", weight: "500" },
+    { path: "./fonts/ibm-plex-sans/IBMPlexSans-SemiBold.woff2", weight: "600" },
+    { path: "./fonts/ibm-plex-sans/IBMPlexSans-Bold.woff2", weight: "700" },
+  ],
+  style: "normal",
   display: "swap",
 });
 
