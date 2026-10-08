@@ -17,6 +17,10 @@ import {
 } from "@/components/ui/popover";
 import { playAlertTone, wantsAlertSound } from "@/lib/alert-sound";
 import { ActionCardStack } from "@/components/notifications/action-card-stack";
+import {
+  countSignature,
+  useRefetchWhenChanged,
+} from "@/components/notifications/bell-list-refresh";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import { fieldNotificationHref } from "@/lib/field-notification";
@@ -32,6 +36,10 @@ import {
   getPushConfig,
   isPushSupported,
 } from "@/services/push-notification.service";
+
+/** How often the bell's number is asked for. */
+const BELL_COUNT_POLL_MS = 30_000;
+const BELL_LIST_KEY = ["notifications", "toolbar", "outstanding"] as const;
 
 export function NotificationButton() {
   const t = useTranslations();
@@ -54,6 +62,8 @@ export function NotificationButton() {
       (feature) =>
         feature === "notifications" || feature === "notification_center",
     ) ?? false;
+  // The office's count is the whole pile, so the list can follow it.
+  const listFollowsCount = !user?.is_field_staff;
   const countQuery = useQuery({
     // On the field phone the red dot is the to-do number (L1): the same
     // query, under the same key, as the My Tasks card on its home, so the
@@ -72,10 +82,10 @@ export function NotificationButton() {
           queryFn: () => getOutstandingNotificationCount({ silent: true }),
         }),
     enabled,
-    refetchInterval: 30_000,
+    refetchInterval: BELL_COUNT_POLL_MS,
   });
   const listQuery = useQuery({
-    queryKey: ["notifications", "toolbar", "outstanding"],
+    queryKey: BELL_LIST_KEY,
     queryFn: () =>
       getAllNotifications(
         {
@@ -85,9 +95,20 @@ export function NotificationButton() {
         },
         { silent: true },
       ),
+    // Loaded with the page, as before: the pop-up action cards and the alert
+    // tone read it. In the office it has no timer of its own - it follows
+    // the count, which polls and counts every notice (below); it is refreshed
+    // when the popover opens, and the live stream invalidates it as it does
+    // every query on screen. The phone's count is its to-do number only (L1),
+    // so a news notice that rings (a hazard it is told about) would not move
+    // it: the phone's list keeps its own timer.
     enabled,
-    refetchInterval: 30_000,
+    refetchInterval: listFollowsCount ? false : BELL_COUNT_POLL_MS,
   });
+  useRefetchWhenChanged(
+    listFollowsCount ? countSignature(countQuery.data) : null,
+    BELL_LIST_KEY,
+  );
   const pushConfig = useQuery({
     queryKey: ["notifications", "push-config"],
     queryFn: () => getPushConfig({ silent: true }),
@@ -176,6 +197,9 @@ export function NotificationButton() {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
+        // Opening shows the rows already held at once and reads them afresh
+        // behind them, since the list no longer polls on its own.
+        if (next) void queryClient.invalidateQueries({ queryKey: BELL_LIST_KEY, exact: true });
         // Closing the list forgets what was expanded, so reopening it looks
         // the way it did before rather than mid-read.
         if (!next) setExpanded(null);

@@ -306,13 +306,14 @@ export const getEquipmentSummary = (project?: string) =>
     "/api/site-equipment/get_summary/",
     project ? { project } : undefined,
   );
-export async function ocrEquipmentDeliveryNote(project: string, image: File) {
+export async function ocrEquipmentDeliveryNote(project: string, image: File, signal?: AbortSignal) {
   const data = new FormData();
   data.append("project", project);
   data.append("image", image);
   // The same result as 材料进场's read (receiving.ocr.read_delivery_note).
   return api.post<DeliveryNoteOCRResult>("/api/site-equipment/ocr_delivery_note/", data, {
     silent: true,
+    signal,
   });
 }
 /** What the phone sends for one movement recorded on site (C8, F3, Q27). */

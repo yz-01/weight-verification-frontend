@@ -374,7 +374,7 @@ export function ViewReceipt({
   const queryClient = useQueryClient();
   const [filing, setFiling] = useState(false);
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isLoadingError, refetch } = useQuery({
     queryKey: ["receipts", "detail", id],
     queryFn: () => getReceipt(id),
   });
@@ -399,7 +399,7 @@ export function ViewReceipt({
       </RecordDetailFrame>
     );
   }
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return (
       <RecordDetailFrame {...frame} title={t("receipts.title")}>
         <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />

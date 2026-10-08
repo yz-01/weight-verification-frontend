@@ -141,7 +141,7 @@ export function ViewWeighSession({ id }: { id: string }) {
   });
 
   if (session.isLoading) return <FormSkeleton sections={3} />;
-  if (session.isError || !session.data) {
+  if (session.isLoadingError || !session.data) {
     return <LoadErrorCard backHref="/weighing" backLabel={t("weighing.title")} />;
   }
 

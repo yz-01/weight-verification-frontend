@@ -14,6 +14,7 @@ import {
   exportPayments,
   getFinancialReports,
 } from "@/services/billing.service";
+import { NOT_LIVE } from "@/lib/live-refresh";
 
 type ReportKey = "saas" | "commission" | "receivables" | "paid" | "unpaid";
 
@@ -34,6 +35,8 @@ export function FinancialReports() {
   const summaries = useQuery({
     queryKey: ["billing", "financial-reports", from, to],
     queryFn: () => getFinancialReports({ date_from: from || undefined, date_to: to || undefined }),
+    // An aggregation: refreshed by the person, not by the realtime layer (S1).
+    meta: NOT_LIVE,
   });
   const exporting = useMutation({
     mutationFn: ({ report, format }: { report: (typeof REPORTS)[number]; format: "pdf" | "xlsx" }) =>

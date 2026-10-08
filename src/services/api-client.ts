@@ -92,26 +92,47 @@ function buildUrl(path: string, query?: ListQuery): string {
  */
 let refreshInFlight: Promise<boolean> | null = null;
 
+/**
+ * How long renewing the session may take before it counts as no answer.
+ *
+ * The access token lasts 30 minutes, so a delivery typed in over a longer
+ * stretch is sent, refused with 401, and renewed first. On a weak site signal
+ * that renewal could hang with nothing to end it, and 提交 spun for good.
+ */
+export const REFRESH_TIMEOUT_MS = 30_000;
+
 async function refreshAccessToken(): Promise<boolean> {
   const refresh = getRefreshToken();
   if (!refresh) return false;
 
-  const response = await fetch(buildUrl("/api/auth/refresh_token/"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh }),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REFRESH_TIMEOUT_MS);
+  try {
+    const response = await fetch(buildUrl("/api/auth/refresh_token/"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+      signal: controller.signal,
+    });
 
-  if (!response.ok) return false;
+    if (!response.ok) return false;
 
-  const envelope = (await response.json()) as ApiEnvelope<{
-    access: string;
-    refresh: string;
-  }>;
-  if (!envelope.success) return false;
+    const envelope = (await response.json()) as ApiEnvelope<{
+      access: string;
+      refresh: string;
+    }>;
+    if (!envelope.success) return false;
 
-  setTokens(envelope.data);
-  return true;
+    setTokens(envelope.data);
+    return true;
+  } catch {
+    // No answer, or cut off at the limit. Not a refusal - the session may be
+    // fine - so `request` reports it as no answer, and a queued record waits
+    // for a better signal instead of being refused.
+    throw new Error("refresh_no_answer");
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function ensureRefresh(): Promise<boolean> {
@@ -255,10 +276,21 @@ export async function request<T>(
     options.auth !== false &&
     !isCredentialExchange(path)
   ) {
-    const refreshed = await ensureRefresh();
-    if (refreshed) {
-      response = await send(path, options);
-    } else {
+    let refreshed: boolean;
+    try {
+      refreshed = await ensureRefresh();
+      if (refreshed) response = await send(path, options);
+    } catch (error) {
+      // The renewal or the resend got no answer: the same as the first send
+      // getting none. Uncaught, it reached the form as a bare error, so a
+      // delivery 提交 on a weak signal said 「操作失败」 instead of going into
+      // the offline queue.
+      if (error instanceof DOMException && error.name === "AbortError") throw error;
+      const failure = noAnswer(error);
+      if (!options.silent) toast.error(failure.message);
+      throw failure;
+    }
+    if (!refreshed) {
       endSession();
       throw new ApiError(t("auth.sessionExpired"), 401);
     }
@@ -468,6 +500,11 @@ const CATALOGUE_WINS = new Set([
   "min_value",
   "invalid_choice",
   "does_not_exist",
+  // A machine switched off, removed or moved since the phone loaded its list.
+  "equipment_not_found",
+  // A write to a record the office confirmed and archived: the server's
+  // sentence names a model and an id, the catalogue says what to do.
+  "record_archived",
 ]);
 
 /**
@@ -477,10 +514,14 @@ const CATALOGUE_WINS = new Set([
  * Accepts the older shape of plain strings too, in case an endpoint has not
  * been moved onto `serialize_errors` yet.
  */
-function translateFieldErrors(
-  errors: Record<string, FieldError[] | string[] | string> | null | undefined,
-): Record<string, string> {
+function translateFieldErrors(errors: unknown): Record<string, string> {
   const result: Record<string, string> = {};
+  // A bare list or sentence where the field map should be is still a reason.
+  if (typeof errors === "string" || Array.isArray(errors)) {
+    const worded = wordFieldError(errors);
+    return worded ? { non_field_errors: worded } : {};
+  }
+  if (typeof errors !== "object") return result;
   /*
    * A failure that arrived without an `errors` key at all (F-366). Django
    * always sends the envelope, but a proxy, a gateway or a rate limiter in
@@ -491,25 +532,58 @@ function translateFieldErrors(
    * deciding from an error that has no status.
    */
   for (const [field, value] of Object.entries(errors ?? {})) {
-    const first = Array.isArray(value) ? value[0] : value;
-    if (first === undefined) continue;
-    if (typeof first === "string") {
-      result[field] = first;
-      continue;
+    // An empty list names no failure: nothing to put under the field.
+    if (value === undefined || (Array.isArray(value) && value.length === 0)) continue;
+    // A field the server named always gets a sentence (2026-10-08). A nested
+    // detail - `{photos: {0: [...]}}`, or an object with no code or message -
+    // used to come out as `undefined` here, so a refusal made only of such
+    // fields left the 设备进场 dialog with "check the highlighted fields" and
+    // nothing highlighted.
+    result[field] = wordFieldError(value) || catalogueWording("invalid") || t("errors.generic");
+  }
+  return result;
+}
+
+/** The catalogue's wording for a DRF code, or "" when it has none. */
+function catalogueWording(code: string): string {
+  const key = `errors.field.${code}`;
+  const translated = t(key);
+  return translated === key ? "" : translated;
+}
+
+/**
+ * The first sentence anywhere in one field's error detail, or "".
+ *
+ * Reads a plain string, a `{code, message}` entry, a list of either, and -
+ * flattened depth first - a nested dict of them.
+ */
+function wordFieldError(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const worded = wordFieldError(item);
+      if (worded) return worded;
     }
+    return "";
+  }
+  if (typeof value !== "object") return String(value);
 
-    const key = `errors.field.${first.code}`;
-    const translated = t(key);
-    const catalogue = translated === key ? "" : translated;
-
+  const entry = value as Partial<FieldError> & Record<string, unknown>;
+  if (typeof entry.code === "string" || typeof entry.message === "string") {
+    const code = typeof entry.code === "string" ? entry.code : "";
+    const message = typeof entry.message === "string" ? entry.message : "";
+    const catalogue = code ? catalogueWording(code) : "";
     // Outside the structural set the server's sentence is the specific one, so
     // it wins; the catalogue stays as the fallback for a failure that arrived
     // with no message at all.
-    result[field] = CATALOGUE_WINS.has(first.code)
-      ? catalogue || first.message
-      : first.message || catalogue;
+    return CATALOGUE_WINS.has(code) ? catalogue || message : message || catalogue;
   }
-  return result;
+  for (const inner of Object.values(entry)) {
+    const worded = wordFieldError(inner);
+    if (worded) return worded;
+  }
+  return "";
 }
 
 /**

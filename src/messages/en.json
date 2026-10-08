@@ -7384,6 +7384,8 @@
       "user_not_found": "That user could not be found.",
       "user_suspended": "This account is not active. Contact your administrator.",
       "validation_failed": "Check the highlighted fields and try again.",
+      "request_unreadable": "The upload did not arrive complete. Check the signal and submit again - nothing was saved.",
+      "equipment_not_found": "This machine is no longer on the equipment register - it was switched off, removed or moved. Choose the machine again, or report it as a new machine.",
       "vehicle_has_tasks": "This vehicle has trips recorded against it. Deactivate it instead of removing it.",
       "vehicle_not_found": "That vehicle could not be found.",
       "version_already_exists": "That platform version already exists.",
@@ -7423,8 +7425,10 @@
     },
     "backToDashboard": "Back to dashboard",
     "field": {
+      "record_archived": "This record was confirmed and archived by the office, so it can no longer be changed. Submit a new record instead.",
       "blank": "This field is required",
       "does_not_exist": "That record could not be found",
+      "equipment_not_found": "This machine is no longer on the equipment register - it was switched off, removed or moved. Choose the machine again, or report it as a new machine.",
       "email_in_use": "This email is already registered",
       "field_phone_locked": "The bound mobile number cannot be changed",
       "incorrect_type": "This value is not valid",
@@ -11549,6 +11553,7 @@
       "MANUAL": "Entered by hand",
       "NOT_CONFIGURED": "Reader not configured",
       "NOT_REQUESTED": "Not read",
+      "PENDING": "Waiting to be read",
       "SUCCEEDED": "Read"
     },
     "editNote": "The quantity and price can be corrected. The project, the docket and the recorded time cannot — they are what the receipt is evidence of.",
@@ -13616,6 +13621,7 @@
       "MANUAL": "Entered manually",
       "NOT_CONFIGURED": "OCR not configured",
       "NOT_REQUESTED": "Not read",
+      "PENDING": "Waiting to be read",
       "SUCCEEDED": "Read by Azure OCR"
     },
     "optional": "optional",

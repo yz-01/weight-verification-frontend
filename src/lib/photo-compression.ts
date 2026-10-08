@@ -134,9 +134,32 @@ export async function drawJpeg(
   return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
 }
 
-/** The photo at upload size, or the original when it cannot or need not change. */
-export async function compressPhoto(file: File): Promise<File> {
+/**
+ * How long compressing one photo may take before the original is kept.
+ *
+ * Decoding and re-encoding are the browser's, and a camera file the browser
+ * chokes on (Lucas's iPhone, a completely black DO photo, 10-08) must not
+ * hold the form or the offline queue on it: past this the photo goes as it
+ * is - a big photo that uploads slowly is better than a form that never
+ * saves.
+ */
+export const COMPRESS_TIMEOUT_MS = 10_000;
+
+/** The photo at upload size, or the original when it cannot, need not, or does not in time change. */
+export async function compressPhoto(file: File, timeoutMs: number = COMPRESS_TIMEOUT_MS): Promise<File> {
   if (!COMPRESSIBLE.test(file.type)) return file;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const outOfTime = new Promise<File>((settle) => {
+    timer = setTimeout(() => settle(file), timeoutMs);
+  });
+  try {
+    return await Promise.race([compressNow(file).catch(() => file), outOfTime]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function compressNow(file: File): Promise<File> {
   const decoded = await decode(file);
   if (!decoded) return file;
   try {

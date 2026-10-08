@@ -3,6 +3,7 @@ import type {
   ContractorDashboard,
   ContractorDashboardSection,
   DashboardSearchResult,
+  SidebarBadges,
 } from "@/interfaces/contractor-dashboard";
 import type {
   AnnouncementReader,
@@ -49,6 +50,20 @@ export function getContractorDashboard(input: {
     query,
     { silent: input.silent },
   );
+}
+
+/**
+ * The sidebar's waiting count for every module, in one request.
+ *
+ * Polled on every page, so it is asked quietly: a reader the endpoint
+ * refuses loses the badges, not the page.
+ */
+export function getSidebarBadges(input: { project?: string } = {}): Promise<SidebarBadges> {
+  const query: ListQuery = {};
+  if (input.project) query.project = input.project;
+  return api.get<SidebarBadges>("/api/contractor-dashboard/get_badges/", query, {
+    silent: true,
+  });
 }
 
 export function searchContractorDashboard(input: {

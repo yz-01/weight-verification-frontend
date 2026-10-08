@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { getAccessToken } from "@/lib/auth-token";
 import type { RealtimeEvent } from "@/lib/hazard-popup";
+import { refreshForEvents, refreshStale } from "@/lib/live-refresh";
 
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000"
@@ -41,11 +42,15 @@ const REFRESH_PREFIXES = [
   "equipment.",
   "progress.",
   "material_outgoing.",
+  // A site's material request (C03). The backend emits it since 2026-10;
+  // before that the office's request list waited for a navigation.
+  "material_request.",
   "disposal.",
 ];
 const REFRESH_EXACT = "notification.created";
 const REALTIME_PERMISSION_CODES = new Set([
   "notification.view",
+  "material_request.view",
   "dispatch.view",
   "task.view",
   "weighing.view",
@@ -74,6 +79,19 @@ const REALTIME_PERMISSION_CODES = new Set([
  */
 const COALESCE_MS = 400;
 const FALLBACK_POLL_MS = 15_000;
+/**
+ * A slow safety poll that runs even while the stream is connected.
+ *
+ * The stream is the fast path, not the only path. An event the backend does
+ * not emit for some record, one dropped between a reconnect's cursor and the
+ * next, or a proxy holding the response back all left a screen stale until
+ * the person navigated — that was the office's experience of a phone's
+ * submission (Lucas, 2026-10). One pass a minute, only while the tab is
+ * visible, bounds that staleness. It refetches only what is on screen and
+ * already stale by its own `staleTime` (`refreshStale`, audit S1): not every
+ * query, not report aggregations, not cards that poll themselves.
+ */
+export const SAFETY_POLL_MS = 60_000;
 const RECONNECT_MS = 1_000;
 const REJECTED_BACKOFF_MS = 15_000;
 const MAX_BACKOFF_MS = 60_000;
@@ -116,7 +134,12 @@ export function canUseRealtime(
  * so the stream is consumed through fetch. The endpoint closes after a short
  * window; reconnecting with the last timestamp makes that intentional close
  * cheap and avoids long-lived Django workers. If streaming is unavailable,
- * the same query keys are refreshed every 15 seconds.
+ * what is on screen and stale is refetched every 15 seconds.
+ *
+ * An empty `queryKeys` (the three shells) means "the screens each event
+ * concerns": an event refreshes its family's keys (`@/lib/live-refresh`), and
+ * an event the map does not know only triggers the stale-only pass - never
+ * every query (perf item #1).
  *
  * `queryKeys` is a dependency of the effect, so callers must pass a memoised
  * array. An inline literal would be a new reference on every render and would
@@ -154,26 +177,42 @@ export function useOrderRealtime(
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let fallbackTimer: ReturnType<typeof setInterval> | null = null;
     let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+    // What the coalescing window collected: the event types that arrived,
+    // and whether a stale-only pass (safety poll, fallback) was asked for.
+    let pendingEvents: Array<string | undefined> = [];
+    let stalePending = false;
+    const everyKey = queryKeys.length === 0 || queryKeys.some((key) => key.length === 0);
 
-    const refresh = () => {
+    /**
+     * `{ event }`: an event arrived - the data moved, so its keys are
+     * invalidated even if fresh. `"stale"` (the safety poll, the stream-down
+     * fallback): only what is on screen and already stale refetches.
+     */
+    const refresh = (reason: { event: string | undefined } | "stale") => {
+      if (reason === "stale") stalePending = true;
+      else pendingEvents.push(reason.event);
       if (refreshTimer !== null) return;
       refreshTimer = setTimeout(() => {
         refreshTimer = null;
-        if (queryKeys.length === 0) {
-          void queryClient.invalidateQueries();
+        const events = pendingEvents;
+        const stale = stalePending;
+        pendingEvents = [];
+        stalePending = false;
+        if (everyKey) {
+          if (events.length > 0) void refreshForEvents(queryClient, events);
+          if (stale) void refreshStale(queryClient);
           return;
         }
         for (const key of queryKeys) {
-          void queryClient.invalidateQueries(
-            key.length === 0 ? undefined : { queryKey: key },
-          );
+          if (events.length > 0) void queryClient.invalidateQueries({ queryKey: key });
+          else void queryClient.refetchQueries({ queryKey: key, type: "active", stale: true });
         }
       }, COALESCE_MS);
     };
 
     const enableFallback = () => {
       if (fallbackTimer === null) {
-        fallbackTimer = setInterval(refresh, FALLBACK_POLL_MS);
+        fallbackTimer = setInterval(() => refresh("stale"), FALLBACK_POLL_MS);
       }
     };
 
@@ -237,7 +276,7 @@ export function useOrderRealtime(
             if (!line) continue;
             const event = JSON.parse(line.slice(6)) as RealtimeEvent;
             if (event.occurred_at) cursor = event.occurred_at;
-            if (refreshAllEvents || shouldRefresh(event.event_type)) refresh();
+            if (refreshAllEvents || shouldRefresh(event.event_type)) refresh({ event: event.event_type });
             onEventRef.current?.(event);
           }
         }
@@ -253,8 +292,15 @@ export function useOrderRealtime(
     // briefly opened two server streams before the aborted request released
     // its admission slot.
     retryTimer = setTimeout(connect, 0);
+    const safetyTimer = setInterval(() => {
+      // A hidden tab refetches when it is next focused instead
+      // (`refetchOnWindowFocus`), so it costs nothing while hidden.
+      if (typeof document !== "undefined" && document.hidden) return;
+      refresh("stale");
+    }, SAFETY_POLL_MS);
     return () => {
       controller.abort();
+      clearInterval(safetyTimer);
       if (retryTimer !== null) clearTimeout(retryTimer);
       if (refreshTimer !== null) clearTimeout(refreshTimer);
       disableFallback();

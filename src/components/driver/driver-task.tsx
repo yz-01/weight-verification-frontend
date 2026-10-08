@@ -103,7 +103,7 @@ export function DriverTask({ id }: { id: string }) {
   const issueInput = useRef<HTMLInputElement>(null);
   const lastPositionAt = useRef(0);
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isLoadingError, refetch } = useQuery({
     queryKey: ["tasks", "detail", id],
     queryFn: () => getDriverTaskOfflineAware(user!.id, id),
     enabled: Boolean(user),
@@ -237,7 +237,7 @@ export function DriverTask({ id }: { id: string }) {
   const wakeLock = useScreenWakeLock(Boolean(data?.is_running));
 
   if (isLoading) return <DriverLoading />;
-  if (isError || !data) return <DriverError onRetry={() => void refetch()} />;
+  if (isLoadingError || !data) return <DriverError onRetry={() => void refetch()} />;
 
   const next = TASK_TRANSITIONS[data.state];
   // A gate somebody typed beats the project pin: the pin is the site, and the

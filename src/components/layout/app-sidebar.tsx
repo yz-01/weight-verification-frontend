@@ -14,7 +14,7 @@ import {
 } from "@/components/layout/sidebar-flyout";
 import { UserMenu } from "@/components/layout/user-menu";
 import { useAuth } from "@/components/providers/auth-provider";
-import { badgeLabelKey, useUnreadBadges } from "@/hooks/use-unread-badges";
+import { badgeFor, badgeLabelKey, useUnreadBadges } from "@/hooks/use-unread-badges";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import {
@@ -35,6 +35,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
+  badgeKeysFor,
   isActivePath,
   navLeaves,
   visibleNavigation,
@@ -226,6 +227,9 @@ export function AppSidebar() {
                   const isExpanded =
                     expanded[entryKey] ?? nodes.some((node) => node.active);
                   const flyoutOpen = flyout?.key === entryKey;
+                  // The entry's number is the sum of its pages' (材料管理 is
+                  // 材料进场 and 材料出场 together); null when it never loaded.
+                  const waiting = badgeFor(badges, badgeKeysFor(item));
                   return (
                     <SidebarMenuItem
                       key={entryKey}
@@ -273,7 +277,7 @@ export function AppSidebar() {
                               right-hand slot already holds the submodule
                               arrow on every entry that has children, and
                               material receipts is one of them. */}
-                          {badges[item.feature] === null && (
+                          {waiting === null && (
                             <span
                               className="ml-auto shrink-0 rounded-full border border-destructive/40 px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none text-destructive group-data-[collapsible=icon]:hidden"
                               aria-label={t("nav.waitingUnknown")}
@@ -282,19 +286,18 @@ export function AppSidebar() {
                               ?
                             </span>
                           )}
-                          {(badges[item.feature] ?? 0) > 0 && (
+                          {waiting !== null && waiting > 0 && (
                             <span
+                              data-sidebar-badge={item.feature}
                               className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none tabular-nums text-primary-foreground group-data-[collapsible=icon]:hidden"
                               aria-label={t(badgeLabelKey(item.feature), {
-                                count: badges[item.feature] ?? 0,
+                                count: waiting,
                               })}
                               title={t(badgeLabelKey(item.feature), {
-                                count: badges[item.feature] ?? 0,
+                                count: waiting,
                               })}
                             >
-                              {(badges[item.feature] ?? 0) > 99
-                                ? "99+"
-                                : badges[item.feature]}
+                              {waiting > 99 ? "99+" : waiting}
                             </span>
                           )}
                         </Link>

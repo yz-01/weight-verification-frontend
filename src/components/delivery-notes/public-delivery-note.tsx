@@ -104,7 +104,7 @@ export function PublicDeliveryNote({ token }: { token: string }) {
   };
 
   if (query.isLoading) return <main className="grid min-h-dvh place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></main>;
-  if (query.isError || !noteData) return <main className="mx-auto max-w-xl px-4 py-16"><h1 className="text-2xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("invalidBody")}</p></main>;
+  if (query.isLoadingError || !noteData) return <main className="mx-auto max-w-xl px-4 py-16"><h1 className="text-2xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("invalidBody")}</p></main>;
 
   const isStopped = ["CLOSED", "CANCELLED", "VOIDED"].includes(noteData.status);
   const isComplete = noteData.status === "COMPLETED";

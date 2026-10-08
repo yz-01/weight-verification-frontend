@@ -190,7 +190,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
   if (onboarding.isLoading) {
     return <p className="border-t p-4 text-sm text-muted-foreground sm:p-6">{t("common.loading")}</p>;
   }
-  if (onboarding.isError || !data) {
+  if (onboarding.isLoadingError || !data) {
     return <p className="border-t p-4 text-sm text-destructive sm:p-6">{t("table.errorBody")}</p>;
   }
 

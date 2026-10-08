@@ -3,8 +3,11 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { BADGE_FEATURES } from "@/hooks/use-unread-badges";
+
 import {
   PORTAL_NAVIGATION,
+  badgeKeysFor,
   hubDestination,
   isRouteAllowed,
   navLeaves,
@@ -180,6 +183,65 @@ describe("the feature registry", () => {
  * and a "nothing is required here" line would be noise.
  */
 const REQUIRED_HELP = ["what", "who", "then", "trouble"] as const;
+
+describe("the sidebar's waiting counts", () => {
+  /** The contractor menu for a reader with every feature and permission. */
+  const entries = () => {
+    const features = new Set<string>();
+    for (const item of PORTAL_NAVIGATION.MSE_TRACE) {
+      features.add(item.feature);
+      for (const leaf of navLeaves(item.children)) {
+        if (leaf.feature) features.add(leaf.feature);
+        for (const key of leaf.anyFeatures ?? []) features.add(key);
+      }
+    }
+    return visibleNavigation("MSE_TRACE", [...features], [], true).flatMap(
+      (group) => group.items,
+    );
+  };
+
+  // By label: an entry with pages opens its first page, so its `href` is
+  // that page's (A03).
+  const entry = (labelKey: string) => {
+    const found = entries().find((item) => item.labelKey === labelKey);
+    expect(found, labelKey).toBeDefined();
+    return found!;
+  };
+
+  it("adds a parent entry's pages up, the way 材料管理 shows both of its pages", () => {
+    expect(badgeKeysFor(entry("materialManagement"))).toEqual([
+      "material_receipts",
+      "material_outgoing",
+    ]);
+    expect(badgeKeysFor(entry("equipment"))).toEqual(["equipment"]);
+    expect(badgeKeysFor(entry("recyclers"))).toEqual(
+      expect.arrayContaining(["waste_outgoing", "site_disposals"]),
+    );
+    expect(badgeKeysFor(entry("documents"))).toEqual(expect.arrayContaining(["approvals"]));
+    expect(badgeKeysFor(entry("hazard_rectification"))).toEqual([
+      "hazard_rectification",
+      "safety",
+    ]);
+  });
+
+  it("lets an entry name its own count when summing its pages would be wrong", () => {
+    // 杂费报销, 归档队列 and 分类管理 are all `project_categories`; only the
+    // claims carry work waiting, so only that entry names a key.
+    expect(badgeKeysFor(entry("submodule.sundryClaims"))).toEqual(["sundry_claims"]);
+    expect(badgeKeysFor(entry("submodule.archiveQueue"))).toEqual(["project_categories"]);
+    expect(badgeKeysFor(entry("submodule.categoryManagement"))).toEqual(["project_categories"]);
+    // 顾问's 审批凭证 and 多引擎审查 pages are on `approvals`, but the
+    // document approvals are 文件's number, not 顾问's.
+    expect(badgeKeysFor(entry("consultant_applications"))).toEqual(["consultant_applications"]);
+  });
+
+  it("gives every count the backend can send an entry to appear on", () => {
+    const reachable = new Set(entries().flatMap((item) => badgeKeysFor(item)));
+    for (const key of BADGE_FEATURES) {
+      expect(reachable.has(key), key).toBe(true);
+    }
+  });
+});
 
 describe("every module explains itself", () => {
   for (const locale of LOCALES) {

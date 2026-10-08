@@ -13,6 +13,7 @@ import {
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { OFFLINE_SYNC_REQUESTED } from "@/components/providers/service-worker-registration";
+import { refreshChanged } from "@/lib/live-refresh";
 import { clearDriverSnapshots, clearRecyclerSnapshots } from "@/lib/offline-db";
 import {
   flushOfflineJobs,
@@ -84,13 +85,13 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
       await refreshCount();
       if (result.synced > 0) {
         setLastSyncedAt(new Date().toISOString());
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ["attendance"] }),
-          queryClient.invalidateQueries({ queryKey: ["tasks"] }),
-          queryClient.invalidateQueries({ queryKey: ["incoming"] }),
-          queryClient.invalidateQueries({ queryKey: ["dispatches"] }),
-          queryClient.invalidateQueries({ queryKey: ["settlements"] }),
-        ]);
+        // The queue carries every kind of site record - deliveries, disposal
+        // trips, material out, equipment, progress, sundry claims - not only
+        // the five keys this used to name, so a delivery uploaded from the
+        // queue stayed off the phone's own list until it went stale. One
+        // refetch of what is on screen after an upload is the honest answer -
+        // except report aggregations, which wait for the person (audit N6).
+        await refreshChanged(queryClient);
       }
     } finally {
       setIsSyncing(false);

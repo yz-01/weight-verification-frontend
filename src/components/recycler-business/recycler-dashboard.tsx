@@ -124,7 +124,7 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
 
   if (dashboard.isLoading) return <RecyclerDashboardSkeleton />;
 
-  if (dashboard.isError || !dashboard.data) {
+  if (dashboard.isLoadingError || !dashboard.data) {
     return (
       <section className="flex min-h-48 flex-col items-center justify-center gap-4 border-y py-8 text-center">
         <AlertCircle className="size-7 text-destructive" aria-hidden="true" />

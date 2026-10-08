@@ -48,7 +48,7 @@ export function DriverDashboard() {
   });
 
   if (query.isLoading) return <DriverLoading />;
-  if (query.isError || !query.data) {
+  if (query.isLoadingError || !query.data) {
     return <DriverError onRetry={() => void query.refetch()} />;
   }
 

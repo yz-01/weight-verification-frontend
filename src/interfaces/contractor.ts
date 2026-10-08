@@ -551,7 +551,7 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
   latitude: string | null;
   longitude: string | null;
   location_accuracy_m: string | null;
-  ocr_status: "NOT_REQUESTED" | "SUCCEEDED" | "NOT_CONFIGURED" | "FAILED" | "MANUAL";
+  ocr_status: "NOT_REQUESTED" | "PENDING" | "SUCCEEDED" | "NOT_CONFIGURED" | "FAILED" | "MANUAL";
   ocr_result: DeliveryNoteOCRResult | Record<string, unknown>;
   photos: ReceiptPhoto[];
   created_by: string | null;

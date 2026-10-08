@@ -3,10 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileCheck2, Info, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
   TextAreaField,
@@ -38,7 +38,7 @@ import {
  */
 export function CreateSettlement() {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const queryClient = useQueryClient();
 
   const [dispatch, setDispatch] = useState("");
@@ -64,7 +64,7 @@ export function CreateSettlement() {
       issueSettlement({ dispatch, unit_price: unitPrice, notes: notes.trim() }),
     onSuccess: (settlement) => {
       void queryClient.invalidateQueries({ queryKey: ["settlements"] });
-      router.push(`/settlements/${settlement.id}`);
+      finish(`/settlements/${settlement.id}`);
     },
   });
 

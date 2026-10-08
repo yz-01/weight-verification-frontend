@@ -18,7 +18,7 @@
  *   - hands it to something that shows the failure - `query={X}` (as
  *     `QueryBoundary`, `QueryFailedNote`, `QueryPanel` take it) or
  *     `queries={[…X…]}`;
- *   - destructures `isError` / `error` / `status` from it;
+ *   - destructures `isError` / `isLoadingError` / `error` / `status` from it;
  *   - or returns it (`return X`) - a custom hook; then every place that calls
  *     that hook is held to the same rule, as if it were `useQuery` itself.
  *
@@ -91,7 +91,7 @@ function unanswered(body, hooks) {
   }
   match = destructured.exec(body);
   while (match) {
-    if (!/\b(?:isError|error|status)\b/.test(match[1])) {
+    if (!/\b(?:isError|isLoadingError|error|status)\b/.test(match[1])) {
       if (excused(match.index)) escaped += 1;
       else found.push([`{${match[1].trim()}}`, match.index]);
     }

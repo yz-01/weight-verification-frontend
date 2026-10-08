@@ -575,7 +575,7 @@ export function MaterialCapturePanel({
   // The delivery-note read every module shares (useDeliveryNoteReader).
   const ocr = useDeliveryNoteReader({
     read: readDeliveryNote,
-    onRead: (result) => {
+    onRead: (result, typed) => {
       setOcrProof(result.proof);
       const readAmount = result.suggestions.document_amount ?? "";
       setOcrAmount(readAmount);
@@ -597,8 +597,13 @@ export function MaterialCapturePanel({
       setDraft((old) => withColumn({
         ...old,
         supplier: match?.exact ? match.supplier.id : old.supplier,
-        deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
-        vehiclePlate: result.suggestions.vehicle_plate || old.vehiclePlate,
+        // What the worker typed while the read ran is theirs (hotfix 10-08).
+        deliveryNoteNo: typed.has("deliveryNoteNo")
+          ? old.deliveryNoteNo
+          : result.suggestions.delivery_note_no || old.deliveryNoteNo,
+        vehiclePlate: typed.has("vehiclePlate")
+          ? old.vehiclePlate
+          : result.suggestions.vehicle_plate || old.vehiclePlate,
         // With a line-item table, prefill from its first row; otherwise fall
         // back to the single-field suggestion.
         materialName:
@@ -686,7 +691,16 @@ export function MaterialCapturePanel({
         deviceId: getOrCreateFieldDeviceId(),
       });
     },
+    // 提交 pressed while the DO is still being read: the worker typed the
+    // details, so the read stops here rather than sending its photo over the
+    // same site signal as the delivery's own upload.
+    onMutate: () => {
+      if (ocr.reading) ocr.cancel();
+    },
     onSuccess: () => {
+      // Submitted while the DO was still being read: that read is for this
+      // delivery, not the next one, and must not fill the cleared form.
+      ocr.cancel();
       void qc.invalidateQueries({ queryKey: ["receipts"] });
       clearDraft();
       onSaved();
@@ -980,8 +994,8 @@ export function MaterialCapturePanel({
           without them (D-280), so hiding them behind 选填 sent workers to a
           refusal they could not explain. A return (退场) is not asked. */}
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label={t("material.vehicle")} required={siteEntry}><Input className="h-12" value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
-        <FieldWrapper label={t("material.doNo")} required={siteEntry}><Input className="h-12" value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
+        <FieldWrapper label={t("material.vehicle")} required={siteEntry}><Input className="h-12" value={draft.vehiclePlate} onChange={(event) => { ocr.noteTyped("vehiclePlate"); setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() })); }} /></FieldWrapper>
+        <FieldWrapper label={t("material.doNo")} required={siteEntry}><Input className="h-12" value={draft.deliveryNoteNo} onChange={(event) => { ocr.noteTyped("deliveryNoteNo"); setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value })); }} /></FieldWrapper>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} required={siteEntry} value={receiverSignature} onChange={setReceiverSignature} />
@@ -1030,7 +1044,7 @@ export function MaterialCapturePanel({
         )}
       </div>
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.reading} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>

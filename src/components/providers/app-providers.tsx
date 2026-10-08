@@ -23,7 +23,13 @@ function createQueryClient() {
         // Table pages carry their filters in the URL, so navigating back to a
         // list should feel instant while the fresh page loads behind it.
         staleTime: 30_000,
-        refetchOnWindowFocus: false,
+        // Coming back to the tab refetches what has gone stale (older than
+        // staleTime), in the background behind the cached page. The live
+        // event stream only reaches a tab that is open and connected; a
+        // phone's submission made while the office was in another window
+        // used to wait until the next navigation. Off, this was the single
+        // biggest reason the office saw stale lists (Lucas, 2026-10).
+        refetchOnWindowFocus: true,
         // Run even when the browser knows it is offline. The default
         // ("online") pauses the function itself, which silently disabled the
         // whole offline layer: an offline-aware reader was never invoked, so

@@ -3,6 +3,14 @@
 import { useCallback, useEffect, useRef } from "react";
 
 const RECOVERY_COOLDOWN_MS = 30_000;
+/**
+ * How often an open, visible tab asks whether a new release is out.
+ *
+ * Nobody waits on this: it only reloads a tab onto a new release, and coming
+ * back to the tab (`focus`) or a chunk from the old release failing to load
+ * still does that at once. Two minutes rather than 30 s (FABLE_PERF_1008 #10).
+ */
+export const DEPLOYMENT_CHECK_MS = 120_000;
 const RECOVERY_KEY = "mse-navigation-recovery-at";
 
 /**
@@ -33,11 +41,7 @@ export function NavigationRecovery({ deploymentId }: { deploymentId: string }) {
       const message =
         reason instanceof Error ? `${reason.name}: ${reason.message}` : String(reason ?? "");
       if (!isVersionSkewError(message)) return;
-
-      const lastRecovery = Number(window.sessionStorage.getItem(RECOVERY_KEY) ?? 0);
-      if (Date.now() - lastRecovery < RECOVERY_COOLDOWN_MS) return;
-      window.sessionStorage.setItem(RECOVERY_KEY, String(Date.now()));
-      window.location.reload();
+      reloadAfterVersionSkew();
     };
 
     const onError = (event: ErrorEvent) => {
@@ -61,7 +65,7 @@ export function NavigationRecovery({ deploymentId }: { deploymentId: string }) {
     window.addEventListener("focus", checkDeployment);
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") void checkDeployment();
-    }, 30_000);
+    }, DEPLOYMENT_CHECK_MS);
     void checkDeployment();
     return () => {
       window.clearInterval(interval);
@@ -78,4 +82,17 @@ function isVersionSkewError(message: string): boolean {
   return /ChunkLoadError|Loading chunk|dynamically imported module|module script|Failed to load Next\.js script|RSC payload/i.test(
     message,
   );
+}
+
+/**
+ * Reload to pick up the current deployment's files, at most once every 30 s
+ * per tab so a file that is truly gone cannot cause a reload loop. Also used
+ * by `IntlProvider` when the translation file fails to load, which happens
+ * before this component has mounted.
+ */
+export function reloadAfterVersionSkew(): void {
+  const lastRecovery = Number(window.sessionStorage.getItem(RECOVERY_KEY) ?? 0);
+  if (Date.now() - lastRecovery < RECOVERY_COOLDOWN_MS) return;
+  window.sessionStorage.setItem(RECOVERY_KEY, String(Date.now()));
+  window.location.reload();
 }

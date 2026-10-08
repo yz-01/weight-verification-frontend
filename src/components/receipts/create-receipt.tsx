@@ -4,9 +4,9 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
   TextAreaField,
@@ -54,7 +54,7 @@ import { correctReceipt, getReceipt } from "@/services/contractor.service";
  */
 function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -75,7 +75,7 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
     // the clerk sees the figure that was actually filed, not the one they typed.
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["receipts"] });
-      router.push(`/receipts/${saved.id}`);
+      finish(`/receipts/${saved.id}`);
     },
   });
 
@@ -383,13 +383,13 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
 /** Fetches the record, then hands it to the correction form. */
 export function EditReceipt({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["receipts", "detail", id],
     queryFn: () => getReceipt(id),
   });
 
   if (isLoading) return <FormSkeleton sections={4} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
   }
   return <CorrectReceiptForm receipt={data} />;

@@ -592,6 +592,7 @@ export function exportSuppliers(request: ExportRequest): Promise<void> {
 export function readDeliveryNote(
   project: string,
   image: File,
+  signal?: AbortSignal,
 ): Promise<DeliveryNoteOCRResult> {
   const data = new FormData();
   data.append("project", project);
@@ -599,7 +600,7 @@ export function readDeliveryNote(
   return api.post<DeliveryNoteOCRResult>(
     "/api/receipts/ocr_delivery_note/",
     data,
-    { silent: true },
+    { silent: true, signal },
   );
 }
 

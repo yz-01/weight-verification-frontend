@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   compressPhoto,
@@ -80,5 +80,28 @@ describe("compressPhoto passes through what it cannot compress", () => {
   it("leaves a photo untouched where there is no canvas to draw it on", async () => {
     const photo = new File(["jpeg"], "do.jpg", { type: "image/jpeg" });
     expect(await compressPhoto(photo)).toBe(photo);
+  });
+});
+
+describe("compressPhoto always ends", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it("keeps the original when the browser never finishes decoding it", async () => {
+    // A camera file the browser chokes on: the decode promise never settles.
+    vi.useFakeTimers();
+    vi.stubGlobal("createImageBitmap", () => new Promise(() => {}));
+    const photo = new File(["jpeg"], "black-do.jpg", { type: "image/jpeg" });
+    const result = compressPhoto(photo, 1_000);
+    await vi.advanceTimersByTimeAsync(1_000);
+    await expect(result).resolves.toBe(photo);
+  });
+
+  it("keeps the original when decoding throws", async () => {
+    vi.stubGlobal("createImageBitmap", () => Promise.reject(new Error("decode")));
+    const photo = new File(["jpeg"], "do.jpg", { type: "image/jpeg" });
+    expect(await compressPhoto(photo, 1_000)).toBe(photo);
   });
 });

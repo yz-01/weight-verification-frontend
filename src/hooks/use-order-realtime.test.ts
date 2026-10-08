@@ -54,6 +54,9 @@ describe("shouldRefresh", () => {
     "equipment.created",
     "progress.changed",
     "material_outgoing.created",
+    // The site's material request (C03): the one site submission that had no
+    // event, so the office's request list waited for a navigation.
+    "material_request.created",
     "disposal.changed",
   ];
 
@@ -89,7 +92,9 @@ describe("backoffFromResponse", () => {
     }) as unknown as Response;
 
   it("waits as long as the server asked", () => {
-    // The stream endpoint answers 503 with exactly this when it is at capacity.
+    // The stream endpoint answers 503 with exactly this when it is at capacity
+    // (FABLE_PERF_1008 #6), and the cap must not cut it short.
+    expect(backoffFromResponse(withRetryAfter("60"))).toBe(60_000);
     expect(backoffFromResponse(withRetryAfter("15"))).toBe(15_000);
   });
 

@@ -104,7 +104,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
       : can("field_task.manage"));
   const overdue = !!row?.is_overdue;
 
-  if (task.isError || !row) {
+  if (task.isLoadingError || !row) {
     return (
       <RecordDetailDialog title={t("loading")} onClose={onClose}>
         {task.isError ? (

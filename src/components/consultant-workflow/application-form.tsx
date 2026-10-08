@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClipboardPen, Images, Loader2, MapPin, Plus, Save } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
@@ -14,6 +13,7 @@ import {
 } from "@/components/consultant-workflow/application-type-layout";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useDismissDialog, useFinishForm } from "@/components/shared/dialog-navigation";
 import { useFormSurface } from "@/components/shared/form-surface";
 import {
   DetailHeader,
@@ -149,7 +149,7 @@ export function ConsultantApplicationForm({
   if (id && existing.isLoading) {
     return <div className="grid min-h-72 place-items-center"><Loader2 className="size-7 animate-spin text-primary" /></div>;
   }
-  if (id && (existing.isError || !existing.data || existing.data.status !== "DRAFT")) {
+  if (id && (existing.isLoadingError || !existing.data || existing.data.status !== "DRAFT")) {
     return <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.draftUnavailable")}</div>;
   }
   return (
@@ -176,7 +176,8 @@ function ConsultantApplicationEditor({
 }) {
   const t = useTranslations("consultantWorkflow");
   const { can } = useAuth();
-  const router = useRouter();
+  const finish = useFinishForm();
+  const dismiss = useDismissDialog("/consultant-applications");
   const surface = useFormSurface();
   const qc = useQueryClient();
   const [form, setForm] = useState<ConsultantApplicationPayload>(() =>
@@ -345,7 +346,7 @@ function ConsultantApplicationEditor({
             inspection_start_at: inspectionStartAt ? new Date(inspectionStartAt).toISOString() : null,
             inspection_end_at: inspectionEndAt ? new Date(inspectionEndAt).toISOString() : null,
           }),
-    onSuccess: (row) => router.push(`/consultant-applications/${row.id}`),
+    onSuccess: (row) => finish(`/consultant-applications/${row.id}`),
   });
   const saveReusableOption = useMutation({
     mutationFn: ({
@@ -689,7 +690,7 @@ function ConsultantApplicationEditor({
 
   const actions = (
     <>
-        <Button variant="outline" onClick={() => router.back()}>{t("action.cancel")}</Button>
+        <Button variant="outline" onClick={dismiss}>{t("action.cancel")}</Button>
         <Button requires={[[form.project, t("field.project")], [form.application_type, t("field.applicationType")], [form.consultant, t("field.consultant")], [form.consultant_organization, t("field.consultantCompany")], [!isMaterial || form.component.trim(), t("field.material")], [form.description, t("field.description")], [requiredTemplateFieldsComplete, missingTemplateFields]]}
                 disabled={save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}

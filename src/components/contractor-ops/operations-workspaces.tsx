@@ -2152,6 +2152,46 @@ export function EquipmentDialog({
 }
 
 /**
+ * The fields the entry dialog marks in place; everything else the server
+ * refuses has to be said in the dialog's own alert. The machine's name field
+ * is only there for a 「新设备」.
+ */
+export function entryInlineFields(machinePicked: boolean): ReadonlySet<string> {
+  return new Set([
+    "photos",
+    "delivery_note_no",
+    "supplier",
+    "receiver_signature",
+    "supplier_signature",
+    "latitude",
+    "longitude",
+    "accuracy_m",
+    ...(machinePicked ? [] : ["equipment"]),
+  ]);
+}
+
+/**
+ * What the entry dialog's alert says about a refusal (2026-10-08).
+ *
+ * The alert used to join every field's message, or fall back to the
+ * envelope's sentence when that came out empty - which for `validation_failed`
+ * is 「请检查标红的字段后重试。」. A refusal on a field the dialog does not show
+ * (the picked machine, the project, the task) then read as "check the red
+ * fields" with nothing red. Now: the fields the dialog cannot mark are named
+ * and said here; a refusal that only concerns marked fields leaves the
+ * envelope's sentence, which is then true.
+ */
+export function entryRefusalText(
+  errors: Record<string, string>,
+  { inline, labels }: { inline: ReadonlySet<string>; labels: Record<string, string> },
+): string {
+  return Object.entries(errors)
+    .filter(([name, message]) => message && !inline.has(name))
+    .map(([name, message]) => (labels[name] ? `${labels[name]}: ${message}` : message))
+    .join(" ");
+}
+
+/**
  * 设备进场 in one step, the way 材料进场 is taken (2026-10 X2, C8, F3).
  *
  * The machine is one already on file, or - most often, since nobody knows in
@@ -2223,10 +2263,11 @@ export function EquipmentEntryDialog({
   ];
   const ocr = useDeliveryNoteReader({
     read: ocrEquipmentDeliveryNote,
-    onRead: (result) => {
+    onRead: (result, typed) => {
       setOcrProof(result.proof ?? "");
       const suggestions = result.suggestions as Record<string, string | undefined>;
-      if (suggestions.delivery_note_no) setDeliveryNote(suggestions.delivery_note_no);
+      // A DO number typed while the read ran is the worker's (hotfix 10-08).
+      if (suggestions.delivery_note_no && !typed.has("deliveryNote")) setDeliveryNote(suggestions.delivery_note_no);
     },
     onReset: () => setOcrProof(""),
   });
@@ -2237,8 +2278,14 @@ export function EquipmentEntryDialog({
     onMutate: () => setError(""),
     onSuccess: (row) =>
       setSupplier({ id: row.id, name: row.name, completed_return_count: row.completed_return_count }),
+    // The scan's own reason, not only the envelope's sentence: for a refused
+    // token that is "check the highlighted fields", and no field is marked.
     onError: (reason) =>
-      setError(reason instanceof ApiError ? reason.message : t("equipment.scanFailed")),
+      setError(
+        reason instanceof ApiError
+          ? Object.values(reason.errors).filter(Boolean).join(" ") || reason.message
+          : t("equipment.scanFailed"),
+      ),
   });
   const save = useMutation({
     mutationFn: () => {
@@ -2282,7 +2329,20 @@ export function EquipmentEntryDialog({
     onError: (reason) => {
       if (reason instanceof ApiError) {
         setFieldErrors(reason.errors);
-        setError(Object.values(reason.errors).join(" ") || reason.message || t("equipment.submissionError"));
+        setError(
+          entryRefusalText(reason.errors, {
+            inline: entryInlineFields(Boolean(machine)),
+            labels: {
+              equipment: machine ? machineLabeller([machine])(machine) : t("equipment.newMachineName"),
+              project: t("field.project"),
+              registration_no: t("field.plateNo"),
+              vehicle_plate: t("field.plateNo"),
+              notes: going ? t("equipment.exitReason") : t("field.notes"),
+            },
+          }) ||
+            reason.message ||
+            t("equipment.submissionError"),
+        );
         return;
       }
       setFieldErrors({});
@@ -2381,7 +2441,10 @@ export function EquipmentEntryDialog({
             <Input
               aria-label={t("field.deliveryNoteNo")}
               value={deliveryNote}
-              onChange={(e) => setDeliveryNote(e.target.value)}
+              onChange={(e) => {
+                ocr.noteTyped("deliveryNote");
+                setDeliveryNote(e.target.value);
+              }}
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.supplier")} error={fieldErrors.supplier}>
@@ -2408,20 +2471,30 @@ export function EquipmentEntryDialog({
             )}
           </FieldWrapper>
           <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
-            <FieldSignaturePad
-              label={t("equipment.siteSignature")}
-              clearLabel={field("action.clearSignature")}
-              required
-              value={receiverSignature}
-              onChange={setReceiverSignature}
-            />
-            <FieldSignaturePad
-              label={t("equipment.supplierSignature")}
-              clearLabel={field("action.clearSignature")}
-              required
-              value={supplierSignature}
-              onChange={setSupplierSignature}
-            />
+            <div>
+              <FieldSignaturePad
+                label={t("equipment.siteSignature")}
+                clearLabel={field("action.clearSignature")}
+                required
+                value={receiverSignature}
+                onChange={setReceiverSignature}
+              />
+              {fieldErrors.receiver_signature && (
+                <p className="mt-1 text-xs font-medium text-destructive">{fieldErrors.receiver_signature}</p>
+              )}
+            </div>
+            <div>
+              <FieldSignaturePad
+                label={t("equipment.supplierSignature")}
+                clearLabel={field("action.clearSignature")}
+                required
+                value={supplierSignature}
+                onChange={setSupplierSignature}
+              />
+              {fieldErrors.supplier_signature && (
+                <p className="mt-1 text-xs font-medium text-destructive">{fieldErrors.supplier_signature}</p>
+              )}
+            </div>
           </div>
           <LocationField
             className="sm:col-span-2"
@@ -2548,11 +2621,12 @@ export function MovementDialog({
   // does (useDeliveryNoteReader) - no 【读取】 button.
   const ocr = useDeliveryNoteReader({
     read: ocrEquipmentDeliveryNote,
-    onRead: (result) => {
+    onRead: (result, typed) => {
       setOcrProof(result.proof ?? "");
       const suggestions = result.suggestions as Record<string, string | undefined>;
-      if (suggestions.delivery_note_no) setDeliveryNote(suggestions.delivery_note_no);
-      if (suggestions.vehicle_plate) setVehicle(suggestions.vehicle_plate);
+      // What was typed while the read ran is the worker's (hotfix 10-08).
+      if (suggestions.delivery_note_no && !typed.has("deliveryNote")) setDeliveryNote(suggestions.delivery_note_no);
+      if (suggestions.vehicle_plate && !typed.has("vehicle")) setVehicle(suggestions.vehicle_plate);
     },
     // A new or removed photo: the old read no longer describes it.
     onReset: () => setOcrProof(""),
@@ -2646,13 +2720,19 @@ export function MovementDialog({
           <FieldWrapper label={t("field.vehiclePlate")}>
             <Input
               value={vehicle}
-              onChange={(e) => setVehicle(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                ocr.noteTyped("vehicle");
+                setVehicle(e.target.value.toUpperCase());
+              }}
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.deliveryNote")}>
             <Input
               value={deliveryNote}
-              onChange={(e) => setDeliveryNote(e.target.value)}
+              onChange={(e) => {
+                ocr.noteTyped("deliveryNote");
+                setDeliveryNote(e.target.value);
+              }}
             />
           </FieldWrapper>
           <FieldWrapper

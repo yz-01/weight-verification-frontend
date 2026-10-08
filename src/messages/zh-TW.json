@@ -7384,6 +7384,8 @@
       "user_not_found": "找不到這位用戶。",
       "user_suspended": "此賬號已停用，請聯繫管理員。",
       "validation_failed": "請檢查標紅的字段後重試。",
+      "request_unreadable": "上傳沒有完整送達，請檢查網絡後重新提交，這次沒有保存任何內容。",
+      "equipment_not_found": "這台設備已不在設備檔案裡（已停用、刪除或不在這個項目）。請重新選擇設備，或按「新設備」提交。",
       "vehicle_has_tasks": "該車輛已有出車記錄，請停用而不是刪除。",
       "vehicle_not_found": "找不到該車輛。",
       "version_already_exists": "該平臺版本已經存在。",
@@ -7423,8 +7425,10 @@
     },
     "backToDashboard": "返回儀表板",
     "field": {
+      "record_archived": "這條記錄已被後台確認歸檔，不能再修改，請重新提交一條新記錄。",
       "blank": "此項為必填",
       "does_not_exist": "找不到該記錄",
+      "equipment_not_found": "這台設備已不在設備檔案裡（已停用、刪除或不在這個項目）。請重新選擇設備，或按「新設備」提交。",
       "email_in_use": "該電子郵箱已註冊",
       "field_phone_locked": "已綁定的手機號碼不能修改",
       "incorrect_type": "此值無效",
@@ -11549,6 +11553,7 @@
       "MANUAL": "人工輸入",
       "NOT_CONFIGURED": "未設定讀取服務",
       "NOT_REQUESTED": "未讀取",
+      "PENDING": "等待讀取",
       "SUCCEEDED": "已讀取"
     },
     "editNote": "數量和單價可以更正。項目、送貨單和記錄時間不可更改，它們正是這條記錄要證明的事。",
@@ -13616,6 +13621,7 @@
       "MANUAL": "人工填寫",
       "NOT_CONFIGURED": "尚未配置 OCR",
       "NOT_REQUESTED": "尚未識別",
+      "PENDING": "等待讀取",
       "SUCCEEDED": "Azure OCR 已識別"
     },
     "optional": "選填",
