@@ -97,7 +97,6 @@ const NOT_BUSINESS_RECORDS: Record<string, string> = {
   "src/components/progress/progress-summary.tsx#SummaryBlocksView": "a summary chart",
   "src/components/progress/progress-summary.tsx#BlockView": "a summary chart",
   "src/components/receipts/material-tabs.tsx#NetTotalsView": "a totals table",
-  "src/components/schedule-planning/schedule-planning-workspace.tsx#ViewSelector": "a schedule's view switch",
 };
 
 /** Files allowed to use `DetailHeader` (a page's back bar): admin pages and forms. */

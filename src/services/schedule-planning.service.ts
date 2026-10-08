@@ -14,8 +14,16 @@ import { api, download, toastSuccess } from "@/services/api-client";
 export const getSchedulePlans = (query: ListQuery = {}) =>
   api.list<SchedulePlan>("/api/schedules/get_plans/", query);
 
-export const getScheduleOverview = (planId: string) =>
-  api.get<ScheduleOverview>(`/api/schedules/${planId}/get_overview/`);
+/**
+ * The cards' figures for one revision: the one on screen, so the cards and
+ * the task list beside them describe the same schedule. Without a revision
+ * the server picks the current one, then a draft.
+ */
+export const getScheduleOverview = (planId: string, revisionId?: string) =>
+  api.get<ScheduleOverview>(
+    `/api/schedules/${planId}/get_overview/`,
+    revisionId ? { revision: revisionId } : undefined,
+  );
 
 export const createSchedulePlan = async (payload: {
   project: string;

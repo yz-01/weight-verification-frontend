@@ -10759,10 +10759,10 @@
       "trouble": "Wilayah ialah satu senarai, bukan dua. Entri di sini membuka halaman wilayah rakan kongsi, jadi kedua-dua belah sentiasa menunjukkan baris yang sama."
     },
     "schedule": {
-      "what": "Program WBS, yang boleh dibawa masuk dari Excel dan disemak dari semasa ke semasa.",
+      "what": "Jadual pembinaan: pilih pelan untuk melihat tiga angka (kemajuan, selesai, lewat), kemudian carta Gantt dan senarai tugas. Eksport, pelan baharu, import, namakan semula, arkib dan versi pelan ada di bawah Lagi.",
       "who": "Pemegang progress.view dan project.view sekali.",
       "need": "Import memerlukan fail .xlsx, nama pelan dan nama semakan; menyemak pelan yang disahkan juga memerlukan sebab perubahan. Tugas manual memerlukan WBS, nama, mula dan tamat dirancang.",
-      "then": "Import ialah dua langkah. Pratonton membaca pengepala anda dan membenarkan pemetaan lajur, tanpa menulis apa-apa. Hanya Sahkan import yang menulis.",
+      "then": "Pelan baharu bermula sebagai draf; tambah tugas, kemudian Sahkan dan kunci. Selepas itu, isi Siap % setiap tugas melalui Sahkan kemajuan. Lewat bermaksud melepasi tarikh siap dan belum selesai; tugas yang siap selepas tarikh siap dipaparkan sebagai Siap lewat dan tidak dikira lewat.",
       "trouble": "Import yang gagal biasanya kehilangan pemetaan: WBS, nama tugas dan mula dirancang diperlukan, serta tamat dirancang atau tempoh."
     },
     "site_access": {
@@ -12700,7 +12700,14 @@
       "open": "Buka",
       "preview": "Pratonton fail",
       "remove": "Buang",
-      "save": "Simpan"
+      "save": "Simpan",
+      "more": "Lagi",
+      "exportExcel": "Eksport Excel",
+      "exportPdf": "Eksport PDF",
+      "showRevisions": "Versi pelan",
+      "showHistory": "Log aktiviti",
+      "backToDefault": "Kembali ke versi terkini",
+      "showAll": "Tunjuk semua tugas"
     },
     "common": {
       "day": "hari",
@@ -12719,9 +12726,6 @@
     },
     "defaults": {
       "baseline": "Garis Dasar Diluluskan"
-    },
-    "delay": {
-      "days": "Lewat {count} hari"
     },
     "dialog": {
       "editPlanHelp": "Nama dan penerangan sahaja. Dua jadual di satu tapak tidak boleh berkongsi nama.",
@@ -12746,7 +12750,6 @@
       "actualProgress": "Kemajuan sebenar (%)",
       "actualStart": "Mula sebenar",
       "baselineLabel": "Nama garis dasar",
-      "delay": "Lewat",
       "description": "Penerangan",
       "excelFile": "Fail Excel (.xlsx)",
       "importTarget": "Import ke",
@@ -12756,9 +12759,7 @@
       "parentTask": "Tugas induk",
       "plan": "Pelan jadual",
       "planName": "Nama pelan",
-      "plannedDates": "Tarikh dirancang",
       "plannedEnd": "Siap dirancang",
-      "plannedProgress": "Dirancang",
       "plannedStart": "Mula dirancang",
       "progressEvidence": "Kemajuan tapak dipautkan",
       "progressEvidenceHelp": "Hanya rekod foto kemajuan yang dihantar daripada projek ini tersedia.",
@@ -12771,12 +12772,21 @@
       "taskName": "Nama tugas",
       "wbs": "WBS",
       "weight": "Berat",
-      "weightHelp": "Berapa banyak kerja yang diwakili tugas ini berbanding yang lain. Nilai relatif - 1/2/3 dan 10/20/30 bermaksud sama, dan lajur ini tidak perlu berjumlah 100. Biarkan pada 1 untuk berat sama."
+      "weightHelp": "Berapa banyak kerja yang diwakili tugas ini berbanding yang lain. Nilai relatif - 1/2/3 dan 10/20/30 bermaksud sama, dan lajur ini tidak perlu berjumlah 100. Biarkan pada 1 untuk berat sama.",
+      "start": "Mula",
+      "end": "Tamat",
+      "days": "Hari",
+      "done": "Siap %",
+      "status": "Status",
+      "weightValue": "Pemberat {value}",
+      "plannedToday": "Dirancang untuk hari ini: {value}%",
+      "linkedRecords": "{count} rekod tapak dilampirkan"
     },
     "gantt": {
-      "actual": "Siap sebenar",
+      "actual": "Sudah siap",
       "days": "{count} hari kalendar",
-      "planned": "Tempoh dirancang"
+      "planned": "Tarikh dirancang",
+      "today": "Hari ini"
     },
     "history": {
       "EXCEL_IMPORTED": "Jadual Excel diimport",
@@ -12825,26 +12835,36 @@
       "loadError": "Jadual tidak dapat dimuatkan. Cuba lagi.",
       "noConfirmedProgress": "Tiada kemajuan tapak yang dihantar.",
       "noHistory": "Belum ada sejarah jadual.",
-      "noPlans": "Projek ini belum mempunyai jadual. Cipta secara manual atau import Excel.",
+      "noPlans": "Projek ini belum ada jadual pembinaan.",
       "noReason": "Tiada catatan tambahan",
       "noRevision": "Tiada versi jadual",
       "noTasks": "Versi ini belum mempunyai tugas.",
       "overviewLoadError": "Ringkasan kemajuan tidak dapat dimuatkan, jadi bilangan tugas dan peratus kemajuan tidak dipaparkan. Cuba lagi.",
       "revisionsLoadError": "Revisi tidak dapat dimuatkan. Cuba lagi.",
-      "tasksLoadError": "Senarai tugas tidak dapat dimuatkan, jadi tugas revisi ini tidak dipaparkan. Cuba lagi."
+      "tasksLoadError": "Senarai tugas tidak dapat dimuatkan, jadi tugas revisi ini tidak dipaparkan. Cuba lagi.",
+      "noPlansHelp": "Cipta secara manual atau import daripada Excel.",
+      "noDelayed": "Tiada tugas lewat."
     },
     "status": {
       "current": "Semasa",
       "delayed": "Lewat",
-      "onTrack": "Mengikut jadual"
+      "notStarted": "Belum mula",
+      "inProgress": "Sedang berjalan",
+      "completed": "Selesai",
+      "completedLate": "Siap lewat",
+      "delayedDays": "Lewat {count} hari",
+      "completedLateDays": "Siap lewat {count} hari"
     },
-    "subtitle": "Rancang kerja, lindungi garis dasar yang diluluskan dan sahkan kemajuan sebenar tapak.",
+    "subtitle": "Pilih pelan untuk melihat carta Gantt dan sejauh mana setiap tugas.",
     "summary": {
       "completed": "Selesai",
-      "delayed": "Perlu perhatian",
-      "planned": "Dirancang {value}%",
-      "progress": "Kemajuan sebenar",
-      "tasks": "Tugas"
+      "delayed": "Lewat",
+      "planned": "Dirancang untuk hari ini: {value}%",
+      "progress": "Kemajuan",
+      "lateFinished": "{count} daripadanya siap lewat",
+      "delayedHint": "Melepasi tarikh siap dan belum selesai. Ketik untuk lihat ini sahaja",
+      "noDelay": "Tiada tugas melepasi tarikh siap",
+      "showingDelayed": "Menunjukkan tugas lewat sahaja. Ketik lagi untuk semua"
     },
     "title": "Perancangan Jadual Pembinaan",
     "toast": {
@@ -12861,11 +12881,24 @@
       "taskRemoved": "Tugas draf dibuang",
       "taskSaved": "Tugas jadual disimpan"
     },
-    "view": {
+    "why": {
+      "delayed": "Dirancang siap {date}, belum selesai",
+      "completedLate": "Dirancang siap {planned}, siap {actual}"
+    },
+    "section": {
       "gantt": "Carta Gantt",
-      "history": "Sejarah",
-      "list": "Senarai tugas",
-      "revisions": "Garis dasar dan semakan"
+      "tasks": "Tugas"
+    },
+    "progressSource": "Siap % ialah angka yang dimasukkan oleh pengurus projek di Sahkan kemajuan. Rekod tapak daripada Kemajuan projek boleh dilampirkan sebagai sokongan; sistem tidak mengiranya daripada foto. Kemajuan keseluruhan mengikut pemberat setiap tugas dan tidak mengira baris ringkasan.",
+    "version": {
+      "showing": "Dipaparkan: {label}",
+      "draftNote": "Ini draf: tugas boleh ditambah dan diubah. Siap % boleh diisi selepas disahkan dan dikunci."
+    },
+    "advanced": {
+      "title": "Versi pelan dan log",
+      "help": "Pelan asal, setiap versi semakan dan log aktiviti. Tidak diperlukan setiap hari.",
+      "revisions": "Versi pelan",
+      "history": "Log aktiviti"
     }
   },
   "session": {
