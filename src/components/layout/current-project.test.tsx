@@ -66,6 +66,18 @@ const { FieldTasksWorkspace } = await import("@/components/contractor-ops/operat
 const { Receipts } = await import("@/components/receipts/receipts");
 const { Documents } = await import("@/components/document-workflow/documents");
 const { EquipmentOperatorHours } = await import("@/components/equipment-hours/equipment-operator-hours");
+const {
+  addressAfterProjectChoice,
+  addressWithoutProjectVote,
+  fetchAllProjects,
+} = await import("@/components/providers/current-project-provider");
+const { sharingHandOver } = await import("@/components/site-operations/field-staff-gps");
+const { SupplierReturnsDialog } = await import("@/components/suppliers/supplier-return-badge");
+const { ProjectNotificationDialog } = await import("@/components/notifications/notifications");
+const { newApprovalProject } = await import("@/components/document-workflow/approvals");
+const { IncidentThreadList } = await import("@/components/incident-reporting/incident-thread-list");
+const { CreateDispatch } = await import("@/components/dispatches/create-dispatch");
+const { MaterialReport } = await import("@/components/reports/material-report");
 
 function project(id: string, code: string, name: string): Project {
   return {
@@ -111,10 +123,20 @@ const page = (results: Project[]) => ({
 
 function render(
   node: React.ReactNode,
-  { state, projects }: { state?: CurrentProjectState; projects?: Project[] } = {},
+  {
+    state,
+    projects,
+    seed = [],
+  }: {
+    state?: CurrentProjectState;
+    projects?: Project[];
+    /** Query answers already in the cache, as [key, data]. */
+    seed?: [readonly unknown[], unknown][];
+  } = {},
 ) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   if (projects) client.setQueryData(["projects", "options"], page(projects));
+  for (const [key, data] of seed) client.setQueryData(key, data);
   const inner = state ? (
     <CurrentProjectValueProvider value={state}>{node}</CurrentProjectValueProvider>
   ) : (
@@ -340,5 +362,206 @@ describe("a ?project= in the address", () => {
     ).toBe(NORTH.id);
     expect(resolveCurrentProject({ projects: [NORTH], choices: ["all"] })).toBe(NORTH.id);
     expect(resolveCurrentProject({ projects: [NORTH, SOUTH], choices: [null] })).toBe("");
+  });
+});
+
+/*
+ * The B13 audit's findings (FABLE_AUDIT_B13, 2026-10-08) and Lucas's Q33:
+ * 1. 「全部项目」 for anyone with more than one project (as built);
+ * 2. a supplier's 「有退场资料」 and its list cover every project the reader
+ *    sees, not the top bar's;
+ * 3. opening another project's record (a notice, an alert, a link) moves the
+ *    top bar to that project, then opens the record.
+ */
+describe("a link to one record of another project (Q33.3)", () => {
+  const SOUTH_TASK = {
+    id: "t-south",
+    project: SOUTH.id,
+    project_name: SOUTH.name,
+    title: "Photograph the south hoarding",
+    task_type: "PHOTO",
+    instructions: "",
+    work_location: "",
+    submission_category: "",
+    assigned_to: "u-field",
+    assigned_to_name: "Ali",
+    created_by_name: "Lim",
+    category: null,
+    category_name: null,
+    priority: "NORMAL",
+    due_at: null,
+    status: "SUBMITTED",
+    evidence_required: 1,
+    photos: [],
+    references: [],
+    photo_count: 0,
+    origin: "SITE",
+    result_note: "",
+    created_by: OFFICE.id,
+  };
+
+  it("a field task opens by its id although the top bar is on another project (audit #1)", () => {
+    nav.pathname = "/field-tasks";
+    nav.search = `task=${SOUTH_TASK.id}`;
+    const { html } = render(<FieldTasksWorkspace />, {
+      state: topBar(NORTH.id),
+      seed: [
+        [["field-tasks", NORTH.id, undefined, null], page([])],
+        [["field-tasks", "detail", SOUTH_TASK.id], SOUTH_TASK],
+      ],
+    });
+    expect(html).toContain(SOUTH_TASK.title);
+    expect(html).not.toContain(messages.contractorOps.tasks.focusedMissing);
+  });
+
+  it("a project the reader cannot see keeps the choice they made (audit #4)", () => {
+    const stored = new Map([[`mse_current_project.${OFFICE.id}`, NORTH.id]]);
+    vi.stubGlobal("window", {
+      localStorage: {
+        getItem: (key: string) => stored.get(key) ?? null,
+        setItem: (key: string, value: string) => void stored.set(key, value),
+        removeItem: (key: string) => void stored.delete(key),
+      },
+    });
+    try {
+      nav.search = "project=p-hidden";
+      function Shown() {
+        return <output>{`[${useCurrentProject().projectId}]`}</output>;
+      }
+      const { html } = render(<Shown />, { projects: [NORTH, SOUTH] });
+      expect(html).toContain(`[${NORTH.id}]`);
+      expect(stored.get(`mse_current_project.${OFFICE.id}`)).toBe(NORTH.id);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
+describe("the address does not vote twice (audit #3)", () => {
+  it("a link's project leaves the address once the top bar has taken it", () => {
+    expect(addressWithoutProjectVote("/receipts", `project=${SOUTH.id}&category=c-1`)).toBe(
+      "/receipts?category=c-1",
+    );
+    expect(addressWithoutProjectVote("/claims", "project=all")).toBe("/claims");
+    expect(addressWithoutProjectVote("/claims", "status=OPEN")).toBeNull();
+  });
+
+  it("an address that forwards keeps its project for the page it forwards to", () => {
+    expect(addressWithoutProjectVote("/dashboard", `project=${SOUTH.id}`)).toBeNull();
+    expect(addressWithoutProjectVote("/site-disposals", `project=${SOUTH.id}&record=r`)).toBeNull();
+    expect(addressWithoutProjectVote("/photo-approvals", `project=${SOUTH.id}`)).toBeNull();
+  });
+
+  it("choosing in the top bar takes the head-office card's project out too", () => {
+    expect(
+      addressAfterProjectChoice("/dashboard", `work=approvals&work_project=${SOUTH.id}`),
+    ).toBe("/dashboard?work=approvals");
+  });
+});
+
+describe("an open record follows the project (audit #8)", () => {
+  it("choosing another project closes a record opened by link", () => {
+    for (const key of [
+      "record",
+      "movement",
+      "machine",
+      "outgoing",
+      "approval",
+      "task",
+      "incident",
+      "gate_incident",
+      "pass",
+      "thread",
+      "dispatch",
+    ]) {
+      expect(addressAfterProjectChoice("/site-equipment", `direction=ENTRY&${key}=r-1`)).toBe(
+        "/site-equipment?direction=ENTRY",
+      );
+    }
+    expect(addressAfterProjectChoice("/site-equipment", "direction=ENTRY")).toBeNull();
+  });
+});
+
+describe("office location sharing follows the top bar (audit #5)", () => {
+  it("stops on the project it was sharing to and starts on the new one", () => {
+    expect(sharingHandOver(NORTH.id, SOUTH.id)).toEqual({ stop: NORTH.id, start: true });
+  });
+  it("on 全部项目 stops and does not start", () => {
+    expect(sharingHandOver(NORTH.id, "")).toEqual({ stop: NORTH.id, start: false });
+  });
+  it("does nothing while not sharing or when the project is the same", () => {
+    expect(sharingHandOver(null, SOUTH.id)).toBeNull();
+    expect(sharingHandOver(NORTH.id, NORTH.id)).toBeNull();
+  });
+});
+
+describe("a supplier's returns cover every project (Q33.2, audit #9)", () => {
+  it("the list opens on every project although the top bar is on one", () => {
+    const { keys } = render(
+      <SupplierReturnsDialog
+        supplier={{ id: "s-1", name: "Acme", completed_return_count: 3 }}
+        onClose={() => {}}
+      />,
+      { state: topBar(NORTH.id) },
+    );
+    const [key] = keysOf(keys, "suppliers", "returns", "s-1");
+    expect(key?.[3]).toMatchObject({ project: "" });
+  });
+});
+
+describe("create forms start on the top bar's project (audit #7)", () => {
+  it("a project notice is addressed to the top bar's project", () => {
+    const { keys } = render(<ProjectNotificationDialog onClose={() => {}} onSent={() => {}} />, {
+      state: topBar(NORTH.id),
+      seed: [[["projects", "notification-compose"], page([NORTH, SOUTH])]],
+    });
+    expect(keysOf(keys, "project-assignments")).toEqual([
+      ["project-assignments", NORTH.id, "notification-compose"],
+    ]);
+  });
+
+  it("a new document approval is on the top bar's project, company-wide on 全部项目", () => {
+    expect(newApprovalProject(null, NORTH.id)).toBe(NORTH.id);
+    expect(newApprovalProject(null, "")).toBe("none");
+    expect(newApprovalProject({ project: SOUTH.id }, NORTH.id)).toBe(SOUTH.id);
+    expect(newApprovalProject({ project: null }, NORTH.id)).toBe("none");
+  });
+});
+
+describe("no empty filter strip beside the top bar (audit #10)", () => {
+  it("the incident list draws no bar when its only filter is the top bar's", () => {
+    nav.pathname = "/incident-reports";
+    const { html } = render(<IncidentThreadList />, { state: topBar(NORTH.id) });
+    expect(html).not.toContain("border-y bg-card/50 py-3");
+  });
+
+  it("the material report keeps no empty column where the project box was", () => {
+    nav.pathname = "/reports/material";
+    const { html } = render(<MaterialReport mode="quantity" />, { state: topBar(NORTH.id) });
+    expect(html).not.toContain("minmax(220px,1fr)_210px_180px_180px_auto");
+  });
+
+  it("the dispatch form names the project the way every other form does", () => {
+    nav.pathname = "/dispatches/create";
+    const { html } = render(<CreateDispatch />, { state: topBar(NORTH.id) });
+    expect(html).toContain("N1 - North Tower");
+    expect(html).not.toContain("N1 — North Tower");
+  });
+});
+
+describe("more than 100 projects (audit #11)", () => {
+  it("the top bar reads every page of projects", async () => {
+    const all = Array.from({ length: 230 }, (_, index) =>
+      project(`p-${index}`, `P${index}`, `Site ${index}`),
+    );
+    const asked: number[] = [];
+    const result = await fetchAllProjects(async (pageNo) => {
+      asked.push(pageNo);
+      const results = all.slice((pageNo - 1) * 100, pageNo * 100);
+      return { count: all.length, page: pageNo, page_size: 100, total_pages: 3, results };
+    });
+    expect(asked).toEqual([1, 2, 3]);
+    expect(result.results).toHaveLength(230);
+    expect(result.count).toBe(230);
   });
 });

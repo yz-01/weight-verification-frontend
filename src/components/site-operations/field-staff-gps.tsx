@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { History, LocateFixed, MapPinned, RefreshCw, Route, UserRound } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
 import { FieldWrapper, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
@@ -30,6 +30,21 @@ import {
   stopFieldStaffLocationSharing,
 } from "@/services/field-staff-gps.service";
 import { getSiteGeofences, getSiteLocationPolicy } from "@/services/site-access.service";
+
+/**
+ * What office sharing does when the project changes under it - the top bar
+ * moved, which the page's own handlers never see (B13 audit #5): stop on the
+ * project it was posting to, so that project's presence closes, and start
+ * again on the new one (not on 全部项目, which is no project to post to).
+ * Null while not sharing, or when the project did not change.
+ */
+export function sharingHandOver(
+  sharedTo: string | null,
+  next: string,
+): { stop: string; start: boolean } | null {
+  if (sharedTo === null || sharedTo === next) return null;
+  return { stop: sharedTo, start: Boolean(next) };
+}
 
 export function FieldStaffGps({
   managedAutomatically = false,
@@ -66,6 +81,8 @@ export function FieldStaffGps({
   useOnProjectChange(historyProjectId, () => setHistorySelection(""));
   const watchId = useRef<number | null>(null);
   const lastSentAt = useRef(0);
+  /** The project this browser's positions are going to, while sharing. */
+  const sharedTo = useRef<string | null>(null);
 
   /**
    * Whether this reader may watch other people's positions.
@@ -318,17 +335,32 @@ export function FieldStaffGps({
       navigator.geolocation.clearWatch(watchId.current);
       watchId.current = null;
     }
+    sharedTo.current = null;
     setSharing(false);
   }
 
   function stopSharing() {
+    // The project the positions went to, not the one on screen now: they
+    // differ once the top bar has moved, and on 全部项目 there is none.
+    const project = sharedTo.current ?? projectId;
     stopWatcher();
-    if (!projectId || !user) return;
+    if (!project || !user) return;
     stop.mutate({
-      project: projectId,
+      project,
       client_event_id: `${user.id}-stop-${Date.now()}`,
     });
   }
+
+  // The top bar moved while sharing: close the old project, open the new.
+  const followProject = useEffectEvent((next: string) => {
+    const handOver = sharingHandOver(sharedTo.current, next);
+    if (!handOver) return;
+    stopSharing();
+    if (handOver.start) startSharing();
+  });
+  useEffect(() => {
+    followProject(projectId);
+  }, [projectId]);
 
   function startSharing() {
     setSharingError("");
@@ -340,6 +372,7 @@ export function FieldStaffGps({
     }
     stopWatcher();
     setSharing(true);
+    sharedTo.current = projectId;
     watchId.current = navigator.geolocation.watchPosition(
       (position) => {
         const now = Date.now();

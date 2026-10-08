@@ -80,6 +80,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import { equipmentDirectionTitleKey } from "@/lib/equipment-title";
 import { useUrlSelection } from "@/hooks/use-url-selection";
+import {
+  useFollowRecordProject,
+  useOnProjectChange,
+} from "@/components/providers/current-project-provider";
 import type {
   EquipmentMovement,
   MaterialOutgoing,
@@ -593,6 +597,18 @@ export function SiteEquipmentOffice() {
   usePageTitle(directionTitle);
   const title = directionTitle ?? tRoot("nav.submodule.siteEquipment");
   const project = list.filters.project ?? "";
+  // A movement or machine opened by hand belongs to the project it was opened
+  // on, and closes when the top bar moves (B13 audit #8). One a link opened
+  // moves the top bar to its project first (Q33.3).
+  useOnProjectChange(project, () => {
+    setViewingMovement(null);
+    setViewingMachine(null);
+  });
+  useFollowRecordProject(
+    "movement",
+    linkedMovement ? linkedMovementQuery.data?.results[0] : null,
+  );
+  useFollowRecordProject("machine", linkedMachine ? linkedMachineQuery.data : null);
 
   const movementColumns = useMemo<ColumnDef<EquipmentMovement, unknown>[]>(
     () => [
