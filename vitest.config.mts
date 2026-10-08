@@ -33,5 +33,9 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
     environment: "node",
+    // The guards that read the whole of src/ (manifest links, retired
+    // screens, realtime ownership) take 4-9 s on a busy machine and kept
+    // failing the 5 s default with no real fault (2026-10-08).
+    testTimeout: 20_000,
   },
 });
