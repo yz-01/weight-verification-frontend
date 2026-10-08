@@ -4,10 +4,10 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Plus, Save, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
   TextAreaField,
@@ -79,7 +79,7 @@ function TaskForm({
   existingTask?: DriverTaskDetail;
 }) {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const ownerId = user?.id ?? "";
@@ -159,7 +159,7 @@ function TaskForm({
     },
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      router.push(saved ? `/tasks/${saved.id}` : "/tasks");
+      finish(saved ? `/tasks/${saved.id}` : "/tasks");
     },
   });
 

@@ -4,9 +4,9 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   TextAreaField,
   TextField,
@@ -33,7 +33,7 @@ import {
 /** The supplier form, shared by create and edit. */
 export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const queryClient = useQueryClient();
   const isEdit = supplier !== undefined;
   // A supplier from before 「行业」/「主要产品」 existed: say why saving it now
@@ -47,7 +47,7 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
       isEdit ? updateSupplier(supplier.id, values) : createSupplier(values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["suppliers"] });
-      router.push("/suppliers");
+      finish("/suppliers");
     },
   });
 

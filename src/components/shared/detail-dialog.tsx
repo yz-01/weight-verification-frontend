@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
+import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { FormSurfaceProvider } from "@/components/shared/form-surface";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -28,13 +27,23 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
  * column of thumbnails.
  */
 export function DetailDialog({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  return (
+    <FormSurfaceProvider value="dialog">
+      <DetailDialogFrame>{children}</DetailDialogFrame>
+    </FormSurfaceProvider>
+  );
+}
+
+function DetailDialogFrame({ children }: { children: React.ReactNode }) {
+  // Back when there is somewhere to go, the module's list otherwise - the
+  // same rule as the form dialog; see `dialog-navigation.tsx`.
+  const dismiss = useDismissDialog();
 
   return (
     <Dialog
       open
       onOpenChange={(next) => {
-        if (!next) router.back();
+        if (!next) dismiss();
       }}
     >
       {/*
@@ -44,7 +53,7 @@ export function DetailDialog({ children }: { children: React.ReactNode }) {
        * reaching into the content to pull the header back out.
        */}
       <DialogContent className="h-[calc(100dvh-2rem)] max-h-none overflow-y-auto p-3 sm:max-w-[min(96vw,90rem)]">
-        <FormSurfaceProvider value="dialog">{children}</FormSurfaceProvider>
+        {children}
       </DialogContent>
     </Dialog>
   );

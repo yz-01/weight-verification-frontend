@@ -4,11 +4,11 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { GatewayPanel } from "@/components/scales/gateway-panel";
+import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
   TextField,
@@ -53,7 +53,7 @@ const PROTOCOLS: Array<{ value: ScaleProtocol; implemented: boolean }> = [
 /** The weighbridge form, shared by create and edit. */
 export function CreateScale({ scale }: { scale?: Scale }) {
   const t = useTranslations();
-  const router = useRouter();
+  const finish = useFinishForm();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const isEdit = scale !== undefined;
@@ -72,7 +72,7 @@ export function CreateScale({ scale }: { scale?: Scale }) {
       isEdit ? updateScale(scale.id, values) : createScale(values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["scales"] });
-      router.push(listHref);
+      finish(listHref);
     },
   });
 
