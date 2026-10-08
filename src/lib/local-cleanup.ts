@@ -16,18 +16,18 @@
  *   `originals`, the originals package, WP1).
  *
  * The rule is one pure function, `protectedOnPhone`, so the screen's sentence
- * and the cleanup cannot disagree.
+ * and the cleanup cannot disagree. It counts through the originals package's
+ * own rule, `protectedLocalItems` (the one every clearing shares): an
+ * original that rule protects is exactly one this screen must say is kept.
  *
- * MERGE POINT with `feat/h5-originals` (WP1): that branch adds
- * `protectedLocalItems()` in `lib/original-photos.ts` and the `originals`
- * store in `lib/offline-db.ts`. Until it lands, `readOriginals` below reads
- * the store defensively by name (absent store = none). After the merge,
- * replace it with `getLocalOriginals(ownerId)` and count
- * `protectedLocalItems(...).originalIds` - an original that rule protects is
- * exactly one this screen must say is kept.
+ * The queue and the originals are read through `lib/offline-db.ts`, so this
+ * file never opens `mse-trace-offline` itself - only that module knows its
+ * version (4) and upgrades it.
  */
 
-import { countOfflineJobs } from "@/lib/offline-db";
+import { draftFileNames } from "@/lib/form-draft-store";
+import { getLocalOriginals, getOfflineJobs, type LocalOriginalInfo } from "@/lib/offline-db";
+import { protectedLocalItems } from "@/lib/original-photos";
 
 /** Every Cache Storage name that holds only copies of server photos. */
 export const PHOTO_CACHE_PREFIX = "mse-trace-photos-";
@@ -46,11 +46,16 @@ export function isPhotoCacheName(name: string): boolean {
 /** What this phone holds that is not on the server yet (or not backed up). */
 export interface PhoneHoldings {
   /** Queued jobs: submitted on the phone, not accepted by the server yet. */
-  unsentJobs: number;
+  jobs: { id: string; payload: unknown }[];
   /** Saved form drafts, as `{ id, values }` (the id names their owner). */
   drafts: { id: string; values: unknown }[];
-  /** Kept originals still on the phone - every one is not backed up yet. */
-  originals: { id: string; ownerId?: string; size?: number }[];
+  /**
+   * Names of the photo files saved drafts hold, or `null` when they could not
+   * be read - then no original may be taken for an abandoned one.
+   */
+  draftFileNames: string[] | null;
+  /** Kept originals still on the phone (none of them backed up yet). */
+  originals: Pick<LocalOriginalInfo, "id" | "ownerId" | "size" | "state" | "capturedAt">[];
 }
 
 export interface ProtectedOnPhone {
@@ -82,16 +87,27 @@ function hasContent(values: unknown): boolean {
  *
  * A draft whose key cannot be read is counted as theirs: overstating what is
  * kept is harmless, understating it is the mistake this screen exists to
- * prevent.
+ * prevent. For the same reason, when the drafts' photo names could not be
+ * read every original counts as kept.
  */
-export function protectedOnPhone(holdings: PhoneHoldings, userId: string): ProtectedOnPhone {
+export function protectedOnPhone(
+  holdings: PhoneHoldings,
+  userId: string,
+  now: number = Date.now(),
+): ProtectedOnPhone {
   const drafts = holdings.drafts.filter((draft) => {
     const owner = draftOwner(draft.id);
     return (owner === null || owner === userId) && hasContent(draft.values);
   });
-  const originals = holdings.originals.filter((row) => !row.ownerId || row.ownerId === userId);
+  const mine = holdings.originals.filter((row) => !row.ownerId || row.ownerId === userId);
+  const kept = protectedLocalItems(
+    { jobs: holdings.jobs, originals: mine, draftFileNames: holdings.draftFileNames ?? [] },
+    now,
+  );
+  const originals =
+    holdings.draftFileNames === null ? mine : mine.filter((row) => kept.originalIds.has(row.id));
   return {
-    unsent: Math.max(0, holdings.unsentJobs),
+    unsent: kept.jobIds.size,
     drafts: drafts.length,
     originals: originals.length,
     originalBytes: originals.reduce((sum, row) => sum + (row.size ?? 0), 0),
@@ -237,26 +253,21 @@ async function readDrafts(): Promise<PhoneHoldings["drafts"]> {
   return [...byId].map(([id, values]) => ({ id, values }));
 }
 
-/** Kept originals (WP1's store), without their bytes; none if the store is absent. */
-async function readOriginals(): Promise<PhoneHoldings["originals"]> {
-  const database = await openExisting("mse-trace-offline");
-  if (!database) return [];
-  try {
-    const rows = await readAll<{ id: string; ownerId?: string; size?: number }>(database, "originals");
-    return rows.map(({ id, ownerId, size }) => ({ id, ownerId, size }));
-  } finally {
-    database.close();
-  }
-}
-
-/** Everything the protection rule needs, read from this phone. */
+/**
+ * Everything the protection rule needs, read from this phone.
+ *
+ * The queue and the kept originals come through `lib/offline-db.ts` (the
+ * originals package's `getLocalOriginals`), the drafts' photo names through
+ * the draft store - the same reads `pruneAbandonedOriginals` makes.
+ */
 export async function readPhoneHoldings(ownerId: string): Promise<PhoneHoldings> {
-  const [unsentJobs, drafts, originals] = await Promise.all([
-    countOfflineJobs(ownerId).catch(() => 0),
+  const [jobs, drafts, fileNames, originals] = await Promise.all([
+    getOfflineJobs(ownerId).catch(() => []),
     readDrafts().catch(() => []),
-    readOriginals().catch(() => []),
+    draftFileNames().catch(() => null),
+    getLocalOriginals(ownerId).catch(() => []),
   ]);
-  return { unsentJobs, drafts, originals };
+  return { jobs, drafts, draftFileNames: fileNames, originals };
 }
 
 /** The browser's own figure for everything this app stores on the phone. */

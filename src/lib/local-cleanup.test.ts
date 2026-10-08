@@ -6,6 +6,8 @@ import {
   protectedOnPhone,
   type CacheStore,
 } from "@/lib/local-cleanup";
+import type { LocalOriginalState } from "@/lib/offline-db";
+import { ABANDONED_AFTER_MS, nameWithOriginal } from "@/lib/original-photos";
 
 /**
  * 「清理本地记录」 (client 2026-10-09 四.3, 四.6, 五.6, 五.7; decision 4).
@@ -17,11 +19,25 @@ import {
 
 const draftId = (user: string, scope: string) => JSON.stringify(["c-1", user, scope]);
 
+const NOW = Date.parse("2026-10-20T00:00:00Z");
+const OLD = new Date(NOW - ABANDONED_AFTER_MS - 1000).toISOString();
+const RECENT = new Date(NOW - 1000).toISOString();
+const original = (
+  id: string,
+  ownerId: string,
+  size: number,
+  state: LocalOriginalState,
+  capturedAt = RECENT,
+) => ({ id, ownerId, size, state, capturedAt });
+
 describe("what no cleanup may remove (protectedOnPhone)", () => {
   it("counts one worker's unsent records, filled drafts and originals not backed up", () => {
     const kept = protectedOnPhone(
       {
-        unsentJobs: 2,
+        jobs: [
+          { id: "job-1", payload: {} },
+          { id: "job-2", payload: {} },
+        ],
         drafts: [
           { id: draftId("u-1", "receipt"), values: { supplier: "ABC" } },
           // Submitted and cleared: nothing left to protect.
@@ -29,20 +45,63 @@ describe("what no cleanup may remove (protectedOnPhone)", () => {
           // Somebody else's on the same phone.
           { id: draftId("u-2", "receipt"), values: { supplier: "XYZ" } },
         ],
+        draftFileNames: [],
         originals: [
-          { id: "o1", ownerId: "u-1", size: 1_500_000 },
-          { id: "o2", ownerId: "u-1", size: 500_000 },
-          { id: "o3", ownerId: "u-2", size: 900_000 },
+          original("o1", "u-1", 1_500_000, "pending", OLD),
+          original("o2", "u-1", 500_000, "captured"),
+          original("o3", "u-2", 900_000, "pending"),
         ],
       },
       "u-1",
+      NOW,
     );
     expect(kept).toEqual({ unsent: 2, drafts: 1, originals: 2, originalBytes: 2_000_000 });
   });
 
+  it("counts originals exactly as protectedLocalItems keeps them", () => {
+    const inQueue = "1".repeat(32);
+    const inDraft = "2".repeat(32);
+    const abandoned = "3".repeat(32);
+    const kept = protectedOnPhone(
+      {
+        jobs: [{ id: "job-1", payload: { photos: [{ name: nameWithOriginal("a.jpg", inQueue), blob: {} }] } }],
+        drafts: [],
+        draftFileNames: [nameWithOriginal("b.jpg", inDraft)],
+        originals: [
+          original(inQueue, "u-1", 100, "captured", OLD),
+          original(inDraft, "u-1", 200, "captured", OLD),
+          // A week-old shot nothing holds: the originals package may drop it.
+          original(abandoned, "u-1", 400, "captured", OLD),
+        ],
+      },
+      "u-1",
+      NOW,
+    );
+    expect(kept).toMatchObject({ unsent: 1, originals: 2, originalBytes: 300 });
+  });
+
+  it("counts every original as kept when the drafts' photos could not be read", () => {
+    const kept = protectedOnPhone(
+      {
+        jobs: [],
+        drafts: [],
+        draftFileNames: null,
+        originals: [original("3".repeat(32), "u-1", 400, "captured", OLD)],
+      },
+      "u-1",
+      NOW,
+    );
+    expect(kept).toMatchObject({ originals: 1, originalBytes: 400 });
+  });
+
   it("counts a draft whose owner cannot be read as kept, not as clearable", () => {
     const kept = protectedOnPhone(
-      { unsentJobs: 0, drafts: [{ id: "not-json", values: { note: "x" } }], originals: [] },
+      {
+        jobs: [],
+        drafts: [{ id: "not-json", values: { note: "x" } }],
+        draftFileNames: [],
+        originals: [],
+      },
       "u-1",
     );
     expect(kept.drafts).toBe(1);
