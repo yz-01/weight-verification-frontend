@@ -7428,7 +7428,10 @@
       "equipment_hours_end_too_late": "Masa tamat tidak boleh lewat daripada 06:00 pagi esoknya (itu syif seterusnya).",
       "equipment_profile_incomplete": "Pilih subkelas mesin ini sebelum menerimanya.",
       "equipment_not_on_site": "Mesin ini tiada di tapak projek ini, jadi tidak boleh keluar.",
-      "equipment_exit_waiting": "Keluar mesin ini sudah menunggu penerimaan pejabat. Ia tidak boleh dihantar lagi."
+      "equipment_exit_waiting": "Keluar mesin ini sudah menunggu penerimaan pejabat. Ia tidak boleh dihantar lagi.",
+      "original_not_expected": "Pelayan belum ada foto yang menunggu foto asal ini. Biar rekod selesai dimuat naik dahulu.",
+      "original_hash_mismatch": "Foto asal rosak semasa dihantar dan tidak sama dengan yang di telefon, jadi tiada apa disimpan. Tekan 'Segerak foto asal' sekali lagi.",
+      "original_not_found": "Foto ini tiada foto asal yang telah disandarkan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7516,7 +7519,12 @@
       "chooseCategory": "Pilih kategori",
       "project": "Projek",
       "withGps": "Dengan GPS",
-      "withoutGps": "Tanpa GPS"
+      "withoutGps": "Tanpa GPS",
+      "original": {
+        "BACKED_UP": "Foto asal disandarkan",
+        "PENDING": "Foto asal menunggu",
+        "FAILED": "Segerak foto asal gagal"
+      }
     },
     "integrity": {
       "currentHash": "Cincang semasa",
@@ -7551,6 +7559,19 @@
     "what": {
       "projects": "Senarai projek",
       "categories": "Senarai kategori"
+    },
+    "original": {
+      "title": "Foto asal penuh",
+      "status": "Status foto asal",
+      "verifiedAt": "Disemak oleh pelayan",
+      "size": "Saiz foto asal",
+      "declaredAt": "Didaftarkan",
+      "sha256": "SHA-256 foto asal",
+      "download": "Muat turun foto asal penuh",
+      "integrity": "Foto asal penuh",
+      "notHere": "Foto asal belum disandarkan ke pelayan.",
+      "unavailable": "Fail foto asal tidak dapat dibaca dari storan.",
+      "frameNote": "Foto asal penuh ialah bingkai yang ditangkap oleh aplikasi telefon semasa foto diambil, disimpan dengan kualiti tinggi (kira-kira 1-2 MB, 1080p). Ia bukan fail asal kamera telefon. Senarai dan rekod memaparkan foto aplikasi yang dimampatkan."
     }
   },
   "export": {
@@ -16030,5 +16051,59 @@
     "system": "Ikut sistem",
     "light": "Cerah",
     "dark": "Gelap"
+  },
+  "originals": {
+    "title": "Sandaran foto asal",
+    "status": {
+      "APPLICATION_UPLOADED": "Foto dimuat naik",
+      "ORIGINAL_PENDING": "Foto asal menunggu segerak",
+      "ORIGINAL_BACKED_UP": "Foto asal disandarkan",
+      "ORIGINAL_FAILED": "Segerak gagal"
+    },
+    "waiting": "{count} foto asal menunggu segerak (kira-kira {mb} MB)",
+    "failed": "{count} foto asal gagal disegerak",
+    "failedNetwork": "Kali lepas tiada isyarat atau isyarat terlalu lemah untuk habis.",
+    "failedOther": "Kali lepas tidak berjaya. Tekan 'Segerak foto asal' sekali lagi.",
+    "capturedNote": "{count} foto asal menunggu rekodnya dimuat naik dahulu.",
+    "nothingWaiting": "Tiada foto asal menunggu segerak",
+    "readFailed": "Telefon ini tidak dapat membaca foto asal yang disimpan (mungkin telah dikosongkan oleh sistem, atau pelayar tidak membenarkan simpanan).",
+    "trafficNote": "Segerak menggunakan kira-kira {mb} MB data. Sebaiknya guna Wi-Fi.",
+    "sync": "Segerak foto asal",
+    "syncing": "Menyegerak foto asal {done}/{total}, tinggal kira-kira {mb} MB",
+    "offline": "Tiada sambungan sekarang. Segerak foto asal apabila dalam talian.",
+    "result": {
+      "backedUp": "{count} foto asal disandarkan",
+      "failed": "{count} tidak berjaya",
+      "notYet": "{count} menunggu rekodnya dimuat naik",
+      "nothing": "Tiada apa untuk disegerak"
+    },
+    "autoLabel": "Muat naik foto asal sekali",
+    "autoHelp": "Apabila dihidupkan, foto asal dihantar sebaik rekodnya dimuat naik, dan menggunakan lebih banyak data. Hidupkan semasa guna Wi-Fi; matikan semasa guna data mudah alih dan tekan 'Segerak foto asal' sendiri kemudian.",
+    "storage": {
+      "title": "Simpanan telefon",
+      "held": "{count} foto asal disimpan di sini, kira-kira {mb} MB",
+      "usage": "Aplikasi ini guna {used} MB; pelayar membenarkan kira-kira {quota} MB",
+      "unknown": "Telefon ini tidak memberitahu ruang yang ada.",
+      "persisted": "Telefon ini bersetuju menyimpan data ini.",
+      "notPersisted": "Telefon ini tidak bersetuju menyimpan data ini; sistem mungkin mengosongkannya apabila ruang hampir habis.",
+      "persistUnknown": "Telefon ini tidak memberitahu sama ada data ini akan disimpan.",
+      "high": "Banyak foto asal disimpan di sini atau ruang hampir penuh. Segerak foto asal secepat mungkin.",
+      "full": "Ruang yang diberi telefon kepada aplikasi hampir penuh; foto asal baharu mungkin tidak muat. Segerak foto asal sekarang."
+    },
+    "limit": {
+      "local": "Sebelum disegerak, foto asal hanya ada dalam pelayar telefon ini. Jika aplikasi tidak dibuka untuk satu tempoh di iPhone, ruang telefon habis, atau data laman web dikosongkan dalam Tetapan, foto asal yang disimpan boleh hilang. Segerak secepat mungkin.",
+      "verified": "'Foto asal disandarkan' hanya dipaparkan selepas pelayan menerima foto asal dan menyemak ia sama sepenuhnya.",
+      "frame": "Foto asal di sini ialah bingkai yang ditangkap oleh aplikasi semasa foto diambil, disimpan dengan kualiti tinggi (kira-kira 1-2 MB). Ia bukan fail asal kamera telefon.",
+      "soon": "Segerak secepat mungkin: foto asal yang disimpan di telefon boleh dikosongkan oleh sistem."
+    },
+    "record": {
+      "title": "Foto asal",
+      "counts": "{backedUp}/{expected} disandarkan",
+      "noOriginal": "Rekod ini tidak menyimpan foto asal (foto dimuat naik).",
+      "allBackedUp": "Semua foto asal rekod ini telah disandarkan di pelayan.",
+      "heldHere": "Telefon ini menyimpan {count} foto asal rekod ini, kira-kira {mb} MB.",
+      "missingHere": "{count} foto asal tiada di telefon ini (diambil di telefon lain, atau dikosongkan oleh sistem) dan tidak boleh disegerak dari sini.",
+      "sync": "Segerak foto asal rekod ini"
+    }
   }
 }

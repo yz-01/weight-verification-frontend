@@ -3,6 +3,7 @@
 import { Camera, CameraIcon, Loader2, RefreshCw, SwitchCamera, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { startOriginal } from "@/lib/original-capture";
 
 import { Button } from "@/components/ui/button";
 import { canvasJpeg, encodeWithinTarget, fitWithin } from "@/lib/photo-compression";
@@ -64,7 +65,7 @@ export function FieldCamera({
   facingMode = "environment",
   disabled = false,
   className = "",
-  onCapture,
+  onCapture: handOver,
   onClear,
 }: FieldCameraProps) {
   const t = useTranslations("fieldStaffPwa.camera");
@@ -167,6 +168,11 @@ export function FieldCamera({
   function capture() {
     const video = videoRef.current;
     if (!video || !ready || !video.videoWidth || !video.videoHeight) return;
+    // The original (H5 三, WP1): this frame at full resolution and high
+    // quality, kept apart. The photo below is handed over as before, under a
+    // name that carries the original's id (`lib/original-capture`).
+    const original = startOriginal(video, facing === "user");
+    const onCapture = (photo: File) => handOver(original ? original.attach(photo) : photo);
 
     // Taken at upload size (A5, A9): the same long-edge cap and quality as
     // every other photo the queue holds (`lib/photo-compression`), here at no

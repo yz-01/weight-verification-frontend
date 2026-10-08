@@ -5,7 +5,7 @@ import type {
   EvidenceRevision,
   EvidenceRevisionPayload,
 } from "@/interfaces/evidence";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
 
 export function getEvidenceAssets(
   query: ListQuery,
@@ -22,6 +22,16 @@ export function verifyEvidenceIntegrity(
   return api.get<EvidenceIntegrityResult>(
     `/api/evidence-assets/${id}/verify_integrity/`,
   );
+}
+
+/**
+ * The full original behind one photo, as a file (H5 三, WP1). Guarded like
+ * the ledger itself; only an original the server has verified is served.
+ */
+export function downloadEvidenceOriginal(id: string): Promise<void> {
+  return download(`/api/evidence-assets/${id}/download_original/`, {
+    fallbackFilename: `original-${id}.jpg`,
+  });
 }
 
 export function getEvidenceRevisions(

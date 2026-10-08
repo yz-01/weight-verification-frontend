@@ -7428,7 +7428,10 @@
       "equipment_hours_end_too_late": "結束時間不能晚於第二天早上 06:00（那是下一班）。",
       "equipment_profile_incomplete": "先選好這台設備的小類，才能驗收。",
       "equipment_not_on_site": "這台設備現在不在這個項目場內，不能退場。",
-      "equipment_exit_waiting": "這台設備的退場已經提交，正在等後台驗收，不能再提交一次。"
+      "equipment_exit_waiting": "這台設備的退場已經提交，正在等後台驗收，不能再提交一次。",
+      "original_not_expected": "伺服器上還沒有這張原圖對應的照片，請先讓記錄上傳完成。",
+      "original_hash_mismatch": "原圖在傳送中出錯，和手機上的不一致，伺服器沒有保存。請再按一次「同步原圖」。",
+      "original_not_found": "這張照片沒有已備份的原圖。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -7516,7 +7519,12 @@
       "chooseCategory": "選擇分類",
       "project": "項目",
       "withGps": "有 GPS",
-      "withoutGps": "無 GPS"
+      "withoutGps": "無 GPS",
+      "original": {
+        "BACKED_UP": "原圖已備份",
+        "PENDING": "原圖待同步",
+        "FAILED": "原圖同步失敗"
+      }
     },
     "integrity": {
       "currentHash": "當前哈希",
@@ -7551,6 +7559,19 @@
     "what": {
       "projects": "項目列表",
       "categories": "分類列表"
+    },
+    "original": {
+      "title": "完整原圖",
+      "status": "原圖狀態",
+      "verifiedAt": "伺服器核對時間",
+      "size": "原圖大小",
+      "declaredAt": "登記時間",
+      "sha256": "原圖 SHA-256",
+      "download": "下載完整原圖",
+      "integrity": "完整原圖",
+      "notHere": "原圖還沒有備份到伺服器。",
+      "unavailable": "原圖檔案在儲存裡讀不到。",
+      "frameNote": "完整原圖是手機 App 拍照那一刻截下的畫面，以高畫質另存（約 1～2 MB，1080p），不是手機相機本身的原始照片。列表和記錄裡顯示的是壓縮後的應用照片。"
     }
   },
   "export": {
@@ -16030,5 +16051,59 @@
     "system": "跟隨系統",
     "light": "淺色",
     "dark": "深色"
+  },
+  "originals": {
+    "title": "原圖備份",
+    "status": {
+      "APPLICATION_UPLOADED": "應用照片已上傳",
+      "ORIGINAL_PENDING": "原圖待同步",
+      "ORIGINAL_BACKED_UP": "原圖已備份",
+      "ORIGINAL_FAILED": "同步失敗"
+    },
+    "waiting": "{count} 張原圖待同步（約 {mb} MB）",
+    "failed": "{count} 張同步失敗",
+    "failedNetwork": "上次沒有網路或訊號太弱，沒有傳完。",
+    "failedOther": "上次沒有成功，請再按一次「同步原圖」。",
+    "capturedNote": "{count} 張原圖在等它們的記錄先上傳。",
+    "nothingWaiting": "沒有待同步的原圖",
+    "readFailed": "這台手機讀不到暫存的原圖（可能已被系統清掉，或瀏覽器不允許保存）。",
+    "trafficNote": "同步大約要用 {mb} MB 流量，最好連上 Wi-Fi 再按。",
+    "sync": "同步原圖",
+    "syncing": "正在同步原圖 {done}/{total}，還剩約 {mb} MB",
+    "offline": "現在沒有網路，連上網再同步原圖。",
+    "result": {
+      "backedUp": "{count} 張原圖已備份",
+      "failed": "{count} 張沒有成功",
+      "notYet": "{count} 張等記錄先上傳",
+      "nothing": "沒有需要同步的原圖"
+    },
+    "autoLabel": "連原圖一起上傳",
+    "autoHelp": "打開後，記錄一上傳完就接著傳原圖，會多用流量。連著 Wi-Fi 時打開；用手機流量時關掉，之後自己按「同步原圖」。",
+    "storage": {
+      "title": "手機暫存",
+      "held": "本機暫存原圖 {count} 張，約 {mb} MB",
+      "usage": "這個 App 已用 {used} MB，瀏覽器允許約 {quota} MB",
+      "unknown": "這台手機沒有告訴我們可用空間。",
+      "persisted": "這台手機已答應長期保存這些資料。",
+      "notPersisted": "這台手機沒有答應長期保存，空間不夠時可能被系統清掉。",
+      "persistUnknown": "這台手機沒說會不會長期保存。",
+      "high": "暫存的原圖很多，或空間快滿了，請盡快同步原圖。",
+      "full": "手機給這個 App 的空間幾乎滿了，新的原圖可能存不下，請馬上同步原圖。"
+    },
+    "limit": {
+      "local": "原圖同步前只存在這台手機的瀏覽器裡。iPhone 一段時間沒打開這個 App、手機空間不夠、或在設定裡清除網站資料，暫存的原圖都可能被清掉，請盡快同步。",
+      "verified": "只有伺服器收到原圖並核對完全一致後，才會顯示「原圖已備份」。",
+      "frame": "這裡的原圖是拍照那一刻 App 截下的畫面，以高畫質另存（約 1～2 MB），不是手機相機本身的原始照片。",
+      "soon": "請盡快同步，暫存在手機上的原圖可能被系統清掉。"
+    },
+    "record": {
+      "title": "原圖",
+      "counts": "已備份 {backedUp}/{expected} 張",
+      "noOriginal": "這條記錄沒有保留原圖（應用照片已上傳）。",
+      "allBackedUp": "這條記錄的原圖都已備份到伺服器。",
+      "heldHere": "這台手機上有這條記錄的 {count} 張原圖，約 {mb} MB。",
+      "missingHere": "{count} 張原圖不在這台手機上（可能是在別的手機拍的，或已被系統清掉），無法從這裡同步。",
+      "sync": "同步這條記錄的原圖"
+    }
   }
 }

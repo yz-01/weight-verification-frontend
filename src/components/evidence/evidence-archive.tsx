@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   CheckCircle2,
+  Download,
   ExternalLink,
   Eye,
   FileCheck2,
@@ -24,6 +25,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
+import { OriginalStatusText } from "@/components/shared/original-backup";
 import {
   FieldWrapper,
   FilterBar,
@@ -59,6 +61,7 @@ import {
 } from "@/interfaces/evidence";
 import { useDateFormat } from "@/lib/dates";
 import {
+  downloadEvidenceOriginal,
   getEvidenceAssets,
   getEvidenceRevisions,
   reviseEvidence,
@@ -77,6 +80,7 @@ export function EvidenceArchive() {
     "captured_to",
     "project",
     "category",
+    "original_status",
   ]);
   const [viewing, setViewing] = useState<EvidenceAsset | null>(null);
   const selectedProject = list.filters.project ?? "";
@@ -235,6 +239,19 @@ export function EvidenceArchive() {
           ),
       },
       {
+        // The photo's full original (H5 三, WP1): its state, or a dash when
+        // the phone kept none.
+        id: "original",
+        meta: { label: t("evidence.original.title") },
+        header: () => t("evidence.original.title"),
+        cell: ({ row }) =>
+          row.original.original ? (
+            <OriginalStatusText status={row.original.original.status} className="whitespace-nowrap" />
+          ) : (
+            <span className="text-xs text-muted-foreground">{t("common.emptyValue")}</span>
+          ),
+      },
+      {
         accessorKey: "sha256",
         meta: { label: t("evidence.field.sha256") },
         header: () => t("evidence.field.sha256"),
@@ -376,6 +393,13 @@ export function EvidenceArchive() {
             active: list.filters.has_gps === "false",
             onSelect: () => list.setFilter("has_gps", "false"),
           },
+          // 「原图」 (H5 三, WP1): by the state of the photo's original.
+          ...(["BACKED_UP", "PENDING", "FAILED"] as const).map((state) => ({
+            key: `original-${state}`,
+            label: t(`evidence.filter.original.${state}`),
+            active: list.filters.original_status === state,
+            onSelect: () => list.setFilter("original_status", state),
+          })),
         ]}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
@@ -528,6 +552,8 @@ function EvidenceDialog({
             />
           </DetailSection>
 
+          {asset.original && <OriginalSection asset={asset} />}
+
           <section className="space-y-3" aria-labelledby="evidence-integrity">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h3
@@ -610,6 +636,40 @@ function EvidenceDialog({
                     )}
                   />
                 </div>
+                {integrity.data.original && (
+                  // The original is checked with its photo (WP1).
+                  <div className="space-y-2 border-t pt-3">
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      {t("evidence.original.integrity")}
+                    </p>
+                    {!integrity.data.original.present ? (
+                      <p className="text-sm text-muted-foreground">
+                        {t("evidence.original.notHere")}
+                      </p>
+                    ) : integrity.data.original.unavailable ? (
+                      <p className="text-sm text-destructive">
+                        {t("evidence.original.unavailable")}
+                      </p>
+                    ) : (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <IntegrityCheck
+                          label={t("evidence.integrity.hash")}
+                          matches={Boolean(integrity.data.original.hash_matches)}
+                        />
+                        <IntegrityCheck
+                          label={t("evidence.integrity.size")}
+                          matches={Boolean(integrity.data.original.size_matches)}
+                        />
+                        <Detail
+                          className="sm:col-span-2"
+                          label={t("evidence.integrity.currentHash")}
+                          mono
+                          value={integrity.data.original.current_sha256 ?? t("common.emptyValue")}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </section>
@@ -654,6 +714,64 @@ function EvidenceDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * The photo's full original (H5 三, WP1): its state, what was declared and
+ * what arrived, and the download - offered only once the server verified it.
+ */
+function OriginalSection({ asset }: { asset: EvidenceAsset }) {
+  const t = useTranslations();
+  const df = useDateFormat();
+  const formatter = useFormatter();
+  const save = useMutation({ mutationFn: () => downloadEvidenceOriginal(asset.id) });
+  const original = asset.original;
+  if (!original) return null;
+  const backedUp = original.status === "ORIGINAL_BACKED_UP";
+  return (
+    <section className="space-y-3" aria-labelledby="evidence-original">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3
+          id="evidence-original"
+          className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          {t("evidence.original.title")}
+        </h3>
+        {backedUp && (
+          <Button size="sm" variant="outline" disabled={save.isPending} onClick={() => save.mutate()}>
+            {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            {t("evidence.original.download")}
+          </Button>
+        )}
+      </div>
+      <div className="grid gap-x-6 gap-y-4 border-y py-4 sm:grid-cols-2">
+        <Detail label={t("evidence.original.status")}>
+          <OriginalStatusText status={original.status} />
+        </Detail>
+        <Detail
+          label={t("evidence.original.verifiedAt")}
+          value={original.verified_at ? df.precise(original.verified_at) : t("common.emptyValue")}
+        />
+        <Detail
+          label={t("evidence.original.size")}
+          value={formatBytes(original.size_bytes ?? original.expected_size_bytes, formatter.number)}
+        />
+        <Detail
+          label={t("evidence.original.declaredAt")}
+          value={df.precise(original.declared_at)}
+        />
+        <Detail
+          className="sm:col-span-2"
+          label={t("evidence.original.sha256")}
+          mono
+          value={original.sha256 ?? original.expected_sha256}
+        />
+        <p className="text-xs leading-5 text-muted-foreground sm:col-span-2">
+          {t("evidence.original.frameNote")}
+        </p>
+      </div>
+    </section>
   );
 }
 
