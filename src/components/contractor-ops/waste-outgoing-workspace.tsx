@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   CalendarCheck2,
-  Camera,
   CheckCircle2,
   Circle,
   ImagePlus,
@@ -26,7 +25,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { ColumnDef } from "@tanstack/react-table";
 
-import { LocationField } from "@/components/field-staff/location-field";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -42,7 +40,6 @@ import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
-import { FieldCamera } from "@/components/shared/field-camera";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import { ExportButton } from "@/components/shared/export-button";
 import {
@@ -80,8 +77,9 @@ import type {
   WasteOutgoingStatus,
 } from "@/interfaces/waste-outgoing";
 import { ApiError } from "@/interfaces/api";
+import type { Project } from "@/interfaces/contractor";
+import { getProject } from "@/services/contractor.service";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
-import type { LocationFix } from "@/lib/field-location";
 import { useDateFormat } from "@/lib/dates";
 import { MAP_COLORS } from "@/lib/map-palette";
 import { LocationMap } from "@/components/shared/location-map";
@@ -334,10 +332,13 @@ export function WasteOutgoingWorkspace() {
             refuses a submission without them. How many it wants depends on
             the company, so the exact number comes back in its message.
           */}
+          {/* Photos are optional on one the office raised (2026-10-09). */}
           <Button
             size="sm"
-            disabledReason={row.photos.length === 0 ? t("submit.needPhotos") : undefined}
-            disabled={row.photos.length === 0 || submitRequest.isPending}
+            disabledReason={
+              row.photos.length === 0 && !row.raised_by_office ? t("submit.needPhotos") : undefined
+            }
+            disabled={(row.photos.length === 0 && !row.raised_by_office) || submitRequest.isPending}
             onClick={() => submitRequest.mutate(row.id)}
           >
             <SendHorizonal />
@@ -383,6 +384,10 @@ export function WasteOutgoingWorkspace() {
       cell: ({ row }) => (
         <div className="min-w-0">
           <StatusBadge label={t(`status.${row.original.status}`)} tone={STATUS_TONE[row.original.status]} />
+          {/* The next step, so 安排回收商 is not a button nobody finds (2026-10-09). */}
+          {row.original.status === "APPROVED" ? (
+            <p className="mt-1 text-xs font-medium text-warning">{t("hint.awaitingRecycler")}</p>
+          ) : null}
           {row.original.status === "RETURNED" && row.original.review_note ? (
             <p className="mt-1 max-w-64 truncate text-xs font-medium text-destructive">
               {row.original.review_note}
@@ -515,7 +520,7 @@ export function WasteOutgoingWorkspace() {
               list={list}
               param="category"
               allLabel={t("filter.allCategories")}
-              options={categories.map((row) => ({ value: row.id, label: row.name }))}
+              options={categories.map((row) => ({ value: row.id, label: row.label }))}
             />
             <FilterSelect
               list={list}
@@ -548,12 +553,35 @@ export function WasteOutgoingWorkspace() {
             // 记录人 (E8): who recorded it, with a number to call.
             recorder={<RecordRecorder record={shown} />}
             notices={
-              shown.review_note ? (
-                <p
-                  className={`rounded-md border px-3 py-2 text-xs ${shown.status === "RETURNED" ? "border-destructive/30 bg-destructive/5 text-destructive" : "bg-muted/30 text-muted-foreground"}`}
-                >
-                  {t("review.noteLabel")}: {shown.review_note}
-                </p>
+              shown.review_note ||
+              shown.status === "PENDING_APPROVAL" ||
+              shown.status === "APPROVED" ||
+              shown.raised_by_office ? (
+                <div className="space-y-2">
+                  {shown.review_note ? (
+                    <p
+                      className={`rounded-md border px-3 py-2 text-xs ${shown.status === "RETURNED" ? "border-destructive/30 bg-destructive/5 text-destructive" : "bg-muted/30 text-muted-foreground"}`}
+                    >
+                      {t("review.noteLabel")}: {shown.review_note}
+                    </p>
+                  ) : null}
+                  {/* 安排回收商 appears only once approved; say so before then. */}
+                  {shown.status === "PENDING_APPROVAL" ? (
+                    <p data-hint="approve-first" className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                      {t("hint.approveFirst")}
+                    </p>
+                  ) : null}
+                  {shown.status === "APPROVED" ? (
+                    <p data-hint="awaiting-recycler" className="rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs font-medium text-warning">
+                      {t("hint.awaitingRecycler")}
+                    </p>
+                  ) : null}
+                  {shown.raised_by_office ? (
+                    <p className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                      {t("office.raisedNote")}
+                    </p>
+                  ) : null}
+                </div>
               ) : null
             }
             facts={[
@@ -990,13 +1018,48 @@ function ConfirmCollectionDialog({
   );
 }
 
+/** The most photographs an application takes, from the office as from the phone. */
+const OFFICE_PHOTO_LIMIT = 4;
+
+/**
+ * The project's address as one line - the same join the server's
+ * `Project.postal_address` makes, so the line shown here is the line the
+ * recycler's order will carry.
+ */
+export function projectPostalAddress(
+  project: Pick<Project, "address_line_1" | "address_line_2" | "postcode" | "city" | "state">,
+): string {
+  return [
+    project.address_line_1,
+    project.address_line_2,
+    [project.postcode, project.city].filter((part) => part?.trim()).join(" "),
+    project.state,
+  ]
+    .map((part) => (part ?? "").trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
+/**
+ * 「新增申请」 in the back office: an 环保材料出场申请 raised for the site
+ * (confirmation item 37, Lucas 2026-10-09).
+ *
+ * The office is not standing at the skip, so this is a desk form rather than
+ * the phone's camera flow: the project is chosen, the pickup address starts as
+ * that project's address (D-224) and can be changed for a particular gate,
+ * the category comes from 分类管理, and photographs are optional files - at
+ * most four, the phone's ceiling - with no GPS, since a desk's position would
+ * be a wrong one. It then waits for approval exactly like an application from
+ * the phone, and 安排回收商 follows from there. This replaced the retired
+ * direct 新增废料订单.
+ */
 function RecordDialog({
   categories,
   categoriesState,
   onClose,
   onSaved,
 }: {
-  categories: { id: string; name: string }[];
+  categories: { id: string; label: string }[];
   /** Whether `categories` actually arrived, so a failed load is not an empty list. */
   categoriesState: { isError: boolean; refetch?: () => unknown };
   onClose: () => void;
@@ -1008,13 +1071,13 @@ function RecordDialog({
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
   const [note, setNote] = useState("");
-  const [pickupAddress, setPickupAddress] = useState("");
+  // `null` until somebody types: the project's address shows until then, and
+  // is what is filed - marked as taken from the project, not as typed.
+  const [typedAddress, setTypedAddress] = useState<string | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
-  // 「已拍摄 N 张」 is a count, not a check: the person submitting could not
-  // see whether the lorry, the plate or their own thumb was in frame. Object
-  // URLs rather than data URIs - these are full-size photographs and base64
-  // would triple them in memory - revoked when the set changes or the screen
-  // closes, or the phone leaks one set per shot taken.
+  const [capped, setCapped] = useState(false);
+  // Object URLs rather than data URIs - these are full-size photographs -
+  // revoked when the set changes or the dialog closes.
   const photoPreviews = useMemo(
     () => photos.map((photo) => URL.createObjectURL(photo)),
     [photos],
@@ -1025,8 +1088,22 @@ function RecordDialog({
     },
     [photoPreviews],
   );
-  // Automatic, like every field capture form (T-355, D-246).
-  const [coordinates, setCoordinates] = useState<LocationFix | null>(null);
+
+  const chosenProject = useQuery({
+    queryKey: ["projects", "detail", project],
+    queryFn: () => getProject(project),
+    enabled: Boolean(project),
+  });
+  const projectAddress = chosenProject.data ? projectPostalAddress(chosenProject.data) : "";
+  const pickupAddress = typedAddress ?? projectAddress;
+  const addressHint =
+    !project || !chosenProject.isSuccess
+      ? t("field.pickupAddressHint")
+      : !projectAddress
+        ? t("office.noProjectAddress")
+        : typedAddress === null
+          ? t("field.pickupAddressFromProject")
+          : t("office.projectAddress", { address: projectAddress });
 
   const save = useMutation({
     mutationFn: () =>
@@ -1036,12 +1113,14 @@ function RecordDialog({
         quantity: quantity || undefined,
         unit: unit || undefined,
         note: note || undefined,
-        pickup_address: pickupAddress.trim() || undefined,
-        latitude: coordinates?.latitude,
-        longitude: coordinates?.longitude,
-        // Makes the upload idempotent: a phone retrying on a flaky site
-        // connection must not file the same waste twice.
-        client_event_id: `waste-${Date.now()}`,
+        // Only an address somebody changed is sent as typed; the project's
+        // own is what the server falls back to, and it records which it was.
+        pickup_address:
+          pickupAddress.trim() && pickupAddress.trim() !== projectAddress
+            ? pickupAddress.trim()
+            : undefined,
+        // Makes the upload idempotent: a retry must not file it twice.
+        client_event_id: `waste-office-${Date.now()}`,
         photos,
       }),
     onSuccess: onSaved,
@@ -1055,13 +1134,17 @@ function RecordDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t("form.title")}</DialogTitle>
-          <DialogDescription>{t("form.help")}</DialogDescription>
+          <DialogDescription>{t("office.help")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
           <FieldWrapper label={t("field.project")} required>
             <ProjectPicker
               value={project}
-              onValueChange={setProject}
+              onValueChange={(next) => {
+                setProject(next);
+                // A new project brings its own address.
+                setTypedAddress(null);
+              }}
               placeholder={t("filter.selectProject")}
               className="w-full"
             />
@@ -1074,7 +1157,7 @@ function RecordDialog({
               <SelectContent>
                 {categories.map((row) => (
                   <SelectItem key={row.id} value={row.id}>
-                    {row.name}
+                    {row.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -1118,13 +1201,15 @@ function RecordDialog({
           <FieldWrapper
             label={t("field.pickupAddress")}
             optional={t("field.optional")}
-            hint={t("field.pickupAddressHint")}
+            hint={addressHint}
           >
             <Textarea
               rows={2}
+              data-pickup-address
               value={pickupAddress}
-              onChange={(event) => setPickupAddress(event.target.value)}
+              onChange={(event) => setTypedAddress(event.target.value)}
             />
+            <QueryFailedNote query={chosenProject} what={t("what.project")} />
           </FieldWrapper>
           <FieldWrapper label={t("field.note")} optional={t("field.optional")}>
             <Textarea
@@ -1135,14 +1220,18 @@ function RecordDialog({
           </FieldWrapper>
           <FieldWrapper
             label={t("field.photos")}
-            required
-            hint={t("field.photosHint")}
+            optional={t("field.optional")}
+            hint={capped ? t("office.photosCapped") : t("office.photosHint")}
           >
-            <FieldCamera
-              label={t("field.photos")}
-              fileCount={photos.length}
-              onCapture={(file) => setPhotos((current) => [...current, file])}
-              onClear={() => setPhotos([])}
+            <Input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(event) => {
+                const chosen = Array.from(event.target.files ?? []);
+                setCapped(chosen.length > OFFICE_PHOTO_LIMIT);
+                setPhotos(chosen.slice(0, OFFICE_PHOTO_LIMIT));
+              }}
             />
             {photoPreviews.length > 0 && (
               <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -1158,14 +1247,6 @@ function RecordDialog({
               </div>
             )}
           </FieldWrapper>
-          <LocationField
-            label={t("field.location")}
-            hint={t("field.locationHint")}
-            actionLabel={t("action.locate")}
-            readyLabel={t("action.located")}
-            value={coordinates}
-            onChange={setCoordinates}
-          />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -1176,13 +1257,12 @@ function RecordDialog({
               [project, t("field.project")],
               [category, t("field.category")],
               [!quantityIncomplete, t("field.unit")],
-              [photos.length > 0, t("field.photos")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >
-            {save.isPending ? <Loader2 className="animate-spin" /> : <Camera />}
-            {t("action.upload")}
+            {save.isPending ? <Loader2 className="animate-spin" /> : <SendHorizonal />}
+            {t("action.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1703,7 +1783,7 @@ function WasteCategoryDialog({
             >
               <span className="tabular font-medium">{row.code}</span>
               <span className={row.is_active ? "" : "text-muted-foreground line-through"}>
-                {row.name}
+                {row.label}
               </span>
               {row.is_system && (
                 <span className="inline-flex h-6 items-center rounded-full border px-2.5 text-xs text-muted-foreground">

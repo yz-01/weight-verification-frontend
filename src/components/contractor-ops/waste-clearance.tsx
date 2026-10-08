@@ -8,7 +8,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
-import { DISPATCH_STATE_TONE, Dispatches } from "@/components/dispatches/dispatches";
+import {
+  DISPATCH_STATE_TONE,
+  Dispatches,
+  dispatchCategoryText,
+} from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
 import { NeedsActionChip, NeedsActionMarker } from "@/components/shared/needs-action";
 import {
@@ -47,7 +51,9 @@ const PER_KIND = 10;
  *
  * 全部 lists both, newest first, each row saying which kind it is and opening
  * the original detail. The other two tabs are the original screens, whole:
- * filters, export, creating, every step. The counts stay apart.
+ * filters, export, every step. The counts stay apart. The 废料订单 tab is a
+ * read-only tracker since 2026-10-09: orders come from approved
+ * 环保材料出场申请, and the old direct ones stay for history.
  *
  * The recycler's own order book (废料订单 in their console) is a different
  * screen and is not touched.
@@ -141,14 +147,11 @@ export function WasteClearance() {
                   </Link>
                 </Button>
               )}
-              {can("dispatch.create") && (
-                <Button asChild variant="outline">
-                  <Link href="/dispatches/create">
-                    <Plus className="size-4" />
-                    {t("newDispatch")}
-                  </Link>
-                </Button>
-              )}
+              {/*
+                No 新增废料订单 (Lucas 2026-10-09): an order is what an
+                approved 环保材料出场申请 becomes when the office arranges
+                the recycler, so it is raised there, not here.
+              */}
             </div>
           ) : undefined
         }
@@ -272,7 +275,9 @@ function MergedList() {
         />
       ),
       project: row.project_name,
-      content: `${root(`dispatches.wasteType.${row.waste_type}`)} · ${row.recycler_name}`,
+      // The application's category, as its own list names it; an old
+      // direct order falls back to its waste type, marked 旧订单 (2026-10-09).
+      content: `${dispatchCategoryText(row, root)} · ${row.recycler_name}`,
       at: row.created_at ?? null,
       href: `/dispatches/${row.id}`,
     })),

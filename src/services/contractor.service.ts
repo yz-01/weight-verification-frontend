@@ -24,7 +24,6 @@ import type {
   ProjectStatisticsPeriod,
   ReceiptPhoto,
   ReceiptSummary,
-  RecyclerOption,
   Supplier,
   SupplierPayload,
   SupplierQRCode,
@@ -35,7 +34,6 @@ import type {
   DeliveryNotePublic,
   WasteDispatch,
   WasteDispatchDetail,
-  WasteDispatchPayload,
 } from "@/interfaces/contractor";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import type { QRCodeIssue } from "@/interfaces/qrcode";
@@ -926,34 +924,6 @@ export function getDispatch(id: string): Promise<WasteDispatchDetail> {
   return api.get<WasteDispatchDetail>(`/api/dispatches/${id}/get_dispatch/`);
 }
 
-export async function createDispatch(
-  payload: WasteDispatchPayload,
-): Promise<WasteDispatchDetail> {
-  const dispatch = await api.post<WasteDispatchDetail>(
-    "/api/dispatches/create_dispatch/",
-    payload,
-  );
-  toastSuccess("dispatches.toast.created");
-  return dispatch;
-}
-
-export async function updateDispatch(
-  id: string,
-  payload: Partial<WasteDispatchPayload>,
-): Promise<WasteDispatchDetail> {
-  const dispatch = await api.patch<WasteDispatchDetail>(
-    `/api/dispatches/${id}/update_dispatch/`,
-    payload,
-  );
-  toastSuccess("dispatches.toast.updated");
-  return dispatch;
-}
-
-export async function deleteDispatch(id: string): Promise<void> {
-  await api.delete(`/api/dispatches/${id}/delete_dispatch/`);
-  toastSuccess("dispatches.toast.removed");
-}
-
 /** Record that the lorry has left. The time is the server's, not the device's. */
 export async function releaseDispatch(
   id: string,
@@ -977,17 +947,6 @@ export async function cancelDispatch(
   );
   toastSuccess("dispatches.toast.cancelled");
   return dispatch;
-}
-
-/** Recyclers a load may be sent to. Live accounts only, by design. */
-export function getRecyclerOptions(
-  project: string,
-  search?: string,
-): Promise<{ results: RecyclerOption[]; count: number }> {
-  return api.get<{ results: RecyclerOption[]; count: number }>(
-    "/api/dispatches/get_recyclers/",
-    search ? { project, search } : { project },
-  );
 }
 
 export function getDispatchSummary(query: ListQuery): Promise<DispatchSummary> {

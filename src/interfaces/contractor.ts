@@ -827,13 +827,23 @@ export interface WasteDispatch {
   is_editable: boolean;
   has_location: boolean;
   photo_count?: number;
+  /**
+   * The 环保材料出场申请 the order was raised from (2026-10-09: the
+   * contractor's 废料订单 is a tracker that lines up with the applications).
+   * All null on an old order made directly, before the application flow.
+   */
+  source_record_id: string | null;
+  source_reference_no: string | null;
+  source_status: import("@/interfaces/waste-outgoing").WasteOutgoingStatus | null;
+  /** The application's category, named as the application list names it. */
+  source_category_name: string | null;
+  /** Made directly before the application flow: shown as 「旧订单」. */
+  is_legacy: boolean;
   /** When the order was raised; lets 垃圾清运 sort it among site disposals (B08). */
   created_at?: string;
 }
 
 export interface WasteDispatchDetail extends WasteDispatch {
-  source_record_id: string | null;
-  source_reference_no: string | null;
   source_record: import("@/interfaces/waste-outgoing").WasteOutgoingRecord | null;
   description: string;
   driver_phone: string;
@@ -850,32 +860,6 @@ export interface WasteDispatchDetail extends WasteDispatch {
   created_by: string | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface WasteDispatchPayload {
-  project: string;
-  recycler: string;
-  waste_type: WasteType;
-  estimated_weight_kg?: string | null;
-  description?: string;
-  /** Blank means "use the project address", not "store an empty line". */
-  pickup_address?: string;
-  vehicle_plate: string;
-  driver_name?: string;
-  driver_phone?: string;
-  driver_ic?: string;
-  latitude?: string | null;
-  longitude?: string | null;
-  location_accuracy_m?: string | null;
-}
-
-/** A recycler a load may be sent to. Deliberately thin: this is cross-tenant. */
-export interface RecyclerOption {
-  id: string;
-  name: string;
-  code: string;
-  city: string;
-  state: string;
 }
 
 export interface DispatchSummary {

@@ -6637,9 +6637,6 @@
       "title": "取消此車？"
     },
     "count": "{count, plural, =0 {暫無出場記錄} other {# 車}}",
-    "createTitle": "新建出場",
-    "editTitle": "編輯出場",
-    "estimateNote": "這是你的預估。最終重量由回收商的地磅決定，兩個數字都會保留。",
     "field": {
       "applicant": "申請人",
       "applicationNo": "申請編號",
@@ -6676,7 +6673,6 @@
       "weighingNo": "地磅單號"
     },
     "lockedNote": "此車已離場，無法再修改。若最終沒有送達，請取消。",
-    "new": "新建出場",
     "noPhotos": "這一車還沒有附照片。",
     "photoKind": {
       "LOADING": "裝車",
@@ -6684,19 +6680,11 @@
       "PLATE": "車牌",
       "VEHICLE": "車輛"
     },
-    "pickupAddressHint": "留空就用專案地址。要車開到某個特定出入口時，自己填。",
-    "recyclerEmpty": "目前沒有可選的回收商。",
-    "recyclerNote": "只能送往已在 MSE Trace 註冊的回收商。這樣貨物才會上地磅，追溯鏈才不會斷在你的工地門口。",
     "release": {
       "byName": "放行人",
       "confirm": "放行",
       "description": "記錄車輛已離開工地。放行後只能取消，不能修改。",
       "title": "放行此車？"
-    },
-    "remove": {
-      "confirm": "刪除",
-      "description": "此草稿將不再出現在任何地方。貨物尚未離場。",
-      "title": "刪除 {name}？"
     },
     "section": {
       "application": "出場申請",
@@ -6731,11 +6719,8 @@
     "title": "廢料訂單",
     "toast": {
       "cancelled": "已取消",
-      "created": "出場已創建",
       "photoAdded": "照片已上傳",
-      "released": "已放行",
-      "removed": "出場已刪除",
-      "updated": "出場已更新"
+      "released": "已放行"
     },
     "viewTitle": "出場記錄",
     "wasteType": {
@@ -6750,12 +6735,19 @@
       "TIMBER": "木材"
     },
     "what": {
-      "tracking": "收運進度",
-      "projects": "項目列表",
-      "recyclers": "本項目的回收商列表"
+      "tracking": "收運進度"
     },
-    "countedOnly": "只顯示總部「原廢料訂單」計入數量的訂單：不含草稿和已取消。",
-    "showAll": "顯示全部"
+    "countedOnly": "只顯示總部「廢料訂單」計入數量的訂單：不含草稿和已取消。",
+    "showAll": "顯示全部",
+    "tracker": {
+      "note": "廢料訂單來自已批准的「環保材料出場申請」：申請批准後按「安排回收商」，訂單就會發給回收商。之前直接新建的舊訂單仍保留在這裡，只供查看。",
+      "orderNo": "訂單號",
+      "applicationNo": "申請編號",
+      "openApplication": "打開申請 {number}",
+      "category": "分類",
+      "legacy": "舊訂單",
+      "createdAt": "下單日期"
+    }
   },
   "documents": {
     "downloading": "下載中",
@@ -8344,7 +8336,7 @@
         "overdue_rectifications": "逾期整改",
         "material_receipts_today": "今日材料進場"
       },
-      "wasteDispatches": "原廢料訂單",
+      "wasteDispatches": "廢料訂單",
       "siteDisposals": "原工地清運",
       "records": "數量",
       "trips": "車次",
@@ -14868,12 +14860,14 @@
       "code": "代號",
       "deactivate": "關掉",
       "dispatchType": "派單上算哪種廢料",
-      "help": "這是你們公司自己的清單。七個標準類別刪不掉，因為已經有記錄在用它們 —— 把它關掉就行，新記錄裡不會再出現。",
+      "help": "這是你們公司自己的清單。標準類別（廢鐵、銅、鋁、電纜）刪不掉，因為記錄會用到它們 —— 不用的話把它關掉，新記錄裡就不會再出現。標「舊分類」的是以前的標準類別，只留在舊記錄上。",
       "manage": "廢料類別",
       "name": "名稱",
       "standard": "標準",
       "standardHelp": "標準類別，只能關掉",
-      "title": "你們自己的廢料類別"
+      "title": "你們自己的廢料類別",
+      "retired": "舊分類",
+      "retiredHelp": "舊分類，只留在舊記錄上，不能再開啟"
     },
     "empty": "還沒有環保材料出場申請。",
     "evidence": {
@@ -15046,7 +15040,20 @@
     "what": {
       "delegates": "可轉交的人員",
       "totals": "統計數字",
-      "categories": "廢料類別列表"
+      "categories": "廢料類別列表",
+      "project": "專案地址"
+    },
+    "hint": {
+      "approveFirst": "批准後才能安排回收商。",
+      "awaitingRecycler": "待安排回收商"
+    },
+    "office": {
+      "help": "替現場新建一張申請：選專案和類別，取貨地點預設用專案地址。照片可以不附，最多 4 張；後台提交不記錄 GPS。提交後一樣先審批，批准後再安排回收商。",
+      "photosHint": "可以不附，最多 4 張。所有照片都會永久保存。",
+      "photosCapped": "最多 4 張，只保留了前 4 張。",
+      "raisedNote": "這張申請由後台代現場提交，沒有手機定位。",
+      "projectAddress": "專案地址：{address}",
+      "noProjectAddress": "這個專案還沒有填地址，請在這裡寫取貨地點。"
     }
   },
   "weighing": {
@@ -15535,7 +15542,6 @@
       "dispatch": "廢料訂單"
     },
     "newDisposal": "新增清運申請",
-    "newDispatch": "新增廢料訂單",
     "column": {
       "kind": "類型",
       "reference": "編號",

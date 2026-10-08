@@ -32,7 +32,14 @@ export type WasteOutgoingStatus =
 export interface WasteCategory {
   id: string;
   code: string;
+  /** What is stored, and what the editor edits. */
   name: string;
+  /**
+   * What every screen shows (2026-10-09): a system preset in the reader's
+   * language - 「Scrap Metal」 reads 废金属（旧） to a Chinese reader - and a
+   * company's own category, or a renamed preset, exactly as typed.
+   */
+  label: string;
   /** Which `waste.WasteType` a dispatch raised from this category declares. */
   dispatch_type: string;
   description: string;
@@ -40,6 +47,11 @@ export interface WasteCategory {
   /** One of the seven the customer named: deactivate rather than delete. */
   is_system: boolean;
   is_active: boolean;
+  /**
+   * One of the seven pre-X6 presets: kept on the records that cite it, never
+   * offered for a new one, and it cannot be switched back on (2026-10-09).
+   */
+  is_retired: boolean;
   /** Waste records filed under this category, company-wide (D-125). */
   record_count: number;
   created_at: string;
@@ -70,8 +82,14 @@ export interface WasteOutgoingRecord extends RecordedBy {
   project: string;
   project_name: string;
   category: string;
+  /** In the reader's language for a system preset (2026-10-09). */
   category_name: string;
   category_code: string;
+  /**
+   * Raised in the back office on the site's behalf (confirmation item 37):
+   * no phone GPS, and photos optional.
+   */
+  raised_by_office: boolean;
   quantity: string | null;
   unit: string;
   note: string;

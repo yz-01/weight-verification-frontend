@@ -6637,9 +6637,6 @@
       "title": "Cancel this load?"
     },
     "count": "{count, plural, =0 {No loads} one {# load} other {# loads}}",
-    "createTitle": "New load out",
-    "editTitle": "Edit load",
-    "estimateNote": "Your estimate. The recycler's weighbridge decides the final weight, and both are kept.",
     "field": {
       "applicant": "Applicant",
       "applicationNo": "Application no.",
@@ -6676,7 +6673,6 @@
       "weighingNo": "Weighbridge ticket no."
     },
     "lockedNote": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
-    "new": "New load",
     "noPhotos": "No photos have been attached to this load.",
     "photoKind": {
       "LOADING": "Loading",
@@ -6684,19 +6680,11 @@
       "PLATE": "Number plate",
       "VEHICLE": "Vehicle"
     },
-    "pickupAddressHint": "Leave blank to use the project address. Type it in when the lorry has to come to a particular gate.",
-    "recyclerEmpty": "No recyclers are available right now.",
-    "recyclerNote": "Loads can only be sent to recyclers registered on MSE Trace. That is what puts the load on a weighbridge and keeps the trail going past your gate.",
     "release": {
       "byName": "Released by",
       "confirm": "Release",
       "description": "Records that the lorry has left. After this, the load can be cancelled but not changed.",
       "title": "Release this load?"
-    },
-    "remove": {
-      "confirm": "Remove",
-      "description": "This draft will no longer appear anywhere. Nothing has left the site yet.",
-      "title": "Remove {name}?"
     },
     "section": {
       "application": "Outgoing application",
@@ -6728,14 +6716,11 @@
       "loads": "Loads",
       "title": "Waste summary"
     },
-    "title": "Waste dispatches",
+    "title": "Waste orders",
     "toast": {
       "cancelled": "Load cancelled",
-      "created": "Load created",
       "photoAdded": "Photo added",
-      "released": "Load released",
-      "removed": "Load removed",
-      "updated": "Load updated"
+      "released": "Load released"
     },
     "viewTitle": "Load out",
     "wasteType": {
@@ -6750,12 +6735,19 @@
       "TIMBER": "Timber"
     },
     "what": {
-      "tracking": "The collection progress",
-      "projects": "The project list",
-      "recyclers": "The recycler list for this project"
+      "tracking": "The collection progress"
     },
     "countedOnly": "Only the orders head office counts - no drafts, nothing cancelled.",
-    "showAll": "Show all"
+    "showAll": "Show all",
+    "tracker": {
+      "note": "Waste orders come from approved environmental material outgoing applications: once an application is approved, Assign recycler sends its order. Older orders made directly, before applications existed, are kept here for reference only.",
+      "orderNo": "Order no.",
+      "applicationNo": "Application no.",
+      "openApplication": "Open application {number}",
+      "category": "Category",
+      "legacy": "Old order",
+      "createdAt": "Ordered on"
+    }
   },
   "documents": {
     "downloading": "Downloading",
@@ -8344,7 +8336,7 @@
         "overdue_rectifications": "Overdue rectifications",
         "material_receipts_today": "Material received today"
       },
-      "wasteDispatches": "Waste orders (recycler)",
+      "wasteDispatches": "Waste orders",
       "siteDisposals": "Site clearance",
       "records": "Records",
       "trips": "Trips",
@@ -14868,12 +14860,14 @@
       "code": "Code",
       "deactivate": "Turn off",
       "dispatchType": "Waste type on the dispatch",
-      "help": "This is your own list. The seven standard ones cannot be removed because records already cite them - turn one off instead and it stops being offered on new records.",
+      "help": "This is your own list. The standard ones (scrap iron, copper, aluminium, cable) cannot be removed because records cite them - turn one off instead and it stops being offered on new records. Those marked Old are earlier standard categories, kept on earlier records only.",
       "manage": "Waste categories",
       "name": "Name",
       "standard": "Standard",
       "standardHelp": "Standard - turn off instead",
-      "title": "Your waste categories"
+      "title": "Your waste categories",
+      "retired": "Old",
+      "retiredHelp": "Old category - kept on earlier records, cannot be switched back on"
     },
     "empty": "No waste has been recorded yet.",
     "evidence": {
@@ -15046,7 +15040,20 @@
     "what": {
       "delegates": "The people you can hand it to",
       "totals": "The totals",
-      "categories": "The waste category list"
+      "categories": "The waste category list",
+      "project": "the project address"
+    },
+    "hint": {
+      "approveFirst": "A recycler can be assigned once this is approved.",
+      "awaitingRecycler": "Waiting for a recycler"
+    },
+    "office": {
+      "help": "Raise an application for the site: choose the project and the category; the pickup address starts as the project address. Photos are optional, at most 4, and no GPS is recorded from the office. It is approved first, like one from the phone, and the recycler is assigned after that.",
+      "photosHint": "Optional, at most 4. Every photo is kept permanently.",
+      "photosCapped": "At most 4 - only the first 4 were kept.",
+      "raisedNote": "Raised in the office for the site, so it has no phone location.",
+      "projectAddress": "Project address: {address}",
+      "noProjectAddress": "This project has no address yet - type the pickup address here."
     }
   },
   "weighing": {
@@ -15535,7 +15542,6 @@
       "dispatch": "Waste order"
     },
     "newDisposal": "New clearance request",
-    "newDispatch": "New waste order",
     "column": {
       "kind": "Type",
       "reference": "Number",
