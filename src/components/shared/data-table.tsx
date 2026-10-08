@@ -233,7 +233,7 @@ export function DataTable<T>({
             />
           </div>
 
-          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:ml-auto sm:w-auto sm:max-w-full sm:justify-end [&>div:not([class*=hidden])]:contents max-sm:[&_[data-slot=select-trigger]]:w-full max-sm:[&>[data-slot=button]]:flex-1 max-sm:[&>input]:w-full">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:ml-auto sm:w-auto sm:max-w-full sm:justify-end [&>div:not([class*=hidden]):not([role])]:contents max-sm:[&_[data-slot=select-trigger]]:w-full max-sm:[&>[data-slot=button]]:flex-1 max-sm:[&>input]:w-full">
           {toolbarActions}
 
           <DropdownMenu>

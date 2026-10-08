@@ -20,7 +20,6 @@ import { useCurrentProject } from "@/components/providers/current-project-provid
 import {
   FilterBar,
   FilterField,
-  ListHeader,
   LoadFailed,
   QueryFailedNote,
   StatusBadge,
@@ -95,7 +94,14 @@ export function Reports() {
 
   return (
     <div className="space-y-4">
-      <ListHeader title={t("reports.title")} subtitle={t("reports.subtitle")} />
+      {/* Not ListHeader: that adds a help button this page never had. */}
+      <div className="flex items-center gap-3">
+        <span aria-hidden className="h-10 w-1 shrink-0 rounded-full bg-primary shadow-glow-sm" />
+        <div className="min-w-0">
+          <h2 className="text-xl font-semibold leading-tight sm:text-2xl">{t("reports.title")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("reports.subtitle")}</p>
+        </div>
+      </div>
 
       <FilterBar>
           {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}

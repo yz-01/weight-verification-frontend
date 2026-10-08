@@ -844,7 +844,7 @@ function CatalogPanel() {
               </p>
               <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                 {matches.slice(0, 4).map((x) => (
-                  <p key={x.id} className="truncate">
+                  <p key={x.id} className="break-words">
                     {x.service_code} / {x.custom_type || x.name}
                   </p>
                 ))}
@@ -2308,6 +2308,8 @@ function AnalysisPanel() {
   });
   return (
     <>
+      {/* Shown with the panel, as before: not while it loads or has failed. */}
+      {!rows.isLoading && !rows.isError && (
       <FilterBar>
         <FilterField label={t("field.dateFrom")}>
           <Input
@@ -2326,6 +2328,7 @@ function AnalysisPanel() {
           />
         </FilterField>
       </FilterBar>
+      )}
       <Panel loading={rows.isLoading} error={rows.isError}>
         <PanelFigures
           items={[

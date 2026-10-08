@@ -15,7 +15,6 @@ import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
   FieldWrapper,
-  ListHeader,
   LoadFailed,
   QueryFailedNote,
   StatusBadge,
@@ -265,7 +264,14 @@ export function GateConsole() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ListHeader title={t("gate.title")} subtitle={t("gate.subtitle")} />
+      {/* Not ListHeader: that adds a help button this page never had. */}
+      <div className="flex items-center gap-3">
+        <span aria-hidden className="h-10 w-1 shrink-0 rounded-full bg-primary shadow-glow-sm" />
+        <div className="min-w-0">
+          <h2 className="text-xl font-semibold leading-tight sm:text-2xl">{t("gate.title")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("gate.subtitle")}</p>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* What the bridge is expecting. Deliberately the loudest thing on

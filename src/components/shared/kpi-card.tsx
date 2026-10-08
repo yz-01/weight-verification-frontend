@@ -57,7 +57,7 @@ export function KpiCard({
       </span>
       <span
         className={cn(
-          "kpi-figure block truncate",
+          "kpi-figure block break-words",
           colours.text,
           size === "sm" && "text-2xl",
           size === "md" && "text-3xl",
@@ -67,7 +67,7 @@ export function KpiCard({
         {value}
       </span>
       {detail ? (
-        <span className="block truncate text-xs text-muted-foreground">{detail}</span>
+        <span className="line-clamp-2 block text-xs text-muted-foreground">{detail}</span>
       ) : null}
       {children}
     </>
