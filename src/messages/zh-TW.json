@@ -11549,6 +11549,7 @@
       "MANUAL": "人工輸入",
       "NOT_CONFIGURED": "未設定讀取服務",
       "NOT_REQUESTED": "未讀取",
+      "PENDING": "等待讀取",
       "SUCCEEDED": "已讀取"
     },
     "editNote": "數量和單價可以更正。項目、送貨單和記錄時間不可更改，它們正是這條記錄要證明的事。",
@@ -13616,6 +13617,7 @@
       "MANUAL": "人工填寫",
       "NOT_CONFIGURED": "尚未配置 OCR",
       "NOT_REQUESTED": "尚未識別",
+      "PENDING": "等待讀取",
       "SUCCEEDED": "Azure OCR 已識別"
     },
     "optional": "選填",

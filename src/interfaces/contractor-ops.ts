@@ -794,7 +794,7 @@ export interface DisposalRequest extends RecordedBy {
   trip_count: number;
   disposal_do_no: string;
   execution_note: string;
-  ocr_status: "NOT_REQUESTED" | "SUCCEEDED" | "NOT_CONFIGURED" | "FAILED" | "MANUAL";
+  ocr_status: "NOT_REQUESTED" | "PENDING" | "SUCCEEDED" | "NOT_CONFIGURED" | "FAILED" | "MANUAL";
   ocr_result: Record<string, unknown>;
   confirmed_by_name: string | null;
   confirmed_at: string | null;
