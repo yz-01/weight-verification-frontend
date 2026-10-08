@@ -86,7 +86,7 @@ export function OptionCombobox({
           aria-expanded={open}
           aria-label={ariaLabel}
           disabled={disabled}
-          className={cn("h-9 w-full justify-between px-3 font-normal", triggerClassName)}
+          className={cn("w-full justify-between px-3 font-normal", triggerClassName)}
         >
           <span className={cn("truncate", !selected && "text-muted-foreground")}>
             {selected?.label ?? selectedLabel ?? (value || placeholder)}
@@ -102,7 +102,7 @@ export function OptionCombobox({
             value={term}
             onChange={(event) => changeTerm(event.target.value)}
             placeholder={searchPlaceholder}
-            className="h-8 pl-8"
+            className="pl-8"
           />
         </div>
         <ul role="listbox" className="max-h-60 overflow-y-auto">
@@ -115,7 +115,7 @@ export function OptionCombobox({
                   type="button"
                   role="option"
                   aria-selected={option.value === value}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted"
+                  className="flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted pointer-coarse:min-h-11"
                   onClick={() => {
                     onChange(option.value);
                     setOpen(false);

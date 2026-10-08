@@ -158,7 +158,7 @@ export function GateQrScanner({
             playsInline
           />
           {starting && (
-            <div className="absolute inset-0 grid place-items-center bg-black/50 text-white">
+            <div className="absolute inset-0 grid place-items-center bg-overlay text-overlay-foreground">
               <Loader2 className="size-8 animate-spin" />
             </div>
           )}

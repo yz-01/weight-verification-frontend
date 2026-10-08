@@ -71,7 +71,7 @@ export function AnnouncementDialog({ id, onClose }: { id: string; onClose: () =>
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl" data-announcement={id}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl" data-announcement={id}>
         <DialogHeader>
           <DialogTitle>{row?.title ?? t("loading")}</DialogTitle>
           {row && (
@@ -87,7 +87,7 @@ export function AnnouncementDialog({ id, onClose }: { id: string; onClose: () =>
         ) : (
           <div className="space-y-4">
             {row.withdrawn_at && (
-              <p className="flex items-center gap-1.5 rounded-md border border-warning/40 bg-warning/5 px-3 py-2 text-sm" data-withdrawn>
+              <p className="flex items-center gap-2 rounded-lg border border-warning/40 bg-warning/5 px-3 py-2 text-sm" data-withdrawn>
                 <Ban className="size-4 text-warning" aria-hidden />
                 {t("withdrawnNote", {
                   who: row.withdrawn_by_name ?? "—",
@@ -121,7 +121,7 @@ export function AnnouncementDialog({ id, onClose }: { id: string; onClose: () =>
               </p>
             )}
             {publisher && (
-              <div className="space-y-2 border-t pt-3">
+              <div className="space-y-3 border-t pt-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-medium">
                     {t("readCount", {
@@ -171,7 +171,7 @@ function Readers({ id }: { id: string }) {
   const rows = query.data?.pages.flatMap((page) => page.results) ?? [];
   return (
     <div className="space-y-2">
-      <div role="group" aria-label={t("readers")} className="flex gap-1">
+      <div role="group" aria-label={t("readers")} className="flex flex-wrap gap-2">
         {(["0", "1"] as const).map((value) => (
           <button
             key={value}
@@ -179,7 +179,7 @@ function Readers({ id }: { id: string }) {
             aria-pressed={read === value}
             onClick={() => setRead(value)}
             className={cn(
-              "rounded-full border px-2.5 py-0.5 text-xs",
+              "inline-flex min-h-8 items-center rounded-full border px-3 text-xs transition-colors",
               read === value ? "border-primary bg-primary/10 text-primary" : "bg-card",
             )}
           >
@@ -194,10 +194,10 @@ function Readers({ id }: { id: string }) {
       ) : rows.length === 0 ? (
         <p className="text-xs text-muted-foreground">{t("nobody")}</p>
       ) : (
-        <ul className="max-h-56 divide-y overflow-y-auto rounded-md border text-sm">
+        <ul className="max-h-56 divide-y overflow-y-auto rounded-lg border text-sm">
           {rows.map((row) => (
-            <li key={row.id} className="flex items-center justify-between gap-2 px-2 py-1.5">
-              <span className="truncate">
+            <li key={row.id} className="flex items-center justify-between gap-2 px-3 py-2">
+              <span className="min-w-0 truncate">
                 {row.full_name}
                 {row.role_name && <span className="text-xs text-muted-foreground"> · {row.role_name}</span>}
               </span>

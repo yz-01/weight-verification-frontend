@@ -131,7 +131,7 @@ export function Partnerships() {
         accessorKey: "contractor_name",
         meta: { label: t("partnerships.field.contractor") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.contractor")}
           </span>
         ),
@@ -146,7 +146,7 @@ export function Partnerships() {
         accessorKey: "recycler_name",
         meta: { label: t("partnerships.field.recycler") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.recycler")}
           </span>
         ),
@@ -178,12 +178,12 @@ export function Partnerships() {
         accessorKey: "requested_by_company_name",
         meta: { label: t("partnerships.field.requestedBy") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.requestedBy")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="block max-w-[180px] truncate">
+          <span className="block max-w-45 truncate">
             {row.original.requested_by_company_name}
           </span>
         ),
@@ -192,7 +192,7 @@ export function Partnerships() {
         id: "projects",
         meta: { label: t("partnerships.field.projects") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.projects")}
           </span>
         ),
@@ -201,7 +201,7 @@ export function Partnerships() {
             <TypeBadge label={String(row.original.project_bindings.length)} />
             {row.original.project_bindings[0] && (
               <span
-                className="max-w-[150px] truncate text-xs text-muted-foreground"
+                className="max-w-37.5 truncate text-xs text-muted-foreground"
                 title={row.original.project_bindings
                   .map((binding) => binding.project_name)
                   .join(", ")}
@@ -216,13 +216,13 @@ export function Partnerships() {
         accessorKey: "response_note",
         meta: { label: t("partnerships.field.note") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partnerships.field.note")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[200px] truncate text-muted-foreground"
+            className="block max-w-50 truncate text-muted-foreground"
             title={row.original.response_note}
           >
             {row.original.response_note || t("common.emptyValue")}
@@ -263,8 +263,8 @@ export function Partnerships() {
                 <>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-success hover:bg-success/10"
+                    size="icon-sm"
+                    className="text-success hover:bg-success/10"
                     title={t("partnerships.respond.accept")}
                     onClick={() =>
                       setResponse({ partnership, status: "ACTIVE" })
@@ -274,8 +274,8 @@ export function Partnerships() {
                   </Button>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                    size="icon-sm"
+                    className="text-destructive hover:bg-destructive/10"
                     title={t("partnerships.respond.reject")}
                     onClick={() =>
                       setResponse({ partnership, status: "REJECTED" })
@@ -289,8 +289,8 @@ export function Partnerships() {
               {partnership.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-info hover:bg-info/10"
+                  size="icon-sm"
+                  className="text-info hover:bg-info/10"
                   title={t("partnerships.projects.manage")}
                   onClick={() => setManagingId(partnership.id)}
                 >
@@ -301,8 +301,8 @@ export function Partnerships() {
               {canManage && partnership.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-warning hover:bg-warning/10"
+                  size="icon-sm"
+                  className="text-warning hover:bg-warning/10"
                   title={t("partnerships.suspend.confirm")}
                   onClick={() => setSuspending(partnership)}
                 >
@@ -340,11 +340,7 @@ export function Partnerships() {
         }
         action={
           canManage && currentCompanyId ? (
-            <Button
-              size="sm"
-              className="rounded-full px-4 shadow-sm"
-              onClick={() => setRequestOpen(true)}
-            >
+            <Button onClick={() => setRequestOpen(true)}>
               <Plus className="h-4 w-4" />
               {t("partnerships.request.action")}
             </Button>
@@ -462,7 +458,7 @@ export function Partnerships() {
 function CompanyIdentity({ name, code }: { name: string; code: string }) {
   return (
     <div className="min-w-0">
-      <p className="max-w-[210px] truncate font-medium text-foreground" title={name}>
+      <p className="max-w-52.5 truncate font-medium text-foreground" title={name}>
         {name}
       </p>
       <p className="tabular truncate text-xs text-muted-foreground">{code}</p>
@@ -505,7 +501,7 @@ function RequestPartnershipDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[520px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-130 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("partnerships.request.title")}</DialogTitle>
           <DialogDescription>
@@ -555,8 +551,6 @@ function RequestPartnershipDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={request.isPending}
             onClick={onClose}
           >
@@ -564,8 +558,6 @@ function RequestPartnershipDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[company, t("partnerships.request.company")]]}
             disabled={request.isPending}
             onClick={() => request.mutate()}
@@ -637,7 +629,7 @@ function ManageProjectsDialog({
   return (
     <>
       <Dialog open onOpenChange={(next) => !next && onClose()}>
-        <DialogContent className="max-h-[90dvh] overflow-hidden sm:max-w-[680px] [&>button]:hidden">
+        <DialogContent className="max-h-[90dvh] overflow-hidden sm:max-w-170 [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>{t("partnerships.projects.title")}</DialogTitle>
             <DialogDescription>
@@ -648,10 +640,10 @@ function ManageProjectsDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="min-h-0 space-y-5 overflow-y-auto pr-1">
-            <section className="space-y-2">
+          <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
+            <section className="space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <h3 className="text-sm font-semibold text-foreground">
+                <h3 className="panel-title">
                   {t("partnerships.projects.bound")}
                 </h3>
                 <TypeBadge
@@ -660,15 +652,15 @@ function ManageProjectsDialog({
               </div>
 
               {partnership.project_bindings.length === 0 ? (
-                <p className="rounded-md border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">
+                <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
                   {t("partnerships.projects.noneBound")}
                 </p>
               ) : (
-                <div className="divide-y rounded-md border">
+                <div className="divide-y rounded-lg border">
                   {partnership.project_bindings.map((item) => (
                     <div
                       key={item.id}
-                      className="flex min-h-14 items-center justify-between gap-3 px-3 py-2"
+                      className="flex min-h-14 items-center justify-between gap-3 p-3"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium text-foreground">
@@ -681,8 +673,8 @@ function ManageProjectsDialog({
                       {canManage && (
                         <Button
                           variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 text-destructive hover:bg-destructive/10"
+                          size="icon-sm"
+                          className="shrink-0 text-destructive hover:bg-destructive/10"
                           title={t("partnerships.projects.unbind")}
                           onClick={() => setRemoving(item)}
                         >
@@ -696,16 +688,15 @@ function ManageProjectsDialog({
             </section>
 
             {canManage && (
-              <section className="space-y-2 border-t pt-5">
+              <section className="space-y-3 border-t pt-4">
                 <Label>{t("partnerships.projects.add")}</Label>
                 {isError ? (
-                  <div className="flex items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
                     <p className="text-sm text-destructive">
                       {t("partnerships.projects.loadError")}
                     </p>
                     <Button
                       variant="outline"
-                      size="sm"
                       onClick={() => void refetch()}
                     >
                       {t("common.retry")}
@@ -761,12 +752,7 @@ function ManageProjectsDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full px-4"
-              onClick={onClose}
-            >
+            <Button variant="outline" onClick={onClose}>
               <X className="h-4 w-4" />
               {t("common.close")}
             </Button>

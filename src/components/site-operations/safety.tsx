@@ -36,6 +36,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
   FieldWrapper,
+  FilterBar,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -397,7 +398,7 @@ export function Safety({
         header: () => t("safety.field.title"),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[260px] truncate font-medium text-foreground">
+            <p className="max-w-65 truncate font-medium text-foreground">
               {isPermit(row.original) && (
                 <span className="mr-1.5 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
                   {te("permit.badge")}
@@ -405,7 +406,7 @@ export function Safety({
               )}
               {row.original.title}
             </p>
-            <p className="max-w-[260px] truncate text-xs text-muted-foreground">
+            <p className="max-w-65 truncate text-xs text-muted-foreground">
               {row.original.description}
             </p>
           </div>
@@ -416,7 +417,7 @@ export function Safety({
         meta: { label: t("safety.field.project") },
         header: () => t("safety.field.project"),
         cell: ({ row }) => (
-          <span className="block max-w-[200px] truncate">
+          <span className="block max-w-50 truncate">
             {row.original.project_name}
           </span>
         ),
@@ -426,7 +427,7 @@ export function Safety({
         meta: { label: t("safety.field.category") },
         header: () => t("safety.field.category"),
         cell: ({ row }) => (
-          <span className="block max-w-[180px] truncate">
+          <span className="block max-w-45 truncate">
             {row.original.category_name || t("common.emptyValue")}
           </span>
         ),
@@ -453,7 +454,7 @@ export function Safety({
             <div className="min-w-0">
               <p className="whitespace-nowrap">{t(`safetyRectification.status.${row.original.status}`)}</p>
               {waitingOn && (
-                <p className="max-w-[160px] truncate text-xs text-muted-foreground">{waitingOn}</p>
+                <p className="max-w-40 truncate text-xs text-muted-foreground">{waitingOn}</p>
               )}
             </div>
           );
@@ -563,7 +564,7 @@ export function Safety({
                 the only place a hazard can be raised - and the button lived
                 on the half being deleted (F-240). */}
             {mayRaise && (
-            <Button size={fieldMode ? "lg" : "sm"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
+            <Button size={fieldMode ? "lg" : "default"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
               {t(fieldMode ? "safety.fieldReport.new" : "safety.new")}
             </Button>
@@ -572,7 +573,7 @@ export function Safety({
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2 border-y bg-card/50 py-3">
+      <FilterBar>
         <ProjectPicker
           value={selectedProject}
           onValueChange={(value) => {
@@ -585,7 +586,7 @@ export function Safety({
           placeholder={t("safety.filter.project")}
           allowAll
           allLabel={t("safety.filter.allProjects")}
-          className="w-full sm:w-[260px]"
+          className="w-full sm:w-65"
         />
         {/* Severity filter removed with the column (T-189). */}
         {!fieldMode && (
@@ -595,7 +596,7 @@ export function Safety({
               list.setFilter("category", value === "all" ? undefined : value)
             }
           >
-            <SelectTrigger className="w-full sm:w-[210px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-52.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("safety.filter.allCategories")}</SelectItem>
               {(filterCategories.data?.results ?? []).map((category) => (
@@ -611,7 +612,7 @@ export function Safety({
               list.setFilter("responsible_person", value === "all" ? undefined : value)
             }
           >
-            <SelectTrigger className="w-full sm:w-[210px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-52.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("safety.filter.allResponsible")}</SelectItem>
               {(responsiblePeople.data?.results ?? []).map((person) => (
@@ -626,7 +627,7 @@ export function Safety({
             aria-label={t("safety.filter.dateFrom")}
             value={list.filters.date_from ?? ""}
             onChange={(event) => list.setFilter("date_from", event.target.value || undefined)}
-            className="w-full sm:w-[165px]"
+            className="w-full sm:w-41.25"
           />
         )}
         {!fieldMode && (
@@ -635,7 +636,7 @@ export function Safety({
             aria-label={t("safety.filter.dateTo")}
             value={list.filters.date_to ?? ""}
             onChange={(event) => list.setFilter("date_to", event.target.value || undefined)}
-            className="w-full sm:w-[165px]"
+            className="w-full sm:w-41.25"
           />
         )}
         {!fieldMode && (
@@ -644,7 +645,7 @@ export function Safety({
         {!fieldMode && selectedProject !== "all" && (
           <QueryFailedNote className="w-full" query={responsiblePeople} what={t("safety.what.responsiblePeople")} />
         )}
-      </div>
+      </FilterBar>
       <QueryFailedNote query={focusedIncident} what={t("safety.what.requestedIncident")} />
       {!fieldMode && waitingForMe && (
         <DrillNote
@@ -664,9 +665,9 @@ export function Safety({
       {fieldMode ? (
         <div className="grid gap-3">
           {isLoading && <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin text-primary" /></div>}
-          {isError && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("safety.fieldReport.loadError")}</div>}
+          {isError && <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{t("safety.fieldReport.loadError")}</div>}
           {!isLoading && !isError && (data?.results ?? []).length === 0 && (
-            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
+            <div className="rounded-xl border border-dashed border-panel-border p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
           )}
           {(data?.results ?? []).map((incident) => (
             <article key={incident.id} className="surface-panel rounded-xl">
@@ -684,7 +685,7 @@ export function Safety({
                 type="button"
                 onClick={() => setTalking(incident)}
                 aria-label={t("hazard.conversationTitle")}
-                className="flex w-full items-start gap-3 rounded-lg p-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="flex w-full items-start gap-3 rounded-xl p-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 {/* The hazard's photograph on the left (E3); the icon when it has none. */}
                 <PhotoThumb

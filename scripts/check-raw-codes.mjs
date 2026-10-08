@@ -52,7 +52,7 @@ const AS_PROP = new RegExp(
  */
 const ALLOWED = new Map([
   [
-    "src/components/projects/projects.tsx:154",
+    "src/components/projects/projects.tsx:155",
     "Project.state is free text - the Malaysian state in the address.",
   ],
   [

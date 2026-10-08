@@ -61,7 +61,7 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, FilterBar, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -144,8 +144,8 @@ export function MaterialRequestsOffice() {
         router.replace(`/material-requests?${params.toString()}`, { scroll: false });
       }} />}
       {tab === "photos" && canPhotos && (
-        <div className="space-y-2">
-          <p className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t("photosNote")}</p>
+        <div className="space-y-4">
+          <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t("photosNote")}</p>
           <PhotoApprovals />
         </div>
       )}
@@ -316,13 +316,13 @@ function RequestsTab() {
         headerAction={
           <div className="flex flex-wrap gap-2">
             {can("material_request.config") && (
-              <Button variant="outline" size="sm" onClick={() => setManaging(true)}>
+              <Button variant="outline" onClick={() => setManaging(true)}>
                 <Settings2 className="size-4" />
                 {t("options.open")}
               </Button>
             )}
             {can("material_request.submit") && (
-              <Button size="sm" onClick={() => setCreating("blank")}>
+              <Button onClick={() => setCreating("blank")}>
                 <FilePlus2 className="size-4" />
                 {t("action.new")}
               </Button>
@@ -412,7 +412,7 @@ function TextFilter({
       placeholder={placeholder}
       value={value}
       onChange={(event) => setValue(event.target.value)}
-      className="h-9 w-[150px]"
+      className="w-full sm:w-40"
     />
   );
 }
@@ -465,34 +465,34 @@ function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, stri
   const rows = totals.data ?? [];
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">{t("totals.title")}</h2>
         <p className="text-sm text-muted-foreground">{t("totals.basis")}</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <FilterBar>
         <ProjectListFilter list={list} />
         <TextFilter list={list} param="material" placeholder={t("filter.material")} />
         <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
-      </div>
+      </FilterBar>
       {totals.isError ? (
         <LoadFailed what={t("totals.title")} onRetry={() => void totals.refetch()} />
       ) : totals.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
       ) : rows.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">{t("totals.empty")}</p>
+        <EmptyState title={t("totals.empty")} />
       ) : (
-        <div className="rounded-xl border">
-          <Table className="min-w-[720px]">
+        <div className="surface-panel overflow-hidden rounded-xl">
+          <Table className="min-w-180">
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.project")}</TableHead>
                 <TableHead>{t("field.material")}</TableHead>
                 <TableHead>{t("field.specification")}</TableHead>
                 <TableHead>{t("field.unit")}</TableHead>
-                <TableHead className="text-right">{t("totals.approved")}</TableHead>
-                <TableHead className="text-right">{t("totals.pending")}</TableHead>
-                <TableHead className="text-right">{t("totals.returned")}</TableHead>
+                <TableHead className="tabular text-right">{t("totals.approved")}</TableHead>
+                <TableHead className="tabular text-right">{t("totals.pending")}</TableHead>
+                <TableHead className="tabular text-right">{t("totals.returned")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -513,15 +513,15 @@ function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, stri
                   <TableCell className="font-medium">{row.material_name}</TableCell>
                   <TableCell>{row.specification}</TableCell>
                   <TableCell>{unitLabel(row.unit)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="tabular text-right">
                     <span className="tabular font-semibold text-success">{row.approved_quantity}</span>
-                    <span className="block text-[11px] text-muted-foreground">{t("totals.requests", { count: row.approved_count })}</span>
+                    <span className="block text-2xs text-muted-foreground">{t("totals.requests", { count: row.approved_count })}</span>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="tabular text-right">
                     <span className="tabular font-semibold text-warning">{row.pending_quantity}</span>
-                    <span className="block text-[11px] text-muted-foreground">{t("totals.requests", { count: row.pending_count })}</span>
+                    <span className="block text-2xs text-muted-foreground">{t("totals.requests", { count: row.pending_count })}</span>
                   </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
+                  <TableCell className="tabular text-right text-muted-foreground">
                     {t("totals.requests", { count: row.returned_count })}
                   </TableCell>
                 </TableRow>

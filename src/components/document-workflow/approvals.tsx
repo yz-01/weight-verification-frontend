@@ -183,12 +183,12 @@ export function Approvals() {
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[270px] truncate font-medium text-foreground"
+              className="max-w-67.5 truncate font-medium text-foreground"
               title={row.original.title}
             >
               {row.original.title}
             </p>
-            <p className="max-w-[270px] truncate text-xs text-muted-foreground">
+            <p className="max-w-67.5 truncate text-xs text-muted-foreground">
               {row.original.resource_label || row.original.resource_id}
             </p>
           </div>
@@ -338,22 +338,18 @@ export function Approvals() {
           <div className="flex flex-wrap items-center gap-2">
             {can("workflow.manage") ? (
               <Button
-                size="sm"
                 variant="outline"
-                className="rounded-full px-4"
                 onClick={() => setConfiguringWorkflow(true)}
               >
-                <Workflow className="h-4 w-4" />
+                <Workflow className="size-4" />
                 {t("approvals.workflow.action")}
               </Button>
             ) : null}
             {can("approval.submit") ? (
               <Button
-                size="sm"
-                className="rounded-full px-4 shadow-sm"
                 onClick={() => setEditing("new")}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("approvals.create.action")}
               </Button>
             ) : null}
@@ -420,14 +416,14 @@ export function Approvals() {
           })),
         ]}
         toolbarActions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Select
               value={list.filters.mine ?? "all"}
               onValueChange={(value) =>
                 list.setFilter("mine", value === "all" ? undefined : "true")
               }
             >
-              <SelectTrigger size="sm" className="h-9 w-[145px] bg-card">
+              <SelectTrigger className="w-full bg-card sm:w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -444,7 +440,7 @@ export function Approvals() {
                 )
               }
             >
-              <SelectTrigger size="sm" className="h-9 w-[155px] bg-card">
+              <SelectTrigger className="w-full bg-card sm:w-44">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -639,7 +635,7 @@ function ApprovalEditorDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[760px] [&>button]:hidden">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-190 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>
             {t(approval ? "approvals.edit.title" : "approvals.create.title")}
@@ -802,8 +798,6 @@ function ApprovalEditorDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={mutation.isPending}
             onClick={onClose}
           >
@@ -811,8 +805,6 @@ function ApprovalEditorDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[title, t("approvals.field.title")], [resourceType, t("approvals.field.resourceType")], [resourceId, t("approvals.field.resourceId")]]}
             disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
@@ -866,7 +858,7 @@ function ApprovalDetailDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-[980px] [&>button]:hidden">
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-245 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("approvals.detail.title")}</DialogTitle>
           <DialogDescription>
@@ -1098,7 +1090,7 @@ function ApprovalDetailBody({
                     </TableCell>
                     <TableCell>{entry.acted_by_name}</TableCell>
                     <TableCell>
-                      <p className="max-w-[240px] whitespace-pre-wrap text-muted-foreground">
+                      <p className="max-w-60 whitespace-pre-wrap text-muted-foreground">
                         {entry.comment || t("common.emptyValue")}
                       </p>
                     </TableCell>
@@ -1141,7 +1133,7 @@ function ApprovalActionDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[500px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-125 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>
             {t(`approvals.actionDialog.${action}.title`, { name: approval.title })}
@@ -1166,8 +1158,6 @@ function ApprovalActionDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={mutation.isPending}
             onClick={onClose}
           >
@@ -1176,8 +1166,6 @@ function ApprovalActionDialog({
           </Button>
           <Button
             variant={action === "REJECT" ? "destructive" : "default"}
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[!commentRequired || comment, t("approvals.field.comment")]]}
             disabled={mutation.isPending}
             onClick={() => mutation.mutate()}

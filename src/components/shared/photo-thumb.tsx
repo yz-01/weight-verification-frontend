@@ -150,7 +150,7 @@ export function PhotoThumb({
       {total > 1 ? (
         <span
           aria-hidden
-          className="absolute bottom-0.5 right-0.5 rounded-md bg-overlay px-1 text-[10px] font-semibold leading-4 text-overlay-foreground tabular-nums"
+          className="absolute bottom-0.5 right-0.5 rounded-md bg-overlay px-1 text-2xs font-semibold leading-4 text-overlay-foreground tabular-nums"
         >
           {total}
         </span>
@@ -314,7 +314,7 @@ export function photoColumn<T extends CoveredRow>({
     meta: { label },
     enableSorting: false,
     header: () => (
-      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
     ),

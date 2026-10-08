@@ -97,14 +97,14 @@ export function FieldHazardsPanel({
           <ArrowLeft />
         </Button>
         <div className="min-w-0">
-          <h2 className="truncate text-base font-semibold">{hazard.title}</h2>
+          <h2 className="truncate text-base font-semibold text-foreground">{hazard.title}</h2>
           <p className="truncate text-sm text-muted-foreground">
             {hazard.incident_no}
           </p>
         </div>
       </div>
       {incident && (
-        <div className="space-y-3 rounded-lg border bg-card p-3" data-testid="field-hazard-state">
+        <div className="surface-panel space-y-3 rounded-xl p-4" data-testid="field-hazard-state">
           <div className="flex flex-wrap items-center gap-2">
             {isPermit(incident) && <StatusBadge label={te("permit.badge")} tone="info" />}
             <StatusBadge

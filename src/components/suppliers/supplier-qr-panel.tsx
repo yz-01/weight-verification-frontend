@@ -122,7 +122,7 @@ function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
     >
       {/* self-start + h-fit: the white card wraps the code only, instead of
           stretching to the height of the text column beside it. */}
-      <div className="mx-auto h-fit max-w-full self-start rounded-lg border bg-white p-4 shadow-sm">
+      <div className="mx-auto h-fit max-w-full self-start rounded-lg border bg-paper p-4">
         <QRCodeCanvas
           ref={qrRef}
           value={scanUrl}
@@ -182,7 +182,7 @@ function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
             {t("regenerate")}
           </Button>
         </div>
-        <p className="flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
+        <p className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
           <QrCode className="mt-0.5 size-4 shrink-0" />
           {t("scanHelp")}
         </p>

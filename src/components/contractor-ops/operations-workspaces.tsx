@@ -62,6 +62,7 @@ import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/compone
 import { useDateFormat } from "@/lib/dates";
 import {
   FieldWrapper,
+  FilterBar,
   ListHeader,
   LoadFailed,
   QueryFailedNote,
@@ -189,7 +190,7 @@ export function ProjectFilter({
     );
   }
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card px-3 py-2 shadow-sm">
+    <div className="flex min-w-0 flex-col gap-1">
       <span className="text-xs font-medium text-muted-foreground">
         {t("field.project")}
       </span>
@@ -225,13 +226,13 @@ function WorkspaceState({
     );
   if (error)
     return (
-      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive">
+      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive">
         {errorMessage || t("state.loadError")}
       </div>
     );
   if (empty)
     return (
-      <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+      <div className="rounded-xl border border-dashed border-panel-border px-6 py-8 text-center text-sm text-muted-foreground">
         {t("state.empty")}
       </div>
     );
@@ -633,7 +634,7 @@ export function CategoryDialog({
           {isMaterial && (
             <div className="grid gap-4 border-t pt-4 sm:col-span-2">
               <div>
-                <h4 className="text-sm font-semibold">{modules("material.title")}</h4>
+                <h4 className="panel-title">{modules("material.title")}</h4>
                 <p className="mt-1 text-xs text-muted-foreground">{modules("material.help")}</p>
               </div>
               <FieldWrapper
@@ -702,7 +703,7 @@ export function CategoryDialog({
           {isMaterial && (
             <div className="grid gap-4 border-t pt-4 sm:col-span-2">
               <div>
-                <h4 className="text-sm font-semibold">{modules("budget.title")}</h4>
+                <h4 className="panel-title">{modules("budget.title")}</h4>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {modules("budget.help")}
                 </p>
@@ -965,7 +966,7 @@ export function FieldTasksWorkspace({
     transition.mutate({ id: row.id, status, note: "" });
   };
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListHeader
         title={t(
           taskType === "CONSULTANT"
@@ -986,7 +987,9 @@ export function FieldTasksWorkspace({
           ) : undefined
         }
       />
-      <ProjectFilter value={project} onChange={setProject} />
+      <FilterBar className="empty:hidden">
+        <ProjectFilter value={project} onChange={setProject} />
+      </FilterBar>
       {drill && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
           <span className="min-w-0 flex-1">
@@ -1063,7 +1066,7 @@ export function FieldTasksWorkspace({
                 data-testid="field-task-row"
                 className="overflow-hidden surface-panel rounded-xl"
               >
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
                   <button
                     type="button"
                     aria-haspopup="dialog"
@@ -1176,7 +1179,7 @@ export function FieldTasksWorkspace({
                   )}
                 </div>
                 {sentOn && (
-                  <div className="border-t bg-muted/20 px-3 py-2 text-sm">
+                  <div className="border-t bg-muted/20 px-4 py-2 text-sm">
                     <Link
                       href={`/consultant-applications/${sentOn.id}`}
                       className="font-medium text-primary underline-offset-2 hover:underline"
@@ -1718,7 +1721,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const isWaiting = (row: SiteEquipment) => row.awaiting_acceptance === direction;
   const waiting = machine ? isWaiting(machine) : false;
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListHeader
         title={t("equipment.title")}
         subtitle={t("equipment.subtitle")}
@@ -1734,7 +1737,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           ) : undefined
         }
       />
-      <FieldWrapper label={t("field.project")} required className="rounded-lg border bg-card px-3 py-2 shadow-sm">
+      <FieldWrapper label={t("field.project")} required className="surface-panel rounded-xl px-4 py-3 sm:px-6 sm:py-4">
         <ProjectPicker
           value={project}
           onValueChange={(next) => {
@@ -1808,7 +1811,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
       {machine && (
         <section
           data-testid="field-equipment-next-step"
-          className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-3 py-3 shadow-sm"
+          className="surface-panel flex flex-wrap items-center gap-3 rounded-xl p-4"
         >
           <span className="min-w-0 flex-1 truncate font-medium">{label(machine)}</span>
           {waiting ? (
@@ -2012,7 +2015,7 @@ export function EquipmentDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.equipmentSubClass")} required>
             {!form.project ? (
-              <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed px-3 py-2 text-sm text-muted-foreground">
                 {t("field.chooseProjectFirst")}
               </p>
             ) : (
@@ -2383,7 +2386,7 @@ export function EquipmentEntryDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.supplier")} error={fieldErrors.supplier}>
             {supplier ? (
-              <div className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+              <div className="flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm">
                 <span className="min-w-0 flex-1 truncate font-medium">{supplier.name}</span>
                 {/* 「有退场资料」 (2026-10 C10), as wherever a supplier is chosen. */}
                 <SupplierReturnBadge supplier={supplier} />
@@ -2855,7 +2858,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
       ],
     });
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListHeader
         title={t("progress.title")}
         subtitle={t("progress.subtitle")}
@@ -2882,11 +2885,13 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
           </div>
         }
       />
-      <ProjectFilter value={project} onChange={setProject} />
+      <FilterBar className="empty:hidden">
+        <ProjectFilter value={project} onChange={setProject} />
+      </FilterBar>
       {(summary.data || summary.isError) && (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {(["today", "month", "year", "total"] as const).map((key) => (
-            <div key={key} className="surface-panel rounded-xl p-3">
+            <div key={key} className="surface-panel rounded-xl p-4">
               <p className="text-xs text-muted-foreground">
                 {t(`progress.summary.${key}`)}
               </p>
@@ -2922,14 +2927,13 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
       </div>
       <QueryFailedNote query={phases} what={t("what.phases")} />
       {noPhases && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed bg-muted/20 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-panel-border p-4">
           <p className="text-sm text-muted-foreground">
             {t("progress.noPhasesHelp")}
           </p>
           {can("progress.manage") && (
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setAddingPhase(true)}
             >
               <ListTree />
@@ -2981,7 +2985,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                     }}
                   />
                 </div>
-                <p className="mt-1 text-right text-sm font-semibold">
+                <p className="tabular mt-1 text-right text-sm font-semibold">
                   {row.percent_complete}%
                 </p>
                 <p className="mt-2 text-sm">
@@ -3150,7 +3154,7 @@ export function PhaseDialog({
           </label>
         )}
         {phase && (
-          <div className="space-y-2 rounded-md border border-destructive/20 p-3">
+          <div className="space-y-3 rounded-xl border border-tone-rose/25 bg-tone-rose/6 p-3">
             <label className="flex items-start gap-3">
               <Switch
                 checked={removeArmed}
@@ -3502,7 +3506,7 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
     review.mutate({ id: row.id, status, note: "" });
   };
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListHeader
         title={t("outgoing.title")}
         subtitle={t("outgoing.subtitle")}
@@ -3523,7 +3527,9 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
           </div>
         }
       />
-      <ProjectFilter value={project} onChange={setProject} />
+      <FilterBar className="empty:hidden">
+        <ProjectFilter value={project} onChange={setProject} />
+      </FilterBar>
       {linkedId && linked.isError ? (
         <LoadFailed what={t("what.outgoingRecord")} onRetry={() => void linked.refetch()} />
       ) : null}
@@ -3711,7 +3717,7 @@ export function OutgoingActions({
             {t("outgoing.returnProcessing")}
           </Button>
         ) : (
-          <p className="rounded-md border border-info/25 bg-info/5 px-3 py-2 text-sm">
+          <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm">
             {t("outgoing.waitingForSite")}
           </p>
         ))}
@@ -3727,7 +3733,7 @@ export function OutgoingActions({
             {t("outgoing.finalConfirm")}
           </Button>
         ) : (
-          <p className="rounded-md border border-info/25 bg-info/5 px-3 py-2 text-sm">
+          <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm">
             {t("outgoing.waitingForOffice")}
           </p>
         ))}
@@ -3896,7 +3902,7 @@ export function OutgoingDialog({
               disabled={!project || columns.isLoading}
               onValueChange={chooseMaterial}
             >
-              <SelectTrigger className="h-11 w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("outgoing.chooseMaterial")} />
               </SelectTrigger>
               <SelectContent>
@@ -3925,14 +3931,14 @@ export function OutgoingDialog({
           <FieldWrapper label={t("field.unit")} required>
             {fill.unitLocked ? (
               // The category decided it (A4, Q1): shown, not asked.
-              <div className="flex h-11 items-center justify-between rounded-md border bg-muted/40 px-3">
+              <div className="flex h-10 items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 pointer-coarse:h-11">
                 <span className="text-sm font-medium">{unitName(unit, selected?.default_unit_label)}</span>
                 <span className="text-xs text-muted-foreground">{t("outgoing.autoFilled")}</span>
               </div>
             ) : (
               <>
                 <Select value={form.unit || undefined} onValueChange={(next) => set("unit", next)}>
-                  <SelectTrigger className="h-11 w-full">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("field.unit")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -4340,7 +4346,7 @@ function ExitForm({
       </FieldWrapper>
       <FieldWrapper label={t("outgoing.material")} required>
         <Select value={category || undefined} onValueChange={setCategory}>
-          <SelectTrigger className="h-11 w-full">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder={record.material_name || t("outgoing.chooseMaterial")} />
           </SelectTrigger>
           <SelectContent>

@@ -224,7 +224,7 @@ export function FieldRecordsPanel({
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold">{t("records.title")}</h2>
+        <h2 className="text-xl font-bold leading-tight">{t("records.title")}</h2>
         <p className="text-sm text-muted-foreground">{t("records.subtitle")}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -234,13 +234,13 @@ export function FieldRecordsPanel({
             <button
               key={option.key}
               type="button"
-              className="flex min-h-28 flex-col items-start justify-between rounded-lg border bg-card p-3.5 text-left shadow-sm active:scale-[0.98]"
+              className="surface-panel flex min-h-28 min-w-0 flex-col items-start justify-between rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:scale-[0.98]"
               onClick={() => chooseMode(option.key)}
             >
               <span className={`grid size-10 place-items-center rounded-lg ${option.tone}`}>
                 <Icon className="size-5" />
               </span>
-              <span className="mt-4 text-sm font-semibold leading-5">
+              <span className="mt-4 break-words text-sm font-semibold leading-5">
                 {t(`records.${option.key}`)}
               </span>
             </button>
@@ -263,11 +263,11 @@ function RecordFrame({
   const t = useTranslations("fieldStaffPwa");
   return (
     <section className="space-y-4">
-      <div className="flex items-center gap-3 border-b pb-3">
+      <div className="flex min-w-0 items-center gap-3 border-b pb-3">
         <Button size="icon" variant="outline" title={t("action.back")} onClick={onBack}>
           <ArrowLeft />
         </Button>
-        <h2 className="text-base font-semibold">{title}</h2>
+        <h2 className="min-w-0 text-lg font-bold leading-tight">{title}</h2>
       </div>
       {children}
     </section>
@@ -732,7 +732,7 @@ export function MaterialCapturePanel({
       </FieldWrapper>
       <FieldWrapper label={t("material.column")} required>
         <Select value={draft.category || undefined} onValueChange={(category) => setDraft((old) => withColumn(old, category))} disabled={!draft.project || columns.isLoading}>
-          <SelectTrigger className="w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
+          <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
           <SelectContent>{columnRows.filter((row) => row.can_upload).map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
         </Select>
         <FieldLoadNote query={columns} what={t("what.columns")} />
@@ -793,7 +793,7 @@ export function MaterialCapturePanel({
           <p className="text-xs text-muted-foreground">{t("material.supplierLimited")}</p>
         ) : null}
         {supplierGuess && draft.supplier !== supplierGuess.id && (
-          <div role="status" className="flex flex-wrap items-center gap-2 rounded-md border border-info/25 bg-info/5 px-3 py-2">
+          <div role="status" className="flex flex-wrap items-center gap-2 rounded-lg border border-info/25 bg-info/5 px-3 py-2">
             <p className="min-w-0 flex-1 text-xs leading-5">
               {t("material.supplierGuess", { read: supplierGuess.read, name: supplierGuess.name })}
             </p>
@@ -835,7 +835,7 @@ export function MaterialCapturePanel({
       <FieldWrapper label={t("material.unit")} required>
         {fill.unitLocked ? (
           // The category decided it (A4, Q1): shown, not asked.
-          <div className="flex h-12 items-center justify-between rounded-md border bg-muted/40 px-3">
+          <div className="flex h-12 items-center justify-between rounded-lg border bg-muted/40 px-3">
             <span className="text-sm font-medium">{unitName(unit, selectedColumn?.default_unit_label)}</span>
             <span className="text-xs text-muted-foreground">{t("material.autoFilledFromCategory")}</span>
           </div>
@@ -858,7 +858,7 @@ export function MaterialCapturePanel({
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
           <div className="border-b bg-muted/40 px-3 py-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold text-muted-foreground">
               {t("material.ocrItems.title")}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -925,8 +925,7 @@ export function MaterialCapturePanel({
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
-                    className="h-10 shrink-0 rounded-full px-4"
+                    className="h-10 shrink-0"
                     onClick={() => loadLineItem(item)}
                   >
                     {t("material.ocrItems.use")}
@@ -1030,7 +1029,7 @@ export function MaterialCapturePanel({
           </FieldWrapper>
         )}
       </div>
-      {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.reading} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
@@ -1196,7 +1195,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         />
       </FieldWrapper>
       {error && (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -1300,7 +1299,7 @@ function WasteOutgoingCapturePanel({
           value={project}
           onValueChange={(next) => { setProject(next); setCategory(""); }}
           placeholder={t("filter.selectProject")}
-          className="w-full"
+          className="h-12 w-full"
           disabled={Boolean(initialProject)}
         />
       </FieldWrapper>

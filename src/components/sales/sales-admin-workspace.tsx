@@ -122,6 +122,9 @@ const BASES = [
   "CUSTOM_FORMULA",
 ];
 
+/** Draws the section's ListHeader, with the panel's primary action if any. */
+type SectionHeaderSlot = (action?: React.ReactNode) => React.ReactNode;
+
 export function SalesAdminWorkspace({
   section = "overview",
 }: {
@@ -129,20 +132,40 @@ export function SalesAdminWorkspace({
 }) {
   const t = useTranslations("adminSales");
   if (section === "overview") return <Overview />;
+  // The page's own action sits in the header, top right, so the panels that
+  // have one draw the header themselves; the rest get it from here.
+  const header: SectionHeaderSlot = (action) => (
+    <ListHeader
+      title={t(`section.${section}.title`)}
+      subtitle={t(`section.${section}.subtitle`)}
+      action={action}
+    />
+  );
+  const panelOwnsHeader = [
+    "people",
+    "assignments",
+    "rules",
+    "schemes",
+    "terms",
+    "payouts",
+    "settlements",
+  ].includes(section);
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
-      <ListHeader
-        title={t(`section.${section}.title`)}
-        subtitle={t(`section.${section}.subtitle`)}
-      />
-      {section === "people" ? <PeoplePanel manageable /> : null}
+      {panelOwnsHeader ? null : header()}
+      {section === "people" ? <PeoplePanel manageable header={header} /> : null}
       {section === "hierarchy" ? <HierarchyPanel /> : null}
-      {section === "assignments" ? <AssignmentPanel /> : null}
-      {section === "rules" ? <SchemePanel mode="rules" /> : null}
-      {section === "schemes" ? <SchemePanel mode="schemes" /> : null}
-      {section === "terms" ? <TermsPanel /> : null}
+      {section === "assignments" ? <AssignmentPanel header={header} /> : null}
+      {section === "rules" ? <SchemePanel mode="rules" header={header} /> : null}
+      {section === "schemes" ? (
+        <SchemePanel mode="schemes" header={header} />
+      ) : null}
+      {section === "terms" ? <TermsPanel header={header} /> : null}
       {section === "payouts" || section === "settlements" ? (
-        <PayoutPanel settlements={section === "settlements"} />
+        <PayoutPanel
+          settlements={section === "settlements"}
+          header={header}
+        />
       ) : null}
       {section === "performance" ? <PerformancePanel /> : null}
       {section === "reports" ? <ReportsPanel /> : null}
@@ -167,11 +190,11 @@ function Overview() {
             ["customers", summary.data?.customers_assigned ?? 0],
             ["unassigned", summary.data?.unassigned_states.length ?? 0],
           ].map(([key, value]) => (
-            <div key={key} className="border-b border-r px-5 py-4">
-              <p className="text-xs text-muted-foreground">
+            <div key={key} className="min-w-0 border-b border-r border-panel-border p-4 sm:px-6">
+              <p className="text-xs font-medium text-muted-foreground">
                 {t(`metric.${key}`)}
               </p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums">
+              <p className="mt-1 text-2xl font-semibold tabular">
                 {summary.isError ? "—" : value}
               </p>
             </div>
@@ -185,12 +208,12 @@ function Overview() {
             <Link
               key={module.section}
               href={`/sales/${module.section}`}
-              className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"
+              className="flex min-h-20 min-w-0 items-center gap-3 border-b border-r border-panel-border p-4 hover:bg-muted/40 sm:px-6"
             >
-              <span className="flex-1 font-medium">
+              <span className="min-w-0 flex-1 break-words font-medium">
                 {t(`section.${module.section}.title`)}
               </span>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
             </Link>
           ))}
         </div>
@@ -211,23 +234,29 @@ function PanelState({
   const t = useTranslations("adminSales");
   if (loading)
     return (
-      <div className="flex min-h-40 flex-1 items-center justify-center surface-panel rounded-xl">
-        <Loader2 className="mr-2 animate-spin" />
+      <div className="surface-panel flex min-h-40 flex-1 items-center justify-center gap-2 rounded-xl p-6 text-sm text-muted-foreground">
+        <Loader2 className="size-4 animate-spin" />
         {t("loading")}
       </div>
     );
   if (error)
     return (
-      <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>
+      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive">{t("loadError")}</div>
     );
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
+    <div className="surface-panel min-h-0 min-w-0 flex-1 overflow-y-auto rounded-xl">
       {children}
     </div>
   );
 }
 
-function PeoplePanel({ manageable }: { manageable: boolean }) {
+function PeoplePanel({
+  manageable,
+  header,
+}: {
+  manageable: boolean;
+  header: SectionHeaderSlot;
+}) {
   const t = useTranslations("adminSales");
   const df = useDateFormat();
   const qc = useQueryClient();
@@ -243,15 +272,16 @@ function PeoplePanel({ manageable }: { manageable: boolean }) {
     undefined,
   );
   return (
-    <PanelState loading={people.isLoading} error={people.isError}>
-      {manageable && (
-        <div className="flex justify-end border-b p-3">
+    <>
+      {header(
+        manageable && !people.isLoading && !people.isError ? (
           <Button onClick={() => setEditing(null)}>
             <Plus />
             {t("action.addPerson")}
           </Button>
-        </div>
+        ) : undefined,
       )}
+    <PanelState loading={people.isLoading} error={people.isError}>
       <Table>
         <TableHeader>
           <TableRow>
@@ -289,7 +319,7 @@ function PeoplePanel({ manageable }: { manageable: boolean }) {
               </TableCell>
               <TableCell>{person.supervisor_name || "-"}</TableCell>
               <TableCell>{person.scheme_name || "-"}</TableCell>
-              <TableCell>{df.date(person.joined_on)}</TableCell>
+              <TableCell className="tabular">{df.date(person.joined_on)}</TableCell>
               <TableCell>
                 <StatusBadge
                   label={t(
@@ -324,6 +354,7 @@ function PeoplePanel({ manageable }: { manageable: boolean }) {
         />
       )}
     </PanelState>
+    </>
   );
 }
 
@@ -380,7 +411,7 @@ function PersonDialog({
           </DialogTitle>
           <DialogDescription>{t("dialog.person")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("column.code")} required>
             <Input
               value={form.code}
@@ -408,7 +439,7 @@ function PersonDialog({
           </FieldWrapper>
           <FieldWrapper label={t("column.role")}>
             <select
-              className="h-8 w-full rounded-md border bg-background px-2"
+              className="native-control"
               value={form.sales_role}
               onChange={(e) => set("sales_role", e.target.value)}
             >
@@ -421,7 +452,7 @@ function PersonDialog({
           </FieldWrapper>
           <FieldWrapper label={t("column.supervisor")}>
             <select
-              className="h-8 w-full rounded-md border bg-background px-2"
+              className="native-control"
               value={form.supervisor ?? ""}
               onChange={(e) => set("supervisor", e.target.value || null)}
             >
@@ -437,7 +468,7 @@ function PersonDialog({
           </FieldWrapper>
           <FieldWrapper label={t("column.scheme")}>
             <select
-              className="h-8 w-full rounded-md border bg-background px-2"
+              className="native-control"
               value={form.commission_scheme ?? ""}
               onChange={(e) => set("commission_scheme", e.target.value || null)}
             >
@@ -503,17 +534,13 @@ function HierarchyPanel() {
       <Table>
         <TableHeader>
           <TableRow>
-            {[
-              "name",
-              "role",
-              "supervisor",
-              "team",
-              "territory",
-              "customers",
-              "scheme",
-            ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
-            ))}
+            <TableHead>{t("column.name")}</TableHead>
+            <TableHead>{t("column.role")}</TableHead>
+            <TableHead>{t("column.supervisor")}</TableHead>
+            <TableHead className="text-right tabular">{t("column.team")}</TableHead>
+            <TableHead>{t("column.territory")}</TableHead>
+            <TableHead className="text-right tabular">{t("column.customers")}</TableHead>
+            <TableHead>{t("column.scheme")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -524,11 +551,11 @@ function HierarchyPanel() {
               </TableCell>
               <TableCell>{t(`role.${x.sales_role}`)}</TableCell>
               <TableCell>{x.supervisor_name || "-"}</TableCell>
-              <TableCell>{x.report_count}</TableCell>
+              <TableCell className="text-right tabular">{x.report_count}</TableCell>
               <TableCell>
                 {x.territories.map((y) => y.name).join(", ") || "-"}
               </TableCell>
-              <TableCell>{x.customer_count}</TableCell>
+              <TableCell className="text-right tabular">{x.customer_count}</TableCell>
               <TableCell>{x.scheme_name || "-"}</TableCell>
             </TableRow>
           ))}
@@ -538,7 +565,7 @@ function HierarchyPanel() {
   );
 }
 
-function AssignmentPanel() {
+function AssignmentPanel({ header }: { header: SectionHeaderSlot }) {
   const t = useTranslations("adminSales");
   const qc = useQueryClient();
   const [selected, setSelected] = useState<CustomerAssignment | null>(null);
@@ -561,20 +588,22 @@ function AssignmentPanel() {
   const availableCompanies = (companies.data?.results ?? []).filter(
     (company) => !assignedCompanyIds.has(company.id),
   );
+  const loading = rows.isLoading || companies.isLoading;
+  const error = rows.isError || companies.isError;
   return (
-    <PanelState
-      loading={rows.isLoading || companies.isLoading}
-      error={rows.isError || companies.isError}
-    >
-      <div className="flex justify-end border-b p-3">
-        <Button
-          disabled={people.isLoading}
-          onClick={() => setCreating(true)}
-        >
-          <Plus />
-          {t("action.addAssignment")}
-        </Button>
-      </div>
+    <>
+      {header(
+        !loading && !error ? (
+          <Button
+            disabled={people.isLoading}
+            onClick={() => setCreating(true)}
+          >
+            <Plus />
+            {t("action.addAssignment")}
+          </Button>
+        ) : undefined,
+      )}
+    <PanelState loading={loading} error={error}>
       <Table>
         <TableHeader>
           <TableRow>
@@ -603,7 +632,7 @@ function AssignmentPanel() {
               </TableCell>
               <TableCell>{x.supervisor_name || "-"}</TableCell>
               <TableCell>{x.state || "-"}</TableCell>
-              <TableCell>{x.won_on}</TableCell>
+              <TableCell className="tabular">{x.won_on}</TableCell>
               <TableCell>
                 <Button
                   size="sm"
@@ -642,6 +671,7 @@ function AssignmentPanel() {
         />
       )}
     </PanelState>
+    </>
   );
 }
 
@@ -687,7 +717,7 @@ function AssignmentDialog({
           )}
           <FieldWrapper label={t("field.selectCompany")} required>
             <select
-              className="h-9 w-full rounded-md border bg-background px-3"
+              className="native-control"
               disabled={companies.length === 0}
               value={form.company}
               onChange={(event) =>
@@ -707,7 +737,7 @@ function AssignmentDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.selectPerson")} required>
             <select
-              className="h-9 w-full rounded-md border bg-background px-3"
+              className="native-control"
               value={form.salesperson}
               onChange={(event) =>
                 setForm((current) => ({
@@ -812,7 +842,7 @@ function ReassignDialog({
         </DialogHeader>
         <FieldWrapper label={t("field.selectPerson")} required>
           <select
-            className="h-8 w-full rounded-md border bg-background px-2"
+            className="native-control"
             value={person}
             onChange={(e) => setPerson(e.target.value)}
           >
@@ -854,7 +884,13 @@ function ReassignDialog({
   );
 }
 
-function SchemePanel({ mode }: { mode: "rules" | "schemes" }) {
+function SchemePanel({
+  mode,
+  header,
+}: {
+  mode: "rules" | "schemes";
+  header: SectionHeaderSlot;
+}) {
   const t = useTranslations("adminSales");
   const qc = useQueryClient();
   const rows = useQuery({
@@ -865,31 +901,36 @@ function SchemePanel({ mode }: { mode: "rules" | "schemes" }) {
     undefined,
   );
   return (
+    <>
+      {header(
+        !rows.isLoading && !rows.isError ? (
+          <Button onClick={() => setEditing(null)}>
+            <Plus />
+            {t(mode === "rules" ? "action.addRule" : "action.addScheme")}
+          </Button>
+        ) : undefined,
+      )}
     <PanelState loading={rows.isLoading} error={rows.isError}>
-      <div className="flex justify-end border-b p-3">
-        <Button onClick={() => setEditing(null)}>
-          <Plus />
-          {t(mode === "rules" ? "action.addRule" : "action.addScheme")}
-        </Button>
-      </div>
       <Table>
         <TableHeader>
           <TableRow>
-            {(mode === "rules"
-              ? ["code", "name", "basis", "rate", "actions"]
-              : [
-                  "code",
-                  "name",
-                  "cycle",
-                  "minimum",
-                  "maximum",
-                  "people",
-                  "status",
-                  "actions",
-                ]
-            ).map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
-            ))}
+            <TableHead>{t("column.code")}</TableHead>
+            <TableHead>{t("column.name")}</TableHead>
+            {mode === "rules" ? (
+              <>
+                <TableHead>{t("column.basis")}</TableHead>
+                <TableHead className="text-right tabular">{t("column.rate")}</TableHead>
+              </>
+            ) : (
+              <>
+                <TableHead>{t("column.cycle")}</TableHead>
+                <TableHead className="text-right tabular">{t("column.minimum")}</TableHead>
+                <TableHead className="text-right tabular">{t("column.maximum")}</TableHead>
+                <TableHead className="text-right tabular">{t("column.people")}</TableHead>
+                <TableHead>{t("column.status")}</TableHead>
+              </>
+            )}
+            <TableHead>{t("column.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -900,7 +941,7 @@ function SchemePanel({ mode }: { mode: "rules" | "schemes" }) {
               {mode === "rules" ? (
                 <>
                   <TableCell>{t(`basis.${x.basis}`)}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-right tabular">
                     {x.basis === "CUSTOM_FORMULA"
                       ? t("custom.configured")
                       : x.rate}
@@ -909,9 +950,9 @@ function SchemePanel({ mode }: { mode: "rules" | "schemes" }) {
               ) : (
                 <>
                   <TableCell>{t(`cycle.${x.payout_cycle}`)}</TableCell>
-                  <TableCell>{x.minimum_payout}</TableCell>
-                  <TableCell>{x.maximum_payout ?? "-"}</TableCell>
-                  <TableCell>{x.salesperson_count}</TableCell>
+                  <TableCell className="text-right tabular">{x.minimum_payout}</TableCell>
+                  <TableCell className="text-right tabular">{x.maximum_payout ?? "-"}</TableCell>
+                  <TableCell className="text-right tabular">{x.salesperson_count}</TableCell>
                   <TableCell>
                     <StatusBadge
                       label={t(
@@ -946,6 +987,7 @@ function SchemePanel({ mode }: { mode: "rules" | "schemes" }) {
         />
       )}
     </PanelState>
+    </>
   );
 }
 
@@ -1019,7 +1061,7 @@ function SchemeDialog({
             {t(mode === "rules" ? "dialog.rule" : "dialog.scheme")}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("column.code")} required>
             <Input
               value={form.code}
@@ -1039,7 +1081,7 @@ function SchemeDialog({
             <>
               <FieldWrapper label={t("column.cycle")}>
                 <select
-                  className="h-8 w-full rounded-md border bg-background px-2"
+                  className="native-control"
                   value={form.payout_cycle}
                   onChange={(e) => set("payout_cycle", e.target.value)}
                 >
@@ -1133,7 +1175,7 @@ function RuleFields({
   return (
     <>
       <select
-        className="h-8 rounded-md border bg-background px-2"
+        className="native-control"
         value={form.basis}
         onChange={(e) => set("basis", e.target.value)}
       >
@@ -1163,7 +1205,7 @@ function RuleFields({
         />
       )}
       {form.basis === "CUSTOM_FORMULA" && (
-        <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2">
           {[
             "fixed_amount",
             "fixed_per_customer",
@@ -1191,7 +1233,7 @@ function RuleFields({
             />
           ))}
           <select
-            className="h-8 rounded-md border bg-background px-2"
+            className="native-control"
             value={config.target_metric ?? ""}
             onChange={(e) => setConfig("target_metric", e.target.value)}
           >
@@ -1216,7 +1258,7 @@ function RuleFields({
   );
 }
 
-function TermsPanel() {
+function TermsPanel({ header }: { header: SectionHeaderSlot }) {
   const t = useTranslations("adminSales");
   const qc = useQueryClient();
   const rows = useQuery({
@@ -1234,48 +1276,49 @@ function TermsPanel() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sales-terms"] }),
   });
   return (
+    <>
+      {header(
+        !rows.isLoading && !rows.isError ? (
+          <Button onClick={() => setCreating(true)}>
+            <Plus />
+            {t("action.addTerms")}
+          </Button>
+        ) : undefined,
+      )}
     <PanelState loading={rows.isLoading} error={rows.isError}>
-      <div className="flex justify-end border-b p-3">
-        <Button onClick={() => setCreating(true)}>
-          <Plus />
-          {t("action.addTerms")}
-        </Button>
-      </div>
       <Table>
         <TableHeader>
           <TableRow>
-            {[
-              "code",
-              "version",
-              "name",
-              "effective",
-              "status",
-              "acknowledged",
-              "actions",
-            ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
-            ))}
+            <TableHead>{t("column.code")}</TableHead>
+            <TableHead>{t("column.version")}</TableHead>
+            <TableHead>{t("column.name")}</TableHead>
+            <TableHead>{t("column.effective")}</TableHead>
+            <TableHead>{t("column.status")}</TableHead>
+            <TableHead className="text-right tabular">{t("column.acknowledged")}</TableHead>
+            <TableHead>{t("column.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {(rows.data?.results ?? []).map((x) => (
             <TableRow key={x.id}>
               <TableCell>{x.code}</TableCell>
-              <TableCell>v{x.version}</TableCell>
+              <TableCell className="tabular">v{x.version}</TableCell>
               <TableCell>{x.title}</TableCell>
-              <TableCell>{x.effective_from || "-"}</TableCell>
+              <TableCell className="tabular">{x.effective_from || "-"}</TableCell>
               <TableCell>{t(`termsStatus.${x.status}`)}</TableCell>
-              <TableCell>{x.acknowledgement_count}</TableCell>
-              <TableCell className="flex gap-1">
-                {x.status === "DRAFT" && (
-                  <Button size="sm" onClick={() => activate.mutate(x.id)}>
-                    <Check />
-                    {t("action.activate")}
+              <TableCell className="text-right tabular">{x.acknowledgement_count}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1">
+                  {x.status === "DRAFT" && (
+                    <Button size="sm" onClick={() => activate.mutate(x.id)}>
+                      <Check />
+                      {t("action.activate")}
+                    </Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => setAck(x)}>
+                    {t("action.acknowledge")}
                   </Button>
-                )}
-                <Button size="sm" variant="outline" onClick={() => setAck(x)}>
-                  {t("action.acknowledge")}
-                </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -1297,6 +1340,7 @@ function TermsPanel() {
         />
       )}
     </PanelState>
+    </>
   );
 }
 
@@ -1460,7 +1504,7 @@ function AcknowledgeDialog({
         </DialogHeader>
         <FieldWrapper label={t("field.selectPerson")} required>
           <select
-            className="h-8 w-full rounded-md border bg-background px-2"
+            className="native-control"
             value={person}
             onChange={(e) => setPerson(e.target.value)}
           >
@@ -1497,7 +1541,13 @@ function AcknowledgeDialog({
   );
 }
 
-function PayoutPanel({ settlements }: { settlements: boolean }) {
+function PayoutPanel({
+  settlements,
+  header,
+}: {
+  settlements: boolean;
+  header: SectionHeaderSlot;
+}) {
   const t = useTranslations("adminSales");
   const qc = useQueryClient();
   const rows = useQuery({
@@ -1510,9 +1560,9 @@ function PayoutPanel({ settlements }: { settlements: boolean }) {
   });
   const [selected, setSelected] = useState<CommissionPayout | null>(null);
   return (
-    <PanelState loading={rows.isLoading} error={rows.isError}>
-      <div className="flex justify-end border-b p-3">
-        {!settlements && (
+    <>
+      {header(
+        !settlements && !rows.isLoading && !rows.isError ? (
           <Button
             onClick={() => calculate.mutate()}
             disabled={calculate.isPending}
@@ -1524,25 +1574,22 @@ function PayoutPanel({ settlements }: { settlements: boolean }) {
             )}
             {t("action.calculate")}
           </Button>
-        )}
-      </div>
+        ) : undefined,
+      )}
+    <PanelState loading={rows.isLoading} error={rows.isError}>
       <Table>
         <TableHeader>
           <TableRow>
-            {[
-              "salesperson",
-              "period",
-              "scheme",
-              "saas",
-              "platformCommission",
-              "gross",
-              "adjustment",
-              "net",
-              "status",
-              "actions",
-            ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
-            ))}
+            <TableHead>{t("column.salesperson")}</TableHead>
+            <TableHead>{t("column.period")}</TableHead>
+            <TableHead>{t("column.scheme")}</TableHead>
+            <TableHead className="text-right tabular">{t("column.saas")}</TableHead>
+            <TableHead className="text-right tabular">{t("column.platformCommission")}</TableHead>
+            <TableHead className="text-right tabular">{t("column.gross")}</TableHead>
+            <TableHead className="text-right tabular">{t("column.adjustment")}</TableHead>
+            <TableHead className="text-right tabular">{t("column.net")}</TableHead>
+            <TableHead>{t("column.status")}</TableHead>
+            <TableHead>{t("column.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1551,15 +1598,15 @@ function PayoutPanel({ settlements }: { settlements: boolean }) {
               <TableCell>
                 {x.salesperson_code} / {x.salesperson_name}
               </TableCell>
-              <TableCell>
+              <TableCell className="tabular">
                 {x.period_start} - {x.period_end}
               </TableCell>
               <TableCell>{x.scheme_name}</TableCell>
-              <TableCell>{x.saas_revenue}</TableCell>
-              <TableCell>{x.platform_commission}</TableCell>
-              <TableCell>{x.gross_amount}</TableCell>
-              <TableCell>{x.adjustment}</TableCell>
-              <TableCell className="font-medium">
+              <TableCell className="text-right tabular">{x.saas_revenue}</TableCell>
+              <TableCell className="text-right tabular">{x.platform_commission}</TableCell>
+              <TableCell className="text-right tabular">{x.gross_amount}</TableCell>
+              <TableCell className="text-right tabular">{x.adjustment}</TableCell>
+              <TableCell className="text-right font-medium tabular">
                 {x.currency} {x.net_amount}
               </TableCell>
               <TableCell>
@@ -1600,6 +1647,7 @@ function PayoutPanel({ settlements }: { settlements: boolean }) {
         />
       )}
     </PanelState>
+    </>
   );
 }
 
@@ -1682,7 +1730,7 @@ function PayoutDialog({
         )}
         <FieldWrapper label={t("field.selectStatus")} required>
           <select
-            className="h-8 w-full rounded-md border bg-background px-2"
+            className="native-control"
             value={target}
             onChange={(e) => setTarget(e.target.value as PayoutState)}
           >
@@ -1752,9 +1800,9 @@ function PerformancePanel() {
     enabled: Boolean(id),
   });
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl p-4">
+    <div className="surface-panel min-h-0 min-w-0 flex-1 overflow-y-auto rounded-xl p-4 sm:p-6">
       <select
-        className="h-8 w-full max-w-md rounded-md border bg-background px-2"
+        className="native-control sm:max-w-md"
         value={id}
         onChange={(e) => setId(e.target.value)}
       >
@@ -1774,7 +1822,7 @@ function PerformancePanel() {
         />
       )}
       {perf.data && (
-        <div className="mt-4 grid border sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-4 grid grid-cols-1 overflow-hidden rounded-lg border sm:grid-cols-2 xl:grid-cols-4">
           {[
             "team_size",
             "total_customers",
@@ -1785,11 +1833,11 @@ function PerformancePanel() {
             "business_value",
             "commission_payable",
           ].map((key) => (
-            <div key={key} className="border-b border-r p-4">
-              <p className="text-xs text-muted-foreground">
+            <div key={key} className="min-w-0 border-b border-r p-4">
+              <p className="text-xs font-medium text-muted-foreground">
                 {t(`performance.${key}`)}
               </p>
-              <p className="mt-1 text-xl font-semibold">
+              <p className="mt-1 break-words text-xl font-semibold tabular">
                 {String(perf.data[key as keyof typeof perf.data])}
               </p>
             </div>
@@ -1844,21 +1892,21 @@ function ReportsPanel() {
       ),
   });
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
+    <div className="surface-panel min-h-0 min-w-0 flex-1 overflow-y-auto rounded-xl">
       <div className="divide-y">
         {(["salespeople", "assignments", "payouts"] as const).map(
           (endpoint) => (
             <div
               key={endpoint}
-              className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
+              className="flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6"
             >
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium">{t(`report.${endpoint}`)}</p>
                 <p className="text-xs text-muted-foreground">
                   {t(`report.${endpoint}Subtitle`)}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   disabled={exports.isPending}

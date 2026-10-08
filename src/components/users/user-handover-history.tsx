@@ -20,7 +20,7 @@ export function UserHandoverHistory() {
     queryFn: () => getUserReplacements({ page_size: 200 }),
   });
   return (
-    <div className="space-y-5 pb-10">
+    <div className="space-y-4">
       <ListHeader
         title={t("history.title")}
         subtitle={t("history.subtitle", { count: rows.data?.count ?? 0 })}
@@ -36,7 +36,7 @@ export function UserHandoverHistory() {
         </p>
       )}
       {!rows.isLoading && !rows.isError && !rows.data?.count && (
-        <div className="rounded-xl border border-dashed p-12 text-center text-sm text-muted-foreground">
+        <div className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {t("state.empty")}
         </div>
       )}
@@ -47,7 +47,7 @@ export function UserHandoverHistory() {
           return (
             <article
               key={row.id}
-              className="rounded-xl border bg-card p-5 shadow-sm"
+              className="surface-panel min-w-0 rounded-xl p-4 sm:p-6"
             >
               <div className="flex items-start gap-3">
                 <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -67,7 +67,7 @@ export function UserHandoverHistory() {
                   </p>
                 </div>
               </div>
-              <p className="mt-4 rounded-lg bg-muted/35 px-3 py-2 text-sm">
+              <p className="mt-4 break-words rounded-lg border bg-muted/30 p-3 text-sm">
                 {row.reason}
               </p>
               <div className="mt-4 grid grid-cols-2 gap-2">

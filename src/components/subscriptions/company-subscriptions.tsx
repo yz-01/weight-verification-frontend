@@ -105,7 +105,7 @@ export function CompanySubscriptions({
         accessorKey: "company_code",
         meta: { label: t("field.code") },
         header: ({ column }) => <SortableHeader label={t("field.code")} isSorted={column.getIsSorted()} onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
-        cell: ({ row }) => <span className="font-medium tabular-nums">{row.original.company_code}</span>,
+        cell: ({ row }) => <span className="tabular font-medium">{row.original.company_code}</span>,
       },
       {
         accessorKey: "company_name",
@@ -137,21 +137,21 @@ export function CompanySubscriptions({
         accessorKey: "subscription_started_on",
         meta: { label: t("field.startsOn") },
         header: ({ column }) => <SortableHeader label={t("field.startsOn")} isSorted={column.getIsSorted()} onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
-        cell: ({ row }) => <span className="tabular-nums text-muted-foreground">{row.original.subscription_started_on ? df.date(row.original.subscription_started_on) : common("emptyValue")}</span>,
+        cell: ({ row }) => <span className="tabular text-muted-foreground">{row.original.subscription_started_on ? df.date(row.original.subscription_started_on) : common("emptyValue")}</span>,
       },
       {
         accessorKey: "subscription_expires_on",
         meta: { label: t("field.expiresOn") },
         header: ({ column }) => <SortableHeader label={t("field.expiresOn")} isSorted={column.getIsSorted()} onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
         cell: ({ row }) => (
-          <div className="tabular-nums"><p>{row.original.subscription_expires_on ? df.date(row.original.subscription_expires_on) : common("emptyValue")}</p>{row.original.days_to_expiry !== null && <p className="text-xs text-muted-foreground">{t("daysRemaining", { count: row.original.days_to_expiry })}</p>}</div>
+          <div className="tabular"><p>{row.original.subscription_expires_on ? df.date(row.original.subscription_expires_on) : common("emptyValue")}</p>{row.original.days_to_expiry !== null && <p className="text-xs text-muted-foreground">{t("daysRemaining", { count: row.original.days_to_expiry })}</p>}</div>
         ),
       },
       {
         id: "seats",
         meta: { label: t("field.seats") },
-        header: () => t("field.seats"),
-        cell: ({ row }) => <span className="tabular-nums">{t("seatUsage", { used: row.original.used_user_seats, limit: row.original.user_limit ?? t("value.unlimited") })}</span>,
+        header: () => <span className="block text-right">{t("field.seats")}</span>,
+        cell: ({ row }) => <span className="tabular block text-right">{t("seatUsage", { used: row.original.used_user_seats, limit: row.original.user_limit ?? t("value.unlimited") })}</span>,
       },
     ];
     if (can("subscription.manage")) {
@@ -256,18 +256,18 @@ export function CompanySubscriptions({
           mode === "search" ? <>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-9 rounded-full bg-card px-4">
-                  <Filter className="h-4 w-4" />
-                  {t("filters.title")}{extraFilterCount > 0 && <span className="tabular-nums">({extraFilterCount})</span>}
+                <Button variant="outline">
+                  <Filter className="size-4" />
+                  {t("filters.title")}{extraFilterCount > 0 && <span className="tabular">({extraFilterCount})</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-80 space-y-3">
                 <FilterSelect label={t("field.audience")} value={list.filters.company_type ?? ""} onChange={(value) => list.setFilter("company_type", value || undefined)} options={[{ value: "", label: common("all") }, { value: "CONTRACTOR", label: t("audience.CONTRACTOR") }, { value: "RECYCLER", label: t("audience.RECYCLER") }]} />
                 <FilterSelect label={t("field.plan")} value={list.filters.plan ?? ""} onChange={(value) => list.setFilter("plan", value || undefined)} options={[{ value: "", label: common("all") }, ...planRows.map((plan) => ({ value: plan.id, label: plan.name }))]} />
                 <QueryFailedNote query={plans} what={t("what.plans")} />
-                <label className="block space-y-1 text-xs font-medium"><span>{t("filters.expiresAfter")}</span><Input type="date" value={list.filters.expires_after ?? ""} onChange={(event) => list.setFilter("expires_after", event.target.value || undefined)} /></label>
-                <label className="block space-y-1 text-xs font-medium"><span>{t("filters.expiresBefore")}</span><Input type="date" value={list.filters.expires_before ?? ""} onChange={(event) => list.setFilter("expires_before", event.target.value || undefined)} /></label>
-                <Button variant="ghost" size="sm" className="w-full" onClick={list.clearFilters}><SlidersHorizontal className="h-4 w-4" />{t("filters.clear")}</Button>
+                <label className="flex flex-col gap-1 text-xs font-medium"><span>{t("filters.expiresAfter")}</span><Input type="date" value={list.filters.expires_after ?? ""} onChange={(event) => list.setFilter("expires_after", event.target.value || undefined)} /></label>
+                <label className="flex flex-col gap-1 text-xs font-medium"><span>{t("filters.expiresBefore")}</span><Input type="date" value={list.filters.expires_before ?? ""} onChange={(event) => list.setFilter("expires_before", event.target.value || undefined)} /></label>
+                <Button variant="ghost" className="w-full" onClick={list.clearFilters}><SlidersHorizontal className="size-4" />{t("filters.clear")}</Button>
               </PopoverContent>
             </Popover>
             <ExportButton onExport={runExport} disabled={totalCount === 0} />
@@ -295,9 +295,9 @@ export function CompanySubscriptions({
 
 function FilterSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: Array<{ value: string; label: string }> }) {
   return (
-    <label className="block space-y-1 text-xs font-medium">
+    <label className="flex flex-col gap-1 text-xs font-medium">
       <span>{label}</span>
-      <select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={value} onChange={(event) => onChange(event.target.value)}>
+      <select className="native-control" value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => <option key={option.value || "ALL"} value={option.value}>{option.label}</option>)}
       </select>
     </label>

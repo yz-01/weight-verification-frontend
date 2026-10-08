@@ -69,7 +69,7 @@ export function ConfirmDialog({
         if (!next) onOpenChange(false);
       }}
     >
-      <DialogContent className="sm:max-w-[440px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-110 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -89,8 +89,6 @@ export function ConfirmDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={isPending}
             onClick={() => onOpenChange(false)}
           >
@@ -99,8 +97,6 @@ export function ConfirmDialog({
           </Button>
           <Button
             variant={variant}
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[!blocked, reasonLabel ?? t("common.reason")]]}
             disabled={isPending}
             onClick={onConfirm}

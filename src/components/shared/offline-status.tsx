@@ -94,7 +94,7 @@ export function OfflineStatus() {
           <Icon className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
           {pendingCount > 0 && (
             <span
-              className={`absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold leading-none ${
+              className={`absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-2xs font-semibold leading-none ${
                 failedCount > 0
                   ? "bg-destructive text-destructive-foreground"
                   : "bg-warning text-warning-foreground"

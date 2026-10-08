@@ -210,7 +210,7 @@ export function Documents() {
             <p className="font-medium tabular-nums text-foreground">
               {row.original.document_no}
             </p>
-            <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+            <p className="max-w-45 truncate text-xs text-muted-foreground">
               {row.original.reference_no || t("common.emptyValue")}
             </p>
           </div>
@@ -245,7 +245,7 @@ export function Documents() {
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[260px] truncate font-medium text-foreground"
+              className="max-w-65 truncate font-medium text-foreground"
               title={row.original.title}
             >
               {row.original.title}
@@ -256,7 +256,7 @@ export function Documents() {
                 onOpen={() => openSource(row.original)}
               />
             ) : (
-              <p className="max-w-[260px] truncate text-xs text-muted-foreground">
+              <p className="max-w-65 truncate text-xs text-muted-foreground">
                 {row.original.latest_version?.original_name ??
                   t("documents.noFile")}
               </p>
@@ -271,7 +271,7 @@ export function Documents() {
         header: () => t("documents.field.path"),
         cell: ({ row }) => (
           <p
-            className="flex max-w-[240px] min-w-0 items-center gap-1 text-sm"
+            className="flex max-w-60 min-w-0 items-center gap-1 text-sm"
             title={[row.original.category_name, row.original.subcategory_name].filter(Boolean).join(" / ")}
           >
             <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -433,17 +433,13 @@ export function Documents() {
               {manages && (
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="rounded-full px-4"
                   onClick={() => setTaxonomyOpen(true)}
                 >
-                  <FolderCog className="h-4 w-4" />
+                  <FolderCog className="size-4" />
                   {t("documents.taxonomy.action")}
                 </Button>
               )}
               <Button
-                size="sm"
-                className="rounded-full px-4 shadow-sm"
                 disabled={categoryRows.filter((item) => item.is_active).length === 0}
                 disabledReason={
                   categoryRows.filter((item) => item.is_active).length === 0
@@ -452,7 +448,7 @@ export function Documents() {
                 }
                 onClick={() => setFiling(true)}
               >
-                <FilePlus2 className="h-4 w-4" />
+                <FilePlus2 className="size-4" />
                 {t("documents.uploadFile.action")}
               </Button>
             </div>
@@ -491,7 +487,7 @@ export function Documents() {
           <div className="flex flex-wrap items-center gap-2">
             {!topBar.active && (
             <Select value={list.filters.project ?? "all"} onValueChange={(value) => list.setFilter("project", value === "all" ? undefined : value)}>
-              <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.project")}><SelectValue placeholder={t("documents.field.project")} /></SelectTrigger>
+              <SelectTrigger className="w-full bg-card sm:w-45" aria-label={t("documents.field.project")}><SelectValue placeholder={t("documents.field.project")} /></SelectTrigger>
               <SelectContent><SelectItem value="all">{t("documents.allProjects")}</SelectItem>{(projects.data?.results ?? []).map((project) => <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>)}</SelectContent>
             </Select>
             )}
@@ -504,11 +500,11 @@ export function Documents() {
               onChange={(category, subcategory) => list.setFilters({ category, subcategory })}
             />
             <Select value={list.filters.uploaded_by ?? "all"} onValueChange={(value) => list.setFilter("uploaded_by", value === "all" ? undefined : value)}>
-              <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.uploadedBy")}><SelectValue placeholder={t("documents.field.uploadedBy")} /></SelectTrigger>
+              <SelectTrigger className="w-full bg-card sm:w-45" aria-label={t("documents.field.uploadedBy")}><SelectValue placeholder={t("documents.field.uploadedBy")} /></SelectTrigger>
               <SelectContent><SelectItem value="all">{t("documents.allUploaders")}</SelectItem>{(users.data?.results ?? []).map((user) => <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>)}</SelectContent>
             </Select>
-            <Input type="date" className="h-9 w-[145px] bg-card" aria-label={t("documents.field.dateFrom")} value={list.filters.date_from ?? ""} max={list.filters.date_to} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
-            <Input type="date" className="h-9 w-[145px] bg-card" aria-label={t("documents.field.dateTo")} value={list.filters.date_to ?? ""} min={list.filters.date_from} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
+            <Input type="date" className="w-full bg-card sm:w-40" aria-label={t("documents.field.dateFrom")} value={list.filters.date_from ?? ""} max={list.filters.date_to} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
+            <Input type="date" className="w-full bg-card sm:w-40" aria-label={t("documents.field.dateTo")} value={list.filters.date_to ?? ""} min={list.filters.date_from} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
             <QueryFailedNote query={projects} what={t("documents.what.projects")} className="basis-full" />
             <QueryFailedNote query={categories} what={t("documents.what.categories")} className="basis-full" />
             <QueryFailedNote query={subcategories} what={t("documents.what.subcategories")} className="basis-full" />
@@ -630,7 +626,7 @@ function SourceTag({
   const t = useTranslations();
   const label = useSourceLabel()(source);
   return (
-    <p className="flex max-w-[260px] min-w-0 items-center gap-1.5 text-xs">
+    <p className="flex max-w-65 min-w-0 items-center gap-1.5 text-xs">
       <button
         type="button"
         className="min-w-0 truncate text-primary underline-offset-2 hover:underline"
@@ -766,7 +762,7 @@ function UploadDocumentDialog({
       <DialogContent
         className={cn(
           "max-h-[92dvh] overflow-y-auto [&>button]:hidden",
-          origin === "system" ? "sm:max-w-[1040px]" : "sm:max-w-[680px]",
+          origin === "system" ? "sm:max-w-260" : "sm:max-w-170",
         )}
       >
         <DialogHeader>
@@ -816,7 +812,7 @@ function UploadDocumentDialog({
             />
           </FieldWrapper>
           {files.length > 1 && (
-            <ul className="max-h-28 overflow-y-auto rounded-md border px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
+            <ul className="max-h-28 overflow-y-auto rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
               {files.map((file) => (
                 <li key={`${file.name}-${file.size}`} className="truncate">
                   {file.name}
@@ -865,7 +861,7 @@ function UploadDocumentDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
-          <p className="flex items-center gap-1.5 rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
+          <p className="flex flex-wrap items-center gap-1.5 rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
             <Folder className="h-3.5 w-3.5 shrink-0" />
             {t("documents.uploadFile.pathPreview")}
             <span className="font-medium text-foreground">
@@ -946,8 +942,6 @@ function UploadDocumentDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={pending}
             onClick={onClose}
           >
@@ -956,8 +950,6 @@ function UploadDocumentDialog({
           </Button>
           {origin === "system" ? (
             <Button
-              size="sm"
-              className="rounded-full px-4 shadow-sm"
               requires={[
                 [pickedIds.length > 0, t("documents.pickFromSystem.files")],
                 [category, t("documents.field.category")],
@@ -970,8 +962,6 @@ function UploadDocumentDialog({
             </Button>
           ) : (
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[
               [files.length > 0, t("documents.field.file")],
               [category, t("documents.field.category")],
@@ -1047,7 +1037,7 @@ function DocumentEditorDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[720px] [&>button]:hidden">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-180 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.edit.title")}</DialogTitle>
           <DialogDescription>{t("documents.edit.description")}</DialogDescription>
@@ -1168,8 +1158,6 @@ function DocumentEditorDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={mutation.isPending}
             onClick={onClose}
           >
@@ -1177,8 +1165,6 @@ function DocumentEditorDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[
               [title, t("documents.field.title")],
               [category, t("documents.field.category")],
@@ -1225,7 +1211,7 @@ function VersionUploadDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[520px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-130 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.upload.title")}</DialogTitle>
           <DialogDescription>
@@ -1256,8 +1242,6 @@ function VersionUploadDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={mutation.isPending}
             onClick={onClose}
           >
@@ -1265,8 +1249,6 @@ function VersionUploadDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[file, t("documents.field.file")]]}
             disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
@@ -1318,7 +1300,7 @@ function DocumentDetailDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[94dvh] overflow-y-auto sm:max-w-[1180px] [&>button]:hidden">
+      <DialogContent className="max-h-[94dvh] overflow-y-auto sm:max-w-295 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.detail.title")}</DialogTitle>
           <DialogDescription>
@@ -1501,7 +1483,7 @@ function DocumentDetailBody({
                       v{version.version_number}
                     </TableCell>
                     <TableCell>
-                      <p className="max-w-[220px] truncate" title={version.original_name}>
+                      <p className="max-w-55 truncate" title={version.original_name}>
                         {version.original_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -1511,7 +1493,7 @@ function DocumentDetailBody({
                     </TableCell>
                     <TableCell>{version.uploaded_by_name ?? t("common.emptyValue")}</TableCell>
                     <TableCell className="hidden xl:table-cell">
-                      <code className="block max-w-[170px] truncate text-xs" title={version.sha256}>
+                      <code className="block max-w-42.5 truncate text-xs" title={version.sha256}>
                         {version.sha256}
                       </code>
                     </TableCell>
@@ -1588,7 +1570,7 @@ function TaxonomyDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-[980px] [&>button]:hidden">
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-245 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.taxonomy.title")}</DialogTitle>
           <DialogDescription>{t("documents.taxonomy.description")}</DialogDescription>
@@ -1615,7 +1597,7 @@ function TaxonomyDialog({
             }}
           />
         ) : (
-          <div className="grid min-h-[380px] gap-6 lg:grid-cols-2">
+          <div className="grid min-h-95 gap-6 lg:grid-cols-2">
             <TaxonomyList
               title={t("documents.categories.title")}
               addLabel={t("documents.categories.add")}
@@ -1650,8 +1632,6 @@ function TaxonomyDialog({
         <DialogFooter>
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
@@ -1688,17 +1668,17 @@ function TaxonomyList({
   const t = useTranslations();
   return (
     <section className="min-w-0 space-y-3">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+          <h3 className="panel-title">{title}</h3>
           <TypeBadge label={String(rows.length)} />
         </div>
-        <Button variant="outline" size="sm" onClick={onAdd}>
+        <Button variant="outline" onClick={onAdd}>
           <Plus className="h-4 w-4" />
           {addLabel}
         </Button>
       </div>
-      <div className="max-h-[420px] overflow-y-auto rounded-md border">
+      <div className="max-h-105 overflow-y-auto rounded-lg border">
         {isLoading ? (
           <p className="p-8 text-center text-sm text-muted-foreground">
             {t("common.loading")}
@@ -1834,8 +1814,8 @@ export function CategoryForm({
           onChange={(event) => setDescription(event.target.value)}
         />
       </FieldWrapper>
-      <div className="flex items-center justify-between gap-4 rounded-md border px-3 py-2 sm:col-span-2">
-        <div>
+      <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-3 sm:col-span-2">
+        <div className="min-w-0">
           <p className="text-sm font-medium">{t("documents.taxonomy.active")}</p>
           <p className="text-xs text-muted-foreground">
             {t("documents.taxonomy.activeHint")}
@@ -1844,7 +1824,7 @@ export function CategoryForm({
         <Switch checked={active} onCheckedChange={setActive} />
       </div>
       {category && (
-        <div className="space-y-2 rounded-md border border-destructive/20 px-3 py-2 sm:col-span-2">
+        <div className="space-y-2 rounded-xl border border-tone-rose/25 bg-tone-rose/6 p-3 sm:col-span-2">
           <label className="flex items-start gap-3">
             <Switch
               checked={removeArmed}
@@ -1866,7 +1846,6 @@ export function CategoryForm({
           {removeArmed && (
             <Button
               variant="destructive"
-              size="sm"
               className="w-full"
               disabled={removal.isPending || mutation.isPending}
               onClick={() => removal.mutate()}
@@ -1984,8 +1963,8 @@ function SubcategoryForm({
           onChange={(event) => setDescription(event.target.value)}
         />
       </FieldWrapper>
-      <div className="flex items-center justify-between gap-4 rounded-md border px-3 py-2 sm:col-span-2">
-        <div>
+      <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-3 sm:col-span-2">
+        <div className="min-w-0">
           <p className="text-sm font-medium">{t("documents.taxonomy.active")}</p>
           <p className="text-xs text-muted-foreground">
             {t("documents.taxonomy.activeHint")}
@@ -2015,14 +1994,14 @@ function TaxonomyFormShell({
   const t = useTranslations();
   return (
     <section className="space-y-5 py-2">
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <h3 className="panel-title">{title}</h3>
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
-      <div className="flex justify-end gap-2 border-t pt-4">
-        <Button variant="outline" size="sm" disabled={isPending} onClick={onCancel}>
+      <div className="flex flex-col-reverse gap-2 border-t border-panel-border pt-4 sm:flex-row sm:justify-end">
+        <Button variant="outline" disabled={isPending} onClick={onCancel}>
           <X className="h-4 w-4" />
           {t("common.cancel")}
         </Button>
-        <Button size="sm" requires={requires} disabled={isPending} onClick={onSubmit}>
+        <Button requires={requires} disabled={isPending} onClick={onSubmit}>
           {isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

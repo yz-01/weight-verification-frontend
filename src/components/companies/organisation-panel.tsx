@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Pencil, Plus, Trash2, Users2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -45,10 +45,9 @@ export function OrganisationPanel() {
   const t = useTranslations("organisation");
 
   return (
-    <section className="surface-panel rounded-xl">
-      <div className="flex flex-wrap items-center gap-2 border-b p-4">
-        <Users2 className="size-4 text-muted-foreground" />
-        <p className="text-sm font-semibold">{t("title")}</p>
+    <section className="surface-panel overflow-hidden rounded-xl">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-4 sm:px-6">
+        <p className="panel-title">{t("title")}</p>
         <p className="text-xs text-muted-foreground">{t("help")}</p>
       </div>
       <div className="grid gap-px bg-border md:grid-cols-2">
@@ -89,11 +88,11 @@ function ListEditor({ kind }: { kind: "department" | "trade" }) {
   const listed: Row[] = (rows.data?.results ?? []) as Array<Department | WorkTrade>;
 
   return (
-    <div className="bg-card p-4">
+    <div className="min-w-0 bg-card p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium">{t(`${kind}.title`)}</p>
+        <p className="panel-title">{t(`${kind}.title`)}</p>
         {canManage && (
-          <Button size="sm" variant="outline" onClick={() => setEditing("new")}>
+          <Button variant="outline" onClick={() => setEditing("new")}>
             <Plus />
             {t(`${kind}.add`)}
           </Button>
@@ -107,14 +106,14 @@ function ListEditor({ kind }: { kind: "department" | "trade" }) {
           {common("loading")}
         </p>
       ) : rows.isError ? (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-3">
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-3">
           <p className="text-sm text-destructive">{t("loadError")}</p>
-          <Button size="sm" variant="outline" onClick={() => void rows.refetch()}>
+          <Button variant="outline" onClick={() => void rows.refetch()}>
             {common("retry")}
           </Button>
         </div>
       ) : !listed.length ? (
-        <p className="mt-4 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
+        <p className="mt-4 rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {t(`${kind}.empty`)}
         </p>
       ) : (
@@ -134,7 +133,7 @@ function ListEditor({ kind }: { kind: "department" | "trade" }) {
                 )}
               </span>
               {canManage && (
-                <span className="flex gap-1">
+                <span className="flex items-center justify-end gap-0.5">
                   <Button
                     size="icon-sm"
                     variant="ghost"
@@ -229,7 +228,7 @@ function RowDialog({
             onChange={(event) => setName(event.target.value)}
           />
         </FieldWrapper>
-        <label className="flex items-center gap-3 rounded-lg border p-3">
+        <label className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
           <Switch checked={isActive} onCheckedChange={setIsActive} />
           <span className="text-sm">{t("field.active")}</span>
         </label>

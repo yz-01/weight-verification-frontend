@@ -37,7 +37,7 @@ export function AuditEntryDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-[680px] [&>button]:hidden">
+      <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-170 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t(`audit.action.${entry.action}`)}</DialogTitle>
           <DialogDescription>

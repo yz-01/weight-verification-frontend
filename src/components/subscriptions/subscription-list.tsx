@@ -35,7 +35,7 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
     if (section === "reminders") return <RenewalQueue />;
     if (section === "overview") {
       return (
-        <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card">
+        <div className="surface-panel min-h-0 flex-1 overflow-y-auto rounded-xl">
           <div className="grid md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <Link
@@ -102,13 +102,15 @@ function SummaryStrip({
   ] as const;
   const visible = expanded ? metrics : metrics.slice(0, 6);
   return (
-    <div className={`grid border-l ${expanded ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}>
-      {visible.map(([key, value]) => (
-        <div key={key} className="min-h-20 border-b border-r px-4 py-3">
-          <p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p>
-          <p className="mt-2 text-xl font-semibold tabular-nums">{loading ? "..." : failed ? "—" : value ?? 0}</p>
-        </div>
-      ))}
+    <div className="surface-panel shrink-0 overflow-hidden rounded-xl">
+      <div className={`-mb-px -mr-px grid ${expanded ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}>
+        {visible.map(([key, value]) => (
+          <div key={key} className="min-h-20 min-w-0 border-b border-r px-4 py-3">
+            <p className="text-xs font-medium text-muted-foreground">{t(`metric.${key}`)}</p>
+            <p className="tabular mt-2 break-words text-xl font-semibold">{loading ? "..." : failed ? "—" : value ?? 0}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

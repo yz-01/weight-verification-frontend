@@ -335,7 +335,7 @@ function TodayByKind({ data }: { data: HeadquartersOverview }) {
                   className={cn("w-full rounded-t-md opacity-90", tone.bar, tone.glow)}
                   style={{ height: `${Math.max(6, (value / most) * 100)}%` }}
                 />
-                <span className="w-full truncate pb-1 text-center text-[11px] text-muted-foreground" title={t(`recordKind.${kind}`)}>
+                <span className="w-full truncate pb-1 text-center text-2xs text-muted-foreground" title={t(`recordKind.${kind}`)}>
                   {t(`recordKind.${kind}`)}
                 </span>
               </div>

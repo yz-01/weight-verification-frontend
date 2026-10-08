@@ -26,7 +26,7 @@ import {
 } from "@/components/progress/progress-photos";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
-import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
+import { FieldWrapper, FilterBar, QueryFailedNote } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,8 +80,8 @@ export function DailyReportsTab() {
   const total = rows.data?.count ?? 0;
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-4">
+      <FilterBar>
         <ProjectListFilter list={list} />
         <DayRange
           from={list.filters.date_from ?? ""}
@@ -89,14 +89,14 @@ export function DailyReportsTab() {
           onChange={(next) => list.setFilters(next)}
         />
         {can("progress.manage") && (
-          <Button size="sm" className="ml-auto rounded-full px-4" onClick={() => setWriting(true)}>
+          <Button className="sm:ml-auto" onClick={() => setWriting(true)}>
             <Pencil />
             {t("reports.write")}
           </Button>
         )}
-      </div>
+      </FilterBar>
       <QueryFailedNote query={rows} what={t("tabs.reports")} />
-      <div className="overflow-x-auto rounded-lg border bg-card">
+      <div className="surface-panel overflow-hidden rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
@@ -359,7 +359,7 @@ export function DailyReportDialog({
           />
         </FieldWrapper>
         {report && (
-          <div className="space-y-2 rounded-md border border-destructive/20 p-3">
+          <div className="space-y-3 rounded-xl border border-tone-rose/25 bg-tone-rose/6 p-3">
             <label className="flex items-start gap-3">
               <Switch
                 checked={removeArmed}

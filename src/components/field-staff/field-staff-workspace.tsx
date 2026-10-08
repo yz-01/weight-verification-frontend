@@ -285,19 +285,19 @@ function FieldStaffWorkspaceContent({
   });
   const projectNames = (projects.data?.results ?? []).map((project) => project.name);
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] min-w-0 flex-col gap-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-      <section className="-mx-4 -mt-5 border-b bg-card px-4 py-5 shadow-[0_8px_24px_rgb(0_0_0/0.035)]">
+    <div className="flex min-h-[calc(100dvh-4rem)] min-w-0 flex-col gap-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      <section className="-mx-4 -mt-5 border-b border-sidebar-border bg-card/60 px-4 py-5">
         <p className="text-xs font-medium text-muted-foreground">
           {t("today", { date: new Date().toLocaleDateString() })}
         </p>
-        <h1 className="mt-1 text-xl font-semibold leading-tight">
+        <h1 className="mt-1 text-xl font-bold leading-tight">
           {t("greeting", { name: user?.full_name ?? "" })}
         </h1>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
-          <span className="rounded-md border bg-muted/40 px-2.5 py-1.5 font-medium">
+          <span className="rounded-full border border-panel-border bg-muted/40 px-3 py-1.5 font-medium">
             {t("identity.company", { company: user?.company_name ?? "-" })}
           </span>
-          <span className="rounded-md border bg-muted/40 px-2.5 py-1.5 font-medium">
+          <span className="rounded-full border border-panel-border bg-muted/40 px-3 py-1.5 font-medium">
             {t("identity.role", { role: user?.role_name ?? "-" })}
           </span>
         </div>
@@ -497,15 +497,15 @@ function FieldDeviceHandoff() {
 
   return (
     <section className="surface-panel rounded-xl p-4">
-      <p className="text-sm font-semibold">{t("handoff.title")}</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">{t("handoff.help")}</p>
+      <p className="panel-title">{t("handoff.title")}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{t("handoff.help")}</p>
 
       {handoff ? (
         <div className="mt-3 space-y-2">
-          <div className="grid place-items-center rounded-md border bg-background p-3">
+          <div className="grid place-items-center rounded-lg border bg-paper p-3">
             <QRCodeCanvas value={handoff.url} size={168} />
           </div>
-          <p className="break-all rounded-md bg-muted/40 p-2 font-mono text-xs">
+          <p className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-xs">
             {handoff.url}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -518,7 +518,7 @@ function FieldDeviceHandoff() {
       ) : (
         <Button
           className="mt-3"
-          size="sm"
+          variant="outline"
           disabled={issue.isPending}
           onClick={() => issue.mutate()}
         >
@@ -604,7 +604,7 @@ function FieldTaskPanel({ taskType, requestedTaskId, onOpenWorkflow }: { taskTyp
   });
   if (tasks.isLoading) return <LoadingState />;
   if (tasks.isError) return <ErrorState onRetry={() => void tasks.refetch()} />;
-  return <section className="space-y-3"><div className="flex items-center justify-between"><div><h2 className="text-base font-semibold">{taskType === "CONSULTANT" ? t("consultantTasks.title") : t("tasks.title")}</h2><p className="text-sm text-muted-foreground">{t("tasks.count", { count: active.length })}</p></div><Button size="icon" variant="outline" title={t("action.refresh")} onClick={() => void tasks.refetch()}><RefreshCw /></Button></div>{actionError && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{actionError}</p>}{active.length === 0 ? <div className="grid min-h-48 place-items-center rounded-xl border border-dashed bg-card text-center"><div><Check className="mx-auto size-10 text-success" /><p className="mt-3 font-medium">{t("tasks.empty")}</p></div></div> : active.map((task) => <FieldTaskCard key={task.id} task={task} focused={task.id === requestedTaskId} busy={transition.isPending || photo.isPending} onTransition={(status) => transition.mutate({ task, status })} onPhoto={(file) => photo.mutate({ task, file })} onOpenWorkflow={() => { const mode = taskRecordMode(task); if (mode) onOpenWorkflow(task, mode); }} />)}</section>;
+  return <section className="space-y-3"><div className="flex items-center justify-between gap-3"><div className="min-w-0"><h2 className="text-xl font-bold leading-tight">{taskType === "CONSULTANT" ? t("consultantTasks.title") : t("tasks.title")}</h2><p className="text-sm text-muted-foreground">{t("tasks.count", { count: active.length })}</p></div><Button size="icon" variant="outline" title={t("action.refresh")} onClick={() => void tasks.refetch()}><RefreshCw /></Button></div>{actionError && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{actionError}</p>}{active.length === 0 ? <div className="grid min-h-48 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center"><div><Check className="mx-auto size-10 text-success" /><p className="mt-3 font-medium">{t("tasks.empty")}</p></div></div> : active.map((task) => <FieldTaskCard key={task.id} task={task} focused={task.id === requestedTaskId} busy={transition.isPending || photo.isPending} onTransition={(status) => transition.mutate({ task, status })} onPhoto={(file) => photo.mutate({ task, file })} onOpenWorkflow={() => { const mode = taskRecordMode(task); if (mode) onOpenWorkflow(task, mode); }} />)}</section>;
 }
 
 function FieldTaskCard({ task, focused, busy, onTransition, onPhoto, onOpenWorkflow }: { task: FieldTask; focused: boolean; busy: boolean; onTransition: (status: "IN_PROGRESS" | "SUBMITTED") => void; onPhoto: (file: File) => void; onOpenWorkflow: () => void }) {
@@ -638,7 +638,7 @@ function FieldAttendancePanel() {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold">{t("attendance.title")}</h2>
+        <h2 className="text-xl font-bold leading-tight">{t("attendance.title")}</h2>
         {attendance.isError ? (
           <FieldLoadNote query={attendance} what={t("what.attendance")} />
         ) : (
@@ -671,20 +671,20 @@ function FieldAttendancePanel() {
                                                        disabled={submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : event === "CLOCK_IN" ? <LogIn /> : <LogOut />}{t("attendance.submit")}</Button>
       </div>
       <div className="space-y-3">
-        {attendance.isSuccess && today.length === 0 && <p className="rounded-xl border border-dashed bg-card p-5 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
+        {attendance.isSuccess && today.length === 0 && <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
         {today.map((row) => {
           const photoUrl = row.watermarked_photo || row.photo;
           const mapUrl = row.latitude && row.longitude
             ? `https://www.google.com/maps?q=${row.latitude},${row.longitude}`
             : "";
           return (
-            <article key={row.id} className="rounded-xl border bg-card p-3 shadow-sm">
+            <article key={row.id} className="surface-panel rounded-xl p-4">
               <div className="flex items-start gap-3">
                 {photoUrl ? (
                   <a href={photoUrl} target="_blank" rel="noreferrer" title={t("attendance.openPhoto")}>
                     <Image src={photoUrl} alt="" width={160} height={160} unoptimized className="size-16 rounded-lg object-cover" />
                   </a>
-                ) : <span className="grid size-16 place-items-center rounded-lg bg-muted"><Camera className="size-6 text-muted-foreground" /></span>}
+                ) : <span className="photo-hatch grid size-16 place-items-center rounded-lg"><Camera className="size-6 text-muted-foreground" /></span>}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap gap-2">
                     <StatusBadge label={t(row.event === "CLOCK_IN" ? "attendance.clockIn" : "attendance.clockOut")} tone={row.event === "CLOCK_IN" ? "positive" : "neutral"} />

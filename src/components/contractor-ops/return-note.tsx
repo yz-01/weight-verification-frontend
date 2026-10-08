@@ -133,7 +133,7 @@ export function ReturnNoteDialog({
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("number")}>
-            <div className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm">
+            <div className="flex min-h-10 items-center rounded-lg border border-input bg-muted/50 px-3 py-2 text-sm">
               {row.return_note_no || <span className="text-muted-foreground">{t("numberPending")}</span>}
             </div>
           </FieldWrapper>
@@ -266,9 +266,9 @@ export function ReturnNotePanel({ row }: { row: ReturnNoteSource }) {
                 width={160}
                 height={64}
                 unoptimized
-                className="h-16 w-40 rounded border bg-white object-contain"
+                className="h-16 w-40 rounded border bg-paper object-contain"
               />
-              <figcaption className="mt-0.5 text-[11px] text-muted-foreground">{t("approverSignature")}</figcaption>
+              <figcaption className="mt-0.5 text-2xs text-muted-foreground">{t("approverSignature")}</figcaption>
             </figure>
           ) : null}
         </>

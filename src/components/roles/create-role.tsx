@@ -123,13 +123,13 @@ export function CreateRole({ role }: { role?: Role }) {
         </form.Field>
       </FormSection>
 
-      <section className="px-6 py-5">
-        <div className="mb-4 flex items-center gap-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <section className="p-4 sm:p-6">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <h3 className="panel-title">
             {t("roles.section.permissions")}
           </h3>
           {role?.is_system && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[0.6875rem] font-medium text-muted-foreground ring-1 ring-inset ring-border">
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground ring-1 ring-inset ring-border">
               <Lock className="h-2.5 w-2.5" />
               {t("roles.system")}
             </span>

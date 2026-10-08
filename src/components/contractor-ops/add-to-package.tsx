@@ -157,7 +157,7 @@ function ChoosePackageDialog({
   return (
     <Shell title={t("addToPackage")} onClose={onClose}>
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
-        <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-xs text-muted-foreground">
           {t("addToPackageHelp", { reference })}
         </p>
 
@@ -209,7 +209,7 @@ function ChoosePackageDialog({
         )}
       </div>
 
-      <footer className="flex justify-end gap-2 border-t px-4 py-3">
+      <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>

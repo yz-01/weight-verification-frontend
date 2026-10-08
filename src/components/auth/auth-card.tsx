@@ -25,21 +25,21 @@ export function AuthCard({
   const t = useTranslations();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <header className="flex items-center justify-between px-6 py-5 lg:px-10">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border bg-background p-1">
+    <div className="flex min-h-dvh flex-col">
+      <header className="flex items-center justify-between gap-3 px-4 pt-safe pb-3 sm:px-6 lg:px-10">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-panel-border bg-card p-1 shadow-glow-sm">
             <BrandIcon alt={t("app.name")} />
           </span>
-          <span className="text-sm font-semibold tracking-tight">
+          <span className="truncate text-sm font-semibold tracking-tight">
             {t("app.name")}
           </span>
         </div>
         <LanguageSwitcher />
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-6 pb-16">
-        <div className="w-full max-w-[400px]">
+      <main className="flex flex-1 items-center justify-center px-4 pb-16 sm:px-6">
+        <div className="w-full max-w-100">
           <div className="mb-8">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {title}
@@ -47,7 +47,7 @@ export function AuthCard({
             <p className="mt-1.5 text-sm text-muted-foreground">{subtitle}</p>
           </div>
 
-          <div className="rounded-xl border bg-card p-6 shadow-sm">{children}</div>
+          <div className="surface-panel rounded-xl p-4 sm:p-6">{children}</div>
 
           {footer && <div className="mt-6 text-center text-sm">{footer}</div>}
 

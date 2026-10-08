@@ -50,14 +50,12 @@ export function ExportButton({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
           disabled={disabled || busy}
-          className="h-9 rounded-full bg-card px-4"
         >
           {busy ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="animate-spin" />
           ) : (
-            <Download className="h-3.5 w-3.5" />
+            <Download />
           )}
           {t("common.export")}
         </Button>

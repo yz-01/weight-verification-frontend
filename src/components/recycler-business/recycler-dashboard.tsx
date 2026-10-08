@@ -33,7 +33,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FilterBar, FilterField, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { LocationMap, type LocationMapMarker, type LocationMapPath, type LocationMapZone } from "@/components/shared/location-map";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -46,6 +46,7 @@ import type {
   RecyclerRecentRecovery,
 } from "@/interfaces/recycler-dashboard";
 import { useDateFormat } from "@/lib/dates";
+import { MAP_COLORS, MAP_PRIMARY } from "@/lib/map-palette";
 import { getRecyclerDashboard } from "@/services/recycler-dashboard.service";
 import {
   Select,
@@ -201,10 +202,10 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
   return (
     <div className="space-y-8">
       {yardRows.length > 1 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3">
-          <span className="text-sm font-medium">{t("recyclerYard.filter")}</span>
+        <FilterBar>
+          <FilterField label={t("recyclerYard.filter")} className="sm:w-56">
           <Select value={site} onValueChange={setSite}>
-            <SelectTrigger className="h-9 w-56" aria-label={t("recyclerYard.filter")}>
+            <SelectTrigger className="w-full" aria-label={t("recyclerYard.filter")}>
               <SelectValue placeholder={t("recyclerYard.all")} />
             </SelectTrigger>
             <SelectContent>
@@ -216,12 +217,13 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
               ))}
             </SelectContent>
           </Select>
+          </FilterField>
           {narrowed && (
-            <p className="text-xs text-muted-foreground">
+            <p className="self-center text-xs text-muted-foreground">
               {t("recyclerYard.companyWideNote")}
             </p>
           )}
-        </div>
+        </FilterBar>
       )}
       <QueryFailedNote query={yards} what={t("recyclerBusiness.what.yards")} />
       <PendingActions data={data} number={number} />
@@ -565,7 +567,7 @@ function RecyclerDriverMap() {
         center: [Number(position.project_latitude), Number(position.project_longitude)] as [number, number],
         radiusM: position.project_geofence_radius_m,
         label: position.project_name ?? t("recyclerBusiness.liveDrivers.project"),
-        color: "#0891b2",
+        color: MAP_PRIMARY,
       }];
     });
   }, [positions, t]);
@@ -580,7 +582,7 @@ function RecyclerDriverMap() {
             longitude: point.longitude,
             occurredAt: point.original_occurred_at,
           })),
-          color: ["#2563eb", "#7c3aed", "#15803d", "#a16207"][index % 4],
+          color: MAP_COLORS[1 + (index % 4)],
           label: driver ? `${driver.driver_name} · ${driver.vehicle_plate}` : undefined,
           gapLabel: (minutes) => t("driver.track.gap", { minutes }),
         });
@@ -801,7 +803,7 @@ function PendingActions({
         id="recycler-pending-title"
         title={t("dashboard.admin.pending.title")}
       />
-      <div className="divide-y rounded-lg border bg-card px-4 shadow-sm">
+      <div className="surface-panel divide-y rounded-xl px-4 sm:px-6">
         {rows.map((row) => (
           <Link
             key={row.key}

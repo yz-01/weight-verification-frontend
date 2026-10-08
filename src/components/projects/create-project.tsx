@@ -295,14 +295,13 @@ export function CreateProject({ project }: { project?: Project }) {
           <Button
             type="button"
             variant="outline"
-            size="sm"
             disabled={isLocating}
             onClick={captureProjectLocation}
           >
             {isLocating ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <LocateFixed className="h-4 w-4" />
+              <LocateFixed className="size-4" />
             )}
             {t("projects.location.capture")}
           </Button>

@@ -150,7 +150,7 @@ export function ConsultantApplicationForm({
     return <div className="grid min-h-72 place-items-center"><Loader2 className="size-7 animate-spin text-primary" /></div>;
   }
   if (id && (existing.isError || !existing.data || existing.data.status !== "DRAFT")) {
-    return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.draftUnavailable")}</div>;
+    return <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.draftUnavailable")}</div>;
   }
   return (
     <ConsultantApplicationEditor
@@ -499,16 +499,16 @@ function ConsultantApplicationEditor({
   const body = (
     <>
       {sourceTask.isLoading ? (
-        <div className="flex items-center gap-2 rounded-lg border bg-card p-4 text-sm text-muted-foreground">
+        <div className="surface-panel flex items-center gap-2 rounded-xl p-4 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           {t("form.sourceLoading")}
         </div>
       ) : sourceTask.isError ? (
-        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
           {t("form.sourceLoadError")}
         </p>
       ) : sourceTask.data ? (
-        <section className="rounded-lg border border-primary/20 bg-primary/5 p-4 sm:p-5">
+        <section className="rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-6">
           <div className="flex items-start gap-3">
             <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Images className="size-5" /></span>
             <div className="min-w-0 flex-1">
@@ -715,7 +715,7 @@ function ConsultantApplicationEditor({
           <DialogTitle>{t(id ? "form.editTitle" : "form.title")}</DialogTitle>
           <DialogDescription>{t("form.subtitle")}</DialogDescription>
         </DialogHeader>
-        <div className="-mx-4 space-y-5 overflow-y-auto border-y px-4 py-5">
+        <div className="-mx-4 space-y-4 overflow-y-auto border-y px-4 py-4">
           {body}
         </div>
         <DialogFooter>{actions}</DialogFooter>
@@ -724,16 +724,16 @@ function ConsultantApplicationEditor({
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 pb-8">
+    <div className="mx-auto max-w-6xl space-y-4 pb-8">
       <DetailHeader
         backHref="/consultant-applications"
         backLabel={t("applications.back")}
       />
-      <div className="flex items-start gap-3 border-b pb-5">
+      <div className="flex items-start gap-3 border-b pb-4">
         <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
           <ClipboardPen className="size-5" />
         </span>
-        <div>
+        <div className="min-w-0">
           <h1 className="text-xl font-semibold">{t(id ? "form.editTitle" : "form.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{t("form.subtitle")}</p>
         </div>
@@ -741,7 +741,7 @@ function ConsultantApplicationEditor({
 
       {body}
 
-      <div className="sticky bottom-3 flex justify-end gap-2 rounded-lg border bg-background/95 p-3 shadow-lg backdrop-blur">
+      <div className="surface-panel sticky bottom-3 z-10 flex flex-wrap justify-end gap-2 rounded-xl p-3 backdrop-blur">
         {actions}
       </div>
     </div>
@@ -750,7 +750,7 @@ function ConsultantApplicationEditor({
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="surface-panel rounded-xl p-4 sm:p-5">
+    <section className="surface-panel rounded-xl p-4 sm:p-6">
       <SectionHeader title={title} />
       {children}
     </section>
@@ -787,7 +787,7 @@ function ExtraTicks({
   );
   return (
     <FieldWrapper label={label} hint={hint} className="sm:col-span-2">
-      <div className="grid max-h-44 grid-cols-2 gap-x-4 gap-y-2 overflow-y-auto rounded-md border p-3 sm:grid-cols-3">
+      <div className="grid max-h-44 grid-cols-2 gap-x-4 gap-y-2 overflow-y-auto rounded-lg border p-3 sm:grid-cols-3">
         {options.map((row) => (
           <label
             key={row.id}

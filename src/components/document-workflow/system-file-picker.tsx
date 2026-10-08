@@ -134,18 +134,18 @@ export function SystemFilePicker({
   };
 
   return (
-    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
       <div className="min-w-0 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Input
-            className="h-9 min-w-[180px] flex-1 bg-card"
+            className="w-full bg-card sm:w-auto sm:min-w-45 sm:flex-1"
             value={search}
             placeholder={t("documents.pickFromSystem.searchPlaceholder")}
             aria-label={t("documents.pickFromSystem.searchPlaceholder")}
             onChange={(event) => filter(() => setSearch(event.target.value))}
           />
           <Select value={moduleFilter} onValueChange={(value) => filter(() => setModuleFilter(value))}>
-            <SelectTrigger size="sm" className="h-9 w-[160px] bg-card" aria-label={t("documents.pickFromSystem.module")}>
+            <SelectTrigger className="w-full bg-card sm:w-40" aria-label={t("documents.pickFromSystem.module")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -158,7 +158,7 @@ export function SystemFilePicker({
             </SelectContent>
           </Select>
           <Select value={project} onValueChange={(value) => filter(() => setProject(value))}>
-            <SelectTrigger size="sm" className="h-9 w-[170px] bg-card" aria-label={t("documents.field.project")}>
+            <SelectTrigger className="w-full bg-card sm:w-44" aria-label={t("documents.field.project")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -172,7 +172,7 @@ export function SystemFilePicker({
           </Select>
           <Input
             type="date"
-            className="h-9 w-[145px] bg-card"
+            className="w-full bg-card sm:w-40"
             aria-label={t("documents.field.dateFrom")}
             value={dateFrom}
             max={dateTo || undefined}
@@ -180,7 +180,7 @@ export function SystemFilePicker({
           />
           <Input
             type="date"
-            className="h-9 w-[145px] bg-card"
+            className="w-full bg-card sm:w-40"
             aria-label={t("documents.field.dateTo")}
             value={dateTo}
             min={dateFrom || undefined}
@@ -192,7 +192,7 @@ export function SystemFilePicker({
         {files.isLoading ? (
           <p className="py-10 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
         ) : rows.length === 0 && !files.isError ? (
-          <p className="rounded-md border border-dashed py-10 text-center text-sm text-muted-foreground">
+          <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
             {t("documents.pickFromSystem.empty")}
           </p>
         ) : (
@@ -208,7 +208,7 @@ export function SystemFilePicker({
                     aria-pressed={ticked}
                     title={`${row.file_name} · ${sourceLabel(row)}`}
                     className={cn(
-                      "group relative flex w-full flex-col overflow-hidden rounded-md border bg-card text-left transition-colors",
+                      "group relative flex w-full flex-col overflow-hidden rounded-lg border bg-card text-left transition-colors",
                       ticked ? "border-primary ring-2 ring-primary/40" : "hover:border-primary/50",
                     )}
                     onClick={() => toggle(row)}
@@ -232,11 +232,11 @@ export function SystemFilePicker({
                     )}
                     <span className="min-w-0 space-y-0.5 p-1.5">
                       <span className="block truncate text-xs font-medium text-foreground">{sourceLabel(row)}</span>
-                      <span className="block truncate text-[11px] text-muted-foreground">
+                      <span className="block truncate text-2xs text-muted-foreground">
                         {[row.project_name, row.uploaded_by_name, df.date(row.captured_at)].filter(Boolean).join(" · ")}
                       </span>
                       {row.filed && (
-                        <span className="block truncate text-[11px] text-warning">{t("documents.pickFromSystem.alreadyFiled")}</span>
+                        <span className="block truncate text-2xs text-warning">{t("documents.pickFromSystem.alreadyFiled")}</span>
                       )}
                     </span>
                   </button>
@@ -279,7 +279,7 @@ export function SystemFilePicker({
         aria-label={t("documents.pickFromSystem.dropArea")}
         data-drop-area
         className={cn(
-          "flex min-h-[160px] flex-col gap-2 rounded-md border-2 border-dashed p-2 transition-colors",
+          "flex min-h-40 flex-col gap-2 rounded-lg border-2 border-dashed p-3 transition-colors",
           dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
         )}
         onDragOver={(event) => {

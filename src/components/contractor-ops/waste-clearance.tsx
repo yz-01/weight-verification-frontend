@@ -110,7 +110,7 @@ export function WasteClearance() {
   if (kinds.length === 0) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={[
@@ -123,17 +123,17 @@ export function WasteClearance() {
           kind === "all" ? (
             <div className="flex flex-wrap gap-2">
               {can("disposal.submit") && (
-                <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Button asChild>
                   <Link href="/waste-clearance?kind=disposal&create=1">
-                    <Plus className="h-4 w-4" />
+                    <Plus className="size-4" />
                     {t("newDisposal")}
                   </Link>
                 </Button>
               )}
               {can("dispatch.create") && (
-                <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+                <Button asChild variant="outline">
                   <Link href="/dispatches/create">
-                    <Plus className="h-4 w-4" />
+                    <Plus className="size-4" />
                     {t("newDispatch")}
                   </Link>
                 </Button>
@@ -148,7 +148,7 @@ export function WasteClearance() {
       <QueryFailedNote query={dispatchTotals} what={t("kind.dispatch")} />
 
       {(disposalTotals.data || dispatchFigures) && (
-        <section data-clearance-totals className="rounded-lg border bg-card px-3 py-2 text-sm shadow-sm">
+        <section data-clearance-totals className="surface-panel rounded-xl px-4 py-3 text-sm tabular sm:px-6">
           {disposalTotals.data && (
             <p>
               {t("totals.disposals", {
@@ -172,14 +172,14 @@ export function WasteClearance() {
       )}
 
       {kinds.length > 1 && (
-        <nav aria-label={t("title")} className="flex w-fit flex-wrap gap-1 rounded-lg border bg-card p-1 shadow-sm">
+        <nav aria-label={t("title")} className="surface-panel flex w-fit max-w-full flex-wrap gap-1 rounded-xl p-1">
           {kinds.map((option) => (
             <Link
               key={option}
               href={`/waste-clearance?kind=${option}`}
               aria-current={option === kind ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                "inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground pointer-coarse:h-10",
                 option === kind && "bg-primary/10 text-primary",
               )}
             >
@@ -301,8 +301,8 @@ function MergedList() {
               </TableCell>
               <TableCell className="tabular font-medium">{row.reference}</TableCell>
               <TableCell>{row.statusBadge}</TableCell>
-              <TableCell className="max-w-[180px] truncate">{row.project}</TableCell>
-              <TableCell className="max-w-[260px] truncate">{row.content}</TableCell>
+              <TableCell className="max-w-45 truncate">{row.project}</TableCell>
+              <TableCell className="max-w-65 truncate">{row.content}</TableCell>
               <TableCell className="tabular text-muted-foreground">
                 {row.at ? df.dateTime(row.at) : "—"}
               </TableCell>
@@ -315,7 +315,7 @@ function MergedList() {
           ))}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between gap-3 border-t px-4 py-2.5 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-panel-border px-4 py-3 text-sm text-muted-foreground sm:px-6">
         <span>{t("pageOf", { page, pages })}</span>
         <div className="flex gap-2">
           <Button asChild={page > 1} variant="outline" size="sm" disabled={page <= 1} disabledReason={page <= 1 ? root("common.alreadyFirstPage") : undefined}>

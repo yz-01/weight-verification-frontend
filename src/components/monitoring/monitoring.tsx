@@ -15,6 +15,7 @@ import {
 import { useFormatter, useTranslations } from "next-intl";
 
 import {
+  EmptyState,
   ListHeader,
   LoadFailed,
   StatusBadge,
@@ -118,7 +119,7 @@ export function Monitoring() {
     : [];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("monitoring.title")}
         subtitle={
@@ -128,13 +129,12 @@ export function Monitoring() {
         }
         action={
           <Button
-            size="sm"
             variant="outline"
             disabled={capture.isPending}
             onClick={() => capture.mutate()}
           >
             <RefreshCw
-              className={`h-4 w-4 ${capture.isPending ? "animate-spin" : ""}`}
+              className={`size-4 ${capture.isPending ? "animate-spin" : ""}`}
             />
             {t("monitoring.capture")}
           </Button>
@@ -142,28 +142,28 @@ export function Monitoring() {
       />
 
       {status.isError ? (
-        <div className="border-y py-10 text-center text-sm text-muted-foreground">
+        <div className="surface-panel rounded-xl p-6 py-10 text-center text-sm text-muted-foreground">
           {t("table.errorBody")}
         </div>
       ) : status.isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 7 }).map((_, index) => (
-            <Skeleton key={index} className="h-32 rounded-lg" />
+            <Skeleton key={index} className="h-32 rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {tiles.map((tile) => {
             const Icon = tile.icon;
             return (
-              <div key={tile.key} className="min-h-32 rounded-lg border bg-card p-5">
+              <div key={tile.key} className="surface-panel min-h-32 rounded-xl p-4 sm:p-6">
                 <div className="flex items-center justify-between gap-4">
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="min-w-0 text-xs font-medium text-muted-foreground">
                     {t(`monitoring.tile.${tile.key}`)}
                   </p>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  <Icon className="size-4 shrink-0 text-muted-foreground" />
                 </div>
-                <p className="mt-4 text-lg font-semibold">{tile.value}</p>
+                <p className="tabular mt-4 text-lg font-semibold">{tile.value}</p>
                 <div className="mt-2">
                   <StatusBadge
                     label={t(`monitoring.health.${tile.status}`)}
@@ -176,11 +176,11 @@ export function Monitoring() {
         </div>
       )}
 
-      <section className="space-y-3" aria-labelledby="monitoring-events">
-        <h2 id="monitoring-events" className="text-sm font-semibold">
+      <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6" aria-labelledby="monitoring-events">
+        <h2 id="monitoring-events" className="panel-title">
           {t("monitoring.events.title")}
         </h2>
-        <div className="divide-y border-y">
+        <div className="divide-y">
           {events.isError ? (
             <LoadFailed onRetry={() => void events.refetch()} />
           ) : events.isLoading ? (
@@ -188,13 +188,11 @@ export function Monitoring() {
               {t("common.loading")}
             </p>
           ) : (events.data?.results.length ?? 0) === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              {t("monitoring.events.empty")}
-            </p>
+            <EmptyState icon={Activity} title={t("monitoring.events.empty")} />
           ) : (
             events.data?.results.map((event) => (
               <div key={event.id} className="grid gap-2 py-3 sm:grid-cols-[9rem_1fr_auto] sm:items-center">
-                <span className="text-xs tabular-nums text-muted-foreground">
+                <span className="tabular text-xs text-muted-foreground">
                   {df.dateTime(event.occurred_at)}
                 </span>
                 <div className="min-w-0">

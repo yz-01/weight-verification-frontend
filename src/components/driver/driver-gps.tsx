@@ -40,6 +40,7 @@ import type {
   TaskState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
+import { MAP_COLORS } from "@/lib/map-palette";
 import {
   getDriverLivePositions,
   getDriverLiveRoutes,
@@ -248,7 +249,7 @@ export function DriverGps() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListHeader
         title={t("driverGps.title")}
         subtitle={
@@ -260,7 +261,6 @@ export function DriverGps() {
         }
         action={
           <Button
-            size="sm"
             variant="outline"
             disabled={
               tasks.isFetching || route.isFetching || live.isFetching || liveRoutes.isFetching
@@ -276,9 +276,9 @@ export function DriverGps() {
       />
 
       <section className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-sm font-semibold">{t("driverGps.liveMap.title")}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="panel-title">{t("driverGps.liveMap.title")}</h2>
             {live.isError ? (
               <QueryFailedNote query={live} what={t("driverGps.what.livePositions")} />
             ) : (
@@ -300,7 +300,7 @@ export function DriverGps() {
         <QueryFailedNote query={liveRoutes} what={t("driverGps.what.liveRoutes")} />
       </section>
 
-      <div className="grid min-h-0 gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+      <div className="grid min-h-0 gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
         <aside className="min-w-0 space-y-3" aria-label={t("driverGps.tasks.title")}>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -312,14 +312,14 @@ export function DriverGps() {
             />
           </div>
 
-          <div className="grid grid-cols-3 rounded-md border bg-muted/40 p-1">
+          <div className="grid grid-cols-3 rounded-lg border bg-muted/40 p-1">
             {(["ALL", "RUNNING", "FINISHED"] as const).map((filter) => (
               <button
                 key={filter}
                 type="button"
-                className={`min-h-8 rounded-sm px-2 text-xs font-medium transition-colors ${
+                className={`min-h-8 rounded-md px-2 text-xs font-medium transition-colors pointer-coarse:min-h-10 pointer-coarse:text-sm ${
                   taskFilter === filter
-                    ? "bg-card text-foreground shadow-sm"
+                    ? "bg-card text-primary ring-1 ring-border"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
                 onClick={() => setTaskFilter(filter)}
@@ -332,7 +332,7 @@ export function DriverGps() {
           <div className="max-h-[19rem] space-y-2 overflow-y-auto pr-1 lg:max-h-[calc(100dvh-14rem)]">
             {tasks.isLoading ? (
               Array.from({ length: 5 }).map((_, index) => (
-                <Skeleton key={index} className="h-24 rounded-md" />
+                <Skeleton key={index} className="h-24 rounded-lg" />
               ))
             ) : tasks.isError ? (
               <EmptyTaskList message={t("table.errorBody")} />
@@ -359,7 +359,6 @@ export function DriverGps() {
                 {tasks.hasNextPage && (
                   <Button
                     variant="outline"
-                    size="sm"
                     className="w-full"
                     disabled={tasks.isFetchingNextPage}
                     onClick={() => void tasks.fetchNextPage()}
@@ -375,15 +374,15 @@ export function DriverGps() {
           </div>
         </aside>
 
-        <main className="min-w-0 space-y-5">
+        <main className="min-w-0 space-y-4">
           {!selectedTaskId ? (
-            <div className="flex min-h-80 items-center justify-center border-y text-sm text-muted-foreground">
+            <div className="flex min-h-80 items-center justify-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
               {t("driverGps.tasks.empty")}
             </div>
           ) : detail.isLoading ? (
             <GpsSkeleton />
           ) : detail.isError ? (
-            <div className="flex min-h-80 items-center justify-center border-y text-sm text-muted-foreground">
+            <div className="flex min-h-80 items-center justify-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
               {t("table.errorBody")}
             </div>
           ) : (
@@ -393,7 +392,7 @@ export function DriverGps() {
               {route.isLoading ? (
                 <GpsSkeleton />
               ) : route.isError ? (
-                <div className="border-y py-12 text-center text-sm text-muted-foreground">
+                <div className="rounded-xl border border-dashed border-panel-border px-6 py-12 text-center text-sm text-muted-foreground">
                   {t("driverGps.route.error")}
                 </div>
               ) : current ? (
@@ -467,8 +466,8 @@ export function DriverGps() {
                   />
                 </>
               ) : (
-                <div className="flex min-h-72 flex-col items-center justify-center border-y text-center">
-                  <Route className="mb-3 h-8 w-8 text-muted-foreground/50" />
+                <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed border-panel-border p-6 text-center">
+                  <Route className="mb-3 size-8 text-muted-foreground/50" />
                   <p className="text-sm font-medium">{t("driverGps.route.empty")}</p>
                   <p className="mt-1 max-w-sm text-xs text-muted-foreground">
                     {t("driverGps.route.emptyDescription")}
@@ -483,14 +482,8 @@ export function DriverGps() {
   );
 }
 
-const ROUTE_COLORS = [
-  "#087f8c",
-  "#2563eb",
-  "#7c3aed",
-  "#c2410c",
-  "#16825d",
-  "#be123c",
-];
+// One colour per route, from the design palette (lib/map-palette).
+const ROUTE_COLORS = MAP_COLORS;
 
 function TaskOption({
   task,
@@ -507,10 +500,10 @@ function TaskOption({
     <button
       type="button"
       aria-pressed={active}
-      className={`w-full rounded-md border p-3 text-left transition-colors ${
+      className={`w-full rounded-lg border p-3 text-left transition-colors ${
         active
-          ? "border-primary/50 bg-primary/5 ring-1 ring-primary/15"
-          : "bg-card hover:border-foreground/25"
+          ? "border-primary/50 bg-primary/10 ring-1 ring-primary/15"
+          : "bg-card hover:border-primary/50"
       }`}
       onClick={onSelect}
     >
@@ -534,7 +527,7 @@ function TaskOption({
 
 function EmptyTaskList({ message }: { message: string }) {
   return (
-    <div className="border-y px-4 py-10 text-center text-sm text-muted-foreground">
+    <div className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
       {message}
     </div>
   );
@@ -543,7 +536,7 @@ function EmptyTaskList({ message }: { message: string }) {
 function TaskContext({ task }: { task: Awaited<ReturnType<typeof getTask>> }) {
   const t = useTranslations();
   return (
-    <section className="border-y py-4">
+    <section className="surface-panel rounded-xl p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -614,7 +607,7 @@ function SummaryTile({
   children: React.ReactNode;
 }) {
   return (
-    <section className="min-h-32 rounded-lg border bg-card p-4">
+    <section className="surface-panel min-h-32 rounded-xl p-4">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-xs font-medium text-muted-foreground">{label}</h3>
         <Icon className="h-4 w-4 text-muted-foreground" />
@@ -643,14 +636,14 @@ function RouteTimeline({
   return (
     <section className="space-y-3" aria-labelledby="driver-route-timeline">
       <div className="flex items-center justify-between gap-3">
-        <h2 id="driver-route-timeline" className="text-sm font-semibold">
+        <h2 id="driver-route-timeline" className="panel-title">
           {t("driverGps.timeline.title")}
         </h2>
         <span className="text-xs text-muted-foreground">
           {t("driverGps.timeline.count", { count: total })}
         </span>
       </div>
-      <ol className="divide-y border-y">
+      <ol className="surface-panel divide-y rounded-xl px-4 sm:px-6">
         {positions.map((position) => {
           const Icon = eventIcon(position.event_type);
           return (
@@ -706,7 +699,7 @@ function RouteTimeline({
       </ol>
       {hasMore && (
         <div className="flex justify-center">
-          <Button variant="outline" size="sm" disabled={loadingMore} onClick={onLoadMore}>
+          <Button variant="outline" disabled={loadingMore} onClick={onLoadMore}>
             {loadingMore && <RefreshCw className="h-4 w-4 animate-spin" />}
             {t("driverGps.timeline.loadOlder")}
           </Button>
@@ -719,13 +712,13 @@ function RouteTimeline({
 function GpsSkeleton() {
   return (
     <div className="space-y-4">
-      <Skeleton className="h-24 rounded-md" />
+      <Skeleton className="h-24 rounded-xl" />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-32 rounded-lg" />
+          <Skeleton key={index} className="h-32 rounded-xl" />
         ))}
       </div>
-      <Skeleton className="h-72 rounded-md" />
+      <Skeleton className="h-72 rounded-xl" />
     </div>
   );
 }

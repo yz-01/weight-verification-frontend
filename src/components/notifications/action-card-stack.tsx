@@ -122,7 +122,7 @@ export function ActionCardStack({
                 <p className="truncate text-xs text-muted-foreground">{row.data.project_name}</p>
               ) : null}
               <p className="mt-0.5 line-clamp-1 text-xs">{row.message}</p>
-              <p className="mt-0.5 text-[11px] font-medium text-primary">{t("open")}</p>
+              <p className="mt-0.5 text-2xs font-medium text-primary">{t("open")}</p>
             </button>
           ))}
         </div>

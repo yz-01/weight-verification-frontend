@@ -83,6 +83,7 @@ import { ApiError } from "@/interfaces/api";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
 import type { LocationFix } from "@/lib/field-location";
 import { useDateFormat } from "@/lib/dates";
+import { MAP_COLORS } from "@/lib/map-palette";
 import { LocationMap } from "@/components/shared/location-map";
 import { trackPaths } from "@/lib/track-paths";
 import {
@@ -434,7 +435,7 @@ export function WasteOutgoingWorkspace() {
       accessorKey: "project_name",
       meta: { label: t("field.project") },
       header: () => <PlainHeader label={t("field.project")} />,
-      cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
+      cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
     },
   ];
 
@@ -454,18 +455,16 @@ export function WasteOutgoingWorkspace() {
             {/* 8.2.7 gives the tenant its own category list. */}
             {can("waste_outgoing.config") && (
               <Button
-                size="sm"
                 variant="outline"
-                className="rounded-full px-4 shadow-sm"
                 onClick={() => setManagingCategories(true)}
               >
-                <ListTree className="h-4 w-4" />
+                <ListTree className="size-4" />
                 {t("category.manage")}
               </Button>
             )}
             {can("waste_outgoing.submit") && (
-              <Button size="sm" className="rounded-full px-4 shadow-sm" onClick={() => setCreating(true)}>
-                <Plus className="h-4 w-4" />
+              <Button onClick={() => setCreating(true)}>
+                <Plus className="size-4" />
                 {t("action.record")}
               </Button>
             )}
@@ -807,7 +806,7 @@ function HandOverDialog({
         <div className="grid gap-4">
           <FieldWrapper label={t("handover.person")} required>
             <Select value={person} onValueChange={setPerson}>
-              <SelectTrigger className="h-10 w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue
                   placeholder={
                     people.isLoading ? t("handover.loading") : t("handover.choose")
@@ -834,7 +833,7 @@ function HandOverDialog({
           {error && (
             <p
               role="alert"
-              className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+              className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
             >
               {error}
             </p>
@@ -906,7 +905,7 @@ export function WasteOutgoingReviewDialog({
           <FieldWrapper label={t("review.note")} optional={decision === "APPROVED" ? t("field.optional") : undefined} required={decision === "RETURNED"}>
             <Textarea rows={4} value={note} onChange={(event) => setNote(event.target.value)} />
           </FieldWrapper>
-          {error && <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
+          {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.close")}</Button>
@@ -956,7 +955,7 @@ function ConfirmCollectionDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
-          <div className="rounded-lg border bg-muted/20 p-3 text-sm">
+          <div className="rounded-lg border bg-muted/30 p-3 text-sm">
             <p className="font-semibold">{t("schedule.proposed")}</p>
             <p className="mt-1 text-muted-foreground">
               {record.proposed_collection_at
@@ -1152,7 +1151,7 @@ function RecordDialog({
                     key={url}
                     src={url}
                     alt={`${t("field.photos")} ${index + 1}`}
-                    className="aspect-square w-full rounded-md border object-cover"
+                    className="aspect-square w-full rounded-lg border object-cover"
                   />
                 ))}
               </div>
@@ -1250,9 +1249,9 @@ function AssignDialog({
                 {t("assign.partnersFailed")}
               </p>
             ) : recyclers.isLoading ? (
-              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-10 w-full" />
             ) : rows.length === 0 ? (
-              <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-xs text-muted-foreground">
                 {t("assign.noPartners")}
               </p>
             ) : (
@@ -1359,7 +1358,7 @@ function TrackingRouteMap({ tasks }: { tasks: WasteCollectionTask[] }) {
         longitude: point.longitude,
         occurredAt: point.occurred_at,
       })),
-      color: ["#2563eb", "#7c3aed", "#15803d", "#a16207"][index % 4],
+      color: MAP_COLORS[1 + (index % 4)],
       label: `${task.driver_name} · ${task.vehicle_plate}`,
       gapLabel: (minutes) => t("tracking.routeGap", { minutes }),
     }),
@@ -1437,7 +1436,7 @@ function TrackingDialog({
         ) : tracking.isLoading ? (
           <Skeleton className="h-64 w-full" />
         ) : !data?.ordered ? (
-          <div className="rounded-lg border border-dashed bg-muted/20 p-4">
+          <div className="rounded-xl border border-dashed border-panel-border p-4">
             <p className="flex items-center gap-2 text-sm font-medium">
               <AlertTriangle className="size-4 shrink-0 text-muted-foreground" />
               {t("tracking.notOrdered")}
@@ -1526,7 +1525,7 @@ function TrackingDialog({
             */}
             {(data.tasks ?? []).some((task) => task.route.length > 1) && (
               <section className="space-y-2">
-                <h3 className="text-sm font-semibold">{t("tracking.driverRoute")}</h3>
+                <h3 className="panel-title">{t("tracking.driverRoute")}</h3>
                 <TrackingRouteMap tasks={data.tasks ?? []} />
                 <p className="text-xs text-muted-foreground">
                   {t("tracking.driverRouteNote")}
@@ -1536,13 +1535,13 @@ function TrackingDialog({
 
             {(data.tasks ?? []).some((task) => task.photos.length > 0) && (
               <section className="space-y-3">
-                <h3 className="text-sm font-semibold">{t("tracking.executionPhotos")}</h3>
+                <h3 className="panel-title">{t("tracking.executionPhotos")}</h3>
                 {(data.tasks ?? []).map((task) => task.photos.length > 0 && (
                   <div key={task.id} className="space-y-2">
                     <p className="text-xs text-muted-foreground">{task.task_no} · {task.driver_name} · {task.vehicle_plate}</p>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {task.photos.map((photo) => (
-                        <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                        <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-lg border bg-muted/30">
                           <Image src={photo.watermarked || photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
                           <p className="truncate px-2 py-1.5 text-xs">{photo.caption || photo.kind}</p>
                         </a>
@@ -1556,9 +1555,9 @@ function TrackingDialog({
             {/* 8.2.13. Absent until the weighbridge has produced a valid pass,
                 which is a normal state, not a failure. */}
             {data.weighing ? (
-              <div className="rounded-lg border bg-card p-3">
+              <div className="rounded-lg border bg-muted/30 p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold">{t("weighing.title")}</p>
                     <p className="text-xs text-muted-foreground">{data.weighing.session_no}</p>
                   </div>
@@ -1603,7 +1602,7 @@ function TrackingDialog({
               </p>
             )}
             {data.settlement && (
-              <div className="rounded-lg border bg-card p-3">
+              <div className="rounded-lg border bg-muted/30 p-3">
                 <p className="text-sm font-semibold">{t("settlement.title")}</p>
                 <dl className="mt-2 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
                   <div><dt className="text-muted-foreground">{t("settlement.number")}</dt><dd className="font-medium">{data.settlement.settlement_no}</dd></div>
@@ -1688,14 +1687,14 @@ function WasteCategoryDialog({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("category.title")}</DialogTitle>
           <DialogDescription>{t("category.help")}</DialogDescription>
         </DialogHeader>
 
         <QueryFailedNote query={categoriesState} what={t("what.categories")} />
-        <ul className="divide-y rounded-md border empty:hidden">
+        <ul className="divide-y rounded-lg border empty:hidden">
           {categories.map((row) => (
             <li
               key={row.id}
@@ -1706,11 +1705,11 @@ function WasteCategoryDialog({
                 {row.name}
               </span>
               {row.is_system && (
-                <span className="rounded-full border px-2 py-0.5 text-[10px] text-muted-foreground">
+                <span className="inline-flex h-6 items-center rounded-full border px-2.5 text-xs text-muted-foreground">
                   {t("category.standard")}
                 </span>
               )}
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -1731,7 +1730,7 @@ function WasteCategoryDialog({
                     disabled={remove.isPending}
                     onClick={() => remove.mutate(row)}
                   >
-                    <XCircle className="h-4 w-4" />
+                    <XCircle className="size-4" />
                   </Button>
                 )}
               </div>
@@ -1739,7 +1738,7 @@ function WasteCategoryDialog({
           ))}
         </ul>
 
-        <div className="grid gap-2 sm:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-4">
           <FieldWrapper label={t("category.code")} required>
             <Input
               value={code}
@@ -1754,7 +1753,7 @@ function WasteCategoryDialog({
           </FieldWrapper>
           <FieldWrapper label={t("category.dispatchType")}>
             <select
-              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+              className="native-control"
               value={dispatchType}
               onChange={(event) => setDispatchType(event.target.value)}
             >
@@ -1779,7 +1778,7 @@ function WasteCategoryDialog({
             disabled={create.isPending}
             onClick={() => create.mutate()}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="size-4" />
             {t("category.add")}
           </Button>
         </DialogFooter>

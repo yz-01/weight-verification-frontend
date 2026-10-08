@@ -17,8 +17,8 @@ export async function GET(request: Request) {
       start_url: "/",
       scope: "/",
       display: "standalone",
-      background_color: "#ffffff",
-      theme_color: "#087f8c",
+      background_color: "#f3f6fa",
+      theme_color: "#0e7490",
       orientation: "any",
       icons: [
         {

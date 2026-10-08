@@ -236,7 +236,7 @@ export function FieldLocationTracker() {
         {state === "starting" && <Loader2 className="mx-auto size-6 animate-spin text-primary" />}
         {/* D09: no position, no record - nothing is assumed or carried over. */}
         {state !== "starting" && (
-          <p className="rounded-md bg-warning/10 px-3 py-2 text-center text-sm text-warning">{t("noPresence")}</p>
+          <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-center text-sm text-warning">{t("noPresence")}</p>
         )}
         <p className="text-center text-xs leading-5 text-muted-foreground">{t("foregroundOnly")}</p>
       </DialogContent>

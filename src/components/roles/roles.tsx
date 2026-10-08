@@ -57,7 +57,7 @@ export function Roles() {
             </span>
             {row.original.is_system && (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[0.6875rem] font-medium text-muted-foreground ring-1 ring-inset ring-border"
+                className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground ring-1 ring-inset ring-border"
                 title={t("roles.systemHint")}
               >
                 <Lock className="h-2.5 w-2.5" />
@@ -87,7 +87,7 @@ export function Roles() {
         accessorKey: "permissions",
         meta: { label: t("roles.field.permissions") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("roles.field.permissions")}
           </span>
         ),
@@ -103,25 +103,25 @@ export function Roles() {
         accessorKey: "user_count",
         meta: { label: t("roles.field.userCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("roles.field.userCount")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="tabular">{row.original.user_count ?? 0}</span>
+          <span className="tabular block text-right">{row.original.user_count ?? 0}</span>
         ),
       },
       {
         accessorKey: "description",
         meta: { label: t("roles.field.description") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("roles.field.description")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[280px] truncate text-muted-foreground"
+            className="block max-w-70 truncate text-muted-foreground"
             title={roleDescription(row.original, t)}
           >
             {roleDescription(row.original, t) || t("common.emptyValue")}
@@ -202,9 +202,9 @@ export function Roles() {
         subtitle={isLoading ? "—" : t("roles.count", { count: totalCount })}
         action={
           can("role.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/roles/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("roles.new")}
               </Link>
             </Button>

@@ -59,7 +59,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-dvh min-w-0 overflow-x-hidden bg-background">
+    <div className="min-h-dvh min-w-0 overflow-x-clip bg-background">
       <FieldLocationTracker />
       <FieldManifestToken />
       <header className="sticky top-0 z-40 border-b border-sidebar-border bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">

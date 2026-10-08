@@ -196,13 +196,13 @@ export function NotificationButton() {
           <Bell className="h-4 w-4" />
           {countFailed ? (
             <span
-              className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-muted px-1 text-[10px] font-semibold leading-none text-muted-foreground"
+              className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-muted px-1 text-2xs font-semibold leading-none text-muted-foreground"
               title={t("notifications.countFailed")}
             >
               ?
             </span>
           ) : count > 0 ? (
-            <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-destructive-foreground">
+            <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-2xs font-semibold leading-none text-destructive-foreground">
               {count > 99 ? "99+" : count}
             </span>
           ) : null}
@@ -341,7 +341,7 @@ export function NotificationButton() {
                   >
                     {notification.message}
                   </span>
-                  <span className="mt-1 block text-[11px] text-muted-foreground">
+                  <span className="mt-1 block text-2xs text-muted-foreground">
                     {df.relative(notification.created_at)}
                   </span>
                 </span>

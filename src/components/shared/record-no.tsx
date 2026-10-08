@@ -88,10 +88,10 @@ export function RecordNo({
         )}
       </div>
       {code && (
-        <span className="tabular block truncate text-[11px] text-muted-foreground">{code}</span>
+        <span className="tabular block truncate text-2xs text-muted-foreground">{code}</span>
       )}
       {showFull && parsed && (
-        <span className="tabular block break-all text-[11px] text-foreground">{full}</span>
+        <span className="tabular block break-all text-2xs text-foreground">{full}</span>
       )}
     </div>
   );

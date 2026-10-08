@@ -282,7 +282,7 @@ export function ProjectCard({
               field.startsWith("overdue") && value > 0 && "bg-destructive/10 text-destructive",
             )}
           >
-            <dt className="truncate text-[11px] text-muted-foreground">
+            <dt className="truncate text-2xs text-muted-foreground">
               {figures(`field.${field}`)}
             </dt>
             <dd className="text-base font-semibold tabular-nums">
@@ -317,7 +317,7 @@ function LatestPhoto({
     return (
       <span
         className={cn(
-          "flex items-center justify-center rounded-md border border-dashed text-[11px] text-muted-foreground",
+          "flex items-center justify-center rounded-md border border-dashed text-2xs text-muted-foreground",
           box,
         )}
       >

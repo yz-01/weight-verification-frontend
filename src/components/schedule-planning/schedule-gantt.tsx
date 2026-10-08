@@ -32,10 +32,10 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
   }
 
   return (
-    <div className="overflow-hidden surface-panel rounded-xl">
+    <div className="surface-panel overflow-hidden rounded-xl">
       <div className="overflow-x-auto">
-        <div className="min-w-[920px]">
-          <div className="grid grid-cols-[250px_1fr] border-b bg-muted/35 text-xs font-semibold text-muted-foreground">
+        <div className="min-w-230">
+          <div className="grid grid-cols-[15.625rem_1fr] border-b bg-muted/35 text-xs font-semibold text-muted-foreground">
             <div className="px-4 py-3">{t("field.task")}</div>
             <div className="flex items-center justify-between border-l px-4 py-3">
               <span>{df.date(new Date(range.start).toISOString())}</span>
@@ -59,7 +59,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
             return (
               <div
                 key={task.id}
-                className="grid min-h-16 grid-cols-[250px_1fr] border-b last:border-0"
+                className="grid min-h-16 grid-cols-[15.625rem_1fr] border-b last:border-0"
               >
                 <div className="min-w-0 px-4 py-3">
                   <p className="truncate text-sm font-medium">
@@ -104,7 +104,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
                       }
                       style={{ width: actual + "%" }}
                     />
-                    <span className="absolute inset-0 grid place-items-center text-[11px] font-semibold text-foreground">
+                    <span className="absolute inset-0 grid place-items-center text-2xs font-semibold text-foreground">
                       {actual}%
                     </span>
                   </div>
@@ -134,7 +134,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-lg border border-dashed bg-muted/15 p-10 text-center text-sm text-muted-foreground">
+    <div className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
       {text}
     </div>
   );

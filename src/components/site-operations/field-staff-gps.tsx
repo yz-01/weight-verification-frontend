@@ -1,13 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { History, LocateFixed, MapPinned, RefreshCw, Route, UserRound } from "lucide-react";
+import { History, LocateFixed, MapPinned, RefreshCw, UserRound } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
-import { FieldWrapper, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, FilterBar, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
@@ -408,7 +408,7 @@ export function FieldStaffGps({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       {/* An empty roster and a refused roster look identical, and the reader
           is the one person who cannot tell them apart. Whoever holds no watch
           permission gets told that, once, instead of a screen of blank tabs
@@ -438,7 +438,6 @@ export function FieldStaffGps({
         }
         action={
           <Button
-            size="sm"
             variant="outline"
             disabled={refreshing}
             onClick={() => {
@@ -473,13 +472,13 @@ export function FieldStaffGps({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="live" className="space-y-5 pt-2">
-          <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
+        <TabsContent value="live" className="space-y-4 pt-2">
+          <FilterBar>
             {projectBoxShown && (
             <FieldWrapper
               label={t("siteGps.project")}
               required={!managedAutomatically && can("field_position.submit")}
-              className="w-full sm:w-[280px]"
+              className="w-full sm:w-70"
             >
               <ProjectPicker
                 value={projectId || "all"}
@@ -495,7 +494,7 @@ export function FieldStaffGps({
             </FieldWrapper>
             )}
             {managedAutomatically ? (
-              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md border border-success/25 bg-success/5 px-3 py-2">
+              <div className="flex min-h-10 min-w-0 flex-1 items-center gap-3 rounded-lg border border-success/25 bg-success/5 px-3 py-2">
                 <LocateFixed className="size-4 shrink-0 text-success" />
                 <div className="min-w-0">
                   <p className="text-sm font-medium">{t("siteGps.autoSharing")}</p>
@@ -506,7 +505,6 @@ export function FieldStaffGps({
               </div>
             ) : can("field_position.submit") && (
               <Button
-                size="sm"
                 variant={sharing ? "destructive" : "default"}
                 requires={[[projectId, t("siteGps.project")]]}
                 disabled={record.isPending || stop.isPending}
@@ -533,7 +531,7 @@ export function FieldStaffGps({
                 by browser. Same guidance the field app shows. */}
             {sharingRefused && <LocationDenialSteps className="w-full" />}
             <QueryFailedNote className="w-full" query={locationPolicy} what={t("siteGps.what.locationPolicy")} />
-          </div>
+          </FilterBar>
 
           <MapSection title={t("siteGps.map")} note={t("siteGps.refreshNote")}>
             <LocationMap
@@ -548,11 +546,11 @@ export function FieldStaffGps({
             <QueryFailedNote query={geofences} what={t("siteGps.what.geofences")} />
           </MapSection>
 
-          <section className="space-y-3">
-            <h2 className="text-sm font-semibold">{t("siteGps.people")}</h2>
-            <div className="divide-y border-y">
+          <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6">
+            <h2 className="panel-title">{t("siteGps.people")}</h2>
+            <div className="divide-y rounded-lg border">
               {live.isError ? (
-                <LoadFailed className="my-3" what={t("siteGps.what.live")} onRetry={() => live.refetch()} />
+                <LoadFailed className="m-3" what={t("siteGps.what.live")} onRetry={() => live.refetch()} />
               ) : positions.length === 0 ? (
                 <p className="px-4 py-10 text-center text-sm text-muted-foreground">
                   {t("siteGps.empty")}
@@ -566,9 +564,9 @@ export function FieldStaffGps({
           </section>
         </TabsContent>
 
-        <TabsContent value="history" className="space-y-5 pt-2">
+        <TabsContent value="history" className="space-y-4 pt-2">
           {projectBoxShown && (
-          <div className="border-y bg-card/50 py-3">
+          <FilterBar>
             <ProjectPicker
               value={historyProjectId || "all"}
               onValueChange={(value) => {
@@ -578,9 +576,9 @@ export function FieldStaffGps({
               allowAll
               allLabel={t("siteGps.allProjects")}
               placeholder={t("siteGps.project")}
-              className="w-full sm:w-[280px]"
+              className="w-full sm:w-70"
             />
-          </div>
+          </FilterBar>
           )}
 
           <MapSection
@@ -603,16 +601,13 @@ export function FieldStaffGps({
             <QueryFailedNote query={geofences} what={t("siteGps.what.geofences")} />
           </MapSection>
 
-          <section className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Route className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-semibold">
-                {t("siteGps.lastPositions")}
-              </h2>
-            </div>
-            <div className="divide-y border-y">
+          <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6">
+            <h2 className="panel-title">
+              {t("siteGps.lastPositions")}
+            </h2>
+            <div className="divide-y rounded-lg border">
               {lastPositions.isError ? (
-                <LoadFailed className="my-3" what={t("siteGps.what.lastPositions")} onRetry={() => lastPositions.refetch()} />
+                <LoadFailed className="m-3" what={t("siteGps.what.lastPositions")} onRetry={() => lastPositions.refetch()} />
               ) : lastRows.length === 0 ? (
                 <p className="px-4 py-10 text-center text-sm text-muted-foreground">
                   {t("siteGps.historyEmpty")}
@@ -748,12 +743,9 @@ function MapSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <MapPinned className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold">{title}</h2>
-        </div>
+    <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <h2 className="panel-title">{title}</h2>
         <span className="text-xs text-muted-foreground">{note}</span>
       </div>
       {children}
@@ -784,7 +776,7 @@ function PositionRow({ position }: { position: FieldStaffPosition }) {
               : "neutral"
         }
       />
-      <span className="text-xs tabular-nums text-muted-foreground">
+      <span className="tabular text-xs text-muted-foreground">
         {position.is_stale ? t("siteGps.stale") : t("siteGps.live")}
       </span>
     </div>

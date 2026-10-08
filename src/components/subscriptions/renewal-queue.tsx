@@ -36,13 +36,13 @@ export function RenewalQueue() {
 
   const rows = queue.data?.results ?? [];
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex items-center justify-between gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           {queue.isError ? "—" : t("renewals.count", { count: queue.data?.count ?? 0 })}
         </p>
         <select
-          className="h-9 rounded-md border bg-background px-3 text-sm"
+          className="native-control sm:w-48"
           value={days}
           onChange={(event) => setDays(Number(event.target.value))}
         >
@@ -52,7 +52,7 @@ export function RenewalQueue() {
         </select>
       </div>
 
-      <div className="min-h-0 overflow-auto rounded-lg border bg-card">
+      <div className="surface-panel min-h-0 overflow-auto rounded-xl">
         <Table>
           <TableHeader className="sticky top-0 bg-card">
             <TableRow>
@@ -61,25 +61,25 @@ export function RenewalQueue() {
               <TableHead>{t("field.plan")}</TableHead>
               <TableHead>{t("field.expiresOn")}</TableHead>
               <TableHead>{t("field.state")}</TableHead>
-              <TableHead>{t("field.seats")}</TableHead>
+              <TableHead className="text-right tabular">{t("field.seats")}</TableHead>
               <TableHead className="w-12"><span className="sr-only">{common("actions")}</span></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {queue.isLoading ? (
-              <TableRow><TableCell colSpan={7}>{common("loading")}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="h-24 text-center text-muted-foreground">{common("loading")}</TableCell></TableRow>
             ) : queue.isError ? (
-              <TableRow><TableCell colSpan={7} className="text-destructive">{t("error.load")}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="h-24 text-center text-destructive">{t("error.load")}</TableCell></TableRow>
             ) : rows.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-muted-foreground">{t("renewals.empty")}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="h-24 text-center text-muted-foreground">{t("renewals.empty")}</TableCell></TableRow>
             ) : rows.map((row) => (
               <TableRow key={row.id}>
                 <TableCell><p className="font-medium">{row.company_name}</p><p className="text-xs text-muted-foreground">{row.company_code}</p></TableCell>
                 <TableCell><TypeBadge label={t(`audience.${row.company_type}`)} /></TableCell>
                 <TableCell>{row.plan_name ?? common("emptyValue")}</TableCell>
-                <TableCell className="tabular-nums"><p>{row.subscription_expires_on ? df.date(row.subscription_expires_on) : common("emptyValue")}</p><p className="text-xs text-muted-foreground">{row.days_to_expiry === null ? common("emptyValue") : t("daysRemaining", { count: row.days_to_expiry })}</p></TableCell>
+                <TableCell className="tabular"><p>{row.subscription_expires_on ? df.date(row.subscription_expires_on) : common("emptyValue")}</p><p className="text-xs text-muted-foreground">{row.days_to_expiry === null ? common("emptyValue") : t("daysRemaining", { count: row.days_to_expiry })}</p></TableCell>
                 <TableCell><StatusBadge label={t(`state.${row.subscription_state}`)} tone={row.subscription_state === "EXPIRED" ? "danger" : "warning"} /></TableCell>
-                <TableCell className="tabular-nums">{t("seatUsage", { used: row.used_user_seats, limit: row.user_limit ?? t("value.unlimited") })}</TableCell>
+                <TableCell className="text-right tabular">{t("seatUsage", { used: row.used_user_seats, limit: row.user_limit ?? t("value.unlimited") })}</TableCell>
                 <TableCell>
                   {can("subscription.manage") && row.plan && (
                     <Button variant="ghost" size="icon" title={t("action.extend.menu")} onClick={() => setSelected(row)}><CalendarPlus className="h-4 w-4" /></Button>

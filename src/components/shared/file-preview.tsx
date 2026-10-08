@@ -130,7 +130,7 @@ export function FilePreview({
 
   return (
     <div className={cn("flex min-h-0 flex-col gap-2", className)}>
-      <div className="relative min-h-[240px] flex-1 overflow-hidden rounded-md border bg-muted/30">
+      <div className="relative min-h-60 flex-1 overflow-hidden rounded-md border bg-muted/30">
         {!kind ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
             <FileWarning className="size-8 text-warning" />
