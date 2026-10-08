@@ -41,11 +41,15 @@ const REFRESH_PREFIXES = [
   "equipment.",
   "progress.",
   "material_outgoing.",
+  // A site's material request (C03). The backend emits it since 2026-10;
+  // before that the office's request list waited for a navigation.
+  "material_request.",
   "disposal.",
 ];
 const REFRESH_EXACT = "notification.created";
 const REALTIME_PERMISSION_CODES = new Set([
   "notification.view",
+  "material_request.view",
   "dispatch.view",
   "task.view",
   "weighing.view",
@@ -74,6 +78,17 @@ const REALTIME_PERMISSION_CODES = new Set([
  */
 const COALESCE_MS = 400;
 const FALLBACK_POLL_MS = 15_000;
+/**
+ * A slow safety poll that runs even while the stream is connected.
+ *
+ * The stream is the fast path, not the only path. An event the backend does
+ * not emit for some record, one dropped between a reconnect's cursor and the
+ * next, or a proxy holding the response back all left a screen stale until
+ * the person navigated — that was the office's experience of a phone's
+ * submission (Lucas, 2026-10). One refetch a minute, only while the tab is
+ * visible, bounds that staleness at a cost of one page load per minute.
+ */
+export const SAFETY_POLL_MS = 60_000;
 const RECONNECT_MS = 1_000;
 const REJECTED_BACKOFF_MS = 15_000;
 const MAX_BACKOFF_MS = 60_000;
@@ -253,8 +268,15 @@ export function useOrderRealtime(
     // briefly opened two server streams before the aborted request released
     // its admission slot.
     retryTimer = setTimeout(connect, 0);
+    const safetyTimer = setInterval(() => {
+      // A hidden tab refetches when it is next focused instead
+      // (`refetchOnWindowFocus`), so it costs nothing while hidden.
+      if (typeof document !== "undefined" && document.hidden) return;
+      refresh();
+    }, SAFETY_POLL_MS);
     return () => {
       controller.abort();
+      clearInterval(safetyTimer);
       if (retryTimer !== null) clearTimeout(retryTimer);
       if (refreshTimer !== null) clearTimeout(refreshTimer);
       disableFallback();

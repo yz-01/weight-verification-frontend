@@ -54,6 +54,9 @@ describe("shouldRefresh", () => {
     "equipment.created",
     "progress.changed",
     "material_outgoing.created",
+    // The site's material request (C03): the one site submission that had no
+    // event, so the office's request list waited for a navigation.
+    "material_request.created",
     "disposal.changed",
   ];
 
