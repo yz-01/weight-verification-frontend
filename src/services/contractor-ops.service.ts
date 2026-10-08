@@ -535,6 +535,21 @@ export async function addProgressRemark(id: string, body: string) {
   return row;
 }
 
+/**
+ * The office corrects a progress record's 实际完成比例 (2026-10-09).
+ *
+ * Only the figure changes; the reason is required and the server keeps every
+ * change (old → new, who, when, why). Works on an archived record too.
+ */
+export async function correctProgressPercent(id: string, percent: string, reason: string) {
+  const row = await api.post<SiteProgressRecord>(`/api/site-progress/${id}/correct_percent/`, {
+    percent_complete: percent,
+    reason,
+  });
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+}
+
 /** The office's 【上传】 onto a progress record (T-359, D-225). */
 export async function addProgressPhotos(id: string, files: File[]) {
   const data = new FormData();

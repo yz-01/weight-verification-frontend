@@ -5888,6 +5888,23 @@
         "hint": "Only a category no progress record points at can be removed - one added by mistake. One in use can be switched off above instead.",
         "confirm": "Remove category",
         "failed": "The category could not be removed. Try again."
+      },
+      "correction": {
+        "edit": "Correct the percentage",
+        "newPercent": "New percentage (%)",
+        "was": "Currently {percent}%",
+        "reason": "Reason for the change",
+        "reasonPlaceholder": "e.g. The site entered 40 but the slab is 55% done",
+        "save": "Save correction",
+        "cancel": "Cancel",
+        "range": "Enter a percentage from 0 to 100",
+        "unchanged": "That is already the percentage",
+        "evidenceNote": "Only the percentage changes. Photos, location, time taken and recorder stay as recorded.",
+        "archivedNote": "This record is archived. Only the percentage can be corrected; photos, location, time taken and recorder stay locked.",
+        "edited": "Edited",
+        "historyTitle": "Percentage changes",
+        "change": "{from}% → {to}%",
+        "by": "{name} · {at}"
       }
     },
     "progressEvidence": {
@@ -7440,7 +7457,9 @@
       "null": "This field is required",
       "phone_in_use": "This mobile number is already used by another field staff account",
       "required": "This field is required",
-      "unique": "This value is already taken"
+      "unique": "This value is already taken",
+      "percent_range": "Enter a percentage from 0 to 100",
+      "percent_unchanged": "That is already the percentage"
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",

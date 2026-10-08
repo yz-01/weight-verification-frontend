@@ -42,6 +42,12 @@ import { useMemo, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import {
+  EditedTag,
+  ProgressCorrectionHistory,
+  ProgressPercentFact,
+  wasCorrected,
+} from "@/components/contractor-ops/progress-percent-editor";
+import {
   EquipmentDialog,
   MovementDialog,
   OutgoingActions,
@@ -1439,6 +1445,18 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
     searchParams.get("create") === "1",
   );
   const [viewing, setViewing] = useState<SiteProgressRecord | null>(null);
+  // The 实际完成比例 correction form, open in place of the figure (2026-10-09).
+  const [editingPercent, setEditingPercent] = useState(false);
+  const openRecord = (row: SiteProgressRecord | null) => {
+    setEditingPercent(false);
+    setViewing(row);
+  };
+  // The list, the weighted figure and anything showing a record, refreshed
+  // after a change to one (a correction, or the 【确认】 that archives it).
+  const refreshProgress = () => {
+    void qc.invalidateQueries({ queryKey: ["site-progress"] });
+    void qc.invalidateQueries({ queryKey: ["site-progress-summary"] });
+  };
   // The open record follows the list, so a photo or a remark added to it
   // shows without closing and reopening.
   const shown = viewing
@@ -1496,18 +1514,22 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         meta: { label: t("field.percentComplete") },
         header: () => <PlainHeader label={t("field.percentComplete")} />,
         cell: ({ row }) => (
-          <div className="flex w-28 items-center gap-2">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary"
-                style={{
-                  width: `${Math.min(100, Number(row.original.percent_complete))}%`,
-                }}
-              />
+          <div className="flex items-center gap-2">
+            <div className="flex w-28 items-center gap-2">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary"
+                  style={{
+                    width: `${Math.min(100, Number(row.original.percent_complete))}%`,
+                  }}
+                />
+              </div>
+              <span className="tabular text-xs">
+                {row.original.percent_complete}%
+              </span>
             </div>
-            <span className="tabular text-xs">
-              {row.original.percent_complete}%
-            </span>
+            {/* Corrected by the office (2026-10-09); the detail has the history. */}
+            {wasCorrected(row.original) && <EditedTag />}
           </div>
         ),
       },
@@ -1670,7 +1692,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
             ) : null}
           </>
         }
-        onOpen={setViewing}
+        onOpen={openRecord}
       />
 
       {shown && (
@@ -1682,7 +1704,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
             recordId: shown.id,
             reference: reference(shown),
           }}
-          onClose={() => setViewing(null)}
+          onClose={() => openRecord(null)}
         >
           <RecordDetailShell
             reference={reference(shown)}
@@ -1702,7 +1724,21 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
               { label: t("field.phase"), value: shown.phase_name },
               {
                 label: t("field.percentComplete"),
-                value: `${shown.percent_complete}%`,
+                // The office corrects the figure in place (2026-10-09).
+                value: (
+                  <ProgressPercentFact
+                    key={shown.id}
+                    record={shown}
+                    canEdit={can("progress.confirm")}
+                    editing={editingPercent}
+                    onEditingChange={setEditingPercent}
+                    onSaved={(fresh) => {
+                      setViewing(fresh);
+                      refreshProgress();
+                    }}
+                  />
+                ),
+                wide: editingPercent,
               },
               {
                 label: t("progress.submittedBy"),
@@ -1804,9 +1840,16 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                 />
               </div>
             }
+            // Every change to 实际完成比例: old → new, who, when, why.
+            corrections={
+              wasCorrected(shown) ? (
+                <ProgressCorrectionHistory corrections={shown.corrections ?? []} />
+              ) : null
+            }
             conversation={{ kind: "PROGRESS", recordId: shown.id }}
-            // 【确认归档】 with the record itself (C4).
-            closure={{ kind: "PROGRESS", recordId: shown.id }}
+            // 【确认归档】 with the record itself (C4). The list reads the
+            // closure for its status, so it is refreshed at once (2026-10-09).
+            closure={{ kind: "PROGRESS", recordId: shown.id, onConfirmed: refreshProgress }}
           />
         </RecordDetailDialog>
       )}

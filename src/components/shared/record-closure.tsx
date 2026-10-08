@@ -79,9 +79,16 @@ export function recordClosureKey(kind: ArchiveRecordKind, recordId: string) {
 export function RecordClosurePanel({
   kind,
   recordId,
+  onConfirmed,
 }: {
   kind: ArchiveRecordKind;
   recordId: string;
+  /**
+   * The module's own list, refreshed once the record is archived - a list
+   * whose status reads the closure (工程进度, 2026-10-09) would otherwise go
+   * on saying 「等待确认」 until its next poll.
+   */
+  onConfirmed?: () => void;
 }) {
   const t = useTranslations("recordClosure");
   const formatter = useDateFormat();
@@ -111,6 +118,7 @@ export function RecordClosurePanel({
       // Confirmed is what 「等你处理」 and the sidebar's 待确认 badge count, so
       // the record leaves them now rather than at the next poll.
       void queryClient.invalidateQueries({ queryKey: ["contractor-dashboard"] });
+      onConfirmed?.();
     },
   });
 
