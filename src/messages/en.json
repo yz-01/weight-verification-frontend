@@ -10731,10 +10731,10 @@
       "trouble": "Territories are one list, not two. The entry here opens the partner territories page, so both sides always show the same rows."
     },
     "schedule": {
-      "what": "The WBS programme, which can be brought in from Excel and revised over time.",
+      "what": "The construction schedule: pick a plan to see three figures (progress, completed, delayed), then the Gantt chart and the task list. Export, new plan, import, rename, archive and plan versions are under More.",
       "who": "Holders of both progress.view and project.view.",
       "need": "An import needs an .xlsx file, a plan name and a revision name; revising a confirmed plan also needs the reason for the change. A task added by hand needs its WBS, name, planned start and planned finish.",
-      "then": "Importing is two steps. The preview reads your headers and lets you map the columns, and writes nothing - you can try it safely. Only Confirm import writes.",
+      "then": "A new plan starts as a draft; add its tasks, then Confirm and lock. After that, enter each task's Done % with Confirm progress. Delayed means past the planned finish and not done; a task done after its planned finish shows Finished late and is not counted as delayed.",
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
     },
     "site_access": {
@@ -12672,7 +12672,14 @@
       "open": "Open",
       "preview": "Preview file",
       "remove": "Remove",
-      "save": "Save"
+      "save": "Save",
+      "more": "More",
+      "exportExcel": "Export Excel",
+      "exportPdf": "Export PDF",
+      "showRevisions": "Plan versions",
+      "showHistory": "Activity log",
+      "backToDefault": "Back to the latest version",
+      "showAll": "Show all tasks"
     },
     "common": {
       "day": "days",
@@ -12691,9 +12698,6 @@
     },
     "defaults": {
       "baseline": "Approved Baseline"
-    },
-    "delay": {
-      "days": "{count} days late"
     },
     "dialog": {
       "editPlanHelp": "The name and description only. Two schedules on one site cannot share a name.",
@@ -12718,7 +12722,6 @@
       "actualProgress": "Actual progress (%)",
       "actualStart": "Actual start",
       "baselineLabel": "Baseline name",
-      "delay": "Delay",
       "description": "Description",
       "excelFile": "Excel file (.xlsx)",
       "importTarget": "Import into",
@@ -12728,9 +12731,7 @@
       "parentTask": "Parent task",
       "plan": "Schedule plan",
       "planName": "Plan name",
-      "plannedDates": "Planned dates",
       "plannedEnd": "Planned end",
-      "plannedProgress": "Planned",
       "plannedStart": "Planned start",
       "progressEvidence": "Linked site progress",
       "progressEvidenceHelp": "Only progress photo records sent from this project are available.",
@@ -12743,12 +12744,21 @@
       "taskName": "Task name",
       "wbs": "WBS",
       "weight": "Weight",
-      "weightHelp": "How much of the job this task is, next to the others. Relative, so 1/2/3 and 10/20/30 mean the same - the column does not have to add up to 100. Leave it at 1 and every task counts equally."
+      "weightHelp": "How much of the job this task is, next to the others. Relative, so 1/2/3 and 10/20/30 mean the same - the column does not have to add up to 100. Leave it at 1 and every task counts equally.",
+      "start": "Start",
+      "end": "Finish",
+      "days": "Days",
+      "done": "Done %",
+      "status": "Status",
+      "weightValue": "Weight {value}",
+      "plannedToday": "Planned for today: {value}%",
+      "linkedRecords": "{count, plural, one {# site record attached} other {# site records attached}}"
     },
     "gantt": {
-      "actual": "Actual completion",
+      "actual": "Done so far",
       "days": "{count} calendar days",
-      "planned": "Planned duration"
+      "planned": "Planned dates",
+      "today": "Today"
     },
     "history": {
       "EXCEL_IMPORTED": "Excel schedule imported",
@@ -12797,26 +12807,36 @@
       "loadError": "The schedule could not be loaded. Try again.",
       "noConfirmedProgress": "No site progress records are available.",
       "noHistory": "No schedule history yet.",
-      "noPlans": "No schedule exists for this project. Create one manually or import Excel.",
+      "noPlans": "This project has no construction schedule yet.",
       "noReason": "No additional note",
       "noRevision": "No schedule version",
       "noTasks": "No tasks in this version yet.",
       "overviewLoadError": "The progress summary could not be loaded, so the task and progress figures are not shown. Try again.",
       "revisionsLoadError": "The revisions could not be loaded. Try again.",
-      "tasksLoadError": "The task list could not be loaded, so this revision's tasks are not shown. Try again."
+      "tasksLoadError": "The task list could not be loaded, so this revision's tasks are not shown. Try again.",
+      "noPlansHelp": "Create one by hand or import it from Excel.",
+      "noDelayed": "No delayed tasks."
     },
     "status": {
       "current": "Current",
       "delayed": "Delayed",
-      "onTrack": "On track"
+      "notStarted": "Not started",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "completedLate": "Finished late",
+      "delayedDays": "{count, plural, one {# day late} other {# days late}}",
+      "completedLateDays": "{count, plural, one {Finished # day late} other {Finished # days late}}"
     },
-    "subtitle": "Plan work, protect the approved baseline and confirm actual site progress.",
+    "subtitle": "Pick a plan to see the Gantt chart and how far each task has got.",
     "summary": {
       "completed": "Completed",
-      "delayed": "Need attention",
-      "planned": "Planned {value}%",
-      "progress": "Actual progress",
-      "tasks": "Tasks"
+      "delayed": "Delayed",
+      "planned": "Planned for today: {value}%",
+      "progress": "Progress",
+      "lateFinished": "{count} of them finished late",
+      "delayedHint": "Past the planned finish and not done. Tap to see only these",
+      "noDelay": "No task is past its planned finish",
+      "showingDelayed": "Showing delayed tasks only. Tap again for all"
     },
     "title": "Construction Schedule",
     "toast": {
@@ -12833,11 +12853,24 @@
       "taskRemoved": "Draft task removed",
       "taskSaved": "Schedule task saved"
     },
-    "view": {
+    "why": {
+      "delayed": "Planned to finish {date}, not done yet",
+      "completedLate": "Planned to finish {planned}, finished {actual}"
+    },
+    "section": {
       "gantt": "Gantt chart",
-      "history": "History",
-      "list": "Task list",
-      "revisions": "Baseline & revisions"
+      "tasks": "Tasks"
+    },
+    "progressSource": "Done % is the figure the project manager enters under Confirm progress. Site records from Project progress can be attached as backing; the system never works it out from photos. Overall progress weighs each task by its weight and leaves out summary rows.",
+    "version": {
+      "showing": "Showing: {label}",
+      "draftNote": "This is a draft: tasks can be added and changed. Done % can be filled in once it is confirmed and locked."
+    },
+    "advanced": {
+      "title": "Plan versions and log",
+      "help": "The original plan, each revised version and the activity log. Not needed day to day.",
+      "revisions": "Plan versions",
+      "history": "Activity log"
     }
   },
   "session": {

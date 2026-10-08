@@ -10731,10 +10731,10 @@
       "trouble": "區域只有一份，不是兩份。這裡的入口打開的就是合作夥伴那一頁，兩邊看到的永遠是同一批資料。"
     },
     "schedule": {
-      "what": "WBS 施工計畫表，可以從 Excel 匯進來，之後按修訂版演進。",
+      "what": "施工計劃：選一份計劃，上面是三個數字（進度、已完成、延誤），下面是甘特圖和任務列表。匯出、新建、導入、改名、歸檔和計劃版本都在「更多」裡。",
       "who": "同時持 progress.view 和 project.view。",
       "need": "匯入要 .xlsx 檔案、計畫名稱、修訂版名稱；改已確認的計畫還要寫變更原因。手工加一條任務要 WBS、任務名稱、計畫開始、計畫完成。",
-      "then": "匯入分兩步：預覽會讀出你的表頭讓你把欄對上，這一步不寫任何資料，可以放心試；按「確認匯入」才真的寫。",
+      "then": "新計劃先是草稿，加好任務後按「確認並鎖定」。之後每項任務按「確認進度」填完成%。「已延誤」= 過了計劃完成日還沒做完；做完了但比計劃晚，顯示「延期完成」，不算延誤。",
       "trouble": "匯不進去，多半是有欄沒對上：WBS、任務名稱、計畫開始是必須的，另外計畫完成和工期至少要有一個。"
     },
     "site_access": {
@@ -12672,7 +12672,14 @@
       "open": "打開",
       "preview": "預覽文件",
       "remove": "移除",
-      "save": "保存"
+      "save": "保存",
+      "more": "更多",
+      "exportExcel": "匯出 Excel",
+      "exportPdf": "匯出 PDF",
+      "showRevisions": "計劃版本",
+      "showHistory": "操作記錄",
+      "backToDefault": "回到最新版本",
+      "showAll": "顯示全部任務"
     },
     "common": {
       "day": "天",
@@ -12691,9 +12698,6 @@
     },
     "defaults": {
       "baseline": "已批准基準計劃"
-    },
-    "delay": {
-      "days": "延誤 {count} 天"
     },
     "dialog": {
       "editPlanHelp": "只改名稱和說明。同一個工地上兩份計畫不能重名。",
@@ -12718,7 +12722,6 @@
       "actualProgress": "實際進度（%）",
       "actualStart": "實際開始",
       "baselineLabel": "基準計劃名稱",
-      "delay": "延誤",
       "description": "說明",
       "excelFile": "Excel 文件（.xlsx）",
       "importTarget": "導入到",
@@ -12728,9 +12731,7 @@
       "parentTask": "上級任務",
       "plan": "施工計劃",
       "planName": "計劃名稱",
-      "plannedDates": "計劃日期",
       "plannedEnd": "計劃完成",
-      "plannedProgress": "計劃進度",
       "plannedStart": "計劃開始",
       "progressEvidence": "關聯現場進度",
       "progressEvidenceHelp": "這裡只顯示本項目現場傳上來的進度照片記錄。",
@@ -12743,12 +12744,21 @@
       "taskName": "任務名稱",
       "wbs": "WBS",
       "weight": "權重",
-      "weightHelp": "這個任務佔整體工程的分量，相對於其他任務而言。是相對值，1/2/3 和 10/20/30 意思一樣 —— 這一列不需要加起來等於 100。保持 1 就是每個任務等重。"
+      "weightHelp": "這個任務佔整體工程的分量，相對於其他任務而言。是相對值，1/2/3 和 10/20/30 意思一樣 —— 這一列不需要加起來等於 100。保持 1 就是每個任務等重。",
+      "start": "開始",
+      "end": "結束",
+      "days": "天數",
+      "done": "完成%",
+      "status": "狀態",
+      "weightValue": "權重 {value}",
+      "plannedToday": "按計劃今天應到 {value}%",
+      "linkedRecords": "附 {count} 條現場記錄"
     },
     "gantt": {
-      "actual": "實際完成",
+      "actual": "已完成部分",
       "days": "共 {count} 個日曆日",
-      "planned": "計劃工期"
+      "planned": "計劃時間",
+      "today": "今天"
     },
     "history": {
       "EXCEL_IMPORTED": "已導入 Excel 計劃",
@@ -12797,26 +12807,36 @@
       "loadError": "無法載入施工計劃，請重試。",
       "noConfirmedProgress": "目前沒有現場進度記錄。",
       "noHistory": "還沒有施工計劃歷史。",
-      "noPlans": "這個項目還沒有施工計劃。您可以手動建立或導入 Excel。",
+      "noPlans": "這個項目還沒有施工計劃。",
       "noReason": "沒有額外備註",
       "noRevision": "沒有計劃版本",
       "noTasks": "這個版本還沒有任務。",
       "overviewLoadError": "無法載入進度匯總，因此任務數與進度百分比沒有顯示出來。請重試。",
       "revisionsLoadError": "無法載入計劃版本，請重試。",
-      "tasksLoadError": "無法載入任務清單，因此這個版本的任務沒有顯示出來。請重試。"
+      "tasksLoadError": "無法載入任務清單，因此這個版本的任務沒有顯示出來。請重試。",
+      "noPlansHelp": "可以手動新建一份，或者從 Excel 導入。",
+      "noDelayed": "沒有延誤的任務。"
     },
     "status": {
       "current": "當前版本",
       "delayed": "已延誤",
-      "onTrack": "進度正常"
+      "notStarted": "未開始",
+      "inProgress": "進行中",
+      "completed": "已完成",
+      "completedLate": "延期完成",
+      "delayedDays": "已延誤 {count} 天",
+      "completedLateDays": "延期完成 {count} 天"
     },
-    "subtitle": "安排施工任務、保護已批准的基準計劃，並確認現場實際進度。",
+    "subtitle": "選一份計劃，看甘特圖和每項任務做到哪裡。",
     "summary": {
       "completed": "已完成",
-      "delayed": "需要關注",
-      "planned": "計劃 {value}%",
-      "progress": "實際進度",
-      "tasks": "任務總數"
+      "delayed": "延誤",
+      "planned": "按計劃今天應到 {value}%",
+      "progress": "進度",
+      "lateFinished": "其中 {count} 項延期完成",
+      "delayedHint": "過了計劃完成日還沒做完，點一下只看這些",
+      "noDelay": "沒有過了完成日還沒做完的任務",
+      "showingDelayed": "正在只看延誤的任務，再點一下看全部"
     },
     "title": "施工計劃管理",
     "toast": {
@@ -12833,11 +12853,24 @@
       "taskRemoved": "草稿任務已移除",
       "taskSaved": "施工任務已保存"
     },
-    "view": {
+    "why": {
+      "delayed": "計劃 {date} 完成，還沒做完",
+      "completedLate": "計劃 {planned} 完成，實際 {actual} 完成"
+    },
+    "section": {
       "gantt": "甘特圖",
-      "history": "歷史記錄",
-      "list": "任務列表",
-      "revisions": "基準與修訂"
+      "tasks": "任務"
+    },
+    "progressSource": "完成% 是專案經理在「確認進度」裡填寫的數字，可以附上「工程進度」裡的現場記錄作依據，系統不會按照片自動計算。總進度按每項任務的權重算，匯總行不計入。",
+    "version": {
+      "showing": "正在看：{label}",
+      "draftNote": "這是草稿：可以新增、修改任務。按「確認並鎖定」後才能填寫每項任務的完成%。"
+    },
+    "advanced": {
+      "title": "計劃版本和記錄",
+      "help": "原始計劃、每次修改的版本和操作記錄都在這裡，平時不用打開。",
+      "revisions": "計劃版本",
+      "history": "操作記錄"
     }
   },
   "session": {

@@ -2,6 +2,19 @@ export type SchedulePlanStatus = "DRAFT" | "ACTIVE" | "ARCHIVED";
 export type ScheduleRevisionStatus = "DRAFT" | "CONFIRMED";
 export type ScheduleRevisionKind = "BASELINE" | "REVISION";
 export type ScheduleSource = "MANUAL" | "EXCEL";
+/**
+ * Where a task stands, decided by the server (client spec 7.2.14.10-11).
+ *
+ * DELAYED is past its planned finish and not finished. A task finished after
+ * its planned finish is COMPLETED_LATE and keeps its `delay_days`; it is never
+ * DELAYED.
+ */
+export type ScheduleTaskStatus =
+  | "NOT_STARTED"
+  | "IN_PROGRESS"
+  | "DELAYED"
+  | "COMPLETED"
+  | "COMPLETED_LATE";
 
 export interface SchedulePlan {
   id: string;
@@ -76,6 +89,7 @@ export interface ScheduleTask {
   actual_end: string | null;
   delay_days: number;
   is_delayed: boolean;
+  schedule_status: ScheduleTaskStatus;
   progress_note: string;
   progress_confirmed_by: string | null;
   progress_confirmed_by_name: string | null;
@@ -91,7 +105,10 @@ export interface ScheduleOverview {
   summary: {
     task_count?: number;
     completed_count?: number;
+    /** Past the planned finish and not finished. */
     delayed_count?: number;
+    /** Finished after the planned finish; also inside `completed_count`. */
+    completed_late_count?: number;
     planned_progress?: string;
     actual_progress?: string;
     /** Actual minus planned. Negative is behind. */
