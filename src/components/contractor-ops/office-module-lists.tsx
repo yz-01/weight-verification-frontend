@@ -1217,15 +1217,13 @@ export function SiteEquipmentOffice() {
           <RecordDetailShell
             reference={shownMachine.code}
             // Its own photographs and those from every entry and exit, on
-            // one page (T-298, #20). Every URL is a stamped copy; a file no
-            // stamp could be made from has none and is left out rather than
-            // shown unstamped (audit S2).
-            photos={(shownMachine.photos ?? []).flatMap((shot) => shot.url === null ? [] : [{
+            // one page (T-298, #20).
+            photos={(shownMachine.photos ?? []).map((shot) => ({
               id: shot.id,
               url: shot.url,
               label: shot.caption || tRoot(`moduleTable.equipmentPhotoSource.${shot.source}`),
               takenAt: shot.captured_at,
-            }])}
+            }))}
             photoActions={
               can("equipment.manage") ? (
                 <OfficeUpload
