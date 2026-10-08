@@ -27,7 +27,7 @@
  * they end up re-photographing.
  */
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   Camera,
@@ -85,6 +85,7 @@ import {
   getQueuedSubmissionDetail,
   queueErrorKey,
 } from "@/services/offline-sync.service";
+import { prunePhotoCache } from "@/lib/photo-cache";
 
 /** Queue kinds that are a submission somebody is waiting on, and their label. */
 const QUEUED_KINDS: Record<string, string> = {
@@ -143,10 +144,39 @@ export function MySubmissions({
   const [linkedMovement, setLinkedMovement] = useUrlSelection("movement");
   const [openQueued, setOpenQueued] = useState<string | null>(null);
 
+  // The newest page (client 2026-10-09 五.1/五.2): opening the app reads
+  // twenty rows and their thumbnails, never six months of them.
   const stored = useQuery({
     queryKey: ["my-submissions"],
-    queryFn: getMySubmissions,
+    queryFn: () => getMySubmissions(),
   });
+
+  // The older pages, only once the worker asks for them (「加载更早的记录」).
+  // Keyed by where the newest page ends: when a new submission pushes that
+  // point, the older pages are read again from it, so none is skipped or
+  // shown twice.
+  const [wantOlder, setWantOlder] = useState(false);
+  const firstNext = stored.data?.next_before ?? null;
+  const older = useInfiniteQuery({
+    queryKey: ["my-submissions", "older", firstNext],
+    queryFn: ({ pageParam }) => getMySubmissions(pageParam),
+    initialPageParam: firstNext,
+    getNextPageParam: (last) => last.next_before ?? undefined,
+    enabled: wantOlder && Boolean(firstNext),
+  });
+  const hasOlder = older.data ? older.hasNextPage : Boolean(firstNext);
+  const loadOlder = () => {
+    if (!older.data) setWantOlder(true);
+    else void older.fetchNextPage();
+  };
+
+  // Thumbnails the phone keeps (`public/sw.js`) go when their records leave
+  // the company's window (四.2): a picture first kept longer ago than the
+  // window belongs to a record older than it.
+  const windowDays = stored.data?.history_window_days;
+  useEffect(() => {
+    if (windowDays) prunePhotoCache(windowDays);
+  }, [windowDays]);
 
   const queued = useQuery({
     queryKey: ["my-submissions", "queued", user?.id],
@@ -157,7 +187,18 @@ export function MySubmissions({
     refetchInterval: 15_000,
   });
 
-  const rows = stored.data?.results ?? [];
+  const rows = useMemo(() => {
+    const seen = new Set<string>();
+    return [
+      ...(stored.data?.results ?? []),
+      ...(older.data?.pages.flatMap((page) => page.results) ?? []),
+    ].filter((row) => {
+      const key = `${row.kind}:${row.id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [stored.data, older.data]);
   const linkedRow = linkedMovement
     ? rows.find((row) => row.kind === "EQUIPMENT_MOVEMENT" && row.id === linkedMovement) ?? null
     : null;
@@ -184,6 +225,7 @@ export function MySubmissions({
           onClick={() => {
             void stored.refetch();
             void queued.refetch();
+            if (older.data) void older.refetch();
           }}
         >
           <RefreshCw className={stored.isFetching ? "animate-spin" : ""} />
@@ -306,13 +348,31 @@ export function MySubmissions({
         </ul>
       )}
 
-      {/* Said rather than implied: a list of forty out of sixty that claims to
-          be "everything I sent" is a worse answer than no list. */}
-      {stored.data?.truncated && (
+      {/* Said rather than implied: a list of twenty out of sixty that claims
+          to be "everything I sent" is a worse answer than no list. */}
+      {hasOlder && stored.data?.count != null && (
         <p className="text-center text-xs text-muted-foreground">
           {t("mySubmissions.truncated", { shown: rows.length, total: stored.data.count })}
         </p>
       )}
+      {older.isError ? (
+        <FieldLoadFailed what={t("fieldStaffPwa.what.submissions")} onRetry={() => older.refetch()} />
+      ) : hasOlder && !stored.isError ? (
+        // The next twenty rows and their thumbnails, only when asked for
+        // (client 2026-10-09 五.2).
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 w-full"
+          disabled={older.isFetching}
+          disabledReason={t("common.loading")}
+          onClick={loadOlder}
+          data-load-older
+        >
+          {older.isFetching ? <Loader2 className="animate-spin" /> : null}
+          {t("mySubmissions.loadOlder")}
+        </Button>
+      ) : null}
 
       {/*
         Why the list stops where it does (T-330).
@@ -461,6 +521,9 @@ function StoredDetailSheet({
           photos={detail.data.photos.map((shot, index) => ({
             id: shot.id ?? `${index}:${shot.url}`,
             url: shot.url,
+            // The strip shows the thumbnail; the full photo is fetched when
+            // one is opened (client 2026-10-09 二.4, 五.3).
+            thumbnailUrl: shot.thumbnail_url,
             label: shot.caption || row.reference,
           }))}
           /*

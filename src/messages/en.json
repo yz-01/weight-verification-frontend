@@ -9695,6 +9695,7 @@
     "attempts": "{count} attempts",
     "historyWindow": "The phone keeps the last {days} days. Older records are in the office system.",
     "truncated": "Showing {shown} of {total}.",
+    "loadOlder": "Load earlier records",
     "kind": {
       "MATERIAL_RECEIPT": "Material receipts",
       "SITE_RECORD": "Site record",

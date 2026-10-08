@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { fitWithin, PHOTO_QUALITY } from "@/lib/photo-compression";
+import { canvasJpeg, encodeWithinTarget, fitWithin } from "@/lib/photo-compression";
 import {
   Dialog,
   DialogContent,
@@ -187,23 +187,21 @@ export function FieldCamera({
       context.scale(-1, 1);
     }
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          setError(t("captureError"));
-          return;
-        }
-        onCapture(
-          new File([blob], `mse-site-${new Date().toISOString().replaceAll(":", "-")}.jpg`, {
-            type: "image/jpeg",
-            lastModified: Date.now(),
-          }),
-        );
-        setOpen(false);
-      },
-      "image/jpeg",
-      PHOTO_QUALITY,
-    );
+    // At 0.8, stepped down toward 500 KB but never below the floor that keeps
+    // a DO's print readable (client 2026-10-09 一.2-一.4).
+    void encodeWithinTarget((quality) => canvasJpeg(canvas, quality)).then((blob) => {
+      if (!blob) {
+        setError(t("captureError"));
+        return;
+      }
+      onCapture(
+        new File([blob], `mse-site-${new Date().toISOString().replaceAll(":", "-")}.jpg`, {
+          type: "image/jpeg",
+          lastModified: Date.now(),
+        }),
+      );
+      setOpen(false);
+    });
   }
 
   return (

@@ -590,6 +590,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
             ? detail.data.photos.map((shot, index) => ({
                 id: `${index}:${shot.url}`,
                 url: shot.url,
+                thumbnailUrl: shot.thumbnail_url,
                 label: shot.caption || row.reference,
               }))
             : undefined

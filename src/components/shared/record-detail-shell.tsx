@@ -64,7 +64,14 @@ import type { ExportableRecordKind } from "@/services/contractor-ops.service";
 
 export interface ShellPhoto {
   id: string;
+  /** The full (stamped) photograph: loaded only when it is opened. */
   url: string;
+  /**
+   * Its small thumbnail, when the server sent one: what the record's photo
+   * strip draws, so opening a record costs a few ~20 KB pictures rather than
+   * every full photo (client 2026-10-09 二.4, 五.3). Falls back to `url`.
+   */
+  thumbnailUrl?: string | null;
   /** What it is, e.g. "Delivery order". Shown under the thumbnail. */
   label: string;
   takenAt?: string | null;
@@ -105,7 +112,7 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
         className="photo-hatch relative block size-20 overflow-hidden rounded-lg border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Image
-          src={photo.url}
+          src={photo.thumbnailUrl || photo.url}
           alt={photo.label}
           fill
           sizes="80px"
@@ -135,8 +142,9 @@ function ShellHeroPhoto({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
       data-shell-hero
       className="photo-hatch relative block aspect-video w-full overflow-hidden rounded-xl border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring"
     >
+      {/* The thumbnail too: the full photo loads when it is opened (二.4). */}
       <Image
-        src={photo.url}
+        src={photo.thumbnailUrl || photo.url}
         alt={photo.label}
         fill
         sizes="(min-width: 1024px) 640px, 100vw"

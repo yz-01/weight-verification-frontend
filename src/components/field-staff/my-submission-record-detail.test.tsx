@@ -78,3 +78,42 @@ describe("the phone's submitted record (E8)", () => {
     expect(html).not.toContain('data-stub="export"');
   });
 });
+
+/**
+ * Client 2026-10-09 二.4 / 五.3: opening a record draws its photos from their
+ * thumbnails; the full photo is fetched only when one is opened. 五.2: the
+ * list is read a page at a time.
+ */
+describe("the phone's history saves data (2026-10-09)", () => {
+  const THUMB = "https://cdn.example/evidence/thumbnails/v2/w400/mv-7.webp";
+  const FULL = "https://cdn.example/evidence/watermarked/v2/mv-7.jpg";
+
+  function withThumbnails(client: import("@tanstack/react-query").QueryClient, next_before: string | null = null) {
+    client.setQueryData(["my-submissions"], { results: [row], count: 30, truncated: Boolean(next_before), next_before });
+    client.setQueryData(["my-submissions", "detail", "EQUIPMENT_MOVEMENT", "mv-7"], {
+      ...row,
+      fields: [{ key: "delivery_note_no", value: "DO-OUT-7" }],
+      photos: [
+        { id: "p1", url: FULL, thumbnail_url: THUMB, caption: "Exit gate" },
+        { id: "p2", url: `${FULL}?2`, thumbnail_url: `${THUMB}?2`, caption: "Plate" },
+      ],
+    });
+  }
+
+  it("draws the record's photos from their thumbnails, not the full photos", () => {
+    const html = renderDetail(<MySubmissions />, (client) => withThumbnails(client));
+    expect(html).toContain(THUMB);
+    expect(html).not.toContain(FULL);
+  });
+
+  it("offers the next page only when the server says there is one", () => {
+    const more = renderDetail(<MySubmissions />, (client) => withThumbnails(client, "2026-10-01T00:00:00Z"));
+    expect(more).toContain("data-load-older");
+    expect(more).toContain(messages.mySubmissions.loadOlder);
+    // And says how much is left: 显示 1 条，共 30 条.
+    expect(more).toContain("共 30 条");
+
+    const last = renderDetail(<MySubmissions />, (client) => withThumbnails(client, null));
+    expect(last).not.toContain("data-load-older");
+  });
+});
