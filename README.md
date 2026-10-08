@@ -130,6 +130,15 @@ A commit on `develop` is not in front of a customer, so a task marked done is
 not the same as a behaviour that works for them. `TODO.md` lists which
 completed tasks have not yet reached `deploy`.
 
+### Hosting region
+
+`vercel.json` pins the server functions to `sin1` (Singapore). Users and the
+API (`api.weight.jgdx.xyz`) are in South-East Asia. Without the pin, Vercel
+runs every page render in its default `iad1` (US East), and production
+responses showed `X-Vercel-Id: sin1::iad1`: each navigation crossed the
+Pacific and back, roughly 0.35 s of TTFB before any data loaded. If the API
+moves, move this region with it.
+
 ## Browser tests
 
 `e2e/` holds 23 Playwright tests across two projects: `desktop` (Chrome) and
