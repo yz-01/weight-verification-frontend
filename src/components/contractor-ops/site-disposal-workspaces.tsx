@@ -48,7 +48,7 @@ import {
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
-import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
@@ -807,6 +807,8 @@ function DisposalDetailDialog({
     >
       <RecordDetailShell
         reference={row.reference_no}
+        // 记录人 (E8): who recorded it, with a number to call.
+        recorder={<RecordRecorder record={row} />}
         notices={
           row.disposal_evidence_is_overdue ? (
             <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm font-medium text-destructive">

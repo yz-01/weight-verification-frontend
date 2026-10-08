@@ -13,17 +13,15 @@ import {
   QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  RecordRecorder,
+  ShellPanel,
+} from "@/components/shared/record-detail-shell";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -509,12 +507,14 @@ function PhotoStrip({ day }: { day: EquipmentHoursDay }) {
 }
 
 /**
- * One machine's day: its photos, the office's end time and every correction.
+ * One machine's day in the record-detail popup (E8, Q31): its photos, the
+ * office's end time and every correction.
  *
  * Saving needs a reason; the photos are not touched and an earlier correction
- * stays in the list under the new one.
+ * stays in the list under the new one. The correction history is the shell's
+ * 更正记录; the end-time form is the decision panel.
  */
-function DayDialog({
+export function DayDialog({
   day,
   canAdjust,
   onClose,
@@ -551,96 +551,96 @@ function DayDialog({
   });
 
   return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
-            {day.equipment_name}
-            {day.plate ? ` · ${day.plate}` : ""}
-          </DialogTitle>
-          <DialogDescription>
-            {df.date(day.work_date)} · {t("dialog.summary", {
-              start: df.time(day.start_at),
-              end: day.end_at
-                ? onNextMorning(day.end_at, day.work_date)
-                  ? t("field.nextDay", { time: df.time(day.end_at) })
-                  : df.time(day.end_at)
-                : t("status.MISSING_END"),
-              hours: day.hours,
-            })}
-          </DialogDescription>
-        </DialogHeader>
-
-        <section className="space-y-2">
-          <h3 className="text-sm font-semibold">{t("dialog.photos")}</h3>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {day.photos.map((photo) => (
-              <a
-                key={photo.id}
-                href={photo.watermarked_photo ?? undefined}
-                target="_blank"
-                rel="noreferrer"
-                className="block overflow-hidden rounded-md border bg-muted/20"
-              >
-                {photo.watermarked_photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- a stamped evidence file served by the API
-                  <img src={photo.watermarked_photo} alt={t("photoAlt")} className="aspect-square w-full object-cover" />
-                ) : (
-                  <span className="grid aspect-square place-items-center">
-                    <Camera className="size-5 text-muted-foreground" />
-                  </span>
-                )}
-                <span className="block px-1.5 py-1 text-xs">
-                  {df.time(photo.captured_at)} · {photo.operator_name}
-                </span>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        {canAdjust && (
-          <section className="space-y-3 rounded-lg border p-3">
-            <h3 className="text-sm font-semibold">
-              {day.missing_end ? t("adjust.add") : t("adjust.edit")}
-            </h3>
-            <p className="text-xs text-muted-foreground">{t("adjust.help")}</p>
-            <FieldWrapper label={t("adjust.endAt")} required>
-              <Input
-                type="datetime-local"
-                value={endAt}
-                min={limits.min}
-                max={limits.max}
-                onChange={(event) => setEndAt(event.target.value)}
-              />
-            </FieldWrapper>
-            <FieldWrapper label={t("adjust.reason")} required>
-              <Textarea
-                value={reason}
-                maxLength={500}
-                onChange={(event) => setReason(event.target.value)}
-                placeholder={t("adjust.reasonPlaceholder")}
-              />
-            </FieldWrapper>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <DialogFooter>
-              <Button
-                requires={[
-                  [endAt, t("adjust.endAt")],
-                  [reason.trim(), t("adjust.reason")],
-                ]}
-                disabled={save.isPending}
-                onClick={() => save.mutate()}
-              >
-                {save.isPending && <Loader2 className="animate-spin" />}
-                {t("adjust.save")}
-              </Button>
-            </DialogFooter>
-          </section>
+    <RecordDetailDialog
+      title={`${day.equipment_name}${day.plate ? ` · ${day.plate}` : ""}`}
+      description={`${df.date(day.work_date)} · ${t("dialog.summary", {
+        start: df.time(day.start_at),
+        end: day.end_at
+          ? onNextMorning(day.end_at, day.work_date)
+            ? t("field.nextDay", { time: df.time(day.end_at) })
+            : df.time(day.end_at)
+          : t("status.MISSING_END"),
+        hours: day.hours,
+      })}`}
+      onClose={onClose}
+    >
+      <RecordDetailShell
+        reference={`${day.equipment_code || day.equipment_name}-${day.work_date}`}
+        facts={[
+          { label: t("field.date"), value: df.date(day.work_date) },
+          { label: t("field.plate"), value: day.plate || "-" },
+          { label: t("field.project"), value: day.project_name },
+          { label: t("field.start"), value: <ShiftTime at={day.start_at} workDate={day.work_date} /> },
+          {
+            label: t("field.end"),
+            value: day.missing_end ? (
+              <StatusBadge label={t("status.MISSING_END")} tone="warning" />
+            ) : (
+              <span className="inline-flex items-center gap-1.5">
+                <ShiftTime at={day.end_at} workDate={day.work_date} />
+                {day.adjusted && <StatusBadge label={t("status.ADJUSTED")} tone="info" />}
+              </span>
+            ),
+          },
+          { label: t("field.hours"), value: <span className="tabular-nums">{day.hours}</span> },
+        ]}
+        // The stamped copy, as the table shows it; a photo the server has
+        // not stamped yet has nothing to show.
+        photos={day.photos.flatMap((photo) =>
+          photo.watermarked_photo
+            ? [{
+                id: photo.id,
+                url: photo.watermarked_photo,
+                label: `${df.time(photo.captured_at)} · ${photo.operator_name}`,
+                takenAt: photo.captured_at,
+              }]
+            : [],
         )}
-
-        <AdjustmentHistory day={day} />
-      </DialogContent>
-    </Dialog>
+        recorder={<RecordRecorder record={day} />}
+        corrections={<AdjustmentHistory day={day} />}
+        actions={
+          canAdjust ? (
+            <section className="space-y-3">
+              <h3 className="panel-title">
+                {day.missing_end ? t("adjust.add") : t("adjust.edit")}
+              </h3>
+              <p className="text-xs text-muted-foreground">{t("adjust.help")}</p>
+              <FieldWrapper label={t("adjust.endAt")} required>
+                <Input
+                  type="datetime-local"
+                  value={endAt}
+                  min={limits.min}
+                  max={limits.max}
+                  onChange={(event) => setEndAt(event.target.value)}
+                />
+              </FieldWrapper>
+              <FieldWrapper label={t("adjust.reason")} required>
+                <Textarea
+                  value={reason}
+                  maxLength={500}
+                  onChange={(event) => setReason(event.target.value)}
+                  placeholder={t("adjust.reasonPlaceholder")}
+                />
+              </FieldWrapper>
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <div className="flex justify-end">
+                <Button
+                  requires={[
+                    [endAt, t("adjust.endAt")],
+                    [reason.trim(), t("adjust.reason")],
+                  ]}
+                  disabled={save.isPending}
+                  onClick={() => save.mutate()}
+                >
+                  {save.isPending && <Loader2 className="animate-spin" />}
+                  {t("adjust.save")}
+                </Button>
+              </div>
+            </section>
+          ) : undefined
+        }
+      />
+    </RecordDetailDialog>
   );
 }
 
@@ -653,8 +653,7 @@ export function AdjustmentHistory({ day }: { day: EquipmentHoursDay }) {
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
   return (
-    <section className="space-y-2">
-      <h3 className="text-sm font-semibold">{t("history.title")}</h3>
+    <ShellPanel title={t("history.title")} className="space-y-2">
       {day.adjustments.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("history.empty")}</p>
       ) : (
@@ -682,6 +681,6 @@ export function AdjustmentHistory({ day }: { day: EquipmentHoursDay }) {
           {t("history.photoEnd", { end: df.time(day.photo_end_at) })}
         </p>
       )}
-    </section>
+    </ShellPanel>
   );
 }

@@ -15215,7 +15215,9 @@
     "zoomOut": "縮小",
     "zoomReset": "原始大小",
     "previous": "上一張",
-    "next": "下一張"
+    "next": "下一張",
+    "recorder": "記錄人",
+    "recorderUnknown": "沒有記錄人資料"
   },
   "moduleTable": {
     "count": "{count} 條記錄",

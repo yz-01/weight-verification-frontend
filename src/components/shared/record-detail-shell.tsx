@@ -27,6 +27,7 @@
  */
 
 import {
+  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   Phone,
@@ -36,6 +37,8 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
@@ -53,6 +56,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
+import type { RecordedBy } from "@/interfaces/recorder";
 import type { ChatRecordKind } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
@@ -193,8 +197,25 @@ export function ShellRecorder({
   );
 }
 
+/**
+ * 记录人 for a record (E8, Q31): the `ShellRecorder` filled from the
+ * record's own `created_by_*` fields, the same on every module. A record the
+ * server knows no recorder for says so rather than leaving a blank.
+ */
+export function RecordRecorder({ record }: { record: RecordedBy }) {
+  const t = useTranslations("recordShell");
+  return (
+    <ShellRecorder
+      label={t("recorder")}
+      name={record.created_by_name || t("recorderUnknown")}
+      avatar={record.created_by_avatar}
+      phone={record.created_by_phone}
+    />
+  );
+}
+
 /** A panel of the shell, in the canvas's panel surface. */
-function ShellPanel({
+export function ShellPanel({
   title,
   aside,
   className,
@@ -234,6 +255,8 @@ export function RecordDetailShell({
   closure,
   corrections,
   recorder,
+  aside,
+  chat,
 }: {
   /** The record's own number, used on printed and downloaded copies. */
   reference: string;
@@ -271,13 +294,25 @@ export function RecordDetailShell({
   closure?: { kind: ArchiveRecordKind; recordId: string } | null;
   /** 更正记录, when the record has been corrected. */
   corrections?: React.ReactNode;
-  /** 记录人 - usually a `ShellRecorder`. */
+  /** 记录人 - usually a `RecordRecorder`. */
   recorder?: React.ReactNode;
+  /**
+   * The module's own right-column panels, under the buttons and above 签名
+   * (E8): a consultant application's approval progress, a hazard's
+   * rectification, a task's result. Left of them stays the evidence.
+   */
+  aside?: React.ReactNode;
+  /**
+   * A conversation the module draws itself, in the 事项沟通 place - a
+   * hazard's room (`HazardConversationPanel`), which is the hazard rather
+   * than a panel beside it. Use `conversation` for every other kind.
+   */
+  chat?: React.ReactNode;
 }) {
   const t = useTranslations("recordShell");
   const [open, setOpen] = useState<number | null>(null);
   const hasAside = Boolean(
-    actions || closure || signatures.length > 0 || conversation,
+    actions || closure || aside || signatures.length > 0 || conversation || chat,
   );
   const [hero, ...rest] = photos ?? [];
 
@@ -404,8 +439,9 @@ export function RecordDetailShell({
                 ) : null}
               </ShellPanel>
             ) : null}
+            {aside ? <div className="order-6 min-w-0 space-y-4">{aside}</div> : null}
             {signatures.length > 0 && (
-              <ShellPanel title={t("signatures")} className="order-6">
+              <ShellPanel title={t("signatures")} className="order-7">
                 <div className="grid grid-cols-2 gap-3">
                   {signatures.map((signature) => (
                     <figure key={signature.label} className="space-y-1">
@@ -430,16 +466,21 @@ export function RecordDetailShell({
               </ShellPanel>
             )}
             {conversation ? (
-              <div className="order-7 min-w-0">
+              <div className="order-8 min-w-0">
                 <RecordAttachmentsPanel kind={conversation.kind} recordId={conversation.recordId} />
               </div>
             ) : null}
             {conversation ? (
-              <ShellPanel title={t("conversation")} className="order-8">
+              <ShellPanel title={t("conversation")} className="order-9">
                 <RecordConversationPanel
                   kind={conversation.kind}
                   recordId={conversation.recordId}
                 />
+              </ShellPanel>
+            ) : null}
+            {chat ? (
+              <ShellPanel title={t("conversation")} className="order-9">
+                {chat}
               </ShellPanel>
             ) : null}
           </aside>
@@ -584,21 +625,8 @@ export function PhotoViewer({
   );
 }
 
-/**
- * The shell in a dialog, for the modules whose office list opens a record in
- * place rather than on a page of its own (T-369). Wide, because the shell has
- * two columns; scrolls inside itself, so the page behind never moves.
- */
-export function RecordDetailDialog({
-  title,
-  description,
-  status,
-  caption,
-  headerActions,
-  exportRecord,
-  onClose,
-  children,
-}: {
+/** What the header of a record detail says, in a dialog or on a page. */
+export interface RecordDetailHeaderProps {
   /** The record's short number, large (Q12), or the module's name for it. */
   title: string;
   description?: string;
@@ -618,40 +646,158 @@ export function RecordDetailDialog({
     recordId: string | null | undefined;
     reference: string;
   } | null;
+}
+
+/**
+ * The canvas's 记录详情 header (E8, Q31): the short number with its status,
+ * the full reference line under it, and on the right 预览/打印 · 导出 PDF ·
+ * 分享 - whichever the record has. One drawing for the dialog and the page,
+ * so the two cannot drift; only the title element differs (a dialog's title
+ * must be the dialog's own, for the screen reader).
+ */
+function RecordDetailHeading({
+  title,
+  description,
+  status,
+  caption,
+  headerActions,
+  exportRecord,
+  inDialog,
+}: RecordDetailHeaderProps & { inDialog: boolean }) {
+  const titleClass = "tabular text-xl font-bold leading-tight sm:text-2xl";
+  const heading = (
+    <div className="min-w-0 space-y-1">
+      <div className="flex flex-wrap items-center gap-3">
+        {inDialog ? (
+          <DialogTitle className={titleClass}>{title}</DialogTitle>
+        ) : (
+          <h1 className={cn(titleClass, "text-foreground")}>{title}</h1>
+        )}
+        {status}
+      </div>
+      {description ? (
+        inDialog ? (
+          <DialogDescription>{description}</DialogDescription>
+        ) : (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )
+      ) : null}
+      {caption ? (
+        <div className="tabular text-xs text-muted-foreground">{caption}</div>
+      ) : null}
+    </div>
+  );
+  const actions =
+    headerActions || exportRecord ? (
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        {headerActions}
+        {exportRecord ? (
+          <RecordExportButton
+            kind={exportRecord.kind}
+            recordId={exportRecord.recordId}
+            reference={exportRecord.reference}
+          />
+        ) : null}
+      </div>
+    ) : null;
+  const frame =
+    "flex-row flex-wrap items-start justify-between gap-4 space-y-0 border-b border-panel-border pb-4";
+  return inDialog ? (
+    <DialogHeader className={cn(frame, "pr-8")} data-record-detail-header>
+      {heading}
+      {actions}
+    </DialogHeader>
+  ) : (
+    <div className={cn("flex", frame)} data-record-detail-header>
+      {heading}
+      {actions}
+    </div>
+  );
+}
+
+/**
+ * The shell in a dialog, for the modules whose office list opens a record in
+ * place rather than on a page of its own (T-369). Wide, because the shell has
+ * two columns; scrolls inside itself, so the page behind never moves.
+ *
+ * Since E8 (Q31) every business record opens here - 「以弹窗显示（跟改设计前
+ * 一样）」 - the receipt and the consultant application included.
+ */
+export function RecordDetailDialog({
+  onClose,
+  children,
+  ...header
+}: RecordDetailHeaderProps & {
   onClose: () => void;
   children: React.ReactNode;
 }) {
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-5xl xl:max-w-6xl">
-        <DialogHeader className="flex-row flex-wrap items-start justify-between gap-4 space-y-0 border-b border-panel-border pb-4 pr-8">
-          <div className="min-w-0 space-y-1">
-            <div className="flex flex-wrap items-center gap-3">
-              <DialogTitle className="tabular text-xl font-bold leading-tight sm:text-2xl">{title}</DialogTitle>
-              {status}
-            </div>
-            {description ? (
-              <DialogDescription>{description}</DialogDescription>
-            ) : null}
-            {caption ? (
-              <div className="tabular text-xs text-muted-foreground">{caption}</div>
-            ) : null}
-          </div>
-          {headerActions || exportRecord ? (
-            <div className="flex shrink-0 flex-wrap items-center gap-2">
-              {headerActions}
-              {exportRecord ? (
-                <RecordExportButton
-                  kind={exportRecord.kind}
-                  recordId={exportRecord.recordId}
-                  reference={exportRecord.reference}
-                />
-              ) : null}
-            </div>
-          ) : null}
-        </DialogHeader>
+      <DialogContent
+        data-record-detail="dialog"
+        className="max-h-[92dvh] overflow-y-auto sm:max-w-5xl xl:max-w-6xl"
+      >
+        <RecordDetailHeading {...header} inDialog />
         {children}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * The same frame on a page of its own: a record's address typed, bookmarked
+ * or opened from a notification (`/receipts/<id>`). The header and the shell
+ * are the dialog's; the only addition is the way back to the list, which a
+ * dialog does not need because the list is still behind it.
+ */
+export function RecordDetailPage({
+  backHref,
+  backLabel,
+  children,
+  ...header
+}: RecordDetailHeaderProps & {
+  backHref: string;
+  backLabel: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div data-record-detail="page" className="mx-auto max-w-6xl space-y-4 pb-8">
+      <Link
+        href={backHref}
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" />
+        {backLabel}
+      </Link>
+      <RecordDetailHeading {...header} inDialog={false} />
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Dialog or page, for a detail that can be either: a record with an address
+ * of its own opens in the dialog from inside the app and on the page from a
+ * link (T-243). `onClose` defaults to going back, which is how the dialog
+ * of an intercepted address closes.
+ */
+export function RecordDetailFrame({
+  presentation,
+  onClose,
+  backHref,
+  backLabel,
+  ...rest
+}: RecordDetailHeaderProps & {
+  presentation: "dialog" | "page";
+  onClose?: () => void;
+  backHref: string;
+  backLabel: string;
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  return presentation === "dialog" ? (
+    <RecordDetailDialog {...rest} onClose={onClose ?? (() => router.back())} />
+  ) : (
+    <RecordDetailPage {...rest} backHref={backHref} backLabel={backLabel} />
   );
 }

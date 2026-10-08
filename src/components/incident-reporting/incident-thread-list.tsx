@@ -78,15 +78,6 @@ export function IncidentThreadList() {
     replaceUrl(selectedProject, threadId);
   };
 
-  if (selectedThread) {
-    return (
-      <IncidentThreadDetail
-        threadId={selectedThread}
-        onBack={() => selectThread(null)}
-      />
-    );
-  }
-
   return (
     <div className="space-y-4">
       <section className="space-y-4">
@@ -138,6 +129,15 @@ export function IncidentThreadList() {
           ))}
         </div>
       </section>
+
+      {/* The report opens in the record popup over the list (E8, Q31);
+          `?thread=` still opens it, and closing clears it. */}
+      {selectedThread && (
+        <IncidentThreadDetail
+          threadId={selectedThread}
+          onClose={() => selectThread(null)}
+        />
+      )}
 
       {showCreate && (
         <CreateIncidentDialog

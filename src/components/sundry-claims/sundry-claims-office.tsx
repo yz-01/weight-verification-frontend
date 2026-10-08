@@ -41,7 +41,7 @@ import {
   sortable,
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
-import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { VoucherSource } from "@/components/sundry-claims/voucher-source";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -306,6 +306,8 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
     >
       <RecordDetailShell
         reference={claim.claim_no}
+        // 记录人 (E8): who recorded it, with a number to call.
+        recorder={<RecordRecorder record={claim} />}
         facts={[
           { label: t("field.status"), value: <StatusBadge label={t(`status.${status}`)} tone={TONE[status]} /> },
           { label: t("field.project"), value: claim.project_name },

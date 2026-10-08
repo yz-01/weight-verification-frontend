@@ -70,10 +70,7 @@ import {
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
-import {
-  RecordDetailDialog,
-  RecordDetailShell,
-} from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -1010,6 +1007,8 @@ export function SiteEquipmentOffice() {
         >
           <RecordDetailShell
             reference={`${shownMovement.equipment_code}-${shownMovement.direction}`}
+            // 记录人 (E8): who recorded it, with a number to call.
+            recorder={<RecordRecorder record={shownMovement} />}
             facts={[
               {
                 label: t("equipment.directionLabel"),
@@ -1685,6 +1684,8 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         >
           <RecordDetailShell
             reference={reference(shown)}
+            // 记录人 (E8): who recorded it, with a number to call.
+            recorder={<RecordRecorder record={shown} />}
             facts={[
               {
                 label: t("field.status"),

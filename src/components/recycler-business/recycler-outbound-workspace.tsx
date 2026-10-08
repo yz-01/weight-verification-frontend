@@ -29,6 +29,7 @@ import {
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
+import { RecordDetailDialog, RecordDetailShell, ShellPanel } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -181,7 +182,7 @@ function ShipmentDialog({ shipment, onClose }: { shipment: OutboundShipment | nu
   </div><DialogFooter><Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button><Button requires={[[form.buyer, t("field.buyer")], [Number(form.weight_kg) > 0, t("field.weight")], [form.outbound_date, t("field.outboundDate")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}{common("save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
-function ShipmentDetailDialog({ shipment, onClose }: { shipment: OutboundShipment; onClose: () => void }) {
+export function ShipmentDetailDialog({ shipment, onClose }: { shipment: OutboundShipment; onClose: () => void }) {
   const t = useTranslations("recyclerBusiness");
   const common = useTranslations("common");
   const queryClient = useQueryClient();
@@ -191,10 +192,24 @@ function ShipmentDetailDialog({ shipment, onClose }: { shipment: OutboundShipmen
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const upload = useMutation({ mutationFn: () => uploadOutboundAttachment(current.id, kind, file!, description), onSuccess: async () => { const refreshed = await getOutboundShipments({ search: current.shipment_no, page_size: 10 }); const next = refreshed.results.find((row) => row.id === current.id); if (next) setCurrent(next); void queryClient.invalidateQueries({ queryKey: ["recycler-outbound"] }); setFile(null); setDescription(""); if (inputRef.current) inputRef.current.value = ""; } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{current.shipment_no}</DialogTitle><DialogDescription>{t("outbound.detailHelp")}</DialogDescription></DialogHeader><div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-3"><Detail label={t("field.buyer")} value={current.buyer_name} /><Detail label={t("field.material")} value={t(`material.${current.material_type}`)} /><Detail label={t("field.weight")} value={`${current.weight_kg} kg`} /><Detail label={t("field.source")} value={t(`source.${current.business_source}`)} /><Detail label={t("field.vehiclePlate")} value={current.vehicle_plate || "—"} /><Detail label={t("field.balance")} value={current.balance_after_kg ? `${current.balance_after_kg} kg` : "—"} /></div><div><h3 className="mb-2 font-medium">{t("outbound.attachments")}</h3>{current.attachments.length ? <div className="grid gap-2">{current.attachments.map((attachment) => <a key={attachment.id} href={attachment.file} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg border px-3 py-2 hover:bg-muted"><FileUp className="size-4 text-primary" /><div className="min-w-0"><p className="font-medium">{t(`attachmentKind.${attachment.kind}`)}</p><p className="truncate text-xs text-muted-foreground">{attachment.description || attachment.file}</p></div></a>)}</div> : <p className="rounded-lg border border-dashed p-5 text-center text-muted-foreground">{t("outbound.noAttachments")}</p>}</div><div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[160px_1fr_auto]"><Select value={kind} onValueChange={(value) => setKind(value as OutboundAttachmentKind)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{(["DELIVERY_ORDER", "E_INVOICE", "PHOTO", "OTHER"] as const).map((value) => <SelectItem key={value} value={value}>{t(`attachmentKind.${value}`)}</SelectItem>)}</SelectContent></Select><div className="grid gap-2"><FieldWrapper label={t("outbound.attachmentFile")} required><Input ref={inputRef} type="file" accept="image/*,.pdf" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><Input value={description} placeholder={t("field.description")} onChange={(event) => setDescription(event.target.value)} /></div><Button requires={[[file, t("outbound.attachmentFile")]]} disabled={upload.isPending} onClick={() => upload.mutate()}><Upload />{t("action.upload")}</Button></div><DialogFooter><Button variant="outline" onClick={onClose}><X />{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
+  // The shared record-detail popup (E8, Q31). A shipment is entered in the
+  // office, so it has no 记录人; its documents and their upload stay one panel.
+  return <RecordDetailDialog title={current.shipment_no} description={t("outbound.detailHelp")} status={<StatusBadge label={t(`outboundState.${current.state}`)} tone={current.state === "CONFIRMED" ? "positive" : current.state === "CANCELLED" ? "danger" : "warning"} />} onClose={onClose}>
+    <RecordDetailShell
+      reference={current.shipment_no}
+      facts={[
+        { label: t("field.buyer"), value: current.buyer_name },
+        { label: t("field.material"), value: t(`material.${current.material_type}`) },
+        { label: t("field.weight"), value: `${current.weight_kg} kg` },
+        { label: t("field.source"), value: t(`source.${current.business_source}`) },
+        { label: t("field.vehiclePlate"), value: current.vehicle_plate || "—" },
+        { label: t("field.balance"), value: current.balance_after_kg ? `${current.balance_after_kg} kg` : "—" },
+      ]}
+      panel={<ShellPanel title={t("outbound.attachments")}><div className="space-y-3">{current.attachments.length ? <div className="grid gap-2">{current.attachments.map((attachment) => <a key={attachment.id} href={attachment.file} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg border px-3 py-2 hover:bg-muted"><FileUp className="size-4 text-primary" /><div className="min-w-0"><p className="font-medium">{t(`attachmentKind.${attachment.kind}`)}</p><p className="truncate text-xs text-muted-foreground">{attachment.description || attachment.file}</p></div></a>)}</div> : <p className="rounded-lg border border-dashed p-5 text-center text-muted-foreground">{t("outbound.noAttachments")}</p>}<div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[160px_1fr_auto]"><Select value={kind} onValueChange={(value) => setKind(value as OutboundAttachmentKind)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{(["DELIVERY_ORDER", "E_INVOICE", "PHOTO", "OTHER"] as const).map((value) => <SelectItem key={value} value={value}>{t(`attachmentKind.${value}`)}</SelectItem>)}</SelectContent></Select><div className="grid gap-2"><FieldWrapper label={t("outbound.attachmentFile")} required><Input ref={inputRef} type="file" accept="image/*,.pdf" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><Input value={description} placeholder={t("field.description")} onChange={(event) => setDescription(event.target.value)} /></div><Button requires={[[file, t("outbound.attachmentFile")]]} disabled={upload.isPending} onClick={() => upload.mutate()}><Upload />{t("action.upload")}</Button></div></div></ShellPanel>}
+    />
+    <DialogFooter><Button variant="outline" onClick={onClose}><X />{common("close")}</Button></DialogFooter>
+  </RecordDetailDialog>;
 }
-
-function Detail({ label, value }: { label: string; value: string }) { return <div className="min-w-0"><p className="text-xs text-muted-foreground">{label}</p><p className="truncate font-medium">{value}</p></div>; }
 
 function BuyersPanel() {
   const t = useTranslations("recyclerBusiness");

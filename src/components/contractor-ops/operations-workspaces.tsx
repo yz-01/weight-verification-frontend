@@ -13,7 +13,6 @@ import {
   ListTodo,
   ListTree,
   Loader2,
-  MapPin,
   PackageOpen,
   Paperclip,
   Pencil,
@@ -59,7 +58,7 @@ import {
 } from "@/components/contractor-ops/equipment-classes";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
-import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useDateFormat } from "@/lib/dates";
 import {
   FieldWrapper,
@@ -891,8 +890,8 @@ export function FieldTasksWorkspace({
   const [addingRefsTo, setAddingRefsTo] = useState<FieldTask | null>(null);
   const focusedTaskId = searchParams.get("task");
   const showAllTasks = useClearSearchParam("task");
-  // The detail of a head-office task (C17): opened by hand, or by the
-  // assignee's My Tasks card, which links here with ?task=.
+  // The detail of a task (C17; every task since E8, Q31): opened by hand, or
+  // by a link here with ?task= - the assignee's My Tasks card, a task card.
   const [openedTask, setOpenedTask] = useState<string | null>(null);
   // The 公司总部 Dashboard's 未完成 / 逾期 figures (C13) link here with the
   // same filter the server counted them by, so the list shows exactly them.
@@ -927,13 +926,13 @@ export function FieldTasksWorkspace({
   });
   const focusedTask = listedTask ?? (focusedTaskId ? linkedTask.data : undefined);
   useFollowRecordProject("task", focusedTask);
-  const linkedHeadOffice = focusedTask?.origin === "HQ" ? focusedTask : undefined;
   const shownTasks = focusedTaskId
     ? focusedTask
       ? [focusedTask]
       : []
     : rows.data?.results ?? [];
-  const sheetTask = openedTask ?? linkedHeadOffice?.id ?? null;
+  // Any task opened by its id (?task=) opens in the record popup (E8, Q31).
+  const sheetTask = openedTask ?? focusedTask?.id ?? null;
   const transition = useMutation({
     mutationFn: ({
       id,
@@ -958,15 +957,6 @@ export function FieldTasksWorkspace({
    * silently did nothing at all.
    */
   const [returning, setReturning] = useState<FieldTask | null>(null);
-  // Which strips are open (B17). A task opened by its id is open anyway.
-  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
-  const toggleExpanded = (id: string) =>
-    setExpanded((current) => {
-      const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
   const review = (row: FieldTask, status: FieldTask["status"]) => {
     if (status === "RETURNED") {
       setReturning(row);
@@ -1016,7 +1006,7 @@ export function FieldTasksWorkspace({
           id={sheetTask}
           onClose={() => {
             setOpenedTask(null);
-            if (linkedHeadOffice) showAllTasks();
+            if (focusedTaskId) showAllTasks();
           }}
         />
       )}
@@ -1041,15 +1031,14 @@ export function FieldTasksWorkspace({
         /*
          * One compact strip per task (B17): 项目、任务名称、负责人、期限、状态、
          * 照片摘要、处理入口. The reference material and every returned photo
-         * open under the strip, so a page of tasks is a list rather than a
-         * wall of photographs. A task opened by its id (?task=) opens expanded.
+         * are in the task's detail - the record popup every module uses (E8,
+         * Q31), opened from the strip - so a page of tasks is a list rather
+         * than a wall of photographs. A task opened by its id (?task=) opens
+         * in that popup.
          */
         <div className="grid gap-2">
           {shownTasks
             .map((row) => {
-            const gpsPhoto = row.photos.find(
-              (photo) => photo.latitude && photo.longitude,
-            );
             // B15: the site sends the request to the manager, who checks it,
             // talks it through, and sends it on to the consultant from this
             // same item - once. A request already sent on links to it.
@@ -1060,7 +1049,6 @@ export function FieldTasksWorkspace({
               !user?.is_field_staff &&
               !sentOn &&
               ["SUBMITTED", "ACCEPTED"].includes(row.status);
-            const isOpen = expanded.has(row.id) || row.id === focusedTaskId;
             const canEdit =
               can("field_task.manage") && ["OPEN", "RETURNED"].includes(row.status);
             // A head-office task (C17) is reported and decided in its own
@@ -1078,14 +1066,12 @@ export function FieldTasksWorkspace({
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
                   <button
                     type="button"
-                    aria-expanded={isOpen}
-                    aria-label={t(isOpen ? "tasks.collapse" : "tasks.expand", { task: taskTitle(row) })}
-                    onClick={() => toggleExpanded(row.id)}
+                    aria-haspopup="dialog"
+                    aria-label={t("tasks.expand", { task: taskTitle(row) })}
+                    onClick={() => setOpenedTask(row.id)}
                     className="flex min-w-0 flex-[1_1_18rem] items-center gap-2.5 rounded-md text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
-                    <ChevronRight
-                      className={`size-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-90" : ""}`}
-                    />
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                     <span className="grid min-w-0 flex-1 gap-0.5 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] sm:items-center sm:gap-3">
                       <span className="min-w-0">
                         <span className="block truncate font-medium">{taskTitle(row)}</span>
@@ -1189,155 +1175,6 @@ export function FieldTasksWorkspace({
                     </div>
                   )}
                 </div>
-                {isOpen && (
-                  <div className="border-t px-4 py-3" data-testid="field-task-detail">
-                    {row.submission_category && (
-                      <p className="text-xs font-semibold text-primary">
-                        {askFor.has(`askOption.${row.submission_category}`)
-                          ? askFor(`askOption.${row.submission_category}` as never)
-                          : row.submission_category}
-                      </p>
-                    )}
-                    <div className="mt-1 grid gap-1 text-xs text-muted-foreground">
-                      <p>
-                        {t("tasks.assignedBy", {
-                          name: row.created_by_name || t("state.unknown"),
-                        })}
-                      </p>
-                      {row.work_location && (
-                        <p>
-                          {t("tasks.workLocation", {
-                            location: row.work_location,
-                          })}
-                        </p>
-                      )}
-                      {row.submitted_at && (
-                        <p>
-                          {t("tasks.submittedAt", {
-                            value: new Date(row.submitted_at).toLocaleString(),
-                          })}
-                        </p>
-                      )}
-                      {row.due_at && (
-                        <p>
-                          {t("tasks.dueAt", {
-                            value: new Date(row.due_at).toLocaleString(),
-                          })}
-                        </p>
-                      )}
-                      {/* B18: who closed or returned it, and when. */}
-                      {row.reviewed_at &&
-                        ["ACCEPTED", "RETURNED"].includes(row.status) && (
-                          <p>
-                            {t(
-                              row.status === "ACCEPTED"
-                                ? "tasks.confirmedBy"
-                                : "tasks.returnedBy",
-                              {
-                                name: row.reviewed_by_name || t("state.unknown"),
-                                value: new Date(row.reviewed_at).toLocaleString(),
-                              },
-                            )}
-                          </p>
-                        )}
-                      {row.status === "RETURNED" && row.review_note && (
-                        <p className="text-destructive">
-                          {t("tasks.returnReasonShown", { reason: row.review_note })}
-                        </p>
-                      )}
-                    </div>
-                    <p className="mt-2 text-sm leading-6">
-                      {row.instructions || t("state.noDescription")}
-                    </p>
-                    {row.references.length ? (
-                      <div className="mt-3 rounded-lg border bg-muted/20 p-3">
-                        <p className="mb-2 text-xs font-semibold">
-                          {t("tasks.references", {
-                            count: row.references.length,
-                          })}
-                        </p>
-                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-                          {row.references.map((reference) =>
-                            reference.kind === "PHOTO" ? (
-                              <a
-                                key={reference.id}
-                                href={reference.file}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                <Image
-                                  src={reference.file}
-                                  alt={
-                                    reference.label ||
-                                    reference.original_filename
-                                  }
-                                  width={180}
-                                  height={180}
-                                  unoptimized
-                                  className="aspect-square w-full rounded-lg object-cover"
-                                />
-                              </a>
-                            ) : (
-                              <a
-                                key={reference.id}
-                                href={reference.file}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="col-span-3 flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm font-medium text-primary hover:underline"
-                              >
-                                <FileText className="size-4" />
-                                <span className="truncate">
-                                  {reference.label ||
-                                    reference.original_filename}
-                                </span>
-                              </a>
-                            ),
-                          )}
-                        </div>
-                      </div>
-                    ) : null}
-                    <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
-                      {row.photos.map((photo, index) => (
-                        <a
-                          key={photo.id}
-                          href={photo.watermarked || photo.image}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="w-24 shrink-0"
-                          title={`${index + 1} / ${row.photos.length}`}
-                        >
-                          <Image
-                            src={photo.watermarked || photo.image}
-                            alt=""
-                            width={180}
-                            height={180}
-                            unoptimized
-                            className="aspect-square w-full rounded-lg border object-cover"
-                          />
-                        </a>
-                      ))}
-                    </div>
-                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                      <span>
-                        {t("tasks.photos", {
-                          current: row.photos.length,
-                          required: row.evidence_required,
-                        })}
-                      </span>
-                      {gpsPhoto ? (
-                        <a
-                          className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
-                          href={`https://www.google.com/maps?q=${gpsPhoto.latitude},${gpsPhoto.longitude}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <MapPin className="size-3.5" />
-                          {t("tasks.openGps")}
-                        </a>
-                      ) : null}
-                    </div>
-                  </div>
-                )}
                 {sentOn && (
                   <div className="border-t bg-muted/20 px-3 py-2 text-sm">
                     <Link
@@ -4786,6 +4623,7 @@ export function OutgoingDetailDialog({
               </div>
             </>
           }
+          recorder={<RecordRecorder record={row} />}
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
           // 【确认归档】 once the return is finished (C4).
           closure={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}

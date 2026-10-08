@@ -1,12 +1,15 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Inbox, ListTree, X } from "lucide-react";
+import { ExternalLink, Inbox, ListTree } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { recordKindKey } from "@/lib/record-kind";
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
-import { PhotoViewer } from "@/components/shared/record-detail-shell";
-import Image from "next/image";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  RecordRecorder,
+} from "@/components/shared/record-detail-shell";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -489,8 +492,6 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
 }) {
   const t = useTranslations();
   const formatter = useDateFormat();
-  // Which photograph is open on its own, full size (B06).
-  const [viewingPhoto, setViewingPhoto] = useState<number | null>(null);
   const detail = useQuery({
     queryKey: [
       "archive-queue",
@@ -512,56 +513,49 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   // A hazard closes by its raiser's 确认完成 (X10), so it is said, not offered.
   const hazardClosure =
     row.kind === "HAZARD" ? (row.archived ?? detail.data?.archived ?? null) : undefined;
+  // The record's own parts are drawn once it has loaded, as before; the
+  // caller's buttons and the way to the receipt are there from the start.
+  const loaded = !detail.isLoading && !detail.isError && Boolean(detail.data);
+  const offersConfirm = confirm && canConfirmClosure(row.kind);
+  const hasActions = Boolean(
+    actions || pendingReceipt || (loaded && (hazardClosure !== undefined || offersConfirm)),
+  );
+  // The status in the words the list uses (T-391); a sheet opened from
+  // elsewhere without one reads it from the record once loaded.
+  const statusLabel = recordStatusLabel(t, detail.data ?? row);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={row.reference}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
+    <RecordDetailDialog
+      title={row.reference}
+      // A company-wide document has no project, so the empty part is
+      // dropped rather than printed as a double dot.
+      description={[
+        t(`archiveQueue.kind.${recordKindKey(row) as RecordSheetKind}`),
+        row.project_name,
+        formatter.dateTime(row.submitted_at),
+      ]
+        .filter(Boolean)
+        .join(" · ")}
+      status={statusLabel ? <StatusBadge label={statusLabel} tone="neutral" /> : null}
+      // 「单独导出」 (T-386), top right. A day of attendance is an aggregate
+      // with no single record to print, and a column's delivery note, site
+      // record, machine, document or period claim is not a kind the export
+      // endpoint prints.
+      headerActions={
+        isExportableKind(row.kind) && (
+          <RecordExportButton
+            kind={row.kind}
+            recordId={row.id}
+            reference={row.reference}
+          />
+        )
+      }
+      onClose={onClose}
     >
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-card sm:rounded-xl">
-        <header className="flex items-center gap-2 border-b px-4 py-3">
-          <div className="min-w-0">
-            <h2 className="truncate font-semibold">{row.reference}</h2>
-            <p className="truncate text-xs text-muted-foreground">
-              {/* A company-wide document has no project, so the empty part
-                  is dropped rather than printed as a double dot. */}
-              {[
-                t(`archiveQueue.kind.${recordKindKey(row) as RecordSheetKind}`),
-                row.project_name,
-                formatter.dateTime(row.submitted_at),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-          </div>
-          {/* 「单独导出」 (T-386), top right beside the close. A day of
-              attendance is an aggregate with no single record to print, and
-              a column's delivery note, site record, machine, document or
-              period claim is not a kind the export endpoint prints. */}
-          <div className="ml-auto flex shrink-0 items-center gap-1">
-            {isExportableKind(row.kind) && (
-              <RecordExportButton
-                kind={row.kind}
-                recordId={row.id}
-                reference={row.reference}
-              />
-            )}
-          </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={onClose}
-            aria-label={t("common.close")}
-          >
-            <X />
-          </Button>
-        </header>
-
-        <div className="flex-1 space-y-4 overflow-y-auto p-4">
-          {actions}
-          {detail.isLoading ? (
+      <RecordDetailShell
+        reference={row.reference}
+        notices={
+          detail.isLoading ? (
             <p className="text-sm text-muted-foreground">
               {t("archiveQueue.loading")}
             </p>
@@ -569,114 +563,83 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
             <p role="alert" className="text-sm text-destructive">
               {t("archiveQueue.failed")}
             </p>
-          ) : (
+          ) : null
+        }
+        facts={
+          loaded
+            ? (detail.data?.fields ?? []).map((field) => ({
+                // The same catalogue the phone's history sheet uses. One list
+                // of field labels, checked against all four locales by a
+                // backend test (D-133).
+                label: t(`mySubmissions.field.${field.key}`),
+                value: (
+                  <span className="whitespace-pre-wrap">
+                    {field.value}
+                    {field.unit ? ` ${t(`mySubmissions.unit.${field.unit}`)}` : ""}
+                  </span>
+                ),
+                wide: field.value.length > 60 || field.value.includes("\n"),
+              }))
+            : []
+        }
+        // The stamped copies, each opened full size (B06).
+        photos={
+          loaded && detail.data
+            ? detail.data.photos.map((shot, index) => ({
+                id: `${index}:${shot.url}`,
+                url: shot.url,
+                label: shot.caption || row.reference,
+              }))
+            : undefined
+        }
+        // 记录人 (E8): who recorded it, with a number to call. A day of
+        // attendance is a count of people, recorded by nobody in particular.
+        recorder={
+          loaded && detail.data && row.kind !== "ATTENDANCE_DAY" ? (
+            <RecordRecorder record={detail.data} />
+          ) : undefined
+        }
+        actions={
+          hasActions ? (
             <>
-              <dl className="divide-y rounded-lg border">
-                {detail.data?.fields.map((field) => (
-                  <div
-                    key={field.key}
-                    className="grid grid-cols-3 gap-2 px-3 py-2"
-                  >
-                    <dt className="text-xs text-muted-foreground">
-                      {/* The same catalogue the phone's history sheet uses.
-                          One list of field labels, checked against all four
-                          locales by a backend test (D-133). */}
-                      {t(`mySubmissions.field.${field.key}`)}
-                    </dt>
-                    <dd className="col-span-2 whitespace-pre-wrap break-words text-sm">
-                      {field.value}
-                      {field.unit
-                        ? ` ${t(`mySubmissions.unit.${field.unit}`)}`
-                        : ""}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              {detail.data && detail.data.photos.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {detail.data.photos.map((shot, index) => (
-                    <figure key={shot.url} className="overflow-hidden rounded-lg border">
-                      {/* object-contain, not cover (B06): a portrait shot
-                          and its bottom watermark - time and place - are
-                          evidence, so nothing is cropped off. */}
-                      <button
-                        type="button"
-                        className="block w-full bg-muted"
-                        onClick={() => setViewingPhoto(index)}
-                        title={t("archiveQueue.openPhoto")}
-                      >
-                        <Image
-                          src={shot.url}
-                          alt={shot.caption || row.reference}
-                          width={320}
-                          height={240}
-                          unoptimized
-                          className="h-40 w-full object-contain"
-                        />
-                      </button>
-                      {shot.caption && (
-                        <figcaption className="px-2 py-1 text-xs text-muted-foreground">
-                          {shot.caption}
-                        </figcaption>
-                      )}
-                    </figure>
-                  ))}
-                </div>
+              {actions}
+              {/* Nothing here changes the record (C4): adding to a package
+                  and the confirm are on the module's own page. */}
+              {pendingReceipt && (
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/receipts/${row.id}`}>
+                    <ExternalLink />
+                    {t("archiveQueue.goToReceipt")}
+                  </Link>
+                </Button>
               )}
-              {detail.data && viewingPhoto !== null && detail.data.photos[viewingPhoto] && (
-                <PhotoViewer
-                  photos={detail.data.photos.map((shot, index) => ({
-                    id: `${index}:${shot.url}`,
-                    url: shot.url,
-                    label: shot.caption || row.reference,
-                  }))}
-                  index={viewingPhoto}
-                  reference={row.reference}
-                  onIndex={setViewingPhoto}
-                  onClose={() => setViewingPhoto(null)}
-                />
-              )}
-
-              {/* The same reason the package shortcut sits here (D-154): this
-                  sheet is the one place a record of any kind is opened, so one
-                  panel here reaches every kind that takes a conversation
-                  instead of one copy per module screen. A hazard is not one of
-                  them - it keeps its own chat, and two would split its
-                  evidence in half. */}
-              {canDiscuss(row.kind) && (
-                <RecordConversationPanel kind={row.kind} recordId={row.id} />
-              )}
-              {hazardClosure !== undefined && (
+              {loaded && hazardClosure !== undefined && (
                 <HazardClosureLine closure={hazardClosure} />
               )}
               {/* The one action that ends a record (D-234) is on its module's
                   page (C4). Here only for a 「等你处理」 row whose module has
                   no detail page yet, so the reader is not sent somewhere
                   nothing can be confirmed. */}
-              {confirm && canConfirmClosure(row.kind) && (
+              {loaded && confirm && canConfirmClosure(row.kind) && (
                 <RecordClosurePanel kind={row.kind} recordId={row.id} />
               )}
             </>
-          )}
-        </div>
-
-        <footer className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
-          {pendingReceipt && (
-            <Button asChild size="sm" variant="outline">
-              <Link href={`/receipts/${row.id}`}>
-                <ExternalLink />
-                {t("archiveQueue.goToReceipt")}
-              </Link>
-            </Button>
-          )}
-          {/* Nothing here changes the record (C4): adding to a package and
-              the confirm are on the module's own page. */}
-          <Button className="ml-auto" variant="outline" onClick={onClose}>
-            {t("common.close")}
-          </Button>
-        </footer>
-      </div>
-    </div>
+          ) : undefined
+        }
+        // The same reason the package shortcut sits here (D-154): this sheet
+        // is the one place a record of any kind is opened, so one panel here
+        // reaches every kind that takes a conversation instead of one copy
+        // per module screen. A hazard is not one of them - it keeps its own
+        // chat, and two would split its evidence in half. The conversation
+        // alone, as this sheet always had it (no attachments panel added).
+        chat={
+          loaded &&
+          canDiscuss(row.kind) && (
+            <RecordConversationPanel kind={row.kind} recordId={row.id} />
+          )
+        }
+      />
+    </RecordDetailDialog>
   );
 }
 

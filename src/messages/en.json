@@ -15215,7 +15215,9 @@
     "zoomOut": "Zoom out",
     "zoomReset": "Actual size",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "recorder": "Recorded by",
+    "recorderUnknown": "Recorder not on file"
   },
   "moduleTable": {
     "count": "{count} records",

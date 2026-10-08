@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /**
  * Sundry Claim / 杂费报销 (D-232, D-252). A claim of kind SUNDRY on the one
  * claim table; the fields below are the ones a sundry claim fills.
@@ -28,7 +30,7 @@ export interface SundryClaimPaymentProof {
   uploaded_at: string;
 }
 
-export interface SundryClaim {
+export interface SundryClaim extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
