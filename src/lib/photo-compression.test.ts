@@ -105,3 +105,60 @@ describe("compressPhoto always ends", () => {
     expect(await compressPhoto(photo, 1_000)).toBe(photo);
   });
 });
+
+describe("compressPhoto keeps a photo the right way up", () => {
+  // Lucas, 2026-10-09: 「OCR如果打横拍的话好像也读取不到」. A phone's camera
+  // stores the sensor's pixels sideways and says "turn me" in EXIF. Those
+  // words must survive or be acted on before the DO photo reaches OCR.
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function bitmap(width: number, height: number) {
+    return { width, height, close: vi.fn() };
+  }
+
+  it("decodes with the EXIF orientation applied", async () => {
+    const options: unknown[] = [];
+    vi.stubGlobal("createImageBitmap", (_file: Blob, opts: unknown) => {
+      options.push(opts);
+      return Promise.resolve(bitmap(1080, 1440));
+    });
+    await compressPhoto(new File(["jpeg"], "do.jpg", { type: "image/jpeg" }));
+    expect(options).toEqual([{ imageOrientation: "from-image" }]);
+  });
+
+  it("sends a JPEG already inside the limit as it is, EXIF and all", async () => {
+    vi.stubGlobal("createImageBitmap", () => Promise.resolve(bitmap(1080, 1440)));
+    const photo = new File(["jpeg-with-exif"], "do.jpg", { type: "image/jpeg" });
+    expect(await compressPhoto(photo)).toBe(photo);
+  });
+
+  it("draws a big sideways-stored photo at its turned (upright) shape", async () => {
+    // EXIF 6: stored 4032 x 3024, shown 3024 x 4032. The decoder hands back
+    // the turned bitmap; the new JPEG (which carries no EXIF) is drawn at
+    // that portrait shape, so its pixels are upright.
+    const drawn: Array<{ width: number; height: number }> = [];
+    class FakeCanvas {
+      constructor(
+        public width: number,
+        public height: number,
+      ) {
+        drawn.push({ width, height });
+      }
+      getContext() {
+        return { fillStyle: "", fillRect: vi.fn(), drawImage: vi.fn() };
+      }
+      convertToBlob() {
+        return Promise.resolve(new Blob(["small"], { type: "image/jpeg" }));
+      }
+    }
+    vi.stubGlobal("OffscreenCanvas", FakeCanvas);
+    vi.stubGlobal("createImageBitmap", () => Promise.resolve(bitmap(3024, 4032)));
+    const photo = new File(["x".repeat(64)], "IMG_0042.jpg", { type: "image/jpeg" });
+    const out = await compressPhoto(photo);
+    expect(drawn).toEqual([{ width: 1440, height: 1920 }]);
+    expect(out.name).toBe("IMG_0042.jpg");
+    expect(out.type).toBe("image/jpeg");
+  });
+});
