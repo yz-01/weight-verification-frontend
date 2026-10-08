@@ -226,8 +226,11 @@ function WasteOutgoingDecision({ id, onDone }: { id: string; onDone: () => void 
   );
 }
 
-/** 材料出场 / 退场申请: the module's detail dialog with its own step buttons. */
-function OutgoingDecision({ id, onClose }: { id: string; onClose: () => void }) {
+/**
+ * 材料出场 / 退场申请: the module's detail dialog with its own step buttons.
+ * Also what a return opens from 累计净数量's 「已退场」 (2026-10-09).
+ */
+export function OutgoingDecision({ id, onClose }: { id: string; onClose: () => void }) {
   const queryClient = useQueryClient();
   const [rejecting, setRejecting] = useState<MaterialOutgoing | null>(null);
   const [returning, setReturning] = useState<MaterialOutgoing | null>(null);

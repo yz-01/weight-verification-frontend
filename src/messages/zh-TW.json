@@ -11699,6 +11699,30 @@
         "manufacturer": "製造廠商",
         "returnNote": "Return Note",
         "quantity": "數量"
+      },
+      "returnTag": "有退場記錄",
+      "returnTagHint": "這一行有 {count} 筆已完成的退場，點開查看",
+      "openNumber": "查看{label} {value} 是哪些記錄",
+      "breakdown": {
+        "what": "這一行的明細",
+        "gone": "這一行已不在目前的篩選裡。",
+        "deliveries": "每一筆進場（{count} 筆）",
+        "returns": "每一筆已完成退場（{count} 筆）",
+        "rejected": "不合格，不計入累計進場（{count} 筆）",
+        "emptyDeliveries": "沒有計入的進場。",
+        "emptyReturns": "沒有已完成的退場。",
+        "receivedTotal": "進場合計",
+        "returnedTotal": "已完成退場合計",
+        "subtotal": "合計",
+        "reason": "退回原因",
+        "approvedBy": "批准",
+        "completedBy": "確認完成",
+        "siteSignature": "現場簽名",
+        "supplierSignature": "供應商 / 司機簽名",
+        "approverSignature": "批准人簽名",
+        "open": "打開 {reference}",
+        "legacyReturn": "10-02 前在進場單上登記的退場",
+        "project": "項目"
       }
     }
   },

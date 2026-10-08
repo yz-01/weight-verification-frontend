@@ -11699,6 +11699,30 @@
         "manufacturer": "Manufacturer",
         "returnNote": "Return Note",
         "quantity": "Quantity"
+      },
+      "returnTag": "Returns on record",
+      "returnTagHint": "This line has {count} completed returns - open to see them",
+      "openNumber": "See the records behind {label} {value}",
+      "breakdown": {
+        "what": "this line's records",
+        "gone": "This line is no longer in the current filters.",
+        "deliveries": "Each delivery ({count})",
+        "returns": "Each completed return ({count})",
+        "rejected": "Rejected - not counted in received ({count})",
+        "emptyDeliveries": "No counted deliveries.",
+        "emptyReturns": "No completed returns.",
+        "receivedTotal": "Received in total",
+        "returnedTotal": "Completed returns in total",
+        "subtotal": "Total",
+        "reason": "Reason",
+        "approvedBy": "Approved",
+        "completedBy": "Confirmed complete",
+        "siteSignature": "Site signature",
+        "supplierSignature": "Supplier / driver signature",
+        "approverSignature": "Approver's signature",
+        "open": "Open {reference}",
+        "legacyReturn": "Return entered on a receipt before 10-02",
+        "project": "Project"
       }
     }
   },

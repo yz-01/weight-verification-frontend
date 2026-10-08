@@ -487,7 +487,56 @@ export interface MaterialNetTotalRow {
   returned: string;
   net: string;
   deliveries: number;
+  /** The returns behind `returned` (2026-10-09): 「有退场记录」 when above 0. */
+  return_count?: number;
   items?: MaterialNetTotalItem[];
+}
+
+/**
+ * One row of a net line's drill-down (2026-10-09): the delivery or return
+ * with its photograph (E3) and, for a return, its whole 材料出场 record -
+ * reason, Return Note, approval, photographs and signatures.
+ */
+export interface MaterialNetBreakdownItem extends MaterialNetTotalItem {
+  project_name: string;
+  cover_photo_url?: string | null;
+  photo_count?: number;
+  /** A return's own record; absent for a return typed 退场 before 10-02. */
+  outgoing?: MaterialOutgoing | null;
+}
+
+/**
+ * What one 累计净数量 line is made of. The server finds the line among the
+ * totals' own lines, with the same filters, so `deliveries` add up to
+ * `received` and `returns` to `returned`; `rejected` never counted.
+ */
+export interface MaterialNetBreakdown {
+  line: Omit<MaterialNetTotalRow, "items"> | null;
+  deliveries: MaterialNetBreakdownItem[];
+  rejected: MaterialNetBreakdownItem[];
+  returns: MaterialNetBreakdownItem[];
+}
+
+/** The key of one 累计净数量 line, as `get_net_breakdown` names it. */
+export function netLineKey(row: MaterialNetTotalRow): Record<string, string> {
+  return {
+    line_project: row.project,
+    line_supplier: row.supplier,
+    line_material_name: row.material_name,
+    line_material_specification: row.material_specification ?? "",
+    line_unit: row.unit,
+  };
+}
+
+/** The records behind one 累计净数量 line (2026-10-09), under the page's filters. */
+export function getReceiptNetBreakdown(
+  query: Record<string, string>,
+  row: MaterialNetTotalRow,
+): Promise<MaterialNetBreakdown> {
+  return api.get<MaterialNetBreakdown>("/api/receipts/get_net_breakdown/", {
+    ...query,
+    ...netLineKey(row),
+  });
 }
 
 /**

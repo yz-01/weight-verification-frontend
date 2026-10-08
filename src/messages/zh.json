@@ -11699,6 +11699,30 @@
         "manufacturer": "制造厂商",
         "returnNote": "Return Note",
         "quantity": "数量"
+      },
+      "returnTag": "有退场记录",
+      "returnTagHint": "这一行有 {count} 笔已完成的退场，点开查看",
+      "openNumber": "查看{label} {value} 是哪些记录",
+      "breakdown": {
+        "what": "这一行的明细",
+        "gone": "这一行已不在目前的筛选里。",
+        "deliveries": "每一笔进场（{count} 笔）",
+        "returns": "每一笔已完成退场（{count} 笔）",
+        "rejected": "不合格，不计入累计进场（{count} 笔）",
+        "emptyDeliveries": "没有计入的进场。",
+        "emptyReturns": "没有已完成的退场。",
+        "receivedTotal": "进场合计",
+        "returnedTotal": "已完成退场合计",
+        "subtotal": "合计",
+        "reason": "退回原因",
+        "approvedBy": "批准",
+        "completedBy": "确认完成",
+        "siteSignature": "现场签名",
+        "supplierSignature": "供应商 / 司机签名",
+        "approverSignature": "批准人签名",
+        "open": "打开 {reference}",
+        "legacyReturn": "10-02 前在进场单上登记的退场",
+        "project": "项目"
       }
     }
   },
