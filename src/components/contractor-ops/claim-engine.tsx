@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
-import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
@@ -131,13 +131,13 @@ export function ClaimEngineWorkspace() {
   const lastPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={t("subtitle")}
         action={
           can("claim.manage") ? (
-            <Button size="sm" onClick={() => setCreating(true)}>
+            <Button onClick={() => setCreating(true)}>
               <Plus className="size-4" />
               {t("new")}
             </Button>
@@ -145,7 +145,7 @@ export function ClaimEngineWorkspace() {
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <FilterBar>
         <ProjectFilter
           value={project}
           onChange={(next) => {
@@ -181,7 +181,7 @@ export function ClaimEngineWorkspace() {
           placeholder={t("searchPlaceholder")}
           className="w-full sm:w-72"
         />
-      </div>
+      </FilterBar>
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -190,22 +190,19 @@ export function ClaimEngineWorkspace() {
           {t("failed")}
         </p>
       ) : rows.length === 0 ? (
-        <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-          <Inbox className="size-4" />
-          {t("empty")}
-        </p>
+        <EmptyState icon={Inbox} title={t("empty")} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table className="min-w-[56rem]">
             <TableHeader>
               <TableRow>
                 <TableHead>{t("column.claimNo")}</TableHead>
                 <TableHead>{t("column.kind")}</TableHead>
                 <TableHead>{t("column.period")}</TableHead>
-                <TableHead>{t("column.items")}</TableHead>
+                <TableHead className="text-right tabular">{t("column.items")}</TableHead>
                 <TableHead>{t("column.state")}</TableHead>
                 <TableHead>{t("column.payment")}</TableHead>
-                <TableHead>{t("column.action")}</TableHead>
+                <TableHead className="text-right">{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -220,10 +217,10 @@ export function ClaimEngineWorkspace() {
                   <TableCell className="text-muted-foreground">
                     {t(`kind.${row.kind}`)}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap tabular-nums">
+                  <TableCell className="whitespace-nowrap tabular">
                     {formatter.date(row.period)}
                   </TableCell>
-                  <TableCell className="tabular-nums">
+                  <TableCell className="text-right tabular">
                     {row.item_count}
                     {row.returned_count > 0 && (
                       <span className="ml-1.5 text-xs text-destructive">
@@ -249,7 +246,7 @@ export function ClaimEngineWorkspace() {
                       }
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <Button
                       size="sm"
                       variant="outline"
@@ -266,7 +263,7 @@ export function ClaimEngineWorkspace() {
       )}
 
       {lastPage > 1 && (
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <span className="text-muted-foreground">
             {t("pageOf", { page, pages: lastPage })}
           </span>
@@ -370,7 +367,7 @@ function NewClaimDialog({
           />
         </FieldWrapper>
       </div>
-      <footer className="flex justify-end gap-2 border-t p-4">
+      <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>
@@ -821,7 +818,7 @@ function ConfirmClaimDialog({
   return (
     <Shell title={t("confirmTitle")} onClose={onClose}>
       <div className="space-y-4 p-4">
-        <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-sm text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-sm text-muted-foreground">
           {t("confirmBody", { count: claim.items.length })}
         </p>
         <FieldWrapper label={t("field.remarks")} required hint={t("remarksHelp")}>
@@ -834,7 +831,7 @@ function ConfirmClaimDialog({
         {/* 客户红笔：「进入 PDF 后可以选择…（不需要照片）只有必要和 DO」. The
             delivery orders are never offered as a choice - they are what the
             claim is made of. */}
-        <label className="flex items-start gap-2 rounded-lg border p-3 text-sm">
+        <label className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
           <Checkbox
             checked={includePhotos}
             onCheckedChange={(next) => setIncludePhotos(next === true)}
@@ -847,7 +844,7 @@ function ConfirmClaimDialog({
           </span>
         </label>
       </div>
-      <footer className="flex justify-end gap-2 border-t p-4">
+      <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>
@@ -917,7 +914,7 @@ function PaymentDialog({
           />
         </FieldWrapper>
       </div>
-      <footer className="flex justify-end gap-2 border-t p-4">
+      <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>

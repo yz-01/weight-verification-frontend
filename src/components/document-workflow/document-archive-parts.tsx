@@ -108,8 +108,7 @@ export function DocumentCategoryPicker({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
-          className="h-9 w-55 justify-between bg-card font-normal"
+          className="w-full justify-between bg-card font-normal sm:w-55"
           aria-label={t("documents.field.category")}
         >
           <span className="flex min-w-0 items-center gap-1.5">

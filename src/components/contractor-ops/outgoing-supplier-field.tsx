@@ -71,13 +71,12 @@ export function OutgoingSupplierField({
             placeholder={t("outgoing.chooseSupplier")}
             allowNone={!required}
             noneLabel={t("outgoing.noSupplier")}
-            triggerClassName="h-11"
           />
         </div>
         <Button
           type="button"
           variant="outline"
-          className="h-11 shrink-0"
+          className="shrink-0"
           disabled={scan.isPending}
           onClick={() => setScannerOpen(true)}
         >

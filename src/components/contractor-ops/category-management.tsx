@@ -33,7 +33,7 @@ import {
   SupplierDateFilter,
   type SupplierDateValue,
 } from "@/components/shared/supplier-date-filter";
-import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
@@ -355,7 +355,6 @@ export function CategoryManagement() {
 
   const createButton = canManage && (
     <Button
-      size="sm"
       requires={needsProject ? [[project, ops("field.project")]] : []}
       onClick={() => {
         setRefusal(null);
@@ -368,7 +367,7 @@ export function CategoryManagement() {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
       {/* The project filter, and for a project-scoped module the project a new
           column is created in - so it wears the star the create button asks for. */}
@@ -376,7 +375,7 @@ export function CategoryManagement() {
           project it is that project; on 全部项目 a project-scoped module asks
           once, and the answer moves the top bar (B13). */}
       {(!topBar.active || (needsProject && !project)) && (
-      <FieldWrapper label={ops("field.project")} required={needsProject} className="rounded-lg border bg-card px-3 py-2 shadow-sm">
+      <FieldWrapper label={ops("field.project")} required={needsProject} className="surface-panel rounded-xl px-4 py-3 sm:px-6 sm:py-4">
         <ProjectPicker
           value={project}
           onValueChange={(next) => setProject(next === "all" ? "" : next)}
@@ -398,10 +397,10 @@ export function CategoryManagement() {
               type="button"
               onClick={() => chooseModule(module.key)}
               aria-current={module.key === selected ? "true" : undefined}
-              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm ${
+              className={`flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
                 module.key === selected
-                  ? "border-primary bg-primary/10 font-semibold text-primary"
-                  : "bg-card hover:bg-muted/40"
+                  ? "border-primary/40 bg-primary/12 font-semibold text-primary"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
               <ListTree className="size-4 shrink-0" />
@@ -412,16 +411,16 @@ export function CategoryManagement() {
           ))}
         </nav>
 
-        <section className="min-w-0">
+        <section className="surface-panel min-w-0 rounded-xl p-4 sm:p-6">
           <header className="mb-3 flex flex-wrap items-center gap-2">
-            <h2 className="font-semibold">{t(`module.${active.key}`)}</h2>
+            <h2 className="panel-title">{t(`module.${active.key}`)}</h2>
             {/* Said out loud, not left to be discovered. */}
             <StatusBadge label={t(`scope.${active.scope}`)} tone="neutral" />
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex flex-wrap items-center gap-2">
               {/* 「单位管理」 (2026-10 A4): the units a material category is
                   measured in, kept here beside the categories that use them. */}
               {isMaterial && can("category.manage") && (
-                <Button size="sm" variant="outline" onClick={() => setUnitsOpen(true)}>
+                <Button variant="outline" onClick={() => setUnitsOpen(true)}>
                   <Ruler />
                   {t("units.open")}
                 </Button>
@@ -448,7 +447,7 @@ export function CategoryManagement() {
           )}
 
           {needsProject && !project ? (
-            <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
               {t("chooseProject")}
             </p>
           ) : rows.isLoading ? (
@@ -458,12 +457,9 @@ export function CategoryManagement() {
               {t("failed")}
             </p>
           ) : !list.length ? (
-            <div className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-              <p>{t("empty")}</p>
-              {canManage && <div className="mt-3">{createButton}</div>}
-            </div>
+            <EmptyState title={t("empty")} action={canManage ? createButton : undefined} />
           ) : (
-            <div className="overflow-x-auto rounded-lg border">
+            <div className="overflow-hidden rounded-lg border">
               <Table className={isMaterial ? "min-w-[56rem]" : "min-w-[36rem]"}>
                 <TableHeader>
                   <TableRow>
@@ -848,7 +844,7 @@ function ColumnRecordsDialog({
               onChange={(event) => setTyped(event.target.value)}
               placeholder={t("records.search")}
               aria-label={t("records.search")}
-              className="h-8 w-50 max-w-full text-sm"
+              className="w-full sm:w-50"
             />
             <SupplierDateFilter
               value={filters}
@@ -867,10 +863,10 @@ function ColumnRecordsDialog({
               {queue("failed")}
             </p>
           ) : rows.length === 0 ? (
-            <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-              <Inbox className="size-4" />
-              {filtered ? t("records.emptyFiltered") : t("records.empty")}
-            </p>
+            <EmptyState
+              icon={Inbox}
+              title={filtered ? t("records.emptyFiltered") : t("records.empty")}
+            />
           ) : (
             <>
               <p className="text-xs text-muted-foreground">
@@ -1013,7 +1009,7 @@ function ColumnRecordsDialog({
           )}
         </div>
         {lastPage > 1 && (
-          <footer className="flex items-center justify-between border-t px-4 py-3 text-sm">
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-panel-border bg-muted p-4 text-sm">
             <span className="text-muted-foreground">
               {queue("pageOf", { page, pages: lastPage })}
             </span>

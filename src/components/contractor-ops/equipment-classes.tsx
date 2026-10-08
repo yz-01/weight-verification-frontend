@@ -179,7 +179,7 @@ export function InlineClassCreator({
     );
   }
   return (
-    <div className="mt-2 space-y-2 rounded-md border p-2" data-testid="inline-class-creator">
+    <div className="mt-2 space-y-2 rounded-lg border bg-muted/30 p-3" data-testid="inline-class-creator">
       <FieldWrapper label={t("equipment.classMajor")} required>
         <Select value={isNewMajor ? NEW_MAJOR : major} onValueChange={setMajor}>
           <SelectTrigger className="w-full" aria-label={t("equipment.classMajor")}>

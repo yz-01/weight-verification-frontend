@@ -337,22 +337,18 @@ export function Approvals() {
           <div className="flex flex-wrap items-center gap-2">
             {can("workflow.manage") ? (
               <Button
-                size="sm"
                 variant="outline"
-                className="rounded-full px-4"
                 onClick={() => setConfiguringWorkflow(true)}
               >
-                <Workflow className="h-4 w-4" />
+                <Workflow className="size-4" />
                 {t("approvals.workflow.action")}
               </Button>
             ) : null}
             {can("approval.submit") ? (
               <Button
-                size="sm"
-                className="rounded-full px-4 shadow-sm"
                 onClick={() => setEditing("new")}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("approvals.create.action")}
               </Button>
             ) : null}
@@ -419,14 +415,14 @@ export function Approvals() {
           })),
         ]}
         toolbarActions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Select
               value={list.filters.mine ?? "all"}
               onValueChange={(value) =>
                 list.setFilter("mine", value === "all" ? undefined : "true")
               }
             >
-              <SelectTrigger size="sm" className="h-9 w-36.25 bg-card">
+              <SelectTrigger className="w-full bg-card sm:w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -443,7 +439,7 @@ export function Approvals() {
                 )
               }
             >
-              <SelectTrigger size="sm" className="h-9 w-38.75 bg-card">
+              <SelectTrigger className="w-full bg-card sm:w-44">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -787,8 +783,6 @@ function ApprovalEditorDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={mutation.isPending}
             onClick={onClose}
           >
@@ -796,8 +790,6 @@ function ApprovalEditorDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[title, t("approvals.field.title")], [resourceType, t("approvals.field.resourceType")], [resourceId, t("approvals.field.resourceId")]]}
             disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
@@ -1151,8 +1143,6 @@ function ApprovalActionDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             disabled={mutation.isPending}
             onClick={onClose}
           >
@@ -1161,8 +1151,6 @@ function ApprovalActionDialog({
           </Button>
           <Button
             variant={action === "REJECT" ? "destructive" : "default"}
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[!commentRequired || comment, t("approvals.field.comment")]]}
             disabled={mutation.isPending}
             onClick={() => mutation.mutate()}

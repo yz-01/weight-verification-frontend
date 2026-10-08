@@ -103,7 +103,7 @@ export function VoucherSource({
         tabIndex={0}
         aria-label={t("dropHint")}
         className={cn(
-          "space-y-2 rounded-md border border-dashed p-2 outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "space-y-2 rounded-lg border border-dashed border-panel-border p-3 outline-none focus-visible:ring-2 focus-visible:ring-ring",
           dragging && "border-primary bg-primary/5",
         )}
         onDragOver={(event) => {
@@ -125,7 +125,6 @@ export function VoucherSource({
           key={inputKey}
           type="file"
           accept="image/*,application/pdf"
-          className="h-8 text-xs"
           onChange={(event) => {
             if (!take({ files: event.target.files }, true)) onChange(null);
           }}
@@ -134,7 +133,7 @@ export function VoucherSource({
         {previewUrl ? (
           <figure className="space-y-1">
             <p className="text-xs font-medium">{t("preview")}</p>
-            <a href={previewUrl} target="_blank" rel="noreferrer" className="block overflow-hidden rounded border">
+            <a href={previewUrl} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg border">
               {isPdfVoucher(file) ? (
                 // The bank's PDF (D11): opened in its own tab to check it.
                 <span className="flex items-center gap-2 p-3 text-xs font-medium">
@@ -186,7 +185,7 @@ export function VoucherSource({
         {showChat ? t("hideChat") : t("pickFromChat")}
       </Button>
       {showChat && (
-        <div className="rounded-md border p-2">
+        <div className="rounded-lg border bg-muted/30 p-3">
           {chat.isLoading ? (
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Loader2 className="size-3.5 animate-spin" />
@@ -207,7 +206,7 @@ export function VoucherSource({
                       aria-pressed={chosen}
                       title={`${photo.author} · ${df.dateTime(photo.sentAt)}`}
                       className={cn(
-                        "block aspect-square w-full overflow-hidden rounded border",
+                        "block aspect-square w-full overflow-hidden rounded-md border",
                         chosen && "ring-2 ring-primary",
                       )}
                       onClick={() => {

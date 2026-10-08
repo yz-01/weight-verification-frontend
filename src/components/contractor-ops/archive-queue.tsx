@@ -16,7 +16,7 @@ import { useOnProjectChange, usePageProject } from "@/components/providers/curre
 import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
 import { useRecordOpener } from "@/components/shared/record-opener";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -176,7 +176,7 @@ export function ArchiveQueue() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={t("subtitle")}
@@ -184,9 +184,9 @@ export function ArchiveQueue() {
           // B05: 「分类管理可以做在总栏目右上角，有一个分类管理的 button 点了直接
           // 去到分类管理页面」. Only for whoever may open that page.
           canManageCategories ? (
-            <Button asChild variant="outline" size="sm" className="rounded-full px-4">
+            <Button asChild variant="outline">
               <Link href="/category-management">
-                <ListTree className="h-4 w-4" />
+                <ListTree className="size-4" />
                 {t("categoryManagement")}
               </Link>
             </Button>
@@ -204,23 +204,23 @@ export function ArchiveQueue() {
           params={["waiting"]}
         />
       ) : (
-        <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-xs text-muted-foreground">
           {t("perPersonHelp")}
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-2">
+      <FilterBar>
         {/* 未看 / 已看 and 未归档 / 已归档 do not apply to 「等你处理」: that
             pile is defined by the confirmation alone. */}
         {!waiting && (
-        <div className="flex rounded-lg border p-0.5">
+        <div className="flex h-10 rounded-lg border border-input bg-field p-0.5 pointer-coarse:h-11">
           {(["pending", "archived"] as const).map((half) => (
             <button
               key={half}
               type="button"
               onClick={() => reset(() => setState(half))}
               aria-current={state === half ? "true" : undefined}
-              className={`rounded-md px-3 py-1.5 text-sm ${
+              className={`inline-flex flex-1 items-center justify-center rounded-md px-3 text-sm sm:flex-none ${
                 state === half
                   ? "bg-primary/10 font-semibold text-primary"
                   : "text-muted-foreground hover:bg-muted/40"
@@ -232,14 +232,14 @@ export function ArchiveQueue() {
         </div>
         )}
         {!waiting && (
-        <div className="flex rounded-lg border p-0.5" aria-label={t("closure.label")}>
+        <div className="flex h-10 rounded-lg border border-input bg-field p-0.5 pointer-coarse:h-11" aria-label={t("closure.label")}>
           {(["", "open", "closed"] as const).map((value) => (
             <button
               key={value || "all"}
               type="button"
               onClick={() => reset(() => setClosure(value))}
               aria-current={closure === value ? "true" : undefined}
-              className={`rounded-md px-3 py-1.5 text-sm ${
+              className={`inline-flex flex-1 items-center justify-center rounded-md px-3 text-sm sm:flex-none ${
                 closure === value
                   ? "bg-primary/10 font-semibold text-primary"
                   : "text-muted-foreground hover:bg-muted/40"
@@ -251,15 +251,14 @@ export function ArchiveQueue() {
         </div>
         )}
         <ProjectFilter value={project} onChange={(next) => reset(() => setProject(next))} />
-      </div>
 
-      <nav aria-label={t("modules")} className="flex flex-wrap gap-1.5">
+      <nav aria-label={t("modules")} className="flex w-full flex-wrap gap-1.5">
         <button
           type="button"
           onClick={() => reset(() => setKind(""))}
           aria-current={kind === "" ? "true" : undefined}
-          className={`rounded-full border px-3 py-1 text-xs ${
-            kind === "" ? "border-primary bg-primary/10 text-primary" : "bg-card"
+          className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
+            kind === "" ? "border-primary/40 bg-primary/12 text-primary" : "border-border bg-card text-muted-foreground hover:text-foreground"
           }`}
         >
           {t("allModules")}
@@ -270,10 +269,10 @@ export function ArchiveQueue() {
             type="button"
             onClick={() => reset(() => setKind(row))}
             aria-current={kind === row ? "true" : undefined}
-            className={`rounded-full border px-3 py-1 text-xs ${
+            className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
               kind === row
-                ? "border-primary bg-primary/10 text-primary"
-                : "bg-card hover:bg-muted/40"
+                ? "border-primary/40 bg-primary/12 text-primary"
+                : "border-border bg-card text-muted-foreground hover:text-foreground"
             }`}
           >
             {t(`kind.${row}`)}
@@ -285,6 +284,7 @@ export function ArchiveQueue() {
           </button>
         ))}
       </nav>
+      </FilterBar>
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -293,14 +293,16 @@ export function ArchiveQueue() {
           {t("failed")}
         </p>
       ) : rows.length === 0 ? (
-        <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-          <Inbox className="size-4" />
-          {waiting
-            ? t("waiting.empty")
-            : t(state === "pending" ? "emptyPending" : "emptyArchived")}
-        </p>
+        <EmptyState
+          icon={Inbox}
+          title={
+            waiting
+              ? t("waiting.empty")
+              : t(state === "pending" ? "emptyPending" : "emptyArchived")
+          }
+        />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table className="min-w-[58rem]">
             <TableHeader>
               <TableRow>
@@ -311,7 +313,7 @@ export function ArchiveQueue() {
                 <TableHead>{t("column.status")}</TableHead>
                 <TableHead>{t("column.archived")}</TableHead>
                 <TableHead>{t("column.seen")}</TableHead>
-                <TableHead>{t("column.action")}</TableHead>
+                <TableHead className="text-right">{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -333,14 +335,14 @@ export function ArchiveQueue() {
                         {/* Short number big, project small (2026-10 D4). */}
                         <RecordNo value={row.reference} projectCode={row.project_code} />
                         {row.detail && (
-                          <span className="block max-w-[16rem] truncate text-xs font-normal text-muted-foreground">
+                          <span className="block max-w-64 truncate text-xs font-normal text-muted-foreground">
                             {row.detail}
                           </span>
                         )}
                         {/* Who sold it and whose make (2026-10 D1): material
                             receipts and returns carry both. */}
                         {(row.supplier_name || row.manufacturer_name) && (
-                          <span className="flex max-w-[18rem] flex-wrap items-center gap-1 text-xs font-normal">
+                          <span className="flex max-w-72 flex-wrap items-center gap-1 text-xs font-normal">
                             {row.supplier_name && <span className="truncate">{row.supplier_name}</span>}
                             {row.supplier_name && row.manufacturer_name && <span aria-hidden>·</span>}
                             {row.manufacturer_name && (
@@ -392,7 +394,7 @@ export function ArchiveQueue() {
                       <span className="text-muted-foreground">{t("state.pending")}</span>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <Button
                       size="sm"
                       variant="outline"
@@ -409,7 +411,7 @@ export function ArchiveQueue() {
       )}
 
       {lastPage > 1 && (
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <span className="text-muted-foreground">
             {t("pageOf", { page, pages: lastPage })}
           </span>
@@ -520,10 +522,10 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
       aria-label={row.reference}
       className="fixed inset-0 z-50 flex items-end justify-center bg-scrim p-0 sm:items-center sm:p-4"
     >
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-card sm:rounded-xl">
-        <header className="flex items-center gap-2 border-b px-4 py-3">
+      <div className="flex max-h-[90dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-popover text-popover-foreground shadow-panel ring-1 ring-panel-border sm:rounded-xl">
+        <header className="flex items-center gap-2 border-b border-panel-border px-4 py-3">
           <div className="min-w-0">
-            <h2 className="truncate font-semibold">{row.reference}</h2>
+            <h2 className="truncate text-base font-semibold">{row.reference}</h2>
             <p className="truncate text-xs text-muted-foreground">
               {/* A company-wide document has no project, so the empty part
                   is dropped rather than printed as a double dot. */}
@@ -660,7 +662,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
           )}
         </div>
 
-        <footer className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
+        <footer className="flex flex-wrap items-center gap-2 border-t border-panel-border bg-muted p-4">
           {pendingReceipt && (
             <Button asChild size="sm" variant="outline">
               <Link href={`/receipts/${row.id}`}>

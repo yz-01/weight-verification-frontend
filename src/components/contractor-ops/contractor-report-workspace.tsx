@@ -240,7 +240,7 @@ export function ContractorReportWorkspace({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <CompanyBanner scope="reports" />
       <ReportSelector
         summary={
@@ -258,7 +258,7 @@ export function ContractorReportWorkspace({
         }
         subtitle={t(`description.${reportType}`)}
       />
-      <section className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-2 lg:grid-cols-[minmax(14rem,1fr)_11rem_11rem_auto]">
+      <section className="surface-panel grid gap-3 rounded-xl p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-[minmax(14rem,1fr)_11rem_11rem_auto]">
         {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
         {!topBar.active && (
         <label className="space-y-1.5 text-sm font-medium">
@@ -284,7 +284,7 @@ export function ContractorReportWorkspace({
           {t("filter.dateTo")}
           <Input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} />
         </label>
-        <div className="flex items-end gap-2">
+        <div className="flex flex-wrap items-end gap-2 max-sm:[&>*]:flex-1">
           <Button
             variant="outline"
             disabledReason={!report.data ? common("noReportYet") : undefined}
@@ -348,10 +348,10 @@ export function ContractorReportWorkspace({
         <QueryFailedNote query={options} what={t("what.filterOptions")} className="sm:col-span-2 lg:col-span-4" />
       </section>
 
-      <section className="overflow-hidden rounded-lg border bg-card">
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <div>
-            <h2 className="font-semibold">{t("preview")}</h2>
+      <section className="surface-panel overflow-hidden rounded-xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-panel-border px-4 py-3 sm:px-6">
+          <div className="min-w-0">
+            <h2 className="panel-title">{t("preview")}</h2>
             <p className="text-xs text-muted-foreground">
               {t("records", { count: report.data?.total ?? 0 })}
             </p>
@@ -427,11 +427,11 @@ export function ContractorReportHistoryWorkspace() {
   });
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <CompanyBanner scope="reports" />
       <ReportSelector />
       <ListHeader title={t("history.title")} subtitle={t("history.subtitle")} />
-      <section className="overflow-hidden rounded-lg border bg-card">
+      <section className="surface-panel overflow-hidden rounded-xl">
         {history.isLoading ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-9 w-full" />)}
@@ -457,7 +457,7 @@ export function ContractorReportHistoryWorkspace() {
                 <TableHead>{t("history.report")}</TableHead>
                 <TableHead>{t("history.project")}</TableHead>
                 <TableHead>{t("history.period")}</TableHead>
-                <TableHead>{t("history.rows")}</TableHead>
+                <TableHead className="text-right tabular">{t("history.rows")}</TableHead>
                 <TableHead>{t("history.generatedBy")}</TableHead>
                 <TableHead>{t("history.generatedAt")}</TableHead>
               </TableRow></TableHeader>
@@ -472,10 +472,10 @@ export function ContractorReportHistoryWorkspace() {
                     </TableCell>
                     <TableCell>{t(`type.${row.report_type}`)}</TableCell>
                     <TableCell>{row.project_name || t("filter.allProjects")}</TableCell>
-                    <TableCell className="whitespace-nowrap">{row.date_from} - {row.date_to}</TableCell>
-                    <TableCell>{row.metric_count}</TableCell>
+                    <TableCell className="whitespace-nowrap tabular">{row.date_from} - {row.date_to}</TableCell>
+                    <TableCell className="text-right tabular">{row.metric_count}</TableCell>
                     <TableCell>{row.generated_by_name || row.generated_by_email}</TableCell>
-                    <TableCell className="whitespace-nowrap">{df.dateTime(row.created_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap tabular">{df.dateTime(row.created_at)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

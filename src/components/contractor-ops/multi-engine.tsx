@@ -21,7 +21,7 @@ import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
-import { FieldWrapper, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, FilterBar, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -128,13 +128,13 @@ export function MultiEngineWorkspace() {
   const lastPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={t("subtitle")}
         action={
           can("package.manage") ? (
-            <Button size="sm" onClick={() => setCreating(true)}>
+            <Button onClick={() => setCreating(true)}>
               <Plus className="size-4" />
               {t("new")}
             </Button>
@@ -142,7 +142,7 @@ export function MultiEngineWorkspace() {
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <FilterBar>
         <ProjectFilter
           value={project}
           onChange={(next) => {
@@ -159,7 +159,7 @@ export function MultiEngineWorkspace() {
           placeholder={t("searchPlaceholder")}
           className="w-full sm:w-72"
         />
-      </div>
+      </FilterBar>
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -168,22 +168,19 @@ export function MultiEngineWorkspace() {
           {t("failed")}
         </p>
       ) : rows.length === 0 ? (
-        <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-          <Inbox className="size-4" />
-          {t("empty")}
-        </p>
+        <EmptyState icon={Inbox} title={t("empty")} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table className="min-w-[52rem]">
             <TableHeader>
               <TableRow>
                 <TableHead>{t("column.name")}</TableHead>
                 <TableHead>{t("column.project")}</TableHead>
-                <TableHead>{t("column.items")}</TableHead>
+                <TableHead className="text-right tabular">{t("column.items")}</TableHead>
                 <TableHead>{t("column.state")}</TableHead>
                 <TableHead>{t("column.review")}</TableHead>
                 <TableHead>{t("column.when")}</TableHead>
-                <TableHead>{t("column.action")}</TableHead>
+                <TableHead className="text-right">{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -192,7 +189,7 @@ export function MultiEngineWorkspace() {
                   <TableCell className="font-medium">
                     {row.name}
                     {row.remarks && (
-                      <span className="block max-w-[22rem] truncate text-xs font-normal text-muted-foreground">
+                      <span className="block max-w-88 truncate text-xs font-normal text-muted-foreground">
                         {row.remarks}
                       </span>
                     )}
@@ -200,7 +197,7 @@ export function MultiEngineWorkspace() {
                   <TableCell className="text-muted-foreground">
                     {row.project_name}
                   </TableCell>
-                  <TableCell className="tabular-nums">
+                  <TableCell className="text-right tabular">
                     {row.item_count}
                     {row.returned_count > 0 && (
                       <span className="ml-1.5 text-xs text-destructive">
@@ -220,7 +217,7 @@ export function MultiEngineWorkspace() {
                   <TableCell className="whitespace-nowrap text-muted-foreground">
                     {formatter.dateTime(row.created_at)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <Button
                       size="sm"
                       variant="outline"
@@ -237,7 +234,7 @@ export function MultiEngineWorkspace() {
       )}
 
       {lastPage > 1 && (
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <span className="text-muted-foreground">
             {t("pageOf", { page, pages: lastPage })}
           </span>
@@ -307,7 +304,7 @@ function NewPackageDialog({
         {/* The project is chosen once and cannot move afterwards, because the
             records inside come from this project's columns (D-143). Said here
             rather than discovered when adding a record is refused. */}
-        <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-xs text-muted-foreground">
           {t("oneProjectHelp")}
         </p>
         <FieldWrapper label={t("field.project")} required>
@@ -325,7 +322,7 @@ function NewPackageDialog({
           />
         </FieldWrapper>
       </div>
-      <footer className="flex justify-end gap-2 border-t px-4 py-3">
+      <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>
@@ -785,10 +782,10 @@ function AddRecordsDialog({
                 setPicked([]);
               }}
               aria-current={kind === row ? "true" : undefined}
-              className={`rounded-full border px-3 py-1 text-xs ${
+              className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
                 kind === row
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "bg-card hover:bg-muted/40"
+                  ? "border-primary/40 bg-primary/12 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
               {t(`kind.${row}`)}
@@ -802,7 +799,7 @@ function AddRecordsDialog({
           ) : query.isError ? (
             <LoadFailed what={t("what.candidates")} onRetry={() => void query.refetch()} />
           ) : rows.length === 0 ? (
-            <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
+            <p className="rounded-lg border border-dashed border-panel-border p-4 text-center text-sm text-muted-foreground">
               {t("noCandidates")}
             </p>
           ) : (
@@ -820,7 +817,7 @@ function AddRecordsDialog({
                     }
                     aria-label={row.reference}
                   />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{row.reference}</p>
                     <p className="truncate text-xs text-muted-foreground">
                       {row.detail} · {formatter.dateTime(row.submitted_at)}
@@ -843,7 +840,6 @@ function AddRecordsDialog({
             <Button
               type="button"
               variant="outline"
-              size="sm"
               className="mt-2 w-full"
               disabled={query.isFetchingNextPage}
               onClick={() => void query.fetchNextPage()}
@@ -855,7 +851,7 @@ function AddRecordsDialog({
         </FieldWrapper>
 
         <FieldWrapper label={t("include.title")} hint={t("include.hint")}>
-          <div className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border p-3">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border bg-muted/30 p-3">
             {/* No chat box (E7, Q25): 「全部的 PDF…都不需要聊天记录」. The chat
                 stays on the record in the system; no package prints it. */}
             {(["photos", "documents", "files"] as const).map((part) => (
@@ -875,7 +871,7 @@ function AddRecordsDialog({
           </div>
         </FieldWrapper>
       </div>
-      <footer className="flex justify-end gap-2 border-t px-4 py-3">
+      <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>
@@ -1164,7 +1160,7 @@ function TickPartsDialog({
           </section>
         )}
       </div>
-      <footer className="flex justify-end gap-2 border-t px-4 py-3">
+      <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>
@@ -1202,7 +1198,7 @@ export function PackageReviewWorkspace() {
   const rows = query.data?.results ?? [];
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader title={t("reviewTitle")} subtitle={t("reviewSubtitle")} />
 
       {query.isLoading ? (
@@ -1210,16 +1206,13 @@ export function PackageReviewWorkspace() {
       ) : query.isError ? (
         <LoadFailed what={t("what.packagesToReview")} onRetry={() => void query.refetch()} />
       ) : rows.length === 0 ? (
-        <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-          <Inbox className="size-4" />
-          {t("reviewEmpty")}
-        </p>
+        <EmptyState icon={Inbox} title={t("reviewEmpty")} />
       ) : (
-        <ul className="space-y-2">
+        <ul className="surface-panel divide-y divide-panel-border overflow-hidden rounded-xl">
           {rows.map((row: EvidencePackageRow) => (
             <li
               key={row.id}
-              className="flex flex-wrap items-center gap-3 rounded-lg border p-3"
+              className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{row.name}</p>
