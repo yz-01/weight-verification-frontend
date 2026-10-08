@@ -147,9 +147,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // a logout after an administrator changes a role.
     staleTime: fieldSession ? 5_000 : 60_000,
     // Reissuing a field invitation revokes the old device on the backend.
-    // Check the lightweight profile often enough for an open installed app to
-    // leave the workspace promptly; returning to the app also checks at once.
-    refetchInterval: fieldSession ? 15_000 : 60_000,
+    // Returning to the app checks at once (below), and any request from a
+    // revoked device - the phone's to-do count and task list poll every 30 s -
+    // gets a 401 that ends the session (`api-client`), so the open app still
+    // leaves the workspace promptly. A minute here, as in the office: at 15 s
+    // every idle phone asked four times a minute (FABLE_PERF_1008 #10).
+    refetchInterval: 60_000,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: "always",
     /*

@@ -89,7 +89,9 @@ describe("backoffFromResponse", () => {
     }) as unknown as Response;
 
   it("waits as long as the server asked", () => {
-    // The stream endpoint answers 503 with exactly this when it is at capacity.
+    // The stream endpoint answers 503 with exactly this when it is at capacity
+    // (FABLE_PERF_1008 #6), and the cap must not cut it short.
+    expect(backoffFromResponse(withRetryAfter("60"))).toBe(60_000);
     expect(backoffFromResponse(withRetryAfter("15"))).toBe(15_000);
   });
 
