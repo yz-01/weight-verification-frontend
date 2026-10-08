@@ -377,12 +377,12 @@ describe("the page", () => {
   it("opens the folded section onto versions or the log", () => {
     const html = render(
       <AdvancedSection open onOpenChange={() => {}} tab="history" onTabChange={() => {}}>
-        <p>log</p>
+        <p data-slot="folded-body" />
       </AdvancedSection>,
     );
     expect(html).toContain('aria-expanded="true"');
     expect(html).toContain(sp.advanced.revisions);
     expect(html).toContain(sp.advanced.history);
-    expect(html).toContain("<p>log</p>");
+    expect(html).toContain('data-slot="folded-body"');
   });
 });
