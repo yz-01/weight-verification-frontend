@@ -202,6 +202,47 @@ describe("the restyled sidebar keeps the whole menu", () => {
     }
   });
 
+  it("puts each count the backend sends on its own module's entry, and only there", async () => {
+    const { BADGE_FEATURES } = await import("@/hooks/use-unread-badges");
+    // Count key -> the entry (its `data-sidebar-badge`, the entry's feature)
+    // the number appears on. 材料出场 is under 材料管理, 环保出场 and 垃圾清运
+    // under 回收, 文件审批 under 文件, 杂费报销 is its own entry.
+    const home: Record<string, string> = {
+      material_receipts: "material_receipts",
+      material_outgoing: "material_receipts",
+      material_requests: "material_requests",
+      field_tasks: "field_tasks",
+      equipment: "equipment",
+      progress: "progress",
+      waste_outgoing: "recyclers",
+      site_disposals: "recyclers",
+      consultant_applications: "consultant_applications",
+      approvals: "documents",
+      sundry_claims: "project_categories",
+      site_access: "site_access",
+      safety: "hazard_rectification",
+    };
+    expect(Object.keys(home).sort()).toEqual([...BADGE_FEATURES].sort());
+    const loaded = badges.counts;
+    try {
+      for (const key of BADGE_FEATURES) {
+        badges.counts = { [key]: 1 };
+        const shown = renderedBadges(render(allFeatures(), [], true));
+        expect(shown, key).toEqual({ [home[key]]: "1" });
+      }
+      // Zero everywhere: nothing shown at all, not a row of zeroes.
+      badges.counts = Object.fromEntries(BADGE_FEATURES.map((key) => [key, 0]));
+      const markup = render(allFeatures(), [], true);
+      expect(markup).not.toMatch(/data-sidebar-badge=/);
+      expect(markup).not.toMatch(/>\?<\/span>/);
+      // A big pile is capped so the menu keeps its width.
+      badges.counts = { equipment: 250 };
+      expect(renderedBadges(render(allFeatures(), [], true))).toEqual({ equipment: "99+" });
+    } finally {
+      badges.counts = loaded;
+    }
+  });
+
   it("filters by feature and permission exactly as the navigation rules say", () => {
     const features = ["dashboard", "material_receipts", "field_tasks"];
     const permissions: string[] = [];

@@ -29,36 +29,35 @@ export const BADGE_FEATURES: readonly string[] = [
 ];
 
 /**
- * Any one of these opens the endpoint (its `permission_map` entry); which
- * numbers come back is decided per module on the server. Asking without any
- * of them would be a guaranteed 403 on every page load for a role that only
- * submits from the phone.
+ * Any one of these opens the endpoint (`contractor_ops.sidebar_badges.
+ * BADGE_PERMISSIONS`): the permission that opens one of the counted lists.
+ * The server gives no number for a list its reader cannot open, so asking
+ * without any of them would be a guaranteed 403 on every page load for a
+ * role that only submits from the phone. The backend test
+ * `test_the_frontend_asks_with_the_same_permissions_and_keys` reads this.
  */
 export const BADGE_PERMISSIONS: readonly string[] = [
-  "receipt.view",
-  "material_outgoing.view",
-  "material_outgoing.approve",
-  "material_request.review",
-  "field_task.manage",
-  "equipment.view",
-  "equipment.manage",
-  "progress.view",
-  "waste_outgoing.view",
-  "waste_outgoing.approve",
-  "disposal.view",
-  "disposal.manage",
-  "disposal.confirm",
   "approval.view",
-  "approval.review",
-  "approval.submit",
+  "disposal.view",
+  "equipment.view",
+  "field_task.view",
+  "material_outgoing.view",
+  "material_request.view",
+  "progress.view",
+  "receipt.view",
   "safety.view",
+  "site_access.view",
   "sundry_claim.view",
-  "sundry_claim.review",
-  "site_access.manage",
+  "waste_outgoing.view",
 ];
 
-/** How often the sidebar asks again, besides on window focus. */
-export const BADGE_POLL_MS = 30_000;
+/**
+ * How long a count is fresh. There is no interval of this hook's own: the
+ * signed-in shell's live stream refreshes every query when something
+ * happens on site, a window coming back into focus asks again, and the
+ * app-wide safety poll (fix/perf-realtime) covers what the stream misses.
+ */
+export const BADGE_STALE_MS = 30_000;
 
 /**
  * What each sidebar badge counts, said in its label (2026-10 C4).
@@ -102,9 +101,10 @@ export function badgeFor(badges: BadgeCounts, keys: readonly string[]): number |
  * 号码，每个模块都是这样才对。」 One request answers every module
  * (`GET /api/contractor-dashboard/get_badges/`), narrowed to the top bar's
  * current project the way every list is (B13), so a badge is the count of
- * the list the reader opens. Polled every `BADGE_POLL_MS` and when the
- * window regains focus: the numbers move when somebody on site sends
- * something in, not when this reader navigates.
+ * the list the reader opens. Refreshed by the live stream when somebody on
+ * site sends something in and when the window regains focus - never on a
+ * timer of its own, because the sidebar is on every page of every office
+ * user and the app already has one safety poll.
  *
  * A failed first load must not look like "nothing waiting": every entry that
  * could carry a number is marked unknown instead, and the sidebar shows "?".
@@ -116,17 +116,21 @@ export function useUnreadBadges(): BadgeCounts {
   const current = useCurrentProject();
   // The portal says whether this endpoint is theirs to ask (F-224): a
   // platform administrator holds some of these codes and would otherwise
-  // be refused on every admin page load.
+  // be refused on every admin page load. So does the account type: a
+  // consultant signs in to the same portal with `approval.view`, but the
+  // counts are the contractor's office's (the consultant's own 待处理 is on
+  // 顾问 Dashboard), and the endpoint refuses them.
   const enabled =
-    user?.portal === "MSE_TRACE" && BADGE_PERMISSIONS.some((code) => can(code));
+    user?.portal === "MSE_TRACE" &&
+    user.account_type === "TENANT" &&
+    BADGE_PERMISSIONS.some((code) => can(code));
   const project = current.active ? current.projectId : "";
 
   const query = useQuery({
     queryKey: ["sidebar-badges", project],
     queryFn: () => getSidebarBadges({ project: project || undefined }),
     enabled,
-    staleTime: BADGE_POLL_MS - 5_000,
-    refetchInterval: BADGE_POLL_MS,
+    staleTime: BADGE_STALE_MS,
     refetchOnWindowFocus: true,
   });
 

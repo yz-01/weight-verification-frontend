@@ -64,11 +64,17 @@ describe("one number per entry, from the counts of its pages (2026-10-08)", () =
     ).toBe(4);
   });
 
-  it("reads one endpoint for every module, polls it and asks again on focus", () => {
+  it("reads one endpoint for every module, asks again on focus, keeps no timer of its own", () => {
     const source = readFileSync(path.join(process.cwd(), "src", "hooks", "use-unread-badges.ts"), "utf8");
     expect(source).toContain("getSidebarBadges(");
-    expect(source).toMatch(/refetchInterval: BADGE_POLL_MS/);
+    // The shell's live stream and the app-wide safety poll refresh it; a
+    // second interval on every page of every office user is what not to add.
+    expect(source).not.toMatch(/refetchInterval/);
+    expect(source).toMatch(/staleTime: BADGE_STALE_MS/);
     expect(source).toMatch(/refetchOnWindowFocus: true/);
+    // The top bar's current project (B13), as every list sends it.
+    expect(source).toMatch(/current\.active \? current\.projectId : ""/);
+    expect(source).toMatch(/queryKey: \["sidebar-badges", project\]/);
     expect(source).not.toContain("getContractorDashboard(");
     const service = readFileSync(
       path.join(process.cwd(), "src", "services", "contractor-dashboard.service.ts"),
@@ -78,9 +84,15 @@ describe("one number per entry, from the counts of its pages (2026-10-08)", () =
   });
 
   it("asks only when the reader holds a permission the endpoint opens for", () => {
-    // Mirrors `contractor_ops.sidebar_badges.BADGE_PERMISSIONS`.
+    // Mirrors `contractor_ops.sidebar_badges.BADGE_PERMISSIONS` (the backend
+    // test reads this list): the view permission of each counted list, and
+    // nothing else - a button without its list gives no number.
     expect(BADGE_PERMISSIONS).toContain("receipt.view");
-    expect(BADGE_PERMISSIONS).toContain("equipment.manage");
+    expect(BADGE_PERMISSIONS).toContain("equipment.view");
+    expect(BADGE_PERMISSIONS.every((code) => code.endsWith(".view"))).toBe(true);
     expect(BADGE_PERMISSIONS).not.toContain("dashboard.view");
+    const source = readFileSync(path.join(process.cwd(), "src", "hooks", "use-unread-badges.ts"), "utf8");
+    // A consultant shares the portal but not the contractor's office counts.
+    expect(source).toMatch(/user\.account_type === "TENANT"/);
   });
 });
