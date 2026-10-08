@@ -3,6 +3,14 @@
 import { useCallback, useEffect, useRef } from "react";
 
 const RECOVERY_COOLDOWN_MS = 30_000;
+/**
+ * How often an open, visible tab asks whether a new release is out.
+ *
+ * Nobody waits on this: it only reloads a tab onto a new release, and coming
+ * back to the tab (`focus`) or a chunk from the old release failing to load
+ * still does that at once. Two minutes rather than 30 s (FABLE_PERF_1008 #10).
+ */
+export const DEPLOYMENT_CHECK_MS = 120_000;
 const RECOVERY_KEY = "mse-navigation-recovery-at";
 
 /**
@@ -57,7 +65,7 @@ export function NavigationRecovery({ deploymentId }: { deploymentId: string }) {
     window.addEventListener("focus", checkDeployment);
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") void checkDeployment();
-    }, 30_000);
+    }, DEPLOYMENT_CHECK_MS);
     void checkDeployment();
     return () => {
       window.clearInterval(interval);
