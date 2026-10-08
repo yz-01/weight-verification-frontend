@@ -2223,10 +2223,11 @@ export function EquipmentEntryDialog({
   ];
   const ocr = useDeliveryNoteReader({
     read: ocrEquipmentDeliveryNote,
-    onRead: (result) => {
+    onRead: (result, typed) => {
       setOcrProof(result.proof ?? "");
       const suggestions = result.suggestions as Record<string, string | undefined>;
-      if (suggestions.delivery_note_no) setDeliveryNote(suggestions.delivery_note_no);
+      // A DO number typed while the read ran is the worker's (hotfix 10-08).
+      if (suggestions.delivery_note_no && !typed.has("deliveryNote")) setDeliveryNote(suggestions.delivery_note_no);
     },
     onReset: () => setOcrProof(""),
   });
@@ -2381,7 +2382,10 @@ export function EquipmentEntryDialog({
             <Input
               aria-label={t("field.deliveryNoteNo")}
               value={deliveryNote}
-              onChange={(e) => setDeliveryNote(e.target.value)}
+              onChange={(e) => {
+                ocr.noteTyped("deliveryNote");
+                setDeliveryNote(e.target.value);
+              }}
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.supplier")} error={fieldErrors.supplier}>
@@ -2548,11 +2552,12 @@ export function MovementDialog({
   // does (useDeliveryNoteReader) - no 【读取】 button.
   const ocr = useDeliveryNoteReader({
     read: ocrEquipmentDeliveryNote,
-    onRead: (result) => {
+    onRead: (result, typed) => {
       setOcrProof(result.proof ?? "");
       const suggestions = result.suggestions as Record<string, string | undefined>;
-      if (suggestions.delivery_note_no) setDeliveryNote(suggestions.delivery_note_no);
-      if (suggestions.vehicle_plate) setVehicle(suggestions.vehicle_plate);
+      // What was typed while the read ran is the worker's (hotfix 10-08).
+      if (suggestions.delivery_note_no && !typed.has("deliveryNote")) setDeliveryNote(suggestions.delivery_note_no);
+      if (suggestions.vehicle_plate && !typed.has("vehicle")) setVehicle(suggestions.vehicle_plate);
     },
     // A new or removed photo: the old read no longer describes it.
     onReset: () => setOcrProof(""),
@@ -2646,13 +2651,19 @@ export function MovementDialog({
           <FieldWrapper label={t("field.vehiclePlate")}>
             <Input
               value={vehicle}
-              onChange={(e) => setVehicle(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                ocr.noteTyped("vehicle");
+                setVehicle(e.target.value.toUpperCase());
+              }}
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.deliveryNote")}>
             <Input
               value={deliveryNote}
-              onChange={(e) => setDeliveryNote(e.target.value)}
+              onChange={(e) => {
+                ocr.noteTyped("deliveryNote");
+                setDeliveryNote(e.target.value);
+              }}
             />
           </FieldWrapper>
           <FieldWrapper
