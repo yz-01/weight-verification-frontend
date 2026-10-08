@@ -110,14 +110,16 @@ export function PartnerList() {
         accessorKey: "customers_referred",
         meta: { label: t("partners.field.customersReferred") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("partners.field.customersReferred")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("partners.field.customersReferred")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <span className="tabular text-muted-foreground">{row.original.customers_referred}</span>
+          <span className="tabular block text-right text-muted-foreground">{row.original.customers_referred}</span>
         ),
       },
       {

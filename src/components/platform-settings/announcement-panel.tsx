@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -116,54 +116,53 @@ export function AnnouncementPanel() {
 
   return (
     <div className="border-t">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
-            <Megaphone className="size-4" />
-          </span>
           <div className="min-w-0">
-            <p className="text-sm font-semibold">{t("title")}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{t("help")}</p>
+            <p className="panel-title">{t("title")}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("help")}</p>
           </div>
         </div>
-        <Button size="sm" onClick={() => setEditing("new")}>
+        <Button onClick={() => setEditing("new")}>
           <Plus />
           {t("action.create")}
         </Button>
       </div>
 
       {delivered !== null && (
-        <p className="mx-5 mb-4 rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+        <p className="mx-4 mb-4 rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground sm:mx-6">
           {t("delivered", { count: delivered })}
         </p>
       )}
 
       {rows.isLoading ? (
-        <p className="px-5 pb-5 text-sm text-muted-foreground">
+        <p className="px-4 pb-4 text-sm text-muted-foreground sm:px-6 sm:pb-6">
           <Loader2 className="mr-2 inline size-4 animate-spin" />
           {common("loading")}
         </p>
       ) : rows.isError ? (
-        <div className="mx-5 mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-4">
+        <div className="mx-4 mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 sm:mx-6 sm:mb-6">
           <p className="text-sm text-destructive">{t("loadError")}</p>
-          <Button size="sm" variant="outline" onClick={() => void rows.refetch()}>
+          <Button variant="outline" onClick={() => void rows.refetch()}>
             {common("retry")}
           </Button>
         </div>
       ) : !(rows.data ?? []).length ? (
-        <p className="mx-5 mb-5 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-          {t("empty")}
-        </p>
+        <EmptyState
+          icon={Megaphone}
+          title={t("empty")}
+          className="mx-4 mb-4 sm:mx-6 sm:mb-6"
+        />
       ) : (
         <ul className="divide-y border-t">
           {(rows.data ?? []).map((row) => (
             <li
               key={row.id}
-              className="flex flex-wrap items-start justify-between gap-3 px-5 py-4"
+              className="flex flex-wrap items-start justify-between gap-3 px-4 py-4 sm:px-6"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-medium">{row.title}</p>
+                  <p className="break-words font-medium">{row.title}</p>
                   <StatusBadge
                     label={t(`level.${row.level}`)}
                     tone={levelTone(row.level)}
@@ -179,12 +178,12 @@ export function AnnouncementPanel() {
                 <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                   {row.message}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                <p className="tabular mt-1 text-xs text-muted-foreground">
                   {df.dateTime(row.publish_from)}
                   {row.publish_until ? ` → ${df.dateTime(row.publish_until)}` : ""}
                 </p>
               </div>
-              <div className="flex gap-1">
+              <div className="flex items-center justify-end gap-0.5">
                 <Button
                   size="icon-sm"
                   variant="ghost"
@@ -274,7 +273,7 @@ function AnnouncementEditor({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{row ? t("action.edit") : t("action.create")}</DialogTitle>
           <DialogDescription>{t("editorHelp")}</DialogDescription>
@@ -294,13 +293,13 @@ function AnnouncementEditor({
           />
         </FieldWrapper>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.level")}>
             <Select
               value={form.level}
               onValueChange={(value) => set("level", value as AnnouncementLevel)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -319,7 +318,7 @@ function AnnouncementEditor({
                 set("audience", value as AnnouncementAudience)
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -354,7 +353,7 @@ function AnnouncementEditor({
           </FieldWrapper>
         </div>
 
-        <details className="rounded-lg border">
+        <details className="rounded-lg border bg-muted/30">
           <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium">
             {t("translations")}
           </summary>
@@ -363,7 +362,7 @@ function AnnouncementEditor({
               {t("translationsHelp")}
             </p>
             {TRANSLATIONS.map((language) => (
-              <div key={language.key} className="grid gap-2 sm:grid-cols-2">
+              <div key={language.key} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FieldWrapper label={t(`language.${language.key}.title`)}>
                   <Input
                     value={form[language.title]}

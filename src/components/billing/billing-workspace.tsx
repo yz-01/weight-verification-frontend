@@ -92,10 +92,10 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
   };
 
   return (
-    <section className="shrink-0 overflow-hidden rounded-lg border border-primary/15 bg-primary/[0.035]">
+    <section className="surface-panel shrink-0 overflow-hidden rounded-xl">
       <div className="flex flex-col gap-1 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-sm font-semibold">{t("workflow.title")}</h3>
+          <h3 className="panel-title">{t("workflow.title")}</h3>
           <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
             {t("workflow.description")}
           </p>
@@ -146,5 +146,5 @@ function Summary({ data, loading, failed, expanded = false }: { data: Awaited<Re
   ] as const;
   // A failed summary shows a dash, never a zero that reads as "nothing owed".
   const visible = (expanded ? metrics : metrics.slice(0, 6)).map(([key, value]) => [key, failed ? "—" : value] as const);
-  return <div className={`grid border-l ${expanded ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}>{visible.map(([key, value]) => <div key={key} className="min-h-20 border-b border-r px-4 py-3"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-2 text-lg font-semibold tabular-nums">{value}</p></div>)}</div>;
+  return <div className="surface-panel shrink-0 overflow-hidden rounded-xl"><div className={`-mb-px -mr-px grid ${expanded ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}>{visible.map(([key, value]) => <div key={key} className="min-h-20 min-w-0 border-b border-r px-4 py-3"><p className="text-xs font-medium text-muted-foreground">{t(`metric.${key}`)}</p><p className="tabular mt-2 break-words text-lg font-semibold">{value}</p></div>)}</div></div>;
 }

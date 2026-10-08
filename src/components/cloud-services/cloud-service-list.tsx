@@ -100,12 +100,12 @@ export function CloudServiceList() {
         accessorKey: "base_cost",
         meta: { label: t("cloudServices.field.baseCost") },
         header: () => (
-          <span className="text-xs font-semibold text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("cloudServices.field.baseCost")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="tabular text-foreground">{row.original.base_cost}</span>
+          <span className="tabular block text-right text-foreground">{row.original.base_cost}</span>
         ),
       },
       {

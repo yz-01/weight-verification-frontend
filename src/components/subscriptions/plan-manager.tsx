@@ -178,41 +178,41 @@ export function PlanManager() {
 
   const rows = plans.data?.results ?? [];
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex items-center justify-between gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           {t("plans.count", { count: rows.length })}
         </p>
         {can("subscription.manage") && (
-          <Button size="sm" onClick={() => openEditor(null)}>
-            <Plus className="h-4 w-4" />
+          <Button onClick={() => openEditor(null)}>
+            <Plus className="size-4" />
             {t("plans.create")}
           </Button>
         )}
       </div>
 
-      <div className="min-h-0 overflow-auto rounded-lg border bg-card">
+      <div className="surface-panel min-h-0 overflow-auto rounded-xl">
         <Table>
           <TableHeader className="sticky top-0 bg-card">
             <TableRow>
               <TableHead>{t("field.plan")}</TableHead>
               <TableHead>{t("field.audience")}</TableHead>
               <TableHead>{t("field.billingCycle")}</TableHead>
-              <TableHead>{t("field.fees")}</TableHead>
+              <TableHead className="text-right tabular">{t("field.fees")}</TableHead>
               <TableHead>{t("field.allowances")}</TableHead>
               <TableHead>{t("field.entitlements")}</TableHead>
-              <TableHead>{t("field.companies")}</TableHead>
+              <TableHead className="text-right tabular">{t("field.companies")}</TableHead>
               <TableHead>{t("field.state")}</TableHead>
               <TableHead className="w-12"><span className="sr-only">{common("actions")}</span></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {plans.isLoading ? (
-              <TableRow><TableCell colSpan={9}>{common("loading")}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="h-24 text-center text-muted-foreground">{common("loading")}</TableCell></TableRow>
             ) : plans.isError ? (
-              <TableRow><TableCell colSpan={9} className="text-destructive">{t("error.load")}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="h-24 text-center text-destructive">{t("error.load")}</TableCell></TableRow>
             ) : rows.length === 0 ? (
-              <TableRow><TableCell colSpan={9} className="text-muted-foreground">{t("plans.empty")}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="h-24 text-center text-muted-foreground">{t("plans.empty")}</TableCell></TableRow>
             ) : rows.map((plan) => (
               <TableRow key={plan.id}>
                 <TableCell>
@@ -221,7 +221,7 @@ export function PlanManager() {
                 </TableCell>
                 <TableCell><TypeBadge label={t(`audience.${plan.audience}`)} /></TableCell>
                 <TableCell>{t(`billingCycle.${plan.billing_cycle}`)}</TableCell>
-                <TableCell className="tabular-nums">
+                <TableCell className="text-right tabular">
                   {plan.tier === "PARTNER" ? (
                     <span>{plan.currency} {plan.setup_fee} {t("fee.once")}</span>
                   ) : (
@@ -241,7 +241,7 @@ export function PlanManager() {
                     {plan.allows_cloud_weighing && <span>{t("entitlement.cwe")}</span>}
                   </div>
                 </TableCell>
-                <TableCell className="tabular-nums">{plan.company_count}</TableCell>
+                <TableCell className="text-right tabular">{plan.company_count}</TableCell>
                 <TableCell>
                   <StatusBadge
                     label={t(plan.is_active ? "planState.active" : "planState.inactive")}
@@ -267,13 +267,13 @@ export function PlanManager() {
       </div>
 
       <Dialog open={editing !== undefined} onOpenChange={(open) => !open && setEditing(undefined)}>
-        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>{t(editing ? "plans.edit" : "plans.create")}</DialogTitle>
             <DialogDescription>{t("plans.formDescription")}</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-2 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 py-2 md:grid-cols-2">
             <FieldWrapper label={t("field.code")} required><Input value={form.code} disabled={Boolean(editing)} onChange={(event) => setForm((current) => ({ ...current, code: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("field.name")} required><Input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("field.description")} optional={common("optional")} className="md:col-span-2">
@@ -340,7 +340,7 @@ function NumberField<T extends number | string | null>({ label, value, onChange,
 function SelectField({ label, value, options, labelFor, onChange, disabled }: { label: string; value: string; options: string[]; labelFor: (value: string) => string; onChange: (value: string) => void; disabled?: boolean }) {
   return (
     <FieldWrapper label={label} required>
-      <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)}>
+      <select className="native-control" value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => <option key={option} value={option}>{labelFor(option)}</option>)}
       </select>
     </FieldWrapper>
@@ -349,7 +349,7 @@ function SelectField({ label, value, options, labelFor, onChange, disabled }: { 
 
 function ToggleField({ label, checked, onChange, disabled }: { label: string; checked: boolean; onChange: (value: boolean) => void; disabled?: boolean }) {
   return (
-    <div className="flex min-h-11 items-center justify-between gap-4 rounded-md border px-3 py-2">
+    <div className="flex min-h-11 items-center justify-between gap-4 rounded-lg border bg-muted/30 px-3 py-2">
       <span className="text-sm font-medium">{label}</span>
       <Switch checked={checked} disabled={disabled} onCheckedChange={onChange} />
     </div>

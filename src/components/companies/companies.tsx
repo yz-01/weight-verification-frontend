@@ -11,6 +11,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
+  FilterBar,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -244,12 +245,12 @@ export function Companies({
         accessorKey: "user_count",
         meta: { label: t("companies.field.userCount") },
         header: () => (
-          <span className="text-xs font-semibold text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("companies.field.userCount")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="tabular">{row.original.user_count}</span>
+          <span className="tabular block text-right">{row.original.user_count}</span>
         ),
       },
       {
@@ -273,33 +274,33 @@ export function Companies({
       {
         accessorKey: "project_total",
         meta: { label: t("companies.projectStats.total") },
-        header: () => t("companies.projectStats.total"),
+        header: () => <span className="block text-right">{t("companies.projectStats.total")}</span>,
         cell: ({ row }) => (
-          <span className="tabular">{row.original.project_total}</span>
+          <span className="tabular block text-right">{row.original.project_total}</span>
         ),
       },
       {
         accessorKey: "project_active",
         meta: { label: t("companies.projectStats.active") },
-        header: () => t("companies.projectStats.active"),
+        header: () => <span className="block text-right">{t("companies.projectStats.active")}</span>,
         cell: ({ row }) => (
-          <span className="tabular">{row.original.project_active}</span>
+          <span className="tabular block text-right">{row.original.project_active}</span>
         ),
       },
       {
         accessorKey: "project_completed",
         meta: { label: t("companies.projectStats.completed") },
-        header: () => t("companies.projectStats.completed"),
+        header: () => <span className="block text-right">{t("companies.projectStats.completed")}</span>,
         cell: ({ row }) => (
-          <span className="tabular">{row.original.project_completed}</span>
+          <span className="tabular block text-right">{row.original.project_completed}</span>
         ),
       },
       {
         accessorKey: "project_archived",
         meta: { label: t("companies.projectStats.archived") },
-        header: () => t("companies.projectStats.archived"),
+        header: () => <span className="block text-right">{t("companies.projectStats.archived")}</span>,
         cell: ({ row }) => (
-          <span className="tabular">{row.original.project_archived}</span>
+          <span className="tabular block text-right">{row.original.project_archived}</span>
         ),
       },
       {
@@ -325,20 +326,21 @@ export function Companies({
       {
         accessorKey: "remaining_user_seats",
         meta: { label: t("companies.field.remainingUserSeats") },
-        header: () => t("companies.field.remainingUserSeats"),
-        cell: ({ row }) =>
-          row.original.remaining_user_seats === null ? (
-            t("companies.unlimitedUsers")
-          ) : (
-            <span className="tabular">{row.original.remaining_user_seats}</span>
-          ),
+        header: () => <span className="block text-right">{t("companies.field.remainingUserSeats")}</span>,
+        cell: ({ row }) => (
+          <span className="tabular block text-right">
+            {row.original.remaining_user_seats === null
+              ? t("companies.unlimitedUsers")
+              : row.original.remaining_user_seats}
+          </span>
+        ),
       },
       {
         id: "recycler_service_contractors",
         meta: { label: t("companies.recyclerStats.serviceContractors") },
-        header: () => t("companies.recyclerStats.serviceContractors"),
+        header: () => <span className="block text-right">{t("companies.recyclerStats.serviceContractors")}</span>,
         cell: ({ row }) => (
-          <span className="tabular">
+          <span className="tabular block text-right">
             {row.original.recycler_statistics?.service_contractors ?? "-"}
           </span>
         ),
@@ -346,41 +348,50 @@ export function Companies({
       {
         id: "recycler_platform_weight",
         meta: { label: t("companies.recyclerStats.platformWeight") },
-        header: () => t("companies.recyclerStats.platformWeight"),
-        cell: ({ row }) =>
-          row.original.recycler_statistics
-            ? t("companies.weightKg", {
-                value: Number(
-                  row.original.recycler_statistics.platform_weight_kg,
-                ).toFixed(2),
-              })
-            : "-",
+        header: () => <span className="block text-right">{t("companies.recyclerStats.platformWeight")}</span>,
+        cell: ({ row }) => (
+          <span className="tabular block text-right">
+            {row.original.recycler_statistics
+              ? t("companies.weightKg", {
+                  value: Number(
+                    row.original.recycler_statistics.platform_weight_kg,
+                  ).toFixed(2),
+                })
+              : "-"}
+          </span>
+        ),
       },
       {
         id: "recycler_private_weight",
         meta: { label: t("companies.recyclerStats.privateWeight") },
-        header: () => t("companies.recyclerStats.privateWeight"),
-        cell: ({ row }) =>
-          row.original.recycler_statistics
-            ? t("companies.weightKg", {
-                value: Number(
-                  row.original.recycler_statistics.private_weight_kg,
-                ).toFixed(2),
-              })
-            : "-",
+        header: () => <span className="block text-right">{t("companies.recyclerStats.privateWeight")}</span>,
+        cell: ({ row }) => (
+          <span className="tabular block text-right">
+            {row.original.recycler_statistics
+              ? t("companies.weightKg", {
+                  value: Number(
+                    row.original.recycler_statistics.private_weight_kg,
+                  ).toFixed(2),
+                })
+              : "-"}
+          </span>
+        ),
       },
       {
         id: "recycler_total_weight",
         meta: { label: t("companies.recyclerStats.totalWeight") },
-        header: () => t("companies.recyclerStats.totalWeight"),
-        cell: ({ row }) =>
-          row.original.recycler_statistics
-            ? t("companies.weightKg", {
-                value: Number(
-                  row.original.recycler_statistics.total_weight_kg,
-                ).toFixed(2),
-              })
-            : "-",
+        header: () => <span className="block text-right">{t("companies.recyclerStats.totalWeight")}</span>,
+        cell: ({ row }) => (
+          <span className="tabular block text-right">
+            {row.original.recycler_statistics
+              ? t("companies.weightKg", {
+                  value: Number(
+                    row.original.recycler_statistics.total_weight_kg,
+                  ).toFixed(2),
+                })
+              : "-"}
+          </span>
+        ),
       },
       {
         id: "recycler_commission_status",
@@ -579,9 +590,9 @@ export function Companies({
         }
         action={
           can("company.create") && section === "directory" ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/companies/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("companies.new")}
               </Link>
             </Button>
@@ -590,7 +601,8 @@ export function Companies({
       />
 
       {section === "directory" && (
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
+        <div className="surface-panel shrink-0 overflow-hidden rounded-xl">
+        <div className="-mb-px -mr-px grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6">
           {(
             [
               "total",
@@ -612,16 +624,17 @@ export function Companies({
                       ? summary.data?.new_this_month
                       : summary.data?.[key];
             return (
-              <div key={key} className="bg-card px-4 py-3">
-                <p className="text-xs text-muted-foreground">
+              <div key={key} className="min-w-0 border-b border-r px-4 py-3">
+                <p className="text-xs font-medium text-muted-foreground">
                   {t(`companies.summary.${key}`)}
                 </p>
-                <p className="mt-1 text-xl font-semibold tabular-nums">
+                <p className="tabular mt-1 text-xl font-semibold">
                   {summary.isError ? t("common.emptyValue") : (value ?? 0)}
                 </p>
               </div>
             );
           })}
+        </div>
         </div>
       )}
       {section === "directory" && (
@@ -629,13 +642,13 @@ export function Companies({
       )}
 
       <>
-          <div className="flex flex-wrap gap-2">
+          <FilterBar>
             <select
               value={list.filters.state ?? ""}
               onChange={(event) =>
                 list.setFilter("state", event.target.value || undefined)
               }
-              className="h-8 rounded-md border bg-background px-2 text-sm"
+              className="native-control sm:w-48"
               aria-label={t("companies.filter.state")}
             >
               <option value="">{t("companies.filter.allStates")}</option>
@@ -650,7 +663,7 @@ export function Companies({
               onChange={(event) =>
                 list.setFilter("plan", event.target.value || undefined)
               }
-              className="h-8 rounded-md border bg-background px-2 text-sm"
+              className="native-control sm:w-48"
               aria-label={t("companies.filter.plan")}
             >
               <option value="">{t("companies.filter.allPlans")}</option>
@@ -661,7 +674,7 @@ export function Companies({
               ))}
             </select>
             <QueryFailedNote query={plans} what={t("companies.what.plans")} />
-          </div>
+          </FilterBar>
 
           <DataTable
             columns={sectionColumns}

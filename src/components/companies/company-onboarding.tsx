@@ -5,7 +5,6 @@ import {
   BadgeCheck,
   Building2,
   CheckCircle2,
-  FileCheck2,
   FileUp,
   Landmark,
   Pencil,
@@ -189,17 +188,17 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
 
   const data = onboarding.data;
   if (onboarding.isLoading) {
-    return <p className="border-t px-6 py-8 text-sm text-muted-foreground">{t("common.loading")}</p>;
+    return <p className="border-t p-4 text-sm text-muted-foreground sm:p-6">{t("common.loading")}</p>;
   }
   if (onboarding.isError || !data) {
-    return <p className="border-t px-6 py-8 text-sm text-destructive">{t("table.errorBody")}</p>;
+    return <p className="border-t p-4 text-sm text-destructive sm:p-6">{t("table.errorBody")}</p>;
   }
 
   return (
     <section className="border-t" aria-labelledby="company-onboarding-title">
-      <div className="flex flex-col gap-3 px-6 py-5 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h3 id="company-onboarding-title" className="text-sm font-semibold">
+      <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+        <div className="min-w-0">
+          <h3 id="company-onboarding-title" className="panel-title">
             {t("companies.onboarding.title")}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -215,7 +214,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
       </div>
 
       {data.missing.length > 0 && (
-        <div className="flex flex-wrap gap-2 border-y bg-muted/30 px-6 py-3">
+        <div className="flex flex-wrap gap-2 border-y bg-muted/30 px-4 py-3 sm:px-6">
           {data.missing.map((item) => (
             <span key={item} className="text-xs font-medium text-destructive">
               {t(`companies.onboarding.missing.${item}`)}
@@ -224,19 +223,16 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
         </div>
       )}
 
-      <div className="space-y-5 px-6 py-5">
+      <div className="space-y-4 p-4 sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <FileCheck2 className="h-4 w-4 text-muted-foreground" />
-            <h4 className="text-sm font-semibold">{t("companies.onboarding.documents.title")}</h4>
-          </div>
-          <span className="text-xs text-muted-foreground">{data.documents.length}</span>
+          <h4 className="panel-title">{t("companies.onboarding.documents.title")}</h4>
+          <span className="tabular text-xs text-muted-foreground">{data.documents.length}</span>
         </div>
 
         {can("company.update") && (
-          <div className="grid gap-3 border-y py-4 md:grid-cols-2 xl:grid-cols-[12rem_1fr_1fr_1.4fr_auto]">
+          <div className="grid grid-cols-1 gap-4 border-y py-4 md:grid-cols-2 xl:grid-cols-[12rem_1fr_1fr_1.4fr_auto]">
             <FieldWrapper label={t("companies.onboarding.documents.type")} required>
-              <select className="h-8 w-full rounded-md border bg-background px-2 text-sm" value={documentType} onChange={(event) => setDocumentType(event.target.value as CompanyDocumentType)}>
+              <select className="native-control" value={documentType} onChange={(event) => setDocumentType(event.target.value as CompanyDocumentType)}>
                 {DOCUMENT_TYPES.map((type) => <option key={type} value={type}>{t(`companies.onboarding.documentType.${type}`)}</option>)}
               </select>
             </FieldWrapper>
@@ -250,7 +246,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
               <Input type="file" accept="application/pdf,image/png,image/jpeg" onChange={(event) => setDocumentFile(event.target.files?.[0] ?? null)} />
             </FieldWrapper>
             <div className="flex items-end">
-              <Button size="sm" requires={[[documentFile, t("companies.onboarding.documents.file")]]} disabled={upload.isPending} onClick={() => upload.mutate()}>
+              <Button requires={[[documentFile, t("companies.onboarding.documents.file")]]} disabled={upload.isPending} onClick={() => upload.mutate()}>
                 <FileUp className="h-4 w-4" />
                 {t("companies.onboarding.documents.upload")}
               </Button>
@@ -295,14 +291,11 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
         </div>
       </div>
 
-      <div className="space-y-5 border-t px-6 py-5">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Landmark className="h-4 w-4 text-muted-foreground" />
-            <h4 className="text-sm font-semibold">{t("companies.onboarding.bank.title")}</h4>
-          </div>
+      <div className="space-y-4 border-t p-4 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h4 className="panel-title">{t("companies.onboarding.bank.title")}</h4>
           {can("company.update") && (
-            <Button variant="outline" size="sm" onClick={() => setShowBankForm((value) => !value)}>
+            <Button variant="outline" onClick={() => setShowBankForm((value) => !value)}>
               <Building2 className="h-4 w-4" />
               {t("companies.onboarding.bank.add")}
             </Button>
@@ -310,24 +303,24 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
         </div>
 
         {showBankForm && (
-          <div className="grid gap-3 border-y py-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 border-y py-4 md:grid-cols-2 xl:grid-cols-3">
             <FieldWrapper label={t("companies.onboarding.bank.bankName")} required><Input value={bank.bank_name} onChange={(event) => setBank({ ...bank, bank_name: event.target.value })} /></FieldWrapper>
             <FieldWrapper label={t("companies.onboarding.bank.accountName")} required><Input value={bank.account_name} onChange={(event) => setBank({ ...bank, account_name: event.target.value })} /></FieldWrapper>
             <FieldWrapper label={t("companies.onboarding.bank.accountNumber")} required={!editingBank} optional={editingBank ? t("common.optional") : undefined} hint={editingBank ? t("companies.onboarding.bank.numberUnchanged", { masked: editingBank.masked_account_number }) : undefined}><Input value={bank.account_number} onChange={(event) => setBank({ ...bank, account_number: event.target.value })} /></FieldWrapper>
             <BankInput label={t("companies.onboarding.bank.branch")} value={bank.branch ?? ""} onChange={(value) => setBank({ ...bank, branch: value })} />
             <BankInput label={t("companies.onboarding.bank.swiftCode")} value={bank.swift_code ?? ""} onChange={(value) => setBank({ ...bank, swift_code: value })} />
             <FieldWrapper label={t("companies.onboarding.bank.accountType")} required>
-              <select className="h-8 w-full rounded-md border bg-background px-2 text-sm" value={bank.account_type} onChange={(event) => setBank({ ...bank, account_type: event.target.value as "CURRENT" | "SAVINGS" })}>
+              <select className="native-control" value={bank.account_type} onChange={(event) => setBank({ ...bank, account_type: event.target.value as "CURRENT" | "SAVINGS" })}>
                 <option value="CURRENT">{t("companies.onboarding.bank.type.CURRENT")}</option>
                 <option value="SAVINGS">{t("companies.onboarding.bank.type.SAVINGS")}</option>
               </select>
             </FieldWrapper>
-            <div className="flex items-end gap-2 md:col-span-2 xl:col-span-3">
-              <Button size="sm" requires={[[bank.bank_name, t("companies.onboarding.bank.bankName")], [bank.account_name, t("companies.onboarding.bank.accountName")], [Boolean(editingBank) || bank.account_number, t("companies.onboarding.bank.accountNumber")]]} disabled={addBank.isPending || saveBank.isPending} onClick={() => (editingBank ? saveBank.mutate(editingBank) : addBank.mutate())}>
+            <div className="flex flex-wrap items-end gap-2 md:col-span-2 xl:col-span-3">
+              <Button requires={[[bank.bank_name, t("companies.onboarding.bank.bankName")], [bank.account_name, t("companies.onboarding.bank.accountName")], [Boolean(editingBank) || bank.account_number, t("companies.onboarding.bank.accountNumber")]]} disabled={addBank.isPending || saveBank.isPending} onClick={() => (editingBank ? saveBank.mutate(editingBank) : addBank.mutate())}>
                 <Landmark className="h-4 w-4" />
                 {t("companies.onboarding.bank.save")}
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { setShowBankForm(false); setEditingBank(null); }}>{t("common.cancel")}</Button>
+              <Button variant="outline" onClick={() => { setShowBankForm(false); setEditingBank(null); }}>{t("common.cancel")}</Button>
             </div>
           </div>
         )}
@@ -359,7 +352,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
       </div>
 
       {can("company.review") && data.review_status !== "APPROVED" && (
-        <div className="flex flex-wrap items-center justify-end gap-2 border-t px-6 py-5">
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t p-4 sm:p-6">
           <Button variant="outline" disabled={executeAction.isPending} onClick={() => setPending({ kind: "reject-company", id: company.id })}>
             <XCircle className="h-4 w-4" />
             {t("companies.onboarding.companyReject")}

@@ -141,7 +141,7 @@ export function SubscriptionActionDialog({
             <>
               <FieldWrapper label={t("field.plan")} required>
                 <select
-                  className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                  className="native-control"
                   value={plan}
                   onChange={(event) => setPlan(event.target.value)}
                 >
@@ -162,8 +162,8 @@ export function SubscriptionActionDialog({
                   onChange={(event) => setMonths(event.target.value)}
                 />
               </FieldWrapper>
-              <div className="flex items-center justify-between gap-4 rounded-md border px-3 py-2.5">
-                <div>
+              <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-3">
+                <div className="min-w-0">
                   <p className="text-sm font-medium">{t("field.effectiveImmediately")}</p>
                   <p className="text-xs text-muted-foreground">
                     {t("hint.effectiveImmediately")}
@@ -179,7 +179,7 @@ export function SubscriptionActionDialog({
 
           {mode === "extend" && (
             <>
-              <div className="grid grid-cols-2 rounded-md border p-1">
+              <div className="grid grid-cols-2 gap-1 rounded-lg border p-1">
                 {(["months", "date"] as const).map((value) => (
                   <Button
                     key={value}
@@ -232,8 +232,8 @@ export function SubscriptionActionDialog({
           )}
 
           {mode === "terminate" && (
-            <div className="flex gap-3 border-y border-destructive/30 bg-destructive/5 py-3 text-destructive">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="flex gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
               <p className="text-sm">{t("hint.terminate")}</p>
             </div>
           )}
