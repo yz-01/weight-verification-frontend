@@ -82,7 +82,7 @@ describe("外观: the choice applied before the first paint", () => {
 
   it("storage that throws leaves no choice on the page, so the system decides", () => {
     expect([...paint({ stored: "light", osDark: true, storageThrows: true })]).toEqual([]);
-    const css = readFileSync(path.join(process.cwd(), "src/app/globals.css"), "utf8");
+    const css = readFileSync(path.join(process.cwd(), "src/app/globals.css"), "utf8").replace(/\r\n/g, "\n");
     // The dark tokens apply under the system's dark setting unless 浅色 was
     // chosen...
     const fallback = css.slice(css.indexOf("@media (prefers-color-scheme: dark) {\n  :root:not(.light) {"));
