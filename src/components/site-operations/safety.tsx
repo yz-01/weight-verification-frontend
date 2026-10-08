@@ -37,6 +37,7 @@ import { RecordExportButton } from "@/components/shared/record-export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
   FieldWrapper,
+  FilterBar,
   ListHeader,
   QueryFailedNote,
   ReadField,
@@ -560,7 +561,7 @@ export function Safety({
                 the only place a hazard can be raised - and the button lived
                 on the half being deleted (F-240). */}
             {mayRaise && (
-            <Button size={fieldMode ? "lg" : "sm"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
+            <Button size={fieldMode ? "lg" : "default"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
               {t(fieldMode ? "safety.fieldReport.new" : "safety.new")}
             </Button>
@@ -569,7 +570,7 @@ export function Safety({
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2 border-y bg-card/50 py-3">
+      <FilterBar>
         <ProjectPicker
           value={selectedProject}
           onValueChange={(value) => {
@@ -641,7 +642,7 @@ export function Safety({
         {!fieldMode && selectedProject !== "all" && (
           <QueryFailedNote className="w-full" query={responsiblePeople} what={t("safety.what.responsiblePeople")} />
         )}
-      </div>
+      </FilterBar>
       <QueryFailedNote query={focusedIncident} what={t("safety.what.requestedIncident")} />
       {!fieldMode && waitingForMe && (
         <DrillNote
@@ -661,9 +662,9 @@ export function Safety({
       {fieldMode ? (
         <div className="grid gap-3">
           {isLoading && <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin text-primary" /></div>}
-          {isError && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("safety.fieldReport.loadError")}</div>}
+          {isError && <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{t("safety.fieldReport.loadError")}</div>}
           {!isLoading && !isError && (data?.results ?? []).length === 0 && (
-            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
+            <div className="rounded-xl border border-dashed border-panel-border p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
           )}
           {(data?.results ?? []).map((incident) => (
             <article key={incident.id} className="surface-panel rounded-xl">
@@ -681,7 +682,7 @@ export function Safety({
                 type="button"
                 onClick={() => setTalking(incident)}
                 aria-label={t("hazard.conversationTitle")}
-                className="flex w-full items-start gap-3 rounded-lg p-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="flex w-full items-start gap-3 rounded-xl p-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 {/* The hazard's photograph on the left (E3); the icon when it has none. */}
                 <PhotoThumb

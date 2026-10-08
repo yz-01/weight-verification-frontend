@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -88,22 +88,22 @@ export function GeofenceWorkspace() {
 
   const hasDisplayedRows = Boolean(rows.data?.count || defaultGeofences.length);
 
-  return <div className="space-y-5">
-    <ListHeader title={t("geofence.title")} subtitle={t("geofence.subtitle")} action={can("geofence.manage") ? <Button size="sm" onClick={() => setEditing("new")}><Plus />{t("geofence.new")}</Button> : undefined} />
-    <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
+  return <div className="flex flex-col gap-4">
+    <ListHeader title={t("geofence.title")} subtitle={t("geofence.subtitle")} action={can("geofence.manage") ? <Button onClick={() => setEditing("new")}><Plus />{t("geofence.new")}</Button> : undefined} />
+    <FilterBar>
       {projectBoxShown && <FieldWrapper label={t("field.project")} className="min-w-64 flex-1" error={projects.isError ? t("state.projectLoadError") : undefined} hint={!projects.isLoading && !projects.isError && !projectOptions.length ? t("noProjects") : undefined}>
         <ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.chooseProject")} allowAll allLabel={t("field.allProjects")} projects={projectOptions} projectsLoading={projects.isLoading} projectsError={projects.isError} />
       </FieldWrapper>}
-      <div className="rounded-lg bg-muted/40 px-4 py-2 text-sm"><span className="text-muted-foreground">{t("geofence.activeZones")}</span><strong className="ml-2 tabular-nums">{zones.length}</strong></div>
-    </div>
-    <LocationMap center={center} markers={[]} zones={zones} className="rounded-lg" />
+      <div className="flex h-10 items-center rounded-lg bg-muted/40 px-4 text-sm"><span className="text-muted-foreground">{t("geofence.activeZones")}</span><strong className="ml-2 tabular">{zones.length}</strong></div>
+    </FilterBar>
+    <LocationMap center={center} markers={[]} zones={zones} className="rounded-xl" />
     {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !hasDisplayedRows ? <State text={t("geofence.empty")} /> : <div className="grid gap-3 lg:grid-cols-2">
       {rows.data?.results.map((row) => <article key={row.id} className="surface-panel rounded-xl p-4">
         <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.name}</h3>{row.is_primary && <StatusBadge label={t("geofence.primary")} tone="info" />}<StatusBadge label={t(row.is_active ? "status.active" : "status.inactive")} tone={row.is_active ? "positive" : "neutral"} /></div><p className="mt-1 text-sm text-muted-foreground">{row.project_name} · {t(`shape.${row.shape}`)}</p></div>{can("geofence.manage") && <div className="flex shrink-0"><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => setEditing(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" title={t("action.remove")} className="text-destructive" onClick={() => setRemoving(row)}><Trash2 /></Button></div>}</div>
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><Info label={t("field.location")} value={row.shape === "CIRCLE" ? `${row.latitude}, ${row.longitude}` : t("geofence.pointCount", { count: row.polygon.length })} /><Info label={t("field.radius")} value={row.radius_m ? `${row.radius_m} m` : "-"} /></div>
         {row.address && <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">{row.address}</p>}
       </article>)}
-      {defaultGeofences.map((defaultGeofence) => <article key={`project-default-${defaultGeofence.id}`} className="rounded-lg border border-dashed bg-muted/20 p-4 shadow-sm">
+      {defaultGeofences.map((defaultGeofence) => <article key={`project-default-${defaultGeofence.id}`} className="rounded-xl border border-dashed border-panel-border bg-muted/20 p-4">
         <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{defaultGeofence.name}</h3><StatusBadge label={t("field.defaultRadius")} tone="info" /></div><p className="mt-1 text-sm text-muted-foreground">{defaultGeofence.code} · {t("field.project")}</p></div>{can("project.update") && <Button asChild size="icon-sm" variant="ghost" title={t("action.edit")}><Link href={`/projects/${defaultGeofence.id}/edit`}><Pencil /></Link></Button>}</div>
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><Info label={t("field.location")} value={`${defaultGeofence.latitude}, ${defaultGeofence.longitude}`} /><Info label={t("field.radius")} value={`${defaultGeofence.geofence_radius_m} m`} /></div>
         <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">{t("field.defaultRadius")}</p>
@@ -211,8 +211,8 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
           </FieldWrapper>
 
           <div className="flex flex-wrap gap-2">
-            <Button type="button" size="sm" variant="outline" onClick={useProjectLocation}><MapPinned />{t("geofence.useProject")}</Button>
-            <Button type="button" size="sm" variant="outline" onClick={useGps}><LocateFixed />{t("geofence.useGps")}</Button>
+            <Button type="button" variant="outline" onClick={useProjectLocation}><MapPinned />{t("geofence.useProject")}</Button>
+            <Button type="button" variant="outline" onClick={useGps}><LocateFixed />{t("geofence.useGps")}</Button>
           </div>
           {locationError && <p role="alert" className="text-sm text-destructive">{locationError}</p>}
 
@@ -241,21 +241,21 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
                 <FieldWrapper label={t("field.radius")} required><Input type="number" min={1} value={form.radius_m ?? ""} onChange={(event) => setForm({ ...form, radius_m: Number(event.target.value) })} /></FieldWrapper>
               </div>
               <div className="flex flex-wrap gap-2">
-                {[50, 100, 150, 300].map((radius) => <Button key={radius} type="button" size="sm" variant={form.radius_m === radius ? "default" : "outline"} onClick={() => setForm({ ...form, radius_m: radius })}>{radius} m</Button>)}
+                {[50, 100, 150, 300].map((radius) => <Button key={radius} type="button" variant={form.radius_m === radius ? "default" : "outline"} onClick={() => setForm({ ...form, radius_m: radius })}>{radius} m</Button>)}
               </div>
             </div>
           ) : (
             <FieldWrapper label={t("geofence.pointCount", { count: 3 })} required>
             <div className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
-              <div><p className="font-semibold tabular-nums">{t("geofence.drawingCount", { count: form.polygon.length })}</p><p className="mt-1 text-sm text-muted-foreground">{drawing && pointsNeeded > 0 ? t("geofence.finishNeedThree", { count: pointsNeeded }) : t("geofence.dragPointHelp")}</p></div>
+              <div><p className="font-semibold tabular">{t("geofence.drawingCount", { count: form.polygon.length })}</p><p className="mt-1 text-sm text-muted-foreground">{drawing && pointsNeeded > 0 ? t("geofence.finishNeedThree", { count: pointsNeeded }) : t("geofence.dragPointHelp")}</p></div>
               <div className="flex flex-wrap gap-2">
                 {drawing ? <>
-                  <Button type="button" size="sm" variant="outline" disabledReason={!form.polygon.length ? t("geofence.noPointsYet") : undefined} disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: form.polygon.slice(0, -1) })}><RotateCcw />{t("geofence.undoPoint")}</Button>
-                  <Button type="button" size="sm" variant="outline" disabledReason={!form.polygon.length ? t("geofence.noPointsYet") : undefined} disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: [] })}><Trash2 />{t("geofence.clearPoints")}</Button>
-                  <Button type="button" size="sm" disabledReason={form.polygon.length < 3 ? t("geofence.finishNeedThree", { count: 3 - form.polygon.length }) : undefined} disabled={form.polygon.length < 3} onClick={() => setDrawing(false)}><Check />{t("geofence.finishDrawing")}</Button>
+                  <Button type="button" variant="outline" disabledReason={!form.polygon.length ? t("geofence.noPointsYet") : undefined} disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: form.polygon.slice(0, -1) })}><RotateCcw />{t("geofence.undoPoint")}</Button>
+                  <Button type="button" variant="outline" disabledReason={!form.polygon.length ? t("geofence.noPointsYet") : undefined} disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: [] })}><Trash2 />{t("geofence.clearPoints")}</Button>
+                  <Button type="button" disabledReason={form.polygon.length < 3 ? t("geofence.finishNeedThree", { count: 3 - form.polygon.length }) : undefined} disabled={form.polygon.length < 3} onClick={() => setDrawing(false)}><Check />{t("geofence.finishDrawing")}</Button>
                 </> : <>
-                  <Button type="button" size="sm" variant="outline" onClick={() => setDrawing(true)}><MousePointerClick />{t("geofence.continueDrawing")}</Button>
-                  <Button type="button" size="sm" variant="outline" onClick={() => { setForm({ ...form, polygon: [] }); setDrawing(true); }}><RotateCcw />{t("geofence.redraw")}</Button>
+                  <Button type="button" variant="outline" onClick={() => setDrawing(true)}><MousePointerClick />{t("geofence.continueDrawing")}</Button>
+                  <Button type="button" variant="outline" onClick={() => { setForm({ ...form, polygon: [] }); setDrawing(true); }}><RotateCcw />{t("geofence.redraw")}</Button>
                 </>}
               </div>
             </div>
@@ -280,5 +280,5 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
 function toMapZone(row: SiteGeofence): LocationMapZone { return row.shape === "POLYGON" ? { id: row.id, label: `${row.project_name} · ${row.name}`, points: row.polygon } : { id: row.id, label: `${row.project_name} · ${row.name}`, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.radius_m ?? 1 }; }
 function toDefaultMapZone(row: Project): LocationMapZone { return { id: `project-default-${row.id}`, label: `${row.name} · ${row.geofence_radius_m} m`, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.geofence_radius_m ?? 1, color: MAP_COLORS[7] }; }
 function Info({ label, value }: { label: string; value: string }) { return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 break-words font-medium">{value}</p></div>; }
-function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) { return <label className="flex items-center justify-between rounded-lg border px-3 py-3 text-sm font-medium"><span>{label}</span><Switch checked={checked} onCheckedChange={onChange} /></label>; }
-function State({ text, danger = false }: { text: string; danger?: boolean }) { return <div className={`grid min-h-36 place-items-center rounded-lg border border-dashed p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}>{text}</div>; }
+function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) { return <label className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm font-medium"><span className="min-w-0">{label}</span><Switch checked={checked} onCheckedChange={onChange} /></label>; }
+function State({ text, danger = false }: { text: string; danger?: boolean }) { return <div className={`grid min-h-36 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}>{text}</div>; }

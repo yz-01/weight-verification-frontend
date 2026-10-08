@@ -1,11 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { HardHat, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,17 +83,16 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
   const data = presence.data;
 
   return (
-    <section className="surface-panel rounded-xl">
-      <div className="flex flex-wrap items-center gap-2 border-b p-4">
-        <HardHat className="size-4 text-muted-foreground" />
-        <p className="text-sm font-semibold">{t("title")}</p>
+    <section className="surface-panel overflow-hidden rounded-xl">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b p-4 sm:px-6">
+        <p className="panel-title">{t("title")}</p>
         <p className="text-xs text-muted-foreground">{t("help")}</p>
-        <div className="ml-auto flex flex-wrap gap-2">
+        <div className="flex w-full flex-wrap gap-2 sm:ml-auto sm:w-auto">
           {/* A dropdown whose options can never load is worse than no
               dropdown: it looks like a filter that is simply empty. */}
           {mayFilterByDepartment && (
           <Select value={department} onValueChange={setDepartment}>
-            <SelectTrigger className="h-8 w-44" aria-label={t("filter.department")}>
+            <SelectTrigger className="w-full sm:w-44" aria-label={t("filter.department")}>
               <SelectValue placeholder={t("filter.allDepartments")} />
             </SelectTrigger>
             <SelectContent>
@@ -107,7 +107,7 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
           )}
           {mayFilterByTrade && (
           <Select value={trade} onValueChange={setTrade}>
-            <SelectTrigger className="h-8 w-44" aria-label={t("filter.trade")}>
+            <SelectTrigger className="w-full sm:w-44" aria-label={t("filter.trade")}>
               <SelectValue placeholder={t("filter.allTrades")} />
             </SelectTrigger>
             <SelectContent>
@@ -130,19 +130,19 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
       </div>
 
       {presence.isLoading ? (
-        <p className="p-4 text-sm text-muted-foreground">
+        <p className="p-4 text-sm text-muted-foreground sm:px-6">
           <Loader2 className="mr-2 inline size-4 animate-spin" />
           {common("loading")}
         </p>
       ) : presence.isError || !data ? (
-        <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-4">
+        <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-3 sm:mx-6">
           <p className="text-sm text-destructive">{t("loadError")}</p>
           <Button size="sm" variant="outline" onClick={() => void presence.refetch()}>
             {common("retry")}
           </Button>
         </div>
       ) : (
-        <div className="space-y-4 p-4">
+        <div className="space-y-4 p-4 sm:p-6">
           <div className="grid gap-3 sm:grid-cols-3">
             <Tile label={t("onSiteNow")} value={data.on_site_now} emphasis />
             <Tile label={t("enteredToday")} value={data.entered_today} />
@@ -167,7 +167,7 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
           </div>
 
           {!data.people.length ? (
-            <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
               {t("nobodyOnSite")}
             </p>
           ) : (
@@ -187,7 +187,7 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
                       ].join(" · ")}
                     </span>
                   </span>
-                  <span className="text-xs tabular-nums text-muted-foreground">
+                  <span className="tabular text-xs text-muted-foreground">
                     {t("since", { at: df.dateTime(person.since) })}
                   </span>
                 </li>
@@ -210,18 +210,7 @@ function Tile({
   emphasis?: boolean;
 }) {
   return (
-    <div className="rounded-lg border p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p
-        className={
-          emphasis
-            ? "mt-1 text-2xl font-semibold tabular-nums"
-            : "mt-1 text-xl font-medium tabular-nums"
-        }
-      >
-        {value}
-      </p>
-    </div>
+    <KpiCard size="sm" tone={emphasis ? "cyan" : "slate"} label={label} value={value} />
   );
 }
 
@@ -265,7 +254,7 @@ function Breakdown({
                   }}
                 />
               </span>
-              <span className="w-8 text-right text-sm tabular-nums">{count}</span>
+              <span className="tabular w-8 text-right text-sm">{count}</span>
             </li>
           ))}
         </ul>

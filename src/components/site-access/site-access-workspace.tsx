@@ -208,14 +208,13 @@ export function SiteAccessWorkspace() {
   });
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("access.title")}
         subtitle={t("access.subtitle")}
         action={
           can("site_access.manage") && tab === "passes" ? (
             <Button
-              size="sm"
               disabledReason={defaults.isError ? t("access.defaultsFailed") : defaults.isLoading ? t("state.loading") : undefined}
               disabled={defaults.isLoading || defaults.isError}
               onClick={() => setCreating(true)}
@@ -250,7 +249,7 @@ export function SiteAccessWorkspace() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="passes" className="space-y-4">
-          <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+          <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4">
             {projectBoxShown && (
             <FieldWrapper label={t("field.project")}>
               <ProjectPicker
@@ -288,7 +287,7 @@ export function SiteAccessWorkspace() {
           ) : !rows.data?.count ? (
             <State text={t("access.empty")} />
           ) : (
-            <div className="overflow-hidden rounded-lg border bg-card">
+            <div className="surface-panel overflow-hidden rounded-xl">
               <Table className="min-w-235">
                 <TableHeader>
                   <TableRow>
@@ -311,7 +310,7 @@ export function SiteAccessWorkspace() {
                 <TableBody>
                   {rows.data.results.map((row) => (
                     <TableRow key={row.id}>
-                      <TableCell className="font-medium tabular-nums">
+                      <TableCell className="font-medium tabular">
                         {row.pass_no}
                       </TableCell>
                       <TableCell>
@@ -572,13 +571,13 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
     }
   }
   return (
-    <div className="mx-auto max-w-2xl space-y-5 rounded-lg border bg-card p-5">
-      <div className="flex items-start gap-3">
+    <div className="surface-panel mx-auto w-full max-w-2xl space-y-4 rounded-xl p-4 sm:p-6">
+      <div className="flex min-w-0 items-start gap-3">
         <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
           <DoorOpen />
         </span>
-        <div>
-          <h2 className="text-lg font-semibold">{t("gate.title")}</h2>
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-foreground">{t("gate.title")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("gate.subtitle")}
           </p>
@@ -594,7 +593,7 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
           <Camera />
           {t("gate.cameraScan")}
         </Button>
-        <label className="flex h-14 cursor-pointer items-center justify-center gap-2 rounded-md border bg-background px-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+        <label className="flex h-14 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-background px-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
           <ImagePlus />
           {t("gate.uploadImage")}
           <input
@@ -1035,7 +1034,7 @@ function DeviceEventsPanel() {
   });
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+      <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4">
         {projectBoxShown && (
         <FieldWrapper label={t("field.project")}>
           <ProjectPicker
@@ -1069,7 +1068,7 @@ function DeviceEventsPanel() {
       ) : !rows.data?.count ? (
         <State text={t("deviceEvent.empty")} />
       ) : (
-        <div className="overflow-hidden rounded-lg border bg-card">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table className="min-w-270">
             <TableHeader>
               <TableRow>
@@ -1098,7 +1097,7 @@ function DeviceEventsPanel() {
                       {event.project_name}
                     </p>
                   </TableCell>
-                  <TableCell className="font-medium tabular-nums">
+                  <TableCell className="font-medium tabular">
                     {event.device_id}
                   </TableCell>
                   <TableCell>
@@ -1106,11 +1105,11 @@ function DeviceEventsPanel() {
                   </TableCell>
                   <TableCell>
                     <p>{t(`credentialType.${event.credential_type}`)}</p>
-                    <p className="text-xs text-muted-foreground tabular-nums">
+                    <p className="text-xs text-muted-foreground tabular">
                       {event.credential_hint || "-"}
                     </p>
                   </TableCell>
-                  <TableCell className="tabular-nums">
+                  <TableCell className="tabular">
                     {event.pass_no || "-"}
                   </TableCell>
                   <TableCell>
@@ -1485,7 +1484,7 @@ function Info({ label, value }: { label: string; value: string }) {
 function State({ text, danger = false }: { text: string; danger?: boolean }) {
   return (
     <div
-      className={`grid min-h-36 place-items-center rounded-lg border border-dashed p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}
+      className={`grid min-h-36 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}
     >
       {text}
     </div>

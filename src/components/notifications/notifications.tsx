@@ -135,7 +135,7 @@ export function Notifications({
           />
         ),
         cell: ({ row }) => (
-          <span className="text-xs tabular-nums text-muted-foreground">
+          <span className="tabular text-xs text-muted-foreground">
             {df.dateTime(row.original.created_at)}
           </span>
         ),
@@ -246,7 +246,7 @@ export function Notifications({
         action={
           <div className="flex flex-wrap items-center gap-2">
             {!card && can("notification.send") && (
-              <Button size="sm" onClick={() => setComposeOpen(true)}>
+              <Button onClick={() => setComposeOpen(true)}>
                 <BellPlus className="h-4 w-4" />
                 {t("notifications.compose.action")}
               </Button>
@@ -317,7 +317,7 @@ export function Notifications({
               }
             >
               <SelectTrigger
-                className="h-9 min-w-32 rounded-full"
+                className="w-full sm:w-48"
                 aria-label={t("notifications.filter.category")}
               >
                 <SelectValue />
@@ -469,7 +469,7 @@ function ProjectNotificationDialog({
                 setRecipientRoles([]);
               }}
             >
-              <SelectTrigger className="h-11 w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("selectProject")} />
               </SelectTrigger>
               <SelectContent>
@@ -501,7 +501,7 @@ function ProjectNotificationDialog({
 
           <FieldWrapper label={t("recipients")} required hint={t("recipientsHelp")}>
             {!project ? (
-              <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-panel-border p-4 text-sm text-muted-foreground">
                 {t("chooseProjectFirst")}
               </p>
             ) : members.isError ? (

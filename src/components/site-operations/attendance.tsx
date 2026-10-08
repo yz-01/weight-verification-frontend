@@ -262,7 +262,7 @@ export function Attendance() {
         title={t("attendance.title")}
         subtitle={isLoading ? t("common.loading") : t("attendance.count", { count: total })}
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <ProjectPicker
               value={selectedProject}
               onValueChange={(value) =>
@@ -274,7 +274,7 @@ export function Attendance() {
               className="hidden w-55 sm:flex"
             />
             {can("attendance.clock") && (
-              <Button size="sm" onClick={openClockDialog}>
+              <Button onClick={openClockDialog}>
                 <LogIn className="h-4 w-4" />
                 {t("attendance.clock.action")}
               </Button>

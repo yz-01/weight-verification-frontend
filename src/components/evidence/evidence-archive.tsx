@@ -26,6 +26,7 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
   FieldWrapper,
+  FilterBar,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -189,7 +190,7 @@ export function EvidenceArchive() {
           />
         ),
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+          <span className="tabular whitespace-nowrap text-xs text-muted-foreground">
             {df.precise(row.original.captured_at)}
           </span>
         ),
@@ -207,7 +208,7 @@ export function EvidenceArchive() {
           />
         ),
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+          <span className="tabular whitespace-nowrap text-xs text-muted-foreground">
             {df.precise(row.original.uploaded_at)}
           </span>
         ),
@@ -219,7 +220,7 @@ export function EvidenceArchive() {
         cell: ({ row }) =>
           hasGps(row.original) ? (
             <div
-              className="flex min-w-36.25 items-center gap-1.5 text-xs tabular-nums"
+              className="tabular flex min-w-36.25 items-center gap-1.5 text-xs"
               title={`${row.original.latitude}, ${row.original.longitude}`}
             >
               <MapPin className="h-3.5 w-3.5 shrink-0 text-success" />
@@ -279,11 +280,11 @@ export function EvidenceArchive() {
         }
       />
 
-      <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
+      <FilterBar>
         {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
         {!topBar.active && (
         <div className="w-full space-y-1 sm:w-55">
-          <Label className="text-xs text-muted-foreground">{t("evidence.filter.project")}</Label>
+          <Label className="text-xs font-medium text-muted-foreground">{t("evidence.filter.project")}</Label>
           <Select
             value={selectedProject || "all"}
             onValueChange={(value) => {
@@ -305,7 +306,7 @@ export function EvidenceArchive() {
         </div>
         )}
         <div className="w-full space-y-1 sm:w-55">
-          <Label className="text-xs text-muted-foreground">{t("evidence.filter.category")}</Label>
+          <Label className="text-xs font-medium text-muted-foreground">{t("evidence.filter.category")}</Label>
           <Select
             disabled={!selectedProject}
             value={list.filters.category || "all"}
@@ -335,7 +336,7 @@ export function EvidenceArchive() {
             list.setFilter("captured_to", value || undefined)
           }
         />
-      </div>
+      </FilterBar>
 
       <DataTable
         columns={columns}
@@ -401,7 +402,7 @@ function DateFilter({
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
       <Input
         type="date"
         className="w-full sm:w-45"

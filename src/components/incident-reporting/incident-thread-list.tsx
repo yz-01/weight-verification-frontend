@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
+import { FilterBar, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
@@ -89,14 +89,14 @@ export function IncidentThreadList() {
   return (
     <div className="space-y-4">
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold">{t("title")}</h3>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="min-w-0 text-base font-semibold text-foreground">{t("title")}</h3>
           <Button onClick={() => setShowCreate(true)}>
             {t("action.reportIncident")}
           </Button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 border-y bg-card/50 py-3">
+        <FilterBar>
           <ProjectPicker
             value={selectedProject}
             onValueChange={selectProject}
@@ -105,7 +105,7 @@ export function IncidentThreadList() {
             allLabel={safetyT("allProjects")}
             className="w-full sm:w-70"
           />
-        </div>
+        </FilterBar>
 
         {threads.isLoading && (
           <div className="grid min-h-32 place-items-center">
@@ -118,7 +118,7 @@ export function IncidentThreadList() {
         )}
 
         {!threads.isError && threads.data?.results.length === 0 && (
-          <p className="rounded-xl border border-dashed bg-card p-5 text-center text-sm text-muted-foreground">
+          <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
             {t("empty")}
           </p>
         )}

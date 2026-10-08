@@ -128,24 +128,24 @@ export function GateRecordsPanel({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
+        <div className="flex min-w-0 items-start gap-3">
           <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <DoorOpen />
           </span>
-          <div>
-            <h2 className="text-base font-semibold">{t("title")}</h2>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
             <p className="mt-0.5 text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
         </div>
         {can("site_access.scan") && (
-          <Button size="sm" onClick={() => setCreating(true)}>
+          <Button onClick={() => setCreating(true)}>
             <Camera />
             {t("new")}
           </Button>
         )}
       </div>
 
-      <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+      <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4">
         {projectBoxShown && (
         <FieldWrapper label={t("field.project")}>
           <ProjectPicker
@@ -213,7 +213,7 @@ export function GateRecordsPanel({
 
 function Empty({ text }: { text: string }) {
   return (
-    <div className="grid min-h-40 place-items-center rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+    <div className="grid min-h-40 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
       {text}
     </div>
   );
@@ -226,7 +226,7 @@ function GateIncidentCard({ row, onOpen }: { row: GateIncident; onOpen: () => vo
     <button
       type="button"
       onClick={onOpen}
-      className="flex w-full gap-3 rounded-lg border bg-card p-3 text-left transition-colors hover:bg-muted/40"
+      className="surface-panel flex w-full gap-3 rounded-xl p-3 text-left transition-colors hover:bg-muted/40"
     >
       <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
         {row.cover_photo ? (
@@ -236,7 +236,7 @@ function GateIncidentCard({ row, onOpen }: { row: GateIncident; onOpen: () => vo
         )}
       </span>
       <span className="min-w-0 flex-1 space-y-1">
-        <span className="block font-semibold tabular-nums">{row.incident_no}</span>
+        <span className="block font-semibold tabular">{row.incident_no}</span>
         <span className="block truncate text-sm text-muted-foreground">
           {row.project_name}
           {row.gate_name ? ` · ${row.gate_name}` : ""}
@@ -432,7 +432,7 @@ function GateIncidentForm({
           </FieldWrapper>
           <FieldWrapper label={t("scanPass")} optional={t("optional")} hint={t("scanPassHint")}>
             {linkedPass ? (
-              <div className="flex items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm">
+              <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm">
                 <span className="min-w-0">
                   <span className="block font-medium">{linkedPass.pass_no}</span>
                   <span className="block truncate text-muted-foreground">
@@ -493,7 +493,7 @@ function GateIncidentForm({
           </FieldWrapper>
         </div>
         {save.isError && (
-          <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
             {save.error instanceof Error ? save.error.message : t("saveError")}
           </p>
         )}
@@ -555,7 +555,7 @@ function MemberChecklist({
   if (loading) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   if (!options.length) return <p className="text-sm text-muted-foreground">{t("noMembers")}</p>;
   return (
-    <ul className="max-h-48 space-y-1 overflow-y-auto rounded-md border p-2">
+    <ul className="max-h-48 space-y-1 overflow-y-auto rounded-lg border p-2">
       {options.map((person) => {
         const checked = selected.includes(person.id);
         return (
