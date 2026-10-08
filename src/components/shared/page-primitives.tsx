@@ -336,7 +336,10 @@ export function ListHeader({
           <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         </div>
       </div>
-      <div className="flex max-w-full flex-wrap items-center gap-2">
+      {/* The page's own wrapper around its buttons is flattened, so the
+          buttons and the help button wrap as one row on a phone instead of
+          stacking in a staircase. */}
+      <div className="flex w-full max-w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end [&>div:not([class*=hidden])]:contents">
         {action}
         {sections.length > 0 && (
           <Dialog>
