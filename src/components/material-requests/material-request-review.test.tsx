@@ -26,6 +26,8 @@ vi.mock("@/components/providers/auth-provider", () => ({
 
 vi.mock("@/components/shared/record-detail-shell", () => ({
   RecordDetailDialog: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  // 记录人 (E8) is not what these tests read.
+  RecordRecorder: () => null,
   RecordDetailShell: ({
     facts,
     actions,

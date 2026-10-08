@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /** Waste leaving site, and the recycling loop it opens (requirement 8). */
 
 /** Units requirement 8.2.8 lists. `PIECE` is the code for the customer's "Unit". */
@@ -58,7 +60,7 @@ export interface WasteOutgoingPhoto {
   created_at: string;
 }
 
-export interface WasteOutgoingRecord {
+export interface WasteOutgoingRecord extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

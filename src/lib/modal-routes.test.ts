@@ -112,6 +112,18 @@ function fullPageDetails(): string[] {
   return found.sort();
 }
 
+/**
+ * The business records among them (E8, Q31): their popup is the shared
+ * record-detail dialog - number, status and 预览/打印 · 导出 PDF · 分享 in its
+ * own header - rather than the page wrapped in a second dialog.
+ */
+const RECORD_DETAIL_ROUTES = [
+  "/receipts/[id]",
+  "/consultant-applications/[id]",
+  "/dispatches/[id]",
+  "/tasks/[id]",
+];
+
 describe("the detail dialogs", () => {
   const routes = fullPageDetails();
 
@@ -126,6 +138,15 @@ describe("the detail dialogs", () => {
     expect(existsSync(twin), `${twin} is missing`).toBe(true);
 
     const source = readFileSync(twin, "utf8");
+    if (RECORD_DETAIL_ROUTES.includes(route)) {
+      // A business record (E8, Q31): the module's own detail in its
+      // record-detail popup, the same component the page renders.
+      const page = readFileSync(path.join(APP, ...route.slice(1).split("/"), "page.tsx"), "utf8");
+      const component = page.match(/<(\w+) id=\{id\}/)?.[1];
+      expect(component, `${route}/page renders a detail component`).toBeTruthy();
+      expect(source).toMatch(new RegExp(`<${component} id=\\{id\\} presentation="dialog"`));
+      return;
+    }
     expect(source).toContain(`@/app/(dashboard)${route}/page`);
     expect(source).toContain("<DetailDialog>");
   });

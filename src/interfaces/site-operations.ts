@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /** Project-scoped records used by the contractor and site staff portals. */
 
 export type AttendanceEvent = "CLOCK_IN" | "CLOCK_OUT";
@@ -125,7 +127,7 @@ export interface SafetyRectificationEvidence {
   submitted_by_name: string | null;
 }
 
-export interface SafetyIncident {
+export interface SafetyIncident extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

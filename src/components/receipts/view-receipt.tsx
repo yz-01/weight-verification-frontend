@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, FolderOpen, Pencil, Phone } from "lucide-react";
+import { Camera, FolderOpen, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,22 +12,19 @@ import {
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
-import { RecordDetailShell } from "@/components/shared/record-detail-shell";
-import { RecordExportButton } from "@/components/shared/record-export-button";
+import {
+  RecordDetailFrame,
+  RecordDetailShell,
+  RecordRecorder,
+} from "@/components/shared/record-detail-shell";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { Switch } from "@/components/ui/switch";
 import {
   ArmRow,
-  DetailHeader,
   FieldWrapper,
   TypeBadge,
 } from "@/components/shared/page-primitives";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
@@ -352,17 +349,24 @@ function AddPhoto({
   );
 }
 
-/** First letters of the first two words, for an avatar with no picture. */
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
-export function ViewReceipt({ id }: { id: string }) {
+/**
+ * One delivery, in the record-detail frame every module shares (E8, Q31).
+ *
+ * From the receipts list (or anywhere inside the app) it opens as the popup
+ * - 「以弹窗显示（跟改设计前一样）」 - over the list, which stays where it
+ * was; `/receipts/<id>` typed, bookmarked or opened from a notification
+ * renders the same frame on a page of its own (`presentation="page"`).
+ */
+export function ViewReceipt({
+  id,
+  presentation = "page",
+  onClose,
+}: {
+  id: string;
+  presentation?: "page" | "dialog";
+  /** The dialog's close; going back by default (an intercepted address). */
+  onClose?: () => void;
+}) {
   const t = useTranslations();
   const unitName = useUnitName();
   const df = useDateFormat();
@@ -382,43 +386,51 @@ export function ViewReceipt({ id }: { id: string }) {
   // one. The archive queue records its own per-person marks through its own
   // explicit action (D-063), so nothing there depends on this page any more.
 
-  if (isLoading) return <FormSkeleton sections={4} />;
+  const frame = {
+    presentation,
+    onClose,
+    backHref: "/receipts",
+    backLabel: t("receipts.title"),
+  };
+  if (isLoading) {
+    return (
+      <RecordDetailFrame {...frame} title={t("receipts.title")}>
+        <FormSkeleton sections={4} />
+      </RecordDetailFrame>
+    );
+  }
   if (isError || !data) {
-    return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
+    return (
+      <RecordDetailFrame {...frame} title={t("receipts.title")}>
+        <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />
+      </RecordDetailFrame>
+    );
   }
 
   return (
-    <div className="space-y-3">
-      {/* 「单独导出」 top right (T-386): this delivery as its own PDF. */}
-      <DetailHeader
-        backHref="/receipts"
-        backLabel={t("receipts.title")}
-        action={
-          <RecordExportButton
-            kind="MATERIAL_RECEIPT"
-            recordId={data.id}
-            reference={data.receipt_no}
-          />
-        }
-      />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="tabular text-xl font-bold leading-tight text-foreground sm:text-2xl">
-          {data.receipt_no}
-        </h2>
-        {/* Which way it went (B10): a return used to open on a page that
-            only ever said 材料进场. */}
-        <TypeBadge label={t(`receipts.movement.${data.movement_type}`)} />
-        <TypeBadge label={unitName(data.unit, data.unit_label)} />
-        {data.supersedes && (
-          <Link
-            href={`/receipts/${data.supersedes}`}
-            className="text-xs font-medium text-info underline-offset-2 hover:underline"
-          >
-            {t("receipts.correction.supersedes")}
-          </Link>
-        )}
-      </div>
+    <RecordDetailFrame
+      {...frame}
+      title={data.receipt_no}
+      status={
+        <>
+          {/* Which way it went (B10): a return used to open on a page that
+              only ever said 材料进场. */}
+          <TypeBadge label={t(`receipts.movement.${data.movement_type}`)} />
+          <TypeBadge label={unitName(data.unit, data.unit_label)} />
+          {data.supersedes && (
+            <Link
+              href={`/receipts/${data.supersedes}`}
+              className="text-xs font-medium text-info underline-offset-2 hover:underline"
+            >
+              {t("receipts.correction.supersedes")}
+            </Link>
+          )}
+        </>
+      }
+      // 「单独导出」 top right (T-386): this delivery as its own PDF, with
+      // 预览/打印 and 分享 beside it.
+      exportRecord={{ kind: "MATERIAL_RECEIPT", recordId: data.id, reference: data.receipt_no }}
+    >
 
       {/*
         The one layout every module uses (C-020): summary, small photographs,
@@ -469,32 +481,6 @@ export function ViewReceipt({ id }: { id: string }) {
           // The delivery's own day, which a correction keeps (B10, E05); the
           // correction's own time is in its trail above.
           { label: t("receipts.field.businessAt"), value: df.dateTime(data.business_at ?? data.captured_at) },
-          {
-            label: t("receipts.field.recordedBy"),
-            value: (
-              <span className="inline-flex items-center gap-2">
-                <Avatar className="size-5">
-                  {data.created_by_avatar ? (
-                    <AvatarImage src={data.created_by_avatar} alt="" />
-                  ) : null}
-                  <AvatarFallback className="bg-primary/10 text-[9px] font-semibold text-primary">
-                    {initials(data.created_by_name ?? "")}
-                  </AvatarFallback>
-                </Avatar>
-                {data.created_by_name ?? t("receipts.recorderUnknown")}
-                {/* The number to call about a disputed delivery (2026-09-05). */}
-                {data.created_by_phone ? (
-                  <a
-                    href={`tel:${data.created_by_phone.replace(/[^+\d]/g, "")}`}
-                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                  >
-                    <Phone className="h-3 w-3" />
-                    <span className="tabular">{data.created_by_phone}</span>
-                  </a>
-                ) : null}
-              </span>
-            ),
-          },
           ...(data.received_by_name
             ? [{ label: t("receipts.field.receivedBy"), value: data.received_by_name }]
             : []),
@@ -502,6 +488,9 @@ export function ViewReceipt({ id }: { id: string }) {
             ? [{ label: t("receipts.field.notes"), value: data.notes, wide: true }]
             : []),
         ]}
+        // 记录人 with the number to call about a disputed delivery
+        // (2026-09-05), the same block every module now has (E8).
+        recorder={<RecordRecorder record={data} />}
         photos={data.photos.map((photo) => ({
           id: photo.id,
           url: photo.watermarked || photo.image,
@@ -600,7 +589,7 @@ export function ViewReceipt({ id }: { id: string }) {
           onClose={() => setFiling(false)}
         />
       )}
-    </div>
+    </RecordDetailFrame>
   );
 }
 

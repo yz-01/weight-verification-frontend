@@ -178,7 +178,8 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     );
     expect(dialog).toMatch(/<EquipmentDialog/);
     expect(dialog).toMatch(/<RecordSheet\s+row=\{open\}\s+fetchRecord=\{getCategoryRecord\}/);
-    expect(sheet).toMatch(/role="dialog"/);
+    // The shared record popup (E8), no longer a hand-built overlay.
+    expect(sheet).toMatch(/<RecordDetailDialog/);
     expect(sheet).toMatch(/fetchRecord\s*\?\s*fetchRecord\(row\.kind, row\.id\)/);
     const service = read(SERVICE);
     const one = service.slice(service.indexOf("export function getCategoryRecord("));

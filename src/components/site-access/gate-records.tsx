@@ -13,15 +13,21 @@
  */
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, DoorOpen, Images, Loader2, MapPin, Plus, ScanLine, Send, UserPlus, Users, X } from "lucide-react";
+import { Camera, DoorOpen, Images, Loader2, MapPin, Plus, ScanLine, Send, UserPlus, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  RecordRecorder,
+  ShellPanel,
+} from "@/components/shared/record-detail-shell";
 import { GateQrScanner } from "@/components/site-access/gate-qr-scanner";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
@@ -42,7 +48,6 @@ import {
   type GateIncident,
   type GateIncidentDetail,
   type GatePassMatch,
-  type GatePhoto,
   type GatePhotoDraft,
 } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
@@ -583,6 +588,11 @@ function MemberChecklist({
   );
 }
 
+/**
+ * One gate record in the record popup (E8, Q31). The office's 门禁通行 list
+ * and the guard's phone open this same dialog; the shell goes to one column
+ * on a phone, photographs first.
+ */
 function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("siteControl.gateRecords");
   const category = useTranslations("siteControl.gateCategory");
@@ -596,76 +606,93 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
   const [adding, setAdding] = useState<"photos" | "members" | null>(null);
 
   return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>{row?.incident_no ?? t("title")}</DialogTitle>
-          <DialogDescription>{t("detailHelp")}</DialogDescription>
-        </DialogHeader>
-        <QueryFailedNote query={detail} what={t("whatOne")} />
-        {detail.isLoading && <Empty text={t("loading")} />}
-        {row && (
-          <div className="space-y-5">
-            <div className="grid gap-3 text-sm sm:grid-cols-3">
-              {/* Q18: new records carry no category; an older one keeps the one it was given. */}
-              {row.category !== "OTHER" && (
-                <Fact label={t("field.category")} value={category(row.category)} />
-              )}
-              <Fact label={t("field.project")} value={row.project_name} />
-              {row.gate_name && <Fact label={t("field.gate")} value={row.gate_name} />}
-              <Fact label={t("field.guard")} value={row.guard_name} />
-              <Fact label={t("field.time")} value={df.dateTime(row.occurred_at)} />
-              <Fact
-                label={t("field.pass")}
-                value={
-                  row.pass_no
-                    ? `${row.pass_no} · ${row.pass_subject_name ?? ""}`
-                    : t("field.standalone")
-                }
-              />
-              {row.access_event_direction && row.access_event_at && (
-                <Fact
-                  label={t("field.event")}
-                  value={<GateEventLabel direction={row.access_event_direction} at={row.access_event_at} gate="" />}
-                />
-              )}
-              {row.description && (
-                <Fact label={t("field.description")} value={row.description} wide />
-              )}
-            </div>
-
-            <section className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="font-semibold">{t("photosTitle", { count: row.photos.length })}</h3>
-                {can("site_access.scan") && (
-                  <Button size="sm" variant="outline" onClick={() => setAdding("photos")}>
-                    <Plus />
-                    {t("addPhotos")}
-                  </Button>
-                )}
-              </div>
-              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {row.photos.map((photo, index) => (
-                  <li key={photo.id}>
-                    <GatePhotoCard photo={photo} number={index + 1} projectName={row.project_name} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="flex items-center gap-2 font-semibold">
-                  <Users className="size-4" />
-                  {t("membersTitle")}
-                </h3>
-                {can("site_access.scan") && (
+    <RecordDetailDialog
+      title={row?.incident_no ?? t("title")}
+      description={t("detailHelp")}
+      onClose={onClose}
+    >
+      <QueryFailedNote query={detail} what={t("whatOne")} />
+      {detail.isLoading && <Empty text={t("loading")} />}
+      {row && (
+        <RecordDetailShell
+          reference={row.incident_no}
+          // 记录人 (E8): who recorded it, with a number to call.
+          recorder={<RecordRecorder record={row} />}
+          facts={[
+            // Q18: new records carry no category; an older one keeps the one it was given.
+            ...(row.category !== "OTHER"
+              ? [{ label: t("field.category"), value: category(row.category) }]
+              : []),
+            { label: t("field.project"), value: row.project_name },
+            ...(row.gate_name ? [{ label: t("field.gate"), value: row.gate_name }] : []),
+            { label: t("field.guard"), value: row.guard_name },
+            { label: t("field.time"), value: df.dateTime(row.occurred_at) },
+            {
+              label: t("field.pass"),
+              value: row.pass_no
+                ? `${row.pass_no} · ${row.pass_subject_name ?? ""}`
+                : t("field.standalone"),
+            },
+            ...(row.access_event_direction && row.access_event_at
+              ? [
+                  {
+                    label: t("field.event"),
+                    value: (
+                      <GateEventLabel
+                        direction={row.access_event_direction}
+                        at={row.access_event_at}
+                        gate=""
+                      />
+                    ),
+                  },
+                ]
+              : []),
+            ...(row.description
+              ? [
+                  {
+                    label: t("field.description"),
+                    value: <span className="whitespace-pre-wrap">{row.description}</span>,
+                    wide: true,
+                  },
+                ]
+              : []),
+          ]}
+          // Every photo keeps its own gate, guard, time and GPS (D09): the
+          // gate and guard in its name, the time and GPS in the viewer.
+          photos={row.photos.map((photo, index) => ({
+            id: photo.id,
+            url: photo.watermarked_image || photo.image,
+            label: [
+              t("photoNumber", { number: index + 1 }),
+              photo.gate_name ? `${t("field.gate")}: ${photo.gate_name}` : "",
+              `${t("field.guard")}: ${photo.guard_name}`,
+            ]
+              .filter(Boolean)
+              .join(" · "),
+            takenAt: photo.captured_at,
+            latitude: photo.latitude,
+            longitude: photo.longitude,
+          }))}
+          photoActions={
+            can("site_access.scan") ? (
+              <Button size="sm" variant="outline" onClick={() => setAdding("photos")}>
+                <Plus />
+                {t("addPhotos")}
+              </Button>
+            ) : undefined
+          }
+          aside={
+            <ShellPanel
+              title={t("membersTitle")}
+              aside={
+                can("site_access.scan") ? (
                   <Button size="sm" variant="outline" onClick={() => setAdding("members")}>
                     <UserPlus />
                     {t("addMembers")}
                   </Button>
-                )}
-              </div>
+                ) : undefined
+              }
+            >
               {row.members.length ? (
                 <ul className="flex flex-wrap gap-2">
                   {row.members.map((member) => (
@@ -680,58 +707,25 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
               ) : (
                 <p className="text-sm text-muted-foreground">{t("noMembersYet")}</p>
               )}
-            </section>
-
-            <section className="space-y-2">
-              <h3 className="font-semibold">{t("conversationTitle")}</h3>
+            </ShellPanel>
+          }
+          // The conversation it has always had, without adding the shared
+          // attachments panel the `conversation` slot would bring.
+          chat={
+            <div className="space-y-2">
               <p className="text-xs text-muted-foreground">{t("conversationHelp")}</p>
               <RecordConversationPanel kind="GATE_INCIDENT" recordId={row.id} />
-            </section>
-          </div>
-        )}
-        {row && adding === "photos" && (
-          <AddPhotosDialog incident={row} onClose={() => setAdding(null)} />
-        )}
-        {row && adding === "members" && (
-          <AddMembersDialog incident={row} onClose={() => setAdding(null)} />
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function Fact({ label, value, wide = false }: { label: string; value: ReactNode; wide?: boolean }) {
-  return (
-    <div className={`min-w-0 rounded-md border bg-muted/20 p-2.5 ${wide ? "sm:col-span-3" : ""}`}>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 whitespace-pre-wrap break-words font-medium">{value}</div>
-    </div>
-  );
-}
-
-function GatePhotoCard({ photo, number, projectName }: { photo: GatePhoto; number: number; projectName: string }) {
-  const t = useTranslations("siteControl.gateRecords");
-  const df = useDateFormat();
-  const src = photo.watermarked_image || photo.image;
-  return (
-    <figure className="overflow-hidden rounded-lg border bg-card">
-      <a href={src} target="_blank" rel="noreferrer">
-        <img src={src} alt={t("photoNumber", { number })} className="aspect-[4/3] w-full bg-muted object-cover" />
-      </a>
-      <figcaption className="space-y-0.5 p-2 text-xs text-muted-foreground">
-        <p className="font-medium text-foreground">{projectName}</p>
-        <p>
-          {photo.gate_name ? `${t("field.gate")}: ${photo.gate_name} · ` : ""}
-          {t("field.guard")}: {photo.guard_name}
-        </p>
-        <p>{df.dateTime(photo.captured_at)}</p>
-        <p>
-          {photo.latitude && photo.longitude
-            ? t("gpsValue", { latitude: photo.latitude, longitude: photo.longitude })
-            : t("gpsUnavailable")}
-        </p>
-      </figcaption>
-    </figure>
+            </div>
+          }
+        />
+      )}
+      {row && adding === "photos" && (
+        <AddPhotosDialog incident={row} onClose={() => setAdding(null)} />
+      )}
+      {row && adding === "members" && (
+        <AddMembersDialog incident={row} onClose={() => setAdding(null)} />
+      )}
+    </RecordDetailDialog>
   );
 }
 

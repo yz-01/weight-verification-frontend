@@ -56,6 +56,12 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  ShellPanel,
+} from "@/components/shared/record-detail-shell";
+import { StatusBadge } from "@/components/shared/page-primitives";
 import type { ChatRecordKind } from "@/lib/record-chat";
 import { Button } from "@/components/ui/button";
 import {
@@ -404,95 +410,78 @@ function StoredDetailSheet({
   });
 
   return (
-    <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="break-words">{row.reference}</DialogTitle>
-          <DialogDescription>
-            {t(`mySubmissions.kind.${row.kind}`)} ·{" "}
-            {formatter.dateTime(row.submitted_at)} · {recordStatusLabel(t, row, PHONE_STATUS)}
-          </DialogDescription>
-        </DialogHeader>
+    <RecordDetailDialog
+      title={row.reference}
+      description={`${t(`mySubmissions.kind.${row.kind}`)} · ${formatter.dateTime(row.submitted_at)}`}
+      status={<StatusBadge label={recordStatusLabel(t, row, PHONE_STATUS)} tone="neutral" />}
+      onClose={onClose}
+    >
+      {detail.isLoading ? (
+        <div className="grid min-h-32 place-items-center">
+          <Loader2 className="size-7 animate-spin text-primary" />
+        </div>
+      ) : detail.isError || !detail.data ? (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          {t("mySubmissions.loadFailed")}
+        </p>
+      ) : (
+        <RecordDetailShell
+          reference={row.reference}
+          // No 记录人 here: the worker is looking at their own record.
+          /*
+            A returned application is over (D-227).
 
-        {detail.isLoading ? (
-          <div className="grid min-h-32 place-items-center">
-            <Loader2 className="size-7 animate-spin text-primary" />
-          </div>
-        ) : detail.isError || !detail.data ? (
-          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            {t("mySubmissions.loadFailed")}
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {/*
-              A returned application is over (D-227).
+            客户第 45 条：「被退回的申请**不需要【重新提交】按钮**。一旦退回这笔
+            申请就结束，原申请、退回原因和沟通记录全部保留，不再修改原记录。
+            要再申请就**新建一条、生成新的记录 ID**。」
 
-              客户第 45 条：「被退回的申请**不需要【重新提交】按钮**。一旦退回这笔
-              申请就结束，原申请、退回原因和沟通记录全部保留，不再修改原记录。
-              要再申请就**新建一条、生成新的记录 ID**。」
-
-              So this dialog offers no action at all on a returned record - and
-              says why, because a screen that simply has no buttons reads as a
-              screen that is broken or still loading. The worker is told the
-              one thing they can do instead.
-            */}
-            {/*
-              The one action this sheet does offer (D-211): an approved
-              material-outgoing application is waiting for the site to deal
-              with the material and send the photographs back. It is found
-              here because this is where the worker looks for what they sent.
-            */}
-            {row.kind === "MATERIAL_OUTGOING" && row.status === "APPROVED" && (
+            So this dialog offers no action at all on a returned record - and
+            says why, because a screen that simply has no buttons reads as a
+            screen that is broken or still loading. The worker is told the
+            one thing they can do instead.
+          */
+          notices={
+            RETURNED_STATUSES.has(row.status) && (
+              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
+                {t("mySubmissions.returnedClosed")}
+              </p>
+            )
+          }
+          facts={detail.data.fields.map((field) => ({
+            label: t(`mySubmissions.field.${field.key}`),
+            value: (
+              <span className="whitespace-pre-wrap">
+                {field.value}
+                {field.unit ? ` ${t(`mySubmissions.unit.${field.unit}`)}` : ""}
+              </span>
+            ),
+            wide: field.value.length > 60 || field.value.includes("\n"),
+          }))}
+          // The worker's own photographs, served from the API host.
+          photos={detail.data.photos.map((shot, index) => ({
+            id: shot.id ?? `${index}:${shot.url}`,
+            url: shot.url,
+            label: shot.caption || row.reference,
+          }))}
+          /*
+            The one action this sheet does offer (D-211): an approved
+            material-outgoing application is waiting for the site to deal
+            with the material and send the photographs back. It is found
+            here because this is where the worker looks for what they sent.
+          */
+          actions={
+            row.kind === "MATERIAL_OUTGOING" && row.status === "APPROVED" && (
               <Button className="h-12 w-full" onClick={() => setReturning(true)}>
                 <Camera />
                 {t("contractorOps.outgoing.returnProcessing")}
               </Button>
-            )}
-            {returning && (
-              <ReturnProcessingDialog
-                row={{ id: row.id, reference_no: row.reference }}
-                onClose={() => setReturning(false)}
-                onSaved={() => {
-                  setReturning(false);
-                  void queryClient.invalidateQueries({ queryKey: ["my-submissions"] });
-                  onClose();
-                }}
-              />
-            )}
-            {RETURNED_STATUSES.has(row.status) && (
-              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
-                {t("mySubmissions.returnedClosed")}
-              </p>
-            )}
-            <FieldRows fields={detail.data.fields} />
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t("mySubmissions.photos")}
-            </p>
-            {detail.data.photos.length === 0 ? (
-              <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-                {t("mySubmissions.noPhotos")}
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                {detail.data.photos.map((shot) => (
-                  // The worker's own photographs, served from the API host.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={shot.url}
-                    src={shot.url}
-                    alt={shot.caption || row.reference}
-                    className="aspect-square w-full rounded-md border object-cover"
-                  />
-                ))}
-              </div>
-            )}
-            {/* The payment result on the applicant's own record (第 57 条):
-                「手机端只需要把最终付款结果显示出来即可」. */}
-            {row.kind === "SUNDRY_CLAIM" && (
-              <section className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("mySubmissions.paymentProofs")}
-                </p>
+            )
+          }
+          // The payment result on the applicant's own record (第 57 条):
+          // 「手机端只需要把最终付款结果显示出来即可」.
+          panel={
+            row.kind === "SUNDRY_CLAIM" && (
+              <ShellPanel title={t("mySubmissions.paymentProofs")}>
                 {(detail.data.payment_proofs ?? []).length === 0 ? (
                   <p className="rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">
                     {t("mySubmissions.noPaymentProofs")}
@@ -516,23 +505,32 @@ function StoredDetailSheet({
                     ))}
                   </div>
                 )}
-              </section>
-            )}
-            {/* 【沟通】 on every record the worker sent (T-324, 第 46 条),
-                bound to that record's ID (D-233). Hazards have their own
-                thread and open it from the row instead. */}
-            {CONVERSATION_KINDS.has(row.kind) && (
-              <section className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("mySubmissions.conversation")}
-                </p>
-                <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
-              </section>
-            )}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+              </ShellPanel>
+            )
+          }
+          // 【沟通】 on every record the worker sent (T-324, 第 46 条), bound
+          // to that record's ID (D-233). Hazards have their own thread and
+          // open it from the row instead. The conversation alone, as this
+          // sheet always had it (no attachments panel added).
+          chat={
+            CONVERSATION_KINDS.has(row.kind) && (
+              <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
+            )
+          }
+        />
+      )}
+      {returning && (
+        <ReturnProcessingDialog
+          row={{ id: row.id, reference_no: row.reference }}
+          onClose={() => setReturning(false)}
+          onSaved={() => {
+            setReturning(false);
+            void queryClient.invalidateQueries({ queryKey: ["my-submissions"] });
+            onClose();
+          }}
+        />
+      )}
+    </RecordDetailDialog>
   );
 }
 

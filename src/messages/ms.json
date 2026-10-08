@@ -15215,7 +15215,9 @@
     "zoomOut": "Zum keluar",
     "zoomReset": "Saiz asal",
     "previous": "Sebelumnya",
-    "next": "Seterusnya"
+    "next": "Seterusnya",
+    "recorder": "Direkod oleh",
+    "recorderUnknown": "Perekod tiada dalam rekod"
   },
   "moduleTable": {
     "count": "{count} rekod",

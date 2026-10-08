@@ -229,7 +229,12 @@ describe("the A4 form card on the detail (C1)", () => {
   it("preview and export are the record export, which for an application is the A4 form", () => {
     const detail = read("src/components/consultant-workflow/application-detail.tsx");
     const card = detail.slice(detail.indexOf("<ApplicationFormCard"), detail.indexOf("<ApplicationLifecycle"));
-    expect(card).toContain('<RecordExportButton\n            kind="CONSULTANT_APPLICATION"');
+    // Since E8 预览 / 导出 PDF / 分享 sit once, in the record popup's header;
+    // the card keeps 打印, 看附件 and the send.
+    expect(detail).toContain(
+      'exportRecord={{ kind: "CONSULTANT_APPLICATION", recordId: application.id, reference: application.application_no }}',
+    );
+    expect(card).toContain("exportButtons={null}");
     expect(card).toContain('printPdf(() => recordPdfObjectUrl("CONSULTANT_APPLICATION", application.id))');
     expect(card).toContain("onSend={() => submit.mutate()}");
     expect(detail).toContain('id="application-attachments"');
