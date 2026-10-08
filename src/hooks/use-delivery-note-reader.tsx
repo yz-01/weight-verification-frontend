@@ -35,7 +35,7 @@ export function useDeliveryNoteReader({
   onRead,
   onReset,
 }: {
-  read: (project: string, image: File) => Promise<DeliveryNoteOCRResult>;
+  read: (project: string, image: File, signal?: AbortSignal) => Promise<DeliveryNoteOCRResult>;
   onRead: (result: DeliveryNoteOCRResult, typed: ReadonlySet<string>) => void;
   onReset?: () => void;
 }) {
@@ -50,15 +50,33 @@ export function useDeliveryNoteReader({
   const target = useRef<Target | null>(null);
   // Fields the worker typed into while this read was running.
   const typed = useRef(new Set<string>());
+  // The read on the wire. Stopped once nobody waits for it - out of time,
+  // retaken, cancelled, the form closed - so the photo it is still sending
+  // does not share a weak site signal with the delivery's own upload.
+  const inFlight = useRef<AbortController | null>(null);
+  const stopUpload = () => {
+    inFlight.current?.abort();
+    inFlight.current = null;
+  };
   // A form that closed (submitted, or dismissed) takes no late answer: it
   // would write the last delivery's DO into the next one's draft.
-  useEffect(() => () => {
-    target.current = null;
+  useEffect(() => {
+    const reads = inFlight;
+    return () => {
+      target.current = null;
+      reads.current?.abort();
+    };
   }, []);
 
   const mutation = useMutation({
-    mutationFn: ({ project, image }: Target) =>
-      readWithin(() => read(project, image), OCR_READ_TIMEOUT_MS),
+    mutationFn: async ({ project, image }: Target) => {
+      const upload = new AbortController();
+      inFlight.current = upload;
+      const outcome = await readWithin(() => read(project, image, upload.signal), OCR_READ_TIMEOUT_MS);
+      if (outcome.kind === "timedOut") upload.abort();
+      if (inFlight.current === upload) inFlight.current = null;
+      return outcome;
+    },
     onSuccess: (outcome, sent) => {
       if (target.current !== sent) return;
       setReading(false);
@@ -91,6 +109,7 @@ export function useDeliveryNoteReader({
   /** Forget the last read: a new project, or the photo was removed. */
   const cancel = () => {
     target.current = null;
+    stopUpload();
     setReading(false);
     setSucceeded(false);
     setMessage("");

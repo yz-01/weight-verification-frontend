@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  LOCATION_GRACE_MS,
   LocationRefused,
   isIos,
   locationHelpTarget,
@@ -178,6 +179,44 @@ describe("which kind of no it was", () => {
       longitude: "101.7294696",
       accuracy: "13.46",
     });
+  });
+
+  it("gives up on a phone that never answers, so 【重试】 appears and 提交 is not locked for good", async () => {
+    // iOS Safari with the permission prompt dismissed calls neither callback.
+    vi.useFakeTimers();
+    try {
+      pretendGeolocation(() => {});
+      const outcome = requestLocation();
+      const settled = vi.fn();
+      outcome.then(settled, settled);
+
+      await vi.advanceTimersByTimeAsync(15_000 + LOCATION_GRACE_MS - 1);
+      expect(settled).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1);
+      await expect(outcome).rejects.toMatchObject({ problem: "timeout" });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("keeps a fix that arrives in time and ignores the watchdog after it", async () => {
+    vi.useFakeTimers();
+    try {
+      let answer: PositionCallback = () => {};
+      pretendGeolocation((ok) => {
+        answer = ok;
+      });
+      const outcome = requestLocation();
+      answer({ coords: { latitude: 3, longitude: 101, accuracy: 5 } } as GeolocationPosition);
+      await vi.advanceTimersByTimeAsync(15_000 + LOCATION_GRACE_MS);
+      await expect(outcome).resolves.toEqual({
+        latitude: "3.0000000",
+        longitude: "101.0000000",
+        accuracy: "5.00",
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("treats anything that is not a LocationRefused as unavailable", () => {

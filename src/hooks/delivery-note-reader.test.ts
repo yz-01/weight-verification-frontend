@@ -62,7 +62,9 @@ describe("a delivery-note read never blocks 提交", () => {
 
   it("the reader stops waiting at the deadline and says to type it in", () => {
     const source = read("src/hooks/use-delivery-note-reader.tsx");
-    expect(source).toMatch(/readWithin\(\(\) => read\(project, image\), OCR_READ_TIMEOUT_MS\)/);
+    expect(source).toMatch(/readWithin\(\(\) => read\(project, image, upload\.signal\), OCR_READ_TIMEOUT_MS\)/);
+    // A read nobody waits for any more stops sending its photo.
+    expect(source).toMatch(/if \(outcome\.kind === "timedOut"\) upload\.abort\(\);/);
     // A timed-out or failed read ends the spinner and falls back to manual entry.
     expect(source).toMatch(/if \(target\.current !== sent\) return;\s*setReading\(false\);/);
     expect(source).toMatch(/: t\("ocrManual"\)/);
@@ -80,5 +82,16 @@ describe("a delivery-note read never blocks 提交", () => {
   it("a delivery submitted mid-read drops that read", () => {
     const source = read("src/components/field-staff/field-records-panel.tsx");
     expect(source).toMatch(/onSuccess: \(\) => \{[^}]*ocr\.cancel\(\);/);
+    // Stopped when 提交 is pressed, not only once the delivery is in.
+    expect(source).toMatch(/onMutate: \(\) => \{\s*if \(ocr\.reading\) ocr\.cancel\(\);/);
+  });
+
+  it.each([
+    ["src/services/contractor.service.ts", "readDeliveryNote"],
+    ["src/services/contractor-ops.service.ts", "ocrEquipmentDeliveryNote"],
+  ])("%s lets the reader stop the photo upload", (file, name) => {
+    const source = read(file);
+    expect(source).toMatch(new RegExp(String.raw`function ${name}\([^)]*signal\?: AbortSignal`));
+    expect(source).toMatch(/silent: true,\s*signal/);
   });
 });

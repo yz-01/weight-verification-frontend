@@ -691,6 +691,12 @@ export function MaterialCapturePanel({
         deviceId: getOrCreateFieldDeviceId(),
       });
     },
+    // 提交 pressed while the DO is still being read: the worker typed the
+    // details, so the read stops here rather than sending its photo over the
+    // same site signal as the delivery's own upload.
+    onMutate: () => {
+      if (ocr.reading) ocr.cancel();
+    },
     onSuccess: () => {
       // Submitted while the DO was still being read: that read is for this
       // delivery, not the next one, and must not fill the cleared form.
