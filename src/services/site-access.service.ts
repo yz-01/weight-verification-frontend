@@ -8,6 +8,7 @@ import type {
   GateIncidentDetail,
   GateIncidentPayload,
   GateMemberOption,
+  GatePassMatch,
   GatePhotoDraft,
   SiteAccessCredential,
   SiteAccessCredentialPayload,
@@ -265,6 +266,19 @@ export const getGateMemberOptions = (project: string) =>
   api.get<GateMemberOption[]>("/api/gate-incidents/get_member_options/", {
     project,
   });
+
+/**
+ * The pass behind a QR the guard scanned for a gate photo record (Q18).
+ *
+ * Only looks it up - scanning here does not record an entry or exit. Silent,
+ * because "not a pass for this project" is said on the form itself.
+ */
+export const findGatePass = (project: string, qr: string) =>
+  api.get<GatePassMatch>(
+    "/api/gate-incidents/find_pass/",
+    { project, qr },
+    { silent: true },
+  );
 
 function appendGatePhotos(body: FormData, photos: GatePhotoDraft[]) {
   photos.forEach((photo) => body.append("photos", photo.file));

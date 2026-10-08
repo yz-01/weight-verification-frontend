@@ -182,14 +182,16 @@ function CustomersPanel() {
         accessorKey: "total_weight_kg",
         meta: { label: t("field.totalWeight") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("field.totalWeight")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("field.totalWeight")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <span className="tabular-nums">{row.original.total_weight_kg} kg</span>
+          <span className="block text-right tabular-nums">{row.original.total_weight_kg} kg</span>
         ),
       },
       {
@@ -249,7 +251,7 @@ function CustomersPanel() {
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-4">
       <DataTable
         columns={columns}
         rows={customers.data?.results ?? []}
@@ -271,11 +273,11 @@ function CustomersPanel() {
         toolbarActions={
           can("customer.manage") ? (
             <>
-              <Button variant="outline" size="sm" disabled={sync.isPending} onClick={() => sync.mutate()}>
+              <Button variant="outline" disabled={sync.isPending} onClick={() => sync.mutate()}>
                 {sync.isPending ? <Loader2 className="animate-spin" /> : <RefreshCw />}
                 <span className="hidden sm:inline">{t("action.sync")}</span>
               </Button>
-              <Button size="sm" onClick={() => setEditing("new")}>
+              <Button onClick={() => setEditing("new")}>
                 <Plus />
                 {t("action.addCustomer")}
               </Button>
@@ -422,10 +424,10 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
           <div className="grid min-h-64 place-items-center"><Loader2 className="animate-spin" /></div>
         ) : value ? (
           <div className="space-y-4">
-            <div className="mx-auto grid w-fit place-items-center rounded-lg border bg-white p-5">
+            <div className="mx-auto grid w-fit place-items-center rounded-lg border bg-paper p-5">
               <QRCodeSVG id={`customer-qr-${customer.id}`} value={value.qr_payload} size={220} level="H" includeMargin />
             </div>
-            <div className="grid grid-cols-2 gap-3 rounded-lg border bg-muted/20 p-3 text-sm">
+            <div className="grid grid-cols-2 gap-3 rounded-lg border bg-muted/30 p-3 text-sm">
               <div><p className="text-xs text-muted-foreground">{t("field.serial")}</p><p className="font-medium tabular-nums">{value.serial}</p></div>
               <div><p className="text-xs text-muted-foreground">{t("field.status")}</p><StatusBadge label={value.status} tone={value.status === "ACTIVE" ? "positive" : "neutral"} /></div>
               <div><p className="text-xs text-muted-foreground">{t("field.scanCount")}</p><p className="font-medium tabular-nums">{value.scan_count}</p></div>
@@ -448,7 +450,7 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
             </FieldWrapper>
           </div>
         ) : (
-          <div className="grid min-h-52 place-items-center rounded-lg border border-dashed text-center">
+          <div className="grid min-h-52 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center">
             <div><QrCode className="mx-auto mb-3 size-10 text-muted-foreground" /><p className="font-medium">{t("qr.notIssued")}</p><p className="mt-1 text-sm text-muted-foreground">{t("qr.notIssuedHelp")}</p></div>
           </div>
         )}
@@ -480,7 +482,7 @@ function PrivateIntakesPanel() {
     { accessorKey: "customer_name", meta: { label: t("field.customer") }, header: () => t("field.customer"), cell: ({ row }) => <div><p className="font-medium">{row.original.customer_name}</p><p className="text-xs text-muted-foreground">{row.original.customer_no}</p></div> },
     { accessorKey: "material_type", meta: { label: t("field.material") }, header: () => t("field.material"), cell: ({ row }) => <TypeBadge label={t(`material.${row.original.material_type}`)} /> },
     { accessorKey: "state", meta: { label: t("field.status") }, header: () => t("field.status"), cell: ({ row }) => <StatusBadge label={t(`intakeState.${row.original.state}`)} tone={row.original.state === "COMPLETED" ? "positive" : row.original.state === "CANCELLED" ? "danger" : "warning"} /> },
-    { accessorKey: "net_weight_kg", meta: { label: t("field.netWeight") }, header: () => t("field.netWeight"), cell: ({ row }) => <span className="tabular-nums">{row.original.net_weight_kg ? `${row.original.net_weight_kg} kg` : common("emptyValue")}</span> },
+    { accessorKey: "net_weight_kg", meta: { label: t("field.netWeight") }, header: () => <span className="block text-right">{t("field.netWeight")}</span>, cell: ({ row }) => <span className="block text-right tabular-nums">{row.original.net_weight_kg ? `${row.original.net_weight_kg} kg` : common("emptyValue")}</span> },
     { accessorKey: "created_at", meta: { label: t("field.createdAt") }, header: ({ column }) => <SortableHeader label={t("field.createdAt")} isSorted={column.getIsSorted()} onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")} />, cell: ({ row }) => <span className="tabular-nums">{df.dateTime(row.original.created_at)}</span> },
     { id: "actions", enableHiding: false, header: () => <span className="sr-only">{common("actions")}</span>, cell: ({ row }) => row.original.state === "WAITING_WEIGHING" && can("weighing.operate") ? <div className="flex items-center justify-end gap-0.5"><Button size="sm" variant="outline" onClick={() => setCompleting(row.original)}><CheckCircle2 />{t("action.complete")}</Button><Button size="icon" variant="ghost" title={common("cancel")} onClick={() => setCancelling(row.original)}><X /></Button></div> : null },
   ], [can, common, df, t]);
@@ -496,7 +498,7 @@ function PrivateIntakesPanel() {
           { key: "waiting", label: t("intakeState.WAITING_WEIGHING"), active: list.filters.state === "WAITING_WEIGHING", onSelect: () => list.setFilter("state", "WAITING_WEIGHING") },
           { key: "completed", label: t("intakeState.COMPLETED"), active: list.filters.state === "COMPLETED", onSelect: () => list.setFilter("state", "COMPLETED") },
         ]}
-        toolbarActions={can("weighing.operate") ? <Button size="sm" onClick={() => setStarting(true)}><ScanLine />{t("action.startIntake")}</Button> : undefined}
+        toolbarActions={can("weighing.operate") ? <Button onClick={() => setStarting(true)}><ScanLine />{t("action.startIntake")}</Button> : undefined}
         onSearchChange={list.setSearch} onSortChange={list.setSort} onPageChange={list.setPage} onPageSizeChange={list.setPageSize} onClearFilters={list.clearFilters}
       />
       {starting && <StartIntakeDialog onClose={() => setStarting(false)} />}

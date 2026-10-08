@@ -23,6 +23,11 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState, type ReactNode } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import {
+  useOnProjectChange,
+  usePageProject,
+  useProjectBoxShown,
+} from "@/components/providers/current-project-provider";
 import { ScheduleGantt } from "@/components/schedule-planning/schedule-gantt";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -97,13 +102,33 @@ const tone = (status: string) => {
   return "warning" as const;
 };
 
-export function SchedulePlanningWorkspace() {
+export function SchedulePlanningWorkspace({
+  project: chosenProject,
+  onProjectChange,
+}: {
+  /**
+   * The project, when the page holds it: 工程进度's 施工计划 tab passes the
+   * `?project=` the other four tabs use (B4 audit #7). `/schedule` on its
+   * own leaves it out and the workspace keeps its own.
+   */
+  project?: string;
+  onProjectChange?: (project: string) => void;
+} = {}) {
   const t = useTranslations("schedulePlanning");
   const { can } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
+  // `/schedule` on its own: the top bar's 「当前项目」 (B13).
+  const [ownProject, setOwnProject] = usePageProject();
+  const project = chosenProject ?? ownProject;
+  const projectBoxShown = useProjectBoxShown("page");
+  const setProject = onProjectChange ?? setOwnProject;
   const [selectedPlan, setSelectedPlan] = useState("");
   const [selectedRevision, setSelectedRevision] = useState("");
+  // A plan belongs to one project; another project starts with none chosen.
+  useOnProjectChange(project, () => {
+    setSelectedPlan("");
+    setSelectedRevision("");
+  });
   const [view, setView] = useState<ViewMode>("list");
   const [planDialog, setPlanDialog] = useState(false);
   const [importDialog, setImportDialog] = useState(false);
@@ -206,7 +231,7 @@ export function SchedulePlanningWorkspace() {
   const hasDraft = revisions.data?.results.some((row) => row.status === "DRAFT");
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListHeader
         title={t("title")}
         subtitle={t("subtitle")}
@@ -216,14 +241,13 @@ export function SchedulePlanningWorkspace() {
               {can("schedule.confirm") && (
                 <Button
                   variant="outline"
-                  size="sm"
                   requires={[[project, t("field.project")]]}
                   onClick={() => setImportDialog(true)}
                 >
                   <Upload />{t("action.importExcel")}
                 </Button>
               )}
-              <Button size="sm" requires={[[project, t("field.project")]]} onClick={() => setPlanDialog(true)}>
+              <Button requires={[[project, t("field.project")]]} onClick={() => setPlanDialog(true)}>
                 <Plus />{t("action.newPlan")}
               </Button>
             </div>
@@ -231,7 +255,8 @@ export function SchedulePlanningWorkspace() {
         }
       />
 
-      <div className="grid gap-3 rounded-lg border bg-card p-3 shadow-sm lg:grid-cols-[minmax(260px,1fr)_minmax(260px,1fr)_auto] lg:items-end">
+      <div className="surface-panel grid gap-3 rounded-xl p-4 sm:p-6 lg:grid-cols-[minmax(16.25rem,1fr)_minmax(16.25rem,1fr)_auto] lg:items-end">
+        {projectBoxShown && (
         <FieldWrapper label={t("field.project")} required>
           <ConsultantProjectPicker
             value={project}
@@ -240,8 +265,10 @@ export function SchedulePlanningWorkspace() {
               setSelectedPlan("");
               setSelectedRevision("");
             }}
+            scope="page"
           />
         </FieldWrapper>
+        )}
         <FieldWrapper label={t("field.plan")}>
           <Select
             value={plan?.id}
@@ -262,21 +289,21 @@ export function SchedulePlanningWorkspace() {
         <div className="flex flex-wrap gap-2">
           {plan && revision && (
             <>
-              <Button variant="outline" size="sm" onClick={() => void exportSchedule(plan.id, revision.id, "xlsx")}>
+              <Button variant="outline" onClick={() => void exportSchedule(plan.id, revision.id, "xlsx")}>
                 <Download />Excel
               </Button>
-              <Button variant="outline" size="sm" onClick={() => void exportSchedule(plan.id, revision.id, "pdf")}>
+              <Button variant="outline" onClick={() => void exportSchedule(plan.id, revision.id, "pdf")}>
                 <Download />PDF
               </Button>
             </>
           )}
           {plan && can("schedule.manage") && (
-            <Button variant="ghost" size="icon-sm" title={t("action.editPlan")} onClick={() => setEditingPlan(plan)}>
+            <Button variant="ghost" size="icon" title={t("action.editPlan")} onClick={() => setEditingPlan(plan)}>
               <Pencil />
             </Button>
           )}
           {plan && can("schedule.manage") && plan.status !== "ARCHIVED" && (
-            <Button variant="ghost" size="icon-sm" title={t("action.archive")} onClick={() => setArchivingPlan(plan)}>
+            <Button variant="ghost" size="icon" title={t("action.archive")} onClick={() => setArchivingPlan(plan)}>
               <Archive />
             </Button>
           )}
@@ -304,7 +331,7 @@ export function SchedulePlanningWorkspace() {
             </div>
           )}
 
-          <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+          <div className="surface-panel flex flex-col gap-3 rounded-xl p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex min-w-0 items-center gap-3">
               <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><GitBranch className="size-5" /></span>
               <div className="min-w-0">
@@ -317,13 +344,13 @@ export function SchedulePlanningWorkspace() {
             </div>
             <div className="flex flex-wrap gap-2">
               {can("schedule.manage") && revision?.status === "DRAFT" && (
-                <Button size="sm" onClick={() => setEditingTask("new")}><Plus />{t("action.addTask")}</Button>
+                <Button onClick={() => setEditingTask("new")}><Plus />{t("action.addTask")}</Button>
               )}
               {can("schedule.manage") && revision?.is_current && !hasDraft && plan.status !== "ARCHIVED" && (
-                <Button size="sm" variant="outline" onClick={() => setRevisionDialog(true)}><GitBranch />{t("action.newRevision")}</Button>
+                <Button variant="outline" onClick={() => setRevisionDialog(true)}><GitBranch />{t("action.newRevision")}</Button>
               )}
               {can("schedule.confirm") && revision?.status === "DRAFT" && rows.length > 0 && (
-                <Button size="sm" variant="outline" onClick={() => setConfirmingRevision(revision)}><Check />{t("action.confirmRevision")}</Button>
+                <Button variant="outline" onClick={() => setConfirmingRevision(revision)}><Check />{t("action.confirmRevision")}</Button>
               )}
             </div>
           </div>
@@ -416,7 +443,7 @@ export function SchedulePlanningWorkspace() {
 
 function SummaryCard({ icon: Icon, label, value, hint, tone = "normal" }: { icon: typeof CalendarDays; label: string; value: string; hint?: string; tone?: "normal" | "positive" | "danger" }) {
   const color = tone === "positive" ? "bg-success/10 text-success" : tone === "danger" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary";
-  return <div className="flex items-center gap-3 rounded-lg border bg-card p-4 shadow-sm"><span className={"grid size-10 place-items-center rounded-lg " + color}><Icon className="size-5" /></span><div><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="text-xl font-semibold tabular-nums">{value}</p>{hint && <p className="text-xs text-muted-foreground">{hint}</p>}</div></div>;
+  return <div className="surface-panel flex min-w-0 items-center gap-3 rounded-xl p-4"><span className={"grid size-10 shrink-0 place-items-center rounded-lg " + color}><Icon className="size-5" /></span><div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="text-xl font-semibold tabular-nums">{value}</p>{hint && <p className="text-xs text-muted-foreground">{hint}</p>}</div></div>;
 }
 
 function ViewSelector({ value, onChange }: { value: ViewMode; onChange: (value: ViewMode) => void }) {
@@ -435,7 +462,7 @@ function ScheduleTaskTable({ rows, revision, canManage, canConfirm, onEdit, onPr
     return result;
   }, [rows]);
   if (!rows.length) return <EmptyState text={t("state.noTasks")} />;
-  return <div className="overflow-hidden rounded-lg border bg-card shadow-sm"><Table><TableHeader><TableRow><TableHead>{t("field.wbs")}</TableHead><TableHead>{t("field.task")}</TableHead><TableHead>{t("field.plannedDates")}</TableHead><TableHead>{t("field.weight")}</TableHead><TableHead>{t("field.plannedProgress")}</TableHead><TableHead>{t("field.actualProgress")}</TableHead><TableHead>{t("field.delay")}</TableHead><TableHead className="text-right">{t("field.actions")}</TableHead></TableRow></TableHeader><TableBody>{rows.map((row) => <TableRow key={row.id}><TableCell className="font-medium">{row.wbs_code}</TableCell><TableCell><div style={{ paddingLeft: (depths.get(row.id) ?? 0) * 18 }}><p className="max-w-72 truncate font-medium">{row.name}</p>{row.description && <p className="max-w-72 truncate text-xs text-muted-foreground">{row.description}</p>}</div></TableCell><TableCell><p>{df.date(row.planned_start)}</p><p className="text-xs text-muted-foreground">{df.date(row.planned_end)} / {row.duration_days} {t("common.day")}</p></TableCell><TableCell className="tabular-nums">{row.weight}</TableCell><TableCell><ProgressValue value={Number(row.planned_progress)} /></TableCell><TableCell><ProgressValue value={Number(row.actual_progress)} /></TableCell><TableCell>{row.is_delayed ? <StatusBadge label={t("delay.days", { count: row.delay_days })} tone="danger" /> : <StatusBadge label={t("status.onTrack")} tone="positive" />}</TableCell><TableCell><div className="flex items-center justify-end gap-0.5">{canConfirm && revision?.status === "CONFIRMED" && <Button size="icon-sm" variant="ghost" title={t("action.confirmProgress")} onClick={() => onProgress(row)}><Check /></Button>}{canManage && revision?.status === "DRAFT" && <><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => onEdit(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button></>}</div></TableCell></TableRow>)}</TableBody></Table></div>;
+  return <div className="surface-panel overflow-hidden rounded-xl"><Table><TableHeader><TableRow><TableHead>{t("field.wbs")}</TableHead><TableHead>{t("field.task")}</TableHead><TableHead>{t("field.plannedDates")}</TableHead><TableHead className="text-right">{t("field.weight")}</TableHead><TableHead>{t("field.plannedProgress")}</TableHead><TableHead>{t("field.actualProgress")}</TableHead><TableHead>{t("field.delay")}</TableHead><TableHead className="text-right">{t("field.actions")}</TableHead></TableRow></TableHeader><TableBody>{rows.map((row) => <TableRow key={row.id}><TableCell className="font-medium">{row.wbs_code}</TableCell><TableCell><div style={{ paddingLeft: (depths.get(row.id) ?? 0) * 18 }}><p className="max-w-72 truncate font-medium">{row.name}</p>{row.description && <p className="max-w-72 truncate text-xs text-muted-foreground">{row.description}</p>}</div></TableCell><TableCell><p>{df.date(row.planned_start)}</p><p className="text-xs text-muted-foreground">{df.date(row.planned_end)} / {row.duration_days} {t("common.day")}</p></TableCell><TableCell className="text-right tabular-nums">{row.weight}</TableCell><TableCell><ProgressValue value={Number(row.planned_progress)} /></TableCell><TableCell><ProgressValue value={Number(row.actual_progress)} /></TableCell><TableCell>{row.is_delayed ? <StatusBadge label={t("delay.days", { count: row.delay_days })} tone="danger" /> : <StatusBadge label={t("status.onTrack")} tone="positive" />}</TableCell><TableCell><div className="flex items-center justify-end gap-0.5">{canConfirm && revision?.status === "CONFIRMED" && <Button size="icon-sm" variant="ghost" title={t("action.confirmProgress")} onClick={() => onProgress(row)}><Check /></Button>}{canManage && revision?.status === "DRAFT" && <><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => onEdit(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button></>}</div></TableCell></TableRow>)}</TableBody></Table></div>;
 }
 
 function ProgressValue({ value }: { value: number }) {
@@ -452,13 +479,13 @@ function ProgressValue({ value }: { value: number }) {
  */
 function RevisionList({ rows, selected, canManage, canConfirm, onSelect, onConfirm, onEdit, onRemove }: { rows: ScheduleRevision[]; selected: string; canManage: boolean; canConfirm: boolean; onSelect: (id: string) => void; onConfirm: (row: ScheduleRevision) => void; onEdit: (row: ScheduleRevision) => void; onRemove: (row: ScheduleRevision) => void }) {
   const t = useTranslations("schedulePlanning"); const df = useDateFormat();
-  return <div className="grid gap-3 lg:grid-cols-2">{rows.map((row) => <article key={row.id} className={"rounded-lg border bg-card p-4 shadow-sm " + (selected === row.id ? "ring-2 ring-primary/30" : "")}><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.label}</h3><StatusBadge label={t("revisionStatus." + row.status)} tone={tone(row.status)} />{row.is_current && <StatusBadge label={t("status.current")} tone="info" />}</div><p className="mt-1 text-sm text-muted-foreground">{t("revision.number", { number: row.revision_number })} / {t("source." + row.source)}</p></div><GitBranch className="size-5 text-muted-foreground" /></div><p className="mt-3 min-h-10 text-sm">{row.reason || t("state.noReason")}</p><div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3"><span className="text-xs text-muted-foreground">{row.task_count} {t("common.tasks")} {row.confirmed_at ? " / " + df.dateTime(row.confirmed_at) : ""}</span><div className="ml-auto flex gap-1"><Button size="sm" variant="outline" onClick={() => onSelect(row.id)}>{t("action.open")}</Button>{canConfirm && row.status === "DRAFT" && row.task_count > 0 && <Button size="icon-sm" title={t("action.confirmRevision")} onClick={() => onConfirm(row)}><Check /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" title={t("action.editRevision")} onClick={() => onEdit(row)}><Pencil /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button>}</div></div></article>)}</div>;
+  return <div className="grid gap-3 lg:grid-cols-2">{rows.map((row) => <article key={row.id} className={"surface-panel rounded-xl p-4 " + (selected === row.id ? "ring-2 ring-primary/30" : "")}><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.label}</h3><StatusBadge label={t("revisionStatus." + row.status)} tone={tone(row.status)} />{row.is_current && <StatusBadge label={t("status.current")} tone="info" />}</div><p className="mt-1 text-sm text-muted-foreground">{t("revision.number", { number: row.revision_number })} / {t("source." + row.source)}</p></div><GitBranch className="size-5 text-muted-foreground" /></div><p className="mt-3 min-h-10 text-sm">{row.reason || t("state.noReason")}</p><div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3"><span className="text-xs text-muted-foreground">{row.task_count} {t("common.tasks")} {row.confirmed_at ? " / " + df.dateTime(row.confirmed_at) : ""}</span><div className="ml-auto flex gap-1"><Button size="sm" variant="outline" onClick={() => onSelect(row.id)}>{t("action.open")}</Button>{canConfirm && row.status === "DRAFT" && row.task_count > 0 && <Button size="icon-sm" title={t("action.confirmRevision")} onClick={() => onConfirm(row)}><Check /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" title={t("action.editRevision")} onClick={() => onEdit(row)}><Pencil /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button>}</div></div></article>)}</div>;
 }
 
 function HistoryList({ rows }: { rows: Array<{ id: string; event: string; note: string; revision_label: string | null; task_name: string | null; actor_name: string | null; created_at: string }> }) {
   const t = useTranslations("schedulePlanning"); const df = useDateFormat();
   if (!rows.length) return <EmptyState text={t("state.noHistory")} />;
-  return <div className="overflow-hidden rounded-lg border bg-card shadow-sm"><div className="divide-y">{rows.map((row) => <div key={row.id} className="flex gap-3 p-4"><span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><History className="size-4" /></span><div className="min-w-0 flex-1"><p className="font-medium">{t("history." + row.event)}</p><p className="text-sm text-muted-foreground">{[row.revision_label, row.task_name, row.note].filter(Boolean).join(" / ") || t("state.noReason")}</p></div><div className="shrink-0 text-right text-xs text-muted-foreground"><p>{row.actor_name || t("common.system")}</p><p>{df.dateTime(row.created_at)}</p></div></div>)}</div></div>;
+  return <div className="overflow-hidden surface-panel rounded-xl"><div className="divide-y">{rows.map((row) => <div key={row.id} className="flex gap-3 p-4"><span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><History className="size-4" /></span><div className="min-w-0 flex-1"><p className="font-medium">{t("history." + row.event)}</p><p className="text-sm text-muted-foreground">{[row.revision_label, row.task_name, row.note].filter(Boolean).join(" / ") || t("state.noReason")}</p></div><div className="shrink-0 text-right text-xs text-muted-foreground"><p>{row.actor_name || t("common.system")}</p><p>{df.dateTime(row.created_at)}</p></div></div>)}</div></div>;
 }
 
 /**
@@ -560,4 +587,4 @@ function QueryPanel({ query, errorText, children }: { query: { isError: boolean;
   return <>{children}</>;
 }
 
-function EmptyState({ text, danger = false }: { text: string; danger?: boolean }) { return <div className={danger ? "rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive" : "rounded-lg border border-dashed bg-muted/15 p-10 text-center text-sm text-muted-foreground"}>{text}</div>; }
+function EmptyState({ text, danger = false }: { text: string; danger?: boolean }) { return <div className={danger ? "rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive" : "rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground"}>{text}</div>; }

@@ -14,11 +14,18 @@ import {
   YAxis,
 } from "recharts";
 
+import { useUnitName } from "@/hooks/use-material-units";
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
-import { LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
+import {
+  FilterBar,
+  FilterField,
+  LoadFailed,
+  QueryFailedNote,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -62,6 +69,7 @@ const ALL_PROJECTS = "__all__";
 export function Reports() {
   const t = useTranslations();
   const list = useListQuery(["project", "date_from", "date_to"]);
+  const topBar = useCurrentProject();
 
   const projectQuery = useQuery({
     queryKey: ["projects", "options"],
@@ -86,23 +94,19 @@ export function Reports() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      {/* Not ListHeader: that adds a help button this page never had. */}
+      <div className="flex items-center gap-3">
+        <span aria-hidden className="h-10 w-1 shrink-0 rounded-full bg-primary shadow-glow-sm" />
         <div className="min-w-0">
-          <h2 className="truncate text-lg font-semibold text-foreground">
-            {t("reports.title")}
-          </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {t("reports.subtitle")}
-          </p>
+          <h2 className="text-xl font-semibold leading-tight sm:text-2xl">{t("reports.title")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("reports.subtitle")}</p>
         </div>
       </div>
 
-      <div className="rounded-lg border bg-card p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">
-              {t("reports.filter.project")}
-            </Label>
+      <FilterBar>
+          {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
+          {!topBar.active && (
+          <FilterField label={t("reports.filter.project")} className="sm:w-64">
             <Select
               value={list.filters.project ?? ALL_PROJECTS}
               onValueChange={(value) =>
@@ -112,7 +116,7 @@ export function Reports() {
                 )
               }
             >
-              <SelectTrigger className="w-full bg-card">
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -127,53 +131,41 @@ export function Reports() {
               </SelectContent>
             </Select>
             <QueryFailedNote query={projectQuery} what={t("reports.what.projects")} />
-          </div>
+          </FilterField>
+          )}
 
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">
-              {t("reports.filter.dateFrom")}
-            </Label>
+          <FilterField label={t("reports.filter.dateFrom")} className="sm:w-44">
             <Input
               type="date"
-              className="bg-card"
               value={list.filters.date_from ?? ""}
               onChange={(event) =>
                 list.setFilter("date_from", event.target.value || undefined)
               }
             />
-          </div>
+          </FilterField>
 
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">
-              {t("reports.filter.dateTo")}
-            </Label>
+          <FilterField label={t("reports.filter.dateTo")} className="sm:w-44">
             <Input
               type="date"
-              className="bg-card"
               value={list.filters.date_to ?? ""}
               onChange={(event) =>
                 list.setFilter("date_to", event.target.value || undefined)
               }
             />
-          </div>
+          </FilterField>
 
-          <div className="flex items-end">
             <Button
               variant="outline"
-              size="sm"
-              className="rounded-full px-4"
               disabledReason={
                 !list.hasFilters ? t("common.noFiltersSet") : undefined
               }
               disabled={!list.hasFilters}
               onClick={list.clearFilters}
             >
-              <FilterX className="h-3.5 w-3.5" />
+              <FilterX className="size-4" />
               {t("reports.filter.clear")}
             </Button>
-          </div>
-        </div>
-      </div>
+      </FilterBar>
 
       <ReceiptsPanel
         data={receipts.data}
@@ -192,7 +184,6 @@ export function Reports() {
 }
 
 function PanelShell({
-  icon: Icon,
   title,
   total,
   totalLabel,
@@ -208,27 +199,26 @@ function PanelShell({
   const formatter = useFormatter();
   const t = useTranslations();
   return (
-    <div className="rounded-lg border bg-card shadow-sm">
-      <div className="flex flex-wrap items-center gap-3 px-6 py-5">
-        <Icon className="h-4 w-4 text-primary" />
-        <h3 className="text-base font-semibold text-foreground">{title}</h3>
+    <div className="surface-panel rounded-xl">
+      <div className="flex flex-wrap items-center gap-3 p-4 sm:px-6 sm:py-5">
+        <h3 className="panel-title min-w-0">{title}</h3>
         <div className="ml-auto text-right">
           <p className="tabular text-2xl font-semibold text-foreground">
             {total === null ? t("common.emptyValue") : formatter.number(total)}
           </p>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             {totalLabel}
           </p>
         </div>
       </div>
-      <div className="border-t">{children}</div>
+      <div className="border-t border-panel-border">{children}</div>
     </div>
   );
 }
 
 function PanelSkeleton() {
   return (
-    <div className="space-y-3 px-6 py-5">
+    <div className="space-y-3 p-4 sm:px-6 sm:py-5">
       <Skeleton className="h-3 w-28" />
       <Skeleton className="h-40 w-full" />
     </div>
@@ -238,7 +228,7 @@ function PanelSkeleton() {
 function EmptyPanel() {
   const t = useTranslations();
   return (
-    <p className="px-6 py-12 text-center text-sm text-muted-foreground">
+    <p className="px-4 py-12 text-center text-sm text-muted-foreground sm:px-6">
       {t("reports.empty")}
     </p>
   );
@@ -248,7 +238,7 @@ function EmptyPanel() {
 function Caveat({ text }: { text: string }) {
   return (
     <p className="flex items-start gap-2 text-xs text-muted-foreground">
-      <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+      <Info className="mt-0.5 size-3.5 shrink-0" />
       {text}
     </p>
   );
@@ -368,6 +358,7 @@ function ReceiptsPanel({
   onRetry: () => void;
 }) {
   const t = useTranslations();
+  const unitName = useUnitName();
 
   const units = (data?.by_unit ?? []).map((unit) => ({
     ...unit,
@@ -396,10 +387,10 @@ function ReceiptsPanel({
       ) : (
         <div className="divide-y">
           {units.map((unit) => (
-            <section key={unit.unit} className="space-y-3 px-6 py-5">
+            <section key={unit.unit} className="space-y-3 p-4 sm:px-6 sm:py-5">
               <div className="flex flex-wrap items-baseline gap-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t(`receipts.unit.${unit.unit}`)}
+                <h4 className="panel-title">
+                  {unitName(unit.unit)}
                 </h4>
                 <span className="tabular text-sm font-medium text-foreground">
                   {unit.quantity}
@@ -412,7 +403,7 @@ function ReceiptsPanel({
             </section>
           ))}
 
-          <div className="px-6 py-4">
+          <div className="px-4 py-4 sm:px-6">
             <Caveat text={t("reports.receipts.unitNote")} />
           </div>
         </div>
@@ -459,8 +450,8 @@ function DispatchesPanel({
         <EmptyPanel />
       ) : (
         <div className="divide-y">
-          <section className="space-y-3 px-6 py-5">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <section className="space-y-3 p-4 sm:px-6 sm:py-5">
+            <h4 className="panel-title">
               {t("reports.dispatches.byType")}
             </h4>
             {chartData.length > 0 && (
@@ -499,8 +490,8 @@ function DispatchesPanel({
             <Caveat text={t("reports.dispatches.estimateNote")} />
           </section>
 
-          <section className="space-y-3 px-6 py-5">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <section className="space-y-3 p-4 sm:px-6 sm:py-5">
+            <h4 className="panel-title">
               {t("reports.dispatches.byState")}
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -509,7 +500,7 @@ function DispatchesPanel({
               ).map((state: DispatchState) => (
                 <div
                   key={state}
-                  className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5"
+                  className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2"
                 >
                   <StatusBadge
                     label={t(`dispatches.state.${state}`)}

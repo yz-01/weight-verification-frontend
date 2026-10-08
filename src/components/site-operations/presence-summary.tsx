@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { KpiCard } from "@/components/shared/kpi-card";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import {
   Table,
@@ -26,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import type { PresenceNumbers } from "@/interfaces/site-operations";
 import { getAttendancePresence } from "@/services/site-operations.service";
+import type { Tone } from "@/lib/tones";
 
 function emergencyHref(project?: string) {
   return project ? `/emergency-list?project=${encodeURIComponent(project)}` : "/emergency-list";
@@ -42,59 +44,56 @@ export function PresenceSummary({ project }: { project?: string }) {
   const data = presence.data;
 
   return (
-    <section className="space-y-2">
+    <section className="flex flex-col gap-3">
       <QueryFailedNote query={presence} what={t("what")} />
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        <Link
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
           href={emergencyHref(project)}
-          className="rounded-lg border border-warning/30 bg-warning/5 p-3 transition-colors hover:bg-warning/10"
-        >
-          <span className="flex items-center gap-2 text-xs text-muted-foreground">
-            <ShieldAlert className="size-4 text-warning" />
-            {t("currentTotal")}
-          </span>
-          <span className="mt-1 block text-2xl font-semibold tabular-nums">
-            {data?.current_total ?? "–"}
-          </span>
-          <span className="block text-xs text-muted-foreground">
-            {data
+          size="sm"
+          tone="amber"
+          icon={ShieldAlert}
+          label={t("currentTotal")}
+          value={data?.current_total ?? "–"}
+          detail={
+            data
               ? t("composition", { app: data.app_on_site, gate: data.gate_on_site })
-              : t("loading")}
-          </span>
-          <span className="mt-1 block text-xs font-medium text-primary">{t("openList")}</span>
-        </Link>
-        <Tile icon={LogIn} label={t("enteredToday")} value={data?.entered_today} />
-        <Tile icon={LogOut} label={t("leftToday")} value={data?.left_today} />
-        <Tile icon={Users} label={t("stillOnSite")} value={data?.still_on_site} hint={t("stillHint")} />
+              : t("loading")
+          }
+        >
+          <span className="block text-xs font-medium text-primary">{t("openList")}</span>
+        </KpiCard>
+        <Tile icon={LogIn} tone="green" label={t("enteredToday")} value={data?.entered_today} />
+        <Tile icon={LogOut} tone="slate" label={t("leftToday")} value={data?.left_today} />
+        <Tile icon={Users} tone="cyan" label={t("stillOnSite")} value={data?.still_on_site} hint={t("stillHint")} />
       </div>
       {data && data.projects.length > 0 && !project && (
-        <div className="rounded-lg border bg-card">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <button
             type="button"
-            className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium"
+            className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-2 text-left text-sm font-medium transition-colors hover:bg-muted/40 sm:px-6"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
           >
             {t("byProject", { count: data.projects.length })}
-            <ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} />
+            <ChevronDown className={`size-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
           </button>
           {open && (
             <div className="border-t">
-              <Table className="min-w-[640px]">
+              <Table className="min-w-160">
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("project")}</TableHead>
-                    <TableHead className="text-right">{t("currentTotal")}</TableHead>
-                    <TableHead className="text-right">{t("enteredToday")}</TableHead>
-                    <TableHead className="text-right">{t("leftToday")}</TableHead>
-                    <TableHead className="text-right">{t("stillOnSite")}</TableHead>
+                    <TableHead className="text-right tabular">{t("currentTotal")}</TableHead>
+                    <TableHead className="text-right tabular">{t("enteredToday")}</TableHead>
+                    <TableHead className="text-right tabular">{t("leftToday")}</TableHead>
+                    <TableHead className="text-right tabular">{t("stillOnSite")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.projects.map((row) => (
                     <TableRow key={row.project_id}>
                       <TableCell>{row.project_name}</TableCell>
-                      <TableCell className="text-right tabular-nums">
+                      <TableCell className="text-right tabular">
                         <Link className="font-semibold text-primary hover:underline" href={emergencyHref(row.project_id)}>
                           {row.current_total}
                         </Link>
@@ -118,28 +117,23 @@ export function PresenceSummary({ project }: { project?: string }) {
 }
 
 function NumberCell({ row, field }: { row: PresenceNumbers; field: keyof PresenceNumbers }) {
-  return <TableCell className="text-right tabular-nums">{row[field]}</TableCell>;
+  return <TableCell className="text-right tabular">{row[field]}</TableCell>;
 }
 
 function Tile({
-  icon: Icon,
+  icon,
+  tone,
   label,
   value,
   hint,
 }: {
   icon: typeof Users;
+  tone: Tone;
   label: string;
   value: number | undefined;
   hint?: string;
 }) {
   return (
-    <div className="rounded-lg border bg-card p-3">
-      <span className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Icon className="size-4" />
-        {label}
-      </span>
-      <span className="mt-1 block text-2xl font-semibold tabular-nums">{value ?? "–"}</span>
-      {hint && <span className="block text-xs text-muted-foreground">{hint}</span>}
-    </div>
+    <KpiCard size="sm" tone={tone} icon={icon} label={label} value={value ?? "–"} detail={hint} />
   );
 }

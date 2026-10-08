@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /** Project-scoped records used by the contractor and site staff portals. */
 
 export type AttendanceEvent = "CLOCK_IN" | "CLOCK_OUT";
@@ -99,31 +101,6 @@ export interface FieldStaffPosition {
   created_at: string;
 }
 
-export interface ProgressUpdate {
-  id: string;
-  project: string;
-  project_name: string;
-  title: string;
-  description: string;
-  percent_complete: string;
-  reported_at: string;
-  photo: string | null;
-  watermarked_photo?: string | null;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ProgressPayload {
-  project: string;
-  title: string;
-  description?: string;
-  percent_complete: string;
-  reported_at?: string;
-  photo?: File;
-  notify_users?: string[];
-}
-
 export type IncidentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type IncidentStatus =
   | "OPEN"
@@ -150,7 +127,11 @@ export interface SafetyRectificationEvidence {
   submitted_by_name: string | null;
 }
 
-export interface SafetyIncident {
+export interface SafetyIncident extends RecordedBy {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   incident_no: string;
   project: string;
@@ -293,8 +274,6 @@ export interface SafetyIncidentPayload {
   notify_users?: string[];
   /** C20: a permit, rather than a hazard. */
   record_type?: EhsRecordType;
-  /** The phone names who confirms it (B21); the reporter when left out. */
-  confirmer?: string;
   /** 上报 → 指派 in one step (B22). */
   responsible_person?: string;
   due_at?: string;

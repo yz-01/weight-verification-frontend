@@ -128,7 +128,7 @@ export function QRMobileScan() {
         />
       ) : !user ? (
         <div className="space-y-4">
-          <div className="flex items-start gap-3 rounded-lg border bg-muted/25 p-4">
+          <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-4">
             <LogIn className="mt-0.5 size-5 shrink-0 text-primary" />
             <div>
               <p className="text-sm font-semibold">{t("loginRequired")}</p>
@@ -156,7 +156,7 @@ export function QRMobileScan() {
             description={qr(`outcome.${result.outcome}`)}
           />
           {result.code && (
-            <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-2">
+            <div className="grid gap-3 rounded-lg border bg-muted/30 p-4 text-sm sm:grid-cols-2">
               <ResultField label={qr("field.qrId")} value={result.code.serial} />
               <ResultField label={qr("field.subject")} value={result.code.subject_label} />
               <ResultField label={qr("field.company")} value={result.code.company_name ?? "-"} />
@@ -173,7 +173,7 @@ export function QRMobileScan() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="rounded-lg border bg-muted/20 p-4">
+          <div className="rounded-lg border bg-muted/30 p-4">
             <p className="text-xs text-muted-foreground">{t("signedInAs")}</p>
             <p className="mt-1 text-sm font-semibold">{user.full_name || user.email}</p>
           </div>
@@ -209,7 +209,7 @@ export function QRMobileScan() {
           </div>
 
           {error && (
-            <p className="rounded-md border border-destructive/25 bg-destructive/8 px-3 py-2 text-sm text-destructive">
+            <p className="rounded-lg border border-destructive/25 bg-destructive/8 px-3 py-2 text-sm text-destructive">
               {error instanceof ApiError ? error.message : t("scanError")}
             </p>
           )}
@@ -257,7 +257,7 @@ function ResultState({
   const Icon = accepted ? CheckCircle2 : XCircle;
   return (
     <div
-      className={`rounded-lg border p-5 text-center ${
+      className={`rounded-lg border p-4 text-center ${
         accepted
           ? "border-success/25 bg-success/5"
           : "border-destructive/25 bg-destructive/5"

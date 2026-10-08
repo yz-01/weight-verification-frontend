@@ -6,10 +6,9 @@ import { useFormatter, useTranslations } from "next-intl";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { FilterBar, FilterField, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -119,7 +118,7 @@ export function TransactionReport() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <ListHeader
         title={t("reports.transaction.title")}
         subtitle={t("reports.transaction.subtitle")}
@@ -133,13 +132,9 @@ export function TransactionReport() {
         }
       />
 
-      <section
-        aria-label={t("reports.transaction.filters")}
-        className="rounded-lg border bg-card p-4 shadow-sm"
-      >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          <div className="space-y-1.5">
-            <Label>{t("reports.transaction.state")}</Label>
+      <section aria-label={t("reports.transaction.filters")}>
+        <FilterBar>
+          <FilterField label={t("reports.transaction.state")} className="sm:w-48">
             <Select
               value={list.filters.state ?? ALL_STATES}
               onValueChange={(value) =>
@@ -163,12 +158,13 @@ export function TransactionReport() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </FilterField>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="report-currency">
-              {t("reports.transaction.currency")}
-            </Label>
+          <FilterField
+            label={t("reports.transaction.currency")}
+            htmlFor="report-currency"
+            className="sm:w-32"
+          >
             <Input
               id="report-currency"
               inputMode="text"
@@ -182,7 +178,7 @@ export function TransactionReport() {
                 )
               }
             />
-          </div>
+          </FilterField>
 
           <DateFilter
             id="transaction-date-from"
@@ -197,22 +193,18 @@ export function TransactionReport() {
             onChange={(value) => list.setFilter("date_to", value)}
           />
 
-          <div className="flex items-end">
             <Button
               variant="outline"
-              size="sm"
-              className="rounded-full px-4"
               disabledReason={
                 !list.hasFilters ? t("common.noFiltersSet") : undefined
               }
               disabled={!list.hasFilters}
               onClick={list.clearFilters}
             >
-              <FilterX className="h-3.5 w-3.5" />
+              <FilterX className="size-4" />
               {t("reports.filter.clear")}
             </Button>
-          </div>
-        </div>
+        </FilterBar>
       </section>
 
       {report.isLoading ? (
@@ -240,27 +232,26 @@ function DateFilter({
   onChange: (value: string | undefined) => void;
 }) {
   return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
+    <FilterField label={label} htmlFor={id} className="sm:w-44">
       <Input
         id={id}
         type="date"
         value={value}
         onChange={(event) => onChange(event.target.value || undefined)}
       />
-    </div>
+    </FilterField>
   );
 }
 
 function ReportSkeleton() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
-          <Skeleton key={index} className="h-28 w-full rounded-lg" />
+          <Skeleton key={index} className="h-28 w-full rounded-xl" />
         ))}
       </div>
-      <Skeleton className="h-64 w-full" />
+      <Skeleton className="h-64 w-full rounded-xl" />
     </div>
   );
 }
@@ -282,14 +273,14 @@ function ReportBody({
 
   if (report.total_transactions === 0) {
     return (
-      <p className="rounded-lg border bg-card py-12 text-center text-sm text-muted-foreground">
+      <p className="rounded-xl border border-dashed border-panel-border px-6 py-12 text-center text-sm text-muted-foreground">
         {t("reports.empty")}
       </p>
     );
   }
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-4">
       <section
         aria-label={t("reports.transaction.summary")}
         className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
@@ -337,10 +328,10 @@ function ReportBody({
       />
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">
+        <h2 className="panel-title">
           {t("reports.transaction.byState")}
         </h2>
-        <div className="overflow-hidden rounded-lg border bg-card">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table>
             <TableHeader>
               <TableRow>
@@ -414,9 +405,9 @@ function Metric({
   detail?: string;
 }) {
   return (
-    <div className="min-h-28 rounded-lg border bg-card p-4">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-3 text-2xl font-semibold tabular-nums">{value}</p>
+    <div className="surface-panel min-h-28 min-w-0 rounded-xl p-4">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="kpi-figure mt-3 break-words text-2xl text-foreground">{value}</p>
       {detail && (
         <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
       )}
@@ -435,8 +426,8 @@ function ReportTable({
 }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-semibold">{title}</h2>
-      <div className="overflow-hidden rounded-lg border bg-card">
+      <h2 className="panel-title">{title}</h2>
+      <div className="surface-panel overflow-hidden rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>

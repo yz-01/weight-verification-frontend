@@ -5,8 +5,9 @@
  *
  * The old 照片审批 entry, rebuilt. Three tabs:
  *
- * 1. **Requests** - every request with its own Request No., the eleven
- *    columns the customer listed (C03), + New Request, and the detail with its
+ * 1. **Requests** - every request with its own Request No., the columns the
+ *    customer listed (C03) less type and project (D3: the top bar and the
+ *    filter row already say them), + New Request, and the detail with its
  *    conversation, Approve and Return (C05) and the formal form's Preview,
  *    Print and Export PDF (C06).
  * 2. **Totals** - per project, material + specification + unit, the approved
@@ -30,6 +31,7 @@ import {
   Printer,
   RotateCcw,
   Settings2,
+  UserCheck,
   XCircle,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -39,6 +41,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { PhotoApprovals } from "@/components/field-staff/photo-approvals";
 import { OptionListsDialog } from "@/components/material-requests/option-lists";
+import { materialRequestReviewView } from "@/components/material-requests/review-gate";
 import {
   MaterialRequestForm,
   type MaterialRequestPrefill,
@@ -46,6 +49,11 @@ import {
 } from "@/components/material-requests/request-form";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
+import { RecordNo } from "@/components/shared/record-no";
+import { ManufacturerCell, ManufacturerPicker } from "@/components/shared/manufacturer-picker";
+import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
+import { SupplierPicker } from "@/components/shared/supplier-picker";
 import {
   FilterSelect,
   ModuleRecordsTable,
@@ -53,8 +61,8 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { FieldWrapper, LoadFailed, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
-import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { EmptyState, FieldWrapper, FilterBar, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -85,6 +93,7 @@ import {
   getMaterialRequests,
   getMaterialRequestTotals,
   materialRequestFormUrl,
+  reassignMaterialRequestToMe,
   reviewMaterialRequest,
 } from "@/services/material-request.service";
 
@@ -135,8 +144,8 @@ export function MaterialRequestsOffice() {
         router.replace(`/material-requests?${params.toString()}`, { scroll: false });
       }} />}
       {tab === "photos" && canPhotos && (
-        <div className="space-y-2">
-          <p className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t("photosNote")}</p>
+        <div className="space-y-4">
+          <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t("photosNote")}</p>
           <PhotoApprovals />
         </div>
       )}
@@ -151,7 +160,10 @@ function RequestsTab() {
   const df = useDateFormat();
   const unitLabel = useUnitLabel();
   const { can } = useAuth();
-  const list = useListQuery(["project", "status", "request_type", "material", "specification", "unit"]);
+  const list = useListQuery([
+    "project", "status", "request_type", "material", "specification", "unit", "supplier", "manufacturer",
+    "date_from", "date_to",
+  ]);
   const rows = useQuery({
     queryKey: ["material-requests", "office", list.query],
     queryFn: () => getMaterialRequests(list.query),
@@ -168,25 +180,31 @@ function RequestsTab() {
         accessorKey: "request_no",
         meta: { label: t("field.requestNo") },
         header: sortable(t("field.requestNo")),
-        cell: ({ row }) => <span className="tabular text-foreground">{row.original.request_no}</span>,
+        // Short number big, project small (2026-10 D4).
+        cell: ({ row }) => <RecordNo value={row.original.request_no} />,
       },
-      {
-        id: "request_type",
-        meta: { label: t("field.requestType") },
-        header: () => <PlainHeader label={t("field.requestType")} />,
-        cell: ({ row }) => <TypeBadge label={t(`type.${row.original.request_type}`)} />,
-      },
-      {
-        accessorKey: "project_name",
-        meta: { label: t("field.project") },
-        header: () => <PlainHeader label={t("field.project")} />,
-        cell: ({ row }) => <p className="max-w-[160px] truncate">{row.original.project_name}</p>,
-      },
+      // The record's photograph beside its main column (E3).
+      photoColumn<MaterialRequest>({
+        label: tRoot("moduleTable.photos"),
+        icon: FilePlus2,
+        reference: (row) => row.request_no,
+        // The stamped copies (Q30.1): a request's pictures carry the
+        // watermark like every photograph the platform shows.
+        photos: (row) => rowPhotos(row.attachments.filter((file) => file.is_image).map((file) => ({ id: file.id, watermarked: file.watermarked, caption: file.original_name })), row.request_no),
+      }),
+      // D3: no request-type or project column - the top bar already names
+      // the project and the filter row the type. An Other Request has no
+      // material, so its material cell says so in grey instead of a dash.
       {
         accessorKey: "material_name",
         meta: { label: t("field.material") },
         header: sortable(t("field.material")),
-        cell: ({ row }) => row.original.material_name || <span className="text-muted-foreground">—</span>,
+        cell: ({ row }) =>
+          row.original.request_type === "OTHER" ? (
+            <span className="text-muted-foreground">{t("type.OTHER")}</span>
+          ) : (
+            row.original.material_name || <span className="text-muted-foreground">—</span>
+          ),
       },
       {
         accessorKey: "specification",
@@ -205,6 +223,19 @@ function RequestsTab() {
         meta: { label: t("field.unit") },
         header: () => <PlainHeader label={t("field.unit")} />,
         cell: ({ row }) => (row.original.unit ? unitLabel(row.original.unit) : "—"),
+      },
+      // Whose make and who sells it (2026-10 D1, D3): settled on approval.
+      {
+        accessorKey: "manufacturer_name",
+        meta: { label: t("field.manufacturer") },
+        header: () => <PlainHeader label={t("field.manufacturer")} />,
+        cell: ({ row }) => <ManufacturerCell name={row.original.manufacturer_name} />,
+      },
+      {
+        accessorKey: "supplier_name",
+        meta: { label: t("field.supplier") },
+        header: () => <PlainHeader label={t("field.supplier")} />,
+        cell: ({ row }) => row.original.supplier_name || <span className="text-muted-foreground">—</span>,
       },
       {
         accessorKey: "submitted_by_name",
@@ -244,7 +275,7 @@ function RequestsTab() {
         ),
       },
     ],
-    [t, df, unitLabel, setViewing],
+    [t, tRoot, df, unitLabel, setViewing],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -262,6 +293,8 @@ function RequestsTab() {
         { key: "specification", label: t("field.specification") },
         { key: "quantity", label: t("field.quantity") },
         { key: "unit", label: t("field.unit") },
+        { key: "manufacturer_name", label: t("field.manufacturer") },
+        { key: "supplier_name", label: t("field.supplier") },
         { key: "submitted_by_name", label: t("field.submittedBy") },
         { key: "submitted_at", label: t("field.date") },
         {
@@ -283,13 +316,13 @@ function RequestsTab() {
         headerAction={
           <div className="flex flex-wrap gap-2">
             {can("material_request.config") && (
-              <Button variant="outline" size="sm" onClick={() => setManaging(true)}>
+              <Button variant="outline" onClick={() => setManaging(true)}>
                 <Settings2 className="size-4" />
                 {t("options.open")}
               </Button>
             )}
             {can("material_request.submit") && (
-              <Button size="sm" onClick={() => setCreating("blank")}>
+              <Button onClick={() => setCreating("blank")}>
                 <FilePlus2 className="size-4" />
                 {t("action.new")}
               </Button>
@@ -302,7 +335,9 @@ function RequestsTab() {
         totalCount={total}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="material-requests"
+        // New key (D3): an old saved column set must not bring back the dropped
+        // columns, nor hide the manufacturer and supplier ones (D1).
+        storageKey="material-requests.v3"
         toolbar={
           <>
             <ProjectListFilter list={list} />
@@ -320,6 +355,7 @@ function RequestsTab() {
             />
             <TextFilter list={list} param="material" placeholder={t("filter.material")} />
             <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
+            <SupplierDateListFilter list={list} showManufacturer />
             <ExportButton onExport={runExport} disabled={total === 0} />
           </>
         }
@@ -376,7 +412,7 @@ function TextFilter({
       placeholder={placeholder}
       value={value}
       onChange={(event) => setValue(event.target.value)}
-      className="h-9 w-[150px]"
+      className="w-full sm:w-40"
     />
   );
 }
@@ -429,34 +465,34 @@ function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, stri
   const rows = totals.data ?? [];
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">{t("totals.title")}</h2>
         <p className="text-sm text-muted-foreground">{t("totals.basis")}</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <FilterBar>
         <ProjectListFilter list={list} />
         <TextFilter list={list} param="material" placeholder={t("filter.material")} />
         <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
-      </div>
+      </FilterBar>
       {totals.isError ? (
         <LoadFailed what={t("totals.title")} onRetry={() => void totals.refetch()} />
       ) : totals.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
       ) : rows.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">{t("totals.empty")}</p>
+        <EmptyState title={t("totals.empty")} />
       ) : (
-        <div className="rounded-xl border">
-          <Table className="min-w-[720px]">
+        <div className="surface-panel overflow-hidden rounded-xl">
+          <Table className="min-w-180">
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.project")}</TableHead>
                 <TableHead>{t("field.material")}</TableHead>
                 <TableHead>{t("field.specification")}</TableHead>
                 <TableHead>{t("field.unit")}</TableHead>
-                <TableHead className="text-right">{t("totals.approved")}</TableHead>
-                <TableHead className="text-right">{t("totals.pending")}</TableHead>
-                <TableHead className="text-right">{t("totals.returned")}</TableHead>
+                <TableHead className="tabular text-right">{t("totals.approved")}</TableHead>
+                <TableHead className="tabular text-right">{t("totals.pending")}</TableHead>
+                <TableHead className="tabular text-right">{t("totals.returned")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -477,15 +513,15 @@ function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, stri
                   <TableCell className="font-medium">{row.material_name}</TableCell>
                   <TableCell>{row.specification}</TableCell>
                   <TableCell>{unitLabel(row.unit)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="tabular text-right">
                     <span className="tabular font-semibold text-success">{row.approved_quantity}</span>
-                    <span className="block text-[11px] text-muted-foreground">{t("totals.requests", { count: row.approved_count })}</span>
+                    <span className="block text-2xs text-muted-foreground">{t("totals.requests", { count: row.approved_count })}</span>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="tabular text-right">
                     <span className="tabular font-semibold text-warning">{row.pending_quantity}</span>
-                    <span className="block text-[11px] text-muted-foreground">{t("totals.requests", { count: row.pending_count })}</span>
+                    <span className="block text-2xs text-muted-foreground">{t("totals.requests", { count: row.pending_count })}</span>
                   </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
+                  <TableCell className="tabular text-right text-muted-foreground">
                     {t("totals.requests", { count: row.returned_count })}
                   </TableCell>
                 </TableRow>
@@ -512,16 +548,29 @@ export function MaterialRequestDetail({
   const df = useDateFormat();
   const unitLabel = useUnitLabel();
   const locale = useLocale();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const qc = useQueryClient();
   const detail = useQuery({ queryKey: ["material-requests", "detail", id], queryFn: () => getMaterialRequest(id) });
   const [returnArmed, setReturnArmed] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
   const [previewing, setPreviewing] = useState(false);
+  // Approving is the purchase (2026-10 D1, D2): who it is bought from and
+  // whose make. Starts from what the applicant suggested; `null` = untouched.
+  const [supplier, setSupplier] = useState<string | null>(null);
+  const [manufacturer, setManufacturer] = useState<string | null>(null);
+  const chosenSupplier = supplier ?? detail.data?.supplier ?? "";
+  const chosenManufacturer = manufacturer ?? detail.data?.manufacturer ?? "";
   const review = useMutation({
     mutationFn: (decision: "APPROVED" | "RETURNED") =>
-      reviewMaterialRequest(id, decision, decision === "RETURNED" ? reason.trim() : ""),
+      reviewMaterialRequest(
+        id,
+        decision,
+        decision === "RETURNED" ? reason.trim() : "",
+        decision === "APPROVED" && detail.data?.request_type === "MATERIAL"
+          ? { supplier: chosenSupplier, manufacturer: chosenManufacturer }
+          : undefined,
+      ),
     onSuccess: () => {
       setReturnArmed(false);
       setReason("");
@@ -530,6 +579,15 @@ export function MaterialRequestDetail({
       // Deciding closes the request's conversation (C05): refetch so the
       // composer is replaced by the reason without a reload.
       void qc.invalidateQueries({ queryKey: recordConversationKey("MATERIAL_REQUEST", id) });
+    },
+    onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
+  });
+  // 「改派给我」 (D2, Q15): another approver takes it over, then decides it.
+  const takeOver = useMutation({
+    mutationFn: () => reassignMaterialRequestToMe(id),
+    onSuccess: () => {
+      setError("");
+      void qc.invalidateQueries({ queryKey: ["material-requests"] });
     },
     onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
   });
@@ -548,11 +606,21 @@ export function MaterialRequestDetail({
   const decided = row.status !== "SUBMITTED";
   const decidedLabel = row.status === "RETURNED" ? t("field.returnedBy") : t("field.approvedBy");
   const isMaterial = row.request_type === "MATERIAL";
+  // The applicant never sees approve / return, whatever their role (D2);
+  // an approver it was not sent to takes it over first (Q15).
+  const reviewView = materialRequestReviewView(row, user?.id, can("material_request.review"));
+  // 「等待 XXX 审批」: whose desk it is on. Requests from before D2 name nobody.
+  const waitingLine = row.assigned_reviewer_name
+    ? t("waitingFor", { name: row.assigned_reviewer_name })
+    : null;
+  const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
 
   return (
     <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${t(`type.${row.request_type}`)}`} onClose={onClose}>
       <RecordDetailShell
         reference={row.request_no}
+        // 记录人 (E8): who recorded it, with a number to call.
+        recorder={<RecordRecorder record={row} />}
         notices={
           row.status === "RETURNED" ? (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
@@ -589,9 +657,14 @@ export function MaterialRequestDetail({
                 { label: t("field.material"), value: row.material_name },
                 { label: t("field.specification"), value: row.specification },
                 { label: t("field.quantity"), value: `${row.quantity ?? "—"} ${unitLabel(row.unit)}` },
+                { label: t("field.supplier"), value: row.supplier_name || "—" },
+                { label: t("field.manufacturer"), value: row.manufacturer_name || "—" },
               ]
             : []),
           { label: t("field.submittedBy"), value: who(row.submitted_by_name, row.submitted_at) },
+          ...(row.assigned_reviewer_name
+            ? [{ label: t("field.assignedReviewer"), value: row.assigned_reviewer_name }]
+            : []),
           {
             label: decided ? decidedLabel : t("field.decidedBy"),
             value: decided ? who(row.decided_by_name, row.decided_at) : t("pendingDecision"),
@@ -600,10 +673,36 @@ export function MaterialRequestDetail({
           ...(row.decision_note
             ? [{ label: row.status === "RETURNED" ? t("field.returnReason") : t("field.decisionNote"), value: row.decision_note, wide: true }]
             : []),
+          // The record of every take-over (Q15 「留改派记录」).
+          ...(takeOvers.length
+            ? [
+                {
+                  label: t("field.reassignHistory"),
+                  wide: true,
+                  value: (
+                    <ul className="space-y-0.5">
+                      {takeOvers.map((entry) => (
+                        <li key={entry.id}>
+                          {entry.previous_reviewer_name
+                            ? t("reassignedFrom", {
+                                by: entry.decided_by_name ?? "—",
+                                from: entry.previous_reviewer_name,
+                                at: df.dateTime(entry.decided_at),
+                              })
+                            : t("reassigned", { by: entry.decided_by_name ?? "—", at: df.dateTime(entry.decided_at) })}
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                },
+              ]
+            : []),
         ]}
+        // Full size is the stamped copy (Q30.1); a picture without one is
+        // not shown unstamped.
         photos={row.attachments
-          .filter((file) => file.is_image)
-          .map((file) => ({ id: file.id, url: file.file, label: file.original_name, takenAt: file.uploaded_at }))}
+          .filter((file) => file.is_image && file.watermarked)
+          .map((file) => ({ id: file.id, url: file.watermarked ?? "", label: file.original_name, takenAt: file.uploaded_at }))}
         panel={
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("attachments.title")}</h3>
@@ -614,9 +713,17 @@ export function MaterialRequestDetail({
                 {row.attachments.map((file, index) => (
                   <li key={file.id} className="flex items-center gap-2">
                     <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
-                    <a href={file.file} target="_blank" rel="noreferrer" className="truncate text-primary underline-offset-2 hover:underline">
-                      {index + 1}. {file.original_name}
-                    </a>
+                    {/* A picture opens as its stamped copy (Q30.1); a PDF or
+                        other file as uploaded. */}
+                    {file.is_image && !file.watermarked ? (
+                      <span className="truncate text-muted-foreground">
+                        {index + 1}. {file.original_name}
+                      </span>
+                    ) : (
+                      <a href={file.is_image ? (file.watermarked ?? "") : file.file} target="_blank" rel="noreferrer" className="truncate text-primary underline-offset-2 hover:underline">
+                        {index + 1}. {file.original_name}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ol>
@@ -640,9 +747,39 @@ export function MaterialRequestDetail({
                 {t("action.exportPdf")}
               </Button>
             </div>
-            {row.status === "SUBMITTED" && can("material_request.review") && (
+            {reviewView === "decide" && (
               <>
-                <Button className="w-full" disabled={review.isPending} onClick={() => review.mutate("APPROVED")}>
+                {isMaterial && (
+                  // D2 + D1: approving settles the supplier and the
+                  // manufacturer; returning needs neither.
+                  <div className="space-y-2 rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">{t("approve.help")}</p>
+                    <FieldWrapper label={t("field.supplier")} required>
+                      <SupplierPicker
+                        value={chosenSupplier}
+                        onChange={setSupplier}
+                        knownName={row.supplier_name}
+                        placeholder={t("approve.chooseSupplier")}
+                      />
+                    </FieldWrapper>
+                    <FieldWrapper label={t("field.manufacturer")} required>
+                      <ManufacturerPicker value={chosenManufacturer} onChange={setManufacturer} />
+                    </FieldWrapper>
+                  </div>
+                )}
+                <Button
+                  className="w-full"
+                  requires={
+                    isMaterial
+                      ? [
+                          [chosenSupplier, t("field.supplier")],
+                          [chosenManufacturer, t("field.manufacturer")],
+                        ]
+                      : []
+                  }
+                  disabled={review.isPending}
+                  onClick={() => review.mutate("APPROVED")}
+                >
                   <Check />
                   {t("action.approve")}
                 </Button>
@@ -674,8 +811,21 @@ export function MaterialRequestDetail({
                 )}
               </>
             )}
-            {row.status === "SUBMITTED" && !can("material_request.review") && (
-              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{t("waitingForReview")}</p>
+            {reviewView === "takeOver" && (
+              <div className="space-y-1.5">
+                <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("waitingForReview")}</p>
+                <Button className="w-full" variant="outline" disabled={takeOver.isPending} onClick={() => takeOver.mutate()}>
+                  <UserCheck />
+                  {t("action.reassignToMe")}
+                </Button>
+                <p className="text-xs text-muted-foreground">{t("reassignHelp")}</p>
+              </div>
+            )}
+            {reviewView === "own" && (
+              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("ownRequestWaiting")}</p>
+            )}
+            {reviewView === "waiting" && (
+              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("waitingForReview")}</p>
             )}
           </div>
         }

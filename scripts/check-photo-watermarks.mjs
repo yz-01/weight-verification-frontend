@@ -79,6 +79,10 @@ const NO_VARIANT_AVAILABLE = new Map([
     "src/components/dashboard/headquarters-photos.tsx",
     "HeadquartersPhoto.image is already the watermarked derivative, not the original",
   ],
+  [
+    "src/components/dashboard/headquarters-wall.tsx",
+    "HeadquartersPhoto.image is already the watermarked derivative, not the original (the big screen reads the same photos as headquarters-photos)",
+  ],
 ]);
 
 /** An image source that reads a record's photo field. */

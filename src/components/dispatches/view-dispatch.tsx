@@ -10,18 +10,21 @@ import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
-  FormSection,
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
 import {
-  DetailHeader,
   FieldWrapper,
   QueryFailedNote,
-  ReadField,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
+import {
+  RecordDetailFrame,
+  RecordDetailShell,
+  ShellPanel,
+  type ShellFact,
+} from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,6 +37,7 @@ import {
 import { Input } from "@/components/ui/input";
 import type { DispatchPhotoKind } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 import { getWasteTracking } from "@/services/waste-outgoing.service";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
@@ -78,7 +82,7 @@ function AddDispatchPhoto({
   });
 
   return (
-    <div className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-dashed p-3">
+    <div className="flex flex-wrap items-end gap-2 rounded-md border border-dashed p-3">
       <FieldWrapper label={t("dispatches.addPhoto.choose")} required>
         <Input
           type="file"
@@ -113,7 +117,43 @@ function AddDispatchPhoto({
   );
 }
 
-export function ViewDispatch({ id }: { id: string }) {
+/**
+ * Label and value pairs inside one of the dispatch's own panels, drawn like
+ * the shell's information grid so every panel of the popup reads the same.
+ */
+function PanelFacts({ facts }: { facts: ShellFact[] }) {
+  return (
+    <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+      {facts.map((fact) => (
+        <div key={fact.label} className={cn("min-w-0", fact.wide && "sm:col-span-2")}>
+          <dt className="text-xs text-muted-foreground">{fact.label}</dt>
+          <dd className="mt-1 break-words text-sm font-medium leading-snug">
+            {fact.value || "—"}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/**
+ * One dispatch, in the record-detail frame every module shares (E8, Q31).
+ *
+ * From inside the app `/dispatches/<id>` opens as the popup over the list;
+ * typed, bookmarked or opened from a notification it is the same frame on a
+ * page of its own (`presentation="page"`). A dispatch is raised in the
+ * office, not submitted from a phone, so it has no 记录人 block.
+ */
+export function ViewDispatch({
+  id,
+  presentation = "page",
+  onClose,
+}: {
+  id: string;
+  presentation?: "page" | "dialog";
+  /** The dialog's close; going back by default (an intercepted address). */
+  onClose?: () => void;
+}) {
   const t = useTranslations();
   const df = useDateFormat();
   const { can, user } = useAuth();
@@ -150,9 +190,20 @@ export function ViewDispatch({ id }: { id: string }) {
     },
   });
 
-  if (isLoading) return <FormSkeleton sections={4} />;
+  const frame = { presentation, onClose, backHref, backLabel };
+  if (isLoading) {
+    return (
+      <RecordDetailFrame {...frame} title={backLabel}>
+        <FormSkeleton sections={4} />
+      </RecordDetailFrame>
+    );
+  }
   if (isError || !data) {
-    return <LoadErrorCard backHref={backHref} backLabel={backLabel} />;
+    return (
+      <RecordDetailFrame {...frame} title={backLabel}>
+        <LoadErrorCard backHref={backHref} backLabel={backLabel} />
+      </RecordDetailFrame>
+    );
   }
 
   const coordinates =
@@ -169,301 +220,270 @@ export function ViewDispatch({ id }: { id: string }) {
     weighing: data.weighing,
     settlement: data.settlement,
   };
+  const canRelease =
+    !isRecycler && can("dispatch.update") && data.state === "DRAFT";
   const canCancel =
     !isRecycler &&
     can("dispatch.update") &&
     (data.state === "DRAFT" || data.state === "RELEASED");
 
   return (
-    <div className="space-y-4">
-      <DetailHeader
-        backHref={backHref}
-        backLabel={backLabel}
-      />
-
-      <div className="rounded-xl border bg-card shadow-sm">
-        <div className="flex flex-wrap items-center gap-3 px-6 py-5">
-          <h2 className="tabular text-base font-semibold text-foreground">
-            {data.dispatch_no}
-          </h2>
+    <RecordDetailFrame
+      {...frame}
+      title={data.dispatch_no}
+      status={
+        <>
           <StatusBadge
             label={t(`dispatches.state.${data.state}`)}
             tone={DISPATCH_STATE_TONE[data.state]}
           />
           <TypeBadge label={t(`dispatches.wasteType.${data.waste_type}`)} />
-
-          <div className="ml-auto flex items-center gap-2">
-            {!isRecycler && can("dispatch.update") && data.state === "DRAFT" && (
-              <Button
-                size="sm"
-                className="rounded-full px-4 shadow-sm"
-                onClick={() => setReleasing(true)}
-              >
-                <Truck className="h-4 w-4" />
-                {t("dispatches.release.confirm")}
-              </Button>
-            )}
-            {canCancel && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full px-4 text-destructive"
-                onClick={() => setCancelling(true)}
-              >
-                <Ban className="h-4 w-4" />
-                {t("dispatches.cancel.confirm")}
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {!data.is_editable && data.state !== "CANCELLED" && (
-          <p className="flex items-start gap-2 border-t bg-muted/40 px-6 py-3 text-xs text-muted-foreground">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            {t("dispatches.lockedNote")}
-          </p>
-        )}
-
-        <div className="divide-y border-t">
-          {data.source_record && (
-            <FormSection title={t("dispatches.section.application")}>
-              <ReadField label={t("dispatches.field.applicationNo")} value={data.source_record.reference_no} />
-              <ReadField label={t("dispatches.field.applicant")} value={data.source_record.submitted_by_name} />
-              <ReadField label={t("dispatches.field.approvedBy")} value={data.source_record.reviewed_by_name} />
-              <ReadField label={t("dispatches.field.approvedAt")} value={data.source_record.reviewed_at ? df.dateTime(data.source_record.reviewed_at) : null} />
-              <ReadField label={t("dispatches.field.applicationNote")} value={data.source_record.note} className="md:col-span-2" />
-              <ReadField label={t("dispatches.field.approvalNote")} value={data.source_record.review_note} className="md:col-span-2" />
-              {data.source_record.photos.length > 0 && (
-                <div className="md:col-span-2">
-                  <p className="mb-2 text-xs font-medium text-muted-foreground">{t("dispatches.section.applicationPhotos")}</p>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {data.source_record.photos.map((photo) => (
-                      <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
-                        <Image src={photo.watermarked || photo.image} alt={photo.caption || data.source_record!.reference_no} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
+        </>
+      }
+    >
+      <RecordDetailShell
+        reference={data.dispatch_no}
+        notices={
+          !data.is_editable && data.state !== "CANCELLED" ? (
+            <p className="flex items-start gap-2 rounded-xl border border-panel-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              {t("dispatches.lockedNote")}
+            </p>
+          ) : null
+        }
+        facts={[
+          // Destination
+          {
+            label: t("dispatches.field.project"),
+            value: `${data.project_code} — ${data.project_name}`,
+          },
+          { label: t("dispatches.field.recycler"), value: data.recycler_name },
+          // Load
+          {
+            label: t("dispatches.field.wasteType"),
+            value: t(`dispatches.wasteType.${data.waste_type}`),
+          },
+          {
+            label: t("dispatches.field.estimatedWeight"),
+            value: data.estimated_weight_kg,
+          },
+          // Vehicle
+          { label: t("dispatches.field.vehiclePlate"), value: data.vehicle_plate },
+          { label: t("dispatches.field.driverName"), value: data.driver_name },
+          { label: t("dispatches.field.driverPhone"), value: data.driver_phone },
+          { label: t("dispatches.field.driverIc"), value: data.driver_ic },
+          // Release
+          {
+            label: t("dispatches.field.releasedAt"),
+            value: data.released_at ? df.dateTime(data.released_at) : null,
+          },
+          { label: t("dispatches.field.releasedBy"), value: data.released_by_name },
+          {
+            label: t("dispatches.field.description"),
+            value: data.description,
+            wide: true,
+          },
+          {
+            label: t("dispatches.field.location"),
+            value: coordinates ? (
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-success" />
+                <span className="tabular">{coordinates}</span>
+              </span>
+            ) : null,
+            wide: true,
+          },
+        ]}
+        /*
+          The dispatch's own photographs, which had nowhere to be seen and no
+          way to be added: only the application's photos and the driver's
+          were on this page (F-101).
+        */
+        photos={data.photos.map((photo) => ({
+          id: photo.id,
+          url: photo.watermarked || photo.image,
+          label: t(`dispatches.photoKind.${photo.kind}`),
+        }))}
+        photoActions={
+          can("dispatch.create") ? (
+            <AddDispatchPhoto
+              dispatchId={data.id}
+              onAdded={() =>
+                void queryClient.invalidateQueries({
+                  queryKey: ["dispatch", data.id],
+                })
+              }
+            />
+          ) : null
+        }
+        actions={
+          canRelease || canCancel ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {canRelease && (
+                <Button
+                  size="sm"
+                  className="rounded-full px-4 shadow-sm"
+                  onClick={() => setReleasing(true)}
+                >
+                  <Truck className="h-4 w-4" />
+                  {t("dispatches.release.confirm")}
+                </Button>
               )}
-            </FormSection>
-          )}
-          {/*
-            The dispatch's own photographs, which had nowhere to be seen and no
-            way to be added: only the application's photos and the driver's
-            were on this page (F-101).
-          */}
-          <FormSection title={t("dispatches.section.photos")}>
-            <div className="md:col-span-2">
-              {data.photos.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t("dispatches.noPhotos")}
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {data.photos.map((photo) => (
-                    <a
-                      key={photo.id}
-                      href={photo.watermarked || photo.image}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="overflow-hidden rounded-md border bg-muted/20"
-                    >
-                      <Image
-                        src={photo.watermarked || photo.image}
-                        alt={t(`dispatches.photoKind.${photo.kind}`)}
-                        width={360}
-                        height={270}
-                        unoptimized
-                        className="aspect-[4/3] w-full object-cover"
-                      />
-                    </a>
-                  ))}
-                </div>
-              )}
-              {can("dispatch.create") && (
-                <AddDispatchPhoto
-                  dispatchId={data.id}
-                  onAdded={() =>
-                    void queryClient.invalidateQueries({
-                      queryKey: ["dispatch", data.id],
-                    })
-                  }
-                />
+              {canCancel && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full px-4 text-destructive"
+                  onClick={() => setCancelling(true)}
+                >
+                  <Ban className="h-4 w-4" />
+                  {t("dispatches.cancel.confirm")}
+                </Button>
               )}
             </div>
-          </FormSection>
-
-          <FormSection title={t("dispatches.section.destination")}>
-            <ReadField
-              label={t("dispatches.field.project")}
-              value={`${data.project_code} — ${data.project_name}`}
-            />
-            <ReadField
-              label={t("dispatches.field.recycler")}
-              value={data.recycler_name}
-            />
-          </FormSection>
-
-          <FormSection title={t("dispatches.section.load")}>
-            <ReadField
-              label={t("dispatches.field.wasteType")}
-              value={t(`dispatches.wasteType.${data.waste_type}`)}
-            />
-            <ReadField
-              label={t("dispatches.field.estimatedWeight")}
-              value={data.estimated_weight_kg}
-            />
-            <ReadField
-              label={t("dispatches.field.description")}
-              value={data.description}
-              className="md:col-span-2"
-            />
-          </FormSection>
-
-          <FormSection title={t("dispatches.section.vehicle")}>
-            <ReadField
-              label={t("dispatches.field.vehiclePlate")}
-              value={data.vehicle_plate}
-            />
-            <ReadField
-              label={t("dispatches.field.driverName")}
-              value={data.driver_name}
-            />
-            <ReadField
-              label={t("dispatches.field.driverPhone")}
-              value={data.driver_phone}
-            />
-            <ReadField
-              label={t("dispatches.field.driverIc")}
-              value={data.driver_ic}
-            />
-          </FormSection>
-
-          <FormSection title={t("dispatches.section.release")}>
-            <ReadField
-              label={t("dispatches.field.releasedAt")}
-              value={
-                data.released_at
-                  ? df.dateTime(data.released_at)
-                  : null
-              }
-            />
-            <ReadField
-              label={t("dispatches.field.releasedBy")}
-              value={data.released_by_name}
-            />
-            <ReadField
-              label={t("dispatches.field.location")}
-              value={
-                coordinates ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-success" />
-                    <span className="tabular">{coordinates}</span>
-                  </span>
-                ) : null
-              }
-              className="md:col-span-2"
-            />
-          </FormSection>
-          {(data.source_record_id || data.tasks.length > 0) && (
-            <FormSection title={t("dispatches.section.execution")}>
-              <QueryFailedNote className="md:col-span-2" query={tracking} what={t("dispatches.what.tracking")} />
-              {tracking.isLoading && user?.portal !== "MSE_SCRAP" ? (
-                <p className="md:col-span-2 text-sm text-muted-foreground">{t("common.loading")}</p>
-              ) : execution ? (
-                <>
-                  <ReadField label={t("dispatches.field.collectionPlan")} value={data.confirmed_collection_at ? df.dateTime(data.confirmed_collection_at) : data.proposed_collection_at ? df.dateTime(data.proposed_collection_at) : null} />
-                  <ReadField label={t("dispatches.field.driverName")} value={execution.driver_name} />
-                  <ReadField label={t("dispatches.field.vehiclePlate")} value={execution.vehicle_plate} />
-                  {execution.milestones.length > 0 && <ReadField label={t("dispatches.field.executionProgress")} value={`${execution.milestones.filter((row) => row.done).length}/${execution.milestones.length}`} />}
-                  {(execution.tasks ?? []).map((task) =>
-                    task.latest_position ? (
-                      <ReadField
-                        key={`${task.id}-position`}
-                        label={t("dispatches.field.location")}
-                        value={
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${task.latest_position.latitude},${task.latest_position.longitude}`)}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 text-primary hover:underline"
-                          >
-                            <MapPin className="h-3.5 w-3.5" />
-                            <span className="tabular">
-                              {task.latest_position.latitude}, {task.latest_position.longitude}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {df.dateTime(task.latest_position.occurred_at)}
-                            </span>
-                          </a>
-                        }
-                        className="md:col-span-2"
+          ) : null
+        }
+        panel={
+          <div className="space-y-4">
+            {data.source_record && (
+              <ShellPanel title={t("dispatches.section.application")}>
+                <PanelFacts
+                  facts={[
+                    { label: t("dispatches.field.applicationNo"), value: data.source_record.reference_no },
+                    { label: t("dispatches.field.applicant"), value: data.source_record.submitted_by_name },
+                    { label: t("dispatches.field.approvedBy"), value: data.source_record.reviewed_by_name },
+                    { label: t("dispatches.field.approvedAt"), value: data.source_record.reviewed_at ? df.dateTime(data.source_record.reviewed_at) : null },
+                    { label: t("dispatches.field.applicationNote"), value: data.source_record.note, wide: true },
+                    { label: t("dispatches.field.approvalNote"), value: data.source_record.review_note, wide: true },
+                  ]}
+                />
+                {data.source_record.photos.length > 0 && (
+                  <div className="mt-4">
+                    <p className="mb-2 text-xs font-medium text-muted-foreground">{t("dispatches.section.applicationPhotos")}</p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {data.source_record.photos.map((photo) => (
+                        <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                          <Image src={photo.watermarked || photo.image} alt={photo.caption || data.source_record!.reference_no} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </ShellPanel>
+            )}
+            {(data.source_record_id || data.tasks.length > 0) && (
+              <ShellPanel title={t("dispatches.section.execution")}>
+                <div className="space-y-4">
+                  <QueryFailedNote query={tracking} what={t("dispatches.what.tracking")} />
+                  {tracking.isLoading && user?.portal !== "MSE_SCRAP" ? (
+                    <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
+                  ) : execution ? (
+                    <>
+                      <PanelFacts
+                        facts={[
+                          { label: t("dispatches.field.collectionPlan"), value: data.confirmed_collection_at ? df.dateTime(data.confirmed_collection_at) : data.proposed_collection_at ? df.dateTime(data.proposed_collection_at) : null },
+                          { label: t("dispatches.field.driverName"), value: execution.driver_name },
+                          { label: t("dispatches.field.vehiclePlate"), value: execution.vehicle_plate },
+                          ...(execution.milestones.length > 0
+                            ? [{ label: t("dispatches.field.executionProgress"), value: `${execution.milestones.filter((row) => row.done).length}/${execution.milestones.length}` }]
+                            : []),
+                        ]}
                       />
-                    ) : null,
-                  )}
-                  {(execution.tasks ?? []).some((task) => task.photos.length > 0) && (
-                    <div className="md:col-span-2">
-                      <p className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><Camera className="size-4" />{t("dispatches.section.executionPhotos")}</p>
-                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                        {(execution.tasks ?? []).flatMap((task) => task.photos).map((photo) => (
-                          <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
-                            <Image src={photo.watermarked || photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
-                            <p className="truncate px-2 py-1 text-xs">{photo.caption || photo.kind}</p>
-                          </a>
-                        ))}
+                      {(execution.tasks ?? []).map((task) =>
+                        task.latest_position ? (
+                          <div key={`${task.id}-position`} className="min-w-0">
+                            <p className="text-xs text-muted-foreground">{t("dispatches.field.location")}</p>
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${task.latest_position.latitude},${task.latest_position.longitude}`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="mt-1 inline-flex flex-wrap items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                            >
+                              <MapPin className="h-3.5 w-3.5" />
+                              <span className="tabular">
+                                {task.latest_position.latitude}, {task.latest_position.longitude}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {df.dateTime(task.latest_position.occurred_at)}
+                              </span>
+                            </a>
+                          </div>
+                        ) : null,
+                      )}
+                      {(execution.tasks ?? []).some((task) => task.photos.length > 0) && (
+                        <div>
+                          <p className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><Camera className="size-4" />{t("dispatches.section.executionPhotos")}</p>
+                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            {(execution.tasks ?? []).flatMap((task) => task.photos).map((photo) => (
+                              <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                                <Image src={photo.watermarked || photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
+                                <p className="truncate px-2 py-1 text-xs">{photo.caption || photo.kind}</p>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : null}
+                </div>
+              </ShellPanel>
+            )}
+            {execution?.weighing && (
+              <ShellPanel title={t("dispatches.section.weighing")}>
+                <PanelFacts
+                  facts={[
+                    { label: t("dispatches.field.weighingNo"), value: execution.weighing.session_no },
+                    { label: t("dispatches.field.firstWeight"), value: execution.weighing.first_weight_kg ? `${execution.weighing.first_weight_kg} kg` : null },
+                    { label: t("dispatches.field.secondWeight"), value: execution.weighing.second_weight_kg ? `${execution.weighing.second_weight_kg} kg` : null },
+                    { label: t("dispatches.field.netWeight"), value: execution.weighing.net_weight_kg ? `${execution.weighing.net_weight_kg} kg` : null },
+                  ]}
+                />
+                <div className="mt-3"><PrintTicketButton sessionId={execution.weighing.session_id} sessionNo={execution.weighing.session_no} /></div>
+              </ShellPanel>
+            )}
+            {execution?.settlement && (
+              <ShellPanel title={t("dispatches.section.settlement")}>
+                <PanelFacts
+                  facts={[
+                    { label: t("dispatches.field.settlementNo"), value: execution.settlement.settlement_no ?? null },
+                    { label: t("dispatches.field.settlementState"), value: execution.settlement.state ?? null },
+                    { label: t("settlements.field.deductionWeight"), value: execution.settlement.deduction_weight_kg ? `${execution.settlement.deduction_weight_kg} kg` : "0 kg" },
+                    { label: t("dispatches.field.settledWeight"), value: execution.settlement.settled_weight_kg ? `${execution.settlement.settled_weight_kg} kg` : null },
+                    { label: t("dispatches.field.settlementAmount"), value: execution.settlement.total_amount ? `${execution.settlement.currency} ${execution.settlement.total_amount}` : null },
+                    { label: t("settlements.field.amountPaid"), value: `${execution.settlement.currency} ${execution.settlement.amount_paid}` },
+                    { label: t("settlements.field.outstanding"), value: execution.settlement.outstanding === null ? null : `${execution.settlement.currency} ${execution.settlement.outstanding}` },
+                  ]}
+                />
+                {execution.settlement.deductions.length > 0 && (
+                  <div className="mt-3 divide-y border-y">
+                    {execution.settlement.deductions.map((deduction) => (
+                      <div key={deduction.id} className="py-2 text-sm">
+                        <p className="font-medium">{deduction.kind} · {t("companies.weightKg", { value: deduction.weight_kg })} · {deduction.state}</p>
+                        <p className="mt-0.5 text-muted-foreground">{deduction.reason}</p>
                       </div>
-                    </div>
-                  )}
-                </>
-              ) : null}
-            </FormSection>
-          )}
-          {execution?.weighing && (
-            <FormSection title={t("dispatches.section.weighing")}>
-              <ReadField label={t("dispatches.field.weighingNo")} value={execution.weighing.session_no} />
-              <ReadField label={t("dispatches.field.firstWeight")} value={execution.weighing.first_weight_kg ? `${execution.weighing.first_weight_kg} kg` : null} />
-              <ReadField label={t("dispatches.field.secondWeight")} value={execution.weighing.second_weight_kg ? `${execution.weighing.second_weight_kg} kg` : null} />
-              <ReadField label={t("dispatches.field.netWeight")} value={execution.weighing.net_weight_kg ? `${execution.weighing.net_weight_kg} kg` : null} />
-              <div className="md:col-span-2"><PrintTicketButton sessionId={execution.weighing.session_id} sessionNo={execution.weighing.session_no} /></div>
-            </FormSection>
-          )}
-          {execution?.settlement && (
-            <FormSection title={t("dispatches.section.settlement")}>
-              <ReadField label={t("dispatches.field.settlementNo")} value={execution.settlement.settlement_no ?? null} />
-              <ReadField label={t("dispatches.field.settlementState")} value={execution.settlement.state ?? null} />
-              <ReadField label={t("settlements.field.deductionWeight")} value={execution.settlement.deduction_weight_kg ? `${execution.settlement.deduction_weight_kg} kg` : "0 kg"} />
-              <ReadField label={t("dispatches.field.settledWeight")} value={execution.settlement.settled_weight_kg ? `${execution.settlement.settled_weight_kg} kg` : null} />
-              <ReadField label={t("dispatches.field.settlementAmount")} value={execution.settlement.total_amount ? `${execution.settlement.currency} ${execution.settlement.total_amount}` : null} />
-              <ReadField label={t("settlements.field.amountPaid")} value={`${execution.settlement.currency} ${execution.settlement.amount_paid}`} />
-              <ReadField label={t("settlements.field.outstanding")} value={execution.settlement.outstanding === null ? null : `${execution.settlement.currency} ${execution.settlement.outstanding}`} />
-              {execution.settlement.deductions.length > 0 && (
-                <div className="md:col-span-2 divide-y border-y">
-                  {execution.settlement.deductions.map((deduction) => (
-                    <div key={deduction.id} className="py-2 text-sm">
-                      <p className="font-medium">{deduction.kind} · {t("companies.weightKg", { value: deduction.weight_kg })} · {deduction.state}</p>
-                      <p className="mt-0.5 text-muted-foreground">{deduction.reason}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {execution.settlement.payments.length > 0 && (
-                <div className="md:col-span-2 divide-y border-y">
-                  {execution.settlement.payments.map((payment) => (
-                    <div key={payment.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-                      <span>{payment.method}{payment.reference ? ` · ${payment.reference}` : ""}</span>
-                      <span className="font-medium tabular-nums">{execution.settlement!.currency} {payment.amount} · {df.date(payment.paid_on)}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </FormSection>
-          )}
-          {data.events.length > 0 && (
-            <section className="px-4 py-5 sm:px-6">
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
-                <Clock3 className="h-4 w-4 text-primary" />
-                {t("dispatches.section.timeline")}
-              </h3>
+                    ))}
+                  </div>
+                )}
+                {execution.settlement.payments.length > 0 && (
+                  <div className="mt-3 divide-y border-y">
+                    {execution.settlement.payments.map((payment) => (
+                      <div key={payment.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                        <span>{payment.method}{payment.reference ? ` · ${payment.reference}` : ""}</span>
+                        <span className="font-medium tabular-nums">{execution.settlement!.currency} {payment.amount} · {df.date(payment.paid_on)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ShellPanel>
+            )}
+          </div>
+        }
+        aside={
+          data.events.length > 0 ? (
+            <ShellPanel
+              title={t("dispatches.section.timeline")}
+              aside={<Clock3 className="h-4 w-4 text-primary" />}
+            >
               <ol>
                 {data.events.map((event, index) => (
                   <li key={event.id} className="relative flex gap-3 pb-5 last:pb-0">
@@ -488,10 +508,10 @@ export function ViewDispatch({ id }: { id: string }) {
                   </li>
                 ))}
               </ol>
-            </section>
-          )}
-        </div>
-      </div>
+            </ShellPanel>
+          ) : null
+        }
+      />
 
       {!isRecycler && releasing && (
         <ReleaseDialog id={id} onClose={() => setReleasing(false)} />
@@ -515,7 +535,7 @@ export function ViewDispatch({ id }: { id: string }) {
           onConfirm={() => cancellation.mutate()}
         />
       )}
-    </div>
+    </RecordDetailFrame>
   );
 }
 

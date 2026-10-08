@@ -113,8 +113,16 @@ function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
   }
 
   return (
-    <FormSection title={t("title")} className="md:grid-cols-[auto_minmax(0,1fr)]">
-      <div className="mx-auto rounded-lg border bg-white p-4 shadow-sm">
+    // The QR column and the text column are fixed at two from `md` up, also
+    // at `xl` where a page-surface FormSection would otherwise split into
+    // three and push the 220px code over the text (A2).
+    <FormSection
+      title={t("title")}
+      className="md:grid-cols-[auto_minmax(0,1fr)] xl:grid-cols-[auto_minmax(0,1fr)]"
+    >
+      {/* self-start + h-fit: the white card wraps the code only, instead of
+          stretching to the height of the text column beside it. */}
+      <div className="mx-auto h-fit max-w-full self-start rounded-lg border bg-paper p-4">
         <QRCodeCanvas
           ref={qrRef}
           value={scanUrl}
@@ -124,6 +132,10 @@ function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
           bgColor="#ffffff"
           fgColor="#111827"
           title={supplier.code}
+          className="h-auto max-w-full"
+          // qrcode.react writes width/height inline; the inline style is the
+          // only thing that can let the canvas shrink on a narrow screen.
+          style={{ maxWidth: "100%", height: "auto" }}
         />
       </div>
       <div className="min-w-0 space-y-4">
@@ -170,7 +182,7 @@ function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
             {t("regenerate")}
           </Button>
         </div>
-        <p className="flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
+        <p className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
           <QrCode className="mt-0.5 size-4 shrink-0" />
           {t("scanHelp")}
         </p>

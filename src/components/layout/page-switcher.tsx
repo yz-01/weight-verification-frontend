@@ -3,6 +3,7 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCurrentNav } from "@/hooks/use-current-nav";
 import type { FeatureNavChild } from "@/lib/navigation";
+import { isReportCenterPage } from "@/lib/report-menu";
 
 /**
  * The compact switcher at the top right of a page under an entry (B04).
@@ -26,12 +28,17 @@ import type { FeatureNavChild } from "@/lib/navigation";
  * 退回上一个页面去打开另外一个子栏目」. It lists the same pages as the
  * sidebar's menu for this entry, levels included, and nothing the sidebar
  * would not show this person. Shown only where there is somewhere else to go.
+ *
+ * Not on a report: 【选择报表】 on the page is the same menu with its
+ * categories, and two copies of one menu is one too many (X15, B12).
  */
 export function PageSwitcher() {
   const t = useTranslations();
+  const pathname = usePathname();
   const current = useCurrentNav();
   const pages = current?.item.children ?? [];
   if (!current?.leaf || countPages(pages) < 2) return null;
+  if (isReportCenterPage(pathname)) return null;
   const here = current.leaf;
 
   return (
@@ -40,7 +47,7 @@ export function PageSwitcher() {
         <Button
           variant="outline"
           size="sm"
-          className="h-9 min-w-0 max-w-56 shrink gap-1.5 bg-card px-2.5 shadow-sm"
+          className="h-10 min-w-0 max-w-56 shrink gap-2 bg-card px-3"
           aria-label={t("pageSwitcher.label", { page: t(here.labelKey) })}
           title={t("pageSwitcher.label", { page: t(here.labelKey) })}
         >

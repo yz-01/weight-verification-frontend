@@ -63,7 +63,7 @@ export function Scales() {
                 goes looking for an expiry date they have not been shown. */}
             {row.original.calibration_expired && (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[0.6875rem] font-medium text-destructive ring-1 ring-inset ring-destructive/25"
+                className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-1.5 py-0.5 text-2xs font-medium text-destructive ring-1 ring-inset ring-destructive/25"
                 title={t("scales.calibrationHint")}
               >
                 <TriangleAlert className="h-2.5 w-2.5" />
@@ -85,10 +85,10 @@ export function Scales() {
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[220px] truncate font-medium text-foreground">
+            <p className="max-w-55 truncate font-medium text-foreground">
               {row.original.name}
             </p>
-            <p className="max-w-[220px] truncate text-xs text-muted-foreground">
+            <p className="max-w-55 truncate text-xs text-muted-foreground">
               {row.original.site_name}
             </p>
           </div>
@@ -98,7 +98,7 @@ export function Scales() {
         accessorKey: "protocol",
         meta: { label: t("scales.field.protocol") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("scales.field.protocol")}
           </span>
         ),
@@ -112,17 +112,17 @@ export function Scales() {
         accessorKey: "capacity_kg",
         meta: { label: t("scales.field.capacityKg") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("scales.field.capacityKg")}
           </span>
         ),
         cell: ({ row }) =>
           row.original.capacity_kg ? (
-            <span className="tabular">
+            <span className="tabular block text-right">
               {Number(row.original.capacity_kg).toLocaleString()}
             </span>
           ) : (
-            <span className="italic text-muted-foreground">
+            <span className="block text-right italic text-muted-foreground">
               {t("common.emptyValue")}
             </span>
           ),
@@ -131,12 +131,12 @@ export function Scales() {
         accessorKey: "gateway_count",
         meta: { label: t("scales.field.gatewayCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("scales.field.gatewayCount")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="inline-flex items-center gap-1.5">
+          <span className="flex items-center justify-end gap-1.5">
             <RadioTower className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="tabular">{row.original.gateway_count ?? 0}</span>
           </span>
@@ -176,7 +176,7 @@ export function Scales() {
         accessorKey: "is_active",
         meta: { label: t("scales.field.isActive") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("scales.field.isActive")}
           </span>
         ),
@@ -237,9 +237,9 @@ export function Scales() {
         subtitle={isLoading ? "—" : t("scales.count", { count: totalCount })}
         action={
           can("scale.manage") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/scales/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("scales.new")}
               </Link>
             </Button>

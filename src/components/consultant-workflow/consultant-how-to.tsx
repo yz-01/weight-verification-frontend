@@ -25,14 +25,14 @@ export function ConsultantHowTo({
   const t = useTranslations("consultantWorkflow.howTo");
   const steps = ["create", "submit", "decide"] as const;
   return (
-    <details open={defaultOpen} className="rounded-lg border bg-primary/5 px-4 py-3">
-      <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
+    <details open={defaultOpen} className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+      <summary className="flex min-h-10 cursor-pointer items-center gap-2 text-sm font-semibold">
         <BookOpen className="size-4 text-primary" />
         {t("title")}
       </summary>
       <ol className="mt-3 grid gap-3 sm:grid-cols-3">
         {steps.map((step, index) => (
-          <li key={step} className="rounded-md border bg-card p-3">
+          <li key={step} className="rounded-lg border bg-card p-3">
             <p className="text-xs font-semibold text-primary">{t("stepNumber", { number: index + 1 })}</p>
             <p className="mt-1 text-sm font-medium">{t(`${step}.title`)}</p>
             <p className="mt-1 text-xs text-muted-foreground">{t(`${step}.body`)}</p>

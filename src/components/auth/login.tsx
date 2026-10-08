@@ -77,21 +77,21 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
   });
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <header className="flex items-center justify-between px-6 py-5 lg:px-10">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border bg-background p-1">
+    <div className="flex min-h-dvh flex-col">
+      <header className="flex items-center justify-between gap-3 px-4 pt-safe pb-3 sm:px-6 lg:px-10">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-panel-border bg-card p-1 shadow-glow-sm">
             <BrandIcon alt={t("app.name")} />
           </span>
-          <span className="text-sm font-semibold tracking-tight">
+          <span className="truncate text-sm font-semibold tracking-tight">
             {t("app.name")}
           </span>
         </div>
         <LanguageSwitcher />
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-6 pb-16">
-        <div className="w-full max-w-[400px]">
+      <main className="flex flex-1 items-center justify-center px-4 pb-16 sm:px-6">
+        <div className="w-full max-w-100">
           <div className="mb-8">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {PORTAL_LABELS[portal]} {t("auth.login.title")}
@@ -101,7 +101,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
             </p>
           </div>
 
-          <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <div className="surface-panel rounded-xl p-4 sm:p-6">
             <form
               className="space-y-4"
               onSubmit={(event) => {
@@ -161,7 +161,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
                       </Label>
                       <Link
                         href={portalPaths(portal).forgot}
-                        className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                        className="inline-flex min-h-10 items-center text-xs text-muted-foreground transition-colors hover:text-foreground"
                       >
                         {t("auth.login.forgot")}
                       </Link>
@@ -187,7 +187,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
               {formError && (
                 <div
                   role="alert"
-                  className="rounded-md border border-destructive/25 bg-destructive/8 px-3 py-2.5 text-sm text-destructive"
+                  className="rounded-lg border border-destructive/25 bg-destructive/8 px-3 py-2.5 text-sm text-destructive"
                 >
                   {formError}
                 </div>
@@ -197,9 +197,8 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
                 {(isSubmitting) => (
                   <Button
                     type="submit"
-                    size="sm"
                     disabled={isSubmitting}
-                    className="w-full rounded-full shadow-sm"
+                    className="w-full"
                   >
                     {isSubmitting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

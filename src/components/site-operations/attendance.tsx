@@ -77,7 +77,19 @@ export function Attendance() {
   const df = useDateFormat();
   const { can, user } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery(["project", "event"]);
+  // `geofence_result` and the dates arrive from the dashboard's 越界打卡
+  // figure (C15), which opens this list filtered the way it counted.
+  const list = useListQuery([
+    "project",
+    "event",
+    "geofence_result",
+    "date_from",
+    "date_to",
+    // One person's day, from a row of the dashboard's 今日进出打卡 card (B8).
+    "user",
+  ]);
+  const dateFrom = list.filters.date_from;
+  const dateTo = list.filters.date_to;
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<ClockDraft>(EMPTY_DRAFT);
   const [locating, setLocating] = useState(false);
@@ -250,7 +262,7 @@ export function Attendance() {
         title={t("attendance.title")}
         subtitle={isLoading ? t("common.loading") : t("attendance.count", { count: total })}
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <ProjectPicker
               value={selectedProject}
               onValueChange={(value) =>
@@ -259,10 +271,10 @@ export function Attendance() {
               placeholder={t("attendance.filter.project")}
               allowAll
               allLabel={t("attendance.filter.allProjects")}
-              className="hidden w-[220px] sm:flex"
+              className="hidden w-55 sm:flex"
             />
             {can("attendance.clock") && (
-              <Button size="sm" onClick={openClockDialog}>
+              <Button onClick={openClockDialog}>
                 <LogIn className="h-4 w-4" />
                 {t("attendance.clock.action")}
               </Button>
@@ -299,6 +311,46 @@ export function Attendance() {
             active: list.filters.event === event,
             onSelect: () => list.setFilter("event", event),
           })),
+          {
+            key: "outside",
+            label: t("attendance.filter.outsideFence"),
+            active: list.filters.geofence_result === "OUTSIDE",
+            onSelect: () =>
+              list.setFilter(
+                "geofence_result",
+                list.filters.geofence_result === "OUTSIDE" ? undefined : "OUTSIDE",
+              ),
+          },
+          // Shown only while a date came in with the link, so the reader can
+          // see why the list is short and take the limit off.
+          ...(dateFrom || dateTo
+            ? [
+                {
+                  key: "dates",
+                  label:
+                    dateFrom && dateFrom === dateTo
+                      ? t("attendance.filter.onDay", { date: df.date(dateFrom) })
+                      : t("attendance.filter.since", { date: df.date(dateFrom ?? dateTo) }),
+                  active: true,
+                  onSelect: () =>
+                    list.setFilters({ date_from: undefined, date_to: undefined }),
+                },
+              ]
+            : []),
+          ...(list.filters.user
+            ? [
+                {
+                  key: "person",
+                  label: t("attendance.filter.onePerson", {
+                    name:
+                      data?.results.find((row) => row.user === list.filters.user)
+                        ?.user_name ?? "…",
+                  }),
+                  active: true,
+                  onSelect: () => list.setFilter("user", undefined),
+                },
+              ]
+            : []),
         ]}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

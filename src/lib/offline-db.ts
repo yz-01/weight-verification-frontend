@@ -9,12 +9,14 @@ export type OfflineJobKind =
   | "EQUIPMENT_MOVEMENT"
   | "SITE_PROGRESS"
   | "MATERIAL_OUTGOING"
+  | "MATERIAL_OUTGOING_EXIT"
   | "SUNDRY_CLAIM"
   | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
   | "CONSULTANT_SUBMISSION"
   | "CATEGORY_EVIDENCE"
+  | "EQUIPMENT_HOURS_PHOTO"
   | "DISPATCH_ACCEPT"
   | "DISPATCH_COLLECT"
   | "TRIP_ASSIGN";
@@ -37,6 +39,12 @@ interface OfflineJobBase {
   lastErrorStatus?: number;
   /** The server's code for the last refusal, e.g. `task_already_running`. */
   lastErrorCode?: string;
+  /**
+   * The server refused it (a 4xx), so sending the same thing again cannot
+   * succeed: the automatic passes leave it alone and it shows 「需要处理」
+   * until the worker presses 立即重试 or discards it (A9).
+   */
+  needsAttention?: boolean;
 }
 
 export interface AttendanceOfflineJob extends OfflineJobBase {
@@ -143,11 +151,15 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       material_name: string;
       material_specification?: string;
       quantity: string;
-      unit: "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
+      /** A code from the company's unit list (2026-10 A4). */
+      unit: string;
+      /** The factory that made it (2026-10 D1). Absent on jobs queued before it. */
+      manufacturer?: string | null;
       total_weight_kg?: string | null;
       /** The material column, or null for a delivery taken unfiled. */
       category?: string | null;
       unit_price?: string | null;
+      document_amount?: string | null;
       vehicle_plate?: string;
       delivery_note_no?: string;
       notes?: string;
@@ -171,6 +183,22 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
 export interface EquipmentMovementOfflineJob extends OfflineJobBase {
   kind: "EQUIPMENT_MOVEMENT";
   payload: {
+    /**
+     * 设备进场 in one step (2026-10 X2, C8): sent to `record_entry`, not to
+     * the handover of an application. Absent on older queued jobs.
+     */
+    entry?: boolean;
+    /**
+     * 设备退场 in one step (2026-10 Q27): sent to `record_exit`. Like the
+     * entry, no quantity, unit or application.
+     */
+    exit?: boolean;
+    /** A 「新设备」 reported from the phone: its name, `equipment` empty. */
+    equipment_name?: string;
+    /** …and its plate, if it has one (optional). */
+    registration_no?: string;
+    /** The supplier whose QR was scanned at the gate (F3). */
+    supplier?: string;
     project: string;
     equipment: string;
     direction: "ENTRY" | "EXIT";
@@ -184,6 +212,11 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     accuracy_m?: string;
     notes?: string;
     ocr_confirmed?: boolean;
+    /**
+     * The signed read the phone made of the DO photo. The handover keeps it
+     * instead of running OCR inside the upload (A9).
+     */
+    ocr_proof?: string;
     original_occurred_at: string;
     client_event_id: string;
     field_task?: string;
@@ -201,7 +234,7 @@ export interface SiteProgressOfflineJob extends OfflineJobBase {
   kind: "SITE_PROGRESS";
   payload: {
     project: string;
-    category: string;
+    category?: string;
     phase: string;
     percent_complete: string;
     description?: string;
@@ -218,10 +251,15 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   kind: "MATERIAL_OUTGOING";
   payload: {
     project: string;
-    /** A return to the supplier (A02, B11): supplier, then that supplier's delivery. */
+    /**
+     * Since 2026-10 C9 the supplier is optional and no delivery is chosen
+     * (X20); `source_receipt` stays for a job an older build queued.
+     */
     supplier?: string;
     source_receipt?: string;
     category?: string;
+    /** Whose make (2026-10 D1); the delivery's own when absent. */
+    manufacturer?: string;
     material_name?: string;
     quantity: string;
     unit?: string;
@@ -236,6 +274,35 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     field_task?: string;
     photos: StoredFile[];
     photo_captions?: string[];
+  };
+}
+
+/**
+ * 现场实际退场 of an approved return (2026-10 C9, Q29.3): the photos, how
+ * much actually left, the plate, the DO, the supplier and both signatures,
+ * sent to `return_processing`. `client_event_id` is minted once on the phone
+ * and sent on every try, so a replay of an exit that already arrived gets
+ * that exit back instead of a refusal.
+ */
+export interface MaterialOutgoingExitOfflineJob extends OfflineJobBase {
+  kind: "MATERIAL_OUTGOING_EXIT";
+  payload: {
+    /** The approved application this exit belongs to. */
+    outgoing: string;
+    /** Its number, so the queue says which return is waiting. */
+    reference_no: string;
+    returned_quantity: string;
+    note?: string;
+    latitude?: string;
+    longitude?: string;
+    vehicle_plate?: string;
+    delivery_note_no?: string;
+    supplier?: string;
+    category?: string;
+    client_event_id: string;
+    photos: StoredFile[];
+    site_signature: StoredFile;
+    supplier_signature: StoredFile;
   };
 }
 
@@ -275,13 +342,15 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
   kind: "DISPOSAL_REQUEST";
   payload: {
     project: string;
-    category: string;
+    category?: string;
     waste_description: string;
     location_description: string;
     estimated_volume_m3?: string;
     estimated_weight_kg?: string;
     preferred_at?: string;
     request_note?: string;
+    /** 「预计车次」 (X11); absent on a job queued before it existed. */
+    planned_trips?: string;
     captured_at: string;
     latitude: string;
     longitude: string;
@@ -308,6 +377,7 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
     photos: StoredFile[];
     notify_users?: string[];
     record_type?: "HAZARD" | "PERMIT";
+    /** Only on reports queued before X8; dropped when they are sent. */
     confirmer?: string;
     responsible_person?: string;
     due_at?: string;
@@ -319,7 +389,7 @@ export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
   kind: "CONSULTANT_SUBMISSION";
   payload: {
     project: string;
-    category: string;
+    category?: string;
     note?: string;
     application_category: string;
     description: string;
@@ -387,6 +457,26 @@ export interface TripAssignOfflineJob extends OfflineJobBase {
   };
 }
 
+/**
+ * 设备操作员工时 (2026-10 B15): one photo of one machine, taken when the
+ * operator starts or stops it. `capturedAt` is the moment of the photo - the
+ * hours are counted from it, however late the job reaches the server.
+ */
+export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
+  kind: "EQUIPMENT_HOURS_PHOTO";
+  payload: {
+    equipment: string;
+    /** 「名称 · 车牌」, so the queue says which machine is waiting. */
+    equipmentLabel: string;
+    capturedAt: string;
+    clientEventId: string;
+    latitude?: string;
+    longitude?: string;
+    locationAccuracyM?: string;
+    photo: StoredFile;
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
@@ -398,12 +488,14 @@ export type OfflineJob =
   | EquipmentMovementOfflineJob
   | SiteProgressOfflineJob
   | MaterialOutgoingOfflineJob
+  | MaterialOutgoingExitOfflineJob
   | SundryClaimOfflineJob
   | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
   | ConsultantSubmissionOfflineJob
   | CategoryEvidenceOfflineJob
+  | EquipmentHoursPhotoOfflineJob
   | DispatchAcceptOfflineJob
   | DispatchCollectOfflineJob
   | TripAssignOfflineJob;

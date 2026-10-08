@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
   Calculator,
+  ChevronLeft,
+  ChevronRight,
   FilterX,
   Package,
   ReceiptText,
@@ -13,13 +15,21 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
+import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { ExportButton } from "@/components/shared/export-button";
 import { ReportSelector, useMaterialColumns } from "@/components/reports/report-selector";
-import { ListHeader, QueryFailedNote, TypeBadge } from "@/components/shared/page-primitives";
+import { FilterBar, FilterField, ListHeader, QueryFailedNote, TypeBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -29,9 +39,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useListQuery } from "@/hooks/use-list-query";
-import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
+import { PAGE_SIZE_OPTIONS, useListQuery } from "@/hooks/use-list-query";
+import { type MaterialReceipt } from "@/interfaces/contractor";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
+import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
+import { materialExportSubtitle } from "@/lib/report-menu";
+import { cn } from "@/lib/utils";
 import {
   exportReceipts,
   getReceipt,
@@ -48,14 +63,19 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // `category` and `supplier` are the 【选择报表】 levels under the report
   // (B04): the figures, the records, their photos and the export all read
   // them from the address, so one choice updates all four together.
-  const list = useListQuery(["project", "date_from", "date_to", "category", "supplier"]);
+  const list = useListQuery(["project", "date_from", "date_to", "category", "supplier", "manufacturer"]);
+  const topBar = useCurrentProject();
+  const projectBoxShown = can("project.view") && !topBar.active;
   const filters = {
     project: list.filters.project,
     date_from: list.filters.date_from,
     date_to: list.filters.date_to,
     category: list.filters.category,
     supplier: list.filters.supplier,
+    // Whose make (2026-10 D1): the figures, the records and the export.
+    manufacturer: list.filters.manufacturer,
   };
+  const unitValues = useUnitExportValues();
 
   const summary = useQuery({
     queryKey: ["receipts", "summary", mode, filters],
@@ -71,19 +91,36 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const supplierName = filters.supplier
     ? summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name
     : t("reportSelector.allSuppliers");
-  const chosen = [
-    t(`materialReports.${mode}.title`),
-    materialName ?? "…",
-    supplierName ?? "…",
-  ].join(" › ");
+  const level = [materialName ?? "…", supplierName ?? "…"].join(" › ");
+  const chosen = [t(`materialReports.${mode}.title`), level].join(" › ");
 
   function runExport(format: ExportFormat) {
     return exportReceipts({
       format,
       title: t(`materialReports.${mode}.title`),
-      subtitle: t("materialReports.export.subtitle"),
+      // What the file was narrowed to: the period and the level (B3 #15).
+      subtitle: materialExportSubtitle(t, {
+        level,
+        dateFrom: filters.date_from,
+        dateTo: filters.date_to,
+      }),
       emptyLabel: t("table.noResults"),
       query: filters,
+      // The file ends with each material's 累计总数量 (E5, Q24).
+      summary:
+        mode === "quantity"
+          ? {
+              groupBy: "material_cumulative",
+              title: t("materialReports.export.cumulativeTitle"),
+              materialLabel: t("reports.receipts.material"),
+              specificationLabel: t("receipts.field.materialSpecification"),
+              unitLabel: t("reports.receipts.unit"),
+              quantityLabel: t("materialReports.export.periodQuantity"),
+              cumulativeLabel: t("receipts.field.cumulativeQuantity"),
+              countLabel: t("reports.receipts.deliveries"),
+              note: t("materialReports.quantity.cumulativeHint"),
+            }
+          : undefined,
       columns:
         mode === "quantity"
           ? [
@@ -91,15 +128,17 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
               { key: "supplier_name", label: t("receipts.field.supplier") },
+              // DO and plate head every delivery (2026-10 C12).
+              { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
+              { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
+              { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
               { key: "material_name", label: t("receipts.field.materialName") },
               { key: "quantity", label: t("receipts.field.quantity") },
               { key: "cumulative_quantity", label: t("receipts.field.cumulativeQuantity") },
               {
                 key: "unit",
                 label: t("receipts.field.unit"),
-                values: Object.fromEntries(
-                  MATERIAL_UNITS.map((unit) => [unit, t(`receipts.unit.${unit}`)]),
-                ),
+                values: unitValues,
               },
             ]
           : [
@@ -107,14 +146,16 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
               { key: "supplier_name", label: t("receipts.field.supplier") },
+              // DO and plate head every delivery (2026-10 C12).
+              { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
+              { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
+              { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
               { key: "material_name", label: t("receipts.field.materialName") },
               { key: "quantity", label: t("receipts.field.quantity") },
               {
                 key: "unit",
                 label: t("receipts.field.unit"),
-                values: Object.fromEntries(
-                  MATERIAL_UNITS.map((unit) => [unit, t(`receipts.unit.${unit}`)]),
-                ),
+                values: unitValues,
               },
               { key: "unit_price", label: t("receipts.field.unitPrice") },
               { key: "total_value", label: t("receipts.field.totalValue") },
@@ -124,6 +165,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
 
   return (
     <div className="space-y-4">
+      <CompanyBanner scope="reports" />
       <ReportSelector summary={chosen} />
       <ListHeader
         title={t(`materialReports.${mode}.title`)}
@@ -136,10 +178,10 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         ) : undefined}
       />
 
-      <div className="grid gap-3 rounded-lg border bg-card/50 p-4 shadow-sm md:grid-cols-[minmax(220px,1fr)_180px_180px_auto] md:items-end">
-        {can("project.view") && (
-          <div className="space-y-1.5">
-            <Label>{t("reports.filter.project")}</Label>
+      <FilterBar>
+        {/* Not beside the top bar's 「当前项目」, which is this filter (B13). */}
+        {projectBoxShown && (
+          <FilterField label={t("reports.filter.project")} className="sm:w-64">
             <ProjectPicker
               value={list.filters.project ?? "all"}
               onValueChange={(value) =>
@@ -150,10 +192,18 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               allLabel={t("reports.filter.allProjects")}
               className="w-full"
             />
-          </div>
+          </FilterField>
         )}
-        <div className="space-y-1.5">
-          <Label>{t("reports.filter.dateFrom")}</Label>
+        <FilterField label={t("receipts.field.manufacturer")} className="sm:w-52">
+          <SupplierDateFilter
+            value={{ manufacturer: list.filters.manufacturer }}
+            onChange={(next) => list.setFilter("manufacturer", next.manufacturer)}
+            showSupplier={false}
+            showDates={false}
+            showManufacturer
+          />
+        </FilterField>
+        <FilterField label={t("reports.filter.dateFrom")} className="sm:w-44">
           <Input
             type="date"
             value={list.filters.date_from ?? ""}
@@ -161,9 +211,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               list.setFilter("date_from", event.target.value || undefined)
             }
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label>{t("reports.filter.dateTo")}</Label>
+        </FilterField>
+        <FilterField label={t("reports.filter.dateTo")} className="sm:w-44">
           <Input
             type="date"
             value={list.filters.date_to ?? ""}
@@ -171,7 +220,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               list.setFilter("date_to", event.target.value || undefined)
             }
           />
-        </div>
+        </FilterField>
         <Button
           variant="outline"
           disabledReason={
@@ -180,10 +229,10 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
           disabled={!list.hasFilters}
           onClick={list.clearFilters}
         >
-          <FilterX className="h-4 w-4" />
+          <FilterX className="size-4" />
           {t("reports.filter.clear")}
         </Button>
-      </div>
+      </FilterBar>
 
       {summary.isLoading ? (
         <ReportSkeleton />
@@ -197,36 +246,62 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         <CostReport data={summary.data} />
       )}
 
-      {(summary.data?.total_receipts ?? 0) > 0 && <ReportRecords filters={filters} />}
+      {(summary.data?.total_receipts ?? 0) > 0 && (
+        <ReportRecords
+          filters={filters}
+          page={list.page}
+          pageSize={list.pageSize}
+          onPageChange={list.setPage}
+          onPageSizeChange={list.setPageSize}
+        />
+      )}
     </div>
   );
 }
 
-const RECORDS_SHOWN = 10;
 const THUMBNAILS = 3;
 
 /**
- * The deliveries behind the figures, newest first, with their photographs
- * (图7 「相关照片」). Each row opens the delivery itself, where every photo
- * is shown whole with its watermark.
+ * 「收货明细」 (Q11): the deliveries behind the figures, newest first, with
+ * their photographs. A supplier can have hundreds of deliveries, so the list
+ * pages through all of them (B10) instead of stopping at the first ten; the
+ * page and page size live in the address like every other list. Each row
+ * opens the delivery itself, where every photo is shown whole with its
+ * watermark.
  */
-function ReportRecords({ filters }: { filters: Record<string, string | undefined> }) {
+function ReportRecords({
+  filters,
+  page,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  filters: Record<string, string | undefined>;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const df = useDateFormat();
   const records = useQuery({
-    queryKey: ["receipts", "report-records", filters],
+    queryKey: ["receipts", "report-records", filters, page, pageSize],
     queryFn: () =>
       // Newest first is the endpoint's own order (`-captured_at`).
-      getReceipts({ ...filters, page_size: RECORDS_SHOWN }),
+      getReceipts({ ...filters, page, page_size: pageSize }),
+    // The last page stays up while the next loads - but not another
+    // project's rows when the top bar moves (B13).
+    placeholderData: (previous, previousQuery) =>
+      (previousQuery?.queryKey[2] as { project?: string } | undefined)?.project ===
+      (filters as { project?: string }).project
+        ? previous
+        : undefined,
   });
   const rows = records.data?.results ?? [];
+  const total = records.data?.count ?? 0;
   return (
-    <ReportTable
-      title={t("materialReports.records.title", {
-        shown: rows.length,
-        total: records.data?.count ?? 0,
-      })}
-    >
+    <ReportTable title={t("materialReports.records.title", { total })}>
       <QueryFailedNote query={records} what={t("materialReports.records.what")} />
       <Table>
         <TableHeader>
@@ -234,6 +309,7 @@ function ReportRecords({ filters }: { filters: Record<string, string | undefined
             <TableHead>{t("receipts.field.capturedAt")}</TableHead>
             <TableHead>{t("receipts.field.receiptNo")}</TableHead>
             <TableHead>{t("receipts.field.supplier")}</TableHead>
+            <TableHead>{t("receipts.field.manufacturer")}</TableHead>
             <TableHead>{t("receipts.field.materialName")}</TableHead>
             <TableHead className="text-right">{t("receipts.field.quantity")}</TableHead>
             <TableHead>{t("materialReports.records.photos")}</TableHead>
@@ -246,9 +322,12 @@ function ReportRecords({ filters }: { filters: Record<string, string | undefined
               <TableCell className="tabular text-muted-foreground">{df.dateTime(row.captured_at)}</TableCell>
               <TableCell className="tabular font-medium">{row.receipt_no}</TableCell>
               <TableCell>{row.supplier_name}</TableCell>
+              <TableCell>
+                <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
+              </TableCell>
               <TableCell>{row.material_name}</TableCell>
               <TableCell className="tabular text-right">
-                {row.quantity} {t(`receipts.unit.${row.unit}`)}
+                {row.quantity} {unitName(row.unit, row.unit_label)}
               </TableCell>
               <TableCell>
                 <RecordPhotos record={row} />
@@ -262,7 +341,91 @@ function ReportRecords({ filters }: { filters: Record<string, string | undefined
           ))}
         </TableBody>
       </Table>
+      <RecordsPager
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
     </ReportTable>
+  );
+}
+
+/** Previous / next and rows per page under 「收货明细」. */
+function RecordsPager({
+  page,
+  pageSize,
+  total,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  page: number;
+  pageSize: number;
+  total: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}) {
+  const t = useTranslations();
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, total);
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-panel-border px-4 py-3">
+      <p className="text-xs text-muted-foreground">
+        {total === 0
+          ? t("table.showingEmpty")
+          : t("table.showing", { from, to, total })}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value) => onPageSizeChange(Number(value))}
+        >
+          <SelectTrigger
+            size="sm"
+            aria-label={t("table.perPage")}
+            className="h-9 rounded-full border-border bg-card text-xs pointer-coarse:h-10"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZE_OPTIONS.map((option) => (
+              <SelectItem key={option} value={String(option)}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 rounded-full border-border bg-card px-3 text-xs pointer-coarse:h-10"
+          disabledReason={page <= 1 ? t("common.alreadyFirstPage") : undefined}
+          disabled={page <= 1}
+          onClick={() => onPageChange(page - 1)}
+        >
+          <ChevronLeft className="size-3.5" />
+          {t("table.previous")}
+        </Button>
+        <span className="tabular px-1 text-xs text-muted-foreground">
+          {page} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 rounded-full border-border bg-card px-3 text-xs pointer-coarse:h-10"
+          disabledReason={
+            page >= totalPages ? t("common.alreadyLastPage") : undefined
+          }
+          disabled={page >= totalPages}
+          onClick={() => onPageChange(page + 1)}
+        >
+          {t("table.next")}
+          <ChevronRight className="size-3.5" />
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -291,7 +454,7 @@ function RecordPhotos({ record }: { record: MaterialReceipt }) {
           href={photo.watermarked || photo.image}
           target="_blank"
           rel="noreferrer"
-          className="relative block size-10 overflow-hidden rounded border bg-muted"
+          className="relative block size-8 overflow-hidden rounded-md border bg-muted"
         >
           <Image
             src={photo.watermarked || photo.image}
@@ -311,13 +474,13 @@ function RecordPhotos({ record }: { record: MaterialReceipt }) {
 
 function ReportSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
         {[0, 1, 2].map((value) => (
-          <Skeleton key={value} className="h-24 rounded-lg" />
+          <Skeleton key={value} className="h-8 w-40 rounded-lg" />
         ))}
       </div>
-      <Skeleton className="h-72 rounded-lg" />
+      <Skeleton className="h-72 rounded-xl" />
     </div>
   );
 }
@@ -328,13 +491,14 @@ function QuantityReport({
   data: Awaited<ReturnType<typeof getReceiptSummary>> | undefined;
 }) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const formatter = useFormatter();
 
   if (!data || data.total_receipts === 0) return <EmptyReport />;
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-3">
+      <MetricRow>
         <Metric
           icon={ReceiptText}
           label={t("materialReports.quantity.totalDeliveries")}
@@ -344,20 +508,25 @@ function QuantityReport({
           <Metric
             key={row.unit}
             icon={Package}
-            label={t(`receipts.unit.${row.unit}`)}
+            label={unitName(row.unit)}
             value={row.quantity}
             detail={t("materialReports.quantity.deliveryCount", {
               count: row.receipts,
             })}
           />
         ))}
-      </div>
+      </MetricRow>
 
       <ReportTable title={t("materialReports.quantity.byMaterial")}>
+        {/* 数量 is the period, 累计数量 from the first delivery (E5, Q24). */}
+        <p className="px-3 py-1.5 text-xs text-muted-foreground">
+          {t("materialReports.quantity.cumulativeHint")}
+        </p>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t("reports.receipts.material")}</TableHead>
+              <TableHead>{t("receipts.field.materialSpecification")}</TableHead>
               <TableHead>{t("reports.receipts.unit")}</TableHead>
               <TableHead className="text-right">{t("reports.receipts.quantity")}</TableHead>
               <TableHead className="text-right">{t("receipts.field.cumulativeQuantity")}</TableHead>
@@ -365,12 +534,15 @@ function QuantityReport({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.by_material.map((row) => (
-              <TableRow key={`${row.material_name}-${row.unit}`}>
+            {data.quantity_by_material.map((row) => (
+              <TableRow key={`${row.material_name}-${row.material_specification}-${row.unit}`}>
                 <TableCell className="font-medium">{row.material_name}</TableCell>
-                <TableCell><TypeBadge label={t(`receipts.unit.${row.unit}`)} /></TableCell>
+                <TableCell className="text-muted-foreground">
+                  {row.material_specification || t("common.emptyValue")}
+                </TableCell>
+                <TableCell><TypeBadge label={unitName(row.unit)} /></TableCell>
                 <TableCell className="tabular text-right">{row.quantity}</TableCell>
-                <TableCell className="tabular text-right">{row.cumulative_quantity ?? row.quantity}</TableCell>
+                <TableCell className="tabular text-right">{row.cumulative_quantity}</TableCell>
                 <TableCell className="tabular text-right text-muted-foreground">
                   {formatter.number(row.receipts)}
                 </TableCell>
@@ -393,6 +565,7 @@ function CostReport({
   data: Awaited<ReturnType<typeof getReceiptSummary>> | undefined;
 }) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const formatter = useFormatter();
 
   if (!data || data.total_receipts === 0) return <EmptyReport />;
@@ -407,8 +580,8 @@ function CostReport({
       : Math.round((data.priced_receipts / data.total_receipts) * 100);
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+    <div className="space-y-3">
+      <MetricRow>
         <Metric
           icon={Calculator}
           label={t("materialReports.cost.totalCost")}
@@ -426,16 +599,16 @@ function CostReport({
           value={formatter.number(data.unpriced_receipts)}
           warning={data.unpriced_receipts > 0}
         />
-      </div>
+      </MetricRow>
 
       {data.unpriced_receipts > 0 && (
-        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm text-foreground">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+        <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
           <p>{t("materialReports.cost.incompleteWarning", { count: data.unpriced_receipts })}</p>
         </div>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-3 xl:grid-cols-2">
         <ReportTable title={t("materialReports.cost.bySupplier")}>
           <Table>
             <TableHeader>
@@ -479,7 +652,7 @@ function CostReport({
               {data.by_material.map((row) => (
                 <TableRow key={`${row.material_name}-${row.unit}`}>
                   <TableCell className="font-medium">{row.material_name}</TableCell>
-                  <TableCell><TypeBadge label={t(`receipts.unit.${row.unit}`)} /></TableCell>
+                  <TableCell><TypeBadge label={unitName(row.unit)} /></TableCell>
                   <TableCell className="tabular text-right">{money(row.total_cost)}</TableCell>
                   <TableCell className="tabular text-right">
                     {row.unpriced_receipts > 0 ? (
@@ -498,6 +671,16 @@ function CostReport({
   );
 }
 
+/** The report's headline figures: one wrapping row of small labels (B10, B11). */
+function MetricRow({ children }: { children: React.ReactNode }) {
+  return <div className="flex flex-wrap gap-2">{children}</div>;
+}
+
+/**
+ * One headline figure as a small label - icon, name, number and an optional
+ * note on one line - so the figures take a single row and the deliveries
+ * below them get the screen (B10). Each used to be a 100px-tall card.
+ */
 function Metric({
   icon: Icon,
   label,
@@ -512,24 +695,31 @@ function Metric({
   warning?: boolean;
 }) {
   return (
-    <div className="rounded-lg border bg-card p-4">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Icon className={warning ? "h-4 w-4 text-warning" : "h-4 w-4 text-primary"} />
-        <p className="truncate text-xs font-medium uppercase">{label}</p>
-      </div>
-      <p className={warning ? "tabular mt-2 text-2xl font-semibold text-warning" : "tabular mt-2 text-2xl font-semibold"}>
+    <div className="flex min-w-0 max-w-full items-center gap-2 rounded-lg border bg-card px-3 py-1.5 text-sm">
+      <Icon
+        className={cn("size-3.5 shrink-0", warning ? "text-warning" : "text-primary")}
+      />
+      <span className="truncate text-xs text-muted-foreground">{label}</span>
+      <span className={cn("tabular font-semibold", warning && "text-warning")}>
         {value}
-      </p>
-      {detail && <p className="mt-1 text-xs text-muted-foreground">{detail}</p>}
+      </span>
+      {detail && (
+        <span className="truncate text-xs text-muted-foreground">· {detail}</span>
+      )}
     </div>
   );
 }
 
+/**
+ * A titled table with tight rows. `Table` carries its own sideways scroller,
+ * so there is no second one here: the page itself only ever scrolls up and
+ * down, phone included.
+ */
 function ReportTable({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
-      <h3 className="border-b px-4 py-3 text-sm font-semibold">{title}</h3>
-      <div className="overflow-x-auto">{children}</div>
+    <section className="surface-panel overflow-hidden rounded-xl">
+      <h3 className="panel-title border-b border-panel-border px-4 py-3">{title}</h3>
+      <div className="[&_td]:px-3 [&_td]:py-1 [&_th]:h-8 [&_th]:px-3">{children}</div>
     </section>
   );
 }
@@ -537,7 +727,7 @@ function ReportTable({ title, children }: { title: string; children: React.React
 function EmptyReport() {
   const t = useTranslations();
   return (
-    <div className="rounded-lg border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
+    <div className="rounded-xl border border-dashed border-panel-border px-6 py-16 text-center text-sm text-muted-foreground">
       {t("reports.empty")}
     </div>
   );

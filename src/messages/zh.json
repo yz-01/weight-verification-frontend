@@ -3035,9 +3035,6 @@
   },
   "archiveQueue": {
     "allModules": "全部模块",
-    "alreadyArchived": "你已看过",
-    "archive": "我看过了",
-    "archiveHelp": "只从你自己的待看清单移走，同事的清单里照样还在，记录本身不会改变。",
     "column": {
       "record": "记录",
       "module": "所属模块",
@@ -3048,7 +3045,7 @@
       "archived": "归档",
       "seen": "我"
     },
-    "emptyArchived": "你还没有在这里标过「看过了」。",
+    "emptyArchived": "你还没有在这里打开过记录。",
     "emptyPending": "这里没有等你看的记录。",
     "failed": "列表载入失败，请重试。",
     "firstPage": "已经是第一页了。",
@@ -3076,7 +3073,7 @@
     "next": "下一页",
     "open": "查看",
     "pageOf": "第 {page} / {pages} 页",
-    "perPersonHelp": "「未看」指的是**你**还没标过「看过了」。每个账号各自计算，你标过之后不会从同事的列表里消失。",
+    "perPersonHelp": "这里只能查看。「未看」指的是**你**还没打开过的记录，打开一条就算你看过了；每个账号各自计算，不会从同事的列表里消失。确认归档在各业务页面的详情里做。",
     "previous": "上一页",
     "state": {
       "pending": "未看",
@@ -3084,9 +3081,6 @@
     },
     "subtitle": "所有已完成的记录，等你看过。",
     "title": "现场记录中心",
-    "toast": {
-      "archived": "已为你标成「看过了」。"
-    },
     "people": "{count} 人",
     "closure": {
       "label": "是否已归档",
@@ -3095,10 +3089,20 @@
       "closed": "已归档",
       "notApplicable": "不需要归档"
     },
-    "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。",
     "categoryManagement": "分类管理",
     "openPhoto": "放大查看照片",
-    "noPhoto": "无照片"
+    "noPhoto": "无照片",
+    "goToReceipt": "去材料进场处理",
+    "hazardClosure": {
+      "closed": "已闭环",
+      "open": "未闭环",
+      "openHelp": "发起人在隐患整改里确认完成后就闭环。"
+    },
+    "waiting": {
+      "only": "只显示等你确认的记录，和仪表板「等你处理」是同一批。点「打开」到它的业务页面确认。",
+      "showAll": "显示全部记录",
+      "empty": "没有等你确认的记录。"
+    }
   },
   "assets": {
     "category": {
@@ -3181,7 +3185,11 @@
     },
     "filter": {
       "allProjects": "所有项目",
-      "project": "选择项目"
+      "project": "选择项目",
+      "outsideFence": "围栏外打卡",
+      "since": "{date} 起",
+      "onDay": "{date} 当天",
+      "onePerson": "只看 {name}"
     },
     "title": "人员进场记录",
     "toast": {
@@ -3951,41 +3959,21 @@
     "loading": "加载中…",
     "module": {
       "material": "材料分类",
-      "document": "文件分类",
       "equipment": "设备分类",
-      "progress": "工程进度分类",
-      "phase": "施工阶段",
       "ehs": "隐患整改 / EHS 分类",
-      "recycle": "环保材料出场分类",
-      "debris": "工地清运分类",
-      "consultant": "顾问资料分类",
-      "sundry": "杂费报销分类"
+      "recycle": "环保材料出场分类"
     },
     "moduleHelp": {
       "material": "收货与它的金额归在这里。按项目各一份。",
-      "field": "现场照片归在这里。按项目各一份。",
-      "document": "图纸、合同、RFI 等。**全公司一份**，所有项目共用 —— 在这里改，别的项目也跟着变。",
       "equipment": "吊车、挖掘机、发电机等。每个项目一份，由本公司维护。",
-      "progress": "区域、楼层、工种。按项目各一份，**不参与**进度百分比计算。",
-      "phase": "进度百分比就是按这些阶段算的。按项目各一份 —— 改权重会改已有数字。",
-      "ehs": "安全隐患、质量问题、事故、作业许可证。按项目各一份。",
-      "recycle": "现场外运的可回收废料。全公司一份；系统预置的可停用、不可删除。",
-      "debris": "送去清运的建筑垃圾。按项目各一份。",
-      "consultant": "顾问资料归在这里，和现场资料分开。按项目各一份。",
-      "sundry": "杂费报销归在这里。按项目各一份。",
-      "claim": "材料到场与进度 Claim 归在这里。按项目各一份。"
+      "ehs": "安全部整改、施工部整改、顾问要求整改、施工准证申请。按项目各一份，固定不改，这里只能查看。",
+      "recycle": "现场外运的可回收废料：废铁、铜、铝、电缆。全公司一份；系统预置的可停用、不可删除。"
     },
     "moduleSource": {
       "material": "记录来自：现场材料进场、后台材料进场台账。现场工作人员可以填。",
-      "document": "文件由后台上传归档。现场工作人员不填这里。",
       "equipment": "记录来自：后台「设备登记」。设备档案在办公室建，手机只记进出。",
-      "progress": "进度由现场提交，再由后台事后归到分类。手机端不选分类。",
-      "phase": "阶段由后台维护，用来算进度百分比，本身不接收记录。",
       "ehs": "记录来自：隐患上报（现场与后台都算）。现场工作人员可以填。",
-      "recycle": "记录来自：后台的可回收废料外运。现场工作人员不填这里。",
-      "debris": "记录来自：后台发起的建筑垃圾清运。现场工作人员不填这里。",
-      "consultant": "记录来自：手机端顾问资料提交，提交时选分类。现场工作人员可以填。",
-      "sundry": "杂费报销由手机端提交，后台处理时再归入分类。手机端不选分类。"
+      "recycle": "记录来自：后台的可回收废料外运。现场工作人员不填这里。"
     },
     "modules": "模块",
     "scope": {
@@ -3995,7 +3983,6 @@
     },
     "subtitle": "先选左边的业务栏目，再看它下面的分类。",
     "title": "分类管理",
-    "weight": "权重 {weight}",
     "removeFailed": "「{name}」没有删除：{reason}",
     "dialogCreate": "新增分类 · {module}",
     "dialogEdit": "编辑分类 · {module}",
@@ -4008,8 +3995,19 @@
       "amountHint": "不计预算的分类留空",
       "alerts": "在这些百分比提醒",
       "alertsHint": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
-      "alertsInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
-      "none": "没有设预算"
+      "alertsInvalid": "请填 1 到 1000 之间的整数，用逗号分隔。",
+      "none": "没有设预算",
+      "mode": "预算按",
+      "modeAmount": "金额（RM，按送货单）",
+      "modeQuantity": "数量（按分类单位）",
+      "quantity": "预算数量",
+      "quantityHint": "单位：{unit}。吨和公斤会换算后一起累计。",
+      "quantityNeedsUnit": "请先选分类的单位。",
+      "thresholdAmounts": "另外在这些数值提醒",
+      "thresholdAmountsHint": "选填。用逗号分隔，例如 400000, 450000（RM）；数量模式填数量。",
+      "thresholdAmountsInvalid": "请填大于 0 的数字，用逗号分隔。",
+      "recipients": "提醒发给公司管理员和项目负责人，每条线只发一次；总数回落到线下会撤回。",
+      "quantityUsed": "已进场 {used} / {budget} {unit}"
     },
     "saveFailed": "没有成功。请再试一次，或者刷新页面。",
     "viewRecords": "查看记录",
@@ -4019,9 +4017,56 @@
       "count": "共 {count} 笔",
       "empty": "这个分类里还没有记录。",
       "byMaterial": "按材料",
-      "groupCount": "{count} 笔"
+      "groupCount": "{count} 笔",
+      "search": "搜索编号、材料、DO",
+      "emptyFiltered": "这个分类里没有符合筛选条件的记录。",
+      "deliveryNoteNo": "DO"
     },
-    "quantityReturned": "退场 {quantity}"
+    "quantityReturned": "退场 {quantity}",
+    "units": {
+      "title": "单位管理",
+      "open": "单位管理",
+      "help": "材料用的计量单位。分类的单位从这里选；6 个内建单位一直都在。",
+      "label": "单位名称",
+      "add": "新增单位",
+      "builtIn": "内建",
+      "active": "使用中",
+      "inactive": "已停用",
+      "switchOff": "停用",
+      "switchOn": "启用",
+      "rename": "改名",
+      "save": "保存",
+      "offHint": "停用后不再供选择；已用这个单位的记录不受影响。",
+      "duplicate": "这个单位已经在名单里。",
+      "what": "单位列表",
+      "toast": {
+        "created": "已新增单位",
+        "updated": "已保存单位"
+      }
+    },
+    "material": {
+      "title": "现场自动带出",
+      "help": "在这里设好，手机选这个分类时会自动带出。",
+      "defaultUnit": "单位",
+      "defaultUnitHint": "手机只显示，不用填。",
+      "noUnit": "不固定单位",
+      "suppliers": "供应商",
+      "suppliersHint": "只有一家：自动带出；多家：手机只能从这几家选；扫供应商二维码优先。",
+      "manufacturers": "指定厂商",
+      "manufacturersHint": "记录的厂商不在名单里会标「非指定厂商」，只提醒、不阻挡。",
+      "search": "输入搜索",
+      "noneChosen": "未选择",
+      "what": {
+        "suppliers": "供应商列表"
+      }
+    },
+    "equipment": {
+      "majorClass": "大类",
+      "subClass": "小类",
+      "majorClassOf": "上级（大类）",
+      "majorClassHint": "不选就是大类。设备要登记在小类下面。",
+      "isMajorClass": "（这是大类）"
+    }
   },
   "cloudServices": {
     "count": "{count} 项服务",
@@ -4117,7 +4162,11 @@
     "unknownError": "出了点问题，请重试。",
     "view": "查看",
     "exportThisRecord": "单独导出",
-    "previewThisRecord": "预览 / 打印"
+    "previewThisRecord": "预览 / 打印",
+    "alreadyLastPage": "已经在最后一页",
+    "shareThisRecord": "分享",
+    "linkCopied": "链接已复制，粘贴即可分享。",
+    "shareFailed": "分享没有成功，请下载后再发送文件。"
   },
   "companies": {
     "owner": {
@@ -4548,7 +4597,12 @@
       "empty": "还没有登记顾问单位。",
       "formHelp": "请填写顾问单位真实的注册与联系人资料。",
       "subtitle": "每个顾问单位登记在你的建筑商公司名下，无法查看其他建筑商资料。",
-      "title": "顾问单位"
+      "title": "顾问单位",
+      "logo": "公司标志",
+      "logoHint": "印在顾问申请表的右上角。PNG 或 JPG，2 MB 以内。",
+      "noLogo": "没有标志",
+      "removeLogo": "移除标志",
+      "logoNotSaved": "顾问单位已保存，但标志没有保存：{reason} 换一张图片再按保存，只会重新上传标志。"
     },
     "permission": {
       "approval_review": "审核并决定申请",
@@ -4655,6 +4709,7 @@
     "workflowSettings": "审批流程设置"
   },
   "consultantProject": {
+    "choose": "选择项目",
     "label": "当前顾问项目"
   },
   "consultantWorkflow": {
@@ -4704,7 +4759,8 @@
         "approval": "审批",
         "archive": "归档",
         "draft": "申请",
-        "final": "最终 PDF"
+        "final": "最终 PDF",
+        "inbox": "待整理现场资料"
       },
       "stageLabel": "申请阶段",
       "subtitle": "共 {count} 项项目申请与审批记录",
@@ -4818,6 +4874,25 @@
       "raisedOnSite": "现场提交：{name} {when}",
       "forwardedBy": "经理转给顾问：{name} {when}"
     },
+    "draftEdit": {
+      "armRemove": "允许移除",
+      "armRemoveHelp": "先打开开关，再按「移除」，按下立即生效。",
+      "locked": "已提交，退回修改后才能改",
+      "remove": "移除",
+      "unlink": "取消关联",
+      "edit": "修改",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "editCaption": "改说明",
+      "saveCaption": "保存说明",
+      "attachmentTitle": "修改附件",
+      "attachmentHelp": "可以改附件类型和备注，也可以换一个文件。换下来的旧文件会留在审计记录里。",
+      "replaceFile": "换新文件",
+      "replaceFileHint": "不换文件就不用选。",
+      "save": "保存",
+      "recordUnlinkHint": "移除会把这条资料的照片一起取消关联。",
+      "failed": "没有改成，请再试一次。"
+    },
     "evidence": {
       "selectPhotos": "要关联的照片",
       "selectRecord": "选择整条现场资料",
@@ -4835,7 +4910,8 @@
       "help": "选择现有且不可修改的现场照片，无需重复上传原图。",
       "link": "关联证据",
       "noCandidates": "此项目没有可关联的新证据。",
-      "title": "关联现场证据"
+      "title": "关联现场证据",
+      "open": "放大查看 {name}"
     },
     "field": {
       "inspectionTimezone": "验收时区",
@@ -4881,7 +4957,8 @@
       "scheduleTask": "施工计划活动 / WBS",
       "template": "RFI 表格模板",
       "workType": "检查／工作类型",
-      "workflow": "审批流程"
+      "workflow": "审批流程",
+      "material": "材料名称"
     },
     "form": {
       "editTitle": "编辑顾问申请草稿",
@@ -4891,8 +4968,8 @@
       "saveReusableOptionHelp": "把这个内容加入本项目的选项，下次团队可直接选择。",
       "section": {
         "consultant": "指定顾问",
-        "inspection": "现场与检查资料",
-        "project": "申请分类"
+        "project": "申请分类",
+        "content": "申请内容"
       },
       "sourceGps": "打开来源 GPS",
       "sourceHelp": "现场资料中的项目、位置、说明和原始证据会带入申请。",
@@ -4904,7 +4981,10 @@
       "subtitle": "填写现场申请、关联证据，再按项目审批流程提交。",
       "title": "建立顾问申请",
       "advanced": "进阶设定（可不填）",
-      "advancedHelp": "不选就用这个项目的默认流程「顾问审批」：一步，送给你选的顾问签名审批。模板也可以不选。"
+      "advancedHelp": "不选就用这个项目的默认流程「顾问审批」：一步，送给你选的顾问签名审批。模板也可以不选。",
+      "more": "更多（选填）",
+      "moreHelp": "这个类型一般不用填这些，需要时再打开。",
+      "retiredOption": "{label}（已停用）"
     },
     "inspectionCategory": {
       "H": "H - 停检点",
@@ -5055,7 +5135,11 @@
       "submitted": "申请已提交审批",
       "templateSaved": "RFI 表格模板已保存",
       "templateVersionSaved": "RFI 表格模板版本已保存",
-      "workflowSaved": "审批流程已保存"
+      "workflowSaved": "审批流程已保存",
+      "attachmentRemoved": "附件已移除",
+      "attachmentUpdated": "附件已修改",
+      "evidenceUnlinked": "已取消关联",
+      "evidenceUpdated": "现场证据已更新"
     },
     "verification": {
       "applicationNo": "申请编号",
@@ -5158,6 +5242,26 @@
       "consultantGrants": "有本项目权限的顾问",
       "applicationTypes": "申请类型",
       "reviewerChoices": "审批人列表"
+    },
+    "inbox": {
+      "what": "待整理现场资料",
+      "empty": "没有待整理的现场资料。现场用手机「顾问资料提交」发来的会出现在这里。",
+      "help": "勾选要给顾问看的照片，再按「整理成顾问申请」。",
+      "tickAll": "全选",
+      "untickAll": "全部取消",
+      "tickPhoto": "勾选第 {number} 张照片",
+      "viewPhoto": "放大第 {number} 张照片",
+      "ticked": "已勾 {count} / {total} 张",
+      "tickFirst": "先勾选至少一张照片",
+      "organize": "整理成顾问申请",
+      "alreadyOrganized": "通知里的这份现场资料已整理成顾问申请 {number}。"
+    },
+    "formCard": {
+      "title": "顾问申请表（A4）",
+      "help": "预览、打印、导出的都是同一张 A4：左边是我方公司，右边是顾问公司，下面是申请内容、照片和附件清单。",
+      "print": "打印",
+      "attachments": "看附件（{count}）",
+      "send": "发送给顾问 {name}"
     }
   },
   "contractorDashboard": {
@@ -5176,16 +5280,17 @@
       "SITE_PROGRESS": "工程进度",
       "WASTE_DISPATCH": "回收派车"
     },
-    "anomalies": {
+    "rectifications": {
       "daysOverdue": "{days, plural, =0 {今天到期} other {逾期 # 天}}",
-      "distance": "距离 {metres} 米",
-      "empty": "没有需要处理的异常。",
-      "expiresAt": "{at} 到期",
-      "geofenceFailure": "超出电子围栏",
-      "outside": "围栏外",
-      "subtitle": "{count} 项需要处理。",
-      "title": "待处理异常",
-      "geofenceWindow": "越界打卡：近 {days} 天共 {count} 次。"
+      "empty": "没有等你处理的整改或 EHS 事项。",
+      "overdue": "其中逾期 {count} 项。",
+      "step": {
+        "ASSIGN": "待指派",
+        "RECTIFY": "待整改",
+        "CONFIRM": "待确认"
+      },
+      "subtitle": "{count} 项等你处理。",
+      "title": "待处理整改 / EHS"
     },
     "approvals": {
       "companyWide": "公司级",
@@ -5206,7 +5311,6 @@
         "CONSULTANT_APPLICATION": "顾问申请",
         "DISPOSAL_REQUEST": "工地清运",
         "FIELD_TASK": "现场任务",
-        "SITE_PROGRESS": "进度记录",
         "WASTE_OUTGOING": "环保材料出场申请",
         "MATERIAL_REQUEST": "MR / Other Request",
         "EQUIPMENT_MOVEMENT": "设备进退场申请",
@@ -5241,7 +5345,7 @@
       "project": "项目",
       "selectProject": "选择项目"
     },
-    "liveStopped": "实时部分已经停止更新。下面的动态、异常和未读数量是打开这一页时的，不是现在的。",
+    "liveStopped": "实时部分已经停止更新。下面的动态、异常和待确认数量是打开这一页时的，不是现在的。",
     "locationMap": {
       "allProjects": "全部项目",
       "empty": "所选项目还没有可显示的位置或电子围栏。",
@@ -5287,7 +5391,9 @@
       "equipmentIn": "今日设备进场",
       "equipmentOut": "今日设备退场",
       "materialPendingAcceptance": "待验收材料",
-      "equipmentExpiring": "证书即将到期"
+      "equipmentExpiring": "证书即将到期",
+      "geofenceFailures": "越界打卡（近 {days} 天）",
+      "expiringPasses": "通行证即将到期"
     },
     "personnel": {
       "empty": "今天没有人员进场记录。",
@@ -5380,9 +5486,8 @@
     },
     "unread": {
       "title": "等你处理",
-      "subtitle": "{receipts} 笔送货、{approvals} 项待审，还没有人替你看过",
-      "help": "这是你自己的清单。点进去看过就算你归档了，别人那边不受影响。",
-      "unfiled": "暂未归档"
+      "subtitle": "{total} 笔已经做完、等你确认的记录",
+      "help": "这些记录的事已经做完（材料进场要先验收），还没有人确认。任何人确认后，它就从大家的清单里消失。"
     },
     "recordStatus": {
       "ACCEPTED": "已接受",
@@ -5410,6 +5515,12 @@
       "title": "待处理事项",
       "showAll": "显示全部 {count} 项",
       "showFewer": "收起"
+    },
+    "cards": {
+      "viewAll": "查看全部",
+      "empty": "现在没有。",
+      "loading": "载入中",
+      "what": "这张卡的前 5 条"
     }
   },
   "contractorOps": {
@@ -5466,7 +5577,7 @@
       "editTitle": "编辑这台设备",
       "entryTitle": "记录 {name} 进场",
       "exitTitle": "记录 {name} 退场",
-      "formHelp": "请填写实体设备上的设备编号或注册号码。",
+      "formHelp": "设备编号、车牌号码和小类。可以先建好，也可以等现场报来新设备时在验收时补齐。",
       "movementHelp": "请拍摄当前照片并获取位置；该记录会成为不可修改的现场证据。",
       "occurredAt": "进退场时间",
       "ocrManual": "无法读取 Delivery Order，请手动填写资料。",
@@ -5488,26 +5599,65 @@
       "takeDeliveryNote": "拍摄 Delivery Order",
       "title": "设备进退场",
       "photoMinimum": "最少 {min} 张（含 Delivery Order 照片），不设上限。",
-      "applyNew": "申请新设备进场",
-      "applyEntry": "申请进场",
-      "applyExit": "申请退场",
-      "applyEntryTitle": "申请 {name} 进场",
-      "applyExitTitle": "申请 {name} 退场",
-      "applyNewTitle": "申请新设备进场",
-      "applyHelp": "后台会批准或退回申请。批准后实际交接时，由现场人员与供应商 / 司机双方签名，并拍至少 4 张照片。",
-      "applySubmit": "提交申请",
-      "applyFailed": "申请没有送出，请再试一次。",
       "chooseSupplier": "选择供应商",
-      "handover": "实际交接（双方签名）",
-      "handoverHelp": "申请已批准。实际交接时拍至少 4 张照片（可以更多），并由双方签名；提交后设备才算进场 / 退场。",
+      "handoverHelp": "改流程前的申请：直接交接时拍至少 4 张照片（可以更多），并由双方签名；提交后由后台验收。",
       "handoverSubmit": "提交交接",
       "siteSignature": "现场人员签名",
       "supplierSignature": "供应商 / 司机签名",
-      "returnAction": "Return 退回",
       "returnReason": "退回原因",
-      "returnConfirm": "退回（申请结束）",
       "requestedBy": "申请人",
-      "reviewedBy": "审批人"
+      "reviewedBy": "审批人",
+      "chooseMachine": "设备",
+      "chooseMachinePlaceholder": "选设备",
+      "newMachine": "新设备",
+      "newMachineEntry": "新设备进场",
+      "newMachineName": "新设备名称",
+      "newMachineHelp": "填名称就可以；其他资料由后台验收时补齐。",
+      "entryHelp": "拍照、DO、扫供应商二维码、双方签名，提交后由后台验收。",
+      "entrySubmit": "提交进场",
+      "exitHelp": "拍照、DO、扫供应商二维码、双方签名，提交后由后台验收；验收通过前设备仍算在场。",
+      "exitSubmit": "提交退场",
+      "exitReason": "退场原因",
+      "chooseOnSiteMachine": "选在场的设备",
+      "noMachineOnSite": "这个项目现在没有在场的设备。",
+      "exitWaiting": "退场待验收",
+      "entryWaiting": "进场待验收",
+      "acceptedBy": "验收人",
+      "scanSupplier": "扫供应商二维码",
+      "scanFailed": "扫码没有成功，可以再扫一次，或先不填供应商。",
+      "movementsLink": "查看这台设备的进退场记录",
+      "needsProfile": "待补档",
+      "needsProfileHelp": "这台设备还没有小类。选好小类（没有合适的可以在下面新增）就能验收它的进场；到期日可以以后再补。",
+      "directHandover": "直接交接",
+      "directHandoverHelp": "这是改流程前的申请，不用再批准：直接交接（拍照、双方签名），之后由后台验收。",
+      "acceptance": {
+        "title": "进场验收",
+        "accept": "验收通过",
+        "reject": "不通过",
+        "reason": "不通过原因",
+        "armReject": "允许不通过这笔进场",
+        "armRejectHelp": "设备不对才打开。打开后才能填写原因并判为不通过。",
+        "exitTitle": "退场验收",
+        "exitHelp": "验收通过后，这台设备就算不在场。",
+        "armRejectExit": "允许不通过这笔退场",
+        "armRejectExitHelp": "设备其实没有离场或资料不对才打开。打开后才能填写原因并判为不通过；设备仍算在场。",
+        "failed": "验收没有成功，请重试。",
+        "profileMissing": "先补齐档案：{fields}",
+        "completeProfile": "补齐档案",
+        "missing": {
+          "registration_no": "车牌号码",
+          "category": "小类",
+          "expiry": "到期日"
+        }
+      },
+      "oneMachineOnly": "只看这台设备的进退场",
+      "newMachinePlateHelp": "有车牌就填；没有可以留空。以前来过的设备会自动对上。",
+      "addClass": "新增小类",
+      "classMajor": "大类",
+      "classNewMajor": "新的大类…",
+      "classNewMajorName": "新大类名称",
+      "classSubName": "小类名称",
+      "classCreate": "加入"
     },
     "equipmentEvidence": {
       "condition": "4. 设备状况细节",
@@ -5579,7 +5729,7 @@
       "notes": "备注",
       "operator": "操作人员",
       "percentComplete": "实际完成比例（%）",
-      "phase": "施工阶段",
+      "phase": "施工分类",
       "photoCount": "已选择 {count} 张照片",
       "photoRequired": "必须上传照片数",
       "photos": "现场照片",
@@ -5588,7 +5738,7 @@
       "quantity": "数量",
       "reason": "出场原因",
       "registrationNo": "注册号码",
-      "selectPhase": "选择施工阶段",
+      "selectPhase": "选择施工分类",
       "selectProject": "选择项目",
       "selectStaff": "选择项目人员",
       "serialNo": "序列号",
@@ -5602,7 +5752,14 @@
       "vehiclePlate": "车牌",
       "workLocation": "工作区域 / 位置",
       "pmaExpiresOn": "PMA 到期日",
-      "permitExpiresOn": "准证到期日"
+      "permitExpiresOn": "准证到期日",
+      "plateNo": "车牌号码",
+      "roadTaxExpiresOn": "路税到期",
+      "chooseProjectFirst": "请先选项目",
+      "equipmentSubClass": "设备小类",
+      "chooseEquipmentSubClass": "选择小类",
+      "noEquipmentSubClassYet": "这个项目还没有设备小类，可以在下面直接新增。",
+      "deliveryNoteNo": "DO 号码"
     },
     "filing": {
       "action": "归入分类",
@@ -5631,22 +5788,23 @@
       "executor": "执行人",
       "fieldFormHelp": "填写最少资料，至少完成 4 张现场取证照片并获取 GPS。执行人会自动记录。",
       "formHelp": "填写实际执行人员，并获取当前 GPS 位置。",
-      "subtitle": "已进场材料退回供应商：申请 → 后台批准 → 实际出场时双方签名。",
+      "subtitle": "材料退回供应商：手机申请 → 后台填 Return Note 并批准 → 实际退场时双方签名 → 后台确认。",
       "title": "材料出场",
       "rejectTitle": "退回这笔申请",
       "rejectHelp": "申请 {reference} 到此结束。退回后不再重开 —— 要再申请得新建一条 —— 所以这段理由就是申请人能拿到的全部说明。",
       "rejectReason": "退回理由",
       "viewDetail": "查看详情",
-      "returnProcessing": "实际出场交接（双方签名）",
-      "waitingForSite": "已批准，等待安排车辆装货及现场交接签名。",
-      "finalConfirm": "最终确认",
-      "waitingForOffice": "现场已回传，等待后台最终确认。",
-      "returnHelp": "{reference} 已批准。材料实际出场时，填写退回数量、拍照，并由现场人员与供应商 / 司机双方签名。提交后退场即完成。",
+      "returnProcessing": "实际退场（双方签名）",
+      "exitWaitingUpload": "这次实际退场已经保存在手机上，有网络时会自动上传，不用重做。可在「我提交过的」查看。",
+      "waitingForSite": "已批准 / 等待退场：等待现场实际退场并双方签名。",
+      "finalConfirm": "确认退场完成",
+      "waitingForOffice": "现场已退场，待后台确认。",
+      "returnHelp": "{reference} 已批准。材料实际退场时：拍照，填写实际退回数量、车牌和 DO 号，确认供应商（可扫码），现场人员与供应商 / 司机双方签名。提交后等待后台确认。",
       "processingPhotos": "出场时的照片",
       "processingNote": "现场处理说明",
       "processingLocation": "定位",
       "processingLocationReady": "已取得定位",
-      "sendReturn": "提交（完成退场）",
+      "sendReturn": "提交（待后台确认）",
       "returnFailed": "交接没有保存成功，请再试一次。",
       "uploadFiles": "上传文件",
       "referenceNo": "编号",
@@ -5661,30 +5819,35 @@
       },
       "flowTitle": "流程",
       "approvedBy": "批准人",
-      "processedBy": "现场交接人",
-      "returnFormHelp": "先选供应商，再选该供应商的原进场记录——材料、规格、单位会自动带出。填写本次要退回的数量。后台批准后安排车辆装货，实际出场时双方签名。",
+      "processedBy": "现场退场人",
+      "returnFormHelp": "选材料（单位自动带出），填数量、车牌和退回原因，拍照。知道供应商就选或扫码，不知道可以不填。后台填写 Return Note 并批准后，实际退场时双方签名。",
       "supplier": "供应商",
       "chooseSupplier": "选择供应商",
       "sourceReceipt": "原进场记录",
-      "chooseSourceReceipt": "选择要退回的原进场记录",
-      "remaining": "剩 {quantity} {unit}",
-      "noReturnable": "这个项目没有这家供应商还能退回的进场记录。",
       "specification": "规格",
-      "returnQuantity": "本次退回数量",
-      "tooMuch": "这笔进场只剩 {quantity} {unit} 可以退回。",
+      "returnQuantity": "退回数量",
       "reasonPlaceholder": "退回原因，例如：多余、事后发现规格不对",
       "returnedQuantity": "实际退回数量",
       "siteSignature": "现场人员签名",
       "supplierSignature": "供应商 / 司机签名",
-      "returnAction": "Return 退回"
+      "returnAction": "Return 退回",
+      "material": "材料",
+      "chooseMaterial": "选择材料",
+      "noMaterials": "这个项目还没有材料分类，请联系后台新增。",
+      "autoFilled": "按材料分类自动带出",
+      "supplierOptional": "知道就选或扫码，不知道可以不填。",
+      "scanSupplier": "扫供应商二维码",
+      "scannedSupplier": "已扫码：{name}",
+      "scanFailed": "这个二维码不是供应商二维码。",
+      "noSupplier": "不填"
     },
     "outgoingStatus": {
-      "APPROVED": "已批准，待出场交接",
+      "APPROVED": "已批准 / 等待退场",
       "PENDING": "等待审批",
       "REJECTED": "已退回（申请结束）",
       "RELEASED": "已放行（旧流程）",
-      "PROCESSED": "现场已回传（旧流程），待最终确认",
-      "COMPLETED": "已出场交接，已完成"
+      "PROCESSED": "待后台确认",
+      "COMPLETED": "已退场，已完成"
     },
     "priority": {
       "HIGH": "高",
@@ -5693,33 +5856,39 @@
       "URGENT": "紧急"
     },
     "progress": {
-      "addFirstPhase": "新增第一个阶段",
-      "addPhase": "新增阶段",
+      "addFirstPhase": "新增第一个施工分类",
+      "addPhase": "新增施工分类",
       "addRecord": "记录进度",
       "capturedAt": "记录时间",
       "confirmedAt": "确认时间",
       "confirmedBy": "确认人",
-      "editPhase": "更正这个阶段",
-      "noPhasesHelp": "此项目尚未建立施工阶段。请先新增阶段，才能记录进度。",
-      "phaseActive": "在用。不想要这个阶段时，把这个关掉而不是删除 —— 进度记录都指着它，删了那些记录就说不清是哪个阶段的了。",
-      "phaseHelp": "建立用于整理和确认工程进度的施工阶段。",
-      "phaseTitle": "新增施工阶段",
+      "editPhase": "更正这个施工分类",
+      "noPhasesHelp": "此项目尚未建立施工分类。请先新增施工分类，才能记录进度。",
+      "phaseActive": "在用。不想要这个施工分类时，把这个关掉而不是删除 —— 进度记录都指着它，删了那些记录就说不清是哪个施工分类的了。",
+      "phaseHelp": "建立用于整理和确认工程进度的施工分类。",
+      "phaseTitle": "施工分类",
       "recordHelp": "拍摄当前工地照片；完成比例必须由项目经理确认才会生效。",
       "recordTitle": "新增进度证据",
       "returnPrompt": "请说明需要更正后再提交的内容。",
-      "saveError": "工程进度保存失败，请检查项目、施工阶段、照片和 GPS 后重试。",
+      "saveError": "工程进度保存失败，请检查项目、施工分类、照片和 GPS 后重试。",
       "submittedBy": "记录人",
-      "subtitle": "管理施工阶段、照片进度以及项目经理确认。",
+      "subtitle": "管理施工分类、照片进度以及项目经理确认。",
       "summary": {
         "month": "本月记录",
         "today": "今日记录",
         "total": "项目累计",
         "year": "本年记录",
-        "weighted": "整体进度（按阶段权重）"
+        "weighted": "整体进度（按施工分类权重）"
       },
       "title": "工程进度",
       "plannedWeight": "进度权重",
-      "plannedWeightHelp": "这个阶段相对于本项目其他阶段所占的比重。1 表示与其他阶段相同。"
+      "plannedWeightHelp": "这个施工分类相对于本项目其他施工分类所占的比重。1 表示与其他施工分类相同。",
+      "phaseRemove": {
+        "switch": "删除这个施工分类",
+        "hint": "只有没有任何进度记录指着的施工分类可以删除（例如建错的）；在用的请在上面关掉。",
+        "confirm": "删除施工分类",
+        "failed": "施工分类没有删除成功，请再试一次。"
+      }
     },
     "progressEvidence": {
       "activity": "2. 施工活动",
@@ -5738,7 +5907,8 @@
       "locationError": "无法获取当前 GPS，请开启精确定位后重试。",
       "noDescription": "没有说明",
       "noIdentifier": "没有序列号或注册号码",
-      "unknown": "未知"
+      "unknown": "未知",
+      "noPlate": "未填车牌"
     },
     "status": {
       "accessAll": "所有项目人员可见",
@@ -5771,7 +5941,7 @@
       "assign": "派发任务",
       "assignedBy": "指派人：{name}",
       "consultantInboxSubtitle": "审核现场人员直接提交的照片，再整理到顾问申请。",
-      "consultantInboxTitle": "顾问现场资料收件箱",
+      "consultantInboxTitle": "待整理现场资料",
       "createTitle": "派发现场任务",
       "dueAt": "期限：{value}",
       "edit": "编辑任务",
@@ -5834,7 +6004,7 @@
       "orderSaved": "顺序已保存",
       "outgoingReviewed": "出场状态已更新",
       "outgoingSubmitted": "出场申请已提交",
-      "phaseSaved": "阶段已保存",
+      "phaseSaved": "施工分类已保存",
       "photoAdded": "照片已添加",
       "progressReviewed": "进度审核已保存",
       "progressSubmitted": "进度已提交",
@@ -5843,9 +6013,11 @@
       "saved": "已保存",
       "taskAssigned": "任务已派发",
       "taskUpdated": "任务状态已更新",
-      "outgoingProcessed": "处理照片已回传，等待后台最终确认。",
-      "movementRequested": "申请已送交后台",
-      "movementReviewed": "申请已处理"
+      "outgoingProcessed": "已提交退场，待后台确认。",
+      "returnNoteSaved": "Return Note 已保存",
+      "entrySubmitted": "设备进场已提交，等待后台验收",
+      "exitSubmitted": "设备退场已提交，等待后台验收",
+      "entryReviewed": "验收结果已记录"
     },
     "what": {
       "roles": "角色列表",
@@ -5854,16 +6026,40 @@
       "suppliers": "供应商列表",
       "equipmentSummary": "设备统计",
       "progressSummary": "进度统计",
-      "phases": "施工阶段列表",
+      "phases": "施工分类列表",
       "outgoingRecord": "这条材料出场记录",
-      "returnableReceipts": "可退回的进场记录",
-      "equipmentApplications": "设备进退场申请"
+      "materials": "材料列表"
     },
     "equipmentMovementStatus": {
       "PENDING": "等待后台批准",
       "APPROVED": "已批准，待交接签名",
       "RETURNED": "已退回（申请结束）",
-      "COMPLETED": "已交接"
+      "COMPLETED": "已交接",
+      "SUBMITTED": "等待后台验收",
+      "REJECTED": "未通过验收"
+    },
+    "returnNote": {
+      "title": "Return Note",
+      "fill": "填写 Return Note",
+      "edit": "修改 Return Note",
+      "help": "批准前先填写 Return Note：材料、DO 号、供应商、数量、退回原因，以及批准人姓名和签名。",
+      "number": "Return Note 编号",
+      "numberPending": "保存后自动编号",
+      "date": "日期",
+      "material": "材料",
+      "deliveryNoteNo": "DO 号",
+      "supplier": "供应商",
+      "chooseSupplier": "选择供应商",
+      "quantity": "数量",
+      "reason": "退回原因",
+      "approverName": "批准人",
+      "approverSignature": "批准人签名",
+      "keepSignature": "已有签名，要换才需要重签。",
+      "save": "保存 Return Note",
+      "saveFailed": "Return Note 没有保存成功，请再试一次。",
+      "missing": "还没有 Return Note",
+      "needNoteFirst": "先填写 Return Note",
+      "filledBy": "填写人"
     }
   },
   "contractorPartners": {
@@ -5927,7 +6123,7 @@
       "period": "周期",
       "period_end": "目标结束",
       "period_start": "目标开始",
-      "phase": "施工阶段",
+      "phase": "施工分类",
       "photo_count": "照片",
       "plan": "计划",
       "planned_end": "计划结束",
@@ -5958,7 +6154,11 @@
       "vehicle_plate": "车牌",
       "verified_at": "验收时间",
       "wbs_code": "WBS",
-      "worker": "人员"
+      "worker": "人员",
+      "document_no": "文档编号",
+      "subcategory": "子分类",
+      "version_count": "版本数",
+      "created_at": "上传时间"
     },
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
@@ -5969,7 +6169,8 @@
       "recycling": "查看清运工作与回收订单直至完成。",
       "safety": "追踪安全问题从分配、整改到验收的过程。",
       "schedule": "对比当前确认计划与现场实际进度。",
-      "target": "对比计划和实际进度及项目活动指标。"
+      "target": "对比计划和实际进度及项目活动指标。",
+      "documents": "按文档分类查看项目文件、版本与上传人。"
     },
     "empty": "此项目和日期范围没有符合的记录。",
     "filter": {
@@ -6013,7 +6214,8 @@
       "recycling": "清运与回收报表",
       "safety": "安全与整改报表",
       "schedule": "计划与实际对比报表",
-      "target": "目标与达成报表"
+      "target": "目标与达成报表",
+      "documents": "项目资料报表"
     },
     "what": {
       "filterOptions": "筛选选项（项目、照片来源、上传人员）"
@@ -6063,6 +6265,11 @@
       "trainingCreated": "客户培训已安排",
       "visitCreated": "客户回访已记录"
     }
+  },
+  "currentProject": {
+    "label": "当前项目",
+    "all": "全部项目",
+    "pageHint": "这一页只看一个项目。选好后，整个系统都在这个项目上（顶栏会跟着换）。"
   },
   "dashboard": {
     "admin": {
@@ -6522,13 +6729,14 @@
       "tracking": "收运进度",
       "projects": "项目列表",
       "recyclers": "本项目的回收商列表"
-    }
+    },
+    "countedOnly": "只显示总部「原废料订单」计入数量的订单：不含草稿和已取消。",
+    "showAll": "显示全部"
   },
   "documents": {
     "downloading": "下载中",
     "allCategories": "全部分类",
     "allProjects": "全部项目",
-    "allSubcategories": "全部子分类",
     "allUploaders": "全部上传人",
     "archive": {
       "action": "归档",
@@ -6540,15 +6748,16 @@
       "add": "新增分类",
       "create": "建立分类",
       "edit": "编辑分类",
-      "title": "分类"
+      "title": "分类",
+      "remove": {
+        "switch": "删除这个分类",
+        "hint": "只有没有文档、也没有子分类的分类可以删除；在用的请在上面停用，旧文档仍保留这个分类。",
+        "confirm": "删除分类",
+        "failed": "分类没有删除成功，请再试一次。"
+      }
     },
     "companyWide": "公司级",
     "count": "共 {count} 份文档",
-    "create": {
-      "action": "新建文档",
-      "description": "先建立档案记录，再上传第一份不可修改的文件版本。",
-      "title": "建立文档"
-    },
     "detail": {
       "title": "文档详情"
     },
@@ -6580,7 +6789,8 @@
       "version": "版本",
       "versionNote": "版本备注",
       "versions": "版本数",
-      "path": "保存路径"
+      "path": "保存路径",
+      "thumbnail": "缩略图"
     },
     "keywordsPlaceholder": "多个关键词请用逗号分隔",
     "noFile": "尚未上传文件",
@@ -6607,18 +6817,18 @@
       "archived": "文档已归档",
       "categoryCreated": "分类已建立",
       "categoryUpdated": "分类已更新",
-      "created": "文档已建立",
       "subcategoryCreated": "子分类已建立",
       "subcategoryUpdated": "子分类已更新",
       "updated": "文档已更新",
       "versionUploaded": "文档版本已上传",
-      "uploaded": "文件已上传"
+      "uploaded": "文件已上传",
+      "systemFilesAdded": "已放进档案"
     },
     "upload": {
       "action": "上传新版本",
       "confirm": "上传",
       "description": "为 {name} 新增一个不可修改的版本。",
-      "limit": "上传时会执行系统设定的文件大小限制。",
+      "limit": "只能上传 PDF、Word、Excel 或照片；上传时会执行系统设定的文件大小限制。",
       "title": "上传文档版本"
     },
     "versions": {
@@ -6634,21 +6844,49 @@
     "preview": {
       "title": "在线预览"
     },
-    "folders": {
-      "title": "分类",
-      "all": "全部文件"
-    },
     "uploadFile": {
       "action": "上传文件",
       "title": "上传到文件档案",
       "description": "选择文件和保存的分类路径。每个文件各自成为一份档案；已有的档案不会被改动。",
-      "fileHint": "照片、PDF、单据、证书、图纸等任何文件，可一次选多个。",
+      "fileHint": "PDF、Word、Excel 或照片，可一次选多个。",
       "pathPreview": "将保存到：",
       "projectHint": "只能选你所在的项目；全公司共用的文件由文件管理员上传。",
       "titleHint": "留空就用文件名。",
       "confirm": "上传",
       "progress": "上传中 {done}/{total}",
-      "noCategory": "请先建立文件分类"
+      "noCategory": "请先建立文件分类",
+      "fromComputer": "从电脑上传"
+    },
+    "categoryPicker": {
+      "expand": "展开 {name} 的子分类",
+      "collapse": "收起 {name} 的子分类"
+    },
+    "source": {
+      "from": "来自 {reference} · {module}",
+      "fromModule": "来自{module}",
+      "deleted": "原记录已删除",
+      "open": "打开原记录"
+    },
+    "pickFromSystem": {
+      "tab": "从系统里选",
+      "description": "在系统里找已有的照片和文件，勾选或拖到右边的档案区，再放进档案。不会复制文件。",
+      "files": "系统文件",
+      "hint": "只列出你本来就看得到的文件。",
+      "searchPlaceholder": "搜编号（如 MR-002）、材料或文件名",
+      "module": "模块",
+      "allModules": "全部模块",
+      "what": "系统文件",
+      "empty": "没有找到文件。",
+      "alreadyFiled": "已在档案里",
+      "dropArea": "档案区",
+      "dropHint": "把照片拖到这里，或点一下照片勾选。",
+      "selected": "已选 {count} 个",
+      "remove": "移除 {name}",
+      "confirm": "放进档案（{count}）",
+      "previous": "上一页",
+      "next": "下一页",
+      "firstPage": "已经是第一页",
+      "lastPage": "已经是最后一页"
     }
   },
   "driver": {
@@ -6974,6 +7212,7 @@
       "bug_not_found": "找不到该 Bug 记录。",
       "calibration_expired": "这台地磅的校准已过期。",
       "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
+      "cannot_review_own_request": "这是你提交的申请，不能自己批准或退回，需要由别人审批。",
       "category_holds_deliveries_only": "「{column}」是材料分类 —— 它装的是送货单和金额，不能放现场照片。请选别的分类。",
       "clock_skew": "网关时钟偏移超过允许范围。",
       "cloud_alert_not_found": "找不到该云用量预警。",
@@ -7000,6 +7239,8 @@
       "config_required": "不能移除必要的系统设置。",
       "config_unknown": "系统不支持该配置键。",
       "conflict": "这项资料现在的状态不允许这个操作。",
+      "consultant_grant_not_current": "选的顾问已经没有这个项目的授权，申请仍是草稿。请换一位顾问，或先在顾问授权里续期。",
+      "consultant_application_locked": "这份申请已经提交，附件和关联证据不能再改。退回修改后，在新版本里改。",
       "consultant_grant_not_found": "找不到该顾问项目授权。",
       "consultant_organization_not_found": "找不到该顾问单位。",
       "customer_assignment_not_found": "找不到该客户归属记录。",
@@ -7031,6 +7272,7 @@
       "evidence_file_unavailable": "此证据文件当前无法使用。",
       "export_no_columns": "请至少选择一列再导出。",
       "export_too_large": "这次选择的数据量太大，无法导出。请先用筛选缩小范围。",
+      "export_too_many_with_photos": "这次导出有 {count} 笔带照片的记录，一次最多 {limit} 笔。请用日期、项目或供应商缩小筛选范围后再导出。",
       "export_unavailable": "PDF 导出暂时不可用，请改用表格格式。",
       "feedback_not_found": "找不到该客户反馈。",
       "field_device_already_bound": "此现场人员账号已绑定一台设备。如需换机，请先让管理员重置设备。",
@@ -7155,7 +7397,29 @@
       "column_inactive": "「{column}」已停用，请选择启用中的分类。",
       "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。",
       "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
-      "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。"
+      "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。",
+      "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
+      "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。",
+      "material_request_assigned_to_other": "这个申请已提交给别人审批。要由你审批，请先按「改派给我」。",
+      "material_request_reviewer_not_eligible": "所选的人不能批准这个项目的申请，请从名单里重新选择。",
+      "document_file_type_not_allowed": "只能上传 PDF、Word、Excel 或照片。",
+      "document_is_system_file": "从系统里选的文件不能上传新版本，新版本请放在原记录里。",
+      "document_system_file_not_found": "有文件找不到，或你没有权限查看。",
+      "disposal_trip_not_waiting": "这一车不是待验收状态（还没送，或已经验收过）。",
+      "disposal_all_trips_sent": "预计的车次都已送出。如果还有车要去，请联系工地在后台「加一车」。",
+      "disposal_trips_closed": "这项清运已完成或已结束，车次不能再改。",
+      "disposal_nothing_sent": "还没有任何一车送出，不能提前结束。不需要的话请用「取消清运」。",
+      "disposal_trip_not_correctable": "只能更正已经送出的车次；已取消或已拒绝的清运不能更正。",
+      "disposal_link_closed": "这个清运链接已经不能用了：清运已完成、被工地提前结束，或链接已过期。如果还有车要去，请联系工地。",
+      "return_note_required": "请先填写 Return Note 再批准。",
+      "return_note_locked": "这笔退场已经审批过，Return Note 不能再修改。已刷新为最新状态。",
+      "equipment_hours_equipment_unavailable": "这台设备现在不能选（已停用或已报废），请选工地上在用的设备。",
+      "equipment_hours_day_not_found": "这台设备那天没有照片，没有可以补的结束时间。",
+      "equipment_hours_end_before_start": "结束时间要在第一张照片之后。",
+      "equipment_hours_end_too_late": "结束时间不能晚于第二天早上 06:00（那是下一班）。",
+      "equipment_profile_incomplete": "先选好这台设备的小类，才能验收。",
+      "equipment_not_on_site": "这台设备现在不在这个项目场内，不能退场。",
+      "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7181,7 +7445,8 @@
     "network": "无法连接服务器。",
     "networkBody": "请检查网络连接后重试。",
     "notFound": "找不到这条记录。",
-    "notFoundBody": "它可能已被移除，或你没有访问权限。"
+    "notFoundBody": "它可能已被移除，或你没有访问权限。",
+    "uploadTimeout": "上传超时：信号太弱，两分钟内没有传完。"
   },
   "evidence": {
     "revision": {
@@ -7517,29 +7782,28 @@
       "preview": "已拍摄"
     },
     "consultantCapture": {
-      "category": "申请类别",
-      "categoryOption": {
-        "MATERIAL": "材料审批",
-        "OTHER": "其他",
-        "RFI": "RFI / 现场问题",
-        "SAFETY": "安全审核",
-        "WIR": "施工检查"
+      "askFor": "这次要顾问看什么",
+      "askOption": {
+        "MATERIAL_APPROVAL": "材料申请",
+        "MATERIAL_CERT_SUBMISSION": "材料证书提交",
+        "RFI": "RFI（问顾问问题）",
+        "OTHER": "其他"
       },
       "chooseProject": "选择项目",
-      "description": "请简单说明要办公室或顾问查看什么",
+      "description": "说明",
+      "descriptionPlaceholder": "想让顾问看什么、问什么，写在这里",
+      "location": "现场定位",
+      "morePhoto": "再拍一张",
       "note": "额外备注（选填）",
-      "photos": "顾问现场照片",
+      "optional": "选填",
+      "photoHint": "至少拍 1 张。建议拍：工作区全景、问题或施工细节、位置参照、图纸或标签。",
+      "photoNumber": "照片 {number}",
+      "photos": "照片",
       "project": "项目",
-      "submit": "提交到顾问资料收件箱",
+      "submit": "提交",
+      "takePhoto": "拍照",
       "workLocation": "现场位置 / 轴线",
       "workLocationPlaceholder": "例如：A座，C1-D1轴线"
-    },
-    "consultantEvidence": {
-      "detail": "2. 问题或施工细节",
-      "location": "3. 轴线或位置参照",
-      "overview": "1. 工作区域全景",
-      "reference": "4. 图纸、标签或周边参照",
-      "title": "必须拍摄的顾问现场证据"
     },
     "consultantTasks": {
       "title": "顾问现场照片提交"
@@ -7681,7 +7945,16 @@
         "reason": "Reject 原因",
         "reasonPlaceholder": "例如：规格不对、损坏、数量不足",
         "submit": "Reject 并提交"
-      }
+      },
+      "supplierGuess": "送货单上读到「{read}」，最像的供应商是「{name}」。",
+      "supplierGuessUse": "用这家",
+      "documentAmount": "送货单金额 (RM)",
+      "documentAmountRead": "已从送货单读出，请对照纸本核对。",
+      "documentAmountTypeHint": "读不到金额时，请照送货单上的总金额填写（可不填）。",
+      "autoFilledFromCategory": "按分类自动带出",
+      "supplierLimited": "只列这个分类设定的供应商",
+      "manufacturer": "制造厂商",
+      "chooseColumnFirst": "请先选分类"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -7722,7 +7995,8 @@
       "waste": "环保材料出场申请",
       "sundry": "杂费报销",
       "request": "MR / 其他申请",
-      "gate": "门岗拍照记录"
+      "gate": "门岗拍照记录",
+      "operatorHours": "设备操作员工时"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -7985,6 +8259,11 @@
     },
     "what": {
       "conversation": "整改沟通"
+    },
+    "popup": {
+      "region": "隐患整改提醒",
+      "open": "打开",
+      "dismiss": "关闭"
     }
   },
   "headquarters": {
@@ -7995,7 +8274,8 @@
       "allProjectsView": "项目视图 · 全部项目",
       "notifications": "通知",
       "notificationsCount": "通知 {count}",
-      "projectUnreadable": "（项目名称读取失败）"
+      "projectUnreadable": "（项目名称读取失败）",
+      "reportsView": "报表中心"
     },
     "figures": {
       "title": "全公司数字",
@@ -8196,6 +8476,19 @@
       "fixedHelp": "发布后不能修改。要更正请发布新公告；旧公告可以撤回，原文会保留。",
       "cancel": "取消",
       "publishAction": "发布"
+    },
+    "wall": {
+      "open": "大屏模式",
+      "exit": "退出大屏",
+      "title": "数字化智慧工地 · 总部大屏",
+      "refresh": "每 30 秒刷新",
+      "escHint": "按 Esc 退出",
+      "projectStatus": "实时项目状态",
+      "activeProjects": "在建项目",
+      "todayByProject": "各项目今日现场记录",
+      "todayByKind": "今日记录 · 按类别",
+      "latestPhoto": "最新现场照片",
+      "photoStream": "照片流水"
     }
   },
   "home": {
@@ -8744,7 +9037,9 @@
       "unpricedReceipts": "未定价收货"
     },
     "export": {
-      "subtitle": "MSE Trace 筛选后的材料进场记录"
+      "subtitle": "MSE Trace 筛选后的材料进场记录",
+      "cumulativeTitle": "累计总数量",
+      "periodQuantity": "期间数量"
     },
     "quantity": {
       "byMaterial": "按材料统计数量",
@@ -8752,10 +9047,11 @@
       "subtitle": "按单位统计收货数量，不混合不同计量单位。",
       "title": "材料数量报表",
       "totalDeliveries": "收货总数",
-      "unitNote": "数量始终按单位分组；吨、件和车次不会相加。"
+      "unitNote": "数量始终按单位分组；吨、件和车次不会相加。",
+      "cumulativeHint": "数量 = 所选期间；累计数量 = 从第一笔收货到期间结束日。没选日期时两栏相同。不合格不计，退场不扣。"
     },
     "records": {
-      "title": "相关记录及照片（{shown} / {total}）",
+      "title": "收货明细（{total}）",
       "what": "此报表的相关记录",
       "photos": "相关照片",
       "open": "查看",
@@ -9296,7 +9592,6 @@
       "fields": "字段",
       "photos": "照片",
       "documents": "单据（DO）",
-      "messages": "事项沟通",
       "files": "文件"
     },
     "itemAccepted": "已接受",
@@ -9334,7 +9629,7 @@
     "oneProjectHelp": "一个资料包属于一个项目。里面的资料来自这个项目的各个分类，别的项目的记录会被拒绝。",
     "open": "打开",
     "pageOf": "第 {page} / {pages} 页",
-    "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据 · {files} 个文件 · {messages} 条沟通",
+    "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据 · {files} 个文件",
     "previous": "上一页",
     "remarksHelp": "几个月后，这段话是唯一能说明当初为什么把这些资料收在一起的东西。",
     "rename": "改名",
@@ -9382,7 +9677,7 @@
     },
     "include": {
       "title": "这些事项要放进资料包的内容",
-      "hint": "字段一定会放入。照片预设勾选；DO、文件、事项沟通需要时才勾选。加入后仍可打开每个事项再调整。"
+      "hint": "字段一定会放入。照片预设勾选；DO、文件需要时才勾选。聊天记录不放进 PDF，在系统里照样能看。加入后仍可打开每个事项再调整。"
     },
     "loadMore": "载入更多（已显示 {shown} / {total}）"
   },
@@ -9428,6 +9723,8 @@
       "material_name": "材料",
       "note": "备注",
       "operator_name": "操作人",
+      "gps": "GPS 位置",
+      "accepted_by": "验收人",
       "people": "人数",
       "percent_complete": "完成度",
       "phase": "阶段",
@@ -9464,7 +9761,22 @@
       "final_proof_submitted": "最终处理证明已提交（任务结束）",
       "legacy_confirmation": "后台验收（旧流程）",
       "remark": "备注",
-      "decided_by": "批准 / 退回人"
+      "decided_by": "批准 / 退回人",
+      "original_quantity": "原数量",
+      "correction_reason": "更正原因",
+      "assigned_reviewer": "提交给",
+      "manufacturer": "制造厂商",
+      "trips_progress": "已验收 / 车次",
+      "trip_checked": "已验收的车",
+      "trip_waiting": "待验收的车",
+      "return_note_no": "Return Note 编号",
+      "return_note_at": "Return Note 日期",
+      "return_note_material": "Return Note 材料",
+      "return_note_delivery_note_no": "Return Note DO 号",
+      "return_note_supplier": "Return Note 供应商",
+      "return_note_quantity": "Return Note 数量",
+      "return_note_reason": "Return Note 退回原因",
+      "approver_name": "Return Note 批准人"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -9640,7 +9952,7 @@
       "consultantAccess": "顾问账号与项目授权",
       "consultantApplications": "顾问申请",
       "consultantDashboard": "顾问首页",
-      "consultantFieldInbox": "现场资料收件箱",
+      "consultantFieldInbox": "待整理现场资料",
       "consultantTemplates": "RFI 表格模板",
       "consultantWorkflows": "审批流程",
       "contractorNotifications": "建筑商通知",
@@ -9807,7 +10119,12 @@
       "consultantSettings": "顾问设定",
       "sundryClaims": "杂费报销",
       "materialReports": "材料报表",
-      "wasteClearance": "垃圾清运"
+      "wasteClearance": "垃圾清运",
+      "equipmentEntry": "设备进场",
+      "equipmentExit": "设备退场",
+      "targetReport": "目标与达成",
+      "manufacturers": "制造厂商",
+      "equipmentOperatorHours": "设备操作员工时"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -9833,7 +10150,8 @@
     "waitingForYou": "{count} 项等你处理",
     "waitingUnknown": "待处理数量没有载入，无法知道有没有事情在等你",
     "materialManagement": "材料管理",
-    "material_requests": "MR / 其他申请"
+    "material_requests": "MR / 其他申请",
+    "waitingConfirm": "{count} 笔待确认"
   },
   "notifications": {
     "compose": {
@@ -9960,6 +10278,7 @@
       "FIELD_TASK_PHOTO": "现场任务照片",
       "FIELD_TASK_TRANSITION": "现场任务更新",
       "MATERIAL_OUTGOING": "材料出场",
+      "MATERIAL_OUTGOING_EXIT": "材料出场 · 实际退场",
       "MATERIAL_RECEIPT": "材料进场",
       "SAFETY_INCIDENT": "安全事件",
       "SITE_PROGRESS": "工地进度",
@@ -9968,7 +10287,8 @@
       "TASK_TRANSITION": "行程进度",
       "TRIP_ASSIGN": "指派行程",
       "WASTE_OUTGOING": "环保材料出场申请",
-      "SUNDRY_CLAIM": "杂费报销"
+      "SUNDRY_CLAIM": "杂费报销",
+      "EQUIPMENT_HOURS_PHOTO": "设备操作员工时"
     },
     "pageDescription": "此页面尚未缓存。请先恢复网络并打开一次，之后即可离线使用。",
     "queue": {
@@ -9977,11 +10297,12 @@
       "empty": "没有等待同步的动作。",
       "retry": "立即重试",
       "heldHint": "同一张单的前一步还没成功，这一步先不送，免得顺序错乱。",
-      "recent": "刚刚已同步"
+      "recent": "刚刚已同步",
+      "needsAttentionHint": "服务器没有接收这一条，不会再自动上传。处理好后按「立即重试」，或放弃这条。"
     },
     "queued": "已离线保存，等待自动上传",
     "status": {
-      "failed": "{count} 条动作同步失败",
+      "failed": "{count} 条动作需要处理",
       "offline": "当前离线，{count} 条记录等待上传",
       "pending": "{count} 条记录等待同步",
       "syncing": "正在上传离线记录"
@@ -9991,9 +10312,10 @@
     "state": {
       "waiting": "待同步",
       "syncing": "同步中",
-      "failed": "同步失败",
+      "failed": "需要处理",
       "held": "等前一步",
-      "synced": "已同步"
+      "synced": "已同步",
+      "retrying": "等待重试"
     },
     "conflict": {
       "forbidden": "你的账号已经没有这项操作的权限（可能在你离线期间被调整了）。请联系管理员；在那之前这条动作不会生效。",
@@ -10002,6 +10324,10 @@
       "changed": "你离线期间，这张单已经被别人处理或状态改变了（例如已取消或已被接受），这一步没有执行。请打开单据看最新状态，确认后放弃这条动作。",
       "invalid": "资料不完整或已经过期（例如预约时间已过），这一步没有执行。请重新操作一次，然后放弃这条动作。",
       "server": "服务器暂时没有处理，下次同步时会再试。"
+    },
+    "reason": {
+      "network": "网络不通",
+      "timeout": "上传超时（信号太弱）"
     }
   },
   "organisation": {
@@ -10327,8 +10653,8 @@
     "progress": {
       "what": "工程实际做到几成，由现场带照片和位置报上来。",
       "who": "同时持 progress.view 和 project.view。",
-      "need": "报一次进度要项目、标题、完成比例；手机端还要施工阶段、现场照片和当前 GPS 位置。",
-      "then": "这个数落到那个施工阶段上，并进入进度报表。",
+      "need": "报一次进度要项目、标题、完成比例；手机端还要施工分类、现场照片和当前 GPS 位置。",
+      "then": "这个数落到那个施工分类上，并进入进度报表。",
       "trouble": "现场没信号没关系：照拍照填，它会排队，之后自动传。存下来的位置是拍照当时的，不是补传时的。"
     },
     "project_categories": {
@@ -10755,6 +11081,12 @@
       "yard": {
         "manage": "新增及管理回收场",
         "view": "查看回收场"
+      },
+      "material_request": {
+        "view": "查看 MR / 其他申请",
+        "submit": "提交 MR / 其他申请",
+        "review": "批准或退回 MR / 其他申请",
+        "config": "维护 MR 材料选项"
       }
     },
     "group": {
@@ -10777,7 +11109,8 @@
       "ticket": "客服",
       "user": "用户",
       "weighing": "称重",
-      "yard": "回收场"
+      "yard": "回收场",
+      "material_request": "MR / 其他申请"
     }
   },
   "photoApprovals": {
@@ -10805,6 +11138,11 @@
       "RETURNED": "已退回"
     },
     "loadMore": "载入更多（已显示 {shown} / {total}）"
+  },
+  "photos": {
+    "count": "{count} 张照片",
+    "none": "没有照片",
+    "open": "查看 {reference} 的照片"
   },
   "profile": {
     "section": {
@@ -11154,7 +11492,9 @@
       "alreadyAccepted": "这批材料已经验收通过了。",
       "armReject": "允许退回这笔收货",
       "armRejectHelp": "材料不符规格才打开。打开后才能填写原因并退回。",
-      "rejectedAtGate": "现场交接时已当场 Reject（双方已签名），不能再更改。"
+      "rejectedAtGate": "现场交接时已当场 Reject（双方已签名），不能再更改。",
+      "archived": "这批材料已确认归档，只能查看，不能再验收或退回。",
+      "failed": "验收没有成功，请重试。"
     },
     "addPhoto": {
       "caption": "备注（可不填）",
@@ -11192,11 +11532,11 @@
         "vehicle_plate": "车牌",
         "delivery_note_no": "送货单号",
         "notes": "备注",
-        "received_by_name": "收货人"
+        "received_by_name": "收货人",
+        "document_amount": "送货单金额"
       }
     },
     "count": "{count, plural, =0 {暂无材料进场记录} other {# 条材料进场记录}}",
-    "createTitle": "记录材料进场",
     "doPanelField": "字段",
     "doPanelLineItems": "单据上的明细行",
     "doPanelLowConfidence": "以下几项读取置信度偏低，请对着单据核一遍",
@@ -11237,11 +11577,16 @@
       "vehiclePlate": "车牌",
       "businessAt": "业务日期",
       "movementType": "类型",
-      "returnReason": "退场原因"
+      "returnReason": "退场原因",
+      "documentAmount": "送货单金额 (RM)",
+      "documentAmountSource": {
+        "OCR": "从送货单读出",
+        "MANUAL": "人工填写"
+      },
+      "manufacturer": "制造厂商"
     },
     "locationCaptured": "已记录位置",
     "locationMissing": "无位置",
-    "new": "记录材料进场",
     "noPhotos": "没有附加照片。",
     "noRecorderPhone": "没有登记联系电话",
     "photoKind": {
@@ -11281,7 +11626,6 @@
       "supplier": "供应商",
       "none": "没有采集到签名。"
     },
-    "stampNote": "时间、位置和记录人由系统在提交时自动写入，无法手动填写或事后修改。",
     "summary": "一眼看全",
     "title": "材料进场",
     "toast": {
@@ -11309,9 +11653,6 @@
       "rejected": "不合格"
     },
     "what": {
-      "projects": "项目列表",
-      "suppliers": "供应商列表",
-      "dockets": "送货单二维码列表",
       "columns": "分类列表"
     },
     "movement": {
@@ -11324,15 +11665,37 @@
       "out": "Material Out 退场",
       "reject": "Reject 不合格",
       "totals": "累计净数量",
-      "legacyReturns": "10-02 前用进场单登记的退场记录"
+      "legacyReturns": "10-02 前用进场单登记的退场记录",
+      "choose": "选择查看"
     },
     "net": {
-      "title": "按材料汇总的累计净数量",
-      "note": "净数量 = 正常进场（Reject 不计入）− 关联原进场的正式退场（只扣一次）。不同单位不混加。",
-      "received": "进场",
-      "returned": "退场",
-      "net": "净数量",
-      "rejected": "Reject（不计入）"
+      "title": "按供应商、材料汇总的累计净数量",
+      "note": "累计进场不会减少。累计净数量 = 进场（不合格不计入）− 后台已确认完成的退场（按材料分类和单位配对）。不同单位不混加。",
+      "received": "累计进场",
+      "returned": "已退场",
+      "net": "累计净数量",
+      "rejected": "Reject（不计入）",
+      "supplier": "供应商",
+      "noSupplier": "未填供应商",
+      "searchMaterial": "搜索材料",
+      "expand": "查看逐笔",
+      "collapse": "收起",
+      "deliveries": "笔数",
+      "item": {
+        "kind": {
+          "DELIVERY": "进场",
+          "RETURN": "退场",
+          "RETURN_RECEIPT": "退场（10-02 前）",
+          "REJECTED": "不合格"
+        },
+        "date": "日期",
+        "reference": "单号",
+        "doNo": "DO 号",
+        "plate": "车牌",
+        "manufacturer": "制造厂商",
+        "returnNote": "Return Note",
+        "quantity": "数量"
+      }
     }
   },
   "recyclerBusiness": {
@@ -12080,6 +12443,7 @@
       "updated": "安全事故已更新"
     },
     "update": {
+      "closeHint": "这里只能标记处理中或重新打开。要闭环：先指派整改人，整改提交后由发起人确认完成。",
       "description": "更新 {incident} 并保留处理历史。",
       "title": "更新事故状态"
     },
@@ -12088,6 +12452,11 @@
       "responsiblePeople": "负责人列表",
       "requestedIncident": "链接中的事故",
       "workers": "可通知人员"
+    },
+    "drill": {
+      "waitingForMe": "只显示等你处理的整改：要你指派、整改或确认的。",
+      "overdue": "只显示逾期整改：过了期限、还没验收通过的。",
+      "showAll": "显示全部"
     }
   },
   "safetyRectification": {
@@ -12328,7 +12697,7 @@
       "plannedProgress": "计划进度",
       "plannedStart": "计划开始",
       "progressEvidence": "关联现场进度",
-      "progressEvidenceHelp": "这里只显示本项目已经确认的进度照片记录。",
+      "progressEvidenceHelp": "这里只显示本项目现场传上来的进度照片记录。",
       "project": "项目",
       "revisionLabel": "修订版名称",
       "revisionReason": "变更原因",
@@ -12386,11 +12755,11 @@
       "MANUAL": "手动建立"
     },
     "state": {
-      "candidatesLoadError": "无法载入已确认的现场进度，因此无法确定到底有没有证据可以附上。请先重试再确认。",
+      "candidatesLoadError": "无法载入现场进度记录，因此无法确定到底有没有证据可以附上。请先重试再确认。",
       "chooseProject": "请选择项目以查看施工计划。",
       "historyLoadError": "无法载入施工计划历史，因此无法确定到底有没有历史记录。请重试。",
       "loadError": "无法载入施工计划，请重试。",
-      "noConfirmedProgress": "目前没有已确认的现场进度记录。",
+      "noConfirmedProgress": "目前没有现场进度记录。",
       "noHistory": "还没有施工计划历史。",
       "noPlans": "这个项目还没有施工计划。您可以手动建立或导入 Excel。",
       "noReason": "没有额外备注",
@@ -12756,7 +13125,8 @@
       "vehiclePlate": "车牌",
       "visitorHours": "访客证默认时长（小时）",
       "website": "公司网站",
-      "worker": "工地人员"
+      "worker": "工地人员",
+      "expiringSoon": "7 天内到期"
     },
     "gate": {
       "cameraError": "无法启动相机。请允许相机权限后重试，或上传二维码图片。",
@@ -12992,25 +13362,21 @@
     },
     "gateRecords": {
       "title": "门岗拍照记录",
-      "subtitle": "门岗保安拍下的现场情况：可疑人员、偷窃、异常车辆、物品带出、纠纷。",
+      "subtitle": "门岗保安拍下的现场照片，可关联通行证，并和指定的人沟通。",
       "new": "新增门岗记录",
       "newTitle": "新增门岗拍照记录",
-      "newHelp": "可以连续拍多张，不限张数。每张照片都会记下时间、GPS、项目、门岗和你的名字。",
+      "newHelp": "拍照后直接按发送。每张照片都会记下时间、GPS、项目和你的名字。",
       "detailHelp": "照片、被指定的人和沟通内容都留在这条门岗记录里，不能删除。",
       "field": {
         "project": "项目",
         "chooseProject": "选择项目",
         "allProjects": "全部项目",
         "category": "事项类别",
-        "allCategories": "全部类别",
         "search": "搜索",
         "searchPlaceholder": "记录编号、门岗、保安、通行证或车牌",
         "gate": "门岗",
-        "gatePlaceholder": "例如：大门",
         "pass": "关联通行证",
-        "passHint": "可不选。没有关联的通行证就独立保存。",
         "standalone": "独立记录",
-        "wholePass": "整张通行证（不指定某次进出）",
         "event": "关联进出记录",
         "description": "情况说明",
         "photos": "照片",
@@ -13023,7 +13389,6 @@
       "what": "门岗记录",
       "whatOne": "这条门岗记录",
       "whatPeople": "这个项目的人员",
-      "whatPasses": "这个项目的通行证",
       "loading": "加载中…",
       "empty": "还没有门岗拍照记录。",
       "count": "已显示 {shown} / 共 {total} 条",
@@ -13045,7 +13410,6 @@
       "saveError": "保存失败，请再试一次。",
       "cancel": "取消",
       "save": "保存 {count} 张照片",
-      "none": "未填写",
       "photosTitle": "照片（{count}）",
       "addPhotos": "补拍照片",
       "membersTitle": "指定沟通人员",
@@ -13055,7 +13419,18 @@
       "conversationTitle": "沟通",
       "conversationHelp": "文字、照片、语音、文件都留在这条门岗记录里，不能删除。",
       "gpsValue": "GPS {latitude}, {longitude}",
-      "gpsUnavailable": "GPS 不可用"
+      "gpsUnavailable": "GPS 不可用",
+      "scanPass": "扫通行证二维码",
+      "scanPassButton": "扫通行证二维码",
+      "scanPassHint": "有通行证就扫一下，这条记录会关联到那张通行证；没有就跳过。",
+      "scanPassNotFound": "这个二维码不是本项目的通行证，可以再扫一次或跳过。",
+      "unlinkPass": "取消关联通行证",
+      "chooseProjectFirst": "先选项目",
+      "firstMessage": "第一句话",
+      "firstMessageHint": "会存成这条记录沟通里的第一条，选的人会收到。",
+      "firstMessagePlaceholder": "例如：这辆罗厘没有出门单，请确认",
+      "photoFirst": "先拍至少一张照片，才能发送。",
+      "send": "发送（{count} 张照片）"
     }
   },
   "siteDisposal": {
@@ -13119,7 +13494,7 @@
     "external": {
       "action": {
         "start": "开始清运",
-        "submit": "提交最终处理证明（结束任务）"
+        "submit": "送出这一车"
       },
       "error": {
         "action": "操作无法完成，请检查网络后重试。"
@@ -13154,9 +13529,9 @@
       "tapCamera": "按这里打开相机",
       "title": "清运任务",
       "uploaded": "已上传",
-      "waitingBody": "最终处理证明已提交，链接已失效，不能再加照片。",
+      "waitingBody": "全部车次已验收，这项清运已完成，链接已失效。",
       "waitingTitle": "任务已结束",
-      "photosBody": "把垃圾送到合法处理地点后拍照。最多 4 张，不限类别；至少 1 张才能提交。提交后任务结束、链接失效。"
+      "photosBody": "每一车送到合法处理地点后拍照。最多 4 张，不限类别；至少 1 张才能送出。送出后后台会验收，下一车用同一条链接。"
     },
     "externalActor": "外部执行人员",
     "field": {
@@ -13190,7 +13565,11 @@
       "volume": "预计体积（m³）",
       "waste": "杂物/废弃物说明",
       "finalProofSubmitted": "最终处理证明已提交",
-      "legacyConfirmation": "后台验收（旧流程）"
+      "legacyConfirmation": "后台验收（旧流程）",
+      "plannedTrips": "预计车次",
+      "tripsProgress": "车次验收",
+      "tripsAccepted": "已验收车次",
+      "tripsTotal": "计划车次"
     },
     "fieldEvidence": {
       "access": "3. 清运入口或车辆路线",
@@ -13203,7 +13582,7 @@
       "action": {
         "photosRequired": "先拍最终处理证明",
         "start": "开始清运",
-        "submit": "提交最终处理证明（结束任务）"
+        "submit": "送出这一车"
       },
       "error": {
         "action": "操作无法完成，请检查网络和 GPS 后重试。"
@@ -13211,11 +13590,10 @@
       "field": {
         "doNo": "Disposal DO 编号",
         "note": "工作备注",
-        "trips": "车次数量",
         "weight": "实际重量（kg）"
       },
       "invalid": "无法打开这项清运任务，请刷新任务列表后重试。",
-      "photosBody": "把垃圾送到合法处理地点后拍照。每次最多 4 张，不限类别；至少 1 张才能提交。提交即结束任务，不需要后台验收。",
+      "photosBody": "每一车送到合法处理地点后拍照。每车最多 4 张，不限类别；至少 1 张才能送出。送出后由后台验收这一车。",
       "photosTitle": "最终处理证明",
       "status": {
         "APPROVED": "已批准",
@@ -13229,7 +13607,7 @@
         "RETURNED": "已退回（旧流程）"
       },
       "submitTitle": "清运结果",
-      "waitingBody": "最终处理证明已提交，这项清运已完成。",
+      "waitingBody": "全部车次已验收，这项清运已完成。",
       "waitingTitle": "任务已结束"
     },
     "notAssigned": "尚未指派",
@@ -13250,7 +13628,8 @@
     "review": {
       "title": "审批清运申请",
       "linkTitle": "把这条链接发给申请人",
-      "linkHelp": "请现在复制 —— 只显示这一次。申请人转给司机，司机通过这条链接上传处理照片。"
+      "linkHelp": "请现在复制 —— 只显示这一次。申请人转给司机，司机通过这条链接上传处理照片。",
+      "tripsHelp": "批准后按这个数生成车次。司机每送一车，后台收到一条待办，验收完最后一车，清运自动完成。"
     },
     "status": {
       "APPROVED": "已批准",
@@ -13269,7 +13648,7 @@
       "APPROVED": "申请已批准",
       "CANCELLED": "申请已取消",
       "COLLECTOR_ASSIGNED": "已指派外部清运商",
-      "COMPLETED": "管理人员已验收完成（旧流程）",
+      "COMPLETED": "全部车次已验收，清运完成",
       "EVIDENCE_DISPOSAL_DO": "已上传 Disposal DO",
       "EVIDENCE_LOADING": "已上传装车照片",
       "EVIDENCE_OTHER": "已上传其他现场照片",
@@ -13286,7 +13665,12 @@
       "CLOSED_ON_SUBMISSION": "已结束：最终处理证明已提交（新规则）",
       "NUMBERS_RECORDED": "后台已补录重量 / 车次 / DO",
       "SITE_EVIDENCE": "现场已上传车辆出场 / Gate Pass 照片",
-      "EVIDENCE_DISPOSAL_PROOF": "已上传最终处理证明照片"
+      "EVIDENCE_DISPOSAL_PROOF": "已上传最终处理证明照片",
+      "TRIP_SUBMITTED": "已送出一车，等待后台验收",
+      "TRIP_ACCEPTED": "后台已验收一车",
+      "TRIP_ADDED": "后台加了一车",
+      "ENDED_EARLY": "后台提前结束，未送的车次已取消",
+      "TRIP_CORRECTED": "后台更正了一车的重量 / DO"
     },
     "title": "工地清运",
     "toast": {
@@ -13297,11 +13681,16 @@
       "requested": "清运申请已提交",
       "reviewed": "清运审批已保存",
       "numbersRecorded": "已保存重量 / 车次 / DO",
-      "siteEvidence": "现场照片已发送后台"
+      "siteEvidence": "现场照片已发送后台",
+      "tripAccepted": "这一车已验收",
+      "tripAdded": "已加一车",
+      "endedEarly": "清运已提前结束",
+      "tripCorrected": "这一车已更正"
     },
     "overdue": {
       "badge": "异常",
-      "help": "批准后 36 小时仍未提交最终处理证明，请跟进。"
+      "help": "批准后 36 小时仍没有送出任何一车，请跟进。",
+      "helpNextLoad": "上一车送出已超过 48 小时，预计的车还没来齐，请跟进。"
     },
     "what": {
       "fieldStaff": "本项目的现场工作人员"
@@ -13315,7 +13704,8 @@
     },
     "recordNumbers": {
       "title": "补录重量 / 车次 / DO",
-      "description": "{reference} 已结束。这里只补录数字，不是验收；每次修改都会留在时间轴。"
+      "description": "{reference} 已结束。这里只补录数字，不是验收；每次修改都会留在时间轴。",
+      "tripsCounted": "车次按已验收的车自动计算。要改某一车的重量或 DO，请在「车次」里按「更正」。"
     },
     "siteEvidence": {
       "title": "现场证据：车辆出场 / Gate Pass",
@@ -13326,6 +13716,42 @@
       "note": "备注",
       "submit": "提交后台",
       "photos": "照片"
+    },
+    "countedOnly": "只显示总部「原工地清运」计入数量的申请：不含已拒绝和已取消。",
+    "showAll": "显示全部",
+    "trips": {
+      "title": "车次",
+      "progress": "已验收 {accepted} / {total} 车",
+      "seq": "第 {seq} 车",
+      "accept": "验收这一车",
+      "add": "加一车",
+      "endSwitch": "提前结束这项清运",
+      "endHint": "打开开关才能结束。还没送的车次取消、司机链接失效；已送达的车次仍要验收。",
+      "end": "提前结束",
+      "ended": "后台已提前结束，不会再有新的车次。",
+      "checkedBy": "{name} 已验收 · {at}",
+      "sentProgress": "已送出 {sent} / {total} 车",
+      "justSent": "第 {seq} 车已送出，后台会验收。",
+      "loadTitle": "第 {seq} / {total} 车：处理证明（最多 4 张）",
+      "allSentTitle": "全部车次已送出",
+      "allSentBody": "等待后台验收。如果还有车要去，请联系工地在后台「加一车」。",
+      "correct": "更正",
+      "correctTitle": "更正第 {seq} 车",
+      "correctHint": "只改这一车的重量或 DO 编号，要写原因。原来的数字和每次更正都会保留。",
+      "correctReason": "更正原因",
+      "correctSave": "保存更正",
+      "correctUnchanged": "先改重量或 DO 编号",
+      "history": "更正记录",
+      "historyWeight": "重量 {from} → {to} kg",
+      "historyDo": "DO {from} → {to}",
+      "historyMeta": "{name} · {at} · 原因：{reason}",
+      "blank": "（空）"
+    },
+    "tripStatus": {
+      "PLANNED": "还没送",
+      "SUBMITTED": "待验收",
+      "ACCEPTED": "已验收",
+      "CANCELLED": "已取消（提前结束）"
     }
   },
   "siteGps": {
@@ -13686,7 +14112,9 @@
       "qrActive": "二维码启用",
       "qrCodeCount": "送货单",
       "registrationNo": "注册号",
-      "state": "州属"
+      "state": "州属",
+      "industry": "行业",
+      "mainProducts": "主要产品"
     },
     "new": "新建供应商",
     "qr": {
@@ -13741,6 +14169,13 @@
     },
     "what": {
       "sites": "工地列表"
+    },
+    "placeholder": {
+      "industry": "例如：钢铁、混凝土、五金建材",
+      "mainProducts": "例如：钢筋、BRC 钢网、扎丝"
+    },
+    "hint": {
+      "profileMissing": "这家供应商是旧资料，还没有行业和主要产品，保存前请补上。"
     }
   },
   "support": {
@@ -14780,7 +15215,9 @@
     "zoomOut": "缩小",
     "zoomReset": "原始大小",
     "previous": "上一张",
-    "next": "下一张"
+    "next": "下一张",
+    "recorder": "记录人",
+    "recorderUnknown": "没有记录人资料"
   },
   "moduleTable": {
     "count": "{count} 条记录",
@@ -14789,7 +15226,7 @@
     "allProjects": "全部项目",
     "allStatuses": "全部状态",
     "allDirections": "进场与退场",
-    "allPhases": "全部阶段",
+    "allPhases": "全部施工分类",
     "located": "已记录位置",
     "equipmentView": {
       "movements": "进退场记录",
@@ -14846,7 +15283,9 @@
     "offHelp": "挂号已关：这里只有一张表单。",
     "cannotTurnOff": "还有挂号存着照片或在等上传，先上交再关",
     "cannotTurnOn": "表单里还有内容，先上交或清空再开挂号",
-    "fillFirst": "挂号 {n} 还没拍照片，先拍一张挂上，再开下一个号。"
+    "fillFirst": "挂号 {n} 还没拍照片，先拍一张挂上，再开下一个号。",
+    "retrying": "{reason} · 已试 {count} 次，会自动再传",
+    "needsAttention": "需要处理：{reason}（已试 {count} 次）"
   },
   "sundryClaim": {
     "detailTitle": "杂费报销",
@@ -14944,7 +15383,26 @@
     "allSuppliers": "全部供应商",
     "materialsFailed": "无法载入材料列表。",
     "suppliersFailed": "无法载入供应商列表。",
-    "noSuppliers": "此选择还没有进场记录。"
+    "noSuppliers": "此选择还没有进场记录。",
+    "level": {
+      "photos": "照片来源",
+      "progress": "施工分类",
+      "safety": "隐患整改分类",
+      "consultant": "申请类型",
+      "equipment": "设备大类",
+      "equipmentClass": "小类",
+      "recycling": "环保材料出场分类",
+      "documents": "文档大分类",
+      "documentSubcategory": "子分类"
+    },
+    "consultantType": {
+      "MATERIAL_APPROVAL": "材料申请",
+      "MATERIAL_CERT_SUBMISSION": "材料证书提交",
+      "RFI": "RFI",
+      "OTHER": "其他"
+    },
+    "categoriesFailed": "无法载入分类列表。",
+    "noCategories": "此报表还没有分类，点报表名称直接打开。"
   },
   "wasteClearance": {
     "title": "垃圾清运",
@@ -14982,8 +15440,7 @@
     "confirmer": {
       "safetyLeads": "项目安全负责人",
       "legacy": "有验收权限的人员（整改人除外）",
-      "me": "我自己（默认）",
-      "initiator": "你——后台或顾问发起的，由发起人确认"
+      "initiator": "你——谁发起，谁确认完成"
     },
     "field": {
       "origin": "发起来源",
@@ -15018,14 +15475,10 @@
       "confirm": "确认完成"
     },
     "form": {
-      "selectConfirmer": "选择确认人",
-      "confirmerHint": "只有确认人能确认完成，整改人不能自己确认。",
-      "confirmerConflict": "确认人和整改人不能是同一人。",
+      "confirmerHint": "只有发起人能确认完成，整改人不能自己确认。",
+      "confirmerConflict": "发起人要确认完成，不能同时当整改人。",
       "rectifier": "整改人",
       "noRectifier": "暂不指定，由主管分配"
-    },
-    "what": {
-      "confirmers": "可选的确认人"
     }
   },
   "materialRequest": {
@@ -15074,7 +15527,11 @@
       "returnReason": "退回原因",
       "decisionNote": "批准备注",
       "remark": "备注",
-      "attachments": "附件"
+      "attachments": "附件",
+      "assignedReviewer": "提交给",
+      "reassignHistory": "改派记录",
+      "supplier": "供应商",
+      "manufacturer": "制造厂商"
     },
     "action": {
       "view": "查看",
@@ -15086,7 +15543,8 @@
       "preview": "预览",
       "print": "打印",
       "exportPdf": "导出 PDF",
-      "raiseAgain": "新建申请"
+      "raiseAgain": "新建申请",
+      "reassignToMe": "改派给我"
     },
     "empty": "暂无申请",
     "loading": "加载中…",
@@ -15096,6 +15554,7 @@
     "noRemark": "无备注",
     "returnedNotice": "此申请已退回并结束，不能修改或重新提交。如需再申请，请新建申请，会产生新的申请编号。",
     "waitingForReview": "等待总部或授权负责人批准或退回。",
+    "ownRequestWaiting": "等待审批。这是你提交的申请，由总部或授权负责人批准或退回，你自己不能审批。",
     "attachments": {
       "title": "附件索引",
       "none": "无附件"
@@ -15136,7 +15595,12 @@
       "removeFile": "移除 {name}",
       "fileTooBig": "{name} 超过 {limit} MB。",
       "fileOrRemark": "文件或备注",
-      "submit": "提交"
+      "submit": "提交",
+      "assignedReviewerHint": "只列出这个项目能批准申请的人。",
+      "chooseReviewer": "选择审批人",
+      "projectFirst": "请先选择项目",
+      "noReviewers": "这个项目还没有人能批准申请。请公司管理员在「角色权限」里，给审批人的角色勾上「批准或退回 MR / 其他申请」。",
+      "suggestHint": "选填，总部批准时决定。"
     },
     "options": {
       "open": "材料选项",
@@ -15162,11 +15626,22 @@
       "submitted": "申请已提交。",
       "approved": "申请已批准。",
       "returned": "申请已退回并结束。",
-      "optionSaved": "已保存。"
+      "optionSaved": "已保存。",
+      "reassigned": "已改派给你，现在由你审批。"
     },
     "capture": {
       "mine": "我的申请",
       "mineHelp": "提交后可在「我提交过的」查看状态和沟通。"
+    },
+    "waitingFor": "等待 {name} 审批。",
+    "reassigned": "{by} 改派给自己 · {at}",
+    "reassignedFrom": "{by} 从 {from} 改派给自己 · {at}",
+    "reassignHelp": "改派后由你批准或退回，原来的审批人不能再批，系统会留下改派记录。",
+    "approve": {
+      "title": "批准 {reference}",
+      "help": "批准就是采购决定：选好向哪家供应商买、用哪家厂商。",
+      "chooseSupplier": "选择供应商",
+      "confirm": "批准"
     }
   },
   "filePreview": {
@@ -15199,5 +15674,323 @@
     "toast": {
       "added": "已上传 {count} 个附件"
     }
+  },
+  "supplierDateFilter": {
+    "allSuppliers": "全部供应商",
+    "supplier": "供应商",
+    "search": "输入供应商名称",
+    "noMatch": "没有这个名称的供应商",
+    "from": "开始日期",
+    "to": "至",
+    "toLabel": "结束日期",
+    "what": "供应商列表",
+    "allManufacturers": "全部厂商",
+    "manufacturer": "制造厂商",
+    "whatManufacturers": "厂商名单"
+  },
+  "recordNo": {
+    "copy": "复制 {number}",
+    "copied": "已复制 {number}",
+    "copyFailed": "复制失败。长按编号可以看到完整编号。"
+  },
+  "manufacturers": {
+    "title": "制造厂商",
+    "description": "生产材料的工厂。材料分类可以设「指定厂商」；记录上的厂商不在名单里会标「非指定厂商」。",
+    "new": "新增厂商",
+    "createTitle": "新增厂商",
+    "editTitle": "编辑厂商",
+    "field": {
+      "name": "厂商名称",
+      "country": "国家",
+      "isActive": "启用",
+      "sortOrder": "排序",
+      "createdAt": "新增时间"
+    },
+    "empty": "还没有厂商",
+    "what": "厂商名单",
+    "duplicate": "这个厂商已经在名单里。",
+    "inUse": "已有记录用了这个厂商，请改为停用。",
+    "switchedOff": "已停用",
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "只有还没被任何记录用过的厂商可以删除；已用过的请停用，旧记录仍保留厂商名称。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "已新增厂商",
+      "updated": "已更新厂商",
+      "removed": "已删除厂商"
+    },
+    "column": "制造厂商",
+    "offList": "非指定厂商",
+    "offListHint": "这个分类指定了其他厂商，仍然可以提交。",
+    "picker": {
+      "choose": "选择制造厂商",
+      "none": "未填写",
+      "designated": "指定厂商",
+      "addNew": "名单里没有？新增",
+      "newName": "新厂商名称",
+      "add": "新增",
+      "offline": "新增厂商需要网络。请先从名单选，或先不填。",
+      "failed": "厂商新增失败。",
+      "fromColumn": "按分类自动带出"
+    }
+  },
+  "progressPage": {
+    "tabs": {
+      "label": "工程进度",
+      "phases": "施工分类",
+      "photos": "现场照片",
+      "reports": "日报告",
+      "schedule": "施工计划",
+      "summary": "项目进度摘要"
+    },
+    "subtitle": {
+      "phases": "每个项目自己的施工分类和权重。手机报进度时选施工分类，整体进度按权重计算。",
+      "photos": "现场拍的进度照片，按日期和施工分类找；勾选照片就能填写日报告。",
+      "reports": "每天的日报告，点开看全文和当时勾选的照片。",
+      "schedule": "项目的施工计划和实际进度。",
+      "summary": "项目经理自己排版的项目进度摘要：文字、照片、数字卡、图表。"
+    },
+    "project": "项目",
+    "chooseProject": "选择项目",
+    "chooseProjectFirst": "先选择项目。",
+    "dateFrom": "开始日期",
+    "dateTo": "结束日期",
+    "previous": "上一页",
+    "next": "下一页",
+    "save": "保存",
+    "cancel": "取消",
+    "removeFailed": "没有删除成功，请再试一次。",
+    "phases": {
+      "add": "新增施工分类",
+      "help": "手机拍进度照片时要选一个施工分类。权重决定它在整体进度里占多少（1 = 和其他施工分类一样）。",
+      "name": "施工分类",
+      "records": "进度记录",
+      "active": "使用中",
+      "inactive": "已停用",
+      "empty": "还没有施工分类。"
+    },
+    "photos": {
+      "viewLabel": "显示方式",
+      "viewWall": "照片",
+      "viewRecords": "进度记录",
+      "allPhases": "全部施工分类",
+      "selected": "已选 {count} 张",
+      "selectHint": "勾选照片，再按「填写日报告」。",
+      "select": "选这张",
+      "unselect": "不选这张",
+      "clear": "取消选择",
+      "oneProject": "一份日报告只能放同一个项目的照片。",
+      "empty": "没有找到现场照片。",
+      "emptyDay": "这段时间没有现场照片。"
+    },
+    "reports": {
+      "write": "填写日报告",
+      "editTitle": "修改日报告",
+      "help": "写下这一天现场做了什么，勾选要附上的照片。",
+      "name": "日报名称",
+      "date": "日期",
+      "view": "查看",
+      "body": "内容",
+      "photos": "照片",
+      "photoCount": "{count} 张照片",
+      "empty": "还没有日报告。",
+      "noBody": "（没有内容）",
+      "noPhotos": "这份日报告没有照片。",
+      "edit": "修改",
+      "defaultName": "{date} 日报告",
+      "remove": {
+        "switch": "删除这份日报告",
+        "hint": "写错了才删除。照片本身不受影响。",
+        "confirm": "删除日报告"
+      }
+    },
+    "summary": {
+      "new": "新建摘要",
+      "edit": "编辑",
+      "title": "标题",
+      "blocks": "内容块",
+      "empty": "还没有项目进度摘要。",
+      "noBlocks": "这份摘要还没有内容。",
+      "noBlocksYet": "还没有内容。用下面的按钮加文字、照片组、数字卡或图表。",
+      "updated": "{time} · {name} 更新",
+      "addBlock": "加一块：",
+      "type": {
+        "text": "文字",
+        "photos": "照片组",
+        "number": "数字卡",
+        "chart": "图表"
+      },
+      "drag": "拖动调整顺序",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "removeBlock": "删除这块",
+      "textPlaceholder": "写一段说明……",
+      "label": "名称",
+      "number": "数字",
+      "unit": "单位",
+      "note": "备注",
+      "caption": "说明",
+      "chartKind": "图表类型",
+      "chart": {
+        "bar": "柱状图",
+        "line": "折线图"
+      },
+      "chartTitle": "图表标题",
+      "series": "数据名称",
+      "value": "数值",
+      "pointLabel": "标签",
+      "pointValue": "数值",
+      "addPoint": "加一个数据",
+      "removePoint": "删除这个数据",
+      "chartEmpty": "还没有数据。",
+      "pickPhotos": "选择照片",
+      "pickHelp": "从这个项目的现场照片里选。",
+      "unpickPhoto": "拿掉这张",
+      "done": "完成",
+      "noPhotos": "没有照片。",
+      "remove": {
+        "switch": "删除这份摘要",
+        "hint": "删除后大家都看不到这份摘要。照片本身不受影响。",
+        "confirm": "删除摘要"
+      }
+    }
+  },
+  "supplierReturns": {
+    "badge": "有退场资料",
+    "badgeHint": "这家供应商有 {count} 笔已完成的退场，点开查看",
+    "title": "{name} 的退场资料",
+    "help": "这家供应商所有已完成的退场：Return Note、照片、双方签名和批准资料。",
+    "empty": "没有已完成的退场。",
+    "truncated": "只显示最近 {shown} 笔（共 {total} 笔）。请按项目或日期缩小范围。",
+    "what": "退场资料",
+    "column": {
+      "date": "日期",
+      "material": "材料",
+      "quantity": "数量",
+      "plate": "车牌",
+      "reason": "退回原因",
+      "returnNote": "Return Note",
+      "photos": "照片",
+      "signatures": "双方签名",
+      "approval": "批准资料",
+      "completedAt": "完成日期"
+    },
+    "site": "现场",
+    "supplierSide": "供应商 / 司机",
+    "approver": "批准人",
+    "print": "打印",
+    "export": "导出",
+    "share": "分享",
+    "open": "打开这一笔"
+  },
+  "equipmentHours": {
+    "subtitle": "开工拍一张、收工拍一张：第一张是开始，最后一张是结束，相减就是工时（不扣午休）。夜班算同一班：早上 6 点前拍的照片算进前一天那一班。",
+    "allProjects": "全部项目",
+    "photoAlt": "设备照片",
+    "photoCount": "{count} 张",
+    "view": {
+      "day": "按日",
+      "month": "按月"
+    },
+    "filter": {
+      "from": "从",
+      "to": "到",
+      "month": "月份",
+      "shown": "这里显示 {from} 至 {to}（一次最多 {max} 天）。"
+    },
+    "field": {
+      "date": "日期",
+      "equipment": "设备",
+      "plate": "车牌号码",
+      "project": "项目",
+      "start": "开始",
+      "end": "结束",
+      "hours": "工时（小时）",
+      "status": "状态",
+      "photos": "照片",
+      "operators": "拍照人",
+      "reason": "补录原因",
+      "adjustedBy": "补录人",
+      "daysWorked": "工作天数",
+      "totalHours": "合计工时（小时）",
+      "missingEndDays": "缺收工天数",
+      "adjustedDays": "后台补录天数",
+      "actions": "操作",
+      "nextDay": "次日 {time}"
+    },
+    "status": {
+      "MISSING_END": "缺收工",
+      "ADJUSTED": "后台已补",
+      "OK": "正常"
+    },
+    "export": {
+      "range": "{from} 至 {to}",
+      "summaryTitle": "每台设备合计"
+    },
+    "day": {
+      "empty": "这段时间没有设备照片。"
+    },
+    "month": {
+      "empty": "这个月没有设备照片。",
+      "total": "合计"
+    },
+    "what": {
+      "days": "每日工时",
+      "month": "每月合计"
+    },
+    "adjust": {
+      "add": "补结束时间",
+      "edit": "改结束时间",
+      "help": "只改这一天的结束时间，照片不会被改动；每次修改都会留下记录。夜班的结束时间可以到第二天早上 06:00。",
+      "endAt": "结束时间",
+      "reason": "原因",
+      "reasonPlaceholder": "例如：操作员忘了收工拍照，按工地日志 17:30 收工",
+      "save": "保存",
+      "failed": "保存失败，请再试一次。"
+    },
+    "dialog": {
+      "summary": "开始 {start} · 结束 {end} · {hours} 小时",
+      "photos": "当天照片"
+    },
+    "history": {
+      "title": "修改记录",
+      "empty": "还没有后台修改。",
+      "end": "结束时间改为 {end}",
+      "current": "现在用这条",
+      "by": "{name} · {at}",
+      "photoEnd": "照片上的最后时间：{end}"
+    },
+    "toast": {
+      "endSaved": "结束时间已保存",
+      "uploaded": "照片已上传"
+    },
+    "phone": {
+      "howTo": "开工时拍一张设备照片，收工时再拍一张。系统按第一张和最后一张算工时。",
+      "project": "项目",
+      "machine": "设备",
+      "pickMachine": "选择设备",
+      "machines": "设备名单",
+      "noMachines": "这个项目还没有可以选的设备，请后台先建档。",
+      "photo": "设备照片",
+      "takePhoto": "拍照",
+      "photoReady": "已拍好，可以重拍",
+      "location": "位置",
+      "locationReady": "已取得位置",
+      "send": "上传",
+      "failed": "上传失败，请再试一次。",
+      "queued": "已存在手机里，有网络会自动上传。",
+      "today": "今天 {count} 张照片，开始 {start}",
+      "stopHint": "收工时再拍一张",
+      "soFar": "到 {end} 共 {hours} 小时",
+      "shift": "{date} 这一班：{count} 张照片，开始 {start}"
+    }
+  },
+  "theme": {
+    "label": "外观",
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色"
   }
 }

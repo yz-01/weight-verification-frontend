@@ -247,7 +247,7 @@ describe("the stored list", () => {
 });
 
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 describe("the four capture screens share the one 挂号 mechanism (D-260, 「不要分别做不同逻辑」)", () => {

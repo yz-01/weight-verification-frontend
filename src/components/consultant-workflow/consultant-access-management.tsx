@@ -15,10 +15,11 @@ import {
   ShieldCheck,
   UserPlus,
   Users,
+  X,
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -70,6 +71,7 @@ import {
   revokeConsultantAccessGrant,
   updateConsultantAccessGrant,
   updateConsultantOrganization,
+  uploadConsultantOrganizationLogo,
 } from "@/services/consultant-workflow.service";
 
 /**
@@ -123,6 +125,72 @@ function toIso(value: string) {
 function readableError(error: unknown) {
   if (!(error instanceof ApiError)) return "";
   return Object.values(error.errors)[0] || error.message;
+}
+
+type FirmForm = Parameters<typeof createConsultantOrganization>[0];
+
+/** The firm as saved on this dialog's last 保存: its id and what was sent. */
+export interface SavedFirm {
+  id: string;
+  form: string;
+}
+
+const firmServices = {
+  create: (form: FirmForm) => createConsultantOrganization(form),
+  update: (id: string, form: FirmForm) => updateConsultantOrganization(id, form),
+  uploadLogo: (id: string, file: File | null) => uploadConsultantOrganizationLogo(id, file),
+};
+
+/**
+ * Save a consultant firm, then its logo (C1, B4 audit #18).
+ *
+ * The logo is a second request and can be refused (over 2 MB, not a
+ * picture) after the firm itself was saved. That used to leave the dialog in
+ * create mode, and the next 保存 made a second firm. Now the firm's id is
+ * kept (`saved`): a retry updates that firm - only when a field changed -
+ * and sends the logo again; the refusal comes back as `logoError` so the
+ * dialog can say "firm saved, logo not".
+ */
+export async function saveConsultantFirm(
+  {
+    row,
+    saved,
+    form,
+    logoFile,
+    clearLogo,
+  }: {
+    row: Pick<ConsultantOrganizationOption, "id" | "logo"> | null;
+    saved: SavedFirm | null;
+    form: FirmForm;
+    logoFile: File | null;
+    clearLogo: boolean;
+  },
+  services: {
+    create: (form: FirmForm) => Promise<{ id: string }>;
+    update: (id: string, form: FirmForm) => Promise<{ id: string }>;
+    uploadLogo: (id: string, file: File | null) => Promise<unknown>;
+  } = firmServices,
+): Promise<{ firm: { id: string }; formKey: string; logoError: unknown }> {
+  const formKey = JSON.stringify(form);
+  const id = saved?.id ?? row?.id;
+  let firm: { id: string };
+  if (!id) firm = await services.create(form);
+  else if (saved && saved.form === formKey) firm = { id };
+  else firm = await services.update(id, form);
+  try {
+    if (logoFile) await services.uploadLogo(firm.id, logoFile);
+    else if (clearLogo && row?.logo) await services.uploadLogo(firm.id, null);
+  } catch (logoError) {
+    return { firm, formKey, logoError };
+  }
+  return { firm, formKey, logoError: null };
+}
+
+/** The firm was saved; its logo was refused. */
+class LogoNotSavedError extends Error {
+  constructor(readonly cause: unknown) {
+    super("logo_not_saved");
+  }
 }
 
 export function ConsultantAccessManagement() {
@@ -190,7 +258,7 @@ export function ConsultantAccessManagement() {
   ].filter((value): value is string => Boolean(value));
 
   return (
-    <div className="space-y-5 pb-10">
+    <div className="space-y-4 pb-10">
       <DetailHeader
         backHref="/modules/consultants"
         backLabel={t("back")}
@@ -198,7 +266,7 @@ export function ConsultantAccessManagement() {
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
 
       {failedSections.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center">
           <AlertCircle className="size-5 shrink-0 text-destructive" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-destructive">{t("error.title")}</p>
@@ -252,7 +320,7 @@ export function ConsultantAccessManagement() {
             description={t("organization.subtitle")}
             action={
               can("user.create") ? (
-                <Button size="sm" onClick={() => setOrganizationDialog(null)}>
+                <Button onClick={() => setOrganizationDialog(null)}>
                   <Plus /> {t("organization.add")}
                 </Button>
               ) : null
@@ -267,12 +335,22 @@ export function ConsultantAccessManagement() {
               {organizationRows.map((row) => (
                 <article
                   key={row.id}
-                  className="rounded-lg border bg-card p-4 shadow-sm"
+                  className="surface-panel rounded-xl p-4"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                      <Building2 className="size-5" />
-                    </span>
+                    {row.logo ? (
+                      // The logo the A4 application form prints (C1).
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={row.logo}
+                        alt={t("organization.logo")}
+                        className="size-10 shrink-0 rounded-lg border bg-paper object-contain p-0.5"
+                      />
+                    ) : (
+                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                        <Building2 className="size-5" />
+                      </span>
+                    )}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="font-semibold">{row.name}</h2>
@@ -317,7 +395,6 @@ export function ConsultantAccessManagement() {
             action={
               can("user.create") ? (
                 <Button
-                  size="sm"
                   disabled={!organizationRows.some((row) => row.is_active)}
                   onClick={() => setInviteOpen(true)}
                 >
@@ -335,7 +412,7 @@ export function ConsultantAccessManagement() {
               {memberRows.map((row) => (
                 <article
                   key={row.id}
-                  className="rounded-lg border bg-card p-4 shadow-sm"
+                  className="surface-panel rounded-xl p-4"
                 >
                   <div className="flex items-start gap-3">
                     <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-info/10 text-info">
@@ -379,7 +456,6 @@ export function ConsultantAccessManagement() {
             action={
               can("project.assign") ? (
                 <Button
-                  size="sm"
                   disabledReason={
                     !memberRows.length
                       ? t("grant.needsConsultants")
@@ -404,7 +480,7 @@ export function ConsultantAccessManagement() {
               {grantRows.map((row) => (
                 <article
                   key={row.id}
-                  className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm lg:flex-row lg:items-center"
+                  className="flex flex-col gap-4 surface-panel rounded-xl p-4 lg:flex-row lg:items-center"
                 >
                   <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-success/10 text-success">
                     <ShieldCheck className="size-5" />
@@ -474,6 +550,7 @@ export function ConsultantAccessManagement() {
         <OrganizationDialog
           row={organizationDialog}
           onClose={() => setOrganizationDialog(undefined)}
+          onFirmSaved={() => void refresh()}
           onSaved={() => {
             void refresh();
             setOrganizationDialog(undefined);
@@ -526,7 +603,7 @@ function StepTile({
   done: boolean;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border bg-card p-4 shadow-sm">
+    <div className="flex items-start gap-3 surface-panel rounded-xl p-4">
       <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
         <Icon className="size-5" />
       </span>
@@ -550,8 +627,8 @@ function SectionToolbar({
 }) {
   return (
     <div className="mb-4 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h2 className="text-base font-semibold">{title}</h2>
+      <div className="min-w-0">
+        <h2 className="panel-title">{title}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
       {action}
@@ -574,7 +651,7 @@ function LoadingState({
     return <div className="grid min-h-40 place-items-center"><Loader2 className="animate-spin text-primary" /></div>;
   }
   if (empty) {
-    return <div className="rounded-lg border border-dashed bg-muted/15 p-10 text-center text-sm text-muted-foreground">{emptyText}</div>;
+    return <div className="rounded-xl border border-dashed border-panel-border p-10 text-center text-sm text-muted-foreground">{emptyText}</div>;
   }
   return children;
 }
@@ -583,10 +660,13 @@ function OrganizationDialog({
   row,
   onClose,
   onSaved,
+  onFirmSaved,
 }: {
   row: ConsultantOrganizationOption | null;
   onClose: () => void;
   onSaved: () => void;
+  /** The firm is saved but the dialog stays open (its logo was refused). */
+  onFirmSaved: () => void;
 }) {
   const t = useTranslations("consultantAccess");
   const [form, setForm] = useState({
@@ -600,11 +680,32 @@ function OrganizationDialog({
   });
   const set = (key: keyof typeof form, value: string | boolean) =>
     setForm((old) => ({ ...old, [key]: value }));
+  // The logo printed on the A4 application form (C1). Applied with the rest
+  // on 保存, so choosing or removing one is undone by 取消.
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [clearLogo, setClearLogo] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  useEffect(() => {
+    if (!logoFile) return;
+    const url = URL.createObjectURL(logoFile);
+    const timer = window.setTimeout(() => setLogoPreview(url), 0);
+    return () => {
+      window.clearTimeout(timer);
+      URL.revokeObjectURL(url);
+    };
+  }, [logoFile]);
+  const shownLogo = logoFile ? logoPreview : clearLogo ? null : row?.logo ?? null;
+  const [saved, setSaved] = useState<SavedFirm | null>(null);
   const save = useMutation({
-    mutationFn: () =>
-      row
-        ? updateConsultantOrganization(row.id, form)
-        : createConsultantOrganization(form),
+    mutationFn: async () => {
+      const result = await saveConsultantFirm({ row, saved, form, logoFile, clearLogo });
+      setSaved({ id: result.firm.id, form: result.formKey });
+      if (result.logoError) {
+        onFirmSaved();
+        throw new LogoNotSavedError(result.logoError);
+      }
+      return result.firm;
+    },
     onSuccess: onSaved,
   });
   return (
@@ -633,6 +734,51 @@ function OrganizationDialog({
           <FieldWrapper label={t("field.address")} className="sm:col-span-2">
             <Textarea value={form.address} onChange={(event) => set("address", event.target.value)} />
           </FieldWrapper>
+          <FieldWrapper
+            label={t("organization.logo")}
+            hint={t("organization.logoHint")}
+            className="sm:col-span-2"
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              {shownLogo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={shownLogo}
+                  alt={t("organization.logo")}
+                  data-testid="organization-logo-preview"
+                  className="h-14 w-24 rounded-lg border bg-paper object-contain p-1"
+                />
+              ) : (
+                <span className="grid h-14 w-24 place-items-center rounded-lg border border-dashed text-xs text-muted-foreground">
+                  {t("organization.noLogo")}
+                </span>
+              )}
+              <Input
+                type="file"
+                accept="image/png,image/jpeg"
+                aria-label={t("organization.logo")}
+                className="sm:max-w-xs"
+                onChange={(event) => {
+                  setLogoFile(event.target.files?.[0] ?? null);
+                  setClearLogo(false);
+                }}
+              />
+              {shownLogo ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setLogoFile(null);
+                    setClearLogo(true);
+                  }}
+                >
+                  <X />
+                  {t("organization.removeLogo")}
+                </Button>
+              ) : null}
+            </div>
+          </FieldWrapper>
           {row && (
             <label className="flex items-center justify-between gap-3 rounded-lg border p-3 sm:col-span-2">
               <span>
@@ -645,7 +791,13 @@ function OrganizationDialog({
         </div>
         {save.isError && (
           <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            {readableError(save.error)}
+            {save.error instanceof LogoNotSavedError
+              ? t("organization.logoNotSaved", {
+                  reason:
+                    readableError(save.error.cause) ||
+                    (save.error.cause instanceof Error ? save.error.cause.message : ""),
+                })
+              : readableError(save.error)}
           </p>
         )}
         <DialogFooter>

@@ -2,13 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  DoorOpen,
   Hand,
   Info,
   Loader2,
   ScanLine,
   TriangleAlert,
-  Truck,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -99,8 +97,7 @@ function ReleasePanel({
   return (
     <div className="space-y-2 rounded-lg border bg-card/60 p-3">
       <div className="flex items-center gap-2">
-        <DoorOpen className="h-4 w-4 text-muted-foreground" />
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="panel-title">
           {t("gate.release.title")}
         </span>
         <span className="ml-auto">
@@ -144,14 +141,14 @@ function ReleasePanel({
       </ul>
 
       {release.released_manually ? (
-        <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+        <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
           {t("gate.release.manualNote", {
             name: release.manual_release_by_name,
             reason: binding.manual_release_reason,
           })}
         </p>
       ) : release.needs_operator ? (
-        <div className="space-y-2 rounded-md bg-destructive/10 px-3 py-2">
+        <div className="space-y-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
           <p className="flex items-start gap-2 text-xs font-medium text-destructive">
             <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {t("gate.release.needsOperator")}
@@ -159,10 +156,9 @@ function ReleasePanel({
           <Button
             variant="outline"
             size="sm"
-            className="h-7 rounded-full px-3 text-xs"
             onClick={onManualRelease}
           >
-            <Hand className="h-3.5 w-3.5" />
+            <Hand className="size-4" />
             {t("gate.release.manualRelease")}
           </Button>
         </div>
@@ -267,14 +263,14 @@ export function GateConsole() {
       plate.trim().replace(/\s/g, "").toUpperCase();
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">
-          {t("gate.title")}
-        </h2>
-        <p className="mt-0.5 text-sm text-muted-foreground">
-          {t("gate.subtitle")}
-        </p>
+    <div className="flex flex-col gap-4">
+      {/* Not ListHeader: that adds a help button this page never had. */}
+      <div className="flex items-center gap-3">
+        <span aria-hidden className="h-10 w-1 shrink-0 rounded-full bg-primary shadow-glow-sm" />
+        <div className="min-w-0">
+          <h2 className="text-xl font-semibold leading-tight sm:text-2xl">{t("gate.title")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("gate.subtitle")}</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -282,31 +278,30 @@ export function GateConsole() {
             the page: the operator reads it from the barrier, not the desk. */}
         <div
           className={cn(
-            "rounded-xl border shadow-sm",
+            "rounded-xl",
             waiting && !expired
-              ? "border-primary/30 bg-primary/5"
-              : "bg-card",
+              ? "border border-primary/30 bg-primary/5"
+              : "surface-panel",
           )}
         >
-          <div className="flex items-center gap-2 border-b px-6 py-4">
-            <Truck className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="flex min-h-14 items-center gap-2 border-b px-4 py-3 sm:px-6">
+            <h3 className="panel-title">
               {t("gate.waiting")}
             </h3>
             {waiting && !expired && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-auto h-7 rounded-full px-3 text-xs text-destructive hover:bg-destructive/10"
+                className="ml-auto text-destructive hover:bg-destructive/10"
                 onClick={() => setClearing(true)}
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="size-4" />
                 {t("gate.clear")}
               </Button>
             )}
           </div>
 
-          <div className="px-6 py-6">
+          <div className="p-4 sm:p-6">
             {binding.isError ? (
               <LoadFailed onRetry={() => void binding.refetch()} />
             ) : binding.isLoading ? (
@@ -364,7 +359,7 @@ export function GateConsole() {
                 />
 
                 {expired && (
-                  <p className="flex items-start gap-2 rounded-md bg-warning/12 px-3 py-2 text-xs font-medium text-warning">
+                  <p className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs font-medium text-warning">
                     <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     {t("gate.expired")}
                   </p>
@@ -374,16 +369,15 @@ export function GateConsole() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card shadow-sm">
-          <div className="flex items-center gap-2 border-b px-6 py-4">
-            <ScanLine className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="surface-panel rounded-xl">
+          <div className="flex min-h-14 items-center gap-2 border-b px-4 py-3 sm:px-6">
+            <h3 className="panel-title">
               {t("gate.scan")}
             </h3>
           </div>
 
           <form
-            className="space-y-4 px-6 py-5"
+            className="space-y-4 p-4 sm:p-6"
             onSubmit={(event) => {
               event.preventDefault();
               scan.mutate();
@@ -391,7 +385,7 @@ export function GateConsole() {
           >
             <FieldWrapper label={t("gate.selectScale")} required>
               <Select value={scaleId} onValueChange={setChosenScale}>
-                <SelectTrigger className="w-full bg-card">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("common.selectPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -429,7 +423,7 @@ export function GateConsole() {
               <Label className="text-sm font-medium">
                 {t("gate.sequenceTitle")}
               </Label>
-              <div className="grid grid-cols-1 divide-y rounded-md border bg-muted/20 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+              <div className="grid grid-cols-1 divide-y rounded-lg border bg-muted/30 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
                 <div className="flex items-center gap-3 px-3 py-2.5">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                     1
@@ -488,10 +482,9 @@ export function GateConsole() {
 
             <Button
               type="submit"
-              size="sm"
               requires={[[scaleId, t("gate.selectScale")], [dispatchNo, t("gate.field.dispatchNo")]]}
               disabled={scan.isPending}
-              className="rounded-full px-4 shadow-sm"
+              className="w-full sm:w-auto"
             >
               {scan.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

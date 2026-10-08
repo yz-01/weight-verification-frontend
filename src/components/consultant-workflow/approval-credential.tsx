@@ -51,7 +51,7 @@ export function ApprovalCredentialSettings() {
   if (credential.isError) {
     // Without the stored credential the form cannot tell "set up" from "replace".
     return (
-      <div className="mx-auto max-w-4xl space-y-5 pb-8">
+      <div className="mx-auto max-w-4xl space-y-4 pb-8">
         <DetailHeader
           backHref="/consultant-applications"
           backLabel={t("applications.back")}
@@ -66,7 +66,7 @@ export function ApprovalCredentialSettings() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-5 pb-8">
+    <div className="mx-auto max-w-4xl space-y-4 pb-8">
       <DetailHeader
         backHref="/consultant-applications"
         backLabel={t("applications.back")}
@@ -75,8 +75,8 @@ export function ApprovalCredentialSettings() {
         title={t("credential.title")}
         subtitle={t("credential.subtitle")}
       />
-      <section className="rounded-lg border bg-card p-5 shadow-sm">
-        <div className="mb-5 flex items-start gap-3 border-b pb-5">
+      <section className="surface-panel rounded-xl p-4 sm:p-6">
+        <div className="mb-4 flex items-start gap-3 border-b pb-4">
           <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <ShieldCheck className="size-5" />
           </span>
@@ -87,7 +87,7 @@ export function ApprovalCredentialSettings() {
             </p>
           </div>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper
             label={t("credential.signature")}
             required={!credential.data}
@@ -103,7 +103,7 @@ export function ApprovalCredentialSettings() {
                 href={credential.data.signature}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-white p-2"
+                className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-paper p-2"
               >
                 {/* The stored image is user-owned evidence and is intentionally shown without transformation. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -125,7 +125,7 @@ export function ApprovalCredentialSettings() {
                 href={credential.data.stamp}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-white p-2"
+                className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-paper p-2"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={credential.data.stamp} alt={t("credential.stamp")} className="max-h-full max-w-full object-contain" />
@@ -135,8 +135,8 @@ export function ApprovalCredentialSettings() {
         </div>
       </section>
 
-      <section className="rounded-lg border bg-card p-5 shadow-sm">
-        <div className="mb-5 flex items-start gap-3 border-b pb-5">
+      <section className="surface-panel rounded-xl p-4 sm:p-6">
+        <div className="mb-4 flex items-start gap-3 border-b pb-4">
           <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-info/10 text-info"><KeyRound className="size-5" /></span>
           <div><h2 className="font-semibold">{t("credential.pinTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("credential.pinHelp")}</p></div>
         </div>
@@ -153,7 +153,7 @@ export function ApprovalCredentialSettings() {
         </div>
       </section>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end max-sm:[&_button]:w-full">
         <Button requires={[[password, t("credential.currentPassword")], [pin.length === 6, t("credential.pin")], [pinConfirm.length === 6, t("credential.pinConfirm")], [credential.data || signature, t("credential.signature")]]}
 disabledReason={pin.length === 6 && pinConfirm.length === 6 && pin !== pinConfirm ? t("credential.pinMismatch") : undefined}
                 disabled={pin !== pinConfirm || save.isPending} onClick={() => save.mutate()}>

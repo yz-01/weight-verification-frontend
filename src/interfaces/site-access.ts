@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 export type GeofenceShape = "CIRCLE" | "POLYGON";
 
 export interface SiteGeofence {
@@ -339,7 +341,7 @@ export interface GateIncidentMember {
   created_at: string;
 }
 
-export interface GateIncident {
+export interface GateIncident extends RecordedBy {
   id: string;
   incident_no: string;
   project: string;
@@ -385,14 +387,25 @@ export interface GatePhotoDraft {
   client_event_id: string;
 }
 
+/** A pass found from a scanned QR, to link a gate photo record to (Q18). */
+export interface GatePassMatch {
+  id: string;
+  pass_no: string;
+  subject_name: string;
+  vehicle_plate: string;
+  status: AccessPassStatus;
+}
+
+/**
+ * What the guard's phone sends (Q18): photos, an optional scanned pass, the
+ * people asked in and their first words. No category - the server files it
+ * as OTHER - and no gate name or description.
+ */
 export interface GateIncidentPayload {
   project: string;
-  category: GateIncidentCategory;
-  gate_name: string;
-  description: string;
   access_pass?: string;
-  access_event?: string;
   members: string[];
+  first_message?: string;
   latitude?: string;
   longitude?: string;
   accuracy_m?: string;

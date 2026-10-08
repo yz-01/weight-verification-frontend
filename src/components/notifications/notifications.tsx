@@ -12,6 +12,7 @@ import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
@@ -135,7 +136,7 @@ export function Notifications({
           />
         ),
         cell: ({ row }) => (
-          <span className="text-xs tabular-nums text-muted-foreground">
+          <span className="tabular text-xs text-muted-foreground">
             {df.dateTime(row.original.created_at)}
           </span>
         ),
@@ -246,7 +247,7 @@ export function Notifications({
         action={
           <div className="flex flex-wrap items-center gap-2">
             {!card && can("notification.send") && (
-              <Button size="sm" onClick={() => setComposeOpen(true)}>
+              <Button onClick={() => setComposeOpen(true)}>
                 <BellPlus className="h-4 w-4" />
                 {t("notifications.compose.action")}
               </Button>
@@ -317,7 +318,7 @@ export function Notifications({
               }
             >
               <SelectTrigger
-                className="h-9 min-w-32 rounded-full"
+                className="w-full sm:w-48"
                 aria-label={t("notifications.filter.category")}
               >
                 <SelectValue />
@@ -377,7 +378,7 @@ function notificationKindKey(kind: string): string {
   return known.has(kind) ? kind : "EVENT";
 }
 
-function ProjectNotificationDialog({
+export function ProjectNotificationDialog({
   onClose,
   onSent,
 }: {
@@ -385,7 +386,7 @@ function ProjectNotificationDialog({
   onSent: () => void;
 }) {
   const t = useTranslations("notifications.compose");
-  const [project, setProject] = useState("");
+  const [chosenProject, setProject] = useState<string | null>(null);
   const [recipientScope, setRecipientScope] = useState<"ALL" | "ROLE" | "PEOPLE">("ALL");
   const [recipients, setRecipients] = useState<string[]>([]);
   const [recipientRoles, setRecipientRoles] = useState<string[]>([]);
@@ -396,6 +397,15 @@ function ProjectNotificationDialog({
     queryFn: () =>
       getProjects({ page_size: 100, status: "ACTIVE", sort_by: "name" }),
   });
+  // Addressed to the top bar's 「当前项目」 until another is chosen here
+  // (B13 audit #7), when that project is one a notice can go to.
+  const topBar = useCurrentProject();
+  const project =
+    chosenProject ??
+    (topBar.projectId &&
+    (projects.data?.results ?? []).some((row) => row.id === topBar.projectId)
+      ? topBar.projectId
+      : "");
   const members = useQuery({
     queryKey: ["project-assignments", project, "notification-compose"],
     queryFn: () => getProjectAssignments(project),
@@ -469,7 +479,7 @@ function ProjectNotificationDialog({
                 setRecipientRoles([]);
               }}
             >
-              <SelectTrigger className="h-11 w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("selectProject")} />
               </SelectTrigger>
               <SelectContent>
@@ -501,7 +511,7 @@ function ProjectNotificationDialog({
 
           <FieldWrapper label={t("recipients")} required hint={t("recipientsHelp")}>
             {!project ? (
-              <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-panel-border p-4 text-sm text-muted-foreground">
                 {t("chooseProjectFirst")}
               </p>
             ) : members.isError ? (

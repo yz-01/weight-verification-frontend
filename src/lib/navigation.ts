@@ -777,6 +777,14 @@ export const PORTAL_NAVIGATION = {
           "/suppliers",
           "suppliers",
         ),
+        // 制造厂商 (2026-10 D1): the factories, kept beside the suppliers by
+        // the same people and under the same permissions.
+        child(
+          "3.2.2",
+          "nav.submodule.manufacturers",
+          "/manufacturers",
+          "suppliers",
+        ),
       ],
     ),
     // 材料管理 (A01, B09, E01): one entry for material coming in and going
@@ -824,6 +832,13 @@ export const PORTAL_NAVIGATION = {
           "/site-equipment",
           "equipment",
         ),
+        // 设备操作员工时 (2026-10 B15): each machine's hours per day and month.
+        child(
+          "6.2.2",
+          "nav.submodule.equipmentOperatorHours",
+          "/equipment-operator-hours",
+          "equipment",
+        ),
       ],
     ),
     item(
@@ -840,12 +855,17 @@ export const PORTAL_NAVIGATION = {
           "/progress",
           "progress",
         ),
-        child(
-          "7.2.14",
-          "nav.submodule.schedulePlanning",
-          "/schedule",
-          "schedule",
-        ),
+        // 施工计划 is a tab of 工程进度 now (2026-10 B17, Q9): out of the
+        // menu, and `/schedule` still opens on its own.
+        {
+          ...child(
+            "7.2.14",
+            "nav.submodule.schedulePlanning",
+            "/schedule",
+            "schedule",
+          ),
+          menuHidden: true,
+        },
       ],
     ),
     item(
@@ -967,13 +987,20 @@ export const PORTAL_NAVIGATION = {
           "approvals",
           "approval.view",
         ),
-        child(
-          "10.2.4",
-          "nav.submodule.consultantFieldInbox",
-          "/consultant-field-inbox",
-          "field_tasks",
-          "consultant.submit",
-        ),
+        // 「现场资料收件箱」 is no longer a menu entry (2026-10 C1, Q2): it is
+        // the 「待整理现场资料」 tab of 顾问申请. Kept in the tree, hidden, so
+        // an old link or notification still passes `isRouteAllowed` and lands
+        // on the page, which forwards to the tab.
+        {
+          ...child(
+            "10.2.4",
+            "nav.submodule.consultantFieldInbox",
+            "/consultant-field-inbox",
+            "field_tasks",
+            "consultant.submit",
+          ),
+          menuHidden: true,
+        },
         // One entry for the three settings pages (T-373, D-254). Workflows,
         // templates and consultant access each had their own line beside the
         // pages people work in, and the module read as unusable; the hub says
@@ -1157,9 +1184,19 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/schedule",
           "report_center",
         ),
+        // 项目资料 is the document archive, by 文档大分类 → 子分类 (D6). The
+        // archive's own read permission still applies.
         child(
           "13.2.11",
           "nav.submodule.projectRecords",
+          "/reports/contractor/documents",
+          "report_center",
+          "document.view",
+        ),
+        // Targets and their achievement, which 项目资料 used to open.
+        child(
+          "13.2.11A",
+          "nav.submodule.targetReport",
           "/reports/contractor/target",
           "report_center",
         ),
@@ -1631,7 +1668,6 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/projects/:id/edit", permission: "project.update" },
   { pattern: "/suppliers/create", permission: "supplier.create" },
   { pattern: "/suppliers/:id/edit", permission: "supplier.update" },
-  { pattern: "/receipts/create", permission: "receipt.create" },
   { pattern: "/receipts/:id/edit", permission: "receipt.update" },
   { pattern: "/dispatches/create", permission: "dispatch.create" },
   { pattern: "/dispatches/:id/edit", permission: "dispatch.update" },

@@ -298,7 +298,7 @@ export function AdminDashboard({
       {section === undefined && (
         <header className="flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase text-primary">
+            <p className="text-xs font-semibold text-primary">
               MSE Trace
             </p>
             <h1 className="mt-1 text-2xl font-semibold">{t("title")}</h1>
@@ -335,7 +335,7 @@ export function AdminDashboard({
       )}
       {show("map") && (
         <section
-          className="overflow-hidden rounded-lg border bg-card shadow-sm"
+          className="overflow-hidden surface-panel rounded-xl"
           aria-labelledby="admin-map-title"
         >
           <div className="flex flex-col gap-4 border-b px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
@@ -562,7 +562,7 @@ export function AdminDashboard({
                 >
                   {t("trends.operatingTitle")}
                 </h2>
-                <div className="h-80 rounded-lg border bg-card p-4 shadow-sm">
+                <div className="h-80 surface-panel rounded-xl p-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={trendRows}
@@ -581,7 +581,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="contractors"
                         name={t("trends.contractors")}
-                        stroke="#087f8c"
+                        stroke="var(--chart-1)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -589,7 +589,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="recyclers"
                         name={t("trends.recyclers")}
-                        stroke="#9a3412"
+                        stroke="var(--chart-7)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -597,7 +597,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="orders"
                         name={t("trends.orders")}
-                        stroke="#2563eb"
+                        stroke="var(--chart-2)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -605,7 +605,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="weight"
                         name={t("trends.weight")}
-                        stroke="#16825d"
+                        stroke="var(--chart-4)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -624,7 +624,7 @@ export function AdminDashboard({
                 >
                   {t("trends.revenueTitle")}
                 </h2>
-                <div className="h-72 rounded-lg border bg-card p-4 shadow-sm">
+                <div className="h-72 surface-panel rounded-xl p-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={trendRows}
@@ -643,7 +643,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="saasRevenue"
                         name={t("trends.saasRevenue")}
-                        stroke="#7c3aed"
+                        stroke="var(--chart-3)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -651,7 +651,7 @@ export function AdminDashboard({
                         type="monotone"
                         dataKey="commissionRevenue"
                         name={t("trends.commissionRevenue")}
-                        stroke="#ca8a04"
+                        stroke="var(--chart-5)"
                         strokeWidth={2}
                         dot={false}
                       />
@@ -848,7 +848,7 @@ function MetricSection({
             <Link
               key={metric.key}
               href={metric.href}
-              className="min-h-28 rounded-lg border bg-card p-4 shadow-sm transition hover:border-primary/30 hover:shadow-md"
+              className="min-h-28 surface-panel rounded-xl p-4 transition hover:border-primary/30 hover:shadow-md"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-medium text-muted-foreground">
@@ -1109,7 +1109,7 @@ function MapFilter({
 }) {
   return (
     <label className="min-w-0 space-y-1">
-      <span className="block text-[11px] font-medium text-muted-foreground">
+      <span className="block text-2xs font-medium text-muted-foreground">
         {label}
       </span>
       {children}

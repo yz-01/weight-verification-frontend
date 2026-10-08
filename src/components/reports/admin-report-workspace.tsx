@@ -11,7 +11,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { ListHeader, LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
+import { FilterBar, ListHeader, LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -88,19 +88,19 @@ export function AdminReportWorkspace({
         }
       />
       {section === "overview" ? (
-        <div className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="surface-panel min-h-0 flex-1 overflow-hidden rounded-xl">
           <div className="grid md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <Link
                 key={module.section}
                 href={`/reports/${module.section}`}
-                className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"
+                className="flex min-h-20 items-center gap-3 border-b border-r border-panel-border px-4 py-4 transition-colors hover:bg-muted/40 sm:px-6"
               >
                 
                 <span className="min-w-0 flex-1 font-medium">
                   {t(`section.${module.section}.title`)}
                 </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <ArrowRight className="size-4 text-muted-foreground" />
               </Link>
             ))}
           </div>
@@ -177,7 +177,7 @@ function ReportPanel({
 
   return (
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
-      <div className="grid gap-3 rounded-lg border bg-card p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-6">
+      <FilterBar>
         {showType && (
           <FilterSelect
             label={t("filter.reportType")}
@@ -224,12 +224,11 @@ function ReportPanel({
         />
         <DateFilter label={t("filter.dateFrom")} value={dateFrom} onChange={setDateFrom} />
         <DateFilter label={t("filter.dateTo")} value={dateTo} onChange={setDateTo} />
-        <QueryFailedNote query={options} what={t("what.filterOptions")} className="sm:col-span-2 xl:col-span-6" />
-      </div>
+        <QueryFailedNote query={options} what={t("what.filterOptions")} className="basis-full" />
+      </FilterBar>
 
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <Button
-          size="sm"
           variant="outline"
           disabledReason={!report.data ? common("noReportYet") : undefined}
           disabled={exportMutation.isPending || !report.data}
@@ -239,7 +238,6 @@ function ReportPanel({
           {t("action.excel")}
         </Button>
         <Button
-          size="sm"
           variant="outline"
           disabledReason={!report.data ? common("noReportYet") : undefined}
           disabled={exportMutation.isPending || !report.data}
@@ -251,23 +249,23 @@ function ReportPanel({
       </div>
 
       {report.isError ? (
-        <div className="rounded-lg border bg-card py-12 text-center text-sm text-muted-foreground">
+        <div className="surface-panel rounded-xl px-6 py-12 text-center text-sm text-muted-foreground">
           {t("loadError")}
         </div>
       ) : report.isLoading || !report.data ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-24 rounded-lg" />
+            <Skeleton key={index} className="h-24 rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="grid overflow-hidden rounded-lg border bg-card sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {report.data.metrics.map((metric) => (
-            <div key={metric.key} className="min-h-28 border-b border-r px-5 py-4">
-              <p className="text-sm text-muted-foreground">
+            <div key={metric.key} className="surface-panel min-h-28 min-w-0 rounded-xl p-4">
+              <p className="text-xs font-medium text-muted-foreground">
                 {t(`metric.${metric.key}`)}
               </p>
-              <p className="mt-3 text-2xl font-semibold tabular-nums">
+              <p className="kpi-figure mt-3 break-words text-2xl text-foreground">
                 {formatMetric(metric, format)}
               </p>
             </div>
@@ -292,12 +290,12 @@ function FilterSelect({
   allLabel?: string;
 }) {
   return (
-    <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
+    <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground sm:w-48">
       <span>{label}</span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 w-full rounded-md border bg-background px-3 text-sm text-foreground"
+        className="native-control"
       >
         {allLabel && <option value="">{allLabel}</option>}
         {options.map((option) => (
@@ -320,7 +318,7 @@ function DateFilter({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
+    <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground sm:w-44">
       <span>{label}</span>
       <Input type="date" value={value} onChange={(event) => onChange(event.target.value)} />
     </label>
@@ -341,7 +339,7 @@ function ReportHistory() {
         title={t("section.history.title")}
         subtitle={t("section.history.subtitle")}
       />
-      <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">
+      <div className="surface-panel min-h-0 flex-1 overflow-auto rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
@@ -358,7 +356,7 @@ function ReportHistory() {
               <TableRow key={row.id}>
                 <TableCell className="font-medium">
                   <span className="inline-flex items-center gap-2">
-                    <Download className="h-4 w-4 text-muted-foreground" />
+                    <Download className="size-4 text-muted-foreground" />
                     {row.file_name}
                   </span>
                 </TableCell>

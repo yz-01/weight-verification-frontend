@@ -51,7 +51,7 @@ export function BillingWorkspace({ section = "overview" }: { section?: BillingSe
     return true;
   });
   let content: React.ReactNode;
-  if (section === "overview") content = <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid md:grid-cols-2 xl:grid-cols-3">{visibleModules.map((module) => <Link key={module.section} href={`/billing/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
+  if (section === "overview") content = <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl"><div className="grid md:grid-cols-2 xl:grid-cols-3">{visibleModules.map((module) => <Link key={module.section} href={`/billing/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
   else if (section === "automatic-billing" && canManage) content = <AutomaticBilling />;
   else if (section === "collections" && canCollect) content = <PaymentManager />;
   else if (section === "payment-proofs" && (canPay || canCollect)) content = <PaymentManager proofsOnly />;
@@ -92,10 +92,10 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
   };
 
   return (
-    <section className="shrink-0 overflow-hidden rounded-lg border border-primary/15 bg-primary/[0.035]">
+    <section className="surface-panel shrink-0 overflow-hidden rounded-xl">
       <div className="flex flex-col gap-1 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-sm font-semibold">{t("workflow.title")}</h3>
+          <h3 className="panel-title">{t("workflow.title")}</h3>
           <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
             {t("workflow.description")}
           </p>
@@ -105,7 +105,7 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
         </span>
       </div>
       <div className="overflow-x-auto bg-background/60">
-        <div className="grid min-w-[760px] divide-x sm:min-w-0 sm:grid-cols-5">
+        <div className="grid min-w-190 divide-x sm:min-w-0 sm:grid-cols-5">
         {WORKFLOW_STEPS.map((step, index) => {
           const Icon = icons[step.key];
           const active = activeStep === step.key;
@@ -120,7 +120,7 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
                 <Icon className="size-3.5" />
               </span>
               <div className="min-w-0">
-                <p className="text-[11px] text-muted-foreground">{t("workflow.stepLabel", { number: index + 1 })}</p>
+                <p className="text-2xs text-muted-foreground">{t("workflow.stepLabel", { number: index + 1 })}</p>
                 <p className="text-xs font-semibold leading-5">{t(`workflow.step.${step.key}`)}</p>
               </div>
             </Link>
@@ -146,5 +146,5 @@ function Summary({ data, loading, failed, expanded = false }: { data: Awaited<Re
   ] as const;
   // A failed summary shows a dash, never a zero that reads as "nothing owed".
   const visible = (expanded ? metrics : metrics.slice(0, 6)).map(([key, value]) => [key, failed ? "—" : value] as const);
-  return <div className={`grid border-l ${expanded ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}>{visible.map(([key, value]) => <div key={key} className="min-h-20 border-b border-r px-4 py-3"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-2 text-lg font-semibold tabular-nums">{value}</p></div>)}</div>;
+  return <div className="surface-panel shrink-0 overflow-hidden rounded-xl"><div className={`-mb-px -mr-px grid ${expanded ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}>{visible.map(([key, value]) => <div key={key} className="min-h-20 min-w-0 border-b border-r px-4 py-3"><p className="text-xs font-medium text-muted-foreground">{t(`metric.${key}`)}</p><p className="tabular mt-2 break-words text-lg font-semibold">{value}</p></div>)}</div></div>;
 }

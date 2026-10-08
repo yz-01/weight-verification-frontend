@@ -27,7 +27,12 @@ interface OfflineSyncContextValue {
   failedCount: number;
   lastSyncedAt: string | null;
   refreshCount: () => Promise<void>;
-  syncNow: () => Promise<void>;
+  /**
+   * Send what is waiting. `includeRefused` also resends what the server
+   * refused (「需要处理」) - only a person's own 立即重试 press asks for that;
+   * the automatic triggers leave those alone (A9).
+   */
+  syncNow: (options?: { includeRefused?: boolean }) => Promise<void>;
 }
 
 const OfflineSyncContext = createContext<OfflineSyncContextValue | null>(null);
@@ -70,11 +75,11 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
     }
   }, [user]);
 
-  const syncNow = useCallback(async () => {
+  const syncNow = useCallback(async (options: { includeRefused?: boolean } = {}) => {
     if (!user || typeof navigator === "undefined" || !navigator.onLine) return;
     setIsSyncing(true);
     try {
-      const result = await flushOfflineJobs(user.id);
+      const result = await flushOfflineJobs(user.id, options);
       setPendingCount(result.remaining);
       await refreshCount();
       if (result.synced > 0) {

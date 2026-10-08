@@ -80,7 +80,7 @@ export function RecyclerInventoryWorkspace() {
         subtitle={t("inventory.subtitle")}
         action={
           can("inventory.manage") ? (
-            <Button size="sm" onClick={() => setAdjusting(true)}>
+            <Button onClick={() => setAdjusting(true)}>
               <Plus />
               {t("action.adjustInventory")}
             </Button>
@@ -120,9 +120,9 @@ export function RecyclerInventoryWorkspace() {
         </TabsList>
         <TabsContent
           value="balances"
-          className="min-h-0 flex-none overflow-auto rounded-lg border bg-card shadow-sm"
+          className="surface-panel min-h-0 flex-none overflow-auto rounded-xl"
         >
-          <Table className="min-w-[720px] table-fixed">
+          <Table className="min-w-180 table-fixed">
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
                 <TableHead>{t("field.material")}</TableHead>
@@ -155,7 +155,7 @@ export function RecyclerInventoryWorkspace() {
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={4} className="h-36 p-0 text-center">
                     <div className="sticky left-0 flex w-[100cqw] flex-col items-center gap-2 px-6 text-muted-foreground">
-                      <div className="grid size-10 place-items-center rounded-md bg-muted">
+                      <div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
                         <Boxes className="size-5" />
                       </div>
                       <p className="max-w-md whitespace-normal leading-6">
@@ -189,8 +189,8 @@ function SummaryTile({
   tone: string;
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-3 rounded-lg border bg-card px-4 py-3 shadow-sm">
-      <div className={`grid size-10 shrink-0 place-items-center rounded-md bg-muted ${tone}`}>
+    <div className="surface-panel flex min-w-0 items-center gap-3 rounded-xl px-4 py-3">
+      <div className={`grid size-10 shrink-0 place-items-center rounded-lg bg-muted ${tone}`}>
         <Icon className="size-5" />
       </div>
       <div className="min-w-0">
@@ -246,14 +246,16 @@ function MovementsPanel() {
         accessorKey: "quantity_kg",
         meta: { label: t("field.change") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("field.change")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("field.change")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <span className={row.original.quantity_kg.startsWith("-") ? "font-semibold text-destructive tabular-nums" : "font-semibold text-success tabular-nums"}>
+          <span className={row.original.quantity_kg.startsWith("-") ? "block text-right font-semibold text-destructive tabular-nums" : "block text-right font-semibold text-success tabular-nums"}>
             {row.original.quantity_kg.startsWith("-") ? "" : "+"}{row.original.quantity_kg} kg
           </span>
         ),
@@ -261,8 +263,8 @@ function MovementsPanel() {
       {
         accessorKey: "balance_after_kg",
         meta: { label: t("field.balance") },
-        header: () => t("field.balance"),
-        cell: ({ row }) => <span className="font-medium tabular-nums">{row.original.balance_after_kg} kg</span>,
+        header: () => <span className="block text-right">{t("field.balance")}</span>,
+        cell: ({ row }) => <span className="block text-right font-medium tabular-nums">{row.original.balance_after_kg} kg</span>,
       },
       {
         accessorKey: "occurred_at",

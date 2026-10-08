@@ -21,7 +21,10 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
+  EmptyState,
   FieldWrapper,
+  FilterBar,
+  FilterField,
   ListHeader,
   LoadFailed,
   QueryFailedNote,
@@ -135,7 +138,7 @@ function KindHelp({ kind }: { kind: IntegrationKind }) {
   const t = useTranslations();
   const channel = SHARED_CHANNEL[kind];
   return (
-    <div className="space-y-2 rounded-md border bg-muted/20 px-3 py-2.5">
+    <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-semibold text-foreground">
           {t(`integrations.kindHelp.${kind}.title`)}
@@ -495,14 +498,13 @@ export function Integrations() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("integrations.title")}
         subtitle={t("integrations.subtitle")}
         action={
           <Button
             variant="outline"
-            size="sm"
             disabled={integrations.isFetching || devices.isFetching}
             onClick={() => {
               void integrations.refetch();
@@ -519,12 +521,12 @@ export function Integrations() {
         }
       />
 
-      <div className="rounded-lg border border-primary/15 bg-primary/[0.035] px-4 py-4">
+      <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 sm:p-6">
         <div className="flex items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <CircleHelp className="size-5" />
           </span>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-semibold">
               {t("integrations.guide.title")}
             </p>
@@ -537,12 +539,12 @@ export function Integrations() {
           {["register", "test", "enable"].map((step, index) => (
             <div
               key={step}
-              className="flex gap-2.5 px-3 py-3 first:pl-0 last:pr-0"
+              className="flex gap-3 py-3 sm:px-3 sm:first:pl-0 sm:last:pr-0"
             >
               <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                 {index + 1}
               </span>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-semibold">
                   {t(`integrations.guide.${step}.title`)}
                 </p>
@@ -556,45 +558,45 @@ export function Integrations() {
       </div>
 
       {user?.is_platform_staff && (
-        <div className="max-w-md space-y-1.5">
-          <Label htmlFor="integration-company">
-            {t("integrations.company")}
-          </Label>
-          <select
-            id="integration-company"
-            className="h-9 w-full rounded-md border bg-background px-3 text-sm"
-            value={company}
-            onChange={(event) => {
-              setCompany(event.target.value);
-              setDevice(DEFAULT_DEVICE);
-            }}
+        <FilterBar>
+          <FilterField
+            htmlFor="integration-company"
+            label={t("integrations.company")}
+            className="sm:w-96"
           >
-            <option value="">{t("integrations.chooseCompany")}</option>
-            {(companies.data?.results ?? []).map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.code} / {item.name}
-              </option>
-            ))}
-          </select>
-          <QueryFailedNote
-            query={companies}
-            what={t("integrations.what.companies")}
-          />
-        </div>
+            <select
+              id="integration-company"
+              className="native-control"
+              value={company}
+              onChange={(event) => {
+                setCompany(event.target.value);
+                setDevice(DEFAULT_DEVICE);
+              }}
+            >
+              <option value="">{t("integrations.chooseCompany")}</option>
+              {(companies.data?.results ?? []).map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.code} / {item.name}
+                </option>
+              ))}
+            </select>
+            <QueryFailedNote
+              query={companies}
+              what={t("integrations.what.companies")}
+            />
+          </FilterField>
+        </FilterBar>
       )}
 
       {selectedCompany && can("integration.manage") && (
-        <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
-          <div className="flex items-center gap-2">
-            <Plus className="h-4 w-4 text-primary" />
-            <h2 className="text-sm font-semibold">
-              {t("integrations.newTitle")}
-            </h2>
-          </div>
+        <section className="space-y-4 surface-panel rounded-xl p-4 sm:p-6">
+          <h2 className="panel-title">
+            {t("integrations.newTitle")}
+          </h2>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <FieldWrapper label={t("integrations.field.kind")}>
               <select
-                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                className="native-control"
                 value={kind}
                 onChange={(event) =>
                   setKind(event.target.value as IntegrationKind)
@@ -626,7 +628,7 @@ export function Integrations() {
             </FieldWrapper>
             <FieldWrapper label={t("integrations.field.authType")}>
               <select
-                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                className="native-control"
                 value={authType}
                 onChange={(event) => setAuthType(event.target.value)}
               >
@@ -639,7 +641,7 @@ export function Integrations() {
             </FieldWrapper>
             <FieldWrapper label={t("integrations.field.mode")}>
               <select
-                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                className="native-control"
                 value={mode}
                 onChange={(event) =>
                   setMode(event.target.value as "SIMULATED" | "LIVE")
@@ -673,7 +675,7 @@ export function Integrations() {
               />
             </>
           )}
-          <p className="rounded-md border bg-muted/20 px-3 py-2 text-xs leading-5 text-muted-foreground">
+          <p className="rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
             {t("integrations.guide.description")}
           </p>
           <Button
@@ -690,7 +692,7 @@ export function Integrations() {
           {create.isError && (
             <p
               role="alert"
-              className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+              className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
             >
               {create.error instanceof Error
                 ? create.error.message
@@ -701,28 +703,27 @@ export function Integrations() {
       )}
 
       <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Cable className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold">
-            {t("integrations.connections")}
-          </h2>
-        </div>
-        <div className="divide-y overflow-hidden rounded-lg border bg-card shadow-sm">
+        <h2 className="panel-title">
+          {t("integrations.connections")}
+        </h2>
+        <div className="divide-y overflow-hidden surface-panel rounded-xl">
           {integrations.isError ? (
             <LoadFailed
-              className="m-3"
+              className="m-4"
               what={t("integrations.what.connections")}
               onRetry={() => integrations.refetch()}
             />
           ) : rows.length === 0 ? (
-            <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              {t("integrations.empty")}
-            </p>
+            <EmptyState
+              icon={Cable}
+              title={t("integrations.empty")}
+              className="m-4"
+            />
           ) : (
             rows.map((row) => (
               <div
                 key={row.id}
-                className="grid gap-3 px-3 py-3 md:grid-cols-[1fr_auto_auto] md:items-center"
+                className="grid gap-3 px-4 py-3 sm:px-6 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{row.name}</p>
@@ -759,10 +760,10 @@ export function Integrations() {
                         : "neutral"
                   }
                 />
-                <div className="flex flex-wrap justify-end gap-2">
+                <div className="flex flex-wrap items-center gap-2 md:justify-end">
                   {can("integration.manage") && (
                     <select
-                      className="h-9 rounded-md border bg-background px-2 text-xs"
+                      className="native-control w-auto"
                       aria-label={t("integrations.field.mode")}
                       value={
                         String(
@@ -804,7 +805,6 @@ export function Integrations() {
                     <>
                       <Button
                         variant="outline"
-                        size="sm"
                         disabled={test.isPending}
                         onClick={() => void test.mutateAsync(row)}
                       >
@@ -824,7 +824,6 @@ export function Integrations() {
                       </Button>
                       <Button
                         variant={row.is_enabled ? "destructive" : "default"}
-                        size="sm"
                         disabled={toggle.isPending}
                         onClick={() => void toggle.mutateAsync(row)}
                       >
@@ -842,10 +841,10 @@ export function Integrations() {
       </section>
 
       {selectedCompany && (
-        <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
-          <h2 className="text-sm font-semibold">{t("integrations.devices")}</h2>
+        <section className="space-y-4 surface-panel rounded-xl p-4 sm:p-6">
+          <h2 className="panel-title">{t("integrations.devices")}</h2>
           {canManageHardware && (
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
               <FieldWrapper label={t("integrations.device.type")}>
                 <Input
                   value={device.device_type}
@@ -864,7 +863,7 @@ export function Integrations() {
               </FieldWrapper>
               <FieldWrapper label={t("integrations.device.integration")}>
                 <select
-                  className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                  className="native-control"
                   value={device.integration ?? ""}
                   onChange={(event) =>
                     setDevice({
@@ -884,7 +883,7 @@ export function Integrations() {
               {selectedCompanyType === "CONTRACTOR" && (
                 <FieldWrapper label={t("integrations.device.project")}>
                   <select
-                    className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                    className="native-control"
                     value={device.project ?? ""}
                     onChange={(event) =>
                       setDevice({
@@ -914,7 +913,7 @@ export function Integrations() {
                 <>
                   <FieldWrapper label={t("integrations.device.site")}>
                     <select
-                      className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                      className="native-control"
                       value={device.site ?? ""}
                       onChange={(event) =>
                         setDevice({
@@ -941,7 +940,7 @@ export function Integrations() {
                   </FieldWrapper>
                   <FieldWrapper label={t("integrations.device.scale")}>
                     <select
-                      className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                      className="native-control"
                       value={device.scale ?? ""}
                       onChange={(event) =>
                         setDevice({
@@ -999,7 +998,7 @@ export function Integrations() {
               </div>
             </div>
           )}
-          <div className="divide-y overflow-hidden rounded-md border">
+          <div className="divide-y overflow-hidden rounded-lg border">
             {devices.isError && (
               <LoadFailed
                 className="m-3"
@@ -1010,7 +1009,7 @@ export function Integrations() {
             {(devices.data?.results ?? []).map((item) => (
               <div
                 key={item.id}
-                className="grid gap-3 px-3 py-3 text-sm md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+                className="grid gap-3 p-3 text-sm md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
               >
                 <div className="min-w-0 space-y-1">
                   <p className="truncate font-mono">{item.device_id}</p>
@@ -1043,7 +1042,7 @@ export function Integrations() {
                       .join(" / ") || t("integrations.device.noBinding")}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 md:justify-end">
+                <div className="flex flex-wrap items-center gap-2 md:justify-end">
                   <StatusBadge
                     label={
                       item.is_online
@@ -1273,10 +1272,10 @@ function DeviceEditDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-3">
+        <div className="grid grid-cols-1 gap-4">
           <FieldWrapper label={t("integrations.device.integration")}>
             <select
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              className="native-control"
               value={integration}
               onChange={(event) => setIntegration(event.target.value)}
             >
@@ -1292,7 +1291,7 @@ function DeviceEditDialog({
           {companyType === "CONTRACTOR" && (
             <FieldWrapper label={t("integrations.device.project")}>
               <select
-                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                className="native-control"
                 value={project}
                 onChange={(event) => setProject(event.target.value)}
               >
@@ -1310,7 +1309,7 @@ function DeviceEditDialog({
             <>
               <FieldWrapper label={t("integrations.device.site")}>
                 <select
-                  className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                  className="native-control"
                   value={site}
                   onChange={(event) => {
                     setSite(event.target.value);
@@ -1327,7 +1326,7 @@ function DeviceEditDialog({
               </FieldWrapper>
               <FieldWrapper label={t("integrations.device.scale")}>
                 <select
-                  className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                  className="native-control"
                   value={scale}
                   onChange={(event) => setScale(event.target.value)}
                 >
@@ -1520,7 +1519,7 @@ function IntegrationHistoryDialog({
             {t("integrations.history.description")}
           </DialogDescription>
         </DialogHeader>
-        <div className="divide-y overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="divide-y overflow-hidden rounded-lg border bg-card">
           {history.isLoading ? (
             <p className="px-3 py-8 text-center text-muted-foreground">
               {t("common.loading")}
@@ -1694,11 +1693,11 @@ function DeviceConsoleDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_auto]">
+        <div className="grid gap-3 rounded-lg border bg-muted/30 p-3 sm:grid-cols-[minmax(0,1fr)_auto]">
           <div className="grid gap-2">
             <FieldWrapper label={t("integrations.console.kind")}>
               <select
-                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                className="native-control"
                 value={kind}
                 onChange={(event) =>
                   setKind(event.target.value as DeviceCommandKind)
@@ -1776,7 +1775,6 @@ function DeviceConsoleDialog({
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onClick={() => setClosing(row)}
                   >
                     {t("integrations.console.close")}
@@ -1837,7 +1835,7 @@ function DeviceTelemetryDialog({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
             {t("integrations.telemetry.title", { name: device.device_id })}
@@ -1846,7 +1844,7 @@ function DeviceTelemetryDialog({
             {t("integrations.telemetry.description")}
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[60vh] divide-y overflow-y-auto rounded-lg border bg-card shadow-sm">
+        <div className="max-h-[60vh] divide-y overflow-y-auto rounded-lg border bg-card">
           {telemetry.isLoading ? (
             <p className="px-3 py-8 text-center text-muted-foreground">
               {t("common.loading")}
@@ -1881,7 +1879,7 @@ function DeviceTelemetryDialog({
                     {new Date(row.observed_at).toLocaleString()}
                   </p>
                 </div>
-                <span className="text-right text-sm tabular-nums">
+                <span className="tabular text-right text-sm">
                   {row.value === null
                     ? t("common.emptyValue")
                     : `${row.value}${row.unit ? ` ${row.unit}` : ""}`}

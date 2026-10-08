@@ -20,7 +20,7 @@ import { conversationClosedLine, recordConversationKey } from "./record-chat";
  * on the same screen refetches the conversation so this happens without a
  * reload.
  */
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
 describe("which line replaces the composer", () => {
   it("is nothing while the conversation is open", () => {
@@ -50,8 +50,8 @@ describe("the panel", () => {
   it("keeps the history and swaps the whole composer for the reason", () => {
     expect(panel).toMatch(/const closedLine = conversationClosedLine\(data\.closed\)/);
     // The messages are rendered unconditionally, before the closed branch.
-    expect(panel.indexOf("data.messages.map(")).toBeGreaterThan(-1);
-    expect(panel.indexOf("data.messages.map(")).toBeLessThan(panel.indexOf("{closedLine ? ("));
+    expect(panel.indexOf("messages={data.messages}")).toBeGreaterThan(-1);
+    expect(panel.indexOf("messages={data.messages}")).toBeLessThan(panel.indexOf("{closedLine ? ("));
     expect(panel).toMatch(/\{closedLine \? \([\s\S]{0,200}\{t\(closedLine\)\}[\s\S]{0,40}\) : \([\s\S]{0,40}<ConversationComposer/);
     expect(panel.match(/<ConversationComposer/g)).toHaveLength(1);
   });

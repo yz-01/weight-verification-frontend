@@ -5,6 +5,7 @@ import type {
   MaterialRequestOption,
   MaterialRequestOptionKind,
   MaterialRequestOptions,
+  MaterialRequestReviewerOption,
   MaterialRequestTotal,
 } from "@/interfaces/material-request";
 import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
@@ -33,13 +34,34 @@ export async function createMaterialRequest(draft: MaterialRequestDraft) {
   return row;
 }
 
-/** Approve, or return - which ends the request (C05). */
-export async function reviewMaterialRequest(id: string, decision: "APPROVED" | "RETURNED", note = "") {
+/**
+ * Approve, or return - which ends the request (C05). Approve or return. Approving a material request settles who it is bought
+ * from and whose make (2026-10 D1, D2): `purchase` carries both, and the
+ * server refuses an approval without them. Returning needs neither.
+ */
+export async function reviewMaterialRequest(
+  id: string,
+  decision: "APPROVED" | "RETURNED",
+  note = "",
+  purchase?: { supplier: string; manufacturer: string },
+) {
   const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/review_request/`, {
     decision,
     note,
+    ...(decision === "APPROVED" && purchase ? purchase : {}),
   });
   toastSuccess(decision === "APPROVED" ? "materialRequest.toast.approved" : "materialRequest.toast.returned");
+  return row;
+}
+
+/** 「提交给」 (D2): who may approve a request on this project, never the reader. */
+export const getMaterialRequestReviewerOptions = (project: string) =>
+  api.get<MaterialRequestReviewerOption[]>("/api/material-requests/reviewer_options/", { project });
+
+/** 「改派给我」 (D2): another approver takes a waiting request over; the history keeps it. */
+export async function reassignMaterialRequestToMe(id: string) {
+  const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/reassign/`, {});
+  toastSuccess("materialRequest.toast.reassigned");
   return row;
 }
 

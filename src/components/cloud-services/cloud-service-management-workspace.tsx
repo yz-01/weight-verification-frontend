@@ -18,8 +18,12 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
+import { KpiCard } from "@/components/shared/kpi-card";
 import {
+  EmptyState,
   FieldWrapper,
+  FilterBar,
+  FilterField,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -142,6 +146,33 @@ const STATUSES: ServiceStatus[] = [
   "MAINTENANCE",
   "SUSPENDED",
 ];
+/** Columns that hold figures sit right, in tabular digits, head and cell alike. */
+const NUM = "text-right tabular";
+const NUMERIC_COLUMNS: Record<string, string[]> = {
+  services: ["cost"],
+  plans: [
+    "storage",
+    "video",
+    "database",
+    "api",
+    "ai",
+    "sms",
+    "email",
+    "push",
+    "map",
+    "fee",
+  ],
+  usage: ["usage", "cost", "charge", "profit"],
+  costs: ["budget", "actual", "variance", "usagePercent"],
+  pricing: ["baseFee", "unitPrice"],
+  alerts: ["threshold", "current"],
+};
+const headAlign = (table: string, column: string) =>
+  column === "actions"
+    ? "text-right"
+    : NUMERIC_COLUMNS[table]?.includes(column)
+      ? NUM
+      : undefined;
 const statusTone = (
   status: string,
 ): "positive" | "info" | "warning" | "danger" | "neutral" =>
@@ -161,7 +192,7 @@ export function CloudServiceManagementWorkspace({
   const t = useTranslations("adminCloudServiceManagement");
   if (section === "overview") return <Overview />;
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t(`section.${section}.title`)}
         subtitle={t(`section.${section}.subtitle`)}
@@ -187,10 +218,10 @@ function Overview() {
     queryFn: getCloudSummary,
   });
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
       <QueryFailedNote query={summary} what={t("what.summary")} />
-      <div className="grid border-y bg-card sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {(summary.isError
           ? [["services", "—"], ["active", "—"], ["cost", "—"], ["profit", "—"]]
           : [
@@ -200,26 +231,21 @@ function Overview() {
               ["profit", `RM ${summary.data?.current_month_profit ?? "0.00"}`],
             ]
         ).map(([key, value]) => (
-          <div key={key} className="border-b border-r px-5 py-4">
-            <p className="text-xs text-muted-foreground">
-              {t(`metric.${key}`)}
-            </p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-          </div>
+          <KpiCard key={key} label={t(`metric.${key}`)} value={value} />
         ))}
       </div>
-      <div className="min-h-0 flex-1 overflow-auto border-y bg-card">
-        <div className="grid md:grid-cols-2 xl:grid-cols-3">
+      <div className="surface-panel overflow-hidden rounded-xl">
+        <div className="-mr-px -mb-px grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {SUBMODULES.map((item) => (
             <Link
               key={item.section}
               href={`/cloud-services/${item.section}`}
-              className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"
+              className="flex min-h-16 min-w-0 items-center gap-3 border-b border-r border-panel-border px-4 py-4 transition-colors hover:bg-muted/40 sm:px-6"
             >
-              <span className="flex-1 font-medium">
+              <span className="min-w-0 flex-1 break-words font-medium">
                 {t(`section.${item.section}.title`)}
               </span>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
             </Link>
           ))}
         </div>
@@ -239,20 +265,41 @@ function Panel({
   const t = useTranslations("adminCloudServiceManagement");
   if (loading)
     return (
-      <div className="flex min-h-48 items-center justify-center rounded-lg border bg-card shadow-sm">
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      <div className="surface-panel flex min-h-48 items-center justify-center gap-2 rounded-xl p-4 text-sm text-muted-foreground sm:p-6">
+        <Loader2 className="size-4 animate-spin" />
         {t("loading")}
       </div>
     );
   if (error)
     return (
-      <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-sm text-destructive">
+      <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive sm:p-6">
         {t("loadError")}
       </div>
     );
   return (
-    <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+    <div className="surface-panel min-w-0 overflow-hidden rounded-xl">
       {children}
+    </div>
+  );
+}
+
+/** The bar above a panel's table: the record count, then the add button. */
+function PanelToolbar({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-panel-border px-4 py-3 sm:px-6">
+      {children}
+    </div>
+  );
+}
+
+/** The panel's figures, drawn as the shared KPI cards. */
+function PanelFigures({ items }: { items: Array<[string, React.ReactNode]> }) {
+  const t = useTranslations("adminCloudServiceManagement");
+  return (
+    <div className="grid grid-cols-1 gap-3 border-b border-panel-border p-4 sm:grid-cols-2 sm:p-6 xl:grid-cols-4">
+      {items.map(([k, v]) => (
+        <KpiCard key={k} size="sm" label={t(`metric.${k}`)} value={v} />
+      ))}
     </div>
   );
 }
@@ -271,7 +318,7 @@ function SelectField({
 }) {
   return (
     <select
-      className="h-10 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+      className="native-control"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       aria-label={ariaLabel}
@@ -290,9 +337,9 @@ function DialogSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-3 rounded-md border bg-muted/15 p-4">
-      <h3 className="text-sm font-semibold">{title}</h3>
-      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
+    <section className="space-y-4 rounded-lg border bg-muted/30 p-3 sm:p-4">
+      <h3 className="panel-title">{title}</h3>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>
     </section>
   );
 }
@@ -301,7 +348,7 @@ function SaveError({ error }: { error: Error | null }) {
   const t = useTranslations("adminCloudServiceManagement");
   if (!error) return null;
   return (
-    <p role="alert" className="text-sm font-medium text-destructive">
+    <p role="alert" className="text-sm font-medium text-destructive sm:col-span-2">
       {error.message || t("saveError")}
     </p>
   );
@@ -310,17 +357,14 @@ function SaveError({ error }: { error: Error | null }) {
 function EmptyTableRow({ columns }: { columns: number }) {
   const t = useTranslations("adminCloudServiceManagement");
   return (
-    <TableRow>
-      <TableCell colSpan={columns} className="h-40 text-center">
-        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 text-muted-foreground">
-          <span className="grid size-10 place-items-center rounded-full bg-muted">
-            <Inbox className="size-4" />
-          </span>
-          <p className="text-sm font-medium text-foreground">
-            {t("emptyTitle")}
-          </p>
-          <p className="text-xs">{t("emptyDescription")}</p>
-        </div>
+    <TableRow className="hover:bg-transparent">
+      <TableCell colSpan={columns} className="p-4 whitespace-normal">
+        <EmptyState
+          icon={Inbox}
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+          className="border-0"
+        />
       </TableCell>
     </TableRow>
   );
@@ -343,7 +387,7 @@ function ServicePanel() {
   return (
     <Panel loading={rows.isLoading} error={rows.isError}>
       {can("cloud_service.manage") && (
-        <div className="flex items-center justify-between gap-4 border-b bg-muted/20 px-4 py-3">
+        <PanelToolbar>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <CloudCog className="size-4" />
             {t("recordsCount", { count: rows.data?.count ?? 0 })}
@@ -352,7 +396,7 @@ function ServicePanel() {
             <Plus />
             {t("action.addService")}
           </Button>
-        </div>
+        </PanelToolbar>
       )}
       <Table>
         <TableHeader>
@@ -370,7 +414,9 @@ function ServicePanel() {
               "status",
               "actions",
             ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+              <TableHead key={x} className={headAlign("services", x)}>
+                {t(`column.${x}`)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -393,7 +439,7 @@ function ServicePanel() {
                   {df.date(row.subscription_end) || "-"}
                 </p>
               </TableCell>
-              <TableCell>RM {row.base_cost}</TableCell>
+              <TableCell className="text-right tabular">RM {row.base_cost}</TableCell>
               <TableCell>
                 <StatusBadge
                   label={system(`mode.${row.operation_mode}`)}
@@ -414,7 +460,7 @@ function ServicePanel() {
               </TableCell>
               <TableCell>
                 {can("cloud_service.manage") && (
-                  <div className="flex gap-1">
+                  <div className="flex items-center justify-end gap-0.5">
                     <Button
                       size="icon-sm"
                       variant="ghost"
@@ -521,7 +567,7 @@ function ServiceDialog({
             {row?.service_code || t("dialog.service")}
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[68dvh] space-y-4 overflow-y-auto pr-1">
+        <div className="space-y-4 sm:max-h-[68dvh] sm:overflow-y-auto sm:pr-1">
           <DialogSection title={t("formSection.basic")}>
             <FieldWrapper label={t("field.vendor")} required>
               <SelectField
@@ -782,18 +828,23 @@ function CatalogPanel() {
   });
   return (
     <Panel loading={rows.isLoading} error={rows.isError}>
-      <div className="grid md:grid-cols-2 xl:grid-cols-4">
+      <div className="-mr-px -mb-px grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {TYPES.map((type) => {
           const matches = (rows.data?.results ?? []).filter(
             (x) => x.type === type,
           );
           return (
-            <div key={type} className="border-b border-r p-5">
+            <div
+              key={type}
+              className="min-w-0 border-b border-r border-panel-border p-4 sm:p-6"
+            >
               <TypeBadge label={t(`serviceType.${type}`)} />
-              <p className="mt-3 text-2xl font-semibold">{matches.length}</p>
+              <p className="mt-3 text-2xl font-semibold tabular">
+                {matches.length}
+              </p>
               <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                 {matches.slice(0, 4).map((x) => (
-                  <p key={x.id}>
+                  <p key={x.id} className="break-words">
                     {x.service_code} / {x.custom_type || x.name}
                   </p>
                 ))}
@@ -820,7 +871,7 @@ function VendorPanel() {
   return (
     <Panel loading={rows.isLoading} error={rows.isError}>
       {can("cloud_service.manage") && (
-        <div className="flex items-center justify-between gap-4 border-b bg-muted/20 px-4 py-3">
+        <PanelToolbar>
           <p className="text-sm text-muted-foreground">
             {t("recordsCount", { count: rows.data?.count ?? 0 })}
           </p>
@@ -828,7 +879,7 @@ function VendorPanel() {
             <Plus />
             {t("action.addVendor")}
           </Button>
-        </div>
+        </PanelToolbar>
       )}
       <Table>
         <TableHeader>
@@ -842,7 +893,9 @@ function VendorPanel() {
               "status",
               "actions",
             ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+              <TableHead key={x} className={headAlign("vendors", x)}>
+                {t(`column.${x}`)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -861,15 +914,17 @@ function VendorPanel() {
                 />
               </TableCell>
               <TableCell>
-                {can("cloud_service.manage") && (
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    onClick={() => setEditing(row)}
-                  >
-                    <Pencil />
-                  </Button>
-                )}
+                <div className="flex items-center justify-end gap-0.5">
+                  {can("cloud_service.manage") && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      onClick={() => setEditing(row)}
+                    >
+                      <Pencil />
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -927,7 +982,7 @@ function VendorDialog({
           </DialogTitle>
           <DialogDescription>{t("dialog.vendor")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.code")} required>
             <Input
               disabled={Boolean(row)}
@@ -978,7 +1033,7 @@ function VendorDialog({
               onChange={(e) => set("api_key", e.target.value)}
             />
           </FieldWrapper>
-          <label className="flex min-h-10 items-center gap-2 self-end rounded-md border bg-muted/15 px-3">
+          <label className="flex min-h-10 items-center gap-2 self-end rounded-lg border bg-muted/30 px-3 text-sm">
             <Switch
               checked={form.is_active}
               onCheckedChange={(v) => set("is_active", v)}
@@ -1034,7 +1089,7 @@ function PlanPanel() {
   return (
     <Panel loading={rows.isLoading} error={rows.isError}>
       {can("cloud_service.manage") && (
-        <div className="flex items-center justify-between gap-4 border-b bg-muted/20 px-4 py-3">
+        <PanelToolbar>
           <p className="text-sm text-muted-foreground">
             {t("recordsCount", { count: rows.data?.count ?? 0 })}
           </p>
@@ -1042,7 +1097,7 @@ function PlanPanel() {
             <Plus />
             {t("action.addPlan")}
           </Button>
-        </div>
+        </PanelToolbar>
       )}
       <Table>
         <TableHeader>
@@ -1063,7 +1118,9 @@ function PlanPanel() {
               "status",
               "actions",
             ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+              <TableHead key={x} className={headAlign("plans", x)}>
+                {t(`column.${x}`)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -1072,16 +1129,16 @@ function PlanPanel() {
             <TableRow key={row.id}>
               <TableCell>{row.plan_code}</TableCell>
               <TableCell>{row.name}</TableCell>
-              <TableCell>{row.storage_gb}</TableCell>
-              <TableCell>{row.video_storage_gb}</TableCell>
-              <TableCell>{row.database_gb}</TableCell>
-              <TableCell>{row.api_requests}</TableCell>
-              <TableCell>{row.ai_requests}</TableCell>
-              <TableCell>{row.sms_count}</TableCell>
-              <TableCell>{row.email_count}</TableCell>
-              <TableCell>{row.push_notification_count}</TableCell>
-              <TableCell>{row.map_api_calls}</TableCell>
-              <TableCell>RM {row.monthly_fee}</TableCell>
+              <TableCell className="text-right tabular">{row.storage_gb}</TableCell>
+              <TableCell className="text-right tabular">{row.video_storage_gb}</TableCell>
+              <TableCell className="text-right tabular">{row.database_gb}</TableCell>
+              <TableCell className="text-right tabular">{row.api_requests}</TableCell>
+              <TableCell className="text-right tabular">{row.ai_requests}</TableCell>
+              <TableCell className="text-right tabular">{row.sms_count}</TableCell>
+              <TableCell className="text-right tabular">{row.email_count}</TableCell>
+              <TableCell className="text-right tabular">{row.push_notification_count}</TableCell>
+              <TableCell className="text-right tabular">{row.map_api_calls}</TableCell>
+              <TableCell className="text-right tabular">RM {row.monthly_fee}</TableCell>
               <TableCell>
                 <StatusBadge
                   label={t(row.is_active ? "status.active" : "status.inactive")}
@@ -1089,15 +1146,17 @@ function PlanPanel() {
                 />
               </TableCell>
               <TableCell>
-                {can("cloud_service.manage") && (
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    onClick={() => setEditing(row)}
-                  >
-                    <Pencil />
-                  </Button>
-                )}
+                <div className="flex items-center justify-end gap-0.5">
+                  {can("cloud_service.manage") && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      onClick={() => setEditing(row)}
+                    >
+                      <Pencil />
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -1178,7 +1237,7 @@ function PlanDialog({
           </DialogTitle>
           <DialogDescription>{t("dialog.plan")}</DialogDescription>
         </DialogHeader>
-        <div className="max-h-[68dvh] space-y-4 overflow-y-auto pr-1">
+        <div className="space-y-4 sm:max-h-[68dvh] sm:overflow-y-auto sm:pr-1">
           <DialogSection title={t("formSection.basic")}>
             <FieldWrapper label={t("field.code")} required>
               <Input
@@ -1205,7 +1264,7 @@ function PlanDialog({
                 onChange={(e) => set("monthly_fee", e.target.value)}
               />
             </FieldWrapper>
-            <label className="flex min-h-10 items-center gap-2 self-end rounded-md border bg-background px-3">
+            <label className="flex min-h-10 items-center gap-2 self-end rounded-lg border bg-muted/30 px-3 text-sm">
               <Switch
                 checked={form.is_active}
                 onCheckedChange={(v) => set("is_active", v)}
@@ -1295,7 +1354,7 @@ function UsagePanel() {
   return (
     <Panel loading={rows.isLoading} error={rows.isError}>
       {can("cloud_service.manage") && (
-        <div className="flex items-center justify-between gap-4 border-b bg-muted/20 px-4 py-3">
+        <PanelToolbar>
           <p className="text-sm text-muted-foreground">
             {t("recordsCount", { count: rows.data?.count ?? 0 })}
           </p>
@@ -1303,7 +1362,7 @@ function UsagePanel() {
             <Plus />
             {t("action.recordUsage")}
           </Button>
-        </div>
+        </PanelToolbar>
       )}
       <Table>
         <TableHeader>
@@ -1321,7 +1380,9 @@ function UsagePanel() {
               "profit",
               "mode",
             ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+              <TableHead key={x} className={headAlign("usage", x)}>
+                {t(`column.${x}`)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -1338,11 +1399,11 @@ function UsagePanel() {
               <TableCell>{t(`serviceType.${row.service_type}`)}</TableCell>
               <TableCell>{row.company_name || t("status.platform")}</TableCell>
               <TableCell>{row.project_name || "-"}</TableCell>
-              <TableCell>{row.usage_amount}</TableCell>
+              <TableCell className="text-right tabular">{row.usage_amount}</TableCell>
               <TableCell>{row.usage_unit}</TableCell>
-              <TableCell>RM {row.total_cost}</TableCell>
-              <TableCell>RM {row.charge_amount}</TableCell>
-              <TableCell>RM {row.profit}</TableCell>
+              <TableCell className="text-right tabular">RM {row.total_cost}</TableCell>
+              <TableCell className="text-right tabular">RM {row.charge_amount}</TableCell>
+              <TableCell className="text-right tabular">RM {row.profit}</TableCell>
               <TableCell>
                 <StatusBadge
                   label={row.source_mode === "MANUAL" ? t("mode.MANUAL") : system(`mode.${row.source_mode}`)}
@@ -1423,7 +1484,7 @@ function UsageDialog({
           <DialogTitle>{t("action.recordUsage")}</DialogTitle>
           <DialogDescription>{t("dialog.usage")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper
             label={t("field.service")}
             required
@@ -1561,21 +1622,16 @@ function CostPanel() {
       loading={rows.isLoading || stats.isLoading}
       error={rows.isError || stats.isError}
     >
-      <div className="grid border-b sm:grid-cols-4">
-        {[
+      <PanelFigures
+        items={[
           ["usage", stats.data?.usage ?? "0"],
           ["cost", `RM ${stats.data?.cost ?? "0.00"}`],
           ["revenue", `RM ${stats.data?.revenue ?? "0.00"}`],
           ["profit", `RM ${stats.data?.profit ?? "0.00"}`],
-        ].map(([k, v]) => (
-          <div key={k} className="border-r p-4">
-            <p className="text-xs text-muted-foreground">{t(`metric.${k}`)}</p>
-            <p className="text-xl font-semibold">{v}</p>
-          </div>
-        ))}
-      </div>
+        ]}
+      />
       {can("cloud_service.manage") && (
-        <div className="flex items-center justify-between gap-4 border-b bg-muted/20 px-4 py-3">
+        <PanelToolbar>
           <p className="text-sm text-muted-foreground">
             {t("recordsCount", { count: rows.data?.count ?? 0 })}
           </p>
@@ -1583,7 +1639,7 @@ function CostPanel() {
             <Plus />
             {t("action.addBudget")}
           </Button>
-        </div>
+        </PanelToolbar>
       )}
       <Table>
         <TableHeader>
@@ -1600,7 +1656,9 @@ function CostPanel() {
               "status",
               "actions",
             ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+              <TableHead key={x} className={headAlign("costs", x)}>
+                {t(`column.${x}`)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -1613,14 +1671,14 @@ function CostPanel() {
               <TableCell>
                 {row.year}/{String(row.month).padStart(2, "0")}
               </TableCell>
-              <TableCell>RM {row.amount}</TableCell>
-              <TableCell>RM {row.actual_cost}</TableCell>
+              <TableCell className="text-right tabular">RM {row.amount}</TableCell>
+              <TableCell className="text-right tabular">RM {row.actual_cost}</TableCell>
               <TableCell
-                className={Number(row.variance) < 0 ? "text-destructive" : ""}
+                className={`text-right tabular ${Number(row.variance) < 0 ? "text-destructive" : ""}`}
               >
                 RM {row.variance}
               </TableCell>
-              <TableCell>{Number(row.usage_percent).toFixed(1)}%</TableCell>
+              <TableCell className="text-right tabular">{Number(row.usage_percent).toFixed(1)}%</TableCell>
               <TableCell>
                 <StatusBadge
                   label={t(row.is_active ? "status.active" : "status.inactive")}
@@ -1628,15 +1686,17 @@ function CostPanel() {
                 />
               </TableCell>
               <TableCell>
-                {can("cloud_service.manage") && (
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    onClick={() => setEditing(row)}
-                  >
-                    <Pencil />
-                  </Button>
-                )}
+                <div className="flex items-center justify-end gap-0.5">
+                  {can("cloud_service.manage") && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      onClick={() => setEditing(row)}
+                    >
+                      <Pencil />
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -1708,7 +1768,7 @@ function BudgetDialog({
           </DialogTitle>
           <DialogDescription>{t("dialog.budget")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.company")}>
             <SelectField
               value={form.company}
@@ -1783,7 +1843,7 @@ function BudgetDialog({
               onChange={(e) => set("alert_threshold_percent", e.target.value)}
             />
           </FieldWrapper>
-          <label className="flex min-h-10 items-center gap-2 rounded-md border bg-muted/15 px-3">
+          <label className="flex min-h-10 items-center gap-2 self-end rounded-lg border bg-muted/30 px-3 text-sm">
             <Switch
               checked={form.is_active}
               onCheckedChange={(v) => set("is_active", v)}
@@ -1835,7 +1895,7 @@ function PricingPanel() {
   return (
     <Panel loading={rows.isLoading} error={rows.isError}>
       {can("cloud_service.manage") && (
-        <div className="flex items-center justify-between gap-4 border-b bg-muted/20 px-4 py-3">
+        <PanelToolbar>
           <p className="text-sm text-muted-foreground">
             {t("recordsCount", { count: rows.data?.count ?? 0 })}
           </p>
@@ -1843,7 +1903,7 @@ function PricingPanel() {
             <Plus />
             {t("action.addRule")}
           </Button>
-        </div>
+        </PanelToolbar>
       )}
       <Table>
         <TableHeader>
@@ -1861,7 +1921,9 @@ function PricingPanel() {
               "status",
               "actions",
             ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+              <TableHead key={x} className={headAlign("pricing", x)}>
+                {t(`column.${x}`)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -1872,8 +1934,8 @@ function PricingPanel() {
               <TableCell>{row.name}</TableCell>
               <TableCell>{t(`serviceType.${row.service_type}`)}</TableCell>
               <TableCell>{t(`pricingModel.${row.pricing_model}`)}</TableCell>
-              <TableCell>RM {row.base_fee}</TableCell>
-              <TableCell>{row.unit_price || "-"}</TableCell>
+              <TableCell className="text-right tabular">RM {row.base_fee}</TableCell>
+              <TableCell className="text-right tabular">{row.unit_price || "-"}</TableCell>
               <TableCell>{row.usage_unit || "-"}</TableCell>
               <TableCell>{df.date(row.effective_from)}</TableCell>
               <TableCell>{df.date(row.effective_to) || "-"}</TableCell>
@@ -1884,15 +1946,17 @@ function PricingPanel() {
                 />
               </TableCell>
               <TableCell>
-                {can("cloud_service.manage") && (
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    onClick={() => setEditing(row)}
-                  >
-                    <Pencil />
-                  </Button>
-                )}
+                <div className="flex items-center justify-end gap-0.5">
+                  {can("cloud_service.manage") && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      onClick={() => setEditing(row)}
+                    >
+                      <Pencil />
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -1975,7 +2039,7 @@ function PricingDialog({
           </DialogTitle>
           <DialogDescription>{t("dialog.rule")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.code")} required>
             <Input
               disabled={Boolean(row)}
@@ -2059,7 +2123,7 @@ function PricingDialog({
               onChange={(e) => set("effective_to", e.target.value)}
             />
           </FieldWrapper>
-          <label className="flex min-h-10 items-center gap-2 self-end rounded-md border bg-muted/15 px-3">
+          <label className="flex min-h-10 items-center gap-2 self-end rounded-lg border bg-muted/30 px-3 text-sm">
             <Switch
               checked={form.is_active}
               onCheckedChange={(v) => set("is_active", v)}
@@ -2149,7 +2213,9 @@ function AlertPanel() {
               "status",
               "actions",
             ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+              <TableHead key={x} className={headAlign("alerts", x)}>
+                {t(`column.${x}`)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -2166,8 +2232,8 @@ function AlertPanel() {
               <TableCell>{row.company_name || t("status.platform")}</TableCell>
               <TableCell>{row.project_name || "-"}</TableCell>
               <TableCell>{t(`alertType.${row.alert_type}`)}</TableCell>
-              <TableCell>{row.threshold}</TableCell>
-              <TableCell>{row.current_value}</TableCell>
+              <TableCell className="text-right tabular">{row.threshold}</TableCell>
+              <TableCell className="text-right tabular">{row.current_value}</TableCell>
               <TableCell>{row.message}</TableCell>
               <TableCell>
                 <StatusBadge
@@ -2176,12 +2242,14 @@ function AlertPanel() {
                 />
               </TableCell>
               <TableCell>
-                {can("cloud_service.manage") && !row.is_resolved && (
-                  <Button size="sm" onClick={() => resolve.mutate(row.id)}>
-                    <Check />
-                    {t("action.resolve")}
-                  </Button>
-                )}
+                <div className="flex items-center justify-end gap-0.5">
+                  {can("cloud_service.manage") && !row.is_resolved && (
+                    <Button size="sm" onClick={() => resolve.mutate(row.id)}>
+                      <Check />
+                      {t("action.resolve")}
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -2204,17 +2272,19 @@ function Ranking({
   valueKey?: string;
 }) {
   return (
-    <div className="border-b border-r">
-      <h3 className="border-b px-4 py-3 text-sm font-semibold">{title}</h3>
+    <div className="min-w-0 border-b border-r border-panel-border">
+      <h3 className="panel-title border-b border-panel-border px-4 py-3 sm:px-6">
+        {title}
+      </h3>
       <Table>
         <TableBody>
           {rows.slice(0, 10).map((row, i) => (
             <TableRow key={`${row[nameKey]}-${i}`}>
-              <TableCell className="w-10 text-muted-foreground">
+              <TableCell className="w-10 text-muted-foreground tabular">
                 {i + 1}
               </TableCell>
               <TableCell>{row[nameKey] || "-"}</TableCell>
-              <TableCell className="text-right tabular-nums">
+              <TableCell className="text-right tabular">
                 {row[valueKey] ?? row.cost ?? "0"}
               </TableCell>
             </TableRow>
@@ -2237,73 +2307,73 @@ function AnalysisPanel() {
       }),
   });
   return (
-    <Panel loading={rows.isLoading} error={rows.isError}>
-      <div className="flex flex-wrap gap-3 border-b bg-muted/20 px-4 py-3">
-        <FieldWrapper label={t("field.dateFrom")}>
+    <>
+      {/* Shown with the panel, as before: not while it loads or has failed. */}
+      {!rows.isLoading && !rows.isError && (
+      <FilterBar>
+        <FilterField label={t("field.dateFrom")}>
           <Input
-            className="w-44 bg-background"
+            className="sm:w-44"
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
           />
-        </FieldWrapper>
-        <FieldWrapper label={t("field.dateTo")}>
+        </FilterField>
+        <FilterField label={t("field.dateTo")}>
           <Input
-            className="w-44 bg-background"
+            className="sm:w-44"
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
           />
-        </FieldWrapper>
-      </div>
-      <div className="grid border-b sm:grid-cols-4">
-        {[
-          ["usage", rows.data?.total_usage],
-          ["cost", `RM ${rows.data?.total_cost ?? "0"}`],
-          ["revenue", `RM ${rows.data?.total_revenue ?? "0"}`],
-          ["profit", `RM ${rows.data?.profit ?? "0"}`],
-        ].map(([k, v]) => (
-          <div key={k} className="border-r p-4">
-            <p className="text-xs text-muted-foreground">{t(`metric.${k}`)}</p>
-            <p className="text-xl font-semibold">{v ?? "0"}</p>
-          </div>
-        ))}
-      </div>
-      <div className="grid lg:grid-cols-2">
-        <Ranking
-          title={t("ranking.resource")}
-          rows={rows.data?.resource_ranking ?? []}
-          nameKey="service__type"
+        </FilterField>
+      </FilterBar>
+      )}
+      <Panel loading={rows.isLoading} error={rows.isError}>
+        <PanelFigures
+          items={[
+            ["usage", rows.data?.total_usage ?? "0"],
+            ["cost", `RM ${rows.data?.total_cost ?? "0"}`],
+            ["revenue", `RM ${rows.data?.total_revenue ?? "0"}`],
+            ["profit", `RM ${rows.data?.profit ?? "0"}`],
+          ]}
         />
-        <Ranking
-          title={t("ranking.customer")}
-          rows={rows.data?.top_customers ?? []}
-          nameKey="company__name"
-          valueKey="cost"
-        />
-        <Ranking
-          title={t("ranking.project")}
-          rows={rows.data?.top_projects ?? []}
-          nameKey="project__name"
-          valueKey="cost"
-        />
-        <Ranking
-          title={t("ranking.storage")}
-          rows={rows.data?.storage_ranking ?? []}
-          nameKey="company__name"
-        />
-        <Ranking
-          title={t("ranking.api")}
-          rows={rows.data?.api_ranking ?? []}
-          nameKey="company__name"
-        />
-        <Ranking
-          title={t("ranking.ai")}
-          rows={rows.data?.ai_ranking ?? []}
-          nameKey="company__name"
-        />
-      </div>
-    </Panel>
+        <div className="-mr-px -mb-px grid grid-cols-1 lg:grid-cols-2">
+          <Ranking
+            title={t("ranking.resource")}
+            rows={rows.data?.resource_ranking ?? []}
+            nameKey="service__type"
+          />
+          <Ranking
+            title={t("ranking.customer")}
+            rows={rows.data?.top_customers ?? []}
+            nameKey="company__name"
+            valueKey="cost"
+          />
+          <Ranking
+            title={t("ranking.project")}
+            rows={rows.data?.top_projects ?? []}
+            nameKey="project__name"
+            valueKey="cost"
+          />
+          <Ranking
+            title={t("ranking.storage")}
+            rows={rows.data?.storage_ranking ?? []}
+            nameKey="company__name"
+          />
+          <Ranking
+            title={t("ranking.api")}
+            rows={rows.data?.api_ranking ?? []}
+            nameKey="company__name"
+          />
+          <Ranking
+            title={t("ranking.ai")}
+            rows={rows.data?.ai_ranking ?? []}
+            nameKey="company__name"
+          />
+        </div>
+      </Panel>
+    </>
   );
 }
 
@@ -2372,63 +2442,63 @@ function ReportPanel() {
     }
   }
   return (
-    <Panel loading={false} error={false}>
-      <div className="flex flex-wrap gap-3 border-b bg-muted/20 px-4 py-3">
-        <FieldWrapper label={t("field.dateFrom")}>
+    <>
+      <FilterBar>
+        <FilterField label={t("field.dateFrom")}>
           <Input
-            className="w-44 bg-background"
+            className="sm:w-44"
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
           />
-        </FieldWrapper>
-        <FieldWrapper label={t("field.dateTo")}>
+        </FilterField>
+        <FilterField label={t("field.dateTo")}>
           <Input
-            className="w-44 bg-background"
+            className="sm:w-44"
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
           />
-        </FieldWrapper>
-      </div>
-      <div className="grid md:grid-cols-2 xl:grid-cols-3">
-        {Object.keys(REPORTS).map((dataset) => (
-          <div
-            key={dataset}
-            className="border-b border-r p-5 transition-colors hover:bg-muted/20"
-          >
-            <p className="font-medium">{t(`report.${dataset}`)}</p>
-            <div className="mt-4 flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={Boolean(busy)}
-                onClick={() => void run(dataset, "xlsx")}
-              >
-                {busy === `${dataset}-xlsx` ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <Download />
-                )}
-                XLSX
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={Boolean(busy)}
-                onClick={() => void run(dataset, "pdf")}
-              >
-                {busy === `${dataset}-pdf` ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <Download />
-                )}
-                PDF
-              </Button>
+        </FilterField>
+      </FilterBar>
+      <Panel loading={false} error={false}>
+        <div className="-mr-px -mb-px grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          {Object.keys(REPORTS).map((dataset) => (
+            <div
+              key={dataset}
+              className="min-w-0 border-b border-r border-panel-border p-4 transition-colors hover:bg-muted/20 sm:p-6"
+            >
+              <p className="font-medium">{t(`report.${dataset}`)}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  disabled={Boolean(busy)}
+                  onClick={() => void run(dataset, "xlsx")}
+                >
+                  {busy === `${dataset}-xlsx` ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Download />
+                  )}
+                  XLSX
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={Boolean(busy)}
+                  onClick={() => void run(dataset, "pdf")}
+                >
+                  {busy === `${dataset}-pdf` ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Download />
+                  )}
+                  PDF
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </Panel>
+          ))}
+        </div>
+      </Panel>
+    </>
   );
 }

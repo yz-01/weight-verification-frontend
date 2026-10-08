@@ -137,6 +137,54 @@ function endSession(): void {
   }
 }
 
+/**
+ * How long an upload may run before it counts as failed (A9).
+ *
+ * A file upload on a weak site signal could hang with no answer at all, and
+ * the record sat on 「等待上传」 with nothing to say why. Two minutes is ample
+ * for a few compressed photos on a poor 4G link; past that the request is
+ * given up, reported as `timeout`, and the offline queue tries it again.
+ * Only uploads (a FormData body) are timed: a plain read has its own retries
+ * and no photo to push.
+ */
+export const UPLOAD_TIMEOUT_MS = 120_000;
+
+/** The reason an upload was cut off, told apart from a caller's own abort. */
+class UploadTimeout extends Error {
+  constructor() {
+    super("upload_timeout");
+    this.name = "UploadTimeout";
+  }
+}
+
+async function fetchWithUploadTimeout(
+  url: string,
+  init: RequestInit,
+  callerSignal: AbortSignal | undefined,
+): Promise<Response> {
+  const controller = new AbortController();
+  const forward = () => controller.abort(callerSignal?.reason);
+  if (callerSignal?.aborted) forward();
+  else callerSignal?.addEventListener("abort", forward, { once: true });
+  const timer = setTimeout(() => controller.abort(new UploadTimeout()), UPLOAD_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.reason instanceof UploadTimeout) throw controller.signal.reason;
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    callerSignal?.removeEventListener("abort", forward);
+  }
+}
+
+/** A request that got no answer: offline, unreachable, or an upload cut off. */
+function noAnswer(error: unknown): ApiError {
+  return error instanceof UploadTimeout
+    ? new ApiError(t("errors.uploadTimeout"), 0, {}, "timeout")
+    : new ApiError(t("errors.network"), 0);
+}
+
 async function send(path: string, options: RequestOptions): Promise<Response> {
   const { method = "GET", body, query, signal, auth = true } = options;
   const headers: Record<string, string> = {};
@@ -166,6 +214,9 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
     payload = JSON.stringify(stamped);
   }
 
+  if (body instanceof FormData) {
+    return fetchWithUploadTimeout(buildUrl(path, query), { method, headers, body: payload }, signal);
+  }
   return fetch(buildUrl(path, query), { method, headers, body: payload, signal });
 }
 
@@ -192,7 +243,7 @@ export async function request<T>(
     response = await send(path, options);
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") throw error;
-    const failure = new ApiError(t("errors.network"), 0);
+    const failure = noAnswer(error);
     if (!options.silent) toast.error(failure.message);
     throw failure;
   }
@@ -282,6 +333,22 @@ export async function download(
 }
 
 /**
+ * A file the API serves, as a `File` with the name the server gave it - for
+ * handing to the phone's share sheet (2026-10 C11, Web Share API).
+ */
+export async function fetchAsFile(
+  path: string,
+  options: RequestOptions & { fallbackFilename: string },
+): Promise<File> {
+  const response = await fetchFile(path, options);
+  const blob = await response.blob();
+  const name =
+    filenameFromDisposition(response.headers.get("Content-Disposition")) ??
+    options.fallbackFilename;
+  return new File([blob], name, { type: blob.type || "application/octet-stream" });
+}
+
+/**
  * A file the API serves, as an object URL the page can show in a frame and
  * print (the MR form's Preview / Print, C06). The caller revokes it.
  */
@@ -297,8 +364,8 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
     response = await send(path, options);
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") throw error;
-    const failure = new ApiError(t("errors.network"), 0);
-    toast.error(failure.message);
+    const failure = noAnswer(error);
+    if (!options.silent) toast.error(failure.message);
     throw failure;
   }
 
@@ -320,7 +387,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
       envelope.success ? "" : envelope.message,
       envelope.success ? undefined : envelope.values,
     );
-    toast.error(message);
+    if (!options.silent) toast.error(message);
     throw new ApiError(message, response.status, {}, code);
   }
   return response;

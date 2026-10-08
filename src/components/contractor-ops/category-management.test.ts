@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   CATEGORY_MODULE_KEYS,
   categoryManagementAddress,
+  parseAlertAmounts,
   parseAlertPercentages,
 } from "@/lib/category-modules";
 
@@ -22,7 +23,7 @@ import {
  */
 
 const ROOT = process.cwd();
-const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
+const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
 
 const MANAGEMENT = "src/components/contractor-ops/category-management.tsx";
 const WORKSPACES = "src/components/contractor-ops/operations-workspaces.tsx";
@@ -45,18 +46,34 @@ function modulesBlock(): string {
 }
 
 describe("every module is managed on this one page (D-264)", () => {
-  it("lists all ten modules, without 现场资料分类 or Claim 分类", () => {
+  it("lists only the four groups the client uses (2026-10 B1)", () => {
     const block = modulesBlock();
     const keys = [
       ...[...block.matchAll(/columnModule\("([a-z]+)"/g)].map((m) => m[1]),
       ...[...block.matchAll(/\bkey: "([a-z]+)"/g)].map((m) => m[1]),
     ];
     expect(keys.sort()).toEqual([...CATEGORY_MODULE_KEYS].sort());
+    // 分类管理只留四组: 材料、设备、隐患整改、环保材料出场 (Q5, X5).
+    expect([...CATEGORY_MODULE_KEYS].sort()).toEqual(["ehs", "equipment", "material", "recycle"]);
     // 现场资料分类 was never a business module (D-285); Claim 分类
-    // duplicated 杂费报销分类 (D-286).
-    expect(keys).toHaveLength(10);
-    expect(keys).not.toContain("field");
-    expect(keys).not.toContain("claim");
+    // duplicated 杂费报销分类 (D-286); 文件分类 lives on 文档档案, 施工阶段 on
+    // 施工进度, and progress, clearance, consultant and sundry have none.
+    for (const gone of [
+      "field", "claim", "document", "phase", "progress", "debris", "consultant", "sundry",
+    ]) {
+      expect(keys).not.toContain(gone);
+    }
+  });
+
+  it("shows 隐患整改分类 read-only: no create, edit, delete or reorder", () => {
+    const source = read(MANAGEMENT);
+    expect(modulesBlock()).toContain('{ ...columnModule("ehs", "EHS"), readOnly: true }');
+    // Every create, edit, delete and reorder button hangs off canManage.
+    expect(source).toMatch(/const canManage = can\(active\.manage\) && !active\.readOnly;/);
+    expect(source).toMatch(/const createButton = canManage &&/);
+    expect(source).toMatch(/const canReorder =\s+Boolean\(active\.columnKind\) && canManage/);
+    // And `?create=1` cannot open the form on it either.
+    expect(source).toMatch(/!initialModule\.readOnly &&/);
   });
 
   it("gives every module a delete", () => {
@@ -66,11 +83,7 @@ describe("every module is managed on this one page (D-264)", () => {
     expect(functionBody(source, "const columnModule")).toMatch(
       /remove: deleteProjectCategory/,
     );
-    for (const [key, remove] of [
-      ["document", "deleteDocumentCategory"],
-      ["phase", "deleteConstructionPhase"],
-      ["recycle", "deleteWasteCategory"],
-    ]) {
+    for (const [key, remove] of [["recycle", "deleteWasteCategory"]]) {
       const entry = block.slice(block.indexOf(`key: "${key}"`));
       expect(entry, `${key} deletes`).toMatch(
         new RegExp(`^[\\s\\S]*?remove: ${remove},`),
@@ -81,9 +94,9 @@ describe("every module is managed on this one page (D-264)", () => {
   it("opens an editor in place for every module, never another screen", () => {
     const editor = functionBody(read(MANAGEMENT), "function CategoryEditor(");
     expect(editor).toMatch(/if \(module\.columnKind\)[\s\S]*?<CategoryDialog/);
-    expect(editor).toMatch(/module\.key === "document"[\s\S]*?<DocumentCategoryDialog/);
-    expect(editor).toMatch(/module\.key === "phase"[\s\S]*?<PhaseDialog/);
     expect(editor).toMatch(/<WasteCategoryDialog/);
+    // 文件分类 and 施工阶段 are managed on their own pages now (Q5).
+    expect(editor).not.toMatch(/DocumentCategoryDialog|PhaseDialog/);
   });
 
   it("has no link, 「打开该模块」 or 「到该模块新增」 left", () => {
@@ -116,12 +129,18 @@ describe("every module is managed on this one page (D-264)", () => {
   });
 });
 
-describe("the column form (D-265, D-266)", () => {
+describe("the column form (D-265, D-266; X1 for equipment)", () => {
   const dialog = functionBody(read(WORKSPACES), "export function CategoryDialog(");
 
-  it("has no parent column and no upload or edit lists", () => {
+  it("offers a major class to equipment only (2026-10 B2, X1)", () => {
+    // The picker hangs off the kind, and every other kind's payload drops it.
+    expect(dialog).toMatch(/const isEquipment = form\.kind === "EQUIPMENT";/);
+    expect(dialog).toMatch(/\{isEquipment && \(\s*<FieldWrapper\s+label=\{modules\("equipment\.majorClassOf"\)\}/);
+    expect(dialog).toMatch(/\{ \.\.\.form, parent: undefined \}/);
+  });
+
+  it("has no upload or edit lists", () => {
     for (const gone of [
-      /\bparent\b/,
       /parentOptions/,
       /upload_roles|upload_users/,
       /edit_roles|edit_users/,
@@ -143,7 +162,9 @@ describe("the column form (D-265, D-266)", () => {
       /export interface ProjectCategoryPayload \{([\s\S]*?)\n\}/,
     )?.[1];
     expect(payload).toBeTruthy();
-    expect(payload).not.toMatch(/\bparent\?|upload_|edit_/);
+    expect(payload).not.toMatch(/upload_|edit_/);
+    // `parent` only for equipment (X1); the server ignores it on other kinds.
+    expect(payload).toMatch(/parent\?: string \| null;/);
   });
 });
 
@@ -167,9 +188,13 @@ describe("the retired screens (D-263)", () => {
     expect(
       categoryManagementAddress({ kind: "equipment", project: "p1", create: "1" }),
     ).toBe("/category-management?project=p1&module=equipment&create=1");
+    // A retired module's old address lands on the first module (2026-10 B1).
     expect(
       categoryManagementAddress({ kind: "CONSTRUCTION_WASTE" }),
-    ).toBe("/category-management?module=debris");
+    ).toBe("/category-management?module=material");
+    expect(categoryManagementAddress({ module: "document" })).toBe(
+      "/category-management?module=material",
+    );
     expect(categoryManagementAddress({ module: "material" })).toBe(
       "/category-management?module=material",
     );
@@ -235,7 +260,18 @@ describe("the budget warning lines", () => {
     expect(parseAlertPercentages("100, 80, 80")).toEqual([80, 100]);
     expect(parseAlertPercentages("80, ninety")).toBeNull();
     expect(parseAlertPercentages("0")).toBeNull();
-    expect(parseAlertPercentages("501")).toBeNull();
+    // FE and BE agree on 1-1000 (2026-10 A6).
+    expect(parseAlertPercentages("1000")).toEqual([1000]);
+    expect(parseAlertPercentages("1001")).toBeNull();
     expect(parseAlertPercentages("80,")).toBeNull();
+  });
+
+  it("reads absolute warning lines as positive figures (2026-10 A6)", () => {
+    expect(parseAlertAmounts("")).toEqual([]);
+    expect(parseAlertAmounts("450000, 400000, 400000")).toEqual([400000, 450000]);
+    expect(parseAlertAmounts("12.5")).toEqual([12.5]);
+    expect(parseAlertAmounts("0")).toBeNull();
+    expect(parseAlertAmounts("lots")).toBeNull();
+    expect(parseAlertAmounts("400000,")).toBeNull();
   });
 });

@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /**
  * MR / Other Request (C01–C07). Endpoints in
  * `contractor_ops/material_requests.py`.
@@ -21,17 +23,34 @@ export interface MaterialRequestAttachment {
   size_bytes: number;
   uploaded_at: string;
   is_image: boolean;
+  /**
+   * A picture's watermarked copy - what a full-size view shows (Q30.1).
+   * Null for a PDF or other file, and for a picture whose stamp could not be
+   * made (never shown unstamped).
+   */
+  watermarked?: string | null;
 }
 
+/**
+ * One row of a request's history: approved, returned, or taken over by
+ * another approver while it waited (`REASSIGNED`, D2 「改派」).
+ */
 export interface MaterialRequestDecision {
   id: string;
-  decision: Exclude<MaterialRequestStatus, "SUBMITTED">;
+  decision: Exclude<MaterialRequestStatus, "SUBMITTED"> | "REASSIGNED";
   note: string;
+  /** On `REASSIGNED`: who took it over. */
   decided_by_name: string | null;
   decided_at: string;
+  /** On `REASSIGNED`: who had it before (empty for a request from before D2). */
+  previous_reviewer_name: string | null;
 }
 
-export interface MaterialRequest {
+export interface MaterialRequest extends RecordedBy {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   request_no: string;
   request_type: MaterialRequestType;
@@ -44,9 +63,20 @@ export interface MaterialRequest {
   quantity: string | null;
   unit: string;
   remark: string;
+  /**
+   * Who to buy from and whose make (2026-10 D1, D2): the applicant may
+   * suggest them, approving settles both.
+   */
+  supplier?: string | null;
+  supplier_name?: string | null;
+  manufacturer?: string | null;
+  manufacturer_name?: string | null;
   submitted_by: string | null;
   submitted_by_name: string | null;
   submitted_at: string;
+  /** 「提交给」 (D2): the one person who approves it. Empty on requests from before D2. */
+  assigned_reviewer: string | null;
+  assigned_reviewer_name: string | null;
   decided_by_name: string | null;
   decided_at: string | null;
   decision_note: string;
@@ -97,8 +127,18 @@ export interface MaterialRequestDraft {
   quantity?: string;
   unit?: string;
   remark?: string;
+  /** 「提交给」 (D2): required by the server. */
+  assigned_reviewer?: string;
+  /** Whose make, suggested (2026-10 D1); the approver settles it. */
+  manufacturer?: string;
   client_event_id?: string;
   attachments: File[];
+}
+
+/** Somebody 「提交给」 may name: holds the approval permission on this project, never the applicant. */
+export interface MaterialRequestReviewerOption {
+  id: string;
+  full_name: string;
 }
 
 /**

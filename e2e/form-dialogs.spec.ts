@@ -30,7 +30,7 @@ const CREATE: Array<[keyof typeof ACCOUNTS, keyof typeof LOGIN_PATHS, string[]]>
   [
     "contractor",
     "trace",
-    ["consultant-applications", "dispatches", "projects", "receipts", "roles", "suppliers", "users"],
+    ["consultant-applications", "dispatches", "projects", "roles", "suppliers", "users"],
   ],
   [
     "recycler",
@@ -47,12 +47,14 @@ const EDIT: Array<[keyof typeof ACCOUNTS, keyof typeof LOGIN_PATHS, string[]]> =
 ];
 
 test.describe("form dialogs", () => {
-  test("the delivery form opens over the list, and the address still works", async ({
+  // The supplier form rather than the delivery form: since 2026-10 A1 the
+  // office records no delivery, so `/receipts/create` no longer exists.
+  test("the supplier form opens over the list, and the address still works", async ({
     page,
   }) => {
     test.setTimeout(180_000);
     await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
-    await page.goto("/receipts");
+    await page.goto("/suppliers");
 
     /*
      * A plain CSS locator, not `getByRole`. While the dialog is open the rest
@@ -61,19 +63,19 @@ test.describe("form dialogs", () => {
      * at all. That is exactly the thing this test has to look at.
      */
     const listTitle = page.locator("main h1, main h2").first();
-    await expect(listTitle).toHaveText("Material receipts", WAIT);
+    await expect(listTitle).toHaveText("Suppliers", WAIT);
 
-    await page.locator('a[href="/receipts/create"]').click();
+    await page.locator('a[href="/suppliers/create"]').click();
 
     const dialog = page.locator('[data-slot="dialog-content"]');
     await expect(dialog).toBeVisible(WAIT);
-    expect(new URL(page.url()).pathname).toBe("/receipts/create");
+    expect(new URL(page.url()).pathname).toBe("/suppliers/create");
 
     // The list did not go anywhere. This is the whole point of intercepting
     // rather than navigating: the filters, the page and the scroll position
     // are still there because the component was never unmounted.
     //
-    await expect(listTitle).toHaveText("Material receipts");
+    await expect(listTitle).toHaveText("Suppliers");
 
     // 「弄小一点他们不用滑那么多下去」 measured rather than eyeballed: the
     // dialog has to fit the window, and the fields scroll inside it rather
@@ -105,9 +107,9 @@ test.describe("form dialogs", () => {
     // Back closes it and leaves the list where it was.
     await page.goBack();
     await expect(dialog).toBeHidden(WAIT);
-    expect(new URL(page.url()).pathname).toBe("/receipts");
+    expect(new URL(page.url()).pathname).toBe("/suppliers");
     await expect(listTitle).toBeVisible();
-    await expect(listTitle).toHaveText("Material receipts");
+    await expect(listTitle).toHaveText("Suppliers");
   });
 
   test("the same address typed from outside still renders the full page", async ({
@@ -117,14 +119,14 @@ test.describe("form dialogs", () => {
     await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
 
     // A hard load, the way a bookmark or a notification link arrives.
-    await page.goto("/receipts/create");
+    await page.goto("/suppliers/create");
 
     await expect(
-      page.getByRole("heading", { name: "Record a delivery" }),
+      page.getByRole("heading", { name: "New supplier" }),
     ).toBeVisible(WAIT);
     await expect(page.locator('[data-slot="dialog-content"]')).toHaveCount(0);
     // The page chrome the dialog does without: a way back to the list.
-    await expect(page.locator('a[href="/receipts"]').first()).toBeVisible();
+    await expect(page.locator('a[href="/suppliers"]').first()).toBeVisible();
   });
 
   for (const [who, portal, slugs] of CREATE) {

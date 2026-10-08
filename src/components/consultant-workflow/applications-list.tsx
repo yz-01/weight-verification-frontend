@@ -5,8 +5,9 @@ import {
   Archive,
   ClipboardCheck,
   FileCheck2,
-  FileText,
   FilePlus2,
+  FileText,
+  Images,
   KeyRound,
   Loader2,
   Search,
@@ -17,17 +18,28 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
+import { PhotoThumb } from "@/components/shared/photo-thumb";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantHowTo } from "@/components/consultant-workflow/consultant-how-to";
+import { ConsultantFieldInbox } from "@/components/consultant-workflow/field-inbox";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { usePageProject } from "@/components/providers/current-project-provider";
+import { FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { RecordNo } from "@/components/shared/record-no";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ConsultantApplicationStatus } from "@/interfaces/consultant-workflow";
 import { useDateFormat } from "@/lib/dates";
 import { getConsultantApplications } from "@/services/consultant-workflow.service";
+import { getFieldTasks } from "@/services/contractor-ops.service";
 
-const STAGES = ["all", "draft", "approval", "final", "archive"] as const;
+/**
+ * `inbox` is 「待整理现场资料」 (2026-10 C1, Q2): what the site sent in for
+ * the consultant and nobody has made into an application yet. It was its own
+ * menu entry (「现场资料收件箱」); it is the first step of an application,
+ * so it is a tab here - for the office that prepares applications.
+ */
+const STAGES = ["inbox", "all", "draft", "approval", "final", "archive"] as const;
 type ApplicationStage = (typeof STAGES)[number];
 
 const tones: Record<
@@ -48,14 +60,30 @@ export function ConsultantApplicationsList() {
   const searchParams = useSearchParams();
   const { user, can } = useAuth();
   const df = useDateFormat();
-  const [project, setProject] = useState("");
+  // The 「待整理现场资料」 notice names the submission's project, so the
+  // inbox opens on that site (C1, B4 audit #12).
+  // For the contractor's office, the top bar's 「当前项目」 (B13), which the
+  // notice's `?project=` moves.
+  const [project, setProject] = usePageProject(searchParams.get("project") ?? "");
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const stageParam = searchParams.get("stage");
-  const stage: ApplicationStage = STAGES.includes(stageParam as ApplicationStage)
+  const canOrganize =
+    can("consultant.submit") &&
+    !user?.is_field_staff &&
+    user?.account_type !== "CONSULTANT";
+  const stages = STAGES.filter((value) => value !== "inbox" || canOrganize);
+  const stage: ApplicationStage = stages.includes(stageParam as ApplicationStage)
     ? (stageParam as ApplicationStage)
     : "all";
-  const onProjectChange = useCallback((id: string) => setProject(id), []);
+  const onProjectChange = useCallback((id: string) => setProject(id), [setProject]);
   const needsProject = user?.account_type === "CONSULTANT";
+  // query-failure: only the tab's number; the tab itself says when it fails.
+  const toOrganize = useQuery({
+    queryKey: ["field-tasks", "to-organize", "count", project],
+    queryFn: () =>
+      getFieldTasks({ to_organize: "1", project: project || undefined, page_size: 1 }),
+    enabled: canOrganize,
+  });
   const rows = useQuery({
     queryKey: ["consultant-applications", project, search, stage],
     queryFn: () =>
@@ -65,18 +93,18 @@ export function ConsultantApplicationsList() {
         stage: stage === "all" ? undefined : stage,
         page_size: 200,
       }),
-    enabled: !needsProject || Boolean(project),
+    enabled: stage !== "inbox" && (!needsProject || Boolean(project)),
   });
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListHeader
         title={t("applications.title")}
         subtitle={t("applications.subtitle", { count: rows.data?.count ?? 0 })}
         action={
           <div className="flex flex-wrap justify-end gap-2">
             {can("approval.review") && (
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline">
                 <Link href="/approval-credential">
                   <KeyRound />
                   {t("credential.shortTitle")}
@@ -84,7 +112,7 @@ export function ConsultantApplicationsList() {
               </Button>
             )}
             {can("consultant.config") && (
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline">
                 <Link href="/consultant-settings">
                   <Settings2 />
                   {t("settingsHub.title")}
@@ -92,7 +120,7 @@ export function ConsultantApplicationsList() {
               </Button>
             )}
             {can("consultant.submit") && (
-              <Button asChild size="sm">
+              <Button asChild>
                 <Link href="/consultant-applications/create">
                   <FilePlus2 />
                   {t("applications.create")}
@@ -110,13 +138,13 @@ export function ConsultantApplicationsList() {
         canConfigure={can("consultant.config")}
       />
 
-      <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 shadow-sm sm:flex-row sm:items-center">
+      <FilterBar>
         <ConsultantProjectPicker
           value={project}
           onChange={onProjectChange}
           allowAll
         />
-        <div className="relative flex-1">
+        <div className="relative min-w-0 flex-1 sm:min-w-60">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
@@ -125,15 +153,19 @@ export function ConsultantApplicationsList() {
             className="pl-9"
           />
         </div>
-      </div>
+      </FilterBar>
 
       <nav
         aria-label={t("applications.stageLabel")}
-        className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/20 p-2 sm:grid-cols-5"
+        className={`surface-panel grid grid-cols-2 gap-2 rounded-xl p-2 ${
+          stages.length === 6 ? "sm:grid-cols-3 lg:grid-cols-6" : "sm:grid-cols-5"
+        }`}
       >
-        {STAGES.map((value) => {
+        {stages.map((value) => {
           const Icon =
-            value === "draft"
+            value === "inbox"
+              ? Images
+              : value === "draft"
               ? FileText
               : value === "approval"
                 ? ClipboardCheck
@@ -148,20 +180,27 @@ export function ConsultantApplicationsList() {
               key={value}
               href={href}
               aria-current={stage === value ? "page" : undefined}
-              className={`flex min-h-14 items-center justify-center gap-2 rounded-md px-3 text-center text-base font-semibold transition-colors ${
+              className={`flex min-h-14 min-w-0 items-center justify-center gap-2 rounded-lg px-3 text-center text-base font-semibold transition-colors ${
                 stage === value
-                  ? "bg-background text-primary shadow-sm ring-1 ring-border"
-                  : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
+                  ? "bg-primary/12 text-tone-cyan-fg ring-1 ring-primary/35"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
               <Icon className="size-4 shrink-0" />
               <span>{t(`applications.stage.${value}`)}</span>
+              {value === "inbox" && toOrganize.data?.count ? (
+                <span className="rounded-full bg-primary px-1.5 text-xs tabular-nums text-primary-foreground">
+                  {toOrganize.data.count}
+                </span>
+              ) : null}
             </Link>
           );
         })}
       </nav>
 
-      {needsProject && !project ? (
+      {stage === "inbox" ? (
+        <ConsultantFieldInbox project={project} focusedTaskId={searchParams.get("task")} />
+      ) : needsProject && !project ? (
         <EmptyState text={t("state.chooseProject")} />
       ) : rows.isLoading ? (
         <div className="grid min-h-52 place-items-center">
@@ -172,7 +211,7 @@ export function ConsultantApplicationsList() {
       ) : !rows.data?.count ? (
         <EmptyState text={t("state.noApplications")} />
       ) : (
-        <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="overflow-hidden surface-panel rounded-xl">
           <div className="divide-y">
             {rows.data.results.map((application) => (
               <Link
@@ -181,18 +220,30 @@ export function ConsultantApplicationsList() {
                 className="grid gap-3 p-4 transition-colors hover:bg-muted/35 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] sm:items-center"
               >
                 <div className="flex min-w-0 items-start gap-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                    <ClipboardCheck className="size-5" />
-                  </span>
+                  {/* The linked site photograph (E3); the row is a link to
+                      the application, so the picture is not a second one. */}
+                  <PhotoThumb
+                    coverUrl={application.cover_photo_url}
+                    count={application.photo_count}
+                    icon={ClipboardCheck}
+                    reference={application.application_no}
+                    openable={false}
+                  />
                   <div className="min-w-0">
-                    <p className="truncate font-semibold">
-                      {application.application_no}
-                    </p>
+                    {/* Short number big, project small (2026-10 D4). The row is a link, so no copy button
+                        inside it; the whole number is on hover. */}
+                    <RecordNo
+                      value={application.application_no}
+                      projectCode={application.project_code}
+                      copyable={false}
+                    />
                     <p className="truncate text-sm text-muted-foreground">
                       {application.application_type_custom ||
                         application.application_type_label}
-                      {" / "}
-                      {application.discipline_custom || application.discipline_label}
+                      {/* Optional since 2026-10 (C1). */}
+                      {application.discipline_custom || application.discipline_label
+                        ? ` / ${application.discipline_custom || application.discipline_label}`
+                        : null}
                     </p>
                   </div>
                 </div>
@@ -225,8 +276,8 @@ function EmptyState({ text, danger = false }: { text: string; danger?: boolean }
     <div
       className={
         danger
-          ? "rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive"
-          : "rounded-lg border border-dashed bg-muted/15 p-10 text-center text-sm text-muted-foreground"
+          ? "rounded-xl border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive"
+          : "rounded-xl border border-dashed border-panel-border p-10 text-center text-sm text-muted-foreground"
       }
     >
       {text}

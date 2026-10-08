@@ -55,19 +55,29 @@ describe("general waste photographs (L6 / B24)", () => {
 });
 
 /**
- * E04: submitting the final proof ends the job, for the driver's link and for
- * the contractor's own field staff alike. No office 验收 / 退回 remains.
+ * X11 (C5) overturns E04: submitting sends one lorry, which the office checks
+ * on 【验收这一车】; the job finishes when the last lorry is checked. The old
+ * request-level 验收 / 退回 stays gone.
  */
-describe("general waste ends on Submit (E04)", () => {
-  it("offers the office no confirm or return step", () => {
+describe("general waste: one lorry per submission, checked by the office (X11)", () => {
+  it("offers the office no request-level confirm or return step", () => {
     expect(code).not.toMatch(/confirmDisposalCompletion/);
     expect(code).not.toMatch(/"confirming"/);
     expect(code).not.toMatch(/ConfirmDisposalDialog/);
   });
 
-  it("shows both executors a finished screen, not 'waiting for the site to check'", () => {
+  it("shows both executors a finished screen only once the job is complete", () => {
     expect(componentBody("ExternalDisposalWorkspace")).toMatch(/const finished = current\.status === "COMPLETED"/);
     expect(componentBody("InternalDisposalWorkspace")).toMatch(/current\.status === "COMPLETED"/);
+  });
+
+  it("tells both executors when every lorry has gone, instead of a camera", () => {
+    for (const screen of ["ExternalDisposalWorkspace", "InternalDisposalWorkspace"]) {
+      const body = componentBody(screen);
+      expect(body).toMatch(/!load\.allSent/);
+      expect(body).toMatch(/tTrips\("allSentTitle"\)/);
+      expect(body).toMatch(/const sent = load\.photos;/);
+    }
   });
 
   it("lets the driver start from the link handed out at approval (D10)", () => {

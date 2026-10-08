@@ -109,7 +109,7 @@ function PhotoApprovalsContent() {
               : t("photoApprovals.historyCount", { count: total })
         }
         action={
-          <div className="flex gap-1 rounded-lg border p-1" role="tablist" aria-label={t("photoApprovals.show")}>
+          <div className="flex max-w-full flex-wrap gap-1 rounded-lg border bg-muted/40 p-1" role="tablist" aria-label={t("photoApprovals.show")}>
             {(["SUBMITTED", "ACCEPTED", "RETURNED"] as const).map((status) => (
               <button
                 key={status}
@@ -117,7 +117,7 @@ function PhotoApprovalsContent() {
                 role="tab"
                 aria-selected={shown === status}
                 onClick={() => setShown(status)}
-                className={`rounded-md px-2.5 py-1 text-xs font-medium ${shown === status ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                className={`min-h-8 rounded-md px-3 text-xs font-medium transition-colors pointer-coarse:min-h-10 ${shown === status ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
               >
                 {t(`photoApprovals.filter.${status}`)}
               </button>
@@ -131,7 +131,7 @@ function PhotoApprovalsContent() {
       ) : waiting.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : rows.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-10 text-center text-sm text-muted-foreground">
           {pending ? t("photoApprovals.empty") : t("photoApprovals.historyEmpty")}
         </p>
       ) : (
@@ -139,7 +139,7 @@ function PhotoApprovalsContent() {
           {rows.map((task) => (
             <article
               key={task.id}
-              className="rounded-xl border bg-card p-4 shadow-sm"
+              className="surface-panel rounded-xl p-4"
             >
               <header className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -198,7 +198,7 @@ function PhotoApprovalsContent() {
               )}
 
               {task.instructions && (
-                <p className="mt-3 rounded-lg bg-muted/40 p-3 text-sm">
+                <p className="mt-3 rounded-lg border bg-muted/30 p-3 text-sm">
                   {task.instructions}
                 </p>
               )}
@@ -206,7 +206,7 @@ function PhotoApprovalsContent() {
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {task.photos.map((photo) => (
                   <figure key={photo.id} className="overflow-hidden rounded-lg border">
-                    <div className="relative aspect-square bg-muted">
+                    <div className="photo-hatch relative aspect-square">
                       <Image
                         src={photo.watermarked || photo.image}
                         alt={photo.caption || task.title}

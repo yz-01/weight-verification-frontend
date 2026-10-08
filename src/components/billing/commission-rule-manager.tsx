@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { FileText, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
+  EmptyState,
   FieldWrapper,
   LoadFailed,
   StatusBadge,
@@ -112,29 +113,29 @@ export function CommissionRuleManager() {
 
   const rows = rules.data?.results ?? [];
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           {t("rules.count", { count: rows.length })}
         </p>
         {can("commission.manage") && (
-          <Button size="sm" onClick={() => openEditor(null)}>
+          <Button onClick={() => openEditor(null)}>
             <Plus className="h-4 w-4" />
             {t("rules.create")}
           </Button>
         )}
       </div>
-      <div className="min-h-0 overflow-hidden rounded-lg border bg-card shadow-sm">
+      <div className="surface-panel min-h-0 overflow-hidden rounded-xl">
         <Table className="min-w-max">
           <TableHeader>
             <TableRow>
               <TableHead>{t("field.name")}</TableHead>
               <TableHead>{t("field.calculationBasis")}</TableHead>
-              <TableHead className="text-right">{t("field.rate")}</TableHead>
+              <TableHead className="text-right tabular">{t("field.rate")}</TableHead>
               <TableHead>{t("field.settlementCycle")}</TableHead>
               <TableHead>{t("field.effectivePeriod")}</TableHead>
-              <TableHead className="text-right">{t("field.paymentTerm")}</TableHead>
-              <TableHead className="text-right">{t("field.invoices")}</TableHead>
+              <TableHead className="text-right tabular">{t("field.paymentTerm")}</TableHead>
+              <TableHead className="text-right tabular">{t("field.invoices")}</TableHead>
               <TableHead>{t("field.state")}</TableHead>
               <TableHead className="text-right">
                 <span className="sr-only">{common("actions")}</span>
@@ -143,7 +144,11 @@ export function CommissionRuleManager() {
           </TableHeader>
           <TableBody>
             {rules.isError ? (
-              <LoadFailed onRetry={() => void rules.refetch()} />
+              <TableRow>
+                <TableCell colSpan={9} className="p-4">
+                  <LoadFailed onRetry={() => void rules.refetch()} />
+                </TableCell>
+              </TableRow>
             ) : rules.isLoading ? (
               <TableRow>
                 <TableCell colSpan={9} className="h-40 text-center">
@@ -155,24 +160,19 @@ export function CommissionRuleManager() {
               </TableRow>
             ) : rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="px-4 py-16">
-                  <div className="flex flex-col items-center gap-4 text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                      <svg className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="font-medium text-foreground">{t("rules.empty")}</p>
-                      <p className="text-sm text-muted-foreground">{t("rules.emptyHint")}</p>
-                    </div>
-                    {can("commission.manage") && (
-                      <Button size="sm" variant="outline" onClick={() => openEditor(null)}>
-                        <Plus className="h-4 w-4" />
+                <TableCell colSpan={9} className="p-4">
+                  <EmptyState
+                    icon={FileText}
+                    title={t("rules.empty")}
+                    description={t("rules.emptyHint")}
+                    className="border-0"
+                    action={can("commission.manage") && (
+                      <Button variant="outline" onClick={() => openEditor(null)}>
+                        <Plus className="size-4" />
                         {t("rules.create")}
                       </Button>
                     )}
-                  </div>
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -184,8 +184,8 @@ export function CommissionRuleManager() {
                   <TableCell className="text-sm text-muted-foreground">
                     {t(`basis.${rule.basis}`)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <span className="font-mono text-sm font-medium text-foreground">
+                  <TableCell className="text-right tabular">
+                    <span className="tabular text-sm font-medium text-foreground">
                       {rule.rate}
                       {rule.basis === "SETTLED_AMOUNT"
                         ? "%"
@@ -196,17 +196,17 @@ export function CommissionRuleManager() {
                     {t(`cycle.${rule.cycle}`)}
                   </TableCell>
                   <TableCell>
-                    <span className="font-mono text-sm text-muted-foreground whitespace-nowrap">
+                    <span className="tabular whitespace-nowrap text-sm text-muted-foreground">
                       {df.date(rule.effective_from)} -{" "}
                       {rule.effective_to
                         ? df.date(rule.effective_to)
                         : t("rules.openEnded")}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right font-mono text-sm text-muted-foreground">
+                  <TableCell className="text-right tabular text-sm text-muted-foreground">
                     {t("rules.days", { count: rule.payment_term_days })}
                   </TableCell>
-                  <TableCell className="text-right font-mono text-sm font-medium text-foreground">
+                  <TableCell className="text-right tabular text-sm font-medium text-foreground">
                     {rule.invoice_count}
                   </TableCell>
                   <TableCell>
@@ -220,7 +220,7 @@ export function CommissionRuleManager() {
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-end gap-0.5">
                       {can("commission.manage") && (
                         <>
                           <Button
@@ -262,7 +262,7 @@ export function CommissionRuleManager() {
         open={editing !== undefined}
         onOpenChange={(open) => !open && setEditing(undefined)}
       >
-        <DialogContent className="flex max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden sm:max-w-2xl">
+        <DialogContent className="flex flex-col overflow-hidden sm:max-w-2xl">
           <DialogHeader className="shrink-0">
             <DialogTitle>
               {t(editing ? "rules.edit" : "rules.create")}
@@ -410,7 +410,7 @@ export function CommissionRuleManager() {
                 }
               />
             </FieldWrapper>
-            <div className="flex items-center justify-between rounded-md border px-3 py-2 sm:col-span-2">
+            <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3 sm:col-span-2">
               <span className="text-sm font-medium">
                 {t("field.activeRule")}
               </span>
@@ -424,7 +424,7 @@ export function CommissionRuleManager() {
             </div>
           </div>
           {save.isError && (
-            <p className="shrink-0 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <p className="shrink-0 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
               {t("rules.saveError")}
             </p>
           )}
@@ -491,7 +491,7 @@ function SelectField({
   return (
     <FieldWrapper label={label} required>
       <select
-        className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+        className="native-control"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >

@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import type { useListQuery } from "@/hooks/use-list-query";
 import type { ProjectCategoryKind } from "@/interfaces/contractor-ops";
+import { cn } from "@/lib/utils";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 
 export function ModuleRecordsTable<T extends { id: string }>({
@@ -157,7 +158,7 @@ export function sortable<T>(label: string): ColumnDef<T, unknown>["header"] {
 /** A plain header cell, for a column the API cannot sort by. */
 export function PlainHeader({ label }: { label: string }) {
   return (
-    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <span className="text-xs font-semibold text-muted-foreground">
       {label}
     </span>
   );
@@ -173,7 +174,7 @@ export function FilterSelect({
   param,
   allLabel,
   options,
-  width = "w-[160px]",
+  width = "w-40",
 }: {
   list: ReturnType<typeof useListQuery>;
   param: string;
@@ -186,7 +187,7 @@ export function FilterSelect({
       value={list.filters[param] ?? ALL}
       onValueChange={(value) => list.setFilter(param, value === ALL ? undefined : value)}
     >
-      <SelectTrigger size="sm" className={width} aria-label={allLabel}>
+      <SelectTrigger className={cn("max-sm:w-full", width)} aria-label={allLabel}>
         <SelectValue placeholder={allLabel} />
       </SelectTrigger>
       <SelectContent>
@@ -244,7 +245,7 @@ export function ColumnFilter({
           })
         }
       >
-        <SelectTrigger size="sm" className="w-[180px]" aria-label={t("allColumns")}>
+        <SelectTrigger className="w-full sm:w-45" aria-label={t("allColumns")}>
           <SelectValue placeholder={t("allColumns")} />
         </SelectTrigger>
         <SelectContent>
@@ -280,7 +281,7 @@ export function ProjectListFilter({ list }: { list: ReturnType<typeof useListQue
       placeholder={t("allProjects")}
       allowAll
       allLabel={t("allProjects")}
-      className="h-8 w-[180px]"
+      className="w-full sm:w-45"
     />
   );
 }
@@ -305,7 +306,7 @@ export function SummaryStrip({
         <div key={item.key} className="flex items-baseline gap-2 rounded-md border bg-card px-3 py-1.5">
           <span className="text-xs text-muted-foreground">{item.label}</span>
           <span className="text-sm font-semibold tabular-nums">{item.value}</span>
-          {item.detail ? <span className="text-[11px] text-muted-foreground">{item.detail}</span> : null}
+          {item.detail ? <span className="text-2xs text-muted-foreground">{item.detail}</span> : null}
         </div>
       ))}
     </div>

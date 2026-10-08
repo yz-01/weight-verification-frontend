@@ -31,7 +31,7 @@
  * `FieldDraft`.
  */
 
-import { Clock3, CloudOff, Plus } from "lucide-react";
+import { AlertTriangle, Clock3, CloudOff, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
@@ -65,7 +65,9 @@ import { cn } from "@/lib/utils";
 import {
   OFFLINE_QUEUE_CHANGED,
   claimQueuedJob,
+  queueErrorKey,
   queuedJobState,
+  type QueuedJobState,
 } from "@/services/offline-sync.service";
 
 export function FieldSlots({
@@ -121,7 +123,7 @@ function SlotBoundary({
   // Written back at once: a list from before T-400 is stored in today's shape,
   // and a browser that refuses storage is found out before anything is lost.
   const [stored, setStored] = useState(() => saveRegistry(registryKey, initial));
-  const [waiting, setWaiting] = useState<Record<string, { attempts: number; lastError: string }>>({});
+  const [waiting, setWaiting] = useState<Record<string, QueuedJobState>>({});
   const [refused, setRefused] = useState<"off" | "on" | null>(null);
   // Which 挂号 【挂号】 was pressed on while it was still empty.
   const [emptyPressed, setEmptyPressed] = useState<number | null>(null);
@@ -190,9 +192,9 @@ function SlotBoundary({
       );
       if (cancelled) return;
       let next = latest.current;
-      const failures: Record<string, { attempts: number; lastError: string }> = {};
+      const failures: Record<string, QueuedJobState> = {};
       for (const [id, state] of states) {
-        if (state.waiting) failures[id] = { attempts: state.attempts, lastError: state.lastError };
+        if (state.waiting) failures[id] = state;
         else next = releaseUploaded(next, id);
       }
       setWaiting(failures);
@@ -265,7 +267,7 @@ function SlotBoundary({
 
   return (
     <div className="space-y-3">
-      <section aria-label={t("title")} className="rounded-lg border bg-card p-2">
+      <section aria-label={t("title")} className="surface-panel rounded-xl p-3">
         <div className="flex items-center justify-between gap-2">
           <p className="text-xs font-semibold">{t("title")}</p>
           <label className="flex items-center gap-2 text-xs">
@@ -290,7 +292,7 @@ function SlotBoundary({
               )}
             </div>
             {activeSlot && emptyPressed === activeSlot.n && activeEmpty && (
-              <p role="status" className="mt-1.5 rounded-md bg-warning/10 px-2 py-1.5 text-xs font-medium text-warning">
+              <p role="status" className="mt-1.5 rounded-lg border border-warning/40 bg-warning/10 px-2 py-1.5 text-xs font-medium text-warning">
                 {t("fillFirst", { n: formatSlotNumber(activeSlot.n) })}
               </p>
             )}
@@ -308,10 +310,10 @@ function SlotBoundary({
                 ))}
               </ul>
             )}
-            <p className="mt-1 text-[11px] text-muted-foreground">{t("help")}</p>
+            <p className="mt-1 text-2xs text-muted-foreground">{t("help")}</p>
           </>
         ) : (
-          <p className="mt-1 text-[11px] text-muted-foreground">{t("offHelp")}</p>
+          <p className="mt-1 text-2xs text-muted-foreground">{t("offHelp")}</p>
         )}
         {!stored && (
           <p role="alert" className="mt-1 text-xs font-medium text-destructive">{t("notStored")}</p>
@@ -327,7 +329,7 @@ function SlotBoundary({
           </FieldDraft>
         </SlotSettleContext.Provider>
       ) : (
-        <div className="space-y-3 rounded-lg border border-dashed p-4 text-center">
+        <div className="space-y-3 rounded-xl border border-dashed border-panel-border p-4 text-center">
           <p className="text-sm text-muted-foreground">{t("none")}</p>
           <Button type="button" size="lg" className="w-full" onClick={open}>
             <Plus className="size-4" />
@@ -349,16 +351,29 @@ function SlotChip({
   slot: FieldSlot;
   active: boolean;
   store: FormDraftStore;
-  failure?: { attempts: number; lastError: string };
+  failure?: QueuedJobState;
   onOpen: () => void;
 }) {
   const t = useTranslations("fieldSlots");
+  const all = useTranslations();
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
   useEffect(() => {
     void store.load();
   }, [store]);
   const photos = countDraftFiles(snapshot.values);
   const queued = isQueued(slot);
+  const failed = queued && failure !== undefined && failure.attempts > 0;
+  // A9: the reason and the number of tries are written on the chip itself.
+  // They used to sit in a tooltip, which a phone never shows, so a worker saw
+  // 「上传失败，会自动重试」 and nothing to say what was wrong.
+  const reasonKey = failure ? queueErrorKey(failure.lastError) : null;
+  const reason = failure ? (reasonKey ? all(reasonKey) : failure.lastError) : "";
+  const detail = failed
+    ? t(failure.needsAttention ? "needsAttention" : "retrying", {
+        reason,
+        count: failure.attempts,
+      })
+    : null;
   return (
     <li className="shrink-0">
       <button
@@ -366,25 +381,36 @@ function SlotChip({
         onClick={onOpen}
         aria-pressed={active}
         disabled={queued}
-        title={queued ? (failure?.lastError || t("waitingHelp")) : undefined}
+        title={queued ? (detail ?? t("waitingHelp")) : undefined}
         className={cn(
           "flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs disabled:cursor-default",
           active && "border-primary bg-primary/10 font-semibold text-primary",
           queued && "border-dashed bg-muted/40 text-muted-foreground",
-          failure && failure.attempts > 0 && "border-destructive/50 text-destructive",
+          failed && "max-w-[16rem] items-start rounded-xl text-left",
+          failed && (failure.needsAttention
+            ? "border-destructive/50 text-destructive"
+            : "border-warning/50 text-warning"),
         )}
       >
         {queued ? (
-          failure && failure.attempts > 0 ? <CloudOff className="size-3.5" /> : <Clock3 className="size-3.5" />
+          failed ? (
+            failure.needsAttention ? (
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+            ) : (
+              <CloudOff className="mt-0.5 size-3.5 shrink-0" />
+            )
+          ) : (
+            <Clock3 className="size-3.5" />
+          )
         ) : null}
-        <span>{t("slot", { n: formatSlotNumber(slot.n) })}</span>
-        <span className="tabular-nums opacity-80">
-          {queued
-            ? failure && failure.attempts > 0
-              ? t("failed")
-              : t("waiting")
-            : t("photos", { count: photos })}
-        </span>
+        <span className="shrink-0">{t("slot", { n: formatSlotNumber(slot.n) })}</span>
+        {failed ? (
+          <span className="line-clamp-3 whitespace-normal break-words">{detail}</span>
+        ) : (
+          <span className="tabular-nums opacity-80">
+            {queued ? t("waiting") : t("photos", { count: photos })}
+          </span>
+        )}
       </button>
     </li>
   );

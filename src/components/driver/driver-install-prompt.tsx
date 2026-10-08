@@ -56,7 +56,7 @@ export function DriverInstallPrompt() {
   };
   const isIos = environment === "ios";
   return (
-    <div className="mb-4 flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 px-3 py-3 text-sm">
+    <div className="mb-4 flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3 text-sm">
       <Download className="mt-0.5 size-4 shrink-0 text-primary" />
       <div className="min-w-0 flex-1">
         <p className="font-medium text-foreground">{t("driverInstallTitle")}</p>
@@ -73,7 +73,7 @@ export function DriverInstallPrompt() {
       <Button type="button" size="sm" variant="outline" onClick={() => void install()}>
         {prompt ? t("install") : t("installHelp")}
       </Button>
-      <Button type="button" size="icon" variant="ghost" className="size-7" onClick={() => setDismissed(true)} aria-label={t("driverInstallDismiss")}>
+      <Button type="button" size="icon" variant="ghost" className="-my-1 -mr-1 shrink-0" onClick={() => setDismissed(true)} aria-label={t("driverInstallDismiss")}>
         <X className="size-3.5" />
       </Button>
     </div>

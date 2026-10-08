@@ -114,10 +114,10 @@ export function RecordAttachmentsPanel({ kind, recordId }: { kind: ChatRecordKin
                       >
                         {row.original_name}
                       </button>
-                      <p className="truncate text-[11px] text-muted-foreground">
+                      <p className="truncate text-2xs text-muted-foreground">
                         {row.uploaded_by_name ?? "—"} · {df.dateTime(row.uploaded_at)} · {size(row.byte_size)}
                       </p>
-                      {row.note ? <p className="mt-0.5 break-words text-[11px]">{row.note}</p> : null}
+                      {row.note ? <p className="mt-0.5 break-words text-2xs">{row.note}</p> : null}
                     </div>
                     <Button
                       type="button"
@@ -146,13 +146,13 @@ export function RecordAttachmentsPanel({ kind, recordId }: { kind: ChatRecordKin
           )}
 
           {closed ? (
-            <p className="mt-2 flex items-start gap-1.5 rounded-md bg-muted/50 px-2 py-1.5 text-[11px] text-muted-foreground">
+            <p className="mt-2 flex items-start gap-1.5 rounded-md bg-muted/50 px-2 py-1.5 text-2xs text-muted-foreground">
               <Lock className="mt-0.5 size-3 shrink-0" />
               {t("closed")}
             </p>
           ) : adding ? (
             <div className="mt-2 space-y-2 rounded-md border border-dashed p-2">
-              <p className="text-[11px] text-muted-foreground">{t("hint")}</p>
+              <p className="text-2xs text-muted-foreground">{t("hint")}</p>
               <FieldWrapper label={t("files")} required>
                 <Input
                   key={inputKey}

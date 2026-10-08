@@ -1,33 +1,33 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, FolderOpen, Pencil, Phone } from "lucide-react";
+import { Camera, FolderOpen, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { useUnitName } from "@/hooks/use-material-units";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
-import { RecordDetailShell } from "@/components/shared/record-detail-shell";
-import { RecordExportButton } from "@/components/shared/record-export-button";
+import {
+  RecordDetailFrame,
+  RecordDetailShell,
+  RecordRecorder,
+} from "@/components/shared/record-detail-shell";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { Switch } from "@/components/ui/switch";
 import {
-  DetailHeader,
+  ArmRow,
   FieldWrapper,
   TypeBadge,
 } from "@/components/shared/page-primitives";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ApiError } from "@/interfaces/api";
 import type {
   MaterialReceiptDetail,
   PhotoKind,
@@ -40,6 +40,17 @@ import {
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
 import { useRecordArchived } from "@/components/shared/record-closure";
+
+/**
+ * Whether this delivery's next step is the final 【确认归档】 (C4, X10):
+ * 「材料进场要已验收」, and the superseded copy of a corrected delivery is
+ * read, not confirmed - its correction is the one that counts (C6).
+ */
+export function receiptAwaitsConfirmation(
+  receipt: Pick<MaterialReceiptDetail, "acceptance_status" | "superseded_by">,
+): boolean {
+  return receipt.acceptance_status === "ACCEPTED" && !receipt.superseded_by;
+}
 
 const PHOTO_KINDS: PhotoKind[] = [
   "VEHICLE",
@@ -89,9 +100,12 @@ function currentPosition(): Promise<GeolocationPosition | null> {
  */
 function ReviewDelivery({
   receipt,
+  archived,
   onReviewed,
 }: {
   receipt: MaterialReceiptDetail;
+  /** Confirmed and archived (D-234): read-only, so nothing to press (C6). */
+  archived: boolean;
   onReviewed: () => void;
 }) {
   const t = useTranslations();
@@ -104,30 +118,44 @@ function ReviewDelivery({
   // office is shown the decision and has nothing left to press.
   const rejectedAtGate = receipt.rejection_source === "SITE";
 
+  // Said on screen, never swallowed (2026-10 C6): a corrected receipt
+  // answered 409 here and the button simply did nothing.
+  const [reviewError, setReviewError] = useState("");
   const review = useMutation({
     mutationFn: (decision: "ACCEPTED" | "REJECTED") =>
       reviewReceipt(receipt.id, {
         decision,
         rejection_reason: decision === "REJECTED" ? reason.trim() : "",
       }),
+    onMutate: () => setReviewError(""),
     onSuccess: onReviewed,
+    onError: (failure) => {
+      setReviewError(
+        failure instanceof ApiError
+          ? failure.message
+          : t("receipts.acceptance.failed"),
+      );
+      // A 409 means the record moved on (corrected, archived) since this
+      // page loaded: reload it so the screen shows what replaced it.
+      if (failure instanceof ApiError && failure.status === 409) onReviewed();
+    },
   });
 
   const tone =
     status === "ACCEPTED"
-      ? "text-emerald-600"
+      ? "text-success"
       : status === "REJECTED"
         ? "text-destructive"
-        : "text-amber-600";
+        : "text-warning";
 
   return (
     // In the shell's right column (图 2 圈起来的位置), so it is a compact
     // block rather than a full-width form section.
-    <div className="space-y-2">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <div className="space-y-3">
+      <h3 className="panel-title">
         {t("receipts.acceptance.title")}
       </h3>
-      <div className="space-y-2">
+      <div className="space-y-3">
         <p className={`text-sm font-medium ${tone}`}>
           {t(`receipts.acceptance.status.${status}`)}
           {receipt.accepted_by_name ? ` · ${receipt.accepted_by_name}` : ""}
@@ -146,7 +174,16 @@ function ReviewDelivery({
           </p>
         )}
 
-        {!rejectedAtGate && (
+        {archived && !rejectedAtGate && (
+          <p className="text-xs text-muted-foreground">{t("receipts.acceptance.archived")}</p>
+        )}
+        {reviewError && (
+          <p role="alert" className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">
+            {reviewError}
+          </p>
+        )}
+
+        {!rejectedAtGate && !archived && (
           <>
         {/* One confirming action, and a rejection behind a switch (D-208,
             C-018). The customer's words for why: 「只保留一个开/关控制。开启后，
@@ -158,7 +195,8 @@ function ReviewDelivery({
             act. Never a confirmation dialog — the customer asked for the
             switch in both places and for no second prompt after it. */}
         <Button
-          size="sm"
+          size="lg"
+          className="w-full"
           disabled={review.isPending || status === "ACCEPTED"}
           disabledReason={
             status === "ACCEPTED"
@@ -170,8 +208,10 @@ function ReviewDelivery({
           {t("receipts.acceptance.accept")}
         </Button>
 
-        <label className="flex items-center gap-2 rounded-md border px-2 py-1.5">
+        <ArmRow>
+        <label className="flex min-w-0 flex-1 items-center gap-3">
           <Switch
+            tone="danger"
             checked={rejectArmed}
             onCheckedChange={(next) => {
               setRejectArmed(next);
@@ -179,10 +219,11 @@ function ReviewDelivery({
             }}
             aria-label={t("receipts.acceptance.armReject")}
           />
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {t("receipts.acceptance.armRejectHelp")}
           </span>
         </label>
+        </ArmRow>
 
         {rejectArmed && (
           <div className="space-y-2">
@@ -191,7 +232,6 @@ function ReviewDelivery({
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={t("receipts.acceptance.reasonPlaceholder")}
-                className="h-8 text-sm"
               />
             </FieldWrapper>
             {/* `requires` rather than a bare `disabled`, so the list that decides
@@ -200,8 +240,8 @@ function ReviewDelivery({
                 No conversation first any more (10-02 D08, brief Q3): the
                 switch above is the guard. */}
             <Button
-              size="sm"
               variant="destructive"
+              className="w-full"
               requires={[[reason.trim(), t("receipts.acceptance.reason")]]}
               disabled={review.isPending}
               disabledReason={t("common.saving")}
@@ -309,18 +349,26 @@ function AddPhoto({
   );
 }
 
-/** First letters of the first two words, for an avatar with no picture. */
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
-export function ViewReceipt({ id }: { id: string }) {
+/**
+ * One delivery, in the record-detail frame every module shares (E8, Q31).
+ *
+ * From the receipts list (or anywhere inside the app) it opens as the popup
+ * - 「以弹窗显示（跟改设计前一样）」 - over the list, which stays where it
+ * was; `/receipts/<id>` typed, bookmarked or opened from a notification
+ * renders the same frame on a page of its own (`presentation="page"`).
+ */
+export function ViewReceipt({
+  id,
+  presentation = "page",
+  onClose,
+}: {
+  id: string;
+  presentation?: "page" | "dialog";
+  /** The dialog's close; going back by default (an intercepted address). */
+  onClose?: () => void;
+}) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
@@ -338,43 +386,51 @@ export function ViewReceipt({ id }: { id: string }) {
   // one. The archive queue records its own per-person marks through its own
   // explicit action (D-063), so nothing there depends on this page any more.
 
-  if (isLoading) return <FormSkeleton sections={4} />;
+  const frame = {
+    presentation,
+    onClose,
+    backHref: "/receipts",
+    backLabel: t("receipts.title"),
+  };
+  if (isLoading) {
+    return (
+      <RecordDetailFrame {...frame} title={t("receipts.title")}>
+        <FormSkeleton sections={4} />
+      </RecordDetailFrame>
+    );
+  }
   if (isError || !data) {
-    return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
+    return (
+      <RecordDetailFrame {...frame} title={t("receipts.title")}>
+        <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />
+      </RecordDetailFrame>
+    );
   }
 
   return (
-    <div className="space-y-3">
-      {/* 「单独导出」 top right (T-386): this delivery as its own PDF. */}
-      <DetailHeader
-        backHref="/receipts"
-        backLabel={t("receipts.title")}
-        action={
-          <RecordExportButton
-            kind="MATERIAL_RECEIPT"
-            recordId={data.id}
-            reference={data.receipt_no}
-          />
-        }
-      />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="tabular text-base font-semibold text-foreground">
-          {data.receipt_no}
-        </h2>
-        {/* Which way it went (B10): a return used to open on a page that
-            only ever said 材料进场. */}
-        <TypeBadge label={t(`receipts.movement.${data.movement_type}`)} />
-        <TypeBadge label={t(`receipts.unit.${data.unit}`)} />
-        {data.supersedes && (
-          <Link
-            href={`/receipts/${data.supersedes}`}
-            className="text-xs font-medium text-info underline-offset-2 hover:underline"
-          >
-            {t("receipts.correction.supersedes")}
-          </Link>
-        )}
-      </div>
+    <RecordDetailFrame
+      {...frame}
+      title={data.receipt_no}
+      status={
+        <>
+          {/* Which way it went (B10): a return used to open on a page that
+              only ever said 材料进场. */}
+          <TypeBadge label={t(`receipts.movement.${data.movement_type}`)} />
+          <TypeBadge label={unitName(data.unit, data.unit_label)} />
+          {data.supersedes && (
+            <Link
+              href={`/receipts/${data.supersedes}`}
+              className="text-xs font-medium text-info underline-offset-2 hover:underline"
+            >
+              {t("receipts.correction.supersedes")}
+            </Link>
+          )}
+        </>
+      }
+      // 「单独导出」 top right (T-386): this delivery as its own PDF, with
+      // 预览/打印 and 分享 beside it.
+      exportRecord={{ kind: "MATERIAL_RECEIPT", recordId: data.id, reference: data.receipt_no }}
+    >
 
       {/*
         The one layout every module uses (C-020): summary, small photographs,
@@ -390,7 +446,7 @@ export function ViewReceipt({ id }: { id: string }) {
         notices={
           <>
             {data.superseded_by && (
-              <div className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+              <div className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
                 <p className="font-medium">{t("receipts.correction.supersededTitle")}</p>
                 <p className="mt-1 text-muted-foreground">
                   {t("receipts.correction.supersededBody")}
@@ -405,15 +461,19 @@ export function ViewReceipt({ id }: { id: string }) {
                 </Link>
               </div>
             )}
-            {data.correction_trail ? (
-              <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
-            ) : data.correction_reason ? (
-              <p className="rounded-lg border px-4 py-2 text-sm">
-                <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
-                {data.correction_reason}
-              </p>
-            ) : null}
           </>
+        }
+        // 更正记录 sits under the facts in the left column (the canvas's
+        // 记录详情), not above the photographs.
+        corrections={
+          data.correction_trail ? (
+            <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
+          ) : data.correction_reason ? (
+            <p className="rounded-xl border border-dashed border-panel-border px-4 py-3 text-sm">
+              <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
+              {data.correction_reason}
+            </p>
+          ) : null
         }
         facts={[
           { label: t("receipts.field.project"), value: data.project_name },
@@ -421,32 +481,6 @@ export function ViewReceipt({ id }: { id: string }) {
           // The delivery's own day, which a correction keeps (B10, E05); the
           // correction's own time is in its trail above.
           { label: t("receipts.field.businessAt"), value: df.dateTime(data.business_at ?? data.captured_at) },
-          {
-            label: t("receipts.field.recordedBy"),
-            value: (
-              <span className="inline-flex items-center gap-2">
-                <Avatar className="size-5">
-                  {data.created_by_avatar ? (
-                    <AvatarImage src={data.created_by_avatar} alt="" />
-                  ) : null}
-                  <AvatarFallback className="bg-primary/10 text-[9px] font-semibold text-primary">
-                    {initials(data.created_by_name ?? "")}
-                  </AvatarFallback>
-                </Avatar>
-                {data.created_by_name ?? t("receipts.recorderUnknown")}
-                {/* The number to call about a disputed delivery (2026-09-05). */}
-                {data.created_by_phone ? (
-                  <a
-                    href={`tel:${data.created_by_phone.replace(/[^+\d]/g, "")}`}
-                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                  >
-                    <Phone className="h-3 w-3" />
-                    <span className="tabular">{data.created_by_phone}</span>
-                  </a>
-                ) : null}
-              </span>
-            ),
-          },
           ...(data.received_by_name
             ? [{ label: t("receipts.field.receivedBy"), value: data.received_by_name }]
             : []),
@@ -454,6 +488,9 @@ export function ViewReceipt({ id }: { id: string }) {
             ? [{ label: t("receipts.field.notes"), value: data.notes, wide: true }]
             : []),
         ]}
+        // 记录人 with the number to call about a disputed delivery
+        // (2026-09-05), the same block every module now has (E8).
+        recorder={<RecordRecorder record={data} />}
         photos={data.photos.map((photo) => ({
           id: photo.id,
           url: photo.watermarked || photo.image,
@@ -492,9 +529,9 @@ export function ViewReceipt({ id }: { id: string }) {
                 this copy, and deciding on the replaced one would put a
                 decision on a record nobody is working from. */}
             {can("receipt.update") && !data.superseded_by && (
-              <ReviewDelivery receipt={data} onReviewed={() => void refetch()} />
+              <ReviewDelivery receipt={data} archived={archived} onReviewed={() => void refetch()} />
             )}
-            <div className="flex flex-wrap gap-2 border-t pt-2">
+            <div className="flex flex-wrap gap-2 border-t border-panel-border pt-3">
               <AddToPackageButton
                 kind="MATERIAL_RECEIPT"
                 recordId={data.id}
@@ -524,6 +561,15 @@ export function ViewReceipt({ id }: { id: string }) {
           </>
         }
         conversation={{ kind: "MATERIAL_RECEIPT", recordId: data.id }}
+        // 【确认归档】 here, where 「等你处理」 leads (C4): once accepted, and
+        // only on the version that counts. The server's `ready` says the
+        // same; checked here too so a delivery still waiting for 验收 does
+        // not ask for its closure at all.
+        closure={
+          receiptAwaitsConfirmation(data)
+            ? { kind: "MATERIAL_RECEIPT", recordId: data.id }
+            : null
+        }
       />
       {filing && (
         <FileIntoColumnDialog
@@ -543,7 +589,7 @@ export function ViewReceipt({ id }: { id: string }) {
           onClose={() => setFiling(false)}
         />
       )}
-    </div>
+    </RecordDetailFrame>
   );
 }
 
@@ -568,8 +614,8 @@ function CorrectionTrail({
       ? t(`receipts.correction.fields.${field}`)
       : field;
   return (
-    <section className="rounded-lg border px-4 py-3 text-sm">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <section className="surface-panel rounded-xl p-4 text-sm">
+      <h3 className="panel-title">
         {t("receipts.correction.trailTitle")}
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">
@@ -631,17 +677,36 @@ function CorrectionTrail({
  */
 function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const rows: Array<[string, React.ReactNode]> = [
     [t("receipts.field.deliveryNoteNo"), receipt.delivery_note_no],
     [t("receipts.field.supplier"), receipt.supplier_name],
+    // Whose make (2026-10 D1), with 「非指定厂商」 when the category names others.
+    [
+      t("receipts.field.manufacturer"),
+      receipt.manufacturer_name
+        ? `${receipt.manufacturer_name}${receipt.manufacturer_off_list ? ` · ${t("manufacturers.offList")}` : ""}`
+        : "",
+    ],
     [t("receipts.field.materialName"), receipt.material_name],
-    [t("receipts.field.quantity"), `${receipt.quantity} ${t(`receipts.unit.${receipt.unit}`)}`],
+    [t("receipts.field.quantity"), `${receipt.quantity} ${unitName(receipt.unit, receipt.unit_label)}`],
     [t("receipts.field.vehiclePlate"), receipt.vehicle_plate],
+    // The money the material budget counts (A6), and where it came from.
+    [
+      t("receipts.field.documentAmount"),
+      receipt.document_amount
+        ? `${receipt.document_amount}${
+            receipt.document_amount_source
+              ? ` · ${t(`receipts.field.documentAmountSource.${receipt.document_amount_source}`)}`
+              : ""
+          }`
+        : "",
+    ],
     [t("receipts.doPanelStatus"), t(`receipts.doStatus.${receipt.ocr_status}`)],
   ];
   return (
-    <section className="rounded-lg border bg-card p-3">
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <section className="surface-panel rounded-xl p-4">
+      <h3 className="panel-title mb-3">
         {t("receipts.doPanelTitle")}
       </h3>
       <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">

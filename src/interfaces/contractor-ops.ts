@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /**
  * Which of the two filing schemes a column belongs to.
  *
@@ -43,6 +45,22 @@ export type ProjectCategoryKind =
   | "CLAIM";
 export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
 
+/** What a material column's budget counts (2026-10 A6, X17). */
+export type BudgetMode = "AMOUNT" | "QUANTITY";
+
+export interface CategorySupplierOption {
+  id: string;
+  code: string;
+  name: string;
+  is_active: boolean;
+}
+
+export interface CategoryManufacturerOption {
+  id: string;
+  name: string;
+  is_active: boolean;
+}
+
 export interface ProjectCategory {
   id: string;
   project: string;
@@ -59,6 +77,25 @@ export interface ProjectCategory {
   /** Money, not weight - the amount comes off the supplier's delivery order. */
   budget_amount: string | null;
   budget_alert_percentages: number[];
+  /** Money off the delivery orders (default), or the quantity in `default_unit` (A6). */
+  budget_mode?: BudgetMode;
+  /** The quantity budget, in `default_unit`; only read in quantity mode. */
+  budget_quantity?: string | null;
+  /** Absolute warning lines - RM, or the quantity - beside the percentages. */
+  budget_alert_amounts?: number[];
+  /** Received in the column's unit; null when the column has no unit. */
+  quantity_used?: string | null;
+  quantity_uncounted_deliveries?: number | null;
+  /** The column's one unit (A4, Q1): the phone shows it and does not ask. */
+  default_unit?: string;
+  /** A unit the company added; null for a built-in code (translated). */
+  default_unit_label?: string | null;
+  /** Who may deliver this material (Q1). Ids to write; names below to show. */
+  suppliers?: string[];
+  supplier_options?: CategorySupplierOption[];
+  /** 指定厂商 (D1, Q13): the factories the contract allows. */
+  manufacturers?: string[];
+  manufacturer_options?: CategoryManufacturerOption[];
   /**
    * Records filed under this category, from the relation that matches its
    * module - the count the category management screen shows (D-125).
@@ -112,13 +149,15 @@ export interface ProjectCategory {
 /**
  * What a column form writes.
  *
- * No `parent`, and no upload or edit lists (D-265, D-266): columns are one
- * flat list, everyone who can see a column can upload to it, and editing
- * follows `category.manage` alone. The server ignores those fields on write;
- * `ProjectCategory` still carries them because old rows keep the data.
+ * No upload or edit lists (D-265, D-266): everyone who can see a column can
+ * upload to it, and editing follows `category.manage` alone. `parent` only
+ * for equipment (2026-10 B2, X1): a sub class names its major class; every
+ * other kind is one flat list and the server ignores a parent sent for it.
  */
 export interface ProjectCategoryPayload {
   project: string;
+  /** Equipment only: the major class of a sub class; null for a major class. */
+  parent?: string | null;
   code: string;
   name: string;
   /**
@@ -138,6 +177,12 @@ export interface ProjectCategoryPayload {
   budget_amount?: string | null;
   /** The percentages of that budget worth interrupting the owner for. */
   budget_alert_percentages?: number[];
+  budget_mode?: BudgetMode;
+  budget_quantity?: string | null;
+  budget_alert_amounts?: number[];
+  default_unit?: string;
+  suppliers?: string[];
+  manufacturers?: string[];
   is_visible_in_pwa?: boolean;
   is_active?: boolean;
   access_mode?: "ALL" | "RESTRICTED";
@@ -201,7 +246,9 @@ export interface FieldTaskReference {
   created_at: string;
 }
 
-export interface FieldTask {
+export interface FieldTask extends RecordedBy {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
   id: string;
   project: string;
   project_name: string;
@@ -279,6 +326,10 @@ export interface FieldTaskPayload {
 
 export type EquipmentStatus = "OFF_SITE" | "ON_SITE" | "MAINTENANCE" | "RETIRED";
 export interface SiteEquipment {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   project: string;
   project_name: string;
@@ -291,6 +342,9 @@ export interface SiteEquipment {
   /** The project column this machine files under, when one was chosen. */
   category: string | null;
   category_name: string | null;
+  /** The major class that sub class sits under (2026-10 B2, X1). */
+  category_parent?: string | null;
+  category_parent_name?: string | null;
   description: string;
   status: EquipmentStatus;
   /**
@@ -303,9 +357,21 @@ export interface SiteEquipment {
   /** PMA and permit (准证), added on the same machine (B14). */
   pma_expires_on?: string | null;
   permit_expires_on?: string | null;
+  /** 路税到期 (2026-10 A8, X4). */
+  road_tax_expires_on?: string | null;
   is_active: boolean;
+  /**
+   * Reported from the phone as 「新设备」 (C8): the office completes the
+   * profile - plate, sub class, an expiry date - before accepting its entry.
+   */
+  needs_profile?: boolean;
   movement_count: number;
   quantity_on_site: string;
+  /**
+   * The way this machine's movement waiting for the office's acceptance goes,
+   * else null (2026-10 C8, Q27): shown as 「进场待验收」 / 「退场待验收」.
+   */
+  awaiting_acceptance?: "ENTRY" | "EXIT" | null;
   /**
    * Every photograph of the machine (T-298): its own, uploaded onto the
    * register (`REGISTER`), and those taken at each entry and exit.
@@ -342,19 +408,39 @@ export interface EquipmentPayload {
   insurance_expires_on?: string | null;
   pma_expires_on?: string | null;
   permit_expires_on?: string | null;
+  road_tax_expires_on?: string | null;
   is_active?: boolean;
 }
 
-/** 申请 → 后台 Approve / Return → 实际交接双方签名 (B13). */
-export type EquipmentMovementStatus = "PENDING" | "APPROVED" | "RETURNED" | "COMPLETED";
+/**
+ * Exit: 申请 → 后台 Approve / Return → 实际交接双方签名 (B13).
+ * Entry since 2026-10 (X2): recorded on site in one step (`SUBMITTED`), then
+ * accepted (`COMPLETED`) or not (`REJECTED`) by the office.
+ */
+export type EquipmentMovementStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "RETURNED"
+  | "COMPLETED"
+  | "SUBMITTED"
+  | "REJECTED";
 
-export interface EquipmentMovement {
+export interface EquipmentMovement extends RecordedBy {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   project: string;
   project_name: string;
   equipment: string;
   equipment_code: string;
   equipment_name: string;
+  /** The machine's plate (2026-10 X4: 车牌号码). */
+  equipment_registration_no?: string;
+  /** A 「新设备」 whose profile the office has still to complete (C8). */
+  equipment_needs_profile?: boolean;
+  equipment_profile_missing?: Array<"registration_no" | "category" | "expiry">;
   direction: "ENTRY" | "EXIT";
   /** Movements recorded before 10-02 are all COMPLETED. */
   status?: EquipmentMovementStatus;
@@ -406,6 +492,8 @@ export interface EquipmentSummary {
 export interface ConstructionPhase {
   id: string;
   project: string;
+  /** For the 施工分类 tab listing every project's phases (B17). */
+  project_name?: string;
   code: string;
   name: string;
   description: string;
@@ -418,7 +506,11 @@ export interface ConstructionPhase {
   updated_at: string;
 }
 
-export interface SiteProgressRecord {
+export interface SiteProgressRecord extends RecordedBy {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   project: string;
   project_name: string;
@@ -430,8 +522,9 @@ export interface SiteProgressRecord {
    *
    * Separate from the phase: the phase carries the weight the completion
    * percentage is computed against, the column is the customer'''s filing
-   * dimension (D-127). Set by the office through `file_record`, never on
-   * create - the site does not choose columns (D-108).
+   * dimension (D-127). Only old records carry one: the PROGRESS kind was
+   * retired (2026-10 B1, X7) and the office's `file_record` action went with
+   * it (p23), so a stored column is still shown but no longer set.
    */
   category: string | null;
   category_name: string | null;
@@ -451,7 +544,11 @@ export interface SiteProgressRecord {
   remarks?: Array<{ id: string; body: string; author_name: string | null; created_at: string }>;
 }
 
-export interface MaterialOutgoing {
+export interface MaterialOutgoing extends RecordedBy {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   reference_no: string;
   project: string;
@@ -467,6 +564,11 @@ export interface MaterialOutgoing {
   source_receipt_no?: string | null;
   source_receipt_quantity?: string | null;
   source_receipt_at?: string | null;
+  /** The factory that made it (2026-10 D1), copied from the delivery unless changed. */
+  manufacturer?: string | null;
+  manufacturer_name?: string | null;
+  manufacturer_off_list?: boolean;
+  unit_label?: string | null;
   material_name: string;
   material_specification?: string;
   /** What the application asked to send back. */
@@ -480,7 +582,8 @@ export interface MaterialOutgoing {
   delivery_note_no: string;
   reason: string;
   /**
-   * D-211: 批准 → 手机端现场处理及回传 (PROCESSED) → 后台最终确认 (COMPLETED).
+   * 2026-10 C9: 申请 → Return Note → 批准 (APPROVED, 已批准 / 等待退场) →
+   * 现场实际退场 (PROCESSED, 待后台确认) → 后台确认 (COMPLETED).
    * RELEASED is the pre-D-211 ending; rows in it still render.
    */
   status: "PENDING" | "APPROVED" | "REJECTED" | "PROCESSED" | "COMPLETED" | "RELEASED";
@@ -508,22 +611,25 @@ export interface MaterialOutgoing {
     caption: string;
     captured_at: string;
   }>;
-}
-
-/** A delivery a return can be filed against, with what is left of it (A02). */
-export interface ReturnableReceipt {
-  id: string;
-  receipt_no: string;
-  business_at: string;
-  supplier: string;
-  supplier_name: string;
-  material_name: string;
-  material_specification: string;
-  unit: string;
-  quantity: string;
-  remaining_quantity: string;
-  category: string | null;
-  category_name: string;
+  /**
+   * The Return Note the office fills before approving (2026-10 C9). Empty
+   * until filled; `has_return_note` says whether approval can go ahead.
+   */
+  has_return_note?: boolean;
+  return_note_no?: string;
+  return_note_at?: string | null;
+  return_note_by_name?: string | null;
+  return_note_material?: string;
+  return_note_delivery_note_no?: string;
+  return_note_supplier?: string | null;
+  return_note_supplier_name?: string | null;
+  return_note_quantity?: string | null;
+  return_note_unit?: string;
+  return_note_reason?: string;
+  approver_name?: string;
+  approver_user?: string | null;
+  approver_user_name?: string | null;
+  approver_signature?: string | null;
 }
 
 export type DisposalRequestStatus =
@@ -581,6 +687,42 @@ export interface DisposalEvidence {
   device_id: string;
   client_event_id: string;
   submitted_by_name: string | null;
+  /** Which lorry load this photograph belongs to (X11); empty for the rest. */
+  trip?: string | null;
+}
+
+/**
+ * One lorry load of a disposal job (X11, C5): planned at approval, sent by
+ * the driver / field staff, checked by the office. Cancelled when the office
+ * ended the job before it went.
+ */
+export type DisposalTripStatus = "PLANNED" | "SUBMITTED" | "ACCEPTED" | "CANCELLED";
+
+export interface DisposalTrip {
+  id: string;
+  seq: number;
+  status: DisposalTripStatus;
+  weight_kg: string | null;
+  do_no: string;
+  note: string;
+  submitted_at: string | null;
+  submitted_by_name: string;
+  accepted_by_name: string | null;
+  accepted_at: string | null;
+  /** Q29.7: the office's corrections of this load, newest first. */
+  corrections: DisposalTripCorrection[];
+  evidence: DisposalEvidence[];
+}
+
+/** One office correction of a load's weight or DO number (Q29.7). */
+export interface DisposalTripCorrection {
+  id: string;
+  field: "weight_kg" | "do_no";
+  from: string;
+  to: string;
+  reason: string;
+  by_name: string;
+  at: string;
 }
 
 export interface DisposalTimelineEntry {
@@ -591,7 +733,11 @@ export interface DisposalTimelineEntry {
   happened_at: string;
 }
 
-export interface DisposalRequest {
+export interface DisposalRequest extends RecordedBy {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   reference_no: string;
   project: string;
@@ -633,6 +779,15 @@ export interface DisposalRequest {
    * "normal".
    */
   disposal_evidence_is_overdue: boolean;
+  /** What the site asked for; approval makes this many trips (X11). */
+  planned_trips: number;
+  /** Each lorry and its check; empty on a job from before C5. */
+  trips: DisposalTrip[];
+  /** 「已验收 x / N 车」: N leaves out lorries cancelled by ending early. */
+  trips_accepted: number;
+  trips_total: number;
+  /** When the office ended the job early; no more lorries after this. */
+  trips_closed_at: string | null;
   execution_started_at: string | null;
   submitted_at: string | null;
   actual_weight_kg: string | null;
@@ -673,6 +828,12 @@ export interface ExternalDisposalTask {
   execution_note: string;
   ocr_status: DisposalRequest["ocr_status"];
   evidence: DisposalEvidence[];
+  /** The lorries, as the driver needs them (X11): no office names. */
+  trips: Array<{ id: string; seq: number; status: DisposalTripStatus; submitted_at: string | null }>;
+  trips_total: number;
+  trips_accepted: number;
+  /** The lorry the next submission fills; null when every one is sent. */
+  current_trip: { id: string; seq: number } | null;
 }
 
 /**
@@ -728,20 +889,36 @@ export type RecordSheetKind = ArchiveRecordKind | CategoryRecordKind;
  * same shape for a wider set of kinds; the queue itself is the default.
  */
 export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   kind: K;
   reference: string;
   detail: string;
   project_id: string | null;
   project_name: string;
+  /** Under the short number in a list (2026-10 D4); "" for a company-wide record. */
+  project_code?: string;
   submitted_at: string;
   status: string;
   /** Beside `status` on purpose - see `MySubmissionRow` for why (F-225). */
   status_label: string;
   photo: string | null;
+  /** A category's records only (2026-10 B3): the DO, "" when the kind has none. */
+  delivery_note_no?: string;
+  /** A category's records only (2026-10 B3): the supplier, "" when none. */
+  supplier_name?: string;
+  /**
+   * Material receipts and returns (2026-10 D1): whose make, "" when nobody
+   * said, and whether the category designates others (「非指定厂商」).
+   */
+  manufacturer_name?: string;
+  manufacturer_off_list?: boolean;
   /** A material receipt's direction (B10), so a return is not named 材料进场. */
   movement_type?: "ENTRY" | "RETURN";
-  /** When this reader marked it 「我看过了」, or null (T-391). */
+  /** When this reader opened it in 现场记录中心 (未看 / 已看), or null (T-391, C4). */
   seen_at: string | null;
   /** Whether anything archives this kind at all; an attendance day does not. */
   archivable: boolean;
@@ -758,7 +935,7 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
  * translations to keep in step (F-342, D-133).
  */
 export interface ArchiveQueueDetail<K extends string = ArchiveRecordKind>
-  extends ArchiveQueueRow<K> {
+  extends ArchiveQueueRow<K>, RecordedBy {
   fields: import("@/interfaces/contractor").MySubmissionField[];
   photos: import("@/interfaces/contractor").MySubmissionPhoto[];
   is_seen: boolean;
@@ -783,6 +960,13 @@ export interface CategoryRecordPage {
   count: number;
   /** A material category only: each material with its count and total. */
   groups?: MaterialGroup[];
+  /**
+   * Whether any record kind in this module has a supplier (2026-10 B16): a
+   * module whose records never come from one is offered the dates only.
+   */
+  supplier_filter?: boolean;
+  /** Whether any record kind here has a manufacturer (2026-10 D1): material only. */
+  manufacturer_filter?: boolean;
 }
 
 export interface ArchiveQueuePage {
@@ -825,14 +1009,15 @@ export interface PackageRecordParts {
   fields: import("@/interfaces/contractor").MySubmissionField[];
   photos: import("@/interfaces/contractor").MySubmissionPhoto[];
   documents: PackageDocument[];
-  /** The record's conversation, message by message (T-363, D-233). */
-  messages?: Array<{ id: string; author_name: string; sent_at: string; body: string }>;
   /** The record's general attachments (B28), one tickable part each. */
   files?: Array<{ id: string; name: string; uploaded_by_name: string; uploaded_at: string }>;
 }
 
-/** The groups a packer ticks besides the fields (D12). */
-export type PackagePart = "photos" | "documents" | "files" | "messages";
+/**
+ * The groups a packer ticks besides the fields (D12). Never the conversation
+ * (E7, Q25): no PDF prints the chat.
+ */
+export type PackagePart = "photos" | "documents" | "files";
 
 /**
  * Which parts of a record this member carries. A missing group means all of
@@ -843,7 +1028,6 @@ export interface PackageSelection {
   photos?: string[];
   documents?: string[];
   files?: string[];
-  messages?: string[];
 }
 
 export interface PackageItem extends PackageRecordParts {

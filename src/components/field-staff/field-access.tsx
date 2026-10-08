@@ -160,27 +160,27 @@ export function FieldAccess() {
     return (
       <Centered>
         <Smartphone className="size-12 text-destructive" />
-        <h1 className="text-base font-semibold">{t("invalidTitle")}</h1>
+        <h1 className="text-center text-xl font-bold leading-tight">{t("invalidTitle")}</h1>
         <p className="max-w-sm text-center text-sm text-muted-foreground">{t("invalidBody")}</p>
       </Centered>
     );
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-muted/30 px-5 py-10">
-      <section className="w-full max-w-md overflow-hidden rounded-lg border bg-card shadow-sm">
-        <div className="bg-primary px-6 py-7 text-primary-foreground">
-          <span className="mb-4 flex size-12 items-center justify-center rounded-lg bg-white/15">
+    <main className="flex min-h-dvh items-center justify-center px-4 py-10">
+      <section className="w-full max-w-md overflow-hidden surface-panel rounded-xl">
+        <div className="border-b border-panel-border bg-primary/10 px-4 py-6 sm:px-6">
+          <span className="mb-4 flex size-12 items-center justify-center rounded-xl border border-panel-border bg-primary/15 text-primary shadow-glow-sm">
             <Camera className="size-7" />
           </span>
-          <h1 className="text-base font-semibold">{token ? t("activateTitle") : t("loginTitle")}</h1>
-          <p className="mt-1 text-sm text-primary-foreground/80">
+          <h1 className="text-xl font-bold leading-tight">{token ? t("activateTitle") : t("loginTitle")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             {token ? invitation.data?.full_name : t("loginBody")}
           </p>
         </div>
-        <div className="space-y-5 p-6">
+        <div className="space-y-4 p-4 sm:p-6">
           {token && invitation.data && (
-            <div className="rounded-md border bg-muted/40 p-3 text-sm">
+            <div className="rounded-lg border bg-muted/30 p-3 text-sm">
               <p className="font-medium">{invitation.data.projects.map((project) => project.name).join(", ")}</p>
               <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
             </div>
@@ -205,10 +205,10 @@ export function FieldAccess() {
               sentence is shown regardless. */}
           {token ? (
             <div
-              className={`rounded-md px-3 py-2 text-sm ${
+              className={`rounded-lg border p-3 text-sm ${
                 chatApp
-                  ? "bg-warning/15 text-foreground"
-                  : "bg-muted text-muted-foreground"
+                  ? "border-warning/40 bg-warning/15 text-foreground"
+                  : "bg-muted/30 text-muted-foreground"
               }`}
             >
               <p className="font-semibold">{t("browserWarningTitle")}</p>
@@ -234,9 +234,9 @@ export function FieldAccess() {
               </Button>
             </div>
           ) : null}
-          {error && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+          {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
           {storageBlocked && (
-            <p className="rounded-md bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
+            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
               {t("storageBlocked")}
             </p>
           )}
@@ -257,5 +257,5 @@ export function FieldAccess() {
 }
 
 function Centered({ children }: { children: React.ReactNode }) {
-  return <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6">{children}</main>;
+  return <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4">{children}</main>;
 }

@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { ProjectPicker } from "@/components/site-operations/project-picker";
+import {
+  ProjectPicker,
+  type ProjectPickerScope,
+} from "@/components/site-operations/project-picker";
 import {
   Select,
   SelectContent,
@@ -22,10 +25,13 @@ export function ConsultantProjectPicker({
   value,
   onChange,
   allowAll = false,
+  scope,
 }: {
   value: string;
   onChange: (projectId: string) => void;
   allowAll?: boolean;
+  /** For everyone but a consultant: how the top bar's project applies (B13). */
+  scope?: ProjectPickerScope;
 }) {
   const t = useTranslations("consultantWorkflow");
   const { user, refresh } = useAuth();
@@ -54,6 +60,7 @@ export function ConsultantProjectPicker({
         allowAll={allowAll}
         allLabel={t("project.all")}
         className="w-full sm:w-80"
+        scope={scope}
       />
     );
   }

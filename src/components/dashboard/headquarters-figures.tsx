@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
   Table,
   TableBody,
@@ -38,10 +39,10 @@ import type {
   HeadquartersOverview,
   TodayRecordKind,
 } from "@/interfaces/headquarters";
-import { drillHref, projectDashboardHref } from "@/lib/headquarters-links";
-import { cn } from "@/lib/utils";
-
-type Drill = HeadquartersCountField | "projects" | "waste_dispatches" | "site_disposals";
+import { cardHref, cardProject, type HeadquartersCard } from "@/lib/headquarters-links";
+import { ALL_PROJECTS_CHOICE } from "@/lib/project-context";
+import { KpiCard } from "@/components/shared/kpi-card";
+import type { Tone } from "@/lib/tones";
 
 const COUNT_TILES: Array<{
   field: HeadquartersCountField;
@@ -59,27 +60,38 @@ const COUNT_TILES: Array<{
 ];
 
 /**
- * 全公司数字 (C13). Every figure opens the projects it is made of, and the
- * rows add up to it - the server counts the total as their sum, plus an
- * 「其他」 row for anything tied to no project (a company-wide approval).
+ * 全公司数字 (C13). Every card goes straight to the thing it counts (F8, Q22):
+ * the module's list with the filter the figure was counted by - 待审批 to
+ * 总部集中审批, 逾期整改 to the overdue hazards, 今日材料进场 to today's
+ * deliveries - on the reader's one project, or across every project they
+ * see. Never to a project's dashboard. 今日现场记录 is ten kinds of record no
+ * single list holds, so it opens its breakdown by project and kind.
  * 原废料订单 and 原工地清运 are two cards with their own 数量 / 车次 / 重量 and
  * no combined figure (D06).
  */
 export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
   const t = useTranslations("headquarters.figures");
   const format = useFormatter();
-  const [open, setOpen] = useState<Drill | null>(null);
+  const [breakdown, setBreakdown] = useState(false);
   const totals = data.totals;
+  // A company-wide figure counts every project; opened while the top bar is
+  // on one, its list has to move the top bar to 全部项目 to show the same
+  // number (B13, F8).
+  const topBar = useCurrentProject();
+  const everyProject = topBar.active && topBar.projectId ? ALL_PROJECTS_CHOICE : undefined;
+  const href = (card: HeadquartersCard) =>
+    cardHref(card, { project: cardProject(data, card) ?? everyProject, date: data.date });
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Tile
           label={t("projects")}
           value={format.number(totals.projects)}
           detail={t("activeProjects", { count: format.number(totals.active_projects) })}
           icon={Building2}
-          onOpen={() => setOpen("projects")}
+          tone={FIELD_TONE.projects}
+          href={href("projects")}
         />
         {COUNT_TILES.map(({ field, icon, alarm }) => (
           <Tile
@@ -95,12 +107,14 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
                 : undefined
             }
             icon={icon}
+            tone={FIELD_TONE[field]}
             danger={alarm && totals[field] > 0}
-            onOpen={() => setOpen(field)}
+            href={href(field)}
+            onOpen={field === "today_records" ? () => setBreakdown(true) : undefined}
           />
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <ClearanceCard
           label={t("wasteDispatches")}
           icon={Recycle}
@@ -108,7 +122,7 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
           trips={totals.waste_dispatches.trips}
           weight={totals.waste_dispatches.weighed_kg}
           weightLabel={t("weighedKg")}
-          onOpen={() => setOpen("waste_dispatches")}
+          href={href("waste_dispatches") ?? "/waste-clearance"}
         />
         <ClearanceCard
           label={t("siteDisposals")}
@@ -117,22 +131,34 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
           trips={totals.site_disposals.trips}
           weight={totals.site_disposals.weight_kg}
           weightLabel={t("weightKg")}
-          onOpen={() => setOpen("site_disposals")}
+          href={href("site_disposals") ?? "/waste-clearance"}
         />
       </div>
-      {open && (
-        <DrillDialog data={data} drill={open} onClose={() => setOpen(null)} />
-      )}
+      {breakdown && <TodayRecordsDialog data={data} onClose={() => setBreakdown(false)} />}
     </>
   );
 }
+
+/** Each figure's data colour (the canvas's six, by what it counts). */
+const FIELD_TONE: Record<HeadquartersCountField | "projects", Tone> = {
+  projects: "cyan",
+  today_records: "blue",
+  on_site_now: "green",
+  pending_approvals: "amber",
+  open_tasks: "purple",
+  overdue_tasks: "rose",
+  overdue_rectifications: "rose",
+  material_receipts_today: "green",
+};
 
 function Tile({
   label,
   value,
   detail,
-  icon: Icon,
+  icon,
   danger,
+  tone,
+  href,
   onOpen,
 }: {
   label: string;
@@ -140,28 +166,25 @@ function Tile({
   detail?: string;
   icon: LucideIcon;
   danger?: boolean;
-  onOpen: () => void;
+  tone: Tone;
+  /** The list it counts; null when it opens a breakdown (`onOpen`). */
+  href: string | null;
+  onOpen?: () => void;
 }) {
+  // An alarm figure at zero is not an alarm: it stays quiet (U-029).
+  const shown: Tone = tone === "rose" && !danger ? "slate" : tone;
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className={cn(
-        "min-w-0 rounded-lg border bg-card px-3 py-2.5 text-left shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        danger && "border-destructive/40 bg-destructive/5",
-      )}
-    >
-      <span className="flex items-center justify-between gap-2">
-        <span className="line-clamp-2 text-xs font-medium text-muted-foreground">{label}</span>
-        <Icon className={cn("size-4 shrink-0 text-muted-foreground", danger && "text-destructive")} aria-hidden />
-      </span>
-      <span className={cn("mt-1 block text-xl font-semibold tabular-nums", danger && "text-destructive")}>
-        {value}
-      </span>
-      {detail && (
-        <span className="block truncate text-[11px] text-muted-foreground">{detail}</span>
-      )}
-    </button>
+    <KpiCard
+      label={label}
+      value={value}
+      detail={detail}
+      icon={icon}
+      tone={shown}
+      size="sm"
+      href={href}
+      onClick={href ? undefined : onOpen}
+      data-headquarters-card
+    />
   );
 }
 
@@ -172,7 +195,7 @@ function ClearanceCard({
   trips,
   weight,
   weightLabel,
-  onOpen,
+  href,
 }: {
   label: string;
   icon: LucideIcon;
@@ -180,66 +203,57 @@ function ClearanceCard({
   trips: number;
   weight: string;
   weightLabel: string;
-  onOpen: () => void;
+  href: string;
 }) {
   const t = useTranslations("headquarters.figures");
   const format = useFormatter();
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="flex min-w-0 items-center gap-3 rounded-lg border bg-card px-3 py-2.5 text-left shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    <Link
+      href={href}
+      data-headquarters-card
+      className="surface-panel flex min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-left transition hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className="rounded-md bg-primary/10 p-2 text-primary">
+      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-tone-orange/15 text-tone-orange-fg">
         <Icon className="size-4" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-xs font-medium text-muted-foreground">{label}</span>
         <span className="mt-0.5 grid grid-cols-3 gap-2 text-sm">
           <span>
-            <span className="block text-[11px] text-muted-foreground">{t("records")}</span>
+            <span className="block text-2xs text-muted-foreground">{t("records")}</span>
             <span className="font-semibold tabular-nums">{format.number(records)}</span>
           </span>
           <span>
-            <span className="block text-[11px] text-muted-foreground">{t("trips")}</span>
+            <span className="block text-2xs text-muted-foreground">{t("trips")}</span>
             <span className="font-semibold tabular-nums">{format.number(trips)}</span>
           </span>
           <span>
-            <span className="block text-[11px] text-muted-foreground">{weightLabel}</span>
+            <span className="block text-2xs text-muted-foreground">{weightLabel}</span>
             <span className="font-semibold tabular-nums">
               {format.number(Number(weight), { maximumFractionDigits: 2 })}
             </span>
           </span>
         </span>
       </span>
-    </button>
+    </Link>
   );
 }
 
-/** One figure, by project, adding up to the figure (汇总 = 明细). */
-function DrillDialog({
+/**
+ * 今日现场记录, by project and kind (汇总 = 明细). The one card that does not
+ * lead to a list: no single list holds all ten kinds.
+ */
+function TodayRecordsDialog({
   data,
-  drill,
   onClose,
 }: {
   data: HeadquartersOverview;
-  drill: Drill;
   onClose: () => void;
 }) {
   const t = useTranslations("headquarters.figures");
   const kinds = useTranslations("headquarters.recordKind");
   const format = useFormatter();
   const n = (value: number) => format.number(value);
-  const kg = (value: string) => format.number(Number(value), { maximumFractionDigits: 2 });
-  const title =
-    drill === "projects"
-      ? t("projects")
-      : drill === "waste_dispatches"
-        ? t("wasteDispatches")
-        : drill === "site_disposals"
-          ? t("siteDisposals")
-          : t(`field.${drill}`);
-  const clearance = drill === "waste_dispatches" || drill === "site_disposals";
 
   const kindSummary = (counts: HeadquartersCounts["today_records_by_kind"]) =>
     (Object.entries(counts) as Array<[TodayRecordKind, number]>)
@@ -247,56 +261,21 @@ function DrillDialog({
       .map(([kind, value]) => `${kinds(kind)} ${n(value)}`)
       .join(" · ");
 
-  const values = (row: HeadquartersCounts) => {
-    if (drill === "waste_dispatches") {
-      const part = row.waste_dispatches;
-      return [n(part.records), n(part.trips), kg(part.weighed_kg)];
-    }
-    if (drill === "site_disposals") {
-      const part = row.site_disposals;
-      return [n(part.records), n(part.trips), kg(part.weight_kg)];
-    }
-    if (drill === "projects") return [];
-    return [n(row[drill])];
-  };
-  const headings = clearance
-    ? [t("records"), t("trips"), drill === "waste_dispatches" ? t("weighedKg") : t("weightKg")]
-    : drill === "projects"
-      ? [t("status")]
-      : [t("value")];
-
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
-            {drill === "today_records"
-              ? t("todayRecordsHelp")
-              : drill === "overdue_tasks" || drill === "overdue_rectifications"
-                ? t("overdueHelp")
-                : clearance
-                  ? t("clearanceHelp")
-                  : t("drillHelp")}
-          </DialogDescription>
+          <DialogTitle>{t("field.today_records")}</DialogTitle>
+          <DialogDescription>{t("todayRecordsHelp")}</DialogDescription>
         </DialogHeader>
-        {drill === "today_records" && (
-          <p className="text-xs text-muted-foreground">
-            {kindSummary(data.totals.today_records_by_kind) || t("nothingToday")}
-          </p>
-        )}
+        <p className="text-xs text-muted-foreground">
+          {kindSummary(data.totals.today_records_by_kind) || t("nothingToday")}
+        </p>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t("project")}</TableHead>
-              {headings.map((heading) => (
-                <TableHead key={heading} className="text-right">
-                  {heading}
-                </TableHead>
-              ))}
-              <TableHead className="text-right">
-                <span className="sr-only">{t("open")}</span>
-              </TableHead>
+              <TableHead className="text-right">{t("value")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -304,62 +283,34 @@ function DrillDialog({
               <TableRow key={project.id} data-drill-row>
                 <TableCell>
                   <span className="font-medium">{project.name}</span>
-                  {drill === "today_records" && project.today_records > 0 && (
-                    <span className="block text-[11px] text-muted-foreground">
+                  {project.today_records > 0 && (
+                    <span className="block text-2xs text-muted-foreground">
                       {kindSummary(project.today_records_by_kind)}
                     </span>
                   )}
                 </TableCell>
-                {drill === "projects" ? (
-                  <TableCell className="text-right text-xs">
-                    {t(`projectStatus.${project.status}`)}
-                  </TableCell>
-                ) : (
-                  values(project).map((value, index) => (
-                    <TableCell key={index} className="text-right tabular-nums">
-                      {value}
-                    </TableCell>
-                  ))
-                )}
-                <TableCell className="text-right">
-                  <Link
-                    href={
-                      drill === "projects" || clearance
-                        ? projectDashboardHref(project.id)
-                        : drillHref(drill, project.id)
-                    }
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    {t("open")}
-                  </Link>
+                <TableCell className="text-right tabular-nums">
+                  {n(project.today_records)}
                 </TableCell>
               </TableRow>
             ))}
-            {data.has_other && drill !== "projects" && (
+            {data.has_other && (
               <TableRow>
                 <TableCell className="text-muted-foreground">{t("other")}</TableCell>
-                {values(data.other).map((value, index) => (
-                  <TableCell key={index} className="text-right tabular-nums">
-                    {value}
-                  </TableCell>
-                ))}
-                <TableCell className="text-right" />
+                <TableCell className="text-right tabular-nums">
+                  {n(data.other.today_records)}
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
-          {drill !== "projects" && (
-            <TableFooter>
-              <TableRow>
-                <TableCell className="font-semibold">{t("total")}</TableCell>
-                {values(data.totals).map((value, index) => (
-                  <TableCell key={index} className="text-right font-semibold tabular-nums">
-                    {value}
-                  </TableCell>
-                ))}
-                <TableCell className="text-right" />
-              </TableRow>
-            </TableFooter>
-          )}
+          <TableFooter>
+            <TableRow>
+              <TableCell className="font-semibold">{t("total")}</TableCell>
+              <TableCell className="text-right font-semibold tabular-nums">
+                {n(data.totals.today_records)}
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </DialogContent>
     </Dialog>

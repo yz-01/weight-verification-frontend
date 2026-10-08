@@ -6,7 +6,8 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
-import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { usePageProject } from "@/components/providers/current-project-provider";
+import { FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -46,7 +47,8 @@ const EMPTY_FIELDS: FieldDefinition[] = [];
 export function ApplicationTemplateWorkspace() {
   const t = useTranslations("consultantWorkflow.templateManager");
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 for the contractor's office (B13).
+  const [project, setProject] = usePageProject();
   const [creating, setCreating] = useState(false);
   const [versioning, setVersioning] = useState<ApplicationTemplate | null>(null);
   const [editing, setEditing] = useState<ApplicationTemplate | null>(null);
@@ -58,7 +60,7 @@ export function ApplicationTemplateWorkspace() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["consultant-templates", project] });
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ListHeader
         title={t("title")}
         subtitle={t("subtitle")}
@@ -68,9 +70,9 @@ export function ApplicationTemplateWorkspace() {
           </Button>
         }
       />
-      <div className="max-w-md">
-        <ConsultantProjectPicker value={project} onChange={setProject} />
-      </div>
+      <FilterBar>
+        <ConsultantProjectPicker value={project} onChange={setProject} scope="page" />
+      </FilterBar>
       {!project ? (
         <State text={t("chooseProject")} />
       ) : templates.isLoading ? (
@@ -86,7 +88,7 @@ export function ApplicationTemplateWorkspace() {
               (version) => version.version === template.current_version,
             );
             return (
-              <article key={template.id} className="rounded-lg border bg-card p-5 shadow-sm">
+              <article key={template.id} className="surface-panel rounded-xl p-4 sm:p-6">
                 <div className="flex items-start gap-3">
                   <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                     <FileCog className="size-5" />
@@ -101,7 +103,7 @@ export function ApplicationTemplateWorkspace() {
                     </div>
                     <p className="mt-1 font-mono text-xs text-muted-foreground">{template.code}</p>
                   </div>
-                  <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold">
+                  <span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">
                     v{template.current_version}
                   </span>
                 </div>
@@ -399,12 +401,12 @@ function VersionDialog({ template, onClose, onSaved }: { template: ApplicationTe
 }
 
 function OptionChecks({ title, options, selected, onChange }: { title: string; options: Array<{ code: string; label: string }>; selected: string[]; onChange: (next: string[]) => void }) {
-  return <section className="space-y-2"><h3 className="text-sm font-semibold">{title}</h3><div className="grid gap-2 sm:grid-cols-2">{options.map((option) => <label key={option.code} className="flex items-center gap-3 rounded-lg border p-3 text-sm"><Checkbox checked={selected.includes(option.code)} onCheckedChange={(checked) => onChange(checked ? [...selected, option.code] : selected.filter((item) => item !== option.code))} /><span>{option.label}</span></label>)}</div></section>;
+  return <section className="space-y-2"><h3 className="panel-title">{title}</h3><div className="grid gap-2 sm:grid-cols-2">{options.map((option) => <label key={option.code} className="flex items-center gap-3 rounded-lg border p-3 text-sm"><Checkbox checked={selected.includes(option.code)} onCheckedChange={(checked) => onChange(checked ? [...selected, option.code] : selected.filter((item) => item !== option.code))} /><span>{option.label}</span></label>)}</div></section>;
 }
 
 function CustomFields({ fields, onChange }: { fields: FieldDefinition[]; onChange: (next: FieldDefinition[]) => void }) {
   const t = useTranslations("consultantWorkflow.templateManager");
-  return <section className="space-y-3"><div className="flex items-center justify-between"><div><h3 className="text-sm font-semibold">{t("customFields")}</h3><p className="text-xs text-muted-foreground">{t("customFieldsHelp")}</p></div><Button type="button" size="sm" variant="outline" onClick={() => onChange([...fields, { key: "", label: "", required: false, type: "text" }])}><Plus />{t("addField")}</Button></div>{fields.map((field, index) => <div key={`${index}-${field.key}`} className="grid gap-2 rounded-lg border p-3 sm:grid-cols-[1fr_1fr_auto_auto]"><Input value={field.label} placeholder={t("fieldLabel")} onChange={(event) => updateField(fields, index, { label: event.target.value }, onChange)} /><Input value={field.key} placeholder={t("fieldKey")} onChange={(event) => updateField(fields, index, { key: event.target.value.replace(/[^a-zA-Z0-9_]/g, "_").toLowerCase() }, onChange)} /><label className="flex items-center gap-2 text-sm"><Checkbox checked={Boolean(field.required)} onCheckedChange={(checked) => updateField(fields, index, { required: Boolean(checked) }, onChange)} />{t("required")}</label><Button type="button" size="icon" variant="ghost" title={t("removeField")} onClick={() => onChange(fields.filter((_, itemIndex) => itemIndex !== index))}><Trash2 /></Button></div>)}</section>;
+  return <section className="space-y-3"><div className="flex flex-wrap items-center justify-between gap-3"><div className="min-w-0"><h3 className="panel-title">{t("customFields")}</h3><p className="text-xs text-muted-foreground">{t("customFieldsHelp")}</p></div><Button type="button" size="sm" variant="outline" onClick={() => onChange([...fields, { key: "", label: "", required: false, type: "text" }])}><Plus />{t("addField")}</Button></div>{fields.map((field, index) => <div key={`${index}-${field.key}`} className="grid gap-2 rounded-lg border bg-muted/30 p-3 sm:grid-cols-[1fr_1fr_auto_auto]"><Input value={field.label} placeholder={t("fieldLabel")} onChange={(event) => updateField(fields, index, { label: event.target.value }, onChange)} /><Input value={field.key} placeholder={t("fieldKey")} onChange={(event) => updateField(fields, index, { key: event.target.value.replace(/[^a-zA-Z0-9_]/g, "_").toLowerCase() }, onChange)} /><label className="flex items-center gap-2 text-sm"><Checkbox checked={Boolean(field.required)} onCheckedChange={(checked) => updateField(fields, index, { required: Boolean(checked) }, onChange)} />{t("required")}</label><Button type="button" size="icon" variant="ghost" title={t("removeField")} onClick={() => onChange(fields.filter((_, itemIndex) => itemIndex !== index))}><Trash2 /></Button></div>)}</section>;
 }
 
 function updateField(fields: FieldDefinition[], index: number, patch: Partial<FieldDefinition>, onChange: (next: FieldDefinition[]) => void) {
@@ -416,9 +418,9 @@ function cleanFields(fields: FieldDefinition[]) {
 }
 
 function Info({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
-  return <div className="min-w-0 rounded-md bg-muted/40 p-3"><dt className="text-xs text-muted-foreground">{label}</dt><dd className={`mt-1 break-words font-medium ${mono ? "font-mono text-xs" : ""}`}>{value}</dd></div>;
+  return <div className="min-w-0 rounded-lg border bg-muted/30 p-3"><dt className="text-xs text-muted-foreground">{label}</dt><dd className={`mt-1 break-words font-medium ${mono ? "font-mono text-xs" : ""}`}>{value}</dd></div>;
 }
 
 function State({ text, icon }: { text: string; icon?: React.ReactNode }) {
-  return <div className="grid min-h-52 place-items-center rounded-lg border border-dashed bg-muted/10 text-center text-sm text-muted-foreground"><div>{icon}<p className="mt-2">{text}</p></div></div>;
+  return <div className="grid min-h-52 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground"><div>{icon}<p className="mt-2">{text}</p></div></div>;
 }

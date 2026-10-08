@@ -22,7 +22,7 @@ import { RECORD_STATUS_NAMESPACE } from "@/lib/record-status";
  */
 
 const ROOT = process.cwd();
-const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
+const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
 
 const MANAGEMENT = "src/components/contractor-ops/category-management.tsx";
 const QUEUE = "src/components/contractor-ops/archive-queue.tsx";
@@ -84,7 +84,6 @@ describe("the kinds a column can hold (T-396)", () => {
     for (const kind of CATEGORY_KINDS) {
       expect(typeof messages.archiveQueue.kind[kind], `${locale}: ${kind}`).toBe("string");
     }
-    expect(typeof messages.archiveQueue.notInQueue, locale).toBe("string");
     for (const key of ["title", "help", "count", "empty"]) {
       expect(typeof messages.categoryManagement.records[key], `${locale}: ${key}`).toBe(
         "string",
@@ -116,7 +115,7 @@ describe("clicking a column opens its records here (D-276)", () => {
   });
 
   it("serves every module through the one list, by the row's own id", () => {
-    // `active` is any of the ten, so every module's columns reach it.
+    // `active` is any of the four, so every module's columns reach it.
     expect(page).toMatch(
       /\{viewing && \(\s*<ColumnRecordsDialog\s+moduleKey=\{active\.key\}\s+column=\{viewing\}/,
     );
@@ -127,7 +126,8 @@ describe("clicking a column opens its records here (D-276)", () => {
     const list = service.slice(service.indexOf("export function getCategoryRecords("));
     expect(list).toMatch(/module: CategoryModuleKey;/);
     expect(list).toMatch(/api\.get<CategoryRecordPage>\("\/api\/category-records\/", query\)/);
-    expect(CATEGORY_MODULE_KEYS).toHaveLength(10);
+    // 分类管理只留四组 (2026-10 B1).
+    expect(CATEGORY_MODULE_KEYS).toHaveLength(4);
   });
 
   it("is a dialog on this page, never a link or a push", () => {
@@ -168,9 +168,18 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
   const sheet = functionBody(read(QUEUE), "RecordSheet");
 
   it("opens RecordSheet with getCategoryRecord, not the archive queue's door", () => {
-    expect(dialog).toMatch(/onClick=\{\(\) => setOpen\(row\)\}/);
+    expect(dialog).toMatch(/onClick=\{\(\) => openRow\(row\)\}/);
+    // Every kind but a machine profile opens the record sheet (2026-10 B2:
+    // a machine opens its own profile to edit).
+    // A machine profile opens in its own editable dialog only for whoever may
+    // edit machines; everybody else reads it here (Fable B4 #5).
+    expect(dialog).toMatch(
+      /if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT" \|\| !can\("equipment\.manage"\)\) \{\s+setOpen\(row\);/,
+    );
+    expect(dialog).toMatch(/<EquipmentDialog/);
     expect(dialog).toMatch(/<RecordSheet\s+row=\{open\}\s+fetchRecord=\{getCategoryRecord\}/);
-    expect(sheet).toMatch(/role="dialog"/);
+    // The shared record popup (E8), no longer a hand-built overlay.
+    expect(sheet).toMatch(/<RecordDetailDialog/);
     expect(sheet).toMatch(/fetchRecord\s*\?\s*fetchRecord\(row\.kind, row\.id\)/);
     const service = read(SERVICE);
     const one = service.slice(service.indexOf("export function getCategoryRecord("));
@@ -196,12 +205,12 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     }
   });
 
-  it("draws the conversation, the closure, the package and 我看过了 only where they work", () => {
+  it("draws the conversation, and the confirm only where a 「等你处理」 row asked for it", () => {
     expect(sheet).toMatch(/canDiscuss\(row\.kind\) && \(\s*<RecordConversationPanel/);
-    expect(sheet).toMatch(/canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
-    expect(sheet).toMatch(/canGoInAPackage\(row\.kind\) && \(\s*<AddToPackageButton/);
-    expect(sheet).toMatch(/const queueKind = isQueueKind\(row\.kind\) \? row\.kind : null;/);
-    expect(sheet).toMatch(/!queueKind \? null :/);
+    // Since 2026-10 C4 the sheet only reads: the confirm is on the module's
+    // own page, and here only for a waiting row whose module has none yet.
+    expect(sheet).toMatch(/confirm && canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
+    expect(sheet).not.toMatch(/AddToPackageButton|markRecordsSeen|markRecordsArchived/);
     for (const kind of QUEUE_ONLY_NOT) {
       expect(canDiscuss(kind), kind).toBe(false);
       expect(canConfirmClosure(kind), kind).toBe(false);
@@ -214,12 +223,46 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     expect(isQueueKind("HAZARD")).toBe(true);
   });
 
-  it("does not claim a mark it did not make", () => {
-    // An unfinished record is in nobody's queue, so the server matches nothing.
+  it("marks 已看 when the queue opens a row, silently, and nowhere else", () => {
     const service = read(SERVICE);
-    const mark = service.slice(service.indexOf("export async function markRecordsArchived("));
-    expect(mark).toMatch(/if \(result\.matched > 0\) toastSuccess\("archiveQueue\.toast\.archived"\)/);
-    expect(sheet).toMatch(/if \(result\.matched === 0\) \{\s*setNotInQueue\(true\);/);
-    expect(sheet).toMatch(/archiveQueue\.notInQueue/);
+    const mark = service.slice(service.indexOf("export function markRecordsSeen("));
+    expect(mark).toMatch(/\{ silent: true \}/);
+    const queue = functionBody(read(QUEUE), "ArchiveQueue");
+    expect(queue).toMatch(/if \(!row\.seen_at && isQueueKind\(row\.kind\)\) markSeen\.mutate\(row\);/);
+  });
+});
+
+
+describe("a category's records are looked at, not decided (2026-10 B3, B4)", () => {
+  const dialog = functionBody(read(MANAGEMENT), "ColumnRecordsDialog");
+  const sheet = functionBody(read(QUEUE), "RecordSheet");
+
+  it("opens every record read-only", () => {
+    const opened = dialog.match(/<RecordSheet[\s\S]*?\/>/)?.[0] ?? "";
+    expect(opened).toMatch(/fetchRecord=\{getCategoryRecord\}/);
+    expect(opened).not.toMatch(/\bconfirm\b/);
+    expect(sheet).toMatch(/confirm = false,/);
+  });
+
+  it("sends a pending delivery to its own page to be accepted", () => {
+    expect(sheet).toMatch(
+      /const pendingReceipt =\s*row\.kind === "MATERIAL_RECEIPT" && row\.status === "PENDING";/,
+    );
+    expect(sheet).toMatch(/pendingReceipt && \([\s\S]*?<Link href=\{`\/receipts\/\$\{row\.id\}`\}>/);
+    expect(sheet).toMatch(/t\("archiveQueue\.goToReceipt"\)/);
+  });
+
+  it("narrows by supplier, dates and search, and shows the DO", () => {
+    expect(dialog).toMatch(/<SupplierDateFilter\s+value=\{filters\}\s+showSupplier=\{supplierFilter\}/);
+    expect(dialog).toMatch(/\.\.\.filters,\s*search: search \|\| undefined,/);
+    expect(dialog).toMatch(/queryKey: \["category-records", moduleKey, column\.id, page, filters, search\]/);
+    expect(dialog).toMatch(/row\.delivery_note_no/);
+    expect(dialog).toMatch(/row\.supplier_name/);
+    expect(dialog).toMatch(/<RecordNo value=\{row\.reference\} projectCode=\{row\.project_code\} \/>/);
+    const service = read(SERVICE);
+    const list = service.slice(service.indexOf("export function getCategoryRecords("));
+    for (const key of ["supplier", "date_from", "date_to", "search"]) {
+      expect(list, key).toMatch(new RegExp(`${key}\\?: string;`));
+    }
   });
 });

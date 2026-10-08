@@ -41,6 +41,7 @@ import {
 } from "@/components/site-access/gate-qr-scanner";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -92,6 +93,9 @@ import {
 } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
 
+/** The status filter's "approved, running out within the week" choice. */
+const EXPIRING = "expiring";
+
 export function SiteAccessWorkspace() {
   const t = useTranslations("siteControl");
   const { can } = useAuth();
@@ -110,8 +114,13 @@ export function SiteAccessWorkspace() {
         ? "gate"
         : "passes",
   );
-  const [project, setProject] = useState("all");
-  const [status, setStatus] = useState("all");
+  // The dashboard's 通行证即将到期 figure opens `?expiring=1` (C15).
+  // The top bar's 「当前项目」 when it is in force (B13).
+  const [project, setProject] = usePageProject(search.get("project") ?? "", { all: "all" });
+  const projectBoxShown = useProjectBoxShown("filter");
+  const [status, setStatus] = useState(
+    search.get("expiring") === "1" ? EXPIRING : "all",
+  );
   const [creating, setCreating] = useState(false);
   // Only a pending pass can be corrected; the backend answers 409 after that.
   const [editing, setEditing] = useState<SiteAccessPass | null>(null);
@@ -160,7 +169,11 @@ export function SiteAccessWorkspace() {
       getSiteAccessPasses({
         page_size: 200,
         ...(project !== "all" ? { project } : {}),
-        ...(status !== "all" ? { status } : {}),
+        ...(status === EXPIRING
+          ? { expiring: "1" }
+          : status !== "all"
+            ? { status }
+            : {}),
       }),
   });
   const focusedPass = useQuery({
@@ -195,14 +208,13 @@ export function SiteAccessWorkspace() {
   });
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("access.title")}
         subtitle={t("access.subtitle")}
         action={
           can("site_access.manage") && tab === "passes" ? (
             <Button
-              size="sm"
               disabledReason={defaults.isError ? t("access.defaultsFailed") : defaults.isLoading ? t("state.loading") : undefined}
               disabled={defaults.isLoading || defaults.isError}
               onClick={() => setCreating(true)}
@@ -237,7 +249,8 @@ export function SiteAccessWorkspace() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="passes" className="space-y-4">
-          <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+          <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4">
+            {projectBoxShown && (
             <FieldWrapper label={t("field.project")}>
               <ProjectPicker
                 value={project}
@@ -247,6 +260,7 @@ export function SiteAccessWorkspace() {
                 allLabel={t("field.allProjects")}
               />
             </FieldWrapper>
+            )}
             <FieldWrapper label={t("field.status")}>
               <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger className="w-full">
@@ -254,6 +268,7 @@ export function SiteAccessWorkspace() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("field.allStatuses")}</SelectItem>
+                  <SelectItem value={EXPIRING}>{t("field.expiringSoon")}</SelectItem>
                   {["PENDING", "APPROVED", "REJECTED", "REVOKED"].map(
                     (value) => (
                       <SelectItem key={value} value={value}>
@@ -272,8 +287,8 @@ export function SiteAccessWorkspace() {
           ) : !rows.data?.count ? (
             <State text={t("access.empty")} />
           ) : (
-            <div className="overflow-hidden rounded-lg border bg-card">
-              <Table className="min-w-[940px]">
+            <div className="surface-panel overflow-hidden rounded-xl">
+              <Table className="min-w-235">
                 <TableHeader>
                   <TableRow>
                     {[
@@ -295,7 +310,7 @@ export function SiteAccessWorkspace() {
                 <TableBody>
                   {rows.data.results.map((row) => (
                     <TableRow key={row.id}>
-                      <TableCell className="font-medium tabular-nums">
+                      <TableCell className="font-medium tabular">
                         {row.pass_no}
                       </TableCell>
                       <TableCell>
@@ -556,13 +571,13 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
     }
   }
   return (
-    <div className="mx-auto max-w-2xl space-y-5 rounded-lg border bg-card p-5">
-      <div className="flex items-start gap-3">
+    <div className="surface-panel mx-auto w-full max-w-2xl space-y-4 rounded-xl p-4 sm:p-6">
+      <div className="flex min-w-0 items-start gap-3">
         <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
           <DoorOpen />
         </span>
-        <div>
-          <h2 className="text-lg font-semibold">{t("gate.title")}</h2>
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-foreground">{t("gate.title")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("gate.subtitle")}
           </p>
@@ -578,7 +593,7 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
           <Camera />
           {t("gate.cameraScan")}
         </Button>
-        <label className="flex h-14 cursor-pointer items-center justify-center gap-2 rounded-md border bg-background px-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+        <label className="flex h-14 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-background px-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
           <ImagePlus />
           {t("gate.uploadImage")}
           <input
@@ -1005,7 +1020,8 @@ function PassDialog({
  */
 function DeviceEventsPanel() {
   const t = useTranslations("siteControl");
-  const [project, setProject] = useState("all");
+  const [project, setProject] = usePageProject("", { all: "all" });
+  const projectBoxShown = useProjectBoxShown("filter");
   const [result, setResult] = useState("all");
   const rows = useQuery({
     queryKey: ["site-access-device-events", project, result],
@@ -1018,7 +1034,8 @@ function DeviceEventsPanel() {
   });
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+      <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4">
+        {projectBoxShown && (
         <FieldWrapper label={t("field.project")}>
           <ProjectPicker
             value={project}
@@ -1028,6 +1045,7 @@ function DeviceEventsPanel() {
             allLabel={t("field.allProjects")}
           />
         </FieldWrapper>
+        )}
         <FieldWrapper label={t("deviceEvent.result")}>
           <Select value={result} onValueChange={setResult}>
             <SelectTrigger className="w-full">
@@ -1050,8 +1068,8 @@ function DeviceEventsPanel() {
       ) : !rows.data?.count ? (
         <State text={t("deviceEvent.empty")} />
       ) : (
-        <div className="overflow-hidden rounded-lg border bg-card">
-          <Table className="min-w-[1080px]">
+        <div className="surface-panel overflow-hidden rounded-xl">
+          <Table className="min-w-270">
             <TableHeader>
               <TableRow>
                 {[
@@ -1079,7 +1097,7 @@ function DeviceEventsPanel() {
                       {event.project_name}
                     </p>
                   </TableCell>
-                  <TableCell className="font-medium tabular-nums">
+                  <TableCell className="font-medium tabular">
                     {event.device_id}
                   </TableCell>
                   <TableCell>
@@ -1087,11 +1105,11 @@ function DeviceEventsPanel() {
                   </TableCell>
                   <TableCell>
                     <p>{t(`credentialType.${event.credential_type}`)}</p>
-                    <p className="text-xs text-muted-foreground tabular-nums">
+                    <p className="text-xs text-muted-foreground tabular">
                       {event.credential_hint || "-"}
                     </p>
                   </TableCell>
-                  <TableCell className="tabular-nums">
+                  <TableCell className="tabular">
                     {event.pass_no || "-"}
                   </TableCell>
                   <TableCell>
@@ -1411,7 +1429,7 @@ function PassQr({
           <DialogTitle>{t("access.qrTitle")}</DialogTitle>
           <DialogDescription>{t("access.qrHelp")}</DialogDescription>
         </DialogHeader>
-        <div className="mx-auto rounded-lg border bg-white p-4">
+        <div className="mx-auto rounded-lg border bg-paper p-4">
           <QRCodeCanvas
             ref={ref}
             value={url}
@@ -1466,7 +1484,7 @@ function Info({ label, value }: { label: string; value: string }) {
 function State({ text, danger = false }: { text: string; danger?: boolean }) {
   return (
     <div
-      className={`grid min-h-36 place-items-center rounded-lg border border-dashed p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}
+      className={`grid min-h-36 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}
     >
       {text}
     </div>

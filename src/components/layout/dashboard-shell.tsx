@@ -6,11 +6,17 @@ import { useEffect } from "react";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardToolbar } from "@/components/layout/dashboard-toolbar";
+import { PageTitleOverrideProvider } from "@/components/layout/page-title-override";
+import {
+  HazardPopupStack,
+  useHazardPopup,
+} from "@/components/notifications/hazard-popup";
 import {
   TaskCardDockProvider,
   TaskCardDockSlot,
 } from "@/components/notifications/task-card-dock";
 import { useAuth } from "@/components/providers/auth-provider";
+import { CurrentProjectProvider } from "@/components/providers/current-project-provider";
 import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import {
   SidebarInset,
@@ -49,11 +55,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
   const isFieldStaff = user?.is_field_staff ?? false;
   // One stream at the signed-in shell keeps every list/detail screen current,
-  // including pages that do not have a feature-specific subscription.
+  // including pages that do not have a feature-specific subscription. The
+  // same stream brings the hazard pop-up cards (C3).
+  const hazardPopup = useHazardPopup();
   useOrderRealtime(
     GLOBAL_REALTIME_KEYS,
     true,
     canUseRealtime(user?.permissions ?? [], Boolean(user?.is_platform_staff)),
+    hazardPopup.onEvent,
   );
 
   useEffect(() => {
@@ -114,17 +123,29 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <TaskCardDockProvider>
+      {/* 顶栏「当前项目」: chosen once, read by every page below (B13). */}
+      <CurrentProjectProvider>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="h-dvh min-w-0 overflow-hidden">
-          <DashboardToolbar />
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-5">
-            {children}
-          </div>
+          {/* A page may name itself more precisely than its menu entry (B14). */}
+          <PageTitleOverrideProvider>
+            <DashboardToolbar />
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-5">
+              {children}
+            </div>
+          </PageTitleOverrideProvider>
           {/* The task cards, in the layout rather than over it (B01). */}
           <TaskCardDockSlot />
         </SidebarInset>
       </SidebarProvider>
+      </CurrentProjectProvider>
+      {/* Hazard cards float for eight seconds, then go (C3). */}
+      <HazardPopupStack
+        cards={hazardPopup.cards}
+        now={hazardPopup.now}
+        onDismiss={hazardPopup.dismiss}
+      />
     </TaskCardDockProvider>
   );
 }

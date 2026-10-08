@@ -48,9 +48,45 @@ describe("栏目 never names a category", () => {
     expect(zh.categoryManagement.module).toMatchObject({
       equipment: "设备分类",
       recycle: "环保材料出场分类",
-      debris: "工地清运分类",
     });
-    expect(zh.categoryManagement.module).not.toHaveProperty("field");
-    expect(zh.categoryManagement.module).not.toHaveProperty("claim");
+    // 分类管理只留四组 (2026-10 B1): 材料、设备、隐患整改、环保材料出场.
+    expect(Object.keys(zh.categoryManagement.module).sort()).toEqual([
+      "ehs",
+      "equipment",
+      "material",
+      "recycle",
+    ]);
+    for (const gone of ["field", "claim", "document", "phase", "progress", "debris", "consultant", "sundry"]) {
+      expect(zh.categoryManagement.module).not.toHaveProperty(gone);
+    }
+  });
+});
+
+describe("制造厂商 has one name everywhere (2026-10 D1)", () => {
+  it.each(["zh", "zh-TW", "en", "ms"])("in %s: the menu and the page agree", (locale) => {
+    const catalogue = JSON.parse(
+      readFileSync(path.join(process.cwd(), `src/messages/${locale}.json`), "utf8"),
+    );
+    const name = catalogue.nav.submodule.manufacturers;
+    expect(name).toBeTruthy();
+    expect(catalogue.manufacturers.title).toBe(name);
+    // A column names one manufacturer; it agrees with the record detail and
+    // the printed PDF (`mySubmissions.field`, copied into pdf_words.py).
+    expect(catalogue.mySubmissions.field.manufacturer).toBe(catalogue.manufacturers.column);
+  });
+
+  it.each(["zh", "zh-TW"])("in %s the list column is the module's own name", (locale) => {
+    const catalogue = JSON.parse(
+      readFileSync(path.join(process.cwd(), `src/messages/${locale}.json`), "utf8"),
+    );
+    expect(catalogue.manufacturers.column).toBe(catalogue.nav.submodule.manufacturers);
+  });
+
+  it("is 制造厂商, and the off-list tag 非指定厂商, in Chinese", () => {
+    const zh = JSON.parse(readFileSync(path.join(process.cwd(), "src/messages/zh.json"), "utf8"));
+    expect(zh.nav.submodule.manufacturers).toBe("制造厂商");
+    expect(zh.manufacturers.offList).toBe("非指定厂商");
+    // 「单位管理」 lives inside 分类管理 (A4).
+    expect(zh.categoryManagement.units.title).toBe("单位管理");
   });
 });

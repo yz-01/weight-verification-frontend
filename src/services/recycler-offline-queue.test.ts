@@ -193,14 +193,16 @@ describe("2 · the same button pressed again", () => {
 });
 
 describe("3 · the network comes back, or drops again mid-sync", () => {
-  it("keeps a job whose answer was lost, unfailed, and sends it again with the same id", async () => {
+  it("keeps a job whose answer was lost, retrying, and sends it again with the same id", async () => {
     online(false);
     await assign("A", "driver-1", "trip-assign-press-1");
     online(true);
     post.mockRejectedValueOnce(new ApiError("network", 0));
     expect(await queue.flushOfflineJobs(OWNER)).toEqual({ synced: 0, remaining: 1 });
     const [waiting] = await queue.getOfflineQueueEntries(OWNER);
-    expect(waiting).toMatchObject({ state: "waiting", attempts: 0 });
+    // Since A9 a lost answer is counted and named, but it is not a refusal:
+    // the queue keeps sending it by itself.
+    expect(waiting).toMatchObject({ state: "retrying", attempts: 1, lastError: "network" });
 
     await queue.flushOfflineJobs(OWNER);
     expect(sentTo("create_task").map(([, body]) => (body as { client_event_id: string }).client_event_id)).toEqual([

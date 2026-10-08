@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
 
 import { TASK_CATEGORY_KIND } from "@/components/contractor-ops/operations-workspaces";
 
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 const MANAGEMENT = "src/components/contractor-ops/category-management.tsx";
 
 describe("a material category adds up per unit (D-281)", () => {
@@ -24,8 +24,10 @@ describe("a material category adds up per unit (D-281)", () => {
   it("shows the per-unit quantities, not tonnes only", () => {
     expect(source).toMatch(/<QuantityCell quantities=\{row\.column\.quantities \?\? \[\]\} \/>/);
     expect(source).not.toMatch(/tonnes_received \?\? "0"/);
-    // Units are named in the reader's language, and a return is its own figure.
-    expect(source).toMatch(/root\(`receipts\.unit\.\$\{unit\}`\)/);
+    // Units are named in the reader's language - a unit the company added by
+    // its own label (2026-10 A4) - and a return is its own figure.
+    expect(source).toMatch(/const unitName = useUnitName\(\);/);
+    expect(source).toMatch(/\{quantity\.received\} \{unitName\(quantity\.unit\)\}/);
     expect(source).toMatch(/quantityReturned/);
   });
 
@@ -58,6 +60,10 @@ describe("现场资料分类 is gone (D-285)", () => {
     expect(TASK_CATEGORY_KIND.OTHER).toBeUndefined();
     expect(TASK_CATEGORY_KIND.MATERIAL).toBe("MATERIAL");
     expect(TASK_CATEGORY_KIND.SAFETY).toBe("EHS");
+    // 2026-10 B1 (X5): progress, clearance and consultant have no categories.
+    expect(TASK_CATEGORY_KIND.PROGRESS).toBeUndefined();
+    expect(TASK_CATEGORY_KIND.WASTE).toBeUndefined();
+    expect(TASK_CATEGORY_KIND.CONSULTANT).toBeUndefined();
     const workspaces = read("src/components/contractor-ops/operations-workspaces.tsx");
     expect(workspaces).toMatch(/\[!categoryKind \|\| form\.category, t\("field\.category"\)\]/);
     expect(workspaces).not.toMatch(/PHOTO: "FIELD"/);

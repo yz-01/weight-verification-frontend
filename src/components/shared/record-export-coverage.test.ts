@@ -12,7 +12,7 @@ import { describe, expect, it } from "vitest";
  * not getting the button - and a detail without it looks complete.
  */
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 /** The body of one top-level component, up to the next top-level function. */
@@ -41,7 +41,7 @@ const DETAILS: Array<[string, string, string]> = [
   ["src/components/receipts/view-receipt.tsx", "ViewReceipt", "MATERIAL_RECEIPT"],
   ["src/components/contractor-ops/operations-workspaces.tsx", "OutgoingDetailDialog", "MATERIAL_OUTGOING"],
   ["src/components/contractor-ops/office-module-lists.tsx", "SiteEquipmentOffice", "EQUIPMENT_MOVEMENT"],
-  ["src/components/site-operations/safety.tsx", "Safety", "HAZARD"],
+  ["src/components/site-operations/safety.tsx", "HazardRecordDetail", "HAZARD"],
   ["src/components/contractor-ops/waste-outgoing-workspace.tsx", "WasteOutgoingWorkspace", "WASTE_OUTGOING"],
   ["src/components/contractor-ops/site-disposal-workspaces.tsx", "DisposalDetailDialog", "DISPOSAL_REQUEST"],
   ["src/components/contractor-ops/office-module-lists.tsx", "SiteProgressOffice", "PROGRESS"],
@@ -77,13 +77,15 @@ describe("every record detail can export that one record (T-386)", () => {
 describe("the shell puts it in the header, top right (T-386)", () => {
   const shell = read("src/components/shared/record-detail-shell.tsx");
   const dialog = componentBody(shell, "RecordDetailDialog");
+  // One header for the popup and the page since E8: `RecordDetailHeading`.
+  const header = componentBody(shell, "RecordDetailHeading");
 
   it("renders the button inside the dialog header, after the title", () => {
-    const header = dialog.slice(dialog.indexOf("<DialogHeader"), dialog.indexOf("</DialogHeader>"));
+    expect(dialog).toMatch(/<RecordDetailHeading \{\.\.\.header\} inDialog \/>/);
     expect(header).toMatch(/justify-between/);
     // Clear of the dialog's own close X in the corner.
-    expect(header).toMatch(/pr-8/);
-    expect(header.indexOf("<RecordExportButton")).toBeGreaterThan(header.indexOf("<DialogTitle>"));
+    expect(header).toMatch(/<DialogHeader className=\{cn\(frame, "pr-8"\)\}/);
+    expect(header.indexOf("<RecordExportButton")).toBeGreaterThan(header.indexOf("<DialogTitle"));
   });
 });
 

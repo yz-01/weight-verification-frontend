@@ -48,15 +48,15 @@ export function DriverTasks() {
   const done = rows.filter((task) => !task.is_running);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <section className="space-y-3">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="text-xl font-bold leading-tight text-foreground">
           {t("driver.today")}
         </h1>
 
         {running.length === 0 ? (
-          <div className="rounded-xl border bg-card px-6 py-12 text-center shadow-sm">
-            <Truck className="mx-auto h-8 w-8 text-muted-foreground/40" />
+          <div className="rounded-xl border border-dashed border-panel-border px-4 py-12 text-center">
+            <Truck className="mx-auto size-8 text-muted-foreground/40" />
             <p className="mt-3 text-sm text-muted-foreground">
               {t("driver.nothingAssigned")}
             </p>
@@ -68,7 +68,7 @@ export function DriverTasks() {
 
       {done.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <h2 className="panel-title">
             {t("driver.finished")}
           </h2>
           {done.map((task) => (
@@ -89,8 +89,8 @@ function TaskCard({ task, muted }: { task: DriverTask; muted?: boolean }) {
       href={`/driver/${task.id}`}
       className={
         muted
-          ? "flex items-center gap-3 rounded-xl border bg-card px-4 py-4 opacity-70 shadow-sm transition-colors active:bg-muted"
-          : "flex items-center gap-3 rounded-xl border bg-card px-4 py-4 shadow-sm transition-colors active:bg-muted"
+          ? "surface-panel flex min-w-0 items-center gap-3 rounded-xl p-4 opacity-70 transition-colors hover:border-primary/50 active:bg-muted"
+          : "surface-panel flex min-w-0 items-center gap-3 rounded-xl p-4 transition-colors hover:border-primary/50 active:bg-muted"
       }
     >
       <div className="min-w-0 flex-1 space-y-2">
@@ -112,25 +112,25 @@ function TaskCard({ task, muted }: { task: DriverTask; muted?: boolean }) {
 
         <div className="space-y-1 text-sm text-muted-foreground">
           {task.waste_type && (
-            <p className="flex items-center gap-1.5">
-              <PackageOpen className="h-3.5 w-3.5 shrink-0" />
+            <p className="flex min-w-0 items-center gap-1.5">
+              <PackageOpen className="size-3.5 shrink-0" />
               <span className="truncate">
                 {t(`dispatches.wasteType.${task.waste_type}`)}
               </span>
             </p>
           )}
-          <p className="flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5 shrink-0" />
+          <p className="flex min-w-0 items-center gap-1.5">
+            <MapPin className="size-3.5 shrink-0" />
             <span className="truncate">{task.site_name}</span>
           </p>
-          <p className="tabular flex items-center gap-1.5">
-            <Truck className="h-3.5 w-3.5 shrink-0" />
+          <p className="tabular flex min-w-0 items-center gap-1.5">
+            <Truck className="size-3.5 shrink-0" />
             <span className="truncate">{task.vehicle_plate}</span>
           </p>
         </div>
       </div>
 
-      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+      <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
     </Link>
   );
 }

@@ -88,33 +88,33 @@ export function ProjectQrPanel({
   }
 
   if (qr.isLoading) {
-    return <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">{common("loading")}</div>;
+    return <div className="surface-panel rounded-xl p-4 text-sm text-muted-foreground sm:p-6">{common("loading")}</div>;
   }
   if (qr.isError) {
-    return <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">{t("loadError")}</div>;
+    return <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive sm:p-6">{t("loadError")}</div>;
   }
   if (!code) {
-    return <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">{t("notAvailable")}</div>;
+    return <div className="surface-panel rounded-xl p-4 text-sm text-muted-foreground sm:p-6">{t("notAvailable")}</div>;
   }
 
   const active = code.effective_status === "ACTIVE";
   return (
-    <section className="rounded-xl border bg-card shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b px-6 py-5">
+    <section className="surface-panel rounded-xl">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-panel-border p-4 sm:px-6 sm:py-5">
         <div className="flex min-w-0 items-start gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
             <QrCode className="size-5" />
           </span>
           <div className="min-w-0">
-            <h3 className="text-base font-semibold text-foreground">{t("title")}</h3>
+            <h3 className="panel-title">{t("title")}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{t("description", { project: projectName })}</p>
           </div>
         </div>
         <StatusBadge label={t(`status.${code.effective_status}`)} tone={active ? "positive" : "warning"} />
       </div>
 
-      <div className="grid gap-6 p-6 lg:grid-cols-[auto_minmax(0,1fr)]">
-        <div className="mx-auto rounded-xl border bg-white p-4 shadow-sm">
+      <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-[auto_minmax(0,1fr)]">
+        <div className="mx-auto max-w-full rounded-xl border bg-paper p-4">
           <QRCodeCanvas
             ref={qrRef}
             value={scanUrl}
@@ -128,7 +128,7 @@ export function ProjectQrPanel({
         </div>
         <div className="min-w-0 space-y-4">
           <div className="rounded-lg border bg-muted/30 p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("serialLabel")}</p>
+            <p className="text-xs font-medium text-muted-foreground">{t("serialLabel")}</p>
             <p className="mt-1 break-all text-lg font-semibold tabular-nums">{code.serial}</p>
             <p className="mt-2 text-sm text-muted-foreground">{t("scanHint")}</p>
           </div>

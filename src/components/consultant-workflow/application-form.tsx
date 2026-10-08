@@ -7,6 +7,11 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import {
+  isMaterialType,
+  mainGroups,
+  moreGroups,
+} from "@/components/consultant-workflow/application-type-layout";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useFormSurface } from "@/components/shared/form-surface";
@@ -60,11 +65,12 @@ const emptyForm: ConsultantApplicationPayload = {
   schedule_task: null,
   source_field_task: null,
   application_type: "",
-  discipline: "",
-  work_type: "",
+  // Optional since 2026-10 (C1): none of the four new types needs them.
+  discipline: null,
+  work_type: null,
   additional_disciplines: [],
   additional_work_types: [],
-  priority: "",
+  priority: null,
   consultant_organization: "",
   consultant: "",
   location: "",
@@ -127,9 +133,12 @@ function payloadFromApplication(
 export function ConsultantApplicationForm({
   id,
   sourceFieldTaskId = "",
+  sourcePhotoIds = [],
 }: {
   id?: string;
   sourceFieldTaskId?: string;
+  /** The photos ticked in 「待整理现场资料」 (C1); empty means all of them. */
+  sourcePhotoIds?: string[];
 }) {
   const t = useTranslations("consultantWorkflow");
   const existing = useQuery({
@@ -141,7 +150,7 @@ export function ConsultantApplicationForm({
     return <div className="grid min-h-72 place-items-center"><Loader2 className="size-7 animate-spin text-primary" /></div>;
   }
   if (id && (existing.isError || !existing.data || existing.data.status !== "DRAFT")) {
-    return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.draftUnavailable")}</div>;
+    return <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.draftUnavailable")}</div>;
   }
   return (
     <ConsultantApplicationEditor
@@ -149,6 +158,7 @@ export function ConsultantApplicationForm({
       id={id}
       initial={existing.data}
       sourceFieldTaskId={sourceFieldTaskId}
+      sourcePhotoIds={sourcePhotoIds}
     />
   );
 }
@@ -157,10 +167,12 @@ function ConsultantApplicationEditor({
   id,
   initial,
   sourceFieldTaskId,
+  sourcePhotoIds,
 }: {
   id?: string;
   initial?: ConsultantApplication;
   sourceFieldTaskId: string;
+  sourcePhotoIds: string[];
 }) {
   const t = useTranslations("consultantWorkflow");
   const { can } = useAuth();
@@ -298,11 +310,25 @@ function ConsultantApplicationEditor({
     .filter((field) => field.required)
     .every((field) => Boolean(form.custom_fields?.[field.key]?.trim()));
 
+  // Only the ticked photos go with the draft (C1); an unknown id is dropped
+  // here and refused by the server.
+  const sourcePhotos = useMemo(() => {
+    const all = sourceTask.data?.photos ?? [];
+    if (!sourcePhotoIds.length) return all;
+    const ticked = new Set(sourcePhotoIds);
+    return all.filter((photo) => ticked.has(photo.id));
+  }, [sourcePhotoIds, sourceTask.data]);
+  const optionalChoices = {
+    discipline: form.discipline || null,
+    work_type: form.work_type || null,
+    priority: form.priority || null,
+  };
   const save = useMutation({
     mutationFn: () =>
       id
         ? updateConsultantApplication(id, {
             ...form,
+            ...optionalChoices,
             workflow: selectedWorkflow,
             required_at: requiredAt ? new Date(requiredAt).toISOString() : null,
             inspection_start_at: inspectionStartAt ? new Date(inspectionStartAt).toISOString() : null,
@@ -310,6 +336,10 @@ function ConsultantApplicationEditor({
           })
         : createConsultantApplication({
             ...form,
+            ...optionalChoices,
+            ...(form.source_field_task && sourcePhotoIds.length
+              ? { source_photos: sourcePhotos.map((photo) => photo.id) }
+              : {}),
             workflow: selectedWorkflow,
             required_at: requiredAt ? new Date(requiredAt).toISOString() : null,
             inspection_start_at: inspectionStartAt ? new Date(inspectionStartAt).toISOString() : null,
@@ -375,19 +405,110 @@ function ConsultantApplicationEditor({
       : t("form.saveError")
     : "";
 
+  // Which fields this type shows, and which wait under 「更多（选填）」 (C1).
+  const typeCode =
+    (grouped.get("APPLICATION_TYPE") ?? []).find((row) => row.id === form.application_type)?.code ??
+    initial?.application_type_code ??
+    null;
+  const main = mainGroups(typeCode);
+  const more = moreGroups(typeCode);
+  const isMaterial = isMaterialType(typeCode);
+  const componentField = isMaterial ? (
+    <FieldWrapper label={t("field.material")} required><Input value={form.component} onChange={(event) => set("component", event.target.value)} /></FieldWrapper>
+  ) : (
+    <FieldWrapper label={t("field.component")}><Input value={form.component} onChange={(event) => set("component", event.target.value)} /></FieldWrapper>
+  );
+  const locationField = (
+    <FieldWrapper label={t("field.location")}><Input value={form.location} onChange={(event) => set("location", event.target.value)} /></FieldWrapper>
+  );
+  const drawingFields = (
+    <>
+      <FieldWrapper label={t("field.drawingNo")}><Input value={form.drawing_no ?? ""} onChange={(event) => set("drawing_no", event.target.value)} /></FieldWrapper>
+      <FieldWrapper label={t("field.drawingRevision")}><Input value={form.drawing_revision ?? ""} onChange={(event) => set("drawing_revision", event.target.value)} /></FieldWrapper>
+    </>
+  );
+  const requiredAtField = (
+    <FieldWrapper label={t("field.requiredAt")}><Input type="datetime-local" value={requiredAt} onChange={(event) => setRequiredAt(event.target.value)} /></FieldWrapper>
+  );
+  const scheduleField = (
+    <FieldWrapper label={t("field.scheduleTask")}>
+      <Select value={form.schedule_task || "NONE"} onValueChange={(value) => set("schedule_task", value === "NONE" ? null : value)} disabled={!form.project || scheduleTasks.isLoading || scheduleTasks.isError}>
+        <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseScheduleTask")} /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="NONE">{t("field.noScheduleTask")}</SelectItem>
+          {(scheduleTasks.data?.results ?? []).map((task) => <SelectItem key={task.id} value={task.id}>{task.wbs_code} - {task.name}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      <QueryFailedNote query={scheduleTasks} what={t("what.scheduleTasks")} />
+    </FieldWrapper>
+  );
+  // Optional since 2026-10 (C1): none of the four new types needs them.
+  const classificationFields = (
+    <>
+      <FieldWrapper label={t("field.discipline")}><OptionField category="DISCIPLINE" value={form.discipline ?? ""} grouped={grouped} onChange={(value) => set("discipline", value)} placeholder={t("field.chooseDiscipline")} /></FieldWrapper>
+      <FieldWrapper label={t("field.workType")}><OptionField category="WORK_TYPE" value={form.work_type ?? ""} grouped={grouped} onChange={(value) => set("work_type", value)} placeholder={t("field.chooseWorkType")} /></FieldWrapper>
+      <FieldWrapper label={t("field.priority")}><OptionField category="PRIORITY" value={form.priority ?? ""} grouped={grouped} onChange={(value) => set("priority", value)} placeholder={t("field.choosePriority")} /></FieldWrapper>
+      <CustomValue optionId={form.discipline ?? ""} options={grouped.get("DISCIPLINE") ?? []} value={form.discipline_custom ?? ""} onChange={(value) => set("discipline_custom", value)} label={t("field.customDiscipline")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "DISCIPLINE"} onSave={(label) => saveReusableOption.mutate({ category: "DISCIPLINE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
+      <CustomValue optionId={form.work_type ?? ""} options={grouped.get("WORK_TYPE") ?? []} value={form.work_type_custom ?? ""} onChange={(value) => set("work_type_custom", value)} label={t("field.customWorkType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "WORK_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "WORK_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
+      <CustomValue optionId={form.priority ?? ""} options={grouped.get("PRIORITY") ?? []} value={form.priority_custom ?? ""} onChange={(value) => set("priority_custom", value)} label={t("field.customPriority")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "PRIORITY"} onSave={(label) => saveReusableOption.mutate({ category: "PRIORITY", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
+      <ExtraTicks
+        category="DISCIPLINE"
+        grouped={grouped}
+        primary={form.discipline ?? ""}
+        chosen={form.additional_disciplines ?? []}
+        onChange={(value) => set("additional_disciplines", value)}
+        label={t("field.additionalDisciplines")}
+        hint={t("field.additionalDisciplinesHint")}
+      />
+      <ExtraTicks
+        category="WORK_TYPE"
+        grouped={grouped}
+        primary={form.work_type ?? ""}
+        chosen={form.additional_work_types ?? []}
+        onChange={(value) => set("additional_work_types", value)}
+        label={t("field.additionalWorkTypes")}
+        hint={t("field.additionalWorkTypesHint")}
+      />
+    </>
+  );
+  const inspectionFields = (
+    <>
+      <FieldWrapper label={t("field.inspectionStartAt")}><Input type="datetime-local" value={inspectionStartAt} onChange={(event) => setInspectionStartAt(event.target.value)} /></FieldWrapper>
+      <FieldWrapper label={t("field.inspectionEndAt")}><Input type="datetime-local" min={inspectionStartAt || undefined} value={inspectionEndAt} onChange={(event) => setInspectionEndAt(event.target.value)} /></FieldWrapper>
+      <FieldWrapper label={t("field.inspectionActivity")}><Input value={form.custom_fields?.inspection_activity ?? ""} onChange={(event) => setCustom("inspection_activity", event.target.value)} /></FieldWrapper>
+      <FieldWrapper label={t("field.itpNo")}><Input value={form.itp_no ?? ""} onChange={(event) => set("itp_no", event.target.value)} /></FieldWrapper>
+      <FieldWrapper label={t("field.checklistReference")}><Input value={form.checklist_reference ?? ""} onChange={(event) => set("checklist_reference", event.target.value)} /></FieldWrapper>
+      <FieldWrapper label={t("field.inspectionCategory")}>
+        <Select value={form.inspection_category || "NONE"} onValueChange={(value) => set("inspection_category", value === "NONE" ? "" : value as "R" | "S" | "W" | "H")}>
+          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="NONE">{t("inspectionCategory.NONE")}</SelectItem>
+            {(["R", "S", "W", "H"] as const).map((value) => <SelectItem key={value} value={value}>{t(`inspectionCategory.${value}`)}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
+      <FieldWrapper label={t("field.acceptanceRequirement")}><Input value={form.custom_fields?.acceptance_requirement ?? ""} onChange={(event) => setCustom("acceptance_requirement", event.target.value)} /></FieldWrapper>
+      {templateFields.filter((field) => !BUILT_IN_CUSTOM_FIELD_KEYS.has(field.key)).map((field) => (
+        <FieldWrapper key={field.key} label={field.label} required={Boolean(field.required)}>
+          <Input value={form.custom_fields?.[field.key] ?? ""} onChange={(event) => setCustom(field.key, event.target.value)} />
+        </FieldWrapper>
+      ))}
+    </>
+  );
+
   const body = (
     <>
       {sourceTask.isLoading ? (
-        <div className="flex items-center gap-2 rounded-lg border bg-card p-4 text-sm text-muted-foreground">
+        <div className="surface-panel flex items-center gap-2 rounded-xl p-4 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           {t("form.sourceLoading")}
         </div>
       ) : sourceTask.isError ? (
-        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
           {t("form.sourceLoadError")}
         </p>
       ) : sourceTask.data ? (
-        <section className="rounded-lg border border-primary/20 bg-primary/5 p-4 sm:p-5">
+        <section className="rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-6">
           <div className="flex items-start gap-3">
             <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Images className="size-5" /></span>
             <div className="min-w-0 flex-1">
@@ -402,14 +523,14 @@ function ConsultantApplicationEditor({
             </div>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
-            {sourceTask.data.photos.map((photo) => (
+            {sourcePhotos.map((photo) => (
               <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer">
                 <Image src={photo.watermarked || photo.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover" />
               </a>
             ))}
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-            <span>{t("form.sourcePhotosLinked", { count: sourceTask.data.photos.length })}</span>
+            <span>{t("form.sourcePhotosLinked", { count: sourcePhotos.length })}</span>
             {sourceTask.data.photos[0]?.latitude && sourceTask.data.photos[0]?.longitude ? (
               <a
                 className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
@@ -429,6 +550,11 @@ function ConsultantApplicationEditor({
           <FieldWrapper label={t("field.project")} required>
             {id || sourceTask.data ? <Input value={initial?.project_name ?? sourceTask.data?.project_name ?? ""} readOnly className="bg-muted/40" /> : <ConsultantProjectPicker value={form.project} onChange={onProjectChange} />}
           </FieldWrapper>
+          <FieldWrapper label={t("field.applicationType")} required><OptionField category="APPLICATION_TYPE" value={form.application_type} grouped={grouped} onChange={(value) => set("application_type", value)} placeholder={t("field.chooseType")} keptLabel={initial?.application_type === form.application_type ? initial?.application_type_label : null} /></FieldWrapper>
+          <CustomValue optionId={form.application_type} options={grouped.get("APPLICATION_TYPE") ?? []} value={form.application_type_custom ?? ""} onChange={(value) => set("application_type_custom", value)} label={t("field.customApplicationType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "APPLICATION_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "APPLICATION_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
+          <QueryFailedNote query={options} what={t("what.applicationOptions")} className="sm:col-span-2" />
+          {main.has("classification") && classificationFields}
+          {main.has("schedule") && scheduleField}
           {/*
             Folded away (T-373, D-254). Neither has to be chosen: every project
             now has a default one-step route - to the consultant this
@@ -491,43 +617,6 @@ function ConsultantApplicationEditor({
             </FieldWrapper>
             </div>
           </details>
-          <FieldWrapper label={t("field.scheduleTask")}>
-            <Select value={form.schedule_task || "NONE"} onValueChange={(value) => set("schedule_task", value === "NONE" ? null : value)} disabled={!form.project || scheduleTasks.isLoading || scheduleTasks.isError}>
-              <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseScheduleTask")} /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NONE">{t("field.noScheduleTask")}</SelectItem>
-                {(scheduleTasks.data?.results ?? []).map((task) => <SelectItem key={task.id} value={task.id}>{task.wbs_code} - {task.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <QueryFailedNote query={scheduleTasks} what={t("what.scheduleTasks")} />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.applicationType")} required><OptionField category="APPLICATION_TYPE" value={form.application_type} grouped={grouped} onChange={(value) => set("application_type", value)} placeholder={t("field.chooseType")} /></FieldWrapper>
-          <FieldWrapper label={t("field.discipline")} required><OptionField category="DISCIPLINE" value={form.discipline} grouped={grouped} onChange={(value) => set("discipline", value)} placeholder={t("field.chooseDiscipline")} /></FieldWrapper>
-          <FieldWrapper label={t("field.workType")} required><OptionField category="WORK_TYPE" value={form.work_type} grouped={grouped} onChange={(value) => set("work_type", value)} placeholder={t("field.chooseWorkType")} /></FieldWrapper>
-          <FieldWrapper label={t("field.priority")} required><OptionField category="PRIORITY" value={form.priority} grouped={grouped} onChange={(value) => set("priority", value)} placeholder={t("field.choosePriority")} /></FieldWrapper>
-          <QueryFailedNote query={options} what={t("what.applicationOptions")} className="sm:col-span-2" />
-          <ExtraTicks
-            category="DISCIPLINE"
-            grouped={grouped}
-            primary={form.discipline}
-            chosen={form.additional_disciplines ?? []}
-            onChange={(value) => set("additional_disciplines", value)}
-            label={t("field.additionalDisciplines")}
-            hint={t("field.additionalDisciplinesHint")}
-          />
-          <ExtraTicks
-            category="WORK_TYPE"
-            grouped={grouped}
-            primary={form.work_type}
-            chosen={form.additional_work_types ?? []}
-            onChange={(value) => set("additional_work_types", value)}
-            label={t("field.additionalWorkTypes")}
-            hint={t("field.additionalWorkTypesHint")}
-          />
-          <CustomValue optionId={form.application_type} options={grouped.get("APPLICATION_TYPE") ?? []} value={form.application_type_custom ?? ""} onChange={(value) => set("application_type_custom", value)} label={t("field.customApplicationType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "APPLICATION_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "APPLICATION_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
-          <CustomValue optionId={form.discipline} options={grouped.get("DISCIPLINE") ?? []} value={form.discipline_custom ?? ""} onChange={(value) => set("discipline_custom", value)} label={t("field.customDiscipline")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "DISCIPLINE"} onSave={(label) => saveReusableOption.mutate({ category: "DISCIPLINE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
-          <CustomValue optionId={form.work_type} options={grouped.get("WORK_TYPE") ?? []} value={form.work_type_custom ?? ""} onChange={(value) => set("work_type_custom", value)} label={t("field.customWorkType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "WORK_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "WORK_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
-          <CustomValue optionId={form.priority} options={grouped.get("PRIORITY") ?? []} value={form.priority_custom ?? ""} onChange={(value) => set("priority_custom", value)} label={t("field.customPriority")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "PRIORITY"} onSave={(label) => saveReusableOption.mutate({ category: "PRIORITY", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
         </div>
       </FormSection>
 
@@ -557,36 +646,31 @@ function ConsultantApplicationEditor({
         )}
       </FormSection>
 
-      <FormSection title={t("form.section.inspection")}>
+      <FormSection title={t("form.section.content")}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label={t("field.location")} required><Input value={form.location} onChange={(event) => set("location", event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.component")} required><Input value={form.component} onChange={(event) => set("component", event.target.value)} /></FieldWrapper>
+          {main.has("component") && componentField}
+          {main.has("location") && locationField}
           <FieldWrapper label={t("field.description")} required className="sm:col-span-2"><Textarea rows={4} value={form.description} onChange={(event) => set("description", event.target.value)} /></FieldWrapper>
+          {main.has("drawing") && drawingFields}
+          {main.has("requiredAt") && requiredAtField}
           <FieldWrapper label={t("field.remarks")} className="sm:col-span-2"><Textarea rows={3} value={form.remarks ?? ""} onChange={(event) => set("remarks", event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.requiredAt")}><Input type="datetime-local" value={requiredAt} onChange={(event) => setRequiredAt(event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.inspectionStartAt")}><Input type="datetime-local" value={inspectionStartAt} onChange={(event) => setInspectionStartAt(event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.inspectionEndAt")}><Input type="datetime-local" min={inspectionStartAt || undefined} value={inspectionEndAt} onChange={(event) => setInspectionEndAt(event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.inspectionActivity")}><Input value={form.custom_fields?.inspection_activity ?? ""} onChange={(event) => setCustom("inspection_activity", event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.drawingNo")}><Input value={form.drawing_no ?? ""} onChange={(event) => set("drawing_no", event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.drawingRevision")}><Input value={form.drawing_revision ?? ""} onChange={(event) => set("drawing_revision", event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.itpNo")}><Input value={form.itp_no ?? ""} onChange={(event) => set("itp_no", event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.checklistReference")}><Input value={form.checklist_reference ?? ""} onChange={(event) => set("checklist_reference", event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("field.inspectionCategory")}>
-            <Select value={form.inspection_category || "NONE"} onValueChange={(value) => set("inspection_category", value === "NONE" ? "" : value as "R" | "S" | "W" | "H")}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NONE">{t("inspectionCategory.NONE")}</SelectItem>
-                {(["R", "S", "W", "H"] as const).map((value) => <SelectItem key={value} value={value}>{t(`inspectionCategory.${value}`)}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          <FieldWrapper label={t("field.acceptanceRequirement")}><Input value={form.custom_fields?.acceptance_requirement ?? ""} onChange={(event) => setCustom("acceptance_requirement", event.target.value)} /></FieldWrapper>
-          {templateFields.filter((field) => !BUILT_IN_CUSTOM_FIELD_KEYS.has(field.key)).map((field) => (
-            <FieldWrapper key={field.key} label={field.label} required={Boolean(field.required)}>
-              <Input value={form.custom_fields?.[field.key] ?? ""} onChange={(event) => setCustom(field.key, event.target.value)} />
-            </FieldWrapper>
-          ))}
+          {main.has("inspection") && inspectionFields}
         </div>
+        {more.length ? (
+          <details className="mt-4 rounded-lg border bg-muted/20 px-3 py-2" data-testid="consultant-form-more">
+            <summary className="cursor-pointer text-sm font-medium">{t("form.more")}</summary>
+            <p className="mt-1 text-xs text-muted-foreground">{t("form.moreHelp")}</p>
+            <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              {more.includes("component") && componentField}
+              {more.includes("location") && locationField}
+              {more.includes("drawing") && drawingFields}
+              {more.includes("requiredAt") && requiredAtField}
+              {more.includes("schedule") && scheduleField}
+              {more.includes("classification") && classificationFields}
+              {more.includes("inspection") && inspectionFields}
+            </div>
+          </details>
+        ) : null}
         {selectedTemplateVersion?.required_attachment_codes.length ? (
           <p className="mt-4 rounded-lg border border-info/30 bg-info/5 p-3 text-sm text-info">
             {t("form.requiredAttachments", { codes: selectedTemplateVersion.required_attachment_codes.join(", ") })}
@@ -606,7 +690,7 @@ function ConsultantApplicationEditor({
   const actions = (
     <>
         <Button variant="outline" onClick={() => router.back()}>{t("action.cancel")}</Button>
-        <Button requires={[[form.project, t("field.project")], [form.application_type, t("field.applicationType")], [form.discipline, t("field.discipline")], [form.work_type, t("field.workType")], [form.priority, t("field.priority")], [form.consultant, t("field.consultant")], [form.consultant_organization, t("field.consultantCompany")], [form.location, t("field.location")], [form.component, t("field.component")], [form.description, t("field.description")], [requiredTemplateFieldsComplete, missingTemplateFields]]}
+        <Button requires={[[form.project, t("field.project")], [form.application_type, t("field.applicationType")], [form.consultant, t("field.consultant")], [form.consultant_organization, t("field.consultantCompany")], [!isMaterial || form.component.trim(), t("field.material")], [form.description, t("field.description")], [requiredTemplateFieldsComplete, missingTemplateFields]]}
                 disabled={save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
           {t("action.saveDraft")}
@@ -631,7 +715,7 @@ function ConsultantApplicationEditor({
           <DialogTitle>{t(id ? "form.editTitle" : "form.title")}</DialogTitle>
           <DialogDescription>{t("form.subtitle")}</DialogDescription>
         </DialogHeader>
-        <div className="-mx-4 space-y-5 overflow-y-auto border-y px-4 py-5">
+        <div className="-mx-4 space-y-4 overflow-y-auto border-y px-4 py-4">
           {body}
         </div>
         <DialogFooter>{actions}</DialogFooter>
@@ -640,16 +724,16 @@ function ConsultantApplicationEditor({
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 pb-8">
+    <div className="mx-auto max-w-6xl space-y-4 pb-8">
       <DetailHeader
         backHref="/consultant-applications"
         backLabel={t("applications.back")}
       />
-      <div className="flex items-start gap-3 border-b pb-5">
+      <div className="flex items-start gap-3 border-b pb-4">
         <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
           <ClipboardPen className="size-5" />
         </span>
-        <div>
+        <div className="min-w-0">
           <h1 className="text-xl font-semibold">{t(id ? "form.editTitle" : "form.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{t("form.subtitle")}</p>
         </div>
@@ -657,7 +741,7 @@ function ConsultantApplicationEditor({
 
       {body}
 
-      <div className="sticky bottom-3 flex justify-end gap-2 rounded-lg border bg-background/95 p-3 shadow-lg backdrop-blur">
+      <div className="surface-panel sticky bottom-3 z-10 flex flex-wrap justify-end gap-2 rounded-xl p-3 backdrop-blur">
         {actions}
       </div>
     </div>
@@ -666,7 +750,7 @@ function ConsultantApplicationEditor({
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border bg-card p-4 shadow-sm sm:p-5">
+    <section className="surface-panel rounded-xl p-4 sm:p-6">
       <SectionHeader title={title} />
       {children}
     </section>
@@ -703,7 +787,7 @@ function ExtraTicks({
   );
   return (
     <FieldWrapper label={label} hint={hint} className="sm:col-span-2">
-      <div className="grid max-h-44 grid-cols-2 gap-x-4 gap-y-2 overflow-y-auto rounded-md border p-3 sm:grid-cols-3">
+      <div className="grid max-h-44 grid-cols-2 gap-x-4 gap-y-2 overflow-y-auto rounded-lg border p-3 sm:grid-cols-3">
         {options.map((row) => (
           <label
             key={row.id}
@@ -729,24 +813,50 @@ function ExtraTicks({
   );
 }
 
+/**
+ * The option an old draft is filed under when it is no longer offered - one
+ * of the sixteen retired types (Q2). The draft keeps it (Q29.5): it is shown,
+ * marked 「(已停用)」, and cannot be chosen again once changed.
+ */
+export function retiredChoice(
+  options: readonly Pick<ProjectApplicationOption, "id">[],
+  value: string | null | undefined,
+  label: string | null | undefined,
+): { id: string; label: string } | null {
+  if (!value || options.some((row) => row.id === value)) return null;
+  return { id: value, label: label || value };
+}
+
 function OptionField({
   category,
   value,
   grouped,
   onChange,
   placeholder,
+  keptLabel,
 }: {
   category: ProjectOptionCategory;
   value: string;
   grouped: Map<ProjectOptionCategory, ProjectApplicationOption[]>;
   onChange: (value: string) => void;
   placeholder: string;
+  /** The draft's own label for `value`, shown when it is no longer offered. */
+  keptLabel?: string | null;
 }) {
+  const t = useTranslations("consultantWorkflow");
+  const options = grouped.get(category) ?? [];
+  // Only once the options have arrived: until then every value looks retired.
+  const kept = options.length ? retiredChoice(options, value, keptLabel) : null;
   return (
     <Select value={value || undefined} onValueChange={onChange}>
       <SelectTrigger className="w-full"><SelectValue placeholder={placeholder} /></SelectTrigger>
       <SelectContent>
-        {(grouped.get(category) ?? []).map((row) => (
+        {kept ? (
+          <SelectItem value={kept.id} disabled>
+            {t("form.retiredOption", { label: kept.label })}
+          </SelectItem>
+        ) : null}
+        {options.map((row) => (
           <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>
         ))}
       </SelectContent>

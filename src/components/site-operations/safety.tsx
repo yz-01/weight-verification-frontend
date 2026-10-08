@@ -29,17 +29,23 @@ import {
   FieldEvidenceGrid,
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
+import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { RecordNo } from "@/components/shared/record-no";
 import { ExportButton } from "@/components/shared/export-button";
-import { RecordExportButton } from "@/components/shared/record-export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
   FieldWrapper,
+  FilterBar,
   ListHeader,
   QueryFailedNote,
-  ReadField,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  RecordRecorder,
+} from "@/components/shared/record-detail-shell";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -76,6 +82,7 @@ import {
   submitSafetyIncidentOfflineAware,
   type SafetyIncidentSubmission,
 } from "@/services/offline-sync.service";
+import { DrillNote } from "@/components/shared/drill-note";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getProjectAssignments } from "@/services/contractor.service";
 import {
@@ -90,10 +97,9 @@ import {
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
-const STATUSES: IncidentStatus[] = [
-  "OPEN", "ASSIGNED", "RECTIFICATION_SUBMITTED", "RETURNED", "VERIFIED",
-];
-const MANUAL_STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING", "RESOLVED"];
+// Open or being looked into - never closed here. X8: only the raiser's
+// confirm closes a hazard; the server refuses RESOLVED from this dialog.
+const MANUAL_STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING"];
 
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
 // they would have been the kind of constant a later reader assumes is used.
@@ -125,8 +131,8 @@ export function isPermit(incident: SafetyIncident): boolean {
 }
 
 /**
- * Who closes this item, in words (B21): the named confirmer, the safety leads
- * for a permit, or - on an item raised before the rule - any verifier.
+ * Who closes this item, in words (B21, X8): its raiser, the safety leads for a
+ * permit, or - on an item raised before the rule - any verifier.
  */
 export function confirmerLabel(
   incident: SafetyIncident,
@@ -134,6 +140,24 @@ export function confirmerLabel(
 ): string {
   if (incident.confirmer_name) return incident.confirmer_name;
   return te(isPermit(incident) ? "confirmer.safetyLeads" : "confirmer.legacy");
+}
+
+/**
+ * Whose move it is on an open item, in words, for the office list (C3): the
+ * rectifier while it is being fixed, the confirmer once it is handed in.
+ * Nothing for an item waiting to be assigned (its status says so) or closed.
+ */
+export function nextActor(
+  incident: SafetyIncident,
+  te: (key: string, values?: Record<string, string>) => string,
+): string {
+  if (["ASSIGNED", "RETURNED"].includes(incident.status) && incident.responsible_person_name) {
+    return te("phone.rectifierLine", { name: incident.responsible_person_name });
+  }
+  if (incident.status === "RECTIFICATION_SUBMITTED") {
+    return te("phone.confirmerLine", { name: confirmerLabel(incident, te) });
+  }
+  return "";
 }
 
 export const STATUS_TONE: Record<
@@ -163,8 +187,6 @@ interface SafetyDraft {
   /** 上报 → 指派 in one step (B22); empty leaves it 待分配. */
   rectifier?: string;
   rectifierDueAt?: string;
-  /** The phone's 指定确认人 (B21); empty means the reporter. */
-  confirmer?: string;
   /** A permit's other pages (C20). */
   attachments?: File[];
 }
@@ -180,7 +202,6 @@ const EMPTY_DRAFT: SafetyDraft = {
   notifyUsers: [],
   rectifier: "",
   rectifierDueAt: "",
-  confirmer: "",
   attachments: [],
 };
 
@@ -231,6 +252,9 @@ export function Safety({
   // is counted with - a link that opened the whole list would make the number
   // above it decorative.
   const overdueOnly = searchParams.get("overdue") === "1";
+  // The dashboard's 「待处理整改 / EHS」 card (C15, B8): the items this reader
+  // moves on next - assign, rectify or confirm - as the card counted them.
+  const waitingForMe = searchParams.get("waiting") === "me";
   // Kept in the draft, so tapping this 挂号 again reopens the form it was in
   // (D-259). Outside a draft (the office) this is ordinary state.
   const [createOpen, setCreateOpen] = useDraftState("open:createIncident", Boolean(fieldTaskId) || searchParams.get("create") === "1");
@@ -252,12 +276,13 @@ export function Safety({
   const clearIncidentParam = useClearSearchParam("incident");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["safety", mode, list.query, overdueOnly],
+    queryKey: ["safety", mode, list.query, overdueOnly, waitingForMe],
     queryFn: () => getSafetyIncidents({
       ...list.query,
       workflow: mode === "rectification" ? "rectification" : undefined,
       involving: fieldMode ? "me" : undefined,
       overdue: overdueOnly ? "1" : undefined,
+      waiting: waitingForMe ? "me" : undefined,
     }),
   });
   const focusedIncident = useQuery({
@@ -362,9 +387,8 @@ export function Safety({
             <p className="tabular text-muted-foreground">
               {df.dateTime(row.original.occurred_at)}
             </p>
-            <p className="tabular text-xs text-muted-foreground">
-              {row.original.incident_no}
-            </p>
+            {/* Short number big, project small (2026-10 D4). */}
+            <RecordNo value={row.original.incident_no} className="text-xs" />
           </div>
         ),
       },
@@ -374,7 +398,7 @@ export function Safety({
         header: () => t("safety.field.title"),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[260px] truncate font-medium text-foreground">
+            <p className="max-w-65 truncate font-medium text-foreground">
               {isPermit(row.original) && (
                 <span className="mr-1.5 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
                   {te("permit.badge")}
@@ -382,7 +406,7 @@ export function Safety({
               )}
               {row.original.title}
             </p>
-            <p className="max-w-[260px] truncate text-xs text-muted-foreground">
+            <p className="max-w-65 truncate text-xs text-muted-foreground">
               {row.original.description}
             </p>
           </div>
@@ -393,7 +417,7 @@ export function Safety({
         meta: { label: t("safety.field.project") },
         header: () => t("safety.field.project"),
         cell: ({ row }) => (
-          <span className="block max-w-[200px] truncate">
+          <span className="block max-w-50 truncate">
             {row.original.project_name}
           </span>
         ),
@@ -403,7 +427,7 @@ export function Safety({
         meta: { label: t("safety.field.category") },
         header: () => t("safety.field.category"),
         cell: ({ row }) => (
-          <span className="block max-w-[180px] truncate">
+          <span className="block max-w-45 truncate">
             {row.original.category_name || t("common.emptyValue")}
           </span>
         ),
@@ -422,46 +446,46 @@ export function Safety({
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
-        cell: ({ row }) => (
-          <StatusBadge
-            label={t(`safetyRectification.status.${row.original.status}`)}
-            tone={STATUS_TONE[row.original.status]}
-          />
-        ),
+        // Plain words, not a coloured tag (C3: 「不要增加一堆「待处理 / 整改中 /
+        // 待验收」状态…整个页面就很干净」): where it stands, and whose move it is.
+        cell: ({ row }) => {
+          const waitingOn = nextActor(row.original, te);
+          return (
+            <div className="min-w-0">
+              <p className="whitespace-nowrap">{t(`safetyRectification.status.${row.original.status}`)}</p>
+              {waitingOn && (
+                <p className="max-w-40 truncate text-xs text-muted-foreground">{waitingOn}</p>
+              )}
+            </div>
+          );
+        },
       },
       {
         id: "evidence",
         meta: { label: t("safety.field.evidence") },
         header: () => t("safety.field.evidence"),
+        // The hazard's photograph (E3), opened on click with every photo of
+        // it; the pin says it was located.
         cell: ({ row }) => (
-          <div className="flex max-w-[18rem] items-center gap-1 overflow-x-auto py-1 [scrollbar-width:thin]">
+          <div className="flex items-center gap-1.5">
+            <PhotoThumb
+              coverUrl={row.original.cover_photo_url}
+              count={row.original.photo_count}
+              icon={ShieldAlert}
+              reference={row.original.incident_no}
+              photos={rowPhotos(
+                [
+                  ...(row.original.initial_evidence ?? []),
+                  ...(row.original.rectification_evidence ?? []),
+                ],
+                row.original.incident_no,
+              )}
+            />
             {row.original.latitude && (
               <LocateFixed
                 className="h-4 w-4 shrink-0 text-success"
                 aria-label={t("safety.evidence.location")}
               />
-            )}
-            {(row.original.initial_evidence ?? []).map((item, index) => (
-              <a
-                key={item.id}
-                href={item.watermarked || item.image}
-                target="_blank"
-                rel="noreferrer"
-                className="relative shrink-0 overflow-hidden rounded-md border"
-                title={`${t("safety.evidence.photo")} ${index + 1}`}
-              >
-                <Image
-                  src={item.watermarked || item.image}
-                  alt={`${t("safety.evidence.photo")} ${index + 1}`}
-                  width={32}
-                  height={32}
-                  unoptimized
-                  className="size-7 object-cover"
-                />
-              </a>
-            ))}
-            {!row.original.latitude && !(row.original.initial_evidence?.length ?? 0) && (
-              <span className="text-muted-foreground">{t("common.emptyValue")}</span>
             )}
           </div>
         ),
@@ -540,7 +564,7 @@ export function Safety({
                 the only place a hazard can be raised - and the button lived
                 on the half being deleted (F-240). */}
             {mayRaise && (
-            <Button size={fieldMode ? "lg" : "sm"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
+            <Button size={fieldMode ? "lg" : "default"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
               {t(fieldMode ? "safety.fieldReport.new" : "safety.new")}
             </Button>
@@ -549,7 +573,7 @@ export function Safety({
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2 border-y bg-card/50 py-3">
+      <FilterBar>
         <ProjectPicker
           value={selectedProject}
           onValueChange={(value) => {
@@ -562,7 +586,7 @@ export function Safety({
           placeholder={t("safety.filter.project")}
           allowAll
           allLabel={t("safety.filter.allProjects")}
-          className="w-full sm:w-[260px]"
+          className="w-full sm:w-65"
         />
         {/* Severity filter removed with the column (T-189). */}
         {!fieldMode && (
@@ -572,7 +596,7 @@ export function Safety({
               list.setFilter("category", value === "all" ? undefined : value)
             }
           >
-            <SelectTrigger className="w-full sm:w-[210px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-52.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("safety.filter.allCategories")}</SelectItem>
               {(filterCategories.data?.results ?? []).map((category) => (
@@ -588,7 +612,7 @@ export function Safety({
               list.setFilter("responsible_person", value === "all" ? undefined : value)
             }
           >
-            <SelectTrigger className="w-full sm:w-[210px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-52.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("safety.filter.allResponsible")}</SelectItem>
               {(responsiblePeople.data?.results ?? []).map((person) => (
@@ -603,7 +627,7 @@ export function Safety({
             aria-label={t("safety.filter.dateFrom")}
             value={list.filters.date_from ?? ""}
             onChange={(event) => list.setFilter("date_from", event.target.value || undefined)}
-            className="w-full sm:w-[165px]"
+            className="w-full sm:w-41.25"
           />
         )}
         {!fieldMode && (
@@ -612,7 +636,7 @@ export function Safety({
             aria-label={t("safety.filter.dateTo")}
             value={list.filters.date_to ?? ""}
             onChange={(event) => list.setFilter("date_to", event.target.value || undefined)}
-            className="w-full sm:w-[165px]"
+            className="w-full sm:w-41.25"
           />
         )}
         {!fieldMode && (
@@ -621,18 +645,32 @@ export function Safety({
         {!fieldMode && selectedProject !== "all" && (
           <QueryFailedNote className="w-full" query={responsiblePeople} what={t("safety.what.responsiblePeople")} />
         )}
-      </div>
+      </FilterBar>
       <QueryFailedNote query={focusedIncident} what={t("safety.what.requestedIncident")} />
+      {!fieldMode && waitingForMe && (
+        <DrillNote
+          label={t("safety.drill.waitingForMe")}
+          clearLabel={t("safety.drill.showAll")}
+          params={["waiting"]}
+        />
+      )}
+      {!fieldMode && overdueOnly && (
+        <DrillNote
+          label={t("safety.drill.overdue")}
+          clearLabel={t("safety.drill.showAll")}
+          params={["overdue"]}
+        />
+      )}
 
       {fieldMode ? (
         <div className="grid gap-3">
           {isLoading && <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin text-primary" /></div>}
-          {isError && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("safety.fieldReport.loadError")}</div>}
+          {isError && <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{t("safety.fieldReport.loadError")}</div>}
           {!isLoading && !isError && (data?.results ?? []).length === 0 && (
-            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
+            <div className="rounded-xl border border-dashed border-panel-border p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
           )}
           {(data?.results ?? []).map((incident) => (
-            <article key={incident.id} className="rounded-lg border bg-card shadow-sm">
+            <article key={incident.id} className="surface-panel rounded-xl">
               {/*
                 The whole card opens the room (D-167). It used to be a plain
                 block with one button on it, and that button only appeared for
@@ -647,9 +685,16 @@ export function Safety({
                 type="button"
                 onClick={() => setTalking(incident)}
                 aria-label={t("hazard.conversationTitle")}
-                className="flex w-full items-start gap-3 rounded-lg p-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="flex w-full items-start gap-3 rounded-xl p-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
-                <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-warning/15 text-warning"><ShieldAlert /></span>
+                {/* The hazard's photograph on the left (E3); the icon when it has none. */}
+                <PhotoThumb
+                  coverUrl={incident.cover_photo_url}
+                  count={incident.photo_count}
+                  icon={ShieldAlert}
+                  reference={incident.incident_no}
+                  openable={false}
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold">{incident.title}</p>
@@ -692,20 +737,6 @@ export function Safety({
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
         storageKey="trace-safety"
-        filterPills={[
-          {
-            key: "all",
-            label: t("common.all"),
-            active: !list.filters.status,
-            onSelect: () => list.setFilter("status", undefined),
-          },
-          ...STATUSES.map((status) => ({
-            key: status,
-            label: t(`safetyRectification.status.${status}`),
-            active: list.filters.status === status,
-            onSelect: () => list.setFilter("status", status),
-          })),
-        ]}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
         onPageChange={list.setPage}
@@ -736,113 +767,19 @@ export function Safety({
         removed, and give the office two ways to mean the same thing.
       */}
       {opened && (
-        <Dialog open onOpenChange={(open) => !open && setOpened(null)}>
-          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
-            {/* 「单独导出」 top right (T-386), clear of the close X. */}
-            <DialogHeader className="flex-row items-start justify-between gap-4 space-y-0 pr-8">
-              <div className="min-w-0 space-y-2">
-                <DialogTitle>{opened.incident_no}</DialogTitle>
-                <DialogDescription>{opened.title}</DialogDescription>
-              </div>
-              <div className="shrink-0">
-                <RecordExportButton
-                  kind="HAZARD"
-                  recordId={opened.id}
-                  reference={opened.incident_no}
-                />
-              </div>
-            </DialogHeader>
-            <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2">
-              <ReadField
-                label={t("safety.field.status")}
-                value={t(`safetyRectification.status.${opened.status}`)}
-              />
-              <ReadField
-                label={t("safetyRectification.field.responsible")}
-                value={opened.responsible_person_name || t("hazard.unassigned")}
-              />
-              <ReadField
-                label={t("safety.field.project")}
-                value={opened.project_name}
-              />
-              <ReadField
-                label={t("safety.field.occurredAt")}
-                value={df.dateTime(opened.occurred_at)}
-              />
-              {opened.origin && (
-                <ReadField
-                  label={te("field.origin")}
-                  value={te(`origin.${opened.origin}`)}
-                />
-              )}
-              <ReadField
-                label={te("field.raisedBy")}
-                value={[opened.photographer_name, opened.created_by_title]
-                  .filter(Boolean)
-                  .join(" · ") || t("common.emptyValue")}
-              />
-              <ReadField
-                label={te("field.confirmer")}
-                value={confirmerLabel(opened, te)}
-              />
-              {opened.verified_at && opened.status === "VERIFIED" && (
-                <ReadField
-                  label={te("field.confirmedBy")}
-                  value={[
-                    opened.verified_by_name,
-                    opened.verified_by_title,
-                    df.dateTime(opened.verified_at),
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                />
-              )}
-            </div>
-            <HazardPhotoGroups incident={opened} />
-            <div className="grid gap-2 sm:grid-cols-2">
-              <Button
-                variant="outline"
-                className="min-h-11"
-                onClick={() => {
-                  setTalking(opened);
-                  setOpened(null);
-                }}
-              >
-                <MessageSquare />
-                {t("hazard.conversationTitle")}
-              </Button>
-              {opened.can_confirm && (
-                <Button
-                  className="min-h-11"
-                  onClick={() => {
-                    setReviewing(opened);
-                    setOpened(null);
-                  }}
-                >
-                  <CheckCircle2 />
-                  {t(isPermit(opened) ? "ehs.permit.approve" : "safetyRectification.action.review")}
-                </Button>
-              )}
-              {/* Assignment stays, and it is not a third rectification action:
-                  it decides *who* is responsible, which is what feeds the
-                  「指派给我的隐患整改」 pile in My Tasks (T-285). Without it that
-                  pile would have no source. */}
-              {mayAssign(opened) && (
-                  <Button
-                    variant="outline"
-                    className="min-h-11"
-                    onClick={() => {
-                      setAssigning(opened);
-                      setOpened(null);
-                    }}
-                  >
-                    <UserCheck />
-                    {t("safetyRectification.action.assign")}
-                  </Button>
-                )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <HazardRecordDetail
+          incident={opened}
+          mayAssign={mayAssign(opened)}
+          onClose={() => setOpened(null)}
+          onReview={() => {
+            setReviewing(opened);
+            setOpened(null);
+          }}
+          onAssign={() => {
+            setAssigning(opened);
+            setOpened(null);
+          }}
+        />
       )}
       {talking && (
         <Dialog open onOpenChange={(open) => !open && setTalking(null)}>
@@ -858,6 +795,136 @@ export function Safety({
         </Dialog>
       )}
     </div>
+  );
+}
+
+/**
+ * The detail the whole office row opens (T-304), in the record popup (E8,
+ * Q31): the hazard's facts, its 整改前 / 中 / 后 photographs, the confirm and
+ * assign buttons, and its own room in the 事项沟通 place - so 【沟通】 is the
+ * conversation itself here rather than a button to it (the row's icon and the
+ * phone card still open the room on its own).
+ *
+ * Its own component so a test can render it; it stays beside `Safety`, which
+ * is the only thing that opens it.
+ */
+export function HazardRecordDetail({
+  incident,
+  mayAssign,
+  onClose,
+  onReview,
+  onAssign,
+}: {
+  incident: SafetyIncident;
+  /** `Safety`'s assignment rule, for this incident. */
+  mayAssign: boolean;
+  onClose: () => void;
+  onReview: () => void;
+  onAssign: () => void;
+}) {
+  const t = useTranslations();
+  const te = useTranslations("ehs");
+  const df = useDateFormat();
+  return (
+    <RecordDetailDialog
+      title={incident.incident_no}
+      description={incident.title}
+      status={
+        <StatusBadge
+          label={t(`safetyRectification.status.${incident.status}`)}
+          tone={STATUS_TONE[incident.status]}
+        />
+      }
+      // 「单独导出」 top right (T-386).
+      exportRecord={{ kind: "HAZARD", recordId: incident.id, reference: incident.incident_no }}
+      onClose={onClose}
+    >
+      <RecordDetailShell
+        reference={incident.incident_no}
+        // 记录人 (E8): who recorded it, with a number to call.
+        recorder={<RecordRecorder record={incident} />}
+        facts={[
+          {
+            label: t("safetyRectification.field.responsible"),
+            value: incident.responsible_person_name || t("hazard.unassigned"),
+          },
+          { label: t("safety.field.project"), value: incident.project_name },
+          { label: t("safety.field.occurredAt"), value: df.dateTime(incident.occurred_at) },
+          ...(incident.origin
+            ? [{ label: te("field.origin"), value: te(`origin.${incident.origin}`) }]
+            : []),
+          {
+            label: te("field.raisedBy"),
+            value:
+              [incident.photographer_name, incident.created_by_title]
+                .filter(Boolean)
+                .join(" · ") || t("common.emptyValue"),
+          },
+          { label: te("field.confirmer"), value: confirmerLabel(incident, te) },
+          ...(incident.verified_at && incident.status === "VERIFIED"
+            ? [
+                {
+                  label: te("field.confirmedBy"),
+                  value: [
+                    incident.verified_by_name,
+                    incident.verified_by_title,
+                    df.dateTime(incident.verified_at),
+                  ]
+                    .filter(Boolean)
+                    .join(" · "),
+                },
+              ]
+            : []),
+        ]}
+        // 整改前 / 中 / 后 (B20), one row each; a permit's form is its "before".
+        photos={hazardPhotoRows(incident).flatMap(([key, photos]) =>
+          photos.map((item, index) => ({
+            id: item.id,
+            url: item.watermarked || item.image,
+            label: [`${te(`photos.${key}`)} ${index + 1}`, item.submitted_by_name]
+              .filter(Boolean)
+              .join(" · "),
+            takenAt: item.captured_at,
+            group: key,
+          })),
+        )}
+        photoGroups={hazardPhotoRows(incident).map(([key]) => ({
+          key,
+          label: te(isPermit(incident) && key === "before" ? "permit.formPhotos" : `photos.${key}`),
+        }))}
+        emptyGroupLabel={te("photos.none")}
+        actions={
+          incident.can_confirm || mayAssign ? (
+            <div className="grid gap-2">
+              {incident.can_confirm && (
+                <Button
+                  className="min-h-11"
+                  onClick={onReview}
+                >
+                  <CheckCircle2 />
+                  {t(isPermit(incident) ? "ehs.permit.approve" : "safetyRectification.action.review")}
+                </Button>
+              )}
+              {/* Assignment stays, and it is not a third rectification action:
+                  it decides *who* is responsible, which is what feeds the
+                  「指派给我的隐患整改」 pile in My Tasks (T-285). Without it that
+                  pile would have no source. */}
+              {mayAssign && (
+                <Button
+                  variant="outline"
+                  className="min-h-11"
+                  onClick={onAssign}
+                >
+                  <UserCheck />
+                  {t("safetyRectification.action.assign")}
+                </Button>
+              )}
+            </div>
+          ) : undefined
+        }
+        chat={<HazardConversationPanel incidentId={incident.id} />}
+      />
+    </RecordDetailDialog>
   );
 }
 
@@ -884,33 +951,17 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
   const [dueAt, setDueAt] = useState(incident.rectification_due_at ? incident.rectification_due_at.slice(0, 16) : "");
   const [note, setNote] = useState(incident.rectification_note);
   const te = useTranslations("ehs");
-  // 「手机现场发起 → 指定确认人」 (B21): whoever assigns a phone-raised hazard
-  // may name its confirmer. The office and a consultant confirm what they
-  // raised, so for those it is only shown.
-  const namesConfirmer = incident.origin === "SITE";
-  const [confirmer, setConfirmer] = useState(incident.confirmer ?? "");
-  const confirmers = useQuery({
-    queryKey: ["incident-recipient-options", incident.project],
-    queryFn: () => getIncidentRecipientOptions(incident.project),
-    enabled: namesConfirmer,
-  });
-  // The recipient list leaves the reader out; the assigner can name themselves.
-  const confirmerOptions = [
-    ...(user ? [{ id: user.id, full_name: user.full_name }] : []),
-    ...(confirmers.data ?? []).filter((row) => row.id !== user?.id),
-  ];
-  if (incident.confirmer && !confirmerOptions.some((row) => row.id === incident.confirmer)) {
-    confirmerOptions.unshift({ id: incident.confirmer, full_name: incident.confirmer_name ?? "" });
-  }
-  // 「整改执行人不能自己确认」: caught here rather than by the server's refusal.
-  const sameAsConfirmer = Boolean(person) && person === (namesConfirmer ? confirmer : incident.confirmer);
+  // X8 (2026-10): 「整改完成后，由原发起人确认完成」 - whoever raised it confirms
+  // it, wherever it was raised, so the confirmer is only shown here. And
+  // 「整改执行人不能自己确认」: the raiser cannot be the one fixing it, caught
+  // here rather than by the server's refusal.
+  const sameAsConfirmer = Boolean(person) && person === incident.confirmer;
   const save = useMutation({
     mutationFn: () =>
       assignSafetyRectification(incident.id, {
         responsible_person: person,
         due_at: new Date(dueAt).toISOString(),
         note,
-        confirmer: namesConfirmer && confirmer && confirmer !== incident.confirmer ? confirmer : undefined,
       }),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); },
   });
@@ -931,17 +982,9 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
         <FieldWrapper label={t("field.dueAt")} required>
           <Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={te("field.confirmer")} required>
-          {namesConfirmer ? (
-            <Select value={confirmer || undefined} onValueChange={setConfirmer}>
-              <SelectTrigger className="w-full" aria-label={te("field.confirmer")}><SelectValue placeholder={te("form.selectConfirmer")} /></SelectTrigger>
-              <SelectContent>{confirmerOptions.map((row) => <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>)}</SelectContent>
-            </Select>
-          ) : (
-            <p className="text-sm">{confirmerLabel(incident, te)}</p>
-          )}
+        <FieldWrapper label={te("field.confirmer")}>
+          <p className="text-sm">{confirmerLabel(incident, te)}</p>
           <p className="mt-1.5 text-xs text-muted-foreground">{te("form.confirmerHint")}</p>
-          {namesConfirmer && <QueryFailedNote query={confirmers} what={te("what.confirmers")} />}
           {sameAsConfirmer && <p role="alert" className="mt-1.5 text-xs text-destructive">{te("form.confirmerConflict")}</p>}
         </FieldWrapper>
         <FieldWrapper label={t("field.instructions")}>
@@ -949,7 +992,7 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")], [!sameAsConfirmer, te("field.confirmer")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button>
+          <Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")], [!sameAsConfirmer, t("field.responsible")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1085,8 +1128,9 @@ export function SafetyReviewDialog({ incident, onClose }: { incident: SafetyInci
  * said in its room, and what the rectifier submitted. A permit's form is its
  * "before"; it has no after.
  */
-function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
-  const te = useTranslations("ehs");
+function hazardPhotoRows(
+  incident: SafetyIncident,
+): Array<["before" | "during" | "after", HazardPhoto[]]> {
   const groups: NonNullable<SafetyIncident["photo_groups"]> = incident.photo_groups ?? {
     before: incident.initial_evidence ?? [],
     during: [],
@@ -1097,10 +1141,17 @@ function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
     ["during", groups.during],
     ["after", groups.after],
   ];
+  return rows.filter(
+    ([key, photos]) => !(isPermit(incident) && key !== "before" && photos.length === 0),
+  );
+}
+
+/** The same rows as thumbnails, in the confirm dialog. */
+function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
+  const te = useTranslations("ehs");
   return (
     <div className="grid gap-3" data-testid="hazard-photo-groups">
-      {rows
-        .filter(([key, photos]) => !(isPermit(incident) && key !== "before" && photos.length === 0))
+      {hazardPhotoRows(incident)
         .map(([key, photos]) => (
           <section key={key} className="grid gap-1.5">
             <h3 className="text-sm font-medium">
@@ -1215,10 +1266,6 @@ function SafetyCreateDialog({
   const photosReady = permit || !fieldMode
     ? completedPhotos.length >= requiredPhotos
     : completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos);
-  // 「整改执行人不能自己确认」 (B21). On the phone an empty confirmer is the
-  // reporter; from a desk the initiator always is.
-  const confirmerId = (fieldMode && draft.confirmer) || user?.id || "";
-  const rectifierIsConfirmer = !permit && Boolean(draft.rectifier) && draft.rectifier === confirmerId;
   const fieldEvidenceLabels = [
     t("safety.fieldEvidence.overview"),
     t("safety.fieldEvidence.detail"),
@@ -1256,7 +1303,6 @@ function SafetyCreateDialog({
         ...(permit
           ? { record_type: "PERMIT" as const, attachments: draft.attachments ?? [] }
           : {
-              confirmer: fieldMode && draft.confirmer ? draft.confirmer : undefined,
               responsible_person: draft.rectifier || undefined,
               due_at:
                 draft.rectifier && draft.rectifierDueAt
@@ -1522,31 +1568,12 @@ function SafetyCreateDialog({
               )}
             </FieldWrapper>
           )}
+          {/* X8: whoever raises it confirms it. Said, not asked. The rectifier
+              list above never offers the raiser (the server leaves the reader
+              out of it), so 「整改执行人不能自己确认」 cannot arise here. */}
           {!permit && (
-            <FieldWrapper label={t("ehs.field.confirmer")} required className="sm:col-span-2">
-              {fieldMode ? (
-                <Select
-                  value={draft.confirmer || "self"}
-                  onValueChange={(value) =>
-                    setDraft((current) => ({ ...current, confirmer: value === "self" ? "" : value }))
-                  }
-                  disabled={!draft.project}
-                >
-                  <SelectTrigger className="w-full" aria-label={t("ehs.field.confirmer")}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="self">{t("ehs.confirmer.me")}</SelectItem>
-                    {selectableWorkers.map((row) => (
-                      <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <p className="text-sm">{t("ehs.confirmer.initiator")}</p>
-              )}
-              <p className="mt-1.5 text-xs text-muted-foreground">{t("ehs.form.confirmerHint")}</p>
-              {rectifierIsConfirmer && (
-                <p role="alert" className="mt-1.5 text-xs text-destructive">{t("ehs.form.confirmerConflict")}</p>
-              )}
+            <FieldWrapper label={t("ehs.field.confirmer")} className="sm:col-span-2">
+              <p className="text-sm">{t("ehs.confirmer.initiator")}</p>
             </FieldWrapper>
           )}
           {/* 「知道由谁处理就当场指定，不知道就直接提交」. Required used to be
@@ -1631,7 +1658,6 @@ function SafetyCreateDialog({
               ? []
               : [
                   [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
-                  [!rectifierIsConfirmer, t("ehs.field.confirmer")],
                 ]),
           ] as Array<[unknown, string]>} disabled={create.isPending} onClick={() => create.mutate()}>
 
@@ -1695,17 +1721,17 @@ function SafetyStatusDialog({
           </FieldWrapper>
           <FieldWrapper
             label={t("safety.field.resolutionNote")}
-            required={status === "RESOLVED"}
-            optional={status === "RESOLVED" ? undefined : t("common.optional")}
+            optional={t("common.optional")}
           >
             <Textarea rows={4} value={note} onChange={(event) => setNote(event.target.value)} />
           </FieldWrapper>
+          <p className="text-xs text-muted-foreground">{t("safety.update.closeHint")}</p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button requires={[[status !== "RESOLVED" || note, t("safety.field.resolutionNote")]]} disabled={update.isPending} onClick={() => update.mutate()}>
+          <Button disabled={update.isPending} onClick={() => update.mutate()}>
             {update.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

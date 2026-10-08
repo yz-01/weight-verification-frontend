@@ -20,11 +20,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type {
+  HeadquartersCountField,
   HeadquartersPhoto,
   HeadquartersProject,
 } from "@/interfaces/headquarters";
 import { useDateFormat } from "@/lib/dates";
-import { projectDashboardHref } from "@/lib/headquarters-links";
+import { cardHref, projectDashboardHref } from "@/lib/headquarters-links";
 import { cn } from "@/lib/utils";
 
 /**
@@ -32,7 +33,7 @@ import { cn } from "@/lib/utils";
  * amber with anything waiting, green otherwise. A project that is not active
  * is drawn faded.
  */
-function projectTone(project: HeadquartersProject): LocationMapMarker["tone"] {
+export function projectTone(project: HeadquartersProject): LocationMapMarker["tone"] {
   if (project.overdue_tasks + project.overdue_rectifications > 0) return "danger";
   if (project.pending_approvals + project.open_tasks > 0) return "warning";
   return "positive";
@@ -48,10 +49,13 @@ function projectTone(project: HeadquartersProject): LocationMapMarker["tone"] {
 export function HeadquartersMap({
   projects,
   withoutLocation,
+  date,
   onOpenPhoto,
 }: {
   projects: HeadquartersProject[];
   withoutLocation: Array<{ id: string; code: string; name: string }>;
+  /** The page's day: 今日材料进场 opens that day's deliveries. */
+  date: string;
   onOpenPhoto?: (photo: HeadquartersPhoto) => void;
 }) {
   const t = useTranslations("headquarters.map");
@@ -87,13 +91,13 @@ export function HeadquartersMap({
   return (
     <section
       aria-label={t("title")}
-      className="space-y-2 rounded-lg border bg-card p-3 shadow-sm"
+      className="space-y-2 surface-panel rounded-xl p-4"
       data-headquarters-map
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-panel-border pb-2">
         <div className="flex items-center gap-2">
           <MapPinned className="size-4 text-primary" aria-hidden />
-          <h2 className="text-sm font-semibold">{t("title")}</h2>
+          <h2 className="text-base font-semibold">{t("title")}</h2>
           <span className="text-xs text-muted-foreground">
             {t("placed", {
               placed: format.number(placed.length),
@@ -140,7 +144,7 @@ export function HeadquartersMap({
         </div>
         <div className="space-y-2">
           {selected ? (
-            <ProjectCard project={selected} onOpenPhoto={onOpenPhoto} />
+            <ProjectCard project={selected} date={date} onOpenPhoto={onOpenPhoto} />
           ) : (
             <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
               {t("pickHelp")}
@@ -189,6 +193,7 @@ export function HeadquartersMap({
 
       <ProjectOverview
         projects={projects}
+        date={date}
         selectedId={selectedId}
         onSelect={setSelectedId}
         onOpenPhoto={onOpenPhoto}
@@ -198,17 +203,52 @@ export function HeadquartersMap({
   );
 }
 
-function ProjectCard({
+/**
+ * One project's figure on the head-office page, opening the list it counts
+ * for that project (F8, Q22) - the same target as the company card, narrowed
+ * to the project. 今日现场记录 has no single list and stays a plain number.
+ */
+function FigureLink({
+  field,
   project,
+  date,
+  value,
+}: {
+  field: HeadquartersCountField;
+  project: HeadquartersProject;
+  date: string;
+  value: number;
+}) {
+  const figures = useTranslations("headquarters.figures");
+  const format = useFormatter();
+  const text = format.number(value);
+  const href = cardHref(field, { project: project.id, date });
+  if (!href) return <>{text}</>;
+  return (
+    <Link
+      href={href}
+      // The row itself selects the project on the map.
+      onClick={(event) => event.stopPropagation()}
+      aria-label={`${project.name} · ${figures(`field.${field}`)}: ${text}`}
+      className="rounded-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      data-figure-link={field}
+    >
+      {text}
+    </Link>
+  );
+}
+
+export function ProjectCard({
+  project,
+  date,
   onOpenPhoto,
 }: {
   project: HeadquartersProject;
+  date: string;
   onOpenPhoto?: (photo: HeadquartersPhoto) => void;
 }) {
   const t = useTranslations("headquarters.map");
   const figures = useTranslations("headquarters.figures");
-  const format = useFormatter();
-  const n = (value: number) => format.number(value);
   return (
     <div className="space-y-2 rounded-lg border p-3" data-selected-project={project.id}>
       <div className="flex items-start justify-between gap-2">
@@ -242,10 +282,12 @@ function ProjectCard({
               field.startsWith("overdue") && value > 0 && "bg-destructive/10 text-destructive",
             )}
           >
-            <dt className="truncate text-[11px] text-muted-foreground">
+            <dt className="truncate text-2xs text-muted-foreground">
               {figures(`field.${field}`)}
             </dt>
-            <dd className="text-base font-semibold tabular-nums">{n(value)}</dd>
+            <dd className="text-base font-semibold tabular-nums">
+              <FigureLink field={field} project={project} date={date} value={value} />
+            </dd>
           </div>
         ))}
       </dl>
@@ -275,7 +317,7 @@ function LatestPhoto({
     return (
       <span
         className={cn(
-          "flex items-center justify-center rounded-md border border-dashed text-[11px] text-muted-foreground",
+          "flex items-center justify-center rounded-md border border-dashed text-2xs text-muted-foreground",
           box,
         )}
       >
@@ -308,12 +350,14 @@ function LatestPhoto({
 /** 项目总览 (C15): every project's 名称、地点、最新照片 and its open work. */
 function ProjectOverview({
   projects,
+  date,
   selectedId,
   onSelect,
   onOpenPhoto,
   statusLabel,
 }: {
   projects: HeadquartersProject[];
+  date: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
   onOpenPhoto?: (photo: HeadquartersPhoto) => void;
@@ -321,11 +365,9 @@ function ProjectOverview({
 }) {
   const t = useTranslations("headquarters.map");
   const figures = useTranslations("headquarters.figures");
-  const format = useFormatter();
-  const n = (value: number) => format.number(value);
   return (
     <div className="space-y-1.5" data-project-overview>
-      <h3 className="text-sm font-semibold">{t("overview")}</h3>
+      <h3 className="text-base font-semibold">{t("overview")}</h3>
       {projects.length === 0 ? (
         <p className="py-3 text-center text-sm text-muted-foreground">{t("noProjects")}</p>
       ) : (
@@ -338,7 +380,8 @@ function ProjectOverview({
               <TableHead className="text-right">{figures("field.today_records")}</TableHead>
               <TableHead className="text-right">{figures("field.pending_approvals")}</TableHead>
               <TableHead className="text-right">{figures("field.open_tasks")}</TableHead>
-              <TableHead className="text-right">{t("overdue")}</TableHead>
+              <TableHead className="text-right">{figures("field.overdue_tasks")}</TableHead>
+              <TableHead className="text-right">{figures("field.overdue_rectifications")}</TableHead>
               <TableHead className="text-right">{figures("field.on_site_now")}</TableHead>
               <TableHead className="text-right">
                 <span className="sr-only">{t("enter")}</span>
@@ -347,7 +390,9 @@ function ProjectOverview({
           </TableHeader>
           <TableBody>
             {projects.map((project) => {
-              const overdue = project.overdue_tasks + project.overdue_rectifications;
+              const figure = (field: HeadquartersCountField) => (
+                <FigureLink field={field} project={project} date={date} value={project[field]} />
+              );
               return (
                 <TableRow
                   key={project.id}
@@ -370,15 +415,23 @@ function ProjectOverview({
                   <TableCell>
                     <LatestPhoto photo={project.latest_photo} onOpen={onOpenPhoto} />
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">{n(project.today_records)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{n(project.pending_approvals)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{n(project.open_tasks)}</TableCell>
-                  <TableCell
-                    className={cn("text-right tabular-nums", overdue > 0 && "font-semibold text-destructive")}
-                  >
-                    {n(overdue)}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">{n(project.on_site_now)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{figure("today_records")}</TableCell>
+                  <TableCell className="text-right tabular-nums">{figure("pending_approvals")}</TableCell>
+                  <TableCell className="text-right tabular-nums">{figure("open_tasks")}</TableCell>
+                  {/* Two lists, so two numbers: tasks and rectifications are
+                      opened apart (F8), never as one sum. */}
+                  {(["overdue_tasks", "overdue_rectifications"] as const).map((field) => (
+                    <TableCell
+                      key={field}
+                      className={cn(
+                        "text-right tabular-nums",
+                        project[field] > 0 && "font-semibold text-destructive",
+                      )}
+                    >
+                      {figure(field)}
+                    </TableCell>
+                  ))}
+                  <TableCell className="text-right tabular-nums">{figure("on_site_now")}</TableCell>
                   <TableCell className="text-right">
                     <Link
                       href={projectDashboardHref(project.id)}

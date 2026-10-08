@@ -19,7 +19,9 @@ import {
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FormSurfaceProvider } from "@/components/shared/form-surface";
 import { SupplierQrPanel } from "@/components/suppliers/supplier-qr-panel";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Supplier } from "@/interfaces/contractor";
 import {
@@ -87,19 +89,49 @@ export function Suppliers() {
           />
         ),
         cell: ({ row }) => (
-          <span
-            className="block max-w-[240px] truncate font-medium text-foreground"
-            title={row.original.name}
-          >
-            {row.original.name}
+          <div className="flex max-w-80 items-center gap-1.5">
+            <span
+              className="truncate font-medium text-foreground"
+              title={row.original.name}
+            >
+              {row.original.name}
+            </span>
+            {/* 「有退场资料」 (2026-10 C10): opens every finished return. */}
+            <SupplierReturnBadge supplier={row.original} />
+          </div>
+        ),
+      },
+      {
+        // 「行业」 over 「主要产品」 in one column (A3): what the supplier is and
+        // what it sells, read together when choosing who to call.
+        accessorKey: "industry",
+        meta: { label: t("suppliers.field.industry") },
+        header: () => (
+          <span className="text-xs font-semibold text-muted-foreground">
+            {t("suppliers.field.industry")}
           </span>
+        ),
+        cell: ({ row }) => (
+          <div className="min-w-0 max-w-65">
+            <p className="truncate" title={row.original.industry || undefined}>
+              {row.original.industry || t("common.emptyValue")}
+            </p>
+            {row.original.main_products && (
+              <p
+                className="truncate text-xs text-muted-foreground"
+                title={row.original.main_products}
+              >
+                {row.original.main_products}
+              </p>
+            )}
+          </div>
         ),
       },
       {
         accessorKey: "contact_person",
         meta: { label: t("suppliers.field.contactPerson") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.contactPerson")}
           </span>
         ),
@@ -120,7 +152,7 @@ export function Suppliers() {
         accessorKey: "qr_code_count",
         meta: { label: t("suppliers.field.qrCodeCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.qrCodeCount")}
           </span>
         ),
@@ -132,7 +164,7 @@ export function Suppliers() {
         accessorKey: "is_active",
         meta: { label: t("suppliers.field.isActive") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.isActive")}
           </span>
         ),
@@ -221,6 +253,8 @@ export function Suppliers() {
       columns: [
         { key: "code", label: t("suppliers.field.code") },
         { key: "name", label: t("suppliers.field.name") },
+        { key: "industry", label: t("suppliers.field.industry") },
+        { key: "main_products", label: t("suppliers.field.mainProducts") },
         { key: "contact_person", label: t("suppliers.field.contactPerson") },
         { key: "contact_phone", label: t("suppliers.field.contactPhone") },
         { key: "contact_email", label: t("suppliers.field.contactEmail") },
@@ -241,9 +275,9 @@ export function Suppliers() {
           <>
             <ExportButton onExport={runExport} disabled={totalCount === 0} />
             {can("supplier.create") && (
-              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+              <Button asChild>
                 <Link href="/suppliers/create">
-                  <Plus className="h-4 w-4" />
+                  <Plus className="size-4" />
                   {t("suppliers.new")}
                 </Link>
               </Button>
@@ -295,7 +329,10 @@ export function Suppliers() {
           ) : qrPreview.isLoading ? (
             <p className="py-8 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
           ) : qrPreview.data ? (
-            <SupplierQrPanel supplier={qrPreview.data} />
+            // A dialog, not a page: FormSection must not add its third column.
+            <FormSurfaceProvider value="dialog">
+              <SupplierQrPanel supplier={qrPreview.data} />
+            </FormSurfaceProvider>
           ) : null}
         </DialogContent>
       </Dialog>

@@ -12,7 +12,7 @@ import { describe, expect, it } from "vitest";
  * this drifts is one module quietly keeping its own layout.
  */
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 const SHELL = "src/components/shared/record-detail-shell.tsx";
@@ -36,14 +36,19 @@ describe("the detail shell does what the customer asked (T-368)", () => {
     expect(shell).toMatch(/signatures\.length > 0 &&/);
   });
 
-  it("puts the buttons in the right column, under panel and signatures", () => {
+  // UI phase (2026-10-08, the canvas's 记录详情 artboard): the right column
+  // is what a reader does - the buttons first, then 签名, then the
+  // conversation; the module's own panel joins the facts on the left.
+  it("puts the buttons at the top of the right column, above signatures and the conversation", () => {
     const aside = shell.slice(shell.indexOf("<aside"), shell.indexOf("</aside>"));
-    const panel = aside.indexOf("{panel}");
+    const actions = aside.indexOf("{actions}");
     const signatures = aside.indexOf("signatures.length > 0");
-    const actions = aside.indexOf("{actions ?");
-    expect(panel).toBeGreaterThan(-1);
-    expect(signatures).toBeGreaterThan(panel);
-    expect(actions).toBeGreaterThan(signatures);
+    const conversation = aside.indexOf("<RecordConversationPanel");
+    expect(actions).toBeGreaterThan(-1);
+    expect(signatures).toBeGreaterThan(actions);
+    expect(conversation).toBeGreaterThan(signatures);
+    const left = shell.slice(shell.indexOf("max-lg:contents"), shell.indexOf("<aside"));
+    expect(left).toContain("{panel}");
   });
 });
 
@@ -89,7 +94,8 @@ describe("every module's detail is the same shell, with its own conversation (T-
 const OFFICE_PAGES: Array<[string, string, string, string]> = [
   ["src/app/(dashboard)/material-outgoing/page.tsx", "MaterialOutgoingOffice", "src/components/contractor-ops/office-module-lists.tsx", "nav.submodule.materialOutgoing"],
   ["src/app/(dashboard)/site-equipment/page.tsx", "SiteEquipmentOffice", "src/components/contractor-ops/office-module-lists.tsx", "nav.submodule.siteEquipment"],
-  ["src/app/(dashboard)/progress/page.tsx", "SiteProgressOffice", "src/components/contractor-ops/office-module-lists.tsx", "nav.submodule.progressRecords"],
+  // 工程进度 is a page of five tabs now (B17); the record list is 现场照片 → 进度记录.
+  ["src/components/progress/progress-page.tsx", "SiteProgressOffice", "src/components/contractor-ops/office-module-lists.tsx", "nav.submodule.progressRecords"],
   ["src/app/(dashboard)/waste-outgoing/page.tsx", "WasteOutgoingWorkspace", "src/components/contractor-ops/waste-outgoing-workspace.tsx", "nav.submodule.wasteOutgoing"],
   // 工地清运 is a tab of 垃圾清运 now (B08); its old address only forwards there.
   ["src/components/contractor-ops/waste-clearance.tsx", "SiteDisposalOffice", "src/components/contractor-ops/site-disposal-workspaces.tsx", "nav.submodule.siteDisposals"],
@@ -107,7 +113,7 @@ function componentBody(code: string, name: string) {
 describe("every office list is the receipt list's layout (图 4, T-370)", () => {
   for (const [page, component, file, titleKey] of OFFICE_PAGES) {
     it(`${path.basename(path.dirname(page))} mounts ${component}`, () => {
-      expect(read(page)).toMatch(new RegExp(`<${component} />`));
+      expect(read(page)).toMatch(new RegExp(String.raw`<${component}(?: />|\s)`));
       const body = componentBody(read(file), component);
       expect(body).toMatch(/<ModuleRecordsTable/);
       // The page is called what the sidebar calls it (C-020 第 7 条).

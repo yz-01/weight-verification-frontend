@@ -113,13 +113,13 @@ export function AdminNotificationWorkspace({
         }
       />
       {section === "overview" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+        <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
           <div className="grid md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <Link
                 key={module.section}
                 href={`/notifications/${module.section}`}
-                className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"
+                className="flex min-h-20 items-center gap-3 border-b border-r px-4 py-4 transition-colors hover:bg-muted/40 sm:px-6"
               >
                 
                 <span className="min-w-0 flex-1 font-medium">
@@ -208,7 +208,7 @@ function AdminNotificationList({
   return (
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
       {searchable && (
-        <div className="grid gap-3 rounded-lg border bg-card p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-6">
+        <div className="surface-panel grid items-end gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4 xl:grid-cols-6">
           <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
             <span>{t("filter.search")}</span>
             <Input value={search} onChange={(event) => setSearch(event.target.value)} />
@@ -251,7 +251,7 @@ function AdminNotificationList({
           <DateFilter label={t("filter.dateTo")} value={dateTo} onChange={setDateTo} />
         </div>
       )}
-      <div className="overflow-auto rounded-lg border bg-card shadow-sm">
+      <div className="overflow-auto surface-panel rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
@@ -473,14 +473,14 @@ function ChannelWorkspace() {
   } as const;
 
   return (
-    <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pb-2">
-      <section className="overflow-hidden rounded-lg border bg-card">
+    <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pb-2">
+      <section className="surface-panel overflow-hidden rounded-xl">
         <div className="grid md:grid-cols-3">
           {status.isLoading
             ? (["IN_APP", "EMAIL", "PUSH"] as const).map((channel) => (
                 <div
                   key={channel}
-                  className="min-h-44 animate-pulse border-b p-5 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+                  className="min-h-44 animate-pulse border-b p-4 last:border-b-0 sm:p-6 md:border-b-0 md:border-r md:last:border-r-0"
                 >
                   <div className="h-5 w-32 rounded bg-muted" />
                   <div className="mt-7 h-12 rounded bg-muted/70" />
@@ -492,11 +492,11 @@ function ChannelWorkspace() {
                 return (
                   <div
                     key={row.channel}
-                    className="min-h-44 border-b p-5 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+                    className="min-h-44 border-b p-4 last:border-b-0 sm:p-6 md:border-b-0 md:border-r md:last:border-r-0"
                   >
                     <div className="flex min-w-0 items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="grid size-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+                        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                           <Icon className="size-4" />
                         </span>
                         <span className="min-w-0 font-medium leading-5">
@@ -526,7 +526,7 @@ function ChannelWorkspace() {
                       </label>
                       {row.channel !== "IN_APP" && (
                         <select
-                          className="h-9 max-w-full rounded-md border bg-background px-2 text-sm"
+                          className="native-control sm:w-auto"
                           value={row.configured_mode}
                           aria-label={t("channel.modeLabel", { channel: t(`channel.${row.channel}`) })}
                           disabled={!can("platform_settings.manage") || configure.isPending}
@@ -539,13 +539,13 @@ function ChannelWorkspace() {
                     </div>
                     {row.channel !== "IN_APP" && <p className="mt-3 text-xs text-muted-foreground">{t("channel.policyHint")}</p>}
                     <div className="mt-5 grid grid-cols-2 gap-3">
-                      <div className="rounded-md bg-muted/35 px-3 py-2.5">
+                      <div className="rounded-lg border bg-muted/30 p-3">
                         <p className="text-xs text-muted-foreground">{t("channel.sentLabel")}</p>
-                        <p className="mt-1 text-lg font-semibold tabular-nums">{row.sent}</p>
+                        <p className="tabular mt-1 text-lg font-semibold">{row.sent}</p>
                       </div>
-                      <div className="rounded-md bg-muted/35 px-3 py-2.5">
+                      <div className="rounded-lg border bg-muted/30 p-3">
                         <p className="text-xs text-muted-foreground">{t("channel.failedLabel")}</p>
-                        <p className="mt-1 text-lg font-semibold tabular-nums">{row.failed}</p>
+                        <p className="tabular mt-1 text-lg font-semibold">{row.failed}</p>
                       </div>
                     </div>
                     <p className="mt-3 text-xs text-muted-foreground">{t("channel.simulatedLabel")}: {row.simulated}</p>
@@ -556,20 +556,20 @@ function ChannelWorkspace() {
                 );
               })}
         </div>
-        {configure.isError && <p role="alert" className="px-5 py-3 text-sm text-destructive">{t("channel.saveError")}</p>}
+        {configure.isError && <p role="alert" className="px-4 py-3 text-sm text-destructive sm:px-6">{t("channel.saveError")}</p>}
         {status.isError && (
-          <p className="border-t px-5 py-3 text-sm text-destructive">
+          <p className="border-t px-4 py-3 text-sm text-destructive sm:px-6">
             {t("channel.loadError")}
           </p>
         )}
       </section>
 
-      <section className="overflow-hidden rounded-lg border bg-card">
-        <div className="border-b px-5 py-4">
-          <h3 className="font-semibold">{t("composer.title")}</h3>
+      <section className="surface-panel overflow-hidden rounded-xl">
+        <div className="border-b px-4 py-4 sm:px-6">
+          <h3 className="panel-title">{t("composer.title")}</h3>
           <p className="mt-1 text-sm text-muted-foreground">{t("composer.subtitle")}</p>
         </div>
-        <div className="grid gap-6 p-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
+        <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
           <div className="grid content-start gap-4">
             <FieldWrapper label={t("filter.company")} required>
               <Select
@@ -577,7 +577,7 @@ function ChannelWorkspace() {
                 onValueChange={setCompany}
                 disabled={companies.isLoading || companies.isError}
               >
-                <SelectTrigger className="h-10 w-full">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("composer.chooseCompany")} />
                 </SelectTrigger>
                 <SelectContent position="popper">
@@ -620,7 +620,7 @@ function ChannelWorkspace() {
                   return (
                     <label
                       key={channel}
-                      className={`flex min-h-16 items-center gap-3 rounded-md border px-3.5 py-3 transition-colors ${
+                      className={`flex min-h-16 items-center gap-3 rounded-lg border p-3 transition-colors ${
                         unavailable
                           ? "cursor-not-allowed bg-muted/25 text-muted-foreground"
                           : "cursor-pointer hover:bg-muted/35"
@@ -631,7 +631,7 @@ function ChannelWorkspace() {
                         disabled={unavailable}
                         onCheckedChange={() => !unavailable && toggle(channel)}
                       />
-                      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
                         <Icon className="size-4" />
                       </span>
                       <span className="min-w-0 flex-1">
@@ -688,11 +688,11 @@ function NotificationRecords() {
 
   return (
     <div className="min-h-0 flex-1 space-y-3 overflow-y-auto">
-      <div className="flex gap-2">
-        <Button size="sm" variant={recordType === "DELIVERY" ? "default" : "outline"} onClick={() => setRecordType("DELIVERY")}>{t("record.delivery")}</Button>
-        <Button size="sm" variant={recordType === "STATUS" ? "default" : "outline"} onClick={() => setRecordType("STATUS")}>{t("record.status")}</Button>
+      <div className="flex flex-wrap gap-2">
+        <Button variant={recordType === "DELIVERY" ? "default" : "outline"} onClick={() => setRecordType("DELIVERY")}>{t("record.delivery")}</Button>
+        <Button variant={recordType === "STATUS" ? "default" : "outline"} onClick={() => setRecordType("STATUS")}>{t("record.status")}</Button>
       </div>
-      <div className="overflow-auto rounded-lg border bg-card shadow-sm">
+      <div className="overflow-auto surface-panel rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
@@ -751,7 +751,7 @@ function NotificationRecords() {
 }
 
 function SelectFilter({ label, value, onChange, options, allLabel, failure }: { label: string; value: string; onChange: (value: string) => void; options: Array<{ value: string; label: string }>; allLabel?: string; failure?: React.ReactNode }) {
-  return <div className="space-y-1"><label className="block space-y-1.5 text-xs font-medium text-muted-foreground"><span>{label}</span><select className="h-9 w-full rounded-md border bg-background px-3 text-sm text-foreground" value={value} onChange={(event) => onChange(event.target.value)}>{allLabel && <option value="">{allLabel}</option>}{!allLabel && <option value="">-</option>}{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>{failure}</div>;
+  return <div className="space-y-1"><label className="block space-y-1.5 text-xs font-medium text-muted-foreground"><span>{label}</span><select className="native-control" value={value} onChange={(event) => onChange(event.target.value)}>{allLabel && <option value="">{allLabel}</option>}{!allLabel && <option value="">-</option>}{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>{failure}</div>;
 }
 
 function DateFilter({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {

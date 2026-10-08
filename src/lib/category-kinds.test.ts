@@ -35,7 +35,7 @@ const MANAGEMENT = path.join(
   "category-management.tsx",
 );
 
-const read = (file: string) => readFileSync(file, "utf8");
+const read = (file: string) => readFileSync(file, "utf8").replace(/\r\n/g, "\n");
 
 /**
  * The kinds `ProjectCategoryKind` declares, read off the union itself.
@@ -53,7 +53,7 @@ function declaredKinds(): string[] {
 }
 
 describe("the column schemes", () => {
-  it("declares the nine the server accepts, and BOTH", () => {
+  it("declares the kinds the server knows, retired ones included, and BOTH", () => {
     // Pinned deliberately rather than derived: this is the one place the list
     // is asserted against what the customer asked for, and a list that reads
     // itself agrees with any change including a wrong one.
@@ -73,16 +73,34 @@ describe("the column schemes", () => {
 
   // Kinds kept for old rows but never offered (D-285, D-286): 现场资料分类 was
   // never a business module, and Claim 分类 duplicated 杂费报销分类.
-  const RETIRED = ["BOTH", "FIELD", "CLAIM"];
+  // 2026-10 B1 (X5): 分类管理只留四组, so progress, clearance, consultant and
+  // sundry categories are retired too.
+  const RETIRED = [
+    "BOTH",
+    "FIELD",
+    "CLAIM",
+    "PROGRESS",
+    "CONSTRUCTION_WASTE",
+    "CONSULTANT",
+    "SUNDRY",
+  ];
+  // Listed on Category Management but read-only there (2026-10 B1): no
+  // column is created as, or moved onto, a hazard category from the form.
+  const READ_ONLY = ["EHS"];
 
-  it("offers every one of them in the kind picker, the retired ones excepted", () => {
-    const dialog = read(WORKSPACES);
-    for (const kind of RETIRED) {
+  it("offers every one of them in the kind picker, the retired and read-only ones excepted", () => {
+    // The kind picker only: the submission-mode picker beside it has an
+    // unrelated `CONSULTANT` option (顾问审批).
+    const source = read(WORKSPACES);
+    const start = source.indexOf('label={t("categories.kind")}');
+    expect(start, "the kind picker exists").toBeGreaterThan(-1);
+    const dialog = source.slice(start, source.indexOf("</Select>", start));
+    for (const kind of [...RETIRED, ...READ_ONLY]) {
       if (kind === "BOTH") continue; // Shown only on a row that already carries it.
       expect(dialog.includes(`<SelectItem value="${kind}">`), `${kind} is not offered`).toBe(false);
     }
     for (const kind of declaredKinds()) {
-      if (RETIRED.includes(kind)) continue;
+      if (RETIRED.includes(kind) || READ_ONLY.includes(kind)) continue;
       expect(
         dialog.includes(`<SelectItem value="${kind}">`),
         `${kind} can be chosen when creating a column`,
@@ -106,6 +124,12 @@ describe("the column schemes", () => {
       }
       expect(modules, `${kind} has a module row`).toContain(kind);
     }
+  });
+
+  it("leaves the hazard row listed but read-only", () => {
+    const management = read(MANAGEMENT);
+    expect(management).toContain('{ ...columnModule("ehs", "EHS"), readOnly: true }');
+    expect(management).toMatch(/const canManage = can\(active\.manage\) && !active\.readOnly;/);
   });
 
   it("keeps the equipment row on the equipment scheme", () => {

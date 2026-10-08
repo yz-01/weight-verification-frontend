@@ -5,8 +5,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   Copy,
-  FileUp,
-  Landmark,
   Plus,
   Save,
 } from "lucide-react";
@@ -299,10 +297,10 @@ export function CreateCompany({
 
   if (ownerLink) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-6">
-        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/5 p-4">
+      <div className="surface-panel mx-auto max-w-2xl space-y-4 rounded-xl p-4 sm:p-6">
+        <div className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning/10 p-3">
           <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-warning" />
-          <div>
+          <div className="min-w-0">
             <p className="font-semibold">
               {t("companies.owner.notSentTitle")}
             </p>
@@ -311,7 +309,7 @@ export function CreateCompany({
             </p>
           </div>
         </div>
-        <div className="rounded-lg border bg-muted/20 p-3">
+        <div className="rounded-lg border bg-muted/30 p-3">
           <p className="break-all font-mono text-xs">{ownerLink}</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -899,9 +897,8 @@ export function CreateCompany({
 
       {!isEdit && (
         <FormSection title={t("companies.onboarding.create.sectionTitle")}>
-          <div className="flex items-center gap-2 md:col-span-2">
-            <FileUp className="size-4 text-primary" />
-            <p className="text-sm font-semibold">
+          <div className="md:col-span-2">
+            <p className="panel-title">
               {t("companies.onboarding.documents.title")}
             </p>
           </div>
@@ -930,9 +927,8 @@ export function CreateCompany({
             />
           </FieldWrapper>
 
-          <div className="mt-2 flex items-center gap-2 border-t pt-4 md:col-span-2">
-            <Landmark className="size-4 text-primary" />
-            <p className="text-sm font-semibold">
+          <div className="mt-2 border-t pt-4 md:col-span-2">
+            <p className="panel-title">
               {t("companies.onboarding.bank.title")}
             </p>
           </div>
@@ -984,7 +980,7 @@ export function CreateCompany({
             required
           >
             <select
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+              className="native-control"
               value={bank.account_type}
               onChange={(event) =>
                 setBank((current) => ({

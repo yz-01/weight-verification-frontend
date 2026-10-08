@@ -68,7 +68,7 @@ export function PartnerList() {
         accessorKey: "type",
         meta: { label: t("partners.field.type") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partners.field.type")}
           </span>
         ),
@@ -80,7 +80,7 @@ export function PartnerList() {
         accessorKey: "contact_person",
         meta: { label: t("partners.field.contactPerson") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partners.field.contactPerson")}
           </span>
         ),
@@ -95,7 +95,7 @@ export function PartnerList() {
         accessorKey: "status",
         meta: { label: t("partners.field.status") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("partners.field.status")}
           </span>
         ),
@@ -110,14 +110,16 @@ export function PartnerList() {
         accessorKey: "customers_referred",
         meta: { label: t("partners.field.customersReferred") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("partners.field.customersReferred")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("partners.field.customersReferred")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <span className="tabular text-muted-foreground">{row.original.customers_referred}</span>
+          <span className="tabular block text-right text-muted-foreground">{row.original.customers_referred}</span>
         ),
       },
       {

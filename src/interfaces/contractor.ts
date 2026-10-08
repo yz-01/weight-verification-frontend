@@ -102,11 +102,17 @@ export interface Supplier {
   city: string;
   state?: string;
   registration_no?: string;
+  /** 「行业」 - required on save; blank only on suppliers from before it (A3). */
+  industry?: string;
+  /** 「主要产品」 - required on save; blank only on suppliers from before it (A3). */
+  main_products?: string;
   is_active: boolean;
   qr_token?: string;
   qr_is_active?: boolean;
   qr_issued_at?: string;
   qr_code_count?: number;
+  /** 「有退场资料」 (2026-10 C10): finished returns to this supplier. */
+  completed_return_count?: number;
   created_at: string;
 }
 
@@ -120,6 +126,8 @@ export interface SupplierPayload {
   city?: string;
   state?: string;
   registration_no?: string;
+  industry: string;
+  main_products: string;
   is_active?: boolean;
 }
 
@@ -244,9 +252,20 @@ export interface DeliveryNotePublic {
   evidence: DeliveryNoteEvidence[];
 }
 
-export type MaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
+/** The six codes every company starts with; the screens translate these. */
+export type BuiltInMaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
 
-export const MATERIAL_UNITS: MaterialUnit[] = [
+/**
+ * A code from the company's unit list (2026-10 A4, 「单位管理」): one of the six
+ * built-in codes, or one the office added - which carries its own label.
+ */
+export type MaterialUnit = string;
+
+/**
+ * The built-in codes, for translating - never the list a form offers. What a
+ * form offers comes from the company's unit list (`useMaterialUnits`).
+ */
+export const BUILT_IN_MATERIAL_UNITS: readonly BuiltInMaterialUnit[] = [
   "TONNE",
   "KG",
   "M3",
@@ -254,6 +273,38 @@ export const MATERIAL_UNITS: MaterialUnit[] = [
   "LOAD",
   "BAG",
 ];
+
+export function isBuiltInMaterialUnit(code: string): code is BuiltInMaterialUnit {
+  return (BUILT_IN_MATERIAL_UNITS as readonly string[]).includes(code);
+}
+
+/** One unit on the company's list (2026-10 A4). */
+export interface MaterialUnitOption {
+  id: string;
+  code: string;
+  label: string;
+  sort_order: number;
+  is_active: boolean;
+  /** One of the six every company starts with: named by translation. */
+  built_in: boolean;
+}
+
+/** One factory on the company's manufacturer list (2026-10 D1). */
+export interface Manufacturer {
+  id: string;
+  name: string;
+  country: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface ManufacturerPayload {
+  name: string;
+  country?: string;
+  is_active?: boolean;
+  sort_order?: number;
+}
 
 export type PhotoKind = "DELIVERY_NOTE" | "VEHICLE" | "UNLOADING" | "OTHER";
 
@@ -280,6 +331,8 @@ export interface ReceiptPhoto {
 }
 
 export interface MaterialReceipt {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
   id: string;
   receipt_no: string;
   project: string;
@@ -287,6 +340,13 @@ export interface MaterialReceipt {
   project_name: string;
   supplier: string;
   supplier_name: string;
+  /** The factory that made it (2026-10 D1); null when nobody said. */
+  manufacturer?: string | null;
+  manufacturer_name?: string | null;
+  /** Made by a factory the column does not designate: 「非指定厂商」, a warning. */
+  manufacturer_off_list?: boolean;
+  /** A unit the company added says its own name; null for a built-in code. */
+  unit_label?: string | null;
   movement_type: "ENTRY" | "RETURN";
   return_reason: string;
   /** Which material column this delivery is filed in; null when unfiled. */
@@ -301,7 +361,15 @@ export interface MaterialReceipt {
   total_weight_kg: string | null;
   unit_price: string | null;
   total_value: string | null;
+  /**
+   * The money on the supplier's delivery order - what the material budget is
+   * measured against (2026-10 A6). Null when nobody could read or type it.
+   */
+  document_amount?: string | null;
+  document_amount_source?: "OCR" | "MANUAL" | "";
   vehicle_plate: string;
+  /** The supplier's DO number, on the list row too (2026-10 B5, C13). */
+  delivery_note_no: string;
   received_by_name: string;
   /** Stamped by the platform, never by the device that filed the receipt. */
   captured_at: string;
@@ -360,6 +428,10 @@ export interface ReceiptCorrectionStep {
  * defect the customer reported as `PENDING_APPROVAL` in front of them (F-225).
  */
 export interface MySubmissionRow {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   kind:
     | "MATERIAL_RECEIPT"
@@ -493,6 +565,8 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
 export interface MaterialReceiptPayload {
   project: string;
   supplier: string;
+  /** The factory that made it (2026-10 D1); optional. */
+  manufacturer?: string | null;
   qr_code?: string | null;
   movement_type?: "ENTRY" | "RETURN";
   return_reason?: string;
@@ -507,6 +581,8 @@ export interface MaterialReceiptPayload {
   /** Required material column for a new delivery. */
   category: string;
   unit_price?: string | null;
+  /** Typed on the phone or prefilled from OCR; optional (2026-10 A6). */
+  document_amount?: string | null;
   vehicle_plate?: string;
   delivery_note_no?: string;
   notes?: string;
@@ -551,7 +627,8 @@ export interface DeliveryNoteOCRResult {
   status: "SUCCEEDED";
   provider: string;
   content: string;
-  suggestions: Partial<Record<DeliveryNoteOCRField, string>>;
+  /** Also the money read off the paper; "" when no total was printed. */
+  suggestions: Partial<Record<DeliveryNoteOCRField | "document_amount" | "document_amount_line", string>>;
   confidence: Partial<Record<DeliveryNoteOCRField, number>>;
   low_confidence_fields: DeliveryNoteOCRField[];
   confidence_threshold: number;
@@ -564,7 +641,26 @@ export interface ReceiptSummary {
   total_cost: string | null;
   priced_receipts: number;
   unpriced_receipts: number;
-  by_unit: Array<{ unit: MaterialUnit; quantity: string; receipts: number }>;
+  /**
+   * 数量 is the filter period; 累计数量 runs from the first delivery to the
+   * period's last day. Both count deliveries not rejected and never take a
+   * return off (E5, Q24, Q4).
+   */
+  by_unit: Array<{
+    unit: MaterialUnit;
+    quantity: string;
+    cumulative_quantity: string;
+    receipts: number;
+  }>;
+  /** 「按材料统计数量」: per material, specification and unit (E5). */
+  quantity_by_material: Array<{
+    material_name: string;
+    material_specification: string;
+    unit: MaterialUnit;
+    quantity: string;
+    cumulative_quantity: string;
+    receipts: number;
+  }>;
   by_material: Array<{
     material_name: string;
     unit: MaterialUnit;

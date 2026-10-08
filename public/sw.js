@@ -149,12 +149,24 @@ self.addEventListener("push", (event) => {
   } catch {
     payload = { title: "MSE Trace", message: event.data?.text() || "New notification" };
   }
+  // A notice that asked to be sounded (`alert_sound`, e.g. a hazard assigned
+  // to you, C3) buzzes and stays on the screen until it is touched, rather
+  // than sliding away unseen in a pocket. The ring itself is the phone's own
+  // notification sound; iOS ignores `vibrate`.
+  const urgent = Boolean(payload.data && payload.data.alert_sound);
   event.waitUntil(
     self.registration.showNotification(payload.title || "MSE Trace", {
       body: payload.message || "New notification",
       icon: "/mse-icon-192.png",
       badge: "/mse-icon-192.png",
       data: { url: payload.url || "/notifications" },
+      ...(urgent
+        ? {
+            vibrate: [300, 150, 300, 150, 300],
+            requireInteraction: true,
+            silent: false,
+          }
+        : {}),
     }),
   );
 });

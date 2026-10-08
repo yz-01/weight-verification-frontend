@@ -78,7 +78,7 @@ export function SundryClaimCapture({
   });
 
   return (
-    <div className="space-y-4 rounded-xl border bg-card p-4 shadow-sm">
+    <div className="space-y-4 surface-panel rounded-xl p-4">
       <FieldWrapper label={t("project")} required>
         <ProjectPicker
           value={project}
@@ -138,7 +138,7 @@ export function SundryClaimCapture({
         required
       />
       {error && (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}

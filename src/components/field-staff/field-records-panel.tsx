@@ -14,6 +14,7 @@ import {
   Plus,
   Recycle,
   ScanLine,
+  Timer,
   ShieldAlert,
   Trash2,
   Truck,
@@ -37,9 +38,11 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
+import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import {
   completedFieldEvidence,
@@ -51,7 +54,7 @@ import {
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
-import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
+import { FieldCamera } from "@/components/shared/field-camera";
 import { Safety } from "@/components/site-operations/safety";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,13 +69,16 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
+import { matchSupplier } from "@/lib/supplier-match";
 import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
-  MATERIAL_UNITS,
   type DeliveryNoteOCRLineItem,
   type MaterialUnit,
   type SupplierQRCode,
 } from "@/interfaces/contractor";
+import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
+import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
+import { columnAutofill } from "@/lib/material-autofill";
 import {
   getQRCodes,
   getSuppliers,
@@ -100,6 +106,7 @@ type Coordinates = { latitude: string; longitude: string; accuracy: string };
 export type FieldRecordMode =
   | "material"
   | "equipment"
+  | "operatorHours"
   | "progress"
   | "disposal"
   | "outgoing"
@@ -120,6 +127,9 @@ interface RecordOption {
 const RECORD_OPTIONS: RecordOption[] = [
   { key: "material", permission: "receipt.create", icon: ClipboardList, tone: "bg-info/10 text-info" },
   { key: "equipment", permission: "equipment.capture", icon: HardHat, tone: "bg-warning/15 text-warning" },
+  // 设备操作员工时 (2026-10 B15): a photo when the machine starts, one when
+  // it stops. Same permission as the equipment entry - it is the same people.
+  { key: "operatorHours", permission: "equipment.capture", icon: Timer, tone: "bg-info/10 text-info" },
   { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary" },
   { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive" },
@@ -173,6 +183,9 @@ export function FieldRecordsPanel({
   if (mode === "equipment") {
     return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldSlots scope={`equipment:${task?.id ?? "new"}`} jobKinds={["EQUIPMENT_MOVEMENT"]}><SiteEquipmentWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
+  if (mode === "operatorHours") {
+    return <RecordFrame title={t("records.operatorHours")} onBack={() => chooseMode(null)}><EquipmentHoursCapture initialProject={task?.project ?? boundProject} /></RecordFrame>;
+  }
   if (mode === "progress") {
     return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
@@ -211,7 +224,7 @@ export function FieldRecordsPanel({
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold">{t("records.title")}</h2>
+        <h2 className="text-xl font-bold leading-tight">{t("records.title")}</h2>
         <p className="text-sm text-muted-foreground">{t("records.subtitle")}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -221,13 +234,13 @@ export function FieldRecordsPanel({
             <button
               key={option.key}
               type="button"
-              className="flex min-h-28 flex-col items-start justify-between rounded-lg border bg-card p-3.5 text-left shadow-sm active:scale-[0.98]"
+              className="surface-panel flex min-h-28 min-w-0 flex-col items-start justify-between rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:scale-[0.98]"
               onClick={() => chooseMode(option.key)}
             >
               <span className={`grid size-10 place-items-center rounded-lg ${option.tone}`}>
                 <Icon className="size-5" />
               </span>
-              <span className="mt-4 text-sm font-semibold leading-5">
+              <span className="mt-4 break-words text-sm font-semibold leading-5">
                 {t(`records.${option.key}`)}
               </span>
             </button>
@@ -250,11 +263,11 @@ function RecordFrame({
   const t = useTranslations("fieldStaffPwa");
   return (
     <section className="space-y-4">
-      <div className="flex items-center gap-3 border-b pb-3">
+      <div className="flex min-w-0 items-center gap-3 border-b pb-3">
         <Button size="icon" variant="outline" title={t("action.back")} onClick={onBack}>
           <ArrowLeft />
         </Button>
-        <h2 className="text-base font-semibold">{title}</h2>
+        <h2 className="min-w-0 text-lg font-bold leading-tight">{title}</h2>
       </div>
       {children}
     </section>
@@ -276,7 +289,17 @@ interface MaterialDraft {
   totalWeightKg: string;
   vehiclePlate: string;
   deliveryNoteNo: string;
+  /**
+   * 送货单金额 (RM), 2026-10 A6. Prefilled when OCR read it, typed otherwise,
+   * never required. Optional so a draft saved before this field still loads.
+   */
+  documentAmount?: string;
   notes: string;
+  /**
+   * The factory that made it (2026-10 D1). Filled in when the category
+   * designates exactly one; optional so a draft saved before it still loads.
+   */
+  manufacturer?: string;
   /** 当天货不对 (10-02 D08): this delivery is being turned away, not taken in. */
   rejecting?: boolean;
   rejectionReason?: string;
@@ -296,12 +319,14 @@ const EMPTY_MATERIAL: MaterialDraft = {
   totalWeightKg: "",
   vehiclePlate: "",
   deliveryNoteNo: "",
+  documentAmount: "",
   notes: "",
+  manufacturer: "",
   rejecting: false,
   rejectionReason: "",
 };
 
-function MaterialCapturePanel({
+export function MaterialCapturePanel({
   initialSupplierToken,
   initialProject = "",
   fieldTaskId,
@@ -313,7 +338,6 @@ function MaterialCapturePanel({
   onSaved: () => void;
 }) {
   const t = useTranslations("fieldStaffPwa");
-  const allT = useTranslations();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [draft, setDraft] = useDraftState<MaterialDraft>("material", { ...EMPTY_MATERIAL, project: initialProject });
@@ -322,9 +346,19 @@ function MaterialCapturePanel({
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>("supplierSignature");
   const clearDraft = useClearDraft();
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
+  // The supplier a scanned code named - a docket or a supplier card. It wins
+  // over the category's supplier list (Q1): the lorry at the gate is the fact.
+  const [scannedSupplier, setScannedSupplier] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [ocrProof, setOcrProof] = useState("");
+  // The amount OCR read, kept apart from the input so the hint can say
+  // "read from the DO, check it" or "not read, type it" (A6).
+  const [ocrAmount, setOcrAmount] = useState("");
   const [ocrLineItems, setOcrLineItems] = useState<DeliveryNoteOCRLineItem[]>([]);
+  // A supplier the DO's name is close to but not the same as (A5): offered,
+  // not filled in, because the wrong supplier on a delivery is worse than
+  // asking.
+  const [supplierGuess, setSupplierGuess] = useState<{ read: string; id: string; name: string } | null>(null);
   const [newColumnName, setNewColumnName] = useState("");
   const [columnError, setColumnError] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
@@ -361,15 +395,19 @@ function MaterialCapturePanel({
   const removeLineItem = (index: number) =>
     setOcrLineItems((rows) => rows.filter((_, i) => i !== index));
   const loadLineItem = (item: DeliveryNoteOCRLineItem) =>
-    setDraft((old) => ({
-      ...old,
-      materialName: item.material_name,
-      quantity: numericSuggestion(item.quantity) || old.quantity,
-      unit: (item.unit as MaterialUnit) || old.unit,
-      // The reader now hands back the column id, so the line does not have to
-      // be matched back to one by its code.
-      category: item.category_id || old.category,
-    }));
+    setDraft((old) =>
+      withColumn(
+        {
+          ...old,
+          materialName: item.material_name,
+          quantity: numericSuggestion(item.quantity) || old.quantity,
+          unit: (item.unit as MaterialUnit) || old.unit,
+        },
+        // The reader now hands back the column id, so the line does not have
+        // to be matched back to one by its code.
+        item.category_id || old.category,
+      ),
+    );
   // The material columns of this site. Only the material ones: a site-record
   // column is not somewhere a delivery can be filed, and the server refuses
   // one here (T-161).
@@ -388,6 +426,44 @@ function MaterialCapturePanel({
     staleTime: 30_000,
   });
   const columnRows: ProjectCategory[] = columns.data?.results ?? [];
+  const selectedColumn = columnRows.find((row) => row.id === draft.category);
+  /**
+   * The draft with `category` chosen and what the category fills in applied
+   * (2026-10 A4, D1, Q1): its unit, its only supplier, its only designated
+   * manufacturer. A scanned supplier still wins. Called wherever a category
+   * is chosen - by hand, from a scanned line, from the OCR reading.
+   */
+  const withColumn = (old: MaterialDraft, category: string): MaterialDraft => {
+    if (category === old.category && category !== "") return old;
+    const column = columnRows.find((row) => row.id === category);
+    const filled = columnAutofill(
+      column,
+      { unit: old.unit, supplier: old.supplier, manufacturer: old.manufacturer ?? "" },
+      { scannedSupplier },
+    );
+    return {
+      ...old,
+      category,
+      unit: filled.unit,
+      supplier: filled.supplier,
+      manufacturer: filled.manufacturer,
+    };
+  };
+  const fill = columnAutofill(
+    selectedColumn,
+    { unit: draft.unit, supplier: draft.supplier, manufacturer: draft.manufacturer ?? "" },
+    { scannedSupplier },
+  );
+  // The unit a locked category decides is the one sent, whatever a scanned
+  // line or an older draft put in `draft.unit`.
+  const unit = fill.unitLocked ? fill.unit : draft.unit;
+  const unitName = useUnitName();
+  const units = useMaterialUnits();
+  const supplierRows = (suppliers.data?.results ?? []).filter(
+    (row) =>
+      row.is_active &&
+      (!fill.supplierIds || fill.supplierIds.includes(row.id) || row.id === scannedSupplier),
+  );
   /** Open a column for this delivery, and select it. See `openColumn`. */
   const columnCreation = useMutation({
     mutationFn: ({ name }: { name: string; index?: number }) =>
@@ -395,7 +471,7 @@ function MaterialCapturePanel({
     onSuccess: (row, { index }) => {
       setColumnError("");
       setNewColumnName("");
-      setDraft((old) => ({ ...old, category: row.id }));
+      setDraft((old) => withColumn(old, row.id));
       // A column opened from a scanned line belongs to that line too.
       // Without this the row still reads "pick a category" straight after
       // somebody opened one for exactly that material.
@@ -468,6 +544,7 @@ function MaterialCapturePanel({
       setError("");
       if (result.kind === "DOCKET") {
         setScannedQr(result.code);
+        setScannedSupplier(result.code.supplier);
         setDraft((old) => ({
           ...old,
           project: result.code.project,
@@ -476,6 +553,7 @@ function MaterialCapturePanel({
         return;
       }
       setScannedQr(undefined);
+      setScannedSupplier(result.supplier.id);
       setDraft((old) => ({ ...old, supplier: result.supplier.id }));
     },
     onError: (reason) => setError(
@@ -499,14 +577,26 @@ function MaterialCapturePanel({
     read: readDeliveryNote,
     onRead: (result) => {
       setOcrProof(result.proof);
+      const readAmount = result.suggestions.document_amount ?? "";
+      setOcrAmount(readAmount);
       const items = result.line_items ?? [];
       setOcrLineItems(items);
       const firstCategory = items[0]?.category_id ?? "";
-      const supplierName = result.suggestions.supplier_name?.trim().toLocaleLowerCase();
-      const matchedSupplier = (suppliers.data?.results ?? []).find((row) => row.is_active && row.name.trim().toLocaleLowerCase() === supplierName);
-      setDraft((old) => ({
+      // Punctuation, case and the Sdn Bhd / SB ending ignored (A5): the same
+      // name fills itself in, a close one is offered for the worker to confirm.
+      const readSupplier = result.suggestions.supplier_name?.trim() ?? "";
+      const match = matchSupplier(
+        readSupplier,
+        (suppliers.data?.results ?? []).filter((row) => row.is_active),
+      );
+      setSupplierGuess(
+        match && !match.exact
+          ? { read: readSupplier, id: match.supplier.id, name: match.supplier.name }
+          : null,
+      );
+      setDraft((old) => withColumn({
         ...old,
-        supplier: matchedSupplier?.id || old.supplier,
+        supplier: match?.exact ? match.supplier.id : old.supplier,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
         vehiclePlate: result.suggestions.vehicle_plate || old.vehiclePlate,
         // With a line-item table, prefill from its first row; otherwise fall
@@ -520,12 +610,14 @@ function MaterialCapturePanel({
           numericSuggestion(result.suggestions.quantity) ||
           old.quantity,
         unit: (items[0]?.unit as MaterialUnit) || old.unit,
-        category: firstCategory || old.category,
-      }));
+        documentAmount: readAmount || old.documentAmount || "",
+      }, firstCategory || old.category));
     },
     onReset: () => {
       setOcrProof("");
+      setOcrAmount("");
       setOcrLineItems([]);
+      setSupplierGuess(null);
     },
   });
 
@@ -566,8 +658,14 @@ function MaterialCapturePanel({
           material_name: draft.materialName.trim(),
           material_specification: draft.materialSpecification.trim(),
           quantity: draft.quantity,
-          unit: draft.unit,
+          unit,
           total_weight_kg: draft.totalWeightKg || null,
+          // Whose make (2026-10 D1); optional, never refused for being
+          // another factory - the office sees 「非指定厂商」 instead.
+          manufacturer: draft.manufacturer || null,
+          // Sent as typed; the server keeps OCR as the source when it still
+          // matches the reading, and fills it from the reading when blank.
+          document_amount: (draft.documentAmount ?? "").trim() || null,
           category: draft.category,
           vehicle_plate: draft.vehiclePlate.trim(),
           delivery_note_no: draft.deliveryNoteNo.trim(),
@@ -599,7 +697,7 @@ function MaterialCapturePanel({
   });
 
   return (
-    <div className="space-y-4 rounded-xl border bg-card p-4 shadow-sm">
+    <div className="space-y-4 surface-panel rounded-xl p-4">
       <Button
         className="h-12 w-full text-sm"
         variant="outline"
@@ -615,6 +713,7 @@ function MaterialCapturePanel({
           onValueChange={(project) => {
             ocr.cancel();
             setScannedQr(undefined);
+            setScannedSupplier("");
             setMaterialEvidence(createEmptyFieldEvidence());
             setNewColumnName("");
             setColumnError("");
@@ -632,8 +731,8 @@ function MaterialCapturePanel({
         />
       </FieldWrapper>
       <FieldWrapper label={t("material.column")} required>
-        <Select value={draft.category || undefined} onValueChange={(category) => setDraft((old) => ({ ...old, category }))} disabled={!draft.project || columns.isLoading}>
-          <SelectTrigger className="w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
+        <Select value={draft.category || undefined} onValueChange={(category) => setDraft((old) => withColumn(old, category))} disabled={!draft.project || columns.isLoading}>
+          <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
           <SelectContent>{columnRows.filter((row) => row.can_upload).map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
         </Select>
         <FieldLoadNote query={columns} what={t("what.columns")} />
@@ -670,16 +769,49 @@ function MaterialCapturePanel({
           value={draft.supplier || undefined}
           onValueChange={(supplier) => {
             setScannedQr(undefined);
+            setScannedSupplier("");
             setDraft((old) => ({ ...old, supplier }));
           }}
         >
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSupplier")} /></SelectTrigger>
           <SelectContent>
-            {(suppliers.data?.results ?? []).filter((row) => row.is_active).map((row) => (
-              <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+            {supplierRows.map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+                <SupplierReturnBadge supplier={row} interactive={false} />
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        {/* 「有退场资料」 (2026-10 C10): this supplier's returns, one press away. */}
+        <SupplierReturnBadge supplier={supplierRows.find((row) => row.id === draft.supplier)} />
+        {/* Q1: one supplier on the category fills itself in; several are the
+            only ones offered. A scanned code names its own. */}
+        {fill.supplierFromColumn && draft.supplier && !scannedSupplier ? (
+          <p className="text-xs text-muted-foreground">{t("material.autoFilledFromCategory")}</p>
+        ) : fill.supplierIds && fill.supplierIds.length > 1 ? (
+          <p className="text-xs text-muted-foreground">{t("material.supplierLimited")}</p>
+        ) : null}
+        {supplierGuess && draft.supplier !== supplierGuess.id && (
+          <div role="status" className="flex flex-wrap items-center gap-2 rounded-lg border border-info/25 bg-info/5 px-3 py-2">
+            <p className="min-w-0 flex-1 text-xs leading-5">
+              {t("material.supplierGuess", { read: supplierGuess.read, name: supplierGuess.name })}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setScannedQr(undefined);
+                setScannedSupplier("");
+                setDraft((old) => ({ ...old, supplier: supplierGuess.id }));
+                setSupplierGuess(null);
+              }}
+            >
+              {t("material.supplierGuessUse")}
+            </Button>
+          </div>
+        )}
         <FieldLoadNote query={suppliers} what={t("what.suppliers")} />
         <FieldLoadNote query={dockets} what={t("what.dockets")} />
         {draft.project && draft.supplier && !dockets.isError && (
@@ -688,18 +820,45 @@ function MaterialCapturePanel({
           </p>
         )}
       </FieldWrapper>
+      <FieldWrapper label={t("material.manufacturer")}>
+        <ManufacturerPicker
+          value={draft.manufacturer ?? ""}
+          onChange={(manufacturer) => setDraft((old) => ({ ...old, manufacturer }))}
+          designated={selectedColumn?.manufacturer_options ?? []}
+          autoFilled={fill.manufacturerFromColumn || (
+            (selectedColumn?.manufacturer_options ?? []).length === 1 &&
+            draft.manufacturer === selectedColumn?.manufacturer_options?.[0]?.id
+          )}
+          triggerClassName="h-12"
+        />
+      </FieldWrapper>
       <FieldWrapper label={t("material.unit")} required>
-        <Select value={draft.unit} onValueChange={(unit) => setDraft((old) => ({ ...old, unit: unit as MaterialUnit }))}>
-          <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>{MATERIAL_UNITS.map((unit) => <SelectItem key={unit} value={unit}>{allT(`receipts.unit.${unit}`)}</SelectItem>)}</SelectContent>
-        </Select>
+        {fill.unitLocked ? (
+          // The category decided it (A4, Q1): shown, not asked.
+          <div className="flex h-12 items-center justify-between rounded-lg border bg-muted/40 px-3">
+            <span className="text-sm font-medium">{unitName(unit, selectedColumn?.default_unit_label)}</span>
+            <span className="text-xs text-muted-foreground">{t("material.autoFilledFromCategory")}</span>
+          </div>
+        ) : (
+          <>
+            <Select value={draft.unit || undefined} onValueChange={(next) => setDraft((old) => ({ ...old, unit: next }))}>
+              <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.unit")} /></SelectTrigger>
+              <SelectContent>
+                {(units.data ?? []).map((row) => (
+                  <SelectItem key={row.code} value={row.code}>{unitName(row.code, row.label)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldLoadNote query={units} what={t("material.unit")} />
+          </>
+        )}
       </FieldWrapper>
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
           <div className="border-b bg-muted/40 px-3 py-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold text-muted-foreground">
               {t("material.ocrItems.title")}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -751,9 +910,9 @@ function MaterialCapturePanel({
                     <SelectTrigger className="h-10 w-full"><SelectValue placeholder={t("material.unit")} /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">{t("material.ocrItems.noUnit")}</SelectItem>
-                      {MATERIAL_UNITS.map((unit) => (
-                        <SelectItem key={unit} value={unit}>
-                          {allT(`receipts.unit.${unit}`)}
+                      {(units.data ?? []).map((row) => (
+                        <SelectItem key={row.code} value={row.code}>
+                          {unitName(row.code, row.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -766,8 +925,7 @@ function MaterialCapturePanel({
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
-                    className="h-10 shrink-0 rounded-full px-4"
+                    className="h-10 shrink-0"
                     onClick={() => loadLineItem(item)}
                   >
                     {t("material.ocrItems.use")}
@@ -798,6 +956,26 @@ function MaterialCapturePanel({
           </ul>
         </div>
       )}
+      {/* 送货单金额 (A6): what the material budget counts. Prefilled from the
+          DO reading; when OCR could not read it the worker is asked to type
+          it, but it is never required - a lorry is not held at the gate over
+          a number the office can correct later. */}
+      <FieldWrapper label={t("material.documentAmount")}>
+        <Input
+          className="h-12"
+          type="number"
+          min="0"
+          step="0.01"
+          inputMode="decimal"
+          value={draft.documentAmount ?? ""}
+          onChange={(event) => setDraft((old) => ({ ...old, documentAmount: event.target.value }))}
+        />
+        <p className="text-xs text-muted-foreground">
+          {ocrAmount
+            ? t("material.documentAmountRead")
+            : t("material.documentAmountTypeHint")}
+        </p>
+      </FieldWrapper>
       {/* On the form, not under 补充资料: the server refuses a delivery
           without them (D-280), so hiding them behind 选填 sent workers to a
           refusal they could not explain. A return (退场) is not asked. */}
@@ -851,7 +1029,7 @@ function MaterialCapturePanel({
           </FieldWrapper>
         )}
       </div>
-      {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.reading} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
@@ -874,42 +1052,61 @@ function numericSuggestion(value?: string): string {
   return match?.[0] ?? "";
 }
 
+/**
+ * What the phone asks the consultant to look at (2026-10 Q2, Q19, F4) - the
+ * consultant application types of the same names, so the office's
+ * 「整理成顾问申请」 opens on the right one.
+ */
+export const CONSULTANT_ASK_FOR = [
+  "MATERIAL_APPROVAL",
+  "MATERIAL_CERT_SUBMISSION",
+  "RFI",
+  "OTHER",
+] as const;
+
+type ConsultantAskFor = (typeof CONSULTANT_ASK_FOR)[number];
+
+const isConsultantAskFor = (value: string): value is ConsultantAskFor =>
+  (CONSULTANT_ASK_FOR as readonly string[]).includes(value);
+
+/**
+ * 顾问资料提交, the way the client reads it (2026-10 F4, Q19).
+ *
+ * 「这里要选择的是什么？为什么会有整改 VO？」 - the form showed a 「材料分类」
+ * list holding hazard categories and a 「申请类别」 nobody had explained. Now
+ * there is no category of any kind: project (locked) → one question with four
+ * big buttons → photos (at least one; the four subjects that used to be
+ * compulsory are a hint) → an optional description → submit.
+ *
+ * A draft saved by the old form keeps its photographs (the same `evidence`
+ * key, its empty slots dropped); its old `category` and `column` values are
+ * simply not read, so nothing old is shown and nothing errors.
+ */
 function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: { initialProject?: string; fieldTaskId?: string; onSaved: () => void }) {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const qc = useQueryClient();
-  // F-282: these were plain `useState` inside a `<FieldDraft>` wrapper, so the
-  // banner said "saved" while a mis-tap threw the whole form away.
+  // F-282: draft state, so a mis-tap does not throw the form away.
   const [project, setProject] = useDraftState("project", initialProject);
+  const [askFor, setAskFor] = useDraftState("askFor", "");
   const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
-  const [category, setCategory] = useDraftState("category", "RFI");
-  const [column, setColumn] = useDraftState("column", "");
   const [note, setNote] = useDraftState("note", "");
   const clearDraft = useClearDraft();
   // Deliberately *not* saved. A restored draft submitted the next day would
   // send `captured_at: now` with yesterday's coordinates - a false evidence
-  // record rather than a recovered one. Re-acquiring is one tap on
-  // `LocationField`, and the material panel this pattern comes from keeps
-  // location on plain state for the same reason.
+  // record rather than a recovered one.
   const [location, setLocation] = useState<Coordinates>();
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
-  const evidenceLabels = [
-    t("consultantEvidence.overview"),
-    t("consultantEvidence.detail"),
-    t("consultantEvidence.location"),
-    t("consultantEvidence.reference"),
-  ];
-
+  const chosen = isConsultantAskFor(askFor) ? askFor : "";
 
   const save = useMutation({
     mutationFn: () => {
-      if (!user || !location) throw new Error("missing_evidence");
+      if (!user || !location || !chosen) throw new Error("missing_evidence");
       return submitConsultantSubmissionOfflineAware(user.id, {
         project,
-        category: column,
         note: note.trim(),
-        application_category: category,
+        application_category: chosen,
         description: note.trim(),
         captured_at: new Date().toISOString(),
         latitude: location.latitude,
@@ -934,58 +1131,71 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   });
 
   return (
-    <div className="space-y-4 rounded-xl border bg-card p-4 shadow-sm">
+    <div className="space-y-4 surface-panel rounded-xl p-4">
       <FieldWrapper label={t("consultantCapture.project")} required>
         <ProjectPicker
           value={project}
-          onValueChange={(next) => { setProject(next); setColumn(""); }}
+          onValueChange={setProject}
           placeholder={t("consultantCapture.chooseProject")}
           className="h-12 w-full"
           disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
-      {/* The consultant's own columns, not the site-record ones (D-274): the
-          server refuses a FIELD column here, and a draft that still holds one
-          is cleared by the picker because it is not on the list. */}
-      <FieldWrapper label={t("material.column")} required>
-        <ProjectColumnPicker bare project={project} kind="CONSULTANT" value={column} onChange={setColumn} />
+      <FieldWrapper label={t("consultantCapture.askFor")} required>
+        <div role="radiogroup" aria-label={t("consultantCapture.askFor")} className="grid grid-cols-2 gap-2">
+          {CONSULTANT_ASK_FOR.map((value) => (
+            <Button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={chosen === value}
+              variant={chosen === value ? "default" : "outline"}
+              className="h-16 whitespace-normal text-base"
+              onClick={() => setAskFor(value)}
+            >
+              {t(`consultantCapture.askOption.${value}`)}
+            </Button>
+          ))}
+        </div>
       </FieldWrapper>
-      <FieldWrapper label={t("consultantCapture.category")} required>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {(["RFI", "WIR", "MATERIAL", "SAFETY", "OTHER"] as const).map((value) => (
-              <SelectItem key={value} value={value}>{t(`consultantCapture.categoryOption.${value}`)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FieldWrapper>
-      <FieldWrapper label={t("consultantEvidence.title")} required>
-        <FieldEvidenceGrid
-          labels={evidenceLabels}
-          files={evidence}
-          progressLabel={t("evidenceProgress", {
-            current: photos.length,
-            required: FIELD_EVIDENCE_PHOTO_COUNT,
-          })}
-          onChange={setEvidence}
-        />
+      <FieldWrapper label={t("consultantCapture.photos")} required hint={t("consultantCapture.photoHint")}>
+        <div className="grid grid-cols-2 gap-2">
+          {photos.map((file, index) => (
+            <FieldCamera
+              key={`${file.name}-${file.lastModified}-${index}`}
+              label={t("consultantCapture.photoNumber", { number: index + 1 })}
+              file={file}
+              fileCount={1}
+              onCapture={(replacement) =>
+                setEvidence(photos.map((current, itemIndex) => (itemIndex === index ? replacement : current)))
+              }
+              onClear={() => setEvidence(photos.filter((_, itemIndex) => itemIndex !== index))}
+            />
+          ))}
+          <FieldCamera
+            label={t(photos.length ? "consultantCapture.morePhoto" : "consultantCapture.takePhoto")}
+            fileCount={0}
+            onCapture={(file) => setEvidence([...photos, file])}
+          />
+        </div>
       </FieldWrapper>
       <LocationField
-        label={t("consultantEvidence.location")}
+        label={t("consultantCapture.location")}
         actionLabel={t("attendance.getLocation")}
         readyLabel={t("attendance.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
         required
       />
-      <Textarea
-        value={note}
-        onChange={(event) => setNote(event.target.value)}
-        placeholder={t("consultantCapture.note")}
-      />
+      <FieldWrapper label={t("consultantCapture.description")} optional={t("consultantCapture.optional")}>
+        <Textarea
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          placeholder={t("consultantCapture.descriptionPlaceholder")}
+        />
+      </FieldWrapper>
       {error && (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -993,10 +1203,9 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         className="h-12 w-full text-sm"
         requires={[
           [project, t("consultantCapture.project")],
-          [category, t("consultantCapture.category")],
-          [column, t("material.column")],
-          [hasRequiredFieldEvidence(evidence), t("consultantEvidence.title")],
-          [location, t("consultantEvidence.location")],
+          [chosen, t("consultantCapture.askFor")],
+          [photos.length >= 1, t("consultantCapture.photos")],
+          [location, t("consultantCapture.location")],
         ]}
         disabled={save.isPending}
         onClick={() => save.mutate()}
@@ -1090,7 +1299,7 @@ function WasteOutgoingCapturePanel({
           value={project}
           onValueChange={(next) => { setProject(next); setCategory(""); }}
           placeholder={t("filter.selectProject")}
-          className="w-full"
+          className="h-12 w-full"
           disabled={Boolean(initialProject)}
         />
       </FieldWrapper>

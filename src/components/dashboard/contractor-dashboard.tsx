@@ -2,49 +2,70 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
+  AlarmClock,
+  Bell,
   BellPlus,
   CalendarClock,
-  CalendarRange,
-  CalendarCheck,
-  ClipboardList,
   ClipboardCheck,
+  ClipboardList,
   Download,
   FilePlus2,
   FileSpreadsheet,
+  FileText,
   FolderPlus,
   HardHat,
   Inbox,
+  KeyRound,
+  ListTodo,
   LogOut,
+  MapPinOff,
   PackageCheck,
+  PackageMinus,
   Plus,
+  Recycle,
   Search,
   ShieldAlert,
+  Trash2,
   Truck,
   Undo2,
+  type LucideIcon,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { PhotoThumb, recordPhotos } from "@/components/shared/photo-thumb";
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
+import { DashboardCards } from "@/components/dashboard/dashboard-cards";
+import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { useAuth } from "@/components/providers/auth-provider";
+import {
+  type OpenedRecordHeading,
+  useRecordOpener,
+} from "@/components/shared/record-opener";
 import {
   LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import { Timeline } from "@/components/shared/timeline";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type {
-  ApprovalRow,
   ContractorDashboardSection,
-  DashboardAnomalies,
   DashboardOverview,
   ProjectStatusKey,
   TimelineEntry,
 } from "@/interfaces/contractor-dashboard";
 import { activityHref } from "@/lib/activity-href";
+import {
+  expiringPassesHref,
+  geofenceBreachesHref,
+  timelineTarget,
+  timelineTone,
+} from "@/lib/timeline-targets";
 import { useDateFormat } from "@/lib/dates";
 import {
   exportContractorDashboard,
@@ -55,14 +76,14 @@ import {
 /**
  * How often the volatile sections are re-fetched (CTR-1.2.13).
  *
- * Only `activity`, `anomalies` and `notifications` are polled. The rest change
+ * Only `activity`, `rectifications` and `notifications` are polled. The rest change
  * on a human timescale, so refreshing them every 30s would cost eight section
  * groups of queries to redraw numbers that had not moved.
  */
 const REFRESH_MS = 30_000;
 const LIVE_SECTIONS: ContractorDashboardSection[] = [
   "activity",
-  "anomalies",
+  "rectifications",
   "notifications",
   // The unread pile moves while the page is open - this reader opens a
   // delivery in another tab and the number here has to follow, or the home
@@ -87,45 +108,20 @@ const EXPORT_COLUMNS = [
   "status",
 ] as const;
 
-function severityTone(severity: TimelineEntry["severity"]) {
-  if (severity === "DANGER") return "danger" as const;
-  if (severity === "WARNING") return "warning" as const;
-  return "neutral" as const;
-}
-
-/**
- * Where the decision on one waiting row is actually taken.
- *
- * Every row used to link to `/approvals?approval=<id>` - the document
- * workflow centre, which is built entirely on `ApprovalInstance` and knows
- * nothing about the other five queues. Now that a disposal request appears
- * here, that link would have opened a page that could not show it: a listed
- * item leading nowhere, which is worse than the item being absent, because
- * absence at least does not waste the reader a click.
- *
- * These are list screens rather than detail routes - none of them takes a row
- * id in the URL today - so the link lands on the list that holds the row and
- * does not pretend to deep-link. Anything unrecognised falls back to the
- * approval centre, which is right for rows that really are workflow
- * approvals and harmless for anything new that has not been mapped yet.
- */
-const APPROVAL_QUEUES: Record<string, string> = {
-  DISPOSAL_REQUEST: "/waste-clearance?kind=disposal",
-  WASTE_OUTGOING: "/waste-outgoing",
-  FIELD_TASK: "/field-tasks",
-  SITE_PROGRESS: "/progress",
-  CONSULTANT_APPLICATION: "/consultant-applications",
-  // The four queues C16 added.
-  MATERIAL_REQUEST: "/material-requests",
-  EQUIPMENT_MOVEMENT: "/site-equipment",
-  MATERIAL_OUTGOING: "/material-outgoing",
-  SUNDRY_CLAIM: "/sundry-claims",
+/** The small type icon on each timeline row (E2). */
+const TIMELINE_ICONS: Record<string, LucideIcon> = {
+  MATERIAL_OUTGOING: PackageMinus,
+  EQUIPMENT_MOVEMENT: Truck,
+  SITE_PROGRESS: ClipboardCheck,
+  DISPOSAL: Trash2,
+  WASTE_DISPATCH: Recycle,
+  SAFETY_INCIDENT: ShieldAlert,
+  CONSULTANT_APPLICATION: FileText,
+  FIELD_TASK: ListTodo,
+  GEOFENCE_FAILURE: MapPinOff,
+  OVERDUE_RECTIFICATION: AlarmClock,
+  MATERIAL_RECEIPT: PackageCheck,
 };
-
-export function approvalHref(row: ApprovalRow): string {
-  const own = APPROVAL_QUEUES[row.source];
-  return own ?? `/approvals?approval=${row.id}`;
-}
 
 /**
  * A record status in words, or the code when nothing covers it.
@@ -160,10 +156,12 @@ export function ContractorDashboard({
 }) {
   const recordStatus = useRecordStatus();
   const t = useTranslations("contractorDashboard");
-  const categories = useTranslations("categoryManagement");
+  const map = useTranslations("contractorDashboard.locationMap");
+  const opener = useRecordOpener();
   const format = useFormatter();
   const df = useDateFormat();
   const { can } = useAuth();
+  const projectBoxShown = useProjectBoxShown("filter");
 
   // The full payload. Not polled: the slow sections live here.
   const full = useQuery({
@@ -185,163 +183,25 @@ export function ContractorDashboard({
   // Prefer the polled copy where it exists so the feed is never staler than
   // the numbers beside it.
   const activity = live.data?.activity ?? data?.activity;
-  const anomalies = live.data?.anomalies ?? data?.anomalies;
+  const rectifications = live.data?.rectifications ?? data?.rectifications;
   const notifications = live.data?.notifications ?? data?.notifications;
   const unread = live.data?.unread ?? data?.unread;
 
   /*
-   * B01 (图1): 等待处理, 待审批 and the reminders were three large blocks that
-   * filled the first screen. Now: one row of small counts that jump to their
-   * list, then the lists as short single-line rows, five at a time.
+   * B8 / F6 (Q6, Q20): the first screen is six small cards - 等你处理,
+   * 待审批事项, 待处理整改 / EHS, 今日材料到场, 今日进出打卡, 安全事件 - and what
+   * a card holds pops up when it is pointed at. The three big lists that sat
+   * here (等你处理 / 待审批事项 / 待处理异常) are gone: 「全部收进上面的小卡，
+   * 鼠标指着小卡时才跑出来，整个页面空间就多了」.
    */
-  const unreadTotal = unread ? unread.receipts + unread.approvals : 0;
   const priorityGrid = data ? (
-    <section
-      aria-label={t("priority.title")}
-      className="space-y-3"
-      data-dashboard-priority
-    >
-      <div className="grid grid-cols-3 gap-2">
-        {unread && (
-          <PriorityCount
-            label={t("unread.title")}
-            value={unreadTotal}
-            target="dashboard-unread"
-            tone={unreadTotal > 0 ? "primary" : undefined}
-          />
-        )}
-        {data.approvals && (
-          <PriorityCount
-            label={t("approvals.title")}
-            value={data.approvals.total}
-            target="dashboard-approvals"
-            tone={data.approvals.total > 0 ? "info" : undefined}
-          />
-        )}
-        {anomalies && (
-          <PriorityCount
-            label={t("anomalies.title")}
-            value={anomalies.total}
-            target="dashboard-anomalies"
-            tone={anomalies.total > 0 ? "danger" : undefined}
-          />
-        )}
-      </div>
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
-        {unread && unreadTotal > 0 && (
-          <Block
-            id="dashboard-unread"
-            title={t("unread.title")}
-            subtitle={t("unread.subtitle", {
-              receipts: unread.receipts,
-              approvals: unread.approvals,
-            })}
-            empty={false}
-            emptyLabel=""
-            action={
-              // The material module of Category Management: /material-columns
-              // is gone (D-263), and the link keeps the project being read.
-              <Link
-                href={`/category-management?module=material${
-                  project ? `&project=${encodeURIComponent(project)}` : ""
-                }`}
-                className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {categories("module.material")}
-              </Link>
-            }
-          >
-            <p className="pb-1 text-xs text-muted-foreground">{t("unread.help")}</p>
-            <ShortList
-              rows={unread.columns.map((column) => (
-                <li
-                  key={column.category ?? "unfiled"}
-                  className="flex items-center justify-between gap-3 py-1.5"
-                >
-                  <Link
-                    href={
-                      column.category
-                        ? `/receipts?category=${column.category}&seen=false`
-                        : "/receipts?category=__unfiled__&seen=false"
-                    }
-                    className="min-w-0 flex-1 truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {column.name || t("unread.unfiled")}
-                    {column.code && (
-                      <span className="ml-2 text-xs font-normal text-muted-foreground">
-                        {column.code}
-                      </span>
-                    )}
-                  </Link>
-                  <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
-                    {column.count}
-                  </span>
-                </li>
-              ))}
-            />
-          </Block>
-        )}
-
-        {data.approvals && (
-          <Block
-            id="dashboard-approvals"
-            title={t("approvals.title")}
-            subtitle={t("approvals.subtitle", {
-              total: data.approvals.total,
-              mine: data.approvals.mine,
-              unassigned: data.approvals.unassigned,
-            })}
-            empty={data.approvals.rows.length === 0}
-            emptyLabel={t("approvals.empty")}
-            action={
-              <Link
-                href="/approvals"
-                className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("approvals.openCenter")}
-              </Link>
-            }
-          >
-            <ShortList
-              rows={data.approvals.rows.map((row) => (
-                <li key={row.id} className="flex items-center justify-between gap-3 py-1.5">
-                  <div className="flex min-w-0 flex-1 items-baseline gap-2">
-                    <Link
-                      href={approvalHref(row)}
-                      className="min-w-0 shrink truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      {row.approval_no ? `${row.approval_no} · ${row.title}` : row.title}
-                    </Link>
-                    <span className="hidden min-w-0 shrink-[2] truncate text-xs text-muted-foreground sm:inline">
-                      {t.has(`approvals.source.${row.source}`)
-                        ? t(`approvals.source.${row.source}`)
-                        : row.resource_type}{" "}
-                      · {row.project || t("approvals.companyWide")} ·{" "}
-                      {row.assigned_to || t("approvals.unassigned")}
-                      {row.waiting_seconds === null ? null : (
-                        <>
-                          {" · "}
-                          <WaitingFor seconds={row.waiting_seconds} />
-                        </>
-                      )}
-                    </span>
-                  </div>
-                  <StatusBadge
-                    label={
-                      t.has(`approvals.status.${row.status}`)
-                        ? t(`approvals.status.${row.status}`)
-                        : row.status
-                    }
-                    tone="info"
-                  />
-                </li>
-              ))}
-            />
-          </Block>
-        )}
-
-        {anomalies && <AnomalyBlock anomalies={anomalies} />}
-      </div>
+    <section aria-label={t("priority.title")} data-dashboard-priority>
+      <DashboardCards
+        data={data}
+        unread={unread}
+        rectifications={rectifications}
+        project={project}
+      />
     </section>
   ) : null;
 
@@ -354,13 +214,15 @@ export function ContractorDashboard({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {live.isError && (
         <p className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
           {t("liveStopped")}
         </p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* The top bar's 「当前项目」 is this choice when it is in force (B13). */}
+        {projectBoxShown ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
             {t("filter.project")}
@@ -374,6 +236,7 @@ export function ContractorDashboard({
             className="w-full sm:w-72"
           />
         </div>
+        ) : <span />}
         <div className="flex flex-wrap items-center gap-2">
           {data?.generated_at && (
             <span className="text-xs text-muted-foreground">
@@ -385,139 +248,147 @@ export function ContractorDashboard({
       </div>
 
       {/*
-        Pending work above the controls (T-215). Measured: the search row and
-        the quick-add row put 120px of "start something new" above the things
-        already waiting, which is the opposite of 「所有待审批和通知和重要的东西
-        是放在最上面」. Both are still one screen away from the top - they are
-        two rows, not a page.
+        Pending work above the controls (T-215): the six cards first, then
+        everything else as sections that open on a click (F7).
       */}
       {priorityGrid}
+      {opener.sheet}
 
       {can("dashboard.search") && <QuickSearch project={project} />}
-
-      <QuickActions project={project} />
 
       {!data ? (
         <DashboardSkeleton />
       ) : (
         <>
+          {/*
+            F7 (Q21): every section below the cards opens and closes on its
+            title, starts closed and stays the way this viewer left it. A
+            number already on one of the six cards is not repeated in here -
+            today's deliveries, clock events and safety incidents (and the
+            safety block's 今日巡检, the same count) are on the cards.
+          */}
           {data.overview && (
-            <section aria-label={t("overview.title")} className="space-y-3" data-dashboard-overview>
-              <h2 className="text-sm font-semibold">{t("overview.title")}</h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
-                <Metric
-                  label={t("overview.projects")}
-                  value={data.overview.projects.total}
-                  icon={HardHat}
-                  href="/projects"
-                />
-                <Metric
-                  label={t("overview.progressRecords")}
-                  value={data.overview.today.progress_records}
-                  icon={ClipboardCheck}
-                  href="/progress"
-                />
-                <Metric
-                  label={t("overview.attendance")}
-                  value={data.overview.today.attendance_events}
-                  icon={CalendarCheck}
-                  href="/attendance"
-                />
-                <Metric
-                  label={t("overview.safety")}
-                  value={data.overview.today.safety_incidents}
-                  icon={ShieldAlert}
-                  href="/hazard-rectifications"
-                  tone={data.overview.today.safety_incidents > 0 ? "warning" : undefined}
-                />
-                {/* Small cards, as asked, rather than another section. Each
-                    one links to the list it counted - a number you cannot
-                    click through to is how F-220 happened. */}
-                <Metric
-                  label={t("overview.materialReceipts")}
-                  value={data.overview.today.material_receipts}
-                  icon={PackageCheck}
-                  href="/receipts"
-                />
-                <Metric
-                  label={t("overview.materialReturns")}
-                  value={data.overview.today.material_returns}
-                  icon={Undo2}
-                  href="/receipts"
-                  tone={
-                    data.overview.today.material_returns > 0 ? "warning" : undefined
-                  }
-                />
-                <Metric
-                  label={t("overview.equipmentIn")}
-                  value={data.overview.today.equipment_entries}
-                  icon={Truck}
-                  href="/site-equipment"
-                />
-                <Metric
-                  label={t("overview.equipmentOut")}
-                  value={data.overview.today.equipment_exits}
-                  icon={LogOut}
-                  href="/site-equipment"
-                />
-                {/* The last two of the four cards the customer asked for.
-                    They needed fields that existed nowhere, which is why they
-                    arrived a round later than the other two (T-188). */}
-                <Metric
-                  label={t("overview.materialPendingAcceptance")}
-                  value={data.overview.today.material_pending_acceptance}
-                  icon={ClipboardList}
-                  href="/receipts"
-                  tone={
-                    data.overview.today.material_pending_acceptance > 0
-                      ? "warning"
-                      : undefined
-                  }
-                />
-                <Metric
-                  label={t("overview.equipmentExpiring")}
-                  value={data.overview.today.equipment_expiring}
-                  icon={CalendarClock}
-                  href="/site-equipment?expiring=1"
-                  tone={
-                    data.overview.today.equipment_expiring > 0
-                      ? "warning"
-                      : undefined
-                  }
-                />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {PROJECT_STATUSES.map((status) => (
-                  <span
-                    key={status}
-                    className="rounded-full border bg-card px-3 py-1 text-xs font-medium"
-                  >
-                    {t(`projectStatus.${status}`)}{" "}
-                    <span className="tabular-nums text-muted-foreground">
-                      {format.number(data.overview?.projects.by_status[status] ?? 0)}
+            <div className="space-y-3" data-dashboard-overview>
+              <DashboardSection id="overview" title={t("overview.title")}>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+                  <Metric
+                    label={t("overview.projects")}
+                    value={data.overview.projects.total}
+                    icon={HardHat}
+                    href="/projects"
+                  />
+                  <Metric
+                    label={t("overview.progressRecords")}
+                    value={data.overview.today.progress_records}
+                    icon={ClipboardCheck}
+                    href="/progress"
+                  />
+                  <Metric
+                    label={t("overview.materialReturns")}
+                    value={data.overview.today.material_returns}
+                    icon={Undo2}
+                    href="/receipts"
+                    tone={
+                      data.overview.today.material_returns > 0 ? "warning" : undefined
+                    }
+                  />
+                  <Metric
+                    label={t("overview.equipmentIn")}
+                    value={data.overview.today.equipment_entries}
+                    icon={Truck}
+                    href="/site-equipment"
+                  />
+                  <Metric
+                    label={t("overview.equipmentOut")}
+                    value={data.overview.today.equipment_exits}
+                    icon={LogOut}
+                    href="/site-equipment"
+                  />
+                  <Metric
+                    label={t("overview.materialPendingAcceptance")}
+                    value={data.overview.today.material_pending_acceptance}
+                    icon={ClipboardList}
+                    href="/receipts"
+                    tone={
+                      data.overview.today.material_pending_acceptance > 0
+                        ? "warning"
+                        : undefined
+                    }
+                  />
+                  <Metric
+                    label={t("overview.equipmentExpiring")}
+                    value={data.overview.today.equipment_expiring}
+                    icon={CalendarClock}
+                    href="/site-equipment?expiring=1"
+                    tone={
+                      data.overview.today.equipment_expiring > 0
+                        ? "warning"
+                        : undefined
+                    }
+                  />
+                  {/* Off the old 「待处理异常」 card (C15), which is now
+                      rectification / EHS only. Each opens its own list,
+                      filtered the way the number was counted. */}
+                  <Metric
+                    label={t("overview.geofenceFailures", {
+                      days: data.overview.today.geofence_window_days,
+                    })}
+                    value={data.overview.today.geofence_failures}
+                    icon={MapPinOff}
+                    href={geofenceBreachesHref({
+                      from: data.overview.today.geofence_since,
+                      project: project || undefined,
+                    })}
+                    tone={
+                      data.overview.today.geofence_failures > 0
+                        ? "warning"
+                        : undefined
+                    }
+                  />
+                  <Metric
+                    label={t("overview.expiringPasses")}
+                    value={data.overview.today.expiring_permits}
+                    icon={KeyRound}
+                    href={expiringPassesHref(project || undefined)}
+                    tone={
+                      data.overview.today.expiring_permits > 0
+                        ? "warning"
+                        : undefined
+                    }
+                  />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {PROJECT_STATUSES.map((status) => (
+                    <span
+                      key={status}
+                      className="rounded-full border bg-card px-3 py-1 text-xs font-medium"
+                    >
+                      {t(`projectStatus.${status}`)}{" "}
+                      <span className="tabular-nums text-muted-foreground">
+                        {format.number(data.overview?.projects.by_status[status] ?? 0)}
+                      </span>
                     </span>
-                  </span>
-                ))}
-              </div>
-              <div className="rounded-lg border bg-card p-4 shadow-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <h3 className="text-sm font-semibold">{t("safetySummary.title")}</h3>
-                    <p className="text-xs text-muted-foreground">{t("safetySummary.subtitle")}</p>
-                  </div>
+                  ))}
+                </div>
+              </DashboardSection>
+
+              <DashboardSection
+                id="safety"
+                title={t("safetySummary.title")}
+                subtitle={t("safetySummary.subtitle")}
+                action={
                   <Link href="/hazard-rectifications" className="text-xs font-semibold text-primary hover:underline">
                     {t("safetySummary.open")}
                   </Link>
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                }
+              >
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {/* 逾期 is red on the home page and nowhere else - U-029 was
                       decided as 「只在首页红一下」, no escalation. But red has to
-                      lead somewhere: the number used to be unclickable, so a
-                      manager who saw three overdue hazards had to go and find
-                      them by hand. `overdue=1` on the list applies the same
-                      definition this figure is counted with, so the link lands
-                      on exactly the hazards it named. */}
-                  {(["today_inspections", "pending_rectification", "in_progress", "overdue", "completed"] as const).map((key) => {
+                      lead somewhere: `overdue=1` on the list applies the same
+                      definition this figure is counted with. 今日巡检 is not
+                      here any more: it is the 安全事件 card's number (F7). */}
+                  {(["pending_rectification", "in_progress", "overdue", "completed"] as const).map((key) => {
                     const value = data.overview?.safety[key] ?? 0;
                     const isLate = key === "overdue" && value > 0;
                     const tile = (
@@ -531,7 +402,7 @@ export function ContractorDashboard({
                       </div>
                     );
                     return isLate ? (
-                      <Link key={key} href="/hazard-rectifications?overdue=1" className="block transition-transform hover:scale-[1.02]">
+                      <Link key={key} href={withProject("/hazard-rectifications?overdue=1", project)} className="block transition-transform hover:scale-[1.02]">
                         {tile}
                       </Link>
                     ) : (
@@ -549,32 +420,43 @@ export function ContractorDashboard({
                     ))}
                   </div>
                 )}
-              </div>
-              <ScheduleSummary schedule={data.overview.schedule} />
-            </section>
+              </DashboardSection>
+
+              <DashboardSection
+                id="schedule"
+                title={t("scheduleSummary.title")}
+                subtitle={t("scheduleSummary.subtitle")}
+                action={
+                  <Link href="/schedule" className="text-xs font-semibold text-primary hover:underline">
+                    {t("scheduleSummary.open")}
+                  </Link>
+                }
+              >
+                <ScheduleSummary schedule={data.overview.schedule} />
+              </DashboardSection>
+            </div>
           )}
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            {/* Second screen. It used to sit third from the top, above
-                everything a manager opens this page to check. Shorter
-                now as well - the detail is a click away, and the height
-                was pushing 待审批 and 异常事件 below the fold. */}
-            <div className="xl:col-span-2">
-            {can("field_position.view") && (
+
+          {can("field_position.view") && (
+            <DashboardSection id="map" title={map("title")}>
               <ContractorLocationMap
                 project={project}
                 onProjectChange={setProject}
+                headless
               />
-            )}
-            </div>
+            </DashboardSection>
+          )}
 
-            {activity && (
-              <Block
-                title={t("activity.title")}
-                subtitle={t("activity.subtitle", { count: activity.total })}
-                empty={activity.rows.length === 0}
-                emptyLabel={t("activity.empty")}
-              >
-                <ul className="divide-y">
+          {activity && (
+            <DashboardSection
+              id="activity"
+              title={t("activity.title")}
+              subtitle={t("activity.subtitle", { count: activity.total })}
+            >
+              {activity.rows.length === 0 ? (
+                <Empty label={t("activity.empty")} />
+              ) : (
+                <ul className="max-h-96 divide-y overflow-y-auto">
                   {activity.rows.map((row, index) => (
                     <li
                       key={`${row.kind}-${row.reference}-${index}`}
@@ -600,92 +482,120 @@ export function ContractorDashboard({
                     </li>
                   ))}
                 </ul>
-              </Block>
-            )}
+              )}
+            </DashboardSection>
+          )}
 
-            {data.personnel && (
-              <Block
-                title={t("personnel.title")}
-                subtitle={t("personnel.subtitle", {
-                  workers: data.personnel.unique_workers,
-                })}
-                empty={data.personnel.by_project.length === 0}
-                emptyLabel={t("personnel.empty")}
-              >
-                {/* Four numbers where there was one total (T-184). "On site
-                    now" is the one a site manager actually wants, and it is
-                    not derivable from the other three. */}
-                <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <PersonnelFigure
-                    label={t("personnel.onSiteNow")}
-                    value={data.personnel.on_site_now}
-                  />
-                  <PersonnelFigure
-                    label={t("personnel.entered")}
-                    value={data.personnel.entered}
-                  />
-                  <PersonnelFigure
-                    label={t("personnel.left")}
-                    value={data.personnel.left}
-                  />
-                  <PersonnelFigure
-                    label={t("personnel.irregular")}
-                    value={data.personnel.irregular}
-                    tone={data.personnel.irregular > 0 ? "warning" : undefined}
-                  />
-                </div>
-                {data.personnel.irregular > 0 && (
-                  <p className="mb-3 text-xs text-muted-foreground">
-                    {t("personnel.irregularBreakdown", {
-                      outside: data.personnel.irregular_breakdown.outside_geofence,
-                      order: data.personnel.irregular_breakdown.out_of_order,
-                      noExit: data.personnel.irregular_breakdown.without_exit,
-                    })}
-                  </p>
-                )}
-                <ul className="divide-y">
-                  {data.personnel.by_project.map((row) => (
-                    <li
-                      key={row.project}
-                      className="flex items-center justify-between gap-3 py-2"
-                    >
-                      <span className="truncate text-sm">{row.project}</span>
-                      <span className="shrink-0 text-sm font-semibold tabular-nums">
-                        {format.number(row.events)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </Block>
-            )}
+          {data.personnel && (
+            <DashboardSection
+              id="personnel"
+              title={t("personnel.title")}
+              subtitle={t("personnel.subtitle", {
+                workers: data.personnel.unique_workers,
+              })}
+            >
+              {data.personnel.unique_workers === 0 ? (
+                <Empty label={t("personnel.empty")} />
+              ) : (
+                <>
+                  {/* Four numbers where there was one total (T-184). "On site
+                      now" is the one a site manager actually wants, and it is
+                      not derivable from the other three. */}
+                  <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <PersonnelFigure
+                      label={t("personnel.onSiteNow")}
+                      value={data.personnel.on_site_now}
+                    />
+                    <PersonnelFigure
+                      label={t("personnel.entered")}
+                      value={data.personnel.entered}
+                    />
+                    <PersonnelFigure
+                      label={t("personnel.left")}
+                      value={data.personnel.left}
+                    />
+                    <PersonnelFigure
+                      label={t("personnel.irregular")}
+                      value={data.personnel.irregular}
+                      tone={data.personnel.irregular > 0 ? "warning" : undefined}
+                    />
+                  </div>
+                  {data.personnel.irregular > 0 && (
+                    <p className="mb-3 text-xs text-muted-foreground">
+                      {t("personnel.irregularBreakdown", {
+                        outside: data.personnel.irregular_breakdown.outside_geofence,
+                        order: data.personnel.irregular_breakdown.out_of_order,
+                        noExit: data.personnel.irregular_breakdown.without_exit,
+                      })}
+                    </p>
+                  )}
+                  {/* Per project only with two or more: one line would be the
+                      今日进出打卡 card's number again (F7, Q21), and the server
+                      sends none then. */}
+                  {data.personnel.by_project.length > 1 && (
+                    <ul className="divide-y">
+                      {data.personnel.by_project.map((row) => (
+                        <li
+                          key={row.project}
+                          className="flex items-center justify-between gap-3 py-2"
+                        >
+                          <span className="truncate text-sm">{row.project}</span>
+                          <span className="shrink-0 text-sm font-semibold tabular-nums">
+                            {format.number(row.events)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+            </DashboardSection>
+          )}
 
-            {notifications && (
-              <Block
-                title={t("notifications.title")}
-                subtitle={t("notifications.subtitle", {
-                  today: notifications.today,
-                  earlier: notifications.earlier,
-                })}
-                empty={notifications.rows.length === 0}
-                emptyLabel={t("notifications.empty")}
-                action={
-                  <Link
-                    href="/notifications"
-                    className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {t("notifications.openAll")}
-                  </Link>
-                }
-              >
-                {/* The endpoint reports scope RECIPIENT: Notification has no
-                    project FK, so this list cannot narrow with the filter. */}
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {t("notifications.recipientScope")}
-                </p>
-                <ul className="divide-y">
+          {notifications && (
+            <DashboardSection
+              id="notifications"
+              title={t("notifications.title")}
+              subtitle={t("notifications.subtitle", {
+                today: notifications.today,
+                earlier: notifications.earlier,
+              })}
+              action={
+                <Link
+                  href="/notifications"
+                  className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {t("notifications.openAll")}
+                </Link>
+              }
+            >
+              {/* The endpoint reports scope RECIPIENT: Notification has no
+                  project FK, so this list cannot narrow with the filter. */}
+              <p className="mb-2 text-xs text-muted-foreground">
+                {t("notifications.recipientScope")}
+              </p>
+              {notifications.rows.length === 0 ? (
+                <Empty label={t("notifications.empty")} />
+              ) : (
+                <ul className="max-h-96 divide-y overflow-y-auto">
                   {notifications.rows.map((row) => (
                     <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-                      <div className="min-w-0">
+                      {/* The photograph of the record the notice is about (E3),
+                          opening that record's photographs (audit #4). A
+                          notice about no record has a picture only. */}
+                      <PhotoThumb
+                        coverUrl={row.cover_photo_url}
+                        count={row.photo_count}
+                        icon={Bell}
+                        reference={row.title}
+                        size="sm"
+                        photos={
+                          row.subject_kind && row.subject_id
+                            ? recordPhotos(row.subject_kind, row.subject_id, row.title)
+                            : undefined
+                        }
+                      />
+                      <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{row.title}</p>
                         <p className="truncate text-xs text-muted-foreground">
                           {row.message}
@@ -705,50 +615,46 @@ export function ContractorDashboard({
                     </li>
                   ))}
                 </ul>
-              </Block>
-            )}
-          </div>
+              )}
+            </DashboardSection>
+          )}
 
           {data.timeline && (
-            <Block
+            <DashboardSection
+              id="timeline"
               title={t("timeline.title")}
               subtitle={t("timeline.subtitle", { count: data.timeline.total })}
-              empty={data.timeline.entries.length === 0}
-              emptyLabel={t("timeline.empty")}
             >
-              <ol className="relative space-y-3 border-l pl-5">
-                {data.timeline.entries.map((entry, index) => (
-                  <li key={`${entry.kind}-${index}`} className="relative">
-                    <span
-                      aria-hidden
-                      className="absolute -left-[1.4rem] top-1.5 size-2 rounded-full bg-border ring-2 ring-background"
-                    />
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm">
-                        <span className="font-medium">{entry.label}</span>
-                        {entry.project && (
-                          <span className="text-muted-foreground"> · {entry.project}</span>
-                        )}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <StatusBadge
-                          label={t(`timelineKind.${entry.kind}`)}
-                          tone={severityTone(entry.severity)}
-                        />
-                        <span className="text-xs text-muted-foreground">
-                          {df.dateTime(entry.at)}
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </Block>
+              {data.timeline.entries.length === 0 ? (
+                <Empty label={t("timeline.empty")} />
+              ) : (
+                <div className="max-h-[32rem] overflow-y-auto">
+                  <DashboardTimeline
+                    entries={data.timeline.entries}
+                    onOpen={opener.open}
+                  />
+                </div>
+              )}
+            </DashboardSection>
           )}
+
+          <DashboardSection id="quick-actions" title={t("quickActions.title")}>
+            <QuickActions project={project} />
+          </DashboardSection>
         </>
       )}
     </div>
   );
+}
+
+/** `href` narrowed to the dashboard's project, when it reads one. */
+function withProject(href: string, project: string): string {
+  if (!project) return href;
+  return `${href}${href.includes("?") ? "&" : "?"}project=${encodeURIComponent(project)}`;
+}
+
+function Empty({ label }: { label: string }) {
+  return <p className="py-3 text-center text-sm text-muted-foreground">{label}</p>;
 }
 
 function QuickActions({ project }: { project: string }) {
@@ -774,33 +680,30 @@ function QuickActions({ project }: { project: string }) {
     { href: "/notifications?create=1", label: t("notification"), icon: BellPlus },
   ];
   return (
-    <section aria-label={t("title")} className="space-y-2">
-      <h2 className="text-sm font-semibold">{t("title")}</h2>
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {actions.map((action) => {
-          const Icon = action.icon;
-          if (action.requiresProject && !project) {
-            return (
-              <Button
-                key={action.href}
-                disabled
-                variant="outline"
-                className="shrink-0"
-                title={t("selectProjectFirst")}
-              >
-                <Icon />
-                {action.label}
-              </Button>
-            );
-          }
+    <div className="flex gap-2 overflow-x-auto pb-1">
+      {actions.map((action) => {
+        const Icon = action.icon;
+        if (action.requiresProject && !project) {
           return (
-            <Button key={action.href} asChild variant="outline" className="shrink-0">
-              <Link href={action.href}><Icon />{action.label}</Link>
+            <Button
+              key={action.href}
+              disabled
+              variant="outline"
+              className="shrink-0"
+              title={t("selectProjectFirst")}
+            >
+              <Icon />
+              {action.label}
             </Button>
           );
-        })}
-      </div>
-    </section>
+        }
+        return (
+          <Button key={action.href} asChild variant="outline" className="shrink-0">
+            <Link href={action.href}><Icon />{action.label}</Link>
+          </Button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -822,23 +725,8 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
   const variance = Number(schedule.variance ?? 0);
 
   return (
-    <div className="rounded-lg border bg-card p-4 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-start gap-2.5">
-          <span className="rounded-md bg-primary/10 p-2 text-primary">
-            <CalendarRange className="size-4" />
-          </span>
-          <div>
-            <h3 className="text-sm font-semibold">{t("title")}</h3>
-            <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
-          </div>
-        </div>
-        <Link href="/schedule" className="text-xs font-semibold text-primary hover:underline">
-          {t("open")}
-        </Link>
-      </div>
-
-      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
+    <div>
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <div className="space-y-3">
           {([
             ["planned", planned, "bg-foreground/55"],
@@ -918,151 +806,60 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
   );
 }
 
-function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
+/**
+ * The dashboard timeline (E2): the shared `Timeline`, a type icon per row, the
+ * dot in the colour of the row's badge, and the whole row opening its record
+ * through the shared record route.
+ */
+function DashboardTimeline({
+  entries,
+  onOpen,
+}: {
+  entries: TimelineEntry[];
+  onOpen: (kind: string, id: string, heading: OpenedRecordHeading) => boolean;
+}) {
   const t = useTranslations("contractorDashboard");
   const df = useDateFormat();
-  // From the totals, not the lists: the lists stop at fifty, so a busy
-  // month of anomalies would have said "nothing to see" on the fifty-first.
-  const nothing = anomalies.total === 0;
-  const row = (
-    key: string,
-    href: string,
-    title: string,
-    detail: string,
-    badge: React.ReactNode,
-  ) => (
-    <li key={key} className="flex items-center justify-between gap-3 py-1.5">
-      <div className="flex min-w-0 flex-1 items-baseline gap-2">
-        <Link
-          href={href}
-          className="min-w-0 shrink truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {title}
-        </Link>
-        <span className="hidden min-w-0 shrink-[2] truncate text-xs text-muted-foreground sm:inline">
-          {detail}
-        </span>
-      </div>
-      {badge}
-    </li>
-  );
-
   return (
-    <Block
-      id="dashboard-anomalies"
-      title={t("anomalies.title")}
-      subtitle={t("anomalies.subtitle", { count: anomalies.total })}
-      empty={nothing}
-      emptyLabel={t("anomalies.empty")}
-    >
-      {anomalies.geofence_total > 0 && (
-        <p className="mb-1 text-xs text-muted-foreground">
-          {t("anomalies.geofenceWindow", {
-            days: anomalies.geofence_window_days,
-            count: anomalies.geofence_total,
-          })}
-        </p>
-      )}
-      <ShortList
-        rows={[
-          ...anomalies.overdue_rectifications.map((item) =>
-            row(
-              `hazard-${item.id}`,
-              `/hazard-rectifications?incident=${item.id}`,
-              `${item.incident_no} · ${item.title}`,
-              item.project,
-              <StatusBadge
-                label={t("anomalies.daysOverdue", { days: item.days_overdue })}
-                tone="danger"
-              />,
-            ),
+    <Timeline
+      label={t("timeline.title")}
+      items={entries.map((entry, index) => {
+        const target = timelineTarget(entry);
+        const tone = timelineTone(entry.severity);
+        const id = entry.id;
+        return {
+          key: `${entry.kind}-${id ?? index}`,
+          title: entry.label,
+          meta: entry.project || undefined,
+          at: df.dateTime(entry.at),
+          tone,
+          badge: (
+            <StatusBadge
+              label={
+                t.has(`timelineKind.${entry.kind}`)
+                  ? t(`timelineKind.${entry.kind}`)
+                  : entry.kind
+              }
+              tone={tone}
+            />
           ),
-          ...anomalies.geofence_failures.map((item) =>
-            row(
-              `geofence-${item.id}`,
-              "/attendance",
-              `${t("anomalies.geofenceFailure")} · ${item.worker}`,
-              `${item.project} · ${df.dateTime(item.occurred_at)}`,
-              <StatusBadge
-                label={
-                  item.distance_m
-                    ? t("anomalies.distance", { metres: Number(item.distance_m) })
-                    : t("anomalies.outside")
+          icon: TIMELINE_ICONS[entry.kind],
+          thumbnail: entry.cover_photo_url,
+          href: target && "href" in target ? target.href : undefined,
+          onOpen:
+            target && "sheet" in target && id
+              ? () => {
+                  onOpen(entry.kind, id, {
+                    reference: entry.label,
+                    project_id: null,
+                    project_name: entry.project,
+                    submitted_at: entry.at,
+                  });
                 }
-                tone="warning"
-              />,
-            ),
-          ),
-          ...anomalies.expiring_permits.map((item) =>
-            row(
-              `permit-${item.id}`,
-              "/site-access",
-              `${item.pass_no} · ${item.subject_name}`,
-              item.project,
-              <StatusBadge
-                label={t("anomalies.expiresAt", { at: df.date(item.valid_until) })}
-                tone="warning"
-              />,
-            ),
-          ),
-        ]}
-      />
-    </Block>
-  );
-}
-
-/** Five rows, and the rest one click away rather than a long block. */
-function ShortList({ rows, limit = 5 }: { rows: React.ReactNode[]; limit?: number }) {
-  const t = useTranslations("contractorDashboard.priority");
-  const [all, setAll] = useState(false);
-  const shown = all ? rows : rows.slice(0, limit);
-  return (
-    <>
-      <ul className="divide-y">{shown}</ul>
-      {rows.length > limit && (
-        <button
-          type="button"
-          onClick={() => setAll(!all)}
-          className="mt-1 text-xs font-medium text-primary hover:underline"
-        >
-          {all ? t("showFewer") : t("showAll", { count: rows.length })}
-        </button>
-      )}
-    </>
-  );
-}
-
-/** One of the three counts at the top: the number, and a jump to its list. */
-function PriorityCount({
-  label,
-  value,
-  target,
-  tone,
-}: {
-  label: string;
-  value: number;
-  target: string;
-  tone?: "primary" | "info" | "danger";
-}) {
-  const format = useFormatter();
-  const colour =
-    tone === "danger"
-      ? "text-destructive"
-      : tone === "info"
-        ? "text-info"
-        : tone === "primary"
-          ? "text-primary"
-          : "text-foreground";
-  return (
-    <a
-      href={"#" + target}
-      className="flex min-w-0 items-center justify-between gap-2 rounded-lg border bg-card px-3 py-2 shadow-sm transition-colors hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <span className="min-w-0 truncate text-xs font-medium text-muted-foreground">{label}</span>
-      <span className={"shrink-0 text-lg font-semibold tabular-nums " + colour}>
-        {format.number(value)}
-      </span>
-    </a>
+              : undefined,
+        };
+      })}
+    />
   );
 }
 
@@ -1126,7 +923,7 @@ function QuickSearch({ project }: { project: string }) {
         )}
       </form>
       {submitted.trim().length >= 2 && (
-        <div className="rounded-lg border bg-card p-3 shadow-sm">
+        <div className="surface-panel rounded-xl p-4">
           {results.isError ? (
             <LoadFailed onRetry={() => void results.refetch()} />
           ) : results.isLoading ? (
@@ -1242,12 +1039,12 @@ function PersonnelFigure({
   const format = useFormatter();
   return (
     <div
-      className={`rounded-lg border bg-card px-3 py-2 ${
-        tone === "warning" ? "border-warning/40" : ""
+      className={`rounded-xl border px-3 py-2.5 ${
+        tone === "warning" ? "border-tone-amber/40 bg-tone-amber/8" : "border-panel-border bg-muted/40"
       }`}
     >
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tabular-nums">
+      <p className={`kpi-figure mt-1 text-xl ${tone === "warning" ? "text-tone-amber-fg" : "text-foreground"}`}>
         {format.number(value)}
       </p>
     </div>
@@ -1271,61 +1068,18 @@ function Metric({
   return (
     <Link
       href={href}
-      className={`rounded-lg border bg-card px-3 py-2.5 shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-        tone === "warning" ? "border-warning/40" : ""
+      className={`rounded-xl border px-4 py-3 transition hover:-translate-y-px hover:shadow-panel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+        tone === "warning" ? "border-tone-amber/40 bg-tone-amber/8" : "border-tone-cyan/35 bg-tone-cyan/8"
       }`}
     >
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <Icon className="size-4 shrink-0 text-muted-foreground" />
+        <Icon className={`size-4 shrink-0 ${tone === "warning" ? "text-tone-amber-fg" : "text-tone-cyan-fg"}`} />
       </div>
-      <p className="mt-1 text-xl font-semibold tabular-nums">
+      <p className={`kpi-figure mt-1 text-2xl ${tone === "warning" ? "text-tone-amber-fg" : "text-tone-cyan-fg"}`}>
         {format.number(value)}
       </p>
     </Link>
-  );
-}
-
-function Block({
-  id,
-  title,
-  subtitle,
-  empty,
-  emptyLabel,
-  action,
-  children,
-}: {
-  id?: string;
-  title: string;
-  subtitle?: string;
-  empty?: boolean;
-  emptyLabel?: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section
-      id={id}
-      aria-label={title}
-      className="scroll-mt-4 rounded-lg border bg-card p-3 shadow-sm"
-    >
-      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b pb-1.5">
-        <div>
-          <h2 className="text-sm font-semibold">{title}</h2>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
-        {action}
-      </div>
-      {empty ? (
-        <p className="py-3 text-center text-sm text-muted-foreground">
-          {emptyLabel}
-        </p>
-      ) : (
-        <div className="mt-1 max-h-80 overflow-y-auto">{children}</div>
-      )}
-    </section>
   );
 }
 

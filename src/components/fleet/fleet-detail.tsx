@@ -75,7 +75,7 @@ export function DriverDetail({ id }: { id: string }) {
         }
       />
 
-      <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+      <div className="overflow-hidden surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           <h1 className="text-lg font-semibold">{driver.full_name}</h1>
           <span className="text-sm text-muted-foreground">{driver.driver_no}</span>
@@ -164,7 +164,7 @@ export function VehicleDetail({ id }: { id: string }) {
         }
       />
 
-      <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+      <div className="overflow-hidden surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           <h1 className="text-lg font-semibold">{vehicle.plate_no}</h1>
           <StatusBadge
@@ -228,7 +228,7 @@ function HistoryTable({
   const rows = query.data?.results ?? [];
   if (query.isError) {
     return (
-      <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+      <section className="overflow-hidden surface-panel rounded-xl">
         <div className="border-b px-5 py-4">
           <h2 className="font-semibold">{t("fleetHistory.title")}</h2>
         </div>
@@ -241,7 +241,7 @@ function HistoryTable({
     );
   }
   return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <section className="overflow-hidden surface-panel rounded-xl">
       <div className="border-b px-5 py-4">
         <h2 className="font-semibold">{t("fleetHistory.title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">

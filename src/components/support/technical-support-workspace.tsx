@@ -22,7 +22,9 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { KpiCard } from "@/components/shared/kpi-card";
 import {
+  EmptyState,
   FieldWrapper,
   ListHeader,
   QueryFailedNote,
@@ -237,21 +239,40 @@ export function TechnicalSupportWorkspace({
 }: {
   section?: TechnicalSupportSection;
 }) {
-  const t = useTranslations("adminTechnicalSupport");
   if (section === "overview") return <Overview />;
+  // Each section draws its own header so its "add" button can sit in the
+  // header's action slot (top right), like every other list page.
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
-      <ListHeader
-        title={t(`section.${section}.title`)}
-        subtitle={t(`section.${section}.subtitle`)}
-      />
+    <div className="flex flex-col gap-4">
       {section === "tickets" && <TicketPanel createAllowed />}
       {section === "bugs" && <BugPanel />}
       {section === "api" && <APIIntegrationPanel />}
       {section === "installations" && <DevicePanel installations />}
       {section === "maintenance" && <DevicePanel installations={false} />}
-      {section === "reports" && <ReportPanel />}
+      {section === "reports" && (
+        <>
+          <SectionListHeader section="reports" />
+          <ReportPanel />
+        </>
+      )}
     </div>
+  );
+}
+
+function SectionListHeader({
+  section,
+  action,
+}: {
+  section: Exclude<TechnicalSupportSection, "overview">;
+  action?: React.ReactNode;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  return (
+    <ListHeader
+      title={t(`section.${section}.title`)}
+      subtitle={t(`section.${section}.subtitle`)}
+      action={action}
+    />
   );
 }
 
@@ -265,27 +286,22 @@ function Overview() {
   const none = common("emptyValue");
   const d = summary.data;
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
       <QueryFailedNote query={summary} what={t("what.summary")} />
-      <div className="grid gap-px overflow-hidden rounded-lg border bg-border shadow-sm sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           ["tickets", d ? d.tickets : none],
           ["bugs", d ? d.bugs : none],
           ["installations", d ? d.installations : none],
           ["completion", d ? `${d.completion_rate}%` : none],
         ].map(([key, value]) => (
-          <div key={key} className="bg-card px-5 py-4">
-            <p className="text-xs text-muted-foreground">
-              {t(`metric.${key}`)}
-            </p>
-            <p className="mt-1 text-2xl font-semibold">{value}</p>
-          </div>
+          <KpiCard key={key} label={t(`metric.${key}`)} value={value} />
         ))}
       </div>
-      <section className="rounded-lg border border-warning/30 bg-warning/5 p-4">
+      <section className="rounded-xl border border-warning/30 bg-warning/5 p-4 sm:p-6">
         <div className="flex items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-warning/15 text-warning-foreground">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-warning/15 text-warning">
             <Cable className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -324,26 +340,24 @@ function Overview() {
           </Button>
         </div>
       </section>
-      <div className="min-h-0 flex-1 overflow-auto">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {SUBMODULES.map((item) => (
-            <Link
-              key={item.section}
-              href={`/support-tickets/${item.section}`}
-              className="group flex min-h-24 items-center gap-3 rounded-lg border bg-card px-5 py-4 shadow-sm transition hover:border-primary/35 hover:shadow-md"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block font-medium">
-                  {t(`section.${item.section}.title`)}
-                </span>
-                <span className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
-                  {t(`section.${item.section}.subtitle`)}
-                </span>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {SUBMODULES.map((item) => (
+          <Link
+            key={item.section}
+            href={`/support-tickets/${item.section}`}
+            className="surface-panel group flex min-h-24 items-center gap-3 rounded-xl p-4 transition hover:border-primary/35"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block font-medium">
+                {t(`section.${item.section}.title`)}
               </span>
-              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-            </Link>
-          ))}
-        </div>
+              <span className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                {t(`section.${item.section}.subtitle`)}
+              </span>
+            </span>
+            <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          </Link>
+        ))}
       </div>
     </div>
   );
@@ -360,19 +374,19 @@ function Panel({
   const t = useTranslations("adminTechnicalSupport");
   if (loading)
     return (
-      <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm">
-        <Loader2 className="mr-2 animate-spin" />
+      <div className="surface-panel flex min-h-48 items-center justify-center gap-2 rounded-xl p-4 text-sm text-muted-foreground">
+        <Loader2 className="size-4 animate-spin" />
         {t("loading")}
       </div>
     );
   if (error)
     return (
-      <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">
+      <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive sm:p-6">
         {t("loadError")}
       </div>
     );
   return (
-    <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">
+    <div className="surface-panel overflow-hidden rounded-xl">
       {children}
     </div>
   );
@@ -406,7 +420,7 @@ function CompanySelect({
         value={value || (optional ? "__platform__" : undefined)}
         onValueChange={(next) => onChange(next === "__platform__" ? "" : next)}
       >
-        <SelectTrigger className="h-10 w-full">
+        <SelectTrigger className="w-full">
           <SelectValue
             placeholder={t(
               optional ? "field.platformIssue" : "field.selectCompany",
@@ -459,7 +473,7 @@ function TechnicalSetupGuide({
   } as const;
 
   return (
-    <section className="grid gap-4 rounded-lg border border-info/25 bg-info/5 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+    <section className="grid grid-cols-1 gap-4 rounded-xl border border-info/25 bg-info/5 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
       <div className="flex min-w-0 gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-info/10 text-info">
           {kind === "maintenance" ? <RadioTower /> : <Settings2 />}
@@ -481,13 +495,13 @@ function TechnicalSetupGuide({
           </Button>
         ))}
       </div>
-      <div className="grid overflow-hidden rounded-lg border bg-card sm:grid-cols-2 lg:col-span-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 lg:col-span-2 xl:grid-cols-4">
         {(Object.keys(capabilityIcons) as CapabilityState[]).map((state) => {
           const Icon = capabilityIcons[state];
           return (
             <div
               key={state}
-              className="flex gap-3 border-b border-r p-3 last:border-b-0"
+              className="flex min-w-0 gap-3 bg-card p-3"
             >
               <span className="grid size-9 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
                 <Icon className="size-4" />
@@ -519,15 +533,21 @@ function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
   const [creating, setCreating] = useState(false);
   const [processing, setProcessing] = useState<SupportTicket | null>(null);
   return (
-    <Panel loading={rows.isLoading} error={rows.isError}>
-      {createAllowed && (
-        <div className="flex justify-end border-b p-3">
+    <>
+    <SectionListHeader
+      section="tickets"
+      action={
+        createAllowed &&
+        !rows.isLoading &&
+        !rows.isError && (
           <Button onClick={() => setCreating(true)}>
             <Plus />
             {t("action.addTicket")}
           </Button>
-        </div>
-      )}
+        )
+      }
+    />
+    <Panel loading={rows.isLoading} error={rows.isError}>
       <Table>
         <TableHeader>
           <TableRow>
@@ -602,6 +622,7 @@ function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
         />
       )}
     </Panel>
+    </>
   );
 }
 
@@ -640,12 +661,12 @@ function TicketDialog({
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("action.addTicket")}</DialogTitle>
           <DialogDescription>{t("dialog.ticket")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper
             className="sm:col-span-2"
             label={t("field.company")}
@@ -659,7 +680,7 @@ function TicketDialog({
           </FieldWrapper>
           <FieldWrapper label={t("column.type")}>
             <select
-              className="h-8 w-full rounded-md border bg-background px-2"
+              className="native-control"
               value={form.type}
               onChange={(e) => set("type", e.target.value)}
             >
@@ -681,7 +702,7 @@ function TicketDialog({
           </FieldWrapper>
           <FieldWrapper label={t("column.priority")}>
             <select
-              className="h-8 w-full rounded-md border bg-background px-2"
+              className="native-control"
               value={form.priority}
               onChange={(e) => set("priority", e.target.value)}
             >
@@ -851,23 +872,23 @@ function TicketStateDialog({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("action.process")}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="break-words">
             {row.code} / {row.title}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2">
-          <p className="text-sm font-medium">{t("ticketEdit.title")}</p>
-          <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-3">
+          <p className="panel-title">{t("ticketEdit.title")}</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FieldWrapper label={t("field.subject")} required>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} />
             </FieldWrapper>
             <FieldWrapper label={t("column.priority")}>
               <select
-                className="h-8 w-full rounded-md border bg-background px-2"
+                className="native-control"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TicketPriority)}
               >
@@ -906,7 +927,7 @@ function TicketStateDialog({
                 onChange={(e) => setDetail("due_date", e.target.value)}
               />
             </FieldWrapper>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <FieldWrapper label={t("field.estimatedHours")}>
                 <Input
                   type="number"
@@ -939,28 +960,27 @@ function TicketStateDialog({
             </FieldWrapper>
           </div>
           <Button
-            size="sm"
             variant="outline"
             requires={[[title, t("field.subject")]]}
             disabledReason={!edited ? common("noChanges") : undefined}
             disabled={!edited || edit.isPending}
             onClick={() => edit.mutate()}
           >
-            <Check className="h-4 w-4" />
+            <Check className="size-4" />
             {t("ticketEdit.save")}
           </Button>
         </div>
 
-        <div className="space-y-2 border-t pt-3">
-          <p className="text-sm font-medium">{t("ticketComment.title")}</p>
+        <div className="space-y-3 border-t pt-4">
+          <p className="panel-title">{t("ticketComment.title")}</p>
           {comments.length === 0 ? (
-            <p className="text-xs text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
               {t("ticketComment.empty")}
             </p>
           ) : (
             <ul className="space-y-2">
               {comments.map((item) => (
-                <li key={item.id} className="rounded-md border px-3 py-2">
+                <li key={item.id} className="rounded-lg border bg-muted/30 p-3">
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <span className="font-medium text-foreground">
                       {item.author_name ?? t("ticketComment.unknownAuthor")}
@@ -973,7 +993,7 @@ function TicketStateDialog({
                       />
                     )}
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap text-sm">{item.body}</p>
+                  <p className="mt-1 whitespace-pre-wrap break-words text-sm">{item.body}</p>
                 </li>
               ))}
             </ul>
@@ -995,7 +1015,6 @@ function TicketStateDialog({
             {t("ticketComment.internalHelp")}
           </label>
           <Button
-            size="sm"
             variant="outline"
             requires={[[comment, t("ticketComment.reply")]]}
             disabled={speak.isPending}
@@ -1005,10 +1024,10 @@ function TicketStateDialog({
           </Button>
         </div>
 
-        <div className="space-y-2 border-t pt-3">
-          <p className="text-sm font-medium">{t("ticketEdit.moveOn")}</p>
+        <div className="space-y-3 border-t pt-4">
+          <p className="panel-title">{t("ticketEdit.moveOn")}</p>
           <select
-            className="h-8 w-full rounded-md border bg-background px-2"
+            className="native-control"
             aria-label={t("action.process")}
             value={state}
             onChange={(e) => setState(e.target.value as TicketState)}
@@ -1058,13 +1077,20 @@ function BugPanel() {
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<BugReport | null>(null);
   return (
+    <>
+    <SectionListHeader
+      section="bugs"
+      action={
+        !rows.isLoading &&
+        !rows.isError && (
+          <Button onClick={() => setCreating(true)}>
+            <Plus />
+            {t("action.addBug")}
+          </Button>
+        )
+      }
+    />
     <Panel loading={rows.isLoading} error={rows.isError}>
-      <div className="flex justify-end border-b p-3">
-        <Button onClick={() => setCreating(true)}>
-          <Plus />
-          {t("action.addBug")}
-        </Button>
-      </div>
       <Table>
         <TableHeader>
           <TableRow>
@@ -1119,6 +1145,7 @@ function BugPanel() {
         />
       )}
     </Panel>
+    </>
   );
 }
 function BugDialog({
@@ -1149,12 +1176,14 @@ function BugDialog({
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("action.addBug")}</DialogTitle>
           <DialogDescription>{t("dialog.bug")}</DialogDescription>
         </DialogHeader>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FieldWrapper
+          className="sm:col-span-2"
           label={t("field.company")}
           hint={t("field.companyOptionalHelp")}
         >
@@ -1166,7 +1195,7 @@ function BugDialog({
         </FieldWrapper>
         <FieldWrapper label={t("column.severity")}>
           <select
-            className="h-8 w-full rounded-md border bg-background px-2"
+            className="native-control"
             value={form.severity}
             onChange={(e) => set("severity", e.target.value)}
           >
@@ -1183,13 +1212,13 @@ function BugDialog({
             onChange={(e) => set("module", e.target.value)}
           />
         </FieldWrapper>
-        <FieldWrapper label={t("field.subject")} required>
+        <FieldWrapper className="sm:col-span-2" label={t("field.subject")} required>
           <Input
             value={form.title}
             onChange={(e) => set("title", e.target.value)}
           />
         </FieldWrapper>
-        <FieldWrapper label={t("field.description")} required>
+        <FieldWrapper className="sm:col-span-2" label={t("field.description")} required>
           <Textarea
             value={form.description}
             onChange={(e) => set("description", e.target.value)}
@@ -1207,6 +1236,7 @@ function BugDialog({
             onChange={(e) => set("actual_result", e.target.value)}
           />
         </FieldWrapper>
+        </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -1262,7 +1292,7 @@ function BugUpdateDialog({
           <DialogDescription>{row.title}</DialogDescription>
         </DialogHeader>
         <select
-          className="h-8 rounded-md border bg-background px-2"
+          className="native-control"
           value={state}
           onChange={(e) => setState(e.target.value as BugState)}
         >
@@ -1322,19 +1352,27 @@ function APIIntegrationPanel() {
   });
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<APIIntegration | null>(null);
+  const ready =
+    !(rows.isLoading || liveConnections.isLoading) &&
+    !(rows.isError || liveConnections.isError);
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <>
+      <SectionListHeader
+        section="api"
+        action={
+          ready && (
+            <Button onClick={() => setCreating(true)}>
+              <Plus />
+              {t("action.addIntegration")}
+            </Button>
+          )
+        }
+      />
       <TechnicalSetupGuide kind="api" />
       <Panel
         loading={rows.isLoading || liveConnections.isLoading}
         error={rows.isError || liveConnections.isError}
       >
-      <div className="flex justify-end border-b p-3">
-        <Button onClick={() => setCreating(true)}>
-          <Plus />
-          {t("action.addIntegration")}
-        </Button>
-      </div>
       <Table>
         <TableHeader>
           <TableRow>
@@ -1412,7 +1450,7 @@ function APIIntegrationPanel() {
         />
       )}
       </Panel>
-    </div>
+    </>
   );
 }
 function IntegrationDialog({
@@ -1482,7 +1520,7 @@ function IntegrationDialog({
                 }));
               }}
             >
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="unlinked">{t("field.notLinked")}</SelectItem>
                 {availableConnections.map((connection) => (
@@ -1591,7 +1629,7 @@ function IntegrationUpdateDialog({
             hint={t("field.linkedIntegrationHelp")}
           >
             <Select value={linkedIntegration} onValueChange={setLinkedIntegration}>
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="unlinked">{t("field.notLinked")}</SelectItem>
                 {connections
@@ -1606,7 +1644,7 @@ function IntegrationUpdateDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.testStatus")}>
             <Select value={test} onValueChange={(value) => setTest(value as typeof test)}>
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {["PENDING", "PASSED", "FAILED"].map((x) => (
                   <SelectItem key={x} value={x}>{t(`testStatus.${x}`)}</SelectItem>
@@ -1616,7 +1654,7 @@ function IntegrationUpdateDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.liveStatus")} hint={t("field.liveStatusHelp")}>
             <Select value={live} onValueChange={(value) => setLive(value as typeof live)}>
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => (
                   <SelectItem key={x} value={x}>{t(`activationStatus.${x}`)}</SelectItem>
@@ -1671,56 +1709,51 @@ function DevicePanel({ installations }: { installations: boolean }) {
   const refresh = () =>
     qc.invalidateQueries({ queryKey: ["device-maintenance"] });
 
+  const ready =
+    !(rows.isLoading || registeredDevices.isLoading) &&
+    !(rows.isError || registeredDevices.isError);
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <>
+      <SectionListHeader
+        section={installations ? "installations" : "maintenance"}
+        action={
+          ready && (
+            <Button onClick={() => setCreating(true)}>
+              <Plus />
+              {t(
+                installations
+                  ? "action.addInstallation"
+                  : "action.addMaintenance",
+              )}
+            </Button>
+          )
+        }
+      />
       <TechnicalSetupGuide kind={installations ? "installations" : "maintenance"} />
       <Panel
         loading={rows.isLoading || registeredDevices.isLoading}
         error={rows.isError || registeredDevices.isError}
       >
-      <div className="flex justify-end border-b p-3">
-        <Button onClick={() => setCreating(true)}>
-          <Plus />
-          {t(
-            installations ? "action.addInstallation" : "action.addMaintenance",
-          )}
-        </Button>
-      </div>
-      <Table className="min-w-[1880px]">
+      <Table className="min-w-470">
         <TableHeader>
           <TableRow>
-            {[
-              "code",
-              "company",
-              "device",
-              "location",
-              "installDate",
-              "firmware",
-              "testStatus",
-              "liveStatus",
-              "online",
-              "lastOnline",
-              "sim",
-              "signal",
-              "mode",
-              "capability",
-              "actions",
-            ].map((x) => (
-              <TableHead
-                key={x}
-                className={
-                  x === "capability"
-                    ? "min-w-72"
-                    : x === "actions"
-                      ? "min-w-64"
-                      : ["code", "company", "device", "location"].includes(x)
-                        ? "min-w-32"
-                        : undefined
-                }
-              >
-                {t(`column.${x}`)}
-              </TableHead>
-            ))}
+            <TableHead className="min-w-32">{t("column.code")}</TableHead>
+            <TableHead className="min-w-32">{t("column.company")}</TableHead>
+            <TableHead className="min-w-32">{t("column.device")}</TableHead>
+            <TableHead className="min-w-32">{t("column.location")}</TableHead>
+            <TableHead>{t("column.installDate")}</TableHead>
+            <TableHead>{t("column.firmware")}</TableHead>
+            <TableHead>{t("column.testStatus")}</TableHead>
+            <TableHead>{t("column.liveStatus")}</TableHead>
+            <TableHead>{t("column.online")}</TableHead>
+            <TableHead>{t("column.lastOnline")}</TableHead>
+            <TableHead>{t("column.sim")}</TableHead>
+            <TableHead className="text-right tabular">
+              {t("column.signal")}
+            </TableHead>
+            <TableHead>{t("column.mode")}</TableHead>
+            <TableHead className="min-w-72">{t("column.capability")}</TableHead>
+            <TableHead className="min-w-64">{t("column.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1760,7 +1793,9 @@ function DevicePanel({ installations }: { installations: boolean }) {
                 </TableCell>
                 <TableCell>{df.dateTime(telemetry.lastOnlineAt) || "-"}</TableCell>
                 <TableCell>{telemetry.simStatus || "-"}</TableCell>
-                <TableCell>{telemetry.signal ?? "-"}</TableCell>
+                <TableCell className="text-right tabular">
+                  {telemetry.signal ?? "-"}
+                </TableCell>
                 <TableCell>
                   <StatusBadge
                     label={system(`mode.${row.operation_mode}`)}
@@ -1836,7 +1871,7 @@ function DevicePanel({ installations }: { installations: boolean }) {
           readable. Every remote operation writes a session; nothing read them
           back until now. */}
       {!installations && <RemoteSessionHistory />}
-    </div>
+    </>
   );
 }
 
@@ -1853,21 +1888,19 @@ function RemoteSessionHistory() {
   });
   const rows = sessions.data?.results ?? [];
   return (
-    <section className="rounded-lg border bg-card shadow-sm">
-      <div className="flex flex-wrap items-center gap-2 border-b p-3">
-        <History className="size-4 text-muted-foreground" />
-        <p className="text-sm font-semibold">{t("remoteHistory.title")}</p>
+    <section className="surface-panel overflow-hidden rounded-xl">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-3 sm:px-6">
+        <p className="panel-title">{t("remoteHistory.title")}</p>
         <p className="text-xs text-muted-foreground">{t("remoteHistory.help")}</p>
       </div>
       {sessions.isLoading ? (
-        <p className="p-4 text-sm text-muted-foreground">
+        <p className="p-4 text-sm text-muted-foreground sm:p-6">
           {t("remoteHistory.loading")}
         </p>
       ) : sessions.isError ? (
-        <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-4">
+        <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-3 sm:m-6">
           <p className="text-sm text-destructive">{t("remoteHistory.loadError")}</p>
           <Button
-            size="sm"
             variant="outline"
             onClick={() => void sessions.refetch()}
           >
@@ -1875,11 +1908,13 @@ function RemoteSessionHistory() {
           </Button>
         </div>
       ) : !rows.length ? (
-        <p className="m-4 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-          {t("remoteHistory.empty")}
-        </p>
+        <EmptyState
+          icon={History}
+          title={t("remoteHistory.empty")}
+          className="m-4 sm:m-6"
+        />
       ) : (
-        <div className="overflow-x-auto">
+        <div className="min-w-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -1891,7 +1926,7 @@ function RemoteSessionHistory() {
             <TableBody>
               {rows.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell className="whitespace-nowrap tabular-nums">
+                  <TableCell className="whitespace-nowrap tabular">
                     {df.dateTime(row.started_at)}
                   </TableCell>
                   <TableCell>{row.company_name}</TableCell>
@@ -1958,7 +1993,7 @@ function DeviceDialog({
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {t(
@@ -1969,7 +2004,7 @@ function DeviceDialog({
           </DialogTitle>
           <DialogDescription>{t("dialog.device")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.company")} required>
             <CompanySelect
               value={form.company}
@@ -2006,7 +2041,7 @@ function DeviceDialog({
                 }));
               }}
             >
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="unlinked">{t("field.notLinked")}</SelectItem>
                 {availableDevices.map((device) => (
@@ -2020,7 +2055,7 @@ function DeviceDialog({
           {!installations && (
             <FieldWrapper label={t("field.maintenanceType")} required>
               <Select value={form.type} onValueChange={(value) => set("type", value)}>
-                <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {["INSPECTION", "REPAIR", "CALIBRATION", "UPGRADE", "REPLACEMENT"].map((x) => (
                     <SelectItem key={x} value={x}>{t(`maintenanceType.${x}`)}</SelectItem>
@@ -2031,7 +2066,7 @@ function DeviceDialog({
           )}
           <FieldWrapper label={t("field.deviceType")} required>
             <Select value={form.device_type} onValueChange={(value) => set("device_type", value)}>
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {["WEIGHBRIDGE", "GATEWAY", "AI_CCTV", "ANPR", "CWE", "OTHER"].map((x) => (
                   <SelectItem key={x} value={x}>{t(`deviceType.${x}`)}</SelectItem>
@@ -2075,7 +2110,7 @@ function DeviceDialog({
               value={form.operation_mode ?? "SIMULATED"}
               onValueChange={(value) => set("operation_mode", value)}
             >
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="SIMULATED">{t("operationMode.SIMULATED")}</SelectItem>
                 <SelectItem value="LIVE">{t("operationMode.LIVE")}</SelectItem>
@@ -2170,7 +2205,7 @@ function MaintenanceCompleteDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.testStatus")}>
             <Select value={test} onValueChange={(value) => setTest(value as typeof test)}>
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {["PENDING", "PASSED", "FAILED"].map((x) => (
                   <SelectItem key={x} value={x}>{t(`testStatus.${x}`)}</SelectItem>
@@ -2180,7 +2215,7 @@ function MaintenanceCompleteDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.liveStatus")} hint={t("field.liveStatusHelp")}>
             <Select value={active} onValueChange={(value) => setActive(value as typeof active)}>
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => (
                   <SelectItem key={x} value={x}>{t(`activationStatus.${x}`)}</SelectItem>
@@ -2248,7 +2283,7 @@ function RemoteOperationDialog({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t("action.remote")}</DialogTitle>
           <DialogDescription>
@@ -2268,7 +2303,7 @@ function RemoteOperationDialog({
               value={operation}
               onValueChange={(value) => setOperation(value as RemoteOperation)}
             >
-              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {(["TEST", "CONFIGURE", "RESTART", "FIRMWARE_UPGRADE"] as const).map((item) => (
                   <SelectItem key={item} value={item}>
@@ -2284,7 +2319,7 @@ function RemoteOperationDialog({
               hint={t("field.advancedConfigHelp")}
             >
               <Textarea
-                className="min-h-28 font-mono text-xs"
+                className="min-h-28 font-mono md:text-xs"
                 value={configuration}
                 onChange={(event) => {
                   setConfiguration(event.target.value);
@@ -2449,24 +2484,24 @@ function ReportPanel() {
   const none = common("emptyValue");
   const d = summary.data;
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+    <div className="surface-panel overflow-hidden rounded-xl">
       <QueryFailedNote
         query={summary}
         what={t("what.summary")}
-        className="border-b px-5 py-2"
+        className="border-b px-4 py-2 sm:px-6"
       />
-      <div className="grid gap-px border-b bg-border sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-px border-b bg-border sm:grid-cols-2 xl:grid-cols-4">
         {[
           ["tickets", d ? d.tickets : none],
           ["bugs", d ? d.bugs : none],
           ["installations", d ? d.installations : none],
           ["completion", d ? `${d.completion_rate}%` : none],
         ].map(([key, value]) => (
-          <div key={key} className="bg-card p-4">
-            <p className="text-xs text-muted-foreground">
+          <div key={key} className="bg-card px-4 py-4 sm:px-6">
+            <p className="text-xs font-medium text-muted-foreground">
               {t(`metric.${key}`)}
             </p>
-            <p className="mt-1 text-xl font-semibold">{value}</p>
+            <p className="tabular mt-1 text-xl font-semibold">{value}</p>
           </div>
         ))}
       </div>
@@ -2474,15 +2509,15 @@ function ReportPanel() {
         {reports.map(([dataset, fields]) => (
           <div
             key={dataset}
-            className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
+            className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6"
           >
-            <div>
+            <div className="min-w-0">
               <p className="font-medium">{t(`report.${dataset}`)}</p>
               <p className="text-xs text-muted-foreground">
                 {t(`report.${dataset}Subtitle`)}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 disabled={exporting.isPending}

@@ -4,11 +4,26 @@ import type {
   ContractorReportExportRecord,
   ContractorReportFilters,
   ContractorReportOptions,
+  ContractorReportType,
+  ReportLevelRow,
 } from "@/interfaces/contractor-report";
 import { api, download } from "@/services/api-client";
 
 export function getContractorReportOptions(): Promise<ContractorReportOptions> {
   return api.get("/api/contractor-reports/get_filter_options/");
+}
+
+/** One level of the report menu under a report, or under a parent row (D6). */
+export async function getReportCategories(query: {
+  report_type: ContractorReportType;
+  project?: string;
+  parent?: string;
+}): Promise<ReportLevelRow[]> {
+  const data = await api.get<{ results: ReportLevelRow[] }>(
+    "/api/contractor-reports/get_report_categories/",
+    query as unknown as ListQuery,
+  );
+  return data.results;
 }
 
 export function getContractorReport(

@@ -142,7 +142,7 @@ export function WeightTrace({
 
   if (points.length === 0) {
     return (
-      <div className="flex h-72 items-center justify-center rounded-lg border border-dashed">
+      <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-panel-border p-6 text-center">
         <p className="text-sm text-muted-foreground">{t("weighing.trace.empty")}</p>
       </div>
     );
@@ -171,25 +171,23 @@ export function WeightTrace({
   return (
     <div className="space-y-3">
       {canZoom && (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <Button
             type="button"
             variant={zoomed ? "outline" : "secondary"}
             size="sm"
-            className="h-7 rounded-full px-3 text-xs"
             onClick={() => setZoomed(false)}
           >
-            <Maximize2 className="h-3 w-3" />
+            <Maximize2 className="size-3.5" />
             {t("weighing.trace.viewFull")}
           </Button>
           <Button
             type="button"
             variant={zoomed ? "secondary" : "outline"}
             size="sm"
-            className="h-7 rounded-full px-3 text-xs"
             onClick={() => setZoomed(true)}
           >
-            <ZoomIn className="h-3 w-3" />
+            <ZoomIn className="size-3.5" />
             {t("weighing.trace.viewSettled")}
           </Button>
         </div>
@@ -325,7 +323,7 @@ export function WeightTrace({
           {markers.map(({ anomaly, elapsed }) => (
             <li
               key={anomaly.id}
-              className="flex items-start gap-2 rounded-md border border-destructive/20 bg-destructive/8 px-3 py-2"
+              className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/8 px-3 py-2"
             >
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
               <div className="min-w-0 text-sm">

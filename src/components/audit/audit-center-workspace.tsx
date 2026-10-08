@@ -54,7 +54,7 @@ export function AuditCenterWorkspace({
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
-      <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+      <div className="surface-panel min-h-0 flex-1 overflow-y-auto rounded-xl">
         <div className="grid md:grid-cols-2 xl:grid-cols-3">
           {SUBMODULES.map((module) => (
             <Link
@@ -112,24 +112,27 @@ function ImmutableAuditStatus() {
         subtitle={t("section.immutable.subtitle")}
       />
       <QueryFailedNote query={summary} what={t("what.summary")} />
-      <div className="grid border-l border-t bg-card sm:grid-cols-2 xl:grid-cols-4">
+      <div className="surface-panel overflow-hidden rounded-xl">
+      <div className="-mb-px -mr-px grid sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(({ key, icon: Icon, value }) => (
-          <div key={key} className="min-h-28 border-b border-r p-4">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div key={key} className="min-h-28 min-w-0 border-b border-r p-4">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
               <Icon className="size-4" />
               {t(`immutableStatus.${key}`)}
             </div>
-            <p className="mt-4 text-xl font-semibold tabular-nums">{value}</p>
+            <p className="tabular mt-4 break-words text-xl font-semibold">{value}</p>
           </div>
         ))}
       </div>
-      <div className="grid border-l border-t bg-card sm:grid-cols-2">
+      </div>
+      <div className="surface-panel overflow-hidden rounded-xl">
+      <div className="-mb-px -mr-px grid sm:grid-cols-2">
         <div className="min-h-24 border-b border-r p-4">
-          <p className="flex items-center gap-2 text-xs text-muted-foreground">
+          <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <History className="size-4" />
             {t("immutableStatus.oldest")}
           </p>
-          <p className="mt-3 text-sm font-semibold tabular-nums">
+          <p className="tabular mt-3 text-sm font-semibold">
             {summary.isError
               ? "—"
               : data?.oldest_entry_at
@@ -138,11 +141,11 @@ function ImmutableAuditStatus() {
           </p>
         </div>
         <div className="min-h-24 border-b border-r p-4">
-          <p className="flex items-center gap-2 text-xs text-muted-foreground">
+          <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <History className="size-4" />
             {t("immutableStatus.newest")}
           </p>
-          <p className="mt-3 text-sm font-semibold tabular-nums">
+          <p className="tabular mt-3 text-sm font-semibold">
             {summary.isError
               ? "—"
               : data?.newest_entry_at
@@ -150,6 +153,7 @@ function ImmutableAuditStatus() {
                 : t("immutableStatus.empty")}
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

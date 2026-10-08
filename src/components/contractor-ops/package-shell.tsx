@@ -28,11 +28,11 @@ export function Shell({
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-scrim p-0 sm:items-center sm:p-4"
     >
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-card sm:rounded-xl">
-        <header className="flex items-center gap-2 border-b px-4 py-3">
-          <h2 className="min-w-0 flex-1 truncate font-semibold">{title}</h2>
+      <div className="flex max-h-[90dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-popover text-popover-foreground shadow-panel ring-1 ring-panel-border sm:rounded-xl">
+        <header className="flex items-center gap-2 border-b border-panel-border px-4 py-3">
+          <h2 className="min-w-0 flex-1 truncate text-base font-semibold">{title}</h2>
           <Button
             size="icon"
             variant="ghost"

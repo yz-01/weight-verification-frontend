@@ -21,6 +21,7 @@ import {
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -49,7 +50,11 @@ export function CreateIncidentDialog({
   const t = useTranslations("incidentReporting");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
+  // A new report is for the top bar's 「当前项目」 in the office (B13); on
+  // 全部项目 (and on the phone) it is chosen here.
+  const topBar = useCurrentProject();
+  const lockedProject = topBar.active ? topBar.projectId : "";
+  const [project, setProject] = useState(lockedProject);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState<IncidentSeverity>("MEDIUM");
@@ -157,10 +162,10 @@ export function CreateIncidentDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         showCloseButton={false}
-        className="max-h-[calc(100dvh-1rem)] touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] p-5 sm:max-w-md sm:p-6"
+        className="max-h-[calc(100dvh-1rem)] touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] sm:max-w-md"
       >
-        <div className="flex items-start justify-between">
-          <div className="min-w-0 pr-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
             <DialogTitle>{t("dialog.create.title")}</DialogTitle>
             <DialogDescription className="mt-1">
               {t("dialog.create.description")}
@@ -169,7 +174,7 @@ export function CreateIncidentDialog({
           <button
             type="button"
             onClick={onClose}
-            className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-muted"
+            className="grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:size-9"
           >
             <X className="size-4" />
             <span className="sr-only">{t("action.cancel")}</span>
@@ -178,6 +183,11 @@ export function CreateIncidentDialog({
 
         <div className="space-y-4">
           <FieldWrapper label={t("field.project")} required>
+            {lockedProject && project === lockedProject ? (
+              <p className="py-2 text-sm font-medium" data-project-locked>
+                {topBar.projects.find((p) => p.id === lockedProject)?.name}
+              </p>
+            ) : (
             <Select
               value={project}
               onValueChange={(value) => {
@@ -196,6 +206,7 @@ export function CreateIncidentDialog({
                 ))}
               </SelectContent>
             </Select>
+            )}
             <QueryFailedNote query={projects} what={t("what.projects")} />
           </FieldWrapper>
 
@@ -205,7 +216,7 @@ export function CreateIncidentDialog({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t("field.titlePlaceholder")}
-              className="flex h-11 w-full rounded-lg border bg-background px-3 text-sm"
+              className="native-control"
             />
           </FieldWrapper>
 
@@ -273,28 +284,28 @@ export function CreateIncidentDialog({
 
           <FieldWrapper label={t("field.recipients")} required>
             {!project ? (
-              <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-panel-border p-3 text-sm text-muted-foreground">
                 {t("chooseProjectFirst")}
               </p>
             ) : recipients.isError ? (
               <LoadFailed what={t("what.recipients")} onRetry={() => void recipients.refetch()} />
             ) : recipients.isLoading ? (
-              <div className="flex items-center gap-2 rounded-md border p-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 rounded-lg border p-3 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
                 {t("loadingRecipients")}
               </div>
             ) : (recipients.data ?? []).length === 0 ? (
-              <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-panel-border p-3 text-sm text-muted-foreground">
                 {t("noRecipients")}
               </p>
             ) : (
-              <div className="max-h-40 space-y-2 overflow-y-auto rounded-md border p-3">
+              <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border p-2">
                 {(recipients.data ?? []).map((recipient) => {
                   const checked = recipientIds.includes(recipient.id);
                   return (
                     <label
                       key={recipient.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-muted/50"
+                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted/50"
                     >
                       <Checkbox
                         checked={checked}
@@ -325,7 +336,7 @@ export function CreateIncidentDialog({
           </FieldWrapper>
         </div>
 
-        <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex gap-2 border-t bg-card p-5 sm:-mx-6 sm:-mb-6 sm:p-6">
+        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 flex gap-2 rounded-b-xl border-t border-panel-border bg-muted p-4 max-sm:rounded-none">
           <Button
             variant="outline"
             className="flex-1"

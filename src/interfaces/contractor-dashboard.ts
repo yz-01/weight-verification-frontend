@@ -6,7 +6,7 @@ export type ContractorDashboardSection =
   | "activity"
   | "approvals"
   | "unread"
-  | "anomalies"
+  | "rectifications"
   | "notifications"
   | "personnel"
   | "photos"
@@ -55,6 +55,16 @@ export interface DashboardOverview {
      * real.
      */
     equipment_expiring: number;
+    /**
+     * Clock-ins outside the fence since `geofence_since` (the last
+     * `geofence_window_days` days). Moved here off the old 「待处理异常」
+     * card (C15); opens the attendance list from that day.
+     */
+    geofence_failures: number;
+    geofence_window_days: number;
+    geofence_since: string;
+    /** Approved site passes running out within the week (C15). */
+    expiring_permits: number;
     photos: number;
   };
   safety: {
@@ -115,6 +125,10 @@ export interface ActivityRow {
 }
 
 export interface ApprovalRow {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   approval_no: string;
   title: string;
@@ -146,60 +160,50 @@ export interface ApprovalRow {
   created_at: string | null;
 }
 
-export interface GeofenceFailureRow {
-  id: string;
-  project: string;
-  worker: string;
-  event: string;
-  occurred_at: string | null;
-  distance_m: string | null;
-  accuracy_m: string | null;
-}
+/** What the reader is asked to do next on an open item. */
+export type RectificationStep = "ASSIGN" | "RECTIFY" | "CONFIRM";
 
-export interface OverdueRectificationRow {
+/** One open hazard or permit the reader moves on (C15). */
+export interface RectificationRow {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
-  project: string;
+  /** Always `SAFETY_INCIDENT`: the kind `recordTarget` opens it by. */
+  kind: string;
   incident_no: string;
   title: string;
+  record_type: "HAZARD" | "PERMIT";
   severity: string;
   status: string;
-  rectification_due_at: string | null;
-  days_overdue: number;
-}
-
-export interface ExpiringPermitRow {
-  id: string;
+  next_step: RectificationStep;
   project: string;
-  pass_no: string;
-  subject_name: string;
-  valid_until: string | null;
-  status: string;
+  project_id: string;
+  occurred_at: string | null;
+  rectification_due_at: string | null;
+  /** Null when it has no deadline or is not past it. */
+  days_overdue: number | null;
 }
 
-export interface DashboardAnomalies {
-  geofence_failures: GeofenceFailureRow[];
-  overdue_rectifications: OverdueRectificationRow[];
-  expiring_permits: ExpiringPermitRow[];
-  /**
-   * Counted from the query rather than from the list above, which is cut at
-   * fifty. The three lists and the four totals are deliberately separate: a
-   * site with sixty overdue rectifications used to report fifty.
-   */
-  geofence_total: number;
-  /**
-   * How many days back the out-of-bounds figure looked.
-   *
-   * On the screen because a number whose span is not stated is how this card
-   * got into trouble: it counted one day under a heading that read like it
-   * counted everything.
-   */
-  geofence_window_days: number;
-  overdue_total: number;
-  expiring_permits_total: number;
+/**
+ * 「待处理整改 / EHS」: open hazards and permits (OPEN / ASSIGNED / RETURNED /
+ * RECTIFICATION_SUBMITTED) that wait on this reader - to assign, to put right
+ * or to confirm. Geofence breaches and expiring passes are on the overview.
+ */
+export interface DashboardRectifications {
+  rows: RectificationRow[];
+  /** Counted from the query; `rows` stops at fifty. */
   total: number;
+  /** How many of `total` are past their deadline. */
+  overdue: number;
 }
 
 export interface NotificationRow {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   kind: string;
   /** The kind by name, in the reader's language (T-176). */
@@ -208,6 +212,12 @@ export interface NotificationRow {
   message: string;
   created_at: string | null;
   state: string;
+  /**
+   * The record the notice is about, by its record-centre kind, and its id -
+   * what the thumbnail opens (audit #4). Null for a notice about no record.
+   */
+  subject_kind: string | null;
+  subject_id: string | null;
 }
 
 export interface DashboardPersonnel {
@@ -247,24 +257,46 @@ export interface PhotoRow {
 }
 
 export interface TimelineEntry {
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
+  /** The record the row opens. Absent from older servers. */
+  id?: string;
   at: string | null;
   kind: string;
   project: string;
   label: string;
   severity: "INFO" | "WARNING" | "DANGER";
+  /** E3's cover photo, shown as a 40x40 thumbnail when present. */
+  cover_photo_url?: string | null;
 }
 
-export interface UnreadColumn {
-  /** Null for deliveries nobody has filed into a column yet. */
-  category: string | null;
-  name: string;
-  code: string;
-  count: number;
+/** One record in 「等你处理」: finished, not yet confirmed (X10, C4). */
+export interface WaitingRecord {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
+  /** The record kind, as the archive queue names it (`MATERIAL_RECEIPT`, `PROGRESS`...). */
+  kind: string;
+  id: string;
+  reference: string;
+  title: string;
+  project: string;
+  project_id: string;
+  waiting_since: string | null;
 }
 
+/**
+ * 「等你处理」: records this reader may confirm that nobody has confirmed yet
+ * (X10). Not RecordSeen any more - a confirmation clears it for everybody.
+ */
 export interface DashboardUnread {
+  total: number;
+  by_kind: Record<string, number>;
+  rows: WaitingRecord[];
+  /** Deliveries waiting for a confirmation: the 材料进场 sidebar badge. */
   receipts: number;
-  columns: UnreadColumn[];
+  /** Decisions waiting on this reader: the 待审批 sidebar badge, not part of `total`. */
   approvals: number;
 }
 
@@ -282,16 +314,10 @@ export interface ContractorDashboard {
     mine: number;
     unassigned: number;
   };
-  /**
-   * What *this reader* has not looked at yet.
-   *
-   * Every number is answered for the person asking and nobody else: head
-   * office and the project manager wait on the same delivery and clear it
-   * separately, so a shared count would let whoever opened it first empty the
-   * other's pile (D-063).
-   */
+  /** 「等你处理」 - see `DashboardUnread`. */
   unread?: DashboardUnread;
-  anomalies?: DashboardAnomalies;
+  /** 「待处理整改 / EHS」 - see `DashboardRectifications`. */
+  rectifications?: DashboardRectifications;
   notifications?: {
     /** Still outstanding, newest first. Not "created today" - see `today`. */
     rows: NotificationRow[];

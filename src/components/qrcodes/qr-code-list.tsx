@@ -50,7 +50,7 @@ export function QRCodeList() {
         accessorKey: "subject_type",
         meta: { label: t("adminQr.field.subjectType") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("adminQr.field.subjectType")}
           </span>
         ),
@@ -64,7 +64,7 @@ export function QRCodeList() {
         accessorKey: "subject_label",
         meta: { label: t("adminQr.field.subject") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("adminQr.field.subject")}
           </span>
         ),
@@ -76,7 +76,7 @@ export function QRCodeList() {
         accessorKey: "company",
         meta: { label: t("adminQr.field.company") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("adminQr.field.company")}
           </span>
         ),
@@ -88,7 +88,7 @@ export function QRCodeList() {
         accessorKey: "status",
         meta: { label: t("adminQr.field.status") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("adminQr.field.status")}
           </span>
         ),

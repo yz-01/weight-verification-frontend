@@ -1,6 +1,8 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 export type IncidentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
-export interface IncidentReportThread {
+export interface IncidentReportThread extends RecordedBy {
   id: string;
   thread_no: string;
   title: string;

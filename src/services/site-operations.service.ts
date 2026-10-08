@@ -9,8 +9,6 @@ import type {
   HazardConversation,
   HazardMessage,
   IncidentStatus,
-  ProgressPayload,
-  ProgressUpdate,
   SafetyIncident,
   SafetyIncidentPayload,
 } from "@/interfaces/site-operations";
@@ -62,49 +60,6 @@ export async function clockAttendance(
   );
   toastSuccess("attendance.toast.recorded");
   return record;
-}
-
-export function getProgressUpdates(
-  query: ListQuery,
-): Promise<Paginated<ProgressUpdate>> {
-  return api.list<ProgressUpdate>(
-    "/api/progress-updates/get_progress_updates/",
-    query,
-  );
-}
-
-export function getProgressUpdate(id: string): Promise<ProgressUpdate> {
-  return api.get<ProgressUpdate>(
-    `/api/progress-updates/${id}/get_progress_update/`,
-  );
-}
-
-export async function createProgressUpdate(
-  payload: ProgressPayload,
-): Promise<ProgressUpdate> {
-  const update = await api.post<ProgressUpdate>(
-    "/api/progress-updates/create_progress_update/",
-    multipart(payload as unknown as Record<string, unknown>),
-  );
-  toastSuccess("progress.toast.created");
-  return update;
-}
-
-export async function updateProgressUpdate(
-  id: string,
-  payload: Partial<ProgressPayload>,
-): Promise<ProgressUpdate> {
-  const update = await api.patch<ProgressUpdate>(
-    `/api/progress-updates/${id}/update_progress_update/`,
-    multipart(payload as unknown as Record<string, unknown>),
-  );
-  toastSuccess("progress.toast.updated");
-  return update;
-}
-
-export async function deleteProgressUpdate(id: string): Promise<void> {
-  await api.delete(`/api/progress-updates/${id}/delete_progress_update/`);
-  toastSuccess("progress.toast.removed");
 }
 
 export function getSafetyIncidents(
@@ -176,8 +131,6 @@ export async function assignSafetyRectification(
     responsible_person: string;
     due_at: string;
     note?: string;
-    /** A phone-raised hazard's confirmer, when the assigner names one (B21). */
-    confirmer?: string;
   },
 ): Promise<SafetyIncident> {
   const incident = await api.post<SafetyIncident>(

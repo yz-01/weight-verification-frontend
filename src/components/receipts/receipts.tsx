@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, MapPin, Pencil, Plus } from "lucide-react";
+import { ClipboardList, Eye, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -10,13 +10,17 @@ import { useMemo } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
-import { ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { photoColumn, recordPhotos } from "@/components/shared/photo-thumb";
+import { RecordNo } from "@/components/shared/record-no";
+import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
+import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
+import { type MaterialReceipt } from "@/interfaces/contractor";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { getProjectCategories } from "@/services/contractor-ops.service";
-import { useDateFormat } from "@/lib/dates";
 import {
   getReceipts,
   exportReceipts,
@@ -33,9 +37,20 @@ const ALL_STATES = "__any__";
 
 export function Receipts() {
   const t = useTranslations();
-  const df = useDateFormat();
   const { can } = useAuth();
-  const list = useListQuery(["project", "supplier", "unit", "category", "uncategorised", "acceptance", "direction", "view"]);
+  const list = useListQuery([
+    "project",
+    "supplier",
+    "manufacturer",
+    "date_from",
+    "date_to",
+    "unit",
+    "category",
+    "uncategorised",
+    "acceptance",
+    "direction",
+    "view",
+  ]);
   // 材料管理's tabs (B09): Material In is what counts - deliveries not
   // rejected; Reject is the rejected ones; a return typed 退场 before 10-02
   // shows under Material Out (direction=OUT).
@@ -66,6 +81,8 @@ export function Receipts() {
       }),
   });
 
+  const unitName = useUnitName();
+  const unitValues = useUnitExportValues();
   const columns = useMemo<ColumnDef<MaterialReceipt, unknown>[]>(
     () => [
       {
@@ -83,8 +100,10 @@ export function Receipts() {
         // whether this reader has looked at it. The archive queue keeps its own
         // per-person marks (D-063) - that is a different screen and a
         // different question, and it is untouched.
+        // The short number big, the project small (2026-10 D4); the whole
+        // number on hover, long press, or copied.
         cell: ({ row }) => (
-          <span className="tabular text-foreground">{row.original.receipt_no}</span>
+          <RecordNo value={row.original.receipt_no} projectCode={row.original.project_code} />
         ),
       },
       {
@@ -137,30 +156,6 @@ export function Receipts() {
           ),
       },
       {
-        accessorKey: "business_at",
-        meta: { label: t("receipts.field.capturedAt") },
-        header: ({ column }) => (
-          <SortableHeader
-            label={t("receipts.field.capturedAt")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
-        ),
-        cell: ({ row }) => (
-          <div className="flex items-center gap-1.5">
-            <span className="tabular text-muted-foreground">
-              {df.date(row.original.business_at ?? row.original.captured_at)}
-            </span>
-            {row.original.has_location && (
-              <MapPin
-                className="h-3 w-3 text-success"
-                aria-label={t("receipts.locationCaptured")}
-              />
-            )}
-          </div>
-        ),
-      },
-      {
         accessorKey: "material_name",
         meta: { label: t("receipts.field.materialName") },
         header: ({ column }) => (
@@ -172,13 +167,21 @@ export function Receipts() {
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[200px] truncate font-medium text-foreground"
+            className="block max-w-50 truncate font-medium text-foreground"
             title={row.original.material_name}
           >
             {row.original.material_name}
           </span>
         ),
       },
+      // The delivery's photograph, between 材料 and 数量 as the client drew
+      // it (E3): the arrival photo before the DO's, opened on click.
+      photoColumn<MaterialReceipt>({
+        label: t("moduleTable.photos"),
+        icon: ClipboardList,
+        reference: (row) => row.receipt_no,
+        photos: (row) => recordPhotos("MATERIAL_RECEIPT", row.id, row.receipt_no),
+      }),
       {
         accessorKey: "quantity",
         meta: { label: t("receipts.field.quantity") },
@@ -191,7 +194,7 @@ export function Receipts() {
         ),
         cell: ({ row }) => (
           <span className="tabular">
-            {row.original.quantity} {t(`receipts.unit.${row.original.unit}`)}
+            {row.original.quantity} {unitName(row.original.unit, row.original.unit_label)}
           </span>
         ),
       },
@@ -199,46 +202,66 @@ export function Receipts() {
         accessorKey: "supplier_name",
         meta: { label: t("receipts.field.supplier") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("receipts.field.supplier")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[180px] truncate"
+            className="block max-w-45 truncate"
             title={row.original.supplier_name}
           >
             {row.original.supplier_name}
           </span>
         ),
       },
+      // Whose make (2026-10 D1), orange 「非指定厂商」 when the category
+      // designates others.
       {
-        accessorKey: "project_name",
-        meta: { label: t("receipts.field.project") },
+        accessorKey: "manufacturer_name",
+        meta: { label: t("receipts.field.manufacturer") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("receipts.field.project")}
+          <span className="text-xs font-semibold text-muted-foreground">
+            {t("receipts.field.manufacturer")}
           </span>
         ),
         cell: ({ row }) => (
-          <div className="min-w-0">
-            <p className="max-w-[180px] truncate">{row.original.project_name}</p>
-            <p className="tabular truncate text-xs text-muted-foreground">
-              {row.original.project_code}
-            </p>
-          </div>
+          <span className="block max-w-50">
+            <ManufacturerCell
+              name={row.original.manufacturer_name}
+              offList={row.original.manufacturer_off_list}
+            />
+          </span>
+        ),
+      },
+      // 记录时间 and 项目 left the list (2026-10 C13): the project is the one
+      // chosen at the top, and the day is in the detail and the export. What
+      // the office matches a delivery against took their place - the DO and
+      // the lorry.
+      {
+        accessorKey: "delivery_note_no",
+        meta: { label: t("receipts.field.deliveryNoteNo") },
+        header: () => (
+          <span className="text-xs font-semibold text-muted-foreground">
+            {t("receipts.field.deliveryNoteNo")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <span className="tabular block max-w-35 truncate" title={row.original.delivery_note_no ?? ""}>
+            {row.original.delivery_note_no || "—"}
+          </span>
         ),
       },
       {
-        accessorKey: "photo_count",
-        meta: { label: t("receipts.field.photoCount") },
+        accessorKey: "vehicle_plate",
+        meta: { label: t("receipts.field.vehiclePlate") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("receipts.field.photoCount")}
+          <span className="text-xs font-semibold text-muted-foreground">
+            {t("receipts.field.vehiclePlate")}
           </span>
         ),
         cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photo_count ?? 0)} />
+          <span className="tabular whitespace-nowrap">{row.original.vehicle_plate || "—"}</span>
         ),
       },
       {
@@ -281,7 +304,7 @@ export function Receipts() {
         ),
       },
     ],
-    [t, can, df],
+    [t, can, unitName],
   );
 
   const totalCount = data?.count ?? 0;
@@ -328,6 +351,7 @@ export function Receipts() {
         { key: "business_at", label: t("receipts.field.businessAt") },
         { key: "project_code", label: t("receipts.field.project") },
         { key: "supplier_name", label: t("receipts.field.supplier") },
+        { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
         { key: "category_name", label: t("receipts.field.category") },
         {
           key: "movement_type",
@@ -341,9 +365,7 @@ export function Receipts() {
         {
           key: "unit",
           label: t("receipts.field.unit"),
-          values: Object.fromEntries(
-            MATERIAL_UNITS.map((unit) => [unit, t(`receipts.unit.${unit}`)]),
-          ),
+          values: unitValues,
         },
         { key: "unit_price", label: t("receipts.field.unitPrice") },
         { key: "total_value", label: t("receipts.field.totalValue") },
@@ -359,21 +381,23 @@ export function Receipts() {
       <ListHeader
         title={t("receipts.title")}
         subtitle={isLoading ? "—" : t("receipts.count", { count: totalCount })}
-        action={
-          can("receipt.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href="/receipts/create">
-                <Plus className="h-4 w-4" />
-                {t("receipts.new")}
-              </Link>
-            </Button>
-          ) : undefined
-        }
+        // No 「记录材料进场」 here (2026-10 A1, X9): a delivery is recorded on
+        // the phone at the gate, and the office corrects it from its detail.
       />
 
-      <MaterialTabs />
+      <MaterialTabs>
+        <SupplierDateListFilter list={list} showManufacturer />
+      </MaterialTabs>
       {tab === "totals" ? (
-        <NetTotalsView project={list.filters.project} />
+        <NetTotalsView
+          project={list.filters.project}
+          filters={{
+            supplier: list.filters.supplier,
+            manufacturer: list.filters.manufacturer,
+            date_from: list.filters.date_from,
+            date_to: list.filters.date_to,
+          }}
+        />
       ) : (
       <DataTable
         columns={columns}
@@ -387,7 +411,11 @@ export function Receipts() {
         search={list.search}
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
-        storageKey="receipts"
+        // `.v2` since the columns changed (2026-10 C13): a reader's saved
+        // choice of the old columns would otherwise hide the DO and plate.
+        // `.v3` with the manufacturer column (2026-10 D1); `.v4` with the
+        // photograph in place of the photo count (E3).
+        storageKey="receipts.v4"
         toolbarActions={
           <div className="ml-auto flex items-center gap-2">
             <Select
@@ -399,7 +427,7 @@ export function Receipts() {
                 })
               }
             >
-              <SelectTrigger size="sm" className="w-[190px]">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder={t("receipts.allColumns")} />
               </SelectTrigger>
               <SelectContent>
@@ -420,7 +448,7 @@ export function Receipts() {
                 list.setFilter("acceptance", value === ALL_STATES ? undefined : value)
               }
             >
-              <SelectTrigger size="sm" className="w-[150px]">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder={t("receipts.allStates")} />
               </SelectTrigger>
               <SelectContent>

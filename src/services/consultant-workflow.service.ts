@@ -373,6 +373,71 @@ export const linkApplicationEvidence = async (
   return row;
 };
 
+// E6: a draft is a draft. Everything added to it can come off again or be
+// corrected; once submitted the server answers 409
+// (`consultant_application_locked`).
+
+export const removeApplicationAttachment = async (id: string, attachment: string) => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/remove_attachment/`,
+    { attachment },
+  );
+  toastSuccess("consultantWorkflow.toast.attachmentRemoved");
+  return row;
+};
+
+/** Change the type or note, and/or replace the file (the old one stays in the audit log). */
+export const updateApplicationAttachment = async (
+  id: string,
+  attachment: string,
+  changes: { category: string; note: string; file?: File | null },
+) => {
+  const data = new FormData();
+  data.append("attachment", attachment);
+  data.append("category", changes.category);
+  data.append("note", changes.note);
+  if (changes.file) data.append("file", changes.file);
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/update_attachment/`,
+    data,
+  );
+  toastSuccess("consultantWorkflow.toast.attachmentUpdated");
+  return row;
+};
+
+/** Unlink one photo, or every photo of a related site record at once. */
+export const unlinkApplicationEvidence = async (id: string, links: string[]) => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/unlink_evidence/`,
+    { links },
+  );
+  toastSuccess("consultantWorkflow.toast.evidenceUnlinked");
+  return row;
+};
+
+export const updateApplicationEvidenceCaption = async (
+  id: string,
+  link: string,
+  caption: string,
+) => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/update_evidence_link/`,
+    { link, caption },
+  );
+  toastSuccess("consultantWorkflow.toast.evidenceUpdated");
+  return row;
+};
+
+/** Every linked photo, once each, in the new order. */
+export const reorderApplicationEvidence = async (id: string, links: string[]) => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/reorder_evidence/`,
+    { links },
+  );
+  toastSuccess("consultantWorkflow.toast.evidenceUpdated");
+  return row;
+};
+
 /**
  * Rebuild an approval report that was decided but never archived.
  *
@@ -455,6 +520,20 @@ export const updateConsultantOrganization = async (
   );
   toastSuccess("consultantAccess.toast.organizationSaved");
   return row;
+};
+
+/**
+ * The consultant firm's logo, printed top right on the A4 application form
+ * (2026-10 C1). `null` takes it off.
+ */
+export const uploadConsultantOrganizationLogo = async (id: string, file: File | null) => {
+  const data = new FormData();
+  if (file) data.append("logo", file);
+  else data.append("clear", "true");
+  return api.post<ConsultantOrganizationOption>(
+    `/api/consultant-access/${id}/upload_organization_logo/`,
+    data,
+  );
 };
 
 export const getConsultantMembers = (query: ListQuery = {}) =>

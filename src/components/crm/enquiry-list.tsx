@@ -54,7 +54,7 @@ export function EnquiryList() {
         accessorKey: "company_name",
         meta: { label: t("crm.field.companyName") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("crm.field.companyName")}
           </span>
         ),
@@ -69,19 +69,19 @@ export function EnquiryList() {
         accessorKey: "subject",
         meta: { label: t("crm.field.subject") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("crm.field.subject")}
           </span>
         ),
         cell: ({ row }) => (
-          <p className="max-w-[280px] truncate">{row.original.subject}</p>
+          <p className="max-w-70 truncate">{row.original.subject}</p>
         ),
       },
       {
         accessorKey: "status",
         meta: { label: t("crm.field.status") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("crm.field.status")}
           </span>
         ),

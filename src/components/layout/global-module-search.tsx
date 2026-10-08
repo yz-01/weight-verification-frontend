@@ -75,14 +75,14 @@ export function GlobalModuleSearch() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="h-9 min-w-0 max-w-full shrink justify-start bg-card px-2.5 text-muted-foreground shadow-sm hover:border-primary/30 hover:bg-accent sm:w-56 sm:flex-none lg:w-72"
+          className="h-10 min-w-0 max-w-full shrink justify-start bg-card px-3 text-muted-foreground hover:border-primary/40 hover:bg-accent sm:w-56 sm:flex-none lg:w-72"
           aria-label={t("globalSearch.open")}
         >
           <Search className="size-4" />
           <span className="hidden flex-1 truncate text-left font-normal sm:inline">
             {t("globalSearch.placeholder")}
           </span>
-          <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium sm:inline">Ctrl K</kbd>
+          <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-2xs font-medium sm:inline">Ctrl K</kbd>
         </Button>
       </PopoverTrigger>
       <PopoverContent

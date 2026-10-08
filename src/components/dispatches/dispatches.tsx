@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { DrillNote } from "@/components/shared/drill-note";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
@@ -51,7 +52,9 @@ export function Dispatches() {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery(["state", "project", "waste_type"]);
+  // `counted=1` arrives from the head office's 原废料订单 card (F8): only the
+  // orders it counts - not a draft, not cancelled.
+  const list = useListQuery(["state", "project", "waste_type", "counted"]);
   const [removing, setRemoving] = useState<WasteDispatch | null>(null);
 
   const { data, isLoading, isError } = useQuery({
@@ -106,7 +109,7 @@ export function Dispatches() {
         accessorKey: "waste_type",
         meta: { label: t("dispatches.field.wasteType") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("dispatches.field.wasteType")}
           </span>
         ),
@@ -118,13 +121,13 @@ export function Dispatches() {
         accessorKey: "recycler_name",
         meta: { label: t("dispatches.field.recycler") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("dispatches.field.recycler")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[180px] truncate"
+            className="block max-w-45 truncate"
             title={row.original.recycler_name}
           >
             {row.original.recycler_name}
@@ -135,14 +138,16 @@ export function Dispatches() {
         accessorKey: "estimated_weight_kg",
         meta: { label: t("dispatches.field.estimatedWeight") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("dispatches.field.estimatedWeight")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("dispatches.field.estimatedWeight")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <span className="tabular text-muted-foreground">
+          <span className="tabular block text-right text-muted-foreground">
             {row.original.estimated_weight_kg ?? t("common.emptyValue")}
           </span>
         ),
@@ -151,7 +156,7 @@ export function Dispatches() {
         accessorKey: "vehicle_plate",
         meta: { label: t("dispatches.field.vehiclePlate") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("dispatches.field.vehiclePlate")}
           </span>
         ),
@@ -295,15 +300,22 @@ export function Dispatches() {
            * permission the route already declares.
            */
           can("dispatch.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/dispatches/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("dispatches.new")}
               </Link>
             </Button>
           ) : undefined
         }
       />
+      {list.filters.counted === "1" && (
+        <DrillNote
+          label={t("dispatches.countedOnly")}
+          clearLabel={t("dispatches.showAll")}
+          params={["counted"]}
+        />
+      )}
 
       <DataTable
         columns={columns}

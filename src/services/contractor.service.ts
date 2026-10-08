@@ -37,6 +37,7 @@ import type {
   WasteDispatchDetail,
   WasteDispatchPayload,
 } from "@/interfaces/contractor";
+import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import type { QRCodeIssue } from "@/interfaces/qrcode";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -63,7 +64,12 @@ export interface ExportSummary {
    * `material`: the net quantity per material, specification and unit -
    * received, returned, net (B09). Only the receipts export reads it.
    */
-  groupBy: "unit" | "material";
+  /**
+   * `material_cumulative`: the material quantity report's closing
+   * 「累计总数量」 - per material, specification and unit: the period, the
+   * running total from the first delivery, and the deliveries (E5).
+   */
+  groupBy: "unit" | "material" | "material_cumulative";
   title: string;
   unitLabel: string;
   quantityLabel: string;
@@ -75,6 +81,7 @@ export interface ExportSummary {
   receivedLabel?: string;
   returnedLabel?: string;
   netLabel?: string;
+  cumulativeLabel?: string;
 }
 
 export interface ExportRequest {
@@ -123,6 +130,13 @@ export function exportBody(request: ExportRequest) {
                   received_label: request.summary.receivedLabel ?? "",
                   returned_label: request.summary.returnedLabel ?? "",
                   net_label: request.summary.netLabel ?? "",
+                }
+              : {}),
+            ...(request.summary.groupBy === "material_cumulative"
+              ? {
+                  material_label: request.summary.materialLabel ?? "",
+                  specification_label: request.summary.specificationLabel ?? "",
+                  cumulative_label: request.summary.cumulativeLabel ?? "",
                 }
               : {}),
           },
@@ -438,10 +452,33 @@ export function getReceipts(
   return api.list<MaterialReceipt>("/api/receipts/get_receipts/", query);
 }
 
-/** One line of 材料管理's totals (B09). Quantities arrive as strings. */
+/**
+ * One delivery or return behind a net line (2026-10 C11): the paper it came
+ * or went with, and who brought it.
+ */
+export interface MaterialNetTotalItem {
+  kind: "DELIVERY" | "RETURN" | "RETURN_RECEIPT" | "REJECTED";
+  id: string;
+  reference: string;
+  date: string;
+  quantity: string;
+  unit: string;
+  delivery_note_no: string;
+  vehicle_plate: string;
+  supplier_name: string;
+  manufacturer_name: string;
+  return_note_no: string;
+}
+
+/** One line of 材料管理's totals (B09, C11). Quantities arrive as strings. */
 export interface MaterialNetTotalRow {
   project: string;
   project_name: string;
+  /** Grouped by supplier since 2026-10 C11; empty when none was named. */
+  supplier: string;
+  supplier_name: string;
+  /** The supplier's finished returns, all time (C10's badge count, audit #23). */
+  supplier_return_count?: number;
   material_name: string;
   material_specification: string;
   unit: string;
@@ -450,6 +487,44 @@ export interface MaterialNetTotalRow {
   returned: string;
   net: string;
   deliveries: number;
+  items?: MaterialNetTotalItem[];
+}
+
+/**
+ * 累计净数量 as PDF or spreadsheet (2026-10 C11): the server reads the same
+ * lines the screen shows, with the same filters, so the file and the screen
+ * never disagree.
+ */
+export function exportReceiptNetTotals(request: ExportRequest): Promise<void> {
+  return download("/api/receipts/export_net_totals/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `net-totals.${request.format}`,
+  });
+}
+
+/**
+ * Every finished return to one supplier (2026-10 C10): what the
+ * 「有退场资料」 badge opens.
+ */
+export function getSupplierReturns(
+  id: string,
+  filters: { project?: string; date_from?: string; date_to?: string } = {},
+): Promise<{
+  supplier: string;
+  supplier_name: string;
+  count: number;
+  /** All that match; the list stops at `limit` (audit #24). */
+  total?: number;
+  limit?: number;
+  truncated?: boolean;
+  results: MaterialOutgoing[];
+}> {
+  const query = Object.fromEntries(
+    Object.entries(filters).filter(([, value]) => Boolean(value)),
+  );
+  return api.get(`/api/suppliers/${id}/returns/`, query);
 }
 
 /** Net per project, material, specification and unit (B09). */

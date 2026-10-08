@@ -9,10 +9,12 @@ const source = readFileSync(
 );
 
 /**
- * One confirmer per rectification, decided by where it was raised (B21, E02).
+ * One confirmer per rectification: whoever raised it (B21, E02, X8).
  *
- * 「手机现场发起 → 指定确认人；后台发起 → 后台发起人；顾问发起 → 顾问」, and
- * not 「手机和后台两端都要确认」. The server stores that one person and answers
+ * B21 had 「手机现场发起 → 指定确认人；后台发起 → 后台发起人；顾问发起 → 顾问」;
+ * X8 (2026-10, 「整改完成后，由原发起人确认完成」) made the phone the same as the
+ * other two, so nobody picks a confirmer any more. And still not
+ * 「手机和后台两端都要确认」. The server stores that one person and answers
  * `can_confirm` per reader. A screen that went on showing 【确认完成】 to anyone
  * holding `safety.verify` would put the button in front of every supervisor
  * on the project, all but one of whom the server then refuses.
@@ -28,9 +30,17 @@ describe("the confirm entry follows the confirmer", () => {
     expect(uses.length).toBeGreaterThanOrEqual(4);
   });
 
-  it("refuses a rectifier who is also the confirmer before sending", () => {
-    expect(source).toContain('t("ehs.form.confirmerConflict")');
+  it("refuses assigning the raiser to fix their own hazard before sending", () => {
     expect(source).toContain('te("form.confirmerConflict")');
+  });
+
+  // X8 overturns the old assertion that the report form, too, warned about a
+  // chosen confirmer who was also the rectifier: there is no choosing now.
+  it("offers no confirmer picker: the raiser confirms (X8)", () => {
+    expect(source).not.toContain("selectConfirmer");
+    expect(source).not.toContain("confirmer.me");
+    expect(source).not.toMatch(/confirmer:\s*(namesConfirmer|fieldMode)/);
+    expect(source).toContain('t("ehs.confirmer.initiator")');
   });
 });
 

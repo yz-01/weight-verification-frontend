@@ -8,11 +8,12 @@ import {
   Clock3,
   FileText,
   Grid2X2,
-  MapPinned,
   House,
+  ListTodo,
   Loader2,
   LogIn,
   LogOut,
+  MapPinned,
   Play,
   RefreshCw,
   Send,
@@ -25,6 +26,7 @@ import { useTranslations } from "next-intl";
 import { APP_VERSION } from "@/lib/app-version";
 import { useSearchParams } from "next/navigation";
 
+import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useEffect, useMemo, useState } from "react";
@@ -89,6 +91,10 @@ export function FieldStaffWorkspace() {
   const requestedIncidentId = searchParams.get("incident") ?? "";
   // 公司公告 (C18): the notice links here; the announcement opens over home.
   const announcement = searchParams.get("announcement");
+  // An equipment entry or exit the office accepted or not (Fable B4 #15):
+  // it opens under 我提交过的 on home, not the capture form the same old
+  // link also names as its `record`.
+  const requestedMovement = searchParams.get("movement");
   const clearAnnouncement = useClearSearchParam("announcement");
 
   return (
@@ -98,10 +104,10 @@ export function FieldStaffWorkspace() {
     )}
     <FieldStaffWorkspaceContent
       requestedTaskId={requestedTaskId}
-      requestedTab={requestedIncidentId ? "incidents" : requestedTab}
+      requestedTab={requestedIncidentId ? "incidents" : requestedMovement ? "home" : requestedTab}
       // A link to a particular hazard means that hazard, not the report form
-      // the same link also names as its `record`.
-      requestedRecord={requestedIncidentId ? null : requestedRecord}
+      // the same link also names as its `record`; the same for a movement.
+      requestedRecord={requestedIncidentId || requestedMovement ? null : requestedRecord}
       requestedIncidentId={requestedIncidentId}
       supplierToken={supplierToken}
     />
@@ -279,19 +285,19 @@ function FieldStaffWorkspaceContent({
   });
   const projectNames = (projects.data?.results ?? []).map((project) => project.name);
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] min-w-0 flex-col gap-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-      <section className="-mx-4 -mt-5 border-b bg-card px-4 py-5 shadow-[0_8px_24px_rgb(0_0_0/0.035)]">
+    <div className="flex min-h-[calc(100dvh-4rem)] min-w-0 flex-col gap-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      <section className="-mx-4 -mt-5 border-b border-sidebar-border bg-card/60 px-4 py-5">
         <p className="text-xs font-medium text-muted-foreground">
           {t("today", { date: new Date().toLocaleDateString() })}
         </p>
-        <h1 className="mt-1 text-xl font-semibold leading-tight">
+        <h1 className="mt-1 text-xl font-bold leading-tight">
           {t("greeting", { name: user?.full_name ?? "" })}
         </h1>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
-          <span className="rounded-md border bg-muted/40 px-2.5 py-1.5 font-medium">
+          <span className="rounded-full border border-panel-border bg-muted/40 px-3 py-1.5 font-medium">
             {t("identity.company", { company: user?.company_name ?? "-" })}
           </span>
-          <span className="rounded-md border bg-muted/40 px-2.5 py-1.5 font-medium">
+          <span className="rounded-full border border-panel-border bg-muted/40 px-3 py-1.5 font-medium">
             {t("identity.role", { role: user?.role_name ?? "-" })}
           </span>
         </div>
@@ -373,7 +379,7 @@ function FieldStaffWorkspaceContent({
         />
       )}
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-sidebar-border bg-background/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-panel backdrop-blur">
         {/* Four buttons since 「位置」 was removed (T-321). The column count has
             to match or the icons bunch to the left of an empty cell. */}
         <div className="mx-auto grid max-w-2xl grid-cols-4 gap-1 px-3">
@@ -411,7 +417,7 @@ function FieldHomePanel({
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold">{t("home.title")}</h2>
+          <h2 className="text-xl font-bold leading-tight">{t("home.title")}</h2>
           <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
         </div>
       </div>
@@ -432,7 +438,7 @@ function FieldHomePanel({
           theirs is the picture a delivery record shows - so this is their only
           way to set it. On the home panel rather than the workspace header,
           which renders above every tab. */}
-      <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="surface-panel rounded-xl p-4">
         <AvatarUpload />
       </div>
       {/*
@@ -490,16 +496,16 @@ function FieldDeviceHandoff() {
   });
 
   return (
-    <section className="rounded-lg border bg-card p-4 shadow-sm">
-      <p className="text-sm font-semibold">{t("handoff.title")}</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">{t("handoff.help")}</p>
+    <section className="surface-panel rounded-xl p-4">
+      <p className="panel-title">{t("handoff.title")}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{t("handoff.help")}</p>
 
       {handoff ? (
         <div className="mt-3 space-y-2">
-          <div className="grid place-items-center rounded-md border bg-background p-3">
+          <div className="grid place-items-center rounded-lg border bg-paper p-3">
             <QRCodeCanvas value={handoff.url} size={168} />
           </div>
-          <p className="break-all rounded-md bg-muted/40 p-2 font-mono text-xs">
+          <p className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-xs">
             {handoff.url}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -512,7 +518,7 @@ function FieldDeviceHandoff() {
       ) : (
         <Button
           className="mt-3"
-          size="sm"
+          variant="outline"
           disabled={issue.isPending}
           onClick={() => issue.mutate()}
         >
@@ -529,7 +535,7 @@ function FieldDeviceHandoff() {
 }
 
 function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
+  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/12 text-tone-cyan-fg" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
 }
 
 function taskRecordMode(task: FieldTask): FieldRecordMode | null {
@@ -598,7 +604,7 @@ function FieldTaskPanel({ taskType, requestedTaskId, onOpenWorkflow }: { taskTyp
   });
   if (tasks.isLoading) return <LoadingState />;
   if (tasks.isError) return <ErrorState onRetry={() => void tasks.refetch()} />;
-  return <section className="space-y-3"><div className="flex items-center justify-between"><div><h2 className="text-base font-semibold">{taskType === "CONSULTANT" ? t("consultantTasks.title") : t("tasks.title")}</h2><p className="text-sm text-muted-foreground">{t("tasks.count", { count: active.length })}</p></div><Button size="icon" variant="outline" title={t("action.refresh")} onClick={() => void tasks.refetch()}><RefreshCw /></Button></div>{actionError && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{actionError}</p>}{active.length === 0 ? <div className="grid min-h-48 place-items-center rounded-xl border border-dashed bg-card text-center"><div><Check className="mx-auto size-10 text-success" /><p className="mt-3 font-medium">{t("tasks.empty")}</p></div></div> : active.map((task) => <FieldTaskCard key={task.id} task={task} focused={task.id === requestedTaskId} busy={transition.isPending || photo.isPending} onTransition={(status) => transition.mutate({ task, status })} onPhoto={(file) => photo.mutate({ task, file })} onOpenWorkflow={() => { const mode = taskRecordMode(task); if (mode) onOpenWorkflow(task, mode); }} />)}</section>;
+  return <section className="space-y-3"><div className="flex items-center justify-between gap-3"><div className="min-w-0"><h2 className="text-xl font-bold leading-tight">{taskType === "CONSULTANT" ? t("consultantTasks.title") : t("tasks.title")}</h2><p className="text-sm text-muted-foreground">{t("tasks.count", { count: active.length })}</p></div><Button size="icon" variant="outline" title={t("action.refresh")} onClick={() => void tasks.refetch()}><RefreshCw /></Button></div>{actionError && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{actionError}</p>}{active.length === 0 ? <div className="grid min-h-48 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center"><div><Check className="mx-auto size-10 text-success" /><p className="mt-3 font-medium">{t("tasks.empty")}</p></div></div> : active.map((task) => <FieldTaskCard key={task.id} task={task} focused={task.id === requestedTaskId} busy={transition.isPending || photo.isPending} onTransition={(status) => transition.mutate({ task, status })} onPhoto={(file) => photo.mutate({ task, file })} onOpenWorkflow={() => { const mode = taskRecordMode(task); if (mode) onOpenWorkflow(task, mode); }} />)}</section>;
 }
 
 function FieldTaskCard({ task, focused, busy, onTransition, onPhoto, onOpenWorkflow }: { task: FieldTask; focused: boolean; busy: boolean; onTransition: (status: "IN_PROGRESS" | "SUBMITTED") => void; onPhoto: (file: File) => void; onOpenWorkflow: () => void }) {
@@ -611,7 +617,7 @@ function FieldTaskCard({ task, focused, busy, onTransition, onPhoto, onOpenWorkf
   const canSubmit = photos >= requiredPhotos;
   const workflowMode = taskRecordMode(task);
   const opensLinkedDisposal = task.linked_record_type === "DISPOSAL_EXECUTION";
-  return <article className={`overflow-hidden rounded-xl border bg-card shadow-sm ${task.priority === "URGENT" ? "border-destructive/40" : ""} ${focused ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}><div className="p-4"><div className="flex items-start justify-between gap-3"><div><StatusBadge label={t(`status.${task.status}`)} tone={task.status === "RETURNED" ? "danger" : task.status === "SUBMITTED" ? "warning" : "info"} /><h3 className="mt-3 text-base font-semibold leading-snug">{task.title}</h3><p className="mt-1 text-sm text-muted-foreground">{task.project_name}</p></div><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{t(`type.${task.task_type}`)}</span></div><div className="mt-3 grid gap-1 text-xs text-muted-foreground"><p>{t("tasks.assignedBy", { name: task.created_by_name || task.assigned_to_name })}</p>{task.work_location && <p>{t("tasks.workLocation", { location: task.work_location })}</p>}{task.due_at && <p>{t("tasks.dueAt", { value: new Date(task.due_at).toLocaleString() })}</p>}</div>{task.instructions && <p className="mt-4 rounded-lg bg-muted/50 p-3 text-sm leading-6">{task.instructions}</p>}{task.references.length ? <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3"><p className="mb-3 text-sm font-semibold text-primary">{t("tasks.references", { count: task.references.length })}</p><div className="grid grid-cols-2 gap-2">{task.references.map((reference) => reference.kind === "PHOTO" ? <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer"><Image src={reference.file} alt={reference.label || reference.original_filename} width={320} height={240} unoptimized className="aspect-[4/3] w-full rounded-lg object-cover" /></a> : <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer" className="col-span-2 flex min-h-12 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm font-semibold text-primary"><FileText className="size-5 shrink-0" /><span className="truncate">{reference.label || reference.original_filename}</span></a>)}</div></div> : null}{task.started_at && <p className="mt-3 text-xs text-muted-foreground">{t("tasks.startedAt", { value: new Date(task.started_at).toLocaleString() })}</p>}{task.status === "RETURNED" && task.review_note && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{task.review_note}</p>}{!workflowMode && <><div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">{task.photos.map((item, index) => <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" className="w-24 shrink-0" title={`${index + 1} / ${task.photos.length}`}><Image src={item.watermarked || item.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg border object-cover" /></a>)}</div><p className="mt-3 text-center text-sm font-medium">{t("tasks.evidence", { current: photos, required: requiredPhotos })}</p></>}</div><div className="grid gap-2 border-t bg-muted/20 p-3">{task.status === "OPEN" && (opensLinkedDisposal ? <Button className="h-12 text-sm" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <Button className="h-12 text-sm" disabled={busy} onClick={() => onTransition("IN_PROGRESS")}><Play />{t("action.start")}</Button>)}{["IN_PROGRESS", "RETURNED"].includes(task.status) && (workflowMode ? <Button className="h-12 text-sm" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <><FieldCamera label={t("action.takePhoto")} fileCount={photos} disabled={busy} onCapture={onPhoto} /><Button className="h-12 text-sm" disabledReason={!canSubmit ? t("action.morePhotos", { count: Math.max(0, requiredPhotos - photos) }) : undefined} disabled={busy || !canSubmit} onClick={() => onTransition("SUBMITTED")}><Send />{canSubmit ? t("action.submit") : t("action.morePhotos", { count: Math.max(0, requiredPhotos - photos) })}</Button></>)}{task.status === "SUBMITTED" && <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-warning"><Clock3 className="size-5" />{task.linked_record_reference ? t("tasks.linkedSubmission", { reference: task.linked_record_reference }) : t("tasks.waitingReview")}</div>}</div></article>;
+  return <article className={`overflow-hidden surface-panel rounded-xl ${task.priority === "URGENT" ? "border-destructive/40" : ""} ${focused ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}><div className="p-4"><div className="flex items-start justify-between gap-3"><PhotoThumb coverUrl={task.cover_photo_url} count={task.photo_count} icon={ListTodo} reference={task.title} photos={rowPhotos(task.photos, task.title)} /><div className="min-w-0 flex-1"><StatusBadge label={t(`status.${task.status}`)} tone={task.status === "RETURNED" ? "danger" : task.status === "SUBMITTED" ? "warning" : "info"} /><h3 className="mt-3 text-base font-semibold leading-snug">{task.title}</h3><p className="mt-1 text-sm text-muted-foreground">{task.project_name}</p></div><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{t(`type.${task.task_type}`)}</span></div><div className="mt-3 grid gap-1 text-xs text-muted-foreground"><p>{t("tasks.assignedBy", { name: task.created_by_name || task.assigned_to_name })}</p>{task.work_location && <p>{t("tasks.workLocation", { location: task.work_location })}</p>}{task.due_at && <p>{t("tasks.dueAt", { value: new Date(task.due_at).toLocaleString() })}</p>}</div>{task.instructions && <p className="mt-4 rounded-lg bg-muted/50 p-3 text-sm leading-6">{task.instructions}</p>}{task.references.length ? <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3"><p className="mb-3 text-sm font-semibold text-primary">{t("tasks.references", { count: task.references.length })}</p><div className="grid grid-cols-2 gap-2">{task.references.map((reference) => reference.kind === "PHOTO" ? <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer"><Image src={reference.file} alt={reference.label || reference.original_filename} width={320} height={240} unoptimized className="aspect-[4/3] w-full rounded-lg object-cover" /></a> : <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer" className="col-span-2 flex min-h-12 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm font-semibold text-primary"><FileText className="size-5 shrink-0" /><span className="truncate">{reference.label || reference.original_filename}</span></a>)}</div></div> : null}{task.started_at && <p className="mt-3 text-xs text-muted-foreground">{t("tasks.startedAt", { value: new Date(task.started_at).toLocaleString() })}</p>}{task.status === "RETURNED" && task.review_note && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{task.review_note}</p>}{!workflowMode && <><div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">{task.photos.map((item, index) => <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" className="w-24 shrink-0" title={`${index + 1} / ${task.photos.length}`}><Image src={item.watermarked || item.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg border object-cover" /></a>)}</div><p className="mt-3 text-center text-sm font-medium">{t("tasks.evidence", { current: photos, required: requiredPhotos })}</p></>}</div><div className="grid gap-2 border-t bg-muted/20 p-3">{task.status === "OPEN" && (opensLinkedDisposal ? <Button className="h-12 text-sm" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <Button className="h-12 text-sm" disabled={busy} onClick={() => onTransition("IN_PROGRESS")}><Play />{t("action.start")}</Button>)}{["IN_PROGRESS", "RETURNED"].includes(task.status) && (workflowMode ? <Button className="h-12 text-sm" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <><FieldCamera label={t("action.takePhoto")} fileCount={photos} disabled={busy} onCapture={onPhoto} /><Button className="h-12 text-sm" disabledReason={!canSubmit ? t("action.morePhotos", { count: Math.max(0, requiredPhotos - photos) }) : undefined} disabled={busy || !canSubmit} onClick={() => onTransition("SUBMITTED")}><Send />{canSubmit ? t("action.submit") : t("action.morePhotos", { count: Math.max(0, requiredPhotos - photos) })}</Button></>)}{task.status === "SUBMITTED" && <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-warning"><Clock3 className="size-5" />{task.linked_record_reference ? t("tasks.linkedSubmission", { reference: task.linked_record_reference }) : t("tasks.waitingReview")}</div>}</div></article>;
 }
 
 function FieldAttendancePanel() {
@@ -632,14 +638,14 @@ function FieldAttendancePanel() {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold">{t("attendance.title")}</h2>
+        <h2 className="text-xl font-bold leading-tight">{t("attendance.title")}</h2>
         {attendance.isError ? (
           <FieldLoadNote query={attendance} what={t("what.attendance")} />
         ) : (
           <p className="text-sm text-muted-foreground">{t("attendance.todayCount", { count: today.length })}</p>
         )}
       </div>
-      <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="surface-panel rounded-xl p-4">
         <FieldWrapper label={t("attendance.selectProject")} required>
           <ProjectPicker value={selectedProject} onValueChange={setProject} placeholder={t("attendance.selectProject")} className="h-11 w-full" />
         </FieldWrapper>
@@ -665,20 +671,20 @@ function FieldAttendancePanel() {
                                                        disabled={submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : event === "CLOCK_IN" ? <LogIn /> : <LogOut />}{t("attendance.submit")}</Button>
       </div>
       <div className="space-y-3">
-        {attendance.isSuccess && today.length === 0 && <p className="rounded-xl border border-dashed bg-card p-5 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
+        {attendance.isSuccess && today.length === 0 && <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
         {today.map((row) => {
           const photoUrl = row.watermarked_photo || row.photo;
           const mapUrl = row.latitude && row.longitude
             ? `https://www.google.com/maps?q=${row.latitude},${row.longitude}`
             : "";
           return (
-            <article key={row.id} className="rounded-xl border bg-card p-3 shadow-sm">
+            <article key={row.id} className="surface-panel rounded-xl p-4">
               <div className="flex items-start gap-3">
                 {photoUrl ? (
                   <a href={photoUrl} target="_blank" rel="noreferrer" title={t("attendance.openPhoto")}>
                     <Image src={photoUrl} alt="" width={160} height={160} unoptimized className="size-16 rounded-lg object-cover" />
                   </a>
-                ) : <span className="grid size-16 place-items-center rounded-lg bg-muted"><Camera className="size-6 text-muted-foreground" /></span>}
+                ) : <span className="photo-hatch grid size-16 place-items-center rounded-lg"><Camera className="size-6 text-muted-foreground" /></span>}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap gap-2">
                     <StatusBadge label={t(row.event === "CLOCK_IN" ? "attendance.clockIn" : "attendance.clockOut")} tone={row.event === "CLOCK_IN" ? "positive" : "neutral"} />

@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { DeliveryNote, MaterialUnit, Supplier } from "@/interfaces/contractor";
+import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import type { ProjectCategory } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories } from "@/services/contractor-ops.service";
@@ -36,7 +38,6 @@ import {
   voidDeliveryNote,
 } from "@/services/contractor.service";
 
-const UNITS: MaterialUnit[] = ["TONNE", "KG", "M3", "PIECE", "LOAD", "BAG"];
 
 export function ProjectDockets({ projectId }: { projectId: string }) {
   const t = useTranslations();
@@ -67,21 +68,21 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
   });
 
   return (
-    <div className="rounded-lg border bg-card shadow-sm">
-      <div className="flex items-start justify-between gap-4 px-6 py-5">
+    <div className="surface-panel rounded-xl">
+      <div className="flex flex-wrap items-start justify-between gap-4 p-4 sm:px-6 sm:py-5">
         <div className="min-w-0">
-          <h3 className="text-base font-semibold">{t("qrCodes.title")}</h3>
+          <h3 className="panel-title">{t("qrCodes.title")}</h3>
           <p className="mt-1 text-sm text-muted-foreground">{t("qrCodes.description")}</p>
         </div>
         {can("receipt.create") && (
-          <Button size="sm" className="shrink-0" onClick={() => setIssuing(true)}>
+          <Button className="shrink-0" onClick={() => setIssuing(true)}>
             <Plus />
             {t("qrCodes.new")}
           </Button>
         )}
       </div>
 
-      <div className="divide-y border-t">
+      <div className="divide-y border-t border-panel-border">
         {isLoading ? (
           <div className="grid min-h-32 place-items-center text-muted-foreground">
             <Loader2 className="size-5 animate-spin" />
@@ -89,12 +90,12 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
         ) : isError ? (
           <LoadFailed className="m-4" what={t("qrCodes.what.notes")} onRetry={() => void refetch()} />
         ) : rows.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-muted-foreground">
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground sm:px-6">
             {t("qrCodes.count", { count: 0 })}
           </p>
         ) : (
           rows.map((row) => (
-            <div key={row.id} className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div key={row.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <div className="min-w-0">
                 <p className="font-medium">{row.note_no}</p>
                 <p className="truncate text-sm text-muted-foreground">
@@ -195,6 +196,9 @@ function IssueDeliveryNoteDialog({
   const [materialName, setMaterialName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState<MaterialUnit>("TONNE");
+  // The company's unit list (2026-10 A4), named in the reader's language.
+  const units = useMaterialUnits();
+  const unitName = useUnitName();
   const [expectedAt, setExpectedAt] = useState("");
   const [notes, setNotes] = useState("");
   // Optional on purpose: a project that has not set up its columns yet
@@ -262,8 +266,10 @@ function IssueDeliveryNoteDialog({
           <FieldWrapper label={t("qrCodes.field.supplier")} required error={errors.supplier}>
             <Select value={supplier} onValueChange={(value) => { setSupplier(value); setErrors((current) => ({ ...current, supplier: "", form: "" })); }}>
               <SelectTrigger className="w-full"><SelectValue placeholder={t("qrCodes.chooseSupplier")} /></SelectTrigger>
-              <SelectContent>{options.map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
+              <SelectContent>{options.map((row) => <SelectItem key={row.id} value={row.id}>{row.name}<SupplierReturnBadge supplier={row} interactive={false} /></SelectItem>)}</SelectContent>
             </Select>
+            {/* 「有退场资料」 (2026-10 C10). */}
+            <SupplierReturnBadge supplier={options.find((row) => row.id === supplier)} />
             <QueryFailedNote query={suppliers} what={t("qrCodes.what.suppliers")} />
           </FieldWrapper>
           <FieldWrapper label={t("qrCodes.field.vehicle")} required error={errors.vehicle_plate}>
@@ -281,8 +287,9 @@ function IssueDeliveryNoteDialog({
           <FieldWrapper label={t("qrCodes.field.unit")} required error={errors.unit}>
             <Select value={unit} onValueChange={(value) => setUnit(value as MaterialUnit)}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>{UNITS.map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent>
+              <SelectContent>{(units.data ?? []).map((row) => <SelectItem key={row.code} value={row.code}>{unitName(row.code, row.label)}</SelectItem>)}</SelectContent>
             </Select>
+            <QueryFailedNote query={units} what={t("qrCodes.field.unit")} />
           </FieldWrapper>
           <FieldWrapper label={t("qrCodes.field.expectedAt")} required error={errors.expected_delivery_at} className="sm:col-span-2">
             <Input type="datetime-local" value={expectedAt} onChange={(event) => setExpectedAt(event.target.value)} />
@@ -298,7 +305,7 @@ function IssueDeliveryNoteDialog({
             <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
           </FieldWrapper>
         </div>
-        {errors.form && <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{errors.form}</p>}
+        {errors.form && <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{errors.form}</p>}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
           <Button disabled={creation.isPending || suppliers.isLoading} onClick={submit}>
@@ -328,7 +335,7 @@ function DeliveryNoteQrDialog({ note, onClose }: { note: DeliveryNote; onClose: 
           <DialogTitle>{note.note_no}</DialogTitle>
           <DialogDescription>{note.supplier_name} / {note.material_name}</DialogDescription>
         </DialogHeader>
-        <div className="mx-auto rounded-lg border bg-white p-4">
+        <div className="mx-auto rounded-lg border bg-paper p-4">
           <QRCodeCanvas ref={qrRef} value={note.qr_url ?? ""} size={240} level="H" marginSize={1} />
         </div>
         <p className="break-all text-center text-xs text-muted-foreground">{note.qr_url}</p>

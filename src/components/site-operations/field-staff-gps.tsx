@@ -1,14 +1,15 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { History, LocateFixed, MapPinned, RefreshCw, Route, UserRound } from "lucide-react";
+import { History, LocateFixed, MapPinned, RefreshCw, UserRound } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
-import { FieldWrapper, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, FilterBar, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useOnProjectChange, usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { WorkforcePresencePanel } from "@/components/site-operations/workforce-presence-panel";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,21 @@ import {
 } from "@/services/field-staff-gps.service";
 import { getSiteGeofences, getSiteLocationPolicy } from "@/services/site-access.service";
 
+/**
+ * What office sharing does when the project changes under it - the top bar
+ * moved, which the page's own handlers never see (B13 audit #5): stop on the
+ * project it was posting to, so that project's presence closes, and start
+ * again on the new one (not on 全部项目, which is no project to post to).
+ * Null while not sharing, or when the project did not change.
+ */
+export function sharingHandOver(
+  sharedTo: string | null,
+  next: string,
+): { stop: string; start: boolean } | null {
+  if (sharedTo === null || sharedTo === next) return null;
+  return { stop: sharedTo, start: Boolean(next) };
+}
+
 export function FieldStaffGps({
   managedAutomatically = false,
 }: {
@@ -43,7 +59,10 @@ export function FieldStaffGps({
   const requestedUserId = searchParams.get("user") ?? "";
   const queryClient = useQueryClient();
   const [tab, setTab] = useState(requestedUserId ? "history" : "live");
-  const [projectId, setProjectId] = useState(requestedProjectId);
+  // In the office both tabs are on the top bar's 「当前项目」 (B13); the
+  // field app's Location tab keeps its own choice.
+  const [projectId, setProjectId] = usePageProject(requestedProjectId);
+  const projectBoxShown = useProjectBoxShown("filter");
   const [sharing, setSharing] = useState(false);
   const [sharingError, setSharingError] = useState("");
   /**
@@ -52,14 +71,18 @@ export function FieldStaffGps({
    * reader can move, and only then are the settings steps any use.
    */
   const [sharingRefused, setSharingRefused] = useState(false);
-  const [historyProjectId, setHistoryProjectId] = useState(requestedProjectId);
+  const [historyProjectId, setHistoryProjectId] = usePageProject(requestedProjectId);
   const [historySelection, setHistorySelection] = useState(
     requestedProjectId && requestedUserId
       ? `${requestedProjectId}:${requestedUserId}`
       : "",
   );
+  // A person picked on one project is not on the next one's list.
+  useOnProjectChange(historyProjectId, () => setHistorySelection(""));
   const watchId = useRef<number | null>(null);
   const lastSentAt = useRef(0);
+  /** The project this browser's positions are going to, while sharing. */
+  const sharedTo = useRef<string | null>(null);
 
   /**
    * Whether this reader may watch other people's positions.
@@ -312,17 +335,32 @@ export function FieldStaffGps({
       navigator.geolocation.clearWatch(watchId.current);
       watchId.current = null;
     }
+    sharedTo.current = null;
     setSharing(false);
   }
 
   function stopSharing() {
+    // The project the positions went to, not the one on screen now: they
+    // differ once the top bar has moved, and on 全部项目 there is none.
+    const project = sharedTo.current ?? projectId;
     stopWatcher();
-    if (!projectId || !user) return;
+    if (!project || !user) return;
     stop.mutate({
-      project: projectId,
+      project,
       client_event_id: `${user.id}-stop-${Date.now()}`,
     });
   }
+
+  // The top bar moved while sharing: close the old project, open the new.
+  const followProject = useEffectEvent((next: string) => {
+    const handOver = sharingHandOver(sharedTo.current, next);
+    if (!handOver) return;
+    stopSharing();
+    if (handOver.start) startSharing();
+  });
+  useEffect(() => {
+    followProject(projectId);
+  }, [projectId]);
 
   function startSharing() {
     setSharingError("");
@@ -334,6 +372,7 @@ export function FieldStaffGps({
     }
     stopWatcher();
     setSharing(true);
+    sharedTo.current = projectId;
     watchId.current = navigator.geolocation.watchPosition(
       (position) => {
         const now = Date.now();
@@ -369,7 +408,7 @@ export function FieldStaffGps({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       {/* An empty roster and a refused roster look identical, and the reader
           is the one person who cannot tell them apart. Whoever holds no watch
           permission gets told that, once, instead of a screen of blank tabs
@@ -399,7 +438,6 @@ export function FieldStaffGps({
         }
         action={
           <Button
-            size="sm"
             variant="outline"
             disabled={refreshing}
             onClick={() => {
@@ -434,12 +472,13 @@ export function FieldStaffGps({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="live" className="space-y-5 pt-2">
-          <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
+        <TabsContent value="live" className="space-y-4 pt-2">
+          <FilterBar>
+            {projectBoxShown && (
             <FieldWrapper
               label={t("siteGps.project")}
               required={!managedAutomatically && can("field_position.submit")}
-              className="w-full sm:w-[280px]"
+              className="w-full sm:w-70"
             >
               <ProjectPicker
                 value={projectId || "all"}
@@ -453,8 +492,9 @@ export function FieldStaffGps({
                 className="w-full"
               />
             </FieldWrapper>
+            )}
             {managedAutomatically ? (
-              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md border border-success/25 bg-success/5 px-3 py-2">
+              <div className="flex min-h-10 min-w-0 flex-1 items-center gap-3 rounded-lg border border-success/25 bg-success/5 px-3 py-2">
                 <LocateFixed className="size-4 shrink-0 text-success" />
                 <div className="min-w-0">
                   <p className="text-sm font-medium">{t("siteGps.autoSharing")}</p>
@@ -465,7 +505,6 @@ export function FieldStaffGps({
               </div>
             ) : can("field_position.submit") && (
               <Button
-                size="sm"
                 variant={sharing ? "destructive" : "default"}
                 requires={[[projectId, t("siteGps.project")]]}
                 disabled={record.isPending || stop.isPending}
@@ -492,7 +531,7 @@ export function FieldStaffGps({
                 by browser. Same guidance the field app shows. */}
             {sharingRefused && <LocationDenialSteps className="w-full" />}
             <QueryFailedNote className="w-full" query={locationPolicy} what={t("siteGps.what.locationPolicy")} />
-          </div>
+          </FilterBar>
 
           <MapSection title={t("siteGps.map")} note={t("siteGps.refreshNote")}>
             <LocationMap
@@ -507,11 +546,11 @@ export function FieldStaffGps({
             <QueryFailedNote query={geofences} what={t("siteGps.what.geofences")} />
           </MapSection>
 
-          <section className="space-y-3">
-            <h2 className="text-sm font-semibold">{t("siteGps.people")}</h2>
-            <div className="divide-y border-y">
+          <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6">
+            <h2 className="panel-title">{t("siteGps.people")}</h2>
+            <div className="divide-y rounded-lg border">
               {live.isError ? (
-                <LoadFailed className="my-3" what={t("siteGps.what.live")} onRetry={() => live.refetch()} />
+                <LoadFailed className="m-3" what={t("siteGps.what.live")} onRetry={() => live.refetch()} />
               ) : positions.length === 0 ? (
                 <p className="px-4 py-10 text-center text-sm text-muted-foreground">
                   {t("siteGps.empty")}
@@ -525,8 +564,9 @@ export function FieldStaffGps({
           </section>
         </TabsContent>
 
-        <TabsContent value="history" className="space-y-5 pt-2">
-          <div className="border-y bg-card/50 py-3">
+        <TabsContent value="history" className="space-y-4 pt-2">
+          {projectBoxShown && (
+          <FilterBar>
             <ProjectPicker
               value={historyProjectId || "all"}
               onValueChange={(value) => {
@@ -536,9 +576,10 @@ export function FieldStaffGps({
               allowAll
               allLabel={t("siteGps.allProjects")}
               placeholder={t("siteGps.project")}
-              className="w-full sm:w-[280px]"
+              className="w-full sm:w-70"
             />
-          </div>
+          </FilterBar>
+          )}
 
           <MapSection
             title={t("siteGps.historyMap")}
@@ -560,16 +601,13 @@ export function FieldStaffGps({
             <QueryFailedNote query={geofences} what={t("siteGps.what.geofences")} />
           </MapSection>
 
-          <section className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Route className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-semibold">
-                {t("siteGps.lastPositions")}
-              </h2>
-            </div>
-            <div className="divide-y border-y">
+          <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6">
+            <h2 className="panel-title">
+              {t("siteGps.lastPositions")}
+            </h2>
+            <div className="divide-y rounded-lg border">
               {lastPositions.isError ? (
-                <LoadFailed className="my-3" what={t("siteGps.what.lastPositions")} onRetry={() => lastPositions.refetch()} />
+                <LoadFailed className="m-3" what={t("siteGps.what.lastPositions")} onRetry={() => lastPositions.refetch()} />
               ) : lastRows.length === 0 ? (
                 <p className="px-4 py-10 text-center text-sm text-muted-foreground">
                   {t("siteGps.historyEmpty")}
@@ -705,12 +743,9 @@ function MapSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <MapPinned className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold">{title}</h2>
-        </div>
+    <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <h2 className="panel-title">{title}</h2>
         <span className="text-xs text-muted-foreground">{note}</span>
       </div>
       {children}
@@ -741,7 +776,7 @@ function PositionRow({ position }: { position: FieldStaffPosition }) {
               : "neutral"
         }
       />
-      <span className="text-xs tabular-nums text-muted-foreground">
+      <span className="tabular text-xs text-muted-foreground">
         {position.is_stale ? t("siteGps.stale") : t("siteGps.live")}
       </span>
     </div>

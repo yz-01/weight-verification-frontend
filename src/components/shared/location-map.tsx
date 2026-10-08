@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { createElement, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { MAP_PRIMARY } from "@/lib/map-palette";
 
 import {
   MAP_TILE_OPTIONS,
@@ -145,7 +146,7 @@ export function LocationMap({
         ...zones,
       ];
       visibleZones.forEach((zone) => {
-        const color = zone.color ?? "#087f8c";
+        const color = zone.color ?? MAP_PRIMARY;
         if (zone.points && zone.points.length >= 3) {
           L.polygon(zone.points, {
             color,
@@ -172,7 +173,7 @@ export function LocationMap({
       paths.forEach((path) => {
         if (path.points.length < 2) return;
         const line = L.polyline(path.points, {
-          color: path.color ?? "#087f8c",
+          color: path.color ?? MAP_PRIMARY,
           weight: path.dashed ? 3 : 4,
           opacity: path.dashed ? 0.55 : 0.75,
           dashArray: path.dashed ? "6 8" : undefined,
@@ -183,12 +184,12 @@ export function LocationMap({
       markers.forEach((marker) => {
         const color =
           marker.tone === "danger"
-            ? "#c2410c"
+            ? "var(--tone-rose)"
             : marker.tone === "warning"
-              ? "#b7791f"
+              ? "var(--tone-amber)"
               : marker.tone === "positive"
-                ? "#16825d"
-                : "#087f8c";
+                ? "var(--tone-green)"
+                : "var(--tone-cyan)";
         const icon = L.divIcon({
           className: "mse-map-marker",
           html: `<span style="--marker-color:${color};${marker.stale ? "opacity:.5;" : ""}">${renderToStaticMarkup(

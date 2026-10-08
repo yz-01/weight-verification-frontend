@@ -14,7 +14,7 @@ import {
 } from "@/components/layout/sidebar-flyout";
 import { UserMenu } from "@/components/layout/user-menu";
 import { useAuth } from "@/components/providers/auth-provider";
-import { useUnreadBadges } from "@/hooks/use-unread-badges";
+import { badgeLabelKey, useUnreadBadges } from "@/hooks/use-unread-badges";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import {
@@ -41,6 +41,7 @@ import {
   type FeatureNavChild,
 } from "@/lib/navigation";
 import { PORTAL_LABELS } from "@/lib/portal";
+import { MODULE_TILE, moduleTone } from "@/lib/tones";
 import { cn } from "@/lib/utils";
 
 /**
@@ -180,16 +181,16 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border/80">
-        <div className="flex items-center gap-2.5 px-2 py-1.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-background p-1">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-3 px-1 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-panel-border bg-card p-1 shadow-glow-sm">
             <BrandIcon
               branding={user?.branding}
               alt={user?.branding?.company_name ?? user?.branding?.name ?? ""}
             />
           </span>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="truncate text-sm font-semibold tracking-tight">
+            <p className="truncate text-base font-semibold leading-tight">
               {user ? PORTAL_LABELS[user.portal] : t("app.name")}
             </p>
             {user?.company_name && (
@@ -242,7 +243,7 @@ export function AppSidebar() {
                         isActive={active}
                         tooltip={hasMenu && !isMobile ? undefined : label}
                         className={cn(
-                          "h-9 rounded-md px-2.5 data-[active=true]:bg-primary/10 data-[active=true]:font-semibold data-[active=true]:text-primary",
+                          "rounded-lg px-2 data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground data-[active=true]:shadow-[inset_2px_0_0_var(--sidebar-primary)]",
                           flyoutOpen &&
                             "bg-sidebar-accent text-sidebar-accent-foreground",
                         )}
@@ -258,7 +259,15 @@ export function AppSidebar() {
                           }}
                           aria-current={active ? "page" : undefined}
                         >
-                          <Icon />
+                          <span
+                            aria-hidden
+                            className={cn(
+                              "grid size-7 shrink-0 place-items-center rounded-lg",
+                              MODULE_TILE[moduleTone(item.feature)],
+                            )}
+                          >
+                            <Icon />
+                          </span>
                           <span>{label}</span>
                           {/* Inside the Link, not in a SidebarMenuAction: the
                               right-hand slot already holds the submodule
@@ -276,7 +285,10 @@ export function AppSidebar() {
                           {(badges[item.feature] ?? 0) > 0 && (
                             <span
                               className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none tabular-nums text-primary-foreground group-data-[collapsible=icon]:hidden"
-                              aria-label={t("nav.waitingForYou", {
+                              aria-label={t(badgeLabelKey(item.feature), {
+                                count: badges[item.feature] ?? 0,
+                              })}
+                              title={t(badgeLabelKey(item.feature), {
                                 count: badges[item.feature] ?? 0,
                               })}
                             >
@@ -365,7 +377,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border/80">
+      <SidebarFooter className="border-t border-sidebar-border">
         <div className="flex items-center justify-between gap-1 group-data-[collapsible=icon]:flex-col">
           <UserMenu />
           <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
@@ -403,7 +415,7 @@ function InlineLevel({
               <SidebarMenuSubButton
                 asChild
                 isActive={node.active && !hasLevel}
-                className="h-9 min-w-0 flex-1 rounded-md px-2.5 data-[active=true]:bg-primary/10 data-[active=true]:font-medium data-[active=true]:text-primary"
+                className="h-10 min-w-0 flex-1 rounded-lg px-3 pointer-coarse:h-11 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground"
               >
                 <Link
                   href={node.href}
@@ -420,7 +432,7 @@ function InlineLevel({
                   aria-label={toggleLabel(node.label)}
                   aria-expanded={open}
                   onClick={() => onToggle(node.key, open)}
-                  className="grid size-9 shrink-0 place-items-center rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent"
+                  className="grid size-10 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-sidebar-accent pointer-coarse:size-11"
                 >
                   <ChevronDown
                     className={cn("size-4 transition-transform", open && "rotate-180")}

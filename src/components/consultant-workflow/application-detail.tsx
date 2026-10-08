@@ -17,7 +17,6 @@ import {
   Pencil,
   Plus,
   RotateCcw,
-  Send,
   ShieldCheck,
   BadgeCheck,
   ExternalLink,
@@ -29,15 +28,32 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { useAuth } from "@/components/providers/auth-provider";
-import { RecordExportButton } from "@/components/shared/record-export-button";
 import {
-  DetailHeader,
+  ATTACHMENT_TYPES,
+  AttachmentRows,
+  EvidenceLinkCards,
+  LockedNote,
+  RelatedRecordRemove,
+  RemoveSwitch,
+} from "@/components/consultant-workflow/application-draft-edit";
+import {
+  ApplicationFormCard,
+  printPdf,
+} from "@/components/consultant-workflow/application-form-card";
+import { useAuth } from "@/components/providers/auth-provider";
+import { RecordClosurePanel } from "@/components/shared/record-closure";
+import {
+  RecordDetailFrame,
+  RecordDetailShell,
+  RecordRecorder,
+  ShellPanel,
+  type ShellFact,
+} from "@/components/shared/record-detail-shell";
+import {
   FieldWrapper,
   LoadFailed,
   QueryFailedNote,
   ReadField,
-  SectionHeader,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -67,6 +83,7 @@ import type {
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
 import { recordConversationKey } from "@/lib/record-chat";
+import { recordPdfObjectUrl } from "@/services/contractor-ops.service";
 import {
   addApplicationAttachment,
   addRemedialItem,
@@ -86,13 +103,37 @@ import {
   submitConsultantApplication,
 } from "@/services/consultant-workflow.service";
 
-export function ConsultantApplicationDetail({ id }: { id: string }) {
+/**
+ * One consultant application, in the record-detail frame every module
+ * shares (E8, Q31).
+ *
+ * From the list, 「等你处理」 or anywhere inside the app it opens as the
+ * popup over what was there - 「以弹窗显示」; `/consultant-applications/<id>`
+ * typed, bookmarked or opened from a notification renders the same frame on a
+ * page of its own (`presentation="page"`). Only the frame and the arrangement
+ * changed: every field, button, permission and dialog is the one the page had.
+ */
+export function ConsultantApplicationDetail({
+  id,
+  presentation = "page",
+  onClose,
+}: {
+  id: string;
+  presentation?: "page" | "dialog";
+  /** The dialog's close; going back by default (an intercepted address). */
+  onClose?: () => void;
+}) {
   const t = useTranslations("consultantWorkflow");
   const { user, can } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [attachmentOpen, setAttachmentOpen] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
+  // One arming switch per block (E6, spec rule 8): Remove buttons appear only
+  // while it is on, and a press takes effect at once.
+  const [evidenceArmed, setEvidenceArmed] = useState(false);
+  const [recordsArmed, setRecordsArmed] = useState(false);
+  const [attachmentsArmed, setAttachmentsArmed] = useState(false);
   const [decision, setDecision] = useState<
     "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT" | null
   >(null);
@@ -131,11 +172,25 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
     onSuccess: refresh,
   });
 
+  const frame = {
+    presentation,
+    onClose,
+    backHref: "/consultant-applications",
+    backLabel: t("applications.back"),
+  };
   if (query.isLoading) {
-    return <div className="grid min-h-72 place-items-center"><Loader2 className="size-7 animate-spin text-primary" /></div>;
+    return (
+      <RecordDetailFrame {...frame} title={t("applications.title")}>
+        <div className="grid min-h-72 place-items-center"><Loader2 className="size-7 animate-spin text-primary" /></div>
+      </RecordDetailFrame>
+    );
   }
   if (query.isError || !query.data) {
-    return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.loadError")}</div>;
+    return (
+      <RecordDetailFrame {...frame} title={t("applications.title")}>
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.loadError")}</div>
+      </RecordDetailFrame>
+    );
   }
 
   const application = query.data;
@@ -146,21 +201,24 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
     (field) => !["inspection_activity", "acceptance_requirement"].includes(field.key),
   );
   const currentStep = application.review_steps.find((step) => step.status === "CURRENT");
+  // A draft is a draft (E6): whoever may fill it in may correct what was
+  // added. Submitted, the controls go and each block says why.
+  const draftEditable = !application.is_locked && can("consultant.submit");
+  const showLocked = application.is_locked && can("consultant.submit");
+  const removableRecords = application.related_record_groups.some((group) =>
+    group.records.some((record) => record.removable && record.evidence_link_ids.length),
+  );
   const canAct = Boolean(
     currentStep && user && can("approval.review") && reviewerMatches(currentStep, application, user),
   );
   const action = (
-    <div className="flex flex-wrap justify-end gap-2">
+    <>
+      {/* Sending is on the A4 form card below (C1): the form it sends is
+          the form shown there. */}
       {application.status === "DRAFT" && can("consultant.submit") && (
-        <>
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/consultant-applications/${id}/edit`}><Pencil />{t("action.edit")}</Link>
-          </Button>
-          <Button size="sm" disabled={submit.isPending} onClick={() => submit.mutate()}>
-            {submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}
-            {t("action.submit")}
-          </Button>
-        </>
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/consultant-applications/${id}/edit`}><Pencil />{t("action.edit")}</Link>
+        </Button>
       )}
       {application.status === "REVISE_RESUBMIT" && can("consultant.submit") && (
         <Button size="sm" disabled={revision.isPending} onClick={() => revision.mutate()}>
@@ -189,30 +247,56 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
           <Download />{t("action.downloadReport")}
         </Button>
       )}
-      {/* 「单独导出」 (T-386): the application itself as a PDF, last in the
-          header row so it sits at the top right like every other detail. */}
-      <RecordExportButton
-        kind="CONSULTANT_APPLICATION"
-        recordId={application.id}
-        reference={application.application_no}
-      />
-    </div>
+    </>
   );
 
+  // 申请资料 then 现场申请, in the information grid. Optional since 2026-10
+  // (C1): discipline, work type and priority are shown only when given.
+  const facts: ShellFact[] = [
+    { label: t("field.applicationType"), value: application.application_type_custom || application.application_type_label },
+    ...(application.discipline_custom || application.discipline_label
+      ? [{ label: t("field.discipline"), value: application.discipline_custom || application.discipline_label }]
+      : []),
+    ...(application.work_type_custom || application.work_type_label
+      ? [{ label: t("field.workType"), value: application.work_type_custom || application.work_type_label }]
+      : []),
+    ...(application.priority_custom || application.priority_label
+      ? [{ label: t("field.priority"), value: application.priority_custom || application.priority_label }]
+      : []),
+    { label: t("field.workflow"), value: application.workflow_name },
+    { label: t("field.template"), value: application.template_name ? `${application.template_name} (v${application.template_version_number})` : "" },
+    { label: t("field.scheduleTask"), value: application.schedule_task_wbs ? `${application.schedule_task_wbs} - ${application.schedule_task_name}` : "" },
+    { label: t("field.inspectionCategory"), value: application.inspection_category ? t(`inspectionCategory.${application.inspection_category}`) : t("inspectionCategory.NONE") },
+    { label: t("field.location"), value: application.location },
+    { label: t(application.application_type_code === "MATERIAL_APPROVAL" || application.application_type_code === "MATERIAL_CERT_SUBMISSION" ? "field.material" : "field.component"), value: application.component },
+    { label: t("field.description"), value: application.description, wide: true },
+    { label: t("field.remarks"), value: application.remarks, wide: true },
+    { label: t("field.drawingNo"), value: application.drawing_no },
+    { label: t("field.drawingRevision"), value: application.drawing_revision },
+    { label: t("field.itpNo"), value: application.itp_no },
+    { label: t("field.additionalDisciplines"), value: application.additional_discipline_labels.join(", ") },
+    { label: t("field.additionalWorkTypes"), value: application.additional_work_type_labels.join(", ") },
+    { label: t("field.checklistReference"), value: application.checklist_reference },
+    { label: t("field.requiredAt"), value: application.required_at ? new Date(application.required_at).toLocaleString() : "" },
+    { label: t("field.inspectionStartAt"), value: application.inspection_start_at ? new Date(application.inspection_start_at).toLocaleString() : "" },
+    { label: t("field.inspectionEndAt"), value: application.inspection_end_at ? new Date(application.inspection_end_at).toLocaleString() : "" },
+    { label: t("field.inspectionTimezone"), value: application.inspection_timezone },
+    { label: t("field.inspectionActivity"), value: application.custom_fields.inspection_activity },
+    { label: t("field.acceptanceRequirement"), value: application.custom_fields.acceptance_requirement },
+    ...templateCustomFields.map((field) => ({
+      label: `${field.label}${field.required ? " *" : ""}`,
+      value: application.custom_fields[field.key],
+    })),
+  ];
+
   return (
-    <div className="mx-auto max-w-7xl space-y-5 pb-8">
-      <DetailHeader backHref="/consultant-applications" backLabel={t("applications.back")} action={action} />
-      <div className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="break-all text-xl font-semibold">{application.application_no}</h1>
-            <StatusBadge label={t(`status.${application.status}`)} tone={statusTone(application.status)} />
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {application.project_name} - {application.application_type_custom || application.application_type_label}
-          </p>
-        </div>
-        <div className="text-left text-xs text-muted-foreground sm:text-right">
+    <RecordDetailFrame
+      {...frame}
+      title={application.application_no}
+      status={<StatusBadge label={t(`status.${application.status}`)} tone={statusTone(application.status)} />}
+      description={`${application.project_name} - ${application.application_type_custom || application.application_type_label}`}
+      caption={
+        <>
           <p>{t("detail.revision", { revision: application.revision })}</p>
           <p>{t("detail.applicant", { name: application.applicant_name })}</p>
           {/* B15: raised on site, checked and sent on by the manager. */}
@@ -234,219 +318,251 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               })}
             </p>
           )}
-        </div>
-      </div>
+        </>
+      }
+      headerActions={action}
+      // 预览 / 导出 PDF / 分享 once, in the header like every record (E8):
+      // for an application the record export is the A4 form (C17), so the
+      // form card below keeps 打印 / 看附件 / 发送 and leaves these to here.
+      exportRecord={{ kind: "CONSULTANT_APPLICATION", recordId: application.id, reference: application.application_no }}
+    >
+      <RecordDetailShell
+        reference={application.application_no}
+        facts={facts}
+        recorder={<RecordRecorder record={application} />}
+        panel={
+          <div className="space-y-4">
+            {/*
+              The A4 application form (C1): 打印 prints the record export,
+              which for an application is this form (C17); 发送给顾问 is the
+              in-system send. 预览 / 导出 PDF are the same export, in the
+              header.
+            */}
+            <ApplicationFormCard
+              consultantName={application.consultant_name}
+              attachmentCount={application.attachments.length}
+              canSend={application.status === "DRAFT" && can("consultant.submit")}
+              isSubmitting={submit.isPending}
+              onSend={() => submit.mutate()}
+              onPrint={() => printPdf(() => recordPdfObjectUrl("CONSULTANT_APPLICATION", application.id))}
+              onShowAttachments={() =>
+                document.getElementById("application-attachments")?.scrollIntoView({ behavior: "smooth", block: "start" })
+              }
+              exportButtons={null}
+            />
 
-      <ApplicationLifecycle application={application} />
+            <ApplicationLifecycle application={application} />
 
-      <section className="rounded-lg border border-primary/25 bg-primary/5 p-4 sm:p-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-base font-semibold">{t("detail.nextAction")}</p>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              {nextActionText(application, currentStep, canAct, t)}
-            </p>
-            {currentStep && (
-              <p className="mt-2 text-sm font-medium text-foreground">
-                {t("review.pending", { step: currentStep.name })} · {reviewerLabel(currentStep, application, t)}
-              </p>
-            )}
-          </div>
-          {currentStep && canAct && (
-            credential.isError ? (
-              <LoadFailed className="w-full sm:w-auto" what={t("what.credential")} onRetry={() => credential.refetch()} />
-            ) : credential.data ? (
-              <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:min-w-[22rem] sm:grid-cols-2 lg:flex lg:min-w-0">
-                <Button className="min-h-11 justify-start sm:justify-center" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
-                <Button className="min-h-11 justify-start sm:justify-center" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
-                <Button className="min-h-11 justify-start sm:justify-center" variant="outline" onClick={() => setDecision("REVISE_RESUBMIT")}><RotateCcw />{t("decision.REVISE_RESUBMIT")}</Button>
-                <Button className="min-h-11 justify-start sm:justify-center" variant="destructive" onClick={() => setDecision("REJECT")}><XCircle />{t("decision.REJECT")}</Button>
-              </div>
-            ) : (
-              <Button asChild className="min-h-11 w-full sm:w-auto"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>
-            )
-          )}
-        </div>
-      </section>
-
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-        <div className="space-y-5">
-          <Section title={t("detail.section.application")}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <ReadField label={t("field.applicationType")} value={application.application_type_custom || application.application_type_label} />
-              <ReadField label={t("field.discipline")} value={application.discipline_custom || application.discipline_label} />
-              <ReadField label={t("field.workType")} value={application.work_type_custom || application.work_type_label} />
-              <ReadField label={t("field.priority")} value={application.priority_custom || application.priority_label} />
-              <ReadField label={t("field.workflow")} value={application.workflow_name} />
-              <ReadField label={t("field.template")} value={application.template_name ? `${application.template_name} (v${application.template_version_number})` : ""} />
-              <ReadField label={t("field.scheduleTask")} value={application.schedule_task_wbs ? `${application.schedule_task_wbs} - ${application.schedule_task_name}` : ""} />
-              <ReadField label={t("field.inspectionCategory")} value={application.inspection_category ? t(`inspectionCategory.${application.inspection_category}`) : t("inspectionCategory.NONE")} />
-            </div>
-          </Section>
-          <Section title={t("detail.section.site")}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <ReadField label={t("field.location")} value={application.location} />
-              <ReadField label={t("field.component")} value={application.component} />
-              <ReadField label={t("field.description")} value={application.description} className="sm:col-span-2" />
-              <ReadField label={t("field.remarks")} value={application.remarks} className="sm:col-span-2" />
-              <ReadField label={t("field.drawingNo")} value={application.drawing_no} />
-              <ReadField label={t("field.drawingRevision")} value={application.drawing_revision} />
-              <ReadField label={t("field.itpNo")} value={application.itp_no} />
-              <ReadField label={t("field.additionalDisciplines")} value={application.additional_discipline_labels.join(", ")} />
-              <ReadField label={t("field.additionalWorkTypes")} value={application.additional_work_type_labels.join(", ")} />
-              <ReadField label={t("field.checklistReference")} value={application.checklist_reference} />
-              <ReadField label={t("field.requiredAt")} value={application.required_at ? new Date(application.required_at).toLocaleString() : ""} />
-              <ReadField label={t("field.inspectionStartAt")} value={application.inspection_start_at ? new Date(application.inspection_start_at).toLocaleString() : ""} />
-              <ReadField label={t("field.inspectionEndAt")} value={application.inspection_end_at ? new Date(application.inspection_end_at).toLocaleString() : ""} />
-              <ReadField label={t("field.inspectionTimezone")} value={application.inspection_timezone} />
-              <ReadField label={t("field.inspectionActivity")} value={application.custom_fields.inspection_activity} />
-              <ReadField label={t("field.acceptanceRequirement")} value={application.custom_fields.acceptance_requirement} />
-              {templateCustomFields.map((field) => (
-                <ReadField
-                  key={field.key}
-                  label={`${field.label}${field.required ? " *" : ""}`}
-                  value={application.custom_fields[field.key]}
+            <Section
+              title={t("detail.section.evidence")}
+              action={
+                draftEditable ? (
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    {application.evidence_links.length > 0 && (
+                      <RemoveSwitch armed={evidenceArmed} onArmedChange={setEvidenceArmed} />
+                    )}
+                    <Button size="sm" variant="outline" onClick={() => setEvidenceOpen(true)}><Link2 />{t("evidence.link")}</Button>
+                  </div>
+                ) : showLocked ? <LockedNote /> : undefined
+              }
+            >
+              {!application.evidence_links.length ? (
+                <Empty text={t("evidence.empty")} />
+              ) : (
+                <EvidenceLinkCards
+                  application={application}
+                  editable={draftEditable}
+                  armed={evidenceArmed}
+                  onChanged={() => void refresh()}
                 />
-              ))}
-            </div>
-          </Section>
-          <Section title={t("detail.section.evidence")} action={application.status === "DRAFT" && can("consultant.submit") ? <Button size="sm" variant="outline" onClick={() => setEvidenceOpen(true)}><Link2 />{t("evidence.link")}</Button> : undefined}>
-            {!application.evidence_links.length ? (
-              <Empty text={t("evidence.empty")} />
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {application.evidence_links.map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.evidence_watermarked_file || link.evidence_file}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group min-w-0 overflow-hidden rounded-lg border bg-background transition-colors hover:border-primary/40"
-                  >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                      <Image
-                        src={link.evidence_watermarked_file || link.evidence_file}
-                        alt={link.caption || link.original_filename}
-                        fill
-                        unoptimized
-                        className="object-cover transition-transform group-hover:scale-[1.02]"
-                      />
-                    </div>
-                    <div className="space-y-1 p-3">
-                      <p className="truncate text-sm font-medium">{link.caption || link.original_filename}</p>
-                      <p className="truncate text-xs text-muted-foreground">{link.photographer_name || t("common.unknown")} - {new Date(link.captured_at).toLocaleString()}</p>
-                      <p className="truncate font-mono text-[10px] text-muted-foreground">{link.sha256}</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            )}
-          </Section>
-          <Section title={t("detail.section.relatedRecords")}>
-            {!application.related_record_groups.length ? (
-              <Empty text={t("state.noApplications")} />
-            ) : (
-              <div className="space-y-4">
-                {application.related_record_groups.map((group) => (
-                  <div key={group.key}>
-                    <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{group.label}</p>
-                    <div className="divide-y rounded-lg border">
-                      {group.records.map((record) => {
-                        const content = (
-                          <>
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-medium">{record.reference}</p>
-                              <p className="mt-0.5 break-words text-xs text-muted-foreground">{record.title}</p>
-                            </div>
-                            <div className="shrink-0 text-right text-xs text-muted-foreground">
-                              <p>{record.date ? new Date(record.date).toLocaleDateString() : "-"}</p>
-                              <p>{record.created_by_name || "-"}</p>
-                            </div>
-                            {record.href && <ExternalLink className="size-4 shrink-0 text-primary" />}
-                          </>
-                        );
-                        return record.href ? (
-                          <Link key={`${record.type}-${record.record_id}`} href={record.href} className="flex items-center gap-3 p-3 transition-colors hover:bg-muted/30">
-                            {content}
-                          </Link>
-                        ) : (
-                          <div key={`${record.type}-${record.record_id}`} className="flex items-center gap-3 p-3">
-                            {content}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Section>
-          <Section title={t("detail.section.attachments")} action={application.status === "DRAFT" && can("consultant.submit") ? <Button size="sm" variant="outline" onClick={() => setAttachmentOpen(true)}><Plus />{t("attachment.add")}</Button> : undefined}>
-            {application.template_required_attachment_codes.length ? (
-              <div className="mb-4 grid gap-2 sm:grid-cols-2">
-                {application.template_required_attachment_codes.map((code) => {
-                  const attached = attachedCategories.has(code);
-                  return (
-                    <div key={code} className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${attached ? "border-success/30 bg-success/5 text-success" : "border-warning/30 bg-warning/5 text-warning"}`}>
-                      {attached ? <CheckCircle2 className="size-4" /> : <Paperclip className="size-4" />}
-                      <span className="font-medium">{t(`attachmentType.${code}`)}</span>
-                      <span className="ml-auto text-xs">{t(attached ? "attachment.attached" : "attachment.required")}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null}
-            {!application.attachments.length ? <Empty text={t("attachment.empty")} /> : <div className="divide-y rounded-lg border">{application.attachments.map((attachment) => <a key={attachment.id} href={attachment.file} target="_blank" rel="noreferrer" className="flex min-w-0 items-center gap-3 p-3 transition-colors hover:bg-muted/30"><Paperclip className="size-4 shrink-0 text-primary" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{attachment.original_name}</p><p className="truncate text-xs text-muted-foreground">{attachment.category || t("attachment.other")} - {formatBytes(attachment.byte_size)}</p></div></a>)}</div>}
-          </Section>
-        </div>
-
-        <div className="space-y-5">
-          <Section title={t("detail.section.consultant")}>
-            <div className="space-y-4">
-              <ReadField label={t("field.consultantCompany")} value={application.consultant_organization_name} />
-              <ReadField label={t("field.consultant")} value={application.consultant_name} />
-              <ReadField label={t("field.project")} value={application.project_name} />
-              <ReadField label={t("field.projectAddress")} value={application.project_address} />
-              <ReadField label={t("detail.receivedAt")} value={application.received_at ? `${new Date(application.received_at).toLocaleString()} - ${application.received_by_name ?? ""}` : ""} />
-              <ReadField label={t("detail.acknowledgedAt")} value={application.acknowledged_at ? `${new Date(application.acknowledged_at).toLocaleString()} - ${application.acknowledged_by_name ?? ""}` : ""} />
-            </div>
-          </Section>
-          <Section title={t("detail.section.approvalProgress")}>
-            <div className="space-y-2">
-              {application.review_steps.map((step) => (
-                <div key={step.id} className={`flex gap-3 rounded-lg border p-3 ${step.status === "APPROVED" ? "border-success/40 bg-success/5" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "border-warning/40 bg-warning/5" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "border-destructive/40 bg-destructive/5" : "bg-muted/15"}`}>
-                  <span className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold ${step.status === "APPROVED" ? "bg-success text-white" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "bg-warning text-white" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "bg-destructive text-white" : "bg-muted text-muted-foreground"}`}>{step.sequence}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <p className="font-medium">{step.name}</p>
-                      <span className="text-xs font-semibold">{t(`stepStatus.${step.status}`)}</span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{reviewerLabel(step, application, t)}</p>
-                    {step.decided_at && <p className="mt-1 text-xs text-muted-foreground">{new Date(step.decided_at).toLocaleString()}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Section>
-          {!!application.approval_actions.length && (
-            <Section title={t("detail.section.decisions")}>
-              <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2"><a href={entry.signature_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</a>{entry.stamp_snapshot && <a href={entry.stamp_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</a>}</div></div>)}</div>
+              )}
             </Section>
-          )}
-          <RemedialSection application={application} onChanged={refresh} />
+            <Section
+              title={t("detail.section.relatedRecords")}
+              action={
+                draftEditable ? (
+                  removableRecords ? <RemoveSwitch armed={recordsArmed} onArmedChange={setRecordsArmed} /> : undefined
+                ) : showLocked && application.related_record_groups.length ? <LockedNote /> : undefined
+              }
+            >
+              {!application.related_record_groups.length ? (
+                <Empty text={t("state.noApplications")} />
+              ) : (
+                <div className="space-y-4">
+                  {application.related_record_groups.map((group) => (
+                    <div key={group.key}>
+                      <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{group.label}</p>
+                      <div className="divide-y rounded-lg border">
+                        {group.records.map((record) => {
+                          const content = (
+                            <>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-medium">{record.reference}</p>
+                                <p className="mt-0.5 break-words text-xs text-muted-foreground">{record.title}</p>
+                              </div>
+                              <div className="shrink-0 text-right text-xs text-muted-foreground">
+                                <p>{record.date ? new Date(record.date).toLocaleDateString() : "-"}</p>
+                                <p>{record.created_by_name || "-"}</p>
+                              </div>
+                              {record.href && <ExternalLink className="size-4 shrink-0 text-primary" />}
+                            </>
+                          );
+                          const row = record.href ? (
+                            <Link href={record.href} className="flex min-w-0 flex-1 items-center gap-3 p-3 transition-colors hover:bg-muted/30">
+                              {content}
+                            </Link>
+                          ) : (
+                            <div className="flex min-w-0 flex-1 items-center gap-3 p-3">
+                              {content}
+                            </div>
+                          );
+                          return (
+                            <div key={`${record.type}-${record.record_id}`} className="flex items-center gap-2 pr-3">
+                              {row}
+                              {draftEditable && recordsArmed && (
+                                <RelatedRecordRemove application={application} record={record} onChanged={() => void refresh()} />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
+            <Section
+              id="application-attachments"
+              title={t("detail.section.attachments")}
+              action={
+                draftEditable ? (
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    {application.attachments.length > 0 && (
+                      <RemoveSwitch armed={attachmentsArmed} onArmedChange={setAttachmentsArmed} />
+                    )}
+                    <Button size="sm" variant="outline" onClick={() => setAttachmentOpen(true)}><Plus />{t("attachment.add")}</Button>
+                  </div>
+                ) : showLocked ? <LockedNote /> : undefined
+              }
+            >
+              {application.template_required_attachment_codes.length ? (
+                <div className="mb-4 grid gap-2 sm:grid-cols-2">
+                  {application.template_required_attachment_codes.map((code) => {
+                    const attached = attachedCategories.has(code);
+                    return (
+                      <div key={code} className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${attached ? "border-success/30 bg-success/5 text-success" : "border-warning/30 bg-warning/5 text-warning"}`}>
+                        {attached ? <CheckCircle2 className="size-4" /> : <Paperclip className="size-4" />}
+                        <span className="font-medium">{t(`attachmentType.${code}`)}</span>
+                        <span className="ml-auto text-xs">{t(attached ? "attachment.attached" : "attachment.required")}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+              {!application.attachments.length ? (
+                <Empty text={t("attachment.empty")} />
+              ) : (
+                <AttachmentRows
+                  application={application}
+                  editable={draftEditable}
+                  armed={attachmentsArmed}
+                  onChanged={() => void refresh()}
+                />
+              )}
+            </Section>
+          </div>
+        }
+        // 版本记录 under the evidence, where every record keeps its 更正记录.
+        corrections={
           <Section title={t("detail.section.revisions")}>
             <RevisionTimeline application={application} />
           </Section>
-          <Section title={t("detail.section.archive")}>
-            <ArchiveChecklist application={application} />
-          </Section>
-        </div>
-      </div>
+        }
+        // 下一步: what is owed now, and the reviewer's decision buttons.
+        actions={
+          <div className="space-y-3">
+            <div className="min-w-0">
+              <h3 className="panel-title">{t("detail.nextAction")}</h3>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                {nextActionText(application, currentStep, canAct, t)}
+              </p>
+              {currentStep && (
+                <p className="mt-2 text-sm font-medium text-foreground">
+                  {t("review.pending", { step: currentStep.name })} · {reviewerLabel(currentStep, application, t)}
+                </p>
+              )}
+            </div>
+            {currentStep && canAct && (
+              credential.isError ? (
+                <LoadFailed className="w-full" what={t("what.credential")} onRetry={() => credential.refetch()} />
+              ) : credential.data ? (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                  <Button className="min-h-11 justify-start" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
+                  <Button className="min-h-11 justify-start" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
+                  <Button className="min-h-11 justify-start" variant="outline" onClick={() => setDecision("REVISE_RESUBMIT")}><RotateCcw />{t("decision.REVISE_RESUBMIT")}</Button>
+                  <Button className="min-h-11 justify-start" variant="destructive" onClick={() => setDecision("REJECT")}><XCircle />{t("decision.REJECT")}</Button>
+                </div>
+              ) : (
+                <Button asChild className="min-h-11 w-full"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>
+              )
+            )}
+          </div>
+        }
+        aside={
+          <>
+            <Section title={t("detail.section.consultant")}>
+              <div className="space-y-4">
+                <ReadField label={t("field.consultantCompany")} value={application.consultant_organization_name} />
+                <ReadField label={t("field.consultant")} value={application.consultant_name} />
+                <ReadField label={t("field.project")} value={application.project_name} />
+                <ReadField label={t("field.projectAddress")} value={application.project_address} />
+                <ReadField label={t("detail.receivedAt")} value={application.received_at ? `${new Date(application.received_at).toLocaleString()} - ${application.received_by_name ?? ""}` : ""} />
+                <ReadField label={t("detail.acknowledgedAt")} value={application.acknowledged_at ? `${new Date(application.acknowledged_at).toLocaleString()} - ${application.acknowledged_by_name ?? ""}` : ""} />
+              </div>
+            </Section>
+            <Section title={t("detail.section.approvalProgress")}>
+              <div className="space-y-2">
+                {application.review_steps.map((step) => (
+                  <div key={step.id} className={`flex gap-3 rounded-lg border p-3 ${step.status === "APPROVED" ? "border-success/40 bg-success/5" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "border-warning/40 bg-warning/5" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "border-destructive/40 bg-destructive/5" : "bg-muted/15"}`}>
+                    <span className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold ${step.status === "APPROVED" ? "bg-success text-white" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "bg-warning text-white" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "bg-destructive text-white" : "bg-muted text-muted-foreground"}`}>{step.sequence}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <p className="font-medium">{step.name}</p>
+                        <span className="text-xs font-semibold">{t(`stepStatus.${step.status}`)}</span>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">{reviewerLabel(step, application, t)}</p>
+                      {step.decided_at && <p className="mt-1 text-xs text-muted-foreground">{new Date(step.decided_at).toLocaleString()}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Section>
+            {!!application.approval_actions.length && (
+              <Section title={t("detail.section.decisions")}>
+                <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2"><a href={entry.signature_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</a>{entry.stamp_snapshot && <a href={entry.stamp_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</a>}</div></div>)}</div>
+              </Section>
+            )}
+            <RemedialSection application={application} onChanged={refresh} />
+            <Section title={t("detail.section.archive")}>
+              <ArchiveChecklist application={application} />
+              {/* 【确认归档】 here, where 「等你处理」 leads (C4, X10): offered once
+                  the application is archived with its report. The office's
+                  act, so not the consultant it was sent to - which is why it
+                  is not the shell's own `closure`, which has no such gate. */}
+              {application.consultant !== user?.id && (
+                <div className="mt-3">
+                  <RecordClosurePanel kind="CONSULTANT_APPLICATION" recordId={application.id} />
+                </div>
+              )}
+            </Section>
+          </>
+        }
+      />
 
       {attachmentOpen && <AttachmentDialog application={application} onClose={() => setAttachmentOpen(false)} onSaved={() => { void refresh(); setAttachmentOpen(false); }} />}
       {evidenceOpen && <EvidenceDialog application={application} onClose={() => setEvidenceOpen(false)} onSaved={() => { void refresh(); setEvidenceOpen(false); }} />}
       {decision && <DecisionDialog application={application} decision={decision} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
-    </div>
+    </RecordDetailFrame>
   );
 }
 
@@ -957,8 +1073,11 @@ function CloseRemedialDialog({
   );
 }
 
-function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
-  return <section className="rounded-lg border bg-card p-4 shadow-sm"><div className="mb-4 flex items-center justify-between gap-3"><SectionHeader title={title} />{action}</div>{children}</section>;
+/** One of the application's panels, in the shell's panel surface (E8). */
+function Section({ id, title, action, children }: { id?: string; title: string; action?: React.ReactNode; children: React.ReactNode }) {
+  const panel = <ShellPanel title={title} aside={action}>{children}</ShellPanel>;
+  // An anchor the A4 card's 看附件 scrolls to; the shell's panel takes no id.
+  return id ? <div id={id} className="scroll-mt-20">{panel}</div> : panel;
 }
 
 function AttachmentDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
@@ -971,7 +1090,7 @@ function AttachmentDialog({ application, onClose, onSaved }: { application: Cons
   const documents = useQuery({ queryKey: ["application-document-candidates", application.project, librarySearch], queryFn: () => getApplicationDocumentCandidates(application.project, librarySearch || undefined), enabled: libraryOpen });
   const save = useMutation({ mutationFn: () => addApplicationAttachment(application.id, file as File, category, note), onSuccess: onSaved });
   const link = useMutation({ mutationFn: (version: string) => linkApplicationDocumentAttachment(application.id, version, category, note), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><Button type="button" variant="outline" onClick={() => setLibraryOpen((value) => !value)}><ClipboardCheck />{t("attachment.fromArchive")}</Button>{libraryOpen && <div className="space-y-2 rounded-lg border p-3"><Input placeholder={t("attachment.searchArchive")} value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} />{documents.isLoading ? <Loader2 className="animate-spin" /> : documents.isError ? <LoadFailed what={t("what.archiveDocuments")} onRetry={() => documents.refetch()} /> : <div className="max-h-56 space-y-2 overflow-y-auto">{(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => <button type="button" key={doc.id} className="flex w-full items-center justify-between rounded border p-2 text-left hover:bg-muted/30" onClick={() => doc.latest_version && link.mutate(doc.latest_version.id)} disabled={link.isPending}><span className="min-w-0"><span className="block truncate font-medium">{doc.document_no} · {doc.title}</span><span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span></span><ExternalLink className="size-4 shrink-0" /></button>)}{!documents.data?.results?.length && <Empty text={t("attachment.noArchive")} />}</div>}</div>}<FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{["CHECKLIST", "IFC_DRAWING", "SURVEY_REPORT", "MATERIAL_TEST", "CALIBRATION", "ITP", "OTHER"].map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><Button type="button" variant="outline" onClick={() => setLibraryOpen((value) => !value)}><ClipboardCheck />{t("attachment.fromArchive")}</Button>{libraryOpen && <div className="space-y-2 rounded-lg border p-3"><Input placeholder={t("attachment.searchArchive")} value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} />{documents.isLoading ? <Loader2 className="animate-spin" /> : documents.isError ? <LoadFailed what={t("what.archiveDocuments")} onRetry={() => documents.refetch()} /> : <div className="max-h-56 space-y-2 overflow-y-auto">{(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => <button type="button" key={doc.id} className="flex w-full items-center justify-between rounded border p-2 text-left hover:bg-muted/30" onClick={() => doc.latest_version && link.mutate(doc.latest_version.id)} disabled={link.isPending}><span className="min-w-0"><span className="block truncate font-medium">{doc.document_no} · {doc.title}</span><span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span></span><ExternalLink className="size-4 shrink-0" /></button>)}{!documents.data?.results?.length && <Empty text={t("attachment.noArchive")} />}</div>}</div>}<FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{ATTACHMENT_TYPES.map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function EvidenceDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
@@ -1045,12 +1164,6 @@ function statusTone(status: ConsultantApplication["status"]): "neutral" | "posit
   if (status === "SUBMITTED" || status === "REVISE_RESUBMIT" || status === "APPROVED_WITH_REMEDIAL") return "warning";
   if (status === "ARCHIVED") return "info";
   return "neutral";
-}
-
-function formatBytes(value: number) {
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
-  return `${(value / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function Empty({ text }: { text: string }) {

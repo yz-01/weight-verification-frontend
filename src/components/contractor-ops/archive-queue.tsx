@@ -1,17 +1,25 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Inbox, ListTree, X } from "lucide-react";
+import { ExternalLink, Inbox, ListTree } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { recordKindKey } from "@/lib/record-kind";
-import { PhotoViewer } from "@/components/shared/record-detail-shell";
-import Image from "next/image";
+import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  RecordRecorder,
+} from "@/components/shared/record-detail-shell";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { DrillNote } from "@/components/shared/drill-note";
+import { useRecordOpener } from "@/components/shared/record-opener";
+import { EmptyState, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -21,13 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AddToPackageButton,
-  canGoInAPackage,
-} from "@/components/contractor-ops/add-to-package";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
+import { RecordNo } from "@/components/shared/record-no";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { canConfirmClosure, canDiscuss, isQueueKind } from "@/lib/record-chat";
 import { recordStatusLabel } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
@@ -41,7 +47,7 @@ import {
   getArchiveQueue,
   getArchiveRecord,
   isExportableKind,
-  markRecordsArchived,
+  markRecordsSeen,
 } from "@/services/contractor-ops.service";
 
 /**
@@ -66,12 +72,18 @@ import {
  * column two meanings, which is what D-125 forbids - a reader would deactivate
  * a column believing they were archiving a delivery.
  *
- * ## Opening and archiving are two actions
+ * ## Read-only (2026-10 C4, X10)
  *
- * Opening a row fetches its detail and does not archive it. Archiving is the
- * button in the sheet. A GET that changed the next reader's list would fire on
- * a refresh, a prefetch or a link preview, and somebody's queue would empty
- * itself without them having read anything.
+ * This screen looks; it does not decide. 【确认归档】 lives on each module's
+ * own detail page, where 「等你处理」 leads, and the sheet here has no button
+ * that changes a record. A hazard shows whether it is closed (已闭环 /
+ * 未闭环): its raiser's 确认完成 closes it, not a confirmation.
+ *
+ * 「未看 / 已看」 stays each reader's own (D-063) and is still read by Claim
+ * Engine's 已查看 count, so it is kept: clicking a row to open it is the
+ * look, and the screen sends that mark with the click. Not on the GET that
+ * loads the record - a GET that changed the next reader's list would fire on
+ * a refresh, a prefetch or a link preview.
  */
 
 const KINDS: ArchiveRecordKind[] = [
@@ -99,16 +111,53 @@ export function ArchiveQueue() {
   // named person - not whether *this reader* has looked, which is `state`.
   const [closure, setClosure] = useState<"" | "open" | "closed">("");
   const [kind, setKind] = useState<ArchiveRecordKind | "">("");
-  const [project, setProject] = useState("");
+  const searchParams = useSearchParams();
+  // The dashboard's 「等你处理」 card (B8) opens this screen with
+  // `?waiting=1&project=`: what waits for this reader's 【确认】, counted the
+  // way the card was. A row then opens on its module's page, where the
+  // confirm is (C4), not in the read-only sheet.
+  const waiting = searchParams.get("waiting") === "1";
+  const confirmOpener = useRecordOpener({ confirm: true });
+  // The top bar's 「当前项目」 (B13); the card's `?project=` moves it.
+  const [project, setProject] = usePageProject(searchParams.get("project") ?? "");
   const [page, setPage] = useState(1);
+  useOnProjectChange(project, () => setPage(1));
   const [open, setOpen] = useState<ArchiveQueueRow | null>(null);
+  const queryClient = useQueryClient();
+  // Opening a row is this reader's look (D-063): marked with the click, for
+  // them only, and the 未看 / 已看 lists refetched - not the open record.
+  const markSeen = useMutation({
+    mutationFn: (row: ArchiveQueueRow) => markRecordsSeen([{ kind: row.kind, id: row.id }]),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({
+        queryKey: ["archive-queue"],
+        predicate: (entry) => entry.queryKey[1] !== "detail",
+      }),
+  });
+  const openRow = (row: ArchiveQueueRow) => {
+    if (
+      waiting &&
+      confirmOpener.open(row.kind, row.id, {
+        reference: row.reference,
+        project_id: row.project_id,
+        project_name: row.project_name,
+        submitted_at: row.submitted_at,
+        photo: row.photo,
+      })
+    ) {
+      return;
+    }
+    setOpen(row);
+    if (!row.seen_at && isQueueKind(row.kind)) markSeen.mutate(row);
+  };
 
   const query = useQuery({
-    queryKey: ["archive-queue", state, closure, kind, project, page],
+    queryKey: ["archive-queue", state, closure, kind, project, page, waiting],
     queryFn: () =>
       getArchiveQueue({
         state,
         closure: closure || undefined,
+        waiting: waiting ? "1" : undefined,
         kind: kind || undefined,
         project: project || undefined,
         page,
@@ -130,7 +179,7 @@ export function ArchiveQueue() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={t("subtitle")}
@@ -138,9 +187,9 @@ export function ArchiveQueue() {
           // B05: 「分类管理可以做在总栏目右上角，有一个分类管理的 button 点了直接
           // 去到分类管理页面」. Only for whoever may open that page.
           canManageCategories ? (
-            <Button asChild variant="outline" size="sm" className="rounded-full px-4">
+            <Button asChild variant="outline">
               <Link href="/category-management">
-                <ListTree className="h-4 w-4" />
+                <ListTree className="size-4" />
                 {t("categoryManagement")}
               </Link>
             </Button>
@@ -151,19 +200,30 @@ export function ArchiveQueue() {
       {/* Said once, at the top, because it is the thing about this screen a
           reader will otherwise get wrong: their colleague's queue is not
           theirs, and neither list is the site's backlog. */}
-      <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
-        {t("perPersonHelp")}
-      </p>
+      {waiting ? (
+        <DrillNote
+          label={t("waiting.only")}
+          clearLabel={t("waiting.showAll")}
+          params={["waiting"]}
+        />
+      ) : (
+        <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-xs text-muted-foreground">
+          {t("perPersonHelp")}
+        </p>
+      )}
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-lg border p-0.5">
+      <FilterBar>
+        {/* 未看 / 已看 and 未归档 / 已归档 do not apply to 「等你处理」: that
+            pile is defined by the confirmation alone. */}
+        {!waiting && (
+        <div className="flex h-10 rounded-lg border border-input bg-field p-0.5 pointer-coarse:h-11">
           {(["pending", "archived"] as const).map((half) => (
             <button
               key={half}
               type="button"
               onClick={() => reset(() => setState(half))}
               aria-current={state === half ? "true" : undefined}
-              className={`rounded-md px-3 py-1.5 text-sm ${
+              className={`inline-flex flex-1 items-center justify-center rounded-md px-3 text-sm sm:flex-none ${
                 state === half
                   ? "bg-primary/10 font-semibold text-primary"
                   : "text-muted-foreground hover:bg-muted/40"
@@ -173,14 +233,16 @@ export function ArchiveQueue() {
             </button>
           ))}
         </div>
-        <div className="flex rounded-lg border p-0.5" aria-label={t("closure.label")}>
+        )}
+        {!waiting && (
+        <div className="flex h-10 rounded-lg border border-input bg-field p-0.5 pointer-coarse:h-11" aria-label={t("closure.label")}>
           {(["", "open", "closed"] as const).map((value) => (
             <button
               key={value || "all"}
               type="button"
               onClick={() => reset(() => setClosure(value))}
               aria-current={closure === value ? "true" : undefined}
-              className={`rounded-md px-3 py-1.5 text-sm ${
+              className={`inline-flex flex-1 items-center justify-center rounded-md px-3 text-sm sm:flex-none ${
                 closure === value
                   ? "bg-primary/10 font-semibold text-primary"
                   : "text-muted-foreground hover:bg-muted/40"
@@ -190,16 +252,16 @@ export function ArchiveQueue() {
             </button>
           ))}
         </div>
+        )}
         <ProjectFilter value={project} onChange={(next) => reset(() => setProject(next))} />
-      </div>
 
-      <nav aria-label={t("modules")} className="flex flex-wrap gap-1.5">
+      <nav aria-label={t("modules")} className="flex w-full flex-wrap gap-1.5">
         <button
           type="button"
           onClick={() => reset(() => setKind(""))}
           aria-current={kind === "" ? "true" : undefined}
-          className={`rounded-full border px-3 py-1 text-xs ${
-            kind === "" ? "border-primary bg-primary/10 text-primary" : "bg-card"
+          className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
+            kind === "" ? "border-primary/40 bg-primary/12 text-primary" : "border-border bg-card text-muted-foreground hover:text-foreground"
           }`}
         >
           {t("allModules")}
@@ -210,10 +272,10 @@ export function ArchiveQueue() {
             type="button"
             onClick={() => reset(() => setKind(row))}
             aria-current={kind === row ? "true" : undefined}
-            className={`rounded-full border px-3 py-1 text-xs ${
+            className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
               kind === row
-                ? "border-primary bg-primary/10 text-primary"
-                : "bg-card hover:bg-muted/40"
+                ? "border-primary/40 bg-primary/12 text-primary"
+                : "border-border bg-card text-muted-foreground hover:text-foreground"
             }`}
           >
             {t(`kind.${row}`)}
@@ -225,6 +287,7 @@ export function ArchiveQueue() {
           </button>
         ))}
       </nav>
+      </FilterBar>
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -233,12 +296,16 @@ export function ArchiveQueue() {
           {t("failed")}
         </p>
       ) : rows.length === 0 ? (
-        <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-          <Inbox className="size-4" />
-          {t(state === "pending" ? "emptyPending" : "emptyArchived")}
-        </p>
+        <EmptyState
+          icon={Inbox}
+          title={
+            waiting
+              ? t("waiting.empty")
+              : t(state === "pending" ? "emptyPending" : "emptyArchived")
+          }
+        />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table className="min-w-[58rem]">
             <TableHeader>
               <TableRow>
@@ -249,7 +316,7 @@ export function ArchiveQueue() {
                 <TableHead>{t("column.status")}</TableHead>
                 <TableHead>{t("column.archived")}</TableHead>
                 <TableHead>{t("column.seen")}</TableHead>
-                <TableHead>{t("column.action")}</TableHead>
+                <TableHead className="text-right">{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -259,32 +326,31 @@ export function ArchiveQueue() {
                       summary in the list; everything else in the record. */}
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
-                      {row.photo ? (
-                        <button
-                          type="button"
-                          className="shrink-0 overflow-hidden rounded-md border bg-muted"
-                          onClick={() => setOpen(row)}
-                          title={t("openPhoto")}
-                        >
-                          <Image
-                            src={row.photo}
-                            alt={row.reference}
-                            width={64}
-                            height={64}
-                            unoptimized
-                            className="size-14 object-cover"
-                          />
-                        </button>
-                      ) : (
-                        <span className="grid size-14 shrink-0 place-items-center rounded-md border border-dashed text-[10px] text-muted-foreground">
-                          {t("noPhoto")}
-                        </span>
-                      )}
+                      {/* The record's photograph, every photo of it on click (E3). */}
+                      <PhotoThumb
+                        coverUrl={row.cover_photo_url}
+                        count={row.photo_count}
+                        icon={recordKindIcon(row.kind)}
+                        reference={row.reference}
+                        photos={recordPhotos(row.kind, row.id, row.reference)}
+                      />
                       <span className="min-w-0">
-                        {row.reference}
+                        {/* Short number big, project small (2026-10 D4). */}
+                        <RecordNo value={row.reference} projectCode={row.project_code} />
                         {row.detail && (
-                          <span className="block max-w-[16rem] truncate text-xs font-normal text-muted-foreground">
+                          <span className="block max-w-64 truncate text-xs font-normal text-muted-foreground">
                             {row.detail}
+                          </span>
+                        )}
+                        {/* Who sold it and whose make (2026-10 D1): material
+                            receipts and returns carry both. */}
+                        {(row.supplier_name || row.manufacturer_name) && (
+                          <span className="flex max-w-72 flex-wrap items-center gap-1 text-xs font-normal">
+                            {row.supplier_name && <span className="truncate">{row.supplier_name}</span>}
+                            {row.supplier_name && row.manufacturer_name && <span aria-hidden>·</span>}
+                            {row.manufacturer_name && (
+                              <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
+                            )}
                           </span>
                         )}
                       </span>
@@ -331,11 +397,11 @@ export function ArchiveQueue() {
                       <span className="text-muted-foreground">{t("state.pending")}</span>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setOpen(row)}
+                      onClick={() => openRow(row)}
                     >
                       {t("open")}
                     </Button>
@@ -348,7 +414,7 @@ export function ArchiveQueue() {
       )}
 
       {lastPage > 1 && (
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <span className="text-muted-foreground">
             {t("pageOf", { page, pages: lastPage })}
           </span>
@@ -379,6 +445,7 @@ export function ArchiveQueue() {
       )}
 
       {open && <RecordSheet row={open} onClose={() => setOpen(null)} />}
+      {confirmOpener.sheet}
     </div>
   );
 }
@@ -403,6 +470,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   onClose,
   fetchRecord,
   actions,
+  confirm = false,
 }: {
   row: ArchiveQueueRow<K>;
   onClose: () => void;
@@ -413,12 +481,19 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
    * module's own approve / return, not a copy.
    */
   actions?: React.ReactNode;
+  /**
+   * Offer this record's 【确认归档】 (2026-10 C4). Only for a 「等你处理」 row
+   * whose module has no detail page of its own yet (progress, an equipment
+   * movement): the confirm belongs on the business page, and this sheet
+   * stands in for one. Everywhere else - 现场记录中心, a category's records
+   * (B4: 分类里不做验收), a dashboard photo (F9) - the sheet only reads: no
+   * confirmation, no 「我看过了」, no adding to a package. A delivery still
+   * waiting for acceptance links to the receipt, where it is accepted.
+   */
+  confirm?: boolean;
 }) {
   const t = useTranslations();
-  const queryClient = useQueryClient();
   const formatter = useDateFormat();
-  // Which photograph is open on its own, full size (B06).
-  const [viewingPhoto, setViewingPhoto] = useState<number | null>(null);
   const detail = useQuery({
     queryKey: [
       "archive-queue",
@@ -434,77 +509,55 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
           ? getArchiveRecord(row.kind, row.id)
           : Promise.reject(new Error(`${row.kind} is not an archive queue kind`)),
   });
-  // 「我看过了」 is the queue's own mark: `mark_records_seen` takes its kinds
-  // and nothing else.
-  const queueKind = isQueueKind(row.kind) ? row.kind : null;
-  // Set when the server matched nothing: a record opened from a column that
-  // has not finished yet is not in anybody's queue, so there was nothing to
-  // mark - said here rather than closed as if it had worked.
-  const [notInQueue, setNotInQueue] = useState(false);
-  const archive = useMutation({
-    mutationFn: () =>
-      queueKind
-        ? markRecordsArchived([{ kind: queueKind, id: row.id }])
-        : Promise.resolve({ marked: 0, matched: 0 }),
-    onSuccess: (result) => {
-      if (result.matched === 0) {
-        setNotInQueue(true);
-        return;
-      }
-      queryClient.invalidateQueries({ queryKey: ["archive-queue"] });
-      onClose();
-    },
-  });
+  // A delivery waiting for acceptance is accepted on its own page (B4).
+  const pendingReceipt =
+    row.kind === "MATERIAL_RECEIPT" && row.status === "PENDING";
+  // A hazard closes by its raiser's 确认完成 (X10), so it is said, not offered.
+  const hazardClosure =
+    row.kind === "HAZARD" ? (row.archived ?? detail.data?.archived ?? null) : undefined;
+  // The record's own parts are drawn once it has loaded, as before; the
+  // caller's buttons and the way to the receipt are there from the start.
+  const loaded = !detail.isLoading && !detail.isError && Boolean(detail.data);
+  const offersConfirm = confirm && canConfirmClosure(row.kind);
+  const hasActions = Boolean(
+    actions || pendingReceipt || (loaded && (hazardClosure !== undefined || offersConfirm)),
+  );
+  // The status in the words the list uses (T-391); a sheet opened from
+  // elsewhere without one reads it from the record once loaded.
+  const statusLabel = recordStatusLabel(t, detail.data ?? row);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={row.reference}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
+    <RecordDetailDialog
+      title={row.reference}
+      // A company-wide document has no project, so the empty part is
+      // dropped rather than printed as a double dot.
+      description={[
+        t(`archiveQueue.kind.${recordKindKey(row) as RecordSheetKind}`),
+        row.project_name,
+        formatter.dateTime(row.submitted_at),
+      ]
+        .filter(Boolean)
+        .join(" · ")}
+      status={statusLabel ? <StatusBadge label={statusLabel} tone="neutral" /> : null}
+      // 「单独导出」 (T-386), top right. A day of attendance is an aggregate
+      // with no single record to print, and a column's delivery note, site
+      // record, machine, document or period claim is not a kind the export
+      // endpoint prints.
+      headerActions={
+        isExportableKind(row.kind) && (
+          <RecordExportButton
+            kind={row.kind}
+            recordId={row.id}
+            reference={row.reference}
+          />
+        )
+      }
+      onClose={onClose}
     >
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-card sm:rounded-xl">
-        <header className="flex items-center gap-2 border-b px-4 py-3">
-          <div className="min-w-0">
-            <h2 className="truncate font-semibold">{row.reference}</h2>
-            <p className="truncate text-xs text-muted-foreground">
-              {/* A company-wide document has no project, so the empty part
-                  is dropped rather than printed as a double dot. */}
-              {[
-                t(`archiveQueue.kind.${recordKindKey(row) as RecordSheetKind}`),
-                row.project_name,
-                formatter.dateTime(row.submitted_at),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-          </div>
-          {/* 「单独导出」 (T-386), top right beside the close. A day of
-              attendance is an aggregate with no single record to print, and
-              a column's delivery note, site record, machine, document or
-              period claim is not a kind the export endpoint prints. */}
-          <div className="ml-auto flex shrink-0 items-center gap-1">
-            {isExportableKind(row.kind) && (
-              <RecordExportButton
-                kind={row.kind}
-                recordId={row.id}
-                reference={row.reference}
-              />
-            )}
-          </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={onClose}
-            aria-label={t("common.close")}
-          >
-            <X />
-          </Button>
-        </header>
-
-        <div className="flex-1 space-y-4 overflow-y-auto p-4">
-          {actions}
-          {detail.isLoading ? (
+      <RecordDetailShell
+        reference={row.reference}
+        notices={
+          detail.isLoading ? (
             <p className="text-sm text-muted-foreground">
               {t("archiveQueue.loading")}
             </p>
@@ -512,142 +565,118 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
             <p role="alert" className="text-sm text-destructive">
               {t("archiveQueue.failed")}
             </p>
-          ) : (
+          ) : null
+        }
+        facts={
+          loaded
+            ? (detail.data?.fields ?? []).map((field) => ({
+                // The same catalogue the phone's history sheet uses. One list
+                // of field labels, checked against all four locales by a
+                // backend test (D-133).
+                label: t(`mySubmissions.field.${field.key}`),
+                value: (
+                  <span className="whitespace-pre-wrap">
+                    {field.value}
+                    {field.unit ? ` ${t(`mySubmissions.unit.${field.unit}`)}` : ""}
+                  </span>
+                ),
+                wide: field.value.length > 60 || field.value.includes("\n"),
+              }))
+            : []
+        }
+        // The stamped copies, each opened full size (B06).
+        photos={
+          loaded && detail.data
+            ? detail.data.photos.map((shot, index) => ({
+                id: `${index}:${shot.url}`,
+                url: shot.url,
+                label: shot.caption || row.reference,
+              }))
+            : undefined
+        }
+        // 记录人 (E8): who recorded it, with a number to call. A day of
+        // attendance is a count of people, recorded by nobody in particular.
+        recorder={
+          loaded && detail.data && row.kind !== "ATTENDANCE_DAY" ? (
+            <RecordRecorder record={detail.data} />
+          ) : undefined
+        }
+        actions={
+          hasActions ? (
             <>
-              <dl className="divide-y rounded-lg border">
-                {detail.data?.fields.map((field) => (
-                  <div
-                    key={field.key}
-                    className="grid grid-cols-3 gap-2 px-3 py-2"
-                  >
-                    <dt className="text-xs text-muted-foreground">
-                      {/* The same catalogue the phone's history sheet uses.
-                          One list of field labels, checked against all four
-                          locales by a backend test (D-133). */}
-                      {t(`mySubmissions.field.${field.key}`)}
-                    </dt>
-                    <dd className="col-span-2 whitespace-pre-wrap break-words text-sm">
-                      {field.value}
-                      {field.unit
-                        ? ` ${t(`mySubmissions.unit.${field.unit}`)}`
-                        : ""}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              {detail.data && detail.data.photos.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {detail.data.photos.map((shot, index) => (
-                    <figure key={shot.url} className="overflow-hidden rounded-lg border">
-                      {/* object-contain, not cover (B06): a portrait shot
-                          and its bottom watermark - time and place - are
-                          evidence, so nothing is cropped off. */}
-                      <button
-                        type="button"
-                        className="block w-full bg-muted"
-                        onClick={() => setViewingPhoto(index)}
-                        title={t("archiveQueue.openPhoto")}
-                      >
-                        <Image
-                          src={shot.url}
-                          alt={shot.caption || row.reference}
-                          width={320}
-                          height={240}
-                          unoptimized
-                          className="h-40 w-full object-contain"
-                        />
-                      </button>
-                      {shot.caption && (
-                        <figcaption className="px-2 py-1 text-xs text-muted-foreground">
-                          {shot.caption}
-                        </figcaption>
-                      )}
-                    </figure>
-                  ))}
-                </div>
+              {actions}
+              {/* Nothing here changes the record (C4): adding to a package
+                  and the confirm are on the module's own page. */}
+              {pendingReceipt && (
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/receipts/${row.id}`}>
+                    <ExternalLink />
+                    {t("archiveQueue.goToReceipt")}
+                  </Link>
+                </Button>
               )}
-              {detail.data && viewingPhoto !== null && detail.data.photos[viewingPhoto] && (
-                <PhotoViewer
-                  photos={detail.data.photos.map((shot, index) => ({
-                    id: `${index}:${shot.url}`,
-                    url: shot.url,
-                    label: shot.caption || row.reference,
-                  }))}
-                  index={viewingPhoto}
-                  reference={row.reference}
-                  onIndex={setViewingPhoto}
-                  onClose={() => setViewingPhoto(null)}
-                />
+              {loaded && hazardClosure !== undefined && (
+                <HazardClosureLine closure={hazardClosure} />
               )}
-
-              {/* The same reason the package shortcut sits here (D-154): this
-                  sheet is the one place a record of any kind is opened, so one
-                  panel here reaches every kind that takes a conversation
-                  instead of one copy per module screen. A hazard is not one of
-                  them - it keeps its own chat, and two would split its
-                  evidence in half. */}
-              {canDiscuss(row.kind) && (
-                <RecordConversationPanel kind={row.kind} recordId={row.id} />
-              )}
-              {/* And the one action that ends it (D-234). Here for the same
-                  reason as the conversation: this sheet is where a record of
-                  any kind is opened, so one panel covers every kind rather
-                  than eight copies that would drift. The same eight kinds:
-                  the closure endpoint finds its record the way the chat does,
-                  and a hazard closes through its own verification. */}
-              {canConfirmClosure(row.kind) && (
+              {/* The one action that ends a record (D-234) is on its module's
+                  page (C4). Here only for a 「等你处理」 row whose module has
+                  no detail page yet, so the reader is not sent somewhere
+                  nothing can be confirmed. */}
+              {loaded && confirm && canConfirmClosure(row.kind) && (
                 <RecordClosurePanel kind={row.kind} recordId={row.id} />
               )}
             </>
-          )}
-        </div>
+          ) : undefined
+        }
+        // The same reason the package shortcut sits here (D-154): this sheet
+        // is the one place a record of any kind is opened, so one panel here
+        // reaches every kind that takes a conversation instead of one copy
+        // per module screen. A hazard is not one of them - it keeps its own
+        // chat, and two would split its evidence in half. The conversation
+        // alone, as this sheet always had it (no attachments panel added).
+        chat={
+          loaded &&
+          canDiscuss(row.kind) && (
+            <RecordConversationPanel kind={row.kind} recordId={row.id} />
+          )
+        }
+      />
+    </RecordDetailDialog>
+  );
+}
 
-        <footer className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
-          {/* Said out loud next to the button, because "archive" reads as a
-              record-wide action and this one is not (D-106). */}
-          {queueKind && (
-            <p className="w-full text-xs text-muted-foreground sm:w-auto">
-              {t(notInQueue ? "archiveQueue.notInQueue" : "archiveQueue.archiveHelp")}
-            </p>
-          )}
-          {/* From the record rather than from Multi Engine (T-238). This sheet
-              is the one place that opens a record of any of the nine kinds, so
-              putting the shortcut here reaches all of them without nine copies
-              of the same button (D-154). */}
-          {canGoInAPackage(row.kind) && (
-            <AddToPackageButton
-              kind={row.kind}
-              recordId={row.id}
-              projectId={row.project_id}
-              reference={row.reference}
-            />
-          )}
-          {!queueKind ? null : detail.data?.is_seen ? (
-            /* A sentence rather than a greyed-out button: a button that is
-               disabled for any reason other than a request in flight has to
-               say why it is grey, and "you have already archived this" is
-               something to read, not something to click. */
-            <p className="ml-auto text-sm font-medium">
-              {t("archiveQueue.alreadyArchived")}
-            </p>
-          ) : notInQueue ? null : (
-            <Button
-              className="ml-auto"
-              disabled={archive.isPending}
-              onClick={() => archive.mutate()}
-            >
-              {t("archiveQueue.archive")}
-            </Button>
-          )}
-          {/* Nothing left to press on a kind with none of these parts, so the
-              footer still closes the sheet rather than standing empty. */}
-          {!queueKind && !canGoInAPackage(row.kind) && (
-            <Button className="ml-auto" variant="outline" onClick={onClose}>
-              {t("common.close")}
-            </Button>
-          )}
-        </footer>
-      </div>
-    </div>
+/**
+ * 已闭环 / 未闭环 for a hazard (2026-10 C4, X10). A hazard is closed by its
+ * raiser's 确认完成 (VERIFIED) on the hazard page, so the sheet says which it
+ * is and who closed it, with no button.
+ */
+export function HazardClosureLine({
+  closure,
+}: {
+  closure: { by: string; at: string | null } | null;
+}) {
+  const t = useTranslations("archiveQueue.hazardClosure");
+  const formatter = useDateFormat();
+  return closure ? (
+    <p
+      className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm"
+      data-hazard-closure="closed"
+    >
+      <span className="font-semibold text-success">{t("closed")}</span>
+      {closure.by && (
+        <span className="ml-2 text-muted-foreground">
+          {closure.by}
+          {closure.at ? ` · ${formatter.dateTime(closure.at)}` : ""}
+        </span>
+      )}
+    </p>
+  ) : (
+    <p
+      className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm"
+      data-hazard-closure="open"
+    >
+      <span className="font-semibold text-warning">{t("open")}</span>
+      <span className="ml-2 text-muted-foreground">{t("openHelp")}</span>
+    </p>
   );
 }

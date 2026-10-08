@@ -50,9 +50,11 @@ describe("the create and edit dialogs", () => {
 
   it("finds the whole set of full-page forms", () => {
     // Not an arbitrary number: 14 modules with a create and an edit, plus
-    // deductions and settlements which only create. If this changes, the
+    // deductions and settlements which only create, less the receipt's create
+    // (2026-10 A1: the office no longer records a delivery; only its
+    // correction form, `/receipts/[id]/edit`, remains). If this changes, the
     // change is either a new form (which needs a dialog) or a deleted one.
-    expect(routes.length).toBe(28);
+    expect(routes.length).toBe(27);
   });
 
   it.each(fullPageForms())("%s opens as a dialog too", (route) => {
@@ -110,6 +112,18 @@ function fullPageDetails(): string[] {
   return found.sort();
 }
 
+/**
+ * The business records among them (E8, Q31): their popup is the shared
+ * record-detail dialog - number, status and 预览/打印 · 导出 PDF · 分享 in its
+ * own header - rather than the page wrapped in a second dialog.
+ */
+const RECORD_DETAIL_ROUTES = [
+  "/receipts/[id]",
+  "/consultant-applications/[id]",
+  "/dispatches/[id]",
+  "/tasks/[id]",
+];
+
 describe("the detail dialogs", () => {
   const routes = fullPageDetails();
 
@@ -124,6 +138,15 @@ describe("the detail dialogs", () => {
     expect(existsSync(twin), `${twin} is missing`).toBe(true);
 
     const source = readFileSync(twin, "utf8");
+    if (RECORD_DETAIL_ROUTES.includes(route)) {
+      // A business record (E8, Q31): the module's own detail in its
+      // record-detail popup, the same component the page renders.
+      const page = readFileSync(path.join(APP, ...route.slice(1).split("/"), "page.tsx"), "utf8");
+      const component = page.match(/<(\w+) id=\{id\}/)?.[1];
+      expect(component, `${route}/page renders a detail component`).toBeTruthy();
+      expect(source).toMatch(new RegExp(`<${component} id=\\{id\\} presentation="dialog"`));
+      return;
+    }
     expect(source).toContain(`@/app/(dashboard)${route}/page`);
     expect(source).toContain("<DetailDialog>");
   });

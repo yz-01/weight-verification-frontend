@@ -45,7 +45,61 @@ export interface DocumentVersion {
 
 export type DocumentStatus = "ACTIVE" | "ARCHIVED";
 
+/** The record a system file came from (E4), read past soft deletion (Q23). */
+export interface SystemFileRecord {
+  /** A `record-routes.ts` kind. */
+  kind: string;
+  id: string | null;
+  /** Its number, as people say it (`RC-005`); empty when unknown. */
+  reference: string;
+  deleted: boolean;
+}
+
+/** What a document filed from the system shows of its file (E4). */
+export interface DocumentSystemFileInfo {
+  module: string;
+  file_name: string;
+  content_type: string;
+  preview_type: string | null;
+  byte_size: number;
+  kind: string;
+  /** The watermarked copy of a photograph; null for other files. */
+  thumbnail_url: string | null;
+  captured_at: string;
+  record: SystemFileRecord;
+}
+
+/** One file already in the system that may be filed here (E4). */
+export interface SystemFile {
+  id: string;
+  file_name: string;
+  content_type: string;
+  preview_type: string | null;
+  kind: string;
+  byte_size: number;
+  thumbnail_url: string | null;
+  module: string;
+  record: SystemFileRecord;
+  project: string | null;
+  project_name: string | null;
+  uploaded_by_name: string | null;
+  captured_at: string;
+  /** Already filed in the archive once. */
+  filed: boolean;
+}
+
+export interface AddSystemFilesPayload {
+  files: string[];
+  category: string;
+  subcategory?: string | null;
+  keywords?: string;
+}
+
 export interface DocumentRecord {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   document_no: string;
   reference_no: string;
@@ -62,6 +116,8 @@ export interface DocumentRecord {
   /** Present on list/detail queries; create responses may omit the annotation. */
   version_count?: number;
   latest_version: DocumentVersion | null;
+  /** E4: a file picked from the system; null for an uploaded document. */
+  system_file?: DocumentSystemFileInfo | null;
   archived_at: string | null;
   archived_by: string | null;
   archive_reason: string;

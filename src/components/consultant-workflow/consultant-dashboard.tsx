@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Archive,
   ArrowRight,
-  Bell,
   ClipboardCheck,
   FileCheck2,
   FileText,
@@ -19,7 +18,9 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { usePageProject } from "@/components/providers/current-project-provider";
 import {
+  FilterBar,
   LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
@@ -37,7 +38,8 @@ export function ConsultantDashboard() {
   const router = useRouter();
   const { can, user } = useAuth();
   const [search, setSearch] = useState("");
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 for the contractor's office (B13).
+  const [project, setProject] = usePageProject();
   const needsProject = user?.account_type === "CONSULTANT";
   const dashboard = useQuery({
     queryKey: ["consultant-dashboard", project],
@@ -57,7 +59,7 @@ export function ConsultantDashboard() {
 
   if (dashboard.isError) {
     return (
-      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
         {t("loadError")}
       </div>
     );
@@ -65,10 +67,10 @@ export function ConsultantDashboard() {
 
   const data = dashboard.data;
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4 border-b pb-5">
-        <div>
-          <h1 className="text-2xl font-semibold">{t("title")}</h1>
+    <div className="space-y-4">
+      <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3 border-b pb-4">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold leading-tight sm:text-2xl">{t("title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -96,7 +98,7 @@ export function ConsultantDashboard() {
         picker and a search box that fit beside each other on any laptop. They
         stack again below `sm`, where they genuinely do not.
       */}
-      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+      <FilterBar>
         <div className="min-w-0 shrink-0 sm:w-80">
           <ConsultantProjectPicker
             value={project}
@@ -132,7 +134,7 @@ export function ConsultantDashboard() {
             <Search />{t("search")}
           </Button>
         </form>
-      </div>
+      </FilterBar>
 
       {!data ? (
         <DashboardSkeleton />
@@ -145,7 +147,7 @@ export function ConsultantDashboard() {
             laptop a consultant logged in and saw a diagram while three
             applications waited past the fold.
           */}
-          <div data-dashboard-priority className="grid gap-6 xl:grid-cols-2">
+          <div data-dashboard-priority className="grid gap-4 xl:grid-cols-2">
             <ApplicationList
               title={t("pending.title")}
               description={t("pending.description")}
@@ -160,13 +162,13 @@ export function ConsultantDashboard() {
               empty={t("due.empty")}
               showDue
             />
-            <section className="rounded-lg border bg-card p-4 shadow-sm">
+            <section className="surface-panel rounded-xl p-4 sm:p-6">
               <div className="flex items-start justify-between gap-3 border-b pb-3">
                 <div>
-                  <h2 className="flex items-center gap-2 text-sm font-semibold"><Bell className="size-4 text-primary" />{t("notifications.title")}</h2>
+                  <h2 className="panel-title">{t("notifications.title")}</h2>
                   <p className="mt-1 text-xs text-muted-foreground">{t("notifications.description")}</p>
                 </div>
-                <Link href="/notifications" className="text-xs font-semibold text-primary hover:underline">{t("openAll")}</Link>
+                <Link href="/notifications" className="inline-flex min-h-10 shrink-0 items-center text-xs font-semibold text-primary hover:underline">{t("openAll")}</Link>
               </div>
               {notifications.isError ? (
                 <LoadFailed onRetry={() => void notifications.refetch()} />
@@ -242,7 +244,7 @@ export function ConsultantDashboard() {
             </div>
           </section>
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid gap-4 xl:grid-cols-2">
             <ApplicationList
               title={t("history.title")}
               description={t("history.description")}
@@ -283,14 +285,14 @@ function LifecycleStep({
   return (
     <Link
       href={href}
-      className="group flex min-h-40 flex-col rounded-lg border bg-card p-4 shadow-sm transition-colors hover:border-primary/35 hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group flex min-h-40 flex-col surface-panel rounded-xl p-4 transition-colors hover:border-primary/35 hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="grid size-8 shrink-0 place-items-center rounded-full border bg-background text-sm font-bold tabular-nums">{number}</span>
           <span className={`grid size-10 place-items-center rounded-lg ${toneClass}`}><Icon className="size-5" /></span>
         </div>
-        <span className="text-3xl font-semibold tabular-nums">{value}</span>
+        <span className="kpi-figure text-3xl">{value}</span>
       </div>
       <p className="mt-4 text-base font-semibold">{label}</p>
       <p className="mt-1 flex-1 text-sm leading-5 text-muted-foreground">{help}</p>
@@ -317,13 +319,13 @@ function ApplicationList({
   const t = useTranslations("consultantDashboard");
   const df = useDateFormat();
   return (
-    <section className="rounded-lg border bg-card p-4 shadow-sm">
+    <section className="surface-panel rounded-xl p-4 sm:p-6">
       <div className="flex items-start justify-between gap-3 border-b pb-3">
-        <div>
-          <h2 className="text-sm font-semibold">{title}</h2>
+        <div className="min-w-0">
+          <h2 className="panel-title">{title}</h2>
           <p className="mt-1 text-xs text-muted-foreground">{description}</p>
         </div>
-        <Link href="/consultant-applications" className="text-xs font-semibold text-primary hover:underline">{t("openAll")}</Link>
+        <Link href="/consultant-applications" className="inline-flex min-h-10 shrink-0 items-center text-xs font-semibold text-primary hover:underline">{t("openAll")}</Link>
       </div>
       {rows.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">{empty}</p>
@@ -358,11 +360,11 @@ function statusTone(status: ConsultantDashboardRow["status"]) {
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-28 w-full" />)}
       </div>
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         {Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-72 w-full" />)}
       </div>
     </div>

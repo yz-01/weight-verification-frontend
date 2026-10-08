@@ -19,11 +19,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Camera,
-  FolderOpen,
+  ChartNoAxesCombined,
+  HardHat,
   ImagePlus,
   ListTree,
   Loader2,
   MapPin,
+  PackageMinus,
   Pencil,
   Plus,
 } from "lucide-react";
@@ -32,31 +34,31 @@ import Link from "next/link";
 
 import { MaterialTabs } from "@/components/receipts/material-tabs";
 import {
-  ApplyMovementDialog,
-  MachineStep,
-  ReviewMovementActions,
+  EquipmentMovementActions,
   movementTone,
-  useOpenEquipmentApplications,
 } from "@/components/contractor-ops/equipment-applications";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
-import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import {
   EquipmentDialog,
   MovementDialog,
   OutgoingActions,
   OutgoingDetailDialog,
-  OutgoingDialog,
-  PhaseDialog,
   ProgressDialog,
   RejectOutgoingDialog,
   ReturnProcessingDialog,
   tone,
 } from "@/components/contractor-ops/operations-workspaces";
+import { usePageTitle } from "@/components/layout/page-title-override";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
+import { RecordNo } from "@/components/shared/record-no";
+import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import {
   ColumnFilter,
   FilterSelect,
@@ -66,19 +68,20 @@ import {
   sortable,
   SummaryStrip,
 } from "@/components/shared/module-records-table";
-import { FieldWrapper, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
-import {
-  RecordDetailDialog,
-  RecordDetailShell,
-} from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { equipmentDirectionTitleKey } from "@/lib/equipment-title";
 import { useUrlSelection } from "@/hooks/use-url-selection";
+import {
+  useFollowRecordProject,
+  useOnProjectChange,
+} from "@/components/providers/current-project-provider";
 import type {
-  ConstructionPhase,
   EquipmentMovement,
   MaterialOutgoing,
   SiteEquipment,
@@ -93,12 +96,12 @@ import {
   addProgressPhotos,
   addProgressRemark,
   exportSiteProgressRecords,
-  fileProgressRecord,
   getConstructionPhases,
   getEquipmentMovements,
   getEquipmentSummary,
   getMaterialOutgoing,
   getSiteEquipment,
+  getSiteEquipmentItem,
   getSiteProgressRecords,
   getSiteProgressSummary,
   reviewMaterialOutgoing,
@@ -127,9 +130,7 @@ function CreateButton({
 }) {
   return (
     <Button
-      size="sm"
       variant={variant}
-      className="rounded-full px-4 shadow-sm"
       onClick={onClick}
     >
       {icon}
@@ -193,7 +194,18 @@ export function MaterialOutgoingOffice() {
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
-  const list = useListQuery(["project", "status", "category", "uncategorised"]);
+  const list = useListQuery([
+    "project",
+    "status",
+    "category",
+    "uncategorised",
+    "supplier",
+    "manufacturer",
+    "date_from",
+    "date_to",
+  ]);
+  const unitName = useUnitName();
+  const unitValues = useUnitExportValues();
   const rows = useQuery({
     queryKey: ["material-outgoing", "office", list.query],
     queryFn: () => getMaterialOutgoing(list.query),
@@ -210,9 +222,9 @@ export function MaterialOutgoingOffice() {
     }) => reviewMaterialOutgoing(id, status, note),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["material-outgoing"] }),
   });
-  const searchParams = useSearchParams();
-  const [creating, setCreating] = useState(searchParams.get("create") === "1");
-  // A task card links here with ?record=<id>.
+  // No 「新增退场申请」 and no `?create=1` here (2026-10 A1, X9): the site
+  // applies on the phone; the office decides. A task card links here with
+  // ?record=<id>.
   const [viewing, setViewing] = useUrlSelection("record");
   const [rejecting, setRejecting] = useState<MaterialOutgoing | null>(null);
   const [returning, setReturning] = useState<MaterialOutgoing | null>(null);
@@ -233,12 +245,16 @@ export function MaterialOutgoingOffice() {
         accessorKey: "reference_no",
         meta: { label: t("outgoing.referenceNo") },
         header: () => <PlainHeader label={t("outgoing.referenceNo")} />,
-        cell: ({ row }) => (
-          <span className="tabular text-foreground">
-            {row.original.reference_no}
-          </span>
-        ),
+        // Short number big, project small (2026-10 D4).
+        cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<MaterialOutgoing>({
+        label: tRoot("moduleTable.photos"),
+        icon: PackageMinus,
+        reference: (row) => row.reference_no,
+        photos: (row) => rowPhotos(row.photos, row.reference_no),
+      }),
       {
         accessorKey: "status",
         meta: { label: t("field.status") },
@@ -279,7 +295,7 @@ export function MaterialOutgoingOffice() {
         header: sortable(t("field.material")),
         cell: ({ row }) => (
           <span
-            className="block max-w-[200px] truncate font-medium text-foreground"
+            className="block max-w-50 truncate font-medium text-foreground"
             title={row.original.material_name}
           >
             {row.original.material_name}
@@ -292,20 +308,38 @@ export function MaterialOutgoingOffice() {
         header: () => <PlainHeader label={t("field.quantity")} />,
         cell: ({ row }) => (
           <span className="tabular">
-            {row.original.quantity} {row.original.unit}
+            {row.original.quantity} {unitName(row.original.unit, row.original.unit_label)}
           </span>
         ),
       },
+      // The supplier it goes back to (2026-10 C7), in place of the
+      // destination - since 10-02 a return goes to its supplier, and the
+      // destination only repeated the supplier's name. Since C9 a return
+      // may name none: 「—」.
       {
-        accessorKey: "destination",
-        meta: { label: t("field.destination") },
-        header: () => <PlainHeader label={t("field.destination")} />,
+        accessorKey: "supplier_name",
+        meta: { label: t("field.supplier") },
+        header: () => <PlainHeader label={t("field.supplier")} />,
         cell: ({ row }) => (
           <span
-            className="block max-w-[180px] truncate"
-            title={row.original.destination}
+            className="block max-w-45 truncate"
+            title={row.original.supplier_name ?? ""}
           >
-            {row.original.destination}
+            {row.original.supplier_name || "—"}
+          </span>
+        ),
+      },
+      // Whose make (2026-10 D1), copied from the delivery it went back from.
+      {
+        accessorKey: "manufacturer_name",
+        meta: { label: tRoot("manufacturers.column") },
+        header: () => <PlainHeader label={tRoot("manufacturers.column")} />,
+        cell: ({ row }) => (
+          <span className="block max-w-50">
+            <ManufacturerCell
+              name={row.original.manufacturer_name}
+              offList={row.original.manufacturer_off_list}
+            />
           </span>
         ),
       },
@@ -319,19 +353,11 @@ export function MaterialOutgoingOffice() {
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
-          <p className="max-w-[180px] truncate">{row.original.project_name}</p>
-        ),
-      },
-      {
-        id: "photos",
-        meta: { label: tRoot("moduleTable.photos") },
-        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-        cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photos.length)} />
+          <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
     ],
-    [t, tRoot, df],
+    [t, tRoot, df, unitName],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -344,10 +370,16 @@ export function MaterialOutgoingOffice() {
       columns: [
         { key: "reference_no", label: t("outgoing.referenceNo") },
         { key: "category_name", label: t("field.category") },
+        // Who it went back to (2026-10 C7).
+        { key: "supplier_name", label: t("field.supplier") },
+        { key: "manufacturer_name", label: tRoot("manufacturers.column") },
         { key: "material_name", label: t("field.material") },
         { key: "quantity", label: t("field.quantity") },
-        { key: "unit", label: t("field.unit") },
+        { key: "unit", label: t("field.unit"), values: unitValues },
         { key: "destination", label: t("field.destination") },
+        // DO and plate head every record that has them (2026-10 C12).
+        { key: "delivery_note_no", label: t("field.deliveryNote") },
+        { key: "vehicle_plate", label: t("field.vehiclePlate") },
         {
           key: "status",
           label: t("field.status"),
@@ -360,6 +392,9 @@ export function MaterialOutgoingOffice() {
         },
         { key: "submitted_by_name", label: t("outgoing.submittedBy") },
         { key: "captured_at", label: t("outgoing.capturedAt") },
+        // The Return Note it was approved on (2026-10 C9).
+        { key: "return_note_no", label: t("returnNote.number") },
+        { key: "approver_name", label: t("returnNote.approverName") },
       ],
       summary: {
         groupBy: "unit",
@@ -375,20 +410,15 @@ export function MaterialOutgoingOffice() {
       <ModuleRecordsTable
         title={title}
         countLabel={tRoot("moduleTable.count", { count: total })}
-        headerAction={
-          can("material_outgoing.submit") ? (
-            <CreateButton
-              label={t("outgoing.add")}
-              onClick={() => setCreating(true)}
-            />
-          ) : undefined
-        }
-        // Material Out in 材料管理's tabs (B09). Returns typed 退场 on the
-        // receipt form before 10-02 are listed on their own, one click away.
+        // Material Out in 材料管理's views (B09, C14), with the supplier and
+        // date filter beside them (B5). Returns typed 退场 on the receipt
+        // form before 10-02 are listed on their own, one click away.
         above={
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <MaterialTabs />
-            <Link href="/receipts?direction=OUT" className="text-xs text-primary underline-offset-2 hover:underline">
+          <div className="flex flex-col gap-2">
+            <MaterialTabs>
+              <SupplierDateListFilter list={list} showManufacturer />
+            </MaterialTabs>
+            <Link href="/receipts?direction=OUT" className="self-end text-xs text-primary underline-offset-2 hover:underline">
               {tRoot("receipts.tabs.legacyReturns")}
             </Link>
           </div>
@@ -399,7 +429,8 @@ export function MaterialOutgoingOffice() {
         totalCount={total}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="material-outgoing"
+        // `.v2` with the manufacturer column (2026-10 D1).
+        storageKey="material-outgoing.v2"
         toolbar={
           <>
             <ProjectListFilter list={list} />
@@ -456,16 +487,6 @@ export function MaterialOutgoingOffice() {
           }}
         />
       )}
-      {creating && (
-        <OutgoingDialog
-          project={list.filters.project ?? ""}
-          onClose={() => setCreating(false)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
-            setCreating(false);
-          }}
-        />
-      )}
     </>
   );
 }
@@ -493,6 +514,8 @@ export function SiteEquipmentOffice() {
     "category",
     "uncategorised",
     "expiring",
+    // One machine's entries and exits, from its profile (2026-10 B2).
+    "equipment",
   ]);
   // The dashboard's expiring-certificates card links here with ?expiring=1,
   // which is a question about machines, so it opens the register.
@@ -515,23 +538,72 @@ export function SiteEquipmentOffice() {
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   const [editing, setEditing] = useState<SiteEquipment | null>(null);
-  // The handover of an approved application, and the machine an
-  // application is being made for (B13).
+  // 「直接交接」 of an application made before the one-step flow (C8, Q27).
+  // Nothing is applied for any more, entry or exit: the site records the
+  // movement on the phone and the office accepts it here.
   const [moving, setMoving] = useState<{ machine: SiteEquipment; movement: EquipmentMovement } | null>(null);
-  const [applyingFor, setApplyingFor] = useState<SiteEquipment | null>(null);
-  const open = useOpenEquipmentApplications(list.filters.project || undefined);
   const [viewingMovement, setViewingMovement] =
     useState<EquipmentMovement | null>(null);
   const [viewingMachine, setViewingMachine] = useState<SiteEquipment | null>(
     null,
   );
+  // A notification or a card links to one movement or one machine (C8, B14).
+  const [linkedMovement, setLinkedMovement] = useUrlSelection("movement");
+  const [linkedMachine, setLinkedMachine] = useUrlSelection("machine");
+  // query-failure: a link to a movement that cannot be read leaves the list as it is.
+  const linkedMovementQuery = useQuery({
+    queryKey: ["equipment-movements", "one", linkedMovement],
+    queryFn: () => getEquipmentMovements({ id: linkedMovement ?? "", page_size: 1 }),
+    enabled: Boolean(linkedMovement) && !viewingMovement,
+  });
+  // query-failure: a link to a machine that cannot be read leaves the list as it is.
+  const linkedMachineQuery = useQuery({
+    queryKey: ["site-equipment", "one", linkedMachine],
+    queryFn: () => getSiteEquipmentItem(linkedMachine ?? ""),
+    enabled: Boolean(linkedMachine) && !viewingMachine,
+  });
+  const shownMovement =
+    viewingMovement ?? (linkedMovement ? linkedMovementQuery.data?.results[0] ?? null : null);
+  const shownMachine = viewingMachine ?? (linkedMachine ? linkedMachineQuery.data ?? null : null);
+  const closeMovement = () => {
+    setViewingMovement(null);
+    setLinkedMovement(null);
+  };
+  const closeMachine = () => {
+    setViewingMachine(null);
+    setLinkedMachine(null);
+  };
+  // 「补齐档案」 from an entry waiting for acceptance (C8).
+  const completeProfile = async (machineId: string) => {
+    setEditing(await getSiteEquipmentItem(machineId));
+  };
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["site-equipment"] });
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
     void qc.invalidateQueries({ queryKey: ["equipment-summary"] });
   };
-  const title = tRoot("nav.submodule.siteEquipment");
+  // The title follows the direction being looked at (B14): a list of exits
+  // is 「设备退场」, not 「设备进退场」, here, in the top bar and in the export.
+  const directionTitleKey = equipmentDirectionTitleKey(
+    list.filters.direction,
+    register,
+  );
+  const directionTitle = directionTitleKey ? tRoot(directionTitleKey) : null;
+  usePageTitle(directionTitle);
+  const title = directionTitle ?? tRoot("nav.submodule.siteEquipment");
   const project = list.filters.project ?? "";
+  // A movement or machine opened by hand belongs to the project it was opened
+  // on, and closes when the top bar moves (B13 audit #8). One a link opened
+  // moves the top bar to its project first (Q33.3).
+  useOnProjectChange(project, () => {
+    setViewingMovement(null);
+    setViewingMachine(null);
+  });
+  useFollowRecordProject(
+    "movement",
+    linkedMovement ? linkedMovementQuery.data?.results[0] : null,
+  );
+  useFollowRecordProject("machine", linkedMachine ? linkedMachineQuery.data : null);
 
   const movementColumns = useMemo<ColumnDef<EquipmentMovement, unknown>[]>(
     () => [
@@ -553,6 +625,13 @@ export function SiteEquipmentOffice() {
           </div>
         ),
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<EquipmentMovement>({
+        label: tRoot("moduleTable.photos"),
+        icon: HardHat,
+        reference: (row) => row.equipment_name,
+        photos: (row) => rowPhotos(row.photos, row.equipment_name),
+      }),
       {
         accessorKey: "direction",
         meta: { label: t("equipment.directionLabel") },
@@ -565,7 +644,9 @@ export function SiteEquipmentOffice() {
         ),
       },
       {
-        // 申请 → 批准 → 交接 (B13); rows from before 10-02 are all handed over.
+        // 等待后台验收 / 已验收 / 未通过 (C8, Q27); an application from before
+        // the one-step flow keeps its own state; rows from before 10-02 are
+        // all handed over.
         id: "status",
         meta: { label: t("field.status") },
         header: () => <PlainHeader label={t("field.status")} />,
@@ -582,11 +663,11 @@ export function SiteEquipmentOffice() {
         header: () => <PlainHeader label={t("field.name")} />,
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[200px] truncate font-medium text-foreground">
+            <p className="max-w-50 truncate font-medium text-foreground">
               {row.original.equipment_name}
             </p>
             <p className="tabular truncate text-xs text-muted-foreground">
-              {row.original.equipment_code}
+              {row.original.equipment_registration_no || row.original.equipment_code}
             </p>
           </div>
         ),
@@ -622,15 +703,7 @@ export function SiteEquipmentOffice() {
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
-          <p className="max-w-[180px] truncate">{row.original.project_name}</p>
-        ),
-      },
-      {
-        id: "photos",
-        meta: { label: tRoot("moduleTable.photos") },
-        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-        cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photos.length)} />
+          <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
     ],
@@ -640,13 +713,27 @@ export function SiteEquipmentOffice() {
   const machineColumns = useMemo<ColumnDef<SiteEquipment, unknown>[]>(
     () => [
       {
+        // 「编号」 is the plate (2026-10 A8, X4): what the office reads off the
+        // machine. The register's own number stays underneath, short (D4).
         accessorKey: "code",
-        meta: { label: t("field.code") },
-        header: sortable(t("field.code")),
+        meta: { label: t("field.plateNo") },
+        header: sortable(t("field.plateNo")),
         cell: ({ row }) => (
-          <span className="tabular text-foreground">{row.original.code}</span>
+          <div className="min-w-0">
+            <p className="font-medium text-foreground">
+              {row.original.registration_no || t("state.noPlate")}
+            </p>
+            <RecordNo value={row.original.code} />
+          </div>
         ),
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<SiteEquipment>({
+        label: tRoot("moduleTable.photos"),
+        icon: HardHat,
+        reference: (row) => row.name,
+        photos: (row) => rowPhotos(row.photos, row.name),
+      }),
       {
         accessorKey: "name",
         meta: { label: t("field.name") },
@@ -662,45 +749,67 @@ export function SiteEquipmentOffice() {
         meta: { label: t("field.status") },
         header: sortable(t("field.status")),
         cell: ({ row }) => (
-          <StatusBadge
-            label={t(`equipmentStatus.${row.original.status}`)}
-            tone={tone(row.original.status)}
-          />
+          <div className="flex flex-wrap items-center gap-1">
+            <StatusBadge
+              label={t(`equipmentStatus.${row.original.status}`)}
+              tone={tone(row.original.status)}
+            />
+            {/* An exit waiting for 验收 is still on site (Q27): both say so. */}
+            {row.original.awaiting_acceptance && (
+              <StatusBadge
+                label={t(
+                  row.original.awaiting_acceptance === "EXIT"
+                    ? "equipment.exitWaiting"
+                    : "equipment.entryWaiting",
+                )}
+                tone="warning"
+              />
+            )}
+          </div>
         ),
       },
       {
         accessorKey: "category_name",
         meta: { label: t("field.equipmentColumn") },
         header: () => <PlainHeader label={t("field.equipmentColumn")} />,
-        cell: ({ row }) => <Unfiled name={row.original.category_name} />,
+        // 大类 › 小类 (X1); a 「新设备」 waits for the office to file it (C8).
+        cell: ({ row }) => (
+          <div className="min-w-0">
+            {row.original.category_parent_name ? (
+              <span className="text-foreground">
+                {row.original.category_parent_name} › {row.original.category_name}
+              </span>
+            ) : (
+              <Unfiled name={row.original.category_name} />
+            )}
+            {row.original.needs_profile && (
+              <StatusBadge label={t("equipment.needsProfile")} tone="warning" />
+            )}
+          </div>
+        ),
       },
       {
         accessorKey: "quantity_on_site",
         meta: { label: t("field.quantity") },
-        header: () => <PlainHeader label={t("field.quantity")} />,
-        cell: ({ row }) => (
-          <span className="tabular">{row.original.quantity_on_site}</span>
+        header: () => (
+          <div className="tabular text-right">
+            <PlainHeader label={t("field.quantity")} />
+          </div>
         ),
-      },
-      {
-        id: "identifier",
-        meta: { label: t("field.registrationNo") },
-        header: () => <PlainHeader label={t("field.registrationNo")} />,
-        cell: ({ row }) =>
-          row.original.registration_no ||
-          row.original.serial_no ||
-          t("state.noIdentifier"),
+        cell: ({ row }) => (
+          <span className="tabular block text-right">{row.original.quantity_on_site}</span>
+        ),
       },
       {
         accessorKey: "project_name",
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
-          <p className="max-w-[180px] truncate">{row.original.project_name}</p>
+          <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
     ],
-    [t],
+    [t, tRoot],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -760,8 +869,21 @@ export function SiteEquipmentOffice() {
         }
       />
       <QueryFailedNote query={summary} what={t("what.equipmentSummary")} />
+      {/* Opened from a machine's profile (B2): its entries and exits only. */}
+      {list.filters.equipment && !register && (
+        <p className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-xs">
+          {t("equipment.oneMachineOnly")}
+          <button
+            type="button"
+            className="font-medium text-primary underline-offset-2 hover:underline"
+            onClick={() => list.setFilter("equipment", undefined)}
+          >
+            {tRoot("moduleTable.showAll")}
+          </button>
+        </p>
+      )}
       {expiring && (
-        <p className="flex items-center gap-2 rounded-md border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs">
+        <p className="flex flex-wrap items-center gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
           {tRoot("moduleTable.expiringOnly")}
           <button
             type="button"
@@ -772,7 +894,7 @@ export function SiteEquipmentOffice() {
           </button>
         </p>
       )}
-      <div className="ml-auto inline-flex w-fit rounded-lg border bg-muted/30 p-0.5 text-sm">
+      <div className="ml-auto inline-flex h-10 w-fit rounded-lg border bg-muted/30 p-1 text-sm pointer-coarse:h-11">
         {(["movements", "register"] as const).map((view) => {
           const active = (view === "register") === register;
           return (
@@ -780,7 +902,7 @@ export function SiteEquipmentOffice() {
               key={view}
               type="button"
               aria-pressed={active}
-              className={`rounded-md px-3 py-1 font-medium transition ${active ? "bg-card shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              className={`rounded-md px-3 font-medium transition ${active ? "bg-card shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               onClick={() =>
                 list.setFilters({
                   view: view === "register" ? "register" : undefined,
@@ -790,6 +912,7 @@ export function SiteEquipmentOffice() {
                   category: undefined,
                   uncategorised: undefined,
                   expiring: undefined,
+                  equipment: undefined,
                 })
               }
             >
@@ -873,27 +996,29 @@ export function SiteEquipmentOffice() {
         />
       )}
 
-      {viewingMovement && (
+      {shownMovement && (
         <RecordDetailDialog
-          title={`${viewingMovement.equipment_code} - ${viewingMovement.equipment_name}`}
-          description={`${t(`direction.${viewingMovement.direction}`)} · ${df.dateTime(viewingMovement.occurred_at)}`}
+          title={`${shownMovement.equipment_registration_no || shownMovement.equipment_code} - ${shownMovement.equipment_name}`}
+          description={`${t(`direction.${shownMovement.direction}`)} · ${df.dateTime(shownMovement.occurred_at)}`}
           exportRecord={{
             kind: "EQUIPMENT_MOVEMENT",
-            recordId: viewingMovement.id,
-            reference: `${viewingMovement.equipment_code}-${viewingMovement.direction}`,
+            recordId: shownMovement.id,
+            reference: `${shownMovement.equipment_code}-${shownMovement.direction}`,
           }}
-          onClose={() => setViewingMovement(null)}
+          onClose={closeMovement}
         >
           <RecordDetailShell
-            reference={`${viewingMovement.equipment_code}-${viewingMovement.direction}`}
+            reference={`${shownMovement.equipment_code}-${shownMovement.direction}`}
+            // 记录人 (E8): who recorded it, with a number to call.
+            recorder={<RecordRecorder record={shownMovement} />}
             facts={[
               {
                 label: t("equipment.directionLabel"),
                 value: (
                   <StatusBadge
-                    label={t(`direction.${viewingMovement.direction}`)}
+                    label={t(`direction.${shownMovement.direction}`)}
                     tone={
-                      viewingMovement.direction === "ENTRY"
+                      shownMovement.direction === "ENTRY"
                         ? "positive"
                         : "neutral"
                     }
@@ -904,78 +1029,113 @@ export function SiteEquipmentOffice() {
                 label: t("field.status"),
                 value: (
                   <StatusBadge
-                    label={t(`equipmentMovementStatus.${viewingMovement.status ?? "COMPLETED"}`)}
-                    tone={movementTone(viewingMovement.status)}
+                    label={t(`equipmentMovementStatus.${shownMovement.status ?? "COMPLETED"}`)}
+                    tone={movementTone(shownMovement.status)}
                   />
                 ),
               },
-              ...(viewingMovement.requested_by_name
-                ? [{ label: t("equipment.requestedBy"), value: viewingMovement.requested_by_name }]
+              ...(shownMovement.requested_by_name
+                ? [{ label: t("equipment.requestedBy"), value: shownMovement.requested_by_name }]
                 : []),
-              ...(viewingMovement.approved_by_name
+              ...(shownMovement.approved_by_name
                 ? [
                     {
-                      label: t("equipment.reviewedBy"),
-                      value: `${viewingMovement.approved_by_name}${viewingMovement.approved_at ? ` · ${df.dateTime(viewingMovement.approved_at)}` : ""}`,
+                      // 验收人 since the one-step flow (the office decides
+                      // after the site); 审批人 on an application from before.
+                      label: t(
+                        acceptedAfterSubmission(shownMovement)
+                          ? "equipment.acceptedBy"
+                          : "equipment.reviewedBy",
+                      ),
+                      value: `${shownMovement.approved_by_name}${shownMovement.approved_at ? ` · ${df.dateTime(shownMovement.approved_at)}` : ""}`,
                     },
                   ]
                 : []),
-              ...(viewingMovement.review_note
-                ? [{ label: t("equipment.returnReason"), value: viewingMovement.review_note, wide: true }]
+              ...(shownMovement.review_note
+                ? [
+                    {
+                      label: t(
+                        shownMovement.status === "REJECTED"
+                          ? "equipment.acceptance.reason"
+                          : "equipment.returnReason",
+                      ),
+                      value: shownMovement.review_note,
+                      wide: true,
+                    },
+                  ]
                 : []),
               {
                 label: t("field.project"),
-                value: viewingMovement.project_name,
+                value: shownMovement.project_name,
               },
               {
                 label: t("field.name"),
-                value: `${viewingMovement.equipment_code} - ${viewingMovement.equipment_name}`,
+                value: `${shownMovement.equipment_name} · ${shownMovement.equipment_registration_no || shownMovement.equipment_code}`,
               },
-              {
-                label: t("field.quantity"),
-                value: `${viewingMovement.quantity} ${viewingMovement.unit}`,
-              },
+              // One movement is one machine (F3, Q27); a record from before
+              // that in another quantity still says how many.
+              ...(Number(shownMovement.quantity) !== 1
+                ? [
+                    {
+                      label: t("field.quantity"),
+                      value: `${shownMovement.quantity} ${shownMovement.unit}`,
+                    },
+                  ]
+                : []),
               {
                 label: t("equipment.occurredAt"),
-                value: df.dateTime(viewingMovement.occurred_at),
+                value: df.dateTime(shownMovement.occurred_at),
               },
               {
                 label: t("field.operator"),
-                value: viewingMovement.operator_name,
+                value: shownMovement.operator_name,
               },
               {
                 label: t("field.supplier"),
-                value: viewingMovement.supplier_name,
+                value: shownMovement.supplier_name,
               },
               {
                 label: t("field.vehiclePlate"),
-                value: viewingMovement.vehicle_plate,
+                value: shownMovement.vehicle_plate,
               },
-              ...(viewingMovement.notes
+              ...(shownMovement.latitude && shownMovement.longitude
                 ? [
                     {
-                      label: t("field.notes"),
-                      value: viewingMovement.notes,
+                      label: t("field.location"),
+                      value: `${shownMovement.latitude}, ${shownMovement.longitude}`,
+                    },
+                  ]
+                : []),
+              ...(shownMovement.notes
+                ? [
+                    {
+                      // Why it went, for an exit (Q27); a remark otherwise.
+                      label: t(
+                        shownMovement.direction === "EXIT"
+                          ? "equipment.exitReason"
+                          : "field.notes",
+                      ),
+                      value: shownMovement.notes,
                       wide: true,
                     },
                   ]
                 : []),
             ]}
-            photos={viewingMovement.photos.map((photo) => ({
+            photos={shownMovement.photos.map((photo) => ({
               id: photo.id,
               url: photo.watermarked || photo.image,
               label: tRoot(
                 `moduleTable.equipmentPhoto.${photo.kind in PHOTO_KIND ? photo.kind : "OTHER"}`,
               ),
               takenAt: photo.captured_at,
-              latitude: viewingMovement.latitude,
-              longitude: viewingMovement.longitude,
+              latitude: shownMovement.latitude,
+              longitude: shownMovement.longitude,
             }))}
             photoActions={
               can("equipment.manage") ? (
                 <OfficeUpload
                   onUpload={async (files) => {
-                    const fresh = await addEquipmentMovementPhotos(viewingMovement.id, files);
+                    const fresh = await addEquipmentMovementPhotos(shownMovement.id, files);
                     setViewingMovement(fresh);
                     refresh();
                   }}
@@ -992,64 +1152,73 @@ export function SiteEquipmentOffice() {
                     {t("field.deliveryNote")}
                   </dt>
                   <dd className="break-words font-medium">
-                    {viewingMovement.delivery_note_no || "—"}
+                    {shownMovement.delivery_note_no || "—"}
                   </dd>
                   <dt className="text-muted-foreground">
                     {t("field.supplier")}
                   </dt>
                   <dd className="break-words font-medium">
-                    {viewingMovement.supplier_name || "—"}
+                    {shownMovement.supplier_name || "—"}
                   </dd>
                   <dt className="text-muted-foreground">
                     {t("field.vehiclePlate")}
                   </dt>
                   <dd className="font-medium">
-                    {viewingMovement.vehicle_plate || "—"}
+                    {shownMovement.vehicle_plate || "—"}
                   </dd>
                 </dl>
               </section>
             }
             signatures={(
               [
-                ["siteSignature", viewingMovement.receiver_signature],
-                ["supplierSignature", viewingMovement.supplier_signature],
+                ["siteSignature", shownMovement.receiver_signature],
+                ["supplierSignature", shownMovement.supplier_signature],
               ] as const
             )
               .filter(([, source]) => Boolean(source))
               .map(([who, source]) => ({ label: t(`equipment.${who}`), url: source as string }))}
             actions={
               <div className="flex flex-col gap-2">
-                <ReviewMovementActions
-                  movement={viewingMovement}
+                {/* Accept an entry or an exit (C8, Q27), or hand over an
+                    application from before directly (「直接交接」). */}
+                <EquipmentMovementActions
+                  movement={shownMovement}
                   onDone={(row) => setViewingMovement(row)}
+                  onHandover={async (movement) => {
+                    const machine = await getSiteEquipmentItem(movement.equipment);
+                    setMoving({ machine, movement });
+                  }}
+                  onCompleteProfile={(machineId) => void completeProfile(machineId)}
                 />
                 <AddToPackageButton
                   kind="EQUIPMENT_MOVEMENT"
-                  recordId={viewingMovement.id}
-                  projectId={viewingMovement.project}
-                  reference={`${viewingMovement.equipment_code} - ${viewingMovement.equipment_name}`}
+                  recordId={shownMovement.id}
+                  projectId={shownMovement.project}
+                  reference={`${shownMovement.equipment_code} - ${shownMovement.equipment_name}`}
                 />
               </div>
             }
             conversation={{
               kind: "EQUIPMENT_MOVEMENT",
-              recordId: viewingMovement.id,
+              recordId: shownMovement.id,
             }}
+            // 【确认归档】 with the movement itself (C4), once it is done.
+            closure={{ kind: "EQUIPMENT_MOVEMENT", recordId: shownMovement.id }}
           />
         </RecordDetailDialog>
       )}
 
-      {viewingMachine && (
+      {shownMachine && (
         <RecordDetailDialog
-          title={`${viewingMachine.code} - ${viewingMachine.name}`}
-          description={t(`equipmentStatus.${viewingMachine.status}`)}
-          onClose={() => setViewingMachine(null)}
+          title={`${shownMachine.registration_no || shownMachine.code} - ${shownMachine.name}`}
+          description={t(`equipmentStatus.${shownMachine.status}`)}
+          onClose={closeMachine}
         >
           <RecordDetailShell
-            reference={viewingMachine.code}
+            reference={shownMachine.code}
             // Its own photographs and those from every entry and exit, on
             // one page (T-298, #20).
-            photos={(viewingMachine.photos ?? []).map((shot) => ({
+            photos={(shownMachine.photos ?? []).map((shot) => ({
               id: shot.id,
               url: shot.url,
               label: shot.caption || tRoot(`moduleTable.equipmentPhotoSource.${shot.source}`),
@@ -1059,7 +1228,7 @@ export function SiteEquipmentOffice() {
               can("equipment.manage") ? (
                 <OfficeUpload
                   onUpload={async (files) => {
-                    const fresh = await addEquipmentPhotos(viewingMachine.id, files);
+                    const fresh = await addEquipmentPhotos(shownMachine.id, files);
                     setViewingMachine(fresh);
                     refresh();
                   }}
@@ -1071,54 +1240,63 @@ export function SiteEquipmentOffice() {
                 label: t("field.status"),
                 value: (
                   <StatusBadge
-                    label={t(`equipmentStatus.${viewingMachine.status}`)}
-                    tone={tone(viewingMachine.status)}
+                    label={t(`equipmentStatus.${shownMachine.status}`)}
+                    tone={tone(shownMachine.status)}
                   />
                 ),
               },
-              { label: t("field.project"), value: viewingMachine.project_name },
+              { label: t("field.project"), value: shownMachine.project_name },
+              // 车牌号码 (X4); the serial number is no longer shown.
               {
-                label: t("field.registrationNo"),
-                value: viewingMachine.registration_no,
+                label: t("field.plateNo"),
+                value: shownMachine.registration_no || "—",
               },
-              { label: t("field.serialNo"), value: viewingMachine.serial_no },
+              { label: t("field.code"), value: shownMachine.code },
               {
                 label: t("field.supplier"),
-                value: viewingMachine.supplier_name,
+                value: shownMachine.supplier_name,
               },
               {
                 label: t("field.quantity"),
-                value: viewingMachine.quantity_on_site,
+                value: shownMachine.quantity_on_site,
               },
               {
-                label: t("field.equipmentColumn"),
-                value: <Unfiled name={viewingMachine.category_name} />,
+                label: t("field.equipmentSubClass"),
+                value: shownMachine.category_parent_name ? (
+                  `${shownMachine.category_parent_name} › ${shownMachine.category_name}`
+                ) : (
+                  <Unfiled name={shownMachine.category_name} />
+                ),
+              },
+              {
+                label: t("field.roadTaxExpiresOn"),
+                value: shownMachine.road_tax_expires_on ? df.date(shownMachine.road_tax_expires_on) : "—",
               },
               {
                 label: t("field.certificateExpiresOn"),
-                value: viewingMachine.certificate_expires_on
-                  ? df.date(viewingMachine.certificate_expires_on)
+                value: shownMachine.certificate_expires_on
+                  ? df.date(shownMachine.certificate_expires_on)
                   : "—",
               },
               {
                 label: t("field.insuranceExpiresOn"),
-                value: viewingMachine.insurance_expires_on
-                  ? df.date(viewingMachine.insurance_expires_on)
+                value: shownMachine.insurance_expires_on
+                  ? df.date(shownMachine.insurance_expires_on)
                   : "—",
               },
               {
                 label: t("field.pmaExpiresOn"),
-                value: viewingMachine.pma_expires_on ? df.date(viewingMachine.pma_expires_on) : "—",
+                value: shownMachine.pma_expires_on ? df.date(shownMachine.pma_expires_on) : "—",
               },
               {
                 label: t("field.permitExpiresOn"),
-                value: viewingMachine.permit_expires_on ? df.date(viewingMachine.permit_expires_on) : "—",
+                value: shownMachine.permit_expires_on ? df.date(shownMachine.permit_expires_on) : "—",
               },
-              ...(viewingMachine.description
+              ...(shownMachine.description
                 ? [
                     {
                       label: t("field.description"),
-                      value: viewingMachine.description,
+                      value: shownMachine.description,
                       wide: true,
                     },
                   ]
@@ -1127,21 +1305,34 @@ export function SiteEquipmentOffice() {
             actions={
               can("equipment.capture") || can("equipment.manage") ? (
                 <div className="flex flex-col gap-2">
-                  <MachineStep
-                    machine={viewingMachine}
-                    open={open.byEquipment.get(viewingMachine.id)}
-                    onApply={() => setApplyingFor(viewingMachine)}
-                    onHandover={(movement) => setMoving({ machine: viewingMachine, movement })}
-                  />
+                  {/* Recorded on the phone, accepted on the movement (Q27). */}
+                  {shownMachine.awaiting_acceptance && (
+                    <StatusBadge
+                      label={t(
+                        shownMachine.awaiting_acceptance === "EXIT"
+                          ? "equipment.exitWaiting"
+                          : "equipment.entryWaiting",
+                      )}
+                      tone="warning"
+                    />
+                  )}
                   {can("equipment.manage") && (
                     <Button
                       variant="outline"
-                      onClick={() => setEditing(viewingMachine)}
+                      onClick={() => setEditing(shownMachine)}
                     >
                       <Pencil />
                       {t("action.edit")}
                     </Button>
                   )}
+                  {/* Its entries and exits (B2). */}
+                  <Link
+                    href={`/site-equipment?equipment=${shownMachine.id}`}
+                    onClick={closeMachine}
+                    className="text-center text-sm text-primary underline-offset-2 hover:underline"
+                  >
+                    {t("equipment.movementsLink")}
+                  </Link>
                 </div>
               ) : null
             }
@@ -1167,18 +1358,13 @@ export function SiteEquipmentOffice() {
           onSaved={() => {
             refresh();
             setEditing(null);
-            setViewingMachine(null);
-          }}
-        />
-      )}
-      {applyingFor && (
-        <ApplyMovementDialog
-          project={applyingFor.project}
-          machine={applyingFor}
-          onClose={() => setApplyingFor(null)}
-          onSaved={() => {
-            refresh();
-            setApplyingFor(null);
+            closeMachine();
+            // The entry it was completed for can now be accepted (C8).
+            if (shownMovement) {
+              void getEquipmentMovements({ id: shownMovement.id, page_size: 1 }).then(
+                (page) => page.results[0] && setViewingMovement(page.results[0]),
+              );
+            }
           }}
         />
       )}
@@ -1190,12 +1376,22 @@ export function SiteEquipmentOffice() {
           onSaved={() => {
             refresh();
             setMoving(null);
-            setViewingMachine(null);
+            closeMachine();
+            closeMovement();
           }}
         />
       )}
     </>
   );
+}
+
+/**
+ * Whether the office decided after the site recorded it - an acceptance (C8,
+ * Q27) - rather than approving an application before the handover (B13).
+ */
+function acceptedAfterSubmission(movement: EquipmentMovement) {
+  if (!movement.approved_at || !movement.completed_at) return false;
+  return new Date(movement.approved_at).getTime() >= new Date(movement.completed_at).getTime();
 }
 
 const PHOTO_KIND = {
@@ -1209,19 +1405,21 @@ const PHOTO_KIND = {
 /* 工程进度                                                             */
 /* ------------------------------------------------------------------ */
 
-export function SiteProgressOffice() {
+/**
+ * The progress records, as a list (现场照片 → 进度记录, 2026-10 B17).
+ *
+ * `above` is the page's tabs: the record list is one view of the progress
+ * page now. The phases are managed on the 施工分类 tab, so they are no longer
+ * chips here.
+ */
+export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) {
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
-  const list = useListQuery([
-    "project",
-    "phase",
-    "status",
-    "category",
-    "uncategorised",
-  ]);
+  // No category filter (2026-10 B1, X5): progress has no categories.
+  const list = useListQuery(["project", "phase", "status"]);
   const project = list.filters.project ?? "";
   const rows = useQuery({
     queryKey: ["site-progress", "office", list.query],
@@ -1236,18 +1434,13 @@ export function SiteProgressOffice() {
     queryKey: ["site-progress-summary", project],
     queryFn: () => getSiteProgressSummary(project || undefined),
   });
-  const [addingPhase, setAddingPhase] = useState(false);
-  const [editingPhase, setEditingPhase] = useState<ConstructionPhase | null>(
-    null,
-  );
   const searchParams = useSearchParams();
   const [addingRecord, setAddingRecord] = useState(
     searchParams.get("create") === "1",
   );
   const [viewing, setViewing] = useState<SiteProgressRecord | null>(null);
-  const [filing, setFiling] = useState<SiteProgressRecord | null>(null);
-  // The open record follows the list, so filing it shows the new column
-  // without closing and reopening.
+  // The open record follows the list, so a photo or a remark added to it
+  // shows without closing and reopening.
   const shown = viewing
     ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing)
     : null;
@@ -1280,6 +1473,13 @@ export function SiteProgressOffice() {
           </div>
         ),
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<SiteProgressRecord>({
+        label: tRoot("moduleTable.photos"),
+        icon: ChartNoAxesCombined,
+        reference: (row) => row.phase_name,
+        photos: (row) => rowPhotos(row.photos, row.phase_name),
+      }),
       {
         id: "phase__name",
         accessorFn: (row) => row.phase_name,
@@ -1323,12 +1523,6 @@ export function SiteProgressOffice() {
         ),
       },
       {
-        accessorKey: "category_name",
-        meta: { label: t("field.category") },
-        header: () => <PlainHeader label={t("field.category")} />,
-        cell: ({ row }) => <Unfiled name={row.original.category_name} />,
-      },
-      {
         accessorKey: "submitted_by_name",
         meta: { label: t("progress.submittedBy") },
         header: () => <PlainHeader label={t("progress.submittedBy")} />,
@@ -1339,15 +1533,7 @@ export function SiteProgressOffice() {
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => (
-          <p className="max-w-[180px] truncate">{row.original.project_name}</p>
-        ),
-      },
-      {
-        id: "photos",
-        meta: { label: tRoot("moduleTable.photos") },
-        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
-        cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photos.length)} />
+          <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
     ],
@@ -1385,10 +1571,10 @@ export function SiteProgressOffice() {
       ],
     });
 
-  // The phases stay editable from the page, as they were on the cards: a
-  // phase is what a progress record is measured against.
+  // The running totals; the phases themselves are on the 施工分类 tab (B17).
   const phaseStrip = (
     <>
+      {above}
       <SummaryStrip
         items={
           summary.data || summary.isError
@@ -1418,41 +1604,17 @@ export function SiteProgressOffice() {
       />
       <QueryFailedNote query={summary} what={t("what.progressSummary")} />
       <QueryFailedNote query={phases} what={t("what.phases")} />
-      {(phases.data?.results ?? []).length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {(phases.data?.results ?? []).map((phase) => {
-            const className = `rounded-full border px-2.5 py-0.5 text-xs font-medium ${phase.is_active ? "bg-card" : "bg-muted/40 text-muted-foreground line-through"}`;
-            return can("progress.manage") ? (
-              <button
-                key={phase.id}
-                type="button"
-                title={t("progress.editPhase")}
-                className={`${className} hover:bg-muted`}
-                onClick={() => setEditingPhase(phase)}
-              >
-                {phase.code} · {phase.name}
-              </button>
-            ) : (
-              <span key={phase.id} className={className}>
-                {phase.code} · {phase.name}
-              </span>
-            );
-          })}
-        </div>
-      )}
       {noPhases && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed bg-muted/20 px-3 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-panel-border p-3">
           <p className="text-sm text-muted-foreground">
             {t("progress.noPhasesHelp")}
           </p>
           {can("progress.manage") && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAddingPhase(true)}
-            >
-              <ListTree />
-              {t("progress.addFirstPhase")}
+            <Button asChild variant="outline">
+              <Link href={`/progress?tab=phases&project=${encodeURIComponent(project)}`}>
+                <ListTree />
+                {t("progress.addFirstPhase")}
+              </Link>
             </Button>
           )}
         </div>
@@ -1467,18 +1629,11 @@ export function SiteProgressOffice() {
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
           can("progress.manage") ? (
-            <div className="flex flex-wrap gap-2">
-              <CreateButton
-                variant="outline"
-                label={t("progress.addPhase")}
-                onClick={() => setAddingPhase(true)}
-              />
-              <CreateButton
-                label={t("progress.addRecord")}
-                icon={<Camera className="h-4 w-4" />}
-                onClick={() => setAddingRecord(true)}
-              />
-            </div>
+            <CreateButton
+              label={t("progress.addRecord")}
+              icon={<Camera className="h-4 w-4" />}
+              onClick={() => setAddingRecord(true)}
+            />
           ) : undefined
         }
         above={phaseStrip}
@@ -1492,7 +1647,6 @@ export function SiteProgressOffice() {
         toolbar={
           <>
             <ProjectListFilter list={list} />
-            <ColumnFilter list={list} kind="PROGRESS" />
             <FilterSelect
               list={list}
               param="phase"
@@ -1532,6 +1686,8 @@ export function SiteProgressOffice() {
         >
           <RecordDetailShell
             reference={reference(shown)}
+            // 记录人 (E8): who recorded it, with a number to call.
+            recorder={<RecordRecorder record={shown} />}
             facts={[
               {
                 label: t("field.status"),
@@ -1600,12 +1756,16 @@ export function SiteProgressOffice() {
             }
             panel={
               <section className="rounded-lg border bg-card p-3">
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("filing.fileInto")}
-                </h3>
-                <p className="text-sm font-medium">
-                  {shown.category_name || t("filing.unfiled")}
-                </p>
+                {/* A record filed before 2026-10 keeps its category, shown
+                    as it was; nothing new is filed (B1). */}
+                {shown.category_name && (
+                  <>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t("field.category")}
+                    </h3>
+                    <p className="text-sm font-medium">{shown.category_name}</p>
+                  </>
+                )}
                 {(shown.remarks ?? []).length > 0 && (
                   <div className="mt-3 border-t pt-2">
                     <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -1627,18 +1787,6 @@ export function SiteProgressOffice() {
             }
             actions={
               <div className="flex flex-wrap gap-2">
-                {/* Filing is the reviewer's judgement (D-108), and allowed
-                    on a record of any status (T-231). */}
-                {can("progress.confirm") && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setFiling(shown)}
-                  >
-                    <FolderOpen />
-                    {t("filing.action")}
-                  </Button>
-                )}
                 {can("progress.confirm") && (
                   <ProgressRemarkBox
                     onSave={async (body) => {
@@ -1657,47 +1805,12 @@ export function SiteProgressOffice() {
               </div>
             }
             conversation={{ kind: "PROGRESS", recordId: shown.id }}
+            // 【确认归档】 with the record itself (C4).
+            closure={{ kind: "PROGRESS", recordId: shown.id }}
           />
         </RecordDetailDialog>
       )}
 
-      {filing && (
-        <FileIntoColumnDialog
-          projectId={filing.project}
-          kind="PROGRESS"
-          current={filing.category ?? null}
-          reference={reference(filing)}
-          onFile={(category, reason) =>
-            fileProgressRecord(filing.id, { category, reason })
-          }
-          onFiled={() => {
-            void qc.invalidateQueries({ queryKey: ["site-progress"] });
-            void qc.invalidateQueries({ queryKey: ["project-categories"] });
-          }}
-          onClose={() => setFiling(null)}
-        />
-      )}
-      {editingPhase && (
-        <PhaseDialog
-          project={project}
-          phase={editingPhase}
-          onClose={() => setEditingPhase(null)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["construction-phases"] });
-            setEditingPhase(null);
-          }}
-        />
-      )}
-      {addingPhase && (
-        <PhaseDialog
-          project={project}
-          onClose={() => setAddingPhase(false)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["construction-phases"] });
-            setAddingPhase(false);
-          }}
-        />
-      )}
       {addingRecord && (
         <ProgressDialog
           project={project}

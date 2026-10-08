@@ -48,12 +48,20 @@ import { recordStatusLabel } from "@/lib/record-status";
  */
 const PHONE_STATUS = { SITE_RECORD: "fieldStaffPwa.status" };
 
+import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  ShellPanel,
+} from "@/components/shared/record-detail-shell";
+import { StatusBadge } from "@/components/shared/page-primitives";
 import type { ChatRecordKind } from "@/lib/record-chat";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,6 +83,7 @@ import {
 import {
   getOfflineQueueEntries,
   getQueuedSubmissionDetail,
+  queueErrorKey,
 } from "@/services/offline-sync.service";
 
 /** Queue kinds that are a submission somebody is waiting on, and their label. */
@@ -84,6 +93,8 @@ const QUEUED_KINDS: Record<string, string> = {
   SAFETY_INCIDENT: "HAZARD",
   SITE_PROGRESS: "PROGRESS",
   WASTE_OUTGOING: "WASTE_OUTGOING",
+  // 现场实际退场 sent with no signal (Q29.3): waiting under its return's number.
+  MATERIAL_OUTGOING_EXIT: "MATERIAL_OUTGOING",
 };
 
 /** The three fields the hazard chat room's header needs. */
@@ -126,6 +137,10 @@ export function MySubmissions({
   const formatter = useDateFormat();
   const { user } = useAuth();
   const [openRow, setOpenRow] = useState<MySubmissionRow | null>(null);
+  // The office's 验收 / 不通过 notice for an equipment entry or exit links to
+  // `/field-staff?…&movement=<id>` (Fable B4 #15): that movement opens here,
+  // with its status, its evidence and the reason it was not accepted.
+  const [linkedMovement, setLinkedMovement] = useUrlSelection("movement");
   const [openQueued, setOpenQueued] = useState<string | null>(null);
 
   const stored = useQuery({
@@ -143,6 +158,10 @@ export function MySubmissions({
   });
 
   const rows = stored.data?.results ?? [];
+  const linkedRow = linkedMovement
+    ? rows.find((row) => row.kind === "EQUIPMENT_MOVEMENT" && row.id === linkedMovement) ?? null
+    : null;
+  const shownRow = openRow ?? linkedRow;
   const waiting = (queued.data ?? []).filter(
     (entry) => entry.kind in QUEUED_KINDS,
   );
@@ -150,9 +169,9 @@ export function MySubmissions({
   return (
     <section className="space-y-3">
       <div className="flex items-end justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold">{t("mySubmissions.title")}</h2>
-          <p className="text-sm text-muted-foreground">
+        <div className="min-w-0">
+          <h2 className="panel-title">{t("mySubmissions.title")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
             {t("mySubmissions.subtitle")}
           </p>
         </div>
@@ -177,7 +196,7 @@ export function MySubmissions({
           key={entry.id}
           type="button"
           onClick={() => setOpenQueued(entry.id)}
-          className={`w-full rounded-lg border p-3 text-left transition-colors active:bg-muted/60 ${entry.lastError ? "border-destructive/40 bg-destructive/5" : "border-dashed"}`}
+          className={`w-full rounded-xl border p-3 text-left transition-colors active:bg-muted/60 ${entry.state === "retrying" ? "border-warning/40 bg-warning/5" : entry.lastError ? "border-destructive/40 bg-destructive/5" : "border-dashed border-panel-border"}`}
         >
           <div className="flex items-center gap-2">
             {entry.lastError ? (
@@ -189,16 +208,24 @@ export function MySubmissions({
               {entry.reference || t(`mySubmissions.kind.${QUEUED_KINDS[entry.kind]}`)}
             </span>
             <span className={`shrink-0 text-xs ${entry.lastError ? "text-destructive" : "text-muted-foreground"}`}>
-              {entry.lastError
-                ? t("mySubmissions.uploadFailed")
-                : t("mySubmissions.waitingToUpload")}
+              {entry.state === "failed"
+                ? t("offline.state.failed")
+                : entry.state === "retrying"
+                  ? t("offline.state.retrying")
+                  : entry.lastError
+                    ? t("mySubmissions.uploadFailed")
+                    : t("mySubmissions.waitingToUpload")}
             </span>
           </div>
           {/* F-230: this sentence was already being stored and nothing read
               it, so a submission the server had refused was invisible to the
               only person who could correct it. */}
           {entry.lastError && (
-            <p className="mt-1 text-xs text-destructive">{entry.lastError}</p>
+            <p className="mt-1 text-xs text-destructive">
+              {queueErrorKey(entry.lastError)
+                ? t(queueErrorKey(entry.lastError) as string)
+                : entry.lastError}
+            </p>
           )}
           <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
             {formatter.dateTime(entry.queuedAt)}
@@ -212,13 +239,13 @@ export function MySubmissions({
 
       <FieldLoadNote query={queued} what={t("fieldStaffPwa.what.queued")} />
       {stored.isLoading ? (
-        <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-4 text-center text-sm text-muted-foreground">
           {t("common.loading")}
         </p>
       ) : stored.isError ? (
         <FieldLoadFailed what={t("fieldStaffPwa.what.submissions")} onRetry={() => stored.refetch()} />
       ) : rows.length === 0 && waiting.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {t("mySubmissions.empty")}
         </p>
       ) : (
@@ -233,7 +260,7 @@ export function MySubmissions({
               */}
               <button
                 type="button"
-                className="w-full rounded-lg border p-3 text-left transition-colors active:bg-muted/60"
+                className="surface-panel w-full rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:bg-muted/60"
                 onClick={() => {
                   if (row.kind === "HAZARD" && onOpenHazard) {
                     onOpenHazard({
@@ -247,20 +274,15 @@ export function MySubmissions({
                 }}
               >
               <div className="flex items-start gap-3">
-                {row.photo ? (
-                  // A plain <img>: these are the worker's own photographs
-                  // served from the API host, not build-time assets.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={row.photo}
-                    alt={row.reference}
-                    className="size-14 shrink-0 rounded-md border object-cover"
-                  />
-                ) : (
-                  <span className="grid size-14 shrink-0 place-items-center rounded-md border bg-muted/40 text-[10px] text-muted-foreground">
-                    {t(`mySubmissions.kind.${row.kind}`)}
-                  </span>
-                )}
+                {/* The submission's photograph on the left (E3); the card
+                    itself opens it, so the picture is not a second button. */}
+                <PhotoThumb
+                  coverUrl={row.cover_photo_url}
+                  count={row.photo_count}
+                  icon={recordKindIcon(row.kind)}
+                  reference={row.reference}
+                  openable={false}
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{row.reference}</p>
                   <p className="truncate text-xs text-muted-foreground">
@@ -308,8 +330,14 @@ export function MySubmissions({
         </p>
       )}
 
-      {openRow && (
-        <StoredDetailSheet row={openRow} onClose={() => setOpenRow(null)} />
+      {shownRow && (
+        <StoredDetailSheet
+          row={shownRow}
+          onClose={() => {
+            setOpenRow(null);
+            setLinkedMovement(null);
+          }}
+        />
       )}
       {openQueued && user?.id && (
         <QueuedDetailSheet
@@ -382,95 +410,78 @@ function StoredDetailSheet({
   });
 
   return (
-    <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="break-words">{row.reference}</DialogTitle>
-          <DialogDescription>
-            {t(`mySubmissions.kind.${row.kind}`)} ·{" "}
-            {formatter.dateTime(row.submitted_at)} · {recordStatusLabel(t, row, PHONE_STATUS)}
-          </DialogDescription>
-        </DialogHeader>
+    <RecordDetailDialog
+      title={row.reference}
+      description={`${t(`mySubmissions.kind.${row.kind}`)} · ${formatter.dateTime(row.submitted_at)}`}
+      status={<StatusBadge label={recordStatusLabel(t, row, PHONE_STATUS)} tone="neutral" />}
+      onClose={onClose}
+    >
+      {detail.isLoading ? (
+        <div className="grid min-h-32 place-items-center">
+          <Loader2 className="size-7 animate-spin text-primary" />
+        </div>
+      ) : detail.isError || !detail.data ? (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          {t("mySubmissions.loadFailed")}
+        </p>
+      ) : (
+        <RecordDetailShell
+          reference={row.reference}
+          // No 记录人 here: the worker is looking at their own record.
+          /*
+            A returned application is over (D-227).
 
-        {detail.isLoading ? (
-          <div className="grid min-h-32 place-items-center">
-            <Loader2 className="size-7 animate-spin text-primary" />
-          </div>
-        ) : detail.isError || !detail.data ? (
-          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            {t("mySubmissions.loadFailed")}
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {/*
-              A returned application is over (D-227).
+            客户第 45 条：「被退回的申请**不需要【重新提交】按钮**。一旦退回这笔
+            申请就结束，原申请、退回原因和沟通记录全部保留，不再修改原记录。
+            要再申请就**新建一条、生成新的记录 ID**。」
 
-              客户第 45 条：「被退回的申请**不需要【重新提交】按钮**。一旦退回这笔
-              申请就结束，原申请、退回原因和沟通记录全部保留，不再修改原记录。
-              要再申请就**新建一条、生成新的记录 ID**。」
-
-              So this dialog offers no action at all on a returned record - and
-              says why, because a screen that simply has no buttons reads as a
-              screen that is broken or still loading. The worker is told the
-              one thing they can do instead.
-            */}
-            {/*
-              The one action this sheet does offer (D-211): an approved
-              material-outgoing application is waiting for the site to deal
-              with the material and send the photographs back. It is found
-              here because this is where the worker looks for what they sent.
-            */}
-            {row.kind === "MATERIAL_OUTGOING" && row.status === "APPROVED" && (
+            So this dialog offers no action at all on a returned record - and
+            says why, because a screen that simply has no buttons reads as a
+            screen that is broken or still loading. The worker is told the
+            one thing they can do instead.
+          */
+          notices={
+            RETURNED_STATUSES.has(row.status) && (
+              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
+                {t("mySubmissions.returnedClosed")}
+              </p>
+            )
+          }
+          facts={detail.data.fields.map((field) => ({
+            label: t(`mySubmissions.field.${field.key}`),
+            value: (
+              <span className="whitespace-pre-wrap">
+                {field.value}
+                {field.unit ? ` ${t(`mySubmissions.unit.${field.unit}`)}` : ""}
+              </span>
+            ),
+            wide: field.value.length > 60 || field.value.includes("\n"),
+          }))}
+          // The worker's own photographs, served from the API host.
+          photos={detail.data.photos.map((shot, index) => ({
+            id: shot.id ?? `${index}:${shot.url}`,
+            url: shot.url,
+            label: shot.caption || row.reference,
+          }))}
+          /*
+            The one action this sheet does offer (D-211): an approved
+            material-outgoing application is waiting for the site to deal
+            with the material and send the photographs back. It is found
+            here because this is where the worker looks for what they sent.
+          */
+          actions={
+            row.kind === "MATERIAL_OUTGOING" && row.status === "APPROVED" && (
               <Button className="h-12 w-full" onClick={() => setReturning(true)}>
                 <Camera />
                 {t("contractorOps.outgoing.returnProcessing")}
               </Button>
-            )}
-            {returning && (
-              <ReturnProcessingDialog
-                row={{ id: row.id, reference_no: row.reference }}
-                onClose={() => setReturning(false)}
-                onSaved={() => {
-                  setReturning(false);
-                  void queryClient.invalidateQueries({ queryKey: ["my-submissions"] });
-                  onClose();
-                }}
-              />
-            )}
-            {RETURNED_STATUSES.has(row.status) && (
-              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
-                {t("mySubmissions.returnedClosed")}
-              </p>
-            )}
-            <FieldRows fields={detail.data.fields} />
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t("mySubmissions.photos")}
-            </p>
-            {detail.data.photos.length === 0 ? (
-              <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-                {t("mySubmissions.noPhotos")}
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                {detail.data.photos.map((shot) => (
-                  // The worker's own photographs, served from the API host.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={shot.url}
-                    src={shot.url}
-                    alt={shot.caption || row.reference}
-                    className="aspect-square w-full rounded-md border object-cover"
-                  />
-                ))}
-              </div>
-            )}
-            {/* The payment result on the applicant's own record (第 57 条):
-                「手机端只需要把最终付款结果显示出来即可」. */}
-            {row.kind === "SUNDRY_CLAIM" && (
-              <section className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("mySubmissions.paymentProofs")}
-                </p>
+            )
+          }
+          // The payment result on the applicant's own record (第 57 条):
+          // 「手机端只需要把最终付款结果显示出来即可」.
+          panel={
+            row.kind === "SUNDRY_CLAIM" && (
+              <ShellPanel title={t("mySubmissions.paymentProofs")}>
                 {(detail.data.payment_proofs ?? []).length === 0 ? (
                   <p className="rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">
                     {t("mySubmissions.noPaymentProofs")}
@@ -481,7 +492,7 @@ function StoredDetailSheet({
                       <a key={proof.id} href={proof.url} target="_blank" rel="noreferrer" className="block">
                         {/\.pdf$/i.test(proof.name ?? "") ? (
                           // The bank's PDF (D11): a file to open, not a photo.
-                          <span className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-md border p-2 text-center text-[11px]">
+                          <span className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-md border p-2 text-center text-2xs">
                             <FileText className="size-6 text-muted-foreground" />
                             <span className="line-clamp-2 break-all">{proof.name}</span>
                           </span>
@@ -494,23 +505,32 @@ function StoredDetailSheet({
                     ))}
                   </div>
                 )}
-              </section>
-            )}
-            {/* 【沟通】 on every record the worker sent (T-324, 第 46 条),
-                bound to that record's ID (D-233). Hazards have their own
-                thread and open it from the row instead. */}
-            {CONVERSATION_KINDS.has(row.kind) && (
-              <section className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("mySubmissions.conversation")}
-                </p>
-                <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
-              </section>
-            )}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+              </ShellPanel>
+            )
+          }
+          // 【沟通】 on every record the worker sent (T-324, 第 46 条), bound
+          // to that record's ID (D-233). Hazards have their own thread and
+          // open it from the row instead. The conversation alone, as this
+          // sheet always had it (no attachments panel added).
+          chat={
+            CONVERSATION_KINDS.has(row.kind) && (
+              <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
+            )
+          }
+        />
+      )}
+      {returning && (
+        <ReturnProcessingDialog
+          row={{ id: row.id, reference_no: row.reference }}
+          onClose={() => setReturning(false)}
+          onSaved={() => {
+            setReturning(false);
+            void queryClient.invalidateQueries({ queryKey: ["my-submissions"] });
+            onClose();
+          }}
+        />
+      )}
+    </RecordDetailDialog>
   );
 }
 
@@ -580,7 +600,16 @@ function QueuedDetailSheet({
           </p>
         ) : (
           <div className="space-y-3">
-            {entry.data.lastError ? (
+            {entry.data.lastError && queueErrorKey(entry.data.lastError) ? (
+              // No answer from the server (no signal, timed out): not a
+              // refusal, nothing to correct - it goes again by itself (A9).
+              <div className="rounded-lg border border-warning/30 bg-warning/5 px-3 py-2">
+                <p className="text-sm font-medium text-warning">
+                  {t(queueErrorKey(entry.data.lastError) as string)}
+                </p>
+                <p className="mt-1 text-sm leading-6">{t("mySubmissions.queuedHelp")}</p>
+              </div>
+            ) : entry.data.lastError ? (
               <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
                 <p className="text-sm font-medium text-destructive">
                   {t("mySubmissions.failedHelp")}

@@ -21,10 +21,12 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
   FieldWrapper,
+  FilterBar,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -78,6 +80,7 @@ export function EvidenceArchive() {
   ]);
   const [viewing, setViewing] = useState<EvidenceAsset | null>(null);
   const selectedProject = list.filters.project ?? "";
+  const topBar = useCurrentProject();
 
   const projects = useQuery({
     queryKey: ["projects", "evidence-filter"],
@@ -107,16 +110,16 @@ export function EvidenceArchive() {
         meta: { label: t("evidence.field.file") },
         header: () => t("evidence.field.file"),
         cell: ({ row }) => (
-          <div className="flex min-w-[190px] items-center gap-2.5">
+          <div className="flex min-w-47.5 items-center gap-2.5">
             <EvidenceFileIcon kind={row.original.kind} />
             <div className="min-w-0">
               <p
-                className="max-w-[240px] truncate font-medium text-foreground"
+                className="max-w-60 truncate font-medium text-foreground"
                 title={row.original.original_filename}
               >
                 {row.original.original_filename}
               </p>
-              <p className="max-w-[240px] truncate text-xs text-muted-foreground">
+              <p className="max-w-60 truncate text-xs text-muted-foreground">
                 {row.original.content_type || t("common.emptyValue")}
               </p>
             </div>
@@ -144,12 +147,12 @@ export function EvidenceArchive() {
         meta: { label: t("evidence.field.source") },
         header: () => t("evidence.field.source"),
         cell: ({ row }) => (
-          <div className="min-w-[150px]">
-            <p className="max-w-[210px] truncate text-sm">
+          <div className="min-w-37.5">
+            <p className="max-w-52.5 truncate text-sm">
               {row.original.source_model}
             </p>
             <p
-              className="max-w-[210px] truncate font-mono text-xs text-muted-foreground"
+              className="max-w-52.5 truncate font-mono text-xs text-muted-foreground"
               title={row.original.source_id}
             >
               {row.original.source_id}
@@ -162,11 +165,11 @@ export function EvidenceArchive() {
         meta: { label: t("evidence.field.context") },
         header: () => t("evidence.field.context"),
         cell: ({ row }) => (
-          <div className="min-w-[150px]">
-            <p className="max-w-[220px] truncate">
+          <div className="min-w-37.5">
+            <p className="max-w-55 truncate">
               {row.original.project_name ?? row.original.company_name}
             </p>
-            <p className="max-w-[220px] truncate text-xs text-muted-foreground">
+            <p className="max-w-55 truncate text-xs text-muted-foreground">
               {row.original.archive_category_path.length
                 ? row.original.archive_category_path.map((item) => item.name).join(" / ")
                 : row.original.actor_name ?? t("common.emptyValue")}
@@ -187,7 +190,7 @@ export function EvidenceArchive() {
           />
         ),
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+          <span className="tabular whitespace-nowrap text-xs text-muted-foreground">
             {df.precise(row.original.captured_at)}
           </span>
         ),
@@ -205,7 +208,7 @@ export function EvidenceArchive() {
           />
         ),
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+          <span className="tabular whitespace-nowrap text-xs text-muted-foreground">
             {df.precise(row.original.uploaded_at)}
           </span>
         ),
@@ -217,7 +220,7 @@ export function EvidenceArchive() {
         cell: ({ row }) =>
           hasGps(row.original) ? (
             <div
-              className="flex min-w-[145px] items-center gap-1.5 text-xs tabular-nums"
+              className="tabular flex min-w-36.25 items-center gap-1.5 text-xs"
               title={`${row.original.latitude}, ${row.original.longitude}`}
             >
               <MapPin className="h-3.5 w-3.5 shrink-0 text-success" />
@@ -237,7 +240,7 @@ export function EvidenceArchive() {
         header: () => t("evidence.field.sha256"),
         cell: ({ row }) => (
           <code
-            className="block max-w-[130px] truncate font-mono text-xs text-muted-foreground"
+            className="block max-w-32.5 truncate font-mono text-xs text-muted-foreground"
             title={row.original.sha256}
           >
             {row.original.sha256}
@@ -277,9 +280,11 @@ export function EvidenceArchive() {
         }
       />
 
-      <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
-        <div className="w-full space-y-1 sm:w-[220px]">
-          <Label className="text-xs text-muted-foreground">{t("evidence.filter.project")}</Label>
+      <FilterBar>
+        {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
+        {!topBar.active && (
+        <div className="w-full space-y-1 sm:w-55">
+          <Label className="text-xs font-medium text-muted-foreground">{t("evidence.filter.project")}</Label>
           <Select
             value={selectedProject || "all"}
             onValueChange={(value) => {
@@ -299,8 +304,9 @@ export function EvidenceArchive() {
           </Select>
           <QueryFailedNote query={projects} what={t("evidence.what.projects")} />
         </div>
-        <div className="w-full space-y-1 sm:w-[220px]">
-          <Label className="text-xs text-muted-foreground">{t("evidence.filter.category")}</Label>
+        )}
+        <div className="w-full space-y-1 sm:w-55">
+          <Label className="text-xs font-medium text-muted-foreground">{t("evidence.filter.category")}</Label>
           <Select
             disabled={!selectedProject}
             value={list.filters.category || "all"}
@@ -330,7 +336,7 @@ export function EvidenceArchive() {
             list.setFilter("captured_to", value || undefined)
           }
         />
-      </div>
+      </FilterBar>
 
       <DataTable
         columns={columns}
@@ -396,10 +402,10 @@ function DateFilter({
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
       <Input
         type="date"
-        className="w-full sm:w-[180px]"
+        className="w-full sm:w-45"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />

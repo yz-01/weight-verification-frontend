@@ -124,8 +124,8 @@ function OptionColumn({
   });
 
   return (
-    <section className="flex min-h-56 flex-col rounded-lg border p-3">
-      <h3 className="mb-2 text-sm font-semibold">{title}</h3>
+    <section className="flex min-h-56 min-w-0 flex-col rounded-lg border bg-muted/30 p-3">
+      <h3 className="panel-title mb-2">{title}</h3>
       {disabledReason ? (
         <p className="text-xs text-muted-foreground">{disabledReason}</p>
       ) : (
@@ -134,7 +134,7 @@ function OptionColumn({
             {builtIn.map((label) => (
               <li key={`built-in-${label}`} className="flex items-center justify-between rounded-md px-2 py-1 text-sm text-muted-foreground">
                 <span>{label}</span>
-                <span className="text-[11px]">{t("builtIn")}</span>
+                <span className="text-2xs">{t("builtIn")}</span>
               </li>
             ))}
             {rows.length === 0 && builtIn.length === 0 && <li className="px-2 py-1 text-xs text-muted-foreground">{t("empty")}</li>}
@@ -163,20 +163,17 @@ function OptionColumn({
               </li>
             ))}
           </ul>
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             <Input
               value={name}
               maxLength={150}
               onChange={(event) => setName(event.target.value)}
               placeholder={t(`add.${kind}`)}
-              className="h-8"
               onKeyDown={(event) => {
                 if (event.key === "Enter" && name.trim()) add.mutate();
               }}
             />
             <Button
-              size="sm"
-              className="h-8"
               requires={[[name.trim(), t(`add.${kind}`)]]}
               disabled={add.isPending}
               onClick={() => add.mutate()}

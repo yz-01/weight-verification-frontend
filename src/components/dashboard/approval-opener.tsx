@@ -9,7 +9,6 @@ import { useRef, useState } from "react";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { ConsultantApplicationDetail } from "@/components/consultant-workflow/application-detail";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
-import { ReviewMovementActions } from "@/components/contractor-ops/equipment-applications";
 import {
   OutgoingActions,
   OutgoingDetailDialog,
@@ -23,12 +22,6 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { SundryClaimDetail } from "@/components/sundry-claims/sundry-claims-office";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import type { ApprovalRow } from "@/interfaces/contractor-dashboard";
 import type {
   ArchiveQueueRow,
@@ -38,7 +31,6 @@ import type {
 import {
   getCategoryRecord,
   getDisposalRequest,
-  getEquipmentMovements,
   reviewMaterialOutgoing,
 } from "@/services/contractor-ops.service";
 import { getWasteOutgoingRecord } from "@/services/waste-outgoing.service";
@@ -56,12 +48,14 @@ import { getWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 const SHEET_KIND: Partial<Record<string, CategoryRecordKind>> = {
   DISPOSAL_REQUEST: "DISPOSAL_REQUEST",
   WASTE_OUTGOING: "WASTE_OUTGOING",
-  EQUIPMENT_MOVEMENT: "EQUIPMENT_MOVEMENT",
-  SITE_PROGRESS: "PROGRESS",
 };
 
 export const APPROVAL_PAGE_LINKS: Record<string, (id: string) => string> = {
   APPROVAL: (id) => `/approvals?approval=${encodeURIComponent(id)}`,
+  // An equipment entry or exit is accepted on its own page, where both
+  // signatures, the supplier and the photographs are in front of the office
+  // (Fable B4 #4): never blind from a summary sheet.
+  EQUIPMENT_MOVEMENT: (id) => `/site-equipment?movement=${encodeURIComponent(id)}`,
 };
 
 export function useApprovalOpener() {
@@ -108,7 +102,13 @@ function OpenedApproval({ row, onClose }: { row: ApprovalRow; onClose: () => voi
         row={sheetRow}
         fetchRecord={getCategoryRecord}
         onClose={onClose}
-        actions={<SheetDecision row={row} onDone={onClose} />}
+        // Only the kinds with a decision of their own: an empty element
+        // would draw an empty button panel in the record popup (E8).
+        actions={
+          row.source === "DISPOSAL_REQUEST" || row.source === "WASTE_OUTGOING" ? (
+            <SheetDecision row={row} onDone={onClose} />
+          ) : undefined
+        }
       />
     );
   }
@@ -129,16 +129,9 @@ function OpenedApproval({ row, onClose }: { row: ApprovalRow; onClose: () => voi
     case "FIELD_TASK":
       return <FieldTaskSheet id={row.id} onClose={onClose} />;
     case "CONSULTANT_APPLICATION":
-      return (
-        <Dialog open onOpenChange={(next) => !next && onClose()}>
-          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
-            <DialogHeader>
-              <DialogTitle>{row.approval_no || row.title}</DialogTitle>
-            </DialogHeader>
-            <ConsultantApplicationDetail id={row.id} />
-          </DialogContent>
-        </Dialog>
-      );
+      // Its own record-detail popup (E8): the number, status and export in
+      // the popup's header, not a second dialog around the page.
+      return <ConsultantApplicationDetail id={row.id} presentation="dialog" onClose={onClose} />;
     default:
       return null;
   }
@@ -148,7 +141,6 @@ function OpenedApproval({ row, onClose }: { row: ApprovalRow; onClose: () => voi
 function SheetDecision({ row, onDone }: { row: ApprovalRow; onDone: () => void }) {
   if (row.source === "DISPOSAL_REQUEST") return <DisposalDecision id={row.id} onDone={onDone} />;
   if (row.source === "WASTE_OUTGOING") return <WasteOutgoingDecision id={row.id} onDone={onDone} />;
-  if (row.source === "EQUIPMENT_MOVEMENT") return <MovementDecision id={row.id} onDone={onDone} />;
   // 工程进度 is decided by the sheet's own 确认归档.
   return null;
 }
@@ -232,17 +224,6 @@ function WasteOutgoingDecision({ id, onDone }: { id: string; onDone: () => void 
       )}
     </>
   );
-}
-
-function MovementDecision({ id, onDone }: { id: string; onDone: () => void }) {
-  const movement = useQuery({
-    queryKey: ["equipment-movements", "one", id],
-    queryFn: () => getEquipmentMovements({ id, page_size: 1 }),
-  });
-  if (movement.isError) return <LoadFailed onRetry={() => void movement.refetch()} />;
-  const row = movement.data?.results[0];
-  if (!row) return null;
-  return <ReviewMovementActions movement={row} onDone={() => onDone()} />;
 }
 
 /** 材料出场 / 退场申请: the module's detail dialog with its own step buttons. */

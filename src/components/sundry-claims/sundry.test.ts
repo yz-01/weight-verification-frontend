@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
  * 「后台保留【确认】【拒绝】【沟通】；手机端不需要【确认】【拒绝】，但【沟通】必须
  * 继续保留」, and the voucher is finance's: 「付款凭证限财务／付款权限」.
  */
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 const office = read("src/components/sundry-claims/sundry-claims-office.tsx");
 const phoneForm = read("src/components/field-staff/sundry-claim-capture.tsx");
 const phoneHistory = read("src/components/field-staff/my-submissions.tsx");

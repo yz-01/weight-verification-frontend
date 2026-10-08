@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DISPATCH_STATE_TONE, Dispatches } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -26,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+import { clearanceFigureFilters } from "@/lib/waste-clearance-figures";
 import { getDispatchSummary, getDispatches } from "@/services/contractor.service";
 import { getDisposalRequests, getDisposalTotals } from "@/services/contractor-ops.service";
 
@@ -64,15 +66,29 @@ export function WasteClearance() {
   const asked = searchParams.get("kind") as Kind | null;
   const kind: Kind = asked && kinds.includes(asked) ? asked : kinds[0] ?? "all";
 
+  // The header describes the list under it: opened from a head-office card
+  // (`counted=1`, one project) it counts what that list shows (F8).
+  // The page's project is the top bar's 「当前项目」 when it is in force (B13).
+  const topBar = useCurrentProject();
+  const figureParams = new URLSearchParams(searchParams.toString());
+  if (topBar.active) {
+    figureParams.delete("project");
+    if (topBar.projectId) figureParams.set("project", topBar.projectId);
+  }
+  const figureFilters = clearanceFigureFilters(kind, figureParams);
+  if (kind === "all" && topBar.active && topBar.projectId) {
+    figureFilters.disposal.project = topBar.projectId;
+    figureFilters.dispatch.project = topBar.projectId;
+  }
   // The two counts, apart (D06). Page size 1: only `count` is read.
   const disposalCount = useQuery({
-    queryKey: ["site-disposals", "count", "waste-clearance"],
-    queryFn: () => getDisposalRequests({ page_size: 1 }),
+    queryKey: ["site-disposals", "count", "waste-clearance", figureFilters.disposal],
+    queryFn: () => getDisposalRequests({ page_size: 1, ...figureFilters.disposal }),
     enabled: hasDisposals,
   });
   const dispatchCount = useQuery({
-    queryKey: ["dispatches", "count", "waste-clearance"],
-    queryFn: () => getDispatches({ page_size: 1 }),
+    queryKey: ["dispatches", "count", "waste-clearance", figureFilters.dispatch],
+    queryFn: () => getDispatches({ page_size: 1, ...figureFilters.dispatch }),
     enabled: hasDispatches,
   });
   const countText = (query: typeof disposalCount | typeof dispatchCount) =>
@@ -80,13 +96,13 @@ export function WasteClearance() {
   // D06: each kind's own 数量 / 车次 / 重量, read from its own module and
   // shown on its own line - never added together.
   const disposalTotals = useQuery({
-    queryKey: ["site-disposals", "totals", "waste-clearance"],
-    queryFn: () => getDisposalTotals(),
+    queryKey: ["site-disposals", "totals", "waste-clearance", figureFilters.disposal],
+    queryFn: () => getDisposalTotals(figureFilters.disposal),
     enabled: hasDisposals && can("disposal.view"),
   });
   const dispatchTotals = useQuery({
-    queryKey: ["dispatches", "summary", "waste-clearance"],
-    queryFn: () => getDispatchSummary({}),
+    queryKey: ["dispatches", "summary", "waste-clearance", figureFilters.dispatch],
+    queryFn: () => getDispatchSummary(figureFilters.dispatch),
     enabled: hasDispatches && can("dispatch.view"),
   });
   const dispatchFigures = dispatchTotals.data?.clearance_totals;
@@ -94,7 +110,7 @@ export function WasteClearance() {
   if (kinds.length === 0) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={[
@@ -107,17 +123,17 @@ export function WasteClearance() {
           kind === "all" ? (
             <div className="flex flex-wrap gap-2">
               {can("disposal.submit") && (
-                <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Button asChild>
                   <Link href="/waste-clearance?kind=disposal&create=1">
-                    <Plus className="h-4 w-4" />
+                    <Plus className="size-4" />
                     {t("newDisposal")}
                   </Link>
                 </Button>
               )}
               {can("dispatch.create") && (
-                <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+                <Button asChild variant="outline">
                   <Link href="/dispatches/create">
-                    <Plus className="h-4 w-4" />
+                    <Plus className="size-4" />
                     {t("newDispatch")}
                   </Link>
                 </Button>
@@ -132,7 +148,7 @@ export function WasteClearance() {
       <QueryFailedNote query={dispatchTotals} what={t("kind.dispatch")} />
 
       {(disposalTotals.data || dispatchFigures) && (
-        <section data-clearance-totals className="rounded-lg border bg-card px-3 py-2 text-sm shadow-sm">
+        <section data-clearance-totals className="surface-panel rounded-xl px-4 py-3 text-sm tabular sm:px-6">
           {disposalTotals.data && (
             <p>
               {t("totals.disposals", {
@@ -156,14 +172,14 @@ export function WasteClearance() {
       )}
 
       {kinds.length > 1 && (
-        <nav aria-label={t("title")} className="flex w-fit flex-wrap gap-1 rounded-lg border bg-card p-1 shadow-sm">
+        <nav aria-label={t("title")} className="surface-panel flex w-fit max-w-full flex-wrap gap-1 rounded-xl p-1">
           {kinds.map((option) => (
             <Link
               key={option}
               href={`/waste-clearance?kind=${option}`}
               aria-current={option === kind ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                "inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground pointer-coarse:h-10",
                 option === kind && "bg-primary/10 text-primary",
               )}
             >
@@ -206,14 +222,17 @@ function MergedList() {
   const df = useDateFormat();
   const searchParams = useSearchParams();
   const page = Math.max(1, Number(searchParams.get("page") ?? "1") || 1);
+  // On the top bar's 「当前项目」 (B13); 全部项目 leaves it out.
+  const topBar = useCurrentProject();
+  const project = (topBar.active ? topBar.projectId : "") || undefined;
 
   const disposals = useQuery({
-    queryKey: ["site-disposals", "waste-clearance", page],
-    queryFn: () => getDisposalRequests({ page, page_size: PER_KIND }),
+    queryKey: ["site-disposals", "waste-clearance", project, page],
+    queryFn: () => getDisposalRequests({ page, page_size: PER_KIND, project }),
   });
   const dispatches = useQuery({
-    queryKey: ["dispatches", "waste-clearance", page],
-    queryFn: () => getDispatches({ page, page_size: PER_KIND }),
+    queryKey: ["dispatches", "waste-clearance", project, page],
+    queryFn: () => getDispatches({ page, page_size: PER_KIND, project }),
   });
 
   const rows: MergedRow[] = [
@@ -253,7 +272,7 @@ function MergedList() {
   const pageHref = (target: number) => `/waste-clearance?kind=all&page=${target}`;
 
   return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <section className="overflow-hidden surface-panel rounded-xl">
       <QueryFailedNote query={disposals} what={t("kind.disposal")} />
       <QueryFailedNote query={dispatches} what={t("kind.dispatch")} />
       <Table>
@@ -282,8 +301,8 @@ function MergedList() {
               </TableCell>
               <TableCell className="tabular font-medium">{row.reference}</TableCell>
               <TableCell>{row.statusBadge}</TableCell>
-              <TableCell className="max-w-[180px] truncate">{row.project}</TableCell>
-              <TableCell className="max-w-[260px] truncate">{row.content}</TableCell>
+              <TableCell className="max-w-45 truncate">{row.project}</TableCell>
+              <TableCell className="max-w-65 truncate">{row.content}</TableCell>
               <TableCell className="tabular text-muted-foreground">
                 {row.at ? df.dateTime(row.at) : "—"}
               </TableCell>
@@ -296,7 +315,7 @@ function MergedList() {
           ))}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between gap-3 border-t px-4 py-2.5 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-panel-border px-4 py-3 text-sm text-muted-foreground sm:px-6">
         <span>{t("pageOf", { page, pages })}</span>
         <div className="flex gap-2">
           <Button asChild={page > 1} variant="outline" size="sm" disabled={page <= 1} disabledReason={page <= 1 ? root("common.alreadyFirstPage") : undefined}>

@@ -20,26 +20,27 @@ const DETAIL = "src/components/consultant-workflow/application-detail.tsx";
 describe("consultant application detail renders remarks", () => {
   it("shows application.remarks as a read-only field", () => {
     const code = source(DETAIL);
+    // In the record-detail shell's information grid since E8.
     expect(code).toContain(
-      '<ReadField label={t("field.remarks")} value={application.remarks}',
+      '{ label: t("field.remarks"), value: application.remarks',
     );
   });
 
   it("keeps remarks in the site section next to the description it belongs with", () => {
     const code = source(DETAIL);
-    const description = code.indexOf('label={t("field.description")}');
-    const remarks = code.indexOf('label={t("field.remarks")}');
+    const description = code.indexOf('label: t("field.description")');
+    const remarks = code.indexOf('label: t("field.remarks")');
     const nextSection = code.indexOf('t("detail.section.evidence")');
     expect(description).toBeGreaterThan(-1);
     expect(remarks).toBeGreaterThan(description);
     expect(remarks).toBeLessThan(nextSection);
   });
 
-  it("gives remarks the full-width class the other long-text field uses", () => {
+  it("gives remarks the full width the other long-text field has", () => {
     const code = source(DETAIL);
-    const remarks = code.indexOf('label={t("field.remarks")}');
+    const remarks = code.indexOf('label: t("field.remarks")');
     const lineEnd = code.indexOf("\n", remarks);
-    expect(code.slice(remarks, lineEnd)).toContain('className="sm:col-span-2"');
+    expect(code.slice(remarks, lineEnd)).toContain("wide: true");
   });
 
   it("does not disturb the per-action approval remarks, which are a different thing", () => {

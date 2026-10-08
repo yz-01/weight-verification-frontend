@@ -42,7 +42,7 @@ function at(root: unknown, dotted: string) {
  *
  * ## What is deliberately *not* aligned
  *
- * `nav.submodule.consultantFieldInbox` (现场资料收件箱) and
+ * `nav.submodule.consultantFieldInbox` (待整理现场资料, C1) and
  * `nav.submodule.fieldTasks` (现场任务) keep their own names. They are not
  * other spellings of a module below - an inbox a consultant reads, and a task
  * somebody is handed, are different screens - and renaming them to match would
@@ -150,6 +150,18 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "fieldStaffPwa.type.CONSULTANT",
     ],
   },
+  // 「待整理现场资料」 (2026-10 C1, Q2): the old 「现场资料收件箱」 is a tab of
+  // 顾问申请 now. The tab, the inbox's own heading, the hidden route's name
+  // and what a failure says it could not load are one name.
+  {
+    module: "consultant inbox",
+    keys: [
+      "consultantWorkflow.applications.stage.inbox",
+      "contractorOps.tasks.consultantInboxTitle",
+      "nav.submodule.consultantFieldInbox",
+      "consultantWorkflow.inbox.what",
+    ],
+  },
   {
     module: "site record capture",
     keys: [
@@ -157,6 +169,18 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "fieldStaffPwa.home.records",
       "fieldStaffPwa.nav.records",
       "fieldStaffPwa.type.PHOTO",
+    ],
+  },
+  // 设备操作员工时 (2026-10 B15): the office page under 设备管理 (its menu entry
+  // and page title), the phone's tile and the screen it opens, and the photo
+  // waiting in the offline queue. Its own name, not 人员进场's - attendance
+  // stays as it is.
+  {
+    module: "equipment operator hours",
+    keys: [
+      "nav.submodule.equipmentOperatorHours",
+      "fieldStaffPwa.records.operatorHours",
+      "offline.kind.EQUIPMENT_HOURS_PHOTO",
     ],
   },
   {
@@ -201,6 +225,11 @@ describe("the names that are meant to differ still do", () => {
     }
   });
 
+  it("names the inbox 待整理现场资料 (C1, Q2)", () => {
+    expect(at(messages("zh"), "consultantWorkflow.applications.stage.inbox")).toBe("待整理现场资料");
+    expect(at(messages("zh-TW"), "consultantWorkflow.applications.stage.inbox")).toBe("待整理現場資料");
+  });
+
   it("keeps the consultant inbox and site tasks as themselves", () => {
     for (const locale of LOCALES) {
       const catalogue = messages(locale);
@@ -211,6 +240,51 @@ describe("the names that are meant to differ still do", () => {
         at(catalogue, "fieldStaffPwa.records.title"),
       );
     }
+  });
+
+  /**
+   * The equipment page names the direction it is filtered to (B14): the
+   * module is 「设备进退场」, a list of exits is 「设备退场」. Each is the
+   * module's own word for that direction - the same 进场 / 退场 the list's
+   * direction column and filter show - so the title and the rows agree.
+   */
+  it("names the equipment page after the direction it shows", () => {
+    for (const locale of LOCALES) {
+      const catalogue = messages(locale);
+      const moduleName = at(catalogue, "nav.submodule.siteEquipment");
+      const entry = at(catalogue, "nav.submodule.equipmentEntry");
+      const exit = at(catalogue, "nav.submodule.equipmentExit");
+      expect(entry, `${locale}: equipmentEntry`).toBeTypeOf("string");
+      expect(exit, `${locale}: equipmentExit`).toBeTypeOf("string");
+      expect(new Set([moduleName, entry, exit]).size).toBe(3);
+      const word = (direction: "ENTRY" | "EXIT") =>
+        String(at(catalogue, `contractorOps.direction.${direction}`)).toLowerCase();
+      expect(String(entry).toLowerCase()).toContain(word("ENTRY"));
+      expect(String(exit).toLowerCase()).toContain(word("EXIT"));
+    }
+    expect(at(messages("zh"), "nav.submodule.equipmentEntry")).toBe("设备进场");
+    expect(at(messages("zh"), "nav.submodule.equipmentExit")).toBe("设备退场");
+  });
+
+  /**
+   * The dashboard card for open hazard work says what it is (C15). It was
+   * 「待处理异常」 and added out-of-bounds clock-ins and expiring passes to the
+   * hazards; the client asked for 「待处理整改 / EHS」. It ends in the module's
+   * own "/ EHS", so the card and the menu name the same thing.
+   */
+  it("names the dashboard's open-rectification card after its module (C15)", () => {
+    for (const locale of LOCALES) {
+      const catalogue = messages(locale);
+      const card = String(at(catalogue, "contractorDashboard.rectifications.title"));
+      const moduleName = String(at(catalogue, "nav.submodule.hazardRectifications"));
+      expect(moduleName.endsWith(" / EHS"), `${locale}: ${moduleName}`).toBe(true);
+      expect(card.endsWith(" / EHS"), `${locale}: ${card}`).toBe(true);
+      expect(card).not.toBe(moduleName);
+      expect(at(catalogue, "contractorDashboard.anomalies")).toBeUndefined();
+    }
+    expect(at(messages("zh"), "contractorDashboard.rectifications.title")).toBe(
+      "待处理整改 / EHS",
+    );
   });
 
   it("gives every module a name of its own", () => {

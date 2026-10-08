@@ -13,16 +13,24 @@
  */
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, DoorOpen, Images, Loader2, MapPin, Plus, UserPlus, Users, X } from "lucide-react";
+import { Camera, DoorOpen, Images, Loader2, MapPin, Plus, ScanLine, Send, UserPlus, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldCamera } from "@/components/shared/field-camera";
-import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  RecordRecorder,
+  ShellPanel,
+} from "@/components/shared/record-detail-shell";
+import { GateQrScanner } from "@/components/site-access/gate-qr-scanner";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -34,20 +42,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ApiError } from "@/interfaces/api";
 import {
-  GATE_INCIDENT_CATEGORIES,
   type GateIncident,
-  type GateIncidentCategory,
   type GateIncidentDetail,
-  type GatePhoto,
+  type GatePassMatch,
   type GatePhotoDraft,
 } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
@@ -56,14 +56,13 @@ import {
   addGateIncidentMembers,
   addGateIncidentPhotos,
   createGateIncident,
+  findGatePass,
   getGateIncident,
   getGateIncidents,
   getGateMemberOptions,
-  getSiteAccessPasses,
 } from "@/services/site-access.service";
 
 const PAGE_SIZE = 20;
-const NONE = "__none__";
 
 function newEventId() {
   return `gate-${crypto.randomUUID()}`;
@@ -100,11 +99,11 @@ export function GateRecordsPanel({
   initialProject?: string;
 } = {}) {
   const t = useTranslations("siteControl.gateRecords");
-  const category = useTranslations("siteControl.gateCategory");
   const { can } = useAuth();
   const search = useSearchParams();
-  const [project, setProject] = useState("all");
-  const [kind, setKind] = useState<GateIncidentCategory | "all">("all");
+  // The top bar's 「当前项目」 in the office (B13); the phone keeps its own.
+  const [project, setProject] = usePageProject("", { all: "all" });
+  const projectBoxShown = useProjectBoxShown("filter");
   const [term, setTerm] = useState("");
   const [creating, setCreating] = useState(false);
   // `gate_incident`, not `incident`: the phone already reads `incident` as a
@@ -112,7 +111,7 @@ export function GateRecordsPanel({
   const [openId, setOpenId] = useState<string | null>(() => search.get("gate_incident"));
 
   const rows = useInfiniteQuery({
-    queryKey: ["gate-incidents", project, kind, term],
+    queryKey: ["gate-incidents", project, term],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getGateIncidents({
@@ -121,7 +120,6 @@ export function GateRecordsPanel({
         sort_by: "occurred_at",
         sort_order: "desc",
         ...(project !== "all" ? { project } : {}),
-        ...(kind !== "all" ? { category: kind } : {}),
         ...(term.trim() ? { search: term.trim() } : {}),
       }),
     getNextPageParam: (last, pages) =>
@@ -135,24 +133,25 @@ export function GateRecordsPanel({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
+        <div className="flex min-w-0 items-start gap-3">
           <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <DoorOpen />
           </span>
-          <div>
-            <h2 className="text-base font-semibold">{t("title")}</h2>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
             <p className="mt-0.5 text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
         </div>
         {can("site_access.scan") && (
-          <Button size="sm" onClick={() => setCreating(true)}>
+          <Button onClick={() => setCreating(true)}>
             <Camera />
             {t("new")}
           </Button>
         )}
       </div>
 
-      <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-3">
+      <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4">
+        {projectBoxShown && (
         <FieldWrapper label={t("field.project")}>
           <ProjectPicker
             value={project}
@@ -162,21 +161,7 @@ export function GateRecordsPanel({
             allLabel={t("field.allProjects")}
           />
         </FieldWrapper>
-        <FieldWrapper label={t("field.category")}>
-          <Select value={kind} onValueChange={(value) => setKind(value as GateIncidentCategory | "all")}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("field.allCategories")}</SelectItem>
-              {GATE_INCIDENT_CATEGORIES.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {category(value)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FieldWrapper>
+        )}
         <FieldWrapper label={t("field.search")}>
           <Input
             value={term}
@@ -217,7 +202,8 @@ export function GateRecordsPanel({
 
       {creating && (
         <GateIncidentForm
-          defaultProject={project === "all" ? initialProject : project}
+          defaultProject={initialProject || (project === "all" ? "" : project)}
+          lockProject={Boolean(initialProject)}
           onClose={() => setCreating(false)}
           onSaved={(row) => {
             setCreating(false);
@@ -232,7 +218,7 @@ export function GateRecordsPanel({
 
 function Empty({ text }: { text: string }) {
   return (
-    <div className="grid min-h-40 place-items-center rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+    <div className="grid min-h-40 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
       {text}
     </div>
   );
@@ -240,13 +226,12 @@ function Empty({ text }: { text: string }) {
 
 function GateIncidentCard({ row, onOpen }: { row: GateIncident; onOpen: () => void }) {
   const t = useTranslations("siteControl.gateRecords");
-  const category = useTranslations("siteControl.gateCategory");
   const df = useDateFormat();
   return (
     <button
       type="button"
       onClick={onOpen}
-      className="flex w-full gap-3 rounded-lg border bg-card p-3 text-left transition-colors hover:bg-muted/40"
+      className="surface-panel flex w-full gap-3 rounded-xl p-3 text-left transition-colors hover:bg-muted/40"
     >
       <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
         {row.cover_photo ? (
@@ -256,10 +241,7 @@ function GateIncidentCard({ row, onOpen }: { row: GateIncident; onOpen: () => vo
         )}
       </span>
       <span className="min-w-0 flex-1 space-y-1">
-        <span className="flex flex-wrap items-center gap-2">
-          <span className="font-semibold tabular-nums">{row.incident_no}</span>
-          <StatusBadge label={category(row.category)} tone="warning" />
-        </span>
+        <span className="block font-semibold tabular">{row.incident_no}</span>
         <span className="block truncate text-sm text-muted-foreground">
           {row.project_name}
           {row.gate_name ? ` · ${row.gate_name}` : ""}
@@ -300,12 +282,12 @@ function PhotoTray({
           <button
             type="button"
             aria-label={t("removePhoto", { number: index + 1 })}
-            className="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-black/60 text-white"
+            className="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-overlay text-overlay-foreground"
             onClick={() => onRemove(eventId)}
           >
             <X className="size-4" />
           </button>
-          <span className="absolute bottom-0 left-0 right-0 bg-black/55 px-1 py-0.5 text-[10px] text-white">
+          <span className="absolute bottom-0 left-0 right-0 bg-overlay px-1 py-0.5 text-xs text-overlay-foreground">
             {photos[index]?.latitude ? t("gpsShort") : t("noGpsShort")}
           </span>
         </li>
@@ -354,51 +336,58 @@ function LocationLine({ fix, failed, onRetry }: { fix: LocationFix | null; faile
   );
 }
 
+/**
+ * The guard's form (Q18, 7/10): photos, then scan a pass (optional), then who
+ * to talk to and the first words (optional), then send. Nothing else.
+ *
+ * 「门岗手机不应该有可疑人员、偷窃…这些分类，只要拍照、扫二维码、沟通、发送」.
+ * The send button used to wait for a 事项类别 the customer had decided a guard
+ * should not choose; it stayed grey after the photo was taken, and the reason
+ * lived in a hover tooltip a phone never shows (F1). The only thing it waits
+ * for now is a photo, and that is said on the form, not only in a tooltip.
+ */
 function GateIncidentForm({
   defaultProject,
+  lockProject,
   onClose,
   onSaved,
 }: {
   defaultProject: string;
+  /** The phone is bound to its project; only the office chooses one. */
+  lockProject: boolean;
   onClose: () => void;
   onSaved: (row: GateIncidentDetail) => void;
 }) {
   const t = useTranslations("siteControl.gateRecords");
-  const category = useTranslations("siteControl.gateCategory");
   const queryClient = useQueryClient();
   const { fix, failed, refresh } = useGateLocation();
   const camera = useContinuousCamera(fix);
   const [project, setProject] = useState(defaultProject);
-  const [kind, setKind] = useState<GateIncidentCategory | "">("");
-  const [gate, setGate] = useState("");
-  const [description, setDescription] = useState("");
-  const [accessPass, setAccessPass] = useState(NONE);
-  const [accessEvent, setAccessEvent] = useState(NONE);
+  const [scanning, setScanning] = useState(false);
+  const [linkedPass, setLinkedPass] = useState<GatePassMatch | null>(null);
   const [members, setMembers] = useState<string[]>([]);
+  const [firstMessage, setFirstMessage] = useState("");
   const eventId = useRef(newEventId());
+  const showProject = !lockProject || !defaultProject;
 
-  const passes = useQuery({
-    queryKey: ["gate-record-passes", project],
-    queryFn: () => getSiteAccessPasses({ project, status: "APPROVED", page_size: 100 }),
-    enabled: Boolean(project),
-  });
   const people = useQuery({
     queryKey: ["gate-member-options", project],
     queryFn: () => getGateMemberOptions(project),
     enabled: Boolean(project),
   });
-  const chosenPass = passes.data?.results.find((row) => row.id === accessPass);
+
+  const lookup = useMutation({
+    mutationFn: (token: string) => findGatePass(project, token),
+    onSuccess: setLinkedPass,
+  });
 
   const save = useMutation({
     mutationFn: () =>
       createGateIncident({
         project,
-        category: kind as GateIncidentCategory,
-        gate_name: gate,
-        description,
-        ...(accessPass !== NONE ? { access_pass: accessPass } : {}),
-        ...(accessEvent !== NONE ? { access_event: accessEvent } : {}),
+        ...(linkedPass ? { access_pass: linkedPass.id } : {}),
         members,
+        ...(firstMessage.trim() ? { first_message: firstMessage.trim() } : {}),
         ...(fix
           ? { latitude: fix.latitude, longitude: fix.longitude, accuracy_m: fix.accuracy }
           : {}),
@@ -418,88 +407,23 @@ function GateIncidentForm({
           <DialogTitle>{t("newTitle")}</DialogTitle>
           <DialogDescription>{t("newHelp")}</DialogDescription>
         </DialogHeader>
-        <QueryFailedNote query={passes} what={t("whatPasses")} />
         <QueryFailedNote query={people} what={t("whatPeople")} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label={t("field.project")} required className="sm:col-span-2">
-            <ProjectPicker
-              value={project}
-              onValueChange={(value) => {
-                setProject(value);
-                setAccessPass(NONE);
-                setAccessEvent(NONE);
-                setMembers([]);
-              }}
-              placeholder={t("field.chooseProject")}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.category")} required className="sm:col-span-2">
-            <div className="flex flex-wrap gap-2">
-              {GATE_INCIDENT_CATEGORIES.map((value) => (
-                <Button
-                  key={value}
-                  type="button"
-                  size="sm"
-                  variant={kind === value ? "default" : "outline"}
-                  onClick={() => setKind(value)}
-                >
-                  {category(value)}
-                </Button>
-              ))}
-            </div>
-          </FieldWrapper>
-          <FieldWrapper label={t("field.gate")} optional={t("optional")}>
-            <Input value={gate} onChange={(event) => setGate(event.target.value)} placeholder={t("field.gatePlaceholder")} />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.pass")} optional={t("optional")} hint={t("field.passHint")}>
-            <Select
-              value={accessPass}
-              onValueChange={(value) => {
-                setAccessPass(value);
-                setAccessEvent(NONE);
-              }}
-              disabled={!project}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NONE}>{t("field.standalone")}</SelectItem>
-                {(passes.data?.results ?? []).map((row) => (
-                  <SelectItem key={row.id} value={row.id}>
-                    {row.pass_no} · {row.subject_name}
-                    {row.vehicle_plate ? ` · ${row.vehicle_plate}` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          {chosenPass && chosenPass.events.length > 0 && (
-            <FieldWrapper label={t("field.event")} optional={t("optional")} className="sm:col-span-2">
-              <Select value={accessEvent} onValueChange={setAccessEvent}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>{t("field.wholePass")}</SelectItem>
-                  {chosenPass.events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      <GateEventLabel direction={event.direction} at={event.occurred_at} gate={event.gate_name} />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <div className="grid gap-4">
+          {showProject && (
+            <FieldWrapper label={t("field.project")} required>
+              <ProjectPicker
+                value={project}
+                onValueChange={(value) => {
+                  setProject(value);
+                  setLinkedPass(null);
+                  lookup.reset();
+                  setMembers([]);
+                }}
+                placeholder={t("field.chooseProject")}
+              />
             </FieldWrapper>
           )}
-          <FieldWrapper label={t("field.description")} optional={t("optional")} className="sm:col-span-2">
-            <Textarea value={description} onChange={(event) => setDescription(event.target.value)} />
-          </FieldWrapper>
-          <FieldWrapper
-            label={t("field.photos")}
-            required
-            hint={t("field.photosHint")}
-            className="sm:col-span-2"
-          >
+          <FieldWrapper label={t("field.photos")} required hint={t("field.photosHint")}>
             <div className="space-y-2">
               <FieldCamera
                 label={camera.photos.length ? t("takeAnother", { count: camera.photos.length }) : t("takePhoto")}
@@ -511,7 +435,52 @@ function GateIncidentForm({
               <LocationLine fix={fix} failed={failed} onRetry={refresh} />
             </div>
           </FieldWrapper>
-          <FieldWrapper label={t("field.members")} optional={t("optional")} hint={t("field.membersHint")} className="sm:col-span-2">
+          <FieldWrapper label={t("scanPass")} optional={t("optional")} hint={t("scanPassHint")}>
+            {linkedPass ? (
+              <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm">
+                <span className="min-w-0">
+                  <span className="block font-medium">{linkedPass.pass_no}</span>
+                  <span className="block truncate text-muted-foreground">
+                    {linkedPass.subject_name}
+                    {linkedPass.vehicle_plate ? ` · ${linkedPass.vehicle_plate}` : ""}
+                  </span>
+                </span>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  aria-label={t("unlinkPass")}
+                  onClick={() => setLinkedPass(null)}
+                >
+                  <X />
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  disabledReason={!project ? t("chooseProjectFirst") : undefined}
+                  disabled={!project || lookup.isPending}
+                  onClick={() => setScanning(true)}
+                >
+                  {lookup.isPending ? <Loader2 className="animate-spin" /> : <ScanLine />}
+                  {t("scanPassButton")}
+                </Button>
+                {lookup.isError && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {lookup.error instanceof ApiError && lookup.error.status === 404
+                      ? t("scanPassNotFound")
+                      : lookup.error instanceof Error
+                        ? lookup.error.message
+                        : t("saveError")}
+                  </p>
+                )}
+              </div>
+            )}
+          </FieldWrapper>
+          <FieldWrapper label={t("field.members")} optional={t("optional")} hint={t("field.membersHint")}>
             <MemberChecklist
               options={people.data ?? []}
               loading={people.isLoading && Boolean(project)}
@@ -519,11 +488,22 @@ function GateIncidentForm({
               onChange={setMembers}
             />
           </FieldWrapper>
+          <FieldWrapper label={t("firstMessage")} optional={t("optional")} hint={t("firstMessageHint")}>
+            <Textarea
+              value={firstMessage}
+              maxLength={2000}
+              onChange={(event) => setFirstMessage(event.target.value)}
+              placeholder={t("firstMessagePlaceholder")}
+            />
+          </FieldWrapper>
         </div>
         {save.isError && (
-          <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
             {save.error instanceof Error ? save.error.message : t("saveError")}
           </p>
+        )}
+        {!camera.photos.length && (
+          <p className="text-sm text-muted-foreground">{t("photoFirst")}</p>
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -532,16 +512,23 @@ function GateIncidentForm({
           <Button
             requires={[
               [project, t("field.project")],
-              [kind, t("field.category")],
               [camera.photos.length > 0, t("field.photos")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >
-            {save.isPending && <Loader2 className="animate-spin" />}
-            {t("save", { count: camera.photos.length })}
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+            {t("send", { count: camera.photos.length })}
           </Button>
         </DialogFooter>
+        <GateQrScanner
+          open={scanning}
+          onClose={() => setScanning(false)}
+          onDetected={(token) => {
+            setScanning(false);
+            lookup.mutate(token);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -573,7 +560,7 @@ function MemberChecklist({
   if (loading) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   if (!options.length) return <p className="text-sm text-muted-foreground">{t("noMembers")}</p>;
   return (
-    <ul className="max-h-48 space-y-1 overflow-y-auto rounded-md border p-2">
+    <ul className="max-h-48 space-y-1 overflow-y-auto rounded-lg border p-2">
       {options.map((person) => {
         const checked = selected.includes(person.id);
         return (
@@ -601,6 +588,11 @@ function MemberChecklist({
   );
 }
 
+/**
+ * One gate record in the record popup (E8, Q31). The office's 门禁通行 list
+ * and the guard's phone open this same dialog; the shell goes to one column
+ * on a phone, photographs first.
+ */
 function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("siteControl.gateRecords");
   const category = useTranslations("siteControl.gateCategory");
@@ -614,73 +606,93 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
   const [adding, setAdding] = useState<"photos" | "members" | null>(null);
 
   return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>{row?.incident_no ?? t("title")}</DialogTitle>
-          <DialogDescription>{t("detailHelp")}</DialogDescription>
-        </DialogHeader>
-        <QueryFailedNote query={detail} what={t("whatOne")} />
-        {detail.isLoading && <Empty text={t("loading")} />}
-        {row && (
-          <div className="space-y-5">
-            <div className="grid gap-3 text-sm sm:grid-cols-3">
-              <Fact label={t("field.category")} value={category(row.category)} />
-              <Fact label={t("field.project")} value={row.project_name} />
-              <Fact label={t("field.gate")} value={row.gate_name || t("none")} />
-              <Fact label={t("field.guard")} value={row.guard_name} />
-              <Fact label={t("field.time")} value={df.dateTime(row.occurred_at)} />
-              <Fact
-                label={t("field.pass")}
-                value={
-                  row.pass_no
-                    ? `${row.pass_no} · ${row.pass_subject_name ?? ""}`
-                    : t("field.standalone")
-                }
-              />
-              {row.access_event_direction && row.access_event_at && (
-                <Fact
-                  label={t("field.event")}
-                  value={<GateEventLabel direction={row.access_event_direction} at={row.access_event_at} gate="" />}
-                />
-              )}
-              {row.description && (
-                <Fact label={t("field.description")} value={row.description} wide />
-              )}
-            </div>
-
-            <section className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="font-semibold">{t("photosTitle", { count: row.photos.length })}</h3>
-                {can("site_access.scan") && (
-                  <Button size="sm" variant="outline" onClick={() => setAdding("photos")}>
-                    <Plus />
-                    {t("addPhotos")}
-                  </Button>
-                )}
-              </div>
-              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {row.photos.map((photo, index) => (
-                  <li key={photo.id}>
-                    <GatePhotoCard photo={photo} number={index + 1} projectName={row.project_name} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="flex items-center gap-2 font-semibold">
-                  <Users className="size-4" />
-                  {t("membersTitle")}
-                </h3>
-                {can("site_access.scan") && (
+    <RecordDetailDialog
+      title={row?.incident_no ?? t("title")}
+      description={t("detailHelp")}
+      onClose={onClose}
+    >
+      <QueryFailedNote query={detail} what={t("whatOne")} />
+      {detail.isLoading && <Empty text={t("loading")} />}
+      {row && (
+        <RecordDetailShell
+          reference={row.incident_no}
+          // 记录人 (E8): who recorded it, with a number to call.
+          recorder={<RecordRecorder record={row} />}
+          facts={[
+            // Q18: new records carry no category; an older one keeps the one it was given.
+            ...(row.category !== "OTHER"
+              ? [{ label: t("field.category"), value: category(row.category) }]
+              : []),
+            { label: t("field.project"), value: row.project_name },
+            ...(row.gate_name ? [{ label: t("field.gate"), value: row.gate_name }] : []),
+            { label: t("field.guard"), value: row.guard_name },
+            { label: t("field.time"), value: df.dateTime(row.occurred_at) },
+            {
+              label: t("field.pass"),
+              value: row.pass_no
+                ? `${row.pass_no} · ${row.pass_subject_name ?? ""}`
+                : t("field.standalone"),
+            },
+            ...(row.access_event_direction && row.access_event_at
+              ? [
+                  {
+                    label: t("field.event"),
+                    value: (
+                      <GateEventLabel
+                        direction={row.access_event_direction}
+                        at={row.access_event_at}
+                        gate=""
+                      />
+                    ),
+                  },
+                ]
+              : []),
+            ...(row.description
+              ? [
+                  {
+                    label: t("field.description"),
+                    value: <span className="whitespace-pre-wrap">{row.description}</span>,
+                    wide: true,
+                  },
+                ]
+              : []),
+          ]}
+          // Every photo keeps its own gate, guard, time and GPS (D09): the
+          // gate and guard in its name, the time and GPS in the viewer.
+          photos={row.photos.map((photo, index) => ({
+            id: photo.id,
+            url: photo.watermarked_image || photo.image,
+            label: [
+              t("photoNumber", { number: index + 1 }),
+              photo.gate_name ? `${t("field.gate")}: ${photo.gate_name}` : "",
+              `${t("field.guard")}: ${photo.guard_name}`,
+            ]
+              .filter(Boolean)
+              .join(" · "),
+            takenAt: photo.captured_at,
+            latitude: photo.latitude,
+            longitude: photo.longitude,
+          }))}
+          photoActions={
+            can("site_access.scan") ? (
+              <Button size="sm" variant="outline" onClick={() => setAdding("photos")}>
+                <Plus />
+                {t("addPhotos")}
+              </Button>
+            ) : undefined
+          }
+          aside={
+            <ShellPanel
+              title={t("membersTitle")}
+              aside={
+                can("site_access.scan") ? (
                   <Button size="sm" variant="outline" onClick={() => setAdding("members")}>
                     <UserPlus />
                     {t("addMembers")}
                   </Button>
-                )}
-              </div>
+                ) : undefined
+              }
+            >
               {row.members.length ? (
                 <ul className="flex flex-wrap gap-2">
                   {row.members.map((member) => (
@@ -695,57 +707,25 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
               ) : (
                 <p className="text-sm text-muted-foreground">{t("noMembersYet")}</p>
               )}
-            </section>
-
-            <section className="space-y-2">
-              <h3 className="font-semibold">{t("conversationTitle")}</h3>
+            </ShellPanel>
+          }
+          // The conversation it has always had, without adding the shared
+          // attachments panel the `conversation` slot would bring.
+          chat={
+            <div className="space-y-2">
               <p className="text-xs text-muted-foreground">{t("conversationHelp")}</p>
               <RecordConversationPanel kind="GATE_INCIDENT" recordId={row.id} />
-            </section>
-          </div>
-        )}
-        {row && adding === "photos" && (
-          <AddPhotosDialog incident={row} onClose={() => setAdding(null)} />
-        )}
-        {row && adding === "members" && (
-          <AddMembersDialog incident={row} onClose={() => setAdding(null)} />
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function Fact({ label, value, wide = false }: { label: string; value: ReactNode; wide?: boolean }) {
-  return (
-    <div className={`min-w-0 rounded-md border bg-muted/20 p-2.5 ${wide ? "sm:col-span-3" : ""}`}>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 whitespace-pre-wrap break-words font-medium">{value}</div>
-    </div>
-  );
-}
-
-function GatePhotoCard({ photo, number, projectName }: { photo: GatePhoto; number: number; projectName: string }) {
-  const t = useTranslations("siteControl.gateRecords");
-  const df = useDateFormat();
-  const src = photo.watermarked_image || photo.image;
-  return (
-    <figure className="overflow-hidden rounded-lg border bg-card">
-      <a href={src} target="_blank" rel="noreferrer">
-        <img src={src} alt={t("photoNumber", { number })} className="aspect-[4/3] w-full bg-muted object-cover" />
-      </a>
-      <figcaption className="space-y-0.5 p-2 text-xs text-muted-foreground">
-        <p className="font-medium text-foreground">{projectName}</p>
-        <p>
-          {t("field.gate")}: {photo.gate_name || t("none")} · {t("field.guard")}: {photo.guard_name}
-        </p>
-        <p>{df.dateTime(photo.captured_at)}</p>
-        <p>
-          {photo.latitude && photo.longitude
-            ? t("gpsValue", { latitude: photo.latitude, longitude: photo.longitude })
-            : t("gpsUnavailable")}
-        </p>
-      </figcaption>
-    </figure>
+            </div>
+          }
+        />
+      )}
+      {row && adding === "photos" && (
+        <AddPhotosDialog incident={row} onClose={() => setAdding(null)} />
+      )}
+      {row && adding === "members" && (
+        <AddMembersDialog incident={row} onClose={() => setAdding(null)} />
+      )}
+    </RecordDetailDialog>
   );
 }
 

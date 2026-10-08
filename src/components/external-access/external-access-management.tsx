@@ -96,7 +96,7 @@ export function ExternalAccessManagement() {
   const rows = grants.data?.results ?? [];
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={t("help")}
@@ -108,14 +108,14 @@ export function ExternalAccessManagement() {
         }
       />
 
-      <div className="rounded-lg border bg-card shadow-sm">
+      <div className="surface-panel overflow-hidden rounded-xl">
         {grants.isLoading ? (
-          <p className="p-5 text-sm text-muted-foreground">
+          <p className="p-4 text-sm text-muted-foreground sm:p-6">
             <Loader2 className="mr-2 inline size-4 animate-spin" />
             {common("loading")}
           </p>
         ) : grants.isError ? (
-          <div className="m-5 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-4">
+          <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-3 sm:m-6">
             <p className="text-sm text-destructive">{t("loadError")}</p>
             <Button
               size="sm"
@@ -126,7 +126,7 @@ export function ExternalAccessManagement() {
             </Button>
           </div>
         ) : !rows.length ? (
-          <p className="m-5 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+          <p className="m-4 rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground sm:m-6">
             {t("empty")}
           </p>
         ) : (
@@ -172,10 +172,10 @@ export function ExternalAccessManagement() {
                         ))}
                       </div>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap tabular-nums">
+                    <TableCell className="tabular whitespace-nowrap">
                       {df.dateTime(grant.expires_at)}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap tabular-nums">
+                    <TableCell className="tabular whitespace-nowrap">
                       {grant.last_used_at
                         ? df.dateTime(grant.last_used_at)
                         : t("neverUsed")}
@@ -308,6 +308,8 @@ function GrantDialog({
             value={project}
             onValueChange={setProject}
             placeholder={t("wholeCompany")}
+            // Empty is 「整个公司」, a real answer; the top bar does not make it.
+            scope="own"
           />
         </FieldWrapper>
 
@@ -317,7 +319,6 @@ function GrantDialog({
               <Button
                 key={field}
                 type="button"
-                size="sm"
                 variant={fields.includes(field) ? "default" : "outline"}
                 onClick={() => toggle(field)}
               >

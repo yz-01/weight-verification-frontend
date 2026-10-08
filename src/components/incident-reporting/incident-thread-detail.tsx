@@ -2,23 +2,28 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   Camera,
   Loader2,
   MapPin,
   Send,
   ShieldCheck,
-  Users,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
+import { ChatPhotoThumbnail, useChatPhotoViewer } from "@/components/shared/conversation";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  RecordRecorder,
+  ShellPanel,
+} from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
@@ -33,12 +38,20 @@ import {
 } from "@/services/site-operations.service";
 import { toast } from "sonner";
 
+/**
+ * One incident report in the record-detail popup (E8, Q31), over the list in
+ * the office (`/incident-reports`) and on the phone (`/field-staff/incidents`).
+ *
+ * The report's own message thread is its 事项沟通: it sits in the shell's
+ * conversation place, with the composer under it. Who is in the group is the
+ * left column's panel; 标记为已解决 is the decision button.
+ */
 export function IncidentThreadDetail({
   threadId,
-  onBack,
+  onClose,
 }: {
   threadId: string;
-  onBack: () => void;
+  onClose: () => void;
 }) {
   const t = useTranslations("incidentReporting");
   const pathname = usePathname();
@@ -55,7 +68,19 @@ export function IncidentThreadDetail({
     queryFn: () => getIncidentThread(threadId),
   });
 
-  const messages = thread.data?.messages ?? [];
+  const messages = useMemo(() => thread.data?.messages ?? [], [thread.data]);
+  // F2: photos are small in the thread and open full size in the shared
+  // viewer, the same as every other chat.
+  const chatPhotos = useMemo(
+    () =>
+      messages.flatMap((message) =>
+        message.watermarked_photo
+          ? [{ id: message.id, url: message.watermarked_photo, author: message.author_name, sentAt: message.sent_at }]
+          : [],
+      ),
+    [messages],
+  );
+  const photoViewer = useChatPhotoViewer(chatPhotos, thread.data?.thread.thread_no ?? "");
 
   const sendMessage = useMutation({
     mutationFn: (payload: {
@@ -123,183 +148,184 @@ export function IncidentThreadDetail({
           ? "info"
           : "neutral";
 
+  const record = thread.data?.thread;
+  // The popup's header: the report's number with its severity and, once
+  // solved, 已解决; its title under it; when it was filed.
+  const header = {
+    title: record?.thread_no ?? t("title"),
+    description: record?.title,
+    status: record ? (
+      <>
+        <StatusBadge label={t(`severity.${record.severity}`)} tone={severityTone} />
+        {record.is_resolved && (
+          <StatusBadge label={t("status.resolved")} tone="positive" />
+        )}
+      </>
+    ) : undefined,
+    caption: record ? new Date(record.created_at).toLocaleString() : undefined,
+  };
+
   if (showCamera) {
     return (
-      <FieldCamera
-        label={t("photoLabel")}
-        onCapture={handlePhotoCapture}
-      />
+      <RecordDetailDialog {...header} onClose={onClose}>
+        <FieldCamera
+          label={t("photoLabel")}
+          onCapture={handlePhotoCapture}
+        />
+      </RecordDetailDialog>
     );
   }
 
-  return (
-    <div
-      className={
-        fieldMode
-          ? "flex min-w-0 flex-col rounded-xl border bg-card shadow-sm"
-          : "flex min-h-[70dvh] flex-col overflow-hidden rounded-xl border bg-card shadow-sm"
-      }
-    >
-      <header className="border-b bg-card px-4 py-4">
-        <div className="flex items-start gap-3">
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            className="size-9 shrink-0"
-            title={t("action.back")}
-            onClick={onBack}
-          >
-            <ArrowLeft />
-          </Button>
-          {thread.data ? (
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge
-                  label={t(`severity.${thread.data.thread.severity}`)}
-                  tone={severityTone}
-                />
-                {thread.data.thread.is_resolved && (
-                  <StatusBadge label={t("status.resolved")} tone="positive" />
-                )}
-                <span className="text-xs font-medium text-muted-foreground">
-                  {thread.data.thread.thread_no}
-                </span>
-              </div>
-              <h2 className="mt-2 break-words text-lg font-semibold leading-6">
-                {thread.data.thread.title}
-              </h2>
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                <span>{thread.data.thread.project_name}</span>
-                <span>
-                  {t("field.reportedBy")}: {thread.data.thread.reported_by_name}
-                </span>
-                <span>{new Date(thread.data.thread.created_at).toLocaleString()}</span>
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        {thread.data?.participants.length ? (
-          <div className="mt-4 border-t pt-3">
-            <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-              <Users className="size-4" />
-              <span>{t("field.participants")}</span>
-              <span className="tabular-nums">{thread.data.participants.length}</span>
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {thread.data.participants.map((participant) => (
-                <ParticipantChip key={participant.id} participant={participant} />
-              ))}
-            </div>
-          </div>
-        ) : null}
-      </header>
-
-      <div
-        className={
-          fieldMode
-            ? "min-w-0 space-y-4 bg-muted/25 p-3 sm:p-4"
-            : "flex-1 space-y-4 overflow-y-auto bg-muted/25 p-4"
-        }
-      >
-        {thread.isLoading && (
+  // Loading, or failed before anything arrived: the same popup, saying so.
+  if (!record) {
+    return (
+      <RecordDetailDialog {...header} onClose={onClose}>
+        {thread.isError ? (
+          <LoadFailed what={t("what.thread")} onRetry={() => thread.refetch()} />
+        ) : (
           <div className="grid min-h-32 place-items-center">
             <Loader2 className="size-6 animate-spin text-primary" />
           </div>
         )}
+      </RecordDetailDialog>
+    );
+  }
 
-        {thread.isError && (
-          <LoadFailed what={t("what.thread")} onRetry={() => thread.refetch()} />
-        )}
+  const participants = thread.data?.participants ?? [];
+  const canResolve = !thread.isError && !record.is_resolved && can("safety.verify");
 
-        {messages.map((message) => (
-          <MessageCard
-            key={message.id}
-            message={message}
-            participant={thread.data?.participants.find(
-              (participant) => participant.id === message.author,
-            )}
-            own={message.author === user?.id}
-          />
-        ))}
-      </div>
-
-      {!thread.isError && !thread.data?.thread.is_resolved && (
-        <div className="border-t bg-card p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] sm:p-4">
-          {photoPreview && (
-            <div className="relative mb-3 size-24">
-              <Image
-                src={photoPreview}
-                alt=""
-                fill
-                className="rounded-lg object-cover"
-                unoptimized
-              />
-              <button
-                onClick={() => {
-                  setPhoto(null);
-                  setPhotoPreview(null);
-                }}
-                className="absolute -right-2 -top-2 grid size-6 place-items-center rounded-full bg-destructive text-destructive-foreground"
-              >
-                <X className="size-3.5" />
-              </button>
-            </div>
-          )}
-
-          <FieldWrapper label={t("field.messagePlaceholder")} required>
-          <div className="flex items-end gap-2">
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              className="size-11 shrink-0"
-              title={t("photoLabel")}
-              onClick={() => setShowCamera(true)}
+  return (
+    <RecordDetailDialog {...header} onClose={onClose}>
+      <RecordDetailShell
+        reference={record.thread_no}
+        facts={[
+          { label: t("field.project"), value: record.project_name },
+          { label: t("field.reportedBy"), value: record.reported_by_name },
+        ]}
+        recorder={<RecordRecorder record={record} />}
+        panel={
+          participants.length ? (
+            <ShellPanel
+              title={t("field.participants")}
+              aside={
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  {participants.length}
+                </span>
+              }
             >
-              <Camera className="size-5" />
-            </Button>
-            <Textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              aria-label={t("field.messagePlaceholder")}
-              rows={1}
-              className="min-h-11 flex-1 resize-none py-3"
-            />
-            <Button
-              size="icon"
-              className="size-11 shrink-0"
-              title={t("action.create")}
-              requires={[[body || photo, t("field.messagePlaceholder")]]}
-              disabled={sendMessage.isPending}
-              onClick={handleSend}
-            >
-              {sendMessage.isPending ? (
-                <Loader2 className="size-5 animate-spin" />
-              ) : (
-                <Send className="size-5" />
-              )}
-            </Button>
-          </div>
-          </FieldWrapper>
-
-          {thread.data &&
-            !thread.data.thread.is_resolved &&
-            can("safety.verify") && (
+              <div className="flex flex-wrap gap-2">
+                {participants.map((participant) => (
+                  <ParticipantChip key={participant.id} participant={participant} />
+                ))}
+              </div>
+            </ShellPanel>
+          ) : undefined
+        }
+        actions={
+          canResolve ? (
             <Button
               variant="outline"
-              className="mt-3 w-full"
+              className="w-full"
               onClick={() => resolve.mutate()}
               disabled={resolve.isPending}
             >
               {resolve.isPending && <Loader2 className="animate-spin" />}
               {t("action.resolve")}
             </Button>
-          )}
-        </div>
-      )}
-    </div>
+          ) : undefined
+        }
+        chat={
+          <div className="flex min-w-0 flex-col gap-3" data-incident-thread>
+            <div
+              className={
+                fieldMode
+                  ? "min-w-0 space-y-4 rounded-lg bg-muted/25 p-3"
+                  : "max-h-[60dvh] min-w-0 space-y-4 overflow-y-auto rounded-lg bg-muted/25 p-3"
+              }
+            >
+              {/* A refresh that failed after the report had loaded. */}
+              {thread.isError && (
+                <LoadFailed what={t("what.thread")} onRetry={() => thread.refetch()} />
+              )}
+
+              {messages.map((message) => (
+                <MessageCard
+                  key={message.id}
+                  message={message}
+                  participant={thread.data?.participants.find(
+                    (participant) => participant.id === message.author,
+                  )}
+                  own={message.author === user?.id}
+                  onOpenPhoto={photoViewer.openPhoto}
+                />
+              ))}
+            </div>
+
+            {!thread.isError && !record.is_resolved && (
+              <div className="border-t border-panel-border pt-3">
+                {photoPreview && (
+                  <div className="relative mb-3 size-24">
+                    <Image
+                      src={photoPreview}
+                      alt=""
+                      fill
+                      className="rounded-lg object-cover"
+                      unoptimized
+                    />
+                    <button
+                      onClick={() => {
+                        setPhoto(null);
+                        setPhotoPreview(null);
+                      }}
+                      className="absolute -right-2 -top-2 grid size-6 place-items-center rounded-full bg-destructive text-destructive-foreground"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                <FieldWrapper label={t("field.messagePlaceholder")} required>
+                <div className="flex items-end gap-2">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    className="size-11 shrink-0"
+                    title={t("photoLabel")}
+                    onClick={() => setShowCamera(true)}
+                  >
+                    <Camera className="size-5" />
+                  </Button>
+                  <Textarea
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    aria-label={t("field.messagePlaceholder")}
+                    rows={1}
+                    className="min-h-11 min-w-0 flex-1 resize-none py-3"
+                  />
+                  <Button
+                    size="icon"
+                    className="size-11 shrink-0"
+                    title={t("action.create")}
+                    requires={[[body || photo, t("field.messagePlaceholder")]]}
+                    disabled={sendMessage.isPending}
+                    onClick={handleSend}
+                  >
+                    {sendMessage.isPending ? (
+                      <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                      <Send className="size-5" />
+                    )}
+                  </Button>
+                </div>
+                </FieldWrapper>
+              </div>
+            )}
+            {photoViewer.viewer}
+          </div>
+        }
+      />
+    </RecordDetailDialog>
   );
 }
 
@@ -335,11 +361,14 @@ function MessageCard({
   message,
   participant,
   own,
+  onOpenPhoto,
 }: {
   message: IncidentReportMessage;
   participant?: IncidentReportRecipient;
   own: boolean;
+  onOpenPhoto: (id: string) => void;
 }) {
+  const tPhoto = useTranslations("hazard");
   return (
     <article className={`flex items-end gap-2 ${own ? "justify-end" : "justify-start"}`}>
       {!own ? <Avatar name={message.author_name} /> : null}
@@ -362,14 +391,13 @@ function MessageCard({
             </p>
           )}
           {message.watermarked_photo && (
-            <a
-              href={message.watermarked_photo}
-              target="_blank"
-              rel="noreferrer"
-              className="relative block aspect-[4/3] w-64 max-w-full overflow-hidden bg-black/5"
-            >
-              <Image src={message.watermarked_photo} alt="" fill className="object-cover" unoptimized />
-            </a>
+            <div className="p-1.5">
+              <ChatPhotoThumbnail
+                url={message.watermarked_photo}
+                alt={tPhoto("photo")}
+                onOpen={() => onOpenPhoto(message.id)}
+              />
+            </div>
           )}
           {message.latitude && message.longitude ? (
             <a

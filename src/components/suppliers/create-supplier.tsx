@@ -7,7 +7,11 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { TextField, type BoundField } from "@/components/shared/form-fields";
+import {
+  TextAreaField,
+  TextField,
+  type BoundField,
+} from "@/components/shared/form-fields";
 import { SupplierQrPanel } from "@/components/suppliers/supplier-qr-panel";
 import {
   FormSection,
@@ -32,6 +36,10 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const isEdit = supplier !== undefined;
+  // A supplier from before 「行业」/「主要产品」 existed: say why saving it now
+  // asks for them.
+  const missingProfile =
+    isEdit && (!supplier.industry?.trim() || !supplier.main_products?.trim());
   const [formError, setFormError] = useState<string | null>(null);
 
   const mutation = useMutation({
@@ -54,6 +62,8 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
       city: supplier?.city ?? "",
       state: supplier?.state ?? "",
       registration_no: supplier?.registration_no ?? "",
+      industry: supplier?.industry ?? "",
+      main_products: supplier?.main_products ?? "",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -103,6 +113,38 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
             <TextField
               field={field as unknown as BoundField}
               label={t("suppliers.field.name")}
+              required
+            />
+          )}
+        </form.Field>
+
+        {/* What the supplier is and sells (A3): required on every save, so a
+            supplier saved before these existed is asked for them when edited. */}
+        <form.Field
+          name="industry"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("suppliers.field.industry")}
+              placeholder={t("suppliers.placeholder.industry")}
+              hint={missingProfile ? t("suppliers.hint.profileMissing") : undefined}
+              required
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="main_products"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextAreaField
+              field={field as unknown as BoundField}
+              label={t("suppliers.field.mainProducts")}
+              placeholder={t("suppliers.placeholder.mainProducts")}
+              rows={2}
               required
             />
           )}
