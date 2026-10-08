@@ -357,7 +357,7 @@ function TaskForm({
           so name it, and say the two things that fix it.
         */}
         {noDriverFree && (
-          <p className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-900 md:col-span-2 dark:text-amber-200">
+          <p className="flex items-start gap-2 rounded-lg border border-tone-amber/40 bg-tone-amber/10 px-3 py-2 text-xs font-medium text-tone-amber-fg md:col-span-2">
             <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {t("tasks.everyDriverBusyNote")}
           </p>

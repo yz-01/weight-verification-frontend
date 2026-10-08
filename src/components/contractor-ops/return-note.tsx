@@ -266,9 +266,9 @@ export function ReturnNotePanel({ row }: { row: ReturnNoteSource }) {
                 width={160}
                 height={64}
                 unoptimized
-                className="h-16 w-40 rounded border bg-white object-contain"
+                className="h-16 w-40 rounded border bg-paper object-contain"
               />
-              <figcaption className="mt-0.5 text-[11px] text-muted-foreground">{t("approverSignature")}</figcaption>
+              <figcaption className="mt-0.5 text-2xs text-muted-foreground">{t("approverSignature")}</figcaption>
             </figure>
           ) : null}
         </>

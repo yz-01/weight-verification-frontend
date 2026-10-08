@@ -213,7 +213,7 @@ export function ConsultantFieldInbox({
                           className={`absolute left-1 top-1 grid size-4 place-items-center rounded-sm border ${
                             on
                               ? "border-primary bg-primary text-primary-foreground"
-                              : "border-white bg-black/30"
+                              : "border-overlay-foreground bg-overlay/40"
                           }`}
                         >
                           {on ? <Check className="size-3" /> : null}

@@ -58,6 +58,10 @@
    * HQ big screen. Tables, forms and body text keep the body font's tabular
    * figures. */
   --font-display: var(--font-chakra), var(--font-body-stack);
+  /* One step below text-xs, for the smallest captions (a photo count, a
+   * badge on a thumbnail). On the scale, so nothing types a pixel size. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -103,6 +107,7 @@
   --color-field: var(--field);
   --color-switch-thumb: var(--switch-thumb);
   --color-overlay-foreground: var(--overlay-foreground);
+  --color-paper: var(--paper);
 
   /* The six data colours and orange: `bg-tone-blue/12`, `text-tone-blue-fg`. */
   --color-tone-cyan: var(--tone-cyan);
@@ -240,6 +245,9 @@
   /* Inside an input, a select, a text box. */
   --field: #ffffff;
   --switch-thumb: #ffffff;
+  /* Paper: the white behind a QR code, a signature, a stamp or a logo, in
+   * both modes. Dark ink on a scanned page has to stay on white to be read. */
+  --paper: #ffffff;
 
   --sidebar: #ffffff;
   --sidebar-foreground: #1e293b;
@@ -534,6 +542,25 @@
   .tone-surface {
     background-color: color-mix(in srgb, var(--tone) var(--tone-soft), transparent);
     border-color: color-mix(in srgb, var(--tone) var(--tone-edge), transparent);
+  }
+
+  /* A native <select>, <input> or <textarea> drawn exactly like the shared
+   * Input and Select: same height, edge, fill, radius and focus ring, 16px
+   * text on a touch screen so the phone does not zoom in. For the few places
+   * a plain element is used instead of the shared control. */
+  .native-control {
+    @apply h-10 w-full min-w-0 rounded-lg border border-input bg-field px-3 text-base text-foreground transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60 md:text-sm;
+  }
+  textarea.native-control {
+    @apply h-auto min-h-20 py-2;
+  }
+  @media (pointer: coarse) {
+    .native-control {
+      font-size: 1rem;
+    }
+    .native-control:not(textarea) {
+      height: 2.75rem;
+    }
   }
 
   /* A long sentence wraps before it becomes tiring to read. */

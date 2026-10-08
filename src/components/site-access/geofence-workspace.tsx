@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import type { Project } from "@/interfaces/contractor";
 import type { SiteGeofence, SiteGeofencePayload } from "@/interfaces/site-access";
 import { getProjects } from "@/services/contractor.service";
+import { MAP_COLORS } from "@/lib/map-palette";
 import { createSiteGeofence, deleteSiteGeofence, getSiteGeofences, updateSiteGeofence } from "@/services/site-access.service";
 import { GeofenceMapEditor } from "./geofence-map-editor";
 
@@ -277,7 +278,7 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
 }
 
 function toMapZone(row: SiteGeofence): LocationMapZone { return row.shape === "POLYGON" ? { id: row.id, label: `${row.project_name} · ${row.name}`, points: row.polygon } : { id: row.id, label: `${row.project_name} · ${row.name}`, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.radius_m ?? 1 }; }
-function toDefaultMapZone(row: Project): LocationMapZone { return { id: `project-default-${row.id}`, label: `${row.name} · ${row.geofence_radius_m} m`, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.geofence_radius_m ?? 1, color: "#64748b" }; }
+function toDefaultMapZone(row: Project): LocationMapZone { return { id: `project-default-${row.id}`, label: `${row.name} · ${row.geofence_radius_m} m`, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.geofence_radius_m ?? 1, color: MAP_COLORS[7] }; }
 function Info({ label, value }: { label: string; value: string }) { return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 break-words font-medium">{value}</p></div>; }
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) { return <label className="flex items-center justify-between rounded-lg border px-3 py-3 text-sm font-medium"><span>{label}</span><Switch checked={checked} onCheckedChange={onChange} /></label>; }
 function State({ text, danger = false }: { text: string; danger?: boolean }) { return <div className={`grid min-h-36 place-items-center rounded-lg border border-dashed p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}>{text}</div>; }

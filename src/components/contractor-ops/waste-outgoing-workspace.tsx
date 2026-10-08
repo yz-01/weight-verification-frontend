@@ -83,6 +83,7 @@ import { ApiError } from "@/interfaces/api";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
 import type { LocationFix } from "@/lib/field-location";
 import { useDateFormat } from "@/lib/dates";
+import { MAP_COLORS } from "@/lib/map-palette";
 import { LocationMap } from "@/components/shared/location-map";
 import { trackPaths } from "@/lib/track-paths";
 import {
@@ -434,7 +435,7 @@ export function WasteOutgoingWorkspace() {
       accessorKey: "project_name",
       meta: { label: t("field.project") },
       header: () => <PlainHeader label={t("field.project")} />,
-      cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
+      cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
     },
   ];
 
@@ -1357,7 +1358,7 @@ function TrackingRouteMap({ tasks }: { tasks: WasteCollectionTask[] }) {
         longitude: point.longitude,
         occurredAt: point.occurred_at,
       })),
-      color: ["#2563eb", "#7c3aed", "#15803d", "#a16207"][index % 4],
+      color: MAP_COLORS[1 + (index % 4)],
       label: `${task.driver_name} · ${task.vehicle_plate}`,
       gapLabel: (minutes) => t("tracking.routeGap", { minutes }),
     }),
@@ -1704,7 +1705,7 @@ function WasteCategoryDialog({
                 {row.name}
               </span>
               {row.is_system && (
-                <span className="rounded-full border px-2 py-0.5 text-[10px] text-muted-foreground">
+                <span className="rounded-full border px-2 py-0.5 text-2xs text-muted-foreground">
                   {t("category.standard")}
                 </span>
               )}

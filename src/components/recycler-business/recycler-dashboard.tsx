@@ -46,6 +46,7 @@ import type {
   RecyclerRecentRecovery,
 } from "@/interfaces/recycler-dashboard";
 import { useDateFormat } from "@/lib/dates";
+import { MAP_COLORS, MAP_PRIMARY } from "@/lib/map-palette";
 import { getRecyclerDashboard } from "@/services/recycler-dashboard.service";
 import {
   Select,
@@ -565,7 +566,7 @@ function RecyclerDriverMap() {
         center: [Number(position.project_latitude), Number(position.project_longitude)] as [number, number],
         radiusM: position.project_geofence_radius_m,
         label: position.project_name ?? t("recyclerBusiness.liveDrivers.project"),
-        color: "#0891b2",
+        color: MAP_PRIMARY,
       }];
     });
   }, [positions, t]);
@@ -580,7 +581,7 @@ function RecyclerDriverMap() {
             longitude: point.longitude,
             occurredAt: point.original_occurred_at,
           })),
-          color: ["#2563eb", "#7c3aed", "#15803d", "#a16207"][index % 4],
+          color: MAP_COLORS[1 + (index % 4)],
           label: driver ? `${driver.driver_name} · ${driver.vehicle_plate}` : undefined,
           gapLabel: (minutes) => t("driver.track.gap", { minutes }),
         });

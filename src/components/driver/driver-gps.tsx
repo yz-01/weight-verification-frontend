@@ -40,6 +40,7 @@ import type {
   TaskState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
+import { MAP_COLORS } from "@/lib/map-palette";
 import {
   getDriverLivePositions,
   getDriverLiveRoutes,
@@ -483,14 +484,8 @@ export function DriverGps() {
   );
 }
 
-const ROUTE_COLORS = [
-  "#087f8c",
-  "#2563eb",
-  "#7c3aed",
-  "#c2410c",
-  "#16825d",
-  "#be123c",
-];
+// One colour per route, from the design palette (lib/map-palette).
+const ROUTE_COLORS = MAP_COLORS;
 
 function TaskOption({
   task,

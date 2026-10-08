@@ -518,7 +518,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
       role="dialog"
       aria-modal="true"
       aria-label={row.reference}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-scrim p-0 sm:items-center sm:p-4"
     >
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-card sm:rounded-xl">
         <header className="flex items-center gap-2 border-b px-4 py-3">

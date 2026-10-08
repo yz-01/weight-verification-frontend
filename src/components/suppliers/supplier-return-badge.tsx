@@ -78,7 +78,7 @@ export function SupplierReturnBadge({
   const count = supplier?.completed_return_count ?? 0;
   if (!supplier || count <= 0) return null;
   const look = cn(
-    "inline-flex shrink-0 items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-1.5 py-0 text-[11px] font-medium leading-5 text-warning-foreground",
+    "inline-flex shrink-0 items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-1.5 py-0 text-2xs font-medium leading-5 text-warning-foreground",
     className,
   );
   // The returns are 材料出场 records: without leave to read those, the mark
@@ -254,7 +254,7 @@ export function SupplierReturnsDialog({
               type="date"
               aria-label={dates("from")}
               title={dates("from")}
-              className="h-8 w-[140px] text-sm"
+              className="h-8 w-35 text-sm"
               value={filters.date_from}
               max={filters.date_to || undefined}
               onChange={(event) => setFilters((old) => ({ ...old, date_from: event.target.value }))}
@@ -264,7 +264,7 @@ export function SupplierReturnsDialog({
               type="date"
               aria-label={dates("toLabel")}
               title={dates("toLabel")}
-              className="h-8 w-[140px] text-sm"
+              className="h-8 w-35 text-sm"
               value={filters.date_to}
               min={filters.date_from || undefined}
               onChange={(event) => setFilters((old) => ({ ...old, date_to: event.target.value }))}
@@ -342,7 +342,7 @@ function Thumb({ src, alt, label }: { src?: string | null; alt: string; label?: 
         width={56}
         height={40}
         unoptimized
-        className="h-10 w-14 rounded border bg-white object-cover"
+        className="h-10 w-14 rounded border photo-hatch object-cover"
       />
     </a>
   );

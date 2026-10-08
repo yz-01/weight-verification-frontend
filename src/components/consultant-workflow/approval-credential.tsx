@@ -103,7 +103,7 @@ export function ApprovalCredentialSettings() {
                 href={credential.data.signature}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-white p-2"
+                className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-paper p-2"
               >
                 {/* The stored image is user-owned evidence and is intentionally shown without transformation. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -125,7 +125,7 @@ export function ApprovalCredentialSettings() {
                 href={credential.data.stamp}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-white p-2"
+                className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-paper p-2"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={credential.data.stamp} alt={t("credential.stamp")} className="max-h-full max-w-full object-contain" />

@@ -335,7 +335,7 @@ function DeliveryNoteQrDialog({ note, onClose }: { note: DeliveryNote; onClose: 
           <DialogTitle>{note.note_no}</DialogTitle>
           <DialogDescription>{note.supplier_name} / {note.material_name}</DialogDescription>
         </DialogHeader>
-        <div className="mx-auto rounded-lg border bg-white p-4">
+        <div className="mx-auto rounded-lg border bg-paper p-4">
           <QRCodeCanvas ref={qrRef} value={note.qr_url ?? ""} size={240} level="H" marginSize={1} />
         </div>
         <p className="break-all text-center text-xs text-muted-foreground">{note.qr_url}</p>

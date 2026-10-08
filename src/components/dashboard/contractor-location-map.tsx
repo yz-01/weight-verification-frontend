@@ -19,24 +19,16 @@ import type { Project } from "@/interfaces/contractor";
 import type { SiteGeofence } from "@/interfaces/site-access";
 import type { FieldStaffPosition } from "@/interfaces/site-operations";
 import { useDateFormat } from "@/lib/dates";
+import { MAP_COLORS } from "@/lib/map-palette";
 import { cn } from "@/lib/utils";
 import { getProjects } from "@/services/contractor.service";
 import { getFieldStaffLivePositions } from "@/services/field-staff-gps.service";
 import { getSiteGeofences } from "@/services/site-access.service";
 
 const POSITION_REFRESH_MS = 15_000;
-// Leaflet writes these into SVG attributes, so they are the canvas's data
-// colours as literals (lib/tones order) rather than CSS variables.
-const PROJECT_COLORS = [
-  "#0891b2",
-  "#2563eb",
-  "#7c3aed",
-  "#059669",
-  "#d97706",
-  "#e11d48",
-  "#ea580c",
-  "#64748b",
-];
+// Leaflet writes these into SVG attributes, so they come from the map
+// palette (the canvas's data colours as literals) rather than CSS variables.
+const PROJECT_COLORS = MAP_COLORS;
 
 type PositionState = "inside" | "outside" | "stale" | "lastInside" | "unknown";
 

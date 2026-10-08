@@ -54,6 +54,7 @@ import {
   type TaskState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
+import { MAP_PRIMARY } from "@/lib/map-palette";
 import { getDriverTaskOfflineAware } from "@/services/driver-offline.service";
 import {
   submitTaskPhotoOfflineAware,
@@ -441,8 +442,7 @@ export function DriverTask({ id }: { id: string }) {
       {data.weighing && (
         <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <Scale className="h-4 w-4 text-primary" />
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h2 className="panel-title">
               {t("ticket.section.weighing")}
             </h2>
           </div>
@@ -469,8 +469,7 @@ export function DriverTask({ id }: { id: string }) {
       {data.settlement && (
         <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <Scale className="h-4 w-4 text-primary" />
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h2 className="panel-title">
               {t("driver.settlement.title")}
             </h2>
           </div>
@@ -525,7 +524,7 @@ export function DriverTask({ id }: { id: string }) {
 
       <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <h2 className="panel-title">
             {t("tasks.section.photos")}
           </h2>
           <span className="text-xs text-muted-foreground">
@@ -749,7 +748,7 @@ export function DriverTask({ id }: { id: string }) {
             }
           }}
         >
-          <DialogContent className="sm:max-w-[440px] [&>button]:hidden">
+          <DialogContent className="sm:max-w-110 [&>button]:hidden">
             <DialogHeader>
               <DialogTitle>{t(`driver.action.${moving}`)}</DialogTitle>
               <DialogDescription>
@@ -830,7 +829,7 @@ function TrackingBanner({
     ? "border-destructive/40 bg-destructive/10 text-destructive"
     : wakeLock.held
       ? "border-success/40 bg-success/10 text-success"
-      : "border-amber-500/40 bg-amber-500/10 text-amber-900 dark:text-amber-200";
+      : "border-tone-amber/40 bg-tone-amber/10 text-tone-amber-fg";
   const message = denied
     ? t("driver.track.denied")
     : wakeLock.held
@@ -906,7 +905,7 @@ function DriverTripMap({ data }: { data: DriverTaskDetail }) {
             center: [projectLatitude, projectLongitude],
             radiusM: data.project_geofence_radius_m,
             label: data.project_name ?? data.task_no,
-            color: "#087f8c",
+            color: MAP_PRIMARY,
           },
         ]
       : [];
@@ -914,7 +913,7 @@ function DriverTripMap({ data }: { data: DriverTaskDetail }) {
   return (
     <section className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="panel-title">
           {t("driver.dashboard.gps")}
         </h2>
         <span className="text-xs tabular-nums text-muted-foreground">

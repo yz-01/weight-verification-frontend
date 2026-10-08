@@ -170,7 +170,7 @@ export function FieldAccess() {
     <main className="flex min-h-dvh items-center justify-center bg-muted/30 px-5 py-10">
       <section className="w-full max-w-md overflow-hidden surface-panel rounded-xl">
         <div className="bg-primary px-6 py-7 text-primary-foreground">
-          <span className="mb-4 flex size-12 items-center justify-center rounded-lg bg-white/15">
+          <span className="mb-4 flex size-12 items-center justify-center rounded-lg bg-primary-foreground/15">
             <Camera className="size-7" />
           </span>
           <h1 className="text-base font-semibold">{token ? t("activateTitle") : t("loginTitle")}</h1>

@@ -422,7 +422,7 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
           <div className="grid min-h-64 place-items-center"><Loader2 className="animate-spin" /></div>
         ) : value ? (
           <div className="space-y-4">
-            <div className="mx-auto grid w-fit place-items-center rounded-lg border bg-white p-5">
+            <div className="mx-auto grid w-fit place-items-center rounded-lg border bg-paper p-5">
               <QRCodeSVG id={`customer-qr-${customer.id}`} value={value.qr_payload} size={220} level="H" includeMargin />
             </div>
             <div className="grid grid-cols-2 gap-3 rounded-lg border bg-muted/20 p-3 text-sm">

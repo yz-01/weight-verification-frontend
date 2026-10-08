@@ -114,7 +114,7 @@ export function ProjectQrPanel({
       </div>
 
       <div className="grid gap-6 p-6 lg:grid-cols-[auto_minmax(0,1fr)]">
-        <div className="mx-auto rounded-xl border bg-white p-4 shadow-sm">
+        <div className="mx-auto rounded-xl border bg-paper p-4 shadow-sm">
           <QRCodeCanvas
             ref={qrRef}
             value={scanUrl}
@@ -128,7 +128,7 @@ export function ProjectQrPanel({
         </div>
         <div className="min-w-0 space-y-4">
           <div className="rounded-lg border bg-muted/30 p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("serialLabel")}</p>
+            <p className="text-xs font-medium text-muted-foreground">{t("serialLabel")}</p>
             <p className="mt-1 break-all text-lg font-semibold tabular-nums">{code.serial}</p>
             <p className="mt-2 text-sm text-muted-foreground">{t("scanHint")}</p>
           </div>

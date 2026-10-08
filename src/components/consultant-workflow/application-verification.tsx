@@ -19,8 +19,8 @@ export function ApplicationVerification({ code }: { code: string }) {
       <div className="mx-auto max-w-2xl overflow-hidden rounded-lg border bg-background shadow-lg">
         <header className="border-b bg-primary px-5 py-5 text-primary-foreground sm:px-7">
           <div className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-lg bg-white/15"><FileCheck2 className="size-6" /></span>
-            <div><p className="text-xs font-semibold uppercase">MSE Trace</p><h1 className="text-xl font-semibold">{t("title")}</h1></div>
+            <span className="grid size-11 place-items-center rounded-lg bg-primary-foreground/15"><FileCheck2 className="size-6" /></span>
+            <div><p className="text-xs font-semibold opacity-80">MSE Trace</p><h1 className="text-xl font-semibold">{t("title")}</h1></div>
           </div>
         </header>
         {query.isLoading ? (

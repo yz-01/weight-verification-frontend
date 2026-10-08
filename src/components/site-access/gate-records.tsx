@@ -277,12 +277,12 @@ function PhotoTray({
           <button
             type="button"
             aria-label={t("removePhoto", { number: index + 1 })}
-            className="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-black/60 text-white"
+            className="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-overlay text-overlay-foreground"
             onClick={() => onRemove(eventId)}
           >
             <X className="size-4" />
           </button>
-          <span className="absolute bottom-0 left-0 right-0 bg-black/55 px-1 py-0.5 text-[10px] text-white">
+          <span className="absolute bottom-0 left-0 right-0 bg-overlay px-1 py-0.5 text-xs text-overlay-foreground">
             {photos[index]?.latitude ? t("gpsShort") : t("noGpsShort")}
           </span>
         </li>

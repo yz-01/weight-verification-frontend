@@ -344,7 +344,7 @@ export function ConsultantAccessManagement() {
                       <img
                         src={row.logo}
                         alt={t("organization.logo")}
-                        className="size-10 shrink-0 rounded-lg border bg-white object-contain p-0.5"
+                        className="size-10 shrink-0 rounded-lg border bg-paper object-contain p-0.5"
                       />
                     ) : (
                       <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
@@ -748,7 +748,7 @@ function OrganizationDialog({
                   src={shownLogo}
                   alt={t("organization.logo")}
                   data-testid="organization-logo-preview"
-                  className="h-14 w-24 rounded-md border bg-white object-contain p-1"
+                  className="h-14 w-24 rounded-md border bg-paper object-contain p-1"
                 />
               ) : (
                 <span className="grid h-14 w-24 place-items-center rounded-md border border-dashed text-xs text-muted-foreground">

@@ -289,7 +289,7 @@ export function SiteAccessWorkspace() {
             <State text={t("access.empty")} />
           ) : (
             <div className="overflow-hidden rounded-lg border bg-card">
-              <Table className="min-w-[940px]">
+              <Table className="min-w-235">
                 <TableHeader>
                   <TableRow>
                     {[
@@ -1070,7 +1070,7 @@ function DeviceEventsPanel() {
         <State text={t("deviceEvent.empty")} />
       ) : (
         <div className="overflow-hidden rounded-lg border bg-card">
-          <Table className="min-w-[1080px]">
+          <Table className="min-w-270">
             <TableHeader>
               <TableRow>
                 {[
@@ -1430,7 +1430,7 @@ function PassQr({
           <DialogTitle>{t("access.qrTitle")}</DialogTitle>
           <DialogDescription>{t("access.qrHelp")}</DialogDescription>
         </DialogHeader>
-        <div className="mx-auto rounded-lg border bg-white p-4">
+        <div className="mx-auto rounded-lg border bg-paper p-4">
           <QRCodeCanvas
             ref={ref}
             value={url}

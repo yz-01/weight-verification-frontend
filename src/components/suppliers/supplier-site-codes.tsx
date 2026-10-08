@@ -283,7 +283,7 @@ function SiteCodeDialog({
             {t("suppliers.siteCodes.scanHelp")}
           </DialogDescription>
         </DialogHeader>
-        <div className="mx-auto rounded-lg border bg-white p-4">
+        <div className="mx-auto rounded-lg border bg-paper p-4">
           <QRCodeCanvas
             ref={canvas}
             value={scanUrl}

@@ -111,8 +111,8 @@ export function PhotoTile({
           title={toggleLabel}
           onClick={onToggle}
           className={cn(
-            "absolute left-1.5 top-1.5 flex size-6 items-center justify-center rounded-md border-2 border-white shadow",
-            selected ? "bg-primary text-primary-foreground" : "bg-black/30 text-transparent",
+            "absolute left-1.5 top-1.5 flex size-6 items-center justify-center rounded-md border-2 border-overlay-foreground shadow",
+            selected ? "bg-primary text-primary-foreground" : "bg-overlay/40 text-transparent",
           )}
         >
           <Check className="size-4" />
@@ -155,7 +155,7 @@ export function DayRange({
         type="date"
         aria-label={t("dateFrom")}
         title={t("dateFrom")}
-        className="h-8 w-[140px]"
+        className="h-8 w-35"
         value={from}
         onChange={(event) => onChange({ date_from: event.target.value || undefined, date_to: to || undefined })}
       />
@@ -164,7 +164,7 @@ export function DayRange({
         type="date"
         aria-label={t("dateTo")}
         title={t("dateTo")}
-        className="h-8 w-[140px]"
+        className="h-8 w-35"
         value={to}
         onChange={(event) => onChange({ date_from: from || undefined, date_to: event.target.value || undefined })}
       />

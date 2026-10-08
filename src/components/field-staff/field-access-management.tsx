@@ -240,7 +240,7 @@ function FieldAccessManagementContent({
         {result ? (
           <div className="grid gap-4 sm:grid-cols-[200px_minmax(0,1fr)]">
             <div className="grid content-start justify-center gap-2">
-              <div className="grid size-[200px] place-items-center rounded-md border bg-white p-2">
+              <div className="grid size-50 place-items-center rounded-md border bg-paper p-2">
                 <QRCodeCanvas
                   value={result.activation_url}
                   size={180}
