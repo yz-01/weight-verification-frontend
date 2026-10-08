@@ -7425,6 +7425,7 @@
     },
     "backToDashboard": "返回儀表板",
     "field": {
+      "record_archived": "這條記錄已被後台確認歸檔，不能再修改，請重新提交一條新記錄。",
       "blank": "此項為必填",
       "does_not_exist": "找不到該記錄",
       "email_in_use": "該電子郵箱已註冊",

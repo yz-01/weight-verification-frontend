@@ -335,6 +335,13 @@ describe("what the entry dialog says when the server refuses it", () => {
     expect(text).toBe("crane50t: 这台设备已不在设备档案里。");
   });
 
+  it("says a refusal with no field - an archived application - in the alert", () => {
+    const archived = messages.errors.field.record_archived;
+    expect(
+      entryRefusalText({ non_field_errors: archived }, { inline: entryInlineFields(true), labels }),
+    ).toBe(archived);
+  });
+
   it("says a project refusal in the alert", () => {
     expect(
       entryRefusalText({ project: "请选择你所在的项目。" }, { inline: entryInlineFields(true), labels }),

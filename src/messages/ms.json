@@ -7425,6 +7425,7 @@
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
+      "record_archived": "Rekod ini telah disahkan dan diarkibkan oleh pejabat, jadi ia tidak boleh diubah lagi. Hantar rekod baharu.",
       "blank": "Ruangan ini wajib diisi",
       "does_not_exist": "Rekod itu tidak dijumpai",
       "email_in_use": "E-mel ini telah didaftarkan",

@@ -7425,6 +7425,7 @@
     },
     "backToDashboard": "返回仪表板",
     "field": {
+      "record_archived": "这条记录已被后台确认归档，不能再修改，请重新提交一条新记录。",
       "blank": "此项为必填",
       "does_not_exist": "找不到该记录",
       "email_in_use": "该电子邮箱已注册",

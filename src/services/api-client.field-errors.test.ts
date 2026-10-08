@@ -134,4 +134,19 @@ describe("field errors reaching the form", () => {
 
     expect(failure.errors.non_field_errors).toBe("The upload was cut short.");
   });
+  it("words a write to an archived record from the catalogue", async () => {
+    // 2026-10-08: the 409 the Crane 50t entry got, now with its reason.
+    const failure = await failureFrom({
+      success: false,
+      message: "SiteEquipmentMovement 8926 was confirmed and archived.",
+      code: "validation_failed",
+      errors: {
+        non_field_errors: [
+          { code: "record_archived", message: "SiteEquipmentMovement 8926 was confirmed and archived." },
+        ],
+      },
+    });
+
+    expect(failure.errors.non_field_errors).toBe(en.errors.field.record_archived);
+  });
 });

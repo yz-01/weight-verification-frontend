@@ -7425,6 +7425,7 @@
     },
     "backToDashboard": "Back to dashboard",
     "field": {
+      "record_archived": "This record was confirmed and archived by the office, so it can no longer be changed. Submit a new record instead.",
       "blank": "This field is required",
       "does_not_exist": "That record could not be found",
       "email_in_use": "This email is already registered",
