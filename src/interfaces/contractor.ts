@@ -1,3 +1,5 @@
+import type { OriginalBackupSummary, OriginalStatus } from "@/interfaces/evidence";
+
 /** The contractor console's records: sites, suppliers, deliveries and loads out. */
 
 export type ProjectStatus =
@@ -457,6 +459,12 @@ export interface MySubmissionRow {
   status: string;
   status_label: string;
   photo: string | null;
+  /**
+   * Where the record's photo originals stand (H5 三.5, WP1): 应用照片已上传 /
+   * 原图待同步 / 原图已备份 / 同步失败, as the server sees it. Optional for
+   * screens that build rows elsewhere.
+   */
+  original_backup?: OriginalBackupSummary;
 }
 
 /**
@@ -489,6 +497,10 @@ export interface MySubmissionPhoto {
   id?: string;
   url: string;
   caption: string;
+  /** This photo's original (WP1); its expected hash and size when one is kept. */
+  original_status?: OriginalStatus;
+  original_sha256?: string;
+  original_size_bytes?: number;
 }
 
 /** A history row, opened. */

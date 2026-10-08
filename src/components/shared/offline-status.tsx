@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { useOfflineSync } from "@/components/providers/offline-sync-provider";
+import { OriginalBackupPanel } from "@/components/shared/original-backup";
+import { useLocalOriginals, useOriginalAutoSync } from "@/hooks/use-local-originals";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -42,6 +44,11 @@ export function OfflineStatus() {
   const [open, setOpen] = useState(false);
   const [entries, setEntries] = useState<OfflineQueueEntry[]>([]);
   const [synced, setSynced] = useState<SyncedQueueEntry[]>([]);
+  // Photo originals (H5 三, WP1): their own queue, shown in this same panel -
+  // the phone's place for 「同步原图」 for everything waiting.
+  const originals = useLocalOriginals(user?.id);
+  useOriginalAutoSync(user?.id);
+  const originalsWaiting = originals.summary.waiting + originals.summary.captured;
 
   useEffect(() => {
     if (!open || !user) return;
@@ -66,7 +73,7 @@ export function OfflineStatus() {
     };
   }, [open, user, pendingCount, isSyncing]);
 
-  if (isOnline && pendingCount === 0 && !isSyncing) return null;
+  if (isOnline && pendingCount === 0 && !isSyncing && originalsWaiting === 0) return null;
 
   /** The stored reason in words: no-answer reasons are stored as a code. */
   const reasonText = (lastError: string) => {
@@ -78,7 +85,9 @@ export function OfflineStatus() {
     ? t("offline.status.offline", { count: pendingCount })
     : isSyncing
       ? t("offline.status.syncing")
-      : t("offline.status.pending", { count: pendingCount });
+      : pendingCount === 0 && originalsWaiting > 0
+        ? t("originals.title")
+        : t("offline.status.pending", { count: pendingCount });
   const Icon = !isOnline ? CloudOff : isSyncing ? RefreshCw : CloudUpload;
 
   return (
@@ -206,6 +215,11 @@ export function OfflineStatus() {
                 </li>
               ))}
             </ul>
+          )}
+          {originalsWaiting > 0 && (
+            <div className="border-t">
+              <OriginalBackupPanel />
+            </div>
           )}
           {synced.length > 0 && (
             <div className="border-t">

@@ -1678,6 +1678,14 @@ export interface FlushResult {
 let flushInFlight: Promise<FlushResult> | null = null;
 
 /**
+ * The pass in progress, if any - so 「同步原图」 (H5 三.3, WP1) can wait for
+ * the application photos instead of competing with them for the signal.
+ */
+export function offlineFlushInFlight(): Promise<FlushResult> | null {
+  return flushInFlight;
+}
+
+/**
  * Send what is waiting, oldest first.
  *
  * The online event, the minute timer, the service worker's sync and the

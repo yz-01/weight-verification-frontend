@@ -53,6 +53,12 @@ import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-w
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import {
+  OriginalBackupBanner,
+  RecordOriginalBackup,
+  RowOriginalStatus,
+} from "@/components/shared/original-backup";
+import { useLocalOriginals } from "@/hooks/use-local-originals";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
@@ -136,6 +142,8 @@ export function MySubmissions({
   const t = useTranslations();
   const formatter = useDateFormat();
   const { user } = useAuth();
+  // The originals this phone still holds, to show each row's state (H5 三.5).
+  const originals = useLocalOriginals(user?.id);
   const [openRow, setOpenRow] = useState<MySubmissionRow | null>(null);
   // The office's 验收 / 不通过 notice for an equipment entry or exit links to
   // `/field-staff?…&movement=<id>` (Fable B4 #15): that movement opens here,
@@ -189,6 +197,9 @@ export function MySubmissions({
           <RefreshCw className={stored.isFetching ? "animate-spin" : ""} />
         </Button>
       </div>
+
+      {/* 「同步原图」 for everything waiting (H5 三.4, WP1); nothing when none waits. */}
+      <OriginalBackupBanner />
 
       {/* Queued first: the phone is the only thing that knows these exist. */}
       {waiting.map((entry) => (
@@ -293,6 +304,11 @@ export function MySubmissions({
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {formatter.dateTime(row.submitted_at)} · {recordStatusLabel(t, row, PHONE_STATUS)}
                   </p>
+                  <RowOriginalStatus
+                    summary={row.original_backup}
+                    local={originals.rows}
+                    photoCount={row.photo_count}
+                  />
                 </div>
                 {row.kind === "HAZARD" && onOpenHazard ? (
                   <MessagesSquare className="mt-1 size-4 shrink-0 text-muted-foreground" />
@@ -441,11 +457,20 @@ function StoredDetailSheet({
             one thing they can do instead.
           */
           notices={
-            RETURNED_STATUSES.has(row.status) && (
-              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
-                {t("mySubmissions.returnedClosed")}
-              </p>
-            )
+            <>
+              {RETURNED_STATUSES.has(row.status) && (
+                <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
+                  {t("mySubmissions.returnedClosed")}
+                </p>
+              )}
+              {/* This record's originals and its own 「同步原图」 (H5 三, WP1). */}
+              {detail.data.photos.length > 0 && (
+                <RecordOriginalBackup
+                  summary={detail.data.original_backup}
+                  onSynced={() => void queryClient.invalidateQueries({ queryKey: ["my-submissions"] })}
+                />
+              )}
+            </>
           }
           facts={detail.data.fields.map((field) => ({
             label: t(`mySubmissions.field.${field.key}`),
