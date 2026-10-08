@@ -151,14 +151,14 @@ export function SupplierQrScanner({
             playsInline
           />
           {starting && (
-            <div className="absolute inset-0 grid place-items-center bg-black/50 text-white">
+            <div className="absolute inset-0 grid place-items-center bg-overlay text-overlay-foreground">
               <Loader2 className="size-8 animate-spin" />
             </div>
           )}
           <div className="pointer-events-none absolute inset-[16%] rounded-lg border-2 border-white/80 shadow-[0_0_0_999px_rgba(0,0,0,0.25)]" />
         </div>
         {error && (
-          <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}

@@ -138,7 +138,7 @@ export function Recyclers() {
         header: () => t("recyclers.field.recycler"),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[240px] truncate font-medium text-foreground">
+            <p className="max-w-60 truncate font-medium text-foreground">
               {row.original.recycler_name}
             </p>
             <p className="tabular text-xs text-muted-foreground">
@@ -175,7 +175,7 @@ export function Recyclers() {
                 ? t("recyclers.request.outgoing")
                 : t("recyclers.request.incoming")}
             </p>
-            <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+            <p className="max-w-45 truncate text-xs text-muted-foreground">
               {row.original.requested_by_company_name}
             </p>
           </div>
@@ -186,7 +186,7 @@ export function Recyclers() {
         meta: { label: t("recyclers.field.projects") },
         header: () => t("recyclers.field.projects"),
         cell: ({ row }) => (
-          <div className="flex max-w-[260px] flex-wrap gap-1">
+          <div className="flex max-w-65 flex-wrap gap-1">
             {row.original.project_bindings.length === 0 ? (
               <span className="text-muted-foreground">
                 {t("common.emptyValue")}
@@ -295,8 +295,8 @@ export function Recyclers() {
         subtitle={isLoading ? t("common.loading") : t("recyclers.count", { count: total })}
         action={
           can("partnership.manage") ? (
-            <Button size="sm" onClick={() => setRequestOpen(true)}>
-              <Plus className="h-4 w-4" />
+            <Button onClick={() => setRequestOpen(true)}>
+              <Plus className="size-4" />
               {t("recyclers.request.action")}
             </Button>
           ) : undefined
@@ -438,9 +438,9 @@ function RequestRecyclerDialog({
             onClick={() => request.mutate()}
           >
             {request.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Link2 className="h-4 w-4" />
+              <Link2 className="size-4" />
             )}
             {t("recyclers.request.confirm")}
           </Button>
@@ -533,9 +533,9 @@ function PartnershipProjectsDialog({
                   onClick={() => bind.mutate()}
                 >
                   {bind.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                   ) : (
-                    <Link2 className="h-4 w-4" />
+                    <Link2 className="size-4" />
                   )}
                 </Button>
               </div>
@@ -543,7 +543,7 @@ function PartnershipProjectsDialog({
             </FieldWrapper>
           )}
 
-          <div className="divide-y rounded-md border">
+          <div className="divide-y rounded-lg border">
             {current.project_bindings.length === 0 ? (
               <p className="p-6 text-center text-sm text-muted-foreground">
                 {t("recyclers.projects.empty")}
@@ -570,7 +570,7 @@ function PartnershipProjectsDialog({
                       disabled={unbind.isPending}
                       onClick={() => unbind.mutate(binding.id)}
                     >
-                      <Unlink className="h-4 w-4" />
+                      <Unlink className="size-4" />
                     </Button>
                   )}
                 </div>

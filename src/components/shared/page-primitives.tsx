@@ -336,7 +336,10 @@ export function ListHeader({
           <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         </div>
       </div>
-      <div className="flex max-w-full flex-wrap items-center gap-2">
+      {/* The page's own wrapper around its buttons is flattened, so the
+          buttons and the help button wrap as one row on a phone instead of
+          stacking in a staircase. */}
+      <div className="flex w-full max-w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end [&>div:not([class*=hidden])]:contents">
         {action}
         {sections.length > 0 && (
           <Dialog>
@@ -362,7 +365,7 @@ export function ListHeader({
                     key={name}
                     className="rounded-lg border bg-muted/40 p-3"
                   >
-                    <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <dt className="text-xs font-semibold text-muted-foreground">
                       {guide(`section.${name}`)}
                     </dt>
                     <dd className="mt-1 text-sm leading-6">
@@ -466,6 +469,59 @@ export function EmptyState({
         <p className="prose-measure text-sm text-muted-foreground">{description}</p>
       )}
       {action && <div className="mt-2">{action}</div>}
+    </div>
+  );
+}
+
+/**
+ * The filters above a list, as on the canvas (「材料进场列表」): one panel, the
+ * controls side by side on a desktop and one per row on a phone, every
+ * control the same height. Its padding matches the table panel's, so the
+ * first filter sits straight above the first column.
+ */
+export function FilterBar({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      data-slot="filter-bar"
+      className={cn(
+        "surface-panel flex flex-wrap items-end gap-3 rounded-xl px-4 py-3 sm:px-6 sm:py-4",
+        "max-sm:[&>*]:w-full max-sm:[&_[data-slot=select-trigger]]:w-full",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * A caption over one filter control (the canvas's 「查看」「供应商」). Only for
+ * a label the screen already shows: it changes where the words sit, never
+ * which words.
+ */
+export function FilterField({
+  label,
+  htmlFor,
+  children,
+  className,
+}: {
+  label: React.ReactNode;
+  htmlFor?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex min-w-0 flex-col gap-1", className)}>
+      <Label htmlFor={htmlFor} className="text-xs font-medium text-muted-foreground">
+        {label}
+      </Label>
+      {children}
     </div>
   );
 }

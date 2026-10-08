@@ -118,10 +118,10 @@ export function SupplierDateFilter({
   const selectedLabel = known ?? chosenRow.data?.name;
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
       {showSupplier && (
         <>
-          <div className="w-52 max-w-full">
+          <div className="w-full sm:w-52">
             <OptionCombobox
               value={value.supplier ?? ALL}
               onChange={(next) => {
@@ -136,7 +136,7 @@ export function SupplierDateFilter({
               searchPlaceholder={t("search")}
               emptyLabel={t("noMatch")}
               ariaLabel={t("supplier")}
-              triggerClassName="h-8 text-sm"
+              triggerClassName="w-full"
             />
           </div>
           {/* The chosen one's returns, one press away (2026-10 C10). */}
@@ -153,12 +153,12 @@ export function SupplierDateFilter({
         />
       )}
       {showDates && (
-        <div className="flex items-center gap-2">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           <Input
             type="date"
             aria-label={t("from")}
             title={t("from")}
-            className="w-36 text-sm"
+            className="min-w-0 flex-1 sm:w-40 sm:flex-none"
             value={value.date_from ?? ""}
             max={value.date_to || undefined}
             onChange={(event) => onChange({ date_from: event.target.value || undefined })}
@@ -168,7 +168,7 @@ export function SupplierDateFilter({
             type="date"
             aria-label={t("toLabel")}
             title={t("toLabel")}
-            className="w-36 text-sm"
+            className="min-w-0 flex-1 sm:w-40 sm:flex-none"
             value={value.date_to ?? ""}
             min={value.date_from || undefined}
             onChange={(event) => onChange({ date_to: event.target.value || undefined })}
@@ -203,7 +203,7 @@ function ManufacturerFilter({
   const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
   return (
     <>
-      <div className="w-52 max-w-full">
+      <div className="w-full sm:w-52">
         <OptionCombobox
           value={value ?? ALL}
           onChange={(next) => {
@@ -218,7 +218,7 @@ function ManufacturerFilter({
           searchPlaceholder={t("search")}
           emptyLabel={t("noMatch")}
           ariaLabel={t("manufacturer")}
-          triggerClassName="h-8 text-sm"
+          triggerClassName="w-full"
         />
       </div>
       <QueryFailedNote query={manufacturers} what={t("whatManufacturers")} />

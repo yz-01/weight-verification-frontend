@@ -80,7 +80,7 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
 
   if (isLoading || !data) {
     return (
-      <div className="rounded-md border p-4 text-sm text-muted-foreground">
+      <div className="rounded-lg border p-4 text-sm text-muted-foreground">
         {t("common.loading")}
       </div>
     );
@@ -89,7 +89,7 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm font-semibold">{t("hazard.conversationTitle")}</h3>
+        <h3 className="panel-title">{t("hazard.conversationTitle")}</h3>
         <p className="text-xs text-muted-foreground">
           {t("hazard.participants")}:{" "}
           {data.participants
@@ -124,7 +124,7 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
           the ability to add to it, and the reason is said rather than shown as
           a disabled box with no explanation. */}
       {data.is_closed ? (
-        <p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-panel-border p-3 text-xs text-muted-foreground">
           {t("hazard.closed")}
         </p>
       ) : (

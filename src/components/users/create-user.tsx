@@ -221,8 +221,8 @@ export function CreateUser({ user }: { user?: UserDetail }) {
         </form.Field>
 
         {!isEdit && (
-          <div className="flex items-start gap-2.5 rounded-md border border-info/25 bg-info/8 px-3 py-2.5 md:col-span-2">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-info" />
+          <div className="flex items-start gap-2 rounded-lg border border-info/25 bg-info/8 p-3 md:col-span-2">
+            <Info className="mt-0.5 size-4 shrink-0 text-info" />
             <p className="text-sm text-foreground">{t("users.invite.hint")}</p>
           </div>
         )}

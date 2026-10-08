@@ -25,9 +25,9 @@ export function PortalEntry() {
           <Link
             key={portal}
             href={portalPaths(portal).login}
-            className="flex min-h-11 items-center gap-3 rounded-lg border px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            className="flex min-h-11 items-center gap-3 rounded-lg border bg-muted/30 px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/50 hover:bg-muted"
           >
-            <Icon className="h-4 w-4 text-muted-foreground" />
+            <Icon className="size-4 text-primary" />
             {PORTAL_LABELS[portal]}
           </Link>
         ))}

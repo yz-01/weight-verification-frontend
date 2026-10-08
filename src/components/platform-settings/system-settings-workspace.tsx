@@ -3,15 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
-  Building2,
   Cable,
   ChevronDown,
-  CircleHelp,
   Loader2,
   RotateCcw,
   Save,
   Settings2,
-  ShieldCheck,
   Upload,
 } from "lucide-react";
 import Link from "next/link";
@@ -133,7 +130,7 @@ export function SystemSettingsWorkspace({
         }
       />
       {section === "overview" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
+        <div className="surface-panel min-h-0 flex-1 overflow-y-auto rounded-xl">
           <div className="grid md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <Link
@@ -195,24 +192,21 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
   const isError = company ? companyCatalogue.isError : catalogue.isError;
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
+    <div className="surface-panel min-h-0 flex-1 overflow-y-auto rounded-xl">
       {supportsCompanyOverrides && (
-        <div className="border-b bg-muted/25 px-5 py-4">
+        <div className="border-b bg-muted/30 px-4 py-4 sm:px-6">
           <div className="mx-auto flex max-w-5xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex min-w-0 items-center gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
-                <Building2 className="size-4" />
-              </span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold">{t("scope.title")}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="panel-title">{t("scope.title")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
                   {t("scope.description")}
                 </p>
               </div>
             </div>
             <div className="w-full space-y-1 lg:w-96">
               <select
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                className="native-control"
                 value={company}
                 onChange={(event) => setCompany(event.target.value)}
                 aria-label={t("scope.company")}
@@ -239,7 +233,7 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
           {t("loading")}
         </div>
       ) : isError ? (
-        <div className="m-5 flex flex-col items-start gap-3 rounded-md border border-destructive/25 bg-destructive/5 p-4">
+        <div className="m-4 flex flex-col items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 sm:m-6">
           <div>
             <p className="text-sm font-semibold text-destructive">
               {company ? t("scope.companyLoadError") : t("loadError")}
@@ -249,7 +243,6 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
             </p>
           </div>
           <Button
-            size="sm"
             variant="outline"
             onClick={() => void activeQuery.refetch()}
           >
@@ -285,8 +278,8 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
           </div>
           {advancedRows.length > 0 && (
             <details className="group border-t bg-muted/10">
-              <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4 hover:bg-muted/30">
-                <span className="grid size-9 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 hover:bg-muted/30 sm:px-6">
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
                   <Settings2 className="size-4" />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -336,7 +329,7 @@ function BrandingEditor({
   });
 
   return (
-    <div className="border-b bg-muted/15 px-5 py-5">
+    <div className="border-b bg-muted/15 px-4 py-4 sm:px-6 sm:py-6">
       <div className="mx-auto flex max-w-5xl flex-col gap-4 sm:flex-row sm:items-center">
         <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-lg border bg-background">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -347,7 +340,7 @@ function BrandingEditor({
           />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold">{t("branding.title")}</p>
+          <p className="panel-title">{t("branding.title")}</p>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
             {t("branding.description")}
           </p>
@@ -356,7 +349,7 @@ function BrandingEditor({
           </p>
         </div>
         {can("platform_settings.manage") && (
-          <Button asChild size="sm" className="shrink-0">
+          <Button asChild className="shrink-0">
             <label htmlFor="platform-branding-upload">
               {upload.isPending ? (
                 <Loader2 className="animate-spin" />
@@ -401,26 +394,23 @@ function GroupGuide({ group }: { group: PlatformConfigGroup }) {
   } as const;
 
   return (
-    <div className="border-b bg-primary/[0.035] px-5 py-5">
+    <div className="border-b bg-primary/5 px-4 py-4 sm:px-6 sm:py-6">
       <div className="mx-auto max-w-5xl space-y-4">
         <div className="flex items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
-            <CircleHelp className="size-5" />
-          </span>
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold">{t(`guide.${group}.title`)}</h3>
+            <h3 className="panel-title">{t(`guide.${group}.title`)}</h3>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
               {t(`guide.${group}.description`)}
             </p>
           </div>
         </div>
-        <div className="grid overflow-hidden rounded-md border bg-background sm:grid-cols-3 sm:divide-x">
+        <div className="grid overflow-hidden rounded-lg border bg-card sm:grid-cols-3 sm:divide-x">
           {["basic", "connection", "monitoring"].map((step, index) => (
             <Link key={step} href={stepHrefs[step as keyof typeof stepHrefs]} className="flex gap-3 border-b px-4 py-3 transition-colors hover:bg-primary/5 last:border-b-0 sm:border-b-0">
               <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                 {index + 1}
               </span>
-              <span>
+              <span className="min-w-0">
                 <span className="block text-xs font-semibold">{t(`guide.step.${step}.title`)}</span>
                 <span className="mt-1 block text-xs leading-5 text-muted-foreground">
                   {t(`guide.step.${step}.description`)}
@@ -434,13 +424,13 @@ function GroupGuide({ group }: { group: PlatformConfigGroup }) {
             {t("guide.liveNotice")}
           </p>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <Button size="sm" variant="outline" asChild>
+            <Button variant="outline" asChild>
               <Link href="/integrations">
                 <Cable />
                 {t("guide.manageCredentials")}
               </Link>
             </Button>
-            <Button size="sm" variant="outline" asChild>
+            <Button variant="outline" asChild>
               <Link href={monitoringHref}>
                 <ArrowRight />
                 {t("guide.viewStatus")}
@@ -486,11 +476,10 @@ function CredentialRows({
 
   return (
     <div className="border-b bg-muted/20">
-      <div className="flex items-start gap-3 border-b px-5 py-3">
-        <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-        <div>
-          <p className="text-sm font-semibold">{t("credential.title")}</p>
-          <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+      <div className="flex items-start gap-3 border-b px-4 py-3 sm:px-6">
+        <div className="min-w-0">
+          <p className="panel-title">{t("credential.title")}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
             {t("credential.description")}
           </p>
         </div>
@@ -505,7 +494,7 @@ function CredentialRows({
         {rows.map(([name, status]) => (
           <div
             key={name}
-            className="flex min-h-16 flex-wrap items-center justify-between gap-3 px-5 py-3"
+            className="flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"
           >
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">{t(`credential.${name}`)}</p>
@@ -526,7 +515,7 @@ function CredentialRows({
               tone={status?.configured ? "positive" : "warning"}
             />
             {group === "api_gateway" && (
-              <Button size="sm" variant="outline" asChild>
+              <Button variant="outline" asChild>
                 <Link
                   href={
                     company ? `/integrations?company=${company}` : "/integrations"
@@ -598,7 +587,7 @@ function ConfigRow({
   const serviceStatus = row.key.endsWith(".service_status");
 
   return (
-    <div className="grid gap-3 px-5 py-4 lg:grid-cols-[minmax(220px,0.8fr)_minmax(280px,1.2fr)_auto] lg:items-center">
+    <div className="grid gap-3 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(14rem,0.8fr)_minmax(18rem,1.2fr)_auto] lg:items-center">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <label htmlFor={row.key} className="text-sm font-medium">
@@ -634,7 +623,7 @@ function ConfigRow({
       </div>
 
       {serviceStatus ? (
-        <div className="flex h-8 items-center">
+        <div className="flex min-h-10 items-center">
           <StatusBadge
             label={t(`serviceStatus.${value}`)}
             tone={
@@ -649,7 +638,7 @@ function ConfigRow({
           />
         </div>
       ) : row.value_type === "BOOLEAN" ? (
-        <div className="flex h-8 items-center">
+        <div className="flex min-h-10 items-center">
           <Switch
             id={row.key}
             checked={value === "true"}
@@ -668,7 +657,7 @@ function ConfigRow({
       ) : choices ? (
         <select
           id={row.key}
-          className="h-8 w-full rounded-md border bg-background px-2.5 text-sm"
+          className="native-control"
           value={value}
           disabled={row.is_readonly}
           onChange={(event) => setValue(event.target.value)}
@@ -694,10 +683,10 @@ function ConfigRow({
         />
       )}
 
-      <div className="flex w-full gap-2 lg:w-auto">
+      <div className="flex w-full items-center gap-2 lg:w-auto">
         {company && row.is_overridden && can("platform_settings.manage") && (
           <Button
-            size="icon-sm"
+            size="icon"
             variant="outline"
             title={t("scope.reset")}
             aria-label={t("scope.reset")}
@@ -713,7 +702,6 @@ function ConfigRow({
         )}
         {can("platform_settings.manage") && (
           <Button
-            size="sm"
             className="flex-1 lg:flex-none"
             disabledReason={row.is_readonly ? common("readOnlySetting") : value === row.value ? common("noChanges") : undefined}
             disabled={row.is_readonly || value === row.value || save.isPending}

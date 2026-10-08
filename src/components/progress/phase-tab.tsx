@@ -18,7 +18,7 @@ import { useState } from "react";
 import { PhaseDialog } from "@/components/contractor-ops/operations-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectListFilter, SummaryStrip } from "@/components/shared/module-records-table";
-import { QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FilterBar, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -63,16 +63,16 @@ export function PhaseTab() {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-4">
+      <FilterBar>
         <ProjectListFilter list={list} />
         {can("progress.manage") && (
-          <Button size="sm" className="ml-auto rounded-full px-4" onClick={() => setAdding(true)}>
+          <Button className="sm:ml-auto" onClick={() => setAdding(true)}>
             <ListTree />
             {t("phases.add")}
           </Button>
         )}
-      </div>
+      </FilterBar>
       <p className="text-sm text-muted-foreground">{t("phases.help")}</p>
       {project && (
         <SummaryStrip
@@ -90,15 +90,15 @@ export function PhaseTab() {
       )}
       <QueryFailedNote query={summary} what={tOps("what.progressSummary")} />
       <QueryFailedNote query={phases} what={tOps("what.phases")} />
-      <div className="overflow-x-auto rounded-lg border bg-card">
+      <div className="surface-panel overflow-hidden rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
               {!project && <TableHead>{tOps("field.project")}</TableHead>}
               <TableHead className="w-28">{tOps("field.code")}</TableHead>
               <TableHead>{t("phases.name")}</TableHead>
-              <TableHead className="w-24 text-right">{tOps("progress.plannedWeight")}</TableHead>
-              <TableHead className="w-24 text-right">{t("phases.records")}</TableHead>
+              <TableHead className="tabular w-24 text-right">{tOps("progress.plannedWeight")}</TableHead>
+              <TableHead className="tabular w-24 text-right">{t("phases.records")}</TableHead>
               <TableHead className="w-24">{tOps("field.status")}</TableHead>
               <TableHead className="w-16 text-right" />
             </TableRow>

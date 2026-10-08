@@ -267,7 +267,7 @@ function SlotBoundary({
 
   return (
     <div className="space-y-3">
-      <section aria-label={t("title")} className="rounded-lg border bg-card p-2">
+      <section aria-label={t("title")} className="surface-panel rounded-xl p-3">
         <div className="flex items-center justify-between gap-2">
           <p className="text-xs font-semibold">{t("title")}</p>
           <label className="flex items-center gap-2 text-xs">
@@ -292,7 +292,7 @@ function SlotBoundary({
               )}
             </div>
             {activeSlot && emptyPressed === activeSlot.n && activeEmpty && (
-              <p role="status" className="mt-1.5 rounded-md bg-warning/10 px-2 py-1.5 text-xs font-medium text-warning">
+              <p role="status" className="mt-1.5 rounded-lg border border-warning/40 bg-warning/10 px-2 py-1.5 text-xs font-medium text-warning">
                 {t("fillFirst", { n: formatSlotNumber(activeSlot.n) })}
               </p>
             )}
@@ -310,10 +310,10 @@ function SlotBoundary({
                 ))}
               </ul>
             )}
-            <p className="mt-1 text-[11px] text-muted-foreground">{t("help")}</p>
+            <p className="mt-1 text-2xs text-muted-foreground">{t("help")}</p>
           </>
         ) : (
-          <p className="mt-1 text-[11px] text-muted-foreground">{t("offHelp")}</p>
+          <p className="mt-1 text-2xs text-muted-foreground">{t("offHelp")}</p>
         )}
         {!stored && (
           <p role="alert" className="mt-1 text-xs font-medium text-destructive">{t("notStored")}</p>
@@ -329,7 +329,7 @@ function SlotBoundary({
           </FieldDraft>
         </SlotSettleContext.Provider>
       ) : (
-        <div className="space-y-3 rounded-lg border border-dashed p-4 text-center">
+        <div className="space-y-3 rounded-xl border border-dashed border-panel-border p-4 text-center">
           <p className="text-sm text-muted-foreground">{t("none")}</p>
           <Button type="button" size="lg" className="w-full" onClick={open}>
             <Plus className="size-4" />

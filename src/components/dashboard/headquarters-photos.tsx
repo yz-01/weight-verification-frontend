@@ -109,12 +109,12 @@ export function HeadquartersPhotos({
                         loading="lazy"
                       />
                     )}
-                    <span className="absolute left-2 top-2 rounded-full bg-overlay px-2 py-0.5 text-[11px] font-medium text-overlay-foreground">
+                    <span className="absolute left-2 top-2 rounded-full bg-overlay px-2 py-0.5 text-2xs font-medium text-overlay-foreground">
                       {kinds(photo.record_kind)}
                     </span>
                     <span className="absolute inset-x-0 bottom-0 block space-y-0.5 bg-overlay px-2 py-1.5 text-overlay-foreground">
                       <span className="block truncate text-xs font-semibold">{photo.project}</span>
-                      <span className="flex items-center gap-1 truncate text-[11px] opacity-90">
+                      <span className="flex items-center gap-1 truncate text-2xs opacity-90">
                         <UserRound className="size-3 shrink-0" aria-hidden />
                         {photo.photographer || t("unknownPhotographer")}
                         <span aria-hidden>·</span>

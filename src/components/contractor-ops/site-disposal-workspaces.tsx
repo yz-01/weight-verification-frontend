@@ -46,7 +46,7 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -165,13 +165,13 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   const shownRow = viewing ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing) : linkedRow;
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={t("subtitle")}
         action={can("disposal.submit") ? <Button onClick={() => setCreating(true)}><Plus />{t("action.new")}</Button> : undefined}
       />
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-3 py-3 shadow-sm">
+      <FilterBar className="items-center">
         <ProjectPicker
           value={project}
           onValueChange={(value) => setProject(value === "all" ? "" : value)}
@@ -181,19 +181,19 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
           className="w-full sm:w-80"
         />
         <p className="text-xs text-muted-foreground">{t("count", { count: rows.data?.count ?? 0 })}</p>
-      </div>
+      </FilterBar>
 
       {rows.isLoading && <div className="grid min-h-56 place-items-center"><Loader2 className="size-7 animate-spin text-primary" /></div>}
-      {rows.isError && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive">{t("error.load")}</div>}
-      {!rows.isLoading && !rows.data?.count && <div className="rounded-lg border border-dashed bg-muted/20 p-12 text-center text-sm text-muted-foreground">{t("empty")}</div>}
+      {rows.isError && <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive">{t("error.load")}</div>}
+      {!rows.isLoading && !rows.data?.count && <EmptyState icon={Truck} title={t("empty")} />}
       {!!rows.data?.count && (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           {rows.data.results.map((row) => (
             /* 「36 小时内仍未收到处理照片…**整条记录显示红色**」 (D-217). The
                whole card, not just a badge: a marker inside a list of grey
                cards is something you have to be looking for, and this one has
                to be noticed by somebody scanning the page. */
-            <article key={row.id} className={`surface-panel rounded-xl p-4${row.disposal_evidence_is_overdue ? " border-destructive/50 bg-destructive/5" : ""}`}>
+            <article key={row.id} className={`surface-panel min-w-0 rounded-xl p-4 sm:p-6${row.disposal_evidence_is_overdue ? " border-destructive/50 bg-destructive/5" : ""}`}>
               <div className="flex items-start gap-3">
                 <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck className="size-5" /></span>
                 <div className="min-w-0 flex-1">
@@ -213,11 +213,11 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                   <p className="mt-1 text-sm text-muted-foreground">{row.project_name} / {row.location_description}</p>
                 </div>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-3 border-y py-3 text-sm">
-                <div><p className="text-xs text-muted-foreground">{t("field.requestedBy")}</p><p className="mt-1 font-medium">{row.requested_by_name || "-"}</p></div>
-                <div><p className="text-xs text-muted-foreground">{t("field.executor")}</p><p className="mt-1 font-medium">{row.assigned_staff_name || row.collector_company_name || t("notAssigned")}</p></div>
+              <div className="mt-4 grid grid-cols-2 gap-3 border-y border-panel-border py-3 text-sm">
+                <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{t("field.requestedBy")}</p><p className="mt-1 break-words font-medium">{row.requested_by_name || "-"}</p></div>
+                <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{t("field.executor")}</p><p className="mt-1 break-words font-medium">{row.assigned_staff_name || row.collector_company_name || t("notAssigned")}</p></div>
                 {/* 「已验收 x / N 车」 (X11), once the job has lorries. */}
-                {row.trips_total > 0 && <div className="col-span-2"><p className="text-xs text-muted-foreground">{t("field.tripsProgress")}</p><p className="mt-1 font-medium tabular">{t("trips.progress", { accepted: row.trips_accepted, total: row.trips_total })}</p></div>}
+                {row.trips_total > 0 && <div className="col-span-2"><p className="text-xs font-medium text-muted-foreground">{t("field.tripsProgress")}</p><p className="mt-1 font-medium tabular">{t("trips.progress", { accepted: row.trips_accepted, total: row.trips_total })}</p></div>}
               </div>
               <div className="mt-3 flex flex-wrap justify-end gap-2">
                 {/* Clearance has no categories since 2026-10 (B1, X5); one
@@ -407,7 +407,7 @@ function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest;
     },
   });
   const disabled = save.isPending || (mode === "INTERNAL" ? !staff : !company.trim() || !contact.trim() || !phone.trim() || !expires);
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{link ? t("assign.copyNow") : t("assign.description")}</DialogDescription></DialogHeader>{link ? <div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div> : <><div className="grid grid-cols-2 gap-2"><Button type="button" variant={mode === "INTERNAL" ? "default" : "outline"} onClick={() => setMode("INTERNAL")}><UserRound />{t("assignment.internal")}</Button><Button type="button" variant={mode === "EXTERNAL" ? "default" : "outline"} onClick={() => setMode("EXTERNAL")}><Link2 />{t("assignment.external")}</Button></div>{mode === "INTERNAL" ? <FieldWrapper label={t("field.fieldStaff")} required><Select value={staff} onValueChange={setStaff}><SelectTrigger className="h-10 w-full"><SelectValue placeholder={t("field.chooseFieldStaff")} /></SelectTrigger><SelectContent>{fieldStaff.map((assignment) => <SelectItem key={assignment.user} value={assignment.user}>{assignment.user_name}</SelectItem>)}</SelectContent></Select>{!team.isLoading && !team.isError && !fieldStaff.length && <p className="mt-2 text-xs text-destructive">{t("assign.noFieldStaff")}</p>}<QueryFailedNote query={team} what={t("what.fieldStaff")} className="mt-2" /></FieldWrapper> : <div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.collectorCompany")} required className="sm:col-span-2"><Input value={company} onChange={(e) => setCompany(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.contact")} required><Input value={contact} onChange={(e) => setContact(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.phone")} required><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.email")} optional={t("optional")}><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.linkExpiry")} required><Input type="datetime-local" value={expires} onChange={(e) => setExpires(e.target.value)} /></FieldWrapper></div>}</>}<DialogFooter><Button variant="outline" onClick={onClose}>{link ? t("action.close") : t("action.cancel")}</Button>{!link && <Button disabled={disabled} onClick={() => save.mutate()}><Send />{mode === "INTERNAL" ? t("action.sendToStaff") : t("action.createLink")}</Button>}</DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{link ? t("assign.copyNow") : t("assign.description")}</DialogDescription></DialogHeader>{link ? <div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div> : <><div className="grid grid-cols-2 gap-2"><Button type="button" variant={mode === "INTERNAL" ? "default" : "outline"} onClick={() => setMode("INTERNAL")}><UserRound />{t("assignment.internal")}</Button><Button type="button" variant={mode === "EXTERNAL" ? "default" : "outline"} onClick={() => setMode("EXTERNAL")}><Link2 />{t("assignment.external")}</Button></div>{mode === "INTERNAL" ? <FieldWrapper label={t("field.fieldStaff")} required><Select value={staff} onValueChange={setStaff}><SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseFieldStaff")} /></SelectTrigger><SelectContent>{fieldStaff.map((assignment) => <SelectItem key={assignment.user} value={assignment.user}>{assignment.user_name}</SelectItem>)}</SelectContent></Select>{!team.isLoading && !team.isError && !fieldStaff.length && <p className="mt-2 text-xs text-destructive">{t("assign.noFieldStaff")}</p>}<QueryFailedNote query={team} what={t("what.fieldStaff")} className="mt-2" /></FieldWrapper> : <div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.collectorCompany")} required className="sm:col-span-2"><Input value={company} onChange={(e) => setCompany(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.contact")} required><Input value={contact} onChange={(e) => setContact(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.phone")} required><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.email")} optional={t("optional")}><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.linkExpiry")} required><Input type="datetime-local" value={expires} onChange={(e) => setExpires(e.target.value)} /></FieldWrapper></div>}</>}<DialogFooter><Button variant="outline" onClick={onClose}>{link ? t("action.close") : t("action.cancel")}</Button>{!link && <Button disabled={disabled} onClick={() => save.mutate()}><Send />{mode === "INTERNAL" ? t("action.sendToStaff") : t("action.createLink")}</Button>}</DialogFooter></DialogContent></Dialog>;
 }
 
 function RegenerateLinkDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
@@ -1033,7 +1033,7 @@ export function SiteDisposalOffice() {
         meta: { label: t("field.waste") },
         header: () => <PlainHeader label={t("field.waste")} />,
         cell: ({ row }) => (
-          <span className="block max-w-[220px] truncate font-medium text-foreground" title={row.original.waste_description}>
+          <span className="block max-w-55 truncate font-medium text-foreground" title={row.original.waste_description}>
             {row.original.waste_description}
           </span>
         ),
@@ -1042,7 +1042,7 @@ export function SiteDisposalOffice() {
         accessorKey: "location_description",
         meta: { label: t("field.siteLocation") },
         header: () => <PlainHeader label={t("field.siteLocation")} />,
-        cell: ({ row }) => <span className="block max-w-[180px] truncate">{row.original.location_description}</span>,
+        cell: ({ row }) => <span className="block max-w-45 truncate">{row.original.location_description}</span>,
       },
       {
         accessorKey: "preferred_at",
@@ -1070,7 +1070,7 @@ export function SiteDisposalOffice() {
         accessorKey: "project_name",
         meta: { label: t("field.project") },
         header: () => <PlainHeader label={t("field.project")} />,
-        cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
+        cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
       },
     ],
     [t, tRoot, df],
@@ -1091,8 +1091,8 @@ export function SiteDisposalOffice() {
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
           can("disposal.submit") ? (
-            <Button size="sm" className="rounded-full px-4 shadow-sm" onClick={() => setCreating(true)}>
-              <Plus className="h-4 w-4" />
+            <Button onClick={() => setCreating(true)}>
+              <Plus className="size-4" />
               {t("action.new")}
             </Button>
           ) : undefined
@@ -1337,17 +1337,17 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
 
   return (
     <main className="mx-auto min-h-dvh max-w-xl bg-background px-4 py-5 pb-28">
-      <header className="border-b pb-4">
+      <header className="border-b border-panel-border pb-4">
         <p className="text-xs font-semibold text-primary">{current.company_name}</p>
         <h1 className="mt-1 text-2xl font-semibold">{t("title")}</h1>
         <p className="mt-1 font-mono text-sm text-muted-foreground">{current.reference_no}</p>
       </header>
 
-      <section className="mt-4 rounded-lg border bg-card p-4">
+      <section className="surface-panel mt-4 rounded-xl p-4">
         <div className="flex items-start gap-3">
-          <span className="grid size-12 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span>
-          <div>
-            <h2 className="font-semibold">{current.waste_description}</h2>
+          <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span>
+          <div className="min-w-0">
+            <h2 className="break-words font-semibold">{current.waste_description}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{current.project_name}</p>
             <p className="text-sm text-muted-foreground">{current.location_description}</p>
           </div>
@@ -1388,8 +1388,8 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
               </div>
             </FieldWrapper>
           </section>
-          <section className="mt-6 space-y-4 rounded-lg border bg-card p-4">
-            <h2 className="font-semibold">{t("submitTitle")}</h2>
+          <section className="surface-panel mt-6 space-y-4 rounded-xl p-4">
+            <h2 className="panel-title">{t("submitTitle")}</h2>
             {/* Still nothing typed but an optional note (T-224, D-116): the
                 contractor reads weight and DO off these photographs. */}
             <FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
@@ -1402,7 +1402,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
       )}
 
       {editable && !startable && load.allSent && (
-        <section className="mt-8 rounded-lg border bg-card p-6 text-center">
+        <section className="surface-panel mt-8 rounded-xl p-6 text-center">
           <CheckCircle2 className="mx-auto size-12 text-success" />
           <h2 className="mt-3 text-lg font-semibold">{tTrips("allSentTitle")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{tTrips("allSentBody")}</p>
@@ -1410,7 +1410,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
       )}
 
       {finished && (
-        <section className="mt-8 rounded-lg border border-success/30 bg-success/5 p-6 text-center">
+        <section className="mt-8 rounded-xl border border-success/30 bg-success/5 p-6 text-center">
           <CheckCircle2 className="mx-auto size-12 text-success" />
           <h2 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p>
@@ -1501,7 +1501,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   const evidenceComplete = sent.length > 0;
   const full = sent.length >= DISPOSAL_PHOTO_MAX;
 
-  return <div className="space-y-5">
+  return <div className="flex flex-col gap-4">
     <section className="surface-panel rounded-xl p-4">
       <div className="flex items-start gap-3"><span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span><div className="min-w-0"><p className="font-mono text-xs text-muted-foreground">{current.reference_no}</p><h2 className="mt-1 text-lg font-semibold">{current.waste_description}</h2><p className="mt-1 text-sm text-muted-foreground">{current.project_name} / {current.location_description}</p></div></div>
       <div className="mt-4 flex flex-wrap items-center gap-2"><StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} />{load.total > 0 && <span className="text-sm text-muted-foreground">{tTrips("sentProgress", { sent: load.sent, total: load.total })}</span>}</div>
@@ -1514,9 +1514,9 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
           proof, up to four, any kind. Vehicle exit / Gate Pass are the
           site's own photographs, taken from the job itself (C08). */}
       <section><h3 className="text-base font-semibold">{load.current ? tTrips("loadTitle", { seq: load.current.seq, total: load.total }) : t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3"><FieldCamera label={t("photosTitle")} fileCount={sent.length} previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined} disabled={uploading !== null || full} onCapture={(file) => void upload("DISPOSAL_PROOF", file)} /></div></section>
-      <section className="space-y-4 rounded-lg border bg-card p-4"><h3 className="font-semibold">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
+      <section className="surface-panel space-y-4 rounded-xl p-4"><h3 className="panel-title">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
     </>}
-    {editable && current.status !== "ASSIGNED" && load.allSent && <section className="rounded-lg border bg-card p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{tTrips("allSentTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{tTrips("allSentBody")}</p></section>}
-    {(current.status === "COMPLETED" || current.status === "AWAITING_CONFIRMATION") && <section className="rounded-lg border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}
+    {editable && current.status !== "ASSIGNED" && load.allSent && <section className="surface-panel rounded-xl p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{tTrips("allSentTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{tTrips("allSentBody")}</p></section>}
+    {(current.status === "COMPLETED" || current.status === "AWAITING_CONFIRMATION") && <section className="rounded-xl border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}
   </div>;
 }

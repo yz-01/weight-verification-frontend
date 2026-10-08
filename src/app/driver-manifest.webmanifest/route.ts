@@ -15,8 +15,8 @@ export async function GET(request: Request) {
       start_url: "/driver",
       scope: "/",
       display: "standalone",
-      background_color: "#f8fafb",
-      theme_color: "#087f8c",
+      background_color: "#f3f6fa",
+      theme_color: "#0e7490",
       orientation: "any",
       icons: [
         { src: iconPath(192, { company, revision: branding.icon_url }), sizes: "192x192", type: "image/png", purpose: "any" },

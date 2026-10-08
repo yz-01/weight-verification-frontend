@@ -105,7 +105,7 @@ export function ConsultantFieldInbox({
     <>
       {focusMissing ? <QueryFailedNote query={focused} what={t("what")} /> : null}
       {organized ? (
-        <p className="flex items-center gap-2 rounded-lg border bg-muted/20 px-3 py-2 text-sm">
+        <p className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm">
           <Info className="size-4 shrink-0 text-primary" />
           <Link href={`/consultant-applications/${organized.id}`} className="underline-offset-2 hover:underline">
             {t("alreadyOrganized", { number: organized.application_no })}
@@ -118,7 +118,7 @@ export function ConsultantFieldInbox({
     return (
       <div className="space-y-3">
         {focusNote}
-        <div className="rounded-lg border border-dashed bg-muted/15 p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-xl border border-dashed border-panel-border p-8 text-center text-sm text-muted-foreground">
           {t("empty")}
         </div>
       </div>
@@ -129,7 +129,7 @@ export function ConsultantFieldInbox({
     <div className="space-y-3">
       {focusNote}
       <p className="text-sm text-muted-foreground">{t("help")}</p>
-      <div className="grid gap-2 lg:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-2">
         {tasks.map((task) => {
           const order = task.photos.map((photo) => photo.id);
           const chosen = ticked[task.id] ?? [];
@@ -213,7 +213,7 @@ export function ConsultantFieldInbox({
                           className={`absolute left-1 top-1 grid size-4 place-items-center rounded-sm border ${
                             on
                               ? "border-primary bg-primary text-primary-foreground"
-                              : "border-white bg-black/30"
+                              : "border-overlay-foreground bg-overlay/40"
                           }`}
                         >
                           {on ? <Check className="size-3" /> : null}

@@ -182,7 +182,7 @@ export function UserHandoverDialog({
         </FieldWrapper>
 
         <div className="space-y-2">
-          <p className="text-sm font-semibold">{t("transfer.title")}</p>
+          <h3 className="panel-title">{t("transfer.title")}</h3>
           {[
             ["role", transferRole, setTransferRole],
             ["projects", transferProjects, setTransferProjects],

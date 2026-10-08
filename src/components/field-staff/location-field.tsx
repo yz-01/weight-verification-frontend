@@ -163,12 +163,12 @@ export function LocationField({
   return (
     <FieldWrapper className={className} label={label} required={required} error={error} hint={hint}>
       {locating ? (
-        <p className="flex min-h-12 items-center gap-2 rounded-md border bg-muted/30 px-3 text-sm text-muted-foreground">
+        <p className="flex min-h-12 items-center gap-2 rounded-lg border bg-muted/30 px-3 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           {t("locating")}
         </p>
       ) : value && !problem ? (
-        <p className="flex min-h-12 items-center gap-2 rounded-md border border-success/30 bg-success/5 px-3 text-sm">
+        <p className="flex min-h-12 items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-3 text-sm">
           <LocateFixed className="size-4 text-success" />
           {readyLabel}
         </p>

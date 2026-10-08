@@ -51,7 +51,7 @@ export function AssetList() {
         accessorKey: "category",
         meta: { label: t("assets.field.category") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("assets.field.category")}
           </span>
         ),
@@ -63,7 +63,7 @@ export function AssetList() {
         accessorKey: "name",
         meta: { label: t("assets.field.name") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("assets.field.name")}
           </span>
         ),
@@ -80,7 +80,7 @@ export function AssetList() {
         accessorKey: "serial_number",
         meta: { label: t("assets.field.serialNumber") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("assets.field.serialNumber")}
           </span>
         ),
@@ -92,7 +92,7 @@ export function AssetList() {
         accessorKey: "status",
         meta: { label: t("assets.field.status") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("assets.field.status")}
           </span>
         ),
@@ -107,7 +107,7 @@ export function AssetList() {
         accessorKey: "deployed_at",
         meta: { label: t("assets.field.deployedAt") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("assets.field.deployedAt")}
           </span>
         ),

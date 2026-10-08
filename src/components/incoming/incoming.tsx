@@ -18,8 +18,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { KpiCard } from "@/components/shared/kpi-card";
 import {
   FieldWrapper,
+  FilterBar,
+  FilterField,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -149,7 +152,7 @@ export function Incoming() {
         accessorKey: "state",
         meta: { label: t("incoming.field.state") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.state")}
           </span>
         ),
@@ -164,14 +167,14 @@ export function Incoming() {
         accessorKey: "project_name",
         meta: { label: t("incoming.field.project") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.project")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[200px] truncate font-medium">{row.original.contractor_name}</p>
-            <p className="max-w-[200px] truncate text-xs">{row.original.project_name}</p>
+            <p className="max-w-50 truncate font-medium">{row.original.contractor_name}</p>
+            <p className="max-w-50 truncate text-xs">{row.original.project_name}</p>
             <p className="tabular truncate text-xs text-muted-foreground">
               {row.original.project_code}
             </p>
@@ -185,14 +188,14 @@ export function Incoming() {
         accessorKey: "pickup_address",
         meta: { label: t("incoming.field.pickupAddress") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.pickupAddress")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[220px] truncate"
+              className="max-w-55 truncate"
               title={row.original.pickup_address}
             >
               {row.original.pickup_address || t("common.emptyValue")}
@@ -212,7 +215,7 @@ export function Incoming() {
         accessorKey: "waste_type",
         meta: { label: t("incoming.field.wasteType") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.wasteType")}
           </span>
         ),
@@ -226,12 +229,12 @@ export function Incoming() {
         accessorKey: "estimated_weight_kg",
         meta: { label: t("incoming.field.estimatedWeight") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("incoming.field.estimatedWeight")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="tabular text-muted-foreground">
+          <span className="tabular block text-right text-muted-foreground">
             {row.original.estimated_weight_kg ?? t("common.emptyValue")}
           </span>
         ),
@@ -240,7 +243,7 @@ export function Incoming() {
         accessorKey: "vehicle_plate",
         meta: { label: t("incoming.field.vehiclePlate") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("incoming.field.vehiclePlate")}
           </span>
         ),
@@ -323,29 +326,30 @@ export function Incoming() {
       />
 
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
-        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+        <Info className="mt-0.5 size-3.5 shrink-0" />
         {t("incoming.declaredNote")}
       </p>
 
-      <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {(["today_orders", "month_orders", "completed_orders", "recycling_orders", "cancelled_orders"] as const).map(
           (key) => (
-            <div key={key} className="rounded-lg border bg-card px-3 py-2.5">
-              <p className="text-xs text-muted-foreground">{t(`incoming.summary.${key}`)}</p>
-              <p className="mt-1 text-xl font-semibold tabular-nums">
-                {summary.data?.[key] ?? "—"}
-              </p>
-            </div>
+            <KpiCard
+              key={key}
+              size="sm"
+              label={t(`incoming.summary.${key}`)}
+              value={summary.data?.[key] ?? "—"}
+            />
           ),
         )}
       </div>
       <QueryFailedNote query={summary} what={t("incoming.what.summary")} />
 
-      <div className="grid shrink-0 gap-2 sm:grid-cols-2 lg:max-w-xl">
-        <div className="space-y-1">
-          <Label htmlFor="incoming-date-from" className="text-xs text-muted-foreground">
-            {t("incoming.filter.collectionDateFrom")}
-          </Label>
+      <FilterBar className="shrink-0">
+        <FilterField
+          label={t("incoming.filter.collectionDateFrom")}
+          htmlFor="incoming-date-from"
+          className="sm:w-44"
+        >
           <Input
             id="incoming-date-from"
             type="date"
@@ -355,11 +359,12 @@ export function Incoming() {
               list.setFilter("collection_date_from", event.target.value || undefined)
             }
           />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="incoming-date-to" className="text-xs text-muted-foreground">
-            {t("incoming.filter.collectionDateTo")}
-          </Label>
+        </FilterField>
+        <FilterField
+          label={t("incoming.filter.collectionDateTo")}
+          htmlFor="incoming-date-to"
+          className="sm:w-44"
+        >
           <Input
             id="incoming-date-to"
             type="date"
@@ -369,8 +374,8 @@ export function Incoming() {
               list.setFilter("collection_date_to", event.target.value || undefined)
             }
           />
-        </div>
-      </div>
+        </FilterField>
+      </FilterBar>
 
       <DataTable
         columns={columns}
@@ -511,14 +516,14 @@ function OrderAssignmentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-md border bg-muted/40 px-3 py-2">
+        <div className="rounded-lg border bg-muted/30 p-3">
           <p className="text-sm font-medium">{load.project_name}</p>
           <p className="text-xs text-muted-foreground">
             {t(`dispatches.wasteType.${load.waste_type}`)}
           </p>
           {/* Repeated here rather than left to the list column because this is
               the screen where the yard commits a driver to the run. */}
-          <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="mt-2 text-xs font-semibold text-muted-foreground">
             {t("incoming.field.pickupAddress")}
           </p>
           <p className="text-sm">
@@ -662,7 +667,7 @@ function CollectDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[480px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-120 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("incoming.collect.title")}</DialogTitle>
           <DialogDescription>
@@ -670,7 +675,7 @@ function CollectDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-md border bg-muted/40 px-3 py-2">
+        <div className="rounded-lg border bg-muted/30 p-3">
           <p className="tabular text-sm font-medium text-foreground">
             {load.dispatch_no}
           </p>
@@ -695,19 +700,15 @@ function CollectDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             {t("common.cancel")}
           </Button>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             disabled={collect.isPending}
             onClick={() => collect.mutate()}
           >
-            <PackageCheck className="h-4 w-4" />
+            <PackageCheck className="size-4" />
             {t("incoming.collect.confirm")}
           </Button>
         </DialogFooter>

@@ -68,12 +68,12 @@ export function VersionList() {
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
-        cell: ({ row }) => <span className="font-medium tabular-nums">v{row.original.version}</span>,
+        cell: ({ row }) => <span className="tabular font-medium">v{row.original.version}</span>,
       },
       {
         accessorKey: "release_name",
         meta: { label: t("versions.field.releaseName") },
-        header: () => <span className="text-xs font-semibold uppercase text-muted-foreground">{t("versions.field.releaseName")}</span>,
+        header: () => <span className="text-xs font-semibold text-muted-foreground">{t("versions.field.releaseName")}</span>,
         cell: ({ row }) => row.original.release_name || t("common.emptyValue"),
       },
       {
@@ -86,18 +86,18 @@ export function VersionList() {
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
-        cell: ({ row }) => <span className="text-muted-foreground">{df.date(row.original.released_on)}</span>,
+        cell: ({ row }) => <span className="tabular text-muted-foreground">{df.date(row.original.released_on)}</span>,
       },
       {
         accessorKey: "rollout_percentage",
         meta: { label: t("versions.field.rollout") },
-        header: () => <span className="text-xs font-semibold uppercase text-muted-foreground">{t("versions.field.rollout")}</span>,
-        cell: ({ row }) => <span className="tabular-nums">{row.original.rollout_percentage}%</span>,
+        header: () => <span className="block text-right text-xs font-semibold text-muted-foreground">{t("versions.field.rollout")}</span>,
+        cell: ({ row }) => <span className="tabular block text-right">{row.original.rollout_percentage}%</span>,
       },
       {
         accessorKey: "is_current",
         meta: { label: t("versions.field.isCurrent") },
-        header: () => <span className="text-xs font-semibold uppercase text-muted-foreground">{t("versions.field.isCurrent")}</span>,
+        header: () => <span className="text-xs font-semibold text-muted-foreground">{t("versions.field.isCurrent")}</span>,
         cell: ({ row }) => row.original.is_current ? (
           <StatusBadge label={t("versions.current")} tone="positive" />
         ) : row.original.force_update ? (
@@ -174,7 +174,7 @@ export function VersionList() {
           if (!open) setEditor({ open: false, id: null });
         }}
       >
-        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           {editor.id && detail.isError ? (
               <LoadFailed onRetry={() => void detail.refetch()} />
             ) : detail.isLoading ? (
@@ -241,7 +241,7 @@ function VersionEditor({
         <DialogTitle>{t(initial ? "versions.edit" : "versions.create")}</DialogTitle>
         <DialogDescription>{t("versions.editorSubtitle")}</DialogDescription>
       </DialogHeader>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FieldWrapper label={t("versions.field.version")} required>
           <Input value={form.version} disabled={Boolean(initial)} onChange={(event) => set("version", event.target.value)} />
         </FieldWrapper>
@@ -257,7 +257,7 @@ function VersionEditor({
         <FieldWrapper label={t("versions.field.rollout")}>
           <Input type="number" min={0} max={100} value={form.rollout_percentage} onChange={(event) => set("rollout_percentage", Number(event.target.value))} />
         </FieldWrapper>
-        <div className="flex items-end gap-6 pb-2">
+        <div className="flex flex-wrap items-end gap-x-6 gap-y-3 pb-2">
           <label className="flex items-center gap-2 text-sm font-medium">
             <Switch checked={Boolean(form.force_update)} onCheckedChange={(checked) => set("force_update", checked)} />
             {t("versions.field.forceUpdate")}
@@ -282,13 +282,13 @@ function VersionEditor({
 
       {initial && (
         <div className="space-y-3 border-t pt-4">
-          <p className="text-sm font-semibold">{t("versions.changelog")}</p>
-          <div className="grid gap-2 sm:grid-cols-[1fr_150px]">
+          <h3 className="panel-title">{t("versions.changelog")}</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_10rem]">
             <FieldWrapper label={t("versions.changeModule")} required>
               <Input value={change.module} onChange={(event) => setChange((current) => ({ ...current, module: event.target.value }))} />
             </FieldWrapper>
             <FieldWrapper label={t("versions.field.changeType")}>
-              <select className="h-8 w-full rounded-md border bg-background px-2 text-sm" value={change.change_type} onChange={(event) => setChange((current) => ({ ...current, change_type: event.target.value }))}>
+              <select className="native-control" value={change.change_type} onChange={(event) => setChange((current) => ({ ...current, change_type: event.target.value }))}>
                 {["NEW", "IMPROVED", "FIXED", "REMOVED", "SECURITY"].map((type) => <option key={type} value={type}>{t(`versions.changeType.${type}`)}</option>)}
               </select>
             </FieldWrapper>
@@ -302,9 +302,9 @@ function VersionEditor({
             {t("versions.addChange")}
           </Button>
           {initial.changelog.map((entry) => (
-            <div key={entry.id} className="grid gap-1 border-t py-2 text-sm sm:grid-cols-[120px_1fr]">
+            <div key={entry.id} className="grid gap-1 border-t py-2 text-sm sm:grid-cols-[8rem_1fr]">
               <span className="font-medium">{t(`versions.changeType.${entry.change_type}`)}</span>
-              <span>{entry.module}: {entry.description}</span>
+              <span className="min-w-0 break-words">{entry.module}: {entry.description}</span>
             </div>
           ))}
         </div>

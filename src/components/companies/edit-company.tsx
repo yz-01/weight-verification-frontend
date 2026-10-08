@@ -21,9 +21,9 @@ export function EditCompany({ id }: { id: string }) {
     return <LoadErrorCard backHref="/companies" backLabel={t("companies.title")} />;
   }
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <CreateCompany company={data} />
-      <div className="overflow-hidden surface-panel rounded-xl">
+      <div className="surface-panel overflow-hidden rounded-xl">
         <CompanyOnboarding company={data} />
       </div>
     </div>

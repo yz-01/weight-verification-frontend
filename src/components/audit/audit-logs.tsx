@@ -9,7 +9,7 @@ import { useMemo, useState } from "react";
 import { AuditEntryDialog } from "@/components/audit/audit-entry-dialog";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
-import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -211,7 +211,7 @@ export function AuditLogs({
         accessorKey: "result",
         meta: { label: t("audit.field.result") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("audit.field.result")}
           </span>
         ),
@@ -234,7 +234,7 @@ export function AuditLogs({
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[200px] truncate">
+            <p className="max-w-50 truncate">
               {row.original.actor_name ??
                 row.original.actor_email ??
                 t("common.emptyValue")}
@@ -256,14 +256,14 @@ export function AuditLogs({
         accessorKey: "object_repr",
         meta: { label: t("audit.field.objectRepr") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("audit.field.objectRepr")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
             <p
-              className="max-w-[240px] truncate"
+              className="max-w-60 truncate"
               title={row.original.object_repr}
             >
               {row.original.object_repr || t("common.emptyValue")}
@@ -280,13 +280,13 @@ export function AuditLogs({
         accessorKey: "reason",
         meta: { label: t("audit.field.reason") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("audit.field.reason")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[200px] truncate text-muted-foreground"
+            className="block max-w-50 truncate text-muted-foreground"
             title={row.original.reason}
           >
             {row.original.reason || t("common.emptyValue")}
@@ -297,7 +297,7 @@ export function AuditLogs({
         accessorKey: "ip_address",
         meta: { label: t("audit.field.ipAddress") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("audit.field.ipAddress")}
           </span>
         ),
@@ -378,7 +378,7 @@ export function AuditLogs({
         title={title ?? t("audit.title")}
         subtitle={subtitle ?? (isLoading ? t("common.loading") : t("audit.count", { count: totalCount }))}
         action={showExport ? (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" disabled={exportMutation.isPending} onClick={() => exportMutation.mutate("PDF")}>
               {exportMutation.isPending ? <Loader2 className="animate-spin" /> : <FileDown />}
               PDF
@@ -391,10 +391,12 @@ export function AuditLogs({
         ) : undefined}
       />
 
+      {(user?.is_platform_staff || advanced) && (
+      <FilterBar>
       {user?.is_platform_staff && (
-        <div className="space-y-1">
+        <div className="flex min-w-0 flex-col gap-1 sm:w-72">
           <select
-            className="h-9 w-full max-w-sm rounded-md border bg-background px-3 text-sm"
+            className="native-control"
             value={list.filters.company ?? ""}
             aria-label={t("audit.companyFilter")}
             onChange={(event) =>
@@ -413,10 +415,10 @@ export function AuditLogs({
       )}
 
       {advanced && (
-        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+        <>
           {!fixedCategory && (
             <select
-              className="h-9 rounded-md border bg-background px-3 text-sm"
+              className="native-control sm:w-48"
               value={list.filters.category ?? ""}
               aria-label={t("audit.filter.category")}
               onChange={(event) =>
@@ -432,12 +434,13 @@ export function AuditLogs({
             </select>
           )}
           <Input
+            className="sm:w-48"
             value={list.filters.actor ?? ""}
             placeholder={t("audit.filter.actor")}
             onChange={(event) => list.setFilter("actor", event.target.value || undefined)}
           />
           <select
-            className="h-9 rounded-md border bg-background px-3 text-sm"
+            className="native-control sm:w-48"
             value={list.filters.action ?? ""}
             aria-label={t("audit.filter.action")}
             onChange={(event) => list.setFilter("action", event.target.value || undefined)}
@@ -450,7 +453,7 @@ export function AuditLogs({
             ))}
           </select>
           <select
-            className="h-9 rounded-md border bg-background px-3 text-sm"
+            className="native-control sm:w-48"
             value={list.filters.result ?? ""}
             aria-label={t("audit.filter.result")}
             onChange={(event) => list.setFilter("result", event.target.value || undefined)}
@@ -460,33 +463,40 @@ export function AuditLogs({
             <option value="FAILED">{t("audit.result.FAILED")}</option>
           </select>
           <Input
+            className="sm:w-48"
             value={list.filters.object_type ?? ""}
             placeholder={t("audit.filter.objectType")}
             onChange={(event) => list.setFilter("object_type", event.target.value || undefined)}
           />
           <Input
+            className="sm:w-48"
             value={list.filters.module ?? ""}
             placeholder={t("audit.filter.module")}
             onChange={(event) => list.setFilter("module", event.target.value || undefined)}
           />
           <Input
+            className="sm:w-48"
             value={list.filters.ip_address ?? ""}
             placeholder={t("audit.filter.ipAddress")}
             onChange={(event) => list.setFilter("ip_address", event.target.value || undefined)}
           />
           <Input
             type="date"
+            className="sm:w-44"
             aria-label={t("audit.filter.dateFrom")}
             value={list.filters.date_from ?? ""}
             onChange={(event) => list.setFilter("date_from", event.target.value || undefined)}
           />
           <Input
             type="date"
+            className="sm:w-44"
             aria-label={t("audit.filter.dateTo")}
             value={list.filters.date_to ?? ""}
             onChange={(event) => list.setFilter("date_to", event.target.value || undefined)}
           />
-        </div>
+        </>
+      )}
+      </FilterBar>
       )}
 
       <DataTable

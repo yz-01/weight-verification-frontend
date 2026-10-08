@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { createElement, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { MAP_PRIMARY } from "@/lib/map-palette";
 
 import {
   MAP_TILE_OPTIONS,
@@ -145,7 +146,7 @@ export function LocationMap({
         ...zones,
       ];
       visibleZones.forEach((zone) => {
-        const color = zone.color ?? "#0891b2";
+        const color = zone.color ?? MAP_PRIMARY;
         if (zone.points && zone.points.length >= 3) {
           L.polygon(zone.points, {
             color,
@@ -172,7 +173,7 @@ export function LocationMap({
       paths.forEach((path) => {
         if (path.points.length < 2) return;
         const line = L.polyline(path.points, {
-          color: path.color ?? "#0891b2",
+          color: path.color ?? MAP_PRIMARY,
           weight: path.dashed ? 3 : 4,
           opacity: path.dashed ? 0.55 : 0.75,
           dashArray: path.dashed ? "6 8" : undefined,

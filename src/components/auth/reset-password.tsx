@@ -47,7 +47,7 @@ export function ResetPassword({ portal }: { portal?: Portal }) {
   const backToLogin = (
     <Link
       href={portalLoginPath(portal)}
-      className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+      className="inline-flex min-h-11 items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
     >
       <ArrowLeft className="h-3.5 w-3.5" />
       {t("auth.forgot.backToLogin")}
@@ -75,7 +75,7 @@ export function ResetPassword({ portal }: { portal?: Portal }) {
       footer={backToLogin}
     >
       {done ? (
-        <div className="flex items-start gap-2.5 rounded-md border border-success/25 bg-success/8 px-3 py-3">
+        <div className="flex items-start gap-2.5 rounded-lg border border-success/25 bg-success/8 px-3 py-3">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
           <p className="text-sm text-foreground">{t("auth.reset.success")}</p>
         </div>
@@ -122,7 +122,7 @@ export function ResetPassword({ portal }: { portal?: Portal }) {
           {formError && (
             <div
               role="alert"
-              className="rounded-md border border-destructive/25 bg-destructive/8 px-3 py-2.5 text-sm text-destructive"
+              className="rounded-lg border border-destructive/25 bg-destructive/8 px-3 py-2.5 text-sm text-destructive"
             >
               {formError}
             </div>
@@ -132,9 +132,8 @@ export function ResetPassword({ portal }: { portal?: Portal }) {
             {(isSubmitting) => (
               <Button
                 type="submit"
-                size="sm"
                 disabled={isSubmitting}
-                className="w-full rounded-full shadow-sm"
+                className="w-full"
               >
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

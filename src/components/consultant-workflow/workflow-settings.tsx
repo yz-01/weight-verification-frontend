@@ -23,6 +23,7 @@ import { usePageProject, useProjectBoxShown } from "@/components/providers/curre
 import {
   DetailHeader,
   FieldWrapper,
+  FilterBar,
   ListHeader,
   LoadFailed,
   QueryFailedNote,
@@ -92,19 +93,19 @@ export function ConsultantWorkflowSettings() {
   });
 
   return (
-    <div className="space-y-5 pb-8">
+    <div className="space-y-4 pb-8">
       <DetailHeader backHref="/consultant-applications" backLabel={t("applications.back")} />
       <ListHeader
         title={t("workflow.title")}
         subtitle={t("workflow.subtitle")}
-        action={<Button size="sm" requires={[[project, t("field.project")]]} onClick={() => setCreating(true)}><Plus />{t("workflow.create")}</Button>}
+        action={<Button requires={[[project, t("field.project")]]} onClick={() => setCreating(true)}><Plus />{t("workflow.create")}</Button>}
       />
       {projectBoxShown && (
-      <div className="surface-panel rounded-xl p-3">
+      <FilterBar>
         <FieldWrapper label={t("field.project")} required>
           <ConsultantProjectPicker value={project} onChange={onProjectChange} scope="page" />
         </FieldWrapper>
-      </div>
+      </FilterBar>
       )}
       {!project ? (
         <Empty text={t("state.chooseProject")} />
@@ -216,5 +217,5 @@ function StepDialog({ workflow, step: editing, onClose, onSaved }: { workflow: C
 }
 
 function Empty({ text }: { text: string }) {
-  return <div className="rounded-lg border border-dashed bg-muted/15 p-10 text-center text-sm text-muted-foreground">{text}</div>;
+  return <div className="rounded-xl border border-dashed border-panel-border p-10 text-center text-sm text-muted-foreground">{text}</div>;
 }

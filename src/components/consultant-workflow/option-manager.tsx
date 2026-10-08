@@ -76,8 +76,8 @@ export function ConsultantOptionManager({ project }: { project: string }) {
 
   return (
     <section className="surface-panel rounded-xl">
-      <div className="border-b p-4">
-        <h2 className="font-semibold">{t("options.title")}</h2>
+      <div className="border-b p-4 sm:px-6">
+        <h2 className="panel-title">{t("options.title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("options.subtitle")}
         </p>
@@ -113,11 +113,11 @@ export function ConsultantOptionManager({ project }: { project: string }) {
           {options.map((row: ProjectApplicationOption) => (
             <li
               key={row.id}
-              className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm"
+              className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm sm:px-6"
             >
               {editingId === row.id ? (
                 <>
-                  <FieldWrapper label={t("options.rename")} required className="w-full max-w-xs">
+                  <FieldWrapper label={t("options.rename")} required className="w-full sm:max-w-xs">
                     <Input
                       value={label}
                       autoFocus

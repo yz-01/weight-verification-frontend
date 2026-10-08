@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, FileSpreadsheet, FileText, Filter, Printer } from "lucide-react";
+import { Download, FileSpreadsheet, FileText, Printer } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -142,13 +142,13 @@ export function RecyclerReportCenter() {
         title={t("title")}
         subtitle={t("count", { count: report.data?.count ?? 0 })}
         action={
-          <div className="flex gap-2 print:hidden">
+          <div className="flex flex-wrap gap-2 print:hidden">
             <Button
               variant="outline"
               disabled={exporting.isPending || report.isLoading}
               onClick={() => window.print()}
             >
-              <Printer className="h-4 w-4" />
+              <Printer className="size-4" />
               {t("action.print")}
             </Button>
             <Button
@@ -156,16 +156,16 @@ export function RecyclerReportCenter() {
               disabled={exporting.isPending || report.isLoading}
               onClick={() => exporting.mutate("PDF")}
             >
-              <FileText className="h-4 w-4" /> PDF
+              <FileText className="size-4" /> PDF
             </Button>
             <Button
               disabled={exporting.isPending || report.isLoading}
               onClick={() => exporting.mutate("EXCEL")}
             >
               {exporting.isPending ? (
-                <Download className="h-4 w-4 animate-pulse" />
+                <Download className="size-4 animate-pulse" />
               ) : (
-                <FileSpreadsheet className="h-4 w-4" />
+                <FileSpreadsheet className="size-4" />
               )}
               Excel
             </Button>
@@ -173,9 +173,8 @@ export function RecyclerReportCenter() {
         }
       />
 
-      <section className="rounded-lg border bg-card p-4 print:hidden">
-        <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
-          <Filter className="h-4 w-4 text-primary" />
+      <section className="surface-panel rounded-xl p-4 sm:p-6 print:hidden">
+        <div className="panel-title mb-3">
           {t("filter.title")}
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -328,13 +327,13 @@ export function RecyclerReportCenter() {
       </section>
 
       {!!report.data?.summary.length && (
-        <section className="grid overflow-hidden rounded-lg border bg-card sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
           {report.data.summary.map((metric) => (
-            <div key={metric.key} className="min-h-24 border-b p-4 last:border-b-0 sm:border-r xl:border-b-0">
+            <div key={metric.key} className="surface-panel min-h-24 min-w-0 rounded-xl p-4">
               <p className="text-xs font-medium text-muted-foreground">
                 {t.has(`summary.${metric.key}`) ? t(`summary.${metric.key}`) : metric.key}
               </p>
-              <p className="mt-2 break-words text-2xl font-semibold tabular-nums">
+              <p className="kpi-figure mt-2 break-words text-2xl text-foreground">
                 {formatMetric(metric.value, metric.unit)}
               </p>
             </div>
@@ -342,7 +341,7 @@ export function RecyclerReportCenter() {
         </section>
       )}
 
-      <section className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-card">
+      <section className="surface-panel min-h-0 flex-1 overflow-hidden rounded-xl">
         {report.isError ? (
           <EmptyState
             title={t("error.title")}
@@ -354,9 +353,9 @@ export function RecyclerReportCenter() {
             }
           />
         ) : report.isLoading ? (
-          <div className="space-y-3 p-5">
+          <div className="space-y-3 p-4 sm:p-6">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="h-10 animate-pulse rounded bg-muted" />
+              <div key={index} className="h-10 animate-pulse rounded-lg bg-muted" />
             ))}
           </div>
         ) : rows.length === 0 ? (
@@ -367,9 +366,13 @@ export function RecyclerReportCenter() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {(["reference", "date", "category", "party", "status", "quantity", "detail"] as const).map(
-                      (key) => <TableHead key={key}>{t(`column.${key}`)}</TableHead>,
-                    )}
+                    <TableHead>{t("column.reference")}</TableHead>
+                    <TableHead>{t("column.date")}</TableHead>
+                    <TableHead>{t("column.category")}</TableHead>
+                    <TableHead>{t("column.party")}</TableHead>
+                    <TableHead>{t("column.status")}</TableHead>
+                    <TableHead className="text-right">{t("column.quantity")}</TableHead>
+                    <TableHead>{t("column.detail")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -380,7 +383,7 @@ export function RecyclerReportCenter() {
                       <TableCell>{displayCategory(row.category, t)}</TableCell>
                       <TableCell>{row.party}</TableCell>
                       <TableCell><StatusBadge label={displayStatus(row.status, t)} /></TableCell>
-                      <TableCell className="tabular-nums">{row.quantity || "-"}</TableCell>
+                      <TableCell className="text-right tabular-nums">{row.quantity || "-"}</TableCell>
                       <TableCell className="max-w-72 whitespace-normal break-words">{row.detail || "-"}</TableCell>
                     </TableRow>
                   ))}
@@ -410,10 +413,10 @@ export function RecyclerReportCenter() {
         )}
       </section>
 
-      <section className="rounded-lg border bg-card p-4 print:hidden">
+      <section className="surface-panel rounded-xl p-4 sm:p-6 print:hidden">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-sm font-semibold">{t("history.title")}</h2>
+          <div className="min-w-0">
+            <h2 className="panel-title">{t("history.title")}</h2>
             <p className="text-xs text-muted-foreground">{t("history.description")}</p>
           </div>
           <span className="text-xs tabular-nums text-muted-foreground">{exportHistory.isError ? common("emptyValue") : exportHistory.data?.count ?? 0}</span>
@@ -527,7 +530,7 @@ function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-64 flex-col items-center justify-center px-5 text-center">
+    <div className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
       <p className="font-semibold">{title}</p>
       <p className="mt-1 max-w-md text-sm text-muted-foreground">{description}</p>
       {action && <div className="mt-4">{action}</div>}

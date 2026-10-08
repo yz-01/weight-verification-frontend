@@ -78,11 +78,10 @@ export function MultiPickList({
         onChange={(event) => onSearch(event.target.value)}
         placeholder={searchPlaceholder}
         aria-label={searchPlaceholder}
-        className="h-9"
       />
       <div className="max-h-40 space-y-1 overflow-y-auto">
         {options.map((option) => (
-          <label key={option.id} className="flex min-h-9 items-center gap-3">
+          <label key={option.id} className="flex min-h-10 items-center gap-3 pointer-coarse:min-h-11">
             <Checkbox
               checked={selected.includes(option.id)}
               onCheckedChange={(checked) => toggle(option.id, checked === true)}

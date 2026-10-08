@@ -5,7 +5,7 @@ import { FileDown, Landmark, ReceiptText, WalletCards } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FilterBar, FilterField } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { InvoiceState } from "@/interfaces/billing";
@@ -53,24 +53,25 @@ export function FinancialReports() {
   });
 
   return (
-    <div className="min-h-0 flex-1 space-y-5 overflow-y-auto">
-      <div className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-2">
-        <FieldWrapper label={t("filters.from")}><Input type="date" value={from} onChange={(event) => setFrom(event.target.value)} /></FieldWrapper>
-        <FieldWrapper label={t("filters.to")}><Input type="date" value={to} onChange={(event) => setTo(event.target.value)} /></FieldWrapper>
-      </div>
-      {summaries.isError && <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{t("financialReports.loadError")}</p>}
-      <div className="overflow-hidden surface-panel rounded-xl">
+    <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
+      <FilterBar>
+        <FilterField label={t("filters.from")}><Input type="date" className="sm:w-44" value={from} onChange={(event) => setFrom(event.target.value)} /></FilterField>
+        <FilterField label={t("filters.to")}><Input type="date" className="sm:w-44" value={to} onChange={(event) => setTo(event.target.value)} /></FilterField>
+      </FilterBar>
+      {summaries.isError && <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{t("financialReports.loadError")}</p>}
+      <div className="surface-panel overflow-hidden rounded-xl">
         {REPORTS.map((report) => {
           const Icon = report.icon;
           const totals = summaries.data?.reports[report.key];
           return (
-            <section key={report.key} className="border-b p-5 last:border-0">
+            <section key={report.key} className="border-b p-4 last:border-0 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Icon className="size-4.5" /></span>
-                <div className="min-w-0 flex-1"><h3 className="text-sm font-semibold">{t(`financialReports.${report.key}.title`)}</h3><p className="mt-1 text-xs text-muted-foreground">{t(`financialReports.${report.key}.subtitle`)}</p></div>
-                <div className="flex gap-2"><Button variant="outline" size="sm" disabled={exporting.isPending} onClick={() => exporting.mutate({ report, format: "pdf" })}><FileDown />PDF</Button><Button size="sm" disabled={exporting.isPending} onClick={() => exporting.mutate({ report, format: "xlsx" })}><FileDown />Excel</Button></div>
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-4.5" /></span>
+                <div className="min-w-0 flex-1"><h3 className="panel-title">{t(`financialReports.${report.key}.title`)}</h3><p className="mt-1 text-xs text-muted-foreground">{t(`financialReports.${report.key}.subtitle`)}</p></div>
+                <div className="flex flex-wrap gap-2"><Button variant="outline" disabled={exporting.isPending} onClick={() => exporting.mutate({ report, format: "pdf" })}><FileDown />PDF</Button><Button disabled={exporting.isPending} onClick={() => exporting.mutate({ report, format: "xlsx" })}><FileDown />Excel</Button></div>
               </div>
-              <div className="mt-4 grid overflow-hidden rounded-md border sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-4 overflow-hidden rounded-lg border bg-muted/30">
+              <div className="-mb-px -mr-px grid sm:grid-cols-2 lg:grid-cols-4">
                 {report.key === "paid" ? (
                   <>
                     <ReportMetric label={t("financialReports.metric.paymentCount")} value={metric(totals?.payment_count, summaries.isLoading)} />
@@ -92,6 +93,7 @@ export function FinancialReports() {
                   </>
                 )}
               </div>
+              </div>
             </section>
           );
         })}
@@ -101,7 +103,7 @@ export function FinancialReports() {
 }
 
 function ReportMetric({ label, value }: { label: string; value: string }) {
-  return <div className="min-h-20 border-b border-r px-4 py-3"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-2 text-sm font-semibold tabular-nums">{value}</p></div>;
+  return <div className="min-h-20 border-b border-r px-4 py-3"><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="tabular mt-2 text-sm font-semibold">{value}</p></div>;
 }
 
 function metric(value: number | undefined, loading: boolean): string {

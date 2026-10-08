@@ -24,7 +24,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import {
+  EmptyState,
   FieldWrapper,
+  FilterBar,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -150,13 +152,12 @@ export function MonitoringWorkspace({
     section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`);
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <ListHeader
         title={title}
         subtitle={subtitle}
         action={
           <Button
-            size="sm"
             variant="outline"
             disabled={overview.isFetching}
             onClick={() =>
@@ -174,7 +175,7 @@ export function MonitoringWorkspace({
       {section === "overview" ? (
         <div className="space-y-4">
           {overview.data && <MonitoringSummary data={overview.data} />}
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <MonitoringModuleLink
                 key={module.section}
@@ -184,18 +185,18 @@ export function MonitoringWorkspace({
           </div>
         </div>
       ) : overview.isError ? (
-        <div className="rounded-lg border border-destructive/25 bg-destructive/5 py-12 text-center text-sm text-destructive">
+        <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-6 py-12 text-center text-sm text-destructive">
           <AlertTriangle className="mx-auto mb-3 size-5" />
           {t("loadError")}
         </div>
       ) : overview.isLoading || !overview.data ? (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, index) => (
-            <Skeleton key={index} className="h-24 rounded-md" />
+            <Skeleton key={index} className="h-24 rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-4">
           <MonitoringSummary data={overview.data} />
           <SectionContent
             section={section}
@@ -232,7 +233,7 @@ function MonitoringModuleLink({
   return (
     <Link
       href={`/monitoring/${section}`}
-      className="group flex min-h-24 items-center gap-4 rounded-lg border bg-card px-4 py-4 shadow-sm transition hover:border-primary/35 hover:shadow-md"
+      className="group surface-panel flex min-h-24 items-center gap-4 rounded-xl p-4 transition hover:border-primary/35"
     >
       <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
         <Icon className="size-5" />
@@ -271,21 +272,21 @@ function MonitoringSummary({ data }: { data: MonitoringOverview }) {
         : data.services;
   return (
     <>
-      <div className="flex flex-col gap-4 rounded-lg border bg-card px-4 py-4 shadow-sm md:flex-row md:items-center">
+      <div className="surface-panel flex flex-col gap-4 rounded-xl p-4 sm:p-6 md:flex-row md:items-center">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <span
             className={`grid size-11 shrink-0 place-items-center rounded-md ${overall === "ok" ? "bg-success/10 text-success" : "bg-warning/15 text-warning"}`}
           >
             <ServerCog className="size-5" />
           </span>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-semibold">{t("summary.title")}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {t("summary.description")}
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-3 divide-x overflow-hidden rounded-md border bg-muted/15">
+        <div className="grid grid-cols-3 divide-x overflow-hidden rounded-lg border bg-muted/30">
           <SummaryValue
             label={t("summary.services")}
             value={data.services.length}
@@ -330,7 +331,7 @@ function MonitoringSummary({ data }: { data: MonitoringOverview }) {
                 <span className="min-w-0 flex-1 text-sm font-medium">
                   {t("summary.detail.openExceptions")}
                 </span>
-                <span className="font-semibold tabular-nums">
+                <span className="font-semibold tabular">
                   {data.exceptions.open}
                 </span>
                 <Button size="icon-sm" variant="ghost" asChild>
@@ -371,10 +372,10 @@ function SummaryValue({
       title={label}
       onClick={onClick}
     >
-      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-2xs text-muted-foreground">{label}</p>
       <span className="mt-0.5 inline-flex items-center gap-1">
         <span
-          className={`text-lg font-semibold tabular-nums ${tone ? "text-warning" : ""}`}
+          className={`text-lg font-semibold tabular ${tone ? "text-warning" : ""}`}
         >
           {value}
         </span>
@@ -414,7 +415,7 @@ function SectionContent({
         .includes(needle),
     );
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         <MetricGrid
           items={[
             ["onlineContractors", data.platform.online_contractors],
@@ -451,12 +452,14 @@ function SectionContent({
             ["staleWorkers", data.runtime.worker_status.stale],
           ]}
         />
-        <Input
-          value={serviceSearch}
-          onChange={(event) => setServiceSearch(event.target.value)}
-          placeholder={t("serviceSearchPlaceholder")}
-          className="max-w-md bg-card shadow-sm"
-        />
+        <FilterBar>
+          <Input
+            value={serviceSearch}
+            onChange={(event) => setServiceSearch(event.target.value)}
+            placeholder={t("serviceSearchPlaceholder")}
+            className="sm:max-w-md"
+          />
+        </FilterBar>
         <ServiceTable services={services} />
         <InventoryPanel inventory={data.integration_inventory} />
       </div>
@@ -465,7 +468,7 @@ function SectionContent({
 
   if (section === "cwe") {
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         <ModeLine mode={data.cwe.mode} status={data.cwe.status} />
         <MetricGrid
           items={[
@@ -479,14 +482,14 @@ function SectionContent({
             ["inProgress", data.cwe.in_progress],
           ]}
         />
-        <div className="overflow-x-auto surface-panel rounded-xl">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.scale")}</TableHead>
                 <TableHead>{t("field.company")}</TableHead>
                 <TableHead>{t("field.site")}</TableHead>
-                <TableHead>{t("field.currentWeight")}</TableHead>
+                <TableHead className="text-right tabular">{t("field.currentWeight")}</TableHead>
                 <TableHead>{t("field.lastChecked")}</TableHead>
                 <TableHead>{t("field.status")}</TableHead>
               </TableRow>
@@ -502,7 +505,7 @@ function SectionContent({
                   </TableCell>
                   <TableCell>{scale.company}</TableCell>
                   <TableCell>{scale.site}</TableCell>
-                  <TableCell className="tabular-nums">
+                  <TableCell className="text-right tabular">
                     {scale.current_weight_kg === null
                       ? "-"
                       : `${format.number(Number(scale.current_weight_kg))} kg`}
@@ -552,7 +555,7 @@ function SectionContent({
 
   if (section === "api-gateway") {
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         <ServiceConfigurationLinks settingsHref="/system-settings/api-gateway" />
         <ModeLine
           mode={data.api_gateway.mode}
@@ -583,7 +586,7 @@ function SectionContent({
 
   if (section === "sync") {
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         <ModeLine mode={data.sync.mode} status={data.sync.status} />
         <MetricGrid
           items={[
@@ -595,7 +598,7 @@ function SectionContent({
             ["successRate", `${format.number(data.sync.success_rate)}%`],
           ]}
         />
-        <div className="overflow-x-auto surface-panel rounded-xl">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table>
             <TableHeader>
               <TableRow>
@@ -712,7 +715,7 @@ function JobsPanel() {
           }}
         />
       )}
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* A failed worker read shows a dash, not "0 workers running". */}
         <SummaryTile label={t("workers.total")} value={workers.data?.total} />
         <SummaryTile
@@ -734,13 +737,12 @@ function JobsPanel() {
       </div>
       <QueryFailedNote query={workers} what={t("what.workers")} />
 
-      <section className="surface-panel rounded-xl">
-        <div className="flex flex-wrap items-center gap-2 border-b p-3">
-          <ServerCog className="size-4 text-muted-foreground" />
-          <p className="text-sm font-semibold">{t("title")}</p>
+      <section className="surface-panel overflow-hidden rounded-xl">
+        <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3 sm:px-6">
+          <p className="panel-title">{t("title")}</p>
           <p className="text-xs text-muted-foreground">{t("help")}</p>
           <div className="ml-auto">
-            <Button size="sm" onClick={() => setCreating(true)}>
+            <Button onClick={() => setCreating(true)}>
               <Plus className="size-4" />
               {t("addJob")}
             </Button>
@@ -751,9 +753,7 @@ function JobsPanel() {
         ) : jobs.isError ? (
           <LoadFailed onRetry={() => void jobs.refetch()} />
         ) : !rows.length ? (
-          <p className="m-4 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-            {t("empty")}
-          </p>
+          <EmptyState icon={ServerCog} title={t("empty")} className="m-4" />
         ) : (
           <div className="overflow-x-auto">
             <Table>
@@ -785,15 +785,15 @@ function JobsPanel() {
                         </span>
                       </button>
                     </TableCell>
-                    <TableCell className="tabular-nums">
+                    <TableCell className="tabular">
                       {job.interval_minutes
                         ? t("everyMinutes", { minutes: job.interval_minutes })
                         : t("oneOff")}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap tabular-nums">
+                    <TableCell className="whitespace-nowrap tabular">
                       {df.dateTime(job.next_run_at)}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap tabular-nums">
+                    <TableCell className="whitespace-nowrap tabular">
                       {job.last_run_at ? df.dateTime(job.last_run_at) : "-"}
                     </TableCell>
                     <TableCell>
@@ -842,16 +842,14 @@ function JobsPanel() {
         )}
       </section>
 
-      <section className="surface-panel rounded-xl">
-        <div className="flex flex-wrap items-center gap-2 border-b p-3">
-          <History className="size-4 text-muted-foreground" />
-          <p className="text-sm font-semibold">{t("runs.title")}</p>
+      <section className="surface-panel overflow-hidden rounded-xl">
+        <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3 sm:px-6">
+          <p className="panel-title">{t("runs.title")}</p>
           <p className="text-xs text-muted-foreground">
             {selected ? t("runs.filtered") : t("runs.all")}
           </p>
           {selected && (
             <Button
-              size="sm"
               variant="ghost"
               className="ml-auto"
               onClick={() => setSelected("")}
@@ -865,30 +863,26 @@ function JobsPanel() {
         ) : runs.isError ? (
           <LoadFailed onRetry={() => void runs.refetch()} />
         ) : !(runs.data?.results ?? []).length ? (
-          <p className="m-4 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-            {t("runs.empty")}
-          </p>
+          <EmptyState icon={History} title={t("runs.empty")} className="m-4" />
         ) : (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  {[
-                    "scheduled",
-                    "handler",
-                    "state",
-                    "attempt",
-                    "finished",
-                    "detail",
-                  ].map((key) => (
-                    <TableHead key={key}>{t(`runs.column.${key}`)}</TableHead>
-                  ))}
+                  <TableHead>{t("runs.column.scheduled")}</TableHead>
+                  <TableHead>{t("runs.column.handler")}</TableHead>
+                  <TableHead>{t("runs.column.state")}</TableHead>
+                  <TableHead className="text-right tabular">
+                    {t("runs.column.attempt")}
+                  </TableHead>
+                  <TableHead>{t("runs.column.finished")}</TableHead>
+                  <TableHead>{t("runs.column.detail")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(runs.data?.results ?? []).map((run) => (
                   <TableRow key={run.id}>
-                    <TableCell className="whitespace-nowrap tabular-nums">
+                    <TableCell className="whitespace-nowrap tabular">
                       {df.dateTime(run.scheduled_for)}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
@@ -900,10 +894,10 @@ function JobsPanel() {
                         tone={runTone(run.state)}
                       />
                     </TableCell>
-                    <TableCell className="tabular-nums">
+                    <TableCell className="text-right tabular">
                       {run.attempt}/{run.max_attempts}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap tabular-nums">
+                    <TableCell className="whitespace-nowrap tabular">
                       {run.completed_at ? df.dateTime(run.completed_at) : "-"}
                     </TableCell>
                     <TableCell className="max-w-80 truncate text-xs text-muted-foreground">
@@ -924,7 +918,7 @@ function LoadFailed({ onRetry }: { onRetry: () => void }) {
   const t = useTranslations("monitoring");
   const common = useTranslations("common");
   return (
-    <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-4">
+    <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-3">
       <p className="text-sm text-destructive">{t("jobs.loadError")}</p>
       <Button size="sm" variant="outline" onClick={onRetry}>
         <RefreshCw />
@@ -962,9 +956,9 @@ function SummaryTile({
     neutral: "text-foreground",
   }[tone];
   return (
-    <div className="surface-panel rounded-xl p-4">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className={`mt-1 text-2xl font-semibold tabular-nums ${colour}`}>
+    <div className="surface-panel rounded-xl p-4 sm:p-6">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className={`mt-1 text-2xl font-semibold tabular ${colour}`}>
         {value ?? common("emptyValue")}
       </p>
     </div>
@@ -1002,13 +996,13 @@ function IntegrationSection({
   );
   const livePending = requestedMode === "LIVE" && !verifiedLive;
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ServiceConfigurationLinks settingsHref={settingsHref} />
-      <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-4 shadow-sm">
-        <span className="grid size-10 place-items-center rounded-md bg-primary/10 text-primary">
-          <Icon className="h-5 w-5" />
+      <div className="surface-panel flex flex-wrap items-center gap-3 rounded-xl p-4 sm:p-6">
+        <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+          <Icon className="size-5" />
         </span>
-        <div>
+        <div className="min-w-0 flex-1">
           <span className="font-semibold">{monitor.name}</span>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {t(`modeDescription.${monitor.mode}`)}
@@ -1018,9 +1012,9 @@ function IntegrationSection({
           <ModeLine mode={monitor.mode} status={monitor.status} />
         </div>
       </div>
-      <div className="grid overflow-hidden surface-panel rounded-xl sm:grid-cols-2 sm:divide-x">
-        <div className="px-4 py-3">
-          <p className="text-xs text-muted-foreground">
+      <div className="surface-panel grid grid-cols-1 overflow-hidden rounded-xl sm:grid-cols-2 sm:divide-x">
+        <div className="p-4 sm:px-6">
+          <p className="text-xs font-medium text-muted-foreground">
             {t("connectionMode.requested")}
           </p>
           <div className="mt-2">
@@ -1040,8 +1034,8 @@ function IntegrationSection({
             )}
           </div>
         </div>
-        <div className="border-t px-4 py-3 sm:border-t-0">
-          <p className="text-xs text-muted-foreground">
+        <div className="border-t p-4 sm:border-t-0 sm:px-6">
+          <p className="text-xs font-medium text-muted-foreground">
             {t("connectionMode.actual")}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -1050,7 +1044,7 @@ function IntegrationSection({
           </div>
         </div>
         {livePending && (
-          <p className="border-t bg-warning/5 px-4 py-3 text-xs leading-5 text-warning sm:col-span-2">
+          <p className="border-t bg-warning/5 px-4 py-3 text-xs leading-5 text-warning sm:col-span-2 sm:px-6">
             {t("connectionMode.livePending")}
           </p>
         )}
@@ -1213,22 +1207,21 @@ function InventoryPanel({
     );
   });
   return (
-    <section className="space-y-4 surface-panel rounded-xl p-4">
+    <section className="surface-panel space-y-4 rounded-xl p-4 sm:p-6">
       <div>
-        <h3 className="text-sm font-semibold">{t("inventory.title")}</h3>
+        <h3 className="panel-title">{t("inventory.title")}</h3>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
           {t("inventory.description")}
         </p>
       </div>
-      <div className="grid gap-3 rounded-lg border bg-muted/15 p-3 md:grid-cols-2 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 rounded-lg border bg-muted/30 p-3 md:grid-cols-2 xl:grid-cols-6">
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder={t("inventory.searchPlaceholder")}
-          className="bg-card"
         />
         <select
-          className="h-9 rounded-md border bg-card px-3 text-sm"
+          className="native-control"
           value={companyType}
           onChange={(event) => setCompanyType(event.target.value)}
         >
@@ -1237,7 +1230,7 @@ function InventoryPanel({
           <option value="RECYCLER">{t("inventory.recycler")}</option>
         </select>
         <select
-          className="h-9 rounded-md border bg-card px-3 text-sm"
+          className="native-control"
           value={company}
           onChange={(event) => setCompany(event.target.value)}
         >
@@ -1249,7 +1242,7 @@ function InventoryPanel({
           ))}
         </select>
         <select
-          className="h-9 rounded-md border bg-card px-3 text-sm"
+          className="native-control"
           value={kind}
           onChange={(event) => setKind(event.target.value)}
         >
@@ -1261,7 +1254,7 @@ function InventoryPanel({
           ))}
         </select>
         <select
-          className="h-9 rounded-md border bg-card px-3 text-sm"
+          className="native-control"
           value={deviceType}
           onChange={(event) => setDeviceType(event.target.value)}
         >
@@ -1273,7 +1266,7 @@ function InventoryPanel({
           ))}
         </select>
         <select
-          className="h-9 rounded-md border bg-card px-3 text-sm"
+          className="native-control"
           value={status}
           onChange={(event) => setStatus(event.target.value)}
         >
@@ -1433,7 +1426,7 @@ function InventoryPanel({
 function MonitoringPurpose({ section }: { section: MonitoringSection }) {
   const t = useTranslations("monitoring");
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/[0.035] px-4 py-4 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-3 rounded-xl border border-primary/15 bg-primary/5 p-4 sm:flex-row sm:items-center sm:px-6">
       <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
         <CircleGauge className="size-5" />
       </span>
@@ -1444,7 +1437,7 @@ function MonitoringPurpose({ section }: { section: MonitoringSection }) {
         </p>
       </div>
       {section === "overview" && (
-        <Button size="sm" variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/system-settings">
             <Settings2 />
             {t("purpose.openSettings")}
@@ -1458,21 +1451,21 @@ function MonitoringPurpose({ section }: { section: MonitoringSection }) {
 function ServiceConfigurationLinks({ settingsHref }: { settingsHref: string }) {
   const t = useTranslations("monitoring");
   return (
-    <div className="flex flex-col gap-3 rounded-md border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <div>
+    <div className="flex flex-col gap-3 rounded-xl border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="min-w-0">
         <p className="text-sm font-medium">{t("purpose.needChange")}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {t("purpose.needChangeDescription")}
         </p>
       </div>
       <div className="flex shrink-0 flex-wrap gap-2">
-        <Button size="sm" variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href={settingsHref}>
             <Settings2 />
             {t("purpose.openSettings")}
           </Link>
         </Button>
-        <Button size="sm" variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/integrations">
             <Cable />
             {t("purpose.openIntegrations")}
@@ -1486,11 +1479,11 @@ function ServiceConfigurationLinks({ settingsHref }: { settingsHref: string }) {
 function MetricGrid({ items }: { items: Array<[string, string | number]> }) {
   const t = useTranslations("monitoring.metric");
   return (
-    <div className="grid gap-px overflow-hidden rounded-lg border bg-border shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-panel-border bg-border sm:grid-cols-2 lg:grid-cols-4">
       {items.map(([key, value]) => (
-        <div key={key} className="min-h-24 bg-card px-4 py-4">
+        <div key={key} className="min-h-24 bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground">{t(key)}</p>
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{value}</p>
+          <p className="mt-3 text-2xl font-semibold tabular">{value}</p>
         </div>
       ))}
     </div>
@@ -1508,13 +1501,13 @@ function InventoryMode({
   return (
     <div className="space-y-1.5 whitespace-nowrap">
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-2xs text-muted-foreground">
           {t("connectionMode.requested")}
         </span>
         <TypeBadge label={t(`mode.${requested}`)} />
       </div>
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-2xs text-muted-foreground">
           {t("connectionMode.actual")}
         </span>
         <TypeBadge label={t(`mode.${actual}`)} />
@@ -1552,7 +1545,7 @@ function ServiceTable({
   const t = useTranslations("monitoring");
   const df = useDateFormat();
   return (
-    <div className="overflow-x-auto surface-panel rounded-xl">
+    <div className="surface-panel overflow-hidden rounded-xl">
       <Table>
         <TableHeader>
           <TableRow>
@@ -1560,7 +1553,7 @@ function ServiceTable({
             <TableHead>{t("field.mode")}</TableHead>
             <TableHead>{t("field.status")}</TableHead>
             <TableHead>{t("field.lastChecked")}</TableHead>
-            <TableHead>{t("field.failures24h")}</TableHead>
+            <TableHead className="text-right tabular">{t("field.failures24h")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1578,7 +1571,7 @@ function ServiceTable({
                   ? df.dateTime(service.last_checked_at)
                   : "-"}
               </TableCell>
-              <TableCell className="tabular-nums">
+              <TableCell className="text-right tabular">
                 {service.failures_24h}
               </TableCell>
             </TableRow>
@@ -1642,7 +1635,7 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-2 md:grid-cols-[minmax(12rem,1fr)_12rem_12rem]">
+      <FilterBar>
         <Input
           value={search}
           onChange={(event) => {
@@ -1650,6 +1643,7 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
             setPage(1);
           }}
           placeholder={t("eventSearchPlaceholder")}
+          className="sm:min-w-48 sm:flex-1"
         />
         <FilterSelect
           value={severity}
@@ -1677,8 +1671,8 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
             label: value ? t(`resolution.${value}`) : common("all"),
           }))}
         />
-      </div>
-      <div className="overflow-x-auto surface-panel rounded-xl">
+      </FilterBar>
+      <div className="surface-panel overflow-hidden rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
@@ -1763,8 +1757,8 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+        <span className="tabular text-muted-foreground">
           {query.data
             ? t("recordsCount", { count: query.data.count })
             : query.isError
@@ -1847,7 +1841,7 @@ function FilterSelect({
   return (
     <select
       aria-label={ariaLabel}
-      className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+      className="native-control sm:w-48"
       value={value}
       onChange={(event) => onChange(event.target.value)}
     >
@@ -1916,26 +1910,24 @@ function RecentCapturesPanel() {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <h3 className="panel-title">
         {t("captures.title")}
       </h3>
       {captures.isError ? (
         <LoadFailed onRetry={() => void captures.refetch()} />
       ) : captures.isLoading ? (
-        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full rounded-xl" />
       ) : rows.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
-          {t("captures.none")}
-        </p>
+        <EmptyState icon={Camera} title={t("captures.none")} />
       ) : (
-        <div className="overflow-x-auto surface-panel rounded-xl">
+        <div className="surface-panel overflow-hidden rounded-xl">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("captures.capturedAt")}</TableHead>
                 <TableHead>{t("captures.device")}</TableHead>
                 <TableHead>{t("captures.kind")}</TableHead>
-                <TableHead>{t("captures.size")}</TableHead>
+                <TableHead className="text-right tabular">{t("captures.size")}</TableHead>
                 <TableHead>{t("captures.attachedTo")}</TableHead>
                 <TableHead className="text-right">
                   {t("captures.action")}
@@ -1952,7 +1944,7 @@ function RecentCapturesPanel() {
                   <TableCell>
                     <TypeBadge label={t(`captures.kindLabel.${row.kind}`)} />
                   </TableCell>
-                  <TableCell className="tabular-nums">
+                  <TableCell className="text-right tabular">
                     {format.number(Math.round(row.size_bytes / 1024))} KB
                   </TableCell>
                   <TableCell className="font-mono text-xs">
@@ -2022,17 +2014,15 @@ function PlateReadsPanel() {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <h3 className="panel-title">
         {t("plateReads.title")}
       </h3>
       {events.isError ? (
         <LoadFailed onRetry={() => void events.refetch()} />
       ) : events.isLoading ? (
-        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full rounded-xl" />
       ) : rows.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
-          {t("plateReads.none")}
-        </p>
+        <EmptyState icon={ScanLine} title={t("plateReads.none")} />
       ) : (
         <>
           <MetricGrid
@@ -2042,7 +2032,7 @@ function PlateReadsPanel() {
               ["plateReads.denied", denied],
             ]}
           />
-          <div className="overflow-x-auto surface-panel rounded-xl">
+          <div className="surface-panel overflow-hidden rounded-xl">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -2161,7 +2151,7 @@ function CreateJobDialog({
           <DialogDescription>{t("addJobHelp")}</DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.code")} required>
             <Input value={code} onChange={(e) => setCode(e.target.value)} />
           </FieldWrapper>
@@ -2170,7 +2160,7 @@ function CreateJobDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.kind")}>
             <select
-              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+              className="native-control"
               value={kind}
               onChange={(e) => setKind(e.target.value)}
             >
@@ -2183,7 +2173,7 @@ function CreateJobDialog({
           </FieldWrapper>
           <FieldWrapper label={t("field.handler")} required hint={t("field.handlerHint")}>
             <select
-              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+              className="native-control"
               value={handler}
               disabled={handlers.isLoading}
               onChange={(e) => setHandler(e.target.value)}

@@ -231,7 +231,7 @@ export function MaterialRequestForm({
           <LoadFailed what={t("field.assignedReviewer")} onRetry={() => void reviewers.refetch()} />
         )}
         {project && reviewers.isSuccess && reviewerRows.length === 0 && (
-          <p role="alert" className="mt-1.5 rounded-md border border-warning/30 bg-warning/5 px-2 py-1.5 text-xs">
+          <p role="alert" className="mt-1.5 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-xs">
             {t("form.noReviewers")}
           </p>
         )}
@@ -270,7 +270,7 @@ export function MaterialRequestForm({
           </div>
           {options.isError && <LoadFailed what={t("options.title")} onRetry={() => void options.refetch()} />}
           {listEmpty && !options.isError && (
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-xs">
               <span>{t("form.listsEmpty")}</span>
               {onManageLists && (
                 <Button type="button" size="sm" variant="outline" onClick={onManageLists}>
@@ -337,7 +337,7 @@ export function MaterialRequestForm({
         optional={isMaterial ? common("optional") : undefined}
         hint={t("form.attachmentHint", { count: MAX_ATTACHMENTS, limit: MAX_ATTACHMENT_MB })}
       >
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-3 text-sm font-medium hover:bg-muted">
+        <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-3 text-sm font-medium hover:bg-muted">
           <Paperclip className="size-4" />
           {t("form.addFiles")}
           <input
@@ -354,7 +354,7 @@ export function MaterialRequestForm({
         {attachments.length > 0 && (
           <ul className="mt-2 space-y-1">
             {attachments.map((file, index) => (
-              <li key={`${file.name}-${index}`} className="flex items-center justify-between gap-2 rounded-md border px-2 py-1 text-xs">
+              <li key={`${file.name}-${index}`} className="flex min-w-0 items-center justify-between gap-2 rounded-lg border px-2 py-1 text-xs">
                 <span className="truncate">
                   {index + 1}. {file.name}
                 </span>
@@ -373,7 +373,7 @@ export function MaterialRequestForm({
       </FieldWrapper>
 
       {error && (
-        <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}

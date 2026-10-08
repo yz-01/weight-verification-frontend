@@ -89,7 +89,7 @@ export function Suppliers() {
           />
         ),
         cell: ({ row }) => (
-          <div className="flex max-w-[320px] items-center gap-1.5">
+          <div className="flex max-w-80 items-center gap-1.5">
             <span
               className="truncate font-medium text-foreground"
               title={row.original.name}
@@ -107,12 +107,12 @@ export function Suppliers() {
         accessorKey: "industry",
         meta: { label: t("suppliers.field.industry") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.industry")}
           </span>
         ),
         cell: ({ row }) => (
-          <div className="min-w-0 max-w-[260px]">
+          <div className="min-w-0 max-w-65">
             <p className="truncate" title={row.original.industry || undefined}>
               {row.original.industry || t("common.emptyValue")}
             </p>
@@ -131,7 +131,7 @@ export function Suppliers() {
         accessorKey: "contact_person",
         meta: { label: t("suppliers.field.contactPerson") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.contactPerson")}
           </span>
         ),
@@ -152,7 +152,7 @@ export function Suppliers() {
         accessorKey: "qr_code_count",
         meta: { label: t("suppliers.field.qrCodeCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.qrCodeCount")}
           </span>
         ),
@@ -164,7 +164,7 @@ export function Suppliers() {
         accessorKey: "is_active",
         meta: { label: t("suppliers.field.isActive") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("suppliers.field.isActive")}
           </span>
         ),
@@ -275,9 +275,9 @@ export function Suppliers() {
           <>
             <ExportButton onExport={runExport} disabled={totalCount === 0} />
             {can("supplier.create") && (
-              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+              <Button asChild>
                 <Link href="/suppliers/create">
-                  <Plus className="h-4 w-4" />
+                  <Plus className="size-4" />
                   {t("suppliers.new")}
                 </Link>
               </Button>

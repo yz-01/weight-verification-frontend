@@ -87,21 +87,21 @@ export function OwnerAccountPanel({ companyId }: { companyId: string }) {
           <p className="text-sm text-muted-foreground">
             {t("companies.owner.account.description")}
           </p>
-          <dl className="grid grid-cols-1 gap-2 rounded-lg border bg-muted/20 p-3 text-sm sm:grid-cols-3">
+          <dl className="grid grid-cols-1 gap-3 rounded-lg border bg-muted/30 p-3 text-sm sm:grid-cols-3">
             <div>
-              <dt className="text-xs text-muted-foreground">
+              <dt className="text-xs font-medium text-muted-foreground">
                 {t("companies.field.ownerName")}
               </dt>
               <dd className="font-medium">{row.full_name}</dd>
             </div>
             <div>
-              <dt className="text-xs text-muted-foreground">
+              <dt className="text-xs font-medium text-muted-foreground">
                 {t("companies.field.ownerEmail")}
               </dt>
               <dd className="font-medium break-all">{row.email}</dd>
             </div>
             <div>
-              <dt className="text-xs text-muted-foreground">
+              <dt className="text-xs font-medium text-muted-foreground">
                 {t("companies.owner.account.status")}
               </dt>
               <dd className="font-medium">
@@ -171,7 +171,7 @@ export function OwnerAccountPanel({ companyId }: { companyId: string }) {
             </p>
           ) : null}
           {link ? (
-            <div className="rounded-lg border border-warning/40 bg-warning/5 p-3">
+            <div className="rounded-lg border border-warning/40 bg-warning/10 p-3">
               <p className="text-xs text-muted-foreground">
                 {t("companies.owner.account.notSent")}
               </p>

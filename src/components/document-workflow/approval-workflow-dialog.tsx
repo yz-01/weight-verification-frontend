@@ -136,7 +136,7 @@ export function ApprovalWorkflowDialog({
         </DialogHeader>
 
         <div className="flex flex-wrap items-end gap-2">
-          <FieldWrapper label={t("workflow.name")} required className="min-w-48 flex-1">
+          <FieldWrapper label={t("workflow.name")} required className="min-w-0 flex-1 basis-full sm:basis-48">
             <Input
               value={newName}
               onChange={(event) => setNewName(event.target.value)}
@@ -159,7 +159,7 @@ export function ApprovalWorkflowDialog({
         ) : templates.isLoading ? (
           <p className="text-sm text-muted-foreground">{t("workflow.loading")}</p>
         ) : !rows.length ? (
-          <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+          <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
             {t("workflow.noTemplates")}
           </p>
         ) : (
@@ -394,7 +394,7 @@ function StepEditor({
   });
 
   return (
-    <div className="space-y-3 border-t bg-muted/20 p-3">
+    <div className="space-y-3 border-t bg-muted/30 p-3">
       {loading ? (
         <p className="text-sm text-muted-foreground">{t("workflow.loading")}</p>
       ) : failed ? (
@@ -408,7 +408,7 @@ function StepEditor({
           {steps.map((step) => (
             <li
               key={step.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-background p-3"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-3"
             >
               <div className="min-w-0">
                 <p className="font-medium">
@@ -455,7 +455,7 @@ function StepEditor({
         </FieldWrapper>
         <FieldWrapper label={t("workflow.reviewer")} required>
           <Select value={assignee} onValueChange={setAssignee}>
-            <SelectTrigger aria-label={t("workflow.reviewer")}>
+            <SelectTrigger className="w-full" aria-label={t("workflow.reviewer")}>
               <SelectValue placeholder={t("workflow.reviewerPlaceholder")} />
             </SelectTrigger>
             <SelectContent>

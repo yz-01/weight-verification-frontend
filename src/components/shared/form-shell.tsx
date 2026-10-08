@@ -91,8 +91,6 @@ export function FormShell({
           <Button
             type="button"
             variant="outline"
-            size="sm"
-            className="rounded-md px-4"
             onClick={() => router.back()}
           >
             <X className="h-4 w-4" />
@@ -101,9 +99,7 @@ export function FormShell({
           <Button
             type="submit"
             form="mse-form"
-            size="sm"
             disabled={isSubmitting}
-            className="rounded-md px-4 shadow-sm"
           >
             {isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -127,8 +123,6 @@ export function FormShell({
             <Button
               asChild
               variant="outline"
-              size="sm"
-              className="rounded-md px-4"
             >
               <Link href={backHref}>
                 <X className="h-4 w-4" />
@@ -138,9 +132,7 @@ export function FormShell({
             <Button
               type="submit"
               form="mse-form"
-              size="sm"
               disabled={isSubmitting}
-              className="rounded-md px-4 shadow-sm"
             >
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -154,7 +146,7 @@ export function FormShell({
       />
 
       <div className="surface-panel rounded-xl">
-        <div className="px-6 py-5">
+        <div className="px-4 py-4 sm:px-6">
           <h2 className="text-base font-semibold text-foreground">{title}</h2>
           {description && (
             <p className="mt-0.5 text-sm text-muted-foreground">
@@ -193,8 +185,8 @@ export function FormSection({
   // rather than form by form - tighter padding everywhere, and a third column
   // on a wide screen so a long form spreads across instead of down.
   return (
-    <section className={cn(surface === "dialog" ? "px-4 py-2.5" : "px-5 py-3")}>
-      <h3 className={cn("mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground")}>
+    <section className={cn(surface === "dialog" ? "px-4 py-3" : "px-4 py-3 sm:px-6")}>
+      <h3 className="panel-title mb-2">
         {title}
       </h3>
       <div
@@ -313,7 +305,7 @@ export function LoadErrorCard({
   return (
     <div className="space-y-4">
       <DetailHeader backHref={backHref} backLabel={backLabel} />
-      <div className="rounded-lg border bg-card px-6 py-16 text-center shadow-sm">
+      <div className="surface-panel rounded-xl px-6 py-16 text-center">
         {words}
       </div>
     </div>

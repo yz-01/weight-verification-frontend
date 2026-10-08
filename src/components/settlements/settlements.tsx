@@ -59,7 +59,7 @@ export function Settlements() {
         accessorKey: "state",
         meta: { label: t("settlements.field.state") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("settlements.field.state")}
           </span>
         ),
@@ -74,14 +74,14 @@ export function Settlements() {
         accessorKey: "dispatch_no",
         meta: { label: t("settlements.field.dispatchNo") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("settlements.field.dispatchNo")}
           </span>
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
             <p className="tabular truncate">{row.original.dispatch_no}</p>
-            <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+            <p className="max-w-45 truncate text-xs text-muted-foreground">
               {row.original.project_name}
             </p>
           </div>
@@ -91,14 +91,16 @@ export function Settlements() {
         accessorKey: "settled_weight_kg",
         meta: { label: t("settlements.field.settledWeight") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("settlements.field.settledWeight")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("settlements.field.settledWeight")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <div className="min-w-0">
+          <div className="min-w-0 text-right">
             <p className="tabular font-medium text-foreground">
               {row.original.settled_weight_kg}
             </p>
@@ -114,14 +116,16 @@ export function Settlements() {
         accessorKey: "total_amount",
         meta: { label: t("settlements.field.totalAmount") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("settlements.field.totalAmount")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("settlements.field.totalAmount")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <span className="tabular font-medium text-foreground">
+          <span className="tabular block text-right font-medium text-foreground">
             {row.original.currency} {row.original.total_amount ?? "—"}
           </span>
         ),
@@ -130,7 +134,7 @@ export function Settlements() {
         accessorKey: "outstanding",
         meta: { label: t("settlements.field.outstanding") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("settlements.field.outstanding")}
           </span>
         ),
@@ -140,8 +144,8 @@ export function Settlements() {
             <span
               className={
                 owed > 0
-                  ? "tabular font-medium text-warning"
-                  : "tabular text-muted-foreground"
+                  ? "tabular block text-right font-medium text-warning"
+                  : "tabular block text-right text-muted-foreground"
               }
             >
               {row.original.outstanding ?? "—"}
@@ -202,9 +206,9 @@ export function Settlements() {
         }
         action={
           can("settlement.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/settlements/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("settlements.new")}
               </Link>
             </Button>

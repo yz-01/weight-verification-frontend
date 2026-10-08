@@ -115,11 +115,10 @@ function UnitRow({ row, onSaved }: { row: MaterialUnitOption; onSaved: () => voi
               aria-label={t("label")}
               value={label}
               onChange={(event) => setLabel(event.target.value)}
-              className="h-9 min-w-0 flex-1"
+              className="min-w-0 flex-1"
             />
             {label.trim() !== row.label && (
               <Button
-                size="sm"
                 variant="outline"
                 disabledReason={!label.trim() ? t("label") : undefined}
                 disabled={save.isPending || !label.trim()}

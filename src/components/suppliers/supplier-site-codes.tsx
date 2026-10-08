@@ -113,7 +113,7 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
       ) : codes.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : rows.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-5 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {t("suppliers.siteCodes.empty")}
         </p>
       ) : (
@@ -153,7 +153,7 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
                     variant="outline"
                     onClick={() => setShowing(row)}
                   >
-                    <QrCode className="h-4 w-4" />
+                    <QrCode className="size-4" />
                     {t("qrCodes.viewQr")}
                   </Button>
                 )}
@@ -165,7 +165,7 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
                     className="text-destructive"
                     onClick={() => setRevoking(row)}
                   >
-                    <XCircle className="h-4 w-4" />
+                    <XCircle className="size-4" />
                     {t("qrCodes.revoke.confirm")}
                   </Button>
                 )}
@@ -192,7 +192,7 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
             <FieldWrapper
               label={t("suppliers.siteCodes.chooseSite")}
               required
-              className="min-w-56 flex-1"
+              className="w-full flex-1 sm:min-w-56"
             >
               <ProjectPicker
                 value={chosenProject}
@@ -210,7 +210,7 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
               disabled={issue.isPending}
               onClick={() => issue.mutate()}
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="size-4" />
               {t("suppliers.siteCodes.issue")}
             </Button>
           </div>
@@ -283,7 +283,7 @@ function SiteCodeDialog({
             {t("suppliers.siteCodes.scanHelp")}
           </DialogDescription>
         </DialogHeader>
-        <div className="mx-auto rounded-lg border bg-white p-4">
+        <div className="mx-auto rounded-lg border bg-paper p-4">
           <QRCodeCanvas
             ref={canvas}
             value={scanUrl}
@@ -297,7 +297,7 @@ function SiteCodeDialog({
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={downloadPng}>
-            <Download className="h-4 w-4" />
+            <Download className="size-4" />
             {t("qrCodes.downloadPng")}
           </Button>
           <Button type="button" onClick={onClose}>

@@ -30,7 +30,7 @@ const dialog = source.slice(
 describe("removing a construction phase from the progress page", () => {
   it("calls the backend delete for an existing phase only", () => {
     expect(dialog).toMatch(/deleteConstructionPhase\(phase!\.id\)/);
-    expect(dialog).toMatch(/\{phase && \(\s*<div[^>]*border-destructive/);
+    expect(dialog).toMatch(/\{phase && \(\s*<div[^>]*border-tone-rose/);
   });
 
   it("is armed by a switch, never a confirm dialog (spec rule 8)", () => {

@@ -123,7 +123,7 @@ export function HeadquartersApprovals({ initialProject = "" }: { initialProject?
                 >
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium">
-                      <span className="mr-1.5 rounded bg-primary/10 px-1.5 py-0.5 text-[11px] text-primary">
+                      <span className="mr-1.5 rounded bg-primary/10 px-1.5 py-0.5 text-2xs text-primary">
                         {sources.has(row.source) ? sources(row.source) : row.resource_type}
                       </span>
                       {row.approval_no ? `${row.approval_no} · ${row.title}` : row.title}

@@ -72,7 +72,7 @@ export function Sites() {
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[240px] truncate font-medium text-foreground"
+            className="block max-w-60 truncate font-medium text-foreground"
             title={row.original.name}
           >
             {row.original.name}
@@ -83,7 +83,7 @@ export function Sites() {
         accessorKey: "scale_count",
         meta: { label: t("sites.field.scaleCount") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("sites.field.scaleCount")}
           </span>
         ),
@@ -95,7 +95,7 @@ export function Sites() {
         accessorKey: "city",
         meta: { label: t("sites.field.city") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("sites.field.city")}
           </span>
         ),
@@ -116,7 +116,7 @@ export function Sites() {
         accessorKey: "is_active",
         meta: { label: t("sites.field.isActive") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("sites.field.isActive")}
           </span>
         ),
@@ -207,9 +207,9 @@ export function Sites() {
         subtitle={isLoading ? "—" : t("sites.count", { count: totalCount })}
         action={
           can("yard.manage") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/sites/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("sites.new")}
               </Link>
             </Button>

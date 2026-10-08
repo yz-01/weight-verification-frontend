@@ -104,7 +104,7 @@ export function FieldSignaturePad({
         ref={canvasRef}
         width={720}
         height={260}
-        className="aspect-[18/6.5] w-full touch-none rounded-lg border-2 border-dashed bg-white shadow-inner"
+        className="aspect-[18/6.5] w-full touch-none rounded-lg border-2 border-dashed bg-paper shadow-inner"
         aria-label={label}
         onPointerDown={start}
         onPointerMove={move}

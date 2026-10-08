@@ -16,7 +16,7 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -192,30 +192,30 @@ export function BusinessTargetManagement() {
   }
 
   return (
-    <section className="space-y-4">
+    <section className="flex flex-col gap-4">
       <ListHeader
         title={t("management.title")}
         subtitle={t("management.subtitle")}
-        action={canManage ? <Button size="sm" onClick={openNew}><Plus />{t("management.new")}</Button> : undefined}
+        action={canManage ? <Button onClick={openNew}><Plus />{t("management.new")}</Button> : undefined}
       />
       {targets.isLoading ? (
         <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin text-primary" /></div>
       ) : targets.isError ? (
-        <p className="rounded-lg border p-6 text-center text-sm text-destructive">{t("loadError")}</p>
+        <p className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive">{t("loadError")}</p>
       ) : (targets.data?.results.length ?? 0) === 0 ? (
-        <div className="rounded-lg border border-dashed p-8 text-center"><Target className="mx-auto size-8 text-muted-foreground" /><p className="mt-2 text-sm text-muted-foreground">{t("management.empty")}</p></div>
+        <EmptyState icon={Target} title={t("management.empty")} />
       ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           {(targets.data?.results ?? []).map((row) => {
             const value = percent(row);
             return (
-              <article key={row.id} className="rounded-lg border bg-card p-4">
+              <article key={row.id} className="surface-panel min-w-0 rounded-xl p-4 sm:p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0"><h3 className="truncate font-semibold">{row.name}</h3><p className="mt-1 text-xs text-muted-foreground">{row.project_name || t("management.companyWide")} / {row.period_start} - {row.period_end}</p></div>
                   <StatusBadge label={row.is_active ? t("status.active") : t("status.inactive")} tone={row.is_active ? "positive" : "neutral"} />
                 </div>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${value}%` }} /></div>
-                <div className="mt-2 flex items-center justify-between text-sm"><span>{row.current_value} / {row.target_value}</span><strong>{value.toFixed(2)}%</strong></div>
+                <div className="mt-2 flex items-center justify-between gap-3 text-sm tabular"><span className="min-w-0 break-words">{row.current_value} / {row.target_value}</span><strong>{value.toFixed(2)}%</strong></div>
                 {row.description && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{row.description}</p>}
                 <div className="mt-4 flex flex-wrap justify-end gap-2">
                   <Button size="sm" variant="outline" disabled={refresh.isPending} onClick={() => refresh.mutate(row.id)}><RefreshCw className={refresh.isPending ? "animate-spin" : ""} />{t("management.refresh")}</Button>
@@ -245,8 +245,8 @@ export function BusinessTargetManagement() {
               <FieldWrapper label={t("field.targetValue")} required hint={t(`field.targetValueHint.${draft.metric}`)}><Input type="number" min="0.001" step="0.001" value={draft.target_value} onChange={(event) => setField("target_value", event.target.value)} /></FieldWrapper>
               <FieldWrapper label={t("field.periodStart")} required><Input type="date" value={draft.period_start} onChange={(event) => setField("period_start", event.target.value)} /></FieldWrapper>
               <FieldWrapper label={t("field.periodEnd")} required><Input type="date" value={draft.period_end} onChange={(event) => setField("period_end", event.target.value)} /></FieldWrapper>
-              <FieldWrapper label={t("field.notifyUsers")} hint={t("field.notifyUsersHint")} className="sm:col-span-2"><div className="max-h-36 overflow-y-auto rounded-md border">{(users.data?.results ?? []).map((user) => <label key={user.id} className="flex min-h-10 items-center gap-2 border-b px-3 py-2 last:border-0"><Checkbox checked={(draft.notify_user_ids ?? []).includes(user.id)} onCheckedChange={(checked) => setField("notify_user_ids", checked === true ? [...(draft.notify_user_ids ?? []), user.id] : (draft.notify_user_ids ?? []).filter((id) => id !== user.id))} /><span className="text-sm">{user.full_name}</span></label>)}{!users.isLoading && !users.isError && (users.data?.results.length ?? 0) === 0 && <p className="p-3 text-sm text-muted-foreground">{t("field.noUsers")}</p>}</div><QueryFailedNote query={users} what={t("what.users")} /></FieldWrapper>
-              <div className="grid gap-2 sm:col-span-2"><p className="text-sm font-medium">{t("field.milestones")}</p><div className="grid gap-2 sm:grid-cols-4">{([50, 80, 90, 100] as const).map((threshold) => { const key = `notify_at_${threshold}` as keyof Draft; return <label key={threshold} className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"><Checkbox checked={draft[key] === true} onCheckedChange={(checked) => setField(key, checked === true)} />{threshold}%</label>; })}</div><p className="text-xs text-muted-foreground">{t("field.milestonesHint")}</p></div>
+              <FieldWrapper label={t("field.notifyUsers")} hint={t("field.notifyUsersHint")} className="sm:col-span-2"><div className="max-h-36 overflow-y-auto rounded-lg border">{(users.data?.results ?? []).map((user) => <label key={user.id} className="flex min-h-10 items-center gap-2 border-b px-3 py-2 last:border-0"><Checkbox checked={(draft.notify_user_ids ?? []).includes(user.id)} onCheckedChange={(checked) => setField("notify_user_ids", checked === true ? [...(draft.notify_user_ids ?? []), user.id] : (draft.notify_user_ids ?? []).filter((id) => id !== user.id))} /><span className="text-sm">{user.full_name}</span></label>)}{!users.isLoading && !users.isError && (users.data?.results.length ?? 0) === 0 && <p className="p-3 text-sm text-muted-foreground">{t("field.noUsers")}</p>}</div><QueryFailedNote query={users} what={t("what.users")} /></FieldWrapper>
+              <div className="grid gap-2 sm:col-span-2"><p className="text-sm font-medium">{t("field.milestones")}</p><div className="grid gap-2 sm:grid-cols-4">{([50, 80, 90, 100] as const).map((threshold) => { const key = `notify_at_${threshold}` as keyof Draft; return <label key={threshold} className="flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-sm"><Checkbox checked={draft[key] === true} onCheckedChange={(checked) => setField(key, checked === true)} />{threshold}%</label>; })}</div><p className="text-xs text-muted-foreground">{t("field.milestonesHint")}</p></div>
               {save.isError && <p className="text-sm text-destructive sm:col-span-2">{t("saveError")}</p>}
             </div>
             <DialogFooter><Button variant="outline" onClick={() => setEditing(null)}><X />{t("management.cancel")}</Button><Button requires={[[draft.name, t("field.name")], [decimal(draft.target_value) && Number(decimal(draft.target_value)) > 0, t("field.targetValue")], [draft.period_start, t("field.periodStart")], [draft.period_end && draft.period_start <= draft.period_end, t("field.periodEnd")], [draft.metric !== "MATERIAL_RECEIPT_QUANTITY" || draft.material_unit, t("field.materialUnit")]]}

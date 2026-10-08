@@ -68,7 +68,7 @@ export function LoginRecords() {
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[240px] truncate">
+            <p className="max-w-60 truncate">
               {row.original.email_attempted}
             </p>
             {row.original.user_name && (
@@ -100,7 +100,7 @@ export function LoginRecords() {
         accessorKey: "ip_address",
         meta: { label: t("loginRecords.field.ipAddress") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("loginRecords.field.ipAddress")}
           </span>
         ),
@@ -114,13 +114,13 @@ export function LoginRecords() {
         accessorKey: "user_agent",
         meta: { label: t("loginRecords.field.userAgent") },
         header: () => (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {t("loginRecords.field.userAgent")}
           </span>
         ),
         cell: ({ row }) => (
           <span
-            className="block max-w-[320px] truncate text-xs text-muted-foreground"
+            className="block max-w-80 truncate text-xs text-muted-foreground"
             title={row.original.user_agent}
           >
             {row.original.user_agent || t("common.emptyValue")}

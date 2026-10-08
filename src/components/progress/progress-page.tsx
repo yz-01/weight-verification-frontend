@@ -36,7 +36,7 @@ import {
 import { ProgressSummaryTab } from "@/components/progress/progress-summary";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FilterSelect, ProjectListFilter } from "@/components/shared/module-records-table";
-import { ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
+import { FilterBar, ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { SchedulePlanningWorkspace } from "@/components/schedule-planning/schedule-planning-workspace";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -170,7 +170,7 @@ function PhotoViewSwitch() {
     router.replace(`${pathname}?${query.toString()}`, { scroll: false });
   };
   return (
-    <div className="inline-flex rounded-md border bg-card p-0.5 text-xs" role="group" aria-label={t("viewLabel")}>
+    <div className="inline-flex h-10 rounded-lg border bg-card p-1 text-sm pointer-coarse:h-11" role="group" aria-label={t("viewLabel")}>
       {(["wall", "records"] as const).map((key) => (
         <button
           key={key}
@@ -178,7 +178,7 @@ function PhotoViewSwitch() {
           aria-pressed={view === key}
           onClick={() => go(key)}
           className={cn(
-            "rounded px-2.5 py-1 font-medium",
+            "flex-1 rounded-md px-3 font-medium sm:flex-none",
             view === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
           )}
         >
@@ -235,8 +235,8 @@ export function SitePhotosTab() {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-4">
+      <FilterBar>
         <PhotoViewSwitch />
         <ProjectListFilter list={list} />
         <FilterSelect
@@ -253,14 +253,14 @@ export function SitePhotosTab() {
           to={list.filters.date_to ?? ""}
           onChange={(next) => list.setFilters(next)}
         />
-      </div>
+      </FilterBar>
       <QueryFailedNote query={photos} what={t("tabs.photos")} />
       <QueryFailedNote query={phases} what={t("tabs.phases")} />
 
       {canWrite && (
         <div
           className={cn(
-            "flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-sm",
+            "flex flex-wrap items-center gap-2 rounded-xl border p-3 text-sm",
             selected.length ? "border-primary/40 bg-primary/5" : "border-dashed bg-muted/20",
           )}
         >
@@ -274,14 +274,14 @@ export function SitePhotosTab() {
               {t("photos.oneProject")}
             </span>
           )}
-          <div className="ml-auto flex gap-2">
+          <div className="ml-auto flex flex-wrap gap-2">
             {selected.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={() => setSelected([])}>
+              <Button variant="ghost" onClick={() => setSelected([])}>
                 <X />
                 {t("photos.clear")}
               </Button>
             )}
-            <Button size="sm" className="rounded-full px-4" onClick={() => setWriting(true)}>
+            <Button onClick={() => setWriting(true)}>
               <PenLine />
               {t("reports.write")}
             </Button>
@@ -292,7 +292,7 @@ export function SitePhotosTab() {
       {photos.isLoading ? (
         <Loader2 className="size-4 animate-spin text-muted-foreground" />
       ) : rows.length === 0 ? (
-        <p className="rounded-lg border border-dashed py-10 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {photos.isError ? "—" : t("photos.empty")}
         </p>
       ) : (

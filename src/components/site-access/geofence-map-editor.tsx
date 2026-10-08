@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { MAP_PRIMARY } from "@/lib/map-palette";
+
 import {
   MAP_TILE_OPTIONS,
   MAP_TILE_URL,
@@ -144,8 +146,8 @@ export function GeofenceMapEditor({
     if (shape === "CIRCLE" && center) {
       L.circle(center, {
         radius: radiusM,
-        color: "#087f8c",
-        fillColor: "#087f8c",
+        color: MAP_PRIMARY,
+        fillColor: MAP_PRIMARY,
         fillOpacity: 0.12,
         weight: 2,
       }).addTo(layers);
@@ -159,12 +161,12 @@ export function GeofenceMapEditor({
     if (shape === "POLYGON" && points.length > 0) {
       const boundary = points.length >= 3
         ? L.polygon(points, {
-            color: "#087f8c",
-            fillColor: "#087f8c",
+            color: MAP_PRIMARY,
+            fillColor: MAP_PRIMARY,
             fillOpacity: 0.12,
             weight: 2,
           })
-        : L.polyline(points, { color: "#087f8c", weight: 2 });
+        : L.polyline(points, { color: MAP_PRIMARY, weight: 2 });
       boundary.addTo(layers);
       points.forEach((point, index) => {
         const marker = L.marker(point, {
