@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getLocale, getNow, getTimeZone } from "next-intl/server";
 import localFont from "next/font/local";
 
 import { AppProviders } from "@/components/providers/app-providers";
+import { IntlProvider } from "@/components/providers/intl-provider";
+import { resolveLocale } from "@/i18n/config";
 import { BRANDING_BOOTSTRAP_SCRIPT } from "@/lib/branding";
 import { FIELD_INSTALL_PROMPT_BOOTSTRAP_SCRIPT } from "@/lib/pwa-install";
 
@@ -107,7 +108,9 @@ export default async function RootLayout({
 }>) {
   // Read from the locale cookie rather than a URL segment. Language is a
   // property of the account, so it must not appear in any shareable link.
-  const locale = await getLocale();
+  const locale = resolveLocale(await getLocale());
+  const timeZone = await getTimeZone();
+  const now = await getNow();
   const deploymentId =
     process.env.VERCEL_DEPLOYMENT_ID ??
     process.env.VERCEL_GIT_COMMIT_SHA ??
@@ -143,9 +146,11 @@ export default async function RootLayout({
           data-mse-branding-bootstrap
           dangerouslySetInnerHTML={{ __html: BRANDING_BOOTSTRAP_SCRIPT }}
         />
-        <NextIntlClientProvider>
+        {/* Translations are loaded by the browser, not written into every
+            page (perf #7); see IntlProvider. */}
+        <IntlProvider locale={locale} timeZone={timeZone} now={now}>
           <AppProviders deploymentId={deploymentId}>{children}</AppProviders>
-        </NextIntlClientProvider>
+        </IntlProvider>
       </body>
     </html>
   );

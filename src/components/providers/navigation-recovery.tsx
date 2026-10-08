@@ -33,11 +33,7 @@ export function NavigationRecovery({ deploymentId }: { deploymentId: string }) {
       const message =
         reason instanceof Error ? `${reason.name}: ${reason.message}` : String(reason ?? "");
       if (!isVersionSkewError(message)) return;
-
-      const lastRecovery = Number(window.sessionStorage.getItem(RECOVERY_KEY) ?? 0);
-      if (Date.now() - lastRecovery < RECOVERY_COOLDOWN_MS) return;
-      window.sessionStorage.setItem(RECOVERY_KEY, String(Date.now()));
-      window.location.reload();
+      reloadAfterVersionSkew();
     };
 
     const onError = (event: ErrorEvent) => {
@@ -78,4 +74,17 @@ function isVersionSkewError(message: string): boolean {
   return /ChunkLoadError|Loading chunk|dynamically imported module|module script|Failed to load Next\.js script|RSC payload/i.test(
     message,
   );
+}
+
+/**
+ * Reload to pick up the current deployment's files, at most once every 30 s
+ * per tab so a file that is truly gone cannot cause a reload loop. Also used
+ * by `IntlProvider` when the translation file fails to load, which happens
+ * before this component has mounted.
+ */
+export function reloadAfterVersionSkew(): void {
+  const lastRecovery = Number(window.sessionStorage.getItem(RECOVERY_KEY) ?? 0);
+  if (Date.now() - lastRecovery < RECOVERY_COOLDOWN_MS) return;
+  window.sessionStorage.setItem(RECOVERY_KEY, String(Date.now()));
+  window.location.reload();
 }
