@@ -134,7 +134,7 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
           <Loader2 className="mr-2 inline size-4 animate-spin" />
           {common("loading")}
         </p>
-      ) : presence.isError || !data ? (
+      ) : presence.isLoadingError || !data ? (
         <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-3 sm:mx-6">
           <p className="text-sm text-destructive">{t("loadError")}</p>
           <Button size="sm" variant="outline" onClick={() => void presence.refetch()}>

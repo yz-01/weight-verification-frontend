@@ -413,13 +413,13 @@ export function CreateProject({ project }: { project?: Project }) {
 /** Fetches the record, then hands it to the shared form. */
 export function EditProject({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["projects", "detail", id],
     queryFn: () => getProject(id),
   });
 
   if (isLoading) return <FormSkeleton sections={5} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/projects" backLabel={t("projects.title")} />;
   }
   return <CreateProject project={data} />;

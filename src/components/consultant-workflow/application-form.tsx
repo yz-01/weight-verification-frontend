@@ -149,7 +149,7 @@ export function ConsultantApplicationForm({
   if (id && existing.isLoading) {
     return <div className="grid min-h-72 place-items-center"><Loader2 className="size-7 animate-spin text-primary" /></div>;
   }
-  if (id && (existing.isError || !existing.data || existing.data.status !== "DRAFT")) {
+  if (id && (existing.isLoadingError || !existing.data || existing.data.status !== "DRAFT")) {
     return <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.draftUnavailable")}</div>;
   }
   return (

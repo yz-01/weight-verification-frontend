@@ -383,13 +383,13 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
 /** Fetches the record, then hands it to the correction form. */
 export function EditReceipt({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["receipts", "detail", id],
     queryFn: () => getReceipt(id),
   });
 
   if (isLoading) return <FormSkeleton sections={4} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
   }
   return <CorrectReceiptForm receipt={data} />;

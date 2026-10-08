@@ -25,7 +25,7 @@ export function ApplicationVerification({ code }: { code: string }) {
         </header>
         {query.isLoading ? (
           <div className="grid min-h-80 place-items-center"><Loader2 className="size-7 animate-spin text-primary" /></div>
-        ) : query.isError || !query.data ? (
+        ) : query.isLoadingError || !query.data ? (
           <div className="grid min-h-80 place-items-center p-8 text-center">
             <div><ShieldX className="mx-auto size-12 text-destructive" /><h2 className="mt-4 text-lg font-semibold">{t("notFoundTitle")}</h2><p className="mt-2 text-sm text-muted-foreground">{t("notFoundHelp")}</p></div>
           </div>

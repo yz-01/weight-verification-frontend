@@ -90,7 +90,7 @@ export function ViewProject({ id }: { id: string }) {
   const queryClient = useQueryClient();
   const [archiving, setArchiving] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["projects", "detail", id],
     queryFn: () => getProject(id),
   });
@@ -105,7 +105,7 @@ export function ViewProject({ id }: { id: string }) {
   });
 
   if (isLoading) return <FormSkeleton sections={4} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/projects" backLabel={t("projects.title")} />;
   }
 

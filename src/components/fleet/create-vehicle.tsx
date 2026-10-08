@@ -300,13 +300,13 @@ function ToggleField({
 
 export function EditVehicle({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["vehicles", "detail", id],
     queryFn: () => getVehicle(id),
   });
 
   if (isLoading) return <FormSkeleton sections={3} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/vehicles" backLabel={t("vehicles.title")} />;
   }
   return <CreateVehicle vehicle={data} />;

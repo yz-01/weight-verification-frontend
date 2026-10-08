@@ -190,7 +190,7 @@ export function ConsultantApplicationDetail({
       </RecordDetailFrame>
     );
   }
-  if (query.isError || !query.data) {
+  if (query.isLoadingError || !query.data) {
     return (
       <RecordDetailFrame {...frame} title={t("applications.title")}>
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.loadError")}</div>

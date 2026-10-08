@@ -53,7 +53,7 @@ export function DriverDetail({ id }: { id: string }) {
   });
 
   if (detail.isLoading) return <FormSkeleton sections={3} />;
-  if (detail.isError || !detail.data) {
+  if (detail.isLoadingError || !detail.data) {
     return <LoadErrorCard backHref="/drivers" backLabel={t("drivers.title")} />;
   }
   const driver = detail.data;
@@ -140,7 +140,7 @@ export function VehicleDetail({ id }: { id: string }) {
   });
 
   if (detail.isLoading) return <FormSkeleton sections={3} />;
-  if (detail.isError || !detail.data) {
+  if (detail.isLoadingError || !detail.data) {
     return <LoadErrorCard backHref="/vehicles" backLabel={t("vehicles.title")} />;
   }
   const vehicle = detail.data;

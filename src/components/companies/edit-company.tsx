@@ -11,13 +11,13 @@ import { getCompany } from "@/services/companies.service";
 /** Fetches the record, then hands it to the shared form. */
 export function EditCompany({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["companies", "detail", id],
     queryFn: () => getCompany(id),
   });
 
   if (isLoading) return <FormSkeleton sections={4} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/companies" backLabel={t("companies.title")} />;
   }
   return (

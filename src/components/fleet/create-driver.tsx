@@ -410,13 +410,13 @@ function ToggleField({
 
 export function EditDriver({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["drivers", "detail", id],
     queryFn: () => getDriver(id),
   });
 
   if (isLoading) return <FormSkeleton sections={3} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/drivers" backLabel={t("drivers.title")} />;
   }
   return <CreateDriver driver={data} />;

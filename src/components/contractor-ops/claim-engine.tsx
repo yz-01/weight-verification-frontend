@@ -429,7 +429,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {claim.isLoading ? (
           <p className="p-4 text-sm text-muted-foreground">{t("loading")}</p>
-        ) : claim.isError || !data ? (
+        ) : claim.isLoadingError || !data ? (
           <p role="alert" className="p-4 text-sm text-destructive">
             {t("failed")}
           </p>

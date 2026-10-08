@@ -330,13 +330,13 @@ export function CreateDispatch({
 /** Fetches the record, then hands it to the shared form. */
 export function EditDispatch({ id }: { id: string }) {
   const t = useTranslations();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["dispatches", "detail", id],
     queryFn: () => getDispatch(id),
   });
 
   if (isLoading) return <FormSkeleton sections={3} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return (
       <LoadErrorCard backHref="/waste-clearance?kind=dispatch" backLabel={t("dispatches.title")} />
     );

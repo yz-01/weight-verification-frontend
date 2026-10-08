@@ -64,7 +64,7 @@ export function ViewSettlement({ id }: { id: string }) {
   const [paying, setPaying] = useState(false);
   const [reason, setReason] = useState("");
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["settlements", "detail", id],
     queryFn: () => getSettlement(id),
   });
@@ -79,7 +79,7 @@ export function ViewSettlement({ id }: { id: string }) {
   });
 
   if (isLoading) return <FormSkeleton sections={4} />;
-  if (isError || !data) {
+  if (isLoadingError || !data) {
     return (
       <LoadErrorCard
         backHref="/settlements"

@@ -440,7 +440,7 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {detail.isLoading ? (
           <p className="text-sm text-muted-foreground">{t("loading")}</p>
-        ) : detail.isError || !data ? (
+        ) : detail.isLoadingError || !data ? (
           <p role="alert" className="text-sm text-destructive">
             {t("failed")}
           </p>
@@ -925,7 +925,7 @@ function RecordPreviewDialog({
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {detail.isLoading ? (
           <p className="text-sm text-muted-foreground">{t("loading")}</p>
-        ) : detail.isError || !data ? (
+        ) : detail.isLoadingError || !data ? (
           <p role="alert" className="text-sm text-destructive">{t("failed")}</p>
         ) : (
           <>
@@ -1281,7 +1281,7 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
         {detail.isLoading ? (
           <p className="text-sm text-muted-foreground">{t("loading")}</p>
-        ) : detail.isError || !data ? (
+        ) : detail.isLoadingError || !data ? (
           <LoadFailed what={t("what.package")} onRetry={() => void detail.refetch()} />
         ) : (
           <>
