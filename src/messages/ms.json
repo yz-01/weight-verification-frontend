@@ -5895,6 +5895,23 @@
         "hint": "Hanya kategori yang tidak dirujuk oleh mana-mana rekod kemajuan boleh dibuang - contohnya yang ditambah secara silap. Yang sedang digunakan boleh dimatikan di atas.",
         "confirm": "Buang kategori",
         "failed": "Kategori tidak dapat dibuang. Cuba lagi."
+      },
+      "correction": {
+        "edit": "Betulkan peratusan",
+        "newPercent": "Peratusan baharu (%)",
+        "was": "Kini {percent}%",
+        "reason": "Sebab perubahan",
+        "reasonPlaceholder": "cth. Tapak memasukkan 40 tetapi papak sudah 55% siap",
+        "save": "Simpan pembetulan",
+        "cancel": "Batal",
+        "range": "Masukkan peratusan dari 0 hingga 100",
+        "unchanged": "Itu sudah peratusan semasa",
+        "evidenceNote": "Hanya peratusan berubah. Foto, lokasi, masa diambil dan perekod kekal seperti direkodkan.",
+        "archivedNote": "Rekod ini telah diarkibkan. Hanya peratusan boleh dibetulkan; foto, lokasi, masa diambil dan perekod kekal dikunci.",
+        "edited": "Disunting",
+        "historyTitle": "Perubahan peratusan",
+        "change": "{from}% → {to}%",
+        "by": "{name} · {at}"
       }
     },
     "progressEvidence": {
@@ -7447,7 +7464,9 @@
       "null": "Ruangan ini wajib diisi",
       "phone_in_use": "Nombor ini telah digunakan oleh akaun staf tapak lain",
       "required": "Ruangan ini wajib diisi",
-      "unique": "Nilai ini telah digunakan"
+      "unique": "Nilai ini telah digunakan",
+      "percent_range": "Masukkan peratusan dari 0 hingga 100",
+      "percent_unchanged": "Itu sudah peratusan semasa"
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",

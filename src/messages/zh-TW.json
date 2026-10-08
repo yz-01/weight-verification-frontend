@@ -5895,6 +5895,23 @@
         "hint": "只有沒有任何進度記錄指著的施工分類可以刪除（例如建錯的）；在用的請在上面關掉。",
         "confirm": "刪除施工分類",
         "failed": "施工分類沒有刪除成功，請再試一次。"
+      },
+      "correction": {
+        "edit": "修改百分比",
+        "newPercent": "新的完成比例（%）",
+        "was": "目前 {percent}%",
+        "reason": "修改原因",
+        "reasonPlaceholder": "例如：現場填了 40，實際已完成 55%",
+        "save": "儲存修改",
+        "cancel": "取消",
+        "range": "請輸入 0 到 100 之間的百分比",
+        "unchanged": "與目前的百分比相同",
+        "evidenceNote": "只改百分比。照片、位置、拍攝時間和記錄人保持原樣。",
+        "archivedNote": "此記錄已歸檔。只能修改百分比；照片、位置、拍攝時間和記錄人仍然鎖定。",
+        "edited": "已修改",
+        "historyTitle": "百分比修改記錄",
+        "change": "{from}% → {to}%",
+        "by": "{name} · {at}"
       }
     },
     "progressEvidence": {
@@ -7447,7 +7464,9 @@
       "null": "此項為必填",
       "phone_in_use": "該手機號碼已被其他現場人員賬號使用",
       "required": "此項為必填",
-      "unique": "此值已被佔用"
+      "unique": "此值已被佔用",
+      "percent_range": "請輸入 0 到 100 之間的百分比",
+      "percent_unchanged": "與目前的百分比相同"
     },
     "forbidden": "你沒有訪問權限。",
     "forbiddenBody": "如果確實需要，請聯繫管理員。",

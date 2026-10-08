@@ -291,7 +291,7 @@ export function RecordDetailShell({
    * the record's own steps are done. Left out for a record that closes
    * another way - a hazard closes by its raiser's 确认完成.
    */
-  closure?: { kind: ArchiveRecordKind; recordId: string } | null;
+  closure?: { kind: ArchiveRecordKind; recordId: string; onConfirmed?: () => void } | null;
   /** 更正记录, when the record has been corrected. */
   corrections?: React.ReactNode;
   /** 记录人 - usually a `RecordRecorder`. */
@@ -435,7 +435,11 @@ export function RecordDetailShell({
               >
                 {actions}
                 {closure ? (
-                  <RecordClosurePanel kind={closure.kind} recordId={closure.recordId} />
+                  <RecordClosurePanel
+                    kind={closure.kind}
+                    recordId={closure.recordId}
+                    onConfirmed={closure.onConfirmed}
+                  />
                 ) : null}
               </ShellPanel>
             ) : null}
