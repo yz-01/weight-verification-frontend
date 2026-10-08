@@ -1,3 +1,5 @@
+import type { OriginalBackupSummary, OriginalStatus } from "@/interfaces/evidence";
+
 /** The contractor console's records: sites, suppliers, deliveries and loads out. */
 
 export type ProjectStatus =
@@ -434,6 +436,12 @@ export interface MySubmissionRow {
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
   photo_count?: number;
+  /**
+   * Where the record's photo originals stand (H5 三.5, WP1): 应用照片已上传 /
+   * 原图待同步 / 原图已备份 / 同步失败, as the server sees it. Optional for
+   * screens that build rows elsewhere.
+   */
+  original_backup?: OriginalBackupSummary;
   id: string;
   kind:
     | "MATERIAL_RECEIPT"
@@ -458,7 +466,11 @@ export interface MySubmissionRow {
   submitted_at: string;
   status: string;
   status_label: string;
-  photo: string | null;
+  /**
+   * The first photograph's full-size link. Not sent on the phone's own
+   * history (client 2026-10-09 二.3: the list shows only `cover_photo_url`).
+   */
+  photo?: string | null;
 }
 
 /**
@@ -480,6 +492,10 @@ export interface MySubmissionField {
 }
 
 export interface MySubmissionPhoto {
+  /** This photo's original (H5 三, WP1); its expected hash and size when one is kept. */
+  original_status?: OriginalStatus;
+  original_sha256?: string;
+  original_size_bytes?: number;
   /**
    * The photograph's own primary key.
    *
@@ -489,7 +505,14 @@ export interface MySubmissionPhoto {
    * because the two older screens neither send nor read it.
    */
   id?: string;
+  /** The stamped copy, full size: fetched only when the photo is opened. */
   url: string;
+  /**
+   * Its ~400 px WebP thumbnail, for a record's photo strip (client
+   * 2026-10-09 二.4, 五.3); null for a photo the server has no ledger row
+   * for - the strip then falls back to `url`.
+   */
+  thumbnail_url?: string | null;
   caption: string;
 }
 
@@ -504,9 +527,18 @@ export interface MySubmissionDetail extends MySubmissionRow {
 
 export interface MySubmissionsPage {
   results: MySubmissionRow[];
-  count: number;
-  /** True when the page shows fewer rows than exist, so the screen can say so. */
+  /**
+   * Every row inside the window - on the first page only; null on the pages
+   * after it (the screen keeps the first page's).
+   */
+  count: number | null;
+  /** True when rows older than this page are left, so the screen can say so. */
   truncated: boolean;
+  /**
+   * Where the next page starts: passed back as `before` (client 2026-10-09
+   * 五.2). Null on the last page.
+   */
+  next_before?: string | null;
   /**
    * How many days of history the phone is allowed to show, or 0 for no limit
    * (D-197). Sent so the footer states the company's real figure instead of a

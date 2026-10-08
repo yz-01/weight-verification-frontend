@@ -31,6 +31,7 @@ import {
 import { portalLoginPath } from "@/lib/portal";
 import { t } from "@/lib/i18n-runtime";
 import { getActiveProjectId } from "@/lib/project-context";
+import { attachOriginalManifest, carriesOriginals, markOriginalsDeclared } from "@/lib/original-photos";
 
 const BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000"
@@ -259,6 +260,12 @@ export async function request<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
+  // A photo upload declares the originals this phone keeps for its photos
+  // (H5 三, WP1). Once, before the first send: a 401 resend reuses the body.
+  const declared =
+    options.body instanceof FormData && carriesOriginals(options.body)
+      ? await attachOriginalManifest(options.body)
+      : [];
   let response: Response;
   try {
     response = await send(path, options);
@@ -324,6 +331,7 @@ export async function request<T>(
     throw failure;
   }
 
+  if (declared.length) await markOriginalsDeclared(declared);
   return envelope.data;
 }
 

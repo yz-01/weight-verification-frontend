@@ -217,6 +217,36 @@ export class FormDraftStore {
   flush = () => this.writes;
 }
 
+/**
+ * The names of every photo saved drafts hold - so a kept original whose photo
+ * is still in an unsent form is never taken for an abandoned one (H5 三.8,
+ * `protectedLocalItems`). Reads names only, never the photos' bytes.
+ */
+export async function draftFileNames(): Promise<string[]> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction("files", "readonly");
+    const done = completed(transaction);
+    const names: string[] = [];
+    await new Promise<void>((resolve, reject) => {
+      const cursor = transaction.objectStore("files").openCursor();
+      cursor.onsuccess = () => {
+        const current = cursor.result;
+        if (!current) {
+          resolve();
+          return;
+        }
+        const name = (current.value as DraftFile).file?.name;
+        if (name) names.push(name);
+        current.continue();
+      };
+      cursor.onerror = () => reject(cursor.error);
+    });
+    await done;
+    return names;
+  } finally { database.close(); }
+}
+
 export function formDraftKey(company: string | null, user: string, scope: string) {
   return JSON.stringify([company, user, scope]);
 }
