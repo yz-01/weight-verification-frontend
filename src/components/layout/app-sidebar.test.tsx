@@ -32,8 +32,23 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: auth.user, can: () => true }),
 }));
-vi.mock("@/hooks/use-unread-badges", () => ({
-  useUnreadBadges: () => ({ material_receipts: 3 }),
+// What is waiting, per module page (Lucas 2026-10-08: a number beside
+// every module, not only 材料管理). 材料管理 adds its two pages up.
+const badges = vi.hoisted(() => ({
+  counts: {
+    material_receipts: 2,
+    material_outgoing: 4,
+    equipment: 5,
+    safety: 1,
+    sundry_claims: 7,
+    approvals: 3,
+    site_disposals: 2,
+    field_tasks: 1,
+  } as Record<string, number | null>,
+}));
+vi.mock("@/hooks/use-unread-badges", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/hooks/use-unread-badges")>()),
+  useUnreadBadges: () => badges.counts,
   badgeLabelKey: () => "nav.waitingUnknown",
 }));
 // The footer's own controls are not the subject here.
@@ -133,9 +148,58 @@ describe("the restyled sidebar keeps the whole menu", () => {
     expect(openers).toHaveLength(withMenus.length);
   });
 
-  it("still shows the waiting count on its entry", () => {
+  /** `{feature: number shown}` for every entry that carries a badge. */
+  function renderedBadges(markup: string): Record<string, string> {
+    return Object.fromEntries(
+      [...markup.matchAll(/data-sidebar-badge="([^"]+)"[^>]*>([^<]+)<\/span>/g)].map(
+        (match) => [match[1], match[2]],
+      ),
+    );
+  }
+
+  it("shows a waiting count on every module that has one, not only 材料管理", () => {
     const markup = render(allFeatures(), [], true);
-    expect(markup).toMatch(/data-sidebar="menu-button"[^>]*href="[^"]*"[\s\S]*?>3<\/span>/);
+    expect(renderedBadges(markup)).toEqual({
+      // 材料进场 2 + 材料出场 4, on the one 材料管理 entry.
+      material_receipts: "6",
+      // 设备: both pages share the feature, counted once.
+      equipment: "5",
+      // 回收: 垃圾清运 is counted here.
+      recyclers: "2",
+      // 顾问 / 隐患 / 文件审批 / 杂费报销 / 现场任务.
+      hazard_rectification: "1",
+      documents: "3",
+      project_categories: "7",
+      field_tasks: "1",
+    });
+    // 杂费报销 is the entry with the 7; its sibling entries on the same
+    // feature (归档队列, 分类管理, Claim Engine) carry nothing.
+    expect(markup.match(/data-sidebar-badge="project_categories"/g)).toHaveLength(1);
+    expect(markup).toMatch(
+      /href="\/sundry-claims"[\s\S]*?data-sidebar-badge="project_categories"[^>]*>7</,
+    );
+  });
+
+  it("shows nothing on a module with nothing waiting", () => {
+    const markup = render(allFeatures(), [], true);
+    expect(markup).not.toMatch(/data-sidebar-badge="progress"/);
+    expect(markup).not.toMatch(/data-sidebar-badge="users"/);
+  });
+
+  it("marks every entry that could carry a number when the counts never loaded", () => {
+    const loaded = badges.counts;
+    badges.counts = Object.fromEntries(
+      ["material_receipts", "material_outgoing", "equipment", "safety"].map((key) => [key, null]),
+    );
+    try {
+      const markup = render(allFeatures(), [], true);
+      expect(markup).not.toMatch(/data-sidebar-badge=/);
+      const unknown = markup.match(/>\?<\/span>/g) ?? [];
+      // 材料管理, 设备, 隐患整改 - one "?" each, never two on one entry.
+      expect(unknown).toHaveLength(3);
+    } finally {
+      badges.counts = loaded;
+    }
   });
 
   it("filters by feature and permission exactly as the navigation rules say", () => {
