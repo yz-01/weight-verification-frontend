@@ -1,18 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
-import {
-  Chakra_Petch,
-  Geist_Mono,
-  Noto_Sans_SC,
-  Noto_Sans_TC,
-} from "next/font/google";
 import localFont from "next/font/local";
 
 import { AppProviders } from "@/components/providers/app-providers";
 import { BRANDING_BOOTSTRAP_SCRIPT } from "@/lib/branding";
 import { FIELD_INSTALL_PROMPT_BOOTSTRAP_SCRIPT } from "@/lib/pwa-install";
 
+import "@fontsource-variable/noto-sans-sc";
+import "@fontsource-variable/noto-sans-tc";
 import "./globals.css";
 
 /*
@@ -21,26 +17,32 @@ import "./globals.css";
  * - IBM Plex Sans: English and Malay. An engineering face with open shapes
  *   and clear tabular figures; it reads as a serious instrument rather than a
  *   friendly app, and it covers Malay's Latin fully.
- * - Noto Sans SC / Noto Sans TC (思源黑体): Chinese. Google serves CJK fonts as
- *   about a hundred small unicode-range slices, so a page downloads only the
- *   slices its characters need. Not preloaded: preloading would fetch slices
- *   a page may not use. TC is declared for every page but its files are only
- *   fetched where `lang="zh-TW"` puts it into the font stack (globals.css).
+ * - Noto Sans SC / Noto Sans TC (思源黑体): Chinese. Served as about a hundred
+ *   small unicode-range slices, so a page downloads only the slices its
+ *   characters need. Not preloaded: preloading would fetch slices a page may
+ *   not use. TC is declared for every page but its files are only fetched
+ *   where `lang="zh-TW"` puts it into the font stack (globals.css).
  * - Chakra Petch: the canvas's techy figure face, used ONLY for large KPI
  *   numbers on the dashboards and the HQ big screen (`.kpi-figure`).
  *
- * All are self-hosted by next/font; nothing is fetched from Google by the
- * browser. Weights are the ones the theme uses: 400 body, 500 labels, 600
- * titles, 700 figures.
+ * Weights are the ones the theme uses: 400 body, 500 labels, 600 titles, 700
+ * figures.
  *
- * IBM Plex Sans is committed under ./fonts rather than loaded through
- * next/font/google. Google sometimes answers the build with font URLs that
- * carry `&skey=`, which Turbopack cannot resolve, and the production build
- * failed on that (#43) with no code change. The files are IBM's own release
- * (@ibm/plex-sans 1.1.0, OFL) cut to Latin, Latin Extended, Vietnamese and
- * common symbols with every OpenType feature kept; its digits are tabular by
- * default. The CJK faces stay on Google: they are about a hundred slices per
- * weight and cannot be committed sensibly.
+ * Nothing is fetched from Google, neither by the browser nor by the build.
+ * next/font/google downloads at build time, and Google sometimes answers with
+ * font URLs that carry `&skey=`, which Turbopack cannot resolve: production
+ * builds failed on that twice (#43 on Plex, then #45 on Noto TC) with no code
+ * change. So:
+ * - Plex, Chakra Petch and Geist Mono are committed under ./fonts and loaded
+ *   with next/font/local. Plex is IBM's own release (@ibm/plex-sans 1.1.0)
+ *   cut to Latin, Latin Extended, Vietnamese and common symbols with every
+ *   OpenType feature kept; its digits are tabular by default. Chakra Petch
+ *   (600, 700) and Geist Mono (variable) are the Latin files from Fontsource.
+ * - Noto Sans SC/TC come from the @fontsource-variable packages, imported as
+ *   CSS above: one variable file set covers every weight, with the same
+ *   unicode-range slicing Google uses. The families are named in globals.css
+ *   (`--font-noto-sc`, `--font-noto-tc`).
+ * All are OFL; each ./fonts folder carries its licence.
  */
 const plexSans = localFont({
   variable: "--font-plex",
@@ -54,34 +56,21 @@ const plexSans = localFont({
   display: "swap",
 });
 
-const notoSansSC = Noto_Sans_SC({
-  variable: "--font-noto-sc",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  preload: false,
-  adjustFontFallback: false,
-  fallback: ["Microsoft YaHei", "PingFang SC", "sans-serif"],
-});
-
-const notoSansTC = Noto_Sans_TC({
-  variable: "--font-noto-tc",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  preload: false,
-  adjustFontFallback: false,
-  fallback: ["Microsoft JhengHei", "PingFang TC", "sans-serif"],
-});
-
-const chakraPetch = Chakra_Petch({
+const chakraPetch = localFont({
   variable: "--font-chakra",
-  subsets: ["latin"],
-  weight: ["600", "700"],
+  src: [
+    { path: "./fonts/chakra-petch/ChakraPetch-SemiBold.woff2", weight: "600" },
+    { path: "./fonts/chakra-petch/ChakraPetch-Bold.woff2", weight: "700" },
+  ],
+  style: "normal",
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  src: "./fonts/geist-mono/GeistMono-Variable.woff2",
+  weight: "100 900",
+  style: "normal",
   preload: false,
 });
 
@@ -129,7 +118,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${plexSans.variable} ${notoSansSC.variable} ${notoSansTC.variable} ${chakraPetch.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${plexSans.variable} ${chakraPetch.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
         <link
