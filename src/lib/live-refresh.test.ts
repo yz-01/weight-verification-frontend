@@ -1,16 +1,23 @@
 /**
- * Audit S1 (2026-10-08): the one-minute safety poll used to call
- * `invalidateQueries()` - every active query, every minute, whatever its own
- * `staleTime`: hour-fresh permission matrices, report aggregations, cards that
- * already poll themselves. The poll now refetches only what is on screen and
- * stale; an event still refreshes every live query, fresh or not.
+ * Audit S1 and perf item #1 (2026-10-08): the shells' realtime layer used to
+ * call `invalidateQueries()` - every active query - on every event, every
+ * 15 s while the stream was down and every minute from the safety poll,
+ * whatever each query's own `staleTime`. Now an event refreshes the screens of
+ * its family only, and the poll and the fallback refetch only what is on
+ * screen and stale.
  */
 import { QueryClient, QueryObserver, type QueryKey } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import { NOT_LIVE, refreshChanged, refreshStale } from "@/lib/live-refresh";
+import {
+  NOT_LIVE,
+  keysForEvent,
+  refreshChanged,
+  refreshForEvents,
+  refreshStale,
+} from "@/lib/live-refresh";
 
 const cleanups: Array<() => void> = [];
 afterEach(() => {
@@ -64,7 +71,73 @@ describe("refreshStale (the safety poll)", () => {
   });
 });
 
-describe("refreshChanged (an event, the fallback, an offline upload)", () => {
+describe("refreshForEvents (events from the stream)", () => {
+  it("an event refreshes its own family's screens, even fresh, and nothing unrelated", async () => {
+    const qc = client();
+    const receipts = await onScreen(qc, ["receipts", "list", { page: 1 }], { ageMs: 5_000 });
+    const badges = await onScreen(qc, ["contractor-dashboard", "unread-badges"], { ageMs: 5_000 });
+    const dispatches = await onScreen(qc, ["dispatches", { page: 1 }], { ageMs: 120_000 });
+    const users = await onScreen(qc, ["users", "list"], { ageMs: 120_000 });
+
+    await refreshForEvents(qc, ["receipt.created"]);
+
+    expect(receipts).toHaveBeenCalledTimes(1);
+    expect(badges).toHaveBeenCalledTimes(1);
+    // Unrelated screens wait for their own staleness, even when stale.
+    expect(dispatches).not.toHaveBeenCalled();
+    expect(users).not.toHaveBeenCalled();
+  });
+
+  it("a driver's GPS ping redraws the map, not every dispatch list", async () => {
+    const qc = client();
+    const detail = await onScreen(qc, ["dispatches", "detail", "d1"], { ageMs: 5_000 });
+    const list = await onScreen(qc, ["dispatches", { page: 1 }], { ageMs: 5_000 });
+
+    await refreshForEvents(qc, ["waste_dispatch.gps_recorded"]);
+
+    expect(detail).toHaveBeenCalledTimes(1);
+    expect(list).not.toHaveBeenCalled();
+  });
+
+  it("an event the map does not know only refetches what is stale, never everything", async () => {
+    const qc = client();
+    const fresh = await onScreen(qc, ["receipts", "list"], { ageMs: 5_000 });
+    const stale = await onScreen(qc, ["users", "list"], { ageMs: 45_000 });
+
+    expect(keysForEvent("job.failed")).toBeNull();
+    await refreshForEvents(qc, ["job.failed"]);
+
+    expect(fresh).not.toHaveBeenCalled();
+    expect(stale).toHaveBeenCalledTimes(1);
+  });
+
+  it("never re-runs a report aggregation", async () => {
+    const qc = client();
+    const report = await onScreen(qc, ["transactions", "report", {}], { meta: NOT_LIVE, ageMs: 5_000 });
+
+    await refreshForEvents(qc, ["weighing.session_settled"]);
+
+    expect(report).not.toHaveBeenCalled();
+  });
+
+  it("the longest family wins and exact types do not leak into their prefix", () => {
+    expect(keysForEvent("waste_dispatch.gps_recorded")).not.toEqual(keysForEvent("waste_dispatch.released"));
+    expect(keysForEvent("dispatch.assigned")).not.toBeNull();
+    expect(keysForEvent("notification.created")).not.toBeNull();
+    expect(keysForEvent("notification.other")).toBeNull();
+    expect(keysForEvent(undefined)).toBeNull();
+  });
+
+  it("every family the hook listens for has screens to refresh", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/hooks/use-order-realtime.ts"), "utf8");
+    const block = source.slice(source.indexOf("const REFRESH_PREFIXES"), source.indexOf("const REFRESH_EXACT"));
+    const families = [...block.matchAll(/^\s*"([a-z_]+\.)",/gm)].map((match) => match[1]);
+    expect(families.length).toBeGreaterThan(10);
+    for (const family of families) expect(keysForEvent(`${family}anything`), family).not.toBeNull();
+  });
+});
+
+describe("refreshChanged (an offline upload)", () => {
   it("reloads every on-screen live query, even a fresh one, but not a report", async () => {
     const qc = client();
     const freshList = await onScreen(qc, ["deliveries", "list"], { ageMs: 5_000 });
@@ -86,9 +159,10 @@ describe("no caller refetches everything any more", () => {
     expect(source).not.toMatch(/invalidateQueries\(\s*\)/);
   });
 
-  it("the safety poll asks for stale-only and events for changed", () => {
+  it("the safety poll and the fallback ask for stale-only; events name their type", () => {
     const source = readFileSync(path.join(process.cwd(), "src/hooks/use-order-realtime.ts"), "utf8");
-    expect(source).toMatch(/document\.hidden\) return;\s*refresh\(false\);/);
-    expect(source).toMatch(/shouldRefresh\(event\.event_type\)\) refresh\(true\);/);
+    expect(source).toMatch(/document\.hidden\) return;\s*refresh\("stale"\);/);
+    expect(source).toMatch(/setInterval\(\(\) => refresh\("stale"\), FALLBACK_POLL_MS\)/);
+    expect(source).toMatch(/refresh\(\{ event: event\.event_type \}\)/);
   });
 });
