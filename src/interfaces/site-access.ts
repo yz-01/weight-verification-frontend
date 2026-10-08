@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 export type GeofenceShape = "CIRCLE" | "POLYGON";
 
 export interface SiteGeofence {
@@ -339,7 +341,7 @@ export interface GateIncidentMember {
   created_at: string;
 }
 
-export interface GateIncident {
+export interface GateIncident extends RecordedBy {
   id: string;
   incident_no: string;
   project: string;

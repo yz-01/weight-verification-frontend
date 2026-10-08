@@ -6266,6 +6266,11 @@
       "visitCreated": "Susulan pelanggan direkodkan"
     }
   },
+  "currentProject": {
+    "label": "Projek semasa",
+    "all": "Semua projek",
+    "pageHint": "Halaman ini menunjukkan satu projek. Setelah dipilih, seluruh sistem berada pada projek itu (bar atas turut bertukar)."
+  },
   "dashboard": {
     "admin": {
       "error": "Papan pemuka platform tidak dapat dimuatkan.",
@@ -8471,6 +8476,19 @@
       "fixedHelp": "Selepas diterbitkan ia tidak boleh disunting. Untuk membetulkan, terbitkan yang baharu; yang lama boleh ditarik balik dan teksnya kekal.",
       "cancel": "Batal",
       "publishAction": "Terbitkan"
+    },
+    "wall": {
+      "open": "Skrin besar",
+      "exit": "Keluar skrin besar",
+      "title": "Tapak Pintar Digital · Skrin Besar Ibu Pejabat",
+      "refresh": "Dikemas kini setiap 30 saat",
+      "escHint": "Tekan Esc untuk keluar",
+      "projectStatus": "Status projek semasa",
+      "activeProjects": "Projek aktif",
+      "todayByProject": "Rekod tapak hari ini mengikut projek",
+      "todayByKind": "Rekod hari ini mengikut jenis",
+      "latestPhoto": "Foto tapak terkini",
+      "photoStream": "Aliran foto"
     }
   },
   "home": {
@@ -15197,7 +15215,9 @@
     "zoomOut": "Zum keluar",
     "zoomReset": "Saiz asal",
     "previous": "Sebelumnya",
-    "next": "Seterusnya"
+    "next": "Seterusnya",
+    "recorder": "Direkod oleh",
+    "recorderUnknown": "Perekod tiada dalam rekod"
   },
   "moduleTable": {
     "count": "{count} rekod",
@@ -15966,5 +15986,11 @@
       "soFar": "Hingga {end}: {hours} jam",
       "shift": "Syif {date}: {count} foto, mula {start}"
     }
+  },
+  "theme": {
+    "label": "Paparan",
+    "system": "Ikut sistem",
+    "light": "Cerah",
+    "dark": "Gelap"
   }
 }

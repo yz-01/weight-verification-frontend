@@ -76,7 +76,7 @@ export function FieldMyTasksCard() {
   const rows = list.data?.results ?? [];
 
   return (
-    <section className="rounded-lg border bg-card p-4 shadow-sm">
+    <section className="surface-panel rounded-xl p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/12 text-primary">

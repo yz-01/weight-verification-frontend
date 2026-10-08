@@ -75,7 +75,7 @@ export function ConsultantOptionManager({ project }: { project: string }) {
   const options = rows.data?.results ?? [];
 
   return (
-    <section className="rounded-lg border bg-card shadow-sm">
+    <section className="surface-panel rounded-xl">
       <div className="border-b p-4">
         <h2 className="font-semibold">{t("options.title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">

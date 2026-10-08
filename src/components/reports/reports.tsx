@@ -16,6 +16,7 @@ import {
 
 import { useUnitName } from "@/hooks/use-material-units";
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,7 @@ const ALL_PROJECTS = "__all__";
 export function Reports() {
   const t = useTranslations();
   const list = useListQuery(["project", "date_from", "date_to"]);
+  const topBar = useCurrentProject();
 
   const projectQuery = useQuery({
     queryKey: ["projects", "options"],
@@ -98,8 +100,10 @@ export function Reports() {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="surface-panel rounded-xl p-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
+          {!topBar.active && (
           <div className="space-y-1.5">
             <Label className="text-sm font-medium">
               {t("reports.filter.project")}
@@ -129,6 +133,7 @@ export function Reports() {
             </Select>
             <QueryFailedNote query={projectQuery} what={t("reports.what.projects")} />
           </div>
+          )}
 
           <div className="space-y-1.5">
             <Label className="text-sm font-medium">
@@ -209,7 +214,7 @@ function PanelShell({
   const formatter = useFormatter();
   const t = useTranslations();
   return (
-    <div className="rounded-lg border bg-card shadow-sm">
+    <div className="surface-panel rounded-xl">
       <div className="flex flex-wrap items-center gap-3 px-6 py-5">
         <Icon className="h-4 w-4 text-primary" />
         <h3 className="text-base font-semibold text-foreground">{title}</h3>

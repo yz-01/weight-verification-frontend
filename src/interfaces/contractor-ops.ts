@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /**
  * Which of the two filing schemes a column belongs to.
  *
@@ -244,7 +246,7 @@ export interface FieldTaskReference {
   created_at: string;
 }
 
-export interface FieldTask {
+export interface FieldTask extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   id: string;
@@ -423,7 +425,7 @@ export type EquipmentMovementStatus =
   | "SUBMITTED"
   | "REJECTED";
 
-export interface EquipmentMovement {
+export interface EquipmentMovement extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -504,7 +506,7 @@ export interface ConstructionPhase {
   updated_at: string;
 }
 
-export interface SiteProgressRecord {
+export interface SiteProgressRecord extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -542,7 +544,7 @@ export interface SiteProgressRecord {
   remarks?: Array<{ id: string; body: string; author_name: string | null; created_at: string }>;
 }
 
-export interface MaterialOutgoing {
+export interface MaterialOutgoing extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -731,7 +733,7 @@ export interface DisposalTimelineEntry {
   happened_at: string;
 }
 
-export interface DisposalRequest {
+export interface DisposalRequest extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -933,7 +935,7 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
  * translations to keep in step (F-342, D-133).
  */
 export interface ArchiveQueueDetail<K extends string = ArchiveRecordKind>
-  extends ArchiveQueueRow<K> {
+  extends ArchiveQueueRow<K>, RecordedBy {
   fields: import("@/interfaces/contractor").MySubmissionField[];
   photos: import("@/interfaces/contractor").MySubmissionPhoto[];
   is_seen: boolean;

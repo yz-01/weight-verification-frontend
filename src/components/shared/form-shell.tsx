@@ -153,7 +153,7 @@ export function FormShell({
         }
       />
 
-      <div className="rounded-lg border bg-card shadow-sm">
+      <div className="surface-panel rounded-xl">
         <div className="px-6 py-5">
           <h2 className="text-base font-semibold text-foreground">{title}</h2>
           {description && (
@@ -250,7 +250,7 @@ export function FormSkeleton({ sections = 3 }: { sections?: number }) {
   return (
     <div className="space-y-4">
       <Skeleton className="h-8 w-40" />
-      <div className="rounded-lg border bg-card shadow-sm">
+      <div className="surface-panel rounded-xl">
         <div className="px-6 py-5">
           <Skeleton className="h-5 w-48" />
         </div>

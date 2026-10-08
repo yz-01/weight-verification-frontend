@@ -21,6 +21,7 @@ import {
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -49,7 +50,11 @@ export function CreateIncidentDialog({
   const t = useTranslations("incidentReporting");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
+  // A new report is for the top bar's 「当前项目」 in the office (B13); on
+  // 全部项目 (and on the phone) it is chosen here.
+  const topBar = useCurrentProject();
+  const lockedProject = topBar.active ? topBar.projectId : "";
+  const [project, setProject] = useState(lockedProject);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState<IncidentSeverity>("MEDIUM");
@@ -178,6 +183,11 @@ export function CreateIncidentDialog({
 
         <div className="space-y-4">
           <FieldWrapper label={t("field.project")} required>
+            {lockedProject && project === lockedProject ? (
+              <p className="py-2 text-sm font-medium" data-project-locked>
+                {topBar.projects.find((p) => p.id === lockedProject)?.name}
+              </p>
+            ) : (
             <Select
               value={project}
               onValueChange={(value) => {
@@ -196,6 +206,7 @@ export function CreateIncidentDialog({
                 ))}
               </SelectContent>
             </Select>
+            )}
             <QueryFailedNote query={projects} what={t("what.projects")} />
           </FieldWrapper>
 

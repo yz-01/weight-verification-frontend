@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /**
  * 设备操作员工时 (2026-10 B15, Q8): the operator photographs his machine when
  * he starts and when he stops; per machine per day the first photo is the
@@ -33,7 +35,7 @@ export interface EquipmentDayAdjustment {
 }
 
 /** One machine's day. */
-export interface EquipmentHoursDay {
+export interface EquipmentHoursDay extends RecordedBy {
   key: string;
   equipment: string;
   equipment_name: string;

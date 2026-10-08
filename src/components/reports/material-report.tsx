@@ -15,6 +15,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { ExportButton } from "@/components/shared/export-button";
 import { ReportSelector, useMaterialColumns } from "@/components/reports/report-selector";
@@ -64,6 +65,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // (B04): the figures, the records, their photos and the export all read
   // them from the address, so one choice updates all four together.
   const list = useListQuery(["project", "date_from", "date_to", "category", "supplier", "manufacturer"]);
+  const topBar = useCurrentProject();
+  const projectBoxShown = can("project.view") && !topBar.active;
   const filters = {
     project: list.filters.project,
     date_from: list.filters.date_from,
@@ -176,8 +179,17 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         ) : undefined}
       />
 
-      <div className="grid gap-3 rounded-lg border bg-card/50 p-3 shadow-sm md:grid-cols-[minmax(220px,1fr)_210px_180px_180px_auto] md:items-end">
-        {can("project.view") && (
+      <div
+        className={cn(
+          "grid gap-3 rounded-lg border bg-card/50 p-3 shadow-sm md:items-end",
+          // One column fewer without the project box (B13 audit #10).
+          projectBoxShown
+            ? "md:grid-cols-[minmax(220px,1fr)_210px_180px_180px_auto]"
+            : "md:grid-cols-[minmax(220px,1fr)_180px_180px_auto]",
+        )}
+      >
+        {/* Not beside the top bar's 「当前项目」, which is this filter (B13). */}
+        {projectBoxShown && (
           <div className="space-y-1.5">
             <Label>{t("reports.filter.project")}</Label>
             <ProjectPicker
@@ -291,7 +303,13 @@ function ReportRecords({
     queryFn: () =>
       // Newest first is the endpoint's own order (`-captured_at`).
       getReceipts({ ...filters, page, page_size: pageSize }),
-    placeholderData: (previous) => previous,
+    // The last page stays up while the next loads - but not another
+    // project's rows when the top bar moves (B13).
+    placeholderData: (previous, previousQuery) =>
+      (previousQuery?.queryKey[2] as { project?: string } | undefined)?.project ===
+      (filters as { project?: string }).project
+        ? previous
+        : undefined,
   });
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
@@ -712,7 +730,7 @@ function Metric({
  */
 function ReportTable({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <section className="overflow-hidden surface-panel rounded-xl">
       <h3 className="border-b px-3 py-2 text-sm font-semibold">{title}</h3>
       <div className="[&_td]:px-3 [&_td]:py-1 [&_th]:h-8 [&_th]:px-3">{children}</div>
     </section>

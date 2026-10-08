@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 export type ProjectOptionCategory =
   | "APPLICATION_TYPE"
   | "DISCIPLINE"
@@ -276,7 +278,7 @@ export interface RemedialItem {
   updated_at: string;
 }
 
-export interface ConsultantApplication {
+export interface ConsultantApplication extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

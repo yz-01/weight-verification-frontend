@@ -83,7 +83,7 @@ export function PhotoTile({
   return (
     <li
       className={cn(
-        "relative overflow-hidden rounded-lg border bg-card shadow-sm",
+        "relative overflow-hidden surface-panel rounded-xl",
         selected && "ring-2 ring-primary",
       )}
     >

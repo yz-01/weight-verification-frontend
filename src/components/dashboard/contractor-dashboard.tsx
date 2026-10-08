@@ -49,6 +49,7 @@ import {
 } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -160,6 +161,7 @@ export function ContractorDashboard({
   const format = useFormatter();
   const df = useDateFormat();
   const { can } = useAuth();
+  const projectBoxShown = useProjectBoxShown("filter");
 
   // The full payload. Not polled: the slow sections live here.
   const full = useQuery({
@@ -219,6 +221,8 @@ export function ContractorDashboard({
         </p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* The top bar's 「当前项目」 is this choice when it is in force (B13). */}
+        {projectBoxShown ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
             {t("filter.project")}
@@ -232,6 +236,7 @@ export function ContractorDashboard({
             className="w-full sm:w-72"
           />
         </div>
+        ) : <span />}
         <div className="flex flex-wrap items-center gap-2">
           {data?.generated_at && (
             <span className="text-xs text-muted-foreground">
@@ -918,7 +923,7 @@ function QuickSearch({ project }: { project: string }) {
         )}
       </form>
       {submitted.trim().length >= 2 && (
-        <div className="rounded-lg border bg-card p-3 shadow-sm">
+        <div className="surface-panel rounded-xl p-4">
           {results.isError ? (
             <LoadFailed onRetry={() => void results.refetch()} />
           ) : results.isLoading ? (
@@ -1034,12 +1039,12 @@ function PersonnelFigure({
   const format = useFormatter();
   return (
     <div
-      className={`rounded-lg border bg-card px-3 py-2 ${
-        tone === "warning" ? "border-warning/40" : ""
+      className={`rounded-xl border px-3 py-2.5 ${
+        tone === "warning" ? "border-tone-amber/40 bg-tone-amber/8" : "border-panel-border bg-muted/40"
       }`}
     >
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tabular-nums">
+      <p className={`kpi-figure mt-1 text-xl ${tone === "warning" ? "text-tone-amber-fg" : "text-foreground"}`}>
         {format.number(value)}
       </p>
     </div>
@@ -1063,15 +1068,15 @@ function Metric({
   return (
     <Link
       href={href}
-      className={`rounded-lg border bg-card px-3 py-2.5 shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-        tone === "warning" ? "border-warning/40" : ""
+      className={`rounded-xl border px-4 py-3 transition hover:-translate-y-px hover:shadow-panel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+        tone === "warning" ? "border-tone-amber/40 bg-tone-amber/8" : "border-tone-cyan/35 bg-tone-cyan/8"
       }`}
     >
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <Icon className="size-4 shrink-0 text-muted-foreground" />
+        <Icon className={`size-4 shrink-0 ${tone === "warning" ? "text-tone-amber-fg" : "text-tone-cyan-fg"}`} />
       </div>
-      <p className="mt-1 text-xl font-semibold tabular-nums">
+      <p className={`kpi-figure mt-1 text-2xl ${tone === "warning" ? "text-tone-amber-fg" : "text-tone-cyan-fg"}`}>
         {format.number(value)}
       </p>
     </Link>

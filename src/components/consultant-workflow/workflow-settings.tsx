@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import {
   DetailHeader,
   FieldWrapper,
@@ -66,7 +67,9 @@ import {
 export function ConsultantWorkflowSettings() {
   const t = useTranslations("consultantWorkflow");
   const queryClient = useQueryClient();
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 for the contractor's office (B13).
+  const [project, setProject] = usePageProject();
+  const projectBoxShown = useProjectBoxShown("page");
   const [creating, setCreating] = useState(false);
   const [addingTo, setAddingTo] = useState<ConsultantWorkflow | null>(null);
   const [editing, setEditing] = useState<ConsultantWorkflow | null>(null);
@@ -74,7 +77,7 @@ export function ConsultantWorkflowSettings() {
     workflow: ConsultantWorkflow;
     step: ConsultantWorkflowStep;
   } | null>(null);
-  const onProjectChange = useCallback((id: string) => setProject(id), []);
+  const onProjectChange = useCallback((id: string) => setProject(id), [setProject]);
   const rows = useQuery({
     queryKey: ["consultant-workflows", project],
     queryFn: () => getConsultantWorkflows({ project, page_size: 200 }),
@@ -96,11 +99,13 @@ export function ConsultantWorkflowSettings() {
         subtitle={t("workflow.subtitle")}
         action={<Button size="sm" requires={[[project, t("field.project")]]} onClick={() => setCreating(true)}><Plus />{t("workflow.create")}</Button>}
       />
-      <div className="rounded-lg border bg-card p-3 shadow-sm">
+      {projectBoxShown && (
+      <div className="surface-panel rounded-xl p-3">
         <FieldWrapper label={t("field.project")} required>
-          <ConsultantProjectPicker value={project} onChange={onProjectChange} />
+          <ConsultantProjectPicker value={project} onChange={onProjectChange} scope="page" />
         </FieldWrapper>
       </div>
+      )}
       {!project ? (
         <Empty text={t("state.chooseProject")} />
       ) : rows.isError ? (
@@ -112,7 +117,7 @@ export function ConsultantWorkflowSettings() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
           {rows.data.results.map((workflow) => (
-            <section key={workflow.id} className="overflow-hidden rounded-lg border bg-card shadow-sm">
+            <section key={workflow.id} className="overflow-hidden surface-panel rounded-xl">
               <div className="flex items-start gap-3 border-b p-4">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Settings2 className="size-5" /></span>
                 <div className="min-w-0 flex-1">

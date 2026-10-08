@@ -23,7 +23,7 @@ export function EditCompany({ id }: { id: string }) {
   return (
     <div className="space-y-6">
       <CreateCompany company={data} />
-      <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+      <div className="overflow-hidden surface-panel rounded-xl">
         <CompanyOnboarding company={data} />
       </div>
     </div>

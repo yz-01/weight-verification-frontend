@@ -57,18 +57,18 @@ function Overview() {
   const common = useTranslations("common"); const none = common("emptyValue"); const d = summary.data;
   return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
     <ListHeader title={t("title")} subtitle={t("subtitle")} />
-    <div className="rounded-lg border bg-card shadow-sm"><div className="grid overflow-hidden sm:grid-cols-2 xl:grid-cols-4">
+    <div className="surface-panel rounded-xl"><div className="grid overflow-hidden sm:grid-cols-2 xl:grid-cols-4">
       {[["customers", d ? d.customers : none], ["enquiries", d ? d.enquiries : none], ["service", d ? d.service_records : none], ["completion", d ? `${d.completion_rate}%` : none]].map(([key, value]) => <div key={key} className="border-b border-r px-5 py-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p></div>)}
     </div><QueryFailedNote query={summary} what={t("what.summary")} className="px-5 py-2" /></div>
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/customer-service/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>
+    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/customer-service/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>
   </div>;
 }
 
 function Panel({ loading, error, children }: { loading: boolean; error: boolean; children: React.ReactNode }) {
   const t = useTranslations("adminCustomerService");
-  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
+  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center surface-panel rounded-xl"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
   if (error) return <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>;
-  return <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">{children}</div>;
+  return <div className="min-h-0 flex-1 overflow-auto surface-panel rounded-xl">{children}</div>;
 }
 
 /** A customer picker. Owns its options query so a failed load is said under the select, not read as "no customers". */
@@ -186,5 +186,5 @@ function ReportPanel() {
   ] as const;
   const exporting = useMutation({ mutationFn: ({ dataset, format, fields }: { dataset: string; format: "pdf" | "xlsx"; fields: readonly string[] }) => exportCustomerServiceReport(dataset, format, t(`report.${dataset}`), fields.map((key) => ({ key, label: t(`exportColumn.${key}`) }))) });
   const common = useTranslations("common"); const none = common("emptyValue"); const d = summary.data;
-  return <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid border-b sm:grid-cols-2 xl:grid-cols-4">{[["customers", d ? d.customers : none], ["service", d ? d.service_records : none], ["feedback", d ? d.feedback : none], ["completion", d ? `${d.completion_rate}%` : none]].map(([key, value]) => <div key={key} className="border-b border-r p-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-xl font-semibold">{value}</p></div>)}</div><QueryFailedNote query={summary} what={t("what.summary")} className="border-b px-5 py-2" /><div className="divide-y">{reports.map(([dataset, fields]) => <div key={dataset} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"><div><p className="font-medium">{t(`report.${dataset}`)}</p><p className="text-xs text-muted-foreground">{t(`report.${dataset}Subtitle`)}</p></div><div className="flex gap-2"><Button variant="outline" disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "pdf", fields })}><FileDown />PDF</Button><Button disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "xlsx", fields })}><FileDown />Excel</Button></div></div>)}</div></div>;
+  return <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl"><div className="grid border-b sm:grid-cols-2 xl:grid-cols-4">{[["customers", d ? d.customers : none], ["service", d ? d.service_records : none], ["feedback", d ? d.feedback : none], ["completion", d ? `${d.completion_rate}%` : none]].map(([key, value]) => <div key={key} className="border-b border-r p-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-xl font-semibold">{value}</p></div>)}</div><QueryFailedNote query={summary} what={t("what.summary")} className="border-b px-5 py-2" /><div className="divide-y">{reports.map(([dataset, fields]) => <div key={dataset} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"><div><p className="font-medium">{t(`report.${dataset}`)}</p><p className="text-xs text-muted-foreground">{t(`report.${dataset}Subtitle`)}</p></div><div className="flex gap-2"><Button variant="outline" disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "pdf", fields })}><FileDown />PDF</Button><Button disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "xlsx", fields })}><FileDown />Excel</Button></div></div>)}</div></div>;
 }

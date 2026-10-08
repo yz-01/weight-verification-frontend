@@ -48,7 +48,7 @@ import {
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
-import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
@@ -193,7 +193,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                whole card, not just a badge: a marker inside a list of grey
                cards is something you have to be looking for, and this one has
                to be noticed by somebody scanning the page. */
-            <article key={row.id} className={`rounded-lg border bg-card p-4 shadow-sm${row.disposal_evidence_is_overdue ? " border-destructive/50 bg-destructive/5" : ""}`}>
+            <article key={row.id} className={`surface-panel rounded-xl p-4${row.disposal_evidence_is_overdue ? " border-destructive/50 bg-destructive/5" : ""}`}>
               <div className="flex items-start gap-3">
                 <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck className="size-5" /></span>
                 <div className="min-w-0 flex-1">
@@ -807,6 +807,8 @@ function DisposalDetailDialog({
     >
       <RecordDetailShell
         reference={row.reference_no}
+        // 记录人 (E8): who recorded it, with a number to call.
+        recorder={<RecordRecorder record={row} />}
         notices={
           row.disposal_evidence_is_overdue ? (
             <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm font-medium text-destructive">
@@ -1500,7 +1502,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   const full = sent.length >= DISPOSAL_PHOTO_MAX;
 
   return <div className="space-y-5">
-    <section className="rounded-lg border bg-card p-4 shadow-sm">
+    <section className="surface-panel rounded-xl p-4">
       <div className="flex items-start gap-3"><span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span><div className="min-w-0"><p className="font-mono text-xs text-muted-foreground">{current.reference_no}</p><h2 className="mt-1 text-lg font-semibold">{current.waste_description}</h2><p className="mt-1 text-sm text-muted-foreground">{current.project_name} / {current.location_description}</p></div></div>
       <div className="mt-4 flex flex-wrap items-center gap-2"><StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} />{load.total > 0 && <span className="text-sm text-muted-foreground">{tTrips("sentProgress", { sent: load.sent, total: load.total })}</span>}</div>
     </section>

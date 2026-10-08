@@ -6266,6 +6266,11 @@
       "visitCreated": "客户回访已记录"
     }
   },
+  "currentProject": {
+    "label": "当前项目",
+    "all": "全部项目",
+    "pageHint": "这一页只看一个项目。选好后，整个系统都在这个项目上（顶栏会跟着换）。"
+  },
   "dashboard": {
     "admin": {
       "error": "无法加载平台仪表板。",
@@ -8471,6 +8476,19 @@
       "fixedHelp": "发布后不能修改。要更正请发布新公告；旧公告可以撤回，原文会保留。",
       "cancel": "取消",
       "publishAction": "发布"
+    },
+    "wall": {
+      "open": "大屏模式",
+      "exit": "退出大屏",
+      "title": "数字化智慧工地 · 总部大屏",
+      "refresh": "每 30 秒刷新",
+      "escHint": "按 Esc 退出",
+      "projectStatus": "实时项目状态",
+      "activeProjects": "在建项目",
+      "todayByProject": "各项目今日现场记录",
+      "todayByKind": "今日记录 · 按类别",
+      "latestPhoto": "最新现场照片",
+      "photoStream": "照片流水"
     }
   },
   "home": {
@@ -15197,7 +15215,9 @@
     "zoomOut": "缩小",
     "zoomReset": "原始大小",
     "previous": "上一张",
-    "next": "下一张"
+    "next": "下一张",
+    "recorder": "记录人",
+    "recorderUnknown": "没有记录人资料"
   },
   "moduleTable": {
     "count": "{count} 条记录",
@@ -15966,5 +15986,11 @@
       "soFar": "到 {end} 共 {hours} 小时",
       "shift": "{date} 这一班：{count} 张照片，开始 {start}"
     }
+  },
+  "theme": {
+    "label": "外观",
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色"
   }
 }

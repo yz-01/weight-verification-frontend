@@ -13,6 +13,7 @@ import {
   TextField,
   type BoundField,
 } from "@/components/shared/form-fields";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
   FormSection,
   FormShell,
@@ -48,6 +49,10 @@ export function CreateDispatch({
   const queryClient = useQueryClient();
   const isEdit = dispatch !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
+  // A new load is for the top bar's 「当前项目」 (B13); on 全部项目 the form
+  // asks for it.
+  const topBar = useCurrentProject();
+  const lockedProject = !isEdit && topBar.active ? topBar.projectId : "";
 
   const projects = useQuery({
     queryKey: ["projects", "options"],
@@ -65,7 +70,7 @@ export function CreateDispatch({
 
   const form = useForm({
     defaultValues: {
-      project: dispatch?.project ?? "",
+      project: dispatch?.project ?? lockedProject,
       recycler: dispatch?.recycler ?? "",
       waste_type: (dispatch?.waste_type ?? "MIXED") as WasteType,
       estimated_weight_kg: dispatch?.estimated_weight_kg ?? "",
@@ -103,6 +108,12 @@ export function CreateDispatch({
   });
 
   const projectId = useStore(form.store, (state) => state.values.project);
+  // The top bar's list may still have been loading when the form was made.
+  useEffect(() => {
+    if (lockedProject && !form.getFieldValue("project")) {
+      form.setFieldValue("project", lockedProject);
+    }
+  }, [form, lockedProject]);
   const previousProjectId = useRef(projectId);
 
   useEffect(() => {
@@ -142,18 +153,29 @@ export function CreateDispatch({
           validators={{ onSubmit: required(t("validation.required")) }}
         >
           {(field) => (
+            lockedProject && field.state.value === lockedProject ? (
+              <div className="space-y-1.5">
+                <p className="text-sm font-medium">{t("dispatches.field.project")}</p>
+                <p className="text-sm" data-project-locked>
+                  {topBar.projects
+                    .filter((project) => project.id === lockedProject)
+                    .map((project) => `${project.code} - ${project.name}`)}
+                </p>
+              </div>
+            ) : (
             <div className="space-y-1">
               <SelectField
                 field={field as unknown as BoundField}
                 label={t("dispatches.field.project")}
                 options={(projects.data?.results ?? []).map((project) => ({
                   value: project.id,
-                  label: `${project.code} — ${project.name}`,
+                  label: `${project.code} - ${project.name}`,
                 }))}
                 required
               />
               <QueryFailedNote query={projects} what={t("dispatches.what.projects")} />
             </div>
+            )
           )}
         </form.Field>
 

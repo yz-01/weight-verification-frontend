@@ -32,7 +32,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <div className="overflow-hidden surface-panel rounded-xl">
       <div className="overflow-x-auto">
         <div className="min-w-[920px]">
           <div className="grid grid-cols-[250px_1fr] border-b bg-muted/35 text-xs font-semibold text-muted-foreground">

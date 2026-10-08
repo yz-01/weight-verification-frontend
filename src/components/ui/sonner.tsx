@@ -32,8 +32,20 @@ const Toaster = ({ ...props }: ToasterProps) => {
         {
           "--normal-bg": "var(--popover)",
           "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          "--normal-border": "var(--panel-border)",
+          "--border-radius": "var(--radius-xl)",
+          "--success-bg": "color-mix(in srgb, var(--tone-green) 14%, var(--popover))",
+          "--success-text": "var(--tone-green-fg)",
+          "--success-border": "color-mix(in srgb, var(--tone-green) 40%, transparent)",
+          "--error-bg": "color-mix(in srgb, var(--tone-rose) 14%, var(--popover))",
+          "--error-text": "var(--tone-rose-fg)",
+          "--error-border": "color-mix(in srgb, var(--tone-rose) 40%, transparent)",
+          "--warning-bg": "color-mix(in srgb, var(--tone-amber) 14%, var(--popover))",
+          "--warning-text": "var(--tone-amber-fg)",
+          "--warning-border": "color-mix(in srgb, var(--tone-amber) 40%, transparent)",
+          "--info-bg": "color-mix(in srgb, var(--tone-blue) 14%, var(--popover))",
+          "--info-text": "var(--tone-blue-fg)",
+          "--info-border": "color-mix(in srgb, var(--tone-blue) 40%, transparent)",
         } as React.CSSProperties
       }
       toastOptions={{

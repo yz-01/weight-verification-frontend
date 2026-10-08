@@ -108,7 +108,7 @@ export function ExternalAccessManagement() {
         }
       />
 
-      <div className="rounded-lg border bg-card shadow-sm">
+      <div className="surface-panel rounded-xl">
         {grants.isLoading ? (
           <p className="p-5 text-sm text-muted-foreground">
             <Loader2 className="mr-2 inline size-4 animate-spin" />
@@ -308,6 +308,8 @@ function GrantDialog({
             value={project}
             onValueChange={setProject}
             placeholder={t("wholeCompany")}
+            // Empty is 「整个公司」, a real answer; the top bar does not make it.
+            scope="own"
           />
         </FieldWrapper>
 

@@ -70,16 +70,17 @@ import {
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
-import {
-  RecordDetailDialog,
-  RecordDetailShell,
-} from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import { equipmentDirectionTitleKey } from "@/lib/equipment-title";
 import { useUrlSelection } from "@/hooks/use-url-selection";
+import {
+  useFollowRecordProject,
+  useOnProjectChange,
+} from "@/components/providers/current-project-provider";
 import type {
   EquipmentMovement,
   MaterialOutgoing,
@@ -593,6 +594,18 @@ export function SiteEquipmentOffice() {
   usePageTitle(directionTitle);
   const title = directionTitle ?? tRoot("nav.submodule.siteEquipment");
   const project = list.filters.project ?? "";
+  // A movement or machine opened by hand belongs to the project it was opened
+  // on, and closes when the top bar moves (B13 audit #8). One a link opened
+  // moves the top bar to its project first (Q33.3).
+  useOnProjectChange(project, () => {
+    setViewingMovement(null);
+    setViewingMachine(null);
+  });
+  useFollowRecordProject(
+    "movement",
+    linkedMovement ? linkedMovementQuery.data?.results[0] : null,
+  );
+  useFollowRecordProject("machine", linkedMachine ? linkedMachineQuery.data : null);
 
   const movementColumns = useMemo<ColumnDef<EquipmentMovement, unknown>[]>(
     () => [
@@ -994,6 +1007,8 @@ export function SiteEquipmentOffice() {
         >
           <RecordDetailShell
             reference={`${shownMovement.equipment_code}-${shownMovement.direction}`}
+            // 记录人 (E8): who recorded it, with a number to call.
+            recorder={<RecordRecorder record={shownMovement} />}
             facts={[
               {
                 label: t("equipment.directionLabel"),
@@ -1669,6 +1684,8 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         >
           <RecordDetailShell
             reference={reference(shown)}
+            // 记录人 (E8): who recorded it, with a number to call.
+            recorder={<RecordRecorder record={shown} />}
             facts={[
               {
                 label: t("field.status"),

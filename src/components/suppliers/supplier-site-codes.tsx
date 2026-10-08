@@ -199,6 +199,9 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
                 onValueChange={setChosenProject}
                 placeholder={t("suppliers.siteCodes.chooseSite")}
                 projects={available}
+                // Which site to give a code is the supplier's question, not
+                // the top bar's (B13).
+                scope="own"
               />
             </FieldWrapper>
             <Button

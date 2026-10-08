@@ -36,6 +36,11 @@ vi.mock("@/components/shared/record-export-button", () => ({
 vi.mock("@/components/shared/record-attachments", () => ({
   RecordAttachmentsPanel: () => <div data-stub="attachments" />,
 }));
+// The sheet is the shared record popup (E8): drawn in place, not in a portal
+// the runner never mounts.
+vi.mock("@/components/ui/dialog", async () =>
+  (await import("@/components/shared/record-detail-test-kit")).inlineDialogModule(),
+);
 
 const { RecordClosurePanel, recordClosureKey } = await import(
   "@/components/shared/record-closure"
@@ -214,7 +219,7 @@ describe("the record sheet only reads", () => {
     expect(html).not.toContain("data-record-closure");
     expect(html).not.toContain(CONFIRM);
     expect(html).not.toContain("我看过了");
-    // What is left to press: the close in the header and the one in the footer.
+    // What is left to press: only a close (the popup's own X, E8).
     for (const button of buttons(html)) {
       expect(button, button).toMatch(new RegExp(`aria-label="${messages.common.close}"|>${messages.common.close}<`));
     }

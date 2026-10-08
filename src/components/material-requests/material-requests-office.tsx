@@ -62,7 +62,7 @@ import {
   sortable,
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
-import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -619,6 +619,8 @@ export function MaterialRequestDetail({
     <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${t(`type.${row.request_type}`)}`} onClose={onClose}>
       <RecordDetailShell
         reference={row.request_no}
+        // 记录人 (E8): who recorded it, with a number to call.
+        recorder={<RecordRecorder record={row} />}
         notices={
           row.status === "RETURNED" ? (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm">

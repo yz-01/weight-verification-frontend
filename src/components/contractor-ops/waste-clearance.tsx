@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DISPATCH_STATE_TONE, Dispatches } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -67,7 +68,18 @@ export function WasteClearance() {
 
   // The header describes the list under it: opened from a head-office card
   // (`counted=1`, one project) it counts what that list shows (F8).
-  const figureFilters = clearanceFigureFilters(kind, searchParams);
+  // The page's project is the top bar's 「当前项目」 when it is in force (B13).
+  const topBar = useCurrentProject();
+  const figureParams = new URLSearchParams(searchParams.toString());
+  if (topBar.active) {
+    figureParams.delete("project");
+    if (topBar.projectId) figureParams.set("project", topBar.projectId);
+  }
+  const figureFilters = clearanceFigureFilters(kind, figureParams);
+  if (kind === "all" && topBar.active && topBar.projectId) {
+    figureFilters.disposal.project = topBar.projectId;
+    figureFilters.dispatch.project = topBar.projectId;
+  }
   // The two counts, apart (D06). Page size 1: only `count` is read.
   const disposalCount = useQuery({
     queryKey: ["site-disposals", "count", "waste-clearance", figureFilters.disposal],
@@ -210,14 +222,17 @@ function MergedList() {
   const df = useDateFormat();
   const searchParams = useSearchParams();
   const page = Math.max(1, Number(searchParams.get("page") ?? "1") || 1);
+  // On the top bar's 「当前项目」 (B13); 全部项目 leaves it out.
+  const topBar = useCurrentProject();
+  const project = (topBar.active ? topBar.projectId : "") || undefined;
 
   const disposals = useQuery({
-    queryKey: ["site-disposals", "waste-clearance", page],
-    queryFn: () => getDisposalRequests({ page, page_size: PER_KIND }),
+    queryKey: ["site-disposals", "waste-clearance", project, page],
+    queryFn: () => getDisposalRequests({ page, page_size: PER_KIND, project }),
   });
   const dispatches = useQuery({
-    queryKey: ["dispatches", "waste-clearance", page],
-    queryFn: () => getDispatches({ page, page_size: PER_KIND }),
+    queryKey: ["dispatches", "waste-clearance", project, page],
+    queryFn: () => getDispatches({ page, page_size: PER_KIND, project }),
   });
 
   const rows: MergedRow[] = [
@@ -257,7 +272,7 @@ function MergedList() {
   const pageHref = (target: number) => `/waste-clearance?kind=all&page=${target}`;
 
   return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <section className="overflow-hidden surface-panel rounded-xl">
       <QueryFailedNote query={disposals} what={t("kind.disposal")} />
       <QueryFailedNote query={dispatches} what={t("kind.dispatch")} />
       <Table>

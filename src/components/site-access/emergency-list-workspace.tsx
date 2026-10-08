@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Download, Phone, Printer, RefreshCw, ShieldAlert, Users } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -34,7 +34,10 @@ export function EmergencyListWorkspace() {
   const t = useTranslations("siteControl");
   const df = useDateFormat();
   const search = useSearchParams();
-  const [project, setProject] = useState(() => search.get("project") ?? "all");
+  // The top bar's 「当前项目」 when it is in force (B13); a link's `?project=`
+  // moves it.
+  const [project, setProject] = usePageProject(search.get("project") ?? "", { all: "all" });
+  const projectBoxShown = useProjectBoxShown("filter");
   const rows = useQuery({
     queryKey: ["emergency-list", project],
     queryFn: () => getEmergencyList(project === "all" ? undefined : project),
@@ -72,7 +75,7 @@ export function EmergencyListWorkspace() {
   }
 
   return <div className="space-y-5"><ListHeader title={t("emergency.title")} subtitle={t("emergency.subtitle")} action={<div className="flex flex-wrap gap-2"><Button size="sm" variant="outline" disabled={rows.isFetching} onClick={() => void rows.refetch()}><RefreshCw className={rows.isFetching ? "animate-spin" : ""} />{t("action.refresh")}</Button><Button size="sm" variant="outline" disabled={!people.length} disabledReason={!people.length ? t("emergency.empty") : undefined} onClick={print}><Printer />{t("emergency.print")}</Button><Button size="sm" onClick={() => void exportEmergencyList(project === "all" ? undefined : project)}><Download />Excel</Button></div>} />
-    <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-[minmax(240px,1fr)_auto] sm:items-end"><FieldWrapper label={t("field.project")}><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.chooseProject")} allowAll allLabel={t("field.allProjects")} /></FieldWrapper><div className="flex min-h-12 items-center gap-3 rounded-lg border border-warning/25 bg-warning/5 px-4 py-2"><Users className="text-warning" /><div><p className="text-xs text-muted-foreground">{t("emergency.currentCount")}</p><p className="font-semibold tabular-nums">{rows.data?.count ?? 0}</p><p className="text-xs text-muted-foreground">{t("emergency.split", { app: rows.data?.app_count ?? 0, gate: rows.data?.gate_count ?? 0 })}</p></div></div></div>
+    <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-[minmax(240px,1fr)_auto] sm:items-end">{projectBoxShown && <FieldWrapper label={t("field.project")}><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.chooseProject")} allowAll allLabel={t("field.allProjects")} /></FieldWrapper>}<div className="flex min-h-12 items-center gap-3 rounded-lg border border-warning/25 bg-warning/5 px-4 py-2"><Users className="text-warning" /><div><p className="text-xs text-muted-foreground">{t("emergency.currentCount")}</p><p className="font-semibold tabular-nums">{rows.data?.count ?? 0}</p><p className="text-xs text-muted-foreground">{t("emergency.split", { app: rows.data?.app_count ?? 0, gate: rows.data?.gate_count ?? 0 })}</p></div></div></div>
     <div className="rounded-lg border border-warning/25 bg-warning/5 p-4"><div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 shrink-0 text-warning" /><div><h2 className="font-semibold">{t("emergency.useTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("emergency.useHelp")}</p></div></div></div>
     {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !rows.data?.count ? <State text={t("emergency.empty")} /> : <div className="overflow-x-auto rounded-lg border bg-card"><Table className="min-w-[1000px]"><TableHeader><TableRow>{["person", "type", "source", "company", "project", "enteredAt", "duration", "gate", "contact"].map((key) => <TableHead key={key}>{key === "source" ? t("emergency.source") : t(`table.${key}`)}</TableHead>)}</TableRow></TableHeader><TableBody>{people.map((row) => <TableRow key={`${row.source}:${row.user_id ?? row.event_id}`}><TableCell><p className="font-semibold">{row.subject_name}</p><p className="text-xs text-muted-foreground">{row.pass_no}</p></TableCell><TableCell><StatusBadge label={t(`subjectType.${row.subject_type}`)} tone="info" /></TableCell><TableCell><p>{t(`emergency.sourceValue.${row.source}`)}</p>{row.source !== "GATE" && <p className={`text-xs ${row.stale ? "text-warning" : "text-muted-foreground"}`}>{row.last_report_at ? t(row.stale ? "emergency.stale" : "emergency.lastReport", { time: df.dateTime(row.last_report_at) }) : t("emergency.noReport")}</p>}</TableCell><TableCell>{row.subject_company || "-"}</TableCell><TableCell>{row.project_name}</TableCell><TableCell>{df.dateTime(row.entered_at)}</TableCell><TableCell className="font-medium tabular-nums">{duration(row.minutes_on_site, t)}</TableCell><TableCell>{row.gate_name || "-"}</TableCell><TableCell>{row.phone ? <a className="inline-flex items-center gap-2 text-primary hover:underline" href={`tel:${row.phone}`}><Phone className="size-4" />{row.phone}</a> : "-"}</TableCell></TableRow>)}</TableBody></Table></div>}
     {rows.dataUpdatedAt > 0 && <p className="text-xs text-muted-foreground">{t("emergency.updated", { time: new Date(rows.dataUpdatedAt).toLocaleTimeString() })}</p>}

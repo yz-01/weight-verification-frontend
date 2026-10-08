@@ -36,14 +36,19 @@ describe("the detail shell does what the customer asked (T-368)", () => {
     expect(shell).toMatch(/signatures\.length > 0 &&/);
   });
 
-  it("puts the buttons in the right column, under panel and signatures", () => {
+  // UI phase (2026-10-08, the canvas's 记录详情 artboard): the right column
+  // is what a reader does - the buttons first, then 签名, then the
+  // conversation; the module's own panel joins the facts on the left.
+  it("puts the buttons at the top of the right column, above signatures and the conversation", () => {
     const aside = shell.slice(shell.indexOf("<aside"), shell.indexOf("</aside>"));
-    const panel = aside.indexOf("{panel}");
+    const actions = aside.indexOf("{actions}");
     const signatures = aside.indexOf("signatures.length > 0");
-    const actions = aside.indexOf("{actions ?");
-    expect(panel).toBeGreaterThan(-1);
-    expect(signatures).toBeGreaterThan(panel);
-    expect(actions).toBeGreaterThan(signatures);
+    const conversation = aside.indexOf("<RecordConversationPanel");
+    expect(actions).toBeGreaterThan(-1);
+    expect(signatures).toBeGreaterThan(actions);
+    expect(conversation).toBeGreaterThan(signatures);
+    const left = shell.slice(shell.indexOf("max-lg:contents"), shell.indexOf("<aside"));
+    expect(left).toContain("{panel}");
   });
 });
 

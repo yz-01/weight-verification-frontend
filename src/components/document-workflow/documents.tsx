@@ -23,6 +23,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
   SystemFilePicker,
   useSourceLabel,
@@ -142,9 +143,16 @@ export function Documents() {
   // E4: a system file's source tag opens the record it came from (F9 routes).
   const opener = useRecordOpener();
 
+  // On the top bar's 「当前项目」 (B13) the archive shows that project's files
+  // and the company-wide ones, which belong to every project.
+  const topBar = useCurrentProject();
+  const documentsQuery =
+    topBar.active && list.filters.project
+      ? { ...list.query, with_company: "1" }
+      : list.query;
   const documents = useQuery({
-    queryKey: ["documents", list.query],
-    queryFn: () => getDocuments(list.query),
+    queryKey: ["documents", documentsQuery],
+    queryFn: () => getDocuments(documentsQuery),
   });
   const categories = useQuery({
     queryKey: ["documents", "categories"],
@@ -481,10 +489,12 @@ export function Documents() {
         ]}
         toolbarActions={
           <div className="flex flex-wrap items-center gap-2">
+            {!topBar.active && (
             <Select value={list.filters.project ?? "all"} onValueChange={(value) => list.setFilter("project", value === "all" ? undefined : value)}>
               <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.project")}><SelectValue placeholder={t("documents.field.project")} /></SelectTrigger>
               <SelectContent><SelectItem value="all">{t("documents.allProjects")}</SelectItem>{(projects.data?.results ?? []).map((project) => <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>)}</SelectContent>
             </Select>
+            )}
             {/* B6 / D5 (X16): one dropdown sets category and subcategory together. */}
             <DocumentCategoryPicker
               categories={categoryRows}

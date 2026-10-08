@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { usePageProject } from "@/components/providers/current-project-provider";
 import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -46,7 +47,8 @@ const EMPTY_FIELDS: FieldDefinition[] = [];
 export function ApplicationTemplateWorkspace() {
   const t = useTranslations("consultantWorkflow.templateManager");
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 for the contractor's office (B13).
+  const [project, setProject] = usePageProject();
   const [creating, setCreating] = useState(false);
   const [versioning, setVersioning] = useState<ApplicationTemplate | null>(null);
   const [editing, setEditing] = useState<ApplicationTemplate | null>(null);
@@ -69,7 +71,7 @@ export function ApplicationTemplateWorkspace() {
         }
       />
       <div className="max-w-md">
-        <ConsultantProjectPicker value={project} onChange={setProject} />
+        <ConsultantProjectPicker value={project} onChange={setProject} scope="page" />
       </div>
       {!project ? (
         <State text={t("chooseProject")} />
@@ -86,7 +88,7 @@ export function ApplicationTemplateWorkspace() {
               (version) => version.version === template.current_version,
             );
             return (
-              <article key={template.id} className="rounded-lg border bg-card p-5 shadow-sm">
+              <article key={template.id} className="surface-panel rounded-xl p-5">
                 <div className="flex items-start gap-3">
                   <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                     <FileCog className="size-5" />

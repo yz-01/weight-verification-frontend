@@ -750,7 +750,7 @@ function ConsultantApplicationEditor({
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border bg-card p-4 shadow-sm sm:p-5">
+    <section className="surface-panel rounded-xl p-4 sm:p-5">
       <SectionHeader title={title} />
       {children}
     </section>

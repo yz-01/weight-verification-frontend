@@ -22,12 +22,6 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { SundryClaimDetail } from "@/components/sundry-claims/sundry-claims-office";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import type { ApprovalRow } from "@/interfaces/contractor-dashboard";
 import type {
   ArchiveQueueRow,
@@ -108,7 +102,13 @@ function OpenedApproval({ row, onClose }: { row: ApprovalRow; onClose: () => voi
         row={sheetRow}
         fetchRecord={getCategoryRecord}
         onClose={onClose}
-        actions={<SheetDecision row={row} onDone={onClose} />}
+        // Only the kinds with a decision of their own: an empty element
+        // would draw an empty button panel in the record popup (E8).
+        actions={
+          row.source === "DISPOSAL_REQUEST" || row.source === "WASTE_OUTGOING" ? (
+            <SheetDecision row={row} onDone={onClose} />
+          ) : undefined
+        }
       />
     );
   }
@@ -129,16 +129,9 @@ function OpenedApproval({ row, onClose }: { row: ApprovalRow; onClose: () => voi
     case "FIELD_TASK":
       return <FieldTaskSheet id={row.id} onClose={onClose} />;
     case "CONSULTANT_APPLICATION":
-      return (
-        <Dialog open onOpenChange={(next) => !next && onClose()}>
-          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
-            <DialogHeader>
-              <DialogTitle>{row.approval_no || row.title}</DialogTitle>
-            </DialogHeader>
-            <ConsultantApplicationDetail id={row.id} />
-          </DialogContent>
-        </Dialog>
-      );
+      // Its own record-detail popup (E8): the number, status and export in
+      // the popup's header, not a second dialog around the page.
+      return <ConsultantApplicationDetail id={row.id} presentation="dialog" onClose={onClose} />;
     default:
       return null;
   }

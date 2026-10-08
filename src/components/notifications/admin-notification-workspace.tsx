@@ -113,7 +113,7 @@ export function AdminNotificationWorkspace({
         }
       />
       {section === "overview" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+        <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
           <div className="grid md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <Link
@@ -208,7 +208,7 @@ function AdminNotificationList({
   return (
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
       {searchable && (
-        <div className="grid gap-3 rounded-lg border bg-card p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-6">
+        <div className="grid gap-3 surface-panel rounded-xl p-4 sm:grid-cols-2 xl:grid-cols-6">
           <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
             <span>{t("filter.search")}</span>
             <Input value={search} onChange={(event) => setSearch(event.target.value)} />
@@ -251,7 +251,7 @@ function AdminNotificationList({
           <DateFilter label={t("filter.dateTo")} value={dateTo} onChange={setDateTo} />
         </div>
       )}
-      <div className="overflow-auto rounded-lg border bg-card shadow-sm">
+      <div className="overflow-auto surface-panel rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
@@ -692,7 +692,7 @@ function NotificationRecords() {
         <Button size="sm" variant={recordType === "DELIVERY" ? "default" : "outline"} onClick={() => setRecordType("DELIVERY")}>{t("record.delivery")}</Button>
         <Button size="sm" variant={recordType === "STATUS" ? "default" : "outline"} onClick={() => setRecordType("STATUS")}>{t("record.status")}</Button>
       </div>
-      <div className="overflow-auto rounded-lg border bg-card shadow-sm">
+      <div className="overflow-auto surface-panel rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>

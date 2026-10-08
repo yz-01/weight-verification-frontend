@@ -35,6 +35,7 @@ import {
 } from "@/components/shared/supplier-date-filter";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -261,12 +262,14 @@ export function CategoryManagement() {
   const [selected, setSelected] = useState<CategoryModuleKey>(
     isCategoryModuleKey(requestedModule) ? requestedModule : MODULES[0].key,
   );
-  const [project, setProject] = useState(initialProject);
+  // The top bar's 「当前项目」 when it is in force (B13); `?project=` moves it.
+  const topBar = useCurrentProject();
+  const [project, setProject] = usePageProject(initialProject);
   const [editing, setEditing] = useState<Row | "new" | null>(
     searchParams.get("create") === "1" &&
       can(initialModule.manage) &&
       !initialModule.readOnly &&
-      (initialModule.scope !== "project" || Boolean(initialProject))
+      (initialModule.scope !== "project" || Boolean(project))
       ? "new"
       : null,
   );
@@ -369,16 +372,22 @@ export function CategoryManagement() {
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
       {/* The project filter, and for a project-scoped module the project a new
           column is created in - so it wears the star the create button asks for. */}
+      {/* With the top bar's project in force there is no second box: on one
+          project it is that project; on 全部项目 a project-scoped module asks
+          once, and the answer moves the top bar (B13). */}
+      {(!topBar.active || (needsProject && !project)) && (
       <FieldWrapper label={ops("field.project")} required={needsProject} className="rounded-lg border bg-card px-3 py-2 shadow-sm">
         <ProjectPicker
           value={project}
           onValueChange={(next) => setProject(next === "all" ? "" : next)}
           placeholder={ops("field.selectProject")}
-          allowAll
+          allowAll={!topBar.active}
           allLabel={ops("field.allProjects")}
           className="w-full sm:w-72"
+          scope={topBar.active ? "page" : "filter"}
         />
       </FieldWrapper>
+      )}
       <div className="grid gap-4 lg:grid-cols-[14rem_1fr]">
         {/* The left-hand module list the customer asked for. Buttons rather
             than links: the table beside it is the page. */}

@@ -33,15 +33,18 @@ import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { RecordNo } from "@/components/shared/record-no";
 import { ExportButton } from "@/components/shared/export-button";
-import { RecordExportButton } from "@/components/shared/record-export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
   FieldWrapper,
   ListHeader,
   QueryFailedNote,
-  ReadField,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import {
+  RecordDetailDialog,
+  RecordDetailShell,
+  RecordRecorder,
+} from "@/components/shared/record-detail-shell";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -666,7 +669,7 @@ export function Safety({
             <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
           )}
           {(data?.results ?? []).map((incident) => (
-            <article key={incident.id} className="rounded-lg border bg-card shadow-sm">
+            <article key={incident.id} className="surface-panel rounded-xl">
               {/*
                 The whole card opens the room (D-167). It used to be a plain
                 block with one button on it, and that button only appeared for
@@ -763,113 +766,19 @@ export function Safety({
         removed, and give the office two ways to mean the same thing.
       */}
       {opened && (
-        <Dialog open onOpenChange={(open) => !open && setOpened(null)}>
-          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
-            {/* 「单独导出」 top right (T-386), clear of the close X. */}
-            <DialogHeader className="flex-row items-start justify-between gap-4 space-y-0 pr-8">
-              <div className="min-w-0 space-y-2">
-                <DialogTitle>{opened.incident_no}</DialogTitle>
-                <DialogDescription>{opened.title}</DialogDescription>
-              </div>
-              <div className="shrink-0">
-                <RecordExportButton
-                  kind="HAZARD"
-                  recordId={opened.id}
-                  reference={opened.incident_no}
-                />
-              </div>
-            </DialogHeader>
-            <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2">
-              <ReadField
-                label={t("safety.field.status")}
-                value={t(`safetyRectification.status.${opened.status}`)}
-              />
-              <ReadField
-                label={t("safetyRectification.field.responsible")}
-                value={opened.responsible_person_name || t("hazard.unassigned")}
-              />
-              <ReadField
-                label={t("safety.field.project")}
-                value={opened.project_name}
-              />
-              <ReadField
-                label={t("safety.field.occurredAt")}
-                value={df.dateTime(opened.occurred_at)}
-              />
-              {opened.origin && (
-                <ReadField
-                  label={te("field.origin")}
-                  value={te(`origin.${opened.origin}`)}
-                />
-              )}
-              <ReadField
-                label={te("field.raisedBy")}
-                value={[opened.photographer_name, opened.created_by_title]
-                  .filter(Boolean)
-                  .join(" · ") || t("common.emptyValue")}
-              />
-              <ReadField
-                label={te("field.confirmer")}
-                value={confirmerLabel(opened, te)}
-              />
-              {opened.verified_at && opened.status === "VERIFIED" && (
-                <ReadField
-                  label={te("field.confirmedBy")}
-                  value={[
-                    opened.verified_by_name,
-                    opened.verified_by_title,
-                    df.dateTime(opened.verified_at),
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                />
-              )}
-            </div>
-            <HazardPhotoGroups incident={opened} />
-            <div className="grid gap-2 sm:grid-cols-2">
-              <Button
-                variant="outline"
-                className="min-h-11"
-                onClick={() => {
-                  setTalking(opened);
-                  setOpened(null);
-                }}
-              >
-                <MessageSquare />
-                {t("hazard.conversationTitle")}
-              </Button>
-              {opened.can_confirm && (
-                <Button
-                  className="min-h-11"
-                  onClick={() => {
-                    setReviewing(opened);
-                    setOpened(null);
-                  }}
-                >
-                  <CheckCircle2 />
-                  {t(isPermit(opened) ? "ehs.permit.approve" : "safetyRectification.action.review")}
-                </Button>
-              )}
-              {/* Assignment stays, and it is not a third rectification action:
-                  it decides *who* is responsible, which is what feeds the
-                  「指派给我的隐患整改」 pile in My Tasks (T-285). Without it that
-                  pile would have no source. */}
-              {mayAssign(opened) && (
-                  <Button
-                    variant="outline"
-                    className="min-h-11"
-                    onClick={() => {
-                      setAssigning(opened);
-                      setOpened(null);
-                    }}
-                  >
-                    <UserCheck />
-                    {t("safetyRectification.action.assign")}
-                  </Button>
-                )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <HazardRecordDetail
+          incident={opened}
+          mayAssign={mayAssign(opened)}
+          onClose={() => setOpened(null)}
+          onReview={() => {
+            setReviewing(opened);
+            setOpened(null);
+          }}
+          onAssign={() => {
+            setAssigning(opened);
+            setOpened(null);
+          }}
+        />
       )}
       {talking && (
         <Dialog open onOpenChange={(open) => !open && setTalking(null)}>
@@ -885,6 +794,136 @@ export function Safety({
         </Dialog>
       )}
     </div>
+  );
+}
+
+/**
+ * The detail the whole office row opens (T-304), in the record popup (E8,
+ * Q31): the hazard's facts, its 整改前 / 中 / 后 photographs, the confirm and
+ * assign buttons, and its own room in the 事项沟通 place - so 【沟通】 is the
+ * conversation itself here rather than a button to it (the row's icon and the
+ * phone card still open the room on its own).
+ *
+ * Its own component so a test can render it; it stays beside `Safety`, which
+ * is the only thing that opens it.
+ */
+export function HazardRecordDetail({
+  incident,
+  mayAssign,
+  onClose,
+  onReview,
+  onAssign,
+}: {
+  incident: SafetyIncident;
+  /** `Safety`'s assignment rule, for this incident. */
+  mayAssign: boolean;
+  onClose: () => void;
+  onReview: () => void;
+  onAssign: () => void;
+}) {
+  const t = useTranslations();
+  const te = useTranslations("ehs");
+  const df = useDateFormat();
+  return (
+    <RecordDetailDialog
+      title={incident.incident_no}
+      description={incident.title}
+      status={
+        <StatusBadge
+          label={t(`safetyRectification.status.${incident.status}`)}
+          tone={STATUS_TONE[incident.status]}
+        />
+      }
+      // 「单独导出」 top right (T-386).
+      exportRecord={{ kind: "HAZARD", recordId: incident.id, reference: incident.incident_no }}
+      onClose={onClose}
+    >
+      <RecordDetailShell
+        reference={incident.incident_no}
+        // 记录人 (E8): who recorded it, with a number to call.
+        recorder={<RecordRecorder record={incident} />}
+        facts={[
+          {
+            label: t("safetyRectification.field.responsible"),
+            value: incident.responsible_person_name || t("hazard.unassigned"),
+          },
+          { label: t("safety.field.project"), value: incident.project_name },
+          { label: t("safety.field.occurredAt"), value: df.dateTime(incident.occurred_at) },
+          ...(incident.origin
+            ? [{ label: te("field.origin"), value: te(`origin.${incident.origin}`) }]
+            : []),
+          {
+            label: te("field.raisedBy"),
+            value:
+              [incident.photographer_name, incident.created_by_title]
+                .filter(Boolean)
+                .join(" · ") || t("common.emptyValue"),
+          },
+          { label: te("field.confirmer"), value: confirmerLabel(incident, te) },
+          ...(incident.verified_at && incident.status === "VERIFIED"
+            ? [
+                {
+                  label: te("field.confirmedBy"),
+                  value: [
+                    incident.verified_by_name,
+                    incident.verified_by_title,
+                    df.dateTime(incident.verified_at),
+                  ]
+                    .filter(Boolean)
+                    .join(" · "),
+                },
+              ]
+            : []),
+        ]}
+        // 整改前 / 中 / 后 (B20), one row each; a permit's form is its "before".
+        photos={hazardPhotoRows(incident).flatMap(([key, photos]) =>
+          photos.map((item, index) => ({
+            id: item.id,
+            url: item.watermarked || item.image,
+            label: [`${te(`photos.${key}`)} ${index + 1}`, item.submitted_by_name]
+              .filter(Boolean)
+              .join(" · "),
+            takenAt: item.captured_at,
+            group: key,
+          })),
+        )}
+        photoGroups={hazardPhotoRows(incident).map(([key]) => ({
+          key,
+          label: te(isPermit(incident) && key === "before" ? "permit.formPhotos" : `photos.${key}`),
+        }))}
+        emptyGroupLabel={te("photos.none")}
+        actions={
+          incident.can_confirm || mayAssign ? (
+            <div className="grid gap-2">
+              {incident.can_confirm && (
+                <Button
+                  className="min-h-11"
+                  onClick={onReview}
+                >
+                  <CheckCircle2 />
+                  {t(isPermit(incident) ? "ehs.permit.approve" : "safetyRectification.action.review")}
+                </Button>
+              )}
+              {/* Assignment stays, and it is not a third rectification action:
+                  it decides *who* is responsible, which is what feeds the
+                  「指派给我的隐患整改」 pile in My Tasks (T-285). Without it that
+                  pile would have no source. */}
+              {mayAssign && (
+                <Button
+                  variant="outline"
+                  className="min-h-11"
+                  onClick={onAssign}
+                >
+                  <UserCheck />
+                  {t("safetyRectification.action.assign")}
+                </Button>
+              )}
+            </div>
+          ) : undefined
+        }
+        chat={<HazardConversationPanel incidentId={incident.id} />}
+      />
+    </RecordDetailDialog>
   );
 }
 
@@ -1088,8 +1127,9 @@ export function SafetyReviewDialog({ incident, onClose }: { incident: SafetyInci
  * said in its room, and what the rectifier submitted. A permit's form is its
  * "before"; it has no after.
  */
-function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
-  const te = useTranslations("ehs");
+function hazardPhotoRows(
+  incident: SafetyIncident,
+): Array<["before" | "during" | "after", HazardPhoto[]]> {
   const groups: NonNullable<SafetyIncident["photo_groups"]> = incident.photo_groups ?? {
     before: incident.initial_evidence ?? [],
     during: [],
@@ -1100,10 +1140,17 @@ function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
     ["during", groups.during],
     ["after", groups.after],
   ];
+  return rows.filter(
+    ([key, photos]) => !(isPermit(incident) && key !== "before" && photos.length === 0),
+  );
+}
+
+/** The same rows as thumbnails, in the confirm dialog. */
+function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
+  const te = useTranslations("ehs");
   return (
     <div className="grid gap-3" data-testid="hazard-photo-groups">
-      {rows
-        .filter(([key, photos]) => !(isPermit(incident) && key !== "before" && photos.length === 0))
+      {hazardPhotoRows(incident)
         .map(([key, photos]) => (
           <section key={key} className="grid gap-1.5">
             <h3 className="text-sm font-medium">

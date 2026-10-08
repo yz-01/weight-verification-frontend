@@ -12,6 +12,7 @@ import {
 import { useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -123,14 +124,17 @@ export function ReportMenu({
 }) {
   const t = useTranslations("reportSelector");
   const tRoot = useTranslations();
-  const project = searchParams.get("project") ?? undefined;
+  // The reader's project: the top bar's 「当前项目」 when it is in force (B13).
+  const topBar = useCurrentProject();
+  const project =
+    (topBar.active ? topBar.projectId : searchParams.get("project")) || undefined;
 
   return (
     // Not modal: the report behind has to stay readable while the menu is
     // open (「背景保持可见，不整页变黑」).
     <DropdownMenu modal={false} open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9 gap-2 border-primary/40 bg-card shadow-sm">
+        <Button variant="outline" size="sm" className="h-10 gap-2 border-primary bg-primary/12 px-4 text-foreground shadow-glow-sm pointer-coarse:h-11">
           <BarChart3 className="size-4 text-primary" />
           {t("choose")}
           <ChevronDown className="size-4 text-muted-foreground" />

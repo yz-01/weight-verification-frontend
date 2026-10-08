@@ -10,6 +10,7 @@ import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -104,11 +105,18 @@ export function ClaimEngineWorkspace() {
   const t = useTranslations("claims");
   const formatter = useDateFormat();
   const { can } = useAuth();
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 (B13).
+  const [project, setProject] = usePageProject();
   const [kind, setKind] = useState<ClaimKind | "">("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [openId, setOpenId] = useState<string | null>(null);
+  // Page 1 of the next project, and the one open on the last project closes
+  // (B13 audit #8).
+  useOnProjectChange(project, () => {
+    setPage(1);
+    setOpenId(null);
+  });
   const [creating, setCreating] = useState(false);
 
   const query = useQuery({

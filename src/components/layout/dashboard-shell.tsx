@@ -16,6 +16,7 @@ import {
   TaskCardDockSlot,
 } from "@/components/notifications/task-card-dock";
 import { useAuth } from "@/components/providers/auth-provider";
+import { CurrentProjectProvider } from "@/components/providers/current-project-provider";
 import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import {
   SidebarInset,
@@ -122,6 +123,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <TaskCardDockProvider>
+      {/* 顶栏「当前项目」: chosen once, read by every page below (B13). */}
+      <CurrentProjectProvider>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="h-dvh min-w-0 overflow-hidden">
@@ -136,6 +139,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <TaskCardDockSlot />
         </SidebarInset>
       </SidebarProvider>
+      </CurrentProjectProvider>
       {/* Hazard cards float for eight seconds, then go (C3). */}
       <HazardPopupStack
         cards={hazardPopup.cards}

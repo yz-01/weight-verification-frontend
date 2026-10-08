@@ -37,7 +37,7 @@ import {
   sortable,
   SummaryStrip,
 } from "@/components/shared/module-records-table";
-import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -545,6 +545,8 @@ export function WasteOutgoingWorkspace() {
         >
           <RecordDetailShell
             reference={shown.reference_no}
+            // 记录人 (E8): who recorded it, with a number to call.
+            recorder={<RecordRecorder record={shown} />}
             notices={
               shown.review_note ? (
                 <p

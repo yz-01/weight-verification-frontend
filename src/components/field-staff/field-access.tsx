@@ -168,7 +168,7 @@ export function FieldAccess() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-muted/30 px-5 py-10">
-      <section className="w-full max-w-md overflow-hidden rounded-lg border bg-card shadow-sm">
+      <section className="w-full max-w-md overflow-hidden surface-panel rounded-xl">
         <div className="bg-primary px-6 py-7 text-primary-foreground">
           <span className="mb-4 flex size-12 items-center justify-center rounded-lg bg-white/15">
             <Camera className="size-7" />

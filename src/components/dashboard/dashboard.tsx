@@ -278,7 +278,7 @@ function StatsGrid({ stats }: { stats: DashboardStat[] }) {
           <Link
             key={stat.key}
             href={stat.href}
-            className="min-h-32 rounded-lg border bg-card p-5 shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="min-h-32 surface-panel rounded-xl p-5 transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="flex items-center justify-between gap-4">
               <p className="text-sm font-medium text-muted-foreground">

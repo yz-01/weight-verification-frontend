@@ -51,7 +51,7 @@ export function BillingWorkspace({ section = "overview" }: { section?: BillingSe
     return true;
   });
   let content: React.ReactNode;
-  if (section === "overview") content = <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid md:grid-cols-2 xl:grid-cols-3">{visibleModules.map((module) => <Link key={module.section} href={`/billing/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
+  if (section === "overview") content = <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl"><div className="grid md:grid-cols-2 xl:grid-cols-3">{visibleModules.map((module) => <Link key={module.section} href={`/billing/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
   else if (section === "automatic-billing" && canManage) content = <AutomaticBilling />;
   else if (section === "collections" && canCollect) content = <PaymentManager />;
   else if (section === "payment-proofs" && (canPay || canCollect)) content = <PaymentManager proofsOnly />;

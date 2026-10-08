@@ -12,6 +12,7 @@ import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
@@ -377,7 +378,7 @@ function notificationKindKey(kind: string): string {
   return known.has(kind) ? kind : "EVENT";
 }
 
-function ProjectNotificationDialog({
+export function ProjectNotificationDialog({
   onClose,
   onSent,
 }: {
@@ -385,7 +386,7 @@ function ProjectNotificationDialog({
   onSent: () => void;
 }) {
   const t = useTranslations("notifications.compose");
-  const [project, setProject] = useState("");
+  const [chosenProject, setProject] = useState<string | null>(null);
   const [recipientScope, setRecipientScope] = useState<"ALL" | "ROLE" | "PEOPLE">("ALL");
   const [recipients, setRecipients] = useState<string[]>([]);
   const [recipientRoles, setRecipientRoles] = useState<string[]>([]);
@@ -396,6 +397,15 @@ function ProjectNotificationDialog({
     queryFn: () =>
       getProjects({ page_size: 100, status: "ACTIVE", sort_by: "name" }),
   });
+  // Addressed to the top bar's 「当前项目」 until another is chosen here
+  // (B13 audit #7), when that project is one a notice can go to.
+  const topBar = useCurrentProject();
+  const project =
+    chosenProject ??
+    (topBar.projectId &&
+    (projects.data?.results ?? []).some((row) => row.id === topBar.projectId)
+      ? topBar.projectId
+      : "");
   const members = useQuery({
     queryKey: ["project-assignments", project, "notification-compose"],
     queryFn: () => getProjectAssignments(project),

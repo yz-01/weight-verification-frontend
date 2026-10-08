@@ -1,3 +1,5 @@
+import type { RecordedBy } from "@/interfaces/recorder";
+
 /**
  * MR / Other Request (C01–C07). Endpoints in
  * `contractor_ops/material_requests.py`.
@@ -44,7 +46,7 @@ export interface MaterialRequestDecision {
   previous_reviewer_name: string | null;
 }
 
-export interface MaterialRequest {
+export interface MaterialRequest extends RecordedBy {
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

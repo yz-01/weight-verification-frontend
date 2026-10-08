@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
   ReportSelector,
   useReportLevelName,
@@ -136,6 +137,7 @@ export function ContractorReportWorkspace({
   // 【选择报表】 opens a report at a category by writing them there, and keeps
   // the reader's project and dates when they move to another report.
   const list = useListQuery(["project", "date_from", "date_to", "category", "subcategory"]);
+  const topBar = useCurrentProject();
   const dateFrom =
     list.filters.date_from ?? dateValue(new Date(now.getFullYear(), now.getMonth(), 1));
   const dateTo = list.filters.date_to ?? dateValue(now);
@@ -257,6 +259,8 @@ export function ContractorReportWorkspace({
         subtitle={t(`description.${reportType}`)}
       />
       <section className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-2 lg:grid-cols-[minmax(14rem,1fr)_11rem_11rem_auto]">
+        {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
+        {!topBar.active && (
         <label className="space-y-1.5 text-sm font-medium">
           {t("filter.project")}
           <Select value={project} onValueChange={setProject}>
@@ -271,6 +275,7 @@ export function ContractorReportWorkspace({
             </SelectContent>
           </Select>
         </label>
+        )}
         <label className="space-y-1.5 text-sm font-medium">
           {t("filter.dateFrom")}
           <Input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} />

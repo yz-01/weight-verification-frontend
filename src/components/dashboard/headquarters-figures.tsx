@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
   Table,
   TableBody,
@@ -39,7 +40,9 @@ import type {
   TodayRecordKind,
 } from "@/interfaces/headquarters";
 import { cardHref, cardProject, type HeadquartersCard } from "@/lib/headquarters-links";
-import { cn } from "@/lib/utils";
+import { ALL_PROJECTS_CHOICE } from "@/lib/project-context";
+import { KpiCard } from "@/components/shared/kpi-card";
+import type { Tone } from "@/lib/tones";
 
 const COUNT_TILES: Array<{
   field: HeadquartersCountField;
@@ -71,17 +74,23 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
   const format = useFormatter();
   const [breakdown, setBreakdown] = useState(false);
   const totals = data.totals;
+  // A company-wide figure counts every project; opened while the top bar is
+  // on one, its list has to move the top bar to 全部项目 to show the same
+  // number (B13, F8).
+  const topBar = useCurrentProject();
+  const everyProject = topBar.active && topBar.projectId ? ALL_PROJECTS_CHOICE : undefined;
   const href = (card: HeadquartersCard) =>
-    cardHref(card, { project: cardProject(data, card), date: data.date });
+    cardHref(card, { project: cardProject(data, card) ?? everyProject, date: data.date });
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Tile
           label={t("projects")}
           value={format.number(totals.projects)}
           detail={t("activeProjects", { count: format.number(totals.active_projects) })}
           icon={Building2}
+          tone={FIELD_TONE.projects}
           href={href("projects")}
         />
         {COUNT_TILES.map(({ field, icon, alarm }) => (
@@ -98,13 +107,14 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
                 : undefined
             }
             icon={icon}
+            tone={FIELD_TONE[field]}
             danger={alarm && totals[field] > 0}
             href={href(field)}
             onOpen={field === "today_records" ? () => setBreakdown(true) : undefined}
           />
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <ClearanceCard
           label={t("wasteDispatches")}
           icon={Recycle}
@@ -129,15 +139,25 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
   );
 }
 
-const TILE_CLASS =
-  "min-w-0 rounded-lg border bg-card px-3 py-2.5 text-left shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+/** Each figure's data colour (the canvas's six, by what it counts). */
+const FIELD_TONE: Record<HeadquartersCountField | "projects", Tone> = {
+  projects: "cyan",
+  today_records: "blue",
+  on_site_now: "green",
+  pending_approvals: "amber",
+  open_tasks: "purple",
+  overdue_tasks: "rose",
+  overdue_rectifications: "rose",
+  material_receipts_today: "green",
+};
 
 function Tile({
   label,
   value,
   detail,
-  icon: Icon,
+  icon,
   danger,
+  tone,
   href,
   onOpen,
 }: {
@@ -146,36 +166,25 @@ function Tile({
   detail?: string;
   icon: LucideIcon;
   danger?: boolean;
+  tone: Tone;
   /** The list it counts; null when it opens a breakdown (`onOpen`). */
   href: string | null;
   onOpen?: () => void;
 }) {
-  const body = (
-    <>
-      <span className="flex items-center justify-between gap-2">
-        <span className="line-clamp-2 text-xs font-medium text-muted-foreground">{label}</span>
-        <Icon className={cn("size-4 shrink-0 text-muted-foreground", danger && "text-destructive")} aria-hidden />
-      </span>
-      <span className={cn("mt-1 block text-xl font-semibold tabular-nums", danger && "text-destructive")}>
-        {value}
-      </span>
-      {detail && (
-        <span className="block truncate text-[11px] text-muted-foreground">{detail}</span>
-      )}
-    </>
-  );
-  const className = cn(TILE_CLASS, danger && "border-destructive/40 bg-destructive/5");
-  if (href) {
-    return (
-      <Link href={href} className={className} data-headquarters-card>
-        {body}
-      </Link>
-    );
-  }
+  // An alarm figure at zero is not an alarm: it stays quiet (U-029).
+  const shown: Tone = tone === "rose" && !danger ? "slate" : tone;
   return (
-    <button type="button" onClick={onOpen} className={className} data-headquarters-card>
-      {body}
-    </button>
+    <KpiCard
+      label={label}
+      value={value}
+      detail={detail}
+      icon={icon}
+      tone={shown}
+      size="sm"
+      href={href}
+      onClick={href ? undefined : onOpen}
+      data-headquarters-card
+    />
   );
 }
 
@@ -202,9 +211,9 @@ function ClearanceCard({
     <Link
       href={href}
       data-headquarters-card
-      className="flex min-w-0 items-center gap-3 rounded-lg border bg-card px-3 py-2.5 text-left shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="surface-panel flex min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-left transition hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className="rounded-md bg-primary/10 p-2 text-primary">
+      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-tone-orange/15 text-tone-orange-fg">
         <Icon className="size-4" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">

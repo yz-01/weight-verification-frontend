@@ -121,7 +121,7 @@ export function SupplierDateFilter({
     <div className="flex flex-wrap items-center gap-2">
       {showSupplier && (
         <>
-          <div className="w-[200px] max-w-full">
+          <div className="w-52 max-w-full">
             <OptionCombobox
               value={value.supplier ?? ALL}
               onChange={(next) => {
@@ -153,12 +153,12 @@ export function SupplierDateFilter({
         />
       )}
       {showDates && (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <Input
             type="date"
             aria-label={t("from")}
             title={t("from")}
-            className="h-8 w-[140px] text-sm"
+            className="w-36 text-sm"
             value={value.date_from ?? ""}
             max={value.date_to || undefined}
             onChange={(event) => onChange({ date_from: event.target.value || undefined })}
@@ -168,7 +168,7 @@ export function SupplierDateFilter({
             type="date"
             aria-label={t("toLabel")}
             title={t("toLabel")}
-            className="h-8 w-[140px] text-sm"
+            className="w-36 text-sm"
             value={value.date_to ?? ""}
             min={value.date_from || undefined}
             onChange={(event) => onChange({ date_to: event.target.value || undefined })}
@@ -203,7 +203,7 @@ function ManufacturerFilter({
   const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
   return (
     <>
-      <div className="w-[200px] max-w-full">
+      <div className="w-52 max-w-full">
         <OptionCombobox
           value={value ?? ALL}
           onChange={(next) => {

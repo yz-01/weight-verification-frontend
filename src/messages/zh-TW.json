@@ -6266,6 +6266,11 @@
       "visitCreated": "客戶回訪已記錄"
     }
   },
+  "currentProject": {
+    "label": "當前項目",
+    "all": "全部項目",
+    "pageHint": "這一頁只看一個項目。選好後，整個系統都在這個項目上（頂欄會跟著換）。"
+  },
   "dashboard": {
     "admin": {
       "error": "無法加載平臺儀表板。",
@@ -8471,6 +8476,19 @@
       "fixedHelp": "發布後不能修改。要更正請發布新公告；舊公告可以撤回，原文會保留。",
       "cancel": "取消",
       "publishAction": "發布"
+    },
+    "wall": {
+      "open": "大屏模式",
+      "exit": "退出大屏",
+      "title": "數位化智慧工地 · 總部大屏",
+      "refresh": "每 30 秒刷新",
+      "escHint": "按 Esc 退出",
+      "projectStatus": "即時項目狀態",
+      "activeProjects": "在建項目",
+      "todayByProject": "各項目今日現場記錄",
+      "todayByKind": "今日記錄 · 按類別",
+      "latestPhoto": "最新現場照片",
+      "photoStream": "照片流水"
     }
   },
   "home": {
@@ -15197,7 +15215,9 @@
     "zoomOut": "縮小",
     "zoomReset": "原始大小",
     "previous": "上一張",
-    "next": "下一張"
+    "next": "下一張",
+    "recorder": "記錄人",
+    "recorderUnknown": "沒有記錄人資料"
   },
   "moduleTable": {
     "count": "{count} 條記錄",
@@ -15966,5 +15986,11 @@
       "soFar": "到 {end} 共 {hours} 小時",
       "shift": "{date} 這一班：{count} 張照片，開始 {start}"
     }
+  },
+  "theme": {
+    "label": "外觀",
+    "system": "跟隨系統",
+    "light": "淺色",
+    "dark": "深色"
   }
 }
