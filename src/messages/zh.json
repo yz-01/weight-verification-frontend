@@ -7445,7 +7445,10 @@
       "equipment_hours_end_too_late": "结束时间不能晚于第二天早上 06:00（那是下一班）。",
       "equipment_profile_incomplete": "先选好这台设备的小类，才能验收。",
       "equipment_not_on_site": "这台设备现在不在这个项目场内，不能退场。",
-      "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。"
+      "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。",
+      "original_not_expected": "服务器上还没有这张原图对应的照片，请先让记录上传完成。",
+      "original_hash_mismatch": "原图在传送中出错，和手机上的不一致，服务器没有保存。请再按一次「同步原图」。",
+      "original_not_found": "这张照片没有已备份的原图。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7535,7 +7538,12 @@
       "chooseCategory": "选择分类",
       "project": "项目",
       "withGps": "有 GPS",
-      "withoutGps": "无 GPS"
+      "withoutGps": "无 GPS",
+      "original": {
+        "BACKED_UP": "原图已备份",
+        "PENDING": "原图待同步",
+        "FAILED": "原图同步失败"
+      }
     },
     "integrity": {
       "currentHash": "当前哈希",
@@ -7570,6 +7578,19 @@
     "what": {
       "projects": "项目列表",
       "categories": "分类列表"
+    },
+    "original": {
+      "title": "完整原图",
+      "status": "原图状态",
+      "verifiedAt": "服务器核对时间",
+      "size": "原图大小",
+      "declaredAt": "登记时间",
+      "sha256": "原图 SHA-256",
+      "download": "下载完整原图",
+      "integrity": "完整原图",
+      "notHere": "原图还没有备份到服务器。",
+      "unavailable": "原图文件在存储里读不到。",
+      "frameNote": "完整原图是手机 App 拍照那一刻截下的画面，以高画质另存（约 1～2 MB，1080p），不是手机相机本身的原始照片。列表和记录里显示的是压缩后的应用照片。"
     }
   },
   "export": {
@@ -9722,6 +9743,7 @@
     "attempts": "已尝试 {count} 次",
     "historyWindow": "手机端只保留最近 {days} 天的记录，更早的请到后台查询。",
     "truncated": "显示 {shown} 条，共 {total} 条。",
+    "loadOlder": "加载更早的记录",
     "kind": {
       "MATERIAL_RECEIPT": "材料进场",
       "SITE_RECORD": "现场记录",
@@ -9830,7 +9852,10 @@
     "returnedClosed": "这笔申请已经结束。原申请、退回原因和沟通记录都会保留；还需要做的话请新建一条。",
     "paymentProofs": "付款凭证",
     "noPaymentProofs": "财务付款后，凭证会出现在这里。",
-    "conversation": "事项沟通"
+    "conversation": "事项沟通",
+    "removeFromList": "从我的列表移除",
+    "removeHelp": "只从你这台手机的列表拿掉。云端记录、后台和其他人都不受影响；可以在「本机存储与清理」里重新显示。",
+    "hiddenNote": "已从我的列表移除 {count} 条。"
   },
   "nav": {
     "activity_logs": "活动日志",
@@ -10334,7 +10359,10 @@
       "retry": "立即重试",
       "heldHint": "同一张单的前一步还没成功，这一步先不送，免得顺序错乱。",
       "recent": "刚刚已同步",
-      "needsAttentionHint": "服务器没有接收这一条，不会再自动上传。处理好后按「立即重试」，或放弃这条。"
+      "needsAttentionHint": "服务器没有接收这一条，不会再自动上传。处理好后按「立即重试」，或放弃这条。",
+      "armDiscard": "放弃还没上传的动作",
+      "armDiscardHelp": "打开后才能按每条旁边的放弃。放弃的资料会从手机删掉，不会再上传。",
+      "armFirst": "先打开上面的开关"
     },
     "queued": "已离线保存，等待自动上传",
     "status": {
@@ -16087,5 +16115,80 @@
     "system": "跟随系统",
     "light": "浅色",
     "dark": "深色"
+  },
+  "originals": {
+    "title": "原图备份",
+    "status": {
+      "APPLICATION_UPLOADED": "应用照片已上传",
+      "ORIGINAL_PENDING": "原图待同步",
+      "ORIGINAL_BACKED_UP": "原图已备份",
+      "ORIGINAL_FAILED": "同步失败"
+    },
+    "waiting": "{count} 张原图待同步（约 {mb} MB）",
+    "failed": "{count} 张同步失败",
+    "failedNetwork": "上次没有网络或信号太弱，没有传完。",
+    "failedOther": "上次没有成功，请再按一次「同步原图」。",
+    "capturedNote": "{count} 张原图在等它们的记录先上传。",
+    "nothingWaiting": "没有待同步的原图",
+    "readFailed": "这台手机读不到暂存的原图（可能已被系统清掉，或浏览器不允许保存）。",
+    "trafficNote": "同步大约要用 {mb} MB 流量，最好连上 Wi-Fi 再按。",
+    "sync": "同步原图",
+    "syncing": "正在同步原图 {done}/{total}，还剩约 {mb} MB",
+    "offline": "现在没有网络，连上网再同步原图。",
+    "result": {
+      "backedUp": "{count} 张原图已备份",
+      "failed": "{count} 张没有成功",
+      "notYet": "{count} 张等记录先上传",
+      "nothing": "没有需要同步的原图"
+    },
+    "autoLabel": "连原图一起上传",
+    "autoHelp": "打开后，记录一上传完就接着传原图，会多用流量。连着 Wi-Fi 时打开；用手机流量时关掉，之后自己按「同步原图」。",
+    "storage": {
+      "title": "手机暂存",
+      "held": "本机暂存原图 {count} 张，约 {mb} MB",
+      "usage": "这个 App 已用 {used} MB，浏览器允许约 {quota} MB",
+      "unknown": "这台手机没有告诉我们可用空间。",
+      "persisted": "这台手机已答应长期保存这些资料。",
+      "notPersisted": "这台手机没有答应长期保存，空间不够时可能被系统清掉。",
+      "persistUnknown": "这台手机没说会不会长期保存。",
+      "high": "暂存的原图很多，或空间快满了，请尽快同步原图。",
+      "full": "手机给这个 App 的空间几乎满了，新的原图可能存不下，请马上同步原图。"
+    },
+    "limit": {
+      "local": "原图同步前只存在这台手机的浏览器里。iPhone 一段时间没打开这个 App、手机空间不够、或在设置里清除网站资料，暂存的原图都可能被清掉，请尽快同步。",
+      "verified": "只有服务器收到原图并核对完全一致后，才会显示「原图已备份」。",
+      "frame": "这里的原图是拍照那一刻 App 截下的画面，以高画质另存（约 1～2 MB），不是手机相机本身的原始照片。",
+      "soon": "请尽快同步，暂存在手机上的原图可能被系统清掉。"
+    },
+    "record": {
+      "title": "原图",
+      "counts": "已备份 {backedUp}/{expected} 张",
+      "noOriginal": "这条记录没有保留原图（应用照片已上传）。",
+      "allBackedUp": "这条记录的原图都已备份到服务器。",
+      "heldHere": "这台手机上有这条记录的 {count} 张原图，约 {mb} MB。",
+      "missingHere": "{count} 张原图不在这台手机上（可能是在别的手机拍的，或已被系统清掉），无法从这里同步。",
+      "sync": "同步这条记录的原图"
+    }
+  },
+  "phoneStorage": {
+    "open": "本机存储与清理",
+    "title": "本机存储",
+    "intro": "这里只管这台手机上的东西。云端已经保存的照片、记录、审批和证据，不受这里任何操作影响。",
+    "cachedPhotos": "缓存照片 {count} 张，约 {mb} MB",
+    "cachedHelp": "看过的照片缩略图留在手机上，再打开不耗流量。清掉后，需要时会重新下载。",
+    "autoNote": "超过 {days} 天的缓存照片会自动清掉。",
+    "appUsage": "本 App 在这台手机上一共约占 {mb} MB。",
+    "keptTitle": "一定保留，不会被清理",
+    "unsent": "还没上传的记录：{count} 条",
+    "drafts": "还没提交的草稿：{count} 份",
+    "originals": "还没备份的原图：{count} 张（约 {mb} MB）",
+    "hidden": "已从我的列表移除：{count} 条",
+    "showHidden": "全部重新显示",
+    "armClean": "清理本地记录：会清掉缓存照片 {photos} 张（约 {mb} MB）；会保留还没上传的记录 {unsent} 条、草稿 {drafts} 份、还没备份的原图 {originals} 张。云端资料不受影响。",
+    "clean": "清理本地记录",
+    "armFirst": "先打开上面的开关",
+    "nothingToClean": "没有缓存照片需要清理",
+    "cleaned": "已清理缓存照片 {count} 张（约 {mb} MB）",
+    "cleanFailed": "没有清理成功，请再试一次"
   }
 }

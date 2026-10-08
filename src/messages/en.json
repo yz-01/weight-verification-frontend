@@ -7445,7 +7445,10 @@
       "equipment_hours_end_too_late": "The end time cannot be later than 06:00 the next morning (that is the next shift).",
       "equipment_profile_incomplete": "Choose this machine's sub class before accepting it.",
       "equipment_not_on_site": "This machine is not on site on this project, so it cannot go out.",
-      "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again."
+      "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again.",
+      "original_not_expected": "The server has no photo waiting for this original yet. Let the record finish uploading first.",
+      "original_hash_mismatch": "The original was damaged on the way and does not match the one on the phone, so nothing was saved. Press 'Sync originals' again.",
+      "original_not_found": "This photo has no backed-up original."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7535,7 +7538,12 @@
       "chooseCategory": "Choose a category",
       "project": "Project",
       "withGps": "With GPS",
-      "withoutGps": "Without GPS"
+      "withoutGps": "Without GPS",
+      "original": {
+        "BACKED_UP": "Original backed up",
+        "PENDING": "Original waiting",
+        "FAILED": "Original sync failed"
+      }
     },
     "integrity": {
       "currentHash": "Current hash",
@@ -7570,6 +7578,19 @@
     "what": {
       "projects": "The project list",
       "categories": "The categories"
+    },
+    "original": {
+      "title": "Full original",
+      "status": "Original status",
+      "verifiedAt": "Checked by the server",
+      "size": "Original size",
+      "declaredAt": "Declared",
+      "sha256": "Original SHA-256",
+      "download": "Download full original",
+      "integrity": "Full original",
+      "notHere": "The original has not been backed up to the server yet.",
+      "unavailable": "The original file cannot be read from storage.",
+      "frameNote": "The full original is the frame the phone app captured when the photo was taken, saved at high quality (about 1-2 MB, 1080p). It is not the phone camera's own original file. Lists and records show the compressed application photo."
     }
   },
   "export": {
@@ -9722,6 +9743,7 @@
     "attempts": "{count} attempts",
     "historyWindow": "The phone keeps the last {days} days. Older records are in the office system.",
     "truncated": "Showing {shown} of {total}.",
+    "loadOlder": "Load earlier records",
     "kind": {
       "MATERIAL_RECEIPT": "Material receipts",
       "SITE_RECORD": "Site record",
@@ -9830,7 +9852,10 @@
     "returnedClosed": "This application is closed. The record, the reason and the conversation are kept; raise a new one if you still need it done.",
     "paymentProofs": "Payment vouchers",
     "noPaymentProofs": "Vouchers appear here once finance has paid.",
-    "conversation": "Record communication"
+    "conversation": "Record communication",
+    "removeFromList": "Remove from my list",
+    "removeHelp": "Only takes it off the list on this phone. The cloud record, the office and everyone else are not affected; you can show it again under \"Phone storage and clean-up\".",
+    "hiddenNote": "{count} removed from my list."
   },
   "nav": {
     "activity_logs": "Activity logs",
@@ -10334,7 +10359,10 @@
       "retry": "Retry now",
       "heldHint": "An earlier step for the same order has not gone through yet, so this one waits to keep them in order.",
       "recent": "Synced just now",
-      "needsAttentionHint": "The server did not accept this one, so it is no longer sent by itself. Once it is sorted out, press Retry now, or discard it."
+      "needsAttentionHint": "The server did not accept this one, so it is no longer sent by itself. Once it is sorted out, press Retry now, or discard it.",
+      "armDiscard": "Discard actions not uploaded yet",
+      "armDiscardHelp": "Turn this on before you can press discard beside an action. A discarded action is deleted from the phone and never uploaded.",
+      "armFirst": "Turn on the switch above first"
     },
     "queued": "Saved offline and queued for upload",
     "status": {
@@ -16087,5 +16115,80 @@
     "system": "Follow system",
     "light": "Light",
     "dark": "Dark"
+  },
+  "originals": {
+    "title": "Original backup",
+    "status": {
+      "APPLICATION_UPLOADED": "Photo uploaded",
+      "ORIGINAL_PENDING": "Original waiting to sync",
+      "ORIGINAL_BACKED_UP": "Original backed up",
+      "ORIGINAL_FAILED": "Sync failed"
+    },
+    "waiting": "{count, plural, one {# original} other {# originals}} waiting to sync (about {mb} MB)",
+    "failed": "{count, plural, one {# original} other {# originals}} failed to sync",
+    "failedNetwork": "Last time there was no signal or it was too weak to finish.",
+    "failedOther": "Last time it did not go through. Press 'Sync originals' again.",
+    "capturedNote": "{count, plural, one {# original is} other {# originals are}} waiting for their record to upload first.",
+    "nothingWaiting": "No originals waiting to sync",
+    "readFailed": "This phone cannot read its stored originals (the system may have cleared them, or the browser does not allow storage).",
+    "trafficNote": "Syncing uses about {mb} MB of data. Best done on Wi-Fi.",
+    "sync": "Sync originals",
+    "syncing": "Syncing originals {done}/{total}, about {mb} MB left",
+    "offline": "No connection right now. Sync the originals once you are online.",
+    "result": {
+      "backedUp": "{count, plural, one {# original} other {# originals}} backed up",
+      "failed": "{count} did not go through",
+      "notYet": "{count} waiting for their record to upload",
+      "nothing": "Nothing to sync"
+    },
+    "autoLabel": "Upload originals too",
+    "autoHelp": "When on, originals follow as soon as their record is uploaded, which uses more data. Turn it on when you are on Wi-Fi; turn it off on mobile data and press 'Sync originals' yourself later.",
+    "storage": {
+      "title": "Stored on this phone",
+      "held": "{count, plural, one {# original} other {# originals}} stored here, about {mb} MB",
+      "usage": "This app uses {used} MB; the browser allows about {quota} MB",
+      "unknown": "This phone does not say how much space is available.",
+      "persisted": "This phone agreed to keep this data.",
+      "notPersisted": "This phone did not agree to keep this data; the system may clear it when space runs low.",
+      "persistUnknown": "This phone does not say whether it will keep this data.",
+      "high": "Many originals are stored here or space is running low. Sync the originals soon.",
+      "full": "The space this phone gives the app is almost full; new originals may not fit. Sync the originals now."
+    },
+    "limit": {
+      "local": "Until synced, an original exists only in this phone's browser. If the app is not opened for a while on an iPhone, if the phone runs out of space, or if website data is cleared in Settings, stored originals can be lost. Sync them soon.",
+      "verified": "'Original backed up' appears only after the server has received the original and checked that it matches exactly.",
+      "frame": "The original here is the frame the app captured when you took the photo, saved at high quality (about 1-2 MB). It is not the phone camera's own original file.",
+      "soon": "Sync soon: originals stored on the phone can be cleared by the system."
+    },
+    "record": {
+      "title": "Originals",
+      "counts": "{backedUp}/{expected} backed up",
+      "noOriginal": "This record kept no originals (photos uploaded).",
+      "allBackedUp": "All originals of this record are backed up on the server.",
+      "heldHere": "This phone holds {count, plural, one {# original} other {# originals}} of this record, about {mb} MB.",
+      "missingHere": "{count, plural, one {# original is} other {# originals are}} not on this phone (taken on another phone, or cleared by the system) and cannot be synced from here.",
+      "sync": "Sync this record's originals"
+    }
+  },
+  "phoneStorage": {
+    "open": "Phone storage and clean-up",
+    "title": "Phone storage",
+    "intro": "This only concerns what is on this phone. Photos, records, approvals and evidence already saved in the cloud are not affected by anything here.",
+    "cachedPhotos": "Cached photos: {count}, about {mb} MB",
+    "cachedHelp": "Thumbnails you have seen stay on the phone, so opening them again uses no data. Once cleared, they download again when needed.",
+    "autoNote": "Cached photos older than {days} days are cleared automatically.",
+    "appUsage": "This app uses about {mb} MB on this phone in total.",
+    "keptTitle": "Always kept, never cleared",
+    "unsent": "Records not uploaded yet: {count}",
+    "drafts": "Drafts not submitted yet: {count}",
+    "originals": "Originals not backed up yet: {count} (about {mb} MB)",
+    "hidden": "Removed from my list: {count}",
+    "showHidden": "Show them all again",
+    "armClean": "Clear local records: clears {photos} cached photos (about {mb} MB); keeps {unsent} records not uploaded yet, {drafts} drafts and {originals} originals not backed up yet. Cloud data is not affected.",
+    "clean": "Clear local records",
+    "armFirst": "Turn on the switch above first",
+    "nothingToClean": "No cached photos to clear",
+    "cleaned": "Cleared {count} cached photos (about {mb} MB)",
+    "cleanFailed": "The clean-up did not finish. Please try again."
   }
 }

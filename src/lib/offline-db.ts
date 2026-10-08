@@ -504,7 +504,14 @@ const DB_NAME = "mse-trace-offline";
 const STORE_NAME = "jobs";
 const DRIVER_SNAPSHOT_STORE = "driverSnapshots";
 const RECYCLER_SNAPSHOT_STORE = "recyclerSnapshots";
-const DB_VERSION = 3;
+/**
+ * The full originals of photos this phone took (H5 三, WP1), kept apart from
+ * the queue's compressed application photos. Added in version 4; the upgrade
+ * only creates what is missing, so a phone on version 3 keeps every queued
+ * job and snapshot it had.
+ */
+const ORIGINALS_STORE = "originals";
+const DB_VERSION = 4;
 
 export type DriverSnapshotKind = "DASHBOARD" | "TASK_LIST" | "TASK_DETAIL";
 
@@ -548,6 +555,41 @@ function transactionDone(transaction: IDBTransaction): Promise<void> {
   });
 }
 
+/**
+ * Bring the stores up to `DB_VERSION`, creating only what is missing.
+ *
+ * Exported for its test: an upgrade from version 3 (H5 三, WP1 added the
+ * originals store) must leave every existing store - the queued jobs above
+ * all - exactly as it was.
+ */
+export function upgradeOfflineStores(
+  database: Pick<IDBDatabase, "objectStoreNames" | "createObjectStore">,
+): void {
+  if (!database.objectStoreNames.contains(STORE_NAME)) {
+    const store = database.createObjectStore(STORE_NAME, { keyPath: "id" });
+    store.createIndex("ownerId", "ownerId", { unique: false });
+    store.createIndex("queuedAt", "queuedAt", { unique: false });
+  }
+  if (!database.objectStoreNames.contains(DRIVER_SNAPSHOT_STORE)) {
+    const store = database.createObjectStore(DRIVER_SNAPSHOT_STORE, {
+      keyPath: "id",
+    });
+    store.createIndex("ownerId", "ownerId", { unique: false });
+    store.createIndex("taskId", "taskId", { unique: false });
+  }
+  if (!database.objectStoreNames.contains(RECYCLER_SNAPSHOT_STORE)) {
+    const store = database.createObjectStore(RECYCLER_SNAPSHOT_STORE, {
+      keyPath: "id",
+    });
+    store.createIndex("ownerId", "ownerId", { unique: false });
+  }
+  if (!database.objectStoreNames.contains(ORIGINALS_STORE)) {
+    const store = database.createObjectStore(ORIGINALS_STORE, { keyPath: "id" });
+    store.createIndex("ownerId", "ownerId", { unique: false });
+    store.createIndex("sha256", "sha256", { unique: false });
+  }
+}
+
 function openDatabase(): Promise<IDBDatabase> {
   if (typeof indexedDB === "undefined") {
     return Promise.reject(new Error("IndexedDB is not available."));
@@ -555,27 +597,7 @@ function openDatabase(): Promise<IDBDatabase> {
 
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
-      const database = request.result;
-      if (!database.objectStoreNames.contains(STORE_NAME)) {
-        const store = database.createObjectStore(STORE_NAME, { keyPath: "id" });
-        store.createIndex("ownerId", "ownerId", { unique: false });
-        store.createIndex("queuedAt", "queuedAt", { unique: false });
-      }
-      if (!database.objectStoreNames.contains(DRIVER_SNAPSHOT_STORE)) {
-        const store = database.createObjectStore(DRIVER_SNAPSHOT_STORE, {
-          keyPath: "id",
-        });
-        store.createIndex("ownerId", "ownerId", { unique: false });
-        store.createIndex("taskId", "taskId", { unique: false });
-      }
-      if (!database.objectStoreNames.contains(RECYCLER_SNAPSHOT_STORE)) {
-        const store = database.createObjectStore(RECYCLER_SNAPSHOT_STORE, {
-          keyPath: "id",
-        });
-        store.createIndex("ownerId", "ownerId", { unique: false });
-      }
-    };
+    request.onupgradeneeded = () => upgradeOfflineStores(request.result);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
@@ -774,4 +796,136 @@ export function restoreFile(file: StoredFile): File {
     type: file.type,
     lastModified: file.lastModified,
   });
+}
+
+/**
+ * Where one kept original stands on this phone (H5 三, WP1).
+ *
+ * - `captured`: taken; its record has not reached the server yet.
+ * - `pending`: the application photo is uploaded and declared this original;
+ *   it is waiting for 「同步原图」.
+ * - `failed`: the last attempt to send it did not go through.
+ *
+ * There is no "backed up" state here on purpose: 「原图已备份」 only ever comes
+ * from the server, and once the server has verified it the phone's copy is
+ * deleted (五.5).
+ */
+export type LocalOriginalState = "captured" | "pending" | "failed";
+
+export interface LocalOriginal {
+  /** 32 hex characters, also written into the application photo's file name. */
+  id: string;
+  ownerId: string;
+  blob: Blob;
+  sha256: string;
+  size: number;
+  width: number;
+  height: number;
+  capturedAt: string;
+  /** The application photo's file name, which carries `id`. */
+  photoName: string;
+  /** The application photo's SHA-256 as captured, then as last sent. */
+  photoSha256: string;
+  state: LocalOriginalState;
+  declaredAt?: string;
+  attempts: number;
+  lastError?: string;
+  lastErrorCode?: string;
+  lastAttemptAt?: string;
+}
+
+/** A kept original without its bytes - what lists and counts need. */
+export type LocalOriginalInfo = Omit<LocalOriginal, "blob">;
+
+export async function putLocalOriginal(original: LocalOriginal): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(ORIGINALS_STORE, "readwrite");
+    transaction.objectStore(ORIGINALS_STORE).put(original);
+    await transactionDone(transaction);
+  } finally {
+    database.close();
+  }
+}
+
+export async function getLocalOriginal(id: string): Promise<LocalOriginal | null> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(ORIGINALS_STORE, "readonly");
+    const row = await requestResult(
+      transaction.objectStore(ORIGINALS_STORE).get(id) as IDBRequest<LocalOriginal | undefined>,
+    );
+    await transactionDone(transaction);
+    return row ?? null;
+  } finally {
+    database.close();
+  }
+}
+
+/** One owner's kept originals, oldest first, without loading their bytes. */
+export async function getLocalOriginals(ownerId: string): Promise<LocalOriginalInfo[]> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(ORIGINALS_STORE, "readonly");
+    const index = transaction.objectStore(ORIGINALS_STORE).index("ownerId");
+    const rows: LocalOriginalInfo[] = [];
+    await new Promise<void>((resolve, reject) => {
+      const cursor = index.openCursor(IDBKeyRange.only(ownerId));
+      cursor.onsuccess = () => {
+        const current = cursor.result;
+        if (!current) {
+          resolve();
+          return;
+        }
+        // A Blob read from IndexedDB is a handle, not its bytes; dropping it
+        // here keeps the list from holding a megabyte per row anyway.
+        const { blob: _blob, ...info } = current.value as LocalOriginal;
+        void _blob;
+        rows.push(info);
+        current.continue();
+      };
+      cursor.onerror = () => reject(cursor.error);
+    });
+    await transactionDone(transaction);
+    return rows.sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
+  } finally {
+    database.close();
+  }
+}
+
+/** Change a kept original's state fields, leaving its bytes as they are. */
+export async function updateLocalOriginal(
+  id: string,
+  change: Partial<Omit<LocalOriginal, "id" | "blob" | "sha256" | "size">>,
+): Promise<LocalOriginal | null> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(ORIGINALS_STORE, "readwrite");
+    const store = transaction.objectStore(ORIGINALS_STORE);
+    const row = await requestResult(store.get(id) as IDBRequest<LocalOriginal | undefined>);
+    const next = row ? { ...row, ...change } : null;
+    if (next) store.put(next);
+    await transactionDone(transaction);
+    return next;
+  } finally {
+    database.close();
+  }
+}
+
+/**
+ * Drop this phone's copy of one original.
+ *
+ * Called when the server has verified its own copy, or for an original the
+ * protection rule (`protectedLocalItems`) does not cover. Nothing else
+ * deletes from this store.
+ */
+export async function deleteLocalOriginal(id: string): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(ORIGINALS_STORE, "readwrite");
+    transaction.objectStore(ORIGINALS_STORE).delete(id);
+    await transactionDone(transaction);
+  } finally {
+    database.close();
+  }
 }

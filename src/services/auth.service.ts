@@ -17,6 +17,7 @@ import {
   setSessionPortal,
   setTokens,
 } from "@/lib/auth-token";
+import { deletePhotoCaches } from "@/lib/local-cleanup";
 import {
   clearActiveProjectId,
   setActiveProjectId,
@@ -67,6 +68,10 @@ export async function logout(): Promise<void> {
     // signed out and staying signed in would be the worse failure.
     clearTokens();
     clearActiveProjectId();
+    // The service worker's thumbnail copies belong to this account's company;
+    // the next person on a shared phone must not find them. The per-user
+    // hide list and the originals stay: each is keyed by its owner.
+    await deletePhotoCaches();
   }
 }
 

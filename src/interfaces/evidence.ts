@@ -61,7 +61,60 @@ export interface EvidenceAsset {
     name: string;
   }>;
   supersedes: string | null;
+  /** The photo's full original, when the phone kept one (H5 三, WP1). */
+  original?: EvidenceOriginal | null;
   created_at: string;
+}
+
+/**
+ * Where one photo's original stands (H5 三.5). Only the server says
+ * `ORIGINAL_BACKED_UP`, after it stored and re-hashed the bytes.
+ */
+export type OriginalStatus =
+  | "APPLICATION_UPLOADED"
+  | "ORIGINAL_PENDING"
+  | "ORIGINAL_BACKED_UP"
+  | "ORIGINAL_FAILED";
+
+/** A record's originals, as `my_submissions` sends them. */
+export interface OriginalBackupSummary {
+  status: OriginalStatus;
+  expected: number;
+  backed_up: number;
+  failed: number;
+  pending: number;
+  /** The originals not yet backed up, so the phone can find the ones it holds. */
+  waiting_sha256: string[];
+  waiting_bytes: number;
+}
+
+/** The evidence ledger's view of one row's original. */
+export interface EvidenceOriginal {
+  status: OriginalStatus;
+  expected_sha256: string;
+  expected_size_bytes: number;
+  sha256: string | null;
+  size_bytes: number | null;
+  content_type: string | null;
+  declared_at: string;
+  uploaded_at: string | null;
+  verified_at: string | null;
+  attempts: number;
+  last_error: string | null;
+}
+
+/** `verify_integrity`'s part for the original; null when none is kept. */
+export interface OriginalIntegrity {
+  present: boolean;
+  status: OriginalStatus;
+  valid: boolean | null;
+  unavailable?: boolean;
+  hash_matches?: boolean;
+  size_matches?: boolean;
+  stored_sha256?: string;
+  current_sha256?: string;
+  stored_size_bytes?: number | null;
+  current_size_bytes?: number;
 }
 
 export interface EvidenceIntegrityResult {
@@ -73,6 +126,8 @@ export interface EvidenceIntegrityResult {
   current_sha256: string;
   stored_size_bytes: number;
   current_size_bytes: number;
+  /** The original, checked with its photo (WP1). */
+  original?: OriginalIntegrity | null;
   verified_at: string;
 }
 
