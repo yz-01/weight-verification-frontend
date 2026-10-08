@@ -11700,6 +11700,30 @@
         "manufacturer": "Pengilang",
         "returnNote": "Return Note",
         "quantity": "Kuantiti"
+      },
+      "returnTag": "Ada rekod pemulangan",
+      "returnTagHint": "Baris ini ada {count} pemulangan yang selesai - buka untuk melihatnya",
+      "openNumber": "Lihat rekod di sebalik {label} {value}",
+      "breakdown": {
+        "what": "rekod baris ini",
+        "gone": "Baris ini tiada lagi dalam penapis semasa.",
+        "deliveries": "Setiap penerimaan ({count})",
+        "returns": "Setiap pemulangan selesai ({count})",
+        "rejected": "Ditolak - tidak dikira dalam diterima ({count})",
+        "emptyDeliveries": "Tiada penerimaan yang dikira.",
+        "emptyReturns": "Tiada pemulangan selesai.",
+        "receivedTotal": "Jumlah diterima",
+        "returnedTotal": "Jumlah pemulangan selesai",
+        "subtotal": "Jumlah",
+        "reason": "Sebab",
+        "approvedBy": "Diluluskan",
+        "completedBy": "Disahkan selesai",
+        "siteSignature": "Tandatangan tapak",
+        "supplierSignature": "Tandatangan pembekal / pemandu",
+        "approverSignature": "Tandatangan pelulus",
+        "open": "Buka {reference}",
+        "legacyReturn": "Pemulangan yang direkod pada resit sebelum 10-02",
+        "project": "Projek"
       }
     }
   },

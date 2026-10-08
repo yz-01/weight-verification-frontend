@@ -1,28 +1,24 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight, Search } from "lucide-react";
-import Link from "next/link";
+import { Search, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { NetBreakdownDialog, type NetFocus } from "@/components/receipts/net-breakdown";
 import { ExportButton } from "@/components/shared/export-button";
 import { FilterBar, LoadFailed } from "@/components/shared/page-primitives";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
-import { useDateFormat } from "@/lib/dates";
-import { cn } from "@/lib/utils";
 import {
   exportReceiptNetTotals,
   getReceiptNetTotals,
-  type MaterialNetTotalItem,
   type MaterialNetTotalRow,
 } from "@/services/contractor.service";
 
@@ -108,10 +104,12 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
  * 「累计进场」 never goes down; the net is what came in (rejected loads not
  * counted) less the returns the office has confirmed as complete, matched on
  * material category and unit (Q4). Grouped under each supplier, searchable by
- * material, and each line opens onto its own deliveries and returns - the DO,
- * the plate, the supplier and the manufacturer of each (DO is per delivery,
- * so it is in the detail, not a column of the totals). The export asks the
- * server for exactly these lines.
+ * material. Each number opens onto the records it adds up (client request
+ * 2026-10-09): 「累计进场」 every delivery, 「已退场」 every completed return,
+ * 「累计净数量」 the sum of both (`NetBreakdownDialog`); a line with returns
+ * says 「有退场记录」, which opens them too. DO is per delivery, so it is in
+ * the drill-down, not a column of the totals. The export asks the server for
+ * exactly these lines.
  */
 export function NetTotalsView({
   project,
@@ -122,13 +120,12 @@ export function NetTotalsView({
   filters?: Record<string, string | undefined>;
 }) {
   const t = useTranslations();
-  const df = useDateFormat();
   const { can } = useAuth();
   const unitName = useUnitName();
   const unitValues = useUnitExportValues();
   const [term, setTerm] = useState("");
   const material = useDebounce(term.trim(), 300);
-  const [open, setOpen] = useState<Set<string>>(() => new Set());
+  const [drill, setDrill] = useState<{ row: MaterialNetTotalRow; focus: NetFocus } | null>(null);
   const query = Object.fromEntries(
     Object.entries({ project, material, ...filters }).filter(([, value]) => Boolean(value)),
   ) as Record<string, string>;
@@ -148,13 +145,6 @@ export function NetTotalsView({
   const groups = groupBySupplier(rows);
   const keyOf = (row: MaterialNetTotalRow) =>
     `${row.project}:${row.supplier}:${row.material_name}:${row.material_specification}:${row.unit}`;
-  const toggle = (key: string) =>
-    setOpen((old) => {
-      const next = new Set(old);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
   const runExport = (format: "xlsx" | "pdf") =>
     exportReceiptNetTotals({
       format,
@@ -188,7 +178,6 @@ export function NetTotalsView({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-8" />
               <TableHead>{t("receipts.field.materialName")}</TableHead>
               <TableHead>{t("receipts.field.materialSpecification")}</TableHead>
               <TableHead>{t("receipts.field.unit")}</TableHead>
@@ -202,17 +191,17 @@ export function NetTotalsView({
           <TableBody>
             {totals.isLoading ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-muted-foreground">{t("common.loading")}</TableCell>
+                <TableCell colSpan={8} className="text-muted-foreground">{t("common.loading")}</TableCell>
               </TableRow>
             ) : rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-muted-foreground">{t("table.noResults")}</TableCell>
+                <TableCell colSpan={8} className="text-muted-foreground">{t("table.noResults")}</TableCell>
               </TableRow>
             ) : (
               groups.map((group) => (
                 <Fragment key={group.supplier || "-"}>
                   <TableRow className="bg-muted/40 hover:bg-muted/40" data-slot="net-supplier">
-                    <TableCell colSpan={9} className="py-1.5">
+                    <TableCell colSpan={8} className="py-1.5">
                       <span className="inline-flex items-center gap-1.5 text-sm font-semibold">
                         {group.supplierName || t("receipts.net.noSupplier")}
                         {group.supplier ? (
@@ -227,53 +216,75 @@ export function NetTotalsView({
                       </span>
                     </TableCell>
                   </TableRow>
-                  {group.rows.map((row) => {
-                    const key = keyOf(row);
-                    const expanded = open.has(key);
-                    return (
-                      <Fragment key={key}>
-                        <TableRow>
-                          <TableCell className="w-8 px-1">
-                            <Button
+                  {group.rows.map((row) => (
+                    <TableRow key={keyOf(row)} data-slot="net-line">
+                      <TableCell className="font-medium">
+                        <span className="inline-flex flex-wrap items-center gap-1.5">
+                          {row.material_name}
+                          {(row.return_count ?? 0) > 0 ? (
+                            <button
                               type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="size-7"
-                              aria-expanded={expanded}
-                              aria-label={expanded ? t("receipts.net.collapse") : t("receipts.net.expand")}
-                              title={expanded ? t("receipts.net.collapse") : t("receipts.net.expand")}
-                              onClick={() => toggle(key)}
+                              data-slot="net-return-tag"
+                              className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-1.5 py-0 text-2xs font-medium leading-5 text-warning-foreground hover:bg-warning/20"
+                              title={t("receipts.net.returnTagHint", { count: row.return_count ?? 0 })}
+                              aria-label={t("receipts.net.returnTagHint", { count: row.return_count ?? 0 })}
+                              onClick={() => setDrill({ row, focus: "returned" })}
                             >
-                              {expanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
-                            </Button>
-                          </TableCell>
-                          <TableCell className="font-medium">{row.material_name}</TableCell>
-                          <TableCell>{row.material_specification || "—"}</TableCell>
-                          <TableCell>{unitName(row.unit)}</TableCell>
-                          <TableCell className="tabular text-right">{row.received}</TableCell>
-                          <TableCell className="tabular text-right">{row.returned}</TableCell>
-                          <TableCell className="tabular text-right font-semibold">{row.net}</TableCell>
-                          <TableCell className="tabular text-right text-muted-foreground">{row.rejected}</TableCell>
-                          <TableCell className="text-muted-foreground">{row.project_name}</TableCell>
-                        </TableRow>
-                        {expanded ? (
-                          <TableRow className="bg-muted/20 hover:bg-muted/20">
-                            <TableCell />
-                            <TableCell colSpan={8} className="p-2">
-                              <NetLineItems items={row.items ?? []} unitName={unitName} df={df} />
-                            </TableCell>
-                          </TableRow>
-                        ) : null}
-                      </Fragment>
-                    );
-                  })}
+                              <Undo2 className="size-3" />
+                              {t("receipts.net.returnTag")}
+                            </button>
+                          ) : null}
+                        </span>
+                      </TableCell>
+                      <TableCell>{row.material_specification || "—"}</TableCell>
+                      <TableCell>{unitName(row.unit)}</TableCell>
+                      <TableCell className="tabular text-right">
+                        <NetNumber label={t("receipts.net.received")} value={row.received} onOpen={() => setDrill({ row, focus: "received" })} />
+                      </TableCell>
+                      <TableCell className="tabular text-right">
+                        <NetNumber label={t("receipts.net.returned")} value={row.returned} onOpen={() => setDrill({ row, focus: "returned" })} />
+                      </TableCell>
+                      <TableCell className="tabular text-right font-semibold">
+                        <NetNumber label={t("receipts.net.net")} value={row.net} onOpen={() => setDrill({ row, focus: "net" })} />
+                      </TableCell>
+                      <TableCell className="tabular text-right text-muted-foreground">{row.rejected}</TableCell>
+                      <TableCell className="text-muted-foreground">{row.project_name}</TableCell>
+                    </TableRow>
+                  ))}
                 </Fragment>
               ))
             )}
           </TableBody>
         </Table>
       </div>
+      {drill ? (
+        <NetBreakdownDialog
+          key={`${keyOf(drill.row)}:${drill.focus}`}
+          row={drill.row}
+          query={query}
+          focus={drill.focus}
+          onClose={() => setDrill(null)}
+        />
+      ) : null}
     </section>
+  );
+}
+
+/** A number of the totals that opens the records behind it (2026-10-09). */
+function NetNumber({ label, value, onOpen }: { label: string; value: string; onOpen: () => void }) {
+  const t = useTranslations();
+  const name = t("receipts.net.openNumber", { label, value });
+  return (
+    <button
+      type="button"
+      data-slot="net-number"
+      onClick={onOpen}
+      aria-label={name}
+      title={name}
+      className="tabular cursor-pointer rounded px-1 text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {value}
+    </button>
   );
 }
 
@@ -324,70 +335,5 @@ export function groupBySupplier(rows: readonly MaterialNetTotalRow[]) {
   // By supplier name; the lines that name none last.
   return groups.sort((a, b) =>
     !a.supplier ? 1 : !b.supplier ? -1 : a.supplierName.localeCompare(b.supplierName),
-  );
-}
-
-export function NetLineItems({
-  items,
-  unitName,
-  df,
-}: {
-  items: readonly MaterialNetTotalItem[];
-  unitName: ReturnType<typeof useUnitName>;
-  df: ReturnType<typeof useDateFormat>;
-}) {
-  const t = useTranslations("receipts.net");
-  if (!items.length) {
-    return <p className="text-xs text-muted-foreground">—</p>;
-  }
-  return (
-    <Table className="text-xs" data-slot="net-items">
-      <TableHeader>
-        <TableRow>
-          <TableHead>{t("item.date")}</TableHead>
-          <TableHead />
-          <TableHead>{t("item.reference")}</TableHead>
-          <TableHead className="tabular text-right">{t("item.quantity")}</TableHead>
-          <TableHead>{t("item.doNo")}</TableHead>
-          <TableHead>{t("item.plate")}</TableHead>
-          <TableHead>{t("supplier")}</TableHead>
-          <TableHead>{t("item.manufacturer")}</TableHead>
-          <TableHead>{t("item.returnNote")}</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {items.map((item) => {
-          const href =
-            item.kind === "RETURN"
-              ? `/material-outgoing?record=${item.id}`
-              : `/receipts/${item.id}`;
-          const out = item.kind === "RETURN" || item.kind === "RETURN_RECEIPT";
-          return (
-            <TableRow key={`${item.kind}:${item.id}`}>
-              <TableCell className="tabular">{item.date ? df.date(item.date) : "—"}</TableCell>
-              <TableCell>
-                <span className={cn("rounded px-1.5 py-0.5", out ? "bg-warning/10" : item.kind === "REJECTED" ? "bg-destructive/10" : "bg-success/10")}>
-                  {t(`item.kind.${item.kind}`)}
-                </span>
-              </TableCell>
-              <TableCell>
-                <Link href={href} className="text-primary underline-offset-2 hover:underline">
-                  {item.reference}
-                </Link>
-              </TableCell>
-              <TableCell className="tabular text-right">
-                {out ? "−" : ""}
-                {item.quantity} {unitName(item.unit)}
-              </TableCell>
-              <TableCell>{item.delivery_note_no || "—"}</TableCell>
-              <TableCell>{item.vehicle_plate || "—"}</TableCell>
-              <TableCell>{item.supplier_name || "—"}</TableCell>
-              <TableCell>{item.manufacturer_name || "—"}</TableCell>
-              <TableCell>{item.return_note_no || "—"}</TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
   );
 }
