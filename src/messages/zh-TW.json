@@ -10275,6 +10275,12 @@
     "what": {
       "counts": "未完成數量",
       "pushConfig": "手機提醒設置"
+    },
+    "sound": {
+      "blockedHint": "瀏覽器暫未允許提示音，點擊即可開啟",
+      "enable": "開啟提示音",
+      "mute": "關閉新通知提示音",
+      "unmute": "開啟新通知提示音"
     }
   },
   "offline": {
