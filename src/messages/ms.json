@@ -7384,6 +7384,8 @@
       "user_not_found": "Pengguna itu tidak dijumpai.",
       "user_suspended": "Akaun ini tidak aktif. Hubungi pentadbir anda.",
       "validation_failed": "Semak ruangan yang ditanda dan cuba lagi.",
+      "request_unreadable": "Muat naik tidak sampai dengan lengkap. Semak isyarat dan hantar semula - tiada apa-apa yang disimpan.",
+      "equipment_not_found": "Mesin ini tiada lagi dalam daftar peralatan - ia telah dimatikan, dipadam atau dipindahkan. Pilih mesin sekali lagi, atau laporkan sebagai mesin baharu.",
       "vehicle_has_tasks": "Kenderaan ini mempunyai rekod perjalanan. Nyahaktifkannya dan bukan membuangnya.",
       "vehicle_not_found": "Kenderaan itu tidak dijumpai.",
       "version_already_exists": "Versi platform itu sudah wujud.",
@@ -7423,6 +7425,7 @@
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
+      "record_archived": "Rekod ini telah disahkan dan diarkibkan oleh pejabat, jadi ia tidak boleh diubah lagi. Hantar rekod baharu.",
       "blank": "Ruangan ini wajib diisi",
       "does_not_exist": "Rekod itu tidak dijumpai",
       "email_in_use": "E-mel ini telah didaftarkan",

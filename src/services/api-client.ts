@@ -468,6 +468,9 @@ const CATALOGUE_WINS = new Set([
   "min_value",
   "invalid_choice",
   "does_not_exist",
+  // A write to a record the office confirmed and archived: the server's
+  // sentence names a model and an id, the catalogue says what to do.
+  "record_archived",
 ]);
 
 /**
@@ -477,10 +480,14 @@ const CATALOGUE_WINS = new Set([
  * Accepts the older shape of plain strings too, in case an endpoint has not
  * been moved onto `serialize_errors` yet.
  */
-function translateFieldErrors(
-  errors: Record<string, FieldError[] | string[] | string> | null | undefined,
-): Record<string, string> {
+function translateFieldErrors(errors: unknown): Record<string, string> {
   const result: Record<string, string> = {};
+  // A bare list or sentence where the field map should be is still a reason.
+  if (typeof errors === "string" || Array.isArray(errors)) {
+    const worded = wordFieldError(errors);
+    return worded ? { non_field_errors: worded } : {};
+  }
+  if (typeof errors !== "object") return result;
   /*
    * A failure that arrived without an `errors` key at all (F-366). Django
    * always sends the envelope, but a proxy, a gateway or a rate limiter in
@@ -491,25 +498,58 @@ function translateFieldErrors(
    * deciding from an error that has no status.
    */
   for (const [field, value] of Object.entries(errors ?? {})) {
-    const first = Array.isArray(value) ? value[0] : value;
-    if (first === undefined) continue;
-    if (typeof first === "string") {
-      result[field] = first;
-      continue;
+    // An empty list names no failure: nothing to put under the field.
+    if (value === undefined || (Array.isArray(value) && value.length === 0)) continue;
+    // A field the server named always gets a sentence (2026-10-08). A nested
+    // detail - `{photos: {0: [...]}}`, or an object with no code or message -
+    // used to come out as `undefined` here, so a refusal made only of such
+    // fields left the 设备进场 dialog with "check the highlighted fields" and
+    // nothing highlighted.
+    result[field] = wordFieldError(value) || catalogueWording("invalid") || t("errors.generic");
+  }
+  return result;
+}
+
+/** The catalogue's wording for a DRF code, or "" when it has none. */
+function catalogueWording(code: string): string {
+  const key = `errors.field.${code}`;
+  const translated = t(key);
+  return translated === key ? "" : translated;
+}
+
+/**
+ * The first sentence anywhere in one field's error detail, or "".
+ *
+ * Reads a plain string, a `{code, message}` entry, a list of either, and -
+ * flattened depth first - a nested dict of them.
+ */
+function wordFieldError(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const worded = wordFieldError(item);
+      if (worded) return worded;
     }
+    return "";
+  }
+  if (typeof value !== "object") return String(value);
 
-    const key = `errors.field.${first.code}`;
-    const translated = t(key);
-    const catalogue = translated === key ? "" : translated;
-
+  const entry = value as Partial<FieldError> & Record<string, unknown>;
+  if (typeof entry.code === "string" || typeof entry.message === "string") {
+    const code = typeof entry.code === "string" ? entry.code : "";
+    const message = typeof entry.message === "string" ? entry.message : "";
+    const catalogue = code ? catalogueWording(code) : "";
     // Outside the structural set the server's sentence is the specific one, so
     // it wins; the catalogue stays as the fallback for a failure that arrived
     // with no message at all.
-    result[field] = CATALOGUE_WINS.has(first.code)
-      ? catalogue || first.message
-      : first.message || catalogue;
+    return CATALOGUE_WINS.has(code) ? catalogue || message : message || catalogue;
   }
-  return result;
+  for (const inner of Object.values(entry)) {
+    const worded = wordFieldError(inner);
+    if (worded) return worded;
+  }
+  return "";
 }
 
 /**

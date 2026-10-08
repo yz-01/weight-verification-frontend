@@ -7384,6 +7384,8 @@
       "user_not_found": "找不到这位用户。",
       "user_suspended": "此账号已停用，请联系管理员。",
       "validation_failed": "请检查标红的字段后重试。",
+      "request_unreadable": "上传没有完整送达，请检查网络后重新提交，这次没有保存任何内容。",
+      "equipment_not_found": "这台设备已不在设备档案里（已停用、删除或不在这个项目）。请重新选择设备，或按「新设备」提交。",
       "vehicle_has_tasks": "该车辆已有出车记录，请停用而不是删除。",
       "vehicle_not_found": "找不到该车辆。",
       "version_already_exists": "该平台版本已经存在。",
@@ -7423,6 +7425,7 @@
     },
     "backToDashboard": "返回仪表板",
     "field": {
+      "record_archived": "这条记录已被后台确认归档，不能再修改，请重新提交一条新记录。",
       "blank": "此项为必填",
       "does_not_exist": "找不到该记录",
       "email_in_use": "该电子邮箱已注册",
