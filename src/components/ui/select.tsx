@@ -4,12 +4,43 @@ import * as React from "react"
 import { Select as SelectPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
+import { ignoreSelectClose, pageViewportHeightWatch } from "@/lib/viewport-height-change"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
+// Started when this module loads, so it is listening before any select opens.
+pageViewportHeightWatch()
+
+/**
+ * Radix Select closes its list on any window `resize`. On a phone the tap
+ * that opens it also changes the viewport height (iOS toolbar, keyboard going
+ * down), so the list closed at once and needed a second tap (2026-10-09).
+ * The open state is held here so that one close request can be refused; every
+ * other close (an option chosen, a tap outside, Esc, a rotation) goes through.
+ */
 function Select({
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
+  const [ownOpen, setOwnOpen] = React.useState(defaultOpen)
+  const open = openProp ?? ownOpen
+  const handleOpenChange = React.useCallback(
+    (next: boolean) => {
+      if (ignoreSelectClose(next)) return
+      if (openProp === undefined) setOwnOpen(next)
+      onOpenChange?.(next)
+    },
+    [openProp, onOpenChange],
+  )
+  return (
+    <SelectPrimitive.Root
+      data-slot="select"
+      {...props}
+      open={open}
+      onOpenChange={handleOpenChange}
+    />
+  )
 }
 
 function SelectGroup({
