@@ -7428,6 +7428,7 @@
       "record_archived": "Rekod ini telah disahkan dan diarkibkan oleh pejabat, jadi ia tidak boleh diubah lagi. Hantar rekod baharu.",
       "blank": "Ruangan ini wajib diisi",
       "does_not_exist": "Rekod itu tidak dijumpai",
+      "equipment_not_found": "Mesin ini tiada lagi dalam daftar peralatan - ia telah dimatikan, dipadam atau dipindahkan. Pilih mesin sekali lagi, atau laporkan sebagai mesin baharu.",
       "email_in_use": "E-mel ini telah didaftarkan",
       "field_phone_locked": "Nombor telefon yang dipaut tidak boleh diubah",
       "incorrect_type": "Nilai ini tidak sah",

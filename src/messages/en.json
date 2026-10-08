@@ -7428,6 +7428,7 @@
       "record_archived": "This record was confirmed and archived by the office, so it can no longer be changed. Submit a new record instead.",
       "blank": "This field is required",
       "does_not_exist": "That record could not be found",
+      "equipment_not_found": "This machine is no longer on the equipment register - it was switched off, removed or moved. Choose the machine again, or report it as a new machine.",
       "email_in_use": "This email is already registered",
       "field_phone_locked": "The bound mobile number cannot be changed",
       "incorrect_type": "This value is not valid",

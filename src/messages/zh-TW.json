@@ -7428,6 +7428,7 @@
       "record_archived": "這條記錄已被後台確認歸檔，不能再修改，請重新提交一條新記錄。",
       "blank": "此項為必填",
       "does_not_exist": "找不到該記錄",
+      "equipment_not_found": "這台設備已不在設備檔案裡（已停用、刪除或不在這個項目）。請重新選擇設備，或按「新設備」提交。",
       "email_in_use": "該電子郵箱已註冊",
       "field_phone_locked": "已綁定的手機號碼不能修改",
       "incorrect_type": "此值無效",

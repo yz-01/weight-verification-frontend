@@ -29,7 +29,8 @@ import type { Query, QueryClient, QueryKey } from "@tanstack/react-query";
 export const NOT_LIVE = { live: false } as const;
 
 /** The sidebar's unread counts, which every site submission moves. */
-const BADGES: QueryKey = ["contractor-dashboard", "unread-badges"];
+// The sidebar badges hook (`use-unread-badges.ts`) keys on this.
+const BADGES: QueryKey = ["sidebar-badges"];
 /** The head office's approval queue. */
 const APPROVAL_QUEUE: QueryKey = ["contractor-dashboard", "approval-queue"];
 /** The phone's own submissions list. */

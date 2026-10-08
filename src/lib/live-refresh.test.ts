@@ -75,7 +75,7 @@ describe("refreshForEvents (events from the stream)", () => {
   it("an event refreshes its own family's screens, even fresh, and nothing unrelated", async () => {
     const qc = client();
     const receipts = await onScreen(qc, ["receipts", "list", { page: 1 }], { ageMs: 5_000 });
-    const badges = await onScreen(qc, ["contractor-dashboard", "unread-badges"], { ageMs: 5_000 });
+    const badges = await onScreen(qc, ["sidebar-badges", "project-1"], { ageMs: 5_000 });
     const dispatches = await onScreen(qc, ["dispatches", { page: 1 }], { ageMs: 120_000 });
     const users = await onScreen(qc, ["users", "list"], { ageMs: 120_000 });
 
