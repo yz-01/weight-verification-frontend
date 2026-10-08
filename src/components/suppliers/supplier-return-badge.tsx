@@ -26,7 +26,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ExportButton } from "@/components/shared/export-button";
 import { FilePreviewDialog } from "@/components/shared/file-preview";
@@ -160,11 +159,10 @@ export function SupplierReturnsDialog({
   const unitValues = useUnitExportValues();
   const [printing, setPrinting] = useState(false);
   // A long history is cut at the server's cap (audit #24): narrowed here by
-  // project and by the day the material left.
-  const [ownFilters, setFilters] = useState({ project: "", date_from: "", date_to: "" });
-  // In the office the project is the top bar's 「当前项目」 (B13).
-  const topBar = useCurrentProject();
-  const filters = topBar.active ? { ...ownFilters, project: topBar.projectId } : ownFilters;
+  // project and by the day the material left. Every project the reader sees
+  // to begin with, not the top bar's: the 「有退场资料」 mark counts them all,
+  // and the list it opens says the same (Q33.2).
+  const [filters, setFilters] = useState({ project: "", date_from: "", date_to: "" });
   const returns = useQuery({
     queryKey: ["suppliers", "returns", supplier.id, filters],
     queryFn: () => getSupplierReturns(supplier.id, filters),
@@ -174,7 +172,9 @@ export function SupplierReturnsDialog({
     Object.entries(filters).filter(([, value]) => Boolean(value)),
   );
   const title = t("title", { name: supplier.name });
-  const listHref = `/material-outgoing?supplier=${encodeURIComponent(supplier.id)}&status=COMPLETED`;
+  // The 材料出场 list follows the top bar; the link names the project shown
+  // here (「all」 for every one) so it opens on the same returns (Q33.2).
+  const listHref = `/material-outgoing?supplier=${encodeURIComponent(supplier.id)}&status=COMPLETED&project=${encodeURIComponent(filters.project || "all")}`;
 
   // The same export the 材料出场 list makes, narrowed to this supplier's
   // finished returns: each row with its photographs (C12) and Return Note.
@@ -247,6 +247,7 @@ export function SupplierReturnsDialog({
             placeholder={ops("field.selectProject")}
             allowAll
             allLabel={ops("field.allProjects")}
+            scope="own"
             className="h-8 w-full text-sm sm:w-64"
           />
           <div className="flex items-center gap-1">

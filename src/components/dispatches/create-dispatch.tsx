@@ -159,7 +159,7 @@ export function CreateDispatch({
                 <p className="text-sm" data-project-locked>
                   {topBar.projects
                     .filter((project) => project.id === lockedProject)
-                    .map((project) => `${project.code} — ${project.name}`)}
+                    .map((project) => `${project.code} - ${project.name}`)}
                 </p>
               </div>
             ) : (
@@ -169,7 +169,7 @@ export function CreateDispatch({
                 label={t("dispatches.field.project")}
                 options={(projects.data?.results ?? []).map((project) => ({
                   value: project.id,
-                  label: `${project.code} — ${project.name}`,
+                  label: `${project.code} - ${project.name}`,
                 }))}
                 required
               />

@@ -66,6 +66,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // them from the address, so one choice updates all four together.
   const list = useListQuery(["project", "date_from", "date_to", "category", "supplier", "manufacturer"]);
   const topBar = useCurrentProject();
+  const projectBoxShown = can("project.view") && !topBar.active;
   const filters = {
     project: list.filters.project,
     date_from: list.filters.date_from,
@@ -178,9 +179,17 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         ) : undefined}
       />
 
-      <div className="grid gap-3 rounded-lg border bg-card/50 p-3 shadow-sm md:grid-cols-[minmax(220px,1fr)_210px_180px_180px_auto] md:items-end">
+      <div
+        className={cn(
+          "grid gap-3 rounded-lg border bg-card/50 p-3 shadow-sm md:items-end",
+          // One column fewer without the project box (B13 audit #10).
+          projectBoxShown
+            ? "md:grid-cols-[minmax(220px,1fr)_210px_180px_180px_auto]"
+            : "md:grid-cols-[minmax(220px,1fr)_180px_180px_auto]",
+        )}
+      >
         {/* Not beside the top bar's 「当前项目」, which is this filter (B13). */}
-        {can("project.view") && !topBar.active && (
+        {projectBoxShown && (
           <div className="space-y-1.5">
             <Label>{t("reports.filter.project")}</Label>
             <ProjectPicker

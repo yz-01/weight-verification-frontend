@@ -34,7 +34,11 @@ import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
-import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
+import {
+  useCurrentProject,
+  useFollowRecordProject,
+  usePageProject,
+} from "@/components/providers/current-project-provider";
 import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
 import { useClearSearchParam, useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
@@ -118,6 +122,7 @@ import {
   createSiteEquipment,
   exportSiteProgressRecords,
   getConstructionPhases,
+  getFieldTask,
   getFieldTasks,
   addMaterialOutgoingPhotos,
   exportMaterialOutgoing,
@@ -908,9 +913,26 @@ export function FieldTasksWorkspace({
         ...(drill ? { [drill]: "1" } : {}),
       }),
   });
-  const linkedHeadOffice = rows.data?.results.find(
-    (row) => row.id === focusedTaskId && row.origin === "HQ",
-  );
+  const listedTask = focusedTaskId
+    ? rows.data?.results.find((row) => row.id === focusedTaskId)
+    : undefined;
+  // A task a notice links to may be on another project than the top bar's
+  // (a notice from before links carried the project, a pasted link): it is
+  // read by its id, and the top bar moves to its project (Q33.3, B13 audit #1).
+  // query-failure: a task that cannot be read is reported by the 「not found」 strip below.
+  const linkedTask = useQuery({
+    queryKey: ["field-tasks", "detail", focusedTaskId],
+    queryFn: () => getFieldTask(focusedTaskId as string),
+    enabled: Boolean(focusedTaskId) && rows.isSuccess && !listedTask,
+  });
+  const focusedTask = listedTask ?? (focusedTaskId ? linkedTask.data : undefined);
+  useFollowRecordProject("task", focusedTask);
+  const linkedHeadOffice = focusedTask?.origin === "HQ" ? focusedTask : undefined;
+  const shownTasks = focusedTaskId
+    ? focusedTask
+      ? [focusedTask]
+      : []
+    : rows.data?.results ?? [];
   const sheetTask = openedTask ?? linkedHeadOffice?.id ?? null;
   const transition = useMutation({
     mutationFn: ({
@@ -998,10 +1020,10 @@ export function FieldTasksWorkspace({
           }}
         />
       )}
-      {focusedTaskId && !rows.isLoading && (
+      {focusedTaskId && !rows.isLoading && !linkedTask.isLoading && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
           <span className="min-w-0 flex-1">
-            {rows.data?.results.some((row) => row.id === focusedTaskId)
+            {focusedTask
               ? t("tasks.focused")
               : t("tasks.focusedMissing")}
           </span>
@@ -1013,9 +1035,9 @@ export function FieldTasksWorkspace({
       <WorkspaceState
         loading={rows.isLoading}
         error={rows.isError}
-        empty={!rows.data?.count}
+        empty={!rows.data?.count && !focusedTask}
       />
-      {!!rows.data?.count && (
+      {shownTasks.length > 0 && (
         /*
          * One compact strip per task (B17): 项目、任务名称、负责人、期限、状态、
          * 照片摘要、处理入口. The reference material and every returned photo
@@ -1023,8 +1045,7 @@ export function FieldTasksWorkspace({
          * wall of photographs. A task opened by its id (?task=) opens expanded.
          */
         <div className="grid gap-2">
-          {rows.data.results
-            .filter((row) => !focusedTaskId || row.id === focusedTaskId)
+          {shownTasks
             .map((row) => {
             const gpsPhoto = row.photos.find(
               (photo) => photo.latitude && photo.longitude,

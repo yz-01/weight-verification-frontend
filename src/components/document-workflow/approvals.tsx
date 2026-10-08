@@ -25,6 +25,7 @@ import { useMemo, useState } from "react";
 
 import { ApprovalWorkflowDialog } from "@/components/document-workflow/approval-workflow-dialog";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
@@ -510,6 +511,19 @@ export function Approvals() {
   );
 }
 
+/**
+ * The project an approval form starts on: its own when editing; a new one is
+ * on the top bar's 「当前项目」 (B13 audit #7), and company-wide ("none") on
+ * 全部项目, as before.
+ */
+export function newApprovalProject(
+  approval: Pick<ApprovalRecord, "project"> | null,
+  topBarProject: string,
+): string {
+  if (approval) return approval.project ?? "none";
+  return topBarProject || "none";
+}
+
 function ApprovalEditorDialog({
   approval,
   projects,
@@ -537,7 +551,8 @@ function ApprovalEditorDialog({
   const [resourceLabel, setResourceLabel] = useState(approval?.resource_label ?? "");
   const [title, setTitle] = useState(approval?.title ?? "");
   const [description, setDescription] = useState(approval?.description ?? "");
-  const [project, setProject] = useState(approval?.project ?? "none");
+  const topBar = useCurrentProject();
+  const [project, setProject] = useState(() => newApprovalProject(approval, topBar.projectId));
   const [reviewer, setReviewer] = useState(approval?.assigned_to ?? "none");
   const [workflowTemplate, setWorkflowTemplate] = useState(approval?.workflow_template ?? "auto");
   const templates = useQuery({

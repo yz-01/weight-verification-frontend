@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
-import { useCurrentProject } from "@/components/providers/current-project-provider";
+import { useCurrentProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import type { IncidentReportThread } from "@/interfaces/incident-report";
 import { getIncidentThreads } from "@/services/site-operations.service";
@@ -27,6 +27,7 @@ export function IncidentThreadList() {
   // In the office, the top bar's 「当前项目」 (B13); the phone keeps its own.
   const topBar = useCurrentProject();
   const selectedProject = topBar.active ? topBar.projectId || "all" : ownProject;
+  const projectBoxShown = useProjectBoxShown("filter");
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
@@ -96,16 +97,20 @@ export function IncidentThreadList() {
           </Button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 border-y bg-card/50 py-3">
-          <ProjectPicker
-            value={selectedProject}
-            onValueChange={selectProject}
-            placeholder={safetyT("project")}
-            allowAll
-            allLabel={safetyT("allProjects")}
-            className="w-full sm:w-[280px]"
-          />
-        </div>
+        {/* The project is its only filter: beside the top bar's 「当前项目」
+            there is nothing to draw (B13 audit #10). */}
+        {projectBoxShown && (
+          <div className="flex flex-wrap items-center gap-2 border-y bg-card/50 py-3">
+            <ProjectPicker
+              value={selectedProject}
+              onValueChange={selectProject}
+              placeholder={safetyT("project")}
+              allowAll
+              allLabel={safetyT("allProjects")}
+              className="w-full sm:w-[280px]"
+            />
+          </div>
+        )}
 
         {threads.isLoading && (
           <div className="grid min-h-32 place-items-center">

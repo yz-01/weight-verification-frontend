@@ -110,8 +110,13 @@ export function ClaimEngineWorkspace() {
   const [kind, setKind] = useState<ClaimKind | "">("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  useOnProjectChange(project, () => setPage(1));
   const [openId, setOpenId] = useState<string | null>(null);
+  // Page 1 of the next project, and the one open on the last project closes
+  // (B13 audit #8).
+  useOnProjectChange(project, () => {
+    setPage(1);
+    setOpenId(null);
+  });
   const [creating, setCreating] = useState(false);
 
   const query = useQuery({
