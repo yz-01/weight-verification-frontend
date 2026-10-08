@@ -38,6 +38,7 @@ import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
+import { EditedTag, wasCorrected } from "@/components/contractor-ops/progress-percent-editor";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   useCurrentProject,
@@ -3086,7 +3087,9 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                     }}
                   />
                 </div>
-                <p className="tabular mt-1 text-right text-sm font-semibold">
+                <p className="tabular mt-1 flex items-center justify-end gap-1.5 text-sm font-semibold">
+                  {/* The office corrected the figure (2026-10-09). */}
+                  {wasCorrected(row) && <EditedTag />}
                   {row.percent_complete}%
                 </p>
                 <p className="mt-2 text-sm">
