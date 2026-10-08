@@ -169,8 +169,59 @@ describe("pruneAbandonedOriginals", () => {
     keep(D, "captured", { capturedAt: old });
     jobs.push({ id: "job", ownerId: "worker", payload: { photos: [{ name: nameWithOriginal("x.jpg", B), blob: {} }] } });
     draftNames = [nameWithOriginal("y.jpg", D)];
+    post.mockResolvedValueOnce(statuses({}));
 
     expect(await pruneAbandonedOriginals("worker")).toBe(1);
     expect([...originals.keys()].sort()).toEqual([B, C, D].sort());
+    // Only the candidate is asked about.
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(post.mock.calls[0][1]).toEqual({ sha256: ["a".repeat(64)], photo_sha256: ["p".repeat(64)] });
+  });
+
+  it("keeps a captured original the server is waiting for, or whose photo it holds", async () => {
+    // The upload landed but its 「待同步」 mark failed to save: still
+    // `captured` on the phone, while the server waits for it (三.8).
+    const old = new Date(Date.now() - ABANDONED_AFTER_MS - 60_000).toISOString();
+    const D = "d".repeat(32);
+    const E = "e".repeat(32);
+    keep(A, "captured", { capturedAt: old, photoSha256: "1".repeat(64) });
+    keep(B, "captured", { capturedAt: old, photoSha256: "2".repeat(64) });
+    keep(C, "captured", { capturedAt: old, photoSha256: "3".repeat(64) });
+    keep(D, "captured", { capturedAt: old, photoSha256: "4".repeat(64) });
+    keep(E, "captured", { capturedAt: old, photoSha256: "5".repeat(64) });
+    post.mockResolvedValueOnce(
+      statuses(
+        {
+          ["a".repeat(64)]: "ORIGINAL_PENDING",
+          ["b".repeat(64)]: "ORIGINAL_FAILED",
+          ["d".repeat(64)]: "ORIGINAL_BACKED_UP",
+          ["e".repeat(64)]: "NOT_EXPECTED",
+        },
+        { ["3".repeat(64)]: true },
+      ),
+    );
+
+    expect(await pruneAbandonedOriginals("worker")).toBe(2);
+    // D: the server holds its verified copy; E: nothing anywhere wants it.
+    expect([...originals.keys()].sort()).toEqual([A, B, C].sort());
+  });
+
+  it("deletes nothing when the server does not answer, or the phone is offline", async () => {
+    const old = new Date(Date.now() - ABANDONED_AFTER_MS - 60_000).toISOString();
+    keep(A, "captured", { capturedAt: old });
+    post.mockRejectedValueOnce(new ApiError("no answer", 0, {}));
+    expect(await pruneAbandonedOriginals("worker")).toBe(0);
+    post.mockResolvedValueOnce(undefined);
+    expect(await pruneAbandonedOriginals("worker")).toBe(0);
+    expect([...originals.keys()]).toEqual([A]);
+
+    vi.stubGlobal("navigator", { onLine: false });
+    try {
+      expect(await pruneAbandonedOriginals("worker")).toBe(0);
+      expect(post).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect([...originals.keys()]).toEqual([A]);
   });
 });

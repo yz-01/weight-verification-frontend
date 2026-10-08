@@ -201,8 +201,10 @@ async function run(ownerId: string, ids?: string[]): Promise<OriginalSyncResult>
  * Only what `protectedLocalItems` leaves out: a shot whose record was never
  * sent - retaken, or its form abandoned - that no queued job and no saved
  * draft holds, after a week. Anything the server is waiting for, or that
- * could still become a record, stays. When the drafts cannot be read, nothing
- * is dropped: an unreadable answer is not "no drafts".
+ * could still become a record, stays. Before dropping, the server is asked:
+ * an original it waits for (原图待同步 / 失败) or whose photo it holds stays.
+ * When the drafts cannot be read or the server does not answer, nothing is
+ * dropped: an unreadable answer is not "no drafts" nor "not waiting".
  */
 export async function pruneAbandonedOriginals(ownerId: string, now: number = Date.now()): Promise<number> {
   try {
@@ -212,7 +214,25 @@ export async function pruneAbandonedOriginals(ownerId: string, now: number = Dat
       draftFileNames(),
     ]);
     const keep = protectedLocalItems({ jobs, originals, draftFileNames: drafts }, now).originalIds;
-    const abandoned = originals.filter((row) => !keep.has(row.id));
+    const candidates = originals.filter((row) => !keep.has(row.id));
+    if (candidates.length === 0 || offline()) return 0;
+    // The phone's own word is not enough: an upload can land while its
+    // 「待同步」 mark fails to save, leaving the original `captured` although
+    // the server holds its photo and waits for it. Ask first; no answer, no
+    // deletion.
+    const answer = await getOriginalStatuses(
+      candidates.map((row) => row.sha256),
+      candidates.map((row) => row.photoSha256).filter(Boolean),
+    );
+    if (!answer || typeof answer.results !== "object" || answer.results === null) return 0;
+    const statuses = answer.results;
+    const photos = answer.photos ?? {};
+    const abandoned = candidates.filter((row) => {
+      const server = statuses[row.sha256]?.status;
+      if (server === "ORIGINAL_PENDING" || server === "ORIGINAL_FAILED") return false;
+      if (row.photoSha256 && photos[row.photoSha256]) return false;
+      return true;
+    });
     for (const row of abandoned) await deleteLocalOriginal(row.id);
     if (abandoned.length) announceOriginalsChanged();
     return abandoned.length;
