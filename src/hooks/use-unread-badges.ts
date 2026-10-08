@@ -4,13 +4,19 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
-import type { PortalFeatureKey } from "@/lib/navigation";
+import {
+  menuBadgeKeys,
+  type FeatureNavChild,
+  type FeatureNavItem,
+  type PortalFeatureKey,
+} from "@/lib/navigation";
 import { getSidebarBadges } from "@/services/contractor-dashboard.service";
 
 /**
  * The module pages the backend may count for (`contractor_ops.sidebar_badges`),
- * keyed by feature. Used only for the unknown state: when the first load
- * fails these are the entries marked "?" rather than left looking empty.
+ * keyed by feature. Mirrors the backend's list (its test
+ * `test_sidebar_badges` reads this array) so every count it can send has an
+ * entry to appear on.
  */
 export const BADGE_FEATURES: readonly string[] = [
   "material_receipts",
@@ -72,26 +78,48 @@ export function badgeLabelKey(
   return feature === "material_receipts" ? "nav.waitingConfirm" : "nav.waitingForYou";
 }
 
-/** Per module page: a count, or `null` when the counts never loaded. */
-export type BadgeCounts = Partial<Record<string, number | null>>;
+/** Per module page: how many are waiting. Absent means nothing to show. */
+export type BadgeCounts = Partial<Record<string, number>>;
 
 /**
- * One entry's badge from the counts of the pages under it.
+ * One entry's number from the counts of the pages under it: their sum.
  *
- * A number when anything is waiting; `null` when the counts never loaded
- * and at least one of the entry's pages could carry a number - no badge at
- * all is exactly what an empty pile looks like (T-175); `0` otherwise.
+ * A badge shows only when this is above zero (Lucas 2026-10-09: 「如果是0的话
+ * 就不用显示」) - zero and counts that never loaded both show nothing.
  */
-export function badgeFor(badges: BadgeCounts, keys: readonly string[]): number | null {
+export function badgeFor(badges: BadgeCounts, keys: readonly string[]): number {
   let total = 0;
-  let unknown = false;
   for (const key of keys) {
     const value = badges[key];
-    if (value === null) unknown = true;
-    else if (typeof value === "number") total += value;
+    if (typeof value === "number" && value > 0) total += value;
   }
-  if (total > 0) return total;
-  return unknown ? null : 0;
+  return total;
+}
+
+/**
+ * The number on each row of an entry's menu, by the row's `key` (the hover
+ * flyout and the phone's expanded menu, Lucas 2026-10-09).
+ *
+ * A page shows its own keys from `menuBadgeKeys`; a heading with a further
+ * level shows the sum of the pages under it. Every key is on one page only,
+ * so the rows add up to `badgeFor(badges, badgeKeysFor(item))`.
+ */
+export function menuWaiting(item: FeatureNavItem, badges: BadgeCounts): Record<string, number> {
+  const byPage = menuBadgeKeys(item);
+  const waiting: Record<string, number> = {};
+  const walk = (level: readonly FeatureNavChild[] | undefined): number => {
+    let total = 0;
+    for (const child of level ?? []) {
+      const count = child.children?.length
+        ? walk(child.children)
+        : badgeFor(badges, byPage[child.key] ?? []);
+      waiting[child.key] = count;
+      total += count;
+    }
+    return total;
+  };
+  walk(item.children);
+  return waiting;
 }
 
 /**
@@ -106,10 +134,10 @@ export function badgeFor(badges: BadgeCounts, keys: readonly string[]): number |
  * timer of its own, because the sidebar is on every page of every office
  * user and the app already has one safety poll.
  *
- * A failed first load must not look like "nothing waiting": every entry that
- * could carry a number is marked unknown instead, and the sidebar shows "?".
- * A failed *refresh* keeps the last counts it had, which were true when
- * they arrived.
+ * Counts that never loaded show nothing, the same as nothing waiting (Lucas
+ * 2026-10-09: 「如果是0的话就不用显示」; the "?" an unloaded entry used to
+ * carry is gone). A failed *refresh* keeps the last counts it had - TanStack
+ * keeps `data` - which were true when they arrived.
  */
 export function useUnreadBadges(): BadgeCounts {
   const { can, user } = useAuth();
@@ -126,6 +154,7 @@ export function useUnreadBadges(): BadgeCounts {
     BADGE_PERMISSIONS.some((code) => can(code));
   const project = current.active ? current.projectId : "";
 
+  // query-failure: a badge shows only above zero (Lucas 2026-10-09), so a failed load shows none and a failed refresh keeps the last counts.
   const query = useQuery({
     queryKey: ["sidebar-badges", project],
     queryFn: () => getSidebarBadges({ project: project || undefined }),
@@ -134,10 +163,5 @@ export function useUnreadBadges(): BadgeCounts {
     refetchOnWindowFocus: true,
   });
 
-  const counts = query.data?.badges;
-  if (!counts) {
-    if (!query.isError) return {};
-    return Object.fromEntries(BADGE_FEATURES.map((key) => [key, null]));
-  }
-  return counts;
+  return query.data?.badges ?? {};
 }

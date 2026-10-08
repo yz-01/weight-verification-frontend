@@ -10152,7 +10152,6 @@
     "weighing_records": "Weighing records",
     "yards": "Recycling yards",
     "waitingForYou": "{count} waiting for you",
-    "waitingUnknown": "Could not load how many are waiting for you",
     "materialManagement": "Material management",
     "material_requests": "MR / Other Request",
     "waitingConfirm": "{count} waiting for confirmation"

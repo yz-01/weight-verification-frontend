@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
   useLayoutEffect,
@@ -10,6 +11,8 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { badgeLabelKey } from "@/hooks/use-unread-badges";
+import type { PortalFeatureKey } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 /** One row of a flyout: a page, or a heading with a further level. */
@@ -18,7 +21,49 @@ export interface FlyoutNode {
   label: string;
   href: string;
   active: boolean;
+  /**
+   * How many are waiting on this page; on a heading, the sum of the pages
+   * under it (`menuWaiting`). Shown only above zero.
+   */
+  waiting?: number;
   children?: FlyoutNode[];
+}
+
+/**
+ * A waiting count, the same pill on a sidebar entry and on every row of its
+ * menus (Lucas 2026-10-09: 「hover的时候如果有事项也会看到号码在哪个分类」).
+ *
+ * Nothing at all unless the number is above zero (「如果是0的话就不用显示」):
+ * zero, and counts that never loaded, look the same - an empty pile. Capped
+ * at 99+ so a big pile keeps the menu its width. Named and titled by what it
+ * counts (`badgeLabelKey`), the module's own wording.
+ */
+export function WaitingBadge({
+  count,
+  feature,
+  className,
+  ...rest
+}: {
+  count: number | undefined;
+  feature: PortalFeatureKey;
+  className?: string;
+} & Record<`data-${string}`, string>) {
+  const t = useTranslations();
+  if (!count || count <= 0) return null;
+  const name = t(badgeLabelKey(feature), { count });
+  return (
+    <span
+      {...rest}
+      className={cn(
+        "ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none tabular-nums text-primary-foreground",
+        className,
+      )}
+      aria-label={name}
+      title={name}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
 }
 
 /** Marks every flyout panel, so the sidebar can tell its own scrolls and clicks apart. */
@@ -42,10 +87,14 @@ const MARGIN = 8;
  *
  * Keyboard: the entry's arrow button opens it with focus on the first row;
  * Up/Down move, Right opens a heading, Left or Escape goes back a level.
+ *
+ * Each row carries its own waiting count, a heading the sum of its pages,
+ * so the entry's number can be traced to the page it is on.
  */
 export function NavFlyout({
   anchor,
   title,
+  feature,
   nodes,
   focusFirst,
   onPointerEnter,
@@ -54,6 +103,8 @@ export function NavFlyout({
 }: {
   anchor: DOMRect;
   title: string;
+  /** The entry's feature, which names its counts (`badgeLabelKey`). */
+  feature: PortalFeatureKey;
   nodes: FlyoutNode[];
   focusFirst: boolean;
   onPointerEnter: () => void;
@@ -65,6 +116,7 @@ export function NavFlyout({
     <FlyoutPanel
       anchor={anchor}
       title={title}
+      feature={feature}
       nodes={nodes}
       focusFirst={focusFirst}
       onPointerEnter={onPointerEnter}
@@ -82,9 +134,11 @@ function rowsOf(panel: HTMLElement | null): HTMLAnchorElement[] {
   );
 }
 
-function FlyoutPanel({
+/** One level of the menu, and the level opened beside it. Exported for tests. */
+export function FlyoutPanel({
   anchor,
   title,
+  feature,
   nodes,
   focusFirst,
   onPointerEnter,
@@ -94,6 +148,7 @@ function FlyoutPanel({
 }: {
   anchor: DOMRect;
   title?: string;
+  feature: PortalFeatureKey;
   nodes: FlyoutNode[];
   focusFirst: boolean;
   onPointerEnter: () => void;
@@ -186,6 +241,11 @@ function FlyoutPanel({
             )}
           >
             <span className="min-w-0 flex-1 truncate">{node.label}</span>
+            <WaitingBadge
+              count={node.waiting}
+              feature={feature}
+              data-flyout-badge={node.key}
+            />
             {node.children?.length ? (
               <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
             ) : null}
@@ -196,6 +256,7 @@ function FlyoutPanel({
         <FlyoutPanel
           key={open.key}
           anchor={childAnchor}
+          feature={feature}
           nodes={open.children}
           focusFirst={focusChild}
           onPointerEnter={onPointerEnter}

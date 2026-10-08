@@ -19,6 +19,8 @@ import { describe, expect, it, vi } from "vitest";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import messages from "@/messages/zh.json";
+import type { FlyoutNode } from "@/components/layout/sidebar-flyout";
+import type { FeatureNavChild as Child } from "@/lib/navigation";
 
 const auth = vi.hoisted(() => ({
   user: null as null | Record<string, unknown>,
@@ -44,12 +46,11 @@ const badges = vi.hoisted(() => ({
     approvals: 3,
     site_disposals: 2,
     field_tasks: 1,
-  } as Record<string, number | null>,
+  } as Record<string, number>,
 }));
 vi.mock("@/hooks/use-unread-badges", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/hooks/use-unread-badges")>()),
   useUnreadBadges: () => badges.counts,
-  badgeLabelKey: () => "nav.waitingUnknown",
 }));
 // The footer's own controls are not the subject here.
 vi.mock("@/components/layout/user-menu", () => ({ UserMenu: () => null }));
@@ -58,6 +59,8 @@ vi.mock("@/components/shared/offline-status", () => ({ OfflineStatus: () => null
 
 const { AppSidebar } = await import("@/components/layout/app-sidebar");
 const { PORTAL_NAVIGATION, visibleNavigation } = await import("@/lib/navigation");
+const { FlyoutPanel } = await import("@/components/layout/sidebar-flyout");
+const { menuWaiting } = await import("@/hooks/use-unread-badges");
 
 type Nav = { feature: string; anyFeatures?: string[]; children?: Nav[] };
 
@@ -186,17 +189,15 @@ describe("the restyled sidebar keeps the whole menu", () => {
     expect(markup).not.toMatch(/data-sidebar-badge="users"/);
   });
 
-  it("marks every entry that could carry a number when the counts never loaded", () => {
+  it("shows nothing at all when the counts never loaded (Lucas 2026-10-09)", () => {
+    // 「如果是0的话就不用显示」: the hook gives no counts when the request
+    // fails, and an entry without a number carries no badge - no "?".
     const loaded = badges.counts;
-    badges.counts = Object.fromEntries(
-      ["material_receipts", "material_outgoing", "equipment", "safety"].map((key) => [key, null]),
-    );
+    badges.counts = {};
     try {
       const markup = render(allFeatures(), [], true);
       expect(markup).not.toMatch(/data-sidebar-badge=/);
-      const unknown = markup.match(/>\?<\/span>/g) ?? [];
-      // 材料管理, 设备, 隐患整改 - one "?" each, never two on one entry.
-      expect(unknown).toHaveLength(3);
+      expect(markup).not.toMatch(/>\?<\/span>/);
     } finally {
       badges.counts = loaded;
     }
@@ -254,5 +255,80 @@ describe("the restyled sidebar keeps the whole menu", () => {
     const hidden = everything.filter((href) => !expected.includes(href));
     expect(hidden.length).toBeGreaterThan(0);
     for (const href of hidden) expect(renderedEntries(markup)).not.toContain(href);
+  });
+});
+
+describe("the menu under an entry shows where its number is (Lucas 2026-10-09)", () => {
+  // 「hover的时候如果有事项也会看到号码在哪个分类，全部业务模块都是一样这个逻辑」
+  const anchor = { top: 0, right: 0, left: 0, bottom: 0, width: 0, height: 0 } as DOMRect;
+
+  function menu(labelKey: string, counts: Record<string, number>, level?: string): string {
+    const item = expectedEntries(allFeatures(), [], true).find((row) => row.labelKey === labelKey);
+    expect(item, labelKey).toBeDefined();
+    const waiting = menuWaiting(item!, counts);
+    const build = (rows: readonly Child[]): FlyoutNode[] =>
+      rows.map((child) => ({
+        key: child.key,
+        label: child.key,
+        href: child.href,
+        active: false,
+        waiting: waiting[child.key],
+        children: child.children?.length ? build(child.children) : undefined,
+      }));
+    let nodes = build(item!.children ?? []);
+    if (level) nodes = nodes.find((node) => node.key === level)?.children ?? [];
+    return renderToStaticMarkup(
+      <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
+        <FlyoutPanel
+          anchor={anchor}
+          feature={item!.feature}
+          nodes={nodes}
+          focusFirst={false}
+          onPointerEnter={() => {}}
+          onPointerLeave={() => {}}
+          onBack={() => {}}
+          onNavigate={() => {}}
+        />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  /** `{row key: number shown}` for every row of one panel that carries a badge. */
+  function rowBadges(markup: string): Record<string, string> {
+    return Object.fromEntries(
+      [...markup.matchAll(/data-flyout-badge="([^"]+)"[^>]*>([^<]+)<\/span>/g)].map(
+        (match) => [match[1], match[2]],
+      ),
+    );
+  }
+
+  it("puts each page's count on its own row, worded like the entry's", () => {
+    const markup = menu("materialManagement", { material_receipts: 2, material_outgoing: 4 });
+    expect(rowBadges(markup)).toEqual({ "5.2.1": "2", "5.2.2": "4" });
+    // The entry's own name for what it counts, as its aria-label and title.
+    expect(markup).toMatch(/aria-label="[^"]*待确认[^"]*"/);
+    // And the entry above shows the two together.
+    expect(render(allFeatures(), [], true)).toMatch(
+      /data-sidebar-badge="material_receipts"[^>]*>6<\/span>/,
+    );
+  });
+
+  it("shows no badge on a row with nothing waiting", () => {
+    const markup = menu("materialManagement", { material_receipts: 0, material_outgoing: 3 });
+    expect(rowBadges(markup)).toEqual({ "5.2.2": "3" });
+    expect(rowBadges(menu("materialManagement", {}))).toEqual({});
+  });
+
+  it("gives a heading its pages' sum, and the panel it opens each page's own", () => {
+    const counts = { material_quantity_report: 2, material_cost_report: 3 };
+    expect(rowBadges(menu("report_center", counts))).toEqual({ "13.2.M": "5" });
+    expect(rowBadges(menu("report_center", counts, "13.2.M"))).toEqual({
+      "13.2.1": "2",
+      "13.2.2": "3",
+    });
+  });
+
+  it("caps a row at 99+, as the entry is", () => {
+    expect(rowBadges(menu("equipment", { equipment: 250 }))).toEqual({ "6.2.1": "99+" });
   });
 });
