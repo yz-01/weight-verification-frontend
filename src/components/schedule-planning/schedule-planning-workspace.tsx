@@ -255,7 +255,7 @@ export function SchedulePlanningWorkspace({
         }
       />
 
-      <div className="surface-panel grid gap-3 rounded-xl p-4 sm:p-6 lg:grid-cols-[minmax(260px,1fr)_minmax(260px,1fr)_auto] lg:items-end">
+      <div className="surface-panel grid gap-3 rounded-xl p-4 sm:p-6 lg:grid-cols-[minmax(16.25rem,1fr)_minmax(16.25rem,1fr)_auto] lg:items-end">
         {projectBoxShown && (
         <FieldWrapper label={t("field.project")} required>
           <ConsultantProjectPicker

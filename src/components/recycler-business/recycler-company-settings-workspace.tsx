@@ -144,7 +144,7 @@ export function RecyclerCompanySettingsWorkspace() {
 
       <section className="space-y-3">
         <SectionHeading icon={Building2} title={t("profile.title")} description={t("profile.help")} />
-        <div className="surface-panel grid gap-6 rounded-xl p-4 sm:p-6 lg:grid-cols-[150px_minmax(0,1fr)]">
+        <div className="surface-panel grid gap-6 rounded-xl p-4 sm:p-6 lg:grid-cols-[9.375rem_minmax(0,1fr)]">
           <div className="space-y-3">
             <div className="grid aspect-square place-items-center overflow-hidden rounded-lg border bg-muted/30">
               {profile.logo ? <img src={profile.logo} alt={profile.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}

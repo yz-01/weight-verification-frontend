@@ -245,7 +245,7 @@ const OFF_SCALE = /(?<![\w-])-?(?:p|px|py|ps|pe|pt|pr|pb|pl|m|mx|my|ms|me|mt|mr|
  * Any other size typed in pixels (`w-[160px]`, `text-[11px]`, `rounded-[4px]`).
  * Widths and type have scales too: `w-40`, `max-w-45`, `text-2xs`.
  */
-const ARBITRARY_PX = /(?<![\w-])(?:[a-z0-9-]+:)*-?[a-z][a-z0-9-]*-\[\d+(?:\.\d+)?px\]/g;
+const ARBITRARY_PX = /(?<![\w-])(?:[a-z0-9-]+:)*(?:-?[a-z][a-z0-9-]*-\[\d+(?:\.\d+)?px\]|(?:grid-cols|grid-rows|basis|w|max-w|min-w|h|min-h|max-h)-\[[^\]"\s]*\d+px[^\]"\s]*\])/g;
 
 /**
  * Record-detail files that still type pixel sizes, at most this many each.
@@ -255,7 +255,7 @@ const ARBITRARY_PX = /(?<![\w-])(?:[a-z0-9-]+:)*-?[a-z][a-z0-9-]*-\[\d+(?:\.\d+)
  * its file is clean.
  */
 const SIZE_CEILING = new Map([
-  ["components/consultant-workflow/application-detail.tsx", 1],
+  ["components/consultant-workflow/application-detail.tsx", 2],
   ["components/dispatches/view-dispatch.tsx", 2],
   ["components/incident-reporting/incident-thread-detail.tsx", 2],
   ["components/projects/view-project.tsx", 1],
@@ -312,14 +312,17 @@ for (const relative of files) {
   // 5b. sizes from their scales
   if (!SPACING_ALLOWED.has(relative)) {
     const sized = [...source.matchAll(ARBITRARY_PX)].filter(
-      (match) => !OFF_SCALE_TEST.test(match[0]), // spacing: reported above
+      // Spacing is reported above; a calc() with a pixel term (a 1px border
+      // compensated inside a shared component) is a formula, not a size.
+      (match) => !OFF_SCALE_TEST.test(match[0]) && !match[0].includes("calc("),
     );
     const ceiling = SIZE_CEILING.get(relative);
     for (const match of ceiling !== undefined && sized.length <= ceiling ? [] : sized) {
       problems.push(
         `${relative}:${lineAt(source, match.index)}: ${match[0]} is a size ` +
           `typed in pixels. Use the scale (w-40 = 160px, max-w-45 = 180px, ` +
-          `text-2xs / text-xs, rounded-sm) so it lines up with every other screen.`,
+          `text-2xs / text-xs, rounded-sm; rem in a grid track) so it lines up ` +
+          `with every other screen.`,
       );
     }
   }

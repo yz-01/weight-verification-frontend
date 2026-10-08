@@ -35,7 +35,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
     <div className="surface-panel overflow-hidden rounded-xl">
       <div className="overflow-x-auto">
         <div className="min-w-230">
-          <div className="grid grid-cols-[250px_1fr] border-b bg-muted/35 text-xs font-semibold text-muted-foreground">
+          <div className="grid grid-cols-[15.625rem_1fr] border-b bg-muted/35 text-xs font-semibold text-muted-foreground">
             <div className="px-4 py-3">{t("field.task")}</div>
             <div className="flex items-center justify-between border-l px-4 py-3">
               <span>{df.date(new Date(range.start).toISOString())}</span>
@@ -59,7 +59,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
             return (
               <div
                 key={task.id}
-                className="grid min-h-16 grid-cols-[250px_1fr] border-b last:border-0"
+                className="grid min-h-16 grid-cols-[15.625rem_1fr] border-b last:border-0"
               >
                 <div className="min-w-0 px-4 py-3">
                   <p className="truncate text-sm font-medium">
