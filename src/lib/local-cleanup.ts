@@ -165,10 +165,24 @@ export async function clearPhotoCaches(
 ): Promise<PhotoCacheSummary> {
   if (!store) return { count: 0, bytes: 0 };
   const cleared = await photoCacheSummary(store);
-  for (const name of (await store.keys()).filter(isPhotoCacheName)) {
-    await store.delete(name);
-  }
+  await deletePhotoCaches(store);
   return cleared;
+}
+
+/**
+ * Delete the cached photos without counting them first - for signing out, so
+ * the next person on a shared phone cannot open the previous one's company
+ * pictures (DevTools, or a typed link). Never throws: signing out must finish.
+ */
+export async function deletePhotoCaches(store: CacheStore | null = browserCaches()): Promise<void> {
+  if (!store) return;
+  try {
+    for (const name of (await store.keys()).filter(isPhotoCacheName)) {
+      await store.delete(name);
+    }
+  } catch {
+    // Cache Storage refused (private window): nothing was kept to clear.
+  }
 }
 
 // ---------------------------------------------------------------------------
