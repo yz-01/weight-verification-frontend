@@ -18,6 +18,7 @@ import {
   WORK_TABS,
   type WorkTab,
 } from "@/components/dashboard/headquarters-work";
+import { WallButton } from "@/components/dashboard/headquarters-wall";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import { legacyDashboardTarget } from "@/lib/dashboard-scopes";
@@ -66,7 +67,7 @@ export function HeadquartersDashboard() {
 
   return (
     <div className="space-y-4">
-      <CompanyBanner scope="company" date={data?.date} />
+      <CompanyBanner scope="company" date={data?.date} action={<WallButton />} />
       {overview.isError ? (
         <LoadFailed onRetry={() => void overview.refetch()} />
       ) : !data ? (

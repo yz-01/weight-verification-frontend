@@ -584,7 +584,7 @@ export function Integrations() {
       )}
 
       {selectedCompany && can("integration.manage") && (
-        <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+        <section className="space-y-4 surface-panel rounded-xl p-4">
           <div className="flex items-center gap-2">
             <Plus className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-semibold">
@@ -707,7 +707,7 @@ export function Integrations() {
             {t("integrations.connections")}
           </h2>
         </div>
-        <div className="divide-y overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="divide-y overflow-hidden surface-panel rounded-xl">
           {integrations.isError ? (
             <LoadFailed
               className="m-3"
@@ -842,7 +842,7 @@ export function Integrations() {
       </section>
 
       {selectedCompany && (
-        <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+        <section className="space-y-4 surface-panel rounded-xl p-4">
           <h2 className="text-sm font-semibold">{t("integrations.devices")}</h2>
           {canManageHardware && (
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -1520,7 +1520,7 @@ function IntegrationHistoryDialog({
             {t("integrations.history.description")}
           </DialogDescription>
         </DialogHeader>
-        <div className="divide-y overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="divide-y overflow-hidden surface-panel rounded-xl">
           {history.isLoading ? (
             <p className="px-3 py-8 text-center text-muted-foreground">
               {t("common.loading")}
@@ -1846,7 +1846,7 @@ function DeviceTelemetryDialog({
             {t("integrations.telemetry.description")}
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[60vh] divide-y overflow-y-auto rounded-lg border bg-card shadow-sm">
+        <div className="max-h-[60vh] divide-y overflow-y-auto surface-panel rounded-xl">
           {telemetry.isLoading ? (
             <p className="px-3 py-8 text-center text-muted-foreground">
               {t("common.loading")}

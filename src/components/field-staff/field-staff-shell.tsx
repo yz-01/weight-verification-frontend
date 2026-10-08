@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { ThemeMenu } from "@/components/layout/theme-choice";
 import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { SessionUnreachable } from "@/components/shared/session-unreachable";
@@ -61,9 +62,9 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh min-w-0 overflow-x-hidden bg-background">
       <FieldLocationTracker />
       <FieldManifestToken />
-      <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-sidebar-border bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex min-h-16 w-full max-w-2xl items-center gap-2 px-4 py-2.5">
-          <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border bg-background p-1">
+          <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-panel-border bg-card p-1 shadow-glow-sm">
             <BrandIcon
               branding={user.branding}
               alt={user.branding.company_name ?? user.branding.name}
@@ -86,8 +87,9 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
           <div className="flex shrink-0 items-center gap-0.5">
             <OfflineStatus />
             <NotificationButton />
-            <LanguageSwitcher className="size-9 rounded-lg px-0 [&_span]:hidden sm:w-auto sm:px-3 sm:[&_span]:inline" />
-            <Button variant="ghost" size="icon" className="size-9" title={t("common.signOut")} onClick={() => void signOut()}>
+            <ThemeMenu className="size-10 border-transparent bg-transparent" />
+            <LanguageSwitcher className="size-10 rounded-lg px-0 [&_span]:hidden sm:w-auto sm:px-3 sm:[&_span]:inline" />
+            <Button variant="ghost" size="icon" className="size-10" title={t("common.signOut")} onClick={() => void signOut()}>
               <LogOut className="h-4 w-4" />
             </Button>
           </div>

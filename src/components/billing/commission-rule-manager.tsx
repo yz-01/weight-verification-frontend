@@ -124,7 +124,7 @@ export function CommissionRuleManager() {
           </Button>
         )}
       </div>
-      <div className="min-h-0 overflow-hidden rounded-lg border bg-card shadow-sm">
+      <div className="min-h-0 overflow-hidden surface-panel rounded-xl">
         <Table className="min-w-max">
           <TableHeader>
             <TableRow>

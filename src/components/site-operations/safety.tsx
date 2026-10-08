@@ -666,7 +666,7 @@ export function Safety({
             <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
           )}
           {(data?.results ?? []).map((incident) => (
-            <article key={incident.id} className="rounded-lg border bg-card shadow-sm">
+            <article key={incident.id} className="surface-panel rounded-xl">
               {/*
                 The whole card opens the room (D-167). It used to be a plain
                 block with one button on it, and that button only appeared for

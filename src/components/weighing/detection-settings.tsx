@@ -171,7 +171,7 @@ export function DetectionSettings() {
         }
       />
 
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           {active && (
             <>

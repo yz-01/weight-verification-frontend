@@ -275,7 +275,7 @@ export function CreateScale({ scale }: { scale?: Scale }) {
       {/* Only on edit: a gateway is registered against a scale that exists, and
           the secret it returns has to be shown immediately. */}
       {isEdit && (
-        <div className="rounded-lg border bg-card shadow-sm">
+        <div className="surface-panel rounded-xl">
           <GatewayPanel scaleId={scale.id} />
         </div>
       )}

@@ -8476,6 +8476,19 @@
       "fixedHelp": "Selepas diterbitkan ia tidak boleh disunting. Untuk membetulkan, terbitkan yang baharu; yang lama boleh ditarik balik dan teksnya kekal.",
       "cancel": "Batal",
       "publishAction": "Terbitkan"
+    },
+    "wall": {
+      "open": "Skrin besar",
+      "exit": "Keluar skrin besar",
+      "title": "Tapak Pintar Digital · Skrin Besar Ibu Pejabat",
+      "refresh": "Dikemas kini setiap 30 saat",
+      "escHint": "Tekan Esc untuk keluar",
+      "projectStatus": "Status projek semasa",
+      "activeProjects": "Projek aktif",
+      "todayByProject": "Rekod tapak hari ini mengikut projek",
+      "todayByKind": "Rekod hari ini mengikut jenis",
+      "latestPhoto": "Foto tapak terkini",
+      "photoStream": "Aliran foto"
     }
   },
   "home": {
@@ -15971,5 +15984,11 @@
       "soFar": "Hingga {end}: {hours} jam",
       "shift": "Syif {date}: {count} foto, mula {start}"
     }
+  },
+  "theme": {
+    "label": "Paparan",
+    "system": "Ikut sistem",
+    "light": "Cerah",
+    "dark": "Gelap"
   }
 }

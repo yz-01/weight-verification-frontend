@@ -45,7 +45,7 @@ export function OrganisationPanel() {
   const t = useTranslations("organisation");
 
   return (
-    <section className="rounded-lg border bg-card shadow-sm">
+    <section className="surface-panel rounded-xl">
       <div className="flex flex-wrap items-center gap-2 border-b p-4">
         <Users2 className="size-4 text-muted-foreground" />
         <p className="text-sm font-semibold">{t("title")}</p>

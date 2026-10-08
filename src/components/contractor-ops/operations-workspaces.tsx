@@ -1052,7 +1052,7 @@ export function FieldTasksWorkspace({
               <article
                 key={row.id}
                 data-testid="field-task-row"
-                className="overflow-hidden rounded-lg border bg-card shadow-sm"
+                className="overflow-hidden surface-panel rounded-xl"
               >
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
                   <button
@@ -3028,7 +3028,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
       {(summary.data || summary.isError) && (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {(["today", "month", "year", "total"] as const).map((key) => (
-            <div key={key} className="rounded-lg border bg-card p-3 shadow-sm">
+            <div key={key} className="surface-panel rounded-xl p-3">
               <p className="text-xs text-muted-foreground">
                 {t(`progress.summary.${key}`)}
               </p>
@@ -3090,7 +3090,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
           {rows.data.results.map((row) => (
             <article
               key={row.id}
-              className="overflow-hidden rounded-lg border bg-card shadow-sm"
+              className="overflow-hidden surface-panel rounded-xl"
             >
               {row.photos[0] && (
                 <Image
@@ -3679,7 +3679,7 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
           {rows.data.results.map((row) => (
             <article
               key={row.id}
-              className="rounded-lg border bg-card p-4 shadow-sm"
+              className="surface-panel rounded-xl p-4"
             >
               <div className="flex items-start gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">

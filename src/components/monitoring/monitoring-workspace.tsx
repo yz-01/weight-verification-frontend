@@ -479,7 +479,7 @@ function SectionContent({
             ["inProgress", data.cwe.in_progress],
           ]}
         />
-        <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+        <div className="overflow-x-auto surface-panel rounded-xl">
           <Table>
             <TableHeader>
               <TableRow>
@@ -595,7 +595,7 @@ function SectionContent({
             ["successRate", `${format.number(data.sync.success_rate)}%`],
           ]}
         />
-        <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+        <div className="overflow-x-auto surface-panel rounded-xl">
           <Table>
             <TableHeader>
               <TableRow>
@@ -734,7 +734,7 @@ function JobsPanel() {
       </div>
       <QueryFailedNote query={workers} what={t("what.workers")} />
 
-      <section className="rounded-lg border bg-card shadow-sm">
+      <section className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-2 border-b p-3">
           <ServerCog className="size-4 text-muted-foreground" />
           <p className="text-sm font-semibold">{t("title")}</p>
@@ -842,7 +842,7 @@ function JobsPanel() {
         )}
       </section>
 
-      <section className="rounded-lg border bg-card shadow-sm">
+      <section className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-2 border-b p-3">
           <History className="size-4 text-muted-foreground" />
           <p className="text-sm font-semibold">{t("runs.title")}</p>
@@ -962,7 +962,7 @@ function SummaryTile({
     neutral: "text-foreground",
   }[tone];
   return (
-    <div className="rounded-lg border bg-card p-4 shadow-sm">
+    <div className="surface-panel rounded-xl p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className={`mt-1 text-2xl font-semibold tabular-nums ${colour}`}>
         {value ?? common("emptyValue")}
@@ -1018,7 +1018,7 @@ function IntegrationSection({
           <ModeLine mode={monitor.mode} status={monitor.status} />
         </div>
       </div>
-      <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm sm:grid-cols-2 sm:divide-x">
+      <div className="grid overflow-hidden surface-panel rounded-xl sm:grid-cols-2 sm:divide-x">
         <div className="px-4 py-3">
           <p className="text-xs text-muted-foreground">
             {t("connectionMode.requested")}
@@ -1213,7 +1213,7 @@ function InventoryPanel({
     );
   });
   return (
-    <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+    <section className="space-y-4 surface-panel rounded-xl p-4">
       <div>
         <h3 className="text-sm font-semibold">{t("inventory.title")}</h3>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -1552,7 +1552,7 @@ function ServiceTable({
   const t = useTranslations("monitoring");
   const df = useDateFormat();
   return (
-    <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+    <div className="overflow-x-auto surface-panel rounded-xl">
       <Table>
         <TableHeader>
           <TableRow>
@@ -1678,7 +1678,7 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
           }))}
         />
       </div>
-      <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+      <div className="overflow-x-auto surface-panel rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
@@ -1928,7 +1928,7 @@ function RecentCapturesPanel() {
           {t("captures.none")}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+        <div className="overflow-x-auto surface-panel rounded-xl">
           <Table>
             <TableHeader>
               <TableRow>
@@ -2042,7 +2042,7 @@ function PlateReadsPanel() {
               ["plateReads.denied", denied],
             ]}
           />
-          <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+          <div className="overflow-x-auto surface-panel rounded-xl">
             <Table>
               <TableHeader>
                 <TableRow>

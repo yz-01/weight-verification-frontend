@@ -8476,6 +8476,19 @@
       "fixedHelp": "Once published it cannot be edited. To correct it, publish a new one; you can withdraw the old one, which keeps its text.",
       "cancel": "Cancel",
       "publishAction": "Publish"
+    },
+    "wall": {
+      "open": "Big screen",
+      "exit": "Exit big screen",
+      "title": "Digital Smart Site · HQ Big Screen",
+      "refresh": "Refreshes every 30 seconds",
+      "escHint": "Press Esc to exit",
+      "projectStatus": "Live project status",
+      "activeProjects": "Active projects",
+      "todayByProject": "Today's site records by project",
+      "todayByKind": "Today's records by type",
+      "latestPhoto": "Latest site photo",
+      "photoStream": "Photo stream"
     }
   },
   "home": {
@@ -15971,5 +15984,11 @@
       "soFar": "Up to {end}: {hours} h",
       "shift": "Shift of {date}: {count, plural, one {# photo} other {# photos}}, started {start}"
     }
+  },
+  "theme": {
+    "label": "Appearance",
+    "system": "Follow system",
+    "light": "Light",
+    "dark": "Dark"
   }
 }

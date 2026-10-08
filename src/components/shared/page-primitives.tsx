@@ -20,6 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { toneOf, type StatusTone } from "@/lib/tones";
 import { cn } from "@/lib/utils";
 
 /**
@@ -148,7 +149,7 @@ export function QueryFailedNote({
 /** Section heading inside a card. */
 export function SectionHeader({ title }: { title: string }) {
   return (
-    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <h3 className="panel-title mb-4">
       {title}
     </h3>
   );
@@ -210,7 +211,7 @@ export function ReadField({
   return (
     <div className={cn("space-y-1.5", className)}>
       <Label className="text-sm font-medium">{label}</Label>
-      <div className={cn("flex items-center rounded-md border border-input bg-muted/40 px-3 text-sm", surface === "dialog" ? "min-h-9 py-1.5" : "min-h-[2.5rem] py-2")}>
+      <div className={cn("flex items-center rounded-lg border border-input bg-muted/50 px-3 text-sm", surface === "dialog" ? "min-h-10 py-2" : "min-h-10 py-2")}>
         {isEmpty ? (
           <span className="italic text-muted-foreground">—</span>
         ) : (
@@ -221,21 +222,25 @@ export function ReadField({
   );
 }
 
-export type StatusTone = "neutral" | "positive" | "warning" | "danger" | "info";
+export type { StatusTone } from "@/lib/tones";
 
 /**
  * The dot colour of each tone. Exported so a timeline dot (E2) is the same
- * colour as the badge beside it, by construction rather than by copying.
+ * colour as the badge beside it, by construction rather than by copying. The
+ * colours come from the one status-to-colour map in `lib/tones`.
  */
 export const STATUS_DOT_CLASS: Record<StatusTone, string> = {
-  positive: "bg-success",
-  warning: "bg-warning",
-  danger: "bg-destructive",
-  info: "bg-info",
-  neutral: "bg-muted-foreground/40",
+  positive: toneOf("positive").dot,
+  warning: toneOf("warning").dot,
+  danger: toneOf("danger").dot,
+  info: toneOf("info").dot,
+  neutral: toneOf("neutral").dot,
+  primary: toneOf("primary").dot,
+  equipment: toneOf("equipment").dot,
+  attention: toneOf("attention").dot,
 };
 
-/** Pill with a leading dot, for lifecycle state. */
+/** Pill with a leading dot, for lifecycle state. One height everywhere. */
 export function StatusBadge({
   label,
   tone = "neutral",
@@ -243,23 +248,14 @@ export function StatusBadge({
   label: string;
   tone?: StatusTone;
 }) {
-  const tones = {
-    positive: "bg-success/10 text-success ring-success/20",
-    warning: "bg-warning/12 text-warning ring-warning/25",
-    danger: "bg-destructive/10 text-destructive ring-destructive/20",
-    info: "bg-info/10 text-info ring-info/20",
-    neutral: "bg-muted text-muted-foreground ring-border",
-  } as const;
-  const dots = STATUS_DOT_CLASS;
-
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset",
-        tones[tone],
+        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-xs font-medium leading-none ring-1 ring-inset",
+        toneOf(tone).soft,
       )}
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", dots[tone])} />
+      <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOT_CLASS[tone])} />
       {label}
     </span>
   );
@@ -276,7 +272,7 @@ export function TypeBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20",
+        "inline-flex h-6 items-center whitespace-nowrap rounded-full bg-tone-blue/12 px-2.5 text-xs font-medium leading-none text-tone-blue-fg ring-1 ring-inset ring-tone-blue/25",
         className,
       )}
     >
@@ -321,20 +317,26 @@ export function ListHeader({
     : [];
 
   return (
-    <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 border-b pb-3">
+    <div
+      data-slot="list-header"
+      className="flex min-h-12 flex-wrap items-end justify-between gap-x-4 gap-y-3 pb-4"
+    >
       <div className="flex min-w-0 items-center gap-3">
         <span
-          className="h-8 w-1 shrink-0 rounded-full bg-primary"
+          className="h-10 w-1 shrink-0 rounded-full bg-primary shadow-glow-sm"
           aria-hidden="true"
         />
         <div className="min-w-0">
-          <h2 className="truncate text-lg font-semibold leading-tight text-foreground">
+          <h2
+            className="truncate text-xl font-semibold leading-tight text-foreground sm:text-2xl"
+            title={title}
+          >
             {title}
           </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex max-w-full flex-wrap items-center gap-2">
         {action}
         {sections.length > 0 && (
           <Dialog>
@@ -358,7 +360,7 @@ export function ListHeader({
                 {sections.map((name) => (
                   <div
                     key={name}
-                    className="rounded-lg border bg-muted/20 px-3 py-3"
+                    className="rounded-lg border bg-muted/40 p-3"
                   >
                     <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       {guide(`section.${name}`)}
@@ -424,6 +426,71 @@ export function DetailHeader({
         {backLabel}
       </Link>
       {action && <div className="flex items-center gap-2">{action}</div>}
+    </div>
+  );
+}
+
+/**
+ * Where a list or a panel has nothing to show, said plainly and centred, with
+ * the module's icon so the space is never just blank (E3). The words are the
+ * caller's: this only decides how an empty answer looks.
+ */
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+}: {
+  icon?: React.ComponentType<{ className?: string }>;
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      data-slot="empty-state"
+      className={cn(
+        "flex min-h-36 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-panel-border px-6 py-8 text-center",
+        className,
+      )}
+    >
+      {Icon && (
+        <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="size-5" />
+        </span>
+      )}
+      <p className="text-sm font-medium text-foreground">{title}</p>
+      {description && (
+        <p className="prose-measure text-sm text-muted-foreground">{description}</p>
+      )}
+      {action && <div className="mt-2">{action}</div>}
+    </div>
+  );
+}
+
+/**
+ * The row an anti-mistap switch sits in (spec rule 8): the switch and its
+ * words on the left, the destructive button it arms on the right, on a faint
+ * rose ground so the row reads as "careful" before anything is pressed.
+ */
+export function ArmRow({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      data-slot="arm-row"
+      className={cn(
+        "flex flex-wrap items-center gap-3 rounded-xl border border-tone-rose/25 bg-tone-rose/6 p-3",
+        className,
+      )}
+    >
+      {children}
     </div>
   );
 }

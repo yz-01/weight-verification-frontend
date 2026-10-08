@@ -99,7 +99,7 @@ export function ProjectQrPanel({
 
   const active = code.effective_status === "ACTIVE";
   return (
-    <section className="rounded-xl border bg-card shadow-sm">
+    <section className="surface-panel rounded-xl">
       <div className="flex flex-wrap items-start justify-between gap-4 border-b px-6 py-5">
         <div className="flex min-w-0 items-start gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">

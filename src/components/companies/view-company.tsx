@@ -90,7 +90,7 @@ export function ViewCompany({ id }: { id: string }) {
         }
       />
 
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           <h2 className="text-base font-semibold text-foreground">{data.name}</h2>
           <TypeBadge label={t(`companies.type.${data.type}`)} />

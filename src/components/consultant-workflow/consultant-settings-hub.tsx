@@ -32,7 +32,7 @@ export function ConsultantSettingsHub() {
           <li key={key}>
             <Link
               href={href}
-              className="flex h-full flex-col gap-2 rounded-lg border bg-card p-4 shadow-sm transition hover:border-primary/40 hover:bg-primary/5"
+              className="flex h-full flex-col gap-2 surface-panel rounded-xl p-4 transition hover:border-primary/40 hover:bg-primary/5"
             >
               <span className="flex items-center gap-2 font-semibold">
                 <Icon className="size-4 text-primary" />

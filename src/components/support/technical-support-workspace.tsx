@@ -360,7 +360,7 @@ function Panel({
   const t = useTranslations("adminTechnicalSupport");
   if (loading)
     return (
-      <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm">
+      <div className="flex min-h-48 flex-1 items-center justify-center surface-panel rounded-xl">
         <Loader2 className="mr-2 animate-spin" />
         {t("loading")}
       </div>
@@ -372,7 +372,7 @@ function Panel({
       </div>
     );
   return (
-    <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">
+    <div className="min-h-0 flex-1 overflow-auto surface-panel rounded-xl">
       {children}
     </div>
   );
@@ -1853,7 +1853,7 @@ function RemoteSessionHistory() {
   });
   const rows = sessions.data?.results ?? [];
   return (
-    <section className="rounded-lg border bg-card shadow-sm">
+    <section className="surface-panel rounded-xl">
       <div className="flex flex-wrap items-center gap-2 border-b p-3">
         <History className="size-4 text-muted-foreground" />
         <p className="text-sm font-semibold">{t("remoteHistory.title")}</p>
@@ -2449,7 +2449,7 @@ function ReportPanel() {
   const none = common("emptyValue");
   const d = summary.data;
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+    <div className="min-h-0 flex-1 overflow-y-auto surface-panel rounded-xl">
       <QueryFailedNote
         query={summary}
         what={t("what.summary")}

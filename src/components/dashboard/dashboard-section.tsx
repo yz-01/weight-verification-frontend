@@ -47,15 +47,15 @@ export function DashboardSection({
     <section
       aria-label={title}
       data-dashboard-section={id}
-      className="scroll-mt-4 rounded-lg border bg-card shadow-sm"
+      className="scroll-mt-4 surface-panel rounded-xl"
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
+      <div className="flex min-h-14 flex-wrap items-center justify-between gap-2 px-4 py-2">
         <button
           type="button"
           aria-expanded={open}
           aria-controls={body}
           onClick={() => setSectionOpen(viewer, id, !open)}
-          className="flex min-w-0 flex-1 items-center gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ChevronRight
             className={cn(
@@ -65,7 +65,7 @@ export function DashboardSection({
             aria-hidden
           />
           <span className="min-w-0">
-            <span className="block text-sm font-semibold">{title}</span>
+            <span className="block text-base font-semibold">{title}</span>
             {open && subtitle && (
               <span className="block text-xs text-muted-foreground">{subtitle}</span>
             )}
@@ -74,7 +74,7 @@ export function DashboardSection({
         {open && action}
       </div>
       {open && (
-        <div id={body} className="border-t px-3 pb-3 pt-2">
+        <div id={body} className="border-t border-panel-border p-4">
           {children}
         </div>
       )}

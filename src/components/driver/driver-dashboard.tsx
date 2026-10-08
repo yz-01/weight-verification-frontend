@@ -254,7 +254,7 @@ function CurrentTask({ task }: { task: DriverTaskDetail }) {
   return (
     <Link
       href={`/driver/${task.id}`}
-      className="block rounded-lg border bg-card p-4 shadow-sm active:bg-muted"
+      className="block surface-panel rounded-xl p-4 active:bg-muted"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-mono text-base font-semibold">

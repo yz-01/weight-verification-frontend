@@ -135,7 +135,7 @@ export function TransactionReport() {
 
       <section
         aria-label={t("reports.transaction.filters")}
-        className="rounded-lg border bg-card p-4 shadow-sm"
+        className="surface-panel rounded-xl p-4"
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <div className="space-y-1.5">

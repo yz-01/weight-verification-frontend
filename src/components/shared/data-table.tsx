@@ -189,19 +189,19 @@ export function DataTable<T>({
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
-    <div className="flex min-h-0 min-w-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-lg border bg-card shadow-sm">
-      <div className="shrink-0 border-b">
+    <div className="surface-panel flex min-h-0 min-w-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-xl">
+      <div className="shrink-0 border-b border-panel-border">
         {filterPills && filterPills.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 px-6 pt-4">
+          <div className="flex flex-wrap items-center gap-2 px-4 pt-4 sm:px-6">
             {filterPills.map((pill) => (
               <button
                 key={pill.key}
                 type="button"
                 onClick={pill.onSelect}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                  "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10",
                   pill.active
-                    ? "border-primary/30 bg-primary/10 text-primary"
+                    ? "border-primary/40 bg-primary/12 text-primary shadow-glow-sm"
                     : "border-border bg-card text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -213,18 +213,18 @@ export function DataTable<T>({
         )}
 
         <div className="flex flex-wrap items-center gap-2 px-4 py-4 sm:px-6">
-          <div className="relative min-w-52 flex-1 sm:max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative w-full min-w-0 flex-1 sm:w-auto sm:min-w-52 sm:max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchDraft}
               onChange={(event) => setSearchDraft(event.target.value)}
               placeholder={t("common.searchPlaceholder")}
-              className="h-9 bg-card pl-9"
+              className="bg-card pl-9"
             />
           </div>
 
           {toolbarActions && (
-            <div className="ml-auto flex items-center gap-2">{toolbarActions}</div>
+            <div className="ml-auto flex max-w-full flex-wrap items-center gap-2 [&>div]:flex-wrap">{toolbarActions}</div>
           )}
 
           <DropdownMenu>
@@ -233,11 +233,11 @@ export function DataTable<T>({
                 variant="outline"
                 size="sm"
                 className={cn(
-                  "h-9 rounded-full bg-card px-4",
+                  "h-10 rounded-lg bg-card px-4 pointer-coarse:h-11",
                   !toolbarActions && "ml-auto",
                 )}
               >
-                <SlidersHorizontal className="h-3.5 w-3.5" />
+                <SlidersHorizontal className="size-4" />
                 {t("common.columns")}
               </Button>
             </DropdownMenuTrigger>
@@ -265,14 +265,14 @@ export function DataTable<T>({
       </div>
 
       <div className="min-h-0 min-w-0 flex-1 overflow-auto">
-        <Table className="w-full min-w-max">
+        <Table className="w-full min-w-max max-sm:[&_tbody_td:first-child]:sticky max-sm:[&_tbody_td:first-child]:left-0 max-sm:[&_tbody_td:first-child]:z-[1] max-sm:[&_tbody_td:first-child]:bg-card max-sm:[&_thead_th:first-child]:sticky max-sm:[&_thead_th:first-child]:left-0 max-sm:[&_thead_th:first-child]:z-[2] max-sm:[&_thead_th:first-child]:bg-card">
           <TableHeader className="sticky top-0 z-10 bg-card">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="h-11 px-6 text-xs font-semibold text-muted-foreground"
+                    className="h-11 px-4 text-xs font-semibold text-muted-foreground sm:px-6"
                   >
                     {header.isPlaceholder
                       ? null
@@ -294,7 +294,7 @@ export function DataTable<T>({
               Array.from({ length: 8 }).map((_, rowIndex) => (
                 <TableRow key={`skeleton-${rowIndex}`}>
                   {Array.from({ length: columnCount }).map((__, cellIndex) => (
-                    <TableCell key={`skeleton-cell-${cellIndex}`} className="px-6 py-3">
+                    <TableCell key={`skeleton-cell-${cellIndex}`} className="px-4 py-3 sm:px-6">
                       <Skeleton className="h-4 w-full max-w-[160px]" />
                     </TableCell>
                   ))}
@@ -367,7 +367,7 @@ export function DataTable<T>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="px-6 py-2.5 text-sm"
+                      className="px-4 py-2.5 text-sm sm:px-6"
                       // A button inside the row must not also open the row.
                       onClick={
                         cell.column.id === "actions"
@@ -386,14 +386,14 @@ export function DataTable<T>({
         </Table>
       </div>
 
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t px-6 py-3">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-panel-border px-4 py-3 sm:px-6">
         <p className="text-xs text-muted-foreground">
           {totalCount === 0
             ? t("table.showingEmpty")
             : t("table.showing", { from, to, total: totalCount })}
         </p>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Select
             value={String(pageSize)}
             onValueChange={(value) => onPageSizeChange(Number(value))}
@@ -401,7 +401,7 @@ export function DataTable<T>({
             <SelectTrigger
               size="sm"
               aria-label={t("table.perPage")}
-              className="h-8 rounded-full border-border bg-card text-xs"
+              className="h-9 rounded-full border-border bg-card text-xs pointer-coarse:h-10"
             >
               <SelectValue />
             </SelectTrigger>
@@ -422,7 +422,7 @@ export function DataTable<T>({
             }
             disabled={page <= 1}
             onClick={() => onPageChange(page - 1)}
-            className="h-8 rounded-full border-border bg-card px-3 text-xs"
+            className="h-9 rounded-full border-border bg-card px-3 text-xs pointer-coarse:h-10"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
             {t("table.previous")}
@@ -443,9 +443,9 @@ export function DataTable<T>({
                   type="button"
                   onClick={() => onPageChange(entry)}
                   className={cn(
-                    "tabular h-8 min-w-8 rounded-full px-2 text-xs transition-colors",
+                    "tabular h-9 min-w-9 rounded-full px-2 text-xs transition-colors pointer-coarse:h-10 pointer-coarse:min-w-10",
                     entry === page
-                      ? "bg-primary text-primary-foreground shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-glow-sm"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
@@ -460,7 +460,7 @@ export function DataTable<T>({
             size="sm"
             disabled={page >= totalPages}
             onClick={() => onPageChange(page + 1)}
-            className="h-8 rounded-full border-border bg-card px-3 text-xs"
+            className="h-9 rounded-full border-border bg-card px-3 text-xs pointer-coarse:h-10"
           >
             {t("table.next")}
             <ChevronRight className="h-3.5 w-3.5" />

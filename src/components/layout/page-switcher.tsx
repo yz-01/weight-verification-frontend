@@ -47,7 +47,7 @@ export function PageSwitcher() {
         <Button
           variant="outline"
           size="sm"
-          className="h-9 min-w-0 max-w-56 shrink gap-1.5 bg-card px-2.5 shadow-sm"
+          className="h-10 min-w-0 max-w-56 shrink gap-2 bg-card px-3"
           aria-label={t("pageSwitcher.label", { page: t(here.labelKey) })}
           title={t("pageSwitcher.label", { page: t(here.labelKey) })}
         >

@@ -100,7 +100,7 @@ export function Reports() {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="surface-panel rounded-xl p-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
           {!topBar.active && (
@@ -214,7 +214,7 @@ function PanelShell({
   const formatter = useFormatter();
   const t = useTranslations();
   return (
-    <div className="rounded-lg border bg-card shadow-sm">
+    <div className="surface-panel rounded-xl">
       <div className="flex flex-wrap items-center gap-3 px-6 py-5">
         <Icon className="h-4 w-4 text-primary" />
         <h3 className="text-base font-semibold text-foreground">{title}</h3>

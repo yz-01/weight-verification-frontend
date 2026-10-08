@@ -149,8 +149,8 @@ export function IncidentThreadDetail({
     <div
       className={
         fieldMode
-          ? "flex min-w-0 flex-col rounded-xl border bg-card shadow-sm"
-          : "flex min-h-[70dvh] flex-col overflow-hidden rounded-xl border bg-card shadow-sm"
+          ? "flex min-w-0 flex-col surface-panel rounded-xl"
+          : "flex min-h-[70dvh] flex-col overflow-hidden surface-panel rounded-xl"
       }
     >
       <header className="border-b bg-card px-4 py-4">

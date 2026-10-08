@@ -59,7 +59,7 @@ export function FinancialReports() {
         <FieldWrapper label={t("filters.to")}><Input type="date" value={to} onChange={(event) => setTo(event.target.value)} /></FieldWrapper>
       </div>
       {summaries.isError && <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{t("financialReports.loadError")}</p>}
-      <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+      <div className="overflow-hidden surface-panel rounded-xl">
         {REPORTS.map((report) => {
           const Icon = report.icon;
           const totals = summaries.data?.reports[report.key];

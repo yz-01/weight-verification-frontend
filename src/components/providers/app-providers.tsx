@@ -14,6 +14,7 @@ import { TranslationBridge } from "@/components/providers/translation-bridge";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ApiError } from "@/interfaces/api";
+import { THEME_PROVIDER_PROPS } from "@/lib/theme";
 
 function createQueryClient() {
   return new QueryClient({
@@ -64,12 +65,8 @@ export function AppProviders({
   return (
     <QueryClientProvider client={queryClient}>
       <TranslationBridge />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
+      {/* 跟随系统 / 浅色 / 深色, one setting per device (lib/theme). */}
+      <ThemeProvider {...THEME_PROVIDER_PROPS}>
         <AuthProvider>
           <BrandingSync />
           <LocaleSync />

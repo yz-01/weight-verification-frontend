@@ -88,7 +88,7 @@ export function AdminReportWorkspace({
         }
       />
       {section === "overview" ? (
-        <div className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="min-h-0 flex-1 overflow-hidden surface-panel rounded-xl">
           <div className="grid md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <Link
@@ -177,7 +177,7 @@ function ReportPanel({
 
   return (
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
-      <div className="grid gap-3 rounded-lg border bg-card p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-3 surface-panel rounded-xl p-4 sm:grid-cols-2 xl:grid-cols-6">
         {showType && (
           <FilterSelect
             label={t("filter.reportType")}
@@ -341,7 +341,7 @@ function ReportHistory() {
         title={t("section.history.title")}
         subtitle={t("section.history.subtitle")}
       />
-      <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">
+      <div className="min-h-0 flex-1 overflow-auto surface-panel rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>

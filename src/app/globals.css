@@ -4,26 +4,60 @@
 @import "shadcn/tailwind.css";
 @import "leaflet/dist/leaflet.css";
 
-@custom-variant dark (&:is(.dark *));
+/* Light / dark (Lucas 2026-10-08): one setting for the whole app, 跟随系统 by
+ * default, 浅色 or 深色 when chosen, remembered on this device. next-themes
+ * writes `.light` or `.dark` on <html> before the first paint. If it cannot
+ * (storage blocked, script not run), neither class is there and the
+ * operating system's own setting decides through the media query - so the
+ * dark tokens and every `dark:` class key off both. */
+@custom-variant dark {
+  &:is(.dark *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:is(:root:not(.light) *) {
+      @slot;
+    }
+  }
+}
 
-/* MSE Trace design tokens.
+/* MSE Trace design tokens: 「Neon Ops」 (the client-approved design canvas,
+ * 2026-10-06).
  *
- * The product's job is to prove a weight was not tampered with, so the palette
- * is built around evidence rather than around the recycling industry's usual
- * green. Primary is a deep teal: technical and calm, distinct from the default
- * SaaS indigo, and it reads as instrumentation rather than as marketing.
+ * Dark is the canvas as drawn: a command-centre navy, neon-cyan edges, six
+ * data colours that glow. Light is the same colour system with the glow
+ * turned down (「浅色模式保留彩色、降低发光」): white panels on a cool grey,
+ * every data colour kept but stepped darker until text in it passes WCAG AA.
  *
- * `success`, `info` and `warning` exist because the action icon convention
- * gives each row action its own semantic colour, and because a weigh session is
- * never simply pass or fail: it is valid, under review, or void.
+ * Nothing in a component should name a colour. It names a role - `bg-card`,
+ * `text-muted-foreground`, `bg-tone-amber/12` - and this file decides what the
+ * role looks like in each mode. `globals-contrast.test.ts` reads this file and
+ * fails if any of the key pairs drops below AA in either mode.
+ *
+ * The six data colours, and what each one means everywhere:
+ *   cyan   - primary, "waiting for you"
+ *   blue   - materials
+ *   purple - equipment
+ *   green  - done / accepted / on site
+ *   amber  - to do / pending
+ *   rose   - overdue / rejected / danger
+ * plus orange for the 「非指定厂商」 kind of warning: not wrong, but not as agreed.
+ *
+ * Each tone has a base (`--tone-x`: dots, bars, solid fills, chart marks) and a
+ * text colour (`--tone-x-fg`: words drawn on the tone's own soft tint, which
+ * is the base at `--tone-soft` over the panel).
  */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-body-stack);
+  --font-mono: var(--font-geist-mono), ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-heading: var(--font-body-stack);
+  /* Chakra Petch: ONLY for the large KPI figures on the dashboards and the
+   * HQ big screen. Tables, forms and body text keep the body font's tabular
+   * figures. */
+  --font-display: var(--font-chakra), var(--font-body-stack);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -32,6 +66,9 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-chart-8: var(--chart-8);
+  --color-chart-7: var(--chart-7);
+  --color-chart-6: var(--chart-6);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -60,6 +97,32 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-panel-border: var(--panel-border);
+  --color-overlay: var(--overlay);
+  --color-scrim: var(--scrim);
+  --color-field: var(--field);
+  --color-switch-thumb: var(--switch-thumb);
+  --color-overlay-foreground: var(--overlay-foreground);
+
+  /* The six data colours and orange: `bg-tone-blue/12`, `text-tone-blue-fg`. */
+  --color-tone-cyan: var(--tone-cyan);
+  --color-tone-cyan-fg: var(--tone-cyan-fg);
+  --color-tone-blue: var(--tone-blue);
+  --color-tone-blue-fg: var(--tone-blue-fg);
+  --color-tone-purple: var(--tone-purple);
+  --color-tone-purple-fg: var(--tone-purple-fg);
+  --color-tone-green: var(--tone-green);
+  --color-tone-green-fg: var(--tone-green-fg);
+  --color-tone-amber: var(--tone-amber);
+  --color-tone-amber-fg: var(--tone-amber-fg);
+  --color-tone-rose: var(--tone-rose);
+  --color-tone-rose-fg: var(--tone-rose-fg);
+  --color-tone-orange: var(--tone-orange);
+  --color-tone-orange-fg: var(--tone-orange-fg);
+  --color-tone-slate: var(--tone-slate);
+  --color-tone-slate-fg: var(--tone-slate-fg);
+
+  /* Radii: controls 10px, panels 14px, pills full (the canvas). */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -67,170 +130,438 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Surfaces and glow. In light mode the glows are soft shadows. */
+  --shadow-panel: var(--panel-shadow);
+  --shadow-glow: var(--glow-primary);
+  --shadow-glow-sm: var(--glow-primary-sm);
 }
 
 :root {
-  /* Keep CJK rendering on stable platform fonts so production builds do not
-   * depend on fetching the large Noto Sans SC font set from Google. */
-  --font-sans:
-    var(--font-geist-sans), "PingFang SC", "Microsoft YaHei",
+  color-scheme: light;
+
+  /* Body text: IBM Plex Sans for English and Malay, Noto Sans SC for 简体
+   * (Noto Sans TC for 繁體, switched by the page language below). Plex has no
+   * CJK glyphs, so Chinese characters fall through to Noto while Latin words
+   * and digits inside a Chinese sentence stay in Plex: one consistent face for
+   * every number in the system. The platform fonts after them are the
+   * fallback while the web fonts load, and if they ever fail to. */
+  --font-cjk: var(--font-noto-sc);
+  --font-body-stack:
+    var(--font-plex), var(--font-cjk), "Microsoft YaHei", "PingFang SC",
     "Noto Sans CJK SC", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     sans-serif;
 
-  /* Surfaces sit a touch cool rather than pure white. Operators read these
-   * tables for whole shifts under site lighting, and a dead-neutral white
-   * against a white card gives no edge to rest on. */
-  --background: oklch(0.985 0.003 220);
-  --foreground: oklch(0.19 0.015 235);
+  --background: #f3f6fa;
+  --foreground: #0f172a;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.015 235);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.015 235);
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
 
-  --primary: oklch(0.52 0.098 205);
-  --primary-foreground: oklch(0.99 0.005 200);
+  --primary: #0e7490;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.96 0.008 220);
-  --secondary-foreground: oklch(0.28 0.02 230);
+  --secondary: #e9eff6;
+  --secondary-foreground: #1e293b;
 
-  --muted: oklch(0.965 0.006 220);
-  --muted-foreground: oklch(0.53 0.018 232);
+  --muted: #eef2f7;
+  --muted-foreground: #475569;
 
-  --accent: oklch(0.95 0.018 205);
-  --accent-foreground: oklch(0.34 0.055 210);
+  --accent: #e0f4f9;
+  --accent-foreground: #0b4f63;
 
-  --destructive: oklch(0.565 0.203 27.2);
-  --destructive-foreground: oklch(0.99 0.01 20);
+  --destructive: #be123c;
+  --destructive-foreground: #ffffff;
+  --success: #047857;
+  --success-foreground: #ffffff;
+  --info: #1d4ed8;
+  --info-foreground: #ffffff;
+  --warning: #b45309;
+  --warning-foreground: #ffffff;
 
-  /* Confirm and approve. Green, but pulled toward the primary's cool cast so
-   * the two never fight in the same row of action icons. */
-  --success: oklch(0.575 0.128 158);
-  --success-foreground: oklch(0.99 0.01 160);
+  --border: #d8e0ea;
+  --input: #a9b6c6;
+  --ring: #0891b2;
 
-  /* Edit. Blue, held clearly apart from primary teal so View and Edit are
-   * still distinguishable side by side at 14px. */
-  --info: oklch(0.575 0.155 253);
-  --info-foreground: oklch(0.99 0.01 250);
+  /* Data tones, light: the canvas colours stepped darker for contrast. */
+  --tone-cyan: #0891b2;
+  --tone-cyan-fg: #0e6378;
+  --tone-blue: #2563eb;
+  --tone-blue-fg: #1d4ed8;
+  --tone-purple: #7c3aed;
+  --tone-purple-fg: #6d28d9;
+  --tone-green: #059669;
+  --tone-green-fg: #047857;
+  --tone-amber: #d97706;
+  --tone-amber-fg: #a14a06;
+  --tone-rose: #e11d48;
+  --tone-rose-fg: #be123c;
+  --tone-orange: #ea580c;
+  --tone-orange-fg: #b93d0b;
+  --tone-slate: #64748b;
+  --tone-slate-fg: #334155;
+  /* How strong a tone's soft tint (badge, KPI card) and its edge are. */
+  --tone-soft: 10%;
+  --tone-edge: 32%;
 
-  /* Under review, pending approval, threshold exceeded. */
-  --warning: oklch(0.72 0.152 72);
-  --warning-foreground: oklch(0.24 0.05 70);
-
-  --border: oklch(0.905 0.008 225);
-  --input: oklch(0.905 0.008 225);
-  --ring: oklch(0.52 0.098 205);
-
-  /* Chart ramp.
-   *
-   * Slot 1 is the weight trace and is stated as hex rather than oklch because
-   * it is a measured value: the interface primary at this lightness carries a
-   * chroma of 0.098, below the 0.1 floor at which a mark starts reading as
-   * grey. On a chart that matters more than anywhere else — the data line has
-   * to be the most present thing on the surface, not something that recedes
-   * into the gridlines. Same hue family, chroma raised until it passes.
-   *
-   * Slots 2 to 5 have not been through the validator. Run
-   * `scripts/validate_palette.js` over them before any chart uses more than
-   * one series; adjacent-pair separation under colour-vision deficiency is not
-   * something to judge by eye. */
-  --chart-1: #0085a4;
-  --chart-2: oklch(0.62 0.128 178);
-  --chart-3: oklch(0.575 0.155 253);
-  --chart-4: oklch(0.72 0.152 72);
-  --chart-5: oklch(0.565 0.203 27.2);
+  /* Chart ramp: the data tones in their fixed order. */
+  --chart-1: #0e7490;
+  --chart-2: #2563eb;
+  --chart-3: #7c3aed;
+  --chart-4: #059669;
+  --chart-5: #d97706;
+  --chart-6: #e11d48;
+  --chart-7: #ea580c;
+  --chart-8: #64748b;
 
   --radius: 0.625rem;
 
-  --sidebar: oklch(0.975 0.006 222);
-  --sidebar-foreground: oklch(0.29 0.018 232);
-  --sidebar-primary: oklch(0.52 0.098 205);
-  --sidebar-primary-foreground: oklch(0.99 0.005 200);
-  --sidebar-accent: oklch(0.94 0.018 208);
-  --sidebar-accent-foreground: oklch(0.32 0.055 208);
-  --sidebar-border: oklch(0.9 0.009 225);
-  --sidebar-ring: oklch(0.52 0.098 205);
+  /* Panels: a white card on the grey canvas with a soft shadow. */
+  --panel-bg: var(--card);
+  --panel-border: #d8e0ea;
+  --panel-shadow: 0 1px 2px rgb(15 23 42 / 5%), 0 4px 14px rgb(15 23 42 / 4%);
+  --glow-primary: 0 4px 14px rgb(14 116 144 / 22%);
+  --glow-primary-sm: 0 1px 4px rgb(14 116 144 / 18%);
+  /* Big numbers get a halo in dark; none in light. */
+  --num-glow: 0px;
+  /* The primary button: cyan into blue, both dark enough for white text. */
+  --primary-gradient: linear-gradient(135deg, #0e7490, #1d4ed8);
+  --canvas-glow: radial-gradient(1200px 520px at 85% -12%, rgb(8 145 178 / 7%), transparent 60%);
+  /* The hatch behind a photo that has not loaded yet. */
+  --photo-bg: #e6edf5;
+  --photo-hatch: rgb(100 116 139 / 9%);
+  /* Text over a photograph: a count, a caption. */
+  --overlay: rgb(4 8 15 / 78%);
+  --overlay-foreground: #f1f5f9;
+  /* Behind a dialog or sheet. */
+  --scrim: rgb(15 23 42 / 38%);
+  /* Inside an input, a select, a text box. */
+  --field: #ffffff;
+  --switch-thumb: #ffffff;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1e293b;
+  --sidebar-primary: #0e7490;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8f6fa;
+  --sidebar-accent-foreground: #0b4f63;
+  --sidebar-border: #dde4ee;
+  --sidebar-ring: #0891b2;
+}
+
+:root:lang(zh-TW) {
+  --font-cjk: var(--font-noto-tc);
 }
 
 .dark {
-  /* Weighbridge cabins run dark at night, so this is a working theme rather
-   * than an afterthought. Chroma rises slightly on the semantic colours to
-   * hold the same apparent separation against a dark surface. */
-  --background: oklch(0.165 0.014 240);
-  --foreground: oklch(0.955 0.006 220);
+  color-scheme: dark;
 
-  --card: oklch(0.212 0.016 238);
-  --card-foreground: oklch(0.955 0.006 220);
-  --popover: oklch(0.212 0.016 238);
-  --popover-foreground: oklch(0.955 0.006 220);
+  --background: #060b16;
+  --foreground: #e2e8f0;
 
-  --primary: oklch(0.715 0.108 197);
-  --primary-foreground: oklch(0.17 0.03 210);
+  --card: #0f1b30;
+  --card-foreground: #e2e8f0;
+  --popover: #0c1729;
+  --popover-foreground: #e2e8f0;
 
-  --secondary: oklch(0.272 0.018 238);
-  --secondary-foreground: oklch(0.945 0.008 220);
+  --primary: #22d3ee;
+  --primary-foreground: #04121f;
 
-  --muted: oklch(0.272 0.018 238);
-  --muted-foreground: oklch(0.705 0.017 226);
+  --secondary: #16233a;
+  --secondary-foreground: #e2e8f0;
 
-  --accent: oklch(0.3 0.032 210);
-  --accent-foreground: oklch(0.93 0.02 200);
+  --muted: #132036;
+  --muted-foreground: #94a3b8;
 
-  --destructive: oklch(0.685 0.185 24);
-  --destructive-foreground: oklch(0.16 0.03 20);
+  --accent: #0f2a3e;
+  --accent-foreground: #a5f3fc;
 
-  --success: oklch(0.715 0.135 158);
-  --success-foreground: oklch(0.16 0.03 160);
+  --destructive: #fb7185;
+  --destructive-foreground: #1f0510;
+  --success: #34d399;
+  --success-foreground: #03140d;
+  --info: #60a5fa;
+  --info-foreground: #04121f;
+  --warning: #fbbf24;
+  --warning-foreground: #1a1205;
 
-  --info: oklch(0.695 0.145 250);
-  --info-foreground: oklch(0.16 0.03 250);
+  --border: rgb(56 189 248 / 18%);
+  --input: rgb(56 189 248 / 34%);
+  --ring: #22d3ee;
 
-  --warning: oklch(0.795 0.145 76);
-  --warning-foreground: oklch(0.2 0.04 70);
+  /* Data tones, dark: the canvas values. */
+  --tone-cyan: #22d3ee;
+  --tone-cyan-fg: #67e8f9;
+  --tone-blue: #60a5fa;
+  --tone-blue-fg: #93c5fd;
+  --tone-purple: #a78bfa;
+  --tone-purple-fg: #c4b5fd;
+  --tone-green: #34d399;
+  --tone-green-fg: #6ee7b7;
+  --tone-amber: #fbbf24;
+  --tone-amber-fg: #fcd34d;
+  --tone-rose: #fb7185;
+  --tone-rose-fg: #fda4af;
+  --tone-orange: #fb923c;
+  --tone-orange-fg: #fdba74;
+  --tone-slate: #94a3b8;
+  --tone-slate-fg: #cbd5e1;
+  --tone-soft: 12%;
+  --tone-edge: 38%;
 
-  --border: oklch(1 0 0 / 11%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.715 0.108 197);
+  --chart-1: #22d3ee;
+  --chart-2: #60a5fa;
+  --chart-3: #a78bfa;
+  --chart-4: #34d399;
+  --chart-5: #fbbf24;
+  --chart-6: #fb7185;
+  --chart-7: #fb923c;
+  --chart-8: #94a3b8;
 
-  /* Stepped for the dark card surface and validated against it, not flipped
-   * from the light value. See the note on the light ramp. */
-  --chart-1: #00a8b9;
-  --chart-2: oklch(0.755 0.13 172);
-  --chart-3: oklch(0.695 0.145 250);
-  --chart-4: oklch(0.795 0.145 76);
-  --chart-5: oklch(0.685 0.185 24);
+  --panel-bg: linear-gradient(180deg, rgb(15 27 48 / 94%), rgb(9 17 32 / 94%));
+  --panel-border: rgb(56 189 248 / 22%);
+  --panel-shadow: inset 0 1px 0 rgb(148 197 255 / 6%), 0 12px 32px rgb(0 0 0 / 35%);
+  --glow-primary: 0 0 18px rgb(34 211 238 / 40%);
+  --glow-primary-sm: 0 0 10px rgb(34 211 238 / 30%);
+  --num-glow: 14px;
+  --primary-gradient: linear-gradient(135deg, #06b6d4, #3b82f6);
+  --canvas-glow: radial-gradient(1200px 600px at 85% -10%, rgb(34 211 238 / 10%), transparent 60%);
+  --photo-bg: #16233a;
+  --photo-hatch: rgb(148 163 184 / 8%);
+  --overlay: rgb(6 11 22 / 85%);
+  --overlay-foreground: #e2e8f0;
+  --scrim: rgb(2 6 15 / 72%);
+  --field: rgb(4 8 15 / 55%);
+  --switch-thumb: #ffffff;
 
-  --sidebar: oklch(0.192 0.016 240);
-  --sidebar-foreground: oklch(0.93 0.008 220);
-  --sidebar-primary: oklch(0.715 0.108 197);
-  --sidebar-primary-foreground: oklch(0.17 0.03 210);
-  --sidebar-accent: oklch(0.288 0.03 212);
-  --sidebar-accent-foreground: oklch(0.93 0.02 200);
-  --sidebar-border: oklch(1 0 0 / 11%);
-  --sidebar-ring: oklch(0.715 0.108 197);
+  --sidebar: #070d1a;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-primary: #22d3ee;
+  --sidebar-primary-foreground: #04121f;
+  --sidebar-accent: rgb(34 211 238 / 12%);
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: rgb(56 189 248 / 12%);
+  --sidebar-ring: #22d3ee;
+}
+
+/* No stored choice applied yet (or storage blocked): the system decides. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+
+    --background: #060b16;
+    --foreground: #e2e8f0;
+
+    --card: #0f1b30;
+    --card-foreground: #e2e8f0;
+    --popover: #0c1729;
+    --popover-foreground: #e2e8f0;
+
+    --primary: #22d3ee;
+    --primary-foreground: #04121f;
+
+    --secondary: #16233a;
+    --secondary-foreground: #e2e8f0;
+
+    --muted: #132036;
+    --muted-foreground: #94a3b8;
+
+    --accent: #0f2a3e;
+    --accent-foreground: #a5f3fc;
+
+    --destructive: #fb7185;
+    --destructive-foreground: #1f0510;
+    --success: #34d399;
+    --success-foreground: #03140d;
+    --info: #60a5fa;
+    --info-foreground: #04121f;
+    --warning: #fbbf24;
+    --warning-foreground: #1a1205;
+
+    --border: rgb(56 189 248 / 18%);
+    --input: rgb(56 189 248 / 34%);
+    --ring: #22d3ee;
+
+    /* Data tones, dark: the canvas values. */
+    --tone-cyan: #22d3ee;
+    --tone-cyan-fg: #67e8f9;
+    --tone-blue: #60a5fa;
+    --tone-blue-fg: #93c5fd;
+    --tone-purple: #a78bfa;
+    --tone-purple-fg: #c4b5fd;
+    --tone-green: #34d399;
+    --tone-green-fg: #6ee7b7;
+    --tone-amber: #fbbf24;
+    --tone-amber-fg: #fcd34d;
+    --tone-rose: #fb7185;
+    --tone-rose-fg: #fda4af;
+    --tone-orange: #fb923c;
+    --tone-orange-fg: #fdba74;
+    --tone-slate: #94a3b8;
+    --tone-slate-fg: #cbd5e1;
+    --tone-soft: 12%;
+    --tone-edge: 38%;
+
+    --chart-1: #22d3ee;
+    --chart-2: #60a5fa;
+    --chart-3: #a78bfa;
+    --chart-4: #34d399;
+    --chart-5: #fbbf24;
+    --chart-6: #fb7185;
+    --chart-7: #fb923c;
+    --chart-8: #94a3b8;
+
+    --panel-bg: linear-gradient(180deg, rgb(15 27 48 / 94%), rgb(9 17 32 / 94%));
+    --panel-border: rgb(56 189 248 / 22%);
+    --panel-shadow: inset 0 1px 0 rgb(148 197 255 / 6%), 0 12px 32px rgb(0 0 0 / 35%);
+    --glow-primary: 0 0 18px rgb(34 211 238 / 40%);
+    --glow-primary-sm: 0 0 10px rgb(34 211 238 / 30%);
+    --num-glow: 14px;
+    --primary-gradient: linear-gradient(135deg, #06b6d4, #3b82f6);
+    --canvas-glow: radial-gradient(1200px 600px at 85% -10%, rgb(34 211 238 / 10%), transparent 60%);
+    --photo-bg: #16233a;
+    --photo-hatch: rgb(148 163 184 / 8%);
+    --overlay: rgb(6 11 22 / 85%);
+    --overlay-foreground: #e2e8f0;
+    --scrim: rgb(2 6 15 / 72%);
+    --field: rgb(4 8 15 / 55%);
+    --switch-thumb: #ffffff;
+
+    --sidebar: #070d1a;
+    --sidebar-foreground: #cbd5e1;
+    --sidebar-primary: #22d3ee;
+    --sidebar-primary-foreground: #04121f;
+    --sidebar-accent: rgb(34 211 238 / 12%);
+    --sidebar-accent-foreground: #f8fafc;
+    --sidebar-border: rgb(56 189 248 / 12%);
+    --sidebar-ring: #22d3ee;
+  }
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+    /* Every figure in the system lines up column to column: weights,
+     * quantities, timestamps, record numbers. The body font's tabular
+     * figures, not the display face. */
+    font-variant-numeric: tabular-nums;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image: var(--canvas-glow);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    line-height: 1.5;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.3;
+  }
+  /* Links that are just text keep the primary colour, not the browser's. */
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 28%, transparent);
   }
   /* Weights, timestamps and scale readings are compared column to column and
-   * row to row. Proportional digits make that comparison harder than it needs
-   * to be, so numeric cells opt into tabular figures. */
+   * row to row. Kept as an explicit opt-in for places that override the
+   * inherited setting. */
   .tabular {
     font-variant-numeric: tabular-nums;
   }
 }
 
+@layer components {
+  /* The canvas panel: gradient navy with a cyan hairline in dark, a white
+   * card with a soft shadow in light. */
+  .surface-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--panel-shadow);
+  }
+
+  /* A panel's title: a short cyan bar, then the words (`.pt` on the canvas). */
+  .panel-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--foreground);
+  }
+  .panel-title::before {
+    content: "";
+    flex-shrink: 0;
+    width: 4px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--primary);
+    box-shadow: var(--glow-primary-sm);
+  }
+
+  /* Large KPI figure: the display face, with a halo in its own colour in
+   * dark mode and none in light. */
+  .kpi-figure {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    text-shadow: 0 0 var(--num-glow) color-mix(in srgb, currentColor 50%, transparent);
+  }
+
+  /* Photo placeholder: a quiet hatch while a picture loads or when a record
+   * has none. */
+  .photo-hatch {
+    background-color: var(--photo-bg);
+    background-image: repeating-linear-gradient(
+      135deg,
+      var(--photo-hatch) 0 8px,
+      transparent 8px 16px
+    );
+  }
+
+  /* A tone's soft surface: `tone-surface` plus `[--tone:var(--tone-amber)]`.
+   * Used by KPI cards and badges so every tone mixes the same way. */
+  .tone-surface {
+    background-color: color-mix(in srgb, var(--tone) var(--tone-soft), transparent);
+    border-color: color-mix(in srgb, var(--tone) var(--tone-edge), transparent);
+  }
+
+  /* A long sentence wraps before it becomes tiring to read. */
+  .prose-measure {
+    max-width: 72ch;
+  }
+}
+
+/* Phone safe areas: the field app's bars clear the notch and home indicator. */
+@utility pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+@utility pt-safe {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
 .mse-map-marker {
   background: transparent;
   border: 0;
+}
+
+/* Dark mode: the street map is drawn in the canvas's night colours rather
+ * than as a white sheet in a dark room. Markers and overlays are untouched. */
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.88) contrast(0.92) saturate(0.7);
+}
+.dark .leaflet-container {
+  background: var(--background);
 }
 
 .mse-map-marker span {
@@ -242,7 +573,7 @@
   border: 2px solid white;
   border-radius: 999px;
   background: var(--marker-color);
-  box-shadow: 0 1px 6px rgb(15 23 42 / 35%);
+  box-shadow: 0 1px 6px rgb(15 23 42 / 35%), 0 0 12px var(--marker-color);
 }
 
 /* Leaflet gives its internal panes z-index values from 200 to 700. Without a
@@ -301,8 +632,8 @@
   place-items: center;
   border: 3px solid white;
   border-radius: 999px;
-  background: #087f8c;
-  color: white;
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-size: 13px;
   font-weight: 700;
   box-shadow: 0 2px 8px rgb(15 23 42 / 35%);
@@ -314,6 +645,7 @@
 [class*="border-y"][class*="bg-card"]:has(> [data-slot="table-container"]) {
   overflow: auto;
   border-width: 1px;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
+  border-radius: var(--radius-xl);
+  border-color: var(--panel-border);
+  box-shadow: var(--panel-shadow);
 }

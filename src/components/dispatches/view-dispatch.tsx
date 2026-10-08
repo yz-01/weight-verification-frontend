@@ -181,7 +181,7 @@ export function ViewDispatch({ id }: { id: string }) {
         backLabel={backLabel}
       />
 
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           <h2 className="tabular text-base font-semibold text-foreground">
             {data.dispatch_no}

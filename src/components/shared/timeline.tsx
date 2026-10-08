@@ -5,6 +5,7 @@ import {
   STATUS_DOT_CLASS,
   type StatusTone,
 } from "@/components/shared/page-primitives";
+import { toneOf } from "@/lib/tones";
 import { cn } from "@/lib/utils";
 
 /**
@@ -131,13 +132,13 @@ function Row({
         {!first && (
           <span
             data-timeline-line="above"
-            className={cn("absolute left-1/2 top-0 w-px -translate-x-1/2 bg-border", geometry.above)}
+            className={cn("absolute left-1/2 top-0 w-px -translate-x-1/2 bg-primary/30", geometry.above)}
           />
         )}
         {!last && (
           <span
             data-timeline-line="below"
-            className={cn("absolute bottom-0 left-1/2 w-px -translate-x-1/2 bg-border", geometry.dotTop)}
+            className={cn("absolute bottom-0 left-1/2 w-px -translate-x-1/2 bg-primary/30", geometry.dotTop)}
           />
         )}
         <span
@@ -147,6 +148,7 @@ function Row({
             geometry.dotTop,
             geometry.dot,
             STATUS_DOT_CLASS[tone],
+            toneOf(tone).glow,
           )}
         />
       </span>
@@ -188,7 +190,7 @@ function Row({
             alt=""
             loading="lazy"
             data-timeline-thumbnail
-            className="size-10 shrink-0 rounded-md object-cover"
+            className="size-10 shrink-0 rounded-lg border border-panel-border object-cover"
           />
         )}
       </span>
@@ -196,7 +198,7 @@ function Row({
   );
   const rowClass = "flex w-full gap-2 text-left";
   const clickable =
-    "rounded-md transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+    "rounded-lg transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
   if (item.href) {
     return (
       <Link href={item.href} className={cn(rowClass, clickable)} data-timeline-open="link">

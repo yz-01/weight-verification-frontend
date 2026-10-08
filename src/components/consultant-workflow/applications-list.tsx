@@ -138,7 +138,7 @@ export function ConsultantApplicationsList() {
         canConfigure={can("consultant.config")}
       />
 
-      <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 surface-panel rounded-xl p-3 sm:flex-row sm:items-center">
         <ConsultantProjectPicker
           value={project}
           onChange={onProjectChange}
@@ -211,7 +211,7 @@ export function ConsultantApplicationsList() {
       ) : !rows.data?.count ? (
         <EmptyState text={t("state.noApplications")} />
       ) : (
-        <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="overflow-hidden surface-panel rounded-xl">
           <div className="divide-y">
             {rows.data.results.map((application) => (
               <Link

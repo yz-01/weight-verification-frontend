@@ -147,7 +147,7 @@ export function ViewProject({ id }: { id: string }) {
         }
       />
 
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           <h2 className="text-base font-semibold text-foreground">{data.name}</h2>
           <StatusBadge
@@ -314,7 +314,7 @@ function ProjectStatistics({ projectId }: { projectId: string }) {
     : [];
 
   return (
-    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+    <section className="overflow-hidden surface-panel rounded-xl">
       <div className="flex flex-wrap items-start justify-between gap-3 px-6 py-5">
         <div>
           <h3 className="text-base font-semibold">{t("title")}</h3>
@@ -401,7 +401,7 @@ function ProjectResponsibilities({ projectId }: { projectId: string }) {
       : value;
 
   return (
-    <section className="rounded-xl border bg-card shadow-sm">
+    <section className="surface-panel rounded-xl">
       <div className="flex flex-wrap items-start justify-between gap-4 px-6 py-5">
         <div className="min-w-0">
           <h3 className="text-base font-semibold text-foreground">
@@ -701,7 +701,7 @@ function ProjectTeam({ projectId }: { projectId: string }) {
   const rows = data?.results ?? [];
 
   return (
-    <div id="project-team" className="rounded-xl border bg-card shadow-sm">
+    <div id="project-team" className="surface-panel rounded-xl">
       <div className="flex items-start justify-between gap-4 px-6 py-5">
         <div className="min-w-0">
           <h3 className="text-base font-semibold text-foreground">

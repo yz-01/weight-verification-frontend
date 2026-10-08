@@ -216,10 +216,10 @@ export function FieldCamera({
             setFacing(facingMode);
             setOpen(true);
           }}
-          className={`flex min-h-24 w-full flex-col items-center justify-center overflow-hidden rounded-xl border-2 bg-muted/20 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`flex min-h-24 w-full flex-col items-center justify-center overflow-hidden rounded-xl text-center transition disabled:cursor-not-allowed disabled:opacity-50 ${
             previewUrl
-              ? "border-solid border-primary/40 p-0"
-              : "border-dashed p-3 hover:border-primary/50 hover:bg-primary/5"
+              ? "photo-hatch border border-tone-green/50 p-0"
+              : "border border-dashed border-primary/45 bg-card p-3 hover:border-primary hover:bg-primary/8 hover:shadow-glow-sm"
           }`}
         >
           {previewUrl ? (
@@ -233,7 +233,7 @@ export function FieldCamera({
                 alt={`${label} - ${t("preview")}`}
                 className="aspect-4/3 w-full object-cover"
               />
-              <span className="block bg-background/95 px-2 py-1.5">
+              <span className="block bg-card px-2 py-1.5">
                 <span className="block truncate text-sm font-semibold">
                   {label}
                 </span>
@@ -244,7 +244,7 @@ export function FieldCamera({
             </span>
           ) : (
             <>
-              <Camera className="size-7 text-primary" />
+              <Camera className="size-7 text-tone-cyan-fg" />
               <span className="mt-2 text-sm font-semibold">{label}</span>
               <span className="mt-1 text-xs text-muted-foreground">
                 {fileCount ? t("ready", { count: fileCount }) : t("open")}
@@ -290,12 +290,12 @@ export function FieldCamera({
               className={`h-full w-full object-cover ${facing === "user" ? "-scale-x-100" : ""}`}
             />
             {starting ? (
-              <div className="absolute inset-0 grid place-items-center bg-black/70 text-white">
+              <div className="absolute inset-0 grid place-items-center bg-overlay text-overlay-foreground">
                 <Loader2 className="size-8 animate-spin" />
               </div>
             ) : null}
             {error ? (
-              <div className="absolute inset-0 grid place-items-center bg-black/80 p-6 text-center text-sm text-white">
+              <div className="absolute inset-0 grid place-items-center bg-overlay p-6 text-center text-sm text-overlay-foreground">
                 <div>
                   <CameraIcon className="mx-auto size-9" />
                   <p className="mt-3">{error}</p>
