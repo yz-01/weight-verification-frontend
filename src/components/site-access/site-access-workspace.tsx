@@ -36,6 +36,12 @@ import {
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import {
+  NEEDS_ACTION_PARAM,
+  NeedsActionChip,
+  NeedsActionMarker,
+  useNeedsActionParam,
+} from "@/components/shared/needs-action";
+import {
   decodeGateQrImage,
   GateQrScanner,
 } from "@/components/site-access/gate-qr-scanner";
@@ -98,7 +104,11 @@ const EXPIRING = "expiring";
 
 export function SiteAccessWorkspace() {
   const t = useTranslations("siteControl");
+  const tRoot = useTranslations();
   const { can } = useAuth();
+  // 「待处理 N」 (2026-10-09): only the passes waiting for this reader's
+  // approval - the sidebar's number for 门禁.
+  const [waitingOnly, setWaitingOnly] = useNeedsActionParam();
   const qc = useQueryClient();
   const search = useSearchParams();
   const requestedPassId = search.get("pass");
@@ -164,11 +174,12 @@ export function SiteAccessWorkspace() {
     queryFn: getSiteAccessDefaults,
   });
   const rows = useQuery({
-    queryKey: ["site-access-passes", project, status],
+    queryKey: ["site-access-passes", project, status, waitingOnly],
     queryFn: () =>
       getSiteAccessPasses({
         page_size: 200,
         ...(project !== "all" ? { project } : {}),
+        ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
         ...(status === EXPIRING
           ? { expiring: "1" }
           : status !== "all"
@@ -213,15 +224,24 @@ export function SiteAccessWorkspace() {
         title={t("access.title")}
         subtitle={t("access.subtitle")}
         action={
-          can("site_access.manage") && tab === "passes" ? (
-            <Button
-              disabledReason={defaults.isError ? t("access.defaultsFailed") : defaults.isLoading ? t("state.loading") : undefined}
-              disabled={defaults.isLoading || defaults.isError}
-              onClick={() => setCreating(true)}
-            >
-              <Plus />
-              {t("access.newPass")}
-            </Button>
+          tab === "passes" ? (
+            <>
+              <NeedsActionChip
+                count={rows.data?.needs_action_count}
+                active={waitingOnly}
+                onToggle={setWaitingOnly}
+              />
+              {can("site_access.manage") ? (
+                <Button
+                  disabledReason={defaults.isError ? t("access.defaultsFailed") : defaults.isLoading ? t("state.loading") : undefined}
+                  disabled={defaults.isLoading || defaults.isError}
+                  onClick={() => setCreating(true)}
+                >
+                  <Plus />
+                  {t("access.newPass")}
+                </Button>
+              ) : null}
+            </>
           ) : undefined
         }
       />
@@ -299,12 +319,15 @@ export function SiteAccessWorkspace() {
                       "validity",
                       "status",
                       "direction",
-                      "actions",
                     ].map((key) => (
                       <TableHead key={key}>
                         {t(`table.${key}`)}
                       </TableHead>
                     ))}
+                    <TableHead>
+                      <span className="sr-only">{tRoot("needsAction.column")}</span>
+                    </TableHead>
+                    <TableHead>{t("table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -339,6 +362,9 @@ export function SiteAccessWorkspace() {
                         {row.current_direction
                           ? t(`direction.${row.current_direction}`)
                           : "-"}
+                      </TableCell>
+                      <TableCell>
+                        <NeedsActionMarker show={row.needs_action} />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-0.5">

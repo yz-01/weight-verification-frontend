@@ -504,6 +504,7 @@ export function WasteOutgoingWorkspace() {
         columns={columns}
         rows={rows}
         totalCount={total}
+        needsActionCount={records.data?.needs_action_count}
         isLoading={records.isLoading}
         isError={records.isError}
         storageKey="waste-outgoing"

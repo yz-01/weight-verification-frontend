@@ -188,6 +188,8 @@ export interface ApprovalAction {
 
 export interface ApprovalRecord {
   id: string;
+  /** Waits for this reader's decision - the sidebar counts it (2026-10-09). */
+  needs_action?: boolean;
   approval_no: string;
   resource_type: string;
   resource_id: string;

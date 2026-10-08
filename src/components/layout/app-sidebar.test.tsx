@@ -214,7 +214,6 @@ describe("the restyled sidebar keeps the whole menu", () => {
       material_requests: "material_requests",
       field_tasks: "field_tasks",
       equipment: "equipment",
-      progress: "progress",
       waste_outgoing: "recyclers",
       site_disposals: "recyclers",
       consultant_applications: "consultant_applications",
@@ -305,8 +304,10 @@ describe("the menu under an entry shows where its number is (Lucas 2026-10-09)",
   it("puts each page's count on its own row, worded like the entry's", () => {
     const markup = menu("materialManagement", { material_receipts: 2, material_outgoing: 4 });
     expect(rowBadges(markup)).toEqual({ "5.2.1": "2", "5.2.2": "4" });
-    // The entry's own name for what it counts, as its aria-label and title.
-    expect(markup).toMatch(/aria-label="[^"]*待确认[^"]*"/);
+    // The entry's own name for what it counts, as its aria-label and title:
+    // 待验收 deliveries and 材料出场's approvals, never a 【确认】 (2026-10-09).
+    expect(markup).toMatch(/aria-label="[^"]*待审批\/验收[^"]*"/);
+    expect(markup).not.toMatch(/待确认/);
     // And the entry above shows the two together.
     expect(render(allFeatures(), [], true)).toMatch(
       /data-sidebar-badge="material_receipts"[^>]*>6<\/span>/,

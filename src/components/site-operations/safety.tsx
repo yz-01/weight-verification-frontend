@@ -31,6 +31,11 @@ import {
 } from "@/components/field-staff/field-evidence-grid";
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import {
+  ListNeedsActionChip,
+  NeedsActionMarker,
+  withNeedsActionColumn,
+} from "@/components/shared/needs-action";
 import { RecordNo } from "@/components/shared/record-no";
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -556,6 +561,9 @@ export function Safety({
         subtitle={fieldMode ? t("safety.fieldReport.subtitle") : isLoading ? t("common.loading") : t(mode === "rectification" ? "safetyRectification.count" : "safety.count", { count: total })}
         action={
           <div className="flex flex-wrap items-center gap-2">
+            {/* 「待处理 N」: the open items this reader moves on next, the
+                sidebar's number for 隐患整改 (2026-10-09). */}
+            <ListNeedsActionChip list={list} count={data?.needs_action_count} />
             {can("report.export") && !fieldMode && (
               <ExportButton onExport={runExport} disabled={!total} />
             )}
@@ -697,6 +705,7 @@ export function Safety({
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
+                    <NeedsActionMarker show={incident.needs_action} />
                     <p className="font-semibold">{incident.title}</p>
                     {isPermit(incident) && <StatusBadge label={te("permit.badge")} tone="info" />}
                     <StatusBadge label={t(`safetyRectification.status.${incident.status}`)} tone={STATUS_TONE[incident.status]} />
@@ -724,7 +733,7 @@ export function Safety({
           ))}
         </div>
       ) : <DataTable
-        columns={columns}
+        columns={withNeedsActionColumn(columns, t("needsAction.column"))}
         onRowClick={setOpened}
         rows={data?.results ?? []}
         totalCount={total}

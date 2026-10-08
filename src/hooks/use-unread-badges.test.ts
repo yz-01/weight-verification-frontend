@@ -1,7 +1,10 @@
 /**
- * The 材料进场 badge counts accepted deliveries waiting for a 【确认归档】
- * (2026-10 C4, X10), so everything that names it says 待确认 - not 未读,
- * which is what it counted before.
+ * What a sidebar badge counts, and what it says it counts.
+ *
+ * Lucas (2026-10-09): 「只有待验收的才需要加进去号码」. No badge counts a
+ * 【确认】 any more - 材料进场's number is its deliveries 待验收 - so none
+ * says 待确认: an approval or acceptance (待审批/验收), or for 隐患整改 the
+ * hazards this reader moves on next (等你处理). Never 未读.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -25,22 +28,32 @@ import {
 const messages = (locale: string) =>
   JSON.parse(readFileSync(path.join(process.cwd(), "src", "messages", `${locale}.json`), "utf8"));
 
-describe("the sidebar's deliveries badge says what it counts", () => {
-  it("names the deliveries badge 待确认 and the approvals badge as work waiting", () => {
-    expect(badgeLabelKey("material_receipts")).toBe("nav.waitingConfirm");
-    expect(badgeLabelKey("approvals")).toBe("nav.waitingForYou");
+describe("every sidebar badge says what it counts (2026-10-09)", () => {
+  it("names every approval / acceptance badge 待审批/验收, and 隐患整改's 等你处理", () => {
+    for (const feature of ["material_receipts", "material_requests", "equipment", "documents", "recyclers"] as const) {
+      expect(badgeLabelKey(feature), feature).toBe("nav.waitingApproval");
+    }
+    expect(badgeLabelKey("hazard_rectification")).toBe("nav.waitingForYou");
   });
 
   it.each([
-    ["zh", /待确认/],
-    ["zh-TW", /待確認/],
-    ["en", /confirmation/i],
-    ["ms", /pengesahan/i],
-  ])("%s says confirm, not unread", (locale, pattern) => {
-    const text = messages(locale).nav.waitingConfirm as string;
+    ["zh", /待审批\/验收/],
+    ["zh-TW", /待審批\/驗收/],
+    ["en", /approval or acceptance/i],
+    ["ms", /kelulusan atau penerimaan/i],
+  ])("%s says approval or acceptance, not confirm, not unread", (locale, pattern) => {
+    const nav = messages(locale).nav;
+    const text = nav.waitingApproval as string;
     expect(text).toMatch(pattern);
     expect(text).toContain("{count}");
-    expect(text).not.toMatch(/未读|未讀|unread|belum dibaca/i);
+    expect(text).not.toMatch(/未读|未讀|unread|belum dibaca|待确认|待確認|confirmation|pengesahan/i);
+    // No badge counts a 【确认】 any more, so the 待确认 wording is gone.
+    expect(nav.waitingConfirm).toBeUndefined();
+  });
+
+  it("has no number for 进度, which has no approval step", () => {
+    expect(BADGE_FEATURES).not.toContain("progress");
+    expect(BADGE_PERMISSIONS).not.toContain("progress.view");
   });
 
   it("puts that label on the badge as its name and its tooltip", () => {

@@ -153,6 +153,8 @@ export interface SiteAccessEvent {
 
 export interface SiteAccessPass {
   id: string;
+  /** Waits for this reader's approval - the sidebar counts it (2026-10-09). */
+  needs_action?: boolean;
   pass_no: string;
   project: string;
   project_name: string;

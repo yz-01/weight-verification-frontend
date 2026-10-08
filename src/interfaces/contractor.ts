@@ -331,6 +331,8 @@ export interface ReceiptPhoto {
 }
 
 export interface MaterialReceipt {
+  /** 待验收 for this reader - the sidebar counts it (2026-10-09). */
+  needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   id: string;

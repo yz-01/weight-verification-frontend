@@ -27,6 +27,7 @@ import { ApprovalWorkflowDialog } from "@/components/document-workflow/approval-
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ListNeedsActionChip, withNeedsActionColumn } from "@/components/shared/needs-action";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
   FieldWrapper,
@@ -336,6 +337,7 @@ export function Approvals() {
         }
         action={
           <div className="flex flex-wrap items-center gap-2">
+            <ListNeedsActionChip list={list} count={approvals.data?.needs_action_count} />
             {can("workflow.manage") ? (
               <Button
                 variant="outline"
@@ -379,7 +381,7 @@ export function Approvals() {
       ) : null}
 
       <DataTable
-        columns={columns}
+        columns={withNeedsActionColumn(columns, t("needsAction.column"))}
         rows={rows}
         totalCount={totalCount}
         page={list.page}

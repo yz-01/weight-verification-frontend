@@ -4100,6 +4100,13 @@
       "VIDEO_STORAGE": "視頻存儲"
     }
   },
+  "needsAction": {
+    "marker": "待處理",
+    "chip": "待處理 {count}",
+    "chipHint": "只看等你審批或驗收的記錄",
+    "chipClear": "顯示全部記錄",
+    "column": "待處理"
+  },
   "common": {
     "actions": "操作",
     "active": "啟用",
@@ -10154,7 +10161,7 @@
     "waitingForYou": "{count} 項等你處理",
     "materialManagement": "材料管理",
     "material_requests": "MR / 其他申請",
-    "waitingConfirm": "{count} 筆待確認"
+    "waitingApproval": "{count} 項待審批/驗收"
   },
   "notifications": {
     "compose": {

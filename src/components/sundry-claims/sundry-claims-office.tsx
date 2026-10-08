@@ -196,6 +196,7 @@ export function SundryClaimsOffice() {
         columns={columns}
         rows={rows.data?.results ?? []}
         totalCount={total}
+        needsActionCount={rows.data?.needs_action_count}
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey="sundry-claims"
