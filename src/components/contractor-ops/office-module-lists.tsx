@@ -427,6 +427,7 @@ export function MaterialOutgoingOffice() {
         columns={columns}
         rows={rows.data?.results ?? []}
         totalCount={total}
+        needsActionCount={rows.data?.needs_action_count}
         isLoading={rows.isLoading}
         isError={rows.isError}
         // `.v2` with the manufacturer column (2026-10 D1).
@@ -913,6 +914,8 @@ export function SiteEquipmentOffice() {
                   uncategorised: undefined,
                   expiring: undefined,
                   equipment: undefined,
+                  // 「待处理」 is the movements' (the register has none).
+                  needs_action: undefined,
                 })
               }
             >
@@ -968,6 +971,7 @@ export function SiteEquipmentOffice() {
           columns={movementColumns}
           rows={movements.data?.results ?? []}
           totalCount={movements.data?.count ?? 0}
+          needsActionCount={movements.data?.needs_action_count}
           isLoading={movements.isLoading}
           isError={movements.isError}
           storageKey="equipment-movements"

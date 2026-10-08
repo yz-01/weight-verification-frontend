@@ -57,6 +57,12 @@ export interface Paginated<T> {
   page_size: number;
   total_pages: number;
   results: T[];
+  /**
+   * How many rows wait for this reader's approval or acceptance - the
+   * sidebar's number for the page - on a list a sidebar badge opens. Each
+   * of them carries `needs_action: true` (`components/shared/needs-action`).
+   */
+  needs_action_count?: number;
 }
 
 /** The URL state contract every table page reads and writes. */

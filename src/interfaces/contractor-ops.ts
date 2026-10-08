@@ -247,6 +247,8 @@ export interface FieldTaskReference {
 }
 
 export interface FieldTask extends RecordedBy {
+  /** Sent in and waiting for this reader's 验收 - the sidebar counts it (2026-10-09). */
+  needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   id: string;
@@ -734,6 +736,8 @@ export interface DisposalTimelineEntry {
 }
 
 export interface DisposalRequest extends RecordedBy {
+  /** A request to accept or a lorry back to check, for this reader (2026-10-09). */
+  needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

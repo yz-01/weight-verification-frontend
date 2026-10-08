@@ -4100,6 +4100,13 @@
       "VIDEO_STORAGE": "Video Storage"
     }
   },
+  "needsAction": {
+    "marker": "Needs action",
+    "chip": "Needs action {count}",
+    "chipHint": "Show only the records waiting for your approval or acceptance",
+    "chipClear": "Show all records",
+    "column": "Needs action"
+  },
   "common": {
     "actions": "Actions",
     "active": "Active",
@@ -10154,7 +10161,7 @@
     "waitingForYou": "{count} waiting for you",
     "materialManagement": "Material management",
     "material_requests": "MR / Other Request",
-    "waitingConfirm": "{count} waiting for confirmation"
+    "waitingApproval": "{count} waiting for approval or acceptance"
   },
   "notifications": {
     "compose": {

@@ -24,6 +24,13 @@ import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import {
+  NEEDS_ACTION_PARAM,
+  NeedsActionChip,
+  needsActionActive,
+  withNeedsActionColumn,
+  type NeedsActionRow,
+} from "@/components/shared/needs-action";
 import { ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -39,7 +46,7 @@ import type { ProjectCategoryKind } from "@/interfaces/contractor-ops";
 import { cn } from "@/lib/utils";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 
-export function ModuleRecordsTable<T extends { id: string }>({
+export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   title,
   countLabel,
   headerAction,
@@ -48,6 +55,7 @@ export function ModuleRecordsTable<T extends { id: string }>({
   columns,
   rows,
   totalCount,
+  needsActionCount,
   isLoading,
   isError,
   storageKey,
@@ -66,6 +74,12 @@ export function ModuleRecordsTable<T extends { id: string }>({
   columns: ColumnDef<T, unknown>[];
   rows: T[];
   totalCount: number;
+  /**
+   * The page's 「待处理」 number from the list response (`needs_action_count`),
+   * on a list a sidebar badge opens: each such row is marked just left of
+   * its eye, and the header says 「待处理 N」 (Lucas 2026-10-09).
+   */
+  needsActionCount?: number;
   isLoading: boolean;
   isError: boolean;
   /** Where this table remembers which columns the reader hid. */
@@ -77,9 +91,10 @@ export function ModuleRecordsTable<T extends { id: string }>({
   rowClassName?: (row: T) => string | undefined;
 }) {
   const t = useTranslations();
+  const counted = needsActionCount !== undefined;
   const withView = useMemo<ColumnDef<T, unknown>[]>(
     () => [
-      ...columns,
+      ...(counted ? withNeedsActionColumn(columns, t("needsAction.column")) : columns),
       {
         id: "actions",
         enableHiding: false,
@@ -103,15 +118,29 @@ export function ModuleRecordsTable<T extends { id: string }>({
         ),
       },
     ],
-    [columns, onOpen, t],
+    [columns, counted, onOpen, t],
   );
+  const waitingOnly = needsActionActive(list.filters);
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
         title={title}
         subtitle={isLoading ? "—" : countLabel}
-        action={headerAction}
+        action={
+          counted ? (
+            <>
+              <NeedsActionChip
+                count={needsActionCount}
+                active={waitingOnly}
+                onToggle={(next) => list.setFilter(NEEDS_ACTION_PARAM, next ? "1" : undefined)}
+              />
+              {headerAction}
+            </>
+          ) : (
+            headerAction
+          )
+        }
       />
       {above}
       <DataTable

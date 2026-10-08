@@ -4100,6 +4100,13 @@
       "VIDEO_STORAGE": "Penyimpanan Video"
     }
   },
+  "needsAction": {
+    "marker": "Perlu tindakan",
+    "chip": "Perlu tindakan {count}",
+    "chipHint": "Tunjukkan rekod yang menunggu kelulusan atau penerimaan anda sahaja",
+    "chipClear": "Tunjukkan semua rekod",
+    "column": "Perlu tindakan"
+  },
   "common": {
     "actions": "Tindakan",
     "active": "Aktif",
@@ -10154,7 +10161,7 @@
     "waitingForYou": "{count} menunggu anda",
     "materialManagement": "Pengurusan bahan",
     "material_requests": "MR / Permohonan Lain",
-    "waitingConfirm": "{count} menunggu pengesahan"
+    "waitingApproval": "{count} menunggu kelulusan atau penerimaan"
   },
   "notifications": {
     "compose": {

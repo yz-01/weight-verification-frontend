@@ -4,12 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DISPATCH_STATE_TONE, Dispatches } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
+import { NeedsActionChip, NeedsActionMarker } from "@/components/shared/needs-action";
 import {
   ListHeader,
   QueryFailedNote,
@@ -54,6 +55,7 @@ const PER_KIND = 10;
 export function WasteClearance() {
   const t = useTranslations("wasteClearance");
   const { user, can } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const hasDisposals = user?.features.includes("site_disposals") ?? false;
   const hasDispatches = user?.features.includes("waste_dispatches") ?? false;
@@ -122,6 +124,15 @@ export function WasteClearance() {
         action={
           kind === "all" ? (
             <div className="flex flex-wrap gap-2">
+              {/* 「待处理 N」: the 工地清运 jobs waiting for this reader - a
+                  request to accept, a lorry back to check - the sidebar's
+                  number. Opens that tab with only them (2026-10-09). The
+                  工地清运 tab carries its own. */}
+              <NeedsActionChip
+                count={disposalCount.data?.needs_action_count}
+                active={false}
+                onToggle={() => router.push("/waste-clearance?kind=disposal&needs_action=1")}
+              />
               {can("disposal.submit") && (
                 <Button asChild>
                   <Link href="/waste-clearance?kind=disposal&create=1">
@@ -203,6 +214,8 @@ export function WasteClearance() {
 interface MergedRow {
   kind: "disposal" | "dispatch";
   id: string;
+  /** A 工地清运 job waiting for this reader (「待处理」); never a 废料订单. */
+  needsAction: boolean;
   reference: string;
   statusBadge: React.ReactNode;
   project: string;
@@ -239,6 +252,7 @@ function MergedList() {
     ...(disposals.data?.results ?? []).map((row) => ({
       kind: "disposal" as const,
       id: row.id,
+      needsAction: row.needs_action === true,
       reference: row.reference_no,
       statusBadge: <StatusBadge label={disposalT(`status.${row.status}`)} />,
       project: row.project_name,
@@ -249,6 +263,7 @@ function MergedList() {
     ...(dispatches.data?.results ?? []).map((row) => ({
       kind: "dispatch" as const,
       id: row.id,
+      needsAction: false,
       reference: row.dispatch_no,
       statusBadge: (
         <StatusBadge
@@ -284,13 +299,16 @@ function MergedList() {
             <TableHead>{t("column.project")}</TableHead>
             <TableHead>{t("column.content")}</TableHead>
             <TableHead>{t("column.at")}</TableHead>
+            <TableHead>
+              <span className="sr-only">{root("needsAction.column")}</span>
+            </TableHead>
             <TableHead className="text-right">{t("column.open")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 justify-center">
+              <TableCell colSpan={8} className="h-24 justify-center">
                 <Loader2 className="mx-auto h-4 w-4 animate-spin text-muted-foreground" />
               </TableCell>
             </TableRow>
@@ -305,6 +323,9 @@ function MergedList() {
               <TableCell className="max-w-65 truncate">{row.content}</TableCell>
               <TableCell className="tabular text-muted-foreground">
                 {row.at ? df.dateTime(row.at) : "—"}
+              </TableCell>
+              <TableCell>
+                <NeedsActionMarker show={row.needsAction} />
               </TableCell>
               <TableCell className="text-right">
                 <Button asChild variant="outline" size="sm">

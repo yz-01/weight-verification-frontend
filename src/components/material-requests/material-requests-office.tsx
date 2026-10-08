@@ -333,6 +333,7 @@ function RequestsTab() {
         columns={columns}
         rows={rows.data?.results ?? []}
         totalCount={total}
+        needsActionCount={rows.data?.needs_action_count}
         isLoading={rows.isLoading}
         isError={rows.isError}
         // New key (D3): an old saved column set must not bring back the dropped

@@ -279,6 +279,8 @@ export interface RemedialItem {
 }
 
 export interface ConsultantApplication extends RecordedBy {
+  /** Waits for this reader's review - the sidebar counts it (2026-10-09). */
+  needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

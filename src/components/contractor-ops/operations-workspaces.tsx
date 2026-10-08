@@ -28,6 +28,12 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
+import {
+  NEEDS_ACTION_PARAM,
+  NeedsActionChip,
+  NeedsActionMarker,
+  useNeedsActionParam,
+} from "@/components/shared/needs-action";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { useRef, useState } from "react";
 
@@ -903,14 +909,19 @@ export function FieldTasksWorkspace({
       : null;
   const clearOverdue = useClearSearchParam("overdue");
   const clearOpen = useClearSearchParam("open");
+  // 「待处理 N」 (2026-10-09): only the tasks sent in and waiting for this
+  // reader's 验收 - the sidebar's number for 现场任务.
+  const [waitingParam, setWaitingOnly] = useNeedsActionParam();
+  const waitingOnly = !taskType && waitingParam;
   const rows = useQuery({
-    queryKey: ["field-tasks", project, taskType, drill],
+    queryKey: ["field-tasks", project, taskType, drill, waitingOnly],
     queryFn: () =>
       getFieldTasks({
         page_size: 200,
         project: project || undefined,
         task_type: taskType,
         ...(drill ? { [drill]: "1" } : {}),
+        ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
       }),
   });
   const listedTask = focusedTaskId
@@ -979,11 +990,20 @@ export function FieldTasksWorkspace({
             : "tasks.subtitle",
         )}
         action={
-          !taskType && can("field_task.manage") ? (
-            <Button onClick={() => setCreating(true)}>
-              <Plus />
-              {t("tasks.assign")}
-            </Button>
+          !taskType ? (
+            <>
+              <NeedsActionChip
+                count={rows.data?.needs_action_count}
+                active={waitingOnly}
+                onToggle={setWaitingOnly}
+              />
+              {can("field_task.manage") ? (
+                <Button onClick={() => setCreating(true)}>
+                  <Plus />
+                  {t("tasks.assign")}
+                </Button>
+              ) : null}
+            </>
           ) : undefined
         }
       />
@@ -1113,6 +1133,7 @@ export function FieldTasksWorkspace({
                       {row.photos.length}/{row.evidence_required}
                     </span>
                   </span>
+                  <NeedsActionMarker show={row.needs_action} />
                   {(canEdit || canReview || canPrepareApplication || headOffice) && (
                     <div className="flex flex-wrap justify-end gap-1.5">
                       {headOffice ? (

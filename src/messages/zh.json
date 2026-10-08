@@ -4100,6 +4100,13 @@
       "VIDEO_STORAGE": "视频存储"
     }
   },
+  "needsAction": {
+    "marker": "待处理",
+    "chip": "待处理 {count}",
+    "chipHint": "只看等你审批或验收的记录",
+    "chipClear": "显示全部记录",
+    "column": "待处理"
+  },
   "common": {
     "actions": "操作",
     "active": "启用",
@@ -10154,7 +10161,7 @@
     "waitingForYou": "{count} 项等你处理",
     "materialManagement": "材料管理",
     "material_requests": "MR / 其他申请",
-    "waitingConfirm": "{count} 笔待确认"
+    "waitingApproval": "{count} 项待审批/验收"
   },
   "notifications": {
     "compose": {
