@@ -1509,10 +1509,47 @@ export function badgeKeysFor(item: FeatureNavItem): string[] {
   if (item.badge) return [...item.badge];
   const keys = new Set<string>([item.feature]);
   for (const leaf of navLeaves(item.children)) {
-    if (leaf.feature) keys.add(leaf.feature);
-    for (const key of leaf.anyFeatures ?? []) keys.add(key);
+    for (const key of pageBadgeKeys(leaf, item.feature)) keys.add(key);
   }
   return [...keys];
+}
+
+/**
+ * The count keys one page could carry: its own feature - its entry's, when
+ * it names none - and every business it gathers (`anyFeatures`, 垃圾清运).
+ * The same rule `childFeatureVisible` uses to decide whether it is shown.
+ */
+function pageBadgeKeys(leaf: FeatureNavChild, entryFeature: PortalFeatureKey): string[] {
+  const keys = new Set<string>(leaf.anyFeatures ?? []);
+  if (leaf.feature) keys.add(leaf.feature);
+  else if (!keys.size) keys.add(entryFeature);
+  return [...keys];
+}
+
+/**
+ * The count keys each page in an entry's menu shows, by the page's `key`
+ * (Lucas 2026-10-09: 「hover的时候如果有事项也会看到号码在哪个分类，全部业务
+ * 模块都是一样这个逻辑」).
+ *
+ * Built from the same per-page keys as `badgeKeysFor` and limited to the
+ * entry's own keys, so an entry that names its own `badge` (顾问) does not
+ * show 文件's approvals on its pages. A key is shown on the first page that
+ * carries it, in menu order: 设备's two pages share `equipment`, and that
+ * pile is 现场设备's list, not a number to show twice. So an entry's number
+ * is always the sum of the numbers its menu shows.
+ */
+export function menuBadgeKeys(item: FeatureNavItem): Record<string, string[]> {
+  const own = new Set(badgeKeysFor(item));
+  const shown = new Set<string>();
+  const byPage: Record<string, string[]> = {};
+  for (const leaf of navLeaves(item.children)) {
+    const keys = pageBadgeKeys(leaf, item.feature).filter(
+      (key) => own.has(key) && !shown.has(key),
+    );
+    for (const key of keys) shown.add(key);
+    byPage[leaf.key] = keys;
+  }
+  return byPage;
 }
 
 /** A child that opens a further level instead of a page (B03). */

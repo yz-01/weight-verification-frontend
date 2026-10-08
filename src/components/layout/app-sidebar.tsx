@@ -10,11 +10,12 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import {
   FLYOUT_ATTRIBUTE,
   NavFlyout,
+  WaitingBadge,
   type FlyoutNode,
 } from "@/components/layout/sidebar-flyout";
 import { UserMenu } from "@/components/layout/user-menu";
 import { useAuth } from "@/components/providers/auth-provider";
-import { badgeFor, badgeLabelKey, useUnreadBadges } from "@/hooks/use-unread-badges";
+import { badgeFor, menuWaiting, useUnreadBadges } from "@/hooks/use-unread-badges";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import {
@@ -40,6 +41,8 @@ import {
   navLeaves,
   visibleNavigation,
   type FeatureNavChild,
+  type FeatureNavItem,
+  type PortalFeatureKey,
 } from "@/lib/navigation";
 import { PORTAL_LABELS } from "@/lib/portal";
 import { MODULE_TILE, moduleTone } from "@/lib/tones";
@@ -160,10 +163,13 @@ export function AppSidebar() {
   /**
    * The menu's rows, with which one holds the page being read. A detail page
    * (`/receipts/<id>`) belongs to the closest entry above it, so the menu
-   * still shows where the reader is after opening a record.
+   * still shows where the reader is after opening a record. Each row carries
+   * its waiting count (`menuWaiting`); together they make the entry's.
    */
-  const flyoutNodes = (children: readonly FeatureNavChild[]): FlyoutNode[] => {
+  const flyoutNodes = (item: FeatureNavItem): FlyoutNode[] => {
+    const children = item.children ?? [];
     const closest = closestRoute(navLeaves(children), pathname);
+    const waiting = menuWaiting(item, badges);
     const build = (level: readonly FeatureNavChild[]): FlyoutNode[] =>
       level.map((child) => {
         const below = child.children?.length ? build(child.children) : undefined;
@@ -171,6 +177,7 @@ export function AppSidebar() {
           key: child.key,
           label: t(child.labelKey),
           href: child.href,
+          waiting: waiting[child.key],
           children: below,
           active: below
             ? below.some((node) => node.active)
@@ -217,7 +224,7 @@ export function AppSidebar() {
                   // drops them with whatever the reader may not open, at
                   // every level, so the menus never list a page the address
                   // bar alone keeps (「证据归档」, T-345).
-                  const nodes = flyoutNodes(item.children ?? []);
+                  const nodes = flyoutNodes(item);
                   // One page under an entry is the entry: no menu to open.
                   const hasMenu =
                     nodes.length > 1 || Boolean(nodes[0]?.children?.length);
@@ -228,7 +235,7 @@ export function AppSidebar() {
                     expanded[entryKey] ?? nodes.some((node) => node.active);
                   const flyoutOpen = flyout?.key === entryKey;
                   // The entry's number is the sum of its pages' (材料管理 is
-                  // 材料进场 and 材料出场 together); null when it never loaded.
+                  // 材料进场 and 材料出场 together); shown only above zero.
                   const waiting = badgeFor(badges, badgeKeysFor(item));
                   return (
                     <SidebarMenuItem
@@ -277,29 +284,12 @@ export function AppSidebar() {
                               right-hand slot already holds the submodule
                               arrow on every entry that has children, and
                               material receipts is one of them. */}
-                          {waiting === null && (
-                            <span
-                              className="ml-auto shrink-0 rounded-full border border-destructive/40 px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none text-destructive group-data-[collapsible=icon]:hidden"
-                              aria-label={t("nav.waitingUnknown")}
-                              title={t("nav.waitingUnknown")}
-                            >
-                              ?
-                            </span>
-                          )}
-                          {waiting !== null && waiting > 0 && (
-                            <span
-                              data-sidebar-badge={item.feature}
-                              className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none tabular-nums text-primary-foreground group-data-[collapsible=icon]:hidden"
-                              aria-label={t(badgeLabelKey(item.feature), {
-                                count: waiting,
-                              })}
-                              title={t(badgeLabelKey(item.feature), {
-                                count: waiting,
-                              })}
-                            >
-                              {waiting > 99 ? "99+" : waiting}
-                            </span>
-                          )}
+                          <WaitingBadge
+                            count={waiting}
+                            feature={item.feature}
+                            data-sidebar-badge={item.feature}
+                            className="group-data-[collapsible=icon]:hidden"
+                          />
                         </Link>
                       </SidebarMenuButton>
                       {hasMenu && (
@@ -345,6 +335,7 @@ export function AppSidebar() {
                       )}
                       {isMobile && hasMenu && isExpanded && (
                         <InlineLevel
+                          feature={item.feature}
                           nodes={nodes}
                           expanded={expanded}
                           onToggle={(key, open) =>
@@ -360,6 +351,7 @@ export function AppSidebar() {
                         <NavFlyout
                           anchor={flyout.anchor}
                           title={label}
+                          feature={item.feature}
                           nodes={nodes}
                           focusFirst={flyout.focusFirst}
                           onPointerEnter={cancelClose}
@@ -393,14 +385,19 @@ export function AppSidebar() {
   );
 }
 
-/** One level of the phone menu, and the levels under it once opened. */
+/**
+ * One level of the phone menu, and the levels under it once opened. Each row
+ * carries its waiting count, as the desktop flyout's rows do.
+ */
 function InlineLevel({
+  feature,
   nodes,
   expanded,
   onToggle,
   onNavigate,
   toggleLabel,
 }: {
+  feature: PortalFeatureKey;
   nodes: FlyoutNode[];
   expanded: Record<string, boolean>;
   onToggle: (key: string, open: boolean) => void;
@@ -426,7 +423,12 @@ function InlineLevel({
                   onClick={onNavigate}
                   aria-current={node.active && !hasLevel ? "page" : undefined}
                 >
-                  <span>{node.label}</span>
+                  <span className="min-w-0 flex-1 truncate">{node.label}</span>
+                  <WaitingBadge
+                    count={node.waiting}
+                    feature={feature}
+                    data-inline-badge={node.key}
+                  />
                 </Link>
               </SidebarMenuSubButton>
               {hasLevel && (
@@ -445,6 +447,7 @@ function InlineLevel({
             </div>
             {hasLevel && open && (
               <InlineLevel
+                feature={feature}
                 nodes={node.children ?? []}
                 expanded={expanded}
                 onToggle={onToggle}
