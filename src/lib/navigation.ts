@@ -139,6 +139,14 @@ export interface FeatureNavItem {
    * only listed the children is gone; the address still leads somewhere).
    */
   ownPage?: boolean;
+  /**
+   * Which of the sidebar's waiting counts this entry shows, when summing
+   * its pages' features would be wrong. Several entries share the
+   * `project_categories` feature (杂费报销, 归档队列, 分类管理), so the one
+   * with work waiting names its own key; 顾问 has pages on the `approvals`
+   * feature that are not the document approvals. See `badgeKeysFor`.
+   */
+  badge?: readonly string[];
 }
 
 export interface FeatureNavChild {
@@ -947,7 +955,11 @@ export const PORTAL_NAVIGATION = {
     // `/incident-reports` was a separate component, not another mode of this
     // one, so this removes a distinct feature rather than a duplicate page -
     // which is what the customer asked for, but worth saying plainly.
-    item(
+    {
+      // Its own applications only: 审批凭证 and 多引擎审查 sit on the
+      // `approvals` feature, but the document approvals are 文件's count.
+      badge: ["consultant_applications"],
+      ...item(
       "consultant_applications",
       "/modules/consultants",
       ClipboardCheck,
@@ -1051,6 +1063,7 @@ export const PORTAL_NAVIGATION = {
         },
       ],
     ),
+    },
     item(
       "hazard_rectification",
       "/modules/hazards",
@@ -1265,6 +1278,7 @@ export const PORTAL_NAVIGATION = {
     }),
     entry("project_categories", "submodule.sundryClaims", "/sundry-claims", CreditCard, "operations", {
       requiredPermission: "sundry_claim.view",
+      badge: ["sundry_claims"],
     }),
     // Tools that read across every business entry. 总栏目 lists the *records*
     // of all of them and who archived each - not a list of categories, so it
@@ -1467,12 +1481,38 @@ function entry(
   href: string,
   icon: LucideIcon,
   group: FeatureNavItem["group"],
-  options: { routePrefixes?: readonly string[]; requiredPermission?: string } = {},
+  options: {
+    routePrefixes?: readonly string[];
+    requiredPermission?: string;
+    badge?: readonly string[];
+  } = {},
 ): FeatureNavItem {
   return {
     ...itemWithLabel(feature, labelKey, href, icon, group, options.routePrefixes),
     requiredPermission: options.requiredPermission,
+    badge: options.badge,
   };
+}
+
+/**
+ * The waiting-count keys a sidebar entry adds up (Lucas 2026-10-08: 「每个
+ * 模块都是这样才对」).
+ *
+ * The backend counts per *page* and keys the numbers by feature
+ * (`contractor_ops.sidebar_badges`); an entry with several pages under it
+ * shows their sum, the way 材料管理 shows 材料进场 and 材料出场 together.
+ * `item` is the entry as `visibleNavigation` returns it, so a page the
+ * reader may not open is already gone and is not added. An entry that
+ * names its own `badge` shows that key alone.
+ */
+export function badgeKeysFor(item: FeatureNavItem): string[] {
+  if (item.badge) return [...item.badge];
+  const keys = new Set<string>([item.feature]);
+  for (const leaf of navLeaves(item.children)) {
+    if (leaf.feature) keys.add(leaf.feature);
+    for (const key of leaf.anyFeatures ?? []) keys.add(key);
+  }
+  return [...keys];
 }
 
 /** A child that opens a further level instead of a page (B03). */

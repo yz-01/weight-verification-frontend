@@ -300,6 +300,17 @@ export interface DashboardUnread {
   approvals: number;
 }
 
+/**
+ * The sidebar's waiting counts, one per module page, keyed by feature
+ * (`GET /api/contractor-dashboard/get_badges/`). A key is present only when
+ * the reader may act on that kind; absent means nothing to show.
+ */
+export interface SidebarBadges {
+  /** The project the counts were narrowed to, or "" for every project. */
+  project: string;
+  badges: Record<string, number>;
+}
+
 /** Every section is optional: `?sections=` narrows what the server builds. */
 export interface ContractorDashboard {
   date: string;
