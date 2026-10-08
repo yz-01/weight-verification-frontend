@@ -9703,6 +9703,7 @@
     "attempts": "已尝试 {count} 次",
     "historyWindow": "手机端只保留最近 {days} 天的记录，更早的请到后台查询。",
     "truncated": "显示 {shown} 条，共 {total} 条。",
+    "loadOlder": "加载更早的记录",
     "kind": {
       "MATERIAL_RECEIPT": "材料进场",
       "SITE_RECORD": "现场记录",

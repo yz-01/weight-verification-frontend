@@ -9703,6 +9703,7 @@
     "attempts": "{count} cubaan",
     "historyWindow": "Telefon menyimpan {days} hari terakhir. Rekod lebih lama ada dalam sistem pejabat.",
     "truncated": "Menunjukkan {shown} daripada {total}.",
+    "loadOlder": "Muat rekod lebih awal",
     "kind": {
       "MATERIAL_RECEIPT": "Bahan masuk",
       "SITE_RECORD": "Rekod tapak",

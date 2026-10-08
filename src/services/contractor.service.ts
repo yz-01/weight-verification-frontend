@@ -737,9 +737,12 @@ export async function correctReceipt(
  * the answer across screens is how the same delivery gets photographed twice
  * (F-228).
  */
-export function getMySubmissions(): Promise<MySubmissionsPage> {
+export function getMySubmissions(before?: string | null): Promise<MySubmissionsPage> {
+  // `before`: the `next_before` of the page already shown - the next page
+  // of older rows (client 2026-10-09 五.2). Without it, the newest page.
   return api.get<MySubmissionsPage>(
     "/api/my-submissions/get_my_submissions/",
+    before ? { before } : undefined,
   );
 }
 

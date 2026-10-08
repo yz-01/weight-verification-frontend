@@ -458,7 +458,11 @@ export interface MySubmissionRow {
   submitted_at: string;
   status: string;
   status_label: string;
-  photo: string | null;
+  /**
+   * The first photograph's full-size link. Not sent on the phone's own
+   * history (client 2026-10-09 二.3: the list shows only `cover_photo_url`).
+   */
+  photo?: string | null;
 }
 
 /**
@@ -489,7 +493,14 @@ export interface MySubmissionPhoto {
    * because the two older screens neither send nor read it.
    */
   id?: string;
+  /** The stamped copy, full size: fetched only when the photo is opened. */
   url: string;
+  /**
+   * Its ~400 px WebP thumbnail, for a record's photo strip (client
+   * 2026-10-09 二.4, 五.3); null for a photo the server has no ledger row
+   * for - the strip then falls back to `url`.
+   */
+  thumbnail_url?: string | null;
   caption: string;
 }
 
@@ -504,9 +515,18 @@ export interface MySubmissionDetail extends MySubmissionRow {
 
 export interface MySubmissionsPage {
   results: MySubmissionRow[];
-  count: number;
-  /** True when the page shows fewer rows than exist, so the screen can say so. */
+  /**
+   * Every row inside the window - on the first page only; null on the pages
+   * after it (the screen keeps the first page's).
+   */
+  count: number | null;
+  /** True when rows older than this page are left, so the screen can say so. */
   truncated: boolean;
+  /**
+   * Where the next page starts: passed back as `before` (client 2026-10-09
+   * 五.2). Null on the last page.
+   */
+  next_before?: string | null;
   /**
    * How many days of history the phone is allowed to show, or 0 for no limit
    * (D-197). Sent so the footer states the company's real figure instead of a
