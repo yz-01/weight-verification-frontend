@@ -8250,6 +8250,7 @@
     "recordStop": "停止",
     "recordingFor": "已錄 {seconds} 秒，上限 {limit} 秒",
     "attach": "傳送檔案",
+    "takePhoto": "拍照",
     "photo": "照片",
     "closed": "這條隱患已驗收並閉環歸檔。記錄仍可查看，但不能再傳新訊息。",
     "participants": "本次參與的人",

@@ -8250,6 +8250,7 @@
     "recordStop": "Stop",
     "recordingFor": "Recording {seconds}s of {limit}s",
     "attach": "Attach a file",
+    "takePhoto": "Take a photo",
     "photo": "Photo",
     "closed": "This hazard has been verified and archived. The record stays readable, but it takes no new messages.",
     "participants": "In this conversation",

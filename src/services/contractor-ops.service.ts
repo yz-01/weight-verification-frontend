@@ -1613,6 +1613,9 @@ export function postRecordMessage(
     audio_seconds?: number;
     attachment?: File;
     attachment_name?: string;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
     client_event_id?: string;
   },
 ): Promise<RecordMessage> {
