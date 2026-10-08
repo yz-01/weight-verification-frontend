@@ -88,27 +88,23 @@ export function PermissionMatrix({
   const allCodes = (data ?? []).map((entry) => entry.code);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {!readOnly && (
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             onClick={() => onChange?.(allCodes.slice().sort())}
           >
-            <CheckCheck className="h-3.5 w-3.5" />
+            <CheckCheck className="size-4" />
             {t("roles.selectAll")}
           </Button>
           <Button
             type="button"
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             onClick={() => onChange?.([])}
           >
-            <Square className="h-3.5 w-3.5" />
+            <Square className="size-4" />
             {t("roles.clearAll")}
           </Button>
           <span className="ml-auto text-xs text-muted-foreground">
@@ -128,7 +124,7 @@ export function PermissionMatrix({
 
         return (
           <div key={group.key}>
-            <div className="mb-2 flex items-center gap-2">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
               <h4 className="panel-title">
                 {t(`permissions.group.${group.key}`)}
               </h4>
@@ -137,7 +133,7 @@ export function PermissionMatrix({
                   type="button"
                   onClick={() => toggleGroup(codes, !allOn)}
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.6875rem] font-medium transition-colors",
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium transition-colors",
                     allOn || someOn
                       ? "text-primary hover:bg-primary/10"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -157,7 +153,7 @@ export function PermissionMatrix({
                   <label
                     key={entry.code}
                     className={cn(
-                      "flex items-center gap-2.5 rounded-md border px-3 py-2 text-sm transition-colors",
+                      "flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
                       readOnly
                         ? "border-transparent bg-muted/40"
                         : isOn

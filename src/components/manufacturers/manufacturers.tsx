@@ -112,7 +112,7 @@ export function Manufacturers() {
         header: () => <span className="sr-only">{common("actions")}</span>,
         cell: ({ row }) =>
           can("supplier.update") ? (
-            <div className="flex justify-end">
+            <div className="flex items-center justify-end gap-0.5">
               <Button
                 variant="ghost"
                 size="icon"
@@ -136,8 +136,8 @@ export function Manufacturers() {
         subtitle={t("description")}
         action={
           can("supplier.create") ? (
-            <Button size="sm" className="rounded-full px-4 shadow-sm" onClick={() => setEditing("new")}>
-              <Plus className="h-4 w-4" />
+            <Button onClick={() => setEditing("new")}>
+              <Plus className="size-4" />
               {t("new")}
             </Button>
           ) : undefined
@@ -236,7 +236,7 @@ function ManufacturerDialog({
             {active ? t("field.isActive") : t("switchedOff")}
           </label>
           {row && canRemove && (
-            <div className="space-y-2 rounded-md border border-destructive/20 p-3">
+            <div className="space-y-2 rounded-lg border border-destructive/20 p-3">
               <label className="flex items-start gap-2">
                 <Switch
                   checked={removeArmed}

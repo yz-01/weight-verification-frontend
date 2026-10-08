@@ -152,7 +152,7 @@ export function CreateSettlement() {
       <FormSection title={t("settlements.quote.title")}>
         {!dispatch ? (
           <p className="flex items-start gap-2 text-sm text-muted-foreground md:col-span-2">
-            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            <Info className="mt-0.5 size-4 shrink-0" />
             {t("settlements.issue.pickLoad")}
           </p>
         ) : quoteQuery.isError ? (
@@ -162,7 +162,7 @@ export function CreateSettlement() {
             onRetry={() => quoteQuery.refetch()}
           />
         ) : (
-          <div className="space-y-1 rounded-xl border bg-card px-5 py-4 md:col-span-2">
+          <div className="space-y-1 rounded-lg border bg-muted/30 p-3 sm:p-4 md:col-span-2">
             <WorkingRow
               label={t("settlements.field.netWeight")}
               value={quote?.net_weight_kg}
@@ -227,7 +227,7 @@ export function CreateSettlement() {
 function Warning({ text }: { text: string }) {
   return (
     <p className="flex items-start gap-2 rounded-lg border border-tone-amber/40 bg-tone-amber/10 px-3 py-2 text-sm font-medium text-tone-amber-fg md:col-span-2">
-      <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+      <TriangleAlert className="mt-0.5 size-4 shrink-0" />
       {text}
     </p>
   );

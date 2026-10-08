@@ -212,7 +212,6 @@ export function SupplierReturnsDialog({
         </DialogHeader>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Button
-            size="sm"
             variant="outline"
             disabled={!rows.length}
             disabledReason={t("empty")}
@@ -229,7 +228,6 @@ export function SupplierReturnsDialog({
             />
           ) : null}
           <Button
-            size="sm"
             variant="outline"
             disabled={share.isPending}
             onClick={() => share.mutate()}
@@ -247,14 +245,14 @@ export function SupplierReturnsDialog({
             placeholder={ops("field.selectProject")}
             allowAll
             allLabel={ops("field.allProjects")}
-            className="h-8 w-full text-sm sm:w-64"
+            className="w-full sm:w-64"
           />
-          <div className="flex items-center gap-1">
+          <div className="flex w-full items-center gap-2 sm:w-auto">
             <Input
               type="date"
               aria-label={dates("from")}
               title={dates("from")}
-              className="h-8 w-35 text-sm"
+              className="min-w-0 flex-1 sm:w-40 sm:flex-none"
               value={filters.date_from}
               max={filters.date_to || undefined}
               onChange={(event) => setFilters((old) => ({ ...old, date_from: event.target.value }))}
@@ -264,7 +262,7 @@ export function SupplierReturnsDialog({
               type="date"
               aria-label={dates("toLabel")}
               title={dates("toLabel")}
-              className="h-8 w-35 text-sm"
+              className="min-w-0 flex-1 sm:w-40 sm:flex-none"
               value={filters.date_to}
               min={filters.date_from || undefined}
               onChange={(event) => setFilters((old) => ({ ...old, date_to: event.target.value }))}
@@ -273,7 +271,7 @@ export function SupplierReturnsDialog({
         </div>
         <QueryFailedNote query={returns} what={t("what")} />
         {returns.data?.truncated ? (
-          <p className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs">
+          <p className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs">
             {t("truncated", { shown: returns.data.count, total: returns.data.total ?? returns.data.count })}
           </p>
         ) : null}
@@ -282,7 +280,7 @@ export function SupplierReturnsDialog({
             <Loader2 className="size-6 animate-spin text-primary" />
           </div>
         ) : returns.isSuccess && !rows.length ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
+          <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
         ) : rows.length ? (
           <SupplierReturnsTable rows={rows} />
         ) : null}
@@ -342,7 +340,7 @@ function Thumb({ src, alt, label }: { src?: string | null; alt: string; label?: 
         width={56}
         height={40}
         unoptimized
-        className="h-10 w-14 rounded border photo-hatch object-cover"
+        className="h-10 w-14 rounded-md border photo-hatch object-cover"
       />
     </a>
   );

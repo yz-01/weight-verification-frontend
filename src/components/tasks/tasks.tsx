@@ -9,7 +9,10 @@ import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { KpiCard } from "@/components/shared/kpi-card";
 import {
+  FilterBar,
+  FilterField,
   ListHeader,
   QueryFailedNote,
   StatusBadge,
@@ -17,7 +20,6 @@ import {
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { DriverTask, TaskState } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
@@ -210,9 +212,9 @@ export function Tasks() {
         subtitle={isLoading ? "—" : t("tasks.count", { count: totalCount })}
         action={
           can("task.assign") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/tasks/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("tasks.new")}
               </Link>
             </Button>
@@ -220,25 +222,22 @@ export function Tasks() {
         }
       />
 
-      <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {(["today_dispatches", "today_completed", "running", "vehicles_used_today", "drivers_used_today"] as const).map(
           (key) => (
-            <div key={key} className="rounded-lg border bg-card px-3 py-2.5">
-              <p className="text-xs text-muted-foreground">{t(`tasks.summary.${key}`)}</p>
-              <p className="mt-1 text-xl font-semibold tabular-nums">
-                {summary.data?.[key] ?? "—"}
-              </p>
-            </div>
+            <KpiCard
+              key={key}
+              size="sm"
+              label={t(`tasks.summary.${key}`)}
+              value={summary.data?.[key] ?? "—"}
+            />
           ),
         )}
       </div>
       <QueryFailedNote query={summary} what={t("tasks.what.summary")} className="shrink-0" />
 
-      <div className="grid shrink-0 gap-2 sm:grid-cols-2 lg:max-w-xl">
-        <div className="space-y-1">
-          <Label htmlFor="task-date-from" className="text-xs text-muted-foreground">
-            {t("tasks.filter.dateFrom")}
-          </Label>
+      <FilterBar className="shrink-0">
+        <FilterField label={t("tasks.filter.dateFrom")} htmlFor="task-date-from" className="sm:w-44">
           <Input
             id="task-date-from"
             type="date"
@@ -248,11 +247,8 @@ export function Tasks() {
               list.setFilter("date_from", event.target.value || undefined)
             }
           />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="task-date-to" className="text-xs text-muted-foreground">
-            {t("tasks.filter.dateTo")}
-          </Label>
+        </FilterField>
+        <FilterField label={t("tasks.filter.dateTo")} htmlFor="task-date-to" className="sm:w-44">
           <Input
             id="task-date-to"
             type="date"
@@ -262,8 +258,8 @@ export function Tasks() {
               list.setFilter("date_to", event.target.value || undefined)
             }
           />
-        </div>
-      </div>
+        </FilterField>
+      </FilterBar>
 
       <DataTable
         columns={columns}

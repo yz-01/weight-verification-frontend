@@ -154,7 +154,7 @@ export function CreateDispatch({
         >
           {(field) => (
             lockedProject && field.state.value === lockedProject ? (
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <p className="text-sm font-medium">{t("dispatches.field.project")}</p>
                 <p className="text-sm" data-project-locked>
                   {topBar.projects
@@ -207,7 +207,7 @@ export function CreateDispatch({
           is the recycler registering rather than a workaround here.
         */}
         <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <Info className="mt-0.5 size-3.5 shrink-0" />
           {t("dispatches.recyclerNote")}
         </p>
       </FormSection>

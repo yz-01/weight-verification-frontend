@@ -12,13 +12,14 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
 import {
+  FilterBar,
+  FilterField,
   ListHeader,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -267,9 +268,9 @@ export function Projects() {
           <>
             <ExportButton onExport={runExport} disabled={totalCount === 0} />
             {can("project.create") && (
-              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+              <Button asChild>
                 <Link href="/projects/create">
-                  <Plus className="h-4 w-4" />
+                  <Plus className="size-4" />
                   {t("projects.new")}
                 </Link>
               </Button>
@@ -278,9 +279,8 @@ export function Projects() {
         }
       />
 
-      <div className="grid gap-3 border-y bg-card/50 py-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">{t("projects.filter.state")}</Label>
+      <FilterBar>
+        <FilterField label={t("projects.filter.state")} className="sm:w-48">
           <Select
             value={list.filters.state || "all"}
             onValueChange={(value) => list.setFilter("state", value === "all" ? undefined : value)}
@@ -291,24 +291,21 @@ export function Projects() {
               {MALAYSIA_STATES.map((state) => <SelectItem key={state} value={state}>{state}</SelectItem>)}
             </SelectContent>
           </Select>
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">{t("projects.filter.dateFrom")}</Label>
+        </FilterField>
+        <FilterField label={t("projects.filter.dateFrom")} className="sm:w-44">
           <Input type="date" value={list.filters.date_from ?? ""} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">{t("projects.filter.dateTo")}</Label>
+        </FilterField>
+        <FilterField label={t("projects.filter.dateTo")} className="sm:w-44">
           <Input type="date" value={list.filters.date_to ?? ""} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">{t("projects.filter.responsible")}</Label>
+        </FilterField>
+        <FilterField label={t("projects.filter.responsible")} className="sm:w-56">
           <Input
             value={list.filters.responsible ?? ""}
             placeholder={t("projects.filter.responsiblePlaceholder")}
             onChange={(event) => list.setFilter("responsible", event.target.value || undefined)}
           />
-        </div>
-      </div>
+        </FilterField>
+      </FilterBar>
 
       <DataTable
         columns={columns}

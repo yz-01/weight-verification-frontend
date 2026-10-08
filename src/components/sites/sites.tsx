@@ -207,9 +207,9 @@ export function Sites() {
         subtitle={isLoading ? "—" : t("sites.count", { count: totalCount })}
         action={
           can("yard.manage") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/sites/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("sites.new")}
               </Link>
             </Button>

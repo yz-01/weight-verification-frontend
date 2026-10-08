@@ -157,7 +157,7 @@ export function CreateVehicle({ vehicle }: { vehicle?: Vehicle }) {
           )}
         </form.Field>
         {vehicle?.make_model && !vehicle.brand && !vehicle.model && (
-          <p className="rounded-lg border bg-muted/20 px-3 py-2 text-sm text-muted-foreground md:col-span-2">
+          <p className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground md:col-span-2">
             {t("vehicles.field.legacyMakeModel")}: {vehicle.make_model}
           </p>
         )}
@@ -231,8 +231,8 @@ export function CreateVehicle({ vehicle }: { vehicle?: Vehicle }) {
           optional={t("common.optional")}
           className="md:col-span-2"
         >
-          <label className="flex min-h-20 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/20 px-3 py-4 text-sm font-medium hover:border-primary/40 hover:bg-primary/5">
-            <ImageUp className="h-5 w-5 text-primary" />
+          <label className="flex min-h-20 min-w-0 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/30 px-3 py-4 text-sm font-medium hover:border-primary/40 hover:bg-primary/5">
+            <ImageUp className="size-5 text-primary" />
             <span className="truncate">{photo?.name ?? t("vehicles.field.choosePhoto")}</span>
             <Input
               className="sr-only"
@@ -288,7 +288,7 @@ function ToggleField({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex min-h-20 items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
+    <label className="flex min-h-20 items-center justify-between gap-4 rounded-lg border bg-muted/30 p-3">
       <span>
         <span className="block text-sm font-medium">{label}</span>
         <span className="mt-1 block text-xs text-muted-foreground">{description}</span>

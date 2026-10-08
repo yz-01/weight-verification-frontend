@@ -100,13 +100,13 @@ export function Vehicles() {
         accessorKey: "tare_weight_kg",
         meta: { label: t("vehicles.field.tareWeight") },
         header: () => (
-          <span className="text-xs font-semibold text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("vehicles.field.tareWeight")}
           </span>
         ),
         cell: ({ row }) =>
           row.original.has_stored_tare ? (
-            <div className="min-w-0">
+            <div className="min-w-0 text-right">
               <p className="tabular font-medium text-foreground">
                 {row.original.tare_weight_kg}
               </p>
@@ -115,7 +115,7 @@ export function Vehicles() {
               </p>
             </div>
           ) : (
-            <span className="text-xs italic text-muted-foreground">
+            <span className="block text-right text-xs italic text-muted-foreground">
               {t("vehicles.noTare")}
             </span>
           ),
@@ -219,9 +219,9 @@ export function Vehicles() {
         subtitle={isLoading ? "—" : t("vehicles.count", { count: totalCount })}
         action={
           can("fleet.manage") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/vehicles/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("vehicles.new")}
               </Link>
             </Button>
@@ -324,8 +324,8 @@ function TareDialog({
           <DialogDescription>{vehicle.plate_no}</DialogDescription>
         </DialogHeader>
 
-        <p className="flex items-start gap-2 rounded-md bg-warning/12 px-3 py-2 text-xs text-warning">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+        <p className="flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+          <Info className="mt-0.5 size-3.5 shrink-0" />
           {t("vehicles.tare.description")}
         </p>
 
@@ -356,20 +356,16 @@ function TareDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             {t("common.cancel")}
           </Button>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[weight, t("vehicles.tare.weight")], [reason, t("common.reason")]]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >
-            <Scale className="h-4 w-4" />
+            <Scale className="size-4" />
             {t("vehicles.tare.confirm")}
           </Button>
         </DialogFooter>

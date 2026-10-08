@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -127,7 +128,7 @@ export function Drivers() {
               }
               title={expired ? t("drivers.licenceExpired") : undefined}
             >
-              {expired && <TriangleAlert className="h-3.5 w-3.5" />}
+              {expired && <TriangleAlert className="size-3.5" />}
               <span className="tabular">{df.date(expiry)}</span>
             </span>
           );
@@ -205,9 +206,9 @@ export function Drivers() {
         subtitle={isLoading ? "—" : t("drivers.count", { count: totalCount })}
         action={
           can("fleet.manage") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/drivers/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("drivers.new")}
               </Link>
             </Button>
@@ -215,15 +216,15 @@ export function Drivers() {
         }
       />
 
-      <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {(["total", "online", "on_task", "available", "on_leave", "inactive"] as const).map(
           (key) => (
-            <div key={key} className="rounded-lg border bg-card px-3 py-2.5">
-              <p className="text-xs text-muted-foreground">{t(`drivers.summary.${key}`)}</p>
-              <p className="mt-1 text-xl font-semibold tabular-nums">
-                {summary.data?.[key] ?? "—"}
-              </p>
-            </div>
+            <KpiCard
+              key={key}
+              size="sm"
+              label={t(`drivers.summary.${key}`)}
+              value={summary.data?.[key] ?? "—"}
+            />
           ),
         )}
       </div>

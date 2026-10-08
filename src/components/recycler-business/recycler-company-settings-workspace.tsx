@@ -139,36 +139,36 @@ export function RecyclerCompanySettingsWorkspace() {
     setSettingsDraft((current) => ({ ...current, [key]: value }));
 
   return (
-    <div className="space-y-7 pb-8">
+    <div className="space-y-4 pb-8">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
 
       <section className="space-y-3">
         <SectionHeading icon={Building2} title={t("profile.title")} description={t("profile.help")} />
-        <div className="grid gap-5 border bg-card p-4 lg:grid-cols-[150px_minmax(0,1fr)]">
+        <div className="surface-panel grid gap-6 rounded-xl p-4 sm:p-6 lg:grid-cols-[150px_minmax(0,1fr)]">
           <div className="space-y-3">
-            <div className="grid aspect-square place-items-center overflow-hidden rounded-md border bg-muted/30">
+            <div className="grid aspect-square place-items-center overflow-hidden rounded-lg border bg-muted/30">
               {profile.logo ? <img src={profile.logo} alt={profile.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
             </div>
             {canManage && (
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted">
+              <label className="flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
                 <ImageUp className="size-4" />
                 <span className="truncate">{logoFile?.name || t("profile.logo")}</span>
                 <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} />
               </label>
             )}
             {/* C12: every company sets its own background, recyclers too. */}
-            <div className="grid aspect-video place-items-center overflow-hidden rounded-md border bg-muted/30">
+            <div className="grid aspect-video place-items-center overflow-hidden rounded-lg border bg-muted/30">
               {profile.background_image ? <img src={profile.background_image} alt={t("profile.background")} className="h-full w-full object-cover" /> : <ImageUp className="size-7 text-muted-foreground" />}
             </div>
             {canManage && (
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted">
+              <label className="flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
                 <ImageUp className="size-4" />
                 <span className="truncate">{backgroundFile?.name || t("profile.background")}</span>
                 <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setBackgroundFile(event.target.files?.[0] ?? null)} />
               </label>
             )}
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid min-w-0 grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-2">
             <FieldWrapper label={t("profile.name")} required><Input disabled={!canManage} value={profile.name} onChange={(event) => setProfileDraft((current) => ({ ...current, name: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("profile.registration")}><Input disabled={!canManage} value={profile.registration_no} onChange={(event) => setProfileDraft((current) => ({ ...current, registration_no: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("profile.taxId")}><Input disabled={!canManage} value={profile.tax_id} onChange={(event) => setProfileDraft((current) => ({ ...current, tax_id: event.target.value }))} /></FieldWrapper>
@@ -187,17 +187,17 @@ export function RecyclerCompanySettingsWorkspace() {
       <section className="space-y-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <SectionHeading icon={Banknote} title={t("bank.title")} description={t("bank.help")} />
-          {canManage && <Button size="sm" onClick={() => setBankEditing(null)}><Plus />{t("bank.add")}</Button>}
+          {canManage && <Button onClick={() => setBankEditing(null)}><Plus />{t("bank.add")}</Button>}
         </div>
-        <div className="divide-y overflow-hidden border bg-card">
+        <div className="surface-panel divide-y overflow-hidden rounded-xl">
           {bankAccounts.isError ? (
             <LoadFailed onRetry={() => void bankAccounts.refetch()} />
           ) : bankAccounts.isLoading ? (
-            <p className="p-4 text-sm text-muted-foreground">{t("state.loading")}</p>
+            <p className="p-4 text-sm text-muted-foreground sm:px-6">{t("state.loading")}</p>
           ) : (bankAccounts.data?.results ?? []).length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">{t("bank.empty")}</p>
+            <p className="p-6 text-center text-sm text-muted-foreground">{t("bank.empty")}</p>
           ) : (bankAccounts.data?.results ?? []).map((account) => (
-            <div key={account.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <div key={account.id} className="flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold">{account.bank_name}</span>
@@ -227,7 +227,7 @@ export function RecyclerCompanySettingsWorkspace() {
 
       <section className="space-y-3">
         <SectionHeading icon={ShieldCheck} title={t("business.title")} description={t("business.help")} />
-        <div className="grid gap-4 border bg-card p-4 lg:grid-cols-3">
+        <div className="surface-panel grid grid-cols-1 gap-4 rounded-xl p-4 sm:p-6 lg:grid-cols-3">
           <FieldWrapper label={t("business.deduction")}>
             <Input disabled={!canManage} type="number" min="0" step="0.001" value={settings.deduction_confirmation_kg} onChange={(event) => setSetting("deduction_confirmation_kg", event.target.value)} />
           </FieldWrapper>
@@ -239,7 +239,7 @@ export function RecyclerCompanySettingsWorkspace() {
 
       <section className="space-y-3">
         <SectionHeading icon={Scale} title={t("commission.title")} description={t("commission.help")} />
-        <div className="grid gap-4 border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="surface-panel grid grid-cols-1 gap-4 rounded-xl p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
           {settings.commission ? (
             <>
               <ReadOnly label={t("commission.rule")} value={settings.commission.name} />
@@ -261,11 +261,11 @@ export function RecyclerCompanySettingsWorkspace() {
 
       <section className="space-y-3">
         <SectionHeading icon={ShieldCheck} title={t("links.title")} description={t("links.help")} />
-        <div className="grid overflow-hidden border bg-card sm:grid-cols-2 xl:grid-cols-3">
+        <div className="surface-panel grid overflow-hidden rounded-xl sm:grid-cols-2 xl:grid-cols-3">
           {links.map(({ href, icon: Icon, label, help }) => (
-            <Link key={href} href={href} className="flex min-h-24 items-center gap-3 border-b border-r p-4 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary">
-              <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Icon className="size-5" /></span>
-              <span><span className="block font-semibold">{label}</span><span className="mt-1 block text-sm leading-5 text-muted-foreground">{help}</span></span>
+            <Link key={href} href={href} className="flex min-h-24 items-center gap-3 border-b border-r border-panel-border p-4 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:px-6">
+              <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-5" /></span>
+              <span className="min-w-0"><span className="block font-semibold">{label}</span><span className="mt-1 block text-sm leading-5 text-muted-foreground">{help}</span></span>
             </Link>
           ))}
         </div>
@@ -316,23 +316,23 @@ function BankAccountDialog({ account, onClose, onSaved }: { account: CompanyBank
     <FieldWrapper label={t("bank.branch")}><Input value={draft.branch ?? ""} onChange={(event) => set("branch", event.target.value)} /></FieldWrapper>
     <FieldWrapper label={t("bank.accountName")} required><Input value={draft.account_name} onChange={(event) => set("account_name", event.target.value)} /></FieldWrapper>
     <FieldWrapper label={t("bank.accountNumber")} required={!account} hint={account ? t("bank.numberKeep") : undefined}><Input inputMode="numeric" value={draft.account_number} onChange={(event) => set("account_number", event.target.value)} /></FieldWrapper>
-    <FieldWrapper label={t("bank.accountType")}><select className="h-10 w-full rounded-md border bg-background px-3" value={draft.account_type} onChange={(event) => set("account_type", event.target.value)}><option value="CURRENT">{t("bank.type.CURRENT")}</option><option value="SAVINGS">{t("bank.type.SAVINGS")}</option></select></FieldWrapper>
+    <FieldWrapper label={t("bank.accountType")}><select className="native-control" value={draft.account_type} onChange={(event) => set("account_type", event.target.value)}><option value="CURRENT">{t("bank.type.CURRENT")}</option><option value="SAVINGS">{t("bank.type.SAVINGS")}</option></select></FieldWrapper>
     <FieldWrapper label={t("bank.currency")}><Input maxLength={3} value={draft.currency ?? "MYR"} onChange={(event) => set("currency", event.target.value.toUpperCase())} /></FieldWrapper>
     <FieldWrapper className="sm:col-span-2" label={t("bank.swift")}><Input value={draft.swift_code ?? ""} onChange={(event) => set("swift_code", event.target.value.toUpperCase())} /></FieldWrapper>
   </div><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button requires={[[draft.bank_name, t("bank.bankName")], [draft.account_name, t("bank.accountName")], [Boolean(account) || draft.account_number, t("bank.accountNumber")]]} disabled={save.isPending} onClick={() => save.mutate()}><Save />{common("save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
-function SectionHeading({ icon: Icon, title, description }: { icon: typeof Building2; title: string; description: string }) {
-  return <div className="flex items-start gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Icon className="size-5" /></span><div><h2 className="font-semibold">{title}</h2><p className="mt-0.5 text-sm leading-5 text-muted-foreground">{description}</p></div></div>;
+function SectionHeading({ title, description }: { icon: typeof Building2; title: string; description: string }) {
+  return <div className="min-w-0"><h2 className="panel-title">{title}</h2><p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p></div>;
 }
 
 function Toggle({ label, help, checked, disabled, onChange }: { label: string; help: string; checked: boolean; disabled: boolean; onChange: (value: boolean) => void }) {
-  return <label className="flex min-h-24 items-center justify-between gap-4 border bg-card p-4"><span><span className="block font-medium">{label}</span><span className="mt-1 block text-sm leading-5 text-muted-foreground">{help}</span></span><Switch checked={checked} disabled={disabled} onCheckedChange={onChange} /></label>;
+  return <label className="surface-panel flex min-h-24 items-center justify-between gap-4 rounded-xl p-4"><span className="min-w-0"><span className="block font-medium">{label}</span><span className="mt-1 block text-sm leading-5 text-muted-foreground">{help}</span></span><Switch checked={checked} disabled={disabled} onCheckedChange={onChange} /></label>;
 }
 
 function HardwareToggle({ icon: Icon, label, help, count, checked, disabled, onChange }: { icon: typeof Camera; label: string; help: string; count: number; checked: boolean; disabled: boolean; onChange: (value: boolean) => void }) {
   const t = useTranslations("recyclerCompanySettings");
-  return <div className="flex items-start justify-between gap-4"><div className="flex min-w-0 gap-3"><Icon className="mt-0.5 size-5 shrink-0 text-primary" /><div><div className="flex flex-wrap items-center gap-2"><span className="font-medium">{label}</span><StatusBadge label={t("business.deviceCount", { count })} tone={count ? "positive" : "neutral"} /></div><p className="mt-1 text-sm leading-5 text-muted-foreground">{help}</p></div></div><Switch checked={checked} disabled={disabled} onCheckedChange={onChange} /></div>;
+  return <div className="flex items-start justify-between gap-4 rounded-lg border bg-muted/30 p-3"><div className="flex min-w-0 gap-3"><Icon className="mt-0.5 size-5 shrink-0 text-primary" /><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className="font-medium">{label}</span><StatusBadge label={t("business.deviceCount", { count })} tone={count ? "positive" : "neutral"} /></div><p className="mt-1 text-sm leading-5 text-muted-foreground">{help}</p></div></div><Switch checked={checked} disabled={disabled} onCheckedChange={onChange} /></div>;
 }
 
 function ReadOnly({ label, value }: { label: string; value: string }) {
@@ -340,5 +340,5 @@ function ReadOnly({ label, value }: { label: string; value: string }) {
 }
 
 function PageState({ text, danger = false }: { text: string; danger?: boolean }) {
-  return <div className={`grid min-h-48 place-items-center border border-dashed p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}>{text}</div>;
+  return <div className={`grid min-h-48 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}>{text}</div>;
 }

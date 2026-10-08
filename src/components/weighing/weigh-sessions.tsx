@@ -60,13 +60,13 @@ export function WeighSessions() {
             {/* Attempts past the first are the point of requirement rule 8, so
                 they are visible in the list rather than buried in the detail. */}
             {row.original.attempt_no > 1 && (
-              <span className="tabular rounded-full bg-warning/12 px-1.5 py-0.5 text-[0.6875rem] font-medium text-warning ring-1 ring-inset ring-warning/25">
+              <span className="tabular rounded-full bg-warning/12 px-1.5 py-0.5 text-2xs font-medium text-warning ring-1 ring-inset ring-warning/25">
                 #{row.original.attempt_no}
               </span>
             )}
             {row.original.requires_review && (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[0.6875rem] font-medium text-destructive ring-1 ring-inset ring-destructive/25"
+                className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-1.5 py-0.5 text-2xs font-medium text-destructive ring-1 ring-inset ring-destructive/25"
                 title={t("weighing.requiresReviewHint")}
               >
                 <Flag className="h-2.5 w-2.5" />
@@ -120,22 +120,24 @@ export function WeighSessions() {
         accessorKey: "stable_weight_kg",
         meta: { label: t("weighing.field.stableWeight") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("weighing.field.stableWeight")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("weighing.field.stableWeight")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) =>
           row.original.stable_weight_kg ? (
-            <span className="tabular font-medium">
+            <span className="tabular block text-right font-medium">
               {formatter.number(Number(row.original.stable_weight_kg), {
                 maximumFractionDigits: 0,
               })}{" "}
               kg
             </span>
           ) : (
-            <span className="italic text-muted-foreground">
+            <span className="block text-right italic text-muted-foreground">
               {t("common.emptyValue")}
             </span>
           ),
@@ -144,21 +146,21 @@ export function WeighSessions() {
         accessorKey: "anomaly_count",
         meta: { label: t("weighing.field.anomalyCount") },
         header: () => (
-          <span className="text-xs font-semibold text-muted-foreground">
+          <span className="block text-right text-xs font-semibold text-muted-foreground">
             {t("weighing.field.anomalyCount")}
           </span>
         ),
         cell: ({ row }) =>
           (row.original.anomaly_count ?? 0) > 0 ? (
             // Icon plus number, never colour alone.
-            <span className="inline-flex items-center gap-1.5 text-destructive">
+            <span className="flex items-center justify-end gap-1.5 text-destructive">
               <AlertTriangle className="h-3.5 w-3.5" />
               <span className="tabular font-medium">
                 {row.original.anomaly_count}
               </span>
             </span>
           ) : (
-            <span className="tabular text-muted-foreground">0</span>
+            <span className="tabular block text-right text-muted-foreground">0</span>
           ),
       },
       {
@@ -328,9 +330,9 @@ export function WeighSessions() {
         subtitle={isLoading ? "—" : t("weighing.count", { count: totalCount })}
         action={
           can("weighing.operate") ? (
-            <Button asChild size="sm" className="rounded-full px-4">
+            <Button asChild>
               <Link href="/gate">
-                <ScanLine className="h-3.5 w-3.5" />
+                <ScanLine className="size-4" />
                 {t("gate.title")}
               </Link>
             </Button>

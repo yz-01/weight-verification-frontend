@@ -295,8 +295,8 @@ export function Recyclers() {
         subtitle={isLoading ? t("common.loading") : t("recyclers.count", { count: total })}
         action={
           can("partnership.manage") ? (
-            <Button size="sm" onClick={() => setRequestOpen(true)}>
-              <Plus className="h-4 w-4" />
+            <Button onClick={() => setRequestOpen(true)}>
+              <Plus className="size-4" />
               {t("recyclers.request.action")}
             </Button>
           ) : undefined
@@ -438,9 +438,9 @@ function RequestRecyclerDialog({
             onClick={() => request.mutate()}
           >
             {request.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Link2 className="h-4 w-4" />
+              <Link2 className="size-4" />
             )}
             {t("recyclers.request.confirm")}
           </Button>
@@ -533,9 +533,9 @@ function PartnershipProjectsDialog({
                   onClick={() => bind.mutate()}
                 >
                   {bind.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                   ) : (
-                    <Link2 className="h-4 w-4" />
+                    <Link2 className="size-4" />
                   )}
                 </Button>
               </div>
@@ -543,7 +543,7 @@ function PartnershipProjectsDialog({
             </FieldWrapper>
           )}
 
-          <div className="divide-y rounded-md border">
+          <div className="divide-y rounded-lg border">
             {current.project_bindings.length === 0 ? (
               <p className="p-6 text-center text-sm text-muted-foreground">
                 {t("recyclers.projects.empty")}
@@ -570,7 +570,7 @@ function PartnershipProjectsDialog({
                       disabled={unbind.isPending}
                       onClick={() => unbind.mutate(binding.id)}
                     >
-                      <Unlink className="h-4 w-4" />
+                      <Unlink className="size-4" />
                     </Button>
                   )}
                 </div>

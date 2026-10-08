@@ -19,11 +19,10 @@ import { useCurrentProject } from "@/components/providers/current-project-provid
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { ExportButton } from "@/components/shared/export-button";
 import { ReportSelector, useMaterialColumns } from "@/components/reports/report-selector";
-import { ListHeader, QueryFailedNote, TypeBadge } from "@/components/shared/page-primitives";
+import { FilterBar, FilterField, ListHeader, QueryFailedNote, TypeBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -164,7 +163,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <CompanyBanner scope="reports" />
       <ReportSelector summary={chosen} />
       <ListHeader
@@ -178,11 +177,10 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         ) : undefined}
       />
 
-      <div className="grid gap-3 rounded-lg border bg-card/50 p-3 shadow-sm md:grid-cols-[minmax(220px,1fr)_210px_180px_180px_auto] md:items-end">
+      <FilterBar>
         {/* Not beside the top bar's 「当前项目」, which is this filter (B13). */}
         {can("project.view") && !topBar.active && (
-          <div className="space-y-1.5">
-            <Label>{t("reports.filter.project")}</Label>
+          <FilterField label={t("reports.filter.project")} className="sm:w-64">
             <ProjectPicker
               value={list.filters.project ?? "all"}
               onValueChange={(value) =>
@@ -193,10 +191,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               allLabel={t("reports.filter.allProjects")}
               className="w-full"
             />
-          </div>
+          </FilterField>
         )}
-        <div className="space-y-1.5">
-          <Label>{t("receipts.field.manufacturer")}</Label>
+        <FilterField label={t("receipts.field.manufacturer")} className="sm:w-52">
           <SupplierDateFilter
             value={{ manufacturer: list.filters.manufacturer }}
             onChange={(next) => list.setFilter("manufacturer", next.manufacturer)}
@@ -204,9 +201,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             showDates={false}
             showManufacturer
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label>{t("reports.filter.dateFrom")}</Label>
+        </FilterField>
+        <FilterField label={t("reports.filter.dateFrom")} className="sm:w-44">
           <Input
             type="date"
             value={list.filters.date_from ?? ""}
@@ -214,9 +210,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               list.setFilter("date_from", event.target.value || undefined)
             }
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label>{t("reports.filter.dateTo")}</Label>
+        </FilterField>
+        <FilterField label={t("reports.filter.dateTo")} className="sm:w-44">
           <Input
             type="date"
             value={list.filters.date_to ?? ""}
@@ -224,7 +219,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               list.setFilter("date_to", event.target.value || undefined)
             }
           />
-        </div>
+        </FilterField>
         <Button
           variant="outline"
           disabledReason={
@@ -233,10 +228,10 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
           disabled={!list.hasFilters}
           onClick={list.clearFilters}
         >
-          <FilterX className="h-4 w-4" />
+          <FilterX className="size-4" />
           {t("reports.filter.clear")}
         </Button>
-      </div>
+      </FilterBar>
 
       {summary.isLoading ? (
         <ReportSkeleton />
@@ -375,13 +370,13 @@ function RecordsPager({
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-panel-border px-4 py-3">
       <p className="text-xs text-muted-foreground">
         {total === 0
           ? t("table.showingEmpty")
           : t("table.showing", { from, to, total })}
       </p>
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-2">
         <Select
           value={String(pageSize)}
           onValueChange={(value) => onPageSizeChange(Number(value))}
@@ -389,7 +384,7 @@ function RecordsPager({
           <SelectTrigger
             size="sm"
             aria-label={t("table.perPage")}
-            className="h-7 rounded-full text-xs"
+            className="h-9 rounded-full border-border bg-card text-xs pointer-coarse:h-10"
           >
             <SelectValue />
           </SelectTrigger>
@@ -404,12 +399,12 @@ function RecordsPager({
         <Button
           variant="outline"
           size="sm"
-          className="h-7 rounded-full px-2.5 text-xs"
+          className="h-9 rounded-full border-border bg-card px-3 text-xs pointer-coarse:h-10"
           disabledReason={page <= 1 ? t("common.alreadyFirstPage") : undefined}
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
-          <ChevronLeft className="h-3.5 w-3.5" />
+          <ChevronLeft className="size-3.5" />
           {t("table.previous")}
         </Button>
         <span className="tabular px-1 text-xs text-muted-foreground">
@@ -418,7 +413,7 @@ function RecordsPager({
         <Button
           variant="outline"
           size="sm"
-          className="h-7 rounded-full px-2.5 text-xs"
+          className="h-9 rounded-full border-border bg-card px-3 text-xs pointer-coarse:h-10"
           disabledReason={
             page >= totalPages ? t("common.alreadyLastPage") : undefined
           }
@@ -426,7 +421,7 @@ function RecordsPager({
           onClick={() => onPageChange(page + 1)}
         >
           {t("table.next")}
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="size-3.5" />
         </Button>
       </div>
     </div>
@@ -458,7 +453,7 @@ function RecordPhotos({ record }: { record: MaterialReceipt }) {
           href={photo.watermarked || photo.image}
           target="_blank"
           rel="noreferrer"
-          className="relative block size-8 overflow-hidden rounded border bg-muted"
+          className="relative block size-8 overflow-hidden rounded-md border bg-muted"
         >
           <Image
             src={photo.watermarked || photo.image}
@@ -481,10 +476,10 @@ function ReportSkeleton() {
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         {[0, 1, 2].map((value) => (
-          <Skeleton key={value} className="h-8 w-40 rounded-md" />
+          <Skeleton key={value} className="h-8 w-40 rounded-lg" />
         ))}
       </div>
-      <Skeleton className="h-72 rounded-lg" />
+      <Skeleton className="h-72 rounded-xl" />
     </div>
   );
 }
@@ -607,7 +602,7 @@ function CostReport({
 
       {data.unpriced_receipts > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
           <p>{t("materialReports.cost.incompleteWarning", { count: data.unpriced_receipts })}</p>
         </div>
       )}
@@ -699,9 +694,9 @@ function Metric({
   warning?: boolean;
 }) {
   return (
-    <div className="flex min-w-0 max-w-full items-center gap-1.5 rounded-md border bg-card px-2.5 py-1 text-sm">
+    <div className="flex min-w-0 max-w-full items-center gap-2 rounded-lg border bg-card px-3 py-1.5 text-sm">
       <Icon
-        className={cn("h-3.5 w-3.5 shrink-0", warning ? "text-warning" : "text-primary")}
+        className={cn("size-3.5 shrink-0", warning ? "text-warning" : "text-primary")}
       />
       <span className="truncate text-xs text-muted-foreground">{label}</span>
       <span className={cn("tabular font-semibold", warning && "text-warning")}>
@@ -721,8 +716,8 @@ function Metric({
  */
 function ReportTable({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="overflow-hidden surface-panel rounded-xl">
-      <h3 className="border-b px-3 py-2 text-sm font-semibold">{title}</h3>
+    <section className="surface-panel overflow-hidden rounded-xl">
+      <h3 className="panel-title border-b border-panel-border px-4 py-3">{title}</h3>
       <div className="[&_td]:px-3 [&_td]:py-1 [&_th]:h-8 [&_th]:px-3">{children}</div>
     </section>
   );
@@ -731,7 +726,7 @@ function ReportTable({ title, children }: { title: string; children: React.React
 function EmptyReport() {
   const t = useTranslations();
   return (
-    <div className="rounded-lg border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
+    <div className="rounded-xl border border-dashed border-panel-border px-6 py-16 text-center text-sm text-muted-foreground">
       {t("reports.empty")}
     </div>
   );

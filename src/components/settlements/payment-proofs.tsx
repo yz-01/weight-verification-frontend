@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
+  FilterBar,
   ListHeader,
   StatusBadge,
   TypeBadge,
@@ -109,11 +110,13 @@ export function PaymentProofs() {
         accessorKey: "total_amount",
         meta: { label: t("paymentProofs.field.totalAmount") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("paymentProofs.field.totalAmount")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("paymentProofs.field.totalAmount")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
           <div className="text-right">
@@ -151,7 +154,7 @@ export function PaymentProofs() {
           <div className="flex items-center gap-2">
             <TypeBadge label={formatter.number(row.original.payments.length)} />
             {row.original.payments.some((payment) => payment.document) && (
-              <FileText className="h-4 w-4 text-success" />
+              <FileText className="size-4 text-success" />
             )}
           </div>
         ),
@@ -200,7 +203,7 @@ export function PaymentProofs() {
         }
       />
 
-      <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
+      <FilterBar>
         {can("project.view") && (
           <ProjectPicker
             value={list.filters.project ?? "all"}
@@ -213,33 +216,33 @@ export function PaymentProofs() {
             className="w-full sm:w-65"
           />
         )}
-        <div className="space-y-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">
             {t("reports.filter.dateFrom")}
           </label>
           <Input
             type="date"
-            className="w-42.5"
+            className="w-full sm:w-44"
             value={list.filters.date_from ?? ""}
             onChange={(event) =>
               list.setFilter("date_from", event.target.value || undefined)
             }
           />
         </div>
-        <div className="space-y-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">
             {t("reports.filter.dateTo")}
           </label>
           <Input
             type="date"
-            className="w-42.5"
+            className="w-full sm:w-44"
             value={list.filters.date_to ?? ""}
             onChange={(event) =>
               list.setFilter("date_to", event.target.value || undefined)
             }
           />
         </div>
-      </div>
+      </FilterBar>
 
       <DataTable
         columns={columns}
@@ -303,11 +306,11 @@ function PaymentProofDialog({
         </DialogHeader>
 
         {settlement.payments.length === 0 ? (
-          <div className="rounded-md border border-dashed p-10 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
             {t("paymentProofs.dialog.empty")}
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-md border">
+          <div className="overflow-x-auto rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -344,7 +347,7 @@ function PaymentProofDialog({
                       {payment.document ? (
                         <Button asChild variant="outline" size="sm">
                           <a href={payment.document} target="_blank" rel="noreferrer">
-                            <FileText className="h-4 w-4" />
+                            <FileText className="size-4" />
                             {t("paymentProofs.action.openDocument")}
                           </a>
                         </Button>
@@ -365,7 +368,7 @@ function PaymentProofDialog({
           </Button>
           <Button asChild>
             <Link href={`/settlements/${settlement.id}`}>
-              <Eye className="h-4 w-4" />
+              <Eye className="size-4" />
               {t("paymentProofs.action.viewSettlement")}
             </Link>
           </Button>

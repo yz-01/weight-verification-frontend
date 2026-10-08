@@ -23,7 +23,8 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { FieldAccessManagementDialog } from "@/components/field-staff/field-access-management";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
-import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { KpiCard } from "@/components/shared/kpi-card";
+import { FilterBar, ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { UserHandoverDialog } from "@/components/users/user-handover-dialog";
 import { Input } from "@/components/ui/input";
@@ -200,9 +201,7 @@ export function Users({
         ),
         cell: ({ row }) =>
           row.original.role_name ? (
-            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
-              {row.original.role_name}
-            </span>
+            <TypeBadge label={row.original.role_name} />
           ) : (
             <span className="italic text-muted-foreground">
               {t("common.emptyValue")}
@@ -497,22 +496,20 @@ export function Users({
             <div className="flex flex-wrap justify-end gap-2">
               {canManageFieldAccess && (
                 <Button
-                  size="sm"
                   variant="outline"
-                  className="rounded-full px-4 shadow-sm"
                   onClick={() => {
                     setFieldAccessUser(null);
                     setFieldAccessOpen(true);
                   }}
                 >
-                  <Link2 className="h-4 w-4" />
+                  <Link2 className="size-4" />
                   {t("fieldAccessAdmin.action")}
                 </Button>
               )}
               {canCreateUser && (
-                <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Button asChild>
                   <Link href="/users/create">
-                    <Plus className="h-4 w-4" />
+                    <Plus className="size-4" />
                     {t("users.new")}
                   </Link>
                 </Button>
@@ -534,7 +531,7 @@ export function Users({
 
       {me?.is_platform_staff && <QueryFailedNote query={stats} what={t("users.what.stats")} />}
       {me?.is_platform_staff && (
-          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             {(
               [
                 "total",
@@ -554,14 +551,12 @@ export function Users({
                       ? stats.data?.by_audience.RECYCLER
                       : stats.data?.[key];
               return (
-                <div key={key} className="bg-card px-4 py-3">
-                  <p className="text-xs text-muted-foreground">
-                    {t(`users.summary.${key}`)}
-                  </p>
-                  <p className="mt-1 text-xl font-semibold tabular-nums">
-                    {stats.isError ? "—" : value ?? 0}
-                  </p>
-                </div>
+                <KpiCard
+                  key={key}
+                  size="sm"
+                  label={t(`users.summary.${key}`)}
+                  value={stats.isError ? "—" : value ?? 0}
+                />
               );
             })}
           </div>
@@ -569,9 +564,9 @@ export function Users({
 
       {me?.is_platform_staff && (
         <>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          <FilterBar>
             <select
-              className="h-8 rounded-md border bg-background px-2 text-sm"
+              className="native-control sm:w-48"
               value={list.filters.audience ?? ""}
               onChange={(event) =>
                 list.setFilter("audience", event.target.value || undefined)
@@ -587,9 +582,9 @@ export function Users({
                 ),
               )}
             </select>
-            <div className="space-y-1">
+            <div className="space-y-1 sm:w-56">
               <select
-                className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+                className="native-control"
                 value={list.filters.company ?? ""}
                 onChange={(event) =>
                   list.setFilter("company", event.target.value || undefined)
@@ -607,6 +602,7 @@ export function Users({
             </div>
             <Input
               type="date"
+              className="sm:w-44"
               value={list.filters.created_from ?? ""}
               onChange={(event) =>
                 list.setFilter("created_from", event.target.value || undefined)
@@ -615,13 +611,14 @@ export function Users({
             />
             <Input
               type="date"
+              className="sm:w-44"
               value={list.filters.created_to ?? ""}
               onChange={(event) =>
                 list.setFilter("created_to", event.target.value || undefined)
               }
               aria-label={t("users.filter.createdTo")}
             />
-          </div>
+          </FilterBar>
         </>
       )}
 

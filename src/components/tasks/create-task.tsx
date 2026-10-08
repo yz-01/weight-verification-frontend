@@ -358,13 +358,13 @@ function TaskForm({
         */}
         {noDriverFree && (
           <p className="flex items-start gap-2 rounded-lg border border-tone-amber/40 bg-tone-amber/10 px-3 py-2 text-xs font-medium text-tone-amber-fg md:col-span-2">
-            <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
             {t("tasks.everyDriverBusyNote")}
           </p>
         )}
 
         <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <Info className="mt-0.5 size-3.5 shrink-0" />
           {t("tasks.reassignNote")}
         </p>
 

@@ -275,9 +275,9 @@ export function Suppliers() {
           <>
             <ExportButton onExport={runExport} disabled={totalCount === 0} />
             {can("supplier.create") && (
-              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+              <Button asChild>
                 <Link href="/suppliers/create">
-                  <Plus className="h-4 w-4" />
+                  <Plus className="size-4" />
                   {t("suppliers.new")}
                 </Link>
               </Button>

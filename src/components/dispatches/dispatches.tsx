@@ -138,14 +138,16 @@ export function Dispatches() {
         accessorKey: "estimated_weight_kg",
         meta: { label: t("dispatches.field.estimatedWeight") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("dispatches.field.estimatedWeight")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("dispatches.field.estimatedWeight")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <span className="tabular text-muted-foreground">
+          <span className="tabular block text-right text-muted-foreground">
             {row.original.estimated_weight_kg ?? t("common.emptyValue")}
           </span>
         ),
@@ -298,9 +300,9 @@ export function Dispatches() {
            * permission the route already declares.
            */
           can("dispatch.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               <Link href="/dispatches/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("dispatches.new")}
               </Link>
             </Button>

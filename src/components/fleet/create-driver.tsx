@@ -222,14 +222,14 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
           )}
         </form.Field>
         <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <Info className="mt-0.5 size-3.5 shrink-0" />
           {t("drivers.vehicleRequiredHelp")}
         </p>
       </FormSection>
 
       <FormSection title={t("drivers.section.account")}>
         <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <Info className="mt-0.5 size-3.5 shrink-0" />
           {t("drivers.accountRequiredHelp")}
         </p>
 
@@ -319,8 +319,8 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
           )}
         </form.Field>
         <FieldWrapper label={t("drivers.field.licencePhoto")} optional={t("common.optional")}>
-          <label className="flex min-h-20 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/20 px-3 py-4 text-sm font-medium hover:border-primary/40 hover:bg-primary/5">
-            <ImageUp className="h-5 w-5 text-primary" />
+          <label className="flex min-h-20 min-w-0 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/30 px-3 py-4 text-sm font-medium hover:border-primary/40 hover:bg-primary/5">
+            <ImageUp className="size-5 text-primary" />
             <span className="truncate">{licencePhoto?.name ?? t("drivers.field.choosePhoto")}</span>
             <Input
               className="sr-only"
@@ -331,8 +331,8 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
           </label>
         </FieldWrapper>
         <FieldWrapper label={t("drivers.field.driverPhoto")} optional={t("common.optional")}>
-          <label className="flex min-h-20 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/20 px-3 py-4 text-sm font-medium hover:border-primary/40 hover:bg-primary/5">
-            <ImageUp className="h-5 w-5 text-primary" />
+          <label className="flex min-h-20 min-w-0 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/30 px-3 py-4 text-sm font-medium hover:border-primary/40 hover:bg-primary/5">
+            <ImageUp className="size-5 text-primary" />
             <span className="truncate">{driverPhoto?.name ?? t("drivers.field.choosePhoto")}</span>
             <Input
               className="sr-only"
@@ -398,7 +398,7 @@ function ToggleField({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex min-h-20 items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
+    <label className="flex min-h-20 items-center justify-between gap-4 rounded-lg border bg-muted/30 p-3">
       <span>
         <span className="block text-sm font-medium">{label}</span>
         <span className="mt-1 block text-xs text-muted-foreground">{description}</span>

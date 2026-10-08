@@ -112,7 +112,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
   const gateways = data?.results ?? [];
 
   return (
-    <section className="px-6 py-5">
+    <section className="p-4 sm:p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h3 className="panel-title">
           {t("gateways.title")}
@@ -121,11 +121,9 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
           <Button
             type="button"
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             onClick={() => setRegistering(true)}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="size-4" />
             {t("gateways.new")}
           </Button>
         )}
@@ -136,17 +134,17 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
       ) : isError ? (
         <LoadFailed what={t("gateways.what.list")} onRetry={() => void refetch()} />
       ) : gateways.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {t("gateways.none")}
         </p>
       ) : (
-        <div className="divide-y rounded-md border">
+        <div className="divide-y rounded-lg border">
           {gateways.map((gateway) => (
             <div
               key={gateway.id}
               className="flex flex-wrap items-center gap-3 px-4 py-3"
             >
-              <RadioTower className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <RadioTower className="size-4 shrink-0 text-muted-foreground" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-mono text-sm">{gateway.device_id}</p>
                 <p className="text-xs text-muted-foreground">
@@ -179,23 +177,23 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="rounded-full px-3 text-xs text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground"
                     onClick={() => setRotating(gateway)}
                   >
-                    <KeyRound className="h-3.5 w-3.5" />
+                    <KeyRound className="size-3.5" />
                     {t("gateways.rotate")}
                   </Button>
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="rounded-full px-3 text-xs text-destructive hover:text-destructive"
+                    className="text-destructive hover:text-destructive"
                     onClick={() => {
                       setReason("");
                       setRevoking(gateway);
                     }}
                   >
-                    <Ban className="h-3.5 w-3.5" />
+                    <Ban className="size-3.5" />
                     {t("gateways.revoke")}
                   </Button>
                 </>
@@ -225,24 +223,20 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
           <DialogFooter className="gap-2 sm:gap-2">
             <Button
               variant="outline"
-              size="sm"
-              className="rounded-full px-4"
               onClick={() => setRegistering(false)}
             >
-              <X className="h-4 w-4" />
+              <X className="size-4" />
               {t("common.cancel")}
             </Button>
             <Button
-              size="sm"
-              className="rounded-full px-4 shadow-sm"
               requires={[[deviceId, t("gateways.field.deviceId")]]}
               disabled={registration.isPending}
               onClick={() => registration.mutate()}
             >
               {registration.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
               ) : (
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
               )}
               {t("gateways.new")}
             </Button>
@@ -271,7 +265,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
             </div>
             <DialogFooter>
               <Button type="button" onClick={() => setDtu(null)}>
-                <Check className="h-4 w-4" />
+                <Check className="size-4" />
                 {t("common.close")}
               </Button>
             </DialogFooter>
@@ -347,17 +341,17 @@ function ManifestDialog({
         </DialogHeader>
         <div className="max-h-[24rem] space-y-4 overflow-auto">
           <DtuPanel dtu={manifest.dtu} />
-          <pre className="overflow-auto rounded-md border bg-muted/40 p-3 text-xs">
+          <pre className="overflow-auto rounded-lg border bg-muted/40 p-3 text-xs">
             {JSON.stringify({ ...manifest, auth: { ...manifest.auth, secret: "[shown above]" } }, null, 2)}
           </pre>
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => void copy()}>
-            <Copy className="h-4 w-4" />
+            <Copy className="size-4" />
             {copied ? t("common.copied") : t("gateways.copyManifest")}
           </Button>
           <Button type="button" onClick={onClose}>
-            <Check className="h-4 w-4" />
+            <Check className="size-4" />
             {t("common.close")}
           </Button>
         </DialogFooter>
@@ -392,7 +386,7 @@ function DtuPanel({ dtu }: { dtu: GatewayDtuBlock | undefined }) {
   }
 
   return (
-    <section className="space-y-3 rounded-md border p-3">
+    <section className="space-y-3 rounded-lg border bg-muted/30 p-3">
       <div className="flex items-center gap-2">
         <h4 className="panel-title">
           {t("gateways.dtu.title")}
@@ -440,7 +434,7 @@ function DtuPanel({ dtu }: { dtu: GatewayDtuBlock | undefined }) {
               type="button"
               variant="outline"
               size="sm"
-              className="h-7 shrink-0 rounded-full px-3 text-xs"
+              className="shrink-0"
               onClick={() => void copyCommands()}
             >
               {copied ? (
@@ -451,7 +445,7 @@ function DtuPanel({ dtu }: { dtu: GatewayDtuBlock | undefined }) {
               {copied ? t("common.copied") : t("common.copy")}
             </Button>
           </div>
-          <pre className="overflow-x-auto rounded-md border bg-muted/40 p-2 text-xs">
+          <pre className="overflow-x-auto rounded-lg border bg-muted/40 p-3 text-xs">
             {commands}
           </pre>
           {dtu.at_note && (
@@ -467,7 +461,7 @@ function DtuPanel({ dtu }: { dtu: GatewayDtuBlock | undefined }) {
         </p>
       )}
 
-      <div className="space-y-1 rounded-md border border-warning/40 bg-warning/5 p-2">
+      <div className="space-y-1 rounded-lg border border-warning/40 bg-warning/5 p-3">
         <p className="flex items-center gap-1.5 text-xs font-medium">
           <TriangleAlert className="h-3.5 w-3.5 shrink-0 text-warning" />
           {t("gateways.dtu.limitationsTitle")}
@@ -511,13 +505,13 @@ function SecretDialog({
       <DialogContent className="sm:max-w-130 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <TriangleAlert className="h-4 w-4 text-warning" />
+            <TriangleAlert className="size-4 text-warning" />
             {t("gateways.secretTitle")}
           </DialogTitle>
           <DialogDescription>{t("gateways.secretBody")}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2.5">
+        <div className="flex items-center gap-2 rounded-lg border bg-muted/40 p-3">
           <code className="min-w-0 flex-1 break-all font-mono text-xs">
             {secret}
           </code>
@@ -525,7 +519,7 @@ function SecretDialog({
             type="button"
             variant="outline"
             size="sm"
-            className="shrink-0 rounded-full px-3"
+            className="shrink-0"
             onClick={() => void copy()}
           >
             {copied ? (
@@ -539,8 +533,6 @@ function SecretDialog({
 
         <DialogFooter>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             // Closing is blocked until the secret has been copied. Clicking
             // past this dialog means a trip back to the yard to reinstall.
             disabledReason={copied ? undefined : t("common.copyFirst")}
@@ -548,7 +540,7 @@ function SecretDialog({
             title={copied ? undefined : t("common.copyFirst")}
             onClick={onClose}
           >
-            <Check className="h-4 w-4" />
+            <Check className="size-4" />
             {t("common.close")}
           </Button>
         </DialogFooter>

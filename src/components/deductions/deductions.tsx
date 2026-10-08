@@ -141,14 +141,16 @@ export function Deductions() {
         accessorKey: "weight_kg",
         meta: { label: t("deductions.field.weightKg") },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("deductions.field.weightKg")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("deductions.field.weightKg")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <span className="tabular font-medium text-foreground">
+          <span className="tabular block text-right font-medium text-foreground">
             {row.original.weight_kg}
           </span>
         ),
@@ -202,7 +204,7 @@ export function Deductions() {
                 className="inline-flex items-center gap-1 text-xs text-muted-foreground"
                 title={t("deductions.section.photos")}
               >
-                <Camera className="h-3.5 w-3.5" />
+                <Camera className="size-3.5" />
                 {row.original.photos.length}
               </span>
             )}
@@ -210,17 +212,15 @@ export function Deductions() {
               <Button
                 size="sm"
                 variant="outline"
-                className="h-7 rounded-full px-3 text-xs"
                 onClick={() => setAddingPhoto(row.original)}
               >
-                <Camera className="h-3.5 w-3.5" />
+                <Camera className="size-3.5" />
                 {t("deductions.photo.add")}
               </Button>
             )}
             {can("deduction.approve") && row.original.is_open && (
               <Button
                 size="sm"
-                className="h-7 rounded-full px-3 text-xs shadow-sm"
                 onClick={() => setAnswering(row.original)}
               >
                 {t("deductions.respond.title")}
@@ -242,7 +242,7 @@ export function Deductions() {
         subtitle={isLoading ? "—" : t("deductions.count", { count: totalCount })}
         action={
           can("deduction.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild>
               {/*
                 * `next/link`, like every other list. A plain anchor here threw
                 * the whole application away and loaded it again - the session,
@@ -251,7 +251,7 @@ export function Deductions() {
                 * open from, because a hard navigation is never intercepted.
                 */}
               <Link href="/deductions/create">
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 {t("deductions.new")}
               </Link>
             </Button>
@@ -461,7 +461,7 @@ function RespondDialog({
         </DialogHeader>
 
         <div className="max-h-[52vh] space-y-4 overflow-y-auto pr-1">
-          <div className="rounded-md border bg-muted/40 px-3 py-3">
+          <div className="rounded-lg border bg-muted/30 p-3">
             <div className="flex flex-wrap items-center gap-2">
               <TypeBadge label={t(`deductions.kind.${deduction.kind}`)} />
               <span className="text-xs text-muted-foreground">
@@ -475,14 +475,14 @@ function RespondDialog({
           {deduction.photos.length > 0 ? (
             <div className="space-y-2">
               <p className="flex items-start gap-2 text-xs text-muted-foreground">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <Info className="mt-0.5 size-3.5 shrink-0" />
                 {t("deductions.photoNote")}
               </p>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {deduction.photos.map((photo) => (
                   <div
                     key={photo.id}
-                    className="relative aspect-4/3 overflow-hidden rounded-md border bg-muted/40"
+                    className="relative aspect-4/3 overflow-hidden rounded-lg border bg-muted/40"
                   >
                     <Image
                       src={photo.watermarked || photo.image}
@@ -502,11 +502,11 @@ function RespondDialog({
             </p>
           )}
 
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <Label className="text-sm font-medium">
               {t("deductions.respond.title")}
             </Label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {choices.map((choice) => (
                 <button
                   key={choice.value}
@@ -514,11 +514,11 @@ function RespondDialog({
                   onClick={() => setDecision(choice.value)}
                   className={
                     decision === choice.value
-                      ? "flex items-center justify-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary"
-                      : "flex items-center justify-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      ? "flex min-h-10 items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary"
+                      : "flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                   }
                 >
-                  <choice.icon className="h-3.5 w-3.5" />
+                  <choice.icon className="size-4" />
                   {choice.label}
                 </button>
               ))}
@@ -547,20 +547,16 @@ function RespondDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             {t("common.cancel")}
           </Button>
           <Button
-            size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[!noteRequired || note, t("deductions.respond.note")]]}
             disabled={respond.isPending}
             onClick={() => respond.mutate()}
           >
-            <ScrollText className="h-4 w-4" />
+            <ScrollText className="size-4" />
             {t("common.confirm")}
           </Button>
         </DialogFooter>

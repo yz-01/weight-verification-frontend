@@ -69,20 +69,20 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
 
   return (
     <div className="surface-panel rounded-xl">
-      <div className="flex items-start justify-between gap-4 px-6 py-5">
+      <div className="flex flex-wrap items-start justify-between gap-4 p-4 sm:px-6 sm:py-5">
         <div className="min-w-0">
-          <h3 className="text-base font-semibold">{t("qrCodes.title")}</h3>
+          <h3 className="panel-title">{t("qrCodes.title")}</h3>
           <p className="mt-1 text-sm text-muted-foreground">{t("qrCodes.description")}</p>
         </div>
         {can("receipt.create") && (
-          <Button size="sm" className="shrink-0" onClick={() => setIssuing(true)}>
+          <Button className="shrink-0" onClick={() => setIssuing(true)}>
             <Plus />
             {t("qrCodes.new")}
           </Button>
         )}
       </div>
 
-      <div className="divide-y border-t">
+      <div className="divide-y border-t border-panel-border">
         {isLoading ? (
           <div className="grid min-h-32 place-items-center text-muted-foreground">
             <Loader2 className="size-5 animate-spin" />
@@ -90,12 +90,12 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
         ) : isError ? (
           <LoadFailed className="m-4" what={t("qrCodes.what.notes")} onRetry={() => void refetch()} />
         ) : rows.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-muted-foreground">
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground sm:px-6">
             {t("qrCodes.count", { count: 0 })}
           </p>
         ) : (
           rows.map((row) => (
-            <div key={row.id} className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div key={row.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <div className="min-w-0">
                 <p className="font-medium">{row.note_no}</p>
                 <p className="truncate text-sm text-muted-foreground">
@@ -305,7 +305,7 @@ function IssueDeliveryNoteDialog({
             <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
           </FieldWrapper>
         </div>
-        {errors.form && <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{errors.form}</p>}
+        {errors.form && <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{errors.form}</p>}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
           <Button disabled={creation.isPending || suppliers.isLoading} onClick={submit}>

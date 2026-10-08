@@ -154,16 +154,14 @@ export function DetectionSettings() {
         action={
           editable ? (
             <Button
-              size="sm"
-              className="rounded-full px-4 shadow-sm"
               disabledReason={changed.length === 0 ? t("common.noChanges") : undefined}
               disabled={changed.length === 0 || publish.isPending}
               onClick={() => setConfirming(true)}
             >
               {publish.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
               ) : (
-                <Upload className="h-4 w-4" />
+                <Upload className="size-4" />
               )}
               {t("weighingRules.publish")}
             </Button>
@@ -172,7 +170,7 @@ export function DetectionSettings() {
       />
 
       <div className="surface-panel rounded-xl">
-        <div className="flex flex-wrap items-center gap-3 px-6 py-5">
+        <div className="flex flex-wrap items-center gap-3 px-4 py-4 sm:px-6 sm:py-5">
           {active && (
             <>
               <TypeBadge
@@ -189,14 +187,14 @@ export function DetectionSettings() {
           )}
         </div>
 
-        <div className="border-t px-6 py-4">
+        <div className="border-t border-panel-border px-4 py-4 sm:px-6">
           {/* A page of greyed inputs with no explanation reads as broken. Say
               who owns these numbers and why the account cannot move them. */}
           <div
             className={
               editable
-                ? "flex items-start gap-2.5 rounded-md border border-info/25 bg-info/8 px-3 py-2.5"
-                : "flex items-start gap-2.5 rounded-md border border-warning/25 bg-warning/10 px-3 py-2.5"
+                ? "flex items-start gap-2 rounded-lg border border-info/25 bg-info/8 p-3"
+                : "flex items-start gap-2 rounded-lg border border-warning/25 bg-warning/10 p-3"
             }
           >
             {editable ? (
@@ -212,14 +210,14 @@ export function DetectionSettings() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-x-6 gap-y-4 border-t px-6 py-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 border-t border-panel-border px-4 py-4 sm:px-6 sm:py-5 md:grid-cols-2 lg:grid-cols-3">
           {(parameters.data ?? []).map((parameter) => {
             const current = effective[parameter.key];
             const isChanged = Number(valueOf(parameter.key)) !== current;
             const isOverridden = current !== parameter.default;
 
             return (
-              <div key={parameter.key} className="space-y-1.5">
+              <div key={parameter.key} className="min-w-0 space-y-1">
                 <Label className="flex items-center gap-1.5 text-sm font-medium">
                   {t(`weighingRules.param.${parameter.key}` as never)}
                   {isOverridden && (
@@ -252,9 +250,9 @@ export function DetectionSettings() {
         </div>
 
         {(changed.length > 0 || formError) && (
-          <div className="space-y-3 border-t px-6 py-5">
+          <div className="space-y-3 border-t border-panel-border px-4 py-4 sm:px-6 sm:py-5">
             {changed.length > 0 && (
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <Label className="text-sm font-medium">
                   {t("common.reason")}
                   <span className="ml-0.5 text-destructive">*</span>
@@ -274,15 +272,13 @@ export function DetectionSettings() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
-              className="rounded-full px-4"
               onClick={() => {
                 setOverrides({});
                 setReason("");
                 setFormError(null);
               }}
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw className="size-4" />
               {t("common.cancel")}
             </Button>
           </div>

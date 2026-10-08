@@ -32,7 +32,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
   }
 
   return (
-    <div className="overflow-hidden surface-panel rounded-xl">
+    <div className="surface-panel overflow-hidden rounded-xl">
       <div className="overflow-x-auto">
         <div className="min-w-230">
           <div className="grid grid-cols-[250px_1fr] border-b bg-muted/35 text-xs font-semibold text-muted-foreground">
@@ -134,7 +134,7 @@ export function ScheduleGantt({ tasks }: { tasks: ScheduleTask[] }) {
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-lg border border-dashed bg-muted/15 p-10 text-center text-sm text-muted-foreground">
+    <div className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
       {text}
     </div>
   );
