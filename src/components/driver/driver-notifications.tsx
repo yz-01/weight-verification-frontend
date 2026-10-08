@@ -52,10 +52,10 @@ export function DriverNotifications() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold">{t("driver.notifications.title")}</h1>
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold leading-tight">{t("driver.notifications.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("driver.notifications.outstanding", { count: outstanding })}
           </p>
@@ -63,21 +63,21 @@ export function DriverNotifications() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="rounded-lg border border-dashed px-5 py-12 text-center">
-          <Check className="mx-auto h-8 w-8 text-muted-foreground/50" />
+        <div className="rounded-xl border border-dashed border-panel-border px-4 py-12 text-center">
+          <Check className="mx-auto size-8 text-muted-foreground/50" />
           <p className="mt-3 text-sm text-muted-foreground">
             {t("driver.notifications.empty")}
           </p>
         </div>
       ) : (
-        <div className="divide-y rounded-lg border bg-card">
+        <div className="surface-panel divide-y overflow-hidden rounded-xl">
           {rows.map((notification) => (
             <article
               key={notification.id}
               className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-4 py-4"
             >
               <span
-                className={`mt-1 grid h-8 w-8 place-items-center rounded-full ${
+                className={`mt-1 grid size-8 place-items-center rounded-full ${
                   notification.is_outstanding
                     ? "bg-primary/10 text-primary"
                     : "bg-muted text-muted-foreground"
@@ -111,7 +111,6 @@ export function DriverNotifications() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="h-9 w-9"
                   title={t("driver.notifications.open")}
                   onClick={() => open(notification)}
                 >
@@ -121,7 +120,6 @@ export function DriverNotifications() {
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-9 w-9"
                     title={t("notifications.confirmDone")}
                     disabled={confirm.isPending}
                     onClick={() => confirm.mutate(notification.id)}
@@ -132,7 +130,7 @@ export function DriverNotifications() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="h-9 w-9 text-destructive"
+                  className="text-destructive"
                   title={t("driver.notifications.remove")}
                   disabled={dismiss.isPending}
                   onClick={() => dismiss.mutate(notification.id)}

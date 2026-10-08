@@ -92,7 +92,7 @@ export function RemoveSwitch({
   const t = useTranslations("consultantWorkflow");
   return (
     <label
-      className="flex items-center gap-2 rounded-md border px-2 py-1.5"
+      className="flex items-center gap-2 rounded-lg border px-2 py-1.5"
       title={t("draftEdit.armRemoveHelp")}
     >
       <Switch
@@ -181,7 +181,7 @@ export function EvidenceLinkCards({
       {links.map((link, index) => (
         <div
           key={link.id}
-          className="group min-w-0 overflow-hidden rounded-lg border bg-background"
+          className="group min-w-0 overflow-hidden rounded-lg border bg-card"
           data-evidence-link={link.id}
         >
           <button
@@ -191,7 +191,7 @@ export function EvidenceLinkCards({
             onClick={() => setViewing(index)}
             className="block w-full transition-colors hover:bg-muted/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+            <div className="photo-hatch relative aspect-[4/3] overflow-hidden">
               <Image
                 src={link.evidence_watermarked_file || link.evidence_file}
                 alt={link.caption || link.original_filename}
@@ -465,7 +465,7 @@ function AttachmentEditDialog({
           <DialogDescription>{t("draftEdit.attachmentHelp")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <p className="flex items-center gap-2 truncate rounded-md border bg-muted/30 p-2 text-sm">
+          <p className="flex items-center gap-2 truncate rounded-lg border bg-muted/30 p-3 text-sm">
             <Paperclip className="size-4 shrink-0 text-primary" />
             {attachment.original_name}
           </p>

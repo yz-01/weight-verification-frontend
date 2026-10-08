@@ -25,9 +25,9 @@ export function DriverProfile() {
 
   const driver = query.data;
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold">{t("driver.profile.title")}</h1>
+        <h1 className="text-xl font-bold leading-tight">{t("driver.profile.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("driver.profile.readOnly")}
         </p>
@@ -37,7 +37,7 @@ export function DriverProfile() {
           which is what "read only" refers to. A driver's own picture is not:
           it appears beside their deliveries, and this was the only portal
           with no way to set it. */}
-      <section className="rounded-lg border bg-card p-5">
+      <section className="surface-panel rounded-xl p-4 sm:p-6">
         <AvatarUpload />
         <div className="mt-4 border-t pt-4 text-center">
           <h2 className="text-lg font-semibold">{driver.full_name}</h2>
@@ -47,7 +47,7 @@ export function DriverProfile() {
         </div>
       </section>
 
-      <section className="divide-y rounded-lg border bg-card">
+      <section className="surface-panel divide-y overflow-hidden rounded-xl">
         <ProfileRow icon={Phone} label={t("users.field.phone")} value={driver.phone} />
         <ProfileRow
           icon={IdCard}
@@ -89,7 +89,7 @@ function ProfileRow({
 }) {
   return (
     <div className="flex min-h-16 items-center gap-3 px-4 py-3">
-      <Icon className="h-5 w-5 shrink-0 text-primary" />
+      <Icon className="size-5 shrink-0 text-primary" />
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="mt-0.5 break-words text-sm font-medium">{value}</p>

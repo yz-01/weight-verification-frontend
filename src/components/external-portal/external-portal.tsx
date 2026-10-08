@@ -67,24 +67,24 @@ export function ExternalPortal({ token }: { token: string }) {
   }, [token]);
 
   if (error) {
-    return <main className="mx-auto max-w-3xl px-5 py-16"><h1 className="text-xl font-semibold">{t("externalPortal.invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("externalPortal.invalidBody")}</p></main>;
+    return <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6"><h1 className="text-xl font-semibold">{t("externalPortal.invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("externalPortal.invalidBody")}</p></main>;
   }
   if (!data) {
-    return <main className="mx-auto max-w-3xl px-5 py-16 text-sm text-muted-foreground">{t("common.loading")}</main>;
+    return <main className="mx-auto max-w-3xl px-4 py-16 text-sm text-muted-foreground sm:px-6">{t("common.loading")}</main>;
   }
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
-      <header className="border-b pb-5">
+    <main className="mx-auto max-w-5xl space-y-4 px-4 py-8 sm:px-6">
+      <header className="border-b pb-4">
         <p className="text-xs font-medium text-muted-foreground">{data.grant.company_name}</p>
         <h1 className="mt-2 text-2xl font-semibold">{data.grant.name}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{t("externalPortal.expiry", { date: new Date(data.grant.expires_at).toLocaleString() })}</p>
       </header>
 
       {data.project && (
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold">{t("externalPortal.project")}</h2>
-          <div className="grid gap-3 border-y py-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="surface-panel space-y-4 rounded-xl p-4 sm:p-6">
+          <h2 className="panel-title">{t("externalPortal.project")}</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Value label={t("externalPortal.field.code")} value={data.project.code} />
             <Value label={t("externalPortal.field.name")} value={data.project.name} />
             <Value label={t("externalPortal.field.status")} value={data.project.status} />
@@ -134,13 +134,13 @@ export function ExternalPortal({ token }: { token: string }) {
 function ExternalSection({ title, empty, children }: { title: string; empty: boolean; children: React.ReactNode }) {
   const t = useTranslations();
   return (
-    <section className="space-y-3">
-      <h2 className="text-sm font-semibold">{title}</h2>
-      {empty ? <p className="border-y py-8 text-center text-sm text-muted-foreground">{t("common.emptyValue")}</p> : <ul className="border-y">{children}</ul>}
+    <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6">
+      <h2 className="panel-title">{title}</h2>
+      {empty ? <p className="rounded-lg border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">{t("common.emptyValue")}</p> : <ul>{children}</ul>}
     </section>
   );
 }
 
 function Value({ label, value }: { label: string; value: string }) {
-  return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-sm font-medium">{value || "—"}</p></div>;
+  return <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="mt-1 break-words text-sm font-medium">{value || "—"}</p></div>;
 }

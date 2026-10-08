@@ -238,9 +238,9 @@ function FieldAccessManagementContent({
         </DialogHeader>
 
         {result ? (
-          <div className="grid gap-4 sm:grid-cols-[200px_minmax(0,1fr)]">
+          <div className="grid gap-4 sm:grid-cols-[12.5rem_minmax(0,1fr)]">
             <div className="grid content-start justify-center gap-2">
-              <div className="grid size-50 place-items-center rounded-md border bg-paper p-2">
+              <div className="grid size-50 place-items-center rounded-lg border bg-paper p-2">
                 <QRCodeCanvas
                   value={result.activation_url}
                   size={180}
@@ -256,7 +256,7 @@ function FieldAccessManagementContent({
 
             <div className="min-w-0 space-y-4">
               <FieldWrapper label={t("activationLink")}>
-                <div className="flex items-start gap-2 rounded-md border bg-muted/30 p-3">
+                <div className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3">
                   <code className="min-w-0 flex-1 break-all text-xs leading-5">
                     {result.activation_url}
                   </code>
@@ -273,7 +273,7 @@ function FieldAccessManagementContent({
 
               <FieldWrapper label={t("pin")}>
                 <div className="flex items-center gap-2">
-                  <div className="min-w-0 flex-1 rounded-md border bg-muted/30 px-4 py-3 text-center font-mono text-2xl font-semibold tabular-nums tracking-[0.2em]">
+                  <div className="min-w-0 flex-1 rounded-lg border bg-muted/30 px-4 py-3 text-center font-mono text-2xl font-semibold tabular-nums tracking-[0.2em]">
                     {result.pin}
                   </div>
                   <Button
@@ -287,7 +287,7 @@ function FieldAccessManagementContent({
                 </div>
               </FieldWrapper>
 
-              <div className="grid gap-3 rounded-md border px-3 py-2 text-sm sm:grid-cols-2">
+              <div className="grid gap-3 rounded-lg border px-3 py-2 text-sm sm:grid-cols-2">
                 <div>
                   <p className="font-medium">{t("linkExpiresAt")}</p>
                   <p className="mt-1 text-muted-foreground">
@@ -355,7 +355,7 @@ function FieldAccessManagementContent({
                 />
               </FieldWrapper>
             ) : initialUser ? (
-              <div className="rounded-md border bg-muted/20 px-3 py-2.5 sm:col-span-2">
+              <div className="rounded-lg border bg-muted/20 px-3 py-2.5 sm:col-span-2">
                 <p className="text-sm font-medium">{initialUser.full_name}</p>
               </div>
             ) : (
@@ -395,7 +395,7 @@ function FieldAccessManagementContent({
               >
                 <div
                   className={cn(
-                    "flex h-8 overflow-hidden rounded-lg border border-input bg-transparent focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
+                    "flex h-10 overflow-hidden rounded-lg border border-input bg-field pointer-coarse:h-11 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
                     fieldErrors?.fieldError("phone") &&
                       "border-destructive ring-3 ring-destructive/20",
                   )}
@@ -467,7 +467,7 @@ function FieldAccessManagementContent({
               </FieldWrapper>
             )}
             {mode === "existing" && (
-              <p className="rounded-md border border-info/25 bg-info/8 px-3 py-2.5 text-sm text-foreground sm:col-span-2">
+              <p className="rounded-lg border border-info/25 bg-info/8 px-3 py-2.5 text-sm text-foreground sm:col-span-2">
                 {t("existingHelp")}
               </p>
             )}
@@ -480,7 +480,7 @@ function FieldAccessManagementContent({
               >
                 <div
                   className={cn(
-                    "max-h-56 overflow-y-auto rounded-md border",
+                    "max-h-56 overflow-y-auto rounded-lg border",
                     fieldErrors?.fieldError("project_ids") &&
                       "border-destructive",
                   )}
@@ -527,7 +527,7 @@ function FieldAccessManagementContent({
         )}
 
         {mode === "existing" && existingUserId && !result && (
-          <div className="rounded-md border border-destructive/25 bg-destructive/5 p-3">
+          <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-3">
             <p className="text-sm font-medium">{t("unbind.title")}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {t("unbind.help")}

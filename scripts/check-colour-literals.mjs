@@ -51,7 +51,6 @@ const ALLOWED = new Map([
   ["components/shared/file-preview.tsx", [2, "Video frames are black and PDF frames white, as the media itself is, in every mode."]],
   ["components/field-staff/supplier-qr-scanner.tsx", [3, "Camera viewfinder: black frame, the white scan window and the dimmed surround over the live picture."]],
   ["components/site-access/gate-qr-scanner.tsx", [3, "Camera viewfinder: black frame, the white scan window and the dimmed surround over the live picture."]],
-  ["components/field-staff/field-staff-workspace.tsx", [1, "The phone header's soft drop shadow (p41): a shadow, the same in both modes."]],
   ["components/consultant-workflow/application-detail.tsx", [5, "Owned by the record-detail package (p45), not converted here: white digits on the step circles. A ceiling, not an exact count, so that package converting them does not trip this check.", "ceiling"]],
 ]);
 

@@ -156,11 +156,11 @@ export function FieldInstallReady({
   };
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-5 py-10">
-      <span className="flex size-20 items-center justify-center rounded-full bg-primary/10 text-primary">
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 py-10">
+      <span className="flex size-20 items-center justify-center rounded-full border border-panel-border bg-primary/10 text-primary shadow-glow-sm">
         <Camera className="size-10" />
       </span>
-      <h1 className="text-base font-semibold">{t("readyTitle")}</h1>
+      <h1 className="text-center text-xl font-bold leading-tight">{t("readyTitle")}</h1>
       <p className="max-w-sm text-center text-sm text-muted-foreground">
         {t("readyBody")}
       </p>
@@ -196,7 +196,7 @@ export function FieldInstallReady({
           />
         </Button>
         {guideVisible && (
-          <div className="rounded-lg border bg-card p-4 text-sm shadow-sm">
+          <div className="surface-panel rounded-xl p-4 text-sm">
             <p className="flex items-center gap-2 font-semibold">
               <GuidanceIcon className="size-4 text-primary" />
               {guidance.title}
@@ -205,7 +205,7 @@ export function FieldInstallReady({
               {guidance.body}
             </p>
             {installStatus === "unavailable" && supportsNativePrompt && (
-              <p className="mt-3 rounded-md bg-warning/10 px-3 py-2 leading-5 text-warning-foreground">
+              <p className="mt-3 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 leading-5 text-warning">
                 {t("installUnavailable")}
               </p>
             )}

@@ -62,9 +62,9 @@ export function DriverDashboard() {
       : "online";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold text-foreground">
+        <h1 className="text-xl font-bold leading-tight text-foreground">
           {t("driver.dashboard.title")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -86,18 +86,18 @@ export function DriverDashboard() {
         aria-labelledby="driver-current-task"
       >
         <div className="flex items-center justify-between gap-3">
-          <h2 id="driver-current-task" className="text-sm font-semibold">
+          <h2 id="driver-current-task" className="panel-title">
             {t("driver.dashboard.currentTask")}
           </h2>
-          <Link href="/driver/jobs" className="text-sm font-medium text-primary">
+          <Link href="/driver/jobs" className="inline-flex min-h-11 items-center text-sm font-medium text-primary">
             {t("driver.dashboard.allJobs")}
           </Link>
         </div>
         {current ? (
           <CurrentTask task={current} />
         ) : (
-          <div className="rounded-lg border border-dashed px-5 py-10 text-center">
-            <ClipboardList className="mx-auto h-8 w-8 text-muted-foreground/50" />
+          <div className="rounded-xl border border-dashed border-panel-border px-4 py-10 text-center">
+            <ClipboardList className="mx-auto size-8 text-muted-foreground/50" />
             <p className="mt-3 text-sm text-muted-foreground">
               {t("driver.nothingAssigned")}
             </p>
@@ -106,7 +106,7 @@ export function DriverDashboard() {
       </section>
 
       <section className="space-y-3" aria-labelledby="driver-quick-actions">
-        <h2 id="driver-quick-actions" className="text-sm font-semibold">
+        <h2 id="driver-quick-actions" className="panel-title">
           {t("driver.dashboard.quickActions")}
         </h2>
         <div className="grid grid-cols-2 gap-2">
@@ -133,22 +133,22 @@ export function DriverDashboard() {
 
       <section className="space-y-3" aria-labelledby="driver-latest-notices">
         <div className="flex items-center justify-between gap-3">
-          <h2 id="driver-latest-notices" className="text-sm font-semibold">
+          <h2 id="driver-latest-notices" className="panel-title">
             {t("driver.dashboard.notifications")}
           </h2>
           <Link
             href="/driver/notifications"
-            className="text-sm font-medium text-primary"
+            className="inline-flex min-h-11 items-center text-sm font-medium text-primary"
           >
             {t("notifications.viewAll")}
           </Link>
         </div>
         {notifications.length === 0 ? (
-          <p className="rounded-lg border border-dashed px-4 py-7 text-center text-sm text-muted-foreground">
+          <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
             {t("notifications.nothingOutstanding")}
           </p>
         ) : (
-          <div className="divide-y rounded-lg border bg-card">
+          <div className="surface-panel divide-y overflow-hidden rounded-xl">
             {notifications.map((notification) => {
               const taskId =
                 typeof notification.data.task_id === "string"
@@ -158,9 +158,9 @@ export function DriverDashboard() {
                 <Link
                   key={notification.id}
                   href={taskId ? `/driver/${taskId}` : "/driver/notifications"}
-                  className="flex min-w-0 items-start gap-3 px-4 py-3 active:bg-muted"
+                  className="flex min-h-14 min-w-0 items-start gap-3 px-4 py-3 active:bg-muted"
                 >
-                  <Bell className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <Bell className="mt-0.5 size-4 shrink-0 text-primary" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">
                       {notification.title}
@@ -178,10 +178,10 @@ export function DriverDashboard() {
       </section>
 
       <section data-dashboard-overview aria-labelledby="driver-today-counts">
-        <h2 id="driver-today-counts" className="mb-3 text-sm font-semibold">
+        <h2 id="driver-today-counts" className="panel-title mb-3">
           {t("driver.dashboard.today")}
         </h2>
-        <div className="grid grid-cols-3 divide-x rounded-lg border bg-card">
+        <div className="surface-panel grid grid-cols-3 divide-x rounded-xl">
           <Count label={t("driver.dashboard.pending")} value={counts.pending} />
           <Count label={t("driver.dashboard.inProgress")} value={counts.in_progress} />
           <Count label={t("driver.dashboard.completed")} value={counts.completed} />
@@ -189,10 +189,10 @@ export function DriverDashboard() {
       </section>
 
       <section className="space-y-3" aria-labelledby="driver-device-status">
-        <h2 id="driver-device-status" className="text-sm font-semibold">
+        <h2 id="driver-device-status" className="panel-title">
           {t("driver.dashboard.status")}
         </h2>
-        <div className="divide-y rounded-lg border bg-card">
+        <div className="surface-panel divide-y overflow-hidden rounded-xl">
           <StatusRow
             icon={CircleDot}
             label={t("driver.dashboard.workStatus")}
@@ -214,7 +214,7 @@ export function DriverDashboard() {
             positive={gpsStatus === "granted"}
             action={
               gpsStatus !== "granted" ? (
-                <Button size="sm" variant="outline" onClick={() => void requestGps()}>
+                <Button variant="outline" onClick={() => void requestGps()}>
                   {t("driver.device.enable")}
                 </Button>
               ) : undefined
@@ -236,7 +236,7 @@ export function DriverDashboard() {
 function Count({ label, value }: { label: string; value: number }) {
   return (
     <div className="min-w-0 px-2 py-4 text-center">
-      <p className="text-2xl font-semibold tabular-nums">{value}</p>
+      <p className="kpi-figure text-2xl text-foreground">{value}</p>
       <p className="mt-1 text-xs text-muted-foreground">{label}</p>
     </div>
   );
@@ -310,7 +310,7 @@ function QuickAction({
   label: string;
 }) {
   const className =
-    "flex min-h-16 items-center gap-3 rounded-lg border bg-card px-4 text-left text-sm font-medium active:bg-muted";
+    "surface-panel flex min-h-16 min-w-0 items-center gap-3 rounded-xl px-4 text-left text-sm font-medium transition-colors hover:border-primary/50 active:bg-muted";
   if (external) {
     return (
       <a href={href} target="_blank" rel="noreferrer" className={className}>

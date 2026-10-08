@@ -258,7 +258,7 @@ export function ConsultantAccessManagement() {
   ].filter((value): value is string => Boolean(value));
 
   return (
-    <div className="space-y-5 pb-10">
+    <div className="space-y-4 pb-10">
       <DetailHeader
         backHref="/modules/consultants"
         backLabel={t("back")}
@@ -266,7 +266,7 @@ export function ConsultantAccessManagement() {
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
 
       {failedSections.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center">
           <AlertCircle className="size-5 shrink-0 text-destructive" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-destructive">{t("error.title")}</p>
@@ -320,7 +320,7 @@ export function ConsultantAccessManagement() {
             description={t("organization.subtitle")}
             action={
               can("user.create") ? (
-                <Button size="sm" onClick={() => setOrganizationDialog(null)}>
+                <Button onClick={() => setOrganizationDialog(null)}>
                   <Plus /> {t("organization.add")}
                 </Button>
               ) : null
@@ -395,7 +395,6 @@ export function ConsultantAccessManagement() {
             action={
               can("user.create") ? (
                 <Button
-                  size="sm"
                   disabled={!organizationRows.some((row) => row.is_active)}
                   onClick={() => setInviteOpen(true)}
                 >
@@ -457,7 +456,6 @@ export function ConsultantAccessManagement() {
             action={
               can("project.assign") ? (
                 <Button
-                  size="sm"
                   disabledReason={
                     !memberRows.length
                       ? t("grant.needsConsultants")
@@ -629,8 +627,8 @@ function SectionToolbar({
 }) {
   return (
     <div className="mb-4 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h2 className="text-base font-semibold">{title}</h2>
+      <div className="min-w-0">
+        <h2 className="panel-title">{title}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
       {action}
@@ -653,7 +651,7 @@ function LoadingState({
     return <div className="grid min-h-40 place-items-center"><Loader2 className="animate-spin text-primary" /></div>;
   }
   if (empty) {
-    return <div className="rounded-lg border border-dashed bg-muted/15 p-10 text-center text-sm text-muted-foreground">{emptyText}</div>;
+    return <div className="rounded-xl border border-dashed border-panel-border p-10 text-center text-sm text-muted-foreground">{emptyText}</div>;
   }
   return children;
 }
@@ -748,10 +746,10 @@ function OrganizationDialog({
                   src={shownLogo}
                   alt={t("organization.logo")}
                   data-testid="organization-logo-preview"
-                  className="h-14 w-24 rounded-md border bg-paper object-contain p-1"
+                  className="h-14 w-24 rounded-lg border bg-paper object-contain p-1"
                 />
               ) : (
-                <span className="grid h-14 w-24 place-items-center rounded-md border border-dashed text-xs text-muted-foreground">
+                <span className="grid h-14 w-24 place-items-center rounded-lg border border-dashed text-xs text-muted-foreground">
                   {t("organization.noLogo")}
                 </span>
               )}
@@ -759,7 +757,7 @@ function OrganizationDialog({
                 type="file"
                 accept="image/png,image/jpeg"
                 aria-label={t("organization.logo")}
-                className="max-w-xs"
+                className="sm:max-w-xs"
                 onChange={(event) => {
                   setLogoFile(event.target.files?.[0] ?? null);
                   setClearLogo(false);

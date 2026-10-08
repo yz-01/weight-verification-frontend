@@ -90,13 +90,13 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-muted/30">
+    <div className="flex min-h-dvh min-w-0 flex-col overflow-x-clip bg-background">
       <DriverLiveTracker />
       {/* Sticky, because the driver's own name is how they know the phone is
           signed in as them and not as whoever used it last. */}
-      <header className="sticky top-0 z-20 border-b bg-card">
-        <div className="mx-auto flex w-full max-w-lg items-center gap-3 px-4 py-3">
-          <div className="min-w-0">
+      <header className="sticky top-0 z-20 border-b border-sidebar-border bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">
+        <div className="mx-auto flex min-h-16 w-full max-w-lg items-center gap-2 px-4 py-2.5">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-foreground">
               {user.full_name}
             </p>
@@ -104,13 +104,13 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
               {user.company_name}
             </p>
           </div>
-          <div className="ml-auto flex items-center gap-1">
+          <div className="flex shrink-0 items-center gap-0.5">
             <OfflineStatus />
             <LanguageSwitcher />
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 text-muted-foreground"
+              className="size-10 text-muted-foreground"
               title={t("common.signOut")}
               onClick={() => void signOut()}
             >
@@ -124,8 +124,8 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
         <DriverInstallPrompt />
         {children}
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-        <div className="mx-auto grid w-full max-w-lg grid-cols-5">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-sidebar-border bg-background/95 pb-[env(safe-area-inset-bottom)] shadow-panel backdrop-blur">
+        <div className="mx-auto grid w-full max-w-lg grid-cols-5 gap-1 px-2">
           {[
             { href: "/driver", label: "driver.nav.home", icon: Home },
             { href: "/driver/jobs", label: "driver.nav.jobs", icon: ClipboardList },
@@ -146,11 +146,11 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-2xs font-medium ${
-                  active ? "text-primary" : "text-muted-foreground"
+                className={`flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-md px-1 text-2xs font-medium transition-colors ${
+                  active ? "text-tone-cyan-fg" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="size-5" />
                 <span className="max-w-full truncate">{t(item.label)}</span>
               </Link>
             );
@@ -177,7 +177,7 @@ export function DriverLoading() {
 export function DriverError({ onRetry }: { onRetry: () => void }) {
   const t = useTranslations();
   return (
-    <div className="rounded-xl border bg-card px-6 py-12 text-center shadow-sm">
+    <div className="surface-panel rounded-xl px-4 py-12 text-center sm:px-6">
       <p className="text-sm font-medium text-foreground">
         {t("errors.network")}
       </p>
@@ -186,7 +186,7 @@ export function DriverError({ onRetry }: { onRetry: () => void }) {
       </p>
       <Button
         size="lg"
-        className="mt-6 h-12 rounded-full px-6 shadow-sm"
+        className="mt-6"
         onClick={onRetry}
       >
         <RefreshCw className="h-4 w-4" />

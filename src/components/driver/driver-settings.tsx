@@ -108,9 +108,9 @@ export function DriverSettings() {
   const networkKey = networkStatus(sync);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold">{t("driver.settings.title")}</h1>
+        <h1 className="text-xl font-bold leading-tight">{t("driver.settings.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("driver.settings.subtitle")}
         </p>
@@ -220,7 +220,6 @@ export function DriverSettings() {
           </div>
           {sync.isOnline && sync.pendingCount > 0 && (
             <Button
-              size="sm"
               variant="outline"
               disabled={sync.isSyncing}
               onClick={() => void sync.syncNow({ includeRefused: true })}
@@ -252,7 +251,6 @@ export function DriverSettings() {
 }
 
 function SettingsSection({
-  icon: Icon,
   title,
   children,
 }: {
@@ -261,10 +259,9 @@ function SettingsSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-lg border bg-card">
-      <div className="flex items-center gap-2 border-b bg-muted/30 px-4 py-3">
-        <Icon className="h-4 w-4 text-primary" />
-        <h2 className="text-sm font-semibold">{title}</h2>
+    <section className="surface-panel overflow-hidden rounded-xl">
+      <div className="border-b px-4 py-3">
+        <h2 className="panel-title">{title}</h2>
       </div>
       <div className="divide-y">{children}</div>
     </section>
@@ -288,13 +285,13 @@ function PermissionRow({
 }) {
   return (
     <div className="flex min-h-16 items-center gap-3 px-4 py-3">
-      <Icon className={`h-5 w-5 shrink-0 ${granted ? "text-success" : "text-warning"}`} />
+      <Icon className={`size-5 shrink-0 ${granted ? "text-success" : "text-warning"}`} />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{label}</p>
         <p className="text-xs text-muted-foreground">{status}</p>
       </div>
       {!granted && (
-        <Button size="sm" variant="outline" onClick={action}>
+        <Button variant="outline" onClick={action}>
           {actionLabel}
         </Button>
       )}

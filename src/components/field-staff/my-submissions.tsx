@@ -163,9 +163,9 @@ export function MySubmissions({
   return (
     <section className="space-y-3">
       <div className="flex items-end justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold">{t("mySubmissions.title")}</h2>
-          <p className="text-sm text-muted-foreground">
+        <div className="min-w-0">
+          <h2 className="panel-title">{t("mySubmissions.title")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
             {t("mySubmissions.subtitle")}
           </p>
         </div>
@@ -190,7 +190,7 @@ export function MySubmissions({
           key={entry.id}
           type="button"
           onClick={() => setOpenQueued(entry.id)}
-          className={`w-full rounded-lg border p-3 text-left transition-colors active:bg-muted/60 ${entry.state === "retrying" ? "border-warning/40 bg-warning/5" : entry.lastError ? "border-destructive/40 bg-destructive/5" : "border-dashed"}`}
+          className={`w-full rounded-xl border p-3 text-left transition-colors active:bg-muted/60 ${entry.state === "retrying" ? "border-warning/40 bg-warning/5" : entry.lastError ? "border-destructive/40 bg-destructive/5" : "border-dashed border-panel-border"}`}
         >
           <div className="flex items-center gap-2">
             {entry.lastError ? (
@@ -233,13 +233,13 @@ export function MySubmissions({
 
       <FieldLoadNote query={queued} what={t("fieldStaffPwa.what.queued")} />
       {stored.isLoading ? (
-        <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-4 text-center text-sm text-muted-foreground">
           {t("common.loading")}
         </p>
       ) : stored.isError ? (
         <FieldLoadFailed what={t("fieldStaffPwa.what.submissions")} onRetry={() => stored.refetch()} />
       ) : rows.length === 0 && waiting.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
           {t("mySubmissions.empty")}
         </p>
       ) : (
@@ -254,7 +254,7 @@ export function MySubmissions({
               */}
               <button
                 type="button"
-                className="w-full rounded-lg border p-3 text-left transition-colors active:bg-muted/60"
+                className="surface-panel w-full rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:bg-muted/60"
                 onClick={() => {
                   if (row.kind === "HAZARD" && onOpenHazard) {
                     onOpenHazard({

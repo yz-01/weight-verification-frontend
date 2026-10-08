@@ -309,9 +309,9 @@ export function DriverTask({ id }: { id: string }) {
     <div className="space-y-4 pb-4">
       <Link
         href="/driver/jobs"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground"
+        className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="size-4" />
         {t("driver.back")}
       </Link>
 
@@ -328,7 +328,7 @@ export function DriverTask({ id }: { id: string }) {
         <TrackingBanner gpsStatus={gpsStatus} wakeLock={wakeLock} />
       )}
 
-      <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+      <div className="surface-panel space-y-3 rounded-xl p-4">
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge
             label={t(`tasks.state.${data.state}`)}
@@ -398,7 +398,7 @@ export function DriverTask({ id }: { id: string }) {
       <DriverTripMap data={data} />
 
       {data.pickup_address && (
-        <div className="rounded-lg border bg-card p-3">
+        <div className="rounded-lg border bg-muted/30 p-3">
           <p className="text-xs text-muted-foreground">
             {t("driver.pickupAddress")}
           </p>
@@ -440,7 +440,7 @@ export function DriverTask({ id }: { id: string }) {
         )}
 
       {data.weighing && (
-        <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+        <div className="surface-panel space-y-3 rounded-xl p-4">
           <div className="flex items-center gap-2">
             <h2 className="panel-title">
               {t("ticket.section.weighing")}
@@ -467,7 +467,7 @@ export function DriverTask({ id }: { id: string }) {
       )}
 
       {data.settlement && (
-        <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+        <div className="surface-panel space-y-3 rounded-xl p-4">
           <div className="flex items-center gap-2">
             <h2 className="panel-title">
               {t("driver.settlement.title")}
@@ -504,7 +504,7 @@ export function DriverTask({ id }: { id: string }) {
       )}
 
       {data.state === "DELIVERED" && (
-        <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-4">
+        <div className="rounded-xl border border-primary/25 bg-primary/5 p-4">
           <p className="text-sm font-semibold text-foreground">
             {t("driver.awaitingWeighing")}
           </p>
@@ -522,7 +522,7 @@ export function DriverTask({ id }: { id: string }) {
         </p>
       )}
 
-      <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+      <div className="surface-panel space-y-3 rounded-xl p-4">
         <div className="flex items-center justify-between gap-3">
           <h2 className="panel-title">
             {t("tasks.section.photos")}
@@ -537,7 +537,7 @@ export function DriverTask({ id }: { id: string }) {
             {data.photos.map((photo) => (
               <div
                 key={photo.id}
-                className="relative aspect-square overflow-hidden rounded-md border bg-muted/40"
+                className="photo-hatch relative aspect-square overflow-hidden rounded-lg border"
               >
                 <Image
                   src={photo.watermarked || photo.image}
@@ -557,7 +557,7 @@ export function DriverTask({ id }: { id: string }) {
              load and finds no button needs to know the trip closed rather
              than that the app is broken. The photographs above stay on
              screen: 「记录全部都要留着」 - what closes is adding to them. */
-          <p className="rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-panel-border px-4 py-3 text-sm text-muted-foreground">
             {t("driver.photosClosed")}
           </p>
         ) : (
@@ -595,7 +595,7 @@ export function DriverTask({ id }: { id: string }) {
           <Button
             variant="outline"
             size="lg"
-            className="h-12 w-full rounded-full"
+            className="h-12 w-full"
             disabled={upload.isPending}
             onClick={() => loadingInput.current?.click()}
           >
@@ -611,7 +611,7 @@ export function DriverTask({ id }: { id: string }) {
           <Button
             variant="outline"
             size="lg"
-            className="h-12 w-full rounded-full"
+            className="h-12 w-full"
             disabled={upload.isPending}
             onClick={() => gatepassInput.current?.click()}
           >
@@ -643,7 +643,7 @@ export function DriverTask({ id }: { id: string }) {
           <Button
             variant="outline"
             size="lg"
-            className="h-12 w-full rounded-full border-warning/50 text-foreground"
+            className="h-12 w-full border-warning/50 text-foreground"
             disabled={upload.isPending}
             onClick={() => issueInput.current?.click()}
           >
@@ -662,7 +662,7 @@ export function DriverTask({ id }: { id: string }) {
       </div>
 
       {data.failure_reason && (
-        <p className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {data.failure_reason}
         </p>
       )}
@@ -678,7 +678,7 @@ export function DriverTask({ id }: { id: string }) {
           button works, and pressing it ends the trip immediately with no
           second dialog (D-229). Every other step keeps the existing confirm. */}
       {forward === "DELIVERED" && (
-        <label className="flex items-center gap-3 rounded-xl border px-4 py-3">
+        <label className="surface-panel flex min-h-14 items-center gap-3 rounded-xl px-4 py-3">
           <Switch
             checked={armed}
             onCheckedChange={setArmed}
@@ -692,7 +692,7 @@ export function DriverTask({ id }: { id: string }) {
       {forward && (
         <Button
           size="lg"
-          className="h-14 w-full rounded-full text-base shadow-sm"
+          className="h-14 w-full text-base"
           disabledReason={
             forward === "LOADED" && missingForLoaded
               ? missingLabel
@@ -776,7 +776,7 @@ export function DriverTask({ id }: { id: string }) {
               <Button
                 variant="outline"
                 size="lg"
-                className="h-12 rounded-full px-6"
+                className="h-12"
                 onClick={() => {
                   setMoving(null);
                   setReason("");
@@ -787,7 +787,7 @@ export function DriverTask({ id }: { id: string }) {
               <Button
                 size="lg"
                 variant={moving === "FAILED" ? "destructive" : "default"}
-                className="h-12 rounded-full px-6 shadow-sm"
+                className="h-12"
                 requires={[[moving !== "FAILED" || reason, t("common.reason")]]}
                 disabled={advance.isPending || locating}
                 onClick={() => advance.mutate(moving)}
@@ -841,7 +841,7 @@ function TrackingBanner({
   return (
     <p
       role="status"
-      className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${tone}`}
+      className={`flex items-start gap-2 rounded-xl border p-3 text-xs font-medium ${tone}`}
     >
       <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       {message}
@@ -911,7 +911,7 @@ function DriverTripMap({ data }: { data: DriverTaskDetail }) {
       : [];
 
   return (
-    <section className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+    <section className="surface-panel space-y-3 rounded-xl p-4">
       <div className="flex items-center justify-between gap-3">
         <h2 className="panel-title">
           {t("driver.dashboard.gps")}
