@@ -29,24 +29,26 @@
  * open cards or not. Dialogs, sheets and confirm boxes open over the whole
  * page, strip included, as they always did.
  *
- * Open, it shows up to three cards side by side on a wide screen and one under
- * the other on a narrow one. Collapsed, it is one bar. A phone-sized screen
- * starts collapsed and collapses again once a card is opened, so the page it
- * leads to gets the room.
+ * Open, it is one row of every waiting card, newest first, each the same
+ * width, scrolling sideways (Lucas, 2026-10-09: 「最新的通知在第一个，然后会
+ * 显示所有待处理的事项，可是可以往右滑动查看」): a swipe on a phone, the
+ * trackpad, shift + wheel or the arrow buttons on a desktop, with the
+ * scrollbar showing. It used to show three and send the rest to My Tasks,
+ * which made the count in its title disagree with what it showed. Collapsed,
+ * it is one bar. A phone-sized screen starts collapsed and collapses again
+ * once a card is opened, so the page it leads to gets the room.
  */
 
-import { BellRing, ChevronDown, ChevronUp } from "lucide-react";
+import { BellRing, ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { pendingActionCards } from "@/components/notifications/action-cards";
 import { useTaskCardDock } from "@/components/notifications/task-card-dock";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { cn } from "@/lib/utils";
-
-const VISIBLE = 3;
 
 export function ActionCardStack({
   rows,
@@ -60,18 +62,57 @@ export function ActionCardStack({
   const dock = useTaskCardDock();
   const [collapsedAt, setCollapsedAt] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const cards = rows.filter((row) => row.card === "ACTION");
+  const cards = pendingActionCards(rows);
+  const row = useRef<HTMLDivElement | null>(null);
+  // Which way the row can still scroll; the arrow buttons show only for those.
+  const [canScroll, setCanScroll] = useState({ back: false, forward: false });
+  const measure = useCallback(() => {
+    const element = row.current;
+    if (!element) return;
+    const back = element.scrollLeft > 1;
+    const forward = element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
+    setCanScroll((current) =>
+      current.back === back && current.forward === forward ? current : { back, forward },
+    );
+  }, []);
+  // Measured when the row appears, when it is resized, when it scrolls and
+  // when the number of cards changes.
+  const rowRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      row.current = element;
+      if (!element) return;
+      measure();
+      if (typeof ResizeObserver === "undefined") return;
+      const observer = new ResizeObserver(measure);
+      observer.observe(element);
+      return () => {
+        observer.disconnect();
+        row.current = null;
+      };
+    },
+    [measure],
+  );
+  useEffect(measure, [measure, cards.length]);
   if (cards.length === 0 || !dock) return null;
-  const newest = cards.reduce((latest, row) => (row.created_at > latest ? row.created_at : latest), "");
+  const newest = cards[0].created_at;
   // A phone starts closed and stays closed until tapped; the desktop starts
   // open and reopens for anything newer than the collapse.
   const collapsed = isMobile ? !mobileOpen : collapsedAt !== null && newest <= collapsedAt;
   const toggle = () => (isMobile ? setMobileOpen(!mobileOpen) : setCollapsedAt(collapsed ? null : newest));
+  /** One card's width (and the gap) at a time, or most of a screenful. */
+  const scrollBy = (direction: 1 | -1) => {
+    const element = row.current;
+    if (!element) return;
+    const card = element.firstElementChild as HTMLElement | null;
+    const step = Math.max((card?.offsetWidth ?? 0) + 8, element.clientWidth - 64);
+    element.scrollBy({ left: direction * step, behavior: "smooth" });
+  };
+  const scrollable = canScroll.back || canScroll.forward;
 
   return createPortal(
     <aside
       aria-label={t("title")}
-      className="flex flex-col gap-2 border-t bg-muted/40 px-3 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] lg:px-5"
+      className="flex min-w-0 flex-col gap-2 border-t bg-muted/40 px-3 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] lg:px-5"
     >
       <div className="flex items-center gap-2">
         <button
@@ -95,33 +136,56 @@ export function ActionCardStack({
             <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
           )}
         </button>
-        {!collapsed && cards.length > VISIBLE && (
-          <Link
-            href="/notifications/my-tasks"
-            onClick={() => isMobile && setMobileOpen(false)}
-            className="shrink-0 text-xs font-medium text-primary hover:underline"
-          >
-            {t("more", { count: cards.length - VISIBLE })}
-          </Link>
+        {!collapsed && scrollable && !isMobile && (
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              title={t("scrollBack")}
+              aria-label={t("scrollBack")}
+              onClick={() => scrollBy(-1)}
+              className={cn(
+                "grid size-7 place-items-center rounded-md border bg-card text-muted-foreground transition hover:border-primary hover:text-primary",
+                !canScroll.back && "invisible",
+              )}
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+            <button
+              type="button"
+              title={t("scrollForward")}
+              aria-label={t("scrollForward")}
+              onClick={() => scrollBy(1)}
+              className={cn(
+                "grid size-7 place-items-center rounded-md border bg-card text-muted-foreground transition hover:border-primary hover:text-primary",
+                !canScroll.forward && "invisible",
+              )}
+            >
+              <ChevronRight className="size-4" />
+            </button>
+          </div>
         )}
       </div>
       {!collapsed && (
-        <div className="grid max-h-[40dvh] gap-2 overflow-y-auto overscroll-contain sm:grid-cols-2 xl:grid-cols-3">
-          {cards.slice(0, VISIBLE).map((row) => (
+        <div
+          ref={rowRef}
+          onScroll={measure}
+          className="flex snap-x snap-mandatory scroll-px-1 gap-2 overflow-x-auto overscroll-x-contain px-1 pb-2 [scrollbar-width:thin]"
+        >
+          {cards.map((card) => (
             <button
-              key={row.id}
+              key={card.id}
               type="button"
               onClick={() => {
-                onOpen(row);
+                onOpen(card);
                 if (isMobile) setMobileOpen(false);
               }}
-              className="block w-full min-w-0 rounded-lg border border-primary/30 bg-card px-3 py-2 text-left shadow-sm transition hover:border-primary"
+              className="block w-[min(17rem,calc(100vw-4rem))] shrink-0 snap-start rounded-lg border border-primary/30 bg-card px-3 py-2 text-left shadow-sm transition hover:border-primary"
             >
-              <p className="truncate text-sm font-semibold">{row.title}</p>
-              {typeof row.data.project_name === "string" && row.data.project_name ? (
-                <p className="truncate text-xs text-muted-foreground">{row.data.project_name}</p>
+              <p className="truncate text-sm font-semibold">{card.title}</p>
+              {typeof card.data.project_name === "string" && card.data.project_name ? (
+                <p className="truncate text-xs text-muted-foreground">{card.data.project_name}</p>
               ) : null}
-              <p className="mt-0.5 line-clamp-1 text-xs">{row.message}</p>
+              <p className="mt-0.5 line-clamp-1 text-xs">{card.message}</p>
               <p className="mt-0.5 text-2xs font-medium text-primary">{t("open")}</p>
             </button>
           ))}

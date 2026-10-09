@@ -10309,7 +10309,8 @@
       "open": "Buka untuk diuruskan",
       "expand": "Kembangkan",
       "collapse": "Lipat",
-      "more": "{count} lagi - lihat semua",
+      "scrollBack": "Kad sebelumnya",
+      "scrollForward": "Kad seterusnya",
       "linkedRecord": "Rekod yang ditunjuk oleh kad"
     },
     "what": {

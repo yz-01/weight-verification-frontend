@@ -10309,7 +10309,8 @@
       "open": "点击进入处理",
       "expand": "展开",
       "collapse": "收起",
-      "more": "还有 {count} 件，查看全部",
+      "scrollBack": "向左查看",
+      "scrollForward": "向右查看更多",
       "linkedRecord": "卡片指向的记录"
     },
     "what": {
