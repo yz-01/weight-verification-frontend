@@ -46,6 +46,9 @@ const REFRESH_PREFIXES = [
   // before that the office's request list waited for a navigation.
   "material_request.",
   "disposal.",
+  // A record's chat message or its archiving (2026-10-09): the chat on the
+  // phone closes when the office archives, not on the next reload.
+  "record.",
 ];
 const REFRESH_EXACT = "notification.created";
 const REALTIME_PERMISSION_CODES = new Set([

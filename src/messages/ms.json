@@ -6224,6 +6224,17 @@
     "period": "Tempoh: {from} hingga {to}",
     "preview": "Pratonton laporan",
     "previewLimited": "Pratonton dihadkan kepada 500 baris",
+    "photo": "Foto",
+    "openRecord": "Buka {reference}",
+    "value": {
+      "yes": "Ya",
+      "no": "Tidak",
+      "targetType": {
+        "QUANTITY": "Sasaran kuantiti",
+        "WEIGHT": "Sasaran berat (kg)",
+        "COUNT": "Sasaran bilangan"
+      }
+    },
     "records": "{count} rekod",
     "targetReport": {
       "filterHelp": "Julat tarikh merangkumi sasaran yang tempoh sasarannya bertindih dengan tarikh yang dipilih.",

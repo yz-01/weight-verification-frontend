@@ -225,7 +225,7 @@ export function NetTotalsView({
                             <button
                               type="button"
                               data-slot="net-return-tag"
-                              className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-1.5 py-0 text-2xs font-medium leading-5 text-warning-foreground hover:bg-warning/20"
+                              className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-tone-amber/35 bg-tone-amber/12 px-1.5 py-0 text-2xs font-medium leading-5 text-tone-amber-fg hover:bg-tone-amber/20"
                               title={t("receipts.net.returnTagHint", { count: row.return_count ?? 0 })}
                               aria-label={t("receipts.net.returnTagHint", { count: row.return_count ?? 0 })}
                               onClick={() => setDrill({ row, focus: "returned" })}

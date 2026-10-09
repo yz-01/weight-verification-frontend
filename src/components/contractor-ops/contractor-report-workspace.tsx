@@ -3,15 +3,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileClock, FileSpreadsheet, FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
   ReportSelector,
   useReportLevelName,
 } from "@/components/reports/report-selector";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
+import { useRecordOpener } from "@/components/shared/record-opener";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,10 +37,19 @@ import {
 } from "@/components/ui/table";
 import type {
   ContractorReportFilters,
+  ContractorReportRecord,
   ContractorReportType,
 } from "@/interfaces/contractor-report";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useDateFormat } from "@/lib/dates";
+import { isRouteAllowed } from "@/lib/navigation";
+import {
+  REPORT_REFERENCE_COLUMNS,
+  reportRowReference,
+  reportRowRoute,
+  reportRowTarget,
+  reportValueKey,
+} from "@/lib/report-preview";
 import { groupPhotoSources, photoSourceValue } from "@/lib/report-menu";
 import {
   exportContractorReport,
@@ -55,9 +68,11 @@ function dateValue(date: Date): string {
 
 function displayValue(value: string | number | boolean | null): string {
   if (value === null || value === "") return "-";
-  if (typeof value === "boolean") return value ? "Yes" : "No";
   return String(value);
 }
+
+/** The preview's photograph column, before the report's own columns. */
+const PHOTO_COLUMN_WIDTH = 80;
 
 const REPORT_DATE_TIME_COLUMNS = new Set([
   "captured_at",
@@ -104,6 +119,9 @@ function reportColumnWidth(key: string): number {
   if (key === "file_name") {
     return 304;
   }
+  if (REPORT_REFERENCE_COLUMNS.has(key)) {
+    return 224;
+  }
   if (REPORT_LONG_COLUMNS.has(key)) {
     return 264;
   }
@@ -120,6 +138,10 @@ function reportCellClass(key: string): string {
   if (key === "device_id" || key === "file_name") {
     return "line-clamp-2 break-all";
   }
+  // A reference number is read whole: it wraps, it is never cut off.
+  if (REPORT_REFERENCE_COLUMNS.has(key)) {
+    return "break-all font-medium tabular-nums";
+  }
   return "line-clamp-2 break-words [overflow-wrap:anywhere]";
 }
 
@@ -133,6 +155,9 @@ export function ContractorReportWorkspace({
   const common = useTranslations("common");
   const df = useDateFormat();
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { user } = useAuth();
+  const opener = useRecordOpener();
   const now = new Date();
   // Project, dates and the report menu's levels live in the address (D6):
   // 【选择报表】 opens a report at a category by writing them there, and keeps
@@ -225,13 +250,18 @@ export function ContractorReportWorkspace({
   );
   const previewWidth = (report.data?.columns ?? []).reduce(
     (total, key) => total + reportColumnWidth(key),
-    0,
+    PHOTO_COLUMN_WIDTH,
   );
 
   function formatReportValue(
     key: string,
     value: string | number | boolean | null,
+    row: Record<string, string | number | boolean | null>,
+    record: ContractorReportRecord | null,
   ): string {
+    // A code is shown in the reader's words, as its own module names it.
+    const message = reportValueKey(reportType, key, value, row, record);
+    if (message && tRoot.has(message)) return tRoot(message);
     if (value === null || value === "") return "-";
     if (REPORT_DATE_TIME_COLUMNS.has(key)) {
       return df.precise(String(value)) || displayValue(value);
@@ -240,6 +270,32 @@ export function ContractorReportWorkspace({
       return df.date(String(value)) || displayValue(value);
     }
     return displayValue(value);
+  }
+
+  /**
+   * Where a row opens, or `null`: a row is a link only to a record the
+   * reader's console would open (the same route rules as the sidebar).
+   */
+  function rowOpener(record: ContractorReportRecord | null) {
+    const target = reportRowTarget(record);
+    const route = reportRowRoute(target);
+    if (!target || !route || !user) return null;
+    if (!isRouteAllowed(user.portal, user.features, route, user.permissions, user.is_superuser)) {
+      return null;
+    }
+    return (reference: string, projectName: string) => {
+      if ("href" in target) {
+        router.push(target.href);
+        return;
+      }
+      opener.open(record?.kind ?? "", record?.id, {
+        reference,
+        project_id: record?.project_id ?? null,
+        project_name: projectName,
+        submitted_at: null,
+        photo: record?.cover_photo_url ?? null,
+      });
+    };
   }
 
   return (
@@ -378,12 +434,14 @@ export function ContractorReportWorkspace({
               style={{ width: previewWidth, minWidth: "100%" }}
             >
               <colgroup>
+                <col style={{ width: PHOTO_COLUMN_WIDTH }} />
                 {report.data?.columns.map((key) => (
                   <col key={key} style={{ width: reportColumnWidth(key) }} />
                 ))}
               </colgroup>
               <TableHeader className="sticky top-0 z-10 bg-card">
                 <TableRow>
+                  <TableHead className="whitespace-normal">{t("photo")}</TableHead>
                   {report.data?.columns.map((key) => (
                     <TableHead
                       key={key}
@@ -395,28 +453,77 @@ export function ContractorReportWorkspace({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {report.data?.rows.map((row, index) => (
-                  <TableRow key={index}>
-                    {report.data.columns.map((key) => (
-                      <TableCell
-                        key={key}
-                        className="overflow-hidden align-top leading-5"
-                      >
-                        <span
-                          className={`block ${reportCellClass(key)}`}
-                          title={displayValue(row[key] ?? null)}
-                        >
-                          {formatReportValue(key, row[key] ?? null)}
-                        </span>
+                {report.data?.rows.map((row, index) => {
+                  const record = report.data.records?.[index] ?? null;
+                  const reference = reportRowReference(row);
+                  const open = rowOpener(record);
+                  const openRow = open
+                    ? () => open(reference, String(row.project ?? ""))
+                    : undefined;
+                  return (
+                    // 每一项都可以点进去操作: the row opens its record, where
+                    // its module lets the reader act on it.
+                    <TableRow
+                      key={record?.id ?? index}
+                      data-report-row={openRow ? "link" : "plain"}
+                      role={openRow ? "link" : undefined}
+                      tabIndex={openRow ? 0 : undefined}
+                      aria-label={openRow ? t("openRecord", { reference }) : undefined}
+                      className={
+                        openRow
+                          ? "cursor-pointer hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none"
+                          : undefined
+                      }
+                      onClick={openRow}
+                      onKeyDown={
+                        openRow
+                          ? (event) => {
+                              if (event.target !== event.currentTarget) return;
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                openRow();
+                              }
+                            }
+                          : undefined
+                      }
+                    >
+                      <TableCell className="align-top">
+                        {/* The record's first photograph as its small stamped
+                            copy; tapping it opens the photographs, not the row. */}
+                        <PhotoThumb
+                          coverUrl={record?.cover_photo_url}
+                          count={record?.photo_count}
+                          icon={recordKindIcon(record?.kind)}
+                          reference={reference}
+                          photos={
+                            (reportType !== "photos" && record?.kind && record.id
+                              ? recordPhotos(record.kind, record.id, reference)
+                              : undefined) ?? []
+                          }
+                        />
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
+                      {report.data.columns.map((key) => {
+                        const text = formatReportValue(key, row[key] ?? null, row, record);
+                        return (
+                          <TableCell
+                            key={key}
+                            className="overflow-hidden align-top leading-5"
+                          >
+                            <span className={`block ${reportCellClass(key)}`} title={text}>
+                              {text}
+                            </span>
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
         )}
       </section>
+      {opener.sheet}
     </div>
   );
 }

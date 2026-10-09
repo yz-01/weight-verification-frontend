@@ -166,3 +166,22 @@ describe("no caller refetches everything any more", () => {
     expect(source).toMatch(/refresh\(\{ event: event\.event_type \}\)/);
   });
 });
+
+describe("a record's chat (2026-10-09)", () => {
+  it("closes on the phone when the office archives, without a reload", async () => {
+    const qc = client();
+    const chat = await onScreen(qc, ["record-conversation", "DISPOSAL_REQUEST", "r1"], { ageMs: 1_000 });
+    const other = await onScreen(qc, ["deliveries", "list"], { ageMs: 1_000 });
+
+    await refreshForEvents(qc, ["record.disposal_request.closed"]);
+
+    expect(chat).toHaveBeenCalledTimes(1);
+    expect(other).not.toHaveBeenCalled();
+  });
+
+  it("a status change that can close the chat refreshes it too", () => {
+    for (const event of ["disposal.changed", "approval.approved", "receipt.changed", "material_request.changed"]) {
+      expect(keysForEvent(event), event).toContainEqual(["record-conversation"]);
+    }
+  });
+});

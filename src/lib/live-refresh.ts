@@ -35,6 +35,13 @@ const BADGES: QueryKey = ["sidebar-badges"];
 const APPROVAL_QUEUE: QueryKey = ["contractor-dashboard", "approval-queue"];
 /** The phone's own submissions list. */
 const MINE: QueryKey = ["my-submissions"];
+/**
+ * An open record chat. A status change can close it (approved, returned,
+ * paid), so every family that moves a record's status refreshes it too; it is
+ * on screen only while someone has that chat open, so this costs nothing
+ * otherwise.
+ */
+const CHAT: QueryKey = ["record-conversation"];
 /** Where a moving lorry or worker is drawn: maps, tracking, live positions. */
 const POSITIONS: QueryKey[] = [
   ["dispatches", "detail"],
@@ -72,7 +79,7 @@ export const REALTIME_FAMILY_KEYS: Readonly<Record<string, readonly QueryKey[]>>
   "gps.": POSITIONS,
   "approval.": [
     ["approvals"], APPROVAL_QUEUE, BADGES, ["consultant-applications"], ["consultant-application"],
-    ["consultant-dashboard"], ["material-requests"], ["sundry-claims"], ["claims"], ["settlements"], MINE,
+    ["consultant-dashboard"], ["material-requests"], ["sundry-claims"], ["claims"], ["settlements"], MINE, CHAT,
   ],
   "safety.": [
     ["safety"], ["safety-incidents"], ["safety-incident"], ["incident-threads"], ["incident-thread"],
@@ -83,19 +90,22 @@ export const REALTIME_FAMILY_KEYS: Readonly<Record<string, readonly QueryKey[]>>
   ],
   "deduction.": [["deductions"], ["settlements"], ["incoming"], ["weigh-sessions"]],
   "partnership.": [["partnerships"], ["projects"], ["recyclers"], ["recycling-sites"]],
-  "receipt.": [["receipts"], ["archive-queue"], ["category-records"], APPROVAL_QUEUE, BADGES, MINE],
-  "field_task.": [["field-tasks"], ["field-staff", "tasks"], ["field-staff", "task"], APPROVAL_QUEUE, BADGES, MINE],
+  "receipt.": [["receipts"], ["archive-queue"], ["category-records"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
+  "field_task.": [["field-tasks"], ["field-staff", "tasks"], ["field-staff", "task"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
   "equipment.": [
     ["site-equipment"], ["equipment-movements"], ["equipment-summary"], ["equipment-hours"],
-    APPROVAL_QUEUE, BADGES, MINE,
+    APPROVAL_QUEUE, BADGES, MINE, CHAT,
   ],
   "progress.": [
     ["site-progress"], ["site-progress-summary"], ["progress-summaries"], ["progress-photos"],
-    ["daily-reports"], ["construction-phases"], APPROVAL_QUEUE, BADGES, MINE,
+    ["daily-reports"], ["construction-phases"], APPROVAL_QUEUE, BADGES, MINE, CHAT,
   ],
-  "material_outgoing.": [["material-outgoing"], ["waste-outgoing"], APPROVAL_QUEUE, BADGES, MINE],
-  "material_request.": [["material-requests"], APPROVAL_QUEUE, BADGES, MINE],
-  "disposal.": [["site-disposals"], ["waste-outgoing"], APPROVAL_QUEUE, BADGES, MINE],
+  "material_outgoing.": [["material-outgoing"], ["waste-outgoing"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
+  "material_request.": [["material-requests"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
+  "disposal.": [["site-disposals"], ["waste-outgoing"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
+  // `record.<kind>.message` / `record.<kind>.closed` (2026-10-09): someone
+  // said something on a record, or the office archived it and its chat closed.
+  "record.": [CHAT, ["record-closure"], ["archive-queue"], MINE],
   "notification.created": [
     ["notifications"], ["notification-records"], ["admin-notifications"],
     ["contractor-dashboard", "banner-notifications"], BADGES,
