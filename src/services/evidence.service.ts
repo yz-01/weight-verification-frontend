@@ -4,8 +4,14 @@ import type {
   EvidenceIntegrityResult,
   EvidenceRevision,
   EvidenceRevisionPayload,
+  OriginalBackupOverview,
 } from "@/interfaces/evidence";
 import { api, download, toastSuccess } from "@/services/api-client";
+
+/** The technical page: what each person's phone still owes of originals. */
+export function getOriginalBackupOverview(): Promise<OriginalBackupOverview> {
+  return api.get<OriginalBackupOverview>("/api/evidence-originals/get_backup_overview/");
+}
 
 export function getEvidenceAssets(
   query: ListQuery,

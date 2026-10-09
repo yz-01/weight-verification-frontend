@@ -5803,6 +5803,7 @@
       "viewDetail": "查看详情",
       "returnProcessing": "实际退场（双方签名）",
       "exitWaitingUpload": "这次实际退场已经保存在手机上，有网络时会自动上传，不用重做。可在「我提交过的」查看。",
+      "exitUploading": "正在上传 {photos} 张照片和双方签名，请稍候，不要关闭这个窗口。",
       "waitingForSite": "已批准 / 等待退场：等待现场实际退场并双方签名。",
       "finalConfirm": "确认退场完成",
       "waitingForOffice": "现场已退场，待后台确认。",
@@ -7438,7 +7439,7 @@
       "equipment_not_on_site": "这台设备现在不在这个项目场内，不能退场。",
       "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。",
       "original_not_expected": "服务器上还没有这张原图对应的照片，请先让记录上传完成。",
-      "original_hash_mismatch": "原图在传送中出错，和手机上的不一致，服务器没有保存。请再按一次「同步原图」。",
+      "original_hash_mismatch": "原图在传送中出错，和手机上的不一致，服务器没有保存。系统会再试；也可以在技术管理页面重试。",
       "original_not_found": "这张照片没有已备份的原图。",
       "driver_link_invalid": "链接已失效，请联系回收商重新发送。",
       "driver_link_closed": "这趟任务已结束，链接已关闭。",
@@ -9734,9 +9735,7 @@
     "subtitle": "你提交的全部记录，最新的在最上面。",
     "refresh": "重新查看",
     "empty": "还没有。你提交的东西都会出现在这里。",
-    "waitingToUpload": "待上传",
     "uploadFailed": "上传被拒绝",
-    "attempts": "已尝试 {count} 次",
     "historyWindow": "手机端只保留最近 {days} 天的记录，更早的请到后台查询。",
     "truncated": "显示 {shown} 条，共 {total} 条。",
     "loadOlder": "加载更早的记录",
@@ -9834,7 +9833,7 @@
     "loadFailed": "这条记录打不开",
     "queuedTitle": "还在这台手机上",
     "queuedHelp": "还没发出去。有网络之后会自己发。",
-    "failedHelp": "服务器拒收了。按下面这句改好再发一次。",
+    "failedHelp": "服务器没有接收这一条，不会再自动上传。原因如下，请联系管理员处理。",
     "close": "关闭",
     "unit": {
       "BAG": "袋",
@@ -9850,7 +9849,7 @@
     "noPaymentProofs": "财务付款后，凭证会出现在这里。",
     "conversation": "事项沟通",
     "removeFromList": "从我的列表移除",
-    "removeHelp": "只从你这台手机的列表拿掉。云端记录、后台和其他人都不受影响；可以在「本机存储与清理」里重新显示。",
+    "removeHelp": "只从你这台手机的列表拿掉。云端记录、后台和其他人都不受影响；可以在列表下方按「全部重新显示」。",
     "hiddenNote": "已从我的列表移除 {count} 条。"
   },
   "nav": {
@@ -10176,7 +10175,8 @@
       "equipmentExit": "设备退场",
       "targetReport": "目标与达成",
       "manufacturers": "制造厂商",
-      "equipmentOperatorHours": "设备操作员工时"
+      "equipmentOperatorHours": "设备操作员工时",
+      "technical": "技术管理"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -10309,7 +10309,8 @@
       "open": "点击进入处理",
       "expand": "展开",
       "collapse": "收起",
-      "more": "还有 {count} 件，查看全部",
+      "scrollBack": "向左查看",
+      "scrollForward": "向右查看更多",
       "linkedRecord": "卡片指向的记录"
     },
     "what": {
@@ -10360,14 +10361,17 @@
       "armDiscardHelp": "打开后才能按每条旁边的放弃。放弃的资料会从手机删掉，不会再上传。",
       "armFirst": "先打开上面的开关"
     },
-    "queued": "已离线保存，等待自动上传",
+    "queued": "已暂存，等待上传",
     "status": {
       "failed": "{count} 条动作需要处理",
-      "offline": "当前离线，{count} 条记录等待上传",
-      "pending": "{count} 条记录等待同步",
-      "syncing": "正在上传离线记录"
+      "syncing": "正在上传暂存的记录",
+      "waiting": "已暂存 {count} 条，等待上传",
+      "offlineNothing": "现在没有网络",
+      "autoHelp": "有网络时会自动上传，不用另外操作。",
+      "offlineHelp": "现在没有网络。记录已存在这台手机上，网络恢复后会自动上传，不用另外操作。",
+      "refusedHelp": "其中 {count} 条服务器没有接收，可以在「我提交过的」看原因，请联系管理员处理。"
     },
-    "synced": "已上传 {count} 条离线记录",
+    "synced": "已上传 {count} 条暂存的记录",
     "alreadyQueued": "这条动作已经在等待同步，不会重复送出。",
     "state": {
       "waiting": "待同步",
@@ -10388,7 +10392,8 @@
     "reason": {
       "network": "网络不通",
       "timeout": "上传超时（信号太弱）"
-    }
+    },
+    "submitted": "提交成功"
   },
   "organisation": {
     "department": {
@@ -16148,8 +16153,7 @@
       "photoEnd": "照片上的最后时间：{end}"
     },
     "toast": {
-      "endSaved": "结束时间已保存",
-      "uploaded": "照片已上传"
+      "endSaved": "结束时间已保存"
     },
     "phone": {
       "howTo": "开工时拍一张设备照片，收工时再拍一张。系统按第一张和最后一张算工时。",
@@ -16179,7 +16183,6 @@
     "dark": "深色"
   },
   "originals": {
-    "title": "原图备份",
     "status": {
       "APPLICATION_UPLOADED": "应用照片已上传",
       "ORIGINAL_PENDING": "原图待同步",
@@ -16189,22 +16192,18 @@
     "waiting": "{count} 张原图待同步（约 {mb} MB）",
     "failed": "{count} 张同步失败",
     "failedNetwork": "上次没有网络或信号太弱，没有传完。",
-    "failedOther": "上次没有成功，请再按一次「同步原图」。",
+    "failedOther": "上次没有成功。系统会自动再试，也可以按「重试原图」。",
     "capturedNote": "{count} 张原图在等它们的记录先上传。",
     "nothingWaiting": "没有待同步的原图",
     "readFailed": "这台手机读不到暂存的原图（可能已被系统清掉，或浏览器不允许保存）。",
-    "trafficNote": "同步大约要用 {mb} MB 流量，最好连上 Wi-Fi 再按。",
-    "sync": "同步原图",
     "syncing": "正在同步原图 {done}/{total}，还剩约 {mb} MB",
-    "offline": "现在没有网络，连上网再同步原图。",
+    "offline": "现在没有网络，连上网后会自动备份原图。",
     "result": {
       "backedUp": "{count} 张原图已备份",
       "failed": "{count} 张没有成功",
       "notYet": "{count} 张等记录先上传",
       "nothing": "没有需要同步的原图"
     },
-    "autoLabel": "连原图一起上传",
-    "autoHelp": "打开后，记录一上传完就接着传原图，会多用流量。连着 Wi-Fi 时打开；用手机流量时关掉，之后自己按「同步原图」。",
     "storage": {
       "title": "手机暂存",
       "held": "本机暂存原图 {count} 张，约 {mb} MB",
@@ -16219,17 +16218,7 @@
     "limit": {
       "local": "原图同步前只存在这台手机的浏览器里。iPhone 一段时间没打开这个 App、手机空间不够、或在设置里清除网站资料，暂存的原图都可能被清掉，请尽快同步。",
       "verified": "只有服务器收到原图并核对完全一致后，才会显示「原图已备份」。",
-      "frame": "这里的原图是拍照那一刻 App 截下的画面，以高画质另存（约 1～2 MB），不是手机相机本身的原始照片。",
-      "soon": "请尽快同步，暂存在手机上的原图可能被系统清掉。"
-    },
-    "record": {
-      "title": "原图",
-      "counts": "已备份 {backedUp}/{expected} 张",
-      "noOriginal": "这条记录没有保留原图（应用照片已上传）。",
-      "allBackedUp": "这条记录的原图都已备份到服务器。",
-      "heldHere": "这台手机上有这条记录的 {count} 张原图，约 {mb} MB。",
-      "missingHere": "{count} 张原图不在这台手机上（可能是在别的手机拍的，或已被系统清掉），无法从这里同步。",
-      "sync": "同步这条记录的原图"
+      "frame": "这里的原图是拍照那一刻 App 截下的画面，以高画质另存（约 1～2 MB），不是手机相机本身的原始照片。"
     }
   },
   "phoneStorage": {
@@ -16269,5 +16258,46 @@
     "otherDeviceBody": "这个链接只能在第一部打开它的手机上使用。请联系回收商重新发送。",
     "failedTitle": "暂时打不开",
     "failedBody": "请检查网络后重试。"
+  },
+  "technical": {
+    "title": "技术管理",
+    "subtitle": "手机照片上传、原图备份和手机暂存的检查与处理。现场人员看不到这一页，他们只需拍照、提交。",
+    "server": {
+      "title": "各人手机还没交齐的原图",
+      "help": "服务器的记录，全公司。原图只存在拍照的那台手机上，「待备份」和「失败」要等那台手机连上网、打开 App 才会传上来。「已备份」表示服务器收到原图并核对完全一致。",
+      "what": "原图备份情况",
+      "totals": "待备份 {pending} 张 · 失败 {failed} 张 · 已备份 {backedUp} 张 · 还欠约 {mb} MB",
+      "empty": "还没有任何原图记录。",
+      "unknownPerson": "（账号已删除）",
+      "column": {
+        "person": "人员",
+        "pending": "待备份",
+        "failed": "失败",
+        "backedUp": "已备份",
+        "owed": "还欠",
+        "oldest": "最早一张",
+        "lastError": "最近失败"
+      },
+      "error": {
+        "hashMismatch": "传上来的和手机上的不一致",
+        "other": "没有成功"
+      }
+    },
+    "device": {
+      "title": "这台设备",
+      "note": "下面只看这台设备上、当前登录账号的资料。暂存的记录和原图只存在拍照的那台手机上：要处理某位工人手机上的资料，请在那台手机上用该工人的账号登录后打开 {path}（现场菜单里没有这个入口）。",
+      "queueTitle": "等待上传的记录",
+      "queueCount": "这台设备上有 {count} 条",
+      "queueHelp": "这些会自己上传：没有网络时等网络恢复，失败后越等越久再试（最长 5 分钟）。服务器拒收的不会自己再传，处理好后按「立即重试」，或打开开关后放弃。",
+      "originalsTitle": "原图备份",
+      "originalsHelp": "记录上传成功后，原图会自动在后面上传，不用开关。连着手机流量或网络慢时会慢一点、排在记录后面，但一定会传。服务器一直拒收的原图不再自动重试，留在手机上，可以在这里按「重试原图」。",
+      "gentle": "这台设备现在用手机流量或网络较慢：原图会排在记录后面、慢慢上传。",
+      "retryOriginals": "重试原图"
+    },
+    "phone": {
+      "title": "设备检查",
+      "subtitle": "给技术人员用：这台手机的暂存记录、原图备份和储存。",
+      "back": "返回"
+    }
   }
 }

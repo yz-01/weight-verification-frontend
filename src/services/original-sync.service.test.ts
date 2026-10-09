@@ -14,7 +14,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  */
 
 const originals = new Map<string, Record<string, unknown>>();
-const jobs: Array<{ id: string; ownerId: string; payload: unknown }> = [];
+const jobs: Array<{ id: string; ownerId: string; payload: unknown; needsAttention?: boolean }> = [];
 let draftNames: string[] = [];
 const post = vi.fn();
 let flush: Promise<unknown> | null = null;
@@ -156,6 +156,72 @@ describe("syncOriginals", () => {
     release();
     await run;
     expect(order).toEqual(["app queue done", "original sent"]);
+  });
+});
+
+describe("the automatic backup (Lucas 2026-10-09: no switch)", () => {
+  it("waits while a record is still on the phone - records go first", async () => {
+    keep(A, "pending");
+    jobs.push({ id: "job", ownerId: "worker", payload: {} });
+    expect(await syncOriginals("worker", undefined, { automatic: true })).toEqual({
+      backedUp: 0,
+      failed: 0,
+      notYet: 1,
+    });
+    expect(post).not.toHaveBeenCalled();
+    expect(originals.has(A)).toBe(true);
+  });
+
+  it("does not wait for a record the server refused", async () => {
+    keep(A, "pending");
+    jobs.push({ id: "job", ownerId: "worker", payload: {}, needsAttention: true });
+    post.mockImplementation(async (path: string) =>
+      path.includes("get_original_status") ? statuses({}) : { status: "ORIGINAL_BACKED_UP" },
+    );
+    expect(await syncOriginals("worker", undefined, { automatic: true })).toEqual({
+      backedUp: 1,
+      failed: 0,
+      notYet: 0,
+    });
+  });
+
+  it("leaves an original the server keeps refusing; a technician's run still sends it", async () => {
+    keep(A, "failed", { attempts: 3, lastErrorCode: "original_hash_mismatch" });
+    keep(C, "failed", { attempts: 9, lastErrorCode: "network" });
+    post.mockImplementation(async (path: string) =>
+      path.includes("get_original_status") ? statuses({}) : { status: "ORIGINAL_BACKED_UP" },
+    );
+    expect(await syncOriginals("worker", undefined, { automatic: true })).toEqual({
+      backedUp: 1,
+      failed: 0,
+      notYet: 0,
+    });
+    expect([...originals.keys()]).toEqual([A]);
+    expect(await syncOriginals("worker")).toEqual({ backedUp: 1, failed: 0, notYet: 0 });
+    expect(originals.size).toBe(0);
+  });
+
+  it("pauses between originals on a slow connection", async () => {
+    vi.useFakeTimers();
+    try {
+      keep(A, "pending");
+      keep(C, "pending");
+      const sent: number[] = [];
+      post.mockImplementation(async (path: string) => {
+        if (path.includes("get_original_status")) return statuses({});
+        sent.push(Date.now());
+        return { status: "ORIGINAL_BACKED_UP" };
+      });
+      const run = syncOriginals("worker", undefined, { automatic: true, gapMs: 20_000 });
+      await vi.advanceTimersByTimeAsync(1_000);
+      expect(sent).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(20_000);
+      await run;
+      expect(sent).toHaveLength(2);
+      expect(sent[1] - sent[0]).toBeGreaterThanOrEqual(20_000);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

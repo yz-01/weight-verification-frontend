@@ -327,7 +327,7 @@ function LatestPhoto({
   }
   const image = (
     // A watermarked evidence photo, served as is.
-    <img
+    <img loading="lazy" decoding="async"
       src={photo.image}
       alt={t("latestPhotoAlt", { time: df.dateTime(photo.captured_at) })}
       className={cn("rounded-md object-cover", box)}

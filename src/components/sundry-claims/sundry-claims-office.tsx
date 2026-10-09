@@ -101,7 +101,7 @@ export function SundryClaimsOffice() {
         label: tRoot("moduleTable.photos"),
         icon: ReceiptText,
         reference: (row) => row.claim_no,
-        photos: (row) => rowPhotos(row.attachments, row.claim_no),
+        photos: (row) => rowPhotos(row.attachments, row.claim_no, row),
       }),
       {
         id: "state",
@@ -352,7 +352,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                         <FileText className="size-5 text-muted-foreground" />
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={proof.file} alt={t("proofs.title")} className="size-full object-cover" />
+                        <img loading="lazy" decoding="async" src={proof.file} alt={t("proofs.title")} className="size-full object-cover" />
                       )}
                     </a>
                     <span className="min-w-0">

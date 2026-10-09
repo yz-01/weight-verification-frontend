@@ -25,7 +25,7 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import {
@@ -161,6 +161,8 @@ import {
   type ReturnBadgeSupplier,
 } from "@/components/suppliers/supplier-return-badge";
 import { columnAutofill } from "@/lib/material-autofill";
+import { offersOutgoingExit } from "@/lib/outgoing-exit";
+import { photoMeta } from "@/lib/photo-meta";
 import {
   newClientEventId,
   queuedOutgoingExit,
@@ -3773,6 +3775,10 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
  * 2026-10 C9: the office fills the Return Note first - 【批准】 stays off,
  * saying why, until it is filled (the server refuses it too). The note's
  * dialog lives here, so every place that shows these buttons offers it.
+ *
+ * 2026-10-09: 实际退场（双方签名） is the phone's step only
+ * (`lib/outgoing-exit`): the office console shows that the return waits for
+ * the site, and the exit's photographs and signatures once they arrive.
  */
 export function OutgoingActions({
   row,
@@ -3783,11 +3789,16 @@ export function OutgoingActions({
   row: MaterialOutgoing;
   pending: boolean;
   onReview: (status: MaterialOutgoing["status"]) => void;
-  onReturn: () => void;
+  /** Opens the exit form. Only the field app passes it. */
+  onReturn?: () => void;
 }) {
   const t = useTranslations("contractorOps");
   const { can } = useAuth();
+  const pathname = usePathname();
   const qc = useQueryClient();
+  const offersExit =
+    Boolean(onReturn) &&
+    offersOutgoingExit({ pathname, status: row.status, canSubmit: can("material_outgoing.submit") });
   const [noting, setNoting] = useState(false);
   const needsNote = !row.has_return_note;
   return (
@@ -3813,9 +3824,10 @@ export function OutgoingActions({
           </Button>
         </div>
       )}
-      {/* 已批准 / 等待退场: the site records the exit with both signatures. */}
+      {/* 已批准 / 等待退场: the site records the exit with both signatures -
+          on the phone; the office is told it waits for the site. */}
       {row.status === "APPROVED" &&
-        (can("material_outgoing.submit") ? (
+        (offersExit ? (
           <Button className="w-full" onClick={onReturn}>
             <Camera />
             {t("outgoing.returnProcessing")}
@@ -4516,6 +4528,13 @@ function ExitForm({
           {error}
         </p>
       )}
+      {/* What the spinner is waiting on, so nobody closes it half-way. */}
+      {save.isPending && (
+        <p role="status" className="flex items-center gap-2 rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm">
+          <Loader2 className="size-4 shrink-0 animate-spin" />
+          {t("outgoing.exitUploading", { photos: taken.length })}
+        </p>
+      )}
       <DialogFooter className="gap-2 sm:gap-2">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
@@ -4658,7 +4677,8 @@ export function OutgoingDetailDialog({
               id: shot.id,
               url: shot.watermarked || shot.image,
               label: shot.caption ? `${stage} · ${shot.caption}` : stage,
-              takenAt: shot.captured_at,
+              // Its time and GPS, else the application's fix (2026-10-09).
+              ...photoMeta(shot, row),
             };
           })}
           photoActions={

@@ -555,11 +555,14 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
         photo,
         ...location,
       }),
-    onSuccess: async (row) => {
+    onSuccess: (row) => {
       setResult(row.pass);
       setToken("");
       setPhoto(undefined);
-      await onRecorded();
+      // Not awaited: the scan button stayed disabled until the whole pass
+      // list had refetched, so the guard waited on a list to scan the next
+      // worker. The list still refreshes; the next scan need not wait for it.
+      void onRecorded();
     },
   });
   function getGps() {

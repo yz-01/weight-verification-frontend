@@ -23,6 +23,7 @@ import { ApiError } from "@/interfaces/api";
 import type { EquipmentHoursDay, EquipmentHoursMachine } from "@/interfaces/equipment-hours";
 import { useDateFormat } from "@/lib/dates";
 import type { LocationFix } from "@/lib/field-location";
+import { photoTakenAt } from "@/lib/photo-meta";
 import { loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
 import { submitEquipmentHoursPhotoOfflineAware } from "@/services/offline-sync.service";
 
@@ -32,17 +33,11 @@ export function machineLabel(machine: Pick<EquipmentHoursMachine, "name" | "plat
 }
 
 /**
- * The moment the photo was taken, from the file itself (B4 audit #30, Q29.10).
- *
- * The in-app camera stamps each shot with the moment the shutter closed
- * (`FieldCamera` sets `lastModified` when it draws the frame), so the day
- * starts then - not when 发送 is pressed a few minutes later. A file with no
- * usable time gives nothing, and the queue then uses the moment of sending.
+ * The moment the photo was taken, from the file itself (B4 audit #30, Q29.10):
+ * the day starts when the shutter closed, not when 发送 was pressed. Shared
+ * with every other upload now (`@/lib/photo-meta`).
  */
-export function photoTakenAt(file: File | undefined): string | undefined {
-  if (!file || !Number.isFinite(file.lastModified) || file.lastModified <= 0) return undefined;
-  return new Date(file.lastModified).toISOString();
-}
+export { photoTakenAt };
 
 /** `YYYY-MM-DD` of a moment on the site's clock. */
 function siteDay(iso: string): string {

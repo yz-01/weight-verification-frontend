@@ -58,6 +58,7 @@ import {
   getContractorReportOptions,
 } from "@/services/contractor-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
+import { photoMeta } from "@/lib/photo-meta";
 
 function dateValue(date: Date): string {
   const year = date.getFullYear();
@@ -496,9 +497,24 @@ export function ContractorReportWorkspace({
                           icon={recordKindIcon(record?.kind)}
                           reference={reference}
                           photos={
-                            (reportType !== "photos" && record?.kind && record.id
-                              ? recordPhotos(record.kind, record.id, reference)
-                              : undefined) ?? []
+                            reportType === "photos" && record?.cover_photo_url
+                              ? // A row of the photo report is one photograph,
+                                // its time and GPS in its own columns.
+                                [
+                                  {
+                                    id: record.id ?? `${index}`,
+                                    url: record.cover_photo_url,
+                                    label: reference,
+                                    ...photoMeta({
+                                      captured_at: row.captured_at == null ? null : String(row.captured_at),
+                                      latitude: row.latitude == null ? null : String(row.latitude),
+                                      longitude: row.longitude == null ? null : String(row.longitude),
+                                    }),
+                                  },
+                                ]
+                              : (reportType !== "photos" && record?.kind && record.id
+                                  ? recordPhotos(record.kind, record.id, reference)
+                                  : undefined) ?? []
                           }
                         />
                       </TableCell>

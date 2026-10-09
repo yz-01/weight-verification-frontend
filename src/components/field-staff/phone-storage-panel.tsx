@@ -1,8 +1,9 @@
 "use client";
 
 /**
- * 「本机存储与清理」 under the worker's own list (client 2026-10-09 四.3, 四.5,
- * 四.6, 五.6, 五.7; Lucas's decisions 3 and 4).
+ * 「本机存储与清理」 (client 2026-10-09 四.3, 四.5, 四.6, 五.6, 五.7; Lucas's
+ * decisions 3 and 4). On the technical page since Lucas's update of the same
+ * day: 「原图同步、重试及储存管理放在技术管理页面，不显示给现场人员」.
  *
  * Shows what the phone keeps as a cache (photos, roughly how many megabytes)
  * and what it holds that is not safe anywhere else yet - those are named as
@@ -55,10 +56,17 @@ async function readSummary(userId: string): Promise<PhoneStorageSummary> {
   return { photos, kept: protectedOnPhone(holdings, userId), usage: usage?.usage ?? null };
 }
 
-export function PhoneStoragePanel({ windowDays }: { windowDays?: number }) {
+export function PhoneStoragePanel({
+  windowDays,
+  defaultOpen = false,
+}: {
+  windowDays?: number;
+  /** Open from the start (the technical page, where it is the point). */
+  defaultOpen?: boolean;
+}) {
   const t = useTranslations();
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [armed, setArmed] = useState(false);
   const hidden = useHiddenSubmissions(user?.id);
   const userId = user?.id ?? "";

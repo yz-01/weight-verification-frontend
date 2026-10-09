@@ -152,6 +152,17 @@ export type SoundOutcome = "none" | "played" | "blocked" | "muted";
 interface NoticeLike {
   id: string;
   data?: unknown;
+  /**
+   * When it last arrived. A chat notice is one row per thread that a new
+   * message refreshes and moves forward (2026-10-09), so the same id coming
+   * back with a later time is a new message and rings again.
+   */
+  created_at?: string;
+}
+
+/** A notice as the sounder remembers it: its id, and when it last arrived. */
+function heard(notice: NoticeLike): string {
+  return `${notice.id}@${notice.created_at ?? ""}`;
 }
 
 /**
@@ -160,7 +171,9 @@ interface NoticeLike {
  * Lucas: 「手机端的任何申请后台都需要收到通知 … 然后有 notification 和声音
  * 提示」. The bell's list is read on the live stream's `notification.created`
  * and whenever the polled count moves, so both arrive here; a notice is
- * remembered by id and never sounds twice, whichever path brought it.
+ * remembered by id and arrival time and never sounds twice for the same
+ * arrival, whichever path brought it; a chat notice a new message refreshed
+ * has a new arrival time and rings again.
  *
  * The first answer is the backlog already waiting when the page opened: it is
  * remembered, not rung - beeping through a pile on every page load is how
@@ -179,11 +192,11 @@ export function createNoticeSounder(options: {
       if (notices === undefined) return "none";
       if (!primed) {
         primed = true;
-        notices.forEach((notice) => seen.add(notice.id));
+        notices.forEach((notice) => seen.add(heard(notice)));
         return "none";
       }
-      const fresh = notices.filter((notice) => !seen.has(notice.id) && options.rings(notice));
-      notices.forEach((notice) => seen.add(notice.id));
+      const fresh = notices.filter((notice) => !seen.has(heard(notice)) && options.rings(notice));
+      notices.forEach((notice) => seen.add(heard(notice)));
       if (fresh.length === 0) return "none";
       if (options.muted()) return "muted";
       // One tone for a batch: three notices in one refresh are one interruption.

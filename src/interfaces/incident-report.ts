@@ -35,6 +35,8 @@ export interface IncidentReportThreadDetail {
   thread: IncidentReportThread;
   messages: IncidentReportMessage[];
   participants: IncidentReportRecipient[];
+  /** This reader's chat notices the read settled (see `clearedNotices`). */
+  cleared_notices?: number;
 }
 
 export interface IncidentReportMessage {

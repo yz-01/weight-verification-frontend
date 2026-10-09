@@ -385,6 +385,9 @@ export interface SiteEquipment {
     kind: string;
     caption: string;
     captured_at: string | null;
+    /** Where it was taken: an entry or exit photo's own fix, else the entry's; none for a register upload. */
+    latitude?: string | null;
+    longitude?: string | null;
   }>;
   created_at: string;
   updated_at: string;

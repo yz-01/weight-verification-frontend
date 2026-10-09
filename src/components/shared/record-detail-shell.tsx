@@ -74,9 +74,17 @@ export interface ShellPhoto {
   thumbnailUrl?: string | null;
   /** What it is, e.g. "Delivery order". Shown under the thumbnail. */
   label: string;
+  /** When and where it was taken: build them with `photoMeta` (`@/lib/photo-meta`). */
   takenAt?: string | null;
   latitude?: string | null;
   longitude?: string | null;
+  /**
+   * Nothing but a list's thumbnail was available, so when and where it was
+   * taken is not known here (it is on the record): the viewer says nothing
+   * rather than 「未记录时间 · 未记录位置」, which is kept for a photo that
+   * really has neither.
+   */
+  metaUnknown?: boolean;
   /** Which of `photoGroups` it is shown under, when the record has stages. */
   group?: string;
 }
@@ -574,12 +582,14 @@ export function PhotoViewer({
         <DialogHeader>
           <DialogTitle>{photo.label}</DialogTitle>
           <DialogDescription>
-            {[
-              photo.takenAt ? df.dateTime(photo.takenAt) : t("noTime"),
-              photo.latitude && photo.longitude
-                ? `GPS ${photo.latitude}, ${photo.longitude}`
-                : t("noLocation"),
-            ].join(" · ")}
+            {photo.metaUnknown
+              ? reference
+              : [
+                  photo.takenAt ? df.dateTime(photo.takenAt) : t("noTime"),
+                  photo.latitude && photo.longitude
+                    ? `GPS ${photo.latitude}, ${photo.longitude}`
+                    : t("noLocation"),
+                ].join(" · ")}
           </DialogDescription>
         </DialogHeader>
         <div className="photo-hatch max-h-[65dvh] min-h-[40dvh] overflow-auto rounded-xl border border-panel-border">

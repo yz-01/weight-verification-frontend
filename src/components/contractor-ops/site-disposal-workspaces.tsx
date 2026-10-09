@@ -697,7 +697,7 @@ export function DisposalTripsPanel({
                 {trip.evidence.map((item) => (
                   <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" title={t(`evidenceKind.${item.kind}`)}>
                     {/* eslint-disable-next-line @next/next/no-img-element -- a signed, watermarked evidence URL, not a static asset */}
-                    <img src={item.watermarked || item.image} alt={t(`evidenceKind.${item.kind}`)} className="size-12 rounded object-cover" />
+                    <img loading="lazy" decoding="async" src={item.watermarked || item.image} alt={t(`evidenceKind.${item.kind}`)} className="size-12 rounded object-cover" />
                   </a>
                 ))}
               </div>

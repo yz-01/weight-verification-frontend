@@ -1,102 +1,43 @@
 "use client";
 
-import { CloudOff, CloudUpload, RefreshCw, Trash2 } from "lucide-react";
+import { CloudOff, CloudUpload, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
-import { useAuth } from "@/components/providers/auth-provider";
 import { useOfflineSync } from "@/components/providers/offline-sync-provider";
-import { OriginalBackupPanel } from "@/components/shared/original-backup";
-import { ArmRow } from "@/components/shared/page-primitives";
-import { useLocalOriginals, useOriginalAutoSync } from "@/hooks/use-local-originals";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
-import { useDateFormat } from "@/lib/dates";
-import {
-  discardOfflineJob,
-  getOfflineQueueEntries,
-  getRecentlySynced,
-  OFFLINE_QUEUE_CHANGED,
-  queueErrorKey,
-  type OfflineQueueEntry,
-  type OfflineQueueState,
-  type SyncedQueueEntry,
-} from "@/services/offline-sync.service";
 
-/** How each state reads next to the action (AC-049). */
-const STATE_CLASS: Record<OfflineQueueState, string> = {
-  waiting: "text-muted-foreground",
-  syncing: "text-primary",
-  retrying: "text-warning",
-  failed: "text-destructive",
-  held: "text-warning",
-};
-
+/**
+ * The top bar's upload sign: shown only while something waits.
+ *
+ * Lucas, 2026-10-09: 「现场人员只需拍照、提交，不需要了解原图备份和同步操作」
+ * and 「原图同步、重试及储存管理放在技术管理页面，不显示给现场人员」. So this is
+ * a sign, not a control panel: the cloud icon with how many records wait, and
+ * one sentence when tapped - 「已暂存，等待上传」, they go by themselves. No
+ * retry, no discard, no originals, no storage figures: those are on the
+ * technical page (`components/technical`). Originals are never counted here;
+ * they back themselves up out of sight.
+ */
 export function OfflineStatus() {
   const t = useTranslations();
-  const df = useDateFormat();
-  const { user } = useAuth();
-  const { isOnline, isSyncing, pendingCount, failedCount, syncNow } =
-    useOfflineSync();
-  const [open, setOpen] = useState(false);
-  // 「放弃」 deletes work the server never received (四.6): live only while
-  // this switch is on (spec rule 8), and off again whenever the panel closes.
-  const [discardArmed, setDiscardArmed] = useState(false);
-  const [entries, setEntries] = useState<OfflineQueueEntry[]>([]);
-  const [synced, setSynced] = useState<SyncedQueueEntry[]>([]);
-  // Photo originals (H5 三, WP1): their own queue, shown in this same panel -
-  // the phone's place for 「同步原图」 for everything waiting.
-  const originals = useLocalOriginals(user?.id);
-  useOriginalAutoSync(user?.id);
-  const originalsWaiting = originals.summary.waiting + originals.summary.captured;
+  const { isOnline, isSyncing, pendingCount, failedCount } = useOfflineSync();
 
-  useEffect(() => {
-    if (!open || !user) return;
-    let cancelled = false;
-    const load = () => {
-      setSynced(getRecentlySynced(user.id));
-      void getOfflineQueueEntries(user.id)
-        .then((rows) => {
-          if (!cancelled) setEntries(rows);
-        })
-        .catch(() => {
-          if (!cancelled) setEntries([]);
-        });
-    };
-    load();
-    // The queue announces each job it starts and finishes, so an open panel
-    // follows 同步中 from row to row instead of only refreshing at the end.
-    window.addEventListener(OFFLINE_QUEUE_CHANGED, load);
-    return () => {
-      cancelled = true;
-      window.removeEventListener(OFFLINE_QUEUE_CHANGED, load);
-    };
-  }, [open, user, pendingCount, isSyncing]);
+  if (isOnline && pendingCount === 0 && !isSyncing) return null;
 
-  if (isOnline && pendingCount === 0 && !isSyncing && originalsWaiting === 0) return null;
-
-  const label = !isOnline
-    ? t("offline.status.offline", { count: pendingCount })
-    : isSyncing
-      ? t("offline.status.syncing")
-      : pendingCount === 0 && originalsWaiting > 0
-        ? t("originals.title")
-        : t("offline.status.pending", { count: pendingCount });
+  const label =
+    pendingCount > 0
+      ? t("offline.status.waiting", { count: pendingCount })
+      : isSyncing
+        ? t("offline.status.syncing")
+        : t("offline.status.offlineNothing");
   const Icon = !isOnline ? CloudOff : isSyncing ? RefreshCw : CloudUpload;
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (!next) setDiscardArmed(false);
-      }}
-    >
+    <Popover>
       <PopoverTrigger asChild>
         <Button
           type="button"
@@ -104,6 +45,7 @@ export function OfflineStatus() {
           size="icon"
           className="relative h-9 w-9 text-warning"
           aria-label={label}
+          data-upload-indicator
         >
           <Icon className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
           {pendingCount > 0 && (
@@ -119,195 +61,17 @@ export function OfflineStatus() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
-        <div className="flex items-center justify-between border-b px-3 py-2.5">
-          <div>
-            <p className="text-sm font-semibold">{label}</p>
-            {failedCount > 0 && (
-              <p className="text-xs font-medium text-destructive">
-                {t("offline.status.failed", { count: failedCount })}
-              </p>
-            )}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full px-3"
-            disabledReason={
-              !isOnline
-                ? t("common.offline")
-                : pendingCount === 0
-                  ? t("common.nothingToSync")
-                  : undefined
-            }
-            disabled={!isOnline || isSyncing || pendingCount === 0}
-            // A person pressing it: also resend what the server refused,
-            // which the automatic passes no longer do (A9).
-            onClick={() => void syncNow({ includeRefused: true })}
-          >
-            <RefreshCw
-              className={`h-3.5 w-3.5 ${isSyncing ? "animate-spin" : ""}`}
-            />
-            {t("offline.queue.retry")}
-          </Button>
-        </div>
-        <div className="max-h-72 overflow-y-auto">
-          {entries.length === 0 ? (
-            <p className="px-3 py-4 text-sm text-muted-foreground">
-              {t("offline.queue.empty")}
-            </p>
-          ) : (
-            <QueueEntries
-              entries={entries}
-              armed={discardArmed}
-              onArmedChange={setDiscardArmed}
-              onDiscard={(id) =>
-                void discardOfflineJob(id).then(() =>
-                  setEntries((current) => current.filter((row) => row.id !== id)),
-                )
-              }
-            />
-          )}
-          {originalsWaiting > 0 && (
-            <div className="border-t">
-              <OriginalBackupPanel />
-            </div>
-          )}
-          {synced.length > 0 && (
-            <div className="border-t">
-              <p className="px-3 pt-2.5 text-xs font-semibold text-muted-foreground">
-                {t("offline.queue.recent")}
-              </p>
-              <ul className="divide-y">
-                {synced.map((entry) => (
-                  <li key={entry.id} className="px-3 py-2">
-                    <p className="truncate text-sm">
-                      {t(`offline.kind.${entry.kind}`)}
-                      {entry.reference && (
-                        <span className="ml-1.5 text-xs text-muted-foreground">
-                          {entry.reference}
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-medium text-success">
-                        {t("offline.state.synced")}
-                      </span>
-                      {" · "}
-                      {df.dateTime(entry.syncedAt)}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+      <PopoverContent align="end" className="w-72 space-y-1.5 p-3">
+        <p className="text-sm font-semibold">{label}</p>
+        <p className="text-xs leading-5 text-muted-foreground">
+          {t(isOnline ? "offline.status.autoHelp" : "offline.status.offlineHelp")}
+        </p>
+        {failedCount > 0 && (
+          <p className="text-xs font-medium leading-5 text-destructive">
+            {t("offline.status.refusedHelp", { count: failedCount })}
+          </p>
+        )}
       </PopoverContent>
     </Popover>
-  );
-}
-
-/**
- * The queued actions, each with its 「放弃」 (四.6). Discarding deletes work
- * the server never received, so every discard button stays grey until the
- * switch above them is on (spec rule 8) - no dialog.
- */
-export function QueueEntries({
-  entries,
-  armed,
-  onArmedChange,
-  onDiscard,
-}: {
-  entries: OfflineQueueEntry[];
-  armed: boolean;
-  onArmedChange: (armed: boolean) => void;
-  onDiscard: (id: string) => void;
-}) {
-  const t = useTranslations();
-  const df = useDateFormat();
-  /** The stored reason in words: no-answer reasons are stored as a code. */
-  const reasonText = (lastError: string) => {
-    const key = queueErrorKey(lastError);
-    return key ? t(key) : lastError;
-  };
-  return (
-    <>
-      <ArmRow className="m-2 p-2">
-        <label className="flex min-w-0 flex-1 items-start gap-2.5">
-          <Switch
-            tone="danger"
-            size="sm"
-            className="mt-0.5"
-            checked={armed}
-            onCheckedChange={onArmedChange}
-            aria-label={t("offline.queue.armDiscard")}
-            data-arm-discard
-          />
-          <span className="text-xs leading-5 text-muted-foreground">
-            {t("offline.queue.armDiscardHelp")}
-          </span>
-        </label>
-      </ArmRow>
-      <ul className="divide-y">
-        {entries.map((entry) => (
-          <li key={entry.id} className="flex items-start gap-2 px-3 py-2.5">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">
-                {t(`offline.kind.${entry.kind}`)}
-                {entry.reference && (
-                  <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                    {entry.reference}
-                  </span>
-                )}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                <span className={`font-medium ${STATE_CLASS[entry.state]}`}>
-                  {t(`offline.state.${entry.state}`)}
-                </span>
-                {" · "}
-                {df.dateTime(entry.queuedAt)}
-              </p>
-              {(entry.state === "failed" || entry.state === "retrying") && (
-                <p
-                  className={`mt-0.5 text-xs font-medium ${STATE_CLASS[entry.state]}`}
-                >
-                  {t("offline.queue.attemptFailed", {
-                    count: entry.attempts,
-                  })}
-                  {entry.lastError ? ` · ${reasonText(entry.lastError)}` : ""}
-                </p>
-              )}
-              {entry.state === "failed" && (
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {t("offline.queue.needsAttentionHint")}
-                </p>
-              )}
-              {entry.hint && (
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {t(entry.hint)}
-                </p>
-              )}
-              {entry.state === "held" && (
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {t("offline.queue.heldHint")}
-                </p>
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
-              title={t("offline.queue.discard")}
-              disabled={!armed}
-              disabledReason={t("offline.queue.armFirst")}
-              data-discard
-              onClick={() => onDiscard(entry.id)}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </li>
-        ))}
-      </ul>
-    </>
   );
 }

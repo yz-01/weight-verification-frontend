@@ -5803,6 +5803,7 @@
       "viewDetail": "Details",
       "returnProcessing": "Record the exit (both sign)",
       "exitWaitingUpload": "This exit is already saved on this phone and uploads by itself when there is signal - no need to do it again. Follow it in What I sent.",
+      "exitUploading": "Uploading {photos} photos and both signatures - please wait and keep this window open.",
       "waitingForSite": "Approved / waiting to leave site: the site records the exit with both signatures.",
       "finalConfirm": "Confirm the exit",
       "waitingForOffice": "The material has left. Waiting for the office to confirm.",
@@ -7438,7 +7439,7 @@
       "equipment_not_on_site": "This machine is not on site on this project, so it cannot go out.",
       "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again.",
       "original_not_expected": "The server has no photo waiting for this original yet. Let the record finish uploading first.",
-      "original_hash_mismatch": "The original was damaged on the way and does not match the one on the phone, so nothing was saved. Press 'Sync originals' again.",
+      "original_hash_mismatch": "The original was damaged on the way and does not match the one on the phone, so nothing was saved. The system tries again; it can also be retried on the Technical management page.",
       "original_not_found": "This photo has no backed-up original.",
       "driver_link_invalid": "This link no longer works. Ask the recycler to send it again.",
       "driver_link_closed": "This trip is finished and its link is closed.",
@@ -9734,9 +9735,7 @@
     "subtitle": "Everything you submitted, newest first.",
     "refresh": "Check again",
     "empty": "Nothing yet. Anything you submit appears here.",
-    "waitingToUpload": "Waiting to upload",
     "uploadFailed": "Upload refused",
-    "attempts": "{count} attempts",
     "historyWindow": "The phone keeps the last {days} days. Older records are in the office system.",
     "truncated": "Showing {shown} of {total}.",
     "loadOlder": "Load earlier records",
@@ -9834,7 +9833,7 @@
     "loadFailed": "This record could not be opened",
     "queuedTitle": "Still on this phone",
     "queuedHelp": "Nothing has been sent yet. It goes out on its own once there is a connection.",
-    "failedHelp": "The server refused this. Fix what it says below, then send again.",
+    "failedHelp": "The server did not accept this one, so it is not sent again by itself. The reason is below; ask your administrator to sort it out.",
     "close": "Close",
     "unit": {
       "BAG": "Bag",
@@ -9850,7 +9849,7 @@
     "noPaymentProofs": "Vouchers appear here once finance has paid.",
     "conversation": "Record communication",
     "removeFromList": "Remove from my list",
-    "removeHelp": "Only takes it off the list on this phone. The cloud record, the office and everyone else are not affected; you can show it again under \"Phone storage and clean-up\".",
+    "removeHelp": "Only takes it off the list on this phone. The cloud record, the office and everyone else are not affected; press \"Show them all again\" under the list to bring it back.",
     "hiddenNote": "{count} removed from my list."
   },
   "nav": {
@@ -10176,7 +10175,8 @@
       "equipmentExit": "Equipment exit",
       "targetReport": "Targets and achievement",
       "manufacturers": "Manufacturers",
-      "equipmentOperatorHours": "Equipment operator hours"
+      "equipmentOperatorHours": "Equipment operator hours",
+      "technical": "Technical management"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -10309,7 +10309,8 @@
       "open": "Open to deal with it",
       "expand": "Expand",
       "collapse": "Collapse",
-      "more": "{count} more - see all",
+      "scrollBack": "Earlier cards",
+      "scrollForward": "More cards",
       "linkedRecord": "The record this card points to"
     },
     "what": {
@@ -10360,14 +10361,17 @@
       "armDiscardHelp": "Turn this on before you can press discard beside an action. A discarded action is deleted from the phone and never uploaded.",
       "armFirst": "Turn on the switch above first"
     },
-    "queued": "Saved offline and queued for upload",
+    "queued": "Saved on this phone, waiting to upload",
     "status": {
       "failed": "{count, plural, one {# action needs attention} other {# actions need attention}}",
-      "offline": "Offline; {count, plural, one {# record is waiting} other {# records are waiting}}",
-      "pending": "{count, plural, one {# record is waiting to sync} other {# records are waiting to sync}}",
-      "syncing": "Uploading offline records"
+      "syncing": "Uploading saved records",
+      "waiting": "{count, plural, one {# record saved on this phone, waiting to upload} other {# records saved on this phone, waiting to upload}}",
+      "offlineNothing": "No connection right now",
+      "autoHelp": "They upload by themselves when there is a connection. Nothing to do.",
+      "offlineHelp": "No connection right now. Your records are saved on this phone and upload by themselves when the connection is back. Nothing to do.",
+      "refusedHelp": "{count, plural, one {# of them was not accepted by the server} other {# of them were not accepted by the server}}. See why under \"My submissions\" and ask your administrator to sort it out."
     },
-    "synced": "Uploaded {count, plural, one {# offline record} other {# offline records}}",
+    "synced": "Uploaded {count, plural, one {# saved record} other {# saved records}}",
     "alreadyQueued": "This action is already waiting to sync. It will not be sent twice.",
     "state": {
       "waiting": "Waiting to sync",
@@ -10388,7 +10392,8 @@
     "reason": {
       "network": "No connection",
       "timeout": "Upload timed out (weak signal)"
-    }
+    },
+    "submitted": "Submitted"
   },
   "organisation": {
     "department": {
@@ -16148,8 +16153,7 @@
       "photoEnd": "Last photo taken at {end}"
     },
     "toast": {
-      "endSaved": "End time saved",
-      "uploaded": "Photo uploaded"
+      "endSaved": "End time saved"
     },
     "phone": {
       "howTo": "Take a photo of the machine when you start it, and another when you stop. The hours run from the first photo to the last.",
@@ -16179,7 +16183,6 @@
     "dark": "Dark"
   },
   "originals": {
-    "title": "Original backup",
     "status": {
       "APPLICATION_UPLOADED": "Photo uploaded",
       "ORIGINAL_PENDING": "Original waiting to sync",
@@ -16189,22 +16192,18 @@
     "waiting": "{count, plural, one {# original} other {# originals}} waiting to sync (about {mb} MB)",
     "failed": "{count, plural, one {# original} other {# originals}} failed to sync",
     "failedNetwork": "Last time there was no signal or it was too weak to finish.",
-    "failedOther": "Last time it did not go through. Press 'Sync originals' again.",
+    "failedOther": "Last time it did not go through. The system tries again by itself, or press \"Retry originals\".",
     "capturedNote": "{count, plural, one {# original is} other {# originals are}} waiting for their record to upload first.",
     "nothingWaiting": "No originals waiting to sync",
     "readFailed": "This phone cannot read its stored originals (the system may have cleared them, or the browser does not allow storage).",
-    "trafficNote": "Syncing uses about {mb} MB of data. Best done on Wi-Fi.",
-    "sync": "Sync originals",
     "syncing": "Syncing originals {done}/{total}, about {mb} MB left",
-    "offline": "No connection right now. Sync the originals once you are online.",
+    "offline": "No connection right now; originals back up by themselves once there is one.",
     "result": {
       "backedUp": "{count, plural, one {# original} other {# originals}} backed up",
       "failed": "{count} did not go through",
       "notYet": "{count} waiting for their record to upload",
       "nothing": "Nothing to sync"
     },
-    "autoLabel": "Upload originals too",
-    "autoHelp": "When on, originals follow as soon as their record is uploaded, which uses more data. Turn it on when you are on Wi-Fi; turn it off on mobile data and press 'Sync originals' yourself later.",
     "storage": {
       "title": "Stored on this phone",
       "held": "{count, plural, one {# original} other {# originals}} stored here, about {mb} MB",
@@ -16219,17 +16218,7 @@
     "limit": {
       "local": "Until synced, an original exists only in this phone's browser. If the app is not opened for a while on an iPhone, if the phone runs out of space, or if website data is cleared in Settings, stored originals can be lost. Sync them soon.",
       "verified": "'Original backed up' appears only after the server has received the original and checked that it matches exactly.",
-      "frame": "The original here is the frame the app captured when you took the photo, saved at high quality (about 1-2 MB). It is not the phone camera's own original file.",
-      "soon": "Sync soon: originals stored on the phone can be cleared by the system."
-    },
-    "record": {
-      "title": "Originals",
-      "counts": "{backedUp}/{expected} backed up",
-      "noOriginal": "This record kept no originals (photos uploaded).",
-      "allBackedUp": "All originals of this record are backed up on the server.",
-      "heldHere": "This phone holds {count, plural, one {# original} other {# originals}} of this record, about {mb} MB.",
-      "missingHere": "{count, plural, one {# original is} other {# originals are}} not on this phone (taken on another phone, or cleared by the system) and cannot be synced from here.",
-      "sync": "Sync this record's originals"
+      "frame": "The original here is the frame the app captured when you took the photo, saved at high quality (about 1-2 MB). It is not the phone camera's own original file."
     }
   },
   "phoneStorage": {
@@ -16269,5 +16258,46 @@
     "otherDeviceBody": "The link works only on the first phone that opened it. Ask the recycler to send it again.",
     "failedTitle": "Cannot open right now",
     "failedBody": "Check your connection and try again."
+  },
+  "technical": {
+    "title": "Technical management",
+    "subtitle": "Checks and fixes for phone photo uploads, original backups and what phones keep. Site staff do not see this page; they only take photos and submit.",
+    "server": {
+      "title": "Originals each phone still owes",
+      "help": "The server's record, for the whole company. An original exists only on the phone that took it: \"Waiting\" and \"Failed\" ones come up when that phone is online with the app open. \"Backed up\" means the server received the original and it matched exactly.",
+      "what": "original backups",
+      "totals": "Waiting {pending} · Failed {failed} · Backed up {backedUp} · About {mb} MB still owed",
+      "empty": "No originals recorded yet.",
+      "unknownPerson": "(account removed)",
+      "column": {
+        "person": "Person",
+        "pending": "Waiting",
+        "failed": "Failed",
+        "backedUp": "Backed up",
+        "owed": "Still owed",
+        "oldest": "Oldest",
+        "lastError": "Last failure"
+      },
+      "error": {
+        "hashMismatch": "Arrived different from the phone's copy",
+        "other": "Did not go through"
+      }
+    },
+    "device": {
+      "title": "This device",
+      "note": "What follows is only this device, for the account signed in on it. Saved records and originals exist only on the phone that took them: to deal with a worker's phone, sign in on that phone with the worker's account and open {path} (it is not in the field menu).",
+      "queueTitle": "Records waiting to upload",
+      "queueCount": "{count, plural, one {# on this device} other {# on this device}}",
+      "queueHelp": "These upload by themselves: they wait for the connection, and after a failure try again at growing intervals (at most 5 minutes). One the server refused is not sent again by itself: once sorted out, press Retry now, or turn on the switch and discard it.",
+      "originalsTitle": "Original backup",
+      "originalsHelp": "Once a record is uploaded its originals follow by themselves; there is no switch. On mobile data or a slow connection they go more slowly, after the records, but they always go. An original the server keeps refusing is no longer retried by itself; it stays on the phone and can be retried here.",
+      "gentle": "This device is on mobile data or a slow connection: originals go after the records, more slowly.",
+      "retryOriginals": "Retry originals"
+    },
+    "phone": {
+      "title": "Device check",
+      "subtitle": "For technicians: this phone's saved records, original backup and storage.",
+      "back": "Back"
+    }
   }
 }

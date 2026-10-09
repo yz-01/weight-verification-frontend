@@ -1,5 +1,6 @@
 /** Attendance, progress and safety records, all scoped through a project. */
 
+import { earliestTakenAt } from "@/lib/photo-meta";
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type { ExportRequest } from "@/services/contractor.service";
 import type {
@@ -103,7 +104,10 @@ export function exportSafetyIncidents(request: ExportRequest): Promise<void> {
 export async function createSafetyIncident(
   payload: SafetyIncidentPayload,
 ): Promise<SafetyIncident> {
-  const data = multipart(payload as unknown as Record<string, unknown>);
+  // Left empty, when it happened is when its first photo was taken - not
+  // when a queued report reached the server (2026-10-09 audit).
+  const occurredAt = payload.occurred_at || earliestTakenAt(payload.photos ?? []);
+  const data = multipart({ ...payload, occurred_at: occurredAt } as unknown as Record<string, unknown>);
   const incident = await api.post<SafetyIncident>(
     "/api/safety-incidents/create_safety_incident/",
     data,

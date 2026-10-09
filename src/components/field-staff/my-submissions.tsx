@@ -54,12 +54,6 @@ import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-w
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import {
-  OriginalBackupBanner,
-  RecordOriginalBackup,
-  RowOriginalStatus,
-} from "@/components/shared/original-backup";
-import { useLocalOriginals } from "@/hooks/use-local-originals";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
@@ -69,7 +63,7 @@ import {
   ShellPanel,
 } from "@/components/shared/record-detail-shell";
 import { StatusBadge } from "@/components/shared/page-primitives";
-import type { ChatRecordKind } from "@/lib/record-chat";
+import { parseChatParam, type ChatRecordKind } from "@/lib/record-chat";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -90,10 +84,12 @@ import {
 import {
   getOfflineQueueEntries,
   getQueuedSubmissionDetail,
+  OFFLINE_QUEUE_CHANGED,
   queueErrorKey,
 } from "@/services/offline-sync.service";
 import { prunePhotoCache } from "@/lib/photo-cache";
-import { PhoneStoragePanel } from "@/components/field-staff/phone-storage-panel";
+import { queuedRowKey } from "@/lib/upload-schedule";
+import { photoMeta } from "@/lib/photo-meta";
 import { ArmRow } from "@/components/shared/page-primitives";
 import { useHiddenSubmissions } from "@/hooks/use-hidden-submissions";
 import {
@@ -101,6 +97,7 @@ import {
   hiddenKey,
   hideSubmission,
   pruneHiddenSubmissions,
+  unhideAllSubmissions,
   withoutHidden,
 } from "@/lib/hidden-submissions";
 
@@ -154,13 +151,16 @@ export function MySubmissions({
   const t = useTranslations();
   const formatter = useDateFormat();
   const { user } = useAuth();
-  // The originals this phone still holds, to show each row's state (H5 三.5).
-  const originals = useLocalOriginals(user?.id);
   const [openRow, setOpenRow] = useState<MySubmissionRow | null>(null);
   // The office's 验收 / 不通过 notice for an equipment entry or exit links to
   // `/field-staff?…&movement=<id>` (Fable B4 #15): that movement opens here,
   // with its status, its evidence and the reason it was not accepted.
   const [linkedMovement, setLinkedMovement] = useUrlSelection("movement");
+  // A chat notice links to `/field-staff?tab=home&chat=<KIND>:<id>`
+  // (2026-10-09): the worker's own submission opens with its conversation;
+  // a record that is not in their list opens as the conversation alone.
+  const [linkedChat, setLinkedChat] = useUrlSelection("chat");
+  const chatTarget = parseChatParam(linkedChat);
   const [openQueued, setOpenQueued] = useState<string | null>(null);
 
   // The newest page (client 2026-10-09 五.1/五.2): opening the app reads
@@ -214,6 +214,14 @@ export function MySubmissions({
     // rely on an invalidation from a mutation.
     refetchInterval: 15_000,
   });
+  // A row flips from 「已暂存，等待上传」 to submitted the moment its upload
+  // lands, not up to fifteen seconds later.
+  const refetchQueued = queued.refetch;
+  useEffect(() => {
+    const onChange = () => void refetchQueued();
+    window.addEventListener(OFFLINE_QUEUE_CHANGED, onChange);
+    return () => window.removeEventListener(OFFLINE_QUEUE_CHANGED, onChange);
+  }, [refetchQueued]);
 
   const rows = useMemo(() => {
     const seen = new Set<string>();
@@ -231,7 +239,10 @@ export function MySubmissions({
   const linkedRow = linkedMovement
     ? rows.find((row) => row.kind === "EQUIPMENT_MOVEMENT" && row.id === linkedMovement) ?? null
     : null;
-  const shownRow = openRow ?? linkedRow;
+  const chatRow = chatTarget
+    ? rows.find((row) => row.kind === chatTarget.kind && row.id === chatTarget.recordId) ?? null
+    : null;
+  const shownRow = openRow ?? linkedRow ?? chatRow;
   const waiting = (queued.data ?? []).filter(
     (entry) => entry.kind in QUEUED_KINDS,
   );
@@ -261,55 +272,51 @@ export function MySubmissions({
         </Button>
       </div>
 
-      {/* 「同步原图」 for everything waiting (H5 三.4, WP1); nothing when none waits. */}
-      <OriginalBackupBanner />
-
       {/* Queued first: the phone is the only thing that knows these exist. */}
-      {waiting.map((entry) => (
-        <button
-          key={entry.id}
-          type="button"
-          onClick={() => setOpenQueued(entry.id)}
-          className={`w-full rounded-xl border p-3 text-left transition-colors active:bg-muted/60 ${entry.state === "retrying" ? "border-warning/40 bg-warning/5" : entry.lastError ? "border-destructive/40 bg-destructive/5" : "border-dashed border-panel-border"}`}
-        >
-          <div className="flex items-center gap-2">
-            {entry.lastError ? (
-              <AlertTriangle className="size-4 shrink-0 text-destructive" />
-            ) : (
-              <CloudUpload className="size-4 shrink-0 text-muted-foreground" />
+      {waiting.map((entry) => {
+        // Refused by the server: the one case the worker must hear about
+        // (F-230). Anything else is simply still on the phone and goes by
+        // itself - no attempt counts or signal reasons (Lucas 2026-10-09).
+        const refused = entry.state === "failed";
+        return (
+          <button
+            key={entry.id}
+            type="button"
+            onClick={() => setOpenQueued(entry.id)}
+            className={`w-full rounded-xl border p-3 text-left transition-colors active:bg-muted/60 ${refused ? "border-destructive/40 bg-destructive/5" : "border-dashed border-panel-border"}`}
+            data-queued-row
+          >
+            <div className="flex items-center gap-2">
+              {refused ? (
+                <AlertTriangle className="size-4 shrink-0 text-destructive" />
+              ) : (
+                <CloudUpload className="size-4 shrink-0 text-warning" />
+              )}
+              <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                {entry.reference || t(`mySubmissions.kind.${QUEUED_KINDS[entry.kind]}`)}
+              </span>
+              <span className={`shrink-0 text-xs ${refused ? "text-destructive" : "text-warning"}`}>
+                {/* Lucas 2026-10-09 point 4: not on the server = 「已暂存，等待上传」. */}
+                {t(queuedRowKey(entry))}
+              </span>
+            </div>
+            {/* F-230: this sentence was already being stored and nothing read
+                it, so a submission the server had refused was invisible to the
+                only person who could correct it. */}
+            {refused && entry.lastError && (
+              <p className="mt-1 text-xs text-destructive">
+                {queueErrorKey(entry.lastError)
+                  ? t(queueErrorKey(entry.lastError) as string)
+                  : entry.lastError}
+              </p>
             )}
-            <span className="min-w-0 flex-1 truncate text-sm font-medium">
-              {entry.reference || t(`mySubmissions.kind.${QUEUED_KINDS[entry.kind]}`)}
-            </span>
-            <span className={`shrink-0 text-xs ${entry.lastError ? "text-destructive" : "text-muted-foreground"}`}>
-              {entry.state === "failed"
-                ? t("offline.state.failed")
-                : entry.state === "retrying"
-                  ? t("offline.state.retrying")
-                  : entry.lastError
-                    ? t("mySubmissions.uploadFailed")
-                    : t("mySubmissions.waitingToUpload")}
-            </span>
-          </div>
-          {/* F-230: this sentence was already being stored and nothing read
-              it, so a submission the server had refused was invisible to the
-              only person who could correct it. */}
-          {entry.lastError && (
-            <p className="mt-1 text-xs text-destructive">
-              {queueErrorKey(entry.lastError)
-                ? t(queueErrorKey(entry.lastError) as string)
-                : entry.lastError}
+            <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+              {formatter.dateTime(entry.queuedAt)}
+              <ChevronRight className="ml-auto size-4 shrink-0" />
             </p>
-          )}
-          <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-            {formatter.dateTime(entry.queuedAt)}
-            {entry.attempts > 0
-              ? ` · ${t("mySubmissions.attempts", { count: entry.attempts })}`
-              : ""}
-            <ChevronRight className="ml-auto size-4 shrink-0" />
-          </p>
-        </button>
-      ))}
+          </button>
+        );
+      })}
 
       <FieldLoadNote query={queued} what={t("fieldStaffPwa.what.queued")} />
       {stored.isLoading ? (
@@ -368,11 +375,6 @@ export function MySubmissions({
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {formatter.dateTime(row.submitted_at)} · {recordStatusLabel(t, row, PHONE_STATUS)}
                   </p>
-                  <RowOriginalStatus
-                    summary={row.original_backup}
-                    local={originals.rows}
-                    photoCount={row.photo_count}
-                  />
                 </div>
                 {row.kind === "HAZARD" && onOpenHazard ? (
                   <MessagesSquare className="mt-1 size-4 shrink-0 text-muted-foreground" />
@@ -436,10 +438,17 @@ export function MySubmissions({
         </ul>
       )}
 
+      {/* Records this worker took off their own list come back from here:
+          the rest of 「本机存储与清理」 is on the technical page now. */}
       {hiddenCount > 0 && (
-        <p className="text-center text-xs text-muted-foreground" data-hidden-note>
-          {t("mySubmissions.hiddenNote", { count: hiddenCount })}
-        </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-2 text-xs text-muted-foreground" data-hidden-note>
+          <span>{t("mySubmissions.hiddenNote", { count: hiddenCount })}</span>
+          {user?.id && (
+            <Button type="button" size="sm" variant="ghost" className="h-8" onClick={() => unhideAllSubmissions(user.id)} data-show-hidden>
+              {t("phoneStorage.showHidden")}
+            </Button>
+          )}
+        </div>
       )}
 
       {/* Said rather than implied: a list of twenty out of sixty that claims
@@ -484,7 +493,6 @@ export function MySubmissions({
         </p>
       )}
 
-      <PhoneStoragePanel windowDays={windowDays} />
 
       {shownRow && (
         <StoredDetailSheet
@@ -492,8 +500,20 @@ export function MySubmissions({
           onClose={() => {
             setOpenRow(null);
             setLinkedMovement(null);
+            setLinkedChat(null);
           }}
         />
+      )}
+      {!shownRow && chatTarget && !stored.isLoading && (
+        <Dialog open onOpenChange={(next) => !next && setLinkedChat(null)}>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{t("recordChat.sectionTitle")}</DialogTitle>
+              <DialogDescription>{t("recordConversation.help")}</DialogDescription>
+            </DialogHeader>
+            <RecordConversationPanel kind={chatTarget.kind} recordId={chatTarget.recordId} />
+          </DialogContent>
+        </Dialog>
       )}
       {openQueued && user?.id && (
         <QueuedDetailSheet
@@ -606,13 +626,6 @@ function StoredDetailSheet({
                   {t("mySubmissions.returnedClosed")}
                 </p>
               )}
-              {/* This record's originals and its own 「同步原图」 (H5 三, WP1). */}
-              {detail.data.photos.length > 0 && (
-                <RecordOriginalBackup
-                  summary={detail.data.original_backup}
-                  onSynced={() => void queryClient.invalidateQueries({ queryKey: ["my-submissions"] })}
-                />
-              )}
             </>
           }
           facts={detail.data.fields.map((field) => ({
@@ -633,6 +646,8 @@ function StoredDetailSheet({
             // one is opened (client 2026-10-09 二.4, 五.3).
             thumbnailUrl: shot.thumbnail_url,
             label: shot.caption || row.reference,
+            // Its time and GPS: an in-app photo has both (2026-10-09).
+            ...photoMeta(shot),
           }))}
           /*
             The one action this sheet does offer (D-211): an approved
@@ -771,16 +786,7 @@ function QueuedDetailSheet({
           </p>
         ) : (
           <div className="space-y-3">
-            {entry.data.lastError && queueErrorKey(entry.data.lastError) ? (
-              // No answer from the server (no signal, timed out): not a
-              // refusal, nothing to correct - it goes again by itself (A9).
-              <div className="rounded-lg border border-warning/30 bg-warning/5 px-3 py-2">
-                <p className="text-sm font-medium text-warning">
-                  {t(queueErrorKey(entry.data.lastError) as string)}
-                </p>
-                <p className="mt-1 text-sm leading-6">{t("mySubmissions.queuedHelp")}</p>
-              </div>
-            ) : entry.data.lastError ? (
+            {entry.data.refused ? (
               <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
                 <p className="text-sm font-medium text-destructive">
                   {t("mySubmissions.failedHelp")}
@@ -790,7 +796,12 @@ function QueuedDetailSheet({
                 </p>
               </div>
             ) : (
+              // Not refused - no signal, or not tried yet: 「已暂存，等待上传」,
+              // and it goes by itself. No reasons or attempt counts (Lucas
+              // 2026-10-09: the worker only takes photos and submits).
               <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm leading-6">
+                <span className="font-medium">{t("offline.queued")}</span>
+                {" · "}
                 {t("mySubmissions.queuedHelp")}
               </p>
             )}
@@ -820,11 +831,6 @@ function QueuedDetailSheet({
               </div>
             )}
 
-            {entry.data.attempts > 0 && (
-              <p className="text-center text-xs text-muted-foreground">
-                {t("mySubmissions.attempts", { count: entry.data.attempts })}
-              </p>
-            )}
           </div>
         )}
       </DialogContent>

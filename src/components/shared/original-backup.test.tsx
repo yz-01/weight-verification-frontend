@@ -1,8 +1,14 @@
 /**
- * The four states on the phone (H5 三.5, WP1): on each row of 「我提交过的」 and
- * in the opened record, from the server's word - 「原图已备份」 only when the
- * server says so (三.6) - with the record's own 「同步原图」 and the honest
- * limits where the worker reads them.
+ * Lucas, 2026-10-09 「手机端原图备份页面调整」:
+ *
+ * 1. 现场人员只需拍照、提交，不需要了解原图备份和同步操作。
+ * 5. 原图同步、重试及储存管理放在技术管理页面，不显示给现场人员。
+ *
+ * So 「我提交过的」 and the field top bar carry no original states, no
+ * 「同步原图」, no switch and no storage figures; the technical page's device
+ * tools carry the retry, the storage and the honest limits - and still no
+ * switch, because the backup is automatic. The four states keep their words
+ * for the office's ledger.
  */
 import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -22,6 +28,10 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: { id: "u-1" }, can: () => true }),
 }));
+const sync = { isOnline: true, isSyncing: false, pendingCount: 2, failedCount: 0, syncNow: vi.fn() };
+vi.mock("@/components/providers/offline-sync-provider", () => ({
+  useOfflineSync: () => sync,
+}));
 vi.mock("@/components/shared/record-conversation", () => ({
   RecordConversationPanel: () => <div data-stub="conversation" />,
 }));
@@ -34,7 +44,9 @@ vi.mock("@/components/shared/record-export-button", () => ({
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
 const { MySubmissions } = await import("@/components/field-staff/my-submissions");
-const { OriginalBackupPanel, OriginalStatusText } = await import("@/components/shared/original-backup");
+const { OriginalStatusText } = await import("@/components/shared/original-backup");
+const { OfflineStatus } = await import("@/components/shared/offline-status");
+const { DeviceUploadTools, DEVICE_TOOLS_PATH } = await import("@/components/technical/device-upload-tools");
 
 const pending = {
   status: "ORIGINAL_PENDING" as const,
@@ -61,6 +73,17 @@ const row = {
   original_backup: pending,
 };
 
+const queuedEntry = {
+  id: "job-1",
+  kind: "MATERIAL_RECEIPT",
+  reference: "",
+  queuedAt: "2026-10-09T01:00:00Z",
+  attempts: 3,
+  lastError: "network",
+  state: "retrying",
+  hint: null,
+};
+
 function seeded(client: import("@tanstack/react-query").QueryClient) {
   client.setQueryData(["my-submissions"], {
     results: [
@@ -74,6 +97,7 @@ function seeded(client: import("@tanstack/react-query").QueryClient) {
     ],
     count: 2,
   });
+  client.setQueryData(["my-submissions", "queued", "u-1"], [queuedEntry]);
   client.setQueryData(["my-submissions", "detail", "EQUIPMENT_MOVEMENT", "mv-7"], {
     ...row,
     fields: [],
@@ -84,23 +108,6 @@ function seeded(client: import("@tanstack/react-query").QueryClient) {
   });
 }
 
-describe("originals on 「我提交过的」", () => {
-  it("shows each row's state from the server", () => {
-    const html = renderDetail(<MySubmissions />, seeded);
-    expect(html).toContain(messages.originals.status.ORIGINAL_PENDING);
-    expect(html).toContain(messages.originals.status.ORIGINAL_BACKED_UP);
-  });
-
-  it("shows the record's originals, and says when this phone does not hold one", () => {
-    const html = renderDetail(<MySubmissions />, seeded);
-    expect(html).toContain(messages.originals.record.title);
-    expect(html).toContain("已备份 1/2 张");
-    // Not held on this phone: said, and no button that cannot work.
-    expect(html).toContain("1 张原图不在这台手机上");
-    expect(html).not.toContain(messages.originals.record.sync);
-  });
-});
-
 function render(node: React.ReactNode) {
   return renderToStaticMarkup(
     <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
@@ -108,6 +115,54 @@ function render(node: React.ReactNode) {
     </NextIntlClientProvider>,
   );
 }
+
+describe("「我提交过的」 shows none of the backup machinery (points 1 and 5)", () => {
+  it("has no original states, no 「同步原图」 and no storage panel - on the list or in a record", () => {
+    const html = renderDetail(<MySubmissions />, seeded);
+    expect(html).toContain("EQ-SITE-007");
+    for (const status of Object.values(messages.originals.status)) {
+      expect(html).not.toContain(status);
+    }
+    expect(html).not.toContain("同步原图");
+    expect(html).not.toContain("原图");
+    expect(html).not.toContain(messages.phoneStorage.open);
+  });
+
+  it("shows a record still on the phone as 「已暂存，等待上传」, without retries or signal reasons", () => {
+    const html = renderDetail(<MySubmissions />, seeded);
+    expect(html).toContain("已暂存，等待上传");
+    expect(html).toContain("data-queued-row");
+    expect(html).not.toContain(messages.offline.reason.network);
+    expect(html).not.toContain("3 次");
+  });
+});
+
+describe("the field top bar is a sign, not a control panel", () => {
+  it("shows how many records wait, and nothing to press", () => {
+    const html = render(<OfflineStatus />);
+    expect(html).toContain("data-upload-indicator");
+    expect(html).toContain("已暂存 2 条，等待上传");
+    expect(html).not.toContain(messages.offline.queue.retry);
+    expect(html).not.toContain('role="switch"');
+    expect(html).not.toContain("原图");
+  });
+});
+
+describe("the technical page's device tools (point 5)", () => {
+  it("carry the retry, the storage and the limits - and no switch for the backup", () => {
+    const html = renderDetail(<DeviceUploadTools />);
+    expect(html).toContain(messages.technical.device.retryOriginals);
+    expect(html).toContain(messages.offline.queue.retry);
+    expect(html).toContain(messages.originals.storage.title);
+    expect(html).toContain(messages.originals.limit.local);
+    expect(html).toContain(messages.originals.limit.verified);
+    expect(html).toContain(messages.originals.limit.frame);
+    expect(html).toContain(messages.technical.device.originalsHelp);
+    // Only this device: said, with the hidden phone address.
+    expect(html).toContain(DEVICE_TOOLS_PATH);
+    expect(html).not.toContain("连原图一起上传");
+  });
+});
 
 describe("the four states", () => {
   it("each has its words", () => {
@@ -119,17 +174,5 @@ describe("the four states", () => {
     ] as const) {
       expect(render(<OriginalStatusText status={status} />)).toContain(messages.originals.status[status]);
     }
-  });
-});
-
-describe("the sync panel", () => {
-  it("tells the worker the limits, the switch and the storage plainly", () => {
-    const html = render(<OriginalBackupPanel />);
-    expect(html).toContain(messages.originals.sync);
-    expect(html).toContain(messages.originals.autoLabel);
-    expect(html).toContain(messages.originals.limit.local);
-    expect(html).toContain(messages.originals.limit.verified);
-    expect(html).toContain(messages.originals.limit.frame);
-    expect(html).toContain(messages.originals.storage.title);
   });
 });

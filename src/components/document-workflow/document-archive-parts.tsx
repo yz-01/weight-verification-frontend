@@ -338,7 +338,7 @@ export function DocumentThumb({
     >
       {kind === "image" && shown ? (
         // eslint-disable-next-line @next/next/no-img-element -- a blob: URL fetched with the session, or the server's watermarked copy; next/image cannot load either.
-        <img src={shown} alt="" className="h-full w-full object-cover" />
+        <img loading="lazy" decoding="async" src={shown} alt="" className="h-full w-full object-cover" />
       ) : (
         <>
           <Icon className={cn("h-4 w-4", KIND_TONE[kind])} />

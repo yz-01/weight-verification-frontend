@@ -1,6 +1,7 @@
 /**
- * The switch rule on the phone's three ways to remove something (client
- * 2026-10-09 四.3-四.6; Lucas's decision 3, spec rule 8):
+ * The switch rule on the three ways to remove something (client 2026-10-09
+ * 四.3-四.6; Lucas's decision 3, spec rule 8). The first two are on the
+ * technical page since Lucas's update of the same day:
  *
  * - 「清理本地记录」 is grey until its switch is on, and the switch's words say
  *   what goes and what stays;
@@ -29,7 +30,7 @@ vi.mock("@/components/providers/offline-sync-provider", () => ({
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
 const { PhoneStorageView } = await import("@/components/field-staff/phone-storage-panel");
-const { QueueEntries } = await import("@/components/shared/offline-status");
+const { QueueEntries } = await import("@/components/technical/device-upload-tools");
 const { MySubmissions } = await import("@/components/field-staff/my-submissions");
 
 /** The opening tag of the one element carrying `attribute`. */
@@ -147,7 +148,7 @@ describe("「从我的列表移除」 on the worker's list", () => {
     expect(removable).toHaveLength(1);
     // Two steps in place: the confirming sentence is not shown until tapped.
     expect(html).not.toContain("data-remove-strip");
-    // The storage section sits under the list.
-    expect(html).toContain(messages.phoneStorage.open);
+    // Storage and clean-up moved to the technical page (Lucas 2026-10-09).
+    expect(html).not.toContain(messages.phoneStorage.open);
   });
 });

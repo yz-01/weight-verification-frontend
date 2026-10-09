@@ -88,6 +88,28 @@ export interface OriginalBackupSummary {
   waiting_bytes: number;
 }
 
+/** One person's originals on the technical page (`get_backup_overview`). */
+export interface OriginalBackupPerson {
+  user_id: string | null;
+  name: string;
+  email: string;
+  /** Declared, not arrived: only that person's phone holds the bytes. */
+  pending: number;
+  failed: number;
+  backed_up: number;
+  /** Bytes still owed (pending + failed). */
+  owed_bytes: number;
+  oldest_owed_at: string | null;
+  last_failed_at: string | null;
+  last_backed_up_at: string | null;
+  last_error: string;
+}
+
+export interface OriginalBackupOverview {
+  totals: { pending: number; failed: number; backed_up: number; owed_bytes: number };
+  people: OriginalBackupPerson[];
+}
+
 /** The evidence ledger's view of one row's original. */
 export interface EvidenceOriginal {
   status: OriginalStatus;

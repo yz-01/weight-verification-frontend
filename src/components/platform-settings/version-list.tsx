@@ -220,9 +220,10 @@ function VersionEditor({
     mutationFn: () => initial
       ? updateVersion(initial.id, form)
       : createVersion(form),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["app-versions"] });
+    onSuccess: () => {
+      // Close first; the list refreshes behind it rather than holding the dialog open.
       onClose();
+      void queryClient.invalidateQueries({ queryKey: ["app-versions"] });
     },
   });
   const addChange = useMutation({
