@@ -1,7 +1,7 @@
 "use client";
 
 /** The two photographs a trip cannot be marked loaded without (T-223). */
-type DriverPhotoKind = "LOADING" | "GATEPASS" | "ISSUE";
+export type DriverPhotoKind = "LOADING" | "GATEPASS" | "ISSUE";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -22,7 +22,7 @@ import {
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   DriverError,
@@ -81,11 +81,79 @@ import { useScreenWakeLock } from "@/components/driver/use-screen-wake-lock";
  * transition table the backend enforces, so a driver is never shown a button
  * that will be refused.
  */
-export function DriverTask({ id }: { id: string }) {
+export interface DriverTaskPosition {
+  latitude: string;
+  longitude: string;
+  accuracyM?: string;
+  eventType?: TaskPositionEvent;
+  originalOccurredAt?: string;
+}
+
+/**
+ * Where one trip's screen reads and writes.
+ *
+ * Two of them: a driver signed in to an account (older drivers, through the
+ * offline queue), and the trip's link (「只是用链接而已，不是账号了」), where
+ * the token in the address is the credential. The screen is the same either
+ * way - same steps, same photographs, same GPS - only the door differs.
+ * `"queued"` means the offline queue took it and it will upload later.
+ */
+export interface DriverTaskSource {
+  queryKey: readonly unknown[];
+  /** What to refresh after a step: the list too, for an account. */
+  invalidateKey: readonly unknown[];
+  enabled: boolean;
+  load: () => Promise<DriverTaskDetail>;
+  advance: (input: {
+    state: TaskState;
+    reason: string;
+    latitude?: string;
+    longitude?: string;
+  }) => Promise<unknown>;
+  addPhoto: (
+    file: File,
+    kind: DriverPhotoKind,
+    position: { latitude?: string; longitude?: string },
+  ) => Promise<unknown>;
+  recordPosition: (sample: DriverTaskPosition) => Promise<unknown>;
+}
+
+/** The signed-in driver's source: the offline-aware services, by account. */
+function useAccountSource(id: string, ownerId: string | undefined): DriverTaskSource {
+  return useMemo(
+    () => ({
+      queryKey: ["tasks", "detail", id],
+      invalidateKey: ["tasks"],
+      enabled: Boolean(ownerId),
+      load: () => getDriverTaskOfflineAware(ownerId!, id),
+      advance: (input) =>
+        submitTaskTransitionOfflineAware(ownerId!, { taskId: id, ...input }),
+      addPhoto: (file, kind, position) =>
+        submitTaskPhotoOfflineAware(ownerId!, id, file, kind, position),
+      recordPosition: (sample) =>
+        submitTaskPositionOfflineAware(ownerId!, { taskId: id, ...sample }),
+    }),
+    [id, ownerId],
+  );
+}
+
+export function DriverTask({
+  id,
+  source: givenSource,
+  backHref = "/driver/jobs",
+}: {
+  id: string;
+  /** Leave out for a signed-in driver; the trip link page passes its own. */
+  source?: DriverTaskSource;
+  /** Where 返回 goes; null on the link page, which has nowhere to go back to. */
+  backHref?: string | null;
+}) {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const accountSource = useAccountSource(id, user?.id);
+  const source = givenSource ?? accountSource;
   const { gpsStatus } = useDriverDeviceStatus();
 
   const [moving, setMoving] = useState<TaskState | null>(null);
@@ -104,9 +172,9 @@ export function DriverTask({ id }: { id: string }) {
   const lastPositionAt = useRef(0);
 
   const { data, isLoading, isLoadingError, refetch } = useQuery({
-    queryKey: ["tasks", "detail", id],
-    queryFn: () => getDriverTaskOfflineAware(user!.id, id),
-    enabled: Boolean(user),
+    queryKey: source.queryKey,
+    queryFn: source.load,
+    enabled: source.enabled,
     refetchInterval: 15_000,
   });
 
@@ -124,9 +192,8 @@ export function DriverTask({ id }: { id: string }) {
         setLocating(true);
         position = await currentPosition();
         setLocating(false);
-        if (user && position.latitude && position.longitude) {
-          await submitTaskPositionOfflineAware(user.id, {
-            taskId: id,
+        if (position.latitude && position.longitude) {
+          await source.recordPosition({
             eventType: "ARRIVAL",
             latitude: position.latitude,
             longitude: position.longitude,
@@ -134,9 +201,7 @@ export function DriverTask({ id }: { id: string }) {
           });
         }
       }
-      if (!user) throw new Error("A signed-in user is required.");
-      return submitTaskTransitionOfflineAware(user.id, {
-        taskId: id,
+      return source.advance({
         state,
         reason: reason.trim(),
         latitude: position.latitude,
@@ -146,7 +211,7 @@ export function DriverTask({ id }: { id: string }) {
     onSuccess: (result, state) => {
       if (result === "queued") {
         queryClient.setQueryData(
-          ["tasks", "detail", id],
+          source.queryKey,
           (current: typeof data) =>
             current
               ? {
@@ -157,7 +222,7 @@ export function DriverTask({ id }: { id: string }) {
               : current,
         );
       } else {
-        void queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        void queryClient.invalidateQueries({ queryKey: source.invalidateKey });
       }
       setMoving(null);
       setReason("");
@@ -167,12 +232,11 @@ export function DriverTask({ id }: { id: string }) {
 
   const upload = useMutation({
     mutationFn: async ({ file, kind }: { file: File; kind: DriverPhotoKind }) => {
-      if (!user) throw new Error("A signed-in user is required.");
       const position = await currentPosition();
       const missingGps = !position.latitude || !position.longitude;
       setGpsUnavailable(missingGps);
       if (missingGps) throw new Error("driver_photo_gps_required");
-      return submitTaskPhotoOfflineAware(user.id, id, file, kind, {
+      return source.addPhoto(file, kind, {
         latitude: position.latitude,
         longitude: position.longitude,
       });
@@ -185,20 +249,17 @@ export function DriverTask({ id }: { id: string }) {
           current.includes(variables.kind) ? current : [...current, variables.kind],
         );
       } else {
-        void queryClient.invalidateQueries({
-          queryKey: ["tasks", "detail", id],
-        });
+        void queryClient.invalidateQueries({ queryKey: source.queryKey });
       }
     },
   });
 
   function recordNavigation(eventType: TaskPositionEvent): void {
-    if (!user) return;
+    if (!source.enabled) return;
     void currentPosition()
       .then((position) => {
         if (!position.latitude || !position.longitude) return;
-        return submitTaskPositionOfflineAware(user.id, {
-          taskId: id,
+        return source.recordPosition({
           eventType,
           latitude: position.latitude,
           longitude: position.longitude,
@@ -209,7 +270,7 @@ export function DriverTask({ id }: { id: string }) {
   }
 
   useEffect(() => {
-    if (!user || !data?.is_running || !navigator.geolocation) return;
+    if (!source.enabled || !data?.is_running || !navigator.geolocation) return;
 
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
@@ -217,8 +278,7 @@ export function DriverTask({ id }: { id: string }) {
         const now = Date.now();
         if (now - lastPositionAt.current < 30_000) return;
         lastPositionAt.current = now;
-        void submitTaskPositionOfflineAware(user.id, {
-          taskId: id,
+        void source.recordPosition({
           latitude: position.coords.latitude.toFixed(7),
           longitude: position.coords.longitude.toFixed(7),
           accuracyM: position.coords.accuracy.toFixed(2),
@@ -230,7 +290,7 @@ export function DriverTask({ id }: { id: string }) {
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [data?.is_running, id, user]);
+  }, [data?.is_running, source]);
 
   // Declared before the early returns: a hook that only runs on some renders
   // is the one React rule this file cannot bend.
@@ -307,13 +367,15 @@ export function DriverTask({ id }: { id: string }) {
 
   return (
     <div className="space-y-4 pb-4">
-      <Link
-        href="/driver/jobs"
-        className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" />
-        {t("driver.back")}
-      </Link>
+      {backHref && (
+        <Link
+          href={backHref}
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          {t("driver.back")}
+        </Link>
+      )}
 
       {/*
         Whether the phone is recording, in one line, always visible while a

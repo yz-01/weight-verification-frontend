@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ImageUp, Info, Plus, Save } from "lucide-react";
+import { ImageUp, Info, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,20 +27,20 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { ApiError } from "@/interfaces/api";
 import type { Driver, DriverPayload } from "@/interfaces/recycler";
-import {
-  createDriver,
-  getDriverAccounts,
-  getDriver,
-  getVehicles,
-  updateDriver,
-} from "@/services/recycler.service";
+import { getDriver, getVehicles, updateDriver } from "@/services/recycler.service";
 
-/** The driver form, shared by create and edit. */
-export function CreateDriver({ driver }: { driver?: Driver }) {
+/**
+ * Correcting a driver already in the address book.
+ *
+ * No 新增司机 and no login any more (「我觉得司机账号可以直接移除了」,
+ * 「新增司机和新增车辆也是可以移除了」): a driver is typed in 接单与派车 and
+ * works each trip from its link. This form fixes a name or phone, records the
+ * licence, and takes a driver off the roster.
+ */
+export function DriverForm({ driver }: { driver: Driver }) {
   const t = useTranslations();
   const finish = useFinishForm();
   const queryClient = useQueryClient();
-  const isEdit = driver !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
   const [driverPhoto, setDriverPhoto] = useState<File | null>(null);
   const [licencePhoto, setLicencePhoto] = useState<File | null>(null);
@@ -49,21 +49,9 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
     queryKey: ["vehicles", "options"],
     queryFn: () => getVehicles({ page_size: 100, is_active: "true" }),
   });
-  // `driver` keeps this driver's own login in the list. The endpoint hides
-  // accounts that are already somebody's login — offering a taken one is a
-  // choice that can only be refused — and without this the edit form's account
-  // field would empty itself the moment it loaded.
-  const accounts = useQuery({
-    queryKey: ["driver-accounts", "options", driver?.id ?? ""],
-    queryFn: () =>
-      getDriverAccounts(
-        driver ? { page_size: 100, driver: driver.id } : { page_size: 100 },
-      ),
-  });
-
   const mutation = useMutation({
     mutationFn: (values: DriverPayload) =>
-      isEdit ? updateDriver(driver.id, values) : createDriver(values),
+      updateDriver(driver.id, values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["drivers"] });
       finish("/drivers");
@@ -81,25 +69,13 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
       emergency_contact: driver?.emergency_contact ?? "",
       notes: driver?.notes ?? "",
       default_vehicle: driver?.default_vehicle ?? "",
-      user: driver?.user ?? "",
-      account_email: "",
-      account_password: "",
-      login_idle_expiry_days: String(driver?.login_idle_expiry_days ?? 90),
       is_on_leave: driver?.is_on_leave ?? false,
       is_active: driver?.is_active ?? true,
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
-      // A driver without a login is a driver whose task list is empty forever,
-      // with nothing on either screen to say why. Caught here as well as on
-      // the server so the answer arrives before the round trip.
-      if (!value.user && !(value.account_email.trim() && value.account_password)) {
-        setFormError(t("drivers.accountRequired"));
-        toast.error(t("drivers.accountRequired"));
-        return;
-      }
-      // Same reason as the account above: the server refuses this, and the
-      // answer is already here, so say it now rather than after a round trip.
+      // The server refuses a missing lorry, and the answer is already here,
+      // so say it now rather than after a round trip.
       if (!value.default_vehicle) {
         setFormError(t("drivers.vehicleRequired"));
         toast.error(t("drivers.vehicleRequired"));
@@ -110,10 +86,6 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
           ...value,
           licence_expires_on: value.licence_expires_on || null,
           default_vehicle: value.default_vehicle,
-          user: value.user || null,
-          account_email: value.account_email.trim() || undefined,
-          account_password: value.account_password || undefined,
-          login_idle_expiry_days: Number(value.login_idle_expiry_days),
           ...(licencePhoto ? { licence_photo: licencePhoto } : {}),
           ...(driverPhoto ? { photo: driverPhoto } : {}),
         });
@@ -126,11 +98,7 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
             );
             if (leftover.length > 0) setFormError(leftover[0]);
             toast.error(
-              leftover[0] ??
-                error.errors.user ??
-                error.errors.account_email ??
-                error.errors.account_password ??
-                error.message,
+              leftover[0] ?? error.message,
             );
           } else {
             setFormError(error.message);
@@ -145,10 +113,10 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
     <FormShell
       backHref="/drivers"
       backLabel={t("drivers.title")}
-      title={isEdit ? t("drivers.editTitle") : t("drivers.createTitle")}
+      title={t("drivers.editTitle")}
       isSubmitting={mutation.isPending}
-      submitLabel={isEdit ? t("common.save") : t("common.create")}
-      submitIcon={isEdit ? Save : Plus}
+      submitLabel={t("common.save")}
+      submitIcon={Save}
       onSubmit={() => void form.handleSubmit()}
     >
       <FormSection title={t("drivers.section.identity")}>
@@ -225,77 +193,6 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
           <Info className="mt-0.5 size-3.5 shrink-0" />
           {t("drivers.vehicleRequiredHelp")}
         </p>
-      </FormSection>
-
-      <FormSection title={t("drivers.section.account")}>
-        <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
-          <Info className="mt-0.5 size-3.5 shrink-0" />
-          {t("drivers.accountRequiredHelp")}
-        </p>
-
-        <form.Field name="user">
-          {(field) => (
-            <div className="space-y-1">
-              <SelectField
-                field={field as unknown as BoundField}
-                label={t("drivers.field.account")}
-                required
-                hint={t("drivers.field.accountHint")}
-                options={(accounts.data?.results ?? []).map((account) => ({
-                  value: account.id,
-                  label: `${account.full_name} (${account.email})`,
-                }))}
-              />
-              <QueryFailedNote query={accounts} what={t("drivers.what.accounts")} />
-            </div>
-          )}
-        </form.Field>
-
-        {/*
-          The two ways to bind an account are exclusive, and the server says so:
-          sending both is refused. So the "make a new one" half appears only
-          while nothing is picked — which is also the path for moving a driver
-          onto a brand-new login, since clearing the picker brings it back.
-        */}
-        <form.Subscribe selector={(state) => state.values.user}>
-          {(selected) =>
-            selected ? null : (
-              <>
-                <form.Field name="account_email">
-                  {(field) => (
-                    <TextField
-                      field={field as unknown as BoundField}
-                      label={t("drivers.field.newAccountEmail")}
-                      type="email"
-                      placeholder={t("auth.login.emailPlaceholder")}
-                    />
-                  )}
-                </form.Field>
-                <form.Field name="account_password">
-                  {(field) => (
-                    <TextField
-                      field={field as unknown as BoundField}
-                      label={t("drivers.field.initialPassword")}
-                      type="password"
-                    />
-                  )}
-                </form.Field>
-              </>
-            )
-          }
-        </form.Subscribe>
-
-        <form.Field name="login_idle_expiry_days">
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("drivers.field.loginIdleExpiryDays")}
-              type="number"
-              required
-              placeholder="90"
-            />
-          )}
-        </form.Field>
       </FormSection>
 
       <FormSection title={t("drivers.section.licence")}>
@@ -419,5 +316,5 @@ export function EditDriver({ id }: { id: string }) {
   if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/drivers" backLabel={t("drivers.title")} />;
   }
-  return <CreateDriver driver={data} />;
+  return <DriverForm driver={data} />;
 }

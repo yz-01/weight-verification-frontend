@@ -31,6 +31,8 @@ const PUBLIC_PREFIXES = [
   "/offline",
   "/external",
   "/disposal-task",
+  // A driver's link for one trip: no account, the token is the credential.
+  "/driver-task",
   "/delivery-note",
   "/field-staff",
   "/scan",

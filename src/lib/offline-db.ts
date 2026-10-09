@@ -449,8 +449,13 @@ export interface TripAssignOfflineJob extends OfflineJobBase {
     dispatchId: string;
     dispatchNo: string;
     site: string;
+    /** A known lorry / driver by id; empty when they were typed instead. */
     vehicle: string;
     driver: string;
+    /** Typed in 接单与派车; absent on jobs queued before typing existed. */
+    driverName?: string;
+    driverPhone?: string;
+    vehiclePlate?: string;
     scheduledFor: string | null;
     notes: string;
     clientEventId: string;
