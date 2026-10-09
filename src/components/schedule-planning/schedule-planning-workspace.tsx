@@ -2,16 +2,16 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   Archive,
-  BarChart3,
-  CalendarDays,
+  CalendarRange,
   Check,
+  ChevronDown,
   Download,
+  Ellipsis,
   FileSpreadsheet,
   GitBranch,
   History,
-  List,
+  Info,
   Loader2,
   Pencil,
   Plus,
@@ -20,7 +20,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import {
@@ -28,9 +28,13 @@ import {
   usePageProject,
   useProjectBoxShown,
 } from "@/components/providers/current-project-provider";
+import { ScheduleFigures } from "@/components/schedule-planning/schedule-figures";
 import { ScheduleGantt } from "@/components/schedule-planning/schedule-gantt";
+import { ScheduleTaskTable } from "@/components/schedule-planning/schedule-task-table";
+import { isDelayed } from "@/components/schedule-planning/task-status";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
+  EmptyState as EmptyPanel,
   FieldWrapper,
   ListHeader,
   StatusBadge,
@@ -44,6 +48,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -52,14 +63,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/components/providers/auth-provider";
 import type {
@@ -71,6 +74,7 @@ import type {
   ScheduleTaskPayload,
 } from "@/interfaces/schedule-planning";
 import { useDateFormat } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 import {
   archiveSchedulePlan,
   confirmScheduleImport,
@@ -94,7 +98,10 @@ import {
   updateScheduleTask,
 } from "@/services/schedule-planning.service";
 
-type ViewMode = "list" | "gantt" | "revisions" | "history";
+/** The two panels of the folded-away 「计划版本和记录」 section. */
+export type AdvancedTab = "revisions" | "history";
+
+const ADVANCED_ID = "schedule-advanced";
 
 const tone = (status: string) => {
   if (["ACTIVE", "CONFIRMED"].includes(status)) return "positive" as const;
@@ -102,6 +109,26 @@ const tone = (status: string) => {
   return "warning" as const;
 };
 
+/**
+ * 施工计划管理, laid out for a site office (Lucas, 2026-10-09: 「改成简单的就好，
+ * 可是gantt chart那些还是需要保留」).
+ *
+ * One path down the page: pick a plan (or make or import one when there is
+ * none) → three figures → the Gantt chart → the task list. The Gantt is the
+ * main view rather than a tab. Everything else the page could do before is
+ * still here, moved rather than removed:
+ *
+ * - 「更多」 beside the plan picker: export Excel / PDF, new plan, import
+ *   Excel, rename, archive, new revision, and the way into versions and
+ *   history.
+ * - 「计划版本和记录」 at the foot, folded by default: the baseline and its
+ *   revisions (open, confirm, edit, remove a draft, 新建修订版) and the
+ *   history.
+ *
+ * Behaviour is unchanged: the same calls, permissions and dialogs. The cards
+ * now ask for the revision on screen, so they and the task list describe the
+ * same schedule.
+ */
 export function SchedulePlanningWorkspace({
   project: chosenProject,
   onProjectChange,
@@ -124,12 +151,15 @@ export function SchedulePlanningWorkspace({
   const setProject = onProjectChange ?? setOwnProject;
   const [selectedPlan, setSelectedPlan] = useState("");
   const [selectedRevision, setSelectedRevision] = useState("");
+  const [onlyDelayed, setOnlyDelayed] = useState(false);
   // A plan belongs to one project; another project starts with none chosen.
   useOnProjectChange(project, () => {
     setSelectedPlan("");
     setSelectedRevision("");
+    setOnlyDelayed(false);
   });
-  const [view, setView] = useState<ViewMode>("list");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [advancedTab, setAdvancedTab] = useState<AdvancedTab>("revisions");
   const [planDialog, setPlanDialog] = useState(false);
   const [importDialog, setImportDialog] = useState(false);
   const [revisionDialog, setRevisionDialog] = useState(false);
@@ -156,26 +186,30 @@ export function SchedulePlanningWorkspace({
     queryFn: () => getScheduleRevisions({ plan: plan?.id, page_size: 200 }),
     enabled: Boolean(plan),
   });
-  const revision =
-    revisions.data?.results.find((row) => row.id === selectedRevision) ??
+  const defaultRevision =
     revisions.data?.results.find((row) => row.status === "DRAFT") ??
     revisions.data?.results.find((row) => row.is_current) ??
     revisions.data?.results[0] ??
     null;
+  const revision =
+    revisions.data?.results.find((row) => row.id === selectedRevision) ?? defaultRevision;
   const tasks = useQuery({
     queryKey: ["schedule-tasks", revision?.id],
     queryFn: () => getScheduleTasks({ revision: revision?.id, page_size: 200 }),
     enabled: Boolean(revision),
   });
+  // The figures of the revision on screen, not whichever the server would
+  // pick: a draft opens ahead of the current revision, and the cards used to
+  // describe the current one beside the draft's tasks.
   const overview = useQuery({
-    queryKey: ["schedule-overview", plan?.id],
-    queryFn: () => getScheduleOverview(plan!.id),
-    enabled: Boolean(plan),
+    queryKey: ["schedule-overview", plan?.id, revision?.id],
+    queryFn: () => getScheduleOverview(plan!.id, revision?.id),
+    enabled: Boolean(plan && revision),
   });
   const historyRows = useQuery({
     queryKey: ["schedule-history", plan?.id],
     queryFn: () => getScheduleHistory(plan!.id),
-    enabled: Boolean(plan) && view === "history",
+    enabled: Boolean(plan) && advancedOpen && advancedTab === "history",
   });
 
   const invalidate = async () => {
@@ -218,96 +252,114 @@ export function SchedulePlanningWorkspace({
     },
   });
 
-  const currentSummary = overview.data?.summary;
   const rows = tasks.data?.results ?? [];
+  const shownRows = onlyDelayed ? rows.filter(isDelayed) : rows;
+  const hasDraft = Boolean(revisions.data?.results.some((row) => row.status === "DRAFT"));
+  const canManage = can("schedule.manage");
+  const canConfirm = can("schedule.confirm");
+  const canImport = canManage && canConfirm;
+  const canNewRevision =
+    canManage && Boolean(plan && revision?.is_current && !hasDraft && plan.status !== "ARCHIVED");
 
-  // A summary that failed or has not arrived must not be drawn as "0 tasks,
-  // 0% progress". Those are measurements of the site, and a zero is
-  // indistinguishable from no answer at all once it is on the card.
-  const figure = (value: string | number | null | undefined, suffix = "") =>
-    overview.isLoading || value === null || value === undefined
-      ? "-"
-      : String(value) + suffix;
-  const hasDraft = revisions.data?.results.some((row) => row.status === "DRAFT");
+  const openAdvanced = (tab: AdvancedTab) => {
+    setAdvancedTab(tab);
+    setAdvancedOpen(true);
+    requestAnimationFrame(() =>
+      document.getElementById(ADVANCED_ID)?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  };
 
   return (
     <div className="space-y-4">
-      <ListHeader
-        title={t("title")}
-        subtitle={t("subtitle")}
-        action={
-          can("schedule.manage") ? (
-            <div className="flex flex-wrap justify-end gap-2">
-              {can("schedule.confirm") && (
-                <Button
-                  variant="outline"
-                  requires={[[project, t("field.project")]]}
-                  onClick={() => setImportDialog(true)}
-                >
-                  <Upload />{t("action.importExcel")}
-                </Button>
-              )}
-              <Button requires={[[project, t("field.project")]]} onClick={() => setPlanDialog(true)}>
-                <Plus />{t("action.newPlan")}
-              </Button>
-            </div>
-          ) : undefined
-        }
-      />
+      <ListHeader title={t("title")} subtitle={t("subtitle")} />
 
-      <div className="surface-panel grid gap-3 rounded-xl p-4 sm:p-6 lg:grid-cols-[minmax(16.25rem,1fr)_minmax(16.25rem,1fr)_auto] lg:items-end">
-        {projectBoxShown && (
-        <FieldWrapper label={t("field.project")} required>
-          <ConsultantProjectPicker
-            value={project}
-            onChange={(value) => {
-              setProject(value);
-              setSelectedPlan("");
-              setSelectedRevision("");
-            }}
-            scope="page"
-          />
-        </FieldWrapper>
-        )}
-        <FieldWrapper label={t("field.plan")}>
-          <Select
-            value={plan?.id}
-            onValueChange={(value) => {
-              setSelectedPlan(value);
-              setSelectedRevision("");
-            }}
-            disabled={!plans.data?.count}
-          >
-            <SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectPlan")} /></SelectTrigger>
-            <SelectContent>
-              {(plans.data?.results ?? []).map((row) => (
-                <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FieldWrapper>
-        <div className="flex flex-wrap gap-2">
-          {plan && revision && (
-            <>
-              <Button variant="outline" onClick={() => void exportSchedule(plan.id, revision.id, "xlsx")}>
-                <Download />Excel
-              </Button>
-              <Button variant="outline" onClick={() => void exportSchedule(plan.id, revision.id, "pdf")}>
-                <Download />PDF
-              </Button>
-            </>
+      <div className="surface-panel space-y-3 rounded-xl p-4 sm:p-6" data-slot="schedule-plan-bar">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+          {projectBoxShown && (
+            <FieldWrapper label={t("field.project")} required className="lg:w-72">
+              <ConsultantProjectPicker
+                value={project}
+                onChange={(value) => {
+                  setProject(value);
+                  setSelectedPlan("");
+                  setSelectedRevision("");
+                }}
+                scope="page"
+              />
+            </FieldWrapper>
           )}
-          {plan && can("schedule.manage") && (
-            <Button variant="ghost" size="icon" title={t("action.editPlan")} onClick={() => setEditingPlan(plan)}>
-              <Pencil />
-            </Button>
-          )}
-          {plan && can("schedule.manage") && plan.status !== "ARCHIVED" && (
-            <Button variant="ghost" size="icon" title={t("action.archive")} onClick={() => setArchivingPlan(plan)}>
-              <Archive />
-            </Button>
-          )}
+          <FieldWrapper label={t("field.plan")} className="lg:w-72">
+            <Select
+              value={plan?.id}
+              onValueChange={(value) => {
+                setSelectedPlan(value);
+                setSelectedRevision("");
+                setOnlyDelayed(false);
+              }}
+              disabled={!plans.data?.count}
+            >
+              <SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectPlan")} /></SelectTrigger>
+              <SelectContent>
+                {(plans.data?.results ?? []).map((row) => (
+                  <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
+            {canManage && revision?.status === "DRAFT" && (
+              <Button onClick={() => setEditingTask("new")}><Plus />{t("action.addTask")}</Button>
+            )}
+            {canConfirm && revision?.status === "DRAFT" && rows.length > 0 && (
+              <Button variant="outline" onClick={() => setConfirmingRevision(revision)}><Check />{t("action.confirmRevision")}</Button>
+            )}
+            <MoreMenu
+              items={[
+                ...(plan && revision
+                  ? [
+                      { key: "excel", icon: Download, label: t("action.exportExcel"), onSelect: () => void exportSchedule(plan.id, revision.id, "xlsx") },
+                      { key: "pdf", icon: Download, label: t("action.exportPdf"), onSelect: () => void exportSchedule(plan.id, revision.id, "pdf") },
+                    ]
+                  : []),
+                ...(project && canManage
+                  ? [{ key: "newPlan", icon: Plus, label: t("action.newPlan"), onSelect: () => setPlanDialog(true), group: true }]
+                  : []),
+                ...(project && canImport
+                  ? [{ key: "import", icon: Upload, label: t("action.importExcel"), onSelect: () => setImportDialog(true) }]
+                  : []),
+                ...(plan && canManage
+                  ? [{ key: "rename", icon: Pencil, label: t("action.editPlan"), onSelect: () => setEditingPlan(plan), group: true }]
+                  : []),
+                ...(plan && canManage && plan.status !== "ARCHIVED"
+                  ? [{ key: "archive", icon: Archive, label: t("action.archive"), onSelect: () => setArchivingPlan(plan) }]
+                  : []),
+                ...(canNewRevision
+                  ? [{ key: "newRevision", icon: GitBranch, label: t("action.newRevision"), onSelect: () => setRevisionDialog(true), group: true }]
+                  : []),
+                ...(plan
+                  ? [
+                      { key: "revisions", icon: CalendarRange, label: t("action.showRevisions"), onSelect: () => openAdvanced("revisions"), group: !canNewRevision },
+                      { key: "history", icon: History, label: t("action.showHistory"), onSelect: () => openAdvanced("history") },
+                    ]
+                  : []),
+              ]}
+            />
+          </div>
         </div>
+        {plan && revision && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t pt-3 text-sm" data-slot="schedule-version-line">
+            <span className="text-muted-foreground">{t("version.showing", { label: revision.label })}</span>
+            <StatusBadge label={t("revisionStatus." + revision.status)} tone={tone(revision.status)} />
+            {revision.is_current && <StatusBadge label={t("status.current")} tone="info" />}
+            {plan.status === "ARCHIVED" && <StatusBadge label={t("planStatus.ARCHIVED")} tone="neutral" />}
+            {revision.id !== defaultRevision?.id && (
+              <Button size="sm" variant="ghost" onClick={() => setSelectedRevision("")}>{t("action.backToDefault")}</Button>
+            )}
+            {revision.status === "DRAFT" && (
+              <p className="basis-full text-xs text-muted-foreground">{t("version.draftNote")}</p>
+            )}
+          </div>
+        )}
       </div>
 
       {!project ? (
@@ -317,82 +369,100 @@ export function SchedulePlanningWorkspace({
       ) : plans.isError ? (
         <EmptyState text={t("state.loadError")} danger />
       ) : !plan ? (
-        <EmptyState text={t("state.noPlans")} />
+        <EmptyPanel
+          icon={CalendarRange}
+          title={t("state.noPlans")}
+          description={t("state.noPlansHelp")}
+          action={
+            canManage ? (
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button onClick={() => setPlanDialog(true)}><Plus />{t("action.newPlan")}</Button>
+                {canImport && (
+                  <Button variant="outline" onClick={() => setImportDialog(true)}><Upload />{t("action.importExcel")}</Button>
+                )}
+              </div>
+            ) : undefined
+          }
+        />
       ) : (
         <>
           {overview.isError ? (
             <EmptyState text={t("state.overviewLoadError")} danger />
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <SummaryCard icon={CalendarDays} label={t("summary.tasks")} value={figure(currentSummary?.task_count)} />
-              <SummaryCard icon={Check} label={t("summary.completed")} value={figure(currentSummary?.completed_count)} tone="positive" />
-              <SummaryCard icon={AlertTriangle} label={t("summary.delayed")} value={figure(currentSummary?.delayed_count)} tone="danger" />
-              <SummaryCard icon={BarChart3} label={t("summary.progress")} value={figure(currentSummary?.actual_progress, "%")} hint={t("summary.planned", { value: currentSummary?.planned_progress ?? "-" })} />
-            </div>
+            <ScheduleFigures
+              summary={overview.data?.summary}
+              loading={overview.isLoading}
+              onlyDelayed={onlyDelayed}
+              onToggleDelayed={() => setOnlyDelayed((old) => !old)}
+            />
           )}
 
-          <div className="surface-panel flex flex-col gap-3 rounded-xl p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><GitBranch className="size-5" /></span>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="truncate font-semibold">{plan.name}</h2>
-                  <StatusBadge label={t("planStatus." + plan.status)} tone={tone(plan.status)} />
-                </div>
-                <p className="truncate text-sm text-muted-foreground">{revision ? revision.label : t("state.noRevision")}</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {can("schedule.manage") && revision?.status === "DRAFT" && (
-                <Button onClick={() => setEditingTask("new")}><Plus />{t("action.addTask")}</Button>
-              )}
-              {can("schedule.manage") && revision?.is_current && !hasDraft && plan.status !== "ARCHIVED" && (
-                <Button variant="outline" onClick={() => setRevisionDialog(true)}><GitBranch />{t("action.newRevision")}</Button>
-              )}
-              {can("schedule.confirm") && revision?.status === "DRAFT" && rows.length > 0 && (
-                <Button variant="outline" onClick={() => setConfirmingRevision(revision)}><Check />{t("action.confirmRevision")}</Button>
-              )}
-            </div>
-          </div>
+          <section className="space-y-3" aria-labelledby="schedule-gantt-title">
+            <h3 id="schedule-gantt-title" className="panel-title">{t("section.gantt")}</h3>
+            <QueryPanel query={tasks} errorText={t("state.tasksLoadError")}>
+              <ScheduleGantt tasks={shownRows} />
+            </QueryPanel>
+          </section>
 
-          <ViewSelector value={view} onChange={setView} />
-          {view === "list" && (
+          <section className="space-y-3" aria-labelledby="schedule-tasks-title">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 id="schedule-tasks-title" className="panel-title">{t("section.tasks")}</h3>
+              {onlyDelayed && (
+                <Button size="sm" variant="outline" onClick={() => setOnlyDelayed(false)}>{t("action.showAll")}</Button>
+              )}
+            </div>
+            <p className="flex items-start gap-2 text-xs text-muted-foreground" data-slot="schedule-progress-source">
+              <Info className="mt-0.5 size-3.5 shrink-0" />
+              {t("progressSource")}
+            </p>
             <QueryPanel query={tasks} errorText={t("state.tasksLoadError")}>
               <ScheduleTaskTable
-                rows={rows}
+                rows={shownRows}
                 revision={revision}
-                canManage={can("schedule.manage")}
-                canConfirm={can("schedule.confirm")}
+                canManage={canManage}
+                canConfirm={canConfirm}
+                emptyText={onlyDelayed ? t("state.noDelayed") : t("state.noTasks")}
                 onEdit={setEditingTask}
                 onProgress={setProgressTask}
                 onRemove={setRemovingTask}
               />
             </QueryPanel>
-          )}
-          {view === "gantt" && (
-            <QueryPanel query={tasks} errorText={t("state.tasksLoadError")}>
-              <ScheduleGantt tasks={rows} />
-            </QueryPanel>
-          )}
-          {view === "revisions" && (
-            <QueryPanel query={revisions} errorText={t("state.revisionsLoadError")}>
-              <RevisionList
-                rows={revisions.data?.results ?? []}
-                selected={revision?.id ?? ""}
-                canManage={can("schedule.manage")}
-                canConfirm={can("schedule.confirm")}
-                onSelect={(id) => { setSelectedRevision(id); setView("list"); }}
-                onConfirm={setConfirmingRevision}
-                onEdit={setEditingRevision}
-                onRemove={setRemovingRevision}
-              />
-            </QueryPanel>
-          )}
-          {view === "history" && (
-            <QueryPanel query={historyRows} errorText={t("state.historyLoadError")}>
-              <HistoryList rows={historyRows.data?.results ?? []} />
-            </QueryPanel>
-          )}
+          </section>
+
+          <AdvancedSection
+            open={advancedOpen}
+            onOpenChange={setAdvancedOpen}
+            tab={advancedTab}
+            onTabChange={setAdvancedTab}
+            action={
+              canNewRevision && advancedTab === "revisions" ? (
+                <Button size="sm" variant="outline" onClick={() => setRevisionDialog(true)}><GitBranch />{t("action.newRevision")}</Button>
+              ) : undefined
+            }
+          >
+            {advancedTab === "revisions" ? (
+              <QueryPanel query={revisions} errorText={t("state.revisionsLoadError")}>
+                <RevisionList
+                  rows={revisions.data?.results ?? []}
+                  selected={revision?.id ?? ""}
+                  canManage={canManage}
+                  canConfirm={canConfirm}
+                  onSelect={(id) => {
+                    setSelectedRevision(id);
+                    setOnlyDelayed(false);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  onConfirm={setConfirmingRevision}
+                  onEdit={setEditingRevision}
+                  onRemove={setRemovingRevision}
+                />
+              </QueryPanel>
+            ) : (
+              <QueryPanel query={historyRows} errorText={t("state.historyLoadError")}>
+                <HistoryList rows={historyRows.data?.results ?? []} />
+              </QueryPanel>
+            )}
+          </AdvancedSection>
         </>
       )}
 
@@ -441,33 +511,102 @@ export function SchedulePlanningWorkspace({
   );
 }
 
-function SummaryCard({ icon: Icon, label, value, hint, tone = "normal" }: { icon: typeof CalendarDays; label: string; value: string; hint?: string; tone?: "normal" | "positive" | "danger" }) {
-  const color = tone === "positive" ? "bg-success/10 text-success" : tone === "danger" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary";
-  return <div className="surface-panel flex min-w-0 items-center gap-3 rounded-xl p-4"><span className={"grid size-10 shrink-0 place-items-center rounded-lg " + color}><Icon className="size-5" /></span><div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="text-xl font-semibold tabular-nums">{value}</p>{hint && <p className="text-xs text-muted-foreground">{hint}</p>}</div></div>;
+interface MoreItem {
+  key: string;
+  icon: typeof Plus;
+  label: string;
+  onSelect: () => void;
+  /** Starts a new group: a line is drawn above it. */
+  group?: boolean;
 }
 
-function ViewSelector({ value, onChange }: { value: ViewMode; onChange: (value: ViewMode) => void }) {
+/**
+ * 「更多」: everything the page can do that a site office does not do every
+ * day. Only the items this person may use on this plan are listed, as the
+ * buttons were only drawn for them before.
+ */
+export function MoreMenu({ items }: { items: MoreItem[] }) {
   const t = useTranslations("schedulePlanning");
-  const options: Array<[ViewMode, typeof List]> = [["list", List], ["gantt", BarChart3], ["revisions", GitBranch], ["history", History]];
-  return <div className="flex w-full gap-1 overflow-x-auto rounded-lg border bg-muted/30 p-1 sm:w-fit">{options.map(([key, Icon]) => <Button key={key} size="sm" variant={value === key ? "default" : "ghost"} className="shrink-0" onClick={() => onChange(key)}><Icon />{t("view." + key)}</Button>)}</div>;
+  if (!items.length) return null;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" data-slot="schedule-more"><Ellipsis />{t("action.more")}</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-56">
+        {items.map(({ key, icon: Icon, label, onSelect, group }, index) => (
+          <Fragment key={key}>
+            {group && index > 0 && <DropdownMenuSeparator />}
+            <DropdownMenuItem onSelect={onSelect}><Icon />{label}</DropdownMenuItem>
+          </Fragment>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
-function ScheduleTaskTable({ rows, revision, canManage, canConfirm, onEdit, onProgress, onRemove }: { rows: ScheduleTask[]; revision: ScheduleRevision | null; canManage: boolean; canConfirm: boolean; onEdit: (row: ScheduleTask) => void; onProgress: (row: ScheduleTask) => void; onRemove: (row: ScheduleTask) => void }) {
+/**
+ * 「计划版本和记录」: the baseline, its revisions and the history, folded
+ * away at the foot of the page. Closed until somebody opens it here or from
+ * 「更多」; the history is only fetched once its panel is shown.
+ */
+export function AdvancedSection({
+  open,
+  onOpenChange,
+  tab,
+  onTabChange,
+  action,
+  children,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  tab: AdvancedTab;
+  onTabChange: (tab: AdvancedTab) => void;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
   const t = useTranslations("schedulePlanning");
-  const df = useDateFormat();
-  const depths = useMemo(() => {
-    const byId = new Map(rows.map((row) => [row.id, row]));
-    const result = new Map<string, number>();
-    rows.forEach((row) => { let depth = 0; let parent = row.parent ? byId.get(row.parent) : undefined; const seen = new Set<string>(); while (parent && !seen.has(parent.id) && depth < 8) { seen.add(parent.id); depth += 1; parent = parent.parent ? byId.get(parent.parent) : undefined; } result.set(row.id, depth); });
-    return result;
-  }, [rows]);
-  if (!rows.length) return <EmptyState text={t("state.noTasks")} />;
-  return <div className="surface-panel overflow-hidden rounded-xl"><Table><TableHeader><TableRow><TableHead>{t("field.wbs")}</TableHead><TableHead>{t("field.task")}</TableHead><TableHead>{t("field.plannedDates")}</TableHead><TableHead className="text-right">{t("field.weight")}</TableHead><TableHead>{t("field.plannedProgress")}</TableHead><TableHead>{t("field.actualProgress")}</TableHead><TableHead>{t("field.delay")}</TableHead><TableHead className="text-right">{t("field.actions")}</TableHead></TableRow></TableHeader><TableBody>{rows.map((row) => <TableRow key={row.id}><TableCell className="font-medium">{row.wbs_code}</TableCell><TableCell><div style={{ paddingLeft: (depths.get(row.id) ?? 0) * 18 }}><p className="max-w-72 truncate font-medium">{row.name}</p>{row.description && <p className="max-w-72 truncate text-xs text-muted-foreground">{row.description}</p>}</div></TableCell><TableCell><p>{df.date(row.planned_start)}</p><p className="text-xs text-muted-foreground">{df.date(row.planned_end)} / {row.duration_days} {t("common.day")}</p></TableCell><TableCell className="text-right tabular-nums">{row.weight}</TableCell><TableCell><ProgressValue value={Number(row.planned_progress)} /></TableCell><TableCell><ProgressValue value={Number(row.actual_progress)} /></TableCell><TableCell>{row.is_delayed ? <StatusBadge label={t("delay.days", { count: row.delay_days })} tone="danger" /> : <StatusBadge label={t("status.onTrack")} tone="positive" />}</TableCell><TableCell><div className="flex items-center justify-end gap-0.5">{canConfirm && revision?.status === "CONFIRMED" && <Button size="icon-sm" variant="ghost" title={t("action.confirmProgress")} onClick={() => onProgress(row)}><Check /></Button>}{canManage && revision?.status === "DRAFT" && <><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => onEdit(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button></>}</div></TableCell></TableRow>)}</TableBody></Table></div>;
-}
-
-function ProgressValue({ value }: { value: number }) {
-  const safe = Math.max(0, Math.min(value, 100));
-  return <div className="w-28"><div className="mb-1 flex justify-between text-xs"><span>{safe.toFixed(1)}%</span></div><div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: safe + "%" }} /></div></div>;
+  const tabs: Array<[AdvancedTab, typeof History]> = [["revisions", GitBranch], ["history", History]];
+  return (
+    <section id={ADVANCED_ID} className="surface-panel scroll-mt-4 rounded-xl" data-slot="schedule-advanced">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={ADVANCED_ID + "-body"}
+        onClick={() => onOpenChange(!open)}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:px-6"
+      >
+        <span className="min-w-0">
+          <span className="block font-semibold">{t("advanced.title")}</span>
+          <span className="block text-xs text-muted-foreground">{t("advanced.help")}</span>
+        </span>
+        <ChevronDown className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div id={ADVANCED_ID + "-body"} className="space-y-4 border-t px-4 py-4 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex w-full gap-1 overflow-x-auto rounded-lg border bg-muted/30 p-1 sm:w-fit" role="tablist">
+              {tabs.map(([key, Icon]) => (
+                <Button
+                  key={key}
+                  size="sm"
+                  role="tab"
+                  aria-selected={tab === key}
+                  variant={tab === key ? "default" : "ghost"}
+                  className="shrink-0"
+                  onClick={() => onTabChange(key)}
+                >
+                  <Icon />{t(`advanced.${key}`)}
+                </Button>
+              ))}
+            </div>
+            {action}
+          </div>
+          {children}
+        </div>
+      )}
+    </section>
+  );
 }
 
 /**

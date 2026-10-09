@@ -1,15 +1,14 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
 import {
@@ -17,6 +16,7 @@ import {
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
+import { RecordNo } from "@/components/shared/record-no";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useDateFormat } from "@/lib/dates";
@@ -27,7 +27,6 @@ import {
   type WasteDispatch,
 } from "@/interfaces/contractor";
 import {
-  deleteDispatch,
   getDispatches,
   exportDispatches,
   type ExportFormat,
@@ -47,46 +46,143 @@ export const DISPATCH_STATE_TONE: Record<
   CANCELLED: "danger",
 };
 
+/** The states a 废料订单 passes through, in order, for the filter pills. */
+const TRACKED_STATES = [
+  "ACCEPTED",
+  "COLLECTED",
+  "WEIGHED",
+  "SETTLED",
+  "CANCELLED",
+] as const;
+
+/**
+ * Where an order's application opens: the 环保材料出场申请 list with that
+ * record shown, as its notifications link to it.
+ */
+export function applicationHref(row: Pick<WasteDispatch, "source_record_id" | "project">) {
+  return `/waste-outgoing?record=${row.source_record_id}&project=${row.project}`;
+}
+
+/** {@link DispatchCategory} as one line of text, for a merged list. */
+export function dispatchCategoryText(
+  row: Pick<WasteDispatch, "source_category_name" | "waste_type" | "is_legacy">,
+  t: (key: string) => string,
+): string {
+  if (row.source_category_name) return row.source_category_name;
+  const type = t(`dispatches.wasteType.${row.waste_type}`);
+  return row.is_legacy ? `${type} · ${t("dispatches.tracker.legacy")}` : type;
+}
+
+/**
+ * An order's category, as the application list names it (2026-10-09).
+ *
+ * An order raised from an application carries that application's category -
+ * a system preset already in the reader's language from the server. An old
+ * order made directly, before the application flow, has none: it falls back
+ * to the closed waste type it was raised with, and says it is old.
+ */
+export function DispatchCategory({ row }: { row: WasteDispatch }) {
+  const t = useTranslations();
+  if (row.source_category_name) {
+    return <span className="block max-w-45 truncate">{row.source_category_name}</span>;
+  }
+  return (
+    <span className="flex min-w-0 flex-wrap items-center gap-1.5">
+      <span className="truncate">{t(`dispatches.wasteType.${row.waste_type}`)}</span>
+      {row.is_legacy && <TypeBadge label={t("dispatches.tracker.legacy")} />}
+    </span>
+  );
+}
+
+/**
+ * The contractor's 废料订单: a read-only tracker of the orders the recycler
+ * received (Lucas 2026-10-09).
+ *
+ * An order is what an approved 环保材料出场申请 becomes when the office
+ * arranges the recycler, so nothing is raised here any more - the direct
+ * 新增废料订单 form, with its own nine fixed waste types and no approval, was
+ * retired. Each row lines up with the application it came from: its number
+ * (opening it) and status, and its category under the same name the
+ * application list uses. Old orders made directly before the application flow
+ * stay, marked 「旧订单」, for history.
+ *
+ * The recycler's own order book (废料订单 in their console) is a different
+ * screen and is not touched.
+ */
 export function Dispatches() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
-  const queryClient = useQueryClient();
-  // `counted=1` arrives from the head office's 原废料订单 card (F8): only the
+  // `counted=1` arrives from the head office's 废料订单 card (F8): only the
   // orders it counts - not a draft, not cancelled.
   const list = useListQuery(["state", "project", "waste_type", "counted"]);
-  const [removing, setRemoving] = useState<WasteDispatch | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["dispatches", list.query],
     queryFn: () => getDispatches(list.query),
   });
 
-  const removal = useMutation({
-    mutationFn: (id: string) => deleteDispatch(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["dispatches"] });
-      setRemoving(null);
-    },
-  });
-
   const columns = useMemo<ColumnDef<WasteDispatch, unknown>[]>(
     () => [
       {
         accessorKey: "dispatch_no",
-        meta: { label: t("dispatches.field.dispatchNo") },
+        meta: { label: t("dispatches.tracker.orderNo") },
         header: ({ column }) => (
           <SortableHeader
-            label={t("dispatches.field.dispatchNo")}
+            label={t("dispatches.tracker.orderNo")}
             isSorted={column.getIsSorted()}
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
+        // Q12: the short number big, the project code small; the whole
+        // number on hover, in the detail and in the export.
         cell: ({ row }) => (
-          <span className="tabular font-medium text-foreground">
-            {row.original.dispatch_no}
+          <RecordNo value={row.original.dispatch_no} projectCode={row.original.project_code} />
+        ),
+      },
+      {
+        id: "application",
+        meta: { label: t("dispatches.tracker.applicationNo") },
+        header: () => (
+          <span className="text-xs font-semibold text-muted-foreground">
+            {t("dispatches.tracker.applicationNo")}
           </span>
         ),
+        cell: ({ row }) =>
+          row.original.source_record_id ? (
+            <div className="min-w-0">
+              <Link
+                href={applicationHref(row.original)}
+                className="inline-block text-primary hover:underline"
+                aria-label={t("dispatches.tracker.openApplication", {
+                  number: row.original.source_reference_no ?? "",
+                })}
+              >
+                <RecordNo
+                  value={row.original.source_reference_no}
+                  projectCode={row.original.project_code}
+                  copyable={false}
+                />
+              </Link>
+              {row.original.source_status && (
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  {t(`wasteOutgoing.status.${row.original.source_status}`)}
+                </p>
+              )}
+            </div>
+          ) : (
+            <span className="text-muted-foreground">{t("common.emptyValue")}</span>
+          ),
+      },
+      {
+        id: "category",
+        meta: { label: t("dispatches.tracker.category") },
+        header: () => (
+          <span className="text-xs font-semibold text-muted-foreground">
+            {t("dispatches.tracker.category")}
+          </span>
+        ),
+        cell: ({ row }) => <DispatchCategory row={row.original} />,
       },
       {
         accessorKey: "state",
@@ -103,18 +199,6 @@ export function Dispatches() {
             label={t(`dispatches.state.${row.original.state}`)}
             tone={DISPATCH_STATE_TONE[row.original.state]}
           />
-        ),
-      },
-      {
-        accessorKey: "waste_type",
-        meta: { label: t("dispatches.field.wasteType") },
-        header: () => (
-          <span className="text-xs font-semibold text-muted-foreground">
-            {t("dispatches.field.wasteType")}
-          </span>
-        ),
-        cell: ({ row }) => (
-          <TypeBadge label={t(`dispatches.wasteType.${row.original.waste_type}`)} />
         ),
       },
       {
@@ -135,24 +219,6 @@ export function Dispatches() {
         ),
       },
       {
-        accessorKey: "estimated_weight_kg",
-        meta: { label: t("dispatches.field.estimatedWeight") },
-        header: ({ column }) => (
-          <div className="flex justify-end">
-            <SortableHeader
-              label={t("dispatches.field.estimatedWeight")}
-              isSorted={column.getIsSorted()}
-              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            />
-          </div>
-        ),
-        cell: ({ row }) => (
-          <span className="tabular block text-right text-muted-foreground">
-            {row.original.estimated_weight_kg ?? t("common.emptyValue")}
-          </span>
-        ),
-      },
-      {
         accessorKey: "vehicle_plate",
         meta: { label: t("dispatches.field.vehiclePlate") },
         header: () => (
@@ -162,7 +228,9 @@ export function Dispatches() {
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="tabular truncate">{row.original.vehicle_plate}</p>
+            <p className="tabular truncate">
+              {row.original.vehicle_plate || t("common.emptyValue")}
+            </p>
             {row.original.driver_name && (
               <p className="truncate text-xs text-muted-foreground">
                 {row.original.driver_name}
@@ -172,19 +240,19 @@ export function Dispatches() {
         ),
       },
       {
-        accessorKey: "released_at",
-        meta: { label: t("dispatches.field.releasedAt") },
+        accessorKey: "created_at",
+        meta: { label: t("dispatches.tracker.createdAt") },
         header: ({ column }) => (
           <SortableHeader
-            label={t("dispatches.field.releasedAt")}
+            label={t("dispatches.tracker.createdAt")}
             isSorted={column.getIsSorted()}
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
         cell: ({ row }) => (
           <span className="tabular text-muted-foreground">
-            {row.original.released_at
-              ? df.date(row.original.released_at)
+            {row.original.created_at
+              ? df.date(row.original.created_at)
               : t("common.emptyValue")}
           </span>
         ),
@@ -193,6 +261,8 @@ export function Dispatches() {
         id: "actions",
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
+        // Read-only (2026-10-09): the order opens; nothing is edited or
+        // removed from the list.
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-0.5">
             <Button
@@ -206,40 +276,11 @@ export function Dispatches() {
                 <Eye className="h-3.5 w-3.5" />
               </Link>
             </Button>
-            {/*
-              Both actions disappear once the load has left. The backend
-              refuses either way; hiding them keeps the screen from offering
-              something it will only reject.
-            */}
-            {can("dispatch.update") && row.original.is_editable && (
-              <>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-info hover:bg-info/10"
-                  title={t("common.edit")}
-                >
-                  <Link href={`/dispatches/${row.original.id}/edit`}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                  title={t("common.remove")}
-                  onClick={() => setRemoving(row.original)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </>
-            )}
           </div>
         ),
       },
     ],
-    [t, can, df],
+    [t, df],
   );
 
   const totalCount = data?.count ?? 0;
@@ -254,7 +295,10 @@ export function Dispatches() {
       emptyLabel: t("table.noResults"),
       query: list.query,
       columns: [
-        { key: "dispatch_no", label: t("dispatches.field.dispatchNo") },
+        // The whole numbers here: an export is read away from the screen.
+        { key: "dispatch_no", label: t("dispatches.tracker.orderNo") },
+        { key: "source_reference_no", label: t("dispatches.tracker.applicationNo") },
+        { key: "source_category_name", label: t("dispatches.tracker.category") },
         {
           key: "state",
           label: t("dispatches.field.state"),
@@ -288,27 +332,20 @@ export function Dispatches() {
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
-      <ListHeader
-        title={t("dispatches.title")}
-        subtitle={isLoading ? "—" : t("dispatches.count", { count: totalCount })}
-        action={
-          /*
-           * `/dispatches/create` existed, was permission-gated, and had its
-           * own label in all four catalogues - and nothing on any screen
-           * linked to it (F-356). The office could only reach the form by
-           * typing the address. Same button as every other list, same
-           * permission the route already declares.
-           */
-          can("dispatch.create") ? (
-            <Button asChild>
-              <Link href="/dispatches/create">
-                <Plus className="size-4" />
-                {t("dispatches.new")}
-              </Link>
-            </Button>
-          ) : undefined
-        }
-      />
+      <div className="space-y-2">
+        <ListHeader
+          title={t("dispatches.title")}
+          subtitle={isLoading ? "—" : t("dispatches.count", { count: totalCount })}
+        />
+        {/* Where orders come from, and why an old one has no application. */}
+        <p
+          data-tracker-note
+          className="flex items-start gap-2 text-xs leading-5 text-muted-foreground"
+        >
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {t("dispatches.tracker.note")}
+        </p>
+      </div>
       {list.filters.counted === "1" && (
         <DrillNote
           label={t("dispatches.countedOnly")}
@@ -342,9 +379,7 @@ export function Dispatches() {
             active: activeState === "",
             onSelect: () => list.setFilter("state", undefined),
           },
-          ...(
-            ["DRAFT", "RELEASED", "COLLECTED", "SETTLED", "CANCELLED"] as const
-          ).map((state) => ({
+          ...TRACKED_STATES.map((state) => ({
             key: state,
             label: t(`dispatches.state.${state}`),
             active: activeState === state,
@@ -357,19 +392,6 @@ export function Dispatches() {
         onPageSizeChange={list.setPageSize}
         onClearFilters={list.clearFilters}
       />
-
-      {removing && (
-        <ConfirmDialog
-          open
-          onOpenChange={() => setRemoving(null)}
-          title={t("dispatches.remove.title", { name: removing.dispatch_no })}
-          description={t("dispatches.remove.description")}
-          confirmLabel={t("dispatches.remove.confirm")}
-          confirmIcon={Trash2}
-          isPending={removal.isPending}
-          onConfirm={() => removal.mutate(removing.id)}
-        />
-      )}
     </div>
   );
 }

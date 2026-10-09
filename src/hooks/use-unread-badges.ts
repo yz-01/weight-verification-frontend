@@ -17,6 +17,11 @@ import { getSidebarBadges } from "@/services/contractor-dashboard.service";
  * keyed by feature. Mirrors the backend's list (its test
  * `test_sidebar_badges` reads this array) so every count it can send has an
  * entry to appear on.
+ *
+ * Lucas (2026-10-09): 「只有待验收的才需要加进去号码」 - a number is what
+ * waits for an approval or acceptance (材料进场's 待验收 included), plus the
+ * hazards waiting on this reader. No 【确认】 pile, no next step. 进度 has
+ * no approval step, so it has no number and is not here.
  */
 export const BADGE_FEATURES: readonly string[] = [
   "material_receipts",
@@ -24,7 +29,6 @@ export const BADGE_FEATURES: readonly string[] = [
   "material_requests",
   "field_tasks",
   "equipment",
-  "progress",
   "waste_outgoing",
   "site_disposals",
   "consultant_applications",
@@ -49,7 +53,6 @@ export const BADGE_PERMISSIONS: readonly string[] = [
   "field_task.view",
   "material_outgoing.view",
   "material_request.view",
-  "progress.view",
   "receipt.view",
   "safety.view",
   "site_access.view",
@@ -66,16 +69,19 @@ export const BADGE_PERMISSIONS: readonly string[] = [
 export const BADGE_STALE_MS = 30_000;
 
 /**
- * What each sidebar badge counts, said in its label (2026-10 C4).
+ * What each sidebar badge counts, said in its label.
  *
- * The 材料管理 badge is deliveries and returns waiting for the office's
- * 【确认】 (X10), so its label says 待确认. Every other badge is work waiting
- * on this reader - an acceptance, an approval or a confirmation.
+ * Since Lucas's 2026-10-09 decision no badge counts a 【确认】 any more, so
+ * none says 待确认: every number is something waiting for this reader's
+ * approval or acceptance (待审批/验收) - except 隐患整改's, which is the
+ * open hazards this reader moves on next, whatever the step (等你处理).
  */
 export function badgeLabelKey(
   feature: PortalFeatureKey,
-): "nav.waitingConfirm" | "nav.waitingForYou" {
-  return feature === "material_receipts" ? "nav.waitingConfirm" : "nav.waitingForYou";
+): "nav.waitingApproval" | "nav.waitingForYou" {
+  return feature === "hazard_rectification" || feature === "safety"
+    ? "nav.waitingForYou"
+    : "nav.waitingApproval";
 }
 
 /** Per module page: how many are waiting. Absent means nothing to show. */

@@ -4100,6 +4100,13 @@
       "VIDEO_STORAGE": "视频存储"
     }
   },
+  "needsAction": {
+    "marker": "待处理",
+    "chip": "待处理 {count}",
+    "chipHint": "只看等你审批或验收的记录",
+    "chipClear": "显示全部记录",
+    "column": "待处理"
+  },
   "common": {
     "actions": "操作",
     "active": "启用",
@@ -5888,6 +5895,23 @@
         "hint": "只有没有任何进度记录指着的施工分类可以删除（例如建错的）；在用的请在上面关掉。",
         "confirm": "删除施工分类",
         "failed": "施工分类没有删除成功，请再试一次。"
+      },
+      "correction": {
+        "edit": "修改百分比",
+        "newPercent": "新的完成比例（%）",
+        "was": "目前 {percent}%",
+        "reason": "修改原因",
+        "reasonPlaceholder": "例如：现场填了 40，实际已完成 55%",
+        "save": "保存修改",
+        "cancel": "取消",
+        "range": "请输入 0 到 100 之间的百分比",
+        "unchanged": "与目前的百分比相同",
+        "evidenceNote": "只改百分比。照片、位置、拍摄时间和记录人保持原样。",
+        "archivedNote": "此记录已归档。只能修改百分比；照片、位置、拍摄时间和记录人仍然锁定。",
+        "edited": "已修改",
+        "historyTitle": "百分比修改记录",
+        "change": "{from}% → {to}%",
+        "by": "{name} · {at}"
       }
     },
     "progressEvidence": {
@@ -6613,9 +6637,6 @@
       "title": "取消此车？"
     },
     "count": "{count, plural, =0 {暂无出场记录} other {# 车}}",
-    "createTitle": "新建出场",
-    "editTitle": "编辑出场",
-    "estimateNote": "这是你的预估。最终重量由回收商的地磅决定，两个数字都会保留。",
     "field": {
       "applicant": "申请人",
       "applicationNo": "申请编号",
@@ -6652,7 +6673,6 @@
       "weighingNo": "地磅单号"
     },
     "lockedNote": "此车已离场，无法再修改。若最终没有送达，请取消。",
-    "new": "新建出场",
     "noPhotos": "这一车还没有附照片。",
     "photoKind": {
       "LOADING": "装车",
@@ -6660,19 +6680,11 @@
       "PLATE": "车牌",
       "VEHICLE": "车辆"
     },
-    "pickupAddressHint": "留空就用项目地址。要车开到某个特定出入口时，自己填。",
-    "recyclerEmpty": "目前没有可选的回收商。",
-    "recyclerNote": "只能送往已在 MSE Trace 注册的回收商。这样货物才会上地磅，追溯链才不会断在你的工地门口。",
     "release": {
       "byName": "放行人",
       "confirm": "放行",
       "description": "记录车辆已离开工地。放行后只能取消，不能修改。",
       "title": "放行此车？"
-    },
-    "remove": {
-      "confirm": "删除",
-      "description": "此草稿将不再出现在任何地方。货物尚未离场。",
-      "title": "删除 {name}？"
     },
     "section": {
       "application": "出场申请",
@@ -6707,11 +6719,8 @@
     "title": "废料订单",
     "toast": {
       "cancelled": "已取消",
-      "created": "出场已创建",
       "photoAdded": "照片已上传",
-      "released": "已放行",
-      "removed": "出场已删除",
-      "updated": "出场已更新"
+      "released": "已放行"
     },
     "viewTitle": "出场记录",
     "wasteType": {
@@ -6726,12 +6735,19 @@
       "TIMBER": "木材"
     },
     "what": {
-      "tracking": "收运进度",
-      "projects": "项目列表",
-      "recyclers": "本项目的回收商列表"
+      "tracking": "收运进度"
     },
-    "countedOnly": "只显示总部「原废料订单」计入数量的订单：不含草稿和已取消。",
-    "showAll": "显示全部"
+    "countedOnly": "只显示总部「废料订单」计入数量的订单：不含草稿和已取消。",
+    "showAll": "显示全部",
+    "tracker": {
+      "note": "废料订单来自已批准的「环保材料出场申请」：申请批准后按「安排回收商」，订单就会发给回收商。之前直接新建的旧订单仍保留在这里，只供查看。",
+      "orderNo": "订单号",
+      "applicationNo": "申请编号",
+      "openApplication": "打开申请 {number}",
+      "category": "分类",
+      "legacy": "旧订单",
+      "createdAt": "下单日期"
+    }
   },
   "documents": {
     "downloading": "下载中",
@@ -7421,7 +7437,10 @@
       "equipment_hours_end_too_late": "结束时间不能晚于第二天早上 06:00（那是下一班）。",
       "equipment_profile_incomplete": "先选好这台设备的小类，才能验收。",
       "equipment_not_on_site": "这台设备现在不在这个项目场内，不能退场。",
-      "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。"
+      "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。",
+      "original_not_expected": "服务器上还没有这张原图对应的照片，请先让记录上传完成。",
+      "original_hash_mismatch": "原图在传送中出错，和手机上的不一致，服务器没有保存。请再按一次「同步原图」。",
+      "original_not_found": "这张照片没有已备份的原图。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7440,7 +7459,9 @@
       "null": "此项为必填",
       "phone_in_use": "该手机号码已被其他现场人员账号使用",
       "required": "此项为必填",
-      "unique": "此值已被占用"
+      "unique": "此值已被占用",
+      "percent_range": "请输入 0 到 100 之间的百分比",
+      "percent_unchanged": "与目前的百分比相同"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -7509,7 +7530,12 @@
       "chooseCategory": "选择分类",
       "project": "项目",
       "withGps": "有 GPS",
-      "withoutGps": "无 GPS"
+      "withoutGps": "无 GPS",
+      "original": {
+        "BACKED_UP": "原图已备份",
+        "PENDING": "原图待同步",
+        "FAILED": "原图同步失败"
+      }
     },
     "integrity": {
       "currentHash": "当前哈希",
@@ -7544,6 +7570,19 @@
     "what": {
       "projects": "项目列表",
       "categories": "分类列表"
+    },
+    "original": {
+      "title": "完整原图",
+      "status": "原图状态",
+      "verifiedAt": "服务器核对时间",
+      "size": "原图大小",
+      "declaredAt": "登记时间",
+      "sha256": "原图 SHA-256",
+      "download": "下载完整原图",
+      "integrity": "完整原图",
+      "notHere": "原图还没有备份到服务器。",
+      "unavailable": "原图文件在存储里读不到。",
+      "frameNote": "完整原图是手机 App 拍照那一刻截下的画面，以高画质另存（约 1～2 MB，1080p），不是手机相机本身的原始照片。列表和记录里显示的是压缩后的应用照片。"
     }
   },
   "export": {
@@ -8243,6 +8282,7 @@
     "recordStop": "停止",
     "recordingFor": "已录 {seconds} 秒，上限 {limit} 秒",
     "attach": "发送文件",
+    "takePhoto": "拍照",
     "photo": "照片",
     "closed": "这条隐患已验收并闭环归档。记录仍可查看，但不能再发新消息。",
     "participants": "本次参与的人",
@@ -8296,7 +8336,7 @@
         "overdue_rectifications": "逾期整改",
         "material_receipts_today": "今日材料进场"
       },
-      "wasteDispatches": "原废料订单",
+      "wasteDispatches": "废料订单",
       "siteDisposals": "原工地清运",
       "records": "数量",
       "trips": "车次",
@@ -9695,6 +9735,7 @@
     "attempts": "已尝试 {count} 次",
     "historyWindow": "手机端只保留最近 {days} 天的记录，更早的请到后台查询。",
     "truncated": "显示 {shown} 条，共 {total} 条。",
+    "loadOlder": "加载更早的记录",
     "kind": {
       "MATERIAL_RECEIPT": "材料进场",
       "SITE_RECORD": "现场记录",
@@ -9803,7 +9844,10 @@
     "returnedClosed": "这笔申请已经结束。原申请、退回原因和沟通记录都会保留；还需要做的话请新建一条。",
     "paymentProofs": "付款凭证",
     "noPaymentProofs": "财务付款后，凭证会出现在这里。",
-    "conversation": "事项沟通"
+    "conversation": "事项沟通",
+    "removeFromList": "从我的列表移除",
+    "removeHelp": "只从你这台手机的列表拿掉。云端记录、后台和其他人都不受影响；可以在「本机存储与清理」里重新显示。",
+    "hiddenNote": "已从我的列表移除 {count} 条。"
   },
   "nav": {
     "activity_logs": "活动日志",
@@ -10154,7 +10198,7 @@
     "waitingForYou": "{count} 项等你处理",
     "materialManagement": "材料管理",
     "material_requests": "MR / 其他申请",
-    "waitingConfirm": "{count} 笔待确认"
+    "waitingApproval": "{count} 项待审批/验收"
   },
   "notifications": {
     "compose": {
@@ -10267,6 +10311,12 @@
     "what": {
       "counts": "未完成数量",
       "pushConfig": "手机提醒设置"
+    },
+    "sound": {
+      "blockedHint": "浏览器暂未允许提示音，点击即可开启",
+      "enable": "开启提示音",
+      "mute": "关闭新通知提示音",
+      "unmute": "开启新通知提示音"
     }
   },
   "offline": {
@@ -10301,7 +10351,10 @@
       "retry": "立即重试",
       "heldHint": "同一张单的前一步还没成功，这一步先不送，免得顺序错乱。",
       "recent": "刚刚已同步",
-      "needsAttentionHint": "服务器没有接收这一条，不会再自动上传。处理好后按「立即重试」，或放弃这条。"
+      "needsAttentionHint": "服务器没有接收这一条，不会再自动上传。处理好后按「立即重试」，或放弃这条。",
+      "armDiscard": "放弃还没上传的动作",
+      "armDiscardHelp": "打开后才能按每条旁边的放弃。放弃的资料会从手机删掉，不会再上传。",
+      "armFirst": "先打开上面的开关"
     },
     "queued": "已离线保存，等待自动上传",
     "status": {
@@ -10723,10 +10776,10 @@
       "trouble": "区域只有一份，不是两份。这里的入口打开的就是合作伙伴那一页，两边看到的永远是同一批数据。"
     },
     "schedule": {
-      "what": "WBS 施工计划表，可以从 Excel 导进来，之后按修订版演进。",
+      "what": "施工计划：选一份计划，上面是三个数字（进度、已完成、延误），下面是甘特图和任务列表。导出、新建、导入、改名、归档和计划版本都在「更多」里。",
       "who": "同时持 progress.view 和 project.view。",
       "need": "导入要 .xlsx 文件、计划名称、修订版名称；改已确认的计划还要写变更原因。手工加一条任务要 WBS、任务名称、计划开始、计划完成。",
-      "then": "导入分两步：预览会读出你的表头让你把列对上，这一步不写任何数据，可以放心试；按「确认导入」才真的写。",
+      "then": "新计划先是草稿，加好任务后按「确认并锁定」。之后每项任务按「确认进度」填完成%。「已延误」= 过了计划完成日还没做完；做完了但比计划晚，显示「延期完成」，不算延误。",
       "trouble": "导不进去，多半是有列没对上：WBS、任务名称、计划开始是必须的，另外计划完成和工期至少要有一个。"
     },
     "site_access": {
@@ -11699,6 +11752,30 @@
         "manufacturer": "制造厂商",
         "returnNote": "Return Note",
         "quantity": "数量"
+      },
+      "returnTag": "有退场记录",
+      "returnTagHint": "这一行有 {count} 笔已完成的退场，点开查看",
+      "openNumber": "查看{label} {value} 是哪些记录",
+      "breakdown": {
+        "what": "这一行的明细",
+        "gone": "这一行已不在目前的筛选里。",
+        "deliveries": "每一笔进场（{count} 笔）",
+        "returns": "每一笔已完成退场（{count} 笔）",
+        "rejected": "不合格，不计入累计进场（{count} 笔）",
+        "emptyDeliveries": "没有计入的进场。",
+        "emptyReturns": "没有已完成的退场。",
+        "receivedTotal": "进场合计",
+        "returnedTotal": "已完成退场合计",
+        "subtotal": "合计",
+        "reason": "退回原因",
+        "approvedBy": "批准",
+        "completedBy": "确认完成",
+        "siteSignature": "现场签名",
+        "supplierSignature": "供应商 / 司机签名",
+        "approverSignature": "批准人签名",
+        "open": "打开 {reference}",
+        "legacyReturn": "10-02 前在进场单上登记的退场",
+        "project": "项目"
       }
     }
   },
@@ -12640,7 +12717,14 @@
       "open": "打开",
       "preview": "预览文件",
       "remove": "移除",
-      "save": "保存"
+      "save": "保存",
+      "more": "更多",
+      "exportExcel": "导出 Excel",
+      "exportPdf": "导出 PDF",
+      "showRevisions": "计划版本",
+      "showHistory": "操作记录",
+      "backToDefault": "回到最新版本",
+      "showAll": "显示全部任务"
     },
     "common": {
       "day": "天",
@@ -12659,9 +12743,6 @@
     },
     "defaults": {
       "baseline": "已批准基准计划"
-    },
-    "delay": {
-      "days": "延误 {count} 天"
     },
     "dialog": {
       "editPlanHelp": "只改名称和说明。同一个工地上两份计划不能重名。",
@@ -12686,7 +12767,6 @@
       "actualProgress": "实际进度（%）",
       "actualStart": "实际开始",
       "baselineLabel": "基准计划名称",
-      "delay": "延误",
       "description": "说明",
       "excelFile": "Excel 文件（.xlsx）",
       "importTarget": "导入到",
@@ -12696,9 +12776,7 @@
       "parentTask": "上级任务",
       "plan": "施工计划",
       "planName": "计划名称",
-      "plannedDates": "计划日期",
       "plannedEnd": "计划完成",
-      "plannedProgress": "计划进度",
       "plannedStart": "计划开始",
       "progressEvidence": "关联现场进度",
       "progressEvidenceHelp": "这里只显示本项目现场传上来的进度照片记录。",
@@ -12711,12 +12789,21 @@
       "taskName": "任务名称",
       "wbs": "WBS",
       "weight": "权重",
-      "weightHelp": "这个任务占整体工程的分量，相对于其他任务而言。是相对值，1/2/3 和 10/20/30 意思一样 —— 这一列不需要加起来等于 100。保持 1 就是每个任务等重。"
+      "weightHelp": "这个任务占整体工程的分量，相对于其他任务而言。是相对值，1/2/3 和 10/20/30 意思一样 —— 这一列不需要加起来等于 100。保持 1 就是每个任务等重。",
+      "start": "开始",
+      "end": "结束",
+      "days": "天数",
+      "done": "完成%",
+      "status": "状态",
+      "weightValue": "权重 {value}",
+      "plannedToday": "按计划今天应到 {value}%",
+      "linkedRecords": "附 {count} 条现场记录"
     },
     "gantt": {
-      "actual": "实际完成",
+      "actual": "已完成部分",
       "days": "共 {count} 个日历日",
-      "planned": "计划工期"
+      "planned": "计划时间",
+      "today": "今天"
     },
     "history": {
       "EXCEL_IMPORTED": "已导入 Excel 计划",
@@ -12765,26 +12852,36 @@
       "loadError": "无法载入施工计划，请重试。",
       "noConfirmedProgress": "目前没有现场进度记录。",
       "noHistory": "还没有施工计划历史。",
-      "noPlans": "这个项目还没有施工计划。您可以手动建立或导入 Excel。",
+      "noPlans": "这个项目还没有施工计划。",
       "noReason": "没有额外备注",
       "noRevision": "没有计划版本",
       "noTasks": "这个版本还没有任务。",
       "overviewLoadError": "无法载入进度汇总，因此任务数与进度百分比没有显示出来。请重试。",
       "revisionsLoadError": "无法载入计划版本，请重试。",
-      "tasksLoadError": "无法载入任务清单，因此这个版本的任务没有显示出来。请重试。"
+      "tasksLoadError": "无法载入任务清单，因此这个版本的任务没有显示出来。请重试。",
+      "noPlansHelp": "可以手动新建一份，或者从 Excel 导入。",
+      "noDelayed": "没有延误的任务。"
     },
     "status": {
       "current": "当前版本",
       "delayed": "已延误",
-      "onTrack": "进度正常"
+      "notStarted": "未开始",
+      "inProgress": "进行中",
+      "completed": "已完成",
+      "completedLate": "延期完成",
+      "delayedDays": "已延误 {count} 天",
+      "completedLateDays": "延期完成 {count} 天"
     },
-    "subtitle": "安排施工任务、保护已批准的基准计划，并确认现场实际进度。",
+    "subtitle": "选一份计划，看甘特图和每项任务做到哪里。",
     "summary": {
       "completed": "已完成",
-      "delayed": "需要关注",
-      "planned": "计划 {value}%",
-      "progress": "实际进度",
-      "tasks": "任务总数"
+      "delayed": "延误",
+      "planned": "按计划今天应到 {value}%",
+      "progress": "进度",
+      "lateFinished": "其中 {count} 项延期完成",
+      "delayedHint": "过了计划完成日还没做完，点一下只看这些",
+      "noDelay": "没有过了完成日还没做完的任务",
+      "showingDelayed": "正在只看延误的任务，再点一下看全部"
     },
     "title": "施工计划管理",
     "toast": {
@@ -12801,11 +12898,24 @@
       "taskRemoved": "草稿任务已移除",
       "taskSaved": "施工任务已保存"
     },
-    "view": {
+    "why": {
+      "delayed": "计划 {date} 完成，还没做完",
+      "completedLate": "计划 {planned} 完成，实际 {actual} 完成"
+    },
+    "section": {
       "gantt": "甘特图",
-      "history": "历史记录",
-      "list": "任务列表",
-      "revisions": "基准与修订"
+      "tasks": "任务"
+    },
+    "progressSource": "完成% 是项目经理在「确认进度」里填写的数字，可以附上「工程进度」里的现场记录作依据，系统不会按照片自动计算。总进度按每项任务的权重算，汇总行不计入。",
+    "version": {
+      "showing": "正在看：{label}",
+      "draftNote": "这是草稿：可以新增、修改任务。按「确认并锁定」后才能填写每项任务的完成%。"
+    },
+    "advanced": {
+      "title": "计划版本和记录",
+      "help": "原始计划、每次修改的版本和操作记录都在这里，平时不用打开。",
+      "revisions": "计划版本",
+      "history": "操作记录"
     }
   },
   "session": {
@@ -14756,12 +14866,14 @@
       "code": "代号",
       "deactivate": "关掉",
       "dispatchType": "派单上算哪种废料",
-      "help": "这是你们公司自己的清单。七个标准类别删不掉，因为已经有记录在用它们 —— 把它关掉就行，新记录里不会再出现。",
+      "help": "这是你们公司自己的清单。标准类别（废铁、铜、铝、电缆）删不掉，因为记录会用到它们 —— 不用的话把它关掉，新记录里就不会再出现。标「旧分类」的是以前的标准类别，只留在旧记录上。",
       "manage": "废料类别",
       "name": "名称",
       "standard": "标准",
       "standardHelp": "标准类别，只能关掉",
-      "title": "你们自己的废料类别"
+      "title": "你们自己的废料类别",
+      "retired": "旧分类",
+      "retiredHelp": "旧分类，只留在旧记录上，不能再开启"
     },
     "empty": "还没有环保材料出场申请。",
     "evidence": {
@@ -14934,7 +15046,20 @@
     "what": {
       "delegates": "可转交的人员",
       "totals": "统计数字",
-      "categories": "废料类别列表"
+      "categories": "废料类别列表",
+      "project": "项目地址"
+    },
+    "hint": {
+      "approveFirst": "批准后才能安排回收商。",
+      "awaitingRecycler": "待安排回收商"
+    },
+    "office": {
+      "help": "替现场新建一张申请：选项目和类别，取货地点默认用项目地址。照片可以不附，最多 4 张；后台提交不记录 GPS。提交后一样先审批，批准后再安排回收商。",
+      "photosHint": "可以不附，最多 4 张。所有照片都会永久保存。",
+      "photosCapped": "最多 4 张，只保留了前 4 张。",
+      "raisedNote": "这张申请由后台代现场提交，没有手机定位。",
+      "projectAddress": "项目地址：{address}",
+      "noProjectAddress": "这个项目还没有填地址，请在这里写取货地点。"
     }
   },
   "weighing": {
@@ -15423,7 +15548,6 @@
       "dispatch": "废料订单"
     },
     "newDisposal": "新增清运申请",
-    "newDispatch": "新增废料订单",
     "column": {
       "kind": "类型",
       "reference": "编号",
@@ -15997,5 +16121,80 @@
     "system": "跟随系统",
     "light": "浅色",
     "dark": "深色"
+  },
+  "originals": {
+    "title": "原图备份",
+    "status": {
+      "APPLICATION_UPLOADED": "应用照片已上传",
+      "ORIGINAL_PENDING": "原图待同步",
+      "ORIGINAL_BACKED_UP": "原图已备份",
+      "ORIGINAL_FAILED": "同步失败"
+    },
+    "waiting": "{count} 张原图待同步（约 {mb} MB）",
+    "failed": "{count} 张同步失败",
+    "failedNetwork": "上次没有网络或信号太弱，没有传完。",
+    "failedOther": "上次没有成功，请再按一次「同步原图」。",
+    "capturedNote": "{count} 张原图在等它们的记录先上传。",
+    "nothingWaiting": "没有待同步的原图",
+    "readFailed": "这台手机读不到暂存的原图（可能已被系统清掉，或浏览器不允许保存）。",
+    "trafficNote": "同步大约要用 {mb} MB 流量，最好连上 Wi-Fi 再按。",
+    "sync": "同步原图",
+    "syncing": "正在同步原图 {done}/{total}，还剩约 {mb} MB",
+    "offline": "现在没有网络，连上网再同步原图。",
+    "result": {
+      "backedUp": "{count} 张原图已备份",
+      "failed": "{count} 张没有成功",
+      "notYet": "{count} 张等记录先上传",
+      "nothing": "没有需要同步的原图"
+    },
+    "autoLabel": "连原图一起上传",
+    "autoHelp": "打开后，记录一上传完就接着传原图，会多用流量。连着 Wi-Fi 时打开；用手机流量时关掉，之后自己按「同步原图」。",
+    "storage": {
+      "title": "手机暂存",
+      "held": "本机暂存原图 {count} 张，约 {mb} MB",
+      "usage": "这个 App 已用 {used} MB，浏览器允许约 {quota} MB",
+      "unknown": "这台手机没有告诉我们可用空间。",
+      "persisted": "这台手机已答应长期保存这些资料。",
+      "notPersisted": "这台手机没有答应长期保存，空间不够时可能被系统清掉。",
+      "persistUnknown": "这台手机没说会不会长期保存。",
+      "high": "暂存的原图很多，或空间快满了，请尽快同步原图。",
+      "full": "手机给这个 App 的空间几乎满了，新的原图可能存不下，请马上同步原图。"
+    },
+    "limit": {
+      "local": "原图同步前只存在这台手机的浏览器里。iPhone 一段时间没打开这个 App、手机空间不够、或在设置里清除网站资料，暂存的原图都可能被清掉，请尽快同步。",
+      "verified": "只有服务器收到原图并核对完全一致后，才会显示「原图已备份」。",
+      "frame": "这里的原图是拍照那一刻 App 截下的画面，以高画质另存（约 1～2 MB），不是手机相机本身的原始照片。",
+      "soon": "请尽快同步，暂存在手机上的原图可能被系统清掉。"
+    },
+    "record": {
+      "title": "原图",
+      "counts": "已备份 {backedUp}/{expected} 张",
+      "noOriginal": "这条记录没有保留原图（应用照片已上传）。",
+      "allBackedUp": "这条记录的原图都已备份到服务器。",
+      "heldHere": "这台手机上有这条记录的 {count} 张原图，约 {mb} MB。",
+      "missingHere": "{count} 张原图不在这台手机上（可能是在别的手机拍的，或已被系统清掉），无法从这里同步。",
+      "sync": "同步这条记录的原图"
+    }
+  },
+  "phoneStorage": {
+    "open": "本机存储与清理",
+    "title": "本机存储",
+    "intro": "这里只管这台手机上的东西。云端已经保存的照片、记录、审批和证据，不受这里任何操作影响。",
+    "cachedPhotos": "缓存照片 {count} 张，约 {mb} MB",
+    "cachedHelp": "看过的照片缩略图留在手机上，再打开不耗流量。清掉后，需要时会重新下载。",
+    "autoNote": "超过 {days} 天的缓存照片会自动清掉。",
+    "appUsage": "本 App 在这台手机上一共约占 {mb} MB。",
+    "keptTitle": "一定保留，不会被清理",
+    "unsent": "还没上传的记录：{count} 条",
+    "drafts": "还没提交的草稿：{count} 份",
+    "originals": "还没备份的原图：{count} 张（约 {mb} MB）",
+    "hidden": "已从我的列表移除：{count} 条",
+    "showHidden": "全部重新显示",
+    "armClean": "清理本地记录：会清掉缓存照片 {photos} 张（约 {mb} MB）；会保留还没上传的记录 {unsent} 条、草稿 {drafts} 份、还没备份的原图 {originals} 张。云端资料不受影响。",
+    "clean": "清理本地记录",
+    "armFirst": "先打开上面的开关",
+    "nothingToClean": "没有缓存照片需要清理",
+    "cleaned": "已清理缓存照片 {count} 张（约 {mb} MB）",
+    "cleanFailed": "没有清理成功，请再试一次"
   }
 }

@@ -54,7 +54,9 @@ describe("the create and edit dialogs", () => {
     // (2026-10 A1: the office no longer records a delivery; only its
     // correction form, `/receipts/[id]/edit`, remains). If this changes, the
     // change is either a new form (which needs a dialog) or a deleted one.
-    expect(routes.length).toBe(27);
+    // 2026-10-09: less the dispatch's create and edit - a 废料订单 comes from
+    // an approved 环保材料出场申请, and the old ones are read-only.
+    expect(routes.length).toBe(25);
   });
 
   it.each(fullPageForms())("%s opens as a dialog too", (route) => {
@@ -217,7 +219,8 @@ describe("closing the dialogs", () => {
   const forms = formComponents();
 
   it("finds the forms", () => {
-    expect(forms.length).toBeGreaterThanOrEqual(14);
+    // 13 since 2026-10-09: the direct dispatch form was retired.
+    expect(forms.length).toBeGreaterThanOrEqual(13);
   });
 
   it.each(forms)("%s leaves through the shared rule after saving, not the router", (file) => {

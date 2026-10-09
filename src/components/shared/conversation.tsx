@@ -25,8 +25,10 @@
 
 import { Mic, Paperclip, Send, Square } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { FieldCamera } from "@/components/shared/field-camera";
 // The viewer every record detail already opens its photographs in, so a chat
 // photo zooms and downloads the same way. (record-detail-shell reaches this
 // file through record-conversation; each side only uses the other at render
@@ -39,6 +41,8 @@ import {
   groupConversationMessages,
 } from "@/lib/conversation-groups";
 import { useDateFormat } from "@/lib/dates";
+import { type LocationFix, requestLocation } from "@/lib/field-location";
+import { compressPhoto } from "@/lib/photo-compression";
 
 /** Matches the server's cap. Shown while recording, not discovered on send. */
 export const FALLBACK_AUDIO_LIMIT = 60;
@@ -304,7 +308,67 @@ export type ComposerPayload = {
   audio_seconds?: number;
   attachment?: File;
   attachment_name?: string;
+  /** Where a photo taken with the in-app camera was taken, when the phone said. */
+  latitude?: string;
+  longitude?: string;
+  accuracy_m?: string;
 };
+
+/** The phone's field app, where a chat photo is taken with the in-app camera. */
+export function isFieldChatPath(pathname: string | null | undefined): boolean {
+  return !!pathname?.startsWith("/field-staff");
+}
+
+/**
+ * How long a send waits for the position its photo asked for. The fix was
+ * asked for when the shutter went, so by the time a person has typed a line it
+ * has normally long arrived; a phone that cannot find itself indoors must not
+ * hold the message back for it.
+ */
+export const PHOTO_LOCATION_WAIT_MS = 3_000;
+
+type PhotoPlace = Pick<ComposerPayload, "latitude" | "longitude" | "accuracy_m">;
+
+/**
+ * Where a chat photo was taken, asked the moment it is taken - the same
+ * position every other in-app camera photo carries into the evidence ledger.
+ * Best effort: no answer means the photo goes without one, never that it does
+ * not go. A photo picked from the gallery gets none, because where the phone
+ * is now says nothing about where that photo was taken.
+ */
+export function usePhotoLocation() {
+  const pending = useRef<Promise<LocationFix | null> | null>(null);
+
+  const start = useCallback(() => {
+    pending.current = requestLocation({
+      enableHighAccuracy: true,
+      timeout: 10_000,
+      maximumAge: 30_000,
+    }).catch(() => null);
+  }, []);
+
+  const clear = useCallback(() => {
+    pending.current = null;
+  }, []);
+
+  const read = useCallback(async (): Promise<PhotoPlace> => {
+    const asked = pending.current;
+    if (!asked) return {};
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const fix = await Promise.race([
+      asked,
+      new Promise<null>((settle) => {
+        timer = setTimeout(() => settle(null), PHOTO_LOCATION_WAIT_MS);
+      }),
+    ]);
+    clearTimeout(timer);
+    return fix
+      ? { latitude: fix.latitude, longitude: fix.longitude, accuracy_m: fix.accuracy }
+      : {};
+  }, []);
+
+  return { start, clear, read };
+}
 
 /**
  * The box a person types, attaches or speaks into.
@@ -313,6 +377,14 @@ export type ComposerPayload = {
  * says so instead of showing a button that does nothing: the customer
  * described part of their crew as 「不识字」, so for them the 「或」 in
  * 「文字或语音」 does not hold (D-094).
+ *
+ * On the phone a photo is taken with the app's own camera (`FieldCamera`),
+ * like every other photo the field app takes - not the phone's system camera
+ * (Lucas, 10-09: 「聊天室拍照好像不是系统的相机，弄成系统相机拍照」, where
+ * 系统 means this system). So a chat photo is taken at upload size and carries
+ * where it was taken. The file box stays, for a photo already in the gallery
+ * or a document. Every photo, however it arrived, goes through the same
+ * `compressPhoto` as the offline queue before it is sent.
  */
 export function ConversationComposer({
   body,
@@ -334,17 +406,47 @@ export function ConversationComposer({
   const t = useTranslations();
   const recorder = useRecorder(limit);
   const fileInput = useRef<HTMLInputElement>(null);
+  const fieldMode = isFieldChatPath(usePathname());
+  const place = usePhotoLocation();
+  // Shrinking a gallery photo and waiting for the position take a moment;
+  // the send button stays locked meanwhile so a second tap is not a second
+  // message.
+  const [preparing, setPreparing] = useState(false);
+  const busy = sending || preparing;
 
   const isPhoto = file?.type.startsWith("image/") ?? false;
 
-  const submitText = () => {
-    if (!body.trim() && !file) return;
-    onSend({
-      body: body.trim(),
-      ...(file && isPhoto ? { photo: file } : {}),
-      ...(file && !isPhoto ? { attachment: file, attachment_name: file.name } : {}),
-    });
+  const resetFileInput = () => {
     if (fileInput.current) fileInput.current.value = "";
+  };
+
+  const takePhoto = (photo: File) => {
+    resetFileInput();
+    setFile(photo);
+    place.start();
+  };
+
+  const clearPhoto = () => {
+    resetFileInput();
+    setFile(null);
+    place.clear();
+  };
+
+  const submitText = async () => {
+    if (!body.trim() && !file) return;
+    setPreparing(true);
+    try {
+      const photo = file && isPhoto ? await compressPhoto(file) : undefined;
+      const where = photo ? await place.read() : {};
+      onSend({
+        body: body.trim(),
+        ...(photo ? { photo, ...where } : {}),
+        ...(file && !isPhoto ? { attachment: file, attachment_name: file.name } : {}),
+      });
+    } finally {
+      setPreparing(false);
+    }
+    resetFileInput();
   };
 
   const submitVoice = async () => {
@@ -365,9 +467,9 @@ export function ConversationComposer({
         />
         <Button
           size="sm"
-          disabled={sending || (!body.trim() && !file)}
-          disabledReason={sending ? t("common.saving") : t("hazard.nothingToSend")}
-          onClick={submitText}
+          disabled={busy || (!body.trim() && !file)}
+          disabledReason={busy ? t("common.saving") : t("hazard.nothingToSend")}
+          onClick={() => void submitText()}
         >
           <Send className="h-4 w-4" />
           {t("hazard.send")}
@@ -375,13 +477,31 @@ export function ConversationComposer({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
+        {fieldMode && (
+          // The pending photo shows here, whichever way it came, so the
+          // worker sees what is about to be sent and can retake or clear it.
+          <FieldCamera
+            label={t("hazard.takePhoto")}
+            file={file && isPhoto ? file : undefined}
+            disabled={busy}
+            className="w-28 shrink-0"
+            onCapture={takePhoto}
+            onClear={clearPhoto}
+          />
+        )}
+
         <Input
           ref={fileInput}
           type="file"
           accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
           className="h-8 max-w-xs text-xs"
           aria-label={t("hazard.attach")}
-          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+          onChange={(event) => {
+            // A photo from the gallery was not taken here and now, so it
+            // carries no position.
+            place.clear();
+            setFile(event.target.files?.[0] ?? null);
+          }}
         />
 
         {recorder.supported ? (

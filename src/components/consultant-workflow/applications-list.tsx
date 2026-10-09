@@ -24,6 +24,11 @@ import { ConsultantHowTo } from "@/components/consultant-workflow/consultant-how
 import { ConsultantFieldInbox } from "@/components/consultant-workflow/field-inbox";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { usePageProject } from "@/components/providers/current-project-provider";
+import {
+  NeedsActionChip,
+  NeedsActionMarker,
+  useNeedsActionParam,
+} from "@/components/shared/needs-action";
 import { FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordNo } from "@/components/shared/record-no";
 import { Button } from "@/components/ui/button";
@@ -60,6 +65,9 @@ export function ConsultantApplicationsList() {
   const searchParams = useSearchParams();
   const { user, can } = useAuth();
   const df = useDateFormat();
+  // 「待处理 N」 (2026-10-09): only the applications waiting for this
+  // reader's review - the sidebar's number for 顾问申请.
+  const [waitingOnly, setWaitingOnly] = useNeedsActionParam();
   // The 「待整理现场资料」 notice names the submission's project, so the
   // inbox opens on that site (C1, B4 audit #12).
   // For the contractor's office, the top bar's 「当前项目」 (B13), which the
@@ -85,12 +93,13 @@ export function ConsultantApplicationsList() {
     enabled: canOrganize,
   });
   const rows = useQuery({
-    queryKey: ["consultant-applications", project, search, stage],
+    queryKey: ["consultant-applications", project, search, stage, waitingOnly],
     queryFn: () =>
       getConsultantApplications({
         project: project || undefined,
         search: search || undefined,
         stage: stage === "all" ? undefined : stage,
+        needs_action: waitingOnly ? "1" : undefined,
         page_size: 200,
       }),
     enabled: stage !== "inbox" && (!needsProject || Boolean(project)),
@@ -103,6 +112,11 @@ export function ConsultantApplicationsList() {
         subtitle={t("applications.subtitle", { count: rows.data?.count ?? 0 })}
         action={
           <div className="flex flex-wrap justify-end gap-2">
+            <NeedsActionChip
+              count={rows.data?.needs_action_count}
+              active={waitingOnly}
+              onToggle={setWaitingOnly}
+            />
             {can("approval.review") && (
               <Button asChild variant="outline">
                 <Link href="/approval-credential">
@@ -254,6 +268,7 @@ export function ConsultantApplicationsList() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3 sm:justify-end">
+                  <NeedsActionMarker show={application.needs_action} />
                   <span className="text-xs tabular-nums text-muted-foreground">
                     {df.date(application.application_date)}
                   </span>

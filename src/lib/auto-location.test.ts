@@ -14,6 +14,10 @@ import { describe, expect, it } from "vitest";
  * Not covered, on purpose: setting a project's, a geofence's or a site's own
  * coordinates. Those record where a place is, not where the person is, and an
  * automatic fix would write the office's position into them.
+ *
+ * Nor the back office's 「新增申请」 for 环保材料出场 (2026-10-09, item 37):
+ * the office raises it for a site it is not standing in, so that form takes
+ * no fix at all - the phone's own application keeps its automatic one.
  */
 const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
@@ -21,12 +25,18 @@ describe("capture forms locate automatically", () => {
   it.each([
     "src/components/contractor-ops/operations-workspaces.tsx",
     "src/components/contractor-ops/site-disposal-workspaces.tsx",
-    "src/components/contractor-ops/waste-outgoing-workspace.tsx",
     "src/components/site-operations/safety.tsx",
   ])("%s uses the automatic LocationField, not a button-only helper", (file) => {
     const source = read(file);
     expect(source).toMatch(/<LocationField/);
     expect(source).not.toMatch(/onClick=\{\(\) => void locate\(\)\}|onClick=\{getLocation\}/);
+  });
+
+  it("the office's 环保材料出场 application records no position; the phone's still does", () => {
+    const office = read("src/components/contractor-ops/waste-outgoing-workspace.tsx");
+    expect(office).not.toMatch(/<LocationField|navigator\.geolocation|latitude: coordinates/);
+    const phone = read("src/components/field-staff/field-records-panel.tsx");
+    expect(phone).toMatch(/latitude: location\.latitude/);
   });
 
   it.each([

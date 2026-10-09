@@ -32,6 +32,7 @@ vi.mock("@/components/shared/record-export-button", () => ({
 
 const { RECORDER, renderDetail } = await import("@/components/shared/record-detail-test-kit");
 const { MySubmissions } = await import("@/components/field-staff/my-submissions");
+const { RecordDetailShell } = await import("@/components/shared/record-detail-shell");
 
 const row = {
   id: "mv-7",
@@ -76,5 +77,66 @@ describe("the phone's submitted record (E8)", () => {
     expect(html).toContain('data-stub="conversation"');
     expect(html).not.toContain('data-stub="attachments"');
     expect(html).not.toContain('data-stub="export"');
+  });
+});
+
+/**
+ * Client 2026-10-09 二.4 / 五.3: opening a record draws its photos from their
+ * thumbnails; the full photo is fetched only when one is opened. 五.2: the
+ * list is read a page at a time.
+ */
+describe("the phone's history saves data (2026-10-09)", () => {
+  const THUMB = "https://cdn.example/evidence/thumbnails/v2/w400/mv-7.webp";
+  const FULL = "https://cdn.example/evidence/watermarked/v2/mv-7.jpg";
+
+  function withThumbnails(client: import("@tanstack/react-query").QueryClient, next_before: string | null = null) {
+    client.setQueryData(["my-submissions"], { results: [row], count: 30, truncated: Boolean(next_before), next_before });
+    client.setQueryData(["my-submissions", "detail", "EQUIPMENT_MOVEMENT", "mv-7"], {
+      ...row,
+      fields: [{ key: "delivery_note_no", value: "DO-OUT-7" }],
+      photos: [
+        { id: "p1", url: FULL, thumbnail_url: THUMB, caption: "Exit gate" },
+        { id: "p2", url: `${FULL}?2`, thumbnail_url: `${THUMB}?2`, caption: "Plate" },
+      ],
+    });
+  }
+
+  /** The `src` of the large first photo. */
+  const heroSrc = (html: string) =>
+    /data-shell-hero[^>]*>(?:(?!<\/button>)[\s\S])*?<img[^>]*src="([^"]+)"/.exec(html)?.[1] ?? null;
+
+  it("on the phone, draws every photo - the large first one too - from its thumbnail", () => {
+    const html = renderDetail(<MySubmissions />, (client) => withThumbnails(client));
+    expect(heroSrc(html)).toBe(THUMB);
+    expect(html).toContain(`${THUMB}?2`);
+    expect(html).not.toContain(FULL);
+  });
+
+  it("in the office, keeps the large first photo full size; only the strip uses thumbnails", () => {
+    const html = renderDetail(
+      <RecordDetailShell
+        reference="EQ-SITE-007"
+        facts={[]}
+        photos={[
+          { id: "p1", url: FULL, thumbnailUrl: THUMB, label: "Exit gate" },
+          { id: "p2", url: `${FULL}?2`, thumbnailUrl: `${THUMB}?2`, label: "Plate" },
+        ]}
+      />,
+    );
+    expect(heroSrc(html)).toBe(FULL);
+    // The 80 px strip: the thumbnail, never the second full photo.
+    expect(html).toContain(`${THUMB}?2`);
+    expect(html).not.toContain(`${FULL}?2`);
+  });
+
+  it("offers the next page only when the server says there is one", () => {
+    const more = renderDetail(<MySubmissions />, (client) => withThumbnails(client, "2026-10-01T00:00:00Z"));
+    expect(more).toContain("data-load-older");
+    expect(more).toContain(messages.mySubmissions.loadOlder);
+    // And says how much is left: 显示 1 条，共 30 条.
+    expect(more).toContain("共 30 条");
+
+    const last = renderDetail(<MySubmissions />, (client) => withThumbnails(client, null));
+    expect(last).not.toContain("data-load-older");
   });
 });

@@ -27,12 +27,13 @@
  * they end up re-photographing.
  */
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   Camera,
   ChevronRight,
   CloudUpload,
+  EyeOff,
   FileText,
   Loader2,
   MessagesSquare,
@@ -53,6 +54,12 @@ import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-w
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import {
+  OriginalBackupBanner,
+  RecordOriginalBackup,
+  RowOriginalStatus,
+} from "@/components/shared/original-backup";
+import { useLocalOriginals } from "@/hooks/use-local-originals";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
@@ -85,6 +92,17 @@ import {
   getQueuedSubmissionDetail,
   queueErrorKey,
 } from "@/services/offline-sync.service";
+import { prunePhotoCache } from "@/lib/photo-cache";
+import { PhoneStoragePanel } from "@/components/field-staff/phone-storage-panel";
+import { ArmRow } from "@/components/shared/page-primitives";
+import { useHiddenSubmissions } from "@/hooks/use-hidden-submissions";
+import {
+  canHideRow,
+  hiddenKey,
+  hideSubmission,
+  pruneHiddenSubmissions,
+  withoutHidden,
+} from "@/lib/hidden-submissions";
 
 /** Queue kinds that are a submission somebody is waiting on, and their label. */
 const QUEUED_KINDS: Record<string, string> = {
@@ -136,6 +154,8 @@ export function MySubmissions({
   const t = useTranslations();
   const formatter = useDateFormat();
   const { user } = useAuth();
+  // The originals this phone still holds, to show each row's state (H5 三.5).
+  const originals = useLocalOriginals(user?.id);
   const [openRow, setOpenRow] = useState<MySubmissionRow | null>(null);
   // The office's 验收 / 不通过 notice for an equipment entry or exit links to
   // `/field-staff?…&movement=<id>` (Fable B4 #15): that movement opens here,
@@ -143,10 +163,48 @@ export function MySubmissions({
   const [linkedMovement, setLinkedMovement] = useUrlSelection("movement");
   const [openQueued, setOpenQueued] = useState<string | null>(null);
 
+  // The newest page (client 2026-10-09 五.1/五.2): opening the app reads
+  // twenty rows and their thumbnails, never six months of them.
   const stored = useQuery({
     queryKey: ["my-submissions"],
-    queryFn: getMySubmissions,
+    queryFn: () => getMySubmissions(),
   });
+
+  // The older pages, only once the worker asks for them (「加载更早的记录」).
+  // Keyed by where the newest page ends: when a new submission pushes that
+  // point, the older pages are read again from it, so none is skipped or
+  // shown twice.
+  const [wantOlder, setWantOlder] = useState(false);
+  const firstNext = stored.data?.next_before ?? null;
+  const older = useInfiniteQuery({
+    queryKey: ["my-submissions", "older", firstNext],
+    queryFn: ({ pageParam }) => getMySubmissions(pageParam),
+    initialPageParam: firstNext,
+    getNextPageParam: (last) => last.next_before ?? undefined,
+    enabled: wantOlder && Boolean(firstNext),
+  });
+  const hasOlder = older.data ? older.hasNextPage : Boolean(firstNext);
+  const loadOlder = () => {
+    if (!older.data) setWantOlder(true);
+    else void older.fetchNextPage();
+  };
+
+  // Thumbnails the phone keeps (`public/sw.js`) go when their records leave
+  // the company's window (四.2): a picture first kept longer ago than the
+  // window belongs to a record older than it.
+  // The worker's own 「从我的列表移除」 entries leave with the window too.
+  const windowDays = stored.data?.history_window_days;
+  useEffect(() => {
+    if (!windowDays) return;
+    prunePhotoCache(windowDays);
+    if (user?.id) pruneHiddenSubmissions(user.id, windowDays);
+  }, [windowDays, user?.id]);
+
+  // Records this worker took off their own list (四.4): this phone only.
+  const hidden = useHiddenSubmissions(user?.id);
+  const hiddenCount = Object.keys(hidden).length;
+  // The row whose 「从我的列表移除」 is open in place (tap, then confirm).
+  const [removing, setRemoving] = useState<string | null>(null);
 
   const queued = useQuery({
     queryKey: ["my-submissions", "queued", user?.id],
@@ -157,7 +215,19 @@ export function MySubmissions({
     refetchInterval: 15_000,
   });
 
-  const rows = stored.data?.results ?? [];
+  const rows = useMemo(() => {
+    const seen = new Set<string>();
+    return [
+      ...(stored.data?.results ?? []),
+      ...(older.data?.pages.flatMap((page) => page.results) ?? []),
+    ].filter((row) => {
+      const key = `${row.kind}:${row.id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [stored.data, older.data]);
+  const visibleRows = withoutHidden(rows, hidden);
   const linkedRow = linkedMovement
     ? rows.find((row) => row.kind === "EQUIPMENT_MOVEMENT" && row.id === linkedMovement) ?? null
     : null;
@@ -184,11 +254,15 @@ export function MySubmissions({
           onClick={() => {
             void stored.refetch();
             void queued.refetch();
+            if (older.data) void older.refetch();
           }}
         >
           <RefreshCw className={stored.isFetching ? "animate-spin" : ""} />
         </Button>
       </div>
+
+      {/* 「同步原图」 for everything waiting (H5 三.4, WP1); nothing when none waits. */}
+      <OriginalBackupBanner />
 
       {/* Queued first: the phone is the only thing that knows these exist. */}
       {waiting.map((entry) => (
@@ -250,8 +324,9 @@ export function MySubmissions({
         </p>
       ) : (
         <ul className="space-y-2">
-          {rows.map((row) => (
+          {visibleRows.map((row) => (
             <li key={`${row.kind}:${row.id}`}>
+              <div className="relative">
               {/*
                 A button, not a `<li>` with a click handler (T-210). Every row
                 here was an inert list item, which is the customer's complaint
@@ -260,7 +335,7 @@ export function MySubmissions({
               */}
               <button
                 type="button"
-                className="surface-panel w-full rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:bg-muted/60"
+                className={`surface-panel w-full rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:bg-muted/60 ${canHideRow(row) ? "pr-12" : ""}`}
                 onClick={() => {
                   if (row.kind === "HAZARD" && onOpenHazard) {
                     onOpenHazard({
@@ -293,6 +368,11 @@ export function MySubmissions({
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {formatter.dateTime(row.submitted_at)} · {recordStatusLabel(t, row, PHONE_STATUS)}
                   </p>
+                  <RowOriginalStatus
+                    summary={row.original_backup}
+                    local={originals.rows}
+                    photoCount={row.photo_count}
+                  />
                 </div>
                 {row.kind === "HAZARD" && onOpenHazard ? (
                   <MessagesSquare className="mt-1 size-4 shrink-0 text-muted-foreground" />
@@ -301,18 +381,92 @@ export function MySubmissions({
                 )}
               </div>
               </button>
+              {/*
+                「从我的列表移除」 (四.4): this worker's phone only - nothing
+                is deleted, the office and everyone else are unaffected.
+                Two steps in place, no dialog: the first tap opens the
+                sentence saying so, the second removes. Never on a queued
+                row (not on the server yet) nor on one whose originals are
+                still owed (四.6) - `canHideRow`.
+              */}
+              {canHideRow(row) && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="absolute bottom-1.5 right-1.5 size-9 text-muted-foreground"
+                  title={t("mySubmissions.removeFromList")}
+                  aria-expanded={removing === hiddenKey(row)}
+                  onClick={() =>
+                    setRemoving((current) => (current === hiddenKey(row) ? null : hiddenKey(row)))
+                  }
+                  data-remove-from-list
+                >
+                  <EyeOff />
+                </Button>
+              )}
+              </div>
+              {removing === hiddenKey(row) && user?.id && (
+                <div className="mt-1" data-remove-strip>
+                <ArmRow>
+                  <p className="min-w-0 flex-1 basis-full text-xs leading-5 text-muted-foreground">
+                    {t("mySubmissions.removeHelp")}
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      hideSubmission(user.id, row);
+                      setRemoving(null);
+                    }}
+                    data-confirm-remove
+                  >
+                    <EyeOff />
+                    {t("mySubmissions.removeFromList")}
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" onClick={() => setRemoving(null)}>
+                    {t("common.cancel")}
+                  </Button>
+                </ArmRow>
+                </div>
+              )}
             </li>
           ))}
         </ul>
       )}
 
-      {/* Said rather than implied: a list of forty out of sixty that claims to
-          be "everything I sent" is a worse answer than no list. */}
-      {stored.data?.truncated && (
-        <p className="text-center text-xs text-muted-foreground">
-          {t("mySubmissions.truncated", { shown: rows.length, total: stored.data.count })}
+      {hiddenCount > 0 && (
+        <p className="text-center text-xs text-muted-foreground" data-hidden-note>
+          {t("mySubmissions.hiddenNote", { count: hiddenCount })}
         </p>
       )}
+
+      {/* Said rather than implied: a list of twenty out of sixty that claims
+          to be "everything I sent" is a worse answer than no list. */}
+      {hasOlder && stored.data?.count != null && (
+        <p className="text-center text-xs text-muted-foreground">
+          {t("mySubmissions.truncated", { shown: visibleRows.length, total: stored.data.count })}
+        </p>
+      )}
+      {older.isError ? (
+        <FieldLoadFailed what={t("fieldStaffPwa.what.submissions")} onRetry={() => older.refetch()} />
+      ) : hasOlder && !stored.isError ? (
+        // The next twenty rows and their thumbnails, only when asked for
+        // (client 2026-10-09 五.2).
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 w-full"
+          disabled={older.isFetching}
+          disabledReason={t("common.loading")}
+          onClick={loadOlder}
+          data-load-older
+        >
+          {older.isFetching ? <Loader2 className="animate-spin" /> : null}
+          {t("mySubmissions.loadOlder")}
+        </Button>
+      ) : null}
 
       {/*
         Why the list stops where it does (T-330).
@@ -329,6 +483,8 @@ export function MySubmissions({
           })}
         </p>
       )}
+
+      <PhoneStoragePanel windowDays={windowDays} />
 
       {shownRow && (
         <StoredDetailSheet
@@ -427,6 +583,9 @@ function StoredDetailSheet({
       ) : (
         <RecordDetailShell
           reference={row.reference}
+          // The field app: even the large first photo is its thumbnail; the
+          // full photo loads only when one is opened (client 2026-10-09 二.4).
+          heroFromThumbnail
           // No 记录人 here: the worker is looking at their own record.
           /*
             A returned application is over (D-227).
@@ -441,11 +600,20 @@ function StoredDetailSheet({
             one thing they can do instead.
           */
           notices={
-            RETURNED_STATUSES.has(row.status) && (
-              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
-                {t("mySubmissions.returnedClosed")}
-              </p>
-            )
+            <>
+              {RETURNED_STATUSES.has(row.status) && (
+                <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
+                  {t("mySubmissions.returnedClosed")}
+                </p>
+              )}
+              {/* This record's originals and its own 「同步原图」 (H5 三, WP1). */}
+              {detail.data.photos.length > 0 && (
+                <RecordOriginalBackup
+                  summary={detail.data.original_backup}
+                  onSynced={() => void queryClient.invalidateQueries({ queryKey: ["my-submissions"] })}
+                />
+              )}
+            </>
           }
           facts={detail.data.fields.map((field) => ({
             label: t(`mySubmissions.field.${field.key}`),
@@ -461,6 +629,9 @@ function StoredDetailSheet({
           photos={detail.data.photos.map((shot, index) => ({
             id: shot.id ?? `${index}:${shot.url}`,
             url: shot.url,
+            // The strip shows the thumbnail; the full photo is fetched when
+            // one is opened (client 2026-10-09 二.4, 五.3).
+            thumbnailUrl: shot.thumbnail_url,
             label: shot.caption || row.reference,
           }))}
           /*

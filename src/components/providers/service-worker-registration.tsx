@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { prunePhotoCache, rememberedHistoryWindowDays } from "@/lib/photo-cache";
 import { syncPushSubscription } from "@/services/push-notification.service";
 
 export const OFFLINE_SYNC_REQUESTED = "mse:offline-sync-requested";
@@ -43,6 +44,9 @@ export function ServiceWorkerRegistration() {
       .register("/sw.js", { scope: "/", updateViaCache: "none" })
       .then(async (registration) => {
         await registration.update();
+        // Every app open: cached photos past the history window go (四.2).
+        const days = rememberedHistoryWindowDays();
+        if (days) prunePhotoCache(days);
       })
       .catch(() => undefined);
 

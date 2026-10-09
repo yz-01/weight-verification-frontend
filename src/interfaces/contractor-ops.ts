@@ -247,6 +247,8 @@ export interface FieldTaskReference {
 }
 
 export interface FieldTask extends RecordedBy {
+  /** Sent in and waiting for this reader's 验收 - the sidebar counts it (2026-10-09). */
+  needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   id: string;
@@ -542,6 +544,23 @@ export interface SiteProgressRecord extends RecordedBy {
   photos: Array<{ id: string; image: string; watermarked?: string | null; caption: string; captured_at: string }>;
   /** The office's 【备注】, oldest first (T-359). */
   remarks?: Array<{ id: string; body: string; author_name: string | null; created_at: string }>;
+  /**
+   * Whether somebody pressed 【确认】 on it (a `RecordClosure`, X10). `status`
+   * already reads CONFIRMED when it is; this says it is also locked.
+   */
+  archived?: boolean;
+  /** Every office correction of 实际完成比例, oldest first (2026-10-09). */
+  corrections?: ProgressCorrection[];
+}
+
+/** One office correction of a progress record's 实际完成比例 (2026-10-09). */
+export interface ProgressCorrection {
+  id: string;
+  old_percent: string;
+  new_percent: string;
+  reason: string;
+  author_name: string | null;
+  created_at: string;
 }
 
 export interface MaterialOutgoing extends RecordedBy {
@@ -734,6 +753,8 @@ export interface DisposalTimelineEntry {
 }
 
 export interface DisposalRequest extends RecordedBy {
+  /** A request to accept or a lorry back to check, for this reader (2026-10-09). */
+  needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

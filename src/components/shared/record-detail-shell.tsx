@@ -64,7 +64,14 @@ import type { ExportableRecordKind } from "@/services/contractor-ops.service";
 
 export interface ShellPhoto {
   id: string;
+  /** The full (stamped) photograph: loaded only when it is opened. */
   url: string;
+  /**
+   * Its small thumbnail, when the server sent one: what the record's photo
+   * strip draws, so opening a record costs a few ~20 KB pictures rather than
+   * every full photo (client 2026-10-09 二.4, 五.3). Falls back to `url`.
+   */
+  thumbnailUrl?: string | null;
   /** What it is, e.g. "Delivery order". Shown under the thumbnail. */
   label: string;
   takenAt?: string | null;
@@ -105,7 +112,7 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
         className="photo-hatch relative block size-20 overflow-hidden rounded-lg border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Image
-          src={photo.url}
+          src={photo.thumbnailUrl || photo.url}
           alt={photo.label}
           fill
           sizes="80px"
@@ -124,8 +131,21 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
  * The first photograph, large (the canvas's 现场照片 panel): the picture a
  * reader checks first, with what it is and when it was taken over its corner.
  * The rest stay small beside it.
+ *
+ * `fromThumbnail`: drawn from the thumbnail - the phone field app, where the
+ * full photo loads only when it is opened (client 2026-10-09 二.4, 五.3). The
+ * office keeps the full photo here: a 400 px picture across a desktop panel
+ * would be softer than before.
  */
-function ShellHeroPhoto({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => void }) {
+function ShellHeroPhoto({
+  photo,
+  onOpen,
+  fromThumbnail,
+}: {
+  photo: ShellPhoto;
+  onOpen: () => void;
+  fromThumbnail: boolean;
+}) {
   const df = useDateFormat();
   return (
     <button
@@ -136,7 +156,7 @@ function ShellHeroPhoto({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
       className="photo-hatch relative block aspect-video w-full overflow-hidden rounded-xl border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring"
     >
       <Image
-        src={photo.url}
+        src={(fromThumbnail && photo.thumbnailUrl) || photo.url}
         alt={photo.label}
         fill
         sizes="(min-width: 1024px) 640px, 100vw"
@@ -257,6 +277,7 @@ export function RecordDetailShell({
   recorder,
   aside,
   chat,
+  heroFromThumbnail = false,
 }: {
   /** The record's own number, used on printed and downloaded copies. */
   reference: string;
@@ -291,7 +312,7 @@ export function RecordDetailShell({
    * the record's own steps are done. Left out for a record that closes
    * another way - a hazard closes by its raiser's 确认完成.
    */
-  closure?: { kind: ArchiveRecordKind; recordId: string } | null;
+  closure?: { kind: ArchiveRecordKind; recordId: string; onConfirmed?: () => void } | null;
   /** 更正记录, when the record has been corrected. */
   corrections?: React.ReactNode;
   /** 记录人 - usually a `RecordRecorder`. */
@@ -308,6 +329,13 @@ export function RecordDetailShell({
    * than a panel beside it. Use `conversation` for every other kind.
    */
   chat?: React.ReactNode;
+  /**
+   * The phone field app: the large first photo is drawn from its thumbnail
+   * too, so nothing full size loads until a photo is opened (client
+   * 2026-10-09 二.4, 五.3). Off for the office, whose first photo stays
+   * full size; the small strip uses thumbnails everywhere.
+   */
+  heroFromThumbnail?: boolean;
 }) {
   const t = useTranslations("recordShell");
   const [open, setOpen] = useState<number | null>(null);
@@ -381,7 +409,11 @@ export function RecordDetailShell({
                 </p>
               ) : (
                 <div className="space-y-3">
-                  <ShellHeroPhoto photo={hero} onOpen={() => setOpen(0)} />
+                  <ShellHeroPhoto
+                    photo={hero}
+                    onOpen={() => setOpen(0)}
+                    fromThumbnail={heroFromThumbnail}
+                  />
                   {/* The rest small (「照片需要很小很小」): a thumbnail is a
                       pointer, the evidence is the full image in the viewer. */}
                   {rest.length > 0 ? (
@@ -435,7 +467,11 @@ export function RecordDetailShell({
               >
                 {actions}
                 {closure ? (
-                  <RecordClosurePanel kind={closure.kind} recordId={closure.recordId} />
+                  <RecordClosurePanel
+                    kind={closure.kind}
+                    recordId={closure.recordId}
+                    onConfirmed={closure.onConfirmed}
+                  />
                 ) : null}
               </ShellPanel>
             ) : null}

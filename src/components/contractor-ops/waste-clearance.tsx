@@ -4,12 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
-import { DISPATCH_STATE_TONE, Dispatches } from "@/components/dispatches/dispatches";
+import {
+  DISPATCH_STATE_TONE,
+  Dispatches,
+  dispatchCategoryText,
+} from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
+import { NeedsActionChip, NeedsActionMarker } from "@/components/shared/needs-action";
 import {
   ListHeader,
   QueryFailedNote,
@@ -46,7 +51,9 @@ const PER_KIND = 10;
  *
  * 全部 lists both, newest first, each row saying which kind it is and opening
  * the original detail. The other two tabs are the original screens, whole:
- * filters, export, creating, every step. The counts stay apart.
+ * filters, export, every step. The counts stay apart. The 废料订单 tab is a
+ * read-only tracker since 2026-10-09: orders come from approved
+ * 环保材料出场申请, and the old direct ones stay for history.
  *
  * The recycler's own order book (废料订单 in their console) is a different
  * screen and is not touched.
@@ -54,6 +61,7 @@ const PER_KIND = 10;
 export function WasteClearance() {
   const t = useTranslations("wasteClearance");
   const { user, can } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const hasDisposals = user?.features.includes("site_disposals") ?? false;
   const hasDispatches = user?.features.includes("waste_dispatches") ?? false;
@@ -122,6 +130,15 @@ export function WasteClearance() {
         action={
           kind === "all" ? (
             <div className="flex flex-wrap gap-2">
+              {/* 「待处理 N」: the 工地清运 jobs waiting for this reader - a
+                  request to accept, a lorry back to check - the sidebar's
+                  number. Opens that tab with only them (2026-10-09). The
+                  工地清运 tab carries its own. */}
+              <NeedsActionChip
+                count={disposalCount.data?.needs_action_count}
+                active={false}
+                onToggle={() => router.push("/waste-clearance?kind=disposal&needs_action=1")}
+              />
               {can("disposal.submit") && (
                 <Button asChild>
                   <Link href="/waste-clearance?kind=disposal&create=1">
@@ -130,14 +147,11 @@ export function WasteClearance() {
                   </Link>
                 </Button>
               )}
-              {can("dispatch.create") && (
-                <Button asChild variant="outline">
-                  <Link href="/dispatches/create">
-                    <Plus className="size-4" />
-                    {t("newDispatch")}
-                  </Link>
-                </Button>
-              )}
+              {/*
+                No 新增废料订单 (Lucas 2026-10-09): an order is what an
+                approved 环保材料出场申请 becomes when the office arranges
+                the recycler, so it is raised there, not here.
+              */}
             </div>
           ) : undefined
         }
@@ -203,6 +217,8 @@ export function WasteClearance() {
 interface MergedRow {
   kind: "disposal" | "dispatch";
   id: string;
+  /** A 工地清运 job waiting for this reader (「待处理」); never a 废料订单. */
+  needsAction: boolean;
   reference: string;
   statusBadge: React.ReactNode;
   project: string;
@@ -239,6 +255,7 @@ function MergedList() {
     ...(disposals.data?.results ?? []).map((row) => ({
       kind: "disposal" as const,
       id: row.id,
+      needsAction: row.needs_action === true,
       reference: row.reference_no,
       statusBadge: <StatusBadge label={disposalT(`status.${row.status}`)} />,
       project: row.project_name,
@@ -249,6 +266,7 @@ function MergedList() {
     ...(dispatches.data?.results ?? []).map((row) => ({
       kind: "dispatch" as const,
       id: row.id,
+      needsAction: false,
       reference: row.dispatch_no,
       statusBadge: (
         <StatusBadge
@@ -257,7 +275,9 @@ function MergedList() {
         />
       ),
       project: row.project_name,
-      content: `${root(`dispatches.wasteType.${row.waste_type}`)} · ${row.recycler_name}`,
+      // The application's category, as its own list names it; an old
+      // direct order falls back to its waste type, marked 旧订单 (2026-10-09).
+      content: `${dispatchCategoryText(row, root)} · ${row.recycler_name}`,
       at: row.created_at ?? null,
       href: `/dispatches/${row.id}`,
     })),
@@ -284,13 +304,16 @@ function MergedList() {
             <TableHead>{t("column.project")}</TableHead>
             <TableHead>{t("column.content")}</TableHead>
             <TableHead>{t("column.at")}</TableHead>
+            <TableHead>
+              <span className="sr-only">{root("needsAction.column")}</span>
+            </TableHead>
             <TableHead className="text-right">{t("column.open")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 justify-center">
+              <TableCell colSpan={8} className="h-24 justify-center">
                 <Loader2 className="mx-auto h-4 w-4 animate-spin text-muted-foreground" />
               </TableCell>
             </TableRow>
@@ -305,6 +328,9 @@ function MergedList() {
               <TableCell className="max-w-65 truncate">{row.content}</TableCell>
               <TableCell className="tabular text-muted-foreground">
                 {row.at ? df.dateTime(row.at) : "—"}
+              </TableCell>
+              <TableCell>
+                <NeedsActionMarker show={row.needsAction} />
               </TableCell>
               <TableCell className="text-right">
                 <Button asChild variant="outline" size="sm">

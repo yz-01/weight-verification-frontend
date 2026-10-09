@@ -4100,6 +4100,13 @@
       "VIDEO_STORAGE": "Penyimpanan Video"
     }
   },
+  "needsAction": {
+    "marker": "Perlu tindakan",
+    "chip": "Perlu tindakan {count}",
+    "chipHint": "Tunjukkan rekod yang menunggu kelulusan atau penerimaan anda sahaja",
+    "chipClear": "Tunjukkan semua rekod",
+    "column": "Perlu tindakan"
+  },
   "common": {
     "actions": "Tindakan",
     "active": "Aktif",
@@ -5888,6 +5895,23 @@
         "hint": "Hanya kategori yang tidak dirujuk oleh mana-mana rekod kemajuan boleh dibuang - contohnya yang ditambah secara silap. Yang sedang digunakan boleh dimatikan di atas.",
         "confirm": "Buang kategori",
         "failed": "Kategori tidak dapat dibuang. Cuba lagi."
+      },
+      "correction": {
+        "edit": "Betulkan peratusan",
+        "newPercent": "Peratusan baharu (%)",
+        "was": "Kini {percent}%",
+        "reason": "Sebab perubahan",
+        "reasonPlaceholder": "cth. Tapak memasukkan 40 tetapi papak sudah 55% siap",
+        "save": "Simpan pembetulan",
+        "cancel": "Batal",
+        "range": "Masukkan peratusan dari 0 hingga 100",
+        "unchanged": "Itu sudah peratusan semasa",
+        "evidenceNote": "Hanya peratusan berubah. Foto, lokasi, masa diambil dan perekod kekal seperti direkodkan.",
+        "archivedNote": "Rekod ini telah diarkibkan. Hanya peratusan boleh dibetulkan; foto, lokasi, masa diambil dan perekod kekal dikunci.",
+        "edited": "Disunting",
+        "historyTitle": "Perubahan peratusan",
+        "change": "{from}% → {to}%",
+        "by": "{name} · {at}"
       }
     },
     "progressEvidence": {
@@ -6613,9 +6637,6 @@
       "title": "Batalkan muatan ini?"
     },
     "count": "{count, plural, =0 {Tiada muatan} other {# muatan}}",
-    "createTitle": "Muatan keluar baharu",
-    "editTitle": "Sunting muatan",
-    "estimateNote": "Ini anggaran anda. Berat akhir ditentukan oleh jambatan timbang pengitar semula, dan kedua-duanya disimpan.",
     "field": {
       "applicant": "Pemohon",
       "applicationNo": "No. permohonan",
@@ -6652,7 +6673,6 @@
       "weighingNo": "No. tiket timbang"
     },
     "lockedNote": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi. Batalkan jika ia tidak sampai.",
-    "new": "Muatan baharu",
     "noPhotos": "Tiada gambar dilampirkan pada muatan ini.",
     "photoKind": {
       "LOADING": "Memuat",
@@ -6660,19 +6680,11 @@
       "PLATE": "Nombor plat",
       "VEHICLE": "Kenderaan"
     },
-    "pickupAddressHint": "Biarkan kosong untuk guna alamat projek. Taip sendiri apabila lori perlu datang ke pintu masuk tertentu.",
-    "recyclerEmpty": "Tiada pengitar semula tersedia buat masa ini.",
-    "recyclerNote": "Muatan hanya boleh dihantar kepada pengitar semula yang berdaftar di MSE Trace. Itulah yang meletakkan muatan di atas jambatan timbang dan menyambung jejak melepasi pintu tapak anda.",
     "release": {
       "byName": "Dilepaskan oleh",
       "confirm": "Lepaskan",
       "description": "Merekodkan bahawa lori telah keluar. Selepas ini, muatan boleh dibatalkan tetapi tidak boleh diubah.",
       "title": "Lepaskan muatan ini?"
-    },
-    "remove": {
-      "confirm": "Buang",
-      "description": "Draf ini tidak akan muncul lagi. Tiada apa-apa yang telah meninggalkan tapak.",
-      "title": "Buang {name}?"
     },
     "section": {
       "application": "Permohonan keluar",
@@ -6707,11 +6719,8 @@
     "title": "Pesanan sisa",
     "toast": {
       "cancelled": "Muatan dibatalkan",
-      "created": "Muatan dicipta",
       "photoAdded": "Gambar ditambah",
-      "released": "Muatan dilepaskan",
-      "removed": "Muatan dibuang",
-      "updated": "Muatan dikemas kini"
+      "released": "Muatan dilepaskan"
     },
     "viewTitle": "Muatan keluar",
     "wasteType": {
@@ -6726,12 +6735,19 @@
       "TIMBER": "Kayu"
     },
     "what": {
-      "tracking": "Kemajuan kutipan",
-      "projects": "Senarai projek",
-      "recyclers": "Senarai pengitar semula untuk projek ini"
+      "tracking": "Kemajuan kutipan"
     },
     "countedOnly": "Hanya pesanan yang dikira oleh ibu pejabat - tiada draf, tiada yang dibatalkan.",
-    "showAll": "Tunjuk semua"
+    "showAll": "Tunjuk semua",
+    "tracker": {
+      "note": "Pesanan sisa datang daripada permohonan bahan alam sekitar keluar yang telah diluluskan: selepas permohonan diluluskan, Tetapkan pengitar menghantar pesanannya. Pesanan lama yang dibuat terus, sebelum adanya permohonan, disimpan di sini untuk rujukan sahaja.",
+      "orderNo": "No. pesanan",
+      "applicationNo": "No. permohonan",
+      "openApplication": "Buka permohonan {number}",
+      "category": "Kategori",
+      "legacy": "Pesanan lama",
+      "createdAt": "Tarikh pesanan"
+    }
   },
   "documents": {
     "downloading": "Sedang memuat turun",
@@ -7421,7 +7437,10 @@
       "equipment_hours_end_too_late": "Masa tamat tidak boleh lewat daripada 06:00 pagi esoknya (itu syif seterusnya).",
       "equipment_profile_incomplete": "Pilih subkelas mesin ini sebelum menerimanya.",
       "equipment_not_on_site": "Mesin ini tiada di tapak projek ini, jadi tidak boleh keluar.",
-      "equipment_exit_waiting": "Keluar mesin ini sudah menunggu penerimaan pejabat. Ia tidak boleh dihantar lagi."
+      "equipment_exit_waiting": "Keluar mesin ini sudah menunggu penerimaan pejabat. Ia tidak boleh dihantar lagi.",
+      "original_not_expected": "Pelayan belum ada foto yang menunggu foto asal ini. Biar rekod selesai dimuat naik dahulu.",
+      "original_hash_mismatch": "Foto asal rosak semasa dihantar dan tidak sama dengan yang di telefon, jadi tiada apa disimpan. Tekan 'Segerak foto asal' sekali lagi.",
+      "original_not_found": "Foto ini tiada foto asal yang telah disandarkan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7440,7 +7459,9 @@
       "null": "Ruangan ini wajib diisi",
       "phone_in_use": "Nombor ini telah digunakan oleh akaun staf tapak lain",
       "required": "Ruangan ini wajib diisi",
-      "unique": "Nilai ini telah digunakan"
+      "unique": "Nilai ini telah digunakan",
+      "percent_range": "Masukkan peratusan dari 0 hingga 100",
+      "percent_unchanged": "Itu sudah peratusan semasa"
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -7509,7 +7530,12 @@
       "chooseCategory": "Pilih kategori",
       "project": "Projek",
       "withGps": "Dengan GPS",
-      "withoutGps": "Tanpa GPS"
+      "withoutGps": "Tanpa GPS",
+      "original": {
+        "BACKED_UP": "Foto asal disandarkan",
+        "PENDING": "Foto asal menunggu",
+        "FAILED": "Segerak foto asal gagal"
+      }
     },
     "integrity": {
       "currentHash": "Cincang semasa",
@@ -7544,6 +7570,19 @@
     "what": {
       "projects": "Senarai projek",
       "categories": "Senarai kategori"
+    },
+    "original": {
+      "title": "Foto asal penuh",
+      "status": "Status foto asal",
+      "verifiedAt": "Disemak oleh pelayan",
+      "size": "Saiz foto asal",
+      "declaredAt": "Didaftarkan",
+      "sha256": "SHA-256 foto asal",
+      "download": "Muat turun foto asal penuh",
+      "integrity": "Foto asal penuh",
+      "notHere": "Foto asal belum disandarkan ke pelayan.",
+      "unavailable": "Fail foto asal tidak dapat dibaca dari storan.",
+      "frameNote": "Foto asal penuh ialah bingkai yang ditangkap oleh aplikasi telefon semasa foto diambil, disimpan dengan kualiti tinggi (kira-kira 1-2 MB, 1080p). Ia bukan fail asal kamera telefon. Senarai dan rekod memaparkan foto aplikasi yang dimampatkan."
     }
   },
   "export": {
@@ -8243,6 +8282,7 @@
     "recordStop": "Berhenti",
     "recordingFor": "Merakam {seconds}s daripada {limit}s",
     "attach": "Lampirkan fail",
+    "takePhoto": "Ambil foto",
     "photo": "Foto",
     "closed": "Bahaya ini telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
     "participants": "Dalam perbualan ini",
@@ -8296,7 +8336,7 @@
         "overdue_rectifications": "Pembetulan lewat",
         "material_receipts_today": "Bahan diterima hari ini"
       },
-      "wasteDispatches": "Pesanan sisa (kitar semula)",
+      "wasteDispatches": "Pesanan sisa",
       "siteDisposals": "Pembersihan tapak",
       "records": "Rekod",
       "trips": "Trip",
@@ -9695,6 +9735,7 @@
     "attempts": "{count} cubaan",
     "historyWindow": "Telefon menyimpan {days} hari terakhir. Rekod lebih lama ada dalam sistem pejabat.",
     "truncated": "Menunjukkan {shown} daripada {total}.",
+    "loadOlder": "Muat rekod lebih awal",
     "kind": {
       "MATERIAL_RECEIPT": "Bahan masuk",
       "SITE_RECORD": "Rekod tapak",
@@ -9803,7 +9844,10 @@
     "returnedClosed": "Permohonan ini telah ditutup. Rekod, sebab dan perbualan dikekalkan; buka permohonan baharu jika ia masih perlu dilakukan.",
     "paymentProofs": "Baucar bayaran",
     "noPaymentProofs": "Baucar dipaparkan di sini selepas kewangan membayar.",
-    "conversation": "Komunikasi rekod"
+    "conversation": "Komunikasi rekod",
+    "removeFromList": "Keluarkan daripada senarai saya",
+    "removeHelp": "Hanya dikeluarkan daripada senarai dalam telefon ini. Rekod di awan, pejabat dan pengguna lain tidak terjejas; anda boleh menunjukkannya semula di \"Storan telefon dan pembersihan\".",
+    "hiddenNote": "{count} dikeluarkan daripada senarai saya."
   },
   "nav": {
     "activity_logs": "Log aktiviti",
@@ -10154,7 +10198,7 @@
     "waitingForYou": "{count} menunggu anda",
     "materialManagement": "Pengurusan bahan",
     "material_requests": "MR / Permohonan Lain",
-    "waitingConfirm": "{count} menunggu pengesahan"
+    "waitingApproval": "{count} menunggu kelulusan atau penerimaan"
   },
   "notifications": {
     "compose": {
@@ -10267,6 +10311,12 @@
     "what": {
       "counts": "Bilangan belum selesai",
       "pushConfig": "Tetapan amaran telefon"
+    },
+    "sound": {
+      "blockedHint": "Pelayar anda menyekat bunyi amaran. Klik untuk menghidupkannya.",
+      "enable": "Hidupkan bunyi",
+      "mute": "Senyapkan bunyi amaran",
+      "unmute": "Hidupkan semula bunyi amaran"
     }
   },
   "offline": {
@@ -10301,7 +10351,10 @@
       "retry": "Cuba semula sekarang",
       "heldHint": "Langkah sebelumnya untuk pesanan yang sama belum berjaya, jadi langkah ini menunggu supaya susunannya kekal betul.",
       "recent": "Baru disegerakkan",
-      "needsAttentionHint": "Pelayan tidak menerima tindakan ini, jadi ia tidak lagi dihantar sendiri. Selepas diuruskan, tekan Cuba semula sekarang, atau buang tindakan ini."
+      "needsAttentionHint": "Pelayan tidak menerima tindakan ini, jadi ia tidak lagi dihantar sendiri. Selepas diuruskan, tekan Cuba semula sekarang, atau buang tindakan ini.",
+      "armDiscard": "Buang tindakan yang belum dimuat naik",
+      "armDiscardHelp": "Hidupkan ini dahulu sebelum boleh menekan buang di sebelah tindakan. Tindakan yang dibuang dipadam daripada telefon dan tidak akan dimuat naik.",
+      "armFirst": "Hidupkan suis di atas dahulu"
     },
     "queued": "Disimpan di luar talian dan menunggu muat naik",
     "status": {
@@ -10723,10 +10776,10 @@
       "trouble": "Wilayah ialah satu senarai, bukan dua. Entri di sini membuka halaman wilayah rakan kongsi, jadi kedua-dua belah sentiasa menunjukkan baris yang sama."
     },
     "schedule": {
-      "what": "Program WBS, yang boleh dibawa masuk dari Excel dan disemak dari semasa ke semasa.",
+      "what": "Jadual pembinaan: pilih pelan untuk melihat tiga angka (kemajuan, selesai, lewat), kemudian carta Gantt dan senarai tugas. Eksport, pelan baharu, import, namakan semula, arkib dan versi pelan ada di bawah Lagi.",
       "who": "Pemegang progress.view dan project.view sekali.",
       "need": "Import memerlukan fail .xlsx, nama pelan dan nama semakan; menyemak pelan yang disahkan juga memerlukan sebab perubahan. Tugas manual memerlukan WBS, nama, mula dan tamat dirancang.",
-      "then": "Import ialah dua langkah. Pratonton membaca pengepala anda dan membenarkan pemetaan lajur, tanpa menulis apa-apa. Hanya Sahkan import yang menulis.",
+      "then": "Pelan baharu bermula sebagai draf; tambah tugas, kemudian Sahkan dan kunci. Selepas itu, isi Siap % setiap tugas melalui Sahkan kemajuan. Lewat bermaksud melepasi tarikh siap dan belum selesai; tugas yang siap selepas tarikh siap dipaparkan sebagai Siap lewat dan tidak dikira lewat.",
       "trouble": "Import yang gagal biasanya kehilangan pemetaan: WBS, nama tugas dan mula dirancang diperlukan, serta tamat dirancang atau tempoh."
     },
     "site_access": {
@@ -11699,6 +11752,30 @@
         "manufacturer": "Pengilang",
         "returnNote": "Return Note",
         "quantity": "Kuantiti"
+      },
+      "returnTag": "Ada rekod pemulangan",
+      "returnTagHint": "Baris ini ada {count} pemulangan yang selesai - buka untuk melihatnya",
+      "openNumber": "Lihat rekod di sebalik {label} {value}",
+      "breakdown": {
+        "what": "rekod baris ini",
+        "gone": "Baris ini tiada lagi dalam penapis semasa.",
+        "deliveries": "Setiap penerimaan ({count})",
+        "returns": "Setiap pemulangan selesai ({count})",
+        "rejected": "Ditolak - tidak dikira dalam diterima ({count})",
+        "emptyDeliveries": "Tiada penerimaan yang dikira.",
+        "emptyReturns": "Tiada pemulangan selesai.",
+        "receivedTotal": "Jumlah diterima",
+        "returnedTotal": "Jumlah pemulangan selesai",
+        "subtotal": "Jumlah",
+        "reason": "Sebab",
+        "approvedBy": "Diluluskan",
+        "completedBy": "Disahkan selesai",
+        "siteSignature": "Tandatangan tapak",
+        "supplierSignature": "Tandatangan pembekal / pemandu",
+        "approverSignature": "Tandatangan pelulus",
+        "open": "Buka {reference}",
+        "legacyReturn": "Pemulangan yang direkod pada resit sebelum 10-02",
+        "project": "Projek"
       }
     }
   },
@@ -12640,7 +12717,14 @@
       "open": "Buka",
       "preview": "Pratonton fail",
       "remove": "Buang",
-      "save": "Simpan"
+      "save": "Simpan",
+      "more": "Lagi",
+      "exportExcel": "Eksport Excel",
+      "exportPdf": "Eksport PDF",
+      "showRevisions": "Versi pelan",
+      "showHistory": "Log aktiviti",
+      "backToDefault": "Kembali ke versi terkini",
+      "showAll": "Tunjuk semua tugas"
     },
     "common": {
       "day": "hari",
@@ -12659,9 +12743,6 @@
     },
     "defaults": {
       "baseline": "Garis Dasar Diluluskan"
-    },
-    "delay": {
-      "days": "Lewat {count} hari"
     },
     "dialog": {
       "editPlanHelp": "Nama dan penerangan sahaja. Dua jadual di satu tapak tidak boleh berkongsi nama.",
@@ -12686,7 +12767,6 @@
       "actualProgress": "Kemajuan sebenar (%)",
       "actualStart": "Mula sebenar",
       "baselineLabel": "Nama garis dasar",
-      "delay": "Lewat",
       "description": "Penerangan",
       "excelFile": "Fail Excel (.xlsx)",
       "importTarget": "Import ke",
@@ -12696,9 +12776,7 @@
       "parentTask": "Tugas induk",
       "plan": "Pelan jadual",
       "planName": "Nama pelan",
-      "plannedDates": "Tarikh dirancang",
       "plannedEnd": "Siap dirancang",
-      "plannedProgress": "Dirancang",
       "plannedStart": "Mula dirancang",
       "progressEvidence": "Kemajuan tapak dipautkan",
       "progressEvidenceHelp": "Hanya rekod foto kemajuan yang dihantar daripada projek ini tersedia.",
@@ -12711,12 +12789,21 @@
       "taskName": "Nama tugas",
       "wbs": "WBS",
       "weight": "Berat",
-      "weightHelp": "Berapa banyak kerja yang diwakili tugas ini berbanding yang lain. Nilai relatif - 1/2/3 dan 10/20/30 bermaksud sama, dan lajur ini tidak perlu berjumlah 100. Biarkan pada 1 untuk berat sama."
+      "weightHelp": "Berapa banyak kerja yang diwakili tugas ini berbanding yang lain. Nilai relatif - 1/2/3 dan 10/20/30 bermaksud sama, dan lajur ini tidak perlu berjumlah 100. Biarkan pada 1 untuk berat sama.",
+      "start": "Mula",
+      "end": "Tamat",
+      "days": "Hari",
+      "done": "Siap %",
+      "status": "Status",
+      "weightValue": "Pemberat {value}",
+      "plannedToday": "Dirancang untuk hari ini: {value}%",
+      "linkedRecords": "{count} rekod tapak dilampirkan"
     },
     "gantt": {
-      "actual": "Siap sebenar",
+      "actual": "Sudah siap",
       "days": "{count} hari kalendar",
-      "planned": "Tempoh dirancang"
+      "planned": "Tarikh dirancang",
+      "today": "Hari ini"
     },
     "history": {
       "EXCEL_IMPORTED": "Jadual Excel diimport",
@@ -12765,26 +12852,36 @@
       "loadError": "Jadual tidak dapat dimuatkan. Cuba lagi.",
       "noConfirmedProgress": "Tiada kemajuan tapak yang dihantar.",
       "noHistory": "Belum ada sejarah jadual.",
-      "noPlans": "Projek ini belum mempunyai jadual. Cipta secara manual atau import Excel.",
+      "noPlans": "Projek ini belum ada jadual pembinaan.",
       "noReason": "Tiada catatan tambahan",
       "noRevision": "Tiada versi jadual",
       "noTasks": "Versi ini belum mempunyai tugas.",
       "overviewLoadError": "Ringkasan kemajuan tidak dapat dimuatkan, jadi bilangan tugas dan peratus kemajuan tidak dipaparkan. Cuba lagi.",
       "revisionsLoadError": "Revisi tidak dapat dimuatkan. Cuba lagi.",
-      "tasksLoadError": "Senarai tugas tidak dapat dimuatkan, jadi tugas revisi ini tidak dipaparkan. Cuba lagi."
+      "tasksLoadError": "Senarai tugas tidak dapat dimuatkan, jadi tugas revisi ini tidak dipaparkan. Cuba lagi.",
+      "noPlansHelp": "Cipta secara manual atau import daripada Excel.",
+      "noDelayed": "Tiada tugas lewat."
     },
     "status": {
       "current": "Semasa",
       "delayed": "Lewat",
-      "onTrack": "Mengikut jadual"
+      "notStarted": "Belum mula",
+      "inProgress": "Sedang berjalan",
+      "completed": "Selesai",
+      "completedLate": "Siap lewat",
+      "delayedDays": "Lewat {count} hari",
+      "completedLateDays": "Siap lewat {count} hari"
     },
-    "subtitle": "Rancang kerja, lindungi garis dasar yang diluluskan dan sahkan kemajuan sebenar tapak.",
+    "subtitle": "Pilih pelan untuk melihat carta Gantt dan sejauh mana setiap tugas.",
     "summary": {
       "completed": "Selesai",
-      "delayed": "Perlu perhatian",
-      "planned": "Dirancang {value}%",
-      "progress": "Kemajuan sebenar",
-      "tasks": "Tugas"
+      "delayed": "Lewat",
+      "planned": "Dirancang untuk hari ini: {value}%",
+      "progress": "Kemajuan",
+      "lateFinished": "{count} daripadanya siap lewat",
+      "delayedHint": "Melepasi tarikh siap dan belum selesai. Ketik untuk lihat ini sahaja",
+      "noDelay": "Tiada tugas melepasi tarikh siap",
+      "showingDelayed": "Menunjukkan tugas lewat sahaja. Ketik lagi untuk semua"
     },
     "title": "Perancangan Jadual Pembinaan",
     "toast": {
@@ -12801,11 +12898,24 @@
       "taskRemoved": "Tugas draf dibuang",
       "taskSaved": "Tugas jadual disimpan"
     },
-    "view": {
+    "why": {
+      "delayed": "Dirancang siap {date}, belum selesai",
+      "completedLate": "Dirancang siap {planned}, siap {actual}"
+    },
+    "section": {
       "gantt": "Carta Gantt",
-      "history": "Sejarah",
-      "list": "Senarai tugas",
-      "revisions": "Garis dasar dan semakan"
+      "tasks": "Tugas"
+    },
+    "progressSource": "Siap % ialah angka yang dimasukkan oleh pengurus projek di Sahkan kemajuan. Rekod tapak daripada Kemajuan projek boleh dilampirkan sebagai sokongan; sistem tidak mengiranya daripada foto. Kemajuan keseluruhan mengikut pemberat setiap tugas dan tidak mengira baris ringkasan.",
+    "version": {
+      "showing": "Dipaparkan: {label}",
+      "draftNote": "Ini draf: tugas boleh ditambah dan diubah. Siap % boleh diisi selepas disahkan dan dikunci."
+    },
+    "advanced": {
+      "title": "Versi pelan dan log",
+      "help": "Pelan asal, setiap versi semakan dan log aktiviti. Tidak diperlukan setiap hari.",
+      "revisions": "Versi pelan",
+      "history": "Log aktiviti"
     }
   },
   "session": {
@@ -14756,12 +14866,14 @@
       "code": "Kod",
       "deactivate": "Matikan",
       "dispatchType": "Jenis sisa pada penghantaran",
-      "help": "Ini senarai syarikat anda sendiri. Tujuh kategori standard tidak boleh dibuang kerana rekod sedia ada merujuk kepadanya - matikan sahaja dan ia tidak lagi ditawarkan pada rekod baharu.",
+      "help": "Ini senarai syarikat anda sendiri. Kategori standard (besi buruk, tembaga, aluminium, kabel) tidak boleh dibuang kerana rekod merujuk kepadanya - matikan sahaja dan ia tidak lagi ditawarkan pada rekod baharu. Yang bertanda Lama ialah kategori standard terdahulu, kekal pada rekod terdahulu sahaja.",
       "manage": "Kategori sisa",
       "name": "Nama",
       "standard": "Standard",
       "standardHelp": "Standard - matikan sahaja",
-      "title": "Kategori sisa anda"
+      "title": "Kategori sisa anda",
+      "retired": "Lama",
+      "retiredHelp": "Kategori lama - kekal pada rekod terdahulu, tidak boleh dihidupkan semula"
     },
     "empty": "Tiada sisa direkodkan lagi.",
     "evidence": {
@@ -14934,7 +15046,20 @@
     "what": {
       "delegates": "Senarai orang yang boleh diserahkan",
       "totals": "Jumlah",
-      "categories": "Senarai kategori sisa"
+      "categories": "Senarai kategori sisa",
+      "project": "alamat projek"
+    },
+    "hint": {
+      "approveFirst": "Pengitar boleh ditetapkan selepas permohonan ini diluluskan.",
+      "awaitingRecycler": "Menunggu pengitar ditetapkan"
+    },
+    "office": {
+      "help": "Buat permohonan bagi pihak tapak: pilih projek dan kategori; alamat ambilan bermula dengan alamat projek. Foto tidak wajib, paling banyak 4, dan GPS tidak direkod dari pejabat. Ia diluluskan dahulu seperti permohonan dari telefon, kemudian pengitar ditetapkan.",
+      "photosHint": "Tidak wajib, paling banyak 4. Setiap foto disimpan selamanya.",
+      "photosCapped": "Paling banyak 4 - hanya 4 yang pertama disimpan.",
+      "raisedNote": "Dibuat di pejabat bagi pihak tapak, jadi tiada lokasi telefon.",
+      "projectAddress": "Alamat projek: {address}",
+      "noProjectAddress": "Projek ini belum ada alamat - taip alamat ambilan di sini."
     }
   },
   "weighing": {
@@ -15423,7 +15548,6 @@
       "dispatch": "Pesanan sisa"
     },
     "newDisposal": "Permintaan pembersihan baharu",
-    "newDispatch": "Pesanan sisa baharu",
     "column": {
       "kind": "Jenis",
       "reference": "Nombor",
@@ -15997,5 +16121,80 @@
     "system": "Ikut sistem",
     "light": "Cerah",
     "dark": "Gelap"
+  },
+  "originals": {
+    "title": "Sandaran foto asal",
+    "status": {
+      "APPLICATION_UPLOADED": "Foto dimuat naik",
+      "ORIGINAL_PENDING": "Foto asal menunggu segerak",
+      "ORIGINAL_BACKED_UP": "Foto asal disandarkan",
+      "ORIGINAL_FAILED": "Segerak gagal"
+    },
+    "waiting": "{count} foto asal menunggu segerak (kira-kira {mb} MB)",
+    "failed": "{count} foto asal gagal disegerak",
+    "failedNetwork": "Kali lepas tiada isyarat atau isyarat terlalu lemah untuk habis.",
+    "failedOther": "Kali lepas tidak berjaya. Tekan 'Segerak foto asal' sekali lagi.",
+    "capturedNote": "{count} foto asal menunggu rekodnya dimuat naik dahulu.",
+    "nothingWaiting": "Tiada foto asal menunggu segerak",
+    "readFailed": "Telefon ini tidak dapat membaca foto asal yang disimpan (mungkin telah dikosongkan oleh sistem, atau pelayar tidak membenarkan simpanan).",
+    "trafficNote": "Segerak menggunakan kira-kira {mb} MB data. Sebaiknya guna Wi-Fi.",
+    "sync": "Segerak foto asal",
+    "syncing": "Menyegerak foto asal {done}/{total}, tinggal kira-kira {mb} MB",
+    "offline": "Tiada sambungan sekarang. Segerak foto asal apabila dalam talian.",
+    "result": {
+      "backedUp": "{count} foto asal disandarkan",
+      "failed": "{count} tidak berjaya",
+      "notYet": "{count} menunggu rekodnya dimuat naik",
+      "nothing": "Tiada apa untuk disegerak"
+    },
+    "autoLabel": "Muat naik foto asal sekali",
+    "autoHelp": "Apabila dihidupkan, foto asal dihantar sebaik rekodnya dimuat naik, dan menggunakan lebih banyak data. Hidupkan semasa guna Wi-Fi; matikan semasa guna data mudah alih dan tekan 'Segerak foto asal' sendiri kemudian.",
+    "storage": {
+      "title": "Simpanan telefon",
+      "held": "{count} foto asal disimpan di sini, kira-kira {mb} MB",
+      "usage": "Aplikasi ini guna {used} MB; pelayar membenarkan kira-kira {quota} MB",
+      "unknown": "Telefon ini tidak memberitahu ruang yang ada.",
+      "persisted": "Telefon ini bersetuju menyimpan data ini.",
+      "notPersisted": "Telefon ini tidak bersetuju menyimpan data ini; sistem mungkin mengosongkannya apabila ruang hampir habis.",
+      "persistUnknown": "Telefon ini tidak memberitahu sama ada data ini akan disimpan.",
+      "high": "Banyak foto asal disimpan di sini atau ruang hampir penuh. Segerak foto asal secepat mungkin.",
+      "full": "Ruang yang diberi telefon kepada aplikasi hampir penuh; foto asal baharu mungkin tidak muat. Segerak foto asal sekarang."
+    },
+    "limit": {
+      "local": "Sebelum disegerak, foto asal hanya ada dalam pelayar telefon ini. Jika aplikasi tidak dibuka untuk satu tempoh di iPhone, ruang telefon habis, atau data laman web dikosongkan dalam Tetapan, foto asal yang disimpan boleh hilang. Segerak secepat mungkin.",
+      "verified": "'Foto asal disandarkan' hanya dipaparkan selepas pelayan menerima foto asal dan menyemak ia sama sepenuhnya.",
+      "frame": "Foto asal di sini ialah bingkai yang ditangkap oleh aplikasi semasa foto diambil, disimpan dengan kualiti tinggi (kira-kira 1-2 MB). Ia bukan fail asal kamera telefon.",
+      "soon": "Segerak secepat mungkin: foto asal yang disimpan di telefon boleh dikosongkan oleh sistem."
+    },
+    "record": {
+      "title": "Foto asal",
+      "counts": "{backedUp}/{expected} disandarkan",
+      "noOriginal": "Rekod ini tidak menyimpan foto asal (foto dimuat naik).",
+      "allBackedUp": "Semua foto asal rekod ini telah disandarkan di pelayan.",
+      "heldHere": "Telefon ini menyimpan {count} foto asal rekod ini, kira-kira {mb} MB.",
+      "missingHere": "{count} foto asal tiada di telefon ini (diambil di telefon lain, atau dikosongkan oleh sistem) dan tidak boleh disegerak dari sini.",
+      "sync": "Segerak foto asal rekod ini"
+    }
+  },
+  "phoneStorage": {
+    "open": "Storan telefon dan pembersihan",
+    "title": "Storan telefon",
+    "intro": "Ini hanya melibatkan apa yang ada dalam telefon ini. Foto, rekod, kelulusan dan bukti yang sudah disimpan di awan tidak terjejas oleh apa-apa di sini.",
+    "cachedPhotos": "Foto cache: {count}, kira-kira {mb} MB",
+    "cachedHelp": "Gambar kecil yang pernah dilihat kekal dalam telefon, jadi membukanya semula tidak menggunakan data. Selepas dibersihkan, ia dimuat turun semula apabila perlu.",
+    "autoNote": "Foto cache yang lebih lama daripada {days} hari dibersihkan secara automatik.",
+    "appUsage": "Aplikasi ini menggunakan kira-kira {mb} MB dalam telefon ini.",
+    "keptTitle": "Sentiasa disimpan, tidak dibersihkan",
+    "unsent": "Rekod belum dimuat naik: {count}",
+    "drafts": "Draf belum dihantar: {count}",
+    "originals": "Foto asal belum disandarkan: {count} (kira-kira {mb} MB)",
+    "hidden": "Dikeluarkan daripada senarai saya: {count}",
+    "showHidden": "Tunjukkan semula semuanya",
+    "armClean": "Bersihkan rekod tempatan: membersihkan {photos} foto cache (kira-kira {mb} MB); menyimpan {unsent} rekod belum dimuat naik, {drafts} draf dan {originals} foto asal belum disandarkan. Data awan tidak terjejas.",
+    "clean": "Bersihkan rekod tempatan",
+    "armFirst": "Hidupkan suis di atas dahulu",
+    "nothingToClean": "Tiada foto cache untuk dibersihkan",
+    "cleaned": "{count} foto cache dibersihkan (kira-kira {mb} MB)",
+    "cleanFailed": "Pembersihan tidak selesai. Sila cuba lagi."
   }
 }

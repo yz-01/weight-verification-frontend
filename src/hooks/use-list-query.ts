@@ -34,7 +34,14 @@ export function useListQuery(extraKeys: string[] = []) {
   // Call sites pass a literal array, which is a new reference on every render.
   // Collapsing it to a string gives the memos below a stable dependency
   // without asking every caller to hoist or memoise its own list.
-  const filterKeys = extraKeys.join(",");
+  //
+  // `needs_action` is every list's: 「待处理 N」 in a page's header turns it
+  // on (`NeedsActionChip`, Lucas 2026-10-09), and an endpoint that does not
+  // know it ignores it.
+  const filterKeys = [
+    ...extraKeys.filter((key) => key !== "needs_action"),
+    "needs_action",
+  ].join(",");
   const keys = useMemo(
     () => (filterKeys ? filterKeys.split(",") : []),
     [filterKeys],

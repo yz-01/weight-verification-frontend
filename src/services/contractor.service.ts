@@ -24,7 +24,6 @@ import type {
   ProjectStatisticsPeriod,
   ReceiptPhoto,
   ReceiptSummary,
-  RecyclerOption,
   Supplier,
   SupplierPayload,
   SupplierQRCode,
@@ -35,7 +34,6 @@ import type {
   DeliveryNotePublic,
   WasteDispatch,
   WasteDispatchDetail,
-  WasteDispatchPayload,
 } from "@/interfaces/contractor";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import type { QRCodeIssue } from "@/interfaces/qrcode";
@@ -487,7 +485,56 @@ export interface MaterialNetTotalRow {
   returned: string;
   net: string;
   deliveries: number;
+  /** The returns behind `returned` (2026-10-09): 「有退场记录」 when above 0. */
+  return_count?: number;
   items?: MaterialNetTotalItem[];
+}
+
+/**
+ * One row of a net line's drill-down (2026-10-09): the delivery or return
+ * with its photograph (E3) and, for a return, its whole 材料出场 record -
+ * reason, Return Note, approval, photographs and signatures.
+ */
+export interface MaterialNetBreakdownItem extends MaterialNetTotalItem {
+  project_name: string;
+  cover_photo_url?: string | null;
+  photo_count?: number;
+  /** A return's own record; absent for a return typed 退场 before 10-02. */
+  outgoing?: MaterialOutgoing | null;
+}
+
+/**
+ * What one 累计净数量 line is made of. The server finds the line among the
+ * totals' own lines, with the same filters, so `deliveries` add up to
+ * `received` and `returns` to `returned`; `rejected` never counted.
+ */
+export interface MaterialNetBreakdown {
+  line: Omit<MaterialNetTotalRow, "items"> | null;
+  deliveries: MaterialNetBreakdownItem[];
+  rejected: MaterialNetBreakdownItem[];
+  returns: MaterialNetBreakdownItem[];
+}
+
+/** The key of one 累计净数量 line, as `get_net_breakdown` names it. */
+export function netLineKey(row: MaterialNetTotalRow): Record<string, string> {
+  return {
+    line_project: row.project,
+    line_supplier: row.supplier,
+    line_material_name: row.material_name,
+    line_material_specification: row.material_specification ?? "",
+    line_unit: row.unit,
+  };
+}
+
+/** The records behind one 累计净数量 line (2026-10-09), under the page's filters. */
+export function getReceiptNetBreakdown(
+  query: Record<string, string>,
+  row: MaterialNetTotalRow,
+): Promise<MaterialNetBreakdown> {
+  return api.get<MaterialNetBreakdown>("/api/receipts/get_net_breakdown/", {
+    ...query,
+    ...netLineKey(row),
+  });
 }
 
 /**
@@ -688,9 +735,12 @@ export async function correctReceipt(
  * the answer across screens is how the same delivery gets photographed twice
  * (F-228).
  */
-export function getMySubmissions(): Promise<MySubmissionsPage> {
+export function getMySubmissions(before?: string | null): Promise<MySubmissionsPage> {
+  // `before`: the `next_before` of the page already shown - the next page
+  // of older rows (client 2026-10-09 五.2). Without it, the newest page.
   return api.get<MySubmissionsPage>(
     "/api/my-submissions/get_my_submissions/",
+    before ? { before } : undefined,
   );
 }
 
@@ -874,34 +924,6 @@ export function getDispatch(id: string): Promise<WasteDispatchDetail> {
   return api.get<WasteDispatchDetail>(`/api/dispatches/${id}/get_dispatch/`);
 }
 
-export async function createDispatch(
-  payload: WasteDispatchPayload,
-): Promise<WasteDispatchDetail> {
-  const dispatch = await api.post<WasteDispatchDetail>(
-    "/api/dispatches/create_dispatch/",
-    payload,
-  );
-  toastSuccess("dispatches.toast.created");
-  return dispatch;
-}
-
-export async function updateDispatch(
-  id: string,
-  payload: Partial<WasteDispatchPayload>,
-): Promise<WasteDispatchDetail> {
-  const dispatch = await api.patch<WasteDispatchDetail>(
-    `/api/dispatches/${id}/update_dispatch/`,
-    payload,
-  );
-  toastSuccess("dispatches.toast.updated");
-  return dispatch;
-}
-
-export async function deleteDispatch(id: string): Promise<void> {
-  await api.delete(`/api/dispatches/${id}/delete_dispatch/`);
-  toastSuccess("dispatches.toast.removed");
-}
-
 /** Record that the lorry has left. The time is the server's, not the device's. */
 export async function releaseDispatch(
   id: string,
@@ -925,17 +947,6 @@ export async function cancelDispatch(
   );
   toastSuccess("dispatches.toast.cancelled");
   return dispatch;
-}
-
-/** Recyclers a load may be sent to. Live accounts only, by design. */
-export function getRecyclerOptions(
-  project: string,
-  search?: string,
-): Promise<{ results: RecyclerOption[]; count: number }> {
-  return api.get<{ results: RecyclerOption[]; count: number }>(
-    "/api/dispatches/get_recyclers/",
-    search ? { project, search } : { project },
-  );
 }
 
 export function getDispatchSummary(query: ListQuery): Promise<DispatchSummary> {

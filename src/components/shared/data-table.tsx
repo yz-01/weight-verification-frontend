@@ -49,6 +49,15 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { PAGE_SIZE_OPTIONS } from "@/hooks/use-list-query";
 import { cn } from "@/lib/utils";
 
+/** Whether a row says it waits for this reader (`needs_action`, 「待处理」). */
+function needsAction(row: unknown): boolean {
+  return (
+    typeof row === "object" &&
+    row !== null &&
+    (row as { needs_action?: unknown }).needs_action === true
+  );
+}
+
 export interface FilterPill {
   key: string;
   label: string;
@@ -343,8 +352,19 @@ export function DataTable<T>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
+                  // A row the sidebar's number counts (「待处理」, 2026-10-09)
+                  // carries a stripe on its first cell as well as its pill
+                  // by the buttons: on a phone the first column is the one
+                  // that stays in view while the row scrolls sideways.
+                  data-needs-action={needsAction(row.original) ? "true" : undefined}
                   className={
-                    [onRowClick ? "cursor-pointer" : "", rowClassName?.(row.original) ?? ""]
+                    [
+                      onRowClick ? "cursor-pointer" : "",
+                      needsAction(row.original)
+                        ? "[&>td:first-child]:border-l-4 [&>td:first-child]:border-l-primary"
+                        : "",
+                      rowClassName?.(row.original) ?? "",
+                    ]
                       .filter(Boolean)
                       .join(" ") || undefined
                   }

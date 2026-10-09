@@ -1,11 +1,11 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellRing, Check, ExternalLink } from "lucide-react";
+import { Bell, BellRing, Check, ExternalLink, Volume2, VolumeX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
@@ -15,7 +15,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { playAlertTone, wantsAlertSound } from "@/lib/alert-sound";
+import {
+  createNoticeSounder,
+  installAlertSoundUnlock,
+  onAlertSoundUnlocked,
+  playAlertTone,
+  readAlertSoundMuted,
+  wantsAlertSound,
+  writeAlertSoundMuted,
+} from "@/lib/alert-sound";
 import { ActionCardStack } from "@/components/notifications/action-card-stack";
 import {
   countSignature,
@@ -122,35 +130,59 @@ export function NotificationButton() {
       .then((subscription) => setPushEnabled(Boolean(subscription)))
       .catch(() => setPushEnabled(false));
   }, [enabled]);
-  // Sound the alert for notices that asked for one - today that is a material
-  // budget threshold, which is money and worth interrupting somebody for.
+  // The tone (2026-10-09). In the office every new notice rings once - Lucas:
+  // 「手机端的任何申请后台都需要收到通知 … 然后有 notification 和声音提示」.
+  // On the phone only the notices that ask for it (a hazard) ring, as before.
   //
-  // Only for notices that arrive while the page is open, and only once each:
-  // the ids already seen are remembered so a refetch of the same five rows
-  // every thirty seconds does not beep every thirty seconds.
-  const soundedIds = useRef<Set<string>>(new Set());
-  const firstLoad = useRef(true);
+  // The list is re-read on the live stream's `notification.created` and when
+  // the polled count moves, so both paths end here; the sounder remembers
+  // each id and never rings for one twice, and the backlog already waiting
+  // when the page opened is remembered, not rung.
+  const isOffice = !user?.is_field_staff;
+  // The person's own "sound off" choice, kept in this browser per account.
+  const [muteVersion, setMuteVersion] = useState(0);
+  const userId = user?.id;
+  const muted = useMemo(
+    () => (muteVersion >= 0 ? readAlertSoundMuted(userId) : false),
+    [userId, muteVersion],
+  );
+  const userIdRef = useRef(userId);
+  const isOfficeRef = useRef(isOffice);
   useEffect(() => {
-    const rows = listQuery.data?.results ?? [];
-    if (firstLoad.current) {
-      // Everything already waiting when the page opened is history, not news.
-      // Beeping through a backlog on every page load is how people turn the
-      // sound off, and then the next real one is silent too.
-      rows.forEach((row) => soundedIds.current.add(row.id));
-      if (listQuery.data) firstLoad.current = false;
-      return;
-    }
-    const fresh = rows.filter(
-      (row) => !soundedIds.current.has(row.id) && wantsAlertSound(row.data),
-    );
-    rows.forEach((row) => soundedIds.current.add(row.id));
-    if (fresh.length > 0) {
-      // Browsers refuse audio until the person has interacted with the page.
-      // That refusal is correct, and the notice is visible either way, so a
-      // silent outcome is not an error worth showing anybody.
-      void playAlertTone();
-    }
+    userIdRef.current = userId;
+    isOfficeRef.current = isOffice;
+  }, [userId, isOffice]);
+  const [soundBlocked, setSoundBlocked] = useState(false);
+  const sounder = useRef<ReturnType<typeof createNoticeSounder> | null>(null);
+  sounder.current ??= createNoticeSounder({
+    play: playAlertTone,
+    rings: (row) => isOfficeRef.current || wantsAlertSound(row.data),
+    muted: () => readAlertSoundMuted(userIdRef.current),
+  });
+  useEffect(() => {
+    installAlertSoundUnlock();
+    // The first click anywhere turns the sound on; the hint has done its job.
+    return onAlertSoundUnlocked(() => setSoundBlocked(false));
+  }, []);
+  useEffect(() => {
+    let current = true;
+    void sounder.current?.observe(listQuery.data?.results).then((outcome) => {
+      if (!current) return;
+      // Blocked by the browser: the notice is on screen either way, and a
+      // small hint by the bell offers the one click that allows the sound.
+      if (outcome === "blocked") setSoundBlocked(true);
+      if (outcome === "played") setSoundBlocked(false);
+    });
+    return () => {
+      current = false;
+    };
   }, [listQuery.data]);
+  const toggleMuted = () => {
+    const next = !muted;
+    writeAlertSoundMuted(userId, next);
+    setMuteVersion((version) => version + 1);
+    if (!next) void playAlertTone();
+  };
 
   const confirm = useMutation({
     mutationFn: confirmNotificationDone,
@@ -192,6 +224,22 @@ export function NotificationButton() {
           router.push(href ?? "/notifications/my-tasks");
         }}
       />
+    )}
+    {isOffice && soundBlocked && !muted && (
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className="h-10 gap-1.5 border-primary/30 text-xs"
+        title={t("notifications.sound.blockedHint")}
+        onClick={async () => {
+          // Inside the click, where the browser allows the sound to start.
+          if (await playAlertTone()) setSoundBlocked(false);
+        }}
+      >
+        <Volume2 className="size-4" />
+        <span className="hidden sm:inline">{t("notifications.sound.enable")}</span>
+      </Button>
     )}
     <Popover
       open={open}
@@ -262,6 +310,20 @@ export function NotificationButton() {
               </p>
             </div>
           </div>
+          {isOffice && (
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="ml-auto size-8 shrink-0"
+              aria-pressed={muted}
+              title={muted ? t("notifications.sound.unmute") : t("notifications.sound.mute")}
+              aria-label={muted ? t("notifications.sound.unmute") : t("notifications.sound.mute")}
+              onClick={toggleMuted}
+            >
+              {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+            </Button>
+          )}
           <Button
             asChild
             size="sm"

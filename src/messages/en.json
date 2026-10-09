@@ -4100,6 +4100,13 @@
       "VIDEO_STORAGE": "Video Storage"
     }
   },
+  "needsAction": {
+    "marker": "Needs action",
+    "chip": "Needs action {count}",
+    "chipHint": "Show only the records waiting for your approval or acceptance",
+    "chipClear": "Show all records",
+    "column": "Needs action"
+  },
   "common": {
     "actions": "Actions",
     "active": "Active",
@@ -5888,6 +5895,23 @@
         "hint": "Only a category no progress record points at can be removed - one added by mistake. One in use can be switched off above instead.",
         "confirm": "Remove category",
         "failed": "The category could not be removed. Try again."
+      },
+      "correction": {
+        "edit": "Correct the percentage",
+        "newPercent": "New percentage (%)",
+        "was": "Currently {percent}%",
+        "reason": "Reason for the change",
+        "reasonPlaceholder": "e.g. The site entered 40 but the slab is 55% done",
+        "save": "Save correction",
+        "cancel": "Cancel",
+        "range": "Enter a percentage from 0 to 100",
+        "unchanged": "That is already the percentage",
+        "evidenceNote": "Only the percentage changes. Photos, location, time taken and recorder stay as recorded.",
+        "archivedNote": "This record is archived. Only the percentage can be corrected; photos, location, time taken and recorder stay locked.",
+        "edited": "Edited",
+        "historyTitle": "Percentage changes",
+        "change": "{from}% → {to}%",
+        "by": "{name} · {at}"
       }
     },
     "progressEvidence": {
@@ -6613,9 +6637,6 @@
       "title": "Cancel this load?"
     },
     "count": "{count, plural, =0 {No loads} one {# load} other {# loads}}",
-    "createTitle": "New load out",
-    "editTitle": "Edit load",
-    "estimateNote": "Your estimate. The recycler's weighbridge decides the final weight, and both are kept.",
     "field": {
       "applicant": "Applicant",
       "applicationNo": "Application no.",
@@ -6652,7 +6673,6 @@
       "weighingNo": "Weighbridge ticket no."
     },
     "lockedNote": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
-    "new": "New load",
     "noPhotos": "No photos have been attached to this load.",
     "photoKind": {
       "LOADING": "Loading",
@@ -6660,19 +6680,11 @@
       "PLATE": "Number plate",
       "VEHICLE": "Vehicle"
     },
-    "pickupAddressHint": "Leave blank to use the project address. Type it in when the lorry has to come to a particular gate.",
-    "recyclerEmpty": "No recyclers are available right now.",
-    "recyclerNote": "Loads can only be sent to recyclers registered on MSE Trace. That is what puts the load on a weighbridge and keeps the trail going past your gate.",
     "release": {
       "byName": "Released by",
       "confirm": "Release",
       "description": "Records that the lorry has left. After this, the load can be cancelled but not changed.",
       "title": "Release this load?"
-    },
-    "remove": {
-      "confirm": "Remove",
-      "description": "This draft will no longer appear anywhere. Nothing has left the site yet.",
-      "title": "Remove {name}?"
     },
     "section": {
       "application": "Outgoing application",
@@ -6704,14 +6716,11 @@
       "loads": "Loads",
       "title": "Waste summary"
     },
-    "title": "Waste dispatches",
+    "title": "Waste orders",
     "toast": {
       "cancelled": "Load cancelled",
-      "created": "Load created",
       "photoAdded": "Photo added",
-      "released": "Load released",
-      "removed": "Load removed",
-      "updated": "Load updated"
+      "released": "Load released"
     },
     "viewTitle": "Load out",
     "wasteType": {
@@ -6726,12 +6735,19 @@
       "TIMBER": "Timber"
     },
     "what": {
-      "tracking": "The collection progress",
-      "projects": "The project list",
-      "recyclers": "The recycler list for this project"
+      "tracking": "The collection progress"
     },
     "countedOnly": "Only the orders head office counts - no drafts, nothing cancelled.",
-    "showAll": "Show all"
+    "showAll": "Show all",
+    "tracker": {
+      "note": "Waste orders come from approved environmental material outgoing applications: once an application is approved, Assign recycler sends its order. Older orders made directly, before applications existed, are kept here for reference only.",
+      "orderNo": "Order no.",
+      "applicationNo": "Application no.",
+      "openApplication": "Open application {number}",
+      "category": "Category",
+      "legacy": "Old order",
+      "createdAt": "Ordered on"
+    }
   },
   "documents": {
     "downloading": "Downloading",
@@ -7421,7 +7437,10 @@
       "equipment_hours_end_too_late": "The end time cannot be later than 06:00 the next morning (that is the next shift).",
       "equipment_profile_incomplete": "Choose this machine's sub class before accepting it.",
       "equipment_not_on_site": "This machine is not on site on this project, so it cannot go out.",
-      "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again."
+      "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again.",
+      "original_not_expected": "The server has no photo waiting for this original yet. Let the record finish uploading first.",
+      "original_hash_mismatch": "The original was damaged on the way and does not match the one on the phone, so nothing was saved. Press 'Sync originals' again.",
+      "original_not_found": "This photo has no backed-up original."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7440,7 +7459,9 @@
       "null": "This field is required",
       "phone_in_use": "This mobile number is already used by another field staff account",
       "required": "This field is required",
-      "unique": "This value is already taken"
+      "unique": "This value is already taken",
+      "percent_range": "Enter a percentage from 0 to 100",
+      "percent_unchanged": "That is already the percentage"
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -7509,7 +7530,12 @@
       "chooseCategory": "Choose a category",
       "project": "Project",
       "withGps": "With GPS",
-      "withoutGps": "Without GPS"
+      "withoutGps": "Without GPS",
+      "original": {
+        "BACKED_UP": "Original backed up",
+        "PENDING": "Original waiting",
+        "FAILED": "Original sync failed"
+      }
     },
     "integrity": {
       "currentHash": "Current hash",
@@ -7544,6 +7570,19 @@
     "what": {
       "projects": "The project list",
       "categories": "The categories"
+    },
+    "original": {
+      "title": "Full original",
+      "status": "Original status",
+      "verifiedAt": "Checked by the server",
+      "size": "Original size",
+      "declaredAt": "Declared",
+      "sha256": "Original SHA-256",
+      "download": "Download full original",
+      "integrity": "Full original",
+      "notHere": "The original has not been backed up to the server yet.",
+      "unavailable": "The original file cannot be read from storage.",
+      "frameNote": "The full original is the frame the phone app captured when the photo was taken, saved at high quality (about 1-2 MB, 1080p). It is not the phone camera's own original file. Lists and records show the compressed application photo."
     }
   },
   "export": {
@@ -8243,6 +8282,7 @@
     "recordStop": "Stop",
     "recordingFor": "Recording {seconds}s of {limit}s",
     "attach": "Attach a file",
+    "takePhoto": "Take a photo",
     "photo": "Photo",
     "closed": "This hazard has been verified and archived. The record stays readable, but it takes no new messages.",
     "participants": "In this conversation",
@@ -8296,7 +8336,7 @@
         "overdue_rectifications": "Overdue rectifications",
         "material_receipts_today": "Material received today"
       },
-      "wasteDispatches": "Waste orders (recycler)",
+      "wasteDispatches": "Waste orders",
       "siteDisposals": "Site clearance",
       "records": "Records",
       "trips": "Trips",
@@ -9695,6 +9735,7 @@
     "attempts": "{count} attempts",
     "historyWindow": "The phone keeps the last {days} days. Older records are in the office system.",
     "truncated": "Showing {shown} of {total}.",
+    "loadOlder": "Load earlier records",
     "kind": {
       "MATERIAL_RECEIPT": "Material receipts",
       "SITE_RECORD": "Site record",
@@ -9803,7 +9844,10 @@
     "returnedClosed": "This application is closed. The record, the reason and the conversation are kept; raise a new one if you still need it done.",
     "paymentProofs": "Payment vouchers",
     "noPaymentProofs": "Vouchers appear here once finance has paid.",
-    "conversation": "Record communication"
+    "conversation": "Record communication",
+    "removeFromList": "Remove from my list",
+    "removeHelp": "Only takes it off the list on this phone. The cloud record, the office and everyone else are not affected; you can show it again under \"Phone storage and clean-up\".",
+    "hiddenNote": "{count} removed from my list."
   },
   "nav": {
     "activity_logs": "Activity logs",
@@ -10154,7 +10198,7 @@
     "waitingForYou": "{count} waiting for you",
     "materialManagement": "Material management",
     "material_requests": "MR / Other Request",
-    "waitingConfirm": "{count} waiting for confirmation"
+    "waitingApproval": "{count} waiting for approval or acceptance"
   },
   "notifications": {
     "compose": {
@@ -10267,6 +10311,12 @@
     "what": {
       "counts": "The outstanding counts",
       "pushConfig": "The phone alert settings"
+    },
+    "sound": {
+      "blockedHint": "Your browser has kept the alert sound off. Click to turn it on.",
+      "enable": "Turn on sound",
+      "mute": "Mute the alert sound",
+      "unmute": "Turn the alert sound back on"
     }
   },
   "offline": {
@@ -10301,7 +10351,10 @@
       "retry": "Retry now",
       "heldHint": "An earlier step for the same order has not gone through yet, so this one waits to keep them in order.",
       "recent": "Synced just now",
-      "needsAttentionHint": "The server did not accept this one, so it is no longer sent by itself. Once it is sorted out, press Retry now, or discard it."
+      "needsAttentionHint": "The server did not accept this one, so it is no longer sent by itself. Once it is sorted out, press Retry now, or discard it.",
+      "armDiscard": "Discard actions not uploaded yet",
+      "armDiscardHelp": "Turn this on before you can press discard beside an action. A discarded action is deleted from the phone and never uploaded.",
+      "armFirst": "Turn on the switch above first"
     },
     "queued": "Saved offline and queued for upload",
     "status": {
@@ -10723,10 +10776,10 @@
       "trouble": "Territories are one list, not two. The entry here opens the partner territories page, so both sides always show the same rows."
     },
     "schedule": {
-      "what": "The WBS programme, which can be brought in from Excel and revised over time.",
+      "what": "The construction schedule: pick a plan to see three figures (progress, completed, delayed), then the Gantt chart and the task list. Export, new plan, import, rename, archive and plan versions are under More.",
       "who": "Holders of both progress.view and project.view.",
       "need": "An import needs an .xlsx file, a plan name and a revision name; revising a confirmed plan also needs the reason for the change. A task added by hand needs its WBS, name, planned start and planned finish.",
-      "then": "Importing is two steps. The preview reads your headers and lets you map the columns, and writes nothing - you can try it safely. Only Confirm import writes.",
+      "then": "A new plan starts as a draft; add its tasks, then Confirm and lock. After that, enter each task's Done % with Confirm progress. Delayed means past the planned finish and not done; a task done after its planned finish shows Finished late and is not counted as delayed.",
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
     },
     "site_access": {
@@ -11699,6 +11752,30 @@
         "manufacturer": "Manufacturer",
         "returnNote": "Return Note",
         "quantity": "Quantity"
+      },
+      "returnTag": "Returns on record",
+      "returnTagHint": "This line has {count} completed returns - open to see them",
+      "openNumber": "See the records behind {label} {value}",
+      "breakdown": {
+        "what": "this line's records",
+        "gone": "This line is no longer in the current filters.",
+        "deliveries": "Each delivery ({count})",
+        "returns": "Each completed return ({count})",
+        "rejected": "Rejected - not counted in received ({count})",
+        "emptyDeliveries": "No counted deliveries.",
+        "emptyReturns": "No completed returns.",
+        "receivedTotal": "Received in total",
+        "returnedTotal": "Completed returns in total",
+        "subtotal": "Total",
+        "reason": "Reason",
+        "approvedBy": "Approved",
+        "completedBy": "Confirmed complete",
+        "siteSignature": "Site signature",
+        "supplierSignature": "Supplier / driver signature",
+        "approverSignature": "Approver's signature",
+        "open": "Open {reference}",
+        "legacyReturn": "Return entered on a receipt before 10-02",
+        "project": "Project"
       }
     }
   },
@@ -12640,7 +12717,14 @@
       "open": "Open",
       "preview": "Preview file",
       "remove": "Remove",
-      "save": "Save"
+      "save": "Save",
+      "more": "More",
+      "exportExcel": "Export Excel",
+      "exportPdf": "Export PDF",
+      "showRevisions": "Plan versions",
+      "showHistory": "Activity log",
+      "backToDefault": "Back to the latest version",
+      "showAll": "Show all tasks"
     },
     "common": {
       "day": "days",
@@ -12659,9 +12743,6 @@
     },
     "defaults": {
       "baseline": "Approved Baseline"
-    },
-    "delay": {
-      "days": "{count} days late"
     },
     "dialog": {
       "editPlanHelp": "The name and description only. Two schedules on one site cannot share a name.",
@@ -12686,7 +12767,6 @@
       "actualProgress": "Actual progress (%)",
       "actualStart": "Actual start",
       "baselineLabel": "Baseline name",
-      "delay": "Delay",
       "description": "Description",
       "excelFile": "Excel file (.xlsx)",
       "importTarget": "Import into",
@@ -12696,9 +12776,7 @@
       "parentTask": "Parent task",
       "plan": "Schedule plan",
       "planName": "Plan name",
-      "plannedDates": "Planned dates",
       "plannedEnd": "Planned end",
-      "plannedProgress": "Planned",
       "plannedStart": "Planned start",
       "progressEvidence": "Linked site progress",
       "progressEvidenceHelp": "Only progress photo records sent from this project are available.",
@@ -12711,12 +12789,21 @@
       "taskName": "Task name",
       "wbs": "WBS",
       "weight": "Weight",
-      "weightHelp": "How much of the job this task is, next to the others. Relative, so 1/2/3 and 10/20/30 mean the same - the column does not have to add up to 100. Leave it at 1 and every task counts equally."
+      "weightHelp": "How much of the job this task is, next to the others. Relative, so 1/2/3 and 10/20/30 mean the same - the column does not have to add up to 100. Leave it at 1 and every task counts equally.",
+      "start": "Start",
+      "end": "Finish",
+      "days": "Days",
+      "done": "Done %",
+      "status": "Status",
+      "weightValue": "Weight {value}",
+      "plannedToday": "Planned for today: {value}%",
+      "linkedRecords": "{count, plural, one {# site record attached} other {# site records attached}}"
     },
     "gantt": {
-      "actual": "Actual completion",
+      "actual": "Done so far",
       "days": "{count} calendar days",
-      "planned": "Planned duration"
+      "planned": "Planned dates",
+      "today": "Today"
     },
     "history": {
       "EXCEL_IMPORTED": "Excel schedule imported",
@@ -12765,26 +12852,36 @@
       "loadError": "The schedule could not be loaded. Try again.",
       "noConfirmedProgress": "No site progress records are available.",
       "noHistory": "No schedule history yet.",
-      "noPlans": "No schedule exists for this project. Create one manually or import Excel.",
+      "noPlans": "This project has no construction schedule yet.",
       "noReason": "No additional note",
       "noRevision": "No schedule version",
       "noTasks": "No tasks in this version yet.",
       "overviewLoadError": "The progress summary could not be loaded, so the task and progress figures are not shown. Try again.",
       "revisionsLoadError": "The revisions could not be loaded. Try again.",
-      "tasksLoadError": "The task list could not be loaded, so this revision's tasks are not shown. Try again."
+      "tasksLoadError": "The task list could not be loaded, so this revision's tasks are not shown. Try again.",
+      "noPlansHelp": "Create one by hand or import it from Excel.",
+      "noDelayed": "No delayed tasks."
     },
     "status": {
       "current": "Current",
       "delayed": "Delayed",
-      "onTrack": "On track"
+      "notStarted": "Not started",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "completedLate": "Finished late",
+      "delayedDays": "{count, plural, one {# day late} other {# days late}}",
+      "completedLateDays": "{count, plural, one {Finished # day late} other {Finished # days late}}"
     },
-    "subtitle": "Plan work, protect the approved baseline and confirm actual site progress.",
+    "subtitle": "Pick a plan to see the Gantt chart and how far each task has got.",
     "summary": {
       "completed": "Completed",
-      "delayed": "Need attention",
-      "planned": "Planned {value}%",
-      "progress": "Actual progress",
-      "tasks": "Tasks"
+      "delayed": "Delayed",
+      "planned": "Planned for today: {value}%",
+      "progress": "Progress",
+      "lateFinished": "{count} of them finished late",
+      "delayedHint": "Past the planned finish and not done. Tap to see only these",
+      "noDelay": "No task is past its planned finish",
+      "showingDelayed": "Showing delayed tasks only. Tap again for all"
     },
     "title": "Construction Schedule",
     "toast": {
@@ -12801,11 +12898,24 @@
       "taskRemoved": "Draft task removed",
       "taskSaved": "Schedule task saved"
     },
-    "view": {
+    "why": {
+      "delayed": "Planned to finish {date}, not done yet",
+      "completedLate": "Planned to finish {planned}, finished {actual}"
+    },
+    "section": {
       "gantt": "Gantt chart",
-      "history": "History",
-      "list": "Task list",
-      "revisions": "Baseline & revisions"
+      "tasks": "Tasks"
+    },
+    "progressSource": "Done % is the figure the project manager enters under Confirm progress. Site records from Project progress can be attached as backing; the system never works it out from photos. Overall progress weighs each task by its weight and leaves out summary rows.",
+    "version": {
+      "showing": "Showing: {label}",
+      "draftNote": "This is a draft: tasks can be added and changed. Done % can be filled in once it is confirmed and locked."
+    },
+    "advanced": {
+      "title": "Plan versions and log",
+      "help": "The original plan, each revised version and the activity log. Not needed day to day.",
+      "revisions": "Plan versions",
+      "history": "Activity log"
     }
   },
   "session": {
@@ -14756,12 +14866,14 @@
       "code": "Code",
       "deactivate": "Turn off",
       "dispatchType": "Waste type on the dispatch",
-      "help": "This is your own list. The seven standard ones cannot be removed because records already cite them - turn one off instead and it stops being offered on new records.",
+      "help": "This is your own list. The standard ones (scrap iron, copper, aluminium, cable) cannot be removed because records cite them - turn one off instead and it stops being offered on new records. Those marked Old are earlier standard categories, kept on earlier records only.",
       "manage": "Waste categories",
       "name": "Name",
       "standard": "Standard",
       "standardHelp": "Standard - turn off instead",
-      "title": "Your waste categories"
+      "title": "Your waste categories",
+      "retired": "Old",
+      "retiredHelp": "Old category - kept on earlier records, cannot be switched back on"
     },
     "empty": "No waste has been recorded yet.",
     "evidence": {
@@ -14934,7 +15046,20 @@
     "what": {
       "delegates": "The people you can hand it to",
       "totals": "The totals",
-      "categories": "The waste category list"
+      "categories": "The waste category list",
+      "project": "the project address"
+    },
+    "hint": {
+      "approveFirst": "A recycler can be assigned once this is approved.",
+      "awaitingRecycler": "Waiting for a recycler"
+    },
+    "office": {
+      "help": "Raise an application for the site: choose the project and the category; the pickup address starts as the project address. Photos are optional, at most 4, and no GPS is recorded from the office. It is approved first, like one from the phone, and the recycler is assigned after that.",
+      "photosHint": "Optional, at most 4. Every photo is kept permanently.",
+      "photosCapped": "At most 4 - only the first 4 were kept.",
+      "raisedNote": "Raised in the office for the site, so it has no phone location.",
+      "projectAddress": "Project address: {address}",
+      "noProjectAddress": "This project has no address yet - type the pickup address here."
     }
   },
   "weighing": {
@@ -15423,7 +15548,6 @@
       "dispatch": "Waste order"
     },
     "newDisposal": "New clearance request",
-    "newDispatch": "New waste order",
     "column": {
       "kind": "Type",
       "reference": "Number",
@@ -15997,5 +16121,80 @@
     "system": "Follow system",
     "light": "Light",
     "dark": "Dark"
+  },
+  "originals": {
+    "title": "Original backup",
+    "status": {
+      "APPLICATION_UPLOADED": "Photo uploaded",
+      "ORIGINAL_PENDING": "Original waiting to sync",
+      "ORIGINAL_BACKED_UP": "Original backed up",
+      "ORIGINAL_FAILED": "Sync failed"
+    },
+    "waiting": "{count, plural, one {# original} other {# originals}} waiting to sync (about {mb} MB)",
+    "failed": "{count, plural, one {# original} other {# originals}} failed to sync",
+    "failedNetwork": "Last time there was no signal or it was too weak to finish.",
+    "failedOther": "Last time it did not go through. Press 'Sync originals' again.",
+    "capturedNote": "{count, plural, one {# original is} other {# originals are}} waiting for their record to upload first.",
+    "nothingWaiting": "No originals waiting to sync",
+    "readFailed": "This phone cannot read its stored originals (the system may have cleared them, or the browser does not allow storage).",
+    "trafficNote": "Syncing uses about {mb} MB of data. Best done on Wi-Fi.",
+    "sync": "Sync originals",
+    "syncing": "Syncing originals {done}/{total}, about {mb} MB left",
+    "offline": "No connection right now. Sync the originals once you are online.",
+    "result": {
+      "backedUp": "{count, plural, one {# original} other {# originals}} backed up",
+      "failed": "{count} did not go through",
+      "notYet": "{count} waiting for their record to upload",
+      "nothing": "Nothing to sync"
+    },
+    "autoLabel": "Upload originals too",
+    "autoHelp": "When on, originals follow as soon as their record is uploaded, which uses more data. Turn it on when you are on Wi-Fi; turn it off on mobile data and press 'Sync originals' yourself later.",
+    "storage": {
+      "title": "Stored on this phone",
+      "held": "{count, plural, one {# original} other {# originals}} stored here, about {mb} MB",
+      "usage": "This app uses {used} MB; the browser allows about {quota} MB",
+      "unknown": "This phone does not say how much space is available.",
+      "persisted": "This phone agreed to keep this data.",
+      "notPersisted": "This phone did not agree to keep this data; the system may clear it when space runs low.",
+      "persistUnknown": "This phone does not say whether it will keep this data.",
+      "high": "Many originals are stored here or space is running low. Sync the originals soon.",
+      "full": "The space this phone gives the app is almost full; new originals may not fit. Sync the originals now."
+    },
+    "limit": {
+      "local": "Until synced, an original exists only in this phone's browser. If the app is not opened for a while on an iPhone, if the phone runs out of space, or if website data is cleared in Settings, stored originals can be lost. Sync them soon.",
+      "verified": "'Original backed up' appears only after the server has received the original and checked that it matches exactly.",
+      "frame": "The original here is the frame the app captured when you took the photo, saved at high quality (about 1-2 MB). It is not the phone camera's own original file.",
+      "soon": "Sync soon: originals stored on the phone can be cleared by the system."
+    },
+    "record": {
+      "title": "Originals",
+      "counts": "{backedUp}/{expected} backed up",
+      "noOriginal": "This record kept no originals (photos uploaded).",
+      "allBackedUp": "All originals of this record are backed up on the server.",
+      "heldHere": "This phone holds {count, plural, one {# original} other {# originals}} of this record, about {mb} MB.",
+      "missingHere": "{count, plural, one {# original is} other {# originals are}} not on this phone (taken on another phone, or cleared by the system) and cannot be synced from here.",
+      "sync": "Sync this record's originals"
+    }
+  },
+  "phoneStorage": {
+    "open": "Phone storage and clean-up",
+    "title": "Phone storage",
+    "intro": "This only concerns what is on this phone. Photos, records, approvals and evidence already saved in the cloud are not affected by anything here.",
+    "cachedPhotos": "Cached photos: {count}, about {mb} MB",
+    "cachedHelp": "Thumbnails you have seen stay on the phone, so opening them again uses no data. Once cleared, they download again when needed.",
+    "autoNote": "Cached photos older than {days} days are cleared automatically.",
+    "appUsage": "This app uses about {mb} MB on this phone in total.",
+    "keptTitle": "Always kept, never cleared",
+    "unsent": "Records not uploaded yet: {count}",
+    "drafts": "Drafts not submitted yet: {count}",
+    "originals": "Originals not backed up yet: {count} (about {mb} MB)",
+    "hidden": "Removed from my list: {count}",
+    "showHidden": "Show them all again",
+    "armClean": "Clear local records: clears {photos} cached photos (about {mb} MB); keeps {unsent} records not uploaded yet, {drafts} drafts and {originals} originals not backed up yet. Cloud data is not affected.",
+    "clean": "Clear local records",
+    "armFirst": "Turn on the switch above first",
+    "nothingToClean": "No cached photos to clear",
+    "cleaned": "Cleared {count} cached photos (about {mb} MB)",
+    "cleanFailed": "The clean-up did not finish. Please try again."
   }
 }

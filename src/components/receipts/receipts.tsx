@@ -9,6 +9,7 @@ import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ListNeedsActionChip, withNeedsActionColumn } from "@/components/shared/needs-action";
 import { ExportButton } from "@/components/shared/export-button";
 import { photoColumn, recordPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
@@ -383,6 +384,9 @@ export function Receipts() {
         subtitle={isLoading ? "—" : t("receipts.count", { count: totalCount })}
         // No 「记录材料进场」 here (2026-10 A1, X9): a delivery is recorded on
         // the phone at the gate, and the office corrects it from its detail.
+        // 「待处理 N」: deliveries 待验收 for this reader, the sidebar's
+        // number for 材料进场 (2026-10-09).
+        action={<ListNeedsActionChip list={list} count={data?.needs_action_count} />}
       />
 
       <MaterialTabs>
@@ -400,7 +404,7 @@ export function Receipts() {
         />
       ) : (
       <DataTable
-        columns={columns}
+        columns={withNeedsActionColumn(columns, t("needsAction.column"))}
         rows={data?.results ?? []}
         totalCount={totalCount}
         page={list.page}
