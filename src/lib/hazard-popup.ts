@@ -35,6 +35,8 @@ const CLOSED_STATUSES = new Set(["VERIFIED", "RESOLVED"]);
 export interface RealtimeEvent {
   event_type?: string;
   occurred_at?: string;
+  /** The server's write time: where a reconnect resumes (`cursorAfter`). */
+  cursor?: string;
   payload?: {
     notification_id?: string;
     kind?: string;

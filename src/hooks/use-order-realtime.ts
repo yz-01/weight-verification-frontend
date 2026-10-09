@@ -77,10 +77,12 @@ const REALTIME_PERMISSION_CODES = new Set([
  * Collapse a burst of events into one invalidation.
  *
  * A lorry arriving fires several events at once, and each one used to trigger
- * its own refetch of every query key the caller passed. Waiting a moment costs
- * nothing against a five-second target and turns a burst into a single refetch.
+ * its own refetch of every query key the caller passed. The server sends what
+ * one look found as a single chunk, so a burst arrives within a few
+ * milliseconds; 100 ms still folds it into one refetch. It was 400 ms, which
+ * every live update on every screen waited out (2026-10-09, 「更新会有点延迟」).
  */
-const COALESCE_MS = 400;
+export const COALESCE_MS = 100;
 const FALLBACK_POLL_MS = 15_000;
 /**
  * A slow safety poll that runs even while the stream is connected.
@@ -96,8 +98,33 @@ const FALLBACK_POLL_MS = 15_000;
  */
 export const SAFETY_POLL_MS = 60_000;
 const RECONNECT_MS = 1_000;
+/**
+ * A stream the server ended on schedule (every 55 s) is reopened at once.
+ * Waiting a second there only left a gap in which nothing on screen moved.
+ * A stream that ended sooner than this was not a scheduled end - an error, a
+ * proxy cutting it - and still waits `RECONNECT_MS`.
+ */
+const SCHEDULED_END_MIN_MS = 10_000;
 const REJECTED_BACKOFF_MS = 15_000;
 const MAX_BACKOFF_MS = 60_000;
+
+/**
+ * The cursor to resume from after this event.
+ *
+ * The server's own write time (`cursor`), never `occurred_at`: for GPS and
+ * attendance rows that is the phone's clock, and one phone running fast used
+ * to carry every office tab into the future, so the stream skipped whatever
+ * happened meanwhile. A server too old to send `cursor` still gets
+ * `occurred_at`, as before.
+ */
+export function cursorAfter(event: RealtimeEvent): string | undefined {
+  return event.cursor ?? event.occurred_at;
+}
+
+/** How long to wait before reopening a stream that ended by itself. */
+export function reconnectDelay(streamedMs: number): number {
+  return streamedMs >= SCHEDULED_END_MIN_MS ? 0 : RECONNECT_MS;
+}
 
 export function shouldRefresh(eventType: string | undefined): boolean {
   if (!eventType) return false;
@@ -263,12 +290,16 @@ export function useOrderRealtime(
           }
         }
         disableFallback();
+        const openedAt = Date.now();
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
         while (!controller.signal.aborted) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) {
+            delay = reconnectDelay(Date.now() - openedAt);
+            break;
+          }
           buffer += decoder.decode(value, { stream: true });
           const messages = buffer.split("\n\n");
           buffer = messages.pop() ?? "";
@@ -278,7 +309,8 @@ export function useOrderRealtime(
               .find((part) => part.startsWith("data: "));
             if (!line) continue;
             const event = JSON.parse(line.slice(6)) as RealtimeEvent;
-            if (event.occurred_at) cursor = event.occurred_at;
+            const next = cursorAfter(event);
+            if (next) cursor = next;
             if (refreshAllEvents || shouldRefresh(event.event_type)) refresh({ event: event.event_type });
             onEventRef.current?.(event);
           }

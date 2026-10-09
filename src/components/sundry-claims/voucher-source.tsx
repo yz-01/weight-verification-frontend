@@ -216,7 +216,7 @@ export function VoucherSource({
                       }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={photo.url} alt={t("fromChat", { name: photo.author || "—" })} className="size-full object-cover" />
+                      <img loading="lazy" decoding="async" src={photo.url} alt={t("fromChat", { name: photo.author || "—" })} className="size-full object-cover" />
                     </button>
                   </li>
                 );

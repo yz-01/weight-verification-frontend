@@ -67,11 +67,12 @@ export function PaymentManager({ proofsOnly = false }: { proofsOnly?: boolean })
   const refresh = async () => { await queryClient.invalidateQueries({ queryKey: ["billing"] }); };
   const create = useMutation({
     mutationFn: () => createPayment({ invoice, amount, paid_on: paidOn, method, reference: reference.trim(), notes: notes.trim(), proof }),
-    onSuccess: async () => { await refresh(); setShowCreate(false); resetForm(); },
+    // Close first; the list refreshes behind it rather than holding the dialog open.
+    onSuccess: () => { setShowCreate(false); resetForm(); void refresh(); },
   });
   const review = useMutation({
     mutationFn: () => reviewPayment(reviewing!.id, reviewState, reviewNote.trim()),
-    onSuccess: async () => { await refresh(); setReviewing(null); setReviewNote(""); },
+    onSuccess: () => { setReviewing(null); setReviewNote(""); void refresh(); },
   });
 
   function resetForm() {

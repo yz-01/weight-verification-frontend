@@ -220,7 +220,7 @@ export function SystemFilePicker({
                     <span className="flex aspect-[4/3] w-full items-center justify-center bg-muted/40">
                       {row.thumbnail_url ? (
                         // eslint-disable-next-line @next/next/no-img-element -- the server's watermarked copy; sizes vary per file.
-                        <img src={row.thumbnail_url} alt="" className="h-full w-full object-cover" draggable={false} />
+                        <img loading="lazy" decoding="async" src={row.thumbnail_url} alt="" className="h-full w-full object-cover" draggable={false} />
                       ) : (
                         <DocumentFileIcon name={row.file_name} />
                       )}

@@ -77,16 +77,18 @@ export function CommissionRuleManager() {
       editing
         ? updateCommissionRule(editing.id, form)
         : createCommissionRule(form),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["billing"] });
+    onSuccess: () => {
+      // Close first; the list refreshes behind it rather than holding the dialog open.
       setEditing(undefined);
+      void queryClient.invalidateQueries({ queryKey: ["billing"] });
     },
   });
   const remove = useMutation({
     mutationFn: () => deleteCommissionRule(removing!.id),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["billing"] });
+    onSuccess: () => {
+      // Close first; the list refreshes behind it rather than holding the dialog open.
       setRemoving(null);
+      void queryClient.invalidateQueries({ queryKey: ["billing"] });
     },
   });
 

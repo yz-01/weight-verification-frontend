@@ -341,7 +341,7 @@ export function ConsultantAccessManagement() {
                     {row.logo ? (
                       // The logo the A4 application form prints (C1).
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={row.logo}
                         alt={t("organization.logo")}
                         className="size-10 shrink-0 rounded-lg border bg-paper object-contain p-0.5"

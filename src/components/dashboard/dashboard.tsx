@@ -14,13 +14,30 @@ import {
   Truck,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
 import { HeadquartersHome } from "@/components/dashboard/headquarters-dashboard";
-import { RecyclerDashboard } from "@/components/recycler-business/recycler-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+
+/**
+ * Loaded only by the account that sees it (2026-10-09 perf). Each person sees
+ * one of the three dashboards, and the platform's and the recycler's carry
+ * the chart library; imported statically, every head-office user downloaded
+ * both before their own dashboard could draw.
+ */
+const AdminDashboard = dynamic(
+  () => import("@/components/dashboard/admin-dashboard").then((module) => module.AdminDashboard),
+  { loading: () => <Skeleton className="h-64 w-full" /> },
+);
+const RecyclerDashboard = dynamic(
+  () =>
+    import("@/components/recycler-business/recycler-dashboard").then(
+      (module) => module.RecyclerDashboard,
+    ),
+  { loading: () => <Skeleton className="h-64 w-full" /> },
+);
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
 import {
   getDispatches,

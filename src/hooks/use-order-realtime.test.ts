@@ -6,6 +6,9 @@ import { describe, expect, it } from "vitest";
 import {
   backoffFromResponse,
   canUseRealtime,
+  COALESCE_MS,
+  cursorAfter,
+  reconnectDelay,
   shouldRefresh,
 } from "./use-order-realtime";
 
@@ -117,6 +120,38 @@ describe("backoffFromResponse", () => {
 
   it("caps a very long Retry-After so the screen is not abandoned", () => {
     expect(backoffFromResponse(withRetryAfter("3600"))).toBe(60_000);
+  });
+});
+
+describe("how quickly a live update lands (2026-10-09, 更新会有点延迟)", () => {
+  it("resumes from the server's write time, not the phone's clock", () => {
+    // A GPS row stamped by a phone running ten minutes fast.
+    expect(
+      cursorAfter({
+        occurred_at: "2026-10-09T10:10:00+00:00",
+        cursor: "2026-10-09T10:00:00.123456+00:00",
+      }),
+    ).toBe("2026-10-09T10:00:00.123456+00:00");
+  });
+
+  it("still resumes from occurred_at when the server sends no cursor", () => {
+    expect(cursorAfter({ occurred_at: "2026-10-09T10:00:00+00:00" })).toBe(
+      "2026-10-09T10:00:00+00:00",
+    );
+    expect(cursorAfter({})).toBeUndefined();
+  });
+
+  it("reopens a stream the server ended on schedule at once", () => {
+    expect(reconnectDelay(55_000)).toBe(0);
+  });
+
+  it("still waits after a stream that ended early", () => {
+    expect(reconnectDelay(200)).toBe(1_000);
+  });
+
+  it("folds a burst into one refetch without making every update wait", () => {
+    expect(COALESCE_MS).toBeGreaterThan(0);
+    expect(COALESCE_MS).toBeLessThanOrEqual(150);
   });
 });
 

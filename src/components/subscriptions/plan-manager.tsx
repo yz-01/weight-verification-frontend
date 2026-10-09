@@ -131,9 +131,10 @@ export function PlanManager() {
         ? updateSubscriptionPlan(editing.id, payload)
         : createSubscriptionPlan(payload);
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["subscription-plans"] });
+    onSuccess: () => {
+      // Close first; the list refreshes behind it rather than holding the dialog open.
       setEditing(undefined);
+      void queryClient.invalidateQueries({ queryKey: ["subscription-plans"] });
     },
   });
 
