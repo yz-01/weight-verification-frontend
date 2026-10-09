@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Check, Languages } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -29,6 +30,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
   const router = useRouter();
   const locale = resolveLocale(useLocale());
   const { user, refresh } = useAuth();
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
 
   async function choose(next: Locale) {
@@ -38,6 +40,10 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     if (user !== null) {
       await authService.updateProfile({ language: next });
       await refresh();
+      // Some words come from the server in the account's language - a
+      // system category such as 废铁 / Scrap iron (2026-10-09) - so what is
+      // already loaded is fetched again rather than left in the old one.
+      void queryClient.invalidateQueries();
     }
     // The catalogue is resolved on the server from the cookie, so the tree has
     // to be re-rendered for the new language to take effect.

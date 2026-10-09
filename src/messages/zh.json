@@ -6637,9 +6637,6 @@
       "title": "取消此车？"
     },
     "count": "{count, plural, =0 {暂无出场记录} other {# 车}}",
-    "createTitle": "新建出场",
-    "editTitle": "编辑出场",
-    "estimateNote": "这是你的预估。最终重量由回收商的地磅决定，两个数字都会保留。",
     "field": {
       "applicant": "申请人",
       "applicationNo": "申请编号",
@@ -6676,7 +6673,6 @@
       "weighingNo": "地磅单号"
     },
     "lockedNote": "此车已离场，无法再修改。若最终没有送达，请取消。",
-    "new": "新建出场",
     "noPhotos": "这一车还没有附照片。",
     "photoKind": {
       "LOADING": "装车",
@@ -6684,19 +6680,11 @@
       "PLATE": "车牌",
       "VEHICLE": "车辆"
     },
-    "pickupAddressHint": "留空就用项目地址。要车开到某个特定出入口时，自己填。",
-    "recyclerEmpty": "目前没有可选的回收商。",
-    "recyclerNote": "只能送往已在 MSE Trace 注册的回收商。这样货物才会上地磅，追溯链才不会断在你的工地门口。",
     "release": {
       "byName": "放行人",
       "confirm": "放行",
       "description": "记录车辆已离开工地。放行后只能取消，不能修改。",
       "title": "放行此车？"
-    },
-    "remove": {
-      "confirm": "删除",
-      "description": "此草稿将不再出现在任何地方。货物尚未离场。",
-      "title": "删除 {name}？"
     },
     "section": {
       "application": "出场申请",
@@ -6731,11 +6719,8 @@
     "title": "废料订单",
     "toast": {
       "cancelled": "已取消",
-      "created": "出场已创建",
       "photoAdded": "照片已上传",
-      "released": "已放行",
-      "removed": "出场已删除",
-      "updated": "出场已更新"
+      "released": "已放行"
     },
     "viewTitle": "出场记录",
     "wasteType": {
@@ -6750,12 +6735,19 @@
       "TIMBER": "木材"
     },
     "what": {
-      "tracking": "收运进度",
-      "projects": "项目列表",
-      "recyclers": "本项目的回收商列表"
+      "tracking": "收运进度"
     },
-    "countedOnly": "只显示总部「原废料订单」计入数量的订单：不含草稿和已取消。",
-    "showAll": "显示全部"
+    "countedOnly": "只显示总部「废料订单」计入数量的订单：不含草稿和已取消。",
+    "showAll": "显示全部",
+    "tracker": {
+      "note": "废料订单来自已批准的「环保材料出场申请」：申请批准后按「安排回收商」，订单就会发给回收商。之前直接新建的旧订单仍保留在这里，只供查看。",
+      "orderNo": "订单号",
+      "applicationNo": "申请编号",
+      "openApplication": "打开申请 {number}",
+      "category": "分类",
+      "legacy": "旧订单",
+      "createdAt": "下单日期"
+    }
   },
   "documents": {
     "downloading": "下载中",
@@ -8344,7 +8336,7 @@
         "overdue_rectifications": "逾期整改",
         "material_receipts_today": "今日材料进场"
       },
-      "wasteDispatches": "原废料订单",
+      "wasteDispatches": "废料订单",
       "siteDisposals": "原工地清运",
       "records": "数量",
       "trips": "车次",
@@ -14874,12 +14866,14 @@
       "code": "代号",
       "deactivate": "关掉",
       "dispatchType": "派单上算哪种废料",
-      "help": "这是你们公司自己的清单。七个标准类别删不掉，因为已经有记录在用它们 —— 把它关掉就行，新记录里不会再出现。",
+      "help": "这是你们公司自己的清单。标准类别（废铁、铜、铝、电缆）删不掉，因为记录会用到它们 —— 不用的话把它关掉，新记录里就不会再出现。标「旧分类」的是以前的标准类别，只留在旧记录上。",
       "manage": "废料类别",
       "name": "名称",
       "standard": "标准",
       "standardHelp": "标准类别，只能关掉",
-      "title": "你们自己的废料类别"
+      "title": "你们自己的废料类别",
+      "retired": "旧分类",
+      "retiredHelp": "旧分类，只留在旧记录上，不能再开启"
     },
     "empty": "还没有环保材料出场申请。",
     "evidence": {
@@ -15052,7 +15046,20 @@
     "what": {
       "delegates": "可转交的人员",
       "totals": "统计数字",
-      "categories": "废料类别列表"
+      "categories": "废料类别列表",
+      "project": "项目地址"
+    },
+    "hint": {
+      "approveFirst": "批准后才能安排回收商。",
+      "awaitingRecycler": "待安排回收商"
+    },
+    "office": {
+      "help": "替现场新建一张申请：选项目和类别，取货地点默认用项目地址。照片可以不附，最多 4 张；后台提交不记录 GPS。提交后一样先审批，批准后再安排回收商。",
+      "photosHint": "可以不附，最多 4 张。所有照片都会永久保存。",
+      "photosCapped": "最多 4 张，只保留了前 4 张。",
+      "raisedNote": "这张申请由后台代现场提交，没有手机定位。",
+      "projectAddress": "项目地址：{address}",
+      "noProjectAddress": "这个项目还没有填地址，请在这里写取货地点。"
     }
   },
   "weighing": {
@@ -15541,7 +15548,6 @@
       "dispatch": "废料订单"
     },
     "newDisposal": "新增清运申请",
-    "newDispatch": "新增废料订单",
     "column": {
       "kind": "类型",
       "reference": "编号",

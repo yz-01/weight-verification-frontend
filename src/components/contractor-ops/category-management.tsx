@@ -229,7 +229,9 @@ const MODULES: Module[] = [
       const page = await getWasteCategories({ page_size: 200 });
       return page.results.map((row) => ({
         id: row.id,
-        name: row.name,
+        // A system preset in the reader's language (2026-10-09); the editor
+        // still edits `row.waste.name`, what is stored.
+        name: row.label,
         code: row.code,
         isActive: row.is_active,
         recordCount: row.record_count,
@@ -500,6 +502,15 @@ export function CategoryManagement() {
                           >
                             {row.name}
                           </button>
+                          {/* A pre-X6 preset: on old records only (2026-10-09). */}
+                          {row.waste?.is_retired && (
+                            <span
+                              className="text-xs font-normal text-muted-foreground"
+                              title={waste("category.retiredHelp")}
+                            >
+                              {waste("category.retired")}
+                            </span>
+                          )}
                           {/* 大类 / 小类 (B2), said rather than left to the indent. */}
                           {active.key === "equipment" && (
                             <span className="text-xs font-normal text-muted-foreground">
@@ -1261,13 +1272,20 @@ function WasteCategoryDialog({
             />
           </FieldWrapper>
           {category && (
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox
-                checked={isActive}
-                onCheckedChange={(checked) => setIsActive(checked === true)}
-              />
-              {t("active")}
-            </label>
+            <div className="space-y-1">
+              <label className="flex items-center gap-2 text-sm">
+                {/* A retired preset stays off: the server refuses it too. */}
+                <Checkbox
+                  checked={isActive}
+                  disabled={category.is_retired}
+                  onCheckedChange={(checked) => setIsActive(checked === true)}
+                />
+                {t("active")}
+              </label>
+              {category.is_retired && (
+                <p className="text-xs text-muted-foreground">{w("category.retiredHelp")}</p>
+              )}
+            </div>
           )}
           {error && (
             <p role="alert" className="text-sm text-destructive">

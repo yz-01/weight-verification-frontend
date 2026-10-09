@@ -1324,7 +1324,8 @@ function WasteOutgoingCapturePanel({
           </SelectTrigger>
           <SelectContent>
             {categories.map((row) => (
-              <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+              // A system preset in the phone's language (2026-10-09).
+              <SelectItem key={row.id} value={row.id}>{row.label || row.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>

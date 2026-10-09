@@ -6637,9 +6637,6 @@
       "title": "Batalkan muatan ini?"
     },
     "count": "{count, plural, =0 {Tiada muatan} other {# muatan}}",
-    "createTitle": "Muatan keluar baharu",
-    "editTitle": "Sunting muatan",
-    "estimateNote": "Ini anggaran anda. Berat akhir ditentukan oleh jambatan timbang pengitar semula, dan kedua-duanya disimpan.",
     "field": {
       "applicant": "Pemohon",
       "applicationNo": "No. permohonan",
@@ -6676,7 +6673,6 @@
       "weighingNo": "No. tiket timbang"
     },
     "lockedNote": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi. Batalkan jika ia tidak sampai.",
-    "new": "Muatan baharu",
     "noPhotos": "Tiada gambar dilampirkan pada muatan ini.",
     "photoKind": {
       "LOADING": "Memuat",
@@ -6684,19 +6680,11 @@
       "PLATE": "Nombor plat",
       "VEHICLE": "Kenderaan"
     },
-    "pickupAddressHint": "Biarkan kosong untuk guna alamat projek. Taip sendiri apabila lori perlu datang ke pintu masuk tertentu.",
-    "recyclerEmpty": "Tiada pengitar semula tersedia buat masa ini.",
-    "recyclerNote": "Muatan hanya boleh dihantar kepada pengitar semula yang berdaftar di MSE Trace. Itulah yang meletakkan muatan di atas jambatan timbang dan menyambung jejak melepasi pintu tapak anda.",
     "release": {
       "byName": "Dilepaskan oleh",
       "confirm": "Lepaskan",
       "description": "Merekodkan bahawa lori telah keluar. Selepas ini, muatan boleh dibatalkan tetapi tidak boleh diubah.",
       "title": "Lepaskan muatan ini?"
-    },
-    "remove": {
-      "confirm": "Buang",
-      "description": "Draf ini tidak akan muncul lagi. Tiada apa-apa yang telah meninggalkan tapak.",
-      "title": "Buang {name}?"
     },
     "section": {
       "application": "Permohonan keluar",
@@ -6731,11 +6719,8 @@
     "title": "Pesanan sisa",
     "toast": {
       "cancelled": "Muatan dibatalkan",
-      "created": "Muatan dicipta",
       "photoAdded": "Gambar ditambah",
-      "released": "Muatan dilepaskan",
-      "removed": "Muatan dibuang",
-      "updated": "Muatan dikemas kini"
+      "released": "Muatan dilepaskan"
     },
     "viewTitle": "Muatan keluar",
     "wasteType": {
@@ -6750,12 +6735,19 @@
       "TIMBER": "Kayu"
     },
     "what": {
-      "tracking": "Kemajuan kutipan",
-      "projects": "Senarai projek",
-      "recyclers": "Senarai pengitar semula untuk projek ini"
+      "tracking": "Kemajuan kutipan"
     },
     "countedOnly": "Hanya pesanan yang dikira oleh ibu pejabat - tiada draf, tiada yang dibatalkan.",
-    "showAll": "Tunjuk semua"
+    "showAll": "Tunjuk semua",
+    "tracker": {
+      "note": "Pesanan sisa datang daripada permohonan bahan alam sekitar keluar yang telah diluluskan: selepas permohonan diluluskan, Tetapkan pengitar menghantar pesanannya. Pesanan lama yang dibuat terus, sebelum adanya permohonan, disimpan di sini untuk rujukan sahaja.",
+      "orderNo": "No. pesanan",
+      "applicationNo": "No. permohonan",
+      "openApplication": "Buka permohonan {number}",
+      "category": "Kategori",
+      "legacy": "Pesanan lama",
+      "createdAt": "Tarikh pesanan"
+    }
   },
   "documents": {
     "downloading": "Sedang memuat turun",
@@ -8344,7 +8336,7 @@
         "overdue_rectifications": "Pembetulan lewat",
         "material_receipts_today": "Bahan diterima hari ini"
       },
-      "wasteDispatches": "Pesanan sisa (kitar semula)",
+      "wasteDispatches": "Pesanan sisa",
       "siteDisposals": "Pembersihan tapak",
       "records": "Rekod",
       "trips": "Trip",
@@ -14874,12 +14866,14 @@
       "code": "Kod",
       "deactivate": "Matikan",
       "dispatchType": "Jenis sisa pada penghantaran",
-      "help": "Ini senarai syarikat anda sendiri. Tujuh kategori standard tidak boleh dibuang kerana rekod sedia ada merujuk kepadanya - matikan sahaja dan ia tidak lagi ditawarkan pada rekod baharu.",
+      "help": "Ini senarai syarikat anda sendiri. Kategori standard (besi buruk, tembaga, aluminium, kabel) tidak boleh dibuang kerana rekod merujuk kepadanya - matikan sahaja dan ia tidak lagi ditawarkan pada rekod baharu. Yang bertanda Lama ialah kategori standard terdahulu, kekal pada rekod terdahulu sahaja.",
       "manage": "Kategori sisa",
       "name": "Nama",
       "standard": "Standard",
       "standardHelp": "Standard - matikan sahaja",
-      "title": "Kategori sisa anda"
+      "title": "Kategori sisa anda",
+      "retired": "Lama",
+      "retiredHelp": "Kategori lama - kekal pada rekod terdahulu, tidak boleh dihidupkan semula"
     },
     "empty": "Tiada sisa direkodkan lagi.",
     "evidence": {
@@ -15052,7 +15046,20 @@
     "what": {
       "delegates": "Senarai orang yang boleh diserahkan",
       "totals": "Jumlah",
-      "categories": "Senarai kategori sisa"
+      "categories": "Senarai kategori sisa",
+      "project": "alamat projek"
+    },
+    "hint": {
+      "approveFirst": "Pengitar boleh ditetapkan selepas permohonan ini diluluskan.",
+      "awaitingRecycler": "Menunggu pengitar ditetapkan"
+    },
+    "office": {
+      "help": "Buat permohonan bagi pihak tapak: pilih projek dan kategori; alamat ambilan bermula dengan alamat projek. Foto tidak wajib, paling banyak 4, dan GPS tidak direkod dari pejabat. Ia diluluskan dahulu seperti permohonan dari telefon, kemudian pengitar ditetapkan.",
+      "photosHint": "Tidak wajib, paling banyak 4. Setiap foto disimpan selamanya.",
+      "photosCapped": "Paling banyak 4 - hanya 4 yang pertama disimpan.",
+      "raisedNote": "Dibuat di pejabat bagi pihak tapak, jadi tiada lokasi telefon.",
+      "projectAddress": "Alamat projek: {address}",
+      "noProjectAddress": "Projek ini belum ada alamat - taip alamat ambilan di sini."
     }
   },
   "weighing": {
@@ -15541,7 +15548,6 @@
       "dispatch": "Pesanan sisa"
     },
     "newDisposal": "Permintaan pembersihan baharu",
-    "newDispatch": "Pesanan sisa baharu",
     "column": {
       "kind": "Jenis",
       "reference": "Nombor",

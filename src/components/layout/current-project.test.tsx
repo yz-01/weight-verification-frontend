@@ -76,7 +76,6 @@ const { SupplierReturnsDialog } = await import("@/components/suppliers/supplier-
 const { ProjectNotificationDialog } = await import("@/components/notifications/notifications");
 const { newApprovalProject } = await import("@/components/document-workflow/approvals");
 const { IncidentThreadList } = await import("@/components/incident-reporting/incident-thread-list");
-const { CreateDispatch } = await import("@/components/dispatches/create-dispatch");
 const { MaterialReport } = await import("@/components/reports/material-report");
 
 function project(id: string, code: string, name: string): Project {
@@ -541,12 +540,8 @@ describe("no empty filter strip beside the top bar (audit #10)", () => {
     expect(html).not.toContain("minmax(220px,1fr)_210px_180px_180px_auto");
   });
 
-  it("the dispatch form names the project the way every other form does", () => {
-    nav.pathname = "/dispatches/create";
-    const { html } = render(<CreateDispatch />, { state: topBar(NORTH.id) });
-    expect(html).toContain("N1 - North Tower");
-    expect(html).not.toContain("N1 — North Tower");
-  });
+  // The dispatch form that had its own project wording was retired with the
+  // direct 新增废料订单 (2026-10-09); orders come from 环保材料出场申请.
 });
 
 describe("more than 100 projects (audit #11)", () => {
