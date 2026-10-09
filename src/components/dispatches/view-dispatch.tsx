@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import type { DispatchPhotoKind } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+import { photoMeta } from "@/lib/photo-meta";
 import { getWasteTracking } from "@/services/waste-outgoing.service";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
@@ -303,6 +304,7 @@ export function ViewDispatch({
           id: photo.id,
           url: photo.watermarked || photo.image,
           label: t(`dispatches.photoKind.${photo.kind}`),
+          ...photoMeta(photo),
         }))}
         photoActions={
           can("dispatch.create") ? (

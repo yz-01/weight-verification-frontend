@@ -209,6 +209,9 @@ export interface HazardPhoto {
   watermarked?: string | null;
   note?: string;
   captured_at: string | null;
+  /** Where it was taken (the viewer's GPS); a photo said in the room keeps its message's. */
+  latitude?: string | null;
+  longitude?: string | null;
   submitted_by_name?: string | null;
 }
 

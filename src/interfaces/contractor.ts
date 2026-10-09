@@ -514,6 +514,14 @@ export interface MySubmissionPhoto {
    */
   thumbnail_url?: string | null;
   caption: string;
+  /**
+   * When and where it was taken, for the viewer's 「时间 · GPS」: the photo's
+   * own, else the record's one fix. Empty for a file with neither (an office
+   * upload); `captured_at` is "" rather than null there.
+   */
+  captured_at?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
 }
 
 /** A history row, opened. */

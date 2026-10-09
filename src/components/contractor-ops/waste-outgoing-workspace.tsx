@@ -375,7 +375,7 @@ export function WasteOutgoingWorkspace() {
       label: tRoot("moduleTable.photos"),
       icon: Recycle,
       reference: (row) => row.reference_no,
-      photos: (row) => rowPhotos(row.photos, row.reference_no),
+      photos: (row) => rowPhotos(row.photos, row.reference_no, row),
     }),
     {
       accessorKey: "status",

@@ -43,6 +43,7 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { type LocationFix, requestLocation } from "@/lib/field-location";
 import { compressPhoto } from "@/lib/photo-compression";
+import { photoMeta } from "@/lib/photo-meta";
 
 /** Matches the server's cap. Shown while recording, not discovered on send. */
 export const FALLBACK_AUDIO_LIMIT = 60;
@@ -181,7 +182,8 @@ export function useChatPhotoViewer(photos: ConversationPhoto[], reference: strin
         id: photo.id,
         url: photo.url,
         label: photo.author,
-        takenAt: photo.sentAt,
+        // Sent from the room's camera: its time and the message's GPS.
+        ...photoMeta({ captured_at: photo.sentAt, latitude: photo.latitude, longitude: photo.longitude }),
       })),
     [photos],
   );

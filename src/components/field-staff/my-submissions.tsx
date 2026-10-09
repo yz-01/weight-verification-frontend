@@ -93,6 +93,7 @@ import {
   queueErrorKey,
 } from "@/services/offline-sync.service";
 import { prunePhotoCache } from "@/lib/photo-cache";
+import { photoMeta } from "@/lib/photo-meta";
 import { PhoneStoragePanel } from "@/components/field-staff/phone-storage-panel";
 import { ArmRow } from "@/components/shared/page-primitives";
 import { useHiddenSubmissions } from "@/hooks/use-hidden-submissions";
@@ -633,6 +634,8 @@ function StoredDetailSheet({
             // one is opened (client 2026-10-09 二.4, 五.3).
             thumbnailUrl: shot.thumbnail_url,
             label: shot.caption || row.reference,
+            // Its time and GPS: an in-app photo has both (2026-10-09).
+            ...photoMeta(shot),
           }))}
           /*
             The one action this sheet does offer (D-211): an approved

@@ -161,6 +161,7 @@ import {
   type ReturnBadgeSupplier,
 } from "@/components/suppliers/supplier-return-badge";
 import { columnAutofill } from "@/lib/material-autofill";
+import { photoMeta } from "@/lib/photo-meta";
 import {
   newClientEventId,
   queuedOutgoingExit,
@@ -4658,7 +4659,8 @@ export function OutgoingDetailDialog({
               id: shot.id,
               url: shot.watermarked || shot.image,
               label: shot.caption ? `${stage} · ${shot.caption}` : stage,
-              takenAt: shot.captured_at,
+              // Its time and GPS, else the application's fix (2026-10-09).
+              ...photoMeta(shot, row),
             };
           })}
           photoActions={

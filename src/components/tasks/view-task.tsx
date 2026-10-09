@@ -26,6 +26,7 @@ import {
   type TaskState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
+import { photoMeta } from "@/lib/photo-meta";
 import {
   advanceTask,
   cancelTask,
@@ -255,6 +256,7 @@ export function ViewTask({
           id: photo.id,
           url: photo.watermarked || photo.image,
           label: photo.caption || photo.kind,
+          ...photoMeta(photo),
         }))}
         actions={
           can("task.submit") && next.length > 0 ? (

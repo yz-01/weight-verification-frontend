@@ -21,6 +21,9 @@ export interface EquipmentHoursMachine {
 export interface EquipmentHoursPhoto {
   id: string;
   captured_at: string;
+  /** Where the operator stood when he took it. */
+  latitude?: string | null;
+  longitude?: string | null;
   operator_name: string;
   watermarked_photo: string | null;
 }

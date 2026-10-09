@@ -81,7 +81,7 @@ describe("PhotoThumb", () => {
   it("keeps only photographs that have a URL, labelled", () => {
     expect(
       toShellPhotos([{ id: "a", url: "u1", caption: "" }, { id: "b", url: "" }], "RC-9"),
-    ).toEqual([{ id: "a", url: "u1", label: "RC-9" }]);
+    ).toMatchObject([{ id: "a", url: "u1", label: "RC-9" }]);
   });
 
   it("is a picture, not a button, when there is nothing of the record's to open (audit #4)", () => {
@@ -120,9 +120,60 @@ describe("PhotoThumb", () => {
         ],
         "RC-8",
       ),
-    ).toEqual([
+    ).toMatchObject([
       { id: "stamped", url: "https://api.example/media/w.jpg", label: "RC-8" },
       { id: "3", url: "https://api.example/media/evidence/watermarked/v2/s.jpg", label: "RC-8" },
+    ]);
+  });
+
+  it("hands the viewer each photograph's time and GPS, so an in-app photo never reads 「未记录」 (2026-10-09)", () => {
+    expect(
+      toShellPhotos(
+        [
+          {
+            id: "a",
+            url: "u1",
+            thumbnail_url: "t1",
+            caption: "1. 材料全景",
+            captured_at: "2026-10-09T08:00:00+08:00",
+            latitude: "3.1234567",
+            longitude: "101.7654321",
+          },
+        ],
+        "MO-1",
+      ),
+    ).toEqual([
+      {
+        id: "a",
+        url: "u1",
+        thumbnailUrl: "t1",
+        label: "1. 材料全景",
+        takenAt: "2026-10-09T08:00:00+08:00",
+        latitude: "3.1234567",
+        longitude: "101.7654321",
+      },
+    ]);
+  });
+
+  it("reads a row's photographs' time, taken_at included, and falls back to the record's GPS fix", () => {
+    expect(
+      rowPhotos(
+        [
+          { id: 1, watermarked: "w1", captured_at: "2026-10-09T01:00:00Z", latitude: "1.5", longitude: "103.7" },
+          { id: 2, watermarked: "w2", taken_at: "2026-10-09T02:00:00Z" },
+        ],
+        "WO-3",
+        { latitude: "2.5", longitude: "102.1" },
+      ),
+    ).toMatchObject([
+      { id: "1", takenAt: "2026-10-09T01:00:00Z", latitude: "1.5", longitude: "103.7" },
+      { id: "2", takenAt: "2026-10-09T02:00:00Z", latitude: "2.5", longitude: "102.1" },
+    ]);
+  });
+
+  it("keeps 「未记录」 only for a photograph that really has no time or GPS", () => {
+    expect(rowPhotos([{ id: "f", watermarked: "w" }], "MR-1")).toMatchObject([
+      { takenAt: null, latitude: null, longitude: null },
     ]);
   });
 });

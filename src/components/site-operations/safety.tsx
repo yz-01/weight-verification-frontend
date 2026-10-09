@@ -83,6 +83,7 @@ import type {
 } from "@/interfaces/site-operations";
 import type { LocationFix } from "@/lib/field-location";
 import { useDateFormat } from "@/lib/dates";
+import { photoMeta } from "@/lib/photo-meta";
 import {
   submitSafetyIncidentOfflineAware,
   type SafetyIncidentSubmission,
@@ -893,7 +894,7 @@ export function HazardRecordDetail({
             label: [`${te(`photos.${key}`)} ${index + 1}`, item.submitted_by_name]
               .filter(Boolean)
               .join(" · "),
-            takenAt: item.captured_at,
+            ...photoMeta(item),
             group: key,
           })),
         )}
