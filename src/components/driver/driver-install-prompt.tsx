@@ -5,8 +5,6 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
-import { getAccessToken } from "@/lib/auth-token";
-import { isDriverLinkToken } from "@/lib/driver-link";
 
 interface InstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -45,10 +43,6 @@ export function DriverInstallPrompt() {
   }, []);
 
   if (dismissed || standalone) return null;
-  // An iPhone home-screen app keeps storage of its own, so to a sign-in link
-  // it is a second phone: the installed copy would open signed out, and the
-  // link would refuse it. Only offered to drivers who can sign in there.
-  if (environment === "ios" && isDriverLinkToken(getAccessToken())) return null;
   const install = async () => {
     if (!prompt) {
       setGuide(true);

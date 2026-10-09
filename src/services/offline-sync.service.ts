@@ -520,8 +520,11 @@ async function sendJob(job: OfflineJob): Promise<void> {
       {
         dispatch: job.payload.dispatchId || null,
         site: job.payload.site,
-        vehicle: job.payload.vehicle,
-        driver: job.payload.driver,
+        vehicle: job.payload.vehicle || null,
+        driver: job.payload.driver || null,
+        driver_name: job.payload.driverName ?? "",
+        driver_phone: job.payload.driverPhone ?? "",
+        vehicle_plate: job.payload.vehiclePlate ?? "",
         scheduled_for: job.payload.scheduledFor,
         notes: job.payload.notes,
         client_event_id: job.payload.clientEventId,
@@ -1182,8 +1185,11 @@ interface TripAssignDraft {
   dispatchId: string;
   dispatchNo: string;
   site: string;
-  vehicle: string;
-  driver: string;
+  vehicle?: string;
+  driver?: string;
+  driverName?: string;
+  driverPhone?: string;
+  vehiclePlate?: string;
   scheduledFor?: string | null;
   notes?: string;
   /** The id the online attempt already used, when there was one. */
@@ -1215,6 +1221,8 @@ function sameAction(waiting: OfflineJob, job: OfflineJob): boolean {
       waiting.payload.site === job.payload.site &&
       waiting.payload.vehicle === job.payload.vehicle &&
       waiting.payload.driver === job.payload.driver &&
+      (waiting.payload.vehiclePlate ?? "") === (job.payload.vehiclePlate ?? "") &&
+      (waiting.payload.driverPhone ?? "") === (job.payload.driverPhone ?? "") &&
       waiting.payload.scheduledFor === job.payload.scheduledFor
     );
   }
@@ -1324,8 +1332,11 @@ function buildTripAssignJob(
       dispatchId: draft.dispatchId,
       dispatchNo: draft.dispatchNo,
       site: draft.site,
-      vehicle: draft.vehicle,
-      driver: draft.driver,
+      vehicle: draft.vehicle ?? "",
+      driver: draft.driver ?? "",
+      driverName: draft.driverName ?? "",
+      driverPhone: draft.driverPhone ?? "",
+      vehiclePlate: draft.vehiclePlate ?? "",
       scheduledFor: draft.scheduledFor ?? null,
       notes: draft.notes ?? "",
       clientEventId: draft.clientEventId ?? newId("trip-assign"),

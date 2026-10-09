@@ -3,48 +3,30 @@ import { describe, expect, it } from "vitest";
 import {
   driverLinkOutcome,
   driverLinkToken,
-  isDriverLinkToken,
+  matchDriverByName,
   parseIdleDays,
+  plateKey,
   whatsappShareUrl,
 } from "@/lib/driver-link";
 
-function token(payload: Record<string, unknown>): string {
-  const body = btoa(JSON.stringify(payload))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-  return `header.${body}.signature`;
-}
-
-describe("driver sign-in link token", () => {
+describe("trip link token", () => {
   it("accepts what the server mints and nothing shaped otherwise", () => {
-    expect(driverLinkToken("a".repeat(54))).toBe("a".repeat(54));
+    expect(driverLinkToken("a".repeat(43))).toBe("a".repeat(43));
     expect(driverLinkToken("Ab-_09".repeat(5))).toBe("Ab-_09".repeat(5));
     expect(driverLinkToken("short")).toBe("");
     expect(driverLinkToken("has space in it and is long enough")).toBe("");
     expect(driverLinkToken(null)).toBe("");
-    expect(driverLinkToken(undefined)).toBe("");
   });
 });
 
-describe("refused sign-in", () => {
+describe("refused link", () => {
   it("names the screen for each code the server sends", () => {
     expect(driverLinkOutcome("driver_link_closed")).toBe("closed");
+    expect(driverLinkOutcome("driver_link_expired")).toBe("expired");
     expect(driverLinkOutcome("driver_link_other_device")).toBe("otherDevice");
     expect(driverLinkOutcome("driver_link_invalid")).toBe("invalid");
-    expect(driverLinkOutcome("validation_failed")).toBe("invalid");
     expect(driverLinkOutcome("network_unreachable")).toBe("failed");
     expect(driverLinkOutcome("")).toBe("failed");
-  });
-});
-
-describe("link session", () => {
-  it("is told apart from a password session by its own token", () => {
-    expect(isDriverLinkToken(token({ session_kind: "DRIVER_LINK", driver_link: "x" }))).toBe(true);
-    expect(isDriverLinkToken(token({ session_kind: "FIELD_DEVICE", device: "x" }))).toBe(false);
-    expect(isDriverLinkToken(token({ user_id: "x" }))).toBe(false);
-    expect(isDriverLinkToken("not-a-jwt")).toBe(false);
-    expect(isDriverLinkToken(null)).toBe(false);
   });
 });
 
@@ -69,5 +51,20 @@ describe("idle days", () => {
     expect(parseIdleDays("366")).toBeNull();
     expect(parseIdleDays("2.5")).toBeNull();
     expect(parseIdleDays("")).toBeNull();
+  });
+});
+
+describe("repeat crews", () => {
+  it("compares plates the way the weighbridge does", () => {
+    expect(plateKey(" wlk-1001 ")).toBe("WLK1001");
+    expect(plateKey("WLK 1001")).toBe(plateKey("wlk1001"));
+  });
+
+  it("finds a driver typed again, whatever the spacing or case", () => {
+    const drivers = [{ full_name: "Ah Kow" }, { full_name: "Muthu  Kumar" }];
+    expect(matchDriverByName(drivers, "ah kow")).toBe(drivers[0]);
+    expect(matchDriverByName(drivers, " muthu kumar ")).toBe(drivers[1]);
+    expect(matchDriverByName(drivers, "Ah")).toBeUndefined();
+    expect(matchDriverByName(drivers, "")).toBeUndefined();
   });
 });

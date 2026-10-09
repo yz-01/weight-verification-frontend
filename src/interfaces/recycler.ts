@@ -91,12 +91,7 @@ export interface Driver {
   default_vehicle: string | null;
   default_vehicle_plate: string | null;
   user: string | null;
-  /** Null for a driver who signs in by link: their login has no real email. */
   user_email: string | null;
-  /** Set up with name and phone only; reaches the driver page by a link. */
-  signs_in_by_link: boolean;
-  /** The driver's open sign-in link, if the office has sent one. */
-  login_link: DriverLoginLink | null;
   login_idle_expiry_days: number;
   language: "en" | "zh" | "zh-TW" | "ms" | null;
   company_name: string;
@@ -113,34 +108,6 @@ export interface Driver {
   created_at: string;
 }
 
-export interface DriverLoginLink {
-  id: string;
-  status: DriverLinkStatus;
-  close_rule: DriverLinkCloseRule;
-  idle_days: number;
-  created_at: string;
-  bound_at: string | null;
-  last_used_at: string | null;
-  expires_at: string | null;
-  closed_at: string | null;
-  closed_reason: string;
-  device_name: string;
-}
-
-/** What 「发送登录链接」 returns: the only time the link exists in full. */
-export interface DriverLinkIssued {
-  driver_id: string;
-  full_name: string;
-  phone: string;
-  login_url: string;
-  link: DriverLoginLink;
-}
-
-export interface DriverLinkIssuePayload {
-  close_rule?: DriverLinkCloseRule;
-  idle_days?: number;
-}
-
 export interface DriverPayload {
   driver_no?: string;
   full_name: string;
@@ -153,10 +120,6 @@ export interface DriverPayload {
   emergency_contact?: string;
   notes?: string;
   default_vehicle?: string | null;
-  user?: string | null;
-  account_email?: string;
-  account_password?: string;
-  login_idle_expiry_days?: number;
   is_on_leave?: boolean;
   is_active?: boolean;
 }
@@ -290,13 +253,32 @@ export interface DriverTask {
   vehicle_plate: string;
   driver: string;
   driver_name: string;
+  driver_phone: string;
   scheduled_for: string | null;
   delivered_at: string | null;
   completed_at: string | null;
   photo_count?: number;
 }
 
+/**
+ * The trip's driver link, as the office sees it. Never the token: that exists
+ * in full only in the response that issued it (`link_url`).
+ */
+export interface DriverTaskLink {
+  status: Exclude<DriverLinkStatus, "NONE">;
+  hint: string;
+  close_rule: DriverLinkCloseRule;
+  idle_days: number | null;
+  issued_at: string | null;
+  bound_at: string | null;
+  last_used_at: string | null;
+  expires_at: string | null;
+}
+
 export interface DriverTaskDetail extends DriverTask {
+  link: DriverTaskLink | null;
+  /** Only in the response that just issued a link; shown once. */
+  link_url?: string;
   /**
    * The address to drive to. Falls back to the project address on the server,
    * so this is never blank for a task that has a project.
@@ -461,8 +443,19 @@ export interface DriverLiveRoutes {
 export interface DriverTaskPayload {
   dispatch?: string | null;
   site: string;
-  vehicle: string;
-  driver: string;
+  /** A known lorry / driver by id; or leave out and type them below. */
+  vehicle?: string | null;
+  driver?: string | null;
+  /**
+   * Who is driving and which lorry, as typed in 接单与派车. Matched to the
+   * address book (phone, plate) or added to it; drivers have no login.
+   */
+  driver_name?: string;
+  driver_phone?: string;
+  vehicle_plate?: string;
+  /** This trip's link rule, when not the company's own setting. */
+  link_close_rule?: DriverLinkCloseRule;
+  link_idle_days?: number;
   scheduled_for?: string | null;
   notes?: string;
   /** Replay key: the same press sent twice answers with the same trip. */

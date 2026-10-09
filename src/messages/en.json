@@ -7122,13 +7122,9 @@
   "drivers": {
     "vehicleRequiredHelp": "A driver with no lorry shows as ready on the roster but every trip starts by picking one from scratch.",
     "vehicleRequired": "Pick a lorry",
-    "accountRequiredHelp": "Email is optional: save, then send a sign-in link and the driver opens it to get in. For email and password sign-in, pick an account or fill in an email and password.",
     "count": "{count, plural, =0 {No drivers} one {# driver} other {# drivers}}",
-    "createTitle": "Add a driver",
     "editTitle": "Edit driver",
     "field": {
-      "account": "Driver login account",
-      "accountHint": "One login belongs to one driver. To move this driver onto a different account, pick it here.",
       "choosePhoto": "Choose a photo",
       "createdAt": "Added",
       "currentTask": "Current task",
@@ -7140,15 +7136,12 @@
       "emergencyContactExample": "Name / phone number",
       "fullName": "Name",
       "icNo": "IC no.",
-      "initialPassword": "Initial password",
       "isActive": "Active",
       "isActiveHelp": "Active drivers can be assigned to collections.",
       "lastPosition": "Last GPS update",
       "licenceExpires": "Licence expires",
       "licenceNo": "Licence no.",
       "licencePhoto": "Licence photo",
-      "loginIdleExpiryDays": "Sign in again after inactive days",
-      "newAccountEmail": "Or create account with email",
       "notes": "Notes",
       "onLeave": "On leave",
       "onLeaveHelp": "Drivers on leave cannot be assigned to a collection.",
@@ -7156,7 +7149,6 @@
       "workStatus": "Work status"
     },
     "licenceExpired": "Licence expired",
-    "new": "Add driver",
     "offline": "Offline",
     "online": "Online",
     "remove": {
@@ -7165,7 +7157,6 @@
       "title": "Remove {name}?"
     },
     "section": {
-      "account": "Driver app account",
       "availability": "Availability",
       "identity": "Identity",
       "licence": "Licence"
@@ -7187,64 +7178,12 @@
     },
     "title": "Drivers",
     "toast": {
-      "created": "Driver added",
       "removed": "Driver removed",
       "updated": "Driver updated"
     },
     "what": {
       "vehicles": "The vehicle list",
-      "accounts": "The driver account list",
       "summary": "The driver counts"
-    },
-    "loginLink": {
-      "section": "Sign-in link",
-      "send": "Send sign-in link",
-      "resend": "Send a new link",
-      "revoke": "Close link",
-      "revokeTitle": "Close this sign-in link?",
-      "revokeDescription": "The driver's phone signed in with this link is signed out at once. You can send a new link at any time.",
-      "title": "Send a sign-in link to {name}",
-      "description": "The driver opens the link and is in. No email, password or PIN.",
-      "ruleLabel": "When the link stops working",
-      "companyDefault": "Company setting",
-      "idleDays": "Days",
-      "idleDaysHint": "1 to 365 days. Each use starts the count again.",
-      "ruleHelp": "The link works only on the first phone that opens it. Sending a new one closes the old one.",
-      "replacesOld": "This driver already has a sign-in link. Sending a new one closes the old one at once.",
-      "resultTitle": "Sign-in link ready",
-      "resultDescription": "Copy the link or send it by WhatsApp. It is shown only this once.",
-      "link": "Sign-in link",
-      "copyLink": "Copy link",
-      "qrTitle": "Driver sign-in QR code",
-      "whatsapp": "Send by WhatsApp",
-      "shareMessage": "{name}, this is your driver sign-in link. Tap it to open your jobs: {url}",
-      "onePhone": "Works only on the first phone that opens it.",
-      "expiresAt": "Expires if not opened by {date}",
-      "rule": {
-        "CLOSE_AFTER_WEIGHING": "Closes after the load is weighed",
-        "EXPIRE_AFTER_IDLE_DAYS": "Expires after {days} days unused"
-      },
-      "status": {
-        "NONE": "Not sent",
-        "NOT_OPENED": "Waiting for the driver",
-        "ACTIVE": "In use",
-        "EXPIRED": "Expired",
-        "CLOSED": "Closed"
-      },
-      "sentAt": "Sent",
-      "openedAt": "First opened",
-      "lastUsedAt": "Last used",
-      "expiresAtLabel": "Expires",
-      "noneLinkOnly": "This driver has no email or password. Send a sign-in link so they can use the driver page.",
-      "noneHasPassword": "This driver can sign in with email and password, or you can send a sign-in link.",
-      "linkAccount": "signs in by link",
-      "toast": {
-        "revoked": "Sign-in link closed"
-      },
-      "ruleOption": {
-        "CLOSE_AFTER_WEIGHING": "Close after the load is weighed",
-        "EXPIRE_AFTER_IDLE_DAYS": "Expire after days unused"
-      }
     }
   },
   "email": {
@@ -7490,9 +7429,11 @@
       "original_not_expected": "The server has no photo waiting for this original yet. Let the record finish uploading first.",
       "original_hash_mismatch": "The original was damaged on the way and does not match the one on the phone, so nothing was saved. Press 'Sync originals' again.",
       "original_not_found": "This photo has no backed-up original.",
-      "driver_link_invalid": "This sign-in link is not valid. Check that the whole link was copied, or ask the office for a new one.",
-      "driver_link_closed": "This link has closed. Ask the office to send a new one.",
-      "driver_link_other_device": "This link is already in use on another phone. Ask the office to send a new one."
+      "driver_link_invalid": "This link no longer works. Ask the recycler to send it again.",
+      "driver_link_closed": "This trip is finished and its link is closed.",
+      "driver_link_other_device": "This link is in use on another phone. Ask the recycler to send it again.",
+      "driver_link_expired": "This link no longer works. Ask the recycler to send it again.",
+      "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8713,7 +8654,6 @@
       "collectionDateTo": "Collection date to"
     },
     "order": {
-      "goToDispatch": "Open that trip",
       "dispatchElsewhere": "This load is already on another trip",
       "acceptAndAssign": "Accept and assign driver",
       "acceptOnly": "Accept first",
@@ -8729,7 +8669,8 @@
       "proposeTime": "Change the collection time",
       "autoAccepted": "This order was accepted when the site sent it. There is nothing to accept.",
       "wantedAt": "Site wants it collected",
-      "arrangeCollection": "Arrange collection"
+      "arrangeCollection": "Arrange collection",
+      "alreadyAssigned": "A lorry is already assigned"
     },
     "subtitle": "Waste on its way to your yards.",
     "summary": {
@@ -12165,13 +12106,13 @@
       "saved": "Recycler settings saved"
     },
     "driverLink": {
-      "title": "Driver sign-in links",
-      "help": "When the sign-in links sent to drivers stop working by default. The office can choose differently when sending one.",
+      "title": "Driver trip links",
+      "help": "When the link a driver gets with each trip stops working by default. It always closes when the trip ends; the office can choose differently when assigning.",
       "rule": "Default rule",
       "idleDays": "Days unused before it expires",
       "idleDaysHint": "1 to 365 days, 7 by default. Used only by \"Expire after days unused\".",
       "ruleOption": {
-        "CLOSE_AFTER_WEIGHING": "Close after the load is weighed",
+        "CLOSE_AFTER_WEIGHING": "Close when the load is weighed",
         "EXPIRE_AFTER_IDLE_DAYS": "Expire after days unused"
       }
     }
@@ -14453,7 +14394,6 @@
     "count": "{count, plural, =0 {No trips} one {# trip} other {# trips}}",
     "createTitle": "Assign a trip",
     "editTitle": "Reassign the trip",
-    "everyDriverBusyNote": "Every driver is already out. Wait for a trip to finish weighing, or add another driver under Drivers.",
     "failNote": "Say what went wrong. Somebody has to chase this, and they need to know what they are chasing.",
     "field": {
       "acceptedAt": "Accepted",
@@ -14484,7 +14424,6 @@
     "new": "Assign a trip",
     "noDispatch": "No load attached",
     "noPhotos": "The driver has not sent any photos.",
-    "oneTripPerDriverNote": "A driver runs one trip at a time. A trip stays open until the weighbridge finishes, so a driver waiting at the yard is not free yet.",
     "reassign": "Reassign",
     "reassignNote": "Only before the driver accepts. After that the roster is a record of who actually went.",
     "section": {
@@ -14522,11 +14461,57 @@
     },
     "viewTitle": "Trip",
     "what": {
-      "drivers": "The driver list",
       "loads": "The loads waiting for collection",
       "sites": "The yard list",
-      "summary": "Today's trip totals",
-      "vehicles": "The vehicle list"
+      "summary": "Today's trip totals"
+    },
+    "crew": {
+      "title": "Send a lorry",
+      "driverName": "Driver's name",
+      "driverPhone": "Driver's phone",
+      "driverPhoneHint": "The link is sent to this number by WhatsApp.",
+      "vehiclePlate": "Lorry plate",
+      "newPlateHint": "A new plate. It is kept once you save.",
+      "whatDrivers": "Recent drivers",
+      "whatPlates": "Recent plates",
+      "assign": "Assign and make the link",
+      "incomplete": "Fill in the driver's name, phone and the plate"
+    },
+    "link": {
+      "ruleLabel": "When the link stops working",
+      "companyDefault": "Company setting",
+      "idleDays": "Days",
+      "idleDaysHint": "1 to 365 days. Each use starts the count again. The link also closes when the trip ends.",
+      "shareMessage": "MSE Trace collection {order}: {url}",
+      "qrTitle": "Driver trip link QR code",
+      "order": "Order number",
+      "link": "Driver link",
+      "copy": "Copy link",
+      "rule": {
+        "CLOSE_AFTER_WEIGHING": "Closes when the load is weighed",
+        "EXPIRE_AFTER_IDLE_DAYS": "Expires after {days} days unused"
+      },
+      "expiresAt": "expires if not opened by {date}",
+      "onePhone": "Works only on the first phone that opens it, and only for this order.",
+      "whatsapp": "Send to the driver by WhatsApp",
+      "readyTitle": "Driver link ready",
+      "readyDescription": "Send the link to the driver. They open it and work this trip, with no sign-in.",
+      "send": "Send link",
+      "resend": "Send a new link",
+      "sendDescription": "Make the driver's link for this trip.",
+      "resendDescription": "A new link is made and the old one stops working at once.",
+      "status": "Driver link",
+      "statusValue": {
+        "NONE": "Not sent",
+        "NOT_OPENED": "Waiting for the driver",
+        "ACTIVE": "In use",
+        "EXPIRED": "Expired",
+        "CLOSED": "Closed"
+      },
+      "ruleOption": {
+        "CLOSE_AFTER_WEIGHING": "Close when the load is weighed",
+        "EXPIRE_AFTER_IDLE_DAYS": "Expire after days unused"
+      }
     }
   },
   "ticket": {
@@ -14774,7 +14759,6 @@
   },
   "vehicles": {
     "count": "{count, plural, =0 {No vehicles} one {# vehicle} other {# vehicles}}",
-    "createTitle": "Add a vehicle",
     "editTitle": "Edit vehicle",
     "field": {
       "brand": "Brand",
@@ -14801,7 +14785,6 @@
       "vehicleType": "Type",
       "workStatus": "Work status"
     },
-    "new": "Add vehicle",
     "noTare": "Not weighed empty",
     "remove": {
       "confirm": "Remove",
@@ -14829,7 +14812,6 @@
     },
     "title": "Vehicles",
     "toast": {
-      "created": "Vehicle added",
       "removed": "Vehicle removed",
       "tareSet": "Tare weight recorded",
       "updated": "Vehicle updated"
@@ -16260,21 +16242,21 @@
     "cleaned": "Cleared {count} cached photos (about {mb} MB)",
     "cleanFailed": "The clean-up did not finish. Please try again."
   },
-  "driverLink": {
-    "signingIn": "Signing in…",
-    "thisPhone": "This phone",
+  "driverTaskLink": {
+    "order": "Collection",
     "chatTitle": "Open this in your browser",
     "chatBody": "You are opening the link inside {app}. The link stays with the first place it is opened, so Chrome or Safari would later count as another phone. Copy the link and open it in your browser.",
     "copyLink": "Copy link",
-    "copied": "Copied",
     "continueHere": "Open here anyway",
-    "closedTitle": "This link has closed",
-    "closedBody": "This sign-in link has closed or expired. Ask the office to send a new one.",
+    "closedTitle": "This trip is finished and its link is closed",
+    "closedBody": "This order has been weighed or cancelled. There is nothing more to do.",
+    "expiredTitle": "This link no longer works",
+    "expiredBody": "Ask the recycler to send it again.",
+    "invalidTitle": "This link no longer works",
+    "invalidBody": "Ask the recycler to send it again, or check the whole link was copied.",
     "otherDeviceTitle": "This link is in use on another phone",
-    "otherDeviceBody": "A sign-in link works only on the first phone that opens it. Ask the office to send a new one.",
-    "invalidTitle": "This link is not valid",
-    "invalidBody": "Check that the whole link was copied, or ask the office to send a new one.",
-    "failedTitle": "Cannot sign in right now",
+    "otherDeviceBody": "The link works only on the first phone that opened it. Ask the recycler to send it again.",
+    "failedTitle": "Cannot open right now",
     "failedBody": "Check your connection and try again."
   }
 }

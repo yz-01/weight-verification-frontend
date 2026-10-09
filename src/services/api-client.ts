@@ -54,7 +54,6 @@ const AUTH_ENDPOINTS = [
   "/api/field-access/field_login/",
   "/api/field-access/activate/",
   "/api/field-access/pwa_bootstrap/",
-  "/api/driver-link/sign_in/",
 ];
 
 const isCredentialExchange = (path: string) =>
@@ -95,16 +94,6 @@ function buildUrl(path: string, query?: ListQuery): string {
 let refreshInFlight: Promise<boolean> | null = null;
 
 /**
- * Set when the refusal was a driver's sign-in link that has closed.
- *
- * Such a session does not "expire" in the ordinary sense - the load was
- * weighed, or the office sent a new link - and there is no password to sign
- * back in with, so the driver is shown the screen that says to ask for a new
- * link instead of a login form they cannot use.
- */
-let driverLinkClosed = false;
-
-/**
  * How long renewing the session may take before it counts as no answer.
  *
  * The access token lasts 30 minutes, so a delivery typed in over a longer
@@ -127,17 +116,13 @@ async function refreshAccessToken(): Promise<boolean> {
       signal: controller.signal,
     });
 
-    const envelope = (await response.json().catch(() => null)) as ApiEnvelope<{
+    if (!response.ok) return false;
+
+    const envelope = (await response.json()) as ApiEnvelope<{
       access: string;
       refresh: string;
-    }> | null;
-    if (!response.ok || !envelope?.success) {
-      driverLinkClosed =
-        envelope !== null &&
-        !envelope.success &&
-        envelope.code === "driver_link_closed";
-      return false;
-    }
+    }>;
+    if (!envelope.success) return false;
 
     setTokens(envelope.data);
     return true;
@@ -160,20 +145,9 @@ function ensureRefresh(): Promise<boolean> {
   return refreshInFlight;
 }
 
-/** Where a driver's sign-in link opens, and where a closed one is explained. */
-const DRIVER_LINK_PATH = "/scrap/driver-link";
-
 function endSession(): void {
   const portal = getSessionPortal();
   clearTokens();
-  if (driverLinkClosed && isDriverSessionContext()) {
-    // Its own screen says what happened; a "session expired" toast over it
-    // would say something else.
-    if (typeof window !== "undefined" && window.location.pathname !== DRIVER_LINK_PATH) {
-      window.location.href = `${DRIVER_LINK_PATH}?closed=1`;
-    }
-    return;
-  }
   const loginPath = isFieldSessionContext()
     ? "/trace/field-login"
     : isDriverSessionContext()

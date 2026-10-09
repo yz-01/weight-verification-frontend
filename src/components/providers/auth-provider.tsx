@@ -83,9 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     "/trace/field-login",
     "/trace/field-ready",
     "/field-pwa-bootstrap",
-    // A driver opening a sign-in link: whatever session the browser holds is
-    // about to be replaced, so there is nothing to ask the server about it.
-    "/scrap/driver-link",
   ].includes(pathname);
   // Field Staff uses an isolated device session. Checking the standard
   // account token here makes a deep-linked supplier QR open the PIN page even

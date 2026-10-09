@@ -1,9 +1,10 @@
 /**
- * Driver sign-in links: the pieces that are pure enough to test.
+ * The driver's link for one trip: the pieces pure enough to test.
  *
- * The client asked that a recycler's driver need no email: the office sends a
- * link, like field staff get, but with no PIN, and the link ends either after
- * the load is weighed or after N idle days (「比较 flexible」).
+ * Drivers have no login. The office types who is driving in 接单与派车 and
+ * sends the trip's link; the driver works that one order from it, no PIN.
+ * The link closes with the trip (weighed, cancelled), or after N idle days
+ * when the office chose that rule (「比较 flexible」).
  */
 
 export type DriverLinkCloseRule = "CLOSE_AFTER_WEIGHING" | "EXPIRE_AFTER_IDLE_DAYS";
@@ -13,53 +14,32 @@ export const DRIVER_LINK_CLOSE_RULES: DriverLinkCloseRule[] = [
   "EXPIRE_AFTER_IDLE_DAYS",
 ];
 
-export type DriverLinkStatus = "NOT_OPENED" | "ACTIVE" | "EXPIRED" | "CLOSED";
+export type DriverLinkStatus = "NONE" | "NOT_OPENED" | "ACTIVE" | "EXPIRED" | "CLOSED";
 
-/** Where the phone ends up after trying a link. */
-export type DriverLinkOutcome = "closed" | "otherDevice" | "invalid" | "failed";
+/** Which screen a refused link shows, from the backend's error code. */
+export type DriverLinkOutcome = "closed" | "expired" | "otherDevice" | "invalid" | "failed";
 
-/** The token from the address bar, or "" when it cannot be one. */
+export function driverLinkOutcome(code: string | null | undefined): DriverLinkOutcome {
+  if (code === "driver_link_closed") return "closed";
+  if (code === "driver_link_expired") return "expired";
+  if (code === "driver_link_other_device") return "otherDevice";
+  if (code === "driver_link_invalid") return "invalid";
+  return "failed";
+}
+
+/** The token as it can appear in the address, or "" when it cannot be one. */
 export function driverLinkToken(value: string | null | undefined): string {
   return typeof value === "string" && /^[A-Za-z0-9_-]{20,200}$/.test(value)
     ? value
     : "";
 }
 
-/** Which screen a refused sign-in shows, from the backend's error code. */
-export function driverLinkOutcome(code: string | null | undefined): DriverLinkOutcome {
-  if (code === "driver_link_closed") return "closed";
-  if (code === "driver_link_other_device") return "otherDevice";
-  if (code === "driver_link_invalid" || code === "validation_failed") return "invalid";
-  return "failed";
-}
-
-/**
- * Whether a token was issued from a sign-in link.
- *
- * Read off the token itself because the account looks like any other driver's;
- * only the session knows it came from a link.
- */
-export function isDriverLinkToken(token: string | null | undefined): boolean {
-  if (!token) return false;
-  try {
-    const payload = token.split(".")[1];
-    if (!payload) return false;
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const decoded = JSON.parse(
-      atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")),
-    ) as { session_kind?: string; driver_link?: string };
-    return decoded.session_kind === "DRIVER_LINK" && Boolean(decoded.driver_link);
-  } catch {
-    return false;
-  }
-}
-
 /**
  * A wa.me address that opens a chat with the driver, message filled in.
  *
- * Malaysian mobiles are written 012-345 6789 on the form; wa.me wants the
- * country code and digits only. A number that does not look Malaysian still
- * gets the message, with the office choosing the chat themselves.
+ * Malaysian mobiles are typed 012-345 6789; wa.me wants the country code and
+ * digits only. A number that does not look Malaysian still gets the message,
+ * with the office choosing the chat themselves.
  */
 export function whatsappShareUrl(phone: string, message: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -78,4 +58,21 @@ export function parseIdleDays(value: string): number | null {
   if (!/^\d+$/.test(value.trim())) return null;
   const days = Number(value);
   return days >= 1 && days <= 365 ? days : null;
+}
+
+/** A plate as the weighbridge compares it: upper case, no spaces or dashes. */
+export function plateKey(value: string): string {
+  return value.toUpperCase().replace(/[\s-]+/g, "");
+}
+
+/** A known driver whose name was typed exactly (ignoring case and spaces). */
+export function matchDriverByName<T extends { full_name: string }>(
+  drivers: T[],
+  name: string,
+): T | undefined {
+  const wanted = name.trim().replace(/\s+/g, " ").toLowerCase();
+  if (!wanted) return undefined;
+  return drivers.find(
+    (driver) => driver.full_name.trim().replace(/\s+/g, " ").toLowerCase() === wanted,
+  );
 }

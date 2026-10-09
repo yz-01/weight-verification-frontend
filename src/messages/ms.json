@@ -7122,13 +7122,9 @@
   "drivers": {
     "vehicleRequiredHelp": "Pemandu tanpa lori tetap ditunjukkan sedia pada senarai, tetapi setiap perjalanan bermula dengan memilih lori dari awal.",
     "vehicleRequired": "Pilih sebuah lori",
-    "accountRequiredHelp": "E-mel tidak wajib: simpan, kemudian hantar pautan log masuk dan pemandu buka untuk masuk. Untuk log masuk dengan e-mel dan kata laluan, pilih akaun atau isi e-mel dan kata laluan.",
     "count": "{count, plural, =0 {Tiada pemandu} other {# pemandu}}",
-    "createTitle": "Tambah pemandu",
     "editTitle": "Sunting pemandu",
     "field": {
-      "account": "Akaun log masuk pemandu",
-      "accountHint": "Satu akaun untuk satu pemandu sahaja. Untuk menukar akaun, pilih yang baharu di sini.",
       "choosePhoto": "Pilih foto",
       "createdAt": "Ditambah",
       "currentTask": "Tugasan semasa",
@@ -7140,15 +7136,12 @@
       "emergencyContactExample": "Nama / nombor telefon",
       "fullName": "Nama",
       "icNo": "No. IC",
-      "initialPassword": "Kata laluan awal",
       "isActive": "Aktif",
       "isActiveHelp": "Pemandu aktif boleh ditugaskan.",
       "lastPosition": "Kemas kini GPS terakhir",
       "licenceExpires": "Lesen tamat",
       "licenceNo": "No. lesen",
       "licencePhoto": "Foto lesen",
-      "loginIdleExpiryDays": "Log masuk semula selepas tidak aktif (hari)",
-      "newAccountEmail": "Atau cipta akaun dengan e-mel",
       "notes": "Nota",
       "onLeave": "Cuti",
       "onLeaveHelp": "Pemandu bercuti tidak boleh ditugaskan.",
@@ -7156,7 +7149,6 @@
       "workStatus": "Status kerja"
     },
     "licenceExpired": "Lesen tamat tempoh",
-    "new": "Tambah pemandu",
     "offline": "Luar talian",
     "online": "Dalam talian",
     "remove": {
@@ -7165,7 +7157,6 @@
       "title": "Buang {name}?"
     },
     "section": {
-      "account": "Akaun aplikasi pemandu",
       "availability": "Status kerja",
       "identity": "Maklumat asas",
       "licence": "Lesen"
@@ -7187,64 +7178,12 @@
     },
     "title": "Pemandu",
     "toast": {
-      "created": "Pemandu ditambah",
       "removed": "Pemandu dibuang",
       "updated": "Pemandu dikemas kini"
     },
     "what": {
       "vehicles": "Senarai kenderaan",
-      "accounts": "Senarai akaun pemandu",
       "summary": "Kiraan pemandu"
-    },
-    "loginLink": {
-      "section": "Pautan log masuk",
-      "send": "Hantar pautan log masuk",
-      "resend": "Hantar pautan baharu",
-      "revoke": "Tutup pautan",
-      "revokeTitle": "Tutup pautan log masuk ini?",
-      "revokeDescription": "Telefon pemandu yang log masuk dengan pautan ini akan dilog keluar serta-merta. Pautan baharu boleh dihantar bila-bila masa.",
-      "title": "Hantar pautan log masuk kepada {name}",
-      "description": "Pemandu buka pautan dan terus masuk. Tiada e-mel, kata laluan atau PIN.",
-      "ruleLabel": "Bila pautan tamat",
-      "companyDefault": "Tetapan syarikat",
-      "idleDays": "Hari",
-      "idleDaysHint": "1 hingga 365 hari. Setiap kali digunakan, kiraan bermula semula.",
-      "ruleHelp": "Pautan hanya berfungsi pada telefon pertama yang membukanya. Menghantar pautan baharu menutup pautan lama.",
-      "replacesOld": "Pemandu ini sudah ada pautan log masuk. Menghantar pautan baharu menutup pautan lama serta-merta.",
-      "resultTitle": "Pautan log masuk sedia",
-      "resultDescription": "Salin pautan atau hantar melalui WhatsApp. Pautan hanya ditunjukkan sekali ini.",
-      "link": "Pautan log masuk",
-      "copyLink": "Salin pautan",
-      "qrTitle": "Kod QR log masuk pemandu",
-      "whatsapp": "Hantar melalui WhatsApp",
-      "shareMessage": "{name}, ini pautan log masuk pemandu anda. Tekan untuk buka tugasan anda: {url}",
-      "onePhone": "Hanya berfungsi pada telefon pertama yang membukanya.",
-      "expiresAt": "Tamat jika tidak dibuka sebelum {date}",
-      "rule": {
-        "CLOSE_AFTER_WEIGHING": "Ditutup selepas muatan ditimbang",
-        "EXPIRE_AFTER_IDLE_DAYS": "Tamat selepas {days} hari tidak digunakan"
-      },
-      "status": {
-        "NONE": "Belum dihantar",
-        "NOT_OPENED": "Menunggu pemandu",
-        "ACTIVE": "Sedang digunakan",
-        "EXPIRED": "Tamat tempoh",
-        "CLOSED": "Ditutup"
-      },
-      "sentAt": "Dihantar",
-      "openedAt": "Pertama dibuka",
-      "lastUsedAt": "Terakhir digunakan",
-      "expiresAtLabel": "Tamat",
-      "noneLinkOnly": "Pemandu ini tiada e-mel atau kata laluan. Hantar pautan log masuk supaya mereka boleh guna halaman pemandu.",
-      "noneHasPassword": "Pemandu ini boleh log masuk dengan e-mel dan kata laluan, atau anda boleh hantar pautan log masuk.",
-      "linkAccount": "log masuk melalui pautan",
-      "toast": {
-        "revoked": "Pautan log masuk ditutup"
-      },
-      "ruleOption": {
-        "CLOSE_AFTER_WEIGHING": "Tutup selepas muatan ditimbang",
-        "EXPIRE_AFTER_IDLE_DAYS": "Tamat selepas beberapa hari tidak dibuka"
-      }
     }
   },
   "email": {
@@ -7490,9 +7429,11 @@
       "original_not_expected": "Pelayan belum ada foto yang menunggu foto asal ini. Biar rekod selesai dimuat naik dahulu.",
       "original_hash_mismatch": "Foto asal rosak semasa dihantar dan tidak sama dengan yang di telefon, jadi tiada apa disimpan. Tekan 'Segerak foto asal' sekali lagi.",
       "original_not_found": "Foto ini tiada foto asal yang telah disandarkan.",
-      "driver_link_invalid": "Pautan log masuk ini tidak sah. Pastikan seluruh pautan disalin, atau minta pejabat hantar yang baharu.",
-      "driver_link_closed": "Pautan ini sudah ditutup. Minta pejabat hantar pautan baharu.",
-      "driver_link_other_device": "Pautan ini sudah digunakan pada telefon lain. Minta pejabat hantar pautan baharu."
+      "driver_link_invalid": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
+      "driver_link_closed": "Perjalanan ini selesai dan pautannya ditutup.",
+      "driver_link_other_device": "Pautan ini digunakan pada telefon lain. Minta pengitar semula hantar semula.",
+      "driver_link_expired": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
+      "driver_login_retired": "Pemandu tidak perlu log masuk lagi. Buka pautan perjalanan yang dihantar oleh pengitar semula."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8713,7 +8654,6 @@
       "collectionDateTo": "Tarikh kutipan hingga"
     },
     "order": {
-      "goToDispatch": "Buka perjalanan itu",
       "dispatchElsewhere": "Muatan ini sudah berada dalam perjalanan lain",
       "acceptAndAssign": "Terima dan tugaskan pemandu",
       "acceptOnly": "Terima dahulu",
@@ -8729,7 +8669,8 @@
       "proposeTime": "Tukar masa pungutan",
       "autoAccepted": "Pesanan ini diterima sebaik tapak menghantarnya. Tiada apa untuk diterima.",
       "wantedAt": "Tapak mahu ia dipungut",
-      "arrangeCollection": "Aturkan kutipan"
+      "arrangeCollection": "Aturkan kutipan",
+      "alreadyAssigned": "Lori sudah ditugaskan"
     },
     "subtitle": "Sisa dalam perjalanan ke tapak anda.",
     "summary": {
@@ -12165,13 +12106,13 @@
       "saved": "Tetapan kitar semula disimpan"
     },
     "driverLink": {
-      "title": "Pautan log masuk pemandu",
-      "help": "Bila pautan log masuk yang dihantar kepada pemandu tamat secara lalai. Pejabat boleh pilih lain semasa menghantar.",
+      "title": "Pautan perjalanan pemandu",
+      "help": "Bila pautan yang pemandu terima dengan setiap perjalanan tamat secara lalai. Ia sentiasa ditutup apabila perjalanan tamat; pejabat boleh pilih lain semasa menugaskan.",
       "rule": "Peraturan lalai",
       "idleDays": "Hari tidak digunakan sebelum tamat",
       "idleDaysHint": "1 hingga 365 hari, 7 secara lalai. Hanya untuk \"Tamat selepas beberapa hari tidak dibuka\".",
       "ruleOption": {
-        "CLOSE_AFTER_WEIGHING": "Tutup selepas muatan ditimbang",
+        "CLOSE_AFTER_WEIGHING": "Tutup apabila muatan ditimbang",
         "EXPIRE_AFTER_IDLE_DAYS": "Tamat selepas beberapa hari tidak dibuka"
       }
     }
@@ -14453,7 +14394,6 @@
     "count": "{count, plural, =0 {Tiada perjalanan} other {# perjalanan}}",
     "createTitle": "Tugaskan perjalanan",
     "editTitle": "Tugaskan semula",
-    "everyDriverBusyNote": "Semua pemandu sedang keluar. Tunggu satu perjalanan selesai ditimbang, atau tambah pemandu lain di bawah Pemandu.",
     "failNote": "Nyatakan apa yang berlaku. Seseorang perlu mengejarnya dan mereka perlu tahu apa.",
     "field": {
       "acceptedAt": "Diterima",
@@ -14484,7 +14424,6 @@
     "new": "Tugaskan perjalanan",
     "noDispatch": "Tiada muatan dilampirkan",
     "noPhotos": "Pemandu belum menghantar sebarang foto.",
-    "oneTripPerDriverNote": "Seorang pemandu menjalankan satu perjalanan pada satu masa. Perjalanan hanya tamat selepas penimbangan selesai, jadi pemandu yang menunggu di tapak belum lagi bebas.",
     "reassign": "Tugas semula",
     "reassignNote": "Hanya sebelum pemandu menerima. Selepas itu, senarai tugas ialah rekod siapa yang benar-benar pergi.",
     "section": {
@@ -14522,11 +14461,57 @@
     },
     "viewTitle": "Perjalanan",
     "what": {
-      "drivers": "Senarai pemandu",
       "loads": "Muatan yang menunggu kutipan",
       "sites": "Senarai tapak",
-      "summary": "Jumlah perjalanan hari ini",
-      "vehicles": "Senarai kenderaan"
+      "summary": "Jumlah perjalanan hari ini"
+    },
+    "crew": {
+      "title": "Hantar lori",
+      "driverName": "Nama pemandu",
+      "driverPhone": "Telefon pemandu",
+      "driverPhoneHint": "Pautan dihantar ke nombor ini melalui WhatsApp.",
+      "vehiclePlate": "Nombor plat",
+      "newPlateHint": "Plat baharu. Ia disimpan selepas anda simpan.",
+      "whatDrivers": "Pemandu terkini",
+      "whatPlates": "Plat terkini",
+      "assign": "Tugaskan dan buat pautan",
+      "incomplete": "Isi nama pemandu, telefon dan nombor plat"
+    },
+    "link": {
+      "ruleLabel": "Bila pautan tamat",
+      "companyDefault": "Tetapan syarikat",
+      "idleDays": "Hari",
+      "idleDaysHint": "1 hingga 365 hari. Setiap penggunaan memulakan kiraan semula. Pautan juga ditutup apabila perjalanan tamat.",
+      "shareMessage": "MSE Trace kutipan {order}: {url}",
+      "qrTitle": "Kod QR pautan perjalanan pemandu",
+      "order": "Nombor pesanan",
+      "link": "Pautan pemandu",
+      "copy": "Salin pautan",
+      "rule": {
+        "CLOSE_AFTER_WEIGHING": "Ditutup apabila muatan ditimbang",
+        "EXPIRE_AFTER_IDLE_DAYS": "Tamat selepas {days} hari tidak digunakan"
+      },
+      "expiresAt": "tamat jika tidak dibuka sebelum {date}",
+      "onePhone": "Hanya berfungsi pada telefon pertama yang membukanya, dan hanya untuk pesanan ini.",
+      "whatsapp": "Hantar kepada pemandu melalui WhatsApp",
+      "readyTitle": "Pautan pemandu sedia",
+      "readyDescription": "Hantar pautan kepada pemandu. Mereka buka dan jalankan perjalanan ini tanpa log masuk.",
+      "send": "Hantar pautan",
+      "resend": "Hantar pautan baharu",
+      "sendDescription": "Buat pautan pemandu untuk perjalanan ini.",
+      "resendDescription": "Pautan baharu dibuat dan pautan lama berhenti serta-merta.",
+      "status": "Pautan pemandu",
+      "statusValue": {
+        "NONE": "Belum dihantar",
+        "NOT_OPENED": "Menunggu pemandu",
+        "ACTIVE": "Sedang digunakan",
+        "EXPIRED": "Tamat tempoh",
+        "CLOSED": "Ditutup"
+      },
+      "ruleOption": {
+        "CLOSE_AFTER_WEIGHING": "Tutup apabila muatan ditimbang",
+        "EXPIRE_AFTER_IDLE_DAYS": "Tamat selepas beberapa hari tidak dibuka"
+      }
     }
   },
   "ticket": {
@@ -14774,7 +14759,6 @@
   },
   "vehicles": {
     "count": "{count, plural, =0 {Tiada kenderaan} other {# kenderaan}}",
-    "createTitle": "Tambah kenderaan",
     "editTitle": "Sunting kenderaan",
     "field": {
       "brand": "Jenama",
@@ -14801,7 +14785,6 @@
       "vehicleType": "Jenis",
       "workStatus": "Status kerja"
     },
-    "new": "Tambah kenderaan",
     "noTare": "Belum ditimbang kosong",
     "remove": {
       "confirm": "Buang",
@@ -14829,7 +14812,6 @@
     },
     "title": "Kenderaan",
     "toast": {
-      "created": "Kenderaan ditambah",
       "removed": "Kenderaan dibuang",
       "tareSet": "Berat tara direkod",
       "updated": "Kenderaan dikemas kini"
@@ -16260,21 +16242,21 @@
     "cleaned": "{count} foto cache dibersihkan (kira-kira {mb} MB)",
     "cleanFailed": "Pembersihan tidak selesai. Sila cuba lagi."
   },
-  "driverLink": {
-    "signingIn": "Sedang log masuk…",
-    "thisPhone": "Telefon ini",
+  "driverTaskLink": {
+    "order": "Kutipan",
     "chatTitle": "Buka dalam pelayar anda",
     "chatBody": "Anda membuka pautan dalam {app}. Pautan kekal dengan tempat pertama ia dibuka, jadi Chrome atau Safari kemudian dikira sebagai telefon lain. Salin pautan dan buka dalam pelayar.",
     "copyLink": "Salin pautan",
-    "copied": "Disalin",
     "continueHere": "Buka di sini juga",
-    "closedTitle": "Pautan sudah ditutup",
-    "closedBody": "Pautan log masuk ini sudah ditutup atau tamat tempoh. Minta pejabat hantar pautan baharu.",
+    "closedTitle": "Perjalanan ini selesai dan pautannya ditutup",
+    "closedBody": "Pesanan ini sudah ditimbang atau dibatalkan. Tiada apa lagi perlu dibuat.",
+    "expiredTitle": "Pautan ini tidak berfungsi lagi",
+    "expiredBody": "Minta pengitar semula hantar semula.",
+    "invalidTitle": "Pautan ini tidak berfungsi lagi",
+    "invalidBody": "Minta pengitar semula hantar semula, atau pastikan seluruh pautan disalin.",
     "otherDeviceTitle": "Pautan sedang digunakan pada telefon lain",
-    "otherDeviceBody": "Pautan log masuk hanya berfungsi pada telefon pertama yang membukanya. Minta pejabat hantar pautan baharu.",
-    "invalidTitle": "Pautan tidak sah",
-    "invalidBody": "Pastikan seluruh pautan disalin, atau minta pejabat hantar pautan baharu.",
-    "failedTitle": "Tidak dapat log masuk sekarang",
+    "otherDeviceBody": "Pautan hanya berfungsi pada telefon pertama yang membukanya. Minta pengitar semula hantar semula.",
+    "failedTitle": "Tidak dapat dibuka sekarang",
     "failedBody": "Semak sambungan anda dan cuba lagi."
   }
 }

@@ -7122,13 +7122,9 @@
   "drivers": {
     "vehicleRequiredHelp": "沒有車的司機在名冊上照樣顯示可用，但每次派單都得從頭挑一台車。",
     "vehicleRequired": "請選一台車",
-    "accountRequiredHelp": "不填電郵也可以：儲存後發送登入連結，司機點開就能直接進入。要用電郵和密碼登入，就選一個帳號，或填寫電郵和密碼。",
     "count": "{count, plural, =0 {暫無司機} other {# 位}}",
-    "createTitle": "新增司機",
     "editTitle": "編輯司機",
     "field": {
-      "account": "司機登錄賬號",
-      "accountHint": "一個帳號只屬於一位司機。要換帳號，直接在這裡選新的。",
       "choosePhoto": "選擇照片",
       "createdAt": "添加時間",
       "currentTask": "當前任務",
@@ -7140,15 +7136,12 @@
       "emergencyContactExample": "姓名 / 電話號碼",
       "fullName": "姓名",
       "icNo": "身份證號",
-      "initialPassword": "初始密碼",
       "isActive": "啟用",
       "isActiveHelp": "啟用的司機可以被安排回收任務。",
       "lastPosition": "最後 GPS 更新時間",
       "licenceExpires": "駕照到期",
       "licenceNo": "駕照號",
       "licencePhoto": "駕照照片",
-      "loginIdleExpiryDays": "連續未使用後重新登入（天）",
-      "newAccountEmail": "或用電郵建立帳號",
       "notes": "備註",
       "onLeave": "請假",
       "onLeaveHelp": "請假中的司機不能被安排回收任務。",
@@ -7156,7 +7149,6 @@
       "workStatus": "工作狀態"
     },
     "licenceExpired": "駕照已過期",
-    "new": "新增司機",
     "offline": "離線",
     "online": "在線",
     "remove": {
@@ -7165,7 +7157,6 @@
       "title": "刪除 {name}？"
     },
     "section": {
-      "account": "司機應用程式帳號",
       "availability": "工作狀態",
       "identity": "基本信息",
       "licence": "駕照"
@@ -7187,64 +7178,12 @@
     },
     "title": "司機",
     "toast": {
-      "created": "司機已添加",
       "removed": "司機已刪除",
       "updated": "司機已更新"
     },
     "what": {
       "vehicles": "車輛列表",
-      "accounts": "司機帳號列表",
       "summary": "司機統計"
-    },
-    "loginLink": {
-      "section": "登入連結",
-      "send": "發送登入連結",
-      "resend": "重新發送連結",
-      "revoke": "關閉連結",
-      "revokeTitle": "關閉這個登入連結？",
-      "revokeDescription": "司機手機上用這個連結的登入會馬上失效。需要時可以重新發送。",
-      "title": "發送登入連結給 {name}",
-      "description": "司機點開連結就能直接進入，不用電郵、密碼或 PIN。",
-      "ruleLabel": "連結什麼時候失效",
-      "companyDefault": "按公司設定",
-      "idleDays": "天數",
-      "idleDaysHint": "1 到 365 天。每次使用會重新計算。",
-      "ruleHelp": "連結只能在第一部打開它的手機上使用。重新發送會讓舊連結失效。",
-      "replacesOld": "這位司機已有登入連結。發送新連結後，舊連結馬上失效。",
-      "resultTitle": "登入連結已產生",
-      "resultDescription": "複製連結或用 WhatsApp 發給司機。連結只顯示這一次。",
-      "link": "登入連結",
-      "copyLink": "複製連結",
-      "qrTitle": "司機登入二維碼",
-      "whatsapp": "用 WhatsApp 發送",
-      "shareMessage": "{name}，這是你的司機登入連結，點開就能進入：{url}",
-      "onePhone": "只能在第一部打開它的手機上使用。",
-      "expiresAt": "{date} 前沒打開就作廢",
-      "rule": {
-        "CLOSE_AFTER_WEIGHING": "過磅完成後自動關閉",
-        "EXPIRE_AFTER_IDLE_DAYS": "超過 {days} 天沒打開就作廢"
-      },
-      "status": {
-        "NONE": "未發送",
-        "NOT_OPENED": "等待司機打開",
-        "ACTIVE": "使用中",
-        "EXPIRED": "已過期",
-        "CLOSED": "已關閉"
-      },
-      "sentAt": "發送時間",
-      "openedAt": "首次打開",
-      "lastUsedAt": "最後使用",
-      "expiresAtLabel": "失效時間",
-      "noneLinkOnly": "這位司機沒有電郵和密碼，發送登入連結後才能用司機頁面。",
-      "noneHasPassword": "這位司機可以用電郵和密碼登入，也可以發送登入連結。",
-      "linkAccount": "用連結登入",
-      "toast": {
-        "revoked": "登入連結已關閉"
-      },
-      "ruleOption": {
-        "CLOSE_AFTER_WEIGHING": "過磅完成後自動關閉",
-        "EXPIRE_AFTER_IDLE_DAYS": "超過幾天沒打開就作廢"
-      }
     }
   },
   "email": {
@@ -7490,9 +7429,11 @@
       "original_not_expected": "伺服器上還沒有這張原圖對應的照片，請先讓記錄上傳完成。",
       "original_hash_mismatch": "原圖在傳送中出錯，和手機上的不一致，伺服器沒有保存。請再按一次「同步原圖」。",
       "original_not_found": "這張照片沒有已備份的原圖。",
-      "driver_link_invalid": "登入連結無效。請確認連結複製完整，或聯絡後台重新發送。",
-      "driver_link_closed": "連結已失效，請聯絡後台重新發送。",
-      "driver_link_other_device": "這個連結已在另一部手機上使用。請聯絡後台重新發送。"
+      "driver_link_invalid": "連結已失效，請聯絡回收商重新發送。",
+      "driver_link_closed": "這趟任務已結束，連結已關閉。",
+      "driver_link_other_device": "這個連結已在另一部手機上使用，請聯絡回收商重新發送。",
+      "driver_link_expired": "連結已失效，請聯絡回收商重新發送。",
+      "driver_login_retired": "司機不用登入了，請打開回收商發給你的任務連結。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8713,7 +8654,6 @@
       "collectionDateTo": "回收日期至"
     },
     "order": {
-      "goToDispatch": "打開那個行程",
       "dispatchElsewhere": "這一車已經排在別的行程裡了",
       "acceptAndAssign": "接單並派車",
       "acceptOnly": "先接單",
@@ -8729,7 +8669,8 @@
       "proposeTime": "改收運時間",
       "autoAccepted": "這張訂單在現場發出時就已接受，不需要再接受。",
       "wantedAt": "現場希望的收運時間",
-      "arrangeCollection": "安排收運"
+      "arrangeCollection": "安排收運",
+      "alreadyAssigned": "已派車"
     },
     "subtitle": "正在送往你回收場的廢料。",
     "summary": {
@@ -12165,8 +12106,8 @@
       "saved": "回收商設置已保存"
     },
     "driverLink": {
-      "title": "司機登入連結",
-      "help": "發給司機的登入連結預設什麼時候失效。發送時也可以單獨選擇。",
+      "title": "司機任務連結",
+      "help": "派車時給司機的連結預設什麼時候失效。任務結束時連結一定會關閉；派車時也可以單獨選擇。",
       "rule": "預設失效規則",
       "idleDays": "沒打開多少天後作廢",
       "idleDaysHint": "1 到 365 天，預設 7 天。只用於「超過幾天沒打開就作廢」。",
@@ -14453,7 +14394,6 @@
     "count": "{count, plural, =0 {暫無任務} other {# 趟}}",
     "createTitle": "派車",
     "editTitle": "改派",
-    "everyDriverBusyNote": "所有司機都在跑任務。請等其中一趟過磅完成，或到「司機」頁面新增司機。",
     "failNote": "請說明出了什麼事。總要有人去跟進，他得知道要跟進什麼。",
     "field": {
       "acceptedAt": "接單時間",
@@ -14484,7 +14424,6 @@
     "new": "派車",
     "noDispatch": "未掛貨單",
     "noPhotos": "司機還沒有傳照片。",
-    "oneTripPerDriverNote": "一位司機同一時間只能跑一趟。任務要等過磅完成才會結束，所以在回收場等過磅的司機還不算有空。",
     "reassign": "改派",
     "reassignNote": "只能在司機接單前改派。接單之後，派工記錄就是「誰真的去了」的憑據。",
     "section": {
@@ -14522,11 +14461,57 @@
     },
     "viewTitle": "出車任務",
     "what": {
-      "drivers": "司機列表",
       "loads": "等待收運的貨物",
       "sites": "回收場列表",
-      "summary": "今日行程統計",
-      "vehicles": "車輛列表"
+      "summary": "今日行程統計"
+    },
+    "crew": {
+      "title": "派車",
+      "driverName": "司機姓名",
+      "driverPhone": "司機電話",
+      "driverPhoneHint": "連結會用 WhatsApp 發到這個號碼。",
+      "vehiclePlate": "車牌",
+      "newPlateHint": "新車牌，儲存後會記下來。",
+      "whatDrivers": "常用司機",
+      "whatPlates": "常用車牌",
+      "assign": "派車並產生連結",
+      "incomplete": "請填寫司機姓名、電話和車牌"
+    },
+    "link": {
+      "ruleLabel": "連結什麼時候失效",
+      "companyDefault": "按公司設定",
+      "idleDays": "天數",
+      "idleDaysHint": "1 到 365 天。每次使用會重新計算。任務結束時連結也會關閉。",
+      "shareMessage": "MSE Trace 回收任務 {order}：{url}",
+      "qrTitle": "司機任務連結二維碼",
+      "order": "訂單編號",
+      "link": "司機連結",
+      "copy": "複製連結",
+      "rule": {
+        "CLOSE_AFTER_WEIGHING": "過磅完成後自動關閉",
+        "EXPIRE_AFTER_IDLE_DAYS": "超過 {days} 天沒打開就作廢"
+      },
+      "expiresAt": "{date} 前沒打開就作廢",
+      "onePhone": "只能在第一部打開它的手機上使用，只能打開這一張訂單。",
+      "whatsapp": "用 WhatsApp 發給司機",
+      "readyTitle": "司機連結已產生",
+      "readyDescription": "把連結發給司機。司機點開就能做這一趟任務，不用登入。",
+      "send": "發送連結",
+      "resend": "重新發送連結",
+      "sendDescription": "產生這一趟任務的司機連結。",
+      "resendDescription": "會產生新連結，舊連結馬上失效。",
+      "status": "司機連結",
+      "statusValue": {
+        "NONE": "未發送",
+        "NOT_OPENED": "等待司機打開",
+        "ACTIVE": "使用中",
+        "EXPIRED": "已過期",
+        "CLOSED": "已關閉"
+      },
+      "ruleOption": {
+        "CLOSE_AFTER_WEIGHING": "過磅完成後自動關閉",
+        "EXPIRE_AFTER_IDLE_DAYS": "超過幾天沒打開就作廢"
+      }
     }
   },
   "ticket": {
@@ -14774,7 +14759,6 @@
   },
   "vehicles": {
     "count": "{count, plural, =0 {暫無車輛} other {# 輛}}",
-    "createTitle": "新增車輛",
     "editTitle": "編輯車輛",
     "field": {
       "brand": "品牌",
@@ -14801,7 +14785,6 @@
       "vehicleType": "車型",
       "workStatus": "車輛狀態"
     },
-    "new": "新增車輛",
     "noTare": "未量過空車",
     "remove": {
       "confirm": "刪除",
@@ -14829,7 +14812,6 @@
     },
     "title": "車輛",
     "toast": {
-      "created": "車輛已添加",
       "removed": "車輛已刪除",
       "tareSet": "皮重已錄入",
       "updated": "車輛已更新"
@@ -16260,21 +16242,21 @@
     "cleaned": "已清理快取照片 {count} 張（約 {mb} MB）",
     "cleanFailed": "沒有清理成功，請再試一次"
   },
-  "driverLink": {
-    "signingIn": "正在登入…",
-    "thisPhone": "這部手機",
+  "driverTaskLink": {
+    "order": "回收任務",
     "chatTitle": "建議用瀏覽器打開",
     "chatBody": "你正在 {app} 裡打開連結。連結會綁定第一次打開它的地方，之後用 Chrome 或 Safari 打開會被當成另一部手機。請複製連結，到瀏覽器打開。",
     "copyLink": "複製連結",
-    "copied": "已複製",
     "continueHere": "仍在這裡打開",
-    "closedTitle": "連結已失效",
-    "closedBody": "這個登入連結已關閉或過期。請聯絡後台重新發送。",
+    "closedTitle": "這趟任務已結束，連結已關閉",
+    "closedBody": "這張訂單已經過磅或已取消，不用再操作。",
+    "expiredTitle": "連結已失效",
+    "expiredBody": "請聯絡回收商重新發送。",
+    "invalidTitle": "連結已失效",
+    "invalidBody": "請聯絡回收商重新發送，或確認連結複製完整。",
     "otherDeviceTitle": "連結已在另一部手機上使用",
-    "otherDeviceBody": "登入連結只能在第一部打開它的手機上使用。請聯絡後台重新發送。",
-    "invalidTitle": "連結無效",
-    "invalidBody": "請確認連結複製完整，或聯絡後台重新發送。",
-    "failedTitle": "暫時無法登入",
+    "otherDeviceBody": "這個連結只能在第一部打開它的手機上使用。請聯絡回收商重新發送。",
+    "failedTitle": "暫時打不開",
     "failedBody": "請檢查網路後重試。"
   }
 }
