@@ -10319,6 +10319,12 @@
     "what": {
       "counts": "未完成数量",
       "pushConfig": "手机提醒设置"
+    },
+    "sound": {
+      "blockedHint": "浏览器暂未允许提示音，点击即可开启",
+      "enable": "开启提示音",
+      "mute": "关闭新通知提示音",
+      "unmute": "开启新通知提示音"
     }
   },
   "offline": {

@@ -10319,6 +10319,12 @@
     "what": {
       "counts": "Bilangan belum selesai",
       "pushConfig": "Tetapan amaran telefon"
+    },
+    "sound": {
+      "blockedHint": "Pelayar anda menyekat bunyi amaran. Klik untuk menghidupkannya.",
+      "enable": "Hidupkan bunyi",
+      "mute": "Senyapkan bunyi amaran",
+      "unmute": "Hidupkan semula bunyi amaran"
     }
   },
   "offline": {

@@ -10319,6 +10319,12 @@
     "what": {
       "counts": "The outstanding counts",
       "pushConfig": "The phone alert settings"
+    },
+    "sound": {
+      "blockedHint": "Your browser has kept the alert sound off. Click to turn it on.",
+      "enable": "Turn on sound",
+      "mute": "Mute the alert sound",
+      "unmute": "Turn the alert sound back on"
     }
   },
   "offline": {
