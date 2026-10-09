@@ -5803,6 +5803,7 @@
       "viewDetail": "查看详情",
       "returnProcessing": "实际退场（双方签名）",
       "exitWaitingUpload": "这次实际退场已经保存在手机上，有网络时会自动上传，不用重做。可在「我提交过的」查看。",
+      "exitUploading": "正在上传 {photos} 张照片和双方签名，请稍候，不要关闭这个窗口。",
       "waitingForSite": "已批准 / 等待退场：等待现场实际退场并双方签名。",
       "finalConfirm": "确认退场完成",
       "waitingForOffice": "现场已退场，待后台确认。",

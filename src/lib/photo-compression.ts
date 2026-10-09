@@ -189,9 +189,33 @@ export function canvasJpeg(canvas: HTMLCanvasElement, quality: number): Promise<
  */
 export const COMPRESS_TIMEOUT_MS = 10_000;
 
+/**
+ * Photos made at upload size where they were taken.
+ *
+ * The in-app camera draws its frame at the long-edge cap and encodes it with
+ * `encodeWithinTarget` (`field-camera`), so its photo is already what this
+ * module would make. Every capture screen still sends each photo through
+ * `compressPhoto` when 提交 is pressed - which decoded the whole photo again
+ * only to find it fitted, once per photo, on the phone at the gate (材料出场 ·
+ * 实际退场, 2026-10-09). Kept by object: a photo restored from a draft or
+ * the offline queue is a new object and is checked as before.
+ */
+const atUploadSize = new WeakSet<Blob>();
+
+/** Note that `file` is already at upload size; returns it. */
+export function markAtUploadSize<T extends Blob>(file: T): T {
+  atUploadSize.add(file);
+  return file;
+}
+
+/** Whether `file` was marked by `markAtUploadSize`. */
+export function isAtUploadSize(file: Blob): boolean {
+  return atUploadSize.has(file);
+}
+
 /** The photo at upload size, or the original when it cannot, need not, or does not in time change. */
 export async function compressPhoto(file: File, timeoutMs: number = COMPRESS_TIMEOUT_MS): Promise<File> {
-  if (!COMPRESSIBLE.test(file.type)) return file;
+  if (!COMPRESSIBLE.test(file.type) || atUploadSize.has(file)) return file;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const outOfTime = new Promise<File>((settle) => {
     timer = setTimeout(() => settle(file), timeoutMs);

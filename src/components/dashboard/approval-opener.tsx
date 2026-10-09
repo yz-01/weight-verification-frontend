@@ -13,7 +13,6 @@ import {
   OutgoingActions,
   OutgoingDetailDialog,
   RejectOutgoingDialog,
-  ReturnProcessingDialog,
 } from "@/components/contractor-ops/operations-workspaces";
 import { ReviewDisposalDialog } from "@/components/contractor-ops/site-disposal-workspaces";
 import { WasteOutgoingReviewDialog } from "@/components/contractor-ops/waste-outgoing-workspace";
@@ -233,7 +232,8 @@ function WasteOutgoingDecision({ id, onDone }: { id: string; onDone: () => void 
 export function OutgoingDecision({ id, onClose }: { id: string; onClose: () => void }) {
   const queryClient = useQueryClient();
   const [rejecting, setRejecting] = useState<MaterialOutgoing | null>(null);
-  const [returning, setReturning] = useState<MaterialOutgoing | null>(null);
+  // No 实际退场 here: the office console never records the exit
+  // (2026-10-09, `lib/outgoing-exit`).
   const review = useMutation({
     mutationFn: ({ rowId, status, note }: { rowId: string; status: MaterialOutgoing["status"]; note?: string }) =>
       reviewMaterialOutgoing(rowId, status, note),
@@ -257,7 +257,6 @@ export function OutgoingDecision({ id, onClose }: { id: string; onClose: () => v
                 ? setRejecting(current)
                 : review.mutate({ rowId: current.id, status, note: "" })
             }
-            onReturn={() => setReturning(current)}
           />
         )}
       />
@@ -269,16 +268,6 @@ export function OutgoingDecision({ id, onClose }: { id: string; onClose: () => v
           onConfirm={(note) => {
             review.mutate({ rowId: rejecting.id, status: "REJECTED", note });
             setRejecting(null);
-          }}
-        />
-      )}
-      {returning && (
-        <ReturnProcessingDialog
-          row={returning}
-          onClose={() => setReturning(null)}
-          onSaved={() => {
-            setReturning(null);
-            onClose();
           }}
         />
       )}
