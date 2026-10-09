@@ -18,7 +18,7 @@
  */
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ExternalLink, Loader2, Printer, Share2, Undo2 } from "lucide-react";
+import { ExternalLink, Loader2, PackageMinus, Printer, Share2, Undo2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -29,6 +29,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ExportButton } from "@/components/shared/export-button";
 import { FilePreviewDialog } from "@/components/shared/file-preview";
+import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -331,18 +332,24 @@ export function SupplierReturnsTable({ rows }: { rows: readonly MaterialOutgoing
   );
 }
 
-function Thumb({ src, alt, label }: { src?: string | null; alt: string; label?: string }) {
+/**
+ * A signature as it was signed: dark ink on white, whole (not cropped), with
+ * whose it is under it. The photo style (dark hatching, cover crop) made
+ * signatures unreadable on the dark theme.
+ */
+function Signature({ src, label }: { src?: string | null; label: string }) {
   if (!src) return null;
   return (
-    <a href={src} target="_blank" rel="noreferrer" className="block shrink-0" title={label ?? alt}>
+    <a href={src} target="_blank" rel="noreferrer" className="flex w-20 shrink-0 flex-col items-center gap-0.5" title={label}>
       <Image
         src={src}
-        alt={alt}
-        width={56}
-        height={40}
+        alt={label}
+        width={80}
+        height={44}
         unoptimized
-        className="h-10 w-14 rounded-md border photo-hatch object-cover"
+        className="h-11 w-20 rounded-md border bg-white object-contain p-0.5"
       />
+      <span className="text-2xs text-muted-foreground">{label}</span>
     </a>
   );
 }
@@ -360,7 +367,7 @@ function ReturnRow({
   const ops = useTranslations("contractorOps");
   const when = row.processed_at || row.completed_at || row.captured_at;
   return (
-    <TableRow className="align-top">
+    <TableRow className="align-middle">
       <TableCell className="whitespace-nowrap">
         <div className="tabular">{df.date(when)}</div>
         <Link
@@ -398,35 +405,33 @@ function ReturnRow({
         )}
       </TableCell>
       <TableCell>
-        <div className="flex max-w-56 flex-wrap gap-1">
-          {row.photos.slice(0, 6).map((shot) => (
-            <Thumb
-              key={shot.id}
-              src={shot.watermarked || shot.image}
-              alt={shot.caption || row.reference_no}
-              label={ops(`outgoing.stage.${shot.stage ?? "APPLICATION"}`)}
-            />
-          ))}
-          {row.photos.length > 6 ? (
-            <span className="self-center text-xs text-muted-foreground">+{row.photos.length - 6}</span>
-          ) : null}
-        </div>
+        {/* One cover and the count, opening every photograph - as every
+            other list shows a record's photographs. */}
+        <PhotoThumb
+          coverUrl={row.cover_photo_url ?? row.photos[0]?.watermarked}
+          count={row.photo_count ?? row.photos.length}
+          icon={PackageMinus}
+          reference={row.reference_no}
+          photos={rowPhotos(row.photos, row.reference_no)}
+        />
       </TableCell>
       <TableCell>
-        <div className="flex gap-1">
-          <Thumb src={row.site_signature} alt={t("site")} label={t("site")} />
-          <Thumb src={row.supplier_signature} alt={t("supplierSide")} label={t("supplierSide")} />
+        <div className="flex gap-2">
+          <Signature src={row.site_signature} label={t("site")} />
+          <Signature src={row.supplier_signature} label={t("supplierSide")} />
         </div>
       </TableCell>
       <TableCell className="text-xs">
-        <div>{row.approved_by_name || "—"}</div>
-        {row.approved_at ? <div className="text-muted-foreground">{df.date(row.approved_at)}</div> : null}
-        {row.approver_name ? (
-          <div className="mt-1 flex items-center gap-1">
-            <span className="text-muted-foreground">{t("approver")}:</span> {row.approver_name}
+        <div className="flex items-center gap-3">
+          <div className="min-w-0">
+            <div>
+              <span className="text-muted-foreground">{t("approver")}:</span>{" "}
+              {row.approver_name || row.approved_by_name || "—"}
+            </div>
+            {row.approved_at ? <div className="text-muted-foreground">{df.date(row.approved_at)}</div> : null}
           </div>
-        ) : null}
-        <Thumb src={row.approver_signature} alt={t("approver")} label={t("approver")} />
+          <Signature src={row.approver_signature} label={t("approver")} />
+        </div>
       </TableCell>
     </TableRow>
   );
