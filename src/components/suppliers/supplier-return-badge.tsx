@@ -424,11 +424,15 @@ function ReturnRow({
       <TableCell className="text-xs">
         <div className="flex items-center gap-3">
           <div className="min-w-0">
-            <div>
-              <span className="text-muted-foreground">{t("approver")}:</span>{" "}
-              {row.approver_name || row.approved_by_name || "—"}
-            </div>
+            {/* Who approved it in the system, and when; then the approver
+                named on the Return Note, when there is one. */}
+            <div>{row.approved_by_name || "—"}</div>
             {row.approved_at ? <div className="text-muted-foreground">{df.date(row.approved_at)}</div> : null}
+            {row.approver_name ? (
+              <div>
+                <span className="text-muted-foreground">{t("approver")}:</span> {row.approver_name}
+              </div>
+            ) : null}
           </div>
           <Signature src={row.approver_signature} label={t("approver")} />
         </div>
