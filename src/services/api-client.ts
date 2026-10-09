@@ -646,7 +646,34 @@ export const api = {
     request<T>(path, { ...options, method: "DELETE" }),
 };
 
+/**
+ * While above zero, services' own success toasts stay quiet.
+ *
+ * A phone submit says one thing when it is done - 「提交成功」 or 「已暂存，等待
+ * 上传」 (Lucas, 2026-10-09) - and the upload queue says what it sent in one
+ * line; the per-service sentence underneath would be a second, differently
+ * worded toast for the same press. Ambient for the same reason as the
+ * provenance stamp: the submit reaches the server through a dozen service
+ * functions that each toast for themselves.
+ */
+let quietSuccess = 0;
+
+export async function withoutSuccessToasts<T>(run: () => Promise<T>): Promise<T> {
+  quietSuccess += 1;
+  try {
+    return await run();
+  } finally {
+    quietSuccess -= 1;
+  }
+}
+
 /** Toast a success message. Services call this; components never do. */
 export function toastSuccess(messageKey: string, values?: Record<string, unknown>): void {
+  if (quietSuccess > 0) return;
+  toast.success(t(messageKey, values));
+}
+
+/** The outcome of a phone submit or an upload pass: always said. */
+export function toastOutcome(messageKey: string, values?: Record<string, unknown>): void {
   toast.success(t(messageKey, values));
 }

@@ -7439,7 +7439,7 @@
       "equipment_not_on_site": "這台設備現在不在這個項目場內，不能退場。",
       "equipment_exit_waiting": "這台設備的退場已經提交，正在等後台驗收，不能再提交一次。",
       "original_not_expected": "伺服器上還沒有這張原圖對應的照片，請先讓記錄上傳完成。",
-      "original_hash_mismatch": "原圖在傳送中出錯，和手機上的不一致，伺服器沒有保存。請再按一次「同步原圖」。",
+      "original_hash_mismatch": "原圖在傳送中出錯，和手機上的不一致，伺服器沒有保存。系統會再試；也可以在技術管理頁面重試。",
       "original_not_found": "這張照片沒有已備份的原圖。",
       "driver_link_invalid": "連結已失效，請聯絡回收商重新發送。",
       "driver_link_closed": "這趟任務已結束，連結已關閉。",
@@ -9735,9 +9735,7 @@
     "subtitle": "你提交的全部記錄，最新的在最上面。",
     "refresh": "重新查看",
     "empty": "還沒有。你提交的東西都會出現在這裡。",
-    "waitingToUpload": "待上傳",
     "uploadFailed": "上傳被拒絕",
-    "attempts": "已嘗試 {count} 次",
     "historyWindow": "手機端只保留最近 {days} 天的記錄，更早的請到後台查詢。",
     "truncated": "顯示 {shown} 條，共 {total} 條。",
     "loadOlder": "載入更早的記錄",
@@ -9835,7 +9833,7 @@
     "loadFailed": "這條記錄打不開",
     "queuedTitle": "還在這台手機上",
     "queuedHelp": "還沒發出去。有網路之後會自己發。",
-    "failedHelp": "伺服器拒收了。按下面這句改好再發一次。",
+    "failedHelp": "伺服器沒有接收這一條，不會再自動上傳。原因如下，請聯絡管理員處理。",
     "close": "關閉",
     "unit": {
       "BAG": "袋",
@@ -9851,7 +9849,7 @@
     "noPaymentProofs": "財務付款後，憑證會出現在這裡。",
     "conversation": "事項溝通",
     "removeFromList": "從我的列表移除",
-    "removeHelp": "只從你這台手機的列表拿掉。雲端記錄、後台和其他人都不受影響；可以在「本機儲存與清理」裡重新顯示。",
+    "removeHelp": "只從你這台手機的列表拿掉。雲端記錄、後台和其他人都不受影響；可以在列表下方按「全部重新顯示」。",
     "hiddenNote": "已從我的列表移除 {count} 條。"
   },
   "nav": {
@@ -10177,7 +10175,8 @@
       "equipmentExit": "設備退場",
       "targetReport": "目標與達成",
       "manufacturers": "製造廠商",
-      "equipmentOperatorHours": "設備操作員工時"
+      "equipmentOperatorHours": "設備操作員工時",
+      "technical": "技術管理"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -10362,14 +10361,17 @@
       "armDiscardHelp": "打開後才能按每條旁邊的放棄。放棄的資料會從手機刪掉，不會再上傳。",
       "armFirst": "先打開上面的開關"
     },
-    "queued": "已離線保存，等待自動上傳",
+    "queued": "已暫存，等待上傳",
     "status": {
       "failed": "{count} 條動作需要處理",
-      "offline": "當前離線，{count} 條記錄等待上傳",
-      "pending": "{count} 條記錄等待同步",
-      "syncing": "正在上傳離線記錄"
+      "syncing": "正在上傳暫存的記錄",
+      "waiting": "已暫存 {count} 條，等待上傳",
+      "offlineNothing": "現在沒有網路",
+      "autoHelp": "有網路時會自動上傳，不用另外操作。",
+      "offlineHelp": "現在沒有網路。記錄已存在這台手機上，網路恢復後會自動上傳，不用另外操作。",
+      "refusedHelp": "其中 {count} 條伺服器沒有接收，可以在「我提交過的」看原因，請聯絡管理員處理。"
     },
-    "synced": "已上傳 {count} 條離線記錄",
+    "synced": "已上傳 {count} 條暫存的記錄",
     "alreadyQueued": "這條動作已經在等待同步，不會重複送出。",
     "state": {
       "waiting": "待同步",
@@ -10390,7 +10392,8 @@
     "reason": {
       "network": "網絡不通",
       "timeout": "上傳超時（信號太弱）"
-    }
+    },
+    "submitted": "提交成功"
   },
   "organisation": {
     "department": {
@@ -16150,8 +16153,7 @@
       "photoEnd": "照片上的最後時間：{end}"
     },
     "toast": {
-      "endSaved": "結束時間已保存",
-      "uploaded": "照片已上傳"
+      "endSaved": "結束時間已保存"
     },
     "phone": {
       "howTo": "開工時拍一張設備照片，收工時再拍一張。系統按第一張和最後一張算工時。",
@@ -16181,7 +16183,6 @@
     "dark": "深色"
   },
   "originals": {
-    "title": "原圖備份",
     "status": {
       "APPLICATION_UPLOADED": "應用照片已上傳",
       "ORIGINAL_PENDING": "原圖待同步",
@@ -16191,22 +16192,18 @@
     "waiting": "{count} 張原圖待同步（約 {mb} MB）",
     "failed": "{count} 張同步失敗",
     "failedNetwork": "上次沒有網路或訊號太弱，沒有傳完。",
-    "failedOther": "上次沒有成功，請再按一次「同步原圖」。",
+    "failedOther": "上次沒有成功。系統會自動再試，也可以按「重試原圖」。",
     "capturedNote": "{count} 張原圖在等它們的記錄先上傳。",
     "nothingWaiting": "沒有待同步的原圖",
     "readFailed": "這台手機讀不到暫存的原圖（可能已被系統清掉，或瀏覽器不允許保存）。",
-    "trafficNote": "同步大約要用 {mb} MB 流量，最好連上 Wi-Fi 再按。",
-    "sync": "同步原圖",
     "syncing": "正在同步原圖 {done}/{total}，還剩約 {mb} MB",
-    "offline": "現在沒有網路，連上網再同步原圖。",
+    "offline": "現在沒有網路，連上網後會自動備份原圖。",
     "result": {
       "backedUp": "{count} 張原圖已備份",
       "failed": "{count} 張沒有成功",
       "notYet": "{count} 張等記錄先上傳",
       "nothing": "沒有需要同步的原圖"
     },
-    "autoLabel": "連原圖一起上傳",
-    "autoHelp": "打開後，記錄一上傳完就接著傳原圖，會多用流量。連著 Wi-Fi 時打開；用手機流量時關掉，之後自己按「同步原圖」。",
     "storage": {
       "title": "手機暫存",
       "held": "本機暫存原圖 {count} 張，約 {mb} MB",
@@ -16221,17 +16218,7 @@
     "limit": {
       "local": "原圖同步前只存在這台手機的瀏覽器裡。iPhone 一段時間沒打開這個 App、手機空間不夠、或在設定裡清除網站資料，暫存的原圖都可能被清掉，請盡快同步。",
       "verified": "只有伺服器收到原圖並核對完全一致後，才會顯示「原圖已備份」。",
-      "frame": "這裡的原圖是拍照那一刻 App 截下的畫面，以高畫質另存（約 1～2 MB），不是手機相機本身的原始照片。",
-      "soon": "請盡快同步，暫存在手機上的原圖可能被系統清掉。"
-    },
-    "record": {
-      "title": "原圖",
-      "counts": "已備份 {backedUp}/{expected} 張",
-      "noOriginal": "這條記錄沒有保留原圖（應用照片已上傳）。",
-      "allBackedUp": "這條記錄的原圖都已備份到伺服器。",
-      "heldHere": "這台手機上有這條記錄的 {count} 張原圖，約 {mb} MB。",
-      "missingHere": "{count} 張原圖不在這台手機上（可能是在別的手機拍的，或已被系統清掉），無法從這裡同步。",
-      "sync": "同步這條記錄的原圖"
+      "frame": "這裡的原圖是拍照那一刻 App 截下的畫面，以高畫質另存（約 1～2 MB），不是手機相機本身的原始照片。"
     }
   },
   "phoneStorage": {
@@ -16271,5 +16258,46 @@
     "otherDeviceBody": "這個連結只能在第一部打開它的手機上使用。請聯絡回收商重新發送。",
     "failedTitle": "暫時打不開",
     "failedBody": "請檢查網路後重試。"
+  },
+  "technical": {
+    "title": "技術管理",
+    "subtitle": "手機照片上傳、原圖備份和手機暫存的檢查與處理。現場人員看不到這一頁，他們只需拍照、提交。",
+    "server": {
+      "title": "各人手機還沒交齊的原圖",
+      "help": "伺服器的記錄，全公司。原圖只存在拍照的那台手機上，「待備份」和「失敗」要等那台手機連上網、打開 App 才會傳上來。「已備份」表示伺服器收到原圖並核對完全一致。",
+      "what": "原圖備份情況",
+      "totals": "待備份 {pending} 張 · 失敗 {failed} 張 · 已備份 {backedUp} 張 · 還欠約 {mb} MB",
+      "empty": "還沒有任何原圖記錄。",
+      "unknownPerson": "（帳號已刪除）",
+      "column": {
+        "person": "人員",
+        "pending": "待備份",
+        "failed": "失敗",
+        "backedUp": "已備份",
+        "owed": "還欠",
+        "oldest": "最早一張",
+        "lastError": "最近失敗"
+      },
+      "error": {
+        "hashMismatch": "傳上來的和手機上的不一致",
+        "other": "沒有成功"
+      }
+    },
+    "device": {
+      "title": "這台設備",
+      "note": "下面只看這台設備上、當前登入帳號的資料。暫存的記錄和原圖只存在拍照的那台手機上：要處理某位工人手機上的資料，請在那台手機上用該工人的帳號登入後打開 {path}（現場選單裡沒有這個入口）。",
+      "queueTitle": "等待上傳的記錄",
+      "queueCount": "這台設備上有 {count} 條",
+      "queueHelp": "這些會自己上傳：沒有網路時等網路恢復，失敗後越等越久再試（最長 5 分鐘）。伺服器拒收的不會自己再傳，處理好後按「立即重試」，或打開開關後放棄。",
+      "originalsTitle": "原圖備份",
+      "originalsHelp": "記錄上傳成功後，原圖會自動在後面上傳，不用開關。連著手機流量或網路慢時會慢一點、排在記錄後面，但一定會傳。伺服器一直拒收的原圖不再自動重試，留在手機上，可以在這裡按「重試原圖」。",
+      "gentle": "這台設備現在用手機流量或網路較慢：原圖會排在記錄後面、慢慢上傳。",
+      "retryOriginals": "重試原圖"
+    },
+    "phone": {
+      "title": "設備檢查",
+      "subtitle": "給技術人員用：這台手機的暫存記錄、原圖備份和儲存。",
+      "back": "返回"
+    }
   }
 }

@@ -4,9 +4,11 @@
  * The application photos' queue (`offline-sync.service`) always goes first.
  * This one sends one original at a time and, before each, waits for any pass
  * of that queue in progress - so a record's photos are never stuck behind a
- * megabyte of original. It never runs in the background on its own: the
- * worker presses 「同步原图」, or has turned on 「连原图一起上传」, and either
- * way it only runs while the app is open (iOS has no background sync).
+ * megabyte of original. Since Lucas's update of 2026-10-09 (「原图备份由系统
+ * 自动完成，无需人工开关」) it runs by itself while the app is open
+ * (`useAutomaticOriginals`): after each record is accepted, when the signal
+ * comes back, and on a backing-off timer. The worker never sees it; the
+ * technical page can still start it by hand (iOS has no background sync).
  *
  * Each original is first checked with the server: one already backed up (from
  * an earlier attempt whose answer was lost) is dropped here without being sent
@@ -25,6 +27,7 @@ import {
   type LocalOriginalInfo,
 } from "@/lib/offline-db";
 import { announceOriginalsChanged, protectedLocalItems } from "@/lib/original-photos";
+import { autoSendable } from "@/lib/upload-schedule";
 import { api } from "@/services/api-client";
 import { offlineFlushInFlight } from "@/services/offline-sync.service";
 
@@ -97,13 +100,28 @@ export function originalSyncProgress(): OriginalSyncProgress {
 
 let inFlight: Promise<OriginalSyncResult> | null = null;
 
+export interface OriginalSyncOptions {
+  /**
+   * The system's own run, not a technician's press: records still waiting
+   * to upload go first (the run waits for them), and an original the server
+   * keeps refusing is left for the technical page (`autoSendable`).
+   */
+  automatic?: boolean;
+  /** Pause between two originals: a slow or metered connection (`PACE`). */
+  gapMs?: number;
+}
+
 /**
- * Send this person's waiting originals - all of them, or only `ids` (one
- * record's 「同步原图」). A second press while a run is going joins it.
+ * Send this person's waiting originals - all of them, or only `ids`. A second
+ * call while a run is going joins it.
  */
-export function syncOriginals(ownerId: string, ids?: string[]): Promise<OriginalSyncResult> {
+export function syncOriginals(
+  ownerId: string,
+  ids?: string[],
+  options: OriginalSyncOptions = {},
+): Promise<OriginalSyncResult> {
   if (inFlight) return inFlight;
-  inFlight = run(ownerId, ids).finally(() => {
+  inFlight = run(ownerId, ids, options).finally(() => {
     inFlight = null;
     setProgress({ running: false, done: 0, total: 0, remainingBytes: 0 });
     announceOriginalsChanged();
@@ -115,11 +133,32 @@ function offline(): boolean {
   return typeof navigator !== "undefined" && navigator.onLine === false;
 }
 
-async function run(ownerId: string, ids?: string[]): Promise<OriginalSyncResult> {
+function pause(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function run(
+  ownerId: string,
+  ids: string[] | undefined,
+  options: OriginalSyncOptions,
+): Promise<OriginalSyncResult> {
   const result: OriginalSyncResult = { backedUp: 0, failed: 0, notYet: 0 };
   const wanted = ids ? new Set(ids) : null;
-  const rows = (await getLocalOriginals(ownerId)).filter((row) => !wanted || wanted.has(row.id));
+  const rows = (await getLocalOriginals(ownerId)).filter(
+    (row) =>
+      (!wanted || wanted.has(row.id)) &&
+      (!options.automatic || row.state === "captured" || autoSendable(row)),
+  );
   if (rows.length === 0 || offline()) return result;
+  if (options.automatic) {
+    // Records first, always: while one the server has not refused is still
+    // on the phone, the originals wait for the next run.
+    const waitingRecords = (await getOfflineJobs(ownerId)).filter((job) => !job.needsAttention);
+    if (waitingRecords.length > 0) {
+      result.notYet = rows.length;
+      return result;
+    }
+  }
 
   // One question for the lot: what the server already has, and which records
   // have reached it at all.
@@ -160,6 +199,7 @@ async function run(ownerId: string, ids?: string[]): Promise<OriginalSyncResult>
   setProgress({ running: true, done: 0, total: toSend.length, remainingBytes });
   for (let index = 0; index < toSend.length; index += 1) {
     const row = toSend[index];
+    if (index > 0 && options.gapMs) await pause(options.gapMs);
     // Never ahead of the application photos: let a pass in progress finish.
     const appPass = offlineFlushInFlight();
     if (appPass) await appPass.catch(() => undefined);

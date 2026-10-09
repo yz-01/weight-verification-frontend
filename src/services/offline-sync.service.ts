@@ -17,9 +17,12 @@ import {
 import { compressPhoto } from "@/lib/photo-compression";
 import {
   api,
+  toastOutcome,
   toastSuccess,
   withOfflineProvenance,
+  withoutSuccessToasts,
 } from "@/services/api-client";
+import { SUBMIT_OUTCOME_KEY } from "@/lib/upload-schedule";
 import { createReceiptWithEvidence } from "@/services/contractor.service";
 import {
   createDisposalRequest,
@@ -218,7 +221,8 @@ async function enqueue(job: OfflineJob): Promise<OfflineSubmission> {
   await putOfflineJob(job);
   notifyQueueChanged();
   await requestBackgroundSync();
-  toastSuccess("offline.queued");
+  // Not on the server yet, whatever the screen did: 「已暂存，等待上传」.
+  toastOutcome(SUBMIT_OUTCOME_KEY.queued);
   return "queued";
 }
 
@@ -250,6 +254,18 @@ function appendAttendance(
  */
 async function uploadJob(job: OfflineJob): Promise<void> {
   return withOfflineProvenance(job.queuedAt, () => sendJob(job));
+}
+
+/**
+ * A phone submit's online attempt: 「提交成功」 only once the server has
+ * answered with the record - its photographs travel in the same request, so
+ * that answer covers them too (Lucas 2026-10-09, point 4). A failure throws
+ * and says nothing; the caller queues it, which says 「已暂存，等待上传」.
+ */
+async function submitNow<T>(send: () => Promise<T>): Promise<T> {
+  const answer = await withoutSuccessToasts(send);
+  toastOutcome(SUBMIT_OUTCOME_KEY.uploaded);
+  return answer;
 }
 
 async function sendJob(job: OfflineJob): Promise<void> {
@@ -575,8 +591,7 @@ export async function submitAttendanceOfflineAware(
 
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
-      await uploadJob(job);
-      toastSuccess("attendance.toast.recorded");
+      await submitNow(() => uploadJob(job));
       return "uploaded";
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
@@ -656,8 +671,7 @@ export async function submitTaskPhotoOfflineAware(
 
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
-      await uploadJob(job);
-      toastSuccess("driver.toast.photoSent");
+      await submitNow(() => uploadJob(job));
       return "uploaded";
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
@@ -768,8 +782,7 @@ export async function submitFieldTaskPhotoOfflineAware(
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
-      await uploadJob(job);
-      toastSuccess("contractorOps.toast.photoAdded");
+      await submitNow(() => uploadJob(job));
       return "uploaded";
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
@@ -802,7 +815,7 @@ export async function submitMaterialReceiptOfflineAware(
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
-      await uploadJob(job);
+      await submitNow(() => uploadJob(job));
       return "uploaded";
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
@@ -831,7 +844,7 @@ async function submitCaptureJob(
 ): Promise<OfflineSubmission> {
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
-      await uploadJob(job);
+      await submitNow(() => uploadJob(job));
       return "uploaded";
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
@@ -1054,12 +1067,14 @@ export async function submitSafetyIncidentOfflineAware(
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
       // The job's copies, so the online attempt sends the compressed photos.
-      const incident = await withOfflineProvenance(job.queuedAt, () =>
-        createSafetyIncident({
-          ...draft,
-          photos: job.payload.photos.map(restoreFile),
-          attachments: (job.payload.attachments ?? []).map(restoreFile),
-        }),
+      const incident = await submitNow(() =>
+        withOfflineProvenance(job.queuedAt, () =>
+          createSafetyIncident({
+            ...draft,
+            photos: job.payload.photos.map(restoreFile),
+            attachments: (job.payload.attachments ?? []).map(restoreFile),
+          }),
+        ),
       );
       return { status: "uploaded", incident };
     } catch (error) {
@@ -1136,10 +1151,9 @@ export async function submitEquipmentHoursPhotoOfflineAware(
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
-      const upload = await withOfflineProvenance(job.queuedAt, () =>
-        sendEquipmentHoursPhoto(job),
+      const upload = await submitNow(() =>
+        withOfflineProvenance(job.queuedAt, () => sendEquipmentHoursPhoto(job)),
       );
-      toastSuccess("equipmentHours.toast.uploaded");
       return { status: "uploaded", upload };
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
@@ -1575,6 +1589,8 @@ export interface QueuedSubmissionDetail {
   attempts: number;
   /** The server's own refusal, stored since F-230 and now shown. */
   lastError: string;
+  /** The server refused it: it will not go again by itself (A9). */
+  refused: boolean;
   fields: { key: string; value: string; unit?: string }[];
   /** The photographs as taken - still on the phone, never uploaded. */
   photos: Blob[];
@@ -1664,6 +1680,7 @@ export async function getQueuedSubmissionDetail(
     queuedAt: job.queuedAt,
     attempts: job.attempts,
     lastError: job.lastError,
+    refused: Boolean(job.needsAttention),
     fields,
     photos,
   };
@@ -1762,7 +1779,8 @@ async function runFlush(ownerId: string, includeRefused: boolean): Promise<Flush
         );
         synced += positions.length;
       } else {
-        await uploadJob(job);
+        // Quiet: the pass says what it sent in one line at the end.
+        await withoutSuccessToasts(() => uploadJob(job));
         await deleteOfflineJob(job.id);
         recordSynced(job);
         synced += 1;
@@ -1807,7 +1825,7 @@ async function runFlush(ownerId: string, includeRefused: boolean): Promise<Flush
   const remaining = await countOfflineJobs(ownerId);
   await cleanupSettledDriverSnapshots(ownerId).catch(() => undefined);
   notifyQueueChanged();
-  if (synced > 0) toastSuccess("offline.synced", { count: synced });
+  if (synced > 0) toastOutcome("offline.synced", { count: synced });
   return { synced, remaining };
 }
 
