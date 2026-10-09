@@ -190,7 +190,7 @@ function RequestsTab() {
         reference: (row) => row.request_no,
         // The stamped copies (Q30.1): a request's pictures carry the
         // watermark like every photograph the platform shows.
-        photos: (row) => rowPhotos(row.attachments.filter((file) => file.is_image).map((file) => ({ id: file.id, watermarked: file.watermarked, caption: file.original_name })), row.request_no),
+        photos: (row) => rowPhotos(row.attachments.filter((file) => file.is_image).map((file) => ({ id: file.id, watermarked: file.watermarked, caption: file.original_name, captured_at: file.uploaded_at })), row.request_no),
       }),
       // D3: no request-type or project column - the top bar already names
       // the project and the filter row the type. An Other Request has no

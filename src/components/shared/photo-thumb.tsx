@@ -42,6 +42,7 @@ import { useContext, useState } from "react";
 
 import { InsideRowControl } from "@/components/shared/inside-row-control";
 import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-shell";
+import { photoMeta, type PhotoMetaSource } from "@/lib/photo-meta";
 import { cn } from "@/lib/utils";
 import { getCategoryRecord } from "@/services/contractor-ops.service";
 import type { CategoryRecordKind } from "@/interfaces/contractor-ops";
@@ -114,7 +115,11 @@ export function PhotoThumb({
 
   // The (stamped) thumbnail itself when the record's photographs cannot be
   // fetched, or none of them has a stamped copy - better than nothing.
-  const fallback: ShellPhoto[] = [{ id: "cover", url: coverUrl, label: reference }];
+  // Only the thumbnail is known here, not when or where it was taken: the
+  // viewer then says nothing about either rather than 「未记录」.
+  const fallback: ShellPhoto[] = [
+    { id: "cover", url: coverUrl, label: reference, metaUnknown: true },
+  ];
 
   const open = async (event: React.MouseEvent) => {
     // A list row opens its record on click; the photograph opens the viewer.
@@ -204,19 +209,32 @@ export function PhotoThumb({
   );
 }
 
-/** Photographs as a record's page and the archive send them, for the viewer. */
+/** One photograph as a record's page, the archive and a list row send it. */
+export interface ListedPhoto extends PhotoMetaSource {
+  id?: string | null;
+  url?: string | null;
+  thumbnail_url?: string | null;
+  caption?: string | null;
+}
+
+/**
+ * Photographs as a record's page and the archive send them, for the viewer:
+ * each with its time and GPS (`photoMeta`), and the record's own fix
+ * (`record`) for a photo that was sent without one.
+ */
 export function toShellPhotos(
-  list: Array<{ id?: string | null; url?: string | null; caption?: string | null }>,
+  list: ReadonlyArray<ListedPhoto>,
   label: string,
+  record?: PhotoMetaSource | null,
 ): ShellPhoto[] {
   return list
-    .filter((photo): photo is { id?: string | null; url: string; caption?: string | null } =>
-      Boolean(photo.url),
-    )
+    .filter((photo): photo is ListedPhoto & { url: string } => Boolean(photo.url))
     .map((photo, index) => ({
       id: photo.id || `${index}`,
       url: photo.url,
+      thumbnailUrl: photo.thumbnail_url ?? null,
       label: photo.caption || label,
+      ...photoMeta(photo, record),
     }));
 }
 
@@ -268,23 +286,31 @@ export function recordPhotos(kind: string, id: string, label: string) {
  * stamped thumbnail, and a record with no thumbnail shows its icon.
  */
 export function rowPhotos(
-  list: ReadonlyArray<{
-    id?: string | number | null;
-    url?: string | null;
-    watermarked?: string | null;
-    /** Accepted so a row's photographs can be passed as they are; never shown. */
-    image?: string | null;
-    caption?: string | null;
-  }> | null | undefined,
+  list: ReadonlyArray<
+    PhotoMetaSource & {
+      id?: string | number | null;
+      url?: string | null;
+      watermarked?: string | null;
+      /** Accepted so a row's photographs can be passed as they are; never shown. */
+      image?: string | null;
+      caption?: string | null;
+    }
+  > | null | undefined,
   label: string,
+  record?: PhotoMetaSource | null,
 ): ShellPhoto[] {
   return toShellPhotos(
     (list ?? []).map((photo) => ({
       id: photo.id == null ? null : String(photo.id),
       url: photo.url || photo.watermarked || null,
       caption: photo.caption,
+      captured_at: photo.captured_at,
+      taken_at: photo.taken_at,
+      latitude: photo.latitude,
+      longitude: photo.longitude,
     })),
     label,
+    record,
   );
 }
 

@@ -37,6 +37,7 @@ import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { canConfirmClosure, canDiscuss, isQueueKind } from "@/lib/record-chat";
 import { recordStatusLabel } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
+import { photoMeta } from "@/lib/photo-meta";
 import type {
   ArchiveQueueDetail,
   ArchiveQueueRow,
@@ -592,6 +593,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
                 url: shot.url,
                 thumbnailUrl: shot.thumbnail_url,
                 label: shot.caption || row.reference,
+                ...photoMeta(shot),
               }))
             : undefined
         }

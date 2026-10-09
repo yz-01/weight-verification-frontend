@@ -1,3 +1,4 @@
+import { appendPhotoTimes } from "@/lib/photo-meta";
 import type { ListQuery } from "@/interfaces/api";
 import type {
   RecyclerOption,
@@ -140,6 +141,8 @@ export async function createWasteOutgoingRecord(input: {
     if (value) data.append(key, value);
   }
   for (const file of input.photos) data.append("photos", file);
+  // When each was taken, so a queued record is not dated at sync.
+  appendPhotoTimes(data, input.photos);
   const row = await api.post<WasteOutgoingRecord>(
     "/api/waste-outgoing/create_record/",
     data,

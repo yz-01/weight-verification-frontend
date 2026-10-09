@@ -40,6 +40,7 @@ import type {
   EquipmentHoursDay,
 } from "@/interfaces/equipment-hours";
 import { useDateFormat } from "@/lib/dates";
+import { photoMeta } from "@/lib/photo-meta";
 import type { ExportFormat } from "@/services/contractor.service";
 import {
   adjustEquipmentDayEnd,
@@ -593,7 +594,7 @@ export function DayDialog({
                 id: photo.id,
                 url: photo.watermarked_photo,
                 label: `${df.time(photo.captured_at)} · ${photo.operator_name}`,
-                takenAt: photo.captured_at,
+                ...photoMeta(photo),
               }]
             : [],
         )}

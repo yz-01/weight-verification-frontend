@@ -101,7 +101,7 @@ export function SundryClaimsOffice() {
         label: tRoot("moduleTable.photos"),
         icon: ReceiptText,
         reference: (row) => row.claim_no,
-        photos: (row) => rowPhotos(row.attachments, row.claim_no),
+        photos: (row) => rowPhotos(row.attachments, row.claim_no, row),
       }),
       {
         id: "state",

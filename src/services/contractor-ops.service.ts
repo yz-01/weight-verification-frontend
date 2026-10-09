@@ -1,3 +1,4 @@
+import { appendPhotoTimes } from "@/lib/photo-meta";
 import type { DeliveryNoteOCRResult } from "@/interfaces/contractor";
 import { ApiError, type ListQuery, type Paginated } from "@/interfaces/api";
 import {
@@ -636,6 +637,8 @@ export async function createMaterialOutgoing(payload: {
     const caption = payload.photo_captions?.[index];
     if (caption) data.append(`photo_caption_${index}`, caption);
   });
+  // When each was taken, so a queued application is not dated at sync.
+  appendPhotoTimes(data, payload.photos);
   const row = await api.post<MaterialOutgoing>(
     "/api/material-outgoing/create_record/",
     data,
@@ -687,6 +690,7 @@ export async function returnMaterialOutgoingProcessing(
 ) {
   const data = new FormData();
   payload.photos.forEach((file) => data.append("photos", file));
+  appendPhotoTimes(data, payload.photos);
   if (payload.client_event_id) data.append("client_event_id", payload.client_event_id);
   data.append("returned_quantity", payload.returned_quantity);
   data.append("site_signature", payload.site_signature);

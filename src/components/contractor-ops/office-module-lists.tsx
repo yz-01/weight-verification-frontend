@@ -93,6 +93,7 @@ import type {
   SiteProgressRecord,
 } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
+import { photoMeta } from "@/lib/photo-meta";
 import {
   addEquipmentMovementPhotos,
   addEquipmentPhotos,
@@ -259,7 +260,7 @@ export function MaterialOutgoingOffice() {
         label: tRoot("moduleTable.photos"),
         icon: PackageMinus,
         reference: (row) => row.reference_no,
-        photos: (row) => rowPhotos(row.photos, row.reference_no),
+        photos: (row) => rowPhotos(row.photos, row.reference_no, row),
       }),
       {
         accessorKey: "status",
@@ -625,7 +626,7 @@ export function SiteEquipmentOffice() {
         label: tRoot("moduleTable.photos"),
         icon: HardHat,
         reference: (row) => row.equipment_name,
-        photos: (row) => rowPhotos(row.photos, row.equipment_name),
+        photos: (row) => rowPhotos(row.photos, row.equipment_name, row),
       }),
       {
         accessorKey: "direction",
@@ -1125,9 +1126,8 @@ export function SiteEquipmentOffice() {
               label: tRoot(
                 `moduleTable.equipmentPhoto.${photo.kind in PHOTO_KIND ? photo.kind : "OTHER"}`,
               ),
-              takenAt: photo.captured_at,
-              latitude: shownMovement.latitude,
-              longitude: shownMovement.longitude,
+              // The photo's own time and fix, else the entry's (2026-10-09).
+              ...photoMeta(photo, shownMovement),
             }))}
             photoActions={
               can("equipment.manage") ? (
@@ -1220,7 +1220,7 @@ export function SiteEquipmentOffice() {
               id: shot.id,
               url: shot.url,
               label: shot.caption || tRoot(`moduleTable.equipmentPhotoSource.${shot.source}`),
-              takenAt: shot.captured_at,
+              ...photoMeta(shot),
             }))}
             photoActions={
               can("equipment.manage") ? (
@@ -1488,7 +1488,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         label: tRoot("moduleTable.photos"),
         icon: ChartNoAxesCombined,
         reference: (row) => row.phase_name,
-        photos: (row) => rowPhotos(row.photos, row.phase_name),
+        photos: (row) => rowPhotos(row.photos, row.phase_name, row),
       }),
       {
         id: "phase__name",
@@ -1767,9 +1767,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
               id: photo.id,
               url: photo.watermarked || photo.image,
               label: photo.caption || `${t("field.photos")} ${index + 1}`,
-              takenAt: photo.captured_at,
-              latitude: shown.latitude,
-              longitude: shown.longitude,
+              ...photoMeta(photo, shown),
             }))}
             photoActions={
               can("progress.confirm") && !shownArchived ? (

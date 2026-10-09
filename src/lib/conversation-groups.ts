@@ -24,6 +24,9 @@ export interface GroupableMessage {
   audio?: string | null;
   attachment?: string | null;
   sent_at: string;
+  /** Where it was sent from: a photo's GPS in the viewer. */
+  latitude?: string | number | null;
+  longitude?: string | number | null;
 }
 
 export interface ConversationPhoto {
@@ -33,6 +36,9 @@ export interface ConversationPhoto {
   url: string;
   author: string;
   sentAt: string;
+  /** Its message's GPS, so the viewer shows where it was taken. */
+  latitude?: string | number | null;
+  longitude?: string | number | null;
 }
 
 export interface ConversationRow<M extends GroupableMessage> {
@@ -50,7 +56,14 @@ export const GROUP_WINDOW_MS = 2 * 60 * 1000;
 export function photoOf(message: GroupableMessage): ConversationPhoto | null {
   const url = message.watermarked_photo || message.photo;
   return url
-    ? { id: message.id, url, author: message.author_name, sentAt: message.sent_at }
+    ? {
+        id: message.id,
+        url,
+        author: message.author_name,
+        sentAt: message.sent_at,
+        latitude: message.latitude ?? null,
+        longitude: message.longitude ?? null,
+      }
     : null;
 }
 
