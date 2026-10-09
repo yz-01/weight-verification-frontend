@@ -1590,6 +1590,8 @@ export interface RecordConversation {
   kind: ArchiveRecordKind;
   record: string;
   reference: string;
+  /** This reader's chat notices the read settled (see `clearedNotices`). */
+  cleared_notices?: number;
   messages: RecordMessage[];
   audio_seconds_limit: number;
   /**

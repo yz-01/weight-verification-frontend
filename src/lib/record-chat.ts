@@ -102,6 +102,24 @@ export function recordConversationKey(kind: ChatRecordKind, recordId: string) {
   return ["record-conversation", kind, recordId] as const;
 }
 
+/**
+ * The phone's link to one record's conversation: `?chat=<KIND>:<id>`
+ * (2026-10-09). A chat notice for a field account carries it, and 我提交过的
+ * on the field home opens that record - its own sheet when it is the
+ * worker's submission, the conversation alone otherwise.
+ */
+export function parseChatParam(
+  value: string | null | undefined,
+): { kind: ChatRecordKind; recordId: string } | null {
+  if (!value) return null;
+  const at = value.indexOf(":");
+  if (at <= 0) return null;
+  const kind = value.slice(0, at);
+  const recordId = value.slice(at + 1);
+  if (!recordId || !canDiscuss(kind)) return null;
+  return { kind, recordId };
+}
+
 /** Why a finished record's conversation takes no more messages (D-278). */
 export type ConversationClosed = "" | "archived" | "paid" | "decided";
 

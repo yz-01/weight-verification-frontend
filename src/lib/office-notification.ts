@@ -1,3 +1,6 @@
+import { parseChatParam } from "@/lib/record-chat";
+import { recordTarget } from "@/lib/record-routes";
+
 /**
  * Where a notification takes someone in the office console, if anywhere.
  *
@@ -16,10 +19,18 @@
  *   so it goes to the dispatch itself.
  * - A safety-incident broadcast from before it carried an href opens the
  *   incident it names.
+ * - A chat message on a record (`record.message`) names the record's kind
+ *   and id, and opens that record's own page, where its conversation is.
  *
  * Mapping here rather than on the server also fixes notices already sent,
  * which is every card on screen today. `null` means no destination.
  */
+/** A record's own office page, when it has one. */
+function recordPage(kind: string, id: string): string | null {
+  const target = recordTarget(kind, id);
+  return target && "href" in target ? target.href : null;
+}
+
 export function officeNotificationHref(data: Record<string, unknown>): string | null {
   const text = (value: unknown) => (typeof value === "string" && value ? value : null);
   const raw = text(data.href) ?? text(data.url);
@@ -41,6 +52,9 @@ export function officeNotificationHref(data: Record<string, unknown>): string | 
       if (record === "gate" && gate) {
         return `/site-access?tab=gate-records&gate_incident=${encodeURIComponent(gate)}`;
       }
+      // A record's conversation, linked for the phone (2026-10-09).
+      const chat = parseChatParam(query.get("chat"));
+      if (chat) return recordPage(chat.kind, chat.recordId);
       if (record === "disposal") {
         const id = text(data.record_id);
         return id ? `/waste-clearance?kind=disposal&record=${encodeURIComponent(id)}` : "/waste-clearance?kind=disposal";
@@ -59,6 +73,14 @@ export function officeNotificationHref(data: Record<string, unknown>): string | 
     }
 
     return `${parsed.pathname}${parsed.search}`;
+  }
+
+  // A message on a record (2026-10-09): its kind and id say which page.
+  const recordKind = text(data.record_kind);
+  const recordId = text(data.record_id);
+  if (recordKind && recordId) {
+    const page = recordPage(recordKind, recordId);
+    if (page) return page;
   }
 
   const approval = text(data.approval_id);

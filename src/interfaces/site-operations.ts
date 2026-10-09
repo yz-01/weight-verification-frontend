@@ -255,6 +255,8 @@ export interface HazardConversation {
   incident: SafetyIncident;
   messages: HazardMessage[];
   participants: HazardParticipant[];
+  /** This reader's chat notices the read settled (see `clearedNotices`). */
+  cleared_notices?: number;
   /** Archived, which means readable but closed to new messages. */
   is_closed: boolean;
   audio_seconds_limit: number;

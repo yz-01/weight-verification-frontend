@@ -63,6 +63,15 @@ export interface NotificationSummary {
   /** The rest - the backlog. `today + earlier === total`. */
   earlier: number;
   by_kind: Partial<Record<NotificationKind, number>>;
+  /**
+   * Threads with an unread message for this person - one waiting chat notice
+   * per thread - whatever `card` asked for (2026-10-09). The phone's red dot
+   * adds them to its to-do number (`fieldBellCount`). Optional: an older
+   * server omits them.
+   */
+  conversations?: number;
+  /** Of `conversations`, how many moved today. */
+  conversations_today?: number;
 }
 
 export type HealthStatus =

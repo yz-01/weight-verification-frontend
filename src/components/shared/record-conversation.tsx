@@ -28,6 +28,7 @@ import {
   useClearDraft,
   useDraftState,
 } from "@/components/field-staff/field-draft";
+import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
 import { ApiError } from "@/interfaces/api";
 import { conversationClosedLine, recordConversationKey, type ChatRecordKind } from "@/lib/record-chat";
 import {
@@ -68,6 +69,9 @@ function RecordConversationContent({
     queryKey: recordConversationKey(kind, recordId),
     queryFn: () => getRecordConversation(kind, recordId),
   });
+  // Reading the conversation settles this reader's chat notice for it on the
+  // server (2026-10-09); the red dot is re-read when it did.
+  useBellRefreshOnRead(data);
 
   const limit = data?.audio_seconds_limit ?? FALLBACK_AUDIO_LIMIT;
 

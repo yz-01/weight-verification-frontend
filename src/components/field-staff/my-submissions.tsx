@@ -69,7 +69,7 @@ import {
   ShellPanel,
 } from "@/components/shared/record-detail-shell";
 import { StatusBadge } from "@/components/shared/page-primitives";
-import type { ChatRecordKind } from "@/lib/record-chat";
+import { parseChatParam, type ChatRecordKind } from "@/lib/record-chat";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -161,6 +161,11 @@ export function MySubmissions({
   // `/field-staff?…&movement=<id>` (Fable B4 #15): that movement opens here,
   // with its status, its evidence and the reason it was not accepted.
   const [linkedMovement, setLinkedMovement] = useUrlSelection("movement");
+  // A chat notice links to `/field-staff?tab=home&chat=<KIND>:<id>`
+  // (2026-10-09): the worker's own submission opens with its conversation;
+  // a record that is not in their list opens as the conversation alone.
+  const [linkedChat, setLinkedChat] = useUrlSelection("chat");
+  const chatTarget = parseChatParam(linkedChat);
   const [openQueued, setOpenQueued] = useState<string | null>(null);
 
   // The newest page (client 2026-10-09 五.1/五.2): opening the app reads
@@ -231,7 +236,10 @@ export function MySubmissions({
   const linkedRow = linkedMovement
     ? rows.find((row) => row.kind === "EQUIPMENT_MOVEMENT" && row.id === linkedMovement) ?? null
     : null;
-  const shownRow = openRow ?? linkedRow;
+  const chatRow = chatTarget
+    ? rows.find((row) => row.kind === chatTarget.kind && row.id === chatTarget.recordId) ?? null
+    : null;
+  const shownRow = openRow ?? linkedRow ?? chatRow;
   const waiting = (queued.data ?? []).filter(
     (entry) => entry.kind in QUEUED_KINDS,
   );
@@ -492,8 +500,20 @@ export function MySubmissions({
           onClose={() => {
             setOpenRow(null);
             setLinkedMovement(null);
+            setLinkedChat(null);
           }}
         />
+      )}
+      {!shownRow && chatTarget && !stored.isLoading && (
+        <Dialog open onOpenChange={(next) => !next && setLinkedChat(null)}>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{t("recordChat.sectionTitle")}</DialogTitle>
+              <DialogDescription>{t("recordConversation.help")}</DialogDescription>
+            </DialogHeader>
+            <RecordConversationPanel kind={chatTarget.kind} recordId={chatTarget.recordId} />
+          </DialogContent>
+        </Dialog>
       )}
       {openQueued && user?.id && (
         <QueuedDetailSheet
