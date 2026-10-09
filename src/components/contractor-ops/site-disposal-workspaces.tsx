@@ -119,7 +119,7 @@ function getCoordinates(): Promise<Coordinates> {
       (position) => resolve({
         latitude: position.coords.latitude.toFixed(7),
         longitude: position.coords.longitude.toFixed(7),
-        accuracy: String(position.coords.accuracy),
+        accuracy: position.coords.accuracy.toFixed(2),
       }),
       reject,
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
