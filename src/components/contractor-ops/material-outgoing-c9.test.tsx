@@ -34,6 +34,13 @@ vi.mock("@/components/providers/auth-provider", () => ({
   }),
 }));
 
+// Which surface the buttons are drawn on: 实际退场 is the phone's only.
+let pathname = "/field-staff";
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/navigation")>()),
+  usePathname: () => pathname,
+}));
+
 vi.mock("@/components/field-staff/field-draft", () => ({
   FieldDraft: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useClearDraft: () => () => {},
@@ -200,6 +207,7 @@ describe("approving needs the Return Note first (C9)", () => {
   });
 
   it("offers the exit to the site once approved, and the confirmation to the office after it", () => {
+    pathname = "/field-staff";
     const approved = render(
       <OutgoingActions row={outgoing({ status: "APPROVED", has_return_note: true })} pending={false} onReview={() => {}} onReturn={() => {}} />,
     );
@@ -208,6 +216,18 @@ describe("approving needs the Return Note first (C9)", () => {
       <OutgoingActions row={outgoing({ status: "PROCESSED", has_return_note: true })} pending={false} onReview={() => {}} onReturn={() => {}} />,
     );
     expect(processed).toContain("确认退场完成");
+  });
+
+  it("never offers the exit in the office console, which is told it waits for the site (2026-10-09)", () => {
+    // 「后台是不应该显示实际退场的，只有手机端可以看得到而已」 - a placement
+    // rule: this account may submit, and still the office does not offer it.
+    pathname = "/material-outgoing";
+    const office = render(
+      <OutgoingActions row={outgoing({ status: "APPROVED", has_return_note: true })} pending={false} onReview={() => {}} />,
+    );
+    expect(office).not.toContain("实际退场（双方签名）");
+    expect(office).toContain(zh.contractorOps.outgoing.waitingForSite);
+    pathname = "/field-staff";
   });
 });
 

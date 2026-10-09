@@ -10,6 +10,8 @@ import {
   PHOTO_QUALITY_STEPS,
   PHOTO_TARGET_BYTES,
   encodeWithinTarget,
+  isAtUploadSize,
+  markAtUploadSize,
 } from "@/lib/photo-compression";
 
 /**
@@ -312,5 +314,32 @@ describe("compressPhoto and the size target", () => {
     // Over 500 KB at the floor: sent anyway (一.4).
     expect(result.size).toBe(520 * 1024);
     expect(result.type).toBe("image/jpeg");
+  });
+});
+
+describe("a photo the camera made at upload size is not decoded again", () => {
+  // 材料出场 · 实际退场 (2026-10-09): every photo was decoded once more when
+  // 提交 was pressed, only to find it already fitted.
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("sends a marked photo as it is, without decoding it", async () => {
+    const decode = vi.fn(() => Promise.resolve({ width: 1920, height: 1080, close: vi.fn() }));
+    vi.stubGlobal("createImageBitmap", decode);
+    const photo = markAtUploadSize(new File(["jpeg"], "exit-1.jpg", { type: "image/jpeg" }));
+    expect(await compressPhoto(photo)).toBe(photo);
+    expect(decode).not.toHaveBeenCalled();
+  });
+
+  it("still checks a photo that was not marked - one restored from a draft is a new object", async () => {
+    const decode = vi.fn(() => Promise.resolve({ width: 1080, height: 1440, close: vi.fn() }));
+    vi.stubGlobal("createImageBitmap", decode);
+    const marked = markAtUploadSize(new File(["jpeg"], "exit-1.jpg", { type: "image/jpeg" }));
+    const restored = new File([marked], marked.name, { type: marked.type });
+    expect(isAtUploadSize(marked)).toBe(true);
+    expect(isAtUploadSize(restored)).toBe(false);
+    await compressPhoto(restored);
+    expect(decode).toHaveBeenCalledTimes(1);
   });
 });

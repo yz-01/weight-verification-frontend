@@ -5803,6 +5803,7 @@
       "viewDetail": "Details",
       "returnProcessing": "Record the exit (both sign)",
       "exitWaitingUpload": "This exit is already saved on this phone and uploads by itself when there is signal - no need to do it again. Follow it in What I sent.",
+      "exitUploading": "Uploading {photos} photos and both signatures - please wait and keep this window open.",
       "waitingForSite": "Approved / waiting to leave site: the site records the exit with both signatures.",
       "finalConfirm": "Confirm the exit",
       "waitingForOffice": "The material has left. Waiting for the office to confirm.",

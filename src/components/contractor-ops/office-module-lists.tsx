@@ -54,7 +54,6 @@ import {
   OutgoingDetailDialog,
   ProgressDialog,
   RejectOutgoingDialog,
-  ReturnProcessingDialog,
   tone,
 } from "@/components/contractor-ops/operations-workspaces";
 import { usePageTitle } from "@/components/layout/page-title-override";
@@ -233,7 +232,8 @@ export function MaterialOutgoingOffice() {
   // ?record=<id>.
   const [viewing, setViewing] = useUrlSelection("record");
   const [rejecting, setRejecting] = useState<MaterialOutgoing | null>(null);
-  const [returning, setReturning] = useState<MaterialOutgoing | null>(null);
+  // No 实际退场 here (2026-10-09, `lib/outgoing-exit`): the phone records the
+  // exit; this page shows that it waits for the site, then what it recorded.
   const onReview = (
     row: MaterialOutgoing,
     status: MaterialOutgoing["status"],
@@ -467,7 +467,6 @@ export function MaterialOutgoingOffice() {
               row={current}
               pending={review.isPending}
               onReview={(status) => onReview(current, status)}
-              onReturn={() => setReturning(current)}
             />
           )}
         />
@@ -480,17 +479,6 @@ export function MaterialOutgoingOffice() {
           onConfirm={(note) => {
             review.mutate({ id: rejecting.id, status: "REJECTED", note });
             setRejecting(null);
-          }}
-        />
-      )}
-      {returning && (
-        <ReturnProcessingDialog
-          row={returning}
-          onClose={() => setReturning(null)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
-            void qc.invalidateQueries({ queryKey: ["my-submissions"] });
-            setReturning(null);
           }}
         />
       )}

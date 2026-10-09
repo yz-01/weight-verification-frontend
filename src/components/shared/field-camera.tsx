@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { applicationPhotoCanvas, startOriginal } from "@/lib/original-capture";
 
 import { Button } from "@/components/ui/button";
-import { canvasJpeg, encodeWithinTarget } from "@/lib/photo-compression";
+import { canvasJpeg, encodeWithinTarget, markAtUploadSize } from "@/lib/photo-compression";
 import {
   Dialog,
   DialogContent,
@@ -172,7 +172,9 @@ export function FieldCamera({
     // quality, kept apart. The photo below is handed over as before, under a
     // name that carries the original's id (`lib/original-capture`).
     const original = startOriginal(video, facing === "user");
-    const onCapture = (photo: File) => handOver(original ? original.attach(photo) : photo);
+    // Marked as at upload size: submit does not decode it again to check.
+    const onCapture = (photo: File) =>
+      handOver(markAtUploadSize(original ? original.attach(photo) : photo));
 
     // Taken at upload size (A5, A9): the same long-edge cap and quality as
     // every other photo the queue holds (`lib/photo-compression`), here at no

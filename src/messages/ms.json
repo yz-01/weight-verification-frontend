@@ -5803,6 +5803,7 @@
       "viewDetail": "Butiran",
       "returnProcessing": "Rekod keluar (kedua-dua tandatangan)",
       "exitWaitingUpload": "Rekod keluar ini sudah disimpan dalam telefon ini dan dimuat naik sendiri apabila ada isyarat - tidak perlu buat semula. Ikuti dalam Apa yang saya hantar.",
+      "exitUploading": "Sedang memuat naik {photos} foto dan kedua-dua tandatangan - sila tunggu dan jangan tutup tetingkap ini.",
       "waitingForSite": "Diluluskan / menunggu keluar tapak: tapak merekod keluar dengan kedua-dua tandatangan.",
       "finalConfirm": "Sahkan keluar",
       "waitingForOffice": "Bahan telah keluar. Menunggu pengesahan pejabat.",
