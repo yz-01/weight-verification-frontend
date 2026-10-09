@@ -31,6 +31,7 @@ import {
   type ComposerPayload,
 } from "@/components/shared/conversation";
 import { LoadFailed } from "@/components/shared/page-primitives";
+import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
 import {
   getHazardConversation,
   postHazardMessage,
@@ -54,6 +55,8 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
     queryKey: ["hazard-conversation", incidentId],
     queryFn: () => getHazardConversation(incidentId),
   });
+  // Reading the room settles this reader's chat notice; the dot follows.
+  useBellRefreshOnRead(data);
 
   const limit = data?.audio_seconds_limit ?? FALLBACK_AUDIO_LIMIT;
 

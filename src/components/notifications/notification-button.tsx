@@ -30,6 +30,7 @@ import {
   useRefetchWhenChanged,
 } from "@/components/notifications/bell-list-refresh";
 import type { NotificationRow } from "@/interfaces/platform-ops";
+import { fieldBellCount } from "@/lib/conversation-notices";
 import { useDateFormat } from "@/lib/dates";
 import { fieldNotificationHref, openFieldHref } from "@/lib/field-notification";
 import { officeNotificationHref } from "@/lib/office-notification";
@@ -193,9 +194,14 @@ export function NotificationButton() {
   // A failed count is not a count of zero. Rendering it as zero tells the
   // reader they have nothing waiting, and nobody goes looking for a
   // notification they have been told does not exist (F-222).
-  const count = countQuery.data?.total ?? 0;
-  const todayCount = countQuery.data?.today ?? 0;
-  const earlierCount = countQuery.data?.earlier ?? 0;
+  //
+  // On the phone the dot is the to-do number plus the threads with an unread
+  // message (2026-10-09: 「全部聊天室如果有新的信息都应该会收到通知红点」);
+  // the My Tasks card under the same query still counts work alone.
+  const counted = user?.is_field_staff ? fieldBellCount(countQuery.data) : countQuery.data;
+  const count = counted?.total ?? 0;
+  const todayCount = counted?.today ?? 0;
+  const earlierCount = counted?.earlier ?? 0;
   const countFailed = countQuery.isError;
   const notificationHref =
     user?.is_field_staff

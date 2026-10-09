@@ -30,6 +30,7 @@ import {
 } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
 import { ApiError } from "@/interfaces/api";
 import type {
   IncidentReportMessage,
@@ -75,6 +76,8 @@ export function IncidentThreadDetail({
     queryKey: ["incident-thread", threadId],
     queryFn: () => getIncidentThread(threadId),
   });
+  // Reading the thread settles this reader's chat notice; the dot follows.
+  useBellRefreshOnRead(thread.data);
 
   const messages = useMemo(() => thread.data?.messages ?? [], [thread.data]);
   // F2: photos are small in the thread and open full size in the shared

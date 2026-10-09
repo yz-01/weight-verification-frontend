@@ -76,6 +76,8 @@ const PROJECT_BOUND_PARAMS = [
   // over the next project's list (B13 audit #8).
   "record",
   "movement",
+  // A record's conversation a chat notice opened (2026-10-09).
+  "chat",
   "machine",
   "outgoing",
   "approval",
