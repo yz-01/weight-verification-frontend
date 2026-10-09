@@ -10309,7 +10309,8 @@
       "open": "Open to deal with it",
       "expand": "Expand",
       "collapse": "Collapse",
-      "more": "{count} more - see all",
+      "scrollBack": "Earlier cards",
+      "scrollForward": "More cards",
       "linkedRecord": "The record this card points to"
     },
     "what": {

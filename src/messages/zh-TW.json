@@ -10309,7 +10309,8 @@
       "open": "點擊進入處理",
       "expand": "展開",
       "collapse": "收起",
-      "more": "還有 {count} 件，查看全部",
+      "scrollBack": "向左查看",
+      "scrollForward": "向右查看更多",
       "linkedRecord": "卡片指向的記錄"
     },
     "what": {
