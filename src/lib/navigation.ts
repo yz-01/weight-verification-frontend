@@ -1369,6 +1369,16 @@ export const PORTAL_NAVIGATION = {
           "company_settings",
           "external_access.manage",
         ),
+        // 技术管理 (Lucas, 2026-10-09: 「原图同步、重试及储存管理放在技术管理
+        // 页面，不显示给现场人员」): photo uploads and original backups. Site
+        // staff hold no company_settings.manage, so they never see it.
+        child(
+          "A8",
+          "nav.submodule.technical",
+          "/technical",
+          "company_settings",
+          "company_settings.manage",
+        ),
       ],
     ),
   ],
@@ -1777,6 +1787,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/consultant-applications/:id/edit", permission: "consultant.submit" },
   { pattern: "/consultant-field-inbox", permission: "consultant.submit" },
   { pattern: "/external-access", permission: "external_access.manage" },
+  { pattern: "/technical", permission: "company_settings.manage" },
 ];
 
 function matchesPattern(pathname: string, pattern: string): boolean {

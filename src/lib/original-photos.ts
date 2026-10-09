@@ -10,8 +10,8 @@
  *   full captured resolution (about 1-2 MB at 1080p). It is not the phone
  *   camera's own 3-5 MB file: the way photos are taken does not change;
  * - the application photo goes first; the original follows on a second,
- *   lower-priority queue, started by hand or - with 「连原图一起上传」 on -
- *   right after (三.3, 三.4);
+ *   lower-priority queue, by itself (三.3, 三.4; Lucas 2026-10-09 update:
+ *   「原图备份由系统自动完成，无需人工开关」);
  * - four states; 「原图已备份」 comes only from the server (三.5, 三.6);
  * - an original that is not backed up is never cleared by the system (三.8).
  *
@@ -34,7 +34,7 @@ import {
 
 /** Said whenever the kept originals change, so every count on screen follows. */
 export const ORIGINALS_CHANGED = "mse:originals-changed";
-/** Asks the running app to start 「同步原图」 (the 「连原图一起上传」 switch). */
+/** Asks the running app to start the automatic original backup now. */
 export const ORIGINALS_SYNC_REQUESTED = "mse:originals-sync-requested";
 
 /** JPEG quality of the kept original: near-lossless, about 1-2 MB at 1080p. */
@@ -239,7 +239,7 @@ export async function attachOriginalManifest(
   // IndexedDB can stall (iOS Safari after the tab is resumed, a version change
   // blocked by another tab). The application photo must never wait on that:
   // past the bound the upload goes without the manifest, the original stays
-  // `captured`, and 「同步原图」 sends it with `photo_sha256` so the server
+  // `captured`, and the original backup sends it with `photo_sha256` so the server
   // declares it on arrival.
   let abandoned = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -300,7 +300,7 @@ async function buildManifest(
 }
 
 /**
- * The upload landed: its originals now wait for 「同步原图」.
+ * The upload landed: its originals now wait for the automatic backup.
  *
  * A failed original keeps its failure (the worker still has to send it); only
  * a `captured` one moves on.
@@ -326,28 +326,8 @@ export async function markOriginalsDeclared(declared: Declared[]): Promise<void>
 }
 
 // ---------------------------------------------------------------------------
-// The switch, storage, and the pure rules
+// Storage, and the pure rules
 // ---------------------------------------------------------------------------
-
-const AUTO_KEY = "mse-originals-auto:";
-
-/** 「连原图一起上传」 for this person on this phone. Off unless they turn it on. */
-export function readAutoSync(ownerId: string): boolean {
-  try {
-    return window.localStorage.getItem(AUTO_KEY + ownerId) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function writeAutoSync(ownerId: string, on: boolean): void {
-  try {
-    if (on) window.localStorage.setItem(AUTO_KEY + ownerId, "1");
-    else window.localStorage.removeItem(AUTO_KEY + ownerId);
-  } catch {
-    // A browser that refuses storage keeps the switch off.
-  }
-}
 
 export interface StorageInfo {
   /** `navigator.storage.persist()`'s answer; null where the browser has none. */
@@ -360,8 +340,9 @@ export interface StorageInfo {
  * Ask the browser not to clear this site's storage under pressure.
  *
  * Android Chrome usually grants it to an installed app; iOS may grant it and
- * still clear storage (三.重要). The screen shows the answer and the design
- * assumes it can fail - which is why 「同步原图」 exists at all.
+ * still clear storage (三.重要). Asked silently; the technical page shows the
+ * answer, and the design assumes it can fail - which is why originals leave
+ * the phone as soon as they can.
  */
 export async function requestPersistentStorage(): Promise<boolean | null> {
   try {
@@ -411,7 +392,7 @@ export function megabytes(bytes: number): string {
   return value < 0.1 ? "0.1" : value < 10 ? value.toFixed(1) : String(Math.round(value));
 }
 
-/** What 「同步原图」 will send: the kept originals whose record has reached the server. */
+/** What the original backup will send: the kept originals whose record has reached the server. */
 export function waitingOriginals<T extends Pick<LocalOriginalInfo, "state">>(rows: T[]): T[] {
   return rows.filter((row) => row.state === "pending" || row.state === "failed");
 }
