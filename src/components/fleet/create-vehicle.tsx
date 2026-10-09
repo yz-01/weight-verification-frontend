@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ImageUp, Plus, Save } from "lucide-react";
+import { ImageUp, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -31,31 +31,31 @@ import {
   type VehiclePayload,
   type VehicleType,
 } from "@/interfaces/recycler";
-import {
-  createVehicle,
-  getVehicle,
-  updateVehicle,
-} from "@/services/recycler.service";
+import { getVehicle, updateVehicle } from "@/services/recycler.service";
 
 /**
- * The lorry form, shared by create and edit.
+ * The lorry form, for correcting a lorry already on the books.
+ *
+ * There is no 新增车辆 any more (「新增司机和新增车辆也是可以移除了」): a lorry
+ * is added by typing its plate in 接单与派车. This form remains for the
+ * details that matter later - type, capacity, permits - and the stored tare
+ * is its own action beside it.
  *
  * No tare field. It has its own action with its own permission and a mandatory
  * reason, because on a stored-tare yard it moves money on every future load —
  * it should not be changeable as a side effect of correcting a typo in the
  * make and model.
  */
-export function CreateVehicle({ vehicle }: { vehicle?: Vehicle }) {
+export function VehicleForm({ vehicle }: { vehicle: Vehicle }) {
   const t = useTranslations();
   const finish = useFinishForm();
   const queryClient = useQueryClient();
-  const isEdit = vehicle !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
 
   const mutation = useMutation({
     mutationFn: (values: VehiclePayload) =>
-      isEdit ? updateVehicle(vehicle.id, values) : createVehicle(values),
+      updateVehicle(vehicle.id, values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       finish("/vehicles");
@@ -106,10 +106,10 @@ export function CreateVehicle({ vehicle }: { vehicle?: Vehicle }) {
     <FormShell
       backHref="/vehicles"
       backLabel={t("vehicles.title")}
-      title={isEdit ? t("vehicles.editTitle") : t("vehicles.createTitle")}
+      title={t("vehicles.editTitle")}
       isSubmitting={mutation.isPending}
-      submitLabel={isEdit ? t("common.save") : t("common.create")}
-      submitIcon={isEdit ? Save : Plus}
+      submitLabel={t("common.save")}
+      submitIcon={Save}
       onSubmit={() => void form.handleSubmit()}
     >
       <FormSection title={t("vehicles.section.identity")}>
@@ -309,5 +309,5 @@ export function EditVehicle({ id }: { id: string }) {
   if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/vehicles" backLabel={t("vehicles.title")} />;
   }
-  return <CreateVehicle vehicle={data} />;
+  return <VehicleForm vehicle={data} />;
 }

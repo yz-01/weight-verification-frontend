@@ -56,7 +56,9 @@ describe("the create and edit dialogs", () => {
     // change is either a new form (which needs a dialog) or a deleted one.
     // 2026-10-09: less the dispatch's create and edit - a 废料订单 comes from
     // an approved 环保材料出场申请, and the old ones are read-only.
-    expect(routes.length).toBe(25);
+    // Also 2026-10-09: less the driver's and the lorry's create - both are
+    // typed in 接单与派车 now (「新增司机和新增车辆也是可以移除了」).
+    expect(routes.length).toBe(23);
   });
 
   it.each(fullPageForms())("%s opens as a dialog too", (route) => {

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Info, Pencil, Plus, Scale, Trash2 } from "lucide-react";
+import { Eye, Info, Pencil, Scale, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -217,16 +217,6 @@ export function Vehicles() {
       <ListHeader
         title={t("vehicles.title")}
         subtitle={isLoading ? "—" : t("vehicles.count", { count: totalCount })}
-        action={
-          can("fleet.manage") ? (
-            <Button asChild>
-              <Link href="/vehicles/create">
-                <Plus className="size-4" />
-                {t("vehicles.new")}
-              </Link>
-            </Button>
-          ) : undefined
-        }
       />
 
       <DataTable

@@ -42,8 +42,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { RecyclerSettings } from "@/interfaces/recycler";
+import { DRIVER_LINK_CLOSE_RULES, type DriverLinkCloseRule } from "@/lib/driver-link";
 import type { ContractorCompanyProfile } from "@/interfaces/site-access";
 import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
 import {
@@ -235,6 +243,27 @@ export function RecyclerCompanySettingsWorkspace() {
           <HardwareToggle icon={Camera} label={t("business.anpr")} help={t("business.anprHelp")} count={settings.anpr_device_count} checked={settings.anpr_enabled} disabled={!canManage} onChange={(value) => setSetting("anpr_enabled", value)} />
         </div>
         <p className="text-sm text-muted-foreground">{t("business.hardwareOwner")}</p>
+      </section>
+
+      {/* 「后台可以设置」: the company default for driver sign-in links. The
+          office can still pick the other rule for one link when sending it. */}
+      <section className="space-y-3">
+        <SectionHeading icon={Link2} title={t("driverLink.title")} description={t("driverLink.help")} />
+        <div className="surface-panel grid grid-cols-1 gap-4 rounded-xl p-4 sm:grid-cols-2 sm:p-6">
+          <FieldWrapper label={t("driverLink.rule")}>
+            <Select disabled={!canManage} value={settings.driver_link_close_rule} onValueChange={(value) => setSetting("driver_link_close_rule", value as DriverLinkCloseRule)}>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {DRIVER_LINK_CLOSE_RULES.map((rule) => (
+                  <SelectItem key={rule} value={rule}>{t(`driverLink.ruleOption.${rule}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("driverLink.idleDays")} hint={t("driverLink.idleDaysHint")}>
+            <Input disabled={!canManage} type="number" inputMode="numeric" min="1" max="365" value={settings.driver_link_idle_days} onChange={(event) => setSetting("driver_link_idle_days", Number(event.target.value))} />
+          </FieldWrapper>
+        </div>
       </section>
 
       <section className="space-y-3">

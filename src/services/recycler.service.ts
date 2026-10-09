@@ -7,6 +7,7 @@ which company is looking would put half a conversation in each file.
 */
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
+import type { DriverLinkCloseRule } from "@/lib/driver-link";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import type {
   Deduction,
@@ -99,15 +100,6 @@ function fleetPayload(
   return data;
 }
 
-export async function createVehicle(payload: VehiclePayload): Promise<Vehicle> {
-  const vehicle = await api.post<Vehicle>(
-    "/api/vehicles/create_vehicle/",
-    fleetPayload(payload),
-  );
-  toastSuccess("vehicles.toast.created");
-  return vehicle;
-}
-
 export async function updateVehicle(
   id: string,
   payload: Partial<VehiclePayload>,
@@ -183,21 +175,6 @@ export async function acceptDispatch(
   return dispatch;
 }
 
-export interface DriverAccountOption {
-  id: string;
-  full_name: string;
-  email: string;
-}
-
-export function getDriverAccounts(
-  query: ListQuery,
-): Promise<Paginated<DriverAccountOption>> {
-  return api.list<DriverAccountOption>(
-    "/api/drivers/get_driver_accounts/",
-    query,
-  );
-}
-
 export function getDriver(id: string): Promise<Driver> {
   return api.get<Driver>(`/api/drivers/${id}/get_driver/`);
 }
@@ -210,15 +187,6 @@ export function updateMyDriverSettings(
   payload: DriverNotificationSettings,
 ): Promise<Driver> {
   return api.patch<Driver>("/api/drivers/update_my_settings/", payload);
-}
-
-export async function createDriver(payload: DriverPayload): Promise<Driver> {
-  const driver = await api.post<Driver>(
-    "/api/drivers/create_driver/",
-    fleetPayload(payload),
-  );
-  toastSuccess("drivers.toast.created");
-  return driver;
 }
 
 export async function updateDriver(
@@ -285,6 +253,17 @@ export async function updateTask(
   );
   toastSuccess("tasks.toast.updated");
   return task;
+}
+
+/**
+ * 「发送链接」 / 「重新发送链接」 for a running trip. The new link replaces the
+ * old one, which stops working at once; `link_url` is the only copy.
+ */
+export function sendTaskLink(
+  id: string,
+  payload: { close_rule?: DriverLinkCloseRule; idle_days?: number } = {},
+): Promise<DriverTaskDetail> {
+  return api.post<DriverTaskDetail>(`/api/tasks/${id}/send_link/`, payload);
 }
 
 export async function cancelTask(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Info, MapPin, Pencil, XCircle } from "lucide-react";
+import { ArrowRight, Info, Link2, MapPin, Pencil, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -19,6 +19,7 @@ import {
   ShellPanel,
 } from "@/components/shared/record-detail-shell";
 import { TASK_STATE_TONE } from "@/components/tasks/tasks";
+import { SendTripLinkDialog } from "@/components/tasks/trip-link";
 import { Button } from "@/components/ui/button";
 import {
   TASK_TRANSITIONS,
@@ -60,6 +61,7 @@ export function ViewTask({
   const [moving, setMoving] = useState<TaskState | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [sendingLink, setSendingLink] = useState(false);
   const [reason, setReason] = useState("");
   const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["tasks", "detail", id],
@@ -172,10 +174,14 @@ export function ViewTask({
       }
       headerActions={
         can("task.assign") &&
-        (data.state === "ASSIGNED" ||
-          data.state === "ACCEPTED" ||
-          data.state === "DELIVERED") ? (
+        !["COMPLETED", "CANCELLED", "FAILED"].includes(data.state) ? (
           <div className="flex flex-wrap gap-2">
+            {/* The driver's way in: this trip's link. Sending again kills the
+                old one - a link sent to the wrong chat, or a new phone. */}
+            <Button size="sm" onClick={() => setSendingLink(true)}>
+              <Link2 className="h-4 w-4" />
+              {data.link ? t("tasks.link.resend") : t("tasks.link.send")}
+            </Button>
             {data.state === "ASSIGNED" && (
               <Button asChild size="sm" variant="outline">
                 <Link href={`/tasks/${id}/edit`}>
@@ -200,7 +206,7 @@ export function ViewTask({
                 <XCircle className="h-4 w-4" />
                 {t("tasks.close.action")}
               </Button>
-            ) : (
+            ) : data.state === "ASSIGNED" || data.state === "ACCEPTED" ? (
               <Button
                 size="sm"
                 variant="outline"
@@ -210,7 +216,7 @@ export function ViewTask({
                 <XCircle className="h-4 w-4" />
                 {t("tasks.cancel.action")}
               </Button>
-            )}
+            ) : null}
           </div>
         ) : undefined
       }
@@ -228,7 +234,12 @@ export function ViewTask({
           { label: t("tasks.field.site"), value: data.site_name },
           // Crew
           { label: t("tasks.field.driver"), value: data.driver_name },
+          { label: t("tasks.crew.driverPhone"), value: data.driver_phone },
           { label: t("tasks.field.vehicle"), value: data.vehicle_plate },
+          {
+            label: t("tasks.link.status"),
+            value: t(`tasks.link.statusValue.${data.link?.status ?? "NONE"}`),
+          },
           { label: t("tasks.field.notes"), value: data.notes, wide: true },
           ...(data.failure_reason
             ? [
@@ -336,6 +347,9 @@ export function ViewTask({
         />
       )}
 
+      {sendingLink && (
+        <SendTripLinkDialog task={data} onClose={() => setSendingLink(false)} />
+      )}
       {cancelling && (
         <ConfirmDialog
           open

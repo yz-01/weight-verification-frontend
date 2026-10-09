@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
+import { AssignTripPanel } from "@/components/tasks/assign-trip";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { KpiCard } from "@/components/shared/kpi-card";
 import {
@@ -579,6 +580,19 @@ function OrderAssignmentDialog({
                 <p className="text-sm font-semibold">{t("incoming.order.waitingConfirmation")}</p>
               </div>
             )}
+            {/* 派车 happens here, not on a page of its own: the date is agreed,
+                so type who is driving and hand them this order's link. */}
+            {!waitingForContractor &&
+              (load.driver_assigned_at ? (
+                <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm">
+                  <p className="font-semibold">{t("incoming.order.alreadyAssigned")}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    {[load.driver_name, load.vehicle_plate].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+              ) : (
+                <AssignTripPanel load={load} onAssigned={onDone} />
+              ))}
           </div>
         ) : (
         <div className="grid gap-4">
@@ -616,14 +630,6 @@ function OrderAssignmentDialog({
                     disabled={pending} onClick={() => propose.mutate()}>
               {propose.isPending ? <Loader2 className="animate-spin" /> : <CalendarClock />}
               {t("incoming.order.proposeTime")}
-            </Button>
-          )}
-          {load.state === "ACCEPTED" && !waitingForContractor && (
-            <Button asChild variant="outline">
-              <Link href="/tasks/create">
-                <Truck />
-                {t("incoming.order.goToDispatch")}
-              </Link>
             </Button>
           )}
         </DialogFooter>

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Plus, Trash2, TriangleAlert } from "lucide-react";
+import { Eye, Pencil, Trash2, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -204,16 +204,6 @@ export function Drivers() {
       <ListHeader
         title={t("drivers.title")}
         subtitle={isLoading ? "—" : t("drivers.count", { count: totalCount })}
-        action={
-          can("fleet.manage") ? (
-            <Button asChild>
-              <Link href="/drivers/create">
-                <Plus className="size-4" />
-                {t("drivers.new")}
-              </Link>
-            </Button>
-          ) : undefined
-        }
       />
 
       <div className="grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

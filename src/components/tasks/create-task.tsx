@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Info, Plus, Save, TriangleAlert } from "lucide-react";
+import { Info, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -23,6 +23,18 @@ import {
   required,
 } from "@/components/shared/form-shell";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
+import {
+  CrewFields,
+  DEFAULT_LINK_RULE,
+  EMPTY_CREW,
+  LinkRuleFields,
+  crewPayload,
+  linkRuleIsComplete,
+  tripLinkRulePayload,
+  type CrewValue,
+  type LinkRuleValue,
+} from "@/components/tasks/trip-crew";
+import { TripLinkDialog } from "@/components/tasks/trip-link";
 import { ApiError } from "@/interfaces/api";
 import type {
   DriverTaskDetail,
@@ -35,10 +47,8 @@ import {
   newClientEventId,
 } from "@/services/offline-sync.service";
 import {
-  getDriversOfflineAware,
   getIncomingOfflineAware,
   getSitesOfflineAware,
-  getVehiclesOfflineAware,
 } from "@/services/recycler-offline.service";
 
 /**
@@ -84,6 +94,23 @@ function TaskForm({
   const { user } = useAuth();
   const ownerId = user?.id ?? "";
   const [formError, setFormError] = useState<string | null>(null);
+  // Typed, not picked (「不需要新增司机账号或者车辆了」). Kept beside the form
+  // rather than in it: three plain inputs with suggestions, whose refusals
+  // come back under the payload's own names.
+  const [crew, setCrew] = useState<CrewValue>(
+    existingTask
+      ? {
+          driverName: existingTask.driver_name,
+          driverPhone: existingTask.driver_phone ?? "",
+          vehiclePlate: existingTask.vehicle_plate,
+        }
+      : EMPTY_CREW,
+  );
+  const [crewErrors, setCrewErrors] = useState<
+    Partial<Record<"driver_name" | "driver_phone" | "vehicle_plate", string>>
+  >({});
+  const [linkRule, setLinkRule] = useState<LinkRuleValue>(DEFAULT_LINK_RULE);
+  const [assigned, setAssigned] = useState<DriverTaskDetail | null>(null);
 
   const loadQuery = useQuery({
     queryKey: ["incoming", "options"],
@@ -95,28 +122,14 @@ function TaskForm({
     queryFn: () => getSitesOfflineAware(ownerId, { page_size: 100 }),
     enabled: Boolean(ownerId),
   });
-  const vehicleQuery = useQuery({
-    queryKey: ["vehicles", "options"],
-    queryFn: () =>
-      getVehiclesOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
-    enabled: Boolean(ownerId),
-  });
-  const driverQuery = useQuery({
-    queryKey: ["drivers", "options"],
-    queryFn: () =>
-      getDriversOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
-    enabled: Boolean(ownerId),
-  });
   const loadPage = loadQuery.data;
   const sitePage = siteQuery.data;
-  const vehiclePage = vehicleQuery.data;
-  const driverPage = driverQuery.data;
+  const onlySite =
+    sitePage?.results.length === 1 ? sitePage.results[0].id : "";
   const defaultValues = useMemo(
     () => ({
       dispatch: existingTask?.dispatch ?? "",
       site: existingTask?.site ?? "",
-      vehicle: existingTask?.vehicle ?? "",
-      driver: existingTask?.driver ?? "",
       scheduled_for: localDateTimeInput(existingTask?.scheduled_for),
       notes: existingTask?.notes ?? "",
     }),
@@ -146,8 +159,9 @@ function TaskForm({
           dispatchId: values.dispatch ?? "",
           dispatchNo: load?.dispatch_no ?? "",
           site: values.site,
-          vehicle: values.vehicle,
-          driver: values.driver,
+          driverName: values.driver_name,
+          driverPhone: values.driver_phone,
+          vehiclePlate: values.vehicle_plate,
           scheduledFor: values.scheduled_for
             ? new Date(values.scheduled_for).toISOString()
             : null,
@@ -159,7 +173,11 @@ function TaskForm({
     },
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      finish(saved ? `/tasks/${saved.id}` : "/tasks");
+      void queryClient.invalidateQueries({ queryKey: ["drivers"] });
+      void queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      // A new link comes back once; hand it over before leaving the form.
+      if (saved?.link_url) setAssigned(saved);
+      else finish(saved ? `/tasks/${saved.id}` : "/tasks");
     },
   });
 
@@ -167,11 +185,27 @@ function TaskForm({
     defaultValues,
     onSubmit: async ({ value }) => {
       setFormError(null);
+      // Said under each empty box before the round trip: the server would
+      // refuse the same three, one at a time.
+      const required = t("validation.required");
+      const missing = {
+        ...(crew.driverName.trim() ? {} : { driver_name: required }),
+        ...(crew.driverPhone.trim() ? {} : { driver_phone: required }),
+        ...(crew.vehiclePlate.trim() ? {} : { vehicle_plate: required }),
+      };
+      setCrewErrors(missing);
+      if (Object.keys(missing).length > 0 || (!id && !linkRuleIsComplete(linkRule))) {
+        toast.error(t("tasks.crew.incomplete"));
+        return;
+      }
       try {
         await mutation.mutateAsync({
           ...value,
+          site: value.site || onlySite,
           dispatch: value.dispatch,
           scheduled_for: value.scheduled_for || null,
+          ...crewPayload(crew),
+          ...(id ? {} : tripLinkRulePayload(linkRule)),
         });
       } catch (error) {
         if (error instanceof ApiError) {
@@ -180,6 +214,12 @@ function TaskForm({
               error.errors,
               form as unknown as Parameters<typeof applyServerErrors>[1],
             );
+            const crewRefusals = {
+              driver_name: error.errors.driver_name ?? error.errors.driver,
+              driver_phone: error.errors.driver_phone,
+              vehicle_plate: error.errors.vehicle_plate ?? error.errors.vehicle,
+            };
+            setCrewErrors(crewRefusals);
             if (leftover.length > 0) setFormError(leftover[0]);
             // The refusals that matter here — this driver is already out, this
             // lorry is already out, this load already has a trip — land on a
@@ -188,8 +228,9 @@ function TaskForm({
             // and the trip did not exist. So say it where they are looking.
             toast.error(
               leftover[0] ??
-                error.errors.driver ??
-                error.errors.vehicle ??
+                crewRefusals.driver_name ??
+                crewRefusals.driver_phone ??
+                crewRefusals.vehicle_plate ??
                 error.errors.dispatch ??
                 error.message,
             );
@@ -201,25 +242,6 @@ function TaskForm({
       }
     },
   });
-
-  /**
-   * A driver or lorry that is already out cannot take a second trip.
-   *
-   * Shown as an unselectable row rather than hidden: a dispatcher looking for
-   * Ali needs to see that Ali is out and on which trip, not to find that Ali
-   * has vanished from the list. The one exception is whoever is already on
-   * *this* trip — on the edit form they are "on a task" by definition, and
-   * disabling them would make the form unable to save itself unchanged.
-   */
-  const isBusy = (status: string) =>
-    status !== "AVAILABLE" && status !== "COMPLETED_TODAY";
-
-  const drivers = driverPage?.results ?? [];
-  const noDriverFree =
-    drivers.length > 0 &&
-    drivers.every(
-      (driver) => isBusy(driver.work_status) && driver.id !== existingTask?.driver,
-    );
 
   return (
     <FormShell
@@ -249,15 +271,20 @@ function TaskForm({
           )}
         </form.Field>
 
+        {/* A yard with one site is not asked which: it is that one. */}
         <form.Field
           name="site"
-          validators={{ onSubmit: required(t("validation.required")) }}
+          validators={{
+            onSubmit: ({ value }) =>
+              value || onlySite ? undefined : t("validation.required"),
+          }}
         >
           {(field) => (
             <SelectField
               field={field as unknown as BoundField}
               label={t("tasks.field.site")}
-              required
+              required={!onlySite}
+              placeholder={onlySite ? sitePage?.results[0].name : undefined}
               options={(sitePage?.results ?? []).map((site) => ({
                 value: site.id,
                 label: `${site.code} — ${site.name}`,
@@ -270,64 +297,8 @@ function TaskForm({
       </FormSection>
 
       <FormSection title={t("tasks.section.crew")}>
-        <form.Field
-          name="vehicle"
-          validators={{ onSubmit: required(t("validation.required")) }}
-        >
-          {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("tasks.field.vehicle")}
-              required
-              options={(vehiclePage?.results ?? []).map((vehicle) => ({
-                value: vehicle.id,
-                disabled:
-                  isBusy(vehicle.work_status) &&
-                  vehicle.id !== existingTask?.vehicle,
-                label: [
-                  vehicle.plate_no,
-                  t(`vehicles.status.${vehicle.work_status}`),
-                  vehicle.current_task_no
-                    ? `${t("vehicles.field.currentTask")}: ${vehicle.current_task_no}`
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · "),
-              }))}
-            />
-          )}
-        </form.Field>
-
-        <form.Field
-          name="driver"
-          validators={{ onSubmit: required(t("validation.required")) }}
-        >
-          {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("tasks.field.driver")}
-              required
-              hint={t("tasks.oneTripPerDriverNote")}
-              options={(driverPage?.results ?? []).map((driver) => ({
-                value: driver.id,
-                disabled:
-                  isBusy(driver.work_status) && driver.id !== existingTask?.driver,
-                label: [
-                  driver.full_name,
-                  t(`drivers.status.${driver.work_status}`),
-                  driver.current_task_no
-                    ? `${t("drivers.field.currentTask")}: ${driver.current_task_no}`
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · "),
-              }))}
-            />
-          )}
-        </form.Field>
-
-        <QueryFailedNote query={vehicleQuery} what={t("tasks.what.vehicles")} className="md:col-span-2" />
-        <QueryFailedNote query={driverQuery} what={t("tasks.what.drivers")} className="md:col-span-2" />
+        <CrewFields value={crew} onChange={setCrew} errors={crewErrors} />
+        {!id && <LinkRuleFields value={linkRule} onChange={setLinkRule} />}
 
         <form.Field name="scheduled_for">
           {(field) => (
@@ -351,18 +322,6 @@ function TaskForm({
           )}
         </form.Field>
 
-        {/*
-          Everyone is out. The pickers are then a list of rows that cannot be
-          chosen, which reads as a broken screen rather than as a full yard —
-          so name it, and say the two things that fix it.
-        */}
-        {noDriverFree && (
-          <p className="flex items-start gap-2 rounded-lg border border-tone-amber/40 bg-tone-amber/10 px-3 py-2 text-xs font-medium text-tone-amber-fg md:col-span-2">
-            <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
-            {t("tasks.everyDriverBusyNote")}
-          </p>
-        )}
-
         <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
           <Info className="mt-0.5 size-3.5 shrink-0" />
           {t("tasks.reassignNote")}
@@ -374,6 +333,13 @@ function TaskForm({
           </p>
         )}
       </FormSection>
+      {assigned?.link_url && (
+        <TripLinkDialog
+          task={assigned}
+          linkUrl={assigned.link_url}
+          onClose={() => finish(`/tasks/${assigned.id}`)}
+        />
+      )}
     </FormShell>
   );
 }
