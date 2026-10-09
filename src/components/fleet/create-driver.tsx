@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { SendDriverLinkDialog } from "@/components/fleet/driver-login-link";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
@@ -44,6 +45,9 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [driverPhoto, setDriverPhoto] = useState<File | null>(null);
   const [licencePhoto, setLicencePhoto] = useState<File | null>(null);
+  // A driver saved with no email gets a link-only login; the natural next
+  // step is sending them that link, so the dialog opens before leaving.
+  const [created, setCreated] = useState<Driver | null>(null);
 
   const vehicles = useQuery({
     queryKey: ["vehicles", "options"],
@@ -64,9 +68,10 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
   const mutation = useMutation({
     mutationFn: (values: DriverPayload) =>
       isEdit ? updateDriver(driver.id, values) : createDriver(values),
-    onSuccess: () => {
+    onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["drivers"] });
-      finish("/drivers");
+      if (!isEdit && saved.signs_in_by_link) setCreated(saved);
+      else finish("/drivers");
     },
   });
 
@@ -90,16 +95,10 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
-      // A driver without a login is a driver whose task list is empty forever,
-      // with nothing on either screen to say why. Caught here as well as on
-      // the server so the answer arrives before the round trip.
-      if (!value.user && !(value.account_email.trim() && value.account_password)) {
-        setFormError(t("drivers.accountRequired"));
-        toast.error(t("drivers.accountRequired"));
-        return;
-      }
-      // Same reason as the account above: the server refuses this, and the
-      // answer is already here, so say it now rather than after a round trip.
+      // No account check here any more: 「司机不再需要邮箱才可以注册」. With
+      // nothing picked and no email, the server makes a link-only login.
+      // The server refuses a missing lorry, and the answer is already here,
+      // so say it now rather than after a round trip.
       if (!value.default_vehicle) {
         setFormError(t("drivers.vehicleRequired"));
         toast.error(t("drivers.vehicleRequired"));
@@ -239,11 +238,15 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
               <SelectField
                 field={field as unknown as BoundField}
                 label={t("drivers.field.account")}
-                required
+                optional
                 hint={t("drivers.field.accountHint")}
                 options={(accounts.data?.results ?? []).map((account) => ({
                   value: account.id,
-                  label: `${account.full_name} (${account.email})`,
+                  label: `${account.full_name} (${
+                    isLinkAccountEmail(account.email)
+                      ? t("drivers.loginLink.linkAccount")
+                      : account.email
+                  })`,
                 }))}
               />
               <QueryFailedNote query={accounts} what={t("drivers.what.accounts")} />
@@ -259,7 +262,10 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
         */}
         <form.Subscribe selector={(state) => state.values.user}>
           {(selected) =>
-            selected ? null : (
+            // Also shown for a link driver's own login: giving them an email
+            // and password fills in that same account.
+            selected &&
+            !(driver?.signs_in_by_link && selected === driver.user) ? null : (
               <>
                 <form.Field name="account_email">
                   {(field) => (
@@ -382,8 +388,16 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
           </p>
         )}
       </FormSection>
+      {created && (
+        <SendDriverLinkDialog driver={created} onClose={() => finish("/drivers")} />
+      )}
     </FormShell>
   );
+}
+
+/** Logins made for link-only drivers carry a placeholder, not a real email. */
+function isLinkAccountEmail(email: string): boolean {
+  return email.endsWith("@mse.invalid");
 }
 
 function ToggleField({

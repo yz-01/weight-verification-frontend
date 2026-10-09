@@ -1,6 +1,7 @@
 /** The recycler console's records: fleet, trips, the gate, and the money. */
 
 import type { NotificationRow } from "@/interfaces/platform-ops";
+import type { DriverLinkCloseRule, DriverLinkStatus } from "@/lib/driver-link";
 
 export type VehicleType =
   | "LORRY"
@@ -90,7 +91,12 @@ export interface Driver {
   default_vehicle: string | null;
   default_vehicle_plate: string | null;
   user: string | null;
+  /** Null for a driver who signs in by link: their login has no real email. */
   user_email: string | null;
+  /** Set up with name and phone only; reaches the driver page by a link. */
+  signs_in_by_link: boolean;
+  /** The driver's open sign-in link, if the office has sent one. */
+  login_link: DriverLoginLink | null;
   login_idle_expiry_days: number;
   language: "en" | "zh" | "zh-TW" | "ms" | null;
   company_name: string;
@@ -105,6 +111,34 @@ export interface Driver {
   notify_task_changes: boolean;
   notify_system: boolean;
   created_at: string;
+}
+
+export interface DriverLoginLink {
+  id: string;
+  status: DriverLinkStatus;
+  close_rule: DriverLinkCloseRule;
+  idle_days: number;
+  created_at: string;
+  bound_at: string | null;
+  last_used_at: string | null;
+  expires_at: string | null;
+  closed_at: string | null;
+  closed_reason: string;
+  device_name: string;
+}
+
+/** What 「发送登录链接」 returns: the only time the link exists in full. */
+export interface DriverLinkIssued {
+  driver_id: string;
+  full_name: string;
+  phone: string;
+  login_url: string;
+  link: DriverLoginLink;
+}
+
+export interface DriverLinkIssuePayload {
+  close_rule?: DriverLinkCloseRule;
+  idle_days?: number;
 }
 
 export interface DriverPayload {
@@ -370,6 +404,8 @@ export interface RecyclerSettings {
   deduction_confirmation_kg: string;
   ai_cctv_enabled: boolean;
   anpr_enabled: boolean;
+  driver_link_close_rule: DriverLinkCloseRule;
+  driver_link_idle_days: number;
   commission: RecyclerCommissionSetting | null;
   ai_cctv_device_count: number;
   anpr_device_count: number;

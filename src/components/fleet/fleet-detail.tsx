@@ -5,6 +5,7 @@ import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
+import { DriverLoginLinkSection } from "@/components/fleet/driver-login-link";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   FormSection,
@@ -118,6 +119,7 @@ export function DriverDetail({ id }: { id: string }) {
             />
             <ReadField label={t("drivers.field.notes")} value={driver.notes} className="md:col-span-2" />
           </FormSection>
+          <DriverLoginLinkSection driver={driver} />
         </div>
       </div>
 

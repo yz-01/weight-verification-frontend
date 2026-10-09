@@ -7122,8 +7122,7 @@
   "drivers": {
     "vehicleRequiredHelp": "没有车的司机在名册上照样显示可用，但每次派单都得从头挑一台车。",
     "vehicleRequired": "请选一台车",
-    "accountRequired": "请选择这位司机的登录账号，或填写邮箱和密码新建一个。",
-    "accountRequiredHelp": "每位司机都必须有登录账号。没有账号的话，无论派多少任务给他，他的任务列表都会一直是空的，两边界面也不会有任何提示。",
+    "accountRequiredHelp": "不填邮箱也可以：保存后发送登录链接，司机点开就能直接进入。要用邮箱和密码登录，就选一个账号，或填写邮箱和密码。",
     "count": "{count, plural, =0 {暂无司机} other {# 位}}",
     "createTitle": "新增司机",
     "editTitle": "编辑司机",
@@ -7196,6 +7195,56 @@
       "vehicles": "车辆列表",
       "accounts": "司机账号列表",
       "summary": "司机统计"
+    },
+    "loginLink": {
+      "section": "登录链接",
+      "send": "发送登录链接",
+      "resend": "重新发送链接",
+      "revoke": "关闭链接",
+      "revokeTitle": "关闭这个登录链接？",
+      "revokeDescription": "司机手机上用这个链接的登录会马上失效。需要时可以重新发送。",
+      "title": "发送登录链接给 {name}",
+      "description": "司机点开链接就能直接进入，不用邮箱、密码或 PIN。",
+      "ruleLabel": "链接什么时候失效",
+      "companyDefault": "按公司设置",
+      "idleDays": "天数",
+      "idleDaysHint": "1 到 365 天。每次使用会重新计算。",
+      "ruleHelp": "链接只能在第一部打开它的手机上使用。重新发送会让旧链接失效。",
+      "replacesOld": "这位司机已有登录链接。发送新链接后，旧链接马上失效。",
+      "resultTitle": "登录链接已生成",
+      "resultDescription": "复制链接或用 WhatsApp 发给司机。链接只显示这一次。",
+      "link": "登录链接",
+      "copyLink": "复制链接",
+      "qrTitle": "司机登录二维码",
+      "whatsapp": "用 WhatsApp 发送",
+      "shareMessage": "{name}，这是你的司机登录链接，点开就能进入：{url}",
+      "onePhone": "只能在第一部打开它的手机上使用。",
+      "expiresAt": "{date} 前没打开就作废",
+      "rule": {
+        "CLOSE_AFTER_WEIGHING": "称重完成后自动关闭",
+        "EXPIRE_AFTER_IDLE_DAYS": "超过 {days} 天没打开就作废"
+      },
+      "status": {
+        "NONE": "未发送",
+        "NOT_OPENED": "等待司机打开",
+        "ACTIVE": "使用中",
+        "EXPIRED": "已过期",
+        "CLOSED": "已关闭"
+      },
+      "sentAt": "发送时间",
+      "openedAt": "首次打开",
+      "lastUsedAt": "最后使用",
+      "expiresAtLabel": "失效时间",
+      "noneLinkOnly": "这位司机没有邮箱和密码，发送登录链接后才能用司机页面。",
+      "noneHasPassword": "这位司机可以用邮箱和密码登录，也可以发送登录链接。",
+      "linkAccount": "用链接登录",
+      "toast": {
+        "revoked": "登录链接已关闭"
+      },
+      "ruleOption": {
+        "CLOSE_AFTER_WEIGHING": "称重完成后自动关闭",
+        "EXPIRE_AFTER_IDLE_DAYS": "超过几天没打开就作废"
+      }
     }
   },
   "email": {
@@ -7440,7 +7489,10 @@
       "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。",
       "original_not_expected": "服务器上还没有这张原图对应的照片，请先让记录上传完成。",
       "original_hash_mismatch": "原图在传送中出错，和手机上的不一致，服务器没有保存。请再按一次「同步原图」。",
-      "original_not_found": "这张照片没有已备份的原图。"
+      "original_not_found": "这张照片没有已备份的原图。",
+      "driver_link_invalid": "登录链接无效。请确认链接复制完整，或联系后台重新发送。",
+      "driver_link_closed": "链接已失效，请联系后台重新发送。",
+      "driver_link_other_device": "这个链接已在另一部手机上使用。请联系后台重新发送。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -12111,6 +12163,17 @@
     "title": "公司设置",
     "toast": {
       "saved": "回收商设置已保存"
+    },
+    "driverLink": {
+      "title": "司机登录链接",
+      "help": "发给司机的登录链接默认什么时候失效。发送时也可以单独选择。",
+      "rule": "默认失效规则",
+      "idleDays": "没打开多少天后作废",
+      "idleDaysHint": "1 到 365 天，默认 7 天。只用于“超过几天没打开就作废”。",
+      "ruleOption": {
+        "CLOSE_AFTER_WEIGHING": "称重完成后自动关闭",
+        "EXPIRE_AFTER_IDLE_DAYS": "超过几天没打开就作废"
+      }
     }
   },
   "recyclerReports": {
@@ -16196,5 +16259,22 @@
     "nothingToClean": "没有缓存照片需要清理",
     "cleaned": "已清理缓存照片 {count} 张（约 {mb} MB）",
     "cleanFailed": "没有清理成功，请再试一次"
+  },
+  "driverLink": {
+    "signingIn": "正在登录…",
+    "thisPhone": "这部手机",
+    "chatTitle": "建议用浏览器打开",
+    "chatBody": "你正在 {app} 里打开链接。链接会绑定第一次打开它的地方，之后用 Chrome 或 Safari 打开会被当成另一部手机。请复制链接，到浏览器打开。",
+    "copyLink": "复制链接",
+    "copied": "已复制",
+    "continueHere": "仍在这里打开",
+    "closedTitle": "链接已失效",
+    "closedBody": "这个登录链接已关闭或过期。请联系后台重新发送。",
+    "otherDeviceTitle": "链接已在另一部手机上使用",
+    "otherDeviceBody": "登录链接只能在第一部打开它的手机上使用。请联系后台重新发送。",
+    "invalidTitle": "链接无效",
+    "invalidBody": "请确认链接复制完整，或联系后台重新发送。",
+    "failedTitle": "暂时无法登录",
+    "failedBody": "请检查网络后重试。"
   }
 }

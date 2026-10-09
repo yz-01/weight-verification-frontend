@@ -2,11 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Plus, Trash2, TriangleAlert } from "lucide-react";
+import { Eye, Link2, Pencil, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { SendDriverLinkDialog } from "@/components/fleet/driver-login-link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
@@ -37,6 +38,7 @@ export function Drivers() {
   const queryClient = useQueryClient();
   const list = useListQuery(["work_status"]);
   const [removing, setRemoving] = useState<Driver | null>(null);
+  const [linking, setLinking] = useState<Driver | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["drivers", list.query],
@@ -179,6 +181,17 @@ export function Drivers() {
                   <Pencil className="h-3.5 w-3.5" />
                 </Link>
               </Button>
+              {row.original.is_active && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-primary hover:bg-primary/10"
+                  title={t("drivers.loginLink.send")}
+                  onClick={() => setLinking(row.original)}
+                >
+                  <Link2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -259,6 +272,10 @@ export function Drivers() {
         onPageSizeChange={list.setPageSize}
         onClearFilters={list.clearFilters}
       />
+
+      {linking && (
+        <SendDriverLinkDialog driver={linking} onClose={() => setLinking(null)} />
+      )}
 
       {removing && (
         <ConfirmDialog
