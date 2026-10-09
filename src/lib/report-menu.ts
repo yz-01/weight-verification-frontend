@@ -132,6 +132,11 @@ const PHOTO_SOURCE_MODULE: Record<string, string> = {
   "waste.dispatchphoto": "nav.submodule.wasteDispatches",
 };
 
+/** The message key of the module a photograph source belongs to, if any. */
+export function photoSourceModuleKey(source: string): string | undefined {
+  return PHOTO_SOURCE_MODULE[source];
+}
+
 /** Every source one module owns, in the order of the table above. */
 function moduleSources(module: string): string[] {
   return Object.entries(PHOTO_SOURCE_MODULE)
