@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { Button } from "@/components/ui/button";
 import { useDateFormat } from "@/lib/dates";
-import { fieldNotificationHref } from "@/lib/field-notification";
+import { fieldNotificationHref, openFieldHref } from "@/lib/field-notification";
 import {
   fieldTodoCountQuery,
   getAllNotifications,
@@ -138,7 +138,7 @@ export function FieldMyTasksCard() {
                   <Button
                     variant="ghost"
                     className="h-auto w-full justify-start whitespace-normal px-0 py-3 text-left"
-                    onClick={() => router.push(href)}
+                    onClick={() => openFieldHref(href, router.push)}
                   >
                     {body}
                   </Button>
@@ -167,7 +167,7 @@ export function FieldMyTasksCard() {
       <Button
         variant="outline"
         className="mt-3 w-full"
-        onClick={() => router.push("/field-staff?tab=tasks")}
+        onClick={() => openFieldHref("/field-staff?tab=tasks", router.push)}
       >
         {t("notifications.myTasks.allSiteTasks")}
       </Button>
