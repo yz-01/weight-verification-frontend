@@ -77,7 +77,7 @@ export function SupplierReturnBadge({
   const count = supplier?.completed_return_count ?? 0;
   if (!supplier || count <= 0) return null;
   const look = cn(
-    "inline-flex shrink-0 items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-1.5 py-0 text-2xs font-medium leading-5 text-warning-foreground",
+    "inline-flex shrink-0 items-center gap-1 rounded-full border border-tone-amber/35 bg-tone-amber/12 px-1.5 py-0 text-2xs font-medium leading-5 text-tone-amber-fg",
     className,
   );
   // The returns are 材料出场 records: without leave to read those, the mark
