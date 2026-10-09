@@ -6224,6 +6224,17 @@
     "period": "Period: {from} to {to}",
     "preview": "Report preview",
     "previewLimited": "Preview limited to 500 rows",
+    "photo": "Photo",
+    "openRecord": "Open {reference}",
+    "value": {
+      "yes": "Yes",
+      "no": "No",
+      "targetType": {
+        "QUANTITY": "Quantity target",
+        "WEIGHT": "Weight target (kg)",
+        "COUNT": "Count target"
+      }
+    },
     "records": "{count} records",
     "targetReport": {
       "filterHelp": "The date range includes targets whose target period overlaps the selected dates.",

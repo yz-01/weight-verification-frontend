@@ -69,6 +69,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import type { Requirement } from "@/lib/missing-fields";
 import type { Project } from "@/interfaces/contractor";
@@ -129,7 +130,8 @@ export function Documents() {
     "date_to",
     "uploaded_by",
   ]);
-  const [viewingId, setViewingId] = useState<string | null>(null);
+  // A row of the report centre's 项目资料 preview links to `?document=<id>`.
+  const [viewingId, setViewingId] = useUrlSelection("document");
   const [editing, setEditing] = useState<DocumentRecord | null>(null);
   // Uploading is for everybody who reads the archive and is on the project
   // (B28, E10); filing company-wide and editing stay with the manager.

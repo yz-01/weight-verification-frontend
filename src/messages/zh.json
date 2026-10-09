@@ -6224,6 +6224,17 @@
     "period": "期间：{from} 至 {to}",
     "preview": "报表预览",
     "previewLimited": "预览最多显示 500 条",
+    "photo": "照片",
+    "openRecord": "打开 {reference}",
+    "value": {
+      "yes": "是",
+      "no": "否",
+      "targetType": {
+        "QUANTITY": "数量目标",
+        "WEIGHT": "重量目标 (kg)",
+        "COUNT": "次数目标"
+      }
+    },
     "records": "共 {count} 条记录",
     "targetReport": {
       "filterHelp": "所选日期会包含目标期间与该日期范围有重叠的目标。",

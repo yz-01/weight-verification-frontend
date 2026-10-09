@@ -31,9 +31,27 @@ export interface ContractorReportData {
   project: string;
   columns: string[];
   rows: Array<Record<string, string | number | boolean | null>>;
+  /** Each row's record, link and photograph, in the rows' order. */
+  records?: ContractorReportRecord[];
   total: number;
   truncated: boolean;
   generated_at: string;
+}
+
+/**
+ * What a preview row is, beside its columns: the record it opens and its
+ * first photograph (the small stamped thumbnail). `kind` is `null` for a row
+ * that is not one record anywhere (a schedule task, a target).
+ */
+export interface ContractorReportRecord {
+  kind: string | null;
+  id: string | null;
+  project_id: string | null;
+  /** A clock-in opens that person's day in 人员进场记录. */
+  user_id: string | null;
+  date: string | null;
+  cover_photo_url: string | null;
+  photo_count: number;
 }
 
 export interface ContractorReportOptions {

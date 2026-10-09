@@ -6224,6 +6224,17 @@
     "period": "期間：{from} 至 {to}",
     "preview": "報表預覽",
     "previewLimited": "預覽最多顯示 500 條",
+    "photo": "照片",
+    "openRecord": "開啟 {reference}",
+    "value": {
+      "yes": "是",
+      "no": "否",
+      "targetType": {
+        "QUANTITY": "數量目標",
+        "WEIGHT": "重量目標 (kg)",
+        "COUNT": "次數目標"
+      }
+    },
     "records": "共 {count} 條記錄",
     "targetReport": {
       "filterHelp": "所選日期會包含目標期間與該日期範圍有重疊的目標。",
