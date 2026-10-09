@@ -115,12 +115,11 @@ export function SubscriptionActionDialog({
       }
       return terminateSubscription(subscription.id, reason.trim());
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["subscriptions"] }),
-        queryClient.invalidateQueries({ queryKey: ["subscription-plans"] }),
-      ]);
+    onSuccess: () => {
+      // Close first; the list refreshes behind it rather than holding the dialog open.
       onOpenChange(false);
+      void queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
+      void queryClient.invalidateQueries({ queryKey: ["subscription-plans"] });
     },
   });
 

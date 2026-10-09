@@ -60,10 +60,11 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
   const stop = useMutation({
     mutationFn: ({ id, action, note }: { id: string; action: "cancel" | "void"; note: string }) =>
       action === "cancel" ? cancelDeliveryNote(id, note) : voidDeliveryNote(id, note),
-    onSuccess: async () => {
-      await refresh();
+    onSuccess: () => {
+      // Close first; the list refreshes behind it rather than holding the dialog open.
       setStopping(null);
       setReason("");
+      void refresh();
     },
   });
 

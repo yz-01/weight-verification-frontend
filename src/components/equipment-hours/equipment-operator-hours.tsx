@@ -492,7 +492,7 @@ function PhotoStrip({ day }: { day: EquipmentHoursDay }) {
       {shown.map((photo) =>
         photo.watermarked_photo ? (
           // eslint-disable-next-line @next/next/no-img-element -- a stamped evidence file served by the API
-          <img
+          <img loading="lazy" decoding="async"
             key={photo.id}
             src={photo.watermarked_photo}
             alt={t("photoAlt")}

@@ -235,7 +235,7 @@ function GateIncidentCard({ row, onOpen }: { row: GateIncident; onOpen: () => vo
     >
       <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
         {row.cover_photo ? (
-          <img src={row.cover_photo} alt={t("photoAlt")} className="size-full object-cover" />
+          <img loading="lazy" decoding="async" src={row.cover_photo} alt={t("photoAlt")} className="size-full object-cover" />
         ) : (
           <Images className="text-muted-foreground" />
         )}

@@ -88,12 +88,13 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
   };
   const generate = useMutation({
     mutationFn: () => generateInvoice({ company, kind, on_date: onDate || undefined }),
-    onSuccess: async (invoice) => { await refresh(); setShowGenerate(false); setViewing(invoice); },
+    // Close first; the list refreshes behind it rather than holding the dialog open.
+    onSuccess: (invoice) => { setShowGenerate(false); setViewing(invoice); void refresh(); },
   });
   const issue = useMutation({ mutationFn: issueInvoice, onSuccess: refresh });
   const close = useMutation({
     mutationFn: () => closeInvoice(closing!.id, closeState, notes.trim()),
-    onSuccess: async () => { await refresh(); setClosing(null); setNotes(""); },
+    onSuccess: () => { setClosing(null); setNotes(""); void refresh(); },
   });
 
   const columns = useMemo<ColumnDef<Invoice, unknown>[]>(() => [

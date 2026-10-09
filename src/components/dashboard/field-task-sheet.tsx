@@ -5,7 +5,7 @@ import { Check, FileText, Loader2, MapPin, RotateCcw, Send } from "lucide-react"
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -238,19 +238,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                         onChange={(event) => setPhotos(Array.from(event.target.files ?? []))}
                         className="block w-full text-sm"
                       />
-                      {photos.length > 0 && (
-                        <ul className="mt-2 flex flex-wrap gap-2">
-                          {photos.map((file) => (
-                            <li key={`${file.name}-${file.size}`}>
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt={file.name}
-                                className="size-16 rounded-md border object-cover"
-                              />
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                      <ChosenPhotos photos={photos} />
                     </FieldWrapper>
                     <p className="text-xs text-muted-foreground">{t("filesHelp")}</p>
                     <div className="flex justify-end">
@@ -361,5 +349,31 @@ function Fact({
       <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className="flex flex-wrap items-center gap-1.5">{children}</dd>
     </div>
+  );
+}
+
+/**
+ * The photographs picked for the result, previewed.
+ *
+ * One object URL per file for as long as the selection stands. Creating them
+ * during render made a fresh URL for every photo on every keystroke in the
+ * result box - each preview reloaded as the person typed, and none was ever
+ * released.
+ */
+function ChosenPhotos({ photos }: { photos: File[] }) {
+  const urls = useMemo(
+    () => photos.map((file) => [file, URL.createObjectURL(file)] as const),
+    [photos],
+  );
+  useEffect(() => () => urls.forEach(([, url]) => URL.revokeObjectURL(url)), [urls]);
+  if (!urls.length) return null;
+  return (
+    <ul className="mt-2 flex flex-wrap gap-2">
+      {urls.map(([file, url]) => (
+        <li key={`${file.name}-${file.size}`}>
+          <img src={url} alt={file.name} className="size-16 rounded-md border object-cover" />
+        </li>
+      ))}
+    </ul>
   );
 }
