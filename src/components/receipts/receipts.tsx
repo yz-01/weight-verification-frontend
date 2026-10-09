@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { type MaterialReceipt } from "@/interfaces/contractor";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
+import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import {
   getReceipts,
@@ -84,6 +85,7 @@ export function Receipts() {
 
   const unitName = useUnitName();
   const unitValues = useUnitExportValues();
+  const df = useDateFormat();
   const columns = useMemo<ColumnDef<MaterialReceipt, unknown>[]>(
     () => [
       {
@@ -105,6 +107,27 @@ export function Receipts() {
         // number on hover, long press, or copied.
         cell: ({ row }) => (
           <RecordNo value={row.original.receipt_no} projectCode={row.original.project_code} />
+        ),
+      },
+      // The delivery's day and time back on the list (Lucas, 2026-10-09:
+      // 「材料进场没有日期显示」), C13 having taken 记录时间 off it. The same
+      // date the detail shows: the delivery's own (`business_at`), which a
+      // correction keeps, falling back to the platform's stamp. Sorted by the
+      // server on the same field, which is also what the date filter reads.
+      {
+        accessorKey: "business_at",
+        meta: { label: t("receipts.field.businessAt") },
+        header: ({ column }) => (
+          <SortableHeader
+            label={t("receipts.field.businessAt")}
+            isSorted={column.getIsSorted()}
+            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="tabular whitespace-nowrap text-muted-foreground">
+            {df.dateTime(row.original.business_at ?? row.original.captured_at)}
+          </span>
         ),
       },
       {
@@ -235,10 +258,9 @@ export function Receipts() {
           </span>
         ),
       },
-      // 记录时间 and 项目 left the list (2026-10 C13): the project is the one
-      // chosen at the top, and the day is in the detail and the export. What
-      // the office matches a delivery against took their place - the DO and
-      // the lorry.
+      // 项目 left the list (2026-10 C13): it is the one chosen at the top.
+      // What the office matches a delivery against took its place - the DO
+      // and the lorry. The day came back beside the number (2026-10-09).
       {
         accessorKey: "delivery_note_no",
         meta: { label: t("receipts.field.deliveryNoteNo") },
@@ -305,7 +327,7 @@ export function Receipts() {
         ),
       },
     ],
-    [t, can, unitName],
+    [t, can, unitName, df],
   );
 
   const totalCount = data?.count ?? 0;
