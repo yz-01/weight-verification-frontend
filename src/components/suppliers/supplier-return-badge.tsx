@@ -347,7 +347,7 @@ function Signature({ src, label }: { src?: string | null; label: string }) {
         width={80}
         height={44}
         unoptimized
-        className="h-11 w-20 rounded-md border bg-white object-contain p-0.5"
+        className="h-11 w-20 rounded-md border bg-paper object-contain p-0.5"
       />
       <span className="text-2xs text-muted-foreground">{label}</span>
     </a>
