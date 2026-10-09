@@ -1,3 +1,4 @@
+import { appendPhotoTimes } from "@/lib/photo-meta";
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type { SundryClaim } from "@/interfaces/sundry-claim";
 import { api, download, toastSuccess } from "@/services/api-client";
@@ -25,6 +26,8 @@ export async function createSundryClaim(payload: {
     if (value !== undefined && value !== "") data.append(key, String(value));
   }
   payload.attachments.forEach((file) => data.append("attachments", file));
+  // When each was taken, so a queued claim is not dated at sync.
+  appendPhotoTimes(data, payload.attachments);
   const row = await api.post<SundryClaim>("/api/sundry-claims/create_claim/", data);
   toastSuccess("sundryClaim.toast.submitted");
   return row;
