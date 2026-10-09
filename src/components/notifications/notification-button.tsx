@@ -31,7 +31,7 @@ import {
 } from "@/components/notifications/bell-list-refresh";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
-import { fieldNotificationHref } from "@/lib/field-notification";
+import { fieldNotificationHref, openFieldHref } from "@/lib/field-notification";
 import { officeNotificationHref } from "@/lib/office-notification";
 import {
   confirmNotificationDone,
@@ -397,7 +397,7 @@ export function NotificationButton() {
                   const href = destination(notification);
                   if (href) {
                     setOpen(false);
-                    router.push(href);
+                    openFieldHref(href, router.push);
                     return;
                   }
                   /*

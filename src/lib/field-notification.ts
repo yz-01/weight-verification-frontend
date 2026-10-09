@@ -53,3 +53,35 @@ export function fieldNotificationHref(
     ? `${parsed.pathname}${parsed.search}`
     : null;
 }
+
+/** The field workspace's own way in: see `openFieldHref`. */
+export const FIELD_OPEN_EVENT = "mse:field-open";
+
+/**
+ * Open a field link, on the screen already showing when it can be.
+ *
+ * `router.push` to `/field-staff?…` from `/field-staff` changes only the query,
+ * and two things went wrong with that on a phone. A link to the address already
+ * showing - the same task tapped twice, 「查看我的全部任务」 after coming back
+ * from it - changed nothing, so the workspace had nothing to follow and the tap
+ * did nothing. Every other tap waited for the server's copy of a page that was
+ * already on screen, so on a site connection it looked dead until it arrived,
+ * and people tapped again. The workspace listens for this event and switches
+ * there and then; it cancels the event to say it has, and anything it does not
+ * cover (another page, no workspace mounted) still goes through `push`.
+ */
+export function openFieldHref(href: string, push: (href: string) => void) {
+  const target = new URL(href, window.location.origin);
+  if (
+    target.origin === window.location.origin &&
+    target.pathname === "/field-staff" &&
+    window.location.pathname === "/field-staff"
+  ) {
+    const event = new CustomEvent(FIELD_OPEN_EVENT, {
+      detail: `${target.pathname}${target.search}`,
+      cancelable: true,
+    });
+    if (!window.dispatchEvent(event)) return;
+  }
+  push(href);
+}

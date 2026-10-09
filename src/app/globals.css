@@ -564,6 +564,57 @@
     background-attachment: fixed;
     line-height: 1.5;
   }
+  /* A tap is a tap: no waiting to see whether it was the start of a
+   * double-tap zoom, which on a phone read as "the button did nothing". */
+  a,
+  button,
+  input,
+  label,
+  select,
+  summary,
+  textarea,
+  [role="button"],
+  [role="tab"],
+  [role="option"],
+  [role="menuitem"] {
+    touch-action: manipulation;
+  }
+  /* A phone page and a form opened over it stay put sideways. One field wider
+   * than the screen - iOS draws a date-and-time box at its own width - made
+   * the whole 隐患 form slide left and right under the finger. A table that
+   * is meant to scroll sideways still does, inside its own box. */
+  @media (max-width: 767px) {
+    html,
+    body {
+      overflow-x: clip;
+      overscroll-behavior-x: none;
+    }
+  }
+  [data-slot="dialog-content"],
+  [data-slot="alert-dialog-content"],
+  [data-slot="sheet-content"] {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+  /* One column no wider than the dialog: a grid's default column grows to its
+   * widest child, which is how that date box pushed the form past the edge. */
+  [data-slot="dialog-content"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (pointer: coarse) {
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="month"],
+    input[type="time"] {
+      min-width: 0;
+      max-width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input::-webkit-date-and-time-value {
+      text-align: start;
+    }
+  }
   h1,
   h2,
   h3,

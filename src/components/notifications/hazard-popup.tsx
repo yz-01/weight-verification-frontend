@@ -34,6 +34,7 @@ import {
   type RealtimeEvent,
 } from "@/lib/hazard-popup";
 import { cn } from "@/lib/utils";
+import { openFieldHref } from "@/lib/field-notification";
 
 /** The cards, the listener for the realtime hook, and a way to close one. */
 export function useHazardPopup() {
@@ -128,7 +129,7 @@ export function HazardPopupStack({
               size="sm"
               onClick={() => {
                 onDismiss(card.id);
-                router.push(card.href);
+                openFieldHref(card.href, router.push);
               }}
             >
               {t("open")}
