@@ -7466,6 +7466,7 @@
       "equipment_hours_day_not_found": "找不到这一笔工时记录，请刷新后再试。",
       "equipment_hours_end_before_start": "结束时间要在开始时间之后。",
       "equipment_hours_end_too_late": "这个时间和这台设备的上一张或下一张照片重叠了，或者晚于现在。",
+      "equipment_site_no_taken": "这个项目里已经有设备（{equipment}）用了编号「{site_no}」，请换一个。",
       "equipment_profile_incomplete": "先选好这台设备的小类，才能验收。",
       "equipment_not_on_site": "这台设备现在不在这个项目场内，不能退场。",
       "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。",
@@ -16223,8 +16224,8 @@
       "allSuppliers": "全部供应商",
       "equipment": "设备",
       "allEquipment": "全部设备",
-      "search": "车牌 / 设备编号",
-      "searchPlaceholder": "输入车牌或设备编号"
+      "search": "车牌 / 编号",
+      "searchPlaceholder": "车牌、设备编号或现场编号"
     },
     "field": {
       "date": "日期",
@@ -16247,7 +16248,8 @@
       "totalHours": "合计工时（小时）",
       "incomplete": "缺开工 / 收工",
       "adjustedCount": "后台修改次数",
-      "actions": "操作"
+      "actions": "操作",
+      "siteNo": "现场编号"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -16268,7 +16270,8 @@
     },
     "what": {
       "days": "工时记录",
-      "month": "每月合计"
+      "month": "每月合计",
+      "siteNumbers": "设备名单"
     },
     "adjust": {
       "add": "补结束时间",
@@ -16298,7 +16301,9 @@
     },
     "toast": {
       "endSaved": "结束时间已保存",
-      "startSaved": "开始时间已保存"
+      "startSaved": "开始时间已保存",
+      "siteNoSaved": "现场编号已保存",
+      "siteNoCleared": "现场编号已清除"
     },
     "phone": {
       "howTo": "开工时选「开工」拍一张，收工时选「收工」再拍一张。每一对开工和收工算一笔工时。",
@@ -16329,7 +16334,26 @@
       "started": "{start} 开工",
       "stopHint": "收工时选「收工」再拍一张",
       "soFar": "{start} 至 {end}，共 {hours} 小时",
-      "missingStart": "这张收工照片前面没有开工照片，后台会补开始时间。"
+      "missingStart": "这张收工照片前面没有开工照片，后台会补开始时间。",
+      "machineAnyWay": "从列表选、扫码或输入编号，任选一种都可以。",
+      "typeNumber": "输入编号",
+      "typeNumberPlaceholder": "设备上的编号，例如 12",
+      "typedFound": "找到：{machine}",
+      "typedNoMatch": "找不到这个编号"
+    },
+    "siteNo": {
+      "open": "设备编号管理",
+      "title": "设备编号管理",
+      "help": "给每台设备一个简短的现场编号（例如 12），写或贴在设备上。操作员在手机上输入这个编号就能选到设备。同一个项目里编号不能重复；清空就是不用编号。",
+      "search": "找设备",
+      "searchPlaceholder": "名称、车牌、供应商或编号",
+      "empty": "这个项目还没有在用的设备。",
+      "noMatch": "没有符合的设备。",
+      "inputLabel": "{machine} 的现场编号",
+      "placeholder": "例如 12",
+      "save": "保存",
+      "failed": "保存失败，请再试一次。",
+      "close": "关闭"
     }
   },
   "theme": {

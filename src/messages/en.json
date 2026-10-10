@@ -7466,6 +7466,7 @@
       "equipment_hours_day_not_found": "This hours entry could not be found. Refresh and try again.",
       "equipment_hours_end_before_start": "The end time must be after the start time.",
       "equipment_hours_end_too_late": "This time overlaps the machine's previous or next photo, or lies in the future.",
+      "equipment_site_no_taken": "Another machine on this project ({equipment}) already uses the number \"{site_no}\". Choose another.",
       "equipment_profile_incomplete": "Choose this machine's sub class before accepting it.",
       "equipment_not_on_site": "This machine is not on site on this project, so it cannot go out.",
       "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again.",
@@ -16223,8 +16224,8 @@
       "allSuppliers": "All suppliers",
       "equipment": "Equipment",
       "allEquipment": "All equipment",
-      "search": "Plate / equipment no.",
-      "searchPlaceholder": "Plate or equipment number"
+      "search": "Plate / number",
+      "searchPlaceholder": "Plate, equipment no. or site no."
     },
     "field": {
       "date": "Date",
@@ -16247,7 +16248,8 @@
       "totalHours": "Total hours",
       "incomplete": "Missing start / stop",
       "adjustedCount": "Changed by the office",
-      "actions": "Actions"
+      "actions": "Actions",
+      "siteNo": "Site no."
     },
     "status": {
       "MISSING_END": "No stop photo",
@@ -16268,7 +16270,8 @@
     },
     "what": {
       "days": "machine hours",
-      "month": "monthly totals"
+      "month": "monthly totals",
+      "siteNumbers": "machine list"
     },
     "adjust": {
       "add": "Add end time",
@@ -16298,7 +16301,9 @@
     },
     "toast": {
       "endSaved": "End time saved",
-      "startSaved": "Start time saved"
+      "startSaved": "Start time saved",
+      "siteNoSaved": "Site number saved",
+      "siteNoCleared": "Site number cleared"
     },
     "phone": {
       "howTo": "When you start the machine, choose Start and take a photo; when you stop, choose Stop and take another. Each start and its stop is one entry of hours.",
@@ -16329,7 +16334,26 @@
       "started": "Started {start}",
       "stopHint": "When you stop, choose Stop and take another photo",
       "soFar": "{start} to {end}: {hours} h",
-      "missingStart": "There is no start photo before this stop photo; the office will enter the start time."
+      "missingStart": "There is no start photo before this stop photo; the office will enter the start time.",
+      "machineAnyWay": "Choose from the list, scan, or type the number - any one will do.",
+      "typeNumber": "Type number",
+      "typeNumberPlaceholder": "Number on the machine, e.g. 12",
+      "typedFound": "Found: {machine}",
+      "typedNoMatch": "No machine has this number"
+    },
+    "siteNo": {
+      "open": "Machine numbers",
+      "title": "Machine numbers",
+      "help": "Give each machine a short site number (e.g. 12) and paint or stick it on the machine. The operator types this number on the phone to pick the machine. A number can be used only once per project; clear it to remove it.",
+      "search": "Find a machine",
+      "searchPlaceholder": "Name, plate, supplier or number",
+      "empty": "This project has no machines in use yet.",
+      "noMatch": "No machine matches.",
+      "inputLabel": "Site number of {machine}",
+      "placeholder": "e.g. 12",
+      "save": "Save",
+      "failed": "Could not save. Please try again.",
+      "close": "Close"
     }
   },
   "theme": {
