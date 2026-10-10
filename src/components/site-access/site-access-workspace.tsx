@@ -4,11 +4,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Camera,
   Check,
+  ChevronDown,
   Download,
   DoorOpen,
   Eye,
   ImagePlus,
   KeyRound,
+  Keyboard,
   Ban,
   Loader2,
   MapPin,
@@ -24,7 +26,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { QRCodeCanvas } from "qrcode.react";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -83,6 +85,7 @@ import type {
   SiteAccessPass,
   SiteAccessPassPayload,
 } from "@/interfaces/site-access";
+import { cn } from "@/lib/utils";
 import {
   createSiteAccessPass,
   getSiteAccessCredentials,
@@ -102,6 +105,25 @@ import { getUsers } from "@/services/users.service";
 /** The status filter's "approved, running out within the week" choice. */
 const EXPIRING = "expiring";
 
+const SITE_ACCESS_TABS = ["passes", "gate", "gate-records", "devices"] as const;
+type SiteAccessTab = (typeof SITE_ACCESS_TABS)[number];
+
+/**
+ * The tab an address opens. `?tab=` names it; a scanned pass link
+ * (`?scan=`) opens 门岗扫码 for someone who may scan, and a notification's
+ * `?gate_incident=` opens 门岗拍照记录 (C22). Anything else is 通行证.
+ */
+function siteAccessTab(
+  search: Pick<URLSearchParams, "get">,
+  canScan: boolean,
+): SiteAccessTab {
+  const asked = search.get("tab");
+  if (asked === "gate-records" || search.get("gate_incident")) return "gate-records";
+  if (asked === "gate" || search.get("scan")) return canScan ? "gate" : "passes";
+  if (asked === "devices") return "devices";
+  return "passes";
+}
+
 export function SiteAccessWorkspace() {
   const t = useTranslations("siteControl");
   const tRoot = useTranslations();
@@ -112,18 +134,11 @@ export function SiteAccessWorkspace() {
   const qc = useQueryClient();
   const search = useSearchParams();
   const requestedPassId = search.get("pass");
-  const requestedGate =
-    search.get("tab") === "gate" || Boolean(search.get("scan"));
-  // 门岗记录 (C22), opened from a notification with `?tab=gate-records`.
-  const requestedRecords =
-    search.get("tab") === "gate-records" || Boolean(search.get("gate_incident"));
-  const [tab, setTab] = useState<"passes" | "gate" | "gate-records" | "devices">(
-    requestedRecords
-      ? "gate-records"
-      : requestedGate && can("site_access.scan")
-        ? "gate"
-        : "passes",
-  );
+  // The address says which tab, every render - not once when the page
+  // mounted. The sidebar's 「通行证」 and 「门岗扫码」 are this one page with
+  // a different `?tab=`, so moving between them keeps the page mounted and
+  // only the address changes (Lucas 2026-10-10, 图4: 「点了另一个不会切换」).
+  const tab = siteAccessTab(search, can("site_access.scan"));
   // The dashboard's 通行证即将到期 figure opens `?expiring=1` (C15).
   // The top bar's 「当前项目」 when it is in force (B13).
   const [project, setProject] = usePageProject(search.get("project") ?? "", { all: "all" });
@@ -143,25 +158,14 @@ export function SiteAccessWorkspace() {
   const [revoke, setRevoke] = useState<SiteAccessPass | null>(null);
   const [reason, setReason] = useState("");
   const openedPassRef = useRef("");
+  // A tab is chosen by changing the address, which Next.js feeds back through
+  // `useSearchParams` (native replaceState is part of its router).
   const changeTab = (value: string) => {
-    const nextTab =
-      value === "gate" && can("site_access.scan")
-        ? ("gate" as const)
-        : value === "gate-records"
-          ? ("gate-records" as const)
-          : value === "devices"
-            ? ("devices" as const)
-            : ("passes" as const);
-    setTab(nextTab);
-
+    const nextTab = SITE_ACCESS_TABS.find((key) => key === value) ?? "passes";
     const url = new URL(window.location.href);
-    if (nextTab === "gate" || nextTab === "gate-records") {
-      url.searchParams.set("tab", nextTab);
-      if (nextTab === "gate-records") url.searchParams.delete("scan");
-    } else {
-      url.searchParams.delete("tab");
-      url.searchParams.delete("scan");
-    }
+    if (nextTab === "passes") url.searchParams.delete("tab");
+    else url.searchParams.set("tab", nextTab);
+    if (nextTab !== "gate") url.searchParams.delete("scan");
     if (nextTab !== "gate-records") url.searchParams.delete("gate_incident");
     window.history.replaceState(
       window.history.state,
@@ -268,6 +272,11 @@ export function SiteAccessWorkspace() {
             {t("access.deviceEvents")}
           </TabsTrigger>
         </TabsList>
+        {/* What the open tab is for, in one line (Lucas 2026-10-10, 图6:
+            「我也是不明白」). */}
+        <p className="text-sm text-muted-foreground" data-tab-help={tab}>
+          {t(`access.tabHelp.${tab}`)}
+        </p>
         <TabsContent value="passes" className="space-y-4">
           <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4">
             {projectBoxShown && (
@@ -533,7 +542,31 @@ export function SiteAccessWorkspace() {
 function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
   const t = useTranslations("siteControl");
   const search = useSearchParams();
-  const [token, setToken] = useState(() => search.get("scan") ?? "");
+  const linked = search.get("scan") ?? "";
+  const [token, setToken] = useState(linked);
+  // A pass link opened while this tab is already showing brings its code too.
+  const [seenLink, setSeenLink] = useState(linked);
+  if (seenLink !== linked) {
+    setSeenLink(linked);
+    if (linked) setToken(linked);
+  }
+  // 「其他方式：扫码枪 / 粘贴编号」 stays folded on a phone. A gate computer
+  // with a scanner gun keeps it open from one visit to the next, so the gun
+  // can type into it without anyone opening it first.
+  // Read after hydration (the server has no storage), then the reader's own
+  // toggles win.
+  const remembered = useSyncExternalStore(noSubscription, readOtherWaysOpen, () => false);
+  const [toggled, setToggled] = useState<boolean | null>(null);
+  const otherWays = toggled ?? remembered;
+  const toggleOtherWays = () => {
+    const next = !otherWays;
+    setToggled(next);
+    try {
+      window.localStorage.setItem(OTHER_WAYS_KEY, next ? "1" : "0");
+    } catch {
+      // A private window: it simply starts folded next time.
+    }
+  };
   const [direction, setDirection] = useState<"AUTO" | AccessDirection>("AUTO");
   const [gate, setGate] = useState("");
   const [photo, setPhoto] = useState<File>();
@@ -612,17 +645,22 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
           </p>
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      {/* The pass's QR code is what this form needs - the star says so - and
+          the camera is how it is normally given. Typing is one of the
+          「其他方式」, folded away (Lucas 2026-10-10, 图5). */}
+      <FieldWrapper label={t("gate.qrCode")} required>
+      <div className="grid gap-2">
         <Button
           type="button"
           size="lg"
-          className="h-14"
+          className="h-14 w-full text-base"
           onClick={() => setScannerOpen(true)}
+          data-gate-camera
         >
           <Camera />
           {t("gate.cameraScan")}
         </Button>
-        <label className="flex h-14 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-background px-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+        <label className="flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-background px-4 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground">
           <ImagePlus />
           {t("gate.uploadImage")}
           <input
@@ -645,23 +683,38 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
           {qrImageError}
         </p>
       )}
-      <FieldWrapper
-        label={t("gate.usbOrPaste")}
-        required
-        hint={t("gate.scannerHint")}
-      >
-        <Input
-          autoFocus
-          value={token}
-          onChange={(event) => setToken(event.target.value)}
-          placeholder={t("gate.qrPlaceholder")}
-        />
-      </FieldWrapper>
+      <div className="rounded-lg border border-dashed" data-gate-other-ways>
+        <button
+          type="button"
+          aria-expanded={otherWays}
+          onClick={toggleOtherWays}
+          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
+        >
+          <Keyboard className="size-4 shrink-0" />
+          <span className="flex-1">{t("gate.otherWays")}</span>
+          <ChevronDown
+            className={cn("size-4 shrink-0 transition-transform", otherWays && "rotate-180")}
+          />
+        </button>
+        {otherWays && (
+          <div className="space-y-1 px-3 pb-3">
+            <Input
+              autoFocus
+              aria-label={t("gate.otherWays")}
+              value={token}
+              onChange={(event) => setToken(event.target.value)}
+              placeholder={t("gate.qrPlaceholder")}
+            />
+            <p className="text-xs text-muted-foreground">{t("gate.scannerHint")}</p>
+          </div>
+        )}
+      </div>
       {token.trim() && (
         <p className="rounded-md border border-success/30 bg-success/5 px-3 py-2 text-sm text-success">
           {t("gate.qrReady")}
         </p>
       )}
+      </FieldWrapper>
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldWrapper label={t("field.direction")}>
           <Select
@@ -709,13 +762,10 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
           {locationError}
         </p>
       )}
-      <p className="text-xs leading-5 text-muted-foreground">
-        {t("gate.readyHint")}
-      </p>
       <Button
         size="lg"
         className="h-12 w-full"
-        requires={[[token, t("gate.usbOrPaste")]]}
+        requires={[[token, t("gate.qrCode")]]}
         disabled={scan.isPending}
         onClick={() => scan.mutate()}
       >
@@ -1049,6 +1099,14 @@ function PassDialog({
  */
 function DeviceEventsPanel() {
   const t = useTranslations("siteControl");
+  // Why a machine let someone in or turned them away, in words; a code this
+  // screen has no words for yet still shows as sent.
+  const reasonText = (code: string) =>
+    !code
+      ? "-"
+      : t.has(`deviceEvent.reasonCode.${code}`)
+        ? t(`deviceEvent.reasonCode.${code}`)
+        : code;
   const [project, setProject] = usePageProject("", { all: "all" });
   const projectBoxShown = useProjectBoxShown("filter");
   const [result, setResult] = useState("all");
@@ -1159,7 +1217,7 @@ function DeviceEventsPanel() {
                     />
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {event.reason_code || "-"}
+                    {reasonText(event.reason_code)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -1478,6 +1536,18 @@ function PassQr({
       </DialogContent>
     </Dialog>
   );
+}
+
+const OTHER_WAYS_KEY = "mse.gate.otherWaysOpen";
+
+const noSubscription = () => () => {};
+
+function readOtherWaysOpen(): boolean {
+  try {
+    return window.localStorage.getItem(OTHER_WAYS_KEY) === "1";
+  } catch {
+    return false;
+  }
 }
 
 function extractToken(value: string) {

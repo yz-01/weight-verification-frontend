@@ -183,6 +183,26 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "offline.kind.EQUIPMENT_HOURS_PHOTO",
     ],
   },
+  // 工地门禁 (Lucas 2026-10-10, 图4-图6): its two menu entries open tabs of
+  // one page, and each tab is called what its entry is called - the menu said
+  // 工地通行证 / 门岗扫描 over tabs reading 门禁证 / 门岗扫码. The phone's
+  // 门岗拍照记录 is the office tab of the same name.
+  {
+    module: "site access passes",
+    keys: ["nav.submodule.siteAccessPasses", "siteControl.access.passes"],
+  },
+  {
+    module: "gate scan",
+    keys: ["nav.submodule.gateScanning", "siteControl.access.gate"],
+  },
+  {
+    module: "gate photo records",
+    keys: [
+      "siteControl.access.gateRecords",
+      "siteControl.gateRecords.title",
+      "fieldStaffPwa.records.gate",
+    ],
+  },
   {
     module: "attendance",
     keys: [

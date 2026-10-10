@@ -5,7 +5,7 @@ import { Building2, Camera, Maximize, UserRound } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { usePhotoOpener } from "@/components/dashboard/headquarters-photos";
 import { projectTone } from "@/components/dashboard/headquarters-map";
@@ -21,7 +21,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type {
   HeadquartersCountField,
   HeadquartersOverview,
+  ApprovalSource,
+  HazardSeverity,
   HeadquartersPhoto,
+  HeadquartersWallExtras,
   TodayRecordKind,
 } from "@/interfaces/headquarters";
 import { useDateFormat } from "@/lib/dates";
@@ -36,6 +39,7 @@ import { cn } from "@/lib/utils";
 import {
   getHeadquarters,
   getHeadquartersPhotos,
+  getHeadquartersWall,
 } from "@/services/contractor-dashboard.service";
 
 /** The big screen refreshes on the dashboard's live cadence (E1). */
@@ -54,6 +58,60 @@ const STRIP: Array<{ field: HeadquartersCountField; tone: Tone }> = [
 
 /** Bars in the chart ramp's order, one colour per kind of record. */
 const BAR_TONES: Tone[] = ["cyan", "blue", "purple", "green", "amber", "rose", "orange", "slate"];
+
+/**
+ * No scrollbars on the wall (Lucas 2026-10-10, 「左边那个位置…弄小一点」):
+ * a TV has no one to drag them, and the bars read as clutter beside the
+ * panels. A wheel, a finger and the keyboard still scroll.
+ */
+const NO_SCROLLBAR = "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+
+/** Pixels per step and the pause at either end of the photo stream's drift. */
+const DRIFT_STEP_MS = 60;
+const DRIFT_PAUSE_MS = 4000;
+
+/**
+ * A list taller than its panel drifts down slowly and starts again from the
+ * top, so the photos below the fold are seen on a screen nobody touches.
+ * It stands still while a pointer is over it or focus is in it, and when
+ * the viewer asked the system for less motion.
+ */
+function useGentleScroll(ref: React.RefObject<HTMLElement | null>, size: number) {
+  useEffect(() => {
+    const box = ref.current;
+    if (!box || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    let held = false;
+    let pausedUntil = Date.now() + DRIFT_PAUSE_MS;
+    const hold = () => {
+      held = true;
+    };
+    const release = () => {
+      held = false;
+    };
+    box.addEventListener("pointerenter", hold);
+    box.addEventListener("pointerleave", release);
+    box.addEventListener("focusin", hold);
+    box.addEventListener("focusout", release);
+    const timer = window.setInterval(() => {
+      const room = box.scrollHeight - box.clientHeight;
+      if (held || room <= 1 || Date.now() < pausedUntil) return;
+      if (box.scrollTop >= room - 1) {
+        box.scrollTop = 0;
+        pausedUntil = Date.now() + DRIFT_PAUSE_MS;
+      } else {
+        box.scrollTop += 1;
+        if (box.scrollTop >= room - 1) pausedUntil = Date.now() + DRIFT_PAUSE_MS;
+      }
+    }, DRIFT_STEP_MS);
+    return () => {
+      window.clearInterval(timer);
+      box.removeEventListener("pointerenter", hold);
+      box.removeEventListener("pointerleave", release);
+      box.removeEventListener("focusin", hold);
+      box.removeEventListener("focusout", release);
+    };
+  }, [ref, size]);
+}
 
 /**
  * 总部大屏 (E1, the canvas's 「总部大屏」 artboard): the company's live
@@ -84,6 +142,14 @@ export function HeadquartersWall() {
   const photos = useQuery({
     queryKey: ["contractor-dashboard", "headquarters-wall-photos"],
     queryFn: () => getHeadquartersPhotos({ page: 1, page_size: STREAM_SIZE }),
+    refetchInterval: LIVE_MS,
+    enabled: allowed,
+  });
+  // The panels added on 2026-10-10 (「加多一点真实数据」): the week's
+  // deliveries, hazards, queues, machines and waste - all real records.
+  const extras = useQuery({
+    queryKey: ["contractor-dashboard", "headquarters-wall-extras"],
+    queryFn: getHeadquartersWall,
     refetchInterval: LIVE_MS,
     enabled: allowed,
   });
@@ -121,7 +187,7 @@ export function HeadquartersWall() {
   return (
     <div
       data-headquarters-wall
-      className="fixed inset-0 z-50 overflow-y-auto bg-background text-foreground"
+      className={cn("fixed inset-0 z-50 overflow-y-auto bg-background text-foreground", NO_SCROLLBAR)}
       style={{ backgroundImage: "var(--canvas-glow)" }}
     >
       <div className="mx-auto flex min-h-dvh max-w-[240rem] flex-col gap-4 p-4 xl:h-dvh xl:min-h-0 xl:px-6 xl:pb-6">
@@ -135,6 +201,12 @@ export function HeadquartersWall() {
             <div className="flex min-h-0 flex-col gap-4">
               <ProjectStatus data={data} />
               <TodayByKind data={data} />
+              {extras.data && (
+                <div className="grid grid-cols-2 gap-4">
+                  <AcceptancePanel extras={extras.data} />
+                  <EquipmentPanel extras={extras.data} />
+                </div>
+              )}
             </div>
             <div className="flex min-h-0 flex-col gap-4">
               <WallMap data={data} />
@@ -150,6 +222,17 @@ export function HeadquartersWall() {
                   />
                 ))}
               </div>
+              {extras.isError ? (
+                <LoadFailed onRetry={() => void extras.refetch()} />
+              ) : !extras.data ? (
+                <Skeleton className="h-40 w-full rounded-xl" />
+              ) : (
+                <div className="grid gap-4 md:grid-cols-3">
+                  <WeekDeliveries extras={extras.data} />
+                  <OpenHazards extras={extras.data} />
+                  <ApprovalsBySource extras={extras.data} />
+                </div>
+              )}
             </div>
             <div className="flex min-h-0 flex-col gap-4">
               {photos.isError ? (
@@ -159,6 +242,14 @@ export function HeadquartersWall() {
                   rows={photos.data?.results}
                   loading={photos.isLoading}
                   onOpen={opener.open}
+                  between={
+                    extras.data ? (
+                      <>
+                        <TopSuppliers extras={extras.data} />
+                        <ClearanceMonth extras={extras.data} />
+                      </>
+                    ) : null
+                  }
                 />
               )}
             </div>
@@ -191,17 +282,17 @@ function WallHeader() {
   const logo = branding?.company_logo_url;
   return (
     <header className="grid grid-cols-1 items-center gap-3 lg:grid-cols-[1fr_auto_1fr]">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-panel-border bg-switch-thumb shadow-glow">
+      <div className="flex min-w-0 items-center gap-2.5" data-wall-brand>
+        <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-panel-border bg-switch-thumb">
           {logo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logo} alt={companyName} className="h-full w-full object-contain" />
           ) : (
-            <Building2 className="size-6 text-tone-slate" aria-hidden />
+            <Building2 className="size-4 text-tone-slate" aria-hidden />
           )}
         </span>
         <div className="min-w-0">
-          <p className="truncate text-lg font-bold">{companyName}</p>
+          <p className="truncate text-sm font-semibold">{companyName}</p>
           <p className="text-xs text-muted-foreground">{t("banner.companyView")}</p>
         </div>
       </div>
@@ -236,14 +327,16 @@ function WallPanel({
   aside,
   className,
   children,
+  ...rest
 }: {
   title: string;
   aside?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
-}) {
+} & Record<`data-${string}`, string>) {
   return (
     <section
+      {...rest}
       aria-label={title}
       className={cn("surface-panel flex min-h-0 flex-col gap-3 rounded-xl p-4", className)}
     >
@@ -290,7 +383,7 @@ function ProjectStatus({ data }: { data: HeadquartersOverview }) {
                 <span className="truncate">{project.name}</span>
                 <span className="h-2 rounded-full bg-muted">
                   <span
-                    className={cn("block h-2 rounded-full", TONES[BAR_TONES[index % 4]].bar, TONES[BAR_TONES[index % 4]].glow)}
+                    className={cn("block h-2 rounded-full", TONES[BAR_TONES[index % 4]].bar)}
                     style={{ width: `${(project.today_records / most) * 100}%` }}
                   />
                 </span>
@@ -332,7 +425,7 @@ function TodayByKind({ data }: { data: HeadquartersOverview }) {
               <div key={kind} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
                 <span className={cn("kpi-figure text-sm", tone.text)}>{format.number(value)}</span>
                 <span
-                  className={cn("w-full rounded-t-md opacity-90", tone.bar, tone.glow)}
+                  className={cn("w-full rounded-t-md opacity-90", tone.bar)}
                   style={{ height: `${Math.max(6, (value / most) * 100)}%` }}
                 />
                 <span className="w-full truncate pb-1 text-center text-2xs text-muted-foreground" title={t(`recordKind.${kind}`)}>
@@ -409,19 +502,284 @@ function Legend({ tone, label }: { tone: Tone; label: string }) {
   );
 }
 
+/** Hazard severities, worst first, each in the colour the hazard list uses for urgency. */
+const SEVERITIES: Array<{ key: HazardSeverity; tone: Tone }> = [
+  { key: "CRITICAL", tone: "rose" },
+  { key: "HIGH", tone: "orange" },
+  { key: "MEDIUM", tone: "amber" },
+  { key: "LOW", tone: "slate" },
+];
+
+/** Labelled horizontal bars, longest first: the shape every ranked panel uses. */
+function RankBars({
+  rows,
+  unit,
+}: {
+  rows: Array<{ key: string; label: string; value: number; tone: Tone }>;
+  unit?: (value: number) => string;
+}) {
+  const format = useFormatter();
+  const most = Math.max(1, ...rows.map((row) => row.value));
+  return (
+    <ul className="space-y-2">
+      {rows.map((row) => (
+        <li
+          key={row.key}
+          className="grid grid-cols-[minmax(0,8rem)_1fr_auto] items-center gap-3 text-sm"
+          title={row.label}
+        >
+          <span className="truncate">{row.label}</span>
+          <span className="h-2 rounded-full bg-muted">
+            <span
+              className={cn("block h-2 rounded-full", TONES[row.tone].bar)}
+              style={{ width: `${(row.value / most) * 100}%` }}
+            />
+          </span>
+          <span className="text-right tabular-nums">
+            {unit ? unit(row.value) : format.number(row.value)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** 本周材料进场: the last seven days, Material In with the rejected loads on top. */
+function WeekDeliveries({ extras }: { extras: HeadquartersWallExtras }) {
+  const t = useTranslations("headquarters.wall");
+  const format = useFormatter();
+  const most = Math.max(1, ...extras.week.map((day) => day.delivered + day.rejected));
+  const total = extras.week.reduce((sum, day) => sum + day.delivered, 0);
+  return (
+    <WallPanel
+      title={t("weekDeliveries")}
+      data-wall-panel="week"
+      aside={
+        <ul className="flex gap-3 text-xs text-muted-foreground">
+          <Legend tone="cyan" label={t("delivered")} />
+          <Legend tone="rose" label={t("rejected")} />
+        </ul>
+      }
+    >
+      {total === 0 && extras.week.every((day) => day.rejected === 0) ? (
+        <p className="text-sm text-muted-foreground">{t("noDeliveries")}</p>
+      ) : (
+        <div className="flex h-32 items-end gap-2 border-b border-panel-border px-1">
+          {extras.week.map((day) => {
+            const label = format.dateTime(new Date(`${day.date}T12:00:00Z`), { weekday: "short" });
+            return (
+              <div
+                key={day.date}
+                className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
+                title={`${day.date} · ${t("delivered")} ${day.delivered} · ${t("rejected")} ${day.rejected}`}
+              >
+                <span className="kpi-figure text-xs text-tone-cyan-fg">{format.number(day.delivered)}</span>
+                <span className="flex w-full flex-col justify-end" style={{ height: `${((day.delivered + day.rejected) / most) * 100}%` }}>
+                  {day.rejected > 0 && (
+                    <span
+                      className={cn("w-full rounded-t-sm", TONES.rose.bar)}
+                      style={{ flexGrow: day.rejected }}
+                    />
+                  )}
+                  <span
+                    className={cn("w-full", TONES.cyan.bar, day.rejected > 0 ? "" : "rounded-t-sm")}
+                    style={{ flexGrow: day.delivered }}
+                  />
+                </span>
+                <span className="pb-1 text-2xs text-muted-foreground">{label}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </WallPanel>
+  );
+}
+
+/** 未关闭隐患: open hazards by severity, and how many are past their date. */
+function OpenHazards({ extras }: { extras: HeadquartersWallExtras }) {
+  const t = useTranslations("headquarters.wall");
+  const severity = useTranslations("safety.severity");
+  const format = useFormatter();
+  const { hazards } = extras;
+  return (
+    <WallPanel
+      title={t("openHazards")}
+      data-wall-panel="hazards"
+      aside={
+        hazards.overdue > 0 ? (
+          <span className="text-xs font-semibold text-tone-rose-fg">
+            {t("overdueCount", { count: format.number(hazards.overdue) })}
+          </span>
+        ) : null
+      }
+    >
+      {hazards.open === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("noHazards")}</p>
+      ) : (
+        <RankBars
+          rows={SEVERITIES.map(({ key, tone }) => ({
+            key,
+            label: severity(key),
+            value: hazards.by_severity[key] ?? 0,
+            tone,
+          }))}
+        />
+      )}
+    </WallPanel>
+  );
+}
+
+/** 待审批 · 按类别: the approvals card's queues, largest first. */
+function ApprovalsBySource({ extras }: { extras: HeadquartersWallExtras }) {
+  const t = useTranslations("headquarters");
+  const source = useTranslations("contractorDashboard.approvals.source");
+  const rows = (Object.entries(extras.approvals_by_source) as Array<[ApprovalSource, number]>)
+    .filter(([, value]) => value > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  return (
+    <WallPanel title={t("wall.approvalsBySource")} data-wall-panel="approvals">
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("approvals.empty")}</p>
+      ) : (
+        <RankBars
+          rows={rows.map(([key, value], index) => ({
+            key,
+            label: source(key),
+            value,
+            tone: index === 0 ? "amber" : "purple",
+          }))}
+        />
+      )}
+    </WallPanel>
+  );
+}
+
+/** 本周验收: of the week's deliveries someone decided on, how many passed. */
+function AcceptancePanel({ extras }: { extras: HeadquartersWallExtras }) {
+  const t = useTranslations("headquarters.wall");
+  const format = useFormatter();
+  const { accepted, pending, rejected } = extras.acceptance;
+  const decided = accepted + rejected;
+  return (
+    <WallPanel title={t("acceptance")} data-wall-panel="acceptance">
+      <Figure
+        label={t("passRate")}
+        value={decided ? format.number(accepted / decided, { style: "percent" }) : "-"}
+        tone={decided && rejected === 0 ? "green" : decided ? "amber" : "slate"}
+      />
+      <p className="text-xs text-muted-foreground">
+        {t("acceptanceSplit", {
+          accepted: format.number(accepted),
+          pending: format.number(pending),
+          rejected: format.number(rejected),
+        })}
+      </p>
+    </WallPanel>
+  );
+}
+
+/** 设备: machines on site now, and under maintenance. */
+function EquipmentPanel({ extras }: { extras: HeadquartersWallExtras }) {
+  const t = useTranslations("headquarters.wall");
+  const format = useFormatter();
+  return (
+    <WallPanel title={t("equipment")} data-wall-panel="equipment">
+      <div className="grid grid-cols-2 gap-3">
+        <Figure label={t("equipmentOnSite")} value={format.number(extras.equipment.on_site)} tone="green" />
+        <Figure
+          label={t("equipmentMaintenance")}
+          value={format.number(extras.equipment.maintenance)}
+          tone={extras.equipment.maintenance > 0 ? "amber" : "slate"}
+        />
+      </div>
+    </WallPanel>
+  );
+}
+
+/** 本周送货最多的供应商: the week's Material In by supplier, top five. */
+function TopSuppliers({ extras }: { extras: HeadquartersWallExtras }) {
+  const t = useTranslations("headquarters.wall");
+  return (
+    <WallPanel title={t("topSuppliers")} data-wall-panel="suppliers">
+      {extras.top_suppliers.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("noDeliveries")}</p>
+      ) : (
+        <RankBars
+          rows={extras.top_suppliers.map((row) => ({
+            key: row.id,
+            label: row.name,
+            value: row.deliveries,
+            tone: "cyan",
+          }))}
+          unit={(count) => t("deliveries", { count })}
+        />
+      )}
+    </WallPanel>
+  );
+}
+
+/** 本月清运: this month's two kinds of waste, each by its own module, never added. */
+function ClearanceMonth({ extras }: { extras: HeadquartersWallExtras }) {
+  const t = useTranslations("headquarters");
+  const format = useFormatter();
+  const { waste_dispatches: dispatches, site_disposals: disposals } = extras.clearance_month;
+  const rows = [
+    {
+      key: "dispatches",
+      label: t("figures.wasteDispatches"),
+      trips: dispatches.trips,
+      weightLabel: t("figures.weighedKg"),
+      weight: dispatches.weighed_kg,
+    },
+    {
+      key: "disposals",
+      label: t("figures.siteDisposals"),
+      trips: disposals.trips,
+      weightLabel: t("figures.weightKg"),
+      weight: disposals.weight_kg,
+    },
+  ];
+  return (
+    <WallPanel title={t("wall.clearanceMonth")} data-wall-panel="clearance">
+      <dl className="space-y-2">
+        {rows.map((row) => (
+          <div key={row.key} className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-baseline gap-x-4 text-sm">
+            <dt className="truncate">{row.label}</dt>
+            <dd className="text-right" title={t("figures.trips")}>
+              <span className="kpi-figure text-lg text-tone-cyan-fg">{format.number(row.trips)}</span>
+              <span className="ml-1 text-xs text-muted-foreground">{t("figures.trips")}</span>
+            </dd>
+            <dd className="text-right" title={row.weightLabel}>
+              <span className="kpi-figure text-lg text-tone-green-fg">{format.number(Number(row.weight))}</span>
+              <span className="ml-1 text-xs text-muted-foreground">kg</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </WallPanel>
+  );
+}
+
 function PhotoPanels({
   rows,
   loading,
   onOpen,
+  between,
 }: {
   rows: HeadquartersPhoto[] | undefined;
   loading: boolean;
   onOpen: (photo: HeadquartersPhoto) => void;
+  /** Panels between the newest photo and the stream below it. */
+  between?: React.ReactNode;
 }) {
   const t = useTranslations("headquarters");
   const df = useDateFormat();
   const list = rows ?? [];
   const [latest, ...stream] = list;
+  const streamRef = useRef<HTMLUListElement>(null);
+  useGentleScroll(streamRef, stream.length);
   return (
     <>
       <WallPanel
@@ -445,13 +803,14 @@ function PhotoPanels({
           <WallPhoto photo={latest} large onOpen={onOpen} />
         )}
       </WallPanel>
+      {between}
       <WallPanel title={t("wall.photoStream")} className="flex-1">
         {loading ? (
           <Skeleton className="h-40 w-full rounded-lg" />
         ) : stream.length === 0 ? (
           latest ? null : <p className="text-sm text-muted-foreground">{t("photos.empty")}</p>
         ) : (
-          <ul className="-mr-2 min-h-0 flex-1 space-y-3 overflow-y-auto pr-2">
+          <ul ref={streamRef} className={cn("min-h-0 flex-1 space-y-3 overflow-y-auto", NO_SCROLLBAR)}>
             {stream.map((photo) => (
               <li key={photo.id}>
                 <WallPhoto photo={photo} onOpen={onOpen} />
