@@ -18,6 +18,10 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { ExportButton } from "@/components/shared/export-button";
+import {
+  ReportChoiceField,
+  ReportKeywordField,
+} from "@/components/reports/report-filter-bar";
 import { ReportSelector, useMaterialColumns } from "@/components/reports/report-selector";
 import { FilterBar, FilterField, ListHeader, QueryFailedNote, TypeBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -63,7 +67,12 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // `category` and `supplier` are the 【选择报表】 levels under the report
   // (B04): the figures, the records, their photos and the export all read
   // them from the address, so one choice updates all four together.
-  const list = useListQuery(["project", "date_from", "date_to", "category", "supplier", "manufacturer"]);
+  // The filter bar (2026-10-10, 图11) adds the supplier and material as
+  // choices of their own, 验收 and a keyword - the list's `search`, which
+  // the figures, the deliveries and the export all read.
+  const list = useListQuery([
+    "project", "date_from", "date_to", "category", "supplier", "manufacturer", "acceptance",
+  ]);
   const topBar = useCurrentProject();
   const projectBoxShown = can("project.view") && !topBar.active;
   const filters = {
@@ -74,6 +83,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     supplier: list.filters.supplier,
     // Whose make (2026-10 D1): the figures, the records and the export.
     manufacturer: list.filters.manufacturer,
+    acceptance: list.filters.acceptance,
+    search: list.search || undefined,
   };
   const unitValues = useUnitExportValues();
 
@@ -194,6 +205,23 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             />
           </FilterField>
         )}
+        <FilterField label={t("receipts.field.supplier")} className="sm:w-52">
+          <SupplierDateFilter
+            value={{ supplier: list.filters.supplier }}
+            onChange={(next) => list.setFilter("supplier", next.supplier)}
+            showDates={false}
+          />
+        </FilterField>
+        <ReportChoiceField
+          label={t("reportSelector.material")}
+          value={list.filters.category}
+          options={(columns.data?.results ?? []).map((row) => ({
+            value: row.id,
+            label: row.name,
+          }))}
+          onChange={(category) => list.setFilter("category", category)}
+          loading={columns.isLoading}
+        />
         <FilterField label={t("receipts.field.manufacturer")} className="sm:w-52">
           <SupplierDateFilter
             value={{ manufacturer: list.filters.manufacturer }}
@@ -221,6 +249,21 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             }
           />
         </FilterField>
+        <ReportChoiceField
+          label={t("receipts.acceptance.title")}
+          value={list.filters.acceptance}
+          options={(["PENDING", "ACCEPTED", "REJECTED"] as const).map((code) => ({
+            value: code,
+            label: t(`receipts.acceptance.status.${code}`),
+          }))}
+          onChange={(acceptance) => list.setFilter("acceptance", acceptance)}
+        />
+        <ReportKeywordField
+          label={t("contractorReports.filter.keyword")}
+          value={list.search}
+          placeholder={t("reports.filter.keywordPlaceholder")}
+          onChange={(search) => list.setSearch(search ?? "")}
+        />
         <Button
           variant="outline"
           disabledReason={

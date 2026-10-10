@@ -6199,15 +6199,27 @@
     },
     "empty": "No records match this project and date range.",
     "filter": {
-      "allCategories": "All photo sources",
       "allProjects": "All permitted projects",
-      "allUploaders": "All uploaders",
-      "category": "Photo source",
       "dateFrom": "From",
       "dateTo": "To",
-      "keyword": "File or source keyword",
+      "keyword": "Keyword",
       "project": "Project",
-      "uploader": "Uploaded by"
+      "uploader": "Uploaded by",
+      "keywordPlaceholder": {
+        "progress": "Category, note or submitter",
+        "safety": "Number, title or responsible person",
+        "consultant": "Application no., type or consultant",
+        "attendance": "Worker's name",
+        "equipment": "Equipment no., plate, DO or operator",
+        "recycling": "Reference, plate, DO or company",
+        "schedule": "WBS code or task name",
+        "target": "Target name",
+        "photos": "File name, source or uploader",
+        "documents": "Document no., title or keyword"
+      },
+      "noMatch": "Nothing matches",
+      "submittedBy": "Submitted by",
+      "supplier": "Supplier"
     },
     "history": {
       "empty": "No reports have been exported yet.",
@@ -6254,7 +6266,8 @@
       "documents": "Project records report"
     },
     "what": {
-      "filterOptions": "The filter choices (projects, photo sources, uploaders)"
+      "filterOptions": "the filter choices",
+      "projects": "the project list"
     }
   },
   "crm": {
@@ -12341,7 +12354,8 @@
       "clear": "Clear filters",
       "dateFrom": "From",
       "dateTo": "To",
-      "project": "Project"
+      "project": "Project",
+      "keywordPlaceholder": "Number, plate, DO, material or supplier"
     },
     "receipts": {
       "byMaterial": "Top materials",
