@@ -85,12 +85,22 @@ export function droppedSelection(
 export function SystemFilePicker({
   projects,
   initialProject,
+  lockProject = false,
+  unavailableReason,
   selected,
   onSelectedChange,
 }: {
   projects: Project[];
   /** The page's project; the picker starts there (Q23: 默认当前项目). */
   initialProject?: string;
+  /** Keep the search on `initialProject` (adding to one document). */
+  lockProject?: boolean;
+  /**
+   * Why a file cannot be picked here, or null when it can - a file the
+   * document already holds, or one of another project. Shown on the tile,
+   * which stays greyed and cannot be ticked.
+   */
+  unavailableReason?: (row: SystemFile) => string | null;
   selected: Record<string, SystemFile>;
   onSelectedChange: (next: Record<string, SystemFile>) => void;
 }) {
@@ -123,6 +133,7 @@ export function SystemFilePicker({
   const chosen = Object.values(selected);
 
   const toggle = (row: SystemFile) => {
+    if (!selected[row.id] && unavailableReason?.(row)) return;
     const next = { ...selected };
     if (next[row.id]) delete next[row.id];
     else next[row.id] = row;
@@ -157,6 +168,7 @@ export function SystemFilePicker({
               ))}
             </SelectContent>
           </Select>
+          {!lockProject && (
           <Select value={project} onValueChange={(value) => filter(() => setProject(value))}>
             <SelectTrigger className="w-full bg-card sm:w-44" aria-label={t("documents.field.project")}>
               <SelectValue />
@@ -170,6 +182,7 @@ export function SystemFilePicker({
               ))}
             </SelectContent>
           </Select>
+          )}
           <Input
             type="date"
             className="w-full bg-card sm:w-40"
@@ -199,6 +212,7 @@ export function SystemFilePicker({
           <ul className="grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3 md:grid-cols-4">
             {rows.map((row) => {
               const ticked = Boolean(selected[row.id]);
+              const blocked = ticked ? null : (unavailableReason?.(row) ?? null);
               return (
                 <li key={row.id}>
                   <button
@@ -206,10 +220,15 @@ export function SystemFilePicker({
                     draggable
                     data-system-file={row.id}
                     aria-pressed={ticked}
-                    title={`${row.file_name} · ${sourceLabel(row)}`}
+                    aria-disabled={blocked ? true : undefined}
+                    title={blocked ? `${row.file_name} · ${blocked}` : `${row.file_name} · ${sourceLabel(row)}`}
                     className={cn(
                       "group relative flex w-full flex-col overflow-hidden rounded-lg border bg-card text-left transition-colors",
-                      ticked ? "border-primary ring-2 ring-primary/40" : "hover:border-primary/50",
+                      ticked
+                        ? "border-primary ring-2 ring-primary/40"
+                        : blocked
+                          ? "cursor-not-allowed opacity-55"
+                          : "hover:border-primary/50",
                     )}
                     onClick={() => toggle(row)}
                     onDragStart={(event) => {
@@ -230,9 +249,11 @@ export function SystemFilePicker({
                       <span className="block truncate text-2xs text-muted-foreground">
                         {[row.project_name, row.uploaded_by_name, df.date(row.captured_at)].filter(Boolean).join(" · ")}
                       </span>
-                      {row.filed && (
+                      {blocked ? (
+                        <span className="block truncate text-2xs text-muted-foreground">{blocked}</span>
+                      ) : row.filed ? (
                         <span className="block truncate text-2xs text-warning">{t("documents.pickFromSystem.alreadyFiled")}</span>
-                      )}
+                      ) : null}
                     </span>
                   </button>
                 </li>
@@ -288,7 +309,10 @@ export function SystemFilePicker({
           event.preventDefault();
           setDragOver(false);
           const id = event.dataTransfer.getData(SYSTEM_FILE_DRAG_TYPE);
-          if (id) onSelectedChange(droppedSelection(selected, rows, id));
+          const dropped = rows.find((item) => item.id === id);
+          if (id && !(dropped && unavailableReason?.(dropped))) {
+            onSelectedChange(droppedSelection(selected, rows, id));
+          }
         }}
       >
         <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">

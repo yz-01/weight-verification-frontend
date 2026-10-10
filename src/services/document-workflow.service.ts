@@ -221,6 +221,19 @@ export async function addSystemFiles(payload: AddSystemFilesPayload): Promise<Do
   return rows;
 }
 
+/**
+ * Add picked system files to one existing document - a row's 添加文件
+ * (2026-10-10). References only; the files and their records are untouched.
+ */
+export async function attachSystemFiles(documentId: string, files: string[]): Promise<DocumentDetail> {
+  const document = await api.post<DocumentDetail>(
+    `/api/documents/${documentId}/attach_system_files/`,
+    { files },
+  );
+  toastSuccess("documents.toast.systemFilesAdded");
+  return document;
+}
+
 /** One file a document holds from the system, to show in the page. */
 export function systemFileObjectUrl(documentId: string, file?: DocumentSystemFileInfo): Promise<string> {
   return fetchObjectUrl(`/api/documents/${documentId}/open_system_file/`, {

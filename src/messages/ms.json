@@ -6938,6 +6938,13 @@
     "filesMore": "+{count} fail lagi",
     "systemFiles": {
       "title": "Fail dipilih dari sistem"
+    },
+    "attach": {
+      "alreadyHere": "Sudah ada dalam dokumen ini",
+      "otherProject": "Bukan projek dokumen ini",
+      "hint": "Hanya fail projek dokumen ini boleh ditambah; fail yang sudah ada dikelabukan.",
+      "what": "fail yang sudah ada dalam dokumen ini",
+      "confirm": "Tambah ke dokumen ini ({count})"
     }
   },
   "driver": {
@@ -7469,7 +7476,8 @@
       "driver_link_other_device": "Pautan ini digunakan pada telefon lain. Minta pengitar semula hantar semula.",
       "driver_link_expired": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
       "driver_login_retired": "Pemandu tidak perlu log masuk lagi. Buka pautan perjalanan yang dihantar oleh pengitar semula.",
-      "document_system_files_mixed_projects": "Fail ini dari projek berlainan. Satu dokumen milik satu projek, jadi pilih fail dari satu projek sahaja."
+      "document_system_files_mixed_projects": "Fail ini dari projek berlainan. Satu dokumen milik satu projek, jadi pilih fail dari satu projek sahaja.",
+      "document_system_file_already_in_document": "Salah satu fail itu sudah ada dalam dokumen ini."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
