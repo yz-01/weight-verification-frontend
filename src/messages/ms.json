@@ -9791,7 +9791,51 @@
       "title": "Apa yang dibawa rekod ini",
       "hint": "Medan sentiasa dimasukkan. Foto ditanda dahulu; tandakan DO dan fail hanya jika pakej ini memerlukannya. Sembang tidak dimasukkan ke dalam PDF - ia kekal dalam sistem untuk dibaca. Setiap rekod boleh dibuka dan ditanda semula kemudian."
     },
-    "loadMore": "Muat lagi ({shown} daripada {total} dipaparkan)"
+    "loadMore": "Muat lagi ({shown} daripada {total} dipaparkan)",
+    "collect": {
+      "dockTitle": "Sedang memilih rekod untuk pakej",
+      "inPackage": "{count} rekod di dalamnya",
+      "back": "Kembali ke Multi Engine",
+      "end": "Berhenti memilih",
+      "barTitle": "Tandakan rekod untuk dimasukkan ke “{name}”",
+      "ticked": "{count} ditanda",
+      "addTicked": "Tambah ke pakej semasa",
+      "clear": "Kosongkan tanda",
+      "tickFirst": "Tandakan rekod yang hendak ditambah dahulu.",
+      "inCurrent": "✅ Sudah dalam pakej semasa",
+      "remove": "Keluarkan",
+      "selectAll": "Tandakan semua rekod di halaman ini yang boleh ditambah",
+      "selectRow": "Tandakan rekod ini",
+      "column": "Pakej",
+      "packed": "✅ Dipakej {count} kali",
+      "packedTitle": "Pakej yang memuatkan rekod ini",
+      "packedHint": "“Dipakej” hanya bermaksud rekod ini ada dalam pakej. Ia tidak bermaksud sudah dituntut (Claim) atau diluluskan oleh perunding.",
+      "sentTo": "Dihantar kepada: {name}",
+      "notSent": "Belum dihantar kepada perunding",
+      "addedAt": "Ditambah: {when} · {who}",
+      "noPackages": "Rekod ini tiada dalam mana-mana pakej sekarang.",
+      "loading": "Memuatkan…",
+      "chooserTitle": "Tambah rekod dari ruangan mana?",
+      "chooserHelp": "Membuka senarai asal ruangan itu: cari rekod dengan carian, penapis, foto, DO dan tandatangannya, tandakan dan tekan “Tambah ke pakej semasa”. Pakej kekal di bahagian bawah halaman, sekali tekan untuk kembali.",
+      "quickList": "Pilih daripada senarai ringkas di sini",
+      "reason": {
+        "in_package": "Sudah dalam pakej semasa",
+        "package_closed": "Pakej semasa sudah disahkan dan tidak menerima rekod lagi",
+        "not_finished": "Rekod ini belum selesai; ia boleh dipakej selepas selesai",
+        "other_project": "Rekod ini milik projek lain; satu pakej hanya menerima rekod dari satu projek",
+        "no_package": "Buka pakej dalam Multi Engine dahulu",
+        "loading": "Sedang membaca status pakej…"
+      },
+      "what": {
+        "status": "Status pakej",
+        "packages": "Pakej"
+      },
+      "toast": {
+        "linked": "{added} rekod ditambah ke pakej semasa.",
+        "linkedSome": "{added} ditambah; {skipped} sudah dalam pakej atau tidak boleh ditambah.",
+        "unlinked": "Dikeluarkan dari pakej semasa."
+      }
+    }
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",

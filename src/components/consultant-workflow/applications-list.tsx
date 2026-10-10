@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
+import { usePackList } from "@/components/contractor-ops/pack-collect";
 import { PhotoThumb } from "@/components/shared/photo-thumb";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantHowTo } from "@/components/consultant-workflow/consultant-how-to";
@@ -104,6 +105,9 @@ export function ConsultantApplicationsList() {
       }),
     enabled: stage !== "inbox" && (!needsProject || Boolean(project)),
   });
+  // Multi Engine picks applications here too (2026-10-10, 补充 1): 「✅ 已打包
+  // X 次」 on a row, and tick boxes while a package is being put together.
+  const pack = usePackList({ kind: "CONSULTANT_APPLICATION" }, rows.data?.results ?? []);
 
   return (
     <div className="space-y-4">
@@ -226,62 +230,71 @@ export function ConsultantApplicationsList() {
         <EmptyState text={t("state.noApplications")} />
       ) : (
         <div className="overflow-hidden surface-panel rounded-xl">
+          {pack.bar}
           <div className="divide-y">
             {rows.data.results.map((application) => (
-              <Link
-                key={application.id}
-                href={`/consultant-applications/${application.id}`}
-                className="grid gap-3 p-4 transition-colors hover:bg-muted/35 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] sm:items-center"
-              >
-                <div className="flex min-w-0 items-start gap-3">
-                  {/* The linked site photograph (E3); the row is a link to
-                      the application, so the picture is not a second one. */}
-                  <PhotoThumb
-                    coverUrl={application.cover_photo_url}
-                    count={application.photo_count}
-                    icon={ClipboardCheck}
-                    reference={application.application_no}
-                    openable={false}
-                  />
-                  <div className="min-w-0">
-                    {/* Short number big, project small (2026-10 D4). The row is a link, so no copy button
-                        inside it; the whole number is on hover. */}
-                    <RecordNo
-                      value={application.application_no}
-                      projectCode={application.project_code}
-                      copyable={false}
+              <div key={application.id} className="flex flex-wrap items-center sm:flex-nowrap">
+                {pack.picking && <div className="flex items-center self-stretch pl-4">{pack.check(application.id)}</div>}
+                <Link
+                  href={`/consultant-applications/${application.id}`}
+                  className="grid min-w-0 flex-1 gap-3 p-4 transition-colors hover:bg-muted/35 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] sm:items-center"
+                >
+                  <div className="flex min-w-0 items-start gap-3">
+                    {/* The linked site photograph (E3); the row is a link to
+                        the application, so the picture is not a second one. */}
+                    <PhotoThumb
+                      coverUrl={application.cover_photo_url}
+                      count={application.photo_count}
+                      icon={ClipboardCheck}
+                      reference={application.application_no}
+                      openable={false}
                     />
-                    <p className="truncate text-sm text-muted-foreground">
-                      {application.application_type_custom ||
-                        application.application_type_label}
-                      {/* Optional since 2026-10 (C1). */}
-                      {application.discipline_custom || application.discipline_label
-                        ? ` / ${application.discipline_custom || application.discipline_label}`
-                        : null}
+                    <div className="min-w-0">
+                      {/* Short number big, project small (2026-10 D4). The row is a link, so no copy button
+                          inside it; the whole number is on hover. */}
+                      <RecordNo
+                        value={application.application_no}
+                        projectCode={application.project_code}
+                        copyable={false}
+                      />
+                      <p className="truncate text-sm text-muted-foreground">
+                        {application.application_type_custom ||
+                          application.application_type_label}
+                        {/* Optional since 2026-10 (C1). */}
+                        {application.discipline_custom || application.discipline_label
+                          ? ` / ${application.discipline_custom || application.discipline_label}`
+                          : null}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="min-w-0 text-sm">
+                    <p className="truncate font-medium">{application.project_name}</p>
+                    <p className="truncate text-muted-foreground">
+                      {application.consultant_organization_name} - {application.consultant_name}
                     </p>
                   </div>
-                </div>
-                <div className="min-w-0 text-sm">
-                  <p className="truncate font-medium">{application.project_name}</p>
-                  <p className="truncate text-muted-foreground">
-                    {application.consultant_organization_name} - {application.consultant_name}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 sm:justify-end">
-                  <NeedsActionMarker show={application.needs_action} />
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {df.date(application.application_date)}
-                  </span>
-                  <StatusBadge
-                    label={t(`status.${application.status}`)}
-                    tone={tones[application.status]}
-                  />
-                </div>
-              </Link>
+                  <div className="flex items-center gap-3 sm:justify-end">
+                    <NeedsActionMarker show={application.needs_action} />
+                    <span className="text-xs tabular-nums text-muted-foreground">
+                      {df.date(application.application_date)}
+                    </span>
+                    <StatusBadge
+                      label={t(`status.${application.status}`)}
+                      tone={tones[application.status]}
+                    />
+                  </div>
+                </Link>
+                {pack.showColumn && (
+                  <div className="flex w-full items-center px-4 pb-3 empty:hidden sm:w-auto sm:pb-0">
+                    {pack.badge(application.id)}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
       )}
+      {pack.overlay}
     </div>
   );
 }

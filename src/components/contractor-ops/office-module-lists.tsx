@@ -440,6 +440,7 @@ export function MaterialOutgoingOffice() {
         isError={rows.isError}
         // `.v2` with the manufacturer column (2026-10 D1).
         storageKey="material-outgoing.v2"
+        pack="MATERIAL_OUTGOING"
         toolbar={
           <>
             <ProjectListFilter list={list} />
@@ -971,6 +972,7 @@ export function SiteEquipmentOffice() {
           isLoading={movements.isLoading}
           isError={movements.isError}
           storageKey="equipment-movements"
+          pack="EQUIPMENT_MOVEMENT"
           toolbar={
             <>
               <ProjectListFilter list={list} />
@@ -1659,6 +1661,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey="site-progress"
+        pack="PROGRESS"
         toolbar={
           <>
             <ProjectListFilter list={list} />

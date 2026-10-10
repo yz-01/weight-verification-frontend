@@ -1105,6 +1105,7 @@ export function SiteDisposalOffice() {
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey="site-disposals"
+        pack="DISPOSAL_REQUEST"
         toolbar={
           <>
             <ProjectListFilter list={list} />

@@ -9791,7 +9791,51 @@
       "title": "這些事項要放進資料包的內容",
       "hint": "欄位一定會放入。照片預設勾選；DO、文件需要時才勾選。聊天記錄不放進 PDF，在系統裡照樣能看。加入後仍可開啟每個事項再調整。"
     },
-    "loadMore": "載入更多（已顯示 {shown} / {total}）"
+    "loadMore": "載入更多（已顯示 {shown} / {total}）",
+    "collect": {
+      "dockTitle": "正在挑選資料放進資料包",
+      "inPackage": "已加入 {count} 筆",
+      "back": "返回 Multi Engine",
+      "end": "結束選擇",
+      "barTitle": "勾選要放進「{name}」的記錄",
+      "ticked": "已勾選 {count} 筆",
+      "addTicked": "加入當前資料包",
+      "clear": "清除勾選",
+      "tickFirst": "先在列表裡勾選要加入的記錄。",
+      "inCurrent": "✅ 已加入當前資料包",
+      "remove": "移出",
+      "selectAll": "勾選本頁可以加入的記錄",
+      "selectRow": "勾選這筆記錄",
+      "column": "資料包",
+      "packed": "✅ 已打包 {count} 次",
+      "packedTitle": "打包記錄",
+      "packedHint": "「已打包」只表示這筆記錄已放進資料包，不代表已 Claim，也不代表顧問已批准。",
+      "sentTo": "發送對象：{name}",
+      "notSent": "還沒發送給顧問",
+      "addedAt": "加入時間：{when} · {who}",
+      "noPackages": "這筆記錄目前不在任何資料包裡。",
+      "loading": "載入中…",
+      "chooserTitle": "從哪個業務欄目新增資料",
+      "chooserHelp": "會打開這個業務欄目原有的列表：用原有的搜尋、篩選、照片、DO 和簽名找資料，勾選後按「加入當前資料包」。資料包會縮在頁面下方，隨時可以返回。",
+      "quickList": "在這裡用簡單列表挑選",
+      "reason": {
+        "in_package": "已在當前資料包裡",
+        "package_closed": "當前資料包已確認，不能再加入",
+        "not_finished": "這筆記錄還沒完成，完成後才能打包",
+        "other_project": "這筆記錄屬於別的項目；一個資料包只收同一個項目的記錄",
+        "no_package": "先在 Multi Engine 打開一個資料包",
+        "loading": "正在讀取打包情況…"
+      },
+      "what": {
+        "status": "打包情況",
+        "packages": "打包記錄"
+      },
+      "toast": {
+        "linked": "已加入當前資料包 {added} 筆。",
+        "linkedSome": "已加入 {added} 筆；{skipped} 筆已在資料包裡或不能加入。",
+        "unlinked": "已移出當前資料包。"
+      }
+    }
   },
   "mySubmissions": {
     "title": "我提交過的",

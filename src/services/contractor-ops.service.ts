@@ -39,6 +39,9 @@ import type {
   ClaimState,
   EvidencePackageDetail,
   EvidencePackageRow,
+  PackageLinkResult,
+  PackStatus,
+  RecordPackageRow,
   PackageRecordParts,
   PackageSelection,
   PackageState,
@@ -1294,6 +1297,56 @@ export async function removePackageItem(id: string, item: string) {
   toastSuccess("multiEngine.toast.removed");
   return row;
 }
+
+/*
+ * Picking on a module's own list (2026-10-10, 添加资料及勾选关联优化): the
+ * rows ticked there join the package being put together, whole (补充 2), and
+ * every list says how often each row was packed (三 4).
+ */
+
+/** 「加入当前资料包」: whole records, once per package; the rest are counted. */
+export async function linkPackageRecords(
+  id: string,
+  kind: ArchiveRecordKind,
+  ids: string[],
+) {
+  const result = await api.post<PackageLinkResult>(
+    `/api/evidence-packages/${id}/link_records/`,
+    { kind, ids },
+  );
+  const skipped = result.already_in + result.refused.length;
+  toastSuccess(
+    skipped ? "multiEngine.collect.toast.linkedSome" : "multiEngine.collect.toast.linked",
+    { added: result.added, skipped },
+  );
+  return result;
+}
+
+/** Untick on the list: the record leaves this draft and stops counting (三 6). */
+export async function unlinkPackageRecords(
+  id: string,
+  kind: ArchiveRecordKind,
+  ids: string[],
+) {
+  const result = await api.post<{ removed: number; package: PackageLinkResult["package"] }>(
+    `/api/evidence-packages/${id}/unlink_records/`,
+    { kind, ids },
+  );
+  toastSuccess("multiEngine.collect.toast.unlinked");
+  return result;
+}
+
+/** For one page of a module's list: 「已打包 X 次」 and 「已加入当前资料包」 per row. */
+export const getPackStatus = (kind: ArchiveRecordKind, ids: string[], packageId?: string) =>
+  api.get<PackStatus>("/api/evidence-packages/pack_status/", {
+    kind,
+    ids: ids.join(","),
+    package: packageId || undefined,
+  });
+
+/** Every package one record was packed into, newest first. */
+export const getRecordPackages = (kind: ArchiveRecordKind, id: string) =>
+  api.get<RecordPackageRow[]>("/api/evidence-packages/record_packages/", { kind, id });
 
 export const reorderPackageItems = (id: string, items: string[]) =>
   api.post<EvidencePackageDetail>(

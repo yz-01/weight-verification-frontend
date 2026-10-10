@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FolderPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { RecordPackBadge, usePackCollect } from "@/components/contractor-ops/pack-collect";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -13,9 +14,9 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useDateFormat } from "@/lib/dates";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import {
-  addPackageItems,
   createEvidencePackage,
   getEvidencePackages,
+  linkPackageRecords,
 } from "@/services/contractor-ops.service";
 
 /**
@@ -67,17 +68,27 @@ export function AddToPackageButton({
   const [open, setOpen] = useState(false);
 
   /*
+   * 「✅ 已打包 X 次」 on the record itself (2026-10-10, 三 4), for whoever may
+   * read packages - pressing it names each one.
+   */
+  const badge =
+    canGoInAPackage(kind) && can("package.view") ? (
+      <RecordPackBadge kind={kind} recordId={recordId} />
+    ) : null;
+
+  /*
    * No button at all rather than a disabled one. A record of a kind that
    * cannot be packaged, or one with no project, has no package it could go
    * into - that is not a state to explain beside a grey button, it is a button
    * that does not belong on this record.
    */
   if (!can("package.manage") || !canGoInAPackage(kind) || !projectId) {
-    return null;
+    return badge;
   }
 
   return (
     <>
+      {badge}
       <Button variant="outline" onClick={() => setOpen(true)}>
         <FolderPlus className="size-4" />
         {t("addToPackage")}
@@ -113,7 +124,8 @@ function ChoosePackageDialog({
   const common = useTranslations("common");
   const formatter = useDateFormat();
   const queryClient = useQueryClient();
-  const [chosen, setChosen] = useState("");
+  const { collecting } = usePackCollect();
+  const [picked, setChosen] = useState("");
   const [name, setName] = useState("");
 
   /*
@@ -133,14 +145,23 @@ function ChoosePackageDialog({
   });
   const rows = drafts.data?.results ?? [];
   const starting = drafts.isSuccess && rows.length === 0;
+  // The package being put together on the lists is the one meant, unless
+  // the person picks another (2026-10-10, 添加资料及勾选关联).
+  const chosen =
+    picked || (rows.some((row) => row.id === collecting?.id) ? (collecting?.id ?? "") : "");
 
   const done = () => {
     queryClient.invalidateQueries({ queryKey: ["evidence-packages"] });
     onClose();
   };
 
+  /*
+   * The whole record joins - its photographs, DO, signatures and attachments
+   * (2026-10-10, 补充 2: 「必须关联整条记录…不能只选到单张照片」); what the PDF
+   * prints of it can still be narrowed in Multi Engine's 「选择内容」.
+   */
   const add = useMutation({
-    mutationFn: () => addPackageItems(chosen, kind, [recordId]),
+    mutationFn: () => linkPackageRecords(chosen, kind, [recordId]),
     onSuccess: done,
   });
   const startOne = useMutation({
@@ -149,7 +170,7 @@ function ChoosePackageDialog({
         project: projectId,
         name: name.trim(),
       });
-      return addPackageItems(created.id, kind, [recordId]);
+      return linkPackageRecords(created.id, kind, [recordId]);
     },
     onSuccess: done,
   });
