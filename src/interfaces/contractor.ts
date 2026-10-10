@@ -292,20 +292,28 @@ export interface MaterialUnitOption {
 }
 
 /** One factory on the company's manufacturer list (2026-10 D1). */
+/**
+ * A choice for 指定厂商（MR）: a company on the supplier list (2026-10-10,
+ * 「这个厂商也是同样是供应商」) - its name, not its contacts.
+ */
 export interface Manufacturer {
+  id: string;
+  code: string;
+  name: string;
+  is_active: boolean;
+}
+
+/** An entry of the retired manufacturer list and the supplier it became. */
+export interface FormerManufacturer {
   id: string;
   name: string;
   country: string;
   is_active: boolean;
   sort_order: number;
   created_at: string;
-}
-
-export interface ManufacturerPayload {
-  name: string;
-  country?: string;
-  is_active?: boolean;
-  sort_order?: number;
+  supplier: string | null;
+  supplier_name: string | null;
+  supplier_code: string | null;
 }
 
 export type PhotoKind = "DELIVERY_NOTE" | "VEHICLE" | "UNLOADING" | "OTHER";

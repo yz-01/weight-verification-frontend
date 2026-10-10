@@ -50,7 +50,11 @@ import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
-import { ManufacturerCell, ManufacturerPicker } from "@/components/shared/manufacturer-picker";
+import {
+  ManufacturerCell,
+  ManufacturerPicker,
+  hideEmptyManufacturerColumn,
+} from "@/components/shared/manufacturer-picker";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
 import { SupplierPicker } from "@/components/shared/supplier-picker";
 import {
@@ -222,7 +226,9 @@ function RequestsTab() {
         header: () => <PlainHeader label={t("field.unit")} />,
         cell: ({ row }) => (row.original.unit ? unitLabel(row.original.unit) : "—"),
       },
-      // Whose make and who sells it (2026-10 D1, D3): settled on approval.
+      // 业主指定厂商 and who sells it (2026-10 D1, D3; 2026-10-10): the
+      // supplier is settled on approval; the named manufacturer only when the
+      // owner names one, so its column shows only when a row in view has one.
       {
         accessorKey: "manufacturer_name",
         meta: { label: t("field.manufacturer") },
@@ -328,7 +334,7 @@ function RequestsTab() {
           </div>
         }
         list={list}
-        columns={columns}
+        columns={hideEmptyManufacturerColumn(columns, rows.data?.results)}
         rows={rows.data?.results ?? []}
         totalCount={total}
         needsActionCount={rows.data?.needs_action_count}
@@ -554,8 +560,9 @@ export function MaterialRequestDetail({
   const [returnArmed, setReturnArmed] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
-  // Approving is the purchase (2026-10 D1, D2): who it is bought from and
-  // whose make. Starts from what the applicant suggested; `null` = untouched.
+  // Approving is the purchase (2026-10 D1, D2): who it is bought from, and
+  // the 业主指定厂商 when the owner names one (optional since 2026-10-10).
+  // Starts from what the applicant suggested; `null` = untouched.
   const [supplier, setSupplier] = useState<string | null>(null);
   const [manufacturer, setManufacturer] = useState<string | null>(null);
   const chosenSupplier = supplier ?? detail.data?.supplier ?? "";
@@ -749,8 +756,9 @@ export function MaterialRequestDetail({
             {reviewView === "decide" && (
               <>
                 {isMaterial && (
-                  // D2 + D1: approving settles the supplier and the
-                  // manufacturer; returning needs neither.
+                  // D2 + D1: approving settles the supplier; the owner's
+                  // named manufacturer is optional (2026-10-10). Returning
+                  // needs neither.
                   <div className="space-y-2 rounded-md border p-2">
                     <p className="text-xs text-muted-foreground">{t("approve.help")}</p>
                     <FieldWrapper label={t("field.supplier")} required>
@@ -761,8 +769,12 @@ export function MaterialRequestDetail({
                         placeholder={t("approve.chooseSupplier")}
                       />
                     </FieldWrapper>
-                    <FieldWrapper label={t("field.manufacturer")} required>
-                      <ManufacturerPicker value={chosenManufacturer} onChange={setManufacturer} />
+                    <FieldWrapper label={t("field.manufacturer")}>
+                      <ManufacturerPicker
+                        value={chosenManufacturer}
+                        onChange={setManufacturer}
+                        knownName={chosenManufacturer === row.manufacturer ? row.manufacturer_name : null}
+                      />
                     </FieldWrapper>
                   </div>
                 )}
@@ -770,10 +782,7 @@ export function MaterialRequestDetail({
                   className="w-full"
                   requires={
                     isMaterial
-                      ? [
-                          [chosenSupplier, t("field.supplier")],
-                          [chosenManufacturer, t("field.manufacturer")],
-                        ]
+                      ? [[chosenSupplier, t("field.supplier")]]
                       : []
                   }
                   disabled={review.isPending}

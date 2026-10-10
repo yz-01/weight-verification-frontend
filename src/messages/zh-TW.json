@@ -4054,7 +4054,7 @@
       "suppliers": "供應商",
       "suppliersHint": "只有一家：自動帶出；多家：手機只能從這幾家選；掃供應商二維碼優先。",
       "manufacturers": "指定廠商",
-      "manufacturersHint": "記錄的廠商不在名單裡會標「非指定廠商」，只提醒、不阻擋。",
+      "manufacturersHint": "從供應商名單選。記錄的廠商不在這裡會標「非指定廠商」，只提醒、不阻擋。",
       "search": "輸入搜尋",
       "noneChosen": "未選擇",
       "what": {
@@ -8050,7 +8050,7 @@
       "documentAmountTypeHint": "讀不到金額時，請照送貨單上的總金額填寫（可不填）。",
       "autoFilledFromCategory": "按分類自動帶出",
       "supplierLimited": "只列這個分類設定的供應商",
-      "manufacturer": "製造廠商",
+      "manufacturer": "指定廠商（MR）",
       "chooseColumnFirst": "請先選分類"
     },
     "materialEvidence": {
@@ -9875,7 +9875,7 @@
       "original_quantity": "原數量",
       "correction_reason": "更正原因",
       "assigned_reviewer": "提交給",
-      "manufacturer": "製造廠商",
+      "manufacturer": "指定廠商（MR）",
       "trips_progress": "已驗收 / 車次",
       "trip_checked": "已驗收的車",
       "trip_waiting": "待驗收的車",
@@ -10244,7 +10244,7 @@
       "equipmentEntry": "設備進場",
       "equipmentExit": "設備退場",
       "targetReport": "目標與達成",
-      "manufacturers": "製造廠商",
+      "manufacturers": "指定廠商（MR）",
       "equipmentOperatorHours": "設備操作員工時",
       "technical": "技術管理",
       "permits": "施工准證"
@@ -11720,7 +11720,7 @@
         "OCR": "從送貨單讀出",
         "MANUAL": "人工填寫"
       },
-      "manufacturer": "製造廠商"
+      "manufacturer": "指定廠商（MR）"
     },
     "locationCaptured": "已記錄位置",
     "locationMissing": "無位置",
@@ -11828,7 +11828,7 @@
         "reference": "單號",
         "doNo": "DO 號",
         "plate": "車牌",
-        "manufacturer": "製造廠商",
+        "manufacturer": "指定廠商（MR）",
         "returnNote": "Return Note",
         "quantity": "數量"
       },
@@ -15815,7 +15815,7 @@
       "assignedReviewer": "提交給",
       "reassignHistory": "改派記錄",
       "supplier": "供應商",
-      "manufacturer": "製造廠商"
+      "manufacturer": "業主指定廠商"
     },
     "action": {
       "view": "查看",
@@ -15884,7 +15884,7 @@
       "chooseReviewer": "選擇審批人",
       "projectFirst": "請先選擇項目",
       "noReviewers": "這個項目還沒有人能批准申請。請公司管理員在「角色權限」裡，給審批人的角色勾上「批准或退回 MR / 其他申請」。",
-      "suggestHint": "選填，總部批准時決定。"
+      "suggestHint": "選填。只在業主指定了廠商時，從供應商名單選。"
     },
     "options": {
       "open": "材料選項",
@@ -15923,7 +15923,7 @@
     "reassignHelp": "改派後由你批准或退回，原來的審批人不能再批，系統會留下改派記錄。",
     "approve": {
       "title": "批准 {reference}",
-      "help": "批准就是採購決定：選好向哪家供應商買、用哪家廠商。",
+      "help": "批准就是採購決定：選好向哪家供應商買；業主指定了廠商時，也從供應商名單選上。",
       "chooseSupplier": "選擇供應商",
       "confirm": "批准"
     }
@@ -16005,9 +16005,9 @@
     "to": "至",
     "toLabel": "結束日期",
     "what": "供應商列表",
-    "allManufacturers": "全部廠商",
-    "manufacturer": "製造廠商",
-    "whatManufacturers": "廠商名單"
+    "allManufacturers": "全部指定廠商",
+    "manufacturer": "指定廠商（MR）",
+    "whatManufacturers": "供應商名單"
   },
   "recordNo": {
     "copy": "複製 {number}",
@@ -16015,46 +16015,29 @@
     "copyFailed": "複製失敗。長按編號可以看到完整編號。"
   },
   "manufacturers": {
-    "title": "製造廠商",
-    "description": "生產材料的工廠。材料分類可以設「指定廠商」；記錄上的廠商不在名單裡會標「非指定廠商」。",
-    "new": "新增廠商",
-    "createTitle": "新增廠商",
-    "editTitle": "編輯廠商",
-    "field": {
-      "name": "廠商名稱",
-      "country": "國家",
-      "isActive": "啟用",
-      "sortOrder": "排序",
-      "createdAt": "新增時間"
-    },
-    "empty": "還沒有廠商",
-    "what": "廠商名單",
-    "duplicate": "這個廠商已經在名單裡。",
-    "inUse": "已有記錄用了這個廠商，請改為停用。",
-    "switchedOff": "已停用",
-    "remove": {
-      "title": "刪除 {name}？",
-      "description": "只有還沒被任何記錄用過的廠商可以刪除；已用過的請停用，舊記錄仍保留廠商名稱。",
-      "confirm": "刪除"
-    },
-    "toast": {
-      "created": "已新增廠商",
-      "updated": "已更新廠商",
-      "removed": "已刪除廠商"
-    },
-    "column": "製造廠商",
+    "title": "指定廠商（MR）",
+    "description": "指定廠商就是供應商名單裡的公司，只在業主於 MR 指定廠商時才需要填。",
+    "empty": "供應商名單裡沒有這家。請辦公室在「供應商資料」新增。",
+    "what": "供應商名單",
+    "column": "指定廠商（MR）",
     "offList": "非指定廠商",
     "offListHint": "這個分類指定了其他廠商，仍然可以提交。",
     "picker": {
-      "choose": "選擇製造廠商",
+      "choose": "從供應商名單選擇",
       "none": "未填寫",
       "designated": "指定廠商",
-      "addNew": "名單裡沒有？新增",
-      "newName": "新廠商名稱",
-      "add": "新增",
-      "offline": "新增廠商需要網路。請先從名單選，或先不填。",
-      "failed": "廠商新增失敗。",
       "fromColumn": "按分類自動帶出"
+    },
+    "note": "不再另外維護廠商名單。要新增或修改廠商，請在「供應商資料」新增或修改這家公司；材料進場、材料退場、材料申請和材料分類的「指定廠商」都從供應商名單選。",
+    "goToSuppliers": "前往供應商資料",
+    "former": {
+      "title": "原廠商名單（唯讀）",
+      "description": "原來每個廠商都已對應到同名的供應商（名單裡沒有的已自動新增），舊記錄照樣顯示廠商名稱。",
+      "name": "原廠商名稱",
+      "country": "國家",
+      "supplier": "現為供應商",
+      "switchedOff": "已停用",
+      "empty": "原來沒有廠商名單。"
     }
   },
   "progressPage": {

@@ -62,7 +62,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
-import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { ManufacturerCell, hideEmptyManufacturerColumn } from "@/components/shared/manufacturer-picker";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import {
   ColumnFilter,
@@ -336,7 +336,8 @@ export function MaterialOutgoingOffice() {
           </span>
         ),
       },
-      // Whose make (2026-10 D1), copied from the delivery it went back from.
+      // 指定厂商（MR） (2026-10 D1; 2026-10-10), copied from the delivery it
+      // went back from. Shown only when a row in view names one.
       {
         accessorKey: "manufacturer_name",
         meta: { label: tRoot("manufacturers.column") },
@@ -431,7 +432,7 @@ export function MaterialOutgoingOffice() {
           </div>
         }
         list={list}
-        columns={columns}
+        columns={hideEmptyManufacturerColumn(columns, rows.data?.results)}
         rows={rows.data?.results ?? []}
         totalCount={total}
         needsActionCount={rows.data?.needs_action_count}
