@@ -62,8 +62,8 @@ describe("栏目 never names a category", () => {
   });
 });
 
-describe("制造厂商 has one name everywhere (2026-10 D1)", () => {
-  it.each(["zh", "zh-TW", "en", "ms"])("in %s: the menu and the page agree", (locale) => {
+describe("指定厂商（MR） has one name everywhere (2026-10 D1; 2026-10-10)", () => {
+  it.each(["zh", "zh-TW", "en", "ms"])("in %s: the page, the columns and the forms agree", (locale) => {
     const catalogue = JSON.parse(
       readFileSync(path.join(process.cwd(), `src/messages/${locale}.json`), "utf8"),
     );
@@ -71,21 +71,26 @@ describe("制造厂商 has one name everywhere (2026-10 D1)", () => {
     expect(name).toBeTruthy();
     expect(catalogue.manufacturers.title).toBe(name);
     // A column names one manufacturer; it agrees with the record detail and
-    // the printed PDF (`mySubmissions.field`, copied into pdf_words.py).
+    // the printed PDF (`mySubmissions.field`, copied into pdf_words.py), the
+    // material lists, the filter and the phone's form.
     expect(catalogue.mySubmissions.field.manufacturer).toBe(catalogue.manufacturers.column);
+    expect(catalogue.manufacturers.column).toBe(name);
+    expect(catalogue.receipts.field.manufacturer).toBe(name);
+    expect(catalogue.receipts.net.item.manufacturer).toBe(name);
+    expect(catalogue.supplierDateFilter.manufacturer).toBe(name);
+    expect(catalogue.fieldStaffPwa.material.manufacturer).toBe(name);
   });
 
-  it.each(["zh", "zh-TW"])("in %s the list column is the module's own name", (locale) => {
-    const catalogue = JSON.parse(
-      readFileSync(path.join(process.cwd(), `src/messages/${locale}.json`), "utf8"),
-    );
-    expect(catalogue.manufacturers.column).toBe(catalogue.nav.submodule.manufacturers);
-  });
-
-  it("is 制造厂商, and the off-list tag 非指定厂商, in Chinese", () => {
+  it("is 指定厂商（MR）, 全部指定厂商 and 业主指定厂商 in Chinese, never 制造厂商", () => {
     const zh = JSON.parse(readFileSync(path.join(process.cwd(), "src/messages/zh.json"), "utf8"));
-    expect(zh.nav.submodule.manufacturers).toBe("制造厂商");
+    expect(zh.nav.submodule.manufacturers).toBe("指定厂商（MR）");
+    expect(zh.supplierDateFilter.allManufacturers).toBe("全部指定厂商");
+    expect(zh.materialRequest.field.manufacturer).toBe("业主指定厂商");
     expect(zh.manufacturers.offList).toBe("非指定厂商");
+    for (const locale of ["zh", "zh-TW"]) {
+      const text = readFileSync(path.join(process.cwd(), `src/messages/${locale}.json`), "utf8");
+      expect(text).not.toMatch(/制造厂商|製造廠商|全部厂商"|全部廠商"/);
+    }
     // 「单位管理」 lives inside 分类管理 (A4).
     expect(zh.categoryManagement.units.title).toBe("单位管理");
   });

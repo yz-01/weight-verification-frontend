@@ -4054,7 +4054,7 @@
       "suppliers": "Pembekal",
       "suppliersHint": "Satu: diisi sendiri. Beberapa: telefon hanya menawarkan ini. Kod QR pembekal yang diimbas sentiasa diutamakan.",
       "manufacturers": "Pengilang ditetapkan",
-      "manufacturersHint": "Rekod oleh pengilang lain ditanda 「Bukan pengilang ditetapkan」 - amaran sahaja, tidak ditolak.",
+      "manufacturersHint": "Dipilih daripada senarai pembekal. Rekod oleh pengilang lain ditanda 「Bukan pengilang ditetapkan」 - amaran sahaja, tidak ditolak.",
       "search": "Taip untuk cari",
       "noneChosen": "Tiada dipilih",
       "what": {
@@ -8050,7 +8050,7 @@
       "documentAmountTypeHint": "Jika amaun tidak dapat dibaca, taip jumlah daripada pesanan penghantaran (pilihan).",
       "autoFilledFromCategory": "Diisi daripada kategori",
       "supplierLimited": "Hanya pembekal yang ditetapkan untuk kategori ini",
-      "manufacturer": "Pengilang",
+      "manufacturer": "Pengilang dinamakan (MR)",
       "chooseColumnFirst": "Pilih kategori dahulu"
     },
     "materialEvidence": {
@@ -9869,7 +9869,7 @@
       "original_quantity": "Kuantiti asal",
       "correction_reason": "Sebab pembetulan",
       "assigned_reviewer": "Dihantar kepada",
-      "manufacturer": "Pengilang",
+      "manufacturer": "Pengilang dinamakan (MR)",
       "trips_progress": "Muatan disemak / dirancang",
       "trip_checked": "Muatan disemak",
       "trip_waiting": "Muatan menunggu semakan",
@@ -10238,7 +10238,7 @@
       "equipmentEntry": "Peralatan masuk",
       "equipmentExit": "Peralatan keluar",
       "targetReport": "Sasaran dan pencapaian",
-      "manufacturers": "Pengilang",
+      "manufacturers": "Pengilang dinamakan (MR)",
       "equipmentOperatorHours": "Jam operator peralatan",
       "technical": "Pengurusan teknikal",
       "permits": "Permit kerja"
@@ -11714,7 +11714,7 @@
         "OCR": "Dibaca daripada pesanan penghantaran",
         "MANUAL": "Dimasukkan oleh seseorang"
       },
-      "manufacturer": "Pengilang"
+      "manufacturer": "Pengilang dinamakan (MR)"
     },
     "locationCaptured": "Lokasi direkod",
     "locationMissing": "Tiada lokasi",
@@ -11822,7 +11822,7 @@
         "reference": "No.",
         "doNo": "No. DO",
         "plate": "Plat lori",
-        "manufacturer": "Pengilang",
+        "manufacturer": "Pengilang dinamakan (MR)",
         "returnNote": "Return Note",
         "quantity": "Kuantiti"
       },
@@ -15809,7 +15809,7 @@
       "assignedReviewer": "Hantar kepada",
       "reassignHistory": "Rekod ambil alih",
       "supplier": "Pembekal",
-      "manufacturer": "Pengilang"
+      "manufacturer": "Pengilang dinamakan pemilik"
     },
     "action": {
       "view": "Lihat",
@@ -15878,7 +15878,7 @@
       "chooseReviewer": "Pilih pelulus",
       "projectFirst": "Pilih projek dahulu",
       "noReviewers": "Belum ada sesiapa yang boleh meluluskan permohonan bagi projek ini. Minta pentadbir syarikat menanda \"Lulus atau kembalikan MR / Permohonan Lain\" pada peranan pelulus di Peranan.",
-      "suggestHint": "Pilihan - ibu pejabat memutuskan semasa meluluskan."
+      "suggestHint": "Pilihan. Hanya apabila pemilik menamakan pengilang - pilih daripada senarai pembekal."
     },
     "options": {
       "open": "Senarai bahan",
@@ -15917,7 +15917,7 @@
     "reassignHelp": "Selepas anda mengambil alih, anda yang meluluskan atau mengembalikannya. Pelulus asal tidak lagi boleh, dan pengambilalihan direkodkan.",
     "approve": {
       "title": "Luluskan {reference}",
-      "help": "Meluluskan ialah keputusan pembelian: pilih pembekal dan pengilang.",
+      "help": "Meluluskan ialah keputusan pembelian: pilih pembekal - dan, jika pemilik menamakan pengilang, pilih juga daripada senarai pembekal.",
       "chooseSupplier": "Pilih pembekal",
       "confirm": "Luluskan"
     }
@@ -15999,9 +15999,9 @@
     "to": "hingga",
     "toLabel": "Hingga tarikh",
     "what": "senarai pembekal",
-    "allManufacturers": "Semua pengilang",
-    "manufacturer": "Pengilang",
-    "whatManufacturers": "Senarai pengilang"
+    "allManufacturers": "Semua pengilang dinamakan",
+    "manufacturer": "Pengilang dinamakan (MR)",
+    "whatManufacturers": "Senarai pembekal"
   },
   "recordNo": {
     "copy": "Salin {number}",
@@ -16009,46 +16009,29 @@
     "copyFailed": "Tidak dapat menyalin. Tekan lama nombor untuk melihatnya penuh."
   },
   "manufacturers": {
-    "title": "Pengilang",
-    "description": "Kilang yang membuat bahan anda. Kategori boleh menamakan pengilang yang dibenarkan kontrak; selainnya ditanda 「Bukan pengilang ditetapkan」.",
-    "new": "Pengilang baharu",
-    "createTitle": "Pengilang baharu",
-    "editTitle": "Sunting pengilang",
-    "field": {
-      "name": "Nama pengilang",
-      "country": "Negara",
-      "isActive": "Aktif",
-      "sortOrder": "Susunan",
-      "createdAt": "Ditambah"
-    },
-    "empty": "Belum ada pengilang",
-    "what": "Senarai pengilang",
-    "duplicate": "Pengilang itu sudah ada dalam senarai.",
-    "inUse": "Rekod sudah menamakan pengilang ini. Nyahaktifkan sahaja.",
-    "switchedOff": "Dinyahaktifkan",
-    "remove": {
-      "title": "Buang {name}?",
-      "description": "Hanya pengilang yang belum dinamakan dalam mana-mana rekod boleh dibuang. Yang sudah digunakan dinyahaktifkan, supaya rekod lama kekal namanya.",
-      "confirm": "Buang"
-    },
-    "toast": {
-      "created": "Pengilang ditambah",
-      "updated": "Pengilang dikemas kini",
-      "removed": "Pengilang dibuang"
-    },
-    "column": "Pengilang",
+    "title": "Pengilang dinamakan (MR)",
+    "description": "Pengilang dinamakan ialah syarikat dalam senarai pembekal. Isi hanya apabila pemilik menamakannya dalam permohonan bahan (MR).",
+    "empty": "Tiada dalam senarai pembekal. Minta pejabat menambahnya dalam Rekod pembekal.",
+    "what": "Senarai pembekal",
+    "column": "Pengilang dinamakan (MR)",
     "offList": "Bukan pengilang ditetapkan",
     "offListHint": "Kategori ini menamakan pengilang lain. Ia masih boleh dihantar.",
     "picker": {
-      "choose": "Pilih pengilang",
+      "choose": "Pilih daripada senarai pembekal",
       "none": "Tidak dinyatakan",
       "designated": "Ditetapkan",
-      "addNew": "Tiada dalam senarai? Tambah",
-      "newName": "Nama pengilang baharu",
-      "add": "Tambah",
-      "offline": "Menambah pengilang memerlukan sambungan. Pilih dari senarai, atau biarkan kosong.",
-      "failed": "Pengilang tidak dapat ditambah.",
       "fromColumn": "Diisi daripada kategori"
+    },
+    "note": "Tiada lagi senarai pengilang berasingan. Untuk menambah atau mengubah pengilang, tambah atau sunting syarikat itu dalam Rekod pembekal. Bahan masuk, bahan keluar, permohonan bahan dan pengilang ditetapkan bagi kategori semuanya dipilih daripada senarai pembekal.",
+    "goToSuppliers": "Pergi ke Rekod pembekal",
+    "former": {
+      "title": "Senarai pengilang terdahulu (baca sahaja)",
+      "description": "Setiap entri terdahulu kini merujuk pembekal yang sama nama (ditambah secara automatik jika tiada). Rekod lama masih menunjukkan nama pengilang.",
+      "name": "Pengilang terdahulu",
+      "country": "Negara",
+      "supplier": "Kini pembekal",
+      "switchedOff": "Dinyahaktifkan",
+      "empty": "Tiada senarai pengilang terdahulu."
     }
   },
   "progressPage": {

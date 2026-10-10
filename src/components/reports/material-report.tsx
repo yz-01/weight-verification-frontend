@@ -46,7 +46,7 @@ import {
 } from "@/components/ui/table";
 import { PAGE_SIZE_OPTIONS, useListQuery } from "@/hooks/use-list-query";
 import { type MaterialReceipt } from "@/interfaces/contractor";
-import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { ManufacturerCell, anyNamedManufacturer } from "@/components/shared/manufacturer-picker";
 import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
@@ -347,6 +347,9 @@ function ReportRecords({
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
   const [opened, setOpened] = useState<string | null>(null);
+  // 指定厂商（MR） only when a delivery in view names one (2026-10-10): a
+  // column of dashes said nothing; the supplier is what matters day to day.
+  const showManufacturer = anyNamedManufacturer(rows);
   return (
     <ReportTable title={t("materialReports.records.title", { total })}>
       <QueryFailedNote query={records} what={t("materialReports.records.what")} />
@@ -356,7 +359,7 @@ function ReportRecords({
             <TableHead>{t("receipts.field.capturedAt")}</TableHead>
             <TableHead>{t("receipts.field.receiptNo")}</TableHead>
             <TableHead>{t("receipts.field.supplier")}</TableHead>
-            <TableHead>{t("receipts.field.manufacturer")}</TableHead>
+            {showManufacturer && <TableHead>{t("receipts.field.manufacturer")}</TableHead>}
             <TableHead>{t("receipts.field.materialName")}</TableHead>
             <TableHead className="text-right">{t("receipts.field.quantity")}</TableHead>
             <TableHead>{t("materialReports.records.photos")}</TableHead>
@@ -369,9 +372,11 @@ function ReportRecords({
               <TableCell className="tabular text-muted-foreground">{df.dateTime(row.captured_at)}</TableCell>
               <TableCell className="tabular font-medium">{row.receipt_no}</TableCell>
               <TableCell>{row.supplier_name}</TableCell>
-              <TableCell>
-                <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
-              </TableCell>
+              {showManufacturer && (
+                <TableCell>
+                  <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
+                </TableCell>
+              )}
               <TableCell>{row.material_name}</TableCell>
               <TableCell className="tabular text-right">
                 {row.quantity} {unitName(row.unit, row.unit_label)}

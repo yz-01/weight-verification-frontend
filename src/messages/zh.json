@@ -4054,7 +4054,7 @@
       "suppliers": "供应商",
       "suppliersHint": "只有一家：自动带出；多家：手机只能从这几家选；扫供应商二维码优先。",
       "manufacturers": "指定厂商",
-      "manufacturersHint": "记录的厂商不在名单里会标「非指定厂商」，只提醒、不阻挡。",
+      "manufacturersHint": "从供应商名单选。记录的厂商不在这里会标「非指定厂商」，只提醒、不阻挡。",
       "search": "输入搜索",
       "noneChosen": "未选择",
       "what": {
@@ -8050,7 +8050,7 @@
       "documentAmountTypeHint": "读不到金额时，请照送货单上的总金额填写（可不填）。",
       "autoFilledFromCategory": "按分类自动带出",
       "supplierLimited": "只列这个分类设定的供应商",
-      "manufacturer": "制造厂商",
+      "manufacturer": "指定厂商（MR）",
       "chooseColumnFirst": "请先选分类"
     },
     "materialEvidence": {
@@ -9869,7 +9869,7 @@
       "original_quantity": "原数量",
       "correction_reason": "更正原因",
       "assigned_reviewer": "提交给",
-      "manufacturer": "制造厂商",
+      "manufacturer": "指定厂商（MR）",
       "trips_progress": "已验收 / 车次",
       "trip_checked": "已验收的车",
       "trip_waiting": "待验收的车",
@@ -10238,7 +10238,7 @@
       "equipmentEntry": "设备进场",
       "equipmentExit": "设备退场",
       "targetReport": "目标与达成",
-      "manufacturers": "制造厂商",
+      "manufacturers": "指定厂商（MR）",
       "equipmentOperatorHours": "设备操作员工时",
       "technical": "技术管理",
       "permits": "施工准证"
@@ -11714,7 +11714,7 @@
         "OCR": "从送货单读出",
         "MANUAL": "人工填写"
       },
-      "manufacturer": "制造厂商"
+      "manufacturer": "指定厂商（MR）"
     },
     "locationCaptured": "已记录位置",
     "locationMissing": "无位置",
@@ -11822,7 +11822,7 @@
         "reference": "单号",
         "doNo": "DO 号",
         "plate": "车牌",
-        "manufacturer": "制造厂商",
+        "manufacturer": "指定厂商（MR）",
         "returnNote": "Return Note",
         "quantity": "数量"
       },
@@ -15809,7 +15809,7 @@
       "assignedReviewer": "提交给",
       "reassignHistory": "改派记录",
       "supplier": "供应商",
-      "manufacturer": "制造厂商"
+      "manufacturer": "业主指定厂商"
     },
     "action": {
       "view": "查看",
@@ -15878,7 +15878,7 @@
       "chooseReviewer": "选择审批人",
       "projectFirst": "请先选择项目",
       "noReviewers": "这个项目还没有人能批准申请。请公司管理员在「角色权限」里，给审批人的角色勾上「批准或退回 MR / 其他申请」。",
-      "suggestHint": "选填，总部批准时决定。"
+      "suggestHint": "选填。只在业主指定了厂商时，从供应商名单选。"
     },
     "options": {
       "open": "材料选项",
@@ -15917,7 +15917,7 @@
     "reassignHelp": "改派后由你批准或退回，原来的审批人不能再批，系统会留下改派记录。",
     "approve": {
       "title": "批准 {reference}",
-      "help": "批准就是采购决定：选好向哪家供应商买、用哪家厂商。",
+      "help": "批准就是采购决定：选好向哪家供应商买；业主指定了厂商时，也从供应商名单选上。",
       "chooseSupplier": "选择供应商",
       "confirm": "批准"
     }
@@ -15999,9 +15999,9 @@
     "to": "至",
     "toLabel": "结束日期",
     "what": "供应商列表",
-    "allManufacturers": "全部厂商",
-    "manufacturer": "制造厂商",
-    "whatManufacturers": "厂商名单"
+    "allManufacturers": "全部指定厂商",
+    "manufacturer": "指定厂商（MR）",
+    "whatManufacturers": "供应商名单"
   },
   "recordNo": {
     "copy": "复制 {number}",
@@ -16009,46 +16009,29 @@
     "copyFailed": "复制失败。长按编号可以看到完整编号。"
   },
   "manufacturers": {
-    "title": "制造厂商",
-    "description": "生产材料的工厂。材料分类可以设「指定厂商」；记录上的厂商不在名单里会标「非指定厂商」。",
-    "new": "新增厂商",
-    "createTitle": "新增厂商",
-    "editTitle": "编辑厂商",
-    "field": {
-      "name": "厂商名称",
-      "country": "国家",
-      "isActive": "启用",
-      "sortOrder": "排序",
-      "createdAt": "新增时间"
-    },
-    "empty": "还没有厂商",
-    "what": "厂商名单",
-    "duplicate": "这个厂商已经在名单里。",
-    "inUse": "已有记录用了这个厂商，请改为停用。",
-    "switchedOff": "已停用",
-    "remove": {
-      "title": "删除 {name}？",
-      "description": "只有还没被任何记录用过的厂商可以删除；已用过的请停用，旧记录仍保留厂商名称。",
-      "confirm": "删除"
-    },
-    "toast": {
-      "created": "已新增厂商",
-      "updated": "已更新厂商",
-      "removed": "已删除厂商"
-    },
-    "column": "制造厂商",
+    "title": "指定厂商（MR）",
+    "description": "指定厂商就是供应商名单里的公司，只在业主于 MR 指定厂商时才需要填。",
+    "empty": "供应商名单里没有这家。请办公室在「供应商资料」新增。",
+    "what": "供应商名单",
+    "column": "指定厂商（MR）",
     "offList": "非指定厂商",
     "offListHint": "这个分类指定了其他厂商，仍然可以提交。",
     "picker": {
-      "choose": "选择制造厂商",
+      "choose": "从供应商名单选择",
       "none": "未填写",
       "designated": "指定厂商",
-      "addNew": "名单里没有？新增",
-      "newName": "新厂商名称",
-      "add": "新增",
-      "offline": "新增厂商需要网络。请先从名单选，或先不填。",
-      "failed": "厂商新增失败。",
       "fromColumn": "按分类自动带出"
+    },
+    "note": "不再另外维护厂商名单。要新增或修改厂商，请在「供应商资料」新增或修改这家公司；材料进场、材料退场、材料申请和材料分类的「指定厂商」都从供应商名单选。",
+    "goToSuppliers": "前往供应商资料",
+    "former": {
+      "title": "原厂商名单（只读）",
+      "description": "原来每个厂商都已对应到同名的供应商（名单里没有的已自动新增），旧记录照样显示厂商名称。",
+      "name": "原厂商名称",
+      "country": "国家",
+      "supplier": "现为供应商",
+      "switchedOff": "已停用",
+      "empty": "原来没有厂商名单。"
     }
   },
   "progressPage": {

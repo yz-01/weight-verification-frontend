@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { type MaterialReceipt } from "@/interfaces/contractor";
-import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { ManufacturerCell, hideEmptyManufacturerColumn } from "@/components/shared/manufacturer-picker";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories } from "@/services/contractor-ops.service";
@@ -239,8 +239,9 @@ export function Receipts() {
           </span>
         ),
       },
-      // Whose make (2026-10 D1), orange 「非指定厂商」 when the category
-      // designates others.
+      // 指定厂商（MR） (2026-10 D1; 2026-10-10), orange 「非指定厂商」 when
+      // the category designates others. Shown only when a row in view names
+      // one - day to day the supplier column is what matters.
       {
         accessorKey: "manufacturer_name",
         meta: { label: t("receipts.field.manufacturer") },
@@ -426,7 +427,10 @@ export function Receipts() {
         />
       ) : (
       <DataTable
-        columns={withNeedsActionColumn(columns, t("needsAction.column"))}
+        columns={withNeedsActionColumn(
+          hideEmptyManufacturerColumn(columns, data?.results),
+          t("needsAction.column"),
+        )}
         rows={data?.results ?? []}
         totalCount={totalCount}
         page={list.page}

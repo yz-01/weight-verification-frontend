@@ -785,14 +785,20 @@ export const PORTAL_NAVIGATION = {
           "/suppliers",
           "suppliers",
         ),
-        // 制造厂商 (2026-10 D1): the factories, kept beside the suppliers by
-        // the same people and under the same permissions.
-        child(
-          "3.2.2",
-          "nav.submodule.manufacturers",
-          "/manufacturers",
-          "suppliers",
-        ),
+        // Out of the menu since 2026-10-10: a manufacturer is a supplier
+        // (「这个厂商也是同样是供应商，只是在MR 业主要求著名订购厂」), so there
+        // is no second list to keep. Kept in the tree, hidden, so an old
+        // bookmark still passes `isRouteAllowed` and lands on the page that
+        // says so and shows what the old list held.
+        {
+          ...child(
+            "3.2.2",
+            "nav.submodule.manufacturers",
+            "/manufacturers",
+            "suppliers",
+          ),
+          menuHidden: true,
+        },
       ],
     ),
     // 材料管理 (A01, B09, E01): one entry for material coming in and going
