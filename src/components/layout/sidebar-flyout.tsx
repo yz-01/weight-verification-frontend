@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { badgeLabelKey } from "@/hooks/use-unread-badges";
+import { isModifiedClick, isSamePage, openOnSamePage } from "@/lib/same-page-link";
 import type { PortalFeatureKey } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
@@ -233,7 +234,15 @@ export function FlyoutPanel({
             aria-current={node.active && !node.children?.length ? "page" : undefined}
             onPointerEnter={(event) => openChild(node, event.currentTarget, false)}
             onKeyDown={(event) => onKeyDown(event, node)}
-            onClick={onNavigate}
+            onClick={(event) => {
+              // Same page, other tab: switch at once instead of waiting on
+              // the server for a route that is already showing.
+              if (!isModifiedClick(event) && isSamePage(node.href)) {
+                event.preventDefault();
+                openOnSamePage(node.href);
+              }
+              onNavigate();
+            }}
             className={cn(
               "flex h-8 items-center gap-2 rounded-md px-2.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground",
               node.active && "bg-primary/10 font-medium text-primary",
