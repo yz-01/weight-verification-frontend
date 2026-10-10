@@ -7440,6 +7440,7 @@
       "receipt_rejected_at_gate": "這批貨已在現場交接時 Reject，不能再更改。",
       "record_finished": "此事項已結束，不能再上傳附件；已有附件仍可查看。",
       "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
+      "receipt_awaiting_acceptance": "這批材料還沒驗收，請先驗收或判不合格再歸檔。",
       "site_record_field_only": "只有現場人員能在手機上新增這條記錄。後台可以更正已有的記錄。",
       "material_request_assigned_to_other": "這個申請已提交給別人審批。要由你審批，請先按「改派給我」。",
       "material_request_reviewer_not_eligible": "所選的人不能批准這個項目的申請，請從名單裡重新選擇。",

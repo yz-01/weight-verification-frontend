@@ -7440,6 +7440,7 @@
       "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah.",
       "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka.",
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
+      "receipt_awaiting_acceptance": "Penghantaran ini belum diterima. Terima atau tolak dahulu, kemudian arkibkan.",
       "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada.",
       "material_request_assigned_to_other": "Permohonan ini dihantar kepada orang lain untuk diluluskan. Untuk memutuskannya sendiri, tekan \"Ambil alih\" dahulu.",
       "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
