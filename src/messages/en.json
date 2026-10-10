@@ -1860,6 +1860,7 @@
       "weighing_anomaly_total": "Weighing anomalies",
       "weighing_total": "Weighing sessions"
     },
+    "otherReport": "Other report",
     "reportType": {
       "business": "Platform business report",
       "commission": "Platform commission report",
@@ -6311,7 +6312,7 @@
       "project": "Project",
       "report": "Report",
       "rows": "Rows",
-      "subtitle": "Permanent report-generation records for your company and permitted projects.",
+      "subtitle": "Your head office's archive of generated reports: each report keeps the file generated at the time. Click the file name or View to preview, print, download again or send it - it is never regenerated from today's data.",
       "title": "Report export history"
     },
     "loadError": "The report could not be loaded.",
@@ -7476,6 +7477,8 @@
       "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
       "record_not_found": "That record is not available to this account.",
       "refresh_token_required": "Your session could not be renewed. Sign in again.",
+      "report_export_file_altered": "This archived file no longer matches the fingerprint (SHA-256) recorded when it was generated, so it will not be opened as the original. Please contact your administrator.",
+      "report_export_file_missing": "This report was generated before this feature went live, so no file was saved at the time.",
       "reset_link_invalid": "This reset link is invalid or has expired. Request a new one.",
       "role_in_use": "This role is still assigned to people. Move them to another role first.",
       "role_is_system": "Built-in roles cannot be removed.",
@@ -12520,6 +12523,20 @@
       "available": "The list of recyclers you can request",
       "projects": "The list of projects you can bind"
     }
+  },
+  "reportArchive": {
+    "column": "Archived file",
+    "view": "View",
+    "viewHint": "Open the report exactly as it was generated and saved",
+    "downloadAgain": "Download the file generated at the time again",
+    "archived": "Archived · never regenerated",
+    "archivedHint": "This opens the file generated and saved at the time; later changes to the source records never change it.",
+    "missing": "This report was generated before this feature went live, so no file was saved at the time.",
+    "technical": "Technical details",
+    "format": "Format",
+    "size": "File size",
+    "bytes": "{count} bytes",
+    "sha256Hint": "SHA-256 is the fingerprint recorded when the file was generated. It is checked every time the file is opened, and a file that no longer matches is not opened."
   },
   "reports": {
     "dispatches": {

@@ -1,4 +1,5 @@
 import type { Paginated } from "@/interfaces/api";
+import type { ArchivedReportFile } from "@/interfaces/report-archive";
 
 export type AdminReportType =
   | "contractors"
@@ -51,7 +52,7 @@ export interface AdminReportFilterOptions {
   states: string[];
 }
 
-export interface ReportExportRecord {
+export interface ReportExportRecord extends ArchivedReportFile {
   id: string;
   report_type: AdminReportType;
   export_format: "PDF" | "EXCEL";

@@ -52,7 +52,7 @@ export interface RecyclerReportOptions {
   states_by_report: Partial<Record<RecyclerReportType, string[]>>;
 }
 
-export interface RecyclerReportExport {
+export interface RecyclerReportExport extends ArchivedReportFile {
   id: string;
   report_type: RecyclerReportType;
   export_format: "PDF" | "EXCEL";
@@ -80,3 +80,4 @@ export interface RecyclerReportFilters extends ListQuery {
   business_source?: string;
 }
 import type { ListQuery } from "@/interfaces/api";
+import type { ArchivedReportFile } from "@/interfaces/report-archive";
