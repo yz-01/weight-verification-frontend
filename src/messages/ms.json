@@ -8534,7 +8534,24 @@
       "todayByProject": "Rekod tapak hari ini mengikut projek",
       "todayByKind": "Rekod hari ini mengikut jenis",
       "latestPhoto": "Foto tapak terkini",
-      "photoStream": "Aliran foto"
+      "photoStream": "Aliran foto",
+      "weekDeliveries": "Penghantaran minggu ini",
+      "delivered": "Masuk",
+      "rejected": "Ditolak",
+      "noDeliveries": "Tiada bahan masuk dalam 7 hari ini.",
+      "openHazards": "Bahaya belum ditutup",
+      "overdueCount": "{count} lewat tempoh",
+      "noHazards": "Tiada bahaya yang belum ditutup.",
+      "approvalsBySource": "Kelulusan menunggu mengikut jenis",
+      "acceptance": "Penerimaan minggu ini",
+      "passRate": "Diterima",
+      "acceptanceSplit": "Diterima {accepted} · Menunggu {pending} · Ditolak {rejected}",
+      "equipment": "Peralatan",
+      "equipmentOnSite": "Di tapak",
+      "equipmentMaintenance": "Dalam penyelenggaraan",
+      "topSuppliers": "Pembekal teratas minggu ini",
+      "deliveries": "{count, plural, other {# penghantaran}}",
+      "clearanceMonth": "Sisa dibersihkan bulan ini"
     }
   },
   "home": {

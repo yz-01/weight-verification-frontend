@@ -8534,7 +8534,24 @@
       "todayByProject": "各项目今日现场记录",
       "todayByKind": "今日记录 · 按类别",
       "latestPhoto": "最新现场照片",
-      "photoStream": "照片流水"
+      "photoStream": "照片流水",
+      "weekDeliveries": "本周材料进场",
+      "delivered": "进场",
+      "rejected": "退回",
+      "noDeliveries": "这 7 天还没有材料进场。",
+      "openHazards": "未关闭隐患",
+      "overdueCount": "其中逾期 {count}",
+      "noHazards": "没有未关闭的隐患。",
+      "approvalsBySource": "待审批 · 按类别",
+      "acceptance": "本周验收",
+      "passRate": "验收合格率",
+      "acceptanceSplit": "已验收 {accepted} · 待验收 {pending} · 退回 {rejected}",
+      "equipment": "设备",
+      "equipmentOnSite": "在场",
+      "equipmentMaintenance": "维修中",
+      "topSuppliers": "本周送货最多的供应商",
+      "deliveries": "{count} 次",
+      "clearanceMonth": "本月清运"
     }
   },
   "home": {

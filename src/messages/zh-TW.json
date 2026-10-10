@@ -8534,7 +8534,24 @@
       "todayByProject": "各項目今日現場記錄",
       "todayByKind": "今日記錄 · 按類別",
       "latestPhoto": "最新現場照片",
-      "photoStream": "照片流水"
+      "photoStream": "照片流水",
+      "weekDeliveries": "本週材料進場",
+      "delivered": "進場",
+      "rejected": "退回",
+      "noDeliveries": "這 7 天還沒有材料進場。",
+      "openHazards": "未關閉隱患",
+      "overdueCount": "其中逾期 {count}",
+      "noHazards": "沒有未關閉的隱患。",
+      "approvalsBySource": "待審批 · 按類別",
+      "acceptance": "本週驗收",
+      "passRate": "驗收合格率",
+      "acceptanceSplit": "已驗收 {accepted} · 待驗收 {pending} · 退回 {rejected}",
+      "equipment": "設備",
+      "equipmentOnSite": "在場",
+      "equipmentMaintenance": "維修中",
+      "topSuppliers": "本週送貨最多的供應商",
+      "deliveries": "{count} 次",
+      "clearanceMonth": "本月清運"
     }
   },
   "home": {

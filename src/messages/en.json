@@ -8534,7 +8534,24 @@
       "todayByProject": "Today's site records by project",
       "todayByKind": "Today's records by type",
       "latestPhoto": "Latest site photo",
-      "photoStream": "Photo stream"
+      "photoStream": "Photo stream",
+      "weekDeliveries": "Deliveries this week",
+      "delivered": "In",
+      "rejected": "Rejected",
+      "noDeliveries": "No material has come in during these 7 days.",
+      "openHazards": "Open hazards",
+      "overdueCount": "{count} overdue",
+      "noHazards": "No open hazards.",
+      "approvalsBySource": "Waiting approvals by kind",
+      "acceptance": "Acceptance this week",
+      "passRate": "Accepted",
+      "acceptanceSplit": "Accepted {accepted} · Waiting {pending} · Rejected {rejected}",
+      "equipment": "Equipment",
+      "equipmentOnSite": "On site",
+      "equipmentMaintenance": "Under maintenance",
+      "topSuppliers": "Top suppliers this week",
+      "deliveries": "{count, plural, one {# delivery} other {# deliveries}}",
+      "clearanceMonth": "Waste cleared this month"
     }
   },
   "home": {
