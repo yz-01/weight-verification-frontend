@@ -3,12 +3,17 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
-  Download,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import {
+  ArchivedReportActions,
+  ArchivedReportName,
+  ArchivedReportNote,
+  useReportArchive,
+} from "@/components/reports/report-archive";
 import { ExportButton } from "@/components/shared/export-button";
 import { FilterBar, ListHeader, LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Input } from "@/components/ui/input";
@@ -317,7 +322,10 @@ function DateFilter({
 
 function ReportHistory() {
   const t = useTranslations("adminReports");
+  const archiveT = useTranslations("reportArchive");
   const df = useDateFormat();
+  // Each row opens the file generated at the time (`report-archive`).
+  const archive = useReportArchive();
   const history = useQuery({
     queryKey: ["admin-reports", "history"],
     queryFn: () => getAdminReportHistory({ page_size: 100 }),
@@ -339,16 +347,15 @@ function ReportHistory() {
               <TableHead>{t("field.period")}</TableHead>
               <TableHead>{t("field.generatedBy")}</TableHead>
               <TableHead>{t("field.generatedAt")}</TableHead>
+              <TableHead>{archiveT("column")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {(history.data?.results ?? []).map((row) => (
-              <TableRow key={row.id}>
-                <TableCell className="font-medium">
-                  <span className="inline-flex items-center gap-2">
-                    <Download className="size-4 text-muted-foreground" />
-                    {row.file_name}
-                  </span>
+              <TableRow key={row.id} className="align-top">
+                <TableCell className="min-w-64 whitespace-normal">
+                  <ArchivedReportName row={row} archive={archive} />
+                  <ArchivedReportNote row={row} className="pl-6" />
                 </TableCell>
                 <TableCell>{t(`reportType.${row.report_type}`)}</TableCell>
                 <TableCell>{row.export_format}</TableCell>
@@ -362,18 +369,21 @@ function ReportHistory() {
                   </p>
                 </TableCell>
                 <TableCell>{df.dateTime(row.created_at)}</TableCell>
+                <TableCell>
+                  <ArchivedReportActions row={row} archive={archive} />
+                </TableCell>
               </TableRow>
             ))}
             {history.isError && (
               <TableRow>
-                <TableCell colSpan={6} className="whitespace-normal p-4">
+                <TableCell colSpan={7} className="whitespace-normal p-4">
                   <LoadFailed what={t("what.history")} onRetry={() => void history.refetch()} />
                 </TableCell>
               </TableRow>
             )}
             {!history.isLoading && !history.isError && (history.data?.results.length ?? 0) === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="h-28 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="h-28 text-center text-muted-foreground">
                   {t("emptyHistory")}
                 </TableCell>
               </TableRow>
@@ -381,6 +391,7 @@ function ReportHistory() {
           </TableBody>
         </Table>
       </div>
+      {archive.element}
     </div>
   );
 }

@@ -6227,7 +6227,7 @@
       "project": "项目",
       "report": "报表",
       "rows": "行数",
-      "subtitle": "当前公司及有权限项目的永久报表生成记录。",
+      "subtitle": "建筑商总部的历史报表档案库：每份报表保存当时生成的文件，点文件名或「查看」即可预览、打印、再次下载或发送，不会用现在的资料重新生成。",
       "title": "报表导出历史"
     },
     "loadError": "无法加载报表。",
@@ -7392,6 +7392,8 @@
       "receipt_superseded": "这条材料进场记录已被更正记录取代，不能再验收或退回。请打开当前那一条来处理。",
       "record_not_found": "这条记录不在你这个账号的范围内。",
       "refresh_token_required": "登录状态无法续期，请重新登录。",
+      "report_export_file_altered": "这份存档文件和生成时记录的指纹（SHA-256）不一致，系统不会把它当作原件打开。请联系管理员。",
+      "report_export_file_missing": "这份是本功能上线前生成的，当时没有保存文件。",
       "reset_link_invalid": "此重设链接无效或已过期，请重新申请。",
       "role_in_use": "此角色仍有人在使用，请先把他们改为其他角色。",
       "role_is_system": "内置角色不可移除。",
@@ -12435,6 +12437,20 @@
       "available": "可申请的回收商列表",
       "projects": "可绑定的项目列表"
     }
+  },
+  "reportArchive": {
+    "column": "存档文件",
+    "view": "查看",
+    "viewHint": "打开当时生成并保存的这份报表",
+    "downloadAgain": "再次下载当时生成的这份文件",
+    "archived": "已存档 · 不会重新生成",
+    "archivedHint": "打开的是当时生成并保存的那一份文件；之后原始资料即使有修改，这份报表的内容也不会变。",
+    "missing": "这份是本功能上线前生成的，当时没有保存文件。",
+    "technical": "技术资料",
+    "format": "格式",
+    "size": "文件大小",
+    "bytes": "{count} 字节",
+    "sha256Hint": "SHA-256 是文件生成时记录的指纹。每次打开都会先核对，和生成时不一致的文件不会被打开。"
   },
   "reports": {
     "dispatches": {

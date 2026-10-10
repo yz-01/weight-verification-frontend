@@ -1,4 +1,5 @@
 import type { Paginated } from "@/interfaces/api";
+import type { ArchivedReportFile } from "@/interfaces/report-archive";
 
 export type ContractorReportType =
   | "progress"
@@ -114,9 +115,11 @@ export interface ReportLevelRow {
   has_children: boolean;
 }
 
-export interface ContractorReportExportRecord {
+/** One row of 报表导出历史, and the file it keeps (`ArchivedReportFile`). */
+export interface ContractorReportExportRecord extends ArchivedReportFile {
   id: string;
-  report_type: ContractorReportType;
+  /** `dashboard`: the 现场看板 export, kept in the same history. */
+  report_type: ContractorReportType | "dashboard";
   export_format: "PDF" | "EXCEL";
   date_from: string;
   date_to: string;

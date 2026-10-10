@@ -4,6 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import {
+  ArchivedReportActions,
+  ArchivedReportName,
+  ArchivedReportNote,
+  useReportArchive,
+} from "@/components/reports/report-archive";
 import { ExportButton } from "@/components/shared/export-button";
 import { ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -91,6 +97,7 @@ const REPORT_TYPES: RecyclerReportType[] = [
 
 export function RecyclerReportCenter() {
   const t = useTranslations("recyclerReports");
+  const archiveT = useTranslations("reportArchive");
   const common = useTranslations("common");
   const dates = useMemo(() => initialDates(), []);
   const queryClient = useQueryClient();
@@ -116,6 +123,8 @@ export function RecyclerReportCenter() {
     queryFn: getRecyclerReportExports,
     staleTime: 30_000,
   });
+  // Each history row opens the file generated at the time (`report-archive`).
+  const archive = useReportArchive();
   const exporting = useMutation({
     mutationFn: (format: "PDF" | "EXCEL") =>
       exportRecyclerReport(filters, format),
@@ -410,13 +419,17 @@ export function RecyclerReportCenter() {
         ) : exportHistory.data?.results.length ? (
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader><TableRow><TableHead>{t("history.file")}</TableHead><TableHead>{t("history.period")}</TableHead><TableHead>{t("history.format")}</TableHead><TableHead>{t("history.generated")}</TableHead></TableRow></TableHeader>
+              <TableHeader><TableRow><TableHead>{t("history.file")}</TableHead><TableHead>{t("history.period")}</TableHead><TableHead>{t("history.format")}</TableHead><TableHead>{t("history.generated")}</TableHead><TableHead>{archiveT("column")}</TableHead></TableRow></TableHeader>
               <TableBody>{exportHistory.data.results.slice(0, 10).map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className="max-w-64 truncate font-medium">{row.file_name}</TableCell>
+                <TableRow key={row.id} className="align-top">
+                  <TableCell className="min-w-56 max-w-72 whitespace-normal">
+                    <ArchivedReportName row={row} archive={archive} />
+                    <ArchivedReportNote row={row} className="pl-6" />
+                  </TableCell>
                   <TableCell className="whitespace-nowrap text-xs">{row.date_from} - {row.date_to}</TableCell>
                   <TableCell>{row.export_format}</TableCell>
                   <TableCell className="whitespace-nowrap text-xs text-muted-foreground">{new Date(row.created_at).toLocaleString()}</TableCell>
+                  <TableCell><ArchivedReportActions row={row} archive={archive} /></TableCell>
                 </TableRow>
               ))}</TableBody>
             </Table>
@@ -425,6 +438,7 @@ export function RecyclerReportCenter() {
           <p className="text-sm text-muted-foreground">{t("history.empty")}</p>
         )}
       </section>
+      {archive.element}
     </div>
   );
 }

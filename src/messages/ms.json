@@ -6227,7 +6227,7 @@
       "project": "Projek",
       "report": "Laporan",
       "rows": "Baris",
-      "subtitle": "Rekod kekal penjanaan laporan untuk syarikat dan projek yang dibenarkan.",
+      "subtitle": "Arkib laporan ibu pejabat anda: setiap laporan menyimpan fail yang dijana pada masa itu. Klik nama fail atau Lihat untuk pratonton, cetak, muat turun semula atau hantar - ia tidak dijana semula daripada data hari ini.",
       "title": "Sejarah eksport laporan"
     },
     "loadError": "Laporan tidak dapat dimuatkan.",
@@ -7392,6 +7392,8 @@
       "receipt_superseded": "Rekod penerimaan ini telah digantikan oleh rekod pembetulan, jadi salinan ini tidak boleh diterima atau ditolak lagi. Buka rekod semasa dan semak yang itu.",
       "record_not_found": "Rekod itu tidak tersedia untuk akaun ini.",
       "refresh_token_required": "Sesi anda tidak dapat diperbaharui. Sila log masuk semula.",
+      "report_export_file_altered": "Fail arkib ini tidak lagi sepadan dengan cap jari (SHA-256) yang direkodkan semasa ia dijana, jadi ia tidak akan dibuka sebagai yang asal. Sila hubungi pentadbir anda.",
+      "report_export_file_missing": "Laporan ini dijana sebelum fungsi ini dilancarkan, jadi failnya tidak disimpan pada masa itu.",
       "reset_link_invalid": "Pautan ini tidak sah atau telah tamat tempoh. Minta yang baharu.",
       "role_in_use": "Peranan ini masih diberikan kepada orang. Pindahkan mereka ke peranan lain dahulu.",
       "role_is_system": "Peranan terbina dalam tidak boleh dibuang.",
@@ -12435,6 +12437,20 @@
       "available": "Senarai pengitar semula yang boleh dimohon",
       "projects": "Senarai projek yang boleh diikat"
     }
+  },
+  "reportArchive": {
+    "column": "Fail arkib",
+    "view": "Lihat",
+    "viewHint": "Buka laporan tepat seperti yang dijana dan disimpan pada masa itu",
+    "downloadAgain": "Muat turun semula fail yang dijana pada masa itu",
+    "archived": "Diarkibkan · tidak dijana semula",
+    "archivedHint": "Ini membuka fail yang dijana dan disimpan pada masa itu; perubahan kemudian pada rekod asal tidak akan mengubahnya.",
+    "missing": "Laporan ini dijana sebelum fungsi ini dilancarkan, jadi failnya tidak disimpan pada masa itu.",
+    "technical": "Butiran teknikal",
+    "format": "Format",
+    "size": "Saiz fail",
+    "bytes": "{count} bait",
+    "sha256Hint": "SHA-256 ialah cap jari yang direkodkan semasa fail dijana. Ia disemak setiap kali fail dibuka, dan fail yang tidak lagi sepadan tidak akan dibuka."
   },
   "reports": {
     "dispatches": {
