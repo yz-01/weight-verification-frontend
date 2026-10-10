@@ -36,6 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Shell } from "@/components/contractor-ops/package-shell";
+import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { useDateFormat } from "@/lib/dates";
 import type {
   ArchiveRecordKind,
@@ -56,6 +57,7 @@ import {
   getEvidencePackage,
   getEvidencePackages,
   getPackageCandidates,
+  getPackageConsultantChoices,
   getPackageRecordParts,
   removePackageItem,
   reorderPackageItems,
@@ -355,7 +357,7 @@ function NewPackageDialog({
  * confirmed package refuses edits from everyone, including the person who made
  * it.
  */
-function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
+export function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("multiEngine");
   const common = useTranslations("common");
   const queryClient = useQueryClient();
@@ -422,6 +424,22 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
     mutationFn: () => confirmEvidencePackage(id, remarks || data?.remarks || ""),
     onSuccess: refresh,
   });
+  /*
+   * Who this package can go to, by name (the owner, 2026-10: 「应该是可以选顾问
+   * 才对」). Asked only once it is confirmed and still unsent - the only time
+   * the picker is on screen - and only by somebody who may send it.
+   */
+  const awaitingSend =
+    data !== undefined && data.state !== "DRAFT" && data.review_state === "NOT_SENT" && can("package.manage");
+  const consultants = useQuery({
+    queryKey: ["evidence-packages", "consultant-choices", id],
+    queryFn: () => getPackageConsultantChoices(id),
+    enabled: awaitingSend,
+  });
+  const consultantOptions = (consultants.data ?? []).map((row) => ({
+    value: row.consultant,
+    label: row.organization ? `${row.name} · ${row.organization}` : row.name,
+  }));
   const send = useMutation({
     mutationFn: () => sendPackageForReview(id, consultant),
     onSuccess: refresh,
@@ -620,9 +638,26 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 <p className="text-xs text-muted-foreground">
                   {t("confirmedHelp")}
                 </p>
-                <p className="break-all font-mono text-2xs text-muted-foreground">
-                  {t("digest", { digest: data.pdf_sha256 })}
-                </p>
+                {/* The PDF's fingerprint is for whoever has to prove later
+                    that nothing was swapped; to everybody else it is a
+                    string of hex. A plain-words badge, and the hash one
+                    press away (works on a phone, unlike a hover tooltip). */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className="inline-flex items-center rounded-full border bg-background px-2 py-0.5 text-xs"
+                    title={data.pdf_sha256 || undefined}
+                  >
+                    {t("locked")}
+                  </span>
+                  {data.pdf_sha256 && (
+                    <details className="text-xs text-muted-foreground">
+                      <summary className="cursor-pointer select-none">{t("technicalDetails")}</summary>
+                      <p className="mt-1 break-all font-mono text-2xs">
+                        {t("digest", { digest: data.pdf_sha256 })}
+                      </p>
+                    </details>
+                  )}
+                </div>
                 {data.exported_at && (
                   /* D-148: once the PDF is outside, nothing here can call it
                      back. Said as a sentence, not as a greyed-out button. */
@@ -633,11 +668,22 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                      type this platform has, so there is no option for one
                      rather than an option nobody can be chosen from. */
                   <FieldWrapper label={t("field.consultant")} required hint={t("consultantOnlyHelp")}>
-                    <Input
+                    <OptionCombobox
                       value={consultant}
-                      onChange={(event) => setConsultant(event.target.value)}
-                      placeholder={t("field.consultantPlaceholder")}
+                      onChange={setConsultant}
+                      options={consultantOptions}
+                      placeholder={
+                        consultants.isLoading ? t("loading") : t("field.consultantPlaceholder")
+                      }
+                      searchPlaceholder={t("consultantSearch")}
+                      emptyLabel={t("noConsultantMatch")}
+                      ariaLabel={t("field.consultant")}
+                      disabled={consultants.isLoading || consultants.isError || !consultantOptions.length}
                     />
+                    {consultants.isSuccess && !consultantOptions.length && (
+                      <p className="text-xs text-muted-foreground">{t("noConsultants")}</p>
+                    )}
+                    <QueryFailedNote query={consultants} what={t("consultantsWhat")} />
                   </FieldWrapper>
                 )}
               </div>
