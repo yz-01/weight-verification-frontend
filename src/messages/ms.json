@@ -1860,6 +1860,7 @@
       "weighing_anomaly_total": "Anomali penimbangan",
       "weighing_total": "Sesi penimbangan"
     },
+    "otherReport": "Laporan lain",
     "reportType": {
       "business": "Laporan perniagaan platform",
       "commission": "Laporan komisen platform",

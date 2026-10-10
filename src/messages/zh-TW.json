@@ -1860,6 +1860,7 @@
       "weighing_anomaly_total": "異常稱重次數",
       "weighing_total": "稱重次數"
     },
+    "otherReport": "其他報表",
     "reportType": {
       "business": "平臺業務報表",
       "commission": "平臺佣金報表",

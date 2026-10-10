@@ -1860,6 +1860,7 @@
       "weighing_anomaly_total": "Weighing anomalies",
       "weighing_total": "Weighing sessions"
     },
+    "otherReport": "Other report",
     "reportType": {
       "business": "Platform business report",
       "commission": "Platform commission report",

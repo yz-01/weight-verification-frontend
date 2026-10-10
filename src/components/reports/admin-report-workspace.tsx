@@ -8,6 +8,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { exportedReportName } from "@/components/reports/exported-report-name";
 import {
   ArchivedReportActions,
   ArchivedReportName,
@@ -323,6 +324,9 @@ function DateFilter({
 function ReportHistory() {
   const t = useTranslations("adminReports");
   const archiveT = useTranslations("reportArchive");
+  // Every export on the platform is listed, so a row may be a contractor's
+  // or a recycler's report (`exportedReportName`).
+  const root = useTranslations();
   const df = useDateFormat();
   // Each row opens the file generated at the time (`report-archive`).
   const archive = useReportArchive();
@@ -357,7 +361,7 @@ function ReportHistory() {
                   <ArchivedReportName row={row} archive={archive} />
                   <ArchivedReportNote row={row} className="pl-6" />
                 </TableCell>
-                <TableCell>{t(`reportType.${row.report_type}`)}</TableCell>
+                <TableCell>{exportedReportName(root, row.report_type)}</TableCell>
                 <TableCell>{row.export_format}</TableCell>
                 <TableCell className="tabular-nums">
                   {row.date_from} - {row.date_to}

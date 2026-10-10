@@ -27,8 +27,9 @@ vi.mock("@/components/shared/file-actions", async (original) => ({
   useFileActions: () => ({ busy: null, run, element: null }),
 }));
 
-const preview = vi.fn(async () => new File(["x"], "kept.pdf"));
-const download = vi.fn(async () => new File(["x"], "kept.pdf"));
+type Fetch = (id: string, name: string) => Promise<File>;
+const preview = vi.fn<Fetch>(async () => new File(["x"], "kept.pdf"));
+const download = vi.fn<Fetch>(async () => new File(["x"], "kept.pdf"));
 vi.mock("@/services/report-archive.service", () => ({
   previewArchivedReport: (id: string, name: string) => preview(id, name),
   archivedReportFile: (id: string, name: string) => download(id, name),
