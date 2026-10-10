@@ -34,6 +34,13 @@ describe("which line replaces the composer", () => {
     expect(conversationClosedLine("paid")).toBe("recordChat.closedPaid");
   });
 
+  it("closes a record its module ended outright (2026-10-10)", () => {
+    // Lucas: 「我材料进场直接判不合格为什么还可以聊天的？…手机端和后台都一样」.
+    expect(conversationClosedLine("rejected")).toBe("recordChat.closedRejected");
+    expect(conversationClosedLine("cancelled")).toBe("recordChat.closedCancelled");
+    expect(zh.recordChat.closedRejected).toBe("已判不合格或已驳回，聊天室已关闭。记录仍可查看。");
+  });
+
   it("still closes for a reason this screen does not know yet", () => {
     expect(conversationClosedLine("something-new")).toBe("recordChat.closedArchived");
   });
@@ -83,5 +90,7 @@ describe("the refusal is worded in every language", () => {
     expect(catalogue.errors.api.conversation_closed).toBeTruthy();
     expect(catalogue.recordChat.closedArchived).toBeTruthy();
     expect(catalogue.recordChat.closedPaid).toBeTruthy();
+    expect(catalogue.recordChat.closedRejected).toBeTruthy();
+    expect(catalogue.recordChat.closedCancelled).toBeTruthy();
   });
 });

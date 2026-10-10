@@ -15365,7 +15365,9 @@
     "title": "Record communication · {reference}",
     "closedArchived": "Archived; the conversation is closed. The record can still be viewed.",
     "closedPaid": "Payment confirmed; the conversation is closed. The record can still be viewed.",
-    "closedDecided": "Approved or returned; the conversation is closed. The record can still be viewed."
+    "closedDecided": "Approved or returned; the conversation is closed. The record can still be viewed.",
+    "closedRejected": "Rejected or judged unacceptable; the conversation is closed. The record can still be viewed.",
+    "closedCancelled": "Cancelled; the conversation is closed. The record can still be viewed."
   },
   "exportTotals": {
     "title": "Cumulative totals, per unit",

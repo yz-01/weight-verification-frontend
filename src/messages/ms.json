@@ -15365,7 +15365,9 @@
     "title": "Komunikasi rekod · {reference}",
     "closedArchived": "Telah diarkibkan; perbualan ditutup. Rekod masih boleh dilihat.",
     "closedPaid": "Bayaran telah disahkan; perbualan ditutup. Rekod masih boleh dilihat.",
-    "closedDecided": "Diluluskan atau dikembalikan; perbualan ditutup. Rekod masih boleh dilihat."
+    "closedDecided": "Diluluskan atau dikembalikan; perbualan ditutup. Rekod masih boleh dilihat.",
+    "closedRejected": "Ditolak atau tidak diterima; perbualan ditutup. Rekod masih boleh dilihat.",
+    "closedCancelled": "Dibatalkan; perbualan ditutup. Rekod masih boleh dilihat."
   },
   "exportTotals": {
     "title": "Jumlah terkumpul, mengikut unit",

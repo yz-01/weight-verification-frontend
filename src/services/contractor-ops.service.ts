@@ -45,7 +45,7 @@ import type {
   PackagePart,
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
-import type { ChatRecordKind } from "@/lib/record-chat";
+import type { ChatRecordKind, ConversationClosed } from "@/lib/record-chat";
 import { api, download, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
@@ -1600,11 +1600,13 @@ export interface RecordConversation {
   audio_seconds_limit: number;
   /**
    * Non-empty once the record is finished (D-278): `"archived"` after
-   * 【确认归档】, `"paid"` for a sundry claim after 【确认已付款】. The history
-   * stays readable; the server refuses new messages with
-   * `conversation_closed`. Optional because an older server omits it.
+   * 【确认归档】, `"paid"` for a sundry claim after 【确认已付款】,
+   * `"rejected"` / `"cancelled"` once its module ended it outright (a
+   * delivery judged 不合格, 2026-10-10). The history stays readable; the
+   * server refuses new messages with `conversation_closed`. Optional because
+   * an older server omits it.
    */
-  closed?: "" | "archived" | "paid" | "decided";
+  closed?: ConversationClosed;
 }
 
 export function getRecordConversation(

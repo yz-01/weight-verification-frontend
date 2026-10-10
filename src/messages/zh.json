@@ -15365,7 +15365,9 @@
     "title": "事项沟通 · {reference}",
     "closedArchived": "已归档，聊天室已关闭。记录仍可查看。",
     "closedPaid": "已确认付款，聊天室已关闭。记录仍可查看。",
-    "closedDecided": "已批准或已退回，聊天室已关闭。记录仍可查看。"
+    "closedDecided": "已批准或已退回，聊天室已关闭。记录仍可查看。",
+    "closedRejected": "已判不合格或已驳回，聊天室已关闭。记录仍可查看。",
+    "closedCancelled": "已取消，聊天室已关闭。记录仍可查看。"
   },
   "exportTotals": {
     "title": "累计数量（按单位分别统计）",
