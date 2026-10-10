@@ -175,7 +175,6 @@ export interface RectificationRow {
   incident_no: string;
   title: string;
   record_type: "HAZARD" | "PERMIT";
-  severity: string;
   status: string;
   next_step: RectificationStep;
   project: string;

@@ -43,7 +43,16 @@ function size(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function RecordAttachmentsPanel({ kind, recordId }: { kind: ChatRecordKind; recordId: string }) {
+export function RecordAttachmentsPanel({
+  kind,
+  recordId,
+  readOnly = false,
+}: {
+  kind: ChatRecordKind;
+  recordId: string;
+  /** Read and open only, no 加附件 - the phone's view of a permit. */
+  readOnly?: boolean;
+}) {
   const t = useTranslations("recordAttachments");
   const df = useDateFormat();
   const queryClient = useQueryClient();
@@ -79,7 +88,7 @@ export function RecordAttachmentsPanel({ kind, recordId }: { kind: ChatRecordKin
           {t("title")}
           <span className="ml-1 tabular-nums">({rows.length})</span>
         </h3>
-        {!closed && state.data && !adding && (
+        {!readOnly && !closed && state.data && !adding && (
           <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setAdding(true)}>
             <Paperclip className="size-3.5" />
             {t("add")}
@@ -145,7 +154,7 @@ export function RecordAttachmentsPanel({ kind, recordId }: { kind: ChatRecordKin
             </ul>
           )}
 
-          {closed ? (
+          {readOnly ? null : closed ? (
             <p className="mt-2 flex items-start gap-1.5 rounded-md bg-muted/50 px-2 py-1.5 text-2xs text-muted-foreground">
               <Lock className="mt-0.5 size-3 shrink-0" />
               {t("closed")}

@@ -76,7 +76,6 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import type {
   HazardPhoto,
-  IncidentSeverity,
   IncidentStatus,
   SafetyIncident,
   SafetyIncidentPayload,
@@ -177,7 +176,6 @@ interface SafetyDraft {
   category: string;
   title: string;
   description: string;
-  severity: IncidentSeverity;
   occurredAt: string;
   latitude?: string;
   longitude?: string;
@@ -193,7 +191,6 @@ const EMPTY_DRAFT: SafetyDraft = {
   category: "",
   title: "",
   description: "",
-  severity: "MEDIUM",
   occurredAt: "",
   photos: createEmptyFieldEvidence(),
   notifyUsers: [],
@@ -235,7 +232,6 @@ export function Safety({
   const list = useListQuery([
     "project",
     "category",
-    "severity",
     "status",
     "responsible_person",
     "date_from",
@@ -436,9 +432,10 @@ export function Safety({
         ),
       },
       // The severity column is gone: 「那些严重程度啊中等啊，高，低呀那些都不
-      // 要」. The database column stays - hazards already filed carry a grade
-      // and dropping it would rewrite history - and the export keeps it for
-      // the same reason. What goes is asking for it and ranking by it.
+      // 要」, and since 2026-10-10 it is gone from the whole system - forms,
+      // filters, exports, reports, PDFs (「严重程度不需要，完全在系统里面删除
+      // 掉」). The database column stays: hazards already filed keep the grade
+      // they were given, unread.
       {
         accessorKey: "status",
         meta: { label: t("safety.field.status") },
@@ -542,7 +539,6 @@ export function Safety({
         { key: "category_name", label: t("safety.field.category") },
         { key: "title", label: t("safety.field.title") },
         { key: "description", label: t("safety.field.description") },
-        { key: "severity", label: t("safety.field.severity") },
         { key: "status", label: t("safety.field.status") },
         { key: "responsible_person_name", label: t("safety.field.responsible") },
         { key: "rectification_due_at", label: t("safety.field.dueAt") },
@@ -1295,7 +1291,6 @@ function SafetyCreateDialog({
         // The phone has no title field: the server writes it from the column.
         title: fieldMode ? "" : draft.title.trim(),
         description: draft.description.trim(),
-        severity: draft.severity,
         occurred_at: draft.occurredAt
           ? new Date(draft.occurredAt).toISOString()
           : undefined,

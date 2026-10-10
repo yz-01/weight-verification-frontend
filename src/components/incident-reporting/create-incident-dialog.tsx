@@ -31,7 +31,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ApiError } from "@/interfaces/api";
-import type { IncidentSeverity } from "@/interfaces/incident-report";
 import { getProjects } from "@/services/contractor.service";
 import {
   createIncidentThread,
@@ -57,7 +56,6 @@ export function CreateIncidentDialog({
   const [project, setProject] = useState(lockedProject);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [severity, setSeverity] = useState<IncidentSeverity>("MEDIUM");
   const [recipientIds, setRecipientIds] = useState<string[]>([]);
   const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
   const [location, setLocation] = useState<{
@@ -117,7 +115,6 @@ export function CreateIncidentDialog({
       title: title.trim(),
       description: description.trim(),
       recipient_ids: recipientIds,
-      severity,
       occurred_at: new Date().toISOString(),
       latitude: location?.latitude,
       longitude: location?.longitude,
@@ -218,23 +215,6 @@ export function CreateIncidentDialog({
               placeholder={t("field.titlePlaceholder")}
               className="native-control"
             />
-          </FieldWrapper>
-
-          <FieldWrapper label={t("field.severity")}>
-            <Select
-              value={severity}
-              onValueChange={(v: IncidentSeverity) => setSeverity(v)}
-            >
-              <SelectTrigger id="severity">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="LOW">{t("severity.LOW")}</SelectItem>
-                <SelectItem value="MEDIUM">{t("severity.MEDIUM")}</SelectItem>
-                <SelectItem value="HIGH">{t("severity.HIGH")}</SelectItem>
-                <SelectItem value="CRITICAL">{t("severity.CRITICAL")}</SelectItem>
-              </SelectContent>
-            </Select>
           </FieldWrapper>
 
           <FieldWrapper

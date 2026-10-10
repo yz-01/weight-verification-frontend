@@ -101,7 +101,6 @@ export interface FieldStaffPosition {
   created_at: string;
 }
 
-export type IncidentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type IncidentStatus =
   | "OPEN"
   | "INVESTIGATING"
@@ -143,7 +142,6 @@ export interface SafetyIncident extends RecordedBy {
   category_name: string | null;
   title: string;
   description: string;
-  severity: IncidentSeverity;
   status: IncidentStatus;
   occurred_at: string;
   client_event_id: string;
@@ -271,7 +269,6 @@ export interface SafetyIncidentPayload {
   category: string;
   title: string;
   description: string;
-  severity: IncidentSeverity;
   occurred_at?: string;
   client_event_id?: string;
   field_task?: string;

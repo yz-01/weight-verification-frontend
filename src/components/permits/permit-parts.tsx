@@ -45,11 +45,14 @@ import {
   QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import {
   RecordDetailDialog,
   RecordDetailShell,
   RecordRecorder,
   type ShellFact,
+  type ShellPhoto,
+  type ShellPhotoGroup,
 } from "@/components/shared/record-detail-shell";
 import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -67,6 +70,7 @@ import { ApiError } from "@/interfaces/api";
 import type { Permit, PermitFile, PermitStatus } from "@/interfaces/permit";
 import { useDateFormat } from "@/lib/dates";
 import { printFile } from "@/lib/file-actions";
+import { photoMeta } from "@/lib/photo-meta";
 import {
   approvePermit,
   createPermit,
@@ -302,52 +306,129 @@ export function PermitFileActions({
   );
 }
 
-/** Every file of the permit: this submission first, earlier ones beneath. */
-export function PermitFileList({ permit }: { permit: Permit }) {
+/** `PDF` from `form.pdf`: the badge on a document tile. */
+function extension(name: string) {
+  const dot = name.lastIndexOf(".");
+  return dot >= 0 ? name.slice(dot + 1).toUpperCase() : "";
+}
+
+const BADGE_TONE: Record<string, string> = {
+  PDF: "bg-destructive/12 text-destructive",
+  DOC: "bg-info/12 text-info",
+  DOCX: "bg-info/12 text-info",
+  XLS: "bg-success/12 text-success",
+  XLSX: "bg-success/12 text-success",
+};
+
+/** A photographed page goes in the gallery; anything else is a document tile. */
+export function isPermitPhoto(file: PermitFile): boolean {
+  return Boolean(file.photo?.url);
+}
+
+/**
+ * The permit's photographed pages, for the shell's gallery - the same big
+ * viewer and thumbnail strip a material receipt uses, with when and where
+ * each was taken (client 2026-10-10 round 2: 「照片全部要跟收货进场一样」).
+ * Earlier submissions sit in their own row under the current one.
+ */
+export function permitPhotos(permit: Permit, submissionLabel: (round: number) => string) {
+  const files = [...permit.files]
+    .filter(isPermitPhoto)
+    .sort((a, b) => b.submission - a.submission);
+  const rounds = [...new Set(files.map((file) => file.submission))];
+  const photos: ShellPhoto[] = files.map((file) => ({
+    id: file.id,
+    url: file.photo!.url,
+    thumbnailUrl: file.photo!.thumbnail_url,
+    label: file.original_name,
+    ...photoMeta(file.photo!),
+    group: rounds.length > 1 ? `round-${file.submission}` : undefined,
+  }));
+  const groups: ShellPhotoGroup[] | undefined =
+    rounds.length > 1
+      ? rounds.map((round) => ({ key: `round-${round}`, label: submissionLabel(round) }))
+      : undefined;
+  return { photos, groups };
+}
+
+/**
+ * The permit's Word, Excel and PDF files as tiles: tap one and it opens in
+ * the page (PDF, Word, Excel and photos all read there - a phone that cannot
+ * open the raw file still reads it), with print and download beside it.
+ * This submission first; the files it was returned over beneath, kept.
+ */
+export function PermitDocuments({ permit }: { permit: Permit }) {
   const t = useTranslations("permits.files");
   const df = useDateFormat();
-  const current = permit.files.filter((file) => file.is_current);
-  const earlier = permit.files.filter((file) => !file.is_current);
-  const rows = (files: PermitFile[]) => (
-    <ul className="space-y-1.5">
-      {files.map((file) => (
-        <li key={file.id} className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs">
-          {file.preview_type?.startsWith("image/") ? (
-            <ImageIcon className="size-4 shrink-0 text-muted-foreground" />
-          ) : (
-            <FileText className="size-4 shrink-0 text-muted-foreground" />
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium text-foreground" title={file.original_name}>
-              {file.original_name}
-            </p>
-            <p className="truncate text-2xs text-muted-foreground">
-              {file.uploaded_by_name ?? "—"} · {df.dateTime(file.uploaded_at)} · {size(file.byte_size)}
-            </p>
-          </div>
-          <PermitFileActions permitId={permit.id} file={file} compact />
-        </li>
-      ))}
+  const [previewing, setPreviewing] = useState<PermitFile | null>(null);
+  const documents = permit.files.filter((file) => !isPermitPhoto(file));
+  const hasPhotos = permit.files.some(isPermitPhoto);
+  if (documents.length === 0 && hasPhotos) return null;
+  const current = documents.filter((file) => file.is_current);
+  const earlier = documents.filter((file) => !file.is_current);
+  const tiles = (files: PermitFile[]) => (
+    <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {files.map((file) => {
+        const ext = extension(file.original_name);
+        return (
+          <li key={file.id} className="flex min-w-0 items-stretch gap-2 rounded-lg border p-2" data-permit-document>
+            <button
+              type="button"
+              className="flex min-w-0 flex-1 items-center gap-3 text-left"
+              title={t("preview")}
+              onClick={() => setPreviewing(file)}
+            >
+              <span
+                className={`grid size-12 shrink-0 place-items-center rounded-md text-xs font-bold ${
+                  BADGE_TONE[ext] ?? "bg-muted text-muted-foreground"
+                }`}
+              >
+                {ext || <FileText className="size-5" />}
+              </span>
+              <span className="min-w-0">
+                <span className="line-clamp-2 break-all text-sm font-medium">{file.original_name}</span>
+                <span className="block truncate text-2xs text-muted-foreground">
+                  {size(file.byte_size)} · {file.uploaded_by_name ?? "—"} · {df.dateTime(file.uploaded_at)}
+                </span>
+              </span>
+            </button>
+            <div className="flex shrink-0 flex-col justify-center">
+              <PermitFileActions permitId={permit.id} file={file} compact />
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
   return (
     <section className="surface-panel space-y-3 rounded-xl p-4" data-slot="permit-file-list">
-      <h3 className="panel-title">{t("title")}</h3>
-      {permit.files.length === 0 ? (
+      <h3 className="panel-title">{t("documents")}</h3>
+      {documents.length === 0 ? (
         <p className="text-xs text-muted-foreground">{t("noneOnRecord")}</p>
       ) : (
         <>
-          {permit.submission > 1 && (
+          {permit.submission > 1 && current.length > 0 && (
             <p className="text-xs font-medium">{t("submission", { round: permit.submission })}</p>
           )}
-          {rows(current)}
+          {tiles(current)}
           {earlier.length > 0 && (
             <div className="space-y-1.5 border-t pt-3">
               <p className="text-xs text-muted-foreground">{t("earlier")}</p>
-              {rows(earlier)}
+              {tiles(earlier)}
             </div>
           )}
         </>
+      )}
+      {previewing && (
+        <FilePreviewDialog
+          title={previewing.original_name}
+          description={`${previewing.uploaded_by_name ?? "—"} · ${df.dateTime(previewing.uploaded_at)}`}
+          load={() => permitFileObjectUrl(permit.id, previewing)}
+          previewType={previewing.preview_type}
+          filename={previewing.original_name}
+          onDownload={() => downloadPermitFile(permit.id, previewing)}
+          onClose={() => setPreviewing(null)}
+        />
       )}
     </section>
   );
@@ -711,14 +792,32 @@ export function PermitDetail({
           ]
         : []),
     ];
+    const gallery = permitPhotos(permit, (round) => t("files.submission", { round }));
     body = (
       <RecordDetailShell
         reference={permit.incident_no}
         // 记录人 (E8): who applied, with a number to call.
         recorder={<RecordRecorder record={permit} />}
         facts={facts}
-        panel={<PermitFileList permit={permit} />}
+        // One record, everything in one place (client 2026-10-10 round 2:
+        // 「照片全部要跟收货进场一样，记录也全部要绑定」): the photographed
+        // pages in the gallery, the Word / Excel / PDF files as tiles, the
+        // decision with its signature, the attachments and the conversation.
+        photos={gallery.photos.length > 0 ? gallery.photos : undefined}
+        photoGroups={gallery.groups}
+        heroFromThumbnail={presentation === "inline"}
+        panel={<PermitDocuments permit={permit} />}
         actions={<PermitActions permit={permit} />}
+        aside={
+          // 附件 (「后台没有附件上传」): the office adds supporting files on the
+          // permit's own record ID until the approval archives it; the phone
+          // reads and opens them, with nothing to add there.
+          <RecordAttachmentsPanel
+            kind="HAZARD"
+            recordId={permit.id}
+            readOnly={presentation === "inline"}
+          />
+        }
         signatures={
           permit.signature ? [{ label: t("field.signature"), url: permit.signature }] : []
         }

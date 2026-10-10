@@ -49,7 +49,6 @@ const incident = {
   category_name: null,
   title: "Open edge on level 3",
   description: "",
-  severity: "MEDIUM",
   status: "RECTIFICATION_SUBMITTED",
   occurred_at: "2026-10-08T02:00:00Z",
   latitude: null,

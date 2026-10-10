@@ -18,6 +18,7 @@ import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
+import { PermitDetail } from "@/components/permits/permit-parts";
 import { useRecordOpener } from "@/components/shared/record-opener";
 import { EmptyState, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -526,6 +527,14 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   // The status in the words the list uses (T-391); a sheet opened from
   // elsewhere without one reads it from the record once loaded.
   const statusLabel = recordStatusLabel(t, detail.data ?? row);
+
+  // A 施工准证 is a HAZARD row, but it is not a hazard card: it opens as the
+  // permit it is - its files and photos, the decision with its signature,
+  // attachments and the conversation (client 2026-10-10: the record centre
+  // showed 「照片 0 张」, 「发生了什么」, 「严重程度」 and the hazard's 未闭环).
+  if (row.kind === "HAZARD" && (row.record_type ?? detail.data?.record_type) === "PERMIT") {
+    return <PermitDetail id={row.id} presentation="dialog" onClose={onClose} />;
+  }
 
   return (
     <RecordDetailDialog

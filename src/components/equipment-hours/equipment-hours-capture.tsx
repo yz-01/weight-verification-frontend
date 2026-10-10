@@ -102,6 +102,11 @@ export function nextKind(machine: Pick<EquipmentHoursMachine, "open_since"> | un
 const ALL = "all";
 const NO_SUPPLIER = "none";
 
+/** Whether no machine on the site names its company (or there are none). */
+export function noSupplierNamed(rows: { supplier?: string | null }[]): boolean {
+  return rows.every((row) => !row.supplier);
+}
+
 export type LastSent =
   | { status: "uploaded"; label: string; kind: EquipmentPhotoKind; session: EquipmentHoursSession | null }
   | { status: "queued"; label: string; kind: EquipmentPhotoKind };
@@ -141,14 +146,19 @@ export function EquipmentHoursCapture({
   const rows = machines.data ?? [];
   const chosen = rows.find((row) => row.id === equipment);
   // A project hires machines from several companies: the supplier narrows
-  // the list. Only offered when there is more than one to choose from.
+  // the list. Always offered, so every phone shows the same form (Lucas,
+  // 2026-10-10: 「为什么客户的有供应商我没有」).
   const suppliers = [
     ...new Map(
       rows.map((row) => [row.supplier || NO_SUPPLIER, row.supplier_name || ""]),
     ).entries(),
   ];
+  // No machine names its company: the one honest choice is 「未填供应商」,
+  // not 「全部供应商」 (Lucas, 2026-10-10).
+  const unfilledOnly = noSupplierNamed(rows);
+  const supplierValue = unfilledOnly ? NO_SUPPLIER : supplier;
   const listed = rows.filter(
-    (row) => supplier === ALL || (row.supplier || NO_SUPPLIER) === supplier,
+    (row) => supplierValue === ALL || (row.supplier || NO_SUPPLIER) === supplierValue,
   );
 
   const pick = (machine: EquipmentHoursMachine | undefined) => {
@@ -210,31 +220,32 @@ export function EquipmentHoursCapture({
         </FieldWrapper>
       )}
 
-      {suppliers.length > 1 && (
-        <FieldWrapper label={t("phone.supplier")}>
-          <Select
-            value={supplier}
-            onValueChange={(value) => {
-              setSupplier(value);
-              if (chosen && value !== ALL && (chosen.supplier || NO_SUPPLIER) !== value) {
-                pick(undefined);
-              }
-            }}
-          >
-            <SelectTrigger className="h-12 w-full" aria-label={t("phone.supplier")}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>
-              {suppliers.map(([id, name]) => (
-                <SelectItem key={id} value={id}>
-                  {id === NO_SUPPLIER ? t("phone.noSupplier") : name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FieldWrapper>
-      )}
+      <FieldWrapper label={t("phone.supplier")}>
+        <Select
+          value={supplierValue}
+          onValueChange={(value) => {
+            setSupplier(value);
+            if (chosen && value !== ALL && (chosen.supplier || NO_SUPPLIER) !== value) {
+              pick(undefined);
+            }
+          }}
+        >
+          <SelectTrigger className="h-12 w-full" aria-label={t("phone.supplier")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {!unfilledOnly && <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>}
+            {unfilledOnly && suppliers.length === 0 && (
+              <SelectItem value={NO_SUPPLIER}>{t("phone.noSupplier")}</SelectItem>
+            )}
+            {suppliers.map(([id, name]) => (
+              <SelectItem key={id} value={id}>
+                {id === NO_SUPPLIER ? t("phone.noSupplier") : name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
 
       <FieldWrapper label={t("phone.machine")} required>
         <div className="flex gap-2">

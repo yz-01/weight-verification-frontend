@@ -155,28 +155,15 @@ export function IncidentThreadDetail({
     setShowCamera(false);
   };
 
-  const severityTone =
-    thread.data?.thread.severity === "CRITICAL"
-      ? "danger"
-      : thread.data?.thread.severity === "HIGH"
-        ? "warning"
-        : thread.data?.thread.severity === "MEDIUM"
-          ? "info"
-          : "neutral";
-
   const record = thread.data?.thread;
-  // The popup's header: the report's number with its severity and, once
-  // solved, 已解决; its title under it; when it was filed.
+  // The popup's header: the report's number and, once solved, 已解决 (no
+  // 严重程度: gone from the system, 2026-10-10); its title under it; when it
+  // was filed.
   const header = {
     title: record?.thread_no ?? t("title"),
     description: record?.title,
-    status: record ? (
-      <>
-        <StatusBadge label={t(`severity.${record.severity}`)} tone={severityTone} />
-        {record.is_resolved && (
-          <StatusBadge label={t("status.resolved")} tone="positive" />
-        )}
-      </>
+    status: record?.is_resolved ? (
+      <StatusBadge label={t("status.resolved")} tone="positive" />
     ) : undefined,
     caption: record ? new Date(record.created_at).toLocaleString() : undefined,
   };

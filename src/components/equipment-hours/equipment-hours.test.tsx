@@ -50,6 +50,7 @@ const {
   LastSentNote,
   machineLabel,
   matchScannedMachine,
+  noSupplierNamed,
   nextKind,
   photoTakenAt,
 } = await import("@/components/equipment-hours/equipment-hours-capture");
@@ -354,14 +355,20 @@ describe("the phone screen 设备操作员工时", () => {
     expect(html).not.toContain("分类");
   });
 
-  it("offers the supplier only when the site has machines from more than one", () => {
+  it("always offers the supplier, even with one company's machines", () => {
     const seeded = (rows: EquipmentHoursMachine[]) =>
       render(<EquipmentHoursCapture initialProject="p1" />, (client) =>
         client.setQueryData(["equipment-hours", "machines", "p1"], rows),
       );
     const picker = `aria-label="${words.phone.supplier}"`;
     expect(seeded(MACHINES)).toContain(picker);
-    expect(seeded([MACHINES[0]])).not.toContain(picker);
+    expect(seeded([MACHINES[0]])).toContain(picker);
+  });
+
+  it("offers only 「未填供应商」 when no machine names its company", () => {
+    expect(noSupplierNamed([{ ...MACHINES[0], supplier: "" }])).toBe(true);
+    expect(noSupplierNamed([])).toBe(true);
+    expect(noSupplierNamed(MACHINES)).toBe(false);
   });
 
   it("finds the machine a QR names: id, equipment number, plate or serial, also in a link", () => {
