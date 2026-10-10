@@ -160,7 +160,13 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
   const raw = useSyncExternalStore(subscribe, snapshot, () => null);
   const remembered = useMemo(() => parseCollecting(raw), [raw]);
   const allowed = can("package.manage");
-  const fromAddress = searchParams.get(PACK_PARAM);
+  // 「结束选择」 clears the address's `?pack=` through the router, which lands
+  // a moment later; until it does, that package must not count again or it
+  // is remembered straight back and the strip needs a second press.
+  const [endedId, setEndedId] = useState<string | null>(null);
+  const addressPack = searchParams.get(PACK_PARAM);
+  const fromAddress = addressPack && addressPack.trim() === endedId ? null : addressPack;
+  if (endedId && !addressPack) setEndedId(null);
   const wanted = allowed ? resolveCollecting(fromAddress, remembered) : null;
 
   const pkg = useQuery({
@@ -172,7 +178,7 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
   const gone = pkg.error instanceof ApiError && (pkg.error.isNotFound || pkg.error.isForbidden);
   const closed = data !== undefined && data.state !== "DRAFT";
 
-  const end = useCallback(() => {
+  const clear = useCallback(() => {
     remember(null);
     if (searchParams.has(PACK_PARAM)) {
       const next = new URLSearchParams(searchParams.toString());
@@ -181,6 +187,12 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     }
   }, [pathname, router, searchParams]);
+
+  const end = useCallback(() => {
+    const fromLink = searchParams.get(PACK_PARAM);
+    if (fromLink) setEndedId(fromLink.trim());
+    clear();
+  }, [clear, searchParams]);
 
   // What the address brought is remembered with its name and project once
   // read, so the next module - reached from the menu, without `?pack=` -
@@ -193,8 +205,8 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
 
   // Confirmed or deleted since it was opened: nothing left to add to.
   useEffect(() => {
-    if (gone || closed) end();
-  }, [closed, end, gone]);
+    if (gone || closed) clear();
+  }, [clear, closed, gone]);
 
   const wantedId = wanted?.id;
   const wantedName = wanted?.name ?? "";
