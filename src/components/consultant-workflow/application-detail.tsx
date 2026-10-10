@@ -38,6 +38,14 @@ import {
   ApplicationFormCard,
   printPdf,
 } from "@/components/consultant-workflow/application-form-card";
+import {
+  ApplicationConsultantFormPanel,
+  FORM_FILE_ACCEPT,
+  isFormFile,
+  signingChoices,
+  signingNeeds,
+  type Signing,
+} from "@/components/consultant-workflow/consultant-own-form";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
 import { ExportButton } from "@/components/shared/export-button";
@@ -78,6 +86,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type {
   ApplicationReviewStep,
   ConsultantApplication,
+  ConsultantFormArchiveSnapshot,
   EvidenceCandidate,
   RemedialItem,
 } from "@/interfaces/consultant-workflow";
@@ -355,6 +364,22 @@ export function ConsultantApplicationDetail({
                 document.getElementById("application-attachments")?.scrollIntoView({ behavior: "smooth", block: "start" })
               }
               exportButtons={null}
+              sendBlockedReason={
+                application.consultant_form && !application.form_files?.some((row) => row.kind === "FILLED")
+                  ? t("ownForm.sendNeedsFilled")
+                  : undefined
+              }
+            />
+
+            {/* B, the consultant's own form (2026-10-10): the blank form, the
+                filled form (required before sending) and the signed final
+                version, each previewed here. */}
+            <ApplicationConsultantFormPanel
+              application={application}
+              editable={draftEditable}
+              reviewer={canAct}
+              locked={showLocked}
+              onChanged={() => void refresh()}
             />
 
             <ApplicationLifecycle application={application} />
@@ -501,7 +526,7 @@ export function ConsultantApplicationDetail({
             {currentStep && canAct && (
               credential.isError ? (
                 <LoadFailed className="w-full" what={t("what.credential")} onRetry={() => credential.refetch()} />
-              ) : credential.data ? (
+              ) : credential.data || (application.consultant_form && credential.isSuccess) ? (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
                   <Button className="min-h-11 justify-start" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
                   <Button className="min-h-11 justify-start" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
@@ -545,7 +570,7 @@ export function ConsultantApplicationDetail({
             </Section>
             {!!application.approval_actions.length && (
               <Section title={t("detail.section.decisions")}>
-                <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2"><a href={entry.signature_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</a>{entry.stamp_snapshot && <a href={entry.stamp_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</a>}</div></div>)}</div>
+                <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2">{entry.signature_snapshot ? <a href={entry.signature_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</a> : <span className="text-xs font-medium text-muted-foreground">{t("ownForm.signedOnForm")}</span>}{entry.stamp_snapshot && <a href={entry.stamp_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</a>}</div></div>)}</div>
               </Section>
             )}
             <RemedialSection application={application} onChanged={refresh} />
@@ -567,7 +592,7 @@ export function ConsultantApplicationDetail({
 
       {attachmentOpen && <AttachmentDialog application={application} onClose={() => setAttachmentOpen(false)} onSaved={() => { void refresh(); setAttachmentOpen(false); }} />}
       {evidenceOpen && <EvidenceDialog application={application} onClose={() => setEvidenceOpen(false)} onSaved={() => { void refresh(); setEvidenceOpen(false); }} />}
-      {decision && <DecisionDialog application={application} decision={decision} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
+      {decision && <DecisionDialog application={application} decision={decision} hasCredential={Boolean(credential.data)} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
     </RecordDetailFrame>
   );
 }
@@ -667,7 +692,10 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
   const t = useTranslations("consultantWorkflow");
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const kinds = ["APPLICATION", "APPROVAL", "FINAL_REPORT"] as const;
+  // B (2026-10-10): 「原表格、最终版本、审批人、时间、意见统一归档」.
+  const kinds: Array<ConsultantApplication["archive_entries"][number]["kind"]> = application.consultant_form
+    ? ["APPLICATION", "APPROVAL", "FINAL_REPORT", "CONSULTANT_FORM"]
+    : ["APPLICATION", "APPROVAL", "FINAL_REPORT"];
 
   /*
     The decision is the act; the PDF is only its record. When archiving fails
@@ -707,6 +735,9 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
                 </span>
               </div>
               {entry?.sha256 && <p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">SHA-256: {entry.sha256}</p>}
+              {kind === "CONSULTANT_FORM" && entry?.snapshot ? (
+                <ConsultantFormArchiveLines snapshot={entry.snapshot as ConsultantFormArchiveSnapshot} />
+              ) : null}
               {kind === "FINAL_REPORT" && !entry && reportOwedButMissing && can("approval.review") && (
                 <div className="mt-2 space-y-1">
                   <p className="text-xs text-muted-foreground">
@@ -1147,13 +1178,138 @@ function EvidenceDialog({ application, onClose, onSaved }: { application: Consul
   return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-6xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Input placeholder={t("evidence.searchPlaceholder")} value={search} onChange={(event) => setSearch(event.target.value)} /><Input placeholder={t("evidence.category")} value={category} onChange={(event) => setCategory(event.target.value)} /><Input placeholder={t("evidence.subcategory")} value={subcategory} onChange={(event) => setSubcategory(event.target.value)} /><Input placeholder={t("evidence.uploader")} value={uploader} onChange={(event) => setUploader(event.target.value)} /><Input type="date" aria-label={t("evidence.dateFrom")} value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /><Input type="date" aria-label={t("evidence.dateTo")} value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /></div>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : rows.isError ? <LoadFailed what={t("what.evidenceCandidates")} onRetry={() => rows.refetch()} /> : <div className="space-y-3"><FieldWrapper label={t("evidence.selectPhotos")} required><div className="max-h-[58dvh] space-y-3 overflow-y-auto pr-1">{groups.map((group) => { const ids = group.rows.map((row) => row.id); const allSelected = ids.every((id) => selected.includes(id)); const open = expanded === group.key; const first = group.rows[0]; return <div key={group.key} className={`rounded-lg border ${allSelected ? "border-primary ring-2 ring-primary/20" : ""}`}><div className="flex items-start gap-3 p-3"><Checkbox checked={allSelected} onCheckedChange={() => toggleGroup(group)} aria-label={t("evidence.selectRecord")} /><button type="button" className="flex min-w-0 flex-1 items-start gap-3 text-left" onClick={() => setExpanded(open ? null : group.key)}><span className="mt-0.5 shrink-0">{open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</span><span className="min-w-0"><span className="block truncate font-medium">{first.record_reference} · {first.record_type_label} · {first.record_title}</span><span className="block text-xs text-muted-foreground">{first.project_name || t("common.emptyValue")} · {first.category || t("common.emptyValue")} {first.subcategory ? `· ${first.subcategory}` : ""}</span><span className="block text-xs text-muted-foreground">{group.rows.length} {t("evidence.recordPhotos")} · {first.record_uploader || first.photographer_name || t("common.unknown")} · {first.record_date ? new Date(first.record_date).toLocaleString() : new Date(first.captured_at).toLocaleString()}</span></span></button></div>{open && <div className="grid gap-3 border-t bg-muted/20 p-3 sm:grid-cols-4">{group.rows.map((row) => { const checked = selected.includes(row.id); const image = row.watermarked_file || row.file; return <div key={row.id} className={`rounded-md border bg-card p-2 ${checked ? "border-primary" : ""}`}><div className="relative aspect-[4/3] overflow-hidden rounded bg-muted">{row.kind === "PHOTO" ? <Image src={image} alt={row.original_filename} fill unoptimized className="object-cover" /> : <div className="grid h-full place-items-center p-2 text-center text-xs text-muted-foreground">{row.original_filename}</div>}</div><label className="mt-2 flex items-start gap-2 text-xs"><Checkbox checked={checked} onCheckedChange={() => toggle(row.id)} /><span className="min-w-0"><span className="block truncate font-medium">{row.original_filename}</span><span className="block text-muted-foreground">{new Date(row.captured_at).toLocaleString()} · {t("evidence.gps")} {row.latitude ?? "-"}, {row.longitude ?? "-"}</span><span className="block text-muted-foreground">{row.photographer_name || t("common.unknown")} · {row.watermark_text ? t("evidence.watermarked") : ""}</span></span></label></div>; })}</div>}</div>; })}{!groups.length && <Empty text={t("evidence.noCandidates")} />}</div></FieldWrapper><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[selected.length, t("evidence.selectPhotos")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
 }
 
-function DecisionDialog({ application, decision, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; onClose: () => void; onSaved: () => void }) {
+function DecisionDialog({ application, decision, hasCredential, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; hasCredential: boolean; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("consultantWorkflow");
+  const common = useTranslations("common");
   const [remarks, setRemarks] = useState("");
   const [pin, setPin] = useState("");
-  const save = useMutation({ mutationFn: () => reviewConsultantApplication(application.id, { decision, remarks, approval_pin: pin }), onSuccess: onSaved });
+  // B (2026-10-10): the consultant's own form may also be signed and stamped
+  // by hand and uploaded - 「也可上传已经签名 / 盖章的最终版本」.
+  const choices = signingChoices(Boolean(application.consultant_form), hasCredential);
+  const [signing, setSigning] = useState<Signing>(choices[0]);
+  const [signedForm, setSignedForm] = useState<File | null>(null);
+  const [wrongType, setWrongType] = useState(false);
+  const needs = signingNeeds(signing, hasCredential);
+  const save = useMutation({
+    mutationFn: () =>
+      reviewConsultantApplication(application.id, {
+        decision,
+        remarks,
+        ...(needs.pin ? { approval_pin: pin } : {}),
+        ...(application.consultant_form ? { signing, signed_form: signedForm } : {}),
+      }),
+    onSuccess: onSaved,
+  });
   const remarksRequired = decision !== "APPROVE";
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t(`review.dialog.${decision}.title`)}</DialogTitle><DialogDescription>{t(`review.dialog.${decision}.description`)}</DialogDescription></DialogHeader><div className="space-y-4"><FieldWrapper label={t("review.remarks")} required={remarksRequired}><Textarea rows={4} value={remarks} onChange={(event) => setRemarks(event.target.value)} /></FieldWrapper><FieldWrapper label={t("review.pin")} required hint={t("review.pinHint")}><Input type="password" inputMode="numeric" maxLength={6} value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button variant={decision === "REJECT" ? "destructive" : "default"} requires={[[pin.length === 6, t("review.pin")], [!remarksRequired || remarks, t("review.remarks")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : decision === "APPROVE" ? <ShieldCheck /> : decision === "REJECT" ? <XCircle /> : <RotateCcw />}{t(`decision.${decision}`)}</Button></DialogFooter></DialogContent></Dialog>;
+  const ownForm = Boolean(application.consultant_form);
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t(`review.dialog.${decision}.title`)}</DialogTitle>
+          <DialogDescription>{t(`review.dialog.${decision}.description`)}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <FieldWrapper label={t("review.remarks")} required={remarksRequired}>
+            <Textarea rows={4} value={remarks} onChange={(event) => setRemarks(event.target.value)} />
+          </FieldWrapper>
+          {ownForm && choices.length > 1 ? (
+            <FieldWrapper label={t("ownForm.signingTitle")}>
+              <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={t("ownForm.signingTitle")}>
+                {choices.map((choice) => (
+                  <Button
+                    key={choice}
+                    type="button"
+                    role="radio"
+                    aria-checked={signing === choice}
+                    variant={signing === choice ? "default" : "outline"}
+                    className="h-auto min-h-11 justify-start whitespace-normal text-left"
+                    onClick={() => setSigning(choice)}
+                  >
+                    {choice === "ESIGNATURE" ? <KeyRound /> : <Paperclip />}
+                    {t(choice === "ESIGNATURE" ? "ownForm.signingEsignature" : "ownForm.signingSignedForm")}
+                  </Button>
+                ))}
+              </div>
+            </FieldWrapper>
+          ) : null}
+          {ownForm && !hasCredential ? (
+            <p className="rounded-lg border border-info/30 bg-info/5 p-3 text-sm text-info">
+              {t("ownForm.noCredential")}{" "}
+              <Link href="/approval-credential" className="font-medium underline">{t("review.setupCredential")}</Link>
+            </p>
+          ) : null}
+          {ownForm ? (
+            <FieldWrapper
+              label={t("ownForm.signedFormFile")}
+              required={needs.file}
+              optional={needs.file ? undefined : common("optional")}
+              hint={t("ownForm.signedFormHint")}
+              error={wrongType ? t("ownForm.fileTypeWrong") : undefined}
+            >
+              <Input
+                type="file"
+                accept={FORM_FILE_ACCEPT}
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
+                  setWrongType(Boolean(file) && !isFormFile(file?.name ?? ""));
+                  setSignedForm(file && isFormFile(file.name) ? file : null);
+                }}
+              />
+            </FieldWrapper>
+          ) : null}
+          {needs.pin ? (
+            <FieldWrapper label={t("review.pin")} required hint={signing === "SIGNED_FORM" ? t("ownForm.pinForSignedForm") : t("review.pinHint")}>
+              <Input type="password" inputMode="numeric" maxLength={6} value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))} />
+            </FieldWrapper>
+          ) : null}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button
+            variant={decision === "REJECT" ? "destructive" : "default"}
+            requires={[
+              [!needs.pin || pin.length === 6, t("review.pin")],
+              [!needs.file || signedForm, t("ownForm.signedFormFile")],
+              [!remarksRequired || remarks, t("review.remarks")],
+            ]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : decision === "APPROVE" ? <ShieldCheck /> : decision === "REJECT" ? <XCircle /> : <RotateCcw />}
+            {t(`decision.${decision}`)}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** What the archive kept of a B application, in plain lines. */
+function ConsultantFormArchiveLines({ snapshot }: { snapshot: ConsultantFormArchiveSnapshot }) {
+  const t = useTranslations("consultantWorkflow");
+  const lines = [
+    snapshot.form ? t("ownForm.archiveBlank", { name: snapshot.form.blank_form.name, version: snapshot.form.version }) : "",
+    snapshot.filled_form ? t("ownForm.archiveFilled", { name: snapshot.filled_form.name }) : "",
+    ...(snapshot.final_versions ?? []).map((row) => t("ownForm.archiveFinal", { name: row.name })),
+    ...(snapshot.decisions ?? []).map((row) =>
+      [
+        t("ownForm.archiveDecision", {
+          decision: t(`decision.${row.decision}`),
+          name: row.approver,
+          when: row.acted_at ? new Date(row.acted_at).toLocaleString() : "-",
+        }),
+        row.remarks,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    ),
+  ].filter(Boolean);
+  return (
+    <ul className="mt-2 space-y-1 text-xs text-muted-foreground" data-archive-consultant-form>
+      {lines.map((line, index) => <li key={index} className="break-words">{line}</li>)}
+    </ul>
+  );
 }
 
 function reviewerMatches(step: ApplicationReviewStep, application: ConsultantApplication, user: NonNullable<ReturnType<typeof useAuth>["user"]>) {

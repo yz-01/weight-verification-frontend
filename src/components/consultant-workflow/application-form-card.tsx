@@ -27,11 +27,18 @@ export function ApplicationFormCard({
   onPrint,
   onShowAttachments,
   exportButtons,
+  sendBlockedReason,
 }: {
   consultantName: string;
   attachmentCount: number;
   /** A draft, and the reader may send it. */
   canSend: boolean;
+  /**
+   * Why it cannot be sent yet - on the consultant's own form, the filled
+   * form is still missing (2026-10-10). The button says so instead of
+   * answering the press with a refusal.
+   */
+  sendBlockedReason?: string;
   isSubmitting: boolean;
   onSend: () => void;
   onPrint: () => Promise<void>;
@@ -83,7 +90,8 @@ export function ApplicationFormCard({
               type="button"
               size="sm"
               data-slot="application-form-send"
-              disabled={isSubmitting}
+              disabledReason={sendBlockedReason}
+              disabled={isSubmitting || Boolean(sendBlockedReason)}
               onClick={onSend}
             >
               {isSubmitting ? <Loader2 className="animate-spin" /> : <Send />}
