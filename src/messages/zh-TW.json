@@ -6938,6 +6938,13 @@
     "filesMore": "另有 {count} 個文件",
     "systemFiles": {
       "title": "從系統裡選的文件"
+    },
+    "attach": {
+      "alreadyHere": "已在這份檔案裡",
+      "otherProject": "不是這份檔案的項目",
+      "hint": "只能選這份檔案所在項目的文件；已經在檔案裡的文件會變灰。",
+      "what": "這份檔案已有的文件",
+      "confirm": "加進這份檔案（{count}）"
     }
   },
   "driver": {
@@ -7469,7 +7476,8 @@
       "driver_link_other_device": "這個連結已在另一部手機上使用，請聯絡回收商重新發送。",
       "driver_link_expired": "連結已失效，請聯絡回收商重新發送。",
       "driver_login_retired": "司機不用登入了，請打開回收商發給你的任務連結。",
-      "document_system_files_mixed_projects": "選的文件來自不同項目。一份檔案只屬於一個項目，請只選同一個項目的文件。"
+      "document_system_files_mixed_projects": "選的文件來自不同項目。一份檔案只屬於一個項目，請只選同一個項目的文件。",
+      "document_system_file_already_in_document": "有文件已經在這份檔案裡了，不用再加。"
     },
     "backToDashboard": "返回儀表板",
     "field": {

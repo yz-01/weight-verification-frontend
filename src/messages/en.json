@@ -6938,6 +6938,13 @@
     "filesMore": "+{count} more files",
     "systemFiles": {
       "title": "Files picked from the system"
+    },
+    "attach": {
+      "alreadyHere": "Already in this document",
+      "otherProject": "Not this document's project",
+      "hint": "Only files of this document's project can be added; files it already holds are greyed out.",
+      "what": "the files this document already holds",
+      "confirm": "Add to this document ({count})"
     }
   },
   "driver": {
@@ -7469,7 +7476,8 @@
       "driver_link_other_device": "This link is in use on another phone. Ask the recycler to send it again.",
       "driver_link_expired": "This link no longer works. Ask the recycler to send it again.",
       "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you.",
-      "document_system_files_mixed_projects": "These files come from different projects. A document belongs to one project, so pick files from one project only."
+      "document_system_files_mixed_projects": "These files come from different projects. A document belongs to one project, so pick files from one project only.",
+      "document_system_file_already_in_document": "One of those files is already in this document."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
