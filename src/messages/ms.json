@@ -5262,7 +5262,7 @@
     },
     "formCard": {
       "title": "Borang permohonan perunding (A4)",
-      "help": "Pratonton, cetak dan eksport ialah halaman A4 yang sama: syarikat anda di kiri, perunding di kanan, kemudian kandungan, foto dan senarai lampiran.",
+      "help": "Pratonton, cetak dan eksport memberikan PDF bukti lengkap: mula-mula halaman A4 ini (syarikat anda di kiri, perunding di kanan, kemudian kandungan, foto dan senarai lampiran), diikuti kandungan lampiran, kelulusan perunding dengan tandatangan dan perbualan.",
       "print": "Cetak",
       "attachments": "Lampiran ({count})",
       "send": "Hantar kepada {name}"
@@ -15958,7 +15958,10 @@
     "shareMessage": "Sila rujuk fail yang dilampirkan: {name}",
     "shareCopyLink": "Salin pautan rekod",
     "file": "Fail",
-    "printInViewer": "Fail dibuka dalam pemapar telefon. Pilih Kongsi, kemudian Cetak."
+    "printInViewer": "Fail dibuka dalam pemapar telefon. Pilih Kongsi, kemudian Cetak.",
+    "completeEvidence": "PDF bukti lengkap",
+    "completeEvidenceHint": "Borang, foto, kandungan setiap lampiran (Word, Excel dan PDF ditukar menjadi halaman boleh cetak), sejarah kelulusan dengan tandatangan dan perbualan, dalam satu PDF. Fail asal kekal tidak berubah.",
+    "completeEvidenceTitle": "Bukti lengkap · {reference}"
   },
   "recordAttachments": {
     "title": "Lampiran",
