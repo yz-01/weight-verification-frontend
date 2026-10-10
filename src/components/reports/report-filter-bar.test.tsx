@@ -142,7 +142,8 @@ describe("each report's own filters", () => {
     nav.pathname = "/reports/contractor/safety";
     const { html } = render(<ContractorReportWorkspace reportType="safety" />);
     expect(html).toContain(messages.contractorReports.column.responsible_person);
-    expect(html).toContain(messages.contractorReports.column.severity);
+    // No 严重程度 filter: gone from the system (2026-10-10).
+    expect(html).not.toContain("severity");
   });
 });
 

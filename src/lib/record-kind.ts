@@ -7,8 +7,13 @@
  * which way it went, and this turns that into `archiveQueue.kind.MATERIAL_RETURN`
  * (the same words the PDF prints).
  */
-export function recordKindKey(row: { kind: string; movement_type?: string | null }): string {
-  return row.kind === "MATERIAL_RECEIPT" && row.movement_type === "RETURN"
-    ? "MATERIAL_RETURN"
-    : row.kind;
+export function recordKindKey(row: {
+  kind: string;
+  movement_type?: string | null;
+  record_type?: string | null;
+}): string {
+  if (row.kind === "MATERIAL_RECEIPT" && row.movement_type === "RETURN") return "MATERIAL_RETURN";
+  // A 施工准证 is filed as a HAZARD row and named as a permit (2026-10-10).
+  if (row.kind === "HAZARD" && row.record_type === "PERMIT") return "PERMIT";
+  return row.kind;
 }

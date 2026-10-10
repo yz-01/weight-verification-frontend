@@ -94,7 +94,7 @@ describe("报表预览: no raw codes", () => {
     ["recycling", "status", "SETTLED", { record_type: "RECYCLE_ORDER" }],
     ["progress", "status", "CONFIRMED", {}],
     ["safety", "status", "VERIFIED", {}],
-    ["safety", "severity", "HIGH", {}],
+    ["safety", "status", "RETURNED", {}],
     ["consultant", "status", "APPROVED", {}],
     ["consultant", "final_decision", "REVISE_RESUBMIT", {}],
     ["attendance", "event", "CLOCK_IN", {}],

@@ -801,7 +801,7 @@
   },
   "adminCustomerService": {
     "notes": {
-      "placeholder": "發生了什麼，談定了什麼",
+      "placeholder": "事件經過，談定了什麼",
       "loadError": "備註載入失敗",
       "empty": "還沒有備註",
       "add": "新增備註",
@@ -3065,7 +3065,8 @@
       "SITE_EQUIPMENT": "機械設備",
       "DOCUMENT": "文件",
       "CLAIM": "進度 Claim",
-      "MATERIAL_RETURN": "材料退場"
+      "MATERIAL_RETURN": "材料退場",
+      "PERMIT": "施工准證"
     },
     "lastPage": "已經是最後一頁了。",
     "loading": "載入中…",
@@ -6160,7 +6161,6 @@
       "responsible_person": "負責人",
       "review_note": "審核備註",
       "revision": "修訂版",
-      "severity": "嚴重程度",
       "source": "來源記錄",
       "status": "狀態",
       "submitted_at": "提交時間",
@@ -8238,7 +8238,7 @@
       "manualConfirm": "記錄",
       "manualDescription": "這只是記錄「有人放行了這臺車」，不會下發任何開閘命令，也不會被記成閘門正常工作。",
       "manualNote": "{name} 人工放行：{reason}",
-      "manualReason": "發生了什麼",
+      "manualReason": "事件",
       "manualRelease": "人工放行",
       "manualTitle": "人工放行這臺車？",
       "needsOperator": "有控制器沒有執行。系統並未放行這臺車 —— 請處理閘門，並記錄你的處理方式。",
@@ -8599,7 +8599,9 @@
       "equipmentMaintenance": "維修中",
       "topSuppliers": "本週送貨最多的供應商",
       "deliveries": "{count} 次",
-      "clearanceMonth": "本月清運"
+      "clearanceMonth": "本月清運",
+      "hazardsOpen": "未關閉",
+      "hazardsOverdue": "已逾期"
     }
   },
   "home": {
@@ -8616,7 +8618,7 @@
     "captureLocation": "獲取當前 GPS",
     "chooseProject": "選擇項目",
     "chooseProjectFirst": "請先選擇項目以選擇接收人",
-    "description": "發生了什麼？",
+    "description": "事件經過",
     "descriptionPlaceholder": "清楚描述事故情況",
     "dialog": {
       "create": {
@@ -8634,14 +8636,13 @@
       "title": "必須拍攝的事故證據"
     },
     "field": {
-      "description": "發生了什麼？",
+      "description": "事件經過",
       "descriptionPlaceholder": "清楚描述事故情況",
       "messagePlaceholder": "新增詳情、照片或更新",
       "participants": "群組成員",
       "project": "項目",
       "recipients": "報告給",
       "reportedBy": "報告人",
-      "severity": "嚴重程度",
       "title": "事故標題",
       "titlePlaceholder": "簡述事故情況"
     },
@@ -8664,16 +8665,6 @@
     "project": "項目",
     "recipients": "報告給",
     "reporter": "上報人",
-    "severity": {
-      "CRITICAL": "緊急",
-      "HIGH": "高",
-      "LOW": "低",
-      "MEDIUM": "中"
-    },
-    "severityCritical": "緊急",
-    "severityHigh": "高",
-    "severityLow": "低",
-    "severityMedium": "中",
     "status": {
       "open": "未解決",
       "resolved": "已解決"
@@ -8983,7 +8974,7 @@
         "what": "如果你公司有自己的中間層，進出都可以走它：既能替你的設備把數據送進來，也能接收平台發出去的通知。兩個方向都行。"
       },
       "CCTV": {
-        "needs": "攝像機或錄像機要能主動把圖片發出來。**只有 RTSP 視頻流是不夠的** —— 那只是一路畫面，它不會自己告訴平台「剛才發生了什麼」。",
+        "needs": "攝像機或錄像機要能主動把圖片發出來。**只有 RTSP 視頻流是不夠的** —— 那只是一路畫面，它不會自己告訴平台「剛才發生的事件」。",
         "title": "監控攝像機 / 錄像機",
         "what": "攝像機把照片和錄像片段送進平台，存成證據，跟著單據一起查。"
       },
@@ -9845,12 +9836,11 @@
       "rejection_reason": "不合格原因",
       "resolution_note": "結案說明",
       "review_note": "後台意見",
-      "severity": "嚴重程度",
       "site": "回收廠",
       "specification": "規格",
       "supplier": "供應商",
       "task_type": "類型",
-      "title": "發生了什麼",
+      "title": "事件",
       "vehicle_plate": "車輛",
       "waste_description": "廢料說明",
       "work_location": "現場位置",
@@ -9885,7 +9875,15 @@
       "return_note_supplier": "Return Note 供應商",
       "return_note_quantity": "Return Note 數量",
       "return_note_reason": "Return Note 退回原因",
-      "approver_name": "Return Note 批准人"
+      "approver_name": "Return Note 批准人",
+      "permit_no": "准證編號",
+      "applied_at": "申請時間",
+      "safety_approver": "審批安全經理",
+      "approval_status": "狀態",
+      "approval_comment": "審批意見",
+      "return_reason": "退回原因",
+      "approved_at": "批准時間",
+      "recorded_by": "記錄人"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -10835,7 +10833,7 @@
     "safety": {
       "what": "工地上的安全事件：登記，以及往上報。",
       "who": "同時持 safety.view 和 project.view。",
-      "need": "登記事件要專案、安全分類、標題、照片、GPS 證據、負責人及工地人員、處理說明；上報事故要專案、事故標題、發生了什麼、報告給誰、證據檔案和地點。",
+      "need": "登記事件要專案、安全分類、標題、照片、GPS 證據、負責人及工地人員、處理說明；上報事故要專案、事故標題、事件經過、報告給誰、證據檔案和地點。",
       "then": "被點名的人會立刻收到通知。",
       "trouble": "照片和 GPS 都是必填，而現場常常沒訊號。照拍就是，它會排隊之後自動傳，存下來的位置是你拍照時站的地方。"
     },
@@ -12535,7 +12533,6 @@
       "project": "項目",
       "resolutionNote": "處理說明",
       "responsible": "整改負責人",
-      "severity": "嚴重程度",
       "status": "狀態",
       "title": "標題"
     },
@@ -12568,7 +12565,6 @@
       "allCategories": "全部安全分類",
       "allProjects": "所有項目",
       "allResponsible": "全部整改負責人",
-      "allSeverities": "所有嚴重程度",
       "dateFrom": "開始日期",
       "dateTo": "結束日期",
       "project": "選擇項目",
@@ -12587,12 +12583,6 @@
       "noSafetyColumns": "這個專案還沒有隱患整改 / EHS 分類。到「分類管理」新增一個，隱患才歸得進去。"
     },
     "new": "上報隱患",
-    "severity": {
-      "CRITICAL": "嚴重",
-      "HIGH": "高",
-      "LOW": "低",
-      "MEDIUM": "中"
-    },
     "status": {
       "INVESTIGATING": "調查中",
       "OPEN": "待處理",
@@ -13065,7 +13055,7 @@
     "payment": {
       "amount": "金額",
       "confirm": "記錄",
-      "description": "付款憑證。平臺不經手資金，這裡記錄的是一方聲稱發生了什麼。",
+      "description": "付款憑證。平臺不經手資金，這裡記錄的是一方聲稱的事件。",
       "method": "方式",
       "none": "還沒有付款記錄。",
       "notes": "備註",
@@ -14664,7 +14654,7 @@
       "valid": "有效",
       "validNote": "本次稱重通過了當時生效的全部檢測。",
       "void": "無效 —— 不可用於結算",
-      "voidNote": "有檢測項未通過。本單是對發生了什麼的記錄，不是付款依據。"
+      "voidNote": "有檢測項未通過。本單是對事件的記錄，不是付款依據。"
     },
     "voidWeightsNote": "本次稱重未通過檢測，因此沒有據此得出淨重。上方讀數僅供參考，不得用於結算。"
   },
@@ -16508,7 +16498,8 @@
       "preparing": "正在準備文件…",
       "noneOnRecord": "這份申請沒有文件。",
       "submission": "第 {round} 次提交",
-      "earlier": "之前提交、已被退回的文件（保留備查）"
+      "earlier": "之前提交、已被退回的文件（保留備查）",
+      "documents": "准證文件"
     },
     "what": {
       "approvers": "審批人名單",

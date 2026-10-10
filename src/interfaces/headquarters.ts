@@ -131,8 +131,6 @@ export type ApprovalSource =
   | "MATERIAL_OUTGOING"
   | "SUNDRY_CLAIM";
 
-/** A hazard's severity, as the hazard list grades it. */
-export type HazardSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 /**
  * 总部大屏's extra panels (Lucas 2026-10-10, 「加多一点真实数据」), each
@@ -148,7 +146,7 @@ export interface HeadquartersWallExtras {
   /** Who delivered most of that week's Material In. */
   top_suppliers: Array<{ id: string; name: string; deliveries: number }>;
   /** Hazards not yet verified or resolved. */
-  hazards: { open: number; overdue: number; by_severity: Record<HazardSeverity, number> };
+  hazards: { open: number; overdue: number };
   /** The approvals card's queues, only those with something waiting. */
   approvals_by_source: Partial<Record<ApprovalSource, number>>;
   equipment: { on_site: number; maintenance: number };

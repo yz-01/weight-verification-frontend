@@ -65,7 +65,7 @@ type Translate = {
  */
 export function recordStatusLabel(
   t: Translate,
-  row: { kind: string; status: string; status_label: string },
+  row: { kind: string; status: string; status_label: string; record_type?: string | null },
   /** A screen that names some kinds its own way, e.g. the phone's words. */
   namespaces: Record<string, string> = {},
 ): string {
@@ -73,7 +73,12 @@ export function recordStatusLabel(
     const people = Number(row.status_label);
     return Number.isFinite(people) ? t("archiveQueue.people", { count: people }) : row.status_label;
   }
-  const namespace = namespaces[row.kind] ?? RECORD_STATUS_NAMESPACE[row.kind];
+  // A 施工准证 is a HAZARD row: it reads in the permit's own words
+  // (待审批 / 已退回 / 已批准), not a hazard's 待验收 (2026-10-10).
+  const namespace =
+    row.kind === "HAZARD" && row.record_type === "PERMIT"
+      ? "permits.status"
+      : (namespaces[row.kind] ?? RECORD_STATUS_NAMESPACE[row.kind]);
   const key = namespace ? `${namespace}.${row.status}` : "";
   return key && t.has(key) ? t(key) : row.status_label;
 }

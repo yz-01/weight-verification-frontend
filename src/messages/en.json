@@ -801,7 +801,7 @@
   },
   "adminCustomerService": {
     "notes": {
-      "placeholder": "What happened, and what was agreed",
+      "placeholder": "The event, and what was agreed",
       "loadError": "The notes could not be loaded",
       "empty": "No notes yet",
       "add": "Add a note",
@@ -3065,7 +3065,8 @@
       "SITE_EQUIPMENT": "Equipment",
       "DOCUMENT": "Document",
       "CLAIM": "Progress claim",
-      "MATERIAL_RETURN": "Material return"
+      "MATERIAL_RETURN": "Material return",
+      "PERMIT": "Permit to work"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -6160,7 +6161,6 @@
       "responsible_person": "Responsible person",
       "review_note": "Review note",
       "revision": "Revision",
-      "severity": "Severity",
       "source": "Source record",
       "status": "Status",
       "submitted_at": "Submitted at",
@@ -8238,7 +8238,7 @@
       "manualConfirm": "Record it",
       "manualDescription": "This records that a person let the vehicle through. It does not open anything and it is not recorded as the barrier having worked.",
       "manualNote": "Let through by hand by {name}: {reason}",
-      "manualReason": "What happened",
+      "manualReason": "Event",
       "manualRelease": "Let through by hand",
       "manualTitle": "Let this vehicle through by hand?",
       "needsOperator": "A controller did not carry this out. The vehicle has not been let through by the system — deal with the barrier and record what you did.",
@@ -8599,7 +8599,9 @@
       "equipmentMaintenance": "Under maintenance",
       "topSuppliers": "Top suppliers this week",
       "deliveries": "{count, plural, one {# delivery} other {# deliveries}}",
-      "clearanceMonth": "Waste cleared this month"
+      "clearanceMonth": "Waste cleared this month",
+      "hazardsOpen": "Open",
+      "hazardsOverdue": "Overdue"
     }
   },
   "home": {
@@ -8616,7 +8618,7 @@
     "captureLocation": "Capture current GPS",
     "chooseProject": "Choose project",
     "chooseProjectFirst": "Choose a project first to select recipients",
-    "description": "What happened?",
+    "description": "Event details",
     "descriptionPlaceholder": "Describe the incident clearly",
     "dialog": {
       "create": {
@@ -8634,14 +8636,13 @@
       "title": "Required incident photo evidence"
     },
     "field": {
-      "description": "What happened?",
+      "description": "Event details",
       "descriptionPlaceholder": "Describe the incident clearly",
       "messagePlaceholder": "Add details, photos or updates",
       "participants": "Group members",
       "project": "Project",
       "recipients": "Report to",
       "reportedBy": "Reported by",
-      "severity": "Severity",
       "title": "Incident title",
       "titlePlaceholder": "Brief description of the incident"
     },
@@ -8664,16 +8665,6 @@
     "project": "Project",
     "recipients": "Report to",
     "reporter": "Reporter",
-    "severity": {
-      "CRITICAL": "Critical",
-      "HIGH": "High",
-      "LOW": "Low",
-      "MEDIUM": "Medium"
-    },
-    "severityCritical": "Critical",
-    "severityHigh": "High",
-    "severityLow": "Low",
-    "severityMedium": "Medium",
     "status": {
       "open": "Open",
       "resolved": "Resolved"
@@ -9845,12 +9836,11 @@
       "rejection_reason": "Why it was rejected",
       "resolution_note": "How it was closed",
       "review_note": "Office comment",
-      "severity": "Severity",
       "site": "Yard",
       "specification": "Specification",
       "supplier": "Supplier",
       "task_type": "Type",
-      "title": "What happened",
+      "title": "Event",
       "vehicle_plate": "Lorry",
       "waste_description": "Waste",
       "work_location": "Where on site",
@@ -9885,7 +9875,15 @@
       "return_note_supplier": "Return Note supplier",
       "return_note_quantity": "Return Note quantity",
       "return_note_reason": "Return Note reason",
-      "approver_name": "Return Note approved by"
+      "approver_name": "Return Note approved by",
+      "permit_no": "Permit no.",
+      "applied_at": "Applied",
+      "safety_approver": "Approving safety manager",
+      "approval_status": "Status",
+      "approval_comment": "Approval note",
+      "return_reason": "Reason for return",
+      "approved_at": "Approved at",
+      "recorded_by": "Recorded by"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -12535,7 +12533,6 @@
       "project": "Project",
       "resolutionNote": "Resolution note",
       "responsible": "Responsible person",
-      "severity": "Severity",
       "status": "Status",
       "title": "Title"
     },
@@ -12568,7 +12565,6 @@
       "allCategories": "All safety categories",
       "allProjects": "All projects",
       "allResponsible": "All responsible people",
-      "allSeverities": "All severities",
       "dateFrom": "From date",
       "dateTo": "To date",
       "project": "Choose project",
@@ -12587,12 +12583,6 @@
       "noSafetyColumns": "This project has no safety category yet. Add one under Category management and hazards can be filed against it."
     },
     "new": "Report hazard",
-    "severity": {
-      "CRITICAL": "Critical",
-      "HIGH": "High",
-      "LOW": "Low",
-      "MEDIUM": "Medium"
-    },
     "status": {
       "INVESTIGATING": "Investigating",
       "OPEN": "Open",
@@ -13583,7 +13573,7 @@
         "project": "Project",
         "chooseProject": "Choose a project",
         "allProjects": "All projects",
-        "category": "What happened",
+        "category": "Event",
         "search": "Search",
         "searchPlaceholder": "Record no., gate, guard, pass or plate",
         "gate": "Gate",
@@ -14664,7 +14654,7 @@
       "valid": "Accepted",
       "validNote": "This weighing passed every check in force at the time.",
       "void": "Rejected — not valid for settlement",
-      "voidNote": "One or more checks failed. This ticket is a record of what happened, not a basis for payment."
+      "voidNote": "One or more checks failed. This ticket is a record of the event, not a basis for payment."
     },
     "voidWeightsNote": "This weighing did not pass the checks, so no net weight has been derived from it. The readings above are shown for reference only and must not be settled against."
   },
@@ -16508,7 +16498,8 @@
       "preparing": "Preparing the file...",
       "noneOnRecord": "This application has no files.",
       "submission": "Submission {round}",
-      "earlier": "Files sent earlier and returned (kept for the record)"
+      "earlier": "Files sent earlier and returned (kept for the record)",
+      "documents": "Permit documents"
     },
     "what": {
       "approvers": "the approvers",

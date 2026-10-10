@@ -119,7 +119,6 @@ const STATUS_NAMESPACE: Partial<Record<ContractorReportType, string>> = {
 
 /** Columns that hold a code, wherever they appear. */
 const COLUMN_NAMESPACE: Record<string, string> = {
-  severity: "safety.severity",
   final_decision: "consultantWorkflow.status",
   event: "attendance.event",
   geofence_result: "fieldStaffPwa.attendance.geofence",
