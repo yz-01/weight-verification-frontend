@@ -45,7 +45,7 @@ import type {
   PackagePart,
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
-import type { ChatRecordKind } from "@/lib/record-chat";
+import type { ChatRecordKind, ConversationClosed } from "@/lib/record-chat";
 import { api, download, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
@@ -1311,19 +1311,21 @@ export async function confirmEvidencePackage(id: string, remarks: string) {
 }
 
 /**
- * Open the merged PDF in the browser without downloading it (T-364, D-235:
- * 「不需要先下载」). Not counted as the package having left.
+ * The merged PDF, to preview or print in the page without downloading it
+ * (T-364, D-235: 「不需要先下载」). Not counted as the package having left.
  */
 export const previewEvidencePackage = (id: string, name: string) =>
-  download(`/api/evidence-packages/${id}/download_package/`, {
+  fetchAsFile(`/api/evidence-packages/${id}/download_package/`, {
     query: { inline: "1" },
     fallbackFilename: `${name || "package"}.pdf`,
-    openInNewTab: true,
   });
 
-/** Download the merged PDF. The server notes that it left (D-148). */
-export const downloadEvidencePackage = (id: string, name: string) =>
-  download(`/api/evidence-packages/${id}/download_package/`, {
+/**
+ * The same stored PDF, to export or send: the server notes that it left
+ * (D-148). Looking at it (`previewEvidencePackage`) is not taking it out.
+ */
+export const evidencePackageFile = (id: string, name: string) =>
+  fetchAsFile(`/api/evidence-packages/${id}/download_package/`, {
     fallbackFilename: `${name || "package"}.pdf`,
   });
 
@@ -1383,14 +1385,13 @@ export function isExportableKind(kind: string): kind is ExportableRecordKind {
  * 「每个模块都是一样可以单独导出」: the same layout as a package's single item
  * (`downloadPackageItem`), without first having to put the record in a
  * package. Who may see the record is the server's decision; an error comes
- * back as the usual envelope and `download` toasts it.
+ * back as the usual envelope and is toasted.
+ *
+ * As a `File`, fetched once for 预览 · 打印 · 导出 · 发送 alike (PDF 统一操作
+ * 规则, 2026-10-10), so the preview is what prints, saves and is sent.
  */
-export const downloadRecordPdf = (
-  kind: ExportableRecordKind,
-  recordId: string,
-  reference: string,
-) =>
-  download("/api/record-exports/download/", {
+export const recordPdfFile = (kind: ExportableRecordKind, recordId: string, reference: string) =>
+  fetchAsFile("/api/record-exports/download/", {
     query: { kind, record: recordId },
     // Only used when the server sends no filename. Some references are
     // labels rather than numbers (a progress record's 「phase / 40%」), so
@@ -1402,13 +1403,6 @@ export const downloadRecordPdf = (
 export const recordPdfObjectUrl = (kind: ExportableRecordKind, recordId: string) =>
   fetchObjectUrl("/api/record-exports/download/", {
     query: { kind, record: recordId, inline: "1" },
-  });
-
-/** The same PDF as a `File`, for the phone's share sheet (2026-10 C11). */
-export const recordPdfFile = (kind: ExportableRecordKind, recordId: string, reference: string) =>
-  fetchAsFile("/api/record-exports/download/", {
-    query: { kind, record: recordId },
-    fallbackFilename: `${(reference || "record").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
   });
 
 export async function sendPackageForReview(id: string, consultant: string) {
@@ -1600,11 +1594,13 @@ export interface RecordConversation {
   audio_seconds_limit: number;
   /**
    * Non-empty once the record is finished (D-278): `"archived"` after
-   * 【确认归档】, `"paid"` for a sundry claim after 【确认已付款】. The history
-   * stays readable; the server refuses new messages with
-   * `conversation_closed`. Optional because an older server omits it.
+   * 【确认归档】, `"paid"` for a sundry claim after 【确认已付款】,
+   * `"rejected"` / `"cancelled"` once its module ended it outright (a
+   * delivery judged 不合格, 2026-10-10). The history stays readable; the
+   * server refuses new messages with `conversation_closed`. Optional because
+   * an older server omits it.
    */
-  closed?: "" | "archived" | "paid" | "decided";
+  closed?: ConversationClosed;
 }
 
 export function getRecordConversation(

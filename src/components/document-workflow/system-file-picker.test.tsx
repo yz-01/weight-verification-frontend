@@ -145,14 +145,39 @@ describe("the documents screen (E4)", () => {
     expect(source).toContain('t("documents.source.deleted")');
   });
 
-  it("offers no new version on a system file", () => {
-    expect(source).toContain("active && !record.system_file &&");
+  it("offers the same add-files button on every row, a system file's too (2026-10-10 图3)", () => {
+    expect(source).not.toContain("!record.system_file &&");
+    expect(source).toContain("{active && canUpload && (");
+    // Greyed with its reason, never silently missing.
+    expect(source).toContain('t("documents.upload.companyWideManagerOnly")');
   });
 
-  it("words the new refusals in all four languages", () => {
+  it("files the picked files as one document, with a title", () => {
+    expect(source).toContain("files: pickedIds,");
+    expect(source).toContain("title: title.trim() || defaultTitle,");
+    expect(source).toContain('t("documents.pickFromSystem.mixedProjects")');
+  });
+
+  it("names a document of several files after the first one", async () => {
+    const { groupTitle } = await import("@/components/document-workflow/documents");
+    const format = ({ name, count }: { name: string; count: number }) => `${name} 等 ${count} 个文件`;
+    expect(groupTitle([], format)).toBe("");
+    expect(groupTitle(["rebar.pdf"], format)).toBe("rebar");
+    expect(groupTitle(["rebar.pdf", "cert.pdf", "do.jpg"], format)).toBe("rebar 等 3 个文件");
+  });
+
+  it("explains both ways in, one line each", () => {
+    expect(source).toContain('t("documents.uploadFile.computerWay")');
+    expect(source).toContain('t("documents.pickFromSystem.systemWay")');
+    expect(zh.documents.uploadFile.computerWay.startsWith("从电脑上传")).toBe(true);
+    expect(zh.documents.pickFromSystem.systemWay.startsWith("从系统里选")).toBe(true);
+  });
+
+  it("words the refusals in all four languages", () => {
     for (const catalogue of [zh, zhTW, en, ms]) {
-      expect(catalogue.errors.api.document_is_system_file).toBeTruthy();
+      expect(catalogue.errors.api.document_system_files_mixed_projects).toBeTruthy();
       expect(catalogue.errors.api.document_system_file_not_found).toBeTruthy();
+      expect((catalogue.errors.api as Record<string, string>).document_is_system_file).toBeUndefined();
     }
   });
 });

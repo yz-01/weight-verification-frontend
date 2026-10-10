@@ -8,8 +8,9 @@
  *   category + subcategory together (X16). It replaces both the two selects
  *   and the left folder tree.
  * - `DocumentThumb`: the table's thumbnail. A photograph shows itself in
- *   small; a PDF, Word or Excel file shows its type. A tap opens the
- *   document's existing preview.
+ *   small; a PDF shows its first page (made once by the server, 2026-10-10),
+ *   and so does a Word or Excel file that carries Office's saved preview;
+ *   anything else shows its type. A tap opens the document's preview.
  * - `DOCUMENT_FILE_ACCEPT`: what the upload pickers offer, the same list the
  *   server accepts (`ALLOWED_DOCUMENT_EXTENSIONS`).
  */
@@ -274,12 +275,19 @@ export function DocumentThumb({
   onOpen: () => void;
 }) {
   const t = useTranslations();
+  // The server's first-page picture of an uploaded PDF; dropped for the
+  // type icon if it cannot be loaded.
+  const [pageFailed, setPageFailed] = useState(false);
+  const firstPage = !systemFile && !pageFailed ? (version?.thumbnail_url ?? null) : null;
   const kind: ThumbnailKind = systemFile
     ? coverUrl || systemFile.thumbnail_url
       ? "image"
       : fileKindOf(systemFile.file_name)
-    : thumbnailKind(version);
-  const versionId = systemFile ? undefined : version?.id;
+    : firstPage
+      ? "image"
+      : thumbnailKind(version);
+  // Only a photograph without a server picture is fetched whole.
+  const versionId = systemFile || firstPage ? undefined : version?.id;
   const button = useRef<HTMLButtonElement>(null);
   const [url, setUrl] = useState<string | null>(null);
 
@@ -325,7 +333,9 @@ export function DocumentThumb({
   const Icon = KIND_ICON[kind];
   const fileName = systemFile?.file_name ?? version?.original_name ?? "";
   const extension = extensionOf(fileName).toUpperCase();
-  const shown = coverUrl || systemFile?.thumbnail_url || url;
+  const shown = coverUrl || systemFile?.thumbnail_url || firstPage || url;
+  // A document's first page is shown whole, from its top; a photo fills the square.
+  const isPage = Boolean(firstPage) || Boolean(systemFile && systemFile.kind !== "PHOTO" && !coverUrl);
   return (
     <button
       ref={button}
@@ -338,7 +348,14 @@ export function DocumentThumb({
     >
       {kind === "image" && shown ? (
         // eslint-disable-next-line @next/next/no-img-element -- a blob: URL fetched with the session, or the server's watermarked copy; next/image cannot load either.
-        <img loading="lazy" decoding="async" src={shown} alt="" className="h-full w-full object-cover" />
+        <img
+          loading="lazy"
+          decoding="async"
+          src={shown}
+          alt=""
+          className={cn("h-full w-full", isPage ? "bg-card object-contain object-top" : "object-cover")}
+          onError={firstPage ? () => setPageFailed(true) : undefined}
+        />
       ) : (
         <>
           <Icon className={cn("h-4 w-4", KIND_TONE[kind])} />

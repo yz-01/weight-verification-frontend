@@ -185,3 +185,26 @@ describe("a record's chat (2026-10-09)", () => {
     }
   });
 });
+
+describe("the office's task cards (2026-10-10)", () => {
+  it("a record decided or ended elsewhere re-reads the bell's count, so its card leaves the strip", async () => {
+    // The strip's list re-reads itself when this count moves
+    // (`useRefetchWhenChanged` in notification-button.tsx).
+    for (const event of [
+      "receipt.changed",
+      "equipment.changed",
+      "material_outgoing.changed",
+      "disposal.changed",
+      "material_request.changed",
+      "field_task.changed",
+      "approval.approved",
+      "record.material_receipt.closed",
+    ]) {
+      expect(keysForEvent(event), event).toContainEqual(["notifications", "outstanding-count"]);
+    }
+    const qc = client();
+    const count = await onScreen(qc, ["notifications", "outstanding-count"], { ageMs: 1_000 });
+    await refreshForEvents(qc, ["record.material_receipt.closed"]);
+    expect(count).toHaveBeenCalledTimes(1);
+  });
+});

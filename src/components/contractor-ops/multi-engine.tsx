@@ -4,7 +4,6 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import {
   ArrowDown,
   ArrowUp,
-  Download,
   Eye,
   FileText,
   Inbox,
@@ -21,6 +20,8 @@ import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
+import { ExportButton } from "@/components/shared/export-button";
+import { FileActionButtons } from "@/components/shared/file-actions";
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -49,7 +50,7 @@ import {
   confirmEvidencePackage,
   createEvidencePackage,
   deleteEvidencePackage,
-  downloadEvidencePackage,
+  evidencePackageFile,
   previewEvidencePackage,
   downloadPackageItem,
   getEvidencePackage,
@@ -547,20 +548,15 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                                 untouched; this is for the case where sending
                                 forty pages and naming a page number was the only
                                 way to hand over one delivery order. */}
-                            <Button
+                            <ExportButton
                               size="sm"
-                              variant="outline"
-                              onClick={() =>
-                                void downloadPackageItem(
-                                  id,
-                                  item.id,
-                                  item.reference,
-                                )
+                              formats={["pdf"]}
+                              label={t("exportOne")}
+                              title={item.reference}
+                              onExport={() =>
+                                downloadPackageItem(id, item.id, item.reference)
                               }
-                            >
-                              <Download className="size-4" />
-                              {t("exportOne")}
-                            </Button>
+                            />
                             <Button
                               size="sm"
                               variant="ghost"
@@ -653,20 +649,16 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
       <footer className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
         {data && !isDraft && (
           <>
-            <Button
-              variant="outline"
-              onClick={() => void previewEvidencePackage(data.id, data.name)}
-            >
-              <Eye className="size-4" />
-              {t("preview")}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => downloadEvidencePackage(data.id, data.name)}
-            >
-              <Download className="size-4" />
-              {t("download")}
-            </Button>
+            {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). Previewing and
+                printing do not count as the package having left; 导出 and
+                发送 do, as the download always has (D-148). */}
+            <FileActionButtons
+              source={{
+                load: () => previewEvidencePackage(data.id, data.name),
+                loadToSend: () => evidencePackageFile(data.id, data.name),
+                title: data.name,
+              }}
+            />
           </>
         )}
         {data && !isDraft && data.review_state === "NOT_SENT" &&

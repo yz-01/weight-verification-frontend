@@ -14,7 +14,7 @@ import type { OfflineJob } from "@/lib/offline-db";
 const store = new Map<string, OfflineJob>();
 const post = vi.fn<(...args: unknown[]) => Promise<unknown>>(async () => ({
   id: "log",
-  day: null,
+  session: null,
 }));
 
 vi.mock("@/lib/offline-db", async (importOriginal) => ({
@@ -45,7 +45,8 @@ const shot = () => new File(["machine"], "machine.jpg", { type: "image/jpeg" });
 
 const draft = {
   equipment: "eq-1",
-  equipmentLabel: "Excavator · WXY 1234",
+  equipmentLabel: "EQ-001 · Excavator · WXY 1234",
+  kind: "START" as const,
   photo: shot(),
   latitude: "3.1149475",
   longitude: "101.7294695",
@@ -57,7 +58,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
   store.clear();
   post.mockReset();
-  post.mockImplementation(async () => ({ id: "log", day: null }));
+  post.mockImplementation(async () => ({ id: "log", session: null }));
 });
 
 describe("an equipment-hours photo taken offline", () => {
@@ -74,7 +75,8 @@ describe("an equipment-hours photo taken offline", () => {
     expect(job.kind).toBe("EQUIPMENT_HOURS_PHOTO");
     if (job.kind !== "EQUIPMENT_HOURS_PHOTO") throw new Error("wrong kind");
     expect(job.payload.capturedAt).toBe("2026-10-06T23:58:00.000Z");
-    expect(job.payload.equipmentLabel).toBe("Excavator · WXY 1234");
+    expect(job.payload.equipmentLabel).toBe("EQ-001 · Excavator · WXY 1234");
+    expect(job.payload.kind).toBe("START");
     expect(job.payload.photo.blob).toBeInstanceOf(Blob);
 
     // The phone finds signal at lunchtime: the start is still 07:58.
@@ -86,6 +88,8 @@ describe("an equipment-hours photo taken offline", () => {
     const [url, data] = post.mock.calls.at(-1) as [string, FormData];
     expect(url).toBe("/api/equipment-hours/upload_photo/");
     expect(data.get("equipment")).toBe("eq-1");
+    // 开工 or 收工 travels with the photo through the queue.
+    expect(data.get("kind")).toBe("START");
     expect(data.get("captured_at")).toBe("2026-10-06T23:58:00.000Z");
     expect(data.get("client_event_id")).toBe(job.payload.clientEventId);
     expect(data.get("latitude")).toBe("3.1149475");
@@ -149,18 +153,18 @@ describe("an equipment-hours photo taken offline", () => {
     expect(replay).toBe(first);
   });
 
-  it("answers with the machine's day when it uploads straight away", async () => {
+  it("answers with the machine's session when it uploads straight away", async () => {
     vi.stubGlobal("navigator", { onLine: true });
     post.mockImplementationOnce(async () => ({
       id: "log",
-      day: { photo_count: 1, missing_end: true },
+      session: { photo_count: 1, missing_end: true },
     }));
 
     const result = await queue.submitEquipmentHoursPhotoOfflineAware("ahmad", draft);
 
     expect(result.status).toBe("uploaded");
     if (result.status !== "uploaded") throw new Error("not uploaded");
-    expect(result.upload.day?.missing_end).toBe(true);
+    expect(result.upload.session?.missing_end).toBe(true);
     expect(store.size).toBe(0);
   });
 });

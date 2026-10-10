@@ -131,6 +131,35 @@ export type ApprovalSource =
   | "MATERIAL_OUTGOING"
   | "SUNDRY_CLAIM";
 
+/** A hazard's severity, as the hazard list grades it. */
+export type HazardSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+/**
+ * 总部大屏's extra panels (Lucas 2026-10-10, 「加多一点真实数据」), each
+ * counted by the module that owns it, over the reader's own projects.
+ */
+export interface HeadquartersWallExtras {
+  date: string;
+  generated_at: string;
+  /** The last seven days, oldest first: Material In and rejected deliveries. */
+  week: Array<{ date: string; delivered: number; rejected: number }>;
+  /** That week's deliveries by acceptance status. */
+  acceptance: { pending: number; accepted: number; rejected: number };
+  /** Who delivered most of that week's Material In. */
+  top_suppliers: Array<{ id: string; name: string; deliveries: number }>;
+  /** Hazards not yet verified or resolved. */
+  hazards: { open: number; overdue: number; by_severity: Record<HazardSeverity, number> };
+  /** The approvals card's queues, only those with something waiting. */
+  approvals_by_source: Partial<Record<ApprovalSource, number>>;
+  equipment: { on_site: number; maintenance: number };
+  /** This month's two kinds of waste, never added together (D06). */
+  clearance_month: {
+    since: string;
+    waste_dispatches: DispatchClearance;
+    site_disposals: DisposalClearance;
+  };
+}
+
 /** One page of 总部集中审批, with every queue's count for the filter. */
 export interface ApprovalQueuePage {
   count: number;

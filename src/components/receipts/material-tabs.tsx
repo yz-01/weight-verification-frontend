@@ -98,18 +98,19 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
 }
 
 /**
- * 累计净数量 (B09, 2026-10 C9, C11): per supplier, material, specification and
- * unit - never across units.
+ * 累计进场与退场 (B09, 2026-10 C9, C11): per supplier, material, specification
+ * and unit - never across units.
  *
- * 「累计进场」 never goes down; the net is what came in (rejected loads not
- * counted) less the returns the office has confirmed as complete, matched on
- * material category and unit (Q4). Grouped under each supplier, searchable by
- * material. Each number opens onto the records it adds up (client request
- * 2026-10-09): 「累计进场」 every delivery, 「已退场」 every completed return,
- * 「累计净数量」 the sum of both (`NetBreakdownDialog`); a line with returns
- * says 「有退场记录」, which opens them too. DO is per delivery, so it is in
- * the drill-down, not a column of the totals. The export asks the server for
- * exactly these lines.
+ * 「累计进场」 never goes down (rejected loads not counted); 「已退场」 is the
+ * returns the office has confirmed as complete, matched on material category
+ * and unit (Q4). The two stand side by side: the 「累计净数量」 column (进场 −
+ * 退场) is gone (Lucas 2026-10-10: 「累计净数量可以移除，不需要进场减退场」).
+ * Grouped under each supplier, searchable by material. Each number opens onto
+ * the records it adds up (client request 2026-10-09): 「累计进场」 every
+ * delivery, 「已退场」 every completed return (`NetBreakdownDialog`); a line
+ * with returns says 「有退货资料」, which opens them too. DO is per delivery,
+ * so it is in the drill-down, not a column of the totals. The export asks the
+ * server for exactly these lines.
  */
 export function NetTotalsView({
   project,
@@ -183,7 +184,6 @@ export function NetTotalsView({
               <TableHead>{t("receipts.field.unit")}</TableHead>
               <TableHead className="tabular text-right">{t("receipts.net.received")}</TableHead>
               <TableHead className="tabular text-right">{t("receipts.net.returned")}</TableHead>
-              <TableHead className="tabular text-right">{t("receipts.net.net")}</TableHead>
               <TableHead className="tabular text-right">{t("receipts.net.rejected")}</TableHead>
               <TableHead>{t("receipts.field.project")}</TableHead>
             </TableRow>
@@ -191,17 +191,17 @@ export function NetTotalsView({
           <TableBody>
             {totals.isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-muted-foreground">{t("common.loading")}</TableCell>
+                <TableCell colSpan={7} className="text-muted-foreground">{t("common.loading")}</TableCell>
               </TableRow>
             ) : rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-muted-foreground">{t("table.noResults")}</TableCell>
+                <TableCell colSpan={7} className="text-muted-foreground">{t("table.noResults")}</TableCell>
               </TableRow>
             ) : (
               groups.map((group) => (
                 <Fragment key={group.supplier || "-"}>
                   <TableRow className="bg-muted/40 hover:bg-muted/40" data-slot="net-supplier">
-                    <TableCell colSpan={8} className="py-1.5">
+                    <TableCell colSpan={7} className="py-1.5">
                       <span className="inline-flex items-center gap-1.5 text-sm font-semibold">
                         {group.supplierName || t("receipts.net.noSupplier")}
                         {group.supplier ? (
@@ -243,9 +243,6 @@ export function NetTotalsView({
                       </TableCell>
                       <TableCell className="tabular text-right">
                         <NetNumber label={t("receipts.net.returned")} value={row.returned} onOpen={() => setDrill({ row, focus: "returned" })} />
-                      </TableCell>
-                      <TableCell className="tabular text-right font-semibold">
-                        <NetNumber label={t("receipts.net.net")} value={row.net} onOpen={() => setDrill({ row, focus: "net" })} />
                       </TableCell>
                       <TableCell className="tabular text-right text-muted-foreground">{row.rejected}</TableCell>
                       <TableCell className="text-muted-foreground">{row.project_name}</TableCell>
@@ -303,7 +300,6 @@ export function netTotalsExportColumns(
     { key: "unit", label: t("receipts.field.unit"), values: unitValues },
     { key: "received", label: t("receipts.net.received") },
     { key: "returned", label: t("receipts.net.returned") },
-    { key: "net", label: t("receipts.net.net") },
     { key: "rejected", label: t("receipts.net.rejected") },
     { key: "project_name", label: t("receipts.field.project") },
   ];
@@ -311,7 +307,7 @@ export function netTotalsExportColumns(
 
 /**
  * The supplier groups, in the server's order, with how many finished returns
- * each supplier has - all time, the count every other 「有退场资料」 reads
+ * each supplier has - all time, the count every other 「有退货资料」 reads
  * (audit #23), not just the returns that fall in this view.
  */
 export function groupBySupplier(rows: readonly MaterialNetTotalRow[]) {

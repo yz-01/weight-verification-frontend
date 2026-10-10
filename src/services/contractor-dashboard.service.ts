@@ -12,6 +12,7 @@ import type {
   CompanyAnnouncement,
   HeadquartersOverview,
   HeadquartersPhoto,
+  HeadquartersWallExtras,
 } from "@/interfaces/headquarters";
 import { api, download } from "@/services/api-client";
 
@@ -98,6 +99,13 @@ export function exportContractorDashboard(input: {
 export function getHeadquarters(): Promise<HeadquartersOverview> {
   return api.get<HeadquartersOverview>(
     "/api/contractor-dashboard/get_headquarters/",
+  );
+}
+
+/** 总部大屏's extra panels: the week, hazards, queues, machines and waste. */
+export function getHeadquartersWall(): Promise<HeadquartersWallExtras> {
+  return api.get<HeadquartersWallExtras>(
+    "/api/contractor-dashboard/get_headquarters_wall/",
   );
 }
 

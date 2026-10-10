@@ -4168,10 +4168,7 @@
     "toggleSidebar": "Toggle sidebar",
     "unknownError": "Something went wrong. Try again.",
     "view": "View",
-    "exportThisRecord": "Export this record",
-    "previewThisRecord": "Preview / print",
     "alreadyLastPage": "Already on the last page",
-    "shareThisRecord": "Share",
     "linkCopied": "Link copied. Paste it to share.",
     "shareFailed": "Could not share. Download it and send the file instead."
   },
@@ -6199,15 +6196,27 @@
     },
     "empty": "No records match this project and date range.",
     "filter": {
-      "allCategories": "All photo sources",
       "allProjects": "All permitted projects",
-      "allUploaders": "All uploaders",
-      "category": "Photo source",
       "dateFrom": "From",
       "dateTo": "To",
-      "keyword": "File or source keyword",
+      "keyword": "Keyword",
       "project": "Project",
-      "uploader": "Uploaded by"
+      "uploader": "Uploaded by",
+      "keywordPlaceholder": {
+        "progress": "Category, note or submitter",
+        "safety": "Number, title or responsible person",
+        "consultant": "Application no., type or consultant",
+        "attendance": "Worker's name",
+        "equipment": "Equipment no., plate, DO or operator",
+        "recycling": "Reference, plate, DO or company",
+        "schedule": "WBS code or task name",
+        "target": "Target name",
+        "photos": "File name, source or uploader",
+        "documents": "Document no., title or keyword"
+      },
+      "noMatch": "Nothing matches",
+      "submittedBy": "Submitted by",
+      "supplier": "Supplier"
     },
     "history": {
       "empty": "No reports have been exported yet.",
@@ -6254,7 +6263,8 @@
       "documents": "Project records report"
     },
     "what": {
-      "filterOptions": "The filter choices (projects, photo sources, uploaders)"
+      "filterOptions": "the filter choices",
+      "projects": "the project list"
     }
   },
   "crm": {
@@ -6818,7 +6828,8 @@
       "versionNote": "Version note",
       "versions": "Versions",
       "path": "Filed under",
-      "thumbnail": "Thumbnail"
+      "thumbnail": "Thumbnail",
+      "files": "Files"
     },
     "keywordsPlaceholder": "Separate keywords with commas",
     "noFile": "No file uploaded",
@@ -6848,20 +6859,22 @@
       "subcategoryCreated": "Subcategory created",
       "subcategoryUpdated": "Subcategory updated",
       "updated": "Document updated",
-      "versionUploaded": "Document version uploaded",
+      "versionUploaded": "Files added to the document",
       "uploaded": "File uploaded",
       "systemFilesAdded": "Filed in the archive"
     },
     "upload": {
-      "action": "Upload version",
+      "action": "Add files",
       "confirm": "Upload",
-      "description": "Add a new immutable version to {name}.",
+      "description": "Add files to {name}: a new version or more papers, several at once if you like. The files already there and the record they came from are not changed.",
       "limit": "PDF, Word, Excel or photos only. The configured file-size limit is enforced during upload.",
-      "title": "Upload document version"
+      "title": "Add files to this document",
+      "companyWideManagerOnly": "Only a document manager can add files to a company-wide document."
     },
     "versions": {
       "empty": "No file versions have been uploaded.",
-      "title": "Version history"
+      "title": "Uploaded files (versions)",
+      "emptyWithSystemFiles": "No uploaded files yet; this document's files are listed above under “Files picked from the system”."
     },
     "what": {
       "projects": "The project list",
@@ -6875,15 +6888,19 @@
     "uploadFile": {
       "action": "Upload file",
       "title": "Upload to the document archive",
-      "description": "Choose the files and the folder they are filed in. Each file becomes its own document; anything already filed is not touched.",
+      "description": "Choose the files and the folder they are filed in. Files chosen together go into one document; anything already filed is not touched.",
       "fileHint": "PDF, Word, Excel or photos. You can choose several at once.",
       "pathPreview": "Will be filed under:",
       "projectHint": "Only a project you are on. Filing company-wide is for a document manager.",
-      "titleHint": "Left empty, the file name is used.",
+      "titleHint": "Leave empty to use the file name (the first file's name when there are several).",
       "confirm": "Upload",
       "progress": "Uploading {done}/{total}",
       "noCategory": "Set up a document category first",
-      "fromComputer": "From this computer"
+      "fromComputer": "From this computer",
+      "groupTitle": "{name} and {count} files",
+      "computerWay": "Upload from computer: send files from your computer or phone (PDF, Word, Excel, photos).",
+      "partial": "{done} of {total} files are in; the rest did not upload. Press “Continue upload” to add the rest to the same document.",
+      "resume": "Continue upload"
     },
     "categoryPicker": {
       "expand": "Show the subcategories of {name}",
@@ -6897,7 +6914,7 @@
     },
     "pickFromSystem": {
       "tab": "From the system",
-      "description": "Find photos and files already in the system, tick them or drag them to the archive area, then file them. Nothing is copied.",
+      "description": "Find photos and files already in the system, tick them or drag them to the archive area, then file them. The ticked files go into one document. Nothing is copied.",
       "files": "System files",
       "hint": "Only files you can already see are listed.",
       "searchPlaceholder": "Search a number (e.g. MR-002), material or file name",
@@ -6914,7 +6931,13 @@
       "previous": "Previous page",
       "next": "Next page",
       "firstPage": "This is the first page",
-      "lastPage": "This is the last page"
+      "lastPage": "This is the last page",
+      "systemWay": "Pick from system: file photos and files the system already has (for example material delivery photos). Nothing is copied.",
+      "mixedProjects": "These files come from different projects. A document belongs to one project, so pick files from one project only."
+    },
+    "filesMore": "+{count} more files",
+    "systemFiles": {
+      "title": "Files picked from the system"
     }
   },
   "driver": {
@@ -7417,11 +7440,11 @@
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
+      "receipt_awaiting_acceptance": "This delivery has not been accepted yet. Accept or reject it first, then archive it.",
       "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead.",
       "material_request_assigned_to_other": "This request was sent to somebody else to approve. To decide it yourself, press \"Take it over\" first.",
       "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list.",
       "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded.",
-      "document_is_system_file": "A file picked from the system takes no new versions. Put the new version on its record.",
       "document_system_file_not_found": "One of those files was not found, or you cannot see it.",
       "disposal_trip_not_waiting": "This load is not waiting for a check: it has not been sent, or it was already checked.",
       "disposal_all_trips_sent": "Every planned load has been sent. If another lorry is going, ask the site to add a load.",
@@ -7432,9 +7455,9 @@
       "return_note_required": "Fill in the Return Note before approving.",
       "return_note_locked": "This return has already been decided, so its Return Note can no longer be changed. The latest state is now shown.",
       "equipment_hours_equipment_unavailable": "This machine cannot be chosen (inactive or retired). Choose a machine in use on the site.",
-      "equipment_hours_day_not_found": "This machine has no photo on that day, so there is no end time to enter.",
-      "equipment_hours_end_before_start": "The end time must be after the first photo.",
-      "equipment_hours_end_too_late": "The end time cannot be later than 06:00 the next morning (that is the next shift).",
+      "equipment_hours_day_not_found": "This hours entry could not be found. Refresh and try again.",
+      "equipment_hours_end_before_start": "The end time must be after the start time.",
+      "equipment_hours_end_too_late": "This time overlaps the machine's previous or next photo, or lies in the future.",
       "equipment_profile_incomplete": "Choose this machine's sub class before accepting it.",
       "equipment_not_on_site": "This machine is not on site on this project, so it cannot go out.",
       "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again.",
@@ -7445,7 +7468,8 @@
       "driver_link_closed": "This trip is finished and its link is closed.",
       "driver_link_other_device": "This link is in use on another phone. Ask the recycler to send it again.",
       "driver_link_expired": "This link no longer works. Ask the recycler to send it again.",
-      "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you."
+      "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you.",
+      "document_system_files_mixed_projects": "These files come from different projects. A document belongs to one project, so pick files from one project only."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8537,7 +8561,24 @@
       "todayByProject": "Today's site records by project",
       "todayByKind": "Today's records by type",
       "latestPhoto": "Latest site photo",
-      "photoStream": "Photo stream"
+      "photoStream": "Photo stream",
+      "weekDeliveries": "Deliveries this week",
+      "delivered": "In",
+      "rejected": "Rejected",
+      "noDeliveries": "No material has come in during these 7 days.",
+      "openHazards": "Open hazards",
+      "overdueCount": "{count} overdue",
+      "noHazards": "No open hazards.",
+      "approvalsBySource": "Waiting approvals by kind",
+      "acceptance": "Acceptance this week",
+      "passRate": "Accepted",
+      "acceptanceSplit": "Accepted {accepted} · Waiting {pending} · Rejected {rejected}",
+      "equipment": "Equipment",
+      "equipmentOnSite": "On site",
+      "equipmentMaintenance": "Under maintenance",
+      "topSuppliers": "Top suppliers this week",
+      "deliveries": "{count, plural, one {# delivery} other {# deliveries}}",
+      "clearanceMonth": "Waste cleared this month"
     }
   },
   "home": {
@@ -9087,8 +9128,7 @@
     },
     "export": {
       "subtitle": "Filtered material records from MSE Trace",
-      "cumulativeTitle": "Cumulative totals",
-      "periodQuantity": "Period quantity"
+      "cumulativeTitle": "Cumulative totals"
     },
     "quantity": {
       "byMaterial": "Quantity by material",
@@ -9097,7 +9137,7 @@
       "title": "Material quantity report",
       "totalDeliveries": "Total deliveries",
       "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together.",
-      "cumulativeHint": "Quantity = the chosen period; cumulative = from the first delivery to the period's last day. With no dates the two match. Rejected loads never count and returns are not taken off."
+      "cumulativeHint": "Cumulative quantity = the deliveries counted beside it, added up (the chosen period, or everything from the first delivery when no dates are set). Rejected loads never count and returns are not taken off."
     },
     "records": {
       "title": "Delivery details ({total})",
@@ -10049,7 +10089,7 @@
       "externalAccess": "External access",
       "fieldTasks": "Site tasks",
       "financialReports": "Financial reports",
-      "gateScanning": "Gate scanning",
+      "gateScanning": "Gate scan",
       "geofenceSettings": "Geofence settings",
       "hazardRectifications": "Hazard rectification / EHS",
       "immutableAudit": "Permanent records",
@@ -10131,7 +10171,7 @@
       "serviceSearch": "Service search",
       "settingsActivity": "Setting records",
       "settingsAudit": "Setting records",
-      "siteAccessPasses": "Site access passes",
+      "siteAccessPasses": "Access passes",
       "siteDisposals": "Site disposal",
       "siteEquipment": "Equipment movement",
       "siteGps": "Site personnel GPS",
@@ -10792,11 +10832,11 @@
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
     },
     "site_access": {
-      "what": "Site passes - who may come in and when - and the gate desk that scans them.",
+      "what": "Site access: who may enter and when (access passes), the guard scanning at the gate to record in and out (gate scan), photos taken at the gate (gate photo records), and what automatic gate machines report (gate machine log).",
       "who": "Holders of site_access.view; issuing and revoking need site_access.manage.",
-      "need": "A pass needs the project, the purpose of entry, valid-from and valid-until times and a name; a vehicle pass also needs the plate. The gate desk needs a scanner or a pasted credential - a card number, a plate or a system number.",
-      "then": "A pass takes effect only after approval, and a revoked one stops scanning immediately.",
-      "trouble": "A scan that comes back denied says why in the device events - expired, not approved, or not for this site."
+      "need": "A pass needs the project, the purpose of entry, valid-from and valid-until times and a name; a vehicle pass also needs the plate. Scanning at the gate needs only a phone camera; a scanner gun is an option for a fixed gate computer.",
+      "then": "A pass takes effect only after approval, and a revoked one stops working immediately.",
+      "trouble": "When a gate scan is refused, the screen says why - expired, not approved, or not for this site. Refusals by gate machines are explained in the gate machine log."
     },
     "site_disposals": {
       "what": "Clearing rubbish and debris off site - the job that is not a recyclable load.",
@@ -11730,16 +11770,15 @@
       "in": "Material In",
       "out": "Material Out",
       "reject": "Reject",
-      "totals": "Net totals",
+      "totals": "Received & returned totals",
       "legacyReturns": "Returns filed on the receipt form before 10-02",
       "choose": "Choose a view"
     },
     "net": {
-      "title": "Net quantity by supplier and material",
-      "note": "Received never goes down. Net = received (rejected loads not counted) less returns the office has confirmed as complete - matched by material category and unit. Different units are never added together.",
+      "title": "Received and returned by supplier and material",
+      "note": "Received never goes down and returns are not taken off it. Returned = returns the office has confirmed as complete, matched by material category and unit. Rejected loads are not counted in received. Different units are never added together.",
       "received": "Received (total in)",
       "returned": "Returned",
-      "net": "Net",
       "rejected": "Rejected (not counted)",
       "supplier": "Supplier",
       "noSupplier": "No supplier named",
@@ -11762,7 +11801,7 @@
         "returnNote": "Return Note",
         "quantity": "Quantity"
       },
-      "returnTag": "Returns on record",
+      "returnTag": "Has return records",
       "returnTagHint": "This line has {count} completed returns - open to see them",
       "openNumber": "See the records behind {label} {value}",
       "breakdown": {
@@ -11773,8 +11812,6 @@
         "rejected": "Rejected - not counted in received ({count})",
         "emptyDeliveries": "No counted deliveries.",
         "emptyReturns": "No completed returns.",
-        "receivedTotal": "Received in total",
-        "returnedTotal": "Completed returns in total",
         "subtotal": "Total",
         "reason": "Reason",
         "approvedBy": "Approved",
@@ -12341,7 +12378,8 @@
       "clear": "Clear filters",
       "dateFrom": "From",
       "dateTo": "To",
-      "project": "Project"
+      "project": "Project",
+      "keywordPlaceholder": "Number, plate, DO, material or supplier"
     },
     "receipts": {
       "byMaterial": "Top materials",
@@ -13069,11 +13107,11 @@
       "approveTitle": "Approve this access pass?",
       "createHelp": "The pass stays pending until an authorised manager checks and approves it.",
       "createTitle": "Request site access pass",
-      "deviceEvents": "Device events",
+      "deviceEvents": "Gate machine log",
       "editHelp": "Only a pending pass can be corrected. The project cannot be changed.",
       "editTitle": "Edit pass",
       "empty": "No access pass matches this selection.",
-      "gate": "Gate scanner",
+      "gate": "Gate scan",
       "integrationReader": "Connected gate reader",
       "newPass": "New pass",
       "noEvents": "This pass has not been used at a gate.",
@@ -13084,12 +13122,18 @@
       "rejectTitle": "Reject this access pass?",
       "revokeBody": "The QR code will stop working immediately. Record the reason for the audit trail.",
       "revokeTitle": "Revoke this access pass?",
-      "subtitle": "Request, approve and scan worker, visitor and vehicle permits from one gate workflow.",
+      "subtitle": "Pass requests and approvals, scanning at the gate and gate photos - all in one place.",
       "timeline": "Entry and exit history",
       "title": "Site access",
       "unknownGate": "Gate not named",
       "defaultsFailed": "The site access defaults did not load. Try again first.",
-      "gateRecords": "Gate photo records"
+      "gateRecords": "Gate photo records",
+      "tabHelp": {
+        "passes": "Who may enter the site, and when. Request, approve and revoke passes here, and download the QR code to send.",
+        "gate": "The guard scans the QR code on the pass with a phone at the gate; the system records who came in and who went out.",
+        "gate-records": "Photograph anything that happens at the gate (say, a lorry without a gate pass) and let the right people know.",
+        "devices": "If automatic barriers, number-plate cameras or face readers are connected, every time a machine lets someone in or turns them away is listed here, with the reason. Without such machines this stays empty."
+      }
     },
     "action": {
       "approve": "Approve",
@@ -13162,12 +13206,24 @@
       "denied": "Denied",
       "device": "Device",
       "direction": "Direction",
-      "empty": "No device events have been reported yet.",
+      "empty": "No gate machine records yet. They appear once automatic barriers, number-plate cameras or face readers are connected.",
       "gate": "Gate",
       "occurredAt": "Occurred",
       "pass": "Pass",
       "reason": "Reason",
-      "result": "Result"
+      "result": "Result",
+      "reasonCode": {
+        "AUTHORIZED": "Valid pass - let in",
+        "UNKNOWN_CREDENTIAL": "No such pass in the system",
+        "PASS_REVOKED": "Pass revoked",
+        "PASS_PENDING": "Pass still waiting for approval",
+        "PASS_REJECTED": "Pass was rejected",
+        "PASS_NOT_APPROVED": "Pass not approved",
+        "PASS_NOT_ACTIVE": "Pass not valid yet",
+        "PASS_EXPIRED": "Pass expired",
+        "RECOGNITION_FAILED": "The machine could not recognise it",
+        "DIRECTION_CONFLICT": "In/out does not match (e.g. came in again without going out)"
+      }
     },
     "direction": {
       "AUTO": "Automatic entry / exit",
@@ -13267,24 +13323,24 @@
       "cameraHelp": "Point the rear camera at the printed QR code. The code fills automatically when recognised.",
       "cameraScan": "Scan with camera",
       "cameraTitle": "Scan the gate QR",
-      "cameraUnsupported": "This browser cannot open the camera. Upload a QR image or use the input below.",
+      "cameraUnsupported": "This browser cannot open the camera. Upload a QR image, or use “Other ways” below.",
       "getLocation": "Get gate GPS",
       "imageError": "No readable QR code was found in this image.",
       "locationError": "GPS could not be obtained. Allow precise location access and try again.",
       "locationReady": "GPS ready",
       "photo": "Take gate photo",
       "photoReady": "Gate photo ready",
-      "qrPlaceholder": "Scan or paste code",
-      "qrReady": "QR code ready. Check the direction, gate photo and GPS, then record the movement.",
-      "readyHint": "Camera scanning is intended for phones and tablets. USB scanning is only an optional fixed gate-desk method.",
+      "qrPlaceholder": "Scan with the scanner gun, or paste the code",
+      "qrReady": "QR code read. Check the direction, then press “Record movement”.",
       "record": "Record movement",
       "recordError": "The gate movement could not be recorded.",
       "retryCamera": "Retry camera",
-      "scannerHint": "An optional USB scanner acts like a keyboard: keep this field selected, scan the printed QR, and the code appears here.",
-      "subtitle": "Choose camera scanning, upload a QR image, or use the optional USB scanner / paste box.",
+      "scannerHint": "A scanner gun is only for a fixed computer at the gate: plug it in, click this box and scan - the code types itself in. You can also paste the code. Scanning with a phone? Ignore this.",
+      "subtitle": "Scanning the QR code on the pass with the phone camera is all it takes.",
       "title": "Record gate movement",
       "uploadImage": "Upload QR image",
-      "usbOrPaste": "USB scanner or paste"
+      "otherWays": "Other ways: scanner gun / paste the code",
+      "qrCode": "Pass QR code"
     },
     "geofence": {
       "noPointsYet": "No points marked yet",
@@ -15365,7 +15421,9 @@
     "title": "Record communication · {reference}",
     "closedArchived": "Archived; the conversation is closed. The record can still be viewed.",
     "closedPaid": "Payment confirmed; the conversation is closed. The record can still be viewed.",
-    "closedDecided": "Approved or returned; the conversation is closed. The record can still be viewed."
+    "closedDecided": "Approved or returned; the conversation is closed. The record can still be viewed.",
+    "closedRejected": "Rejected or judged unacceptable; the conversation is closed. The record can still be viewed.",
+    "closedCancelled": "Cancelled; the conversation is closed. The record can still be viewed."
   },
   "exportTotals": {
     "title": "Cumulative totals, per unit",
@@ -15844,7 +15902,41 @@
     "openNewTab": "Open in new tab",
     "print": "Print",
     "download": "Download",
-    "preview": "Preview"
+    "preview": "Preview",
+    "wordFailed": "This Word file could not be read. Download it and open it in Word.",
+    "wordNote": "Only the text, tables and pictures are shown here; the downloaded file has the exact layout.",
+    "wordTruncated": "The file is long; only the first part is shown.",
+    "wordEmpty": "This file has no text.",
+    "legacyOffice": "This is the old {ext} format, which cannot be previewed in the system.",
+    "legacyOfficeHelp": "Download it to view it. Save it as .docx / .xlsx in Word / Excel and upload that to preview it here next time."
+  },
+  "fileActions": {
+    "preview": "Preview",
+    "print": "Print",
+    "save": "Export",
+    "share": "Send",
+    "shareHint": "\"Send\" only shares a copy of the file. It is not an approval or a receipt confirmation in the system.",
+    "shared": "File sent. Sending a file is not an approval or a receipt confirmation.",
+    "failed": "The file could not be prepared. Please try again.",
+    "preparing": "Preparing the file",
+    "openNewTab": "Open in new tab",
+    "openInViewer": "Open in the phone's viewer",
+    "noInlinePdf": "This browser cannot show a PDF inside the page. Open it in the phone's own viewer to read every page, print it or send it.",
+    "printFromViewer": "This phone cannot print from the page, so the preview is open. Open it in the phone's viewer and use Share, then Print.",
+    "unsupported": "This kind of file cannot be shown in the page. Export it and open it on your device.",
+    "sheetFailed": "This Excel file cannot be shown in the page. Export it and open it in Excel.",
+    "sheetTruncated": "Showing the first {shown} of {total} rows. Export the file to see them all.",
+    "sheetNoPrint": "To print, choose the PDF file.",
+    "shareTitle": "Send the file",
+    "shareReady": "The file is ready. Tap Send and choose WhatsApp, email or another app.",
+    "shareDesktop": "This browser cannot hand the file to another app. Download it first, then attach it to an email or a WhatsApp message.",
+    "shareDownload": "Download the file",
+    "shareEmail": "Email",
+    "shareWhatsapp": "WhatsApp",
+    "shareMessage": "Please find the file attached: {name}",
+    "shareCopyLink": "Copy the record's link",
+    "file": "File",
+    "printInViewer": "The file is open in the phone's viewer. Use Share, then Print."
   },
   "recordAttachments": {
     "title": "Attachments",
@@ -16048,13 +16140,13 @@
     }
   },
   "supplierReturns": {
-    "badge": "Has returns",
+    "badge": "Has return records",
     "badgeHint": "{count} finished return(s) to this supplier - open to see them",
-    "title": "Returns to {name}",
-    "help": "Every finished return to this supplier, with its Return Note, photos, both signatures and approval.",
+    "title": "Return records for {name}",
+    "help": "Every finished return to this supplier, with its Return Note, photos, both signatures and approval. Press a row to see the full record.",
     "empty": "No finished returns.",
     "truncated": "Showing the latest {shown} of {total}. Narrow it by project or date.",
-    "what": "The returns",
+    "what": "The return records",
     "column": {
       "date": "Date",
       "material": "Material",
@@ -16073,45 +16165,61 @@
     "print": "Print",
     "export": "Export",
     "share": "Share",
-    "open": "Open the record"
+    "open": "See the full record of {reference}"
   },
   "equipmentHours": {
-    "subtitle": "One photo when the machine starts, one when it stops: the first photo is the start, the last is the end, and the hours are the time between (no lunch deducted). A night shift is one shift: a photo taken before 06:00 counts in the previous day's shift.",
+    "subtitle": "One photo when the machine starts, one when it stops: each start and its stop is one entry, and its hours are the time between them (no lunch deducted), day or night.",
     "allProjects": "All projects",
     "photoAlt": "Machine photo",
     "photoCount": "{count, plural, one {# photo} other {# photos}}",
     "view": {
-      "day": "By day",
+      "day": "Entries",
       "month": "By month"
+    },
+    "kind": {
+      "START": "Start",
+      "FINISH": "Stop"
     },
     "filter": {
       "from": "From",
       "to": "To",
       "month": "Month",
-      "shown": "Showing {from} to {to} (at most {max} days at a time)."
+      "shown": "Showing {from} to {to} (at most {max} days at a time).",
+      "automatic": "Showing the latest dates with records: {from} to {to}.",
+      "latest": "Back to latest records",
+      "supplier": "Supplier",
+      "allSuppliers": "All suppliers",
+      "equipment": "Equipment",
+      "allEquipment": "All equipment",
+      "search": "Plate / equipment no.",
+      "searchPlaceholder": "Plate or equipment number"
     },
     "field": {
       "date": "Date",
       "equipment": "Equipment",
+      "code": "Equipment no.",
+      "supplier": "Supplier",
       "plate": "Plate number",
       "project": "Project",
       "start": "Start",
       "end": "End",
       "hours": "Hours",
+      "cumulative": "Running total (h)",
       "status": "Status",
       "photos": "Photos",
       "operators": "Photographed by",
-      "reason": "Reason for the end time",
-      "adjustedBy": "End time entered by",
+      "reason": "Reason for the change",
+      "adjustedBy": "Changed by",
       "daysWorked": "Days worked",
+      "sessions": "Entries",
       "totalHours": "Total hours",
-      "missingEndDays": "Days missing a stop photo",
-      "adjustedDays": "Days corrected by the office",
-      "actions": "Actions",
-      "nextDay": "{time} next day"
+      "incomplete": "Missing start / stop",
+      "adjustedCount": "Changed by the office",
+      "actions": "Actions"
     },
     "status": {
       "MISSING_END": "No stop photo",
+      "MISSING_START": "No start photo",
       "ADJUSTED": "Corrected",
       "OK": "OK"
     },
@@ -16120,21 +16228,24 @@
       "summaryTitle": "Total per machine"
     },
     "day": {
-      "empty": "No machine photos in this period."
+      "empty": "No machine hours in this period."
     },
     "month": {
-      "empty": "No machine photos this month.",
+      "empty": "No machine hours this month.",
       "total": "Total"
     },
     "what": {
-      "days": "daily hours",
+      "days": "machine hours",
       "month": "monthly totals"
     },
     "adjust": {
       "add": "Add end time",
       "edit": "Change end time",
-      "help": "Only this day's end time changes. The photos are not touched, and every change is kept in the history. A night shift may end as late as 06:00 the next morning.",
+      "addStart": "Add start time",
+      "help": "Only this entry's end time changes. The photos are not touched, and every change is kept in the history. The end cannot be later than the machine's next photo.",
+      "helpStart": "This entry has only a stop photo; enter the start time so its hours can be counted. The photos are not touched, and every change is kept in the history.",
       "endAt": "End time",
+      "startAt": "Start time",
       "reason": "Reason",
       "reasonPlaceholder": "For example: the operator forgot the stop photo; site diary says 17:30",
       "save": "Save",
@@ -16142,38 +16253,51 @@
     },
     "dialog": {
       "summary": "Start {start} · End {end} · {hours} h",
-      "photos": "Photos of the day"
+      "photos": "Photos"
     },
     "history": {
       "title": "Change history",
       "empty": "No changes by the office yet.",
       "end": "End time set to {end}",
+      "start": "Start time set to {start}",
       "current": "In use",
       "by": "{name} · {at}",
-      "photoEnd": "Last photo taken at {end}"
+      "photoEnd": "Stop photo taken at {end}"
     },
     "toast": {
-      "endSaved": "End time saved"
+      "endSaved": "End time saved",
+      "startSaved": "Start time saved"
     },
     "phone": {
-      "howTo": "Take a photo of the machine when you start it, and another when you stop. The hours run from the first photo to the last.",
+      "howTo": "When you start the machine, choose Start and take a photo; when you stop, choose Stop and take another. Each start and its stop is one entry of hours.",
       "project": "Project",
-      "machine": "Equipment",
+      "supplier": "Supplier",
+      "allSuppliers": "All suppliers",
+      "noSupplier": "No supplier recorded",
+      "suppliedBy": "Supplier: {supplier}",
+      "machine": "Equipment no.",
       "pickMachine": "Choose the machine",
       "machines": "machine list",
       "noMachines": "No machine is registered for this project yet. Ask the office to add it.",
+      "scan": "Scan",
+      "scanTitle": "Scan the QR on the machine",
+      "scanHelp": "Point the camera at the QR code stuck on the machine.",
+      "scanImage": "Read the QR from a photo",
+      "qrNoMatch": "This QR code does not match a machine on this project: {text}",
+      "kind": "Start / Stop",
+      "openSince": "This machine was started at {start} and has not been stopped.",
       "photo": "Machine photo",
       "takePhoto": "Take photo",
       "photoReady": "Photo taken - tap to retake",
       "location": "Location",
       "locationReady": "Location found",
-      "send": "Upload",
+      "send": "Upload {kind} photo",
       "failed": "Upload failed. Please try again.",
       "queued": "Saved on this phone. It uploads by itself when there is signal.",
-      "today": "Today: {count, plural, one {# photo} other {# photos}}, started {start}",
-      "stopHint": "Take another photo when you stop",
-      "soFar": "Up to {end}: {hours} h",
-      "shift": "Shift of {date}: {count, plural, one {# photo} other {# photos}}, started {start}"
+      "started": "Started {start}",
+      "stopHint": "When you stop, choose Stop and take another photo",
+      "soFar": "{start} to {end}: {hours} h",
+      "missingStart": "There is no start photo before this stop photo; the office will enter the start time."
     }
   },
   "theme": {

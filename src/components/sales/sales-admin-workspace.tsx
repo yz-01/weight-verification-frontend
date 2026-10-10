@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Check,
   Edit3,
-  FileDown,
   Loader2,
   Plus,
   Save,
@@ -15,6 +14,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
+import { ExportButton } from "@/components/shared/export-button";
 import {
   FieldWrapper,
   ListHeader,
@@ -1907,21 +1907,11 @@ function ReportsPanel() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  disabled={exports.isPending}
-                  onClick={() => exports.mutate({ endpoint, format: "pdf" })}
-                >
-                  <FileDown />
-                  PDF
-                </Button>
-                <Button
-                  disabled={exports.isPending}
-                  onClick={() => exports.mutate({ endpoint, format: "xlsx" })}
-                >
-                  <FileDown />
-                  Excel
-                </Button>
+                {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
+                <ExportButton
+                  onExport={(format) => exports.mutateAsync({ endpoint, format })}
+                  title={t(`report.${endpoint}`)}
+                />
               </div>
             </div>
           ),

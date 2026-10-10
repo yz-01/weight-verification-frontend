@@ -1,10 +1,8 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { Loader2, Printer } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
+import { ExportButton } from "@/components/shared/export-button";
 import { ANOMALY_CODES } from "@/interfaces/weighing";
 import {
   DEDUCTION_KINDS,
@@ -34,22 +32,15 @@ export function PrintTicketButton({
 }) {
   const t = useTranslations();
 
-  const print = useMutation({
-    mutationFn: () => printWeighTicket(sessionId, sessionNo, ticketLabels(t)),
-  });
-
+  // 预览 · 打印 · 导出 · 发送, as every exported file (PDF 统一操作规则).
   return (
-    <Button
-      disabled={print.isPending}
-      onClick={() => print.mutate()}
-    >
-      {print.isPending ? (
-        <Loader2 className="size-4 animate-spin" />
-      ) : (
-        <Printer className="size-4" />
-      )}
-      {t("ticket.action")}
-    </Button>
+    <ExportButton
+      variant="default"
+      formats={["pdf"]}
+      label={t("ticket.action")}
+      title={sessionNo}
+      onExport={() => printWeighTicket(sessionId, sessionNo, ticketLabels(t))}
+    />
   );
 }
 

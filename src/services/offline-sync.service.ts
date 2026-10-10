@@ -1091,6 +1091,7 @@ function sendEquipmentHoursPhoto(
   const payload = job.payload;
   return uploadEquipmentHoursPhoto({
     equipment: payload.equipment,
+    kind: payload.kind,
     photo: restoreFile(payload.photo),
     capturedAt: payload.capturedAt,
     clientEventId: payload.clientEventId,
@@ -1116,7 +1117,7 @@ export function equipmentHoursMoment(capturedAt: string | undefined, now: Date):
 }
 
 /**
- * 设备操作员工时 (2026-10 B15): one photo of one machine.
+ * 设备操作员工时 (2026-10 B15): one 开工 or 收工 photo of one machine.
  *
  * The moment of the photo is the shutter's (Q29.10), carried by the draft
  * from the camera and fixed here, on the phone - not when 发送 is pressed and
@@ -1140,6 +1141,7 @@ export async function submitEquipmentHoursPhotoOfflineAware(
     payload: {
       equipment: draft.equipment,
       equipmentLabel: draft.equipmentLabel,
+      kind: draft.kind,
       capturedAt: equipmentHoursMoment(draft.capturedAt, sentAt),
       clientEventId: newId("equipment-hours"),
       latitude: draft.latitude,

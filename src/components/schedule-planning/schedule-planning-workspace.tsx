@@ -6,7 +6,6 @@ import {
   CalendarRange,
   Check,
   ChevronDown,
-  Download,
   Ellipsis,
   FileSpreadsheet,
   GitBranch,
@@ -33,6 +32,7 @@ import { ScheduleGantt } from "@/components/schedule-planning/schedule-gantt";
 import { ScheduleTaskTable } from "@/components/schedule-planning/schedule-task-table";
 import { isDelayed } from "@/components/schedule-planning/task-status";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { ExportButton } from "@/components/shared/export-button";
 import {
   EmptyState as EmptyPanel,
   FieldWrapper,
@@ -313,16 +313,17 @@ export function SchedulePlanningWorkspace({
             {canConfirm && revision?.status === "DRAFT" && rows.length > 0 && (
               <Button variant="outline" onClick={() => setConfirmingRevision(revision)}><Check />{t("action.confirmRevision")}</Button>
             )}
+            {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则), as on every export. */}
+            {plan && revision ? (
+              <ExportButton
+                onExport={(format) => exportSchedule(plan.id, revision.id, format)}
+                title={plan.name}
+              />
+            ) : null}
             <MoreMenu
               items={[
-                ...(plan && revision
-                  ? [
-                      { key: "excel", icon: Download, label: t("action.exportExcel"), onSelect: () => void exportSchedule(plan.id, revision.id, "xlsx") },
-                      { key: "pdf", icon: Download, label: t("action.exportPdf"), onSelect: () => void exportSchedule(plan.id, revision.id, "pdf") },
-                    ]
-                  : []),
                 ...(project && canManage
-                  ? [{ key: "newPlan", icon: Plus, label: t("action.newPlan"), onSelect: () => setPlanDialog(true), group: true }]
+                  ? [{ key: "newPlan", icon: Plus, label: t("action.newPlan"), onSelect: () => setPlanDialog(true) }]
                   : []),
                 ...(project && canImport
                   ? [{ key: "import", icon: Upload, label: t("action.importExcel"), onSelect: () => setImportDialog(true) }]

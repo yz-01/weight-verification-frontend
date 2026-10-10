@@ -4168,10 +4168,7 @@
     "toggleSidebar": "切换侧栏",
     "unknownError": "出了点问题，请重试。",
     "view": "查看",
-    "exportThisRecord": "单独导出",
-    "previewThisRecord": "预览 / 打印",
     "alreadyLastPage": "已经在最后一页",
-    "shareThisRecord": "分享",
     "linkCopied": "链接已复制，粘贴即可分享。",
     "shareFailed": "分享没有成功，请下载后再发送文件。"
   },
@@ -6199,15 +6196,27 @@
     },
     "empty": "此项目和日期范围没有符合的记录。",
     "filter": {
-      "allCategories": "全部照片来源",
       "allProjects": "全部有权限的项目",
-      "allUploaders": "全部上传人员",
-      "category": "照片来源",
       "dateFrom": "开始日期",
       "dateTo": "结束日期",
-      "keyword": "文件或来源关键字",
+      "keyword": "关键字",
       "project": "项目",
-      "uploader": "上传人员"
+      "uploader": "上传人员",
+      "keywordPlaceholder": {
+        "progress": "施工分类、备注或提交人",
+        "safety": "编号、标题或负责人",
+        "consultant": "申请编号、类型或顾问",
+        "attendance": "人员名字",
+        "equipment": "设备编号、车牌、DO 或操作员",
+        "recycling": "单号、车牌、DO 或外部公司",
+        "schedule": "WBS 编号或任务名称",
+        "target": "目标名称",
+        "photos": "文件名、来源或上传人员",
+        "documents": "文件编号、标题或关键字"
+      },
+      "noMatch": "没有符合的选项",
+      "submittedBy": "提交人",
+      "supplier": "供应商"
     },
     "history": {
       "empty": "尚未导出报表。",
@@ -6254,7 +6263,8 @@
       "documents": "项目资料报表"
     },
     "what": {
-      "filterOptions": "筛选选项（项目、照片来源、上传人员）"
+      "filterOptions": "筛选选项",
+      "projects": "项目列表"
     }
   },
   "crm": {
@@ -6818,7 +6828,8 @@
       "versionNote": "版本备注",
       "versions": "版本数",
       "path": "保存路径",
-      "thumbnail": "缩略图"
+      "thumbnail": "缩略图",
+      "files": "文件数"
     },
     "keywordsPlaceholder": "多个关键词请用逗号分隔",
     "noFile": "尚未上传文件",
@@ -6848,20 +6859,22 @@
       "subcategoryCreated": "子分类已建立",
       "subcategoryUpdated": "子分类已更新",
       "updated": "文档已更新",
-      "versionUploaded": "文档版本已上传",
+      "versionUploaded": "文件已加进档案",
       "uploaded": "文件已上传",
       "systemFilesAdded": "已放进档案"
     },
     "upload": {
-      "action": "上传新版本",
+      "action": "添加文件",
       "confirm": "上传",
-      "description": "为 {name} 新增一个不可修改的版本。",
+      "description": "给 {name} 加文件：新版本或补充资料都可以，可一次选多个。原来的文件和原记录都不会被改动。",
       "limit": "只能上传 PDF、Word、Excel 或照片；上传时会执行系统设定的文件大小限制。",
-      "title": "上传文档版本"
+      "title": "添加文件到档案",
+      "companyWideManagerOnly": "全公司共用的档案只有文件管理员能添加文件。"
     },
     "versions": {
       "empty": "尚未上传任何文件版本。",
-      "title": "版本记录"
+      "title": "上传的文件（版本）",
+      "emptyWithSystemFiles": "还没有上传的文件；这份档案的文件都在上面「从系统里选的文件」。"
     },
     "what": {
       "projects": "项目列表",
@@ -6875,15 +6888,19 @@
     "uploadFile": {
       "action": "上传文件",
       "title": "上传到文件档案",
-      "description": "选择文件和保存的分类路径。每个文件各自成为一份档案；已有的档案不会被改动。",
+      "description": "选择文件和保存的分类路径。一次选的文件放在同一份档案里；已有的档案不会被改动。",
       "fileHint": "PDF、Word、Excel 或照片，可一次选多个。",
       "pathPreview": "将保存到：",
       "projectHint": "只能选你所在的项目；全公司共用的文件由文件管理员上传。",
-      "titleHint": "留空就用文件名。",
+      "titleHint": "留空就用文件名（选了多个文件时用第一个文件名）。",
       "confirm": "上传",
       "progress": "上传中 {done}/{total}",
       "noCategory": "请先建立文件分类",
-      "fromComputer": "从电脑上传"
+      "fromComputer": "从电脑上传",
+      "groupTitle": "{name} 等 {count} 个文件",
+      "computerWay": "从电脑上传：把电脑或手机里的文件（PDF、Word、Excel、照片）传上来。",
+      "partial": "已上传 {done}/{total} 个文件，其余没有成功。点「继续上传」把剩下的放进同一份档案。",
+      "resume": "继续上传"
     },
     "categoryPicker": {
       "expand": "展开 {name} 的子分类",
@@ -6897,7 +6914,7 @@
     },
     "pickFromSystem": {
       "tab": "从系统里选",
-      "description": "在系统里找已有的照片和文件，勾选或拖到右边的档案区，再放进档案。不会复制文件。",
+      "description": "在系统里找已有的照片和文件，勾选或拖到右边的档案区，再放进档案。勾选的文件会放在同一份档案里，不会复制文件。",
       "files": "系统文件",
       "hint": "只列出你本来就看得到的文件。",
       "searchPlaceholder": "搜编号（如 MR-002）、材料或文件名",
@@ -6914,7 +6931,13 @@
       "previous": "上一页",
       "next": "下一页",
       "firstPage": "已经是第一页",
-      "lastPage": "已经是最后一页"
+      "lastPage": "已经是最后一页",
+      "systemWay": "从系统里选：把系统里已经有的照片和文件（例如材料进场的照片）放进档案，不会再复制一份。",
+      "mixedProjects": "选的文件来自不同项目。一份档案只属于一个项目，请只选同一个项目的文件。"
+    },
+    "filesMore": "另有 {count} 个文件",
+    "systemFiles": {
+      "title": "从系统里选的文件"
     }
   },
   "driver": {
@@ -7417,11 +7440,11 @@
       "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
       "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。",
       "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
+      "receipt_awaiting_acceptance": "这批材料还没验收，请先验收或判不合格再归档。",
       "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。",
       "material_request_assigned_to_other": "这个申请已提交给别人审批。要由你审批，请先按「改派给我」。",
       "material_request_reviewer_not_eligible": "所选的人不能批准这个项目的申请，请从名单里重新选择。",
       "document_file_type_not_allowed": "只能上传 PDF、Word、Excel 或照片。",
-      "document_is_system_file": "从系统里选的文件不能上传新版本，新版本请放在原记录里。",
       "document_system_file_not_found": "有文件找不到，或你没有权限查看。",
       "disposal_trip_not_waiting": "这一车不是待验收状态（还没送，或已经验收过）。",
       "disposal_all_trips_sent": "预计的车次都已送出。如果还有车要去，请联系工地在后台「加一车」。",
@@ -7432,9 +7455,9 @@
       "return_note_required": "请先填写 Return Note 再批准。",
       "return_note_locked": "这笔退场已经审批过，Return Note 不能再修改。已刷新为最新状态。",
       "equipment_hours_equipment_unavailable": "这台设备现在不能选（已停用或已报废），请选工地上在用的设备。",
-      "equipment_hours_day_not_found": "这台设备那天没有照片，没有可以补的结束时间。",
-      "equipment_hours_end_before_start": "结束时间要在第一张照片之后。",
-      "equipment_hours_end_too_late": "结束时间不能晚于第二天早上 06:00（那是下一班）。",
+      "equipment_hours_day_not_found": "找不到这一笔工时记录，请刷新后再试。",
+      "equipment_hours_end_before_start": "结束时间要在开始时间之后。",
+      "equipment_hours_end_too_late": "这个时间和这台设备的上一张或下一张照片重叠了，或者晚于现在。",
       "equipment_profile_incomplete": "先选好这台设备的小类，才能验收。",
       "equipment_not_on_site": "这台设备现在不在这个项目场内，不能退场。",
       "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。",
@@ -7445,7 +7468,8 @@
       "driver_link_closed": "这趟任务已结束，链接已关闭。",
       "driver_link_other_device": "这个链接已在另一部手机上使用，请联系回收商重新发送。",
       "driver_link_expired": "链接已失效，请联系回收商重新发送。",
-      "driver_login_retired": "司机不用登录了，请打开回收商发给你的任务链接。"
+      "driver_login_retired": "司机不用登录了，请打开回收商发给你的任务链接。",
+      "document_system_files_mixed_projects": "选的文件来自不同项目。一份档案只属于一个项目，请只选同一个项目的文件。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8537,7 +8561,24 @@
       "todayByProject": "各项目今日现场记录",
       "todayByKind": "今日记录 · 按类别",
       "latestPhoto": "最新现场照片",
-      "photoStream": "照片流水"
+      "photoStream": "照片流水",
+      "weekDeliveries": "本周材料进场",
+      "delivered": "进场",
+      "rejected": "退回",
+      "noDeliveries": "这 7 天还没有材料进场。",
+      "openHazards": "未关闭隐患",
+      "overdueCount": "其中逾期 {count}",
+      "noHazards": "没有未关闭的隐患。",
+      "approvalsBySource": "待审批 · 按类别",
+      "acceptance": "本周验收",
+      "passRate": "验收合格率",
+      "acceptanceSplit": "已验收 {accepted} · 待验收 {pending} · 退回 {rejected}",
+      "equipment": "设备",
+      "equipmentOnSite": "在场",
+      "equipmentMaintenance": "维修中",
+      "topSuppliers": "本周送货最多的供应商",
+      "deliveries": "{count} 次",
+      "clearanceMonth": "本月清运"
     }
   },
   "home": {
@@ -9087,8 +9128,7 @@
     },
     "export": {
       "subtitle": "MSE Trace 筛选后的材料进场记录",
-      "cumulativeTitle": "累计总数量",
-      "periodQuantity": "期间数量"
+      "cumulativeTitle": "累计总数量"
     },
     "quantity": {
       "byMaterial": "按材料统计数量",
@@ -9097,7 +9137,7 @@
       "title": "材料数量报表",
       "totalDeliveries": "收货总数",
       "unitNote": "数量始终按单位分组；吨、件和车次不会相加。",
-      "cumulativeHint": "数量 = 所选期间；累计数量 = 从第一笔收货到期间结束日。没选日期时两栏相同。不合格不计，退场不扣。"
+      "cumulativeHint": "累计数量 = 右边收货次数那几笔相加（选了日期就是该期间；没选日期就是从第一笔起）。不合格不计，退场不扣。"
     },
     "records": {
       "title": "收货明细（{total}）",
@@ -10049,7 +10089,7 @@
       "externalAccess": "外部访问链接",
       "fieldTasks": "现场任务",
       "financialReports": "财务报表",
-      "gateScanning": "门岗扫描",
+      "gateScanning": "门岗扫码",
       "geofenceSettings": "Geofence 设置",
       "hazardRectifications": "隐患整改 / EHS",
       "immutableAudit": "永久记录",
@@ -10131,7 +10171,7 @@
       "serviceSearch": "服务查询",
       "settingsActivity": "设置操作记录",
       "settingsAudit": "设置记录",
-      "siteAccessPasses": "工地通行证",
+      "siteAccessPasses": "通行证",
       "siteDisposals": "工地清运",
       "siteEquipment": "设备进退场",
       "siteGps": "工地人员 GPS",
@@ -10792,11 +10832,11 @@
       "trouble": "导不进去，多半是有列没对上：WBS、任务名称、计划开始是必须的，另外计划完成和工期至少要有一个。"
     },
     "site_access": {
-      "what": "工地通行证：谁能进、什么时候进，以及门岗扫码的那张台子。",
+      "what": "工地门禁：谁能进工地、什么时候能进（通行证），保安在门口扫码记进出（门岗扫码），门口拍照留底（门岗拍照记录），以及自动闸机的记录（闸机记录）。",
       "who": "持 site_access.view；签发和作废要 site_access.manage。",
-      "need": "办通行证要项目、进入目的、生效时间、截止时间和姓名，车辆还要车牌；门岗要扫码器或粘贴凭证内容 —— 卡号、车牌或系统编号。",
-      "then": "通行证要经过审批才生效；作废之后立刻扫不动。",
-      "trouble": "扫了显示拒绝：设备事件里写着原因 —— 过期、未审批，或者不是这个工地。"
+      "need": "办通行证要项目、进入目的、生效时间、截止时间和姓名，车辆还要车牌。门口扫码用手机相机就可以；扫码枪只是门口固定电脑的选配。",
+      "then": "通行证要经过审批才生效；撤销之后立刻扫不进。",
+      "trouble": "门岗扫码被拒绝时，画面上会直接写原因 —— 过期、未审批，或者不是这个工地。闸机拒绝的原因在「闸机记录」里看。"
     },
     "site_disposals": {
       "what": "把工地上的杂物和废弃物清走 —— 不属于可回收料的那一类。",
@@ -11730,16 +11770,15 @@
       "in": "Material In 进场",
       "out": "Material Out 退场",
       "reject": "Reject 不合格",
-      "totals": "累计净数量",
+      "totals": "累计进场与退场",
       "legacyReturns": "10-02 前用进场单登记的退场记录",
       "choose": "选择查看"
     },
     "net": {
-      "title": "按供应商、材料汇总的累计净数量",
-      "note": "累计进场不会减少。累计净数量 = 进场（不合格不计入）− 后台已确认完成的退场（按材料分类和单位配对）。不同单位不混加。",
+      "title": "按供应商、材料汇总的累计进场与退场",
+      "note": "累计进场不会减少，退场也不从中扣除。已退场 = 后台已确认完成的退场（按材料分类和单位配对）。不合格不计入累计进场。不同单位不混加。",
       "received": "累计进场",
       "returned": "已退场",
-      "net": "累计净数量",
       "rejected": "Reject（不计入）",
       "supplier": "供应商",
       "noSupplier": "未填供应商",
@@ -11762,7 +11801,7 @@
         "returnNote": "Return Note",
         "quantity": "数量"
       },
-      "returnTag": "有退场记录",
+      "returnTag": "有退货资料",
       "returnTagHint": "这一行有 {count} 笔已完成的退场，点开查看",
       "openNumber": "查看{label} {value} 是哪些记录",
       "breakdown": {
@@ -11773,8 +11812,6 @@
         "rejected": "不合格，不计入累计进场（{count} 笔）",
         "emptyDeliveries": "没有计入的进场。",
         "emptyReturns": "没有已完成的退场。",
-        "receivedTotal": "进场合计",
-        "returnedTotal": "已完成退场合计",
         "subtotal": "合计",
         "reason": "退回原因",
         "approvedBy": "批准",
@@ -12341,7 +12378,8 @@
       "clear": "清除筛选",
       "dateFrom": "起始日期",
       "dateTo": "结束日期",
-      "project": "项目"
+      "project": "项目",
+      "keywordPlaceholder": "单号、车牌、DO、材料或供应商"
     },
     "receipts": {
       "byMaterial": "材料排行",
@@ -13066,30 +13104,36 @@
   "siteControl": {
     "access": {
       "approveBody": "二维码将在批准的日期和时间范围内生效。",
-      "approveTitle": "批准这个门禁证？",
-      "createHelp": "门禁证会先进入待审批，获授权的负责人确认后才生效。",
-      "createTitle": "申请工地门禁证",
-      "deviceEvents": "设备事件",
+      "approveTitle": "批准这个通行证？",
+      "createHelp": "通行证会先进入待审批，获授权的负责人确认后才生效。",
+      "createTitle": "申请工地通行证",
+      "deviceEvents": "闸机记录",
       "editHelp": "只有待审核的通行证可以改。项目不能换。",
       "editTitle": "编辑通行证",
-      "empty": "没有符合筛选条件的门禁证。",
+      "empty": "没有符合筛选条件的通行证。",
       "gate": "门岗扫码",
       "integrationReader": "已连接门禁设备",
-      "newPass": "新增门禁证",
-      "noEvents": "这个门禁证尚未在门岗使用。",
-      "passes": "门禁证",
-      "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入门禁证。",
+      "newPass": "新增通行证",
+      "noEvents": "这个通行证尚未在门岗使用。",
+      "passes": "通行证",
+      "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入通行证。",
       "qrTitle": "工地门禁二维码",
       "rejectBody": "申请人需要重新申请才可进入工地。",
-      "rejectTitle": "拒绝这个门禁证？",
+      "rejectTitle": "拒绝这个通行证？",
       "revokeBody": "二维码会立即失效，请填写原因以保留审计记录。",
-      "revokeTitle": "撤销这个门禁证？",
-      "subtitle": "在同一流程申请、审批和扫描人员、访客与车辆门禁证。",
+      "revokeTitle": "撤销这个通行证？",
+      "subtitle": "通行证的申请和审批、门口扫码、门口拍照，都在这里。",
       "timeline": "进出记录",
       "title": "工地门禁",
       "unknownGate": "未注明门岗",
       "defaultsFailed": "门禁默认设置未能载入，请先重试。",
-      "gateRecords": "门岗拍照记录"
+      "gateRecords": "门岗拍照记录",
+      "tabHelp": {
+        "passes": "谁可以进工地、哪段时间可以进。在这里申请、审批、撤销通行证，也可以下载二维码发给对方。",
+        "gate": "保安在门口用手机扫通行证上的二维码，系统就记下谁进、谁出。",
+        "gate-records": "门口有事就拍照留底（例如罗厘没有出门单），并通知相关的人一起看。",
+        "devices": "接了自动闸机、车牌识别或刷脸机，机器每次放行或拒绝都记在这里，并写明原因。没接这些机器，这里就是空的。"
+      }
     },
     "action": {
       "approve": "批准",
@@ -13162,12 +13206,24 @@
       "denied": "拒绝",
       "device": "设备",
       "direction": "方向",
-      "empty": "还没有设备上报的进出事件。",
+      "empty": "还没有闸机记录。接了自动闸机、车牌识别或刷脸机之后，记录才会出现在这里。",
       "gate": "门岗",
       "occurredAt": "发生时间",
       "pass": "通行证",
       "reason": "原因",
-      "result": "结果"
+      "result": "结果",
+      "reasonCode": {
+        "AUTHORIZED": "通行证有效，放行",
+        "UNKNOWN_CREDENTIAL": "系统里找不到这张通行证",
+        "PASS_REVOKED": "通行证已撤销",
+        "PASS_PENDING": "通行证还在等审批",
+        "PASS_REJECTED": "通行证被拒绝了",
+        "PASS_NOT_APPROVED": "通行证没有批准",
+        "PASS_NOT_ACTIVE": "还没到通行证的生效时间",
+        "PASS_EXPIRED": "通行证已过期",
+        "RECOGNITION_FAILED": "机器没认出来",
+        "DIRECTION_CONFLICT": "进出对不上（例如没出去又刷进来）"
+      }
     },
     "direction": {
       "AUTO": "自动判断进场／离场",
@@ -13240,7 +13296,7 @@
       "postcode": "邮编",
       "project": "项目",
       "purpose": "进入目的",
-      "qrPrefix": "门禁证编号前缀",
+      "qrPrefix": "通行证编号前缀",
       "qrStyle": "二维码打印大小",
       "qrValue": "二维码或门禁链接",
       "radius": "半径",
@@ -13250,7 +13306,7 @@
       "status": "状态",
       "subjectCompany": "所属公司",
       "subjectName": "姓名",
-      "subjectType": "门禁证类型",
+      "subjectType": "通行证类型",
       "targetReminder": "目标提醒比例（%）",
       "timeFormat": "时间格式",
       "timezone": "时区",
@@ -13267,24 +13323,24 @@
       "cameraHelp": "把手机后置相机对准纸上的二维码，识别后会自动填入。",
       "cameraScan": "打开相机扫码",
       "cameraTitle": "扫描门禁二维码",
-      "cameraUnsupported": "此浏览器无法打开相机，请上传二维码图片或使用下方输入栏。",
+      "cameraUnsupported": "这个浏览器打不开相机。请上传二维码图片，或用下面的「其他方式」。",
       "getLocation": "获取门岗 GPS",
       "imageError": "这张图片里找不到可读取的二维码。",
       "locationError": "无法获取 GPS，请允许精确定位权限后重试。",
       "locationReady": "GPS 已获取",
       "photo": "拍摄门岗照片",
       "photoReady": "门岗照片已准备",
-      "qrPlaceholder": "扫描或粘贴二维码",
-      "qrReady": "二维码已读取。请检查进出方向、门岗照片和 GPS，然后记录进出。",
-      "readyHint": "手机和平板通常使用相机扫码；USB 扫码器只是固定门岗电脑的选配方式，不是客户强制要求。",
+      "qrPlaceholder": "用扫码枪扫，或粘贴编号",
+      "qrReady": "二维码已读到。看一下进出方向，然后按「记录进出」。",
       "record": "记录进出",
       "recordError": "无法记录这次门岗进出。",
       "retryCamera": "重试相机",
-      "scannerHint": "USB 扫码器是选配设备，会像键盘一样工作：先点选这个输入栏，再扫描纸上的二维码，编码会自动出现在这里。",
-      "subtitle": "请选择相机扫码、上传二维码图片，或使用选配的 USB 扫码器 / 粘贴输入。",
+      "scannerHint": "扫码枪只给门口固定的电脑用：插上扫码枪，点一下这个框再扫，编号会自己填进来。也可以直接粘贴编号。用手机扫的话，不用管这里。",
+      "subtitle": "用手机相机扫一下通行证上的二维码就可以。",
       "title": "记录门岗进出",
       "uploadImage": "上传二维码图片",
-      "usbOrPaste": "USB 扫码器或粘贴"
+      "otherWays": "其他方式：扫码枪 / 粘贴编号",
+      "qrCode": "通行证二维码"
     },
     "geofence": {
       "noPointsYet": "还没有标记任何点",
@@ -13344,7 +13400,7 @@
       "email": "Email 通知",
       "emailHelp": "连接真实公司邮件服务后使用。",
       "expiry": "到期提醒",
-      "expiryHelp": "许可证、门禁证及其他到期提醒。",
+      "expiryHelp": "许可证、通行证及其他到期提醒。",
       "rectification": "安全与整改通知",
       "rectificationHelp": "隐患、事故、整改提交及验收。",
       "subtitle": "选择公司用户需要收到的业务流程提醒。",
@@ -13454,7 +13510,7 @@
       "duration": "在场时长",
       "enteredAt": "进场时间",
       "gate": "门岗",
-      "passNo": "门禁证编号",
+      "passNo": "通行证编号",
       "person": "人员／车辆",
       "project": "项目",
       "status": "状态",
@@ -13469,9 +13525,9 @@
       "gateRecorded": "门岗进出已记录",
       "geofenceRemoved": "工地围栏已移除",
       "geofenceSaved": "工地围栏已保存",
-      "passCreated": "门禁证申请已提交",
+      "passCreated": "通行证申请已提交",
       "passReviewed": "门禁审批结果已保存",
-      "passRevoked": "门禁证已撤销",
+      "passRevoked": "通行证已撤销",
       "passUpdated": "通行证已更新。",
       "profileSaved": "公司资料已保存",
       "settingsSaved": "公司现场设置已保存",
@@ -15365,7 +15421,9 @@
     "title": "事项沟通 · {reference}",
     "closedArchived": "已归档，聊天室已关闭。记录仍可查看。",
     "closedPaid": "已确认付款，聊天室已关闭。记录仍可查看。",
-    "closedDecided": "已批准或已退回，聊天室已关闭。记录仍可查看。"
+    "closedDecided": "已批准或已退回，聊天室已关闭。记录仍可查看。",
+    "closedRejected": "已判不合格或已驳回，聊天室已关闭。记录仍可查看。",
+    "closedCancelled": "已取消，聊天室已关闭。记录仍可查看。"
   },
   "exportTotals": {
     "title": "累计数量（按单位分别统计）",
@@ -15844,7 +15902,41 @@
     "openNewTab": "新分页打开",
     "print": "打印",
     "download": "下载",
-    "preview": "预览"
+    "preview": "预览",
+    "wordFailed": "这个 Word 文件读不出来，请下载后用 Word 打开。",
+    "wordNote": "这里只显示文字、表格和图片；排版以下载的原文件为准。",
+    "wordTruncated": "文件太长，只显示前面一部分。",
+    "wordEmpty": "这个文件里没有文字。",
+    "legacyOffice": "这是旧版 {ext} 格式，系统里无法直接预览。",
+    "legacyOfficeHelp": "请下载后查看。在 Word / Excel 里另存为 .docx / .xlsx 再上传，以后就能直接在系统里看。"
+  },
+  "fileActions": {
+    "preview": "预览",
+    "print": "打印",
+    "save": "导出",
+    "share": "发送",
+    "shareHint": "「发送」只是把文件分享出去，不是系统内的审批或签收确认。",
+    "shared": "文件已发送。发送文件不等于审批或签收确认。",
+    "failed": "文件没有准备好，请再试一次。",
+    "preparing": "文件准备中",
+    "openNewTab": "新分页打开",
+    "openInViewer": "用手机的阅读器打开",
+    "noInlinePdf": "这个浏览器不能在页面里显示 PDF。用手机自带的阅读器打开，就能看完整文件、打印或发送。",
+    "printFromViewer": "这部手机不能直接从页面打印，已打开预览。请用手机的阅读器打开，再选「分享」→「打印」。",
+    "unsupported": "这种文件不能在页面里显示，请导出后在设备上打开。",
+    "sheetFailed": "这个 Excel 文件不能在页面里显示，请导出后用 Excel 打开。",
+    "sheetTruncated": "只显示前 {shown} 行（共 {total} 行），完整内容请导出文件查看。",
+    "sheetNoPrint": "要打印请选 PDF 文件。",
+    "shareTitle": "发送文件",
+    "shareReady": "文件已准备好，点「发送」选择 WhatsApp、电邮或其他应用。",
+    "shareDesktop": "这个浏览器不能直接把文件交给其他应用。请先下载文件，再在电邮或 WhatsApp 里附上。",
+    "shareDownload": "下载文件",
+    "shareEmail": "电邮",
+    "shareWhatsapp": "WhatsApp",
+    "shareMessage": "请查收附件：{name}",
+    "shareCopyLink": "复制记录链接",
+    "file": "文件",
+    "printInViewer": "文件已用手机的阅读器打开，请选「分享」→「打印」。"
   },
   "recordAttachments": {
     "title": "附件",
@@ -16048,13 +16140,13 @@
     }
   },
   "supplierReturns": {
-    "badge": "有退场资料",
+    "badge": "有退货资料",
     "badgeHint": "这家供应商有 {count} 笔已完成的退场，点开查看",
-    "title": "{name} 的退场资料",
-    "help": "这家供应商所有已完成的退场：Return Note、照片、双方签名和批准资料。",
+    "title": "{name} 的退货资料",
+    "help": "这家供应商所有已完成的退场：Return Note、照片、双方签名和批准资料。点任意一行查看完整记录。",
     "empty": "没有已完成的退场。",
     "truncated": "只显示最近 {shown} 笔（共 {total} 笔）。请按项目或日期缩小范围。",
-    "what": "退场资料",
+    "what": "退货资料",
     "column": {
       "date": "日期",
       "material": "材料",
@@ -16073,45 +16165,61 @@
     "print": "打印",
     "export": "导出",
     "share": "分享",
-    "open": "打开这一笔"
+    "open": "查看 {reference} 的完整记录"
   },
   "equipmentHours": {
-    "subtitle": "开工拍一张、收工拍一张：第一张是开始，最后一张是结束，相减就是工时（不扣午休）。夜班算同一班：早上 6 点前拍的照片算进前一天那一班。",
+    "subtitle": "开工拍一张、收工拍一张：每一对开工和收工是一笔工时，结束减开始就是工时（不扣午休），不分白天晚上。",
     "allProjects": "全部项目",
     "photoAlt": "设备照片",
     "photoCount": "{count} 张",
     "view": {
-      "day": "按日",
+      "day": "明细",
       "month": "按月"
+    },
+    "kind": {
+      "START": "开工",
+      "FINISH": "收工"
     },
     "filter": {
       "from": "从",
       "to": "到",
       "month": "月份",
-      "shown": "这里显示 {from} 至 {to}（一次最多 {max} 天）。"
+      "shown": "这里显示 {from} 至 {to}（一次最多 {max} 天）。",
+      "automatic": "自动显示最近有记录的日期：{from} 至 {to}。",
+      "latest": "回到最近记录",
+      "supplier": "供应商",
+      "allSuppliers": "全部供应商",
+      "equipment": "设备",
+      "allEquipment": "全部设备",
+      "search": "车牌 / 设备编号",
+      "searchPlaceholder": "输入车牌或设备编号"
     },
     "field": {
       "date": "日期",
       "equipment": "设备",
+      "code": "设备编号",
+      "supplier": "供应商",
       "plate": "车牌号码",
       "project": "项目",
       "start": "开始",
       "end": "结束",
       "hours": "工时（小时）",
+      "cumulative": "累计工时（小时）",
       "status": "状态",
       "photos": "照片",
       "operators": "拍照人",
-      "reason": "补录原因",
-      "adjustedBy": "补录人",
+      "reason": "修改原因",
+      "adjustedBy": "修改人",
       "daysWorked": "工作天数",
+      "sessions": "次数",
       "totalHours": "合计工时（小时）",
-      "missingEndDays": "缺收工天数",
-      "adjustedDays": "后台补录天数",
-      "actions": "操作",
-      "nextDay": "次日 {time}"
+      "incomplete": "缺开工 / 收工",
+      "adjustedCount": "后台修改次数",
+      "actions": "操作"
     },
     "status": {
       "MISSING_END": "缺收工",
+      "MISSING_START": "缺开工",
       "ADJUSTED": "后台已补",
       "OK": "正常"
     },
@@ -16120,21 +16228,24 @@
       "summaryTitle": "每台设备合计"
     },
     "day": {
-      "empty": "这段时间没有设备照片。"
+      "empty": "这段时间没有工时记录。"
     },
     "month": {
-      "empty": "这个月没有设备照片。",
+      "empty": "这个月没有工时记录。",
       "total": "合计"
     },
     "what": {
-      "days": "每日工时",
+      "days": "工时记录",
       "month": "每月合计"
     },
     "adjust": {
       "add": "补结束时间",
       "edit": "改结束时间",
-      "help": "只改这一天的结束时间，照片不会被改动；每次修改都会留下记录。夜班的结束时间可以到第二天早上 06:00。",
+      "addStart": "补开始时间",
+      "help": "只改这一笔的结束时间，照片不会被改动；每次修改都会留下记录。结束时间不能晚于这台设备的下一张照片。",
+      "helpStart": "这一笔只有收工照片，补上开始时间才能算工时。照片不会被改动；每次修改都会留下记录。",
       "endAt": "结束时间",
+      "startAt": "开始时间",
       "reason": "原因",
       "reasonPlaceholder": "例如：操作员忘了收工拍照，按工地日志 17:30 收工",
       "save": "保存",
@@ -16142,38 +16253,51 @@
     },
     "dialog": {
       "summary": "开始 {start} · 结束 {end} · {hours} 小时",
-      "photos": "当天照片"
+      "photos": "照片"
     },
     "history": {
       "title": "修改记录",
       "empty": "还没有后台修改。",
       "end": "结束时间改为 {end}",
+      "start": "开始时间补为 {start}",
       "current": "现在用这条",
       "by": "{name} · {at}",
-      "photoEnd": "照片上的最后时间：{end}"
+      "photoEnd": "收工照片上的时间：{end}"
     },
     "toast": {
-      "endSaved": "结束时间已保存"
+      "endSaved": "结束时间已保存",
+      "startSaved": "开始时间已保存"
     },
     "phone": {
-      "howTo": "开工时拍一张设备照片，收工时再拍一张。系统按第一张和最后一张算工时。",
+      "howTo": "开工时选「开工」拍一张，收工时选「收工」再拍一张。每一对开工和收工算一笔工时。",
       "project": "项目",
-      "machine": "设备",
+      "supplier": "供应商",
+      "allSuppliers": "全部供应商",
+      "noSupplier": "未填供应商",
+      "suppliedBy": "供应商：{supplier}",
+      "machine": "设备编号",
       "pickMachine": "选择设备",
       "machines": "设备名单",
       "noMachines": "这个项目还没有可以选的设备，请后台先建档。",
+      "scan": "扫码",
+      "scanTitle": "扫设备上的二维码",
+      "scanHelp": "把镜头对准贴在设备上的二维码。",
+      "scanImage": "从照片读取二维码",
+      "qrNoMatch": "这个二维码对不上这个项目的设备：{text}",
+      "kind": "开工 / 收工",
+      "openSince": "这台设备 {start} 开工，还没收工。",
       "photo": "设备照片",
       "takePhoto": "拍照",
       "photoReady": "已拍好，可以重拍",
       "location": "位置",
       "locationReady": "已取得位置",
-      "send": "上传",
+      "send": "上传{kind}照片",
       "failed": "上传失败，请再试一次。",
       "queued": "已存在手机里，有网络会自动上传。",
-      "today": "今天 {count} 张照片，开始 {start}",
-      "stopHint": "收工时再拍一张",
-      "soFar": "到 {end} 共 {hours} 小时",
-      "shift": "{date} 这一班：{count} 张照片，开始 {start}"
+      "started": "{start} 开工",
+      "stopHint": "收工时选「收工」再拍一张",
+      "soFar": "{start} 至 {end}，共 {hours} 小时",
+      "missingStart": "这张收工照片前面没有开工照片，后台会补开始时间。"
     }
   },
   "theme": {

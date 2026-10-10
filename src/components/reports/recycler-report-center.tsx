@@ -1,10 +1,10 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, FileSpreadsheet, FileText, Printer } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -146,32 +146,13 @@ export function RecyclerReportCenter() {
         subtitle={t("count", { count: report.data?.count ?? 0 })}
         action={
           <div className="flex flex-wrap gap-2 print:hidden">
-            <Button
-              variant="outline"
-              disabled={exporting.isPending || report.isLoading}
-              onClick={() => window.print()}
-            >
-              <Printer className="size-4" />
-              {t("action.print")}
-            </Button>
-            <Button
-              variant="outline"
-              disabled={exporting.isPending || report.isLoading}
-              onClick={() => exporting.mutate("PDF")}
-            >
-              <FileText className="size-4" /> PDF
-            </Button>
-            <Button
-              disabled={exporting.isPending || report.isLoading}
-              onClick={() => exporting.mutate("EXCEL")}
-            >
-              {exporting.isPending ? (
-                <Download className="size-4 animate-pulse" />
-              ) : (
-                <FileSpreadsheet className="size-4" />
-              )}
-              Excel
-            </Button>
+            {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). 打印 prints the
+                report's PDF - the same file 导出 saves - not this screen. */}
+            <ExportButton
+              onExport={(format) => exporting.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+              disabled={report.isLoading}
+              title={t("title")}
+            />
           </div>
         }
       />

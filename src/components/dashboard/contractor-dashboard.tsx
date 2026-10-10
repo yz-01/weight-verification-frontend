@@ -8,9 +8,7 @@ import {
   CalendarClock,
   ClipboardCheck,
   ClipboardList,
-  Download,
   FilePlus2,
-  FileSpreadsheet,
   FileText,
   FolderPlus,
   HardHat,
@@ -34,6 +32,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { PhotoThumb, recordPhotos } from "@/components/shared/photo-thumb";
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { DashboardCards } from "@/components/dashboard/dashboard-cards";
@@ -43,6 +42,7 @@ import {
   type OpenedRecordHeading,
   useRecordOpener,
 } from "@/components/shared/record-opener";
+import { opensInPlace } from "@/components/shared/in-place-record";
 import {
   LoadFailed,
   StatusBadge,
@@ -463,12 +463,30 @@ export function ContractorDashboard({
                       className="flex items-start justify-between gap-3 py-2.5"
                     >
                       <div className="min-w-0">
-                        <Link
-                          href={activityHref(row)}
-                          className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          {t(`activityKind.${row.kind}`)} · {row.reference}
-                        </Link>
+                        {row.id && opensInPlace(row.kind) ? (
+                          // Opens over the dashboard, which stays (2026-10-10).
+                          <button
+                            type="button"
+                            onClick={() =>
+                              opener.open(row.kind, row.id, {
+                                reference: row.reference,
+                                project_id: null,
+                                project_name: row.project,
+                                submitted_at: row.occurred_at,
+                              })
+                            }
+                            className="text-left text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            {t(`activityKind.${row.kind}`)} · {row.reference}
+                          </button>
+                        ) : (
+                          <Link
+                            href={activityHref(row)}
+                            className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            {t(`activityKind.${row.kind}`)} · {row.reference}
+                          </Link>
+                        )}
                         <p className="truncate text-xs text-muted-foreground">
                           {row.project} · {row.summary}
                         </p>
@@ -845,9 +863,14 @@ function DashboardTimeline({
           ),
           icon: TIMELINE_ICONS[entry.kind],
           thumbnail: entry.cover_photo_url,
-          href: target && "href" in target ? target.href : undefined,
+          // A record whose module popup stands on its own opens over the
+          // dashboard (Lucas 2026-10-10: 「不会跳转」), as a sheet does.
+          href:
+            target && "href" in target && !(id && opensInPlace(entry.kind))
+              ? target.href
+              : undefined,
           onOpen:
-            target && "sheet" in target && id
+            target && id && ("sheet" in target || opensInPlace(entry.kind))
               ? () => {
                   onOpen(entry.kind, id, {
                     reference: entry.label,
@@ -961,48 +984,27 @@ function QuickSearch({ project }: { project: string }) {
 
 function ExportButtons({ project }: { project: string }) {
   const t = useTranslations("contractorDashboard");
-  const [busy, setBusy] = useState<"PDF" | "EXCEL" | null>(null);
 
-  const run = async (format: "PDF" | "EXCEL") => {
-    setBusy(format);
-    try {
-      await exportContractorDashboard({
-        format,
-        project: project || undefined,
-        title: t("export.title"),
-        subtitle: t("export.subtitle"),
-        // The server writes whatever labels it is handed, so the wording stays
-        // in the message catalogue rather than being duplicated in Python.
-        column_labels: Object.fromEntries(
-          EXPORT_COLUMNS.map((key) => [key, t(`export.column.${key}`)]),
-        ),
-      });
-    } finally {
-      setBusy(null);
-    }
-  };
+  const run = (format: "PDF" | "EXCEL") =>
+    exportContractorDashboard({
+      format,
+      project: project || undefined,
+      title: t("export.title"),
+      subtitle: t("export.subtitle"),
+      // The server writes whatever labels it is handed, so the wording stays
+      // in the message catalogue rather than being duplicated in Python.
+      column_labels: Object.fromEntries(
+        EXPORT_COLUMNS.map((key) => [key, t(`export.column.${key}`)]),
+      ),
+    });
 
+  // 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则), as on every export.
   return (
-    <div className="flex gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={busy !== null}
-        onClick={() => void run("EXCEL")}
-      >
-        <FileSpreadsheet />
-        {t("export.excel")}
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={busy !== null}
-        onClick={() => void run("PDF")}
-      >
-        <Download />
-        {t("export.pdf")}
-      </Button>
-    </div>
+    <ExportButton
+      size="sm"
+      title={t("export.title")}
+      onExport={(format) => run(format === "pdf" ? "PDF" : "EXCEL")}
+    />
   );
 }
 

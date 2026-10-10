@@ -2,13 +2,14 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Download, EllipsisVertical, Eye, FileCheck2, FilePlus2, Filter, Printer, XCircle } from "lucide-react";
+import { EllipsisVertical, Eye, FileCheck2, FilePlus2, Filter, XCircle } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
+import { FileActionButtons } from "@/components/shared/file-actions";
 import { FieldWrapper, LoadFailed, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +42,7 @@ import {
   getInvoices,
   issueInvoice,
 } from "@/services/billing.service";
+import { captureDownload } from "@/services/api-client";
 import { getCompanies } from "@/services/companies.service";
 
 const STATES: InvoiceState[] = ["DRAFT", "ISSUED", "PARTIALLY_PAID", "OVERDUE", "PAID", "CANCELLED", "WRITTEN_OFF"];
@@ -128,7 +130,7 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
     ] });
   }
 
-  async function runInvoicePdf(invoice: Invoice, openInNewTab: boolean) {
+  async function runInvoicePdf(invoice: Invoice) {
     await exportInvoices({
       format: "pdf",
       title: invoice.invoice_no,
@@ -148,7 +150,6 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
         { key: "due_on", label: t("field.dueDate") },
       ],
     }, {
-      openInNewTab,
       fallbackFilename: `${invoice.invoice_no}.pdf`,
     });
   }
@@ -174,7 +175,7 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
 
       <Dialog open={closing !== null} onOpenChange={(open) => !open && setClosing(null)}><DialogContent><DialogHeader><DialogTitle>{t("close.title")}</DialogTitle><DialogDescription>{t("close.description", { invoice: closing?.invoice_no ?? "" })}</DialogDescription></DialogHeader><div className="space-y-4 py-2"><FilterSelect label={t("field.state")} value={closeState} onChange={(value) => setCloseState(value as "CANCELLED" | "WRITTEN_OFF")} options={[{ value: "CANCELLED", label: t("state.CANCELLED") }, { value: "WRITTEN_OFF", label: t("state.WRITTEN_OFF") }]} /><FieldWrapper label={t("field.notes")} required><Textarea value={notes} onChange={(event) => setNotes(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={() => setClosing(null)}>{common("cancel")}</Button><Button variant="destructive" requires={[[notes, t("field.notes")]]} disabled={close.isPending} onClick={() => close.mutate()}>{t("action.close")}</Button></DialogFooter></DialogContent></Dialog>
 
-      <Dialog open={viewing !== null} onOpenChange={(open) => !open && setViewing(null)}><DialogContent className="flex max-h-[90dvh] flex-col overflow-hidden sm:max-w-3xl"><DialogHeader className="shrink-0"><DialogTitle>{viewing?.invoice_no}</DialogTitle><DialogDescription>{viewing ? `${viewing.company_name} / ${t(`kind.${viewing.kind}`)}` : ""}</DialogDescription></DialogHeader><div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{detail.isLoading ? <p>{common("loading")}</p> : detail.isError ? <LoadFailed what={t("what.invoice")} onRetry={() => detail.refetch()} /> : detail.data && <InvoiceDetailView invoice={detail.data} />}</div>{detail.data && <DialogFooter className="shrink-0 border-t pt-4"><Button variant="outline" onClick={() => void runInvoicePdf(detail.data, false)}><Download className="h-4 w-4" />{t("action.downloadPdf")}</Button><Button onClick={() => void runInvoicePdf(detail.data, true)}><Printer className="h-4 w-4" />{t("action.print")}</Button></DialogFooter>}</DialogContent></Dialog>
+      <Dialog open={viewing !== null} onOpenChange={(open) => !open && setViewing(null)}><DialogContent className="flex max-h-[90dvh] flex-col overflow-hidden sm:max-w-3xl"><DialogHeader className="shrink-0"><DialogTitle>{viewing?.invoice_no}</DialogTitle><DialogDescription>{viewing ? `${viewing.company_name} / ${t(`kind.${viewing.kind}`)}` : ""}</DialogDescription></DialogHeader><div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{detail.isLoading ? <p>{common("loading")}</p> : detail.isError ? <LoadFailed what={t("what.invoice")} onRetry={() => detail.refetch()} /> : detail.data && <InvoiceDetailView invoice={detail.data} />}</div>{detail.data && <DialogFooter className="shrink-0 border-t pt-4">{/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}<FileActionButtons source={{ load: () => captureDownload(() => runInvoicePdf(detail.data)), title: detail.data.invoice_no }} /></DialogFooter>}</DialogContent></Dialog>
     </div>
   );
 }

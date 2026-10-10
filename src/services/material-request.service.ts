@@ -8,7 +8,7 @@ import type {
   MaterialRequestReviewerOption,
   MaterialRequestTotal,
 } from "@/interfaces/material-request";
-import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
+import { api, download, fetchAsFile, toastSuccess } from "@/services/api-client";
 import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 /** MR / Other Request (C01–C07). Endpoints in `contractor_ops/material_requests.py`. */
@@ -65,13 +65,13 @@ export async function reassignMaterialRequestToMe(id: string) {
   return row;
 }
 
-/** The formal form (C06) as an object URL, for Preview and Print. */
-export const materialRequestFormUrl = (id: string, lang: string) =>
-  fetchObjectUrl(`/api/material-requests/${id}/get_request_pdf/`, { query: { lang } });
-
-/** The formal form (C06), saved as `<Request No>.pdf`. */
-export const exportMaterialRequestForm = (id: string, lang: string, requestNo: string) =>
-  download(`/api/material-requests/${id}/get_request_pdf/`, {
+/**
+ * The formal form (C06) as `<Request No>.pdf`, fetched once for 预览 · 打印 ·
+ * 导出 · 发送 alike (PDF 统一操作规则). `download=1` only changes how the
+ * server labels the response, not the file.
+ */
+export const materialRequestFormFile = (id: string, lang: string, requestNo: string) =>
+  fetchAsFile(`/api/material-requests/${id}/get_request_pdf/`, {
     method: "GET",
     query: { lang, download: "1" },
     fallbackFilename: `${requestNo}.pdf`,

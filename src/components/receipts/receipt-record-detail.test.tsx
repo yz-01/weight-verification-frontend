@@ -85,3 +85,39 @@ describe("the receipt detail (E8)", () => {
     expect(html).toContain('href="tel:+60123456789"');
   });
 });
+
+/**
+ * Lucas, 2026-10-10: 「为什么会这样呢？验收不了」. A delivery archived before
+ * anybody accepted it said 待验收 and then 「已确认归档…不能再验收或退回」,
+ * with nothing to press. It still takes its one 验收; once decided it locks.
+ */
+describe("an archived delivery's 验收", () => {
+  const archivedAs = (acceptance_status: string) =>
+    (client: import("@tanstack/react-query").QueryClient) => {
+      client.setQueryData(["receipts", "detail", "r1"], { ...receipt, acceptance_status });
+      client.setQueryData(["record-closure", "MATERIAL_RECEIPT", "r1"], {
+        kind: "MATERIAL_RECEIPT",
+        record: "r1",
+        ready: false,
+        closed: true,
+        closure: {
+          confirmed_by: "u1",
+          confirmed_by_name: "Office",
+          confirmed_at: "2026-10-09T02:00:00Z",
+          note: "",
+        },
+      });
+    };
+
+  it("still offers the decision while it waits", () => {
+    const html = renderDetail(<ViewReceipt id="r1" />, archivedAs("PENDING"));
+    expect(html).toContain("验收通过");
+    expect(html).not.toContain("这批材料已确认归档，只能查看，不能再验收或退回。");
+  });
+
+  it("is locked once decided", () => {
+    const html = renderDetail(<ViewReceipt id="r1" />, archivedAs("ACCEPTED"));
+    expect(html).toContain("这批材料已确认归档，只能查看，不能再验收或退回。");
+    expect(html).not.toContain("验收通过");
+  });
+});

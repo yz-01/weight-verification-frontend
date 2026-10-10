@@ -351,8 +351,23 @@ export async function download(
   path: string,
   options: RequestOptions & { fallbackFilename: string; openInNewTab?: boolean },
 ): Promise<void> {
+  // Claimed on entry, before the first await, so a capture belongs to the
+  // download its own export started (see `captureDownload`).
+  const capture = captureSlot;
+  captureSlot = null;
   const response = await fetchFile(path, options);
   const blob = await response.blob();
+  if (capture) {
+    capture(
+      new File(
+        [blob],
+        filenameFromDisposition(response.headers.get("Content-Disposition")) ??
+          options.fallbackFilename,
+        { type: blob.type || "application/octet-stream" },
+      ),
+    );
+    return;
+  }
   const url = URL.createObjectURL(blob);
   if (options.openInNewTab) {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -370,6 +385,43 @@ export async function download(
   // Revoking immediately can cancel the download in some browsers, which is
   // why this waits a tick rather than running on the next line.
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+let captureSlot: ((file: File) => void) | null = null;
+let captureQueue: Promise<unknown> = Promise.resolve();
+
+/**
+ * Run an export and keep its file instead of saving it (PDF 统一操作规则,
+ * 2026-10-10): 预览、打印、导出、发送 all work on the one file the export
+ * produced, so what is previewed is byte for byte what is printed, saved or
+ * sent.
+ *
+ * Every screen's export already ends in exactly one `download()` carrying the
+ * columns, filters and wording only that screen knows. Rather than give forty
+ * export functions a second "fetch only" twin, the `download()` that starts
+ * while `run` runs hands its file here and saves nothing. Captures run one at
+ * a time, so two cannot take each other's file.
+ *
+ * Rejects when `run` fails (the service has already toasted why) or ends
+ * without downloading anything.
+ */
+export function captureDownload(run: () => Promise<unknown>): Promise<File> {
+  const job = captureQueue.then(async () => {
+    let captured: File | null = null;
+    const mine = (file: File) => {
+      captured = file;
+    };
+    captureSlot = mine;
+    try {
+      await run();
+    } finally {
+      if (captureSlot === mine) captureSlot = null;
+    }
+    if (!captured) throw new Error("export produced no file");
+    return captured as File;
+  });
+  captureQueue = job.catch(() => undefined);
+  return job;
 }
 
 /**

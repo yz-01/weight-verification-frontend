@@ -23,6 +23,51 @@ export interface ContractorReportFilters {
   subcategory?: string;
   actor?: string;
   keyword?: string;
+  /** The filter bar (2026-10-10): each report reads only its own. */
+  status?: string;
+  severity?: string;
+  event?: string;
+  geofence?: string;
+  equipment?: string;
+  supplier?: string;
+  direction?: string;
+  record_type?: string;
+  counterparty?: string;
+  plan?: string;
+  target_type?: string;
+}
+
+/** A filter of the report centre's filter bar (`lib/report-filters`). */
+export type ReportFilterKey =
+  | "status"
+  | "actor"
+  | "severity"
+  | "event"
+  | "geofence"
+  | "equipment"
+  | "supplier"
+  | "direction"
+  | "record_type"
+  | "counterparty"
+  | "plan"
+  | "target_type";
+
+/**
+ * One choice of a filter. `label` is a name (a person, a machine) or, for a
+ * code, the code itself, which the screen words in the reader's language.
+ */
+export interface ReportFilterOption {
+  value: string;
+  label: string;
+  /** A recycling status, worded by the record type it belongs to. */
+  record_type?: string;
+}
+
+/** `get_report_filters`: the report's filters and the choices of each. */
+export interface ContractorReportFilterOptions {
+  report_type: ContractorReportType;
+  filters: ReportFilterKey[];
+  options: Partial<Record<ReportFilterKey, ReportFilterOption[]>>;
 }
 
 export interface ContractorReportData {

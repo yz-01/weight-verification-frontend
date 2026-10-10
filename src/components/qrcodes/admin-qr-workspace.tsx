@@ -18,6 +18,7 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import { useRef, useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import {
   FieldWrapper,
   FilterBar,
@@ -409,11 +410,9 @@ function QRStatistics() {
   return <div className="space-y-4"><QueryFailedNote query={summary} what={t("what.summary")} /><div className="surface-panel overflow-hidden rounded-xl"><div className="-mb-px -mr-px grid sm:grid-cols-2 lg:grid-cols-4">{[["total", data ? data.total : none], ["active", data ? (data.by_status.ACTIVE ?? 0) : none], ["scansToday", data ? data.scans_today : none], ["failedScansToday", data ? data.failed_scans_today : none]].map(([key, value]) => <div key={key} className="min-h-24 min-w-0 border-b border-r p-4"><p className="text-xs font-medium text-muted-foreground">{t(`metric.${key}`)}</p><p className="tabular mt-3 text-xl font-semibold">{value}</p></div>)}</div></div><div className="grid gap-4 lg:grid-cols-2"><div className="surface-panel rounded-xl p-4 sm:p-6"><h3 className="panel-title mb-3">{t("statistics.byType")}</h3><div className="divide-y border-y">{SUBJECT_TYPES.map((type) => <div key={type} className="flex items-center justify-between py-3"><span>{t(`subjectType.${type}`)}</span><span className="tabular font-medium">{data ? (data.by_subject_type[type] ?? 0) : none}</span></div>)}</div></div><div className="surface-panel rounded-xl p-4 sm:p-6"><h3 className="panel-title mb-3">{t("statistics.byStatus")}</h3><div className="divide-y border-y">{(["ACTIVE", "DISABLED", "VOIDED", "EXPIRED", "SUPERSEDED"] as QRCodeStatus[]).map((status) => <div key={status} className="flex items-center justify-between py-3"><StatusBadge label={t(`status.${status}`)} tone={statusTone(status)} /><span className="tabular font-medium">{data ? (data.by_status[status] ?? 0) : none}</span></div>)}</div></div></div></div>;
 }
 
+/** 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则), as on every other export. */
 function ExportButtons({ kind, query }: { kind: "codes" | "scans" | "anomalies"; query: Record<string, string> }) {
-  const t = useTranslations("adminQr.action");
-  const [busy, setBusy] = useState(false);
-  const run = async (format: "pdf" | "xlsx") => { setBusy(true); try { await exportQRRegister(kind, format, query); } finally { setBusy(false); } };
-  return <div className="flex flex-wrap gap-2"><Button variant="outline" disabled={busy} onClick={() => void run("xlsx")}><Download />{t("excel")}</Button><Button variant="outline" disabled={busy} onClick={() => void run("pdf")}><Download />{t("pdf")}</Button></div>;
+  return <ExportButton onExport={(format) => exportQRRegister(kind, format, query)} />;
 }
 
 function Pagination({ page, totalPages, count, onPage }: { page: number; totalPages: number; count?: number; onPage: (page: number) => void }) {

@@ -90,30 +90,34 @@ describe("the shell puts it in the header, top right (T-386)", () => {
 });
 
 describe("the button and the endpoint (T-386)", () => {
-  it("downloads one record from the record-exports endpoint, by kind and id", () => {
+  it("fetches one record's PDF from the record-exports endpoint, by kind and id", () => {
     const service = read("src/services/contractor-ops.service.ts");
-    const fn = service.slice(service.indexOf("export const downloadRecordPdf"));
-    expect(fn).toMatch(/download\("\/api\/record-exports\/download\/"/);
+    const fn = service.slice(service.indexOf("export const recordPdfFile"));
+    expect(fn).toMatch(/fetchAsFile\("\/api\/record-exports\/download\/"/);
     expect(fn).toMatch(/query: \{ kind, record: recordId \}/);
   });
 
-  it("draws nothing without an id, and cannot be pressed twice while it runs", () => {
+  it("draws nothing without an id, and offers the four shared file actions (PDF 统一操作规则)", () => {
     const button = read("src/components/shared/record-export-button.tsx");
     expect(button).toMatch(/if \(!recordId\) return null;/);
-    expect(button).toMatch(/disabled=\{exporting\.isPending\}/);
-    expect(button).toMatch(/t\("exportThisRecord"\)/);
+    expect(button).toMatch(/<FileActionButtons/);
+    expect(button).toMatch(/load: \(\) => recordPdfFile\(kind, recordId, reference\)/);
+    // Cannot be pressed twice while a file is being fetched.
+    const actions = read("src/components/shared/file-actions.tsx");
+    expect(actions).toMatch(/disabled=\{disabled \|\| Boolean\(busy\)\}/);
   });
 
   it("is labelled in all four languages", () => {
-    const expected: Record<string, string> = {
-      en: "Export this record",
-      zh: "单独导出",
-      "zh-TW": "單獨匯出",
-      ms: "Eksport rekod ini",
+    const expected: Record<string, [string, string, string, string]> = {
+      en: ["Preview", "Print", "Export", "Send"],
+      zh: ["预览", "打印", "导出", "发送"],
+      "zh-TW": ["預覽", "列印", "匯出", "發送"],
+      ms: ["Pratonton", "Cetak", "Eksport", "Hantar"],
     };
-    for (const [locale, text] of Object.entries(expected)) {
+    for (const [locale, words] of Object.entries(expected)) {
       const messages = JSON.parse(read(`src/messages/${locale}.json`));
-      expect(messages.common.exportThisRecord, locale).toBe(text);
+      const { preview, print, save, share } = messages.fileActions;
+      expect([preview, print, save, share], locale).toEqual(words);
     }
   });
 });

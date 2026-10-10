@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Loader2, PencilLine } from "lucide-react";
+import { Camera, Loader2, PencilLine, RotateCcw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -25,6 +25,13 @@ import { usePageProject } from "@/components/providers/current-project-provider"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -34,10 +41,11 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useDebounce } from "@/hooks/use-debounce";
 import { ApiError } from "@/interfaces/api";
 import type {
   EquipmentDayAdjustmentPayload,
-  EquipmentHoursDay,
+  EquipmentHoursSession,
 } from "@/interfaces/equipment-hours";
 import { useDateFormat } from "@/lib/dates";
 import { photoMeta } from "@/lib/photo-meta";
@@ -46,6 +54,7 @@ import {
   adjustEquipmentDayEnd,
   exportEquipmentHoursDays,
   getEquipmentHoursDays,
+  getEquipmentHoursFilterOptions,
   getEquipmentHoursMonth,
 } from "@/services/equipment-hours.service";
 
@@ -67,7 +76,7 @@ function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
 }
 
-/** The longest range the day table reads at once (the server's own cap). */
+/** The longest range the table reads at once (the server's own cap). */
 export const MAX_RANGE_DAYS = 92;
 
 /**
@@ -98,37 +107,6 @@ export function projectFilterValue(value: string): string {
   return value === "all" ? "" : value;
 }
 
-/** `YYYY-MM-DD` of a moment on the site's clock. */
-function siteDay(iso: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kuala_Lumpur",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(iso));
-}
-
-/**
- * Whether a moment of the day falls on the next calendar morning - a night
- * shift's end (Q28: before 06:00 is still the previous day's shift).
- */
-export function onNextMorning(iso: string | null, workDate: string): boolean {
-  return Boolean(iso) && siteDay(iso as string) > workDate;
-}
-
-/**
- * The end time the office may enter for a day (Q28): after the first photo,
- * and no later than 06:00 the next morning, when the next shift starts.
- */
-export function endTimeLimits(
-  day: Pick<EquipmentHoursDay, "work_date" | "start_at">,
-): { min: string | undefined; max: string } {
-  return {
-    min: day.start_at ? localInputValue(day.start_at) : undefined,
-    max: `${shiftDay(day.work_date, 1)}T06:00`,
-  };
-}
-
 /** The value a `datetime-local` input wants, from an ISO moment. */
 export function localInputValue(iso: string): string {
   const value = new Date(iso);
@@ -136,96 +114,173 @@ export function localInputValue(iso: string): string {
   return `${isoDay(value)}T${pad(value.getHours())}:${pad(value.getMinutes())}`;
 }
 
-/** What the office's end time sends: the moment in full, the reason trimmed. */
+type Session = Pick<
+  EquipmentHoursSession,
+  "start_at" | "end_at" | "previous_at" | "next_at" | "work_date"
+>;
+
+/**
+ * The end time the office may enter for a session: after its start, and no
+ * later than the machine's next photo (that is the next session) or now.
+ * There is no day or night limit any more (Lucas 2026-10-10: 「不分白天晚上」).
+ */
+export function endTimeLimits(
+  session: Session,
+  now: Date = new Date(),
+): { min: string | undefined; max: string } {
+  const next = session.next_at ? new Date(session.next_at) : null;
+  const latest = next && next < now ? next : now;
+  return {
+    min: session.start_at ? localInputValue(session.start_at) : undefined,
+    max: localInputValue(latest.toISOString()),
+  };
+}
+
+/**
+ * The start time the office may enter for a stop photo with no start: after
+ * the machine's photo before it and before the stop.
+ */
+export function startTimeLimits(session: Session): { min: string | undefined; max: string | undefined } {
+  return {
+    min: session.previous_at ? localInputValue(session.previous_at) : undefined,
+    max: session.end_at ? localInputValue(session.end_at) : undefined,
+  };
+}
+
+/** Which time the office fills in: the start of a stop with no start, else the end. */
+export function adjustMode(
+  session: Pick<EquipmentHoursSession, "has_start_photo" | "missing_start">,
+): "start" | "end" {
+  return !session.has_start_photo && session.missing_start ? "start" : "end";
+}
+
+/** What the office's time sends: the moment in full, the reason trimmed. */
 export function adjustmentPayload(
-  day: Pick<EquipmentHoursDay, "equipment" | "work_date">,
-  endAtLocal: string,
+  session: Pick<EquipmentHoursSession, "key">,
+  mode: "start" | "end",
+  atLocal: string,
   reason: string,
 ): EquipmentDayAdjustmentPayload {
+  const moment = new Date(atLocal).toISOString();
   return {
-    equipment: day.equipment,
-    work_date: day.work_date,
-    end_at: new Date(endAtLocal).toISOString(),
+    session: session.key,
+    ...(mode === "start" ? { start_at: moment } : { end_at: moment }),
     reason: reason.trim(),
   };
 }
 
 type View = "day" | "month";
 
+const ALL = "all";
+
 /**
- * 设备操作员工时 (2026-10 B15, Q8), under 设备管理.
+ * 设备操作员工时 (2026-10 B15; by in/out pairs since 2026-10-10), under 设备管理.
  *
- * 按日: each machine's day - start (first photo), end (last photo, or the
- * office's end time), hours, 「缺收工」 when only one photo was taken, and the
- * photos. The office adds or corrects the end time with a reason; every
- * correction stays in the history and the photos are never changed.
+ * 明细: one row per start-stop of a machine - start and end as full date and
+ * time, hours, and 累计工时 down the rows shown. A start with no stop is
+ * 「缺收工」, a stop with no start 「缺开工」; the office enters the missing time
+ * with a reason; every correction stays in the history and the photos are
+ * never changed. Filters: project, supplier, machine, plate / number, dates.
+ * With no dates chosen the table shows the latest records, not an empty day.
  *
- * 按月: each machine's days and hours for the month.
+ * 按月: each machine's sessions and hours for a month.
  */
 export function EquipmentOperatorHours() {
   const t = useTranslations("equipmentHours");
   const tRoot = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
-  const today = isoDay(new Date());
   const [view, setView] = useState<View>("day");
   // The top bar's 「当前项目」 in the office (B13).
   const [project, setProject] = usePageProject();
-  const [dateFrom, setDateFrom] = useState(today);
-  const [dateTo, setDateTo] = useState(today);
+  const [supplier, setSupplier] = useState(ALL);
+  const [equipment, setEquipment] = useState(ALL);
+  const [search, setSearch] = useState("");
+  const q = useDebounce(search.trim(), 300);
+  // No dates chosen: the server opens on the latest records (图6).
+  const [range, setRangeState] = useState<{ from: string; to: string } | null>(null);
   const [capped, setCapped] = useState(false);
-  const [month, setMonth] = useState(today.slice(0, 7));
-  const [opened, setOpened] = useState<EquipmentHoursDay | null>(null);
+  const [month, setMonth] = useState<string | null>(null);
+  const [opened, setOpened] = useState<EquipmentHoursSession | null>(null);
   const canAdjust = can("equipment.manage");
   const canExport = can("report.export");
-  const setRange = (from: string, to: string, edited: "from" | "to") => {
-    const next = keepWithinRange(from, to, edited);
-    setDateFrom(next.from);
-    setDateTo(next.to);
-    setCapped(next.capped);
-  };
 
-  const query = { project, date_from: dateFrom, date_to: dateTo };
+  const filters = {
+    project,
+    supplier: supplier === ALL ? "" : supplier,
+    equipment: equipment === ALL ? "" : equipment,
+    q,
+  };
+  const query = { ...filters, date_from: range?.from ?? "", date_to: range?.to ?? "" };
   const days = useQuery({
     queryKey: ["equipment-hours", "days", query],
     queryFn: () => getEquipmentHoursDays(query),
     enabled: view === "day",
   });
   const monthly = useQuery({
-    queryKey: ["equipment-hours", "month", project, month],
-    queryFn: () => getEquipmentHoursMonth({ month, project }),
-    enabled: view === "month" && Boolean(month),
+    queryKey: ["equipment-hours", "month", filters, month],
+    queryFn: () => getEquipmentHoursMonth({ ...filters, month: month ?? "" }),
+    enabled: view === "month",
   });
+  // query-failure: the lists only narrow the table; without them the table and its other filters still work
+  const options = useQuery({
+    queryKey: ["equipment-hours", "filters", project],
+    queryFn: () => getEquipmentHoursFilterOptions(project || undefined),
+    staleTime: 60_000,
+  });
+  const machines = (options.data?.equipment ?? []).filter(
+    (row) => supplier === ALL || row.supplier === supplier,
+  );
+  const suppliers = options.data?.suppliers ?? [];
   const rows = days.data?.rows ?? [];
   const monthRows = monthly.data?.rows ?? [];
-  // What the table and the export hold is the range the server used, which
-  // is the typed one unless it had to be shortened.
+  // What the table and the export hold is the range the server used.
   const shown = {
-    from: days.data?.date_from ?? dateFrom,
-    to: days.data?.date_to ?? dateTo,
+    from: days.data?.date_from ?? range?.from ?? "",
+    to: days.data?.date_to ?? range?.to ?? "",
   };
-  const narrowed = capped || shown.from !== dateFrom || shown.to !== dateTo;
+  const automatic = range === null;
+  const narrowed =
+    !automatic && (capped || (days.data ? shown.from !== range.from || shown.to !== range.to : false));
+  const setRange = (from: string, to: string, edited: "from" | "to") => {
+    const next = keepWithinRange(from, to, edited);
+    setRangeState({ from: next.from, to: next.to });
+    setCapped(next.capped);
+  };
+  const today = isoDay(new Date());
+
+  const subtitle = [
+    shown.from && shown.to ? t("export.range", { from: shown.from, to: shown.to }) : "",
+    suppliers.find((row) => row.id === filters.supplier)?.name ?? "",
+    machines.find((row) => row.id === filters.equipment)?.code ?? "",
+    q,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   const exportDays = (format: ExportFormat) =>
     exportEquipmentHoursDays(
       {
         format,
         title: tRoot("nav.submodule.equipmentOperatorHours"),
-        subtitle: t("export.range", { from: shown.from, to: shown.to }),
+        subtitle,
         emptyLabel: t("day.empty"),
         columns: [
-          { key: "work_date", label: t("field.date") },
           { key: "equipment_name", label: t("field.equipment") },
+          { key: "equipment_code", label: t("field.code") },
+          { key: "supplier_name", label: t("field.supplier") },
           { key: "plate", label: t("field.plate") },
           { key: "project_name", label: t("field.project") },
           { key: "start_at", label: t("field.start") },
           { key: "end_at", label: t("field.end") },
           { key: "hours", label: t("field.hours") },
+          { key: "cumulative_hours", label: t("field.cumulative") },
           {
             key: "status",
             label: t("field.status"),
             values: {
               MISSING_END: t("status.MISSING_END"),
+              MISSING_START: t("status.MISSING_START"),
               ADJUSTED: t("status.ADJUSTED"),
               OK: t("status.OK"),
             },
@@ -235,15 +290,17 @@ export function EquipmentOperatorHours() {
           { key: "adjustment_reason", label: t("field.reason") },
           { key: "adjusted_by", label: t("field.adjustedBy") },
         ],
-        query,
+        // The rows on screen: the same filters and the range the server used.
+        query: { ...filters, date_from: shown.from, date_to: shown.to },
       },
       {
         title: t("export.summaryTitle"),
         equipment_label: t("field.equipment"),
         plate_label: t("field.plate"),
-        days_label: t("field.daysWorked"),
+        supplier_label: t("field.supplier"),
+        sessions_label: t("field.sessions"),
         hours_label: t("field.totalHours"),
-        missing_label: t("field.missingEndDays"),
+        missing_label: t("field.incomplete"),
       },
     );
 
@@ -274,6 +331,57 @@ export function EquipmentOperatorHours() {
           allLabel={t("allProjects")}
           className="w-full sm:w-56"
         />
+        <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
+          {t("filter.supplier")}
+          <Select
+            value={supplier}
+            onValueChange={(value) => {
+              setSupplier(value);
+              setEquipment(ALL);
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-48" aria-label={t("filter.supplier")}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>{t("filter.allSuppliers")}</SelectItem>
+              {suppliers.map((row) => (
+                <SelectItem key={row.id} value={row.id}>
+                  {row.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </label>
+        <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
+          {t("filter.equipment")}
+          <Select value={equipment} onValueChange={setEquipment}>
+            <SelectTrigger className="w-full sm:w-56" aria-label={t("filter.equipment")}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>{t("filter.allEquipment")}</SelectItem>
+              {machines.map((row) => (
+                <SelectItem key={row.id} value={row.id}>
+                  {[row.code, row.name, row.plate].filter(Boolean).join(" · ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </label>
+        <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
+          {t("filter.search")}
+          <span className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              className="w-full pl-8 sm:w-48"
+              value={search}
+              placeholder={t("filter.searchPlaceholder")}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </span>
+        </label>
         {view === "day" ? (
           <>
             <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
@@ -281,9 +389,11 @@ export function EquipmentOperatorHours() {
               <Input
                 type="date"
                 className="w-full sm:w-40"
-                value={dateFrom}
-                max={dateTo}
-                onChange={(event) => setRange(event.target.value || today, dateTo, "from")}
+                value={range?.from ?? shown.from}
+                max={range?.to ?? shown.to}
+                onChange={(event) =>
+                  setRange(event.target.value || shown.from || today, range?.to ?? (shown.to || today), "from")
+                }
               />
             </label>
             <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
@@ -291,11 +401,26 @@ export function EquipmentOperatorHours() {
               <Input
                 type="date"
                 className="w-full sm:w-40"
-                value={dateTo}
-                min={dateFrom}
-                onChange={(event) => setRange(dateFrom, event.target.value || today, "to")}
+                value={range?.to ?? shown.to}
+                min={range?.from ?? shown.from}
+                onChange={(event) =>
+                  setRange(range?.from ?? (shown.from || today), event.target.value || shown.to || today, "to")
+                }
               />
             </label>
+            {!automatic && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setRangeState(null);
+                  setCapped(false);
+                }}
+              >
+                <RotateCcw />
+                {t("filter.latest")}
+              </Button>
+            )}
           </>
         ) : (
           <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
@@ -303,13 +428,18 @@ export function EquipmentOperatorHours() {
             <Input
               type="month"
               className="w-full sm:w-44"
-              value={month}
-              onChange={(event) => setMonth(event.target.value || today.slice(0, 7))}
+              value={month ?? monthly.data?.month ?? ""}
+              onChange={(event) => setMonth(event.target.value || null)}
             />
           </label>
         )}
       </FilterBar>
 
+      {view === "day" && automatic && days.data ? (
+        <p className="text-xs text-muted-foreground" role="status">
+          {t("filter.automatic", { from: df.date(shown.from), to: df.date(shown.to) })}
+        </p>
+      ) : null}
       {view === "day" && narrowed ? (
         <p className="text-xs text-muted-foreground" role="status">
           {t("filter.shown", { from: df.date(shown.from), to: df.date(shown.to), max: MAX_RANGE_DAYS })}
@@ -322,12 +452,13 @@ export function EquipmentOperatorHours() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("field.date")}</TableHead>
                 <TableHead>{t("field.equipment")}</TableHead>
+                <TableHead>{t("field.supplier")}</TableHead>
                 <TableHead>{t("field.plate")}</TableHead>
                 <TableHead>{t("field.start")}</TableHead>
                 <TableHead>{t("field.end")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.hours")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.cumulative")}</TableHead>
                 <TableHead>{t("field.photos")}</TableHead>
                 <TableHead className="text-right">
                   <span className="sr-only">{t("field.actions")}</span>
@@ -337,61 +468,85 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map((row) => (
-                  <TableRow key={row.key} className="cursor-pointer" onClick={() => setOpened(row)}>
-                    <TableCell className="tabular">{df.date(row.work_date)}</TableCell>
-                    <TableCell>
-                      <p className="font-medium">{row.equipment_name}</p>
-                      <p className="text-xs text-muted-foreground">{row.project_name}</p>
-                    </TableCell>
-                    <TableCell>{row.plate || "-"}</TableCell>
-                    <TableCell className="tabular">
-                      <ShiftTime at={row.start_at} workDate={row.work_date} />
-                    </TableCell>
-                    <TableCell className="tabular">
-                      {row.missing_end ? (
-                        <StatusBadge label={t("status.MISSING_END")} tone="warning" />
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5">
-                          <ShiftTime at={row.end_at} workDate={row.work_date} />
-                          {row.adjusted && <StatusBadge label={t("status.ADJUSTED")} tone="info" />}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="tabular text-right font-medium">{row.hours}</TableCell>
-                    <TableCell>
-                      <PhotoStrip day={row} />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-0.5">
-                        {canAdjust && (
-                          <Button
-                            size="sm"
-                            variant={row.missing_end ? "default" : "ghost"}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setOpened(row);
-                            }}
-                          >
-                            <PencilLine />
-                            {row.missing_end ? t("adjust.add") : t("adjust.edit")}
-                          </Button>
+                <>
+                  {rows.map((row) => (
+                    <TableRow key={row.key} className="cursor-pointer" onClick={() => setOpened(row)}>
+                      <TableCell>
+                        <p className="font-medium">{row.equipment_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {[row.equipment_code, row.project_name].filter(Boolean).join(" · ")}
+                        </p>
+                      </TableCell>
+                      <TableCell>{row.supplier_name || "-"}</TableCell>
+                      <TableCell>{row.plate || "-"}</TableCell>
+                      <TableCell className="tabular whitespace-nowrap">
+                        {row.missing_start ? (
+                          <StatusBadge label={t("status.MISSING_START")} tone="warning" />
+                        ) : (
+                          df.dateTime(row.start_at)
                         )}
-                      </div>
+                      </TableCell>
+                      <TableCell className="tabular whitespace-nowrap">
+                        {row.missing_end ? (
+                          <StatusBadge label={t("status.MISSING_END")} tone="warning" />
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5">
+                            {df.dateTime(row.end_at)}
+                            {row.adjusted && <StatusBadge label={t("status.ADJUSTED")} tone="info" />}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="tabular text-right font-medium">{row.hours}</TableCell>
+                      <TableCell className="tabular text-right text-muted-foreground">
+                        {row.cumulative_hours ?? ""}
+                      </TableCell>
+                      <TableCell>
+                        <PhotoStrip session={row} />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-0.5">
+                          {canAdjust && (
+                            <Button
+                              size="sm"
+                              variant={row.missing_end || row.missing_start ? "default" : "ghost"}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setOpened(row);
+                              }}
+                            >
+                              <PencilLine />
+                              {t(adjustLabelKey(row))}
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell className="font-semibold">{t("month.total")}</TableCell>
+                    <TableCell />
+                    <TableCell />
+                    <TableCell />
+                    <TableCell />
+                    <TableCell className="tabular text-right font-semibold">
+                      {days.data?.total_hours ?? ""}
                     </TableCell>
+                    <TableCell className="text-right" />
+                    <TableCell />
+                    <TableCell className="text-right" />
                   </TableRow>
-                ))
+                </>
               )}
             </TableBody>
           </Table>
@@ -403,23 +558,25 @@ export function EquipmentOperatorHours() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.equipment")}</TableHead>
+                <TableHead>{t("field.supplier")}</TableHead>
                 <TableHead>{t("field.plate")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.daysWorked")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.sessions")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.totalHours")}</TableHead>
-                <TableHead className="tabular text-right">{t("field.missingEndDays")}</TableHead>
-                <TableHead className="tabular text-right">{t("field.adjustedDays")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.incomplete")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.adjustedCount")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {monthly.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={8} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : monthRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={8} className="h-20 text-muted-foreground">
                     {t("month.empty")}
                   </TableCell>
                 </TableRow>
@@ -429,24 +586,30 @@ export function EquipmentOperatorHours() {
                     <TableRow key={row.equipment}>
                       <TableCell>
                         <p className="font-medium">{row.equipment_name}</p>
-                        <p className="text-xs text-muted-foreground">{row.project_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {[row.equipment_code, row.project_name].filter(Boolean).join(" · ")}
+                        </p>
                       </TableCell>
+                      <TableCell>{row.supplier_name || "-"}</TableCell>
                       <TableCell>{row.plate || "-"}</TableCell>
                       <TableCell className="tabular text-right">{row.days_worked}</TableCell>
+                      <TableCell className="tabular text-right">{row.session_count}</TableCell>
                       <TableCell className="tabular text-right font-medium">{row.total_hours}</TableCell>
                       <TableCell className="tabular text-right">
-                        {row.missing_end_days > 0 ? (
-                          <StatusBadge label={String(row.missing_end_days)} tone="warning" />
+                        {row.incomplete_count > 0 ? (
+                          <StatusBadge label={String(row.incomplete_count)} tone="warning" />
                         ) : (
                           0
                         )}
                       </TableCell>
-                      <TableCell className="tabular text-right">{row.adjusted_days}</TableCell>
+                      <TableCell className="tabular text-right">{row.adjusted_count}</TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
                     <TableCell className="font-semibold">{t("month.total")}</TableCell>
                     <TableCell />
+                    <TableCell />
+                    <TableCell className="text-right" />
                     <TableCell className="text-right" />
                     <TableCell className="tabular text-right font-semibold">
                       {monthly.data?.total_hours}
@@ -473,24 +636,20 @@ export function EquipmentOperatorHours() {
   );
 }
 
-/**
- * A time of the day; on the next calendar morning it says so - a night
- * shift's end is still this day's (Q28).
- */
-function ShiftTime({ at, workDate }: { at: string | null; workDate: string }) {
-  const t = useTranslations("equipmentHours");
-  const df = useDateFormat();
-  if (!at) return null;
-  return <>{onNextMorning(at, workDate) ? t("field.nextDay", { time: df.time(at) }) : df.time(at)}</>;
+/** The words on the button that opens the office's time form. */
+export function adjustLabelKey(
+  session: Pick<EquipmentHoursSession, "has_start_photo" | "missing_start" | "missing_end">,
+): "adjust.addStart" | "adjust.add" | "adjust.edit" {
+  if (adjustMode(session) === "start") return "adjust.addStart";
+  return session.missing_end ? "adjust.add" : "adjust.edit";
 }
 
-/** Up to three small photos of the day, and how many there are. */
-function PhotoStrip({ day }: { day: EquipmentHoursDay }) {
+/** The session's photos, small, and how many there are. */
+function PhotoStrip({ session }: { session: EquipmentHoursSession }) {
   const t = useTranslations("equipmentHours");
-  const shown = day.photos.slice(0, 3);
   return (
     <span className="inline-flex items-center gap-1">
-      {shown.map((photo) =>
+      {session.photos.slice(0, 3).map((photo) =>
         photo.watermarked_photo ? (
           // eslint-disable-next-line @next/next/no-img-element -- a stamped evidence file served by the API
           <img loading="lazy" decoding="async"
@@ -503,18 +662,18 @@ function PhotoStrip({ day }: { day: EquipmentHoursDay }) {
           <Camera key={photo.id} className="size-4 text-muted-foreground" />
         ),
       )}
-      <span className="text-xs text-muted-foreground">{t("photoCount", { count: day.photo_count })}</span>
+      <span className="text-xs text-muted-foreground">{t("photoCount", { count: session.photo_count })}</span>
     </span>
   );
 }
 
 /**
- * One machine's day in the record-detail popup (E8, Q31): its photos, the
- * office's end time and every correction.
+ * One session in the record-detail popup (E8, Q31): its 开工 and 收工 photos,
+ * the office's time and every correction.
  *
  * Saving needs a reason; the photos are not touched and an earlier correction
  * stays in the list under the new one. The correction history is the shell's
- * 更正记录; the end-time form is the decision panel.
+ * 更正记录; the time form is the decision panel.
  */
 export function DayDialog({
   day,
@@ -522,26 +681,33 @@ export function DayDialog({
   onClose,
   onSaved,
 }: {
-  day: EquipmentHoursDay;
+  day: EquipmentHoursSession;
   canAdjust: boolean;
   onClose: () => void;
-  onSaved: (day: EquipmentHoursDay) => void;
+  onSaved: (day: EquipmentHoursSession) => void;
 }) {
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  const limits = endTimeLimits(day);
-  const [endAt, setEndAt] = useState(() => {
+  const mode = adjustMode(day);
+  const limits = mode === "start" ? startTimeLimits(day) : endTimeLimits(day);
+  const [at, setAt] = useState(() => {
+    if (mode === "start") {
+      const morning = `${day.work_date}T08:00`;
+      return limits.max && morning >= limits.max ? (limits.min ?? limits.max) : morning;
+    }
     if (day.end_at) return localInputValue(day.end_at);
-    // 17:00 for a day shift; a shift that started after it is closed by hand.
+    // 17:00 on the start's day; a later start is closed by hand.
     const evening = `${day.work_date}T17:00`;
-    return limits.min && limits.min >= evening ? limits.min : evening;
+    const value = limits.min && limits.min >= evening ? limits.min : evening;
+    return limits.max && value > limits.max ? limits.max : value;
   });
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  const timeLabel = mode === "start" ? t("adjust.startAt") : t("adjust.endAt");
 
   const save = useMutation({
-    mutationFn: () => adjustEquipmentDayEnd(adjustmentPayload(day, endAt, reason)),
+    mutationFn: () => adjustEquipmentDayEnd(adjustmentPayload(day, mode, at, reason)),
     onSuccess: (saved) => {
       setReason("");
       setError("");
@@ -552,34 +718,37 @@ export function DayDialog({
       setError(reason_ instanceof ApiError ? reason_.message : t("adjust.failed")),
   });
 
+  const start = day.start_at ? df.dateTime(day.start_at) : t("status.MISSING_START");
+  const end = day.end_at ? df.dateTime(day.end_at) : t("status.MISSING_END");
+
   return (
     <RecordDetailDialog
       title={`${day.equipment_name}${day.plate ? ` · ${day.plate}` : ""}`}
-      description={`${df.date(day.work_date)} · ${t("dialog.summary", {
-        start: df.time(day.start_at),
-        end: day.end_at
-          ? onNextMorning(day.end_at, day.work_date)
-            ? t("field.nextDay", { time: df.time(day.end_at) })
-            : df.time(day.end_at)
-          : t("status.MISSING_END"),
-        hours: day.hours,
-      })}`}
+      description={t("dialog.summary", { start, end, hours: day.hours })}
       onClose={onClose}
     >
       <RecordDetailShell
         reference={`${day.equipment_code || day.equipment_name}-${day.work_date}`}
         facts={[
-          { label: t("field.date"), value: df.date(day.work_date) },
+          { label: t("field.code"), value: day.equipment_code || "-" },
+          { label: t("field.supplier"), value: day.supplier_name || "-" },
           { label: t("field.plate"), value: day.plate || "-" },
           { label: t("field.project"), value: day.project_name },
-          { label: t("field.start"), value: <ShiftTime at={day.start_at} workDate={day.work_date} /> },
+          {
+            label: t("field.start"),
+            value: day.missing_start ? (
+              <StatusBadge label={t("status.MISSING_START")} tone="warning" />
+            ) : (
+              df.dateTime(day.start_at)
+            ),
+          },
           {
             label: t("field.end"),
             value: day.missing_end ? (
               <StatusBadge label={t("status.MISSING_END")} tone="warning" />
             ) : (
               <span className="inline-flex items-center gap-1.5">
-                <ShiftTime at={day.end_at} workDate={day.work_date} />
+                {df.dateTime(day.end_at)}
                 {day.adjusted && <StatusBadge label={t("status.ADJUSTED")} tone="info" />}
               </span>
             ),
@@ -593,7 +762,13 @@ export function DayDialog({
             ? [{
                 id: photo.id,
                 url: photo.watermarked_photo,
-                label: `${df.time(photo.captured_at)} · ${photo.operator_name}`,
+                label: [
+                  photo.kind ? t(`kind.${photo.kind}`) : "",
+                  df.dateTime(photo.captured_at),
+                  photo.operator_name,
+                ]
+                  .filter(Boolean)
+                  .join(" · "),
                 ...photoMeta(photo),
               }]
             : [],
@@ -603,17 +778,17 @@ export function DayDialog({
         actions={
           canAdjust ? (
             <section className="space-y-3">
-              <h3 className="panel-title">
-                {day.missing_end ? t("adjust.add") : t("adjust.edit")}
-              </h3>
-              <p className="text-xs text-muted-foreground">{t("adjust.help")}</p>
-              <FieldWrapper label={t("adjust.endAt")} required>
+              <h3 className="panel-title">{t(adjustLabelKey(day))}</h3>
+              <p className="text-xs text-muted-foreground">
+                {mode === "start" ? t("adjust.helpStart") : t("adjust.help")}
+              </p>
+              <FieldWrapper label={timeLabel} required>
                 <Input
                   type="datetime-local"
-                  value={endAt}
+                  value={at}
                   min={limits.min}
                   max={limits.max}
-                  onChange={(event) => setEndAt(event.target.value)}
+                  onChange={(event) => setAt(event.target.value)}
                 />
               </FieldWrapper>
               <FieldWrapper label={t("adjust.reason")} required>
@@ -628,7 +803,7 @@ export function DayDialog({
               <div className="flex justify-end">
                 <Button
                   requires={[
-                    [endAt, t("adjust.endAt")],
+                    [at, timeLabel],
                     [reason.trim(), t("adjust.reason")],
                   ]}
                   disabled={save.isPending}
@@ -647,24 +822,35 @@ export function DayDialog({
 }
 
 /**
- * Every end time the office has entered for the day, newest first; the first
- * is the one in use. The photos' own last time is shown under it, so the
- * correction can always be read against what the phone recorded.
+ * Every time the office has entered for the session, newest first; the
+ * newest of each kind is the one in use. The stop photo's own time is shown
+ * under it, so a correction can always be read against what the phone
+ * recorded.
  */
-export function AdjustmentHistory({ day }: { day: EquipmentHoursDay }) {
+export function AdjustmentHistory({ day }: { day: EquipmentHoursSession }) {
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
+  const current = new Set(
+    [
+      day.adjustments.find((entry) => entry.end_at),
+      day.adjustments.find((entry) => entry.start_at),
+    ]
+      .filter(Boolean)
+      .map((entry) => entry?.id),
+  );
   return (
     <ShellPanel title={t("history.title")} className="space-y-2">
       {day.adjustments.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("history.empty")}</p>
       ) : (
         <ol className="space-y-2">
-          {day.adjustments.map((entry, index) => (
+          {day.adjustments.map((entry) => (
             <li key={entry.id} className="rounded-lg border p-3 text-sm">
               <p className="font-medium">
-                {t("history.end", { end: df.dateTime(entry.end_at) })}
-                {index === 0 && (
+                {entry.start_at
+                  ? t("history.start", { start: df.dateTime(entry.start_at) })
+                  : t("history.end", { end: df.dateTime(entry.end_at) })}
+                {current.has(entry.id) && (
                   <span className="ml-2">
                     <StatusBadge label={t("history.current")} tone="positive" />
                   </span>
@@ -680,7 +866,7 @@ export function AdjustmentHistory({ day }: { day: EquipmentHoursDay }) {
       )}
       {day.photo_end_at && (
         <p className="text-xs text-muted-foreground">
-          {t("history.photoEnd", { end: df.time(day.photo_end_at) })}
+          {t("history.photoEnd", { end: df.dateTime(day.photo_end_at) })}
         </p>
       )}
     </ShellPanel>

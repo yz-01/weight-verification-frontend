@@ -2,13 +2,14 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, FileDown, Loader2, UserCog } from "lucide-react";
+import { Eye, UserCog } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { AuditEntryDialog } from "@/components/audit/audit-entry-dialog";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ExportButton } from "@/components/shared/export-button";
 import { FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -378,16 +379,11 @@ export function AuditLogs({
         title={title ?? t("audit.title")}
         subtitle={subtitle ?? (isLoading ? t("common.loading") : t("audit.count", { count: totalCount }))}
         action={showExport ? (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" disabled={exportMutation.isPending} onClick={() => exportMutation.mutate("PDF")}>
-              {exportMutation.isPending ? <Loader2 className="animate-spin" /> : <FileDown />}
-              PDF
-            </Button>
-            <Button disabled={exportMutation.isPending} onClick={() => exportMutation.mutate("EXCEL")}>
-              {exportMutation.isPending ? <Loader2 className="animate-spin" /> : <FileDown />}
-              Excel
-            </Button>
-          </div>
+          // 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则).
+          <ExportButton
+            onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+            title={title ?? t("audit.title")}
+          />
         ) : undefined}
       />
 
