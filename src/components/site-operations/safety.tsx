@@ -740,6 +740,7 @@ export function Safety({
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
         storageKey="trace-safety"
+        pack={{ kind: "HAZARD" }}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
         onPageChange={list.setPage}

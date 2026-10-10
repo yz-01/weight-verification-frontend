@@ -20,6 +20,13 @@ import {
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
+import {
+  PACK_BADGE_COLUMN,
+  PACK_SELECT_COLUMN,
+  type PackListConfig,
+  usePackList,
+  withPackColumns,
+} from "@/components/contractor-ops/pack-collect";
 import { InsideRowControl } from "@/components/shared/inside-row-control";
 import { Button } from "@/components/ui/button";
 import {
@@ -99,12 +106,28 @@ interface DataTableProps<T> {
    * the overdue disposal the customer asked to see 「整条记录显示红色」 (D-217).
    */
   rowClassName?: (row: T) => string | undefined;
+  /**
+   * The list's records can go into a Multi Engine package (2026-10-10,
+   * 添加资料及勾选关联): rows show 「✅ 已打包 X 次」, and while a package is
+   * being put together they get tick boxes and 「加入当前资料包」. Written
+   * once in `pack-collect.tsx`; a module list only names its kind.
+   */
+  pack?: PackListConfig<T>;
   onSearchChange: (value: string) => void;
   onSortChange: (field: string, order: "asc" | "desc") => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
   onClearFilters: () => void;
 }
+
+/** What only the frame takes: a strip above the rows and a layer after it. */
+interface TableFrameProps<T> extends DataTableProps<T> {
+  above?: React.ReactNode;
+  after?: React.ReactNode;
+}
+
+/** The columns whose controls must not also open the row they sit in. */
+const OWN_CLICK_COLUMNS = new Set(["actions", PACK_SELECT_COLUMN, PACK_BADGE_COLUMN]);
 
 /**
  * The table page body: toolbar, one scroll region, pagination footer.
@@ -114,7 +137,34 @@ interface DataTableProps<T> {
  * and loading states render inside the table body rather than replacing it, so
  * the column headers never disappear and the layout never jumps.
  */
-export function DataTable<T>({
+export function DataTable<T>(props: DataTableProps<T>) {
+  if (props.pack) return <PackedDataTable {...props} pack={props.pack} />;
+  return <TableFrame {...props} />;
+}
+
+/** A list Multi Engine can pick from: the tick boxes, the badges, the bar. */
+function PackedDataTable<T>({
+  pack,
+  columns,
+  rows,
+  ...rest
+}: DataTableProps<T> & { pack: PackListConfig<T> }) {
+  const t = useTranslations("multiEngine.collect");
+  const list = usePackList(pack, rows);
+  const rowId = (row: T) =>
+    pack.rowId ? pack.rowId(row) : String((row as { id?: unknown }).id ?? "");
+  return (
+    <TableFrame
+      {...rest}
+      rows={rows}
+      columns={withPackColumns(columns, list, t("column"), rowId)}
+      above={list.bar}
+      after={list.overlay}
+    />
+  );
+}
+
+function TableFrame<T>({
   columns,
   rows,
   totalCount,
@@ -136,7 +186,9 @@ export function DataTable<T>({
   onPageChange,
   onPageSizeChange,
   onClearFilters,
-}: DataTableProps<T>) {
+  above,
+  after,
+}: TableFrameProps<T>) {
   const t = useTranslations();
 
   const [searchDraft, setSearchDraft] = useState(search);
@@ -276,6 +328,8 @@ export function DataTable<T>({
         </div>
       </div>
 
+      {above}
+
       <div className="min-h-0 min-w-0 flex-1 overflow-auto">
         <Table className="w-full min-w-max max-sm:[&_tbody_td:first-child]:sticky max-sm:[&_tbody_td:first-child]:left-0 max-sm:[&_tbody_td:first-child]:z-[1] max-sm:[&_tbody_td:first-child]:bg-card max-sm:[&_thead_th:first-child]:sticky max-sm:[&_thead_th:first-child]:left-0 max-sm:[&_thead_th:first-child]:z-[2] max-sm:[&_thead_th:first-child]:bg-card">
           <TableHeader className="sticky top-0 z-10 bg-card">
@@ -393,7 +447,13 @@ export function DataTable<T>({
                       className="px-4 py-2.5 text-sm sm:px-6"
                       // A button inside the row must not also open the row.
                       onClick={
-                        cell.column.id === "actions"
+                        OWN_CLICK_COLUMNS.has(cell.column.id)
+                          ? (event) => event.stopPropagation()
+                          : undefined
+                      }
+                      // Space on a tick box ticks it; it does not open the row.
+                      onKeyDown={
+                        cell.column.id === PACK_SELECT_COLUMN || cell.column.id === PACK_BADGE_COLUMN
                           ? (event) => event.stopPropagation()
                           : undefined
                       }
@@ -490,6 +550,7 @@ export function DataTable<T>({
           </Button>
         </div>
       </div>
+      {after}
     </div>
   );
 }

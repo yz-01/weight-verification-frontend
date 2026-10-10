@@ -199,6 +199,7 @@ export function PermitsOffice() {
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey="permits.v1"
+        pack="HAZARD"
         toolbar={
           <>
             <ProjectListFilter list={list} />

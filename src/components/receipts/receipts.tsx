@@ -446,6 +446,9 @@ export function Receipts() {
         // `.v3` with the manufacturer column (2026-10 D1); `.v4` with the
         // photograph in place of the photo count (E3).
         storageKey="receipts.v4"
+        // Multi Engine picks deliveries here (2026-10-10): 「✅ 已打包 X 次」,
+        // and tick boxes while a package is being put together.
+        pack={{ kind: "MATERIAL_RECEIPT" }}
         toolbarActions={
           <div className="ml-auto flex items-center gap-2">
             <Select

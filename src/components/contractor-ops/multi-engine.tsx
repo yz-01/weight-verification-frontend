@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import { PackTargetChooser } from "@/components/contractor-ops/pack-collect";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
@@ -37,6 +39,7 @@ import {
 } from "@/components/ui/table";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
+import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
 import type {
   ArchiveRecordKind,
@@ -111,7 +114,13 @@ export function MultiEngineWorkspace() {
   const [project, setProject] = usePageProject();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [openId, setOpenId] = useState<string | null>(null);
+  // `?package=` opens one: 「返回 Multi Engine」 from a module's list comes
+  // back to the package it was collecting into (2026-10-10, 二 7), and a
+  // record's 「已打包」 links here too. Closing takes it out of the address.
+  const linked = useSearchParams().get("package");
+  const clearLinked = useClearSearchParam("package");
+  const [chosenId, setOpenId] = useState<string | null>(null);
+  const openId = chosenId ?? linked;
   // Page 1 of the next project, and the one open on the last project closes
   // (B13 audit #8).
   useOnProjectChange(project, () => {
@@ -195,6 +204,11 @@ export function MultiEngineWorkspace() {
               {rows.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell className="font-medium">
+                    {row.package_no && (
+                      <span className="block text-xs font-normal text-muted-foreground tabular">
+                        {row.package_no}
+                      </span>
+                    )}
                     {row.name}
                     {row.remarks && (
                       <span className="block max-w-88 truncate text-xs font-normal text-muted-foreground">
@@ -279,7 +293,13 @@ export function MultiEngineWorkspace() {
         />
       )}
       {openId && (
-        <PackageSheet id={openId} onClose={() => setOpenId(null)} />
+        <PackageSheet
+          id={openId}
+          onClose={() => {
+            setOpenId(null);
+            clearLinked();
+          }}
+        />
       )}
     </div>
   );
@@ -363,6 +383,9 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
   const queryClient = useQueryClient();
   const formatter = useDateFormat();
   const { can } = useAuth();
+  // 「添加资料」 first asks which column, and goes to that module's own list
+  // (2026-10-10, 二 1-2); the simple list in this dialog stays one press away.
+  const [choosing, setChoosing] = useState(false);
   const [adding, setAdding] = useState(false);
   const [ticking, setTicking] = useState<PackageItem | null>(null);
   const [remarks, setRemarks] = useState("");
@@ -466,6 +489,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
         ) : (
           <>
             <p className="text-xs text-muted-foreground">
+              {data.package_no ? `${data.package_no} · ` : ""}
               {data.project_name} · {t(`state.${data.state}`)} ·{" "}
               {t(`review.${data.review_state}`)} ·{" "}
               {formatter.dateTime(data.created_at)}
@@ -614,7 +638,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => setAdding(true)}
+                  onClick={() => setChoosing(true)}
                 >
                   <Plus className="size-4" />
                   {t("addRecords")}
@@ -745,6 +769,16 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
         )}
       </footer>
 
+      {choosing && data && (
+        <PackTargetChooser
+          pkg={{ id: data.id, name: data.name, project: data.project }}
+          onClose={() => setChoosing(false)}
+          onQuickList={() => {
+            setChoosing(false);
+            setAdding(true);
+          }}
+        />
+      )}
       {adding && data && (
         <AddRecordsDialog
           packageId={data.id}
