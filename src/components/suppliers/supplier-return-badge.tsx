@@ -19,21 +19,18 @@
  * it - for anyone else it stays a mark, so nothing they press is refused.
  */
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Loader2, PackageMinus, Printer, Share2, Undo2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, PackageMinus, Undo2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ExportButton } from "@/components/shared/export-button";
-import { FilePreviewDialog } from "@/components/shared/file-preview";
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -46,15 +43,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
-import { absoluteUrl, shareOrCopy } from "@/lib/share";
+import { absoluteUrl } from "@/lib/share";
 import { cn } from "@/lib/utils";
-import { fetchAsFile, fetchObjectUrl } from "@/services/api-client";
-import {
-  exportBody,
-  exportQuery,
-  getSupplierReturns,
-  type ExportRequest,
-} from "@/services/contractor.service";
+import { getSupplierReturns, type ExportRequest } from "@/services/contractor.service";
 import { exportMaterialOutgoing } from "@/services/contractor-ops.service";
 
 /** What the badge needs to know about a supplier. */
@@ -117,8 +108,6 @@ export function SupplierReturnBadge({
   );
 }
 
-const EXPORT_PATH = "/api/material-outgoing/export_records/";
-
 type Translate = (key: string) => string;
 
 /**
@@ -157,10 +146,8 @@ export function SupplierReturnsDialog({
   const t = useTranslations("supplierReturns");
   const ops = useTranslations("contractorOps");
   const dates = useTranslations("supplierDateFilter");
-  const common = useTranslations("common");
   const { can } = useAuth();
   const unitValues = useUnitExportValues();
-  const [printing, setPrinting] = useState(false);
   // A long history is cut at the server's cap (audit #24): narrowed here by
   // project and by the day the material left. Every project the reader sees
   // to begin with, not the top bar's: the 「有退场资料」 mark counts them all,
@@ -188,23 +175,6 @@ export function SupplierReturnsDialog({
     query: { supplier: supplier.id, status: "COMPLETED", ...narrow },
     columns: supplierReturnsExportColumns(t, ops, unitValues),
   });
-  const requestOptions = (format: "xlsx" | "pdf") => {
-    const request = exportRequest(format);
-    return { method: "POST" as const, query: exportQuery(request), body: exportBody(request) };
-  };
-  const share = useMutation({
-    mutationFn: async () => {
-      const file = await fetchAsFile(EXPORT_PATH, {
-        ...requestOptions("pdf"),
-        fallbackFilename: `${supplier.name}.pdf`,
-      }).catch(() => null);
-      return shareOrCopy({ title, url: absoluteUrl(listHref), file });
-    },
-    onSuccess: (outcome) => {
-      if (outcome === "copied") toast.success(common("linkCopied"));
-      else if (outcome === "failed") toast.error(common("shareFailed"));
-    },
-  });
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -214,30 +184,18 @@ export function SupplierReturnsDialog({
           <DialogDescription>{t("help")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Button
-            variant="outline"
+          {/* 预览 · 打印 · 导出 · 发送, as on every export (PDF 统一操作规则).
+              Exporting is its own permission, as on every other list; without
+              it the returns can still be previewed, printed and sent, as
+              before - only 导出 is left out. */}
+          <ExportButton
+            onExport={(format) => exportMaterialOutgoing(exportRequest(format))}
             disabled={!rows.length}
             disabledReason={t("empty")}
-            onClick={() => setPrinting(true)}
-          >
-            <Printer className="size-4" />
-            {t("print")}
-          </Button>
-          {/* Exporting is its own permission, as on every other list. */}
-          {can("report.export") ? (
-            <ExportButton
-              onExport={(format) => exportMaterialOutgoing(exportRequest(format))}
-              disabled={!rows.length}
-            />
-          ) : null}
-          <Button
-            variant="outline"
-            disabled={share.isPending}
-            onClick={() => share.mutate()}
-          >
-            {share.isPending ? <Loader2 className="size-4 animate-spin" /> : <Share2 className="size-4" />}
-            {t("share")}
-          </Button>
+            allowSave={can("report.export")}
+            title={title}
+            link={absoluteUrl(listHref)}
+          />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ProjectPicker
@@ -288,16 +246,6 @@ export function SupplierReturnsDialog({
         ) : rows.length ? (
           <SupplierReturnsTable rows={rows} />
         ) : null}
-        {printing && (
-          <FilePreviewDialog
-            title={title}
-            load={() => fetchObjectUrl(EXPORT_PATH, requestOptions("pdf"))}
-            previewType="application/pdf"
-            filename={`${supplier.name}.pdf`}
-            onDownload={() => exportMaterialOutgoing(exportRequest("pdf"))}
-            onClose={() => setPrinting(false)}
-          />
-        )}
       </DialogContent>
     </Dialog>
   );

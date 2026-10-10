@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Check, ExternalLink, FileDown, Loader2, MessageSquareReply, Plus, Save } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, Loader2, MessageSquareReply, Plus, Save } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { ExportButton } from "@/components/shared/export-button";
 import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -193,5 +194,5 @@ function ReportPanel() {
   ] as const;
   const exporting = useMutation({ mutationFn: ({ dataset, format, fields }: { dataset: string; format: "pdf" | "xlsx"; fields: readonly string[] }) => exportCustomerServiceReport(dataset, format, t(`report.${dataset}`), fields.map((key) => ({ key, label: t(`exportColumn.${key}`) }))) });
   const common = useTranslations("common"); const none = common("emptyValue"); const d = summary.data;
-  return <div className="surface-panel min-h-0 min-w-0 flex-1 overflow-y-auto rounded-xl"><div className="grid grid-cols-1 border-b border-panel-border sm:grid-cols-2 xl:grid-cols-4">{[["customers", d ? d.customers : none], ["service", d ? d.service_records : none], ["feedback", d ? d.feedback : none], ["completion", d ? `${d.completion_rate}%` : none]].map(([key, value]) => <div key={key} className="min-w-0 border-b border-r border-panel-border p-4 sm:px-6"><p className="text-xs font-medium text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-xl font-semibold tabular">{value}</p></div>)}</div><QueryFailedNote query={summary} what={t("what.summary")} className="border-b px-4 py-2 sm:px-6" /><div className="divide-y">{reports.map(([dataset, fields]) => <div key={dataset} className="flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6"><div className="min-w-0"><p className="font-medium">{t(`report.${dataset}`)}</p><p className="text-xs text-muted-foreground">{t(`report.${dataset}Subtitle`)}</p></div><div className="flex flex-wrap gap-2"><Button variant="outline" disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "pdf", fields })}><FileDown />PDF</Button><Button disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "xlsx", fields })}><FileDown />Excel</Button></div></div>)}</div></div>;
+  return <div className="surface-panel min-h-0 min-w-0 flex-1 overflow-y-auto rounded-xl"><div className="grid grid-cols-1 border-b border-panel-border sm:grid-cols-2 xl:grid-cols-4">{[["customers", d ? d.customers : none], ["service", d ? d.service_records : none], ["feedback", d ? d.feedback : none], ["completion", d ? `${d.completion_rate}%` : none]].map(([key, value]) => <div key={key} className="min-w-0 border-b border-r border-panel-border p-4 sm:px-6"><p className="text-xs font-medium text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-xl font-semibold tabular">{value}</p></div>)}</div><QueryFailedNote query={summary} what={t("what.summary")} className="border-b px-4 py-2 sm:px-6" /><div className="divide-y">{reports.map(([dataset, fields]) => <div key={dataset} className="flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6"><div className="min-w-0"><p className="font-medium">{t(`report.${dataset}`)}</p><p className="text-xs text-muted-foreground">{t(`report.${dataset}Subtitle`)}</p></div><div className="flex flex-wrap gap-2"><ExportButton onExport={(format) => exporting.mutateAsync({ dataset, format, fields })} title={t(`report.${dataset}`)} /></div></div>)}</div></div>;
 }

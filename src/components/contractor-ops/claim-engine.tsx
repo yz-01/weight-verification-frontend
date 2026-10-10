@@ -1,13 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCheck, Coins, Download, Inbox, Plus, Trash2 } from "lucide-react";
+import { CheckCheck, Coins, Inbox, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
+import { FileActionButtons } from "@/components/shared/file-actions";
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
@@ -40,7 +41,8 @@ import {
   confirmClaim,
   createClaim,
   deleteClaim,
-  downloadEvidencePackage,
+  evidencePackageFile,
+  previewEvidencePackage,
   getClaim,
   getClaimCandidates,
   getClaims,
@@ -603,17 +605,17 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               Multi Engine screen offers, not a second copy of the merge.
               Gated on `package.view` because that is what the endpoint
               checks: head office may hold `claim.view` without it, and a
-              button that answers 403 is worse than no button. */}
+              button that answers 403 is worse than no button.
+              预览 · 打印 · 导出 · 发送 as on every export (PDF 统一操作规则):
+              only 导出 and 发送 count as the package having left (D-148). */}
           {data.state === "CONFIRMED" && data.package && can("package.view") && (
-            <Button
-              variant="outline"
-              onClick={() =>
-                downloadEvidencePackage(data.package as string, data.claim_no)
-              }
-            >
-              <Download />
-              {t("downloadPdf")}
-            </Button>
+            <FileActionButtons
+              source={{
+                load: () => previewEvidencePackage(data.package as string, data.claim_no),
+                loadToSend: () => evidencePackageFile(data.package as string, data.claim_no),
+                title: data.claim_no,
+              }}
+            />
           )}
           {data.state === "CONFIRMED" && can("claim.confirm_payment") && (
             <Button variant="outline" onClick={() => setPaying(true)}>

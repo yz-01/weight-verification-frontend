@@ -7,7 +7,6 @@ import {
   ChevronRight,
   CircleDashed,
   ClipboardCheck,
-  Download,
   History,
   KeyRound,
   Link2,
@@ -41,6 +40,7 @@ import {
 } from "@/components/consultant-workflow/application-form-card";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
+import { ExportButton } from "@/components/shared/export-button";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import {
   RecordDetailFrame,
@@ -243,14 +243,15 @@ export function ConsultantApplicationDetail({
           {t("action.acknowledge")}
         </Button>
       )}
+      {/* The final approval report: 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
       {application.final_report && (
-        <Button
-          variant="outline"
+        <ExportButton
           size="sm"
-          onClick={() => downloadApplicationFinalReport(application.id, application.application_no)}
-        >
-          <Download />{t("action.downloadReport")}
-        </Button>
+          formats={["pdf"]}
+          label={t("action.downloadReport")}
+          title={application.application_no}
+          onExport={() => downloadApplicationFinalReport(application.id, application.application_no)}
+        />
       )}
     </>
   );
@@ -727,10 +728,14 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
                 </div>
               )}
               {kind === "FINAL_REPORT" && entry && (
-                <div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold">
-                  <button type="button" className="text-primary hover:underline" onClick={() => downloadApplicationFinalReport(application.id, application.application_no)}>
-                    {t("action.downloadReport")}
-                  </button>
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs font-semibold">
+                  <ExportButton
+                    size="sm"
+                    formats={["pdf"]}
+                    label={t("action.downloadReport")}
+                    title={application.application_no}
+                    onExport={() => downloadApplicationFinalReport(application.id, application.application_no)}
+                  />
                   {application.verification_code && (
                     <Link href={`/verify/application/${application.verification_code}`} className="text-primary hover:underline">
                       {t("archive.verify")}

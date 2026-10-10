@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Check,
   CloudCog,
-  Download,
   Inbox,
   Loader2,
   Pencil,
@@ -18,6 +17,7 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
+import { ExportButton } from "@/components/shared/export-button";
 import { KpiCard } from "@/components/shared/kpi-card";
 import {
   EmptyState,
@@ -2423,24 +2423,17 @@ function ReportPanel() {
   const t = useTranslations("adminCloudServiceManagement");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [busy, setBusy] = useState("");
-  async function run(dataset: string, format: "xlsx" | "pdf") {
-    setBusy(`${dataset}-${format}`);
-    try {
-      await exportCloudReport(
-        dataset,
-        format,
-        REPORTS[dataset].map((key) => ({
-          key,
-          label: t(`exportColumn.${key}`),
-        })),
-        t(`report.${dataset}`),
-        { date_from: from, date_to: to },
-      );
-    } finally {
-      setBusy("");
-    }
-  }
+  const run = (dataset: string, format: "xlsx" | "pdf") =>
+    exportCloudReport(
+      dataset,
+      format,
+      REPORTS[dataset].map((key) => ({
+        key,
+        label: t(`exportColumn.${key}`),
+      })),
+      t(`report.${dataset}`),
+      { date_from: from, date_to: to },
+    );
   return (
     <>
       <FilterBar>
@@ -2470,30 +2463,11 @@ function ReportPanel() {
             >
               <p className="font-medium">{t(`report.${dataset}`)}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  disabled={Boolean(busy)}
-                  onClick={() => void run(dataset, "xlsx")}
-                >
-                  {busy === `${dataset}-xlsx` ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Download />
-                  )}
-                  XLSX
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={Boolean(busy)}
-                  onClick={() => void run(dataset, "pdf")}
-                >
-                  {busy === `${dataset}-pdf` ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Download />
-                  )}
-                  PDF
-                </Button>
+                {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
+                <ExportButton
+                  onExport={(format) => run(dataset, format)}
+                  title={t(`report.${dataset}`)}
+                />
               </div>
             </div>
           ))}

@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { ExportButton } from "@/components/shared/export-button";
 import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -360,7 +361,7 @@ const REPORTS: Record<string, string[]> = {
 };
 
 function ReportPanel() {
-  const t = useTranslations("adminAssetManagement"); const summary = useQuery({ queryKey: ["asset-report-summary"], queryFn: getAssetReportSummary }); const [busy, setBusy] = useState("");
-  async function run(dataset: string, format: "xlsx" | "pdf") { setBusy(`${dataset}-${format}`); try { await exportAssetReport(dataset, format, REPORTS[dataset].map((key) => ({ key, label: t(`exportColumn.${key}`) })), t(`report.${dataset}`)); } finally { setBusy(""); } }
-  return <Panel loading={summary.isLoading} error={summary.isError}><div className="grid md:grid-cols-2 xl:grid-cols-3">{Object.keys(REPORTS).map((dataset) => <div key={dataset} className="border-b border-r p-4 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><p className="font-medium">{t(`report.${dataset}`)}</p><p className="tabular mt-1 text-2xl font-semibold">{dataset === "inventory" ? summary.data?.inventory?.length ?? 0 : summary.data?.[dataset as keyof typeof summary.data] as number ?? 0}</p></div><div className="flex flex-wrap items-center gap-2"><Button size="sm" variant="outline" disabled={Boolean(busy)} onClick={() => void run(dataset, "xlsx")}>{busy === `${dataset}-xlsx` ? <Loader2 className="animate-spin" /> : <Download />}XLSX</Button><Button size="sm" variant="outline" disabled={Boolean(busy)} onClick={() => void run(dataset, "pdf")}>{busy === `${dataset}-pdf` ? <Loader2 className="animate-spin" /> : <Download />}PDF</Button></div></div></div>)}</div></Panel>;
+  const t = useTranslations("adminAssetManagement"); const summary = useQuery({ queryKey: ["asset-report-summary"], queryFn: getAssetReportSummary });
+  const run = (dataset: string, format: "xlsx" | "pdf") => exportAssetReport(dataset, format, REPORTS[dataset].map((key) => ({ key, label: t(`exportColumn.${key}`) })), t(`report.${dataset}`));
+  return <Panel loading={summary.isLoading} error={summary.isError}><div className="grid md:grid-cols-2 xl:grid-cols-3">{Object.keys(REPORTS).map((dataset) => <div key={dataset} className="border-b border-r p-4 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><p className="font-medium">{t(`report.${dataset}`)}</p><p className="tabular mt-1 text-2xl font-semibold">{dataset === "inventory" ? summary.data?.inventory?.length ?? 0 : summary.data?.[dataset as keyof typeof summary.data] as number ?? 0}</p></div><div className="flex flex-wrap items-center gap-2"><ExportButton size="sm" onExport={(format) => run(dataset, format)} title={t(`report.${dataset}`)} /></div></div></div>)}</div></Panel>;
 }

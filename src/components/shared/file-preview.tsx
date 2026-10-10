@@ -19,6 +19,7 @@ import { Download, ExternalLink, FileWarning, Loader2, Printer, RefreshCw } from
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { SheetView } from "@/components/shared/file-actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,10 +30,17 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
-export type PreviewKind = "pdf" | "image" | "text" | "video" | "audio";
+export type PreviewKind = "pdf" | "image" | "text" | "video" | "audio" | "sheet";
 
-/** How a content type is shown, or `null` when the browser cannot show it. */
-export function previewKind(type: string | null | undefined): PreviewKind | null {
+/**
+ * How a content type is shown, or `null` when the browser cannot show it.
+ *
+ * An Excel workbook has no type the browser draws, so the server sends none;
+ * it is recognised by its name and read here as a table (PDF 统一操作规则:
+ * 「所有关于 pdf 或者 excel 的都可以预览不用先下载」).
+ */
+export function previewKind(type: string | null | undefined, filename = ""): PreviewKind | null {
+  if (/\.xlsx$/i.test(filename)) return "sheet";
   if (!type) return null;
   if (type === "application/pdf") return "pdf";
   if (type.startsWith("image/")) return "image";
@@ -67,7 +75,7 @@ export function FilePreview({
   className?: string;
 }) {
   const t = useTranslations("filePreview");
-  const kind = previewKind(previewType);
+  const kind = previewKind(previewType, filename);
   const frame = useRef<HTMLIFrameElement>(null);
   const [url, setUrl] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
@@ -168,6 +176,8 @@ export function FilePreview({
           <img src={url} alt={filename} className="absolute inset-0 size-full object-contain" />
         ) : kind === "video" ? (
           <video src={url} controls className="absolute inset-0 size-full bg-black" />
+        ) : kind === "sheet" ? (
+          <SheetFromUrl url={url} />
         ) : kind === "audio" ? (
           <div className="grid h-full place-items-center p-6">
             <audio src={url} controls className="w-full max-w-md" />
@@ -206,6 +216,27 @@ export function FilePreview({
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+/** A workbook already fetched as an object URL, read as a table. */
+function SheetFromUrl({ url }: { url: string }) {
+  const [blob, setBlob] = useState<Blob | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void fetch(url)
+      .then((response) => response.blob())
+      .then((read) => alive && setBlob(read));
+    return () => {
+      alive = false;
+    };
+  }, [url]);
+  return blob ? (
+    <SheetView file={blob} />
+  ) : (
+    <div className="grid h-full place-items-center">
+      <Loader2 className="size-7 animate-spin text-primary" />
     </div>
   );
 }

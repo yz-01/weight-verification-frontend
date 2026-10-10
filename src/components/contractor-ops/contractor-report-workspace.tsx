@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileClock, FileSpreadsheet, FileText } from "lucide-react";
+import { FileClock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -13,12 +13,12 @@ import {
   ReportSelector,
   useReportLevelName,
 } from "@/components/reports/report-selector";
+import { ExportButton } from "@/components/shared/export-button";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import { opensInPlace } from "@/components/shared/in-place-record";
 import { useRecordOpener } from "@/components/shared/record-opener";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -349,22 +349,13 @@ export function ContractorReportWorkspace({
           <Input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} />
         </label>
         <div className="flex flex-wrap items-end gap-2 max-sm:[&>*]:flex-1">
-          <Button
-            variant="outline"
-            disabledReason={!report.data ? common("noReportYet") : undefined}
-            disabled={exportMutation.isPending || !report.data}
-            onClick={() => exportMutation.mutate("EXCEL")}
-          >
-            <FileSpreadsheet />{t("action.excel")}
-          </Button>
-          <Button
-            variant="outline"
-            disabledReason={!report.data ? common("noReportYet") : undefined}
-            disabled={exportMutation.isPending || !report.data}
-            onClick={() => exportMutation.mutate("PDF")}
-          >
-            <FileText />{t("action.pdf")}
-          </Button>
+          {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
+          <ExportButton
+            onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+            disabled={!report.data}
+            disabledReason={common("noReportYet")}
+            title={t(`type.${reportType}`)}
+          />
         </div>
         {reportType === "photos" ? (
           <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-3">
