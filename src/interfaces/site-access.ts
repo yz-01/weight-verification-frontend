@@ -1,3 +1,4 @@
+import type { PrintLetterhead } from "@/lib/print-letterhead";
 import type { RecordedBy } from "@/interfaces/recorder";
 
 export type GeofenceShape = "CIRCLE" | "POLYGON";
@@ -252,6 +253,9 @@ export interface EmergencyList {
   app_count: number;
   gate_count: number;
   people: EmergencyPresence[];
+  /** What the printed list is headed with: the company's own name and logo
+   *  and the chosen project (全系统公司表头规则). */
+  letterhead?: PrintLetterhead;
 }
 
 export interface EmergencyPresence {

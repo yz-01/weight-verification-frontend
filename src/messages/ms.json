@@ -12214,7 +12214,7 @@
       "contactPerson": "Pegawai untuk dihubungi",
       "designation": "Jawatan",
       "email": "E-mel",
-      "help": "Maklumat dan logo ini digunakan di seluruh portal kitar semula.",
+      "help": "Maklumat dan logo ini digunakan di seluruh portal kitar semula, dan nama serta logo anda menjadi kepala setiap PDF, cetakan dan eksport rekod anda.",
       "logo": "Pilih logo",
       "name": "Nama syarikat",
       "phone": "Telefon",
@@ -13511,7 +13511,7 @@
       "logo": "Logo",
       "background": "Imej latar",
       "chooseBackground": "Pilih imej latar",
-      "imageHint": "PNG, JPG atau WebP, sehingga 8 MB. Hanya syarikat anda melihat dan menggunakannya; borang MR mencetak nama dan logo anda."
+      "imageHint": "PNG, JPG atau WebP, sehingga 8 MB. Hanya syarikat anda melihat dan menggunakannya. Nama dan logo syarikat anda menjadi kepala setiap PDF, cetakan dan eksport rekod anda."
     },
     "projectDefaults": {
       "archiveLock": "Kunci rekod selepas arkib",
@@ -14701,7 +14701,7 @@
       "vehiclePlate": "Kenderaan",
       "wasteType": "Bahan"
     },
-    "footer": "Dikeluarkan oleh MSE Trace. Setiap bacaan di sebalik timbangan ini disimpan tanpa diubah dan boleh disahkan semula terhadap cincang di atas.",
+    "footer": "Setiap bacaan di sebalik timbangan ini disimpan tanpa diubah dan boleh disahkan semula terhadap cincang di atas.",
     "section": {
       "anomalies": "Sebab timbangan ini ditolak",
       "evidence": "Bukti",

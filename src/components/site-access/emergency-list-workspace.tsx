@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import type { EmergencyPresence } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
+import { escapePrintHtml as escapeHtml, LETTERHEAD_PRINT_CSS, letterheadHtml, type PrintLetterhead } from "@/lib/print-letterhead";
 import { exportEmergencyList, getEmergencyList } from "@/services/site-access.service";
 
 /**
@@ -49,7 +50,7 @@ export function EmergencyListWorkspace() {
   function print() {
     const popup = window.open("", "_blank", "width=1000,height=760");
     if (!popup) return;
-    popup.document.write(printDocument(people, {
+    popup.document.write(printDocument(people, rows.data?.letterhead, {
       title: t("emergency.title"),
       generated: t("emergency.printedAt", { time: df.dateTime(new Date().toISOString()) }),
       composition: t("emergency.composition", {
@@ -83,13 +84,14 @@ export function EmergencyListWorkspace() {
   </div>;
 }
 
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => `&#${character.charCodeAt(0)};`);
-}
-
-/** A plain page for the printer: the list, and when and how it was counted. */
+/**
+ * A plain page for the printer: the list, and when and how it was counted,
+ * headed with the company's own name and logo and the chosen project
+ * (全系统公司表头规则) - the platform only as the small corner tag.
+ */
 function printDocument(
   people: EmergencyPresence[],
+  letterhead: PrintLetterhead | undefined,
   words: {
     title: string;
     generated: string;
@@ -102,7 +104,7 @@ function printDocument(
   const body = people
     .map((row) => `<tr>${words.cells(row).map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
     .join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(words.title)}</title><style>body{font-family:Arial,"Microsoft YaHei",sans-serif;padding:24px;color:#111}h1{font-size:20px;margin:0 0 4px}p{margin:0 0 12px;font-size:12px;color:#444}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top}th{background:#eee}td:first-child{width:28px}</style></head><body><h1>${escapeHtml(words.title)}</h1><p>${escapeHtml(words.generated)} · ${escapeHtml(words.composition)}</p><table><thead><tr><th>#</th>${head}</tr></thead><tbody>${body.replace(/<tr>/g, (() => { let n = 0; return () => `<tr><td>${++n}</td>`; })())}</tbody></table><script>window.onload=()=>{window.print()}</script></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(words.title)}</title><style>body{font-family:Arial,"Microsoft YaHei",sans-serif;padding:24px;color:#111}h1{font-size:20px;margin:0 0 4px}p{margin:0 0 12px;font-size:12px;color:#444}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top}th{background:#eee}td:first-child{width:28px}${LETTERHEAD_PRINT_CSS}</style></head><body>${letterheadHtml(letterhead, words.title)}<p>${escapeHtml(words.generated)} · ${escapeHtml(words.composition)}</p><table><thead><tr><th>#</th>${head}</tr></thead><tbody>${body.replace(/<tr>/g, (() => { let n = 0; return () => `<tr><td>${++n}</td>`; })())}</tbody></table><script>window.onload=()=>{window.print()}</script></body></html>`;
 }
 
 function duration(minutes: number, t: ReturnType<typeof useTranslations<"siteControl">>) { const hours = Math.floor(minutes / 60); const remaining = minutes % 60; return hours ? t("emergency.durationHours", { hours, minutes: remaining }) : t("emergency.durationMinutes", { minutes }); }
