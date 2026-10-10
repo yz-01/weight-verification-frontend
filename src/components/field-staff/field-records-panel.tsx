@@ -7,6 +7,7 @@ import {
   ClipboardList,
   DoorOpen,
   FilePlus2,
+  FileSignature,
   HardHat,
   ListChecks,
   Loader2,
@@ -52,6 +53,7 @@ import {
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
 import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldPermits } from "@/components/permits/field-permits";
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -112,6 +114,7 @@ export type FieldRecordMode =
   | "outgoing"
   | "waste"
   | "safety"
+  | "permit"
   | "consultant"
   | "sundry"
   | "request"
@@ -135,6 +138,9 @@ const RECORD_OPTIONS: RecordOption[] = [
   { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive" },
   { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning" },
+  // 施工准证 (2026-10-10): its own entry, apart from 隐患整改 - 新申请, the
+  // permits I applied for, and the ones sent to me to approve.
+  { key: "permit", permission: "safety.view", icon: FileSignature, tone: "bg-info/10 text-info" },
   { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary" },
   // No 「现场资料」 tile (D-285): it filed photographs under 现场资料分类, a
   // module the customer never defined. Every tile here is a business entry.
@@ -206,6 +212,9 @@ export function FieldRecordsPanel({
   }
   if (mode === "safety") {
     return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><FieldDraft scope={`safety:${task?.id ?? "new"}`}><Safety fieldMode initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></FieldDraft></RecordFrame>;
+  }
+  if (mode === "permit") {
+    return <RecordFrame title={t("records.permit")} onBack={() => chooseMode(null)}><FieldPermits initialProject={task?.project ?? boundProject} /></RecordFrame>;
   }
   if (mode === "consultant") {
     return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;

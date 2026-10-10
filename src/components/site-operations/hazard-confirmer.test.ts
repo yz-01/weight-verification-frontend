@@ -51,7 +51,14 @@ describe("the confirm entry follows the confirmer", () => {
  */
 describe("VO is not an EHS column on the phone", () => {
   it("filters the retired VO column out of the report form", () => {
-    expect(source).toContain('const RETIRED_VO_COLUMN_CODE = "HZD-VO"');
-    expect(source).toMatch(/category\.code !== RETIRED_VO_COLUMN_CODE/);
+    // One list of hazard columns since 施工准证 left the form (2026-10-10):
+    // ``lib/hazard-columns`` drops VO and the permit column alike.
+    const columns = readFileSync(
+      path.join(process.cwd(), "src/lib/hazard-columns.ts"),
+      "utf8",
+    );
+    expect(columns).toContain('export const RETIRED_VO_COLUMN_CODE = "HZD-VO"');
+    expect(columns).toMatch(/column\.code !== RETIRED_VO_COLUMN_CODE/);
+    expect(source).toContain("hazardColumns(categories.data?.results ?? [], fieldMode)");
   });
 });
