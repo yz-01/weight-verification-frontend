@@ -1,9 +1,10 @@
 /**
- * 累计净数量 (2026-10 C9, C11, Q4): grouped by supplier, searchable by
+ * 累计进场与退场 (2026-10 C9, C11, Q4): grouped by supplier, searchable by
  * material, exported through the same server lines. Since the client's
  * 2026-10-09 request each number opens onto the records behind it, and a
- * line with returns says 「有退场记录」 (`net-breakdown.test.tsx` for what
- * opens).
+ * line with returns says 「有退货资料」 (`net-breakdown.test.tsx` for what
+ * opens). No 累计净数量 column since 2026-10-10 (Lucas: 「累计净数量可以移除，
+ * 不需要进场减退场」).
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -79,24 +80,27 @@ function render(node: React.ReactNode, rows = ROWS) {
   );
 }
 
-describe("累计净数量 by supplier", () => {
+describe("累计进场与退场 by supplier", () => {
   it("groups by supplier name, the lines naming none last, and badges each by the supplier's returns", () => {
     const groups = groupBySupplier(ROWS);
     expect(groups.map((group) => group.supplierName)).toEqual(["Aggregate Co", "Rebar Supply", ""]);
     expect(groups.find((group) => group.supplier === "s-1")?.returnCount).toBe(4);
   });
 
-  it("shows gross and net side by side, under each supplier, with a material search and export", () => {
+  it("shows received and returned side by side, no net, under each supplier, with a material search and export", () => {
     const html = render(<NetTotalsView project="p-1" />);
     expect(html).toContain("累计进场");
-    expect(html).toContain("累计净数量");
+    expect(html).toContain("已退场");
+    // Lucas 2026-10-10: no 进场 − 退场 column, nor a sentence about one.
+    expect(html).not.toContain("累计净数量");
     expect(html).toContain("Rebar Supply");
     expect(html).toContain("未填供应商");
     expect(html).toContain("搜索材料");
     expect(html).toContain("导出");
-    // The gross stays what came in; the net is what is left.
+    // The gross stays what came in; the net (6.000) is not shown.
     expect(html).toContain(">10.000<");
-    expect(html).toContain(">6.000<");
+    expect(html).toContain(">4.000<");
+    expect(html).not.toContain(">6.000<");
     // DO is per delivery: not a column of the totals, in the drill-down.
     expect(html).not.toContain("DO-11");
     // Nothing is open until a number is pressed.
@@ -110,30 +114,30 @@ describe("每个数字点进去 (client, 2026-10-09)", () => {
     "utf8",
   ).replace(/\r\n/g, "\n");
 
-  it("draws 累计进场, 已退场 and 累计净数量 of every line as buttons naming what they open", () => {
+  it("draws 累计进场 and 已退场 of every line as buttons naming what they open", () => {
     const html = render(<NetTotalsView project="p-1" />);
     const numbers = html.match(/<button[^>]*data-slot="net-number"[^>]*>/g) ?? [];
-    expect(numbers).toHaveLength(ROWS.length * 3);
+    expect(numbers).toHaveLength(ROWS.length * 2);
     expect(html).toContain('aria-label="查看累计进场 10.000 是哪些记录"');
     expect(html).toContain('aria-label="查看已退场 4.000 是哪些记录"');
-    expect(html).toContain('aria-label="查看累计净数量 6.000 是哪些记录"');
     // Reject is not a number the client asked to open.
     expect(html).not.toContain("查看Reject");
   });
 
   it("presses each number into the dialog on its own tab, and the dialog into the page's filters", () => {
-    for (const focus of ["received", "returned", "net"]) {
+    for (const focus of ["received", "returned"]) {
       expect(source).toMatch(new RegExp(`onOpen=\\{\\(\\) => setDrill\\(\\{ row, focus: "${focus}" \\}\\)\\}`));
     }
     expect(source).toMatch(/<NetBreakdownDialog[\s\S]{0,200}row=\{drill\.row\}[\s\S]{0,40}query=\{query\}[\s\S]{0,40}focus=\{drill\.focus\}/);
   });
 
-  it("tags only a line with completed returns 「有退场记录」, and the tag opens its returns", () => {
+  it("tags only a line with completed returns 「有退货资料」, and the tag opens its returns", () => {
     const html = render(<NetTotalsView project="p-1" />);
     const tags = html.match(/<button[^>]*data-slot="net-return-tag"[^>]*>/g) ?? [];
     expect(tags).toHaveLength(1);
     expect(tags[0]).toContain("这一行有 1 笔已完成的退场，点开查看");
-    expect(html).toContain("有退场记录");
+    expect(html).toContain("有退货资料");
+    expect(html).not.toContain("有退场记录");
     expect(source).toMatch(/data-slot="net-return-tag"[\s\S]{0,500}onClick=\{\(\) => setDrill\(\{ row, focus: "returned" \}\)\}/);
   });
 });

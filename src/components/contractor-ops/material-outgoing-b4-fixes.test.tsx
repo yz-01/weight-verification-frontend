@@ -1,7 +1,7 @@
 /**
  * Material outgoing after the batch-4 audit (FABLE_AUDIT_B4, Q29).
  *
- * - Q29.13 / #11: 「有退场资料」 is shown to everyone who sees the supplier;
+ * - Q29.13 / #11: 「有退货资料」 (was 有退场资料) is shown to everyone who sees the supplier;
  *   without `material_outgoing.view` it is a plain mark that opens nothing.
  *   The export inside the returns needs `report.export`.
  * - #24: the returns list says when it was cut and how to narrow it.
@@ -139,11 +139,11 @@ beforeEach(() => {
   search = new URLSearchParams();
 });
 
-describe("「有退场资料」 for everyone (Q29.13)", () => {
+describe("「有退货资料」 for everyone (Q29.13)", () => {
   it("is a plain mark for someone who may not read the returns", () => {
     permissions = new Set(["supplier.view", "receipt.create"]);
     const html = render(<SupplierReturnBadge supplier={SUPPLIER} />);
-    expect(html).toContain("有退场资料");
+    expect(html).toContain("有退货资料");
     expect(html).toMatch(/^<span/);
     expect(html).not.toContain("<button");
   });

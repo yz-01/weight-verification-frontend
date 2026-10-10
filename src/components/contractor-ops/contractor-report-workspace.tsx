@@ -15,6 +15,7 @@ import {
 } from "@/components/reports/report-selector";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
+import { opensInPlace } from "@/components/shared/in-place-record";
 import { useRecordOpener } from "@/components/shared/record-opener";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import { Button } from "@/components/ui/button";
@@ -285,7 +286,10 @@ export function ContractorReportWorkspace({
       return null;
     }
     return (reference: string, projectName: string) => {
-      if ("href" in target) {
+      // A record whose module popup stands on its own opens over the
+      // report, which stays where it was (Lucas 2026-10-10); the rest open
+      // on their module's screen.
+      if ("href" in target && !opensInPlace(record?.kind)) {
         router.push(target.href);
         return;
       }

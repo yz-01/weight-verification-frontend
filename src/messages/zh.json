@@ -9087,8 +9087,7 @@
     },
     "export": {
       "subtitle": "MSE Trace 筛选后的材料进场记录",
-      "cumulativeTitle": "累计总数量",
-      "periodQuantity": "期间数量"
+      "cumulativeTitle": "累计总数量"
     },
     "quantity": {
       "byMaterial": "按材料统计数量",
@@ -9097,7 +9096,7 @@
       "title": "材料数量报表",
       "totalDeliveries": "收货总数",
       "unitNote": "数量始终按单位分组；吨、件和车次不会相加。",
-      "cumulativeHint": "数量 = 所选期间；累计数量 = 从第一笔收货到期间结束日。没选日期时两栏相同。不合格不计，退场不扣。"
+      "cumulativeHint": "累计数量 = 右边收货次数那几笔相加（选了日期就是该期间；没选日期就是从第一笔起）。不合格不计，退场不扣。"
     },
     "records": {
       "title": "收货明细（{total}）",
@@ -11730,16 +11729,15 @@
       "in": "Material In 进场",
       "out": "Material Out 退场",
       "reject": "Reject 不合格",
-      "totals": "累计净数量",
+      "totals": "累计进场与退场",
       "legacyReturns": "10-02 前用进场单登记的退场记录",
       "choose": "选择查看"
     },
     "net": {
-      "title": "按供应商、材料汇总的累计净数量",
-      "note": "累计进场不会减少。累计净数量 = 进场（不合格不计入）− 后台已确认完成的退场（按材料分类和单位配对）。不同单位不混加。",
+      "title": "按供应商、材料汇总的累计进场与退场",
+      "note": "累计进场不会减少，退场也不从中扣除。已退场 = 后台已确认完成的退场（按材料分类和单位配对）。不合格不计入累计进场。不同单位不混加。",
       "received": "累计进场",
       "returned": "已退场",
-      "net": "累计净数量",
       "rejected": "Reject（不计入）",
       "supplier": "供应商",
       "noSupplier": "未填供应商",
@@ -11762,7 +11760,7 @@
         "returnNote": "Return Note",
         "quantity": "数量"
       },
-      "returnTag": "有退场记录",
+      "returnTag": "有退货资料",
       "returnTagHint": "这一行有 {count} 笔已完成的退场，点开查看",
       "openNumber": "查看{label} {value} 是哪些记录",
       "breakdown": {
@@ -11773,8 +11771,6 @@
         "rejected": "不合格，不计入累计进场（{count} 笔）",
         "emptyDeliveries": "没有计入的进场。",
         "emptyReturns": "没有已完成的退场。",
-        "receivedTotal": "进场合计",
-        "returnedTotal": "已完成退场合计",
         "subtotal": "合计",
         "reason": "退回原因",
         "approvedBy": "批准",
@@ -16048,13 +16044,13 @@
     }
   },
   "supplierReturns": {
-    "badge": "有退场资料",
+    "badge": "有退货资料",
     "badgeHint": "这家供应商有 {count} 笔已完成的退场，点开查看",
-    "title": "{name} 的退场资料",
-    "help": "这家供应商所有已完成的退场：Return Note、照片、双方签名和批准资料。",
+    "title": "{name} 的退货资料",
+    "help": "这家供应商所有已完成的退场：Return Note、照片、双方签名和批准资料。点任意一行查看完整记录。",
     "empty": "没有已完成的退场。",
     "truncated": "只显示最近 {shown} 笔（共 {total} 笔）。请按项目或日期缩小范围。",
-    "what": "退场资料",
+    "what": "退货资料",
     "column": {
       "date": "日期",
       "material": "材料",
@@ -16073,7 +16069,7 @@
     "print": "打印",
     "export": "导出",
     "share": "分享",
-    "open": "打开这一笔"
+    "open": "查看 {reference} 的完整记录"
   },
   "equipmentHours": {
     "subtitle": "开工拍一张、收工拍一张：第一张是开始，最后一张是结束，相减就是工时（不扣午休）。夜班算同一班：早上 6 点前拍的照片算进前一天那一班。",

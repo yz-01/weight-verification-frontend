@@ -148,7 +148,7 @@ const DATA: MaterialNetBreakdown = {
 
 const QUERY = { project: "p-1", supplier: "s-1", date_from: "2026-10-01" };
 
-function render(focus: "received" | "returned" | "net", data: MaterialNetBreakdown | null = DATA) {
+function render(focus: "received" | "returned", data: MaterialNetBreakdown | null = DATA) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   qc.setQueryData(["material-units", "all"], []);
   if (data) qc.setQueryData(["receipts", "net-breakdown", QUERY, netLineKey(ROW)], data);
@@ -224,23 +224,19 @@ describe("「已退场」 opens every completed return behind it", () => {
   });
 });
 
-describe("「累计净数量」 opens the sum", () => {
-  it("shows 进场合计 − 已完成退场合计 = 累计净数量 with both lists under it", () => {
-    const html = render("net");
-    const sum = html.slice(html.indexOf('data-slot="net-sum"'));
-    expect(sum.indexOf("进场合计")).toBeLessThan(sum.indexOf("已完成退场合计"));
-    expect(sum).toMatch(/进场合计[\s\S]*301\.000[\s\S]*−[\s\S]*已完成退场合计[\s\S]*25\.000[\s\S]*=[\s\S]*累计净数量[\s\S]*276\.000/);
-    expect(rows(html, "DELIVERY")).toHaveLength(2);
-    expect(rows(html, "RETURN")).toHaveLength(2);
+describe("no 「累计净数量」 (Lucas 2026-10-10: 「不需要进场减退场」)", () => {
+  it("has a tab for 累计进场 and 已退场 only, and no net sum", () => {
+    for (const focus of ["received", "returned"] as const) {
+      const html = render(focus);
+      for (const text of ["累计进场", "已退场"]) expect(html).toContain(text);
+      expect(html).not.toContain("累计净数量");
+      expect(html).not.toContain("276.000");
+      expect(html).not.toContain('data-slot="net-sum"');
+    }
   });
 
   it("says so when the line is no longer in the filters", () => {
-    const html = render("net", { line: null, deliveries: [], rejected: [], returns: [] });
+    const html = render("received", { line: null, deliveries: [], rejected: [], returns: [] });
     expect(html).toContain("这一行已不在目前的筛选里。");
-  });
-
-  it("has a tab for each of the three numbers", () => {
-    const html = render("net");
-    for (const text of ["累计进场", "已退场", "累计净数量"]) expect(html).toContain(text);
   });
 });

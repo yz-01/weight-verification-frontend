@@ -1,12 +1,13 @@
 "use client";
 
 /**
- * What one 累计净数量 line is made of (client request 2026-10-09).
+ * What one line of 累计进场与退场 is made of (client request 2026-10-09).
  *
- * 「有数量统计，却不能点击查看数量来源和退场记录」: 「累计进场」, 「已退场」 and
- * 「累计净数量」 open here, each on its own tab - every delivery behind the
- * gross, every completed return behind 已退场 (why, who approved it and
- * when, the photographs and signatures), and the sum that makes the net.
+ * 「有数量统计，却不能点击查看数量来源和退场记录」: 「累计进场」 and 「已退场」
+ * open here, each on its own tab - every delivery behind the gross, every
+ * completed return behind 已退场 (why, who approved it and when, the
+ * photographs and signatures). The third tab, the 累计净数量 sum, went with
+ * its column (Lucas 2026-10-10: 「不需要进场减退场」).
  * 「这里必须要点进去可以操作的」: each row opens the record's own popup - the
  * delivery's `ViewReceipt`, the return's 材料出场 detail with the buttons it
  * always had - over this list, which stays open behind it.
@@ -45,7 +46,7 @@ import {
 } from "@/services/contractor.service";
 
 /** Which number was pressed: the tab the dialog opens on. */
-export type NetFocus = "received" | "returned" | "net";
+export type NetFocus = "received" | "returned";
 
 type Opened = { kind: "receipt" | "outgoing"; id: string } | null;
 
@@ -82,7 +83,6 @@ export function NetBreakdownDialog({
   const numbers: Array<[NetFocus, string]> = [
     ["received", line?.received ?? row.received],
     ["returned", line?.returned ?? row.returned],
-    ["net", line?.net ?? row.net],
   ];
 
   return (
@@ -119,17 +119,7 @@ export function NetBreakdownDialog({
             </p>
           ) : data && line ? (
             <div className="space-y-4">
-              {tab === "net" ? (
-                <BreakdownSum
-                  received={line.received}
-                  returned={line.returned}
-                  net={line.net}
-                  deliveries={data.deliveries.length}
-                  returns={data.returns.length}
-                  unit={unit}
-                />
-              ) : null}
-              {tab !== "returned" ? (
+              {tab === "received" ? (
                 <BreakdownSection
                   title={t("breakdown.deliveries", { count: data.deliveries.length })}
                   subtotal={`${line.received} ${unit}`}
@@ -145,7 +135,7 @@ export function NetBreakdownDialog({
                   )}
                 />
               ) : null}
-              {tab !== "received" ? (
+              {tab === "returned" ? (
                 <BreakdownSection
                   title={t("breakdown.returns", { count: data.returns.length })}
                   subtotal={`${line.returned} ${unit}`}
@@ -190,54 +180,6 @@ export function NetBreakdownDialog({
       ) : null}
       {opened?.kind === "outgoing" ? <OutgoingDecision id={opened.id} onClose={closeRecord} /> : null}
     </>
-  );
-}
-
-/** 进场合计 − 已完成退场合计 = 累计净数量, with the line's own numbers. */
-function BreakdownSum({
-  received,
-  returned,
-  net,
-  deliveries,
-  returns,
-  unit,
-}: {
-  received: string;
-  returned: string;
-  net: string;
-  deliveries: number;
-  returns: number;
-  unit: string;
-}) {
-  const t = useTranslations("receipts.net");
-  const lines: Array<[string, string, string, string]> = [
-    ["", t("breakdown.receivedTotal"), received, t("breakdown.deliveries", { count: deliveries })],
-    ["−", t("breakdown.returnedTotal"), returned, t("breakdown.returns", { count: returns })],
-    ["=", t("net"), net, ""],
-  ];
-  return (
-    <dl className="surface-panel rounded-xl p-3 text-sm" data-slot="net-sum">
-      {lines.map(([sign, label, value, hint], index) => (
-        <div
-          key={label}
-          className={cn(
-            "flex items-baseline gap-2 py-1",
-            index === lines.length - 1 && "mt-1 border-t border-panel-border pt-2 font-semibold",
-          )}
-        >
-          <span className="w-4 shrink-0 text-center text-muted-foreground" aria-hidden>
-            {sign}
-          </span>
-          <dt className="min-w-0 flex-1">
-            {label}
-            {hint ? <span className="block text-xs font-normal text-muted-foreground">{hint}</span> : null}
-          </dt>
-          <dd className="tabular whitespace-nowrap text-right">
-            {value} {unit}
-          </dd>
-        </div>
-      ))}
-    </dl>
   );
 }
 

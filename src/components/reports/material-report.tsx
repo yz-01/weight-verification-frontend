@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Image from "next/image";
-import Link from "next/link";
+import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
@@ -21,6 +21,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { ReportSelector, useMaterialColumns } from "@/components/reports/report-selector";
 import { FilterBar, FilterField, ListHeader, QueryFailedNote, TypeBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { ViewReceipt } from "@/components/receipts/view-receipt";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -106,7 +107,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       }),
       emptyLabel: t("table.noResults"),
       query: filters,
-      // The file ends with each material's 累计总数量 (E5, Q24).
+      // The file ends with each material's 累计总数量 (E5, Q24): one
+      // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
       summary:
         mode === "quantity"
           ? {
@@ -115,8 +117,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               materialLabel: t("reports.receipts.material"),
               specificationLabel: t("receipts.field.materialSpecification"),
               unitLabel: t("reports.receipts.unit"),
-              quantityLabel: t("materialReports.export.periodQuantity"),
-              cumulativeLabel: t("receipts.field.cumulativeQuantity"),
+              quantityLabel: t("receipts.field.cumulativeQuantity"),
               countLabel: t("reports.receipts.deliveries"),
               note: t("materialReports.quantity.cumulativeHint"),
             }
@@ -133,8 +134,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
               { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
               { key: "material_name", label: t("receipts.field.materialName") },
+              // One quantity per delivery; the sum is the closing section's
+              // 累计数量 (Lucas 2026-10-10: 「保留一个就好了」).
               { key: "quantity", label: t("receipts.field.quantity") },
-              { key: "cumulative_quantity", label: t("receipts.field.cumulativeQuantity") },
               {
                 key: "unit",
                 label: t("receipts.field.unit"),
@@ -267,7 +269,8 @@ const THUMBNAILS = 3;
  * pages through all of them (B10) instead of stopping at the first ten; the
  * page and page size live in the address like every other list. Each row
  * opens the delivery itself, where every photo is shown whole with its
- * watermark.
+ * watermark - in its record popup over the report, which stays where it was
+ * (Lucas 2026-10-10: 「关掉还是会保留在刚刚的页面，不会跳转」).
  */
 function ReportRecords({
   filters,
@@ -300,6 +303,7 @@ function ReportRecords({
   });
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
+  const [opened, setOpened] = useState<string | null>(null);
   return (
     <ReportTable title={t("materialReports.records.title", { total })}>
       <QueryFailedNote query={records} what={t("materialReports.records.what")} />
@@ -333,8 +337,8 @@ function ReportRecords({
                 <RecordPhotos record={row} />
               </TableCell>
               <TableCell className="text-right">
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/receipts/${row.id}`}>{t("materialReports.records.open")}</Link>
+                <Button variant="outline" size="sm" onClick={() => setOpened(row.id)}>
+                  {t("materialReports.records.open")}
                 </Button>
               </TableCell>
             </TableRow>
@@ -348,6 +352,9 @@ function ReportRecords({
         onPageChange={onPageChange}
         onPageSizeChange={onPageSizeChange}
       />
+      {opened ? (
+        <ViewReceipt id={opened} presentation="dialog" onClose={() => setOpened(null)} />
+      ) : null}
     </ReportTable>
   );
 }
@@ -518,7 +525,10 @@ function QuantityReport({
       </MetricRow>
 
       <ReportTable title={t("materialReports.quantity.byMaterial")}>
-        {/* 数量 is the period, 累计数量 from the first delivery (E5, Q24). */}
+        {/* One quantity (Lucas 2026-10-10, 图1): 「两次收货，可是累计数量还是
+            一样呢，保留一个就好了」. 累计数量 is the deliveries counted beside
+            it, added up - the same loads 收货次数 counts. A material with no
+            delivery in the period has nothing to show. */}
         <p className="px-3 py-1.5 text-xs text-muted-foreground">
           {t("materialReports.quantity.cumulativeHint")}
         </p>
@@ -528,13 +538,12 @@ function QuantityReport({
               <TableHead>{t("reports.receipts.material")}</TableHead>
               <TableHead>{t("receipts.field.materialSpecification")}</TableHead>
               <TableHead>{t("reports.receipts.unit")}</TableHead>
-              <TableHead className="text-right">{t("reports.receipts.quantity")}</TableHead>
               <TableHead className="text-right">{t("receipts.field.cumulativeQuantity")}</TableHead>
               <TableHead className="text-right">{t("reports.receipts.deliveries")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.quantity_by_material.map((row) => (
+            {data.quantity_by_material.filter((row) => row.receipts > 0).map((row) => (
               <TableRow key={`${row.material_name}-${row.material_specification}-${row.unit}`}>
                 <TableCell className="font-medium">{row.material_name}</TableCell>
                 <TableCell className="text-muted-foreground">
@@ -542,7 +551,6 @@ function QuantityReport({
                 </TableCell>
                 <TableCell><TypeBadge label={unitName(row.unit)} /></TableCell>
                 <TableCell className="tabular text-right">{row.quantity}</TableCell>
-                <TableCell className="tabular text-right">{row.cumulative_quantity}</TableCell>
                 <TableCell className="tabular text-right text-muted-foreground">
                   {formatter.number(row.receipts)}
                 </TableCell>
