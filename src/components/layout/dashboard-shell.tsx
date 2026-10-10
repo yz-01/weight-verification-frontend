@@ -4,6 +4,10 @@ import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import {
+  PackCollectDock,
+  PackCollectProvider,
+} from "@/components/contractor-ops/pack-collect";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardToolbar } from "@/components/layout/dashboard-toolbar";
 import { PageTitleOverrideProvider } from "@/components/layout/page-title-override";
@@ -125,6 +129,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <TaskCardDockProvider>
       {/* 顶栏「当前项目」: chosen once, read by every page below (B13). */}
       <CurrentProjectProvider>
+      {/* Multi Engine's 「正在挑选资料」 follows the person across modules
+          (2026-10-10, 添加资料及勾选关联). */}
+      <PackCollectProvider>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="h-dvh min-w-0 overflow-hidden">
@@ -135,10 +142,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               {children}
             </div>
           </PageTitleOverrideProvider>
+          {/* The package being put together, shrunk to a strip under the
+              page - in the layout, like the task cards, so it covers no row. */}
+          <PackCollectDock />
           {/* The task cards, in the layout rather than over it (B01). */}
           <TaskCardDockSlot />
         </SidebarInset>
       </SidebarProvider>
+      </PackCollectProvider>
       </CurrentProjectProvider>
       {/* Hazard cards float for eight seconds, then go (C3). */}
       <HazardPopupStack

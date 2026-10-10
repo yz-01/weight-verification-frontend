@@ -9791,7 +9791,51 @@
       "title": "What these records carry",
       "hint": "Fields always go in. Photos start ticked; tick delivery orders and files only if this package needs them. Chat is never put in the PDF - it stays in the system to read. Each record can be opened and re-ticked afterwards."
     },
-    "loadMore": "Load more ({shown} of {total} shown)"
+    "loadMore": "Load more ({shown} of {total} shown)",
+    "collect": {
+      "dockTitle": "Picking records for a package",
+      "inPackage": "{count, plural, one {# record in it} other {# records in it}}",
+      "back": "Back to Multi Engine",
+      "end": "Stop picking",
+      "barTitle": "Tick the records to put in “{name}”",
+      "ticked": "{count, plural, =0 {none ticked} one {# ticked} other {# ticked}}",
+      "addTicked": "Add to current package",
+      "clear": "Clear ticks",
+      "tickFirst": "Tick the records to add first.",
+      "inCurrent": "✅ In the current package",
+      "remove": "Take out",
+      "selectAll": "Tick every record on this page that can be added",
+      "selectRow": "Tick this record",
+      "column": "Package",
+      "packed": "{count, plural, one {✅ Packed # time} other {✅ Packed # times}}",
+      "packedTitle": "Where this record was packed",
+      "packedHint": "“Packed” only means the record is in a package. It does not mean it has been claimed, or that the consultant approved it.",
+      "sentTo": "Sent to: {name}",
+      "notSent": "Not sent to a consultant yet",
+      "addedAt": "Added: {when} · {who}",
+      "noPackages": "This record is not in any package now.",
+      "loading": "Loading…",
+      "chooserTitle": "Add records from which column?",
+      "chooserHelp": "Opens that column's own list: find records with its search, filters, photos, DO and signatures, tick them and press “Add to current package”. The package stays docked at the bottom of the page, one press from coming back.",
+      "quickList": "Pick from a simple list here instead",
+      "reason": {
+        "in_package": "Already in the current package",
+        "package_closed": "The current package is confirmed and takes no more records",
+        "not_finished": "This record is not finished yet; it can be packed once it is",
+        "other_project": "This record belongs to another project; a package only takes records from one project",
+        "no_package": "Open a package in Multi Engine first",
+        "loading": "Reading where the records are packed…"
+      },
+      "what": {
+        "status": "Package status",
+        "packages": "Packages"
+      },
+      "toast": {
+        "linked": "{added, plural, one {# record added} other {# records added}} to the current package.",
+        "linkedSome": "{added} added; {skipped} already in the package or could not be added.",
+        "unlinked": "Taken out of the current package."
+      }
+    }
   },
   "mySubmissions": {
     "title": "What I sent",

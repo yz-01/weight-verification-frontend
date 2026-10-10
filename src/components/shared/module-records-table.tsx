@@ -42,7 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { useListQuery } from "@/hooks/use-list-query";
-import type { ProjectCategoryKind } from "@/interfaces/contractor-ops";
+import type { ArchiveRecordKind, ProjectCategoryKind } from "@/interfaces/contractor-ops";
 import { cn } from "@/lib/utils";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 
@@ -62,6 +62,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   toolbar,
   onOpen,
   rowClassName,
+  pack,
 }: {
   title: string;
   /** "12 records", already in the reader's language. */
@@ -89,6 +90,12 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   /** Open the record: the row, or the eye at its end. */
   onOpen: (row: T) => void;
   rowClassName?: (row: T) => string | undefined;
+  /**
+   * The kind of record the rows are, when Multi Engine can pick from this
+   * list (2026-10-10): 「✅ 已打包 X 次」 per row, and tick boxes with
+   * 「加入当前资料包」 while a package is being put together.
+   */
+  pack?: ArchiveRecordKind;
 }) {
   const t = useTranslations();
   const counted = needsActionCount !== undefined;
@@ -161,6 +168,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
         }
         onRowClick={onOpen}
         rowClassName={rowClassName}
+        pack={pack ? { kind: pack } : undefined}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
         onPageChange={list.setPage}

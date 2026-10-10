@@ -9791,7 +9791,51 @@
       "title": "这些事项要放进资料包的内容",
       "hint": "字段一定会放入。照片预设勾选；DO、文件需要时才勾选。聊天记录不放进 PDF，在系统里照样能看。加入后仍可打开每个事项再调整。"
     },
-    "loadMore": "载入更多（已显示 {shown} / {total}）"
+    "loadMore": "载入更多（已显示 {shown} / {total}）",
+    "collect": {
+      "dockTitle": "正在挑选资料放进资料包",
+      "inPackage": "已加入 {count} 条",
+      "back": "返回 Multi Engine",
+      "end": "结束选择",
+      "barTitle": "勾选要放进「{name}」的记录",
+      "ticked": "已勾选 {count} 条",
+      "addTicked": "加入当前资料包",
+      "clear": "清除勾选",
+      "tickFirst": "先在列表里勾选要加入的记录。",
+      "inCurrent": "✅ 已加入当前资料包",
+      "remove": "移出",
+      "selectAll": "勾选本页可以加入的记录",
+      "selectRow": "勾选这条记录",
+      "column": "资料包",
+      "packed": "✅ 已打包 {count} 次",
+      "packedTitle": "打包记录",
+      "packedHint": "「已打包」只表示这条记录已放进资料包，不代表已 Claim，也不代表顾问已批准。",
+      "sentTo": "发送对象：{name}",
+      "notSent": "还没发送给顾问",
+      "addedAt": "加入时间：{when} · {who}",
+      "noPackages": "这条记录目前不在任何资料包里。",
+      "loading": "加载中…",
+      "chooserTitle": "从哪个业务栏目添加资料",
+      "chooserHelp": "会打开这个业务栏目原有的列表：用原有的搜索、筛选、照片、DO 和签名找资料，勾选后按「加入当前资料包」。资料包会缩在页面下方，随时可以返回。",
+      "quickList": "在这里用简单列表挑选",
+      "reason": {
+        "in_package": "已在当前资料包里",
+        "package_closed": "当前资料包已确认，不能再加入",
+        "not_finished": "这条记录还没完成，完成后才能打包",
+        "other_project": "这条记录属于别的项目；一个资料包只收同一个项目的记录",
+        "no_package": "先在 Multi Engine 打开一个资料包",
+        "loading": "正在读取打包情况…"
+      },
+      "what": {
+        "status": "打包情况",
+        "packages": "打包记录"
+      },
+      "toast": {
+        "linked": "已加入当前资料包 {added} 条。",
+        "linkedSome": "已加入 {added} 条；{skipped} 条已在资料包里或不能加入。",
+        "unlinked": "已移出当前资料包。"
+      }
+    }
   },
   "mySubmissions": {
     "title": "我提交过的",

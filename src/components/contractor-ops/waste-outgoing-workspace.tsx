@@ -513,6 +513,7 @@ export function WasteOutgoingWorkspace() {
         isLoading={records.isLoading}
         isError={records.isError}
         storageKey="waste-outgoing"
+        pack="WASTE_OUTGOING"
         toolbar={
           <>
             <ProjectListFilter list={list} />

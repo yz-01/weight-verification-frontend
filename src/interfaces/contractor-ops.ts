@@ -1077,6 +1077,8 @@ export interface PackageItem extends PackageRecordParts {
 
 export interface EvidencePackageRow {
   id: string;
+  /** 资料包编号, `PKG-<project>-<YYMMDD>-<NNN>` (2026-10-10). */
+  package_no?: string;
   name: string;
   remarks: string;
   state: PackageState;
@@ -1109,6 +1111,68 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   items: PackageItem[];
   /** Records the last add call would not take, and why. */
   refused?: { id: string; reason: string }[];
+}
+
+/**
+ * Why a row of a module's list cannot be ticked into the package being put
+ * together (2026-10-10, 添加资料及勾选关联); "" when it can.
+ */
+export type PackRowReason =
+  | ""
+  | "in_package"
+  | "package_closed"
+  | "not_finished"
+  | "other_project"
+  | "no_package";
+
+/** One row of a module's list, as Multi Engine sees it. */
+export interface PackRowStatus {
+  /** 「已打包 X 次」: standing links; a link taken out of a draft does not count. */
+  count: number;
+  /** 「已加入当前资料包」. */
+  in_package: boolean;
+  can_add: boolean;
+  reason: PackRowReason;
+}
+
+/** The package being put together, as far as a module's list needs it. */
+export interface PackBrief {
+  id: string;
+  package_no: string;
+  name: string;
+  project: string;
+  state: PackageState;
+}
+
+/** `pack_status`: one page of a module's list, three queries whatever its length. */
+export interface PackStatus {
+  package: PackBrief | null;
+  records: Record<string, PackRowStatus>;
+}
+
+/** What 「加入当前资料包」 did. */
+export interface PackageLinkResult {
+  added: number;
+  already_in: number;
+  refused: { id: string; reason: string }[];
+  package: PackBrief & { item_count: number };
+}
+
+/** One package a record was packed into (「已打包 X 次」 opened). */
+export interface RecordPackageRow {
+  package: string;
+  package_no: string;
+  name: string;
+  project_name: string;
+  state: PackageState;
+  review_state: PackageReviewState;
+  sent_to_name: string;
+  sent_at: string | null;
+  confirmed_at: string | null;
+  added_at: string;
+  added_by_name: string;
+  item_review_state: PackageItemReviewState;
+  returned_reason: string;
 }
 
 /** One line of "what did not make it into the PDF, and why" (D-141). */
