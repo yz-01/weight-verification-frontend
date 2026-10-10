@@ -1,6 +1,7 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   FieldStaffPosition,
+  OnSitePositions,
   WorkforcePresence,
 } from "@/interfaces/site-operations";
 import { api } from "@/services/api-client";
@@ -99,5 +100,16 @@ export function getWorkforcePresence(params: {
   return api.get<WorkforcePresence>(
     "/api/field-staff-positions/get_workforce_presence/",
     params,
+  );
+}
+
+/**
+ * Everybody on site now, at their newest point inside the fence. Drawn on the
+ * office's 人员进场, 人员实时位置 and head-office maps.
+ */
+export function getOnSitePositions(project?: string): Promise<OnSitePositions> {
+  return api.get<OnSitePositions>(
+    "/api/field-staff-positions/get_on_site_positions/",
+    project ? { project } : {},
   );
 }

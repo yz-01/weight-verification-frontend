@@ -75,6 +75,31 @@ export type FieldPositionEvent =
   | "GEOFENCE_EXIT"
   | "SHARING_STOPPED";
 
+/**
+ * One person on site now, where they were last seen inside the fence
+ * (2026-10-10: 「在围栏内会显示现场工作人员的实时位置」). Only people with an
+ * open 进场; a point outside the fence is never sent.
+ */
+export interface OnSitePosition {
+  user_id: string;
+  full_name: string;
+  project_id: string;
+  project_name: string;
+  latitude: string;
+  longitude: string;
+  accuracy_m: string | null;
+  last_seen_at: string;
+  since: string;
+  /** Not refreshed for `stale_after_seconds` (10 minutes). */
+  stale: boolean;
+}
+
+export interface OnSitePositions {
+  results: OnSitePosition[];
+  count: number;
+  stale_after_seconds: number;
+}
+
 export interface FieldStaffPosition {
   id: string;
   project: string;

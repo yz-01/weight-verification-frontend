@@ -7252,6 +7252,7 @@
       "asset_movement_not_found": "Pergerakan aset itu tidak dijumpai.",
       "asset_not_found": "Aset itu tidak dijumpai.",
       "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kemasukan tapak memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
+      "attendance_gps_inaccurate": "Lokasi telefon anda kurang tepat (kira-kira {accuracy} m) untuk menentukan sama ada anda di dalam pagar tapak. Pergi ke kawasan lapang, tunggu beberapa saat dan cuba lagi.",
       "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
       "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
       "below_minimum_payout": "Jumlah ini di bawah bayaran minimum.",
@@ -7836,8 +7837,11 @@
       "takePhoto": "Ambil foto"
     },
     "attendance": {
+      "autoIn": "Masuk automatik",
+      "autoOut": "Keluar automatik",
       "clockIn": "Masuk manual",
       "clockOut": "Keluar manual",
+      "systemOut": "Ditutup oleh sistem",
       "distance": "Jarak dari geofence: {distance} m",
       "geofence": {
         "INSIDE": "Dalam geofence",
@@ -13956,6 +13960,19 @@
       "ACCEPTED": "Disemak",
       "CANCELLED": "Dibatalkan (tamat awal)"
     }
+  },
+  "onSiteMap": {
+    "count": "{count} orang di tapak",
+    "empty": "Tiada sesiapa di dalam pagar sekarang.",
+    "foregroundOnly": "Kedudukan dikemas kini kira-kira setiap minit semasa aplikasi tapak dibuka di telefon; ia berhenti apabila aplikasi ditutup atau di latar belakang. Hanya kedudukan di dalam pagar ditunjukkan.",
+    "lastSeen": "Dikemas kini {at}",
+    "live": "Langsung",
+    "mapLabel": "Peta orang di tapak",
+    "stale": "Tidak dikemas kini 10+ minit",
+    "subtitle": "Orang yang telah masuk dan berada di dalam pagar, pada kedudukan terakhir mereka di dalamnya.",
+    "title": "Orang di tapak",
+    "what": "Orang di tapak",
+    "whatFences": "Pagar tapak"
   },
   "siteGps": {
     "allProjects": "Semua projek",
