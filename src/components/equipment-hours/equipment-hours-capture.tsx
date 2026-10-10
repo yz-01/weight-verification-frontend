@@ -155,7 +155,8 @@ export function EquipmentHoursCapture({
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [project, setProject] = useState(initialProject);
-  const [supplier, setSupplier] = useState(ALL);
+  // `null` until the operator picks: then the default below applies.
+  const [supplier, setSupplier] = useState<string | null>(null);
   const [equipment, setEquipment] = useState("");
   const [kind, setKind] = useState<EquipmentPhotoKind>("START");
   const [shot, setShot] = useState<File>();
@@ -185,7 +186,9 @@ export function EquipmentHoursCapture({
   // No machine names its company: the one honest choice is 「未填供应商」,
   // not 「全部供应商」 (Lucas, 2026-10-10).
   const unfilledOnly = noSupplierNamed(rows);
-  const supplierValue = unfilledOnly ? NO_SUPPLIER : supplier;
+  // 「全部供应商」 always stays; with no machine naming its company the
+  // picker starts on 「未填供应商」 (Lucas, 2026-10-10).
+  const supplierValue = supplier ?? (unfilledOnly ? NO_SUPPLIER : ALL);
   const listed = rows.filter(
     (row) => supplierValue === ALL || (row.supplier || NO_SUPPLIER) === supplierValue,
   );
@@ -257,7 +260,7 @@ export function EquipmentHoursCapture({
             value={project}
             onValueChange={(value) => {
               setProject(value);
-              setSupplier(ALL);
+              setSupplier(null);
               setTyped("");
               pick(undefined);
             }}
@@ -282,7 +285,7 @@ export function EquipmentHoursCapture({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {!unfilledOnly && <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>}
+            <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>
             {unfilledOnly && suppliers.length === 0 && (
               <SelectItem value={NO_SUPPLIER}>{t("phone.noSupplier")}</SelectItem>
             )}
