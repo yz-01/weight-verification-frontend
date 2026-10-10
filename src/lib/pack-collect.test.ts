@@ -113,7 +113,7 @@ describe("the way into each module", () => {
       expect(existsSync(page), target.path).toBe(true);
       for (const messages of [zh, zhTW, en, ms]) {
         const [, group, key] = target.labelKey.split(".");
-        const label = (messages.nav as Record<string, Record<string, string>>)[group]?.[key];
+        const label = (messages.nav as unknown as Record<string, Record<string, string> | undefined>)[group]?.[key];
         expect(label, `${target.labelKey}`).toBeTruthy();
       }
     }

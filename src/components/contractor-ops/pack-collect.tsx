@@ -423,11 +423,21 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
   const check = (id: string) => {
     const row = records?.[id];
     const reason = row?.reason ? t(`reason.${row.reason}`) : t("reason.loading");
+    // The reason sits on a wrapper too: a disabled control shows no tooltip
+    // of its own in every browser.
     if (row?.in_package) {
-      return <Checkbox checked disabled aria-label={t("inCurrent")} title={t("inCurrent")} />;
+      return (
+        <span className="inline-flex" title={t("inCurrent")}>
+          <Checkbox checked disabled aria-label={t("inCurrent")} />
+        </span>
+      );
     }
     if (!row?.can_add) {
-      return <Checkbox disabled aria-label={reason} title={reason} />;
+      return (
+        <span className="inline-flex" title={reason}>
+          <Checkbox disabled aria-label={reason} />
+        </span>
+      );
     }
     return (
       <Checkbox
