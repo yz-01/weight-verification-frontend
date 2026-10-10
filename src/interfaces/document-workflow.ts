@@ -71,7 +71,10 @@ export interface DocumentSystemFileInfo {
   preview_type: string | null;
   byte_size: number;
   kind: string;
-  /** The watermarked copy of a photograph; null for other files. */
+  /**
+   * The watermarked copy of a photograph; a PDF's first page (2026-10-10);
+   * null when there is nothing to show.
+   */
   thumbnail_url: string | null;
   captured_at: string;
   record: SystemFileRecord;

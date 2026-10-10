@@ -334,6 +334,8 @@ export function DocumentThumb({
   const fileName = systemFile?.file_name ?? version?.original_name ?? "";
   const extension = extensionOf(fileName).toUpperCase();
   const shown = coverUrl || systemFile?.thumbnail_url || firstPage || url;
+  // A document's first page is shown whole, from its top; a photo fills the square.
+  const isPage = Boolean(firstPage) || Boolean(systemFile && systemFile.kind !== "PHOTO" && !coverUrl);
   return (
     <button
       ref={button}
@@ -351,7 +353,7 @@ export function DocumentThumb({
           decoding="async"
           src={shown}
           alt=""
-          className={cn("h-full w-full", firstPage ? "bg-card object-contain object-top" : "object-cover")}
+          className={cn("h-full w-full", isPage ? "bg-card object-contain object-top" : "object-cover")}
           onError={firstPage ? () => setPageFailed(true) : undefined}
         />
       ) : (
