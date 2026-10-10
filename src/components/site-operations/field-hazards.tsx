@@ -25,8 +25,9 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Camera, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Camera, CheckCircle2, FileSignature } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -41,6 +42,7 @@ import {
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import type { SafetyIncident } from "@/interfaces/site-operations";
+import { openFieldHref } from "@/lib/field-notification";
 import { getSafetyIncident } from "@/services/site-operations.service";
 
 export function FieldHazardsPanel({
@@ -61,6 +63,7 @@ export function FieldHazardsPanel({
   const t = useTranslations();
   const te = useTranslations("ehs");
   const { user } = useAuth();
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [confirming, setConfirming] = useState(false);
   /*
@@ -124,11 +127,29 @@ export function FieldHazardsPanel({
               {t("safetyRectification.action.submit")}
             </Button>
           )}
-          {incident.can_confirm && (
-            <Button className="w-full min-h-11" onClick={() => setConfirming(true)}>
-              <CheckCircle2 />
-              {t(isPermit(incident) ? "ehs.permit.approve" : "ehs.phone.confirm")}
+          {/* A permit is read and decided under 施工准证 now (2026-10-10);
+              an older notice still lands here, so it points the way. */}
+          {isPermit(incident) ? (
+            <Button
+              className="w-full min-h-11"
+              variant="outline"
+              onClick={() =>
+                openFieldHref(
+                  `/field-staff?tab=records&record=permit&permit=${incident.id}`,
+                  router.push,
+                )
+              }
+            >
+              <FileSignature />
+              {t("permits.openInModule")}
             </Button>
+          ) : (
+            incident.can_confirm && (
+              <Button className="w-full min-h-11" onClick={() => setConfirming(true)}>
+                <CheckCircle2 />
+                {t("ehs.phone.confirm")}
+              </Button>
+            )
           )}
         </div>
       )}

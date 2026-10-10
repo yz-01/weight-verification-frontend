@@ -108,6 +108,12 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "mySubmissions.kind.HAZARD",
     ],
   },
+  // 施工准证 (2026-10-10): 「施工准证申请与隐患整改分开操作」. Its own entry
+  // under the safety menu, its own page and its own phone tile - one name.
+  {
+    module: "permit to work",
+    keys: ["nav.submodule.permits", "permits.title", "fieldStaffPwa.records.permit"],
+  },
   {
     module: "environmental material outgoing",
     keys: [

@@ -1088,6 +1088,10 @@ export const PORTAL_NAVIGATION = {
           "/hazard-rectifications",
           "safety",
         ),
+        // 施工准证 (2026-10-10): 「施工准证申请与隐患整改分开操作」 - its own
+        // entry, beside 隐患整改 rather than a column inside it. The same
+        // `safety` feature and permissions: the safety team runs both.
+        child("11.2.2", "nav.submodule.permits", "/permits", "safety"),
       ],
     ),
     item(

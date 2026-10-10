@@ -7477,7 +7477,19 @@
       "driver_link_expired": "連結已失效，請聯絡回收商重新發送。",
       "driver_login_retired": "司機不用登入了，請打開回收商發給你的任務連結。",
       "document_system_files_mixed_projects": "選的文件來自不同項目。一份檔案只屬於一個項目，請只選同一個項目的文件。",
-      "document_system_file_already_in_document": "有文件已經在這份檔案裡了，不用再加。"
+      "document_system_file_already_in_document": "有文件已經在這份檔案裡了，不用再加。",
+      "permit_files_required": "請上傳准證文件：Word、PDF 或表格照片。",
+      "permit_too_many_files": "一次最多上傳 {limit} 個檔案。",
+      "permit_file_type": "{name} 不是 Word、Excel、PDF 或照片檔案。",
+      "permit_file_too_large": "{name} 超過 {limit} MB。",
+      "permit_approver_unavailable": "請選擇這個專案裡能審批准證的安全經理。",
+      "permit_own_application": "{incident_no} 是你申請的，需要由別人批准或退回。",
+      "permit_not_your_decision": "{incident_no} 已交給 {approver} 審批。",
+      "permit_not_waiting": "{incident_no} 已經不在這一步了，請重新整理後再看。",
+      "permit_signature_required": "請先簽名再批准。",
+      "permit_return_reason_required": "請寫明退回原因，申請人才知道要改什麼。",
+      "permit_only_applicant_resubmits": "只有申請人能重新提交 {incident_no}。",
+      "permit_decided_on_permit_screen": "{incident_no} 是施工准證，請在「施工准證」裡打開和審批。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8076,7 +8088,8 @@
       "sundry": "雜費報銷",
       "request": "MR / 其他申請",
       "gate": "門崗拍照記錄",
-      "operatorHours": "設備操作員工時"
+      "operatorHours": "設備操作員工時",
+      "permit": "施工准證"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -10224,7 +10237,8 @@
       "targetReport": "目標與達成",
       "manufacturers": "製造廠商",
       "equipmentOperatorHours": "設備操作員工時",
-      "technical": "技術管理"
+      "technical": "技術管理",
+      "permits": "施工准證"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -16431,5 +16445,102 @@
       "subtitle": "給技術人員用：這台手機的暫存記錄、原圖備份和儲存。",
       "back": "返回"
     }
+  },
+  "permits": {
+    "title": "施工准證",
+    "subtitle": "用公司原有的准證表格（Word、PDF 或照片）上傳，交給指定安全經理審批；批准後原文件、審批記錄、簽名和時間一起歸檔。",
+    "new": "新申請",
+    "newTitle": "新的施工准證申請",
+    "newHelp": "用公司原有的准證表格，填好後直接上傳，不需要另外填電子表格。寫上備註，選好審批的安全經理就可以提交。",
+    "chooseProject": "選擇專案",
+    "chooseApprover": "選擇安全經理",
+    "approverHint": "只列出這個專案裡能審批准證的人。",
+    "noApprovers": "這個專案還沒有能審批准證的人（需要「安全驗收」權限），請聯絡管理員。",
+    "notePlaceholder": "例如：動火作業，3 樓，10 月 12 日 9:00–17:00",
+    "optional": "選填",
+    "cancel": "取消",
+    "submit": "提交准證申請",
+    "failed": "沒有成功，請再試一次。",
+    "field": {
+      "no": "編號",
+      "project": "專案",
+      "files": "准證文件",
+      "note": "備註",
+      "approver": "審批安全經理",
+      "applicant": "申請人",
+      "appliedAt": "申請時間",
+      "status": "審批狀態",
+      "decidedBy": "審批人",
+      "decidedAt": "審批時間",
+      "position": "職位",
+      "returnReason": "退回原因",
+      "approvalNote": "審批意見",
+      "reviewNote": "審批意見 / 退回原因",
+      "signature": "審批簽名",
+      "returnedBy": "退回人",
+      "approvedBy": "批准人"
+    },
+    "status": {
+      "RECTIFICATION_SUBMITTED": "待審批",
+      "RETURNED": "已退回",
+      "VERIFIED": "已批准",
+      "RESOLVED": "已批准"
+    },
+    "filter": {
+      "allStatuses": "全部狀態",
+      "allApplicants": "全部申請人",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期"
+    },
+    "files": {
+      "title": "准證文件",
+      "hint": "Word、PDF 或表格照片都可以，可以多頁。",
+      "takePhoto": "拍照",
+      "chooseFile": "選擇檔案",
+      "remove": "移除",
+      "none": "還沒有文件",
+      "preview": "預覽",
+      "print": "列印",
+      "download": "下載",
+      "preparing": "正在準備文件…",
+      "noneOnRecord": "這份申請沒有文件。",
+      "submission": "第 {round} 次提交",
+      "earlier": "之前提交、已被退回的文件（保留備查）"
+    },
+    "what": {
+      "approvers": "審批人名單",
+      "applicants": "申請人名單",
+      "detail": "這份准證",
+      "list": "准證列表"
+    },
+    "approveHelp": "先看文件，有問題可以在下面的溝通裡問。批准要簽名；批准後原文件、審批記錄、簽名和時間一起歸檔，不能再修改。",
+    "clearSignature": "重簽",
+    "approve": "簽名批准",
+    "armReturn": "退回",
+    "armReturnHelp": "資料不對要退回？打開開關，寫明原因。",
+    "return": "退回給申請人",
+    "resubmitTitle": "修改後重新提交",
+    "resubmitHelp": "按退回原因改好准證，上傳新的文件。之前的文件會保留。",
+    "resubmit": "重新提交",
+    "archived": "已批准並歸檔。原文件、審批記錄、簽名和時間都已保存，不能再修改。",
+    "waitingFor": "等待 {name} 審批",
+    "ownWaiting": "你的申請已交給 {name}，等待審批",
+    "waitingLegacy": "等待專案安全負責人審批",
+    "returnedNotice": "已退回：{reason}",
+    "waitingApplicant": "等待申請人修改後重新提交。",
+    "legacyApprover": "專案安全負責人",
+    "noNote": "沒有備註",
+    "empty": "還沒有施工准證申請",
+    "myPermits": "我的准證",
+    "myPermitsHelp": "我申請的，和交給我審批的。",
+    "noneMine": "還沒有准證。按「新申請」上傳公司的准證表格。",
+    "yourApproval": "待你審批",
+    "toast": {
+      "submitted": "{reference} 已提交審批",
+      "resubmitted": "{reference} 已重新提交",
+      "approved": "{reference} 已批准並歸檔",
+      "returned": "{reference} 已退回給申請人"
+    },
+    "openInModule": "在「施工准證」裡打開"
   }
 }

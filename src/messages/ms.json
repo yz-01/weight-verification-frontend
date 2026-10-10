@@ -7477,7 +7477,19 @@
       "driver_link_expired": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
       "driver_login_retired": "Pemandu tidak perlu log masuk lagi. Buka pautan perjalanan yang dihantar oleh pengitar semula.",
       "document_system_files_mixed_projects": "Fail ini dari projek berlainan. Satu dokumen milik satu projek, jadi pilih fail dari satu projek sahaja.",
-      "document_system_file_already_in_document": "Salah satu fail itu sudah ada dalam dokumen ini."
+      "document_system_file_already_in_document": "Salah satu fail itu sudah ada dalam dokumen ini.",
+      "permit_files_required": "Tambah borang permit: fail Word atau PDF, atau foto borang itu.",
+      "permit_too_many_files": "Hantar paling banyak {limit} fail sekali gus.",
+      "permit_file_type": "{name} bukan fail Word, Excel, PDF atau foto.",
+      "permit_file_too_large": "{name} melebihi {limit} MB.",
+      "permit_approver_unavailable": "Pilih pengurus keselamatan projek ini yang boleh meluluskan permit.",
+      "permit_own_application": "Anda yang memohon {incident_no}, jadi orang lain perlu meluluskan atau memulangkannya.",
+      "permit_not_your_decision": "{incident_no} dihantar kepada {approver} untuk diluluskan.",
+      "permit_not_waiting": "{incident_no} bukan lagi pada langkah ini. Muat semula untuk melihat statusnya.",
+      "permit_signature_required": "Tandatangan dahulu sebelum meluluskan permit.",
+      "permit_return_reason_required": "Nyatakan sebab dipulangkan supaya pemohon tahu apa yang perlu dibetulkan.",
+      "permit_only_applicant_resubmits": "Hanya pemohon boleh menghantar semula {incident_no}.",
+      "permit_decided_on_permit_screen": "{incident_no} ialah permit kerja. Buka dan putuskan di bawah Permit kerja."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8076,7 +8088,8 @@
       "sundry": "Tuntutan pelbagai",
       "request": "MR / Permohonan Lain",
       "gate": "Rekod foto pintu",
-      "operatorHours": "Jam operator peralatan"
+      "operatorHours": "Jam operator peralatan",
+      "permit": "Permit kerja"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -10224,7 +10237,8 @@
       "targetReport": "Sasaran dan pencapaian",
       "manufacturers": "Pengilang",
       "equipmentOperatorHours": "Jam operator peralatan",
-      "technical": "Pengurusan teknikal"
+      "technical": "Pengurusan teknikal",
+      "permits": "Permit kerja"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -16431,5 +16445,102 @@
       "subtitle": "Untuk juruteknik: rekod yang disimpan, sandaran foto asal dan storan telefon ini.",
       "back": "Kembali"
     }
+  },
+  "permits": {
+    "title": "Permit kerja",
+    "subtitle": "Muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan. Selepas diluluskan, fail asal, keputusan, tandatangan dan masa diarkibkan bersama.",
+    "new": "Permohonan baharu",
+    "newTitle": "Permohonan permit kerja baharu",
+    "newHelp": "Gunakan borang permit syarikat anda sendiri, isi dan muat naik - tiada borang untuk diisi di sini. Tambah catatan, pilih pengurus keselamatan yang meluluskan, dan hantar.",
+    "chooseProject": "Pilih projek",
+    "chooseApprover": "Pilih pengurus keselamatan",
+    "approverHint": "Hanya mereka dalam projek ini yang boleh meluluskan permit disenaraikan.",
+    "noApprovers": "Belum ada sesiapa dalam projek ini yang boleh meluluskan permit (perlukan kebenaran pengesahan keselamatan). Hubungi pentadbir anda.",
+    "notePlaceholder": "cth. Kerja panas, tingkat 3, 12 Okt 9:00-17:00",
+    "optional": "Pilihan",
+    "cancel": "Batal",
+    "submit": "Hantar permohonan permit",
+    "failed": "Tidak berjaya. Sila cuba lagi.",
+    "field": {
+      "no": "No.",
+      "project": "Projek",
+      "files": "Fail permit",
+      "note": "Catatan",
+      "approver": "Pengurus keselamatan pelulus",
+      "applicant": "Pemohon",
+      "appliedAt": "Dimohon",
+      "status": "Status kelulusan",
+      "decidedBy": "Diputuskan oleh",
+      "decidedAt": "Diputuskan",
+      "position": "Jawatan",
+      "returnReason": "Sebab dipulangkan",
+      "approvalNote": "Catatan kelulusan",
+      "reviewNote": "Catatan kelulusan / sebab dipulangkan",
+      "signature": "Tandatangan pelulus",
+      "returnedBy": "Dipulangkan oleh",
+      "approvedBy": "Diluluskan oleh"
+    },
+    "status": {
+      "RECTIFICATION_SUBMITTED": "Menunggu kelulusan",
+      "RETURNED": "Dipulangkan",
+      "VERIFIED": "Diluluskan",
+      "RESOLVED": "Diluluskan"
+    },
+    "filter": {
+      "allStatuses": "Semua status",
+      "allApplicants": "Semua pemohon",
+      "dateFrom": "Dari tarikh",
+      "dateTo": "Hingga tarikh"
+    },
+    "files": {
+      "title": "Fail permit",
+      "hint": "Word, PDF atau foto borang - beberapa halaman dibenarkan.",
+      "takePhoto": "Ambil foto",
+      "chooseFile": "Pilih fail",
+      "remove": "Buang",
+      "none": "Belum ada fail",
+      "preview": "Pratonton",
+      "print": "Cetak",
+      "download": "Muat turun",
+      "preparing": "Menyediakan fail...",
+      "noneOnRecord": "Permohonan ini tiada fail.",
+      "submission": "Penghantaran {round}",
+      "earlier": "Fail yang dihantar sebelum ini dan dipulangkan (disimpan sebagai rekod)"
+    },
+    "what": {
+      "approvers": "senarai pelulus",
+      "applicants": "senarai pemohon",
+      "detail": "permit ini",
+      "list": "senarai permit"
+    },
+    "approveHelp": "Baca fail dahulu; tanya dalam perbualan di bawah jika ada yang kurang jelas. Kelulusan ditandatangani. Selepas diluluskan, fail asal, keputusan, tandatangan dan masa diarkibkan dan tidak boleh diubah.",
+    "clearSignature": "Tandatangan semula",
+    "approve": "Tandatangan dan luluskan",
+    "armReturn": "Pulangkan",
+    "armReturnHelp": "Ada yang salah? Hidupkan untuk memulangkannya, dan nyatakan sebabnya.",
+    "return": "Pulangkan kepada pemohon",
+    "resubmitTitle": "Betulkan dan hantar semula",
+    "resubmitHelp": "Betulkan permit mengikut sebab yang diberi dan muat naik fail baharu. Fail terdahulu disimpan.",
+    "resubmit": "Hantar semula",
+    "archived": "Diluluskan dan diarkibkan. Fail asal, keputusan, tandatangan dan masa disimpan dan tidak boleh diubah.",
+    "waitingFor": "Menunggu kelulusan {name}",
+    "ownWaiting": "Permohonan anda kini pada {name} untuk kelulusan",
+    "waitingLegacy": "Menunggu kelulusan ketua keselamatan projek",
+    "returnedNotice": "Dipulangkan: {reason}",
+    "waitingApplicant": "Menunggu pemohon membetulkan dan menghantarnya semula.",
+    "legacyApprover": "Ketua keselamatan projek",
+    "noNote": "Tiada catatan",
+    "empty": "Belum ada permohonan permit kerja",
+    "myPermits": "Permit saya",
+    "myPermitsHelp": "Yang saya mohon, dan yang dihantar kepada saya untuk diluluskan.",
+    "noneMine": "Belum ada permit. Ketik Permohonan baharu untuk memuat naik borang permit syarikat anda.",
+    "yourApproval": "Untuk kelulusan anda",
+    "toast": {
+      "submitted": "{reference} dihantar untuk kelulusan",
+      "resubmitted": "{reference} dihantar semula",
+      "approved": "{reference} diluluskan dan diarkibkan",
+      "returned": "{reference} dipulangkan kepada pemohon"
+    },
+    "openInModule": "Buka di bawah Permit kerja"
   }
 }

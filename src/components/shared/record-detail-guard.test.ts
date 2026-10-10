@@ -46,6 +46,8 @@ const BUSINESS_DETAILS: Array<[string, string, boolean]> = [
   ["src/components/contractor-ops/site-disposal-workspaces.tsx", "DisposalDetailDialog", true],
   ["src/components/sundry-claims/sundry-claims-office.tsx", "SundryClaimDetail", true],
   ["src/components/material-requests/material-requests-office.tsx", "MaterialRequestDetail", true],
+  // 施工准证 (2026-10-10): the popup in the office, the same shell inline on the phone.
+  ["src/components/permits/permit-parts.tsx", "PermitDetail", true],
   ["src/components/site-operations/safety.tsx", "HazardRecordDetail", true],
   ["src/components/site-access/gate-records.tsx", "GateIncidentDetailDialog", true],
   ["src/components/dashboard/field-task-sheet.tsx", "FieldTaskSheet", true],
