@@ -81,8 +81,8 @@ describe("report centre filter bar (2026-10-10, 图11)", () => {
   });
 
   it("words a code the way its column does, and leaves a name alone", () => {
-    expect(filterOptionKey("safety", "severity", { value: "HIGH", label: "HIGH" })).toBe(
-      "safety.severity.HIGH",
+    expect(filterOptionKey("safety", "status", { value: "OPEN", label: "OPEN" })).toBe(
+      "safetyRectification.status.OPEN",
     );
     expect(filterOptionKey("attendance", "event", { value: "CLOCK_IN", label: "CLOCK_IN" })).toBe(
       "attendance.event.CLOCK_IN",

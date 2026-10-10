@@ -25,7 +25,6 @@ export interface ContractorReportFilters {
   keyword?: string;
   /** The filter bar (2026-10-10): each report reads only its own. */
   status?: string;
-  severity?: string;
   event?: string;
   geofence?: string;
   equipment?: string;
@@ -41,7 +40,6 @@ export interface ContractorReportFilters {
 export type ReportFilterKey =
   | "status"
   | "actor"
-  | "severity"
   | "event"
   | "geofence"
   | "equipment"

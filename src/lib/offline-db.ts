@@ -368,7 +368,8 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
     category: string;
     title: string;
     description: string;
-    severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    /** Only on reports queued before 2026-10-10; 严重程度 is gone, the server ignores it. */
+    severity?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
     occurred_at?: string;
     client_event_id: string;
     field_task?: string;

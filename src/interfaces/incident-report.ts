@@ -1,12 +1,9 @@
 import type { RecordedBy } from "@/interfaces/recorder";
 
-export type IncidentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-
 export interface IncidentReportThread extends RecordedBy {
   id: string;
   thread_no: string;
   title: string;
-  severity: IncidentSeverity;
   occurred_at: string;
   project: string;
   project_name: string;
@@ -58,7 +55,6 @@ export interface IncidentReportMessage {
 export interface IncidentReportThreadPayload {
   project: string;
   title: string;
-  severity: IncidentSeverity;
   description: string;
   recipient_ids: string[];
   occurred_at?: string;

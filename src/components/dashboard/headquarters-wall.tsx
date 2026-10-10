@@ -22,7 +22,6 @@ import type {
   HeadquartersCountField,
   HeadquartersOverview,
   ApprovalSource,
-  HazardSeverity,
   HeadquartersPhoto,
   HeadquartersWallExtras,
   TodayRecordKind,
@@ -502,14 +501,6 @@ function Legend({ tone, label }: { tone: Tone; label: string }) {
   );
 }
 
-/** Hazard severities, worst first, each in the colour the hazard list uses for urgency. */
-const SEVERITIES: Array<{ key: HazardSeverity; tone: Tone }> = [
-  { key: "CRITICAL", tone: "rose" },
-  { key: "HIGH", tone: "orange" },
-  { key: "MEDIUM", tone: "amber" },
-  { key: "LOW", tone: "slate" },
-];
-
 /** Labelled horizontal bars, longest first: the shape every ranked panel uses. */
 function RankBars({
   rows,
@@ -596,10 +587,13 @@ function WeekDeliveries({ extras }: { extras: HeadquartersWallExtras }) {
   );
 }
 
-/** 未关闭隐患: open hazards by severity, and how many are past their date. */
+/**
+ * 未关闭隐患: how many hazards are open, and how many of them are past their
+ * date. No split by severity - 严重程度 is gone from the system (Lucas,
+ * 2026-10-10: 「严重程度不需要，完全在系统里面删除掉」).
+ */
 function OpenHazards({ extras }: { extras: HeadquartersWallExtras }) {
   const t = useTranslations("headquarters.wall");
-  const severity = useTranslations("safety.severity");
   const format = useFormatter();
   const { hazards } = extras;
   return (
@@ -618,12 +612,10 @@ function OpenHazards({ extras }: { extras: HeadquartersWallExtras }) {
         <p className="text-sm text-muted-foreground">{t("noHazards")}</p>
       ) : (
         <RankBars
-          rows={SEVERITIES.map(({ key, tone }) => ({
-            key,
-            label: severity(key),
-            value: hazards.by_severity[key] ?? 0,
-            tone,
-          }))}
+          rows={[
+            { key: "open", label: t("hazardsOpen"), value: hazards.open, tone: "amber" },
+            { key: "overdue", label: t("hazardsOverdue"), value: hazards.overdue, tone: "rose" },
+          ]}
         />
       )}
     </WallPanel>

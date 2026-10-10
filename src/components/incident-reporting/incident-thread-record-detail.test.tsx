@@ -48,7 +48,6 @@ function detail(resolved = false): IncidentReportThreadDetail {
       id: "t1",
       thread_no: "IR-P1-261008-001",
       title: "Scaffold collapsed at block B",
-      severity: "HIGH",
       occurred_at: "2026-10-08T01:00:00Z",
       project: "p1",
       project_name: "Tower A",
@@ -101,7 +100,8 @@ describe("an incident report (E8)", () => {
     expectRecordPopup(html, expect);
     expect(html).toContain("IR-P1-261008-001");
     expect(html).toContain("Scaffold collapsed at block B");
-    expect(html).toContain(words.severity.HIGH);
+    // No 严重程度: gone from the system (2026-10-10).
+    expect(html).not.toContain("severity");
     expect(html).toContain("Tower A");
     expect(html).toContain("Mei Ling");
     // Not an exportable record.

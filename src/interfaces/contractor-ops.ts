@@ -942,6 +942,8 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   manufacturer_off_list?: boolean;
   /** A material receipt's direction (B10), so a return is not named 材料进场. */
   movement_type?: "ENTRY" | "RETURN";
+  /** A safety row's type: a 施工准证 opens as a permit, not a hazard card. */
+  record_type?: "HAZARD" | "PERMIT";
   /** When this reader opened it in 现场记录中心 (未看 / 已看), or null (T-391, C4). */
   seen_at: string | null;
   /** Whether anything archives this kind at all; an attendance day does not. */

@@ -801,7 +801,7 @@
   },
   "adminCustomerService": {
     "notes": {
-      "placeholder": "Apa yang berlaku dan apa yang dipersetujui",
+      "placeholder": "Peristiwa dan apa yang dipersetujui",
       "loadError": "Nota tidak dapat dimuatkan",
       "empty": "Belum ada nota",
       "add": "Tambah nota",
@@ -3065,7 +3065,8 @@
       "SITE_EQUIPMENT": "Peralatan",
       "DOCUMENT": "Dokumen",
       "CLAIM": "Tuntutan kemajuan",
-      "MATERIAL_RETURN": "Bahan dipulangkan"
+      "MATERIAL_RETURN": "Bahan dipulangkan",
+      "PERMIT": "Permit kerja"
     },
     "lastPage": "Anda berada di halaman terakhir.",
     "loading": "Memuatkan…",
@@ -6160,7 +6161,6 @@
       "responsible_person": "Orang bertanggungjawab",
       "review_note": "Nota semakan",
       "revision": "Semakan",
-      "severity": "Keterukan",
       "source": "Rekod sumber",
       "status": "Status",
       "submitted_at": "Masa dihantar",
@@ -8238,7 +8238,7 @@
       "manualConfirm": "Rekodkan",
       "manualDescription": "Ini merekodkan bahawa seseorang melepaskan kenderaan itu. Ia tidak membuka apa-apa dan tidak direkodkan sebagai palang yang berfungsi.",
       "manualNote": "Dilepaskan secara manual oleh {name}: {reason}",
-      "manualReason": "Apa yang berlaku",
+      "manualReason": "Peristiwa",
       "manualRelease": "Lepaskan secara manual",
       "manualTitle": "Lepaskan kenderaan ini secara manual?",
       "needsOperator": "Sebuah pengawal tidak melaksanakannya. Sistem tidak melepaskan kenderaan ini — uruskan palang dan rekodkan apa yang anda buat.",
@@ -8599,7 +8599,9 @@
       "equipmentMaintenance": "Dalam penyelenggaraan",
       "topSuppliers": "Pembekal teratas minggu ini",
       "deliveries": "{count, plural, other {# penghantaran}}",
-      "clearanceMonth": "Sisa dibersihkan bulan ini"
+      "clearanceMonth": "Sisa dibersihkan bulan ini",
+      "hazardsOpen": "Terbuka",
+      "hazardsOverdue": "Lewat tempoh"
     }
   },
   "home": {
@@ -8616,7 +8618,7 @@
     "captureLocation": "Rakam GPS semasa",
     "chooseProject": "Pilih projek",
     "chooseProjectFirst": "Pilih projek dahulu untuk memilih penerima",
-    "description": "Apa yang berlaku?",
+    "description": "Butiran peristiwa",
     "descriptionPlaceholder": "Terangkan insiden dengan jelas",
     "dialog": {
       "create": {
@@ -8634,14 +8636,13 @@
       "title": "Bukti foto insiden wajib"
     },
     "field": {
-      "description": "Apa yang berlaku?",
+      "description": "Butiran peristiwa",
       "descriptionPlaceholder": "Terangkan insiden dengan jelas",
       "messagePlaceholder": "Tambah butiran, foto atau kemaskini",
       "participants": "Ahli kumpulan",
       "project": "Projek",
       "recipients": "Laporkan kepada",
       "reportedBy": "Dilaporkan oleh",
-      "severity": "Keterukan",
       "title": "Tajuk insiden",
       "titlePlaceholder": "Penerangan ringkas insiden"
     },
@@ -8664,16 +8665,6 @@
     "project": "Projek",
     "recipients": "Laporkan kepada",
     "reporter": "Pelapor",
-    "severity": {
-      "CRITICAL": "Kritikal",
-      "HIGH": "Tinggi",
-      "LOW": "Rendah",
-      "MEDIUM": "Sederhana"
-    },
-    "severityCritical": "Kritikal",
-    "severityHigh": "Tinggi",
-    "severityLow": "Rendah",
-    "severityMedium": "Sederhana",
     "status": {
       "open": "Terbuka",
       "resolved": "Selesai"
@@ -9845,12 +9836,11 @@
       "rejection_reason": "Sebab ditolak",
       "resolution_note": "Cara ditutup",
       "review_note": "Komen pejabat",
-      "severity": "Tahap keseriusan",
       "site": "Depoh",
       "specification": "Spesifikasi",
       "supplier": "Pembekal",
       "task_type": "Jenis",
-      "title": "Apa yang berlaku",
+      "title": "Peristiwa",
       "vehicle_plate": "Lori",
       "waste_description": "Sisa",
       "work_location": "Lokasi di tapak",
@@ -9885,7 +9875,15 @@
       "return_note_supplier": "Pembekal (Return Note)",
       "return_note_quantity": "Kuantiti (Return Note)",
       "return_note_reason": "Sebab (Return Note)",
-      "approver_name": "Return Note diluluskan oleh"
+      "approver_name": "Return Note diluluskan oleh",
+      "permit_no": "No. permit",
+      "applied_at": "Dimohon",
+      "safety_approver": "Pengurus keselamatan pelulus",
+      "approval_status": "Status",
+      "approval_comment": "Catatan kelulusan",
+      "return_reason": "Sebab dipulangkan",
+      "approved_at": "Diluluskan pada",
+      "recorded_by": "Direkod oleh"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -12535,7 +12533,6 @@
       "project": "Projek",
       "resolutionNote": "Catatan penyelesaian",
       "responsible": "Orang bertanggungjawab",
-      "severity": "Tahap keterukan",
       "status": "Status",
       "title": "Tajuk"
     },
@@ -12568,7 +12565,6 @@
       "allCategories": "Semua kategori keselamatan",
       "allProjects": "Semua projek",
       "allResponsible": "Semua orang bertanggungjawab",
-      "allSeverities": "Semua tahap keterukan",
       "dateFrom": "Tarikh mula",
       "dateTo": "Tarikh tamat",
       "project": "Pilih projek",
@@ -12587,12 +12583,6 @@
       "noSafetyColumns": "Projek ini belum mempunyai kategori keselamatan. Tambah satu di Pengurusan kategori supaya bahaya boleh difailkan ke dalamnya."
     },
     "new": "Laporkan bahaya",
-    "severity": {
-      "CRITICAL": "Kritikal",
-      "HIGH": "Tinggi",
-      "LOW": "Rendah",
-      "MEDIUM": "Sederhana"
-    },
     "status": {
       "INVESTIGATING": "Dalam siasatan",
       "OPEN": "Terbuka",
@@ -13583,7 +13573,7 @@
         "project": "Projek",
         "chooseProject": "Pilih projek",
         "allProjects": "Semua projek",
-        "category": "Apa yang berlaku",
+        "category": "Peristiwa",
         "search": "Cari",
         "searchPlaceholder": "No. rekod, pintu, pengawal, pas atau plat",
         "gate": "Pintu",
@@ -16508,7 +16498,8 @@
       "preparing": "Menyediakan fail...",
       "noneOnRecord": "Permohonan ini tiada fail.",
       "submission": "Penghantaran {round}",
-      "earlier": "Fail yang dihantar sebelum ini dan dipulangkan (disimpan sebagai rekod)"
+      "earlier": "Fail yang dihantar sebelum ini dan dipulangkan (disimpan sebagai rekod)",
+      "documents": "Dokumen permit"
     },
     "what": {
       "approvers": "senarai pelulus",

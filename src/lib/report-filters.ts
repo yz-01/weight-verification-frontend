@@ -18,7 +18,8 @@ import { reportValueKey } from "@/lib/report-preview";
  */
 export const REPORT_FILTERS: Record<ContractorReportType, readonly ReportFilterKey[]> = {
   progress: ["status", "actor"],
-  safety: ["severity", "status", "actor"],
+  // No 严重程度: gone from the system (Lucas, 2026-10-10).
+  safety: ["status", "actor"],
   consultant: ["status", "actor"],
   attendance: ["actor", "event", "geofence"],
   equipment: ["equipment", "supplier", "direction"],
@@ -46,7 +47,6 @@ export const PROJECT_BOUND_FILTERS = ["category", "subcategory", "equipment", "p
  */
 const FILTER_COLUMN: Record<ReportFilterKey, string> = {
   status: "status",
-  severity: "severity",
   event: "event",
   geofence: "geofence_result",
   equipment: "equipment",

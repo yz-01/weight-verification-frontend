@@ -25,6 +25,18 @@ export interface PermitFile {
   uploaded_by_name: string | null;
   /** The files the decision is about (the latest submission). */
   is_current: boolean;
+  /**
+   * A photographed page, as the record's photo gallery draws it: the stamped
+   * copy, its thumbnail, when and where. Only on the permit's own detail;
+   * null for a Word, Excel or PDF file (and on the list).
+   */
+  photo?: {
+    url: string;
+    thumbnail_url: string | null;
+    captured_at: string;
+    latitude: string | null;
+    longitude: string | null;
+  } | null;
 }
 
 export interface Permit extends RecordedBy {

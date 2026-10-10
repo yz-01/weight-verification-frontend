@@ -160,15 +160,6 @@ function ThreadCard({
   onClick: () => void;
 }) {
   const t = useTranslations("incidentReporting");
-  const severityTone =
-    thread.severity === "CRITICAL"
-      ? "danger"
-      : thread.severity === "HIGH"
-        ? "warning"
-        : thread.severity === "MEDIUM"
-          ? "info"
-          : "neutral";
-
   return (
     <article
       className="cursor-pointer surface-panel rounded-xl p-4 transition-all hover:shadow-md"
@@ -176,16 +167,12 @@ function ThreadCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap gap-2">
-            <StatusBadge
-              label={t(`severity.${thread.severity}`)}
-              tone={severityTone}
-            />
-            {thread.is_resolved && (
+          {thread.is_resolved && (
+            <div className="mb-2 flex flex-wrap gap-2">
               <StatusBadge label={t("status.resolved")} tone="positive" />
-            )}
-          </div>
-          <p className="mt-2 font-semibold">{thread.title}</p>
+            </div>
+          )}
+          <p className="font-semibold">{thread.title}</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {thread.project_name}
           </p>

@@ -105,7 +105,7 @@ const extras: HeadquartersWallExtras = {
     { id: "s1", name: "Kim Seng Hardware", deliveries: 11 },
     { id: "s2", name: "Ready Mix Sdn Bhd", deliveries: 7 },
   ],
-  hazards: { open: 5, overdue: 2, by_severity: { LOW: 1, MEDIUM: 2, HIGH: 1, CRITICAL: 1 } },
+  hazards: { open: 5, overdue: 2 },
   approvals_by_source: { MATERIAL_REQUEST: 4, SUNDRY_CLAIM: 2 },
   equipment: { on_site: 12, maintenance: 1 },
   clearance_month: {
@@ -174,7 +174,9 @@ describe("总部大屏 shows more of the company's real numbers (「加多一点
     const hazards = panel(html, "hazards");
     expect(hazards).toContain(wall.openHazards);
     expect(hazards).toContain("其中逾期 2");
-    expect(hazards).toContain(messages.safety.severity.CRITICAL);
+    // Open and overdue only: 严重程度 is gone from the system (2026-10-10).
+    expect(hazards).toContain(wall.hazardsOpen);
+    expect(hazards).toContain(wall.hazardsOverdue);
     const approvals = panel(html, "approvals");
     expect(approvals).toContain(messages.contractorDashboard.approvals.source.MATERIAL_REQUEST);
     expect(approvals).toContain(messages.contractorDashboard.approvals.source.SUNDRY_CLAIM);

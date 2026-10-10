@@ -28,7 +28,9 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { downloadEvidence } from "@/components/shared/evidence-file-actions";
 import { FieldCamera } from "@/components/shared/field-camera";
+import { FilePreviewDialog } from "@/components/shared/file-preview";
 // The viewer every record detail already opens its photographs in, so a chat
 // photo zooms and downloads the same way. (record-detail-shell reaches this
 // file through record-conversation; each side only uses the other at render
@@ -289,17 +291,79 @@ export function ConversationMessageRow({
         </div>
       )}
       {message.attachment && (
-        <a
-          href={message.attachment}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 inline-flex items-center gap-1 text-xs underline"
-        >
-          <Paperclip className="h-3 w-3" />
-          {message.attachment_name || t("hazard.attach")}
-        </a>
+        <ChatAttachment
+          url={message.attachment}
+          name={message.attachment_name || t("hazard.attach")}
+          sentBy={`${message.author_name} · ${formatter.dateTime(message.sent_at)}`}
+        />
       )}
     </li>
+  );
+}
+
+/** What a sent file is, from its name: how the in-page preview reads it. */
+export function chatAttachmentType(name: string): string | null {
+  const ext = name.toLowerCase().split(".").pop() ?? "";
+  const known: Record<string, string> = {
+    pdf: "application/pdf",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+    gif: "image/gif",
+    txt: "text/plain",
+    csv: "text/csv",
+    mp4: "video/mp4",
+    webm: "audio/webm",
+    m4a: "audio/mp4",
+    mp3: "audio/mpeg",
+  };
+  return known[ext] ?? null;
+}
+
+/**
+ * A file sent in the conversation, opened in the page.
+ *
+ * Client 2026-10-10 (round 2): 「我上传了文件发送给手机端…我这里手机就打不开」 -
+ * 「ecrl quo.xlsx」 was a bare link, and a phone has nothing to open an Excel
+ * file with. Tapping it now reads it here - a PDF, a photo, a Word or Excel
+ * file (`FilePreview`) - with 下载 beside it; a format nothing can draw says
+ * so and offers the download. One component, so every chat (the hazard's,
+ * the permit's, every record's) opens files the same way.
+ */
+function ChatAttachment({ url, name, sentBy }: { url: string; name: string; sentBy: string }) {
+  const [open, setOpen] = useState(false);
+  const type = chatAttachmentType(name);
+  return (
+    <>
+      <button
+        type="button"
+        className="mt-2 inline-flex max-w-full items-center gap-1 text-left text-xs text-primary underline"
+        onClick={() => setOpen(true)}
+        data-chat-attachment
+      >
+        <Paperclip className="h-3 w-3 shrink-0" />
+        <span className="truncate">{name}</span>
+      </button>
+      {open && (
+        <FilePreviewDialog
+          title={name}
+          description={sentBy}
+          load={async () => {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(String(response.status));
+            const blob = await response.blob();
+            // The stored file's own type can be a generic one; the preview
+            // needs the real one to draw a PDF in its frame.
+            return URL.createObjectURL(type ? new Blob([blob], { type }) : blob);
+          }}
+          previewType={type}
+          filename={name}
+          onDownload={() => downloadEvidence(url, name)}
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
