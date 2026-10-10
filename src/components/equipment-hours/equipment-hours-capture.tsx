@@ -141,7 +141,8 @@ export function EquipmentHoursCapture({
   const rows = machines.data ?? [];
   const chosen = rows.find((row) => row.id === equipment);
   // A project hires machines from several companies: the supplier narrows
-  // the list. Only offered when there is more than one to choose from.
+  // the list. Always offered, so every phone shows the same form (Lucas,
+  // 2026-10-10: 「为什么客户的有供应商我没有」).
   const suppliers = [
     ...new Map(
       rows.map((row) => [row.supplier || NO_SUPPLIER, row.supplier_name || ""]),
@@ -210,31 +211,29 @@ export function EquipmentHoursCapture({
         </FieldWrapper>
       )}
 
-      {suppliers.length > 1 && (
-        <FieldWrapper label={t("phone.supplier")}>
-          <Select
-            value={supplier}
-            onValueChange={(value) => {
-              setSupplier(value);
-              if (chosen && value !== ALL && (chosen.supplier || NO_SUPPLIER) !== value) {
-                pick(undefined);
-              }
-            }}
-          >
-            <SelectTrigger className="h-12 w-full" aria-label={t("phone.supplier")}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>
-              {suppliers.map(([id, name]) => (
-                <SelectItem key={id} value={id}>
-                  {id === NO_SUPPLIER ? t("phone.noSupplier") : name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FieldWrapper>
-      )}
+      <FieldWrapper label={t("phone.supplier")}>
+        <Select
+          value={supplier}
+          onValueChange={(value) => {
+            setSupplier(value);
+            if (chosen && value !== ALL && (chosen.supplier || NO_SUPPLIER) !== value) {
+              pick(undefined);
+            }
+          }}
+        >
+          <SelectTrigger className="h-12 w-full" aria-label={t("phone.supplier")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>
+            {suppliers.map(([id, name]) => (
+              <SelectItem key={id} value={id}>
+                {id === NO_SUPPLIER ? t("phone.noSupplier") : name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
 
       <FieldWrapper label={t("phone.machine")} required>
         <div className="flex gap-2">
