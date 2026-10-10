@@ -366,7 +366,7 @@ export function ConsultantApplicationDetail({
               exportButtons={null}
               sendBlockedReason={
                 application.consultant_form && !application.form_files?.some((row) => row.kind === "FILLED")
-                  ? t("ownForm.filledMissing")
+                  ? t("ownForm.sendNeedsFilled")
                   : undefined
               }
             />

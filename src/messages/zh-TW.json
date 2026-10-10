@@ -5349,7 +5349,8 @@
         "filledUploaded": "填好的表格已上傳"
       },
       "onlyThisProject": "只限上面選的項目",
-      "versionHistory": "以前的版本（{count}）"
+      "versionHistory": "以前的版本（{count}）",
+      "sendNeedsFilled": "請先上傳填好的顧問表格。"
     }
   },
   "contractorDashboard": {
