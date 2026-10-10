@@ -6815,7 +6815,8 @@
       "versionNote": "Catatan versi",
       "versions": "Versi",
       "path": "Disimpan di",
-      "thumbnail": "Lakaran kecil"
+      "thumbnail": "Lakaran kecil",
+      "files": "Fail"
     },
     "keywordsPlaceholder": "Pisahkan kata kunci dengan koma",
     "noFile": "Tiada fail dimuat naik",
@@ -6845,20 +6846,22 @@
       "subcategoryCreated": "Subkategori dicipta",
       "subcategoryUpdated": "Subkategori dikemas kini",
       "updated": "Dokumen dikemas kini",
-      "versionUploaded": "Versi dokumen dimuat naik",
+      "versionUploaded": "Fail ditambah ke dokumen",
       "uploaded": "Fail dimuat naik",
       "systemFilesAdded": "Difailkan dalam arkib"
     },
     "upload": {
-      "action": "Muat naik versi",
+      "action": "Tambah fail",
       "confirm": "Muat naik",
-      "description": "Tambah versi kekal baharu kepada {name}.",
+      "description": "Tambah fail ke {name}: versi baharu atau dokumen tambahan, boleh beberapa sekali gus. Fail sedia ada dan rekod asalnya tidak diubah.",
       "limit": "PDF, Word, Excel atau foto sahaja. Had saiz fail yang dikonfigurasi dikuatkuasakan semasa muat naik.",
-      "title": "Muat naik versi dokumen"
+      "title": "Tambah fail ke dokumen ini",
+      "companyWideManagerOnly": "Hanya pengurus dokumen boleh menambah fail ke dokumen seluruh syarikat."
     },
     "versions": {
       "empty": "Belum ada versi fail dimuat naik.",
-      "title": "Sejarah versi"
+      "title": "Fail dimuat naik (versi)",
+      "emptyWithSystemFiles": "Belum ada fail dimuat naik; fail dokumen ini disenaraikan di atas di bawah “Fail dipilih dari sistem”."
     },
     "what": {
       "projects": "Senarai projek",
@@ -6872,15 +6875,19 @@
     "uploadFile": {
       "action": "Muat naik fail",
       "title": "Muat naik ke arkib dokumen",
-      "description": "Pilih fail dan folder simpanannya. Setiap fail menjadi dokumen tersendiri; dokumen sedia ada tidak diubah.",
+      "description": "Pilih fail dan folder simpanannya. Fail yang dipilih bersama masuk ke satu dokumen; dokumen sedia ada tidak diubah.",
       "fileHint": "PDF, Word, Excel atau foto. Boleh pilih beberapa sekaligus.",
       "pathPreview": "Akan disimpan di:",
       "projectHint": "Hanya projek anda. Simpanan seluruh syarikat untuk pengurus dokumen.",
-      "titleHint": "Jika kosong, nama fail digunakan.",
+      "titleHint": "Biarkan kosong untuk guna nama fail (nama fail pertama jika ada beberapa).",
       "confirm": "Muat naik",
       "progress": "Memuat naik {done}/{total}",
       "noCategory": "Sediakan kategori dokumen dahulu",
-      "fromComputer": "Dari komputer ini"
+      "fromComputer": "Dari komputer ini",
+      "groupTitle": "{name} dan {count} fail",
+      "computerWay": "Muat naik dari komputer: hantar fail dari komputer atau telefon anda (PDF, Word, Excel, foto).",
+      "partial": "{done} daripada {total} fail sudah dimuat naik; selebihnya gagal. Tekan “Teruskan muat naik” untuk menambah selebihnya ke dokumen yang sama.",
+      "resume": "Teruskan muat naik"
     },
     "categoryPicker": {
       "expand": "Tunjukkan subkategori {name}",
@@ -6894,7 +6901,7 @@
     },
     "pickFromSystem": {
       "tab": "Dari sistem",
-      "description": "Cari foto dan fail yang sudah ada dalam sistem, tandakan atau seret ke kawasan arkib, kemudian failkan. Tiada fail disalin.",
+      "description": "Cari foto dan fail yang sudah ada dalam sistem, tandakan atau seret ke kawasan arkib, kemudian failkan. Fail yang ditanda masuk ke satu dokumen. Tiada fail disalin.",
       "files": "Fail sistem",
       "hint": "Hanya fail yang anda sudah boleh lihat disenaraikan.",
       "searchPlaceholder": "Cari nombor (cth. MR-002), bahan atau nama fail",
@@ -6911,7 +6918,13 @@
       "previous": "Halaman sebelumnya",
       "next": "Halaman seterusnya",
       "firstPage": "Ini halaman pertama",
-      "lastPage": "Ini halaman terakhir"
+      "lastPage": "Ini halaman terakhir",
+      "systemWay": "Pilih dari sistem: failkan foto dan fail yang sudah ada dalam sistem (contohnya foto penerimaan bahan). Tiada fail disalin.",
+      "mixedProjects": "Fail ini dari projek berlainan. Satu dokumen milik satu projek, jadi pilih fail dari satu projek sahaja."
+    },
+    "filesMore": "+{count} fail lagi",
+    "systemFiles": {
+      "title": "Fail dipilih dari sistem"
     }
   },
   "driver": {
@@ -7418,7 +7431,6 @@
       "material_request_assigned_to_other": "Permohonan ini dihantar kepada orang lain untuk diluluskan. Untuk memutuskannya sendiri, tekan \"Ambil alih\" dahulu.",
       "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
       "document_file_type_not_allowed": "Hanya fail PDF, Word, Excel atau gambar boleh dimuat naik.",
-      "document_is_system_file": "Fail yang dipilih daripada sistem tidak menerima versi baharu. Letakkan versi baharu pada rekodnya.",
       "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya.",
       "disposal_trip_not_waiting": "Muatan ini tidak menunggu semakan: belum dihantar, atau sudah disemak.",
       "disposal_all_trips_sent": "Semua muatan yang dirancang telah dihantar. Jika ada lori lagi, minta tapak menambah satu muatan.",
@@ -7442,7 +7454,8 @@
       "driver_link_closed": "Perjalanan ini selesai dan pautannya ditutup.",
       "driver_link_other_device": "Pautan ini digunakan pada telefon lain. Minta pengitar semula hantar semula.",
       "driver_link_expired": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
-      "driver_login_retired": "Pemandu tidak perlu log masuk lagi. Buka pautan perjalanan yang dihantar oleh pengitar semula."
+      "driver_login_retired": "Pemandu tidak perlu log masuk lagi. Buka pautan perjalanan yang dihantar oleh pengitar semula.",
+      "document_system_files_mixed_projects": "Fail ini dari projek berlainan. Satu dokumen milik satu projek, jadi pilih fail dari satu projek sahaja."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -15839,7 +15852,13 @@
     "openNewTab": "Buka di tab baharu",
     "print": "Cetak",
     "download": "Muat turun",
-    "preview": "Pratonton"
+    "preview": "Pratonton",
+    "wordFailed": "Fail Word ini tidak dapat dibaca. Muat turun dan buka dalam Word.",
+    "wordNote": "Hanya teks, jadual dan gambar ditunjukkan di sini; susun atur tepat ada dalam fail yang dimuat turun.",
+    "wordTruncated": "Fail ini panjang; hanya bahagian awal ditunjukkan.",
+    "wordEmpty": "Fail ini tiada teks.",
+    "legacyOffice": "Ini format {ext} lama yang tidak boleh dipratonton dalam sistem.",
+    "legacyOfficeHelp": "Muat turun untuk melihatnya. Simpan sebagai .docx / .xlsx dalam Word / Excel dan muat naik semula untuk pratonton di sini lain kali."
   },
   "fileActions": {
     "preview": "Pratonton",

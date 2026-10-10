@@ -123,6 +123,15 @@ describe("table thumbnails (D5)", () => {
     expect(markup).toContain(">PDF<");
     expect(markup).toContain(`${zh.filePreview.preview} · contract.pdf`);
   });
+
+  it("shows a PDF's first page when the server has one (2026-10-10)", () => {
+    const pdf = { ...version("contract.pdf", "application/pdf"), thumbnail_url: "https://media.test/page1.webp" };
+    const markup = render(<DocumentThumb version={pdf} onOpen={() => undefined} />);
+    expect(markup).toContain('data-thumbnail="image"');
+    expect(markup).toContain('src="https://media.test/page1.webp"');
+    // The whole page shows, from its top - not cropped like a photo.
+    expect(markup).toContain("object-contain");
+  });
 });
 
 describe("the documents screen", () => {

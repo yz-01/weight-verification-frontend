@@ -6815,7 +6815,8 @@
       "versionNote": "Version note",
       "versions": "Versions",
       "path": "Filed under",
-      "thumbnail": "Thumbnail"
+      "thumbnail": "Thumbnail",
+      "files": "Files"
     },
     "keywordsPlaceholder": "Separate keywords with commas",
     "noFile": "No file uploaded",
@@ -6845,20 +6846,22 @@
       "subcategoryCreated": "Subcategory created",
       "subcategoryUpdated": "Subcategory updated",
       "updated": "Document updated",
-      "versionUploaded": "Document version uploaded",
+      "versionUploaded": "Files added to the document",
       "uploaded": "File uploaded",
       "systemFilesAdded": "Filed in the archive"
     },
     "upload": {
-      "action": "Upload version",
+      "action": "Add files",
       "confirm": "Upload",
-      "description": "Add a new immutable version to {name}.",
+      "description": "Add files to {name}: a new version or more papers, several at once if you like. The files already there and the record they came from are not changed.",
       "limit": "PDF, Word, Excel or photos only. The configured file-size limit is enforced during upload.",
-      "title": "Upload document version"
+      "title": "Add files to this document",
+      "companyWideManagerOnly": "Only a document manager can add files to a company-wide document."
     },
     "versions": {
       "empty": "No file versions have been uploaded.",
-      "title": "Version history"
+      "title": "Uploaded files (versions)",
+      "emptyWithSystemFiles": "No uploaded files yet; this document's files are listed above under “Files picked from the system”."
     },
     "what": {
       "projects": "The project list",
@@ -6872,15 +6875,19 @@
     "uploadFile": {
       "action": "Upload file",
       "title": "Upload to the document archive",
-      "description": "Choose the files and the folder they are filed in. Each file becomes its own document; anything already filed is not touched.",
+      "description": "Choose the files and the folder they are filed in. Files chosen together go into one document; anything already filed is not touched.",
       "fileHint": "PDF, Word, Excel or photos. You can choose several at once.",
       "pathPreview": "Will be filed under:",
       "projectHint": "Only a project you are on. Filing company-wide is for a document manager.",
-      "titleHint": "Left empty, the file name is used.",
+      "titleHint": "Leave empty to use the file name (the first file's name when there are several).",
       "confirm": "Upload",
       "progress": "Uploading {done}/{total}",
       "noCategory": "Set up a document category first",
-      "fromComputer": "From this computer"
+      "fromComputer": "From this computer",
+      "groupTitle": "{name} and {count} files",
+      "computerWay": "Upload from computer: send files from your computer or phone (PDF, Word, Excel, photos).",
+      "partial": "{done} of {total} files are in; the rest did not upload. Press “Continue upload” to add the rest to the same document.",
+      "resume": "Continue upload"
     },
     "categoryPicker": {
       "expand": "Show the subcategories of {name}",
@@ -6894,7 +6901,7 @@
     },
     "pickFromSystem": {
       "tab": "From the system",
-      "description": "Find photos and files already in the system, tick them or drag them to the archive area, then file them. Nothing is copied.",
+      "description": "Find photos and files already in the system, tick them or drag them to the archive area, then file them. The ticked files go into one document. Nothing is copied.",
       "files": "System files",
       "hint": "Only files you can already see are listed.",
       "searchPlaceholder": "Search a number (e.g. MR-002), material or file name",
@@ -6911,7 +6918,13 @@
       "previous": "Previous page",
       "next": "Next page",
       "firstPage": "This is the first page",
-      "lastPage": "This is the last page"
+      "lastPage": "This is the last page",
+      "systemWay": "Pick from system: file photos and files the system already has (for example material delivery photos). Nothing is copied.",
+      "mixedProjects": "These files come from different projects. A document belongs to one project, so pick files from one project only."
+    },
+    "filesMore": "+{count} more files",
+    "systemFiles": {
+      "title": "Files picked from the system"
     }
   },
   "driver": {
@@ -7418,7 +7431,6 @@
       "material_request_assigned_to_other": "This request was sent to somebody else to approve. To decide it yourself, press \"Take it over\" first.",
       "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list.",
       "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded.",
-      "document_is_system_file": "A file picked from the system takes no new versions. Put the new version on its record.",
       "document_system_file_not_found": "One of those files was not found, or you cannot see it.",
       "disposal_trip_not_waiting": "This load is not waiting for a check: it has not been sent, or it was already checked.",
       "disposal_all_trips_sent": "Every planned load has been sent. If another lorry is going, ask the site to add a load.",
@@ -7442,7 +7454,8 @@
       "driver_link_closed": "This trip is finished and its link is closed.",
       "driver_link_other_device": "This link is in use on another phone. Ask the recycler to send it again.",
       "driver_link_expired": "This link no longer works. Ask the recycler to send it again.",
-      "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you."
+      "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you.",
+      "document_system_files_mixed_projects": "These files come from different projects. A document belongs to one project, so pick files from one project only."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -15839,7 +15852,13 @@
     "openNewTab": "Open in new tab",
     "print": "Print",
     "download": "Download",
-    "preview": "Preview"
+    "preview": "Preview",
+    "wordFailed": "This Word file could not be read. Download it and open it in Word.",
+    "wordNote": "Only the text, tables and pictures are shown here; the downloaded file has the exact layout.",
+    "wordTruncated": "The file is long; only the first part is shown.",
+    "wordEmpty": "This file has no text.",
+    "legacyOffice": "This is the old {ext} format, which cannot be previewed in the system.",
+    "legacyOfficeHelp": "Download it to view it. Save it as .docx / .xlsx in Word / Excel and upload that to preview it here next time."
   },
   "fileActions": {
     "preview": "Preview",
