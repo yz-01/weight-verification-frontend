@@ -29,7 +29,7 @@ import { useSearchParams } from "next/navigation";
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldMyTasksCard } from "@/components/field-staff/field-my-tasks-card";
@@ -51,8 +51,10 @@ import { activeFieldNav } from "@/lib/field-nav";
 import { FIELD_OPEN_EVENT } from "@/lib/field-notification";
 import {
   type LocationFix,
+  LocationRefused,
   requestLocation as locate,
 } from "@/lib/field-location";
+import { attendanceEventLabel, fenceDistanceShown, fixIsFresh } from "@/lib/attendance-fence";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { toneOf, type StatusTone } from "@/lib/tones";
@@ -677,14 +679,33 @@ function FieldAttendancePanel() {
   const [project, setProject] = useDraftState("project", "");
   const [event, setEvent] = useDraftState<AttendanceEvent>("event", "CLOCK_IN");
   const [selfie, setSelfie] = useDraftState<File | undefined>("selfie");
-  const [fix, setFix] = useDraftState<LocationFix | null>("fix", null);
+  // The position is held while the form is open, never in the saved draft: a
+  // fix restored from the draft is where the phone *was*, and a 进场 went
+  // through on one (2026-10-10). Older than a minute at submit, it is taken
+  // again; after each submission the field asks afresh (`fixRound`).
+  const [fix, setFixValue] = useState<LocationFix | null>(null);
+  const [fixAt, setFixAt] = useState(0);
+  const [fixRound, setFixRound] = useState(0);
+  const setFix = useCallback((next: LocationFix | null) => {
+    setFixValue(next);
+    setFixAt(next ? Date.now() : 0);
+  }, []);
   const [note, setNote] = useDraftState("note", "");
   const clearDraft = useClearDraft();
   const [error, setError] = useState("");
   const attendance = useQuery({ queryKey: ["field-staff", "attendance"], queryFn: () => getAttendance({ page_size: 30, sort_by: "occurred_at", sort_order: "desc" }) });
   const today = useMemo(() => (attendance.data?.results ?? []).filter((row) => row.user === user?.id && new Date(row.occurred_at).toDateString() === new Date().toDateString()), [attendance.data, user?.id]);
   const selectedProject = project || today[0]?.project || "";
-  const submit = useMutation({ mutationFn: () => { if (!user || !selfie || !fix) throw new Error("missing"); return submitAttendanceOfflineAware(user.id, { project: selectedProject, event, note, photo: selfie, latitude: fix.latitude, longitude: fix.longitude, locationAccuracyM: fix.accuracy }); }, onSuccess: () => { clearDraft(); setSelfie(undefined); setFix(null); setNote(""); setError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "attendance"] }); }, onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("error.action")) });
+  const submit = useMutation({
+    mutationFn: async () => {
+      if (!user || !selfie || !fix) throw new Error("missing");
+      const current = fixIsFresh(fixAt) ? fix : await locate();
+      if (current !== fix) setFix(current);
+      return submitAttendanceOfflineAware(user.id, { project: selectedProject, event, note, photo: selfie, latitude: current.latitude, longitude: current.longitude, locationAccuracyM: current.accuracy });
+    },
+    onSuccess: () => { clearDraft(); setSelfie(undefined); setFix(null); setFixRound((round) => round + 1); setNote(""); setError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "attendance"] }); },
+    onError: (reason) => setError(reason instanceof ApiError ? reason.message : reason instanceof LocationRefused ? t("error.location") : t("error.action")),
+  });
   return (
     <section className="space-y-4">
       <div>
@@ -707,6 +728,7 @@ function FieldAttendancePanel() {
           <FieldCamera label={selfie ? t("attendance.selfieReady") : t("attendance.takeSelfie")} file={selfie} fileCount={selfie ? 1 : 0} facingMode="user" onCapture={setSelfie} onClear={() => setSelfie(undefined)} />
         </FieldWrapper>
         <LocationField
+          key={fixRound}
           className="mt-3"
           label={t("attendance.getLocation")}
           actionLabel={t("attendance.getLocation")}
@@ -724,6 +746,7 @@ function FieldAttendancePanel() {
         {attendance.isSuccess && today.length === 0 && <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
         {today.map((row) => {
           const photoUrl = row.watermarked_photo || row.photo;
+          const outsideBy = fenceDistanceShown(row);
           const mapUrl = row.latitude && row.longitude
             ? `https://www.google.com/maps?q=${row.latitude},${row.longitude}`
             : "";
@@ -737,13 +760,13 @@ function FieldAttendancePanel() {
                 ) : <span className="photo-hatch grid size-16 place-items-center rounded-lg"><Camera className="size-6 text-muted-foreground" /></span>}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap gap-2">
-                    <StatusBadge label={t(row.event === "CLOCK_IN" ? "attendance.clockIn" : "attendance.clockOut")} tone={row.event === "CLOCK_IN" ? "positive" : "neutral"} />
+                    <StatusBadge label={t(`attendance.${attendanceEventLabel(row)}`)} tone={row.event === "CLOCK_IN" ? "positive" : "neutral"} />
                     <StatusBadge label={t(`attendance.geofence.${row.geofence_result}`)} tone={row.geofence_result === "INSIDE" ? "positive" : row.geofence_result === "OUTSIDE" ? "danger" : "neutral"} />
                   </div>
                   <p className="mt-2 truncate text-sm font-semibold">{row.project_name}</p>
                   <p className="text-xs text-muted-foreground">{new Date(row.occurred_at).toLocaleString()}</p>
                   {row.matched_geofence_name && <p className="mt-1 text-xs text-muted-foreground">{row.matched_geofence_name}</p>}
-                  {row.distance_m && <p className="mt-1 text-xs text-muted-foreground">{t("attendance.distance", { distance: Math.round(Number(row.distance_m)) })}</p>}
+                  {outsideBy !== null && <p className="mt-1 text-xs text-muted-foreground">{t("attendance.distance", { distance: outsideBy })}</p>}
                 </div>
               </div>
               {mapUrl && (

@@ -85,6 +85,7 @@ import type {
   SiteAccessPass,
   SiteAccessPassPayload,
 } from "@/interfaces/site-access";
+import { openOnSamePage } from "@/lib/same-page-link";
 import { cn } from "@/lib/utils";
 import {
   createSiteAccessPass,
@@ -138,7 +139,12 @@ export function SiteAccessWorkspace() {
   // mounted. The sidebar's 「通行证」 and 「门岗扫码」 are this one page with
   // a different `?tab=`, so moving between them keeps the page mounted and
   // only the address changes (Lucas 2026-10-10, 图4: 「点了另一个不会切换」).
-  const tab = siteAccessTab(search, can("site_access.scan"));
+  const addressTab = siteAccessTab(search, can("site_access.scan"));
+  // A tab pressed here shows at once; the address follows. Should the
+  // address move on its own (the sidebar, a notification), it wins again.
+  const [shown, setShown] = useState({ address: addressTab, tab: addressTab });
+  if (shown.address !== addressTab) setShown({ address: addressTab, tab: addressTab });
+  const tab = shown.tab;
   // The dashboard's 通行证即将到期 figure opens `?expiring=1` (C15).
   // The top bar's 「当前项目」 when it is in force (B13).
   const [project, setProject] = usePageProject(search.get("project") ?? "", { all: "all" });
@@ -158,8 +164,10 @@ export function SiteAccessWorkspace() {
   const [revoke, setRevoke] = useState<SiteAccessPass | null>(null);
   const [reason, setReason] = useState("");
   const openedPassRef = useRef("");
-  // A tab is chosen by changing the address, which Next.js feeds back through
-  // `useSearchParams` (native replaceState is part of its router).
+  // A pressed tab shows at once and is written to the address. The state
+  // passed is `null`: handing Next.js its own router state back made it
+  // ignore the change, so the page only switched after a refresh (Lucas
+  // 2026-10-10: 「url换了可是页面没有换」).
   const changeTab = (value: string) => {
     const nextTab = SITE_ACCESS_TABS.find((key) => key === value) ?? "passes";
     const url = new URL(window.location.href);
@@ -167,11 +175,8 @@ export function SiteAccessWorkspace() {
     else url.searchParams.set("tab", nextTab);
     if (nextTab !== "gate") url.searchParams.delete("scan");
     if (nextTab !== "gate-records") url.searchParams.delete("gate_incident");
-    window.history.replaceState(
-      window.history.state,
-      "",
-      `${url.pathname}${url.search}${url.hash}`,
-    );
+    setShown((current) => ({ ...current, tab: nextTab }));
+    openOnSamePage(`${url.pathname}${url.search}${url.hash}`, true);
   };
   const defaults = useQuery({
     queryKey: ["site-access-defaults"],

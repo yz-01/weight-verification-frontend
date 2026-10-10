@@ -1405,6 +1405,20 @@ export const recordPdfObjectUrl = (kind: ExportableRecordKind, recordId: string)
     query: { kind, record: recordId, inline: "1" },
   });
 
+/** One consultant this package can be sent to: a current grant on its project. */
+export interface PackageConsultantChoice {
+  consultant: string;
+  name: string;
+  organization: string;
+  email: string;
+}
+
+/** Exactly the consultants `send_for_review` accepts for this package. */
+export const getPackageConsultantChoices = (id: string) =>
+  api.get<PackageConsultantChoice[]>(
+    `/api/evidence-packages/${id}/get_consultant_choices/`,
+  );
+
 export async function sendPackageForReview(id: string, consultant: string) {
   const row = await api.post<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/send_for_review/`,

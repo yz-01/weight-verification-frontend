@@ -7252,6 +7252,7 @@
       "asset_movement_not_found": "找不到该资产流转记录。",
       "asset_not_found": "找不到该资产。",
       "attendance_gps_required": "这个项目设了工地范围，打卡需要你的位置。请打开定位再试一次。",
+      "attendance_gps_inaccurate": "手机定位不够准（误差约 {accuracy} 米），判断不了你在不在工地围栏内。到空旷处等几秒再试。",
       "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
       "audit_entry_not_found": "找不到这条审计记录。",
       "below_minimum_payout": "该金额低于最低付款额度。",
@@ -7465,6 +7466,7 @@
       "equipment_hours_day_not_found": "找不到这一笔工时记录，请刷新后再试。",
       "equipment_hours_end_before_start": "结束时间要在开始时间之后。",
       "equipment_hours_end_too_late": "这个时间和这台设备的上一张或下一张照片重叠了，或者晚于现在。",
+      "equipment_site_no_taken": "这个项目里已经有设备（{equipment}）用了编号「{site_no}」，请换一个。",
       "equipment_profile_incomplete": "先选好这台设备的小类，才能验收。",
       "equipment_not_on_site": "这台设备现在不在这个项目场内，不能退场。",
       "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。",
@@ -7836,8 +7838,11 @@
       "takePhoto": "拍照"
     },
     "attendance": {
+      "autoIn": "自动进场",
+      "autoOut": "自动离开",
       "clockIn": "手动进场",
       "clockOut": "手动离开",
+      "systemOut": "系统结束",
       "distance": "距离围栏：{distance} 米",
       "geofence": {
         "INSIDE": "围栏范围内",
@@ -9670,8 +9675,14 @@
     "columns": "分类",
     "confirm": "确认并合并",
     "confirmedHelp": "这个资料包已经确认。内容不再变化，也不能删除 —— 它本身就是「当初为什么建立这一包」的记录。",
-    "consultantOnlyHelp": "只能发给顾问。平台上没有「业主」这种账号，所以没有别的收件人可选。",
-    "digest": "摘要 {digest}",
+    "consultantOnlyHelp": "选择要发给哪位顾问。",
+    "consultantSearch": "搜索姓名或公司",
+    "consultantsWhat": "顾问名单",
+    "locked": "已锁定（防篡改）",
+    "noConsultantMatch": "没有匹配的顾问",
+    "noConsultants": "这个项目还没有关联任何顾问。请先在「顾问账号与项目授权」里给顾问开通这个项目，再回来发送。",
+    "technicalDetails": "技术资料",
+    "digest": "PDF 指纹（SHA-256）：{digest}",
     "download": "下载 PDF",
     "empty": "还没有资料包。新建一个，把要提交的资料收在一起。",
     "exportedHelp": "这份 PDF 已经被下载到平台之外。到这一步就没有自动原路返回了 —— 只能在系统外通知对方，再由负责人回到系统手动记录结果。",
@@ -9685,7 +9696,7 @@
       "remarks": "备注",
       "records": "资料",
       "consultant": "顾问",
-      "consultantPlaceholder": "顾问的账号 ID",
+      "consultantPlaceholder": "选择顾问",
       "returnReason": "退回原因"
     },
     "firstPage": "已经是第一页了。",
@@ -13957,6 +13968,19 @@
       "CANCELLED": "已取消（提前结束）"
     }
   },
+  "onSiteMap": {
+    "count": "{count} 人在场",
+    "empty": "现在没有人在围栏内。",
+    "foregroundOnly": "手机上的现场 App 打开时，大约每分钟更新一次位置；App 关掉或放在后台时位置不会更新。只显示围栏内的位置。",
+    "lastSeen": "{at} 更新",
+    "live": "实时",
+    "mapLabel": "现场人员位置地图",
+    "stale": "超过 10 分钟未更新",
+    "subtitle": "已进场、在围栏内的人，以及他们最后在围栏内的位置。",
+    "title": "现场人员位置",
+    "what": "现场人员位置",
+    "whatFences": "围栏范围"
+  },
   "siteGps": {
     "allProjects": "全部项目",
     "autoSharing": "GPS 已自动开启",
@@ -16206,8 +16230,8 @@
       "allSuppliers": "全部供应商",
       "equipment": "设备",
       "allEquipment": "全部设备",
-      "search": "车牌 / 设备编号",
-      "searchPlaceholder": "输入车牌或设备编号"
+      "search": "车牌 / 编号",
+      "searchPlaceholder": "车牌、设备编号或现场编号"
     },
     "field": {
       "date": "日期",
@@ -16230,7 +16254,8 @@
       "totalHours": "合计工时（小时）",
       "incomplete": "缺开工 / 收工",
       "adjustedCount": "后台修改次数",
-      "actions": "操作"
+      "actions": "操作",
+      "siteNo": "现场编号"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -16251,7 +16276,8 @@
     },
     "what": {
       "days": "工时记录",
-      "month": "每月合计"
+      "month": "每月合计",
+      "siteNumbers": "设备名单"
     },
     "adjust": {
       "add": "补结束时间",
@@ -16281,7 +16307,9 @@
     },
     "toast": {
       "endSaved": "结束时间已保存",
-      "startSaved": "开始时间已保存"
+      "startSaved": "开始时间已保存",
+      "siteNoSaved": "现场编号已保存",
+      "siteNoCleared": "现场编号已清除"
     },
     "phone": {
       "howTo": "开工时选「开工」拍一张，收工时选「收工」再拍一张。每一对开工和收工算一笔工时。",
@@ -16312,7 +16340,26 @@
       "started": "{start} 开工",
       "stopHint": "收工时选「收工」再拍一张",
       "soFar": "{start} 至 {end}，共 {hours} 小时",
-      "missingStart": "这张收工照片前面没有开工照片，后台会补开始时间。"
+      "missingStart": "这张收工照片前面没有开工照片，后台会补开始时间。",
+      "machineAnyWay": "从列表选、扫码或输入编号，任选一种都可以。",
+      "typeNumber": "输入编号",
+      "typeNumberPlaceholder": "设备上的编号，例如 12",
+      "typedFound": "找到：{machine}",
+      "typedNoMatch": "找不到这个编号"
+    },
+    "siteNo": {
+      "open": "设备编号管理",
+      "title": "设备编号管理",
+      "help": "给每台设备一个简短的现场编号（例如 12），写或贴在设备上。操作员在手机上输入这个编号就能选到设备。同一个项目里编号不能重复；清空就是不用编号。",
+      "search": "找设备",
+      "searchPlaceholder": "名称、车牌、供应商或编号",
+      "empty": "这个项目还没有在用的设备。",
+      "noMatch": "没有符合的设备。",
+      "inputLabel": "{machine} 的现场编号",
+      "placeholder": "例如 12",
+      "save": "保存",
+      "failed": "保存失败，请再试一次。",
+      "close": "关闭"
     }
   },
   "theme": {

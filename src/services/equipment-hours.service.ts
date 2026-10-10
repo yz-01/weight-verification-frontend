@@ -69,7 +69,7 @@ export interface EquipmentHoursQuery {
   project?: string;
   equipment?: string;
   supplier?: string;
-  /** 车牌 / 设备编号 search. */
+  /** 车牌 / 设备编号 / 现场编号 search. */
   q?: string;
   date_from?: string;
   date_to?: string;
@@ -120,9 +120,36 @@ export async function adjustEquipmentDayEnd(
   return session;
 }
 
+/**
+ * 「设备编号管理」: the project's working machines with their 现场编号 - or
+ * every project's, with no project.
+ */
+export function getEquipmentSiteNumbers(project?: string): Promise<EquipmentHoursMachine[]> {
+  return api.get<EquipmentHoursMachine[]>(
+    "/api/equipment-hours/site_numbers/",
+    project ? { project } : undefined,
+  );
+}
+
+/** Give a machine its 现场编号, change it, or clear it (blank). */
+export async function setEquipmentSiteNo(
+  equipment: string,
+  siteNo: string,
+): Promise<EquipmentHoursMachine> {
+  const machine = await api.post<EquipmentHoursMachine>(
+    "/api/equipment-hours/set_site_no/",
+    { equipment, site_no: siteNo },
+  );
+  toastSuccess(
+    machine.site_no ? "equipmentHours.toast.siteNoSaved" : "equipmentHours.toast.siteNoCleared",
+  );
+  return machine;
+}
+
 export interface EquipmentHoursSummaryLabels {
   title: string;
   equipment_label: string;
+  site_no_label?: string;
   plate_label: string;
   supplier_label: string;
   sessions_label: string;

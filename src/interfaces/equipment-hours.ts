@@ -19,6 +19,12 @@ export interface EquipmentHoursMachine {
   name: string;
   /** 设备编号. */
   code: string;
+  /**
+   * 现场编号: the short number the office gives the machine on this site
+   * (「12」), painted on it; the operator types it to pick the machine.
+   * Blank when none is given; absent on answers from before 2026-10-10.
+   */
+  site_no?: string;
   /** 「车牌号码」 - the machine's registration number. */
   plate: string;
   serial_no?: string;
@@ -74,6 +80,8 @@ export interface EquipmentHoursSession extends RecordedBy {
   equipment: string;
   equipment_name: string;
   equipment_code: string;
+  /** 现场编号, blank when the office has given none. */
+  site_no?: string;
   plate: string;
   supplier: string | null;
   supplier_name: string;
@@ -119,6 +127,7 @@ export interface EquipmentHoursMonthRow {
   equipment: string;
   equipment_name: string;
   equipment_code: string;
+  site_no?: string;
   plate: string;
   supplier_name: string;
   project: string;

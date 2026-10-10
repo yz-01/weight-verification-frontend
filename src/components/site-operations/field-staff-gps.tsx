@@ -12,6 +12,7 @@ import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { WorkforcePresencePanel } from "@/components/site-operations/workforce-presence-panel";
+import { OnSiteMap, useOnSitePositions } from "@/components/site-operations/on-site-map";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -24,7 +25,6 @@ import { cn } from "@/lib/utils";
 import { getProjects } from "@/services/contractor.service";
 import {
   getFieldStaffLastPositions,
-  getFieldStaffLivePositions,
   getFieldStaffRouteHistory,
   recordFieldStaffPosition,
   stopFieldStaffLocationSharing,
@@ -123,16 +123,9 @@ export function FieldStaffGps({
     queryFn: () => getProjects({ page_size: 100 }),
     enabled: mayWatch,
   });
-  const live = useQuery({
-    queryKey: ["field-staff-gps", projectId],
-    queryFn: () =>
-      getFieldStaffLivePositions({
-        page_size: 200,
-        ...(projectId ? { project: projectId } : {}),
-      }),
-    refetchInterval: 15_000,
-    enabled: mayWatch,
-  });
+  // 实时: the people on site now (open 进场), at their newest point inside
+  // the fence - the same rows the map below draws (2026-10-10).
+  const live = useOnSitePositions(projectId, mayWatch);
   const record = useMutation({
     mutationFn: recordFieldStaffPosition,
     onSuccess: () => {
@@ -210,44 +203,6 @@ export function FieldStaffGps({
     },
   });
 
-  const selectedProject = useMemo(
-    () => projects.data?.results.find((project) => project.id === projectId),
-    [projectId, projects.data?.results],
-  );
-  const positions = useMemo(
-    () => live.data?.results ?? [],
-    [live.data?.results],
-  );
-  const center = useMemo<[number, number] | undefined>(() => {
-    if (!selectedProject?.latitude || !selectedProject.longitude) return undefined;
-    return [Number(selectedProject.latitude), Number(selectedProject.longitude)];
-  }, [selectedProject]);
-  const markers = useMemo(
-    () =>
-      positions.filter(hasVisibleCoordinates).map((position) => ({
-        id: position.id,
-        latitude: Number(position.latitude),
-        longitude: Number(position.longitude),
-        label: position.user_name,
-        detail: `${position.project_name} · ${t(
-          `siteGps.event.${position.event_type}`,
-        )}`,
-        tone: position.geofence_result === "OUTSIDE" ? ("danger" as const) : position.is_stale ? ("warning" as const) : ("positive" as const),
-        stale: position.is_stale,
-        icon: "person" as const,
-      })),
-    [positions, t],
-  );
-  const zones = useMemo(
-    () =>
-      buildZones(
-        geofences.data?.results ?? [],
-        projects.data?.results ?? [],
-        positions,
-        projectId,
-      ),
-    [geofences.data?.results, positions, projectId, projects.data?.results],
-  );
   const selectedHistoryProject = useMemo(
     () => projects.data?.results.find((project) => project.id === historyProjectId),
     [historyProjectId, projects.data?.results],
@@ -431,7 +386,7 @@ export function FieldStaffGps({
           tab === "live"
             ? live.isError
               ? t("common.emptyValue")
-              : t("siteGps.count", { count: live.data?.count ?? 0 })
+              : t("onSiteMap.count", { count: live.data?.count ?? 0 })
             : lastPositions.isError
               ? t("common.emptyValue")
               : t("siteGps.historyCount", { count: lastPositions.data?.count ?? 0 })
@@ -533,35 +488,7 @@ export function FieldStaffGps({
             <QueryFailedNote className="w-full" query={locationPolicy} what={t("siteGps.what.locationPolicy")} />
           </FilterBar>
 
-          <MapSection title={t("siteGps.map")} note={t("siteGps.refreshNote")}>
-            <LocationMap
-              center={center}
-              radiusM={zones.length ? null : selectedProject?.geofence_radius_m}
-              markers={markers}
-              zones={zones}
-              preserveViewOnDataUpdate
-              fitBoundsKey={`live:${projectId || "all"}`}
-            />
-            <QueryFailedNote query={projects} what={t("siteGps.what.projects")} />
-            <QueryFailedNote query={geofences} what={t("siteGps.what.geofences")} />
-          </MapSection>
-
-          <section className="surface-panel space-y-3 rounded-xl p-4 sm:p-6">
-            <h2 className="panel-title">{t("siteGps.people")}</h2>
-            <div className="divide-y rounded-lg border">
-              {live.isError ? (
-                <LoadFailed className="m-3" what={t("siteGps.what.live")} onRetry={() => live.refetch()} />
-              ) : positions.length === 0 ? (
-                <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-                  {t("siteGps.empty")}
-                </p>
-              ) : (
-                positions.map((position) => (
-                  <PositionRow key={position.id} position={position} />
-                ))
-              )}
-            </div>
-          </section>
+          {mayWatch && <OnSiteMap project={projectId} />}
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4 pt-2">
@@ -750,36 +677,6 @@ function MapSection({
       </div>
       {children}
     </section>
-  );
-}
-
-function PositionRow({ position }: { position: FieldStaffPosition }) {
-  const t = useTranslations();
-  return (
-    <div className="grid gap-3 px-3 py-3 sm:grid-cols-[1fr_auto_auto] sm:items-center">
-      <div className="flex min-w-0 items-center gap-2">
-        <UserRound className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{position.user_name}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {position.project_code} · {position.latitude}, {position.longitude}
-          </p>
-        </div>
-      </div>
-      <StatusBadge
-        label={t(`siteGps.geofence.${position.geofence_result}`)}
-        tone={
-          position.geofence_result === "INSIDE"
-            ? "positive"
-            : position.geofence_result === "OUTSIDE"
-              ? "danger"
-              : "neutral"
-        }
-      />
-      <span className="tabular text-xs text-muted-foreground">
-        {position.is_stale ? t("siteGps.stale") : t("siteGps.live")}
-      </span>
-    </div>
   );
 }
 

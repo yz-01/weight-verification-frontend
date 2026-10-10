@@ -12,25 +12,22 @@ import {
   type LocationMapZone,
 } from "@/components/shared/location-map";
 import { StatusBadge } from "@/components/shared/page-primitives";
+import { onSiteMarkers, useOnSitePositions } from "@/components/site-operations/on-site-map";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Project } from "@/interfaces/contractor";
 import type { SiteGeofence } from "@/interfaces/site-access";
-import type { FieldStaffPosition } from "@/interfaces/site-operations";
+import type { OnSitePosition } from "@/interfaces/site-operations";
 import { useDateFormat } from "@/lib/dates";
 import { MAP_COLORS } from "@/lib/map-palette";
 import { cn } from "@/lib/utils";
 import { getProjects } from "@/services/contractor.service";
-import { getFieldStaffLivePositions } from "@/services/field-staff-gps.service";
 import { getSiteGeofences } from "@/services/site-access.service";
 
-const POSITION_REFRESH_MS = 15_000;
 // Leaflet writes these into SVG attributes, so they come from the map
 // palette (the canvas's data colours as literals) rather than CSS variables.
 const PROJECT_COLORS = MAP_COLORS;
-
-type PositionState = "inside" | "outside" | "stale" | "lastInside" | "unknown";
 
 export function ContractorLocationMap({
   project,
@@ -49,15 +46,9 @@ export function ContractorLocationMap({
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
     staleTime: 60_000,
   });
-  const positions = useQuery({
-    queryKey: ["field-staff-gps", "dashboard", project],
-    queryFn: () =>
-      getFieldStaffLivePositions({
-        page_size: 200,
-        ...(project ? { project } : {}),
-      }),
-    refetchInterval: POSITION_REFRESH_MS,
-  });
+  // The people on site now, at their newest point inside the fence - not
+  // every phone that reported lately, wherever it was (2026-10-10).
+  const positions = useOnSitePositions(project);
   const geofences = useQuery({
     queryKey: ["site-geofences", "dashboard-map", project],
     queryFn: () =>
@@ -100,45 +91,18 @@ export function ContractorLocationMap({
           ]
         : [];
     });
-    const staffMarkers = positionRows.flatMap((position) => {
-      if (!hasVisibleCoordinates(position)) return [];
-      const state = getPositionState(position);
-      return [
-        {
-          id: `staff-${position.id}`,
-          latitude: Number(position.latitude),
-          longitude: Number(position.longitude),
-          label: position.user_name,
-          detail: t("personMarker", {
-            project: position.project_name,
-            seen: dates.dateTime(position.original_occurred_at),
-          }),
-          tone:
-            state === "outside"
-              ? ("danger" as const)
-              : state === "stale" || state === "lastInside"
-                ? ("warning" as const)
-                : state === "inside"
-                  ? ("positive" as const)
-                  : ("primary" as const),
-          stale: state === "stale" || state === "lastInside",
-          icon: "person" as const,
-        },
-      ];
-    });
+    const staffMarkers = onSiteMarkers(positionRows, (row) =>
+      t("personMarker", {
+        project: row.project_name,
+        seen: dates.dateTime(row.last_seen_at),
+      }),
+    );
     return [...projectMarkers, ...staffMarkers];
   }, [dates, positionRows, projectRows, t]);
   const selectedProject = projectRows.find((row) => row.id === project);
   const center = selectedProject ? projectPoint(selectedProject) : undefined;
-  const counts = useMemo(
-    () =>
-      positionRows.reduce(
-        (total, row) => {
-          total[getPositionState(row)] += 1;
-          return total;
-        },
-        { inside: 0, outside: 0, stale: 0, lastInside: 0, unknown: 0 },
-      ),
+  const staleCount = useMemo(
+    () => positionRows.filter((row) => row.stale).length,
     [positionRows],
   );
   const loading = projects.isLoading || positions.isLoading || geofences.isLoading;
@@ -208,13 +172,8 @@ export function ContractorLocationMap({
       <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
         <MapCount label={t("projects")} value={projectRows.length} />
         <MapCount label={t("people")} value={positionRows.length} />
-        <MapCount label={t("inside")} value={counts.inside} tone="positive" />
-        <MapCount label={t("outside")} value={counts.outside} tone="danger" />
-        <MapCount
-          label={t("stale")}
-          value={counts.stale + counts.lastInside}
-          tone="warning"
-        />
+        <MapCount label={t("inside")} value={positionRows.length - staleCount} tone="positive" />
+        <MapCount label={t("stale")} value={staleCount} tone="warning" />
       </div>
 
       {loading ? (
@@ -257,7 +216,7 @@ export function ContractorLocationMap({
             {positionRows.length > 0 ? (
               <div className="max-h-[14rem] divide-y overflow-y-auto overscroll-contain xl:max-h-[13.5rem]">
                 {positionRows.map((position) => (
-                  <PositionRow key={position.id} position={position} />
+                  <PositionRow key={`${position.project_id}-${position.user_id}`} position={position} />
                 ))}
               </div>
             ) : (
@@ -272,37 +231,30 @@ export function ContractorLocationMap({
   );
 }
 
-function PositionRow({ position }: { position: FieldStaffPosition }) {
+function PositionRow({ position }: { position: OnSitePosition }) {
   const t = useTranslations("contractorDashboard.locationMap");
   const dates = useDateFormat();
-  const state = getPositionState(position);
-  const tone =
-    state === "inside"
-      ? "positive"
-      : state === "outside"
-        ? "danger"
-        : state === "stale" || state === "lastInside"
-          ? "warning"
-          : "neutral";
 
   return (
     <Link
-      href={`/site-gps?project=${encodeURIComponent(position.project)}&user=${encodeURIComponent(position.user)}`}
-      className="block px-1 py-3 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      href={`/site-gps?project=${encodeURIComponent(position.project_id)}&user=${encodeURIComponent(position.user_id)}`}
+      className={cn(
+        "block px-1 py-3 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        position.stale && "opacity-60",
+      )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{position.user_name}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {position.project_code} · {position.project_name}
-          </p>
+          <p className="truncate text-sm font-medium">{position.full_name}</p>
+          <p className="truncate text-xs text-muted-foreground">{position.project_name}</p>
         </div>
-        <StatusBadge label={t(state)} tone={tone} />
+        <StatusBadge
+          label={t(position.stale ? "stale" : "inside")}
+          tone={position.stale ? "warning" : "positive"}
+        />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        {hasVisibleCoordinates(position)
-          ? t("lastSeen", { at: dates.dateTime(position.original_occurred_at) })
-          : t("noPosition")}
+        {t("lastSeen", { at: dates.dateTime(position.last_seen_at) })}
       </p>
     </Link>
   );
@@ -391,15 +343,6 @@ function buildZones(projects: Project[], geofences: SiteGeofence[]): LocationMap
   return [...validCustomZones, ...defaultZones];
 }
 
-function getPositionState(position: FieldStaffPosition): PositionState {
-  if (!hasVisibleCoordinates(position)) return "unknown";
-  if (position.coordinates_are_last_in_geofence) return "lastInside";
-  if (position.is_stale) return "stale";
-  if (position.geofence_result === "OUTSIDE") return "outside";
-  if (position.geofence_result === "INSIDE") return "inside";
-  return "unknown";
-}
-
 function projectPoint(project: Project): [number, number] | undefined {
   if (
     project.latitude === null ||
@@ -416,17 +359,6 @@ function projectPoint(project: Project): [number, number] | undefined {
   return Number.isFinite(latitude) && Number.isFinite(longitude)
     ? [latitude, longitude]
     : undefined;
-}
-
-function hasVisibleCoordinates(
-  position: FieldStaffPosition,
-): position is FieldStaffPosition & { latitude: string; longitude: string } {
-  return (
-    position.latitude !== null &&
-    position.longitude !== null &&
-    Number.isFinite(Number(position.latitude)) &&
-    Number.isFinite(Number(position.longitude))
-  );
 }
 
 function isValidPoint(point: [number, number]): boolean {

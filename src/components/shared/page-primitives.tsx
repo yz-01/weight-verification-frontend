@@ -166,7 +166,15 @@ export function FieldWrapper({
   className,
 }: {
   label: string;
-  required?: boolean;
+  /**
+   * `true` puts the red star on the label. `"quiet"` is still required - a
+   * button that demands it says so - but carries no star: for a group the
+   * worker may satisfy in any one of several ways, where a star on the label
+   * would read as "fill every one of these" (设备操作员工时: pick, scan or type
+   * the number - 「这些不一定要放红点」, 2026-10-10). Its `hint` says it in
+   * words instead; `check-required-stars` insists on one.
+   */
+  required?: boolean | "quiet";
   /** Pass the translated word so the marker is never hardcoded English. */
   optional?: string;
   error?: string;
@@ -179,7 +187,7 @@ export function FieldWrapper({
     <div className={cn("space-y-1", className)}>
       <Label className={cn("text-sm font-medium", error && "text-destructive")}>
         {label}
-        {required && <span className="ml-0.5 text-destructive">*</span>}
+        {required === true && <span className="ml-0.5 text-destructive">*</span>}
         {optional && (
           <span className="ml-1.5 text-xs font-normal text-muted-foreground">
             ({optional})

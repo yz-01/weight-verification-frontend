@@ -50,10 +50,12 @@ const {
   LastSentNote,
   machineLabel,
   matchScannedMachine,
+  matchTypedMachine,
   noSupplierNamed,
   nextKind,
   photoTakenAt,
 } = await import("@/components/equipment-hours/equipment-hours-capture");
+const { machineMatchesSearch } = await import("@/components/equipment-hours/equipment-site-numbers");
 
 const words = messages.equipmentHours;
 
@@ -447,5 +449,102 @@ describe("the phone screen 设备操作员工时", () => {
     });
     expect(photoTakenAt(taken)).toBe("2026-10-06T23:58:00.000Z");
     expect(photoTakenAt(new File(["x"], "x.jpg", { lastModified: 0 }))).toBeUndefined();
+  });
+});
+
+/**
+ * 现场编号 (2026-10-10). The client: 「这里扫码有了，供应商有了，多加一个输入编号
+ * 也就是说后台人员给设备起一个名字号码 {12}，现场设备会有很多的。后台设备操作员工时
+ * 必须支持这些操作。这些不一定要放红点。」
+ */
+describe("现场编号: the number the office paints on each machine", () => {
+  const NUMBERED: EquipmentHoursMachine[] = [
+    { ...MACHINES[0], site_no: "12" },
+    // A machine whose equipment number happens to be another's site number:
+    // typed, 「12」 is the number painted on the excavator.
+    { ...MACHINES[1], code: "12", site_no: "挖机 3" },
+  ];
+
+  it("names a numbered machine 「12 · name · plate」 on the phone", () => {
+    expect(machineLabel(NUMBERED[0])).toBe("12 · Excavator · WXY 1234");
+    expect(machineLabel(MACHINES[1])).toBe("EQ-002 · Crane · BKL 88");
+  });
+
+  it("picks the machine by the typed number first, then by number, plate or serial", () => {
+    expect(matchTypedMachine("12", NUMBERED)?.name).toBe("Excavator");
+    expect(matchTypedMachine(" 12 ", NUMBERED)?.name).toBe("Excavator");
+    expect(matchTypedMachine("挖机3", NUMBERED)?.name).toBe("Crane");
+    expect(matchTypedMachine("eq-001", NUMBERED)?.name).toBe("Excavator");
+    expect(matchTypedMachine("bkl88", NUMBERED)?.name).toBe("Crane");
+    expect(matchTypedMachine("sn77", NUMBERED)?.name).toBe("Excavator");
+    expect(matchTypedMachine("99", NUMBERED)).toBeNull();
+    expect(matchTypedMachine("  ", NUMBERED)).toBeNull();
+    expect(matchTypedMachine("--", NUMBERED)).toBeNull();
+  });
+
+  it("finds a scanned site number too", () => {
+    expect(matchScannedMachine("12", [NUMBERED[0], MACHINES[1]])?.name).toBe("Excavator");
+    expect(matchScannedMachine("https://example.com/m?code=12", [NUMBERED[0], MACHINES[1]])?.name).toBe(
+      "Excavator",
+    );
+  });
+
+  it("offers 输入编号 beside the list and 扫码, with no red star on the machine or the supplier", () => {
+    const html = render(<EquipmentHoursCapture initialProject="p1" />, (client) =>
+      client.setQueryData(["equipment-hours", "machines", "p1"], NUMBERED),
+    );
+    expect(html).toContain(words.phone.typeNumber);
+    expect(html).toContain(words.phone.typeNumberPlaceholder);
+    expect(html).toContain(words.phone.scan);
+    // One requirement, said once in words instead of a star on each picker.
+    expect(html).toContain(words.phone.machineAnyWay);
+    const star = (label: string) =>
+      new RegExp(`${label}<span class="[^"]*text-destructive[^"]*">\\*</span>`);
+    expect(html).not.toMatch(star(words.phone.machine));
+    expect(html).not.toMatch(star(words.phone.supplier));
+    // The photo is still compulsory and still says so.
+    expect(html).toMatch(star(words.phone.photo));
+    // Nothing typed yet: no 「找不到这个编号」.
+    expect(html).not.toContain(words.phone.typedNoMatch);
+  });
+
+  it("shows the site number on the office table and in its export", () => {
+    const html = render(<EquipmentOperatorHours />, (client) =>
+      client.setQueryData(["equipment-hours", "days", NO_FILTERS], {
+        date_from: "2026-10-07",
+        date_to: "2026-10-07",
+        automatic_range: true,
+        total_hours: "9.50",
+        rows: [session({ site_no: "Z12" })],
+      }),
+    );
+    expect(html).toContain(words.field.siteNo);
+    expect(html).toContain("Z12");
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/equipment-hours/equipment-operator-hours.tsx"),
+      "utf8",
+    );
+    expect(source).toContain('{ key: "site_no", label: t("field.siteNo") }');
+    expect(source).toContain('site_no_label: t("field.siteNo")');
+  });
+
+  it("offers 设备编号管理 only to someone who may manage equipment", () => {
+    expect(officePage()).toContain(words.siteNo.open);
+    auth.manage = false;
+    try {
+      expect(officePage()).not.toContain(words.siteNo.open);
+    } finally {
+      auth.manage = true;
+    }
+  });
+
+  it("finds a machine in 设备编号管理 by number, name, plate or supplier", () => {
+    const [excavator] = NUMBERED;
+    expect(machineMatchesSearch(excavator, "12")).toBe(true);
+    expect(machineMatchesSearch(excavator, "excav")).toBe(true);
+    expect(machineMatchesSearch(excavator, "wxy")).toBe(true);
+    expect(machineMatchesSearch(excavator, "ace")).toBe(true);
+    expect(machineMatchesSearch(excavator, "")).toBe(true);
+    expect(machineMatchesSearch(excavator, "lift")).toBe(false);
   });
 });

@@ -7252,6 +7252,7 @@
       "asset_movement_not_found": "That asset movement could not be found.",
       "asset_not_found": "That asset could not be found.",
       "attendance_gps_required": "This project has a site boundary, so site entry needs your location. Turn location on and try again.",
+      "attendance_gps_inaccurate": "Your phone's location is too rough (about {accuracy} m) to tell whether you are inside the site fence. Move into the open, wait a few seconds and try again.",
       "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
       "audit_entry_not_found": "That audit entry could not be found.",
       "below_minimum_payout": "This amount is below the minimum payout.",
@@ -7465,6 +7466,7 @@
       "equipment_hours_day_not_found": "This hours entry could not be found. Refresh and try again.",
       "equipment_hours_end_before_start": "The end time must be after the start time.",
       "equipment_hours_end_too_late": "This time overlaps the machine's previous or next photo, or lies in the future.",
+      "equipment_site_no_taken": "Another machine on this project ({equipment}) already uses the number \"{site_no}\". Choose another.",
       "equipment_profile_incomplete": "Choose this machine's sub class before accepting it.",
       "equipment_not_on_site": "This machine is not on site on this project, so it cannot go out.",
       "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again.",
@@ -7836,8 +7838,11 @@
       "takePhoto": "Take photo"
     },
     "attendance": {
+      "autoIn": "Automatic entry",
+      "autoOut": "Automatic exit",
       "clockIn": "Manual entry",
       "clockOut": "Manual exit",
+      "systemOut": "Closed by system",
       "distance": "Distance from geofence: {distance} m",
       "geofence": {
         "INSIDE": "Inside geofence",
@@ -9670,8 +9675,14 @@
     "columns": "Categories",
     "confirm": "Confirm and merge",
     "confirmedHelp": "This package is confirmed. Its contents no longer change, and it cannot be deleted - it is the record of why these documents were put together.",
-    "consultantOnlyHelp": "Consultants only. The platform has no owner account type, so there is nobody else this can be addressed to.",
-    "digest": "Digest {digest}",
+    "consultantOnlyHelp": "Choose which consultant to send this to.",
+    "consultantSearch": "Search name or company",
+    "consultantsWhat": "the consultant list",
+    "locked": "Locked (tamper-proof)",
+    "noConsultantMatch": "No matching consultant",
+    "noConsultants": "No consultant is linked to this project yet. Give a consultant access to this project in \"Consultant access\" first, then come back to send.",
+    "technicalDetails": "Technical details",
+    "digest": "PDF fingerprint (SHA-256): {digest}",
     "download": "Download PDF",
     "empty": "No packages yet. Start one to gather evidence for a claim or a submission.",
     "exportedHelp": "This PDF has been downloaded out of the platform. From here nothing can be returned automatically - whoever is handling it has to be told outside the system, and the outcome recorded here by hand.",
@@ -9685,7 +9696,7 @@
       "remarks": "Remarks",
       "records": "Records",
       "consultant": "Consultant",
-      "consultantPlaceholder": "The consultant's account id",
+      "consultantPlaceholder": "Choose a consultant",
       "returnReason": "Reason for returning"
     },
     "firstPage": "This is the first page.",
@@ -13957,6 +13968,19 @@
       "CANCELLED": "Dropped (ended early)"
     }
   },
+  "onSiteMap": {
+    "count": "{count} on site",
+    "empty": "Nobody is inside the fence right now.",
+    "foregroundOnly": "Positions update about once a minute while the site app is open on the phone; they stop while the app is closed or in the background. Only positions inside the fence are shown.",
+    "lastSeen": "Updated {at}",
+    "live": "Live",
+    "mapLabel": "Map of people on site",
+    "stale": "Not updated for 10+ minutes",
+    "subtitle": "People who have entered and are inside the fence, at their last position inside it.",
+    "title": "People on site",
+    "what": "People on site",
+    "whatFences": "Site fences"
+  },
   "siteGps": {
     "allProjects": "All projects",
     "autoSharing": "Automatic GPS is on",
@@ -16206,8 +16230,8 @@
       "allSuppliers": "All suppliers",
       "equipment": "Equipment",
       "allEquipment": "All equipment",
-      "search": "Plate / equipment no.",
-      "searchPlaceholder": "Plate or equipment number"
+      "search": "Plate / number",
+      "searchPlaceholder": "Plate, equipment no. or site no."
     },
     "field": {
       "date": "Date",
@@ -16230,7 +16254,8 @@
       "totalHours": "Total hours",
       "incomplete": "Missing start / stop",
       "adjustedCount": "Changed by the office",
-      "actions": "Actions"
+      "actions": "Actions",
+      "siteNo": "Site no."
     },
     "status": {
       "MISSING_END": "No stop photo",
@@ -16251,7 +16276,8 @@
     },
     "what": {
       "days": "machine hours",
-      "month": "monthly totals"
+      "month": "monthly totals",
+      "siteNumbers": "machine list"
     },
     "adjust": {
       "add": "Add end time",
@@ -16281,7 +16307,9 @@
     },
     "toast": {
       "endSaved": "End time saved",
-      "startSaved": "Start time saved"
+      "startSaved": "Start time saved",
+      "siteNoSaved": "Site number saved",
+      "siteNoCleared": "Site number cleared"
     },
     "phone": {
       "howTo": "When you start the machine, choose Start and take a photo; when you stop, choose Stop and take another. Each start and its stop is one entry of hours.",
@@ -16312,7 +16340,26 @@
       "started": "Started {start}",
       "stopHint": "When you stop, choose Stop and take another photo",
       "soFar": "{start} to {end}: {hours} h",
-      "missingStart": "There is no start photo before this stop photo; the office will enter the start time."
+      "missingStart": "There is no start photo before this stop photo; the office will enter the start time.",
+      "machineAnyWay": "Choose from the list, scan, or type the number - any one will do.",
+      "typeNumber": "Type number",
+      "typeNumberPlaceholder": "Number on the machine, e.g. 12",
+      "typedFound": "Found: {machine}",
+      "typedNoMatch": "No machine has this number"
+    },
+    "siteNo": {
+      "open": "Machine numbers",
+      "title": "Machine numbers",
+      "help": "Give each machine a short site number (e.g. 12) and paint or stick it on the machine. The operator types this number on the phone to pick the machine. A number can be used only once per project; clear it to remove it.",
+      "search": "Find a machine",
+      "searchPlaceholder": "Name, plate, supplier or number",
+      "empty": "This project has no machines in use yet.",
+      "noMatch": "No machine matches.",
+      "inputLabel": "Site number of {machine}",
+      "placeholder": "e.g. 12",
+      "save": "Save",
+      "failed": "Could not save. Please try again.",
+      "close": "Close"
     }
   },
   "theme": {

@@ -17,6 +17,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { OnSiteMap } from "@/components/site-operations/on-site-map";
 import { PresenceSummary } from "@/components/site-operations/presence-summary";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -284,6 +285,12 @@ export function Attendance() {
       />
 
       <PresenceSummary project={list.filters.project} />
+
+      {/* Where the people counted above are, inside the fence (2026-10-10).
+          Folded by default: this page's main job is the table below. */}
+      {can("field_position.view") && (
+        <OnSiteMap project={list.filters.project} collapsible className="shrink-0" />
+      )}
 
       <DataTable
         columns={columns}
