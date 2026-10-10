@@ -346,8 +346,9 @@ export function Receipts() {
       subtitle: t("receipts.count", { count: totalCount }),
       emptyLabel: t("table.noResults"),
       query,
-      // Material In prints the net table under the rows (B09): received,
-      // returned, net per material, specification and unit.
+      // Material In prints received and returned per material,
+      // specification and unit under the rows (B09); no net since
+      // 2026-10-10 (Lucas: 「不需要进场减退场」).
       summary:
         tab === "in"
           ? {
@@ -360,7 +361,6 @@ export function Receipts() {
               specificationLabel: t("receipts.field.materialSpecification"),
               receivedLabel: t("receipts.net.received"),
               returnedLabel: t("receipts.net.returned"),
-              netLabel: t("receipts.net.net"),
             }
           : {
               groupBy: "unit",

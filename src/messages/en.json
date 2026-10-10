@@ -9087,8 +9087,7 @@
     },
     "export": {
       "subtitle": "Filtered material records from MSE Trace",
-      "cumulativeTitle": "Cumulative totals",
-      "periodQuantity": "Period quantity"
+      "cumulativeTitle": "Cumulative totals"
     },
     "quantity": {
       "byMaterial": "Quantity by material",
@@ -9097,7 +9096,7 @@
       "title": "Material quantity report",
       "totalDeliveries": "Total deliveries",
       "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together.",
-      "cumulativeHint": "Quantity = the chosen period; cumulative = from the first delivery to the period's last day. With no dates the two match. Rejected loads never count and returns are not taken off."
+      "cumulativeHint": "Cumulative quantity = the deliveries counted beside it, added up (the chosen period, or everything from the first delivery when no dates are set). Rejected loads never count and returns are not taken off."
     },
     "records": {
       "title": "Delivery details ({total})",
@@ -11730,16 +11729,15 @@
       "in": "Material In",
       "out": "Material Out",
       "reject": "Reject",
-      "totals": "Net totals",
+      "totals": "Received & returned totals",
       "legacyReturns": "Returns filed on the receipt form before 10-02",
       "choose": "Choose a view"
     },
     "net": {
-      "title": "Net quantity by supplier and material",
-      "note": "Received never goes down. Net = received (rejected loads not counted) less returns the office has confirmed as complete - matched by material category and unit. Different units are never added together.",
+      "title": "Received and returned by supplier and material",
+      "note": "Received never goes down and returns are not taken off it. Returned = returns the office has confirmed as complete, matched by material category and unit. Rejected loads are not counted in received. Different units are never added together.",
       "received": "Received (total in)",
       "returned": "Returned",
-      "net": "Net",
       "rejected": "Rejected (not counted)",
       "supplier": "Supplier",
       "noSupplier": "No supplier named",
@@ -11762,7 +11760,7 @@
         "returnNote": "Return Note",
         "quantity": "Quantity"
       },
-      "returnTag": "Returns on record",
+      "returnTag": "Has return records",
       "returnTagHint": "This line has {count} completed returns - open to see them",
       "openNumber": "See the records behind {label} {value}",
       "breakdown": {
@@ -11773,8 +11771,6 @@
         "rejected": "Rejected - not counted in received ({count})",
         "emptyDeliveries": "No counted deliveries.",
         "emptyReturns": "No completed returns.",
-        "receivedTotal": "Received in total",
-        "returnedTotal": "Completed returns in total",
         "subtotal": "Total",
         "reason": "Reason",
         "approvedBy": "Approved",
@@ -16048,13 +16044,13 @@
     }
   },
   "supplierReturns": {
-    "badge": "Has returns",
+    "badge": "Has return records",
     "badgeHint": "{count} finished return(s) to this supplier - open to see them",
-    "title": "Returns to {name}",
-    "help": "Every finished return to this supplier, with its Return Note, photos, both signatures and approval.",
+    "title": "Return records for {name}",
+    "help": "Every finished return to this supplier, with its Return Note, photos, both signatures and approval. Press a row to see the full record.",
     "empty": "No finished returns.",
     "truncated": "Showing the latest {shown} of {total}. Narrow it by project or date.",
-    "what": "The returns",
+    "what": "The return records",
     "column": {
       "date": "Date",
       "material": "Material",
@@ -16073,7 +16069,7 @@
     "print": "Print",
     "export": "Export",
     "share": "Share",
-    "open": "Open the record"
+    "open": "See the full record of {reference}"
   },
   "equipmentHours": {
     "subtitle": "One photo when the machine starts, one when it stops: the first photo is the start, the last is the end, and the hours are the time between (no lunch deducted). A night shift is one shift: a photo taken before 06:00 counts in the previous day's shift.",

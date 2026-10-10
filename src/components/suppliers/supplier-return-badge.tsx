@@ -1,11 +1,13 @@
 "use client";
 
 /**
- * 「有退场资料」 (2026-10 C10): a supplier that has taken material back is
+ * 「有退货资料」 (2026-10 C10; renamed from 有退场资料 on 2026-10-10 - Lucas:
+ * 「改为有退货资料这样容易理解」): a supplier that has taken material back is
  * flagged wherever it is listed or chosen, and the flag opens every finished
  * return to it - date, material, quantity, plate, reason, Return Note,
  * photographs, both signatures and who approved it - to print, export or
- * share.
+ * share. Pressing a return opens its whole record over the list (图8 → 图9),
+ * and closing it comes back to the list: nothing navigates away.
  *
  * Two shapes. Inside a dropdown's option the badge is only a mark: pressing
  * an option chooses the supplier, so it cannot also open a list. Beside a
@@ -18,13 +20,13 @@
  */
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ExternalLink, Loader2, PackageMinus, Printer, Share2, Undo2 } from "lucide-react";
+import { Loader2, PackageMinus, Printer, Share2, Undo2 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ExportButton } from "@/components/shared/export-button";
@@ -301,11 +303,19 @@ export function SupplierReturnsDialog({
   );
 }
 
-/** The returns as the badge shows them: one row per finished return. */
+/**
+ * The returns as the badge shows them: one row per finished return.
+ *
+ * Pressing a row opens that return's record popup - photographs, 已归档,
+ * signatures, attachments, 预览/打印 · 单独导出 · 分享 - on top of this list,
+ * which stays open behind it (Lucas 2026-10-10, 图8 → 图9). The reference
+ * used to be a link to the 材料出场 page, which took the reader away.
+ */
 export function SupplierReturnsTable({ rows }: { rows: readonly MaterialOutgoing[] }) {
   const t = useTranslations("supplierReturns");
   const df = useDateFormat();
   const unitName = useUnitName();
+  const [opened, setOpened] = useState<string | null>(null);
   return (
     <div className="overflow-x-auto rounded-lg border">
       <Table>
@@ -324,12 +334,24 @@ export function SupplierReturnsTable({ rows }: { rows: readonly MaterialOutgoing
         </TableHeader>
         <TableBody>
           {rows.map((row) => (
-            <ReturnRow key={row.id} row={row} unitName={unitName} df={df} />
+            <ReturnRow
+              key={row.id}
+              row={row}
+              unitName={unitName}
+              df={df}
+              onOpen={() => setOpened(row.id)}
+            />
           ))}
         </TableBody>
       </Table>
+      {opened ? <OutgoingDecision id={opened} onClose={() => setOpened(null)} /> : null}
     </div>
   );
+}
+
+/** A press inside a photo or a signature is for that picture, not the row. */
+function ownPress(event: React.SyntheticEvent) {
+  event.stopPropagation();
 }
 
 /**
@@ -340,7 +362,15 @@ export function SupplierReturnsTable({ rows }: { rows: readonly MaterialOutgoing
 function Signature({ src, label }: { src?: string | null; label: string }) {
   if (!src) return null;
   return (
-    <a href={src} target="_blank" rel="noreferrer" className="flex w-20 shrink-0 flex-col items-center gap-0.5" title={label}>
+    <a
+      href={src}
+      target="_blank"
+      rel="noreferrer"
+      // Opens the signature, not the row's record behind it.
+      onClick={ownPress}
+      className="flex w-20 shrink-0 flex-col items-center gap-0.5"
+      title={label}
+    >
       <Image
         src={src}
         alt={label}
@@ -358,25 +388,37 @@ function ReturnRow({
   row,
   unitName,
   df,
+  onOpen,
 }: {
   row: MaterialOutgoing;
   unitName: ReturnType<typeof useUnitName>;
   df: ReturnType<typeof useDateFormat>;
+  onOpen: () => void;
 }) {
   const t = useTranslations("supplierReturns");
   const ops = useTranslations("contractorOps");
   const when = row.processed_at || row.completed_at || row.captured_at;
   return (
-    <TableRow className="align-middle">
+    <TableRow
+      className="cursor-pointer align-middle hover:bg-muted/40"
+      data-slot="supplier-return-row"
+      onClick={onOpen}
+    >
       <TableCell className="whitespace-nowrap">
         <div className="tabular">{df.date(when)}</div>
-        <Link
-          href={`/material-outgoing?record=${row.id}`}
-          className="mt-0.5 inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"
+        {/* The keyboard's way in; the whole row opens it for a pointer. */}
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpen();
+          }}
+          aria-label={t("open", { reference: row.reference_no })}
+          title={t("open", { reference: row.reference_no })}
+          className="mt-0.5 rounded text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
         >
           {row.reference_no}
-          <ExternalLink className="size-3" />
-        </Link>
+        </button>
       </TableCell>
       <TableCell className="max-w-48">
         <span className="font-medium">{row.material_name}</span>
@@ -404,7 +446,7 @@ function ReturnRow({
           "—"
         )}
       </TableCell>
-      <TableCell>
+      <TableCell onClick={ownPress}>
         {/* One cover and the count, opening every photograph - as every
             other list shows a record's photographs. */}
         <PhotoThumb

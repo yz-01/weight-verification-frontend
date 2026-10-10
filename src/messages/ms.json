@@ -9087,8 +9087,7 @@
     },
     "export": {
       "subtitle": "Rekod bahan masuk MSE Trace yang ditapis",
-      "cumulativeTitle": "Jumlah kumulatif",
-      "periodQuantity": "Kuantiti tempoh"
+      "cumulativeTitle": "Jumlah kumulatif"
     },
     "quantity": {
       "byMaterial": "Kuantiti mengikut bahan",
@@ -9097,7 +9096,7 @@
       "title": "Laporan kuantiti bahan",
       "totalDeliveries": "Jumlah penghantaran",
       "unitNote": "Kuantiti kekal dikumpulkan mengikut unit; tan, unit dan muatan tidak dicampurkan.",
-      "cumulativeHint": "Kuantiti = tempoh dipilih; kumulatif = dari penghantaran pertama hingga hari akhir tempoh. Tanpa tarikh kedua-duanya sama. Muatan ditolak tidak dikira dan pemulangan tidak ditolak."
+      "cumulativeHint": "Kuantiti terkumpul = penghantaran yang dikira di sebelahnya dijumlahkan (tempoh dipilih, atau semua dari penghantaran pertama jika tiada tarikh). Muatan ditolak tidak dikira dan pemulangan tidak ditolak."
     },
     "records": {
       "title": "Butiran penghantaran ({total})",
@@ -11730,16 +11729,15 @@
       "in": "Material In",
       "out": "Material Out",
       "reject": "Reject",
-      "totals": "Jumlah bersih",
+      "totals": "Jumlah diterima & dipulangkan",
       "legacyReturns": "Pemulangan yang direkod melalui borang terimaan sebelum 10-02",
       "choose": "Pilih paparan"
     },
     "net": {
-      "title": "Kuantiti bersih mengikut pembekal dan bahan",
-      "note": "Diterima tidak pernah berkurang. Bersih = diterima (muatan ditolak tidak dikira) tolak pemulangan yang telah disahkan selesai oleh pejabat - dipadankan mengikut kategori bahan dan unit. Unit berbeza tidak dicampur.",
+      "title": "Diterima dan dipulangkan mengikut pembekal dan bahan",
+      "note": "Diterima tidak pernah berkurang dan pemulangan tidak ditolak daripadanya. Dipulangkan = pemulangan yang telah disahkan selesai oleh pejabat, dipadankan mengikut kategori bahan dan unit. Muatan ditolak tidak dikira dalam diterima. Unit berbeza tidak dicampur.",
       "received": "Diterima (jumlah masuk)",
       "returned": "Dipulangkan",
-      "net": "Bersih",
       "rejected": "Ditolak (tidak dikira)",
       "supplier": "Pembekal",
       "noSupplier": "Tiada pembekal",
@@ -11773,8 +11771,6 @@
         "rejected": "Ditolak - tidak dikira dalam diterima ({count})",
         "emptyDeliveries": "Tiada penerimaan yang dikira.",
         "emptyReturns": "Tiada pemulangan selesai.",
-        "receivedTotal": "Jumlah diterima",
-        "returnedTotal": "Jumlah pemulangan selesai",
         "subtotal": "Jumlah",
         "reason": "Sebab",
         "approvedBy": "Diluluskan",
@@ -16048,13 +16044,13 @@
     }
   },
   "supplierReturns": {
-    "badge": "Ada pemulangan",
+    "badge": "Ada rekod pemulangan",
     "badgeHint": "{count} pemulangan selesai kepada pembekal ini - buka untuk melihat",
-    "title": "Pemulangan kepada {name}",
-    "help": "Setiap pemulangan yang selesai kepada pembekal ini, dengan Return Note, foto, kedua-dua tandatangan dan kelulusan.",
+    "title": "Rekod pemulangan {name}",
+    "help": "Setiap pemulangan yang selesai kepada pembekal ini, dengan Return Note, foto, kedua-dua tandatangan dan kelulusan. Tekan satu baris untuk melihat rekod penuh.",
     "empty": "Tiada pemulangan yang selesai.",
     "truncated": "Menunjukkan {shown} terkini daripada {total}. Kecilkan mengikut projek atau tarikh.",
-    "what": "Senarai pemulangan",
+    "what": "Rekod pemulangan",
     "column": {
       "date": "Tarikh",
       "material": "Bahan",
@@ -16073,7 +16069,7 @@
     "print": "Cetak",
     "export": "Eksport",
     "share": "Kongsi",
-    "open": "Buka rekod"
+    "open": "Lihat rekod penuh {reference}"
   },
   "equipmentHours": {
     "subtitle": "Satu foto semasa mesin mula, satu semasa berhenti: foto pertama ialah mula, foto terakhir ialah tamat, dan jam ialah tempoh di antaranya (rehat makan tidak ditolak). Syif malam ialah satu syif: foto yang diambil sebelum 06:00 dikira dalam syif hari sebelumnya.",

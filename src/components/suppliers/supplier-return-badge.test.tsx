@@ -1,7 +1,10 @@
 /**
- * 「有退场资料」 (2026-10 C10): a supplier with finished returns is flagged in
+ * 「有退货资料」 (2026-10 C10; 有退场资料 until 2026-10-10): a supplier with finished returns is flagged in
  * every supplier list and dropdown, and the flag opens those returns.
  */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -18,7 +21,10 @@ import {
 } from "@/components/suppliers/supplier-return-badge";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
+import en from "@/messages/en.json";
+import ms from "@/messages/ms.json";
 import zh from "@/messages/zh.json";
+import zhTW from "@/messages/zh-TW.json";
 
 function render(node: React.ReactNode) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
@@ -37,7 +43,9 @@ const WITHOUT = { id: "s-2", name: "Sand Co", completed_return_count: 0 };
 
 describe("the badge", () => {
   it("shows only for a supplier with finished returns", () => {
-    expect(render(<SupplierReturnBadge supplier={WITH} />)).toContain("有退场资料");
+    // 「有退货资料」 since 2026-10-10 (Lucas: 「这样容易理解」).
+    expect(render(<SupplierReturnBadge supplier={WITH} />)).toContain("有退货资料");
+    expect(render(<SupplierReturnBadge supplier={WITH} />)).not.toContain("有退场资料");
     expect(render(<SupplierReturnBadge supplier={WITHOUT} />)).toBe("");
     expect(render(<SupplierReturnBadge supplier={null} />)).toBe("");
   });
@@ -58,6 +66,22 @@ describe("the badge", () => {
     const options = supplierOptions([WITH, WITHOUT], "全部供应商");
     expect(options.find((row) => row.value === "s-1")?.suffix).toBeTruthy();
     expect(options.find((row) => row.value === "s-2")?.suffix).toBeUndefined();
+  });
+});
+
+describe("「有退货资料」, in every language (Lucas 2026-10-10)", () => {
+  it("names the supplier's mark and the totals' line tag the same way", () => {
+    const expected: Array<[typeof zh, string]> = [
+      [zh, "有退货资料"],
+      [zhTW, "有退貨資料"],
+      [en, "Has return records"],
+      [ms, "Ada rekod pemulangan"],
+    ];
+    for (const [catalogue, label] of expected) {
+      expect(catalogue.supplierReturns.badge).toBe(label);
+      expect(catalogue.receipts.net.returnTag).toBe(label);
+    }
+    expect(zh.supplierReturns.title).toBe("{name} 的退货资料");
   });
 });
 
@@ -114,7 +138,26 @@ describe("the returns it opens", () => {
     expect(html).toContain("site.png");
     expect(html).toContain("driver.png");
     expect(html).toContain("approver.png");
-    // Each row opens its record.
-    expect(html).toContain("/material-outgoing?record=o-1");
+    // Each row opens its record over the list (图8 → 图9): no link that
+    // takes the reader to the 材料出场 page.
+    expect(html).not.toContain("/material-outgoing?record=o-1");
+    expect(html).not.toContain("<a href=\"/material-outgoing");
+    expect(html).toContain('data-slot="supplier-return-row"');
+    expect(html).toContain('aria-label="查看 MO-SITE-261007-001 的完整记录"');
+    // Nothing is open until a row is pressed.
+    expect(html).not.toContain("MO-SITE-261007-001</h2>");
+  });
+
+  it("opens the pressed return in 材料出场's own record popup, on top of the list", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/suppliers/supplier-return-badge.tsx"),
+      "utf8",
+    ).replace(/\r\n/g, "\n");
+    expect(source).toMatch(/onOpen=\{\(\) => setOpened\(row\.id\)\}/);
+    expect(source).toMatch(/<OutgoingDecision id=\{opened\} onClose=\{\(\) => setOpened\(null\)\} \/>/);
+    expect(source).not.toMatch(/<Link/);
+    // A press on a photograph or a signature is for the picture, not the row.
+    expect(source).toMatch(/<TableCell onClick=\{ownPress\}>[\s\S]{0,200}<PhotoThumb/);
+    expect(source).toMatch(/onClick=\{ownPress\}[\s\S]{0,120}title=\{label\}/);
   });
 });

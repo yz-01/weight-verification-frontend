@@ -43,6 +43,7 @@ import {
   type OpenedRecordHeading,
   useRecordOpener,
 } from "@/components/shared/record-opener";
+import { opensInPlace } from "@/components/shared/in-place-record";
 import {
   LoadFailed,
   StatusBadge,
@@ -463,12 +464,30 @@ export function ContractorDashboard({
                       className="flex items-start justify-between gap-3 py-2.5"
                     >
                       <div className="min-w-0">
-                        <Link
-                          href={activityHref(row)}
-                          className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          {t(`activityKind.${row.kind}`)} · {row.reference}
-                        </Link>
+                        {row.id && opensInPlace(row.kind) ? (
+                          // Opens over the dashboard, which stays (2026-10-10).
+                          <button
+                            type="button"
+                            onClick={() =>
+                              opener.open(row.kind, row.id, {
+                                reference: row.reference,
+                                project_id: null,
+                                project_name: row.project,
+                                submitted_at: row.occurred_at,
+                              })
+                            }
+                            className="text-left text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            {t(`activityKind.${row.kind}`)} · {row.reference}
+                          </button>
+                        ) : (
+                          <Link
+                            href={activityHref(row)}
+                            className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            {t(`activityKind.${row.kind}`)} · {row.reference}
+                          </Link>
+                        )}
                         <p className="truncate text-xs text-muted-foreground">
                           {row.project} · {row.summary}
                         </p>
@@ -845,9 +864,14 @@ function DashboardTimeline({
           ),
           icon: TIMELINE_ICONS[entry.kind],
           thumbnail: entry.cover_photo_url,
-          href: target && "href" in target ? target.href : undefined,
+          // A record whose module popup stands on its own opens over the
+          // dashboard (Lucas 2026-10-10: 「不会跳转」), as a sheet does.
+          href:
+            target && "href" in target && !(id && opensInPlace(entry.kind))
+              ? target.href
+              : undefined,
           onOpen:
-            target && "sheet" in target && id
+            target && id && ("sheet" in target || opensInPlace(entry.kind))
               ? () => {
                   onOpen(entry.kind, id, {
                     reference: entry.label,
