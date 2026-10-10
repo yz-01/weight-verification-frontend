@@ -102,6 +102,11 @@ export function nextKind(machine: Pick<EquipmentHoursMachine, "open_since"> | un
 const ALL = "all";
 const NO_SUPPLIER = "none";
 
+/** Whether no machine on the site names its company (or there are none). */
+export function noSupplierNamed(rows: { supplier?: string | null }[]): boolean {
+  return rows.every((row) => !row.supplier);
+}
+
 export type LastSent =
   | { status: "uploaded"; label: string; kind: EquipmentPhotoKind; session: EquipmentHoursSession | null }
   | { status: "queued"; label: string; kind: EquipmentPhotoKind };
@@ -148,8 +153,12 @@ export function EquipmentHoursCapture({
       rows.map((row) => [row.supplier || NO_SUPPLIER, row.supplier_name || ""]),
     ).entries(),
   ];
+  // No machine names its company: the one honest choice is 「未填供应商」,
+  // not 「全部供应商」 (Lucas, 2026-10-10).
+  const unfilledOnly = noSupplierNamed(rows);
+  const supplierValue = unfilledOnly ? NO_SUPPLIER : supplier;
   const listed = rows.filter(
-    (row) => supplier === ALL || (row.supplier || NO_SUPPLIER) === supplier,
+    (row) => supplierValue === ALL || (row.supplier || NO_SUPPLIER) === supplierValue,
   );
 
   const pick = (machine: EquipmentHoursMachine | undefined) => {
@@ -213,7 +222,7 @@ export function EquipmentHoursCapture({
 
       <FieldWrapper label={t("phone.supplier")}>
         <Select
-          value={supplier}
+          value={supplierValue}
           onValueChange={(value) => {
             setSupplier(value);
             if (chosen && value !== ALL && (chosen.supplier || NO_SUPPLIER) !== value) {
@@ -225,7 +234,10 @@ export function EquipmentHoursCapture({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>
+            {!unfilledOnly && <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>}
+            {unfilledOnly && suppliers.length === 0 && (
+              <SelectItem value={NO_SUPPLIER}>{t("phone.noSupplier")}</SelectItem>
+            )}
             {suppliers.map(([id, name]) => (
               <SelectItem key={id} value={id}>
                 {id === NO_SUPPLIER ? t("phone.noSupplier") : name}
