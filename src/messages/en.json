@@ -7477,7 +7477,19 @@
       "driver_link_expired": "This link no longer works. Ask the recycler to send it again.",
       "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you.",
       "document_system_files_mixed_projects": "These files come from different projects. A document belongs to one project, so pick files from one project only.",
-      "document_system_file_already_in_document": "One of those files is already in this document."
+      "document_system_file_already_in_document": "One of those files is already in this document.",
+      "permit_files_required": "Add the permit form: a Word or PDF file, or a photo of it.",
+      "permit_too_many_files": "Send at most {limit} files at a time.",
+      "permit_file_type": "{name} is not a Word, Excel, PDF or photo file.",
+      "permit_file_too_large": "{name} is larger than {limit} MB.",
+      "permit_approver_unavailable": "Choose a safety manager on this project who can approve permits.",
+      "permit_own_application": "You applied for {incident_no}, so somebody else approves or returns it.",
+      "permit_not_your_decision": "{incident_no} was sent to {approver} to approve.",
+      "permit_not_waiting": "{incident_no} is not at this step any more. Refresh to see where it is.",
+      "permit_signature_required": "Sign before approving the permit.",
+      "permit_return_reason_required": "Say why it is returned, so the applicant knows what to correct.",
+      "permit_only_applicant_resubmits": "Only the applicant resubmits {incident_no}.",
+      "permit_decided_on_permit_screen": "{incident_no} is a work permit. Open and decide it under Permit to work."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8076,7 +8088,8 @@
       "sundry": "Sundry claims",
       "request": "MR / Other Request",
       "gate": "Gate photo records",
-      "operatorHours": "Equipment operator hours"
+      "operatorHours": "Equipment operator hours",
+      "permit": "Permit to work"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -10224,7 +10237,8 @@
       "targetReport": "Targets and achievement",
       "manufacturers": "Manufacturers",
       "equipmentOperatorHours": "Equipment operator hours",
-      "technical": "Technical management"
+      "technical": "Technical management",
+      "permits": "Permit to work"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -16431,5 +16445,102 @@
       "subtitle": "For technicians: this phone's saved records, original backup and storage.",
       "back": "Back"
     }
+  },
+  "permits": {
+    "title": "Permit to work",
+    "subtitle": "Upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager. Once approved, the original files, the decision, the signature and the time are archived together.",
+    "new": "New application",
+    "newTitle": "New permit-to-work application",
+    "newHelp": "Use your company's own permit form, fill it in and upload it - there is no form to fill in here. Add a remark, choose the safety manager who approves it, and submit.",
+    "chooseProject": "Choose a project",
+    "chooseApprover": "Choose the safety manager",
+    "approverHint": "Only the people on this project who can approve permits are listed.",
+    "noApprovers": "Nobody on this project can approve permits yet (it needs the safety verification permission). Ask your administrator.",
+    "notePlaceholder": "e.g. Hot work, level 3, 12 Oct 9:00-17:00",
+    "optional": "Optional",
+    "cancel": "Cancel",
+    "submit": "Submit permit application",
+    "failed": "That did not work. Please try again.",
+    "field": {
+      "no": "No.",
+      "project": "Project",
+      "files": "Permit files",
+      "note": "Remark",
+      "approver": "Approving safety manager",
+      "applicant": "Applicant",
+      "appliedAt": "Applied",
+      "status": "Approval status",
+      "decidedBy": "Decided by",
+      "decidedAt": "Decided",
+      "position": "Position",
+      "returnReason": "Reason for return",
+      "approvalNote": "Approval note",
+      "reviewNote": "Approval note / reason for return",
+      "signature": "Approver's signature",
+      "returnedBy": "Returned by",
+      "approvedBy": "Approved by"
+    },
+    "status": {
+      "RECTIFICATION_SUBMITTED": "Waiting for approval",
+      "RETURNED": "Returned",
+      "VERIFIED": "Approved",
+      "RESOLVED": "Approved"
+    },
+    "filter": {
+      "allStatuses": "All statuses",
+      "allApplicants": "All applicants",
+      "dateFrom": "From date",
+      "dateTo": "To date"
+    },
+    "files": {
+      "title": "Permit files",
+      "hint": "Word, PDF or a photo of the form - several pages are fine.",
+      "takePhoto": "Take photo",
+      "chooseFile": "Choose file",
+      "remove": "Remove",
+      "none": "No files yet",
+      "preview": "Preview",
+      "print": "Print",
+      "download": "Download",
+      "preparing": "Preparing the file...",
+      "noneOnRecord": "This application has no files.",
+      "submission": "Submission {round}",
+      "earlier": "Files sent earlier and returned (kept for the record)"
+    },
+    "what": {
+      "approvers": "the approvers",
+      "applicants": "the applicants",
+      "detail": "this permit",
+      "list": "the permits"
+    },
+    "approveHelp": "Read the files first; ask in the conversation below if anything is unclear. Approval is signed. Once approved, the original files, the decision, the signature and the time are archived and cannot be changed.",
+    "clearSignature": "Sign again",
+    "approve": "Sign and approve",
+    "armReturn": "Return",
+    "armReturnHelp": "Something wrong? Switch on to return it, and say why.",
+    "return": "Return to the applicant",
+    "resubmitTitle": "Correct and resubmit",
+    "resubmitHelp": "Correct the permit as the reason says and upload the new file. The earlier files are kept.",
+    "resubmit": "Resubmit",
+    "archived": "Approved and archived. The original files, the decision, the signature and the time are kept and cannot be changed.",
+    "waitingFor": "Waiting for {name} to approve",
+    "ownWaiting": "Your application is with {name} for approval",
+    "waitingLegacy": "Waiting for the project's safety lead to approve",
+    "returnedNotice": "Returned: {reason}",
+    "waitingApplicant": "Waiting for the applicant to correct and resubmit it.",
+    "legacyApprover": "Project safety lead",
+    "noNote": "No remark",
+    "empty": "No permit applications yet",
+    "myPermits": "My permits",
+    "myPermitsHelp": "The ones I applied for, and the ones sent to me to approve.",
+    "noneMine": "No permits yet. Tap New application to upload your company's permit form.",
+    "yourApproval": "For your approval",
+    "toast": {
+      "submitted": "{reference} sent for approval",
+      "resubmitted": "{reference} resubmitted",
+      "approved": "{reference} approved and archived",
+      "returned": "{reference} returned to the applicant"
+    },
+    "openInModule": "Open under Permit to work"
   }
 }

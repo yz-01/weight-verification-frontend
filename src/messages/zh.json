@@ -7477,7 +7477,19 @@
       "driver_link_expired": "链接已失效，请联系回收商重新发送。",
       "driver_login_retired": "司机不用登录了，请打开回收商发给你的任务链接。",
       "document_system_files_mixed_projects": "选的文件来自不同项目。一份档案只属于一个项目，请只选同一个项目的文件。",
-      "document_system_file_already_in_document": "有文件已经在这份档案里了，不用再加。"
+      "document_system_file_already_in_document": "有文件已经在这份档案里了，不用再加。",
+      "permit_files_required": "请上传准证文件：Word、PDF 或表格照片。",
+      "permit_too_many_files": "一次最多上传 {limit} 个文件。",
+      "permit_file_type": "{name} 不是 Word、Excel、PDF 或照片文件。",
+      "permit_file_too_large": "{name} 超过 {limit} MB。",
+      "permit_approver_unavailable": "请选择这个项目里能审批准证的安全经理。",
+      "permit_own_application": "{incident_no} 是你申请的，需要由别人批准或退回。",
+      "permit_not_your_decision": "{incident_no} 已交给 {approver} 审批。",
+      "permit_not_waiting": "{incident_no} 已经不在这一步了，请刷新后再看。",
+      "permit_signature_required": "请先签名再批准。",
+      "permit_return_reason_required": "请写明退回原因，申请人才知道要改什么。",
+      "permit_only_applicant_resubmits": "只有申请人能重新提交 {incident_no}。",
+      "permit_decided_on_permit_screen": "{incident_no} 是施工准证，请在「施工准证」里打开和审批。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8076,7 +8088,8 @@
       "sundry": "杂费报销",
       "request": "MR / 其他申请",
       "gate": "门岗拍照记录",
-      "operatorHours": "设备操作员工时"
+      "operatorHours": "设备操作员工时",
+      "permit": "施工准证"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -10224,7 +10237,8 @@
       "targetReport": "目标与达成",
       "manufacturers": "制造厂商",
       "equipmentOperatorHours": "设备操作员工时",
-      "technical": "技术管理"
+      "technical": "技术管理",
+      "permits": "施工准证"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -16431,5 +16445,102 @@
       "subtitle": "给技术人员用：这台手机的暂存记录、原图备份和储存。",
       "back": "返回"
     }
+  },
+  "permits": {
+    "title": "施工准证",
+    "subtitle": "用公司原有的准证表格（Word、PDF 或照片）上传，交给指定安全经理审批；批准后原文件、审批记录、签名和时间一起归档。",
+    "new": "新申请",
+    "newTitle": "新的施工准证申请",
+    "newHelp": "用公司原有的准证表格，填好后直接上传，不需要另外填电子表格。写上备注，选好审批的安全经理就可以提交。",
+    "chooseProject": "选择项目",
+    "chooseApprover": "选择安全经理",
+    "approverHint": "只列出这个项目里能审批准证的人。",
+    "noApprovers": "这个项目还没有能审批准证的人（需要「安全验收」权限），请联系管理员。",
+    "notePlaceholder": "例如：动火作业，3 楼，10 月 12 日 9:00–17:00",
+    "optional": "选填",
+    "cancel": "取消",
+    "submit": "提交准证申请",
+    "failed": "没有成功，请再试一次。",
+    "field": {
+      "no": "编号",
+      "project": "项目",
+      "files": "准证文件",
+      "note": "备注",
+      "approver": "审批安全经理",
+      "applicant": "申请人",
+      "appliedAt": "申请时间",
+      "status": "审批状态",
+      "decidedBy": "审批人",
+      "decidedAt": "审批时间",
+      "position": "职位",
+      "returnReason": "退回原因",
+      "approvalNote": "审批意见",
+      "reviewNote": "审批意见 / 退回原因",
+      "signature": "审批签名",
+      "returnedBy": "退回人",
+      "approvedBy": "批准人"
+    },
+    "status": {
+      "RECTIFICATION_SUBMITTED": "待审批",
+      "RETURNED": "已退回",
+      "VERIFIED": "已批准",
+      "RESOLVED": "已批准"
+    },
+    "filter": {
+      "allStatuses": "全部状态",
+      "allApplicants": "全部申请人",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期"
+    },
+    "files": {
+      "title": "准证文件",
+      "hint": "Word、PDF 或表格照片都可以，可以多页。",
+      "takePhoto": "拍照",
+      "chooseFile": "选择文件",
+      "remove": "移除",
+      "none": "还没有文件",
+      "preview": "预览",
+      "print": "打印",
+      "download": "下载",
+      "preparing": "正在准备文件…",
+      "noneOnRecord": "这份申请没有文件。",
+      "submission": "第 {round} 次提交",
+      "earlier": "之前提交、已被退回的文件（保留备查）"
+    },
+    "what": {
+      "approvers": "审批人名单",
+      "applicants": "申请人名单",
+      "detail": "这份准证",
+      "list": "准证列表"
+    },
+    "approveHelp": "先看文件，有问题可以在下面的沟通里问。批准要签名；批准后原文件、审批记录、签名和时间一起归档，不能再修改。",
+    "clearSignature": "重签",
+    "approve": "签名批准",
+    "armReturn": "退回",
+    "armReturnHelp": "资料不对要退回？打开开关，写明原因。",
+    "return": "退回给申请人",
+    "resubmitTitle": "修改后重新提交",
+    "resubmitHelp": "按退回原因改好准证，上传新的文件。之前的文件会保留。",
+    "resubmit": "重新提交",
+    "archived": "已批准并归档。原文件、审批记录、签名和时间都已保存，不能再修改。",
+    "waitingFor": "等待 {name} 审批",
+    "ownWaiting": "你的申请已交给 {name}，等待审批",
+    "waitingLegacy": "等待项目安全负责人审批",
+    "returnedNotice": "已退回：{reason}",
+    "waitingApplicant": "等待申请人修改后重新提交。",
+    "legacyApprover": "项目安全负责人",
+    "noNote": "没有备注",
+    "empty": "还没有施工准证申请",
+    "myPermits": "我的准证",
+    "myPermitsHelp": "我申请的，和交给我审批的。",
+    "noneMine": "还没有准证。按「新申请」上传公司的准证表格。",
+    "yourApproval": "待你审批",
+    "toast": {
+      "submitted": "{reference} 已提交审批",
+      "resubmitted": "{reference} 已重新提交",
+      "approved": "{reference} 已批准并归档",
+      "returned": "{reference} 已退回给申请人"
+    },
+    "openInModule": "在「施工准证」里打开"
   }
 }

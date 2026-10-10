@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { LocationField } from "@/components/field-staff/location-field";
@@ -83,6 +83,7 @@ import type {
 } from "@/interfaces/site-operations";
 import type { LocationFix } from "@/lib/field-location";
 import { useDateFormat } from "@/lib/dates";
+import { hazardColumns, titleForColumn } from "@/lib/hazard-columns";
 import { photoMeta } from "@/lib/photo-meta";
 import {
   submitSafetyIncidentOfflineAware,
@@ -123,14 +124,6 @@ function locationFailure(error: GeolocationPositionError): string {
   if (error.code === error.POSITION_UNAVAILABLE) return "locationUnavailable";
   return "locationTimeout";
 }
-
-/** The 施工准证申请 column every project starts with (C20). */
-const PERMIT_COLUMN_CODE = "HZD-PERMIT";
-/**
- * 「VO 不在手机 EHS，也不叫『整改 VO』」 (E07). The seeded column was switched
- * off on the server; the phone never offers it even if a site turns it back on.
- */
-const RETIRED_VO_COLUMN_CODE = "HZD-VO";
 
 export function isPermit(incident: SafetyIncident): boolean {
   return incident.record_type === "PERMIT";
@@ -193,8 +186,6 @@ interface SafetyDraft {
   /** 上报 → 指派 in one step (B22); empty leaves it 待分配. */
   rectifier?: string;
   rectifierDueAt?: string;
-  /** A permit's other pages (C20). */
-  attachments?: File[];
 }
 
 const EMPTY_DRAFT: SafetyDraft = {
@@ -208,7 +199,6 @@ const EMPTY_DRAFT: SafetyDraft = {
   notifyUsers: [],
   rectifier: "",
   rectifierDueAt: "",
-  attachments: [],
 };
 
 export function Safety({
@@ -252,6 +242,7 @@ export function Safety({
     "date_to",
   ]);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const requestedIncidentId = searchParams.get("incident");
   // Arrived from the home page's red 逾期 figure (U-029). Read from the URL and
   // passed straight to the API, which applies the same definition the figure
@@ -354,6 +345,12 @@ export function Safety({
       // Marked inside the timer: a re-render that cancels it must not leave
       // the incident marked as opened when nothing opened.
       openedIncidentRef.current = incident.id;
+      // An older link to a permit: 施工准证 is where it is read and decided
+      // now (2026-10-10).
+      if (isPermit(incident) && !fieldMode) {
+        router.replace(`/permits?permit=${incident.id}`);
+        return;
+      }
       // The server says whether this reader is the one confirmer (B21);
       // holding safety.verify no longer makes somebody it.
       if (incident.can_confirm) {
@@ -374,7 +371,7 @@ export function Safety({
       clearIncidentParam();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [clearIncidentParam, focusedIncident.data, mayAssign, requestedIncidentId, user?.id]);
+  }, [clearIncidentParam, fieldMode, focusedIncident.data, mayAssign, requestedIncidentId, router, user?.id]);
 
   const columns = useMemo<ColumnDef<SafetyIncident, unknown>[]>(
     () => [
@@ -1253,16 +1250,14 @@ function SafetyCreateDialog({
       }),
     enabled: Boolean(draft.project),
   });
-  // VO is not a phone EHS column (E07), whatever a site does with the seeded
-  // one; and a column hidden from the phone stays hidden on it.
-  const offeredCategories = (categories.data?.results ?? []).filter(
-    (category) =>
-      category.code !== RETIRED_VO_COLUMN_CODE &&
-      !(fieldMode && category.is_visible_in_pwa === false),
-  );
+  // Not VO (E07), not 施工准证申请 - a permit is applied for under 施工准证
+  // now (2026-10-10) - and not a column hidden from the phone.
+  const offeredCategories = hazardColumns(categories.data?.results ?? [], fieldMode);
+  const offeredNames = offeredCategories.map((item) => item.name);
+  // Only a column still on offer: a draft saved while 施工准证申请 was a
+  // column here must not file a hazard there.
   const chosenCategory = offeredCategories.find((item) => item.id === draft.category);
-  // 施工准证申请 (C20): filing in the permit column makes it a permit.
-  const permit = chosenCategory?.code === PERMIT_COLUMN_CODE;
+  const category = chosenCategory?.id ?? "";
   const team = useQuery({
     queryKey: ["incident-recipient-options", draft.project],
     queryFn: () => getIncidentRecipientOptions(draft.project),
@@ -1270,10 +1265,9 @@ function SafetyCreateDialog({
   });
   const selectableWorkers = team.data ?? [];
   const completedPhotos = completedFieldEvidence(draft.photos);
-  // One page of the company's form is a complete permit; a hazard keeps the
-  // phone's four and the office's one.
-  const requiredPhotos = permit ? 1 : fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1;
-  const photosReady = permit || !fieldMode
+  // The phone's four and the office's one.
+  const requiredPhotos = fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1;
+  const photosReady = !fieldMode
     ? completedPhotos.length >= requiredPhotos
     : completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos);
   const fieldEvidenceLabels = [
@@ -1297,8 +1291,9 @@ function SafetyCreateDialog({
       if (!user) throw new Error("Authentication required.");
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
-        category: draft.category,
-        title: draft.title.trim(),
+        category,
+        // The phone has no title field: the server writes it from the column.
+        title: fieldMode ? "" : draft.title.trim(),
         description: draft.description.trim(),
         severity: draft.severity,
         occurred_at: draft.occurredAt
@@ -1310,15 +1305,11 @@ function SafetyCreateDialog({
         notify_users: draft.notifyUsers,
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
-        ...(permit
-          ? { record_type: "PERMIT" as const, attachments: draft.attachments ?? [] }
-          : {
-              responsible_person: draft.rectifier || undefined,
-              due_at:
-                draft.rectifier && draft.rectifierDueAt
-                  ? new Date(draft.rectifierDueAt).toISOString()
-                  : undefined,
-            }),
+        responsible_person: draft.rectifier || undefined,
+        due_at:
+          draft.rectifier && draft.rectifierDueAt
+            ? new Date(draft.rectifierDueAt).toISOString()
+            : undefined,
       };
       return submitSafetyIncidentOfflineAware(user.id, payload);
     },
@@ -1399,6 +1390,9 @@ function SafetyCreateDialog({
                   ...value,
                   project,
                   category: "",
+                  // A title the form wrote from this project's column goes
+                  // with the column.
+                  title: titleForColumn(value.title, offeredNames, ""),
                   notifyUsers: [],
                 }))
               }
@@ -1408,15 +1402,15 @@ function SafetyCreateDialog({
           </FieldWrapper>
           <FieldWrapper label={t("safety.field.category")} required className="sm:col-span-2">
             <Select
-              value={draft.category || undefined}
+              value={category || undefined}
               onValueChange={(categoryId) => {
-                const category = offeredCategories.find(
+                const next = offeredCategories.find(
                   (item) => item.id === categoryId,
                 );
                 setDraft((value) => ({
                   ...value,
                   category: categoryId,
-                  title: value.title.trim() || category?.name || "",
+                  title: titleForColumn(value.title, offeredNames, next?.name ?? ""),
                 }));
               }}
               disabled={!draft.project}
@@ -1432,11 +1426,6 @@ function SafetyCreateDialog({
                 ))}
               </SelectContent>
             </Select>
-            {permit && (
-              <p className="mt-2 rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
-                {t("ehs.permit.hint")}
-              </p>
-            )}
             {/* An empty picker that does not say why it is empty is the shell
                 this task exists to remove: until D-172 nothing in the product
                 read EHS columns, so a site would have none. Say where they
@@ -1492,7 +1481,7 @@ function SafetyCreateDialog({
               }
             />
           </FieldWrapper>}
-          <FieldWrapper label={permit ? t("ehs.permit.formPhotos") : t("safety.field.photo")} required className="sm:col-span-2">
+          <FieldWrapper label={t("safety.field.photo")} required className="sm:col-span-2">
             {/*
               One grid for both modes (D-171).
 
@@ -1513,7 +1502,7 @@ function SafetyCreateDialog({
               labels={fieldEvidenceLabels}
               files={draft.photos}
               progressLabel={t(
-                fieldMode && !permit
+                fieldMode
                   ? "safety.fieldEvidence.progress"
                   : "safety.fieldEvidence.progressOffice",
                 {
@@ -1524,68 +1513,43 @@ function SafetyCreateDialog({
               onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
             />
           </FieldWrapper>
-          {permit && (
-            <FieldWrapper label={t("ehs.permit.attachments")} optional={t("common.optional")} className="sm:col-span-2">
-              <Input
-                type="file"
-                multiple
-                accept="application/pdf,image/*"
-                aria-label={t("ehs.permit.attachments")}
-                onChange={(event) => {
-                  const files = Array.from(event.target.files ?? []);
-                  setDraft((value) => ({ ...value, attachments: files }));
-                }}
-              />
-              {(draft.attachments?.length ?? 0) > 0 && (
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  {(draft.attachments ?? []).map((file) => file.name).join(", ")}
-                </p>
-              )}
-            </FieldWrapper>
-          )}
-          {/* 上报 → 指派 in one step (B22), and who confirms it (B21). A
-              permit has neither: its applicant is the one waiting, and the
-              project's safety leads approve it. */}
-          {!permit && (
-            <FieldWrapper label={t("ehs.form.rectifier")} optional={t("common.optional")} className="sm:col-span-2">
-              <Select
-                value={draft.rectifier || "none"}
-                onValueChange={(value) =>
-                  setDraft((current) => ({ ...current, rectifier: value === "none" ? "" : value }))
-                }
-                disabled={!draft.project}
-              >
-                <SelectTrigger className="w-full" aria-label={t("ehs.form.rectifier")}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("ehs.form.noRectifier")}</SelectItem>
-                  {selectableWorkers.map((row) => (
-                    <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {draft.rectifier && (
-                <div className="mt-2">
-                  <FieldWrapper label={t("safetyRectification.field.dueAt")} required>
-                    <Input
-                      type="datetime-local"
-                      value={draft.rectifierDueAt ?? ""}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, rectifierDueAt: event.target.value }))
-                      }
-                    />
-                  </FieldWrapper>
-                </div>
-              )}
-            </FieldWrapper>
-          )}
+          {/* 上报 → 指派 in one step (B22), and who confirms it (B21). */}
+          <FieldWrapper label={t("ehs.form.rectifier")} optional={t("common.optional")} className="sm:col-span-2">
+            <Select
+              value={draft.rectifier || "none"}
+              onValueChange={(value) =>
+                setDraft((current) => ({ ...current, rectifier: value === "none" ? "" : value }))
+              }
+              disabled={!draft.project}
+            >
+              <SelectTrigger className="w-full" aria-label={t("ehs.form.rectifier")}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("ehs.form.noRectifier")}</SelectItem>
+                {selectableWorkers.map((row) => (
+                  <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {draft.rectifier && (
+              <div className="mt-2">
+                <FieldWrapper label={t("safetyRectification.field.dueAt")} required>
+                  <Input
+                    type="datetime-local"
+                    value={draft.rectifierDueAt ?? ""}
+                    onChange={(event) =>
+                      setDraft((current) => ({ ...current, rectifierDueAt: event.target.value }))
+                    }
+                  />
+                </FieldWrapper>
+              </div>
+            )}
+          </FieldWrapper>
           {/* X8: whoever raises it confirms it. Said, not asked. The rectifier
               list above never offers the raiser (the server leaves the reader
               out of it), so 「整改执行人不能自己确认」 cannot arise here. */}
-          {!permit && (
-            <FieldWrapper label={t("ehs.field.confirmer")} className="sm:col-span-2">
-              <p className="text-sm">{t("ehs.confirmer.initiator")}</p>
-            </FieldWrapper>
-          )}
+          <FieldWrapper label={t("ehs.field.confirmer")} className="sm:col-span-2">
+            <p className="text-sm">{t("ehs.confirmer.initiator")}</p>
+          </FieldWrapper>
           {/* 「知道由谁处理就当场指定，不知道就直接提交」. Required used to be
               true here in field mode, which turned step 2 of the customer's
               flow into a wall: a worker who does not know who fixes scaffold
@@ -1662,13 +1626,9 @@ function SafetyCreateDialog({
               grey at somebody who had already photographed the hazard. */}
           <Button requires={[
             ...(fieldMode
-              ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.latitude && draft.longitude, t("safety.field.location")]]
-              : [[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [photosReady, t("safety.field.photo")]]),
-            ...(permit
-              ? []
-              : [
-                  [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
-                ]),
+              ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.latitude && draft.longitude, t("safety.field.location")]]
+              : [[draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.title, t("safety.field.title")], [photosReady, t("safety.field.photo")]]),
+            [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
           ] as Array<[unknown, string]>} disabled={create.isPending} onClick={() => create.mutate()}>
 
             {create.isPending ? (
