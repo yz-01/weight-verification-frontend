@@ -7252,6 +7252,7 @@
       "asset_movement_not_found": "找不到該資產流轉記錄。",
       "asset_not_found": "找不到該資產。",
       "attendance_gps_required": "這個專案設了工地範圍，打卡需要你的位置。請打開定位再試一次。",
+      "attendance_gps_inaccurate": "手機定位不夠準（誤差約 {accuracy} 公尺），判斷不了你在不在工地圍欄內。到空曠處等幾秒再試。",
       "attendance_outside_geofence": "你不在工地圍欄內，離最近圍欄 {distance} 公尺。走近一點再試。",
       "audit_entry_not_found": "找不到這條審計記錄。",
       "below_minimum_payout": "該金額低於最低付款額度。",
@@ -7836,8 +7837,11 @@
       "takePhoto": "拍照"
     },
     "attendance": {
+      "autoIn": "自動進場",
+      "autoOut": "自動離開",
       "clockIn": "手動進場",
       "clockOut": "手動離開",
+      "systemOut": "系統結束",
       "distance": "距離圍欄：{distance} 米",
       "geofence": {
         "INSIDE": "圍欄範圍內",
@@ -13966,6 +13970,19 @@
       "ACCEPTED": "已驗收",
       "CANCELLED": "已取消（提前結束）"
     }
+  },
+  "onSiteMap": {
+    "count": "{count} 人在場",
+    "empty": "現在沒有人在圍欄內。",
+    "foregroundOnly": "手機上的現場 App 開著時，大約每分鐘更新一次位置；App 關掉或放在背景時位置不會更新。只顯示圍欄內的位置。",
+    "lastSeen": "{at} 更新",
+    "live": "即時",
+    "mapLabel": "現場人員位置地圖",
+    "stale": "超過 10 分鐘未更新",
+    "subtitle": "已進場、在圍欄內的人，以及他們最後在圍欄內的位置。",
+    "title": "現場人員位置",
+    "what": "現場人員位置",
+    "whatFences": "圍欄範圍"
   },
   "siteGps": {
     "allProjects": "全部項目",

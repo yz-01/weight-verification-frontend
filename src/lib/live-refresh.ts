@@ -96,7 +96,9 @@ export const REALTIME_FAMILY_KEYS: Readonly<Record<string, readonly QueryKey[]>>
     ["hazard-conversation"], ["field-staff", "incident"], BADGES,
   ],
   "attendance.": [
-    ["attendance"], ["attendance-presence"], ["workforce-presence"], ["field-staff", "attendance"], BADGES,
+    ["attendance"], ["attendance-presence"], ["workforce-presence"], ["field-staff", "attendance"],
+    // 进场 adds a marker to the 现场人员 map, 离开 takes it off.
+    ["field-staff-gps", "on-site"], BADGES,
   ],
   "deduction.": [["deductions"], ["settlements"], ["incoming"], ["weigh-sessions"]],
   "partnership.": [["partnerships"], ["projects"], ["recyclers"], ["recycling-sites"]],

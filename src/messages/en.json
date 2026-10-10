@@ -7252,6 +7252,7 @@
       "asset_movement_not_found": "That asset movement could not be found.",
       "asset_not_found": "That asset could not be found.",
       "attendance_gps_required": "This project has a site boundary, so site entry needs your location. Turn location on and try again.",
+      "attendance_gps_inaccurate": "Your phone's location is too rough (about {accuracy} m) to tell whether you are inside the site fence. Move into the open, wait a few seconds and try again.",
       "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
       "audit_entry_not_found": "That audit entry could not be found.",
       "below_minimum_payout": "This amount is below the minimum payout.",
@@ -7836,8 +7837,11 @@
       "takePhoto": "Take photo"
     },
     "attendance": {
+      "autoIn": "Automatic entry",
+      "autoOut": "Automatic exit",
       "clockIn": "Manual entry",
       "clockOut": "Manual exit",
+      "systemOut": "Closed by system",
       "distance": "Distance from geofence: {distance} m",
       "geofence": {
         "INSIDE": "Inside geofence",
@@ -13966,6 +13970,19 @@
       "ACCEPTED": "Checked",
       "CANCELLED": "Dropped (ended early)"
     }
+  },
+  "onSiteMap": {
+    "count": "{count} on site",
+    "empty": "Nobody is inside the fence right now.",
+    "foregroundOnly": "Positions update about once a minute while the site app is open on the phone; they stop while the app is closed or in the background. Only positions inside the fence are shown.",
+    "lastSeen": "Updated {at}",
+    "live": "Live",
+    "mapLabel": "Map of people on site",
+    "stale": "Not updated for 10+ minutes",
+    "subtitle": "People who have entered and are inside the fence, at their last position inside it.",
+    "title": "People on site",
+    "what": "People on site",
+    "whatFences": "Site fences"
   },
   "siteGps": {
     "allProjects": "All projects",
