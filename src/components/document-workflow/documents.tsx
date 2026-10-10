@@ -92,6 +92,7 @@ import { getUsers } from "@/services/users.service";
 import {
   addSystemFiles,
   archiveDocument,
+  attachSystemFiles,
   createDocumentCategory,
   createDocumentSubcategory,
   deleteDocumentCategory,
@@ -562,6 +563,7 @@ export function Documents() {
       {uploading && (
         <VersionUploadDialog
           document={uploading}
+          projects={projects.data?.results ?? []}
           onClose={() => setUploading(null)}
           onDone={refresh}
         />
@@ -1287,25 +1289,45 @@ function DocumentEditorDialog({
 }
 
 /**
- * Add files to one document: a new version, or more files beside the ones
- * it has. Every document takes them, one picked from the system too
- * (2026-10-10 图3); what was picked, and the record it came from, stay as
- * they are.
+ * Add files to one document: a new version, more files beside the ones it
+ * has, or files already in the system (2026-10-10: 「我点这个上传为什么不能上传
+ * 系统内部的文件只能外部的？」). The same two ways in as filing a new
+ * document. Every document takes them, one picked from the system too; what
+ * it already holds, and the records those files came from, stay as they are.
  */
 function VersionUploadDialog({
   document,
+  projects,
   onClose,
   onDone,
 }: {
   document: DocumentRecord;
+  projects: Project[];
   onClose: () => void;
   onDone: () => void;
 }) {
   const t = useTranslations();
+  const [origin, setOrigin] = useState<"computer" | "system">("computer");
   const [files, setFiles] = useState<File[]>([]);
   const [done, setDone] = useState(0);
   const [note, setNote] = useState("");
+  const [picked, setPicked] = useState<Record<string, SystemFile>>({});
+  const pickedIds = Object.keys(picked);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // The files it already holds from the system: greyed in the picker.
+  const detail = useQuery({
+    queryKey: ["documents", "detail", document.id],
+    queryFn: () => getDocument(document.id),
+    enabled: origin === "system",
+  });
+  const held = new Set(
+    (detail.data?.system_files ?? []).map((file) => file.evidence_id).filter(Boolean),
+  );
+  const unavailableReason = (row: SystemFile): string | null => {
+    if (held.has(row.id)) return t("documents.attach.alreadyHere");
+    if ((row.project ?? null) !== (document.project ?? null)) return t("documents.attach.otherProject");
+    return null;
+  };
   const mutation = useMutation({
     mutationFn: async () => {
       // A retry after a failure carries on from the file that failed.
@@ -1324,76 +1346,136 @@ function VersionUploadDialog({
       setErrors(uploadErrors(error));
     },
   });
+  const attaching = useMutation({
+    mutationFn: () => attachSystemFiles(document.id, pickedIds),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+    onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
+  });
+  const pending = mutation.isPending || attaching.isPending;
 
   return (
-    <Dialog open onOpenChange={(next) => !next && !mutation.isPending && onClose()}>
-      <DialogContent className="sm:max-w-130 [&>button]:hidden">
+    <Dialog open onOpenChange={(next) => !next && !pending && onClose()}>
+      <DialogContent
+        className={cn(
+          "max-h-[92dvh] overflow-y-auto [&>button]:hidden",
+          origin === "system" ? "sm:max-w-260" : "sm:max-w-130",
+        )}
+      >
         <DialogHeader>
           <DialogTitle>{t("documents.upload.title")}</DialogTitle>
           <DialogDescription>
             {t("documents.upload.description", { name: document.title })}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <FieldWrapper
-            label={t("documents.field.file")}
-            required
-            error={errors.file}
-            hint={t("documents.upload.limit")}
-          >
-            <Input
-              type="file"
-              multiple
-              accept={DOCUMENT_FILE_ACCEPT}
-              disabled={mutation.isPending}
-              onChange={(event) => {
-                setFiles(Array.from(event.target.files ?? []));
-                setDone(0);
-              }}
-            />
-          </FieldWrapper>
-          {files.length > 1 && (
-            <ul className="max-h-28 overflow-y-auto rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-              {files.map((file, index) => (
-                <li key={`${file.name}-${file.size}-${index}`} className={cn("truncate", index < done && "text-success")}>
-                  {file.name}
-                </li>
-              ))}
-            </ul>
-          )}
-          <FieldWrapper
-            label={t("documents.field.versionNote")}
-            optional={t("common.optional")}
-            error={errors.note}
-          >
-            <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
-          </FieldWrapper>
-        </div>
+        <Tabs value={origin} onValueChange={(value) => !pending && setOrigin(value as "computer" | "system")}>
+          <TabsList>
+            <TabsTrigger value="computer">{t("documents.uploadFile.fromComputer")}</TabsTrigger>
+            <TabsTrigger value="system">{t("documents.pickFromSystem.tab")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <ul className="space-y-1 rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground" data-slot="upload-ways">
+          <li className={cn(origin === "computer" && "font-medium text-foreground")}>
+            {t("documents.uploadFile.computerWay")}
+          </li>
+          <li className={cn(origin === "system" && "font-medium text-foreground")}>
+            {t("documents.pickFromSystem.systemWay")}
+          </li>
+        </ul>
+        {origin === "system" ? (
+          <div className="space-y-2">
+            <QueryFailedNote query={detail} what={t("documents.attach.what")} />
+            <FieldWrapper
+              label={t("documents.pickFromSystem.files")}
+              required
+              error={errors.files}
+              hint={t("documents.attach.hint")}
+            >
+              <SystemFilePicker
+                projects={projects}
+                initialProject={document.project ?? undefined}
+                lockProject={Boolean(document.project)}
+                unavailableReason={unavailableReason}
+                selected={picked}
+                onSelectedChange={setPicked}
+              />
+            </FieldWrapper>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <FieldWrapper
+              label={t("documents.field.file")}
+              required
+              error={errors.file}
+              hint={t("documents.upload.limit")}
+            >
+              <Input
+                type="file"
+                multiple
+                accept={DOCUMENT_FILE_ACCEPT}
+                disabled={mutation.isPending}
+                onChange={(event) => {
+                  setFiles(Array.from(event.target.files ?? []));
+                  setDone(0);
+                }}
+              />
+            </FieldWrapper>
+            {files.length > 1 && (
+              <ul className="max-h-28 overflow-y-auto rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                {files.map((file, index) => (
+                  <li key={`${file.name}-${file.size}-${index}`} className={cn("truncate", index < done && "text-success")}>
+                    {file.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <FieldWrapper
+              label={t("documents.field.versionNote")}
+              optional={t("common.optional")}
+              error={errors.note}
+            >
+              <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+            </FieldWrapper>
+          </div>
+        )}
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
-            disabled={mutation.isPending}
+            disabled={pending}
             onClick={onClose}
           >
             <X className="h-4 w-4" />
             {t("common.cancel")}
           </Button>
-          <Button
-            requires={[[files.length > 0, t("documents.field.file")]]}
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate()}
-          >
-            {mutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            {mutation.isPending && files.length > 1
-              ? t("documents.uploadFile.progress", { done, total: files.length })
-              : done > 0 && done < files.length
-                ? t("documents.uploadFile.resume")
-                : t("documents.upload.confirm")}
-          </Button>
+          {origin === "system" ? (
+            <Button
+              requires={[[pickedIds.length > 0, t("documents.pickFromSystem.files")]]}
+              disabled={attaching.isPending}
+              onClick={() => attaching.mutate()}
+            >
+              {attaching.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderInput className="h-4 w-4" />}
+              {t("documents.attach.confirm", { count: pickedIds.length })}
+            </Button>
+          ) : (
+            <Button
+              requires={[[files.length > 0, t("documents.field.file")]]}
+              disabled={mutation.isPending}
+              onClick={() => mutation.mutate()}
+            >
+              {mutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              {mutation.isPending && files.length > 1
+                ? t("documents.uploadFile.progress", { done, total: files.length })
+                : done > 0 && done < files.length
+                  ? t("documents.uploadFile.resume")
+                  : t("documents.upload.confirm")}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

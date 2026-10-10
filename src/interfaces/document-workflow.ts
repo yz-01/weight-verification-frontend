@@ -65,6 +65,8 @@ export interface SystemFileRecord {
 export interface DocumentSystemFileInfo {
   /** Which of the document's picked files (`open_system_file?file=`). */
   id?: string;
+  /** The ledger row it points at (the picker greys a file already held). */
+  evidence_id?: string;
   module: string;
   file_name: string;
   content_type: string;

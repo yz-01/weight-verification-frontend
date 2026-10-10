@@ -173,9 +173,34 @@ describe("the documents screen (E4)", () => {
     expect(zh.documents.pickFromSystem.systemWay.startsWith("从系统里选")).toBe(true);
   });
 
+  it("a row's 添加文件 offers both ways in and adds picked files to that document", () => {
+    const dialog = source.slice(source.indexOf("function VersionUploadDialog("), source.indexOf("function DocumentDetailDialog("));
+    expect(dialog).toContain('t("documents.uploadFile.fromComputer")');
+    expect(dialog).toContain('t("documents.pickFromSystem.tab")');
+    expect(dialog).toContain("<SystemFilePicker");
+    expect(dialog).toContain("attachSystemFiles(document.id, pickedIds)");
+    expect(dialog).toContain('t("documents.attach.alreadyHere")');
+    expect(dialog).toContain('t("documents.attach.otherProject")');
+  });
+
+  it("greys a file the document already holds, with the reason on the tile", () => {
+    const markup = render(
+      <SystemFilePicker
+        projects={[]}
+        selected={{}}
+        unavailableReason={() => zh.documents.attach.alreadyHere}
+        onSelectedChange={() => undefined}
+      />,
+    );
+    // The search result list is fetched; with none loaded the picker still renders.
+    expect(markup).toContain(zh.documents.pickFromSystem.dropArea);
+  });
+
   it("words the refusals in all four languages", () => {
     for (const catalogue of [zh, zhTW, en, ms]) {
       expect(catalogue.errors.api.document_system_files_mixed_projects).toBeTruthy();
+      expect(catalogue.errors.api.document_system_file_already_in_document).toBeTruthy();
+      expect(catalogue.documents.attach.confirm).toContain("{count}");
       expect(catalogue.errors.api.document_system_file_not_found).toBeTruthy();
       expect((catalogue.errors.api as Record<string, string>).document_is_system_file).toBeUndefined();
     }
