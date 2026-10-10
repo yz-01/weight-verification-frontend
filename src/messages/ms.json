@@ -7429,9 +7429,9 @@
       "return_note_required": "Isi Return Note sebelum meluluskan.",
       "return_note_locked": "Pemulangan ini sudah diputuskan, jadi Return Note tidak boleh diubah lagi. Keadaan terkini kini dipaparkan.",
       "equipment_hours_equipment_unavailable": "Mesin ini tidak boleh dipilih (tidak aktif atau telah dilupuskan). Pilih mesin yang digunakan di tapak.",
-      "equipment_hours_day_not_found": "Mesin ini tiada foto pada hari itu, jadi tiada masa tamat untuk dimasukkan.",
-      "equipment_hours_end_before_start": "Masa tamat mesti selepas foto pertama.",
-      "equipment_hours_end_too_late": "Masa tamat tidak boleh lewat daripada 06:00 pagi esoknya (itu syif seterusnya).",
+      "equipment_hours_day_not_found": "Catatan jam ini tidak ditemui. Muat semula dan cuba lagi.",
+      "equipment_hours_end_before_start": "Masa tamat mesti selepas masa mula.",
+      "equipment_hours_end_too_late": "Masa ini bertindih dengan foto sebelum atau selepas mesin ini, atau pada masa hadapan.",
       "equipment_profile_incomplete": "Pilih subkelas mesin ini sebelum menerimanya.",
       "equipment_not_on_site": "Mesin ini tiada di tapak projek ini, jadi tidak boleh keluar.",
       "equipment_exit_waiting": "Keluar mesin ini sudah menunggu penerimaan pejabat. Ia tidak boleh dihantar lagi.",
@@ -16099,42 +16099,58 @@
     "open": "Lihat rekod penuh {reference}"
   },
   "equipmentHours": {
-    "subtitle": "Satu foto semasa mesin mula, satu semasa berhenti: foto pertama ialah mula, foto terakhir ialah tamat, dan jam ialah tempoh di antaranya (rehat makan tidak ditolak). Syif malam ialah satu syif: foto yang diambil sebelum 06:00 dikira dalam syif hari sebelumnya.",
+    "subtitle": "Satu foto semasa mesin dimulakan, satu semasa dihentikan: setiap mula dan hentinya ialah satu catatan, dan jamnya ialah masa di antaranya (tanpa tolak rehat), siang atau malam.",
     "allProjects": "Semua projek",
     "photoAlt": "Foto mesin",
     "photoCount": "{count} foto",
     "view": {
-      "day": "Ikut hari",
+      "day": "Catatan",
       "month": "Ikut bulan"
+    },
+    "kind": {
+      "START": "Mula",
+      "FINISH": "Tamat"
     },
     "filter": {
       "from": "Dari",
       "to": "Hingga",
       "month": "Bulan",
-      "shown": "Menunjukkan {from} hingga {to} (paling banyak {max} hari sekali gus)."
+      "shown": "Memaparkan {from} hingga {to} (paling banyak {max} hari sekali gus).",
+      "automatic": "Memaparkan tarikh terkini yang ada rekod: {from} hingga {to}.",
+      "latest": "Kembali ke rekod terkini",
+      "supplier": "Pembekal",
+      "allSuppliers": "Semua pembekal",
+      "equipment": "Peralatan",
+      "allEquipment": "Semua peralatan",
+      "search": "No. plat / no. peralatan",
+      "searchPlaceholder": "No. plat atau no. peralatan"
     },
     "field": {
       "date": "Tarikh",
       "equipment": "Peralatan",
+      "code": "No. peralatan",
+      "supplier": "Pembekal",
       "plate": "Nombor plat",
       "project": "Projek",
       "start": "Mula",
       "end": "Tamat",
       "hours": "Jam",
+      "cumulative": "Jumlah terkumpul (jam)",
       "status": "Status",
       "photos": "Foto",
-      "operators": "Diambil oleh",
-      "reason": "Sebab masa tamat",
-      "adjustedBy": "Masa tamat dimasukkan oleh",
+      "operators": "Difoto oleh",
+      "reason": "Sebab perubahan",
+      "adjustedBy": "Diubah oleh",
       "daysWorked": "Hari bekerja",
+      "sessions": "Catatan",
       "totalHours": "Jumlah jam",
-      "missingEndDays": "Hari tanpa foto berhenti",
-      "adjustedDays": "Hari dibetulkan pejabat",
-      "actions": "Tindakan",
-      "nextDay": "{time} hari berikutnya"
+      "incomplete": "Tiada mula / tamat",
+      "adjustedCount": "Diubah oleh pejabat",
+      "actions": "Tindakan"
     },
     "status": {
-      "MISSING_END": "Tiada foto berhenti",
+      "MISSING_END": "Tiada foto tamat",
+      "MISSING_START": "Tiada foto mula",
       "ADJUSTED": "Dibetulkan",
       "OK": "OK"
     },
@@ -16143,60 +16159,76 @@
       "summaryTitle": "Jumlah setiap mesin"
     },
     "day": {
-      "empty": "Tiada foto mesin dalam tempoh ini."
+      "empty": "Tiada jam mesin dalam tempoh ini."
     },
     "month": {
-      "empty": "Tiada foto mesin bulan ini.",
+      "empty": "Tiada jam mesin bulan ini.",
       "total": "Jumlah"
     },
     "what": {
-      "days": "jam harian",
+      "days": "jam mesin",
       "month": "jumlah bulanan"
     },
     "adjust": {
       "add": "Tambah masa tamat",
-      "edit": "Tukar masa tamat",
-      "help": "Hanya masa tamat hari ini berubah. Foto tidak disentuh, dan setiap perubahan disimpan dalam sejarah. Syif malam boleh tamat selewat-lewatnya 06:00 pagi esoknya.",
+      "edit": "Ubah masa tamat",
+      "addStart": "Tambah masa mula",
+      "help": "Hanya masa tamat catatan ini berubah. Foto tidak disentuh, dan setiap perubahan disimpan dalam sejarah. Masa tamat tidak boleh lewat daripada foto seterusnya mesin ini.",
+      "helpStart": "Catatan ini hanya ada foto tamat; masukkan masa mula supaya jamnya dapat dikira. Foto tidak disentuh, dan setiap perubahan disimpan dalam sejarah.",
       "endAt": "Masa tamat",
+      "startAt": "Masa mula",
       "reason": "Sebab",
-      "reasonPlaceholder": "Contoh: operator terlupa foto berhenti; diari tapak tulis 17:30",
+      "reasonPlaceholder": "Contoh: operator terlupa foto tamat; diari tapak menyatakan 17:30",
       "save": "Simpan",
       "failed": "Tidak dapat disimpan. Sila cuba lagi."
     },
     "dialog": {
       "summary": "Mula {start} · Tamat {end} · {hours} jam",
-      "photos": "Foto hari ini"
+      "photos": "Foto"
     },
     "history": {
       "title": "Sejarah perubahan",
       "empty": "Belum ada perubahan oleh pejabat.",
       "end": "Masa tamat ditetapkan kepada {end}",
+      "start": "Masa mula ditetapkan kepada {start}",
       "current": "Sedang digunakan",
       "by": "{name} · {at}",
-      "photoEnd": "Foto terakhir diambil pada {end}"
+      "photoEnd": "Foto tamat diambil pada {end}"
     },
     "toast": {
-      "endSaved": "Masa tamat disimpan"
+      "endSaved": "Masa tamat disimpan",
+      "startSaved": "Masa mula disimpan"
     },
     "phone": {
-      "howTo": "Ambil foto mesin semasa anda mula, dan satu lagi semasa berhenti. Jam dikira dari foto pertama hingga terakhir.",
+      "howTo": "Semasa memulakan mesin, pilih Mula dan ambil foto; semasa berhenti, pilih Tamat dan ambil satu lagi. Setiap mula dan tamatnya ialah satu catatan jam.",
       "project": "Projek",
-      "machine": "Peralatan",
+      "supplier": "Pembekal",
+      "allSuppliers": "Semua pembekal",
+      "noSupplier": "Tiada pembekal direkodkan",
+      "suppliedBy": "Pembekal: {supplier}",
+      "machine": "No. peralatan",
       "pickMachine": "Pilih mesin",
       "machines": "senarai mesin",
       "noMachines": "Belum ada mesin didaftarkan untuk projek ini. Minta pejabat menambahnya.",
+      "scan": "Imbas",
+      "scanTitle": "Imbas QR pada mesin",
+      "scanHelp": "Halakan kamera ke kod QR yang dilekatkan pada mesin.",
+      "scanImage": "Baca QR daripada foto",
+      "qrNoMatch": "Kod QR ini tidak sepadan dengan mana-mana mesin projek ini: {text}",
+      "kind": "Mula / Tamat",
+      "openSince": "Mesin ini dimulakan pada {start} dan belum dihentikan.",
       "photo": "Foto mesin",
       "takePhoto": "Ambil foto",
       "photoReady": "Foto diambil - ketik untuk ambil semula",
       "location": "Lokasi",
-      "locationReady": "Lokasi diperoleh",
-      "send": "Muat naik",
-      "failed": "Gagal dimuat naik. Sila cuba lagi.",
-      "queued": "Disimpan dalam telefon ini. Ia dimuat naik sendiri apabila ada isyarat.",
-      "today": "Hari ini: {count} foto, mula {start}",
-      "stopHint": "Ambil satu lagi foto semasa berhenti",
-      "soFar": "Hingga {end}: {hours} jam",
-      "shift": "Syif {date}: {count} foto, mula {start}"
+      "locationReady": "Lokasi ditemui",
+      "send": "Muat naik foto {kind}",
+      "failed": "Muat naik gagal. Sila cuba lagi.",
+      "queued": "Disimpan dalam telefon ini. Ia akan dimuat naik sendiri apabila ada isyarat.",
+      "started": "Dimulakan {start}",
+      "stopHint": "Semasa berhenti, pilih Tamat dan ambil satu lagi foto",
+      "soFar": "{start} hingga {end}: {hours} jam",
+      "missingStart": "Tiada foto mula sebelum foto tamat ini; pejabat akan memasukkan masa mula."
     }
   },
   "theme": {
