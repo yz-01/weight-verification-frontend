@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { recordTarget } from "@/lib/record-routes";
 import { absoluteUrl } from "@/lib/share";
@@ -21,6 +23,12 @@ import { recordPdfFile, type ExportableRecordKind } from "@/services/contractor-
  * phone's share sheet (2026-10 C11: 「退场记录能拿出去当证据」); where there is
  * none, the file is downloaded to attach, with the record's link beside it.
  *
+ * The PDF is the record's complete evidence (2026-10-10, 审批证据完整性):
+ * the form, its photographs, every attachment's content (Word, Excel and PDF
+ * turned into printable pages), the approval history with signatures and
+ * the conversation, all tied to this one record - labelled 「完整证据 PDF」
+ * so it is not mistaken for the bare form.
+ *
  * No permission gate here beyond the one that opened the detail: the server
  * decides who can see the record, and a refusal is toasted by the service.
  * Nothing is drawn for a record that has no id yet.
@@ -34,14 +42,17 @@ export function RecordExportButton({
   recordId: string | null | undefined;
   reference: string;
 }) {
+  const t = useTranslations("fileActions");
   if (!recordId) return null;
   const target = recordTarget(kind, recordId);
   const href = target && "href" in target ? target.href : "/";
   return (
     <FileActionButtons
+      label={t("completeEvidence")}
+      labelHint={t("completeEvidenceHint")}
       source={{
         load: () => recordPdfFile(kind, recordId, reference),
-        title: reference,
+        title: t("completeEvidenceTitle", { reference }),
         link: absoluteUrl(href),
       }}
     />

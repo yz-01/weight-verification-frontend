@@ -544,6 +544,7 @@ export function MaterialRequestDetail({
   onRaiseAgain: (prefill: MaterialRequestPrefill) => void;
 }) {
   const t = useTranslations("materialRequest");
+  const tFile = useTranslations("fileActions");
   const df = useDateFormat();
   const unitLabel = useUnitLabel();
   const locale = useLocale();
@@ -731,10 +732,14 @@ export function MaterialRequestDetail({
         actions={
           <div className="space-y-2">
             {error && <p role="alert" className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">{error}</p>}
-            {/* The formal form (C06): 预览 · 打印 · 导出 · 发送, as every
+            {/* The formal form (C06) and, after it, the complete evidence
+                (2026-10-10, 审批证据完整性): attachments' content, approval
+                history, conversation. 预览 · 打印 · 导出 · 发送, as every
                 exported file (PDF 统一操作规则). */}
             <div className="grid grid-cols-2 gap-1.5">
               <FileActionButtons
+                label={tFile("completeEvidence")}
+                labelHint={tFile("completeEvidenceHint")}
                 source={{
                   load: () => materialRequestFormFile(row.id, locale, row.request_no),
                   title: t("preview.title", { reference: row.request_no }),

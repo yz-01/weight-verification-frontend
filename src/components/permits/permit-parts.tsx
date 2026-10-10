@@ -732,6 +732,10 @@ export function PermitDetail({
       title={permit?.incident_no ?? t("title")}
       description={permit ? `${permit.project_name} · ${permit.title}` : undefined}
       status={permit ? <PermitStatusBadge status={permit.status} /> : undefined}
+      // 完整证据 PDF (2026-10-10, 审批证据完整性): the permit's details, its
+      // form files' content, the safety manager's signed decision and its
+      // conversation as one document - archived or not.
+      exportRecord={permit ? { kind: "HAZARD", recordId: permit.id, reference: permit.incident_no } : null}
       onClose={onClose ?? (() => undefined)}
     >
       {body}

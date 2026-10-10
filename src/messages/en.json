@@ -5262,7 +5262,7 @@
     },
     "formCard": {
       "title": "Consultant application form (A4)",
-      "help": "Preview, print and export are the same A4 page: your company on the left, the consultant on the right, then the content, photos and attachment list.",
+      "help": "Preview, print and export give the complete evidence PDF: first this A4 page (your company on the left, the consultant on the right, then the content, photos and attachment list), followed by the attachments' content, the consultant's approvals with signatures and the conversation.",
       "print": "Print",
       "attachments": "Attachments ({count})",
       "send": "Send to {name}"
@@ -15958,7 +15958,10 @@
     "shareMessage": "Please find the file attached: {name}",
     "shareCopyLink": "Copy the record's link",
     "file": "File",
-    "printInViewer": "The file is open in the phone's viewer. Use Share, then Print."
+    "printInViewer": "The file is open in the phone's viewer. Use Share, then Print.",
+    "completeEvidence": "Complete evidence PDF",
+    "completeEvidenceHint": "The form, photos, every attachment's content (Word, Excel and PDF turned into printable pages), the approval history with signatures and the conversation, as one PDF. The original files stay unchanged.",
+    "completeEvidenceTitle": "Complete evidence · {reference}"
   },
   "recordAttachments": {
     "title": "Attachments",

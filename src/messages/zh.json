@@ -5262,7 +5262,7 @@
     },
     "formCard": {
       "title": "顾问申请表（A4）",
-      "help": "预览、打印、导出的都是同一张 A4：左边是我方公司，右边是顾问公司，下面是申请内容、照片和附件清单。",
+      "help": "预览、打印、导出的是完整证据 PDF：第一页是这张 A4（左边我方公司，右边顾问公司，下面是申请内容、照片和附件清单），后面接着附件内容、顾问审批记录及签名、沟通记录。",
       "print": "打印",
       "attachments": "看附件（{count}）",
       "send": "发送给顾问 {name}"
@@ -15958,7 +15958,10 @@
     "shareMessage": "请查收附件：{name}",
     "shareCopyLink": "复制记录链接",
     "file": "文件",
-    "printInViewer": "文件已用手机的阅读器打开，请选「分享」→「打印」。"
+    "printInViewer": "文件已用手机的阅读器打开，请选「分享」→「打印」。",
+    "completeEvidence": "完整证据 PDF",
+    "completeEvidenceHint": "主表、照片、附件内容（Word、Excel、PDF 转为可打印页面）、审批记录及签名、沟通记录合成一份 PDF；原始文件保持不变。",
+    "completeEvidenceTitle": "完整证据 · {reference}"
   },
   "recordAttachments": {
     "title": "附件",

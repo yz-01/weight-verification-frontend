@@ -24,7 +24,7 @@
  * confirmation, and the screens say so in small print beside it.
  */
 
-import { Copy, Download, ExternalLink, Eye, FileWarning, Loader2, Mail, MessageCircle, Printer, Share2 } from "lucide-react";
+import { Copy, Download, ExternalLink, Eye, FileText, FileWarning, Loader2, Mail, MessageCircle, Printer, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -204,6 +204,8 @@ export function FileActionButtons({
   disabled,
   disabledReason,
   className,
+  label,
+  labelHint,
 }: {
   source: FileSource;
   /** False where the person may look at the file but not export it. */
@@ -211,12 +213,29 @@ export function FileActionButtons({
   disabled?: boolean;
   disabledReason?: string;
   className?: string;
+  /**
+   * What the four buttons act on, said once before them - a record's
+   * 「完整证据 PDF」 (2026-10-10, 审批证据完整性), so nobody mistakes it for
+   * the bare form. `labelHint` says what is inside, on hover.
+   */
+  label?: string;
+  labelHint?: string;
 }) {
   const t = useTranslations("fileActions");
   const { busy, run, element } = useFileActions();
   return (
     <>
       <div className={cn("contents", className)} data-slot="file-actions">
+        {label ? (
+          <span
+            className="col-span-full inline-flex items-center gap-1 self-center text-xs font-medium text-muted-foreground"
+            title={labelHint}
+            data-slot="file-actions-label"
+          >
+            <FileText className="size-3.5" aria-hidden />
+            {label}
+          </span>
+        ) : null}
         {fileActionsFor("pdf", allowSave).map((action) => {
           const Icon = FILE_ACTION_ICONS[action];
           return (
