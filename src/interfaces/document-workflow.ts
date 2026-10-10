@@ -35,6 +35,12 @@ export interface DocumentVersion {
   content_type: string;
   /** How the browser may show it (B27), or null when it can only be downloaded. */
   preview_type: string | null;
+  /**
+   * Its first page, small, for the list (2026-10-10): the stored picture or
+   * the link that makes it. Null when there is nothing to draw (a photo is
+   * drawn by the screen itself; anything else shows its type icon).
+   */
+  thumbnail_url?: string | null;
   byte_size: number;
   sha256: string;
   note: string;
@@ -57,13 +63,18 @@ export interface SystemFileRecord {
 
 /** What a document filed from the system shows of its file (E4). */
 export interface DocumentSystemFileInfo {
+  /** Which of the document's picked files (`open_system_file?file=`). */
+  id?: string;
   module: string;
   file_name: string;
   content_type: string;
   preview_type: string | null;
   byte_size: number;
   kind: string;
-  /** The watermarked copy of a photograph; null for other files. */
+  /**
+   * The watermarked copy of a photograph; a PDF's first page (2026-10-10);
+   * null when there is nothing to show.
+   */
   thumbnail_url: string | null;
   captured_at: string;
   record: SystemFileRecord;
@@ -89,10 +100,15 @@ export interface SystemFile {
 }
 
 export interface AddSystemFilesPayload {
+  /** In the order picked; together they become one document (2026-10-10). */
   files: string[];
   category: string;
   subcategory?: string | null;
   keywords?: string;
+  /** The document's name; the first file's name when empty. */
+  title?: string;
+  reference_no?: string;
+  description?: string;
 }
 
 export interface DocumentRecord {
@@ -116,8 +132,12 @@ export interface DocumentRecord {
   /** Present on list/detail queries; create responses may omit the annotation. */
   version_count?: number;
   latest_version: DocumentVersion | null;
-  /** E4: a file picked from the system; null for an uploaded document. */
+  /** E4: the first file picked from the system; null when none was. */
   system_file?: DocumentSystemFileInfo | null;
+  /** How many files were picked from the system into it. */
+  system_file_count?: number;
+  /** Every file it holds: picked files plus uploaded versions (「文件数」). */
+  file_count?: number;
   archived_at: string | null;
   archived_by: string | null;
   archive_reason: string;
@@ -129,6 +149,8 @@ export interface DocumentRecord {
 
 export interface DocumentDetail extends DocumentRecord {
   versions: DocumentVersion[];
+  /** Every file picked from the system into it, in the order picked. */
+  system_files?: DocumentSystemFileInfo[];
 }
 
 export interface DocumentCategoryPayload {

@@ -17,8 +17,9 @@
 
 import { Download, ExternalLink, FileWarning, Loader2, Printer, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
+import { DocView } from "@/components/shared/doc-view";
 import { SheetView } from "@/components/shared/file-actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,17 +31,21 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
-export type PreviewKind = "pdf" | "image" | "text" | "video" | "audio" | "sheet";
+export type PreviewKind = "pdf" | "image" | "text" | "video" | "audio" | "sheet" | "word";
 
 /**
  * How a content type is shown, or `null` when the browser cannot show it.
  *
  * An Excel workbook has no type the browser draws, so the server sends none;
  * it is recognised by its name and read here as a table (PDF 统一操作规则:
- * 「所有关于 pdf 或者 excel 的都可以预览不用先下载」).
+ * 「所有关于 pdf 或者 excel 的都可以预览不用先下载」). A Word `.docx` the same
+ * way, as its text, tables and pictures (2026-10-10). The old `.doc` / `.xls`
+ * formats are not zips of XML and cannot be read here: they say so and offer
+ * the download (`isLegacyOffice`).
  */
 export function previewKind(type: string | null | undefined, filename = ""): PreviewKind | null {
   if (/\.xlsx$/i.test(filename)) return "sheet";
+  if (/\.docx$/i.test(filename)) return "word";
   if (!type) return null;
   if (type === "application/pdf") return "pdf";
   if (type.startsWith("image/")) return "image";
@@ -48,6 +53,11 @@ export function previewKind(type: string | null | undefined, filename = ""): Pre
   if (type.startsWith("video/")) return "video";
   if (type.startsWith("audio/")) return "audio";
   return null;
+}
+
+/** An old binary Word or Excel file (`.doc`, `.xls`): download to view. */
+export function isLegacyOffice(filename: string): boolean {
+  return /\.(doc|xls)$/i.test(filename);
 }
 
 /** `DOCX` from `minutes.docx`, for the sentence that says it cannot be shown. */
@@ -143,9 +153,13 @@ export function FilePreview({
           <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
             <FileWarning className="size-8 text-warning" />
             <p className="text-sm font-medium text-foreground">
-              {t("unsupported", { ext: fileExtension(filename) || t("thisFormat") })}
+              {isLegacyOffice(filename)
+                ? t("legacyOffice", { ext: fileExtension(filename) })
+                : t("unsupported", { ext: fileExtension(filename) || t("thisFormat") })}
             </p>
-            <p className="max-w-md text-xs text-muted-foreground">{t("unsupportedHelp")}</p>
+            <p className="max-w-md text-xs text-muted-foreground">
+              {isLegacyOffice(filename) ? t("legacyOfficeHelp") : t("unsupportedHelp")}
+            </p>
             <Button size="sm" disabled={downloading} onClick={() => void save()}>
               {downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
               {t("download")}
@@ -177,7 +191,9 @@ export function FilePreview({
         ) : kind === "video" ? (
           <video src={url} controls className="absolute inset-0 size-full bg-black" />
         ) : kind === "sheet" ? (
-          <SheetFromUrl url={url} />
+          <BlobFromUrl url={url} render={(blob) => <SheetView file={blob} />} />
+        ) : kind === "word" ? (
+          <BlobFromUrl url={url} render={(blob) => <DocView file={blob} />} />
         ) : kind === "audio" ? (
           <div className="grid h-full place-items-center p-6">
             <audio src={url} controls className="w-full max-w-md" />
@@ -220,8 +236,8 @@ export function FilePreview({
   );
 }
 
-/** A workbook already fetched as an object URL, read as a table. */
-function SheetFromUrl({ url }: { url: string }) {
+/** A workbook or Word file already fetched as an object URL, read in the page. */
+function BlobFromUrl({ url, render }: { url: string; render: (blob: Blob) => ReactNode }) {
   const [blob, setBlob] = useState<Blob | null>(null);
   useEffect(() => {
     let alive = true;
@@ -233,7 +249,7 @@ function SheetFromUrl({ url }: { url: string }) {
     };
   }, [url]);
   return blob ? (
-    <SheetView file={blob} />
+    render(blob)
   ) : (
     <div className="grid h-full place-items-center">
       <Loader2 className="size-7 animate-spin text-primary" />

@@ -6828,7 +6828,8 @@
       "versionNote": "版本备注",
       "versions": "版本数",
       "path": "保存路径",
-      "thumbnail": "缩略图"
+      "thumbnail": "缩略图",
+      "files": "文件数"
     },
     "keywordsPlaceholder": "多个关键词请用逗号分隔",
     "noFile": "尚未上传文件",
@@ -6858,20 +6859,22 @@
       "subcategoryCreated": "子分类已建立",
       "subcategoryUpdated": "子分类已更新",
       "updated": "文档已更新",
-      "versionUploaded": "文档版本已上传",
+      "versionUploaded": "文件已加进档案",
       "uploaded": "文件已上传",
       "systemFilesAdded": "已放进档案"
     },
     "upload": {
-      "action": "上传新版本",
+      "action": "添加文件",
       "confirm": "上传",
-      "description": "为 {name} 新增一个不可修改的版本。",
+      "description": "给 {name} 加文件：新版本或补充资料都可以，可一次选多个。原来的文件和原记录都不会被改动。",
       "limit": "只能上传 PDF、Word、Excel 或照片；上传时会执行系统设定的文件大小限制。",
-      "title": "上传文档版本"
+      "title": "添加文件到档案",
+      "companyWideManagerOnly": "全公司共用的档案只有文件管理员能添加文件。"
     },
     "versions": {
       "empty": "尚未上传任何文件版本。",
-      "title": "版本记录"
+      "title": "上传的文件（版本）",
+      "emptyWithSystemFiles": "还没有上传的文件；这份档案的文件都在上面「从系统里选的文件」。"
     },
     "what": {
       "projects": "项目列表",
@@ -6885,15 +6888,19 @@
     "uploadFile": {
       "action": "上传文件",
       "title": "上传到文件档案",
-      "description": "选择文件和保存的分类路径。每个文件各自成为一份档案；已有的档案不会被改动。",
+      "description": "选择文件和保存的分类路径。一次选的文件放在同一份档案里；已有的档案不会被改动。",
       "fileHint": "PDF、Word、Excel 或照片，可一次选多个。",
       "pathPreview": "将保存到：",
       "projectHint": "只能选你所在的项目；全公司共用的文件由文件管理员上传。",
-      "titleHint": "留空就用文件名。",
+      "titleHint": "留空就用文件名（选了多个文件时用第一个文件名）。",
       "confirm": "上传",
       "progress": "上传中 {done}/{total}",
       "noCategory": "请先建立文件分类",
-      "fromComputer": "从电脑上传"
+      "fromComputer": "从电脑上传",
+      "groupTitle": "{name} 等 {count} 个文件",
+      "computerWay": "从电脑上传：把电脑或手机里的文件（PDF、Word、Excel、照片）传上来。",
+      "partial": "已上传 {done}/{total} 个文件，其余没有成功。点「继续上传」把剩下的放进同一份档案。",
+      "resume": "继续上传"
     },
     "categoryPicker": {
       "expand": "展开 {name} 的子分类",
@@ -6907,7 +6914,7 @@
     },
     "pickFromSystem": {
       "tab": "从系统里选",
-      "description": "在系统里找已有的照片和文件，勾选或拖到右边的档案区，再放进档案。不会复制文件。",
+      "description": "在系统里找已有的照片和文件，勾选或拖到右边的档案区，再放进档案。勾选的文件会放在同一份档案里，不会复制文件。",
       "files": "系统文件",
       "hint": "只列出你本来就看得到的文件。",
       "searchPlaceholder": "搜编号（如 MR-002）、材料或文件名",
@@ -6924,7 +6931,13 @@
       "previous": "上一页",
       "next": "下一页",
       "firstPage": "已经是第一页",
-      "lastPage": "已经是最后一页"
+      "lastPage": "已经是最后一页",
+      "systemWay": "从系统里选：把系统里已经有的照片和文件（例如材料进场的照片）放进档案，不会再复制一份。",
+      "mixedProjects": "选的文件来自不同项目。一份档案只属于一个项目，请只选同一个项目的文件。"
+    },
+    "filesMore": "另有 {count} 个文件",
+    "systemFiles": {
+      "title": "从系统里选的文件"
     }
   },
   "driver": {
@@ -7431,7 +7444,6 @@
       "material_request_assigned_to_other": "这个申请已提交给别人审批。要由你审批，请先按「改派给我」。",
       "material_request_reviewer_not_eligible": "所选的人不能批准这个项目的申请，请从名单里重新选择。",
       "document_file_type_not_allowed": "只能上传 PDF、Word、Excel 或照片。",
-      "document_is_system_file": "从系统里选的文件不能上传新版本，新版本请放在原记录里。",
       "document_system_file_not_found": "有文件找不到，或你没有权限查看。",
       "disposal_trip_not_waiting": "这一车不是待验收状态（还没送，或已经验收过）。",
       "disposal_all_trips_sent": "预计的车次都已送出。如果还有车要去，请联系工地在后台「加一车」。",
@@ -7455,7 +7467,8 @@
       "driver_link_closed": "这趟任务已结束，链接已关闭。",
       "driver_link_other_device": "这个链接已在另一部手机上使用，请联系回收商重新发送。",
       "driver_link_expired": "链接已失效，请联系回收商重新发送。",
-      "driver_login_retired": "司机不用登录了，请打开回收商发给你的任务链接。"
+      "driver_login_retired": "司机不用登录了，请打开回收商发给你的任务链接。",
+      "document_system_files_mixed_projects": "选的文件来自不同项目。一份档案只属于一个项目，请只选同一个项目的文件。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -15888,7 +15901,13 @@
     "openNewTab": "新分页打开",
     "print": "打印",
     "download": "下载",
-    "preview": "预览"
+    "preview": "预览",
+    "wordFailed": "这个 Word 文件读不出来，请下载后用 Word 打开。",
+    "wordNote": "这里只显示文字、表格和图片；排版以下载的原文件为准。",
+    "wordTruncated": "文件太长，只显示前面一部分。",
+    "wordEmpty": "这个文件里没有文字。",
+    "legacyOffice": "这是旧版 {ext} 格式，系统里无法直接预览。",
+    "legacyOfficeHelp": "请下载后查看。在 Word / Excel 里另存为 .docx / .xlsx 再上传，以后就能直接在系统里看。"
   },
   "fileActions": {
     "preview": "预览",

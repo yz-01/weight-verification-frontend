@@ -86,6 +86,7 @@ import type {
   SystemFile,
 } from "@/interfaces/document-workflow";
 import { useDateFormat } from "@/lib/dates";
+import { toastSuccess } from "@/services/api-client";
 import { getProjects } from "@/services/contractor.service";
 import { getUsers } from "@/services/users.service";
 import {
@@ -256,6 +257,7 @@ export function Documents() {
               <SourceTag
                 source={row.original.system_file}
                 onOpen={() => openSource(row.original)}
+                more={(row.original.file_count ?? 1) - 1}
               />
             ) : (
               <p className="max-w-65 truncate text-xs text-muted-foreground">
@@ -318,11 +320,13 @@ export function Documents() {
         ),
       },
       {
+        // Every file the document holds - picked from the system or uploaded
+        // (2026-10-10: files picked together are one document).
         id: "version_count",
-        meta: { label: t("documents.field.versions") },
-        header: () => t("documents.field.versions"),
+        meta: { label: t("documents.field.files") },
+        header: () => t("documents.field.files"),
         cell: ({ row }) => (
-          <TypeBadge label={String(row.original.version_count ?? 0)} />
+          <TypeBadge label={String(row.original.file_count ?? row.original.version_count ?? 0)} />
         ),
       },
       {
@@ -359,14 +363,23 @@ export function Documents() {
               >
                 <Eye className="h-4 w-4" />
               </Button>
-              {/* A new version: anybody on the project; a company-wide
-                  document only from the manager (the server says the same). */}
-              {active && !record.system_file && (manages || (canUpload && record.project)) && (
+              {/* Add a file (a new version, or more files) to any document -
+                  uploaded or picked from the system alike (2026-10-10 图3).
+                  Anybody on the project; a company-wide document only from
+                  the manager (the server says the same), so it is greyed
+                  with the reason rather than missing. */}
+              {active && canUpload && (
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
                   title={t("documents.upload.action")}
+                  disabled={!manages && !record.project}
+                  disabledReason={
+                    !manages && !record.project
+                      ? t("documents.upload.companyWideManagerOnly")
+                      : undefined
+                  }
                   onClick={() => setUploading(record)}
                 >
                   <Upload className="h-4 w-4" />
@@ -403,8 +416,8 @@ export function Documents() {
     [can, canUpload, df, manages, t],
   );
 
-  function openSource(record: DocumentRecord) {
-    const source = record.system_file;
+  function openSource(record: DocumentRecord, file?: DocumentSystemFileInfo) {
+    const source = file ?? record.system_file;
     if (!source) return;
     opener.open(source.record.kind, source.record.id, {
       reference: source.record.reference,
@@ -621,9 +634,12 @@ function uploadErrors(error: unknown): Record<string, string> {
 function SourceTag({
   source,
   onOpen,
+  more = 0,
 }: {
   source: DocumentSystemFileInfo;
   onOpen: () => void;
+  /** The document's other files, said after the tag: 「等 3 个文件」. */
+  more?: number;
 }) {
   const t = useTranslations();
   const label = useSourceLabel()(source);
@@ -639,6 +655,11 @@ function SourceTag({
       </button>
       {source.record.deleted && (
         <StatusBadge label={t("documents.source.deleted")} tone="neutral" />
+      )}
+      {more > 0 && (
+        <span className="shrink-0 text-muted-foreground">
+          {t("documents.filesMore", { count: more })}
+        </span>
       )}
     </p>
   );
@@ -661,9 +682,23 @@ function fileStem(name: string): string {
 }
 
 /**
+ * The name a document of several files gets when nobody types one:
+ * 「钢筋照片 等 3 个文件」; one file keeps its own name.
+ */
+export function groupTitle(
+  names: string[],
+  format: (values: { name: string; count: number }) => string,
+): string {
+  if (names.length === 0) return "";
+  const first = fileStem(names[0]);
+  return names.length === 1 ? first : format({ name: first, count: names.length }).slice(0, 255);
+}
+
+/**
  * Upload files into the archive in one step (B28): the files, the folder
- * they go in, and the project. Each file becomes its own document with its
- * first version; one file can be given a title of its own.
+ * they go in, and the project. The files chosen together are ONE document
+ * (2026-10-10: 「我选了这三个不是应该放在一起的吗」) - from the computer as
+ * its first file and the ones after it, from the system as the picked files.
  */
 function UploadDocumentDialog({
   categories,
@@ -702,25 +737,39 @@ function UploadDocumentDialog({
   const [project, setProject] = useState(
     initialProject ?? (manages ? "none" : (projects.length === 1 ? projects[0].id : "")),
   );
+  // How far an upload of several files got, and the document it made: a
+  // retry after a failure carries on into the same document.
   const [done, setDone] = useState(0);
+  const [createdId, setCreatedId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   // E4: 「从电脑上传」｜「从系统里选」.
   const [origin, setOrigin] = useState<"computer" | "system">("computer");
   const [picked, setPicked] = useState<Record<string, SystemFile>>({});
   const pickedIds = Object.keys(picked);
+  // A document belongs to one project, so the picked files must share one.
+  const mixedProjects = new Set(Object.values(picked).map((file) => file.project ?? "")).size > 1;
   const availableSubcategories = subcategories.filter(
     (item) => item.category === category && item.is_active,
   );
   const categoryName = categories.find((item) => item.id === category)?.name ?? "";
   const subcategoryName = availableSubcategories.find((item) => item.id === subcategory)?.name;
+  const formatGroup = (values: { name: string; count: number }) =>
+    t("documents.uploadFile.groupTitle", values);
+  const defaultTitle =
+    origin === "system"
+      ? groupTitle(Object.values(picked).map((file) => file.file_name), formatGroup)
+      : groupTitle(files.map((file) => file.name), formatGroup);
+  // Once part of a several-file upload is in, what it was filed as is fixed.
+  const started = createdId !== null;
 
   const mutation = useMutation({
     mutationFn: async () => {
-      setDone(0);
-      for (const [index, file] of files.entries()) {
-        await uploadDocument(
+      let documentId = createdId;
+      let next = done;
+      if (!documentId) {
+        const created = await uploadDocument(
           {
-            title: files.length === 1 && title.trim() ? title.trim() : fileStem(file.name),
+            title: title.trim() || defaultTitle,
             reference_no: referenceNo.trim(),
             keywords: keywords.trim(),
             description: note.trim(),
@@ -728,11 +777,19 @@ function UploadDocumentDialog({
             category,
             subcategory: subcategory === "none" ? null : subcategory,
           },
-          file,
-          { quiet: index < files.length - 1 },
+          files[0],
+          { quiet: true },
         );
+        documentId = created.id;
+        setCreatedId(created.id);
+        next = 1;
+        setDone(1);
+      }
+      for (let index = next; index < files.length; index += 1) {
+        await uploadDocumentVersion(documentId, files[index], "", { quiet: true });
         setDone(index + 1);
       }
+      toastSuccess("documents.toast.uploaded");
     },
     onSuccess: () => {
       onDone();
@@ -750,6 +807,7 @@ function UploadDocumentDialog({
         category,
         subcategory: subcategory === "none" ? null : subcategory,
         keywords: keywords.trim(),
+        title: title.trim() || defaultTitle,
       }),
     onSuccess: () => {
       onDone();
@@ -758,6 +816,8 @@ function UploadDocumentDialog({
     onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
   });
   const pending = mutation.isPending || filing.isPending;
+  // Part of a several-file upload is in: say so, and that 「上传」 carries on.
+  const partial = started && done < files.length;
 
   return (
     <Dialog open onOpenChange={(next) => !next && !pending && onClose()}>
@@ -774,12 +834,21 @@ function UploadDocumentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={origin} onValueChange={(value) => setOrigin(value as "computer" | "system")}>
+        <Tabs value={origin} onValueChange={(value) => !started && setOrigin(value as "computer" | "system")}>
           <TabsList>
             <TabsTrigger value="computer">{t("documents.uploadFile.fromComputer")}</TabsTrigger>
             <TabsTrigger value="system">{t("documents.pickFromSystem.tab")}</TabsTrigger>
           </TabsList>
         </Tabs>
+        {/* One plain line for each way in (2026-10-10: 「我不会用」). */}
+        <ul className="space-y-1 rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground" data-slot="upload-ways">
+          <li className={cn(origin === "computer" && "font-medium text-foreground")}>
+            {t("documents.uploadFile.computerWay")}
+          </li>
+          <li className={cn(origin === "system" && "font-medium text-foreground")}>
+            {t("documents.pickFromSystem.systemWay")}
+          </li>
+        </ul>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {origin === "system" ? (
@@ -810,23 +879,54 @@ function UploadDocumentDialog({
               type="file"
               multiple
               accept={DOCUMENT_FILE_ACCEPT}
-              onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+              disabled={pending}
+              onChange={(event) => {
+                setFiles(Array.from(event.target.files ?? []));
+                // A new choice is a new document.
+                setCreatedId(null);
+                setDone(0);
+              }}
             />
           </FieldWrapper>
           {files.length > 1 && (
             <ul className="max-h-28 overflow-y-auto rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
-              {files.map((file) => (
-                <li key={`${file.name}-${file.size}`} className="truncate">
+              {files.map((file, index) => (
+                <li key={`${file.name}-${file.size}-${index}`} className={cn("truncate", index < done && "text-success")}>
                   {file.name}
                 </li>
               ))}
             </ul>
           )}
+          {partial && !mutation.isPending && (
+            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground sm:col-span-2">
+              {t("documents.uploadFile.partial", { done, total: files.length })}
+            </p>
+          )}
           </>
           )}
+          {origin === "system" && mixedProjects && (
+            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground sm:col-span-2">
+              {t("documents.pickFromSystem.mixedProjects")}
+            </p>
+          )}
+          <FieldWrapper
+            label={t("documents.field.title")}
+            optional={t("common.optional")}
+            error={errors.title}
+            hint={t("documents.uploadFile.titleHint")}
+            className="sm:col-span-2"
+          >
+            <Input
+              value={title}
+              disabled={started}
+              placeholder={defaultTitle || undefined}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </FieldWrapper>
           <FieldWrapper label={t("documents.field.category")} required error={errors.category}>
             <Select
               value={category}
+              disabled={started}
               onValueChange={(value) => {
                 setCategory(value);
                 setSubcategory("none");
@@ -849,7 +949,7 @@ function UploadDocumentDialog({
             optional={t("common.optional")}
             error={errors.subcategory}
           >
-            <Select value={subcategory} onValueChange={setSubcategory}>
+            <Select value={subcategory} onValueChange={setSubcategory} disabled={started}>
               <SelectTrigger className="w-full bg-card">
                 <SelectValue />
               </SelectTrigger>
@@ -880,7 +980,7 @@ function UploadDocumentDialog({
             hint={manages ? undefined : t("documents.uploadFile.projectHint")}
             className="sm:col-span-2"
           >
-            <Select value={project} onValueChange={setProject}>
+            <Select value={project} onValueChange={setProject} disabled={started}>
               <SelectTrigger className="w-full bg-card">
                 <SelectValue placeholder={t("common.selectPlaceholder")} />
               </SelectTrigger>
@@ -894,26 +994,16 @@ function UploadDocumentDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
-          {files.length <= 1 && (
-            <FieldWrapper
-              label={t("documents.field.title")}
-              optional={t("common.optional")}
-              error={errors.title}
-              hint={t("documents.uploadFile.titleHint")}
-            >
-              <Input
-                value={title}
-                placeholder={files[0] ? fileStem(files[0].name) : undefined}
-                onChange={(event) => setTitle(event.target.value)}
-              />
-            </FieldWrapper>
-          )}
           <FieldWrapper
             label={t("documents.field.reference")}
             optional={t("common.optional")}
             error={errors.reference_no}
           >
-            <Input value={referenceNo} onChange={(event) => setReferenceNo(event.target.value)} />
+            <Input
+              value={referenceNo}
+              disabled={started}
+              onChange={(event) => setReferenceNo(event.target.value)}
+            />
           </FieldWrapper>
           </>
           )}
@@ -921,10 +1011,11 @@ function UploadDocumentDialog({
             label={t("documents.field.keywords")}
             optional={t("common.optional")}
             error={errors.keywords}
-            className="sm:col-span-2"
+            className={origin === "computer" ? undefined : "sm:col-span-2"}
           >
             <Input
               value={keywords}
+              disabled={started}
               placeholder={t("documents.keywordsPlaceholder")}
               onChange={(event) => setKeywords(event.target.value)}
             />
@@ -936,7 +1027,12 @@ function UploadDocumentDialog({
             error={errors.description}
             className="sm:col-span-2"
           >
-            <Textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+            <Textarea
+              rows={2}
+              value={note}
+              disabled={started}
+              onChange={(event) => setNote(event.target.value)}
+            />
           </FieldWrapper>
           )}
         </div>
@@ -956,7 +1052,8 @@ function UploadDocumentDialog({
                 [pickedIds.length > 0, t("documents.pickFromSystem.files")],
                 [category, t("documents.field.category")],
               ]}
-              disabled={filing.isPending}
+              disabled={filing.isPending || mixedProjects}
+              disabledReason={mixedProjects ? t("documents.pickFromSystem.mixedProjects") : undefined}
               onClick={() => filing.mutate()}
             >
               {filing.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderInput className="h-4 w-4" />}
@@ -975,7 +1072,9 @@ function UploadDocumentDialog({
             {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
             {mutation.isPending && files.length > 1
               ? t("documents.uploadFile.progress", { done, total: files.length })
-              : t("documents.uploadFile.confirm")}
+              : partial
+                ? t("documents.uploadFile.resume")
+                : t("documents.uploadFile.confirm")}
           </Button>
           )}
         </DialogFooter>
@@ -1187,6 +1286,12 @@ function DocumentEditorDialog({
   );
 }
 
+/**
+ * Add files to one document: a new version, or more files beside the ones
+ * it has. Every document takes them, one picked from the system too
+ * (2026-10-10 图3); what was picked, and the record it came from, stay as
+ * they are.
+ */
 function VersionUploadDialog({
   document,
   onClose,
@@ -1197,22 +1302,31 @@ function VersionUploadDialog({
   onDone: () => void;
 }) {
   const t = useTranslations();
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [done, setDone] = useState(0);
   const [note, setNote] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const mutation = useMutation({
-    mutationFn: () => uploadDocumentVersion(document.id, file!, note.trim()),
+    mutationFn: async () => {
+      // A retry after a failure carries on from the file that failed.
+      for (let index = done; index < files.length; index += 1) {
+        await uploadDocumentVersion(document.id, files[index], note.trim(), { quiet: true });
+        setDone(index + 1);
+      }
+      toastSuccess("documents.toast.versionUploaded");
+    },
     onSuccess: () => {
       onDone();
       onClose();
     },
     onError: (error) => {
+      onDone();
       setErrors(uploadErrors(error));
     },
   });
 
   return (
-    <Dialog open onOpenChange={(next) => !next && onClose()}>
+    <Dialog open onOpenChange={(next) => !next && !mutation.isPending && onClose()}>
       <DialogContent className="sm:max-w-130 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.upload.title")}</DialogTitle>
@@ -1229,10 +1343,24 @@ function VersionUploadDialog({
           >
             <Input
               type="file"
+              multiple
               accept={DOCUMENT_FILE_ACCEPT}
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              disabled={mutation.isPending}
+              onChange={(event) => {
+                setFiles(Array.from(event.target.files ?? []));
+                setDone(0);
+              }}
             />
           </FieldWrapper>
+          {files.length > 1 && (
+            <ul className="max-h-28 overflow-y-auto rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+              {files.map((file, index) => (
+                <li key={`${file.name}-${file.size}-${index}`} className={cn("truncate", index < done && "text-success")}>
+                  {file.name}
+                </li>
+              ))}
+            </ul>
+          )}
           <FieldWrapper
             label={t("documents.field.versionNote")}
             optional={t("common.optional")}
@@ -1251,7 +1379,7 @@ function VersionUploadDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            requires={[[file, t("documents.field.file")]]}
+            requires={[[files.length > 0, t("documents.field.file")]]}
             disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
           >
@@ -1260,7 +1388,11 @@ function VersionUploadDialog({
             ) : (
               <Upload className="h-4 w-4" />
             )}
-            {t("documents.upload.confirm")}
+            {mutation.isPending && files.length > 1
+              ? t("documents.uploadFile.progress", { done, total: files.length })
+              : done > 0 && done < files.length
+                ? t("documents.uploadFile.resume")
+                : t("documents.upload.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1268,18 +1400,24 @@ function VersionUploadDialog({
   );
 }
 
+/** Which file the detail's preview shows: a picked one or an uploaded one. */
+type ShownFile =
+  | { kind: "system"; file: DocumentSystemFileInfo }
+  | { kind: "version"; version: DocumentVersion };
+
 function DocumentDetailDialog({
   documentId,
   onOpenSource,
   onClose,
 }: {
   documentId: string;
-  onOpenSource: (record: DocumentRecord) => void;
+  onOpenSource: (record: DocumentRecord, source?: DocumentSystemFileInfo) => void;
   onClose: () => void;
 }) {
   const t = useTranslations();
   const [downloading, setDownloading] = useState<string | null>(null);
-  // Which version the preview shows; the newest until somebody picks another.
+  // Which file the preview shows (`s:<id>` / `v:<id>`); the newest upload,
+  // else the first picked file, until somebody picks another.
   const [previewing, setPreviewing] = useState<string | null>(null);
   const detail = useQuery({
     queryKey: ["documents", "detail", documentId],
@@ -1295,10 +1433,21 @@ function DocumentDetailDialog({
     }
   };
 
-  const shown =
-    detail.data?.versions.find((version) => version.id === previewing) ??
-    detail.data?.versions[0] ??
-    null;
+  const systemFiles = detail.data
+    ? (detail.data.system_files ?? (detail.data.system_file ? [detail.data.system_file] : []))
+    : [];
+  const versions = detail.data?.versions ?? [];
+  const shown: ShownFile | null = (() => {
+    const picked = systemFiles.find((file) => `s:${file.id}` === previewing);
+    if (picked) return { kind: "system", file: picked };
+    const version = versions.find((item) => `v:${item.id}` === previewing);
+    if (version) return { kind: "version", version };
+    if (versions[0]) return { kind: "version", version: versions[0] };
+    if (systemFiles[0]) return { kind: "system", file: systemFiles[0] };
+    return null;
+  })();
+  const shownKey =
+    shown?.kind === "system" ? `s:${shown.file.id}` : shown ? `v:${shown.version.id}` : null;
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -1324,34 +1473,39 @@ function DocumentDetailDialog({
             <section className="flex min-w-0 flex-col gap-2" aria-label={t("documents.preview.title")}>
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-semibold text-foreground">{t("documents.preview.title")}</h3>
-                {shown && (
-                  <span className="min-w-0 truncate text-xs text-muted-foreground" title={shown.original_name}>
-                    v{shown.version_number} · {shown.original_name}
+                {shown?.kind === "version" && (
+                  <span className="min-w-0 truncate text-xs text-muted-foreground" title={shown.version.original_name}>
+                    v{shown.version.version_number} · {shown.version.original_name}
+                  </span>
+                )}
+                {shown?.kind === "system" && (
+                  <span className="min-w-0 truncate text-xs text-muted-foreground" title={shown.file.file_name}>
+                    {shown.file.file_name}
                   </span>
                 )}
               </div>
-              {detail.data.system_file ? (
+              {shown?.kind === "system" ? (
                 <>
                   <SourceTag
-                    source={detail.data.system_file}
-                    onOpen={() => onOpenSource(detail.data)}
+                    source={shown.file}
+                    onOpen={() => onOpenSource(detail.data, shown.file)}
                   />
                   <FilePreview
-                    key={detail.data.id}
-                    load={() => systemFileObjectUrl(detail.data.id)}
-                    previewType={systemFilePreviewType(detail.data.system_file)}
-                    filename={detail.data.system_file.file_name}
-                    onDownload={() => downloadSystemFile(detail.data)}
+                    key={shownKey}
+                    load={() => systemFileObjectUrl(detail.data.id, shown.file)}
+                    previewType={systemFilePreviewType(shown.file)}
+                    filename={shown.file.file_name}
+                    onDownload={() => downloadSystemFile(detail.data, shown.file)}
                     className="h-[52dvh] lg:h-[64dvh]"
                   />
                 </>
-              ) : shown ? (
+              ) : shown?.kind === "version" ? (
                 <FilePreview
-                  key={shown.id}
-                  load={() => documentVersionObjectUrl(shown)}
-                  previewType={shown.preview_type}
-                  filename={shown.original_name}
-                  onDownload={() => handleDownload(shown)}
+                  key={shownKey}
+                  load={() => documentVersionObjectUrl(shown.version)}
+                  previewType={shown.version.preview_type}
+                  filename={shown.version.original_name}
+                  onDownload={() => handleDownload(shown.version)}
                   className="h-[52dvh] lg:h-[64dvh]"
                 />
               ) : (
@@ -1362,10 +1516,12 @@ function DocumentDetailDialog({
             </section>
             <DocumentDetailBody
               document={detail.data}
+              systemFiles={systemFiles}
               downloading={downloading}
-              previewing={shown?.id ?? null}
-              onPreview={(version) => setPreviewing(version.id)}
+              previewing={shownKey}
+              onPreview={(key) => setPreviewing(key)}
               onDownload={(version) => void handleDownload(version)}
+              onOpenSource={(file) => onOpenSource(detail.data, file)}
             />
           </div>
         )}
@@ -1388,19 +1544,33 @@ function DocumentDetailDialog({
 
 function DocumentDetailBody({
   document,
+  systemFiles,
   downloading,
   previewing,
   onPreview,
   onDownload,
+  onOpenSource,
 }: {
   document: DocumentDetail;
+  systemFiles: DocumentSystemFileInfo[];
   downloading: string | null;
+  /** `s:<id>` or `v:<id>`: the file the preview shows. */
   previewing: string | null;
-  onPreview: (version: DocumentVersion) => void;
+  onPreview: (key: string) => void;
   onDownload: (version: DocumentVersion) => void;
+  onOpenSource: (file: DocumentSystemFileInfo) => void;
 }) {
   const t = useTranslations();
   const df = useDateFormat();
+  const [savingFile, setSavingFile] = useState<string | null>(null);
+  const saveSystemFile = async (file: DocumentSystemFileInfo) => {
+    setSavingFile(file.id ?? "");
+    try {
+      await downloadSystemFile(document, file);
+    } finally {
+      setSavingFile(null);
+    }
+  };
   return (
     <div className="min-w-0 space-y-6">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -1452,6 +1622,59 @@ function DocumentDetailBody({
         )}
       </div>
 
+      {/* The files picked from the system into it (2026-10-10: kept
+          together), each previewed, saved or traced to its record. */}
+      {systemFiles.length > 0 && (
+        <section className="space-y-2 border-t pt-5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t("documents.systemFiles.title")}
+            </h3>
+            <TypeBadge label={String(systemFiles.length)} />
+          </div>
+          <ul className="divide-y rounded-md border">
+            {systemFiles.map((file, index) => {
+              const key = `s:${file.id}`;
+              return (
+                <li key={file.id ?? index} className="flex items-center gap-2 px-3 py-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm" title={file.file_name}>
+                      {file.file_name}
+                    </p>
+                    <SourceTag source={file} onOpen={() => onOpenSource(file)} />
+                  </div>
+                  <Button
+                    variant={previewing === key ? "secondary" : "ghost"}
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                    title={t("filePreview.preview")}
+                    aria-pressed={previewing === key}
+                    onClick={() => onPreview(key)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                    title={t("documents.download")}
+                    disabled={savingFile === (file.id ?? "")}
+                    disabledReason={savingFile === (file.id ?? "") ? t("documents.downloading") : undefined}
+                    onClick={() => void saveSystemFile(file)}
+                  >
+                    {savingFile === (file.id ?? "") ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4" />
+                    )}
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
       <section className="space-y-2 border-t pt-5">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-sm font-semibold text-foreground">
@@ -1475,7 +1698,9 @@ function DocumentDetailBody({
               {document.versions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                    {t("documents.versions.empty")}
+                    {systemFiles.length > 0
+                      ? t("documents.versions.emptyWithSystemFiles")
+                      : t("documents.versions.empty")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -1504,12 +1729,12 @@ function DocumentDetailBody({
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-right">
                       <Button
-                        variant={previewing === version.id ? "secondary" : "ghost"}
+                        variant={previewing === `v:${version.id}` ? "secondary" : "ghost"}
                         size="icon"
                         className="h-8 w-8"
                         title={t("filePreview.preview")}
-                        aria-pressed={previewing === version.id}
-                        onClick={() => onPreview(version)}
+                        aria-pressed={previewing === `v:${version.id}`}
+                        onClick={() => onPreview(`v:${version.id}`)}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>

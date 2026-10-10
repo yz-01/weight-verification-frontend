@@ -17,13 +17,13 @@ const EOCD = 0x06054b50;
 const CENTRAL = 0x02014b50;
 const LOCAL = 0x04034b50;
 
-interface ZipEntry {
+export interface ZipEntry {
   method: number;
   compressedSize: number;
   localOffset: number;
 }
 
-function zipEntries(bytes: Uint8Array): Map<string, ZipEntry> {
+export function zipEntries(bytes: Uint8Array): Map<string, ZipEntry> {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let end = -1;
   for (let at = bytes.length - 22; at >= Math.max(0, bytes.length - 22 - 0xffff); at -= 1) {
@@ -58,7 +58,12 @@ async function inflate(data: Uint8Array): Promise<Uint8Array> {
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
 
-async function zipText(bytes: Uint8Array, entries: Map<string, ZipEntry>, name: string): Promise<string | null> {
+/** One zip entry's bytes, or `null` when the zip has no such entry. */
+export async function zipBytes(
+  bytes: Uint8Array,
+  entries: Map<string, ZipEntry>,
+  name: string,
+): Promise<Uint8Array | null> {
   const entry = entries.get(name);
   if (!entry) return null;
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -70,12 +75,21 @@ async function zipText(bytes: Uint8Array, entries: Map<string, ZipEntry>, name: 
   if (entry.method === 0) data = raw;
   else if (entry.method === 8) data = await inflate(raw);
   else throw new Error(`unsupported zip method ${entry.method}`);
-  return new TextDecoder().decode(data);
+  return data;
+}
+
+export async function zipText(
+  bytes: Uint8Array,
+  entries: Map<string, ZipEntry>,
+  name: string,
+): Promise<string | null> {
+  const data = await zipBytes(bytes, entries, name);
+  return data === null ? null : new TextDecoder().decode(data);
 }
 
 /* ------------------------------------------------------------------ xml */
 
-interface XmlNode {
+export interface XmlNode {
   name: string;
   attrs: Record<string, string>;
   children: XmlNode[];
@@ -139,7 +153,7 @@ export function parseXml(source: string): XmlNode {
   return root;
 }
 
-function* walk(node: XmlNode, name: string): Generator<XmlNode> {
+export function* walk(node: XmlNode, name: string): Generator<XmlNode> {
   for (const child of node.children) {
     if (child.name === name) yield child;
     yield* walk(child, name);
@@ -151,7 +165,7 @@ function first(node: XmlNode, name: string): XmlNode | undefined {
 }
 
 /** An attribute by its local name, whatever namespace prefix it carries. */
-function attribute(node: XmlNode, name: string): string | undefined {
+export function attribute(node: XmlNode, name: string): string | undefined {
   if (name in node.attrs) return node.attrs[name];
   for (const [key, value] of Object.entries(node.attrs)) {
     if (localName(key) === name) return value;

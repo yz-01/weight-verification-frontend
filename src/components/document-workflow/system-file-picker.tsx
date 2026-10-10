@@ -218,12 +218,7 @@ export function SystemFilePicker({
                     }}
                   >
                     <span className="flex aspect-[4/3] w-full items-center justify-center bg-muted/40">
-                      {row.thumbnail_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element -- the server's watermarked copy; sizes vary per file.
-                        <img loading="lazy" decoding="async" src={row.thumbnail_url} alt="" className="h-full w-full object-cover" draggable={false} />
-                      ) : (
-                        <DocumentFileIcon name={row.file_name} />
-                      )}
+                      <TileImage file={row} />
                     </span>
                     {ticked && (
                       <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -325,5 +320,27 @@ export function SystemFilePicker({
         )}
       </section>
     </div>
+  );
+}
+
+/**
+ * A tile's picture: a photograph's stamped copy filling the tile, a PDF's
+ * first page shown whole (2026-10-10), or the file's type icon - also when
+ * the picture cannot be loaded.
+ */
+function TileImage({ file }: { file: SystemFile }) {
+  const [failed, setFailed] = useState(false);
+  if (!file.thumbnail_url || failed) return <DocumentFileIcon name={file.file_name} />;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- the server's watermarked copy or first page; sizes vary per file.
+    <img
+      loading="lazy"
+      decoding="async"
+      src={file.thumbnail_url}
+      alt=""
+      className={cn("h-full w-full", file.kind === "PHOTO" ? "object-cover" : "bg-card object-contain object-top")}
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
   );
 }

@@ -15,6 +15,7 @@ import type {
   DocumentRecord,
   DocumentSubcategory,
   DocumentSubcategoryPayload,
+  DocumentSystemFileInfo,
   DocumentVersion,
   SystemFile,
   WorkflowStep,
@@ -143,10 +144,15 @@ export async function updateDocument(
   return document;
 }
 
+/**
+ * Add a file to a document - a new version, or one more file beside the
+ * others; a document picked from the system takes them too (2026-10-10).
+ */
 export async function uploadDocumentVersion(
   id: string,
   file: File,
   note: string,
+  { quiet = false }: { quiet?: boolean } = {},
 ): Promise<DocumentVersion> {
   const body = new FormData();
   body.append("file", file);
@@ -155,7 +161,7 @@ export async function uploadDocumentVersion(
     `/api/documents/${id}/upload_version/`,
     body,
   );
-  toastSuccess("documents.toast.versionUploaded");
+  if (!quiet) toastSuccess("documents.toast.versionUploaded");
   return version;
 }
 
@@ -204,23 +210,29 @@ export function searchSystemFiles(query: ListQuery): Promise<Paginated<SystemFil
   return api.list<SystemFile>("/api/documents/search_system_files/", query);
 }
 
-/** File picked system files into a category - as references, not copies (Q23). */
+/**
+ * File picked system files into a category - as references, not copies (Q23).
+ * The files picked together become one document (2026-10-10); the answer is
+ * that document, as a one-row list.
+ */
 export async function addSystemFiles(payload: AddSystemFilesPayload): Promise<DocumentRecord[]> {
   const rows = await api.post<DocumentRecord[]>("/api/documents/add_system_files/", payload);
   toastSuccess("documents.toast.systemFilesAdded");
   return rows;
 }
 
-/** The file a system-file document points at, to show in the page. */
-export function systemFileObjectUrl(documentId: string): Promise<string> {
+/** One file a document holds from the system, to show in the page. */
+export function systemFileObjectUrl(documentId: string, file?: DocumentSystemFileInfo): Promise<string> {
   return fetchObjectUrl(`/api/documents/${documentId}/open_system_file/`, {
-    query: { inline: "1" },
+    query: file?.id ? { inline: "1", file: file.id } : { inline: "1" },
   });
 }
 
-export function downloadSystemFile(document: DocumentRecord): Promise<void> {
+export function downloadSystemFile(document: DocumentRecord, file?: DocumentSystemFileInfo): Promise<void> {
+  const chosen = file ?? document.system_file ?? null;
   return download(`/api/documents/${document.id}/open_system_file/`, {
-    fallbackFilename: document.system_file?.file_name ?? document.title,
+    query: chosen?.id ? { file: chosen.id } : undefined,
+    fallbackFilename: chosen?.file_name ?? document.title,
   });
 }
 
