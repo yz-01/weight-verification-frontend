@@ -4054,7 +4054,7 @@
       "suppliers": "Suppliers",
       "suppliersHint": "One: filled in by itself. Several: the phone offers only these. A scanned supplier QR code always wins.",
       "manufacturers": "Designated manufacturers",
-      "manufacturersHint": "A record made by another manufacturer is flagged 「Not designated」 - a warning, it is not refused.",
+      "manufacturersHint": "Chosen from the supplier list. A record made by another manufacturer is flagged 「Not designated」 - a warning, it is not refused.",
       "search": "Type to search",
       "noneChosen": "None chosen",
       "what": {
@@ -8050,7 +8050,7 @@
       "documentAmountTypeHint": "If the amount was not read, type the total from the delivery order (optional).",
       "autoFilledFromCategory": "Filled in from the category",
       "supplierLimited": "Only the suppliers set for this category",
-      "manufacturer": "Manufacturer",
+      "manufacturer": "Named manufacturer (MR)",
       "chooseColumnFirst": "Choose the category first"
     },
     "materialEvidence": {
@@ -9875,7 +9875,7 @@
       "original_quantity": "Original quantity",
       "correction_reason": "Reason for correction",
       "assigned_reviewer": "Submitted to",
-      "manufacturer": "Manufacturer",
+      "manufacturer": "Named manufacturer (MR)",
       "trips_progress": "Loads checked / planned",
       "trip_checked": "Load checked",
       "trip_waiting": "Load waiting for check",
@@ -10244,7 +10244,7 @@
       "equipmentEntry": "Equipment entry",
       "equipmentExit": "Equipment exit",
       "targetReport": "Targets and achievement",
-      "manufacturers": "Manufacturers",
+      "manufacturers": "Named manufacturer (MR)",
       "equipmentOperatorHours": "Equipment operator hours",
       "technical": "Technical management",
       "permits": "Permit to work"
@@ -11720,7 +11720,7 @@
         "OCR": "Read from the delivery order",
         "MANUAL": "Entered by a person"
       },
-      "manufacturer": "Manufacturer"
+      "manufacturer": "Named manufacturer (MR)"
     },
     "locationCaptured": "Location captured",
     "locationMissing": "No location",
@@ -11828,7 +11828,7 @@
         "reference": "No.",
         "doNo": "DO No.",
         "plate": "Lorry plate",
-        "manufacturer": "Manufacturer",
+        "manufacturer": "Named manufacturer (MR)",
         "returnNote": "Return Note",
         "quantity": "Quantity"
       },
@@ -15815,7 +15815,7 @@
       "assignedReviewer": "Submit to",
       "reassignHistory": "Take-over record",
       "supplier": "Supplier",
-      "manufacturer": "Manufacturer"
+      "manufacturer": "Owner's named manufacturer"
     },
     "action": {
       "view": "View",
@@ -15884,7 +15884,7 @@
       "chooseReviewer": "Choose who approves",
       "projectFirst": "Choose the project first",
       "noReviewers": "Nobody can approve requests on this project yet. Ask your company admin to tick \"Approve or return MR / Other Requests\" on the approver's role in Roles.",
-      "suggestHint": "Optional - head office decides when approving."
+      "suggestHint": "Optional. Only when the owner names a manufacturer - choose it from the supplier list."
     },
     "options": {
       "open": "Material lists",
@@ -15923,7 +15923,7 @@
     "reassignHelp": "Once you take it over, you approve or return it. The first approver no longer can, and the take-over is recorded.",
     "approve": {
       "title": "Approve {reference}",
-      "help": "Approving is the purchase decision: choose who it is bought from and whose make.",
+      "help": "Approving is the purchase decision: choose who it is bought from - and, when the owner names a manufacturer, choose that too from the supplier list.",
       "chooseSupplier": "Choose supplier",
       "confirm": "Approve"
     }
@@ -16005,9 +16005,9 @@
     "to": "to",
     "toLabel": "To date",
     "what": "the supplier list",
-    "allManufacturers": "All manufacturers",
-    "manufacturer": "Manufacturer",
-    "whatManufacturers": "The manufacturer list"
+    "allManufacturers": "All named manufacturers",
+    "manufacturer": "Named manufacturer (MR)",
+    "whatManufacturers": "The supplier list"
   },
   "recordNo": {
     "copy": "Copy {number}",
@@ -16015,46 +16015,29 @@
     "copyFailed": "Could not copy. Hold the number to see it in full."
   },
   "manufacturers": {
-    "title": "Manufacturers",
-    "description": "The factories that make your materials. A category can name the ones the contract allows; anything else is flagged 「Not designated」.",
-    "new": "New manufacturer",
-    "createTitle": "New manufacturer",
-    "editTitle": "Edit manufacturer",
-    "field": {
-      "name": "Manufacturer name",
-      "country": "Country",
-      "isActive": "Active",
-      "sortOrder": "Order",
-      "createdAt": "Added"
-    },
-    "empty": "No manufacturers yet",
-    "what": "The manufacturer list",
-    "duplicate": "That manufacturer is already on the list.",
-    "inUse": "Records already name this manufacturer. Switch it off instead.",
-    "switchedOff": "Switched off",
-    "remove": {
-      "title": "Remove {name}?",
-      "description": "Only a manufacturer no record names can be removed. One already used is switched off instead, so old records keep its name.",
-      "confirm": "Remove"
-    },
-    "toast": {
-      "created": "Manufacturer added",
-      "updated": "Manufacturer updated",
-      "removed": "Manufacturer removed"
-    },
-    "column": "Manufacturer",
+    "title": "Named manufacturer (MR)",
+    "description": "A named manufacturer is a company on the supplier list. Fill it in only when the owner names one in a material request (MR).",
+    "empty": "Not on the supplier list. Ask the office to add it in Supplier records.",
+    "what": "The supplier list",
+    "column": "Named manufacturer (MR)",
     "offList": "Not designated",
     "offListHint": "This category names other manufacturers. It can still be submitted.",
     "picker": {
-      "choose": "Choose manufacturer",
+      "choose": "Choose from the supplier list",
       "none": "Not specified",
       "designated": "Designated",
-      "addNew": "Not on the list? Add it",
-      "newName": "New manufacturer name",
-      "add": "Add",
-      "offline": "Adding a manufacturer needs a connection. Choose one from the list, or leave it empty.",
-      "failed": "The manufacturer could not be added.",
       "fromColumn": "Filled in from the category"
+    },
+    "note": "There is no separate manufacturer list any more. To add or change a manufacturer, add or edit the company in Supplier records. Material In, Material Out, material requests and a category's designated manufacturers all choose from the supplier list.",
+    "goToSuppliers": "Go to Supplier records",
+    "former": {
+      "title": "The former manufacturer list (read-only)",
+      "description": "Each former entry now points to the supplier with the same name (added automatically where there was none). Old records still show the manufacturer's name.",
+      "name": "Former manufacturer",
+      "country": "Country",
+      "supplier": "Now the supplier",
+      "switchedOff": "Switched off",
+      "empty": "There was no former manufacturer list."
     }
   },
   "progressPage": {

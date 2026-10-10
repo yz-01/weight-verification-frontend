@@ -230,16 +230,18 @@ describe("「提交给」 on the request form (D2, Q15)", () => {
   });
 });
 
-describe("approving settles the supplier and the manufacturer (2026-10 D1, D2)", () => {
+describe("approving settles the supplier; the owner's named manufacturer is optional (2026-10 D1, D2; 2026-10-10)", () => {
   beforeEach(() => {
     reader.id = HQ_ONE;
     reader.codes = REVIEW;
   });
 
-  it("puts both pickers beside approve, and holds approve back until both are chosen", () => {
+  it("puts both pickers beside approve, and holds approve back only for the supplier", () => {
     const html = detail(request());
     expect(html).toContain("批准就是采购决定");
-    expect(html).toMatch(/还差这些没填：[^<]*供应商[^<]*制造厂商/);
+    expect(html).toContain("业主指定厂商");
+    expect(html).toMatch(/还差这些没填：供应商"/);
+    expect(html).not.toMatch(/还差这些没填：[^"]*厂商/);
   });
 
   it("starts from what the applicant suggested, so nothing is missing", () => {

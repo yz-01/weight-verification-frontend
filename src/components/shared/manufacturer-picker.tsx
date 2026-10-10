@@ -1,33 +1,29 @@
 "use client";
 
 /**
- * Choose the factory that made the material (2026-10 D1, Q13) - one control
- * for the phone's delivery, return and request forms and the office's
- * approval dialog.
+ * Choose the 指定厂商（MR） - one control for the phone's delivery, return and
+ * request forms and the office's approval dialog (2026-10 D1, Q13; 2026-10-10).
  *
- * - The company's own list, searchable; the category's designated
- *   manufacturers first.
- * - 「名单里没有？新增」 adds one by name without leaving the form; a name
- *   already on the list comes back as that one (the server matches it
- *   ignoring case), so nobody creates 「YKGI」 twice.
- * - A manufacturer the category does not designate is allowed and marked
- *   「非指定厂商」 in orange: a warning, never a refusal.
+ * - The choices are the company's supplier list, searchable: the client's
+ *   「这个厂商也是同样是供应商，只是在MR 业主要求著名订购厂」 - a manufacturer is
+ *   a supplier, named only when the owner requires one. The category's
+ *   designated ones come first.
+ * - Nothing is added from here: a company missing from the list is added on
+ *   the supplier page by the office, like any supplier.
+ * - One the category does not designate is allowed and marked 「非指定厂商」
+ *   in orange: a warning, never a refusal.
  */
 
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus } from "lucide-react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { OptionCombobox, type ComboOption } from "@/components/material-requests/option-combobox";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
-import { ApiError } from "@/interfaces/api";
 import { isOffList } from "@/lib/material-autofill";
 import { cn } from "@/lib/utils";
-import { getManufacturers, quickAddManufacturer } from "@/services/material-setup.service";
+import { getManufacturers } from "@/services/material-setup.service";
 
 const NONE = "__none__";
 
@@ -69,35 +65,53 @@ export function ManufacturerCell({
   );
 }
 
+/**
+ * Whether any row in view names a manufacturer (2026-10-10): the 指定厂商（MR）
+ * column is shown only then - day to day the 供应商 column is what matters.
+ */
+export function anyNamedManufacturer(
+  rows: readonly { manufacturer_name?: string | null }[] | null | undefined,
+): boolean {
+  return (rows ?? []).some((row) => Boolean(row.manufacturer_name));
+}
+
+/** A list's columns without the 指定厂商（MR） one when no row in view names one. */
+export function hideEmptyManufacturerColumn<C>(
+  columns: readonly C[],
+  rows: readonly { manufacturer_name?: string | null }[] | null | undefined,
+): C[] {
+  if (anyNamedManufacturer(rows)) return [...columns];
+  return columns.filter((column) => {
+    const definition = column as { id?: string; accessorKey?: unknown };
+    return definition.accessorKey !== "manufacturer_name" && definition.id !== "manufacturer_name";
+  });
+}
+
 export function ManufacturerPicker({
   value,
   onChange,
   designated = [],
-  allowAdd = true,
   autoFilled = false,
   disabled = false,
+  knownName,
   triggerClassName,
 }: {
   value: string;
   onChange: (id: string) => void;
+  /** The chosen one's name when it is not on the first page of results. */
+  knownName?: string | null;
   /** The category's designated manufacturers, offered first. */
   designated?: readonly DesignatedManufacturer[];
-  /** 「名单里没有？新增」 - on for the forms, off where only the list may be used. */
-  allowAdd?: boolean;
   /** The category filled this in; say so under the picker. */
   autoFilled?: boolean;
   disabled?: boolean;
   triggerClassName?: string;
 }) {
   const t = useTranslations("manufacturers");
-  const qc = useQueryClient();
   const [term, setTerm] = useState("");
   const search = useDebounce(term.trim(), 300);
-  const [newName, setNewName] = useState("");
-  const [addError, setAddError] = useState("");
-  // Names remembered from a quick add, so the button shows the new one before
-  // the list is fetched again.
-  const [added, setAdded] = useState<{ id: string; name: string } | null>(null);
+  // The chosen one's name, remembered when it scrolls off a searched page.
+  const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
   const list = useQuery({
     queryKey: ["manufacturers", "picker", search],
     queryFn: () =>
@@ -119,37 +133,19 @@ export function ManufacturerPicker({
   const selectedLabel =
     designated.find((row) => row.id === value)?.name ??
     rows.find((row) => row.id === value)?.name ??
-    (added && added.id === value ? added.name : undefined);
-
-  const quickAdd = useMutation({
-    mutationFn: (name: string) => quickAddManufacturer(name),
-    onSuccess: (row) => {
-      setAddError("");
-      setNewName("");
-      setAdded({ id: row.id, name: row.name });
-      onChange(row.id);
-      void qc.invalidateQueries({ queryKey: ["manufacturers"] });
-    },
-    onError: (reason) =>
-      setAddError(reason instanceof ApiError ? reason.message : t("picker.failed")),
-  });
-  const add = () => {
-    setAddError("");
-    // A manufacturer is a row other people pick, so it is not invented
-    // offline and reconciled later - two workers would add it twice.
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      setAddError(t("picker.offline"));
-      return;
-    }
-    quickAdd.mutate(newName.trim());
-  };
+    (picked && picked.id === value ? picked.name : undefined) ??
+    (value ? knownName ?? undefined : undefined);
   const offList = isOffList({ manufacturer_options: designated }, value);
 
   return (
     <div className="space-y-1.5">
       <OptionCombobox
         value={value || NONE}
-        onChange={(next) => onChange(next === NONE ? "" : next)}
+        onChange={(next) => {
+          const row = rows.find((option) => option.id === next);
+          if (row) setPicked({ id: row.id, name: row.name });
+          onChange(next === NONE ? "" : next);
+        }}
         options={options}
         onSearch={setTerm}
         selectedLabel={selectedLabel}
@@ -169,33 +165,6 @@ export function ManufacturerPicker({
           <OffListBadge />
           {t("offListHint")}
         </p>
-      )}
-      {allowAdd && !disabled && (
-        <details>
-          <summary className="cursor-pointer text-xs text-muted-foreground">{t("picker.addNew")}</summary>
-          <div className="mt-2 flex items-center gap-2">
-            <Input
-              aria-label={t("picker.newName")}
-              placeholder={t("picker.newName")}
-              value={newName}
-              onChange={(event) => setNewName(event.target.value)}
-              className="h-10 flex-1"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              // Not `requires`: an empty box here is not a field the
-              // surrounding form is missing - the manufacturer is optional.
-              disabledReason={!newName.trim() ? t("picker.newName") : undefined}
-              disabled={quickAdd.isPending || !newName.trim()}
-              onClick={add}
-            >
-              {quickAdd.isPending ? <Loader2 className="animate-spin" /> : <Plus />}
-              {t("picker.add")}
-            </Button>
-          </div>
-          {addError && <p role="alert" className="mt-1 text-xs text-destructive">{addError}</p>}
-        </details>
       )}
     </div>
   );

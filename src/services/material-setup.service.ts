@@ -8,8 +8,8 @@
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
+  FormerManufacturer,
   Manufacturer,
-  ManufacturerPayload,
   MaterialUnitOption,
 } from "@/interfaces/contractor";
 import { api, toastSuccess } from "@/services/api-client";
@@ -47,41 +47,15 @@ export async function updateMaterialUnit(
 
 // --------------------------------------------------------- manufacturers
 
+/**
+ * The choices for 指定厂商（MR）: the supplier list, names only (2026-10-10).
+ * A manufacturer is a supplier; there is no second list to keep.
+ */
 export function getManufacturers(query: ListQuery = {}): Promise<Paginated<Manufacturer>> {
   return api.list<Manufacturer>("/api/manufacturers/get_manufacturers/", query);
 }
 
-export async function createManufacturer(payload: ManufacturerPayload): Promise<Manufacturer> {
-  const row = await api.post<Manufacturer>("/api/manufacturers/create_manufacturer/", payload);
-  toastSuccess("manufacturers.toast.created");
-  return row;
-}
-
-export async function updateManufacturer(
-  id: string,
-  payload: Partial<ManufacturerPayload>,
-): Promise<Manufacturer> {
-  const row = await api.patch<Manufacturer>(
-    `/api/manufacturers/${id}/update_manufacturer/`,
-    payload,
-  );
-  toastSuccess("manufacturers.toast.updated");
-  return row;
-}
-
-export async function deleteManufacturer(id: string): Promise<void> {
-  await api.delete(`/api/manufacturers/${id}/delete_manufacturer/`);
-  toastSuccess("manufacturers.toast.removed");
-}
-
-/**
- * Add one from a picker by name alone (D1 「选的时候可以顺手新增」). A name
- * already on the list comes back as that row, so a retry never duplicates.
- */
-export function quickAddManufacturer(name: string): Promise<Manufacturer> {
-  return api.post<Manufacturer>(
-    "/api/manufacturers/quick_add_manufacturer/",
-    { name },
-    { silent: true },
-  );
+/** The retired manufacturer list, read-only, with the supplier each entry became. */
+export function getFormerManufacturers(): Promise<FormerManufacturer[]> {
+  return api.get<FormerManufacturer[]>("/api/manufacturers/get_former_list/");
 }

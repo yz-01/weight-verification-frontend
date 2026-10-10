@@ -689,13 +689,16 @@ function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
   const rows: Array<[string, React.ReactNode]> = [
     [t("receipts.field.deliveryNoteNo"), receipt.delivery_note_no],
     [t("receipts.field.supplier"), receipt.supplier_name],
-    // Whose make (2026-10 D1), with 「非指定厂商」 when the category names others.
-    [
-      t("receipts.field.manufacturer"),
-      receipt.manufacturer_name
-        ? `${receipt.manufacturer_name}${receipt.manufacturer_off_list ? ` · ${t("manufacturers.offList")}` : ""}`
-        : "",
-    ],
+    // 指定厂商（MR） (2026-10 D1), with 「非指定厂商」 when the category names
+    // others - only when the delivery names one (2026-10-10).
+    ...(receipt.manufacturer_name
+      ? ([
+          [
+            t("receipts.field.manufacturer"),
+            `${receipt.manufacturer_name}${receipt.manufacturer_off_list ? ` · ${t("manufacturers.offList")}` : ""}`,
+          ],
+        ] as Array<[string, React.ReactNode]>)
+      : []),
     [t("receipts.field.materialName"), receipt.material_name],
     [t("receipts.field.quantity"), `${receipt.quantity} ${unitName(receipt.unit, receipt.unit_label)}`],
     [t("receipts.field.vehiclePlate"), receipt.vehicle_plate],
