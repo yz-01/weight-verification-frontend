@@ -42,6 +42,15 @@ const MINE: QueryKey = ["my-submissions"];
  * otherwise.
  */
 const CHAT: QueryKey = ["record-conversation"];
+/**
+ * The bell's count (and the field phone's to-do number under it). Deciding a
+ * record closes everybody's card about it on the server - the office's
+ * 「N 件事情等你处理」 strip included - and the bell's list re-reads itself
+ * when this number moves, so a card somebody else just settled leaves the
+ * strip now rather than at the next 30-second poll (2026-10-10). One grouped
+ * query on the server.
+ */
+const CARDS: QueryKey = ["notifications", "outstanding-count"];
 /** Where a moving lorry or worker is drawn: maps, tracking, live positions. */
 const POSITIONS: QueryKey[] = [
   ["dispatches", "detail"],
@@ -80,6 +89,7 @@ export const REALTIME_FAMILY_KEYS: Readonly<Record<string, readonly QueryKey[]>>
   "approval.": [
     ["approvals"], APPROVAL_QUEUE, BADGES, ["consultant-applications"], ["consultant-application"],
     ["consultant-dashboard"], ["material-requests"], ["sundry-claims"], ["claims"], ["settlements"], MINE, CHAT,
+    CARDS,
   ],
   "safety.": [
     ["safety"], ["safety-incidents"], ["safety-incident"], ["incident-threads"], ["incident-thread"],
@@ -90,22 +100,25 @@ export const REALTIME_FAMILY_KEYS: Readonly<Record<string, readonly QueryKey[]>>
   ],
   "deduction.": [["deductions"], ["settlements"], ["incoming"], ["weigh-sessions"]],
   "partnership.": [["partnerships"], ["projects"], ["recyclers"], ["recycling-sites"]],
-  "receipt.": [["receipts"], ["archive-queue"], ["category-records"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
-  "field_task.": [["field-tasks"], ["field-staff", "tasks"], ["field-staff", "task"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
+  "receipt.": [["receipts"], ["archive-queue"], ["category-records"], APPROVAL_QUEUE, BADGES, MINE, CHAT, CARDS],
+  "field_task.": [
+    ["field-tasks"], ["field-staff", "tasks"], ["field-staff", "task"], APPROVAL_QUEUE, BADGES, MINE, CHAT, CARDS,
+  ],
   "equipment.": [
     ["site-equipment"], ["equipment-movements"], ["equipment-summary"], ["equipment-hours"],
-    APPROVAL_QUEUE, BADGES, MINE, CHAT,
+    APPROVAL_QUEUE, BADGES, MINE, CHAT, CARDS,
   ],
   "progress.": [
     ["site-progress"], ["site-progress-summary"], ["progress-summaries"], ["progress-photos"],
     ["daily-reports"], ["construction-phases"], APPROVAL_QUEUE, BADGES, MINE, CHAT,
   ],
-  "material_outgoing.": [["material-outgoing"], ["waste-outgoing"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
-  "material_request.": [["material-requests"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
-  "disposal.": [["site-disposals"], ["waste-outgoing"], APPROVAL_QUEUE, BADGES, MINE, CHAT],
+  "material_outgoing.": [["material-outgoing"], ["waste-outgoing"], APPROVAL_QUEUE, BADGES, MINE, CHAT, CARDS],
+  "material_request.": [["material-requests"], APPROVAL_QUEUE, BADGES, MINE, CHAT, CARDS],
+  "disposal.": [["site-disposals"], ["waste-outgoing"], APPROVAL_QUEUE, BADGES, MINE, CHAT, CARDS],
   // `record.<kind>.message` / `record.<kind>.closed` (2026-10-09): someone
-  // said something on a record, or the office archived it and its chat closed.
-  "record.": [CHAT, ["record-closure"], ["archive-queue"], MINE],
+  // said something on a record, or it ended (archived, rejected, cancelled,
+  // paid) and its chat closed - and its cards with it.
+  "record.": [CHAT, ["record-closure"], ["archive-queue"], MINE, CARDS],
   "notification.created": [
     ["notifications"], ["notification-records"], ["admin-notifications"],
     ["contractor-dashboard", "banner-notifications"], BADGES,

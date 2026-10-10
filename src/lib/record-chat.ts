@@ -121,7 +121,15 @@ export function parseChatParam(
 }
 
 /** Why a finished record's conversation takes no more messages (D-278). */
-export type ConversationClosed = "" | "archived" | "paid" | "decided";
+export type ConversationClosed = "" | "archived" | "paid" | "decided" | "rejected" | "cancelled";
+
+/** The sentence said in place of the composer, one per reason. */
+export type ConversationClosedLine =
+  | "recordChat.closedArchived"
+  | "recordChat.closedPaid"
+  | "recordChat.closedDecided"
+  | "recordChat.closedRejected"
+  | "recordChat.closedCancelled";
 
 /**
  * The line shown instead of the composer, or `null` while it is open.
@@ -133,10 +141,14 @@ export type ConversationClosed = "" | "archived" | "paid" | "decided";
  */
 export function conversationClosedLine(
   closed: string | null | undefined,
-): "recordChat.closedArchived" | "recordChat.closedPaid" | "recordChat.closedDecided" | null {
+): ConversationClosedLine | null {
   if (!closed) return null;
   if (closed === "paid") return "recordChat.closedPaid";
   // A material request, once approved or returned (C05).
   if (closed === "decided") return "recordChat.closedDecided";
+  // Ended outright by its module (2026-10-10, Lucas: 「我材料进场直接判不合格
+  // 为什么还可以聊天的？」): judged 不合格, rejected, not accepted.
+  if (closed === "rejected") return "recordChat.closedRejected";
+  if (closed === "cancelled") return "recordChat.closedCancelled";
   return "recordChat.closedArchived";
 }
