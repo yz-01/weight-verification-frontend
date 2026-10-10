@@ -6196,15 +6196,27 @@
     },
     "empty": "此项目和日期范围没有符合的记录。",
     "filter": {
-      "allCategories": "全部照片来源",
       "allProjects": "全部有权限的项目",
-      "allUploaders": "全部上传人员",
-      "category": "照片来源",
       "dateFrom": "开始日期",
       "dateTo": "结束日期",
-      "keyword": "文件或来源关键字",
+      "keyword": "关键字",
       "project": "项目",
-      "uploader": "上传人员"
+      "uploader": "上传人员",
+      "keywordPlaceholder": {
+        "progress": "施工分类、备注或提交人",
+        "safety": "编号、标题或负责人",
+        "consultant": "申请编号、类型或顾问",
+        "attendance": "人员名字",
+        "equipment": "设备编号、车牌、DO 或操作员",
+        "recycling": "单号、车牌、DO 或外部公司",
+        "schedule": "WBS 编号或任务名称",
+        "target": "目标名称",
+        "photos": "文件名、来源或上传人员",
+        "documents": "文件编号、标题或关键字"
+      },
+      "noMatch": "没有符合的选项",
+      "submittedBy": "提交人",
+      "supplier": "供应商"
     },
     "history": {
       "empty": "尚未导出报表。",
@@ -6251,7 +6263,8 @@
       "documents": "项目资料报表"
     },
     "what": {
-      "filterOptions": "筛选选项（项目、照片来源、上传人员）"
+      "filterOptions": "筛选选项",
+      "projects": "项目列表"
     }
   },
   "crm": {
@@ -12334,7 +12347,8 @@
       "clear": "清除筛选",
       "dateFrom": "起始日期",
       "dateTo": "结束日期",
-      "project": "项目"
+      "project": "项目",
+      "keywordPlaceholder": "单号、车牌、DO、材料或供应商"
     },
     "receipts": {
       "byMaterial": "材料排行",

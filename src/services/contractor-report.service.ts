@@ -2,6 +2,7 @@ import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   ContractorReportData,
   ContractorReportExportRecord,
+  ContractorReportFilterOptions,
   ContractorReportFilters,
   ContractorReportOptions,
   ContractorReportType,
@@ -24,6 +25,17 @@ export async function getReportCategories(query: {
     query as unknown as ListQuery,
   );
   return data.results;
+}
+
+/** One report's filter bar: its filters and their choices (2026-10-10). */
+export function getReportFilters(query: {
+  report_type: ContractorReportType;
+  project?: string;
+}): Promise<ContractorReportFilterOptions> {
+  return api.get(
+    "/api/contractor-reports/get_report_filters/",
+    query as unknown as ListQuery,
+  );
 }
 
 export function getContractorReport(

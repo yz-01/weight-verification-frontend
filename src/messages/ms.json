@@ -6196,15 +6196,27 @@
     },
     "empty": "Tiada rekod sepadan dengan projek dan tarikh ini.",
     "filter": {
-      "allCategories": "Semua sumber foto",
       "allProjects": "Semua projek yang dibenarkan",
-      "allUploaders": "Semua pemuat naik",
-      "category": "Sumber foto",
       "dateFrom": "Dari",
       "dateTo": "Hingga",
-      "keyword": "Kata kunci fail atau sumber",
+      "keyword": "Kata kunci",
       "project": "Projek",
-      "uploader": "Dimuat naik oleh"
+      "uploader": "Dimuat naik oleh",
+      "keywordPlaceholder": {
+        "progress": "Kategori, nota atau penghantar",
+        "safety": "Nombor, tajuk atau orang bertanggungjawab",
+        "consultant": "No. permohonan, jenis atau perunding",
+        "attendance": "Nama pekerja",
+        "equipment": "No. peralatan, plat, DO atau operator",
+        "recycling": "Rujukan, plat, DO atau syarikat",
+        "schedule": "Kod WBS atau nama tugasan",
+        "target": "Nama sasaran",
+        "photos": "Nama fail, sumber atau pemuat naik",
+        "documents": "No. dokumen, tajuk atau kata kunci"
+      },
+      "noMatch": "Tiada pilihan yang sepadan",
+      "submittedBy": "Dihantar oleh",
+      "supplier": "Pembekal"
     },
     "history": {
       "empty": "Belum ada laporan dieksport.",
@@ -6251,7 +6263,8 @@
       "documents": "Laporan rekod projek"
     },
     "what": {
-      "filterOptions": "Pilihan penapis (projek, sumber foto, pemuat naik)"
+      "filterOptions": "pilihan penapis",
+      "projects": "senarai projek"
     }
   },
   "crm": {
@@ -12334,7 +12347,8 @@
       "clear": "Kosongkan tapisan",
       "dateFrom": "Dari",
       "dateTo": "Hingga",
-      "project": "Projek"
+      "project": "Projek",
+      "keywordPlaceholder": "Nombor, plat, DO, bahan atau pembekal"
     },
     "receipts": {
       "byMaterial": "Bahan teratas",

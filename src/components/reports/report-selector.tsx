@@ -416,7 +416,7 @@ function CategoryLevel({
  * One level's rows, worded for the reader: photo sources by their module's
  * name, the four application types (Q2) in the reader's language.
  */
-function useReportLevel(
+export function useReportLevel(
   reportType: ContractorReportType,
   project?: string,
   parent?: string,

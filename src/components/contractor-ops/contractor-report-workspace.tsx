@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileClock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -14,11 +14,15 @@ import {
   useReportLevelName,
 } from "@/components/reports/report-selector";
 import { ExportButton } from "@/components/shared/export-button";
-import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FilterField, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import { opensInPlace } from "@/components/shared/in-place-record";
 import { useRecordOpener } from "@/components/shared/record-opener";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
+import {
+  ContractorReportFilterFields,
+  ReportClearButton,
+} from "@/components/reports/report-filter-bar";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -51,7 +55,12 @@ import {
   reportRowTarget,
   reportValueKey,
 } from "@/lib/report-preview";
-import { groupPhotoSources, photoSourceValue } from "@/lib/report-menu";
+import { photoSourceValue } from "@/lib/report-menu";
+import {
+  ALL_REPORT_FILTERS,
+  PROJECT_BOUND_FILTERS,
+  REPORT_FILTERS,
+} from "@/lib/report-filters";
 import {
   exportContractorReport,
   getContractorReport,
@@ -163,8 +172,13 @@ export function ContractorReportWorkspace({
   const now = new Date();
   // Project, dates and the report menu's levels live in the address (D6):
   // 【选择报表】 opens a report at a category by writing them there, and keeps
-  // the reader's project and dates when they move to another report.
-  const list = useListQuery(["project", "date_from", "date_to", "category", "subcategory"]);
+  // the reader's project and dates when they move to another report. So do
+  // the filter bar's choices and keyword (2026-10-10): the preview and the
+  // export both read them from there.
+  const list = useListQuery([
+    "project", "date_from", "date_to", "category", "subcategory", "keyword",
+    ...ALL_REPORT_FILTERS,
+  ]);
   const topBar = useCurrentProject();
   const dateFrom =
     list.filters.date_from ?? dateValue(new Date(now.getFullYear(), now.getMonth(), 1));
@@ -178,13 +192,12 @@ export function ContractorReportWorkspace({
   const subcategory = list.filters.subcategory ?? "";
   const setDateFrom = (value: string) => list.setFilter("date_from", value || undefined);
   const setDateTo = (value: string) => list.setFilter("date_to", value || undefined);
-  // Another project's categories are not this one's: a new project starts
-  // from the whole report.
+  // Another project's categories, machines and plans are not this one's: a
+  // new project starts from the whole report.
   const setProject = (value: string) =>
     list.setFilters({
       project: value === "all" ? undefined : value,
-      category: undefined,
-      subcategory: undefined,
+      ...Object.fromEntries(PROJECT_BOUND_FILTERS.map((key) => [key, undefined])),
     });
   const level = useReportLevelName(
     reportType,
@@ -192,8 +205,6 @@ export function ContractorReportWorkspace({
     category || undefined,
     subcategory || undefined,
   );
-  const [actor, setActor] = useState("all");
-  const [keyword, setKeyword] = useState("");
   const options = useQuery({
     queryKey: ["contractor-reports", "options"],
     queryFn: getContractorReportOptions,
@@ -206,11 +217,13 @@ export function ContractorReportWorkspace({
       project: project === "all" ? undefined : project,
       category: category || undefined,
       subcategory: subcategory || undefined,
-      actor: reportType === "photos" && actor !== "all" ? actor : undefined,
-      keyword:
-        reportType === "photos" && keyword.trim() ? keyword.trim() : undefined,
+      keyword: list.filters.keyword,
+      // Only this report's own filters (`lib/report-filters`).
+      ...Object.fromEntries(
+        REPORT_FILTERS[reportType].map((key) => [key, list.filters[key]]),
+      ),
     }),
-    [actor, category, dateFrom, dateTo, keyword, project, reportType, subcategory],
+    [category, dateFrom, dateTo, list.filters, project, reportType, subcategory],
   );
   const report = useQuery({
     queryKey: ["contractor-reports", "report", filters],
@@ -236,20 +249,6 @@ export function ContractorReportWorkspace({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["contractor-reports", "history"] }),
   });
-  // The same module names as the menu's 照片来源 level.
-  const photoSources = useMemo(
-    () =>
-      groupPhotoSources(
-        (options.data?.photo_categories ?? []).map((row) => ({
-          value: row.value,
-          label: row.label,
-          project_code: "",
-          has_children: false,
-        })),
-        (key) => tRoot(key),
-      ),
-    [options.data?.photo_categories, tRoot],
-  );
   const previewWidth = (report.data?.columns ?? []).reduce(
     (total, key) => total + reportColumnWidth(key),
     PHOTO_COLUMN_WIDTH,
@@ -322,32 +321,42 @@ export function ContractorReportWorkspace({
         }
         subtitle={t(`description.${reportType}`)}
       />
-      <section className="surface-panel grid gap-3 rounded-xl p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-[minmax(14rem,1fr)_11rem_11rem_auto]">
+      {/* One bar for every report (2026-10-10, 图11): the project, the
+          period, the report's own filters and a keyword, wrapping on a phone;
+          「清除筛选」 puts all of it back. */}
+      <section
+        data-slot="filter-bar"
+        className="surface-panel flex flex-wrap items-end gap-3 rounded-xl px-4 py-3 sm:px-6 sm:py-4 max-sm:[&>*]:w-full"
+      >
         {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
         {!topBar.active && (
-        <label className="space-y-1.5 text-sm font-medium">
-          {t("filter.project")}
-          <Select value={project} onValueChange={setProject}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("filter.allProjects")}</SelectItem>
-              {(options.data?.projects ?? []).map((row) => (
-                <SelectItem key={row.id} value={row.id}>
-                  {row.code} - {row.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </label>
+          <FilterField label={t("filter.project")} className="sm:w-64">
+            <Select value={project} onValueChange={setProject}>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("filter.allProjects")}</SelectItem>
+                {(options.data?.projects ?? []).map((row) => (
+                  <SelectItem key={row.id} value={row.id}>
+                    {row.code} - {row.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
         )}
-        <label className="space-y-1.5 text-sm font-medium">
-          {t("filter.dateFrom")}
-          <Input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} />
-        </label>
-        <label className="space-y-1.5 text-sm font-medium">
-          {t("filter.dateTo")}
-          <Input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} />
-        </label>
+        <FilterField label={t("filter.dateFrom")} className="sm:w-40">
+          <Input type="date" value={dateFrom} max={dateTo} onChange={(event) => setDateFrom(event.target.value)} />
+        </FilterField>
+        <FilterField label={t("filter.dateTo")} className="sm:w-40">
+          <Input type="date" value={dateTo} min={dateFrom} onChange={(event) => setDateTo(event.target.value)} />
+        </FilterField>
+        <ContractorReportFilterFields
+          reportType={reportType}
+          project={list.filters.project}
+          values={{ ...list.filters, category: category || undefined }}
+          onChange={list.setFilters}
+        />
+        <ReportClearButton active={list.hasFilters} onClear={list.clearFilters} />
         <div className="flex flex-wrap items-end gap-2 max-sm:[&>*]:flex-1">
           {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
           <ExportButton
@@ -357,50 +366,12 @@ export function ContractorReportWorkspace({
             title={t(`type.${reportType}`)}
           />
         </div>
-        {reportType === "photos" ? (
-          <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-3">
-            <label className="space-y-1.5 text-sm font-medium">
-              {t("filter.category")}
-              <Select
-                value={category || "all"}
-                onValueChange={(value) =>
-                  list.setFilter("category", value === "all" ? undefined : value)
-                }
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("filter.allCategories")}</SelectItem>
-                  {photoSources.map((row) => (
-                    <SelectItem key={row.value} value={row.value}>{row.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </label>
-            <label className="space-y-1.5 text-sm font-medium">
-              {t("filter.uploader")}
-              <Select value={actor} onValueChange={setActor}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("filter.allUploaders")}</SelectItem>
-                  {(options.data?.photo_uploaders ?? []).map((row) => (
-                    <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </label>
-            <label className="space-y-1.5 text-sm font-medium">
-              {t("filter.keyword")}
-              <Input value={keyword} onChange={(event) => setKeyword(event.target.value)} />
-            </label>
-          </div>
-        ) : reportType === "target" ? (
-          <div className="sm:col-span-2 lg:col-span-4">
-            <p className="text-xs leading-5 text-muted-foreground">
-              {t("targetReport.filterHelp")}
-            </p>
-          </div>
-        ) : null}
-        <QueryFailedNote query={options} what={t("what.filterOptions")} className="sm:col-span-2 lg:col-span-4" />
+        {reportType === "target" && (
+          <p className="w-full text-xs leading-5 text-muted-foreground">
+            {t("targetReport.filterHelp")}
+          </p>
+        )}
+        <QueryFailedNote query={options} what={t("what.projects")} className="w-full" />
       </section>
 
       <section className="surface-panel overflow-hidden rounded-xl">

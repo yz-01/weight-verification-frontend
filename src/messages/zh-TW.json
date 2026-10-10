@@ -6196,15 +6196,27 @@
     },
     "empty": "此項目和日期範圍沒有符合的記錄。",
     "filter": {
-      "allCategories": "全部照片來源",
       "allProjects": "全部有權限的項目",
-      "allUploaders": "全部上傳人員",
-      "category": "照片來源",
       "dateFrom": "開始日期",
       "dateTo": "結束日期",
-      "keyword": "文件或來源關鍵字",
+      "keyword": "關鍵字",
       "project": "項目",
-      "uploader": "上傳人員"
+      "uploader": "上傳人員",
+      "keywordPlaceholder": {
+        "progress": "施工分類、備註或提交人",
+        "safety": "編號、標題或負責人",
+        "consultant": "申請編號、類型或顧問",
+        "attendance": "人員名字",
+        "equipment": "設備編號、車牌、DO 或操作員",
+        "recycling": "單號、車牌、DO 或外部公司",
+        "schedule": "WBS 編號或任務名稱",
+        "target": "目標名稱",
+        "photos": "文件名、來源或上傳人員",
+        "documents": "文件編號、標題或關鍵字"
+      },
+      "noMatch": "沒有符合的選項",
+      "submittedBy": "提交人",
+      "supplier": "供應商"
     },
     "history": {
       "empty": "尚未導出報表。",
@@ -6251,7 +6263,8 @@
       "documents": "項目資料報表"
     },
     "what": {
-      "filterOptions": "篩選選項（項目、照片來源、上傳人員）"
+      "filterOptions": "篩選選項",
+      "projects": "項目列表"
     }
   },
   "crm": {
@@ -12334,7 +12347,8 @@
       "clear": "清除篩選",
       "dateFrom": "起始日期",
       "dateTo": "結束日期",
-      "project": "項目"
+      "project": "項目",
+      "keywordPlaceholder": "單號、車牌、DO、材料或供應商"
     },
     "receipts": {
       "byMaterial": "材料排行",
