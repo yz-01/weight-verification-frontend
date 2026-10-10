@@ -178,10 +178,8 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
   const gone = pkg.error instanceof ApiError && (pkg.error.isNotFound || pkg.error.isForbidden);
   const closed = data !== undefined && data.state !== "DRAFT";
 
-  const end = useCallback(() => {
+  const clear = useCallback(() => {
     remember(null);
-    const fromLink = searchParams.get(PACK_PARAM);
-    if (fromLink) setEndedId(fromLink.trim());
     if (searchParams.has(PACK_PARAM)) {
       const next = new URLSearchParams(searchParams.toString());
       next.delete(PACK_PARAM);
@@ -189,6 +187,12 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     }
   }, [pathname, router, searchParams]);
+
+  const end = useCallback(() => {
+    const fromLink = searchParams.get(PACK_PARAM);
+    if (fromLink) setEndedId(fromLink.trim());
+    clear();
+  }, [clear, searchParams]);
 
   // What the address brought is remembered with its name and project once
   // read, so the next module - reached from the menu, without `?pack=` -
@@ -201,8 +205,8 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
 
   // Confirmed or deleted since it was opened: nothing left to add to.
   useEffect(() => {
-    if (gone || closed) end();
-  }, [closed, end, gone]);
+    if (gone || closed) clear();
+  }, [clear, closed, gone]);
 
   const wantedId = wanted?.id;
   const wantedName = wanted?.name ?? "";
