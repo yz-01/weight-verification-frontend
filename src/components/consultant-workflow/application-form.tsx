@@ -11,6 +11,7 @@ import {
   mainGroups,
   moreGroups,
 } from "@/components/consultant-workflow/application-type-layout";
+import { ConsultantFormSourceField } from "@/components/consultant-workflow/consultant-own-form";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useDismissDialog, useFinishForm } from "@/components/shared/dialog-navigation";
@@ -62,6 +63,8 @@ const emptyForm: ConsultantApplicationPayload = {
   project: "",
   workflow: "",
   template_version: null,
+  // B, the consultant's own form (2026-10-10); null is the standard form.
+  consultant_form_version: null,
   schedule_task: null,
   source_field_task: null,
   application_type: "",
@@ -100,6 +103,7 @@ function payloadFromApplication(
     project: row.project,
     workflow: row.workflow ?? "",
     template_version: row.template_version,
+    consultant_form_version: row.consultant_form_version ?? null,
     schedule_task: row.schedule_task,
     source_field_task: row.source_field_task,
     application_type: row.application_type,
@@ -398,6 +402,9 @@ function ConsultantApplicationEditor({
       ...old,
       consultant: consultantId,
       consultant_organization: grant?.organization ?? "",
+      // Another firm's form is not this one's (B).
+      consultant_form_version:
+        grant?.organization === old.consultant_organization ? old.consultant_form_version : null,
     }));
   };
   const saveError = save.isError
@@ -551,7 +558,7 @@ function ConsultantApplicationEditor({
           <FieldWrapper label={t("field.project")} required>
             {id || sourceTask.data ? <Input value={initial?.project_name ?? sourceTask.data?.project_name ?? ""} readOnly className="bg-muted/40" /> : <ConsultantProjectPicker value={form.project} onChange={onProjectChange} />}
           </FieldWrapper>
-          <FieldWrapper label={t("field.applicationType")} required><OptionField category="APPLICATION_TYPE" value={form.application_type} grouped={grouped} onChange={(value) => set("application_type", value)} placeholder={t("field.chooseType")} keptLabel={initial?.application_type === form.application_type ? initial?.application_type_label : null} /></FieldWrapper>
+          <FieldWrapper label={t("field.applicationType")} required><OptionField category="APPLICATION_TYPE" value={form.application_type} grouped={grouped} onChange={(value) => setForm((old) => ({ ...old, application_type: value, consultant_form_version: value === old.application_type ? old.consultant_form_version : null }))} placeholder={t("field.chooseType")} keptLabel={initial?.application_type === form.application_type ? initial?.application_type_label : null} /></FieldWrapper>
           <CustomValue optionId={form.application_type} options={grouped.get("APPLICATION_TYPE") ?? []} value={form.application_type_custom ?? ""} onChange={(value) => set("application_type_custom", value)} label={t("field.customApplicationType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "APPLICATION_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "APPLICATION_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
           <QueryFailedNote query={options} what={t("what.applicationOptions")} className="sm:col-span-2" />
           {main.has("classification") && classificationFields}
@@ -593,11 +600,16 @@ function ConsultantApplicationEditor({
                   const template = (templates.data?.results ?? []).find((row) =>
                     row.versions.some((version) => version.id === value),
                   );
-                  setForm((old) => ({
-                    ...old,
-                    template_version: value,
-                    application_type: template?.application_type || old.application_type,
-                  }));
+                  setForm((old) => {
+                    const applicationType = template?.application_type || old.application_type;
+                    return {
+                      ...old,
+                      template_version: value,
+                      application_type: applicationType,
+                      consultant_form_version:
+                        applicationType === old.application_type ? old.consultant_form_version : null,
+                    };
+                  });
                 }}
                 disabled={!form.project || templates.isLoading}
               >
@@ -645,6 +657,26 @@ function ConsultantApplicationEditor({
             {t("form.noConsultantGrant")}
           </p>
         )}
+        {/* 表格来源 (2026-10-10): only when this consultant has their own form
+            for this project and type; otherwise the standard form, as before. */}
+        <div className="mt-4 grid gap-4 empty:hidden sm:grid-cols-2">
+          <ConsultantFormSourceField
+            project={form.project}
+            consultantOrganization={form.consultant_organization}
+            applicationType={form.application_type}
+            value={form.consultant_form_version ?? null}
+            kept={
+              initial?.consultant_form
+                ? {
+                    version_id: initial.consultant_form.version_id,
+                    name: initial.consultant_form.name,
+                    version: initial.consultant_form.version,
+                  }
+                : null
+            }
+            onChange={(value) => set("consultant_form_version", value)}
+          />
+        </div>
       </FormSection>
 
       <FormSection title={t("form.section.content")}>

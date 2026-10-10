@@ -206,14 +206,19 @@ export interface ApplicationApprovalAction {
   actor_name: string;
   actor_role: string;
   acted_at: string;
-  signature_snapshot: string;
+  /** Empty when the consultant signed by uploading their signed form (B). */
+  signature_snapshot: string | null;
   stamp_snapshot: string | null;
+  /** `APPROVAL_PIN`, or one of the signed-form methods (B, 2026-10-10). */
+  authentication_method?: string;
 }
 
 export interface ApplicationArchiveEntry {
   id: string;
-  kind: "APPLICATION" | "APPROVAL" | "FINAL_REPORT";
+  kind: "APPLICATION" | "APPROVAL" | "FINAL_REPORT" | "CONSULTANT_FORM";
   title: string;
+  /** For `CONSULTANT_FORM`: see `ConsultantFormArchiveSnapshot`. */
+  snapshot?: Record<string, unknown>;
   file: string | null;
   sha256: string;
   archived_at: string;
@@ -381,6 +386,14 @@ export interface ConsultantApplication extends RecordedBy {
   final_report_sha256: string;
   verification_code: string;
   is_locked: boolean;
+  /**
+   * B, the consultant's own form (2026-10-10): the blank version chosen, or
+   * null for the form MSE Trace draws (A, the default).
+   */
+  consultant_form_version?: string | null;
+  consultant_form?: ApplicationConsultantForm | null;
+  /** The filled form, and the signed final versions the consultant uploaded. */
+  form_files?: ApplicationFormFile[];
   attachments: ApplicationAttachment[];
   evidence_links: ApplicationEvidenceLink[];
   review_steps: ApplicationReviewStep[];
@@ -461,6 +474,8 @@ export interface ConsultantApplicationPayload {
   project: string;
   workflow: string;
   template_version?: string | null;
+  /** B: the consultant's own form version; null for the standard form. */
+  consultant_form_version?: string | null;
   schedule_task?: string | null;
   source_field_task?: string | null;
   /**
@@ -558,4 +573,102 @@ export interface ApplicationVerification {
   finalized_at: string;
   sha256: string;
   verification_code: string;
+}
+
+/** B. 顾问自有表格: one uploaded blank form (2026-10-10). */
+export interface ConsultantFormTemplateVersion {
+  id: string;
+  template: string;
+  version: number;
+  original_name: string;
+  content_type: string;
+  byte_size: number;
+  sha256: string;
+  change_note: string;
+  /** What the browser may show it as; null for Word / Excel (read here). */
+  preview_type: string | null;
+  created_by_name: string | null;
+  created_at: string;
+}
+
+/** B. 顾问自有表格 in 「RFI 表格模板」: what it is bound to, and its versions. */
+export interface ConsultantFormTemplate {
+  id: string;
+  name: string;
+  /** null: every project of the company. */
+  project: string | null;
+  project_name: string | null;
+  consultant_organization: string;
+  consultant_organization_name: string;
+  /** The application type's code; empty: every type. */
+  application_type_code: string;
+  description: string;
+  current_version: number;
+  is_active: boolean;
+  versions: ConsultantFormTemplateVersion[];
+  application_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** A consultant's own form an application may be filled in on. */
+export interface ConsultantFormChoice {
+  version_id: string;
+  form_id: string;
+  name: string;
+  version: number;
+  original_name: string;
+  preview_type: string | null;
+  for_project: boolean;
+  application_type_code: string;
+}
+
+/** The consultant's own form an application is filled in on. */
+export interface ApplicationConsultantForm {
+  id: string;
+  name: string;
+  version_id: string;
+  version: number;
+  original_name: string;
+  content_type: string;
+  byte_size: number;
+  sha256: string;
+  preview_type: string | null;
+  /** A newer blank form exists; this application keeps its own. */
+  newer_version: number | null;
+}
+
+export interface ApplicationFormFile {
+  id: string;
+  /** FILLED by the applicant; SIGNED, the consultant's signed final version. */
+  kind: "FILLED" | "SIGNED";
+  original_name: string;
+  content_type: string;
+  byte_size: number;
+  sha256: string;
+  preview_type: string | null;
+  approval_action: string | null;
+  uploaded_by_name: string | null;
+  created_at: string;
+}
+
+/** What the archive keeps of a B application (`CONSULTANT_FORM`). */
+export interface ConsultantFormArchiveSnapshot {
+  form?: {
+    name: string;
+    version: number;
+    consultant_organization: string;
+    blank_form: { name: string; sha256: string };
+  };
+  filled_form?: { name: string; sha256: string; uploaded_by: string; uploaded_at: string | null } | null;
+  final_versions?: Array<{ name: string; sha256: string; uploaded_by: string; uploaded_at: string | null }>;
+  decisions?: Array<{
+    step: string;
+    decision: ApplicationApprovalAction["decision"];
+    approver: string;
+    approver_role: string;
+    acted_at: string | null;
+    remarks: string;
+    signed_with: string;
+  }>;
 }

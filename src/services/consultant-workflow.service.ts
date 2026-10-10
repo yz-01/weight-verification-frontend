@@ -8,6 +8,9 @@ import type {
   ConsultantApplication,
   ConsultantDashboardData,
   ConsultantApplicationPayload,
+  ConsultantFormChoice,
+  ConsultantFormTemplate,
+  ConsultantFormTemplateVersion,
   ConsultantAccountPayload,
   ConsultantGrantPayload,
   ConsultantGrantOption,
@@ -25,7 +28,7 @@ import type {
   WorkflowReviewerChoices,
 } from "@/interfaces/consultant-workflow";
 import type { DocumentRecord } from "@/interfaces/document-workflow";
-import { api, download, toastSuccess } from "@/services/api-client";
+import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getApplicationOptions = (
   project: string,
@@ -292,12 +295,29 @@ export const reviewConsultantApplication = async (
   payload: {
     decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT";
     remarks: string;
-    approval_pin: string;
+    /** Required for the e-signature; for a signed form when one is set up. */
+    approval_pin?: string;
+    /**
+     * B, the consultant's own form (2026-10-10): `SIGNED_FORM` signs with
+     * the uploaded `signed_form` instead of the e-signature.
+     */
+    signing?: "ESIGNATURE" | "SIGNED_FORM";
+    signed_form?: File | null;
   },
 ) => {
+  const { signed_form: signedForm, ...fields } = payload;
+  let body: unknown = fields;
+  if (signedForm) {
+    const data = new FormData();
+    for (const [key, value] of Object.entries(fields)) {
+      if (value !== undefined && value !== "") data.append(key, value);
+    }
+    data.append("signed_form", signedForm);
+    body = data;
+  }
   const row = await api.post<ConsultantApplication>(
     `/api/consultant-applications/${id}/act/`,
-    payload,
+    body,
   );
   toastSuccess("consultantWorkflow.toast.decisionSaved");
   return row;
@@ -630,3 +650,128 @@ export const verifyConsultantApplication = (code: string) =>
   api.get<ApplicationVerification>(
     `/api/consultant-applications/verify/${encodeURIComponent(code)}/`,
   );
+
+// ---- B. 顾问自有表格 (2026-10-10) ------------------------------------------
+//
+// The consultant's own blank form, kept in 「RFI 表格模板」 beside the standard
+// templates (A). Files are fetched through the API with the session, never by
+// their storage address.
+
+export const getConsultantForms = (query: ListQuery = {}) =>
+  api.list<ConsultantFormTemplate>(
+    "/api/consultant-application-templates/get_consultant_forms/",
+    query,
+  );
+
+export const getConsultantFormOrganizations = () =>
+  api.get<Array<{ id: string; name: string }>>(
+    "/api/consultant-application-templates/get_consultant_form_organizations/",
+  );
+
+/** The consultant's own forms an application on these three may use. */
+export const getConsultantFormChoices = (query: {
+  project: string;
+  consultant_organization: string;
+  application_type: string;
+}) =>
+  api.get<ConsultantFormChoice[]>(
+    "/api/consultant-application-templates/get_consultant_form_choices/",
+    query,
+  );
+
+export const createConsultantForm = async (payload: {
+  name: string;
+  project: string | null;
+  consultant_organization: string;
+  application_type_code: string;
+  description: string;
+  change_note: string;
+  file: File;
+}) => {
+  const data = new FormData();
+  data.append("name", payload.name);
+  if (payload.project) data.append("project", payload.project);
+  data.append("consultant_organization", payload.consultant_organization);
+  data.append("application_type_code", payload.application_type_code);
+  data.append("description", payload.description);
+  data.append("change_note", payload.change_note);
+  data.append("file", payload.file);
+  const row = await api.post<ConsultantFormTemplate>(
+    "/api/consultant-application-templates/create_consultant_form/",
+    data,
+  );
+  toastSuccess("consultantWorkflow.ownForm.toast.formSaved");
+  return row;
+};
+
+export const updateConsultantForm = async (
+  id: string,
+  payload: Partial<
+    Pick<
+      ConsultantFormTemplate,
+      "name" | "project" | "consultant_organization" | "application_type_code" | "description" | "is_active"
+    >
+  >,
+) => {
+  const row = await api.patch<ConsultantFormTemplate>(
+    `/api/consultant-application-templates/${id}/update_consultant_form/`,
+    payload,
+  );
+  toastSuccess("consultantWorkflow.ownForm.toast.formSaved");
+  return row;
+};
+
+export const addConsultantFormVersion = async (id: string, file: File, changeNote: string) => {
+  const data = new FormData();
+  data.append("file", file);
+  data.append("change_note", changeNote);
+  const row = await api.post<ConsultantFormTemplateVersion>(
+    `/api/consultant-application-templates/${id}/add_consultant_form_version/`,
+    data,
+  );
+  toastSuccess("consultantWorkflow.ownForm.toast.versionSaved");
+  return row;
+};
+
+/** One version of a blank form, to show in the page (`FilePreview`). */
+export const consultantFormObjectUrl = (formId: string, versionId: string) =>
+  fetchObjectUrl(
+    `/api/consultant-application-templates/${formId}/download_consultant_form/`,
+    { query: { version: versionId, inline: "1" } },
+  );
+
+export const downloadConsultantForm = (formId: string, versionId: string, filename: string) =>
+  download(`/api/consultant-application-templates/${formId}/download_consultant_form/`, {
+    query: { version: versionId },
+    fallbackFilename: filename,
+  });
+
+/** The filled-in form, uploaded while the application is a draft. */
+export const uploadApplicationFormFile = async (id: string, file: File) => {
+  const data = new FormData();
+  data.append("file", file);
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/upload_form_file/`,
+    data,
+  );
+  toastSuccess("consultantWorkflow.ownForm.toast.filledUploaded");
+  return row;
+};
+
+/** `{ blank: true }`: the application's blank form; else one of its form files. */
+export type ApplicationFormFileRef = { blank: true } | { file: string };
+
+function formFileQuery(ref: ApplicationFormFileRef) {
+  return "blank" in ref ? { blank: "1" } : { file: ref.file };
+}
+
+export const applicationFormFileObjectUrl = (id: string, ref: ApplicationFormFileRef) =>
+  fetchObjectUrl(`/api/consultant-applications/${id}/download_form_file/`, {
+    query: { ...formFileQuery(ref), inline: "1" },
+  });
+
+export const downloadApplicationFormFile = (id: string, ref: ApplicationFormFileRef, filename: string) =>
+  download(`/api/consultant-applications/${id}/download_form_file/`, {
+    query: formFileQuery(ref),
+    fallbackFilename: filename,
+  });
