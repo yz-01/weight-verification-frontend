@@ -10045,7 +10045,7 @@
       "externalAccess": "Akses luar",
       "fieldTasks": "Tugasan tapak",
       "financialReports": "Laporan kewangan",
-      "gateScanning": "Imbasan pintu masuk",
+      "gateScanning": "Imbas di pintu",
       "geofenceSettings": "Tetapan geofence",
       "hazardRectifications": "Pembetulan bahaya / EHS",
       "immutableAudit": "Rekod kekal",
@@ -10127,7 +10127,7 @@
       "serviceSearch": "Carian perkhidmatan",
       "settingsActivity": "Rekod tetapan",
       "settingsAudit": "Rekod tetapan",
-      "siteAccessPasses": "Pas akses tapak",
+      "siteAccessPasses": "Pas akses",
       "siteDisposals": "Pelupusan tapak",
       "siteEquipment": "Pergerakan peralatan",
       "siteGps": "GPS kakitangan tapak",
@@ -10788,11 +10788,11 @@
       "trouble": "Import yang gagal biasanya kehilangan pemetaan: WBS, nama tugas dan mula dirancang diperlukan, serta tamat dirancang atau tempoh."
     },
     "site_access": {
-      "what": "Pas tapak - siapa boleh masuk dan bila - dan meja pintu yang mengimbasnya.",
+      "what": "Akses tapak: siapa boleh masuk dan bila (pas akses), pengawal mengimbas di pintu untuk merekod masuk dan keluar (imbas di pintu), foto di pintu (rekod foto pintu), dan laporan mesin pintu automatik (log mesin pintu).",
       "who": "Pemegang site_access.view; mengeluarkan dan membatalkan memerlukan site_access.manage.",
-      "need": "Pas memerlukan projek, tujuan masuk, masa sah dari dan hingga, dan nama; pas kenderaan juga memerlukan nombor plat. Meja pintu memerlukan pengimbas atau kelayakan yang ditampal.",
+      "need": "Pas memerlukan projek, tujuan masuk, masa sah dari dan hingga, dan nama; pas kenderaan juga memerlukan nombor plat. Imbasan di pintu hanya perlukan kamera telefon; pengimbas genggam ialah pilihan untuk komputer tetap di pintu.",
       "then": "Pas berkuat kuasa hanya selepas kelulusan, dan yang dibatalkan berhenti serta-merta.",
-      "trouble": "Imbasan yang ditolak menyatakan sebabnya dalam peristiwa peranti - luput, tidak diluluskan, atau bukan untuk tapak ini."
+      "trouble": "Jika imbasan di pintu ditolak, skrin menyatakan sebabnya - luput, tidak diluluskan, atau bukan untuk tapak ini. Penolakan oleh mesin pintu dijelaskan dalam log mesin pintu."
     },
     "site_disposals": {
       "what": "Membersihkan sampah dan serpihan dari tapak - kerja yang bukan muatan boleh kitar semula.",
@@ -13062,11 +13062,11 @@
       "approveTitle": "Luluskan pas akses ini?",
       "createHelp": "Pas kekal menunggu sehingga pengurus yang diberi kuasa meluluskannya.",
       "createTitle": "Mohon pas akses tapak",
-      "deviceEvents": "Acara peranti",
+      "deviceEvents": "Log mesin pintu",
       "editHelp": "Hanya pas yang menunggu boleh dibetulkan. Projek tidak boleh ditukar.",
       "editTitle": "Sunting pas",
       "empty": "Tiada pas akses sepadan dengan pilihan ini.",
-      "gate": "Pengimbas pintu",
+      "gate": "Imbas di pintu",
       "integrationReader": "Pembaca pintu bersambung",
       "newPass": "Pas baharu",
       "noEvents": "Pas ini belum digunakan di pintu.",
@@ -13077,12 +13077,18 @@
       "rejectTitle": "Tolak pas akses ini?",
       "revokeBody": "Kod QR akan berhenti berfungsi serta-merta. Catat sebab untuk audit.",
       "revokeTitle": "Batalkan pas akses ini?",
-      "subtitle": "Mohon, luluskan dan imbas permit pekerja, pelawat dan kenderaan dalam satu aliran kerja.",
+      "subtitle": "Permohonan dan kelulusan pas, imbasan di pintu dan foto pintu - semuanya di sini.",
       "timeline": "Sejarah masuk dan keluar",
       "title": "Akses tapak",
       "unknownGate": "Pintu tidak dinyatakan",
       "defaultsFailed": "Tetapan lalai akses tapak gagal dimuatkan. Cuba lagi dahulu.",
-      "gateRecords": "Rekod foto pintu"
+      "gateRecords": "Rekod foto pintu",
+      "tabHelp": {
+        "passes": "Siapa boleh masuk ke tapak dan bila. Mohon, luluskan dan batalkan pas di sini, dan muat turun kod QR untuk dihantar.",
+        "gate": "Pengawal mengimbas kod QR pada pas dengan telefon di pintu; sistem merekod siapa masuk dan siapa keluar.",
+        "gate-records": "Ambil foto apa-apa yang berlaku di pintu (contohnya lori tanpa pas keluar) dan maklumkan orang yang berkaitan.",
+        "devices": "Jika palang automatik, kamera nombor plat atau pengimbas muka disambungkan, setiap kali mesin membenarkan atau menolak seseorang direkodkan di sini bersama sebabnya. Tanpa mesin ini, senarai ini kekal kosong."
+      }
     },
     "action": {
       "approve": "Luluskan",
@@ -13155,12 +13161,24 @@
       "denied": "Ditolak",
       "device": "Peranti",
       "direction": "Arah",
-      "empty": "Belum ada acara yang dilaporkan oleh peranti.",
+      "empty": "Belum ada rekod mesin pintu. Rekod muncul selepas palang automatik, kamera nombor plat atau pengimbas muka disambungkan.",
       "gate": "Pintu",
       "occurredAt": "Masa berlaku",
       "pass": "Pas",
       "reason": "Sebab",
-      "result": "Keputusan"
+      "result": "Keputusan",
+      "reasonCode": {
+        "AUTHORIZED": "Pas sah - dibenarkan",
+        "UNKNOWN_CREDENTIAL": "Pas tiada dalam sistem",
+        "PASS_REVOKED": "Pas dibatalkan",
+        "PASS_PENDING": "Pas masih menunggu kelulusan",
+        "PASS_REJECTED": "Pas ditolak",
+        "PASS_NOT_APPROVED": "Pas tidak diluluskan",
+        "PASS_NOT_ACTIVE": "Pas belum sah",
+        "PASS_EXPIRED": "Pas tamat tempoh",
+        "RECOGNITION_FAILED": "Mesin tidak dapat mengecam",
+        "DIRECTION_CONFLICT": "Masuk/keluar tidak sepadan (cth. masuk semula tanpa keluar)"
+      }
     },
     "direction": {
       "AUTO": "Masuk / keluar automatik",
@@ -13260,24 +13278,24 @@
       "cameraHelp": "Halakan kamera belakang pada kod QR bercetak. Kod akan diisi secara automatik selepas dikesan.",
       "cameraScan": "Imbas dengan kamera",
       "cameraTitle": "Imbas QR pintu",
-      "cameraUnsupported": "Pelayar ini tidak dapat membuka kamera. Muat naik imej QR atau guna medan di bawah.",
+      "cameraUnsupported": "Pelayar ini tidak dapat membuka kamera. Muat naik imej QR, atau guna “Cara lain” di bawah.",
       "getLocation": "Dapatkan GPS pintu",
       "imageError": "Tiada kod QR yang boleh dibaca ditemui dalam imej ini.",
       "locationError": "GPS tidak dapat diperoleh. Benarkan lokasi tepat dan cuba lagi.",
       "locationReady": "GPS tersedia",
       "photo": "Ambil foto pintu",
       "photoReady": "Foto pintu sedia",
-      "qrPlaceholder": "Imbas atau tampal kod",
-      "qrReady": "Kod QR sedia. Semak arah, foto pintu dan GPS sebelum merekod pergerakan.",
-      "readyHint": "Telefon dan tablet biasanya menggunakan kamera. Pengimbas USB hanyalah pilihan untuk komputer meja pondok pengawal.",
+      "qrPlaceholder": "Imbas dengan pengimbas genggam, atau tampal kod",
+      "qrReady": "Kod QR dibaca. Semak arah, kemudian tekan “Rekod pergerakan”.",
       "record": "Rekod pergerakan",
       "recordError": "Pergerakan pintu tidak dapat direkodkan.",
       "retryCamera": "Cuba semula kamera",
-      "scannerHint": "Pengimbas USB ialah peranti pilihan yang berfungsi seperti papan kekunci: pilih medan ini, imbas QR bercetak dan kod akan muncul di sini.",
-      "subtitle": "Pilih imbasan kamera, muat naik imej QR, atau guna pengimbas USB pilihan / tampal kod.",
+      "scannerHint": "Pengimbas genggam hanya untuk komputer tetap di pintu: sambungkan, klik kotak ini dan imbas - kod akan ditaip sendiri. Anda juga boleh menampal kod. Guna telefon? Abaikan bahagian ini.",
+      "subtitle": "Imbas kod QR pada pas dengan kamera telefon - itu sahaja.",
       "title": "Rekod pergerakan pintu",
       "uploadImage": "Muat naik imej QR",
-      "usbOrPaste": "Pengimbas USB atau tampal"
+      "otherWays": "Cara lain: pengimbas genggam / tampal kod",
+      "qrCode": "Kod QR pas"
     },
     "geofence": {
       "noPointsYet": "Belum ada titik ditanda",
@@ -13488,7 +13506,7 @@
       "OTHER": "Lain-lain"
     },
     "gateRecords": {
-      "title": "Rekod foto pintu pagar",
+      "title": "Rekod foto pintu",
       "subtitle": "Foto yang diambil pengawal di pintu pagar, dipautkan kepada pas jika ada, bersama orang yang diminta melihat.",
       "new": "Rekod pintu baharu",
       "newTitle": "Rekod foto pintu baharu",

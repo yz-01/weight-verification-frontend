@@ -10045,7 +10045,7 @@
       "externalAccess": "External access",
       "fieldTasks": "Site tasks",
       "financialReports": "Financial reports",
-      "gateScanning": "Gate scanning",
+      "gateScanning": "Gate scan",
       "geofenceSettings": "Geofence settings",
       "hazardRectifications": "Hazard rectification / EHS",
       "immutableAudit": "Permanent records",
@@ -10127,7 +10127,7 @@
       "serviceSearch": "Service search",
       "settingsActivity": "Setting records",
       "settingsAudit": "Setting records",
-      "siteAccessPasses": "Site access passes",
+      "siteAccessPasses": "Access passes",
       "siteDisposals": "Site disposal",
       "siteEquipment": "Equipment movement",
       "siteGps": "Site personnel GPS",
@@ -10788,11 +10788,11 @@
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
     },
     "site_access": {
-      "what": "Site passes - who may come in and when - and the gate desk that scans them.",
+      "what": "Site access: who may enter and when (access passes), the guard scanning at the gate to record in and out (gate scan), photos taken at the gate (gate photo records), and what automatic gate machines report (gate machine log).",
       "who": "Holders of site_access.view; issuing and revoking need site_access.manage.",
-      "need": "A pass needs the project, the purpose of entry, valid-from and valid-until times and a name; a vehicle pass also needs the plate. The gate desk needs a scanner or a pasted credential - a card number, a plate or a system number.",
-      "then": "A pass takes effect only after approval, and a revoked one stops scanning immediately.",
-      "trouble": "A scan that comes back denied says why in the device events - expired, not approved, or not for this site."
+      "need": "A pass needs the project, the purpose of entry, valid-from and valid-until times and a name; a vehicle pass also needs the plate. Scanning at the gate needs only a phone camera; a scanner gun is an option for a fixed gate computer.",
+      "then": "A pass takes effect only after approval, and a revoked one stops working immediately.",
+      "trouble": "When a gate scan is refused, the screen says why - expired, not approved, or not for this site. Refusals by gate machines are explained in the gate machine log."
     },
     "site_disposals": {
       "what": "Clearing rubbish and debris off site - the job that is not a recyclable load.",
@@ -13062,11 +13062,11 @@
       "approveTitle": "Approve this access pass?",
       "createHelp": "The pass stays pending until an authorised manager checks and approves it.",
       "createTitle": "Request site access pass",
-      "deviceEvents": "Device events",
+      "deviceEvents": "Gate machine log",
       "editHelp": "Only a pending pass can be corrected. The project cannot be changed.",
       "editTitle": "Edit pass",
       "empty": "No access pass matches this selection.",
-      "gate": "Gate scanner",
+      "gate": "Gate scan",
       "integrationReader": "Connected gate reader",
       "newPass": "New pass",
       "noEvents": "This pass has not been used at a gate.",
@@ -13077,12 +13077,18 @@
       "rejectTitle": "Reject this access pass?",
       "revokeBody": "The QR code will stop working immediately. Record the reason for the audit trail.",
       "revokeTitle": "Revoke this access pass?",
-      "subtitle": "Request, approve and scan worker, visitor and vehicle permits from one gate workflow.",
+      "subtitle": "Pass requests and approvals, scanning at the gate and gate photos - all in one place.",
       "timeline": "Entry and exit history",
       "title": "Site access",
       "unknownGate": "Gate not named",
       "defaultsFailed": "The site access defaults did not load. Try again first.",
-      "gateRecords": "Gate photo records"
+      "gateRecords": "Gate photo records",
+      "tabHelp": {
+        "passes": "Who may enter the site, and when. Request, approve and revoke passes here, and download the QR code to send.",
+        "gate": "The guard scans the QR code on the pass with a phone at the gate; the system records who came in and who went out.",
+        "gate-records": "Photograph anything that happens at the gate (say, a lorry without a gate pass) and let the right people know.",
+        "devices": "If automatic barriers, number-plate cameras or face readers are connected, every time a machine lets someone in or turns them away is listed here, with the reason. Without such machines this stays empty."
+      }
     },
     "action": {
       "approve": "Approve",
@@ -13155,12 +13161,24 @@
       "denied": "Denied",
       "device": "Device",
       "direction": "Direction",
-      "empty": "No device events have been reported yet.",
+      "empty": "No gate machine records yet. They appear once automatic barriers, number-plate cameras or face readers are connected.",
       "gate": "Gate",
       "occurredAt": "Occurred",
       "pass": "Pass",
       "reason": "Reason",
-      "result": "Result"
+      "result": "Result",
+      "reasonCode": {
+        "AUTHORIZED": "Valid pass - let in",
+        "UNKNOWN_CREDENTIAL": "No such pass in the system",
+        "PASS_REVOKED": "Pass revoked",
+        "PASS_PENDING": "Pass still waiting for approval",
+        "PASS_REJECTED": "Pass was rejected",
+        "PASS_NOT_APPROVED": "Pass not approved",
+        "PASS_NOT_ACTIVE": "Pass not valid yet",
+        "PASS_EXPIRED": "Pass expired",
+        "RECOGNITION_FAILED": "The machine could not recognise it",
+        "DIRECTION_CONFLICT": "In/out does not match (e.g. came in again without going out)"
+      }
     },
     "direction": {
       "AUTO": "Automatic entry / exit",
@@ -13260,24 +13278,24 @@
       "cameraHelp": "Point the rear camera at the printed QR code. The code fills automatically when recognised.",
       "cameraScan": "Scan with camera",
       "cameraTitle": "Scan the gate QR",
-      "cameraUnsupported": "This browser cannot open the camera. Upload a QR image or use the input below.",
+      "cameraUnsupported": "This browser cannot open the camera. Upload a QR image, or use “Other ways” below.",
       "getLocation": "Get gate GPS",
       "imageError": "No readable QR code was found in this image.",
       "locationError": "GPS could not be obtained. Allow precise location access and try again.",
       "locationReady": "GPS ready",
       "photo": "Take gate photo",
       "photoReady": "Gate photo ready",
-      "qrPlaceholder": "Scan or paste code",
-      "qrReady": "QR code ready. Check the direction, gate photo and GPS, then record the movement.",
-      "readyHint": "Camera scanning is intended for phones and tablets. USB scanning is only an optional fixed gate-desk method.",
+      "qrPlaceholder": "Scan with the scanner gun, or paste the code",
+      "qrReady": "QR code read. Check the direction, then press “Record movement”.",
       "record": "Record movement",
       "recordError": "The gate movement could not be recorded.",
       "retryCamera": "Retry camera",
-      "scannerHint": "An optional USB scanner acts like a keyboard: keep this field selected, scan the printed QR, and the code appears here.",
-      "subtitle": "Choose camera scanning, upload a QR image, or use the optional USB scanner / paste box.",
+      "scannerHint": "A scanner gun is only for a fixed computer at the gate: plug it in, click this box and scan - the code types itself in. You can also paste the code. Scanning with a phone? Ignore this.",
+      "subtitle": "Scanning the QR code on the pass with the phone camera is all it takes.",
       "title": "Record gate movement",
       "uploadImage": "Upload QR image",
-      "usbOrPaste": "USB scanner or paste"
+      "otherWays": "Other ways: scanner gun / paste the code",
+      "qrCode": "Pass QR code"
     },
     "geofence": {
       "noPointsYet": "No points marked yet",
