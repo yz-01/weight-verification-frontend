@@ -104,7 +104,11 @@ function ReviewDelivery({
   onReviewed,
 }: {
   receipt: MaterialReceiptDetail;
-  /** Confirmed and archived (D-234): read-only, so nothing to press (C6). */
+  /**
+   * Confirmed and archived (D-234): read-only, so nothing to press (C6) -
+   * once decided. One archived while still 待验收 (possible before
+   * 2026-10-10) still takes its one 验收, then locks like the rest.
+   */
   archived: boolean;
   onReviewed: () => void;
 }) {
@@ -117,6 +121,10 @@ function ReviewDelivery({
   // Turned away at the gate with both signatures (10-02 D08): final, so the
   // office is shown the decision and has nothing left to press.
   const rejectedAtGate = receipt.rejection_source === "SITE";
+  // Lucas 2026-10-10: 「为什么会这样呢？验收不了」 - a delivery archived before
+  // anybody accepted it said 待验收 and offered nothing to press. Acceptance
+  // is a decision recorded afterwards, not evidence, so that one stays open.
+  const locked = archived && status !== "PENDING";
 
   // Said on screen, never swallowed (2026-10 C6): a corrected receipt
   // answered 409 here and the button simply did nothing.
@@ -174,7 +182,7 @@ function ReviewDelivery({
           </p>
         )}
 
-        {archived && !rejectedAtGate && (
+        {locked && !rejectedAtGate && (
           <p className="text-xs text-muted-foreground">{t("receipts.acceptance.archived")}</p>
         )}
         {reviewError && (
@@ -183,7 +191,7 @@ function ReviewDelivery({
           </p>
         )}
 
-        {!rejectedAtGate && !archived && (
+        {!rejectedAtGate && !locked && (
           <>
         {/* One confirming action, and a rejection behind a switch (D-208,
             C-018). The customer's words for why: 「只保留一个开/关控制。开启后，
