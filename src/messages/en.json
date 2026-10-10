@@ -7432,9 +7432,9 @@
       "return_note_required": "Fill in the Return Note before approving.",
       "return_note_locked": "This return has already been decided, so its Return Note can no longer be changed. The latest state is now shown.",
       "equipment_hours_equipment_unavailable": "This machine cannot be chosen (inactive or retired). Choose a machine in use on the site.",
-      "equipment_hours_day_not_found": "This machine has no photo on that day, so there is no end time to enter.",
-      "equipment_hours_end_before_start": "The end time must be after the first photo.",
-      "equipment_hours_end_too_late": "The end time cannot be later than 06:00 the next morning (that is the next shift).",
+      "equipment_hours_day_not_found": "This hours entry could not be found. Refresh and try again.",
+      "equipment_hours_end_before_start": "The end time must be after the start time.",
+      "equipment_hours_end_too_late": "This time overlaps the machine's previous or next photo, or lies in the future.",
       "equipment_profile_incomplete": "Choose this machine's sub class before accepting it.",
       "equipment_not_on_site": "This machine is not on site on this project, so it cannot go out.",
       "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again.",
@@ -16076,42 +16076,58 @@
     "open": "Open the record"
   },
   "equipmentHours": {
-    "subtitle": "One photo when the machine starts, one when it stops: the first photo is the start, the last is the end, and the hours are the time between (no lunch deducted). A night shift is one shift: a photo taken before 06:00 counts in the previous day's shift.",
+    "subtitle": "One photo when the machine starts, one when it stops: each start and its stop is one entry, and its hours are the time between them (no lunch deducted), day or night.",
     "allProjects": "All projects",
     "photoAlt": "Machine photo",
     "photoCount": "{count, plural, one {# photo} other {# photos}}",
     "view": {
-      "day": "By day",
+      "day": "Entries",
       "month": "By month"
+    },
+    "kind": {
+      "START": "Start",
+      "FINISH": "Stop"
     },
     "filter": {
       "from": "From",
       "to": "To",
       "month": "Month",
-      "shown": "Showing {from} to {to} (at most {max} days at a time)."
+      "shown": "Showing {from} to {to} (at most {max} days at a time).",
+      "automatic": "Showing the latest dates with records: {from} to {to}.",
+      "latest": "Back to latest records",
+      "supplier": "Supplier",
+      "allSuppliers": "All suppliers",
+      "equipment": "Equipment",
+      "allEquipment": "All equipment",
+      "search": "Plate / equipment no.",
+      "searchPlaceholder": "Plate or equipment number"
     },
     "field": {
       "date": "Date",
       "equipment": "Equipment",
+      "code": "Equipment no.",
+      "supplier": "Supplier",
       "plate": "Plate number",
       "project": "Project",
       "start": "Start",
       "end": "End",
       "hours": "Hours",
+      "cumulative": "Running total (h)",
       "status": "Status",
       "photos": "Photos",
       "operators": "Photographed by",
-      "reason": "Reason for the end time",
-      "adjustedBy": "End time entered by",
+      "reason": "Reason for the change",
+      "adjustedBy": "Changed by",
       "daysWorked": "Days worked",
+      "sessions": "Entries",
       "totalHours": "Total hours",
-      "missingEndDays": "Days missing a stop photo",
-      "adjustedDays": "Days corrected by the office",
-      "actions": "Actions",
-      "nextDay": "{time} next day"
+      "incomplete": "Missing start / stop",
+      "adjustedCount": "Changed by the office",
+      "actions": "Actions"
     },
     "status": {
       "MISSING_END": "No stop photo",
+      "MISSING_START": "No start photo",
       "ADJUSTED": "Corrected",
       "OK": "OK"
     },
@@ -16120,21 +16136,24 @@
       "summaryTitle": "Total per machine"
     },
     "day": {
-      "empty": "No machine photos in this period."
+      "empty": "No machine hours in this period."
     },
     "month": {
-      "empty": "No machine photos this month.",
+      "empty": "No machine hours this month.",
       "total": "Total"
     },
     "what": {
-      "days": "daily hours",
+      "days": "machine hours",
       "month": "monthly totals"
     },
     "adjust": {
       "add": "Add end time",
       "edit": "Change end time",
-      "help": "Only this day's end time changes. The photos are not touched, and every change is kept in the history. A night shift may end as late as 06:00 the next morning.",
+      "addStart": "Add start time",
+      "help": "Only this entry's end time changes. The photos are not touched, and every change is kept in the history. The end cannot be later than the machine's next photo.",
+      "helpStart": "This entry has only a stop photo; enter the start time so its hours can be counted. The photos are not touched, and every change is kept in the history.",
       "endAt": "End time",
+      "startAt": "Start time",
       "reason": "Reason",
       "reasonPlaceholder": "For example: the operator forgot the stop photo; site diary says 17:30",
       "save": "Save",
@@ -16142,38 +16161,51 @@
     },
     "dialog": {
       "summary": "Start {start} · End {end} · {hours} h",
-      "photos": "Photos of the day"
+      "photos": "Photos"
     },
     "history": {
       "title": "Change history",
       "empty": "No changes by the office yet.",
       "end": "End time set to {end}",
+      "start": "Start time set to {start}",
       "current": "In use",
       "by": "{name} · {at}",
-      "photoEnd": "Last photo taken at {end}"
+      "photoEnd": "Stop photo taken at {end}"
     },
     "toast": {
-      "endSaved": "End time saved"
+      "endSaved": "End time saved",
+      "startSaved": "Start time saved"
     },
     "phone": {
-      "howTo": "Take a photo of the machine when you start it, and another when you stop. The hours run from the first photo to the last.",
+      "howTo": "When you start the machine, choose Start and take a photo; when you stop, choose Stop and take another. Each start and its stop is one entry of hours.",
       "project": "Project",
-      "machine": "Equipment",
+      "supplier": "Supplier",
+      "allSuppliers": "All suppliers",
+      "noSupplier": "No supplier recorded",
+      "suppliedBy": "Supplier: {supplier}",
+      "machine": "Equipment no.",
       "pickMachine": "Choose the machine",
       "machines": "machine list",
       "noMachines": "No machine is registered for this project yet. Ask the office to add it.",
+      "scan": "Scan",
+      "scanTitle": "Scan the QR on the machine",
+      "scanHelp": "Point the camera at the QR code stuck on the machine.",
+      "scanImage": "Read the QR from a photo",
+      "qrNoMatch": "This QR code does not match a machine on this project: {text}",
+      "kind": "Start / Stop",
+      "openSince": "This machine was started at {start} and has not been stopped.",
       "photo": "Machine photo",
       "takePhoto": "Take photo",
       "photoReady": "Photo taken - tap to retake",
       "location": "Location",
       "locationReady": "Location found",
-      "send": "Upload",
+      "send": "Upload {kind} photo",
       "failed": "Upload failed. Please try again.",
       "queued": "Saved on this phone. It uploads by itself when there is signal.",
-      "today": "Today: {count, plural, one {# photo} other {# photos}}, started {start}",
-      "stopHint": "Take another photo when you stop",
-      "soFar": "Up to {end}: {hours} h",
-      "shift": "Shift of {date}: {count, plural, one {# photo} other {# photos}}, started {start}"
+      "started": "Started {start}",
+      "stopHint": "When you stop, choose Stop and take another photo",
+      "soFar": "{start} to {end}: {hours} h",
+      "missingStart": "There is no start photo before this stop photo; the office will enter the start time."
     }
   },
   "theme": {

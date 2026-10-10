@@ -15,16 +15,30 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+/**
+ * The camera QR reader. Built for the supplier's QR; another screen reuses it
+ * with its own words and `raw` to get the code's text as printed (the
+ * operator-hours screen reads the sticker on a machine, 2026-10-10).
+ */
 export function SupplierQrScanner({
   open,
   onClose,
   onDetected,
+  labels,
+  raw = false,
 }: {
   open: boolean;
   onClose: () => void;
   onDetected: (token: string) => void;
+  labels?: { title: string; help: string; image: string };
+  raw?: boolean;
 }) {
   const t = useTranslations("fieldStaffPwa.material");
+  const read = useCallback(
+    (text: string) => (raw ? text.trim() : extractSupplierToken(text)),
+    [raw],
+  );
+  const readRef = useRef(read);
   const commonT = useTranslations("common");
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -38,7 +52,8 @@ export function SupplierQrScanner({
 
   useEffect(() => {
     onDetectedRef.current = onDetected;
-  }, [onDetected]);
+    readRef.current = read;
+  }, [onDetected, read]);
 
   const stop = useCallback(() => {
     controlsRef.current?.stop();
@@ -102,7 +117,7 @@ export function SupplierQrScanner({
           if (!result || detectedRef.current) return;
           detectedRef.current = true;
           stop();
-          onDetectedRef.current(extractSupplierToken(result.getText()));
+          onDetectedRef.current(readRef.current(result.getText()));
         });
         if (!disposed) setStarting(false);
       } catch {
@@ -127,7 +142,7 @@ export function SupplierQrScanner({
     try {
       url = URL.createObjectURL(file);
       const result = await new BrowserQRCodeReader().decodeFromImageUrl(url);
-      onDetectedRef.current(extractSupplierToken(result.getText()));
+      onDetectedRef.current(readRef.current(result.getText()));
     } catch {
       setError(t("qrInvalid"));
     } finally {
@@ -139,8 +154,8 @@ export function SupplierQrScanner({
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("scanTitle")}</DialogTitle>
-          <DialogDescription>{t("scanHelp")}</DialogDescription>
+          <DialogTitle>{labels?.title ?? t("scanTitle")}</DialogTitle>
+          <DialogDescription>{labels?.help ?? t("scanHelp")}</DialogDescription>
         </DialogHeader>
         <div className="relative aspect-[3/4] max-h-[65dvh] overflow-hidden rounded-lg bg-black sm:aspect-[4/3]">
           <video
@@ -177,7 +192,7 @@ export function SupplierQrScanner({
           />
           <Button variant="outline" onClick={() => fileRef.current?.click()}>
             <ImagePlus />
-            {t("scanSupplierQr")}
+            {labels?.image ?? t("scanSupplierQr")}
           </Button>
           {error && (
             <Button variant="outline" onClick={() => setRetry((value) => value + 1)}>

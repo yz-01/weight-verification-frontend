@@ -471,8 +471,13 @@ export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
   kind: "EQUIPMENT_HOURS_PHOTO";
   payload: {
     equipment: string;
-    /** 「名称 · 车牌」, so the queue says which machine is waiting. */
+    /** 「编号 · 名称 · 车牌」, so the queue says which machine is waiting. */
     equipmentLabel: string;
+    /**
+     * 开工 or 收工 (2026-10-10). Absent on a job queued before the choice
+     * existed: the server then works it out from the machine's last photo.
+     */
+    kind?: "START" | "FINISH";
     capturedAt: string;
     clientEventId: string;
     latitude?: string;

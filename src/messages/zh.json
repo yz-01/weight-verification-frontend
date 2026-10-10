@@ -7432,9 +7432,9 @@
       "return_note_required": "请先填写 Return Note 再批准。",
       "return_note_locked": "这笔退场已经审批过，Return Note 不能再修改。已刷新为最新状态。",
       "equipment_hours_equipment_unavailable": "这台设备现在不能选（已停用或已报废），请选工地上在用的设备。",
-      "equipment_hours_day_not_found": "这台设备那天没有照片，没有可以补的结束时间。",
-      "equipment_hours_end_before_start": "结束时间要在第一张照片之后。",
-      "equipment_hours_end_too_late": "结束时间不能晚于第二天早上 06:00（那是下一班）。",
+      "equipment_hours_day_not_found": "找不到这一笔工时记录，请刷新后再试。",
+      "equipment_hours_end_before_start": "结束时间要在开始时间之后。",
+      "equipment_hours_end_too_late": "这个时间和这台设备的上一张或下一张照片重叠了，或者晚于现在。",
       "equipment_profile_incomplete": "先选好这台设备的小类，才能验收。",
       "equipment_not_on_site": "这台设备现在不在这个项目场内，不能退场。",
       "equipment_exit_waiting": "这台设备的退场已经提交，正在等后台验收，不能再提交一次。",
@@ -16076,42 +16076,58 @@
     "open": "打开这一笔"
   },
   "equipmentHours": {
-    "subtitle": "开工拍一张、收工拍一张：第一张是开始，最后一张是结束，相减就是工时（不扣午休）。夜班算同一班：早上 6 点前拍的照片算进前一天那一班。",
+    "subtitle": "开工拍一张、收工拍一张：每一对开工和收工是一笔工时，结束减开始就是工时（不扣午休），不分白天晚上。",
     "allProjects": "全部项目",
     "photoAlt": "设备照片",
     "photoCount": "{count} 张",
     "view": {
-      "day": "按日",
+      "day": "明细",
       "month": "按月"
+    },
+    "kind": {
+      "START": "开工",
+      "FINISH": "收工"
     },
     "filter": {
       "from": "从",
       "to": "到",
       "month": "月份",
-      "shown": "这里显示 {from} 至 {to}（一次最多 {max} 天）。"
+      "shown": "这里显示 {from} 至 {to}（一次最多 {max} 天）。",
+      "automatic": "自动显示最近有记录的日期：{from} 至 {to}。",
+      "latest": "回到最近记录",
+      "supplier": "供应商",
+      "allSuppliers": "全部供应商",
+      "equipment": "设备",
+      "allEquipment": "全部设备",
+      "search": "车牌 / 设备编号",
+      "searchPlaceholder": "输入车牌或设备编号"
     },
     "field": {
       "date": "日期",
       "equipment": "设备",
+      "code": "设备编号",
+      "supplier": "供应商",
       "plate": "车牌号码",
       "project": "项目",
       "start": "开始",
       "end": "结束",
       "hours": "工时（小时）",
+      "cumulative": "累计工时（小时）",
       "status": "状态",
       "photos": "照片",
       "operators": "拍照人",
-      "reason": "补录原因",
-      "adjustedBy": "补录人",
+      "reason": "修改原因",
+      "adjustedBy": "修改人",
       "daysWorked": "工作天数",
+      "sessions": "次数",
       "totalHours": "合计工时（小时）",
-      "missingEndDays": "缺收工天数",
-      "adjustedDays": "后台补录天数",
-      "actions": "操作",
-      "nextDay": "次日 {time}"
+      "incomplete": "缺开工 / 收工",
+      "adjustedCount": "后台修改次数",
+      "actions": "操作"
     },
     "status": {
       "MISSING_END": "缺收工",
+      "MISSING_START": "缺开工",
       "ADJUSTED": "后台已补",
       "OK": "正常"
     },
@@ -16120,21 +16136,24 @@
       "summaryTitle": "每台设备合计"
     },
     "day": {
-      "empty": "这段时间没有设备照片。"
+      "empty": "这段时间没有工时记录。"
     },
     "month": {
-      "empty": "这个月没有设备照片。",
+      "empty": "这个月没有工时记录。",
       "total": "合计"
     },
     "what": {
-      "days": "每日工时",
+      "days": "工时记录",
       "month": "每月合计"
     },
     "adjust": {
       "add": "补结束时间",
       "edit": "改结束时间",
-      "help": "只改这一天的结束时间，照片不会被改动；每次修改都会留下记录。夜班的结束时间可以到第二天早上 06:00。",
+      "addStart": "补开始时间",
+      "help": "只改这一笔的结束时间，照片不会被改动；每次修改都会留下记录。结束时间不能晚于这台设备的下一张照片。",
+      "helpStart": "这一笔只有收工照片，补上开始时间才能算工时。照片不会被改动；每次修改都会留下记录。",
       "endAt": "结束时间",
+      "startAt": "开始时间",
       "reason": "原因",
       "reasonPlaceholder": "例如：操作员忘了收工拍照，按工地日志 17:30 收工",
       "save": "保存",
@@ -16142,38 +16161,51 @@
     },
     "dialog": {
       "summary": "开始 {start} · 结束 {end} · {hours} 小时",
-      "photos": "当天照片"
+      "photos": "照片"
     },
     "history": {
       "title": "修改记录",
       "empty": "还没有后台修改。",
       "end": "结束时间改为 {end}",
+      "start": "开始时间补为 {start}",
       "current": "现在用这条",
       "by": "{name} · {at}",
-      "photoEnd": "照片上的最后时间：{end}"
+      "photoEnd": "收工照片上的时间：{end}"
     },
     "toast": {
-      "endSaved": "结束时间已保存"
+      "endSaved": "结束时间已保存",
+      "startSaved": "开始时间已保存"
     },
     "phone": {
-      "howTo": "开工时拍一张设备照片，收工时再拍一张。系统按第一张和最后一张算工时。",
+      "howTo": "开工时选「开工」拍一张，收工时选「收工」再拍一张。每一对开工和收工算一笔工时。",
       "project": "项目",
-      "machine": "设备",
+      "supplier": "供应商",
+      "allSuppliers": "全部供应商",
+      "noSupplier": "未填供应商",
+      "suppliedBy": "供应商：{supplier}",
+      "machine": "设备编号",
       "pickMachine": "选择设备",
       "machines": "设备名单",
       "noMachines": "这个项目还没有可以选的设备，请后台先建档。",
+      "scan": "扫码",
+      "scanTitle": "扫设备上的二维码",
+      "scanHelp": "把镜头对准贴在设备上的二维码。",
+      "scanImage": "从照片读取二维码",
+      "qrNoMatch": "这个二维码对不上这个项目的设备：{text}",
+      "kind": "开工 / 收工",
+      "openSince": "这台设备 {start} 开工，还没收工。",
       "photo": "设备照片",
       "takePhoto": "拍照",
       "photoReady": "已拍好，可以重拍",
       "location": "位置",
       "locationReady": "已取得位置",
-      "send": "上传",
+      "send": "上传{kind}照片",
       "failed": "上传失败，请再试一次。",
       "queued": "已存在手机里，有网络会自动上传。",
-      "today": "今天 {count} 张照片，开始 {start}",
-      "stopHint": "收工时再拍一张",
-      "soFar": "到 {end} 共 {hours} 小时",
-      "shift": "{date} 这一班：{count} 张照片，开始 {start}"
+      "started": "{start} 开工",
+      "stopHint": "收工时选「收工」再拍一张",
+      "soFar": "{start} 至 {end}，共 {hours} 小时",
+      "missingStart": "这张收工照片前面没有开工照片，后台会补开始时间。"
     }
   },
   "theme": {

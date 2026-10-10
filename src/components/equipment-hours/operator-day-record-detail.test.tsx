@@ -1,14 +1,14 @@
 /**
- * One machine's day of operator hours opens in the record-detail popup (E8, Q31).
+ * One start-stop of operator hours opens in the record-detail popup (E8, Q31).
  *
  * Lucas, 2026-10-08: every record a phone submits opens in the same popup,
- * with 记录人 - here the operator who took the day's first photo - and a
- * number to tap and call. The day's photos, start, end and hours, the
- * office's end-time form and the correction history keep their place in it.
+ * with 记录人 - here the operator who took the start photo - and a number to
+ * tap and call. The session's photos, start, end and hours, the office's
+ * time form and the correction history keep their place in it.
  */
 import { describe, expect, it, vi } from "vitest";
 
-import type { EquipmentHoursDay } from "@/interfaces/equipment-hours";
+import type { EquipmentHoursSession } from "@/interfaces/equipment-hours";
 import messages from "@/messages/zh.json";
 
 vi.mock("@/components/ui/dialog", async () =>
@@ -39,12 +39,14 @@ const { DayDialog } = await import("@/components/equipment-hours/equipment-opera
 
 const words = messages.equipmentHours;
 
-const day: EquipmentHoursDay = {
-  key: "eq-1:2026-10-07",
+const day: EquipmentHoursSession = {
+  key: "log-a",
   equipment: "eq-1",
   equipment_name: "Excavator",
   equipment_code: "EQ-001",
   plate: "WXY 1234",
+  supplier: "s1",
+  supplier_name: "Ace Plant Hire",
   project: "p1",
   project_name: "Hours Tower",
   work_date: "2026-10-07",
@@ -52,12 +54,16 @@ const day: EquipmentHoursDay = {
   end_at: "2026-10-07T09:00:00Z",
   photo_end_at: "2026-10-07T09:30:00Z",
   hours: "9.00",
+  cumulative_hours: "9.00",
   photo_count: 2,
+  missing_start: false,
   missing_end: false,
+  has_start_photo: true,
   adjusted: true,
+  status: "ADJUSTED",
   photos: [
-    { id: "a", captured_at: "2026-10-07T00:00:00Z", operator_name: "Ahmad", watermarked_photo: "/media/a.jpg" },
-    { id: "b", captured_at: "2026-10-07T09:30:00Z", operator_name: "Ahmad", watermarked_photo: "/media/b.jpg" },
+    { id: "a", kind: "START", captured_at: "2026-10-07T00:00:00Z", operator_name: "Ahmad", watermarked_photo: "/media/a.jpg" },
+    { id: "b", kind: "FINISH", captured_at: "2026-10-07T09:30:00Z", operator_name: "Ahmad", watermarked_photo: "/media/b.jpg" },
   ],
   adjustments: [
     { id: "1", end_at: "2026-10-07T09:00:00Z", reason: "Checked the log book", created_by_name: "Ong", created_at: "2026-10-08T01:00:00Z" },
@@ -71,13 +77,17 @@ function open(canAdjust: boolean) {
   );
 }
 
-describe("an operator's machine-day (E8)", () => {
+describe("an operator's start-stop session (E8)", () => {
   it("opens as the record popup, with 记录人 and a tap-to-call number", () => {
     const html = open(true);
     expectRecordPopup(html, expect);
     expect(html).toContain("Excavator · WXY 1234");
     expect(html).toContain("Hours Tower");
+    expect(html).toContain("Ace Plant Hire");
     expect(html).toContain("9.00");
+    // Full date and time, never 「次日」.
+    expect(html).toMatch(/2026[^<]*08:00/);
+    expect(html).not.toContain("次日");
     // No export: a machine-day is not an exportable record.
     expect(html).not.toContain('data-stub="export"');
   });
@@ -87,6 +97,31 @@ describe("an operator's machine-day (E8)", () => {
     expect(html).toContain("data-shell-hero");
     expect(html).toContain("/media/a.jpg");
     expect(html).toContain("/media/b.jpg");
+    expect(html).toContain(words.kind.START);
+    expect(html).toContain(words.kind.FINISH);
+  });
+
+  it("asks for the start time of a stop photo with no start", () => {
+    const html = renderDetail(
+      <DayDialog
+        day={{
+          ...day,
+          start_at: null,
+          has_start_photo: false,
+          missing_start: true,
+          adjusted: false,
+          status: "MISSING_START",
+          adjustments: [],
+          photos: [day.photos[1]],
+        }}
+        canAdjust
+        onClose={() => {}}
+        onSaved={() => {}}
+      />,
+    );
+    expect(html).toContain(words.adjust.addStart);
+    expect(html).toContain(words.adjust.startAt);
+    expect(html).toContain(words.status.MISSING_START);
   });
 
   it("keeps the correction history as 更正记录 and the end-time form as the decision", () => {
