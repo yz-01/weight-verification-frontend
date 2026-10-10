@@ -160,7 +160,13 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
   const raw = useSyncExternalStore(subscribe, snapshot, () => null);
   const remembered = useMemo(() => parseCollecting(raw), [raw]);
   const allowed = can("package.manage");
-  const fromAddress = searchParams.get(PACK_PARAM);
+  // 「结束选择」 clears the address's `?pack=` through the router, which lands
+  // a moment later; until it does, that package must not count again or it
+  // is remembered straight back and the strip needs a second press.
+  const [endedId, setEndedId] = useState<string | null>(null);
+  const addressPack = searchParams.get(PACK_PARAM);
+  const fromAddress = addressPack && addressPack.trim() === endedId ? null : addressPack;
+  if (endedId && !addressPack) setEndedId(null);
   const wanted = allowed ? resolveCollecting(fromAddress, remembered) : null;
 
   const pkg = useQuery({
@@ -174,6 +180,8 @@ export function PackCollectProvider({ children }: { children: React.ReactNode })
 
   const end = useCallback(() => {
     remember(null);
+    const fromLink = searchParams.get(PACK_PARAM);
+    if (fromLink) setEndedId(fromLink.trim());
     if (searchParams.has(PACK_PARAM)) {
       const next = new URLSearchParams(searchParams.toString());
       next.delete(PACK_PARAM);
