@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileClock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -9,6 +8,12 @@ import { useMemo } from "react";
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
+import {
+  ArchivedReportActions,
+  ArchivedReportName,
+  ArchivedReportNote,
+  useReportArchive,
+} from "@/components/reports/report-archive";
 import {
   ReportSelector,
   useReportLevelName,
@@ -41,6 +46,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type {
+  ContractorReportExportRecord,
   ContractorReportFilters,
   ContractorReportRecord,
   ContractorReportType,
@@ -510,13 +516,28 @@ export function ContractorReportWorkspace({
   );
 }
 
+/**
+ * 报表导出历史 - the contractor's archive of generated reports (2026-10-10).
+ *
+ * Each row opens the file generated at the time, as it was saved - never a
+ * fresh report from today's data (`report-archive`): the file name or 「查看」
+ * previews it, and 打印 · 导出 · 发送 work on those same stored bytes.
+ */
 export function ContractorReportHistoryWorkspace() {
   const t = useTranslations("contractorReports");
+  const dashboard = useTranslations("contractorDashboard");
+  const archiveT = useTranslations("reportArchive");
   const df = useDateFormat();
+  const archive = useReportArchive();
   const history = useQuery({
     queryKey: ["contractor-reports", "history"],
     queryFn: () => getContractorReportHistory({ page_size: 100 }),
   });
+  // The 现场看板 export shares this history; it is not one of the report types.
+  const reportName = (row: ContractorReportExportRecord) =>
+    row.report_type === "dashboard" ? dashboard("export.title") : t(`type.${row.report_type}`);
+  const previewTitle = (row: ContractorReportExportRecord) =>
+    `${reportName(row)} · ${row.date_from} - ${row.date_to}`;
 
   return (
     <div className="flex flex-col gap-4">
@@ -534,15 +555,16 @@ export function ContractorReportHistoryWorkspace() {
           <p className="p-10 text-center text-sm text-muted-foreground">{t("history.empty")}</p>
         ) : (
           <div className="overflow-auto">
-            <Table className="min-w-260 table-fixed">
+            <Table className="min-w-300 table-fixed">
               <colgroup>
-                <col className="w-64" />
+                <col className="w-72" />
                 <col className="w-36" />
+                <col className="w-44" />
                 <col className="w-48" />
+                <col className="w-20" />
+                <col className="w-44" />
+                <col className="w-44" />
                 <col className="w-48" />
-                <col className="w-24" />
-                <col className="w-48" />
-                <col className="w-52" />
               </colgroup>
               <TableHeader><TableRow>
                 <TableHead>{t("history.file")}</TableHead>
@@ -552,22 +574,24 @@ export function ContractorReportHistoryWorkspace() {
                 <TableHead className="text-right tabular">{t("history.rows")}</TableHead>
                 <TableHead>{t("history.generatedBy")}</TableHead>
                 <TableHead>{t("history.generatedAt")}</TableHead>
+                <TableHead>{archiveT("column")}</TableHead>
               </TableRow></TableHeader>
               <TableBody>
                 {history.data?.results.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell className="overflow-hidden">
-                      <span className="flex min-w-0 items-start gap-2" title={row.file_name}>
-                        <FileClock className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                        <span className="line-clamp-2 min-w-0 break-all">{row.file_name}</span>
-                      </span>
+                  <TableRow key={row.id} className="align-top">
+                    <TableCell className="overflow-hidden whitespace-normal">
+                      <ArchivedReportName row={row} archive={archive} title={previewTitle(row)} />
+                      <ArchivedReportNote row={row} className="pl-6" />
                     </TableCell>
-                    <TableCell>{t(`type.${row.report_type}`)}</TableCell>
+                    <TableCell>{reportName(row)}</TableCell>
                     <TableCell>{row.project_name || t("filter.allProjects")}</TableCell>
                     <TableCell className="whitespace-nowrap tabular">{row.date_from} - {row.date_to}</TableCell>
                     <TableCell className="text-right tabular">{row.metric_count}</TableCell>
                     <TableCell>{row.generated_by_name || row.generated_by_email}</TableCell>
                     <TableCell className="whitespace-nowrap tabular">{df.dateTime(row.created_at)}</TableCell>
+                    <TableCell>
+                      <ArchivedReportActions row={row} archive={archive} title={previewTitle(row)} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -575,6 +599,7 @@ export function ContractorReportHistoryWorkspace() {
           </div>
         )}
       </section>
+      {archive.element}
     </div>
   );
 }

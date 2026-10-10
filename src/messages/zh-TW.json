@@ -1860,6 +1860,7 @@
       "weighing_anomaly_total": "異常稱重次數",
       "weighing_total": "稱重次數"
     },
+    "otherReport": "其他報表",
     "reportType": {
       "business": "平臺業務報表",
       "commission": "平臺佣金報表",
@@ -4776,7 +4777,8 @@
       "kind": {
         "APPLICATION": "申請資料歸檔",
         "APPROVAL": "簽名審批記錄歸檔",
-        "FINAL_REPORT": "最終 PDF 歸檔"
+        "FINAL_REPORT": "最終 PDF 歸檔",
+        "CONSULTANT_FORM": "顧問自有表格（原表格、填寫後、最終版本）"
       },
       "pending": "等待中",
       "recordOnly": "結構化歸檔記錄",
@@ -5246,7 +5248,9 @@
       "applicationOptions": "申請選項（類型、專業、工作類型、優先級）",
       "consultantGrants": "有本項目權限的顧問",
       "applicationTypes": "申請類型",
-      "reviewerChoices": "審批人列表"
+      "reviewerChoices": "審批人列表",
+      "consultantForms": "顧問自有表格",
+      "consultantFirms": "顧問公司"
     },
     "inbox": {
       "what": "待整理現場資料",
@@ -5267,6 +5271,87 @@
       "print": "列印",
       "attachments": "看附件（{count}）",
       "send": "發送給顧問 {name}"
+    },
+    "ownForm": {
+      "sourceTitle": "表格來源",
+      "sourceStandard": "A · MSE Trace 標準表格",
+      "sourceStandardHelp": "系統生成的 RFI / 顧問申請表，和現在一樣。",
+      "sourceConsultant": "B · 顧問自有表格",
+      "sourceConsultantHelp": "上傳顧問原來的空白表格（PDF、Word 或 Excel）。申請人下載、填好後再上傳，表格保留顧問原來的表頭和格式。",
+      "chooseSourceTitle": "新增模板：用哪一種表格？",
+      "chooseSourceHelp": "兩種表格都放在「RFI 表格模板」裡。",
+      "sectionStandard": "A · MSE Trace 標準表格",
+      "sectionConsultant": "B · 顧問自有表格",
+      "emptyConsultant": "還沒有顧問自有表格。按「新增模板」，選 B。",
+      "loading": "正在載入顧問自有表格...",
+      "name": "表格名稱",
+      "consultant": "顧問公司",
+      "chooseConsultant": "選擇顧問公司",
+      "noFirms": "還沒有登記顧問公司，請先在顧問授權裡新增。",
+      "project": "項目",
+      "allProjects": "公司全部項目",
+      "applicationType": "申請類型",
+      "allTypes": "全部申請類型",
+      "file": "空白表格檔案",
+      "fileHint": "PDF、Word（.docx / .doc）、Excel（.xlsx / .xls）或照片（JPG / PNG）。",
+      "fileTypeWrong": "請選擇 PDF、Word、Excel 或 JPG / PNG 檔案。",
+      "description": "說明",
+      "noDescription": "沒有說明",
+      "changeNote": "版本說明",
+      "createTitle": "新增顧問自有表格",
+      "createHelp": "按原樣上傳。以後再上傳會成為新版本；已經填寫的申請繼續用原來的版本。",
+      "save": "儲存表格",
+      "newVersion": "上傳新版本",
+      "versionTitle": "{name} 第 {version} 版",
+      "versionHelp": "已經填寫的申請繼續用原來的版本。",
+      "saveVersion": "儲存新版本",
+      "editDetails": "編輯資訊",
+      "editTitle": "編輯 {name}",
+      "editHelp": "改了綁定只影響之後的新申請。",
+      "stillOffered": "繼續提供",
+      "stillOfferedHelp": "關掉後新申請就選不到，已有的申請不受影響。",
+      "active": "啟用",
+      "inactive": "停用",
+      "usedBy": "{count} 份申請使用",
+      "preview": "預覽",
+      "download": "下載",
+      "cancel": "取消",
+      "formSource": "表格來源",
+      "useStandard": "MSE Trace 標準表格",
+      "useConsultant": "{name}（顧問自有表格，第 {version} 版）",
+      "formSourceHelp": "這位顧問有自己的表格。選它的話，存草稿後在申請裡下載、填寫、再上傳。",
+      "panelTitle": "顧問自有表格",
+      "panelHelpApplicant": "這份申請用顧問自己的表格：下載空白表格，填好後上傳，再發送給顧問。",
+      "panelHelpReviewer": "先看填好的表格，再批准或退回。可以用電子簽名加 PIN，也可以上傳已簽名蓋章的表格。",
+      "blankForm": "空白表格",
+      "newerVersion": "已有較新的第 {version} 版；這份申請保留填寫時的版本。",
+      "filledForm": "填寫後的表格",
+      "filledMissing": "還沒上傳，發送前必須上傳。",
+      "uploadFilled": "上傳填好的表格",
+      "replaceFilled": "換一份填好的表格",
+      "signedForms": "簽署蓋章最終版本",
+      "signedNone": "未上傳。",
+      "uploadedBy": "{name} · {when}",
+      "signedOnForm": "簽署見上傳表格",
+      "signingTitle": "簽署方式",
+      "signingEsignature": "電子簽名 + PIN",
+      "signingSignedForm": "上傳已簽名蓋章的表格",
+      "signedFormFile": "已簽名蓋章的表格",
+      "signedFormHint": "簽了名、蓋了章的顧問表格，掃描或拍照都可以。",
+      "pinForSignedForm": "輸入 PIN，確認上傳的表格是你本人簽署的。",
+      "noCredential": "你還沒有設定電子簽名：可以上傳已簽名蓋章的表格，或先設定簽名和 PIN。",
+      "archiveBlank": "原表格：{name}（第 {version} 版）",
+      "archiveFilled": "填寫後：{name}",
+      "archiveFinal": "最終版本：{name}",
+      "archiveDecision": "{decision} · {name} · {when}",
+      "toast": {
+        "formSaved": "顧問自有表格已儲存",
+        "versionSaved": "新版本已儲存",
+        "filledUploaded": "填好的表格已上傳"
+      },
+      "onlyThisProject": "只限上面選的項目",
+      "versionHistory": "以前的版本（{count}）",
+      "sendNeedsFilled": "請先上傳填好的顧問表格。"
     }
   },
   "contractorDashboard": {
@@ -6227,7 +6312,7 @@
       "project": "項目",
       "report": "報表",
       "rows": "行數",
-      "subtitle": "當前公司及有權限項目的永久報表生成記錄。",
+      "subtitle": "建築商總部的歷史報表檔案庫：每份報表保存當時生成的文件，點文件名或「查看」即可預覽、列印、再次下載或發送，不會用現在的資料重新生成。",
       "title": "報表導出歷史"
     },
     "loadError": "無法加載報表。",
@@ -7392,6 +7477,8 @@
       "receipt_superseded": "這筆材料進場記錄已被更正記錄取代，不能再驗收或退回。請打開目前那一筆來處理。",
       "record_not_found": "這條記錄不在你這個帳號的範圍內。",
       "refresh_token_required": "登錄狀態無法續期，請重新登錄。",
+      "report_export_file_altered": "這份存檔文件和生成時記錄的指紋（SHA-256）不一致，系統不會把它當作原件打開。請聯繫管理員。",
+      "report_export_file_missing": "這份是本功能上線前生成的，當時沒有保存文件。",
       "reset_link_invalid": "此重設鏈接無效或已過期，請重新申請。",
       "role_in_use": "此角色仍有人在使用，請先把他們改為其他角色。",
       "role_is_system": "內置角色不可移除。",
@@ -7491,7 +7578,8 @@
       "permit_signature_required": "請先簽名再批准。",
       "permit_return_reason_required": "請寫明退回原因，申請人才知道要改什麼。",
       "permit_only_applicant_resubmits": "只有申請人能重新提交 {incident_no}。",
-      "permit_decided_on_permit_screen": "{incident_no} 是施工准證，請在「施工准證」裡打開和審批。"
+      "permit_decided_on_permit_screen": "{incident_no} 是施工准證，請在「施工准證」裡打開和審批。",
+      "consultant_form_not_filled": "發送前請先上傳填好的顧問表格，顧問審批的就是這份表格。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -12214,7 +12302,7 @@
       "contactPerson": "聯絡人",
       "designation": "職位",
       "email": "聯絡郵箱",
-      "help": "這些資料和 Logo 會顯示在回收商後臺。",
+      "help": "這些資料和 Logo 會顯示在回收商後臺；貴公司所有 PDF、列印件和匯出檔案的表頭都印上貴公司的名稱和 Logo。",
       "logo": "選擇 Logo",
       "name": "公司名稱",
       "phone": "聯絡電話",
@@ -12435,6 +12523,20 @@
       "available": "可申請的回收商列表",
       "projects": "可綁定的項目列表"
     }
+  },
+  "reportArchive": {
+    "column": "存檔文件",
+    "view": "查看",
+    "viewHint": "打開當時生成並保存的這份報表",
+    "downloadAgain": "再次下載當時生成的這份文件",
+    "archived": "已存檔 · 不會重新生成",
+    "archivedHint": "打開的是當時生成並保存的那一份文件；之後原始資料即使有修改，這份報表的內容也不會變。",
+    "missing": "這份是本功能上線前生成的，當時沒有保存文件。",
+    "technical": "技術資料",
+    "format": "格式",
+    "size": "文件大小",
+    "bytes": "{count} 位元組",
+    "sha256Hint": "SHA-256 是文件生成時記錄的指紋。每次打開都會先核對，和生成時不一致的文件不會被打開。"
   },
   "reports": {
     "dispatches": {
@@ -13511,7 +13613,7 @@
       "logo": "Logo",
       "background": "背景圖",
       "chooseBackground": "選擇背景圖",
-      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有貴公司看到和使用；MR 申請表會印上貴公司的名稱和 Logo。"
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有貴公司看到和使用；貴公司所有 PDF、列印件和匯出檔案的表頭都印上貴公司的名稱和 Logo。"
     },
     "projectDefaults": {
       "archiveLock": "歸檔後鎖定記錄",
@@ -14701,7 +14803,7 @@
       "vehiclePlate": "車牌",
       "wasteType": "物料"
     },
-    "footer": "由 MSE Trace 出具。本次稱重的每一筆讀數均原樣保存，可憑上方哈希重新核驗。",
+    "footer": "本次稱重的每一筆讀數均原樣保存，可憑上方哈希重新核驗。",
     "section": {
       "anomalies": "本次稱重被判無效的原因",
       "evidence": "證據",

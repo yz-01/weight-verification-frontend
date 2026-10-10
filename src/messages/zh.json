@@ -1860,6 +1860,7 @@
       "weighing_anomaly_total": "异常称重次数",
       "weighing_total": "称重次数"
     },
+    "otherReport": "其他报表",
     "reportType": {
       "business": "平台业务报表",
       "commission": "平台佣金报表",
@@ -4776,7 +4777,8 @@
       "kind": {
         "APPLICATION": "申请资料归档",
         "APPROVAL": "签名审批记录归档",
-        "FINAL_REPORT": "最终 PDF 归档"
+        "FINAL_REPORT": "最终 PDF 归档",
+        "CONSULTANT_FORM": "顾问自有表格（原表格、填写后、最终版本）"
       },
       "pending": "等待中",
       "recordOnly": "结构化归档记录",
@@ -5246,7 +5248,9 @@
       "applicationOptions": "申请选项（类型、专业、工作类型、优先级）",
       "consultantGrants": "有本项目权限的顾问",
       "applicationTypes": "申请类型",
-      "reviewerChoices": "审批人列表"
+      "reviewerChoices": "审批人列表",
+      "consultantForms": "顾问自有表格",
+      "consultantFirms": "顾问公司"
     },
     "inbox": {
       "what": "待整理现场资料",
@@ -5267,6 +5271,87 @@
       "print": "打印",
       "attachments": "看附件（{count}）",
       "send": "发送给顾问 {name}"
+    },
+    "ownForm": {
+      "sourceTitle": "表格来源",
+      "sourceStandard": "A · MSE Trace 标准表格",
+      "sourceStandardHelp": "系统生成的 RFI / 顾问申请表，和现在一样。",
+      "sourceConsultant": "B · 顾问自有表格",
+      "sourceConsultantHelp": "上传顾问原来的空白表格（PDF、Word 或 Excel）。申请人下载、填好后再上传，表格保留顾问原来的表头和格式。",
+      "chooseSourceTitle": "新增模板：用哪一种表格？",
+      "chooseSourceHelp": "两种表格都放在「RFI 表格模板」里。",
+      "sectionStandard": "A · MSE Trace 标准表格",
+      "sectionConsultant": "B · 顾问自有表格",
+      "emptyConsultant": "还没有顾问自有表格。按「新增模板」，选 B。",
+      "loading": "正在加载顾问自有表格...",
+      "name": "表格名称",
+      "consultant": "顾问公司",
+      "chooseConsultant": "选择顾问公司",
+      "noFirms": "还没有登记顾问公司，请先在顾问授权里新增。",
+      "project": "项目",
+      "allProjects": "公司全部项目",
+      "applicationType": "申请类型",
+      "allTypes": "全部申请类型",
+      "file": "空白表格文件",
+      "fileHint": "PDF、Word（.docx / .doc）、Excel（.xlsx / .xls）或照片（JPG / PNG）。",
+      "fileTypeWrong": "请选择 PDF、Word、Excel 或 JPG / PNG 文件。",
+      "description": "说明",
+      "noDescription": "没有说明",
+      "changeNote": "版本说明",
+      "createTitle": "新增顾问自有表格",
+      "createHelp": "按原样上传。以后再上传会成为新版本；已经填写的申请继续用原来的版本。",
+      "save": "保存表格",
+      "newVersion": "上传新版本",
+      "versionTitle": "{name} 第 {version} 版",
+      "versionHelp": "已经填写的申请继续用原来的版本。",
+      "saveVersion": "保存新版本",
+      "editDetails": "编辑信息",
+      "editTitle": "编辑 {name}",
+      "editHelp": "改了绑定只影响之后的新申请。",
+      "stillOffered": "继续提供",
+      "stillOfferedHelp": "关掉后新申请就选不到，已有的申请不受影响。",
+      "active": "启用",
+      "inactive": "停用",
+      "usedBy": "{count} 份申请使用",
+      "preview": "预览",
+      "download": "下载",
+      "cancel": "取消",
+      "formSource": "表格来源",
+      "useStandard": "MSE Trace 标准表格",
+      "useConsultant": "{name}（顾问自有表格，第 {version} 版）",
+      "formSourceHelp": "这位顾问有自己的表格。选它的话，存草稿后在申请里下载、填写、再上传。",
+      "panelTitle": "顾问自有表格",
+      "panelHelpApplicant": "这份申请用顾问自己的表格：下载空白表格，填好后上传，再发送给顾问。",
+      "panelHelpReviewer": "先看填好的表格，再批准或退回。可以用电子签名加 PIN，也可以上传已签名盖章的表格。",
+      "blankForm": "空白表格",
+      "newerVersion": "已有较新的第 {version} 版；这份申请保留填写时的版本。",
+      "filledForm": "填写后的表格",
+      "filledMissing": "还没上传，发送前必须上传。",
+      "uploadFilled": "上传填好的表格",
+      "replaceFilled": "换一份填好的表格",
+      "signedForms": "签署盖章最终版本",
+      "signedNone": "未上传。",
+      "uploadedBy": "{name} · {when}",
+      "signedOnForm": "签署见上传表格",
+      "signingTitle": "签署方式",
+      "signingEsignature": "电子签名 + PIN",
+      "signingSignedForm": "上传已签名盖章的表格",
+      "signedFormFile": "已签名盖章的表格",
+      "signedFormHint": "签了名、盖了章的顾问表格，扫描或拍照都可以。",
+      "pinForSignedForm": "输入 PIN，确认上传的表格是你本人签署的。",
+      "noCredential": "你还没有设置电子签名：可以上传已签名盖章的表格，或先设置签名和 PIN。",
+      "archiveBlank": "原表格：{name}（第 {version} 版）",
+      "archiveFilled": "填写后：{name}",
+      "archiveFinal": "最终版本：{name}",
+      "archiveDecision": "{decision} · {name} · {when}",
+      "toast": {
+        "formSaved": "顾问自有表格已保存",
+        "versionSaved": "新版本已保存",
+        "filledUploaded": "填好的表格已上传"
+      },
+      "onlyThisProject": "只限上面选的项目",
+      "versionHistory": "以前的版本（{count}）",
+      "sendNeedsFilled": "请先上传填好的顾问表格。"
     }
   },
   "contractorDashboard": {
@@ -6227,7 +6312,7 @@
       "project": "项目",
       "report": "报表",
       "rows": "行数",
-      "subtitle": "当前公司及有权限项目的永久报表生成记录。",
+      "subtitle": "建筑商总部的历史报表档案库：每份报表保存当时生成的文件，点文件名或「查看」即可预览、打印、再次下载或发送，不会用现在的资料重新生成。",
       "title": "报表导出历史"
     },
     "loadError": "无法加载报表。",
@@ -7392,6 +7477,8 @@
       "receipt_superseded": "这条材料进场记录已被更正记录取代，不能再验收或退回。请打开当前那一条来处理。",
       "record_not_found": "这条记录不在你这个账号的范围内。",
       "refresh_token_required": "登录状态无法续期，请重新登录。",
+      "report_export_file_altered": "这份存档文件和生成时记录的指纹（SHA-256）不一致，系统不会把它当作原件打开。请联系管理员。",
+      "report_export_file_missing": "这份是本功能上线前生成的，当时没有保存文件。",
       "reset_link_invalid": "此重设链接无效或已过期，请重新申请。",
       "role_in_use": "此角色仍有人在使用，请先把他们改为其他角色。",
       "role_is_system": "内置角色不可移除。",
@@ -7491,7 +7578,8 @@
       "permit_signature_required": "请先签名再批准。",
       "permit_return_reason_required": "请写明退回原因，申请人才知道要改什么。",
       "permit_only_applicant_resubmits": "只有申请人能重新提交 {incident_no}。",
-      "permit_decided_on_permit_screen": "{incident_no} 是施工准证，请在「施工准证」里打开和审批。"
+      "permit_decided_on_permit_screen": "{incident_no} 是施工准证，请在「施工准证」里打开和审批。",
+      "consultant_form_not_filled": "发送前请先上传填好的顾问表格，顾问审批的就是这份表格。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -12214,7 +12302,7 @@
       "contactPerson": "联系人",
       "designation": "职位",
       "email": "联系邮箱",
-      "help": "这些资料和 Logo 会显示在回收商后台。",
+      "help": "这些资料和 Logo 会显示在回收商后台；贵公司所有 PDF、打印件和导出文件的表头都印上贵公司的名称和 Logo。",
       "logo": "选择 Logo",
       "name": "公司名称",
       "phone": "联系电话",
@@ -12435,6 +12523,20 @@
       "available": "可申请的回收商列表",
       "projects": "可绑定的项目列表"
     }
+  },
+  "reportArchive": {
+    "column": "存档文件",
+    "view": "查看",
+    "viewHint": "打开当时生成并保存的这份报表",
+    "downloadAgain": "再次下载当时生成的这份文件",
+    "archived": "已存档 · 不会重新生成",
+    "archivedHint": "打开的是当时生成并保存的那一份文件；之后原始资料即使有修改，这份报表的内容也不会变。",
+    "missing": "这份是本功能上线前生成的，当时没有保存文件。",
+    "technical": "技术资料",
+    "format": "格式",
+    "size": "文件大小",
+    "bytes": "{count} 字节",
+    "sha256Hint": "SHA-256 是文件生成时记录的指纹。每次打开都会先核对，和生成时不一致的文件不会被打开。"
   },
   "reports": {
     "dispatches": {
@@ -13511,7 +13613,7 @@
       "logo": "Logo",
       "background": "背景图",
       "chooseBackground": "选择背景图",
-      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有贵公司看到和使用；MR 申请表会印上贵公司的名称和 Logo。"
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有贵公司看到和使用；贵公司所有 PDF、打印件和导出文件的表头都印上贵公司的名称和 Logo。"
     },
     "projectDefaults": {
       "archiveLock": "归档后锁定记录",
@@ -14701,7 +14803,7 @@
       "vehiclePlate": "车牌",
       "wasteType": "物料"
     },
-    "footer": "由 MSE Trace 出具。本次称重的每一笔读数均原样保存，可凭上方哈希重新核验。",
+    "footer": "本次称重的每一笔读数均原样保存，可凭上方哈希重新核验。",
     "section": {
       "anomalies": "本次称重被判无效的原因",
       "evidence": "证据",

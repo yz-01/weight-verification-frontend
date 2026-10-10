@@ -47,6 +47,7 @@ const ALLOWED = new Map([
   ["components/suppliers/supplier-site-codes.tsx", [2, "QR code colours: black on white in every mode."]],
   ["components/qrcodes/admin-qr-workspace.tsx", [2, "QR code colours: black on white in every mode."]],
   ["components/site-access/emergency-list-workspace.tsx", [4, "The 紧急在场名单 print page: an HTML string printed outside the app's CSS, black on white."]],
+  ["lib/print-letterhead.ts", [4, "The printed page's company header and the platform's grey corner tag (全系统公司表头规则): HTML printed outside the app's CSS, on white paper."]],
   ["components/shared/field-camera.tsx", [1, "The camera viewfinder is black behind the live picture in every mode."]],
   ["components/shared/file-preview.tsx", [2, "Video frames are black and PDF frames white, as the media itself is, in every mode."]],
   ["components/field-staff/supplier-qr-scanner.tsx", [3, "Camera viewfinder: black frame, the white scan window and the dimmed surround over the live picture."]],

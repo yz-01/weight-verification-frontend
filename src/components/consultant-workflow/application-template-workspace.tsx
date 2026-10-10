@@ -5,7 +5,13 @@ import { FileCog, History, Loader2, Pencil, Plus, Save, Trash2 } from "lucide-re
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import {
+  ConsultantFormCreateDialog,
+  ConsultantOwnFormsSection,
+  TemplateSourceChooser,
+} from "@/components/consultant-workflow/consultant-own-form";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { useAuth } from "@/components/providers/auth-provider";
 import { usePageProject } from "@/components/providers/current-project-provider";
 import { FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -46,10 +52,16 @@ const EMPTY_FIELDS: FieldDefinition[] = [];
 
 export function ApplicationTemplateWorkspace() {
   const t = useTranslations("consultantWorkflow.templateManager");
+  const own = useTranslations("consultantWorkflow.ownForm");
   const qc = useQueryClient();
+  const { can } = useAuth();
   // The top bar's 「当前项目」 for the contractor's office (B13).
   const [project, setProject] = usePageProject();
+  // 「新增模板」 asks for the form source first (2026-10-10): A, the standard
+  // form, opens the dialog it always did; B, the consultant's own form.
+  const [choosingSource, setChoosingSource] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [creatingOwnForm, setCreatingOwnForm] = useState(false);
   const [versioning, setVersioning] = useState<ApplicationTemplate | null>(null);
   const [editing, setEditing] = useState<ApplicationTemplate | null>(null);
   const templates = useQuery({
@@ -65,7 +77,7 @@ export function ApplicationTemplateWorkspace() {
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          <Button disabledReason={!project ? t("chooseProject") : undefined} disabled={!project} onClick={() => setCreating(true)}>
+          <Button disabledReason={!project ? t("chooseProject") : undefined} disabled={!project} onClick={() => setChoosingSource(true)}>
             <Plus />{t("new")}
           </Button>
         }
@@ -73,6 +85,7 @@ export function ApplicationTemplateWorkspace() {
       <FilterBar>
         <ConsultantProjectPicker value={project} onChange={setProject} scope="page" />
       </FilterBar>
+      {project ? <h2 className="panel-title">{own("sectionStandard")}</h2> : null}
       {!project ? (
         <State text={t("chooseProject")} />
       ) : templates.isLoading ? (
@@ -136,6 +149,30 @@ export function ApplicationTemplateWorkspace() {
         </div>
       )}
 
+      {project ? (
+        <ConsultantOwnFormsSection project={project} canConfigure={can("consultant.config")} />
+      ) : null}
+
+      {choosingSource ? (
+        <TemplateSourceChooser
+          onClose={() => setChoosingSource(false)}
+          onChoose={(source) => {
+            setChoosingSource(false);
+            if (source === "STANDARD") setCreating(true);
+            else setCreatingOwnForm(true);
+          }}
+        />
+      ) : null}
+      {creatingOwnForm ? (
+        <ConsultantFormCreateDialog
+          project={project}
+          onClose={() => setCreatingOwnForm(false)}
+          onSaved={() => {
+            void qc.invalidateQueries({ queryKey: ["consultant-own-forms", project] });
+            setCreatingOwnForm(false);
+          }}
+        />
+      ) : null}
       {creating ? (
         <TemplateDialog
           project={project}
