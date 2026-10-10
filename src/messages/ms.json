@@ -7465,6 +7465,7 @@
       "equipment_hours_day_not_found": "Catatan jam ini tidak ditemui. Muat semula dan cuba lagi.",
       "equipment_hours_end_before_start": "Masa tamat mesti selepas masa mula.",
       "equipment_hours_end_too_late": "Masa ini bertindih dengan foto sebelum atau selepas mesin ini, atau pada masa hadapan.",
+      "equipment_site_no_taken": "Mesin lain dalam projek ini ({equipment}) sudah menggunakan nombor \"{site_no}\". Pilih nombor lain.",
       "equipment_profile_incomplete": "Pilih subkelas mesin ini sebelum menerimanya.",
       "equipment_not_on_site": "Mesin ini tiada di tapak projek ini, jadi tidak boleh keluar.",
       "equipment_exit_waiting": "Keluar mesin ini sudah menunggu penerimaan pejabat. Ia tidak boleh dihantar lagi.",
@@ -16216,8 +16217,8 @@
       "allSuppliers": "Semua pembekal",
       "equipment": "Peralatan",
       "allEquipment": "Semua peralatan",
-      "search": "No. plat / no. peralatan",
-      "searchPlaceholder": "No. plat atau no. peralatan"
+      "search": "No. plat / nombor",
+      "searchPlaceholder": "No. plat, no. peralatan atau no. tapak"
     },
     "field": {
       "date": "Tarikh",
@@ -16240,7 +16241,8 @@
       "totalHours": "Jumlah jam",
       "incomplete": "Tiada mula / tamat",
       "adjustedCount": "Diubah oleh pejabat",
-      "actions": "Tindakan"
+      "actions": "Tindakan",
+      "siteNo": "No. tapak"
     },
     "status": {
       "MISSING_END": "Tiada foto tamat",
@@ -16261,7 +16263,8 @@
     },
     "what": {
       "days": "jam mesin",
-      "month": "jumlah bulanan"
+      "month": "jumlah bulanan",
+      "siteNumbers": "senarai mesin"
     },
     "adjust": {
       "add": "Tambah masa tamat",
@@ -16291,7 +16294,9 @@
     },
     "toast": {
       "endSaved": "Masa tamat disimpan",
-      "startSaved": "Masa mula disimpan"
+      "startSaved": "Masa mula disimpan",
+      "siteNoSaved": "No. tapak disimpan",
+      "siteNoCleared": "No. tapak dikosongkan"
     },
     "phone": {
       "howTo": "Semasa memulakan mesin, pilih Mula dan ambil foto; semasa berhenti, pilih Tamat dan ambil satu lagi. Setiap mula dan tamatnya ialah satu catatan jam.",
@@ -16322,7 +16327,26 @@
       "started": "Dimulakan {start}",
       "stopHint": "Semasa berhenti, pilih Tamat dan ambil satu lagi foto",
       "soFar": "{start} hingga {end}: {hours} jam",
-      "missingStart": "Tiada foto mula sebelum foto tamat ini; pejabat akan memasukkan masa mula."
+      "missingStart": "Tiada foto mula sebelum foto tamat ini; pejabat akan memasukkan masa mula.",
+      "machineAnyWay": "Pilih dari senarai, imbas, atau taip nombor - mana-mana satu pun boleh.",
+      "typeNumber": "Taip nombor",
+      "typeNumberPlaceholder": "Nombor pada mesin, cth. 12",
+      "typedFound": "Dijumpai: {machine}",
+      "typedNoMatch": "Tiada mesin dengan nombor ini"
+    },
+    "siteNo": {
+      "open": "Nombor mesin",
+      "title": "Nombor mesin",
+      "help": "Beri setiap mesin satu nombor tapak yang pendek (cth. 12) dan tulis atau lekatkan pada mesin. Operator menaip nombor ini di telefon untuk memilih mesin. Satu nombor hanya untuk satu mesin dalam projek; kosongkan untuk membuangnya.",
+      "search": "Cari mesin",
+      "searchPlaceholder": "Nama, no. plat, pembekal atau nombor",
+      "empty": "Projek ini belum ada mesin yang digunakan.",
+      "noMatch": "Tiada mesin yang sepadan.",
+      "inputLabel": "No. tapak bagi {machine}",
+      "placeholder": "cth. 12",
+      "save": "Simpan",
+      "failed": "Tidak dapat disimpan. Sila cuba lagi.",
+      "close": "Tutup"
     }
   },
   "theme": {

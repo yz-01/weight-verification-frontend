@@ -7465,6 +7465,7 @@
       "equipment_hours_day_not_found": "找不到這一筆工時記錄，請刷新後再試。",
       "equipment_hours_end_before_start": "結束時間要在開始時間之後。",
       "equipment_hours_end_too_late": "這個時間和這台設備的上一張或下一張照片重疊了，或者晚於現在。",
+      "equipment_site_no_taken": "這個項目裡已經有設備（{equipment}）用了編號「{site_no}」，請換一個。",
       "equipment_profile_incomplete": "先選好這台設備的小類，才能驗收。",
       "equipment_not_on_site": "這台設備現在不在這個項目場內，不能退場。",
       "equipment_exit_waiting": "這台設備的退場已經提交，正在等後台驗收，不能再提交一次。",
@@ -16216,8 +16217,8 @@
       "allSuppliers": "全部供應商",
       "equipment": "設備",
       "allEquipment": "全部設備",
-      "search": "車牌 / 設備編號",
-      "searchPlaceholder": "輸入車牌或設備編號"
+      "search": "車牌 / 編號",
+      "searchPlaceholder": "車牌、設備編號或現場編號"
     },
     "field": {
       "date": "日期",
@@ -16240,7 +16241,8 @@
       "totalHours": "合計工時（小時）",
       "incomplete": "缺開工 / 收工",
       "adjustedCount": "後台修改次數",
-      "actions": "操作"
+      "actions": "操作",
+      "siteNo": "現場編號"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -16261,7 +16263,8 @@
     },
     "what": {
       "days": "工時記錄",
-      "month": "每月合計"
+      "month": "每月合計",
+      "siteNumbers": "設備名單"
     },
     "adjust": {
       "add": "補結束時間",
@@ -16291,7 +16294,9 @@
     },
     "toast": {
       "endSaved": "結束時間已保存",
-      "startSaved": "開始時間已保存"
+      "startSaved": "開始時間已保存",
+      "siteNoSaved": "現場編號已保存",
+      "siteNoCleared": "現場編號已清除"
     },
     "phone": {
       "howTo": "開工時選「開工」拍一張，收工時選「收工」再拍一張。每一對開工和收工算一筆工時。",
@@ -16322,7 +16327,26 @@
       "started": "{start} 開工",
       "stopHint": "收工時選「收工」再拍一張",
       "soFar": "{start} 至 {end}，共 {hours} 小時",
-      "missingStart": "這張收工照片前面沒有開工照片，後台會補開始時間。"
+      "missingStart": "這張收工照片前面沒有開工照片，後台會補開始時間。",
+      "machineAnyWay": "從列表選、掃碼或輸入編號，任選一種都可以。",
+      "typeNumber": "輸入編號",
+      "typeNumberPlaceholder": "設備上的編號，例如 12",
+      "typedFound": "找到：{machine}",
+      "typedNoMatch": "找不到這個編號"
+    },
+    "siteNo": {
+      "open": "設備編號管理",
+      "title": "設備編號管理",
+      "help": "給每台設備一個簡短的現場編號（例如 12），寫或貼在設備上。操作員在手機上輸入這個編號就能選到設備。同一個項目裡編號不能重複；清空就是不用編號。",
+      "search": "找設備",
+      "searchPlaceholder": "名稱、車牌、供應商或編號",
+      "empty": "這個項目還沒有在用的設備。",
+      "noMatch": "沒有符合的設備。",
+      "inputLabel": "{machine} 的現場編號",
+      "placeholder": "例如 12",
+      "save": "保存",
+      "failed": "保存失敗，請再試一次。",
+      "close": "關閉"
     }
   },
   "theme": {

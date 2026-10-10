@@ -1,11 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Loader2, PencilLine, RotateCcw, Search } from "lucide-react";
+import { Camera, Hash, Loader2, PencilLine, RotateCcw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { EquipmentSiteNumbersDialog } from "@/components/equipment-hours/equipment-site-numbers";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   FieldWrapper,
@@ -180,7 +181,8 @@ const ALL = "all";
  * time, hours, and 累计工时 down the rows shown. A start with no stop is
  * 「缺收工」, a stop with no start 「缺开工」; the office enters the missing time
  * with a reason; every correction stays in the history and the photos are
- * never changed. Filters: project, supplier, machine, plate / number, dates.
+ * never changed. Filters: project, supplier, machine, plate / number / 现场编号,
+ * dates. 「设备编号管理」 gives each machine its 现场编号 (2026-10-10).
  * With no dates chosen the table shows the latest records, not an empty day.
  *
  * 按月: each machine's sessions and hours for a month.
@@ -202,6 +204,7 @@ export function EquipmentOperatorHours() {
   const [capped, setCapped] = useState(false);
   const [month, setMonth] = useState<string | null>(null);
   const [opened, setOpened] = useState<EquipmentHoursSession | null>(null);
+  const [numbering, setNumbering] = useState(false);
   const canAdjust = can("equipment.manage");
   const canExport = can("report.export");
 
@@ -267,6 +270,7 @@ export function EquipmentOperatorHours() {
         emptyLabel: t("day.empty"),
         columns: [
           { key: "equipment_name", label: t("field.equipment") },
+          { key: "site_no", label: t("field.siteNo") },
           { key: "equipment_code", label: t("field.code") },
           { key: "supplier_name", label: t("field.supplier") },
           { key: "plate", label: t("field.plate") },
@@ -296,6 +300,7 @@ export function EquipmentOperatorHours() {
       {
         title: t("export.summaryTitle"),
         equipment_label: t("field.equipment"),
+        site_no_label: t("field.siteNo"),
         plate_label: t("field.plate"),
         supplier_label: t("field.supplier"),
         sessions_label: t("field.sessions"),
@@ -310,8 +315,19 @@ export function EquipmentOperatorHours() {
         title={tRoot("nav.submodule.equipmentOperatorHours")}
         subtitle={t("subtitle")}
         action={
-          view === "day" && canExport ? (
-            <ExportButton onExport={exportDays} disabled={rows.length === 0} />
+          canAdjust || (view === "day" && canExport) ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {/* 现场编号 (2026-10-10): the short number painted on each machine. */}
+              {canAdjust && (
+                <Button variant="outline" onClick={() => setNumbering(true)}>
+                  <Hash />
+                  {t("siteNo.open")}
+                </Button>
+              )}
+              {view === "day" && canExport && (
+                <ExportButton onExport={exportDays} disabled={rows.length === 0} />
+              )}
+            </div>
           ) : undefined
         }
       />
@@ -363,7 +379,7 @@ export function EquipmentOperatorHours() {
               <SelectItem value={ALL}>{t("filter.allEquipment")}</SelectItem>
               {machines.map((row) => (
                 <SelectItem key={row.id} value={row.id}>
-                  {[row.code, row.name, row.plate].filter(Boolean).join(" · ")}
+                  {[row.site_no || row.code, row.name, row.plate].filter(Boolean).join(" · ")}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -453,6 +469,7 @@ export function EquipmentOperatorHours() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.equipment")}</TableHead>
+                <TableHead>{t("field.siteNo")}</TableHead>
                 <TableHead>{t("field.supplier")}</TableHead>
                 <TableHead>{t("field.plate")}</TableHead>
                 <TableHead>{t("field.start")}</TableHead>
@@ -468,13 +485,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={10} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={10} className="h-20 text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
@@ -488,6 +505,7 @@ export function EquipmentOperatorHours() {
                           {[row.equipment_code, row.project_name].filter(Boolean).join(" · ")}
                         </p>
                       </TableCell>
+                      <TableCell className="font-medium">{row.site_no || "-"}</TableCell>
                       <TableCell>{row.supplier_name || "-"}</TableCell>
                       <TableCell>{row.plate || "-"}</TableCell>
                       <TableCell className="tabular whitespace-nowrap">
@@ -539,6 +557,7 @@ export function EquipmentOperatorHours() {
                     <TableCell />
                     <TableCell />
                     <TableCell />
+                    <TableCell />
                     <TableCell className="tabular text-right font-semibold">
                       {days.data?.total_hours ?? ""}
                     </TableCell>
@@ -558,6 +577,7 @@ export function EquipmentOperatorHours() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.equipment")}</TableHead>
+                <TableHead>{t("field.siteNo")}</TableHead>
                 <TableHead>{t("field.supplier")}</TableHead>
                 <TableHead>{t("field.plate")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.daysWorked")}</TableHead>
@@ -570,13 +590,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {monthly.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : monthRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
                     {t("month.empty")}
                   </TableCell>
                 </TableRow>
@@ -590,6 +610,7 @@ export function EquipmentOperatorHours() {
                           {[row.equipment_code, row.project_name].filter(Boolean).join(" · ")}
                         </p>
                       </TableCell>
+                      <TableCell className="font-medium">{row.site_no || "-"}</TableCell>
                       <TableCell>{row.supplier_name || "-"}</TableCell>
                       <TableCell>{row.plate || "-"}</TableCell>
                       <TableCell className="tabular text-right">{row.days_worked}</TableCell>
@@ -609,6 +630,7 @@ export function EquipmentOperatorHours() {
                     <TableCell className="font-semibold">{t("month.total")}</TableCell>
                     <TableCell />
                     <TableCell />
+                    <TableCell />
                     <TableCell className="text-right" />
                     <TableCell className="text-right" />
                     <TableCell className="tabular text-right font-semibold">
@@ -622,6 +644,10 @@ export function EquipmentOperatorHours() {
             </TableBody>
           </Table>
         </div>
+      )}
+
+      {numbering && (
+        <EquipmentSiteNumbersDialog project={project} onClose={() => setNumbering(false)} />
       )}
 
       {opened && (
@@ -731,6 +757,7 @@ export function DayDialog({
         reference={`${day.equipment_code || day.equipment_name}-${day.work_date}`}
         facts={[
           { label: t("field.code"), value: day.equipment_code || "-" },
+          { label: t("field.siteNo"), value: day.site_no || "-" },
           { label: t("field.supplier"), value: day.supplier_name || "-" },
           { label: t("field.plate"), value: day.plate || "-" },
           { label: t("field.project"), value: day.project_name },

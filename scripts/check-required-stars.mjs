@@ -54,6 +54,14 @@
  * `safety.field.location`. No static rule sees those - both halves are valid,
  * they simply disagree about meaning. They were found by reading, and finding
  * the next one will need reading too.
+ *
+ * THE QUIET FORM (2026-10-10). `required="quiet"` is still a required field
+ * to this check, but FieldWrapper draws no star for it: it is for a group the
+ * worker satisfies in any ONE of several ways (设备操作员工时 on the phone: pick
+ * the machine from the list, scan its QR or type its site number - the client:
+ * 「这些不一定要放红点」). A star there reads as "fill every one of these". The
+ * requirement is then said in words, so a quiet wrapper must carry a `hint`;
+ * one without is reported like a missing star.
  */
 
 import { readFileSync } from "node:fs";
@@ -260,6 +268,15 @@ for (const relative of files) {
       if (key && demanded.has(key)) {
         carried.add(key);
         matched += 1;
+        if (/\brequired="quiet"/.test(attrs) && !/\bhint=/.test(attrs)) {
+          const line =
+            source.slice(0, start + wrapper.index).split("\n").length;
+          problems.push(
+            `${relative}:${line}: in ${component}, ${key} is required="quiet" ` +
+              `(no star) but carries no hint, so nothing on the screen says ` +
+              `it is needed. Give it a hint that says how to fill it.`,
+          );
+        }
         if (!/\brequired\b(?!\w)/.test(attrs)) {
           const line =
             source.slice(0, start + wrapper.index).split("\n").length;

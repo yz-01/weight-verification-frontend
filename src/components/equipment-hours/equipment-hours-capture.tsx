@@ -13,6 +13,7 @@ import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -34,13 +35,15 @@ import { loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
 import { submitEquipmentHoursPhotoOfflineAware } from "@/services/offline-sync.service";
 
 /**
- * 「编号 · 名称 · 车牌」 - how a machine is named on the phone: the equipment
- * number first, the way it is painted on the machine (no category, F3).
+ * 「编号 · 名称 · 车牌」 - how a machine is named on the phone: the number
+ * painted on the machine first (no category, F3). That is the office's 现场编号
+ * when it has given one (「12 · 挖机 · WXY 1234」, 2026-10-10), else the
+ * equipment number.
  */
 export function machineLabel(
-  machine: Pick<EquipmentHoursMachine, "name" | "plate"> & { code?: string },
+  machine: Pick<EquipmentHoursMachine, "name" | "plate"> & { code?: string; site_no?: string },
 ): string {
-  return [machine.code, machine.name, machine.plate].filter(Boolean).join(" · ");
+  return [machine.site_no || machine.code, machine.name, machine.plate].filter(Boolean).join(" · ");
 }
 
 /**
@@ -50,17 +53,21 @@ export function machineLabel(
  */
 export { photoTakenAt };
 
-/** Letters and digits only, upper case: how a plate or number is compared. */
+/**
+ * Letters and digits only, upper case: how a plate or number is compared -
+ * the server's `normalised_plate`. Any script's letters count, so a site
+ * number such as 「挖机1」 is not squashed to 「1」.
+ */
 function squash(value: string | undefined | null): string {
-  return (value ?? "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+  return (value ?? "").toUpperCase().replace(/[^\p{L}\p{N}]/gu, "");
 }
 
 /**
  * The machine a scanned QR names (Lucas 2026-10-10: 「有些就是贴一张二维码在设备
  * 上。也需要扫码」). The system prints no machine QR of its own, so the code is
- * read as text: the machine's id, its equipment number, its plate or its
- * serial number; a link is read for an `equipment` / `code` / `id` parameter
- * or its last path part. Spaces, dashes and case do not matter.
+ * read as text: the machine's id, its equipment number, its 现场编号, its
+ * plate or its serial number; a link is read for an `equipment` / `code` /
+ * `id` parameter or its last path part. Spaces, dashes and case do not matter.
  */
 export function matchScannedMachine(
   text: string,
@@ -87,11 +94,30 @@ export function matchScannedMachine(
     if (!key) continue;
     const found =
       machines.find((machine) => squash(machine.code) === key) ??
+      machines.find((machine) => squash(machine.site_no) === key) ??
       machines.find((machine) => squash(machine.plate) === key) ??
       machines.find((machine) => squash(machine.serial_no) === key);
     if (found) return found;
   }
   return null;
+}
+
+/**
+ * The machine a typed number names (「输入编号」, 2026-10-10): the office's
+ * 现场编号 first - 「12」 is what is painted on the machine - then whatever a
+ * scan would match (equipment number, plate, serial). Spaces, dashes and
+ * case do not matter.
+ */
+export function matchTypedMachine(
+  text: string,
+  machines: EquipmentHoursMachine[],
+): EquipmentHoursMachine | null {
+  const key = squash(text);
+  if (!key) return null;
+  return (
+    machines.find((machine) => squash(machine.site_no) === key) ??
+    matchScannedMachine(text, machines)
+  );
 }
 
 /** 开工 when the machine is not running, 收工 when it is. */
@@ -113,7 +139,8 @@ export type LastSent =
 
 /**
  * 设备操作员工时 on the phone (2026-10 B15; in/out pairs since 2026-10-10):
- * pick the supplier and the machine - or scan the QR on it - say 开工 or 收工,
+ * pick the supplier and the machine - or scan the QR on it, or type the
+ * number the office painted on it (现场编号, 「12」) - say 开工 or 收工,
  * take the photo, send. A start and the stop after it are one row of hours
  * in the office. Works with no signal: the photo waits in the offline queue
  * with the moment it was taken.
@@ -136,6 +163,8 @@ export function EquipmentHoursCapture({
   const [error, setError] = useState("");
   const [scanning, setScanning] = useState(false);
   const [last, setLast] = useState<LastSent | null>(null);
+  // 「输入编号」: the number painted on the machine, typed (2026-10-10).
+  const [typed, setTyped] = useState("");
 
   const machines = useQuery({
     queryKey: ["equipment-hours", "machines", project],
@@ -165,6 +194,23 @@ export function EquipmentHoursCapture({
     setEquipment(machine?.id ?? "");
     setKind(nextKind(machine));
     setError("");
+  };
+  const typedMatch = typed.trim() ? matchTypedMachine(typed, rows) : null;
+
+  // What is typed picks the machine; a number that names none leaves none
+  // picked, so the screen never shows one machine under another's number.
+  const typeNumber = (value: string) => {
+    setTyped(value);
+    if (!value.trim()) return;
+    const found = matchTypedMachine(value, rows);
+    if (!found) {
+      if (equipment) pick(undefined);
+      return;
+    }
+    if (supplierValue !== ALL && (found.supplier || NO_SUPPLIER) !== supplierValue) {
+      setSupplier(ALL);
+    }
+    if (found.id !== equipment) pick(found);
   };
 
   const send = useMutation({
@@ -212,6 +258,7 @@ export function EquipmentHoursCapture({
             onValueChange={(value) => {
               setProject(value);
               setSupplier(ALL);
+              setTyped("");
               pick(undefined);
             }}
             placeholder={t("phone.project")}
@@ -226,6 +273,7 @@ export function EquipmentHoursCapture({
           onValueChange={(value) => {
             setSupplier(value);
             if (chosen && value !== ALL && (chosen.supplier || NO_SUPPLIER) !== value) {
+              setTyped("");
               pick(undefined);
             }
           }}
@@ -247,11 +295,16 @@ export function EquipmentHoursCapture({
         </Select>
       </FieldWrapper>
 
-      <FieldWrapper label={t("phone.machine")} required>
+      {/* One requirement met any one of three ways - the list, the QR or the
+          typed number - so no red star (「这些不一定要放红点」); the hint says it. */}
+      <FieldWrapper label={t("phone.machine")} required="quiet" hint={t("phone.machineAnyWay")}>
         <div className="flex gap-2">
           <Select
             value={equipment}
-            onValueChange={(value) => pick(rows.find((row) => row.id === value))}
+            onValueChange={(value) => {
+              setTyped("");
+              pick(rows.find((row) => row.id === value));
+            }}
             disabled={!project}
           >
             <SelectTrigger className="h-12 min-w-0 flex-1" aria-label={t("phone.machine")}>
@@ -276,6 +329,31 @@ export function EquipmentHoursCapture({
             {t("phone.scan")}
           </Button>
         </div>
+        <label className="flex items-center gap-2 pt-1">
+          <span className="shrink-0 text-sm text-muted-foreground">{t("phone.typeNumber")}</span>
+          <Input
+            className="h-12 min-w-0 flex-1"
+            value={typed}
+            maxLength={40}
+            autoCapitalize="characters"
+            autoComplete="off"
+            enterKeyHint="done"
+            disabled={!project}
+            placeholder={t("phone.typeNumberPlaceholder")}
+            onChange={(event) => typeNumber(event.target.value)}
+          />
+        </label>
+        {typed.trim() && machines.isSuccess ? (
+          typedMatch ? (
+            <p className="mt-1 text-xs font-medium text-primary" aria-live="polite">
+              {t("phone.typedFound", { machine: machineLabel(typedMatch) })}
+            </p>
+          ) : (
+            <p className="mt-1 text-xs font-medium text-destructive" aria-live="polite">
+              {t("phone.typedNoMatch")}
+            </p>
+          )
+        ) : null}
         {machines.isError ? (
           <FieldLoadNote query={machines} what={t("phone.machines")} />
         ) : machines.isSuccess && rows.length === 0 ? (
@@ -367,6 +445,7 @@ export function EquipmentHoursCapture({
             return;
           }
           setSupplier(ALL);
+          setTyped("");
           pick(found);
         }}
       />
