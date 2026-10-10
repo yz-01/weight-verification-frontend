@@ -36,7 +36,7 @@ function passesExport(body: string, kind: string) {
   return viaDialog.test(body) || viaButton.test(body);
 }
 
-/** The nine office record details, the component that draws each, and its kind. */
+/** The office record details, the component that draws each, and its kind. */
 const DETAILS: Array<[string, string, string]> = [
   ["src/components/receipts/view-receipt.tsx", "ViewReceipt", "MATERIAL_RECEIPT"],
   ["src/components/contractor-ops/operations-workspaces.tsx", "OutgoingDetailDialog", "MATERIAL_OUTGOING"],
@@ -47,6 +47,9 @@ const DETAILS: Array<[string, string, string]> = [
   ["src/components/contractor-ops/office-module-lists.tsx", "SiteProgressOffice", "PROGRESS"],
   ["src/components/consultant-workflow/application-detail.tsx", "ConsultantApplicationDetail", "CONSULTANT_APPLICATION"],
   ["src/components/sundry-claims/sundry-claims-office.tsx", "SundryClaimDetail", "SUNDRY_CLAIM"],
+  // 施工准证 is a HAZARD row (record_type PERMIT); its own detail exports the
+  // complete evidence too (2026-10-10, 审批证据完整性).
+  ["src/components/permits/permit-parts.tsx", "PermitDetail", "HAZARD"],
 ];
 
 describe("every record detail can export that one record (T-386)", () => {

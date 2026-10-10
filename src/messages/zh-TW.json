@@ -5262,7 +5262,7 @@
     },
     "formCard": {
       "title": "顧問申請表（A4）",
-      "help": "預覽、列印、匯出的都是同一張 A4：左邊是我方公司，右邊是顧問公司，下面是申請內容、照片和附件清單。",
+      "help": "預覽、列印、匯出的是完整證據 PDF：第一頁是這張 A4（左邊我方公司，右邊顧問公司，下面是申請內容、照片和附件清單），後面接著附件內容、顧問審批記錄及簽名、溝通記錄。",
       "print": "列印",
       "attachments": "看附件（{count}）",
       "send": "發送給顧問 {name}"
@@ -15958,7 +15958,10 @@
     "shareMessage": "請查收附件：{name}",
     "shareCopyLink": "複製記錄連結",
     "file": "檔案",
-    "printInViewer": "檔案已用手機的閱讀器開啟，請選「分享」→「列印」。"
+    "printInViewer": "檔案已用手機的閱讀器開啟，請選「分享」→「列印」。",
+    "completeEvidence": "完整證據 PDF",
+    "completeEvidenceHint": "主表、照片、附件內容（Word、Excel、PDF 轉為可列印頁面）、審批記錄及簽名、溝通記錄合成一份 PDF；原始檔案保持不變。",
+    "completeEvidenceTitle": "完整證據 · {reference}"
   },
   "recordAttachments": {
     "title": "附件",
