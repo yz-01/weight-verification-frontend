@@ -12170,7 +12170,7 @@
       "contactPerson": "聯絡人",
       "designation": "職位",
       "email": "聯絡郵箱",
-      "help": "這些資料和 Logo 會顯示在回收商後臺。",
+      "help": "這些資料和 Logo 會顯示在回收商後臺；貴公司所有 PDF、列印件和匯出檔案的表頭都印上貴公司的名稱和 Logo。",
       "logo": "選擇 Logo",
       "name": "公司名稱",
       "phone": "聯絡電話",
@@ -13467,7 +13467,7 @@
       "logo": "Logo",
       "background": "背景圖",
       "chooseBackground": "選擇背景圖",
-      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有貴公司看到和使用；MR 申請表會印上貴公司的名稱和 Logo。"
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有貴公司看到和使用；貴公司所有 PDF、列印件和匯出檔案的表頭都印上貴公司的名稱和 Logo。"
     },
     "projectDefaults": {
       "archiveLock": "歸檔後鎖定記錄",
@@ -14657,7 +14657,7 @@
       "vehiclePlate": "車牌",
       "wasteType": "物料"
     },
-    "footer": "由 MSE Trace 出具。本次稱重的每一筆讀數均原樣保存，可憑上方哈希重新核驗。",
+    "footer": "本次稱重的每一筆讀數均原樣保存，可憑上方哈希重新核驗。",
     "section": {
       "anomalies": "本次稱重被判無效的原因",
       "evidence": "證據",

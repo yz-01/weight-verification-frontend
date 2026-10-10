@@ -12170,7 +12170,7 @@
       "contactPerson": "Contact person",
       "designation": "Designation",
       "email": "Email",
-      "help": "This information and logo identify your company across the recycler portal.",
+      "help": "This information and logo identify your company across the recycler portal, and your name and logo head every PDF, print and export of your records.",
       "logo": "Choose logo",
       "name": "Company name",
       "phone": "Phone",
@@ -13467,7 +13467,7 @@
       "logo": "Logo",
       "background": "Background image",
       "chooseBackground": "Choose background image",
-      "imageHint": "PNG, JPG or WebP, up to 8 MB. Only your company sees and uses these; the MR form prints your name and logo."
+      "imageHint": "PNG, JPG or WebP, up to 8 MB. Only your company sees and uses these. Your company name and logo head every PDF, print and export of your records."
     },
     "projectDefaults": {
       "archiveLock": "Lock records after archive",
@@ -14657,7 +14657,7 @@
       "vehiclePlate": "Vehicle",
       "wasteType": "Material"
     },
-    "footer": "Produced by MSE Trace. Every reading behind this weighing is stored unaltered and can be re-verified against the hashes above.",
+    "footer": "Every reading behind this weighing is stored unaltered and can be re-verified against the hashes above.",
     "section": {
       "anomalies": "Why this weighing was rejected",
       "evidence": "Evidence",
