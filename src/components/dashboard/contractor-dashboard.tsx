@@ -8,9 +8,7 @@ import {
   CalendarClock,
   ClipboardCheck,
   ClipboardList,
-  Download,
   FilePlus2,
-  FileSpreadsheet,
   FileText,
   FolderPlus,
   HardHat,
@@ -34,6 +32,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { PhotoThumb, recordPhotos } from "@/components/shared/photo-thumb";
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { DashboardCards } from "@/components/dashboard/dashboard-cards";
@@ -961,48 +960,27 @@ function QuickSearch({ project }: { project: string }) {
 
 function ExportButtons({ project }: { project: string }) {
   const t = useTranslations("contractorDashboard");
-  const [busy, setBusy] = useState<"PDF" | "EXCEL" | null>(null);
 
-  const run = async (format: "PDF" | "EXCEL") => {
-    setBusy(format);
-    try {
-      await exportContractorDashboard({
-        format,
-        project: project || undefined,
-        title: t("export.title"),
-        subtitle: t("export.subtitle"),
-        // The server writes whatever labels it is handed, so the wording stays
-        // in the message catalogue rather than being duplicated in Python.
-        column_labels: Object.fromEntries(
-          EXPORT_COLUMNS.map((key) => [key, t(`export.column.${key}`)]),
-        ),
-      });
-    } finally {
-      setBusy(null);
-    }
-  };
+  const run = (format: "PDF" | "EXCEL") =>
+    exportContractorDashboard({
+      format,
+      project: project || undefined,
+      title: t("export.title"),
+      subtitle: t("export.subtitle"),
+      // The server writes whatever labels it is handed, so the wording stays
+      // in the message catalogue rather than being duplicated in Python.
+      column_labels: Object.fromEntries(
+        EXPORT_COLUMNS.map((key) => [key, t(`export.column.${key}`)]),
+      ),
+    });
 
+  // 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则), as on every export.
   return (
-    <div className="flex gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={busy !== null}
-        onClick={() => void run("EXCEL")}
-      >
-        <FileSpreadsheet />
-        {t("export.excel")}
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={busy !== null}
-        onClick={() => void run("PDF")}
-      >
-        <Download />
-        {t("export.pdf")}
-      </Button>
-    </div>
+    <ExportButton
+      size="sm"
+      title={t("export.title")}
+      onExport={(format) => run(format === "pdf" ? "PDF" : "EXCEL")}
+    />
   );
 }
 

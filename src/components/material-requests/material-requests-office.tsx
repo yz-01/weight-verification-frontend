@@ -23,12 +23,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Check,
-  Download,
   Eye,
   FilePlus2,
   Loader2,
   Paperclip,
-  Printer,
   RotateCcw,
   Settings2,
   UserCheck,
@@ -36,7 +34,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { PhotoApprovals } from "@/components/field-staff/photo-approvals";
@@ -49,6 +47,7 @@ import {
 } from "@/components/material-requests/request-form";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { FileActionButtons } from "@/components/shared/file-actions";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { ManufacturerCell, ManufacturerPicker } from "@/components/shared/manufacturer-picker";
@@ -87,12 +86,11 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { recordConversationKey } from "@/lib/record-chat";
 import {
-  exportMaterialRequestForm,
   exportMaterialRequests,
   getMaterialRequest,
   getMaterialRequests,
   getMaterialRequestTotals,
-  materialRequestFormUrl,
+  materialRequestFormFile,
   reassignMaterialRequestToMe,
   reviewMaterialRequest,
 } from "@/services/material-request.service";
@@ -555,7 +553,6 @@ export function MaterialRequestDetail({
   const [returnArmed, setReturnArmed] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
-  const [previewing, setPreviewing] = useState(false);
   // Approving is the purchase (2026-10 D1, D2): who it is bought from and
   // whose make. Starts from what the applicant suggested; `null` = untouched.
   const [supplier, setSupplier] = useState<string | null>(null);
@@ -734,19 +731,15 @@ export function MaterialRequestDetail({
         actions={
           <div className="space-y-2">
             {error && <p role="alert" className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">{error}</p>}
-            <div className="grid grid-cols-3 gap-1.5">
-              <Button size="sm" variant="outline" onClick={() => setPreviewing(true)}>
-                <Eye className="size-4" />
-                {t("action.preview")}
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setPreviewing(true)}>
-                <Printer className="size-4" />
-                {t("action.print")}
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => void exportMaterialRequestForm(row.id, locale, row.request_no)}>
-                <Download className="size-4" />
-                {t("action.exportPdf")}
-              </Button>
+            {/* The formal form (C06): 预览 · 打印 · 导出 · 发送, as every
+                exported file (PDF 统一操作规则). */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <FileActionButtons
+                source={{
+                  load: () => materialRequestFormFile(row.id, locale, row.request_no),
+                  title: t("preview.title", { reference: row.request_no }),
+                }}
+              />
             </div>
             {reviewView === "decide" && (
               <>
@@ -832,78 +825,7 @@ export function MaterialRequestDetail({
         }
         conversation={{ kind: "MATERIAL_REQUEST", recordId: row.id }}
       />
-      {previewing && <FormPreview request={row} onClose={() => setPreviewing(false)} />}
     </RecordDetailDialog>
   );
 }
 
-/**
- * The formal form (C06) in a frame: read it, print it from here, or save it.
- * The PDF is fetched with the session, so it opens without a second sign-in.
- */
-export function FormPreview({ request, onClose }: { request: MaterialRequest; onClose: () => void }) {
-  const t = useTranslations("materialRequest");
-  const locale = useLocale();
-  const frame = useRef<HTMLIFrameElement>(null);
-  const [url, setUrl] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    let made: string | null = null;
-    materialRequestFormUrl(request.id, locale)
-      .then((objectUrl) => {
-        made = objectUrl;
-        if (alive) setUrl(objectUrl);
-        else URL.revokeObjectURL(objectUrl);
-      })
-      .catch(() => alive && setFailed(true));
-    return () => {
-      alive = false;
-      if (made) URL.revokeObjectURL(made);
-    };
-  }, [request.id, locale]);
-
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="flex h-[92dvh] flex-col gap-3 sm:max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>{t("preview.title", { reference: request.request_no })}</DialogTitle>
-          <DialogDescription>{t("preview.help")}</DialogDescription>
-        </DialogHeader>
-        <div className="min-h-0 flex-1 overflow-hidden rounded-md border bg-muted/30">
-          {failed ? (
-            <p className="p-6 text-sm text-destructive">{t("failed")}</p>
-          ) : url ? (
-            <iframe ref={frame} src={url} title={request.request_no} className="size-full" />
-          ) : (
-            <div className="grid size-full place-items-center">
-              <Loader2 className="size-7 animate-spin text-primary" />
-            </div>
-          )}
-        </div>
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button variant="outline" onClick={() => void exportMaterialRequestForm(request.id, locale, request.request_no)}>
-            <Download className="size-4" />
-            {t("action.exportPdf")}
-          </Button>
-          <Button
-            disabled={!url}
-            disabledReason={!url ? t("loading") : undefined}
-            onClick={() => {
-              const target = frame.current?.contentWindow;
-              if (target) {
-                target.focus();
-                target.print();
-              } else if (url) {
-                window.open(url, "_blank", "noopener,noreferrer");
-              }
-            }}
-          >
-            <Printer className="size-4" />
-            {t("action.print")}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}

@@ -7,7 +7,6 @@ import {
   Check,
   CircleCheckBig,
   CircleDashed,
-  FileDown,
   FlaskConical,
   HardHat,
   History,
@@ -22,6 +21,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { ExportButton } from "@/components/shared/export-button";
 import { KpiCard } from "@/components/shared/kpi-card";
 import {
   EmptyState,
@@ -2518,25 +2518,11 @@ function ReportPanel() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                disabled={exporting.isPending}
-                onClick={() =>
-                  exporting.mutate({ dataset, format: "pdf", fields })
-                }
-              >
-                <FileDown />
-                PDF
-              </Button>
-              <Button
-                disabled={exporting.isPending}
-                onClick={() =>
-                  exporting.mutate({ dataset, format: "xlsx", fields })
-                }
-              >
-                <FileDown />
-                Excel
-              </Button>
+              {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
+              <ExportButton
+                onExport={(format) => exporting.mutateAsync({ dataset, format, fields })}
+                title={t(`report.${dataset}`)}
+              />
             </div>
           </div>
         ))}

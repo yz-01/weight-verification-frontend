@@ -4,15 +4,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Download,
-  FileSpreadsheet,
-  FileText,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { FilterBar, ListHeader, LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -231,24 +229,13 @@ function ReportPanel({
       </FilterBar>
 
       <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          variant="outline"
-          disabledReason={!report.data ? common("noReportYet") : undefined}
-          disabled={exportMutation.isPending || !report.data}
-          onClick={() => exportMutation.mutate("EXCEL")}
-        >
-          <FileSpreadsheet />
-          {t("action.excel")}
-        </Button>
-        <Button
-          variant="outline"
-          disabledReason={!report.data ? common("noReportYet") : undefined}
-          disabled={exportMutation.isPending || !report.data}
-          onClick={() => exportMutation.mutate("PDF")}
-        >
-          <FileText />
-          {t("action.pdf")}
-        </Button>
+        {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
+        <ExportButton
+          onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+          disabled={!report.data}
+          disabledReason={common("noReportYet")}
+          title={t(`reportType.${reportType}`)}
+        />
       </div>
 
       {report.isError ? (

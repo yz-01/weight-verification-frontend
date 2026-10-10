@@ -1,12 +1,12 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { FileDown, Landmark, ReceiptText, WalletCards } from "lucide-react";
+import { Landmark, ReceiptText, WalletCards } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { FilterBar, FilterField } from "@/components/shared/page-primitives";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { InvoiceState } from "@/interfaces/billing";
 import {
@@ -71,7 +71,7 @@ export function FinancialReports() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-4.5" /></span>
                 <div className="min-w-0 flex-1"><h3 className="panel-title">{t(`financialReports.${report.key}.title`)}</h3><p className="mt-1 text-xs text-muted-foreground">{t(`financialReports.${report.key}.subtitle`)}</p></div>
-                <div className="flex flex-wrap gap-2"><Button variant="outline" disabled={exporting.isPending} onClick={() => exporting.mutate({ report, format: "pdf" })}><FileDown />PDF</Button><Button disabled={exporting.isPending} onClick={() => exporting.mutate({ report, format: "xlsx" })}><FileDown />Excel</Button></div>
+                <div className="flex flex-wrap gap-2"><ExportButton onExport={(fileFormat) => exporting.mutateAsync({ report, format: fileFormat })} title={t(`financialReports.${report.key}.title`)} /></div>
               </div>
               <div className="mt-4 overflow-hidden rounded-lg border bg-muted/30">
               <div className="-mb-px -mr-px grid sm:grid-cols-2 lg:grid-cols-4">
