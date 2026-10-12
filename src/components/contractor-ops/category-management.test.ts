@@ -65,15 +65,17 @@ describe("every module is managed on this one page (D-264)", () => {
     }
   });
 
-  it("shows 隐患整改分类 read-only: no create, edit, delete or reorder", () => {
+  it("lets 隐患整改分类 be added, edited and removed (H18, HD4)", () => {
     const source = read(MANAGEMENT);
-    expect(modulesBlock()).toContain('{ ...columnModule("ehs", "EHS"), readOnly: true }');
+    expect(modulesBlock()).toContain('columnModule("ehs", "EHS"),');
+    expect(source).not.toMatch(/readOnly/);
     // Every create, edit, delete and reorder button hangs off canManage.
-    expect(source).toMatch(/const canManage = can\(active\.manage\) && !active\.readOnly;/);
+    expect(source).toMatch(/const canManage = can\(active\.manage\);/);
     expect(source).toMatch(/const createButton = canManage &&/);
     expect(source).toMatch(/const canReorder =\s+Boolean\(active\.columnKind\) && canManage/);
-    // And `?create=1` cannot open the form on it either.
-    expect(source).toMatch(/!initialModule\.readOnly &&/);
+    // 施工准证申请 is the system's: marked, and offers no removal.
+    expect(source).toMatch(/row\.column\?\.kind === "EHS" && row\.code === PERMIT_COLUMN_CODE/);
+    expect(source).toMatch(/row\.waste\?\.is_system \|\| isSystemColumn\(row\) \? null : \(\s*<Switch/);
   });
 
   it("gives every module a delete", () => {
@@ -109,9 +111,10 @@ describe("every module is managed on this one page (D-264)", () => {
     expect(source).not.toMatch(/createElsewhere/);
     // Creating is a dialog on this page.
     expect(source).toMatch(/setEditing\("new"\)/);
-    // And deleting goes through the one confirmation, with the server's
-    // refusal shown when it says no.
-    expect(source).toMatch(/<ConfirmDialog/);
+    // And deleting is armed by a switch, never a confirm dialog (rule 8,
+    // HD4), with the server's refusal shown when it says no.
+    expect(source).not.toMatch(/ConfirmDialog/);
+    expect(source).toMatch(/disabled=\{armed !== row\.id \|\| removal\.isPending\}/);
     expect(source).toMatch(/t\("removeFailed", refusal\)/);
   });
 

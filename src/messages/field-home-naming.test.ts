@@ -311,6 +311,13 @@ describe("the names that are meant to differ still do", () => {
     expect(at(messages("zh"), "contractorDashboard.rectifications.title")).toBe(
       "待处理整改 / EHS",
     );
+    // H6 (HD1): the module is 「整改 / EHS」 and its button 「上报整改」.
+    expect(at(messages("zh"), "nav.submodule.hazardRectifications")).toBe("整改 / EHS");
+    expect(at(messages("zh-TW"), "nav.submodule.hazardRectifications")).toBe("整改 / EHS");
+    for (const key of ["safety.new", "safety.createTitle", "safety.form.confirm", "hazard.field.report", "safety.fieldReport.new"]) {
+      expect(at(messages("zh"), key), key).toBe("上报整改");
+      expect(at(messages("zh-TW"), key), key).toBe("上報整改");
+    }
   });
 
   it("gives every module a name of its own", () => {
@@ -335,9 +342,11 @@ describe("the names that are meant to differ still do", () => {
  * once: the recycle order (now 「废料订单」, as the menu says) and the
  * application (「环保材料出场申请」).
  */
+// 「隐患」 / 「隱患」 (H6, HD1): the client's 「敏感的字眼系统上不能用」 - not in
+// any string at all, in the two Chinese catalogues. en / ms keep "hazard".
 const RETIRED: Record<(typeof LOCALES)[number], string[]> = {
-  zh: ["材料收货", "收货记录", "记录收货", "施工进度", "安全与隐患", "废料清运", "材料记录", "工地设备", "废料出场"],
-  "zh-TW": ["材料收貨", "收貨記錄", "記錄收貨", "施工進度", "安全與隱患", "廢料清運", "材料記錄", "工地設備", "廢料出場"],
+  zh: ["材料收货", "收货记录", "记录收货", "施工进度", "安全与隐患", "废料清运", "材料记录", "工地设备", "废料出场", "隐患"],
+  "zh-TW": ["材料收貨", "收貨記錄", "記錄收貨", "施工進度", "安全與隱患", "廢料清運", "材料記錄", "工地設備", "廢料出場", "隱患"],
   en: ["Material record", "Site equipment", "Progress records", "Safety / hazard"],
   ms: ["Penerimaan bahan", "Peralatan tapak", "Rekod kemajuan", "Keselamatan / bahaya"],
 };

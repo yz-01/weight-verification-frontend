@@ -32,7 +32,7 @@ function notice(
     payload: {
       notification_id: id,
       kind,
-      title: "隐患整改待验收",
+      title: "整改待验收",
       message: "工地 A 的 SI-A-0001 有新的整改证据待验收。",
       data: {
         incident_id: "incident-1",
@@ -56,7 +56,7 @@ describe("hazardCardFromEvent", () => {
       incidentNo: "SI-A-0001",
       incidentTitle: "安全部整改",
       actor: "Ali",
-      what: "隐患整改待验收",
+      what: "整改待验收",
       detail: "工地 A 的 SI-A-0001 有新的整改证据待验收。",
       // The hazard's own page, from the one routing function (F9).
       href: "/hazard-rectifications?incident=incident-1",

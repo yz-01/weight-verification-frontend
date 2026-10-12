@@ -108,7 +108,8 @@ test("field staff sees actionable tasks with four direct navigation buttons", as
   await expect(page.getByRole("button", { name: "Report now" })).toBeVisible();
   await expect(page.locator('[data-draft-status]')).toBeVisible();
   await expect(
-    page.getByRole("button", { name: /^(report a hazard|上报隐患|上報隱患|lapor bahaya)$/i }),
+    // 「上报整改」 since H6 (HD1).
+    page.getByRole("button", { name: /^(report a hazard|上报整改|上報整改|lapor bahaya)$/i }),
   ).toHaveCount(0);
 });
 

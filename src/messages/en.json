@@ -3968,7 +3968,7 @@
     "moduleHelp": {
       "material": "Deliveries and the money they cost file here. One list per project.",
       "equipment": "Cranes, excavators, generators. One list per project, kept by this company.",
-      "ehs": "Safety, construction and consultant rectifications, and work permits. One list per project, fixed - view only here.",
+      "ehs": "Each project starts with safety, construction and consultant rectifications and work permits. Add, rename or switch off categories here; only one with no records can be removed. Work permits is a system category and can only be renamed.",
       "recycle": "Recyclable waste the site sends out: scrap iron, copper, aluminium, cable. One list for the whole company; the seeded ones can be closed but not deleted."
     },
     "moduleSource": {
@@ -4068,7 +4068,13 @@
       "majorClassOf": "Major class it belongs to",
       "majorClassHint": "Leave it to make this a major class. Machines are registered under a sub class.",
       "isMajorClass": "(This is a major class)"
-    }
+    },
+    "system": "System",
+    "systemHelp": "Work permits are used by the system: they can be renamed, not switched off or removed.",
+    "armRemove": "Allow removing {name}",
+    "armFirst": "Turn on the switch beside it first",
+    "codeAuto": "The code is made by the system and cannot be changed once created.",
+    "codeAutoPlaceholder": "Made when saved"
   },
   "cloudServices": {
     "count": "{count} services",
@@ -5954,11 +5960,11 @@
       "confirmedAt": "Confirmed at",
       "confirmedBy": "Confirmed by",
       "editPhase": "Correct this construction category",
-      "noPhasesHelp": "This project has no construction categories yet. Add one before recording progress against it.",
+      "noPhasesHelp": "This project has no construction categories yet. Press “+ Add construction category” and enter a name.",
       "phaseActive": "In use. Turn this off to retire a construction category instead of deleting it - progress records point at it, and removing it would take their meaning with them.",
       "phaseHelp": "Create the construction categories used to organise progress.",
       "phaseTitle": "Construction category",
-      "recordHelp": "Take current site photos. A manager must confirm the percentage before it is final.",
+      "recordHelp": "Take at least one site photo, choose the construction category, add a note if you like, then submit. The percentage is optional.",
       "recordTitle": "New progress evidence",
       "returnPrompt": "Explain what must be corrected before this progress is resubmitted.",
       "saveError": "The progress record could not be saved. Check the project, construction category, photo and GPS, then try again.",
@@ -5983,7 +5989,7 @@
       "correction": {
         "edit": "Correct the percentage",
         "newPercent": "New percentage (%)",
-        "was": "Currently {percent}%",
+        "was": "Currently {percent}",
         "reason": "Reason for the change",
         "reasonPlaceholder": "e.g. The site entered 40 but the slab is 55% done",
         "save": "Save correction",
@@ -5994,9 +6000,17 @@
         "archivedNote": "This record is archived. Only the percentage can be corrected; photos, location, time taken and recorder stay locked.",
         "edited": "Edited",
         "historyTitle": "Percentage changes",
-        "change": "{from}% → {to}%",
+        "change": "{from} → {to}",
         "by": "{name} · {at}"
-      }
+      },
+      "percentUnfilled": "Not filled",
+      "newPhase": {
+        "add": "+ Add construction category",
+        "title": "Add construction category",
+        "help": "Enter the name only; the code is made by the system. If a category with this name already exists, it is chosen.",
+        "name": "Category name"
+      },
+      "note": "Note"
     },
     "progressEvidence": {
       "activity": "2. Work activity",
@@ -6168,7 +6182,8 @@
       "missing": "No Return Note yet",
       "needNoteFirst": "Fill the Return Note first",
       "filledBy": "Filled by"
-    }
+    },
+    "progressEvidenceSuggested": "{current} photo(s) taken. Take at least 1; the four below are suggestions, and more photos may be added."
   },
   "contractorPartners": {
     "count": "{count, plural, =0 {No contractor partners} one {# contractor partner} other {# contractor partners}}",
@@ -9970,7 +9985,7 @@
       "accepted_by": "Accepted by",
       "people": "People",
       "percent_complete": "Completed",
-      "phase": "Phase",
+      "phase": "Construction category",
       "pickup_address": "Collect from",
       "quantity": "Quantity",
       "reason": "Reason",
@@ -11986,7 +12001,10 @@
         "legacyReturn": "Return entered on a receipt before 10-02",
         "project": "Project"
       }
-    }
+    },
+    "exportVerdict": "Acceptance result",
+    "rejectedReturns": "Rejected returns",
+    "rejectedReturn": "Rejected – returned"
   },
   "recyclerBusiness": {
     "action": {
@@ -12737,7 +12755,9 @@
       "locationTimeout": "The GPS fix did not arrive in time. Step into the open and try again.",
       "locationUnavailable": "The device could not get a position. Check that location is on, then try again.",
       "locationUnsupported": "This device cannot provide a GPS position.",
-      "noSafetyColumns": "This project has no safety category yet. Add one under Category management and hazards can be filed against it."
+      "noSafetyColumns": "This project has no safety category yet. Add one first so hazards can be filed against it.",
+      "addSafetyColumn": "+ Add a safety category",
+      "askForSafetyColumn": "Ask a colleague who manages categories to add one under Category management."
     },
     "new": "Report hazard",
     "status": {
@@ -16233,7 +16253,8 @@
       "clear": "Clear selection",
       "oneProject": "A daily report holds photos of one project only.",
       "empty": "No site photos found.",
-      "emptyDay": "No site photos in this period."
+      "emptyDay": "No site photos in this period.",
+      "addPhase": "+ Add construction category"
     },
     "reports": {
       "write": "Write daily report",

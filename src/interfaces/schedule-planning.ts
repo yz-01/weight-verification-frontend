@@ -162,7 +162,8 @@ export interface ProgressCandidate {
   id: string;
   phase_name: string;
   description: string;
-  percent_complete: string;
+  /** Null when the site left it out (H5/H11, HD2). */
+  percent_complete: string | null;
   captured_at: string;
   submitted_by_name: string;
 }

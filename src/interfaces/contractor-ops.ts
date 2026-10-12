@@ -521,7 +521,8 @@ export interface SiteProgressRecord extends RecordedBy {
   project_name: string;
   phase: string;
   phase_name: string;
-  percent_complete: string;
+  /** 实际完成比例; null when the site left it out (H5/H11, HD2). */
+  percent_complete: string | null;
   /**
    * The progress column this record files under, or null while unfiled.
    *
@@ -559,7 +560,8 @@ export interface SiteProgressRecord extends RecordedBy {
 /** One office correction of a progress record's 实际完成比例 (2026-10-09). */
 export interface ProgressCorrection {
   id: string;
-  old_percent: string;
+  /** Null when the site had left the percentage out (H5/H11). */
+  old_percent: string | null;
   new_percent: string;
   reason: string;
   author_name: string | null;

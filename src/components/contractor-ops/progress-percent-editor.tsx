@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { ProgressCorrection, SiteProgressRecord } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
+import { usePercentText } from "@/lib/progress-percent";
 import { correctProgressPercent } from "@/services/contractor-ops.service";
 
 /**
@@ -36,13 +37,16 @@ import { correctProgressPercent } from "@/services/contractor-ops.service";
  */
 export function percentProblem(
   value: string,
-  current: string,
+  current: string | null,
 ): "range" | "unchanged" | null {
   const text = value.trim();
   if (!text) return null;
   const number = Number(text);
   if (!Number.isFinite(number) || number < 0 || number > 100) return "range";
-  if (Math.round(number * 100) === Math.round(Number(current) * 100)) return "unchanged";
+  // From 「未填」 any figure is a change (H5/H11).
+  if (current !== null && Math.round(number * 100) === Math.round(Number(current) * 100)) {
+    return "unchanged";
+  }
   return null;
 }
 
@@ -75,7 +79,8 @@ export function ProgressPercentFact({
   onSaved: (fresh: SiteProgressRecord) => void;
 }) {
   const t = useTranslations("contractorOps.progress.correction");
-  const [value, setValue] = useState(record.percent_complete);
+  const percent = usePercentText();
+  const [value, setValue] = useState(record.percent_complete ?? "");
   const [reason, setReason] = useState("");
   const problem = percentProblem(value, record.percent_complete);
 
@@ -92,7 +97,7 @@ export function ProgressPercentFact({
   if (!editing) {
     return (
       <span className="inline-flex flex-wrap items-center gap-1.5">
-        <span className="tabular">{record.percent_complete}%</span>
+        <span className="tabular">{percent(record.percent_complete)}</span>
         {wasCorrected(record) && <EditedTag />}
         {canEdit && (
           <Button
@@ -103,7 +108,7 @@ export function ProgressPercentFact({
             title={t("edit")}
             data-progress-percent-edit
             onClick={() => {
-              setValue(record.percent_complete);
+              setValue(record.percent_complete ?? "");
               setReason("");
               save.reset();
               onEditingChange(true);
@@ -121,7 +126,7 @@ export function ProgressPercentFact({
       <FieldWrapper
         label={t("newPercent")}
         required
-        hint={t("was", { percent: record.percent_complete })}
+        hint={t("was", { percent: percent(record.percent_complete) })}
         error={
           problem
             ? t(problem)
@@ -192,6 +197,7 @@ export function ProgressCorrectionHistory({
 }) {
   const t = useTranslations("contractorOps.progress.correction");
   const df = useDateFormat();
+  const percent = usePercentText();
   if (corrections.length === 0) return null;
   return (
     <ShellPanel title={t("historyTitle")} className="space-y-2">
@@ -199,7 +205,7 @@ export function ProgressCorrectionHistory({
         {corrections.map((entry) => (
           <li key={entry.id} className="rounded-lg border p-3 text-sm">
             <p className="tabular font-medium">
-              {t("change", { from: entry.old_percent, to: entry.new_percent })}
+              {t("change", { from: percent(entry.old_percent), to: percent(entry.new_percent) })}
             </p>
             <p className="whitespace-pre-wrap">{entry.reason}</p>
             <p className="text-xs text-muted-foreground">

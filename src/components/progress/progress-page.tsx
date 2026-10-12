@@ -36,6 +36,7 @@ import {
 import { ProgressSummaryTab } from "@/components/progress/progress-summary";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FilterSelect, ProjectListFilter } from "@/components/shared/module-records-table";
+import { NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import { FilterBar, ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { SchedulePlanningWorkspace } from "@/components/schedule-planning/schedule-planning-workspace";
 import { Button } from "@/components/ui/button";
@@ -215,6 +216,8 @@ export function SitePhotosTab() {
   const [writing, setWriting] = useState(false);
   const [written, setWritten] = useState<DailyReport | null>(null);
   const [mixed, setMixed] = useState(false);
+  // 「＋新增施工分类」 from the filter (H14, HD3).
+  const [addingPhase, setAddingPhase] = useState(false);
   const viewer = usePhotoViewer(rows, t("tabs.photos"));
   const chosen = new Set(selected.map((photo) => photo.id));
   const canWrite = can("progress.manage");
@@ -247,6 +250,11 @@ export function SitePhotosTab() {
             value: phase.id,
             label: project ? phase.name : `${phase.name} · ${phase.project_name ?? ""}`,
           }))}
+          onAdd={
+            canWrite
+              ? { label: t("photos.addPhase"), onSelect: () => setAddingPhase(true) }
+              : undefined
+          }
         />
         <DayRange
           from={list.filters.date_from ?? ""}
@@ -317,6 +325,17 @@ export function SitePhotosTab() {
         <Pager page={list.page} pages={Math.ceil(total / WALL_PAGE)} onPage={list.setPage} />
       )}
       {viewer.viewer}
+
+      {addingPhase && (
+        <NewPhaseDialog
+          project={project}
+          onClose={() => setAddingPhase(false)}
+          onCreated={(phase) => {
+            setAddingPhase(false);
+            list.setFilters({ project: phase.project, phase: phase.id });
+          }}
+        />
+      )}
 
       {writing && (
         <DailyReportDialog

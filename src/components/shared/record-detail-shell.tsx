@@ -350,7 +350,14 @@ export function RecordDetailShell({
   const hasAside = Boolean(
     actions || closure || aside || signatures.length > 0 || conversation || chat,
   );
-  const [hero, ...rest] = photos ?? [];
+  // Which photograph sits in the large place (H8, HD16): pressing a
+  // thumbnail swaps it there; pressing the large one opens the viewer from it.
+  const [heroChoice, setHeroIndex] = useState(0);
+  const heroIndex = photos && heroChoice < photos.length ? heroChoice : 0;
+  const hero = photos?.[heroIndex];
+  const rest = (photos ?? [])
+    .map((photo, index) => ({ photo, index }))
+    .filter(({ index }) => index !== heroIndex);
 
   /*
    * The canvas's 记录详情 frame (ReceiptDetail artboard), the same for every
@@ -417,17 +424,20 @@ export function RecordDetailShell({
                 </p>
               ) : (
                 <div className="space-y-3">
-                  <ShellHeroPhoto
-                    photo={hero}
-                    onOpen={() => setOpen(0)}
-                    fromThumbnail={heroFromThumbnail}
-                  />
+                  {hero ? (
+                    <ShellHeroPhoto
+                      photo={hero}
+                      onOpen={() => setOpen(heroIndex)}
+                      fromThumbnail={heroFromThumbnail}
+                    />
+                  ) : null}
                   {/* The rest small (「照片需要很小很小」): a thumbnail is a
-                      pointer, the evidence is the full image in the viewer. */}
+                      pointer, the evidence is the full image in the viewer.
+                      Pressing one brings it up large in place (HD16). */}
                   {rest.length > 0 ? (
                     <ul className="flex flex-wrap gap-2">
-                      {rest.map((photo, index) => (
-                        <ShellThumbnail key={photo.id} photo={photo} onOpen={() => setOpen(index + 1)} />
+                      {rest.map(({ photo, index }) => (
+                        <ShellThumbnail key={photo.id} photo={photo} onOpen={() => setHeroIndex(index)} />
                       ))}
                     </ul>
                   ) : null}

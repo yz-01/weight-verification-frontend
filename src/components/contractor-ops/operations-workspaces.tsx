@@ -67,6 +67,9 @@ import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner"
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useDateFormat } from "@/lib/dates";
+import { hasPercent, usePercentText } from "@/lib/progress-percent";
+import { cn } from "@/lib/utils";
+import { NEW_PHASE_OPTION, NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import {
   FieldWrapper,
   FilterBar,
@@ -78,6 +81,7 @@ import {
 import { LocationField } from "@/components/field-staff/location-field";
 import type { LocationFix } from "@/lib/field-location";
 import { parseAlertAmounts, parseAlertPercentages } from "@/lib/category-modules";
+import { PERMIT_COLUMN_CODE } from "@/lib/hazard-columns";
 import { MultiPickList } from "@/components/shared/multi-pick-list";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getManufacturers } from "@/services/material-setup.service";
@@ -364,6 +368,10 @@ export function CategoryDialog({
   const [error, setError] = useState("");
   const isMaterial = form.kind === "MATERIAL";
   const isEquipment = form.kind === "EQUIPMENT";
+  // EHS (H18, HD4): the server makes the code and keeps it; 施工准证申请 is
+  // the permit module's own, renamed but never switched off.
+  const isEhs = form.kind === "EHS";
+  const isPermit = isEhs && row?.code === PERMIT_COLUMN_CODE;
   // The major classes it may go under: this project's top-level equipment
   // categories, not itself (X1). One with sub classes of its own stays a
   // major class, so the choice is not offered.
@@ -463,12 +471,18 @@ export function CategoryDialog({
               disabled
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.code")} required>
-            <Input
-              value={form.code}
-              onChange={(e) => set("code", e.target.value.toUpperCase())}
-            />
-          </FieldWrapper>
+          {isEhs ? (
+            <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
+              <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
+            </FieldWrapper>
+          ) : (
+            <FieldWrapper label={t("field.code")} required>
+              <Input
+                value={form.code}
+                onChange={(e) => set("code", e.target.value.toUpperCase())}
+              />
+            </FieldWrapper>
+          )}
           <FieldWrapper label={t("field.name")} required>
             <Input
               value={form.name}
@@ -481,6 +495,8 @@ export function CategoryDialog({
               onValueChange={(value) =>
                 set("kind", value as ProjectCategoryKind)
               }
+              // An EHS category stays one (HD4): it is not moved to material.
+              disabled={isEhs}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -497,9 +513,10 @@ export function CategoryDialog({
                 <SelectItem value="EQUIPMENT">
                   {modules("module.equipment")}
                 </SelectItem>
-                {/* 2026-10 B1: 隐患整改分类 are read-only, so no column is
-                    made into one here; progress, clearance, consultant and
-                    sundry have no categories at all (X5). */}
+                {/* EHS only for an EHS category (H18): it is made from its
+                    own group and stays there. Progress, clearance, consultant
+                    and sundry have no categories at all (X5). */}
+                {isEhs && <SelectItem value="EHS">{modules("module.ehs")}</SelectItem>}
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
                     means "not separated yet" - but taking it off the form
@@ -815,9 +832,10 @@ export function CategoryDialog({
               />
               {t("field.showInPwa")}
             </label>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 text-sm" title={isPermit ? modules("systemHelp") : undefined}>
               <Checkbox
                 checked={form.is_active}
+                disabled={isPermit}
                 onCheckedChange={(checked) =>
                   set("is_active", checked === true)
                 }
@@ -846,7 +864,8 @@ export function CategoryDialog({
           <Button
             requires={[
               [form.project, t("field.project")],
-              [form.code, t("field.code")],
+              // An EHS code is the server's to make (HD4).
+              [isEhs || form.code, t("field.code")],
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
@@ -2886,6 +2905,7 @@ export function MovementDialog({
 
 export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("contractorOps");
+  const percent = usePercentText();
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
@@ -3081,18 +3101,28 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                     tone={tone(row.status)}
                   />
                 </div>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{
-                      width: `${Math.min(100, Number(row.percent_complete))}%`,
-                    }}
-                  />
-                </div>
-                <p className="tabular mt-1 flex items-center justify-end gap-1.5 text-sm font-semibold">
+                {hasPercent(row.percent_complete) && (
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{
+                        width: `${Math.min(100, Number(row.percent_complete))}%`,
+                      }}
+                    />
+                  </div>
+                )}
+                <p
+                  className={cn(
+                    "tabular mt-1 flex items-center justify-end gap-1.5 text-sm",
+                    hasPercent(row.percent_complete)
+                      ? "font-semibold"
+                      : "mt-4 text-muted-foreground",
+                  )}
+                >
                   {/* The office corrected the figure (2026-10-09). */}
                   {wasCorrected(row) && <EditedTag />}
-                  {row.percent_complete}%
+                  {/* 「未填」 when the site left it out (HD2). */}
+                  {percent(row.percent_complete)}
                 </p>
                 <p className="mt-2 text-sm">
                   {row.description || t("state.noDescription")}
@@ -3114,7 +3144,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                   <RecordConversationButton
                     kind="PROGRESS"
                     recordId={row.id}
-                    reference={`${row.phase_name} / ${row.percent_complete}%`}
+                    reference={`${row.phase_name} / ${percent(row.percent_complete)}`}
                   />
                 </div>
               </div>
@@ -3194,7 +3224,7 @@ export function PhaseDialog({
             planned_weight: weight,
             is_active: isActive,
           })
-        : createConstructionPhase({ project, code, name, description, planned_weight: weight }),
+        : createConstructionPhase({ project, name, description, planned_weight: weight }),
     onSuccess: onSaved,
   });
   // Removing a phase made by mistake (p23): armed by a switch, no confirm
@@ -3222,12 +3252,16 @@ export function PhaseDialog({
             placeholder={t("field.selectProject")}
           />
         </FieldWrapper>
-        <FieldWrapper label={t("field.code")} required>
-          <Input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-          />
-        </FieldWrapper>
+        {/* A new 施工分类 gets its code from the server (H14, HD3); an
+            existing one keeps the field to correct it. */}
+        {phase && (
+          <FieldWrapper label={t("field.code")} required>
+            <Input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+            />
+          </FieldWrapper>
+        )}
         <FieldWrapper label={t("field.name")} required>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </FieldWrapper>
@@ -3304,7 +3338,7 @@ export function PhaseDialog({
           <Button
             requires={[
               [project, t("field.project")],
-              [code, t("field.code")],
+              [!phase || code, t("field.code")],
               [name, t("field.name")],
             ]}
             disabled={save.isPending}
@@ -3335,7 +3369,7 @@ export function ProgressDialog({
   // phases load. A project with no phases yet says so instead of offering an
   // empty select the submit button would silently refuse.
   const t = useTranslations("contractorOps");
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   // F-282
   const [project, setProject] = useDraftState("project", initialProject);
@@ -3363,6 +3397,8 @@ export function ProgressDialog({
     enabled: !!project,
   });
   const options = phases.data?.results ?? [];
+  // 「＋新增施工分类」 in the dropdown itself (H14, HD3).
+  const [addingPhase, setAddingPhase] = useState(false);
   const save = useMutation({
     mutationFn: () => {
       if (!user) throw new Error("Authentication required.");
@@ -3416,8 +3452,11 @@ export function ProgressDialog({
         >
           <Select
             value={phase || undefined}
-            onValueChange={setPhase}
-            disabled={!project || !options.length}
+            onValueChange={(value) =>
+              value === NEW_PHASE_OPTION ? setAddingPhase(true) : setPhase(value)
+            }
+            // Open with no categories too: 「＋新增施工分类」 is in it.
+            disabled={!project || phases.isLoading}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder={t("field.selectPhase")} />
@@ -3428,11 +3467,17 @@ export function ProgressDialog({
                   {item.code} - {item.name}
                 </SelectItem>
               ))}
+              {can("progress.manage") && (
+                <SelectItem value={NEW_PHASE_OPTION} className="font-medium text-primary">
+                  {t("progress.newPhase.add")}
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
           <QueryFailedNote query={phases} what={t("what.phases")} />
         </FieldWrapper>
-        <FieldWrapper label={t("field.percentComplete")} required>
+        {/* Optional, no star (H5/H11, HD2): 「百分比可以保留，但是不一定要填」. */}
+        <FieldWrapper label={t("field.percentComplete")}>
           <Input
             type="number"
             min="0"
@@ -3444,12 +3489,13 @@ export function ProgressDialog({
         </FieldWrapper>
         <FieldWrapper label={t("field.photos")} required>
           {isFieldStaff ? (
+            // The four subjects are suggestions now (HD2, as Q19): one
+            // photograph in any slot is enough.
             <FieldEvidenceGrid
               labels={progressEvidenceLabels}
               files={fieldEvidence}
-              progressLabel={t("evidenceProgress", {
+              progressLabel={t("progressEvidenceSuggested", {
                 current: fieldPhotos.length,
-                required: FIELD_EVIDENCE_PHOTO_COUNT,
               })}
               onChange={setFieldEvidence}
             />
@@ -3470,7 +3516,8 @@ export function ProgressDialog({
           onChange={setLocation}
           required
         />
-        <FieldWrapper label={t("field.description")}>
+        {/* 备注, the client's word for it (H14, HD2). */}
+        <FieldWrapper label={t("progress.note")}>
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -3484,6 +3531,16 @@ export function ProgressDialog({
             {error}
           </p>
         )}
+        {addingPhase && (
+          <NewPhaseDialog
+            project={project}
+            onClose={() => setAddingPhase(false)}
+            onCreated={(created) => {
+              setAddingPhase(false);
+              setPhase(created.id);
+            }}
+          />
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -3492,13 +3549,8 @@ export function ProgressDialog({
             requires={[
               [project, t("field.project")],
               [phase, t("field.phase")],
-              [percent, t("field.percentComplete")],
-              [
-                submissionPhotos.length >=
-                  (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) &&
-                  (!isFieldStaff || hasRequiredFieldEvidence(fieldEvidence)),
-                t("field.photos"),
-              ],
+              // One photograph, on the phone too (HD2); no percentage needed.
+              [submissionPhotos.length >= 1, t("field.photos")],
               [location, t("field.location")],
             ]}
             disabled={save.isPending}

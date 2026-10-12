@@ -212,17 +212,30 @@ export function FilterSelect({
   allLabel,
   options,
   width = "w-40",
+  onAdd,
 }: {
   list: ReturnType<typeof useListQuery>;
   param: string;
   allLabel: string;
   options: Array<{ value: string; label: string }>;
   width?: string;
+  /**
+   * A last entry that makes a new option rather than filtering by one - the
+   * progress filters' 「＋新增施工分类」 (H14, HD3). Choosing it leaves the
+   * filter as it was.
+   */
+  onAdd?: { label: string; onSelect: () => void };
 }) {
   return (
     <Select
       value={list.filters[param] ?? ALL}
-      onValueChange={(value) => list.setFilter(param, value === ALL ? undefined : value)}
+      onValueChange={(value) => {
+        if (value === ADD) {
+          onAdd?.onSelect();
+          return;
+        }
+        list.setFilter(param, value === ALL ? undefined : value);
+      }}
     >
       <SelectTrigger className={cn("max-sm:w-full", width)} aria-label={allLabel}>
         <SelectValue placeholder={allLabel} />
@@ -234,10 +247,18 @@ export function FilterSelect({
             {option.label}
           </SelectItem>
         ))}
+        {onAdd && (
+          <SelectItem value={ADD} className="font-medium text-primary">
+            {onAdd.label}
+          </SelectItem>
+        )}
       </SelectContent>
     </Select>
   );
 }
+
+/** The value of `FilterSelect`'s add entry; never a filter value. */
+const ADD = "__add__";
 
 /**
  * The module's own columns (栏目), plus "not filed yet" (T-372).
