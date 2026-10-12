@@ -16221,9 +16221,9 @@
     }
   },
   "filePreview": {
-    "unsupported": "{ext} files cannot be shown in the browser.",
+    "unsupported": "{ext} files cannot be previewed here. Use Download to view.",
     "thisFormat": "This format",
-    "unsupportedHelp": "Download it and open it with the program it was made in (for example Word, Excel or AutoCAD).",
+    "unsupportedHelp": "Download it and open it in the program it belongs to (for example AutoCAD or an archive tool).",
     "failed": "The file could not be loaded.",
     "retry": "Try again",
     "loading": "Loading the file",
@@ -16235,8 +16235,15 @@
     "wordNote": "Only the text, tables and pictures are shown here; the downloaded file has the exact layout.",
     "wordTruncated": "The file is long; only the first part is shown.",
     "wordEmpty": "This file has no text.",
-    "legacyOffice": "This is the old {ext} format, which cannot be previewed in the system.",
-    "legacyOfficeHelp": "Download it to view it. Save it as .docx / .xlsx in Word / Excel and upload that to preview it here next time."
+    "legacyOffice": "This is the old {ext} format and cannot be previewed here. Use Download to view.",
+    "legacyOfficeHelp": "Download it to view it. Save it as .docx / .xlsx in Word / Excel and upload that to preview it here next time.",
+    "presentation": "{ext} presentations cannot be previewed here. Use Download to view.",
+    "presentationHelp": "Download it and open it in PowerPoint. Save it as a PDF and upload that to view it here next time.",
+    "photoFormat": "{ext} photos (the iPhone's compact format) cannot be previewed here. Use Download to view.",
+    "photoFormatHelp": "On the iPhone choose Settings › Camera › Formats › Most Compatible: photos are then JPG and preview here.",
+    "downloadToView": "Download to view",
+    "noInlinePdf": "This browser cannot show a PDF inside the page. Open it in the phone's own viewer to read every page, print or send it.",
+    "openInViewer": "Open in the phone's viewer"
   },
   "fileActions": {
     "preview": "Preview",

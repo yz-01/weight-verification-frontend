@@ -16221,9 +16221,9 @@
     }
   },
   "filePreview": {
-    "unsupported": "Fail {ext} tidak boleh dipaparkan dalam pelayar.",
+    "unsupported": "Fail {ext} tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
     "thisFormat": "Format ini",
-    "unsupportedHelp": "Muat turun dan buka dengan aplikasi asalnya (contohnya Word, Excel atau AutoCAD).",
+    "unsupportedHelp": "Muat turun dan buka dalam program asalnya (contohnya AutoCAD atau alat arkib).",
     "failed": "Fail tidak dapat dimuatkan.",
     "retry": "Cuba lagi",
     "loading": "Memuatkan fail",
@@ -16235,8 +16235,15 @@
     "wordNote": "Hanya teks, jadual dan gambar ditunjukkan di sini; susun atur tepat ada dalam fail yang dimuat turun.",
     "wordTruncated": "Fail ini panjang; hanya bahagian awal ditunjukkan.",
     "wordEmpty": "Fail ini tiada teks.",
-    "legacyOffice": "Ini format {ext} lama yang tidak boleh dipratonton dalam sistem.",
-    "legacyOfficeHelp": "Muat turun untuk melihatnya. Simpan sebagai .docx / .xlsx dalam Word / Excel dan muat naik semula untuk pratonton di sini lain kali."
+    "legacyOffice": "Ini format {ext} lama dan tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
+    "legacyOfficeHelp": "Muat turun untuk melihatnya. Simpan sebagai .docx / .xlsx dalam Word / Excel dan muat naik semula untuk pratonton di sini lain kali.",
+    "presentation": "Persembahan {ext} tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
+    "presentationHelp": "Muat turun dan buka dalam PowerPoint. Simpan sebagai PDF dan muat naik untuk melihatnya di sini lain kali.",
+    "photoFormat": "Foto {ext} (format padat iPhone) tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
+    "photoFormatHelp": "Pada iPhone pilih Tetapan › Kamera › Format › Paling Serasi: foto kemudian JPG dan boleh dipratonton di sini.",
+    "downloadToView": "Muat turun untuk melihat",
+    "noInlinePdf": "Pelayar ini tidak dapat memaparkan PDF dalam halaman. Buka dalam pemapar telefon untuk membaca semua halaman, mencetak atau menghantarnya.",
+    "openInViewer": "Buka dalam pemapar telefon"
   },
   "fileActions": {
     "preview": "Pratonton",

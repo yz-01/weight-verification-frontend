@@ -266,7 +266,10 @@ export interface SheetPreview {
   /** Cell text, row by row from A1; short rows are padded to the widest. */
   rows: string[][];
   merges: SheetMerge[];
-  /** How many rows the sheet has, when more than `rows` shows. */
+  /**
+   * How many rows the sheet has, up to its last row with anything in it -
+   * more than `rows` when the preview stopped at its limit.
+   */
   totalRows: number;
 }
 
@@ -279,6 +282,19 @@ function columnIndex(letters: string): number {
 function cellPosition(ref: string): { row: number; column: number } | null {
   const match = /^\$?([A-Z]+)\$?(\d+)$/i.exec(ref);
   return match ? { row: Number(match[2]) - 1, column: columnIndex(match[1]) } : null;
+}
+
+/** Whether a sheet row carries any cell value at all. */
+function rowHasValue(row: XmlNode): boolean {
+  return row.children.some(
+    (cell) =>
+      cell.name === "c" &&
+      cell.children.some(
+        (child) =>
+          (child.name === "v" && child.text.trim() !== "") ||
+          (child.name === "is" && textOf(child) !== ""),
+      ),
+  );
 }
 
 function plainNumber(raw: string): string {
@@ -354,7 +370,10 @@ export async function readWorkbook(data: Blob | ArrayBuffer | Uint8Array, maxRow
     for (const row of walk(root, "row")) {
       const rowNumber = Number(attribute(row, "r") ?? nextRow + 1) - 1;
       nextRow = rowNumber + 1;
-      totalRows = Math.max(totalRows, rowNumber + 1);
+      // Counted only when it holds something (H9, 图10): an export with no
+      // records ends on an empty `<row r="4"></row>`, and counting that read
+      // 「只显示前 3 行（共 4 行）」 over a sheet that was shown whole.
+      if (rowHasValue(row)) totalRows = Math.max(totalRows, rowNumber + 1);
       if (rowNumber >= maxRows) continue;
       let nextColumn = 0;
       for (const cell of row.children) {

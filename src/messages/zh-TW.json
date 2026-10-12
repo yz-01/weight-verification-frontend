@@ -16221,9 +16221,9 @@
     }
   },
   "filePreview": {
-    "unsupported": "瀏覽器無法直接顯示 {ext} 檔案。",
+    "unsupported": "{ext} 檔案不能在頁面裡預覽，請按「下載查看」。",
     "thisFormat": "此格式",
-    "unsupportedHelp": "請下載後用對應的軟體開啟（例如 Word、Excel、AutoCAD）。",
+    "unsupportedHelp": "下載後用對應的軟體打開（例如 AutoCAD、壓縮軟體）。",
     "failed": "檔案載入失敗。",
     "retry": "重試",
     "loading": "檔案載入中",
@@ -16235,8 +16235,15 @@
     "wordNote": "這裡只顯示文字、表格和圖片；排版以下載的原文件為準。",
     "wordTruncated": "文件太長，只顯示前面一部分。",
     "wordEmpty": "這個文件裡沒有文字。",
-    "legacyOffice": "這是舊版 {ext} 格式，系統裡無法直接預覽。",
-    "legacyOfficeHelp": "請下載後查看。在 Word / Excel 裡另存為 .docx / .xlsx 再上傳，以後就能直接在系統裡看。"
+    "legacyOffice": "這是舊版 {ext} 格式，不能在頁面裡預覽，請按「下載查看」。",
+    "legacyOfficeHelp": "請下載後查看。在 Word / Excel 裡另存為 .docx / .xlsx 再上傳，以後就能直接在系統裡看。",
+    "presentation": "{ext} 簡報不能在頁面裡預覽，請按「下載查看」。",
+    "presentationHelp": "下載後用 PowerPoint 打開。另存為 PDF 再上傳，以後就能直接在系統裡看。",
+    "photoFormat": "{ext} 照片（iPhone 的高效格式）不能在頁面裡預覽，請按「下載查看」。",
+    "photoFormatHelp": "在 iPhone 設定 › 相機 › 格式 選「最相容」，以後拍的照片就是 JPG，能直接預覽。",
+    "downloadToView": "下載查看",
+    "noInlinePdf": "這個瀏覽器不能在頁面裡顯示 PDF。用手機自帶的閱讀器打開，就能看完整檔案、列印或傳送。",
+    "openInViewer": "用手機的閱讀器打開"
   },
   "fileActions": {
     "preview": "預覽",

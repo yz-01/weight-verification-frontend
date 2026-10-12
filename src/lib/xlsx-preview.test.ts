@@ -116,6 +116,26 @@ describe("readWorkbook", () => {
     expect(sheets[0].totalRows).toBe(5);
   });
 
+  it("does not count an export's empty last row as one it left out (H9, 图10)", async () => {
+    // `build_workbook` for an emergency list with nobody on site: the title,
+    // the header, then an empty row 4. It is shown whole - 「只显示前 3 行
+    // （共 4 行）」 was the count, not missing data.
+    const sheets = await readWorkbook(
+      await zip({
+        ...WORKBOOK,
+        "xl/workbook.xml": `<?xml version="1.0"?><workbook ${NS}><sheets><sheet name="Emergency list" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+        "xl/worksheets/sheet1.xml": `<worksheet ${NS}><sheetData><row r="1"><c r="A1" s="1" t="inlineStr"><is><t>Current site emergency list</t></is></c></row><row r="3"><c r="A3" t="inlineStr"><is><t>Project</t></is></c><c r="B3" t="inlineStr"><is><t>Name</t></is></c></row><row r="4"></row></sheetData><mergeCells count="1"><mergeCell ref="A1:B1"/></mergeCells></worksheet>`,
+      }),
+    );
+    expect(sheets[0].rows).toEqual([
+      ["Current site emergency list", ""],
+      ["", ""],
+      ["Project", "Name"],
+    ]);
+    expect(sheets[0].totalRows).toBe(3);
+    expect(sheets[0].totalRows > sheets[0].rows.length).toBe(false);
+  });
+
   it("refuses bytes that are not a workbook", async () => {
     await expect(readWorkbook(encoder.encode("%PDF-1.7 not a zip"))).rejects.toThrow();
   });
