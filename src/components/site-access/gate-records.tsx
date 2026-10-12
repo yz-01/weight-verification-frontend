@@ -49,10 +49,12 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ApiError } from "@/interfaces/api";
 import {
   type GateIncident,
   type GateIncidentDetail,
   type GateIssueStatus,
+  type GateMemberOption,
   type GatePhotoDraft,
 } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
@@ -349,7 +351,7 @@ function GatePhotoCapture({
 
   const people = useQuery({
     queryKey: ["gate-member-options", project],
-    queryFn: () => getGateMemberOptions(project),
+    queryFn: () => memberOptionsOfflineAware(project),
     enabled: special && Boolean(project),
   });
 
@@ -506,6 +508,38 @@ function GatePhotoCapture({
       </Button>
     </section>
   );
+}
+
+/** Where the phone keeps each project's last list of people to ask in. */
+function memberOptionsKey(project: string) {
+  return `mse.gate.member-options:${project}`;
+}
+
+/**
+ * The people a guard may ask in, kept from the last time the phone had a
+ * network (H12: 「断网期间仍可拍照、填写资料」), so a 「特殊事项」 can be written
+ * and queued offline. A fresh list from the server always wins.
+ */
+async function memberOptionsOfflineAware(project: string): Promise<GateMemberOption[]> {
+  try {
+    const rows = await getGateMemberOptions(project);
+    try {
+      window.localStorage.setItem(memberOptionsKey(project), JSON.stringify(rows));
+    } catch {
+      // Storage blocked: the list just needs a network next time.
+    }
+    return rows;
+  } catch (error) {
+    if (error instanceof ApiError && error.isNetwork) {
+      try {
+        const kept = window.localStorage.getItem(memberOptionsKey(project));
+        if (kept) return JSON.parse(kept) as GateMemberOption[];
+      } catch {
+        // Nothing kept: say the list could not be read.
+      }
+    }
+    throw error;
+  }
 }
 
 function MemberChecklist({
