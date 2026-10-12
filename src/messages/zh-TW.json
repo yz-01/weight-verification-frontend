@@ -16859,5 +16859,15 @@
       "returned": "{reference} 已退回給申請人"
     },
     "openInModule": "在「施工准證」裡打開"
+  },
+  "gateCard": {
+    "title": "門崗",
+    "todayPhotos": "今日照片",
+    "openIssues": "待處理門崗事項",
+    "open": "門崗記錄",
+    "none": "今天還沒有門崗照片。",
+    "what": "門崗照片",
+    "issue": "事項",
+    "photoAlt": "門崗照片 {reference}"
   }
 }

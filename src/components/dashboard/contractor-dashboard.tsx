@@ -36,6 +36,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { PhotoThumb, recordPhotos } from "@/components/shared/photo-thumb";
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { DashboardCards } from "@/components/dashboard/dashboard-cards";
+import { GateCard } from "@/components/dashboard/gate-card";
 import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -252,6 +253,8 @@ export function ContractorDashboard({
         everything else as sections that open on a click (F7).
       */}
       {priorityGrid}
+      {/* The seventh card (HD10): the gate, with today's photos to look at. */}
+      {data && <GateCard project={project} />}
       {opener.sheet}
 
       {can("dashboard.search") && <QuickSearch project={project} />}

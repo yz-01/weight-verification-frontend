@@ -16859,5 +16859,15 @@
       "returned": "{reference} returned to the applicant"
     },
     "openInModule": "Open under Permit to work"
+  },
+  "gateCard": {
+    "title": "Gate",
+    "todayPhotos": "Photos today",
+    "openIssues": "Open gate issues",
+    "open": "Gate Records",
+    "none": "No gate photos today.",
+    "what": "gate photos",
+    "issue": "Issue",
+    "photoAlt": "Gate photo {reference}"
   }
 }

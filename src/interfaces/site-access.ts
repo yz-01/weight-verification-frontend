@@ -439,7 +439,7 @@ export interface GateSummary {
     project_name: string;
     guard_name: string;
     captured_at: string;
-    image: string | null;
+    watermarked_image: string | null;
   }>;
 }
 
