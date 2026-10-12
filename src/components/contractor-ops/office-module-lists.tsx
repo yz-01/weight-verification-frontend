@@ -93,6 +93,7 @@ import type {
   SiteProgressRecord,
 } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
+import { hasPercent, usePercentText } from "@/lib/progress-percent";
 import { photoMeta } from "@/lib/photo-meta";
 import {
   addEquipmentMovementPhotos,
@@ -1417,6 +1418,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
+  const percent = usePercentText();
   const { can } = useAuth();
   const qc = useQueryClient();
   // No category filter (2026-10 B1, X5): progress has no categories.
@@ -1464,7 +1466,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
   const noPhases =
     !!project && !phases.isLoading && !phases.isError && !phases.data?.count;
   const reference = (row: SiteProgressRecord) =>
-    `${row.phase_name} / ${row.percent_complete}%`;
+    `${row.phase_name} / ${percent(row.percent_complete)}`;
 
   const columns = useMemo<ColumnDef<SiteProgressRecord, unknown>[]>(
     () => [
@@ -1510,19 +1512,26 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         header: () => <PlainHeader label={t("field.percentComplete")} />,
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <div className="flex w-28 items-center gap-2">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{
-                    width: `${Math.min(100, Number(row.original.percent_complete))}%`,
-                  }}
-                />
+            {/* 「未填」 with no bar when the site left it out (HD2). */}
+            {hasPercent(row.original.percent_complete) ? (
+              <div className="flex w-28 items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{
+                      width: `${Math.min(100, Number(row.original.percent_complete))}%`,
+                    }}
+                  />
+                </div>
+                <span className="tabular text-xs">
+                  {percent(row.original.percent_complete)}
+                </span>
               </div>
-              <span className="tabular text-xs">
-                {row.original.percent_complete}%
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {percent(row.original.percent_complete)}
               </span>
-            </div>
+            )}
             {/* Corrected by the office (2026-10-09); the detail has the history. */}
             {wasCorrected(row.original) && <EditedTag />}
           </div>
@@ -1554,7 +1563,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         ),
       },
     ],
-    [t, tRoot, df],
+    [t, tRoot, df, percent],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>

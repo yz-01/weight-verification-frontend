@@ -5964,7 +5964,7 @@
       "phaseActive": "在用。不想要這個施工分類時，把這個關掉而不是刪除 —— 進度記錄都指著它，刪了那些記錄就說不清是哪個施工分類的了。",
       "phaseHelp": "建立用於整理和確認工程進度的施工分類。",
       "phaseTitle": "施工分類",
-      "recordHelp": "拍攝當前工地照片；完成比例必須由項目經理確認才會生效。",
+      "recordHelp": "拍至少 1 張現場照片，選施工分類，可以寫備註，然後提交。完成比例可以不填。",
       "recordTitle": "新增進度證據",
       "returnPrompt": "請說明需要更正後再提交的內容。",
       "saveError": "工程進度保存失敗，請檢查項目、施工分類、照片和 GPS 後重試。",
@@ -5989,7 +5989,7 @@
       "correction": {
         "edit": "修改百分比",
         "newPercent": "新的完成比例（%）",
-        "was": "目前 {percent}%",
+        "was": "目前 {percent}",
         "reason": "修改原因",
         "reasonPlaceholder": "例如：現場填了 40，實際已完成 55%",
         "save": "儲存修改",
@@ -6000,9 +6000,10 @@
         "archivedNote": "此記錄已歸檔。只能修改百分比；照片、位置、拍攝時間和記錄人仍然鎖定。",
         "edited": "已修改",
         "historyTitle": "百分比修改記錄",
-        "change": "{from}% → {to}%",
+        "change": "{from} → {to}",
         "by": "{name} · {at}"
-      }
+      },
+      "percentUnfilled": "未填"
     },
     "progressEvidence": {
       "activity": "2. 施工活動",
@@ -6174,7 +6175,8 @@
       "missing": "還沒有 Return Note",
       "needNoteFirst": "先填寫 Return Note",
       "filledBy": "填寫人"
-    }
+    },
+    "progressEvidenceSuggested": "已拍攝 {current} 張。至少拍 1 張；下面 4 張是建議拍的，也可以繼續新增其他照片。"
   },
   "contractorPartners": {
     "count": "共 {count} 家建築商合作方",

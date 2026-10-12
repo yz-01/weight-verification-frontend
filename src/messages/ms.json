@@ -5964,7 +5964,7 @@
       "phaseActive": "Sedang digunakan. Matikan ini untuk menamatkan kategori pembinaan dan bukan memadamnya - rekod kemajuan merujuk kepadanya, dan memadamnya akan menghilangkan maknanya.",
       "phaseHelp": "Cipta kategori pembinaan untuk menyusun kemajuan.",
       "phaseTitle": "Kategori pembinaan",
-      "recordHelp": "Ambil foto tapak semasa. Pengurus mesti mengesahkan peratusan sebelum ia dimuktamadkan.",
+      "recordHelp": "Ambil sekurang-kurangnya satu foto tapak, pilih kategori pembinaan, tambah catatan jika perlu, kemudian hantar. Peratusan adalah pilihan.",
       "recordTitle": "Bukti kemajuan baharu",
       "returnPrompt": "Terangkan perkara yang perlu dibetulkan sebelum kemajuan dihantar semula.",
       "saveError": "Kemajuan projek tidak dapat disimpan. Semak projek, kategori pembinaan, foto dan GPS sebelum cuba lagi.",
@@ -5989,7 +5989,7 @@
       "correction": {
         "edit": "Betulkan peratusan",
         "newPercent": "Peratusan baharu (%)",
-        "was": "Kini {percent}%",
+        "was": "Kini {percent}",
         "reason": "Sebab perubahan",
         "reasonPlaceholder": "cth. Tapak memasukkan 40 tetapi papak sudah 55% siap",
         "save": "Simpan pembetulan",
@@ -6000,9 +6000,10 @@
         "archivedNote": "Rekod ini telah diarkibkan. Hanya peratusan boleh dibetulkan; foto, lokasi, masa diambil dan perekod kekal dikunci.",
         "edited": "Disunting",
         "historyTitle": "Perubahan peratusan",
-        "change": "{from}% → {to}%",
+        "change": "{from} → {to}",
         "by": "{name} · {at}"
-      }
+      },
+      "percentUnfilled": "Tidak diisi"
     },
     "progressEvidence": {
       "activity": "2. Aktiviti kerja",
@@ -6174,7 +6175,8 @@
       "missing": "Belum ada Return Note",
       "needNoteFirst": "Isi Return Note dahulu",
       "filledBy": "Diisi oleh"
-    }
+    },
+    "progressEvidenceSuggested": "{current} foto telah diambil. Ambil sekurang-kurangnya 1; empat di bawah ialah cadangan, dan foto tambahan boleh ditambah."
   },
   "contractorPartners": {
     "count": "{count, plural, =0 {Tiada rakan kontraktor} other {# rakan kontraktor}}",

@@ -18,7 +18,8 @@ export interface ProgressPhoto {
   progress: string;
   phase: string;
   phase_name: string;
-  percent_complete: string;
+  /** Null when the site left it out (H5/H11, HD2). */
+  percent_complete: string | null;
 }
 
 export interface DailyReport {

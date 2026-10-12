@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ProgressPhoto } from "@/interfaces/progress-reports";
 import { useDateFormat } from "@/lib/dates";
+import { usePercentText } from "@/lib/progress-percent";
 import { cn } from "@/lib/utils";
 import { getProgressPhotos } from "@/services/progress-reports.service";
 
@@ -37,11 +38,14 @@ export function photoUrl(photo: ProgressPhoto): string {
 }
 
 /** What the shared viewer needs from a progress photograph. */
-export function toShellPhotos(photos: ProgressPhoto[]): ShellPhoto[] {
+export function toShellPhotos(
+  photos: ProgressPhoto[],
+  percent: (value: string | null) => string,
+): ShellPhoto[] {
   return photos.map((photo) => ({
     id: photo.id,
     url: photoUrl(photo),
-    label: `${photo.phase_name} · ${photo.percent_complete}%${photo.caption ? ` · ${photo.caption}` : ""}`,
+    label: `${photo.phase_name} · ${percent(photo.percent_complete)}${photo.caption ? ` · ${photo.caption}` : ""}`,
     takenAt: photo.captured_at,
     latitude: photo.latitude,
     longitude: photo.longitude,
@@ -51,10 +55,11 @@ export function toShellPhotos(photos: ProgressPhoto[]): ShellPhoto[] {
 /** A set of photographs and the viewer they open in, one at a time. */
 export function usePhotoViewer(photos: ProgressPhoto[], reference: string) {
   const [index, setIndex] = useState<number | null>(null);
+  const percent = usePercentText();
   const viewer =
     index !== null && photos[index] ? (
       <PhotoViewer
-        photos={toShellPhotos(photos)}
+        photos={toShellPhotos(photos, percent)}
         index={index}
         reference={reference}
         onIndex={setIndex}
@@ -80,6 +85,7 @@ export function PhotoTile({
   toggleLabel?: string;
 }) {
   const df = useDateFormat();
+  const percent = usePercentText();
   return (
     <li
       className={cn(
@@ -120,7 +126,7 @@ export function PhotoTile({
       )}
       <div className="space-y-0.5 px-2 py-1.5 text-xs">
         <p className="truncate font-medium text-foreground">
-          {photo.phase_name} · <span className="tabular">{photo.percent_complete}%</span>
+          {photo.phase_name} · <span className="tabular">{percent(photo.percent_complete)}</span>
         </p>
         <p className="tabular truncate text-muted-foreground">
           {photo.captured_at ? df.dateTime(photo.captured_at) : "—"}

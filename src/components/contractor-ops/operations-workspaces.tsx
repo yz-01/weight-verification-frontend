@@ -67,6 +67,8 @@ import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner"
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useDateFormat } from "@/lib/dates";
+import { hasPercent, usePercentText } from "@/lib/progress-percent";
+import { cn } from "@/lib/utils";
 import {
   FieldWrapper,
   FilterBar,
@@ -2902,6 +2904,7 @@ export function MovementDialog({
 
 export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("contractorOps");
+  const percent = usePercentText();
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
@@ -3097,18 +3100,28 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                     tone={tone(row.status)}
                   />
                 </div>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{
-                      width: `${Math.min(100, Number(row.percent_complete))}%`,
-                    }}
-                  />
-                </div>
-                <p className="tabular mt-1 flex items-center justify-end gap-1.5 text-sm font-semibold">
+                {hasPercent(row.percent_complete) && (
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{
+                        width: `${Math.min(100, Number(row.percent_complete))}%`,
+                      }}
+                    />
+                  </div>
+                )}
+                <p
+                  className={cn(
+                    "tabular mt-1 flex items-center justify-end gap-1.5 text-sm",
+                    hasPercent(row.percent_complete)
+                      ? "font-semibold"
+                      : "mt-4 text-muted-foreground",
+                  )}
+                >
                   {/* The office corrected the figure (2026-10-09). */}
                   {wasCorrected(row) && <EditedTag />}
-                  {row.percent_complete}%
+                  {/* 「未填」 when the site left it out (HD2). */}
+                  {percent(row.percent_complete)}
                 </p>
                 <p className="mt-2 text-sm">
                   {row.description || t("state.noDescription")}
@@ -3130,7 +3143,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                   <RecordConversationButton
                     kind="PROGRESS"
                     recordId={row.id}
-                    reference={`${row.phase_name} / ${row.percent_complete}%`}
+                    reference={`${row.phase_name} / ${percent(row.percent_complete)}`}
                   />
                 </div>
               </div>
@@ -3448,7 +3461,8 @@ export function ProgressDialog({
           </Select>
           <QueryFailedNote query={phases} what={t("what.phases")} />
         </FieldWrapper>
-        <FieldWrapper label={t("field.percentComplete")} required>
+        {/* Optional, no star (H5/H11, HD2): 「百分比可以保留，但是不一定要填」. */}
+        <FieldWrapper label={t("field.percentComplete")}>
           <Input
             type="number"
             min="0"
@@ -3460,12 +3474,13 @@ export function ProgressDialog({
         </FieldWrapper>
         <FieldWrapper label={t("field.photos")} required>
           {isFieldStaff ? (
+            // The four subjects are suggestions now (HD2, as Q19): one
+            // photograph in any slot is enough.
             <FieldEvidenceGrid
               labels={progressEvidenceLabels}
               files={fieldEvidence}
-              progressLabel={t("evidenceProgress", {
+              progressLabel={t("progressEvidenceSuggested", {
                 current: fieldPhotos.length,
-                required: FIELD_EVIDENCE_PHOTO_COUNT,
               })}
               onChange={setFieldEvidence}
             />
@@ -3508,13 +3523,8 @@ export function ProgressDialog({
             requires={[
               [project, t("field.project")],
               [phase, t("field.phase")],
-              [percent, t("field.percentComplete")],
-              [
-                submissionPhotos.length >=
-                  (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) &&
-                  (!isFieldStaff || hasRequiredFieldEvidence(fieldEvidence)),
-                t("field.photos"),
-              ],
+              // One photograph, on the phone too (HD2); no percentage needed.
+              [submissionPhotos.length >= 1, t("field.photos")],
               [location, t("field.location")],
             ]}
             disabled={save.isPending}

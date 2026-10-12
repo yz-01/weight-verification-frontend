@@ -74,6 +74,7 @@ import type {
   ScheduleTaskPayload,
 } from "@/interfaces/schedule-planning";
 import { useDateFormat } from "@/lib/dates";
+import { usePercentText } from "@/lib/progress-percent";
 import { cn } from "@/lib/utils";
 import {
   archiveSchedulePlan,
@@ -689,7 +690,8 @@ function ProgressDialog({ project, task, onClose, onSaved }: { project: string; 
 
 function EvidenceOption({ row, checked, locked, onToggle }: { row: ProgressCandidate; checked: boolean; locked: boolean; onToggle: () => void }) {
   const df = useDateFormat();
-  return <label className="flex cursor-pointer items-start gap-3 border-b p-3 last:border-0 hover:bg-muted/30"><input type="checkbox" className="mt-1" checked={checked} disabled={locked} onChange={onToggle} /><div className="min-w-0"><p className="text-sm font-medium">{row.phase_name} / {row.percent_complete}%</p><p className="truncate text-xs text-muted-foreground">{row.description}</p><p className="mt-1 text-xs text-muted-foreground">{df.dateTime(row.captured_at)} / {row.submitted_by_name}</p></div></label>;
+  const percent = usePercentText();
+  return <label className="flex cursor-pointer items-start gap-3 border-b p-3 last:border-0 hover:bg-muted/30"><input type="checkbox" className="mt-1" checked={checked} disabled={locked} onChange={onToggle} /><div className="min-w-0"><p className="text-sm font-medium">{row.phase_name} / {percent(row.percent_complete)}</p><p className="truncate text-xs text-muted-foreground">{row.description}</p><p className="mt-1 text-xs text-muted-foreground">{df.dateTime(row.captured_at)} / {row.submitted_by_name}</p></div></label>;
 }
 
 type MappingField = "wbs_code" | "parent_wbs" | "name" | "description" | "planned_start" | "planned_end" | "duration_days";
