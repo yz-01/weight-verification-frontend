@@ -51,7 +51,8 @@ describe("HazardPopupStack", () => {
 
   it("shows the number, the title, who did what, and 打开", () => {
     const html = render(<HazardPopupStack cards={[card]} now={NOW} onDismiss={() => undefined} />);
-    expect(html).toContain('aria-label="隐患整改提醒"');
+    // 「隐患」 is not used any more (H6, HD1).
+    expect(html).toContain('aria-label="整改提醒"');
     expect(html).toContain("SI-A-0001");
     expect(html).toContain("安全部整改");
     expect(html).toContain("Ali · SI-A-0001 有新讯息");
