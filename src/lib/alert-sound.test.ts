@@ -6,6 +6,9 @@
  * count; whichever brings a notice, it rings once, and a notice already heard
  * never rings again.
  */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
 import { createNoticeSounder, playAlertTone } from "@/lib/alert-sound";
@@ -90,5 +93,61 @@ describe("createNoticeSounder", () => {
 describe("playAlertTone", () => {
   it("does not try to make a sound in a tab nobody has touched", async () => {
     expect(await playAlertTone()).toBe(false);
+  });
+});
+
+describe("the tone rings three times (HD11)", () => {
+  it("schedules its two notes three times over, with a gap between", async () => {
+    const started: number[] = [];
+    class FakeContext {
+      state = "running";
+      currentTime = 10;
+      destination = {};
+      createGain() {
+        return {
+          connect: () => undefined,
+          gain: {
+            setValueAtTime: () => undefined,
+            exponentialRampToValueAtTime: () => undefined,
+          },
+        };
+      }
+      createOscillator() {
+        return {
+          type: "",
+          frequency: { setValueAtTime: () => undefined },
+          connect: () => undefined,
+          start: (at: number) => started.push(at),
+          stop: () => undefined,
+        };
+      }
+      resume() {
+        return Promise.resolve();
+      }
+    }
+    vi.stubGlobal("window", { AudioContext: FakeContext });
+    vi.stubGlobal("navigator", { userActivation: { hasBeenActive: true } });
+    // A fresh copy, so its one audio context is the fake one.
+    vi.resetModules();
+    const { playAlertTone: play, ALERT_REPEATS, ALERT_REPEAT_GAP_S } = await import(
+      "@/lib/alert-sound"
+    );
+
+    expect(await play()).toBe(true);
+    expect(ALERT_REPEATS).toBe(3);
+    expect(started).toHaveLength(6);
+    const firsts = [started[0], started[2], started[4]];
+    expect(firsts[1] - firsts[0]).toBeCloseTo(ALERT_REPEAT_GAP_S);
+    expect(firsts[2] - firsts[1]).toBeCloseTo(ALERT_REPEAT_GAP_S);
+    vi.unstubAllGlobals();
+  });
+
+  it("rings every new notice on the phone as in the office, not only hazards", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/notifications/notification-button.tsx"),
+      "utf8",
+    );
+    expect(source).toContain("rings: () => true");
+    expect(source).not.toContain("wantsAlertSound");
   });
 });

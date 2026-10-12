@@ -76,6 +76,11 @@ export function onAlertSoundUnlocked(listener: () => void): () => void {
   return () => readyListeners.delete(listener);
 }
 
+/** How many times one alert plays its tone (HD11: 「响三次」). */
+export const ALERT_REPEATS = 3;
+/** Seconds from the start of one tone to the next: a clear gap between them. */
+export const ALERT_REPEAT_GAP_S = 0.9;
+
 /** True when the tone actually started. Never throws. */
 export async function playAlertTone(): Promise<boolean> {
   try {
@@ -94,20 +99,24 @@ export async function playAlertTone(): Promise<boolean> {
     const now = ctx.currentTime;
     const gain = ctx.createGain();
     gain.connect(ctx.destination);
-    // Two short rising notes: distinguishable from a system chime, and short
-    // enough not to be the thing people mute the tab to escape.
-    for (const [index, frequency] of [880, 1174.66].entries()) {
-      const start = now + index * 0.18;
-      const osc = ctx.createOscillator();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(frequency, start);
-      osc.connect(gain);
-      // Ramped, not switched: an abrupt gain change clicks.
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.16, start + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
-      osc.start(start);
-      osc.stop(start + 0.18);
+    // Two short rising notes: distinguishable from a system chime. Played
+    // ALERT_REPEATS times with a pause between (batch H, HD11: 「声音提醒…
+    // 不要只响一次，响三次」), office and phone alike.
+    for (let repeat = 0; repeat < ALERT_REPEATS; repeat += 1) {
+      const base = now + repeat * ALERT_REPEAT_GAP_S;
+      for (const [index, frequency] of [880, 1174.66].entries()) {
+        const start = base + index * 0.18;
+        const osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(frequency, start);
+        osc.connect(gain);
+        // Ramped, not switched: an abrupt gain change clicks.
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.16, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
+        osc.start(start);
+        osc.stop(start + 0.18);
+      }
     }
     return true;
   } catch {
@@ -115,13 +124,6 @@ export async function playAlertTone(): Promise<boolean> {
     // the notification itself still arrived and is visible.
     return false;
   }
-}
-
-/** Whether a notification asked to be sounded. */
-export function wantsAlertSound(data: unknown): boolean {
-  return Boolean(
-    data && typeof data === "object" && (data as { alert_sound?: unknown }).alert_sound,
-  );
 }
 
 /** Where one person's "sound off" choice is kept, in this browser. */
@@ -166,7 +168,8 @@ function heard(notice: NoticeLike): string {
 }
 
 /**
- * Rings once for each notice that is new to this tab (2026-10-09).
+ * Rings for each notice that is new to this tab (2026-10-09; HD11: every new
+ * notice, on the office and the phone, three times).
  *
  * Lucas: 「手机端的任何申请后台都需要收到通知 … 然后有 notification 和声音
  * 提示」. The bell's list is read on the live stream's `notification.created`

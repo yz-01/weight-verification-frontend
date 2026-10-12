@@ -272,10 +272,11 @@ self.addEventListener("push", (event) => {
   } catch {
     payload = { title: "MSE Trace", message: event.data?.text() || "New notification" };
   }
-  // A notice that asked to be sounded (`alert_sound`, e.g. a hazard assigned
-  // to you, C3) buzzes and stays on the screen until it is touched, rather
-  // than sliding away unseen in a pocket. The ring itself is the phone's own
-  // notification sound; iOS ignores `vibrate`.
+  // Every notice rings and buzzes three times (batch H, HD11: 「每条新通知都
+  // 响…响三次」). The ring is the phone's own notification sound; iOS ignores
+  // `vibrate`. One that asked to be sounded (`alert_sound`, e.g. a hazard
+  // assigned to you, C3) also stays on the screen until it is touched, rather
+  // than sliding away unseen in a pocket.
   const urgent = Boolean(payload.data && payload.data.alert_sound);
   event.waitUntil(
     self.registration.showNotification(payload.title || "MSE Trace", {
@@ -283,13 +284,9 @@ self.addEventListener("push", (event) => {
       icon: "/mse-icon-192.png",
       badge: "/mse-icon-192.png",
       data: { url: payload.url || "/notifications" },
-      ...(urgent
-        ? {
-            vibrate: [300, 150, 300, 150, 300],
-            requireInteraction: true,
-            silent: false,
-          }
-        : {}),
+      vibrate: [300, 200, 300, 200, 300],
+      silent: false,
+      ...(urgent ? { requireInteraction: true } : {}),
     }),
   );
 });
