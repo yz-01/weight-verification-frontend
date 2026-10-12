@@ -11986,7 +11986,10 @@
         "legacyReturn": "10-02 前在进场单上登记的退场",
         "project": "项目"
       }
-    }
+    },
+    "exportVerdict": "验收结果",
+    "rejectedReturns": "不合格退货",
+    "rejectedReturn": "不合格退货"
   },
   "recyclerBusiness": {
     "action": {

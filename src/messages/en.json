@@ -11986,7 +11986,10 @@
         "legacyReturn": "Return entered on a receipt before 10-02",
         "project": "Project"
       }
-    }
+    },
+    "exportVerdict": "Acceptance result",
+    "rejectedReturns": "Rejected returns",
+    "rejectedReturn": "Rejected – returned"
   },
   "recyclerBusiness": {
     "action": {

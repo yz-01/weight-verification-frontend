@@ -343,7 +343,8 @@ export function Receipts() {
   function runExport(format: ExportFormat) {
     return exportReceipts({
       format,
-      title: t("receipts.title"),
+      // Filtered to the rejected ones, the file says what it is (H4, HD14).
+      title: tab === "reject" ? t("receipts.rejectedReturns") : t("receipts.title"),
       subtitle: t("receipts.count", { count: totalCount }),
       emptyLabel: t("table.noResults"),
       query,
@@ -396,6 +397,18 @@ export function Receipts() {
         { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
         { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
         { key: "received_by_name", label: t("receipts.field.receivedBy") },
+        // What the acceptance said and why (H4, HD14): a rejected delivery
+        // reads 「不合格退货」 in the file, not just in the list.
+        {
+          key: "acceptance_status",
+          label: t("receipts.exportVerdict"),
+          values: {
+            PENDING: t("receipts.acceptance.status.PENDING"),
+            ACCEPTED: t("receipts.acceptance.status.ACCEPTED"),
+            REJECTED: t("receipts.rejectedReturn"),
+          },
+        },
+        { key: "rejection_reason", label: t("receipts.acceptance.reason") },
       ],
     });
   }

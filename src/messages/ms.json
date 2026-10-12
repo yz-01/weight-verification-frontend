@@ -11986,7 +11986,10 @@
         "legacyReturn": "Pemulangan yang direkod pada resit sebelum 10-02",
         "project": "Projek"
       }
-    }
+    },
+    "exportVerdict": "Keputusan penerimaan",
+    "rejectedReturns": "Pulangan ditolak",
+    "rejectedReturn": "Ditolak – dipulangkan"
   },
   "recyclerBusiness": {
     "action": {
