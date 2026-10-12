@@ -73,6 +73,7 @@ import {
   sortable,
   SummaryStrip,
 } from "@/components/shared/module-records-table";
+import { NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
@@ -93,6 +94,7 @@ import type {
   SiteProgressRecord,
 } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
+import { hasPercent, usePercentText } from "@/lib/progress-percent";
 import { photoMeta } from "@/lib/photo-meta";
 import {
   addEquipmentMovementPhotos,
@@ -1417,6 +1419,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
+  const percent = usePercentText();
   const { can } = useAuth();
   const qc = useQueryClient();
   // No category filter (2026-10 B1, X5): progress has no categories.
@@ -1440,6 +1443,8 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
     searchParams.get("create") === "1",
   );
   const [viewing, setViewing] = useState<SiteProgressRecord | null>(null);
+  // 「＋新增施工分类」 from the filter (H14, HD3).
+  const [addingPhase, setAddingPhase] = useState(false);
   // The 实际完成比例 correction form, open in place of the figure (2026-10-09).
   const [editingPercent, setEditingPercent] = useState(false);
   const openRecord = (row: SiteProgressRecord | null) => {
@@ -1464,7 +1469,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
   const noPhases =
     !!project && !phases.isLoading && !phases.isError && !phases.data?.count;
   const reference = (row: SiteProgressRecord) =>
-    `${row.phase_name} / ${row.percent_complete}%`;
+    `${row.phase_name} / ${percent(row.percent_complete)}`;
 
   const columns = useMemo<ColumnDef<SiteProgressRecord, unknown>[]>(
     () => [
@@ -1504,25 +1509,46 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
           </span>
         ),
       },
+      // The site's note (H14): on the list, not only in the detail.
+      {
+        id: "description",
+        meta: { label: t("progress.note") },
+        header: () => <PlainHeader label={t("progress.note")} />,
+        cell: ({ row }) =>
+          row.original.description ? (
+            <p className="line-clamp-2 max-w-60 text-sm" title={row.original.description}>
+              {row.original.description}
+            </p>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          ),
+      },
       {
         id: "percent_complete",
         meta: { label: t("field.percentComplete") },
         header: () => <PlainHeader label={t("field.percentComplete")} />,
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <div className="flex w-28 items-center gap-2">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{
-                    width: `${Math.min(100, Number(row.original.percent_complete))}%`,
-                  }}
-                />
+            {/* 「未填」 with no bar when the site left it out (HD2). */}
+            {hasPercent(row.original.percent_complete) ? (
+              <div className="flex w-28 items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{
+                      width: `${Math.min(100, Number(row.original.percent_complete))}%`,
+                    }}
+                  />
+                </div>
+                <span className="tabular text-xs">
+                  {percent(row.original.percent_complete)}
+                </span>
               </div>
-              <span className="tabular text-xs">
-                {row.original.percent_complete}%
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {percent(row.original.percent_complete)}
               </span>
-            </div>
+            )}
             {/* Corrected by the office (2026-10-09); the detail has the history. */}
             {wasCorrected(row.original) && <EditedTag />}
           </div>
@@ -1554,7 +1580,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         ),
       },
     ],
-    [t, tRoot, df],
+    [t, tRoot, df, percent],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -1673,6 +1699,11 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                 value: phase.id,
                 label: `${phase.code} · ${phase.name}`,
               }))}
+              onAdd={
+                can("progress.manage")
+                  ? { label: t("progress.newPhase.add"), onSelect: () => setAddingPhase(true) }
+                  : undefined
+              }
             />
             <FilterSelect
               list={list}
@@ -1846,6 +1877,17 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
             closure={{ kind: "PROGRESS", recordId: shown.id, onConfirmed: refreshProgress }}
           />
         </RecordDetailDialog>
+      )}
+
+      {addingPhase && (
+        <NewPhaseDialog
+          project={project}
+          onClose={() => setAddingPhase(false)}
+          onCreated={(phase) => {
+            setAddingPhase(false);
+            list.setFilters({ project: phase.project, phase: phase.id });
+          }}
+        />
       )}
 
       {addingRecord && (

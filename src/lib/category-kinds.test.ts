@@ -86,21 +86,25 @@ describe("the column schemes", () => {
   ];
   // Listed on Category Management but read-only there (2026-10 B1): no
   // column is created as, or moved onto, a hazard category from the form.
-  const READ_ONLY = ["EHS"];
+  // Made from its own group and kept there (H18, HD4): offered only on an
+  // EHS category, never as a move for another kind.
+  const OWN_GROUP_ONLY = ["EHS"];
 
-  it("offers every one of them in the kind picker, the retired and read-only ones excepted", () => {
+  it("offers every one of them in the kind picker, the retired and own-group ones excepted", () => {
     // The kind picker only: the submission-mode picker beside it has an
     // unrelated `CONSULTANT` option (顾问审批).
     const source = read(WORKSPACES);
     const start = source.indexOf('label={t("categories.kind")}');
     expect(start, "the kind picker exists").toBeGreaterThan(-1);
     const dialog = source.slice(start, source.indexOf("</Select>", start));
-    for (const kind of [...RETIRED, ...READ_ONLY]) {
+    for (const kind of RETIRED) {
       if (kind === "BOTH") continue; // Shown only on a row that already carries it.
       expect(dialog.includes(`<SelectItem value="${kind}">`), `${kind} is not offered`).toBe(false);
     }
+    expect(dialog).toContain('{isEhs && <SelectItem value="EHS">');
+    expect(dialog.split('<SelectItem value="EHS">').length - 1, "EHS offered once, on EHS").toBe(1);
     for (const kind of declaredKinds()) {
-      if (RETIRED.includes(kind) || READ_ONLY.includes(kind)) continue;
+      if (RETIRED.includes(kind) || OWN_GROUP_ONLY.includes(kind)) continue;
       expect(
         dialog.includes(`<SelectItem value="${kind}">`),
         `${kind} can be chosen when creating a column`,
@@ -126,10 +130,11 @@ describe("the column schemes", () => {
     }
   });
 
-  it("leaves the hazard row listed but read-only", () => {
+  it("manages the hazard row like the others (H18, HD4 over B1)", () => {
     const management = read(MANAGEMENT);
-    expect(management).toContain('{ ...columnModule("ehs", "EHS"), readOnly: true }');
-    expect(management).toMatch(/const canManage = can\(active\.manage\) && !active\.readOnly;/);
+    expect(management).toContain('columnModule("ehs", "EHS"),');
+    expect(management).not.toMatch(/readOnly/);
+    expect(management).toMatch(/const canManage = can\(active\.manage\);/);
   });
 
   it("keeps the equipment row on the equipment scheme", () => {

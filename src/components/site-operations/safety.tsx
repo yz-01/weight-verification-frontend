@@ -15,6 +15,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -1207,7 +1208,7 @@ function SafetyCreateDialog({
   onSaved?: (result: SafetyIncidentSubmission) => void;
 }) {
   const t = useTranslations();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const queryClient = useQueryClient();
   const [draft, setDraft] = useDraftState<SafetyDraft>("draft", {
     ...EMPTY_DRAFT,
@@ -1431,7 +1432,20 @@ function SafetyCreateDialog({
               categories.isSuccess &&
               offeredCategories.length === 0 && (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {t("safety.form.noSafetyColumns")}
+                  {t("safety.form.noSafetyColumns")}{" "}
+                  {/* Not a dead end (H18): the categories are made on 分类管理
+                      now, so the office goes straight there; the phone and
+                      anyone without category.manage are told whom to ask. */}
+                  {!fieldMode && can("category.manage") ? (
+                    <Link
+                      href={`/category-management?module=ehs&project=${encodeURIComponent(draft.project)}&create=1`}
+                      className="font-medium text-primary underline-offset-4 hover:underline"
+                    >
+                      {t("safety.form.addSafetyColumn")}
+                    </Link>
+                  ) : (
+                    t("safety.form.askForSafetyColumn")
+                  )}
                 </p>
               )}
           </FieldWrapper>

@@ -488,7 +488,8 @@ export async function recordEquipmentMovement(payload: {
 
 export const getConstructionPhases = (query: ListQuery = {}) =>
   api.list<ConstructionPhase>("/api/site-progress/get_phases/", query);
-export const createConstructionPhase = async (payload: { project: string; code: string; name: string; description?: string; sort_order?: number; planned_weight?: string }) => {
+/** `code` left out: the server makes the next PH-NNN (H14, HD3). */
+export const createConstructionPhase = async (payload: { project: string; code?: string; name: string; description?: string; sort_order?: number; planned_weight?: string }) => {
   const row = await api.post<ConstructionPhase>("/api/site-progress/create_phase/", payload);
   toastSuccess("contractorOps.toast.saved");
   return row;

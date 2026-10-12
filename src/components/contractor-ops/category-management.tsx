@@ -27,7 +27,6 @@ import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { RecordNo } from "@/components/shared/record-no";
 import {
   SupplierDateFilter,
@@ -47,6 +46,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { PERMIT_COLUMN_CODE } from "@/lib/hazard-columns";
 import {
   Select,
   SelectContent,
@@ -159,11 +160,6 @@ interface Module {
    * which list a new column joins.
    */
   columnKind?: ProjectCategoryKind;
-  /**
-   * Listed and opened, never edited here (2026-10 B1): no create, edit,
-   * delete or reorder, whatever the reader's permissions.
-   */
-  readOnly?: boolean;
   fetch: (project: string) => Promise<Row[]>;
   remove: (id: string) => Promise<void>;
 }
@@ -196,6 +192,10 @@ const columnRows = (kind: ProjectCategoryKind) => async (project: string) => {
   }));
 };
 
+/** 施工准证申请: renamed, never switched off or removed (H18, HD4). */
+const isSystemColumn = (row: Row) =>
+  row.column?.kind === "EHS" && row.code === PERMIT_COLUMN_CODE;
+
 /** The project-column modules share everything except the kind. */
 const columnModule = (
   key: CategoryModuleKey,
@@ -217,8 +217,9 @@ const MODULES: Module[] = [
   // The machines a contractor registers on a site, filed under this project's
   // own columns (T-242) - not MSE's own hardware register (F-369).
   columnModule("equipment", "EQUIPMENT"),
-  // Read-only (2026-10 B1): the hazard categories are fixed for the site.
-  { ...columnModule("ehs", "EHS"), readOnly: true },
+  // Added, renamed, switched off and removed here since H18 (HD4, over
+  // B1's read-only); the server makes the code and keeps 施工准证申请.
+  columnModule("ehs", "EHS"),
   {
     key: "recycle",
     scope: "company",
@@ -270,12 +271,12 @@ export function CategoryManagement() {
   const [editing, setEditing] = useState<Row | "new" | null>(
     searchParams.get("create") === "1" &&
       can(initialModule.manage) &&
-      !initialModule.readOnly &&
       (initialModule.scope !== "project" || Boolean(project))
       ? "new"
       : null,
   );
-  const [removing, setRemoving] = useState<Row | null>(null);
+  // The row whose 删除 is armed (rule 8: a switch, not a confirm dialog).
+  const [armed, setArmed] = useState<string | null>(null);
   const [unitsOpen, setUnitsOpen] = useState(false);
   /** The column whose records are open in the dialog (T-396). */
   const [viewing, setViewing] = useState<Row | null>(null);
@@ -285,7 +286,7 @@ export function CategoryManagement() {
   const active =
     MODULES.find((module) => module.key === selected) ?? MODULES[0];
   const needsProject = active.scope === "project";
-  const canManage = can(active.manage) && !active.readOnly;
+  const canManage = can(active.manage);
   const isMaterial = active.key === "material";
 
   const rows = useQuery({
@@ -310,14 +311,14 @@ export function CategoryManagement() {
   const removal = useMutation({
     mutationFn: (row: Row) => active.remove(row.id),
     onSuccess: () => {
-      setRemoving(null);
+      setArmed(null);
       setRefusal(null);
       refresh();
     },
     // The server says which records are still filed there; that sentence is
     // the answer, so it is shown as it is and stays until the next action.
     onError: (reason, row) => {
-      setRemoving(null);
+      setArmed(null);
       setRefusal({
         name: row.name,
         reason: reason instanceof ApiError ? reason.message : t("saveFailed"),
@@ -346,6 +347,7 @@ export function CategoryManagement() {
   const chooseModule = (key: CategoryModuleKey) => {
     setSelected(key);
     setEditing(null);
+    setArmed(null);
     setViewing(null);
     setRefusal(null);
   };
@@ -511,6 +513,12 @@ export function CategoryManagement() {
                               {waste("category.retired")}
                             </span>
                           )}
+                          {/* 施工准证申请: the permit module's own (HD4). */}
+                          {isSystemColumn(row) && (
+                            <span title={t("systemHelp")}>
+                              <StatusBadge label={t("system")} tone="neutral" />
+                            </span>
+                          )}
                           {/* 大类 / 小类 (B2), said rather than left to the indent. */}
                           {active.key === "equipment" && (
                             <span className="text-xs font-normal text-muted-foreground">
@@ -603,9 +611,22 @@ export function CategoryManagement() {
                             >
                               <Pencil />
                             </Button>
-                            {/* The seeded waste categories are refused by the
-                                server every time, so the bin says why instead
-                                of answering with an error (F-129). */}
+                            {/* Removing is armed by the row's switch, then
+                                the bin acts at once (rule 8, HD4). The seeded
+                                waste categories and 施工准证申请 are refused by
+                                the server every time, so they offer no switch
+                                and the bin says why (F-129). */}
+                            {row.waste?.is_system || isSystemColumn(row) ? null : (
+                              <Switch
+                                checked={armed === row.id}
+                                onCheckedChange={(next) => {
+                                  setRefusal(null);
+                                  setArmed(next ? row.id : null);
+                                }}
+                                aria-label={t("armRemove", { name: row.name })}
+                                title={ops("categories.removeBody")}
+                              />
+                            )}
                             <Button
                               size="icon-sm"
                               variant="ghost"
@@ -614,12 +635,20 @@ export function CategoryManagement() {
                               disabledReason={
                                 row.waste?.is_system
                                   ? waste("category.standardHelp")
-                                  : undefined
+                                  : isSystemColumn(row)
+                                    ? t("systemHelp")
+                                    : armed !== row.id
+                                      ? t("armFirst")
+                                      : undefined
                               }
-                              disabled={Boolean(row.waste?.is_system)}
-                              onClick={() => setRemoving(row)}
+                              disabled={armed !== row.id || removal.isPending}
+                              onClick={() => removal.mutate(row)}
                             >
-                              <Trash2 />
+                              {removal.isPending && armed === row.id ? (
+                                <Loader2 className="animate-spin" />
+                              ) : (
+                                <Trash2 />
+                              )}
                             </Button>
                           </div>
                         )}
@@ -649,18 +678,6 @@ export function CategoryManagement() {
           moduleKey={active.key}
           column={viewing}
           onClose={() => setViewing(null)}
-        />
-      )}
-      {removing && (
-        <ConfirmDialog
-          open
-          onOpenChange={() => setRemoving(null)}
-          title={ops("categories.removeTitle", { name: removing.name })}
-          description={ops("categories.removeBody")}
-          confirmLabel={ops("action.remove")}
-          confirmIcon={Trash2}
-          isPending={removal.isPending}
-          onConfirm={() => removal.mutate(removing)}
         />
       )}
     </div>

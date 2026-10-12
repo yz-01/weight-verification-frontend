@@ -70,7 +70,8 @@ test("the removed hazard list is not reachable from the tab", async ({
   ).toHaveCount(0);
   await expect(
     page.getByRole("button", {
-      name: /^(report a hazard|上报隐患|上報隱患|lapor bahaya)$/i,
+      // 「上报整改」 since H6 (HD1): 「隐患」 is not used any more.
+      name: /^(report a hazard|上报整改|上報整改|lapor bahaya)$/i,
     }),
   ).toHaveCount(0);
 });

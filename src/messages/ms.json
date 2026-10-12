@@ -3968,7 +3968,7 @@
     "moduleHelp": {
       "material": "Penghantaran dan kosnya difailkan di sini. Satu senarai bagi setiap projek.",
       "equipment": "Kren, jengkaut, penjana. Satu senarai bagi setiap projek, diselenggara oleh syarikat ini.",
-      "ehs": "Pembetulan keselamatan, pembinaan dan perunding, serta permit kerja. Satu senarai setiap projek, tetap - lihat sahaja di sini.",
+      "ehs": "Setiap projek bermula dengan pembetulan keselamatan, pembinaan dan perunding serta permit kerja. Tambah, namakan semula atau matikan kategori di sini; hanya kategori tanpa rekod boleh dibuang. Permit kerja ialah kategori sistem dan hanya boleh dinamakan semula.",
       "recycle": "Sisa kitar semula yang dihantar keluar dari tapak: besi buruk, tembaga, aluminium, kabel. Satu senarai untuk seluruh syarikat; yang disediakan boleh ditutup tetapi tidak dipadam."
     },
     "moduleSource": {
@@ -4068,7 +4068,13 @@
       "majorClassOf": "Kelas utama",
       "majorClassHint": "Biarkan untuk jadikan kelas utama. Mesin didaftarkan di bawah subkelas.",
       "isMajorClass": "(Ini kelas utama)"
-    }
+    },
+    "system": "Sistem",
+    "systemHelp": "Permit kerja digunakan oleh sistem: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
+    "armRemove": "Benarkan buang {name}",
+    "armFirst": "Hidupkan suis di sebelahnya dahulu",
+    "codeAuto": "Kod dijana oleh sistem dan tidak boleh diubah selepas dicipta.",
+    "codeAutoPlaceholder": "Dijana semasa disimpan"
   },
   "cloudServices": {
     "count": "{count} perkhidmatan",
@@ -5954,11 +5960,11 @@
       "confirmedAt": "Disahkan pada",
       "confirmedBy": "Disahkan oleh",
       "editPhase": "Betulkan kategori pembinaan ini",
-      "noPhasesHelp": "Projek ini belum mempunyai kategori pembinaan. Tambah satu sebelum merekod kemajuan.",
+      "noPhasesHelp": "Projek ini belum mempunyai kategori pembinaan. Tekan “+ Tambah kategori pembinaan” dan masukkan nama.",
       "phaseActive": "Sedang digunakan. Matikan ini untuk menamatkan kategori pembinaan dan bukan memadamnya - rekod kemajuan merujuk kepadanya, dan memadamnya akan menghilangkan maknanya.",
       "phaseHelp": "Cipta kategori pembinaan untuk menyusun kemajuan.",
       "phaseTitle": "Kategori pembinaan",
-      "recordHelp": "Ambil foto tapak semasa. Pengurus mesti mengesahkan peratusan sebelum ia dimuktamadkan.",
+      "recordHelp": "Ambil sekurang-kurangnya satu foto tapak, pilih kategori pembinaan, tambah catatan jika perlu, kemudian hantar. Peratusan adalah pilihan.",
       "recordTitle": "Bukti kemajuan baharu",
       "returnPrompt": "Terangkan perkara yang perlu dibetulkan sebelum kemajuan dihantar semula.",
       "saveError": "Kemajuan projek tidak dapat disimpan. Semak projek, kategori pembinaan, foto dan GPS sebelum cuba lagi.",
@@ -5983,7 +5989,7 @@
       "correction": {
         "edit": "Betulkan peratusan",
         "newPercent": "Peratusan baharu (%)",
-        "was": "Kini {percent}%",
+        "was": "Kini {percent}",
         "reason": "Sebab perubahan",
         "reasonPlaceholder": "cth. Tapak memasukkan 40 tetapi papak sudah 55% siap",
         "save": "Simpan pembetulan",
@@ -5994,9 +6000,17 @@
         "archivedNote": "Rekod ini telah diarkibkan. Hanya peratusan boleh dibetulkan; foto, lokasi, masa diambil dan perekod kekal dikunci.",
         "edited": "Disunting",
         "historyTitle": "Perubahan peratusan",
-        "change": "{from}% → {to}%",
+        "change": "{from} → {to}",
         "by": "{name} · {at}"
-      }
+      },
+      "percentUnfilled": "Tidak diisi",
+      "newPhase": {
+        "add": "+ Tambah kategori pembinaan",
+        "title": "Tambah kategori pembinaan",
+        "help": "Masukkan nama sahaja; kod dijana oleh sistem. Jika kategori dengan nama ini sudah wujud, ia akan dipilih.",
+        "name": "Nama kategori"
+      },
+      "note": "Catatan"
     },
     "progressEvidence": {
       "activity": "2. Aktiviti kerja",
@@ -6168,7 +6182,8 @@
       "missing": "Belum ada Return Note",
       "needNoteFirst": "Isi Return Note dahulu",
       "filledBy": "Diisi oleh"
-    }
+    },
+    "progressEvidenceSuggested": "{current} foto telah diambil. Ambil sekurang-kurangnya 1; empat di bawah ialah cadangan, dan foto tambahan boleh ditambah."
   },
   "contractorPartners": {
     "count": "{count, plural, =0 {Tiada rakan kontraktor} other {# rakan kontraktor}}",
@@ -9970,7 +9985,7 @@
       "accepted_by": "Diterima oleh",
       "people": "Bilangan orang",
       "percent_complete": "Siap",
-      "phase": "Fasa",
+      "phase": "Kategori pembinaan",
       "pickup_address": "Ambil dari",
       "quantity": "Kuantiti",
       "reason": "Sebab",
@@ -11986,7 +12001,10 @@
         "legacyReturn": "Pemulangan yang direkod pada resit sebelum 10-02",
         "project": "Projek"
       }
-    }
+    },
+    "exportVerdict": "Keputusan penerimaan",
+    "rejectedReturns": "Pulangan ditolak",
+    "rejectedReturn": "Ditolak – dipulangkan"
   },
   "recyclerBusiness": {
     "action": {
@@ -12737,7 +12755,9 @@
       "locationTimeout": "Isyarat GPS tidak sampai dalam masa. Pergi ke kawasan lapang dan cuba lagi.",
       "locationUnavailable": "Peranti tidak dapat memperoleh kedudukan. Pastikan lokasi dihidupkan, kemudian cuba lagi.",
       "locationUnsupported": "Peranti ini tidak boleh memberikan kedudukan GPS.",
-      "noSafetyColumns": "Projek ini belum mempunyai kategori keselamatan. Tambah satu di Pengurusan kategori supaya bahaya boleh difailkan ke dalamnya."
+      "noSafetyColumns": "Projek ini belum mempunyai kategori keselamatan. Tambah satu dahulu supaya bahaya boleh difailkan ke dalamnya.",
+      "addSafetyColumn": "+ Tambah kategori keselamatan",
+      "askForSafetyColumn": "Minta rakan sekerja yang menguruskan kategori menambahnya di Pengurusan kategori."
     },
     "new": "Laporkan bahaya",
     "status": {
@@ -16233,7 +16253,8 @@
       "clear": "Kosongkan pilihan",
       "oneProject": "Satu laporan harian hanya boleh memuatkan foto satu projek.",
       "empty": "Tiada foto tapak ditemui.",
-      "emptyDay": "Tiada foto tapak dalam tempoh ini."
+      "emptyDay": "Tiada foto tapak dalam tempoh ini.",
+      "addPhase": "+ Tambah kategori pembinaan"
     },
     "reports": {
       "write": "Tulis laporan harian",
