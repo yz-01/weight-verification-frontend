@@ -3968,7 +3968,7 @@
     "moduleHelp": {
       "material": "Deliveries and the money they cost file here. One list per project.",
       "equipment": "Cranes, excavators, generators. One list per project, kept by this company.",
-      "ehs": "Safety, construction and consultant rectifications, and work permits. One list per project, fixed - view only here.",
+      "ehs": "Each project starts with safety, construction and consultant rectifications and work permits. Add, rename or switch off categories here; only one with no records can be removed. Work permits is a system category and can only be renamed.",
       "recycle": "Recyclable waste the site sends out: scrap iron, copper, aluminium, cable. One list for the whole company; the seeded ones can be closed but not deleted."
     },
     "moduleSource": {
@@ -4068,7 +4068,13 @@
       "majorClassOf": "Major class it belongs to",
       "majorClassHint": "Leave it to make this a major class. Machines are registered under a sub class.",
       "isMajorClass": "(This is a major class)"
-    }
+    },
+    "system": "System",
+    "systemHelp": "Work permits are used by the system: they can be renamed, not switched off or removed.",
+    "armRemove": "Allow removing {name}",
+    "armFirst": "Turn on the switch beside it first",
+    "codeAuto": "The code is made by the system and cannot be changed once created.",
+    "codeAutoPlaceholder": "Made when saved"
   },
   "cloudServices": {
     "count": "{count} services",
@@ -12740,7 +12746,9 @@
       "locationTimeout": "The GPS fix did not arrive in time. Step into the open and try again.",
       "locationUnavailable": "The device could not get a position. Check that location is on, then try again.",
       "locationUnsupported": "This device cannot provide a GPS position.",
-      "noSafetyColumns": "This project has no safety category yet. Add one under Category management and hazards can be filed against it."
+      "noSafetyColumns": "This project has no safety category yet. Add one first so hazards can be filed against it.",
+      "addSafetyColumn": "+ Add a safety category",
+      "askForSafetyColumn": "Ask a colleague who manages categories to add one under Category management."
     },
     "new": "Report hazard",
     "status": {

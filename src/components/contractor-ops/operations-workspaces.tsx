@@ -78,6 +78,7 @@ import {
 import { LocationField } from "@/components/field-staff/location-field";
 import type { LocationFix } from "@/lib/field-location";
 import { parseAlertAmounts, parseAlertPercentages } from "@/lib/category-modules";
+import { PERMIT_COLUMN_CODE } from "@/lib/hazard-columns";
 import { MultiPickList } from "@/components/shared/multi-pick-list";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getManufacturers } from "@/services/material-setup.service";
@@ -364,6 +365,10 @@ export function CategoryDialog({
   const [error, setError] = useState("");
   const isMaterial = form.kind === "MATERIAL";
   const isEquipment = form.kind === "EQUIPMENT";
+  // EHS (H18, HD4): the server makes the code and keeps it; 施工准证申请 is
+  // the permit module's own, renamed but never switched off.
+  const isEhs = form.kind === "EHS";
+  const isPermit = isEhs && row?.code === PERMIT_COLUMN_CODE;
   // The major classes it may go under: this project's top-level equipment
   // categories, not itself (X1). One with sub classes of its own stays a
   // major class, so the choice is not offered.
@@ -463,12 +468,18 @@ export function CategoryDialog({
               disabled
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.code")} required>
-            <Input
-              value={form.code}
-              onChange={(e) => set("code", e.target.value.toUpperCase())}
-            />
-          </FieldWrapper>
+          {isEhs ? (
+            <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
+              <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
+            </FieldWrapper>
+          ) : (
+            <FieldWrapper label={t("field.code")} required>
+              <Input
+                value={form.code}
+                onChange={(e) => set("code", e.target.value.toUpperCase())}
+              />
+            </FieldWrapper>
+          )}
           <FieldWrapper label={t("field.name")} required>
             <Input
               value={form.name}
@@ -481,6 +492,8 @@ export function CategoryDialog({
               onValueChange={(value) =>
                 set("kind", value as ProjectCategoryKind)
               }
+              // An EHS category stays one (HD4): it is not moved to material.
+              disabled={isEhs}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -497,9 +510,10 @@ export function CategoryDialog({
                 <SelectItem value="EQUIPMENT">
                   {modules("module.equipment")}
                 </SelectItem>
-                {/* 2026-10 B1: 隐患整改分类 are read-only, so no column is
-                    made into one here; progress, clearance, consultant and
-                    sundry have no categories at all (X5). */}
+                {/* EHS only for an EHS category (H18): it is made from its
+                    own group and stays there. Progress, clearance, consultant
+                    and sundry have no categories at all (X5). */}
+                {isEhs && <SelectItem value="EHS">{modules("module.ehs")}</SelectItem>}
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
                     means "not separated yet" - but taking it off the form
@@ -815,9 +829,10 @@ export function CategoryDialog({
               />
               {t("field.showInPwa")}
             </label>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 text-sm" title={isPermit ? modules("systemHelp") : undefined}>
               <Checkbox
                 checked={form.is_active}
+                disabled={isPermit}
                 onCheckedChange={(checked) =>
                   set("is_active", checked === true)
                 }
@@ -846,7 +861,8 @@ export function CategoryDialog({
           <Button
             requires={[
               [form.project, t("field.project")],
-              [form.code, t("field.code")],
+              // An EHS code is the server's to make (HD4).
+              [isEhs || form.code, t("field.code")],
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}

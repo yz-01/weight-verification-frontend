@@ -3968,7 +3968,7 @@
     "moduleHelp": {
       "material": "收货与它的金额归在这里。按项目各一份。",
       "equipment": "吊车、挖掘机、发电机等。每个项目一份，由本公司维护。",
-      "ehs": "安全部整改、施工部整改、顾问要求整改、施工准证申请。按项目各一份，固定不改，这里只能查看。",
+      "ehs": "每个项目默认有安全部整改、施工部整改、顾问要求整改、施工准证申请，可以新增、改名、停用；没有记录的分类才能删除。施工准证申请是系统分类，只能改名。",
       "recycle": "现场外运的可回收废料：废铁、铜、铝、电缆。全公司一份；系统预置的可停用、不可删除。"
     },
     "moduleSource": {
@@ -4068,7 +4068,13 @@
       "majorClassOf": "上级（大类）",
       "majorClassHint": "不选就是大类。设备要登记在小类下面。",
       "isMajorClass": "（这是大类）"
-    }
+    },
+    "system": "系统",
+    "systemHelp": "施工准证申请由系统使用：可以改名，不能停用或删除。",
+    "armRemove": "允许删除「{name}」",
+    "armFirst": "先打开旁边的开关",
+    "codeAuto": "编号由系统自动生成，建好后不能改。",
+    "codeAutoPlaceholder": "保存后自动生成"
   },
   "cloudServices": {
     "count": "{count} 项服务",
@@ -12740,7 +12746,9 @@
       "locationTimeout": "等不到 GPS 信号。走到空旷一点的地方再试一次。",
       "locationUnavailable": "设备拿不到位置。确认定位已开启后再试一次。",
       "locationUnsupported": "这台设备无法提供 GPS 位置。",
-      "noSafetyColumns": "这个项目还没有隐患整改 / EHS 分类。到「分类管理」新增一个，隐患才归得进去。"
+      "noSafetyColumns": "这个项目还没有隐患整改 / EHS 分类，要先新增一个，隐患才归得进去。",
+      "addSafetyColumn": "＋新增隐患整改 / EHS 分类",
+      "askForSafetyColumn": "请有分类管理权限的同事在「分类管理」新增。"
     },
     "new": "上报隐患",
     "status": {

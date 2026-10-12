@@ -3968,7 +3968,7 @@
     "moduleHelp": {
       "material": "收貨與它的金額歸在這裡。按專案各一份。",
       "equipment": "吊車、挖掘機、發電機等。每個項目一份，由本公司維護。",
-      "ehs": "安全部整改、施工部整改、顧問要求整改、施工准證申請。按項目各一份，固定不改，這裡只能查看。",
+      "ehs": "每個項目預設有安全部整改、施工部整改、顧問要求整改、施工准證申請，可以新增、改名、停用；沒有記錄的分類才能刪除。施工准證申請是系統分類，只能改名。",
       "recycle": "現場外運的可回收廢料：廢鐵、銅、鋁、電纜。全公司一份；系統預置的可停用、不可刪除。"
     },
     "moduleSource": {
@@ -4068,7 +4068,13 @@
       "majorClassOf": "上級（大類）",
       "majorClassHint": "不選就是大類。設備要登記在小類下面。",
       "isMajorClass": "（這是大類）"
-    }
+    },
+    "system": "系統",
+    "systemHelp": "施工准證申請由系統使用：可以改名，不能停用或刪除。",
+    "armRemove": "允許刪除「{name}」",
+    "armFirst": "先打開旁邊的開關",
+    "codeAuto": "編號由系統自動生成，建好後不能改。",
+    "codeAutoPlaceholder": "保存後自動生成"
   },
   "cloudServices": {
     "count": "{count} 項服務",
@@ -12740,7 +12746,9 @@
       "locationTimeout": "等不到 GPS 訊號。走到空曠一點的地方再試一次。",
       "locationUnavailable": "裝置拿不到位置。確認定位已開啟後再試一次。",
       "locationUnsupported": "這台裝置無法提供 GPS 位置。",
-      "noSafetyColumns": "這個專案還沒有隱患整改 / EHS 分類。到「分類管理」新增一個，隱患才歸得進去。"
+      "noSafetyColumns": "這個專案還沒有隱患整改 / EHS 分類，要先新增一個，隱患才歸得進去。",
+      "addSafetyColumn": "＋新增隱患整改 / EHS 分類",
+      "askForSafetyColumn": "請有分類管理權限的同事在「分類管理」新增。"
     },
     "new": "上報隱患",
     "status": {

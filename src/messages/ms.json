@@ -3968,7 +3968,7 @@
     "moduleHelp": {
       "material": "Penghantaran dan kosnya difailkan di sini. Satu senarai bagi setiap projek.",
       "equipment": "Kren, jengkaut, penjana. Satu senarai bagi setiap projek, diselenggara oleh syarikat ini.",
-      "ehs": "Pembetulan keselamatan, pembinaan dan perunding, serta permit kerja. Satu senarai setiap projek, tetap - lihat sahaja di sini.",
+      "ehs": "Setiap projek bermula dengan pembetulan keselamatan, pembinaan dan perunding serta permit kerja. Tambah, namakan semula atau matikan kategori di sini; hanya kategori tanpa rekod boleh dibuang. Permit kerja ialah kategori sistem dan hanya boleh dinamakan semula.",
       "recycle": "Sisa kitar semula yang dihantar keluar dari tapak: besi buruk, tembaga, aluminium, kabel. Satu senarai untuk seluruh syarikat; yang disediakan boleh ditutup tetapi tidak dipadam."
     },
     "moduleSource": {
@@ -4068,7 +4068,13 @@
       "majorClassOf": "Kelas utama",
       "majorClassHint": "Biarkan untuk jadikan kelas utama. Mesin didaftarkan di bawah subkelas.",
       "isMajorClass": "(Ini kelas utama)"
-    }
+    },
+    "system": "Sistem",
+    "systemHelp": "Permit kerja digunakan oleh sistem: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
+    "armRemove": "Benarkan buang {name}",
+    "armFirst": "Hidupkan suis di sebelahnya dahulu",
+    "codeAuto": "Kod dijana oleh sistem dan tidak boleh diubah selepas dicipta.",
+    "codeAutoPlaceholder": "Dijana semasa disimpan"
   },
   "cloudServices": {
     "count": "{count} perkhidmatan",
@@ -12740,7 +12746,9 @@
       "locationTimeout": "Isyarat GPS tidak sampai dalam masa. Pergi ke kawasan lapang dan cuba lagi.",
       "locationUnavailable": "Peranti tidak dapat memperoleh kedudukan. Pastikan lokasi dihidupkan, kemudian cuba lagi.",
       "locationUnsupported": "Peranti ini tidak boleh memberikan kedudukan GPS.",
-      "noSafetyColumns": "Projek ini belum mempunyai kategori keselamatan. Tambah satu di Pengurusan kategori supaya bahaya boleh difailkan ke dalamnya."
+      "noSafetyColumns": "Projek ini belum mempunyai kategori keselamatan. Tambah satu dahulu supaya bahaya boleh difailkan ke dalamnya.",
+      "addSafetyColumn": "+ Tambah kategori keselamatan",
+      "askForSafetyColumn": "Minta rakan sekerja yang menguruskan kategori menambahnya di Pengurusan kategori."
     },
     "new": "Laporkan bahaya",
     "status": {
