@@ -7594,7 +7594,15 @@
       "permit_return_reason_required": "Say why it is returned, so the applicant knows what to correct.",
       "permit_only_applicant_resubmits": "Only the applicant resubmits {incident_no}.",
       "permit_decided_on_permit_screen": "{incident_no} is a work permit. Open and decide it under Permit to work.",
-      "consultant_form_not_filled": "Upload the filled-in consultant form before sending - it is the form the consultant decides on."
+      "consultant_form_not_filled": "Upload the filled-in consultant form before sending - it is the form the consultant decides on.",
+      "gate_pass_not_found": "Invalid QR code: this is not a site pass.",
+      "gate_pass_other_project": "This pass is for another project and cannot be confirmed.",
+      "gate_pass_not_approved": "This pass has not been approved and cannot be confirmed.",
+      "gate_pass_revoked": "This pass has been revoked and cannot be confirmed.",
+      "gate_pass_not_yet_valid": "This pass is not valid yet and cannot be confirmed.",
+      "gate_pass_expired": "This pass has expired and cannot be confirmed.",
+      "gate_pass_already_inside": "This pass is already recorded as inside the site.",
+      "gate_pass_already_outside": "This pass is not recorded as inside the site."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8195,9 +8203,10 @@
       "waste": "Environmental material outgoing",
       "sundry": "Sundry claims",
       "request": "MR / Other Request",
-      "gate": "Gate photo records",
+      "gate": "Gate Photo Record",
       "operatorHours": "Equipment operator hours",
-      "permit": "Permit to work"
+      "permit": "Permit to work",
+      "visitor": "Visitor QR Scan"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -10266,7 +10275,7 @@
       "externalAccess": "External access",
       "fieldTasks": "Site tasks",
       "financialReports": "Financial reports",
-      "gateScanning": "Gate scan",
+      "gateScanning": "Visitor QR Scan",
       "geofenceSettings": "Geofence settings",
       "hazardRectifications": "Hazard rectification / EHS",
       "immutableAudit": "Permanent records",
@@ -10394,7 +10403,9 @@
       "manufacturers": "Named manufacturer (MR)",
       "equipmentOperatorHours": "Equipment operator hours",
       "technical": "Technical management",
-      "permits": "Permit to work"
+      "permits": "Permit to work",
+      "gateRecords": "Gate Records",
+      "visitorRecords": "Visitor Records"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -10564,7 +10575,8 @@
       "TRIP_ASSIGN": "Assign trip",
       "WASTE_OUTGOING": "Environmental material outgoing",
       "SUNDRY_CLAIM": "Sundry claims",
-      "EQUIPMENT_HOURS_PHOTO": "Equipment operator hours"
+      "EQUIPMENT_HOURS_PHOTO": "Equipment operator hours",
+      "GATE_PHOTO": "Gate Photo Record"
     },
     "pageDescription": "This page is not cached yet. Reconnect once, then open it again for offline use.",
     "queue": {
@@ -11010,11 +11022,11 @@
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
     },
     "site_access": {
-      "what": "Site access: who may enter and when (access passes), the guard scanning at the gate to record in and out (gate scan), photos taken at the gate (gate photo records), and what automatic gate machines report (gate machine log).",
+      "what": "Site access: who may enter and when (passes), the guard scanning a visitor's pass and confirming entry or exit (Visitor QR Scan), and automatic gate records. Every entry and exit is listed in Visitor Records; gate photos are under EHS › Gate Records.",
       "who": "Holders of site_access.view; issuing and revoking need site_access.manage.",
       "need": "A pass needs the project, the purpose of entry, valid-from and valid-until times and a name; a vehicle pass also needs the plate. Scanning at the gate needs only a phone camera; a scanner gun is an option for a fixed gate computer.",
       "then": "A pass takes effect only after approval, and a revoked one stops working immediately.",
-      "trouble": "When a gate scan is refused, the screen says why - expired, not approved, or not for this site. Refusals by gate machines are explained in the gate machine log."
+      "trouble": "When a scanned pass cannot be confirmed, the screen says why - invalid, expired, not approved, revoked, or a pass for another project. Why a gate device refused is in the gate device records."
     },
     "site_disposals": {
       "what": "Clearing rubbish and debris off site - the job that is not a recyclable load.",
@@ -11133,6 +11145,12 @@
       "need": "A material request needs material, specification, quantity and unit; the remark and attachments are optional. An other request needs a file or a remark.",
       "then": "Head office talks on the request and approves or returns it. A returned request is closed; asking again is a new request with a new number.",
       "trouble": "An empty material dropdown means the material lists have not been set up: open Material lists and add materials, specifications and units."
+    },
+    "gate_records": {
+      "what": "Photos the gate guards took: Photo Records (lorries in and out, ordinary gate photos) and Gate Issues (special matters the guards raised).",
+      "who": "Holders of site_access.view; a gate issue is confirmed finished by the people assigned or a holder of site_access.manage.",
+      "then": "Ordinary photos are filed at once; a gate issue notifies the people assigned, who talk in it, and is read-only once confirmed finished.",
+      "trouble": "A photo is missing: check the date and photographer filters; photos taken offline upload once the phone has a network."
     }
   },
   "partners": {
@@ -13300,7 +13318,7 @@
       "editHelp": "Only a pending pass can be corrected. The project cannot be changed.",
       "editTitle": "Edit pass",
       "empty": "No access pass matches this selection.",
-      "gate": "Gate scan",
+      "gate": "Visitor QR Scan",
       "integrationReader": "Connected gate reader",
       "newPass": "New pass",
       "noEvents": "This pass has not been used at a gate.",
@@ -13311,16 +13329,14 @@
       "rejectTitle": "Reject this access pass?",
       "revokeBody": "The QR code will stop working immediately. Record the reason for the audit trail.",
       "revokeTitle": "Revoke this access pass?",
-      "subtitle": "Pass requests and approvals, scanning at the gate and gate photos - all in one place.",
+      "subtitle": "Apply for and approve passes, and scan visitors at the gate. Gate photos are under EHS › Gate Records.",
       "timeline": "Entry and exit history",
       "title": "Site access",
       "unknownGate": "Gate not named",
       "defaultsFailed": "The site access defaults did not load. Try again first.",
-      "gateRecords": "Gate photo records",
       "tabHelp": {
         "passes": "Who may enter the site, and when. Request, approve and revoke passes here, and download the QR code to send.",
-        "gate": "The guard scans the QR code on the pass with a phone at the gate; the system records who came in and who went out.",
-        "gate-records": "Photograph anything that happens at the gate (say, a lorry without a gate pass) and let the right people know.",
+        "gate": "The guard scans the pass QR code, checks the visitor's details, then presses Confirm Entry or Confirm Exit.",
         "devices": "If automatic barriers, number-plate cameras or face readers are connected, every time a machine lets someone in or turns them away is listed here, with the reason. Without such machines this stays empty."
       }
     },
@@ -13711,7 +13727,7 @@
       "branchSaved": "Branch saved",
       "credentialRegistered": "Credential registered",
       "credentialRevoked": "Credential revoked",
-      "gateRecorded": "Gate movement recorded",
+      "gateRecorded": "Entry / exit recorded",
       "geofenceRemoved": "Site boundary removed",
       "geofenceSaved": "Site boundary saved",
       "passCreated": "Access pass requested",
@@ -13722,7 +13738,8 @@
       "settingsSaved": "Company site settings saved",
       "gateIncidentSaved": "Gate record saved.",
       "gatePhotosAdded": "Photos added.",
-      "gateMembersAdded": "People asked in and notified."
+      "gateMembersAdded": "People asked in and notified.",
+      "gateIssueClosed": "Gate issue confirmed finished."
     },
     "what": {
       "roles": "The role list",
@@ -13740,12 +13757,9 @@
       "OTHER": "Other"
     },
     "gateRecords": {
-      "title": "Gate photo records",
-      "subtitle": "Photos the guard takes at the gate, linked to a pass if there is one, with the people asked to look.",
-      "new": "New gate record",
-      "newTitle": "New gate photo record",
-      "newHelp": "Take the photos and press Send. Each one keeps its own time and GPS, with the project and your name.",
-      "detailHelp": "Photos, the people asked in and the conversation all stay on this record and cannot be deleted.",
+      "title": "Gate Records",
+      "subtitle": "Photos the gate guards took, and gate issues.",
+      "detailHelp": "A gate photo: its time, GPS, project and photographer stay with it and cannot be deleted.",
       "field": {
         "project": "Project",
         "chooseProject": "Choose a project",
@@ -13755,26 +13769,35 @@
         "searchPlaceholder": "Record no., gate, guard, pass or plate",
         "gate": "Gate",
         "pass": "Linked pass",
-        "standalone": "Standalone record",
-        "event": "Linked entry / exit",
         "description": "What you saw",
         "photos": "Photos",
         "photosHint": "At least one. Keep pressing the camera to take more.",
         "members": "Ask people in",
-        "membersHint": "Site, safety or project staff on this project. They are notified and can reply on this record.",
+        "membersHint": "Choose site people of this project; they get a to-do and talk in this issue.",
         "guard": "Guard",
-        "time": "Time"
+        "time": "Time",
+        "kind": "Type",
+        "status": "Status",
+        "note": "Note",
+        "assignees": "Assigned to",
+        "closedBy": "Confirmed finished by",
+        "closedAt": "Finished at",
+        "number": "No.",
+        "photographer": "Photographer",
+        "gps": "GPS",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "photoCount": "Photos"
       },
       "what": "gate records",
       "whatOne": "this gate record",
       "whatPeople": "the people on this project",
       "loading": "Loading…",
-      "empty": "No gate photo records yet.",
+      "empty": "No gate records yet.",
       "count": "Showing {shown} of {total}",
       "loadMore": "Load more",
       "photoAlt": "Gate photo",
       "photoCount": "{count} photo(s)",
-      "linkedPass": "Pass {pass} · {subject}",
       "photoNumber": "Photo {number}",
       "removePhoto": "Remove photo {number}",
       "gpsShort": "GPS",
@@ -13791,25 +13814,128 @@
       "save": "Save {count} photo(s)",
       "photosTitle": "Photos ({count})",
       "addPhotos": "Add photos",
-      "membersTitle": "People asked in",
+      "membersTitle": "Assigned to",
       "addMembers": "Ask people in",
       "noMembers": "Nobody else on this project can open gate records.",
       "noMembersYet": "Nobody has been asked in yet.",
       "conversationTitle": "Conversation",
-      "conversationHelp": "Text, photos, voice and files stay on this gate record and cannot be deleted.",
+      "conversationHelp": "Text, photos, voice notes and files stay on this gate issue and cannot be deleted.",
       "gpsValue": "GPS {latitude}, {longitude}",
       "gpsUnavailable": "GPS unavailable",
-      "scanPass": "Scan the pass QR",
-      "scanPassButton": "Scan pass QR code",
-      "scanPassHint": "If there is a pass, scan it and this record is linked to it. If not, skip this.",
-      "scanPassNotFound": "That QR code is not a pass for this project. Scan again or skip it.",
-      "unlinkPass": "Remove the linked pass",
-      "chooseProjectFirst": "Choose the project first",
-      "firstMessage": "First message",
-      "firstMessageHint": "Saved as the first message in this record's conversation. The people you chose get it.",
-      "firstMessagePlaceholder": "e.g. This lorry has no exit slip, please check",
       "photoFirst": "Take at least one photo to send.",
-      "send": "Send ({count} photo(s))"
+      "officeTitle": "Gate Records",
+      "recentTitle": "Latest gate records",
+      "issueHelp": "A gate issue: its photos, note, people and conversation stay here and cannot be deleted; once confirmed finished it is read-only.",
+      "kind": {
+        "photo": "Gate photo",
+        "issue": "Gate issue"
+      },
+      "issueStatus": {
+        "OPEN": "In progress",
+        "CLOSED": "Completed"
+      },
+      "tab": {
+        "photos": "Photo Records",
+        "issues": "Gate Issues"
+      },
+      "tabHelp": {
+        "photos": "Lorries in and out and ordinary gate photos, one record per photo, filed at once. Search by date, project and photographer, and export.",
+        "issues": "Special matters the guards raised: photos, note, people asked in, their conversation, status, and who confirmed it finished and when."
+      },
+      "closeTitle": "Confirm finished",
+      "close": "Confirm finished",
+      "closeHelp": "Press this once it is dealt with. The issue then becomes read-only; its photos and conversation are kept.",
+      "closeNotePlaceholder": "What was done (optional)",
+      "closeWho": "In progress. The people assigned, or whoever manages site access on this project, confirm it finished.",
+      "closedTitle": "Completed",
+      "closedBy": "Confirmed finished by {name} on {when}"
+    },
+    "gatePhoto": {
+      "title": "Gate Photo Record",
+      "help": "Lorries in or out, or anything at the gate: take the photo and send. Each photo keeps the project, time, GPS and your name.",
+      "photosHint": "Take as many as you need. Ordinary photos are saved one record each.",
+      "special": "Special matter",
+      "specialOffHelp": "Off: an ordinary gate photo, filed at once, nobody notified.",
+      "specialOnHelp": "On: write a note and choose people of this project; their phones get a to-do and a sound.",
+      "note": "Note",
+      "notePlaceholder": "e.g. This lorry has no exit slip, please check",
+      "assignees": "Assign to",
+      "assigneesHint": "Site people of this project, such as the project manager, site supervisor or safety officer.",
+      "sendPhotos": "Send ({count} photos)",
+      "sendIssue": "Send special matter",
+      "sentPhotos": "{count} gate photos sent.",
+      "sentIssue": "Special matter sent; the people assigned are notified.",
+      "sentQueued": "Saved on this phone; it uploads by itself once there is a network, once.",
+      "signedOut": "Sign in again, then send."
+    },
+    "visitorScan": {
+      "help": "Scan the visitor's pass QR code, check the details, then press Confirm Entry or Confirm Exit. No photo needed.",
+      "project": "Project",
+      "chooseProject": "Choose a project",
+      "chooseProjectFirst": "Choose a project first",
+      "scan": "Scan with camera",
+      "otherWays": "Other ways: scanner gun / type the code",
+      "typePlaceholder": "Scan with a scanner gun, or paste the code",
+      "read": "Read",
+      "reading": "Reading the pass…",
+      "readFailed": "Could not read this pass. Scan it again.",
+      "recordFailed": "Could not record this entry or exit. Try again.",
+      "confirmEntry": "Confirm Entry",
+      "confirmExit": "Confirm Exit",
+      "field": {
+        "type": "Type",
+        "company": "Company",
+        "phone": "Phone",
+        "project": "Project visited",
+        "purpose": "Purpose",
+        "vehicle": "Vehicle",
+        "host": "Host",
+        "approvedBy": "Approved by",
+        "validity": "Valid",
+        "last": "Last"
+      },
+      "last": {
+        "ENTRY": "In at {time}",
+        "EXIT": "Out at {time}"
+      },
+      "recorded": {
+        "ENTRY": "Entry recorded · {time}",
+        "EXIT": "Exit recorded · {time}"
+      },
+      "refusal": {
+        "not_found": "Invalid QR code: this is not a site pass.",
+        "other_project": "Cannot confirm: this pass is for another project.",
+        "not_approved": "Cannot confirm: this pass has not been approved.",
+        "revoked": "Cannot confirm: this pass has been revoked.",
+        "not_yet_valid": "Cannot confirm: this pass is not valid yet.",
+        "expired": "Cannot confirm: this pass has expired.",
+        "already_inside": "Already recorded as inside; next time press Confirm Exit.",
+        "already_outside": "Not recorded as inside yet; press Confirm Entry first."
+      }
+    },
+    "visitorRecords": {
+      "title": "Visitor Records",
+      "help": "One row for every entry and exit confirmed at the gate, linked to its pass, never overwritten.",
+      "empty": "No entries or exits yet.",
+      "allDirections": "In and out",
+      "allTypes": "All types",
+      "device": "Gate device",
+      "field": {
+        "time": "Time",
+        "direction": "In / out",
+        "person": "Name",
+        "type": "Type",
+        "company": "Company",
+        "phone": "Phone",
+        "vehicle": "Vehicle",
+        "purpose": "Purpose",
+        "pass": "Pass",
+        "project": "Project",
+        "approvedBy": "Approved by",
+        "validUntil": "Valid until",
+        "gate": "Gate",
+        "guard": "Confirmed by"
+      }
     }
   },
   "siteDisposal": {

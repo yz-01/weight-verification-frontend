@@ -369,12 +369,29 @@ export interface GateIncident extends RecordedBy {
   access_event_at: string | null;
   photo_count: number;
   cover_photo: string | null;
+  /**
+   * 「特殊事项」 (HD5): a Gate Issue - a note, people asked in, open until
+   * confirmed finished. Off, a plain Photo Record: one photo, filed.
+   */
+  is_issue: boolean;
+  /** 处理中 / 已完成; null on a plain photo. */
+  issue_status: GateIssueStatus | null;
+  /** The guard's note: the first message of the issue's conversation. */
+  issue_note: string;
+  closed_by_name: string | null;
+  closed_at: string | null;
+  /** The people asked in, as one line. */
+  member_names: string;
   created_at: string;
 }
+
+export type GateIssueStatus = "OPEN" | "CLOSED";
 
 export interface GateIncidentDetail extends GateIncident {
   photos: GatePhoto[];
   members: GateIncidentMember[];
+  /** Whether this reader may press 「确认结束」 now (HD6). */
+  may_close: boolean;
 }
 
 export interface GateMemberOption {
@@ -393,23 +410,13 @@ export interface GatePhotoDraft {
   client_event_id: string;
 }
 
-/** A pass found from a scanned QR, to link a gate photo record to (Q18). */
-export interface GatePassMatch {
-  id: string;
-  pass_no: string;
-  subject_name: string;
-  vehicle_plate: string;
-  status: AccessPassStatus;
-}
-
 /**
- * What the guard's phone sends (Q18): photos, an optional scanned pass, the
- * people asked in and their first words. No category - the server files it
- * as OTHER - and no gate name or description.
+ * What the guard's phone sends (HD5): photos and, for a 「特殊事项」, the
+ * note and the people asked in. A plain photo record is one photo.
  */
 export interface GateIncidentPayload {
   project: string;
-  access_pass?: string;
+  is_issue: boolean;
   members: string[];
   first_message?: string;
   latitude?: string;
@@ -417,4 +424,90 @@ export interface GateIncidentPayload {
   accuracy_m?: string;
   client_event_id: string;
   photos: GatePhotoDraft[];
+}
+
+/** The dashboards' 门岗 card (HD10). */
+export interface GateSummary {
+  today_photos: number;
+  open_issues: number;
+  thumbs: Array<{
+    id: string;
+    incident: string;
+    incident_no: string;
+    is_issue: boolean;
+    project: string;
+    project_name: string;
+    guard_name: string;
+    captured_at: string;
+    image: string | null;
+  }>;
+}
+
+/** Why the gate cannot confirm a scanned pass (HD7). */
+export type GatePassRefusal =
+  | "not_found"
+  | "other_project"
+  | "not_approved"
+  | "revoked"
+  | "not_yet_valid"
+  | "expired"
+  | "already_inside"
+  | "already_outside";
+
+/** What the guard reads after scanning a pass (HD7). */
+export interface GatePassDetail {
+  id: string;
+  pass_no: string;
+  subject_type: AccessSubjectType;
+  subject_name: string;
+  subject_company: string;
+  phone: string;
+  vehicle_plate: string;
+  driver_name: string;
+  purpose: string;
+  host_name: string;
+  project: string;
+  project_name: string;
+  approved_by_name: string | null;
+  approved_at: string | null;
+  valid_from: string;
+  valid_until: string;
+  status: AccessPassStatus;
+}
+
+export interface GatePassCheck {
+  project: string;
+  /** The whole pass; for another project's pass only its number and project. */
+  pass: (Partial<GatePassDetail> & Pick<GatePassDetail, "pass_no" | "project_name">) | null;
+  refusal: GatePassRefusal | null;
+  refusal_message: string;
+  can_enter: boolean;
+  can_exit: boolean;
+  last_direction: AccessDirection | null;
+  last_at: string | null;
+}
+
+/** One confirmed entry or exit, with its pass (Visitor Records, HD9). */
+export interface VisitorRecord {
+  id: string;
+  occurred_at: string;
+  direction: AccessDirection;
+  source: "GATE_UI" | "THIRD_PARTY";
+  gate_name: string;
+  pass_id: string;
+  pass_no: string;
+  subject_type: AccessSubjectType;
+  subject_name: string;
+  subject_company: string;
+  phone: string;
+  vehicle_plate: string;
+  purpose: string;
+  valid_until: string;
+  approved_by_name: string | null;
+  project: string;
+  project_name: string;
+  scanned_by_name: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  created_at: string;
 }

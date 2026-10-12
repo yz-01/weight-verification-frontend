@@ -17,6 +17,7 @@ export type OfflineJobKind =
   | "CONSULTANT_SUBMISSION"
   | "CATEGORY_EVIDENCE"
   | "EQUIPMENT_HOURS_PHOTO"
+  | "GATE_PHOTO"
   | "DISPATCH_ACCEPT"
   | "DISPATCH_COLLECT"
   | "TRIP_ASSIGN";
@@ -488,6 +489,34 @@ export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
   };
 }
 
+/**
+ * 门岗拍照 (H12 / HD5): a gate photo, or a 「特殊事项」 with its note and the
+ * people asked in, taken while the phone may be offline. The record's and
+ * each photo's ``client_event_id`` make a replay land once.
+ */
+export interface GatePhotoOfflineJob extends OfflineJobBase {
+  kind: "GATE_PHOTO";
+  payload: {
+    project: string;
+    is_issue: boolean;
+    members: string[];
+    first_message?: string;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    client_event_id: string;
+    photos: StoredFile[];
+    /** Each photo's own moment and fix, in the order of ``photos``. */
+    photo_meta: Array<{
+      captured_at: string;
+      latitude?: string;
+      longitude?: string;
+      accuracy_m?: string;
+      client_event_id: string;
+    }>;
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
@@ -507,6 +536,7 @@ export type OfflineJob =
   | ConsultantSubmissionOfflineJob
   | CategoryEvidenceOfflineJob
   | EquipmentHoursPhotoOfflineJob
+  | GatePhotoOfflineJob
   | DispatchAcceptOfflineJob
   | DispatchCollectOfflineJob
   | TripAssignOfflineJob;

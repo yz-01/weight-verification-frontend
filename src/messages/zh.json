@@ -7594,7 +7594,15 @@
       "permit_return_reason_required": "请写明退回原因，申请人才知道要改什么。",
       "permit_only_applicant_resubmits": "只有申请人能重新提交 {incident_no}。",
       "permit_decided_on_permit_screen": "{incident_no} 是施工准证，请在「施工准证」里打开和审批。",
-      "consultant_form_not_filled": "发送前请先上传填好的顾问表格，顾问审批的就是这份表格。"
+      "consultant_form_not_filled": "发送前请先上传填好的顾问表格，顾问审批的就是这份表格。",
+      "gate_pass_not_found": "无效的二维码：这不是工地通行证。",
+      "gate_pass_other_project": "这是别的项目的通行证，不能确认。",
+      "gate_pass_not_approved": "这张通行证还没有批准，不能确认。",
+      "gate_pass_revoked": "这张通行证已撤销，不能确认。",
+      "gate_pass_not_yet_valid": "这张通行证还没到有效时间，不能确认。",
+      "gate_pass_expired": "这张通行证已过期，不能确认。",
+      "gate_pass_already_inside": "这张通行证已经记录在场内。",
+      "gate_pass_already_outside": "这张通行证还没有进场记录。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8195,9 +8203,10 @@
       "waste": "环保材料出场申请",
       "sundry": "杂费报销",
       "request": "MR / 其他申请",
-      "gate": "门岗拍照记录",
+      "gate": "门岗拍照",
       "operatorHours": "设备操作员工时",
-      "permit": "施工准证"
+      "permit": "施工准证",
+      "visitor": "访客扫码"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -10266,7 +10275,7 @@
       "externalAccess": "外部访问链接",
       "fieldTasks": "现场任务",
       "financialReports": "财务报表",
-      "gateScanning": "门岗扫码",
+      "gateScanning": "访客扫码",
       "geofenceSettings": "Geofence 设置",
       "hazardRectifications": "整改 / EHS",
       "immutableAudit": "永久记录",
@@ -10394,7 +10403,9 @@
       "manufacturers": "指定厂商（MR）",
       "equipmentOperatorHours": "设备操作员工时",
       "technical": "技术管理",
-      "permits": "施工准证"
+      "permits": "施工准证",
+      "gateRecords": "门岗记录",
+      "visitorRecords": "访客进退场记录"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -10564,7 +10575,8 @@
       "TRIP_ASSIGN": "指派行程",
       "WASTE_OUTGOING": "环保材料出场申请",
       "SUNDRY_CLAIM": "杂费报销",
-      "EQUIPMENT_HOURS_PHOTO": "设备操作员工时"
+      "EQUIPMENT_HOURS_PHOTO": "设备操作员工时",
+      "GATE_PHOTO": "门岗拍照"
     },
     "pageDescription": "此页面尚未缓存。请先恢复网络并打开一次，之后即可离线使用。",
     "queue": {
@@ -11010,11 +11022,11 @@
       "trouble": "导不进去，多半是有列没对上：WBS、任务名称、计划开始是必须的，另外计划完成和工期至少要有一个。"
     },
     "site_access": {
-      "what": "工地门禁：谁能进工地、什么时候能进（通行证），保安在门口扫码记进出（门岗扫码），门口拍照留底（门岗拍照记录），以及自动闸机的记录（闸机记录）。",
+      "what": "工地门禁：谁能进工地、什么时候能进（通行证），保安在门口扫访客的通行证并确认进场、退场（访客扫码），以及自动闸机的记录（闸机记录）。每次进退场列在「访客进退场记录」；门口拍的照片在「整改 / EHS › 门岗记录」。",
       "who": "持 site_access.view；签发和作废要 site_access.manage。",
       "need": "办通行证要项目、进入目的、生效时间、截止时间和姓名，车辆还要车牌。门口扫码用手机相机就可以；扫码枪只是门口固定电脑的选配。",
       "then": "通行证要经过审批才生效；撤销之后立刻扫不进。",
-      "trouble": "门岗扫码被拒绝时，画面上会直接写原因 —— 过期、未审批，或者不是这个工地。闸机拒绝的原因在「闸机记录」里看。"
+      "trouble": "扫码后不能确认时，画面上会直接写原因 —— 无效、过期、未审批、已撤销，或者是别的项目的通行证。闸机拒绝的原因在「闸机记录」里看。"
     },
     "site_disposals": {
       "what": "把工地上的杂物和废弃物清走 —— 不属于可回收料的那一类。",
@@ -11133,6 +11145,12 @@
       "need": "材料申请须填材料、规格、数量和单位；备注和附件选填。其他申请须有文件或备注。",
       "then": "总部在申请内沟通并批准或退回。已退回的申请即结束；再申请须新建，产生新编号。",
       "trouble": "材料下拉没有选项，表示还没设定材料选项：请打开「材料选项」新增材料、规格和单位。"
+    },
+    "gate_records": {
+      "what": "门岗保安拍的照片：日常拍照记录（卡车进退场、普通门岗照片），和门岗事项（保安发现的特殊情况）。",
+      "who": "持 site_access.view；门岗事项由指定人员或持 site_access.manage 的人确认结束。",
+      "then": "普通照片直接归档；门岗事项会通知指定人员，双方在事项里沟通，确认结束后只能查看。",
+      "trouble": "找不到某张照片：看一下日期和拍摄人筛选；断网时拍的照片要等手机有网络才会上传。"
     }
   },
   "partners": {
@@ -13300,7 +13318,7 @@
       "editHelp": "只有待审核的通行证可以改。项目不能换。",
       "editTitle": "编辑通行证",
       "empty": "没有符合筛选条件的通行证。",
-      "gate": "门岗扫码",
+      "gate": "访客扫码",
       "integrationReader": "已连接门禁设备",
       "newPass": "新增通行证",
       "noEvents": "这个通行证尚未在门岗使用。",
@@ -13311,16 +13329,14 @@
       "rejectTitle": "拒绝这个通行证？",
       "revokeBody": "二维码会立即失效，请填写原因以保留审计记录。",
       "revokeTitle": "撤销这个通行证？",
-      "subtitle": "通行证的申请和审批、门口扫码、门口拍照，都在这里。",
+      "subtitle": "通行证的申请、审批和访客扫码都在这里；门岗照片在「整改 / EHS › 门岗记录」。",
       "timeline": "进出记录",
       "title": "工地门禁",
       "unknownGate": "未注明门岗",
       "defaultsFailed": "门禁默认设置未能载入，请先重试。",
-      "gateRecords": "门岗拍照记录",
       "tabHelp": {
         "passes": "谁可以进工地、哪段时间可以进。在这里申请、审批、撤销通行证，也可以下载二维码发给对方。",
-        "gate": "保安在门口用手机扫通行证上的二维码，系统就记下谁进、谁出。",
-        "gate-records": "门口有事就拍照留底（例如罗厘没有出门单），并通知相关的人一起看。",
+        "gate": "保安用手机扫通行证二维码，先看清楚访客资料，再按「确认进场」或「确认退场」。",
         "devices": "接了自动闸机、车牌识别或刷脸机，机器每次放行或拒绝都记在这里，并写明原因。没接这些机器，这里就是空的。"
       }
     },
@@ -13711,7 +13727,7 @@
       "branchSaved": "分公司已保存",
       "credentialRegistered": "凭证已登记",
       "credentialRevoked": "凭证已撤销",
-      "gateRecorded": "门岗进出已记录",
+      "gateRecorded": "进退场已记录",
       "geofenceRemoved": "工地围栏已移除",
       "geofenceSaved": "工地围栏已保存",
       "passCreated": "通行证申请已提交",
@@ -13722,7 +13738,8 @@
       "settingsSaved": "公司现场设置已保存",
       "gateIncidentSaved": "门岗记录已保存。",
       "gatePhotosAdded": "照片已补上。",
-      "gateMembersAdded": "已指定人员并通知。"
+      "gateMembersAdded": "已指定人员并通知。",
+      "gateIssueClosed": "门岗事项已确认结束。"
     },
     "what": {
       "roles": "角色列表",
@@ -13740,12 +13757,9 @@
       "OTHER": "其他"
     },
     "gateRecords": {
-      "title": "门岗拍照记录",
-      "subtitle": "门岗保安拍下的现场照片，可关联通行证，并和指定的人沟通。",
-      "new": "新增门岗记录",
-      "newTitle": "新增门岗拍照记录",
-      "newHelp": "拍照后直接按发送。每张照片都会记下时间、GPS、项目和你的名字。",
-      "detailHelp": "照片、被指定的人和沟通内容都留在这条门岗记录里，不能删除。",
+      "title": "门岗记录",
+      "subtitle": "门岗保安拍下的照片和门岗事项。",
+      "detailHelp": "门岗照片：时间、GPS、项目和拍摄人都跟着照片，不能删除。",
       "field": {
         "project": "项目",
         "chooseProject": "选择项目",
@@ -13755,26 +13769,35 @@
         "searchPlaceholder": "记录编号、门岗、保安、通行证或车牌",
         "gate": "门岗",
         "pass": "关联通行证",
-        "standalone": "独立记录",
-        "event": "关联进出记录",
         "description": "情况说明",
         "photos": "照片",
         "photosHint": "至少一张，可一直按相机继续拍。",
         "members": "指定沟通人员",
-        "membersHint": "选这个项目的现场、安全或项目人员；他们会收到通知，并在这条记录里沟通。",
+        "membersHint": "选这个项目的现场人员；他们会收到待办通知，并在这条事项里沟通。",
         "guard": "保安",
-        "time": "时间"
+        "time": "时间",
+        "kind": "类别",
+        "status": "状态",
+        "note": "备注",
+        "assignees": "指定人员",
+        "closedBy": "确认结束人",
+        "closedAt": "完成时间",
+        "number": "编号",
+        "photographer": "拍摄人",
+        "gps": "GPS",
+        "latitude": "纬度",
+        "longitude": "经度",
+        "photoCount": "照片张数"
       },
       "what": "门岗记录",
       "whatOne": "这条门岗记录",
       "whatPeople": "这个项目的人员",
       "loading": "加载中…",
-      "empty": "还没有门岗拍照记录。",
+      "empty": "还没有门岗记录。",
       "count": "已显示 {shown} / 共 {total} 条",
       "loadMore": "载入更多",
       "photoAlt": "门岗照片",
       "photoCount": "{count} 张照片",
-      "linkedPass": "通行证 {pass} · {subject}",
       "photoNumber": "第 {number} 张照片",
       "removePhoto": "删除第 {number} 张（未保存）",
       "gpsShort": "有 GPS",
@@ -13791,25 +13814,128 @@
       "save": "保存 {count} 张照片",
       "photosTitle": "照片（{count}）",
       "addPhotos": "补拍照片",
-      "membersTitle": "指定沟通人员",
+      "membersTitle": "指定人员",
       "addMembers": "指定人员",
       "noMembers": "这个项目没有其他能看门岗记录的人员。",
       "noMembersYet": "还没有指定人员。",
       "conversationTitle": "沟通",
-      "conversationHelp": "文字、照片、语音、文件都留在这条门岗记录里，不能删除。",
+      "conversationHelp": "文字、照片、语音、文件都留在这条门岗事项里，不能删除。",
       "gpsValue": "GPS {latitude}, {longitude}",
       "gpsUnavailable": "GPS 不可用",
-      "scanPass": "扫通行证二维码",
-      "scanPassButton": "扫通行证二维码",
-      "scanPassHint": "有通行证就扫一下，这条记录会关联到那张通行证；没有就跳过。",
-      "scanPassNotFound": "这个二维码不是本项目的通行证，可以再扫一次或跳过。",
-      "unlinkPass": "取消关联通行证",
-      "chooseProjectFirst": "先选项目",
-      "firstMessage": "第一句话",
-      "firstMessageHint": "会存成这条记录沟通里的第一条，选的人会收到。",
-      "firstMessagePlaceholder": "例如：这辆罗厘没有出门单，请确认",
       "photoFirst": "先拍至少一张照片，才能发送。",
-      "send": "发送（{count} 张照片）"
+      "officeTitle": "门岗记录",
+      "recentTitle": "最近的门岗记录",
+      "issueHelp": "门岗事项：照片、备注、指定人员和沟通都留在这里，不能删除；确认结束后只能查看。",
+      "kind": {
+        "photo": "门岗照片",
+        "issue": "门岗事项"
+      },
+      "issueStatus": {
+        "OPEN": "处理中",
+        "CLOSED": "已完成"
+      },
+      "tab": {
+        "photos": "日常拍照记录",
+        "issues": "门岗事项"
+      },
+      "tabHelp": {
+        "photos": "卡车进退场和普通门岗照片，每张一条，直接归档。可按日期、项目、拍摄人搜索和导出。",
+        "issues": "保安发现的特殊情况：照片、备注、指定人员、双方沟通、状态，以及谁在什么时候确认结束。"
+      },
+      "closeTitle": "确认结束",
+      "close": "确认结束",
+      "closeHelp": "事情处理好了就按这里。之后这条事项只能查看，照片和沟通都保留。",
+      "closeNotePlaceholder": "处理结果（选填）",
+      "closeWho": "处理中。由指定人员，或负责这个项目门禁的人确认结束。",
+      "closedTitle": "已完成",
+      "closedBy": "{name} 于 {when} 确认结束"
+    },
+    "gatePhoto": {
+      "title": "门岗拍照",
+      "help": "卡车进场、退场或门口的情况，拍照就上传。每张照片自动记下项目、时间、GPS 和你的名字。",
+      "photosHint": "可以连续拍。普通照片每张各存一条。",
+      "special": "特殊事项",
+      "specialOffHelp": "关闭：普通门岗照片，直接归档，不通知任何人。",
+      "specialOnHelp": "打开：填备注、指定本项目的人员，对方手机会收到待办和提示音。",
+      "note": "备注",
+      "notePlaceholder": "例如：这辆罗厘没有出门单，请确认",
+      "assignees": "指定处理人员",
+      "assigneesHint": "本项目的现场人员，例如项目经理、现场主管、安全员。",
+      "sendPhotos": "上传（{count} 张照片）",
+      "sendIssue": "发送特殊事项",
+      "sentPhotos": "已上传 {count} 张门岗照片。",
+      "sentIssue": "特殊事项已发送，指定人员会收到通知。",
+      "sentQueued": "已存在手机里，有网络会自动上传，不会重复。",
+      "signedOut": "请重新登录后再发送。"
+    },
+    "visitorScan": {
+      "help": "扫访客的通行证二维码，先核对资料，再按「确认进场」或「确认退场」。不用拍照。",
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "chooseProjectFirst": "先选项目",
+      "scan": "打开相机扫码",
+      "otherWays": "其他方式：扫码枪 / 输入编号",
+      "typePlaceholder": "用扫码枪扫，或粘贴编号",
+      "read": "读取",
+      "reading": "正在读取通行证…",
+      "readFailed": "读不到这张通行证，请再扫一次。",
+      "recordFailed": "无法记录这次进退场，请再试一次。",
+      "confirmEntry": "确认进场",
+      "confirmExit": "确认退场",
+      "field": {
+        "type": "类型",
+        "company": "公司",
+        "phone": "电话",
+        "project": "访问项目",
+        "purpose": "访问目的",
+        "vehicle": "车牌",
+        "host": "接待人",
+        "approvedBy": "批准人",
+        "validity": "有效期",
+        "last": "上一次"
+      },
+      "last": {
+        "ENTRY": "{time} 进场",
+        "EXIT": "{time} 退场"
+      },
+      "recorded": {
+        "ENTRY": "已记录进场 · {time}",
+        "EXIT": "已记录退场 · {time}"
+      },
+      "refusal": {
+        "not_found": "无效的二维码：这不是工地通行证。",
+        "other_project": "不能确认：这是别的项目的通行证。",
+        "not_approved": "不能确认：这张通行证还没有批准。",
+        "revoked": "不能确认：这张通行证已撤销。",
+        "not_yet_valid": "不能确认：这张通行证还没到有效时间。",
+        "expired": "不能确认：这张通行证已过期。",
+        "already_inside": "已经记录在场内，下次扫码请按「确认退场」。",
+        "already_outside": "还没有进场记录，请先按「确认进场」。"
+      }
+    },
+    "visitorRecords": {
+      "title": "访客进退场记录",
+      "help": "每次在门岗确认的进场、退场各一条，连着原来的通行证，不会覆盖。",
+      "empty": "还没有进退场记录。",
+      "allDirections": "全部进退场",
+      "allTypes": "全部类型",
+      "device": "门禁设备",
+      "field": {
+        "time": "时间",
+        "direction": "进 / 退",
+        "person": "姓名",
+        "type": "类型",
+        "company": "公司",
+        "phone": "电话",
+        "vehicle": "车牌",
+        "purpose": "访问目的",
+        "pass": "通行证",
+        "project": "项目",
+        "approvedBy": "批准人",
+        "validUntil": "有效至",
+        "gate": "门岗",
+        "guard": "确认人"
+      }
     }
   },
   "siteDisposal": {
