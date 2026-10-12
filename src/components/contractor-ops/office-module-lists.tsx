@@ -73,6 +73,7 @@ import {
   sortable,
   SummaryStrip,
 } from "@/components/shared/module-records-table";
+import { NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
@@ -1442,6 +1443,8 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
     searchParams.get("create") === "1",
   );
   const [viewing, setViewing] = useState<SiteProgressRecord | null>(null);
+  // 「＋新增施工分类」 from the filter (H14, HD3).
+  const [addingPhase, setAddingPhase] = useState(false);
   // The 实际完成比例 correction form, open in place of the figure (2026-10-09).
   const [editingPercent, setEditingPercent] = useState(false);
   const openRecord = (row: SiteProgressRecord | null) => {
@@ -1505,6 +1508,20 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
             {row.original.phase_name}
           </span>
         ),
+      },
+      // The site's note (H14): on the list, not only in the detail.
+      {
+        id: "description",
+        meta: { label: t("progress.note") },
+        header: () => <PlainHeader label={t("progress.note")} />,
+        cell: ({ row }) =>
+          row.original.description ? (
+            <p className="line-clamp-2 max-w-60 text-sm" title={row.original.description}>
+              {row.original.description}
+            </p>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          ),
       },
       {
         id: "percent_complete",
@@ -1682,6 +1699,11 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                 value: phase.id,
                 label: `${phase.code} · ${phase.name}`,
               }))}
+              onAdd={
+                can("progress.manage")
+                  ? { label: t("progress.newPhase.add"), onSelect: () => setAddingPhase(true) }
+                  : undefined
+              }
             />
             <FilterSelect
               list={list}
@@ -1855,6 +1877,17 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
             closure={{ kind: "PROGRESS", recordId: shown.id, onConfirmed: refreshProgress }}
           />
         </RecordDetailDialog>
+      )}
+
+      {addingPhase && (
+        <NewPhaseDialog
+          project={project}
+          onClose={() => setAddingPhase(false)}
+          onCreated={(phase) => {
+            setAddingPhase(false);
+            list.setFilters({ project: phase.project, phase: phase.id });
+          }}
+        />
       )}
 
       {addingRecord && (

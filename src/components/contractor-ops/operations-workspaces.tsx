@@ -69,6 +69,7 @@ import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/compone
 import { useDateFormat } from "@/lib/dates";
 import { hasPercent, usePercentText } from "@/lib/progress-percent";
 import { cn } from "@/lib/utils";
+import { NEW_PHASE_OPTION, NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import {
   FieldWrapper,
   FilterBar,
@@ -3223,7 +3224,7 @@ export function PhaseDialog({
             planned_weight: weight,
             is_active: isActive,
           })
-        : createConstructionPhase({ project, code, name, description, planned_weight: weight }),
+        : createConstructionPhase({ project, name, description, planned_weight: weight }),
     onSuccess: onSaved,
   });
   // Removing a phase made by mistake (p23): armed by a switch, no confirm
@@ -3251,12 +3252,16 @@ export function PhaseDialog({
             placeholder={t("field.selectProject")}
           />
         </FieldWrapper>
-        <FieldWrapper label={t("field.code")} required>
-          <Input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-          />
-        </FieldWrapper>
+        {/* A new 施工分类 gets its code from the server (H14, HD3); an
+            existing one keeps the field to correct it. */}
+        {phase && (
+          <FieldWrapper label={t("field.code")} required>
+            <Input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+            />
+          </FieldWrapper>
+        )}
         <FieldWrapper label={t("field.name")} required>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </FieldWrapper>
@@ -3333,7 +3338,7 @@ export function PhaseDialog({
           <Button
             requires={[
               [project, t("field.project")],
-              [code, t("field.code")],
+              [!phase || code, t("field.code")],
               [name, t("field.name")],
             ]}
             disabled={save.isPending}
@@ -3364,7 +3369,7 @@ export function ProgressDialog({
   // phases load. A project with no phases yet says so instead of offering an
   // empty select the submit button would silently refuse.
   const t = useTranslations("contractorOps");
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   // F-282
   const [project, setProject] = useDraftState("project", initialProject);
@@ -3392,6 +3397,8 @@ export function ProgressDialog({
     enabled: !!project,
   });
   const options = phases.data?.results ?? [];
+  // 「＋新增施工分类」 in the dropdown itself (H14, HD3).
+  const [addingPhase, setAddingPhase] = useState(false);
   const save = useMutation({
     mutationFn: () => {
       if (!user) throw new Error("Authentication required.");
@@ -3445,8 +3452,11 @@ export function ProgressDialog({
         >
           <Select
             value={phase || undefined}
-            onValueChange={setPhase}
-            disabled={!project || !options.length}
+            onValueChange={(value) =>
+              value === NEW_PHASE_OPTION ? setAddingPhase(true) : setPhase(value)
+            }
+            // Open with no categories too: 「＋新增施工分类」 is in it.
+            disabled={!project || phases.isLoading}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder={t("field.selectPhase")} />
@@ -3457,6 +3467,11 @@ export function ProgressDialog({
                   {item.code} - {item.name}
                 </SelectItem>
               ))}
+              {can("progress.manage") && (
+                <SelectItem value={NEW_PHASE_OPTION} className="font-medium text-primary">
+                  {t("progress.newPhase.add")}
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
           <QueryFailedNote query={phases} what={t("what.phases")} />
@@ -3501,7 +3516,8 @@ export function ProgressDialog({
           onChange={setLocation}
           required
         />
-        <FieldWrapper label={t("field.description")}>
+        {/* 备注, the client's word for it (H14, HD2). */}
+        <FieldWrapper label={t("progress.note")}>
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -3514,6 +3530,16 @@ export function ProgressDialog({
           >
             {error}
           </p>
+        )}
+        {addingPhase && (
+          <NewPhaseDialog
+            project={project}
+            onClose={() => setAddingPhase(false)}
+            onCreated={(created) => {
+              setAddingPhase(false);
+              setPhase(created.id);
+            }}
+          />
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

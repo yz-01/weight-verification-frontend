@@ -20,6 +20,8 @@ export interface ProgressPhoto {
   phase_name: string;
   /** Null when the site left it out (H5/H11, HD2). */
   percent_complete: string | null;
+  /** The record's note from the site (H14), on the card as well as the detail. */
+  description?: string;
 }
 
 export interface DailyReport {

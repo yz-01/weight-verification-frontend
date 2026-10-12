@@ -5960,7 +5960,7 @@
       "confirmedAt": "Confirmed at",
       "confirmedBy": "Confirmed by",
       "editPhase": "Correct this construction category",
-      "noPhasesHelp": "This project has no construction categories yet. Add one before recording progress against it.",
+      "noPhasesHelp": "This project has no construction categories yet. Press “+ Add construction category” and enter a name.",
       "phaseActive": "In use. Turn this off to retire a construction category instead of deleting it - progress records point at it, and removing it would take their meaning with them.",
       "phaseHelp": "Create the construction categories used to organise progress.",
       "phaseTitle": "Construction category",
@@ -6003,7 +6003,14 @@
         "change": "{from} → {to}",
         "by": "{name} · {at}"
       },
-      "percentUnfilled": "Not filled"
+      "percentUnfilled": "Not filled",
+      "newPhase": {
+        "add": "+ Add construction category",
+        "title": "Add construction category",
+        "help": "Enter the name only; the code is made by the system. If a category with this name already exists, it is chosen.",
+        "name": "Category name"
+      },
+      "note": "Note"
     },
     "progressEvidence": {
       "activity": "2. Work activity",
@@ -9978,7 +9985,7 @@
       "accepted_by": "Accepted by",
       "people": "People",
       "percent_complete": "Completed",
-      "phase": "Phase",
+      "phase": "Construction category",
       "pickup_address": "Collect from",
       "quantity": "Quantity",
       "reason": "Reason",
@@ -16246,7 +16253,8 @@
       "clear": "Clear selection",
       "oneProject": "A daily report holds photos of one project only.",
       "empty": "No site photos found.",
-      "emptyDay": "No site photos in this period."
+      "emptyDay": "No site photos in this period.",
+      "addPhase": "+ Add construction category"
     },
     "reports": {
       "write": "Write daily report",

@@ -128,6 +128,12 @@ export function PhotoTile({
         <p className="truncate font-medium text-foreground">
           {photo.phase_name} · <span className="tabular">{percent(photo.percent_complete)}</span>
         </p>
+        {/* The site's note (H14): 「每条施工进度记录…都要有备注」. */}
+        {photo.description ? (
+          <p className="line-clamp-2 text-foreground/80" title={photo.description}>
+            {photo.description}
+          </p>
+        ) : null}
         <p className="tabular truncate text-muted-foreground">
           {photo.captured_at ? df.dateTime(photo.captured_at) : "—"}
         </p>

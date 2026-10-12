@@ -5960,7 +5960,7 @@
       "confirmedAt": "确认时间",
       "confirmedBy": "确认人",
       "editPhase": "更正这个施工分类",
-      "noPhasesHelp": "此项目尚未建立施工分类。请先新增施工分类，才能记录进度。",
+      "noPhasesHelp": "此项目还没有施工分类。按「＋新增施工分类」，填名称就可以。",
       "phaseActive": "在用。不想要这个施工分类时，把这个关掉而不是删除 —— 进度记录都指着它，删了那些记录就说不清是哪个施工分类的了。",
       "phaseHelp": "建立用于整理和确认工程进度的施工分类。",
       "phaseTitle": "施工分类",
@@ -6003,7 +6003,14 @@
         "change": "{from} → {to}",
         "by": "{name} · {at}"
       },
-      "percentUnfilled": "未填"
+      "percentUnfilled": "未填",
+      "newPhase": {
+        "add": "＋新增施工分类",
+        "title": "新增施工分类",
+        "help": "只填名称，编号由系统自动生成。同名的施工分类已经有的话，会直接选它。",
+        "name": "施工分类名称"
+      },
+      "note": "备注"
     },
     "progressEvidence": {
       "activity": "2. 施工活动",
@@ -9978,7 +9985,7 @@
       "accepted_by": "验收人",
       "people": "人数",
       "percent_complete": "完成度",
-      "phase": "阶段",
+      "phase": "施工分类",
       "pickup_address": "取货地点",
       "quantity": "数量",
       "reason": "原因",
@@ -16246,7 +16253,8 @@
       "clear": "取消选择",
       "oneProject": "一份日报告只能放同一个项目的照片。",
       "empty": "没有找到现场照片。",
-      "emptyDay": "这段时间没有现场照片。"
+      "emptyDay": "这段时间没有现场照片。",
+      "addPhase": "＋新增施工分类"
     },
     "reports": {
       "write": "填写日报告",
