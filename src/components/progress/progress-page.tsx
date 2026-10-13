@@ -18,7 +18,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, PenLine, X } from "lucide-react";
+import { Loader2, PenLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -42,7 +42,7 @@ import { SchedulePlanningWorkspace } from "@/components/schedule-planning/schedu
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useListQuery } from "@/hooks/use-list-query";
-import type { DailyReport, ProgressPhoto } from "@/interfaces/progress-reports";
+import type { DailyReport } from "@/interfaces/progress-reports";
 import { cn } from "@/lib/utils";
 import { getConstructionPhases } from "@/services/contractor-ops.service";
 import { getProgressPhotos } from "@/services/progress-reports.service";
@@ -194,7 +194,8 @@ const WALL_PAGE = 48;
 
 /**
  * 现场照片: every progress photograph, newest first, found by day and
- * 施工分类. Tick some and 「填写日报告」 writes that day's report with them.
+ * 施工分类. 「填写日报告」 writes the report of the days shown - every record
+ * and photograph of them, nothing ticked (H15, HD12).
  */
 export function SitePhotosTab() {
   const t = useTranslations("progressPage");
@@ -212,30 +213,12 @@ export function SitePhotosTab() {
   });
   const rows = photos.data?.results ?? [];
   const total = photos.data?.count ?? 0;
-  const [selected, setSelected] = useState<ProgressPhoto[]>([]);
   const [writing, setWriting] = useState(false);
   const [written, setWritten] = useState<DailyReport | null>(null);
-  const [mixed, setMixed] = useState(false);
   // 「＋新增施工分类」 from the filter (H14, HD3).
   const [addingPhase, setAddingPhase] = useState(false);
   const viewer = usePhotoViewer(rows, t("tabs.photos"));
-  const chosen = new Set(selected.map((photo) => photo.id));
   const canWrite = can("progress.manage");
-  const toggle = (photo: ProgressPhoto) => {
-    if (chosen.has(photo.id)) {
-      setSelected(selected.filter((row) => row.id !== photo.id));
-      setMixed(false);
-      return;
-    }
-    // One report is about one site: photographs of two projects cannot go
-    // into it together.
-    if (selected.length && selected[0].project !== photo.project) {
-      setMixed(true);
-      return;
-    }
-    setMixed(false);
-    setSelected([...selected, photo]);
-  };
 
   return (
     <div className="space-y-4">
@@ -266,34 +249,12 @@ export function SitePhotosTab() {
       <QueryFailedNote query={phases} what={t("tabs.phases")} />
 
       {canWrite && (
-        <div
-          className={cn(
-            "flex flex-wrap items-center gap-2 rounded-xl border p-3 text-sm",
-            selected.length ? "border-primary/40 bg-primary/5" : "border-dashed bg-muted/20",
-          )}
-        >
-          <span className="text-muted-foreground">
-            {selected.length
-              ? t("photos.selected", { count: selected.length })
-              : t("photos.selectHint")}
-          </span>
-          {mixed && (
-            <span role="alert" className="text-xs text-destructive">
-              {t("photos.oneProject")}
-            </span>
-          )}
-          <div className="ml-auto flex flex-wrap gap-2">
-            {selected.length > 0 && (
-              <Button variant="ghost" onClick={() => setSelected([])}>
-                <X />
-                {t("photos.clear")}
-              </Button>
-            )}
-            <Button onClick={() => setWriting(true)}>
-              <PenLine />
-              {t("reports.write")}
-            </Button>
-          </div>
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-dashed bg-muted/20 p-3 text-sm">
+          <span className="text-muted-foreground">{t("photos.reportHint")}</span>
+          <Button className="ml-auto" onClick={() => setWriting(true)}>
+            <PenLine />
+            {t("reports.write")}
+          </Button>
         </div>
       )}
 
@@ -306,18 +267,7 @@ export function SitePhotosTab() {
       ) : (
         <PhotoGrid>
           {rows.map((photo, index) => (
-            <PhotoTile
-              key={photo.id}
-              photo={photo}
-              onOpen={() => viewer.open(index)}
-              {...(canWrite
-                ? {
-                    selected: chosen.has(photo.id),
-                    onToggle: () => toggle(photo),
-                    toggleLabel: chosen.has(photo.id) ? t("photos.unselect") : t("photos.select"),
-                  }
-                : {})}
-            />
+            <PhotoTile key={photo.id} photo={photo} onOpen={() => viewer.open(index)} />
           ))}
         </PhotoGrid>
       )}
@@ -340,11 +290,10 @@ export function SitePhotosTab() {
       {writing && (
         <DailyReportDialog
           project={project}
-          photos={selected}
+          days={{ from: list.filters.date_from ?? "", to: list.filters.date_to ?? "" }}
           onClose={() => setWriting(false)}
           onSaved={(report) => {
             setWriting(false);
-            setSelected([]);
             setWritten(report);
           }}
         />
