@@ -13485,7 +13485,7 @@
       "emergencyPhone": "Telefon kecemasan",
       "fieldPinExpiry": "Tempoh tamat akses kakitangan tapak (hari)",
       "gateName": "Nama pintu",
-      "gatePhoto": "Foto wajib di pintu masuk",
+      "gatePhoto": "Foto wajib dari peranti pintu",
       "homePage": "Halaman selepas log masuk",
       "hostName": "Pegawai tapak",
       "identityNo": "No. pengenalan / pasport",
@@ -13680,7 +13680,7 @@
     },
     "settings": {
       "attendancePhotoHelp": "Kakitangan tapak mesti mengambil swafoto untuk setiap kemasukan dan keluar manual. Rekod automatik pagar geo tiada foto.",
-      "gatePhotoHelp": "Petugas pintu dan pembaca yang disambung mesti memberi foto setiap masuk dan keluar.",
+      "gatePhotoHelp": "Hanya untuk peranti pintu yang disambung (palang, pembaca nombor plat): setiap masuk dan keluar mesti disertakan foto. Imbas QR Pelawat pengawal di telefon tidak mengambil foto dan tidak terjejas.",
       "realRulesHelp": "Suis QR mengawal penciptaan permit, suis notifikasi mengawal peringatan aliran kerja dan lalai projek disalin ke projek baharu.",
       "realRulesTitle": "Tetapan ini digunakan dalam operasi sebenar.",
       "saveError": "Perubahan tidak dapat disimpan. Semak maklumat dan cuba lagi.",

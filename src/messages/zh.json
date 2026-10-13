@@ -13485,7 +13485,7 @@
       "emergencyPhone": "紧急联系电话",
       "fieldPinExpiry": "现场人员 PIN 过期天数",
       "gateName": "门岗名称",
-      "gatePhoto": "门岗必须拍照",
+      "gatePhoto": "门禁设备必须拍照",
       "homePage": "登录后首页",
       "hostName": "工地接待人",
       "identityNo": "身份证／护照号码",
@@ -13680,7 +13680,7 @@
     },
     "settings": {
       "attendancePhotoHelp": "工地人员每次手动进场和离开都必须自拍。电子围栏自动记录的没有照片。",
-      "gatePhotoHelp": "门岗人员和已连接设备每次进出都必须提供照片。",
+      "gatePhotoHelp": "只适用于已连接的门禁设备（闸机、车牌识别等）：每次进出都必须附照片。保安用手机「访客扫码」不拍照，不受这个设定影响。",
       "realRulesHelp": "二维码开关会控制许可证建立，通知开关会控制流程提醒，项目默认值会复制到新项目。",
       "realRulesTitle": "这些设置会真正影响业务。",
       "saveError": "无法保存，请检查填写内容后重试。",

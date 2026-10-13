@@ -13485,7 +13485,7 @@
       "emergencyPhone": "緊急聯繫電話",
       "fieldPinExpiry": "現場人員 PIN 過期天數",
       "gateName": "門崗名稱",
-      "gatePhoto": "門崗必須拍照",
+      "gatePhoto": "門禁設備必須拍照",
       "homePage": "登錄後首頁",
       "hostName": "工地接待人",
       "identityNo": "身份證／護照號碼",
@@ -13680,7 +13680,7 @@
     },
     "settings": {
       "attendancePhotoHelp": "工地人員每次手動進場和離開都必須自拍。電子圍欄自動記錄的沒有照片。",
-      "gatePhotoHelp": "門崗人員和已連接設備每次進出都必須提供照片。",
+      "gatePhotoHelp": "只適用於已連接的門禁設備（閘機、車牌識別等）：每次進出都必須附照片。保安用手機「訪客掃碼」不拍照，不受這個設定影響。",
       "realRulesHelp": "二維碼開關會控制許可證建立，通知開關會控制流程提醒，項目默認值會複製到新項目。",
       "realRulesTitle": "這些設置會真正影響業務。",
       "saveError": "無法保存，請檢查填寫內容後重試。",

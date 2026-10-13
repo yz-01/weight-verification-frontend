@@ -13485,7 +13485,7 @@
       "emergencyPhone": "Emergency phone",
       "fieldPinExpiry": "Field staff idle expiry (days)",
       "gateName": "Gate name",
-      "gatePhoto": "Photo required at the gate",
+      "gatePhoto": "Photo required from gate devices",
       "homePage": "Page after sign-in",
       "hostName": "Site host",
       "identityNo": "Identity / passport no.",
@@ -13680,7 +13680,7 @@
     },
     "settings": {
       "attendancePhotoHelp": "Field Staff must take a selfie for every manual entry and exit. Entries the geofence records have no photo.",
-      "gatePhotoHelp": "Gate staff and connected readers must provide a photo for every entry and exit.",
+      "gatePhotoHelp": "Applies to connected gate devices only (barriers, plate readers): each entry and exit must come with a photo. The guard's Visitor QR Scan on the phone takes no photo and is not affected.",
       "realRulesHelp": "QR switches affect permit creation, notification switches affect workflow alerts, and project defaults are copied into each new project.",
       "realRulesTitle": "These settings are operational.",
       "saveError": "Changes could not be saved. Check the highlighted information and try again.",
