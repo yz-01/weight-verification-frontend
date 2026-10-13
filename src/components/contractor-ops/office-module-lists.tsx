@@ -1254,6 +1254,14 @@ export function SiteEquipmentOffice() {
           title={`${shownMachine.registration_no || shownMachine.code} - ${shownMachine.name}`}
           description={t(`equipmentStatus.${shownMachine.status}`)}
           onClose={closeMachine}
+          // The machine on its own (H16, HD13 overrides T-386's "a machine is
+          // not a record kind"): its register entry, photographs and moves.
+          exportRecord={{
+            kind: "SITE_EQUIPMENT",
+            recordId: shownMachine.id,
+            reference: shownMachine.registration_no || shownMachine.code,
+            href: `/site-equipment?view=register&equipment=${shownMachine.id}`,
+          }}
         >
           <RecordDetailShell
             reference={shownMachine.code}

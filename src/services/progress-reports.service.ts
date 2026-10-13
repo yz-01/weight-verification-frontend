@@ -114,3 +114,11 @@ export async function deleteProgressSummary(id: string) {
   await api.delete(`/api/progress-summaries/${id}/delete_summary/`);
   toastSuccess("contractorOps.toast.removed");
 }
+
+/** The summary as a PDF, its blocks in order (H16): 预览 · 打印 · 导出 · 发送. */
+export const progressSummaryPdfFile = (id: string, lang: string, title: string) =>
+  fetchAsFile(`/api/progress-summaries/${id}/get_summary_pdf/`, {
+    method: "GET",
+    query: { lang },
+    fallbackFilename: `${(title || "progress-summary").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
+  });

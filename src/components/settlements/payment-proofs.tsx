@@ -7,6 +7,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
@@ -330,6 +331,10 @@ function PaymentProofDialog({
             })}
           </DialogDescription>
         </DialogHeader>
+        {/* 预览 · 打印 · 导出 · 发送: the settlement and its payments (H16). */}
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+          <RecordExportButton kind="SETTLEMENT" recordId={settlement.id} reference={settlement.settlement_no} href="/payment-proofs" />
+        </div>
 
         {settlement.payments.length === 0 ? (
           <div className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">

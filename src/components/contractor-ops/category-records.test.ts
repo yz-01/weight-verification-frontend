@@ -191,8 +191,11 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     expect(sheet).toMatch(/isQueueKind\(row\.kind\)\s*\?\s*getArchiveRecord\(row\.kind, row\.id\)/);
   });
 
-  it("has no export button for the kinds the export endpoint does not print", () => {
-    expect(sheet).toMatch(/isExportableKind\(row\.kind\) && \(\s*<RecordExportButton/);
+  it("has an export button only for the kinds the export endpoint prints", () => {
+    // Gated on the kinds the export prints (``recordPdfKindFor``): the nine,
+    // and since H16 a day of attendance, a delivery note, a site record, a
+    // machine and a document - never a period claim (Phase 4).
+    expect(sheet).toMatch(/recordPdfKindFor\(row\.kind\) && \(\s*<RecordExportButton/);
     const service = read(SERVICE);
     const block = service.match(
       /export const EXPORTABLE_RECORD_KINDS[^=]*= \[([\s\S]*?)\];/,

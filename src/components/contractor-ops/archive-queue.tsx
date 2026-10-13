@@ -50,6 +50,7 @@ import {
   getArchiveQueue,
   getArchiveRecord,
   isExportableKind,
+  recordPdfKindFor,
   markRecordsSeen, exportArchiveQueue } from "@/services/contractor-ops.service";
 
 /**
@@ -586,9 +587,11 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
       // record, machine, document or period claim is not a kind the export
       // endpoint prints.
       headerActions={
-        isExportableKind(row.kind) && (
+        // Every kind with a PDF (T-386; H16 adds a day of attendance, a
+        // delivery note, a site record, a machine and a document).
+        recordPdfKindFor(row.kind) && (
           <RecordExportButton
-            kind={row.kind}
+            kind={recordPdfKindFor(row.kind)!}
             recordId={row.id}
             reference={row.reference}
           />

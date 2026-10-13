@@ -1448,10 +1448,30 @@ export const RECORD_PDF_KINDS = [
   "APPROVAL",
   "ACCESS_PASS",
   "INCIDENT_THREAD",
+  // H16 fix round (HD13 「每一个事项都要」).
+  "PROJECT",
+  "SITE_EQUIPMENT",
+  "SETTLEMENT",
+  "WEIGH_SESSION",
+  "DOCUMENT",
+  "ANNOUNCEMENT",
+  "ATTENDANCE_DAY",
+  "DELIVERY_NOTE",
 ] as const;
 
 /** Every kind `record-exports/download` prints: the nine and the rest. */
 export type RecordPdfKind = ExportableRecordKind | (typeof RECORD_PDF_KINDS)[number];
+
+/**
+ * The PDF a record sheet (现场记录中心, a column's list) prints for a row of
+ * `kind`, or null. A 现场记录 row is a field task and prints as one; a period
+ * claim waits for Phase 4's rebuild of Claims.
+ */
+export function recordPdfKindFor(kind: string): RecordPdfKind | null {
+  if (isExportableKind(kind)) return kind;
+  if (kind === "SITE_RECORD") return "FIELD_TASK";
+  return (RECORD_PDF_KINDS as readonly string[]).includes(kind) ? (kind as RecordPdfKind) : null;
+}
 
 /**
  * One record as its own PDF, straight from its detail (T-386, D-267).

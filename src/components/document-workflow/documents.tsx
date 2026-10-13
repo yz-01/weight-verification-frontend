@@ -22,6 +22,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -1577,6 +1578,17 @@ function DocumentDetailDialog({
             {detail.data?.document_no ?? t("common.loading")}
           </DialogDescription>
         </DialogHeader>
+        {/* 预览 · 打印 · 导出 · 发送: its fields, files and approval history (H16). */}
+        {detail.data ? (
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+            <RecordExportButton
+              kind="DOCUMENT"
+              recordId={detail.data.id}
+              reference={detail.data.document_no || detail.data.title}
+              href={`/documents?document=${detail.data.id}`}
+            />
+          </div>
+        ) : null}
 
         {detail.isError ? (
           <p className="py-10 text-center text-sm text-destructive">

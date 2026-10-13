@@ -25,6 +25,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { ProjectDockets } from "@/components/projects/project-dockets";
 import { ProjectQrPanel } from "@/components/projects/project-qr-panel";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -116,6 +117,13 @@ export function ViewProject({ id }: { id: string }) {
         backLabel={t("projects.title")}
         action={
           <div className="flex flex-wrap items-center justify-end gap-2">
+            {/* 预览 · 打印 · 导出 · 发送 on the project (H16, HD13). */}
+            <RecordExportButton
+              kind="PROJECT"
+              recordId={data.id}
+              reference={`${data.code} ${data.name}`}
+              href={`/projects/${data.id}`}
+            />
             {can("project.assign") && (
               <Button asChild size="sm" variant="outline" className="rounded-full px-4">
                 <a href="#project-team">

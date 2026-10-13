@@ -60,6 +60,11 @@ const DETAILS: Array<[string, string, string]> = [
   ["src/components/document-workflow/approvals.tsx", "ApprovalDetailDialog", "APPROVAL"],
   ["src/components/incident-reporting/incident-thread-detail.tsx", "IncidentThreadDetail", "INCIDENT_THREAD"],
   ["src/components/site-access/site-access-workspace.tsx", "PassDetail", "ACCESS_PASS"],
+  // H16 fix round: every record with a detail view (HD13, D1).
+  ["src/components/settlements/payment-proofs.tsx", "PaymentProofDialog", "SETTLEMENT"],
+  ["src/components/settlements/view-settlement.tsx", "ViewSettlement", "SETTLEMENT"],
+  ["src/components/weighing/view-weigh-session.tsx", "ViewWeighSession", "WEIGH_SESSION"],
+  ["src/components/announcements/announcement-dialog.tsx", "AnnouncementDialog", "ANNOUNCEMENT"],
 ];
 
 describe("every record detail can export that one record (T-386)", () => {
@@ -70,20 +75,22 @@ describe("every record detail can export that one record (T-386)", () => {
     });
   }
 
-  it("the equipment register (a machine, not a record kind) does not get one", () => {
+  it("the equipment register's machine has its own PDF too (H16: HD13 overrides T-386)", () => {
     const body = componentBody(
       read("src/components/contractor-ops/office-module-lists.tsx"),
       "SiteEquipmentOffice",
     );
-    expect(body.match(/exportRecord=/g) ?? []).toHaveLength(1);
+    // A movement's and, since HD13 「每一个事项都要」, the machine's.
+    expect(body.match(/exportRecord=/g) ?? []).toHaveLength(2);
+    expect(body).toMatch(/kind: "SITE_EQUIPMENT",\s*recordId: shownMachine\.id/);
   });
 
-  it("the archive queue's sheet exports whichever kind it shows, except attendance", () => {
+  it("the archive queue's sheet exports every kind that has a PDF", () => {
     const body = componentBody(read("src/components/contractor-ops/archive-queue.tsx"), "RecordSheet");
-    // Gated on the nine the export endpoint prints (T-396): attendance, and a
-    // column's delivery note, site record, machine, document or period claim,
-    // get no button.
-    expect(body).toMatch(/isExportableKind\(row\.kind\) && \(\s*<RecordExportButton\s+kind=\{row\.kind\}\s+recordId=\{row\.id\}/);
+    // The nine (T-396) and, since H16, a day of attendance, a delivery note,
+    // a site record (as its field task), a machine and a document. A period
+    // claim waits for Phase 4's rebuild of Claims.
+    expect(body).toMatch(/recordPdfKindFor\(row\.kind\) && \(\s*<RecordExportButton\s+kind=\{recordPdfKindFor\(row\.kind\)!\}\s+recordId=\{row\.id\}/);
   });
 });
 
