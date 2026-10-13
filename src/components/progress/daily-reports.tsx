@@ -32,6 +32,7 @@ import {
   usePhotoViewer,
 } from "@/components/progress/progress-photos";
 import { useAuth } from "@/components/providers/auth-provider";
+import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
 import { FieldWrapper, FilterBar, QueryFailedNote } from "@/components/shared/page-primitives";
@@ -64,6 +65,7 @@ import { usePercentText } from "@/lib/progress-percent";
 import {
   collectDailyReportEntries,
   createDailyReport,
+  exportDailyReports,
   dailyReportPdfFile,
   deleteDailyReport,
   getDailyReport,
@@ -84,6 +86,7 @@ function useReportDays() {
 
 export function DailyReportsTab() {
   const t = useTranslations("progressPage");
+  const tRoot = useTranslations();
   const { can } = useAuth();
   const days = useReportDays();
   const list = useListQuery(["project", "date_from", "date_to"]);
@@ -105,6 +108,28 @@ export function DailyReportsTab() {
           from={list.filters.date_from ?? ""}
           to={list.filters.date_to ?? ""}
           onChange={(next) => list.setFilters(next)}
+        />
+        {/* The reports listed, as a file (H16, HD13). */}
+        <ExportButton
+          disabled={total === 0}
+          disabledReason={t("reports.empty")}
+          title={t("tabs.reports")}
+          onExport={(format) =>
+            exportDailyReports({
+              format,
+              title: t("tabs.reports"),
+              query: list.filters,
+              columns: [
+                { key: "name", label: t("reports.name") },
+                { key: "report_date", label: t("dateFrom") },
+                { key: "end_date", label: t("dateTo") },
+                { key: "project_name", label: t("project") },
+                { key: "author_name", label: tRoot("mySubmissions.field.recorded_by") },
+                { key: "record_count", label: t("reports.content") },
+                { key: "photo_count", label: t("reports.photosCount") },
+              ],
+            })
+          }
         />
         {can("progress.manage") && (
           <Button className="sm:ml-auto" onClick={() => setWriting(true)}>

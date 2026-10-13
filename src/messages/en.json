@@ -16451,7 +16451,8 @@
       "collectedAt": "Collected {when}. Records added later come in only with \"Collect again\".",
       "legacy": "Written before reports held every photo: it has only the photos ticked then. Edit → \"Collect again\" takes in every record of these days.",
       "bringNotes": "Bring in these days' notes",
-      "noNotes": "These days' records have no notes."
+      "noNotes": "These days' records have no notes.",
+      "photosCount": "Photos"
     },
     "summary": {
       "new": "New summary",

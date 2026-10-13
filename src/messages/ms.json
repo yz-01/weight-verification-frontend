@@ -16451,7 +16451,8 @@
       "collectedAt": "Dikumpul {when}. Rekod yang ditambah kemudian hanya masuk dengan \"Kumpul semula\".",
       "legacy": "Ditulis sebelum laporan memuat semua foto: ia hanya ada foto yang dipilih ketika itu. Edit → \"Kumpul semula\" memasukkan setiap rekod hari-hari ini.",
       "bringNotes": "Bawa masuk catatan hari-hari ini",
-      "noNotes": "Rekod hari-hari ini tiada catatan."
+      "noNotes": "Rekod hari-hari ini tiada catatan.",
+      "photosCount": "Foto"
     },
     "summary": {
       "new": "Ringkasan baharu",

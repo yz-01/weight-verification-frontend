@@ -10,7 +10,8 @@ import type {
   ProgressSummary,
   SummaryBlock,
 } from "@/interfaces/progress-reports";
-import { api, fetchAsFile, toastSuccess } from "@/services/api-client";
+import { api, download, fetchAsFile, toastSuccess } from "@/services/api-client";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 /** 现场照片: progress photographs by project, 施工分类 and day. */
 export const getProgressPhotos = (query: ListQuery = {}) =>
@@ -22,6 +23,16 @@ export const getDailyReports = (query: ListQuery = {}) =>
 
 export const getDailyReport = (id: string) =>
   api.get<DailyReport>(`/api/daily-reports/${id}/get_report/`);
+
+/** The list of reports, as Excel or PDF (H16, HD13); each report has its own PDF. */
+export function exportDailyReports(request: ExportRequest): Promise<void> {
+  return download("/api/daily-reports/export_reports/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `daily-reports.${request.format}`,
+  });
+}
 
 /** Every record and photograph of these days, as a report would hold them (H15). */
 export const collectDailyReportEntries = (query: {
