@@ -16184,7 +16184,9 @@
       "pending": "Belum diluluskan (menunggu)",
       "returned": "Dikembalikan (ditutup, sejarah)",
       "requests": "{count, plural, =0 {tiada permohonan} other {# permohonan}}",
-      "notStock": "Ini kuantiti yang dipohon, bukan stok di tapak: penghantaran dan pemulangan dikira dalam Pengurusan bahan."
+      "notStock": "Ini kuantiti yang dipohon, bukan stok di tapak: penghantaran dan pemulangan dikira dalam Pengurusan bahan.",
+      "approvedCount": "Permohonan diluluskan",
+      "pendingCount": "Permohonan menunggu"
     },
     "preview": {
       "title": "Borang {reference}",

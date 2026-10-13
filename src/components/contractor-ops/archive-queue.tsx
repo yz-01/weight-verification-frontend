@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Inbox, ListTree } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { ExportButton } from "@/components/shared/export-button";
 import { recordKindKey } from "@/lib/record-kind";
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import {
@@ -49,8 +50,7 @@ import {
   getArchiveQueue,
   getArchiveRecord,
   isExportableKind,
-  markRecordsSeen,
-} from "@/services/contractor-ops.service";
+  markRecordsSeen, exportArchiveQueue } from "@/services/contractor-ops.service";
 
 /**
  * 总栏目 - everything finished that this reader has not looked at yet (T-233).
@@ -186,16 +186,48 @@ export function ArchiveQueue() {
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          // B05: 「分类管理可以做在总栏目右上角，有一个分类管理的 button 点了直接
-          // 去到分类管理页面」. Only for whoever may open that page.
-          canManageCategories ? (
-            <Button asChild variant="outline">
-              <Link href="/category-management">
-                <ListTree className="size-4" />
-                {t("categoryManagement")}
-              </Link>
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap items-center gap-2">
+            {/* The rows of this view, as a file (H16, HD13). */}
+            <ExportButton
+              disabled={total === 0}
+              disabledReason={t("subtitle")}
+              title={t("title")}
+              onExport={(format) =>
+                exportArchiveQueue({
+                  format,
+                  title: t("title"),
+                  query: {
+                    state,
+                    closure: closure || undefined,
+                    waiting: waiting ? "1" : undefined,
+                    kind: kind || undefined,
+                    project: project || undefined,
+                  },
+                  columns: [
+                    { key: "reference", label: t("column.record") },
+                    { key: "detail", label: root("contractorOps.field.description") },
+                    { key: "kind", label: t("column.module"), values: t.raw("kind") as Record<string, string> },
+                    { key: "project_name", label: t("column.project") },
+                    { key: "submitted_at", label: t("column.when") },
+                    { key: "status_label", label: t("column.status") },
+                    { key: "archived_by", label: t("column.archived") },
+                    { key: "archived_at", label: t("closure.closed") },
+                    { key: "seen_at", label: t("state.archived") },
+                  ],
+                })
+              }
+            />
+            {/* B05: 「分类管理可以做在总栏目右上角，有一个分类管理的 button 点了直接
+                去到分类管理页面」. Only for whoever may open that page. */}
+            {canManageCategories ? (
+              <Button asChild variant="outline">
+                <Link href="/category-management">
+                  <ListTree className="size-4" />
+                  {t("categoryManagement")}
+                </Link>
+              </Button>
+            ) : null}
+          </div>
         }
       />
 

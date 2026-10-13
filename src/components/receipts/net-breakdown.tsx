@@ -22,6 +22,7 @@ import { ClipboardList, Loader2, PackageMinus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { ViewReceipt } from "@/components/receipts/view-receipt";
@@ -39,6 +40,7 @@ import { useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import {
+  exportReceiptNetBreakdown,
   getReceiptNetBreakdown,
   netLineKey,
   type MaterialNetBreakdownItem,
@@ -63,6 +65,7 @@ export function NetBreakdownDialog({
   onClose: () => void;
 }) {
   const t = useTranslations("receipts.net");
+  const tRoot = useTranslations();
   const unitName = useUnitName();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<NetFocus>(focus);
@@ -98,6 +101,41 @@ export function NetBreakdownDialog({
               {row.project_name ? ` · ${row.project_name}` : ""}
             </DialogDescription>
           </DialogHeader>
+          {/* This line's records, as a file (H16, HD13). */}
+          <div className="flex justify-end">
+            <ExportButton
+              size="sm"
+              disabled={!data || line === null}
+              disabledReason={t("breakdown.gone")}
+              title={t("breakdown.what")}
+              onExport={(format) =>
+                exportReceiptNetBreakdown(
+                  {
+                    format,
+                    title: `${t("breakdown.what")} · ${row.material_name}`,
+                    query,
+                    columns: [
+                      { key: "kind", label: t("item.reference"), values: t.raw("item.kind") as Record<string, string> },
+                      { key: "reference", label: t("item.reference") },
+                      { key: "date", label: t("item.date") },
+                      { key: "quantity", label: t("item.quantity") },
+                      { key: "unit", label: tRoot("mySubmissions.field.quantity"), values: tRoot.raw("mySubmissions.unit") as Record<string, string> },
+                      { key: "delivery_note_no", label: t("item.doNo") },
+                      { key: "return_note_no", label: t("item.returnNote") },
+                      { key: "vehicle_plate", label: t("item.plate") },
+                      { key: "supplier_name", label: tRoot("mySubmissions.field.supplier") },
+                      { key: "manufacturer_name", label: t("item.manufacturer") },
+                      { key: "project_name", label: t("breakdown.project") },
+                      { key: "reason", label: t("breakdown.reason") },
+                      { key: "approved_by_name", label: t("breakdown.approvedBy") },
+                      { key: "completed_by_name", label: t("breakdown.completedBy") },
+                    ],
+                  },
+                  row,
+                )
+              }
+            />
+          </div>
           <Tabs value={tab} onValueChange={(next) => setTab(next as NetFocus)}>
             <TabsList className="w-full sm:w-fit">
               {numbers.map(([key, value]) => (

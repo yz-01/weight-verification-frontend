@@ -1828,3 +1828,23 @@ export function exportEquipmentRegister(request: ExportRequest): Promise<void> {
     fallbackFilename: `equipment-register.${request.format}`,
   });
 }
+
+/** 现场记录中心 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportArchiveQueue(request: ExportRequest): Promise<void> {
+  return download("/api/archive-queue/export_queue/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `site-records.${request.format}`,
+  });
+}
+
+/** 垃圾清运「全部」 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportWasteClearance(request: ExportRequest): Promise<void> {
+  return download("/api/site-disposals/export_clearance/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `waste-clearance.${request.format}`,
+  });
+}

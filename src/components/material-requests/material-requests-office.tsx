@@ -96,8 +96,7 @@ import {
   getMaterialRequestTotals,
   materialRequestFormFile,
   reassignMaterialRequestToMe,
-  reviewMaterialRequest,
-} from "@/services/material-request.service";
+  reviewMaterialRequest, exportMaterialRequestTotals } from "@/services/material-request.service";
 
 const TONE: Record<MaterialRequestStatus, "warning" | "positive" | "neutral"> = {
   SUBMITTED: "warning",
@@ -461,6 +460,7 @@ export function NewRequestDialog({
 
 function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, string>) => void }) {
   const t = useTranslations("materialRequest");
+  const tRoot = useTranslations();
   const unitLabel = useUnitLabel();
   const list = useListQuery(["project", "material", "specification"]);
   const totals = useQuery({
@@ -479,6 +479,31 @@ function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, stri
         <ProjectListFilter list={list} />
         <TextFilter list={list} param="material" placeholder={t("filter.material")} />
         <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
+        {/* The totals on screen, as a file (H16, HD13). */}
+        <ExportButton
+          disabled={rows.length === 0}
+          disabledReason={t("totals.basis")}
+          title={t("totals.title")}
+          onExport={(format) =>
+            exportMaterialRequestTotals({
+              format,
+              title: t("totals.title"),
+              subtitle: t("totals.basis"),
+              query: list.filters,
+              columns: [
+                { key: "project_label", label: t("field.project") },
+                { key: "material_name", label: t("field.material") },
+                { key: "specification", label: t("field.specification") },
+                { key: "unit", label: t("field.unit"), values: tRoot.raw("mySubmissions.unit") as Record<string, string> },
+                { key: "approved_quantity", label: t("totals.approved") },
+                { key: "approved_count", label: t("totals.approvedCount") },
+                { key: "pending_quantity", label: t("totals.pending") },
+                { key: "pending_count", label: t("totals.pendingCount") },
+                { key: "returned_count", label: t("totals.returned") },
+              ],
+            })
+          }
+        />
       </FilterBar>
       {totals.isError ? (
         <LoadFailed what={t("totals.title")} onRetry={() => void totals.refetch()} />

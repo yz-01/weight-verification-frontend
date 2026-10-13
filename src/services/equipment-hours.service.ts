@@ -201,3 +201,13 @@ export async function loadEquipmentHoursMachines(
     throw error;
   }
 }
+
+/** 设备操作员工时 · 按月 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportEquipmentHoursMonth(request: ExportRequest): Promise<void> {
+  return download("/api/equipment-hours/export_month/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `equipment-hours-month.${request.format}`,
+  });
+}

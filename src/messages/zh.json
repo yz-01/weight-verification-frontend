@@ -16184,7 +16184,9 @@
       "pending": "未批准数量（待审）",
       "returned": "已退回（已结束，历史）",
       "requests": "{count, plural, =0 {无申请} other {# 笔申请}}",
-      "notStock": "以上是申请数量，不是现场库存；实际进场与退场以「材料管理」为准。"
+      "notStock": "以上是申请数量，不是现场库存；实际进场与退场以「材料管理」为准。",
+      "approvedCount": "已批准申请数",
+      "pendingCount": "待审批申请数"
     },
     "preview": {
       "title": "申请表 {reference}",

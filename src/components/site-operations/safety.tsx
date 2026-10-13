@@ -529,9 +529,12 @@ export function Safety({
       title: t("safety.title"),
       subtitle: t("safety.form.description"),
       emptyLabel: t("common.emptyValue"),
+      // The drill-downs the list applies (逾期, 等你处理) go with it (H16).
       query: {
         ...list.query,
         workflow: mode === "rectification" ? "rectification" : undefined,
+        overdue: overdueOnly ? "1" : undefined,
+        waiting: waitingForMe ? "me" : undefined,
       },
       columns: [
         { key: "incident_no", label: t("safety.field.incidentNo") },
@@ -540,7 +543,7 @@ export function Safety({
         { key: "category_name", label: t("safety.field.category") },
         { key: "title", label: t("safety.field.title") },
         { key: "description", label: t("safety.field.description") },
-        { key: "status", label: t("safety.field.status") },
+        { key: "status", label: t("safety.field.status"), values: t.raw("safetyRectification.status") as Record<string, string> },
         { key: "responsible_person_name", label: t("safety.field.responsible") },
         { key: "rectification_due_at", label: t("safety.field.dueAt") },
         { key: "photographer_name", label: t("safety.field.photographer") },
