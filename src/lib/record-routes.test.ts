@@ -13,7 +13,7 @@ describe("record → business detail (F9)", () => {
     ["HAZARD", "/hazard-rectifications?incident=r1"],
     ["SAFETY_INCIDENT", "/hazard-rectifications?incident=r1"],
     ["FIELD_TASK", "/field-tasks?task=r1"],
-    ["GATE_INCIDENT", "/site-access?tab=gate-records&gate_incident=r1"],
+    ["GATE_INCIDENT", "/gate-records?gate_incident=r1"],
     ["CONSULTANT_APPLICATION", "/consultant-applications/r1"],
     ["SUNDRY_CLAIM", "/sundry-claims?record=r1"],
     ["MATERIAL_REQUEST", "/material-requests?record=r1"],

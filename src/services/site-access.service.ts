@@ -8,8 +8,10 @@ import type {
   GateIncidentDetail,
   GateIncidentPayload,
   GateMemberOption,
-  GatePassMatch,
+  GatePassCheck,
+  GatePassDetail,
   GatePhotoDraft,
+  GateSummary,
   SiteAccessCredential,
   SiteAccessCredentialPayload,
   SiteAccessEvent,
@@ -19,9 +21,15 @@ import type {
   SiteGeofencePayload,
   SiteLocationPolicy,
   ThirdPartyAccessEvent,
+  VisitorRecord,
 } from "@/interfaces/site-access";
 import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
 import { api, download, toastSuccess } from "@/services/api-client";
+import {
+  exportBody,
+  exportQuery,
+  type ExportRequest,
+} from "@/services/contractor.service";
 
 export const getSiteGeofences = (query: ListQuery = {}) =>
   api.list<SiteGeofence>("/api/site-geofences/get_geofences/", query);
@@ -215,22 +223,31 @@ export async function revokeSiteAccessCredential(
   return row;
 }
 
-export async function scanSiteAccessGate(payload: {
+/**
+ * Read a scanned pass at this project's gate (HD7): the whole pass, and
+ * whether it may come in or go out here - or why not. Records nothing.
+ * Silent: the refusal is said on the screen, not in a toast.
+ */
+export const checkGatePass = (project: string, qrValue: string) =>
+  api.post<GatePassCheck>(
+    "/api/site-access-passes/check_gate_pass/",
+    { project, qr_value: qrValue },
+    { silent: true },
+  );
+
+/** Confirm Entry / Confirm Exit after reading the pass (HD7). */
+export async function confirmGatePass(payload: {
+  project: string;
   qr_value: string;
-  direction: "AUTO" | "ENTRY" | "EXIT";
+  direction: "ENTRY" | "EXIT";
   client_event_id: string;
-  gate_name: string;
+  gate_name?: string;
   latitude?: string;
   longitude?: string;
-  photo?: File;
 }) {
-  const body = new FormData();
-  Object.entries(payload).forEach(([key, value]) => {
-    if (value !== undefined) body.append(key, value);
-  });
-  const row = await api.post<{ pass: SiteAccessPass; event: SiteAccessEvent }>(
-    "/api/site-access-passes/scan_gate/",
-    body,
+  const row = await api.post<{ pass: GatePassDetail; event: SiteAccessEvent }>(
+    "/api/site-access-passes/confirm_gate_pass/",
+    payload,
   );
   toastSuccess("siteControl.toast.gateRecorded");
   return row;
@@ -267,18 +284,49 @@ export const getGateMemberOptions = (project: string) =>
     project,
   });
 
-/**
- * The pass behind a QR the guard scanned for a gate photo record (Q18).
- *
- * Only looks it up - scanning here does not record an entry or exit. Silent,
- * because "not a pass for this project" is said on the form itself.
- */
-export const findGatePass = (project: string, qr: string) =>
-  api.get<GatePassMatch>(
-    "/api/gate-incidents/find_pass/",
-    { project, qr },
-    { silent: true },
+/** Gate Records (HD9) as a spreadsheet or PDF, each row with its photos. */
+export function exportGateIncidents(request: ExportRequest): Promise<void> {
+  return download("/api/gate-incidents/export_gate_incidents/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `gate-records.${request.format}`,
+  });
+}
+
+/** The dashboards' 门岗 card (HD10). */
+export const getGateSummary = (project?: string) =>
+  api.get<GateSummary>(
+    "/api/gate-incidents/get_gate_summary/",
+    project ? { project } : undefined,
   );
+
+/** Visitor Records (HD9): every confirmed entry and exit. */
+export const getVisitorRecords = (query: ListQuery = {}) =>
+  api.list<VisitorRecord>("/api/visitor-records/get_visitor_records/", query);
+
+export function exportVisitorRecords(request: ExportRequest): Promise<void> {
+  return download("/api/visitor-records/export_visitor_records/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `visitor-records.${request.format}`,
+  });
+}
+
+/**
+ * 「确认结束」 on a Gate Issue (HD6): the shared record closure, which the
+ * server allows only to the people asked in or a site-access manager.
+ */
+export async function closeGateIssue(id: string, note: string) {
+  const row = await api.post<unknown>("/api/record-closure/confirm_record/", {
+    kind: "GATE_INCIDENT",
+    record: id,
+    note,
+  });
+  toastSuccess("siteControl.toast.gateIssueClosed");
+  return row;
+}
 
 function appendGatePhotos(body: FormData, photos: GatePhotoDraft[]) {
   photos.forEach((photo) => body.append("photos", photo.file));
@@ -296,10 +344,14 @@ function appendGatePhotos(body: FormData, photos: GatePhotoDraft[]) {
   );
 }
 
-/** One gate record with every photo the guard took (C22). */
+/**
+ * One gate record (HD5): a plain photo (one photo), or a Gate Issue with its
+ * photos, the guard's note and the people asked in.
+ */
 export async function createGateIncident(payload: GateIncidentPayload) {
   const body = new FormData();
-  const { photos, members, ...fields } = payload;
+  const { photos, members, is_issue, ...fields } = payload;
+  body.append("is_issue", is_issue ? "true" : "false");
   Object.entries(fields).forEach(([key, value]) => {
     if (value !== undefined && value !== "") body.append(key, value);
   });

@@ -14,8 +14,8 @@ vi.mock("@/components/ui/dialog", async () =>
 // Opened from a link, the way a notification opens it: ?gate_incident=<id>.
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn(), replace: vi.fn() }),
-  usePathname: () => "/site-access",
-  useSearchParams: () => new URLSearchParams("tab=gate-records&gate_incident=g1"),
+  usePathname: () => "/field-staff",
+  useSearchParams: () => new URLSearchParams("tab=records&record=gate&gate_incident=g1"),
 }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: null, can: () => true }),
@@ -67,6 +67,13 @@ const gateRecord = {
   access_event_at: null,
   photo_count: 1,
   cover_photo: null,
+  is_issue: true,
+  issue_status: "OPEN",
+  issue_note: "No exit slip on this lorry",
+  closed_by_name: null,
+  closed_at: null,
+  member_names: "Mei Ling",
+  may_close: true,
   created_at: "2026-10-08T02:00:00Z",
   photos: [
     {
@@ -111,6 +118,28 @@ describe("the gate record detail (E8)", () => {
     expect(html).toContain('data-stub="conversation" data-kind="GATE_INCIDENT"');
     // The conversation it always had, without an attachments panel it never had.
     expect(html).not.toContain('data-stub="attachments"');
+  });
+
+  it("shows a gate issue's note, status and the confirm-finished button (HD6)", () => {
+    const html = renderDetail(<GateRecordsPanel />, seeded);
+    expect(html).toContain("No exit slip on this lorry");
+    expect(html).toContain('data-gate-issue="open"');
+  });
+
+  it("files a plain gate photo with no conversation and nothing to finish", () => {
+    const html = renderDetail(<GateRecordsPanel />, (client) =>
+      client.setQueryData(["gate-incident", "g1"], {
+        ...gateRecord,
+        is_issue: false,
+        issue_status: null,
+        issue_note: "",
+        members: [],
+        member_names: "",
+        may_close: false,
+      }),
+    );
+    expect(html).not.toContain('data-stub="conversation"');
+    expect(html).not.toContain("data-gate-issue");
   });
 
   it("shows the record's title while it loads, in the same popup", () => {

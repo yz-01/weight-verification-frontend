@@ -21,7 +21,6 @@ import {
   onAlertSoundUnlocked,
   playAlertTone,
   readAlertSoundMuted,
-  wantsAlertSound,
   writeAlertSoundMuted,
 } from "@/lib/alert-sound";
 import { ActionCardStack } from "@/components/notifications/action-card-stack";
@@ -131,15 +130,14 @@ export function NotificationButton() {
       .then((subscription) => setPushEnabled(Boolean(subscription)))
       .catch(() => setPushEnabled(false));
   }, [enabled]);
-  // The tone (2026-10-09). In the office every new notice rings once - Lucas:
-  // 「手机端的任何申请后台都需要收到通知 … 然后有 notification 和声音提示」.
-  // On the phone only the notices that ask for it (a hazard) ring, as before.
+  // The tone (2026-10-09; batch H HD11). Every new notice rings, in the
+  // office and on the phone alike - 「手机端请实现红点提醒，声音提醒，像后台
+  // 那样…不要只响一次，响三次」 (推翻 C3: only hazards rang on the phone).
   //
   // The list is re-read on the live stream's `notification.created` and when
   // the polled count moves, so both paths end here; the sounder remembers
   // each id and never rings for one twice, and the backlog already waiting
   // when the page opened is remembered, not rung.
-  const isOffice = !user?.is_field_staff;
   // The person's own "sound off" choice, kept in this browser per account.
   const [muteVersion, setMuteVersion] = useState(0);
   const userId = user?.id;
@@ -148,16 +146,14 @@ export function NotificationButton() {
     [userId, muteVersion],
   );
   const userIdRef = useRef(userId);
-  const isOfficeRef = useRef(isOffice);
   useEffect(() => {
     userIdRef.current = userId;
-    isOfficeRef.current = isOffice;
-  }, [userId, isOffice]);
+  }, [userId]);
   const [soundBlocked, setSoundBlocked] = useState(false);
   const sounder = useRef<ReturnType<typeof createNoticeSounder> | null>(null);
   sounder.current ??= createNoticeSounder({
     play: playAlertTone,
-    rings: (row) => isOfficeRef.current || wantsAlertSound(row.data),
+    rings: () => true,
     muted: () => readAlertSoundMuted(userIdRef.current),
   });
   useEffect(() => {
@@ -231,7 +227,7 @@ export function NotificationButton() {
         }}
       />
     )}
-    {isOffice && soundBlocked && !muted && (
+    {soundBlocked && !muted && (
       <Button
         type="button"
         size="sm"
@@ -316,20 +312,20 @@ export function NotificationButton() {
               </p>
             </div>
           </div>
-          {isOffice && (
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="ml-auto size-8 shrink-0"
-              aria-pressed={muted}
-              title={muted ? t("notifications.sound.unmute") : t("notifications.sound.mute")}
-              aria-label={muted ? t("notifications.sound.unmute") : t("notifications.sound.mute")}
-              onClick={toggleMuted}
-            >
-              {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-            </Button>
-          )}
+          {/* The sound's off switch, on the phone as in the office: it rings
+              there too now (HD11). */}
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="ml-auto size-8 shrink-0"
+            aria-pressed={muted}
+            title={muted ? t("notifications.sound.unmute") : t("notifications.sound.mute")}
+            aria-label={muted ? t("notifications.sound.unmute") : t("notifications.sound.mute")}
+            onClick={toggleMuted}
+          >
+            {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+          </Button>
           <Button
             asChild
             size="sm"

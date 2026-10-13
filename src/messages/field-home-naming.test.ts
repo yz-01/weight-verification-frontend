@@ -189,25 +189,38 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "offline.kind.EQUIPMENT_HOURS_PHOTO",
     ],
   },
-  // 工地门禁 (Lucas 2026-10-10, 图4-图6): its two menu entries open tabs of
-  // one page, and each tab is called what its entry is called - the menu said
-  // 工地通行证 / 门岗扫描 over tabs reading 门禁证 / 门岗扫码. The phone's
-  // 门岗拍照记录 is the office tab of the same name.
+  // 工地门禁 (Lucas 2026-10-10, 图4-图6): its menu entries open tabs of one
+  // page, and each tab is called what its entry is called.
   {
     module: "site access passes",
     keys: ["nav.submodule.siteAccessPasses", "siteControl.access.passes"],
   },
+  // The gate's two entries on the phone (batch H, 事项2 六): 访客扫码 is the
+  // office's 工地门禁 tab of the same name; 门岗拍照 is the guard's camera,
+  // and what it takes is read in the office under EHS › 门岗记录 (HD9).
   {
-    module: "gate scan",
-    keys: ["nav.submodule.gateScanning", "siteControl.access.gate"],
+    module: "visitor scan",
+    keys: [
+      "nav.submodule.gateScanning",
+      "siteControl.access.gate",
+      "fieldStaffPwa.records.visitor",
+    ],
   },
   {
-    module: "gate photo records",
+    module: "gate photo",
+    keys: ["fieldStaffPwa.records.gate", "siteControl.gatePhoto.title", "offline.kind.GATE_PHOTO"],
+  },
+  {
+    module: "gate records",
     keys: [
-      "siteControl.access.gateRecords",
+      "nav.submodule.gateRecords",
+      "siteControl.gateRecords.officeTitle",
       "siteControl.gateRecords.title",
-      "fieldStaffPwa.records.gate",
     ],
+  },
+  {
+    module: "visitor records",
+    keys: ["nav.submodule.visitorRecords", "siteControl.visitorRecords.title"],
   },
   {
     module: "attendance",

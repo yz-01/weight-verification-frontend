@@ -7,9 +7,8 @@
  * the other changes only the address's `?tab=`, so Next.js keeps the page
  * mounted and only `useSearchParams` changes. The page used to read the tab
  * once, into state, when it first mounted - and kept showing that tab
- * whatever the address said afterwards. A notification's
- * `?tab=gate-records&gate_incident=…` had the same problem while the page
- * was open.
+ * whatever the address said afterwards. (门岗拍照记录 moved to
+ * EHS › 门岗记录 in batch H; its old addresses forward there.)
  *
  * The runner has no DOM, so "still mounted" is played here: the page is
  * rendered once at the first address, and rendered again at the next one
@@ -72,11 +71,7 @@ vi.mock("@/components/site-access/gate-qr-scanner", () => ({
   GateQrScanner: () => null,
   decodeGateQrImage: vi.fn(),
 }));
-vi.mock("@/components/site-access/gate-records", () => ({
-  GateRecordsPanel: () => <div data-stub="gate-records" />,
-}));
-
-const { SiteAccessWorkspace } = await import(
+const { SiteAccessWorkspace, movedGateRecordsHref } = await import(
   "@/components/site-access/site-access-workspace"
 );
 
@@ -145,15 +140,19 @@ describe("工地门禁's sidebar entries switch the page (图4)", () => {
     ]);
   });
 
-  it("follows a notification's link to 门岗拍照记录 while the page is open", () => {
-    expect(stayOnPage("", "tab=gate-records&gate_incident=g1")).toEqual([
-      "passes",
-      "gate-records",
-    ]);
+  it("forwards an old 门岗拍照记录 link to EHS › 门岗记录, record and project along (HD9)", () => {
+    const at = (search: string) => movedGateRecordsHref(new URLSearchParams(search));
+    expect(at("tab=gate-records&gate_incident=g1&project=p1")).toBe(
+      "/gate-records?gate_incident=g1&project=p1",
+    );
+    expect(at("tab=gate-records")).toBe("/gate-records");
+    expect(at("gate_incident=g2")).toBe("/gate-records?gate_incident=g2");
+    expect(at("tab=gate")).toBeNull();
+    expect(at("")).toBeNull();
   });
 
   it("keeps every tab in the address, so a link or a refresh lands on it", () => {
-    for (const tab of ["passes", "gate", "gate-records", "devices"]) {
+    for (const tab of ["passes", "gate", "devices"]) {
       expect(shownTab(render(tab === "passes" ? "" : `tab=${tab}`))).toBe(tab);
     }
   });
@@ -162,7 +161,7 @@ describe("工地门禁's sidebar entries switch the page (图4)", () => {
 describe("工地门禁 says what each tab is for (图6)", () => {
   it("puts one plain line under the tabs for the open tab", () => {
     const tabs = messages.siteControl.access.tabHelp as Record<string, string>;
-    for (const tab of ["passes", "gate", "gate-records", "devices"]) {
+    for (const tab of ["passes", "gate", "devices"]) {
       const html = render(tab === "passes" ? "" : `tab=${tab}`);
       expect(html).toContain(`data-tab-help="${tab}"`);
       expect(html).toContain(tabs[tab]);
@@ -176,27 +175,25 @@ describe("工地门禁 says what each tab is for (图6)", () => {
   });
 });
 
-describe("门岗扫码 leads with the camera (图5)", () => {
-  const gate = messages.siteControl.gate;
+describe("访客扫码 leads with the camera (图5, HD7)", () => {
+  const scan = messages.siteControl.visitorScan;
 
   it("opens on the camera, with typing folded under 其他方式", () => {
     const html = render("tab=gate");
     expect(html).toContain("data-gate-camera");
-    expect(html).toContain(gate.otherWays);
+    expect(html).toContain(scan.otherWays);
     expect(html).toMatch(/aria-expanded="false"[^>]*>(?:(?!<\/button>)[\s\S])*其他方式/);
-    // Folded: no box to type in, and no scanner-gun instructions on screen.
-    expect(html).not.toContain(gate.qrPlaceholder);
-    expect(html).not.toContain(gate.scannerHint);
-    expect(html).not.toContain("USB");
+    // Folded: no box to type in until it is opened.
+    expect(html).not.toContain(scan.typePlaceholder);
   });
 
-  it("marks the pass's QR code as needed, not a box to type in", () => {
+  it("records nothing by scanning: no confirm button until a pass is read, and no photo", () => {
     const html = render("tab=gate");
-    // The star sits on 通行证二维码, the group the camera button is in.
-    expect(html).toMatch(new RegExp(`${gate.qrCode}<span[^>]*>[*]</span>`));
-    const star = html.indexOf(`${gate.qrCode}<span`);
-    expect(star).toBeGreaterThan(-1);
-    expect(star).toBeLessThan(html.indexOf("data-gate-camera"));
+    // The words appear in the help line; the buttons (their icons) do not.
+    expect(html).not.toContain("lucide-log-in");
+    expect(html).not.toContain("lucide-log-out");
+    expect(html).toContain(scan.confirmEntry);
+    expect(html).not.toContain('capture="environment"');
   });
 });
 

@@ -221,6 +221,7 @@ describe("the sidebar's waiting counts", () => {
     expect(badgeKeysFor(entry("hazard_rectification"))).toEqual([
       "hazard_rectification",
       "safety",
+      "gate_records",
     ]);
   });
 

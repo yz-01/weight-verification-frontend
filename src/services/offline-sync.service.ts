@@ -36,6 +36,8 @@ import {
   returnMaterialOutgoingProcessing,
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
+import { createGateIncident } from "@/services/site-access.service";
+import type { GateIncidentPayload } from "@/interfaces/site-access";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 import { createSundryClaim } from "@/services/sundry-claim.service";
 import { uploadEquipmentHoursPhoto } from "@/services/equipment-hours.service";
@@ -504,6 +506,18 @@ async function sendJob(job: OfflineJob): Promise<void> {
     return;
   }
 
+  if (job.kind === "GATE_PHOTO") {
+    const { photos, photo_meta, ...fields } = job.payload;
+    await createGateIncident({
+      ...fields,
+      photos: photos.map((photo, index) => ({
+        ...photo_meta[index],
+        file: restoreFile(photo),
+      })),
+    });
+    return;
+  }
+
   if (job.kind === "DISPATCH_ACCEPT") {
     await api.post(
       `/api/dispatches/${job.payload.dispatchId}/accept_dispatch/`,
@@ -838,7 +852,8 @@ async function submitCaptureJob(
         | "DISPOSAL_REQUEST"
         | "SAFETY_INCIDENT"
         | "CONSULTANT_SUBMISSION"
-        | "CATEGORY_EVIDENCE";
+        | "CATEGORY_EVIDENCE"
+        | "GATE_PHOTO";
     }
   >,
 ): Promise<OfflineSubmission> {
@@ -1026,6 +1041,33 @@ export async function submitWasteOutgoingOfflineAware(
     attempts: 0,
     lastError: "",
     payload: { ...draft, photos: await storePhotos(draft.photos) },
+  });
+}
+
+/**
+ * 门岗拍照 (H12, HD5): sent now when the phone is online, queued with its
+ * ``client_event_id`` otherwise, and sent once when the network is back.
+ */
+export async function submitGatePhotoOfflineAware(
+  ownerId: string,
+  draft: GateIncidentPayload,
+): Promise<OfflineSubmission> {
+  const { photos, ...fields } = draft;
+  return submitCaptureJob({
+    id: newId("gate-photo-job"),
+    ownerId,
+    kind: "GATE_PHOTO",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      ...fields,
+      photos: await storePhotos(photos.map((photo) => photo.file)),
+      photo_meta: photos.map(({ file, ...meta }) => {
+        void file;
+        return meta;
+      }),
+    },
   });
 }
 

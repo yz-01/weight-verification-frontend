@@ -21,6 +21,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 
 import { DocView } from "@/components/shared/doc-view";
 import { SheetView } from "@/components/shared/file-actions";
+import { canShowPdfInPage } from "@/lib/file-actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -60,6 +61,21 @@ export function isLegacyOffice(filename: string): boolean {
   return /\.(doc|xls)$/i.test(filename);
 }
 
+/**
+ * Why a file is download-to-view (H9: 「很多不能预览」), so the screen says it
+ * plainly rather than showing an empty frame: an old Word / Excel file, a
+ * PowerPoint deck, an iPhone HEIC photo, or any other format nothing here can
+ * draw. A scanned TIFF is not on this list - the server shows it as a PDF.
+ */
+export type DownloadOnlyReason = "legacyOffice" | "presentation" | "photoFormat" | "other";
+
+export function downloadOnlyReason(filename: string): DownloadOnlyReason {
+  if (isLegacyOffice(filename)) return "legacyOffice";
+  if (/\.(ppt|pptx|pps|ppsx)$/i.test(filename)) return "presentation";
+  if (/\.(heic|heif)$/i.test(filename)) return "photoFormat";
+  return "other";
+}
+
 /** `DOCX` from `minutes.docx`, for the sentence that says it cannot be shown. */
 export function fileExtension(name: string): string {
   const dot = name.lastIndexOf(".");
@@ -91,6 +107,11 @@ export function FilePreview({
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [downloading, setDownloading] = useState(false);
+  // A phone browser with no PDF viewer of its own (Android Chrome) shows a
+  // blank frame, and iOS Safari only the first page: those open the phone's
+  // own viewer instead (H9; the same rule as `file-actions`' PdfView).
+  const [pdfInPage] = useState(canShowPdfInPage);
+  const reason = downloadOnlyReason(filename);
 
   useEffect(() => {
     if (!kind) return;
@@ -124,6 +145,11 @@ export function FilePreview({
 
   const print = () => {
     if (!url) return;
+    if (kind === "pdf" && !pdfInPage) {
+      // The phone's viewer prints and shares; a frame here cannot.
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
     if (kind === "image") {
       const printable = window.open("", "_blank");
       if (!printable) return;
@@ -152,17 +178,17 @@ export function FilePreview({
         {!kind ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
             <FileWarning className="size-8 text-warning" />
-            <p className="text-sm font-medium text-foreground">
-              {isLegacyOffice(filename)
-                ? t("legacyOffice", { ext: fileExtension(filename) })
-                : t("unsupported", { ext: fileExtension(filename) || t("thisFormat") })}
+            <p className="text-sm font-medium text-foreground" data-download-only={reason}>
+              {reason === "other"
+                ? t("unsupported", { ext: fileExtension(filename) || t("thisFormat") })
+                : t(reason, { ext: fileExtension(filename) })}
             </p>
             <p className="max-w-md text-xs text-muted-foreground">
-              {isLegacyOffice(filename) ? t("legacyOfficeHelp") : t("unsupportedHelp")}
+              {reason === "legacyOffice" ? t("legacyOfficeHelp") : t(`${reason}Help`)}
             </p>
             <Button size="sm" disabled={downloading} onClick={() => void save()}>
               {downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
-              {t("download")}
+              {t("downloadToView")}
             </Button>
           </div>
         ) : failed ? (
@@ -197,6 +223,14 @@ export function FilePreview({
         ) : kind === "audio" ? (
           <div className="grid h-full place-items-center p-6">
             <audio src={url} controls className="w-full max-w-md" />
+          </div>
+        ) : kind === "pdf" && !pdfInPage ? (
+          <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center" data-pdf-fallback>
+            <p className="max-w-md text-sm text-foreground">{t("noInlinePdf")}</p>
+            <Button onClick={() => window.open(url, "_blank", "noopener,noreferrer")}>
+              <ExternalLink className="size-4" />
+              {t("openInViewer")}
+            </Button>
           </div>
         ) : (
           <iframe ref={frame} src={url} title={filename} className="absolute inset-0 size-full bg-white" />

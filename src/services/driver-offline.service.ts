@@ -12,6 +12,7 @@ import {
   getOfflineJobs,
   putDriverSnapshot,
 } from "@/lib/offline-db";
+import { cacheShellPage } from "@/lib/shell-cache";
 import {
   getDriverDashboard,
   getTask,
@@ -25,26 +26,7 @@ const TERMINAL_STATES = new Set<TaskState>([
 ]);
 
 async function cacheDriverRoute(pathname: string): Promise<void> {
-  if (
-    typeof window === "undefined" ||
-    typeof caches === "undefined" ||
-    !navigator.onLine
-  ) {
-    return;
-  }
-
-  const response = await fetch(pathname, {
-    cache: "no-store",
-    credentials: "same-origin",
-    headers: { Accept: "text/html" },
-  });
-  if (!response.ok) return;
-
-  const cacheNames = await caches.keys();
-  const shellCache =
-    cacheNames.find((name) => name.startsWith("mse-trace-shell-")) ??
-    "mse-trace-shell-v13";
-  await (await caches.open(shellCache)).put(pathname, response);
+  await cacheShellPage(pathname);
 }
 
 function dashboardId(ownerId: string): string {

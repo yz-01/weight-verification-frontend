@@ -1,9 +1,11 @@
-const CACHE_NAME = "mse-trace-shell-v14";
+const CACHE_NAME = "mse-trace-shell-v15";
 
 // Route families whose navigations are cached for offline replay. Driver
 // pages are the PWA shell; the recycler set is the yard's daily working
-// surface. Weighing screens are deliberately absent — a cached weighing
-// console must never stand in for the live weighbridge.
+// surface; `/field-staff` is the site phone's app and `/trace` its sign-in
+// pages (H12: 「用户首次联网进入后，即使断网、关闭页面再重新打开，也必须能够进入
+// 已缓存的手机端」). Weighing screens are deliberately absent — a cached
+// weighing console must never stand in for the live weighbridge.
 const OFFLINE_NAVIGATION_PREFIXES = [
   "/driver",
   "/incoming",
@@ -12,12 +14,44 @@ const OFFLINE_NAVIGATION_PREFIXES = [
   "/vehicles",
   "/sites",
   "/dashboard",
+  "/field-staff",
+  "/trace",
 ];
+
+// Query parameters that carry a credential: a page addressed with one is never
+// written to the cache, so nothing that holds a bootstrap or sign-in token
+// stays on the phone (`/trace/field-activate?token=`,
+// `/trace/reset-password?token=`, `/trace/field-ready?bootstrap=`).
+const CREDENTIAL_PARAMS = ["token", "bootstrap", "code", "key", "uid", "invitation"];
 
 function isOfflineNavigation(pathname) {
   return OFFLINE_NAVIGATION_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
+}
+
+function carriesCredential(url) {
+  return CREDENTIAL_PARAMS.some((name) => url.searchParams.has(name));
+}
+
+// The phone's sign-in hops: the field login link lands on
+// `/trace/field-ready?bootstrap=…`, and the installed app starts at
+// `/field-pwa-bootstrap?token=…` (its manifest's start_url). Both always go to
+// the network and are never cached - they carry the token. With no network
+// they used to fail outright (the client's ERR_FAILED, H12); now a phone that
+// has opened the field app before is sent to its cached copy, where the
+// session it already holds lets it carry on offline.
+const FIELD_BOOTSTRAP_PATHS = ["/trace/field-ready", "/field-pwa-bootstrap"];
+const FIELD_HOME = "/field-staff";
+
+async function offlineBootstrap(request) {
+  if (request.mode !== "navigate") {
+    return new Response("", { status: 503, statusText: "Offline" });
+  }
+  const home = await caches.match(FIELD_HOME, { ignoreSearch: true });
+  if (home) return Response.redirect(new URL(FIELD_HOME, self.location.origin).href, 302);
+  const offline = await caches.match("/offline");
+  return offline || new Response("", { status: 503, statusText: "Offline" });
 }
 // The phone's own copy of the list thumbnails (client 2026-10-09 二.5, 五.4,
 // 五.8): a thumbnail already seen is not downloaded again when the list is
@@ -170,20 +204,30 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  if (FIELD_BOOTSTRAP_PATHS.includes(url.pathname)) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" }).catch(() => offlineBootstrap(request)),
+    );
+    return;
+  }
+
   if (
-    url.pathname === "/trace/field-ready" ||
-    url.pathname === "/field-pwa-bootstrap" ||
     url.pathname === "/field-manifest.webmanifest"
     || url.pathname === "/manifest.webmanifest"
     || url.pathname === "/driver-manifest.webmanifest"
     || url.pathname.startsWith("/brand-icon/")
   ) {
-    event.respondWith(fetch(request, { cache: "no-store" }));
+    event.respondWith(
+      fetch(request, { cache: "no-store" }).catch(
+        () => new Response("", { status: 503, statusText: "Offline" }),
+      ),
+    );
     return;
   }
 
   if (request.mode === "navigate") {
-    const isCachedNavigation = isOfflineNavigation(url.pathname);
+    const isCachedNavigation =
+      isOfflineNavigation(url.pathname) && !carriesCredential(url);
     const isDriverNavigation =
       url.pathname === "/driver" || url.pathname.startsWith("/driver/");
     event.respondWith(
@@ -207,6 +251,12 @@ self.addEventListener("fetch", (event) => {
           if (isDriverNavigation) {
             const driverShell = await caches.match("/driver");
             if (driverShell) return driverShell;
+          }
+          // Any address inside the field app opens its cached home: the app
+          // reads its tab and record from the address itself.
+          if (url.pathname === FIELD_HOME || url.pathname.startsWith(`${FIELD_HOME}/`)) {
+            const fieldShell = await caches.match(FIELD_HOME, { ignoreSearch: true });
+            if (fieldShell) return fieldShell;
           }
           return caches.match("/offline");
         }),
@@ -272,10 +322,11 @@ self.addEventListener("push", (event) => {
   } catch {
     payload = { title: "MSE Trace", message: event.data?.text() || "New notification" };
   }
-  // A notice that asked to be sounded (`alert_sound`, e.g. a hazard assigned
-  // to you, C3) buzzes and stays on the screen until it is touched, rather
-  // than sliding away unseen in a pocket. The ring itself is the phone's own
-  // notification sound; iOS ignores `vibrate`.
+  // Every notice rings and buzzes three times (batch H, HD11: 「每条新通知都
+  // 响…响三次」). The ring is the phone's own notification sound; iOS ignores
+  // `vibrate`. One that asked to be sounded (`alert_sound`, e.g. a hazard
+  // assigned to you, C3) also stays on the screen until it is touched, rather
+  // than sliding away unseen in a pocket.
   const urgent = Boolean(payload.data && payload.data.alert_sound);
   event.waitUntil(
     self.registration.showNotification(payload.title || "MSE Trace", {
@@ -283,13 +334,9 @@ self.addEventListener("push", (event) => {
       icon: "/mse-icon-192.png",
       badge: "/mse-icon-192.png",
       data: { url: payload.url || "/notifications" },
-      ...(urgent
-        ? {
-            vibrate: [300, 150, 300, 150, 300],
-            requireInteraction: true,
-            silent: false,
-          }
-        : {}),
+      vibrate: [300, 200, 300, 200, 300],
+      silent: false,
+      ...(urgent ? { requireInteraction: true } : {}),
     }),
   );
 });

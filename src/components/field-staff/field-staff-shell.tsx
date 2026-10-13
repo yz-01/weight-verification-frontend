@@ -15,6 +15,7 @@ import { BrandIcon } from "@/components/shared/brand-icon";
 import { Button } from "@/components/ui/button";
 import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
 import { redirectWithFallback } from "@/lib/portal";
+import { keepShellPageStored } from "@/lib/shell-cache";
 import { FieldLocationTracker } from "@/components/field-staff/field-location-tracker";
 import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
 import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
@@ -35,6 +36,15 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => markFieldAppContext(), []);
+
+  // H12: keep the field app's home in the worker's shell cache once it is
+  // open online, so the phone opens it offline. Every way in here is a soft
+  // navigation (`router.replace`), which the worker never stores by itself.
+  // The plain address only - never the bootstrap or sign-in link.
+  useEffect(() => {
+    if (!allowed) return;
+    return keepShellPageStored("/field-staff");
+  }, [allowed]);
 
   useEffect(() => {
     /* A phone on a bad signal keeps its session. Sending it to the PIN screen
