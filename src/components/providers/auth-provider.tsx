@@ -30,6 +30,11 @@ import {
   cacheBranding,
   clearStandardBrandingForCompany,
 } from "@/lib/branding";
+import {
+  forgetFieldUser,
+  lastFieldUser,
+  rememberFieldUser,
+} from "@/lib/field-offline-user";
 import { isDriverOnlyAccount } from "@/lib/navigation";
 import { portalLoginPath } from "@/lib/portal";
 import * as authService from "@/services/auth.service";
@@ -123,16 +128,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     queryKey: currentUserKey,
     queryFn: async () => {
       try {
-        return await authService.getMe();
+        const me = await authService.getMe();
+        if (fieldSession && me?.is_field_staff) rememberFieldUser(me);
+        return me;
       } catch (error) {
         // A token that is present but no longer accepted: expired, revoked, or
         // the account was suspended. Drop it rather than leaving the shell in
         // a half-signed-in state.
         if (error instanceof ApiError && [401, 403].includes(error.status)) {
+          // Each of these also forgets the remembered field account.
           if (fieldSession) clearFieldTokens();
           else if (driverSession) clearDriverTokens();
           else clearTokens();
           return null;
+        }
+        // A field phone opened with no network (H12): the account it last
+        // saw, so the cached app opens and work queues for later. The next
+        // answer from the server replaces it.
+        if (fieldSession && error instanceof ApiError && error.isNetwork) {
+          const last = lastFieldUser();
+          if (last) return last;
         }
         // A temporary network or server failure must not sign a field device
         // out. Keeping the last successful user lets offline work continue.
@@ -217,6 +232,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         driverSession || driverAccount,
       );
       queryClient.setQueryData(currentUserKey, next);
+      // Only a field session keeps it (H12): a field worker signed in to the
+      // office on a shared PC leaves nothing behind.
+      if (fieldSession && hasFieldSession() && next.is_field_staff) rememberFieldUser(next);
     },
     [currentUserKey, driverSession, fieldSession, queryClient],
   );
@@ -245,6 +263,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           query.queryKey[1] !== CURRENT_USER_KEY[1],
       });
       queryClient.setQueryData(currentUserKey, null);
+      // Every sign-out, not only the field app's (H12): the account must not
+      // outlive the session on a shared device.
+      forgetFieldUser();
       // Keep the last portal marker. The signed-out shell also observes the
       // user becoming null; retaining this value makes every redirect converge
       // on the same branded login instead of racing back to generic `/login`.

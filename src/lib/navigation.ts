@@ -60,6 +60,7 @@ export type PortalFeatureKey =
   | "schedule"
   | "safety"
   | "hazard_rectification"
+  | "gate_records"
   | "material_quantity_report"
   | "material_cost_report"
   | "users"
@@ -1098,6 +1099,9 @@ export const PORTAL_NAVIGATION = {
         // entry, beside 隐患整改 rather than a column inside it. The same
         // `safety` feature and permissions: the safety team runs both.
         child("11.2.2", "nav.submodule.permits", "/permits", "safety"),
+        // 门岗记录 (batch H, HD9): 「EHS / Safety → Gate Records」, the guards'
+        // photos and gate issues, for whoever may see site access.
+        child("11.2.3", "nav.submodule.gateRecords", "/gate-records", "gate_records"),
       ],
     ),
     item(
@@ -1341,10 +1345,19 @@ export const PORTAL_NAVIGATION = {
           "/site-access",
           "site_access",
         ),
+        // 访客扫码 (HD7): scan, read the pass, Confirm Entry / Exit.
         child(
           "17.2.2",
           "nav.submodule.gateScanning",
           "/site-access?tab=gate",
+          "site_access",
+        ),
+        // Visitor Records (HD9): every confirmed entry and exit, kept apart
+        // from the gate photographs.
+        child(
+          "17.2.3",
+          "nav.submodule.visitorRecords",
+          "/visitor-records",
           "site_access",
         ),
       ],

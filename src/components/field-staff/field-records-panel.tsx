@@ -42,6 +42,7 @@ import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-captur
 import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
+import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -118,6 +119,7 @@ export type FieldRecordMode =
   | "consultant"
   | "sundry"
   | "request"
+  | "visitor"
   | "gate";
 
 interface RecordOption {
@@ -149,8 +151,10 @@ const RECORD_OPTIONS: RecordOption[] = [
   // MR / Other Request (C01): asked from the current project, followed on
   // 「我提交过的」 with its conversation.
   { key: "request", permission: "material_request.submit", icon: FilePlus2, tone: "bg-primary/10 text-primary" },
-  // 门岗记录 (C22): the guard photographs what happens at the gate - as many
-  // photos as it takes - and asks site, safety or project staff in.
+  // The gate's two entries, apart (事项2 六, HD5): 访客扫码 reads a visitor's
+  // pass and confirms the entry or exit; 门岗拍照 photographs the gate and,
+  // for a 「特殊事项」, asks project people in.
+  { key: "visitor", permission: "site_access.scan", icon: ScanLine, tone: "bg-primary/10 text-primary" },
   { key: "gate", permission: "site_access.scan", icon: DoorOpen, tone: "bg-info/10 text-info" },
 ];
 
@@ -221,6 +225,9 @@ export function FieldRecordsPanel({
   }
   if (mode === "request") {
     return <RecordFrame title={t("records.request")} onBack={() => chooseMode(null)}><FieldDraft scope={`request:${task?.id ?? "new"}`}><MaterialRequestForm initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+  }
+  if (mode === "visitor") {
+    return <RecordFrame title={t("records.visitor")} onBack={() => chooseMode(null)}><VisitorScanPanel project={task?.project ?? boundProject ?? ""} lockProject={Boolean(task?.project ?? boundProject)} /></RecordFrame>;
   }
   if (mode === "gate") {
     return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} /></RecordFrame>;

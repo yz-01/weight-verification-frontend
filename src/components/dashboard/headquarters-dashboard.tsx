@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
+import { GateCard } from "@/components/dashboard/gate-card";
 import { HeadquartersFigures } from "@/components/dashboard/headquarters-figures";
 import { HeadquartersMap } from "@/components/dashboard/headquarters-map";
 import {
@@ -84,6 +85,8 @@ export function HeadquartersDashboard() {
             <p className="text-xs text-muted-foreground">{t("figures.someProjects")}</p>
           )}
         </section>
+        {/* 门岗 (HD10): every project's gate photos today and open issues. */}
+        <GateCard />
         <div data-dashboard-overview>
           <HeadquartersMap
             projects={data.projects}

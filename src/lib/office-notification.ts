@@ -47,10 +47,10 @@ export function officeNotificationHref(data: Record<string, unknown>): string | 
       const record = query.get("record");
       const outgoing = query.get("outgoing") ?? (record === "outgoing" ? text(data.record_id) : null);
       if (outgoing) return `/material-outgoing?record=${encodeURIComponent(outgoing)}`;
-      // 门岗记录 (C22): the office reads it under 门禁通行.
+      // 门岗记录 (C22): the office reads it under EHS › 门岗记录 (HD9).
       const gate = query.get("gate_incident");
       if (record === "gate" && gate) {
-        return `/site-access?tab=gate-records&gate_incident=${encodeURIComponent(gate)}`;
+        return `/gate-records?gate_incident=${encodeURIComponent(gate)}`;
       }
       // A record's conversation, linked for the phone (2026-10-09).
       const chat = parseChatParam(query.get("chat"));

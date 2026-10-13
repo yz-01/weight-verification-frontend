@@ -1,26 +1,34 @@
 "use client";
 
 /**
- * 门岗拍照记录 (C22): what a guard photographs at the gate.
+ * 门岗拍照 (C22; batch H HD5/HD6): what a guard photographs at the gate.
  *
- * 「原门禁流程保留；门岗保安新增拍照记录，可连续多张、不设固定张数」. The pass and
- * scan tabs beside this are untouched. One component for the office's 门禁通行
- * screen and the guard's phone, so a record looks the same from both ends.
+ * 「门岗拍照不需要扫描二维码，也不需要关联 Visitor」: the phone page is a camera
+ * and a 「特殊事项」 switch, nothing else. Off, every photo is its own Photo
+ * Record - 「进场及退场照片分别保存，不需要自动配对」 - filed at once with no
+ * bell rung. On, the photos, a note and the project people asked in make one
+ * Gate Issue: they get a to-do, the note opens its conversation, and it stays
+ * 处理中 until one of them (or whoever manages site access) confirms it
+ * finished.
  *
- * Every photo carries its own project, gate, guard, time and GPS - shown under
- * the photo, not only on the record - and a photo taken where the phone could
- * not say where it was says so instead of borrowing a position (D09).
+ * The office reads the same records under EHS / Safety → 门岗记录
+ * (`gate-records-office.tsx`) and opens them in the same detail dialog.
+ *
+ * Every photo carries its own project, guard, time and GPS, and a photo taken
+ * where the phone could not say where it was says so instead of borrowing a
+ * position (D09). Sent through the offline queue (H12): taken offline, it
+ * goes once the network is back, once.
  */
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, DoorOpen, Images, Loader2, MapPin, Plus, ScanLine, Send, UserPlus, X } from "lucide-react";
+import { CheckCircle2, DoorOpen, Images, Loader2, Lock, MapPin, Plus, Send, UserPlus, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldCamera } from "@/components/shared/field-camera";
-import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import {
   RecordDetailDialog,
@@ -28,9 +36,7 @@ import {
   RecordRecorder,
   ShellPanel,
 } from "@/components/shared/record-detail-shell";
-import { GateQrScanner } from "@/components/site-access/gate-qr-scanner";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
-import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -41,22 +47,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import {
   type GateIncident,
   type GateIncidentDetail,
-  type GatePassMatch,
+  type GateIssueStatus,
+  type GateMemberOption,
   type GatePhotoDraft,
 } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
 import { requestLocation, type LocationFix } from "@/lib/field-location";
+import { recordConversationKey } from "@/lib/record-chat";
+import { submitGatePhotoOfflineAware } from "@/services/offline-sync.service";
 import {
   addGateIncidentMembers,
   addGateIncidentPhotos,
-  createGateIncident,
-  findGatePass,
+  closeGateIssue,
   getGateIncident,
   getGateIncidents,
   getGateMemberOptions,
@@ -92,26 +100,27 @@ function useGateLocation() {
   return { fix, failed, refresh };
 }
 
+/**
+ * The guard's 门岗拍照 page on the phone: take photos, send, and the latest
+ * gate records of the project below. A person asked into a gate issue lands
+ * here from the notice (`?gate_incident=`) and the issue opens over it.
+ */
 export function GateRecordsPanel({
   initialProject = "",
 }: {
-  /** The phone's bound project, preselected on a new record. */
+  /** The phone's bound project. */
   initialProject?: string;
 } = {}) {
   const t = useTranslations("siteControl.gateRecords");
   const { can } = useAuth();
   const search = useSearchParams();
-  // The top bar's 「当前项目」 in the office (B13); the phone keeps its own.
-  const [project, setProject] = usePageProject("", { all: "all" });
-  const projectBoxShown = useProjectBoxShown("filter");
-  const [term, setTerm] = useState("");
-  const [creating, setCreating] = useState(false);
   // `gate_incident`, not `incident`: the phone already reads `incident` as a
   // hazard, and a gate record's id there would open the wrong thing.
   const [openId, setOpenId] = useState<string | null>(() => search.get("gate_incident"));
+  const [project, setProject] = useState(initialProject);
 
   const rows = useInfiniteQuery({
-    queryKey: ["gate-incidents", project, term],
+    queryKey: ["gate-incidents", "phone", project],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getGateIncidents({
@@ -119,8 +128,7 @@ export function GateRecordsPanel({
         page_size: PAGE_SIZE,
         sort_by: "occurred_at",
         sort_order: "desc",
-        ...(project !== "all" ? { project } : {}),
-        ...(term.trim() ? { search: term.trim() } : {}),
+        ...(project ? { project } : {}),
       }),
     getNextPageParam: (last, pages) =>
       pages.reduce((sum, page) => sum + page.results.length, 0) < last.count
@@ -132,45 +140,18 @@ export function GateRecordsPanel({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-            <DoorOpen />
-          </span>
-          <div className="min-w-0">
-            <h2 className="text-base font-semibold text-foreground">{t("title")}</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">{t("subtitle")}</p>
-          </div>
-        </div>
-        {can("site_access.scan") && (
-          <Button onClick={() => setCreating(true)}>
-            <Camera />
-            {t("new")}
-          </Button>
-        )}
-      </div>
+      {can("site_access.scan") && (
+        <GatePhotoCapture
+          project={project}
+          lockProject={Boolean(initialProject)}
+          onProjectChange={setProject}
+        />
+      )}
 
-      <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-2 sm:px-6 sm:py-4">
-        {projectBoxShown && (
-        <FieldWrapper label={t("field.project")}>
-          <ProjectPicker
-            value={project}
-            onValueChange={setProject}
-            placeholder={t("field.chooseProject")}
-            allowAll
-            allLabel={t("field.allProjects")}
-          />
-        </FieldWrapper>
-        )}
-        <FieldWrapper label={t("field.search")}>
-          <Input
-            value={term}
-            onChange={(event) => setTerm(event.target.value)}
-            placeholder={t("field.searchPlaceholder")}
-          />
-        </FieldWrapper>
+      <div className="flex items-center gap-2 pt-2">
+        <DoorOpen className="size-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold">{t("recentTitle")}</h3>
       </div>
-
       <QueryFailedNote query={rows} what={t("what")} />
       {rows.isLoading ? (
         <Empty text={t("loading")} />
@@ -200,17 +181,6 @@ export function GateRecordsPanel({
         </>
       )}
 
-      {creating && (
-        <GateIncidentForm
-          defaultProject={initialProject || (project === "all" ? "" : project)}
-          lockProject={Boolean(initialProject)}
-          onClose={() => setCreating(false)}
-          onSaved={(row) => {
-            setCreating(false);
-            setOpenId(row.id);
-          }}
-        />
-      )}
       {openId && <GateIncidentDetailDialog id={openId} onClose={() => setOpenId(null)} />}
     </div>
   );
@@ -221,6 +191,18 @@ function Empty({ text }: { text: string }) {
     <div className="grid min-h-40 place-items-center rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
       {text}
     </div>
+  );
+}
+
+/** 处理中 / 已完成 on a Gate Issue (HD6); nothing on a plain photo. */
+export function GateIssueStatusBadge({ status }: { status: GateIssueStatus | null }) {
+  const t = useTranslations("siteControl.gateRecords");
+  if (!status) return null;
+  return (
+    <StatusBadge
+      label={t(`issueStatus.${status}`)}
+      tone={status === "OPEN" ? "warning" : "positive"}
+    />
   );
 }
 
@@ -241,18 +223,17 @@ function GateIncidentCard({ row, onOpen }: { row: GateIncident; onOpen: () => vo
         )}
       </span>
       <span className="min-w-0 flex-1 space-y-1">
-        <span className="block font-semibold tabular">{row.incident_no}</span>
-        <span className="block truncate text-sm text-muted-foreground">
-          {row.project_name}
-          {row.gate_name ? ` · ${row.gate_name}` : ""}
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold tabular">{row.incident_no}</span>
+          {row.is_issue && <span className="text-xs font-medium text-warning">{t("kind.issue")}</span>}
+          <GateIssueStatusBadge status={row.issue_status} />
         </span>
+        <span className="block truncate text-sm text-muted-foreground">{row.project_name}</span>
         <span className="block text-xs text-muted-foreground">
           {row.guard_name} · {df.dateTime(row.occurred_at)} · {t("photoCount", { count: row.photo_count })}
         </span>
-        {row.pass_no && (
-          <span className="block truncate text-xs text-muted-foreground">
-            {t("linkedPass", { pass: row.pass_no, subject: row.pass_subject_name ?? "" })}
-          </span>
+        {row.issue_note && (
+          <span className="block truncate text-xs text-foreground">{row.issue_note}</span>
         )}
       </span>
     </button>
@@ -337,150 +318,147 @@ function LocationLine({ fix, failed, onRetry }: { fix: LocationFix | null; faile
 }
 
 /**
- * The guard's form (Q18, 7/10): photos, then scan a pass (optional), then who
- * to talk to and the first words (optional), then send. Nothing else.
+ * 门岗拍照 (HD5): photos, the 「特殊事项」 switch, send. Nothing else.
  *
- * 「门岗手机不应该有可疑人员、偷窃…这些分类，只要拍照、扫二维码、沟通、发送」.
- * The send button used to wait for a 事项类别 the customer had decided a guard
- * should not choose; it stayed grey after the photo was taken, and the reason
- * lived in a hover tooltip a phone never shows (F1). The only thing it waits
- * for now is a photo, and that is said on the form, not only in a tooltip.
+ * Off: each photo is sent as its own record and filed. On: a note and the
+ * people of this project who should deal with it, and the whole lot is one
+ * Gate Issue. The send button waits only for what the mode needs, and says
+ * so on the form, not only in a tooltip a phone never shows (F1).
  */
-function GateIncidentForm({
-  defaultProject,
+function GatePhotoCapture({
+  project,
   lockProject,
-  onClose,
-  onSaved,
+  onProjectChange,
 }: {
-  defaultProject: string;
-  /** The phone is bound to its project; only the office chooses one. */
+  project: string;
+  /** The phone is bound to its project; only an unbound account chooses. */
   lockProject: boolean;
-  onClose: () => void;
-  onSaved: (row: GateIncidentDetail) => void;
+  onProjectChange: (project: string) => void;
 }) {
-  const t = useTranslations("siteControl.gateRecords");
+  const t = useTranslations("siteControl.gatePhoto");
+  const tr = useTranslations("siteControl.gateRecords");
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { fix, failed, refresh } = useGateLocation();
   const camera = useContinuousCamera(fix);
-  const [project, setProject] = useState(defaultProject);
-  const [scanning, setScanning] = useState(false);
-  const [linkedPass, setLinkedPass] = useState<GatePassMatch | null>(null);
+  const [special, setSpecial] = useState(false);
+  const [note, setNote] = useState("");
   const [members, setMembers] = useState<string[]>([]);
-  const [firstMessage, setFirstMessage] = useState("");
-  const eventId = useRef(newEventId());
-  const showProject = !lockProject || !defaultProject;
+  const [sent, setSent] = useState<{ count: number; queued: boolean; issue: boolean } | null>(null);
+  // One id per Gate Issue being written, kept across a retry so a resend
+  // after a lost answer lands once.
+  const issueEventId = useRef(newEventId());
 
   const people = useQuery({
     queryKey: ["gate-member-options", project],
-    queryFn: () => getGateMemberOptions(project),
-    enabled: Boolean(project),
-  });
-
-  const lookup = useMutation({
-    mutationFn: (token: string) => findGatePass(project, token),
-    onSuccess: setLinkedPass,
+    queryFn: () => memberOptionsOfflineAware(project),
+    enabled: special && Boolean(project),
   });
 
   const save = useMutation({
-    mutationFn: () =>
-      createGateIncident({
-        project,
-        ...(linkedPass ? { access_pass: linkedPass.id } : {}),
-        members,
-        ...(firstMessage.trim() ? { first_message: firstMessage.trim() } : {}),
-        ...(fix
-          ? { latitude: fix.latitude, longitude: fix.longitude, accuracy_m: fix.accuracy }
-          : {}),
-        client_event_id: eventId.current,
-        photos: camera.photos,
-      }),
-    onSuccess: (row) => {
+    mutationFn: async () => {
+      if (!user) throw new Error(t("signedOut"));
+      const where = fix
+        ? { latitude: fix.latitude, longitude: fix.longitude, accuracy_m: fix.accuracy }
+        : {};
+      if (special) {
+        const outcome = await submitGatePhotoOfflineAware(user.id, {
+          project,
+          is_issue: true,
+          members,
+          first_message: note.trim(),
+          client_event_id: issueEventId.current,
+          photos: camera.photos,
+          ...where,
+        });
+        return [outcome];
+      }
+      // 「进场及退场照片分别保存」: one photo, one record. Each record's id is
+      // its photo's own, so a retry of any of them lands once.
+      const outcomes = [];
+      for (const photo of camera.photos) {
+        outcomes.push(
+          await submitGatePhotoOfflineAware(user.id, {
+            project,
+            is_issue: false,
+            members: [],
+            client_event_id: `${photo.client_event_id}-record`,
+            photos: [photo],
+            ...where,
+          }),
+        );
+      }
+      return outcomes;
+    },
+    onSuccess: (outcomes) => {
+      setSent({
+        count: camera.photos.length,
+        queued: outcomes.includes("queued"),
+        issue: special,
+      });
+      camera.clear();
+      setNote("");
+      setMembers([]);
+      setSpecial(false);
+      issueEventId.current = newEventId();
       void queryClient.invalidateQueries({ queryKey: ["gate-incidents"] });
-      onSaved(row);
+      void queryClient.invalidateQueries({ queryKey: ["gate-summary"] });
     },
   });
 
   return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{t("newTitle")}</DialogTitle>
-          <DialogDescription>{t("newHelp")}</DialogDescription>
-        </DialogHeader>
-        <QueryFailedNote query={people} what={t("whatPeople")} />
-        <div className="grid gap-4">
-          {showProject && (
-            <FieldWrapper label={t("field.project")} required>
-              <ProjectPicker
-                value={project}
-                onValueChange={(value) => {
-                  setProject(value);
-                  setLinkedPass(null);
-                  lookup.reset();
-                  setMembers([]);
-                }}
-                placeholder={t("field.chooseProject")}
-              />
-            </FieldWrapper>
-          )}
-          <FieldWrapper label={t("field.photos")} required hint={t("field.photosHint")}>
-            <div className="space-y-2">
-              <FieldCamera
-                label={camera.photos.length ? t("takeAnother", { count: camera.photos.length }) : t("takePhoto")}
-                fileCount={camera.photos.length}
-                onCapture={camera.add}
-                onClear={camera.clear}
-              />
-              <PhotoTray photos={camera.photos} onRemove={camera.remove} />
-              <LocationLine fix={fix} failed={failed} onRetry={refresh} />
-            </div>
+    <section className="surface-panel space-y-4 rounded-xl p-4" data-gate-photo-capture>
+      <p className="text-sm text-muted-foreground">{t("help")}</p>
+      {!lockProject && (
+        <FieldWrapper label={tr("field.project")} required>
+          <ProjectPicker
+            value={project}
+            onValueChange={(value) => {
+              onProjectChange(value);
+              setMembers([]);
+            }}
+            placeholder={tr("field.chooseProject")}
+          />
+        </FieldWrapper>
+      )}
+      <FieldWrapper label={tr("field.photos")} required hint={t("photosHint")}>
+        <div className="space-y-2">
+          <FieldCamera
+            label={camera.photos.length ? tr("takeAnother", { count: camera.photos.length }) : tr("takePhoto")}
+            fileCount={camera.photos.length}
+            onCapture={(file) => {
+              setSent(null);
+              camera.add(file);
+            }}
+            onClear={camera.clear}
+          />
+          <PhotoTray photos={camera.photos} onRemove={camera.remove} />
+          <LocationLine fix={fix} failed={failed} onRetry={refresh} />
+        </div>
+      </FieldWrapper>
+
+      <label className="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border px-3 py-2">
+        <span className="min-w-0">
+          <span className="block text-sm font-semibold">{t("special")}</span>
+          <span className="block text-xs text-muted-foreground">
+            {special ? t("specialOnHelp") : t("specialOffHelp")}
+          </span>
+        </span>
+        <Switch checked={special} onCheckedChange={setSpecial} aria-label={t("special")} />
+      </label>
+
+      {special && (
+        <>
+          <FieldWrapper label={t("note")} required>
+            <Textarea
+              value={note}
+              maxLength={2000}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder={t("notePlaceholder")}
+            />
           </FieldWrapper>
-          <FieldWrapper label={t("scanPass")} optional={t("optional")} hint={t("scanPassHint")}>
-            {linkedPass ? (
-              <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm">
-                <span className="min-w-0">
-                  <span className="block font-medium">{linkedPass.pass_no}</span>
-                  <span className="block truncate text-muted-foreground">
-                    {linkedPass.subject_name}
-                    {linkedPass.vehicle_plate ? ` · ${linkedPass.vehicle_plate}` : ""}
-                  </span>
-                </span>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  aria-label={t("unlinkPass")}
-                  onClick={() => setLinkedPass(null)}
-                >
-                  <X />
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  disabledReason={!project ? t("chooseProjectFirst") : undefined}
-                  disabled={!project || lookup.isPending}
-                  onClick={() => setScanning(true)}
-                >
-                  {lookup.isPending ? <Loader2 className="animate-spin" /> : <ScanLine />}
-                  {t("scanPassButton")}
-                </Button>
-                {lookup.isError && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {lookup.error instanceof ApiError && lookup.error.status === 404
-                      ? t("scanPassNotFound")
-                      : lookup.error instanceof Error
-                        ? lookup.error.message
-                        : t("saveError")}
-                  </p>
-                )}
-              </div>
-            )}
-          </FieldWrapper>
-          <FieldWrapper label={t("field.members")} optional={t("optional")} hint={t("field.membersHint")}>
+          <FieldWrapper label={t("assignees")} required hint={t("assigneesHint")}>
+            <QueryFailedNote query={people} what={tr("whatPeople")} />
             <MemberChecklist
               options={people.data ?? []}
               loading={people.isLoading && Boolean(project)}
@@ -488,61 +466,80 @@ function GateIncidentForm({
               onChange={setMembers}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("firstMessage")} optional={t("optional")} hint={t("firstMessageHint")}>
-            <Textarea
-              value={firstMessage}
-              maxLength={2000}
-              onChange={(event) => setFirstMessage(event.target.value)}
-              placeholder={t("firstMessagePlaceholder")}
-            />
-          </FieldWrapper>
-        </div>
-        {save.isError && (
-          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            {save.error instanceof Error ? save.error.message : t("saveError")}
-          </p>
-        )}
-        {!camera.photos.length && (
-          <p className="text-sm text-muted-foreground">{t("photoFirst")}</p>
-        )}
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            {t("cancel")}
-          </Button>
-          <Button
-            requires={[
-              [project, t("field.project")],
-              [camera.photos.length > 0, t("field.photos")],
-            ]}
-            disabled={save.isPending}
-            onClick={() => save.mutate()}
-          >
-            {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}
-            {t("send", { count: camera.photos.length })}
-          </Button>
-        </DialogFooter>
-        <GateQrScanner
-          open={scanning}
-          onClose={() => setScanning(false)}
-          onDetected={(token) => {
-            setScanning(false);
-            lookup.mutate(token);
-          }}
-        />
-      </DialogContent>
-    </Dialog>
+        </>
+      )}
+
+      {save.isError && (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          {save.error instanceof Error ? save.error.message : tr("saveError")}
+        </p>
+      )}
+      {sent && (
+        <p className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm text-success" role="status">
+          <CheckCircle2 className="size-4 shrink-0" />
+          {sent.queued
+            ? t("sentQueued")
+            : sent.issue
+              ? t("sentIssue")
+              : t("sentPhotos", { count: sent.count })}
+        </p>
+      )}
+      {!camera.photos.length && !sent && (
+        <p className="text-sm text-muted-foreground">{tr("photoFirst")}</p>
+      )}
+      <Button
+        size="lg"
+        className="h-12 w-full"
+        requires={[
+          [project, tr("field.project")],
+          [camera.photos.length > 0, tr("field.photos")],
+          ...(special
+            ? ([
+                [note.trim(), t("note")],
+                [members.length > 0, t("assignees")],
+              ] as const)
+            : []),
+        ]}
+        disabled={save.isPending}
+        onClick={() => save.mutate()}
+      >
+        {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+        {special ? t("sendIssue") : t("sendPhotos", { count: camera.photos.length })}
+      </Button>
+    </section>
   );
 }
 
-function GateEventLabel({ direction, at, gate }: { direction: string; at: string; gate: string }) {
-  const t = useTranslations("siteControl");
-  const df = useDateFormat();
-  return (
-    <>
-      {t(`direction.${direction}`)} · {df.dateTime(at)}
-      {gate ? ` · ${gate}` : ""}
-    </>
-  );
+/** Where the phone keeps each project's last list of people to ask in. */
+function memberOptionsKey(project: string) {
+  return `mse.gate.member-options:${project}`;
+}
+
+/**
+ * The people a guard may ask in, kept from the last time the phone had a
+ * network (H12: 「断网期间仍可拍照、填写资料」), so a 「特殊事项」 can be written
+ * and queued offline. A fresh list from the server always wins.
+ */
+async function memberOptionsOfflineAware(project: string): Promise<GateMemberOption[]> {
+  try {
+    const rows = await getGateMemberOptions(project);
+    try {
+      window.localStorage.setItem(memberOptionsKey(project), JSON.stringify(rows));
+    } catch {
+      // Storage blocked: the list just needs a network next time.
+    }
+    return rows;
+  } catch (error) {
+    if (error instanceof ApiError && error.isNetwork) {
+      try {
+        const kept = window.localStorage.getItem(memberOptionsKey(project));
+        if (kept) return JSON.parse(kept) as GateMemberOption[];
+      } catch {
+        // Nothing kept: say the list could not be read.
+      }
+    }
+    throw error;
+  }
 }
 
 function MemberChecklist({
@@ -589,11 +586,72 @@ function MemberChecklist({
 }
 
 /**
- * One gate record in the record popup (E8, Q31). The office's 门禁通行 list
- * and the guard's phone open this same dialog; the shell goes to one column
- * on a phone, photographs first.
+ * 「确认结束」 on a Gate Issue (HD6): the record closure every module shares,
+ * offered to the people asked in and to whoever manages site access. After
+ * it the issue is read-only and keeps all it holds.
  */
-function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => void }) {
+function GateIssueClosePanel({ incident }: { incident: GateIncidentDetail }) {
+  const t = useTranslations("siteControl.gateRecords");
+  const df = useDateFormat();
+  const queryClient = useQueryClient();
+  const [note, setNote] = useState("");
+  const close = useMutation({
+    mutationFn: () => closeGateIssue(incident.id, note.trim()),
+    onSuccess: () => {
+      setNote("");
+      void queryClient.invalidateQueries({ queryKey: ["gate-incident", incident.id] });
+      void queryClient.invalidateQueries({ queryKey: ["gate-incidents"] });
+      void queryClient.invalidateQueries({ queryKey: ["gate-summary"] });
+      void queryClient.invalidateQueries({
+        queryKey: recordConversationKey("GATE_INCIDENT", incident.id),
+      });
+    },
+  });
+
+  if (incident.issue_status === "CLOSED") {
+    return (
+      <div className="rounded-lg border border-success/30 bg-success/5 p-3" data-gate-issue="closed">
+        <p className="flex items-center gap-2 text-sm font-semibold">
+          <Lock className="size-4" />
+          {t("closedTitle")}
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("closedBy", {
+            name: incident.closed_by_name ?? "",
+            when: incident.closed_at ? df.dateTime(incident.closed_at) : "",
+          })}
+        </p>
+      </div>
+    );
+  }
+  if (!incident.may_close) {
+    return <p className="text-sm text-muted-foreground">{t("closeWho")}</p>;
+  }
+  return (
+    <div className="space-y-2" data-gate-issue="open">
+      <p className="text-xs leading-5 text-muted-foreground">{t("closeHelp")}</p>
+      <Textarea
+        rows={2}
+        value={note}
+        onChange={(event) => setNote(event.target.value)}
+        placeholder={t("closeNotePlaceholder")}
+      />
+      <Button className="w-full" disabled={close.isPending} onClick={() => close.mutate()}>
+        {close.isPending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
+        {t("close")}
+      </Button>
+    </div>
+  );
+}
+
+/**
+ * One gate record in the record popup (E8, Q31). The office's 门岗记录 and the
+ * guard's phone open this same dialog; the shell goes to one column on a
+ * phone, photographs first. A Gate Issue also shows its note, the people
+ * asked in, its status and its conversation; a plain photo is just the photo
+ * and its facts.
+ */
+export function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("siteControl.gateRecords");
   const category = useTranslations("siteControl.gateCategory");
   const df = useDateFormat();
@@ -604,11 +662,13 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
   });
   const row = detail.data;
   const [adding, setAdding] = useState<"photos" | "members" | null>(null);
+  const open = row?.issue_status === "OPEN";
+  const mayAdd = open && can("site_access.scan");
 
   return (
     <RecordDetailDialog
       title={row?.incident_no ?? t("title")}
-      description={t("detailHelp")}
+      description={row?.is_issue ? t("issueHelp") : t("detailHelp")}
       onClose={onClose}
     >
       <QueryFailedNote query={detail} what={t("whatOne")} />
@@ -619,6 +679,10 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
           // 记录人 (E8): who recorded it, with a number to call.
           recorder={<RecordRecorder record={row} />}
           facts={[
+            { label: t("field.kind"), value: row.is_issue ? t("kind.issue") : t("kind.photo") },
+            ...(row.is_issue
+              ? [{ label: t("field.status"), value: <GateIssueStatusBadge status={row.issue_status} /> }]
+              : []),
             // Q18: new records carry no category; an older one keeps the one it was given.
             ...(row.category !== "OTHER"
               ? [{ label: t("field.category"), value: category(row.category) }]
@@ -627,23 +691,16 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
             ...(row.gate_name ? [{ label: t("field.gate"), value: row.gate_name }] : []),
             { label: t("field.guard"), value: row.guard_name },
             { label: t("field.time"), value: df.dateTime(row.occurred_at) },
-            {
-              label: t("field.pass"),
-              value: row.pass_no
-                ? `${row.pass_no} · ${row.pass_subject_name ?? ""}`
-                : t("field.standalone"),
-            },
-            ...(row.access_event_direction && row.access_event_at
+            // An older record may still point at a pass; new ones never do (HD5).
+            ...(row.pass_no
+              ? [{ label: t("field.pass"), value: `${row.pass_no} · ${row.pass_subject_name ?? ""}` }]
+              : []),
+            ...(row.issue_note
               ? [
                   {
-                    label: t("field.event"),
-                    value: (
-                      <GateEventLabel
-                        direction={row.access_event_direction}
-                        at={row.access_event_at}
-                        gate=""
-                      />
-                    ),
+                    label: t("field.note"),
+                    value: <span className="whitespace-pre-wrap">{row.issue_note}</span>,
+                    wide: true,
                   },
                 ]
               : []),
@@ -654,6 +711,12 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
                     value: <span className="whitespace-pre-wrap">{row.description}</span>,
                     wide: true,
                   },
+                ]
+              : []),
+            ...(row.closed_at
+              ? [
+                  { label: t("field.closedBy"), value: row.closed_by_name ?? "" },
+                  { label: t("field.closedAt"), value: df.dateTime(row.closed_at) },
                 ]
               : []),
           ]}
@@ -674,7 +737,7 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
             longitude: photo.longitude,
           }))}
           photoActions={
-            can("site_access.scan") ? (
+            mayAdd ? (
               <Button size="sm" variant="outline" onClick={() => setAdding("photos")}>
                 <Plus />
                 {t("addPhotos")}
@@ -682,40 +745,49 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
             ) : undefined
           }
           aside={
-            <ShellPanel
-              title={t("membersTitle")}
-              aside={
-                can("site_access.scan") ? (
-                  <Button size="sm" variant="outline" onClick={() => setAdding("members")}>
-                    <UserPlus />
-                    {t("addMembers")}
-                  </Button>
-                ) : undefined
-              }
-            >
-              {row.members.length ? (
-                <ul className="flex flex-wrap gap-2">
-                  {row.members.map((member) => (
-                    <li key={member.id} className="rounded-full border px-3 py-1 text-sm">
-                      {member.full_name}
-                      {member.role_name ? (
-                        <span className="text-muted-foreground"> · {member.role_name}</span>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground">{t("noMembersYet")}</p>
-              )}
-            </ShellPanel>
+            row.is_issue ? (
+              <div className="space-y-4">
+                <ShellPanel
+                  title={t("membersTitle")}
+                  aside={
+                    mayAdd ? (
+                      <Button size="sm" variant="outline" onClick={() => setAdding("members")}>
+                        <UserPlus />
+                        {t("addMembers")}
+                      </Button>
+                    ) : undefined
+                  }
+                >
+                  {row.members.length ? (
+                    <ul className="flex flex-wrap gap-2">
+                      {row.members.map((member) => (
+                        <li key={member.id} className="rounded-full border px-3 py-1 text-sm">
+                          {member.full_name}
+                          {member.role_name ? (
+                            <span className="text-muted-foreground"> · {member.role_name}</span>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{t("noMembersYet")}</p>
+                  )}
+                </ShellPanel>
+                <ShellPanel title={t("closeTitle")}>
+                  <GateIssueClosePanel incident={row} />
+                </ShellPanel>
+              </div>
+            ) : undefined
           }
-          // The conversation it has always had, without adding the shared
-          // attachments panel the `conversation` slot would bring.
+          // A Gate Issue is talked through in its own conversation (C22); a
+          // plain photo is filed and has nothing to discuss.
           chat={
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">{t("conversationHelp")}</p>
-              <RecordConversationPanel kind="GATE_INCIDENT" recordId={row.id} />
-            </div>
+            row.is_issue ? (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">{t("conversationHelp")}</p>
+                <RecordConversationPanel kind="GATE_INCIDENT" recordId={row.id} />
+              </div>
+            ) : undefined
           }
         />
       )}

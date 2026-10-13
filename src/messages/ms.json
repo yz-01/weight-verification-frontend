@@ -7594,7 +7594,15 @@
       "permit_return_reason_required": "Nyatakan sebab dipulangkan supaya pemohon tahu apa yang perlu dibetulkan.",
       "permit_only_applicant_resubmits": "Hanya pemohon boleh menghantar semula {incident_no}.",
       "permit_decided_on_permit_screen": "{incident_no} ialah permit kerja. Buka dan putuskan di bawah Permit kerja.",
-      "consultant_form_not_filled": "Muat naik borang perunding yang telah diisi sebelum menghantar - itulah borang yang diputuskan oleh perunding."
+      "consultant_form_not_filled": "Muat naik borang perunding yang telah diisi sebelum menghantar - itulah borang yang diputuskan oleh perunding.",
+      "gate_pass_not_found": "Kod QR tidak sah: ini bukan pas tapak.",
+      "gate_pass_other_project": "Pas ini untuk projek lain dan tidak boleh disahkan.",
+      "gate_pass_not_approved": "Pas ini belum diluluskan dan tidak boleh disahkan.",
+      "gate_pass_revoked": "Pas ini telah dibatalkan dan tidak boleh disahkan.",
+      "gate_pass_not_yet_valid": "Pas ini belum sah dan tidak boleh disahkan.",
+      "gate_pass_expired": "Pas ini telah tamat tempoh dan tidak boleh disahkan.",
+      "gate_pass_already_inside": "Pas ini sudah direkod berada di dalam tapak.",
+      "gate_pass_already_outside": "Pas ini belum direkod berada di dalam tapak."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8195,9 +8203,10 @@
       "waste": "Permohonan bahan alam sekitar keluar",
       "sundry": "Tuntutan pelbagai",
       "request": "MR / Permohonan Lain",
-      "gate": "Rekod foto pintu",
+      "gate": "Rekod Foto Pintu",
       "operatorHours": "Jam operator peralatan",
-      "permit": "Permit kerja"
+      "permit": "Permit kerja",
+      "visitor": "Imbas QR Pelawat"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -10266,7 +10275,7 @@
       "externalAccess": "Akses luar",
       "fieldTasks": "Tugasan tapak",
       "financialReports": "Laporan kewangan",
-      "gateScanning": "Imbas di pintu",
+      "gateScanning": "Imbas QR Pelawat",
       "geofenceSettings": "Tetapan geofence",
       "hazardRectifications": "Pembetulan bahaya / EHS",
       "immutableAudit": "Rekod kekal",
@@ -10394,7 +10403,9 @@
       "manufacturers": "Pengilang dinamakan (MR)",
       "equipmentOperatorHours": "Jam operator peralatan",
       "technical": "Pengurusan teknikal",
-      "permits": "Permit kerja"
+      "permits": "Permit kerja",
+      "gateRecords": "Rekod Pintu",
+      "visitorRecords": "Rekod Pelawat"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -10564,7 +10575,8 @@
       "TRIP_ASSIGN": "Tugaskan perjalanan",
       "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
-      "EQUIPMENT_HOURS_PHOTO": "Jam operator peralatan"
+      "EQUIPMENT_HOURS_PHOTO": "Jam operator peralatan",
+      "GATE_PHOTO": "Rekod Foto Pintu"
     },
     "pageDescription": "Halaman ini belum dicache. Sambung semula sekali dan buka halaman ini semula untuk kegunaan luar talian.",
     "queue": {
@@ -11010,11 +11022,11 @@
       "trouble": "Import yang gagal biasanya kehilangan pemetaan: WBS, nama tugas dan mula dirancang diperlukan, serta tamat dirancang atau tempoh."
     },
     "site_access": {
-      "what": "Akses tapak: siapa boleh masuk dan bila (pas akses), pengawal mengimbas di pintu untuk merekod masuk dan keluar (imbas di pintu), foto di pintu (rekod foto pintu), dan laporan mesin pintu automatik (log mesin pintu).",
+      "what": "Akses tapak: siapa boleh masuk dan bila (pas), pengawal mengimbas pas pelawat dan mengesahkan masuk atau keluar (Imbas QR Pelawat), dan rekod pintu automatik. Setiap masuk dan keluar disenaraikan dalam Rekod Pelawat; foto pintu di bawah EHS › Rekod Pintu.",
       "who": "Pemegang site_access.view; mengeluarkan dan membatalkan memerlukan site_access.manage.",
       "need": "Pas memerlukan projek, tujuan masuk, masa sah dari dan hingga, dan nama; pas kenderaan juga memerlukan nombor plat. Imbasan di pintu hanya perlukan kamera telefon; pengimbas genggam ialah pilihan untuk komputer tetap di pintu.",
       "then": "Pas berkuat kuasa hanya selepas kelulusan, dan yang dibatalkan berhenti serta-merta.",
-      "trouble": "Jika imbasan di pintu ditolak, skrin menyatakan sebabnya - luput, tidak diluluskan, atau bukan untuk tapak ini. Penolakan oleh mesin pintu dijelaskan dalam log mesin pintu."
+      "trouble": "Apabila pas yang diimbas tidak boleh disahkan, skrin menyatakan sebabnya - tidak sah, tamat tempoh, belum diluluskan, dibatalkan, atau pas untuk projek lain. Sebab peranti pintu menolak ada dalam rekod peranti pintu."
     },
     "site_disposals": {
       "what": "Membersihkan sampah dan serpihan dari tapak - kerja yang bukan muatan boleh kitar semula.",
@@ -11133,6 +11145,12 @@
       "need": "Permohonan bahan memerlukan bahan, spesifikasi, kuantiti dan unit; catatan dan lampiran adalah pilihan. Permohonan lain memerlukan fail atau catatan.",
       "then": "Ibu pejabat berbincang dalam permohonan dan meluluskan atau mengembalikannya. Permohonan yang dikembalikan ditutup; memohon semula ialah permohonan baharu dengan nombor baharu.",
       "trouble": "Senarai bahan yang kosong bermakna senarai belum disediakan: buka Senarai bahan dan tambah bahan, spesifikasi dan unit."
+    },
+    "gate_records": {
+      "what": "Foto yang diambil pengawal pintu: Rekod Foto (lori masuk dan keluar, foto pintu biasa) dan Isu Pintu (perkara khas yang dibangkitkan pengawal).",
+      "who": "Pemegang site_access.view; isu pintu disahkan selesai oleh orang yang ditugaskan atau pemegang site_access.manage.",
+      "then": "Foto biasa terus difailkan; isu pintu memberitahu orang yang ditugaskan, yang berbincang di dalamnya, dan hanya boleh dibaca selepas disahkan selesai.",
+      "trouble": "Foto hilang: semak penapis tarikh dan jurugambar; foto yang diambil luar talian dimuat naik apabila telefon ada rangkaian."
     }
   },
   "partners": {
@@ -13300,7 +13318,7 @@
       "editHelp": "Hanya pas yang menunggu boleh dibetulkan. Projek tidak boleh ditukar.",
       "editTitle": "Sunting pas",
       "empty": "Tiada pas akses sepadan dengan pilihan ini.",
-      "gate": "Imbas di pintu",
+      "gate": "Imbas QR Pelawat",
       "integrationReader": "Pembaca pintu bersambung",
       "newPass": "Pas baharu",
       "noEvents": "Pas ini belum digunakan di pintu.",
@@ -13311,16 +13329,14 @@
       "rejectTitle": "Tolak pas akses ini?",
       "revokeBody": "Kod QR akan berhenti berfungsi serta-merta. Catat sebab untuk audit.",
       "revokeTitle": "Batalkan pas akses ini?",
-      "subtitle": "Permohonan dan kelulusan pas, imbasan di pintu dan foto pintu - semuanya di sini.",
+      "subtitle": "Mohon dan luluskan pas, dan imbas pelawat di pintu. Foto pintu di bawah EHS › Rekod Pintu.",
       "timeline": "Sejarah masuk dan keluar",
       "title": "Akses tapak",
       "unknownGate": "Pintu tidak dinyatakan",
       "defaultsFailed": "Tetapan lalai akses tapak gagal dimuatkan. Cuba lagi dahulu.",
-      "gateRecords": "Rekod foto pintu",
       "tabHelp": {
         "passes": "Siapa boleh masuk ke tapak dan bila. Mohon, luluskan dan batalkan pas di sini, dan muat turun kod QR untuk dihantar.",
-        "gate": "Pengawal mengimbas kod QR pada pas dengan telefon di pintu; sistem merekod siapa masuk dan siapa keluar.",
-        "gate-records": "Ambil foto apa-apa yang berlaku di pintu (contohnya lori tanpa pas keluar) dan maklumkan orang yang berkaitan.",
+        "gate": "Pengawal mengimbas kod QR pas, menyemak butiran pelawat, kemudian menekan Sahkan Masuk atau Sahkan Keluar.",
         "devices": "Jika palang automatik, kamera nombor plat atau pengimbas muka disambungkan, setiap kali mesin membenarkan atau menolak seseorang direkodkan di sini bersama sebabnya. Tanpa mesin ini, senarai ini kekal kosong."
       }
     },
@@ -13469,7 +13485,7 @@
       "emergencyPhone": "Telefon kecemasan",
       "fieldPinExpiry": "Tempoh tamat akses kakitangan tapak (hari)",
       "gateName": "Nama pintu",
-      "gatePhoto": "Foto wajib di pintu masuk",
+      "gatePhoto": "Foto wajib dari peranti pintu",
       "homePage": "Halaman selepas log masuk",
       "hostName": "Pegawai tapak",
       "identityNo": "No. pengenalan / pasport",
@@ -13664,7 +13680,7 @@
     },
     "settings": {
       "attendancePhotoHelp": "Kakitangan tapak mesti mengambil swafoto untuk setiap kemasukan dan keluar manual. Rekod automatik pagar geo tiada foto.",
-      "gatePhotoHelp": "Petugas pintu dan pembaca yang disambung mesti memberi foto setiap masuk dan keluar.",
+      "gatePhotoHelp": "Hanya untuk peranti pintu yang disambung (palang, pembaca nombor plat): setiap masuk dan keluar mesti disertakan foto. Imbas QR Pelawat pengawal di telefon tidak mengambil foto dan tidak terjejas.",
       "realRulesHelp": "Suis QR mengawal penciptaan permit, suis notifikasi mengawal peringatan aliran kerja dan lalai projek disalin ke projek baharu.",
       "realRulesTitle": "Tetapan ini digunakan dalam operasi sebenar.",
       "saveError": "Perubahan tidak dapat disimpan. Semak maklumat dan cuba lagi.",
@@ -13711,7 +13727,7 @@
       "branchSaved": "Cawangan disimpan",
       "credentialRegistered": "Kelayakan didaftarkan",
       "credentialRevoked": "Kelayakan dibatalkan",
-      "gateRecorded": "Pergerakan pintu direkod",
+      "gateRecorded": "Masuk / keluar direkodkan",
       "geofenceRemoved": "Sempadan tapak dibuang",
       "geofenceSaved": "Sempadan tapak disimpan",
       "passCreated": "Pas akses dimohon",
@@ -13722,7 +13738,8 @@
       "settingsSaved": "Tetapan tapak syarikat disimpan",
       "gateIncidentSaved": "Rekod pintu disimpan.",
       "gatePhotosAdded": "Foto ditambah.",
-      "gateMembersAdded": "Orang diminta menyertai dan dimaklumkan."
+      "gateMembersAdded": "Orang diminta menyertai dan dimaklumkan.",
+      "gateIssueClosed": "Isu pintu disahkan selesai."
     },
     "what": {
       "roles": "Senarai peranan",
@@ -13740,12 +13757,9 @@
       "OTHER": "Lain-lain"
     },
     "gateRecords": {
-      "title": "Rekod foto pintu",
-      "subtitle": "Foto yang diambil pengawal di pintu pagar, dipautkan kepada pas jika ada, bersama orang yang diminta melihat.",
-      "new": "Rekod pintu baharu",
-      "newTitle": "Rekod foto pintu baharu",
-      "newHelp": "Ambil foto dan tekan Hantar. Setiap foto menyimpan masa dan GPS sendiri, dengan projek dan nama anda.",
-      "detailHelp": "Foto, orang yang diminta menyertai dan perbualan kekal pada rekod ini dan tidak boleh dipadam.",
+      "title": "Rekod Pintu",
+      "subtitle": "Foto yang diambil oleh pengawal pintu, dan isu pintu.",
+      "detailHelp": "Foto pintu: masa, GPS, projek dan jurugambar kekal bersamanya dan tidak boleh dipadam.",
       "field": {
         "project": "Projek",
         "chooseProject": "Pilih projek",
@@ -13755,26 +13769,35 @@
         "searchPlaceholder": "No. rekod, pintu, pengawal, pas atau plat",
         "gate": "Pintu",
         "pass": "Pas berkaitan",
-        "standalone": "Rekod sendiri",
-        "event": "Masuk / keluar berkaitan",
         "description": "Apa yang dilihat",
         "photos": "Foto",
         "photosHint": "Sekurang-kurangnya satu. Tekan kamera lagi untuk ambil lebih.",
         "members": "Minta orang menyertai",
-        "membersHint": "Kakitangan tapak, keselamatan atau projek bagi projek ini. Mereka dimaklumkan dan boleh membalas pada rekod ini.",
+        "membersHint": "Pilih kakitangan tapak projek ini; mereka menerima tugasan dan berbincang dalam isu ini.",
         "guard": "Pengawal",
-        "time": "Masa"
+        "time": "Masa",
+        "kind": "Jenis",
+        "status": "Status",
+        "note": "Nota",
+        "assignees": "Ditugaskan kepada",
+        "closedBy": "Disahkan selesai oleh",
+        "closedAt": "Selesai pada",
+        "number": "No.",
+        "photographer": "Jurugambar",
+        "gps": "GPS",
+        "latitude": "Latitud",
+        "longitude": "Longitud",
+        "photoCount": "Foto"
       },
       "what": "rekod pintu",
       "whatOne": "rekod pintu ini",
       "whatPeople": "kakitangan projek ini",
       "loading": "Memuatkan…",
-      "empty": "Belum ada rekod foto pintu.",
+      "empty": "Belum ada rekod pintu.",
       "count": "Memaparkan {shown} daripada {total}",
       "loadMore": "Muat lagi",
       "photoAlt": "Foto pintu",
       "photoCount": "{count} foto",
-      "linkedPass": "Pas {pass} · {subject}",
       "photoNumber": "Foto {number}",
       "removePhoto": "Buang foto {number}",
       "gpsShort": "GPS",
@@ -13791,25 +13814,128 @@
       "save": "Simpan {count} foto",
       "photosTitle": "Foto ({count})",
       "addPhotos": "Tambah foto",
-      "membersTitle": "Orang yang diminta menyertai",
+      "membersTitle": "Ditugaskan kepada",
       "addMembers": "Minta orang menyertai",
       "noMembers": "Tiada orang lain dalam projek ini boleh membuka rekod pintu.",
       "noMembersYet": "Belum ada orang diminta menyertai.",
       "conversationTitle": "Perbualan",
-      "conversationHelp": "Teks, foto, suara dan fail kekal pada rekod pintu ini dan tidak boleh dipadam.",
+      "conversationHelp": "Teks, foto, nota suara dan fail kekal pada isu pintu ini dan tidak boleh dipadam.",
       "gpsValue": "GPS {latitude}, {longitude}",
       "gpsUnavailable": "GPS tidak tersedia",
-      "scanPass": "Imbas QR pas",
-      "scanPassButton": "Imbas kod QR pas",
-      "scanPassHint": "Jika ada pas, imbas dan rekod ini dipautkan kepadanya. Jika tiada, langkau.",
-      "scanPassNotFound": "Kod QR itu bukan pas untuk projek ini. Imbas semula atau langkau.",
-      "unlinkPass": "Buang pautan pas",
-      "chooseProjectFirst": "Pilih projek dahulu",
-      "firstMessage": "Mesej pertama",
-      "firstMessageHint": "Disimpan sebagai mesej pertama dalam perbualan rekod ini. Orang yang anda pilih akan menerimanya.",
-      "firstMessagePlaceholder": "cth. Lori ini tiada slip keluar, sila semak",
       "photoFirst": "Ambil sekurang-kurangnya satu foto untuk menghantar.",
-      "send": "Hantar ({count} foto)"
+      "officeTitle": "Rekod Pintu",
+      "recentTitle": "Rekod pintu terkini",
+      "issueHelp": "Isu pintu: foto, nota, orang dan perbualannya kekal di sini dan tidak boleh dipadam; selepas disahkan selesai ia hanya boleh dibaca.",
+      "kind": {
+        "photo": "Foto pintu",
+        "issue": "Isu pintu"
+      },
+      "issueStatus": {
+        "OPEN": "Dalam tindakan",
+        "CLOSED": "Selesai"
+      },
+      "tab": {
+        "photos": "Rekod Foto",
+        "issues": "Isu Pintu"
+      },
+      "tabHelp": {
+        "photos": "Lori masuk dan keluar serta foto pintu biasa, satu rekod setiap foto, terus difailkan. Cari mengikut tarikh, projek dan jurugambar, dan eksport.",
+        "issues": "Perkara khas yang dibangkitkan pengawal: foto, nota, orang yang ditugaskan, perbualan, status, dan siapa yang mengesahkan selesai dan bila."
+      },
+      "closeTitle": "Sahkan selesai",
+      "close": "Sahkan selesai",
+      "closeHelp": "Tekan ini setelah ia diselesaikan. Isu itu kemudian hanya boleh dibaca; foto dan perbualannya disimpan.",
+      "closeNotePlaceholder": "Apa yang dilakukan (pilihan)",
+      "closeWho": "Dalam tindakan. Orang yang ditugaskan, atau yang mengurus akses tapak projek ini, mengesahkan ia selesai.",
+      "closedTitle": "Selesai",
+      "closedBy": "Disahkan selesai oleh {name} pada {when}"
+    },
+    "gatePhoto": {
+      "title": "Rekod Foto Pintu",
+      "help": "Lori masuk atau keluar, atau apa-apa di pintu: ambil foto dan hantar. Setiap foto menyimpan projek, masa, GPS dan nama anda.",
+      "photosHint": "Ambil seberapa banyak yang perlu. Foto biasa disimpan satu rekod setiap satu.",
+      "special": "Perkara khas",
+      "specialOffHelp": "Mati: foto pintu biasa, terus difailkan, tiada siapa diberitahu.",
+      "specialOnHelp": "Hidup: tulis nota dan pilih orang projek ini; telefon mereka menerima tugasan dan bunyi.",
+      "note": "Nota",
+      "notePlaceholder": "cth. Lori ini tiada slip keluar, sila semak",
+      "assignees": "Tugaskan kepada",
+      "assigneesHint": "Kakitangan tapak projek ini, seperti pengurus projek, penyelia tapak atau pegawai keselamatan.",
+      "sendPhotos": "Hantar ({count} foto)",
+      "sendIssue": "Hantar perkara khas",
+      "sentPhotos": "{count} foto pintu dihantar.",
+      "sentIssue": "Perkara khas dihantar; orang yang ditugaskan diberitahu.",
+      "sentQueued": "Disimpan dalam telefon ini; ia dimuat naik sendiri apabila ada rangkaian, sekali sahaja.",
+      "signedOut": "Log masuk semula, kemudian hantar."
+    },
+    "visitorScan": {
+      "help": "Imbas kod QR pas pelawat, semak butiran, kemudian tekan Sahkan Masuk atau Sahkan Keluar. Tiada foto diperlukan.",
+      "project": "Projek",
+      "chooseProject": "Pilih projek",
+      "chooseProjectFirst": "Pilih projek dahulu",
+      "scan": "Imbas dengan kamera",
+      "otherWays": "Cara lain: pengimbas / taip kod",
+      "typePlaceholder": "Imbas dengan pengimbas, atau tampal kod",
+      "read": "Baca",
+      "reading": "Membaca pas…",
+      "readFailed": "Tidak dapat membaca pas ini. Imbas sekali lagi.",
+      "recordFailed": "Tidak dapat merekod masuk atau keluar ini. Cuba lagi.",
+      "confirmEntry": "Sahkan Masuk",
+      "confirmExit": "Sahkan Keluar",
+      "field": {
+        "type": "Jenis",
+        "company": "Syarikat",
+        "phone": "Telefon",
+        "project": "Projek dilawati",
+        "purpose": "Tujuan",
+        "vehicle": "Kenderaan",
+        "host": "Tuan rumah",
+        "approvedBy": "Diluluskan oleh",
+        "validity": "Sah",
+        "last": "Terakhir"
+      },
+      "last": {
+        "ENTRY": "Masuk pada {time}",
+        "EXIT": "Keluar pada {time}"
+      },
+      "recorded": {
+        "ENTRY": "Masuk direkodkan · {time}",
+        "EXIT": "Keluar direkodkan · {time}"
+      },
+      "refusal": {
+        "not_found": "Kod QR tidak sah: ini bukan pas tapak.",
+        "other_project": "Tidak boleh disahkan: pas ini untuk projek lain.",
+        "not_approved": "Tidak boleh disahkan: pas ini belum diluluskan.",
+        "revoked": "Tidak boleh disahkan: pas ini telah dibatalkan.",
+        "not_yet_valid": "Tidak boleh disahkan: pas ini belum sah.",
+        "expired": "Tidak boleh disahkan: pas ini telah tamat tempoh.",
+        "already_inside": "Sudah direkod di dalam; seterusnya tekan Sahkan Keluar.",
+        "already_outside": "Belum direkod di dalam; tekan Sahkan Masuk dahulu."
+      }
+    },
+    "visitorRecords": {
+      "title": "Rekod Pelawat",
+      "help": "Satu baris untuk setiap masuk dan keluar yang disahkan di pintu, dipautkan kepada pasnya, tidak pernah ditimpa.",
+      "empty": "Belum ada rekod masuk atau keluar.",
+      "allDirections": "Masuk dan keluar",
+      "allTypes": "Semua jenis",
+      "device": "Peranti pintu",
+      "field": {
+        "time": "Masa",
+        "direction": "Masuk / keluar",
+        "person": "Nama",
+        "type": "Jenis",
+        "company": "Syarikat",
+        "phone": "Telefon",
+        "vehicle": "Kenderaan",
+        "purpose": "Tujuan",
+        "pass": "Pas",
+        "project": "Projek",
+        "approvedBy": "Diluluskan oleh",
+        "validUntil": "Sah sehingga",
+        "gate": "Pintu",
+        "guard": "Disahkan oleh"
+      }
     }
   },
   "siteDisposal": {
@@ -16095,9 +16221,9 @@
     }
   },
   "filePreview": {
-    "unsupported": "Fail {ext} tidak boleh dipaparkan dalam pelayar.",
+    "unsupported": "Fail {ext} tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
     "thisFormat": "Format ini",
-    "unsupportedHelp": "Muat turun dan buka dengan aplikasi asalnya (contohnya Word, Excel atau AutoCAD).",
+    "unsupportedHelp": "Muat turun dan buka dalam program asalnya (contohnya AutoCAD atau alat arkib).",
     "failed": "Fail tidak dapat dimuatkan.",
     "retry": "Cuba lagi",
     "loading": "Memuatkan fail",
@@ -16109,8 +16235,15 @@
     "wordNote": "Hanya teks, jadual dan gambar ditunjukkan di sini; susun atur tepat ada dalam fail yang dimuat turun.",
     "wordTruncated": "Fail ini panjang; hanya bahagian awal ditunjukkan.",
     "wordEmpty": "Fail ini tiada teks.",
-    "legacyOffice": "Ini format {ext} lama yang tidak boleh dipratonton dalam sistem.",
-    "legacyOfficeHelp": "Muat turun untuk melihatnya. Simpan sebagai .docx / .xlsx dalam Word / Excel dan muat naik semula untuk pratonton di sini lain kali."
+    "legacyOffice": "Ini format {ext} lama dan tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
+    "legacyOfficeHelp": "Muat turun untuk melihatnya. Simpan sebagai .docx / .xlsx dalam Word / Excel dan muat naik semula untuk pratonton di sini lain kali.",
+    "presentation": "Persembahan {ext} tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
+    "presentationHelp": "Muat turun dan buka dalam PowerPoint. Simpan sebagai PDF dan muat naik untuk melihatnya di sini lain kali.",
+    "photoFormat": "Foto {ext} (format padat iPhone) tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
+    "photoFormatHelp": "Pada iPhone pilih Tetapan › Kamera › Format › Paling Serasi: foto kemudian JPG dan boleh dipratonton di sini.",
+    "downloadToView": "Muat turun untuk melihat",
+    "noInlinePdf": "Pelayar ini tidak dapat memaparkan PDF dalam halaman. Buka dalam pemapar telefon untuk membaca semua halaman, mencetak atau menghantarnya.",
+    "openInViewer": "Buka dalam pemapar telefon"
   },
   "fileActions": {
     "preview": "Pratonton",
@@ -16733,5 +16866,15 @@
       "returned": "{reference} dipulangkan kepada pemohon"
     },
     "openInModule": "Buka di bawah Permit kerja"
+  },
+  "gateCard": {
+    "title": "Pintu",
+    "todayPhotos": "Foto hari ini",
+    "openIssues": "Isu pintu terbuka",
+    "open": "Rekod Pintu",
+    "none": "Tiada foto pintu hari ini.",
+    "what": "foto pintu",
+    "issue": "Isu",
+    "photoAlt": "Foto pintu {reference}"
   }
 }

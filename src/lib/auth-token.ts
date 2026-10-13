@@ -13,6 +13,7 @@
 
 import { LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, type Locale } from "@/i18n/config";
 import type { Portal } from "@/interfaces/auth";
+import { forgetFieldUser } from "@/lib/field-offline-user";
 
 const ACCESS_KEY = "mse_access_token";
 const REFRESH_KEY = "mse_refresh_token";
@@ -174,6 +175,9 @@ export function setTokens(tokens: { access: string; refresh: string }): void {
 
 export function clearTokens(): void {
   if (!isBrowser()) return;
+  // A session ending - signed out or refused - forgets the field phone's
+  // remembered account too (H12, `lib/field-offline-user`).
+  forgetFieldUser();
   const keys = tokenKeys();
   window.localStorage.removeItem(keys.access);
   window.localStorage.removeItem(keys.refresh);
@@ -195,6 +199,7 @@ export function setFieldTokens(tokens: { access: string; refresh: string }): voi
 
 export function clearFieldTokens(): void {
   if (!isBrowser()) return;
+  forgetFieldUser();
   window.localStorage.removeItem(FIELD_ACCESS_KEY);
   window.localStorage.removeItem(FIELD_REFRESH_KEY);
   // Signing out is a decision to stop being this worker on this phone, so the
@@ -217,6 +222,7 @@ export function setDriverTokens(tokens: { access: string; refresh: string }): vo
 
 export function clearDriverTokens(): void {
   if (!isBrowser()) return;
+  forgetFieldUser();
   window.localStorage.removeItem(DRIVER_ACCESS_KEY);
   window.localStorage.removeItem(DRIVER_REFRESH_KEY);
   if (

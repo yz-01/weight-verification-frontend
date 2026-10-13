@@ -44,7 +44,8 @@ describe("capture forms locate automatically", () => {
     ["src/components/site-operations/attendance.tsx", /setOpen\(true\);[\s\S]{0,300}locate\(\);/],
     ["src/components/incident-reporting/create-incident-dialog.tsx", /autoLocated\.current = true;\s*captureLocation\(\);/],
     ["src/components/qrcodes/qr-mobile-scan.tsx", /autoLocated\.current = true;\s*locate\(\);/],
-    ["src/components/site-access/site-access-workspace.tsx", /autoLocated\.current = true;\s*getGps\(\);/],
+    // 访客扫码 (batch H, HD7) - the gate scan's new home - asks on opening.
+    ["src/components/site-access/visitor-scan.tsx", /useEffect\(\(\) => \{\s*requestLocation\(\)\.then\(setFix\)/],
   ])("%s asks for a fix on opening, keeping its button as the retry", (file, pattern) => {
     expect(read(file)).toMatch(pattern);
   });

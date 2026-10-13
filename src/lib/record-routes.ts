@@ -31,7 +31,7 @@ const PAGES: Record<string, (id: string) => string> = {
   HAZARD: (id) => `/hazard-rectifications?incident=${id}`,
   SAFETY_INCIDENT: (id) => `/hazard-rectifications?incident=${id}`,
   FIELD_TASK: (id) => `/field-tasks?task=${id}`,
-  GATE_INCIDENT: (id) => `/site-access?tab=gate-records&gate_incident=${id}`,
+  GATE_INCIDENT: (id) => `/gate-records?gate_incident=${id}`,
   CONSULTANT_APPLICATION: (id) => `/consultant-applications/${id}`,
   SUNDRY_CLAIM: (id) => `/sundry-claims?record=${id}`,
   MATERIAL_REQUEST: (id) => `/material-requests?record=${id}`,

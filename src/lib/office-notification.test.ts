@@ -25,7 +25,7 @@ describe("officeNotificationHref", () => {
     ).toBe("/waste-clearance?kind=disposal&record=d1");
     expect(
       officeNotificationHref({ href: "/field-staff?tab=records&record=gate&gate_incident=g1" }),
-    ).toBe("/site-access?tab=gate-records&gate_incident=g1");
+    ).toBe("/gate-records?gate_incident=g1");
     expect(officeNotificationHref({ href: "/field-staff?tab=home" })).toBeNull();
   });
 

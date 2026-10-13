@@ -132,7 +132,7 @@ describe("公司总部 Dashboard links", () => {
       href: "/hazard-rectifications?incident=r1",
     });
     expect(photoTarget({ record_kind: "GATE_INCIDENT", record_id: "g1" })).toEqual({
-      href: "/site-access?tab=gate-records&gate_incident=g1",
+      href: "/gate-records?gate_incident=g1",
     });
     // No detail page of its own yet: the read-only sheet.
     expect(photoTarget({ record_kind: "SITE_PROGRESS", record_id: "p1" })).toEqual({

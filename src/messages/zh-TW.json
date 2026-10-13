@@ -7594,7 +7594,15 @@
       "permit_return_reason_required": "請寫明退回原因，申請人才知道要改什麼。",
       "permit_only_applicant_resubmits": "只有申請人能重新提交 {incident_no}。",
       "permit_decided_on_permit_screen": "{incident_no} 是施工准證，請在「施工准證」裡打開和審批。",
-      "consultant_form_not_filled": "發送前請先上傳填好的顧問表格，顧問審批的就是這份表格。"
+      "consultant_form_not_filled": "發送前請先上傳填好的顧問表格，顧問審批的就是這份表格。",
+      "gate_pass_not_found": "無效的二維碼：這不是工地通行證。",
+      "gate_pass_other_project": "這是別的項目的通行證，不能確認。",
+      "gate_pass_not_approved": "這張通行證還沒有批准，不能確認。",
+      "gate_pass_revoked": "這張通行證已撤銷，不能確認。",
+      "gate_pass_not_yet_valid": "這張通行證還沒到有效時間，不能確認。",
+      "gate_pass_expired": "這張通行證已過期，不能確認。",
+      "gate_pass_already_inside": "這張通行證已經記錄在場內。",
+      "gate_pass_already_outside": "這張通行證還沒有進場記錄。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8195,9 +8203,10 @@
       "waste": "環保材料出場申請",
       "sundry": "雜費報銷",
       "request": "MR / 其他申請",
-      "gate": "門崗拍照記錄",
+      "gate": "門崗拍照",
       "operatorHours": "設備操作員工時",
-      "permit": "施工准證"
+      "permit": "施工准證",
+      "visitor": "訪客掃碼"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -10266,7 +10275,7 @@
       "externalAccess": "外部訪問連結",
       "fieldTasks": "現場任務",
       "financialReports": "財務報表",
-      "gateScanning": "門崗掃碼",
+      "gateScanning": "訪客掃碼",
       "geofenceSettings": "Geofence 設置",
       "hazardRectifications": "整改 / EHS",
       "immutableAudit": "永久記錄",
@@ -10394,7 +10403,9 @@
       "manufacturers": "指定廠商（MR）",
       "equipmentOperatorHours": "設備操作員工時",
       "technical": "技術管理",
-      "permits": "施工准證"
+      "permits": "施工准證",
+      "gateRecords": "門崗記錄",
+      "visitorRecords": "訪客進退場記錄"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -10564,7 +10575,8 @@
       "TRIP_ASSIGN": "指派行程",
       "WASTE_OUTGOING": "環保材料出場申請",
       "SUNDRY_CLAIM": "雜費報銷",
-      "EQUIPMENT_HOURS_PHOTO": "設備操作員工時"
+      "EQUIPMENT_HOURS_PHOTO": "設備操作員工時",
+      "GATE_PHOTO": "門崗拍照"
     },
     "pageDescription": "此頁面尚未緩存。請先恢復網絡並打開一次，之後即可離線使用。",
     "queue": {
@@ -11010,11 +11022,11 @@
       "trouble": "匯不進去，多半是有欄沒對上：WBS、任務名稱、計畫開始是必須的，另外計畫完成和工期至少要有一個。"
     },
     "site_access": {
-      "what": "工地門禁：誰能進工地、什麼時候能進（通行證），保安在門口掃碼記進出（門崗掃碼），門口拍照留底（門崗拍照記錄），以及自動閘機的記錄（閘機記錄）。",
+      "what": "工地門禁：誰能進工地、什麼時候能進（通行證），保安在門口掃訪客的通行證並確認進場、退場（訪客掃碼），以及自動閘機的記錄（閘機記錄）。每次進退場列在「訪客進退場記錄」；門口拍的照片在「整改 / EHS › 門崗記錄」。",
       "who": "持 site_access.view；簽發和作廢要 site_access.manage。",
       "need": "辦通行證要專案、進入目的、生效時間、截止時間和姓名，車輛還要車牌。門口掃碼用手機相機就可以；掃碼槍只是門口固定電腦的選配。",
       "then": "通行證要經過審批才生效；撤銷之後立刻掃不進。",
-      "trouble": "門崗掃碼被拒絕時，畫面上會直接寫原因 —— 過期、未審批，或者不是這個工地。閘機拒絕的原因在「閘機記錄」裡看。"
+      "trouble": "掃碼後不能確認時，畫面上會直接寫原因 —— 無效、過期、未審批、已撤銷，或者是別的項目的通行證。閘機拒絕的原因在「閘機記錄」裡看。"
     },
     "site_disposals": {
       "what": "把工地上的雜物和廢棄物清走 —— 不屬於可回收料的那一類。",
@@ -11133,6 +11145,12 @@
       "need": "材料申請須填材料、規格、數量和單位；備註和附件選填。其他申請須有文件或備註。",
       "then": "總部在申請內溝通並批准或退回。已退回的申請即結束；再申請須新建，產生新編號。",
       "trouble": "材料下拉沒有選項，表示還沒設定材料選項：請打開「材料選項」新增材料、規格和單位。"
+    },
+    "gate_records": {
+      "what": "門崗保安拍的照片：日常拍照記錄（卡車進退場、普通門崗照片），和門崗事項（保安發現的特殊情況）。",
+      "who": "持 site_access.view；門崗事項由指定人員或持 site_access.manage 的人確認結束。",
+      "then": "普通照片直接歸檔；門崗事項會通知指定人員，雙方在事項裡溝通，確認結束後只能查看。",
+      "trouble": "找不到某張照片：看一下日期和拍攝人篩選；斷網時拍的照片要等手機有網路才會上傳。"
     }
   },
   "partners": {
@@ -13300,7 +13318,7 @@
       "editHelp": "只有待審核的通行證可以改。項目不能換。",
       "editTitle": "編輯通行證",
       "empty": "沒有符合篩選條件的通行證。",
-      "gate": "門崗掃碼",
+      "gate": "訪客掃碼",
       "integrationReader": "已連接門禁設備",
       "newPass": "新增通行證",
       "noEvents": "這個通行證尚未在門崗使用。",
@@ -13311,16 +13329,14 @@
       "rejectTitle": "拒絕這個通行證？",
       "revokeBody": "二維碼會立即失效，請填寫原因以保留審計記錄。",
       "revokeTitle": "撤銷這個通行證？",
-      "subtitle": "通行證的申請和審批、門口掃碼、門口拍照，都在這裡。",
+      "subtitle": "通行證的申請、審批和訪客掃碼都在這裡；門崗照片在「整改 / EHS › 門崗記錄」。",
       "timeline": "進出記錄",
       "title": "工地門禁",
       "unknownGate": "未註明門崗",
       "defaultsFailed": "門禁預設設定未能載入，請先重試。",
-      "gateRecords": "門崗拍照記錄",
       "tabHelp": {
         "passes": "誰可以進工地、哪段時間可以進。在這裡申請、審批、撤銷通行證，也可以下載二維碼發給對方。",
-        "gate": "保安在門口用手機掃通行證上的二維碼，系統就記下誰進、誰出。",
-        "gate-records": "門口有事就拍照留底（例如羅釐沒有出門單），並通知相關的人一起看。",
+        "gate": "保安用手機掃通行證二維碼，先看清楚訪客資料，再按「確認進場」或「確認退場」。",
         "devices": "接了自動閘機、車牌識別或刷臉機，機器每次放行或拒絕都記在這裡，並寫明原因。沒接這些機器，這裡就是空的。"
       }
     },
@@ -13469,7 +13485,7 @@
       "emergencyPhone": "緊急聯繫電話",
       "fieldPinExpiry": "現場人員 PIN 過期天數",
       "gateName": "門崗名稱",
-      "gatePhoto": "門崗必須拍照",
+      "gatePhoto": "門禁設備必須拍照",
       "homePage": "登錄後首頁",
       "hostName": "工地接待人",
       "identityNo": "身份證／護照號碼",
@@ -13664,7 +13680,7 @@
     },
     "settings": {
       "attendancePhotoHelp": "工地人員每次手動進場和離開都必須自拍。電子圍欄自動記錄的沒有照片。",
-      "gatePhotoHelp": "門崗人員和已連接設備每次進出都必須提供照片。",
+      "gatePhotoHelp": "只適用於已連接的門禁設備（閘機、車牌識別等）：每次進出都必須附照片。保安用手機「訪客掃碼」不拍照，不受這個設定影響。",
       "realRulesHelp": "二維碼開關會控制許可證建立，通知開關會控制流程提醒，項目默認值會複製到新項目。",
       "realRulesTitle": "這些設置會真正影響業務。",
       "saveError": "無法保存，請檢查填寫內容後重試。",
@@ -13711,7 +13727,7 @@
       "branchSaved": "分公司已保存",
       "credentialRegistered": "憑證已登記",
       "credentialRevoked": "憑證已撤銷",
-      "gateRecorded": "門崗進出已記錄",
+      "gateRecorded": "進退場已記錄",
       "geofenceRemoved": "工地圍欄已移除",
       "geofenceSaved": "工地圍欄已保存",
       "passCreated": "通行證申請已提交",
@@ -13722,7 +13738,8 @@
       "settingsSaved": "公司現場設置已保存",
       "gateIncidentSaved": "門崗記錄已儲存。",
       "gatePhotosAdded": "照片已補上。",
-      "gateMembersAdded": "已指定人員並通知。"
+      "gateMembersAdded": "已指定人員並通知。",
+      "gateIssueClosed": "門崗事項已確認結束。"
     },
     "what": {
       "roles": "角色列表",
@@ -13740,12 +13757,9 @@
       "OTHER": "其他"
     },
     "gateRecords": {
-      "title": "門崗拍照記錄",
-      "subtitle": "門崗保安拍下的現場照片，可關聯通行證，並和指定的人溝通。",
-      "new": "新增門崗記錄",
-      "newTitle": "新增門崗拍照記錄",
-      "newHelp": "拍照後直接按發送。每張照片都會記下時間、GPS、項目和你的名字。",
-      "detailHelp": "照片、被指定的人和溝通內容都留在這條門崗記錄裡，不能刪除。",
+      "title": "門崗記錄",
+      "subtitle": "門崗保安拍下的照片和門崗事項。",
+      "detailHelp": "門崗照片：時間、GPS、項目和拍攝人都跟著照片，不能刪除。",
       "field": {
         "project": "項目",
         "chooseProject": "選擇項目",
@@ -13755,26 +13769,35 @@
         "searchPlaceholder": "記錄編號、門崗、保安、通行證或車牌",
         "gate": "門崗",
         "pass": "關聯通行證",
-        "standalone": "獨立記錄",
-        "event": "關聯進出記錄",
         "description": "情況說明",
         "photos": "照片",
         "photosHint": "至少一張，可一直按相機繼續拍。",
         "members": "指定溝通人員",
-        "membersHint": "選這個項目的現場、安全或項目人員；他們會收到通知，並在這條記錄裡溝通。",
+        "membersHint": "選這個項目的現場人員；他們會收到待辦通知，並在這條事項裡溝通。",
         "guard": "保安",
-        "time": "時間"
+        "time": "時間",
+        "kind": "類別",
+        "status": "狀態",
+        "note": "備註",
+        "assignees": "指定人員",
+        "closedBy": "確認結束人",
+        "closedAt": "完成時間",
+        "number": "編號",
+        "photographer": "拍攝人",
+        "gps": "GPS",
+        "latitude": "緯度",
+        "longitude": "經度",
+        "photoCount": "照片張數"
       },
       "what": "門崗記錄",
       "whatOne": "這條門崗記錄",
       "whatPeople": "這個項目的人員",
       "loading": "載入中…",
-      "empty": "還沒有門崗拍照記錄。",
+      "empty": "還沒有門崗記錄。",
       "count": "已顯示 {shown} / 共 {total} 筆",
       "loadMore": "載入更多",
       "photoAlt": "門崗照片",
       "photoCount": "{count} 張照片",
-      "linkedPass": "通行證 {pass} · {subject}",
       "photoNumber": "第 {number} 張照片",
       "removePhoto": "刪除第 {number} 張（未儲存）",
       "gpsShort": "有 GPS",
@@ -13791,25 +13814,128 @@
       "save": "儲存 {count} 張照片",
       "photosTitle": "照片（{count}）",
       "addPhotos": "補拍照片",
-      "membersTitle": "指定溝通人員",
+      "membersTitle": "指定人員",
       "addMembers": "指定人員",
       "noMembers": "這個項目沒有其他能看門崗記錄的人員。",
       "noMembersYet": "還沒有指定人員。",
       "conversationTitle": "溝通",
-      "conversationHelp": "文字、照片、語音、檔案都留在這條門崗記錄裡，不能刪除。",
+      "conversationHelp": "文字、照片、語音、檔案都留在這條門崗事項裡，不能刪除。",
       "gpsValue": "GPS {latitude}, {longitude}",
       "gpsUnavailable": "GPS 不可用",
-      "scanPass": "掃通行證二維碼",
-      "scanPassButton": "掃通行證二維碼",
-      "scanPassHint": "有通行證就掃一下，這條記錄會關聯到那張通行證；沒有就跳過。",
-      "scanPassNotFound": "這個二維碼不是本項目的通行證，可以再掃一次或跳過。",
-      "unlinkPass": "取消關聯通行證",
-      "chooseProjectFirst": "先選項目",
-      "firstMessage": "第一句話",
-      "firstMessageHint": "會存成這條記錄溝通裡的第一條，選的人會收到。",
-      "firstMessagePlaceholder": "例如：這輛羅釐沒有出門單，請確認",
       "photoFirst": "先拍至少一張照片，才能發送。",
-      "send": "發送（{count} 張照片）"
+      "officeTitle": "門崗記錄",
+      "recentTitle": "最近的門崗記錄",
+      "issueHelp": "門崗事項：照片、備註、指定人員和溝通都留在這裡，不能刪除；確認結束後只能查看。",
+      "kind": {
+        "photo": "門崗照片",
+        "issue": "門崗事項"
+      },
+      "issueStatus": {
+        "OPEN": "處理中",
+        "CLOSED": "已完成"
+      },
+      "tab": {
+        "photos": "日常拍照記錄",
+        "issues": "門崗事項"
+      },
+      "tabHelp": {
+        "photos": "卡車進退場和普通門崗照片，每張一條，直接歸檔。可按日期、項目、拍攝人搜尋和匯出。",
+        "issues": "保安發現的特殊情況：照片、備註、指定人員、雙方溝通、狀態，以及誰在什麼時候確認結束。"
+      },
+      "closeTitle": "確認結束",
+      "close": "確認結束",
+      "closeHelp": "事情處理好了就按這裡。之後這條事項只能查看，照片和溝通都保留。",
+      "closeNotePlaceholder": "處理結果（選填）",
+      "closeWho": "處理中。由指定人員，或負責這個項目門禁的人確認結束。",
+      "closedTitle": "已完成",
+      "closedBy": "{name} 於 {when} 確認結束"
+    },
+    "gatePhoto": {
+      "title": "門崗拍照",
+      "help": "卡車進場、退場或門口的情況，拍照就上傳。每張照片自動記下項目、時間、GPS 和你的名字。",
+      "photosHint": "可以連續拍。普通照片每張各存一條。",
+      "special": "特殊事項",
+      "specialOffHelp": "關閉：普通門崗照片，直接歸檔，不通知任何人。",
+      "specialOnHelp": "打開：填備註、指定本項目的人員，對方手機會收到待辦和提示音。",
+      "note": "備註",
+      "notePlaceholder": "例如：這輛羅釐沒有出門單，請確認",
+      "assignees": "指定處理人員",
+      "assigneesHint": "本項目的現場人員，例如項目經理、現場主管、安全員。",
+      "sendPhotos": "上傳（{count} 張照片）",
+      "sendIssue": "發送特殊事項",
+      "sentPhotos": "已上傳 {count} 張門崗照片。",
+      "sentIssue": "特殊事項已發送，指定人員會收到通知。",
+      "sentQueued": "已存在手機裡，有網路會自動上傳，不會重複。",
+      "signedOut": "請重新登入後再發送。"
+    },
+    "visitorScan": {
+      "help": "掃訪客的通行證二維碼，先核對資料，再按「確認進場」或「確認退場」。不用拍照。",
+      "project": "項目",
+      "chooseProject": "選擇項目",
+      "chooseProjectFirst": "先選項目",
+      "scan": "打開相機掃碼",
+      "otherWays": "其他方式：掃碼槍 / 輸入編號",
+      "typePlaceholder": "用掃碼槍掃，或貼上編號",
+      "read": "讀取",
+      "reading": "正在讀取通行證…",
+      "readFailed": "讀不到這張通行證，請再掃一次。",
+      "recordFailed": "無法記錄這次進退場，請再試一次。",
+      "confirmEntry": "確認進場",
+      "confirmExit": "確認退場",
+      "field": {
+        "type": "類型",
+        "company": "公司",
+        "phone": "電話",
+        "project": "訪問項目",
+        "purpose": "訪問目的",
+        "vehicle": "車牌",
+        "host": "接待人",
+        "approvedBy": "批准人",
+        "validity": "有效期",
+        "last": "上一次"
+      },
+      "last": {
+        "ENTRY": "{time} 進場",
+        "EXIT": "{time} 退場"
+      },
+      "recorded": {
+        "ENTRY": "已記錄進場 · {time}",
+        "EXIT": "已記錄退場 · {time}"
+      },
+      "refusal": {
+        "not_found": "無效的二維碼：這不是工地通行證。",
+        "other_project": "不能確認：這是別的項目的通行證。",
+        "not_approved": "不能確認：這張通行證還沒有批准。",
+        "revoked": "不能確認：這張通行證已撤銷。",
+        "not_yet_valid": "不能確認：這張通行證還沒到有效時間。",
+        "expired": "不能確認：這張通行證已過期。",
+        "already_inside": "已經記錄在場內，下次掃碼請按「確認退場」。",
+        "already_outside": "還沒有進場記錄，請先按「確認進場」。"
+      }
+    },
+    "visitorRecords": {
+      "title": "訪客進退場記錄",
+      "help": "每次在門崗確認的進場、退場各一條，連著原來的通行證，不會覆蓋。",
+      "empty": "還沒有進退場記錄。",
+      "allDirections": "全部進退場",
+      "allTypes": "全部類型",
+      "device": "門禁設備",
+      "field": {
+        "time": "時間",
+        "direction": "進 / 退",
+        "person": "姓名",
+        "type": "類型",
+        "company": "公司",
+        "phone": "電話",
+        "vehicle": "車牌",
+        "purpose": "訪問目的",
+        "pass": "通行證",
+        "project": "項目",
+        "approvedBy": "批准人",
+        "validUntil": "有效至",
+        "gate": "門崗",
+        "guard": "確認人"
+      }
     }
   },
   "siteDisposal": {
@@ -16095,9 +16221,9 @@
     }
   },
   "filePreview": {
-    "unsupported": "瀏覽器無法直接顯示 {ext} 檔案。",
+    "unsupported": "{ext} 檔案不能在頁面裡預覽，請按「下載查看」。",
     "thisFormat": "此格式",
-    "unsupportedHelp": "請下載後用對應的軟體開啟（例如 Word、Excel、AutoCAD）。",
+    "unsupportedHelp": "下載後用對應的軟體打開（例如 AutoCAD、壓縮軟體）。",
     "failed": "檔案載入失敗。",
     "retry": "重試",
     "loading": "檔案載入中",
@@ -16109,8 +16235,15 @@
     "wordNote": "這裡只顯示文字、表格和圖片；排版以下載的原文件為準。",
     "wordTruncated": "文件太長，只顯示前面一部分。",
     "wordEmpty": "這個文件裡沒有文字。",
-    "legacyOffice": "這是舊版 {ext} 格式，系統裡無法直接預覽。",
-    "legacyOfficeHelp": "請下載後查看。在 Word / Excel 裡另存為 .docx / .xlsx 再上傳，以後就能直接在系統裡看。"
+    "legacyOffice": "這是舊版 {ext} 格式，不能在頁面裡預覽，請按「下載查看」。",
+    "legacyOfficeHelp": "請下載後查看。在 Word / Excel 裡另存為 .docx / .xlsx 再上傳，以後就能直接在系統裡看。",
+    "presentation": "{ext} 簡報不能在頁面裡預覽，請按「下載查看」。",
+    "presentationHelp": "下載後用 PowerPoint 打開。另存為 PDF 再上傳，以後就能直接在系統裡看。",
+    "photoFormat": "{ext} 照片（iPhone 的高效格式）不能在頁面裡預覽，請按「下載查看」。",
+    "photoFormatHelp": "在 iPhone 設定 › 相機 › 格式 選「最相容」，以後拍的照片就是 JPG，能直接預覽。",
+    "downloadToView": "下載查看",
+    "noInlinePdf": "這個瀏覽器不能在頁面裡顯示 PDF。用手機自帶的閱讀器打開，就能看完整檔案、列印或傳送。",
+    "openInViewer": "用手機的閱讀器打開"
   },
   "fileActions": {
     "preview": "預覽",
@@ -16733,5 +16866,15 @@
       "returned": "{reference} 已退回給申請人"
     },
     "openInModule": "在「施工准證」裡打開"
+  },
+  "gateCard": {
+    "title": "門崗",
+    "todayPhotos": "今日照片",
+    "openIssues": "待處理門崗事項",
+    "open": "門崗記錄",
+    "none": "今天還沒有門崗照片。",
+    "what": "門崗照片",
+    "issue": "事項",
+    "photoAlt": "門崗照片 {reference}"
   }
 }

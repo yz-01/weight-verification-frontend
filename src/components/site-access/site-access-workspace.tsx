@@ -2,18 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Camera,
   Check,
-  ChevronDown,
   Download,
-  DoorOpen,
   Eye,
-  ImagePlus,
   KeyRound,
-  Keyboard,
   Ban,
   Loader2,
-  MapPin,
   Pencil,
   Plus,
   QrCode,
@@ -23,10 +17,10 @@ import {
   ShieldX,
   X,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { QRCodeCanvas } from "qrcode.react";
-import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -43,11 +37,7 @@ import {
   NeedsActionMarker,
   useNeedsActionParam,
 } from "@/components/shared/needs-action";
-import {
-  decodeGateQrImage,
-  GateQrScanner,
-} from "@/components/site-access/gate-qr-scanner";
-import { GateRecordsPanel } from "@/components/site-access/gate-records";
+import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
@@ -80,13 +70,11 @@ import { Textarea } from "@/components/ui/textarea";
 import type {
   AccessCredentialType,
   SiteAccessCredential,
-  AccessDirection,
   AccessSubjectType,
   SiteAccessPass,
   SiteAccessPassPayload,
 } from "@/interfaces/site-access";
 import { openOnSamePage } from "@/lib/same-page-link";
-import { cn } from "@/lib/utils";
 import {
   createSiteAccessPass,
   getSiteAccessCredentials,
@@ -98,7 +86,6 @@ import {
   reviewSiteAccessPass,
   revokeSiteAccessCredential,
   revokeSiteAccessPass,
-  scanSiteAccessGate,
   updateSiteAccessPass,
 } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
@@ -106,20 +93,35 @@ import { getUsers } from "@/services/users.service";
 /** The status filter's "approved, running out within the week" choice. */
 const EXPIRING = "expiring";
 
-const SITE_ACCESS_TABS = ["passes", "gate", "gate-records", "devices"] as const;
+const SITE_ACCESS_TABS = ["passes", "gate", "devices"] as const;
 type SiteAccessTab = (typeof SITE_ACCESS_TABS)[number];
 
 /**
+ * Where an old 门岗拍照记录 address goes now (HD9): that tab moved to
+ * EHS / Safety → 门岗记录. `?tab=gate-records` and a notification's
+ * `?gate_incident=` keep working; the record and its project come along.
+ */
+export function movedGateRecordsHref(search: Pick<URLSearchParams, "get">): string | null {
+  const incident = search.get("gate_incident");
+  if (search.get("tab") !== "gate-records" && !incident) return null;
+  const params = new URLSearchParams();
+  if (incident) params.set("gate_incident", incident);
+  const project = search.get("project");
+  if (project) params.set("project", project);
+  const query = params.toString();
+  return query ? `/gate-records?${query}` : "/gate-records";
+}
+
+/**
  * The tab an address opens. `?tab=` names it; a scanned pass link
- * (`?scan=`) opens 门岗扫码 for someone who may scan, and a notification's
- * `?gate_incident=` opens 门岗拍照记录 (C22). Anything else is 通行证.
+ * (`?scan=`) opens 访客扫码 for someone who may scan. Anything else is
+ * 通行证.
  */
 function siteAccessTab(
   search: Pick<URLSearchParams, "get">,
   canScan: boolean,
 ): SiteAccessTab {
   const asked = search.get("tab");
-  if (asked === "gate-records" || search.get("gate_incident")) return "gate-records";
   if (asked === "gate" || search.get("scan")) return canScan ? "gate" : "passes";
   if (asked === "devices") return "devices";
   return "passes";
@@ -134,6 +136,11 @@ export function SiteAccessWorkspace() {
   const [waitingOnly, setWaitingOnly] = useNeedsActionParam();
   const qc = useQueryClient();
   const search = useSearchParams();
+  const router = useRouter();
+  const moved = movedGateRecordsHref(search);
+  useEffect(() => {
+    if (moved) router.replace(moved);
+  }, [moved, router]);
   const requestedPassId = search.get("pass");
   // The address says which tab, every render - not once when the page
   // mounted. The sidebar's 「通行证」 and 「门岗扫码」 are this one page with
@@ -174,7 +181,6 @@ export function SiteAccessWorkspace() {
     if (nextTab === "passes") url.searchParams.delete("tab");
     else url.searchParams.set("tab", nextTab);
     if (nextTab !== "gate") url.searchParams.delete("scan");
-    if (nextTab !== "gate-records") url.searchParams.delete("gate_incident");
     setShown((current) => ({ ...current, tab: nextTab }));
     openOnSamePage(`${url.pathname}${url.search}${url.hash}`, true);
   };
@@ -268,10 +274,6 @@ export function SiteAccessWorkspace() {
               {t("access.gate")}
             </TabsTrigger>
           )}
-          <TabsTrigger value="gate-records">
-            <Camera />
-            {t("access.gateRecords")}
-          </TabsTrigger>
           <TabsTrigger value="devices">
             <RadioTower />
             {t("access.deviceEvents")}
@@ -455,14 +457,12 @@ export function SiteAccessWorkspace() {
           )}
         </TabsContent>
         <TabsContent value="gate">
-          <Suspense fallback={<State text={t("state.loading")} />}>
-            <GatePanel onRecorded={invalidate} />
-          </Suspense>
-        </TabsContent>
-        <TabsContent value="gate-records">
-          <Suspense fallback={<State text={t("state.loading")} />}>
-            <GateRecordsPanel />
-          </Suspense>
+          <VisitorScanPanel
+            project={project === "all" ? "" : project}
+            lockProject={false}
+            initialToken={search.get("scan") ?? ""}
+            onRecorded={() => void invalidate()}
+          />
         </TabsContent>
         <TabsContent value="devices">
           <DeviceEventsPanel />
@@ -539,273 +539,6 @@ export function SiteAccessWorkspace() {
         onReasonChange={setReason}
         reasonRequired
         onConfirm={() => revokeMutation.mutate()}
-      />
-    </div>
-  );
-}
-
-function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
-  const t = useTranslations("siteControl");
-  const search = useSearchParams();
-  const linked = search.get("scan") ?? "";
-  const [token, setToken] = useState(linked);
-  // A pass link opened while this tab is already showing brings its code too.
-  const [seenLink, setSeenLink] = useState(linked);
-  if (seenLink !== linked) {
-    setSeenLink(linked);
-    if (linked) setToken(linked);
-  }
-  // 「其他方式：扫码枪 / 粘贴编号」 stays folded on a phone. A gate computer
-  // with a scanner gun keeps it open from one visit to the next, so the gun
-  // can type into it without anyone opening it first.
-  // Read after hydration (the server has no storage), then the reader's own
-  // toggles win.
-  const remembered = useSyncExternalStore(noSubscription, readOtherWaysOpen, () => false);
-  const [toggled, setToggled] = useState<boolean | null>(null);
-  const otherWays = toggled ?? remembered;
-  const toggleOtherWays = () => {
-    const next = !otherWays;
-    setToggled(next);
-    try {
-      window.localStorage.setItem(OTHER_WAYS_KEY, next ? "1" : "0");
-    } catch {
-      // A private window: it simply starts folded next time.
-    }
-  };
-  const [direction, setDirection] = useState<"AUTO" | AccessDirection>("AUTO");
-  const [gate, setGate] = useState("");
-  const [photo, setPhoto] = useState<File>();
-  const [location, setLocation] = useState<{
-    latitude: string;
-    longitude: string;
-  }>();
-  const [result, setResult] = useState<SiteAccessPass | null>(null);
-  const [scannerOpen, setScannerOpen] = useState(false);
-  const [qrImageError, setQrImageError] = useState("");
-  const [locationError, setLocationError] = useState("");
-  const scan = useMutation({
-    mutationFn: () =>
-      scanSiteAccessGate({
-        qr_value: extractToken(token),
-        direction,
-        client_event_id: `gate-${crypto.randomUUID()}`,
-        gate_name: gate,
-        photo,
-        ...location,
-      }),
-    onSuccess: (row) => {
-      setResult(row.pass);
-      setToken("");
-      setPhoto(undefined);
-      // Not awaited: the scan button stayed disabled until the whole pass
-      // list had refetched, so the guard waited on a list to scan the next
-      // worker. The list still refreshes; the next scan need not wait for it.
-      void onRecorded();
-    },
-  });
-  function getGps() {
-    setLocationError("");
-    if (!navigator.geolocation) {
-      setLocationError(t("gate.locationError"));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) =>
-        setLocation({
-          latitude: position.coords.latitude.toFixed(7),
-          longitude: position.coords.longitude.toFixed(7),
-        }),
-      () => setLocationError(t("gate.locationError")),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
-    );
-  }
-
-  // Automatic on opening (「确保每个模块都是自动获取GPS」); the button stays
-  // as the retry. A ref, so a development double-mount does not ask twice.
-  const autoLocated = useRef(false);
-  useEffect(() => {
-    if (autoLocated.current) return;
-    autoLocated.current = true;
-    getGps();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  async function readQrImage(file: File) {
-    setQrImageError("");
-    try {
-      setToken(await decodeGateQrImage(file));
-    } catch {
-      setQrImageError(t("gate.imageError"));
-    }
-  }
-  return (
-    <div className="surface-panel mx-auto w-full max-w-2xl space-y-4 rounded-xl p-4 sm:p-6">
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-          <DoorOpen />
-        </span>
-        <div className="min-w-0">
-          <h2 className="text-lg font-semibold text-foreground">{t("gate.title")}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("gate.subtitle")}
-          </p>
-        </div>
-      </div>
-      {/* The pass's QR code is what this form needs - the star says so - and
-          the camera is how it is normally given. Typing is one of the
-          「其他方式」, folded away (Lucas 2026-10-10, 图5). */}
-      <FieldWrapper label={t("gate.qrCode")} required>
-      <div className="grid gap-2">
-        <Button
-          type="button"
-          size="lg"
-          className="h-14 w-full text-base"
-          onClick={() => setScannerOpen(true)}
-          data-gate-camera
-        >
-          <Camera />
-          {t("gate.cameraScan")}
-        </Button>
-        <label className="flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-background px-4 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground">
-          <ImagePlus />
-          {t("gate.uploadImage")}
-          <input
-            className="sr-only"
-            type="file"
-            accept="image/*"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = "";
-              if (file) void readQrImage(file);
-            }}
-          />
-        </label>
-      </div>
-      {qrImageError && (
-        <p
-          role="alert"
-          className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
-        >
-          {qrImageError}
-        </p>
-      )}
-      <div className="rounded-lg border border-dashed" data-gate-other-ways>
-        <button
-          type="button"
-          aria-expanded={otherWays}
-          onClick={toggleOtherWays}
-          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
-        >
-          <Keyboard className="size-4 shrink-0" />
-          <span className="flex-1">{t("gate.otherWays")}</span>
-          <ChevronDown
-            className={cn("size-4 shrink-0 transition-transform", otherWays && "rotate-180")}
-          />
-        </button>
-        {otherWays && (
-          <div className="space-y-1 px-3 pb-3">
-            <Input
-              autoFocus
-              aria-label={t("gate.otherWays")}
-              value={token}
-              onChange={(event) => setToken(event.target.value)}
-              placeholder={t("gate.qrPlaceholder")}
-            />
-            <p className="text-xs text-muted-foreground">{t("gate.scannerHint")}</p>
-          </div>
-        )}
-      </div>
-      {token.trim() && (
-        <p className="rounded-md border border-success/30 bg-success/5 px-3 py-2 text-sm text-success">
-          {t("gate.qrReady")}
-        </p>
-      )}
-      </FieldWrapper>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FieldWrapper label={t("field.direction")}>
-          <Select
-            value={direction}
-            onValueChange={(value: "AUTO" | AccessDirection) =>
-              setDirection(value)
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="AUTO">{t("direction.AUTO")}</SelectItem>
-              <SelectItem value="ENTRY">{t("direction.ENTRY")}</SelectItem>
-              <SelectItem value="EXIT">{t("direction.EXIT")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </FieldWrapper>
-        <FieldWrapper label={t("field.gateName")}>
-          <Input
-            value={gate}
-            onChange={(event) => setGate(event.target.value)}
-          />
-        </FieldWrapper>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 text-sm font-medium hover:bg-muted/40">
-          <QrCode />
-          {photo ? t("gate.photoReady") : t("gate.photo")}
-          <input
-            className="sr-only"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(event) => setPhoto(event.target.files?.[0])}
-          />
-        </label>
-        <Button variant="outline" className="min-h-12" onClick={getGps}>
-          <MapPin />
-          {location ? t("gate.locationReady") : t("gate.getLocation")}
-        </Button>
-      </div>
-      {locationError && (
-        <p role="alert" className="text-sm text-destructive">
-          {locationError}
-        </p>
-      )}
-      <Button
-        size="lg"
-        className="h-12 w-full"
-        requires={[[token, t("gate.qrCode")]]}
-        disabled={scan.isPending}
-        onClick={() => scan.mutate()}
-      >
-        {scan.isPending ? <Loader2 className="animate-spin" /> : <ScanLine />}
-        {t("gate.record")}
-      </Button>
-      {scan.isError && (
-        <p
-          role="alert"
-          className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
-        >
-          {scan.error instanceof Error
-            ? scan.error.message
-            : t("gate.recordError")}
-        </p>
-      )}
-      {result && (
-        <div className="rounded-lg border border-success/30 bg-success/5 p-4 text-center">
-          <ShieldCheck className="mx-auto size-8 text-success" />
-          <p className="mt-2 font-semibold">{result.subject_name}</p>
-          <p className="text-sm text-muted-foreground">
-            {result.pass_no} ·{" "}
-            {result.current_direction
-              ? t(`direction.${result.current_direction}`)
-              : ""}
-          </p>
-        </div>
-      )}
-      <GateQrScanner
-        open={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-        onDetected={(value) => {
-          setToken(value);
-          setQrImageError("");
-        }}
       />
     </div>
   );
@@ -1541,18 +1274,6 @@ function PassQr({
       </DialogContent>
     </Dialog>
   );
-}
-
-const OTHER_WAYS_KEY = "mse.gate.otherWaysOpen";
-
-const noSubscription = () => () => {};
-
-function readOtherWaysOpen(): boolean {
-  try {
-    return window.localStorage.getItem(OTHER_WAYS_KEY) === "1";
-  } catch {
-    return false;
-  }
 }
 
 function extractToken(value: string) {
