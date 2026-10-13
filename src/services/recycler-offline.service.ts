@@ -7,6 +7,7 @@
  * weighbridge gateway, and a browser cache must never look like one.
  */
 
+import { cacheShellPage } from "@/lib/shell-cache";
 import { ApiError, type ListQuery, type Paginated } from "@/interfaces/api";
 import type { DispatchSummary, WasteDispatch } from "@/interfaces/contractor";
 import type { Driver, DriverTask, Vehicle } from "@/interfaces/recycler";
@@ -37,26 +38,8 @@ function isOfflineFailure(error: unknown): boolean {
 }
 
 async function cacheRecyclerRoute(pathname: string): Promise<void> {
-  if (
-    typeof window === "undefined" ||
-    typeof caches === "undefined" ||
-    !navigator.onLine
-  ) {
-    return;
-  }
-
-  const response = await fetch(pathname, {
-    cache: "no-store",
-    credentials: "same-origin",
-    headers: { Accept: "text/html" },
-  });
-  if (!response.ok) return;
-
-  const cacheNames = await caches.keys();
-  const shellCache =
-    cacheNames.find((name) => name.startsWith("mse-trace-shell-")) ??
-    "mse-trace-shell-v14";
-  await (await caches.open(shellCache)).put(pathname, response);
+  // The shared warm-up: plain addresses only, into the worker's own cache.
+  await cacheShellPage(pathname);
 }
 
 /**

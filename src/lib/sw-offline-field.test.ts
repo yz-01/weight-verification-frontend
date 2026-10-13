@@ -78,7 +78,8 @@ function worker() {
   const fetch = vi.fn(async (input: { url: string } | string) => {
     if (!net.online) throw new TypeError("Failed to fetch");
     const url = typeof input === "string" ? input : input.url;
-    return new Response(`<html>${url}</html>`, {
+    if (url.includes("/_next/static/")) return new Response("/* chunk */");
+    return new Response(`<html>${url}<script src="/_next/static/chunks/app-field.js"></script></html>`, {
       status: 200,
       headers: { "Content-Type": "text/html" },
     });
@@ -111,24 +112,94 @@ function worker() {
     return response;
   }
 
-  return { open, caches, net, fetch };
+  /** The worker installs: its shell cache exists, with the offline page. */
+  async function install() {
+    const waits: Promise<unknown>[] = [];
+    listeners.get("install")!({ waitUntil: (promise: Promise<unknown>) => waits.push(promise) });
+    await Promise.all(waits);
+    const shell = (await caches.keys()).find((name) => name.startsWith("mse-trace-shell-"))!;
+    await (await caches.open(shell)).put(`${ORIGIN}/offline`, new Response("offline page"));
+  }
+
+  /**
+   * A `fetch` made by the page (not a navigation): it passes the worker, which
+   * answers it or lets it through to the network.
+   */
+  async function pageFetch(input: string | URL, init?: RequestInit) {
+    const url = new URL(String(input), ORIGIN).href;
+    let answer: Promise<Response> | undefined;
+    listeners.get("fetch")!({
+      request: { url, method: init?.method ?? "GET", mode: "cors" },
+      respondWith: (response: Promise<Response>) => {
+        answer = response;
+      },
+      waitUntil: () => undefined,
+    });
+    return answer ? await answer : fetch({ url });
+  }
+
+  return { open, install, pageFetch, caches, net, fetch };
+}
+
+/**
+ * The page the phone runs: the app's own warm-up (`lib/shell-cache`) with
+ * this worker's caches and network, as `FieldStaffShell` calls it.
+ */
+async function warmUp(sw: ReturnType<typeof worker>, path: string) {
+  vi.stubGlobal("window", { location: { origin: ORIGIN } });
+  vi.stubGlobal("navigator", { onLine: sw.net.online });
+  vi.stubGlobal("caches", sw.caches);
+  vi.stubGlobal("fetch", sw.pageFetch);
+  try {
+    const { cacheShellPage } = await import("@/lib/shell-cache");
+    return await cacheShellPage(path);
+  } finally {
+    vi.unstubAllGlobals();
+  }
+}
+
+/**
+ * The real way in (H12 review): the sign-in link, or the installed app's
+ * start page, loads as a full page - and carries the token, so it is never
+ * kept. It then moves to `/field-staff` with `router.replace`: a soft
+ * navigation under the one root layout, which the worker never sees as a
+ * page. Only the app's warm-up stores the field app's home.
+ */
+async function signInThroughBootstrap(sw: ReturnType<typeof worker>, { warm }: { warm: boolean }) {
+  await sw.install();
+  await sw.open("/field-pwa-bootstrap?token=abcdefghijklmnopqrstuvwxyz");
+  // The soft navigation fetches the next page's data, not its document.
+  await sw.pageFetch("/field-staff?_rsc=abc12");
+  if (warm) expect(await warmUp(sw, "/field-staff")).toBe(true);
 }
 
 describe("the field app opens offline (H12)", () => {
-  it("sends the installed app's start page to the cached field app when offline", async () => {
+  it("opens the installed app's start page offline after one normal online visit", async () => {
     const sw = worker();
-    await sw.open("/field-staff?tab=home");
+    await signInThroughBootstrap(sw, { warm: true });
     sw.net.online = false;
 
-    const response = await sw.open("/field-pwa-bootstrap?token=abcdefghijklmnopqrstuvwxyz");
+    const start = await sw.open("/field-pwa-bootstrap?token=abcdefghijklmnopqrstuvwxyz");
+    expect(start?.status).toBe(302);
+    expect(start?.headers.get("Location")).toBe(`${ORIGIN}/field-staff`);
 
-    expect(response?.status).toBe(302);
-    expect(response?.headers.get("Location")).toBe(`${ORIGIN}/field-staff`);
+    const home = await sw.open("/field-staff");
+    expect(home?.status).toBe(200);
+    expect(await home!.text()).toContain(`${ORIGIN}/field-staff`);
+  });
+
+  it("without the warm-up the soft navigation leaves nothing to open - the gap it closes", async () => {
+    const sw = worker();
+    await signInThroughBootstrap(sw, { warm: false });
+    sw.net.online = false;
+
+    const start = await sw.open("/field-pwa-bootstrap?token=abcdefghijklmnopqrstuvwxyz");
+    expect(await start!.text()).toBe("offline page");
   });
 
   it("does the same for the sign-in link's landing page", async () => {
     const sw = worker();
-    await sw.open("/field-staff");
+    await signInThroughBootstrap(sw, { warm: true });
     sw.net.online = false;
 
     const response = await sw.open("/trace/field-ready?bootstrap=abcdefghijklmnopqrstuvwxyz");
@@ -136,21 +207,9 @@ describe("the field app opens offline (H12)", () => {
     expect(response?.status).toBe(302);
   });
 
-  it("shows the offline page, not ERR_FAILED, on a phone that never opened the app", async () => {
+  it("opens any address inside the field app from the stored home", async () => {
     const sw = worker();
-    const offline = await sw.caches.open("mse-trace-shell-v15");
-    await offline.put(`${ORIGIN}/offline`, new Response("offline page"));
-    sw.net.online = false;
-
-    const response = await sw.open("/field-pwa-bootstrap?token=abcdefghijklmnopqrstuvwxyz");
-
-    expect(response).toBeDefined();
-    expect(await response!.text()).toBe("offline page");
-  });
-
-  it("opens any address inside the field app from the cached app", async () => {
-    const sw = worker();
-    await sw.open("/field-staff?tab=home");
+    await signInThroughBootstrap(sw, { warm: true });
     sw.net.online = false;
 
     const response = await sw.open("/field-staff?tab=records&record=gate");
@@ -159,17 +218,51 @@ describe("the field app opens offline (H12)", () => {
     expect(await response!.text()).toContain("/field-staff");
   });
 
+  it("shows the offline page, not ERR_FAILED, on a phone that never opened the app", async () => {
+    const sw = worker();
+    await sw.install();
+    sw.net.online = false;
+
+    const response = await sw.open("/field-pwa-bootstrap?token=abcdefghijklmnopqrstuvwxyz");
+
+    expect(await response!.text()).toBe("offline page");
+  });
+
   it("never keeps a page whose address holds a sign-in or bootstrap token", async () => {
     const sw = worker();
-    await sw.open("/field-pwa-bootstrap?token=abcdefghijklmnopqrstuvwxyz");
+    await signInThroughBootstrap(sw, { warm: true });
     await sw.open("/trace/field-ready?bootstrap=abcdefghijklmnopqrstuvwxyz");
     await sw.open("/trace/field-activate?token=abcdefghijklmnopqrstuvwxyz");
     await sw.open("/trace/reset-password?token=abc");
     await sw.open("/trace/field-login");
+    // The warm-up refuses an address with a query at all.
+    expect(await warmUp(sw, "/field-staff?token=abc")).toBe(false);
 
     const kept = sw.caches.cachedUrls();
-    expect(kept.some((url) => /token=|bootstrap=/.test(url))).toBe(false);
+    expect(kept.some((url) => /token=|bootstrap=|_rsc=/.test(url))).toBe(false);
     expect(kept).toContain(`${ORIGIN}/trace/field-login`);
+    expect(kept).toContain(`${ORIGIN}/field-staff`);
+  });
+
+  it("stores the scripts the page names, which the first visit loaded before the worker ran", async () => {
+    const sw = worker();
+    await signInThroughBootstrap(sw, { warm: true });
+
+    expect(sw.caches.cachedUrls()).toContain(`${ORIGIN}/_next/static/chunks/app-field.js`);
+  });
+
+  it("stores nothing before the worker has made its cache - never a guessed old name", async () => {
+    const sw = worker();
+    expect(await warmUp(sw, "/field-staff")).toBe(false);
+    expect(await sw.caches.keys()).toEqual([]);
+  });
+
+  it("is what the field app does once it is open", () => {
+    const shell = readFileSync(
+      join(process.cwd(), "src", "components", "field-staff", "field-staff-shell.tsx"),
+      "utf8",
+    );
+    expect(shell).toContain('keepShellPageStored("/field-staff")');
   });
 
   it("bumps the shell cache so phones drop the old worker's copy", () => {
