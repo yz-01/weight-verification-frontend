@@ -52,6 +52,8 @@ describe("the field phone's last account (H12)", () => {
 
   it("goes with every session that ends - signed out or refused, any app", async () => {
     vi.stubGlobal("document", { cookie: "" });
+    // CI runs Node 20, which has no global `navigator` (Node 21+ does).
+    vi.stubGlobal("navigator", {});
     const window = globalThis.window as unknown as Record<string, unknown>;
     window.location = { protocol: "https:", pathname: "/dashboard" };
     window.matchMedia = () => ({ matches: false });
