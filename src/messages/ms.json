@@ -16452,7 +16452,10 @@
       "legacy": "Ditulis sebelum laporan memuat semua foto: ia hanya ada foto yang dipilih ketika itu. Edit → \"Kumpul semula\" memasukkan setiap rekod hari-hari ini.",
       "bringNotes": "Bawa masuk catatan hari-hari ini",
       "noNotes": "Rekod hari-hari ini tiada catatan.",
-      "photosCount": "Foto"
+      "photosCount": "Foto",
+      "author": "Ditulis oleh",
+      "recordDeleted": "Rekod dipadam",
+      "maxDays": "Satu laporan harian meliputi paling banyak {days} hari."
     },
     "summary": {
       "new": "Ringkasan baharu",

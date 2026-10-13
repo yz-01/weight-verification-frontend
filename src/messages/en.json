@@ -16452,7 +16452,10 @@
       "legacy": "Written before reports held every photo: it has only the photos ticked then. Edit → \"Collect again\" takes in every record of these days.",
       "bringNotes": "Bring in these days' notes",
       "noNotes": "These days' records have no notes.",
-      "photosCount": "Photos"
+      "photosCount": "Photos",
+      "author": "Written by",
+      "recordDeleted": "Record deleted",
+      "maxDays": "A daily report covers at most {days} days."
     },
     "summary": {
       "new": "New summary",

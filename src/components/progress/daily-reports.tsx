@@ -75,6 +75,17 @@ import {
 
 const PAGE = 20;
 
+/** The longest span one report covers (D5), as the server refuses more. */
+export const MAX_REPORT_DAYS = 31;
+
+/** ``day`` (YYYY-MM-DD) plus ``days``, as YYYY-MM-DD. */
+export function addDays(day: string, days: number): string {
+  const [year, month, date] = day.split("-").map(Number);
+  if (!year || !month || !date) return day;
+  const moved = new Date(Date.UTC(year, month - 1, date + days));
+  return moved.toISOString().slice(0, 10);
+}
+
 /** 「2026-10-11」 or 「2026-10-11 – 2026-10-13」, in the reader's date format. */
 function useReportDays() {
   const df = useDateFormat();
@@ -86,7 +97,6 @@ function useReportDays() {
 
 export function DailyReportsTab() {
   const t = useTranslations("progressPage");
-  const tRoot = useTranslations();
   const { can } = useAuth();
   const days = useReportDays();
   const list = useListQuery(["project", "date_from", "date_to"]);
@@ -124,7 +134,7 @@ export function DailyReportsTab() {
                 { key: "report_date", label: t("dateFrom") },
                 { key: "end_date", label: t("dateTo") },
                 { key: "project_name", label: t("project") },
-                { key: "author_name", label: tRoot("mySubmissions.field.recorded_by") },
+                { key: "author_name", label: t("reports.author") },
                 { key: "record_count", label: t("reports.content") },
                 { key: "photo_count", label: t("reports.photosCount") },
               ],
@@ -268,6 +278,12 @@ function EntryBlock({
   const percent = usePercentText();
   return (
     <li className="space-y-2 rounded-xl border border-panel-border p-3">
+      {entry.is_deleted ? (
+        // D4: deleted after the report was saved; the report keeps it.
+        <span className="inline-flex rounded-md bg-tone-rose/10 px-1.5 py-0.5 text-xs font-medium text-tone-rose">
+          {t("reports.recordDeleted")}
+        </span>
+      ) : null}
       <p className="text-sm font-medium">
         {[
           entry.captured_at ? df.dateTime(entry.captured_at) : null,
@@ -458,7 +474,8 @@ export function DailyReportDialog({
   const [nothingToBring, setNothingToBring] = useState(false);
   const daysChanged = report ? from !== report.report_date || (to || from) !== (report.end_date ?? report.report_date) : false;
   const live = recollect || daysChanged;
-  const lastDay = to && to >= from ? to : from;
+  const latest = from ? addDays(from, MAX_REPORT_DAYS - 1) : "";
+  const lastDay = to && to >= from ? (latest && to > latest ? latest : to) : from;
   const collection = useQuery({
     queryKey: ["daily-reports", "collect", project, from, lastDay],
     queryFn: () => collectDailyReportEntries({ project, date_from: from, date_to: lastDay }),
@@ -528,7 +545,15 @@ export function DailyReportDialog({
             <Input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
           </FieldWrapper>
           <FieldWrapper label={t("dateTo")}>
-            <Input type="date" value={to} min={from} onChange={(event) => setTo(event.target.value)} />
+            <Input
+              type="date"
+              value={to}
+              min={from}
+              max={latest || undefined}
+              title={t("reports.maxDays", { days: MAX_REPORT_DAYS })}
+              onChange={(event) => setTo(event.target.value)}
+            />
+            <p className="mt-1 text-xs text-muted-foreground">{t("reports.maxDays", { days: MAX_REPORT_DAYS })}</p>
           </FieldWrapper>
         </div>
         <FieldWrapper label={t("reports.name")} required>

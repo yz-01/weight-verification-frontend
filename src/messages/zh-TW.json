@@ -16452,7 +16452,10 @@
       "legacy": "這份日報告建立於「收進全部照片」之前，只有當時勾選的照片。按「修改」→「重新整理」可收進這幾天的全部記錄。",
       "bringNotes": "帶入這幾天的備註",
       "noNotes": "這幾天的記錄沒有備註。",
-      "photosCount": "照片數"
+      "photosCount": "照片數",
+      "author": "撰寫人",
+      "recordDeleted": "記錄已刪除",
+      "maxDays": "一份日報告最多 {days} 天。"
     },
     "summary": {
       "new": "新建摘要",

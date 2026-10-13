@@ -39,6 +39,8 @@ export interface DailyReportEntry {
   description: string;
   status: string;
   recorded_by_name: string | null;
+  /** Deleted after the report was saved: the report still holds it (D4). */
+  is_deleted?: boolean;
   photos: ProgressPhoto[];
 }
 
