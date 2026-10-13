@@ -60,7 +60,7 @@ import type { RecordedBy } from "@/interfaces/recorder";
 import type { ChatRecordKind } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
-import type { ExportableRecordKind } from "@/services/contractor-ops.service";
+import type { RecordPdfKind } from "@/services/contractor-ops.service";
 
 export interface ShellPhoto {
   id: string;
@@ -698,9 +698,11 @@ export interface RecordDetailHeaderProps {
    * same on all of them; `pr-8` keeps it clear of the dialog's close X.
    */
   exportRecord?: {
-    kind: ExportableRecordKind;
+    kind: RecordPdfKind;
     recordId: string | null | undefined;
     reference: string;
+    /** Where the record opens, for a kind `recordTarget` does not route. */
+    href?: string;
   } | null;
 }
 
@@ -752,6 +754,7 @@ function RecordDetailHeading({
             kind={exportRecord.kind}
             recordId={exportRecord.recordId}
             reference={exportRecord.reference}
+            href={exportRecord.href}
           />
         ) : null}
       </div>

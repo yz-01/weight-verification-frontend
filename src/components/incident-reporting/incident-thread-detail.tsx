@@ -198,7 +198,12 @@ export function IncidentThreadDetail({
   const canResolve = !thread.isError && !record.is_resolved && can("safety.verify");
 
   return (
-    <RecordDetailDialog {...header} onClose={onClose}>
+    <RecordDetailDialog
+      {...header}
+      onClose={onClose}
+      // 预览 · 打印 · 导出 · 发送 on this one report (H16, HD13).
+      exportRecord={{ kind: "INCIDENT_THREAD", recordId: record.id, reference: record.thread_no, href: `/incident-reports?thread=${record.id}` }}
+    >
       <RecordDetailShell
         reference={record.thread_no}
         facts={[

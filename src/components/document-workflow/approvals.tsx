@@ -77,6 +77,7 @@ import type {
   ApprovalStatus,
 } from "@/interfaces/document-workflow";
 import { useDateFormat } from "@/lib/dates";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { getProjects } from "@/services/contractor.service";
 import {
   actOnApproval,
@@ -867,6 +868,17 @@ function ApprovalDetailDialog({
             {record?.approval_no ?? t("common.loading")}
           </DialogDescription>
         </DialogHeader>
+        {/* 预览 · 打印 · 导出 · 发送 on this one approval (H16, HD13, 图16). */}
+        {record ? (
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+            <RecordExportButton
+              kind="APPROVAL"
+              recordId={record.id}
+              reference={record.approval_no}
+              href={`/approvals?approval=${record.id}`}
+            />
+          </div>
+        ) : null}
 
         {detail.isError ? (
           <p className="py-10 text-center text-sm text-destructive">

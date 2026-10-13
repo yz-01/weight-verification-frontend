@@ -36,6 +36,7 @@ import type {
   AttendanceEvent,
   AttendanceRecord,
 } from "@/interfaces/site-operations";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useDateFormat } from "@/lib/dates";
 import { submitAttendanceOfflineAware } from "@/services/offline-sync.service";
 import { getAttendance } from "@/services/site-operations.service";
@@ -463,6 +464,17 @@ export function Attendance() {
           <DialogHeader>
             <DialogTitle>{t("attendance.evidence.title")}</DialogTitle>
           </DialogHeader>
+          {/* 预览 · 打印 · 导出 · 发送 on this one clock-in or -out (H16, HD13). */}
+          {selectedRecord ? (
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+              <RecordExportButton
+                kind="ATTENDANCE"
+                recordId={selectedRecord.id}
+                reference={`${selectedRecord.user_name} ${df.dateTime(selectedRecord.occurred_at)}`}
+                href="/attendance"
+              />
+            </div>
+          ) : null}
           {/*
             C21: 「详情不展示匹配围栏技术信息或地图，实时位置页保留地图」 - the
             record shows who, where, when, the photo and the GPS reading. The

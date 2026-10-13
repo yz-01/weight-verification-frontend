@@ -752,6 +752,14 @@ export function DayDialog({
       title={`${day.equipment_name}${day.plate ? ` · ${day.plate}` : ""}`}
       description={t("dialog.summary", { start, end, hours: day.hours })}
       onClose={onClose}
+      // 预览 · 打印 · 导出 · 发送 on this one start-to-stop (H16, HD13): the
+      // session is named by its start (or stop) photograph.
+      exportRecord={{
+        kind: "EQUIPMENT_HOURS",
+        recordId: day.key,
+        reference: `${day.equipment_code || day.equipment_name}-${day.work_date}`,
+        href: "/equipment-operator-hours",
+      }}
     >
       <RecordDetailShell
         reference={`${day.equipment_code || day.equipment_name}-${day.work_date}`}

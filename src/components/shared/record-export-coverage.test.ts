@@ -28,7 +28,7 @@ function componentBody(code: string, name: string) {
 /** Either the shell dialog's `exportRecord` prop or the button itself, for this kind. */
 function passesExport(body: string, kind: string) {
   const viaDialog = new RegExp(
-    String.raw`exportRecord=\{[\s\S]{0,60}?kind:\s*"${kind}",\s*recordId:\s*[\w.]+\.id\b`,
+    String.raw`exportRecord=\{[\s\S]{0,60}?kind:\s*"${kind}",\s*recordId:\s*[\w.]+\.(?:id|key)\b`,
   );
   const viaButton = new RegExp(
     String.raw`<RecordExportButton\s+kind="${kind}"\s+recordId=\{[\w.]+\.id\}`,
@@ -50,6 +50,15 @@ const DETAILS: Array<[string, string, string]> = [
   // 施工准证 is a HAZARD row (record_type PERMIT); its own detail exports the
   // complete evidence too (2026-10-10, 审批证据完整性).
   ["src/components/permits/permit-parts.tsx", "PermitDetail", "HAZARD"],
+  // Outside the archive queue, the same four buttons (H16, HD13: 「每一个事项
+  // 都有需要，包括人进场记录，门岗」); a session is named by its photo's key.
+  ["src/components/site-access/gate-records.tsx", "GateIncidentDetailDialog", "GATE_INCIDENT"],
+  ["src/components/dispatches/view-dispatch.tsx", "ViewDispatch", "WASTE_DISPATCH"],
+  ["src/components/equipment-hours/equipment-operator-hours.tsx", "DayDialog", "EQUIPMENT_HOURS"],
+  ["src/components/dashboard/field-task-sheet.tsx", "FieldTaskSheet", "FIELD_TASK"],
+  ["src/components/site-operations/attendance.tsx", "Attendance", "ATTENDANCE"],
+  ["src/components/document-workflow/approvals.tsx", "ApprovalDetailDialog", "APPROVAL"],
+  ["src/components/incident-reporting/incident-thread-detail.tsx", "IncidentThreadDetail", "INCIDENT_THREAD"],
 ];
 
 describe("every record detail can export that one record (T-386)", () => {

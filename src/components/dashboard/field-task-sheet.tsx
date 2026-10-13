@@ -136,6 +136,8 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
         </>
       }
       onClose={onClose}
+      // 预览 · 打印 · 导出 · 发送 on this one task (H16, HD13).
+      exportRecord={{ kind: "FIELD_TASK", recordId: row.id, reference: row.title }}
     >
       <div data-field-task-sheet={row.origin}>
         <RecordDetailShell

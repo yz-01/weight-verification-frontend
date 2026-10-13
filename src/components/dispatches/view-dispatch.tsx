@@ -232,6 +232,8 @@ export function ViewDispatch({
     <RecordDetailFrame
       {...frame}
       title={data.dispatch_no}
+      // 预览 · 打印 · 导出 · 发送 on this one order (H16, HD13).
+      exportRecord={{ kind: "WASTE_DISPATCH", recordId: data.id, reference: data.dispatch_no, href: `/dispatches/${data.id}` }}
       status={
         <>
           <StatusBadge
