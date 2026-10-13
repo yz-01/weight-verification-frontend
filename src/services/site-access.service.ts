@@ -393,3 +393,13 @@ export async function addGateIncidentMembers(id: string, members: string[]) {
   toastSuccess("siteControl.toast.gateMembersAdded");
   return row;
 }
+
+/** 通行证 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportSiteAccessPasses(request: ExportRequest): Promise<void> {
+  return download("/api/site-access-passes/export_passes/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `access-passes.${request.format}`,
+  });
+}

@@ -3074,7 +3074,8 @@
       "FIELD_TASK": "Site tasks",
       "ATTENDANCE": "Site entry",
       "APPROVAL": "Approvals",
-      "INCIDENT_THREAD": "Incident reports"
+      "INCIDENT_THREAD": "Incident reports",
+      "ACCESS_PASS": "Access pass"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -10078,7 +10079,12 @@
       "result_note": "Result",
       "person": "Person",
       "subject": "Subject",
-      "related_record": "Related record"
+      "related_record": "Related record",
+      "visitor_company": "Company",
+      "phone": "Phone",
+      "purpose": "Purpose",
+      "valid_from": "Valid from",
+      "valid_until": "Valid until"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",

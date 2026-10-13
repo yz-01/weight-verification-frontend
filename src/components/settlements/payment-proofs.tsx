@@ -34,10 +34,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ExportButton } from "@/components/shared/export-button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Settlement } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { getSettlements } from "@/services/recycler.service";
+import { exportTransactions, getSettlements } from "@/services/recycler.service";
 
 export function PaymentProofs() {
   const t = useTranslations();
@@ -200,6 +201,31 @@ export function PaymentProofs() {
         title={t("paymentProofs.title")}
         subtitle={
           isLoading ? t("common.loading") : t("paymentProofs.count", { count: total })
+        }
+        action={
+          // The settlements listed, as a file (H16, HD13).
+          <ExportButton
+            disabled={total === 0}
+            disabledReason={t("paymentProofs.count", { count: 0 })}
+            title={t("paymentProofs.title")}
+            onExport={(format) =>
+              exportTransactions({
+                format,
+                title: t("paymentProofs.title"),
+                subtitle: t("paymentProofs.count", { count: total }),
+                query: list.query,
+                columns: [
+                  { key: "settlement_no", label: t("paymentProofs.field.settlementNo") },
+                  { key: "dispatch_no", label: t("mySubmissions.field.dispatch_no") },
+                  { key: "project_name", label: t("paymentProofs.field.project") },
+                  { key: "recycler_name", label: t("mySubmissions.field.recycler") },
+                  { key: "issued_at", label: t("paymentProofs.field.issuedAt") },
+                  { key: "total_amount", label: t("paymentProofs.field.totalAmount") },
+                  { key: "amount_paid", label: t("paymentProofs.field.amount") },
+                ],
+              })
+            }
+          />
         }
       />
 

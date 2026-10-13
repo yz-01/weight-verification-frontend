@@ -1446,6 +1446,7 @@ export const RECORD_PDF_KINDS = [
   "FIELD_TASK",
   "ATTENDANCE",
   "APPROVAL",
+  "ACCESS_PASS",
   "INCIDENT_THREAD",
 ] as const;
 

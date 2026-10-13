@@ -398,3 +398,13 @@ export function exportApprovals(request: ExportRequest): Promise<void> {
     fallbackFilename: `approvals.${request.format}`,
   });
 }
+
+/** 文件归档 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportDocuments(request: ExportRequest): Promise<void> {
+  return download("/api/documents/export_documents/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `documents.${request.format}`,
+  });
+}

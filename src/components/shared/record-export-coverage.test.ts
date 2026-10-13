@@ -59,6 +59,7 @@ const DETAILS: Array<[string, string, string]> = [
   ["src/components/site-operations/attendance.tsx", "Attendance", "ATTENDANCE"],
   ["src/components/document-workflow/approvals.tsx", "ApprovalDetailDialog", "APPROVAL"],
   ["src/components/incident-reporting/incident-thread-detail.tsx", "IncidentThreadDetail", "INCIDENT_THREAD"],
+  ["src/components/site-access/site-access-workspace.tsx", "PassDetail", "ACCESS_PASS"],
 ];
 
 describe("every record detail can export that one record (T-386)", () => {

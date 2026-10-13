@@ -3074,7 +3074,8 @@
       "FIELD_TASK": "现场任务",
       "ATTENDANCE": "人员进场",
       "APPROVAL": "审批流程",
-      "INCIDENT_THREAD": "事故上报"
+      "INCIDENT_THREAD": "事故上报",
+      "ACCESS_PASS": "通行证"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "载入中…",
@@ -10078,7 +10079,12 @@
       "result_note": "完成说明",
       "person": "人员",
       "subject": "标题",
-      "related_record": "关联记录"
+      "related_record": "关联记录",
+      "visitor_company": "公司",
+      "phone": "电话",
+      "purpose": "访问目的",
+      "valid_from": "有效期由",
+      "valid_until": "有效期至"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",

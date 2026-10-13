@@ -3074,7 +3074,8 @@
       "FIELD_TASK": "Tugas tapak",
       "ATTENDANCE": "Kemasukan tapak",
       "APPROVAL": "Kelulusan",
-      "INCIDENT_THREAD": "Laporan insiden"
+      "INCIDENT_THREAD": "Laporan insiden",
+      "ACCESS_PASS": "Pas akses"
     },
     "lastPage": "Anda berada di halaman terakhir.",
     "loading": "Memuatkan…",
@@ -10078,7 +10079,12 @@
       "result_note": "Keputusan",
       "person": "Individu",
       "subject": "Perkara",
-      "related_record": "Rekod berkaitan"
+      "related_record": "Rekod berkaitan",
+      "visitor_company": "Syarikat",
+      "phone": "Telefon",
+      "purpose": "Tujuan",
+      "valid_from": "Sah dari",
+      "valid_until": "Sah hingga"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
