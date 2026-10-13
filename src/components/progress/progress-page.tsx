@@ -41,10 +41,11 @@ import { FilterBar, ListHeader, QueryFailedNote } from "@/components/shared/page
 import { SchedulePlanningWorkspace } from "@/components/schedule-planning/schedule-planning-workspace";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ExportButton } from "@/components/shared/export-button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { DailyReport } from "@/interfaces/progress-reports";
 import { cn } from "@/lib/utils";
-import { getConstructionPhases } from "@/services/contractor-ops.service";
+import { exportProgressPhotos, getConstructionPhases } from "@/services/contractor-ops.service";
 import { getProgressPhotos } from "@/services/progress-reports.service";
 
 export const PROGRESS_TABS = ["phases", "photos", "reports", "schedule", "summary"] as const;
@@ -199,6 +200,7 @@ const WALL_PAGE = 48;
  */
 export function SitePhotosTab() {
   const t = useTranslations("progressPage");
+  const tOps = useTranslations("contractorOps");
   const { can } = useAuth();
   const list = useListQuery(["project", "phase", "date_from", "date_to"]);
   const project = list.filters.project ?? "";
@@ -243,6 +245,28 @@ export function SitePhotosTab() {
           from={list.filters.date_from ?? ""}
           to={list.filters.date_to ?? ""}
           onChange={(next) => list.setFilters(next)}
+        />
+        {/* The photographs listed, each with its record, as a file (H16). */}
+        <ExportButton
+          disabled={total === 0}
+          disabledReason={t("photos.empty")}
+          title={t("tabs.photos")}
+          onExport={(format) =>
+            exportProgressPhotos({
+              format,
+              title: t("tabs.photos"),
+              query: list.filters,
+              columns: [
+                { key: "captured_at", label: tOps("progress.capturedAt") },
+                { key: "project_name", label: tOps("field.project") },
+                { key: "phase_name", label: tOps("field.phase") },
+                { key: "percent_complete", label: tOps("field.percentComplete") },
+                { key: "description", label: tOps("field.description") },
+                { key: "latitude", label: tOps("field.latitude") },
+                { key: "longitude", label: tOps("field.longitude") },
+              ],
+            })
+          }
         />
       </FilterBar>
       <QueryFailedNote query={photos} what={t("tabs.photos")} />

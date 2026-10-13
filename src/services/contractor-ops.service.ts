@@ -1798,3 +1798,33 @@ export function exportFieldTasks(request: ExportRequest): Promise<void> {
     fallbackFilename: `field-tasks.${request.format}`,
   });
 }
+
+/** 现场照片 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportProgressPhotos(request: ExportRequest): Promise<void> {
+  return download("/api/site-progress/export_photos/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `site-photos.${request.format}`,
+  });
+}
+
+/** 施工分类 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportConstructionPhases(request: ExportRequest): Promise<void> {
+  return download("/api/site-progress/export_phases/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `construction-phases.${request.format}`,
+  });
+}
+
+/** 设备清单 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportEquipmentRegister(request: ExportRequest): Promise<void> {
+  return download("/api/site-equipment/export_register/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `equipment-register.${request.format}`,
+  });
+}

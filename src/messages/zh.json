@@ -15059,6 +15059,13 @@
     },
     "what": {
       "candidates": "可接手的用户列表"
+    },
+    "export": {
+      "completedAt": "完成时间",
+      "outgoing": "原人员",
+      "projects": "项目数",
+      "tasks": "任务数",
+      "completedBy": "操作人"
     }
   },
   "users": {

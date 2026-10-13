@@ -15059,6 +15059,13 @@
     },
     "what": {
       "candidates": "Senarai pengguna yang boleh mengambil alih"
+    },
+    "export": {
+      "completedAt": "Selesai pada",
+      "outgoing": "Pengguna keluar",
+      "projects": "Projek",
+      "tasks": "Tugasan",
+      "completedBy": "Diselesaikan oleh"
     }
   },
   "users": {

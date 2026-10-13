@@ -100,6 +100,7 @@ import {
   addEquipmentMovementPhotos,
   addEquipmentPhotos,
   exportEquipmentMovements,
+  exportEquipmentRegister,
   exportMaterialOutgoing,
   addProgressPhotos,
   addProgressRemark,
@@ -954,6 +955,43 @@ export function SiteEquipmentOffice() {
             <>
               <ProjectListFilter list={list} />
               <ColumnFilter list={list} kind="EQUIPMENT" />
+              {/* The register listed, as a file (H16, HD13). */}
+              <ExportButton
+                disabled={!machines.data?.count}
+                disabledReason={t("state.empty")}
+                title={tRoot("moduleTable.equipmentView.register")}
+                onExport={(format) =>
+                  exportEquipmentRegister({
+                    format,
+                    title: tRoot("moduleTable.equipmentView.register"),
+                    query: list.query,
+                    columns: [
+                      { key: "registration_no", label: t("field.plateNo") },
+                      { key: "code", label: t("field.code") },
+                      { key: "name", label: t("field.name") },
+                      {
+                        key: "status",
+                        label: t("field.status"),
+                        values: Object.fromEntries(
+                          (["ON_SITE", "OFF_SITE", "MAINTENANCE", "RETIRED"] as const).map((code) => [
+                            code,
+                            t(`equipmentStatus.${code}`),
+                          ]),
+                        ),
+                      },
+                      { key: "category_name", label: t("field.equipmentColumn") },
+                      { key: "supplier_name", label: t("field.supplier") },
+                      { key: "quantity_on_site", label: t("field.quantity") },
+                      { key: "project_name", label: t("field.project") },
+                      { key: "road_tax_expires_on", label: t("field.roadTaxExpiresOn") },
+                      { key: "certificate_expires_on", label: t("field.certificateExpiresOn") },
+                      { key: "insurance_expires_on", label: t("field.insuranceExpiresOn") },
+                      { key: "pma_expires_on", label: t("field.pmaExpiresOn") },
+                      { key: "permit_expires_on", label: t("field.permitExpiresOn") },
+                    ],
+                  })
+                }
+              />
             </>
           }
           onOpen={setViewingMachine}

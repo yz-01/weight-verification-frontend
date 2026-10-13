@@ -24,6 +24,7 @@ import type {
   WeighSessionSummary,
 } from "@/interfaces/weighing";
 import { api, download, toastSuccess } from "@/services/api-client";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 export function getSites(query: ListQuery): Promise<Paginated<RecyclingSite>> {
   return api.list<RecyclingSite>("/api/sites/get_sites/", query);
@@ -319,5 +320,15 @@ export function printWeighTicket(
     method: "POST",
     body: { labels },
     fallbackFilename: `${sessionNo}.pdf`,
+  });
+}
+
+/** 回收称重记录 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportWeighSessions(request: ExportRequest): Promise<void> {
+  return download("/api/weigh-sessions/export_sessions/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `weighing.${request.format}`,
   });
 }

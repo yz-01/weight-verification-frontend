@@ -6,7 +6,8 @@ import type {
   PartnershipStatus,
 } from "@/interfaces/partnership";
 import type { CompanyType } from "@/interfaces/company";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 export function getPartnerships(
   query: ListQuery,
@@ -115,4 +116,14 @@ export async function unbindPartnershipProject(
     reason,
   });
   toastSuccess("recyclers.toast.projectUnbound");
+}
+
+/** 回收商合作 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportPartnerships(request: ExportRequest): Promise<void> {
+  return download("/api/partnerships/export_partnerships/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `recyclers.${request.format}`,
+  });
 }

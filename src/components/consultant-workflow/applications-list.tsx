@@ -38,7 +38,7 @@ import { Input } from "@/components/ui/input";
 import type { ConsultantApplicationStatus } from "@/interfaces/consultant-workflow";
 import { useDateFormat } from "@/lib/dates";
 import { exportConsultantApplications, getConsultantApplications } from "@/services/consultant-workflow.service";
-import { getFieldTasks } from "@/services/contractor-ops.service";
+import { exportFieldTasks, getFieldTasks } from "@/services/contractor-ops.service";
 
 /**
  * `inbox` is 「待整理现场资料」 (2026-10 C1, Q2): what the site sent in for
@@ -157,6 +157,31 @@ export function ConsultantApplicationsList() {
                         ),
                       },
                       { key: "location", label: t("field.location") },
+                    ],
+                  })
+                }
+              />
+            )}
+            {stage === "inbox" && (
+              // 待整理现场资料 as a file: the submissions waiting here (H16).
+              <ExportButton
+                disabled={!toOrganize.data?.count}
+                disabledReason={t("inbox.empty")}
+                title={t("inbox.what")}
+                onExport={(format) =>
+                  exportFieldTasks({
+                    format,
+                    title: t("inbox.what"),
+                    query: { to_organize: "1", project: project || undefined },
+                    columns: [
+                      { key: "title", label: tRoot("contractorOps.field.title") },
+                      { key: "submission_category", label: t("field.applicationType") },
+                      { key: "project_name", label: t("field.project") },
+                      { key: "created_by_name", label: tRoot("mySubmissions.field.requested_by") },
+                      { key: "submitted_at", label: tRoot("contractorReports.column.submitted_at") },
+                      { key: "work_location", label: t("field.location") },
+                      { key: "instructions", label: tRoot("contractorOps.field.instructions") },
+                      { key: "photo_count", label: tRoot("contractorOps.field.photos") },
                     ],
                   })
                 }

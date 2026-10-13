@@ -89,8 +89,7 @@ import {
   reviewSiteAccessPass,
   revokeSiteAccessCredential,
   revokeSiteAccessPass,
-  updateSiteAccessPass,
-} from "@/services/site-access.service";
+  updateSiteAccessPass, exportDeviceEvents } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
 
 /** The status filter's "approved, running out within the week" choice. */
@@ -921,6 +920,51 @@ function DeviceEventsPanel() {
           />
         </FieldWrapper>
         )}
+        <div className="flex items-end sm:col-span-2">
+          {/* The device events listed, as a file (H16, HD13). */}
+          <ExportButton
+            disabled={!rows.data?.count}
+            disabledReason={t("deviceEvent.empty")}
+            title={t("access.deviceEvents")}
+            onExport={(format) =>
+              exportDeviceEvents({
+                format,
+                title: t("access.deviceEvents"),
+                query: {
+                  ...(project !== "all" ? { project } : {}),
+                  ...(result !== "all" ? { verification_result: result } : {}),
+                },
+                columns: [
+                  { key: "occurred_at", label: t("deviceEvent.occurredAt") },
+                  { key: "project_name", label: t("field.project") },
+                  { key: "device_id", label: t("deviceEvent.device") },
+                  { key: "gate_name", label: t("deviceEvent.gate") },
+                  {
+                    key: "credential_type",
+                    label: t("deviceEvent.credential"),
+                    values: t.raw("credentialType") as Record<string, string>,
+                  },
+                  { key: "pass_no", label: t("deviceEvent.pass") },
+                  {
+                    key: "direction",
+                    label: t("deviceEvent.direction"),
+                    values: { ENTRY: t("direction.ENTRY"), EXIT: t("direction.EXIT") },
+                  },
+                  {
+                    key: "verification_result",
+                    label: t("deviceEvent.result"),
+                    values: { ALLOWED: t("deviceEvent.allowed"), DENIED: t("deviceEvent.denied") },
+                  },
+                  {
+                    key: "reason_code",
+                    label: t("deviceEvent.reason"),
+                    values: t.raw("deviceEvent.reasonCode") as Record<string, string>,
+                  },
+                ],
+              })
+            }
+          />
+        </div>
         <FieldWrapper label={t("deviceEvent.result")}>
           <Select value={result} onValueChange={setResult}>
             <SelectTrigger className="w-full">

@@ -15059,6 +15059,13 @@
     },
     "what": {
       "candidates": "The list of users who can take over"
+    },
+    "export": {
+      "completedAt": "Completed at",
+      "outgoing": "Outgoing user",
+      "projects": "Projects",
+      "tasks": "Tasks",
+      "completedBy": "Completed by"
     }
   },
   "users": {

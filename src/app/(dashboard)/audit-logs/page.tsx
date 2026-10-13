@@ -9,6 +9,7 @@ export default function AuditLogsPage() {
   return user?.portal === "MSE_ADMIN" ? (
     <ModuleHubRedirect portal="MSE_ADMIN" feature="audit_log_center" />
   ) : (
-    <AuditLogs />
+    // 用户操作记录 exports what its filters show (H16, HD13).
+    <AuditLogs showExport />
   );
 }
