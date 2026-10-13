@@ -104,8 +104,8 @@ describe("an incident report (E8)", () => {
     expect(html).not.toContain("severity");
     expect(html).toContain("Tower A");
     expect(html).toContain("Mei Ling");
-    // Not an exportable record.
-    expect(html).not.toContain('data-stub="export"');
+    // Its own PDF since H16 (HD13: 「每一个事项都要」).
+    expect(html).toContain('data-stub="export" data-kind="INCIDENT_THREAD"');
   });
 
   it("keeps its own thread and composer in the conversation place, and 标记为已解决 as the decision", () => {

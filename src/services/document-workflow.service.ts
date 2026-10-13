@@ -25,6 +25,7 @@ import type {
   WorkflowTemplatePayload,
 } from "@/interfaces/document-workflow";
 import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 export function getDocumentCategories(
   query: ListQuery,
@@ -386,4 +387,14 @@ export async function deleteWorkflowStep(templateId: string, stepId: string) {
     step: stepId,
   });
   toastSuccess("approvals.toast.stepRemoved");
+}
+
+/** 审批流程（图16） (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportApprovals(request: ExportRequest): Promise<void> {
+  return download("/api/approvals/export_approvals/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `approvals.${request.format}`,
+  });
 }

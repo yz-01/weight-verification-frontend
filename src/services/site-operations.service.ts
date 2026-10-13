@@ -2,7 +2,7 @@
 
 import { earliestTakenAt } from "@/lib/photo-meta";
 import type { ListQuery, Paginated } from "@/interfaces/api";
-import type { ExportRequest } from "@/services/contractor.service";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 import type {
   AttendancePayload,
   AttendancePresence,
@@ -284,4 +284,24 @@ export async function resolveIncidentThread(
   );
   toastSuccess("incidentReporting.action.resolve");
   return thread;
+}
+
+/** 人员进场记录 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportAttendance(request: ExportRequest): Promise<void> {
+  return download("/api/attendance/export_attendance/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `attendance.${request.format}`,
+  });
+}
+
+/** 事故上报 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportIncidentThreads(request: ExportRequest): Promise<void> {
+  return download("/api/incident-reports/export_incident_threads/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `incident-reports.${request.format}`,
+  });
 }

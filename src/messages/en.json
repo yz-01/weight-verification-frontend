@@ -8812,6 +8812,12 @@
       "recipients": "The list of people to report to",
       "thread": "This incident report",
       "threads": "The incident reports"
+    },
+    "export": {
+      "number": "Report no.",
+      "occurredAt": "Occurred at",
+      "status": "Status",
+      "messages": "Messages"
     }
   },
   "incoming": {

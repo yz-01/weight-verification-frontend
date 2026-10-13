@@ -1787,3 +1787,13 @@ export function confirmRecordClosure(
     note: note ?? "",
   });
 }
+
+/** 现场任务 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportFieldTasks(request: ExportRequest): Promise<void> {
+  return download("/api/field-tasks/export_tasks/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `field-tasks.${request.format}`,
+  });
+}

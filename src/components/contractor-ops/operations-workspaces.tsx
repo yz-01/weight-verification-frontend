@@ -134,6 +134,7 @@ import {
   exportSiteProgressRecords,
   getConstructionPhases,
   getFieldTask,
+  exportFieldTasks,
   getFieldTasks,
   addMaterialOutgoingPhotos,
   exportMaterialOutgoing,
@@ -1018,6 +1019,49 @@ export function FieldTasksWorkspace({
                 count={rows.data?.needs_action_count}
                 active={waitingOnly}
                 onToggle={setWaitingOnly}
+              />
+              {/* The tasks listed, as a file (H16, HD13). */}
+              <ExportButton
+                disabled={!rows.data?.count}
+                disabledReason={t("state.empty")}
+                title={t("tasks.title")}
+                onExport={(format) =>
+                  exportFieldTasks({
+                    format,
+                    title: t("tasks.title"),
+                    query: {
+                      project: project || undefined,
+                      ...(drill ? { [drill]: "1" } : {}),
+                      ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
+                    },
+                    columns: [
+                      { key: "title", label: t("field.title") },
+                      {
+                        key: "task_type",
+                        label: t("field.taskType"),
+                        values: Object.fromEntries(
+                          (["PHOTO", "MATERIAL", "EQUIPMENT", "PROGRESS", "SAFETY", "WASTE", "CONSULTANT", "OTHER"] as const).map(
+                            (code) => [code, t(`taskType.${code}`)],
+                          ),
+                        ),
+                      },
+                      { key: "project_name", label: t("field.project") },
+                      { key: "assigned_to_name", label: t("field.assignee") },
+                      { key: "due_at", label: t("field.dueAt") },
+                      {
+                        key: "status",
+                        label: t("field.status"),
+                        values: Object.fromEntries(
+                          (["OPEN", "IN_PROGRESS", "SUBMITTED", "ACCEPTED", "RETURNED", "CANCELLED"] as const).map(
+                            (code) => [code, t(`taskStatus.${code}`)],
+                          ),
+                        ),
+                      },
+                      { key: "photo_count", label: t("field.photos") },
+                      { key: "result_note", label: t("field.notes") },
+                    ],
+                  })
+                }
               />
               {can("field_task.manage") ? (
                 <Button onClick={() => setCreating(true)}>

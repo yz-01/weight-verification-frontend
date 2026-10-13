@@ -8812,6 +8812,12 @@
       "recipients": "Senarai orang untuk dilaporkan",
       "thread": "Laporan insiden ini",
       "threads": "Senarai laporan insiden"
+    },
+    "export": {
+      "number": "No. laporan",
+      "occurredAt": "Masa berlaku",
+      "status": "Status",
+      "messages": "Mesej"
     }
   },
   "incoming": {

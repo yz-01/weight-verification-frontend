@@ -8812,6 +8812,12 @@
       "recipients": "可报告对象列表",
       "thread": "这份事故报告",
       "threads": "事故报告列表"
+    },
+    "export": {
+      "number": "报告编号",
+      "occurredAt": "发生时间",
+      "status": "状态",
+      "messages": "消息数"
     }
   },
   "incoming": {
@@ -16432,7 +16438,7 @@
       "counts": "{records} 条记录 · {photos} 张照片",
       "note": "备注",
       "noNote": "（无备注）",
-      "noRecords": "这几天没有施工进度记录。",
+      "noRecords": "这几天没有工程进度记录。",
       "recollect": "重新整理",
       "recollectHint": "按现在的进度记录重新收集这几天的记录和照片，保存后生效。",
       "liveHint": "显示这几天现在的全部记录和照片；保存时定格。",
