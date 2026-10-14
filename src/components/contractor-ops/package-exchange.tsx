@@ -712,7 +712,7 @@ export function ThreadView({
               value={item}
               onChange={(event) => setItem(event.target.value)}
               aria-label={t("exchange.about")}
-              className="h-9 min-w-0 max-w-full flex-1 rounded-md border bg-background px-2 text-sm pointer-coarse:h-11"
+              className="h-9 min-w-0 max-w-full basis-full rounded-md border bg-background px-2 text-sm sm:basis-auto sm:flex-1 pointer-coarse:h-11"
             >
               <option value="">{t("exchange.aboutPackage")}</option>
               {items.map((row) => (

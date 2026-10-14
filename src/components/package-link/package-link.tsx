@@ -134,6 +134,7 @@ function LinkPage({
 }) {
   const t = useTranslations("packageLink");
   const kinds = useTranslations("multiEngine");
+  const labels = useTranslations("mySubmissions");
   const errors = useTranslations("errors.api");
   const locale = useLocale();
   const formatter = useDateFormat();
@@ -258,6 +259,19 @@ function LinkPage({
                     {t("parts", { photos: item.photo_count, documents: item.document_count, files: item.file_count })}
                   </p>
                 </div>
+                {item.fields.length > 0 && (
+                  /* The record's words as they were frozen - never an amount (六 7). */
+                  <dl className="divide-y rounded-lg border text-sm">
+                    {item.fields.map((field) => (
+                      <div key={field.key} className="grid grid-cols-[7.5rem_1fr] gap-2 px-2.5 py-1.5">
+                        <dt className="text-xs text-muted-foreground">
+                          {labels.has(`field.${field.key}`) ? labels(`field.${field.key}`) : field.key}
+                        </dt>
+                        <dd className="break-words">{field.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
                 <div className="flex flex-wrap gap-2">
                   <FileActionButtons
                     source={{
