@@ -89,7 +89,7 @@ const NOT_BUSINESS_RECORDS: Record<string, string> = {
   "src/components/document-workflow/approvals.tsx#ApprovalDetailBody": "document approval workflow",
   // Aggregates of many records, built in the office.
   "src/components/contractor-ops/multi-engine.tsx#PackageSheet": "an evidence package of many records",
-  "src/components/contractor-ops/multi-engine.tsx#ReviewSheet": "a package review",
+  "src/components/contractor-ops/package-review.tsx#ReviewSheet": "a package review",
   "src/components/contractor-ops/claim-engine.tsx#ClaimSheet": "a period claim of many records",
   "src/components/progress/daily-reports.tsx#DailyReportView": "a daily report written in the office",
   // Not yet a record: waiting on the phone to be sent.

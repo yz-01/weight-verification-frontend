@@ -24,6 +24,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowLeft, Package, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { AnswerLines } from "@/components/contractor-ops/package-exchange";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -728,13 +730,17 @@ export function PackageLine({ row, onOpen }: { row: RecordPackageRow; onOpen: ()
     >
       <span className="block truncate text-xs text-muted-foreground">{row.package_no || "—"}</span>
       <span className="block truncate text-sm font-medium">{row.name}</span>
-      <span className="block text-xs text-muted-foreground">
-        {row.sent_to_name ? t("collect.sentTo", { name: row.sent_to_name }) : t("collect.notSent")}
-      </span>
+      {!(row.answers ?? []).length && (
+        <span className="block text-xs text-muted-foreground">
+          {row.sent_to_name ? t("collect.sentTo", { name: row.sent_to_name }) : t("collect.notSent")}
+        </span>
+      )}
       <span className="block text-xs text-muted-foreground">
         {t("collect.addedAt", { when: formatter.dateTime(row.added_at), who: row.added_by_name || "—" })}
       </span>
       <span className="mt-1 block text-xs font-medium">{packageStateLine(row, t)}</span>
+      {/* H17 七: 「PKG-xxx · 顾问 A：退回——照片不清楚」, one line per recipient. */}
+      <AnswerLines answers={row.answers ?? []} />
     </button>
   );
 }

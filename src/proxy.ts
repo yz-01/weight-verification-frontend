@@ -33,14 +33,34 @@ const PUBLIC_PREFIXES = [
   "/disposal-task",
   // A driver's link for one trip: no account, the token is the credential.
   "/driver-task",
+  // A package's link for an owner, a supplier or anybody else (H17 五 3).
+  "/package",
   "/delivery-note",
   "/field-staff",
   "/scan",
   "/verify",
 ];
 
+/**
+ * H17 六 5 on the package link's page: not indexed, the address never sent on
+ * as a referrer, nothing kept in the browser's cache. The API answers carry
+ * the same three.
+ */
+const PACKAGE_LINK_HEADERS = {
+  "X-Robots-Tag": "noindex, nofollow",
+  "Referrer-Policy": "no-referrer",
+  "Cache-Control": "no-store, max-age=0",
+} as const;
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (pathname.startsWith("/package/")) {
+    const response = NextResponse.next();
+    for (const [name, value] of Object.entries(PACKAGE_LINK_HEADERS)) {
+      response.headers.set(name, value);
+    }
+    return response;
+  }
   if (isPublicPath(pathname) || isAuthPath(pathname)) {
     return NextResponse.next();
   }

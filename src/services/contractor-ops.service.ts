@@ -46,6 +46,12 @@ import type {
   PackageSelection,
   PackageState,
   PackagePart,
+  PackageEvent,
+  PackageMessage,
+  PackageRecipient,
+  PackageRound,
+  PackageType,
+  RecipientKind,
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
 import type { ChatRecordKind, ConversationClosed } from "@/lib/record-chat";
@@ -1201,6 +1207,8 @@ export const getEvidencePackages = (
   query: ListQuery & {
     project?: string;
     state?: PackageState;
+    /** HD17: one of the six package types. */
+    type?: PackageType;
     created_by?: string;
     from?: string;
     to?: string;
@@ -1211,9 +1219,10 @@ export const getEvidencePackages = (
     query,
   );
 
-export const getEvidencePackage = (id: string) =>
+export const getEvidencePackage = (id: string, round?: number) =>
   api.get<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/get_package/`,
+    round ? { round: String(round) } : undefined,
   );
 
 /** Records of one column in one project, to tick from. */
@@ -1236,6 +1245,7 @@ export async function createEvidencePackage(payload: {
   project: string;
   name: string;
   remarks?: string;
+  package_type?: PackageType;
 }) {
   const row = await api.post<EvidencePackageDetail>(
     "/api/evidence-packages/create_package/",
@@ -1247,7 +1257,7 @@ export async function createEvidencePackage(payload: {
 
 export async function updateEvidencePackage(
   id: string,
-  payload: { name?: string; remarks?: string },
+  payload: { name?: string; remarks?: string; package_type?: PackageType },
 ) {
   const row = await api.patch<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/update_package/`,
@@ -1368,9 +1378,9 @@ export async function confirmEvidencePackage(id: string, remarks: string) {
  * The merged PDF, to preview or print in the page without downloading it
  * (T-364, D-235: 「不需要先下载」). Not counted as the package having left.
  */
-export const previewEvidencePackage = (id: string, name: string) =>
+export const previewEvidencePackage = (id: string, name: string, round?: number) =>
   fetchAsFile(`/api/evidence-packages/${id}/download_package/`, {
-    query: { inline: "1" },
+    query: round ? { inline: "1", round: String(round) } : { inline: "1" },
     fallbackFilename: `${name || "package"}.pdf`,
   });
 
@@ -1378,8 +1388,9 @@ export const previewEvidencePackage = (id: string, name: string) =>
  * The same stored PDF, to export or send: the server notes that it left
  * (D-148). Looking at it (`previewEvidencePackage`) is not taking it out.
  */
-export const evidencePackageFile = (id: string, name: string) =>
+export const evidencePackageFile = (id: string, name: string, round?: number) =>
   fetchAsFile(`/api/evidence-packages/${id}/download_package/`, {
+    query: round ? { round: String(round) } : undefined,
     fallbackFilename: `${name || "package"}.pdf`,
   });
 
@@ -1522,6 +1533,118 @@ export async function sendPackageForReview(id: string, consultant: string) {
   return row;
 }
 
+/* -- recipients, chat, timeline, rounds (batch H, H17 五 1) ---------------- */
+
+export interface NewRecipient {
+  kind: RecipientKind;
+  /** A consultant's account, chosen from the list. */
+  consultant?: string;
+  /** Anybody else: typed in, only to address the link. */
+  name?: string;
+  organization?: string;
+  contact?: string;
+  days?: number;
+}
+
+/**
+ * 「发送」: one more recipient. A link's full address comes back in `token`
+ * this once and never again (H17 五 1).
+ */
+export async function addPackageRecipient(id: string, payload: NewRecipient) {
+  const row = await api.post<PackageRecipient>(
+    `/api/evidence-packages/${id}/add_recipient/`,
+    payload,
+  );
+  toastSuccess("multiEngine.exchange.toast.sent");
+  return row;
+}
+
+export const getPackageRecipients = (id: string) =>
+  api.get<PackageRecipient[]>(`/api/evidence-packages/${id}/get_recipients/`);
+
+export async function revokePackageRecipient(id: string, recipient: string) {
+  const row = await api.post<PackageRecipient>(
+    `/api/evidence-packages/${id}/revoke_recipient/`,
+    { recipient },
+  );
+  toastSuccess("multiEngine.exchange.toast.revoked");
+  return row;
+}
+
+export async function extendPackageRecipient(id: string, recipient: string, days: number) {
+  const row = await api.post<PackageRecipient>(
+    `/api/evidence-packages/${id}/extend_recipient/`,
+    { recipient, days },
+  );
+  toastSuccess("multiEngine.exchange.toast.extended");
+  return row;
+}
+
+/** A new link; the old one stops working at once. The new one is in `token`. */
+export async function regeneratePackageLink(id: string, recipient: string) {
+  const row = await api.post<PackageRecipient>(
+    `/api/evidence-packages/${id}/regenerate_link/`,
+    { recipient },
+  );
+  toastSuccess("multiEngine.exchange.toast.regenerated");
+  return row;
+}
+
+export const getPackageMessages = (id: string, recipient: string) =>
+  api.get<PackageMessage[]>(`/api/evidence-packages/${id}/get_messages/`, { recipient });
+
+export interface NewPackageMessage {
+  body: string;
+  item?: string;
+  attachment?: File | null;
+}
+
+function messageForm(payload: NewPackageMessage & { recipient?: string }) {
+  const data = new FormData();
+  if (payload.recipient) data.append("recipient", payload.recipient);
+  data.append("body", payload.body);
+  if (payload.item) data.append("item", payload.item);
+  if (payload.attachment) data.append("attachment", payload.attachment);
+  return data;
+}
+
+export const sendPackageMessage = (
+  id: string,
+  recipient: string,
+  payload: NewPackageMessage,
+) =>
+  api.post<PackageMessage>(
+    `/api/evidence-packages/${id}/send_message/`,
+    messageForm({ ...payload, recipient }),
+  );
+
+/** A chat attachment, fetched through the package (office or consultant path). */
+export const packageAttachmentFile = (path: string, name: string) =>
+  fetchAsFile(path, { fallbackFilename: name || "attachment" });
+
+export const getPackageTimeline = (id: string) =>
+  api.get<PackageEvent[]>(`/api/evidence-packages/${id}/get_timeline/`);
+
+export const getPackageRounds = (id: string) =>
+  api.get<PackageRound[]>(`/api/evidence-packages/${id}/get_rounds/`);
+
+/** 「重新提交」: a new round with the returned records replaced (H17 七). */
+export async function resubmitPackage(id: string, items: string[], reason: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/resubmit/`,
+    { items, reason },
+  );
+  toastSuccess("multiEngine.exchange.toast.resubmitted");
+  return row;
+}
+
+/** 往来记录 (H17 九): its own report; its digest goes on the timeline. */
+export const correspondenceReportFile = (id: string, name: string, inline = false) =>
+  fetchAsFile(`/api/evidence-packages/${id}/correspondence_report/`, {
+    query: inline ? { inline: "1" } : undefined,
+    fallbackFilename: `${name || "package"}-correspondence.pdf`,
+  });
+
 /* -- the consultant's side ------------------------------------------------ */
 
 export const getPackagesToReview = (query: ListQuery) =>
@@ -1530,10 +1653,42 @@ export const getPackagesToReview = (query: ListQuery) =>
     query,
   );
 
-export const getPackageToReview = (id: string) =>
+/** `open` counts an open and puts it on the timeline - the first load only. */
+export const getPackageToReview = (id: string, open = false) =>
   api.get<EvidencePackageDetail>(
     `/api/package-reviews/${id}/get_review_package/`,
+    open ? { open: "1" } : undefined,
   );
+
+/** 「签收」 (H17 五 2): the consultant takes the package as it stands. */
+export async function signReviewedPackage(id: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/package-reviews/${id}/sign_package/`,
+    {},
+  );
+  toastSuccess("multiEngine.exchange.toast.signed");
+  return row;
+}
+
+export const getReviewMessages = (id: string) =>
+  api.get<PackageMessage[]>(`/api/package-reviews/${id}/get_messages/`);
+
+/** 「留言」 on the consultant's own thread. */
+export const sendReviewMessage = (id: string, payload: NewPackageMessage) =>
+  api.post<PackageMessage>(`/api/package-reviews/${id}/send_message/`, messageForm(payload));
+
+/** The round's PDF, to the consultant: a download on the timeline, never an export. */
+export const reviewPackageFile = (id: string, name: string, inline = false) =>
+  fetchAsFile(`/api/package-reviews/${id}/download_package/`, {
+    query: inline ? { inline: "1" } : undefined,
+    fallbackFilename: `${name || "package"}.pdf`,
+  });
+
+export const reviewPackageItemFile = (id: string, item: string, reference: string, inline = false) =>
+  fetchAsFile(`/api/package-reviews/${id}/download_item/`, {
+    query: inline ? { item, inline: "1" } : { item },
+    fallbackFilename: `${reference || "record"}.pdf`,
+  });
 
 export async function reviewPackageItem(
   id: string,
@@ -1649,6 +1804,27 @@ export async function confirmClaim(
     include_photos: includePhotos,
   });
   toastSuccess("claims.toast.confirmed");
+  return row;
+}
+
+/** HD17: the amount a Progress Claim asks for. */
+export async function setClaimAmount(id: string, amount: string) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/set_amount/`, { amount });
+  toastSuccess("claims.toast.amount");
+  return row;
+}
+
+/** HD17: a payment voucher on a Progress Claim. Write-once. */
+export async function addClaimPaymentProof(
+  id: string,
+  payload: { file: File; amount?: string; note?: string },
+) {
+  const data = new FormData();
+  data.append("file", payload.file);
+  if (payload.amount) data.append("amount", payload.amount);
+  if (payload.note) data.append("note", payload.note);
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/add_payment_proof/`, data);
+  toastSuccess("claims.toast.voucher");
   return row;
 }
 

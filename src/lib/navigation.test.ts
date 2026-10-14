@@ -319,18 +319,29 @@ describe("the category module", () => {
   );
   const where = (href: string) => entries.find((item) => item.href === href);
 
-  it("is five entries at their own levels, and no container", () => {
+  it("is four entries at their own levels, and no container", () => {
     expect(entries.every((item) => !item.children?.length)).toBe(true);
     expect(entries.map((item) => item.href)).not.toContain("/modules/categories");
     // Business entries.
-    expect(where("/claims")?.group).toBe("operations");
     expect(where("/sundry-claims")?.group).toBe("operations");
     // Tools across every entry.
     expect(where("/archive-queue")?.group).toBe("tools");
     expect(where("/evidence-packages")?.group).toBe("tools");
     // A setting.
     expect(where("/category-management")?.group).toBe("system");
-    expect(entries).toHaveLength(5);
+    expect(entries).toHaveLength(4);
+  });
+
+  it("folds 进度 Claim into Multi Engine (H10 / HD17)", () => {
+    // Progress Claim is one package type, not a module of its own.
+    expect(entries.map((item) => item.href)).not.toContain("/claims");
+    expect(where("/evidence-packages")?.routePrefixes).toContain("/claims");
+    // Head office reads claims without reading packages: it still gets in.
+    const office = visibleNavigation("MSE_TRACE", ["project_categories"], ["claim.view"])
+      .flatMap((group) => group.items.map((item) => item.href));
+    expect(office).toContain("/evidence-packages");
+    expect(isRouteAllowed("MSE_TRACE", ["project_categories"], "/evidence-packages", ["claim.view"])).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["project_categories"], "/evidence-packages", [])).toBe(false);
   });
 
   it("shows the tools group between the business entries and finance", () => {

@@ -1,11 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCheck, Coins, Inbox, Plus, Trash2 } from "lucide-react";
+import { CheckCheck, Coins, FileUp, Inbox, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import { AmountDialog, VoucherDialog, Vouchers } from "@/components/contractor-ops/package-claim-facet";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -401,6 +402,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [money, setMoney] = useState<"amount" | "voucher" | null>(null);
 
   const claim = useQuery({
     queryKey: ["claims", id],
@@ -452,6 +454,11 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 label={t("column.payment")}
                 value={t(`payment.${data.payment_state}`)}
               />
+              {/* HD17: 「Progress Claim 要补上金额和付款凭证」. */}
+              <Summary
+                label={t("field.amount")}
+                value={data.amount ? `RM ${data.amount}` : t("noAmount")}
+              />
               <Summary
                 label={t("field.remarks")}
                 value={data.remarks || t("noRemarks")}
@@ -485,6 +492,13 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
                 {t("packageHint")}
               </p>
+            )}
+
+            {data.state === "CONFIRMED" && (
+              <section className="space-y-2">
+                <h3 className="text-sm font-semibold">{t("vouchers")}</h3>
+                <Vouchers proofs={data.payment_proofs ?? []} />
+              </section>
             )}
 
             {data.state === "DRAFT" && can("claim.manage") && (
@@ -617,11 +631,22 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               }}
             />
           )}
-          {data.state === "CONFIRMED" && can("claim.confirm_payment") && (
-            <Button variant="outline" onClick={() => setPaying(true)}>
-              <Coins />
-              {t("recordPayment")}
+          {can("claim.manage") && data.payment_state !== "RECEIVED" && (
+            <Button variant="outline" onClick={() => setMoney("amount")}>
+              {t("setAmount")}
             </Button>
+          )}
+          {data.state === "CONFIRMED" && can("claim.confirm_payment") && (
+            <>
+              <Button variant="outline" onClick={() => setMoney("voucher")}>
+                <FileUp />
+                {t("addVoucher")}
+              </Button>
+              <Button variant="outline" onClick={() => setPaying(true)}>
+                <Coins />
+                {t("recordPayment")}
+              </Button>
+            </>
           )}
           <Button variant="ghost" onClick={onClose}>
             {common("close")}
@@ -635,6 +660,27 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
           onClose={() => setConfirming(false)}
           onDone={() => {
             setConfirming(false);
+            refresh();
+          }}
+        />
+      )}
+      {money === "amount" && data && (
+        <AmountDialog
+          claimId={data.id}
+          current={data.amount ?? ""}
+          onClose={() => setMoney(null)}
+          onDone={() => {
+            setMoney(null);
+            refresh();
+          }}
+        />
+      )}
+      {money === "voucher" && data && (
+        <VoucherDialog
+          claimId={data.id}
+          onClose={() => setMoney(null)}
+          onDone={() => {
+            setMoney(null);
             refresh();
           }}
         />
@@ -868,12 +914,12 @@ function ConfirmClaimDialog({
   );
 }
 
-function PaymentDialog({
+export function PaymentDialog({
   claim,
   onClose,
   onDone,
 }: {
-  claim: ClaimDetail;
+  claim: Pick<ClaimDetail, "id" | "payment_state" | "payment_note">;
   onClose: () => void;
   onDone: () => void;
 }) {
