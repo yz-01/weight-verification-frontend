@@ -9809,7 +9809,12 @@
     "noAmount": "Belum diisi",
     "vouchers": "Baucar bayaran",
     "setAmount": "Tetapkan jumlah",
-    "addVoucher": "Tambah baucar bayaran"
+    "addVoucher": "Tambah baucar bayaran",
+    "export": {
+      "claimNo": "No. tuntutan",
+      "returned": "Dipulangkan",
+      "confirmedAt": "Disahkan pada"
+    }
   },
   "multiEngine": {
     "acceptItem": "Terima",
@@ -10152,6 +10157,14 @@
       "voucherFile": "Fail baucar",
       "voucherAmount": "Jumlah (RM)",
       "voucherNote": "Nota"
+    },
+    "export": {
+      "number": "No. pakej",
+      "confirmedBy": "Disahkan oleh",
+      "confirmedAt": "Disahkan pada",
+      "recipients": "Penerima",
+      "round": "Pusingan semasa",
+      "returned": "Dipulangkan"
     }
   },
   "mySubmissions": {

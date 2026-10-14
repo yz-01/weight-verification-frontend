@@ -1533,6 +1533,16 @@ export async function sendPackageForReview(id: string, consultant: string) {
   return row;
 }
 
+/** 资料包列表 as Excel or PDF, filtered as the screen is (H16, HD13). */
+export function exportEvidencePackages(request: ExportRequest): Promise<void> {
+  return download("/api/evidence-packages/export_packages/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `packages.${request.format}`,
+  });
+}
+
 /* -- recipients, chat, timeline, rounds (batch H, H17 五 1) ---------------- */
 
 export interface NewRecipient {
@@ -1659,6 +1669,16 @@ export const getPackageToReview = (id: string, open = false) =>
     `/api/package-reviews/${id}/get_review_package/`,
     open ? { open: "1" } : undefined,
   );
+
+/** 待审阅的资料包 as a file: this consultant's own state and returns (H17 六 2). */
+export function exportPackagesToReview(request: ExportRequest): Promise<void> {
+  return download("/api/package-reviews/export_review_packages/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `packages-to-review.${request.format}`,
+  });
+}
 
 /** 「签收」 (H17 五 2): the consultant takes the package as it stands. */
 export async function signReviewedPackage(id: string) {
@@ -1805,6 +1825,16 @@ export async function confirmClaim(
   });
   toastSuccess("claims.toast.confirmed");
   return row;
+}
+
+/** 进度 Claim 列表 as Excel or PDF, filtered as the screen is (H16, HD13). */
+export function exportClaims(request: ExportRequest): Promise<void> {
+  return download("/api/claims/export_claims/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `claims.${request.format}`,
+  });
 }
 
 /** HD17: the amount a Progress Claim asks for. */

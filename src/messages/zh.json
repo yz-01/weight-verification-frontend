@@ -9809,7 +9809,12 @@
     "noAmount": "未填",
     "vouchers": "付款凭证",
     "setAmount": "填写金额",
-    "addVoucher": "上传付款凭证"
+    "addVoucher": "上传付款凭证",
+    "export": {
+      "claimNo": "Claim 编号",
+      "returned": "退回数",
+      "confirmedAt": "确认时间"
+    }
   },
   "multiEngine": {
     "acceptItem": "接受",
@@ -10152,6 +10157,14 @@
       "voucherFile": "凭证文件",
       "voucherAmount": "金额（RM）",
       "voucherNote": "说明"
+    },
+    "export": {
+      "number": "资料包编号",
+      "confirmedBy": "确认人",
+      "confirmedAt": "确认时间",
+      "recipients": "收件方数",
+      "round": "当前轮次",
+      "returned": "退回数"
     }
   },
   "mySubmissions": {

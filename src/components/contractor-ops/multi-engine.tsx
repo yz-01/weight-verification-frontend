@@ -61,6 +61,7 @@ import {
   createEvidencePackage,
   deleteEvidencePackage,
   evidencePackageFile,
+  exportEvidencePackages,
   previewEvidencePackage,
   downloadPackageItem,
   getEvidencePackage,
@@ -231,6 +232,53 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
           }}
           placeholder={t("searchPlaceholder")}
           className="w-full sm:w-72"
+        />
+        {/* The packages listed, as a file (H16, HD13). */}
+        <ExportButton
+          disabled={total === 0}
+          disabledReason={t("empty")}
+          title={t("title")}
+          onExport={(format) =>
+            exportEvidencePackages({
+              format,
+              title: t("title"),
+              query: {
+                project: project || undefined,
+                search: search || undefined,
+                type: type || undefined,
+              },
+              columns: [
+                { key: "package_no", label: t("export.number") },
+                { key: "name", label: t("column.name") },
+                {
+                  key: "package_type",
+                  label: t("column.type"),
+                  values: Object.fromEntries(PACKAGE_TYPES.map((value) => [value, t(`type.${value}`)])),
+                },
+                { key: "project_name", label: t("column.project") },
+                {
+                  key: "state",
+                  label: t("column.state"),
+                  values: { DRAFT: t("state.DRAFT"), CONFIRMED: t("state.CONFIRMED") },
+                },
+                {
+                  key: "review_state",
+                  label: t("column.review"),
+                  values: {
+                    NOT_SENT: t("review.NOT_SENT"),
+                    SENT: t("review.SENT"),
+                    REVIEWED: t("review.REVIEWED"),
+                  },
+                },
+                { key: "created_by_name", label: t("column.packedBy") },
+                { key: "confirmed_by_name", label: t("export.confirmedBy") },
+                { key: "created_at", label: t("column.when") },
+                { key: "confirmed_at", label: t("export.confirmedAt") },
+                { key: "recipient_count", label: t("export.recipients") },
+                { key: "current_round", label: t("export.round") },
+              ],
+            })
+          }
         />
       </FilterBar>
 

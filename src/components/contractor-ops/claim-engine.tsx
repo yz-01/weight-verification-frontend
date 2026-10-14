@@ -9,6 +9,7 @@ import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces
 import { AmountDialog, VoucherDialog, Vouchers } from "@/components/contractor-ops/package-claim-facet";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
+import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -46,6 +47,7 @@ import {
   previewEvidencePackage,
   getClaim,
   getClaimCandidates,
+  exportClaims,
   getClaims,
   removeClaimItem,
   selectClaimItems,
@@ -188,6 +190,42 @@ export function ClaimEngineWorkspace() {
           }}
           placeholder={t("searchPlaceholder")}
           className="w-full sm:w-72"
+        />
+        {/* The claims listed, as a file (H16, HD13). */}
+        <ExportButton
+          disabled={total === 0}
+          disabledReason={t("empty")}
+          title={t("title")}
+          onExport={(format) =>
+            exportClaims({
+              format,
+              title: t("title"),
+              query: {
+                project: project || undefined,
+                kind: kind || undefined,
+                search: search || undefined,
+              },
+              columns: [
+                { key: "claim_no", label: t("export.claimNo") },
+                { key: "period", label: t("field.period") },
+                { key: "project_name", label: t("field.project") },
+                {
+                  key: "state",
+                  label: t("column.state"),
+                  values: { DRAFT: t("state.DRAFT"), CONFIRMED: t("state.CONFIRMED") },
+                },
+                { key: "amount", label: t("field.amount") },
+                {
+                  key: "payment_state",
+                  label: t("column.payment"),
+                  values: Object.fromEntries(PAYMENT_STATES.map((value) => [value, t(`payment.${value}`)])),
+                },
+                { key: "item_count", label: t("column.items") },
+                { key: "returned_count", label: t("export.returned") },
+                { key: "confirmed_at", label: t("export.confirmedAt") },
+              ],
+            })
+          }
         />
       </FilterBar>
 

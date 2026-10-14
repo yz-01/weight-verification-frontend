@@ -8,6 +8,7 @@ import { useRef, useState } from "react";
 
 import { ThreadView } from "@/components/contractor-ops/package-exchange";
 import { Shell } from "@/components/contractor-ops/package-shell";
+import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import {
   ArmRow,
@@ -24,6 +25,7 @@ import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
 import type { EvidencePackageRow } from "@/interfaces/contractor-ops";
 import {
+  exportPackagesToReview,
   getPackagesToReview,
   getPackageToReview,
   getReviewMessages,
@@ -64,7 +66,43 @@ export function PackageReviewWorkspace() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ListHeader title={t("reviewTitle")} subtitle={t("reviewSubtitle")} />
+      <ListHeader
+        title={t("reviewTitle")}
+        subtitle={t("reviewSubtitle")}
+        action={
+          /* The queue as a file (H16): this consultant's own state and returns. */
+          <ExportButton
+            disabled={rows.length === 0}
+            disabledReason={t("reviewEmpty")}
+            title={t("reviewTitle")}
+            onExport={(format) =>
+              exportPackagesToReview({
+                format,
+                title: t("reviewTitle"),
+                query: {},
+                columns: [
+                  { key: "package_no", label: t("export.number") },
+                  { key: "name", label: t("column.name") },
+                  { key: "project_name", label: t("column.project") },
+                  { key: "item_count", label: t("column.items") },
+                  { key: "current_round", label: t("export.round") },
+                  {
+                    key: "review_state",
+                    label: t("column.review"),
+                    values: {
+                      NOT_SENT: t("reviewMine.NOT_SENT"),
+                      SENT: t("reviewMine.SENT"),
+                      REVIEWED: t("reviewMine.REVIEWED"),
+                    },
+                  },
+                  { key: "returned_count", label: t("export.returned") },
+                  { key: "confirmed_at", label: t("export.confirmedAt") },
+                ],
+              })
+            }
+          />
+        }
+      />
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>

@@ -9809,7 +9809,12 @@
     "noAmount": "Not entered",
     "vouchers": "Payment vouchers",
     "setAmount": "Set the amount",
-    "addVoucher": "Add a payment voucher"
+    "addVoucher": "Add a payment voucher",
+    "export": {
+      "claimNo": "Claim no.",
+      "returned": "Returned",
+      "confirmedAt": "Confirmed at"
+    }
   },
   "multiEngine": {
     "acceptItem": "Accept",
@@ -10152,6 +10157,14 @@
       "voucherFile": "Voucher file",
       "voucherAmount": "Amount (RM)",
       "voucherNote": "Note"
+    },
+    "export": {
+      "number": "Package no.",
+      "confirmedBy": "Confirmed by",
+      "confirmedAt": "Confirmed at",
+      "recipients": "Recipients",
+      "round": "Current round",
+      "returned": "Returned"
     }
   },
   "mySubmissions": {
