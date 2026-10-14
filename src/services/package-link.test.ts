@@ -11,6 +11,7 @@ import { ApiError } from "@/interfaces/api";
 import { whatsappHref } from "@/components/contractor-ops/package-exchange";
 import {
   getPackageLink,
+  linkPackageFile,
   reviewLinkItem,
   signPackageLink,
 } from "@/services/package-link.service";
@@ -51,6 +52,23 @@ describe("package link calls", () => {
     expect(failure).toBeInstanceOf(ApiError);
     expect((failure as ApiError).code).toBe("package_link_not_found");
     expect((failure as ApiError).status).toBe(404);
+  });
+});
+
+describe("the whole package through a link", () => {
+  it("asks for the page's language, so the PDF is not always English", async () => {
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(new Response(new Blob(["%PDF-1.4"]), { status: 200, headers: { "Content-Type": "application/pdf" } })),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    await linkPackageFile("abc", "PKG-1", { who: "Olive", lang: "zh", inline: true });
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    const query = new URL(url).searchParams;
+    expect(new URL(url).pathname).toBe("/api/package-link/abc/download/");
+    expect(query.get("lang")).toBe("zh");
+    expect(query.get("inline")).toBe("1");
+    expect(query.get("name")).toBe("Olive");
+    expect(init.credentials).toBe("omit");
   });
 });
 

@@ -107,9 +107,18 @@ async function linkFile(url: string, fallbackName: string): Promise<File> {
 }
 
 /** The current round's PDF. A download on the timeline - never an export. */
-export const linkPackageFile = (token: string, name: string, who: string, inline = false) =>
+export const linkPackageFile = (
+  token: string,
+  name: string,
+  options: { who?: string; lang?: string; inline?: boolean } = {},
+) =>
   linkFile(
-    linkUrl(token, "download/", { ...(inline ? { inline: "1" } : {}), ...(who ? { name: who } : {}) }),
+    linkUrl(token, "download/", {
+      ...(options.inline ? { inline: "1" } : {}),
+      ...(options.who ? { name: options.who } : {}),
+      // The link's copy is printed in the page's language, like one record's.
+      ...(options.lang ? { lang: options.lang } : {}),
+    }),
     `${name || "package"}.pdf`,
   );
 

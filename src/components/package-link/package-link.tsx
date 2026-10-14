@@ -227,8 +227,8 @@ function LinkPage({
           <FileActionButtons
             label={t("wholePackage")}
             source={{
-              load: load(() => linkPackageFile(token, data.package_no, name, true)),
-              loadToSend: load(() => linkPackageFile(token, data.package_no, name)),
+              load: load(() => linkPackageFile(token, data.package_no, { who: name, lang: locale, inline: true })),
+              loadToSend: load(() => linkPackageFile(token, data.package_no, { who: name, lang: locale })),
               title: data.package_no || data.package_name,
             }}
           />
