@@ -7,6 +7,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
@@ -34,16 +35,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ExportButton } from "@/components/shared/export-button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Settlement } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { getSettlements } from "@/services/recycler.service";
+import { isRouteAllowed } from "@/lib/navigation";
+import { exportTransactions, getSettlements } from "@/services/recycler.service";
 
 export function PaymentProofs() {
   const t = useTranslations();
   const df = useDateFormat();
   const formatter = useFormatter();
   const { can } = useAuth();
+  const canOpenSettlement = useCanOpenSettlement();
   const list = useListQuery(["project", "state", "date_from", "date_to"]);
   const [viewing, setViewing] = useState<Settlement | null>(null);
 
@@ -174,22 +178,24 @@ export function PaymentProofs() {
             >
               <ReceiptText className="h-3.5 w-3.5" />
             </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-info hover:bg-info/10"
-              title={t("paymentProofs.action.viewSettlement")}
-            >
-              <Link href={`/settlements/${row.original.id}`}>
-                <Eye className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
+            {canOpenSettlement && (
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-info hover:bg-info/10"
+                title={t("paymentProofs.action.viewSettlement")}
+              >
+                <Link href={`/settlements/${row.original.id}`}>
+                  <Eye className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            )}
           </div>
         ),
       },
     ],
-    [t, df, formatter],
+    [t, df, formatter, canOpenSettlement],
   );
 
   const total = data?.count ?? 0;
@@ -200,6 +206,31 @@ export function PaymentProofs() {
         title={t("paymentProofs.title")}
         subtitle={
           isLoading ? t("common.loading") : t("paymentProofs.count", { count: total })
+        }
+        action={
+          // The settlements listed, as a file (H16, HD13).
+          <ExportButton
+            disabled={total === 0}
+            disabledReason={t("paymentProofs.count", { count: 0 })}
+            title={t("paymentProofs.title")}
+            onExport={(format) =>
+              exportTransactions({
+                format,
+                title: t("paymentProofs.title"),
+                subtitle: t("paymentProofs.count", { count: total }),
+                query: list.query,
+                columns: [
+                  { key: "settlement_no", label: t("paymentProofs.field.settlementNo") },
+                  { key: "dispatch_no", label: t("mySubmissions.field.dispatch_no") },
+                  { key: "project_name", label: t("paymentProofs.field.project") },
+                  { key: "recycler_name", label: t("mySubmissions.field.recycler") },
+                  { key: "issued_at", label: t("paymentProofs.field.issuedAt") },
+                  { key: "total_amount", label: t("paymentProofs.field.totalAmount") },
+                  { key: "amount_paid", label: t("paymentProofs.field.amount") },
+                ],
+              })
+            }
+          />
         }
       />
 
@@ -290,6 +321,7 @@ function PaymentProofDialog({
   settlement: Settlement;
   onClose: () => void;
 }) {
+  const canOpenSettlement = useCanOpenSettlement();
   const t = useTranslations();
   const df = useDateFormat();
 
@@ -304,6 +336,10 @@ function PaymentProofDialog({
             })}
           </DialogDescription>
         </DialogHeader>
+        {/* 预览 · 打印 · 导出 · 发送: the settlement and its payments (H16). */}
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+          <RecordExportButton kind="SETTLEMENT" recordId={settlement.id} reference={settlement.settlement_no} href="/payment-proofs" />
+        </div>
 
         {settlement.payments.length === 0 ? (
           <div className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
@@ -366,14 +402,29 @@ function PaymentProofDialog({
           <Button variant="outline" onClick={onClose}>
             {t("common.close")}
           </Button>
-          <Button asChild>
-            <Link href={`/settlements/${settlement.id}`}>
-              <Eye className="size-4" />
-              {t("paymentProofs.action.viewSettlement")}
-            </Link>
-          </Button>
+          {canOpenSettlement && (
+            <Button asChild>
+              <Link href={`/settlements/${settlement.id}`}>
+                <Eye className="size-4" />
+                {t("paymentProofs.action.viewSettlement")}
+              </Link>
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Whether this reader's portal opens /settlements (H16 second fix round).
+ * A contractor's portal does not - the settlement page belongs to the
+ * recycler's - so the 「查看结算」 links are not drawn for them; the
+ * dialog's own 预览 · 打印 · 导出 · 发送 stays.
+ */
+function useCanOpenSettlement() {
+  const { user } = useAuth();
+  return Boolean(
+    user && isRouteAllowed(user.portal, user.features, "/settlements", user.permissions, user.is_superuser),
   );
 }

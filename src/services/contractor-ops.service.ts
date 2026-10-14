@@ -1434,6 +1434,46 @@ export function isExportableKind(kind: string): kind is ExportableRecordKind {
 }
 
 /**
+ * Records outside the archive queue that print as their own PDF all the same
+ * (H16, HD13: 「每一个事项都有需要」). Mirrors the backend's
+ * `record_pdfs.RECORD_PDFS`: the same endpoint and layout as the nine, but
+ * 现场记录中心 does not list them.
+ */
+export const RECORD_PDF_KINDS = [
+  "GATE_INCIDENT",
+  "WASTE_DISPATCH",
+  "EQUIPMENT_HOURS",
+  "FIELD_TASK",
+  "ATTENDANCE",
+  "APPROVAL",
+  "ACCESS_PASS",
+  "INCIDENT_THREAD",
+  // H16 fix round (HD13 「每一个事项都要」).
+  "PROJECT",
+  "SITE_EQUIPMENT",
+  "SETTLEMENT",
+  "WEIGH_SESSION",
+  "DOCUMENT",
+  "ANNOUNCEMENT",
+  "ATTENDANCE_DAY",
+  "DELIVERY_NOTE",
+] as const;
+
+/** Every kind `record-exports/download` prints: the nine and the rest. */
+export type RecordPdfKind = ExportableRecordKind | (typeof RECORD_PDF_KINDS)[number];
+
+/**
+ * The PDF a record sheet (现场记录中心, a column's list) prints for a row of
+ * `kind`, or null. A 现场记录 row is a field task and prints as one; a period
+ * claim waits for Phase 4's rebuild of Claims.
+ */
+export function recordPdfKindFor(kind: string): RecordPdfKind | null {
+  if (isExportableKind(kind)) return kind;
+  if (kind === "SITE_RECORD") return "FIELD_TASK";
+  return (RECORD_PDF_KINDS as readonly string[]).includes(kind) ? (kind as RecordPdfKind) : null;
+}
+
+/**
  * One record as its own PDF, straight from its detail (T-386, D-267).
  *
  * 「每个模块都是一样可以单独导出」: the same layout as a package's single item
@@ -1444,7 +1484,7 @@ export function isExportableKind(kind: string): kind is ExportableRecordKind {
  * As a `File`, fetched once for 预览 · 打印 · 导出 · 发送 alike (PDF 统一操作
  * 规则, 2026-10-10), so the preview is what prints, saves and is sent.
  */
-export const recordPdfFile = (kind: ExportableRecordKind, recordId: string, reference: string) =>
+export const recordPdfFile = (kind: RecordPdfKind, recordId: string, reference: string) =>
   fetchAsFile("/api/record-exports/download/", {
     query: { kind, record: recordId },
     // Only used when the server sends no filename. Some references are
@@ -1454,7 +1494,7 @@ export const recordPdfFile = (kind: ExportableRecordKind, recordId: string, refe
   });
 
 /** The same PDF, fetched to read or print in the page (D12); the caller revokes it. */
-export const recordPdfObjectUrl = (kind: ExportableRecordKind, recordId: string) =>
+export const recordPdfObjectUrl = (kind: RecordPdfKind, recordId: string) =>
   fetchObjectUrl("/api/record-exports/download/", {
     query: { kind, record: recordId, inline: "1" },
   });
@@ -1766,5 +1806,65 @@ export function confirmRecordClosure(
     kind,
     record,
     note: note ?? "",
+  });
+}
+
+/** 现场任务 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportFieldTasks(request: ExportRequest): Promise<void> {
+  return download("/api/field-tasks/export_tasks/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `field-tasks.${request.format}`,
+  });
+}
+
+/** 现场照片 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportProgressPhotos(request: ExportRequest): Promise<void> {
+  return download("/api/site-progress/export_photos/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `site-photos.${request.format}`,
+  });
+}
+
+/** 施工分类 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportConstructionPhases(request: ExportRequest): Promise<void> {
+  return download("/api/site-progress/export_phases/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `construction-phases.${request.format}`,
+  });
+}
+
+/** 设备清单 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportEquipmentRegister(request: ExportRequest): Promise<void> {
+  return download("/api/site-equipment/export_register/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `equipment-register.${request.format}`,
+  });
+}
+
+/** 现场记录中心 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportArchiveQueue(request: ExportRequest): Promise<void> {
+  return download("/api/archive-queue/export_queue/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `site-records.${request.format}`,
+  });
+}
+
+/** 垃圾清运「全部」 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportWasteClearance(request: ExportRequest): Promise<void> {
+  return download("/api/site-disposals/export_clearance/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `waste-clearance.${request.format}`,
   });
 }

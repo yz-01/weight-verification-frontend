@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ExportButton } from "@/components/shared/export-button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
@@ -49,6 +50,7 @@ import {
   getProjects,
 } from "@/services/contractor.service";
 import {
+  exportNotifications,
   getNotifications,
   dismissNotification,
   confirmNotificationDone,
@@ -246,6 +248,34 @@ export function Notifications({
         }
         action={
           <div className="flex flex-wrap items-center gap-2">
+            {/* 「甚至通信通知中心都有需要」 (事项16): this list, as a file. */}
+            <ExportButton
+              disabled={count === 0}
+              disabledReason={t("notifications.count", { count: 0 })}
+              title={t(titleKey)}
+              onExport={(format) =>
+                exportNotifications({
+                  format,
+                  title: t(titleKey),
+                  subtitle: t("notifications.count", { count }),
+                  query: card ? { ...list.query, card } : list.query,
+                  columns: [
+                    { key: "created_at", label: t("notifications.field.time") },
+                    { key: "title", label: t("notifications.field.notification") },
+                    { key: "message", label: t("notifications.compose.message") },
+                    {
+                      key: "state",
+                      label: t("notifications.field.status"),
+                      values: {
+                        PENDING: t("notifications.state.PENDING"),
+                        DONE: t("notifications.state.DONE"),
+                        CLOSED: t("notifications.state.CLOSED"),
+                      },
+                    },
+                  ],
+                })
+              }
+            />
             {!card && can("notification.send") && (
               <Button onClick={() => setComposeOpen(true)}>
                 <BellPlus className="h-4 w-4" />

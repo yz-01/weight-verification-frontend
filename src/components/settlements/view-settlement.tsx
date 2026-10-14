@@ -5,6 +5,7 @@ import { Banknote, Info, Lock, Minus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -94,7 +95,10 @@ export function ViewSettlement({ id }: { id: string }) {
         backHref="/settlements"
         backLabel={t("settlements.title")}
         action={
-          can("settlement.lock") && data.state === "ISSUED" ? (
+          <div className="flex flex-wrap items-center justify-end gap-2">
+          {/* 预览 · 打印 · 导出 · 发送 on the settlement (H16). */}
+          <RecordExportButton kind="SETTLEMENT" recordId={data.id} reference={data.settlement_no} href={`/settlements/${data.id}`} />
+          {can("settlement.lock") && data.state === "ISSUED" ? (
             <Button
               size="sm"
               className="rounded-full px-4 shadow-sm"
@@ -103,7 +107,8 @@ export function ViewSettlement({ id }: { id: string }) {
               <Lock className="h-4 w-4" />
               {t("settlements.lock.confirm")}
             </Button>
-          ) : undefined
+          ) : null}
+          </div>
         }
       />
 

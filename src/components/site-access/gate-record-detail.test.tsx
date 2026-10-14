@@ -105,8 +105,8 @@ describe("the gate record detail (E8)", () => {
     const html = renderDetail(<GateRecordsPanel />, seeded);
     expectRecordPopup(html, expect);
     expect(html).toContain("GT-P1-261008-001");
-    // No export: a gate record never had one.
-    expect(html).not.toContain('data-stub="export"');
+    // Its own PDF since H16 (HD13: 「每一个事项都要」).
+    expect(html).toContain('data-stub="export" data-kind="GATE_INCIDENT"');
   });
 
   it("keeps its facts, its stamped photographs, its people and its conversation", () => {

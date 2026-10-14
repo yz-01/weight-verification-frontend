@@ -56,8 +56,7 @@ import {
   exportEquipmentHoursDays,
   getEquipmentHoursDays,
   getEquipmentHoursFilterOptions,
-  getEquipmentHoursMonth,
-} from "@/services/equipment-hours.service";
+  getEquipmentHoursMonth, exportEquipmentHoursMonth } from "@/services/equipment-hours.service";
 
 /** `YYYY-MM-DD` of a date in the browser's own day. */
 function isoDay(value: Date): string {
@@ -315,7 +314,7 @@ export function EquipmentOperatorHours() {
         title={tRoot("nav.submodule.equipmentOperatorHours")}
         subtitle={t("subtitle")}
         action={
-          canAdjust || (view === "day" && canExport) ? (
+          canAdjust || (view === "day" && canExport) || view === "month" ? (
             <div className="flex flex-wrap items-center gap-2">
               {/* 现场编号 (2026-10-10): the short number painted on each machine. */}
               {canAdjust && (
@@ -326,6 +325,34 @@ export function EquipmentOperatorHours() {
               )}
               {view === "day" && canExport && (
                 <ExportButton onExport={exportDays} disabled={rows.length === 0} />
+              )}
+              {/* 按月, as a file: one row per machine for the month (H16). */}
+              {view === "month" && (
+                <ExportButton
+                  disabled={!monthly.data?.rows.length}
+                  disabledReason={t("subtitle")}
+                  title={tRoot("nav.submodule.equipmentOperatorHours")}
+                  onExport={(format) =>
+                    exportEquipmentHoursMonth({
+                      format,
+                      title: `${tRoot("nav.submodule.equipmentOperatorHours")} · ${monthly.data?.month ?? ""}`,
+                      query: { ...filters, month: month ?? "" },
+                      columns: [
+                        { key: "equipment_name", label: t("field.equipment") },
+                        { key: "equipment_code", label: t("field.code") },
+                        { key: "site_no", label: t("field.siteNo") },
+                        { key: "supplier_name", label: t("field.supplier") },
+                        { key: "plate", label: t("field.plate") },
+                        { key: "project_name", label: t("field.project") },
+                        { key: "days_worked", label: t("field.daysWorked") },
+                        { key: "session_count", label: t("field.sessions") },
+                        { key: "total_hours", label: t("field.totalHours") },
+                        { key: "incomplete_count", label: t("field.incomplete") },
+                        { key: "adjusted_count", label: t("field.adjustedCount") },
+                      ],
+                    })
+                  }
+                />
               )}
             </div>
           ) : undefined
@@ -752,6 +779,14 @@ export function DayDialog({
       title={`${day.equipment_name}${day.plate ? ` · ${day.plate}` : ""}`}
       description={t("dialog.summary", { start, end, hours: day.hours })}
       onClose={onClose}
+      // 预览 · 打印 · 导出 · 发送 on this one start-to-stop (H16, HD13): the
+      // session is named by its start (or stop) photograph.
+      exportRecord={{
+        kind: "EQUIPMENT_HOURS",
+        recordId: day.key,
+        reference: `${day.equipment_code || day.equipment_name}-${day.work_date}`,
+        href: "/equipment-operator-hours",
+      }}
     >
       <RecordDetailShell
         reference={`${day.equipment_code || day.equipment_name}-${day.work_date}`}

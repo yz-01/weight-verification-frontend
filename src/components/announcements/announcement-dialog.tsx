@@ -5,6 +5,7 @@ import { Ban, Loader2, Paperclip } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,12 @@ export function AnnouncementDialog({ id, onClose }: { id: string; onClose: () =>
             </DialogDescription>
           )}
         </DialogHeader>
+        {/* 预览 · 打印 · 导出 · 发送 on the announcement (H16, 事项16). */}
+        {row ? (
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+            <RecordExportButton kind="ANNOUNCEMENT" recordId={row.id} reference={row.title} href="/notifications" />
+          </div>
+        ) : null}
         {detail.isError ? (
           <LoadFailed onRetry={() => void detail.refetch()} />
         ) : !row ? (

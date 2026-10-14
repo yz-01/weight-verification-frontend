@@ -117,8 +117,8 @@ describe("the field task detail (E8)", () => {
     expectRecordPopup(html, expect);
     expect(html).toContain("Check rebar at grid C");
     expect(html).toContain('data-field-task-sheet="SITE"');
-    // FIELD_TASK is not an exportable kind: no export button.
-    expect(html).not.toContain('data-stub="export"');
+    // Its own PDF since H16 (HD13: 「每一个事项都要」).
+    expect(html).toContain('data-stub="export" data-kind="FIELD_TASK"');
     // Its own conversation and attachments, as before.
     expect(html).toContain('data-stub="conversation"');
     expect(html).toContain('data-stub="attachments"');

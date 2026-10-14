@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -34,7 +35,7 @@ import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { clearanceFigureFilters } from "@/lib/waste-clearance-figures";
 import { getDispatchSummary, getDispatches } from "@/services/contractor.service";
-import { getDisposalRequests, getDisposalTotals } from "@/services/contractor-ops.service";
+import { getDisposalRequests, getDisposalTotals, exportWasteClearance } from "@/services/contractor-ops.service";
 
 type Kind = "all" | "disposal" | "dispatch";
 
@@ -291,8 +292,41 @@ function MergedList() {
   const loading = disposals.isLoading || dispatches.isLoading;
   const pageHref = (target: number) => `/waste-clearance?kind=all&page=${target}`;
 
+  const statusWords = {
+    ...Object.fromEntries(
+      Object.entries(root.raw("siteDisposal.status") as Record<string, string>).map(([code, text]) => [`DISPOSAL:${code}`, text]),
+    ),
+    ...Object.fromEntries(
+      Object.entries(root.raw("dispatches.state") as Record<string, string>).map(([code, text]) => [`DISPATCH:${code}`, text]),
+    ),
+  };
+
   return (
     <section className="overflow-hidden surface-panel rounded-xl">
+      {/* Both kinds, merged as here, as one file (H16, HD13). */}
+      <div className="flex justify-end px-3 pt-3">
+        <ExportButton
+          size="sm"
+          disabled={!disposals.data?.count && !dispatches.data?.count}
+          disabledReason={t("title")}
+          title={t("title")}
+          onExport={(format) =>
+            exportWasteClearance({
+              format,
+              title: t("title"),
+              query: { project },
+              columns: [
+                { key: "kind", label: t("column.kind"), values: { DISPOSAL: t("kind.disposal"), DISPATCH: t("kind.dispatch") } },
+                { key: "reference", label: t("column.reference") },
+                { key: "status_key", label: t("column.status"), values: statusWords },
+                { key: "project_name", label: t("column.project") },
+                { key: "content", label: t("column.content") },
+                { key: "created_at", label: t("column.at") },
+              ],
+            })
+          }
+        />
+      </div>
       <QueryFailedNote query={disposals} what={t("kind.disposal")} />
       <QueryFailedNote query={dispatches} what={t("kind.dispatch")} />
       <Table>

@@ -22,7 +22,8 @@ import type {
   DeviceMedia,
   ThirdPartyAccessEvent,
 } from "@/interfaces/integration";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 export function getNotifications(
   query: ListQuery,
@@ -315,4 +316,14 @@ export async function setScheduledJobActive(
 
 export function getWorkerStatus(): Promise<WorkerStatusSummary> {
   return api.get("/api/platform-ops/get_worker_status/");
+}
+
+/** 通知中心 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportNotifications(request: ExportRequest): Promise<void> {
+  return download("/api/notifications/export_notifications/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `notifications.${request.format}`,
+  });
 }

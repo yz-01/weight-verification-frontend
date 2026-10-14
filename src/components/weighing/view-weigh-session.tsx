@@ -21,6 +21,7 @@ import {
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
@@ -156,10 +157,19 @@ export function ViewWeighSession({ id }: { id: string }) {
         backLabel={t("weighing.title")}
         action={
           <div className="flex flex-wrap justify-end gap-2">
-            {record.ticket_status === "CONFIRMED" && (
+            {record.ticket_status === "CONFIRMED" ? (
               <PrintTicketButton
                 sessionId={record.id}
                 sessionNo={record.session_no}
+              />
+            ) : (
+              // Before the official ticket (H16): the record, marked 未确认,
+              // with no net weight or settlement figure.
+              <RecordExportButton
+                kind="WEIGH_SESSION"
+                recordId={record.id}
+                reference={record.session_no}
+                href={`/weighing/${record.id}`}
               />
             )}
             {/* Only when there is a load to claim against, and only for the

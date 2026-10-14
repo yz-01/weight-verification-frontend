@@ -6,12 +6,13 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { FilterBar, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useCurrentProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import type { IncidentReportThread } from "@/interfaces/incident-report";
-import { getIncidentThreads } from "@/services/site-operations.service";
+import { exportIncidentThreads, getIncidentThreads } from "@/services/site-operations.service";
 
 import { CreateIncidentDialog } from "./create-incident-dialog";
 import { IncidentThreadDetail } from "./incident-thread-detail";
@@ -83,9 +84,41 @@ export function IncidentThreadList() {
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="min-w-0 text-base font-semibold text-foreground">{t("title")}</h3>
-          <Button onClick={() => setShowCreate(true)}>
-            {t("action.reportIncident")}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* The reports listed, as a file (H16, HD13). */}
+            <ExportButton
+              disabled={!threads.data?.count}
+              disabledReason={t("empty")}
+              title={t("title")}
+              onExport={(format) =>
+                exportIncidentThreads({
+                  format,
+                  title: t("title"),
+                  query: {
+                    sort_by: "created_at",
+                    sort_order: "desc",
+                    project: selectedProject === "all" ? undefined : selectedProject,
+                  },
+                  columns: [
+                    { key: "thread_no", label: t("export.number") },
+                    { key: "title", label: t("field.title") },
+                    { key: "occurred_at", label: t("export.occurredAt") },
+                    { key: "project_name", label: t("field.project") },
+                    { key: "reported_by_name", label: t("field.reportedBy") },
+                    {
+                      key: "status",
+                      label: t("export.status"),
+                      values: { OPEN: t("status.open"), RESOLVED: t("status.resolved") },
+                    },
+                    { key: "message_count", label: t("export.messages") },
+                  ],
+                })
+              }
+            />
+            <Button onClick={() => setShowCreate(true)}>
+              {t("action.reportIncident")}
+            </Button>
+          </div>
         </div>
 
         {/* The project is its only filter: beside the top bar's 「当前项目」

@@ -962,3 +962,15 @@ export function exportDispatches(request: ExportRequest): Promise<void> {
   });
 }
 
+/** One 累计 line's records as a file (H16): the rows its breakdown shows. */
+export function exportReceiptNetBreakdown(
+  request: ExportRequest,
+  row: MaterialNetTotalRow,
+): Promise<void> {
+  return download("/api/receipts/export_net_breakdown/", {
+    method: "POST",
+    query: { ...exportQuery(request), ...netLineKey(row) },
+    body: exportBody(request),
+    fallbackFilename: `net-breakdown.${request.format}`,
+  });
+}

@@ -17,7 +17,8 @@ import type {
   WorkTrade,
   WorkTradePayload,
 } from "@/interfaces/auth";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 export function getUsers(query: ListQuery): Promise<Paginated<UserRow>> {
   return api.list<UserRow>("/api/users/get_users/", query);
@@ -223,4 +224,34 @@ export async function updateWorkTrade(
 export async function deleteWorkTrade(id: string): Promise<void> {
   await api.delete(`/api/work-trades/${id}/delete_trade/`);
   toastSuccess("organisation.toast.tradeRemoved");
+}
+
+/** 用户管理 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportUsers(request: ExportRequest): Promise<void> {
+  return download("/api/users/export_users/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `users.${request.format}`,
+  });
+}
+
+/** 人员交接记录 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportUserReplacements(request: ExportRequest): Promise<void> {
+  return download("/api/users/export_replacements/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `user-handovers.${request.format}`,
+  });
+}
+
+/** 登录记录 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportLoginRecords(request: ExportRequest): Promise<void> {
+  return download("/api/login-records/export_login_records/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `login-records.${request.format}`,
+  });
 }

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { recordTarget } from "@/lib/record-routes";
 import { absoluteUrl } from "@/lib/share";
-import { recordPdfFile, type ExportableRecordKind } from "@/services/contractor-ops.service";
+import { recordPdfFile, type RecordPdfKind } from "@/services/contractor-ops.service";
 
 /**
  * This one record as a PDF, from the top right of its detail (T-386, D-267):
@@ -37,15 +37,18 @@ export function RecordExportButton({
   kind,
   recordId,
   reference,
+  href: givenHref,
 }: {
-  kind: ExportableRecordKind;
+  kind: RecordPdfKind;
   recordId: string | null | undefined;
   reference: string;
+  /** Where the record opens, for a kind `recordTarget` does not route (H16). */
+  href?: string;
 }) {
   const t = useTranslations("fileActions");
   if (!recordId) return null;
   const target = recordTarget(kind, recordId);
-  const href = target && "href" in target ? target.href : "/";
+  const href = givenHref ?? (target && "href" in target ? target.href : "/");
   return (
     <FileActionButtons
       label={t("completeEvidence")}

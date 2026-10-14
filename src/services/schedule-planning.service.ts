@@ -213,12 +213,15 @@ export const exportSchedule = (
   planId: string,
   revisionId: string,
   format: "xlsx" | "pdf",
+  /** 「只看延误」 on (H16): the file holds only the delayed tasks, as the screen. */
+  options: { delayed?: boolean } = {},
 ) =>
   download(`/api/schedules/${planId}/export_schedule/`, {
     method: "POST",
     body: {
       revision: revisionId,
       format,
+      ...(options.delayed ? { delayed: true } : {}),
       title: "Construction Schedule",
       columns: [
         { key: "wbs_code", label: "WBS" },

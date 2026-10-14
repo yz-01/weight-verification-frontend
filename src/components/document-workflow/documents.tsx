@@ -22,6 +22,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -40,6 +41,7 @@ import {
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
+import { ExportButton } from "@/components/shared/export-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -101,6 +103,7 @@ import {
   downloadSystemFile,
   getDocument,
   getDocumentCategories,
+  exportDocuments,
   getDocuments,
   getDocumentSubcategories,
   systemFileObjectUrl,
@@ -158,6 +161,28 @@ export function Documents() {
     queryKey: ["documents", documentsQuery],
     queryFn: () => getDocuments(documentsQuery),
   });
+  // The filed documents listed, as a file (H16, HD13).
+  const documentsExport = (format: "xlsx" | "pdf") =>
+    exportDocuments({
+      format,
+      title: t("documents.title"),
+      query: documentsQuery,
+      columns: [
+        { key: "document_no", label: t("documents.field.number") },
+        { key: "title", label: t("documents.field.title") },
+        { key: "project_name", label: t("documents.field.project") },
+        { key: "category_name", label: t("documents.field.category") },
+        { key: "subcategory_name", label: t("documents.field.subcategory") },
+        {
+          key: "status",
+          label: t("documents.field.status"),
+          values: { ACTIVE: t("documents.status.ACTIVE"), ARCHIVED: t("documents.status.ARCHIVED") },
+        },
+        { key: "file_count", label: t("documents.field.files") },
+        { key: "created_by_name", label: t("documents.field.uploadedBy") },
+        { key: "created_at", label: t("documents.field.createdAt") },
+      ],
+    });
   const categories = useQuery({
     queryKey: ["documents", "categories"],
     queryFn: () =>
@@ -446,6 +471,12 @@ export function Documents() {
         action={
           canUpload ? (
             <div className="flex flex-wrap items-center gap-2">
+              <ExportButton
+                disabled={!totalCount}
+                disabledReason={t("documents.count", { count: 0 })}
+                title={t("documents.title")}
+                onExport={documentsExport}
+              />
               {manages && (
                 <Button
                   variant="outline"
@@ -468,7 +499,14 @@ export function Documents() {
                 {t("documents.uploadFile.action")}
               </Button>
             </div>
-          ) : undefined
+          ) : (
+            <ExportButton
+              disabled={!totalCount}
+              disabledReason={t("documents.count", { count: 0 })}
+              title={t("documents.title")}
+              onExport={documentsExport}
+            />
+          )
         }
       />
 
@@ -1540,6 +1578,17 @@ function DocumentDetailDialog({
             {detail.data?.document_no ?? t("common.loading")}
           </DialogDescription>
         </DialogHeader>
+        {/* 预览 · 打印 · 导出 · 发送: its fields, files and approval history (H16). */}
+        {detail.data ? (
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+            <RecordExportButton
+              kind="DOCUMENT"
+              recordId={detail.data.id}
+              reference={detail.data.document_no || detail.data.title}
+              href={`/documents?document=${detail.data.id}`}
+            />
+          </div>
+        ) : null}
 
         {detail.isError ? (
           <p className="py-10 text-center text-sm text-destructive">

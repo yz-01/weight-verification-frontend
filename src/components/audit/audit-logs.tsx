@@ -359,8 +359,16 @@ export function AuditLogs({
         empty_label: t("audit.empty"),
         columns: [
           { key: "created_at", label: t("audit.field.createdAt") },
-          { key: "result", label: t("audit.field.result") },
-          { key: "action", label: t("audit.field.action") },
+          {
+            key: "result",
+            label: t("audit.field.result"),
+            values: { SUCCESS: t("audit.result.SUCCESS"), FAILED: t("audit.result.FAILED") },
+          },
+          {
+            key: "action",
+            label: t("audit.field.action"),
+            values: Object.fromEntries(ALL_ACTIONS.map((action) => [action, t(`audit.action.${action}`)])),
+          },
           { key: "actor_email", label: t("audit.field.actor") },
           { key: "company_name", label: t("audit.field.company") },
           { key: "object_type", label: t("audit.field.objectType") },

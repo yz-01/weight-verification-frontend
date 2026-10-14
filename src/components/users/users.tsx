@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldAccessManagementDialog } from "@/components/field-staff/field-access-management";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -37,8 +38,7 @@ import {
   getUserStats,
   getUsers,
   sendPasswordReset,
-  updateUserStatus,
-} from "@/services/users.service";
+  updateUserStatus, exportUsers } from "@/services/users.service";
 import { getCompanies } from "@/services/companies.service";
 
 const FILTER_KEYS = [
@@ -491,7 +491,49 @@ export function Users({
               : t("users.count", { count: totalCount })
         }
         action={
-          section === "management" &&
+          <div className="flex flex-wrap justify-end gap-2">
+            {/* The accounts listed, as a file (H16, HD13). */}
+            <ExportButton
+              disabled={totalCount === 0}
+              disabledReason={t("users.count", { count: 0 })}
+              title={t("users.title")}
+              onExport={(format) =>
+                exportUsers({
+                  format,
+                  title: t("users.title"),
+                  subtitle: t("users.count", { count: totalCount }),
+                  query: list.query,
+                  columns: [
+                    { key: "full_name", label: t("users.field.fullName") },
+                    { key: "email", label: t("users.field.email") },
+                    { key: "company_name", label: t("users.field.company") },
+                    {
+                      key: "company_type",
+                      label: t("users.field.audience"),
+                      values: {
+                        CONTRACTOR: t("users.audience.CONTRACTOR"),
+                        RECYCLER: t("users.audience.RECYCLER"),
+                        PLATFORM: t("users.audience.PLATFORM"),
+                      },
+                    },
+                    { key: "role_name", label: t("users.field.role") },
+                    {
+                      key: "status",
+                      label: t("users.field.status"),
+                      values: {
+                        ACTIVE: t("users.status.ACTIVE"),
+                        INVITED: t("users.status.INVITED"),
+                        SUSPENDED: t("users.status.SUSPENDED"),
+                      },
+                    },
+                    { key: "phone", label: t("users.field.phone") },
+                    { key: "last_login_at", label: t("users.field.lastLoginAt") },
+                    { key: "created_at", label: t("users.field.createdAt") },
+                  ],
+                })
+              }
+            />
+          {section === "management" &&
           (canCreateUser || canManageFieldAccess) ? (
             <div className="flex flex-wrap justify-end gap-2">
               {canManageFieldAccess && (
@@ -515,7 +557,8 @@ export function Users({
                 </Button>
               )}
             </div>
-          ) : undefined
+          ) : null}
+          </div>
         }
       />
 

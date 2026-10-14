@@ -1,4 +1,5 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 import type {
   ApprovalCredential,
   ApplicationTemplate,
@@ -775,3 +776,13 @@ export const downloadApplicationFormFile = (id: string, ref: ApplicationFormFile
     query: formFileQuery(ref),
     fallbackFilename: filename,
   });
+
+/** 顾问申请 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportConsultantApplications(request: ExportRequest): Promise<void> {
+  return download("/api/consultant-applications/export_applications/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `consultant-applications.${request.format}`,
+  });
+}

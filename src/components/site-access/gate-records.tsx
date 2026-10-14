@@ -670,6 +670,12 @@ export function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose:
       title={row?.incident_no ?? t("title")}
       description={row?.is_issue ? t("issueHelp") : t("detailHelp")}
       onClose={onClose}
+      // 预览 · 打印 · 导出 · 发送 on this one record (H16, HD13).
+      exportRecord={
+        row
+          ? { kind: "GATE_INCIDENT", recordId: row.id, reference: row.incident_no, href: `/gate-records?gate_incident=${row.id}` }
+          : null
+      }
     >
       <QueryFailedNote query={detail} what={t("whatOne")} />
       {detail.isLoading && <Empty text={t("loading")} />}
