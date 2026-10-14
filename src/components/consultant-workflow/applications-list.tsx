@@ -32,12 +32,13 @@ import {
 } from "@/components/shared/needs-action";
 import { FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordNo } from "@/components/shared/record-no";
+import { ExportButton } from "@/components/shared/export-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ConsultantApplicationStatus } from "@/interfaces/consultant-workflow";
 import { useDateFormat } from "@/lib/dates";
-import { getConsultantApplications } from "@/services/consultant-workflow.service";
-import { getFieldTasks } from "@/services/contractor-ops.service";
+import { exportConsultantApplications, getConsultantApplications } from "@/services/consultant-workflow.service";
+import { exportFieldTasks, getFieldTasks } from "@/services/contractor-ops.service";
 
 /**
  * `inbox` is 「待整理现场资料」 (2026-10 C1, Q2): what the site sent in for
@@ -63,6 +64,7 @@ const tones: Record<
 
 export function ConsultantApplicationsList() {
   const t = useTranslations("consultantWorkflow");
+  const tRoot = useTranslations();
   const searchParams = useSearchParams();
   const { user, can } = useAuth();
   const df = useDateFormat();
@@ -121,6 +123,70 @@ export function ConsultantApplicationsList() {
               active={waitingOnly}
               onToggle={setWaitingOnly}
             />
+            {stage !== "inbox" && (
+              // The applications listed, as a file (H16, HD13).
+              <ExportButton
+                disabled={!rows.data?.count}
+                disabledReason={t("applications.subtitle", { count: 0 })}
+                title={t("applications.title")}
+                onExport={(format) =>
+                  exportConsultantApplications({
+                    format,
+                    title: t("applications.title"),
+                    subtitle: t("applications.subtitle", { count: rows.data?.count ?? 0 }),
+                    query: {
+                      project: project || undefined,
+                      search: search || undefined,
+                      stage: stage === "all" ? undefined : stage,
+                      needs_action: waitingOnly ? "1" : undefined,
+                    },
+                    columns: [
+                      { key: "application_no", label: tRoot("mySubmissions.field.application_no") },
+                      { key: "project_name", label: t("field.project") },
+                      { key: "application_type_label", label: t("field.applicationType") },
+                      { key: "consultant_organization_name", label: t("field.consultantCompany") },
+                      { key: "consultant_name", label: t("field.consultant") },
+                      { key: "application_date", label: tRoot("mySubmissions.field.applied_at") },
+                      {
+                        key: "status",
+                        label: tRoot("mySubmissions.field.approval_status"),
+                        values: Object.fromEntries(
+                          (["DRAFT", "SUBMITTED", "APPROVED", "APPROVED_WITH_REMEDIAL", "REVISE_RESUBMIT", "REJECTED", "ARCHIVED"] as const).map(
+                            (code) => [code, t(`status.${code}`)],
+                          ),
+                        ),
+                      },
+                      { key: "location", label: t("field.location") },
+                    ],
+                  })
+                }
+              />
+            )}
+            {stage === "inbox" && (
+              // 待整理现场资料 as a file: the submissions waiting here (H16).
+              <ExportButton
+                disabled={!toOrganize.data?.count}
+                disabledReason={t("inbox.empty")}
+                title={t("inbox.what")}
+                onExport={(format) =>
+                  exportFieldTasks({
+                    format,
+                    title: t("inbox.what"),
+                    query: { to_organize: "1", project: project || undefined },
+                    columns: [
+                      { key: "title", label: tRoot("contractorOps.field.title") },
+                      { key: "submission_category", label: t("field.applicationType") },
+                      { key: "project_name", label: t("field.project") },
+                      { key: "created_by_name", label: tRoot("mySubmissions.field.requested_by") },
+                      { key: "submitted_at", label: tRoot("contractorReports.column.submitted_at") },
+                      { key: "work_location", label: t("field.location") },
+                      { key: "instructions", label: tRoot("contractorOps.field.instructions") },
+                      { key: "photo_count", label: tRoot("contractorOps.field.photos") },
+                    ],
+                  })
+                }
+              />
+            )}
             {can("approval.review") && (
               <Button asChild variant="outline">
                 <Link href="/approval-credential">

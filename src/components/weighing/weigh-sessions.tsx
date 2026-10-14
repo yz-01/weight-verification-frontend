@@ -15,9 +15,10 @@ import {
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { ExportButton } from "@/components/shared/export-button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { SessionVerdict, WeighSessionRow } from "@/interfaces/weighing";
-import { getWeighSessions } from "@/services/weighing.service";
+import { getWeighSessions, exportWeighSessions } from "@/services/weighing.service";
 import { useDateFormat } from "@/lib/dates";
 
 const FILTER_KEYS = ["verdict", "requires_review"];
@@ -329,14 +330,62 @@ export function WeighSessions() {
         title={t("weighing.title")}
         subtitle={isLoading ? "—" : t("weighing.count", { count: totalCount })}
         action={
-          can("weighing.operate") ? (
-            <Button asChild>
-              <Link href="/gate">
-                <ScanLine className="size-4" />
-                {t("gate.title")}
-              </Link>
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap items-center gap-2">
+            {/* The weighings listed, as a file (H16, HD13). */}
+            <ExportButton
+              disabled={totalCount === 0}
+              disabledReason={t("weighing.count", { count: 0 })}
+              title={t("weighing.title")}
+              onExport={(format) =>
+                exportWeighSessions({
+                  format,
+                  title: t("weighing.title"),
+                  subtitle: t("weighing.count", { count: totalCount }),
+                  query: list.query,
+                  columns: [
+                    { key: "session_no", label: t("weighing.field.sessionNo") },
+                    {
+                      key: "verdict",
+                      label: t("weighing.field.verdict"),
+                      values: Object.fromEntries(
+                        (["PENDING", "VALID", "INVALID"] as const).map((code) => [code, t(`weighing.verdict.${code}`)]),
+                      ),
+                    },
+                    {
+                      key: "ticket_status",
+                      label: t("weighing.field.ticketStatus"),
+                      values: Object.fromEntries(
+                        (["WEIGHING", "PENDING_CONFIRMATION", "CONFIRMED", "VOIDED"] as const).map((code) => [
+                          code,
+                          t(`weighing.ticketStatus.${code}`),
+                        ]),
+                      ),
+                    },
+                    { key: "stable_weight_kg", label: t("weighing.field.stableWeight") },
+                    { key: "anomaly_count", label: t("weighing.field.anomalyCount") },
+                    { key: "vehicle_plate", label: t("weighing.field.vehiclePlate") },
+                    {
+                      key: "direction",
+                      label: t("weighing.field.direction"),
+                      values: { GROSS: t("weighing.direction.GROSS"), TARE: t("weighing.direction.TARE") },
+                    },
+                    { key: "scale_name", label: t("weighing.field.scale") },
+                    { key: "dispatch_no", label: t("dispatches.field.dispatchNo") },
+                    { key: "recycler_name", label: t("dispatches.field.recycler") },
+                    { key: "started_at", label: t("weighing.field.startedAt") },
+                  ],
+                })
+              }
+            />
+            {can("weighing.operate") ? (
+              <Button asChild>
+                <Link href="/gate">
+                  <ScanLine className="size-4" />
+                  {t("gate.title")}
+                </Link>
+              </Button>
+            ) : null}
+          </div>
         }
       />
 

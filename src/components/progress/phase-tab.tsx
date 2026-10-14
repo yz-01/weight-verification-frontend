@@ -28,9 +28,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ExportButton } from "@/components/shared/export-button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { ConstructionPhase } from "@/interfaces/contractor-ops";
 import {
+  exportConstructionPhases,
   getConstructionPhases,
   getSiteProgressSummary,
 } from "@/services/contractor-ops.service";
@@ -66,6 +68,31 @@ export function PhaseTab() {
     <div className="space-y-4">
       <FilterBar>
         <ProjectListFilter list={list} />
+        {/* The 施工分类 listed, as a file (H16, HD13). */}
+        <ExportButton
+          disabled={rows.length === 0}
+          disabledReason={tOps("state.empty")}
+          title={t("tabs.phases")}
+          onExport={(format) =>
+            exportConstructionPhases({
+              format,
+              title: t("tabs.phases"),
+              query: { project: project || undefined },
+              columns: [
+                { key: "project_name", label: tOps("field.project") },
+                { key: "code", label: tOps("field.code") },
+                { key: "name", label: t("phases.name") },
+                { key: "planned_weight", label: tOps("progress.plannedWeight") },
+                { key: "record_count", label: t("phases.records") },
+                {
+                  key: "is_active",
+                  label: tOps("field.status"),
+                  values: { true: t("phases.active"), false: t("phases.inactive") },
+                },
+              ],
+            })
+          }
+        />
         {can("progress.manage") && (
           <Button className="sm:ml-auto" onClick={() => setAdding(true)}>
             <ListTree />

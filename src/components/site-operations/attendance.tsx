@@ -36,9 +36,11 @@ import type {
   AttendanceEvent,
   AttendanceRecord,
 } from "@/interfaces/site-operations";
+import { ExportButton } from "@/components/shared/export-button";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useDateFormat } from "@/lib/dates";
 import { submitAttendanceOfflineAware } from "@/services/offline-sync.service";
-import { getAttendance } from "@/services/site-operations.service";
+import { exportAttendance, getAttendance } from "@/services/site-operations.service";
 
 interface ClockDraft {
   project: string;
@@ -274,6 +276,40 @@ export function Attendance() {
               allLabel={t("attendance.filter.allProjects")}
               className="hidden w-55 sm:flex"
             />
+            {/* 「包括人进场记录」 (事项16): the rows on screen, as a file. */}
+            <ExportButton
+              disabled={total === 0}
+              disabledReason={t("attendance.count", { count: 0 })}
+              title={t("attendance.title")}
+              onExport={(format) =>
+                exportAttendance({
+                  format,
+                  title: t("attendance.title"),
+                  subtitle: t("attendance.count", { count: total }),
+                  query: list.query,
+                  columns: [
+                    { key: "occurred_at", label: t("attendance.field.time") },
+                    { key: "user_name", label: t("attendance.field.worker") },
+                    {
+                      key: "event",
+                      label: t("attendance.field.event"),
+                      values: { CLOCK_IN: t("attendance.event.CLOCK_IN"), CLOCK_OUT: t("attendance.event.CLOCK_OUT") },
+                    },
+                    { key: "project_name", label: t("attendance.field.project") },
+                    {
+                      key: "source",
+                      label: t("attendance.field.source"),
+                      values: {
+                        MANUAL: t("attendance.source.MANUAL"),
+                        GEOFENCE: t("attendance.source.GEOFENCE"),
+                        SYSTEM: t("attendance.source.SYSTEM"),
+                      },
+                    },
+                    { key: "note", label: t("attendance.field.note") },
+                  ],
+                })
+              }
+            />
             {can("attendance.clock") && (
               <Button onClick={openClockDialog}>
                 <LogIn className="h-4 w-4" />
@@ -463,6 +499,17 @@ export function Attendance() {
           <DialogHeader>
             <DialogTitle>{t("attendance.evidence.title")}</DialogTitle>
           </DialogHeader>
+          {/* 预览 · 打印 · 导出 · 发送 on this one clock-in or -out (H16, HD13). */}
+          {selectedRecord ? (
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+              <RecordExportButton
+                kind="ATTENDANCE"
+                recordId={selectedRecord.id}
+                reference={`${selectedRecord.user_name} ${df.dateTime(selectedRecord.occurred_at)}`}
+                href="/attendance"
+              />
+            </div>
+          ) : null}
           {/*
             C21: 「详情不展示匹配围栏技术信息或地图，实时位置页保留地图」 - the
             record shows who, where, when, the photo and the GPS reading. The

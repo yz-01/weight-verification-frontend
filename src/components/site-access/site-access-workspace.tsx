@@ -40,6 +40,8 @@ import {
 import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
+import { ExportButton } from "@/components/shared/export-button";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -80,14 +82,14 @@ import {
   getSiteAccessCredentials,
   getSiteAccessDefaults,
   getSiteAccessPass,
+  exportSiteAccessPasses,
   getSiteAccessPasses,
   getThirdPartyAccessEvents,
   registerSiteAccessCredential,
   reviewSiteAccessPass,
   revokeSiteAccessCredential,
   revokeSiteAccessPass,
-  updateSiteAccessPass,
-} from "@/services/site-access.service";
+  updateSiteAccessPass, exportDeviceEvents } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
 
 /** The status filter's "approved, running out within the week" choice. */
@@ -245,6 +247,53 @@ export function SiteAccessWorkspace() {
                 count={rows.data?.needs_action_count}
                 active={waitingOnly}
                 onToggle={setWaitingOnly}
+              />
+              {/* The passes listed, as a file (H16, HD13). */}
+              <ExportButton
+                disabled={!rows.data?.count}
+                disabledReason={t("access.empty")}
+                title={t("access.title")}
+                onExport={(format) =>
+                  exportSiteAccessPasses({
+                    format,
+                    title: t("access.title"),
+                    query: {
+                      ...(project !== "all" ? { project } : {}),
+                      ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
+                      ...(status === EXPIRING ? { expiring: "1" } : status !== "all" ? { status } : {}),
+                    },
+                    columns: [
+                      { key: "pass_no", label: t("visitorRecords.field.pass") },
+                      {
+                        key: "subject_type",
+                        label: t("field.subjectType"),
+                        values: {
+                          WORKER: t("subjectType.WORKER"),
+                          VISITOR: t("subjectType.VISITOR"),
+                          VEHICLE: t("subjectType.VEHICLE"),
+                        },
+                      },
+                      { key: "subject_name", label: t("field.subjectName") },
+                      { key: "subject_company", label: t("field.subjectCompany") },
+                      { key: "phone", label: t("field.phone") },
+                      { key: "vehicle_plate", label: t("field.vehiclePlate") },
+                      { key: "purpose", label: t("field.purpose") },
+                      { key: "project_name", label: t("field.project") },
+                      { key: "valid_from", label: t("field.validFrom") },
+                      { key: "valid_until", label: t("field.validUntil") },
+                      {
+                        key: "effective_status",
+                        label: t("field.status"),
+                        values: Object.fromEntries(
+                          (["PENDING", "APPROVED", "REJECTED", "REVOKED", "EXPIRED"] as const).map(
+                            (code) => [code, t(`passStatus.${code}`)],
+                          ),
+                        ),
+                      },
+                      { key: "approved_by_name", label: t("visitorRecords.field.approvedBy") },
+                    ],
+                  })
+                }
               />
               {can("site_access.manage") ? (
                 <Button
@@ -871,6 +920,51 @@ function DeviceEventsPanel() {
           />
         </FieldWrapper>
         )}
+        <div className="flex items-end sm:col-span-2">
+          {/* The device events listed, as a file (H16, HD13). */}
+          <ExportButton
+            disabled={!rows.data?.count}
+            disabledReason={t("deviceEvent.empty")}
+            title={t("access.deviceEvents")}
+            onExport={(format) =>
+              exportDeviceEvents({
+                format,
+                title: t("access.deviceEvents"),
+                query: {
+                  ...(project !== "all" ? { project } : {}),
+                  ...(result !== "all" ? { verification_result: result } : {}),
+                },
+                columns: [
+                  { key: "occurred_at", label: t("deviceEvent.occurredAt") },
+                  { key: "project_name", label: t("field.project") },
+                  { key: "device_id", label: t("deviceEvent.device") },
+                  { key: "gate_name", label: t("deviceEvent.gate") },
+                  {
+                    key: "credential_type",
+                    label: t("deviceEvent.credential"),
+                    values: t.raw("credentialType") as Record<string, string>,
+                  },
+                  { key: "pass_no", label: t("deviceEvent.pass") },
+                  {
+                    key: "direction",
+                    label: t("deviceEvent.direction"),
+                    values: { ENTRY: t("direction.ENTRY"), EXIT: t("direction.EXIT") },
+                  },
+                  {
+                    key: "verification_result",
+                    label: t("deviceEvent.result"),
+                    values: { ALLOWED: t("deviceEvent.allowed"), DENIED: t("deviceEvent.denied") },
+                  },
+                  {
+                    key: "reason_code",
+                    label: t("deviceEvent.reason"),
+                    values: t.raw("deviceEvent.reasonCode") as Record<string, string>,
+                  },
+                ],
+              })
+            }
+          />
+        </div>
         <FieldWrapper label={t("deviceEvent.result")}>
           <Select value={result} onValueChange={setResult}>
             <SelectTrigger className="w-full">
@@ -996,6 +1090,15 @@ function PassDetail({
             {row.subject_name} · {row.project_name}
           </DialogDescription>
         </DialogHeader>
+        {/* 预览 · 打印 · 导出 · 发送 on this one pass and its entries and exits (H16, HD13). */}
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+          <RecordExportButton
+            kind="ACCESS_PASS"
+            recordId={row.id}
+            reference={row.pass_no}
+            href={`/site-access?pass=${row.id}&project=${row.project}`}
+          />
+        </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <Info
             label={t("field.status")}

@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { ListHeader } from "@/components/shared/page-primitives";
-import { getUserReplacements } from "@/services/users.service";
+import { getUserReplacements, exportUserReplacements } from "@/services/users.service";
 
 export function UserHandoverHistory() {
   const t = useTranslations("userHandover");
@@ -24,6 +25,32 @@ export function UserHandoverHistory() {
       <ListHeader
         title={t("history.title")}
         subtitle={t("history.subtitle", { count: rows.data?.count ?? 0 })}
+        action={
+          // The handovers listed, as a file (H16, HD13).
+          <ExportButton
+            disabled={!rows.data?.count}
+            disabledReason={t("history.subtitle", { count: 0 })}
+            title={t("history.title")}
+            onExport={(format) =>
+              exportUserReplacements({
+                format,
+                title: t("history.title"),
+                query: {},
+                columns: [
+                  { key: "completed_at", label: t("export.completedAt") },
+                  { key: "outgoing_user_name", label: t("export.outgoing") },
+                  { key: "outgoing_user_email", label: t("field.email") },
+                  { key: "incoming_user_name", label: t("field.incomingUser") },
+                  { key: "incoming_user_email", label: t("field.email") },
+                  { key: "reason", label: t("field.reason") },
+                  { key: "project_count", label: t("export.projects") },
+                  { key: "task_count", label: t("export.tasks") },
+                  { key: "completed_by_name", label: t("export.completedBy") },
+                ],
+              })
+            }
+          />
+        }
       />
       {rows.isLoading && (
         <div className="grid min-h-48 place-items-center">

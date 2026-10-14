@@ -110,3 +110,13 @@ export async function updateMaterialRequestOption(
   toastSuccess("materialRequest.toast.optionSaved");
   return row;
 }
+
+/** 申请累计 (H16, HD13): the rows the list shows, as Excel or PDF. */
+export function exportMaterialRequestTotals(request: ExportRequest): Promise<void> {
+  return download("/api/material-requests/export_totals/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `material-request-totals.${request.format}`,
+  });
+}

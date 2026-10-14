@@ -4,22 +4,50 @@
 import type { ListQuery } from "@/interfaces/api";
 import type {
   DailyReport,
+  DailyReportCollection,
   DailyReportPayload,
   ProgressPhoto,
   ProgressSummary,
   SummaryBlock,
 } from "@/interfaces/progress-reports";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, fetchAsFile, toastSuccess } from "@/services/api-client";
+import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 /** 现场照片: progress photographs by project, 施工分类 and day. */
 export const getProgressPhotos = (query: ListQuery = {}) =>
   api.list<ProgressPhoto>("/api/site-progress/get_photos/", query);
 
+/** The list: each report's counts, not its photographs (`compact`). */
 export const getDailyReports = (query: ListQuery = {}) =>
-  api.list<DailyReport>("/api/daily-reports/get_reports/", query);
+  api.list<DailyReport>("/api/daily-reports/get_reports/", { ...query, compact: "1" });
 
 export const getDailyReport = (id: string) =>
   api.get<DailyReport>(`/api/daily-reports/${id}/get_report/`);
+
+/** The list of reports, as Excel or PDF (H16, HD13); each report has its own PDF. */
+export function exportDailyReports(request: ExportRequest): Promise<void> {
+  return download("/api/daily-reports/export_reports/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `daily-reports.${request.format}`,
+  });
+}
+
+/** Every record and photograph of these days, as a report would hold them (H15). */
+export const collectDailyReportEntries = (query: {
+  project: string;
+  date_from: string;
+  date_to: string;
+}) => api.get<DailyReportCollection>("/api/daily-reports/collect_entries/", query);
+
+/** The report as a PDF, fetched once for 预览 · 打印 · 导出 · 发送 (H15). */
+export const dailyReportPdfFile = (id: string, lang: string, name: string) =>
+  fetchAsFile(`/api/daily-reports/${id}/get_report_pdf/`, {
+    method: "GET",
+    query: { lang },
+    fallbackFilename: `${(name || "daily-report").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
+  });
 
 export async function createDailyReport(payload: DailyReportPayload) {
   const row = await api.post<DailyReport>("/api/daily-reports/create_report/", payload);
@@ -86,3 +114,11 @@ export async function deleteProgressSummary(id: string) {
   await api.delete(`/api/progress-summaries/${id}/delete_summary/`);
   toastSuccess("contractorOps.toast.removed");
 }
+
+/** The summary as a PDF, its blocks in order (H16): 预览 · 打印 · 导出 · 发送. */
+export const progressSummaryPdfFile = (id: string, lang: string, title: string) =>
+  fetchAsFile(`/api/progress-summaries/${id}/get_summary_pdf/`, {
+    method: "GET",
+    query: { lang },
+    fallbackFilename: `${(title || "progress-summary").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
+  });

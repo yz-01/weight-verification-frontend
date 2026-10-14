@@ -317,7 +317,7 @@ export function SchedulePlanningWorkspace({
             {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则), as on every export. */}
             {plan && revision ? (
               <ExportButton
-                onExport={(format) => exportSchedule(plan.id, revision.id, format)}
+                onExport={(format) => exportSchedule(plan.id, revision.id, format, { delayed: onlyDelayed })}
                 title={plan.name}
               />
             ) : null}

@@ -5,11 +5,12 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
+import { ExportButton } from "@/components/shared/export-button";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { LoginOutcome, LoginRecord } from "@/interfaces/auth";
-import { getLoginRecords } from "@/services/users.service";
+import { getLoginRecords, exportLoginRecords } from "@/services/users.service";
 import { useDateFormat } from "@/lib/dates";
 
 const FILTER_KEYS = ["outcome"];
@@ -160,6 +161,37 @@ export function LoginRecords() {
         title={t("loginRecords.title")}
         subtitle={
           isLoading ? "—" : t("loginRecords.count", { count: totalCount })
+        }
+        action={
+          // The sign-ins listed, as a file (H16, HD13).
+          <ExportButton
+            disabled={totalCount === 0}
+            disabledReason={t("loginRecords.count", { count: 0 })}
+            title={t("loginRecords.title")}
+            onExport={(format) =>
+              exportLoginRecords({
+                format,
+                title: t("loginRecords.title"),
+                subtitle: t("loginRecords.count", { count: totalCount }),
+                query: list.query,
+                columns: [
+                  { key: "created_at", label: t("loginRecords.field.createdAt") },
+                  { key: "email_attempted", label: t("loginRecords.field.email") },
+                  {
+                    key: "outcome",
+                    label: t("loginRecords.field.outcome"),
+                    values: Object.fromEntries(
+                      (["SUCCESS", "BAD_CREDENTIALS", "USER_SUSPENDED", "COMPANY_SUSPENDED", "PORTAL_MISMATCH"] as const).map(
+                        (code) => [code, t(`loginRecords.outcome.${code}`)],
+                      ),
+                    ),
+                  },
+                  { key: "ip_address", label: t("loginRecords.field.ipAddress") },
+                  { key: "user_agent", label: t("loginRecords.field.userAgent") },
+                ],
+              })
+            }
+          />
         }
       />
 

@@ -27,7 +27,7 @@ import {
   Trash2,
   Type,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Fragment, useState } from "react";
 import {
@@ -49,6 +49,7 @@ import {
   ProgressPhotoPicker,
   usePhotoViewer,
 } from "@/components/progress/progress-photos";
+import { FileActionButtons } from "@/components/shared/file-actions";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
 import { FieldWrapper, FilterBar, QueryFailedNote } from "@/components/shared/page-primitives";
@@ -92,6 +93,7 @@ import {
   createProgressSummary,
   deleteProgressSummary,
   getProgressSummaries,
+  progressSummaryPdfFile,
   updateProgressSummary,
 } from "@/services/progress-reports.service";
 
@@ -104,6 +106,7 @@ const BLOCK_ICON: Record<SummaryBlockType, typeof Type> = {
 
 export function ProgressSummaryTab() {
   const t = useTranslations("progressPage.summary");
+  const locale = useLocale();
   const tPage = useTranslations("progressPage");
   const df = useDateFormat();
   const { can } = useAuth();
@@ -195,12 +198,21 @@ export function ProgressSummaryTab() {
                     })}
                   </p>
                 </div>
-                {canWrite && (
-                  <Button variant="outline" onClick={() => setEditing(shown)}>
-                    <Pencil />
-                    {t("edit")}
-                  </Button>
-                )}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {/* 预览 · 打印 · 导出 · 发送: the summary, its blocks in order (H16). */}
+                  <FileActionButtons
+                    source={{
+                      load: () => progressSummaryPdfFile(shown.id, locale, shown.title),
+                      title: shown.title,
+                    }}
+                  />
+                  {canWrite && (
+                    <Button variant="outline" onClick={() => setEditing(shown)}>
+                      <Pencil />
+                      {t("edit")}
+                    </Button>
+                  )}
+                </div>
               </header>
               <SummaryBlocksView summary={shown} />
             </article>

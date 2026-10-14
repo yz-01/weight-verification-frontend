@@ -103,8 +103,8 @@ describe("the record sheet (E8)", () => {
     expectRecordPopup(html, expect);
     expect(html).toContain("data-shell-actions");
     expect(html).toContain('data-stub="decision"');
-    // Not a kind the export endpoint prints, nor one with a conversation.
-    expect(html).not.toContain('data-stub="export"');
+    // Its own PDF since H16 (HD13); still no conversation.
+    expect(html).toContain('data-stub="export" data-kind="DOCUMENT"');
     expect(html).not.toContain('data-stub="conversation"');
   });
 
@@ -124,7 +124,8 @@ describe("the record sheet (E8)", () => {
     const html = renderDetail(<RecordSheet row={r} onClose={() => {}} />, seeded(r));
     expect(html).toContain('data-record-detail="dialog"');
     expect(html).not.toContain("data-shell-recorder");
-    expect(html).not.toContain('data-stub="export"');
+    // The day prints since H16 (HD13): its clock-ins, photos and who.
+    expect(html).toContain('data-stub="export" data-kind="ATTENDANCE_DAY"');
   });
 
   it("keeps the same popup while the record loads", () => {

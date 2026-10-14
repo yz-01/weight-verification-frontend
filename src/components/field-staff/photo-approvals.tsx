@@ -11,6 +11,7 @@ import {
   ListHeader,
   LoadFailed,
 } from "@/components/shared/page-primitives";
+import { ExportButton } from "@/components/shared/export-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,8 +26,7 @@ import type { FieldTask } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import {
   getFieldTasks,
-  transitionFieldTask,
-} from "@/services/contractor-ops.service";
+  transitionFieldTask, exportFieldTasks } from "@/services/contractor-ops.service";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 
 /**
@@ -109,6 +109,32 @@ function PhotoApprovalsContent() {
               : t("photoApprovals.historyCount", { count: total })
         }
         action={
+          <div className="flex flex-wrap items-center gap-2">
+          {/* The submissions on this tab, as a file (H16, HD13). */}
+          <ExportButton
+            disabled={total === 0}
+            disabledReason={t("photoApprovals.historyCount", { count: 0 })}
+            title={t("photoApprovals.title")}
+            onExport={(format) =>
+              exportFieldTasks({
+                format,
+                title: `${t("photoApprovals.title")} · ${t(`photoApprovals.filter.${shown}`)}`,
+                query: { task_type: "PHOTO", status: shown },
+                columns: [
+                  { key: "title", label: t("contractorOps.field.title") },
+                  { key: "category_name", label: t("contractorOps.field.category") },
+                  { key: "project_name", label: t("contractorOps.field.project") },
+                  { key: "assigned_to_name", label: t("contractorOps.field.assignee") },
+                  { key: "submitted_at", label: t("contractorReports.column.submitted_at") },
+                  { key: "photo_count", label: t("contractorOps.field.photos") },
+                  { key: "instructions", label: t("contractorOps.field.instructions") },
+                  { key: "reviewed_by_name", label: t("mySubmissions.field.approved_by") },
+                  { key: "reviewed_at", label: t("mySubmissions.field.approved_at") },
+                  { key: "review_note", label: t("photoApprovals.reviewNote") },
+                ],
+              })
+            }
+          />
           <div className="flex max-w-full flex-wrap gap-1 rounded-lg border bg-muted/40 p-1" role="tablist" aria-label={t("photoApprovals.show")}>
             {(["SUBMITTED", "ACCEPTED", "RETURNED"] as const).map((status) => (
               <button
@@ -122,6 +148,7 @@ function PhotoApprovalsContent() {
                 {t(`photoApprovals.filter.${status}`)}
               </button>
             ))}
+          </div>
           </div>
         }
       />

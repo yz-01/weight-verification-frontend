@@ -34,7 +34,7 @@ export function exportAuditLogs(input: {
   title: string;
   subtitle: string;
   empty_label: string;
-  columns: Array<{ key: string; label: string }>;
+  columns: Array<{ key: string; label: string; values?: Record<string, string> }>;
   [key: string]: unknown;
 }): Promise<void> {
   return download("/api/audit-logs/export_audit_logs/", {

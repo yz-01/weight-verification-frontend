@@ -28,7 +28,7 @@ function componentBody(code: string, name: string) {
 /** Either the shell dialog's `exportRecord` prop or the button itself, for this kind. */
 function passesExport(body: string, kind: string) {
   const viaDialog = new RegExp(
-    String.raw`exportRecord=\{[\s\S]{0,60}?kind:\s*"${kind}",\s*recordId:\s*[\w.]+\.id\b`,
+    String.raw`exportRecord=\{[\s\S]{0,60}?kind:\s*"${kind}",\s*recordId:\s*[\w.]+\.(?:id|key)\b`,
   );
   const viaButton = new RegExp(
     String.raw`<RecordExportButton\s+kind="${kind}"\s+recordId=\{[\w.]+\.id\}`,
@@ -50,6 +50,21 @@ const DETAILS: Array<[string, string, string]> = [
   // 施工准证 is a HAZARD row (record_type PERMIT); its own detail exports the
   // complete evidence too (2026-10-10, 审批证据完整性).
   ["src/components/permits/permit-parts.tsx", "PermitDetail", "HAZARD"],
+  // Outside the archive queue, the same four buttons (H16, HD13: 「每一个事项
+  // 都有需要，包括人进场记录，门岗」); a session is named by its photo's key.
+  ["src/components/site-access/gate-records.tsx", "GateIncidentDetailDialog", "GATE_INCIDENT"],
+  ["src/components/dispatches/view-dispatch.tsx", "ViewDispatch", "WASTE_DISPATCH"],
+  ["src/components/equipment-hours/equipment-operator-hours.tsx", "DayDialog", "EQUIPMENT_HOURS"],
+  ["src/components/dashboard/field-task-sheet.tsx", "FieldTaskSheet", "FIELD_TASK"],
+  ["src/components/site-operations/attendance.tsx", "Attendance", "ATTENDANCE"],
+  ["src/components/document-workflow/approvals.tsx", "ApprovalDetailDialog", "APPROVAL"],
+  ["src/components/incident-reporting/incident-thread-detail.tsx", "IncidentThreadDetail", "INCIDENT_THREAD"],
+  ["src/components/site-access/site-access-workspace.tsx", "PassDetail", "ACCESS_PASS"],
+  // H16 fix round: every record with a detail view (HD13, D1).
+  ["src/components/settlements/payment-proofs.tsx", "PaymentProofDialog", "SETTLEMENT"],
+  ["src/components/settlements/view-settlement.tsx", "ViewSettlement", "SETTLEMENT"],
+  ["src/components/weighing/view-weigh-session.tsx", "ViewWeighSession", "WEIGH_SESSION"],
+  ["src/components/announcements/announcement-dialog.tsx", "AnnouncementDialog", "ANNOUNCEMENT"],
 ];
 
 describe("every record detail can export that one record (T-386)", () => {
@@ -60,20 +75,22 @@ describe("every record detail can export that one record (T-386)", () => {
     });
   }
 
-  it("the equipment register (a machine, not a record kind) does not get one", () => {
+  it("the equipment register's machine has its own PDF too (H16: HD13 overrides T-386)", () => {
     const body = componentBody(
       read("src/components/contractor-ops/office-module-lists.tsx"),
       "SiteEquipmentOffice",
     );
-    expect(body.match(/exportRecord=/g) ?? []).toHaveLength(1);
+    // A movement's and, since HD13 「每一个事项都要」, the machine's.
+    expect(body.match(/exportRecord=/g) ?? []).toHaveLength(2);
+    expect(body).toMatch(/kind: "SITE_EQUIPMENT",\s*recordId: shownMachine\.id/);
   });
 
-  it("the archive queue's sheet exports whichever kind it shows, except attendance", () => {
+  it("the archive queue's sheet exports every kind that has a PDF", () => {
     const body = componentBody(read("src/components/contractor-ops/archive-queue.tsx"), "RecordSheet");
-    // Gated on the nine the export endpoint prints (T-396): attendance, and a
-    // column's delivery note, site record, machine, document or period claim,
-    // get no button.
-    expect(body).toMatch(/isExportableKind\(row\.kind\) && \(\s*<RecordExportButton\s+kind=\{row\.kind\}\s+recordId=\{row\.id\}/);
+    // The nine (T-396) and, since H16, a day of attendance, a delivery note,
+    // a site record (as its field task), a machine and a document. A period
+    // claim waits for Phase 4's rebuild of Claims.
+    expect(body).toMatch(/recordPdfKindFor\(row\.kind\) && \(\s*<RecordExportButton\s+kind=\{recordPdfKindFor\(row\.kind\)!\}\s+recordId=\{row\.id\}/);
   });
 });
 

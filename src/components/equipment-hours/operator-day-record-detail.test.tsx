@@ -88,8 +88,8 @@ describe("an operator's start-stop session (E8)", () => {
     // Full date and time, never 「次日」.
     expect(html).toMatch(/2026[^<]*08:00/);
     expect(html).not.toContain("次日");
-    // No export: a machine-day is not an exportable record.
-    expect(html).not.toContain('data-stub="export"');
+    // Its own PDF since H16 (HD13: 「每一个事项都要」).
+    expect(html).toContain('data-stub="export" data-kind="EQUIPMENT_HOURS"');
   });
 
   it("shows the stamped photos large-first in the shell", () => {

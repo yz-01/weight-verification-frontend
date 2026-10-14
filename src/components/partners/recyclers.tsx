@@ -43,6 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
+import { ExportButton } from "@/components/shared/export-button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type {
   CompanyPartnership,
@@ -57,8 +58,7 @@ import {
   requestPartnership,
   respondPartnership,
   suspendPartnership,
-  unbindPartnershipProject,
-} from "@/services/partnership.service";
+  unbindPartnershipProject, exportPartnerships } from "@/services/partnership.service";
 
 const STATUSES: PartnershipStatus[] = [
   "PENDING",
@@ -294,12 +294,48 @@ export function Recyclers() {
         title={t("recyclers.title")}
         subtitle={isLoading ? t("common.loading") : t("recyclers.count", { count: total })}
         action={
-          can("partnership.manage") ? (
-            <Button onClick={() => setRequestOpen(true)}>
-              <Plus className="size-4" />
-              {t("recyclers.request.action")}
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap items-center gap-2">
+            {/* The partnerships listed, as a file (H16, HD13). */}
+            <ExportButton
+              disabled={total === 0}
+              disabledReason={t("recyclers.count", { count: 0 })}
+              title={t("recyclers.title")}
+              onExport={(format) =>
+                exportPartnerships({
+                  format,
+                  title: t("recyclers.title"),
+                  subtitle: t("recyclers.count", { count: total }),
+                  query: list.query,
+                  columns: [
+                    { key: "recycler_name", label: t("recyclers.field.recycler") },
+                    {
+                      key: "status",
+                      label: t("recyclers.field.status"),
+                      values: Object.fromEntries(
+                        (["PENDING", "ACTIVE", "SUSPENDED", "REJECTED"] as const).map((code) => [
+                          code,
+                          t(`recyclers.status.${code}`),
+                        ]),
+                      ),
+                    },
+                    {
+                      key: "request_direction",
+                      label: t("recyclers.field.request"),
+                      values: { OUTGOING: t("recyclers.request.outgoing"), INCOMING: t("recyclers.request.incoming") },
+                    },
+                    { key: "project_codes", label: t("recyclers.field.projects") },
+                    { key: "updated_at", label: t("recyclers.field.updatedAt") },
+                  ],
+                })
+              }
+            />
+            {can("partnership.manage") ? (
+              <Button onClick={() => setRequestOpen(true)}>
+                <Plus className="size-4" />
+                {t("recyclers.request.action")}
+              </Button>
+            ) : null}
+          </div>
         }
       />
 
