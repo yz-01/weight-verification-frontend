@@ -64,6 +64,7 @@ import {
   CorrectedTag,
   RecordCorrectionButton,
   RecordCorrectionHistory,
+  useCanCorrect,
 } from "@/components/shared/record-correction";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -935,7 +936,8 @@ export function HazardRecordDetail({
   const df = useDateFormat();
   // 【改正】 (I30): a hazard's category, title and description; a permit is
   // its own form and is not corrected here.
-  const correction = isPermit(incident) ? null : (
+  const mayCorrect = useCanCorrect("HAZARD");
+  const correction = isPermit(incident) || !mayCorrect ? null : (
     <RecordCorrectionButton
       kind="HAZARD"
       recordId={incident.id}
