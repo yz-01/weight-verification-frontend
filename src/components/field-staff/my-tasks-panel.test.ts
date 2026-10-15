@@ -23,7 +23,9 @@ describe("My Tasks hands a field task in with its note and GPS", () => {
   });
 
   it("has no 开始 step any more (ID13)", () => {
-    expect(PANEL).not.toContain('"IN_PROGRESS"');
+    // Only ever moved to SUBMITTED: no transition to IN_PROGRESS.
+    expect(PANEL).not.toMatch(/OfflineAware\([^)]*"IN_PROGRESS"/);
+    expect(PANEL.match(/"SUBMITTED"/g)?.length).toBe(2);
     expect(WORKSPACE).not.toContain('onTransition("IN_PROGRESS")');
     expect(WORKSPACE).not.toContain("action.start");
   });
