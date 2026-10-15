@@ -82,6 +82,7 @@ import {
 import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { columnAutofill } from "@/lib/material-autofill";
+import { offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import {
   getQRCodes,
   getSuppliers,
@@ -295,8 +296,18 @@ interface MaterialDraft {
   movementType: "ENTRY" | "RETURN";
   returnReason: string;
   returnReasonOther: string;
+  /**
+   * What OCR read off the DO, kept as a reference only since I19 (ID46): the
+   * record's material name is its material category's name.
+   */
   materialName: string;
+  /** Typed only when 「其他」 is the specification (I19). */
   materialSpecification: string;
+  /**
+   * The specification from the project's material data (I19, ID45); its unit
+   * decides the unit. Optional so a draft saved before it still loads.
+   */
+  specCategory?: string;
   quantity: string;
   unit: MaterialUnit;
   totalWeightKg: string;
@@ -327,6 +338,7 @@ const EMPTY_MATERIAL: MaterialDraft = {
   returnReasonOther: "",
   materialName: "",
   materialSpecification: "",
+  specCategory: "",
   quantity: "",
   unit: "TONNE",
   totalWeightKg: "",
@@ -457,6 +469,9 @@ export function MaterialCapturePanel({
     return {
       ...old,
       category,
+      // A specification belongs to its material (I19).
+      specCategory: "",
+      materialSpecification: "",
       unit: filled.unit,
       supplier: filled.supplier,
       manufacturer: filled.manufacturer,
@@ -467,9 +482,16 @@ export function MaterialCapturePanel({
     { unit: draft.unit, supplier: draft.supplier, manufacturer: draft.manufacturer ?? "" },
     { scannedSupplier },
   );
-  // The unit a locked category decides is the one sent, whatever a scanned
-  // line or an older draft put in `draft.unit`.
-  const unit = fill.unitLocked ? fill.unit : draft.unit;
+  // The specification (I19, ID46): its unit is the unit, shown and locked;
+  // 「其他」 is typed, with the unit chosen. Before one is chosen, a locked
+  // category still decides the unit, as before.
+  const specs = offeredSpecs(selectedColumn, draft.specCategory ?? "");
+  const specPick = specChoice(selectedColumn, draft.specCategory ?? "");
+  const specRequired = specs.length > 0;
+  const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
+  // The unit a locked specification or category decides is the one sent,
+  // whatever a scanned line or an older draft put in `draft.unit`.
+  const unit = specPick.unitLocked ? specPick.unit : fill.unitLocked && !specPick.typed ? fill.unit : draft.unit;
   const unitName = useUnitName();
   const units = useMaterialUnits();
   const supplierRows = (suppliers.data?.results ?? []).filter(
@@ -673,8 +695,12 @@ export function MaterialCapturePanel({
           // Same form, other button (D08): recorded and rejected in one step.
           acceptance_status: rejecting ? "REJECTED" : undefined,
           rejection_reason: rejecting ? (draft.rejectionReason ?? "").trim() : undefined,
-          material_name: draft.materialName.trim(),
-          material_specification: draft.materialSpecification.trim(),
+          // The material's own name (I19, ID46): nobody types it at the gate.
+          material_name: selectedColumn?.name ?? draft.materialName.trim(),
+          material_specification: specPick.typed
+            ? draft.materialSpecification.trim()
+            : (specPick.spec?.name ?? draft.materialSpecification.trim()),
+          spec_category: draft.specCategory || null,
           quantity: draft.quantity,
           unit,
           total_weight_kg: draft.totalWeightKg || null,
@@ -746,7 +772,7 @@ export function MaterialCapturePanel({
             setColumnError("");
             // A column belongs to one site, so the one chosen for the old
             // project is not a valid answer for the new one.
-            setDraft((old) => ({ ...old, project, category: "" }));
+            setDraft((old) => ({ ...old, project, category: "", specCategory: "" }));
           }}
           placeholder={t("material.chooseProject")}
           className="h-12 w-full"
@@ -773,6 +799,34 @@ export function MaterialCapturePanel({
           {columnError && <p role="alert" className="text-sm text-destructive">{columnError}</p>}
         </details>
       </FieldWrapper>
+      {/* 规格 (I19, ID46): this material's specifications and 「其他」; the unit
+          comes with it. Not set up yet? 「其他」 and type it - a lorry is never
+          held at the gate over a list. */}
+      {draft.category && specRequired && (
+        <FieldWrapper label={t("material.spec")} required={specRequired}>
+          <Select
+            value={draft.specCategory || undefined}
+            onValueChange={(next) => setDraft((old) => ({ ...old, specCategory: next, materialSpecification: "" }))}
+          >
+            <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSpec")} /></SelectTrigger>
+            <SelectContent>
+              {specs.map((spec) => (
+                <SelectItem key={spec.id} value={spec.id}>{spec.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FieldWrapper>
+      )}
+      {specPick.typed && (
+        <FieldWrapper label={t("material.specName")} required={specPick.typed} hint={t("material.specNameHint")}>
+          <Input
+            className="h-12"
+            value={draft.materialSpecification}
+            maxLength={200}
+            onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))}
+          />
+        </FieldWrapper>
+      )}
       <FieldWrapper label={t("materialEvidence.title")} required>
         <FieldEvidenceGrid
           labels={materialEvidenceLabels}
@@ -870,11 +924,16 @@ export function MaterialCapturePanel({
         />
       </FieldWrapper>
       <FieldWrapper label={t("material.unit")} required>
-        {fill.unitLocked ? (
-          // The category decided it (A4, Q1): shown, not asked.
+        {unitLocked ? (
+          // The specification - or, before one is chosen, the category -
+          // decided it (I19, ID46; A4, Q1): shown, not asked.
           <div className="flex h-12 items-center justify-between rounded-lg border bg-muted/40 px-3">
-            <span className="text-sm font-medium">{unitName(unit, selectedColumn?.default_unit_label)}</span>
-            <span className="text-xs text-muted-foreground">{t("material.autoFilledFromCategory")}</span>
+            <span className="text-sm font-medium">
+              {unitName(unit, specPick.unitLocked ? specPick.spec?.default_unit_label : selectedColumn?.default_unit_label)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {specPick.unitLocked ? t("material.autoFilledFromSpec") : t("material.autoFilledFromCategory")}
+            </span>
           </div>
         ) : (
           <>
@@ -890,7 +949,6 @@ export function MaterialCapturePanel({
           </>
         )}
       </FieldWrapper>
-      <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
@@ -1027,7 +1085,6 @@ export function MaterialCapturePanel({
       <details className="border-y py-3">
         <summary className="cursor-pointer text-sm font-medium">{t("material.additionalDetails")}</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-      <FieldWrapper label={t("material.specification")}><Input className="h-12" value={draft.materialSpecification} onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.totalWeightKg")}><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.totalWeightKg} onChange={(event) => setDraft((old) => ({ ...old, totalWeightKg: event.target.value }))} /></FieldWrapper>
         </div>
       </details>
@@ -1067,7 +1124,7 @@ export function MaterialCapturePanel({
         )}
       </div>
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!specRequired || draft.specCategory, t("material.spec")], [!specPick.typed || draft.materialSpecification.trim(), t("material.specName")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>

@@ -167,7 +167,8 @@ describe("the phone's application (C9, X20)", () => {
 
   it("shows the category's unit instead of asking for it", () => {
     const html = render(<OutgoingDialog project="p-1" onClose={() => {}} onSaved={() => {}} />);
-    expect(html).toMatch(/<span class="text-sm font-medium">吨<\/span>/);
+    // 吨（Ton） since I19 (ID47): one name for the unit everywhere.
+    expect(html).toMatch(/<span class="text-sm font-medium">吨（Ton）<\/span>/);
     expect(html).toContain("按材料分类自动带出");
   });
 

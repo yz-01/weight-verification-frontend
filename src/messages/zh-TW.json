@@ -3880,7 +3880,8 @@
         "MATERIAL_RECEIPT_QUANTITY": "所選材料單位的進場總數量。",
         "SETTLED_RECYCLING_WEIGHT": "已結算回收重量，單位為公斤。"
       },
-      "wasteType": "回收廢料類型"
+      "wasteType": "回收廢料類型",
+      "quantityMoved": "「材料進場數量」改到「材料管理 → 材料目標」設定（扣除退場，可按規格）；已設的舊目標照常。"
     },
     "loadError": "無法加載業務目標。",
     "management": {
@@ -3902,12 +3903,13 @@
       "title": "業務目標"
     },
     "materialUnit": {
-      "BAG": "袋",
+      "BAG": "包（Bag）",
       "KG": "公斤",
       "LOAD": "車／批",
       "M3": "立方米",
-      "PIECE": "件",
-      "TONNE": "噸"
+      "PIECE": "件（PCS）",
+      "TONNE": "噸（Ton）",
+      "M2": "平方米（m²）"
     },
     "metric": {
       "FIELD_TASK_COUNT": "已驗收現場任務",
@@ -4022,7 +4024,8 @@
       "thresholdAmountsHint": "選填。用逗號分隔，例如 400000, 450000（RM）；數量模式填數量。",
       "thresholdAmountsInvalid": "請填大於 0 的數字，用逗號分隔。",
       "recipients": "提醒發給公司管理員和項目負責人，每條線只發一次；總數回落到線下會撤回。",
-      "quantityUsed": "已進場 {used} / {budget} {unit}"
+      "quantityUsed": "已進場 {used} / {budget} {unit}",
+      "quantityMoved": "預算只計金額。數量目標請到「材料管理 → 材料目標」設定（扣除退場，可按規格）。"
     },
     "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
     "viewRecords": "查看記錄",
@@ -4073,7 +4076,8 @@
       "noneChosen": "未選擇",
       "what": {
         "suppliers": "供應商列表"
-      }
+      },
+      "specsLine": "規格：{specs}"
     },
     "equipment": {
       "majorClass": "大類",
@@ -4087,7 +4091,27 @@
     "armRemove": "允許刪除「{name}」",
     "armFirst": "先打開旁邊的開關",
     "codeAuto": "編號由系統自動生成，建好後不能改。",
-    "codeAutoPlaceholder": "保存後自動生成"
+    "codeAutoPlaceholder": "保存後自動生成",
+    "requestTypes": "申請類型",
+    "specs": {
+      "title": "規格與單位",
+      "help": "每個規格綁定一個單位：MR 材料申請、材料進場、材料退場和材料目標都從這裡選，單位自動帶出。「其他」由現場填寫規格名稱並選單位。",
+      "name": "規格名稱",
+      "unit": "單位",
+      "chooseUnit": "選擇單位",
+      "save": "儲存",
+      "cancel": "取消",
+      "nameRequired": "請填寫規格名稱",
+      "unitRequired": "請選擇單位",
+      "otherBadge": "現場填寫",
+      "active": "啟用 {name}",
+      "activeLabel": "啟用",
+      "remove": "刪除規格",
+      "newName": "新規格",
+      "newPlaceholder": "例如：Y50mm",
+      "add": "新增規格",
+      "afterSave": "儲存材料後，打開它就可以加規格和單位。"
+    }
   },
   "cloudServices": {
     "count": "{count} 項服務",
@@ -5955,7 +5979,10 @@
       "scanSupplier": "掃供應商二維碼",
       "scannedSupplier": "已掃碼：{name}",
       "scanFailed": "這個二維碼不是供應商二維碼。",
-      "noSupplier": "不填"
+      "noSupplier": "不填",
+      "spec": "規格",
+      "chooseSpec": "選擇規格",
+      "specName": "規格名稱"
     },
     "outgoingStatus": {
       "APPROVED": "已批准 / 等待退場",
@@ -8351,7 +8378,12 @@
       "manufacturer": "指定廠商（MR）",
       "chooseColumnFirst": "請先選分類",
       "noSupplier": "未填供應商",
-      "noSupplierHint": "不確定是哪家就不用選，後台會補上。"
+      "noSupplierHint": "不確定是哪家就不用選，後台會補上。",
+      "spec": "規格",
+      "chooseSpec": "選擇規格",
+      "specName": "規格名稱",
+      "specNameHint": "名單裡沒有的規格，選「其他」在這裡填寫。",
+      "autoFilledFromSpec": "隨規格帶出"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -8908,6 +8940,14 @@
       "clearanceMonth": "本月清運",
       "hazardsOpen": "未關閉",
       "hazardsOverdue": "已逾期"
+    },
+    "materialTargets": {
+      "title": "材料目標",
+      "empty": "還沒有項目設材料目標。在「材料管理 → 材料目標」設定。",
+      "targets": "{count} 項目標",
+      "exceeded": "已超出 {count}",
+      "reached": "已達到 {count}",
+      "approaching": "接近 {count}"
     }
   },
   "home": {
@@ -10437,7 +10477,7 @@
       "due_at": "期限",
       "result_note": "完成說明",
       "person": "人員",
-      "subject": "標題",
+      "subject": "申請事項",
       "related_record": "關聯記錄",
       "visitor_company": "公司",
       "phone": "電話",
@@ -10481,13 +10521,14 @@
       "scope": "發送範圍",
       "published_by": "發布人",
       "published_at": "發布時間",
-      "content": "內容",
+      "content": "申請內容",
       "read_count": "已讀 / 收件人",
       "host": "接待人",
       "confirmed_by": "確認人",
       "confirmed_at": "確認時間",
       "entry_at": "進場時間",
-      "exit_at": "退場時間"
+      "exit_at": "退場時間",
+      "request_kind": "申請類型"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -10499,13 +10540,14 @@
     "failedHelp": "伺服器沒有接收這一條，不會再自動上傳。原因如下，請聯絡管理員處理。",
     "close": "關閉",
     "unit": {
-      "BAG": "袋",
+      "BAG": "包（Bag）",
       "KG": "公斤",
       "LOAD": "車",
       "M3": "立方公尺",
       "OTHER": "其他",
-      "PIECE": "件",
-      "TONNE": "公噸"
+      "PIECE": "件（PCS）",
+      "TONNE": "噸（Ton）",
+      "M2": "平方米（m²）"
     },
     "returnedClosed": "這筆申請已經結束。原申請、退回原因和溝通記錄都會保留；還需要做的話請新建一條。",
     "paymentProofs": "付款憑證",
@@ -10513,7 +10555,9 @@
     "conversation": "事項溝通",
     "removeFromList": "從我的列表移除",
     "removeHelp": "只從你這台手機的列表拿掉。雲端記錄、後台和其他人都不受影響；可以在列表下方按「全部重新顯示」。",
-    "hiddenNote": "已從我的列表移除 {count} 條。"
+    "hiddenNote": "已從我的列表移除 {count} 條。",
+    "files": "上傳的檔案",
+    "download": "下載"
   },
   "nav": {
     "activity_logs": "活動日誌",
@@ -10846,7 +10890,8 @@
       "visitorRecords": "訪客進退場記錄",
       "dailyReport": "日報告",
       "progressSummary": "項目進度摘要",
-      "siteWorkers": "人員名單"
+      "siteWorkers": "人員名單",
+      "materialTargets": "材料目標"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -11827,7 +11872,7 @@
         "view": "查看 MR / 其他申請",
         "submit": "提交 MR / 其他申請",
         "review": "批准或退回 MR / 其他申請",
-        "config": "維護 MR 材料選項"
+        "config": "管理 MR 申請類型"
       },
       "partnership": {
         "view": "查看合作關係",
@@ -12037,6 +12082,9 @@
       "site_worker": {
         "view": "查看人員名單和進出場記錄",
         "manage": "登記人員、發送定位連結"
+      },
+      "material_target": {
+        "manage": "設定材料目標"
       }
     },
     "group": {
@@ -12105,7 +12153,8 @@
       "platform_settings": "系統設置",
       "platform_version": "版本管理",
       "integration": "系統集成",
-      "site_worker": "人員名單"
+      "site_worker": "人員名單",
+      "material_target": "材料目標"
     }
   },
   "photos": {
@@ -12554,7 +12603,11 @@
         "OCR": "從送貨單讀出",
         "MANUAL": "人工填寫"
       },
-      "manufacturer": "指定廠商（MR）"
+      "manufacturer": "指定廠商（MR）",
+      "spec": "規格",
+      "specHint": "從材料資料選；選了規格，規格名稱和單位隨之帶出。",
+      "chooseSpec": "選擇規格",
+      "noSpec": "不指定規格"
     },
     "locationCaptured": "已記錄位置",
     "locationMissing": "無位置",
@@ -12610,12 +12663,13 @@
     },
     "unfiled": "未歸分類",
     "unit": {
-      "BAG": "包",
+      "BAG": "包（Bag）",
       "KG": "公斤",
       "LOAD": "車",
       "M3": "立方米",
-      "PIECE": "件",
-      "TONNE": "噸"
+      "PIECE": "件（PCS）",
+      "TONNE": "噸（Ton）",
+      "M2": "平方米（m²）"
     },
     "viewTitle": "材料進場記錄",
     "waiting": "待你查看",
@@ -12637,7 +12691,8 @@
       "reject": "Reject 不合格",
       "totals": "累計進場與退場",
       "legacyReturns": "10-02 前用進場單登記的退場記錄",
-      "choose": "選擇查看"
+      "choose": "選擇查看",
+      "targets": "材料目標"
     },
     "net": {
       "title": "按供應商、材料匯總的累計進場與退場",
@@ -16940,10 +16995,6 @@
       "MATERIAL": "材料申請",
       "OTHER": "其他申請"
     },
-    "typeHelp": {
-      "MATERIAL": "電子表單：材料、規格、數量、單位。",
-      "OTHER": "上傳文件並填寫備註。"
-    },
     "status": {
       "SUBMITTED": "待審批",
       "APPROVED": "已批准",
@@ -16977,7 +17028,11 @@
       "assignedReviewer": "提交給",
       "reassignHistory": "改派記錄",
       "supplier": "供應商",
-      "manufacturer": "業主指定廠商"
+      "manufacturer": "業主指定廠商",
+      "subject": "申請事項",
+      "content": "申請內容",
+      "specificationName": "規格名稱",
+      "materialOrSubject": "材料 / 申請事項"
     },
     "action": {
       "view": "查看",
@@ -17023,7 +17078,7 @@
     },
     "form": {
       "title": "新建申請",
-      "help": "材料申請填寫電子表單；其他申請只需上傳文件並填寫備註。",
+      "help": "選擇申請類型：材料申請填寫材料、規格和數量；其他類型填寫簡單申請表。每種申請都可以上傳照片、PDF 和其他檔案。",
       "raiseAgainHelp": "以已退回的申請內容新建，會產生新的申請編號；原申請保持已結束並留在歷史中。",
       "projectHint": "自動帶入當前項目。",
       "chooseProject": "選擇項目",
@@ -17033,48 +17088,35 @@
       "chooseUnit": "選擇單位",
       "search": "輸入搜尋",
       "noMatch": "沒有符合的選項",
-      "noSpecifications": "此材料尚未設定規格",
-      "listsEmpty": "材料選項為空。請總部或管理員在「材料選項」中新增材料、規格和單位。",
-      "quantityRule": "須大於 0，可整數或最多兩位小數",
+      "quantityRule": "須大於 0，可整數或最多三位小數",
       "remarkPlaceholder": "選填：送貨位置、時間等需要總部知道的事項",
-      "otherRemarkPlaceholder": "說明這個申請的內容",
-      "attachmentHint": "產品照片、證書或其他文件。最多 {count} 份，每份不超過 {limit} MB。",
       "addFiles": "新增文件",
       "removeFile": "移除 {name}",
       "fileTooBig": "{name} 超過 {limit} MB。",
-      "fileOrRemark": "文件或備註",
       "submit": "提交",
       "assignedReviewerHint": "只列出這個項目能批准申請的人。",
       "chooseReviewer": "選擇審批人",
       "projectFirst": "請先選擇項目",
       "noReviewers": "這個項目還沒有人能批准申請。請公司管理員在「角色權限」裡，給審批人的角色勾上「批准或退回 MR / 其他申請」。",
-      "suggestHint": "選填。只在業主指定了廠商時，從供應商名單選。"
-    },
-    "options": {
-      "open": "材料選項",
-      "title": "材料選項",
-      "help": "MR 表單的選項：材料、各材料的規格，以及單位。關閉開關即停用；已提交的申請內容不受影響。",
-      "materials": "材料 / 產品",
-      "specificationList": "規格",
-      "specificationsOf": "{material} 的規格",
-      "units": "單位",
-      "builtIn": "系統內建",
-      "empty": "暫無選項",
-      "addMaterialFirst": "請先新增材料，規格列在材料之下。",
-      "retire": "停用 {name}",
-      "restore": "重新啟用 {name}",
-      "failed": "選項未能儲存。",
-      "add": {
-        "MATERIAL": "新增材料",
-        "SPECIFICATION": "新增規格",
-        "UNIT": "新增單位"
-      }
+      "suggestHint": "選填。只在業主指定了廠商時，從供應商名單選。",
+      "chooseType": "選擇申請類型",
+      "notSetUp": "該材料尚未建立，請先到分類管理設定。",
+      "goToCategories": "前往分類管理",
+      "askToSetUp": "請聯絡有權限的後台人員在分類管理設定。",
+      "materialData": "材料資料",
+      "otherSpecHint": "選了「其他」：請填寫規格，並選擇單位。",
+      "unitFromSpec": "單位隨規格帶出，不能修改。",
+      "unitAfterSpec": "選好規格後自動帶出",
+      "subjectHint": "一句話說明要申請什麼，例如：兩台吊車、一個現場辦公室。",
+      "contentOrFile": "申請內容和上傳資料至少要有一樣。",
+      "contentPlaceholder": "說明申請的內容、數量、時間等",
+      "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超過 {limit} MB。",
+      "fileKindRefused": "{name} 不能上傳。請上傳照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。"
     },
     "toast": {
       "submitted": "申請已提交。",
       "approved": "申請已批准。",
       "returned": "申請已退回並結束。",
-      "optionSaved": "已儲存。",
       "reassigned": "已改派給你，現在由你審批。"
     },
     "capture": {
@@ -17090,6 +17132,40 @@
       "help": "批准就是採購決定：選好向哪家供應商買；業主指定了廠商時，也從供應商名單選上。",
       "chooseSupplier": "選擇供應商",
       "confirm": "批准"
+    },
+    "types": {
+      "open": "管理申請類型",
+      "title": "管理申請類型",
+      "help": "每個項目自己的申請類型，全部平級。每個類型用兩種表格之一：「材料明細」（材料、規格、數量）或「簡單申請表」（申請事項、申請內容、備註、上傳資料）。「材料申請」和「其他申請」是系統的：可以改名，不能停用、刪除或換表格。",
+      "chooseProject": "請先選擇項目，申請類型按項目設定。",
+      "name": "類型名稱",
+      "nameRequired": "請填寫類型名稱",
+      "system": "系統",
+      "requestCount": "{count, plural, =0 {未使用} other {# 筆申請}}",
+      "form": "表格",
+      "style": {
+        "MATERIAL": "材料明細",
+        "GENERAL": "簡單申請表"
+      },
+      "fixedHelp": "系統類型：可以改名，不能停用、刪除或換表格。",
+      "active": "啟用 {name}",
+      "activeLabel": "啟用",
+      "save": "儲存",
+      "cancel": "取消",
+      "rename": "改名",
+      "armRemove": "準備刪除 {name}",
+      "remove": "刪除類型",
+      "armFirst": "先打開旁邊的開關，再刪除。",
+      "newName": "新類型名稱",
+      "newPlaceholder": "例如：人員申請",
+      "taken": "這個項目已經有這個類型。",
+      "formHint": "不適合材料明細的，用簡單申請表。",
+      "add": "新增類型",
+      "failed": "未能儲存，請重試。",
+      "toast": {
+        "saved": "申請類型已儲存。",
+        "removed": "申請類型已刪除。"
+      }
     }
   },
   "filePreview": {
@@ -18090,6 +18166,65 @@
       "denied": "定位權限被拒絕，請按下面的步驟允許定位。",
       "unavailable": "暫時取不到位置。請到空曠處，確認手機定位已打開。",
       "upload": "上一次沒傳上去，會自動再試。"
+    }
+  },
+  "materialTargets": {
+    "title": "材料目標",
+    "count": "{count, plural, =0 {暫無目標} other {# 項目標}}",
+    "basis": "累計淨進場 = 進場（不含不合格）− 已完成的退場，按材料、規格、單位計算；單位不同的不換算。接近、達到、超出目標時，自動提醒這個項目的項目經理、QS 和設定人。",
+    "loading": "載入中…",
+    "empty": "這個項目還沒有材料目標。",
+    "emptyAll": "還沒有材料目標。先在上方選擇項目，再新增。",
+    "add": "新增目標",
+    "chooseProjectFirst": "請先在上方選擇項目",
+    "failed": "未能完成，請重試。",
+    "wholeMaterial": "不分規格",
+    "netMakings": "進場 {received} · 退場 {returned} · 不合格 {rejected}",
+    "otherUnits": "單位不同，未計入：{units}",
+    "deliveries": "進場記錄",
+    "returns": "退場記錄",
+    "edit": "修改",
+    "armRemove": "準備刪除這個目標",
+    "remove": "刪除目標",
+    "armFirst": "先打開旁邊的開關，再刪除。",
+    "field": {
+      "project": "項目",
+      "material": "材料",
+      "spec": "規格",
+      "unit": "單位",
+      "target": "目標數量",
+      "net": "累計淨進場",
+      "remaining": "剩餘",
+      "exceeded": "超出",
+      "progress": "進度",
+      "status": "狀態",
+      "records": "原記錄",
+      "action": "操作",
+      "alerts": "提醒線（%）",
+      "note": "備註"
+    },
+    "status": {
+      "NORMAL": "正常",
+      "APPROACHING": "接近目標",
+      "REACHED": "已達到",
+      "EXCEEDED": "已超出"
+    },
+    "addTitle": "新增材料目標",
+    "editTitle": "修改材料目標",
+    "dialogHelp": "材料和規格從統一材料資料選，單位隨規格帶出。不選規格，就是整個材料的目標。",
+    "chooseMaterial": "選擇材料",
+    "specHint": "不選就是整個材料。",
+    "unitFromSpec": "單位隨規格帶出。",
+    "chooseUnit": "選擇單位",
+    "quantityRule": "須大於 0，最多三位小數",
+    "alertsHint": "例如 80, 100：到 80% 提醒「接近」，到 100% 提醒「達到」；超過 100% 一定提醒「超出」。",
+    "alertsInvalid": "請填 1 到 100 的整數，用逗號分開。",
+    "recipients": "提醒對象：這個項目的項目經理、QS（有「設定材料目標」權限的人）和設定人，帶提示音。",
+    "cancel": "取消",
+    "save": "儲存",
+    "toast": {
+      "saved": "材料目標已儲存。",
+      "removed": "材料目標已刪除。"
     }
   }
 }

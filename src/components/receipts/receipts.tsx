@@ -48,6 +48,8 @@ export function Receipts() {
     "date_to",
     "unit",
     "category",
+    // One specification (I19), as a material target opens it (I18, ID42).
+    "spec_category",
     "uncategorised",
     "acceptance",
     "direction",

@@ -155,6 +155,8 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       rejection_reason?: string;
       material_name: string;
       material_specification?: string;
+      /** The specification (I19). Absent on jobs queued before it. */
+      spec_category?: string | null;
       quantity: string;
       /** A code from the company's unit list (2026-10 A4). */
       unit: string;
@@ -273,6 +275,9 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     supplier?: string;
     source_receipt?: string;
     category?: string;
+    /** The specification (I19); absent on jobs queued before it. */
+    spec_category?: string;
+    material_specification?: string;
     /** Whose make (2026-10 D1); the delivery's own when absent. */
     manufacturer?: string;
     material_name?: string;
