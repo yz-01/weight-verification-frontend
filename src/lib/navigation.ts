@@ -1287,9 +1287,9 @@ export const PORTAL_NAVIGATION = {
     // 进度 Claim and 杂费报销 (Sundry Claim) are business entries of their own.
     // `requiredPermission` hides the entry; `PERMISSION_ROUTE_RULES` below is
     // what makes the address itself refuse.
-    entry("project_categories", "submodule.claimEngine", "/claims", Receipt, "operations", {
-      requiredPermission: "claim.view",
-    }),
+    // 进度 Claim is one type of Multi Engine package now (batch H, H10 /
+    // HD17: 「Progress Claim 只是 Multi Engine 其中一种分类，并不是独立模块」):
+    // its tab is inside Multi Engine, and /claims redirects there.
     entry("project_categories", "submodule.sundryClaims", "/sundry-claims", CreditCard, "operations", {
       requiredPermission: "sundry_claim.view",
       badge: ["sundry_claims"],
@@ -1300,7 +1300,10 @@ export const PORTAL_NAVIGATION = {
     // from several entries into one PDF.
     entry("project_categories", "submodule.archiveQueue", "/archive-queue", Inbox, "tools"),
     entry("project_categories", "submodule.multiEngine", "/evidence-packages", Package, "tools", {
-      requiredPermission: "package.view",
+      // Head office reads claims without reading packages: it sees the
+      // Progress Claim tab only.
+      requiredPermission: "package.view|claim.view",
+      routePrefixes: ["/claims"],
     }),
     // A setting: it manages the categories under each business entry
     // (材料分类、隐患整改分类…), not a business entry itself (D-284).
@@ -1797,7 +1800,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   // both, somebody who cannot build packages could still type the path and
   // land on a screen whose every call comes back 403 - a page that looks
   // broken rather than a page that says no.
-  { pattern: "/evidence-packages", permission: "package.view" },
+  { pattern: "/evidence-packages", permission: "package.view|claim.view" },
   { pattern: "/claims", permission: "claim.view" },
   { pattern: "/sundry-claims", permission: "sundry_claim.view" },
   { pattern: "/package-reviews", permission: "approval.view" },
@@ -1824,12 +1827,13 @@ function matchesPattern(pathname: string, pattern: string): boolean {
   );
 }
 
+/** `"a|b"` is either of them (Multi Engine's two doors, HD17). */
 function hasPermission(
   permissions: readonly string[],
   permission: string,
   isSuperuser: boolean,
 ): boolean {
-  return isSuperuser || permissions.includes(permission);
+  return isSuperuser || permission.split("|").some((code) => permissions.includes(code));
 }
 
 /**

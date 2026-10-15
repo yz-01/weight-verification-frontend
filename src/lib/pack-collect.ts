@@ -158,6 +158,8 @@ export const PACK_TARGETS: readonly PackTarget[] = [
     labelKey: "nav.submodule.consultantApplications",
     path: "/consultant-applications",
   },
+  // HD17: a Sundry Claim package carries sundry claims as its records.
+  { key: "sundryClaims", kind: "SUNDRY_CLAIM", labelKey: "nav.submodule.sundryClaims", path: "/sundry-claims" },
 ];
 
 /** The module's list, opened on the package's project, collecting into it. */
