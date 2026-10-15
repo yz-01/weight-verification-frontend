@@ -60,6 +60,8 @@ const DETAILS: Array<[string, string, string]> = [
   ["src/components/document-workflow/approvals.tsx", "ApprovalDetailDialog", "APPROVAL"],
   ["src/components/incident-reporting/incident-thread-detail.tsx", "IncidentThreadDetail", "INCIDENT_THREAD"],
   ["src/components/site-access/site-access-workspace.tsx", "PassDetail", "ACCESS_PASS"],
+  // 访客到访 (I26): the host's 确认接待 screen and a visitor record's visit.
+  ["src/components/site-access/visitor-arrival.tsx", "VisitorArrivalDialog", "VISITOR_ARRIVAL"],
   // H16 fix round: every record with a detail view (HD13, D1).
   ["src/components/settlements/payment-proofs.tsx", "PaymentProofDialog", "SETTLEMENT"],
   ["src/components/settlements/view-settlement.tsx", "ViewSettlement", "SETTLEMENT"],

@@ -58,6 +58,8 @@ const task = {
   priority: "NORMAL",
   due_at: "2026-10-09T02:00:00Z",
   status: "SUBMITTED",
+  // The server says whether this reader confirms it (I1).
+  can_confirm: true,
   evidence_required: 2,
   started_at: null,
   start_latitude: null,

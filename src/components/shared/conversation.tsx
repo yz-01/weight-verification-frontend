@@ -38,6 +38,7 @@ import { FilePreviewDialog } from "@/components/shared/file-preview";
 import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   type ConversationPhoto,
   groupConversationMessages,
@@ -460,6 +461,7 @@ export function ConversationComposer({
   limit,
   sending,
   onSend,
+  moreWork,
 }: {
   body: string;
   setBody: (value: string) => void;
@@ -468,6 +470,13 @@ export function ConversationComposer({
   limit: number;
   sending: boolean;
   onSend: (payload: ComposerPayload) => void;
+  /**
+   * The 「需要继续整改」 switch (ID11), for whoever may confirm the record
+   * while it waits for them. On, the message sends the item back to the
+   * person fixing it; off, it is only a message - a question never sends
+   * work back by accident. There is no 退回 button any more.
+   */
+  moreWork?: { on: boolean; onChange: (next: boolean) => void };
 }) {
   const t = useTranslations();
   const recorder = useRecorder(limit);
@@ -523,6 +532,25 @@ export function ConversationComposer({
 
   return (
     <div className="space-y-2 rounded-md border p-3">
+      {moreWork && (
+        <label
+          className={`flex items-start gap-3 rounded-md border p-2.5 text-sm ${moreWork.on ? "border-tone-rose/50 bg-tone-rose/5" : "border-dashed"}`}
+          data-more-work={moreWork.on ? "on" : "off"}
+        >
+          <Switch
+            tone="danger"
+            checked={moreWork.on}
+            onCheckedChange={moreWork.onChange}
+            aria-label={t("taskFlow.moreWork.label")}
+          />
+          <span className="min-w-0">
+            <span className="block font-medium">{t("taskFlow.moreWork.label")}</span>
+            <span className="block text-xs text-muted-foreground">
+              {t(moreWork.on ? "taskFlow.moreWork.on" : "taskFlow.moreWork.off")}
+            </span>
+          </span>
+        </label>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <Input
           value={body}
@@ -538,7 +566,7 @@ export function ConversationComposer({
           onClick={() => void submitText()}
         >
           <Send className="h-4 w-4" />
-          {t("hazard.send")}
+          {moreWork?.on ? t("taskFlow.moreWork.send") : t("hazard.send")}
         </Button>
       </div>
 

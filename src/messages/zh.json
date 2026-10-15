@@ -3079,7 +3079,8 @@
       "PROJECT": "项目资料",
       "SETTLEMENT": "付款凭证",
       "WEIGH_SESSION": "称重记录",
-      "ANNOUNCEMENT": "公告"
+      "ANNOUNCEMENT": "公告",
+      "VISITOR_ARRIVAL": "访客到访"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "载入中…",
@@ -7575,6 +7576,8 @@
       "hazard_closed": "{incident_no} 已验收并闭环归档。记录仍然可以查看，但不能再发新消息。",
       "hazard_message_empty": "发送前请输入文字，或附上照片、语音或文件。",
       "hazard_not_a_participant": "{incident_no} 没有上报给你。请让上报人或安全主管把你加进来。",
+      "not_awaiting_confirmation": "{reference} 现在不是待验收，不能退回整改。请关掉「需要继续整改」再发送。",
+      "may_not_request_more_work": "只有验收这件事的人才能要求继续整改。",
       "hazard_self_verification": "{incident_no} 是你整改的，需要由别人验收 —— 上报人、项目经理、顾问、现场主管或安全主管都可以。",
       "incident_thread_not_found": "找不到这份事故报告。",
       "incorrect_password": "当前密码不正确。",
@@ -7773,6 +7776,18 @@
       "role_already_exists": "本公司已经有这个角色。",
       "export_too_many_photos": "这次导出共有 {count} 张照片，一次最多 {limit} 张。请缩短日期范围后再导出。",
       "receipt_needs_supplier": "这批材料还没有供应商。请先按「补供应商」填上，再验收。",
+      "site_worker_not_found": "找不到这个人员",
+      "site_worker_phone_taken": "这个电话号码已在这个项目的名单上（{name}）",
+      "site_worker_inactive": "这个人员已移出名单，请先重新加入名单",
+      "worker_link_invalid": "链接已失效，请联系工地办公室重新发送。",
+      "worker_link_closed": "链接已关闭。",
+      "worker_link_other_device": "这个链接已在另一部手机上使用。",
+      "worker_link_phone_mismatch": "电话号码和登记的不一样。",
+      "worker_link_not_confirmed": "请先确认电话号码并同意定位。",
+      "gate_pass_host_not_confirmed": "接待人还没确认，不能放行。",
+      "visitor_arrival_already_open": "这位访客已经在门口等待确认。",
+      "visitor_arrival_answered": "这位访客已经处理过了。",
+      "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。",
       "sign_off_pin_required": "请输入你的六位数签核密码。",
       "sign_off_pin_not_set": "你还没有设定签核密码，请先设定。",
       "sign_off_pin_incorrect": "签核密码不对。再错 {attempts_left} 次会锁 15 分钟。",
@@ -7797,7 +7812,10 @@
       "required": "此项为必填",
       "unique": "此值已被占用",
       "percent_range": "请输入 0 到 100 之间的百分比",
-      "percent_unchanged": "与目前的百分比相同"
+      "percent_unchanged": "与目前的百分比相同",
+      "invalid_worker_phone": "请输入有效的手机号码，例如 012-345 6789",
+      "site_worker_phone_taken": "这个电话号码已在名单上",
+      "too_many_documents": "最多 10 张证件"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -10469,7 +10487,12 @@
       "published_by": "发布人",
       "published_at": "发布时间",
       "content": "内容",
-      "read_count": "已读 / 收件人"
+      "read_count": "已读 / 收件人",
+      "host": "接待人",
+      "confirmed_by": "确认人",
+      "confirmed_at": "确认时间",
+      "entry_at": "进场时间",
+      "exit_at": "退场时间"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -10733,7 +10756,6 @@
       "partnerTerritories": "区域管理",
       "partnerTypes": "合作类型",
       "paymentProofs": "付款凭证",
-      "photoApprovals": "照片审批",
       "photoReport": "照片报表",
       "platformBusinessReports": "平台业务报表",
       "platformCommission": "平台佣金管理",
@@ -10828,7 +10850,8 @@
       "gateIssues": "门岗事项",
       "visitorRecords": "访客进退场记录",
       "dailyReport": "日报告",
-      "progressSummary": "项目进度摘要"
+      "progressSummary": "项目进度摘要",
+      "siteWorkers": "人员名单"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -11426,7 +11449,7 @@
     "safety": {
       "what": "工地上的安全事件：登记，以及往上报。",
       "who": "同时持 safety.view 和 project.view。",
-      "need": "登记事件要项目、安全分类、标题、照片、GPS 证据、负责人及工地人员、处理说明；上报事故要项目、事故标题、事件经过、报告给谁、证据档案和地点。",
+      "need": "登记事件要项目、事项分类、标题、照片、GPS 证据、负责人及工地人员、处理说明；上报事故要项目、事故标题、事件经过、报告给谁、证据档案和地点。",
       "then": "被点名的人会立刻收到通知。",
       "trouble": "照片和 GPS 都是必填，而现场常常没信号。照拍就是，它会排队之后自动传，存下来的位置是你拍照时站的地方。"
     },
@@ -11563,7 +11586,7 @@
       "trouble": "目前没有常见到值得预警的问题。"
     },
     "material_requests": {
-      "what": "现场的材料申请和其他申请，每笔有独立申请编号；申请累计数量；以及原有的照片审批。",
+      "what": "现场的材料申请和其他申请，每笔有独立申请编号；以及申请累计数量。",
       "who": "持有 material_request.view 的人员；批准或退回需要 material_request.review。",
       "need": "材料申请须填材料、规格、数量和单位；备注和附件选填。其他申请须有文件或备注。",
       "then": "总部在申请内沟通并批准或退回。已退回的申请即结束；再申请须新建，产生新编号。",
@@ -11574,6 +11597,12 @@
       "who": "持 site_access.view；门岗事项由指定人员或持 site_access.manage 的人确认结束。",
       "then": "普通照片直接归档；门岗事项会通知指定人员，双方在事项里沟通，确认结束后只能查看。",
       "trouble": "找不到某张照片：看一下日期、时间和拍摄人筛选，或切换成照片墙；断网时拍的照片要等手机有网络才会上传。"
+    },
+    "site_workers": {
+      "what": "没有系统账号的工人名单：登记资料、发专属定位链接，看谁在场、几点进几点出。",
+      "who": "持 site_worker.view 可以看；持 site_worker.manage 可以登记人员和发送链接。",
+      "then": "人员打开链接、输入电话号码并同意后，页面开着时会定时上传位置；进围栏记进场，离开围栏满 5 分钟记离场。",
+      "trouble": "显示「定位未更新」：人员关了页面或锁屏，不代表已离场。打不开链接：请「重新发链接」。"
     }
   },
   "partners": {
@@ -12009,6 +12038,10 @@
       "integration": {
         "view": "查看系统集成与设备",
         "manage": "管理系统集成与设备"
+      },
+      "site_worker": {
+        "view": "查看人员名单和进出场记录",
+        "manage": "登记人员、发送定位链接"
       }
     },
     "group": {
@@ -12076,34 +12109,9 @@
       "cloud_service": "云服务",
       "platform_settings": "系统设置",
       "platform_version": "版本管理",
-      "integration": "系统集成"
+      "integration": "系统集成",
+      "site_worker": "人员名单"
     }
-  },
-  "photoApprovals": {
-    "noLocation": "没有记录位置",
-    "noCaption": "没有说明",
-    "noPhotos": "这一份没有照片",
-    "returnReason": "退回理由",
-    "returnPlaceholder": "例如：梁底没拍进去",
-    "returnHelp": "写清楚哪里不行。理由会一起发给拍照的人，不然他不知道要重拍什么。",
-    "returnTitle": "退回重拍",
-    "return": "退回",
-    "accept": "批准",
-    "noCategory": "未归分类",
-    "empty": "没有待审批的",
-    "subtitle": "有 {count} 份等你审",
-    "title": "照片审批",
-    "what": "待审批的照片",
-    "historyCount": "{count, plural, =0 {无记录} other {# 笔已处理}}",
-    "historyEmpty": "暂无记录",
-    "show": "显示",
-    "reviewNote": "原因：",
-    "filter": {
-      "SUBMITTED": "待审批",
-      "ACCEPTED": "已批准",
-      "RETURNED": "已退回"
-    },
-    "loadMore": "载入更多（已显示 {shown} / {total}）"
   },
   "photos": {
     "count": "{count} 张照片",
@@ -13413,7 +13421,7 @@
       "photo": "打开照片"
     },
     "field": {
-      "category": "安全分类",
+      "category": "事项分类",
       "description": "说明",
       "dueAt": "整改期限",
       "evidence": "证据",
@@ -13456,13 +13464,13 @@
       "title": "上报工地事故"
     },
     "filter": {
-      "allCategories": "全部安全分类",
+      "allCategories": "全部事项分类",
       "allProjects": "所有项目",
       "allResponsible": "全部整改负责人",
       "dateFrom": "开始日期",
       "dateTo": "结束日期",
       "project": "选择项目",
-      "selectCategory": "选择安全分类"
+      "selectCategory": "选择事项分类"
     },
     "form": {
       "captureLocation": "获取 GPS",
@@ -13495,7 +13503,7 @@
       "title": "更新事故状态"
     },
     "what": {
-      "categories": "安全分类",
+      "categories": "事项分类",
       "responsiblePeople": "负责人列表",
       "requestedIncident": "链接中的事故",
       "workers": "可通知人员"
@@ -13564,6 +13572,8 @@
     },
     "title": "整改 / EHS",
     "toast": {
+      "reassigned": "已调整负责人",
+      "categoryChanged": "已保存事项分类",
       "assigned": "已指派整改",
       "reviewed": "已保存验收结果",
       "submitted": "已提交整改证据"
@@ -14043,7 +14053,8 @@
         "passes": "谁可以进工地、哪段时间可以进。在这里申请、审批、撤销通行证，也可以下载二维码发给对方。",
         "gate": "保安用手机扫通行证二维码，先看清楚访客资料，再按「确认进场」或「确认退场」。",
         "devices": "接了自动闸机、车牌识别或刷脸机，机器每次放行或拒绝都记在这里，并写明原因。没接这些机器，这里就是空的。"
-      }
+      },
+      "hostHint": "从项目人员中选择；访客到门口时会通知他。"
     },
     "action": {
       "approve": "批准",
@@ -14449,7 +14460,11 @@
       "gatePhotosAdded": "照片已补上。",
       "gateMembersAdded": "已指定人员并通知。",
       "gateIssueClosed": "门岗事项已确认结束。",
-      "gateConversationStarted": "已通知选中的人员，可以开始沟通。"
+      "gateConversationStarted": "已通知选中的人员，可以开始沟通。",
+      "hostNotified": "已通知接待人。",
+      "visitorConfirmed": "已确认接待，门岗可以放行。",
+      "visitorDeclined": "已拒绝，门岗已收到。",
+      "visitorCancelled": "已取消这次到访。"
     },
     "what": {
       "roles": "角色列表",
@@ -14608,7 +14623,7 @@
       "signedOut": "请重新登录后再发送。"
     },
     "visitorScan": {
-      "help": "扫访客的通行证二维码，先核对资料，再按「确认进场」或「确认退场」。不用拍照。",
+      "help": "扫通行证二维码并核对资料。访客要先拍照、接待人确认后才能放行；其他人员按确认进场或确认退场。",
       "project": "项目",
       "chooseProject": "选择项目",
       "chooseProjectFirst": "先选项目",
@@ -14649,12 +14664,13 @@
         "not_yet_valid": "不能确认：这张通行证还没到有效时间。",
         "expired": "不能确认：这张通行证已过期。",
         "already_inside": "已经记录在场内，下次扫码请按「确认退场」。",
-        "already_outside": "还没有进场记录，请先按「确认进场」。"
+        "already_outside": "还没有进场记录，请先按「确认进场」。",
+        "host_not_confirmed": "不能放行：接待人还没确认。"
       }
     },
     "visitorRecords": {
       "title": "访客进退场记录",
-      "help": "每次在门岗确认的进场、退场各一条，连着原来的通行证，不会覆盖。",
+      "help": "每一次访客到访一行（照片、接待人、确认、进场和退场），其他进退场也各自一行，不会覆盖。",
       "empty": "还没有进退场记录。",
       "allDirections": "全部进退场",
       "allTypes": "全部类型",
@@ -14673,8 +14689,86 @@
         "approvedBy": "批准人",
         "validUntil": "有效至",
         "gate": "门岗",
-        "guard": "确认人"
+        "guard": "确认人",
+        "photo": "照片",
+        "host": "接待人",
+        "confirmedBy": "接待人确认",
+        "confirmedAt": "确认时间",
+        "entryAt": "进场时间",
+        "exitAt": "退场时间",
+        "visitStatus": "到访状态",
+        "visit": "到访编号",
+        "declineReason": "拒绝原因",
+        "photoCount": "照片数"
       }
+    },
+    "visitorArrival": {
+      "title": "访客到访",
+      "hostHelp": "有访客在门口找你。请看照片，然后确认接待或拒绝。",
+      "detailHelp": "访客在门口的照片、接待人和接待人的确认。",
+      "what": "这位访客",
+      "whatHosts": "项目人员名单",
+      "whatOpen": "门口等待中的访客",
+      "loading": "加载中…",
+      "status": {
+        "AWAITING_HOST": "等待接待人确认",
+        "CONFIRMED": "已确认",
+        "DECLINED": "接待人拒绝",
+        "CANCELLED": "已取消",
+        "ON_SITE": "已进场",
+        "LEFT": "已退场"
+      },
+      "field": {
+        "visitor": "访客",
+        "company": "公司",
+        "purpose": "事由",
+        "pass": "通行证",
+        "project": "项目",
+        "host": "接待人",
+        "guard": "门岗人员",
+        "arrivedAt": "到达时间",
+        "confirmedBy": "确认人",
+        "confirmedAt": "确认时间",
+        "declinedBy": "拒绝人",
+        "reason": "拒绝原因",
+        "entryAt": "进场时间",
+        "exitAt": "退场时间",
+        "photo": "访客照片"
+      },
+      "photoNumber": "照片 {number}",
+      "photoOf": "{name} 的照片",
+      "removePhoto": "删除照片 {number}",
+      "answerTitle": "接待人确认",
+      "confirm": "确认接待",
+      "decline": "拒绝",
+      "reasonPlaceholder": "为什么拒绝？门岗会看到这句话。",
+      "back": "返回",
+      "declineConfirm": "确认拒绝",
+      "answerFailed": "保存失败，请再试一次。",
+      "waitingFor": "等待 {host} 确认。",
+      "confirmedBanner": "已确认（{name} {time}）",
+      "declinedBanner": "{name} 拒绝：{reason}",
+      "onBehalf": "代确认",
+      "chooseHost": "选择接待人",
+      "searchHost": "按名字搜索",
+      "noHosts": "这个项目没有符合的人员。",
+      "chooseProjectFirst": "请先选择项目",
+      "photoHint": "当场拍下访客的照片。",
+      "takePhoto": "拍访客照片",
+      "takeAnother": "再拍一张（已拍 {count} 张）",
+      "hostHint": "访客要找的人，系统会马上通知他。",
+      "changeHost": "换接待人",
+      "startFailed": "通知失败，请再试一次。",
+      "notifyHost": "通知接待人",
+      "waiting": "已通知 {host}，等待确认…",
+      "waited": "已等 {minutes} 分钟",
+      "waitingHelp": "接待人确认后，这个画面会自己变绿。",
+      "cancel": "取消",
+      "letIn": "放行",
+      "declinedHelp": "不能放行这位访客。",
+      "next": "扫下一个",
+      "openTitle": "门口等待中的访客",
+      "hostLine": "接待人：{host}"
     }
   },
   "siteDisposal": {
@@ -16846,13 +16940,11 @@
   },
   "materialRequest": {
     "title": "MR / 其他申请",
-    "noAccess": "你没有查看申请或照片审批的权限。",
+    "noAccess": "你没有查看申请的权限。",
     "tab": {
       "requests": "申请",
-      "totals": "申请累计",
-      "photos": "照片审批"
+      "totals": "申请累计"
     },
-    "photosNote": "原「照片审批」的照片提交全部在这里，没有改动：待审的照样在此审批，已处理的连同照片、审批人和原因都可查看。",
     "type": {
       "MATERIAL": "材料申请",
       "OTHER": "其他申请"
@@ -17766,9 +17858,262 @@
     "name": "名字",
     "continue": "继续"
   },
+  "taskFlow": {
+    "moreWork": {
+      "label": "需要继续整改",
+      "off": "不打开就只是普通消息，事情不会退回。",
+      "on": "发送后这件事回到负责人手上（待处理），他的我的任务会重新出现。",
+      "send": "发送并要求继续整改",
+      "hint": "没通过：在下方沟通里打开「需要继续整改」再发送，说明还要改什么。",
+      "reviewHint": "没通过就不要确认：在沟通里打开「需要继续整改」再发送，说明还要改什么，事情会回到负责人手上。"
+    },
+    "stage": {
+      "all": "全部状态",
+      "PENDING": "待处理",
+      "AWAITING": "待验收",
+      "DONE": "已完成"
+    },
+    "myTasks": {
+      "title": "我的任务",
+      "count": "{count} 件待处理",
+      "loading": "正在读取…",
+      "refresh": "刷新",
+      "empty": "目前没有要做的任务。",
+      "kind": {
+        "FIELD_TASK": "现场任务",
+        "HAZARD": "整改 / EHS"
+      },
+      "moreWork": "需要继续整改",
+      "due": "期限：{value}",
+      "said": {
+        "text": "消息",
+        "photo": "发了一张照片",
+        "voice": "发了一段语音",
+        "file": "发了一个文件"
+      }
+    },
+    "work": {
+      "back": "返回",
+      "what": "这个任务",
+      "locationFailed": "取不到位置，请打开定位后再试。",
+      "failed": "没有成功，请再试一次。",
+      "stage": {
+        "PENDING": "待处理",
+        "AWAITING": "待验收",
+        "DONE": "已完成",
+        "CANCELLED": "已取消"
+      },
+      "assignedBy": "指派人：{name}",
+      "due": "期限：{value}",
+      "where": "地点：{value}",
+      "moreWork": "需要继续整改",
+      "photos": "照片",
+      "photosHint": "至少拍 {count} 张",
+      "takePhoto": "拍照",
+      "note": "备注",
+      "noteHint": "没有照片时写一句做了什么",
+      "optional": "选填",
+      "notePlaceholder": "做了什么（选填）",
+      "submit": "提交完成",
+      "workflowHint": "这个任务要在它自己的表单里提交。",
+      "openWorkflow": "打开工作表单",
+      "waiting": "已提交，等待验收。",
+      "finished": "这个任务已经结束。"
+    },
+    "ehs": {
+      "unsorted": "未分类",
+      "create": "建立事项",
+      "categories": "分类管理",
+      "history": "历史档案",
+      "backToList": "返回待处理列表",
+      "historyTitle": "整改 / EHS 历史档案",
+      "noAndDate": "编号 / 日期",
+      "verifiedBy": "验收人",
+      "verifiedAt": "确认时间",
+      "reassign": "调整负责人",
+      "reassignHelp": "{incident} 现在由 {person} 负责。选一个新的负责人，照片和沟通都留在原事项。",
+      "newResponsible": "新负责人",
+      "chooseCategory": "先选一个不同的事项分类",
+      "saveCategory": "保存分类"
+    },
+    "fieldTasks": {
+      "history": "历史档案",
+      "backToList": "返回待处理列表",
+      "historyTitle": "现场任务历史档案",
+      "stageColumn": "状态",
+      "confirmedBy": "确认人",
+      "confirmedAt": "确认时间",
+      "search": "搜索任务、负责人",
+      "allAssignees": "全部负责人",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期"
+    }
+  },
   "mapFrame": {
     "fullscreen": "全屏",
     "exitFullscreen": "退出全屏"
+  },
+  "siteWorkers": {
+    "title": "人员名单",
+    "visitsTitle": "进出场记录",
+    "count": "{count} 人",
+    "visitCount": "{count} 笔进出场记录",
+    "searchHint": "搜索姓名、电话号码、CIDB 卡号或其他证件号码；可同时选所属公司。",
+    "visitsHint": "每一笔是一次在场：围栏内记进场，离开围栏满 5 分钟记离场。手机停止上传时显示「定位未更新」，不会当作离场。",
+    "noFence": "这个项目还没设电子围栏，系统无法判断在场。请先到「Geofence 设置」设好围栏。",
+    "tab": {
+      "roster": "人员名单",
+      "visits": "进出场记录"
+    },
+    "field": {
+      "name": "姓名",
+      "phone": "电话号码",
+      "cidb": "CIDB 卡号",
+      "company": "所属公司",
+      "companyNote": "公司名称（名单里没有）",
+      "project": "项目",
+      "status": "在场状态",
+      "lastPositionAt": "最后定位时间",
+      "view": "查看",
+      "documents": "其他证件",
+      "enteredAt": "进场时间",
+      "exitedAt": "离场时间",
+      "exitState": "状态"
+    },
+    "status": {
+      "ON_SITE": "在场",
+      "OFF_SITE": "不在场",
+      "STALE": "定位未更新",
+      "NOT_STARTED": "未开始定位"
+    },
+    "visit": {
+      "signalLostAt": "定位未更新（最后 {at}）",
+      "EXITED": "已离场",
+      "in": "进场",
+      "out": "离场"
+    },
+    "filter": {
+      "company": "所属公司",
+      "allCompanies": "全部公司",
+      "project": "选择项目",
+      "allProjects": "全部项目",
+      "inactive": "已停用",
+      "dateFrom": "进场日期从",
+      "dateTo": "进场日期到",
+      "onePerson": "只看：{name}"
+    },
+    "action": {
+      "view": "查看",
+      "add": "新增人员",
+      "edit": "修改资料",
+      "deactivate": "移出名单",
+      "reactivate": "重新加入名单"
+    },
+    "what": {
+      "companies": "公司名单",
+      "worker": "人员资料"
+    },
+    "toast": {
+      "created": "已加入名单",
+      "updated": "资料已更新",
+      "deactivated": "已移出名单，定位链接已停用",
+      "reactivated": "已重新加入名单，请重新发送定位链接"
+    },
+    "form": {
+      "addTitle": "新增人员",
+      "editTitle": "修改资料",
+      "phoneHint": "例如 012-345 6789。定位链接只会绑定这个号码的手机。",
+      "noCompany": "不选（名单里没有）",
+      "pickCompany": "从公司名单选择",
+      "searchCompany": "搜索公司",
+      "noCompanyMatch": "名单里没有这家公司",
+      "companyNoteHint": "名单里没有的公司先打字，之后可以改成从名单选。",
+      "documentName": "证件名称（如护照）",
+      "documentNumber": "证件号码",
+      "removeDocument": "删除这张证件",
+      "addDocument": "加一张证件",
+      "documentIncomplete": "每张证件都要填名称和号码"
+    },
+    "detail": {
+      "title": "人员资料",
+      "lastAt": "最后定位 {at}",
+      "profile": "人员资料",
+      "lastPosition": "最后一次 GPS 位置",
+      "noPosition": "还没收到定位。发送定位链接，人员打开并同意后就会开始。",
+      "outside": "在工地外，距离围栏约 {km} 公里 · {at}",
+      "noFenceAt": "项目没设围栏，无法判断位置 · {at}",
+      "inside": "在工地内 · {at}",
+      "mapLabel": "最后位置地图",
+      "privacyNote": "只显示工地围栏内的位置；离开工地后只显示距离，不显示准确位置。定位记录不能修改或删除。",
+      "link": "定位链接",
+      "visits": "历史进出场记录（{count}）",
+      "allVisits": "查看全部",
+      "noVisits": "还没有进出场记录",
+      "deactivateHelp": "打开开关才能移出名单。移出后定位链接马上失效；之前的进出场和定位记录都保留。",
+      "armFirst": "先打开左边的开关"
+    },
+    "link": {
+      "status": {
+        "NONE": "还没发送",
+        "REVOKED": "已停用",
+        "NOT_OPENED": "已发送，还没打开",
+        "BOUND": "已打开，还没同意定位",
+        "ACTIVE": "已同意定位"
+      },
+      "issuedAt": "发送于 {at}",
+      "send": "发送定位链接",
+      "resend": "重新发链接",
+      "resendHint": "重新发链接后，旧链接马上失效，人员要在手机上重新输入电话号码。",
+      "message": "{name} 你好，这是 {project} 的工地定位链接。请用手机打开，输入你的电话号码，按「同意并开始定位」，在工地时保持页面打开：{link}",
+      "sentTitle": "定位链接已准备好",
+      "sentBody": "系统不发短信。用 WhatsApp 发给人员，或复制后自己发送。这个链接只显示这一次。",
+      "whatsapp": "用 WhatsApp 发送",
+      "copy": "复制链接"
+    }
+  },
+  "workerLocation": {
+    "chatTitle": "建议用浏览器打开",
+    "chatBody": "你正在 {app} 里打开链接。链接会绑定第一次打开它的地方，请复制链接，到 Chrome 或 Safari 打开。",
+    "copyLink": "复制链接",
+    "continueHere": "仍在这里打开",
+    "failedTitle": "暂时打不开",
+    "failedBody": "请检查网络后重试。",
+    "invalidTitle": "链接已失效",
+    "invalidBody": "请联系工地办公室重新发送。",
+    "closedTitle": "链接已关闭",
+    "closedBody": "你已不在这个项目的名单上，或项目已结束。",
+    "otherDeviceTitle": "链接已在另一部手机上使用",
+    "otherDeviceBody": "这个链接只能在确认过电话号码的手机上使用。请联系工地办公室重新发送。",
+    "phoneTitle": "输入你的电话号码",
+    "phoneBody": "要和工地办公室登记的号码一样。",
+    "phoneLabel": "电话号码",
+    "phonePlaceholder": "012-345 6789",
+    "phoneConfirm": "确认",
+    "hello": "{name} 你好",
+    "consentTitle": "开始前请看清楚",
+    "consent": {
+      "what": "会收集你手机的 GPS 位置和时间。",
+      "when": "只在这个页面开着时上传；关掉页面或锁屏就会停。",
+      "who": "工地办公室用来记录你几点进场、几点离场。离开工地后只显示距离，不显示准确位置。",
+      "noEdit": "定位记录不能修改或删除。"
+    },
+    "agree": "同意并开始定位",
+    "locating": "定位中",
+    "locatingAt": "定位中 · 上次上传 {time}",
+    "keepOpen": "请保持此页面打开",
+    "starting": "正在取得位置…",
+    "retry": "重试",
+    "foregroundOnly": "手机锁屏或切到别的 App 时会停止上传，回到这个页面会自动继续。",
+    "error": {
+      "invalid": "链接已失效，请联系工地办公室重新发送。",
+      "closed": "链接已关闭。",
+      "otherDevice": "链接已在另一部手机上使用。",
+      "phoneMismatch": "号码不对。请输入工地办公室登记的号码，或联系办公室。",
+      "failed": "暂时连不上，请稍后再试。",
+      "denied": "定位权限被拒绝，请按下面的步骤允许定位。",
+      "unavailable": "暂时取不到位置。请到空旷处，确认手机定位已打开。",
+      "upload": "上一次没传上去，会自动再试。"
+    }
   },
   "signOff": {
     "title": "签核密码",

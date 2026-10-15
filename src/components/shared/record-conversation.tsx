@@ -16,6 +16,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import {
   ConversationComposer,
@@ -64,6 +65,8 @@ function RecordConversationContent({
   const [body, setBody] = useDraftState("body", "");
   const [file, setFile] = useDraftState<File | null>("file", null);
   const clearDraft = useClearDraft();
+  // 「需要继续整改」 (ID11): never kept in the draft - it is armed for one send.
+  const [moreWork, setMoreWork] = useState(false);
 
   const { data, isLoading, isLoadingError } = useQuery({
     queryKey: recordConversationKey(kind, recordId),
@@ -76,15 +79,24 @@ function RecordConversationContent({
   const limit = data?.audio_seconds_limit ?? FALLBACK_AUDIO_LIMIT;
 
   const send = useMutation({
-    mutationFn: (payload: ComposerPayload) =>
-      postRecordMessage(kind, recordId, payload),
-    onSuccess: () => {
+    mutationFn: ({ payload, sendBack }: { payload: ComposerPayload; sendBack: boolean }) =>
+      postRecordMessage(kind, recordId, {
+        ...payload,
+        ...(sendBack ? { needs_more_work: true } : {}),
+      }),
+    onSuccess: (_message, { sendBack }) => {
       setBody("");
       setFile(null);
       clearDraft();
       void queryClient.invalidateQueries({
         queryKey: recordConversationKey(kind, recordId),
       });
+      if (sendBack) {
+        // Back to 待处理: the task lists and its own detail say so now.
+        setMoreWork(false);
+        void queryClient.invalidateQueries({ queryKey: ["field-tasks"] });
+        void queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
+      }
     },
     // Finished by somebody else while this screen was open (D-278): refetch,
     // so the composer is replaced by the reason instead of refusing again.
@@ -145,7 +157,17 @@ function RecordConversationContent({
           setFile={setFile}
           limit={limit}
           sending={send.isPending}
-          onSend={(payload) => send.mutate(payload)}
+          onSend={(payload) =>
+            send.mutate({
+              payload,
+              sendBack: Boolean(data.can_request_more_work) && moreWork,
+            })
+          }
+          moreWork={
+            data.can_request_more_work
+              ? { on: moreWork, onChange: setMoreWork }
+              : undefined
+          }
         />
       )}
     </div>
