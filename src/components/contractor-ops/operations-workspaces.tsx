@@ -1023,7 +1023,7 @@ export function FieldTasksWorkspace({
   });
   // 确认完成 only (ID11): no 退回 button. The confirmer says what is still
   // wrong in the task's conversation, with 「需要继续整改」 switched on.
-  const confirm = (row: FieldTask) =>
+  const confirmTask = (row: FieldTask) =>
     transition.mutate({ id: row.id, status: "ACCEPTED", note: "" });
   return (
     <div className="space-y-4">
@@ -1357,7 +1357,7 @@ export function FieldTasksWorkspace({
                         <Button
                           size="sm"
                           disabled={transition.isPending}
-                          onClick={() => confirm(row)}
+                          onClick={() => confirmTask(row)}
                         >
                           <Check />
                           {t("tasks.confirmDone")}
