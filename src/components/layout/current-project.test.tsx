@@ -171,7 +171,7 @@ describe("one project chosen in the top bar", () => {
     const { html, keys } = render(<MultiEngineWorkspace />, { state: topBar(NORTH.id) });
     expect(html).not.toContain(PAGE_PICKER);
     expect(html).not.toContain(messages.contractorOps.field.allProjects);
-    expect(keysOf(keys, "evidence-packages")).toEqual([["evidence-packages", NORTH.id, "", 1]]);
+    expect(keysOf(keys, "evidence-packages")).toEqual([["evidence-packages", NORTH.id, "", 1, ""]]);
   });
 
   it("claims has no project box and lists that project's claims", () => {
@@ -241,7 +241,7 @@ describe("全部项目", () => {
   it("lists every project, still without a project box", () => {
     const { html, keys } = render(<MultiEngineWorkspace />, { state: topBar("") });
     expect(html).not.toContain(PAGE_PICKER);
-    expect(keysOf(keys, "evidence-packages")).toEqual([["evidence-packages", "", "", 1]]);
+    expect(keysOf(keys, "evidence-packages")).toEqual([["evidence-packages", "", "", 1, ""]]);
   });
 
   it("a page about one project asks for it once, and says the top bar follows", () => {
@@ -277,7 +277,7 @@ describe("the top bar", () => {
 
   it("puts someone with one project on it without asking, and their lists follow", () => {
     const { keys } = render(<MultiEngineWorkspace />, { projects: [NORTH] });
-    expect(keysOf(keys, "evidence-packages")).toEqual([["evidence-packages", NORTH.id, "", 1]]);
+    expect(keysOf(keys, "evidence-packages")).toEqual([["evidence-packages", NORTH.id, "", 1, ""]]);
   });
 
   it("is not drawn for a consultant, whose page keeps its own choice", () => {
@@ -312,7 +312,7 @@ describe("a ?project= in the address", () => {
     );
     expect(html).toContain(`[${SOUTH.id}]`);
     expect(html).toContain(`<option value="${SOUTH.id}" selected="">`);
-    expect(keysOf(keys, "evidence-packages")).toEqual([["evidence-packages", SOUTH.id, "", 1]]);
+    expect(keysOf(keys, "evidence-packages")).toEqual([["evidence-packages", SOUTH.id, "", 1, ""]]);
   });
 
   /** The browser's storage, holding a choice made earlier in the top bar. */

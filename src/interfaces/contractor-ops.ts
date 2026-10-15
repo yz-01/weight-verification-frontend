@@ -1018,6 +1018,158 @@ export interface ArchiveQueuePage {
 export type PackageState = "DRAFT" | "CONFIRMED";
 export type PackageReviewState = "NOT_SENT" | "SENT" | "REVIEWED";
 export type PackageItemReviewState = "PENDING" | "ACCEPTED" | "RETURNED";
+/** What a package is for (batch H, HD17). Progress Claim is opened by period. */
+export type PackageType =
+  | "PROGRESS_CLAIM"
+  | "SUNDRY_CLAIM"
+  | "APPROVAL"
+  | "SUPPLIER"
+  | "SAFETY_INCIDENT"
+  | "OTHER";
+export const PACKAGE_TYPES: readonly PackageType[] = [
+  "PROGRESS_CLAIM",
+  "SUNDRY_CLAIM",
+  "APPROVAL",
+  "SUPPLIER",
+  "SAFETY_INCIDENT",
+  "OTHER",
+];
+/** The types that carry an amount, a period, a collection and payment proofs. */
+export const CLAIM_PACKAGE_TYPES: readonly PackageType[] = ["PROGRESS_CLAIM", "SUNDRY_CLAIM"];
+
+/** Who a package went to (H17 四 2). Only a consultant signs in. */
+export type RecipientKind = "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
+export type RecipientStatus = "SENT" | "VIEWED" | "SIGNED" | "REVOKED";
+export type PackageEventKind =
+  | "CONFIRMED"
+  | "SENT"
+  | "OPENED"
+  | "DOWNLOADED"
+  | "MESSAGE"
+  | "ITEM_CONFIRMED"
+  | "ITEM_RETURNED"
+  | "RESUBMITTED"
+  | "SIGNED"
+  | "REVOKED"
+  | "EXTENDED"
+  | "LINK_REGENERATED"
+  | "REPORT";
+
+export interface PackageRecipient {
+  id: string;
+  kind: RecipientKind;
+  consultant: string | null;
+  display_name: string;
+  name: string;
+  organization: string;
+  contact: string;
+  status: RecipientStatus;
+  is_expired: boolean;
+  is_live: boolean;
+  /** The link's last characters - the whole link is never stored. */
+  token_hint: string;
+  expires_at: string | null;
+  revoked_at: string | null;
+  open_count: number;
+  first_opened_at: string | null;
+  last_opened_at: string | null;
+  seen_round: number;
+  signed_name: string;
+  signed_at: string | null;
+  accepted_count: number;
+  returned_count: number;
+  pending_count: number;
+  created_at: string;
+  created_by_name: string;
+  /** Only in the answer that made (or remade) the link. */
+  token?: string;
+}
+
+/** One recipient's answer on one record. */
+export interface PackageAnswer {
+  recipient: string;
+  recipient_name: string;
+  recipient_kind: RecipientKind;
+  decision: PackageItemReviewState;
+  reason: string;
+  actor_name: string;
+  at: string | null;
+  signed: boolean;
+}
+
+export interface PackageMessage {
+  id: string;
+  recipient: string;
+  item: string | null;
+  side: "OFFICE" | "RECIPIENT";
+  author_name: string;
+  body: string;
+  attachment_name: string;
+  /** An API path (office / consultant / link); fetched as a file. */
+  attachment_url: string;
+  created_at: string;
+}
+
+export interface PackageEvent {
+  id: string;
+  kind: PackageEventKind;
+  round_no: number;
+  recipient: string | null;
+  recipient_name: string;
+  item: string | null;
+  actor_name: string;
+  note: string;
+  created_at: string;
+  ip_address?: string | null;
+}
+
+export interface PackageRound {
+  number: number;
+  pdf_sha256: string;
+  pdf_bytes: number;
+  merge_report: PackageMergeNote[];
+  confirmed_at: string;
+  confirmed_by_name: string;
+  reason: string;
+}
+
+export interface PaymentProof {
+  id: string;
+  file: string | null;
+  name: string;
+  preview_type: string | null;
+  amount: string | null;
+  note: string;
+  uploaded_by_name: string | null;
+  uploaded_at: string;
+}
+
+/** Amount, period, collection and vouchers - claim types only (HD17). */
+export interface PackageClaimFacet {
+  type: PackageType;
+  claim?: {
+    id: string;
+    claim_no: string;
+    kind: ClaimKind;
+    period: string;
+    state: ClaimState;
+    amount: string | null;
+    payment_state: ClaimPaymentState;
+    payment_note: string;
+    payment_updated_at: string | null;
+    payment_updated_by_name: string;
+    payment_proofs: PaymentProof[];
+  } | null;
+  sundry_total?: string;
+  sundry?: {
+    id: string;
+    claim_no: string;
+    amount: string | null;
+    state: string;
+    payment_state: ClaimPaymentState;
+    payment_proof_count: number;
+  }[];
+}
 
 /** One selectable document on a record - today, a delivery order page. */
 export interface PackageDocument {
@@ -1064,6 +1216,9 @@ export interface PackageItem extends PackageRecordParts {
   record_kind: ArchiveRecordKind;
   record_id: string;
   position: number;
+  /** The round this version of the record entered the package in (H17). */
+  round_no?: number;
+  replaced_in_round?: number | null;
   selection: PackageSelection;
   review_state: PackageItemReviewState;
   returned_reason: string;
@@ -1075,6 +1230,8 @@ export interface PackageItem extends PackageRecordParts {
   is_snapshot: boolean;
   /** The record this member points at can no longer be read from here. */
   source_missing?: boolean;
+  /** Office only: each recipient's answer on this record (H17 六 3). */
+  answers?: PackageAnswer[];
 }
 
 export interface EvidencePackageRow {
@@ -1083,11 +1240,17 @@ export interface EvidencePackageRow {
   package_no?: string;
   name: string;
   remarks: string;
+  package_type?: PackageType;
   state: PackageState;
   project: string;
   project_name: string;
   created_at: string;
   created_by_name: string;
+  /** H3 / HD20: who confirmed it. */
+  confirmed_by_name?: string;
+  /** The latest locked round; 0 for a draft. */
+  current_round?: number;
+  recipient_count?: number;
   confirmed_at: string | null;
   pdf_sha256: string;
   pdf_bytes: number;
@@ -1113,6 +1276,60 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   items: PackageItem[];
   /** Records the last add call would not take, and why. */
   refused?: { id: string; reason: string }[];
+  /** Which round `items` are (the latest unless one was asked for). */
+  viewing_round?: number;
+  /* The office's view of a confirmed package (H17 八 1). */
+  recipients?: PackageRecipient[];
+  rounds?: PackageRound[];
+  returned_item_ids?: string[];
+  can_resubmit?: boolean;
+  claim?: PackageClaimFacet | null;
+  /* The consultant's view: their own recipient row (H17 五 2). */
+  recipient?: PackageRecipient;
+  can_sign?: boolean;
+}
+
+/** What the package link's page shows (H17 八 3): no money, one thread. */
+export interface PackageLinkPage {
+  company_name: string;
+  company_logo: string;
+  project_name: string;
+  project_code: string;
+  package_no: string;
+  package_name: string;
+  remarks: string;
+  round: number;
+  confirmed_at: string | null;
+  recipient: {
+    display_name: string;
+    kind: RecipientKind;
+    organization: string;
+    status: RecipientStatus;
+    signed_name: string;
+    signed_at: string | null;
+    expires_at: string | null;
+    seen_round: number;
+  };
+  exported: boolean;
+  can_decide: boolean;
+  can_sign: boolean;
+  items: PackageLinkItem[];
+  messages: PackageMessage[];
+}
+
+export interface PackageLinkItem {
+  id: string;
+  record_kind: ArchiveRecordKind;
+  reference: string;
+  fields: import("@/interfaces/contractor").MySubmissionField[];
+  photo_count: number;
+  document_count: number;
+  file_count: number;
+  round_no: number;
+  review_state: PackageItemReviewState;
+  returned_reason: string;
+  answered_by: string;
+  answered_at: string | null;
 }
 
 /**
@@ -1175,6 +1392,9 @@ export interface RecordPackageRow {
   added_by_name: string;
   item_review_state: PackageItemReviewState;
   returned_reason: string;
+  /** H17 七: one line per recipient - 「PKG · 顾问 A：退回——照片不清楚」. */
+  answers?: PackageAnswer[];
+  round_no?: number;
 }
 
 /** One line of "what did not make it into the PDF, and why" (D-141). */
@@ -1218,6 +1438,8 @@ export interface ClaimRow {
   payment_state: ClaimPaymentState;
   payment_note: string;
   payment_updated_at: string | null;
+  /** HD17: the amount this claim asks for. */
+  amount?: string | null;
   item_count: number;
   returned_count: number;
   confirmed_at: string | null;
@@ -1245,6 +1467,8 @@ export interface ClaimItem {
 
 export interface ClaimDetail extends ClaimRow {
   items: ClaimItem[];
+  /** HD17: the payment vouchers, write-once. */
+  payment_proofs?: PaymentProof[];
   /** Records the last tick would not take: already claimed, or not this site's. */
   refused?: string[];
 }

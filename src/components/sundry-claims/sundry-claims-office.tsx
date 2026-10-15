@@ -200,6 +200,8 @@ export function SundryClaimsOffice() {
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey="sundry-claims"
+        // HD17: 杂费记录作为来源被打包 into a Sundry Claim package.
+        pack="SUNDRY_CLAIM"
         toolbar={
           <>
             <ProjectListFilter list={list} />

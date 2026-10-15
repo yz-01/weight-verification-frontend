@@ -9,7 +9,6 @@ import {
   Inbox,
   Loader2,
   Plus,
-  Send,
   Trash2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -17,7 +16,13 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { ClaimEngineWorkspace } from "@/components/contractor-ops/claim-engine";
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import {
+  AnswerLines,
+  ExchangePanel,
+} from "@/components/contractor-ops/package-exchange";
+import { ClaimFacetBlock } from "@/components/contractor-ops/package-claim-facet";
 import { PackTargetChooser } from "@/components/contractor-ops/pack-collect";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -38,16 +43,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Shell } from "@/components/contractor-ops/package-shell";
-import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
-import type {
-  ArchiveRecordKind,
-  EvidencePackageDetail,
-  EvidencePackageRow,
-  PackageItem,
-  PackagePart,
-  PackageSelection,
+import {
+  CLAIM_PACKAGE_TYPES,
+  PACKAGE_TYPES,
+  type ArchiveRecordKind,
+  type EvidencePackageDetail,
+  type PackageItem,
+  type PackagePart,
+  type PackageSelection,
+  type PackageType,
 } from "@/interfaces/contractor-ops";
 import {
   addPackageItems,
@@ -55,16 +61,15 @@ import {
   createEvidencePackage,
   deleteEvidencePackage,
   evidencePackageFile,
+  exportEvidencePackages,
   previewEvidencePackage,
   downloadPackageItem,
   getEvidencePackage,
   getEvidencePackages,
   getPackageCandidates,
-  getPackageConsultantChoices,
   getPackageRecordParts,
   removePackageItem,
   reorderPackageItems,
-  sendPackageForReview,
   updateEvidencePackage,
   updatePackageItem,
 } from "@/services/contractor-ops.service";
@@ -101,11 +106,62 @@ const KINDS: ArchiveRecordKind[] = [
   "DISPOSAL_REQUEST",
   "PROGRESS",
   "CONSULTANT_APPLICATION",
+  // HD17: 杂费报销 records, packed as a Sundry Claim's sources.
+  "SUNDRY_CLAIM",
 ];
 
 const PAGE_SIZE = 20;
 
+/**
+ * HD17 / H10: 「一套 Multi Engine，多种打包用途。Progress Claim 只是其中一种业务
+ * 类型」. The six types are tabs over one list; Progress Claim's tab is the
+ * claim screen it always was (period, 已进本期, 已 Claim, 收款), so /claims
+ * lands here. Head office reads claims without reading packages, so it sees
+ * that one tab only.
+ */
 export function MultiEngineWorkspace() {
+  const t = useTranslations("multiEngine");
+  const { can } = useAuth();
+  const asked = useSearchParams().get("type") as PackageType | null;
+  const packages = can("package.view");
+  const claims = can("claim.view");
+  const [chosen, setType] = useState<PackageType | "" | null>(null);
+  const type: PackageType | "" =
+    !packages ? "PROGRESS_CLAIM" : chosen ?? (asked && PACKAGE_TYPES.includes(asked) ? asked : "");
+
+  return (
+    <div className="flex flex-col gap-4">
+      {packages && (
+        <nav aria-label={t("type.label")} className="flex flex-wrap gap-1.5">
+          {(["", ...PACKAGE_TYPES] as const)
+            .filter((value) => value !== "PROGRESS_CLAIM" || claims)
+            .map((value) => (
+              <button
+                key={value || "all"}
+                type="button"
+                onClick={() => setType(value)}
+                aria-current={type === value ? "true" : undefined}
+                className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
+                  type === value
+                    ? "border-primary/40 bg-primary/12 text-primary"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {value ? t(`type.${value}`) : t("type.all")}
+              </button>
+            ))}
+        </nav>
+      )}
+      {type === "PROGRESS_CLAIM" ? (
+        <ClaimEngineWorkspace />
+      ) : (
+        <PackageList type={type} onType={setType} />
+      )}
+    </div>
+  );
+}
+
+function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: PackageType) => void }) {
   const t = useTranslations("multiEngine");
   const formatter = useDateFormat();
   const { can } = useAuth();
@@ -130,11 +186,12 @@ export function MultiEngineWorkspace() {
   const [creating, setCreating] = useState(false);
 
   const query = useQuery({
-    queryKey: ["evidence-packages", project, search, page],
+    queryKey: ["evidence-packages", project, search, page, type],
     queryFn: () =>
       getEvidencePackages({
         project: project || undefined,
         search: search || undefined,
+        type: type || undefined,
         page,
         page_size: PAGE_SIZE,
       }),
@@ -176,6 +233,53 @@ export function MultiEngineWorkspace() {
           placeholder={t("searchPlaceholder")}
           className="w-full sm:w-72"
         />
+        {/* The packages listed, as a file (H16, HD13). */}
+        <ExportButton
+          disabled={total === 0}
+          disabledReason={t("empty")}
+          title={t("title")}
+          onExport={(format) =>
+            exportEvidencePackages({
+              format,
+              title: t("title"),
+              query: {
+                project: project || undefined,
+                search: search || undefined,
+                type: type || undefined,
+              },
+              columns: [
+                { key: "package_no", label: t("export.number") },
+                { key: "name", label: t("column.name") },
+                {
+                  key: "package_type",
+                  label: t("column.type"),
+                  values: Object.fromEntries(PACKAGE_TYPES.map((value) => [value, t(`type.${value}`)])),
+                },
+                { key: "project_name", label: t("column.project") },
+                {
+                  key: "state",
+                  label: t("column.state"),
+                  values: { DRAFT: t("state.DRAFT"), CONFIRMED: t("state.CONFIRMED") },
+                },
+                {
+                  key: "review_state",
+                  label: t("column.review"),
+                  values: {
+                    NOT_SENT: t("review.NOT_SENT"),
+                    SENT: t("review.SENT"),
+                    REVIEWED: t("review.REVIEWED"),
+                  },
+                },
+                { key: "created_by_name", label: t("column.packedBy") },
+                { key: "confirmed_by_name", label: t("export.confirmedBy") },
+                { key: "created_at", label: t("column.when") },
+                { key: "confirmed_at", label: t("export.confirmedAt") },
+                { key: "recipient_count", label: t("export.recipients") },
+                { key: "current_round", label: t("export.round") },
+              ],
+            })
+          }
+        />
       </FilterBar>
 
       {query.isLoading ? (
@@ -192,10 +296,12 @@ export function MultiEngineWorkspace() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t("column.name")}</TableHead>
+                <TableHead>{t("column.type")}</TableHead>
                 <TableHead>{t("column.project")}</TableHead>
                 <TableHead className="text-right tabular">{t("column.items")}</TableHead>
                 <TableHead>{t("column.state")}</TableHead>
                 <TableHead>{t("column.review")}</TableHead>
+                <TableHead>{t("column.packedBy")}</TableHead>
                 <TableHead>{t("column.when")}</TableHead>
                 <TableHead className="text-right">{t("column.action")}</TableHead>
               </TableRow>
@@ -217,6 +323,9 @@ export function MultiEngineWorkspace() {
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
+                    {t(`type.${row.package_type ?? "OTHER"}`)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
                     {row.project_name}
                   </TableCell>
                   <TableCell className="text-right tabular">
@@ -235,6 +344,20 @@ export function MultiEngineWorkspace() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {t(`review.${row.review_state}`)}
+                    {(row.recipient_count ?? 0) > 0 && (
+                      <span className="block text-xs">
+                        {t("recipientCount", { count: row.recipient_count ?? 0 })}
+                      </span>
+                    )}
+                  </TableCell>
+                  {/* H3 / HD20: 「是谁打包」 - who made it, who confirmed it. */}
+                  <TableCell className="text-muted-foreground">
+                    <span className="block">{row.created_by_name || "—"}</span>
+                    {row.confirmed_by_name && (
+                      <span className="block text-xs">
+                        {t("confirmedByShort", { name: row.confirmed_by_name })}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-muted-foreground">
                     {formatter.dateTime(row.created_at)}
@@ -285,10 +408,15 @@ export function MultiEngineWorkspace() {
 
       {creating && (
         <NewPackageDialog
+          initialType={type && type !== "PROGRESS_CLAIM" ? type : "OTHER"}
           onClose={() => setCreating(false)}
           onCreated={(row) => {
             setCreating(false);
             setOpenId(row.id);
+          }}
+          onProgressClaim={() => {
+            setCreating(false);
+            onType("PROGRESS_CLAIM");
           }}
         />
       )}
@@ -306,20 +434,26 @@ export function MultiEngineWorkspace() {
 }
 
 function NewPackageDialog({
+  initialType,
   onClose,
   onCreated,
+  onProgressClaim,
 }: {
+  initialType: PackageType;
   onClose: () => void;
   onCreated: (row: EvidencePackageDetail) => void;
+  onProgressClaim: () => void;
 }) {
   const t = useTranslations("multiEngine");
   const common = useTranslations("common");
+  const { can } = useAuth();
   const queryClient = useQueryClient();
   const [project, setProject] = useState("");
   const [name, setName] = useState("");
+  const [packageType, setPackageType] = useState<PackageType>(initialType);
 
   const create = useMutation({
-    mutationFn: () => createEvidencePackage({ project, name }),
+    mutationFn: () => createEvidencePackage({ project, name, package_type: packageType }),
     onSuccess: (row) => {
       queryClient.invalidateQueries({ queryKey: ["evidence-packages"] });
       onCreated(row);
@@ -335,6 +469,16 @@ function NewPackageDialog({
         <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-xs text-muted-foreground">
           {t("oneProjectHelp")}
         </p>
+        <FieldWrapper label={t("type.label")} required hint={t("type.help")}>
+          <TypePicker
+            value={packageType}
+            onChange={(next) => {
+              if (next === "PROGRESS_CLAIM") onProgressClaim();
+              else setPackageType(next);
+            }}
+            allowClaim={can("claim.manage")}
+          />
+        </FieldWrapper>
         <FieldWrapper label={t("field.project")} required>
           <ProjectPicker
             value={project}
@@ -369,6 +513,38 @@ function NewPackageDialog({
   );
 }
 
+/** The six types as buttons; Progress Claim goes to its own tab (HD17). */
+function TypePicker({
+  value,
+  onChange,
+  allowClaim,
+}: {
+  value: PackageType;
+  onChange: (next: PackageType) => void;
+  allowClaim: boolean;
+}) {
+  const t = useTranslations("multiEngine");
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      {PACKAGE_TYPES.filter((option) => option !== "PROGRESS_CLAIM" || allowClaim).map((option) => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={value === option}
+          onClick={() => onChange(option)}
+          className={`min-h-10 rounded-lg border px-3 py-1.5 text-left text-sm font-medium transition-colors ${
+            value === option
+              ? "border-primary/40 bg-primary/12 text-primary"
+              : "border-border bg-card text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {t(`type.${option}`)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /**
  * One package, opened: its records, and what can still be done to it.
  *
@@ -389,7 +565,6 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
   const [adding, setAdding] = useState(false);
   const [ticking, setTicking] = useState<PackageItem | null>(null);
   const [remarks, setRemarks] = useState("");
-  const [consultant, setConsultant] = useState("");
   /*
    * `null` rather than `""` until somebody types: the box shows the package's
    * own name until then, and an empty string here would read as "the name was
@@ -447,24 +622,8 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
     mutationFn: () => confirmEvidencePackage(id, remarks || data?.remarks || ""),
     onSuccess: refresh,
   });
-  /*
-   * Who this package can go to, by name (the owner, 2026-10: 「应该是可以选顾问
-   * 才对」). Asked only once it is confirmed and still unsent - the only time
-   * the picker is on screen - and only by somebody who may send it.
-   */
-  const awaitingSend =
-    data !== undefined && data.state !== "DRAFT" && data.review_state === "NOT_SENT" && can("package.manage");
-  const consultants = useQuery({
-    queryKey: ["evidence-packages", "consultant-choices", id],
-    queryFn: () => getPackageConsultantChoices(id),
-    enabled: awaitingSend,
-  });
-  const consultantOptions = (consultants.data ?? []).map((row) => ({
-    value: row.consultant,
-    label: row.organization ? `${row.name} · ${row.organization}` : row.name,
-  }));
-  const send = useMutation({
-    mutationFn: () => sendPackageForReview(id, consultant),
+  const retype = useMutation({
+    mutationFn: (next: PackageType) => updateEvidencePackage(id, { package_type: next }),
     onSuccess: refresh,
   });
   const drop = useMutation({
@@ -490,10 +649,26 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
           <>
             <p className="text-xs text-muted-foreground">
               {data.package_no ? `${data.package_no} · ` : ""}
-              {data.project_name} · {t(`state.${data.state}`)} ·{" "}
-              {t(`review.${data.review_state}`)} ·{" "}
-              {formatter.dateTime(data.created_at)}
+              {t(`type.${data.package_type ?? "OTHER"}`)} · {data.project_name} ·{" "}
+              {t(`state.${data.state}`)} · {t(`review.${data.review_state}`)}
+              {(data.current_round ?? 0) > 1 && <> · {t("exchange.round", { n: data.current_round ?? 0 })}</>}
             </p>
+            {/* H3 / HD20: 「是谁打包」. */}
+            <p className="text-xs text-muted-foreground">
+              {t("packedBy", { name: data.created_by_name || "—", when: formatter.dateTime(data.created_at) })}
+              {data.confirmed_at && (
+                <>
+                  {" · "}
+                  {t("confirmedBy", {
+                    name: data.confirmed_by_name || "—",
+                    when: formatter.dateTime(data.confirmed_at),
+                  })}
+                </>
+              )}
+            </p>
+            {data.claim && CLAIM_PACKAGE_TYPES.includes(data.package_type ?? "OTHER") && (
+              <ClaimFacetBlock facet={data.claim} onChanged={refresh} />
+            )}
 
             {data.merge_report.length > 0 && (
               /* Named, not counted. A package that quietly lost two pages is
@@ -553,6 +728,12 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                               {t("itemAccepted")}
                             </p>
                           )}
+                          {(item.round_no ?? 1) > 1 && (
+                            <p className="text-xs text-muted-foreground">
+                              {t("exchange.newInRound", { n: item.round_no ?? 1 })}
+                            </p>
+                          )}
+                          <AnswerLines answers={item.answers ?? []} />
                         </div>
                         {isDraft && can("package.manage") && (
                           <div className="flex gap-2">
@@ -619,6 +800,15 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
 
             {isDraft && can("package.manage") && (
               <>
+                <FieldWrapper label={t("type.label")} hint={t("type.help")}>
+                  <TypePicker
+                    value={data.package_type ?? "OTHER"}
+                    allowClaim={false}
+                    onChange={(next) => {
+                      if (next !== data.package_type) retype.mutate(next);
+                    }}
+                  />
+                </FieldWrapper>
                 <FieldWrapper label={t("field.name")} required hint={t("renameHelp")}>
                   <div className="flex gap-2">
                     <Input
@@ -687,31 +877,9 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                      back. Said as a sentence, not as a greyed-out button. */
                   <p className="text-xs">{t("exportedHelp")}</p>
                 )}
-                {data.review_state === "NOT_SENT" && can("package.manage") && (
-                  /* Consultants only (D-150). The owner is not an account
-                     type this platform has, so there is no option for one
-                     rather than an option nobody can be chosen from. */
-                  <FieldWrapper label={t("field.consultant")} required hint={t("consultantOnlyHelp")}>
-                    <OptionCombobox
-                      value={consultant}
-                      onChange={setConsultant}
-                      options={consultantOptions}
-                      placeholder={
-                        consultants.isLoading ? t("loading") : t("field.consultantPlaceholder")
-                      }
-                      searchPlaceholder={t("consultantSearch")}
-                      emptyLabel={t("noConsultantMatch")}
-                      ariaLabel={t("field.consultant")}
-                      disabled={consultants.isLoading || consultants.isError || !consultantOptions.length}
-                    />
-                    {consultants.isSuccess && !consultantOptions.length && (
-                      <p className="text-xs text-muted-foreground">{t("noConsultants")}</p>
-                    )}
-                    <QueryFailedNote query={consultants} what={t("consultantsWhat")} />
-                  </FieldWrapper>
-                )}
               </div>
             )}
+            {!isDraft && <ExchangePanel data={data} onChanged={refresh} />}
           </>
         )}
       </div>
@@ -731,18 +899,6 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
             />
           </>
         )}
-        {data && !isDraft && data.review_state === "NOT_SENT" &&
-          can("package.manage") && (
-            <Button
-              variant="outline"
-              requires={[[consultant.trim(), t("field.consultant")]]}
-              disabled={send.isPending}
-              onClick={() => send.mutate()}
-            >
-              <Send className="size-4" />
-              {t("send")}
-            </Button>
-          )}
         {data && isDraft && can("package.manage") && (
           <>
             <Button
@@ -1249,215 +1405,5 @@ function TickPartsDialog({
   );
 }
 
-/* -------------------------------------------------------------------------
- * The consultant's side (D-147, D-150, D-151)
- * ---------------------------------------------------------------------- */
-
-/**
- * Packages a consultant has been sent, and the per-item decision.
- *
- * Per item, not per package: 客户「如果顾问或业主不接受其中某一项，可以点击退回
- * 给申请者」. Returning the whole bundle because one delivery order is illegible
- * sends nineteen correct records back with it.
- */
-export function PackageReviewWorkspace() {
-  const t = useTranslations("multiEngine");
-  const formatter = useDateFormat();
-  const [openId, setOpenId] = useState<string | null>(null);
-
-  const query = useQuery({
-    queryKey: ["package-reviews"],
-    queryFn: () =>
-      import("@/services/contractor-ops.service").then((module) =>
-        module.getPackagesToReview({ page: 1, page_size: PAGE_SIZE }),
-      ),
-  });
-  const rows = query.data?.results ?? [];
-
-  return (
-    <div className="flex flex-col gap-4">
-      <ListHeader title={t("reviewTitle")} subtitle={t("reviewSubtitle")} />
-
-      {query.isLoading ? (
-        <p className="text-sm text-muted-foreground">{t("loading")}</p>
-      ) : query.isError ? (
-        <LoadFailed what={t("what.packagesToReview")} onRetry={() => void query.refetch()} />
-      ) : rows.length === 0 ? (
-        <EmptyState icon={Inbox} title={t("reviewEmpty")} />
-      ) : (
-        <ul className="surface-panel divide-y divide-panel-border overflow-hidden rounded-xl">
-          {rows.map((row: EvidencePackageRow) => (
-            <li
-              key={row.id}
-              className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{row.name}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {row.project_name} · {t("itemCount", { count: row.item_count })}{" "}
-                  · {formatter.dateTime(row.sent_at ?? row.created_at)}
-                </p>
-              </div>
-              <StatusBadge
-                label={t(`review.${row.review_state}`)}
-                tone={row.review_state === "REVIEWED" ? "positive" : "warning"}
-              />
-              <Button size="sm" variant="outline" onClick={() => setOpenId(row.id)}>
-                {t("open")}
-              </Button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {openId && (
-        <ReviewSheet id={openId} onClose={() => setOpenId(null)} />
-      )}
-    </div>
-  );
-}
-
-function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
-  const t = useTranslations("multiEngine");
-  const queryClient = useQueryClient();
-  const [returning, setReturning] = useState<string | null>(null);
-  const [reason, setReason] = useState("");
-
-  const detail = useQuery({
-    queryKey: ["package-reviews", "detail", id],
-    queryFn: () =>
-      import("@/services/contractor-ops.service").then((module) =>
-        module.getPackageToReview(id),
-      ),
-  });
-  const decide = useMutation({
-    mutationFn: (input: {
-      item: string;
-      decision: "ACCEPTED" | "RETURNED";
-      reason: string;
-    }) =>
-      import("@/services/contractor-ops.service").then((module) =>
-        module.reviewPackageItem(id, input.item, input.decision, input.reason),
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["package-reviews"] });
-      setReturning(null);
-      setReason("");
-    },
-  });
-
-  const data = detail.data;
-
-  return (
-    <Shell title={data?.name ?? t("reviewTitle")} onClose={onClose}>
-      <div className="flex-1 space-y-3 overflow-y-auto p-4">
-        {detail.isLoading ? (
-          <p className="text-sm text-muted-foreground">{t("loading")}</p>
-        ) : detail.isLoadingError || !data ? (
-          <LoadFailed what={t("what.package")} onRetry={() => void detail.refetch()} />
-        ) : (
-          <>
-            <p className="text-xs text-muted-foreground">{data.remarks}</p>
-            {!data.can_return && (
-              /* D-148: the package left the platform, so there is nothing to
-                 return through. A sentence, not a dead button. */
-              <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs">
-                {t("exportedNoReturn")}
-              </p>
-            )}
-            <ul className="space-y-2">
-              {data.items.map((item) => (
-                <li key={item.id} className="rounded-lg border p-3">
-                  <p className="font-medium">
-                    {item.reference || t(`kind.${item.record_kind}`)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t(`kind.${item.record_kind}`)} ·{" "}
-                    {t("partsSummary", {
-                      fields: item.fields.length,
-                      photos: item.photos.length,
-                      documents: item.documents.length,
-                      files: (item.files ?? []).length,
-                    })}
-                  </p>
-
-                  {item.review_state === "RETURNED" ? (
-                    <p className="mt-2 rounded border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
-                      {t("returnedWithReason", { reason: item.returned_reason })}
-                    </p>
-                  ) : item.review_state === "ACCEPTED" ? (
-                    <p className="mt-2 text-xs text-primary">
-                      {t("itemAccepted")}
-                    </p>
-                  ) : returning === item.id ? (
-                    <div className="mt-2 space-y-2">
-                      <FieldWrapper label={t("field.returnReason")} required hint={t("returnReasonHelp")}>
-                        <Textarea
-                          rows={2}
-                          value={reason}
-                          onChange={(event) => setReason(event.target.value)}
-                        />
-                      </FieldWrapper>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setReturning(null)}
-                        >
-                          {t("cancelReturn")}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          requires={[[reason.trim(), t("field.returnReason")]]}
-                          disabled={decide.isPending}
-                          onClick={() =>
-                            decide.mutate({
-                              item: item.id,
-                              decision: "RETURNED",
-                              reason,
-                            })
-                          }
-                        >
-                          {t("returnItem")}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mt-2 flex gap-2">
-                      <Button
-                        size="sm"
-                        disabled={decide.isPending}
-                        onClick={() =>
-                          decide.mutate({
-                            item: item.id,
-                            decision: "ACCEPTED",
-                            reason: "",
-                          })
-                        }
-                      >
-                        {t("acceptItem")}
-                      </Button>
-                      {data.can_return && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setReturning(item.id);
-                            setReason("");
-                          }}
-                        >
-                          {t("returnItem")}
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
-    </Shell>
-  );
-}
+/* The consultant's side (D-147, D-150, D-151) lives in `package-review.tsx`. */
+export { PackageReviewWorkspace } from "@/components/contractor-ops/package-review";
