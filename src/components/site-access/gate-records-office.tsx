@@ -312,7 +312,9 @@ export function GateRecordsOffice() {
         <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
           <ListHeader
             title={title}
-            subtitle={wall.isLoading ? "—" : tRoot("moduleTable.count", { count: total })}
+            // A failed wall says so in its body (GatePhotoWall's note), not
+            // as 「0 条」 up here.
+            subtitle={wall.isLoading || wall.isError ? "—" : tRoot("moduleTable.count", { count: total })}
           />
           {above}
           <div className="surface-panel flex min-h-0 min-w-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-xl">

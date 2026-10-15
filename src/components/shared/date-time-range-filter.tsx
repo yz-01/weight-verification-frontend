@@ -93,7 +93,17 @@ export function DateTimeRangeFilter({ list }: { list: ReturnType<typeof useListQ
 
   const commit = (next: Parts) => {
     setParts(next);
-    apply(rangeFromParts(next, wallClock(new Date(), timeZone).date));
+    const range = rangeFromParts(next, wallClock(new Date(), timeZone).date);
+    // Leaving a box without changing it is not a new search: the list keeps
+    // its page.
+    if (
+      !legacy &&
+      range.occurred_from === current.occurred_from &&
+      range.occurred_to === current.occurred_to
+    ) {
+      return;
+    }
+    apply(range);
   };
 
   /** A typed time, tidied to HH:mm, or flagged and kept off the list. */
