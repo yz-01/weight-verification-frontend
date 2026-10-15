@@ -3881,7 +3881,7 @@
         "SETTLED_RECYCLING_WEIGHT": "已结算回收重量，单位为公斤。"
       },
       "wasteType": "回收废料类型",
-      "quantityMoved": "「材料收货数量」已改到「材料管理 → 材料目标」设置（扣除退场，可按规格）；已设的旧目标照常。"
+      "quantityMoved": "「材料进场数量」改到「材料管理 → 材料目标」设置（扣除退场，可按规格）；已设的旧目标照常。"
     },
     "loadError": "无法加载业务目标。",
     "management": {

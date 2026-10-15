@@ -3881,7 +3881,7 @@
         "SETTLED_RECYCLING_WEIGHT": "Settled recycling weight in kilograms."
       },
       "wasteType": "Recycling waste type",
-      "quantityMoved": "Material quantity received is now set in Material management → Material targets (net of returns, per specification); targets set before keep working."
+      "quantityMoved": "Material entry quantity is now set in Material management → Material targets (net of returns, per specification); targets set before keep working."
     },
     "loadError": "Business targets could not be loaded.",
     "management": {

@@ -3881,7 +3881,7 @@
         "SETTLED_RECYCLING_WEIGHT": "Berat kitar semula yang diselesaikan dalam kilogram."
       },
       "wasteType": "Jenis sisa kitar semula",
-      "quantityMoved": "Kuantiti bahan diterima kini ditetapkan dalam Pengurusan bahan → Sasaran bahan (bersih selepas pemulangan, mengikut spesifikasi); sasaran sedia ada terus berfungsi."
+      "quantityMoved": "Kuantiti bahan masuk kini ditetapkan dalam Pengurusan bahan → Sasaran bahan (bersih selepas pemulangan, mengikut spesifikasi); sasaran sedia ada terus berfungsi."
     },
     "loadError": "Sasaran perniagaan tidak dapat dimuatkan.",
     "management": {
