@@ -22,7 +22,7 @@ import {
   type MaterialNetTotalRow,
 } from "@/services/contractor.service";
 
-export type MaterialTab = "in" | "out" | "reject" | "totals";
+export type MaterialTab = "in" | "out" | "reject" | "totals" | "targets";
 
 /**
  * 材料管理's one set of tabs (10-02 A01, B09, E01): Material In, Material
@@ -35,6 +35,8 @@ export function useMaterialTab(): MaterialTab {
   const pathname = usePathname();
   const params = useSearchParams();
   if (pathname.startsWith("/material-outgoing")) return "out";
+  // 材料目标 (I18): its own address, so the sidebar can open it too.
+  if (pathname.startsWith("/material-targets")) return "targets";
   if (params.get("view") === "totals") return "totals";
   if (params.get("acceptance") === "REJECTED") return "reject";
   if (params.get("direction") === "OUT") return "out";
@@ -73,6 +75,7 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
     ["out", "/material-outgoing"],
     ["reject", "/receipts?acceptance=REJECTED"],
     ["totals", "/receipts?view=totals"],
+    ["targets", "/material-targets"],
   ];
   const hrefs = Object.fromEntries(tabs) as Record<MaterialTab, string>;
   return (

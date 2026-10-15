@@ -9,6 +9,7 @@ import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { GateCard } from "@/components/dashboard/gate-card";
 import { HeadquartersFigures } from "@/components/dashboard/headquarters-figures";
 import { HeadquartersMap } from "@/components/dashboard/headquarters-map";
+import { HeadquartersMaterialTargets } from "@/components/dashboard/headquarters-material-targets";
 import {
   HeadquartersPhotos,
   usePhotoOpener,
@@ -105,6 +106,8 @@ export function HeadquartersDashboard() {
           </div>
           <HeadquartersPresence data={data} />
         </div>
+        {/* 材料目标 (I18, ID42): each project's targets over, at and near. */}
+        <HeadquartersMaterialTargets data={data} />
         <HeadquartersPhotos onOpen={photos.open} />
         </>
       )}

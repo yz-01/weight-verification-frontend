@@ -254,8 +254,8 @@ export interface DeliveryNotePublic {
   evidence: DeliveryNoteEvidence[];
 }
 
-/** The six codes every company starts with; the screens translate these. */
-export type BuiltInMaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
+/** The codes every company starts with (m² since I19); the screens translate these. */
+export type BuiltInMaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG" | "M2";
 
 /**
  * A code from the company's unit list (2026-10 A4, 「单位管理」): one of the six
@@ -274,6 +274,7 @@ export const BUILT_IN_MATERIAL_UNITS: readonly BuiltInMaterialUnit[] = [
   "PIECE",
   "LOAD",
   "BAG",
+  "M2",
 ];
 
 export function isBuiltInMaterialUnit(code: string): code is BuiltInMaterialUnit {
@@ -370,6 +371,9 @@ export interface MaterialReceipt {
   category: string | null;
   category_code: string | null;
   category_name: string | null;
+  /** The specification from the project's material data (I19). */
+  spec_category?: string | null;
+  spec_category_name?: string | null;
   material_name: string;
   material_specification: string;
   quantity: string;
@@ -562,6 +566,8 @@ export interface MySubmissionDetail extends MySubmissionRow {
   photos: MySubmissionPhoto[];
   /** Sundry claims only: the payment vouchers finance uploaded (第 54、57 条). */
   payment_proofs?: Array<{ id: string; url: string; name?: string; amount: string | null; uploaded_at: string }>;
+  /** MR / Other Request only (I16, ID49): every file sent with it, pictures and documents. */
+  files?: Array<{ id: string; name: string; url: string; content_type: string; size_bytes: number; is_image: boolean }>;
 }
 
 export interface MySubmissionsPage {
@@ -649,6 +655,8 @@ export interface MaterialReceiptPayload {
   rejection_reason?: string;
   material_name: string;
   material_specification?: string;
+  /** The specification from the project's material data (I19); null for none. */
+  spec_category?: string | null;
   quantity: string;
   unit: MaterialUnit;
   total_weight_kg?: string | null;

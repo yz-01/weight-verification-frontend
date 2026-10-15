@@ -23,6 +23,7 @@ import {
 } from "@/components/shared/form-shell";
 import { FieldWrapper, ReadField } from "@/components/shared/page-primitives";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
+import { MaterialSpecPicker } from "@/components/receipts/material-spec-picker";
 import { ApiError } from "@/interfaces/api";
 import {
   type MaterialReceiptDetail,
@@ -105,6 +106,8 @@ function CorrectReceiptForm({
     defaultValues: {
       project: receipt.project ?? "",
       category: receipt.category ?? "",
+      // The specification from the material data (I19, ID46).
+      spec_category: receipt.spec_category ?? "",
       material_name: receipt.material_name ?? "",
       material_specification: receipt.material_specification ?? "",
       quantity: receipt.quantity ?? "",
@@ -146,6 +149,7 @@ function CorrectReceiptForm({
         notes: value.notes,
         received_by_name: value.received_by_name,
         category: value.category,
+        spec_category: value.spec_category || null,
         manufacturer: value.manufacturer || null,
         supplier: value.supplier,
       };
@@ -212,7 +216,40 @@ function CorrectReceiptForm({
         <form.Subscribe selector={(state) => state.values.project}>
           {(project) => (
             <form.Field name="category" validators={{ onSubmit: required(t("validation.required")) }}>
-              {(field) => <ProjectColumnPicker project={project} kind="MATERIAL" value={field.state.value} onChange={field.handleChange} />}
+              {(field) => (
+                <ProjectColumnPicker
+                  project={project}
+                  kind="MATERIAL"
+                  value={field.state.value}
+                  onChange={(next) => {
+                    // Another material: the old one's specification is not its.
+                    if (next !== field.state.value) form.setFieldValue("spec_category", "");
+                    field.handleChange(next);
+                  }}
+                />
+              )}
+            </form.Field>
+          )}
+        </form.Subscribe>
+        <form.Subscribe selector={(state) => [state.values.project, state.values.category] as const}>
+          {([project, category]) => (
+            <form.Field name="spec_category">
+              {(field) => (
+                <MaterialSpecPicker
+                  project={project}
+                  category={category}
+                  value={field.state.value}
+                  onChange={(spec) => {
+                    field.handleChange(spec?.id ?? "");
+                    // A named specification brings its words and its unit;
+                    // 「其他」 keeps what is typed below.
+                    if (spec && !spec.is_other) {
+                      form.setFieldValue("material_specification", spec.name);
+                      if (spec.default_unit) form.setFieldValue("unit", spec.default_unit as MaterialUnit);
+                    }
+                  }}
+                />
+              )}
             </form.Field>
           )}
         </form.Subscribe>
