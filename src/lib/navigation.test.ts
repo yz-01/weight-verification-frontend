@@ -219,11 +219,12 @@ describe("the sidebar's waiting counts", () => {
       expect.arrayContaining(["waste_outgoing", "site_disposals"]),
     );
     expect(badgeKeysFor(entry("documents"))).toEqual(expect.arrayContaining(["approvals"]));
+    // 门岗记录 moved to 工地门禁 (I25), and its count with it.
     expect(badgeKeysFor(entry("hazard_rectification"))).toEqual([
       "hazard_rectification",
       "safety",
-      "gate_records",
     ]);
+    expect(badgeKeysFor(entry("site_access"))).toEqual(["site_access", "gate_records"]);
   });
 
   it("lets an entry name its own count when summing its pages would be wrong", () => {
