@@ -32,7 +32,8 @@ export function turnTo(position: number, total: number, by: -1 | 1): number | nu
 
 /** 「第 n / 共 N 篇」's two numbers. */
 export function bookCounter(position: number, total: number): { n: number; total: number } {
-  return { n: Math.min(position + 1, Math.max(total, 1)), total: Math.max(total, position + 1) };
+  const n = Math.max(0, Math.floor(position)) + 1;
+  return { n, total: Math.max(total, n) };
 }
 
 /** What a key press needs to say about itself. */
