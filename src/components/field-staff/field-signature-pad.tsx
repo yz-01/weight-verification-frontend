@@ -10,6 +10,7 @@ export function FieldSignaturePad({
   label,
   clearLabel,
   required,
+  hint,
   value,
   onChange,
 }: {
@@ -23,8 +24,14 @@ export function FieldSignaturePad({
    * compulsory. On the delivery screen both signatures are, and a worker who
    * had filled in everything else could not see why submit would not go -
    * the same complaint the asterisks elsewhere answer (F-202).
+   *
+   * `"quiet"`: still required - the submit button names it while missing -
+   * but no red star (手机设备进退场, 2026-10 I22 / ID56: 「那个红点不要」);
+   * the `hint` says it in words instead, as `FieldWrapper`'s quiet form.
    */
-  required?: boolean;
+  required?: boolean | "quiet";
+  /** A short line under the label, e.g. who signs here. */
+  hint?: string;
   value?: File;
   onChange: (file?: File) => void;
 }) {
@@ -96,10 +103,11 @@ export function FieldSignaturePad({
         <span className="flex items-center gap-2 text-sm font-medium">
           <PenLine className="size-4" />
           {label}
-          {required && <span className="text-destructive">*</span>}
+          {required === true && <span className="text-destructive">*</span>}
         </span>
         {value ? <Check className="size-5 text-success" aria-label={`${label} ready`} /> : null}
       </div>
+      {hint ? <p className="-mt-1 text-xs text-muted-foreground">{hint}</p> : null}
       <canvas
         ref={canvasRef}
         width={720}

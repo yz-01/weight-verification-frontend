@@ -196,7 +196,8 @@ describe("every list draws its rows' photograph (E3)", () => {
     ["src/components/site-operations/safety.tsx", /coverUrl=\{incident\.cover_photo_url\}/],
     ["src/components/consultant-workflow/applications-list.tsx", /coverUrl=\{application\.cover_photo_url\}/],
     ["src/components/contractor-ops/operations-workspaces.tsx", /coverUrl=\{row\.cover_photo_url\}/],
-    ["src/components/field-staff/field-staff-workspace.tsx", /coverUrl=\{task\.cover_photo_url\}/],
+    // 我的任务 (I1): an opened task shows its photographs, watermarked.
+    ["src/components/field-staff/my-tasks-panel.tsx", /src=\{item\.watermarked \|\| item\.image\}/],
     ["src/components/contractor-ops/archive-queue.tsx", /coverUrl=\{row\.cover_photo_url\}/],
     ["src/components/contractor-ops/category-management.tsx", /coverUrl=\{row\.cover_photo_url\}/],
     ["src/components/document-workflow/documents.tsx", /coverUrl=\{row\.original\.cover_photo_url\}/],

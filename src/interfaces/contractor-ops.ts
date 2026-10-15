@@ -333,8 +333,52 @@ export interface FieldTask extends RecordedBy {
   created_by: string | null;
   /** Past due and not confirmed or cancelled, by the server's clock. */
   is_overdue?: boolean;
+  /** 待处理 / 待验收 / 已完成 (I1), as the server reads the status. */
+  stage?: "PENDING" | "AWAITING" | "DONE";
+  /**
+   * Whether this reader confirms it now - the setter or a task manager, never
+   * the assignee (I1). It also means their conversation box has the
+   * 「需要继续整改」 switch (ID11).
+   */
+  can_confirm?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * One row of 我的任务 / My Tasks (I1, ID14): a field task assigned to me or an
+ * EHS item I fix, still 待处理. Each opens its own record, and is handed in
+ * through that record's own endpoint.
+ */
+export interface MyTaskRow {
+  kind: "FIELD_TASK" | "HAZARD";
+  id: string;
+  /** The hazard's number; a field task has none. */
+  no: string;
+  title: string;
+  project: string;
+  project_name: string;
+  due_at: string | null;
+  status: string;
+  stage: "PENDING";
+  /** Sent back with 「需要继续整改」 (ID11); `note` then says what is wrong. */
+  needs_more_work: boolean;
+  note: string;
+  task_type: FieldTaskType | null;
+  assigned_by_name: string;
+  last_message: {
+    author_name: string;
+    body: string;
+    kind: "text" | "photo" | "voice" | "file";
+    sent_at: string | null;
+  } | null;
+  created_at: string | null;
+}
+
+/** A person a list's 负责人 filter offers. */
+export interface PersonOption {
+  id: string;
+  full_name: string;
 }
 
 export interface FieldTaskPayload {
@@ -404,6 +448,17 @@ export interface SiteEquipment {
    */
   awaiting_acceptance?: "ENTRY" | "EXIT" | null;
   /**
+   * The exit under way for this machine, else null (2026-10 I13): applied
+   * for (`PENDING`, 等待批准), approved (`APPROVED`, 已批准 / 等待退场) or
+   * recorded on site (`SUBMITTED`, 已退场 / 待后台确认).
+   */
+  open_exit?: { id: string; status: "PENDING" | "APPROVED" | "SUBMITTED" } | null;
+  /**
+   * 设备编号 (IB18, I24): the office's 现场编号, printed big on the machine's
+   * QR sticker; empty when none was given.
+   */
+  site_no?: string;
+  /**
    * Every photograph of the machine (T-298): its own, uploaded onto the
    * register (`REGISTER`), and those taken at each entry and exit.
    */
@@ -447,9 +502,13 @@ export interface EquipmentPayload {
 }
 
 /**
- * Exit: 申请 → 后台 Approve / Return → 实际交接双方签名 (B13).
  * Entry since 2026-10 (X2): recorded on site in one step (`SUBMITTED`), then
  * accepted (`COMPLETED`) or not (`REJECTED`) by the office.
+ *
+ * Exit since 2026-10 I13 (ID30), the way material leaves site: applied for
+ * (`PENDING`) → approved on a Return Note (`APPROVED`, 已批准 / 等待退场) or
+ * returned (`RETURNED`) → recorded on site (`SUBMITTED`, 已退场 / 待后台确认)
+ * → confirmed (`COMPLETED`) or not (`REJECTED`).
  */
 export type EquipmentMovementStatus =
   | "PENDING"
@@ -470,6 +529,8 @@ export interface EquipmentMovement extends RecordedBy {
   equipment: string;
   equipment_code: string;
   equipment_name: string;
+  /** The machine's 现场编号 (I24). */
+  equipment_site_no?: string;
   /** The machine's plate (2026-10 X4: 车牌号码). */
   equipment_registration_no?: string;
   /** A 「新设备」 whose profile the office has still to complete (C8). */
@@ -485,6 +546,11 @@ export interface EquipmentMovement extends RecordedBy {
   review_note?: string;
   completed_by_name?: string | null;
   completed_at?: string | null;
+  /** The office's final 确认 of an exit approved first (2026-10 I13). */
+  accepted_by_name?: string | null;
+  accepted_at?: string | null;
+  /** Why that exit was not confirmed. */
+  acceptance_note?: string;
   receiver_signature?: string | null;
   supplier_signature?: string | null;
   occurred_at: string;
@@ -505,7 +571,35 @@ export interface EquipmentMovement extends RecordedBy {
   ocr_confirmed_by: string | null;
   ocr_confirmed_at: string | null;
   client_event_id: string;
-  photos: Array<{ id: string; image: string; watermarked?: string | null; kind: string; captured_at: string }>;
+  photos: Array<{
+    id: string;
+    image: string;
+    watermarked?: string | null;
+    kind: string;
+    /** With the exit's application, at the handover, or the office's (I13). */
+    stage?: "APPLICATION" | "HANDOVER" | "OFFICE";
+    captured_at: string;
+  }>;
+  supplier?: string | null;
+  /**
+   * The Return Note an exit is approved on (2026-10 I13, the same note as
+   * material's): empty until the office fills it.
+   */
+  has_return_note?: boolean;
+  return_note_no?: string;
+  return_note_at?: string | null;
+  return_note_by_name?: string | null;
+  return_note_material?: string;
+  return_note_delivery_note_no?: string;
+  return_note_supplier?: string | null;
+  return_note_supplier_name?: string | null;
+  return_note_quantity?: string | null;
+  return_note_unit?: string;
+  return_note_reason?: string;
+  approver_name?: string;
+  approver_user?: string | null;
+  approver_user_name?: string | null;
+  approver_signature?: string | null;
 }
 
 export interface EquipmentSummary {

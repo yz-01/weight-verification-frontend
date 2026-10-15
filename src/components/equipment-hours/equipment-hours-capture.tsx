@@ -30,6 +30,7 @@ import type {
 import { useDateFormat } from "@/lib/dates";
 import type { LocationFix } from "@/lib/field-location";
 import { photoTakenAt } from "@/lib/photo-meta";
+import { matchScanned, squashCode } from "@/lib/machine-scan";
 import { cn } from "@/lib/utils";
 import { loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
 import { submitEquipmentHoursPhotoOfflineAware } from "@/services/offline-sync.service";
@@ -53,53 +54,29 @@ export function machineLabel(
  */
 export { photoTakenAt };
 
-/**
- * Letters and digits only, upper case: how a plate or number is compared -
- * the server's `normalised_plate`. Any script's letters count, so a site
- * number such as 「挖机1」 is not squashed to 「1」.
- */
-function squash(value: string | undefined | null): string {
-  return (value ?? "").toUpperCase().replace(/[^\p{L}\p{N}]/gu, "");
-}
+/** Letters and digits only, upper case - see `lib/machine-scan`. */
+const squash = squashCode;
 
 /**
  * The machine a scanned QR names (Lucas 2026-10-10: 「有些就是贴一张二维码在设备
- * 上。也需要扫码」). The system prints no machine QR of its own, so the code is
- * read as text: the machine's id, its equipment number, its 现场编号, its
- * plate or its serial number; a link is read for an `equipment` / `code` /
- * `id` parameter or its last path part. Spaces, dashes and case do not matter.
+ * 上。也需要扫码」). Since 2026-10 I24 the system prints its own code for every
+ * machine - the link `/scan/equipment?equipment=<id>`, from 设备清单 - and this
+ * reads it like any other sticker (`lib/machine-scan`, the server's rule too):
+ * the machine's id, its equipment number, its 现场编号, its plate or its serial
+ * number; a link is read for an `equipment` / `code` / `id` / `machine`
+ * parameter or its last path part. Spaces, dashes and case do not matter.
  */
 export function matchScannedMachine(
   text: string,
   machines: EquipmentHoursMachine[],
 ): EquipmentHoursMachine | null {
-  const raw = text.trim();
-  if (!raw) return null;
-  const candidates = [raw];
-  try {
-    const url = new URL(raw);
-    for (const name of ["equipment", "code", "id", "machine"]) {
-      const value = url.searchParams.get(name);
-      if (value) candidates.push(value);
-    }
-    const last = url.pathname.split("/").filter(Boolean).at(-1);
-    if (last) candidates.push(decodeURIComponent(last));
-  } catch {
-    // Not a link: the text itself.
-  }
-  for (const candidate of candidates) {
-    const byId = machines.find((machine) => machine.id === candidate);
-    if (byId) return byId;
-    const key = squash(candidate);
-    if (!key) continue;
-    const found =
-      machines.find((machine) => squash(machine.code) === key) ??
-      machines.find((machine) => squash(machine.site_no) === key) ??
-      machines.find((machine) => squash(machine.plate) === key) ??
-      machines.find((machine) => squash(machine.serial_no) === key);
-    if (found) return found;
-  }
-  return null;
+  return matchScanned(text, machines, (machine) => ({
+    id: machine.id,
+    code: machine.code,
+    site_no: machine.site_no,
+    plate: machine.plate,
+    serial_no: machine.serial_no,
+  }));
 }
 
 /**

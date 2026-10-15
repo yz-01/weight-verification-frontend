@@ -3,7 +3,7 @@
 /**
  * MR / Other Request, the office side (C01–C07, D02).
  *
- * The old 照片审批 entry, rebuilt. Three tabs:
+ * Two tabs:
  *
  * 1. **Requests** - every request with its own Request No., the columns the
  *    customer listed (C03) less project (D3: the top bar says it) and with
@@ -15,9 +15,10 @@
  *    and the not-yet-approved quantities side by side, never added (C04).
  *    Not yet approved is pending only: a returned request is finished and is
  *    shown as history, not as something waiting (Q1).
- * 3. **Photo approvals** - the PHOTO site tasks this entry used to show,
- *    pending ones still decided here, and every earlier one still readable
- *    (D02). Nothing about them moved.
+ *
+ * The photo tab that sat beside them was taken out (I17, ID38): a photo
+ * submission is a field task, accepted or returned in the field-task list's
+ * 待验收 view, and an old `?tab=photos` link opens that view.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -38,7 +39,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { FieldDraft } from "@/components/field-staff/field-draft";
-import { PhotoApprovals } from "@/components/field-staff/photo-approvals";
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
 import { requestTypeNameOptions } from "@/lib/request-types";
 import { materialRequestReviewView } from "@/components/material-requests/review-gate";
@@ -89,6 +89,7 @@ import {
   type MaterialRequest,
   type MaterialRequestStatus,
 } from "@/interfaces/material-request";
+import { awaitingFieldTasksAddress } from "@/lib/awaiting-field-tasks";
 import { useDateFormat } from "@/lib/dates";
 import { recordConversationKey } from "@/lib/record-chat";
 import {
@@ -107,7 +108,7 @@ const TONE: Record<MaterialRequestStatus, "warning" | "positive" | "neutral"> = 
   RETURNED: "neutral",
 };
 
-type Tab = "requests" | "totals" | "photos";
+type Tab = "requests" | "totals";
 
 export function MaterialRequestsOffice() {
   const t = useTranslations("materialRequest");
@@ -115,19 +116,22 @@ export function MaterialRequestsOffice() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const canRequests = can("material_request.view");
-  const canPhotos = can("field_task.view");
-  const tabs: Tab[] = [
-    ...(canRequests ? (["requests", "totals"] as const) : []),
-    ...(canPhotos ? (["photos"] as const) : []),
-  ];
-  const asked = searchParams.get("tab") as Tab | null;
-  const tab: Tab = asked && tabs.includes(asked) ? asked : (tabs[0] ?? "requests");
+  const tabs: Tab[] = canRequests ? ["requests", "totals"] : [];
+  const asked = searchParams.get("tab");
+  const tab: Tab = tabs.find((key) => key === asked) ?? tabs[0] ?? "requests";
+  // The photo tab is gone (I17): its old link opens the field tasks waiting
+  // for acceptance, for whoever can see them; anyone else gets the requests.
+  const forwardPhotos = asked === "photos" && can("field_task.view");
+  useEffect(() => {
+    if (forwardPhotos) router.replace(awaitingFieldTasksAddress(searchParams.toString()));
+  }, [forwardPhotos, router, searchParams]);
   const chooseTab = (next: Tab) => {
     const params = new URLSearchParams();
     if (next !== "requests") params.set("tab", next);
     router.replace(params.size ? `/material-requests?${params.toString()}` : "/material-requests", { scroll: false });
   };
 
+  if (forwardPhotos) return null;
   return (
     <div className="flex flex-col gap-4">
       {tabs.length > 1 && (
@@ -146,12 +150,6 @@ export function MaterialRequestsOffice() {
         const params = new URLSearchParams(filters);
         router.replace(`/material-requests?${params.toString()}`, { scroll: false });
       }} />}
-      {tab === "photos" && canPhotos && (
-        <div className="space-y-4">
-          <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t("photosNote")}</p>
-          <PhotoApprovals />
-        </div>
-      )}
       {tabs.length === 0 && <p className="text-sm text-muted-foreground">{t("noAccess")}</p>}
     </div>
   );

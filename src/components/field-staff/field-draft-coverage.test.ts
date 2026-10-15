@@ -78,9 +78,37 @@ const FORMS: FormCase[] = [
     ],
   },
   {
-    // 设备进场 / 设备退场 in one step (2026-10 C8, Q27): namespaced by the
-    // machine, or "new" for a 「新设备」, and an exit by "exit:<machine>",
-    // for the reason MovementDialog's are by row.
+    // 设备退场申请 (2026-10 I13): namespaced by the machine.
+    mode: "equipment exit application",
+    file: "src/components/contractor-ops/equipment-exit.tsx",
+    component: "EquipmentExitApplyDialog",
+    fields: [
+      'useDraftState(key("reason")',
+      'useDraftState<File[]>(key("photos")',
+      'useDraftState(key("clientEventId")',
+    ],
+  },
+  {
+    // 实际退场 of an approved exit (I13): namespaced by the exit, inside its
+    // own draft, so 设备进退场 and 我提交过的 open the same one.
+    mode: "equipment actual exit",
+    file: "src/components/contractor-ops/equipment-exit.tsx",
+    component: "EquipmentExitHandoverForm",
+    fields: [
+      'useDraftState(key("evidence")',
+      'useDraftState<File[]>(key("photos")',
+      'useDraftState<File | undefined>(key("doPhoto")',
+      'useDraftState(key("doNo")',
+      'useDraftState(key("scanned")',
+      'useDraftState<ReturnBadgeSupplier | null>(key("supplier")',
+      'useDraftState<File | undefined>(key("siteSignature")',
+      'useDraftState<File | undefined>(key("supplierSignature")',
+      'useDraftState(key("clientEventId")',
+    ],
+  },
+  {
+    // 设备进场 in one step (2026-10 C8): namespaced by the machine, or "new"
+    // for a 「新设备」, for the reason MovementDialog's are by row.
     mode: "equipment entry",
     file: "src/components/contractor-ops/operations-workspaces.tsx",
     component: "EquipmentEntryDialog",

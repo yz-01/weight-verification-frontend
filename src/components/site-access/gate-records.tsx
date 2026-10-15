@@ -154,7 +154,9 @@ export function GateRecordsPanel({
   const [openToTalk, setOpenToTalk] = useState(false);
   const [talkingAbout, setTalkingAbout] = useState<GateIncident | null>(null);
   const [project, setProject] = useState(initialProject);
-  const [action, setAction] = useState<GateAction>(initialAction);
+  // A visit opened from its notice (I26: 「访客已确认，可以放行」) opens the scan on it.
+  const gateArrival = search.get("gate_arrival") ?? "";
+  const [action, setAction] = useState<GateAction>(gateArrival ? "scan" : initialAction);
   const mayScan = can("site_access.scan");
   const open = (id: string, talk = false) => {
     setOpenId(id);
@@ -218,7 +220,11 @@ export function GateRecordsPanel({
               onTalk={(id) => open(id, true)}
             />
           ) : (
-            <VisitorScanPanel project={project} lockProject={Boolean(initialProject)} />
+            <VisitorScanPanel
+              project={project}
+              lockProject={Boolean(initialProject)}
+              initialArrival={gateArrival}
+            />
           )}
         </>
       )}

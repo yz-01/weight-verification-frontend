@@ -32,6 +32,8 @@ const PAGES: Record<string, (id: string) => string> = {
   SAFETY_INCIDENT: (id) => `/hazard-rectifications?incident=${id}`,
   FIELD_TASK: (id) => `/field-tasks?task=${id}`,
   GATE_INCIDENT: (id) => `/gate-records?gate_incident=${id}`,
+  // 访客到访 (I26): opens over the notification centre, which every account reaches.
+  VISITOR_ARRIVAL: (id) => `/notifications?visitor_arrival=${id}`,
   CONSULTANT_APPLICATION: (id) => `/consultant-applications/${id}`,
   SUNDRY_CLAIM: (id) => `/sundry-claims?record=${id}`,
   MATERIAL_REQUEST: (id) => `/material-requests?record=${id}`,

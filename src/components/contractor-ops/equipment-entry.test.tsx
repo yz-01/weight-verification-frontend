@@ -305,7 +305,7 @@ describe("the office accepts the entry like a delivery (C8)", () => {
     expect(html).not.toContain(`>${messages.contractorOps.action.approve}</button>`);
   });
 
-  it("an old exit application is handed over directly too, not approved (Q27)", () => {
+  it("an exit application is decided on its Return Note, never handed over directly (I13)", () => {
     const html = render(
       <EquipmentMovementActions
         movement={movement({ direction: "EXIT", status: "PENDING" })}
@@ -313,8 +313,9 @@ describe("the office accepts the entry like a delivery (C8)", () => {
         onHandover={() => {}}
       />,
     );
-    expect(html).toContain(messages.contractorOps.equipment.directHandover);
-    expect(html).not.toContain(`${messages.contractorOps.action.approve}</button>`);
+    expect(html).not.toContain(messages.contractorOps.equipment.directHandover);
+    expect(html).toContain(messages.contractorOps.returnNote.fill);
+    expect(html).toContain(`${messages.contractorOps.action.approve}</button>`);
   });
 });
 

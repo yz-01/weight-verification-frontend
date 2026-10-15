@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
+import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useMemo, useState } from "react";
 
@@ -82,6 +83,9 @@ export function Notifications({
   const searchParams = useSearchParams();
   const announcement = searchParams.get("announcement");
   const clearAnnouncement = useClearSearchParam("announcement");
+  // 访客进场确认 (I26): a host's notice opens 「确认接待」 here.
+  const visitorArrival = searchParams.get("visitor_arrival");
+  const clearVisitorArrival = useClearSearchParam("visitor_arrival");
   const { can } = useAuth();
   const list = useListQuery(["category", "today"]);
   const [composeOpen, setComposeOpen] = useState(
@@ -236,6 +240,9 @@ export function Notifications({
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       {/* 公司公告 (C18): a company announcement's notice opens it here.
           Reading it does not dismiss the notice (D04). */}
+      {visitorArrival && (
+        <VisitorArrivalDialog id={visitorArrival} onClose={clearVisitorArrival} />
+      )}
       {announcement && (
         <AnnouncementDialog id={announcement} onClose={clearAnnouncement} />
       )}

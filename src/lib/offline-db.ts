@@ -196,10 +196,20 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
      */
     entry?: boolean;
     /**
-     * 设备退场 in one step (2026-10 Q27): sent to `record_exit`. Like the
-     * entry, no quantity, unit or application.
+     * 设备退场 in one step (2026-10 Q27), from a build before I13: still sent
+     * to `record_exit`, where the server files it as an exit application with
+     * all its evidence (ID30). Nothing queues it any more.
      */
     exit?: boolean;
+    /** 设备退场申请 (2026-10 I13): the machine, why, a photo - `apply_exit`. */
+    apply_exit?: boolean;
+    /**
+     * 现场实际退场 of the approved exit `movement` (I13): photos, DO, the
+     * machine's QR as scanned, both signatures, GPS - `record_exit_handover`.
+     */
+    exit_handover?: boolean;
+    /** What the camera read off the machine's QR at the actual exit (ID60). */
+    scanned_equipment?: string;
     /** A 「新设备」 reported from the phone: its name, `equipment` empty. */
     equipment_name?: string;
     /** …and its plate, if it has one (optional). */
@@ -375,7 +385,8 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
   kind: "SAFETY_INCIDENT";
   payload: {
     project: string;
-    category: string;
+    /** Empty from the phone's 主动上报 (ID12): filed as 「未分类」. */
+    category?: string;
     title: string;
     description: string;
     /** Only on reports queued before 2026-10-10; 严重程度 is gone, the server ignores it. */

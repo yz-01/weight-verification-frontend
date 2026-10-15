@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, FileText, Loader2, MapPin, RotateCcw, Send } from "lucide-react";
+import { Check, FileText, Loader2, MapPin, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
@@ -54,13 +54,12 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const askOption = (code: string) =>
     askFor.has(`askOption.${code}`) ? askFor(`askOption.${code}` as never) : null;
   const df = useDateFormat();
-  const { user, can } = useAuth();
+  const { user } = useAuth();
+  const flow = useTranslations("taskFlow");
   const queryClient = useQueryClient();
   const task = useQuery({ queryKey: ["field-tasks", "detail", id], queryFn: () => getFieldTask(id) });
   const [result, setResult] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
-  const [returning, setReturning] = useState(false);
-  const [reason, setReason] = useState("");
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["field-tasks"] });
     void queryClient.invalidateQueries({ queryKey: ["contractor-dashboard"] });
@@ -81,13 +80,13 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
       refresh();
     },
   });
+  // 确认完成 only (ID11): no 退回 - the confirmer switches 「需要继续整改」
+  // on in the conversation below and says what is still wrong.
   const decide = useMutation({
-    mutationFn: ({ row, status }: { row: FieldTask; status: "ACCEPTED" | "RETURNED" }) =>
-      transitionFieldTask(row.id, status, status === "RETURNED" ? reason.trim() : ""),
+    mutationFn: (row: FieldTask) => transitionFieldTask(row.id, "ACCEPTED", ""),
     onSuccess: () => {
-      setReturning(false);
-      setReason("");
       refresh();
+      void queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
     },
   });
 
@@ -95,13 +94,9 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const mine = row?.assigned_to === user?.id;
   const headOffice = row?.origin === "HQ";
   const maySubmit = !!row && mine && headOffice && OPEN_FOR_RESULT.includes(row.status);
-  const mayDecide =
-    !!row &&
-    row.status === "SUBMITTED" &&
-    !mine &&
-    (headOffice
-      ? row.created_by === user?.id || (can("field_task.manage") && can("project.view_all"))
-      : can("field_task.manage"));
+  // The server's answer (I1): the setter or a task manager - for a
+  // head-office task its publisher - never the assignee.
+  const mayDecide = !!row && row.status === "SUBMITTED" && !mine && Boolean(row.can_confirm);
   const overdue = !!row?.is_overdue;
 
   if (task.isLoadingError || !row) {
@@ -258,32 +253,12 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                 {mayDecide && (
                   <div className="space-y-2" data-task-decide>
                     <div className="flex flex-wrap justify-end gap-2">
-                      <Button variant="outline" onClick={() => setReturning((open) => !open)}>
-                        <RotateCcw />
-                        {t("return")}
-                      </Button>
-                      <Button disabled={decide.isPending} onClick={() => decide.mutate({ row, status: "ACCEPTED" })}>
+                      <Button disabled={decide.isPending} onClick={() => decide.mutate(row)}>
                         <Check />
                         {t("confirm")}
                       </Button>
                     </div>
-                    {returning && (
-                      <div className="space-y-2">
-                        <FieldWrapper label={t("returnReason")} required>
-                          <Textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
-                        </FieldWrapper>
-                        <div className="flex justify-end">
-                          <Button
-                            variant="destructive"
-                            requires={[[reason.trim(), t("returnReason")]]}
-                            disabled={decide.isPending}
-                            onClick={() => decide.mutate({ row, status: "RETURNED" })}
-                          >
-                            {t("returnConfirm")}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+                    <p className="text-xs text-muted-foreground">{flow("moreWork.hint")}</p>
                   </div>
                 )}
               </>

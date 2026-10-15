@@ -118,6 +118,10 @@
       "label": "Staff location"
     },
     {
+      "key": "site_worker",
+      "label": "Worker roster"
+    },
+    {
       "key": "dashboard",
       "label": "Dashboard"
     },
@@ -691,6 +695,16 @@
       "code": "field_position.submit",
       "group": "field_position",
       "label": "Share own location from the phone"
+    },
+    {
+      "code": "site_worker.view",
+      "group": "site_worker",
+      "label": "View the worker roster and their entries and exits"
+    },
+    {
+      "code": "site_worker.manage",
+      "group": "site_worker",
+      "label": "Register workers and send their location links"
     },
     {
       "code": "dashboard.view",
