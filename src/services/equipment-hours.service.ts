@@ -9,6 +9,7 @@ import type {
   EquipmentHoursSessions,
   EquipmentHoursUpload,
   EquipmentPhotoKind,
+  EquipmentSessionOperatorPayload,
 } from "@/interfaces/equipment-hours";
 import { api, download, toastSuccess } from "@/services/api-client";
 import {
@@ -23,6 +24,8 @@ export interface EquipmentHoursPhotoUpload {
   /** 开工 or 收工; absent only on a job queued before the choice existed. */
   kind?: EquipmentPhotoKind;
   photo: File;
+  /** 司机签名 (2026-10 I4); absent only on a job queued before it existed. */
+  signature?: File;
   capturedAt: string;
   clientEventId: string;
   latitude?: string;
@@ -49,6 +52,7 @@ export function uploadEquipmentHoursPhoto(
   data.append("equipment", upload.equipment);
   if (upload.kind) data.append("kind", upload.kind);
   data.append("photo", upload.photo);
+  if (upload.signature) data.append("signature", upload.signature);
   data.append("captured_at", upload.capturedAt);
   data.append("client_event_id", upload.clientEventId);
   if (upload.latitude) data.append("latitude", upload.latitude);
@@ -118,6 +122,21 @@ export async function adjustEquipmentDayEnd(
     payload.start_at ? "equipmentHours.toast.startSaved" : "equipmentHours.toast.endSaved",
   );
   return session;
+}
+
+/**
+ * 操作人员 and CIDB 卡号 of one session - or of every session of that machine
+ * that day - written by the office (2026-10 I4, ID19). Kept as history.
+ */
+export async function setEquipmentSessionOperator(
+  payload: EquipmentSessionOperatorPayload,
+): Promise<EquipmentHoursSession[]> {
+  const answer = await api.post<{ rows: EquipmentHoursSession[] }>(
+    "/api/equipment-hours/set_operator/",
+    payload,
+  );
+  toastSuccess("equipmentHours.toast.operatorSaved");
+  return answer.rows;
 }
 
 /**

@@ -7771,7 +7771,9 @@
       "role_template_not_found": "找不到這個預設角色。",
       "role_already_exists": "本公司已經有這個角色。",
       "export_too_many_photos": "這次匯出共有 {count} 張照片，一次最多 {limit} 張。請縮短日期範圍後再匯出。",
-      "receipt_needs_supplier": "這批材料還沒有供應商。請先按「補供應商」填上，再驗收。"
+      "receipt_needs_supplier": "這批材料還沒有供應商。請先按「補供應商」填上，再驗收。",
+      "equipment_hours_already_started": "這部設備已開工，請拍收工。",
+      "equipment_hours_not_started": "這部設備還沒開工。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -17333,7 +17335,11 @@
       "equipment": "設備",
       "allEquipment": "全部設備",
       "search": "車牌 / 編號",
-      "searchPlaceholder": "車牌、設備編號或現場編號"
+      "searchPlaceholder": "車牌、設備編號或現場編號",
+      "scan": "掃碼找設備",
+      "scanTitle": "掃設備二維碼",
+      "scanHelp": "把設備二維碼貼紙對準攝影機。",
+      "scanNoMatch": "這個二維碼對不上有工時記錄的設備。"
     },
     "field": {
       "date": "日期",
@@ -17357,7 +17363,14 @@
       "incomplete": "缺開工 / 收工",
       "adjustedCount": "後台修改次數",
       "actions": "操作",
-      "siteNo": "現場編號"
+      "siteNo": "現場編號",
+      "machineNo": "設備編號",
+      "equipmentName": "設備名稱",
+      "operator": "操作人員",
+      "cidb": "CIDB 卡號",
+      "startTime": "開工時間",
+      "endTime": "收工時間",
+      "view": "查看"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -17396,7 +17409,8 @@
     },
     "dialog": {
       "summary": "開始 {start} · 結束 {end} · {hours} 小時",
-      "photos": "照片"
+      "photos": "照片",
+      "signature": "{kind}司機簽名"
     },
     "history": {
       "title": "修改記錄",
@@ -17411,10 +17425,11 @@
       "endSaved": "結束時間已保存",
       "startSaved": "開始時間已保存",
       "siteNoSaved": "現場編號已保存",
-      "siteNoCleared": "現場編號已清除"
+      "siteNoCleared": "現場編號已清除",
+      "operatorSaved": "操作人員已儲存"
     },
     "phone": {
-      "howTo": "開工時選「開工」拍一張，收工時選「收工」再拍一張。每一對開工和收工算一筆工時。",
+      "howTo": "掃設備上的二維碼 → 拍照 → 司機簽名 → 提交。提交後可以接著掃下一部。",
       "project": "項目",
       "supplier": "供應商",
       "allSuppliers": "全部供應商",
@@ -17447,7 +17462,18 @@
       "typeNumber": "輸入編號",
       "typeNumberPlaceholder": "設備上的編號，例如 12",
       "typedFound": "找到：{machine}",
-      "typedNoMatch": "找不到這個編號"
+      "typedNoMatch": "找不到這個編號",
+      "scanBig": "掃描設備二維碼",
+      "brokenQr": "二維碼壞了？輸入編號",
+      "useNumber": "確定",
+      "machineLine": "{number} 號 · {name}",
+      "another": "換一部",
+      "photoHint": "拍一張設備照片。",
+      "signature": "司機簽名",
+      "signatureHint": "請司機在這裡簽名。",
+      "clearSignature": "重簽",
+      "sent": "已提交：{number} 號 {kind} {time}",
+      "sentQueued": "已存在手機，有網路會自動上傳：{number} 號 {kind} {time}"
     },
     "siteNo": {
       "open": "設備編號管理",
@@ -17462,6 +17488,25 @@
       "save": "保存",
       "failed": "保存失敗，請再試一次。",
       "close": "關閉"
+    },
+    "operator": {
+      "title": "操作人員",
+      "help": "{machine} 號 · {date}：填寫當天實際操作的人。手機不用填。",
+      "name": "操作人員姓名",
+      "cidb": "CIDB 卡號",
+      "wholeDay": "套用到當天這部設備的全部工時",
+      "save": "儲存",
+      "cancel": "取消",
+      "failed": "儲存失敗，請再試一次。",
+      "fill": "填寫",
+      "edit": "修改操作人員",
+      "none": "後台還沒填操作人員。",
+      "history": "操作人員記錄"
+    },
+    "supplierTotals": {
+      "title": "{supplier} 的設備工時",
+      "total": "這家公司合計（小時）",
+      "sessions": "{count} 次"
     }
   },
   "theme": {

@@ -48,6 +48,7 @@ const draft = {
   equipmentLabel: "EQ-001 · Excavator · WXY 1234",
   kind: "START" as const,
   photo: shot(),
+  signature: new File(["ink"], "signature.png", { type: "image/png" }),
   latitude: "3.1149475",
   longitude: "101.7294695",
   locationAccuracyM: "12.00",
@@ -78,6 +79,8 @@ describe("an equipment-hours photo taken offline", () => {
     expect(job.payload.equipmentLabel).toBe("EQ-001 · Excavator · WXY 1234");
     expect(job.payload.kind).toBe("START");
     expect(job.payload.photo.blob).toBeInstanceOf(Blob);
+    // 司机签名 waits with the photo (2026-10 I4, ID20).
+    expect(job.payload.signature?.blob).toBeInstanceOf(Blob);
 
     // The phone finds signal at lunchtime: the start is still 07:58.
     vi.setSystemTime(new Date("2026-10-07T12:30:00+08:00"));
@@ -95,6 +98,7 @@ describe("an equipment-hours photo taken offline", () => {
     expect(data.get("latitude")).toBe("3.1149475");
     expect(data.get("location_accuracy_m")).toBe("12.00");
     expect(data.get("photo")).toBeInstanceOf(File);
+    expect(data.get("signature")).toBeInstanceOf(File);
     expect(store.size).toBe(0);
   });
 

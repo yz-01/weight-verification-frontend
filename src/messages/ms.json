@@ -7771,7 +7771,9 @@
       "role_template_not_found": "Tiada peranan pratetap dengan nama itu.",
       "role_already_exists": "Syarikat ini sudah mempunyai peranan itu.",
       "export_too_many_photos": "Eksport ini mengandungi {count} foto; satu fail paling banyak {limit}. Pendekkan tarikh dan eksport semula.",
-      "receipt_needs_supplier": "Penghantaran ini belum ada pembekal. Tekan “Isi pembekal” dahulu, kemudian terima."
+      "receipt_needs_supplier": "Penghantaran ini belum ada pembekal. Tekan “Isi pembekal” dahulu, kemudian terima.",
+      "equipment_hours_already_started": "Mesin ini sudah dimulakan. Ambil foto tamat.",
+      "equipment_hours_not_started": "Mesin ini belum dimulakan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -17333,7 +17335,11 @@
       "equipment": "Peralatan",
       "allEquipment": "Semua peralatan",
       "search": "No. plat / nombor",
-      "searchPlaceholder": "No. plat, no. peralatan atau no. tapak"
+      "searchPlaceholder": "No. plat, no. peralatan atau no. tapak",
+      "scan": "Imbas QR mesin",
+      "scanTitle": "Imbas kod QR mesin",
+      "scanHelp": "Halakan pelekat QR mesin ke kamera.",
+      "scanNoMatch": "Kod QR itu bukan mesin yang ada jam kerja di sini."
     },
     "field": {
       "date": "Tarikh",
@@ -17357,7 +17363,14 @@
       "incomplete": "Tiada mula / tamat",
       "adjustedCount": "Diubah oleh pejabat",
       "actions": "Tindakan",
-      "siteNo": "No. tapak"
+      "siteNo": "No. tapak",
+      "machineNo": "No. mesin",
+      "equipmentName": "Nama mesin",
+      "operator": "Pengendali",
+      "cidb": "No. kad CIDB",
+      "startTime": "Masa mula",
+      "endTime": "Masa tamat",
+      "view": "Lihat"
     },
     "status": {
       "MISSING_END": "Tiada foto tamat",
@@ -17396,7 +17409,8 @@
     },
     "dialog": {
       "summary": "Mula {start} · Tamat {end} · {hours} jam",
-      "photos": "Foto"
+      "photos": "Foto",
+      "signature": "Tandatangan pemandu - {kind}"
     },
     "history": {
       "title": "Sejarah perubahan",
@@ -17411,10 +17425,11 @@
       "endSaved": "Masa tamat disimpan",
       "startSaved": "Masa mula disimpan",
       "siteNoSaved": "No. tapak disimpan",
-      "siteNoCleared": "No. tapak dikosongkan"
+      "siteNoCleared": "No. tapak dikosongkan",
+      "operatorSaved": "Pengendali disimpan"
     },
     "phone": {
-      "howTo": "Semasa memulakan mesin, pilih Mula dan ambil foto; semasa berhenti, pilih Tamat dan ambil satu lagi. Setiap mula dan tamatnya ialah satu catatan jam.",
+      "howTo": "Imbas QR pada mesin → foto → pemandu tandatangan → hantar. Kemudian imbas yang seterusnya.",
       "project": "Projek",
       "supplier": "Pembekal",
       "allSuppliers": "Semua pembekal",
@@ -17447,7 +17462,18 @@
       "typeNumber": "Taip nombor",
       "typeNumberPlaceholder": "Nombor pada mesin, cth. 12",
       "typedFound": "Dijumpai: {machine}",
-      "typedNoMatch": "Tiada mesin dengan nombor ini"
+      "typedNoMatch": "Tiada mesin dengan nombor ini",
+      "scanBig": "Imbas kod QR mesin",
+      "brokenQr": "QR rosak? Taip nombor",
+      "useNumber": "OK",
+      "machineLine": "No. {number} · {name}",
+      "another": "Mesin lain",
+      "photoHint": "Ambil satu foto mesin.",
+      "signature": "Tandatangan pemandu",
+      "signatureHint": "Pemandu tandatangan di sini.",
+      "clearSignature": "Tandatangan semula",
+      "sent": "Dihantar: no. {number} {kind} {time}",
+      "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: no. {number} {kind} {time}"
     },
     "siteNo": {
       "open": "Nombor mesin",
@@ -17462,6 +17488,25 @@
       "save": "Simpan",
       "failed": "Tidak dapat disimpan. Sila cuba lagi.",
       "close": "Tutup"
+    },
+    "operator": {
+      "title": "Pengendali",
+      "help": "Mesin {machine} · {date}: siapa yang sebenarnya mengendalikannya. Telefon tidak bertanya.",
+      "name": "Nama pengendali",
+      "cidb": "No. kad CIDB",
+      "wholeDay": "Guna untuk semua jam mesin ini pada hari itu",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "failed": "Tidak dapat disimpan. Sila cuba lagi.",
+      "fill": "Isi",
+      "edit": "Tukar pengendali",
+      "none": "Pejabat belum mengisi pengendali.",
+      "history": "Sejarah pengendali"
+    },
+    "supplierTotals": {
+      "title": "{supplier}: jam bagi setiap mesin",
+      "total": "Jumlah syarikat (jam)",
+      "sessions": "{count} kali"
     }
   },
   "theme": {

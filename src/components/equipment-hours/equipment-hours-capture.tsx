@@ -1,34 +1,25 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CloudOff, Loader2, Play, ScanLine, Send, Square } from "lucide-react";
+import { CheckCircle2, CloudOff, Keyboard, Loader2, Play, ScanLine, Send, Square, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
+import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { LocationField } from "@/components/field-staff/location-field";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldCamera } from "@/components/shared/field-camera";
-import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ApiError } from "@/interfaces/api";
-import type {
-  EquipmentHoursMachine,
-  EquipmentHoursSession,
-  EquipmentPhotoKind,
-} from "@/interfaces/equipment-hours";
+import type { EquipmentHoursMachine, EquipmentPhotoKind } from "@/interfaces/equipment-hours";
 import { useDateFormat } from "@/lib/dates";
 import type { LocationFix } from "@/lib/field-location";
+import { getOfflineJobs } from "@/lib/offline-db";
 import { photoTakenAt } from "@/lib/photo-meta";
 import { matchScanned, squashCode } from "@/lib/machine-scan";
 import { cn } from "@/lib/utils";
@@ -36,15 +27,20 @@ import { loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
 import { submitEquipmentHoursPhotoOfflineAware } from "@/services/offline-sync.service";
 
 /**
- * 「编号 · 名称 · 车牌」 - how a machine is named on the phone: the number
- * painted on the machine first (no category, F3). That is the office's 现场编号
- * when it has given one (「12 · 挖机 · WXY 1234」, 2026-10-10), else the
- * equipment number.
+ * 「编号 · 名称 · 车牌」 - how a machine is named in the offline queue: the
+ * number painted on the machine first (no category, F3). That is the office's
+ * 现场编号 when it has given one (「12 · 挖机 · WXY 1234」, 2026-10-10), else
+ * the equipment number.
  */
 export function machineLabel(
   machine: Pick<EquipmentHoursMachine, "name" | "plate"> & { code?: string; site_no?: string },
 ): string {
   return [machine.site_no || machine.code, machine.name, machine.plate].filter(Boolean).join(" · ");
+}
+
+/** The number the phone shows to check a scan: the 设备编号, else the code. */
+export function machineNumber(machine: { code?: string; site_no?: string }): string {
+  return machine.site_no || machine.code || "";
 }
 
 /**
@@ -80,10 +76,10 @@ export function matchScannedMachine(
 }
 
 /**
- * The machine a typed number names (「输入编号」, 2026-10-10): the office's
- * 现场编号 first - 「12」 is what is painted on the machine - then whatever a
- * scan would match (equipment number, plate, serial). Spaces, dashes and
- * case do not matter.
+ * The machine a typed number names (「二维码损坏，可输入固定设备编号」): the
+ * office's 现场编号 first - 「12」 is what is painted on the machine - then
+ * whatever a scan would match (equipment number, plate, serial). Spaces,
+ * dashes and case do not matter.
  */
 export function matchTypedMachine(
   text: string,
@@ -102,25 +98,70 @@ export function nextKind(machine: Pick<EquipmentHoursMachine, "open_since"> | un
   return machine?.open_since ? "FINISH" : "START";
 }
 
-const ALL = "all";
-const NO_SUPPLIER = "none";
-
-/** Whether no machine on the site names its company (or there are none). */
-export function noSupplierNamed(rows: { supplier?: string | null }[]): boolean {
-  return rows.every((row) => !row.supplier);
+/** A photo of a machine still waiting on this phone (no signal yet). */
+export interface WaitingPhoto {
+  equipment: string;
+  kind?: EquipmentPhotoKind;
+  capturedAt: string;
 }
 
-export type LastSent =
-  | { status: "uploaded"; label: string; kind: EquipmentPhotoKind; session: EquipmentHoursSession | null }
-  | { status: "queued"; label: string; kind: EquipmentPhotoKind };
+/**
+ * 开工 or 收工 for a machine just scanned (2026-10 I4, ID17). The server says
+ * whether it is running - but a photo still waiting in this phone's offline
+ * queue is newer than anything the server knows, so the newest of those
+ * decides first (「手机离线排队时，排队里的上一笔也要算进去」). The worker can
+ * still change it.
+ */
+export function kindToTake(
+  machine: Pick<EquipmentHoursMachine, "id" | "open_since">,
+  waiting: readonly WaitingPhoto[],
+): EquipmentPhotoKind {
+  const newest = waiting
+    .filter((photo) => photo.equipment === machine.id && photo.kind)
+    .sort((a, b) => a.capturedAt.localeCompare(b.capturedAt))
+    .at(-1);
+  if (newest) return newest.kind === "START" ? "FINISH" : "START";
+  return nextKind(machine);
+}
+
+async function waitingPhotos(ownerId: string): Promise<WaitingPhoto[]> {
+  try {
+    const jobs = await getOfflineJobs(ownerId);
+    return jobs.flatMap((job) =>
+      job.kind === "EQUIPMENT_HOURS_PHOTO"
+        ? [{ equipment: job.payload.equipment, kind: job.payload.kind, capturedAt: job.payload.capturedAt }]
+        : [],
+    );
+  } catch {
+    // No offline store on this browser: the server's word stands.
+    return [];
+  }
+}
+
+/** What the line over the scan button says after a photo. */
+export interface LastSent {
+  status: "uploaded" | "queued";
+  /** The machine's number, 「12」. */
+  number: string;
+  kind: EquipmentPhotoKind;
+  /** When the photo was taken (ISO). */
+  at: string;
+}
 
 /**
- * 设备操作员工时 on the phone (2026-10 B15; in/out pairs since 2026-10-10):
- * pick the supplier and the machine - or scan the QR on it, or type the
- * number the office painted on it (现场编号, 「12」) - say 开工 or 收工,
- * take the photo, send. A start and the stop after it are one row of hours
- * in the office. Works with no signal: the photo waits in the offline queue
- * with the moment it was taken.
+ * 设备操作员工时 on the phone (2026-10 I4; in/out pairs since 2026-10-10).
+ *
+ * The client: 「只设一个『扫描设备二维码』入口。开工：扫码 → 拍照 → 司机签名 →
+ * 提交。收工：扫码 → 拍照 → 司机签名 → 提交。二维码损坏，可输入固定设备编号。支持
+ * 连续操作多部设备，不同人员、不同手机均可使用。手机端不需要显示设备资料。」
+ *
+ * So: one big 「扫描设备二维码」 button, and a small 「二维码坏了？输入编号」.
+ * A machine found shows one line - 「12 号 · 挖土机」 - to check the scan
+ * (ID18), says 开工 or 收工 by itself (ID17, changeable), then photo, the
+ * driver's signature (ID20), send. Sent - or kept on the phone with no
+ * signal - the screen is back on the scan button at once with a line
+ * 「已提交：12 号 收工 19:23」, so ten machines are ten rounds of scan, photo,
+ * sign, send.
  */
 export function EquipmentHoursCapture({
   initialProject = "",
@@ -132,17 +173,18 @@ export function EquipmentHoursCapture({
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [project, setProject] = useState(initialProject);
-  // `null` until the operator picks: then the default below applies.
-  const [supplier, setSupplier] = useState<string | null>(null);
-  const [equipment, setEquipment] = useState("");
+  const [machine, setMachine] = useState<EquipmentHoursMachine | null>(null);
   const [kind, setKind] = useState<EquipmentPhotoKind>("START");
   const [shot, setShot] = useState<File>();
+  const [signature, setSignature] = useState<File>();
+  // Each machine gets a clean signature pad: the key remounts it.
+  const [round, setRound] = useState(0);
   const [fix, setFix] = useState<LocationFix | null>(null);
   const [error, setError] = useState("");
   const [scanning, setScanning] = useState(false);
-  const [last, setLast] = useState<LastSent | null>(null);
-  // 「输入编号」: the number painted on the machine, typed (2026-10-10).
+  const [typing, setTyping] = useState(false);
   const [typed, setTyped] = useState("");
+  const [last, setLast] = useState<LastSent | null>(null);
 
   const machines = useQuery({
     queryKey: ["equipment-hours", "machines", project],
@@ -151,56 +193,46 @@ export function EquipmentHoursCapture({
     staleTime: 60_000,
   });
   const rows = machines.data ?? [];
-  const chosen = rows.find((row) => row.id === equipment);
-  // A project hires machines from several companies: the supplier narrows
-  // the list. Always offered, so every phone shows the same form (Lucas,
-  // 2026-10-10: 「为什么客户的有供应商我没有」).
-  const suppliers = [
-    ...new Map(
-      rows.map((row) => [row.supplier || NO_SUPPLIER, row.supplier_name || ""]),
-    ).entries(),
-  ];
-  // No machine names its company: the one honest choice is 「未填供应商」,
-  // not 「全部供应商」 (Lucas, 2026-10-10).
-  const unfilledOnly = noSupplierNamed(rows);
-  // 「全部供应商」 always stays; with no machine naming its company the
-  // picker starts on 「未填供应商」 (Lucas, 2026-10-10).
-  const supplierValue = supplier ?? (unfilledOnly ? NO_SUPPLIER : ALL);
-  const listed = rows.filter(
-    (row) => supplierValue === ALL || (row.supplier || NO_SUPPLIER) === supplierValue,
-  );
 
-  const pick = (machine: EquipmentHoursMachine | undefined) => {
-    setEquipment(machine?.id ?? "");
-    setKind(nextKind(machine));
+  const pick = (found: EquipmentHoursMachine) => {
+    setMachine(found);
+    setKind(nextKind(found));
+    setShot(undefined);
+    setSignature(undefined);
+    setRound((value) => value + 1);
     setError("");
+    setTyping(false);
+    setTyped("");
+    if (user) {
+      void waitingPhotos(user.id).then((waiting) => setKind(kindToTake(found, waiting)));
+    }
   };
-  const typedMatch = typed.trim() ? matchTypedMachine(typed, rows) : null;
 
-  // What is typed picks the machine; a number that names none leaves none
-  // picked, so the screen never shows one machine under another's number.
-  const typeNumber = (value: string) => {
-    setTyped(value);
-    if (!value.trim()) return;
-    const found = matchTypedMachine(value, rows);
-    if (!found) {
-      if (equipment) pick(undefined);
-      return;
-    }
-    if (supplierValue !== ALL && (found.supplier || NO_SUPPLIER) !== supplierValue) {
-      setSupplier(ALL);
-    }
-    if (found.id !== equipment) pick(found);
+  /** Back to the scan button, ready for the next machine. */
+  const reset = () => {
+    setMachine(null);
+    setShot(undefined);
+    setSignature(undefined);
+    setRound((value) => value + 1);
+    setTyping(false);
+    setTyped("");
+  };
+
+  const typedMatch = typed.trim() ? matchTypedMachine(typed, rows) : null;
+  const takeTyped = () => {
+    if (typedMatch) pick(typedMatch);
+    else setError(t("phone.typedNoMatch"));
   };
 
   const send = useMutation({
     mutationFn: () => {
-      if (!user || !chosen || !shot) throw new Error("missing");
+      if (!user || !machine || !shot || !signature) throw new Error("missing");
       return submitEquipmentHoursPhotoOfflineAware(user.id, {
-        equipment: chosen.id,
-        equipmentLabel: machineLabel(chosen),
+        equipment: machine.id,
+        equipmentLabel: machineLabel(machine),
         kind,
         photo: shot,
+        signature,
         capturedAt: photoTakenAt(shot),
         latitude: fix?.latitude,
         longitude: fix?.longitude,
@@ -208,17 +240,18 @@ export function EquipmentHoursCapture({
       });
     },
     onSuccess: (result) => {
-      const label = chosen ? machineLabel(chosen) : "";
-      setLast(
-        result.status === "uploaded"
-          ? { status: "uploaded", label, kind, session: result.upload.session }
-          : { status: "queued", label, kind },
-      );
-      // The machine stays picked and the other end comes next: the stop
-      // photo is of the same machine.
-      setKind(kind === "START" ? "FINISH" : "START");
-      setShot(undefined);
+      if (!machine) return;
+      setLast({
+        status: result.status,
+        number: machineNumber(machine),
+        kind,
+        at:
+          result.status === "uploaded"
+            ? result.upload.captured_at
+            : ((shot && photoTakenAt(shot)) ?? new Date().toISOString()),
+      });
       setError("");
+      reset();
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "machines"] });
     },
     onError: (reason) =>
@@ -227,19 +260,14 @@ export function EquipmentHoursCapture({
 
   return (
     <div className="space-y-4">
-      <p className="rounded-lg border bg-muted/30 p-3 text-sm leading-5 text-muted-foreground">
-        {t("phone.howTo")}
-      </p>
-
       {!initialProject && (
         <FieldWrapper label={t("phone.project")} required>
           <ProjectPicker
             value={project}
             onValueChange={(value) => {
               setProject(value);
-              setSupplier(null);
-              setTyped("");
-              pick(undefined);
+              reset();
+              setLast(null);
             }}
             placeholder={t("phone.project")}
             className="h-11 w-full"
@@ -247,166 +275,152 @@ export function EquipmentHoursCapture({
         </FieldWrapper>
       )}
 
-      <FieldWrapper label={t("phone.supplier")}>
-        <Select
-          value={supplierValue}
-          onValueChange={(value) => {
-            setSupplier(value);
-            if (chosen && value !== ALL && (chosen.supplier || NO_SUPPLIER) !== value) {
-              setTyped("");
-              pick(undefined);
-            }
-          }}
-        >
-          <SelectTrigger className="h-12 w-full" aria-label={t("phone.supplier")}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>{t("phone.allSuppliers")}</SelectItem>
-            {unfilledOnly && suppliers.length === 0 && (
-              <SelectItem value={NO_SUPPLIER}>{t("phone.noSupplier")}</SelectItem>
-            )}
-            {suppliers.map(([id, name]) => (
-              <SelectItem key={id} value={id}>
-                {id === NO_SUPPLIER ? t("phone.noSupplier") : name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FieldWrapper>
+      {last && <LastSentNote last={last} />}
 
-      {/* One requirement met any one of three ways - the list, the QR or the
-          typed number - so no red star (「这些不一定要放红点」); the hint says it. */}
-      <FieldWrapper label={t("phone.machine")} required="quiet" hint={t("phone.machineAnyWay")}>
-        <div className="flex gap-2">
-          <Select
-            value={equipment}
-            onValueChange={(value) => {
-              setTyped("");
-              pick(rows.find((row) => row.id === value));
-            }}
-            disabled={!project}
-          >
-            <SelectTrigger className="h-12 min-w-0 flex-1" aria-label={t("phone.machine")}>
-              <SelectValue placeholder={t("phone.pickMachine")} />
-            </SelectTrigger>
-            <SelectContent>
-              {listed.map((row) => (
-                <SelectItem key={row.id} value={row.id}>
-                  {machineLabel(row)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {!machine ? (
+        <section className="space-y-3">
+          <p className="text-sm leading-5 text-muted-foreground">{t("phone.howTo")}</p>
           <Button
             type="button"
-            variant="outline"
-            className="h-12 shrink-0"
+            className="h-16 w-full text-base"
             requires={[[project, t("phone.project")]]}
-            onClick={() => setScanning(true)}
+            onClick={() => {
+              setError("");
+              setScanning(true);
+            }}
           >
-            <ScanLine />
-            {t("phone.scan")}
+            <ScanLine className="size-6" />
+            {t("phone.scanBig")}
           </Button>
-        </div>
-        <label className="flex items-center gap-2 pt-1">
-          <span className="shrink-0 text-sm text-muted-foreground">{t("phone.typeNumber")}</span>
-          <Input
-            className="h-12 min-w-0 flex-1"
-            value={typed}
-            maxLength={40}
-            autoCapitalize="characters"
-            autoComplete="off"
-            enterKeyHint="done"
-            disabled={!project}
-            placeholder={t("phone.typeNumberPlaceholder")}
-            onChange={(event) => typeNumber(event.target.value)}
-          />
-        </label>
-        {typed.trim() && machines.isSuccess ? (
-          typedMatch ? (
-            <p className="mt-1 text-xs font-medium text-primary" aria-live="polite">
-              {t("phone.typedFound", { machine: machineLabel(typedMatch) })}
-            </p>
+          {typing ? (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Input
+                  className="h-12 min-w-0 flex-1"
+                  value={typed}
+                  maxLength={40}
+                  aria-label={t("phone.typeNumber")}
+                  autoCapitalize="characters"
+                  autoComplete="off"
+                  enterKeyHint="go"
+                  placeholder={t("phone.typeNumberPlaceholder")}
+                  onChange={(event) => {
+                    setTyped(event.target.value);
+                    setError("");
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") takeTyped();
+                  }}
+                />
+                <Button type="button" className="h-12 shrink-0" onClick={takeTyped}>
+                  {t("phone.useNumber")}
+                </Button>
+              </div>
+              {typed.trim() && machines.isSuccess && !typedMatch ? (
+                <p className="text-xs font-medium text-destructive" aria-live="polite">
+                  {t("phone.typedNoMatch")}
+                </p>
+              ) : null}
+            </div>
           ) : (
-            <p className="mt-1 text-xs font-medium text-destructive" aria-live="polite">
-              {t("phone.typedNoMatch")}
-            </p>
-          )
-        ) : null}
-        {machines.isError ? (
-          <FieldLoadNote query={machines} what={t("phone.machines")} />
-        ) : machines.isSuccess && rows.length === 0 ? (
-          <p className="mt-1 text-xs text-muted-foreground">{t("phone.noMachines")}</p>
-        ) : null}
-        {chosen?.supplier_name ? (
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("phone.suppliedBy", { supplier: chosen.supplier_name })}
-          </p>
-        ) : null}
-      </FieldWrapper>
-
-      <FieldWrapper label={t("phone.kind")} required>
-        <div className="grid grid-cols-2 gap-2" role="group" aria-label={t("phone.kind")}>
-          {(["START", "FINISH"] as const).map((value) => (
             <button
-              key={value}
               type="button"
-              aria-pressed={kind === value}
-              onClick={() => setKind(value)}
-              className={cn(
-                "flex h-12 items-center justify-center gap-2 rounded-lg border text-sm font-medium",
-                kind === value
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "text-muted-foreground",
-              )}
+              className="flex w-full items-center justify-center gap-1.5 py-1 text-sm text-muted-foreground underline underline-offset-4"
+              onClick={() => setTyping(true)}
             >
-              {value === "START" ? <Play className="size-4" /> : <Square className="size-4" />}
-              {t(`kind.${value}`)}
+              <Keyboard className="size-4" />
+              {t("phone.brokenQr")}
             </button>
-          ))}
-        </div>
-        {chosen?.open_since ? (
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("phone.openSince", { start: df.dateTime(chosen.open_since) })}
-          </p>
-        ) : null}
-      </FieldWrapper>
+          )}
+          {machines.isError ? (
+            <FieldLoadNote query={machines} what={t("phone.machines")} />
+          ) : machines.isSuccess && rows.length === 0 ? (
+            <p className="text-xs text-muted-foreground">{t("phone.noMachines")}</p>
+          ) : null}
+          {error && <p className="text-sm text-destructive">{error}</p>}
+        </section>
+      ) : (
+        <section className="space-y-4">
+          {/* One line to check the scan (ID18): number and name, nothing else. */}
+          <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+            <p className="min-w-0 flex-1 truncate text-base font-semibold">
+              {t("phone.machineLine", { number: machineNumber(machine), name: machine.name })}
+            </p>
+            <Button type="button" variant="ghost" size="sm" onClick={reset}>
+              <X />
+              {t("phone.another")}
+            </Button>
+          </div>
 
-      <FieldWrapper label={t("phone.photo")} required>
-        <FieldCamera
-          label={shot ? t("phone.photoReady") : t("phone.takePhoto")}
-          file={shot}
-          fileCount={shot ? 1 : 0}
-          onCapture={setShot}
-          onClear={() => setShot(undefined)}
-        />
-      </FieldWrapper>
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label={t("phone.kind")}>
+            {(["START", "FINISH"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={kind === value}
+                onClick={() => setKind(value)}
+                className={cn(
+                  "flex h-12 items-center justify-center gap-2 rounded-lg border text-sm font-medium",
+                  kind === value
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "text-muted-foreground",
+                )}
+              >
+                {value === "START" ? <Play className="size-4" /> : <Square className="size-4" />}
+                {t(`kind.${value}`)}
+              </button>
+            ))}
+          </div>
+          {machine.open_since ? (
+            <p className="-mt-2 text-xs text-muted-foreground">
+              {t("phone.openSince", { start: df.dateTime(machine.open_since) })}
+            </p>
+          ) : null}
 
-      <LocationField
-        label={t("phone.location")}
-        actionLabel={t("phone.location")}
-        readyLabel={t("phone.locationReady")}
-        value={fix}
-        onChange={setFix}
-      />
+          <FieldWrapper label={t("phone.photo")} required="quiet" hint={t("phone.photoHint")}>
+            <FieldCamera
+              label={shot ? t("phone.photoReady") : t("phone.takePhoto")}
+              file={shot}
+              fileCount={shot ? 1 : 0}
+              onCapture={setShot}
+              onClear={() => setShot(undefined)}
+            />
+          </FieldWrapper>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+          <FieldSignaturePad
+            key={round}
+            label={t("phone.signature")}
+            clearLabel={t("phone.clearSignature")}
+            required="quiet"
+            hint={t("phone.signatureHint")}
+            value={signature}
+            onChange={setSignature}
+          />
 
-      <Button
-        className="h-12 w-full text-sm"
-        requires={[
-          [equipment, t("phone.machine")],
-          [shot, t("phone.photo")],
-        ]}
-        disabled={send.isPending}
-        onClick={() => send.mutate()}
-      >
-        {send.isPending ? <Loader2 className="animate-spin" /> : <Send />}
-        {t("phone.send", { kind: t(`kind.${kind}`) })}
-      </Button>
+          <LocationField
+            label={t("phone.location")}
+            actionLabel={t("phone.location")}
+            readyLabel={t("phone.locationReady")}
+            value={fix}
+            onChange={setFix}
+          />
 
-      {last && <LastSentNote last={last} />}
+          {error && <p className="text-sm text-destructive">{error}</p>}
+
+          <Button
+            className="h-12 w-full text-sm"
+            requires={[
+              [shot, t("phone.photo")],
+              [signature, t("phone.signature")],
+            ]}
+            disabled={send.isPending}
+            onClick={() => send.mutate()}
+          >
+            {send.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+            {t("phone.send", { kind: t(`kind.${kind}`) })}
+          </Button>
+        </section>
+      )}
 
       <SupplierQrScanner
         open={scanning}
@@ -424,8 +438,6 @@ export function EquipmentHoursCapture({
             setError(t("phone.qrNoMatch", { text: text.slice(0, 60) }));
             return;
           }
-          setSupplier(ALL);
-          setTyped("");
           pick(found);
         }}
       />
@@ -433,43 +445,22 @@ export function EquipmentHoursCapture({
   );
 }
 
-/** What the phone says after a photo: the session so far, or that it waits. */
+/** The one line over the scan button after a photo: 「已提交：12 号 收工 19:23」. */
 export function LastSentNote({ last }: { last: LastSent }) {
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
-  const session = last.status === "uploaded" ? last.session : null;
+  const values = { number: last.number, kind: t(`kind.${last.kind}`), time: df.time(last.at) };
   return (
-    <section className="rounded-lg border bg-card p-3 text-sm" aria-live="polite">
-      <p className="font-semibold">
-        {t(`kind.${last.kind}`)} · {last.label}
-      </p>
+    <p
+      className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-2 text-sm"
+      aria-live="polite"
+    >
       {last.status === "queued" ? (
-        <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
-          <CloudOff className="size-4" />
-          {t("phone.queued")}
-        </p>
-      ) : session ? (
-        <div className="mt-1 space-y-1">
-          {session.missing_start ? (
-            <StatusBadge label={t("phone.missingStart")} tone="warning" />
-          ) : session.missing_end ? (
-            <>
-              <p className="text-muted-foreground">
-                {t("phone.started", { start: df.dateTime(session.start_at) })}
-              </p>
-              <StatusBadge label={t("phone.stopHint")} tone="warning" />
-            </>
-          ) : (
-            <p>
-              {t("phone.soFar", {
-                start: df.dateTime(session.start_at),
-                end: df.dateTime(session.end_at),
-                hours: session.hours,
-              })}
-            </p>
-          )}
-        </div>
-      ) : null}
-    </section>
+        <CloudOff className="size-4 shrink-0 text-muted-foreground" />
+      ) : (
+        <CheckCircle2 className="size-4 shrink-0 text-primary" />
+      )}
+      {last.status === "queued" ? t("phone.sentQueued", values) : t("phone.sent", values)}
+    </p>
   );
 }

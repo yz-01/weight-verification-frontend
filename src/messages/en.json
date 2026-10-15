@@ -7771,7 +7771,9 @@
       "role_template_not_found": "There is no preset role with that name.",
       "role_already_exists": "This company already has that role.",
       "export_too_many_photos": "This export holds {count} photos; one file takes at most {limit}. Shorten the dates and export again.",
-      "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it."
+      "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it.",
+      "equipment_hours_already_started": "This machine is already started. Take the stop photo.",
+      "equipment_hours_not_started": "This machine has not been started yet."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -17333,7 +17335,11 @@
       "equipment": "Equipment",
       "allEquipment": "All equipment",
       "search": "Plate / number",
-      "searchPlaceholder": "Plate, equipment no. or site no."
+      "searchPlaceholder": "Plate, equipment no. or site no.",
+      "scan": "Scan machine QR",
+      "scanTitle": "Scan the machine's QR code",
+      "scanHelp": "Hold the machine's QR sticker up to the camera.",
+      "scanNoMatch": "That QR code is not one of the machines with hours here."
     },
     "field": {
       "date": "Date",
@@ -17357,7 +17363,14 @@
       "incomplete": "Missing start / stop",
       "adjustedCount": "Changed by the office",
       "actions": "Actions",
-      "siteNo": "Site no."
+      "siteNo": "Site no.",
+      "machineNo": "Machine no.",
+      "equipmentName": "Machine",
+      "operator": "Operator",
+      "cidb": "CIDB card no.",
+      "startTime": "Start time",
+      "endTime": "Stop time",
+      "view": "View"
     },
     "status": {
       "MISSING_END": "No stop photo",
@@ -17396,7 +17409,8 @@
     },
     "dialog": {
       "summary": "Start {start} · End {end} · {hours} h",
-      "photos": "Photos"
+      "photos": "Photos",
+      "signature": "Driver signature - {kind}"
     },
     "history": {
       "title": "Change history",
@@ -17411,10 +17425,11 @@
       "endSaved": "End time saved",
       "startSaved": "Start time saved",
       "siteNoSaved": "Site number saved",
-      "siteNoCleared": "Site number cleared"
+      "siteNoCleared": "Site number cleared",
+      "operatorSaved": "Operator saved"
     },
     "phone": {
-      "howTo": "When you start the machine, choose Start and take a photo; when you stop, choose Stop and take another. Each start and its stop is one entry of hours.",
+      "howTo": "Scan the QR on the machine → photo → driver signs → send. Then scan the next one.",
       "project": "Project",
       "supplier": "Supplier",
       "allSuppliers": "All suppliers",
@@ -17447,7 +17462,18 @@
       "typeNumber": "Type number",
       "typeNumberPlaceholder": "Number on the machine, e.g. 12",
       "typedFound": "Found: {machine}",
-      "typedNoMatch": "No machine has this number"
+      "typedNoMatch": "No machine has this number",
+      "scanBig": "Scan machine QR code",
+      "brokenQr": "QR damaged? Type the number",
+      "useNumber": "OK",
+      "machineLine": "No. {number} · {name}",
+      "another": "Other machine",
+      "photoHint": "Take one photo of the machine.",
+      "signature": "Driver signature",
+      "signatureHint": "The driver signs here.",
+      "clearSignature": "Sign again",
+      "sent": "Sent: no. {number} {kind} {time}",
+      "sentQueued": "Saved on the phone, sends when online: no. {number} {kind} {time}"
     },
     "siteNo": {
       "open": "Machine numbers",
@@ -17462,6 +17488,25 @@
       "save": "Save",
       "failed": "Could not save. Please try again.",
       "close": "Close"
+    },
+    "operator": {
+      "title": "Operator",
+      "help": "Machine {machine} · {date}: who actually drove it. The phone does not ask.",
+      "name": "Operator name",
+      "cidb": "CIDB card no.",
+      "wholeDay": "Use for all of this machine's hours that day",
+      "save": "Save",
+      "cancel": "Cancel",
+      "failed": "Could not save. Please try again.",
+      "fill": "Fill in",
+      "edit": "Change operator",
+      "none": "The office has not filled in the operator yet.",
+      "history": "Operator history"
+    },
+    "supplierTotals": {
+      "title": "{supplier}: hours per machine",
+      "total": "Company total (hours)",
+      "sessions": "{count} time(s)"
     }
   },
   "theme": {

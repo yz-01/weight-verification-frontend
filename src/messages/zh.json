@@ -7771,7 +7771,9 @@
       "role_template_not_found": "找不到这个预设角色。",
       "role_already_exists": "本公司已经有这个角色。",
       "export_too_many_photos": "这次导出共有 {count} 张照片，一次最多 {limit} 张。请缩短日期范围后再导出。",
-      "receipt_needs_supplier": "这批材料还没有供应商。请先按「补供应商」填上，再验收。"
+      "receipt_needs_supplier": "这批材料还没有供应商。请先按「补供应商」填上，再验收。",
+      "equipment_hours_already_started": "这部设备已开工，请拍收工。",
+      "equipment_hours_not_started": "这部设备还没开工。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -17333,7 +17335,11 @@
       "equipment": "设备",
       "allEquipment": "全部设备",
       "search": "车牌 / 编号",
-      "searchPlaceholder": "车牌、设备编号或现场编号"
+      "searchPlaceholder": "车牌、设备编号或现场编号",
+      "scan": "扫码找设备",
+      "scanTitle": "扫设备二维码",
+      "scanHelp": "把设备二维码贴纸对准摄像头。",
+      "scanNoMatch": "这个二维码对不上有工时记录的设备。"
     },
     "field": {
       "date": "日期",
@@ -17357,7 +17363,14 @@
       "incomplete": "缺开工 / 收工",
       "adjustedCount": "后台修改次数",
       "actions": "操作",
-      "siteNo": "现场编号"
+      "siteNo": "现场编号",
+      "machineNo": "设备编号",
+      "equipmentName": "设备名称",
+      "operator": "操作人员",
+      "cidb": "CIDB 卡号",
+      "startTime": "开工时间",
+      "endTime": "收工时间",
+      "view": "查看"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -17396,7 +17409,8 @@
     },
     "dialog": {
       "summary": "开始 {start} · 结束 {end} · {hours} 小时",
-      "photos": "照片"
+      "photos": "照片",
+      "signature": "{kind}司机签名"
     },
     "history": {
       "title": "修改记录",
@@ -17411,10 +17425,11 @@
       "endSaved": "结束时间已保存",
       "startSaved": "开始时间已保存",
       "siteNoSaved": "现场编号已保存",
-      "siteNoCleared": "现场编号已清除"
+      "siteNoCleared": "现场编号已清除",
+      "operatorSaved": "操作人员已保存"
     },
     "phone": {
-      "howTo": "开工时选「开工」拍一张，收工时选「收工」再拍一张。每一对开工和收工算一笔工时。",
+      "howTo": "扫设备上的二维码 → 拍照 → 司机签名 → 提交。提交后可以接着扫下一部。",
       "project": "项目",
       "supplier": "供应商",
       "allSuppliers": "全部供应商",
@@ -17447,7 +17462,18 @@
       "typeNumber": "输入编号",
       "typeNumberPlaceholder": "设备上的编号，例如 12",
       "typedFound": "找到：{machine}",
-      "typedNoMatch": "找不到这个编号"
+      "typedNoMatch": "找不到这个编号",
+      "scanBig": "扫描设备二维码",
+      "brokenQr": "二维码坏了？输入编号",
+      "useNumber": "确定",
+      "machineLine": "{number} 号 · {name}",
+      "another": "换一部",
+      "photoHint": "拍一张设备照片。",
+      "signature": "司机签名",
+      "signatureHint": "请司机在这里签名。",
+      "clearSignature": "重签",
+      "sent": "已提交：{number} 号 {kind} {time}",
+      "sentQueued": "已存在手机，有网络会自动上传：{number} 号 {kind} {time}"
     },
     "siteNo": {
       "open": "设备编号管理",
@@ -17462,6 +17488,25 @@
       "save": "保存",
       "failed": "保存失败，请再试一次。",
       "close": "关闭"
+    },
+    "operator": {
+      "title": "操作人员",
+      "help": "{machine} 号 · {date}：填写当天实际操作的人。手机不用填。",
+      "name": "操作人员姓名",
+      "cidb": "CIDB 卡号",
+      "wholeDay": "套用到当天这部设备的全部工时",
+      "save": "保存",
+      "cancel": "取消",
+      "failed": "保存失败，请再试一次。",
+      "fill": "填写",
+      "edit": "修改操作人员",
+      "none": "后台还没填操作人员。",
+      "history": "操作人员记录"
+    },
+    "supplierTotals": {
+      "title": "{supplier} 的设备工时",
+      "total": "这家公司合计（小时）",
+      "sessions": "{count} 次"
     }
   },
   "theme": {
