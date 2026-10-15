@@ -30,8 +30,10 @@ import {
   createConsultantFieldSubmission,
   createMaterialOutgoing,
   createSiteProgressRecord,
+  applyEquipmentExit,
   recordEquipmentEntry,
   recordEquipmentExit,
+  recordEquipmentExitHandover,
   recordEquipmentMovement,
   returnMaterialOutgoingProcessing,
 } from "@/services/contractor-ops.service";
@@ -356,10 +358,61 @@ async function sendJob(job: OfflineJob): Promise<void> {
     return;
   }
 
+  if (job.kind === "EQUIPMENT_MOVEMENT" && job.payload.apply_exit) {
+    // 设备退场申请 (2026-10 I13): the same client_event_id on every retry, so
+    // a resend is the same application.
+    const apply = job.payload;
+    await applyEquipmentExit({
+      project: apply.project,
+      equipment: apply.equipment,
+      notes: apply.notes ?? "",
+      latitude: apply.latitude,
+      longitude: apply.longitude,
+      accuracy_m: apply.accuracy_m,
+      field_task: apply.field_task,
+      original_occurred_at: apply.original_occurred_at,
+      client_event_id: apply.client_event_id,
+      photos: apply.photos.map(restoreFile),
+    });
+    return;
+  }
+
+  if (job.kind === "EQUIPMENT_MOVEMENT" && job.payload.exit_handover && job.payload.movement) {
+    // 现场实际退场 of an approved exit (I13): a replay of the same event is
+    // answered with the exit already recorded.
+    const handover = job.payload;
+    await recordEquipmentExitHandover({
+      movement: job.payload.movement,
+      scanned_equipment: handover.scanned_equipment ?? "",
+      delivery_note_no: handover.delivery_note_no ?? "",
+      supplier: handover.supplier,
+      vehicle_plate: handover.vehicle_plate,
+      latitude: handover.latitude,
+      longitude: handover.longitude,
+      accuracy_m: handover.accuracy_m,
+      ocr_confirmed: handover.ocr_confirmed,
+      ocr_proof: handover.ocr_proof,
+      original_occurred_at: handover.original_occurred_at,
+      client_event_id: handover.client_event_id,
+      photos: handover.photos.map(restoreFile),
+      delivery_note_photo: handover.delivery_note_photo
+        ? restoreFile(handover.delivery_note_photo)
+        : undefined,
+      receiver_signature: handover.receiver_signature
+        ? restoreFile(handover.receiver_signature)
+        : undefined,
+      supplier_signature: handover.supplier_signature
+        ? restoreFile(handover.supplier_signature)
+        : undefined,
+    });
+    return;
+  }
+
   if (job.kind === "EQUIPMENT_MOVEMENT" && (job.payload.entry || job.payload.exit)) {
     // One movement is one machine (F3): no quantity, unit or application.
-    // The exit goes the entry's way since Q27; the job carries the one
-    // client_event_id across every retry, so a resend is the same movement.
+    // An entry; or a one-step exit an older build queued (Q27), which the
+    // server now files as an exit application (I13). The job carries the
+    // one client_event_id across every retry, so a resend is the same one.
     const entry = job.payload;
     const movement = {
       project: entry.project,
@@ -987,6 +1040,26 @@ export async function submitMaterialOutgoingExitOfflineAware(
       supplier_signature: storeFile(draft.supplier_signature),
     },
   });
+}
+
+/**
+ * Whether this phone already holds the actual exit of that approved machine
+ * exit (2026-10 I13), or an application for that machine, waiting to go.
+ */
+export async function queuedEquipmentExit(
+  ownerId: string,
+  match: { movement?: string; equipment?: string },
+): Promise<boolean> {
+  return (await getOfflineJobs(ownerId)).some(
+    (job) =>
+      job.kind === "EQUIPMENT_MOVEMENT" &&
+      ((match.movement !== undefined &&
+        job.payload.exit_handover === true &&
+        job.payload.movement === match.movement) ||
+        (match.equipment !== undefined &&
+          (job.payload.apply_exit === true || job.payload.exit === true) &&
+          job.payload.equipment === match.equipment)),
+  );
 }
 
 /** Whether this phone already holds an exit for that return, waiting to go. */

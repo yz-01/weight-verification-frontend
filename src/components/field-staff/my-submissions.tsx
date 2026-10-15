@@ -42,6 +42,7 @@ import {
 import { useTranslations } from "next-intl";
 
 import { recordStatusLabel } from "@/lib/record-status";
+import { movementStatusKey, offersEquipmentExit } from "@/lib/equipment-exit";
 
 /**
  * The phone names a site record's status the way its own task list does
@@ -49,8 +50,23 @@ import { recordStatusLabel } from "@/lib/record-status";
  */
 const PHONE_STATUS = { SITE_RECORD: "fieldStaffPwa.status" };
 
+/**
+ * A row's status as the phone says it. An equipment movement says its way and
+ * where it stands - 「退场 · 已批准，等待退场」 (2026-10 I13) - since an exit
+ * is applied for, approved and recorded in steps.
+ */
+function submissionStatusText(
+  t: ReturnType<typeof useTranslations>,
+  row: MySubmissionRow,
+): string {
+  const base = recordStatusLabel(t, row, PHONE_STATUS);
+  if (row.kind !== "EQUIPMENT_MOVEMENT" || !row.movement_status) return base;
+  return `${base} · ${t(`contractorOps.${movementStatusKey(row.status, row.movement_status)}`)}`;
+}
+
 import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
+import { EquipmentExitHandoverDialog } from "@/components/contractor-ops/equipment-exit";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -373,7 +389,7 @@ export function MySubmissions({
                     {row.project_name ? ` · ${row.project_name}` : ""}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {formatter.dateTime(row.submitted_at)} · {recordStatusLabel(t, row, PHONE_STATUS)}
+                    {formatter.dateTime(row.submitted_at)} · {submissionStatusText(t, row)}
                   </p>
                 </div>
                 {row.kind === "HAZARD" && onOpenHazard ? (
@@ -580,6 +596,11 @@ function StoredDetailSheet({
   const formatter = useDateFormat();
   const queryClient = useQueryClient();
   const [returning, setReturning] = useState(false);
+  // 已批准 / 等待退场 of a machine (2026-10 I13): its actual exit is done
+  // from here, as material's is.
+  const [leaving, setLeaving] = useState(false);
+  const closedApplication =
+    RETURNED_STATUSES.has(row.status) || RETURNED_STATUSES.has(row.movement_status ?? "");
   const detail = useQuery({
     queryKey: ["my-submissions", "detail", row.kind, row.id],
     queryFn: () => getSubmissionDetail(row.kind, row.id),
@@ -589,7 +610,7 @@ function StoredDetailSheet({
     <RecordDetailDialog
       title={row.reference}
       description={`${t(`mySubmissions.kind.${row.kind}`)} · ${formatter.dateTime(row.submitted_at)}`}
-      status={<StatusBadge label={recordStatusLabel(t, row, PHONE_STATUS)} tone="neutral" />}
+      status={<StatusBadge label={submissionStatusText(t, row)} tone="neutral" />}
       onClose={onClose}
     >
       {detail.isLoading ? (
@@ -621,7 +642,7 @@ function StoredDetailSheet({
           */
           notices={
             <>
-              {RETURNED_STATUSES.has(row.status) && (
+              {closedApplication && (
                 <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
                   {t("mySubmissions.returnedClosed")}
                 </p>
@@ -656,12 +677,17 @@ function StoredDetailSheet({
             here because this is where the worker looks for what they sent.
           */
           actions={
-            row.kind === "MATERIAL_OUTGOING" && row.status === "APPROVED" && (
+            row.kind === "MATERIAL_OUTGOING" && row.status === "APPROVED" ? (
               <Button className="h-12 w-full" onClick={() => setReturning(true)}>
                 <Camera />
                 {t("contractorOps.outgoing.returnProcessing")}
               </Button>
-            )
+            ) : offersEquipmentExit(row) && row.machine ? (
+              <Button className="h-12 w-full" onClick={() => setLeaving(true)}>
+                <Camera />
+                {t("contractorOps.equipmentExit.handover")}
+              </Button>
+            ) : null
           }
           // The payment result on the applicant's own record (第 57 条):
           // 「手机端只需要把最终付款结果显示出来即可」.
@@ -703,6 +729,20 @@ function StoredDetailSheet({
               <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
             )
           }
+        />
+      )}
+      {leaving && row.machine && (
+        <EquipmentExitHandoverDialog
+          movementId={row.id}
+          project={row.project_id ?? ""}
+          machine={row.machine}
+          onClose={() => setLeaving(false)}
+          onSaved={() => {
+            setLeaving(false);
+            void queryClient.invalidateQueries({ queryKey: ["my-submissions"] });
+            void queryClient.invalidateQueries({ queryKey: ["site-equipment"] });
+            onClose();
+          }}
         />
       )}
       {returning && (

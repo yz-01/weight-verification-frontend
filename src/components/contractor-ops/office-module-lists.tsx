@@ -28,6 +28,8 @@ import {
   PackageMinus,
   Pencil,
   Plus,
+  Printer,
+  QrCode,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -35,8 +37,14 @@ import Link from "next/link";
 import { MaterialTabs } from "@/components/receipts/material-tabs";
 import {
   EquipmentMovementActions,
+  equipmentReturnNoteSource,
   movementTone,
 } from "@/components/contractor-ops/equipment-applications";
+import { EquipmentQrDialog } from "@/components/contractor-ops/equipment-qr";
+import { ReturnNotePanel } from "@/components/contractor-ops/return-note";
+import { useFileActions } from "@/components/shared/file-actions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { movementStatusKey } from "@/lib/equipment-exit";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -102,6 +110,7 @@ import {
   exportEquipmentMovements,
   exportEquipmentRegister,
   exportMaterialOutgoing,
+  equipmentQrStickers,
   addProgressPhotos,
   addProgressRemark,
   exportSiteProgressRecords,
@@ -517,6 +526,13 @@ export function SiteEquipmentOffice() {
     "expiring",
     // One machine's entries and exits, from its profile (2026-10 B2).
     "equipment",
+    // By supplier and by date (2026-10 I5): chosen from a list, kept in the
+    // address, and read by the export too. The server has always taken them
+    // (`_movement_queryset`: the supplier scanned at the movement, else the
+    // machine's).
+    "supplier",
+    "date_from",
+    "date_to",
   ]);
   // The dashboard's expiring-certificates card links here with ?expiring=1,
   // which is a question about machines, so it opens the register.
@@ -545,6 +561,11 @@ export function SiteEquipmentOffice() {
   const [moving, setMoving] = useState<{ machine: SiteEquipment; movement: EquipmentMovement } | null>(null);
   const [viewingMovement, setViewingMovement] =
     useState<EquipmentMovement | null>(null);
+  // 设备清单's QR (2026-10 I24, ID59): one machine's code, and the machines
+  // ticked for a sheet of stickers.
+  const [qrMachine, setQrMachine] = useState<SiteEquipment | null>(null);
+  const [ticked, setTicked] = useState<string[]>([]);
+  const stickers = useFileActions();
   const [viewingMachine, setViewingMachine] = useState<SiteEquipment | null>(
     null,
   );
@@ -651,9 +672,10 @@ export function SiteEquipmentOffice() {
         id: "status",
         meta: { label: t("field.status") },
         header: () => <PlainHeader label={t("field.status")} />,
+        // An exit's states read like material leaving site (I13).
         cell: ({ row }) => (
           <StatusBadge
-            label={t(`equipmentMovementStatus.${row.original.status ?? "COMPLETED"}`)}
+            label={t(movementStatusKey(row.original.direction, row.original.status))}
             tone={movementTone(row.original.status)}
           />
         ),
@@ -711,8 +733,66 @@ export function SiteEquipmentOffice() {
     [t, tRoot, df],
   );
 
+  const pageMachines = machines.data?.results;
   const machineColumns = useMemo<ColumnDef<SiteEquipment, unknown>[]>(
     () => [
+      {
+        // Tick machines for one sheet of QR stickers (I24, ID59). Its own
+        // click: ticking does not open the machine.
+        id: "qrSelect",
+        enableHiding: false,
+        header: () => {
+          const onPage = (pageMachines ?? []).map((row) => row.id);
+          const all = onPage.length > 0 && onPage.every((id) => ticked.includes(id));
+          const some = onPage.some((id) => ticked.includes(id));
+          return (
+            <Checkbox
+              checked={all ? true : some ? "indeterminate" : false}
+              disabled={onPage.length === 0}
+              aria-label={t("equipmentQr.tickAll")}
+              title={t("equipmentQr.tickAll")}
+              onCheckedChange={(next) =>
+                setTicked((current) =>
+                  next === true
+                    ? [...current.filter((id) => !onPage.includes(id)), ...onPage]
+                    : current.filter((id) => !onPage.includes(id)),
+                )
+              }
+            />
+          );
+        },
+        cell: ({ row }) => (
+          <span
+            className="inline-flex"
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <Checkbox
+              checked={ticked.includes(row.original.id)}
+              aria-label={t("equipmentQr.tick", { name: row.original.name })}
+              onCheckedChange={(next) =>
+                setTicked((current) =>
+                  next === true
+                    ? [...current.filter((id) => id !== row.original.id), row.original.id]
+                    : current.filter((id) => id !== row.original.id),
+                )
+              }
+            />
+          </span>
+        ),
+      },
+      {
+        // 设备编号 (IB18, I24): the number the office gives the machine on
+        // site and prints big on its QR sticker. Set on 设备编号管理.
+        id: "site_no",
+        meta: { label: t("equipmentQr.siteNo") },
+        header: () => <PlainHeader label={t("equipmentQr.siteNo")} />,
+        cell: ({ row }) => (
+          <span className="tabular font-medium text-foreground">
+            {row.original.site_no || "—"}
+          </span>
+        ),
+      },
       {
         // 「编号」 is the plate (2026-10 A8, X4): what the office reads off the
         // machine. The register's own number stays underneath, short (D4).
@@ -809,8 +889,33 @@ export function SiteEquipmentOffice() {
           <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
+      {
+        // The machine's own QR code (I24, ID59): shown, printed, downloaded.
+        id: "qr",
+        enableHiding: false,
+        meta: { label: t("equipmentQr.column") },
+        header: () => <PlainHeader label={t("equipmentQr.column")} />,
+        cell: ({ row }) => (
+          <span
+            className="inline-flex"
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-primary hover:bg-primary/10"
+              title={t("equipmentQr.open")}
+              aria-label={t("equipmentQr.open")}
+              onClick={() => setQrMachine(row.original)}
+            >
+              <QrCode className="h-3.5 w-3.5" />
+            </Button>
+          </span>
+        ),
+      },
     ],
-    [t, tRoot],
+    [t, tRoot, ticked, pageMachines],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -870,6 +975,8 @@ export function SiteEquipmentOffice() {
         }
       />
       <QueryFailedNote query={summary} what={t("what.equipmentSummary")} />
+      {/* 供应商 and 日期 (I5): with 分类 and 进退场, all at once. */}
+      {!register && <SupplierDateListFilter list={list} />}
       {/* Opened from a machine's profile (B2): its entries and exits only. */}
       {list.filters.equipment && !register && (
         <p className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-xs">
@@ -914,6 +1021,9 @@ export function SiteEquipmentOffice() {
                   uncategorised: undefined,
                   expiring: undefined,
                   equipment: undefined,
+                  supplier: undefined,
+                  date_from: undefined,
+                  date_to: undefined,
                   // 「待处理」 is the movements' (the register has none).
                   needs_action: undefined,
                 })
@@ -955,6 +1065,23 @@ export function SiteEquipmentOffice() {
             <>
               <ProjectListFilter list={list} />
               <ColumnFilter list={list} kind="EQUIPMENT" />
+              {/* A sheet of QR stickers for the ticked machines (I24, ID59). */}
+              <Button
+                variant="outline"
+                disabled={ticked.length === 0 || Boolean(stickers.busy)}
+                disabledReason={ticked.length === 0 ? t("equipmentQr.tickFirst") : t("equipmentQr.preparing")}
+                onClick={() =>
+                  void stickers.run("preview", {
+                    load: () => equipmentQrStickers(ticked),
+                    title: t("equipmentQr.stickersTitle"),
+                  })
+                }
+              >
+                {stickers.busy ? <Loader2 className="animate-spin" /> : <Printer />}
+                {ticked.length > 0
+                  ? t("equipmentQr.printTicked", { count: ticked.length })
+                  : t("equipmentQr.print")}
+              </Button>
               {/* The register listed, as a file (H16, HD13). */}
               <ExportButton
                 disabled={!machines.data?.count}
@@ -1071,7 +1198,7 @@ export function SiteEquipmentOffice() {
                 label: t("field.status"),
                 value: (
                   <StatusBadge
-                    label={t(`equipmentMovementStatus.${shownMovement.status ?? "COMPLETED"}`)}
+                    label={t(movementStatusKey(shownMovement.direction, shownMovement.status))}
                     tone={movementTone(shownMovement.status)}
                   />
                 ),
@@ -1102,6 +1229,24 @@ export function SiteEquipmentOffice() {
                           : "equipment.returnReason",
                       ),
                       value: shownMovement.review_note,
+                      wide: true,
+                    },
+                  ]
+                : []),
+              // The office's final 确认 of an exit approved first (I13).
+              ...(shownMovement.accepted_by_name
+                ? [
+                    {
+                      label: t("equipment.acceptedBy"),
+                      value: `${shownMovement.accepted_by_name}${shownMovement.accepted_at ? ` · ${df.dateTime(shownMovement.accepted_at)}` : ""}`,
+                    },
+                  ]
+                : []),
+              ...(shownMovement.acceptance_note
+                ? [
+                    {
+                      label: t("equipment.acceptance.reason"),
+                      value: shownMovement.acceptance_note,
                       wide: true,
                     },
                   ]
@@ -1166,9 +1311,18 @@ export function SiteEquipmentOffice() {
             photos={shownMovement.photos.map((photo) => ({
               id: photo.id,
               url: photo.watermarked || photo.image,
-              label: tRoot(
-                `moduleTable.equipmentPhoto.${photo.kind in PHOTO_KIND ? photo.kind : "OTHER"}`,
-              ),
+              // An exit's application photographs apart from its handover's
+              // (I13), as material leaving site keeps them.
+              label: [
+                photo.stage === "APPLICATION" ? t("equipmentExit.photoStage.APPLICATION") : "",
+                photo.kind === "SIGNATURE"
+                  ? t("equipmentExit.signaturePhoto")
+                  : tRoot(
+                      `moduleTable.equipmentPhoto.${photo.kind in PHOTO_KIND ? photo.kind : "OTHER"}`,
+                    ),
+              ]
+                .filter(Boolean)
+                .join(" · "),
               // The photo's own time and fix, else the entry's (2026-10-09).
               ...photoMeta(photo, shownMovement),
             }))}
@@ -1184,6 +1338,16 @@ export function SiteEquipmentOffice() {
               ) : null
             }
             panel={
+              <div className="flex flex-col gap-3">
+              {/* The Return Note an exit is approved on (I13), as on
+                  material leaving site. */}
+              {shownMovement.direction === "EXIT" &&
+                (shownMovement.has_return_note || shownMovement.status === "PENDING") && (
+                  <ReturnNotePanel
+                    machine
+                    row={equipmentReturnNoteSource(shownMovement, t("equipmentExit.unitMachine"))}
+                  />
+                )}
               <section className="rounded-lg border bg-card p-3">
                 <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {tRoot("moduleTable.deliveryPanel")}
@@ -1209,6 +1373,7 @@ export function SiteEquipmentOffice() {
                   </dd>
                 </dl>
               </section>
+              </div>
             }
             signatures={(
               [
@@ -1248,6 +1413,9 @@ export function SiteEquipmentOffice() {
           />
         </RecordDetailDialog>
       )}
+
+      {qrMachine && <EquipmentQrDialog machine={qrMachine} onClose={() => setQrMachine(null)} />}
+      {stickers.element}
 
       {shownMachine && (
         <RecordDetailDialog

@@ -162,6 +162,12 @@ import { getRoles } from "@/services/users.service";
 import { OutgoingSupplierField } from "@/components/contractor-ops/outgoing-supplier-field";
 import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/return-note";
 import {
+  EquipmentExitApplyDialog,
+  EquipmentExitHandoverDialog,
+  MachineScanButton,
+} from "@/components/contractor-ops/equipment-exit";
+import { exitStep } from "@/lib/equipment-exit";
+import {
   SupplierReturnBadge,
   type ReturnBadgeSupplier,
 } from "@/components/suppliers/supplier-return-badge";
@@ -1745,7 +1751,7 @@ export function machineLabeller(rows: readonly SiteEquipment[]) {
 }
 
 /**
- * The phone's 设备进退场 (D-273, T-393; 2026-10 C8, F3, A9, Q27).
+ * The phone's 设备进退场 (D-273, T-393; 2026-10 C8, F3, A9, I13, I22, I24).
  *
  * 「设备进退场的数据是不需要显示的，他们的工作就只是拍照而已」: the field
  * worker takes the photos, the office reads the figures. So this screen has no
@@ -1753,14 +1759,22 @@ export function machineLabeller(rows: readonly SiteEquipment[]) {
  * office list (`SiteEquipmentOffice`).
  *
  * What is left: the project (locked to the worker's site), 进场 or 退场, and
- * one dropdown, 「名称 · 车牌」 with no category anywhere on the phone (F3).
- * 进场 offers 「新设备」 first, because nobody knows in advance which machine
- * will arrive (Lucas 2026-10-07), then the machines on file that are not on
- * site, for one coming back. 退场 offers the machines on site on this
- * project (Q27). Either way the movement is taken in one step like 材料进场
- * (X2): photos, DO, the supplier's QR, both signatures, GPS - and the office
- * accepts it. A machine whose movement is waiting for that says so instead of
- * offering a second one. Nothing is applied for (F3: no 「申请」 on the phone).
+ * one dropdown, 「名称 · 车牌」 with no category anywhere on the phone (F3),
+ * with 「扫描设备二维码」 beside it (I24, ID60). 进场 offers 「新设备」 first,
+ * because nobody knows in advance which machine will arrive (Lucas
+ * 2026-10-07), then the machines on file that are not on site, for one coming
+ * back; it is taken in one step like 材料进场 (X2) and the office accepts it.
+ * 退场 offers the machines on site on this project and goes the way material
+ * leaves site (I13, ID30): 申请退场 → the office approves on its Return Note →
+ * 实际退场 here → the office confirms. The step a machine is at is said beside
+ * it, and only the next step is offered.
+ *
+ * No red stars (I22, ID56): each field says in a line what it needs, and the
+ * submit button names what is missing.
+ *
+ * Opened from a scanned sticker (`/scan/equipment`), the address names the
+ * machine and the way (`?machine=&direction=`): it is chosen until the
+ * worker picks another.
  *
  * Only the phone mounts this component (field-records-panel.tsx).
  */
@@ -1774,11 +1788,35 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   // Kept in the draft, so tapping this 挂号 again reopens the way, the
   // machine and the form it was in (D-259). Outside a draft this is ordinary
   // state.
-  const [direction, setDirection] = useDraftState<"ENTRY" | "EXIT">(
+  const [draftDirection, setDraftDirection] = useDraftState<"ENTRY" | "EXIT">(
     "open:equipmentDirection",
     searchParams.get("direction") === "EXIT" ? "EXIT" : "ENTRY",
   );
-  const [chosen, setChosen] = useDraftState("open:chosenEquipment", "");
+  const [draftChosen, setDraftChosen] = useDraftState("open:chosenEquipment", "");
+  // A machine named by the address (a scanned sticker, I24) wins over the
+  // draft until the worker chooses for themselves.
+  const linkedMachine = searchParams.get("machine") ?? "";
+  const [linkSettled, setLinkSettled] = useState(false);
+  const followLink = Boolean(linkedMachine) && !linkSettled;
+  const direction: "ENTRY" | "EXIT" = followLink
+    ? searchParams.get("direction") === "EXIT"
+      ? "EXIT"
+      : "ENTRY"
+    : draftDirection;
+  const chosen = followLink ? linkedMachine : draftChosen;
+  const choose = (next: string, way: "ENTRY" | "EXIT" = direction) => {
+    setLinkSettled(true);
+    setDraftDirection(way);
+    setDraftChosen(next);
+    if (linkedMachine) {
+      // The link has done its job: coming back to this screen later starts
+      // from the worker's own choice, not the sticker scanned before.
+      const url = new URL(window.location.href);
+      url.searchParams.delete("machine");
+      url.searchParams.delete("direction");
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+  };
   const [entering, setEntering] = useDraftState("open:enteringEquipment", false);
   const rows = useQuery({
     queryKey: ["site-equipment", "field", project],
@@ -1790,7 +1828,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   });
   const going = direction === "EXIT";
   // A machine switched off is not offered for a new entry or exit. 退场 takes
-  // a machine on site on this project; 进场 one that is not (Q27).
+  // a machine on site on this project; 进场 one that is not.
   const equipment = (rows.data?.results ?? []).filter((row) => row.is_active);
   const offered = equipment.filter((row) => (row.status === "ON_SITE") === going);
   const machine = offered.find((row) => row.id === chosen) ?? null;
@@ -1799,14 +1837,22 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
     void qc.invalidateQueries({ queryKey: ["site-equipment"] });
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
     void qc.invalidateQueries({ queryKey: ["equipment-summary"] });
+    void qc.invalidateQueries({ queryKey: ["equipment-exit"] });
+    void qc.invalidateQueries({ queryKey: ["my-submissions"] });
   };
   const equipmentError =
     rows.error instanceof Error ? rows.error.message : undefined;
   const label = machineLabeller(equipment);
-  // 「进场待验收」 / 「退场待验收」: already submitted this way, so not again.
-  const waitingWord = t(going ? "equipment.exitWaiting" : "equipment.entryWaiting");
-  const isWaiting = (row: SiteEquipment) => row.awaiting_acceptance === direction;
-  const waiting = machine ? isWaiting(machine) : false;
+  // 「进场待验收」 for an entry; for an exit, where it stands (I13).
+  const stateWord = (row: SiteEquipment) => {
+    if (going) {
+      if (!row.open_exit) return "";
+      return t(`equipmentExit.status.${row.open_exit.status}`);
+    }
+    return row.awaiting_acceptance === "ENTRY" ? t("equipment.entryWaiting") : "";
+  };
+  const entryWaiting = !going && machine?.awaiting_acceptance === "ENTRY";
+  const step = exitStep(machine?.open_exit);
   return (
     <div className="space-y-4">
       <ListHeader
@@ -1824,12 +1870,17 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           ) : undefined
         }
       />
-      <FieldWrapper label={t("field.project")} required className="surface-panel rounded-xl px-4 py-3 sm:px-6 sm:py-4">
+      <FieldWrapper
+        label={t("field.project")}
+        required="quiet"
+        hint={t("equipment.projectHint")}
+        className="surface-panel rounded-xl px-4 py-3 sm:px-6 sm:py-4"
+      >
         <ProjectPicker
           value={project}
           onValueChange={(next) => {
             setProject(next === "all" ? "" : next);
-            setChosen("");
+            choose("");
           }}
           placeholder={t("field.selectProject")}
           className="w-full sm:w-72"
@@ -1844,7 +1895,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         errorMessage={equipmentError}
         empty={false}
       />
-      {/* 进场 or 退场 first (Q27): it decides which machines are offered. */}
+      {/* 进场 or 退场 first: it decides which machines are offered. */}
       <div className="grid grid-cols-2 gap-2" data-testid="field-equipment-direction">
         {(["ENTRY", "EXIT"] as const).map((way) => (
           <Button
@@ -1854,8 +1905,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
             aria-pressed={direction === way}
             className="h-12 text-base"
             onClick={() => {
-              setDirection(way);
-              setChosen("");
+              choose("", way);
               setEntering(false);
             }}
           >
@@ -1864,11 +1914,15 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         ))}
       </div>
       {/* A9: one dropdown instead of the long list of every machine. */}
-      <FieldWrapper label={t("equipment.chooseMachine")} required>
+      <FieldWrapper
+        label={t("equipment.chooseMachine")}
+        required="quiet"
+        hint={t("equipment.chooseMachineHint")}
+      >
         <Select
           value={chosen || undefined}
           onValueChange={(next) => {
-            setChosen(next);
+            choose(next);
             setEntering(false);
           }}
           disabled={!project || rows.isLoading}
@@ -1886,7 +1940,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
             )}
             {offered.map((row) => (
               <SelectItem key={row.id} value={row.id}>
-                {isWaiting(row) ? `${label(row)} · ${waitingWord}` : label(row)}
+                {stateWord(row) ? `${label(row)} · ${stateWord(row)}` : label(row)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -1895,21 +1949,53 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           <p className="mt-1 text-sm text-muted-foreground">{t("equipment.noMachineOnSite")}</p>
         )}
       </FieldWrapper>
+      {/* 「扫描设备二维码」 (I24, ID60): the sticker on the machine picks it. */}
+      <MachineScanButton
+        project={project}
+        machines={equipment}
+        offered={offered}
+        going={going}
+        disabled={!project || rows.isLoading}
+        onChosen={(row) => {
+          choose(row.id);
+          setEntering(false);
+        }}
+      />
       {machine && (
         <section
           data-testid="field-equipment-next-step"
           className="surface-panel flex flex-wrap items-center gap-3 rounded-xl p-4"
         >
           <span className="min-w-0 flex-1 truncate font-medium">{label(machine)}</span>
-          {waiting ? (
-            <span className="text-sm text-warning">{waitingWord}</span>
-          ) : (
+          {!going ? (
+            entryWaiting ? (
+              <span className="text-sm text-warning">{t("equipment.entryWaiting")}</span>
+            ) : (
+              can("equipment.capture") && (
+                <Button onClick={() => setEntering(true)}>
+                  <Camera />
+                  {t("equipment.recordEntry")}
+                </Button>
+              )
+            )
+          ) : step === "apply" ? (
             can("equipment.capture") && (
               <Button onClick={() => setEntering(true)}>
                 <Camera />
-                {t(going ? "equipment.recordExit" : "equipment.recordEntry")}
+                {t("equipmentExit.apply")}
               </Button>
             )
+          ) : step === "leave" ? (
+            can("equipment.capture") && (
+              <Button onClick={() => setEntering(true)}>
+                <Camera />
+                {t("equipmentExit.handover")}
+              </Button>
+            )
+          ) : (
+            <span className="text-sm text-warning">
+              {t(`equipmentExit.status.${machine.open_exit?.status ?? "PENDING"}`)}
+            </span>
           )}
         </section>
       )}
@@ -1929,9 +2015,8 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           }}
         />
       )}
-      {entering && (machine || isNew) && !waiting && (
+      {entering && !going && (machine || isNew) && !entryWaiting && (
         <EquipmentEntryDialog
-          direction={direction}
           project={project || machine?.project || ""}
           machine={isNew ? null : machine}
           fieldTaskId={fieldTaskId}
@@ -1939,7 +2024,35 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           onSaved={() => {
             refresh();
             setEntering(false);
-            setChosen("");
+            choose("");
+            onRecordSaved?.();
+          }}
+        />
+      )}
+      {entering && going && machine && step === "apply" && (
+        <EquipmentExitApplyDialog
+          project={project || machine.project}
+          machine={machine}
+          fieldTaskId={fieldTaskId}
+          onClose={() => setEntering(false)}
+          onSaved={() => {
+            refresh();
+            setEntering(false);
+            choose("");
+            onRecordSaved?.();
+          }}
+        />
+      )}
+      {entering && going && machine?.open_exit && step === "leave" && (
+        <EquipmentExitHandoverDialog
+          movementId={machine.open_exit.id}
+          project={project || machine.project}
+          machine={machine}
+          onClose={() => setEntering(false)}
+          onSaved={() => {
+            refresh();
+            setEntering(false);
+            choose("");
             onRecordSaved?.();
           }}
         />
@@ -2289,24 +2402,19 @@ export function entryRefusalText(
  * one machine, and its class is the office's business. Offline-capable
  * through the same queue as every capture; the office then accepts it.
  *
- * 设备退场 is this same form (Lucas 2026-10-08, Q27: 「跟设备进场一样」): a
- * machine on site, the same evidence - DO number required - and an optional
- * reason; no application and no Return Note. Until the office accepts it the
- * machine stays on site.
+ * Entries only. 设备退场 is applied for and approved first, like material
+ * leaving site (2026-10 I13, ID30): `equipment-exit.tsx`.
+ *
+ * No red stars (2026-10 I22, ID56): every field says in a line what it needs,
+ * and the submit button names what is still missing.
  */
 export function EquipmentEntryDialog({
-  direction = "ENTRY",
   project,
   machine,
   fieldTaskId,
   onClose,
   onSaved,
 }: {
-  /**
-   * 进场, or 退场 (2026-10 Q27): the exit takes the same evidence in the same
-   * one step, for a machine on site, and adds an optional reason.
-   */
-  direction?: "ENTRY" | "EXIT";
   project: string;
   /** Null for a 「新设备」 nobody registered yet (an entry only). */
   machine: SiteEquipment | null;
@@ -2318,10 +2426,7 @@ export function EquipmentEntryDialog({
   const field = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const going = direction === "EXIT";
-  // The exit's draft is its own: an exit begun for a machine must not
-  // reopen as that machine's next entry.
-  const key = going ? `exit:${machine?.id ?? ""}` : machine?.id ?? "new";
+  const key = machine?.id ?? "new";
   const [newName, setNewName] = useDraftState(`entryName:${key}`, "");
   // Optional: not every machine has a plate. One already on file is that
   // machine coming back - the server files the entry on it.
@@ -2379,14 +2484,13 @@ export function EquipmentEntryDialog({
       if (!user) throw new Error("Authentication required.");
       return submitEquipmentMovementOfflineAware(user.id, {
         // One client_event_id for the job, kept across every retry of it.
-        entry: !going,
-        exit: going,
+        entry: true,
         project,
         equipment: machine?.id ?? "",
         equipment_name: machine ? undefined : newName.trim(),
         registration_no: machine ? undefined : newPlate.trim().toUpperCase() || undefined,
         supplier: supplier?.id,
-        direction,
+        direction: "ENTRY",
         operator_name: user.full_name,
         delivery_note_no: deliveryNote.trim(),
         vehicle_plate: machine?.registration_no || undefined,
@@ -2424,7 +2528,7 @@ export function EquipmentEntryDialog({
               project: t("field.project"),
               registration_no: t("field.plateNo"),
               vehicle_plate: t("field.plateNo"),
-              notes: going ? t("equipment.exitReason") : t("field.notes"),
+              notes: t("field.notes"),
             },
           }) ||
             reason.message ||
@@ -2442,18 +2546,16 @@ export function EquipmentEntryDialog({
         <DialogHeader>
           <DialogTitle>
             {machine
-              ? t(going ? "equipment.exitTitle" : "equipment.entryTitle", {
-                  name: machineLabeller([machine])(machine),
-                })
+              ? t("equipment.entryTitle", { name: machineLabeller([machine])(machine) })
               : t("equipment.newMachineEntry")}
           </DialogTitle>
-          <DialogDescription>{t(going ? "equipment.exitHelp" : "equipment.entryHelp")}</DialogDescription>
+          <DialogDescription>{t("equipment.entryHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           {!machine && (
             <FieldWrapper
               label={t("equipment.newMachineName")}
-              required
+              required="quiet"
               hint={t("equipment.newMachineHelp")}
               error={fieldErrors.equipment}
               className="sm:col-span-2"
@@ -2476,7 +2578,8 @@ export function EquipmentEntryDialog({
           )}
           <FieldWrapper
             label={t("field.photos")}
-            required
+            required="quiet"
+            hint={t("equipment.photosHint")}
             error={fieldErrors.photos}
             className="sm:col-span-2"
           >
@@ -2524,7 +2627,12 @@ export function EquipmentEntryDialog({
             />
             <DeliveryNoteReadStatus reader={ocr} className="mt-2" />
           </FieldWrapper>
-          <FieldWrapper label={t("field.deliveryNoteNo")} required error={fieldErrors.delivery_note_no}>
+          <FieldWrapper
+            label={t("field.deliveryNoteNo")}
+            required="quiet"
+            hint={t("equipment.deliveryNoteHint")}
+            error={fieldErrors.delivery_note_no}
+          >
             <Input
               aria-label={t("field.deliveryNoteNo")}
               value={deliveryNote}
@@ -2562,7 +2670,8 @@ export function EquipmentEntryDialog({
               <FieldSignaturePad
                 label={t("equipment.siteSignature")}
                 clearLabel={field("action.clearSignature")}
-                required
+                required="quiet"
+                hint={t("equipment.signatureHint")}
                 value={receiverSignature}
                 onChange={setReceiverSignature}
               />
@@ -2574,7 +2683,8 @@ export function EquipmentEntryDialog({
               <FieldSignaturePad
                 label={t("equipment.supplierSignature")}
                 clearLabel={field("action.clearSignature")}
-                required
+                required="quiet"
+                hint={t("equipment.signatureHint")}
                 value={supplierSignature}
                 onChange={setSupplierSignature}
               />
@@ -2590,15 +2700,13 @@ export function EquipmentEntryDialog({
             readyLabel={t("action.locationReady")}
             value={location}
             onChange={setLocation}
-            required
+            required="quiet"
+            hint={t("equipment.locationHint")}
             error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
           />
-          <FieldWrapper
-            label={going ? t("equipment.exitReason") : t("field.notes")}
-            className="sm:col-span-2"
-          >
+          <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
             <Textarea
-              aria-label={going ? t("equipment.exitReason") : t("field.notes")}
+              aria-label={t("field.notes")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -2631,7 +2739,7 @@ export function EquipmentEntryDialog({
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Camera />}
-            {t(going ? "equipment.exitSubmit" : "equipment.entrySubmit")}
+            {t("equipment.entrySubmit")}
           </Button>
         </DialogFooter>
         <SupplierQrScanner
@@ -2648,13 +2756,13 @@ export function EquipmentEntryDialog({
 }
 
 /**
- * 「直接交接」 of an application made before the one-step flow (B13, then X2
- * for entries and Q27 for exits): at least four photographs, no ceiling
- * (B14), and both signatures - the site person and the supplier or driver.
- * It then waits for the office's acceptance like any movement recorded on
- * site. One movement is one machine (F3): no quantity or unit is asked.
- * Opened from the office's detail of the old application; the phone records
- * an exit in one step instead, which finishes the old application too.
+ * 「直接交接」 of an entry applied for before the one-step flow (B13, then X2):
+ * at least four photographs, no ceiling (B14), and both signatures - the site
+ * person and the supplier or driver. It then waits for the office's
+ * acceptance like any entry recorded on site. One movement is one machine
+ * (F3): no quantity or unit is asked. Opened from the office's detail of the
+ * old application. An old exit application goes the I13 way instead - Return
+ * Note, approval, the actual exit on the phone.
  */
 export function MovementDialog({
   row,
