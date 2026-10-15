@@ -655,11 +655,18 @@ export function EquipmentOperatorHours() {
                   ))}
                   <TableRow>
                     <TableCell className="font-semibold">{t("month.total")}</TableCell>
-                    <TableCell colSpan={7} />
+                    <TableCell />
+                    <TableCell />
+                    <TableCell />
+                    <TableCell />
+                    <TableCell />
+                    <TableCell />
+                    <TableCell />
                     <TableCell className="tabular text-right font-semibold">
                       {days.data?.total_hours ?? ""}
                     </TableCell>
-                    <TableCell colSpan={2} />
+                    <TableCell className="text-right" />
+                    <TableCell className="text-right" />
                   </TableRow>
                 </>
               )}
