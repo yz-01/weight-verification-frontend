@@ -13196,11 +13196,11 @@
       "viewer": "只讀查看本公司記錄。",
       "weighbridge_operator": "操作地磅，登記扣雜。",
       "headquarters": "總部：查看全部項目，歸檔工地上報的資料，並審批先送到總部的申請。",
-      "safety_manager": "負責所在項目的隱患整改 / EHS，驗收整改並審批施工准證。",
+      "safety_manager": "負責所在項目的整改 / EHS，驗收整改並審批施工准證。",
       "quantity_surveyor": "維護材料分類與預算，製作進度 Claim 和資料包，查看及導出報表。",
       "storekeeper": "在所在項目登記及更正材料進場，申請材料出場，提交 MR。",
       "equipment_manager": "管理全部項目的設備進退場、設備清單、二維碼貼紙和設備工時。",
-      "site_supervisor": "在所在項目指派及驗收現場任務與隱患整改，記錄工程進度，處理門崗事項。",
+      "site_supervisor": "在所在項目指派及驗收現場任務與整改 / EHS，記錄工程進度，處理門崗事項。",
       "document_controller": "管理文件檔案，提交顧問申請和後台審批，維護 RFI 表格。"
     },
     "systemHint": "內置角色不可移除，確保公司始終有辦法管理自己的人員。",

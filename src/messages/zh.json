@@ -13196,11 +13196,11 @@
       "viewer": "只读查看本公司记录。",
       "weighbridge_operator": "操作地磅，登记扣杂。",
       "headquarters": "总部：查看全部项目，归档工地上报的资料，并审批先送到总部的申请。",
-      "safety_manager": "负责所在项目的隐患整改 / EHS，验收整改并审批施工准证。",
+      "safety_manager": "负责所在项目的整改 / EHS，验收整改并审批施工准证。",
       "quantity_surveyor": "维护材料分类与预算，制作进度 Claim 和资料包，查看及导出报表。",
       "storekeeper": "在所在项目登记及更正材料进场，申请材料出场，提交 MR。",
       "equipment_manager": "管理全部项目的设备进退场、设备清单、二维码贴纸和设备工时。",
-      "site_supervisor": "在所在项目指派及验收现场任务与隐患整改，记录工程进度，处理门岗事项。",
+      "site_supervisor": "在所在项目指派及验收现场任务与整改 / EHS，记录工程进度，处理门岗事项。",
       "document_controller": "管理文件档案，提交顾问申请和后台审批，维护 RFI 表格。"
     },
     "systemHint": "内置角色不可移除，确保公司始终有办法管理自己的人员。",
