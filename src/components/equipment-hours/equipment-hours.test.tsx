@@ -384,6 +384,20 @@ describe("the phone screen 设备操作员工时", () => {
     expect(matchScannedMachine("", MACHINES)).toBeNull();
   });
 
+  it("reads the system's own machine QR from 设备清单 (2026-10 I24, ID59)", () => {
+    // The sticker the office prints: its scan page, with the machine's id.
+    expect(
+      matchScannedMachine("https://trace.example.my/scan/equipment?equipment=eq-2", MACHINES)?.name,
+    ).toBe("Crane");
+    expect(
+      matchScannedMachine(" https://trace.example.my/scan/equipment?equipment=eq-1 ", MACHINES)?.name,
+    ).toBe("Excavator");
+    // A sticker for a machine not on this site's list picks nothing.
+    expect(
+      matchScannedMachine("https://trace.example.my/scan/equipment?equipment=eq-9", MACHINES),
+    ).toBeNull();
+  });
+
   it("offers 收工 first for a machine that is running, 开工 otherwise", () => {
     expect(nextKind(MACHINES[0])).toBe("FINISH");
     expect(nextKind(MACHINES[1])).toBe("START");

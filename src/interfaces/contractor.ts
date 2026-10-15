@@ -484,6 +484,24 @@ export interface MySubmissionRow {
    * history (client 2026-10-09 二.3: the list shows only `cover_photo_url`).
    */
   photo?: string | null;
+  /**
+   * An equipment movement's own status beside its direction (`status`):
+   * an exit is applied for, approved and recorded in steps (2026-10 I13), and
+   * 「已批准 / 等待退场」 is where the actual exit is done.
+   */
+  movement_status?: string;
+  /**
+   * The machine an equipment movement is about: what the phone checks the
+   * scanned QR against at the actual exit, with or without signal (ID60).
+   */
+  machine?: {
+    id: string;
+    code: string;
+    name: string;
+    site_no: string;
+    registration_no: string;
+    serial_no: string;
+  } | null;
 }
 
 /**
