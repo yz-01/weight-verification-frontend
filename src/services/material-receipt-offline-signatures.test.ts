@@ -80,4 +80,37 @@ describe("offline material delivery", () => {
     expect(data.get("vehicle_plate")).toBe("WXY 1234");
     expect(data.get("delivery_note_no")).toBe("DO-88");
   });
+
+  it("left 「未填供应商」 offline, it replays with no supplier for the office to fill in (I23)", async () => {
+    vi.stubGlobal("navigator", { onLine: false });
+    await queue.submitMaterialReceiptOfflineAware("worker", {
+      receipt: {
+        project: "p1",
+        supplier: "",
+        qr_code: null,
+        movement_type: "ENTRY",
+        material_name: "Sand",
+        quantity: "8",
+        unit: "TONNE",
+        category: "c1",
+        vehicle_plate: "WXY 5678",
+        delivery_note_no: "DO-89",
+        received_by_name: "Worker",
+      },
+      signature: file("receiver.png"),
+      supplierSignature: file("supplier.png"),
+      sitePhotos: [file("arrival.jpg")],
+      deviceId: "phone",
+    });
+
+    vi.stubGlobal("navigator", { onLine: true });
+    const flushed = await queue.flushOfflineJobs("worker");
+    expect(flushed.synced).toBe(1);
+
+    const [, data] = post.mock.calls.at(-1) as unknown as [string, FormData];
+    // Not "" and not "null": the field is absent, so the server files none.
+    expect(data.has("supplier")).toBe(false);
+    expect(data.has("qr_code")).toBe(false);
+    expect(data.get("material_name")).toBe("Sand");
+  });
 });

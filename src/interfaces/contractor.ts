@@ -350,7 +350,12 @@ export interface MaterialReceipt {
   project: string;
   project_code: string;
   project_name: string;
-  supplier: string;
+  /**
+   * Null for a delivery the phone left 「未填供应商」 (2026-10-15 I23): the
+   * office fills it in (「补供应商」) before it can be accepted.
+   */
+  supplier: string | null;
+  /** "" while the supplier is not filled in. */
   supplier_name: string;
   /** The factory that made it (2026-10 D1); null when nobody said. */
   manufacturer?: string | null;
@@ -614,6 +619,7 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
 
 export interface MaterialReceiptPayload {
   project: string;
+  /** "" for 「未填供应商」 (I23): left out of the upload, filed with none. */
   supplier: string;
   /** The factory that made it (2026-10 D1); optional. */
   manufacturer?: string | null;
@@ -720,8 +726,9 @@ export interface ReceiptSummary {
     total_cost: string | null;
     unpriced_receipts: number;
   }>;
+  /** The line with `supplier: null` is the deliveries 「未填供应商」 (I23). */
   by_supplier: Array<{
-    supplier: string;
+    supplier: string | null;
     supplier_name: string;
     receipts: number;
     total_cost: string | null;

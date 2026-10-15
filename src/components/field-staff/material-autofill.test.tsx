@@ -152,3 +152,33 @@ describe("choosing 钢筋 on the phone (A4, D1, Q1)", () => {
     expect(html).not.toContain("只列这个分类设定的供应商");
   });
 });
+
+/**
+ * 2026-10-15 I23: the worker often does not know whose lorry it is, so the
+ * supplier is optional - no star, 「未填供应商」 first and chosen - and the
+ * office fills it in later.
+ */
+describe("the supplier on the phone (I23)", () => {
+  beforeEach(() => {
+    for (const key of Object.keys(drafts)) delete drafts[key];
+  });
+
+  const openColumn = () =>
+    steel({ supplier_options: [], suppliers: [], manufacturer_options: [], manufacturers: [] });
+
+  it("has no star and does not hold 提交 back when it is left 「未填供应商」", () => {
+    const html = render(openColumn(), { supplier: "" });
+    expect(html).not.toMatch(/供应商<span class="[^"]*text-destructive[^"]*">\*<\/span>/);
+    expect(html).toContain("不确定是哪家就不用选，后台会补上。");
+    // 提交 is the last button asking for fields: the signatures and the
+    // photographs are still asked for there; the supplier is not.
+    const missing = [...html.matchAll(/title="还差这些没填：([^"]*)"/g)].at(-1)?.[1] ?? "";
+    expect(missing.split("、")).toContain("供应商签名");
+    expect(missing.split("、")).not.toContain("供应商");
+  });
+
+  it("shows the supplier's own hint, not the unfilled one, once a real supplier is chosen", () => {
+    const html = render(openColumn(), { supplier: SUPPLIER_A.id });
+    expect(html).not.toContain("不确定是哪家就不用选，后台会补上。");
+  });
+});

@@ -6292,7 +6292,17 @@
       "document_no": "No. dokumen",
       "subcategory": "Subkategori",
       "version_count": "Versi",
-      "created_at": "Dimuat naik pada"
+      "created_at": "Dimuat naik pada",
+      "name": "Nama laporan",
+      "report_date": "Hari pertama",
+      "end_date": "Hari terakhir",
+      "author": "Ditulis oleh",
+      "record_count": "Rekod",
+      "body": "Teks",
+      "generated_at": "Dijana",
+      "block_count": "Blok",
+      "updated_by": "Terakhir disunting oleh",
+      "updated_at": "Kemas kini terakhir"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -6304,7 +6314,9 @@
       "safety": "Jejak isu keselamatan daripada tugasan hingga pengesahan.",
       "schedule": "Bandingkan jadual disahkan dengan kemajuan sebenar tapak.",
       "target": "Bandingkan kemajuan dirancang dan sebenar serta aktiviti projek.",
-      "documents": "Dokumen projek mengikut kategori, dengan versi dan siapa yang memuat naik."
+      "documents": "Dokumen projek mengikut kategori, dengan versi dan siapa yang memuat naik.",
+      "daily_report": "Laporan harian mengikut tarikh: teks penuh setiap laporan, rekod dan fotonya. Dalam PDF setiap laporan bermula di halaman baharu, fotonya bertera air.",
+      "progress_summary": "Ringkasan kemajuan yang dikemas kini dalam tempoh ini. Dalam PDF setiap ringkasan bermula di halaman baharu."
     },
     "empty": "Tiada rekod sepadan dengan projek dan tarikh ini.",
     "filter": {
@@ -6324,7 +6336,9 @@
         "schedule": "Kod WBS atau nama tugasan",
         "target": "Nama sasaran",
         "photos": "Nama fail, sumber atau pemuat naik",
-        "documents": "No. dokumen, tajuk atau kata kunci"
+        "documents": "No. dokumen, tajuk atau kata kunci",
+        "daily_report": "Nama laporan, teks atau penulis",
+        "progress_summary": "Tajuk atau penulis"
       },
       "noMatch": "Tiada pilihan yang sepadan",
       "submittedBy": "Dihantar oleh",
@@ -6372,11 +6386,21 @@
       "safety": "Laporan keselamatan dan pembetulan",
       "schedule": "Laporan dirancang berbanding sebenar",
       "target": "Laporan sasaran dan pencapaian",
-      "documents": "Laporan rekod projek"
+      "documents": "Laporan rekod projek",
+      "daily_report": "Laporan harian",
+      "progress_summary": "Ringkasan kemajuan"
     },
     "what": {
       "filterOptions": "pilihan penapis",
-      "projects": "senarai projek"
+      "projects": "senarai projek",
+      "latestDay": "laporan harian terkini"
+    },
+    "days": {
+      "title": "Laporan harian lepas",
+      "help": "Pilih tarikh dahulu; laporan harian bagi tarikh itu kemudian disenaraikan.",
+      "show": "Papar",
+      "choose": "Pilih hari pertama dan hari terakhir dahulu.",
+      "backwards": "Hari pertama tidak boleh selepas hari terakhir."
     }
   },
   "crm": {
@@ -7640,6 +7664,8 @@
       "package_link_not_found": "Tidak dijumpai",
       "role_template_not_found": "Tiada peranan pratetap dengan nama itu.",
       "role_already_exists": "Syarikat ini sudah mempunyai peranan itu.",
+      "export_too_many_photos": "Eksport ini mengandungi {count} foto; satu fail paling banyak {limit}. Pendekkan tarikh dan eksport semula.",
+      "receipt_needs_supplier": "Penghantaran ini belum ada pembekal. Tekan “Isi pembekal” dahulu, kemudian terima.",
       "site_worker_not_found": "Pekerja tidak dijumpai",
       "site_worker_phone_taken": "Nombor telefon ini sudah ada dalam senarai projek ({name})",
       "site_worker_inactive": "Pekerja ini telah dikeluarkan; masukkan semula dahulu",
@@ -8210,7 +8236,9 @@
       "autoFilledFromCategory": "Diisi daripada kategori",
       "supplierLimited": "Hanya pembekal yang ditetapkan untuk kategori ini",
       "manufacturer": "Pengilang dinamakan (MR)",
-      "chooseColumnFirst": "Pilih kategori dahulu"
+      "chooseColumnFirst": "Pilih kategori dahulu",
+      "noSupplier": "Pembekal belum diisi",
+      "noSupplierHint": "Tidak pasti pembekalnya? Biarkan - pejabat akan mengisinya."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -10699,6 +10727,8 @@
       "gatePhotoRecords": "Rekod Foto",
       "gateIssues": "Isu Pintu",
       "visitorRecords": "Rekod Pelawat",
+      "dailyReport": "Laporan harian",
+      "progressSummary": "Ringkasan kemajuan",
       "siteWorkers": "Senarai pekerja"
     },
     "subscription_management": "Pengurusan Langganan",
@@ -12375,7 +12405,8 @@
         "delivery_note_no": "No. nota hantaran",
         "notes": "Catatan",
         "received_by_name": "Diterima oleh",
-        "document_amount": "Amaun pesanan penghantaran"
+        "document_amount": "Amaun pesanan penghantaran",
+        "supplier": "Pembekal"
       }
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
@@ -12563,7 +12594,15 @@
     },
     "exportVerdict": "Keputusan penerimaan",
     "rejectedReturns": "Pulangan ditolak",
-    "rejectedReturn": "Ditolak – dipulangkan"
+    "rejectedReturn": "Ditolak – dipulangkan",
+    "supplierUnfilled": "Pembekal belum diisi",
+    "supplierUnfilledShort": "belum diisi",
+    "fillSupplier": {
+      "action": "Isi pembekal",
+      "hint": "Tapak tidak mengisi pembekal. Isi pembekal sebelum menerima.",
+      "reason": "Pembekal diisi (kosong di tapak)",
+      "formHint": "Pilih pembekal penghantaran ini, simpan, kemudian terima."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -14148,7 +14187,11 @@
       "title": "Geofence tapak",
       "undoPoint": "Undur titik",
       "useGps": "Guna GPS semasa",
-      "useProject": "Guna lokasi projek"
+      "useProject": "Guna lokasi projek",
+      "editSwitch": "Edit geofence",
+      "editHint": "Hidupkan untuk mengubah pusat, menambah atau menyeret titik pada peta. Ia dimatikan semula selepas disimpan.",
+      "locked": "Peta kini untuk dilihat sahaja. Untuk mengubah geofence, hidupkan “Edit geofence” dahulu.",
+      "backToFence": "Kembali ke geofence"
     },
     "homePage": {
       "dashboard": "Dashboard",
@@ -14556,7 +14599,9 @@
       "submit": "Hantar permohonan",
       "view": "Lihat",
       "recordNumbers": "Rekod angka",
-      "siteEvidence": "Foto kenderaan keluar / Gate Pass"
+      "siteEvidence": "Foto kenderaan keluar / Gate Pass",
+      "setSupplier": "Nyatakan pembekal",
+      "changeSupplier": "Tukar pembekal"
     },
     "assign": {
       "copyNow": "Salin dan hantar pautan ini kepada kontraktor luar. Log masuk tidak diperlukan. Jika hilang, jana pautan baharu; pautan lama akan berhenti berfungsi.",
@@ -14612,7 +14657,9 @@
         "doNo": "Nombor Disposal DO",
         "note": "Catatan kerja",
         "trips": "Bilangan perjalanan",
-        "weight": "Berat sebenar (kg)"
+        "weight": "Berat sebenar (kg)",
+        "vehiclePlate": "Nombor plat lori",
+        "vehiclePlateHint": "Pilihan: nombor plat lori untuk muatan ini"
       },
       "invalid": "Pautan tugas tidak tersedia",
       "invalidBody": "Pautan tidak sah, telah tamat tempoh atau tugas telah selesai.",
@@ -14672,7 +14719,11 @@
       "plannedTrips": "Jangkaan bilangan lori",
       "tripsProgress": "Muatan disemak",
       "tripsAccepted": "Muatan disemak",
-      "tripsTotal": "Muatan dirancang"
+      "tripsTotal": "Muatan dirancang",
+      "supplier": "Pembekal",
+      "vehiclePlates": "Nombor plat lori",
+      "vehiclePlate": "Nombor plat lori",
+      "createdAt": "Dibuat pada"
     },
     "fieldEvidence": {
       "access": "3. Laluan kutipan atau kenderaan",
@@ -14693,7 +14744,9 @@
       "field": {
         "doNo": "Nombor Disposal DO",
         "note": "Catatan kerja",
-        "weight": "Berat sebenar (kg)"
+        "weight": "Berat sebenar (kg)",
+        "vehiclePlate": "Nombor plat lori",
+        "vehiclePlateHint": "Pilihan: nombor plat lori untuk muatan ini"
       },
       "invalid": "Tugas pelupusan ini tidak dapat dibuka. Muat semula Tugas Saya dan cuba lagi.",
       "photosBody": "Ambil foto setiap muatan di tempat pelupusan berlesen. Sehingga 4 foto bagi setiap muatan, apa-apa jenis; sekurang-kurangnya 1 untuk dihantar. Pejabat kemudian menyemak muatan itu.",
@@ -14774,7 +14827,8 @@
       "TRIP_ACCEPTED": "Pejabat menyemak satu muatan",
       "TRIP_ADDED": "Pejabat menambah satu muatan",
       "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan",
-      "TRIP_CORRECTED": "Pejabat membetulkan berat / DO satu muatan"
+      "TRIP_CORRECTED": "Pejabat membetulkan berat / DO / plat satu muatan",
+      "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan"
     },
     "title": "Pelupusan tapak",
     "toast": {
@@ -14789,7 +14843,8 @@
       "tripAccepted": "Muatan disemak",
       "tripAdded": "Muatan ditambah",
       "endedEarly": "Kerja ditamatkan awal",
-      "tripCorrected": "Muatan dibetulkan"
+      "tripCorrected": "Muatan dibetulkan",
+      "supplierSet": "Syarikat pembersihan disimpan"
     },
     "overdue": {
       "badge": "Pengecualian",
@@ -14841,21 +14896,39 @@
       "allSentBody": "Menunggu pejabat menyemaknya. Jika ada lori lagi, minta tapak menambah satu muatan.",
       "correct": "Betulkan",
       "correctTitle": "Betulkan muatan {seq}",
-      "correctHint": "Hanya menukar berat atau nombor DO muatan ini, dengan sebab. Nilai asal dan setiap pembetulan disimpan.",
+      "correctHint": "Hanya menukar berat, nombor DO atau nombor plat lori muatan ini, dengan sebab. Nilai asal dan setiap pembetulan disimpan.",
       "correctReason": "Sebab pembetulan",
       "correctSave": "Simpan pembetulan",
-      "correctUnchanged": "Tukar berat atau nombor DO dahulu",
+      "correctUnchanged": "Tukar berat, nombor DO atau nombor plat dahulu",
       "history": "Pembetulan",
       "historyWeight": "Berat {from} → {to} kg",
       "historyDo": "DO {from} → {to}",
       "historyMeta": "{name} · {at} · Sebab: {reason}",
-      "blank": "(kosong)"
+      "blank": "(kosong)",
+      "historyPlate": "Plat {from} → {to}"
     },
     "tripStatus": {
       "PLANNED": "Belum dihantar",
       "SUBMITTED": "Untuk disemak",
       "ACCEPTED": "Disemak",
       "CANCELLED": "Dibatalkan (tamat awal)"
+    },
+    "supplier": {
+      "internal": "Pembersihan dalaman",
+      "none": "Tiada pembekal"
+    },
+    "supplierPick": {
+      "placeholder": "Pilih syarikat pembersihan",
+      "hint": "Daripada senarai pembekal, supaya kerja setiap syarikat boleh ditapis dan diselesaikan bersama.",
+      "defaultIndustry": "Pembersihan sisa",
+      "defaultProducts": "Pembersihan sisa tapak",
+      "setTitle": "Nyatakan syarikat pembersihan",
+      "changeTitle": "Tukar syarikat pembersihan",
+      "setDescription": "Kerja ini belum menamakan syarikat. Setelah dipilih, ia akan ditemui semasa menapis dan membungkus mengikut syarikat.",
+      "current": "Kini: {name}",
+      "reason": "Sebab perubahan",
+      "unchanged": "Pilih pembekal lain dahulu",
+      "save": "Simpan"
     }
   },
   "onSiteMap": {
@@ -15293,6 +15366,13 @@
     },
     "hint": {
       "profileMissing": "Pembekal ini ditambah sebelum industri dan produk utama direkodkan. Isikan untuk menyimpan."
+    },
+    "quickAdd": {
+      "open": "Tambah pembekal",
+      "title": "Tambah pembekal",
+      "description": "Ia ditambah ke senarai pembekal dan dipilih di sini. Lengkapkan butiran lain di halaman Pembekal kemudian.",
+      "codeHint": "Tidak digunakan oleh pembekal lain, cth. CLR-001",
+      "save": "Tambah dan pilih"
     }
   },
   "support": {
@@ -16584,7 +16664,11 @@
       "OTHER": "Lain-lain"
     },
     "categoriesFailed": "Senarai kategori tidak dapat dimuatkan.",
-    "noCategories": "Belum ada kategori - klik nama laporan untuk membukanya."
+    "noCategories": "Belum ada kategori - klik nama laporan untuk membukanya.",
+    "progressMenu": {
+      "dailyReport": "Laporan harian",
+      "pastDailyReports": "Laporan harian lepas"
+    }
   },
   "wasteClearance": {
     "title": "Pembersihan sisa",
@@ -16913,7 +16997,8 @@
     "what": "senarai pembekal",
     "allManufacturers": "Semua pengilang dinamakan",
     "manufacturer": "Pengilang dinamakan (MR)",
-    "whatManufacturers": "Senarai pembekal"
+    "whatManufacturers": "Senarai pembekal",
+    "unfilled": "Pembekal belum diisi"
   },
   "dateTimeRange": {
     "startDate": "Tarikh mula",
@@ -17044,7 +17129,16 @@
       "photosCount": "Foto",
       "author": "Ditulis oleh",
       "recordDeleted": "Rekod dipadam",
-      "maxDays": "Satu laporan harian meliputi paling banyak {days} hari."
+      "maxDays": "Satu laporan harian meliputi paling banyak {days} hari.",
+      "generatedAt": "Dijana {when}",
+      "book": {
+        "position": "{n} daripada {total}",
+        "previous": "Sebelumnya",
+        "next": "Seterusnya",
+        "first": "Ini laporan pertama.",
+        "last": "Ini laporan terakhir.",
+        "waiting": "Sedang membuka laporan ini, sebentar."
+      }
     },
     "summary": {
       "new": "Ringkasan baharu",
@@ -17559,6 +17653,10 @@
     "nameHelp": "Nama anda direkodkan pada pengesahan, pemulangan, tandatangan dan mesej. Pelayar ini mengingatinya.",
     "name": "Nama",
     "continue": "Teruskan"
+  },
+  "mapFrame": {
+    "fullscreen": "Skrin penuh",
+    "exitFullscreen": "Keluar skrin penuh"
   },
   "siteWorkers": {
     "title": "Senarai pekerja",

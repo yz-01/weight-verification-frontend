@@ -36,6 +36,9 @@ import {
   FieldEvidenceGrid,
 } from "@/components/field-staff/field-evidence-grid";
 import { ExportButton } from "@/components/shared/export-button";
+import { SupplierPicker } from "@/components/shared/supplier-picker";
+import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
+import { QuickAddSupplierButton } from "@/components/suppliers/quick-add-supplier";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -52,6 +55,15 @@ import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/compone
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
+import {
+  DISPOSAL_SUPPLIER_FILTERS,
+  changedPlate,
+  disposalPlatesText,
+  disposalSupplierText,
+  normalisePlate,
+  offersSupplierButton,
+  supplierChangeNeedsReason,
+} from "@/lib/disposal-supplier";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -102,12 +114,13 @@ import {
   exportDisposalRequests,
   recordDisposalNumbers,
   reviewDisposalRequest,
+  setDisposalSupplier,
   startExternalDisposalTask,
   startInternalDisposalTask,
   submitExternalDisposalTask,
   submitInternalDisposalTask,
 } from "@/services/contractor-ops.service";
-import { getProjectAssignments } from "@/services/contractor.service";
+import { getProjectAssignments, getSupplier } from "@/services/contractor.service";
 import { submitDisposalRequestOfflineAware } from "@/services/offline-sync.service";
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
@@ -215,7 +228,9 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 border-y border-panel-border py-3 text-sm">
                 <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{t("field.requestedBy")}</p><p className="mt-1 break-words font-medium">{row.requested_by_name || "-"}</p></div>
-                <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{t("field.executor")}</p><p className="mt-1 break-words font-medium">{row.assigned_staff_name || row.collector_company_name || t("notAssigned")}</p></div>
+                {/* 「执行人」 became 「供应商」 (I27): the clearance company, or
+                    「内部清运 · 负责人」 for the site's own staff. */}
+                <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{t("field.supplier")}</p><p className="mt-1 break-words font-medium">{disposalSupplierText(row, { internal: t("supplier.internal"), none: t("notAssigned") })}</p></div>
                 {/* 「已验收 x / N 车」 (X11), once the job has lorries. */}
                 {row.trips_total > 0 && <div className="col-span-2"><p className="text-xs font-medium text-muted-foreground">{t("field.tripsProgress")}</p><p className="mt-1 font-medium tabular">{t("trips.progress", { accepted: row.trips_accepted, total: row.trips_total })}</p></div>}
               </div>
@@ -386,9 +401,13 @@ function defaultLinkExpiry() {
 
 function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
+  const qc = useQueryClient();
   const [mode, setMode] = useState<"INTERNAL" | "EXTERNAL">(row.assignment_type === "EXTERNAL" ? "EXTERNAL" : "INTERNAL");
   const [staff, setStaff] = useState(row.assigned_staff || "");
-  const [company, setCompany] = useState(row.assignment_type === "EXTERNAL" ? row.collector_company_name : "");
+  // I27 (ID65): the outside company is chosen from the supplier list, so its
+  // clearances can be filtered and settled together.
+  const [supplier, setSupplier] = useState(row.assignment_type === "EXTERNAL" ? row.collector_supplier ?? "" : "");
+  const [supplierName, setSupplierName] = useState(row.assignment_type === "EXTERNAL" && row.collector_supplier ? row.supplier_name : "");
   const [contact, setContact] = useState(row.assignment_type === "EXTERNAL" ? row.collector_contact_name : "");
   const [phone, setPhone] = useState(row.assignment_type === "EXTERNAL" ? row.collector_phone : "");
   const [email, setEmail] = useState(row.assignment_type === "EXTERNAL" ? row.collector_email : "");
@@ -396,18 +415,184 @@ function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest;
   const [link, setLink] = useState("");
   const team = useQuery({ queryKey: ["projects", "assignments", row.project], queryFn: () => getProjectAssignments(row.project) });
   const fieldStaff = (team.data?.results ?? []).filter((assignment) => assignment.is_field_staff);
+  // The company's own contact fills the blanks; anything typed stays.
+  const pickSupplier = (id: string, known?: SupplierContact) => {
+    setSupplier(id);
+    if (!id) return;
+    const fill = (found: SupplierContact) => {
+      setSupplierName(found.name);
+      setContact((current) => current || found.contact_person || "");
+      setPhone((current) => current || found.contact_phone || "");
+      setEmail((current) => current || found.contact_email || "");
+    };
+    if (known) {
+      fill(known);
+      return;
+    }
+    void qc
+      .fetchQuery({ queryKey: ["suppliers", "detail", id], queryFn: () => getSupplier(id) })
+      .then(fill)
+      .catch(() => undefined);
+  };
   const save = useMutation({
     mutationFn: () => mode === "INTERNAL"
       ? assignDisposalInternal(row.id, { assigned_staff: staff })
-      : assignDisposalCollector(row.id, { collector_company_name: company, collector_contact_name: contact, collector_phone: phone, collector_email: email, expires_at: new Date(expires).toISOString() }),
+      : assignDisposalCollector(row.id, {
+          collector_supplier: supplier,
+          collector_company_name: supplierName,
+          collector_contact_name: contact,
+          collector_phone: phone,
+          collector_email: email,
+          expires_at: new Date(expires).toISOString(),
+        }),
     onSuccess: (data) => {
       if ("external_url" in data && typeof data.external_url === "string") setLink(data.external_url);
       else onClose();
       onSaved();
     },
   });
-  const disabled = save.isPending || (mode === "INTERNAL" ? !staff : !company.trim() || !contact.trim() || !phone.trim() || !expires);
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{link ? t("assign.copyNow") : t("assign.description")}</DialogDescription></DialogHeader>{link ? <div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div> : <><div className="grid grid-cols-2 gap-2"><Button type="button" variant={mode === "INTERNAL" ? "default" : "outline"} onClick={() => setMode("INTERNAL")}><UserRound />{t("assignment.internal")}</Button><Button type="button" variant={mode === "EXTERNAL" ? "default" : "outline"} onClick={() => setMode("EXTERNAL")}><Link2 />{t("assignment.external")}</Button></div>{mode === "INTERNAL" ? <FieldWrapper label={t("field.fieldStaff")} required><Select value={staff} onValueChange={setStaff}><SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseFieldStaff")} /></SelectTrigger><SelectContent>{fieldStaff.map((assignment) => <SelectItem key={assignment.user} value={assignment.user}>{assignment.user_name}</SelectItem>)}</SelectContent></Select>{!team.isLoading && !team.isError && !fieldStaff.length && <p className="mt-2 text-xs text-destructive">{t("assign.noFieldStaff")}</p>}<QueryFailedNote query={team} what={t("what.fieldStaff")} className="mt-2" /></FieldWrapper> : <div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.collectorCompany")} required className="sm:col-span-2"><Input value={company} onChange={(e) => setCompany(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.contact")} required><Input value={contact} onChange={(e) => setContact(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.phone")} required><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.email")} optional={t("optional")}><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.linkExpiry")} required><Input type="datetime-local" value={expires} onChange={(e) => setExpires(e.target.value)} /></FieldWrapper></div>}</>}<DialogFooter><Button variant="outline" onClick={onClose}>{link ? t("action.close") : t("action.cancel")}</Button>{!link && <Button disabled={disabled} onClick={() => save.mutate()}><Send />{mode === "INTERNAL" ? t("action.sendToStaff") : t("action.createLink")}</Button>}</DialogFooter></DialogContent></Dialog>;
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{t("assign.title")}</DialogTitle>
+          <DialogDescription>{link ? t("assign.copyNow") : t("assign.description")}</DialogDescription>
+        </DialogHeader>
+        {link ? (
+          <div className="space-y-3">
+            <div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div>
+            <Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" variant={mode === "INTERNAL" ? "default" : "outline"} onClick={() => setMode("INTERNAL")}><UserRound />{t("assignment.internal")}</Button>
+              <Button type="button" variant={mode === "EXTERNAL" ? "default" : "outline"} onClick={() => setMode("EXTERNAL")}><Link2 />{t("assignment.external")}</Button>
+            </div>
+            {mode === "INTERNAL" ? (
+              <FieldWrapper label={t("field.fieldStaff")} required>
+                <Select value={staff} onValueChange={setStaff}>
+                  <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseFieldStaff")} /></SelectTrigger>
+                  <SelectContent>{fieldStaff.map((assignment) => <SelectItem key={assignment.user} value={assignment.user}>{assignment.user_name}</SelectItem>)}</SelectContent>
+                </Select>
+                {!team.isLoading && !team.isError && !fieldStaff.length && <p className="mt-2 text-xs text-destructive">{t("assign.noFieldStaff")}</p>}
+                <QueryFailedNote query={team} what={t("what.fieldStaff")} className="mt-2" />
+              </FieldWrapper>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FieldWrapper label={t("field.supplier")} required hint={t("supplierPick.hint")} className="sm:col-span-2">
+                  <SupplierPicker
+                    value={supplier}
+                    onChange={(id) => pickSupplier(id)}
+                    knownName={supplierName || null}
+                    placeholder={t("supplierPick.placeholder")}
+                  />
+                  <QuickAddSupplierButton
+                    defaults={{ industry: t("supplierPick.defaultIndustry"), main_products: t("supplierPick.defaultProducts") }}
+                    onCreated={(created) => pickSupplier(created.id, created)}
+                  />
+                </FieldWrapper>
+                <FieldWrapper label={t("field.contact")} required><Input value={contact} onChange={(e) => setContact(e.target.value)} /></FieldWrapper>
+                <FieldWrapper label={t("field.phone")} required><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></FieldWrapper>
+                <FieldWrapper label={t("field.email")} optional={t("optional")}><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></FieldWrapper>
+                <FieldWrapper label={t("field.linkExpiry")} required><Input type="datetime-local" value={expires} onChange={(e) => setExpires(e.target.value)} /></FieldWrapper>
+              </div>
+            )}
+          </>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{link ? t("action.close") : t("action.cancel")}</Button>
+          {!link && (
+            <Button
+              requires={
+                mode === "INTERNAL"
+                  ? [[staff, t("field.fieldStaff")]]
+                  : [
+                      [supplier, t("field.supplier")],
+                      [contact.trim(), t("field.contact")],
+                      [phone.trim(), t("field.phone")],
+                      [expires, t("field.linkExpiry")],
+                    ]
+              }
+              disabled={save.isPending}
+              onClick={() => save.mutate()}
+            >
+              <Send />
+              {mode === "INTERNAL" ? t("action.sendToStaff") : t("action.createLink")}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** What the assign dialog fills the contact fields from. */
+type SupplierContact = { name: string; contact_person?: string; contact_phone?: string; contact_email?: string };
+
+/**
+ * 「填写 / 更改供应商」 (I27, ID65; I30's 「单子的供应商」): name the job's
+ * clearance company after approval - most jobs are never assigned, because
+ * the link goes out at approval and the driver just starts (D-217) - or put
+ * it right while settling. Replacing a company already named asks why; the
+ * server keeps the old and the new name on the timeline.
+ */
+function SetSupplierDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("siteDisposal");
+  const needsReason = supplierChangeNeedsReason(row);
+  const [supplier, setSupplier] = useState(row.collector_supplier ?? "");
+  const [supplierName, setSupplierName] = useState(row.collector_supplier ? row.supplier_name : "");
+  const [reason, setReason] = useState("");
+  const unchanged = Boolean(supplier) && supplier === row.collector_supplier;
+  const save = useMutation({
+    mutationFn: () => setDisposalSupplier(row.id, { collector_supplier: supplier, reason: reason.trim() }),
+    onSuccess: onSaved,
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{row.collector_supplier ? t("supplierPick.changeTitle") : t("supplierPick.setTitle")}</DialogTitle>
+          <DialogDescription>
+            {row.supplier_name ? t("supplierPick.current", { name: row.supplier_name }) : t("supplierPick.setDescription")}
+          </DialogDescription>
+        </DialogHeader>
+        <FieldWrapper label={t("field.supplier")} required hint={t("supplierPick.hint")}>
+          <SupplierPicker
+            value={supplier}
+            onChange={(id) => setSupplier(id)}
+            knownName={supplierName || null}
+            placeholder={t("supplierPick.placeholder")}
+          />
+          <QuickAddSupplierButton
+            defaults={{ industry: t("supplierPick.defaultIndustry"), main_products: t("supplierPick.defaultProducts") }}
+            onCreated={(created) => {
+              setSupplier(created.id);
+              setSupplierName(created.name);
+            }}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("supplierPick.reason")} required={needsReason} optional={needsReason ? undefined : t("optional")}>
+          <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
+        </FieldWrapper>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button
+            requires={[
+              [supplier, t("field.supplier")],
+              [!needsReason || reason.trim(), t("supplierPick.reason")],
+            ]}
+            disabledReason={unchanged ? t("supplierPick.unchanged") : undefined}
+            disabled={unchanged || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Truck />}
+            {t("supplierPick.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function RegenerateLinkDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
@@ -581,15 +766,19 @@ function CorrectTripDialog({ row, trip, onClose, onSaved }: { row: DisposalReque
   const t = useTranslations("siteDisposal");
   const [weight, setWeight] = useState(trip.weight_kg ?? "");
   const [doNo, setDoNo] = useState(trip.do_no);
+  // Which lorry (I27): put right, or filled in for a load sent without one.
+  const [plate, setPlate] = useState(trip.vehicle_plate ?? "");
   const [reason, setReason] = useState("");
   const weightChanged = weight.trim() !== "" && (trip.weight_kg === null || Number(weight) !== Number(trip.weight_kg));
   const doChanged = doNo.trim() !== "" && doNo.trim() !== trip.do_no;
-  const unchanged = !weightChanged && !doChanged;
+  const plateChanged = changedPlate(plate, trip);
+  const unchanged = !weightChanged && !doChanged && !plateChanged;
   const save = useMutation({
     mutationFn: () =>
       correctDisposalTrip(row.id, trip.id, {
         weight_kg: weightChanged ? weight.trim() : undefined,
         do_no: doChanged ? doNo.trim() : undefined,
+        vehicle_plate: plateChanged ?? undefined,
         reason,
       }),
     onSuccess: onSaved,
@@ -607,6 +796,9 @@ function CorrectTripDialog({ row, trip, onClose, onSaved }: { row: DisposalReque
           </FieldWrapper>
           <FieldWrapper label={t("field.doNo")} optional={t("optional")}>
             <Input value={doNo} onChange={(event) => setDoNo(event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.vehiclePlate")} optional={t("optional")} className="sm:col-span-2">
+            <Input value={plate} autoCapitalize="characters" onChange={(event) => setPlate(event.target.value)} />
           </FieldWrapper>
         </div>
         <FieldWrapper label={t("trips.correctReason")} required>
@@ -628,6 +820,13 @@ function CorrectTripDialog({ row, trip, onClose, onSaved }: { row: DisposalReque
     </Dialog>
   );
 }
+
+/** How each corrected value is worded on the lorry's history (Q29.7, I27). */
+const TRIP_HISTORY_KEY = {
+  weight_kg: "trips.historyWeight",
+  do_no: "trips.historyDo",
+  vehicle_plate: "trips.historyPlate",
+} as const;
 
 function tripTone(status: DisposalTripStatus): "neutral" | "positive" | "warning" | "danger" | "info" {
   if (status === "ACCEPTED") return "positive";
@@ -689,7 +888,7 @@ export function DisposalTripsPanel({
             </div>
             {trip.submitted_at && (
               <p className="mt-1 text-xs text-muted-foreground">
-                {[trip.submitted_by_name, df.dateTime(trip.submitted_at), trip.weight_kg ? `${trip.weight_kg} kg` : "", trip.do_no].filter(Boolean).join(" · ")}
+                {[trip.submitted_by_name, df.dateTime(trip.submitted_at), trip.weight_kg ? `${trip.weight_kg} kg` : "", trip.do_no, trip.vehicle_plate].filter(Boolean).join(" · ")}
               </p>
             )}
             {trip.evidence.length > 0 && (
@@ -714,7 +913,7 @@ export function DisposalTripsPanel({
                   {trip.corrections.map((item) => (
                     <li key={item.id} className="text-xs text-muted-foreground">
                       <span className="font-medium text-foreground">
-                        {t(item.field === "weight_kg" ? "trips.historyWeight" : "trips.historyDo", { from: item.from || t("trips.blank"), to: item.to })}
+                        {t(TRIP_HISTORY_KEY[item.field], { from: item.from || t("trips.blank"), to: item.to })}
                       </span>
                       <span className="block">{t("trips.historyMeta", { name: item.by_name, at: df.dateTime(item.at), reason: item.reason })}</span>
                     </li>
@@ -822,7 +1021,9 @@ function DisposalDetailDialog({
           { label: t("field.siteLocation"), value: row.location_description },
           { label: t("field.preferredAt"), value: row.preferred_at ? df.dateTime(row.preferred_at) : "—" },
           { label: t("field.requestedBy"), value: row.requested_by_name || "—" },
-          { label: t("field.executor"), value: row.assigned_staff_name || row.collector_company_name || t("notAssigned") },
+          // 「执行人」 became 「供应商」, with the lorries beside it (I27).
+          { label: t("field.supplier"), value: disposalSupplierText(row, { internal: t("supplier.internal"), none: t("notAssigned") }) },
+          { label: t("field.vehiclePlates"), value: disposalPlatesText(row) },
           { label: t("field.actualWeight"), value: row.actual_weight_kg ? `${row.actual_weight_kg} kg` : "—" },
           // 「已验收 x / N 车」 (X11); a job from before C5 keeps its typed count.
           row.trips_total
@@ -891,7 +1092,7 @@ function DisposalDetailDialog({
   );
 }
 
-type DisposalStep = "reviewing" | "assigning" | "regenerating" | "numbers" | "siteEvidence" | "cancelling";
+type DisposalStep = "reviewing" | "assigning" | "regenerating" | "supplier" | "numbers" | "siteEvidence" | "cancelling";
 
 /** Approved and not yet finished: the only time the job takes photographs. */
 const RUNNING: DisposalRequestStatus[] = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"];
@@ -911,6 +1112,9 @@ function DisposalActions({ row, onStep }: { row: DisposalRequest; onStep: (step:
       {can("disposal.manage") && row.status === "REQUESTED" && <Button size="sm" onClick={() => onStep("reviewing")}><ClipboardCheck />{t("action.review")}</Button>}
       {can("disposal.manage") && ["APPROVED", "ASSIGNED", "RETURNED"].includes(row.status) && <Button size="sm" onClick={() => onStep("assigning")}><Send />{t("action.assign")}</Button>}
       {can("disposal.manage") && row.assignment_type === "EXTERNAL" && ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("regenerating")}><RefreshCw />{t("action.regenerateLink")}</Button>}
+      {/* I27: name the clearance company once the assign dialog is behind
+          the job - a driver started it from the link, or it is being settled. */}
+      {offersSupplierButton(row, { manage: can("disposal.manage"), confirm: can("disposal.confirm") }) && <Button size="sm" variant="outline" onClick={() => onStep("supplier")}><Truck />{row.collector_supplier ? t("action.changeSupplier") : t("action.setSupplier")}</Button>}
       {/* C08: the site's vehicle exit / Gate Pass, on the same job. */}
       {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("siteEvidence")}><Camera />{t("action.siteEvidence")}</Button>}
       {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
@@ -945,6 +1149,8 @@ function DisposalStepDialogs({
       return <AssignExecutorDialog row={row} onClose={onClose} onSaved={onChanged} />;
     case "regenerating":
       return <RegenerateLinkDialog row={row} onClose={onClose} onSaved={onChanged} />;
+    case "supplier":
+      return <SetSupplierDialog row={row} onClose={onClose} onSaved={done} />;
     case "cancelling":
       return <CancelDisposalDialog row={row} onClose={onClose} onSaved={done} />;
     case "numbers":
@@ -968,7 +1174,10 @@ export function SiteDisposalOffice() {
   const searchParams = useSearchParams();
   // `counted=1` arrives from the head office's 原工地清运 card (F8): only the
   // jobs it counts - not rejected, not cancelled.
-  const list = useListQuery(["project", "status", "counted"]);
+  // I27: a clearance company and a period - what is settled with that
+  // company; held in the address like every filter, so it survives Multi
+  // Engine's 「添加资料」 visit and a reload.
+  const list = useListQuery(["project", "status", "counted", ...DISPOSAL_SUPPLIER_FILTERS]);
   const rows = useQuery({
     queryKey: ["site-disposals", "office", list.query],
     queryFn: () => getDisposalRequests(list.query),
@@ -1061,10 +1270,22 @@ export function SiteDisposalOffice() {
         cell: ({ row }) => row.original.requested_by_name || "—",
       },
       {
-        id: "executor",
-        meta: { label: t("field.executor") },
-        header: () => <PlainHeader label={t("field.executor")} />,
-        cell: ({ row }) => row.original.assigned_staff_name || row.original.collector_company_name || t("notAssigned"),
+        // 「执行人改为供应商」 (I27): the clearance company, or 「内部清运 · 负责人」.
+        id: "supplier",
+        meta: { label: t("field.supplier") },
+        header: () => <PlainHeader label={t("field.supplier")} />,
+        cell: ({ row }) => (
+          <span className="block max-w-45 truncate" title={row.original.supplier_name || undefined}>
+            {disposalSupplierText(row.original, { internal: t("supplier.internal"), none: t("notAssigned") })}
+          </span>
+        ),
+      },
+      {
+        // 「增加清运车牌」 (I27): each lorry that took a load, once.
+        id: "vehicle_plates",
+        meta: { label: t("field.vehiclePlates") },
+        header: () => <PlainHeader label={t("field.vehiclePlates")} />,
+        cell: ({ row }) => <span className="tabular whitespace-nowrap">{disposalPlatesText(row.original)}</span>,
       },
       {
         accessorKey: "project_name",
@@ -1106,6 +1327,17 @@ export function SiteDisposalOffice() {
         isError={rows.isError}
         storageKey="site-disposals"
         pack="DISPOSAL_REQUEST"
+        // I27: by clearance company (or none on the list) and by the day it
+        // was raised - one company's period, to settle (and pack) with it.
+        // The company half needs the supplier list; without it, the dates.
+        above={
+          <SupplierDateFilter
+            value={{ supplier: list.filters.supplier, date_from: list.filters.date_from, date_to: list.filters.date_to }}
+            onChange={(next) => list.setFilters(next as Record<string, string | undefined>)}
+            showSupplier={can("supplier.view")}
+            noneLabel={t("supplier.none")}
+          />
+        }
         toolbar={
           <>
             <ProjectListFilter list={list} />
@@ -1137,6 +1369,9 @@ export function SiteDisposalOffice() {
                       { key: "location_description", label: t("field.siteLocation") },
                       { key: "preferred_at", label: t("field.preferredAt") },
                       { key: "requested_by_name", label: t("field.requestedBy") },
+                      { key: "created_at", label: t("field.createdAt") },
+                      { key: "supplier_label", label: t("field.supplier") },
+                      { key: "vehicle_plates_text", label: t("field.vehiclePlates") },
                       { key: "actual_weight_kg", label: t("field.actualWeight") },
                       { key: "trips_accepted", label: t("field.tripsAccepted") },
                       { key: "trips_total", label: t("field.tripsTotal") },
@@ -1283,6 +1518,10 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
   // No weight / trips / DO state here any more (T-224): the inputs are gone,
   // and posting a default would be worse than posting nothing.
   const [note, setNote] = useState("");
+  // 「清运车牌」 (I27): optional, no star. Kept after a load is sent - the
+  // phone on this link is one driver's, and his next load is usually the
+  // same lorry; he changes it if not.
+  const [plate, setPlate] = useState("");
   // Which lorry was just sent, so the driver sees it went (X11).
   const [justSent, setJustSent] = useState<number | null>(null);
   // One source of truth (FABLE_AUDIT_B4 #8): every answer goes into this
@@ -1299,7 +1538,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const remember = (saved: ExternalDisposalTask) => qc.setQueryData(taskKey, saved);
   const start = useMutation({ mutationFn: () => startExternalDisposalTask(token), onSuccess: remember, onError: (reason) => setError(reasonText(reason, t("error.action"))) });
   const submit = useMutation({
-    mutationFn: () => submitExternalDisposalTask(token, { note }),
+    mutationFn: () => submitExternalDisposalTask(token, { note, vehicle_plate: normalisePlate(plate) }),
     onSuccess: (saved) => {
       setJustSent(load.current?.seq ?? null);
       setNote("");
@@ -1392,8 +1631,10 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
           </section>
           <section className="surface-panel mt-6 space-y-4 rounded-xl p-4">
             <h2 className="panel-title">{t("submitTitle")}</h2>
-            {/* Still nothing typed but an optional note (T-224, D-116): the
-                contractor reads weight and DO off these photographs. */}
+            {/* Still nothing to type but the lorry's plate and a note, both
+                optional (T-224, D-116; I27): the contractor reads weight and
+                DO off these photographs. */}
+            <FieldWrapper label={t("field.vehiclePlate")} hint={t("field.vehiclePlateHint")}><Input value={plate} autoCapitalize="characters" autoComplete="off" onChange={(e) => setPlate(e.target.value)} /></FieldWrapper>
             <FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
             <Button size="lg" className="h-14 w-full text-base" requires={[[evidenceComplete, t("photosTitle")]]} disabled={submit.isPending} onClick={() => submit.mutate()}>
               {submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}
@@ -1431,6 +1672,9 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   // Per lorry (X11): its weight and DO; the trip count is no longer typed.
   const [weight, setWeight] = useState("");
   const [doNo, setDoNo] = useState("");
+  // 「清运车牌」 (I27): optional, no star; cleared with the weight and DO,
+  // because the site's next lorry is often another one.
+  const [plate, setPlate] = useState("");
   const [note, setNote] = useState("");
   const [justSent, setJustSent] = useState<number | null>(null);
   // As on the driver's link (FABLE_AUDIT_B4 #8): answers go into the query's
@@ -1459,11 +1703,12 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
     onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")),
   });
   const submit = useMutation({
-    mutationFn: () => submitInternalDisposalTask(disposalId, { actual_weight_kg: weight, disposal_do_no: doNo, note }),
+    mutationFn: () => submitInternalDisposalTask(disposalId, { actual_weight_kg: weight, disposal_do_no: doNo, vehicle_plate: normalisePlate(plate), note }),
     onSuccess: (saved) => {
       setJustSent(load.current?.seq ?? null);
       setWeight("");
       setDoNo("");
+      setPlate("");
       setNote("");
       remember(saved);
       void qc.invalidateQueries({ queryKey: ["field-staff", "tasks"] });
@@ -1516,7 +1761,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
           proof, up to four, any kind. Vehicle exit / Gate Pass are the
           site's own photographs, taken from the job itself (C08). */}
       <section><h3 className="text-base font-semibold">{load.current ? tTrips("loadTitle", { seq: load.current.seq, total: load.total }) : t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3"><FieldCamera label={t("photosTitle")} fileCount={sent.length} previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined} disabled={uploading !== null || full} onCapture={(file) => void upload("DISPOSAL_PROOF", file)} /></div></section>
-      <section className="surface-panel space-y-4 rounded-xl p-4"><h3 className="panel-title">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
+      <section className="surface-panel space-y-4 rounded-xl p-4"><h3 className="panel-title">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.vehiclePlate")} hint={t("field.vehiclePlateHint")}><Input value={plate} autoCapitalize="characters" autoComplete="off" onChange={(event) => setPlate(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
     </>}
     {editable && current.status !== "ASSIGNED" && load.allSent && <section className="surface-panel rounded-xl p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{tTrips("allSentTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{tTrips("allSentBody")}</p></section>}
     {(current.status === "COMPLETED" || current.status === "AWAITING_CONFIRMATION") && <section className="rounded-xl border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}

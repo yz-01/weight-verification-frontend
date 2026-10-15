@@ -6292,7 +6292,17 @@
       "document_no": "文档编号",
       "subcategory": "子分类",
       "version_count": "版本数",
-      "created_at": "上传时间"
+      "created_at": "上传时间",
+      "name": "日报名称",
+      "report_date": "开始日期",
+      "end_date": "结束日期",
+      "author": "撰写人",
+      "record_count": "记录数",
+      "body": "内容",
+      "generated_at": "生成时间",
+      "block_count": "内容块数",
+      "updated_by": "最后修改人",
+      "updated_at": "最后更新"
     },
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
@@ -6304,7 +6314,9 @@
       "safety": "追踪安全问题从分配、整改到验收的过程。",
       "schedule": "对比当前确认计划与现场实际进度。",
       "target": "对比计划和实际进度及项目活动指标。",
-      "documents": "按文档分类查看项目文件、版本与上传人。"
+      "documents": "按文档分类查看项目文件、版本与上传人。",
+      "daily_report": "按日期看日报告：每篇的全文、收进的记录和照片。导出 PDF 时每篇从新的一页开始，照片带水印。",
+      "progress_summary": "这段期间更新过的项目进度摘要。导出 PDF 时每份从新的一页开始。"
     },
     "empty": "此项目和日期范围没有符合的记录。",
     "filter": {
@@ -6324,7 +6336,9 @@
         "schedule": "WBS 编号或任务名称",
         "target": "目标名称",
         "photos": "文件名、来源或上传人员",
-        "documents": "文件编号、标题或关键字"
+        "documents": "文件编号、标题或关键字",
+        "daily_report": "日报名称、内容或撰写人",
+        "progress_summary": "标题或撰写人"
       },
       "noMatch": "没有符合的选项",
       "submittedBy": "提交人",
@@ -6372,11 +6386,21 @@
       "safety": "安全与整改报表",
       "schedule": "计划与实际对比报表",
       "target": "目标与达成报表",
-      "documents": "项目资料报表"
+      "documents": "项目资料报表",
+      "daily_report": "日报告",
+      "progress_summary": "项目进度摘要"
     },
     "what": {
       "filterOptions": "筛选选项",
-      "projects": "项目列表"
+      "projects": "项目列表",
+      "latestDay": "最近一天的日报告"
+    },
+    "days": {
+      "title": "往日报告",
+      "help": "先选要看的日期范围，再列出这几天的日报告。",
+      "show": "查看",
+      "choose": "请先选开始和结束日期。",
+      "backwards": "开始日期不能晚于结束日期。"
     }
   },
   "crm": {
@@ -7640,6 +7664,8 @@
       "package_link_not_found": "找不到",
       "role_template_not_found": "找不到这个预设角色。",
       "role_already_exists": "本公司已经有这个角色。",
+      "export_too_many_photos": "这次导出共有 {count} 张照片，一次最多 {limit} 张。请缩短日期范围后再导出。",
+      "receipt_needs_supplier": "这批材料还没有供应商。请先按「补供应商」填上，再验收。",
       "site_worker_not_found": "找不到这个人员",
       "site_worker_phone_taken": "这个电话号码已在这个项目的名单上（{name}）",
       "site_worker_inactive": "这个人员已移出名单，请先重新加入名单",
@@ -8210,7 +8236,9 @@
       "autoFilledFromCategory": "按分类自动带出",
       "supplierLimited": "只列这个分类设定的供应商",
       "manufacturer": "指定厂商（MR）",
-      "chooseColumnFirst": "请先选分类"
+      "chooseColumnFirst": "请先选分类",
+      "noSupplier": "未填供应商",
+      "noSupplierHint": "不确定是哪家就不用选，后台会补上。"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -10699,6 +10727,8 @@
       "gatePhotoRecords": "日常拍照记录",
       "gateIssues": "门岗事项",
       "visitorRecords": "访客进退场记录",
+      "dailyReport": "日报告",
+      "progressSummary": "项目进度摘要",
       "siteWorkers": "人员名单"
     },
     "subscription_management": "订阅管理",
@@ -12375,7 +12405,8 @@
         "delivery_note_no": "送货单号",
         "notes": "备注",
         "received_by_name": "收货人",
-        "document_amount": "送货单金额"
+        "document_amount": "送货单金额",
+        "supplier": "供应商"
       }
     },
     "count": "{count, plural, =0 {暂无材料进场记录} other {# 条材料进场记录}}",
@@ -12563,7 +12594,15 @@
     },
     "exportVerdict": "验收结果",
     "rejectedReturns": "不合格退货",
-    "rejectedReturn": "不合格退货"
+    "rejectedReturn": "不合格退货",
+    "supplierUnfilled": "未填供应商",
+    "supplierUnfilledShort": "未填",
+    "fillSupplier": {
+      "action": "补供应商",
+      "hint": "现场没有填供应商。先补供应商，才能验收。",
+      "reason": "补供应商（现场未填）",
+      "formHint": "选这批货的供应商，保存后再验收。"
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -14148,7 +14187,11 @@
       "title": "工地电子围栏",
       "undoPoint": "撤销上一个点",
       "useGps": "获取当前 GPS",
-      "useProject": "使用项目位置"
+      "useProject": "使用项目位置",
+      "editSwitch": "编辑围栏",
+      "editHint": "打开后才能在地图上改圆心、加点或拖点；保存后会自动关上。",
+      "locked": "地图现在只看不改。要修改围栏，先打开「编辑围栏」。",
+      "backToFence": "回到围栏"
     },
     "homePage": {
       "dashboard": "Dashboard 首页",
@@ -14556,7 +14599,9 @@
       "submit": "提交申请",
       "view": "查看",
       "recordNumbers": "补录数字",
-      "siteEvidence": "拍车辆出场 / Gate Pass"
+      "siteEvidence": "拍车辆出场 / Gate Pass",
+      "setSupplier": "填写供应商",
+      "changeSupplier": "更改供应商"
     },
     "assign": {
       "copyNow": "复制后发送给外部清运商。链接不需要登录；如遗失，可在清运列表重新生成，旧链接会立即失效。",
@@ -14612,7 +14657,9 @@
         "doNo": "Disposal DO 编号",
         "note": "工作备注",
         "trips": "车次数量",
-        "weight": "实际重量（kg）"
+        "weight": "实际重量（kg）",
+        "vehiclePlate": "车牌",
+        "vehiclePlateHint": "选填：这一车的车牌"
       },
       "invalid": "任务链接无法使用",
       "invalidBody": "链接无效、已到期，或任务已经完成。",
@@ -14672,7 +14719,11 @@
       "plannedTrips": "预计车次",
       "tripsProgress": "车次验收",
       "tripsAccepted": "已验收车次",
-      "tripsTotal": "计划车次"
+      "tripsTotal": "计划车次",
+      "supplier": "供应商",
+      "vehiclePlates": "清运车牌",
+      "vehiclePlate": "车牌",
+      "createdAt": "建立时间"
     },
     "fieldEvidence": {
       "access": "3. 清运入口或车辆路线",
@@ -14693,7 +14744,9 @@
       "field": {
         "doNo": "Disposal DO 编号",
         "note": "工作备注",
-        "weight": "实际重量（kg）"
+        "weight": "实际重量（kg）",
+        "vehiclePlate": "车牌",
+        "vehiclePlateHint": "选填：这一车的车牌"
       },
       "invalid": "无法打开这项清运任务，请刷新任务列表后重试。",
       "photosBody": "每一车送到合法处理地点后拍照。每车最多 4 张，不限类别；至少 1 张才能送出。送出后由后台验收这一车。",
@@ -14774,7 +14827,8 @@
       "TRIP_ACCEPTED": "后台已验收一车",
       "TRIP_ADDED": "后台加了一车",
       "ENDED_EARLY": "后台提前结束，未送的车次已取消",
-      "TRIP_CORRECTED": "后台更正了一车的重量 / DO"
+      "TRIP_CORRECTED": "后台更正了一车的重量 / DO / 车牌",
+      "SUPPLIER_SET": "后台填写 / 更改了供应商"
     },
     "title": "工地清运",
     "toast": {
@@ -14789,7 +14843,8 @@
       "tripAccepted": "这一车已验收",
       "tripAdded": "已加一车",
       "endedEarly": "清运已提前结束",
-      "tripCorrected": "这一车已更正"
+      "tripCorrected": "这一车已更正",
+      "supplierSet": "供应商已保存"
     },
     "overdue": {
       "badge": "异常",
@@ -14841,21 +14896,39 @@
       "allSentBody": "等待后台验收。如果还有车要去，请联系工地在后台「加一车」。",
       "correct": "更正",
       "correctTitle": "更正第 {seq} 车",
-      "correctHint": "只改这一车的重量或 DO 编号，要写原因。原来的数字和每次更正都会保留。",
+      "correctHint": "只改这一车的重量、DO 编号或车牌，要写原因。原来的数字和每次更正都会保留。",
       "correctReason": "更正原因",
       "correctSave": "保存更正",
-      "correctUnchanged": "先改重量或 DO 编号",
+      "correctUnchanged": "先改重量、DO 编号或车牌",
       "history": "更正记录",
       "historyWeight": "重量 {from} → {to} kg",
       "historyDo": "DO {from} → {to}",
       "historyMeta": "{name} · {at} · 原因：{reason}",
-      "blank": "（空）"
+      "blank": "（空）",
+      "historyPlate": "车牌 {from} → {to}"
     },
     "tripStatus": {
       "PLANNED": "还没送",
       "SUBMITTED": "待验收",
       "ACCEPTED": "已验收",
       "CANCELLED": "已取消（提前结束）"
+    },
+    "supplier": {
+      "internal": "内部清运",
+      "none": "未填供应商"
+    },
+    "supplierPick": {
+      "placeholder": "选择清运公司",
+      "hint": "从供应商名单选择，每家清运公司的单才能一起筛选、打包结算。",
+      "defaultIndustry": "垃圾清运",
+      "defaultProducts": "工地垃圾清运",
+      "setTitle": "填写供应商",
+      "changeTitle": "更改供应商",
+      "setDescription": "这张清运单还没有供应商。选好后，按供应商筛选和打包结算时就找得到。",
+      "current": "现在的供应商：{name}",
+      "reason": "更改原因",
+      "unchanged": "先选另一家供应商",
+      "save": "保存"
     }
   },
   "onSiteMap": {
@@ -15293,6 +15366,13 @@
     },
     "hint": {
       "profileMissing": "这家供应商是旧资料，还没有行业和主要产品，保存前请补上。"
+    },
+    "quickAdd": {
+      "open": "新增供应商",
+      "title": "新增供应商",
+      "description": "加入供应商名单后在这里直接选上。其他资料之后可以在「供应商」页面补。",
+      "codeHint": "不能和别的供应商重复，例如 CLR-001",
+      "save": "新增并选上"
     }
   },
   "support": {
@@ -16584,7 +16664,11 @@
       "OTHER": "其他"
     },
     "categoriesFailed": "无法载入分类列表。",
-    "noCategories": "此报表还没有分类，点报表名称直接打开。"
+    "noCategories": "此报表还没有分类，点报表名称直接打开。",
+    "progressMenu": {
+      "dailyReport": "日报告",
+      "pastDailyReports": "往日报告"
+    }
   },
   "wasteClearance": {
     "title": "垃圾清运",
@@ -16913,7 +16997,8 @@
     "what": "供应商列表",
     "allManufacturers": "全部指定厂商",
     "manufacturer": "指定厂商（MR）",
-    "whatManufacturers": "供应商名单"
+    "whatManufacturers": "供应商名单",
+    "unfilled": "未填供应商"
   },
   "dateTimeRange": {
     "startDate": "开始日期",
@@ -17044,7 +17129,16 @@
       "photosCount": "照片数",
       "author": "撰写人",
       "recordDeleted": "记录已删除",
-      "maxDays": "一份日报告最多 {days} 天。"
+      "maxDays": "一份日报告最多 {days} 天。",
+      "generatedAt": "生成于 {when}",
+      "book": {
+        "position": "第 {n} / 共 {total} 篇",
+        "previous": "上一篇",
+        "next": "下一篇",
+        "first": "这已经是第一篇。",
+        "last": "这已经是最后一篇。",
+        "waiting": "正在打开这一篇，请稍候。"
+      }
     },
     "summary": {
       "new": "新建摘要",
@@ -17559,6 +17653,10 @@
     "nameHelp": "名字会记录在你的确认、退回、签收和留言上。这个浏览器会记住，下次不用再填。",
     "name": "名字",
     "continue": "继续"
+  },
+  "mapFrame": {
+    "fullscreen": "全屏",
+    "exitFullscreen": "退出全屏"
   },
   "siteWorkers": {
     "title": "人员名单",
