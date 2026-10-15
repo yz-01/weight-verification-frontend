@@ -201,6 +201,8 @@ export function ContractorReportWorkspace({
   const { user } = useAuth();
   const opener = useRecordOpener();
   const now = new Date();
+  // 「往日报告」 offers the last seven days when the address names none (I8).
+  const weekAgo = dateValue(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6));
   // Project, dates and the report menu's levels live in the address (D6):
   // 【选择报表】 opens a report at a category by writing them there, and keeps
   // the reader's project and dates when they move to another report. So do
@@ -585,8 +587,8 @@ export function ContractorReportWorkspace({
       )}
       {asksDays && (
         <ReportDaysPrompt
-          from={list.filters.date_from ?? dateValue(new Date(now.getTime() - 6 * 86_400_000))}
-          to={list.filters.date_to ?? dateValue(now)}
+          from={list.filters.date_from ?? weekAgo}
+          to={dateTo}
           onDone={(from, to) => setFilters({ range: undefined, date_from: from, date_to: to })}
           onCancel={() => setFilters({ range: undefined })}
         />
