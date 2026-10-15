@@ -7559,6 +7559,7 @@
       "column_other_project": "该分类不属于此记录的项目，请选择同一项目的分类。",
       "column_inactive": "「{column}」已停用，请选择启用中的分类。",
       "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。",
+      "gate_record_not_an_issue": "这张门岗照片还不是门岗事项。先按「沟通」选处理人员，才能在里面沟通。",
       "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
       "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。",
       "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
@@ -8237,7 +8238,7 @@
       "waste": "环保材料出场申请",
       "sundry": "杂费报销",
       "request": "MR / 其他申请",
-      "gate": "门岗拍照",
+      "gate": "门岗",
       "operatorHours": "设备操作员工时",
       "permit": "施工准证",
       "visitor": "访客扫码"
@@ -10682,6 +10683,8 @@
       "technical": "技术管理",
       "permits": "施工准证",
       "gateRecords": "门岗记录",
+      "gatePhotoRecords": "日常拍照记录",
+      "gateIssues": "门岗事项",
       "visitorRecords": "访客进退场记录"
     },
     "subscription_management": "订阅管理",
@@ -10853,7 +10856,7 @@
       "WASTE_OUTGOING": "环保材料出场申请",
       "SUNDRY_CLAIM": "杂费报销",
       "EQUIPMENT_HOURS_PHOTO": "设备操作员工时",
-      "GATE_PHOTO": "门岗拍照"
+      "GATE_PHOTO": "门岗"
     },
     "pageDescription": "此页面尚未缓存。请先恢复网络并打开一次，之后即可离线使用。",
     "queue": {
@@ -11299,7 +11302,7 @@
       "trouble": "导不进去，多半是有列没对上：WBS、任务名称、计划开始是必须的，另外计划完成和工期至少要有一个。"
     },
     "site_access": {
-      "what": "工地门禁：谁能进工地、什么时候能进（通行证），保安在门口扫访客的通行证并确认进场、退场（访客扫码），以及自动闸机的记录（闸机记录）。每次进退场列在「访客进退场记录」；门口拍的照片在「整改 / EHS › 门岗记录」。",
+      "what": "工地门禁：谁能进工地、什么时候能进（通行证），保安在门口扫访客的通行证并确认进场、退场（访客扫码），以及自动闸机的记录（闸机记录）。每次进退场列在「访客进退场记录」；门口拍的照片在「工地门禁 › 日常拍照记录」和「门岗事项」。",
       "who": "持 site_access.view；签发和作废要 site_access.manage。",
       "need": "办通行证要项目、进入目的、生效时间、截止时间和姓名，车辆还要车牌。门口扫码用手机相机就可以；扫码枪只是门口固定电脑的选配。",
       "then": "通行证要经过审批才生效；撤销之后立刻扫不进。",
@@ -11427,7 +11430,7 @@
       "what": "门岗保安拍的照片：日常拍照记录（卡车进退场、普通门岗照片），和门岗事项（保安发现的特殊情况）。",
       "who": "持 site_access.view；门岗事项由指定人员或持 site_access.manage 的人确认结束。",
       "then": "普通照片直接归档；门岗事项会通知指定人员，双方在事项里沟通，确认结束后只能查看。",
-      "trouble": "找不到某张照片：看一下日期和拍摄人筛选；断网时拍的照片要等手机有网络才会上传。"
+      "trouble": "找不到某张照片：看一下日期、时间和拍摄人筛选，或切换成照片墙；断网时拍的照片要等手机有网络才会上传。"
     }
   },
   "partners": {
@@ -13606,7 +13609,7 @@
       "rejectTitle": "拒绝这个通行证？",
       "revokeBody": "二维码会立即失效，请填写原因以保留审计记录。",
       "revokeTitle": "撤销这个通行证？",
-      "subtitle": "通行证的申请、审批和访客扫码都在这里；门岗照片在「整改 / EHS › 门岗记录」。",
+      "subtitle": "通行证的申请、审批和访客扫码都在这里；门岗照片在「日常拍照记录」和「门岗事项」，同在工地门禁下面。",
       "timeline": "进出记录",
       "title": "工地门禁",
       "unknownGate": "未注明门岗",
@@ -14016,7 +14019,8 @@
       "gateIncidentSaved": "门岗记录已保存。",
       "gatePhotosAdded": "照片已补上。",
       "gateMembersAdded": "已指定人员并通知。",
-      "gateIssueClosed": "门岗事项已确认结束。"
+      "gateIssueClosed": "门岗事项已确认结束。",
+      "gateConversationStarted": "已通知选中的人员，可以开始沟通。"
     },
     "what": {
       "roles": "角色列表",
@@ -14064,7 +14068,8 @@
         "gps": "GPS",
         "latitude": "纬度",
         "longitude": "经度",
-        "photoCount": "照片张数"
+        "photoCount": "照片张数",
+        "singlePdf": "单笔"
       },
       "what": "门岗记录",
       "whatOne": "这条门岗记录",
@@ -14102,7 +14107,7 @@
       "photoFirst": "先拍至少一张照片，才能发送。",
       "officeTitle": "门岗记录",
       "recentTitle": "最近的门岗记录",
-      "issueHelp": "门岗事项：照片、备注、指定人员和沟通都留在这里，不能删除；确认结束后只能查看。",
+      "issueHelp": "门岗事项：照片、指定人员和沟通都留在这里，不能删除；确认结束后只能查看。",
       "kind": {
         "photo": "门岗照片",
         "issue": "门岗事项"
@@ -14116,9 +14121,33 @@
         "issues": "门岗事项"
       },
       "tabHelp": {
-        "photos": "卡车进退场和普通门岗照片，每张一条，直接归档。可按日期、项目、拍摄人搜索和导出。",
-        "issues": "保安发现的特殊情况：照片、备注、指定人员、双方沟通、状态，以及谁在什么时候确认结束。"
+        "photos": "卡车进退场和普通门岗照片，每张一条，直接归档。可按日期和时间、项目、拍摄人搜索和导出；可切换成照片墙。",
+        "issues": "保安按「沟通」找人处理的事情：照片、指定人员、双方沟通、状态，以及谁在什么时候确认结束。",
+        "wall": "照片墙：只有照片，最新的在前，往下滑会接着载入。点一张看大图和完整资料，用左右键或左右滑看上一张、下一张。"
       },
+      "view": {
+        "label": "查看方式",
+        "list": "列表",
+        "wall": "照片墙"
+      },
+      "wall": {
+        "empty": "没有符合的照片。",
+        "end": "已经是最后一张。",
+        "photoAlt": "门岗照片 {reference}",
+        "first": "已经是第一张。",
+        "last": "已经是最后一张。",
+        "previous": "上一张",
+        "next": "下一张",
+        "position": "第 {number} / {loaded} 张",
+        "date": "日期",
+        "time": "时间",
+        "photoOfRecord": "这笔记录的第 {number} / {count} 张",
+        "openRecord": "打开这笔记录"
+      },
+      "talk": "沟通",
+      "talkTitle": "沟通",
+      "talkHelp": "这张照片有状况要找人处理？按「沟通」选人，它就变成门岗事项，并打开沟通。",
+      "singlePdfHint": "这一笔的 PDF：预览、打印、导出、发送",
       "closeTitle": "确认结束",
       "close": "确认结束",
       "closeHelp": "事情处理好了就按这里。之后这条事项只能查看，照片和沟通都保留。",
@@ -14128,21 +14157,25 @@
       "closedBy": "{name} 于 {when} 确认结束"
     },
     "gatePhoto": {
-      "title": "门岗拍照",
-      "help": "卡车进场、退场或门口的情况，拍照就上传。每张照片自动记下项目、时间、GPS 和你的名字。",
-      "photosHint": "可以连续拍。普通照片每张各存一条。",
-      "special": "特殊事项",
-      "specialOffHelp": "关闭：普通门岗照片，直接归档，不通知任何人。",
-      "specialOnHelp": "打开：填备注、指定本项目的人员，对方手机会收到待办和提示音。",
-      "note": "备注",
-      "notePlaceholder": "例如：这辆罗厘没有出门单，请确认",
-      "assignees": "指定处理人员",
-      "assigneesHint": "本项目的现场人员，例如项目经理、现场主管、安全员。",
-      "sendPhotos": "上传（{count} 张照片）",
-      "sendIssue": "发送特殊事项",
+      "title": "门岗",
+      "help": "拍照后按「发送」。有状况要找人处理，按「发送并沟通」选人，不用打字。每张照片自动记下项目、时间、GPS 和你的名字。",
+      "photosHint": "可以连续拍。按「发送」时每张照片各存一条；按「发送并沟通」时这几张合成一笔门岗事项。",
+      "action": {
+        "photo": "拍照",
+        "scan": "扫访客二维码"
+      },
+      "assignees": "选处理人员",
+      "assigneesHint": "本项目的现场人员，例如项目经理、现场主管、安全员。至少选一人，他们手机会收到待办和提示音。",
+      "send": "发送",
+      "sendAndTalk": "发送并沟通",
+      "chooseTitle": "选处理人员",
+      "chooseHelpSend": "这 {count} 张照片会合成一笔门岗事项，发给你选的人，然后直接进入沟通，打不打字都可以。",
+      "chooseHelpTalk": "{reference} 会变成门岗事项，你选的人会收到通知，然后直接进入沟通，打不打字都可以。",
+      "startTalk": "开始沟通",
       "sentPhotos": "已上传 {count} 张门岗照片。",
-      "sentIssue": "特殊事项已发送，指定人员会收到通知。",
+      "sentTalk": "已发送，选中的人员会收到通知。",
       "sentQueued": "已存在手机里，有网络会自动上传，不会重复。",
+      "sentTalkQueued": "已存在手机里，有网络会自动发送并通知选中的人员；之后在最近记录里按「沟通」继续。",
       "signedOut": "请重新登录后再发送。"
     },
     "visitorScan": {
@@ -16074,7 +16107,7 @@
     "noLocation": "未记录位置",
     "zoomIn": "放大",
     "zoomOut": "缩小",
-    "zoomReset": "原始大小",
+    "fitWhole": "整张显示",
     "previous": "上一张",
     "next": "下一张",
     "recorder": "记录人",
@@ -16593,6 +16626,22 @@
     "allManufacturers": "全部指定厂商",
     "manufacturer": "指定厂商（MR）",
     "whatManufacturers": "供应商名单"
+  },
+  "dateTimeRange": {
+    "startDate": "开始日期",
+    "startTime": "开始时间（24 小时制）",
+    "endDate": "结束日期",
+    "endTime": "结束时间（24 小时制）",
+    "to": "至",
+    "timePlaceholder": "时:分",
+    "quick": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "lastHour": "最近 1 小时"
+    },
+    "clear": "清除时间",
+    "badTime": "时间请用 24 小时制，例如 14:00 或 1430。",
+    "backwards": "结束时间早于开始时间，没有记录会符合。"
   },
   "recordNo": {
     "copy": "复制 {number}",

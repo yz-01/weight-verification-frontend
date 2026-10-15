@@ -7,17 +7,19 @@ import {
   checkGatePass,
   confirmGatePass,
   createGateIncident,
+  startGateConversation,
 } from "@/services/site-access.service";
 
 /**
- * 门岗拍照 (batch H, HD5): the guard's phone page is photos and a 「特殊事项」
- * switch - no pass scan, no category, no gate name (Q18 / F1 overturned: the
- * scan moved to its own entry, 访客扫码). Off, each photo is its own record;
- * on, a note and the people asked in make one Gate Issue.
+ * 门岗拍照 (batch H, HD5; I14, ID31): the guard's phone page is photos and two
+ * buttons, 「发送」 and 「发送并沟通」 - no switch, no note to type, no pass
+ * scan, no category, no gate name. 「发送」 sends each photo as its own
+ * record; 「发送并沟通」 asks for the people (at least one) and sends one Gate
+ * Issue whose conversation then opens.
  *
  * There is no DOM renderer in this project's test runner, so the form is read
  * the way the repository's other guards read source: the one component, its
- * one send button.
+ * buttons.
  */
 
 const SOURCE = readFileSync(path.join(__dirname, "gate-records.tsx"), "utf8");
@@ -29,18 +31,34 @@ function formSource() {
   return SOURCE.slice(start, end);
 }
 
-describe("the guard's gate photo form", () => {
-  it("waits for the project and a photo, and for a special matter its note and people", () => {
+function componentSource(name: string) {
+  const start = SOURCE.indexOf(`function ${name}(`);
+  const end = SOURCE.indexOf("\nfunction ", start + 1);
+  expect(start, name).toBeGreaterThan(-1);
+  return SOURCE.slice(start, end);
+}
+
+describe("the guard's gate photo form (I14)", () => {
+  it("has two buttons, 发送 and 发送并沟通, each waiting only for the project and a photo", () => {
     const form = formSource();
-    const requires = form.match(/requires=\{\[([\s\S]*?)\]\}\s*disabled=\{save\.isPending\}/);
-    expect(requires).not.toBeNull();
-    const labels = [...requires![1].matchAll(/t[r]?\("([^"]+)"\)/g)].map((match) => match[1]);
-    expect(labels).toEqual(["field.project", "field.photos", "note", "assignees"]);
+    const requires = [...form.matchAll(/requires=\{\[([\s\S]*?)\]\}\s*disabled=\{/g)];
+    expect(requires).toHaveLength(2);
+    for (const [, pairs] of requires) {
+      const labels = [...pairs.matchAll(/t[r]?\("([^"]+)"\)/g)].map((match) => match[1]);
+      expect(labels).toEqual(["field.project", "field.photos"]);
+    }
+    expect(form).toContain('t("send")');
+    expect(form).toContain('t("sendAndTalk")');
   });
 
-  it("has no pass scan and asks nothing the customer took off the phone", () => {
+  it("asks nothing to be typed: no switch, no note, nothing the customer took off the phone", () => {
     const form = formSource();
     for (const gone of [
+      "Switch",
+      "Textarea",
+      't("special")',
+      't("note")',
+      "first_message",
       "GateQrScanner",
       "findGatePass",
       "access_pass",
@@ -52,8 +70,6 @@ describe("the guard's gate photo form", () => {
     ]) {
       expect(form, gone).not.toContain(gone);
     }
-    expect(form).toContain('t("special")');
-    expect(form).toContain("first_message");
   });
 
   it("sends a plain photo as one record each, through the offline queue", () => {
@@ -61,6 +77,36 @@ describe("the guard's gate photo form", () => {
     expect(form).toContain("submitGatePhotoOfflineAware");
     expect(form).toContain("for (const photo of camera.photos)");
     expect(form).toContain("photos: [photo]");
+  });
+
+  it("sends 发送并沟通 as one issue with the people chosen, then opens its conversation", () => {
+    const form = formSource();
+    expect(form).toContain("submitGateIssueOfflineAware");
+    expect(form).toContain("is_issue: true");
+    expect(form).toContain("onTalk(outcome.incident.id)");
+    expect(form).toContain("<GatePeopleDialog");
+  });
+
+  it("will not ask anybody in until at least one person is chosen", () => {
+    const picker = componentSource("GatePeopleDialog");
+    expect(picker).toMatch(/requires=\{\[\[members\.length > 0, t\("assignees"\)\]\]\}/);
+    expect(picker).toMatch(/<FieldWrapper label=\{t\("assignees"\)\} required/);
+  });
+
+  it("gives every recent record 沟通, and an issue opens straight at its conversation", () => {
+    const card = componentSource("GateIncidentCard");
+    expect(card).toContain('t("talk")');
+    const panel = componentSource("GateRecordsPanel");
+    expect(panel).toContain("row.is_issue ? open(row.id, true) : setTalkingAbout(row)");
+    expect(panel).toContain("<GateTalkDialog");
+    expect(componentSource("GateTalkDialog")).toContain("startGateConversation(incident.id, members)");
+  });
+
+  it("puts 拍照 and 扫访客二维码 on the one 门岗 screen (ID32)", () => {
+    const panel = componentSource("GateRecordsPanel");
+    expect(panel).toContain('(["photo", "scan"] as const)');
+    expect(panel).toContain("<VisitorScanPanel");
+    expect(panel).toContain("<GatePhotoCapture");
   });
 
   it("says on the form, not only in a tooltip, that a photo is what it waits for", () => {
@@ -93,6 +139,14 @@ describe("what the phone sends", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it("starts the conversation on a record with the people chosen, and nothing typed", async () => {
+    await startGateConversation("g1", ["u2"]);
+
+    const { url, json } = lastCall();
+    expect(url).toContain("/api/gate-incidents/g1/start_gate_conversation/");
+    expect(json).toEqual({ members: ["u2"] });
   });
 
   it("posts a special matter with its note and people - and no category or pass", async () => {

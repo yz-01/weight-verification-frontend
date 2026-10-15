@@ -7559,6 +7559,7 @@
       "column_other_project": "That category is not in this record's project. Choose one from the same project.",
       "column_inactive": "“{column}” is closed. Choose an open category.",
       "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further.",
+      "gate_record_not_an_issue": "This gate photo is not a gate issue yet. Press Talk and choose who handles it first.",
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
@@ -8237,7 +8238,7 @@
       "waste": "Environmental material outgoing",
       "sundry": "Sundry claims",
       "request": "MR / Other Request",
-      "gate": "Gate Photo Record",
+      "gate": "Gate",
       "operatorHours": "Equipment operator hours",
       "permit": "Permit to work",
       "visitor": "Visitor QR Scan"
@@ -10682,6 +10683,8 @@
       "technical": "Technical management",
       "permits": "Permit to work",
       "gateRecords": "Gate Records",
+      "gatePhotoRecords": "Photo Records",
+      "gateIssues": "Gate Issues",
       "visitorRecords": "Visitor Records"
     },
     "subscription_management": "Subscriptions",
@@ -10853,7 +10856,7 @@
       "WASTE_OUTGOING": "Environmental material outgoing",
       "SUNDRY_CLAIM": "Sundry claims",
       "EQUIPMENT_HOURS_PHOTO": "Equipment operator hours",
-      "GATE_PHOTO": "Gate Photo Record"
+      "GATE_PHOTO": "Gate"
     },
     "pageDescription": "This page is not cached yet. Reconnect once, then open it again for offline use.",
     "queue": {
@@ -11299,7 +11302,7 @@
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
     },
     "site_access": {
-      "what": "Site access: who may enter and when (passes), the guard scanning a visitor's pass and confirming entry or exit (Visitor QR Scan), and automatic gate records. Every entry and exit is listed in Visitor Records; gate photos are under EHS › Gate Records.",
+      "what": "Site access: who may enter and when (passes), the guard scanning a visitor's pass and confirming entry or exit (Visitor QR Scan), and automatic gate records. Every entry and exit is listed in Visitor Records; gate photos are under Site access › Photo Records and Gate Issues.",
       "who": "Holders of site_access.view; issuing and revoking need site_access.manage.",
       "need": "A pass needs the project, the purpose of entry, valid-from and valid-until times and a name; a vehicle pass also needs the plate. Scanning at the gate needs only a phone camera; a scanner gun is an option for a fixed gate computer.",
       "then": "A pass takes effect only after approval, and a revoked one stops working immediately.",
@@ -11427,7 +11430,7 @@
       "what": "Photos the gate guards took: Photo Records (lorries in and out, ordinary gate photos) and Gate Issues (special matters the guards raised).",
       "who": "Holders of site_access.view; a gate issue is confirmed finished by the people assigned or a holder of site_access.manage.",
       "then": "Ordinary photos are filed at once; a gate issue notifies the people assigned, who talk in it, and is read-only once confirmed finished.",
-      "trouble": "A photo is missing: check the date and photographer filters; photos taken offline upload once the phone has a network."
+      "trouble": "A photo is missing: check the date, time and photographer filters, or switch to the photo wall; photos taken offline upload once the phone has a network."
     }
   },
   "partners": {
@@ -13606,7 +13609,7 @@
       "rejectTitle": "Reject this access pass?",
       "revokeBody": "The QR code will stop working immediately. Record the reason for the audit trail.",
       "revokeTitle": "Revoke this access pass?",
-      "subtitle": "Apply for and approve passes, and scan visitors at the gate. Gate photos are under EHS › Gate Records.",
+      "subtitle": "Apply for and approve passes, and scan visitors at the gate. Gate photos are under Photo Records and Gate Issues, also in Site access.",
       "timeline": "Entry and exit history",
       "title": "Site access",
       "unknownGate": "Gate not named",
@@ -14016,7 +14019,8 @@
       "gateIncidentSaved": "Gate record saved.",
       "gatePhotosAdded": "Photos added.",
       "gateMembersAdded": "People asked in and notified.",
-      "gateIssueClosed": "Gate issue confirmed finished."
+      "gateIssueClosed": "Gate issue confirmed finished.",
+      "gateConversationStarted": "The people you chose are notified; the conversation is open."
     },
     "what": {
       "roles": "The role list",
@@ -14064,7 +14068,8 @@
         "gps": "GPS",
         "latitude": "Latitude",
         "longitude": "Longitude",
-        "photoCount": "Photos"
+        "photoCount": "Photos",
+        "singlePdf": "This record"
       },
       "what": "gate records",
       "whatOne": "this gate record",
@@ -14102,7 +14107,7 @@
       "photoFirst": "Take at least one photo to send.",
       "officeTitle": "Gate Records",
       "recentTitle": "Latest gate records",
-      "issueHelp": "A gate issue: its photos, note, people and conversation stay here and cannot be deleted; once confirmed finished it is read-only.",
+      "issueHelp": "A gate issue: its photos, people and conversation stay here and cannot be deleted; once confirmed finished it is read-only.",
       "kind": {
         "photo": "Gate photo",
         "issue": "Gate issue"
@@ -14116,9 +14121,33 @@
         "issues": "Gate Issues"
       },
       "tabHelp": {
-        "photos": "Lorries in and out and ordinary gate photos, one record per photo, filed at once. Search by date, project and photographer, and export.",
-        "issues": "Special matters the guards raised: photos, note, people asked in, their conversation, status, and who confirmed it finished and when."
+        "photos": "Lorries in and out and ordinary gate photos, one record per photo, filed at once. Search by date and time, project and photographer, and export; or switch to the photo wall.",
+        "issues": "Matters a guard raised with Talk: photos, people asked in, their conversation, status, and who confirmed it finished and when.",
+        "wall": "Photo wall: photos only, newest first; scroll down for more. Press one for the large photo and its full record; use the arrow keys or swipe for the previous or next."
       },
+      "view": {
+        "label": "View as",
+        "list": "List",
+        "wall": "Photo wall"
+      },
+      "wall": {
+        "empty": "No photos match.",
+        "end": "That is the last photo.",
+        "photoAlt": "Gate photo {reference}",
+        "first": "This is the first photo.",
+        "last": "This is the last photo.",
+        "previous": "Previous",
+        "next": "Next",
+        "position": "{number} of {loaded}",
+        "date": "Date",
+        "time": "Time",
+        "photoOfRecord": "Photo {number} of {count} in this record",
+        "openRecord": "Open this record"
+      },
+      "talk": "Talk",
+      "talkTitle": "Talk",
+      "talkHelp": "Does this photo need someone to deal with it? Press Talk and choose people: it becomes a gate issue and the conversation opens.",
+      "singlePdfHint": "This record's PDF: preview, print, export, send",
       "closeTitle": "Confirm finished",
       "close": "Confirm finished",
       "closeHelp": "Press this once it is dealt with. The issue then becomes read-only; its photos and conversation are kept.",
@@ -14128,21 +14157,25 @@
       "closedBy": "Confirmed finished by {name} on {when}"
     },
     "gatePhoto": {
-      "title": "Gate Photo Record",
-      "help": "Lorries in or out, or anything at the gate: take the photo and send. Each photo keeps the project, time, GPS and your name.",
-      "photosHint": "Take as many as you need. Ordinary photos are saved one record each.",
-      "special": "Special matter",
-      "specialOffHelp": "Off: an ordinary gate photo, filed at once, nobody notified.",
-      "specialOnHelp": "On: write a note and choose people of this project; their phones get a to-do and a sound.",
-      "note": "Note",
-      "notePlaceholder": "e.g. This lorry has no exit slip, please check",
-      "assignees": "Assign to",
-      "assigneesHint": "Site people of this project, such as the project manager, site supervisor or safety officer.",
-      "sendPhotos": "Send ({count} photos)",
-      "sendIssue": "Send special matter",
+      "title": "Gate",
+      "help": "Take the photo, then press Send. If something needs dealing with, press Send & talk and choose people - no typing needed. Each photo keeps the project, time, GPS and your name.",
+      "photosHint": "Take as many as you need. Send saves one record per photo; Send & talk makes them one gate issue.",
+      "action": {
+        "photo": "Take photo",
+        "scan": "Scan visitor QR"
+      },
+      "assignees": "Choose who handles it",
+      "assigneesHint": "Site people of this project, such as the project manager, site supervisor or safety officer. Choose at least one; their phones get a to-do and a sound.",
+      "send": "Send",
+      "sendAndTalk": "Send & talk",
+      "chooseTitle": "Choose who handles it",
+      "chooseHelpSend": "These photos ({count}) go as one gate issue to the people you choose, then the conversation opens. Typing is optional.",
+      "chooseHelpTalk": "{reference} becomes a gate issue, the people you choose are notified, and the conversation opens. Typing is optional.",
+      "startTalk": "Start talking",
       "sentPhotos": "{count} gate photos sent.",
-      "sentIssue": "Special matter sent; the people assigned are notified.",
+      "sentTalk": "Sent; the people you chose are notified.",
       "sentQueued": "Saved on this phone; it uploads by itself once there is a network, once.",
+      "sentTalkQueued": "Saved on this phone; it is sent and the people you chose are notified once there is a network. Then press Talk on it in the recent records.",
       "signedOut": "Sign in again, then send."
     },
     "visitorScan": {
@@ -16074,7 +16107,7 @@
     "noLocation": "No location recorded",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
-    "zoomReset": "Actual size",
+    "fitWhole": "Fit whole photo",
     "previous": "Previous",
     "next": "Next",
     "recorder": "Recorded by",
@@ -16593,6 +16626,22 @@
     "allManufacturers": "All named manufacturers",
     "manufacturer": "Named manufacturer (MR)",
     "whatManufacturers": "The supplier list"
+  },
+  "dateTimeRange": {
+    "startDate": "Start date",
+    "startTime": "Start time (24-hour)",
+    "endDate": "End date",
+    "endTime": "End time (24-hour)",
+    "to": "to",
+    "timePlaceholder": "HH:mm",
+    "quick": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "lastHour": "Last 1 hour"
+    },
+    "clear": "Clear the time range",
+    "badTime": "Type the time on a 24-hour clock, e.g. 14:00 or 1430.",
+    "backwards": "The end is before the start, so nothing can match."
   },
   "recordNo": {
     "copy": "Copy {number}",

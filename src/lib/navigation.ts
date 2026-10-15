@@ -1099,9 +1099,8 @@ export const PORTAL_NAVIGATION = {
         // entry, beside 隐患整改 rather than a column inside it. The same
         // `safety` feature and permissions: the safety team runs both.
         child("11.2.2", "nav.submodule.permits", "/permits", "safety"),
-        // 门岗记录 (batch H, HD9): 「EHS / Safety → Gate Records」, the guards'
-        // photos and gate issues, for whoever may see site access.
-        child("11.2.3", "nav.submodule.gateRecords", "/gate-records", "gate_records"),
+        // 门岗记录 lived here (batch H, HD9) until the client moved it to
+        // 工地门禁 (I25, ID61): 「整改 / EHS 拿掉门岗记录」.
       ],
     ),
     item(
@@ -1342,15 +1341,32 @@ export const PORTAL_NAVIGATION = {
       undefined,
       false,
       [
+        // 工地门禁 is the five pages a guard's work is read on, in the
+        // client's order (I25, ID61): 「请将以下 5 个现有页面统一放在左侧
+        // 『工地门禁』分类下面：日常拍照记录、门岗事项、通行证、访客扫码、访客进
+        // 退场记录」. The first two are the two tabs of 门岗记录 (HD9), moved
+        // here from 整改 / EHS; pages, addresses and permissions unchanged.
         child(
           "17.2.1",
+          "nav.submodule.gatePhotoRecords",
+          "/gate-records?tab=photos",
+          "gate_records",
+        ),
+        child(
+          "17.2.2",
+          "nav.submodule.gateIssues",
+          "/gate-records?tab=issues",
+          "gate_records",
+        ),
+        child(
+          "17.2.3",
           "nav.submodule.siteAccessPasses",
           "/site-access",
           "site_access",
         ),
         // 访客扫码 (HD7): scan, read the pass, Confirm Entry / Exit.
         child(
-          "17.2.2",
+          "17.2.4",
           "nav.submodule.gateScanning",
           "/site-access?tab=gate",
           "site_access",
@@ -1358,7 +1374,7 @@ export const PORTAL_NAVIGATION = {
         // Visitor Records (HD9): every confirmed entry and exit, kept apart
         // from the gate photographs.
         child(
-          "17.2.3",
+          "17.2.5",
           "nav.submodule.visitorRecords",
           "/visitor-records",
           "site_access",
@@ -1747,6 +1763,20 @@ export function hubDestination(
     isSuperuser,
   );
   return children[0]?.href ?? null;
+}
+
+/**
+ * The tab a page shows when its address names none: `/gate-records` opens
+ * on 日常拍照记录, so that menu entry is the one lit (I25: 「菜单高亮跟着分页
+ * 走」).
+ */
+export const DEFAULT_NAV_TABS: Readonly<Record<string, string>> = {
+  "/gate-records": "photos",
+};
+
+/** The tab this address is on, counting a page's default tab. */
+export function navTabOf(route: string, searchParams: Pick<URLSearchParams, "get">): string | null {
+  return searchParams.get("tab") ?? DEFAULT_NAV_TABS[route] ?? null;
 }
 
 /** Whether a navigation entry matches the current route. */

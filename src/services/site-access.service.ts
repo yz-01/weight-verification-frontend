@@ -24,6 +24,7 @@ import type {
   VisitorRecord,
 } from "@/interfaces/site-access";
 import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
+import type { WallRecord } from "@/lib/gate-photo-wall";
 import { api, download, toastSuccess } from "@/services/api-client";
 import {
   exportBody,
@@ -278,6 +279,30 @@ export const getGateIncidents = (query: ListQuery = {}) =>
 
 export const getGateIncident = (id: string) =>
   api.get<GateIncidentDetail>(`/api/gate-incidents/${id}/get_gate_incident/`);
+
+/**
+ * 日常拍照记录's 照片墙 (I33): the same list and filters, each row with every
+ * one of its photos - small for the wall, stamped full size for the viewer.
+ */
+export const getGateWall = (query: ListQuery = {}) =>
+  api.list<WallRecord>("/api/gate-incidents/get_gate_incidents/", {
+    ...query,
+    with_photos: 1,
+  });
+
+/**
+ * 「沟通」 on a gate record (I14, ID31): the people chosen are asked in, a
+ * plain photo becomes a Gate Issue, and its conversation opens. Saying
+ * something first is optional.
+ */
+export async function startGateConversation(id: string, members: string[], firstMessage = "") {
+  const row = await api.post<GateIncidentDetail>(
+    `/api/gate-incidents/${id}/start_gate_conversation/`,
+    { members, ...(firstMessage.trim() ? { first_message: firstMessage.trim() } : {}) },
+  );
+  toastSuccess("siteControl.toast.gateConversationStarted");
+  return row;
+}
 
 export const getGateMemberOptions = (project: string) =>
   api.get<GateMemberOption[]>("/api/gate-incidents/get_member_options/", {
