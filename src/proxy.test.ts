@@ -22,3 +22,15 @@ describe("the package link through the proxy", () => {
     expect(response.headers.get("location")).toContain("/login");
   });
 });
+
+describe("the worker's location link through the proxy (I20)", () => {
+  it("opens without a session: the worker has no account", () => {
+    const response = proxy(new NextRequest("https://trace.example/worker-location/abcdefghijklmnopqrstuvwxyz"));
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("does not open the office's roster without a session", () => {
+    const response = proxy(new NextRequest("https://trace.example/site-workers"));
+    expect(response.headers.get("location")).toContain("/login");
+  });
+});

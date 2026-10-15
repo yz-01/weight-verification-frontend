@@ -7639,7 +7639,15 @@
       "package_source_missing": "The record behind a returned item can no longer be read.",
       "package_link_not_found": "Not found",
       "role_template_not_found": "There is no preset role with that name.",
-      "role_already_exists": "This company already has that role."
+      "role_already_exists": "This company already has that role.",
+      "site_worker_not_found": "Worker not found",
+      "site_worker_phone_taken": "This phone number is already on the project's roster ({name})",
+      "site_worker_inactive": "This worker is off the roster; put them back on first",
+      "worker_link_invalid": "This link no longer works. Ask the site office to send it again.",
+      "worker_link_closed": "This link is closed.",
+      "worker_link_other_device": "This link is in use on another phone.",
+      "worker_link_phone_mismatch": "The phone number does not match the registered one.",
+      "worker_link_not_confirmed": "Confirm your phone number and agree first."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7660,7 +7668,10 @@
       "required": "This field is required",
       "unique": "This value is already taken",
       "percent_range": "Enter a percentage from 0 to 100",
-      "percent_unchanged": "That is already the percentage"
+      "percent_unchanged": "That is already the percentage",
+      "invalid_worker_phone": "Enter a mobile number such as 012-345 6789",
+      "site_worker_phone_taken": "This phone number is already on the roster",
+      "too_many_documents": "Up to 10 documents"
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -10687,7 +10698,8 @@
       "gateRecords": "Gate Records",
       "gatePhotoRecords": "Photo Records",
       "gateIssues": "Gate Issues",
-      "visitorRecords": "Visitor Records"
+      "visitorRecords": "Visitor Records",
+      "siteWorkers": "Worker roster"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -11868,6 +11880,10 @@
       "integration": {
         "view": "View integrations and devices",
         "manage": "Manage integrations and devices"
+      },
+      "site_worker": {
+        "view": "View the worker roster and their entries and exits",
+        "manage": "Register workers and send their location links"
       }
     },
     "group": {
@@ -11935,7 +11951,8 @@
       "cloud_service": "Cloud services",
       "platform_settings": "Platform settings",
       "platform_version": "Versions",
-      "integration": "Integrations"
+      "integration": "Integrations",
+      "site_worker": "Worker roster"
     }
   },
   "photoApprovals": {
@@ -17542,5 +17559,167 @@
     "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
     "name": "Name",
     "continue": "Continue"
+  },
+  "siteWorkers": {
+    "title": "Worker roster",
+    "visitsTitle": "Entries and exits",
+    "count": "{count, plural, one {# worker} other {# workers}}",
+    "visitCount": "{count, plural, one {# entry} other {# entries}}",
+    "searchHint": "Search by name, phone number, CIDB card number or any other document number; pick a company at the same time if you like.",
+    "visitsHint": "Each row is one stay: inside the fence records entry, five minutes outside records exit. When a phone stops reporting it shows \"Location not updated\" and is never taken as an exit.",
+    "noFence": "This project has no geofence yet, so presence cannot be judged. Set one up in Geofence settings first.",
+    "tab": {
+      "roster": "Worker roster",
+      "visits": "Entries and exits"
+    },
+    "field": {
+      "name": "Name",
+      "phone": "Phone number",
+      "cidb": "CIDB card no.",
+      "company": "Company",
+      "companyNote": "Company name (not on the list)",
+      "project": "Project",
+      "status": "On-site status",
+      "lastPositionAt": "Last location time",
+      "view": "View",
+      "documents": "Other documents",
+      "enteredAt": "Entry time",
+      "exitedAt": "Exit time",
+      "exitState": "Status"
+    },
+    "status": {
+      "ON_SITE": "On site",
+      "OFF_SITE": "Off site",
+      "STALE": "Location not updated",
+      "NOT_STARTED": "Not started"
+    },
+    "visit": {
+      "signalLostAt": "Location not updated (last {at})",
+      "EXITED": "Left",
+      "in": "In",
+      "out": "Out"
+    },
+    "filter": {
+      "company": "Company",
+      "allCompanies": "All companies",
+      "project": "Choose a project",
+      "allProjects": "All projects",
+      "inactive": "Removed",
+      "dateFrom": "Entry date from",
+      "dateTo": "Entry date to",
+      "onePerson": "Only: {name}"
+    },
+    "action": {
+      "view": "View",
+      "add": "Add worker",
+      "edit": "Edit details",
+      "deactivate": "Remove from roster",
+      "reactivate": "Back on the roster"
+    },
+    "what": {
+      "companies": "the company list",
+      "worker": "the worker's details"
+    },
+    "toast": {
+      "created": "Worker added to the roster",
+      "updated": "Details updated",
+      "deactivated": "Removed from the roster; the location link no longer works",
+      "reactivated": "Back on the roster; send a new location link"
+    },
+    "form": {
+      "addTitle": "Add worker",
+      "editTitle": "Edit details",
+      "phoneHint": "For example 012-345 6789. The location link binds only to the phone with this number.",
+      "noCompany": "None (not on the list)",
+      "pickCompany": "Choose from the company list",
+      "searchCompany": "Search companies",
+      "noCompanyMatch": "No such company on the list",
+      "companyNoteHint": "Type a company that is not on the list; you can pick it from the list later.",
+      "documentName": "Document (e.g. passport)",
+      "documentNumber": "Document number",
+      "removeDocument": "Remove this document",
+      "addDocument": "Add a document",
+      "documentIncomplete": "Each document needs both a name and a number"
+    },
+    "detail": {
+      "title": "Worker",
+      "lastAt": "Last location {at}",
+      "profile": "Details",
+      "lastPosition": "Last GPS location",
+      "noPosition": "No location yet. Send the location link; it starts once the worker opens it and agrees.",
+      "outside": "Off site, about {km} km from the fence · {at}",
+      "noFenceAt": "The project has no fence, so the location cannot be judged · {at}",
+      "inside": "On site · {at}",
+      "mapLabel": "Map of the last location",
+      "privacyNote": "Only locations inside the site fence are shown; off site only the distance is shown, never the exact point. Location records cannot be changed or deleted.",
+      "link": "Location link",
+      "visits": "Entries and exits ({count})",
+      "allVisits": "See all",
+      "noVisits": "No entries yet",
+      "deactivateHelp": "Turn the switch on to remove. The location link stops working at once; past entries and locations are kept.",
+      "armFirst": "Turn the switch on first"
+    },
+    "link": {
+      "status": {
+        "NONE": "Not sent yet",
+        "REVOKED": "No longer works",
+        "NOT_OPENED": "Sent, not opened yet",
+        "BOUND": "Opened, not agreed yet",
+        "ACTIVE": "Agreed to share location"
+      },
+      "issuedAt": "sent {at}",
+      "send": "Send location link",
+      "resend": "Send a new link",
+      "resendHint": "A new link stops the old one at once; the worker types their phone number again.",
+      "message": "Hi {name}, this is the site location link for {project}. Open it on your phone, enter your phone number, press \"Agree and start\" and keep the page open while on site: {link}",
+      "sentTitle": "Location link ready",
+      "sentBody": "The system sends no SMS. Send it by WhatsApp, or copy it and send it yourself. The link is shown this once only.",
+      "whatsapp": "Send by WhatsApp",
+      "copy": "Copy link"
+    }
+  },
+  "workerLocation": {
+    "chatTitle": "Open it in your browser",
+    "chatBody": "You are opening this inside {app}. The link stays with where it is first opened, so copy it and open it in Chrome or Safari.",
+    "copyLink": "Copy link",
+    "continueHere": "Open here anyway",
+    "failedTitle": "Cannot open right now",
+    "failedBody": "Check your connection and try again.",
+    "invalidTitle": "This link no longer works",
+    "invalidBody": "Ask the site office to send it again.",
+    "closedTitle": "This link is closed",
+    "closedBody": "You are no longer on this project's roster, or the project has ended.",
+    "otherDeviceTitle": "This link is in use on another phone",
+    "otherDeviceBody": "This link works only on the phone that confirmed the number. Ask the site office to send it again.",
+    "phoneTitle": "Enter your phone number",
+    "phoneBody": "The same number the site office registered.",
+    "phoneLabel": "Phone number",
+    "phonePlaceholder": "012-345 6789",
+    "phoneConfirm": "Confirm",
+    "hello": "Hi {name}",
+    "consentTitle": "Before you start",
+    "consent": {
+      "what": "Your phone's GPS location and the time are collected.",
+      "when": "Only while this page is open; closing it or locking the screen stops it.",
+      "who": "The site office uses it to record when you enter and leave the site. Off site, only the distance is shown, never the exact place.",
+      "noEdit": "Location records cannot be changed or deleted."
+    },
+    "agree": "Agree and start",
+    "locating": "Locating",
+    "locatingAt": "Locating · last sent {time}",
+    "keepOpen": "Please keep this page open",
+    "starting": "Getting your location…",
+    "retry": "Try again",
+    "foregroundOnly": "Sending stops when the screen locks or you switch apps, and carries on when you come back to this page.",
+    "error": {
+      "invalid": "This link no longer works. Ask the site office to send it again.",
+      "closed": "This link is closed.",
+      "otherDevice": "This link is in use on another phone.",
+      "phoneMismatch": "That number does not match. Enter the number the site office registered, or contact the office.",
+      "failed": "Cannot connect right now; try again shortly.",
+      "denied": "Location permission was refused. Follow the steps below to allow it.",
+      "unavailable": "Cannot get a location right now. Move into the open and check location is on.",
+      "upload": "The last send did not get through; it will try again."
+    }
   }
 }

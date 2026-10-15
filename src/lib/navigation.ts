@@ -89,6 +89,7 @@ export type PortalFeatureKey =
   | "geofences"
   | "site_access"
   | "emergency_list"
+  | "site_workers"
   | "company_settings"
   | "integrations"
   | "company_management"
@@ -1276,6 +1277,13 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.emergencyList",
           "/emergency-list",
           "emergency_list",
+        ),
+        // 人员名单 (I20): workers with no account, located by their own link.
+        child(
+          "15.2.5",
+          "nav.submodule.siteWorkers",
+          "/site-workers",
+          "site_workers",
         ),
       ],
     ),
