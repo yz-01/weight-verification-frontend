@@ -3079,7 +3079,8 @@
       "PROJECT": "Project",
       "SETTLEMENT": "Payment proofs",
       "WEIGH_SESSION": "Weighing records",
-      "ANNOUNCEMENT": "Announcement"
+      "ANNOUNCEMENT": "Announcement",
+      "VISITOR_ARRIVAL": "Visitor arrival"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -7574,6 +7575,8 @@
       "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
       "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
       "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
+      "not_awaiting_confirmation": "{reference} is not waiting for its check, so it cannot be sent back. Switch “Needs more work” off and send again.",
+      "may_not_request_more_work": "Only whoever checks this item can ask for more work.",
       "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor.",
       "incident_thread_not_found": "That incident report could not be found.",
       "incorrect_password": "Your current password is incorrect.",
@@ -7773,7 +7776,19 @@
       "export_too_many_photos": "This export holds {count} photos; one file takes at most {limit}. Shorten the dates and export again.",
       "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it.",
       "record_not_correctable": "This record cannot be corrected now: it is archived, its project has ended, or it was already decided.",
-      "correction_stale": "Somebody corrected this record a moment ago. The latest values were read again; check them and save again."
+      "correction_stale": "Somebody corrected this record a moment ago. The latest values were read again; check them and save again.",
+      "site_worker_not_found": "Worker not found",
+      "site_worker_phone_taken": "This phone number is already on the project's roster ({name})",
+      "site_worker_inactive": "This worker is off the roster; put them back on first",
+      "worker_link_invalid": "This link no longer works. Ask the site office to send it again.",
+      "worker_link_closed": "This link is closed.",
+      "worker_link_other_device": "This link is in use on another phone.",
+      "worker_link_phone_mismatch": "The phone number does not match the registered one.",
+      "worker_link_not_confirmed": "Confirm your phone number and agree first.",
+      "gate_pass_host_not_confirmed": "The visitor's host has not confirmed yet. Do not let them in.",
+      "visitor_arrival_already_open": "This visitor is already waiting at the gate.",
+      "visitor_arrival_answered": "This visitor has already been answered.",
+      "visitor_arrival_not_host": "Only the visitor's host or a site access manager can answer."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7799,7 +7814,10 @@
       "correction_unchanged": "Nothing was changed",
       "positive_number": "Enter a number greater than 0",
       "claim_decided": "This sundry claim has already been decided",
-      "project_closed": "This project has ended"
+      "project_closed": "This project has ended",
+      "invalid_worker_phone": "Enter a mobile number such as 012-345 6789",
+      "site_worker_phone_taken": "This phone number is already on the roster",
+      "too_many_documents": "Up to 10 documents"
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -10471,7 +10489,12 @@
       "published_by": "Published by",
       "published_at": "Published at",
       "content": "Content",
-      "read_count": "Read / recipients"
+      "read_count": "Read / recipients",
+      "host": "Host",
+      "confirmed_by": "Confirmed by",
+      "confirmed_at": "Confirmed at",
+      "entry_at": "Entry time",
+      "exit_at": "Exit time"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -10735,7 +10758,6 @@
       "partnerTerritories": "Territories",
       "partnerTypes": "Partner types",
       "paymentProofs": "Payment proofs",
-      "photoApprovals": "Photo approvals",
       "photoReport": "Photo report",
       "platformBusinessReports": "Platform business reports",
       "platformCommission": "Platform commission",
@@ -10830,7 +10852,8 @@
       "gateIssues": "Gate Issues",
       "visitorRecords": "Visitor Records",
       "dailyReport": "Daily reports",
-      "progressSummary": "Progress summary"
+      "progressSummary": "Progress summary",
+      "siteWorkers": "Worker roster"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -11428,7 +11451,7 @@
     "safety": {
       "what": "Safety events on site: logging them and reporting them up.",
       "who": "Holders of both safety.view and project.view.",
-      "need": "An event needs the project, the safety category, a title, photos, GPS evidence, the people responsible and what was done. A report needs the project, a title, what happened, who it goes to, the evidence and the place.",
+      "need": "An event needs the project, the issue category, a title, photos, GPS evidence, the people responsible and what was done. A report needs the project, a title, what happened, who it goes to, the evidence and the place.",
       "then": "The people named are notified straight away.",
       "trouble": "Photos and GPS are both required and there is often no signal. Shoot anyway - it queues and uploads later, and the location kept is where you stood when you took it."
     },
@@ -11565,7 +11588,7 @@
       "trouble": "Nothing common enough to warn about yet."
     },
     "material_requests": {
-      "what": "Material Requests and Other Requests from the sites, each with its own Request No.; the requested totals; and the earlier photo approvals.",
+      "what": "Material Requests and Other Requests from the sites, each with its own Request No.; and the requested totals.",
       "who": "Holders of material_request.view; approving or returning needs material_request.review.",
       "need": "A material request needs material, specification, quantity and unit; the remark and attachments are optional. An other request needs a file or a remark.",
       "then": "Head office talks on the request and approves or returns it. A returned request is closed; asking again is a new request with a new number.",
@@ -11576,6 +11599,12 @@
       "who": "Holders of site_access.view; a gate issue is confirmed finished by the people assigned or a holder of site_access.manage.",
       "then": "Ordinary photos are filed at once; a gate issue notifies the people assigned, who talk in it, and is read-only once confirmed finished.",
       "trouble": "A photo is missing: check the date, time and photographer filters, or switch to the photo wall; photos taken offline upload once the phone has a network."
+    },
+    "site_workers": {
+      "what": "The roster of workers with no system account: register them, send each a location link, and see who is on site and when they came and went.",
+      "who": "site_worker.view reads it; site_worker.manage registers workers and sends links.",
+      "then": "Once the worker opens the link, enters their number and agrees, the open page reports their location; inside the fence records entry, five minutes outside records exit.",
+      "trouble": "\"Location not updated\": the worker closed the page or locked the screen; it does not mean they left. Link will not open: send a new link."
     }
   },
   "partners": {
@@ -12011,6 +12040,10 @@
       "integration": {
         "view": "View integrations and devices",
         "manage": "Manage integrations and devices"
+      },
+      "site_worker": {
+        "view": "View the worker roster and their entries and exits",
+        "manage": "Register workers and send their location links"
       }
     },
     "group": {
@@ -12078,34 +12111,9 @@
       "cloud_service": "Cloud services",
       "platform_settings": "Platform settings",
       "platform_version": "Versions",
-      "integration": "Integrations"
+      "integration": "Integrations",
+      "site_worker": "Worker roster"
     }
-  },
-  "photoApprovals": {
-    "noLocation": "No location recorded",
-    "noCaption": "No caption",
-    "noPhotos": "No photos on this one",
-    "returnReason": "Reason for sending back",
-    "returnPlaceholder": "For example: the beam soffit is out of frame",
-    "returnHelp": "Say what is wrong. The reason goes to the person who took the photos, or they will not know what to reshoot.",
-    "returnTitle": "Send back for reshooting",
-    "return": "Send back",
-    "accept": "Approve",
-    "noCategory": "No category",
-    "empty": "Nothing waiting for approval",
-    "subtitle": "{count} waiting for you",
-    "title": "Photo approvals",
-    "what": "The photos waiting for approval",
-    "historyCount": "{count, plural, =0 {nothing decided} other {# decided}}",
-    "historyEmpty": "Nothing here",
-    "show": "Show",
-    "reviewNote": "Reason:",
-    "filter": {
-      "SUBMITTED": "Waiting",
-      "ACCEPTED": "Approved",
-      "RETURNED": "Sent back"
-    },
-    "loadMore": "Load more ({shown} of {total} shown)"
   },
   "photos": {
     "count": "{count, plural, one {# photo} other {# photos}}",
@@ -13415,7 +13423,7 @@
       "photo": "Open photo"
     },
     "field": {
-      "category": "Safety category",
+      "category": "Issue category",
       "description": "Description",
       "dueAt": "Rectification deadline",
       "evidence": "Evidence",
@@ -13458,13 +13466,13 @@
       "title": "Report a site incident"
     },
     "filter": {
-      "allCategories": "All safety categories",
+      "allCategories": "All issue categories",
       "allProjects": "All projects",
       "allResponsible": "All responsible people",
       "dateFrom": "From date",
       "dateTo": "To date",
       "project": "Choose project",
-      "selectCategory": "Choose a safety category"
+      "selectCategory": "Choose a issue category"
     },
     "form": {
       "captureLocation": "Capture GPS",
@@ -13476,8 +13484,8 @@
       "locationTimeout": "The GPS fix did not arrive in time. Step into the open and try again.",
       "locationUnavailable": "The device could not get a position. Check that location is on, then try again.",
       "locationUnsupported": "This device cannot provide a GPS position.",
-      "noSafetyColumns": "This project has no safety category yet. Add one first so hazards can be filed against it.",
-      "addSafetyColumn": "+ Add a safety category",
+      "noSafetyColumns": "This project has no issue category yet. Add one first so hazards can be filed against it.",
+      "addSafetyColumn": "+ Add a issue category",
       "askForSafetyColumn": "Ask a colleague who manages categories to add one under Category management."
     },
     "new": "Report hazard",
@@ -13497,7 +13505,7 @@
       "title": "Update incident status"
     },
     "what": {
-      "categories": "The safety categories",
+      "categories": "The issue categories",
       "responsiblePeople": "The responsible people",
       "requestedIncident": "The incident in the link",
       "workers": "The people to notify"
@@ -13566,6 +13574,8 @@
     },
     "title": "Hazard rectification / EHS",
     "toast": {
+      "reassigned": "Responsible person changed",
+      "categoryChanged": "Category saved",
       "assigned": "Rectification assigned",
       "reviewed": "Rectification review saved",
       "submitted": "Rectification evidence submitted"
@@ -14041,7 +14051,8 @@
         "passes": "Who may enter the site, and when. Request, approve and revoke passes here, and download the QR code to send.",
         "gate": "The guard scans the pass QR code, checks the visitor's details, then presses Confirm Entry or Confirm Exit.",
         "devices": "If automatic barriers, number-plate cameras or face readers are connected, every time a machine lets someone in or turns them away is listed here, with the reason. Without such machines this stays empty."
-      }
+      },
+      "hostHint": "Chosen from the project's people; they are told when the visitor arrives."
     },
     "action": {
       "approve": "Approve",
@@ -14447,7 +14458,11 @@
       "gatePhotosAdded": "Photos added.",
       "gateMembersAdded": "People asked in and notified.",
       "gateIssueClosed": "Gate issue confirmed finished.",
-      "gateConversationStarted": "The people you chose are notified; the conversation is open."
+      "gateConversationStarted": "The people you chose are notified; the conversation is open.",
+      "hostNotified": "Host notified.",
+      "visitorConfirmed": "Visitor confirmed. The gate can let them in.",
+      "visitorDeclined": "Visitor declined. The gate has been told.",
+      "visitorCancelled": "Visitor arrival cancelled."
     },
     "what": {
       "roles": "The role list",
@@ -14606,7 +14621,7 @@
       "signedOut": "Sign in again, then send."
     },
     "visitorScan": {
-      "help": "Scan the visitor's pass QR code, check the details, then press Confirm Entry or Confirm Exit. No photo needed.",
+      "help": "Scan the pass QR code and check the details. A visitor is photographed and their host confirms before you let them in; others press Confirm Entry or Confirm Exit.",
       "project": "Project",
       "chooseProject": "Choose a project",
       "chooseProjectFirst": "Choose a project first",
@@ -14647,12 +14662,13 @@
         "not_yet_valid": "Cannot confirm: this pass is not valid yet.",
         "expired": "Cannot confirm: this pass has expired.",
         "already_inside": "Already recorded as inside; next time press Confirm Exit.",
-        "already_outside": "Not recorded as inside yet; press Confirm Entry first."
+        "already_outside": "Not recorded as inside yet; press Confirm Entry first.",
+        "host_not_confirmed": "Cannot let in: the visitor's host has not confirmed yet."
       }
     },
     "visitorRecords": {
       "title": "Visitor Records",
-      "help": "One row for every entry and exit confirmed at the gate, linked to its pass, never overwritten.",
+      "help": "One row for every visit (photo, host, confirmation, entry and exit) and every other entry or exit confirmed at the gate, never overwritten.",
       "empty": "No entries or exits yet.",
       "allDirections": "In and out",
       "allTypes": "All types",
@@ -14671,8 +14687,86 @@
         "approvedBy": "Approved by",
         "validUntil": "Valid until",
         "gate": "Gate",
-        "guard": "Confirmed by"
+        "guard": "Confirmed by",
+        "photo": "Photo",
+        "host": "Host",
+        "confirmedBy": "Host confirmed",
+        "confirmedAt": "Confirmed at",
+        "entryAt": "Entry time",
+        "exitAt": "Exit time",
+        "visitStatus": "Visit status",
+        "visit": "Visit no.",
+        "declineReason": "Decline reason",
+        "photoCount": "Photos"
       }
+    },
+    "visitorArrival": {
+      "title": "Visitor arrival",
+      "hostHelp": "A visitor is at the gate for you. Check the photo, then confirm or decline.",
+      "detailHelp": "The visitor's photo at the gate, their host and the host's answer.",
+      "what": "this visitor",
+      "whatHosts": "the project's people",
+      "whatOpen": "visitors at the gate",
+      "loading": "Loading…",
+      "status": {
+        "AWAITING_HOST": "Waiting for host",
+        "CONFIRMED": "Confirmed",
+        "DECLINED": "Declined",
+        "CANCELLED": "Cancelled",
+        "ON_SITE": "On site",
+        "LEFT": "Left"
+      },
+      "field": {
+        "visitor": "Visitor",
+        "company": "Company",
+        "purpose": "Purpose",
+        "pass": "Pass",
+        "project": "Project",
+        "host": "Host",
+        "guard": "Gate staff",
+        "arrivedAt": "Arrived at",
+        "confirmedBy": "Confirmed by",
+        "confirmedAt": "Confirmed at",
+        "declinedBy": "Declined by",
+        "reason": "Reason",
+        "entryAt": "Entry time",
+        "exitAt": "Exit time",
+        "photo": "Visitor photo"
+      },
+      "photoNumber": "Photo {number}",
+      "photoOf": "Photo of {name}",
+      "removePhoto": "Remove photo {number}",
+      "answerTitle": "Host confirmation",
+      "confirm": "Confirm visitor",
+      "decline": "Decline",
+      "reasonPlaceholder": "Why? The gate will read this.",
+      "back": "Back",
+      "declineConfirm": "Decline visitor",
+      "answerFailed": "Could not save your answer. Try again.",
+      "waitingFor": "Waiting for {host} to confirm.",
+      "confirmedBanner": "Confirmed ({name} {time})",
+      "declinedBanner": "Declined by {name}: {reason}",
+      "onBehalf": "on the host's behalf",
+      "chooseHost": "Choose the host",
+      "searchHost": "Search by name",
+      "noHosts": "Nobody on this project matches.",
+      "chooseProjectFirst": "Choose a project first",
+      "photoHint": "Take the visitor's photo here and now.",
+      "takePhoto": "Take the visitor's photo",
+      "takeAnother": "Take another ({count} taken)",
+      "hostHint": "The person the visitor came to see. They are told at once.",
+      "changeHost": "Change host",
+      "startFailed": "Could not notify the host. Try again.",
+      "notifyHost": "Notify host",
+      "waiting": "{host} has been notified. Waiting…",
+      "waited": "Waited {minutes} min",
+      "waitingHelp": "This screen turns green by itself when the host confirms.",
+      "cancel": "Cancel",
+      "letIn": "Let in",
+      "declinedHelp": "Do not let this visitor in.",
+      "next": "Scan the next one",
+      "openTitle": "Visitors at the gate",
+      "hostLine": "Host: {host}"
     }
   },
   "siteDisposal": {
@@ -16912,13 +17006,11 @@
   },
   "materialRequest": {
     "title": "MR / Other Request",
-    "noAccess": "You do not have access to requests or photo approvals.",
+    "noAccess": "You do not have access to requests.",
     "tab": {
       "requests": "Requests",
-      "totals": "Requested totals",
-      "photos": "Photo approvals"
+      "totals": "Requested totals"
     },
-    "photosNote": "The photo submissions this entry used to show are here, unchanged: pending ones are still decided here, and earlier ones stay readable with their photos, reviewer and reason.",
     "type": {
       "MATERIAL": "Material Request",
       "OTHER": "Other Request"
@@ -17818,8 +17910,261 @@
     "name": "Name",
     "continue": "Continue"
   },
+  "taskFlow": {
+    "moreWork": {
+      "label": "Needs more work",
+      "off": "Off, this is only a message; nothing is sent back.",
+      "on": "When sent, the item goes back to the person responsible (Pending) and reappears in their My Tasks.",
+      "send": "Send and ask for more work",
+      "hint": "Not done? In the conversation below, switch on “Needs more work” and say what still needs doing.",
+      "reviewHint": "Not done? Do not confirm it: switch on “Needs more work” in the conversation and say what still needs doing - it goes back to the person responsible."
+    },
+    "stage": {
+      "all": "All statuses",
+      "PENDING": "Pending",
+      "AWAITING": "Awaiting check",
+      "DONE": "Completed"
+    },
+    "myTasks": {
+      "title": "My tasks",
+      "count": "{count, plural, =0 {Nothing to do} one {# to do} other {# to do}}",
+      "loading": "Loading…",
+      "refresh": "Refresh",
+      "empty": "Nothing to do right now.",
+      "kind": {
+        "FIELD_TASK": "Site task",
+        "HAZARD": "Rectification / EHS"
+      },
+      "moreWork": "Needs more work",
+      "due": "Due: {value}",
+      "said": {
+        "text": "Message",
+        "photo": "sent a photo",
+        "voice": "sent a voice note",
+        "file": "sent a file"
+      }
+    },
+    "work": {
+      "back": "Back",
+      "what": "this task",
+      "locationFailed": "Could not get your location. Turn location on and try again.",
+      "failed": "That did not go through. Please try again.",
+      "stage": {
+        "PENDING": "Pending",
+        "AWAITING": "Awaiting check",
+        "DONE": "Completed",
+        "CANCELLED": "Cancelled"
+      },
+      "assignedBy": "Assigned by {name}",
+      "due": "Due: {value}",
+      "where": "Where: {value}",
+      "moreWork": "Needs more work",
+      "photos": "Photos",
+      "photosHint": "Take at least {count}",
+      "takePhoto": "Take photo",
+      "note": "Note",
+      "noteHint": "With no photo, say in one line what was done",
+      "optional": "Optional",
+      "notePlaceholder": "What was done (optional)",
+      "submit": "Submit as done",
+      "workflowHint": "This task is handed in on its own form.",
+      "openWorkflow": "Open work form",
+      "waiting": "Submitted, waiting for the check.",
+      "finished": "This task is finished."
+    },
+    "ehs": {
+      "unsorted": "Unsorted",
+      "create": "New item",
+      "categories": "Categories",
+      "history": "History archive",
+      "backToList": "Back to the working list",
+      "historyTitle": "Rectification / EHS history archive",
+      "noAndDate": "No. / date",
+      "verifiedBy": "Verified by",
+      "verifiedAt": "Confirmed at",
+      "reassign": "Change responsible person",
+      "reassignHelp": "{person} is responsible for {incident} now. Choose who fixes it instead; its photos and conversation stay on the same item.",
+      "newResponsible": "New responsible person",
+      "chooseCategory": "Choose a different category first",
+      "saveCategory": "Save category"
+    },
+    "fieldTasks": {
+      "history": "History archive",
+      "backToList": "Back to the working list",
+      "historyTitle": "Site task history archive",
+      "stageColumn": "Status",
+      "confirmedBy": "Confirmed by",
+      "confirmedAt": "Confirmed at",
+      "search": "Search tasks, people",
+      "allAssignees": "All assignees",
+      "dateFrom": "Start date",
+      "dateTo": "End date"
+    }
+  },
   "mapFrame": {
     "fullscreen": "Full screen",
     "exitFullscreen": "Exit full screen"
+  },
+  "siteWorkers": {
+    "title": "Worker roster",
+    "visitsTitle": "Entries and exits",
+    "count": "{count, plural, one {# worker} other {# workers}}",
+    "visitCount": "{count, plural, one {# entry} other {# entries}}",
+    "searchHint": "Search by name, phone number, CIDB card number or any other document number; pick a company at the same time if you like.",
+    "visitsHint": "Each row is one stay: inside the fence records entry, five minutes outside records exit. When a phone stops reporting it shows \"Location not updated\" and is never taken as an exit.",
+    "noFence": "This project has no geofence yet, so presence cannot be judged. Set one up in Geofence settings first.",
+    "tab": {
+      "roster": "Worker roster",
+      "visits": "Entries and exits"
+    },
+    "field": {
+      "name": "Name",
+      "phone": "Phone number",
+      "cidb": "CIDB card no.",
+      "company": "Company",
+      "companyNote": "Company name (not on the list)",
+      "project": "Project",
+      "status": "On-site status",
+      "lastPositionAt": "Last location time",
+      "view": "View",
+      "documents": "Other documents",
+      "enteredAt": "Entry time",
+      "exitedAt": "Exit time",
+      "exitState": "Status"
+    },
+    "status": {
+      "ON_SITE": "On site",
+      "OFF_SITE": "Off site",
+      "STALE": "Location not updated",
+      "NOT_STARTED": "Not started"
+    },
+    "visit": {
+      "signalLostAt": "Location not updated (last {at})",
+      "EXITED": "Left",
+      "in": "In",
+      "out": "Out"
+    },
+    "filter": {
+      "company": "Company",
+      "allCompanies": "All companies",
+      "project": "Choose a project",
+      "allProjects": "All projects",
+      "inactive": "Removed",
+      "dateFrom": "Entry date from",
+      "dateTo": "Entry date to",
+      "onePerson": "Only: {name}"
+    },
+    "action": {
+      "view": "View",
+      "add": "Add worker",
+      "edit": "Edit details",
+      "deactivate": "Remove from roster",
+      "reactivate": "Back on the roster"
+    },
+    "what": {
+      "companies": "the company list",
+      "worker": "the worker's details"
+    },
+    "toast": {
+      "created": "Worker added to the roster",
+      "updated": "Details updated",
+      "deactivated": "Removed from the roster; the location link no longer works",
+      "reactivated": "Back on the roster; send a new location link"
+    },
+    "form": {
+      "addTitle": "Add worker",
+      "editTitle": "Edit details",
+      "phoneHint": "For example 012-345 6789. The location link binds only to the phone with this number.",
+      "noCompany": "None (not on the list)",
+      "pickCompany": "Choose from the company list",
+      "searchCompany": "Search companies",
+      "noCompanyMatch": "No such company on the list",
+      "companyNoteHint": "Type a company that is not on the list; you can pick it from the list later.",
+      "documentName": "Document (e.g. passport)",
+      "documentNumber": "Document number",
+      "removeDocument": "Remove this document",
+      "addDocument": "Add a document",
+      "documentIncomplete": "Each document needs both a name and a number"
+    },
+    "detail": {
+      "title": "Worker",
+      "lastAt": "Last location {at}",
+      "profile": "Details",
+      "lastPosition": "Last GPS location",
+      "noPosition": "No location yet. Send the location link; it starts once the worker opens it and agrees.",
+      "outside": "Off site, about {km} km from the fence · {at}",
+      "noFenceAt": "The project has no fence, so the location cannot be judged · {at}",
+      "inside": "On site · {at}",
+      "mapLabel": "Map of the last location",
+      "privacyNote": "Only locations inside the site fence are shown; off site only the distance is shown, never the exact point. Location records cannot be changed or deleted.",
+      "link": "Location link",
+      "visits": "Entries and exits ({count})",
+      "allVisits": "See all",
+      "noVisits": "No entries yet",
+      "deactivateHelp": "Turn the switch on to remove. The location link stops working at once; past entries and locations are kept.",
+      "armFirst": "Turn the switch on first"
+    },
+    "link": {
+      "status": {
+        "NONE": "Not sent yet",
+        "REVOKED": "No longer works",
+        "NOT_OPENED": "Sent, not opened yet",
+        "BOUND": "Opened, not agreed yet",
+        "ACTIVE": "Agreed to share location"
+      },
+      "issuedAt": "sent {at}",
+      "send": "Send location link",
+      "resend": "Send a new link",
+      "resendHint": "A new link stops the old one at once; the worker types their phone number again.",
+      "message": "Hi {name}, this is the site location link for {project}. Open it on your phone, enter your phone number, press \"Agree and start\" and keep the page open while on site: {link}",
+      "sentTitle": "Location link ready",
+      "sentBody": "The system sends no SMS. Send it by WhatsApp, or copy it and send it yourself. The link is shown this once only.",
+      "whatsapp": "Send by WhatsApp",
+      "copy": "Copy link"
+    }
+  },
+  "workerLocation": {
+    "chatTitle": "Open it in your browser",
+    "chatBody": "You are opening this inside {app}. The link stays with where it is first opened, so copy it and open it in Chrome or Safari.",
+    "copyLink": "Copy link",
+    "continueHere": "Open here anyway",
+    "failedTitle": "Cannot open right now",
+    "failedBody": "Check your connection and try again.",
+    "invalidTitle": "This link no longer works",
+    "invalidBody": "Ask the site office to send it again.",
+    "closedTitle": "This link is closed",
+    "closedBody": "You are no longer on this project's roster, or the project has ended.",
+    "otherDeviceTitle": "This link is in use on another phone",
+    "otherDeviceBody": "This link works only on the phone that confirmed the number. Ask the site office to send it again.",
+    "phoneTitle": "Enter your phone number",
+    "phoneBody": "The same number the site office registered.",
+    "phoneLabel": "Phone number",
+    "phonePlaceholder": "012-345 6789",
+    "phoneConfirm": "Confirm",
+    "hello": "Hi {name}",
+    "consentTitle": "Before you start",
+    "consent": {
+      "what": "Your phone's GPS location and the time are collected.",
+      "when": "Only while this page is open; closing it or locking the screen stops it.",
+      "who": "The site office uses it to record when you enter and leave the site. Off site, only the distance is shown, never the exact place.",
+      "noEdit": "Location records cannot be changed or deleted."
+    },
+    "agree": "Agree and start",
+    "locating": "Locating",
+    "locatingAt": "Locating · last sent {time}",
+    "keepOpen": "Please keep this page open",
+    "starting": "Getting your location…",
+    "retry": "Try again",
+    "foregroundOnly": "Sending stops when the screen locks or you switch apps, and carries on when you come back to this page.",
+    "error": {
+      "invalid": "This link no longer works. Ask the site office to send it again.",
+      "closed": "This link is closed.",
+      "otherDevice": "This link is in use on another phone.",
+      "phoneMismatch": "That number does not match. Enter the number the site office registered, or contact the office.",
+      "failed": "Cannot connect right now; try again shortly.",
+      "denied": "Location permission was refused. Follow the steps below to allow it.",
+      "unavailable": "Cannot get a location right now. Move into the open and check location is on.",
+      "upload": "The last send did not get through; it will try again."
+    }
   }
 }

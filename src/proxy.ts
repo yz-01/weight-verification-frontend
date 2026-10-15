@@ -33,6 +33,8 @@ const PUBLIC_PREFIXES = [
   "/disposal-task",
   // A driver's link for one trip: no account, the token is the credential.
   "/driver-task",
+  // A worker's location link (I20): no account, the token is the credential.
+  "/worker-location",
   // A package's link for an owner, a supplier or anybody else (H17 五 3).
   "/package",
   "/delivery-note",

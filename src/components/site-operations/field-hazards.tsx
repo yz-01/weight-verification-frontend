@@ -37,8 +37,8 @@ import {
   isPermit,
   SafetyReviewDialog,
   SafetySubmitDialog,
-  STATUS_TONE,
 } from "@/components/site-operations/safety";
+import { hazardStage, STAGE_TONE } from "@/lib/task-stages";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import type { SafetyIncident } from "@/interfaces/site-operations";
@@ -111,10 +111,17 @@ export function FieldHazardsPanel({
           <div className="flex flex-wrap items-center gap-2">
             {isPermit(incident) && <StatusBadge label={te("permit.badge")} tone="info" />}
             <StatusBadge
-              label={t(`safetyRectification.status.${incident.status}`)}
-              tone={STATUS_TONE[incident.status]}
+              label={t(`taskFlow.stage.${hazardStage(incident.status)}`)}
+              tone={STAGE_TONE[hazardStage(incident.status)]}
             />
           </div>
+          {/* 「需要继续整改」 (ID11): what the verifier said is still wrong. */}
+          {incident.status === "RETURNED" && incident.review_note && !isPermit(incident) && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+              <p className="font-semibold">{t("taskFlow.work.moreWork")}</p>
+              <p className="mt-1 whitespace-pre-wrap">{incident.review_note}</p>
+            </div>
+          )}
           <div className="grid gap-1 text-sm">
             {incident.responsible_person_name && (
               <p>{te("phone.rectifierLine", { name: incident.responsible_person_name })}</p>

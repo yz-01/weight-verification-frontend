@@ -19,6 +19,7 @@ import {
   Plus,
   RotateCcw,
   Save,
+  History as HistoryIcon,
   ScanLine,
   Trash2,
 } from "lucide-react";
@@ -35,6 +36,14 @@ import {
   useNeedsActionParam,
 } from "@/components/shared/needs-action";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
+import { useListQuery } from "@/hooks/use-list-query";
+import {
+  fieldTaskStageKey,
+  STAGE_TONE,
+  stageFromParam,
+  stageQuery,
+  TASK_STAGES,
+} from "@/lib/task-stages";
 import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
@@ -139,6 +148,7 @@ import {
   getConstructionPhases,
   getFieldTask,
   exportFieldTasks,
+  getFieldTaskAssignees,
   getFieldTasks,
   addMaterialOutgoingPhotos,
   exportMaterialOutgoing,
@@ -917,6 +927,11 @@ export function FieldTasksWorkspace({
       askFor.has(`askOption.${code}`) ? askFor(`askOption.${code}` as never) : null,
     );
   const { can, user } = useAuth();
+  const flow = useTranslations("taskFlow");
+  const stageLabel = (status: FieldTask["status"]) => {
+    const key = fieldTaskStageKey(status);
+    return key === "CANCELLED" ? t("taskStatus.CANCELLED") : flow(`stage.${key}`);
+  };
   const router = useRouter();
   const qc = useQueryClient();
   // A task card links here with ?task=<id>: show that one task, with a way
@@ -946,13 +961,34 @@ export function FieldTasksWorkspace({
   // reader's 验收 - the sidebar's number for 现场任务.
   const [waitingParam, setWaitingOnly] = useNeedsActionParam();
   const waitingOnly = !taskType && waitingParam;
+  // 现场任务's own filters (I1): 关键词、负责人、日期、状态 (待处理 / 待验收 /
+  // 已完成), combined, in the address - and the 历史档案 view of the
+  // confirmed ones. The consultant inbox (`taskType`) keeps its own list.
+  const list = useListQuery(["assigned_to", "stage", "date_from", "date_to", "view"]);
+  const history = !taskType && list.filters.view === "history";
+  const chosenStage = taskType ? null : stageFromParam(list.filters.stage);
+  const filters = taskType
+    ? {}
+    : {
+        search: list.search || undefined,
+        assigned_to: list.filters.assigned_to,
+        date_from: list.filters.date_from,
+        date_to: list.filters.date_to,
+        stage: stageQuery(chosenStage, history),
+      };
+  const assignees = useQuery({
+    queryKey: ["field-task-assignees", project],
+    queryFn: () => getFieldTaskAssignees(project || undefined),
+    enabled: !taskType,
+  });
   const rows = useQuery({
-    queryKey: ["field-tasks", project, taskType, drill, waitingOnly],
+    queryKey: ["field-tasks", project, taskType, drill, waitingOnly, filters],
     queryFn: () =>
       getFieldTasks({
         page_size: 200,
         project: project || undefined,
         task_type: taskType,
+        ...filters,
         ...(drill ? { [drill]: "1" } : {}),
         ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
       }),
@@ -995,28 +1031,18 @@ export function FieldTasksWorkspace({
       addFieldTaskReferences(id, files),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["field-tasks"] }),
   });
-  /*
-   * Same dialog treatment as the outgoing application below, and for the same
-   * reasons: `window.prompt` is untranslated, cannot be marked required, and
-   * is suppressed outright by some browsers - in which case returning a task
-   * silently did nothing at all.
-   */
-  const [returning, setReturning] = useState<FieldTask | null>(null);
-  const review = (row: FieldTask, status: FieldTask["status"]) => {
-    if (status === "RETURNED") {
-      setReturning(row);
-      return;
-    }
-    transition.mutate({ id: row.id, status, note: "" });
-  };
+  // 确认完成 only (ID11): no 退回 button. The confirmer says what is still
+  // wrong in the task's conversation, with 「需要继续整改」 switched on.
+  const confirmTask = (row: FieldTask) =>
+    transition.mutate({ id: row.id, status: "ACCEPTED", note: "" });
   return (
     <div className="space-y-4">
       <ListHeader
-        title={t(
-          taskType === "CONSULTANT"
-            ? "tasks.consultantInboxTitle"
-            : "tasks.title",
-        )}
+        title={
+          history
+            ? flow("fieldTasks.historyTitle")
+            : t(taskType === "CONSULTANT" ? "tasks.consultantInboxTitle" : "tasks.title")
+        }
         subtitle={t(
           taskType === "CONSULTANT"
             ? "tasks.consultantInboxSubtitle"
@@ -1025,11 +1051,22 @@ export function FieldTasksWorkspace({
         action={
           !taskType ? (
             <>
-              <NeedsActionChip
-                count={rows.data?.needs_action_count}
-                active={waitingOnly}
-                onToggle={setWaitingOnly}
-              />
+              {!history && (
+                <NeedsActionChip
+                  count={rows.data?.needs_action_count}
+                  active={waitingOnly}
+                  onToggle={setWaitingOnly}
+                />
+              )}
+              <Button
+                variant={history ? "default" : "outline"}
+                onClick={() =>
+                  list.setFilters({ view: history ? undefined : "history", stage: undefined })
+                }
+              >
+                <HistoryIcon />
+                {flow(history ? "fieldTasks.backToList" : "fieldTasks.history")}
+              </Button>
               {/* The tasks listed, as a file (H16, HD13). */}
               <ExportButton
                 disabled={!rows.data?.count}
@@ -1041,6 +1078,7 @@ export function FieldTasksWorkspace({
                     title: t("tasks.title"),
                     query: {
                       project: project || undefined,
+                      ...filters,
                       ...(drill ? { [drill]: "1" } : {}),
                       ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
                     },
@@ -1067,8 +1105,17 @@ export function FieldTasksWorkspace({
                           ),
                         ),
                       },
+                      {
+                        key: "stage",
+                        label: flow("fieldTasks.stageColumn"),
+                        values: Object.fromEntries(
+                          TASK_STAGES.map((stage) => [stage, flow(`stage.${stage}`)]),
+                        ),
+                      },
                       { key: "photo_count", label: t("field.photos") },
                       { key: "result_note", label: t("field.notes") },
+                      { key: "reviewed_by_name", label: flow("fieldTasks.confirmedBy") },
+                      { key: "reviewed_at", label: flow("fieldTasks.confirmedAt") },
                     ],
                   })
                 }
@@ -1085,6 +1132,71 @@ export function FieldTasksWorkspace({
       />
       <FilterBar className="empty:hidden">
         <ProjectFilter value={project} onChange={setProject} />
+        {!taskType && (
+          <>
+            <Input
+              type="search"
+              aria-label={flow("fieldTasks.search")}
+              placeholder={flow("fieldTasks.search")}
+              key={list.search}
+              defaultValue={list.search}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") list.setSearch(event.currentTarget.value.trim());
+              }}
+              onBlur={(event) => {
+                if (event.currentTarget.value.trim() !== list.search) {
+                  list.setSearch(event.currentTarget.value.trim());
+                }
+              }}
+              className="w-full sm:w-56"
+            />
+            <Select
+              value={list.filters.assigned_to ?? "all"}
+              onValueChange={(value) => list.setFilter("assigned_to", value === "all" ? undefined : value)}
+            >
+              <SelectTrigger className="w-full sm:w-48" aria-label={t("field.assignee")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{flow("fieldTasks.allAssignees")}</SelectItem>
+                {(assignees.data ?? []).map((person) => (
+                  <SelectItem key={person.id} value={person.id}>{person.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {!history && (
+              <Select
+                value={chosenStage ?? "all"}
+                onValueChange={(value) => list.setFilter("stage", value === "all" ? undefined : value)}
+              >
+                <SelectTrigger className="w-full sm:w-40" aria-label={t("field.status")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{flow("stage.all")}</SelectItem>
+                  {TASK_STAGES.map((stage) => (
+                    <SelectItem key={stage} value={stage}>{flow(`stage.${stage}`)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Input
+              type="date"
+              aria-label={flow("fieldTasks.dateFrom")}
+              value={list.filters.date_from ?? ""}
+              onChange={(event) => list.setFilter("date_from", event.target.value || undefined)}
+              className="w-full sm:w-40"
+            />
+            <Input
+              type="date"
+              aria-label={flow("fieldTasks.dateTo")}
+              value={list.filters.date_to ?? ""}
+              onChange={(event) => list.setFilter("date_to", event.target.value || undefined)}
+              className="w-full sm:w-40"
+            />
+            <QueryFailedNote className="w-full" query={assignees} what={t("field.assignee")} />
+          </>
+        )}
       </FilterBar>
       {drill && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
@@ -1154,8 +1266,9 @@ export function FieldTasksWorkspace({
             // detail: only its publisher confirms it, and the assignee
             // submits words and files from the desk.
             const headOffice = row.origin === "HQ";
-            const canReview =
-              can("field_task.manage") && row.status === "SUBMITTED" && !headOffice;
+            // The server's answer (I1): the setter or a task manager, never
+            // the assignee.
+            const canReview = Boolean(row.can_confirm) && row.status === "SUBMITTED" && !headOffice;
             return (
               <article
                 key={row.id}
@@ -1186,10 +1299,22 @@ export function FieldTasksWorkspace({
                       </span>
                     </span>
                   </button>
-                  <StatusBadge
-                    label={t(`taskStatus.${row.status}`)}
-                    tone={tone(row.status)}
-                  />
+                  {taskType ? (
+                    <StatusBadge
+                      label={t(`taskStatus.${row.status}`)}
+                      tone={tone(row.status)}
+                    />
+                  ) : (
+                    // 待处理 / 待验收 / 已完成 (I1); a cancelled one says so.
+                    <StatusBadge
+                      label={stageLabel(row.status)}
+                      tone={
+                        fieldTaskStageKey(row.status) === "CANCELLED"
+                          ? "neutral"
+                          : STAGE_TONE[fieldTaskStageKey(row.status) as keyof typeof STAGE_TONE]
+                      }
+                    />
+                  )}
                   <span
                     className="flex items-center gap-1"
                     title={t("tasks.photos", {
@@ -1239,25 +1364,14 @@ export function FieldTasksWorkspace({
                         </>
                       ) : null}
                       {canReview ? (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={transition.isPending}
-                            onClick={() => review(row, "RETURNED")}
-                          >
-                            <RotateCcw />
-                            {t("action.return")}
-                          </Button>
-                          <Button
-                            size="sm"
-                            disabled={transition.isPending}
-                            onClick={() => review(row, "ACCEPTED")}
-                          >
-                            <Check />
-                            {t("tasks.confirmDone")}
-                          </Button>
-                        </>
+                        <Button
+                          size="sm"
+                          disabled={transition.isPending}
+                          onClick={() => confirmTask(row)}
+                        >
+                          <Check />
+                          {t("tasks.confirmDone")}
+                        </Button>
                       ) : null}
                       {canPrepareApplication ? (
                         <Button
@@ -1291,21 +1405,6 @@ export function FieldTasksWorkspace({
             );
           })}
         </div>
-      )}
-      {returning && (
-        <ReturnReasonDialog
-          reference={returning.title}
-          pending={transition.isPending}
-          onClose={() => setReturning(null)}
-          onConfirm={(note) => {
-            transition.mutate({
-              id: returning.id,
-              status: "RETURNED",
-              note,
-            });
-            setReturning(null);
-          }}
-        />
       )}
       {creating && (
         <TaskDialog
@@ -4447,54 +4546,6 @@ export function RejectOutgoingDialog({
  * the next person to unify the copy, and the two sentences have to say
  * opposite things about what happens next.
  */
-function ReturnReasonDialog({
-  reference,
-  pending,
-  onClose,
-  onConfirm,
-}: {
-  reference: string;
-  pending: boolean;
-  onClose: () => void;
-  onConfirm: (note: string) => void;
-}) {
-  const t = useTranslations("contractorOps");
-  const common = useTranslations("common");
-  const [note, setNote] = useState("");
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{t("tasks.returnTitle")}</DialogTitle>
-          <DialogDescription>
-            {t("tasks.returnHelp", { reference })}
-          </DialogDescription>
-        </DialogHeader>
-        <FieldWrapper label={t("tasks.returnReason")} required>
-          <Textarea
-            rows={3}
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-          />
-        </FieldWrapper>
-        <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="outline" onClick={onClose}>
-            {common("cancel")}
-          </Button>
-          <Button
-            requires={[[note.trim(), t("tasks.returnReason")]]}
-            disabled={pending}
-            onClick={() => onConfirm(note.trim())}
-          >
-            <RotateCcw />
-            {t("action.return")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 /**
  * The material actually leaving, on the same record (2026-10 C9, F3).
  *

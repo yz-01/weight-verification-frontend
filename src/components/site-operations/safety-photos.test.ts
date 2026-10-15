@@ -49,27 +49,11 @@ function photoField(): string {
 }
 
 describe("the hazard form's photographs", () => {
-  it("uses translated legacy status options without bypassing rectification", () => {
-    const options = code.match(/const MANUAL_STATUSES[^=]*=\s*(\[[^\]]+\])/);
-    expect(options).toBeTruthy();
-    const states: string[] = JSON.parse(options![1]);
-    // X8: only the raiser's confirm closes a hazard - the dialog may mark it
-    // open or being looked into, never RESOLVED (Fable #9).
-    expect(states).toEqual(["OPEN", "INVESTIGATING"]);
-    for (const locale of ["en", "zh", "zh-TW", "ms"]) {
-      const messages = JSON.parse(readFileSync(`src/messages/${locale}.json`, "utf8"));
-      for (const status of states) expect(messages.safetyRectification.status[status]).toBeTruthy();
-    }
-    const dialog = code.slice(code.indexOf("function SafetyStatusDialog("));
-    expect(dialog).toContain("MANUAL_STATUSES.map");
-    expect(dialog).toContain("safetyRectification.status.${option}");
-    expect(code).toContain('!row.original.responsible_person && ["OPEN", "INVESTIGATING"].includes');
-    expect(dialog).not.toContain('"RESOLVED"');
-    expect(dialog).toContain('t("safety.update.closeHint")');
-    for (const locale of ["en", "zh", "zh-TW", "ms"]) {
-      const messages = JSON.parse(readFileSync(`src/messages/${locale}.json`, "utf8"));
-      expect(messages.safety.update.closeHint).toBeTruthy();
-    }
+  it("has no 调查中 / status dialog any more: three states only (ID10)", () => {
+    expect(code).not.toContain("function SafetyStatusDialog(");
+    expect(code).not.toContain("MANUAL_STATUSES");
+    expect(code).not.toContain("updateSafetyStatus");
+    expect(code).toContain("taskFlow.stage.${hazardStage(row.original.status)}");
   });
 
   it("never replaces one photograph with the next", () => {
