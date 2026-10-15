@@ -6292,7 +6292,17 @@
       "document_no": "Document no.",
       "subcategory": "Subcategory",
       "version_count": "Versions",
-      "created_at": "Uploaded at"
+      "created_at": "Uploaded at",
+      "name": "Report name",
+      "report_date": "First day",
+      "end_date": "Last day",
+      "author": "Written by",
+      "record_count": "Records",
+      "body": "Text",
+      "generated_at": "Generated",
+      "block_count": "Blocks",
+      "updated_by": "Last edited by",
+      "updated_at": "Last updated"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -6304,7 +6314,9 @@
       "safety": "Track safety findings from assignment through rectification and verification.",
       "schedule": "Compare the current confirmed schedule with actual site progress.",
       "target": "Filter the business targets above by project and overlapping target period, then export the same achievement data.",
-      "documents": "Project documents by category, with their versions and who uploaded them."
+      "documents": "Project documents by category, with their versions and who uploaded them.",
+      "daily_report": "Daily reports by date: each report's full text, the records it holds and their photos. In the PDF each report starts on a new page, its photos watermarked.",
+      "progress_summary": "Progress summaries updated in this period. In the PDF each summary starts on a new page."
     },
     "empty": "No records match this project and date range.",
     "filter": {
@@ -6324,7 +6336,9 @@
         "schedule": "WBS code or task name",
         "target": "Target name",
         "photos": "File name, source or uploader",
-        "documents": "Document no., title or keyword"
+        "documents": "Document no., title or keyword",
+        "daily_report": "Report name, text or writer",
+        "progress_summary": "Title or writer"
       },
       "noMatch": "Nothing matches",
       "submittedBy": "Submitted by",
@@ -6372,11 +6386,21 @@
       "safety": "Safety and rectification report",
       "schedule": "Planned versus actual report",
       "target": "Target and achievement report",
-      "documents": "Project records report"
+      "documents": "Project records report",
+      "daily_report": "Daily reports",
+      "progress_summary": "Progress summaries"
     },
     "what": {
       "filterOptions": "the filter choices",
-      "projects": "the project list"
+      "projects": "the project list",
+      "latestDay": "the latest daily report"
+    },
+    "days": {
+      "title": "Past daily reports",
+      "help": "Choose the days to read first; the daily reports of those days are then listed.",
+      "show": "Show",
+      "choose": "Choose the first and the last day first.",
+      "backwards": "The first day cannot be after the last day."
     }
   },
   "crm": {
@@ -7639,7 +7663,8 @@
       "package_source_missing": "The record behind a returned item can no longer be read.",
       "package_link_not_found": "Not found",
       "role_template_not_found": "There is no preset role with that name.",
-      "role_already_exists": "This company already has that role."
+      "role_already_exists": "This company already has that role.",
+      "export_too_many_photos": "This export holds {count} photos; one file takes at most {limit}. Shorten the dates and export again."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -10687,7 +10712,9 @@
       "gateRecords": "Gate Records",
       "gatePhotoRecords": "Photo Records",
       "gateIssues": "Gate Issues",
-      "visitorRecords": "Visitor Records"
+      "visitorRecords": "Visitor Records",
+      "dailyReport": "Daily reports",
+      "progressSummary": "Progress summary"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -14131,7 +14158,11 @@
       "title": "Site geofences",
       "undoPoint": "Undo point",
       "useGps": "Use current GPS",
-      "useProject": "Use project location"
+      "useProject": "Use project location",
+      "editSwitch": "Edit geofence",
+      "editHint": "Turn on to move the centre, add points or drag them on the map. It turns off again after saving.",
+      "locked": "The map is view-only now. To change the geofence, turn on “Edit geofence” first.",
+      "backToFence": "Back to geofence"
     },
     "homePage": {
       "dashboard": "Dashboard",
@@ -16567,7 +16598,11 @@
       "OTHER": "Other"
     },
     "categoriesFailed": "The category list could not be loaded.",
-    "noCategories": "No categories yet - click the report's name to open it."
+    "noCategories": "No categories yet - click the report's name to open it.",
+    "progressMenu": {
+      "dailyReport": "Daily report",
+      "pastDailyReports": "Past daily reports"
+    }
   },
   "wasteClearance": {
     "title": "Waste clearance",
@@ -17027,7 +17062,16 @@
       "photosCount": "Photos",
       "author": "Written by",
       "recordDeleted": "Record deleted",
-      "maxDays": "A daily report covers at most {days} days."
+      "maxDays": "A daily report covers at most {days} days.",
+      "generatedAt": "Generated {when}",
+      "book": {
+        "position": "{n} of {total}",
+        "previous": "Previous",
+        "next": "Next",
+        "first": "This is the first report.",
+        "last": "This is the last report.",
+        "waiting": "Opening this report, one moment."
+      }
     },
     "summary": {
       "new": "New summary",
@@ -17542,5 +17586,9 @@
     "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
     "name": "Name",
     "continue": "Continue"
+  },
+  "mapFrame": {
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen"
   }
 }

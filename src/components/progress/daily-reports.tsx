@@ -18,10 +18,20 @@
  * read progress.
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, Loader2, NotebookPen, Pencil, RefreshCw, Save, Trash2 } from "lucide-react";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Loader2,
+  NotebookPen,
+  Pencil,
+  RefreshCw,
+  Save,
+  Trash2,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import {
   DayRange,
@@ -57,11 +67,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useArrowKeys } from "@/hooks/use-arrow-keys";
 import { useListQuery } from "@/hooks/use-list-query";
 import { ApiError } from "@/interfaces/api";
 import type { DailyReport, DailyReportEntry } from "@/interfaces/progress-reports";
 import { useDateFormat } from "@/lib/dates";
 import { usePercentText } from "@/lib/progress-percent";
+import {
+  bookCounter,
+  bookPage,
+  bookPosition,
+  isTopDialog,
+  swipeStep,
+  turnTo,
+} from "@/lib/report-book";
+import { cn } from "@/lib/utils";
 import {
   collectDailyReportEntries,
   createDailyReport,
@@ -99,15 +119,22 @@ export function DailyReportsTab() {
   const t = useTranslations("progressPage");
   const { can } = useAuth();
   const days = useReportDays();
+  const df = useDateFormat();
   const list = useListQuery(["project", "date_from", "date_to"]);
   const project = list.filters.project ?? "";
+  // The newest written first (I28): the server's order, which the book
+  // below turns through page by page.
   const rows = useQuery({
     queryKey: ["daily-reports", list.filters, list.page],
     queryFn: () =>
       getDailyReports({ ...list.filters, page: list.page, page_size: PAGE }),
   });
   const [writing, setWriting] = useState(false);
-  const [viewing, setViewing] = useState<string | null>(null);
+  // A row opens the book at its place in the list (I9); a report just written
+  // opens on its own, wherever the list's filter would put it.
+  const [viewing, setViewing] = useState<
+    { position: number } | { id: string } | null
+  >(null);
   const total = rows.data?.count ?? 0;
 
   return (
@@ -172,11 +199,11 @@ export function DailyReportsTab() {
                 </TableCell>
               </TableRow>
             ) : (
-              (rows.data?.results ?? []).map((row) => (
+              (rows.data?.results ?? []).map((row, index) => (
                 <TableRow
                   key={row.id}
                   className="cursor-pointer"
-                  onClick={() => setViewing(row.id)}
+                  onClick={() => setViewing({ position: bookPosition(list.page, index, PAGE) })}
                 >
                   <TableCell>
                     <p className="font-medium text-foreground">{row.name}</p>
@@ -189,6 +216,10 @@ export function DailyReportsTab() {
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
+                    {/* I28: when it was written - the list's order. */}
+                    <p className="text-xs tabular text-muted-foreground">
+                      {t("reports.generatedAt", { when: df.dateTime(row.created_at) })}
+                    </p>
                   </TableCell>
                   <TableCell className="tabular">{days(row)}</TableCell>
                   <TableCell className="text-right">
@@ -200,7 +231,7 @@ export function DailyReportsTab() {
                       title={t("reports.view")}
                       onClick={(event) => {
                         event.stopPropagation();
-                        setViewing(row.id);
+                        setViewing({ position: bookPosition(list.page, index, PAGE) });
                       }}
                     >
                       <Eye className="size-3.5" />
@@ -216,14 +247,23 @@ export function DailyReportsTab() {
         <Pager page={list.page} pages={Math.ceil(total / PAGE)} onPage={list.setPage} />
       )}
 
-      {viewing && <DailyReportOpened id={viewing} onClose={() => setViewing(null)} />}
+      {viewing && "position" in viewing && (
+        <DailyReportBook
+          source={{ kind: "list", query: list.filters, total }}
+          start={viewing.position}
+          onClose={() => setViewing(null)}
+        />
+      )}
+      {viewing && "id" in viewing && (
+        <DailyReportOpened id={viewing.id} onClose={() => setViewing(null)} />
+      )}
       {writing && (
         <DailyReportDialog
           project={project}
           onClose={() => setWriting(false)}
           onSaved={(saved) => {
             setWriting(false);
-            setViewing(saved.id);
+            setViewing({ id: saved.id });
           }}
         />
       )}
@@ -262,6 +302,186 @@ function DailyReportOpened({ id, onClose }: { id: string; onClose: () => void })
       onClose={onClose}
       onSaved={(saved) => qc.setQueryData(["daily-reports", "one", id], saved)}
     />
+  );
+}
+
+/** The rows a book turns through: the list's own pages, or the ids it was handed. */
+export type DailyReportBookSource =
+  /** 日报告 on the progress page: the list's filter, page by page (I9). */
+  | { kind: "list"; query: Readonly<Record<string, string>>; total: number }
+  /** The report centre's preview rows, by date (I8). */
+  | { kind: "ids"; ids: readonly string[] };
+
+/**
+ * 日报告 like a book (I9): the report at `start`, then 上一篇 / 下一篇, ← / →
+ * and a sideways swipe through the rest, 「第 n / 共 N 篇」 at the top.
+ *
+ * The list rows carry counts, not photographs (`compact`), so each report is
+ * read in full as it is turned to, and its neighbours are fetched ahead. The
+ * page behind the last row of a list page is fetched when the book gets
+ * there, so it reads on past row 20 without closing.
+ */
+export function DailyReportBook({
+  source,
+  start,
+  onClose,
+  onChanged,
+}: {
+  source: DailyReportBookSource;
+  start: number;
+  onClose: () => void;
+  /** After a report was corrected or removed from the book. */
+  onChanged?: () => void;
+}) {
+  const t = useTranslations("progressPage");
+  const qc = useQueryClient();
+  const [position, setPosition] = useState(start);
+  const [direction, setDirection] = useState<-1 | 0 | 1>(0);
+  const query = source.kind === "list" ? source.query : null;
+  const ids = source.kind === "ids" ? source.ids : null;
+  const { page, index } = bookPage(position, PAGE);
+  const listPage = useQuery({
+    queryKey: ["daily-reports", query, page],
+    queryFn: () => getDailyReports({ ...query, page, page_size: PAGE }),
+    enabled: query !== null,
+  });
+  const total = ids ? ids.length : (listPage.data?.count ?? (source.kind === "list" ? source.total : 0));
+  const id = (ids ? ids[position] : listPage.data?.results[index]?.id) || undefined;
+  const report = useQuery({
+    queryKey: ["daily-reports", "one", id],
+    queryFn: () => getDailyReport(id!),
+    enabled: Boolean(id),
+    // The page turned from stays up until the next one has come (no flash).
+    placeholderData: keepPreviousData,
+  });
+
+  // The pages either side, read ahead so a turn shows at once.
+  useEffect(() => {
+    for (const by of [-1, 1] as const) {
+      const next = turnTo(position, total, by);
+      if (next === null) continue;
+      const spot = bookPage(next, PAGE);
+      if (query !== null && spot.page !== page) {
+        void qc.prefetchQuery({
+          queryKey: ["daily-reports", query, spot.page],
+          queryFn: () => getDailyReports({ ...query, page: spot.page, page_size: PAGE }),
+        });
+        continue;
+      }
+      const nextId = ids ? ids[next] : listPage.data?.results[spot.index]?.id;
+      if (nextId) {
+        void qc.prefetchQuery({
+          queryKey: ["daily-reports", "one", nextId],
+          queryFn: () => getDailyReport(nextId),
+        });
+      }
+    }
+  }, [ids, listPage.data, page, position, qc, query, total]);
+
+  const turn = (by: -1 | 1) => {
+    const next = turnTo(position, total, by);
+    if (next === null) return;
+    setDirection(by);
+    setPosition(next);
+  };
+  const notice = (
+    <>
+      <QueryFailedNote query={listPage} what={t("tabs.reports")} />
+      <QueryFailedNote query={report} what={t("tabs.reports")} />
+    </>
+  );
+
+  if (!report.data) {
+    return (
+      <Dialog open onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("tabs.reports")}</DialogTitle>
+            <DialogDescription className="sr-only">{t("tabs.reports")}</DialogDescription>
+          </DialogHeader>
+          {listPage.isError || report.isError ? (
+            notice
+          ) : (
+            <Loader2 className="size-4 animate-spin text-muted-foreground" />
+          )}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  return (
+    <DailyReportView
+      report={report.data}
+      onClose={onClose}
+      onSaved={(saved) => {
+        qc.setQueryData(["daily-reports", "one", saved.id], saved);
+        onChanged?.();
+      }}
+      onRemoved={() => {
+        onChanged?.();
+        onClose();
+      }}
+      book={{
+        position,
+        total,
+        direction,
+        turning: report.isPlaceholderData || (!id && listPage.isFetching),
+        onTurn: turn,
+        notice,
+      }}
+    />
+  );
+}
+
+/** What an opened report needs to be one page of a book (I9). */
+export interface DailyReportBookNav {
+  /** 0-based, over the whole list. */
+  position: number;
+  total: number;
+  /** The way the last turn went, for the page's slide in. */
+  direction: -1 | 0 | 1;
+  /** The next page is still on its way; this one stays up meanwhile. */
+  turning: boolean;
+  onTurn: (by: -1 | 1) => void;
+  /** Why the next page could not be read. */
+  notice?: ReactNode;
+}
+
+/** 上一篇 · 「第 n / 共 N 篇」 · 下一篇. */
+function BookBar({ book }: { book: DailyReportBookNav }) {
+  const t = useTranslations("progressPage.reports.book");
+  const counter = bookCounter(book.position, book.total);
+  const first = turnTo(book.position, book.total, -1) === null;
+  const last = turnTo(book.position, book.total, 1) === null;
+  return (
+    <div
+      data-book-bar
+      className="sticky -top-4 z-10 -mx-4 flex items-center justify-between gap-2 border-b border-panel-border bg-popover px-4 py-2"
+    >
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={first}
+        disabledReason={t("first")}
+        onClick={() => book.onTurn(-1)}
+      >
+        <ChevronLeft />
+        {t("previous")}
+      </Button>
+      <span className="flex items-center gap-1.5 text-sm font-medium tabular" aria-live="polite">
+        {book.turning && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
+        {t("position", counter)}
+      </span>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={last}
+        disabledReason={t("last")}
+        onClick={() => book.onTurn(1)}
+      >
+        {t("next")}
+        <ChevronRight />
+      </Button>
+    </div>
   );
 }
 
@@ -340,6 +560,8 @@ export function DailyReportView({
   report,
   onClose,
   onSaved,
+  onRemoved,
+  book,
 }: {
   report: DailyReport;
   onClose: () => void;
@@ -348,6 +570,10 @@ export function DailyReportView({
    * the new text and photos show at once (B4 audit #20).
    */
   onSaved?: (saved: DailyReport) => void;
+  /** After 删除 from 修改; closes the view when not given. */
+  onRemoved?: () => void;
+  /** Turned like a book through a list of reports (I9). */
+  book?: DailyReportBookNav;
 }) {
   const t = useTranslations("progressPage");
   const locale = useLocale();
@@ -355,6 +581,18 @@ export function DailyReportView({
   const days = useReportDays();
   const { can } = useAuth();
   const [editing, setEditing] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const touch = useRef<{ x: number; y: number } | null>(null);
+  // ← / → while this report is the dialog on top; a photograph opened over
+  // it keeps them for itself.
+  useArrowKeys((step) => book?.onTurn(step), {
+    enabled: Boolean(book) && !editing,
+    owner: contentRef,
+  });
+  // A new page starts at its top.
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0 });
+  }, [report.id]);
   if (editing) {
     return (
       <DailyReportDialog
@@ -365,13 +603,38 @@ export function DailyReportView({
           setEditing(false);
           onSaved?.(saved);
         }}
-        onRemoved={onClose}
+        onRemoved={onRemoved ?? onClose}
       />
     );
   }
+  // A sideways stroke on a phone turns the page. Only one that starts inside
+  // this dialog: a photograph opened over it is its own (a portal, outside).
+  const swipe = book
+    ? {
+        onTouchStart: (event: React.TouchEvent) => {
+          const point = event.touches[0];
+          touch.current =
+            point && contentRef.current?.contains(event.target as Node)
+              ? { x: point.clientX, y: point.clientY }
+              : null;
+        },
+        onTouchEnd: (event: React.TouchEvent) => {
+          const from = touch.current;
+          touch.current = null;
+          const point = event.changedTouches[0];
+          if (!from || !point || !isTopDialog(contentRef.current)) return;
+          const step = swipeStep(point.clientX - from.x, point.clientY - from.y);
+          if (step !== null) book.onTurn(step);
+        },
+      }
+    : {};
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent
+        ref={contentRef}
+        className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl"
+        {...swipe}
+      >
         <DialogHeader>
           <DialogTitle>{report.name}</DialogTitle>
           <DialogDescription>
@@ -380,6 +643,17 @@ export function DailyReportView({
               .join(" · ")}
           </DialogDescription>
         </DialogHeader>
+        {book && <BookBar book={book} />}
+        {book?.notice}
+        <div
+          key={report.id}
+          className={cn(
+            "grid gap-4",
+            book && book.direction !== 0 && "animate-in fade-in-0 duration-200 motion-reduce:animate-none",
+            book?.direction === 1 && "slide-in-from-right-10",
+            book?.direction === -1 && "slide-in-from-left-10",
+          )}
+        >
         {/* 图15: the report is a file to send - 预览 · 打印 · 导出 · 发送. */}
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
           <FileActionButtons
@@ -404,9 +678,15 @@ export function DailyReportView({
           </p>
           <EntryList entries={report.entries} />
         </section>
+        </div>
         {can("progress.manage") && (
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(true)}>
+            <Button
+              variant="outline"
+              disabled={Boolean(book?.turning)}
+              disabledReason={t("reports.book.waiting")}
+              onClick={() => setEditing(true)}
+            >
               <Pencil />
               {t("reports.edit")}
             </Button>

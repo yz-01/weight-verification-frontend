@@ -6292,7 +6292,17 @@
       "document_no": "文档编号",
       "subcategory": "子分类",
       "version_count": "版本数",
-      "created_at": "上传时间"
+      "created_at": "上传时间",
+      "name": "日报名称",
+      "report_date": "开始日期",
+      "end_date": "结束日期",
+      "author": "撰写人",
+      "record_count": "记录数",
+      "body": "内容",
+      "generated_at": "生成时间",
+      "block_count": "内容块数",
+      "updated_by": "最后修改人",
+      "updated_at": "最后更新"
     },
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
@@ -6304,7 +6314,9 @@
       "safety": "追踪安全问题从分配、整改到验收的过程。",
       "schedule": "对比当前确认计划与现场实际进度。",
       "target": "对比计划和实际进度及项目活动指标。",
-      "documents": "按文档分类查看项目文件、版本与上传人。"
+      "documents": "按文档分类查看项目文件、版本与上传人。",
+      "daily_report": "按日期看日报告：每篇的全文、收进的记录和照片。导出 PDF 时每篇从新的一页开始，照片带水印。",
+      "progress_summary": "这段期间更新过的项目进度摘要。导出 PDF 时每份从新的一页开始。"
     },
     "empty": "此项目和日期范围没有符合的记录。",
     "filter": {
@@ -6324,7 +6336,9 @@
         "schedule": "WBS 编号或任务名称",
         "target": "目标名称",
         "photos": "文件名、来源或上传人员",
-        "documents": "文件编号、标题或关键字"
+        "documents": "文件编号、标题或关键字",
+        "daily_report": "日报名称、内容或撰写人",
+        "progress_summary": "标题或撰写人"
       },
       "noMatch": "没有符合的选项",
       "submittedBy": "提交人",
@@ -6372,11 +6386,21 @@
       "safety": "安全与整改报表",
       "schedule": "计划与实际对比报表",
       "target": "目标与达成报表",
-      "documents": "项目资料报表"
+      "documents": "项目资料报表",
+      "daily_report": "日报告",
+      "progress_summary": "项目进度摘要"
     },
     "what": {
       "filterOptions": "筛选选项",
-      "projects": "项目列表"
+      "projects": "项目列表",
+      "latestDay": "最近一天的日报告"
+    },
+    "days": {
+      "title": "往日报告",
+      "help": "先选要看的日期范围，再列出这几天的日报告。",
+      "show": "查看",
+      "choose": "请先选开始和结束日期。",
+      "backwards": "开始日期不能晚于结束日期。"
     }
   },
   "crm": {
@@ -7639,7 +7663,8 @@
       "package_source_missing": "有一条退回资料的原记录读不到了。",
       "package_link_not_found": "找不到",
       "role_template_not_found": "找不到这个预设角色。",
-      "role_already_exists": "本公司已经有这个角色。"
+      "role_already_exists": "本公司已经有这个角色。",
+      "export_too_many_photos": "这次导出共有 {count} 张照片，一次最多 {limit} 张。请缩短日期范围后再导出。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -10687,7 +10712,9 @@
       "gateRecords": "门岗记录",
       "gatePhotoRecords": "日常拍照记录",
       "gateIssues": "门岗事项",
-      "visitorRecords": "访客进退场记录"
+      "visitorRecords": "访客进退场记录",
+      "dailyReport": "日报告",
+      "progressSummary": "项目进度摘要"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -14131,7 +14158,11 @@
       "title": "工地电子围栏",
       "undoPoint": "撤销上一个点",
       "useGps": "获取当前 GPS",
-      "useProject": "使用项目位置"
+      "useProject": "使用项目位置",
+      "editSwitch": "编辑围栏",
+      "editHint": "打开后才能在地图上改圆心、加点或拖点；保存后会自动关上。",
+      "locked": "地图现在只看不改。要修改围栏，先打开「编辑围栏」。",
+      "backToFence": "回到围栏"
     },
     "homePage": {
       "dashboard": "Dashboard 首页",
@@ -16567,7 +16598,11 @@
       "OTHER": "其他"
     },
     "categoriesFailed": "无法载入分类列表。",
-    "noCategories": "此报表还没有分类，点报表名称直接打开。"
+    "noCategories": "此报表还没有分类，点报表名称直接打开。",
+    "progressMenu": {
+      "dailyReport": "日报告",
+      "pastDailyReports": "往日报告"
+    }
   },
   "wasteClearance": {
     "title": "垃圾清运",
@@ -17027,7 +17062,16 @@
       "photosCount": "照片数",
       "author": "撰写人",
       "recordDeleted": "记录已删除",
-      "maxDays": "一份日报告最多 {days} 天。"
+      "maxDays": "一份日报告最多 {days} 天。",
+      "generatedAt": "生成于 {when}",
+      "book": {
+        "position": "第 {n} / 共 {total} 篇",
+        "previous": "上一篇",
+        "next": "下一篇",
+        "first": "这已经是第一篇。",
+        "last": "这已经是最后一篇。",
+        "waiting": "正在打开这一篇，请稍候。"
+      }
     },
     "summary": {
       "new": "新建摘要",
@@ -17542,5 +17586,9 @@
     "nameHelp": "名字会记录在你的确认、退回、签收和留言上。这个浏览器会记住，下次不用再填。",
     "name": "名字",
     "continue": "继续"
+  },
+  "mapFrame": {
+    "fullscreen": "全屏",
+    "exitFullscreen": "退出全屏"
   }
 }
