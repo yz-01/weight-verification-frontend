@@ -26,6 +26,10 @@ export interface SchedulePlan {
   revision_count: number;
   current_revision_id: string | null;
   current_revision_label: string;
+  /** Who created it, and who changed the schedule last (I29, ID69). */
+  created_by_name?: string | null;
+  last_changed_by_name?: string | null;
+  last_changed_at?: string | null;
   created_at: string;
   updated_at: string;
 }

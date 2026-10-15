@@ -16,7 +16,8 @@ export type AuditAction =
   | "MAINTENANCE"
   | "LOCK"
   | "VIEW"
-  | "SEARCH";
+  | "SEARCH"
+  | "SIGN_OFF";
 
 /** `{field: {before, after}}`, holding only the fields that actually moved. */
 export type AuditChanges = Record<

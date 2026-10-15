@@ -32,6 +32,13 @@ import { portalLoginPath } from "@/lib/portal";
 import { t } from "@/lib/i18n-runtime";
 import { getActiveProjectId } from "@/lib/project-context";
 import { attachOriginalManifest, carriesOriginals, markOriginalsDeclared } from "@/lib/original-photos";
+import {
+  SIGN_OFF_CANCELLED,
+  askSignOff,
+  hasSignOffDialog,
+  isSignOffRefusal,
+  settleSignOff,
+} from "@/lib/sign-off";
 
 const BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000"
@@ -70,6 +77,14 @@ interface RequestOptions {
   /** Skip a previous bearer session for public credential exchanges. */
   auth?: boolean;
   signal?: AbortSignal;
+  /**
+   * The six-digit sign-off PIN (I29), sent as `X-Sign-Off-PIN`. Usually left
+   * out: a refusal asking for it opens the shared dialog and the request is
+   * sent again with what was typed (`lib/sign-off`).
+   */
+  signOffPin?: string;
+  /** Leave a sign-off refusal to the caller instead of the dialog. */
+  noSignOffPrompt?: boolean;
 }
 
 function buildUrl(path: string, query?: ListQuery): string {
@@ -216,6 +231,7 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
     if (token) headers.Authorization = `Bearer ${token}`;
     const projectId = getActiveProjectId();
     if (projectId) headers["X-MSE-Project"] = projectId;
+    if (options.signOffPin) headers["X-Sign-Off-PIN"] = options.signOffPin;
   }
 
   let payload: BodyInit | undefined;
@@ -266,73 +282,110 @@ export async function request<T>(
     options.body instanceof FormData && carriesOriginals(options.body)
       ? await attachOriginalManifest(options.body)
       : [];
-  let response: Response;
-  try {
-    response = await send(path, options);
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") throw error;
-    const failure = noAnswer(error);
-    if (!options.silent) toast.error(failure.message);
-    throw failure;
-  }
-
-  // One retry, and only for requests that are not themselves part of signing
-  // in, or a failed login would try to refresh and bounce the user out.
-  if (
-    response.status === 401 &&
-    options.auth !== false &&
-    !isCredentialExchange(path)
-  ) {
-    let refreshed: boolean;
+  // Sent again with the sign-off PIN when the server asks for it (I29).
+  for (let attempt = options; ; ) {
+    let response: Response;
     try {
-      refreshed = await ensureRefresh();
-      if (refreshed) response = await send(path, options);
+      response = await send(path, attempt);
     } catch (error) {
-      // The renewal or the resend got no answer: the same as the first send
-      // getting none. Uncaught, it reached the form as a bare error, so a
-      // delivery 提交 on a weak signal said 「操作失败」 instead of going into
-      // the offline queue.
       if (error instanceof DOMException && error.name === "AbortError") throw error;
       const failure = noAnswer(error);
-      if (!options.silent) toast.error(failure.message);
+      if (attempt.signOffPin) settleSignOff();
+      if (!attempt.silent) toast.error(failure.message);
       throw failure;
     }
-    if (!refreshed) {
-      endSession();
-      throw new ApiError(t("auth.sessionExpired"), 401);
-    }
-  }
 
-  const envelope = await parseEnvelope<T>(response);
-
-  if (!response.ok || !envelope.success) {
-    const code = envelope.success ? "" : (envelope.code ?? "");
-    const errors = envelope.success ? {} : translateFieldErrors(envelope.errors);
-    const message = resolveMessage(
-      code,
-      envelope.success ? "" : envelope.message,
-      envelope.success ? undefined : envelope.values,
-    );
-    const failure = new ApiError(message, response.status, errors, code);
-
-    // The same exemption as the retry above. It was missing here, so a
-    // wrong password skipped the refresh correctly and was then signed out
-    // anyway one block later - cleared tokens, "your session has expired",
-    // and a hard navigation away from the entrance being typed into.
+    // One retry, and only for requests that are not themselves part of signing
+    // in, or a failed login would try to refresh and bounce the user out.
     if (
       response.status === 401 &&
-      options.auth !== false &&
+      attempt.auth !== false &&
       !isCredentialExchange(path)
     ) {
-      endSession();
-    } else if (!options.silent) {
-      toast.error(message);
+      let refreshed: boolean;
+      try {
+        refreshed = await ensureRefresh();
+        if (refreshed) response = await send(path, attempt);
+      } catch (error) {
+        // The renewal or the resend got no answer: the same as the first send
+        // getting none. Uncaught, it reached the form as a bare error, so a
+        // delivery 提交 on a weak signal said 「操作失败」 instead of going into
+        // the offline queue.
+        if (error instanceof DOMException && error.name === "AbortError") throw error;
+        const failure = noAnswer(error);
+        if (!attempt.silent) toast.error(failure.message);
+        throw failure;
+      }
+      if (!refreshed) {
+        endSession();
+        throw new ApiError(t("auth.sessionExpired"), 401);
+      }
     }
-    throw failure;
-  }
 
-  if (declared.length) await markOriginalsDeclared(declared);
-  return envelope.data;
+    const envelope = await parseEnvelope<T>(response);
+
+    if (!response.ok || !envelope.success) {
+      const code = envelope.success ? "" : (envelope.code ?? "");
+      const errors = envelope.success ? {} : translateFieldErrors(envelope.errors);
+      const values = envelope.success ? undefined : envelope.values;
+      const message = resolveMessage(code, envelope.success ? "" : envelope.message, values);
+
+      // The sign-off PIN (I29): ask, and send the same request again.
+      const pin = attempt.noSignOffPrompt
+        ? undefined
+        : await answerSignOff(response.status, code, message, attempt.signOffPin, values);
+      if (pin) {
+        attempt = { ...attempt, signOffPin: pin };
+        continue;
+      }
+      if (pin === null) throw new ApiError(message, response.status, errors, SIGN_OFF_CANCELLED);
+
+      const failure = new ApiError(message, response.status, errors, code);
+
+      // The same exemption as the retry above. It was missing here, so a
+      // wrong password skipped the refresh correctly and was then signed out
+      // anyway one block later - cleared tokens, "your session has expired",
+      // and a hard navigation away from the entrance being typed into.
+      if (
+        response.status === 401 &&
+        attempt.auth !== false &&
+        !isCredentialExchange(path)
+      ) {
+        endSession();
+      } else if (!attempt.silent) {
+        toast.error(message);
+      }
+      throw failure;
+    }
+
+    if (attempt.signOffPin) settleSignOff();
+    if (declared.length) await markOriginalsDeclared(declared);
+    return envelope.data;
+  }
+}
+
+/**
+ * A refusal about the sign-off PIN, answered in the shared dialog (I29).
+ *
+ * The PIN typed, to send the request again with; `null` when the dialog was
+ * closed (the operation is not done, and nothing is toasted); `undefined`
+ * when this refusal is not the dialog's - the caller handles it as any other.
+ */
+async function answerSignOff(
+  status: number,
+  code: string,
+  message: string,
+  sentPin: string | undefined,
+  values: Record<string, string | number> | undefined,
+): Promise<string | null | undefined> {
+  if (!isSignOffRefusal(status, code, Boolean(sentPin)) || !hasSignOffDialog()) {
+    if (sentPin) settleSignOff();
+    return undefined;
+  }
+  const action = typeof values?.action === "string" ? values.action : undefined;
+  const pin = await askSignOff({ code, message, action });
+  if (!pin) settleSignOff();
+  return pin || null;
 }
 
 /**
@@ -451,38 +504,49 @@ export async function fetchObjectUrl(path: string, options: RequestOptions = {})
 
 /** Fetch a file with the session's auth, refreshing once, toasting failure. */
 async function fetchFile(path: string, options: RequestOptions): Promise<Response> {
-  let response: Response;
-  try {
-    response = await send(path, options);
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") throw error;
-    const failure = noAnswer(error);
-    if (!options.silent) toast.error(failure.message);
-    throw failure;
-  }
-
-  if (response.status === 401) {
-    const refreshed = await ensureRefresh();
-    if (refreshed) {
-      response = await send(path, options);
-    } else {
-      endSession();
-      throw new ApiError(t("auth.sessionExpired"), 401);
+  // Sent again with the sign-off PIN when the server asks for it (I29): a
+  // daily report's PDF and the list's export are signed.
+  for (let attempt = options; ; ) {
+    let response: Response;
+    try {
+      response = await send(path, attempt);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") throw error;
+      const failure = noAnswer(error);
+      if (attempt.signOffPin) settleSignOff();
+      if (!attempt.silent) toast.error(failure.message);
+      throw failure;
     }
-  }
 
-  if (!response.ok) {
-    const envelope = await parseEnvelope<never>(response);
-    const code = envelope.success ? "" : (envelope.code ?? "");
-    const message = resolveMessage(
-      code,
-      envelope.success ? "" : envelope.message,
-      envelope.success ? undefined : envelope.values,
-    );
-    if (!options.silent) toast.error(message);
-    throw new ApiError(message, response.status, {}, code);
+    if (response.status === 401) {
+      const refreshed = await ensureRefresh();
+      if (refreshed) {
+        response = await send(path, attempt);
+      } else {
+        endSession();
+        throw new ApiError(t("auth.sessionExpired"), 401);
+      }
+    }
+
+    if (!response.ok) {
+      const envelope = await parseEnvelope<never>(response);
+      const code = envelope.success ? "" : (envelope.code ?? "");
+      const values = envelope.success ? undefined : envelope.values;
+      const message = resolveMessage(code, envelope.success ? "" : envelope.message, values);
+      const pin = attempt.noSignOffPrompt
+        ? undefined
+        : await answerSignOff(response.status, code, message, attempt.signOffPin, values);
+      if (pin) {
+        attempt = { ...attempt, signOffPin: pin };
+        continue;
+      }
+      if (pin === null) throw new ApiError(message, response.status, {}, SIGN_OFF_CANCELLED);
+      if (!attempt.silent) toast.error(message);
+      throw new ApiError(message, response.status, {}, code);
+    }
+    if (attempt.signOffPin) settleSignOff();
+    return response;
   }
-  return response;
 }
 
 /**
