@@ -157,8 +157,8 @@ describe("each row of an entry's menu shows its own number (2026-10-09)", () => 
       material_receipts: 2,
       material_outgoing: 4,
     });
-    // 材料进场 2, 材料出场 4; the entry shows 6.
-    expect(waiting).toEqual({ "5.2.1": 2, "5.2.2": 4 });
+    // 材料进场 2, 材料出场 4; the entry shows 6. 材料目标 (I18) waits on nobody.
+    expect(waiting).toEqual({ "5.2.1": 2, "5.2.2": 4, "5.2.3": 0 });
     // Nothing waiting on a page: zero, which shows no badge.
     expect(menuWaiting(entry("materialManagement"), { material_outgoing: 3 })["5.2.1"]).toBe(0);
   });

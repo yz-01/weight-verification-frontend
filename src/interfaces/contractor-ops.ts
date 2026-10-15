@@ -42,7 +42,9 @@ export type ProjectCategoryKind =
   // claims and the period claims are filed by the office after the fact.
   | "CONSULTANT"
   | "SUNDRY"
-  | "CLAIM";
+  | "CLAIM"
+  // 申请类型 (I16, ID36): a project's MR / Other Request types.
+  | "REQUEST_TYPE";
 export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
 
 /** What a material column's budget counts (2026-10 A6, X17). */
@@ -61,6 +63,25 @@ export interface CategoryManufacturerOption {
   is_active: boolean;
 }
 
+/**
+ * One specification of a material (I19, ID45): the material's second level,
+ * with the unit it is measured in. 「其他」 (`is_other`) has no unit - whoever
+ * chooses it types the specification and picks the unit.
+ */
+export interface MaterialSpec {
+  id: string;
+  code: string;
+  name: string;
+  default_unit: string;
+  /** A unit the company added; null for a built-in code (translated). */
+  default_unit_label: string | null;
+  is_active: boolean;
+  is_other: boolean;
+  /** 「其他」: renamed, never switched off or removed. */
+  is_fixed: boolean;
+  sort_order: number;
+}
+
 export interface ProjectCategory {
   id: string;
   project: string;
@@ -69,6 +90,14 @@ export interface ProjectCategory {
   code: string;
   name: string;
   kind: ProjectCategoryKind;
+  /** A request type's form (I16): the material form or the simple one. */
+  form_style?: "MATERIAL" | "GENERAL" | "";
+  /** Seeded by the system (I16, I19): renamed, never switched off or removed. */
+  is_fixed?: boolean;
+  /** 「其他」: typed on the record (I19). */
+  is_other?: boolean;
+  /** A material's specifications, each with its unit, 「其他」 last (I19). */
+  specs?: MaterialSpec[];
   submission_mode: CategorySubmissionMode;
   description: string;
   sort_order: number;
@@ -689,6 +718,9 @@ export interface MaterialOutgoing extends RecordedBy {
   unit_label?: string | null;
   material_name: string;
   material_specification?: string;
+  /** The specification from the project's material data (I19). */
+  spec_category?: string | null;
+  spec_category_name?: string | null;
   /** What the application asked to send back. */
   quantity: string;
   /** What actually left at the handover (B12); this comes off the net. */

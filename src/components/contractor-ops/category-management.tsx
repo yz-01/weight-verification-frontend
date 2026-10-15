@@ -23,6 +23,7 @@ import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { CategoryDialog, EquipmentDialog } from "@/components/contractor-ops/operations-workspaces";
 import { equipmentClassTree } from "@/components/contractor-ops/equipment-classes";
 import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-dialog";
+import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
 import { Shell } from "@/components/contractor-ops/package-shell";
@@ -192,9 +193,12 @@ const columnRows = (kind: ProjectCategoryKind) => async (project: string) => {
   }));
 };
 
-/** 施工准证申请: renamed, never switched off or removed (H18, HD4). */
+/**
+ * 施工准证申请 (H18, HD4) and 「其他材料」 (I19, ID43): renamed, never switched
+ * off or removed.
+ */
 const isSystemColumn = (row: Row) =>
-  row.column?.kind === "EHS" && row.code === PERMIT_COLUMN_CODE;
+  (row.column?.kind === "EHS" && row.code === PERMIT_COLUMN_CODE) || Boolean(row.column?.is_fixed);
 
 /** The project-column modules share everything except the kind. */
 const columnModule = (
@@ -278,6 +282,10 @@ export function CategoryManagement() {
   // The row whose 删除 is armed (rule 8: a switch, not a confirm dialog).
   const [armed, setArmed] = useState<string | null>(null);
   const [unitsOpen, setUnitsOpen] = useState(false);
+  // 「申请类型」 (I16, ID36): the MR / Other Request types, in the same dialog
+  // the MR page opens.
+  const [requestTypesOpen, setRequestTypesOpen] = useState(false);
+  const canRequestTypes = can("material_request.config") || can("category.manage");
   /** The column whose records are open in the dialog (T-396). */
   const [viewing, setViewing] = useState<Row | null>(null);
   const [refusal, setRefusal] = useState<{ name: string; reason: string } | null>(
@@ -413,7 +421,22 @@ export function CategoryManagement() {
               </span>
             </button>
           ))}
+          {/* 「申请类型」 (I16): MR / Other Request types, kept per project -
+              opened in place, the same dialog the MR page opens. */}
+          {canRequestTypes && (
+            <button
+              type="button"
+              onClick={() => setRequestTypesOpen(true)}
+              className="flex min-h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ListTree className="size-4 shrink-0" />
+              <span className="min-w-0 flex-1 truncate">{t("requestTypes")}</span>
+            </button>
+          )}
         </nav>
+        {requestTypesOpen && (
+          <RequestTypesDialog initialProject={project} onClose={() => setRequestTypesOpen(false)} />
+        )}
 
         <section className="surface-panel min-w-0 rounded-xl p-4 sm:p-6">
           <header className="mb-3 flex flex-wrap items-center gap-2">
@@ -526,6 +549,17 @@ export function CategoryManagement() {
                             </span>
                           )}
                         </span>
+                        {/* A material's specifications (I19, ID45), set in its dialog. */}
+                        {isMaterial && row.column?.specs?.length ? (
+                          <p className="mt-0.5 text-xs font-normal text-muted-foreground">
+                            {t("material.specsLine", {
+                              specs: row.column.specs
+                                .filter((spec) => spec.is_active)
+                                .map((spec) => spec.name)
+                                .join(" · "),
+                            })}
+                          </p>
+                        ) : null}
                       </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {row.code}

@@ -67,10 +67,12 @@ describe("the phone's material form", () => {
   const summary = body.indexOf('t("material.additionalDetails")');
   const details = body.slice(body.lastIndexOf("<details", summary), body.indexOf("</details>", summary));
 
-  it("keeps only specification and total weight under 补充资料", () => {
+  it("keeps only total weight under 补充资料; the specification is on the form (I19)", () => {
     expect(details).toMatch(/t\("material\.additionalDetails"\)/);
-    expect(details).toMatch(/t\("material\.specification"\)/);
+    expect(details).not.toMatch(/t\("material\.specification"\)/);
     expect(details).toMatch(/t\("material\.totalWeightKg"\)/);
+    // Chosen from the material's specifications, with 「其他」 typed (ID46).
+    expect(body).toMatch(/label=\{t\("material\.spec"\)\} required=\{specRequired\}/);
     expect(details).not.toMatch(/material\.vehicle|material\.doNo|FieldSignaturePad/);
   });
 

@@ -3880,7 +3880,8 @@
         "MATERIAL_RECEIPT_QUANTITY": "所选材料单位的进场总数量。",
         "SETTLED_RECYCLING_WEIGHT": "已结算回收重量，单位为公斤。"
       },
-      "wasteType": "回收废料类型"
+      "wasteType": "回收废料类型",
+      "quantityMoved": "「材料进场数量」改到「材料管理 → 材料目标」设置（扣除退场，可按规格）；已设的旧目标照常。"
     },
     "loadError": "无法加载业务目标。",
     "management": {
@@ -3902,12 +3903,13 @@
       "title": "业务目标"
     },
     "materialUnit": {
-      "BAG": "袋",
+      "BAG": "包（Bag）",
       "KG": "公斤",
       "LOAD": "车／批",
       "M3": "立方米",
-      "PIECE": "件",
-      "TONNE": "吨"
+      "PIECE": "件（PCS）",
+      "TONNE": "吨（Ton）",
+      "M2": "平方米（m²）"
     },
     "metric": {
       "FIELD_TASK_COUNT": "已验收现场任务",
@@ -4022,7 +4024,8 @@
       "thresholdAmountsHint": "选填。用逗号分隔，例如 400000, 450000（RM）；数量模式填数量。",
       "thresholdAmountsInvalid": "请填大于 0 的数字，用逗号分隔。",
       "recipients": "提醒发给公司管理员和项目负责人，每条线只发一次；总数回落到线下会撤回。",
-      "quantityUsed": "已进场 {used} / {budget} {unit}"
+      "quantityUsed": "已进场 {used} / {budget} {unit}",
+      "quantityMoved": "预算只计金额。数量目标请到「材料管理 → 材料目标」设置（扣除退场，可按规格）。"
     },
     "saveFailed": "没有成功。请再试一次，或者刷新页面。",
     "viewRecords": "查看记录",
@@ -4073,7 +4076,8 @@
       "noneChosen": "未选择",
       "what": {
         "suppliers": "供应商列表"
-      }
+      },
+      "specsLine": "规格：{specs}"
     },
     "equipment": {
       "majorClass": "大类",
@@ -4087,7 +4091,27 @@
     "armRemove": "允许删除「{name}」",
     "armFirst": "先打开旁边的开关",
     "codeAuto": "编号由系统自动生成，建好后不能改。",
-    "codeAutoPlaceholder": "保存后自动生成"
+    "codeAutoPlaceholder": "保存后自动生成",
+    "requestTypes": "申请类型",
+    "specs": {
+      "title": "规格与单位",
+      "help": "每个规格绑定一个单位：MR 材料申请、材料进场、材料退场和材料目标都从这里选，单位自动带出。「其他」由现场填写规格名称并选单位。",
+      "name": "规格名称",
+      "unit": "单位",
+      "chooseUnit": "选择单位",
+      "save": "保存",
+      "cancel": "取消",
+      "nameRequired": "请填写规格名称",
+      "unitRequired": "请选择单位",
+      "otherBadge": "现场填写",
+      "active": "启用 {name}",
+      "activeLabel": "启用",
+      "remove": "删除规格",
+      "newName": "新规格",
+      "newPlaceholder": "例如：Y50mm",
+      "add": "新增规格",
+      "afterSave": "保存材料后，打开它就可以加规格和单位。"
+    }
   },
   "cloudServices": {
     "count": "{count} 项服务",
@@ -5955,7 +5979,10 @@
       "scanSupplier": "扫供应商二维码",
       "scannedSupplier": "已扫码：{name}",
       "scanFailed": "这个二维码不是供应商二维码。",
-      "noSupplier": "不填"
+      "noSupplier": "不填",
+      "spec": "规格",
+      "chooseSpec": "选择规格",
+      "specName": "规格名称"
     },
     "outgoingStatus": {
       "APPROVED": "已批准 / 等待退场",
@@ -8353,7 +8380,12 @@
       "manufacturer": "指定厂商（MR）",
       "chooseColumnFirst": "请先选分类",
       "noSupplier": "未填供应商",
-      "noSupplierHint": "不确定是哪家就不用选，后台会补上。"
+      "noSupplierHint": "不确定是哪家就不用选，后台会补上。",
+      "spec": "规格",
+      "chooseSpec": "选择规格",
+      "specName": "规格名称",
+      "specNameHint": "名单里没有的规格，选「其他」在这里填写。",
+      "autoFilledFromSpec": "随规格带出"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -8910,6 +8942,14 @@
       "clearanceMonth": "本月清运",
       "hazardsOpen": "未关闭",
       "hazardsOverdue": "已逾期"
+    },
+    "materialTargets": {
+      "title": "材料目标",
+      "empty": "还没有项目设材料目标。在「材料管理 → 材料目标」设置。",
+      "targets": "{count} 项目标",
+      "exceeded": "已超出 {count}",
+      "reached": "已达到 {count}",
+      "approaching": "接近 {count}"
     }
   },
   "home": {
@@ -10439,7 +10479,7 @@
       "due_at": "期限",
       "result_note": "完成说明",
       "person": "人员",
-      "subject": "标题",
+      "subject": "申请事项",
       "related_record": "关联记录",
       "visitor_company": "公司",
       "phone": "电话",
@@ -10483,13 +10523,14 @@
       "scope": "发送范围",
       "published_by": "发布人",
       "published_at": "发布时间",
-      "content": "内容",
+      "content": "申请内容",
       "read_count": "已读 / 收件人",
       "host": "接待人",
       "confirmed_by": "确认人",
       "confirmed_at": "确认时间",
       "entry_at": "进场时间",
-      "exit_at": "退场时间"
+      "exit_at": "退场时间",
+      "request_kind": "申请类型"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -10501,13 +10542,14 @@
     "failedHelp": "服务器没有接收这一条，不会再自动上传。原因如下，请联系管理员处理。",
     "close": "关闭",
     "unit": {
-      "BAG": "袋",
+      "BAG": "包（Bag）",
       "KG": "公斤",
       "LOAD": "车",
       "M3": "立方米",
       "OTHER": "其他",
-      "PIECE": "件",
-      "TONNE": "吨"
+      "PIECE": "件（PCS）",
+      "TONNE": "吨（Ton）",
+      "M2": "平方米（m²）"
     },
     "returnedClosed": "这笔申请已经结束。原申请、退回原因和沟通记录都会保留；还需要做的话请新建一条。",
     "paymentProofs": "付款凭证",
@@ -10515,7 +10557,9 @@
     "conversation": "事项沟通",
     "removeFromList": "从我的列表移除",
     "removeHelp": "只从你这台手机的列表拿掉。云端记录、后台和其他人都不受影响；可以在列表下方按「全部重新显示」。",
-    "hiddenNote": "已从我的列表移除 {count} 条。"
+    "hiddenNote": "已从我的列表移除 {count} 条。",
+    "files": "上传的文件",
+    "download": "下载"
   },
   "nav": {
     "activity_logs": "活动日志",
@@ -10848,7 +10892,8 @@
       "visitorRecords": "访客进退场记录",
       "dailyReport": "日报告",
       "progressSummary": "项目进度摘要",
-      "siteWorkers": "人员名单"
+      "siteWorkers": "人员名单",
+      "materialTargets": "材料目标"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -11829,7 +11874,7 @@
         "view": "查看 MR / 其他申请",
         "submit": "提交 MR / 其他申请",
         "review": "批准或退回 MR / 其他申请",
-        "config": "维护 MR 材料选项"
+        "config": "管理 MR 申请类型"
       },
       "partnership": {
         "view": "查看合作关系",
@@ -12039,6 +12084,9 @@
       "site_worker": {
         "view": "查看人员名单和进出场记录",
         "manage": "登记人员、发送定位链接"
+      },
+      "material_target": {
+        "manage": "设定材料目标"
       }
     },
     "group": {
@@ -12107,7 +12155,8 @@
       "platform_settings": "系统设置",
       "platform_version": "版本管理",
       "integration": "系统集成",
-      "site_worker": "人员名单"
+      "site_worker": "人员名单",
+      "material_target": "材料目标"
     }
   },
   "photos": {
@@ -12556,7 +12605,11 @@
         "OCR": "从送货单读出",
         "MANUAL": "人工填写"
       },
-      "manufacturer": "指定厂商（MR）"
+      "manufacturer": "指定厂商（MR）",
+      "spec": "规格",
+      "specHint": "从材料资料选；选了规格，规格名称和单位随之带出。",
+      "chooseSpec": "选择规格",
+      "noSpec": "不指定规格"
     },
     "locationCaptured": "已记录位置",
     "locationMissing": "无位置",
@@ -12612,12 +12665,13 @@
     },
     "unfiled": "未归分类",
     "unit": {
-      "BAG": "包",
+      "BAG": "包（Bag）",
       "KG": "公斤",
       "LOAD": "车",
       "M3": "立方米",
-      "PIECE": "件",
-      "TONNE": "吨"
+      "PIECE": "件（PCS）",
+      "TONNE": "吨（Ton）",
+      "M2": "平方米（m²）"
     },
     "viewTitle": "材料进场记录",
     "waiting": "待你查看",
@@ -12639,7 +12693,8 @@
       "reject": "Reject 不合格",
       "totals": "累计进场与退场",
       "legacyReturns": "10-02 前用进场单登记的退场记录",
-      "choose": "选择查看"
+      "choose": "选择查看",
+      "targets": "材料目标"
     },
     "net": {
       "title": "按供应商、材料汇总的累计进场与退场",
@@ -16942,10 +16997,6 @@
       "MATERIAL": "材料申请",
       "OTHER": "其他申请"
     },
-    "typeHelp": {
-      "MATERIAL": "电子表单：材料、规格、数量、单位。",
-      "OTHER": "上传文件并填写备注。"
-    },
     "status": {
       "SUBMITTED": "待审批",
       "APPROVED": "已批准",
@@ -16979,7 +17030,11 @@
       "assignedReviewer": "提交给",
       "reassignHistory": "改派记录",
       "supplier": "供应商",
-      "manufacturer": "业主指定厂商"
+      "manufacturer": "业主指定厂商",
+      "subject": "申请事项",
+      "content": "申请内容",
+      "specificationName": "规格名称",
+      "materialOrSubject": "材料 / 申请事项"
     },
     "action": {
       "view": "查看",
@@ -17025,7 +17080,7 @@
     },
     "form": {
       "title": "新建申请",
-      "help": "材料申请填写电子表单；其他申请只需上传文件并填写备注。",
+      "help": "选择申请类型：材料申请填写材料、规格和数量；其他类型填写简单申请表。每种申请都可以上传照片、PDF 和其他文件。",
       "raiseAgainHelp": "以已退回的申请内容新建，会产生新的申请编号；原申请保持已结束并留在历史中。",
       "projectHint": "自动带入当前项目。",
       "chooseProject": "选择项目",
@@ -17035,48 +17090,35 @@
       "chooseUnit": "选择单位",
       "search": "输入搜索",
       "noMatch": "没有符合的选项",
-      "noSpecifications": "此材料尚未设定规格",
-      "listsEmpty": "材料选项为空。请总部或管理员在「材料选项」中新增材料、规格和单位。",
-      "quantityRule": "须大于 0，可整数或最多两位小数",
+      "quantityRule": "须大于 0，可整数或最多三位小数",
       "remarkPlaceholder": "选填：送货位置、时间等需要总部知道的事项",
-      "otherRemarkPlaceholder": "说明这个申请的内容",
-      "attachmentHint": "产品照片、证书或其他文件。最多 {count} 份，每份不超过 {limit} MB。",
       "addFiles": "添加文件",
       "removeFile": "移除 {name}",
       "fileTooBig": "{name} 超过 {limit} MB。",
-      "fileOrRemark": "文件或备注",
       "submit": "提交",
       "assignedReviewerHint": "只列出这个项目能批准申请的人。",
       "chooseReviewer": "选择审批人",
       "projectFirst": "请先选择项目",
       "noReviewers": "这个项目还没有人能批准申请。请公司管理员在「角色权限」里，给审批人的角色勾上「批准或退回 MR / 其他申请」。",
-      "suggestHint": "选填。只在业主指定了厂商时，从供应商名单选。"
-    },
-    "options": {
-      "open": "材料选项",
-      "title": "材料选项",
-      "help": "MR 表单的选项：材料、各材料的规格，以及单位。关闭开关即停用；已提交的申请内容不受影响。",
-      "materials": "材料 / 产品",
-      "specificationList": "规格",
-      "specificationsOf": "{material} 的规格",
-      "units": "单位",
-      "builtIn": "系统内置",
-      "empty": "暂无选项",
-      "addMaterialFirst": "请先新增材料，规格列在材料之下。",
-      "retire": "停用 {name}",
-      "restore": "重新启用 {name}",
-      "failed": "选项未能保存。",
-      "add": {
-        "MATERIAL": "新增材料",
-        "SPECIFICATION": "新增规格",
-        "UNIT": "新增单位"
-      }
+      "suggestHint": "选填。只在业主指定了厂商时，从供应商名单选。",
+      "chooseType": "选择申请类型",
+      "notSetUp": "该材料尚未建立，请先到分类管理设置。",
+      "goToCategories": "前往分类管理",
+      "askToSetUp": "请联系有权限的后台人员在分类管理设置。",
+      "materialData": "材料资料",
+      "otherSpecHint": "选了「其他」：请填写规格，并选择单位。",
+      "unitFromSpec": "单位随规格带出，不能修改。",
+      "unitAfterSpec": "选好规格后自动带出",
+      "subjectHint": "一句话说明要申请什么，例如：两台吊车、一个现场办公室。",
+      "contentOrFile": "申请内容和上传资料至少要有一样。",
+      "contentPlaceholder": "说明申请的内容、数量、时间等",
+      "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超过 {limit} MB。",
+      "fileKindRefused": "{name} 不能上传。请上传照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。"
     },
     "toast": {
       "submitted": "申请已提交。",
       "approved": "申请已批准。",
       "returned": "申请已退回并结束。",
-      "optionSaved": "已保存。",
       "reassigned": "已改派给你，现在由你审批。"
     },
     "capture": {
@@ -17092,6 +17134,40 @@
       "help": "批准就是采购决定：选好向哪家供应商买；业主指定了厂商时，也从供应商名单选上。",
       "chooseSupplier": "选择供应商",
       "confirm": "批准"
+    },
+    "types": {
+      "open": "管理申请类型",
+      "title": "管理申请类型",
+      "help": "每个项目自己的申请类型，全部平级。每个类型用两种表格之一：「材料明细」（材料、规格、数量）或「简单申请表」（申请事项、申请内容、备注、上传资料）。「材料申请」和「其他申请」是系统的：可以改名，不能停用、删除或换表格。",
+      "chooseProject": "请先选择项目，申请类型按项目设置。",
+      "name": "类型名称",
+      "nameRequired": "请填写类型名称",
+      "system": "系统",
+      "requestCount": "{count, plural, =0 {未使用} other {# 笔申请}}",
+      "form": "表格",
+      "style": {
+        "MATERIAL": "材料明细",
+        "GENERAL": "简单申请表"
+      },
+      "fixedHelp": "系统类型：可以改名，不能停用、删除或换表格。",
+      "active": "启用 {name}",
+      "activeLabel": "启用",
+      "save": "保存",
+      "cancel": "取消",
+      "rename": "改名",
+      "armRemove": "准备删除 {name}",
+      "remove": "删除类型",
+      "armFirst": "先打开旁边的开关，再删除。",
+      "newName": "新类型名称",
+      "newPlaceholder": "例如：人员申请",
+      "taken": "这个项目已经有这个类型。",
+      "formHint": "不适合材料明细的，用简单申请表。",
+      "add": "新增类型",
+      "failed": "未能保存，请重试。",
+      "toast": {
+        "saved": "申请类型已保存。",
+        "removed": "申请类型已删除。"
+      }
     }
   },
   "filePreview": {
@@ -18135,6 +18211,65 @@
       "denied": "定位权限被拒绝，请按下面的步骤允许定位。",
       "unavailable": "暂时取不到位置。请到空旷处，确认手机定位已打开。",
       "upload": "上一次没传上去，会自动再试。"
+    }
+  },
+  "materialTargets": {
+    "title": "材料目标",
+    "count": "{count, plural, =0 {暂无目标} other {# 项目标}}",
+    "basis": "累计净进场 = 进场（不含不合格）− 已完成的退场，按材料、规格、单位计算；单位不同的不换算。接近、达到、超出目标时，自动提醒这个项目的项目经理、QS 和设定人。",
+    "loading": "加载中…",
+    "empty": "这个项目还没有材料目标。",
+    "emptyAll": "还没有材料目标。先在上方选择项目，再新增。",
+    "add": "新增目标",
+    "chooseProjectFirst": "请先在上方选择项目",
+    "failed": "未能完成，请重试。",
+    "wholeMaterial": "不分规格",
+    "netMakings": "进场 {received} · 退场 {returned} · 不合格 {rejected}",
+    "otherUnits": "单位不同，未计入：{units}",
+    "deliveries": "进场记录",
+    "returns": "退场记录",
+    "edit": "修改",
+    "armRemove": "准备删除这个目标",
+    "remove": "删除目标",
+    "armFirst": "先打开旁边的开关，再删除。",
+    "field": {
+      "project": "项目",
+      "material": "材料",
+      "spec": "规格",
+      "unit": "单位",
+      "target": "目标数量",
+      "net": "累计净进场",
+      "remaining": "剩余",
+      "exceeded": "超出",
+      "progress": "进度",
+      "status": "状态",
+      "records": "原记录",
+      "action": "操作",
+      "alerts": "提醒线（%）",
+      "note": "备注"
+    },
+    "status": {
+      "NORMAL": "正常",
+      "APPROACHING": "接近目标",
+      "REACHED": "已达到",
+      "EXCEEDED": "已超出"
+    },
+    "addTitle": "新增材料目标",
+    "editTitle": "修改材料目标",
+    "dialogHelp": "材料和规格从统一材料资料选，单位随规格带出。不选规格，就是整个材料的目标。",
+    "chooseMaterial": "选择材料",
+    "specHint": "不选就是整个材料。",
+    "unitFromSpec": "单位随规格带出。",
+    "chooseUnit": "选择单位",
+    "quantityRule": "须大于 0，最多三位小数",
+    "alertsHint": "例如 80, 100：到 80% 提醒「接近」，到 100% 提醒「达到」；超过 100% 一定提醒「超出」。",
+    "alertsInvalid": "请填 1 到 100 的整数，用逗号分开。",
+    "recipients": "提醒对象：这个项目的项目经理、QS（有「设定材料目标」权限的人）和设定人，带提示音。",
+    "cancel": "取消",
+    "save": "保存",
+    "toast": {
+      "saved": "材料目标已保存。",
+      "removed": "材料目标已删除。"
     }
   }
 }
