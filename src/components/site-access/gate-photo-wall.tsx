@@ -241,6 +241,8 @@ export function WallViewer({
   });
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      // A PDF opened from here sits on top: its keys are its own.
+      if (document.querySelectorAll('[data-slot="dialog-content"]').length > 1) return;
       if (event.key === "ArrowLeft") stepRef.current(-1);
       else if (event.key === "ArrowRight") stepRef.current(1);
     };
