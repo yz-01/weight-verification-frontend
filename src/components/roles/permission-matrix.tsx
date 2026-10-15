@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PermissionEntry } from "@/interfaces/auth";
+import { permissionGroupLabel, permissionLabel } from "@/lib/permission-labels";
 import { cn } from "@/lib/utils";
 import { getPermissionCatalogue } from "@/services/auth.service";
 
@@ -20,7 +21,8 @@ import { getPermissionCatalogue } from "@/services/auth.service";
  * permission added on the server appears here with no frontend change. Labels
  * are looked up as `permissions.code.<domain>.<verb>`, which is why the
  * catalogue nests the codes: next-intl reads a dot as nesting, so the codes
- * cannot be flat keys.
+ * cannot be flat keys. A missing translation shows the backend's English
+ * label, never the key (`lib/permission-labels.ts`, I31).
  */
 export function PermissionMatrix({
   selected,
@@ -126,7 +128,7 @@ export function PermissionMatrix({
           <div key={group.key}>
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <h4 className="panel-title">
-                {t(`permissions.group.${group.key}`)}
+                {permissionGroupLabel(group.key, group.label, t)}
               </h4>
               {!readOnly && (
                 <button
@@ -169,8 +171,11 @@ export function PermissionMatrix({
                         }
                       />
                     )}
-                    <span className="min-w-0 truncate">
-                      {t(`permissions.code.${entry.code}`)}
+                    {/* Wrapped, not truncated: a label such as 「安全验收（可审批施工准证）」
+                        is the explanation, and cutting it off hides the part
+                        that says what the box is for. */}
+                    <span className="min-w-0 leading-snug break-words">
+                      {permissionLabel(entry, t)}
                     </span>
                   </label>
                 );
@@ -185,6 +190,8 @@ export function PermissionMatrix({
 
 interface PermissionGroup {
   key: string;
+  /** The backend's English name, for when the catalogue has none. */
+  label?: string;
   entries: PermissionEntry[];
 }
 
@@ -195,7 +202,7 @@ function groupByDomain(entries: PermissionEntry[]): PermissionGroup[] {
   for (const entry of entries) {
     let group = index.get(entry.group);
     if (!group) {
-      group = { key: entry.group, entries: [] };
+      group = { key: entry.group, label: entry.group_label, entries: [] };
       index.set(entry.group, group);
       groups.push(group);
     }

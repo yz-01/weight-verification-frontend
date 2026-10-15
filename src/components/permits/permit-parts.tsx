@@ -29,10 +29,12 @@ import {
   Printer,
   RotateCcw,
   Send,
+  UserPlus,
   X,
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
@@ -71,6 +73,7 @@ import type { Permit, PermitFile, PermitStatus } from "@/interfaces/permit";
 import { useDateFormat } from "@/lib/dates";
 import { printFile } from "@/lib/file-actions";
 import { photoMeta } from "@/lib/photo-meta";
+import { roleLabel } from "@/lib/role-labels";
 import {
   approvePermit,
   createPermit,
@@ -452,6 +455,7 @@ export function PermitApplyForm({
   onCancel?: () => void;
 }) {
   const t = useTranslations("permits");
+  const tRoot = useTranslations();
   const queryClient = useQueryClient();
   const clearDraft = useClearDraft();
   const [project, setProject] = useDraftState("project", initialProject);
@@ -519,7 +523,9 @@ export function PermitApplyForm({
           <SelectContent>
             {choices.map((person) => (
               <SelectItem key={person.id} value={person.id}>
-                {person.role_name ? `${person.full_name} · ${person.role_name}` : person.full_name}
+                {person.role_name
+                  ? `${person.full_name} · ${roleLabel(person.role_code, person.role_name, tRoot)}`
+                  : person.full_name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -527,7 +533,7 @@ export function PermitApplyForm({
         <p className="mt-1.5 text-xs text-muted-foreground">{t("approverHint")}</p>
         <QueryFailedNote className="mt-2" query={approvers} what={t("what.approvers")} />
         {project && approvers.isSuccess && choices.length === 0 && (
-          <p className="mt-2 text-xs text-destructive">{t("noApprovers")}</p>
+          <NoApproversHelp project={project} />
         )}
       </FieldWrapper>
       {error && (
@@ -555,6 +561,42 @@ export function PermitApplyForm({
           {t("submit")}
         </Button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Nobody can approve a permit on this project yet (I32, appendix A4).
+ *
+ * The client asked 「目前缺少哪个设置，以及客户管理员应该在哪里自行指定审批人员」.
+ * The answer is three settings, said here in the order they are done. Whoever
+ * can staff projects also gets the way to the last one - in a new tab, so the
+ * pages already photographed stay in this form, and the list refreshes when
+ * they come back (the query refetches on focus).
+ */
+function NoApproversHelp({ project }: { project: string }) {
+  const t = useTranslations("permits");
+  const { can, user } = useAuth();
+  const mayStaff = can("project.assign") && !user?.is_field_staff;
+  return (
+    <div
+      role="alert"
+      className="mt-2 space-y-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-xs leading-5"
+    >
+      <p className="font-medium text-foreground">{t("noApprovers")}</p>
+      <ol className="list-decimal space-y-1 pl-4 text-muted-foreground">
+        <li>{t("noApproverSteps.role")}</li>
+        <li>{t("noApproverSteps.user")}</li>
+        <li>{t("noApproverSteps.team")}</li>
+      </ol>
+      {mayStaff && (
+        <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+          <Link href={`/projects/${project}#project-team`} target="_blank" rel="noopener noreferrer">
+            <UserPlus className="size-4" />
+            {t("openProjectTeam")}
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }

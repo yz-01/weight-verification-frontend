@@ -7661,6 +7661,7 @@
       "column_other_project": "该分类不属于此记录的项目，请选择同一项目的分类。",
       "column_inactive": "「{column}」已停用，请选择启用中的分类。",
       "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。",
+      "gate_record_not_an_issue": "这张门岗照片还不是门岗事项。先按「沟通」选处理人员，才能在里面沟通。",
       "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
       "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。",
       "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
@@ -7742,7 +7743,9 @@
       "equipment_exit_not_approved": "这笔退场还没有被批准，或已经处理过，现在不能做实际退场。",
       "equipment_scan_mismatch": "扫到的二维码不是批准退场的设备（{equipment}），请扫这台设备上的二维码。",
       "equipment_scan_unknown": "没有认出这个二维码：这个项目没有这台设备。",
-      "equipment_other_project": "这台设备属于项目「{project}」，不是这个项目的。"
+      "equipment_other_project": "这台设备属于项目「{project}」，不是这个项目的。",
+      "role_template_not_found": "找不到这个预设角色。",
+      "role_already_exists": "本公司已经有这个角色。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8343,7 +8346,7 @@
       "waste": "环保材料出场申请",
       "sundry": "杂费报销",
       "request": "MR / 其他申请",
-      "gate": "门岗拍照",
+      "gate": "门岗",
       "operatorHours": "设备操作员工时",
       "permit": "施工准证",
       "visitor": "访客扫码"
@@ -10788,6 +10791,8 @@
       "technical": "技术管理",
       "permits": "施工准证",
       "gateRecords": "门岗记录",
+      "gatePhotoRecords": "日常拍照记录",
+      "gateIssues": "门岗事项",
       "visitorRecords": "访客进退场记录"
     },
     "subscription_management": "订阅管理",
@@ -10959,7 +10964,7 @@
       "WASTE_OUTGOING": "环保材料出场申请",
       "SUNDRY_CLAIM": "杂费报销",
       "EQUIPMENT_HOURS_PHOTO": "设备操作员工时",
-      "GATE_PHOTO": "门岗拍照"
+      "GATE_PHOTO": "门岗"
     },
     "pageDescription": "此页面尚未缓存。请先恢复网络并打开一次，之后即可离线使用。",
     "queue": {
@@ -11405,7 +11410,7 @@
       "trouble": "导不进去，多半是有列没对上：WBS、任务名称、计划开始是必须的，另外计划完成和工期至少要有一个。"
     },
     "site_access": {
-      "what": "工地门禁：谁能进工地、什么时候能进（通行证），保安在门口扫访客的通行证并确认进场、退场（访客扫码），以及自动闸机的记录（闸机记录）。每次进退场列在「访客进退场记录」；门口拍的照片在「整改 / EHS › 门岗记录」。",
+      "what": "工地门禁：谁能进工地、什么时候能进（通行证），保安在门口扫访客的通行证并确认进场、退场（访客扫码），以及自动闸机的记录（闸机记录）。每次进退场列在「访客进退场记录」；门口拍的照片在「工地门禁 › 日常拍照记录」和「门岗事项」。",
       "who": "持 site_access.view；签发和作废要 site_access.manage。",
       "need": "办通行证要项目、进入目的、生效时间、截止时间和姓名，车辆还要车牌。门口扫码用手机相机就可以；扫码枪只是门口固定电脑的选配。",
       "then": "通行证要经过审批才生效；撤销之后立刻扫不进。",
@@ -11533,7 +11538,7 @@
       "what": "门岗保安拍的照片：日常拍照记录（卡车进退场、普通门岗照片），和门岗事项（保安发现的特殊情况）。",
       "who": "持 site_access.view；门岗事项由指定人员或持 site_access.manage 的人确认结束。",
       "then": "普通照片直接归档；门岗事项会通知指定人员，双方在事项里沟通，确认结束后只能查看。",
-      "trouble": "找不到某张照片：看一下日期和拍摄人筛选；断网时拍的照片要等手机有网络才会上传。"
+      "trouble": "找不到某张照片：看一下日期、时间和拍摄人筛选，或切换成照片墙；断网时拍的照片要等手机有网络才会上传。"
     }
   },
   "partners": {
@@ -11660,16 +11665,14 @@
   },
   "permissions": {
     "code": {
-      "announcement": {
-        "manage": "发布公告",
-        "view": "查看公告"
-      },
       "audit": {
         "view": "查阅审计日志"
       },
       "billing": {
         "manage": "管理套餐与订阅",
-        "view": "查看收费"
+        "view": "查看收费",
+        "collect": "确认收款",
+        "pay": "上传付款凭证"
       },
       "commission": {
         "manage": "管理佣金",
@@ -11679,7 +11682,8 @@
         "create": "开通公司",
         "suspend": "停用或恢复公司",
         "update": "编辑公司资料",
-        "view": "查看客户公司"
+        "view": "查看客户公司",
+        "review": "审核公司资料"
       },
       "deduction": {
         "approve": "审批超额扣杂",
@@ -11696,7 +11700,6 @@
         "view": "查看付款"
       },
       "platform": {
-        "impersonate": "模拟登录客户账号",
         "maintenance": "开启平台维护模式",
         "monitor": "查看系统监控"
       },
@@ -11741,13 +11744,8 @@
       "task": {
         "assign": "分配司机与车辆",
         "submit": "提交任务照片与报备",
-        "task_view_all": "查看回收场全部任务",
-        "view": "查看司机任务"
-      },
-      "ticket": {
-        "create": "提交工单",
-        "reply": "回复工单",
-        "view": "查看工单"
+        "view": "查看司机任务",
+        "view_all": "查看回收场全部任务"
       },
       "user": {
         "create": "邀请用户",
@@ -11771,6 +11769,211 @@
         "submit": "提交 MR / 其他申请",
         "review": "批准或退回 MR / 其他申请",
         "config": "维护 MR 材料选项"
+      },
+      "partnership": {
+        "view": "查看合作关系",
+        "manage": "申请及管理合作关系"
+      },
+      "evidence": {
+        "manage": "修订证据文件"
+      },
+      "notification": {
+        "view": "接收与查看通知",
+        "send": "发送项目通知"
+      },
+      "document": {
+        "view": "查看文件档案",
+        "manage": "新增及编辑文件",
+        "archive": "归档文件"
+      },
+      "approval": {
+        "view": "查看审批与顾问申请",
+        "submit": "发起审批",
+        "review": "批准或退回审批"
+      },
+      "workflow": {
+        "view": "查看审批流程模板",
+        "manage": "设置审批流程模板"
+      },
+      "department": {
+        "view": "查看部门",
+        "manage": "管理部门"
+      },
+      "work_trade": {
+        "view": "查看工种",
+        "manage": "管理工种"
+      },
+      "external_access": {
+        "view": "查看外部访问链接",
+        "manage": "建立及撤销外部访问链接"
+      },
+      "category": {
+        "view": "查看分类",
+        "manage": "管理分类、规格、单位与预算"
+      },
+      "equipment": {
+        "view": "查看设备与设备工时",
+        "manage": "管理设备、验收进退场、调整工时",
+        "capture": "现场登记设备进退场与工时"
+      },
+      "field_task": {
+        "view": "查看现场任务",
+        "manage": "指派及验收现场任务",
+        "submit": "手机提交现场任务"
+      },
+      "package": {
+        "view": "查看 Multi Engine 资料包",
+        "manage": "制作及发送资料包"
+      },
+      "claim": {
+        "view": "查看进度 Claim",
+        "manage": "制作及确认进度 Claim",
+        "confirm_payment": "登记进度 Claim 收款"
+      },
+      "sundry_claim": {
+        "view": "查看杂费报销",
+        "submit": "提交杂费报销",
+        "review": "审批杂费报销",
+        "pay": "杂费报销付款（上传付款凭证）"
+      },
+      "material_outgoing": {
+        "view": "查看材料出场",
+        "submit": "申请材料出场",
+        "approve": "批准材料出场（Return Note）"
+      },
+      "waste_outgoing": {
+        "view": "查看环保材料出场",
+        "submit": "提交环保材料出场申请",
+        "approve": "审批环保材料出场申请",
+        "delegate": "先收到全部申请并可转交（总部）",
+        "order": "指定回收商",
+        "config": "管理环保材料出场分类"
+      },
+      "disposal": {
+        "view": "查看工地清运",
+        "submit": "申请工地清运",
+        "manage": "审核及安排工地清运",
+        "confirm": "确认清运车次"
+      },
+      "attendance": {
+        "view": "查看人员进场记录",
+        "clock": "现场打卡进退场"
+      },
+      "field_position": {
+        "view": "查看人员位置",
+        "submit": "手机分享本人位置"
+      },
+      "dashboard": {
+        "view": "查看仪表板",
+        "search": "跨模块搜索",
+        "export": "导出仪表板",
+        "audit_view": "查看仪表板使用记录"
+      },
+      "announcement": {
+        "publish": "发布公司公告"
+      },
+      "progress": {
+        "view": "查看工程进度与日报告",
+        "manage": "记录工程进度、编写日报告",
+        "confirm": "确认工程进度（进度摘要、更正百分比）"
+      },
+      "safety": {
+        "view": "查看整改 / EHS 与施工准证",
+        "manage": "上报及指派整改、申请施工准证",
+        "verify": "安全验收（可审批施工准证）"
+      },
+      "schedule": {
+        "view": "查看施工计划",
+        "manage": "编辑施工计划",
+        "confirm": "确认施工计划的导入、修订与进度"
+      },
+      "geofence": {
+        "view": "查看电子围栏",
+        "manage": "设置电子围栏"
+      },
+      "site_access": {
+        "view": "查看工地门禁与门岗记录",
+        "manage": "管理通行证、处理门岗事项",
+        "scan": "门岗扫码与拍照"
+      },
+      "company_settings": {
+        "view": "查看公司设置",
+        "manage": "修改公司设置"
+      },
+      "consultant": {
+        "config": "设置顾问审批流程与 RFI 表格",
+        "submit": "提交顾问申请"
+      },
+      "fleet": {
+        "view": "查看车辆与司机",
+        "manage": "管理车辆与司机",
+        "set_tare": "设定车辆皮重"
+      },
+      "customer": {
+        "view": "查看客户与私人入库",
+        "manage": "管理客户"
+      },
+      "inventory": {
+        "view": "查看库存",
+        "manage": "调整库存"
+      },
+      "outbound": {
+        "view": "查看买家与出货",
+        "manage": "管理买家与出货"
+      },
+      "subscription": {
+        "view": "查看订阅",
+        "manage": "管理订阅"
+      },
+      "qr": {
+        "view": "查看二维码",
+        "manage": "发放及管理二维码"
+      },
+      "sales": {
+        "view": "查看销售人员与区域",
+        "manage": "管理销售人员与区域"
+      },
+      "sales_commission": {
+        "view": "查看销售佣金",
+        "manage": "计算及调整销售佣金",
+        "approve": "批准销售佣金发放"
+      },
+      "partner": {
+        "view": "查看合作伙伴",
+        "manage": "管理合作伙伴与协议"
+      },
+      "asset": {
+        "view": "查看资产",
+        "manage": "管理资产资料与采购",
+        "issue": "资产领用与归还",
+        "transfer": "资产调拨",
+        "maintain": "资产保养与维修",
+        "dispose": "资产报废"
+      },
+      "crm": {
+        "view": "查看客户服务记录",
+        "manage": "记录客户服务"
+      },
+      "support": {
+        "view": "查看技术支持工单",
+        "manage": "处理技术支持工单",
+        "remote_operate": "远程操作现场设备"
+      },
+      "cloud_service": {
+        "view": "查看云服务",
+        "manage": "管理云服务"
+      },
+      "platform_settings": {
+        "view": "查看系统设置",
+        "manage": "修改系统设置"
+      },
+      "platform_version": {
+        "view": "查看版本",
+        "manage": "发布版本"
+      },
+      "integration": {
+        "view": "查看系统集成与设备",
+        "manage": "管理系统集成与设备"
       }
     },
     "group": {
@@ -11790,11 +11993,55 @@
       "settlement": "结算",
       "supplier": "供应商",
       "task": "司机任务",
-      "ticket": "客服",
       "user": "用户",
       "weighing": "称重",
       "yard": "回收场",
-      "material_request": "MR / 其他申请"
+      "material_request": "MR / 其他申请",
+      "partnership": "合作关系",
+      "evidence": "证据档案",
+      "notification": "通知",
+      "document": "文件档案",
+      "approval": "审批",
+      "workflow": "审批流程模板",
+      "department": "部门",
+      "work_trade": "工种",
+      "external_access": "外部访问链接",
+      "category": "分类管理",
+      "equipment": "设备",
+      "field_task": "现场任务",
+      "package": "Multi Engine 资料包",
+      "claim": "进度 Claim",
+      "sundry_claim": "杂费报销",
+      "material_outgoing": "材料出场",
+      "waste_outgoing": "环保材料出场",
+      "disposal": "工地清运",
+      "attendance": "人员进场",
+      "field_position": "人员定位",
+      "dashboard": "仪表板",
+      "progress": "工程进度",
+      "safety": "安全 / EHS",
+      "schedule": "施工计划",
+      "geofence": "电子围栏",
+      "site_access": "工地门禁",
+      "company_settings": "公司设置",
+      "consultant": "顾问申请",
+      "fleet": "车队",
+      "customer": "客户",
+      "inventory": "库存",
+      "outbound": "买家与出货",
+      "commission": "平台佣金",
+      "subscription": "订阅",
+      "qr": "二维码",
+      "sales": "销售",
+      "sales_commission": "销售佣金",
+      "partner": "合作伙伴",
+      "asset": "资产",
+      "crm": "客户服务",
+      "support": "技术支持",
+      "cloud_service": "云服务",
+      "platform_settings": "系统设置",
+      "platform_version": "版本管理",
+      "integration": "系统集成"
     }
   },
   "photoApprovals": {
@@ -13048,7 +13295,7 @@
       "company_admin": "拥有本公司数据与用户的完整权限。",
       "dispatcher": "接收订单，安排车辆与司机。",
       "driver": "查看指派任务，提交现场照片。",
-      "finance": "处理结算，登记付款证明。",
+      "finance": "处理付款与结算，登记付款凭证，导出报表。",
       "gate_guard": "在门岗扫通行证，拍照记录门岗事项。",
       "platform_admin": "拥有平台全部功能的完整权限。",
       "platform_finance": "管理套餐、佣金与收款。",
@@ -13056,7 +13303,14 @@
       "project_manager": "负责项目运作，审批超额扣杂。",
       "site_staff": "在工地登记材料进场与环保材料出场申请。",
       "viewer": "只读查看本公司记录。",
-      "weighbridge_operator": "操作地磅，登记扣杂。"
+      "weighbridge_operator": "操作地磅，登记扣杂。",
+      "headquarters": "总部：查看全部项目，归档工地上报的资料，并审批先送到总部的申请。",
+      "safety_manager": "负责所在项目的整改 / EHS，验收整改并审批施工准证。",
+      "quantity_surveyor": "维护材料分类与预算，制作进度 Claim 和资料包，查看及导出报表。",
+      "storekeeper": "在所在项目登记及更正材料进场，申请材料出场，提交 MR。",
+      "equipment_manager": "管理全部项目的设备进退场、设备清单、二维码贴纸和设备工时。",
+      "site_supervisor": "在所在项目指派及验收现场任务与整改 / EHS，记录工程进度，处理门岗事项。",
+      "document_controller": "管理文件档案，提交顾问申请和后台审批，维护 RFI 表格。"
     },
     "systemHint": "内置角色不可移除，确保公司始终有办法管理自己的人员。",
     "system_": {
@@ -13071,17 +13325,37 @@
       "project_manager": "项目经理",
       "site_staff": "工地人员",
       "viewer": "只读用户",
-      "weighbridge_operator": "地磅操作员"
+      "weighbridge_operator": "地磅操作员",
+      "headquarters": "总部",
+      "safety_manager": "安全经理",
+      "quantity_surveyor": "工料测量师（QS）",
+      "storekeeper": "仓管 / 材料员",
+      "equipment_manager": "设备管理员",
+      "site_supervisor": "工地主管",
+      "document_controller": "文控"
     },
     "title": "角色权限",
     "toast": {
       "created": "角色已创建",
       "removed": "角色已移除",
-      "updated": "角色已更新"
+      "updated": "角色已更新",
+      "presetAdded": "预设角色已新增"
     },
     "viewTitle": "角色详情",
     "what": {
       "permissions": "权限列表"
+    },
+    "preset": {
+      "open": "从预设新增",
+      "title": "从预设新增角色",
+      "description": "预设角色已勾好这个工作需要的权限。这里列出本公司还没有的预设，新增后可以像其他角色一样修改。",
+      "add": "新增",
+      "empty": "所有预设角色都已在角色列表中。",
+      "what": "预设角色列表"
+    },
+    "permitHint": {
+      "text": "要审批施工准证，还需要勾「查看项目」，并把人加进项目团队（或给「查看公司全部项目」）。",
+      "add": "一键补勾「查看项目」"
     }
   },
   "safety": {
@@ -13712,7 +13986,7 @@
       "rejectTitle": "拒绝这个通行证？",
       "revokeBody": "二维码会立即失效，请填写原因以保留审计记录。",
       "revokeTitle": "撤销这个通行证？",
-      "subtitle": "通行证的申请、审批和访客扫码都在这里；门岗照片在「整改 / EHS › 门岗记录」。",
+      "subtitle": "通行证的申请、审批和访客扫码都在这里；门岗照片在「日常拍照记录」和「门岗事项」，同在工地门禁下面。",
       "timeline": "进出记录",
       "title": "工地门禁",
       "unknownGate": "未注明门岗",
@@ -14122,7 +14396,8 @@
       "gateIncidentSaved": "门岗记录已保存。",
       "gatePhotosAdded": "照片已补上。",
       "gateMembersAdded": "已指定人员并通知。",
-      "gateIssueClosed": "门岗事项已确认结束。"
+      "gateIssueClosed": "门岗事项已确认结束。",
+      "gateConversationStarted": "已通知选中的人员，可以开始沟通。"
     },
     "what": {
       "roles": "角色列表",
@@ -14170,7 +14445,8 @@
         "gps": "GPS",
         "latitude": "纬度",
         "longitude": "经度",
-        "photoCount": "照片张数"
+        "photoCount": "照片张数",
+        "singlePdf": "单笔"
       },
       "what": "门岗记录",
       "whatOne": "这条门岗记录",
@@ -14208,7 +14484,7 @@
       "photoFirst": "先拍至少一张照片，才能发送。",
       "officeTitle": "门岗记录",
       "recentTitle": "最近的门岗记录",
-      "issueHelp": "门岗事项：照片、备注、指定人员和沟通都留在这里，不能删除；确认结束后只能查看。",
+      "issueHelp": "门岗事项：照片、指定人员和沟通都留在这里，不能删除；确认结束后只能查看。",
       "kind": {
         "photo": "门岗照片",
         "issue": "门岗事项"
@@ -14222,9 +14498,33 @@
         "issues": "门岗事项"
       },
       "tabHelp": {
-        "photos": "卡车进退场和普通门岗照片，每张一条，直接归档。可按日期、项目、拍摄人搜索和导出。",
-        "issues": "保安发现的特殊情况：照片、备注、指定人员、双方沟通、状态，以及谁在什么时候确认结束。"
+        "photos": "卡车进退场和普通门岗照片，每张一条，直接归档。可按日期和时间、项目、拍摄人搜索和导出；可切换成照片墙。",
+        "issues": "保安按「沟通」找人处理的事情：照片、指定人员、双方沟通、状态，以及谁在什么时候确认结束。",
+        "wall": "照片墙：只有照片，最新的在前，往下滑会接着载入。点一张看大图和完整资料，用左右键或左右滑看上一张、下一张。"
       },
+      "view": {
+        "label": "查看方式",
+        "list": "列表",
+        "wall": "照片墙"
+      },
+      "wall": {
+        "empty": "没有符合的照片。",
+        "end": "已经是最后一张。",
+        "photoAlt": "门岗照片 {reference}",
+        "first": "已经是第一张。",
+        "last": "已经是最后一张。",
+        "previous": "上一张",
+        "next": "下一张",
+        "position": "第 {number} / {loaded} 张",
+        "date": "日期",
+        "time": "时间",
+        "photoOfRecord": "这笔记录的第 {number} / {count} 张",
+        "openRecord": "打开这笔记录"
+      },
+      "talk": "沟通",
+      "talkTitle": "沟通",
+      "talkHelp": "这张照片有状况要找人处理？按「沟通」选人，它就变成门岗事项，并打开沟通。",
+      "singlePdfHint": "这一笔的 PDF：预览、打印、导出、发送",
       "closeTitle": "确认结束",
       "close": "确认结束",
       "closeHelp": "事情处理好了就按这里。之后这条事项只能查看，照片和沟通都保留。",
@@ -14234,21 +14534,25 @@
       "closedBy": "{name} 于 {when} 确认结束"
     },
     "gatePhoto": {
-      "title": "门岗拍照",
-      "help": "卡车进场、退场或门口的情况，拍照就上传。每张照片自动记下项目、时间、GPS 和你的名字。",
-      "photosHint": "可以连续拍。普通照片每张各存一条。",
-      "special": "特殊事项",
-      "specialOffHelp": "关闭：普通门岗照片，直接归档，不通知任何人。",
-      "specialOnHelp": "打开：填备注、指定本项目的人员，对方手机会收到待办和提示音。",
-      "note": "备注",
-      "notePlaceholder": "例如：这辆罗厘没有出门单，请确认",
-      "assignees": "指定处理人员",
-      "assigneesHint": "本项目的现场人员，例如项目经理、现场主管、安全员。",
-      "sendPhotos": "上传（{count} 张照片）",
-      "sendIssue": "发送特殊事项",
+      "title": "门岗",
+      "help": "拍照后按「发送」。有状况要找人处理，按「发送并沟通」选人，不用打字。每张照片自动记下项目、时间、GPS 和你的名字。",
+      "photosHint": "可以连续拍。按「发送」时每张照片各存一条；按「发送并沟通」时这几张合成一笔门岗事项。",
+      "action": {
+        "photo": "拍照",
+        "scan": "扫访客二维码"
+      },
+      "assignees": "选处理人员",
+      "assigneesHint": "本项目的现场人员，例如项目经理、现场主管、安全员。至少选一人，他们手机会收到待办和提示音。",
+      "send": "发送",
+      "sendAndTalk": "发送并沟通",
+      "chooseTitle": "选处理人员",
+      "chooseHelpSend": "这 {count} 张照片会合成一笔门岗事项，发给你选的人，然后直接进入沟通，打不打字都可以。",
+      "chooseHelpTalk": "{reference} 会变成门岗事项，你选的人会收到通知，然后直接进入沟通，打不打字都可以。",
+      "startTalk": "开始沟通",
       "sentPhotos": "已上传 {count} 张门岗照片。",
-      "sentIssue": "特殊事项已发送，指定人员会收到通知。",
+      "sentTalk": "已发送，选中的人员会收到通知。",
       "sentQueued": "已存在手机里，有网络会自动上传，不会重复。",
+      "sentTalkQueued": "已存在手机里，有网络会自动发送并通知选中的人员；之后在最近记录里按「沟通」继续。",
       "signedOut": "请重新登录后再发送。"
     },
     "visitorScan": {
@@ -16180,7 +16484,7 @@
     "noLocation": "未记录位置",
     "zoomIn": "放大",
     "zoomOut": "缩小",
-    "zoomReset": "原始大小",
+    "fitWhole": "整张显示",
     "previous": "上一张",
     "next": "下一张",
     "recorder": "记录人",
@@ -16700,6 +17004,22 @@
     "manufacturer": "指定厂商（MR）",
     "whatManufacturers": "供应商名单"
   },
+  "dateTimeRange": {
+    "startDate": "开始日期",
+    "startTime": "开始时间（24 小时制）",
+    "endDate": "结束日期",
+    "endTime": "结束时间（24 小时制）",
+    "to": "至",
+    "timePlaceholder": "时:分",
+    "quick": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "lastHour": "最近 1 小时"
+    },
+    "clear": "清除时间",
+    "badTime": "时间请用 24 小时制，例如 14:00 或 1430。",
+    "backwards": "结束时间早于开始时间，没有记录会符合。"
+  },
   "recordNo": {
     "copy": "复制 {number}",
     "copied": "已复制 {number}",
@@ -17183,7 +17503,7 @@
     "chooseProject": "选择项目",
     "chooseApprover": "选择安全经理",
     "approverHint": "只列出这个项目里能审批准证的人。",
-    "noApprovers": "这个项目还没有能审批准证的人（需要「安全验收」权限），请联系管理员。",
+    "noApprovers": "这个项目还没有能审批准证的人。请管理员照以下三步设置：",
     "notePlaceholder": "例如：动火作业，3 楼，10 月 12 日 9:00–17:00",
     "optional": "选填",
     "cancel": "取消",
@@ -17270,7 +17590,13 @@
       "approved": "{reference} 已批准并归档",
       "returned": "{reference} 已退回给申请人"
     },
-    "openInModule": "在「施工准证」里打开"
+    "openInModule": "在「施工准证」里打开",
+    "openProjectTeam": "去项目团队添加",
+    "noApproverSteps": {
+      "role": "角色权限：审批人的角色勾「安全验收」和「查看项目」（系统已预设「安全经理」）。",
+      "user": "用户：把审批人的角色设为这个角色；新账号要本人从邮件设好密码才会启用。",
+      "team": "项目团队：在这个项目的「谁能看到此项目」添加他（角色有「查看公司全部项目」的不用加）。"
+    }
   },
   "gateCard": {
     "title": "门岗",

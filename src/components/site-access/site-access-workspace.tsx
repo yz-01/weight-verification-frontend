@@ -100,7 +100,8 @@ type SiteAccessTab = (typeof SITE_ACCESS_TABS)[number];
 
 /**
  * Where an old 门岗拍照记录 address goes now (HD9): that tab moved to
- * EHS / Safety → 门岗记录. `?tab=gate-records` and a notification's
+ * `/gate-records` (in the menu under 工地门禁 again since I25: 日常拍照记录
+ * and 门岗事项). `?tab=gate-records` and a notification's
  * `?gate_incident=` keep working; the record and its project come along.
  */
 export function movedGateRecordsHref(search: Pick<URLSearchParams, "get">): string | null {

@@ -7661,6 +7661,7 @@
       "column_other_project": "該分類不屬於此記錄的專案，請選擇同一專案的分類。",
       "column_inactive": "「{column}」已停用，請選擇啟用中的分類。",
       "conversation_closed": "這條記錄已經完成，聊天室已關閉。記錄仍可查看；還有事情請另開一條記錄。",
+      "gate_record_not_an_issue": "這張門崗照片還不是門崗事項。先按「溝通」選處理人員，才能在裡面溝通。",
       "receipt_rejected_at_gate": "這批貨已在現場交接時 Reject，不能再更改。",
       "record_finished": "此事項已結束，不能再上傳附件；已有附件仍可查看。",
       "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
@@ -7742,7 +7743,9 @@
       "equipment_exit_not_approved": "這筆退場還沒有被批准，或已經處理過，現在不能做實際退場。",
       "equipment_scan_mismatch": "掃到的二維碼不是批准退場的設備（{equipment}），請掃這台設備上的二維碼。",
       "equipment_scan_unknown": "沒有認出這個二維碼：這個項目沒有這台設備。",
-      "equipment_other_project": "這台設備屬於項目「{project}」，不是這個項目的。"
+      "equipment_other_project": "這台設備屬於項目「{project}」，不是這個項目的。",
+      "role_template_not_found": "找不到這個預設角色。",
+      "role_already_exists": "本公司已經有這個角色。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8343,7 +8346,7 @@
       "waste": "環保材料出場申請",
       "sundry": "雜費報銷",
       "request": "MR / 其他申請",
-      "gate": "門崗拍照",
+      "gate": "門崗",
       "operatorHours": "設備操作員工時",
       "permit": "施工准證",
       "visitor": "訪客掃碼"
@@ -10788,6 +10791,8 @@
       "technical": "技術管理",
       "permits": "施工准證",
       "gateRecords": "門崗記錄",
+      "gatePhotoRecords": "日常拍照記錄",
+      "gateIssues": "門崗事項",
       "visitorRecords": "訪客進退場記錄"
     },
     "subscription_management": "訂閱管理",
@@ -10959,7 +10964,7 @@
       "WASTE_OUTGOING": "環保材料出場申請",
       "SUNDRY_CLAIM": "雜費報銷",
       "EQUIPMENT_HOURS_PHOTO": "設備操作員工時",
-      "GATE_PHOTO": "門崗拍照"
+      "GATE_PHOTO": "門崗"
     },
     "pageDescription": "此頁面尚未緩存。請先恢復網絡並打開一次，之後即可離線使用。",
     "queue": {
@@ -11405,7 +11410,7 @@
       "trouble": "匯不進去，多半是有欄沒對上：WBS、任務名稱、計畫開始是必須的，另外計畫完成和工期至少要有一個。"
     },
     "site_access": {
-      "what": "工地門禁：誰能進工地、什麼時候能進（通行證），保安在門口掃訪客的通行證並確認進場、退場（訪客掃碼），以及自動閘機的記錄（閘機記錄）。每次進退場列在「訪客進退場記錄」；門口拍的照片在「整改 / EHS › 門崗記錄」。",
+      "what": "工地門禁：誰能進工地、什麼時候能進（通行證），保安在門口掃訪客的通行證並確認進場、退場（訪客掃碼），以及自動閘機的記錄（閘機記錄）。每次進退場列在「訪客進退場記錄」；門口拍的照片在「工地門禁 › 日常拍照記錄」和「門崗事項」。",
       "who": "持 site_access.view；簽發和作廢要 site_access.manage。",
       "need": "辦通行證要專案、進入目的、生效時間、截止時間和姓名，車輛還要車牌。門口掃碼用手機相機就可以；掃碼槍只是門口固定電腦的選配。",
       "then": "通行證要經過審批才生效；撤銷之後立刻掃不進。",
@@ -11533,7 +11538,7 @@
       "what": "門崗保安拍的照片：日常拍照記錄（卡車進退場、普通門崗照片），和門崗事項（保安發現的特殊情況）。",
       "who": "持 site_access.view；門崗事項由指定人員或持 site_access.manage 的人確認結束。",
       "then": "普通照片直接歸檔；門崗事項會通知指定人員，雙方在事項裡溝通，確認結束後只能查看。",
-      "trouble": "找不到某張照片：看一下日期和拍攝人篩選；斷網時拍的照片要等手機有網路才會上傳。"
+      "trouble": "找不到某張照片：看一下日期、時間和拍攝人篩選，或切換成照片牆；斷網時拍的照片要等手機有網路才會上傳。"
     }
   },
   "partners": {
@@ -11660,16 +11665,14 @@
   },
   "permissions": {
     "code": {
-      "announcement": {
-        "manage": "發佈公告",
-        "view": "查看公告"
-      },
       "audit": {
         "view": "查閱審計日誌"
       },
       "billing": {
         "manage": "管理套餐與訂閱",
-        "view": "查看收費"
+        "view": "查看收費",
+        "collect": "確認收款",
+        "pay": "上傳付款憑證"
       },
       "commission": {
         "manage": "管理佣金",
@@ -11679,7 +11682,8 @@
         "create": "開通公司",
         "suspend": "停用或恢復公司",
         "update": "編輯公司資料",
-        "view": "查看客戶公司"
+        "view": "查看客戶公司",
+        "review": "審核公司資料"
       },
       "deduction": {
         "approve": "審批超額扣雜",
@@ -11696,7 +11700,6 @@
         "view": "查看付款"
       },
       "platform": {
-        "impersonate": "模擬登錄客戶賬號",
         "maintenance": "開啟平臺維護模式",
         "monitor": "查看系統監控"
       },
@@ -11741,13 +11744,8 @@
       "task": {
         "assign": "分配司機與車輛",
         "submit": "提交任務照片與報備",
-        "task_view_all": "查看回收場全部任務",
-        "view": "查看司機任務"
-      },
-      "ticket": {
-        "create": "提交工單",
-        "reply": "回覆工單",
-        "view": "查看工單"
+        "view": "查看司機任務",
+        "view_all": "查看回收場全部任務"
       },
       "user": {
         "create": "邀請用戶",
@@ -11771,6 +11769,211 @@
         "submit": "提交 MR / 其他申請",
         "review": "批准或退回 MR / 其他申請",
         "config": "維護 MR 材料選項"
+      },
+      "partnership": {
+        "view": "查看合作關係",
+        "manage": "申請及管理合作關係"
+      },
+      "evidence": {
+        "manage": "修訂證據文件"
+      },
+      "notification": {
+        "view": "接收與查看通知",
+        "send": "發送項目通知"
+      },
+      "document": {
+        "view": "查看文件檔案",
+        "manage": "新增及編輯文件",
+        "archive": "歸檔文件"
+      },
+      "approval": {
+        "view": "查看審批與顧問申請",
+        "submit": "發起審批",
+        "review": "批准或退回審批"
+      },
+      "workflow": {
+        "view": "查看審批流程模板",
+        "manage": "設置審批流程模板"
+      },
+      "department": {
+        "view": "查看部門",
+        "manage": "管理部門"
+      },
+      "work_trade": {
+        "view": "查看工種",
+        "manage": "管理工種"
+      },
+      "external_access": {
+        "view": "查看外部訪問連結",
+        "manage": "建立及撤銷外部訪問連結"
+      },
+      "category": {
+        "view": "查看分類",
+        "manage": "管理分類、規格、單位與預算"
+      },
+      "equipment": {
+        "view": "查看設備與設備工時",
+        "manage": "管理設備、驗收進退場、調整工時",
+        "capture": "現場登記設備進退場與工時"
+      },
+      "field_task": {
+        "view": "查看現場任務",
+        "manage": "指派及驗收現場任務",
+        "submit": "手機提交現場任務"
+      },
+      "package": {
+        "view": "查看 Multi Engine 資料包",
+        "manage": "製作及發送資料包"
+      },
+      "claim": {
+        "view": "查看進度 Claim",
+        "manage": "製作及確認進度 Claim",
+        "confirm_payment": "登記進度 Claim 收款"
+      },
+      "sundry_claim": {
+        "view": "查看雜費報銷",
+        "submit": "提交雜費報銷",
+        "review": "審批雜費報銷",
+        "pay": "雜費報銷付款（上傳付款憑證）"
+      },
+      "material_outgoing": {
+        "view": "查看材料出場",
+        "submit": "申請材料出場",
+        "approve": "批准材料出場（Return Note）"
+      },
+      "waste_outgoing": {
+        "view": "查看環保材料出場",
+        "submit": "提交環保材料出場申請",
+        "approve": "審批環保材料出場申請",
+        "delegate": "先收到全部申請並可轉交（總部）",
+        "order": "指定回收商",
+        "config": "管理環保材料出場分類"
+      },
+      "disposal": {
+        "view": "查看工地清運",
+        "submit": "申請工地清運",
+        "manage": "審核及安排工地清運",
+        "confirm": "確認清運車次"
+      },
+      "attendance": {
+        "view": "查看人員進場記錄",
+        "clock": "現場打卡進退場"
+      },
+      "field_position": {
+        "view": "查看人員位置",
+        "submit": "手機分享本人位置"
+      },
+      "dashboard": {
+        "view": "查看儀表板",
+        "search": "跨模組搜索",
+        "export": "導出儀表板",
+        "audit_view": "查看儀表板使用記錄"
+      },
+      "announcement": {
+        "publish": "發佈公司公告"
+      },
+      "progress": {
+        "view": "查看工程進度與日報告",
+        "manage": "記錄工程進度、編寫日報告",
+        "confirm": "確認工程進度（進度摘要、更正百分比）"
+      },
+      "safety": {
+        "view": "查看整改 / EHS 與施工准證",
+        "manage": "上報及指派整改、申請施工准證",
+        "verify": "安全驗收（可審批施工准證）"
+      },
+      "schedule": {
+        "view": "查看施工計劃",
+        "manage": "編輯施工計劃",
+        "confirm": "確認施工計劃的導入、修訂與進度"
+      },
+      "geofence": {
+        "view": "查看電子圍欄",
+        "manage": "設置電子圍欄"
+      },
+      "site_access": {
+        "view": "查看工地門禁與門崗記錄",
+        "manage": "管理通行證、處理門崗事項",
+        "scan": "門崗掃碼與拍照"
+      },
+      "company_settings": {
+        "view": "查看公司設置",
+        "manage": "修改公司設置"
+      },
+      "consultant": {
+        "config": "設置顧問審批流程與 RFI 表格",
+        "submit": "提交顧問申請"
+      },
+      "fleet": {
+        "view": "查看車輛與司機",
+        "manage": "管理車輛與司機",
+        "set_tare": "設定車輛皮重"
+      },
+      "customer": {
+        "view": "查看客戶與私人入庫",
+        "manage": "管理客戶"
+      },
+      "inventory": {
+        "view": "查看庫存",
+        "manage": "調整庫存"
+      },
+      "outbound": {
+        "view": "查看買家與出貨",
+        "manage": "管理買家與出貨"
+      },
+      "subscription": {
+        "view": "查看訂閱",
+        "manage": "管理訂閱"
+      },
+      "qr": {
+        "view": "查看二維碼",
+        "manage": "發放及管理二維碼"
+      },
+      "sales": {
+        "view": "查看銷售人員與區域",
+        "manage": "管理銷售人員與區域"
+      },
+      "sales_commission": {
+        "view": "查看銷售佣金",
+        "manage": "計算及調整銷售佣金",
+        "approve": "批准銷售佣金發放"
+      },
+      "partner": {
+        "view": "查看合作夥伴",
+        "manage": "管理合作夥伴與協議"
+      },
+      "asset": {
+        "view": "查看資產",
+        "manage": "管理資產資料與採購",
+        "issue": "資產領用與歸還",
+        "transfer": "資產調撥",
+        "maintain": "資產保養與維修",
+        "dispose": "資產報廢"
+      },
+      "crm": {
+        "view": "查看客戶服務記錄",
+        "manage": "記錄客戶服務"
+      },
+      "support": {
+        "view": "查看技術支持工單",
+        "manage": "處理技術支持工單",
+        "remote_operate": "遠程操作現場設備"
+      },
+      "cloud_service": {
+        "view": "查看雲服務",
+        "manage": "管理雲服務"
+      },
+      "platform_settings": {
+        "view": "查看系統設置",
+        "manage": "修改系統設置"
+      },
+      "platform_version": {
+        "view": "查看版本",
+        "manage": "發佈版本"
+      },
+      "integration": {
+        "view": "查看系統集成與設備",
+        "manage": "管理系統集成與設備"
       }
     },
     "group": {
@@ -11790,11 +11993,55 @@
       "settlement": "結算",
       "supplier": "供應商",
       "task": "司機任務",
-      "ticket": "客服",
       "user": "用戶",
       "weighing": "稱重",
       "yard": "回收場",
-      "material_request": "MR / 其他申請"
+      "material_request": "MR / 其他申請",
+      "partnership": "合作關係",
+      "evidence": "證據檔案",
+      "notification": "通知",
+      "document": "文件檔案",
+      "approval": "審批",
+      "workflow": "審批流程模板",
+      "department": "部門",
+      "work_trade": "工種",
+      "external_access": "外部訪問連結",
+      "category": "分類管理",
+      "equipment": "設備",
+      "field_task": "現場任務",
+      "package": "Multi Engine 資料包",
+      "claim": "進度 Claim",
+      "sundry_claim": "雜費報銷",
+      "material_outgoing": "材料出場",
+      "waste_outgoing": "環保材料出場",
+      "disposal": "工地清運",
+      "attendance": "人員進場",
+      "field_position": "人員定位",
+      "dashboard": "儀表板",
+      "progress": "工程進度",
+      "safety": "安全 / EHS",
+      "schedule": "施工計劃",
+      "geofence": "電子圍欄",
+      "site_access": "工地門禁",
+      "company_settings": "公司設置",
+      "consultant": "顧問申請",
+      "fleet": "車隊",
+      "customer": "客戶",
+      "inventory": "庫存",
+      "outbound": "買家與出貨",
+      "commission": "平臺佣金",
+      "subscription": "訂閱",
+      "qr": "二維碼",
+      "sales": "銷售",
+      "sales_commission": "銷售佣金",
+      "partner": "合作夥伴",
+      "asset": "資產",
+      "crm": "客戶服務",
+      "support": "技術支持",
+      "cloud_service": "雲服務",
+      "platform_settings": "系統設置",
+      "platform_version": "版本管理",
+      "integration": "系統集成"
     }
   },
   "photoApprovals": {
@@ -13048,7 +13295,7 @@
       "company_admin": "擁有本公司數據與用戶的完整權限。",
       "dispatcher": "接收訂單，安排車輛與司機。",
       "driver": "查看指派任務，提交現場照片。",
-      "finance": "處理結算，登記付款證明。",
+      "finance": "處理付款與結算，登記付款憑證，導出報表。",
       "gate_guard": "在門崗掃通行證，拍照記錄門崗事項。",
       "platform_admin": "擁有平臺全部功能的完整權限。",
       "platform_finance": "管理套餐、佣金與收款。",
@@ -13056,7 +13303,14 @@
       "project_manager": "負責項目運作，審批超額扣雜。",
       "site_staff": "在工地登記材料進場與環保材料出場申請。",
       "viewer": "只讀查看本公司記錄。",
-      "weighbridge_operator": "操作地磅，登記扣雜。"
+      "weighbridge_operator": "操作地磅，登記扣雜。",
+      "headquarters": "總部：查看全部項目，歸檔工地上報的資料，並審批先送到總部的申請。",
+      "safety_manager": "負責所在項目的整改 / EHS，驗收整改並審批施工准證。",
+      "quantity_surveyor": "維護材料分類與預算，製作進度 Claim 和資料包，查看及導出報表。",
+      "storekeeper": "在所在項目登記及更正材料進場，申請材料出場，提交 MR。",
+      "equipment_manager": "管理全部項目的設備進退場、設備清單、二維碼貼紙和設備工時。",
+      "site_supervisor": "在所在項目指派及驗收現場任務與整改 / EHS，記錄工程進度，處理門崗事項。",
+      "document_controller": "管理文件檔案，提交顧問申請和後台審批，維護 RFI 表格。"
     },
     "systemHint": "內置角色不可移除，確保公司始終有辦法管理自己的人員。",
     "system_": {
@@ -13071,17 +13325,37 @@
       "project_manager": "項目經理",
       "site_staff": "工地人員",
       "viewer": "只讀用戶",
-      "weighbridge_operator": "地磅操作員"
+      "weighbridge_operator": "地磅操作員",
+      "headquarters": "總部",
+      "safety_manager": "安全經理",
+      "quantity_surveyor": "工料測量師（QS）",
+      "storekeeper": "倉管 / 材料員",
+      "equipment_manager": "設備管理員",
+      "site_supervisor": "工地主管",
+      "document_controller": "文控"
     },
     "title": "角色權限",
     "toast": {
       "created": "角色已創建",
       "removed": "角色已移除",
-      "updated": "角色已更新"
+      "updated": "角色已更新",
+      "presetAdded": "預設角色已新增"
     },
     "viewTitle": "角色詳情",
     "what": {
       "permissions": "權限列表"
+    },
+    "preset": {
+      "open": "從預設新增",
+      "title": "從預設新增角色",
+      "description": "預設角色已勾好這個工作需要的權限。這裡列出本公司還沒有的預設，新增後可以像其他角色一樣修改。",
+      "add": "新增",
+      "empty": "所有預設角色都已在角色列表中。",
+      "what": "預設角色列表"
+    },
+    "permitHint": {
+      "text": "要審批施工准證，還需要勾「查看項目」，並把人加進項目團隊（或給「查看公司全部項目」）。",
+      "add": "一鍵補勾「查看項目」"
     }
   },
   "safety": {
@@ -13712,7 +13986,7 @@
       "rejectTitle": "拒絕這個通行證？",
       "revokeBody": "二維碼會立即失效，請填寫原因以保留審計記錄。",
       "revokeTitle": "撤銷這個通行證？",
-      "subtitle": "通行證的申請、審批和訪客掃碼都在這裡；門崗照片在「整改 / EHS › 門崗記錄」。",
+      "subtitle": "通行證的申請、審批和訪客掃碼都在這裡；門崗照片在「日常拍照記錄」和「門崗事項」，同在工地門禁下面。",
       "timeline": "進出記錄",
       "title": "工地門禁",
       "unknownGate": "未註明門崗",
@@ -14122,7 +14396,8 @@
       "gateIncidentSaved": "門崗記錄已儲存。",
       "gatePhotosAdded": "照片已補上。",
       "gateMembersAdded": "已指定人員並通知。",
-      "gateIssueClosed": "門崗事項已確認結束。"
+      "gateIssueClosed": "門崗事項已確認結束。",
+      "gateConversationStarted": "已通知選中的人員，可以開始溝通。"
     },
     "what": {
       "roles": "角色列表",
@@ -14170,7 +14445,8 @@
         "gps": "GPS",
         "latitude": "緯度",
         "longitude": "經度",
-        "photoCount": "照片張數"
+        "photoCount": "照片張數",
+        "singlePdf": "單筆"
       },
       "what": "門崗記錄",
       "whatOne": "這條門崗記錄",
@@ -14208,7 +14484,7 @@
       "photoFirst": "先拍至少一張照片，才能發送。",
       "officeTitle": "門崗記錄",
       "recentTitle": "最近的門崗記錄",
-      "issueHelp": "門崗事項：照片、備註、指定人員和溝通都留在這裡，不能刪除；確認結束後只能查看。",
+      "issueHelp": "門崗事項：照片、指定人員和溝通都留在這裡，不能刪除；確認結束後只能查看。",
       "kind": {
         "photo": "門崗照片",
         "issue": "門崗事項"
@@ -14222,9 +14498,33 @@
         "issues": "門崗事項"
       },
       "tabHelp": {
-        "photos": "卡車進退場和普通門崗照片，每張一條，直接歸檔。可按日期、項目、拍攝人搜尋和匯出。",
-        "issues": "保安發現的特殊情況：照片、備註、指定人員、雙方溝通、狀態，以及誰在什麼時候確認結束。"
+        "photos": "卡車進退場和普通門崗照片，每張一條，直接歸檔。可按日期和時間、項目、拍攝人搜尋和匯出；可切換成照片牆。",
+        "issues": "保安按「溝通」找人處理的事情：照片、指定人員、雙方溝通、狀態，以及誰在什麼時候確認結束。",
+        "wall": "照片牆：只有照片，最新的在前，往下滑會接著載入。點一張看大圖和完整資料，用左右鍵或左右滑看上一張、下一張。"
       },
+      "view": {
+        "label": "查看方式",
+        "list": "列表",
+        "wall": "照片牆"
+      },
+      "wall": {
+        "empty": "沒有符合的照片。",
+        "end": "已經是最後一張。",
+        "photoAlt": "門崗照片 {reference}",
+        "first": "已經是第一張。",
+        "last": "已經是最後一張。",
+        "previous": "上一張",
+        "next": "下一張",
+        "position": "第 {number} / {loaded} 張",
+        "date": "日期",
+        "time": "時間",
+        "photoOfRecord": "這筆記錄的第 {number} / {count} 張",
+        "openRecord": "打開這筆記錄"
+      },
+      "talk": "溝通",
+      "talkTitle": "溝通",
+      "talkHelp": "這張照片有狀況要找人處理？按「溝通」選人，它就變成門崗事項，並打開溝通。",
+      "singlePdfHint": "這一筆的 PDF：預覽、列印、匯出、發送",
       "closeTitle": "確認結束",
       "close": "確認結束",
       "closeHelp": "事情處理好了就按這裡。之後這條事項只能查看，照片和溝通都保留。",
@@ -14234,21 +14534,25 @@
       "closedBy": "{name} 於 {when} 確認結束"
     },
     "gatePhoto": {
-      "title": "門崗拍照",
-      "help": "卡車進場、退場或門口的情況，拍照就上傳。每張照片自動記下項目、時間、GPS 和你的名字。",
-      "photosHint": "可以連續拍。普通照片每張各存一條。",
-      "special": "特殊事項",
-      "specialOffHelp": "關閉：普通門崗照片，直接歸檔，不通知任何人。",
-      "specialOnHelp": "打開：填備註、指定本項目的人員，對方手機會收到待辦和提示音。",
-      "note": "備註",
-      "notePlaceholder": "例如：這輛羅釐沒有出門單，請確認",
-      "assignees": "指定處理人員",
-      "assigneesHint": "本項目的現場人員，例如項目經理、現場主管、安全員。",
-      "sendPhotos": "上傳（{count} 張照片）",
-      "sendIssue": "發送特殊事項",
+      "title": "門崗",
+      "help": "拍照後按「發送」。有狀況要找人處理，按「發送並溝通」選人，不用打字。每張照片自動記下項目、時間、GPS 和你的名字。",
+      "photosHint": "可以連續拍。按「發送」時每張照片各存一條；按「發送並溝通」時這幾張合成一筆門崗事項。",
+      "action": {
+        "photo": "拍照",
+        "scan": "掃訪客二維碼"
+      },
+      "assignees": "選處理人員",
+      "assigneesHint": "本項目的現場人員，例如項目經理、現場主管、安全員。至少選一人，他們手機會收到待辦和提示音。",
+      "send": "發送",
+      "sendAndTalk": "發送並溝通",
+      "chooseTitle": "選處理人員",
+      "chooseHelpSend": "這 {count} 張照片會合成一筆門崗事項，發給你選的人，然後直接進入溝通，打不打字都可以。",
+      "chooseHelpTalk": "{reference} 會變成門崗事項，你選的人會收到通知，然後直接進入溝通，打不打字都可以。",
+      "startTalk": "開始溝通",
       "sentPhotos": "已上傳 {count} 張門崗照片。",
-      "sentIssue": "特殊事項已發送，指定人員會收到通知。",
+      "sentTalk": "已發送，選中的人員會收到通知。",
       "sentQueued": "已存在手機裡，有網路會自動上傳，不會重複。",
+      "sentTalkQueued": "已存在手機裡，有網路會自動發送並通知選中的人員；之後在最近記錄裡按「溝通」繼續。",
       "signedOut": "請重新登入後再發送。"
     },
     "visitorScan": {
@@ -16180,7 +16484,7 @@
     "noLocation": "未記錄位置",
     "zoomIn": "放大",
     "zoomOut": "縮小",
-    "zoomReset": "原始大小",
+    "fitWhole": "整張顯示",
     "previous": "上一張",
     "next": "下一張",
     "recorder": "記錄人",
@@ -16700,6 +17004,22 @@
     "manufacturer": "指定廠商（MR）",
     "whatManufacturers": "供應商名單"
   },
+  "dateTimeRange": {
+    "startDate": "開始日期",
+    "startTime": "開始時間（24 小時制）",
+    "endDate": "結束日期",
+    "endTime": "結束時間（24 小時制）",
+    "to": "至",
+    "timePlaceholder": "時:分",
+    "quick": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "lastHour": "最近 1 小時"
+    },
+    "clear": "清除時間",
+    "badTime": "時間請用 24 小時制，例如 14:00 或 1430。",
+    "backwards": "結束時間早於開始時間，沒有記錄會符合。"
+  },
   "recordNo": {
     "copy": "複製 {number}",
     "copied": "已複製 {number}",
@@ -17183,7 +17503,7 @@
     "chooseProject": "選擇專案",
     "chooseApprover": "選擇安全經理",
     "approverHint": "只列出這個專案裡能審批准證的人。",
-    "noApprovers": "這個專案還沒有能審批准證的人（需要「安全驗收」權限），請聯絡管理員。",
+    "noApprovers": "這個項目還沒有能審批准證的人。請管理員照以下三步設置：",
     "notePlaceholder": "例如：動火作業，3 樓，10 月 12 日 9:00–17:00",
     "optional": "選填",
     "cancel": "取消",
@@ -17270,7 +17590,13 @@
       "approved": "{reference} 已批准並歸檔",
       "returned": "{reference} 已退回給申請人"
     },
-    "openInModule": "在「施工准證」裡打開"
+    "openInModule": "在「施工准證」裡打開",
+    "openProjectTeam": "去項目團隊添加",
+    "noApproverSteps": {
+      "role": "角色權限：審批人的角色勾「安全驗收」和「查看項目」（系統已預設「安全經理」）。",
+      "user": "用戶：把審批人的角色設為這個角色；新賬號要本人從郵件設好密碼才會啟用。",
+      "team": "項目團隊：在這個項目的「誰能看到此項目」添加他（角色有「查看公司全部項目」的不用加）。"
+    }
   },
   "gateCard": {
     "title": "門崗",

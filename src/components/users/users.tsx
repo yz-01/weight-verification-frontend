@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { UserRow, UserStatus } from "@/interfaces/auth";
 import { useDateFormat } from "@/lib/dates";
+import { roleLabel } from "@/lib/role-labels";
 import {
   deleteUser,
   forceLogoutUser,
@@ -201,7 +202,9 @@ export function Users({
         ),
         cell: ({ row }) =>
           row.original.role_name ? (
-            <TypeBadge label={row.original.role_name} />
+            <TypeBadge
+              label={roleLabel(row.original.role_code, row.original.role_name, t)}
+            />
           ) : (
             <span className="italic text-muted-foreground">
               {t("common.emptyValue")}
