@@ -465,7 +465,7 @@ describe("project and field workflows", () => {
     expect(projects?.children?.map((child) => child.href)).toEqual(["/projects"]);
   });
 
-  it("puts MR / Other Request where photo approvals was, right after field tasks", () => {
+  it("puts MR / Other Request right after field tasks", () => {
     const hrefs = PORTAL_NAVIGATION.MSE_TRACE.map((item) => item.href);
     const fieldTasks = hrefs.indexOf("/field-tasks");
     expect(hrefs[fieldTasks + 1]).toBe("/material-requests");
@@ -476,14 +476,16 @@ describe("project and field workflows", () => {
     expect(isRouteAllowed("MSE_TRACE", ["material_requests"], "/material-requests")).toBe(true);
   });
 
-  it("keeps the old photo approvals address open to whoever used it (D02)", () => {
-    // The old page forwards to the MR entry's photo tab; both have to open
-    // for somebody holding field tasks alone, or the forward lands on a 403.
-    for (const features of [["field_tasks"], ["material_requests"]]) {
-      expect(isRouteAllowed("MSE_TRACE", features, "/photo-approvals")).toBe(true);
-    }
-    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/material-requests")).toBe(true);
+  it("sends the old photo review address to field tasks, not to MR (I17)", () => {
+    // The old page forwards to the 待验收 view of 现场任务, so it opens with
+    // field tasks. The MR entry has no photo tab any more: it neither owns
+    // the old address nor opens for field tasks alone.
+    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/photo-approvals")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["material_requests"], "/photo-approvals")).toBe(false);
+    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/material-requests")).toBe(false);
     expect(isRouteAllowed("MSE_TRACE", ["suppliers"], "/material-requests")).toBe(false);
+    // The MR page's help is its own again, not the field tasks' help.
+    expect(helpKeyFor("MSE_TRACE", "/material-requests")).toBe("material_requests");
   });
 });
 

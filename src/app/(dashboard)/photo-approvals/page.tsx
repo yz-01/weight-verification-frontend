@@ -3,18 +3,19 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
+import { awaitingFieldTasksAddress } from "@/lib/awaiting-field-tasks";
+
 /*
- * 照片审批 is now a tab of MR / Other Request (C01, D02). The old address -
- * a bookmark, an old notice - opens that tab with whatever the link carried.
- * The photo submissions themselves did not move.
+ * The photo review is gone (I17, ID38). Its old address - a bookmark, an old
+ * notice - opens the field-task list on 待验收 (`/field-tasks?stage=AWAITING`),
+ * where a waiting submission is accepted or returned, with whatever else the
+ * link carried.
  */
-export default function PhotoApprovalsPage() {
+export default function FormerPhotoReviewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   useEffect(() => {
-    const next = new URLSearchParams(searchParams.toString());
-    next.set("tab", "photos");
-    router.replace(`/material-requests?${next.toString()}`);
+    router.replace(awaitingFieldTasksAddress(searchParams.toString()));
   }, [router, searchParams]);
   return null;
 }

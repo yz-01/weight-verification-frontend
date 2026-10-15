@@ -7448,6 +7448,8 @@
       "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
       "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
       "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
+      "not_awaiting_confirmation": "{reference} is not waiting for its check, so it cannot be sent back. Switch “Needs more work” off and send again.",
+      "may_not_request_more_work": "Only whoever checks this item can ask for more work.",
       "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor.",
       "incident_thread_not_found": "That incident report could not be found.",
       "incorrect_password": "Your current password is incorrect.",
@@ -10591,7 +10593,6 @@
       "partnerTerritories": "Territories",
       "partnerTypes": "Partner types",
       "paymentProofs": "Payment proofs",
-      "photoApprovals": "Photo approvals",
       "photoReport": "Photo report",
       "platformBusinessReports": "Platform business reports",
       "platformCommission": "Platform commission",
@@ -11280,7 +11281,7 @@
     "safety": {
       "what": "Safety events on site: logging them and reporting them up.",
       "who": "Holders of both safety.view and project.view.",
-      "need": "An event needs the project, the safety category, a title, photos, GPS evidence, the people responsible and what was done. A report needs the project, a title, what happened, who it goes to, the evidence and the place.",
+      "need": "An event needs the project, the issue category, a title, photos, GPS evidence, the people responsible and what was done. A report needs the project, a title, what happened, who it goes to, the evidence and the place.",
       "then": "The people named are notified straight away.",
       "trouble": "Photos and GPS are both required and there is often no signal. Shoot anyway - it queues and uploads later, and the location kept is where you stood when you took it."
     },
@@ -11417,7 +11418,7 @@
       "trouble": "Nothing common enough to warn about yet."
     },
     "material_requests": {
-      "what": "Material Requests and Other Requests from the sites, each with its own Request No.; the requested totals; and the earlier photo approvals.",
+      "what": "Material Requests and Other Requests from the sites, each with its own Request No.; and the requested totals.",
       "who": "Holders of material_request.view; approving or returning needs material_request.review.",
       "need": "A material request needs material, specification, quantity and unit; the remark and attachments are optional. An other request needs a file or a remark.",
       "then": "Head office talks on the request and approves or returns it. A returned request is closed; asking again is a new request with a new number.",
@@ -11690,32 +11691,6 @@
       "yard": "Recycling yards",
       "material_request": "MR / Other Request"
     }
-  },
-  "photoApprovals": {
-    "noLocation": "No location recorded",
-    "noCaption": "No caption",
-    "noPhotos": "No photos on this one",
-    "returnReason": "Reason for sending back",
-    "returnPlaceholder": "For example: the beam soffit is out of frame",
-    "returnHelp": "Say what is wrong. The reason goes to the person who took the photos, or they will not know what to reshoot.",
-    "returnTitle": "Send back for reshooting",
-    "return": "Send back",
-    "accept": "Approve",
-    "noCategory": "No category",
-    "empty": "Nothing waiting for approval",
-    "subtitle": "{count} waiting for you",
-    "title": "Photo approvals",
-    "what": "The photos waiting for approval",
-    "historyCount": "{count, plural, =0 {nothing decided} other {# decided}}",
-    "historyEmpty": "Nothing here",
-    "show": "Show",
-    "reviewNote": "Reason:",
-    "filter": {
-      "SUBMITTED": "Waiting",
-      "ACCEPTED": "Approved",
-      "RETURNED": "Sent back"
-    },
-    "loadMore": "Load more ({shown} of {total} shown)"
   },
   "photos": {
     "count": "{count, plural, one {# photo} other {# photos}}",
@@ -12989,7 +12964,7 @@
       "photo": "Open photo"
     },
     "field": {
-      "category": "Safety category",
+      "category": "Issue category",
       "description": "Description",
       "dueAt": "Rectification deadline",
       "evidence": "Evidence",
@@ -13032,13 +13007,13 @@
       "title": "Report a site incident"
     },
     "filter": {
-      "allCategories": "All safety categories",
+      "allCategories": "All issue categories",
       "allProjects": "All projects",
       "allResponsible": "All responsible people",
       "dateFrom": "From date",
       "dateTo": "To date",
       "project": "Choose project",
-      "selectCategory": "Choose a safety category"
+      "selectCategory": "Choose a issue category"
     },
     "form": {
       "captureLocation": "Capture GPS",
@@ -13050,8 +13025,8 @@
       "locationTimeout": "The GPS fix did not arrive in time. Step into the open and try again.",
       "locationUnavailable": "The device could not get a position. Check that location is on, then try again.",
       "locationUnsupported": "This device cannot provide a GPS position.",
-      "noSafetyColumns": "This project has no safety category yet. Add one first so hazards can be filed against it.",
-      "addSafetyColumn": "+ Add a safety category",
+      "noSafetyColumns": "This project has no issue category yet. Add one first so hazards can be filed against it.",
+      "addSafetyColumn": "+ Add a issue category",
       "askForSafetyColumn": "Ask a colleague who manages categories to add one under Category management."
     },
     "new": "Report hazard",
@@ -13071,7 +13046,7 @@
       "title": "Update incident status"
     },
     "what": {
-      "categories": "The safety categories",
+      "categories": "The issue categories",
       "responsiblePeople": "The responsible people",
       "requestedIncident": "The incident in the link",
       "workers": "The people to notify"
@@ -13140,6 +13115,8 @@
     },
     "title": "Hazard rectification / EHS",
     "toast": {
+      "reassigned": "Responsible person changed",
+      "categoryChanged": "Category saved",
       "assigned": "Rectification assigned",
       "reviewed": "Rectification review saved",
       "submitted": "Rectification evidence submitted"
@@ -16343,13 +16320,11 @@
   },
   "materialRequest": {
     "title": "MR / Other Request",
-    "noAccess": "You do not have access to requests or photo approvals.",
+    "noAccess": "You do not have access to requests.",
     "tab": {
       "requests": "Requests",
-      "totals": "Requested totals",
-      "photos": "Photo approvals"
+      "totals": "Requested totals"
     },
-    "photosNote": "The photo submissions this entry used to show are here, unchanged: pending ones are still decided here, and earlier ones stay readable with their photos, reviewer and reason.",
     "type": {
       "MATERIAL": "Material Request",
       "OTHER": "Other Request"
@@ -17216,5 +17191,96 @@
     "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
     "name": "Name",
     "continue": "Continue"
+  },
+  "taskFlow": {
+    "moreWork": {
+      "label": "Needs more work",
+      "off": "Off, this is only a message; nothing is sent back.",
+      "on": "When sent, the item goes back to the person responsible (Pending) and reappears in their My Tasks.",
+      "send": "Send and ask for more work",
+      "hint": "Not done? In the conversation below, switch on “Needs more work” and say what still needs doing.",
+      "reviewHint": "Not done? Do not confirm it: switch on “Needs more work” in the conversation and say what still needs doing - it goes back to the person responsible."
+    },
+    "stage": {
+      "all": "All statuses",
+      "PENDING": "Pending",
+      "AWAITING": "Awaiting check",
+      "DONE": "Completed"
+    },
+    "myTasks": {
+      "title": "My tasks",
+      "count": "{count, plural, =0 {Nothing to do} one {# to do} other {# to do}}",
+      "loading": "Loading…",
+      "refresh": "Refresh",
+      "empty": "Nothing to do right now.",
+      "kind": {
+        "FIELD_TASK": "Site task",
+        "HAZARD": "Rectification / EHS"
+      },
+      "moreWork": "Needs more work",
+      "due": "Due: {value}",
+      "said": {
+        "text": "Message",
+        "photo": "sent a photo",
+        "voice": "sent a voice note",
+        "file": "sent a file"
+      }
+    },
+    "work": {
+      "back": "Back",
+      "what": "this task",
+      "locationFailed": "Could not get your location. Turn location on and try again.",
+      "failed": "That did not go through. Please try again.",
+      "stage": {
+        "PENDING": "Pending",
+        "AWAITING": "Awaiting check",
+        "DONE": "Completed",
+        "CANCELLED": "Cancelled"
+      },
+      "assignedBy": "Assigned by {name}",
+      "due": "Due: {value}",
+      "where": "Where: {value}",
+      "moreWork": "Needs more work",
+      "photos": "Photos",
+      "photosHint": "Take at least {count}",
+      "takePhoto": "Take photo",
+      "note": "Note",
+      "noteHint": "With no photo, say in one line what was done",
+      "optional": "Optional",
+      "notePlaceholder": "What was done (optional)",
+      "submit": "Submit as done",
+      "workflowHint": "This task is handed in on its own form.",
+      "openWorkflow": "Open work form",
+      "waiting": "Submitted, waiting for the check.",
+      "finished": "This task is finished."
+    },
+    "ehs": {
+      "unsorted": "Unsorted",
+      "create": "New item",
+      "categories": "Categories",
+      "history": "History archive",
+      "backToList": "Back to the working list",
+      "historyTitle": "Rectification / EHS history archive",
+      "noAndDate": "No. / date",
+      "verifiedBy": "Verified by",
+      "verifiedAt": "Confirmed at",
+      "reassign": "Change responsible person",
+      "reassignHelp": "{person} is responsible for {incident} now. Choose who fixes it instead; its photos and conversation stay on the same item.",
+      "newResponsible": "New responsible person",
+      "chooseCategory": "Choose a different category first",
+      "saveCategory": "Save category"
+    },
+    "fieldTasks": {
+      "history": "History archive",
+      "backToList": "Back to the working list",
+      "historyTitle": "Site task history archive",
+      "stageColumn": "Status",
+      "confirmedBy": "Confirmed by",
+      "confirmedAt": "Confirmed at",
+      "search": "Search tasks, people",
+      "allAssignees": "All assignees",
+      "dateFrom": "Start date",
+      "dateTo": "End date"
+    }
   }
 }

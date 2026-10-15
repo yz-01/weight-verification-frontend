@@ -758,20 +758,13 @@ export const PORTAL_NAVIGATION = {
     // B03: 项目 holds project records only (the test in navigation.test.ts
     // keeps it that way); 现场任务 and MR / Other Request are business
     // entries of their own, here beside each other.
-    // `/material-requests` and `/photo-approvals` are also reachable with
-    // field tasks alone: the old 照片审批 entry became a tab of MR / Other
-    // Request (D02), and someone who decided photo submissions there must
-    // still reach them even without the request permissions.
-    item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals", "/material-requests"]),
-    // MR / Other Request (C01–C07), in the old 照片审批 entry's place, after
-    // 现场任务. The old address forwards to its photo tab (D02).
-    item(
-      "material_requests",
-      "/material-requests",
-      ClipboardCheck,
-      "operations",
-      ["/photo-approvals"],
-    ),
+    // `/photo-approvals` is the address of the photo review that was taken
+    // out (I17): it forwards to the 待验收 view of 现场任务, so it opens with
+    // field tasks and belongs to this entry alone.
+    item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals"]),
+    // MR / Other Request (C01–C07), right after 现场任务. Requests only: it
+    // has no photo tab any more (I17), so field tasks alone do not open it.
+    item("material_requests", "/material-requests", ClipboardCheck, "operations"),
     item(
       "suppliers",
       "/modules/suppliers",

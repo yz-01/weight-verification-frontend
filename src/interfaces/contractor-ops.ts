@@ -304,8 +304,52 @@ export interface FieldTask extends RecordedBy {
   created_by: string | null;
   /** Past due and not confirmed or cancelled, by the server's clock. */
   is_overdue?: boolean;
+  /** 待处理 / 待验收 / 已完成 (I1), as the server reads the status. */
+  stage?: "PENDING" | "AWAITING" | "DONE";
+  /**
+   * Whether this reader confirms it now - the setter or a task manager, never
+   * the assignee (I1). It also means their conversation box has the
+   * 「需要继续整改」 switch (ID11).
+   */
+  can_confirm?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * One row of 我的任务 / My Tasks (I1, ID14): a field task assigned to me or an
+ * EHS item I fix, still 待处理. Each opens its own record, and is handed in
+ * through that record's own endpoint.
+ */
+export interface MyTaskRow {
+  kind: "FIELD_TASK" | "HAZARD";
+  id: string;
+  /** The hazard's number; a field task has none. */
+  no: string;
+  title: string;
+  project: string;
+  project_name: string;
+  due_at: string | null;
+  status: string;
+  stage: "PENDING";
+  /** Sent back with 「需要继续整改」 (ID11); `note` then says what is wrong. */
+  needs_more_work: boolean;
+  note: string;
+  task_type: FieldTaskType | null;
+  assigned_by_name: string;
+  last_message: {
+    author_name: string;
+    body: string;
+    kind: "text" | "photo" | "voice" | "file";
+    sent_at: string | null;
+  } | null;
+  created_at: string | null;
+}
+
+/** A person a list's 负责人 filter offers. */
+export interface PersonOption {
+  id: string;
+  full_name: string;
 }
 
 export interface FieldTaskPayload {
