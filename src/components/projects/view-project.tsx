@@ -83,6 +83,7 @@ import {
   updateProjectResponsibility,
 } from "@/services/contractor-ops.service";
 import { useDateFormat } from "@/lib/dates";
+import { roleLabel } from "@/lib/role-labels";
 
 export function ViewProject({ id }: { id: string }) {
   const t = useTranslations();
@@ -855,7 +856,7 @@ function AssignUserDialog({
               ) : (
                 options.map((user) => (
                   <SelectItem key={user.id} value={user.id}>
-                    {user.full_name} ({user.role_name ?? "-"}) — {user.email}
+                    {user.full_name} ({roleLabel(user.role_code, user.role_name, t) || "-"}) — {user.email}
                   </SelectItem>
                 ))
               )}

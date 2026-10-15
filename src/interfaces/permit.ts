@@ -74,6 +74,7 @@ export interface PermitPerson {
   id: string;
   full_name: string;
   role_name?: string;
+  role_code?: string;
 }
 
 export interface PermitApplication {
