@@ -835,7 +835,7 @@ export function SiteEquipmentOffice() {
               label={t(`equipmentStatus.${row.original.status}`)}
               tone={tone(row.original.status)}
             />
-            {/* An exit waiting for 验收 is still on site (Q27): both say so. */}
+            {/* An exit waiting for 验收 is still on site: both say so. */}
             {row.original.awaiting_acceptance && (
               <StatusBadge
                 label={t(
@@ -844,6 +844,13 @@ export function SiteEquipmentOffice() {
                     : "equipment.entryWaiting",
                 )}
                 tone="warning"
+              />
+            )}
+            {/* An exit applied for or approved, not left yet (I13). */}
+            {row.original.open_exit && row.original.open_exit.status !== "SUBMITTED" && (
+              <StatusBadge
+                label={t(`equipmentExit.status.${row.original.open_exit.status}`)}
+                tone="info"
               />
             )}
           </div>
