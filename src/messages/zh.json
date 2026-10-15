@@ -3079,7 +3079,8 @@
       "PROJECT": "项目资料",
       "SETTLEMENT": "付款凭证",
       "WEIGH_SESSION": "称重记录",
-      "ANNOUNCEMENT": "公告"
+      "ANNOUNCEMENT": "公告",
+      "VISITOR_ARRIVAL": "访客到访"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "载入中…",
@@ -7639,7 +7640,11 @@
       "package_source_missing": "有一条退回资料的原记录读不到了。",
       "package_link_not_found": "找不到",
       "role_template_not_found": "找不到这个预设角色。",
-      "role_already_exists": "本公司已经有这个角色。"
+      "role_already_exists": "本公司已经有这个角色。",
+      "gate_pass_host_not_confirmed": "接待人还没确认，不能放行。",
+      "visitor_arrival_already_open": "这位访客已经在门口等待确认。",
+      "visitor_arrival_answered": "这位访客已经处理过了。",
+      "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -10330,7 +10335,12 @@
       "published_by": "发布人",
       "published_at": "发布时间",
       "content": "内容",
-      "read_count": "已读 / 收件人"
+      "read_count": "已读 / 收件人",
+      "host": "接待人",
+      "confirmed_by": "确认人",
+      "confirmed_at": "确认时间",
+      "entry_at": "进场时间",
+      "exit_at": "退场时间"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -13889,7 +13899,8 @@
         "passes": "谁可以进工地、哪段时间可以进。在这里申请、审批、撤销通行证，也可以下载二维码发给对方。",
         "gate": "保安用手机扫通行证二维码，先看清楚访客资料，再按「确认进场」或「确认退场」。",
         "devices": "接了自动闸机、车牌识别或刷脸机，机器每次放行或拒绝都记在这里，并写明原因。没接这些机器，这里就是空的。"
-      }
+      },
+      "hostHint": "从项目人员中选择；访客到门口时会通知他。"
     },
     "action": {
       "approve": "批准",
@@ -14291,7 +14302,11 @@
       "gatePhotosAdded": "照片已补上。",
       "gateMembersAdded": "已指定人员并通知。",
       "gateIssueClosed": "门岗事项已确认结束。",
-      "gateConversationStarted": "已通知选中的人员，可以开始沟通。"
+      "gateConversationStarted": "已通知选中的人员，可以开始沟通。",
+      "hostNotified": "已通知接待人。",
+      "visitorConfirmed": "已确认接待，门岗可以放行。",
+      "visitorDeclined": "已拒绝，门岗已收到。",
+      "visitorCancelled": "已取消这次到访。"
     },
     "what": {
       "roles": "角色列表",
@@ -14450,7 +14465,7 @@
       "signedOut": "请重新登录后再发送。"
     },
     "visitorScan": {
-      "help": "扫访客的通行证二维码，先核对资料，再按「确认进场」或「确认退场」。不用拍照。",
+      "help": "扫通行证二维码并核对资料。访客要先拍照、接待人确认后才能放行；其他人员按确认进场或确认退场。",
       "project": "项目",
       "chooseProject": "选择项目",
       "chooseProjectFirst": "先选项目",
@@ -14491,12 +14506,13 @@
         "not_yet_valid": "不能确认：这张通行证还没到有效时间。",
         "expired": "不能确认：这张通行证已过期。",
         "already_inside": "已经记录在场内，下次扫码请按「确认退场」。",
-        "already_outside": "还没有进场记录，请先按「确认进场」。"
+        "already_outside": "还没有进场记录，请先按「确认进场」。",
+        "host_not_confirmed": "不能放行：接待人还没确认。"
       }
     },
     "visitorRecords": {
       "title": "访客进退场记录",
-      "help": "每次在门岗确认的进场、退场各一条，连着原来的通行证，不会覆盖。",
+      "help": "每一次访客到访一行（照片、接待人、确认、进场和退场），其他进退场也各自一行，不会覆盖。",
       "empty": "还没有进退场记录。",
       "allDirections": "全部进退场",
       "allTypes": "全部类型",
@@ -14515,8 +14531,86 @@
         "approvedBy": "批准人",
         "validUntil": "有效至",
         "gate": "门岗",
-        "guard": "确认人"
+        "guard": "确认人",
+        "photo": "照片",
+        "host": "接待人",
+        "confirmedBy": "接待人确认",
+        "confirmedAt": "确认时间",
+        "entryAt": "进场时间",
+        "exitAt": "退场时间",
+        "visitStatus": "到访状态",
+        "visit": "到访编号",
+        "declineReason": "拒绝原因",
+        "photoCount": "照片数"
       }
+    },
+    "visitorArrival": {
+      "title": "访客到访",
+      "hostHelp": "有访客在门口找你。请看照片，然后确认接待或拒绝。",
+      "detailHelp": "访客在门口的照片、接待人和接待人的确认。",
+      "what": "这位访客",
+      "whatHosts": "项目人员名单",
+      "whatOpen": "门口等待中的访客",
+      "loading": "加载中…",
+      "status": {
+        "AWAITING_HOST": "等待接待人确认",
+        "CONFIRMED": "已确认",
+        "DECLINED": "接待人拒绝",
+        "CANCELLED": "已取消",
+        "ON_SITE": "已进场",
+        "LEFT": "已退场"
+      },
+      "field": {
+        "visitor": "访客",
+        "company": "公司",
+        "purpose": "事由",
+        "pass": "通行证",
+        "project": "项目",
+        "host": "接待人",
+        "guard": "门岗人员",
+        "arrivedAt": "到达时间",
+        "confirmedBy": "确认人",
+        "confirmedAt": "确认时间",
+        "declinedBy": "拒绝人",
+        "reason": "拒绝原因",
+        "entryAt": "进场时间",
+        "exitAt": "退场时间",
+        "photo": "访客照片"
+      },
+      "photoNumber": "照片 {number}",
+      "photoOf": "{name} 的照片",
+      "removePhoto": "删除照片 {number}",
+      "answerTitle": "接待人确认",
+      "confirm": "确认接待",
+      "decline": "拒绝",
+      "reasonPlaceholder": "为什么拒绝？门岗会看到这句话。",
+      "back": "返回",
+      "declineConfirm": "确认拒绝",
+      "answerFailed": "保存失败，请再试一次。",
+      "waitingFor": "等待 {host} 确认。",
+      "confirmedBanner": "已确认（{name} {time}）",
+      "declinedBanner": "{name} 拒绝：{reason}",
+      "onBehalf": "代确认",
+      "chooseHost": "选择接待人",
+      "searchHost": "按名字搜索",
+      "noHosts": "这个项目没有符合的人员。",
+      "chooseProjectFirst": "请先选择项目",
+      "photoHint": "当场拍下访客的照片。",
+      "takePhoto": "拍访客照片",
+      "takeAnother": "再拍一张（已拍 {count} 张）",
+      "hostHint": "访客要找的人，系统会马上通知他。",
+      "changeHost": "换接待人",
+      "startFailed": "通知失败，请再试一次。",
+      "notifyHost": "通知接待人",
+      "waiting": "已通知 {host}，等待确认…",
+      "waited": "已等 {minutes} 分钟",
+      "waitingHelp": "接待人确认后，这个画面会自己变绿。",
+      "cancel": "取消",
+      "letIn": "放行",
+      "declinedHelp": "不能放行这位访客。",
+      "next": "扫下一个",
+      "openTitle": "门口等待中的访客",
+      "hostLine": "接待人：{host}"
     }
   },
   "siteDisposal": {

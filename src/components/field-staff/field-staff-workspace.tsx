@@ -28,6 +28,7 @@ import { useSearchParams } from "next/navigation";
 
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
+import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -100,11 +101,17 @@ export function FieldStaffWorkspace() {
   // link also names as its `record`.
   const requestedMovement = searchParams.get("movement");
   const clearAnnouncement = useClearSearchParam("announcement");
+  // 访客进场确认 (I26): the host's to-do opens 「确认接待」 over home.
+  const visitorArrival = searchParams.get("visitor_arrival");
+  const clearVisitorArrival = useClearSearchParam("visitor_arrival");
 
   return (
     <>
     {announcement && (
       <AnnouncementDialog id={announcement} onClose={clearAnnouncement} />
+    )}
+    {visitorArrival && (
+      <VisitorArrivalDialog id={visitorArrival} onClose={clearVisitorArrival} />
     )}
     <FieldStaffWorkspaceContent
       requestedTaskId={requestedTaskId}

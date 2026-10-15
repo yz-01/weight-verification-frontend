@@ -3079,7 +3079,8 @@
       "PROJECT": "Projek",
       "SETTLEMENT": "Bukti bayaran",
       "WEIGH_SESSION": "Rekod timbangan",
-      "ANNOUNCEMENT": "Pengumuman"
+      "ANNOUNCEMENT": "Pengumuman",
+      "VISITOR_ARRIVAL": "Ketibaan pelawat"
     },
     "lastPage": "Anda berada di halaman terakhir.",
     "loading": "Memuatkan…",
@@ -7639,7 +7640,11 @@
       "package_source_missing": "Rekod di sebalik item yang dipulangkan tidak lagi boleh dibaca.",
       "package_link_not_found": "Tidak dijumpai",
       "role_template_not_found": "Tiada peranan pratetap dengan nama itu.",
-      "role_already_exists": "Syarikat ini sudah mempunyai peranan itu."
+      "role_already_exists": "Syarikat ini sudah mempunyai peranan itu.",
+      "gate_pass_host_not_confirmed": "Tuan rumah pelawat belum mengesahkan. Jangan benarkan masuk.",
+      "visitor_arrival_already_open": "Pelawat ini sudah menunggu di pintu masuk.",
+      "visitor_arrival_answered": "Pelawat ini sudah dijawab.",
+      "visitor_arrival_not_host": "Hanya tuan rumah atau pengurus akses tapak boleh menjawab."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -10330,7 +10335,12 @@
       "published_by": "Diterbitkan oleh",
       "published_at": "Diterbitkan pada",
       "content": "Kandungan",
-      "read_count": "Dibaca / penerima"
+      "read_count": "Dibaca / penerima",
+      "host": "Tuan rumah",
+      "confirmed_by": "Disahkan oleh",
+      "confirmed_at": "Disahkan pada",
+      "entry_at": "Masa masuk",
+      "exit_at": "Masa keluar"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -13889,7 +13899,8 @@
         "passes": "Siapa boleh masuk ke tapak dan bila. Mohon, luluskan dan batalkan pas di sini, dan muat turun kod QR untuk dihantar.",
         "gate": "Pengawal mengimbas kod QR pas, menyemak butiran pelawat, kemudian menekan Sahkan Masuk atau Sahkan Keluar.",
         "devices": "Jika palang automatik, kamera nombor plat atau pengimbas muka disambungkan, setiap kali mesin membenarkan atau menolak seseorang direkodkan di sini bersama sebabnya. Tanpa mesin ini, senarai ini kekal kosong."
-      }
+      },
+      "hostHint": "Dipilih daripada kakitangan projek; mereka dimaklumkan apabila pelawat tiba."
     },
     "action": {
       "approve": "Luluskan",
@@ -14291,7 +14302,11 @@
       "gatePhotosAdded": "Foto ditambah.",
       "gateMembersAdded": "Orang diminta menyertai dan dimaklumkan.",
       "gateIssueClosed": "Isu pintu disahkan selesai.",
-      "gateConversationStarted": "Orang yang anda pilih telah diberitahu; perbualan dibuka."
+      "gateConversationStarted": "Orang yang anda pilih telah diberitahu; perbualan dibuka.",
+      "hostNotified": "Tuan rumah dimaklumkan.",
+      "visitorConfirmed": "Pelawat disahkan. Pintu boleh benarkan masuk.",
+      "visitorDeclined": "Pelawat ditolak. Pintu telah dimaklumkan.",
+      "visitorCancelled": "Ketibaan pelawat dibatalkan."
     },
     "what": {
       "roles": "Senarai peranan",
@@ -14450,7 +14465,7 @@
       "signedOut": "Log masuk semula, kemudian hantar."
     },
     "visitorScan": {
-      "help": "Imbas kod QR pas pelawat, semak butiran, kemudian tekan Sahkan Masuk atau Sahkan Keluar. Tiada foto diperlukan.",
+      "help": "Imbas kod QR pas dan semak butiran. Pelawat diambil foto dan tuan rumah mengesahkan sebelum dibenarkan masuk; yang lain tekan Sahkan Masuk atau Sahkan Keluar.",
       "project": "Projek",
       "chooseProject": "Pilih projek",
       "chooseProjectFirst": "Pilih projek dahulu",
@@ -14491,12 +14506,13 @@
         "not_yet_valid": "Tidak boleh disahkan: pas ini belum sah.",
         "expired": "Tidak boleh disahkan: pas ini telah tamat tempoh.",
         "already_inside": "Sudah direkod di dalam; seterusnya tekan Sahkan Keluar.",
-        "already_outside": "Belum direkod di dalam; tekan Sahkan Masuk dahulu."
+        "already_outside": "Belum direkod di dalam; tekan Sahkan Masuk dahulu.",
+        "host_not_confirmed": "Tidak boleh masuk: tuan rumah pelawat belum mengesahkan."
       }
     },
     "visitorRecords": {
       "title": "Rekod Pelawat",
-      "help": "Satu baris untuk setiap masuk dan keluar yang disahkan di pintu, dipautkan kepada pasnya, tidak pernah ditimpa.",
+      "help": "Satu baris bagi setiap lawatan (foto, tuan rumah, pengesahan, masuk dan keluar) dan setiap kemasukan atau keluar lain di pintu, tidak pernah ditimpa.",
       "empty": "Belum ada rekod masuk atau keluar.",
       "allDirections": "Masuk dan keluar",
       "allTypes": "Semua jenis",
@@ -14515,8 +14531,86 @@
         "approvedBy": "Diluluskan oleh",
         "validUntil": "Sah sehingga",
         "gate": "Pintu",
-        "guard": "Disahkan oleh"
+        "guard": "Disahkan oleh",
+        "photo": "Foto",
+        "host": "Tuan rumah",
+        "confirmedBy": "Pengesahan tuan rumah",
+        "confirmedAt": "Disahkan pada",
+        "entryAt": "Masa masuk",
+        "exitAt": "Masa keluar",
+        "visitStatus": "Status lawatan",
+        "visit": "No. lawatan",
+        "declineReason": "Sebab ditolak",
+        "photoCount": "Bilangan foto"
       }
+    },
+    "visitorArrival": {
+      "title": "Ketibaan pelawat",
+      "hostHelp": "Seorang pelawat di pintu masuk untuk anda. Semak foto, kemudian sahkan atau tolak.",
+      "detailHelp": "Foto pelawat di pintu masuk, tuan rumah dan jawapan tuan rumah.",
+      "what": "pelawat ini",
+      "whatHosts": "senarai kakitangan projek",
+      "whatOpen": "pelawat di pintu masuk",
+      "loading": "Memuatkan…",
+      "status": {
+        "AWAITING_HOST": "Menunggu tuan rumah",
+        "CONFIRMED": "Disahkan",
+        "DECLINED": "Ditolak",
+        "CANCELLED": "Dibatalkan",
+        "ON_SITE": "Di tapak",
+        "LEFT": "Telah keluar"
+      },
+      "field": {
+        "visitor": "Pelawat",
+        "company": "Syarikat",
+        "purpose": "Tujuan",
+        "pass": "Pas",
+        "project": "Projek",
+        "host": "Tuan rumah",
+        "guard": "Kakitangan pintu",
+        "arrivedAt": "Tiba pada",
+        "confirmedBy": "Disahkan oleh",
+        "confirmedAt": "Disahkan pada",
+        "declinedBy": "Ditolak oleh",
+        "reason": "Sebab",
+        "entryAt": "Masa masuk",
+        "exitAt": "Masa keluar",
+        "photo": "Foto pelawat"
+      },
+      "photoNumber": "Foto {number}",
+      "photoOf": "Foto {name}",
+      "removePhoto": "Buang foto {number}",
+      "answerTitle": "Pengesahan tuan rumah",
+      "confirm": "Sahkan pelawat",
+      "decline": "Tolak",
+      "reasonPlaceholder": "Kenapa? Pintu masuk akan membaca ini.",
+      "back": "Kembali",
+      "declineConfirm": "Tolak pelawat",
+      "answerFailed": "Jawapan tidak dapat disimpan. Cuba lagi.",
+      "waitingFor": "Menunggu {host} mengesahkan.",
+      "confirmedBanner": "Disahkan ({name} {time})",
+      "declinedBanner": "Ditolak oleh {name}: {reason}",
+      "onBehalf": "bagi pihak tuan rumah",
+      "chooseHost": "Pilih tuan rumah",
+      "searchHost": "Cari mengikut nama",
+      "noHosts": "Tiada sesiapa dalam projek ini sepadan.",
+      "chooseProjectFirst": "Pilih projek dahulu",
+      "photoHint": "Ambil foto pelawat di sini dan sekarang.",
+      "takePhoto": "Ambil foto pelawat",
+      "takeAnother": "Ambil lagi ({count} diambil)",
+      "hostHint": "Orang yang ingin ditemui pelawat. Mereka dimaklumkan serta-merta.",
+      "changeHost": "Tukar tuan rumah",
+      "startFailed": "Tidak dapat memaklumkan tuan rumah. Cuba lagi.",
+      "notifyHost": "Maklumkan tuan rumah",
+      "waiting": "{host} telah dimaklumkan. Menunggu…",
+      "waited": "Menunggu {minutes} min",
+      "waitingHelp": "Skrin ini bertukar hijau sendiri apabila tuan rumah mengesahkan.",
+      "cancel": "Batal",
+      "letIn": "Benarkan masuk",
+      "declinedHelp": "Jangan benarkan pelawat ini masuk.",
+      "next": "Imbas seterusnya",
+      "openTitle": "Pelawat di pintu masuk",
+      "hostLine": "Tuan rumah: {host}"
     }
   },
   "siteDisposal": {
