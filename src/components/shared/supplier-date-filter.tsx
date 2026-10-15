@@ -42,6 +42,12 @@ export interface SupplierDateValue {
 // The "every supplier" entry needs a value of its own; "" means "nothing typed".
 const ALL = "__all__";
 
+/**
+ * `supplier=none`: the records with no supplier on the list, offered when a
+ * list passes `noneLabel` (工地清运, I27). The endpoint reads the same word.
+ */
+export const NO_SUPPLIER_VALUE = "none";
+
 /** The server's page ceiling (`core/pagination.py`); asking for more gets this. */
 export const SUPPLIER_PAGE_SIZE = 100;
 
@@ -59,9 +65,11 @@ export function supplierSearchQuery(term: string): ListQuery {
 export function supplierOptions(
   results: readonly ReturnBadgeSupplier[],
   allLabel: string,
+  noneLabel?: string,
 ): ComboOption[] {
   return [
     { value: ALL, label: allLabel },
+    ...(noneLabel ? [{ value: NO_SUPPLIER_VALUE, label: noneLabel }] : []),
     ...results.map((row) => ({
       value: row.id,
       label: row.name,
@@ -79,6 +87,7 @@ export function SupplierDateFilter({
   showSupplier = true,
   showDates = true,
   showManufacturer = false,
+  noneLabel,
 }: {
   value: SupplierDateValue;
   /** Only the keys that changed; `undefined` clears one. */
@@ -88,6 +97,8 @@ export function SupplierDateFilter({
   showDates?: boolean;
   /** The manufacturer too (2026-10 D1): material records only. */
   showManufacturer?: boolean;
+  /** Offer 「no supplier」 (`supplier=none`) under this name, where the list reads it. */
+  noneLabel?: string;
 }) {
   const t = useTranslations("supplierDateFilter");
   const [term, setTerm] = useState("");
@@ -101,12 +112,14 @@ export function SupplierDateFilter({
     placeholderData: keepPreviousData,
   });
   const results = suppliers.data?.results ?? [];
-  const options = supplierOptions(results, t("allSuppliers"));
+  const options = supplierOptions(results, t("allSuppliers"), noneLabel);
   // The name of the chosen one, remembered from when it was picked, or read
   // once when the filter arrives from a link with only its id.
   const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
   const chosen = value.supplier;
-  const onPage = chosen ? results.some((row) => row.id === chosen) : true;
+  const onPage = chosen
+    ? (Boolean(noneLabel) && chosen === NO_SUPPLIER_VALUE) || results.some((row) => row.id === chosen)
+    : true;
   const known = picked && picked.id === chosen ? picked.name : undefined;
   // query-failure: only the button's label; the picker's own failure note covers the list
   const chosenRow = useQuery({

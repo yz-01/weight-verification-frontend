@@ -728,6 +728,8 @@ export interface DisposalTrip {
   status: DisposalTripStatus;
   weight_kg: string | null;
   do_no: string;
+  /** Which lorry took this load (I27); "" when nobody typed it. */
+  vehicle_plate: string;
   note: string;
   submitted_at: string | null;
   submitted_by_name: string;
@@ -738,10 +740,10 @@ export interface DisposalTrip {
   evidence: DisposalEvidence[];
 }
 
-/** One office correction of a load's weight or DO number (Q29.7). */
+/** One office correction of a load's weight, DO number or plate (Q29.7, I27). */
 export interface DisposalTripCorrection {
   id: string;
-  field: "weight_kg" | "do_no";
+  field: "weight_kg" | "do_no" | "vehicle_plate";
   from: string;
   to: string;
   reason: string;
@@ -788,6 +790,15 @@ export interface DisposalRequest extends RecordedBy {
   assigned_staff: string | null;
   assigned_staff_name: string | null;
   execution_task: string | null;
+  /** The clearance company on the supplier list (I27); null for field staff's own or none yet. */
+  collector_supplier: string | null;
+  /** 供应商: the supplier's name, else the name typed before I27; "" for field staff's own. */
+  supplier_name: string;
+  /** The 供应商 column as a file prints it: 「内部清运 · 负责人」 for field staff's own. */
+  supplier_label: string;
+  /** 清运车牌: each lorry that took a load, once, in the order they went. */
+  vehicle_plates: string[];
+  vehicle_plates_text: string;
   collector_company_name: string;
   collector_contact_name: string;
   collector_phone: string;

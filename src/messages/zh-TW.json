@@ -14235,7 +14235,9 @@
       "submit": "提交申請",
       "view": "查看",
       "recordNumbers": "補錄數字",
-      "siteEvidence": "拍車輛出場 / Gate Pass"
+      "siteEvidence": "拍車輛出場 / Gate Pass",
+      "setSupplier": "填寫供應商",
+      "changeSupplier": "更改供應商"
     },
     "assign": {
       "copyNow": "複製後發送給外部清運商。鏈接不需要登錄；如遺失，可在清運列表重新生成，舊鏈接會立即失效。",
@@ -14291,7 +14293,9 @@
         "doNo": "Disposal DO 編號",
         "note": "工作備註",
         "trips": "車次數量",
-        "weight": "實際重量（kg）"
+        "weight": "實際重量（kg）",
+        "vehiclePlate": "車牌",
+        "vehiclePlateHint": "選填：這一車的車牌"
       },
       "invalid": "任務鏈接無法使用",
       "invalidBody": "鏈接無效、已到期，或任務已經完成。",
@@ -14351,7 +14355,11 @@
       "plannedTrips": "預計車次",
       "tripsProgress": "車次驗收",
       "tripsAccepted": "已驗收車次",
-      "tripsTotal": "計劃車次"
+      "tripsTotal": "計劃車次",
+      "supplier": "供應商",
+      "vehiclePlates": "清運車牌",
+      "vehiclePlate": "車牌",
+      "createdAt": "建立時間"
     },
     "fieldEvidence": {
       "access": "3. 清運入口或車輛路線",
@@ -14372,7 +14380,9 @@
       "field": {
         "doNo": "Disposal DO 編號",
         "note": "工作備註",
-        "weight": "實際重量（kg）"
+        "weight": "實際重量（kg）",
+        "vehiclePlate": "車牌",
+        "vehiclePlateHint": "選填：這一車的車牌"
       },
       "invalid": "無法打開這項清運任務，請刷新任務列表後重試。",
       "photosBody": "每一車送到合法處理地點後拍照。每車最多 4 張，不限類別；至少 1 張才能送出。送出後由後台驗收這一車。",
@@ -14453,7 +14463,8 @@
       "TRIP_ACCEPTED": "後台已驗收一車",
       "TRIP_ADDED": "後台加了一車",
       "ENDED_EARLY": "後台提前結束，未送的車次已取消",
-      "TRIP_CORRECTED": "後台更正了一車的重量 / DO"
+      "TRIP_CORRECTED": "後台更正了一車的重量 / DO / 車牌",
+      "SUPPLIER_SET": "後台填寫 / 更改了供應商"
     },
     "title": "工地清運",
     "toast": {
@@ -14468,7 +14479,8 @@
       "tripAccepted": "這一車已驗收",
       "tripAdded": "已加一車",
       "endedEarly": "清運已提前結束",
-      "tripCorrected": "這一車已更正"
+      "tripCorrected": "這一車已更正",
+      "supplierSet": "供應商已保存"
     },
     "overdue": {
       "badge": "異常",
@@ -14520,21 +14532,39 @@
       "allSentBody": "等待後台驗收。如果還有車要去，請聯絡工地在後台「加一車」。",
       "correct": "更正",
       "correctTitle": "更正第 {seq} 車",
-      "correctHint": "只改這一車的重量或 DO 編號，要寫原因。原來的數字和每次更正都會保留。",
+      "correctHint": "只改這一車的重量、DO 編號或車牌，要寫原因。原來的數字和每次更正都會保留。",
       "correctReason": "更正原因",
       "correctSave": "儲存更正",
-      "correctUnchanged": "先改重量或 DO 編號",
+      "correctUnchanged": "先改重量、DO 編號或車牌",
       "history": "更正記錄",
       "historyWeight": "重量 {from} → {to} kg",
       "historyDo": "DO {from} → {to}",
       "historyMeta": "{name} · {at} · 原因：{reason}",
-      "blank": "（空）"
+      "blank": "（空）",
+      "historyPlate": "車牌 {from} → {to}"
     },
     "tripStatus": {
       "PLANNED": "還沒送",
       "SUBMITTED": "待驗收",
       "ACCEPTED": "已驗收",
       "CANCELLED": "已取消（提前結束）"
+    },
+    "supplier": {
+      "internal": "內部清運",
+      "none": "未填供應商"
+    },
+    "supplierPick": {
+      "placeholder": "選擇清運公司",
+      "hint": "從供應商名單選擇，每家清運公司的單才能一起篩選、打包結算。",
+      "defaultIndustry": "垃圾清運",
+      "defaultProducts": "工地垃圾清運",
+      "setTitle": "填寫供應商",
+      "changeTitle": "更改供應商",
+      "setDescription": "這張清運單還沒有供應商。選好後，按供應商篩選和打包結算時就找得到。",
+      "current": "現在的供應商：{name}",
+      "reason": "更改原因",
+      "unchanged": "先選另一家供應商",
+      "save": "保存"
     }
   },
   "onSiteMap": {
@@ -14972,6 +15002,13 @@
     },
     "hint": {
       "profileMissing": "這家供應商是舊資料，還沒有行業和主要產品，儲存前請補上。"
+    },
+    "quickAdd": {
+      "open": "新增供應商",
+      "title": "新增供應商",
+      "description": "加入供應商名單後在這裡直接選上。其他資料之後可以在「供應商」頁面補。",
+      "codeHint": "不能和別的供應商重複，例如 CLR-001",
+      "save": "新增並選上"
     }
   },
   "support": {

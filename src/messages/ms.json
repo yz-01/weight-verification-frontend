@@ -14235,7 +14235,9 @@
       "submit": "Hantar permohonan",
       "view": "Lihat",
       "recordNumbers": "Rekod angka",
-      "siteEvidence": "Foto kenderaan keluar / Gate Pass"
+      "siteEvidence": "Foto kenderaan keluar / Gate Pass",
+      "setSupplier": "Nyatakan pembekal",
+      "changeSupplier": "Tukar pembekal"
     },
     "assign": {
       "copyNow": "Salin dan hantar pautan ini kepada kontraktor luar. Log masuk tidak diperlukan. Jika hilang, jana pautan baharu; pautan lama akan berhenti berfungsi.",
@@ -14291,7 +14293,9 @@
         "doNo": "Nombor Disposal DO",
         "note": "Catatan kerja",
         "trips": "Bilangan perjalanan",
-        "weight": "Berat sebenar (kg)"
+        "weight": "Berat sebenar (kg)",
+        "vehiclePlate": "Nombor plat lori",
+        "vehiclePlateHint": "Pilihan: nombor plat lori untuk muatan ini"
       },
       "invalid": "Pautan tugas tidak tersedia",
       "invalidBody": "Pautan tidak sah, telah tamat tempoh atau tugas telah selesai.",
@@ -14351,7 +14355,11 @@
       "plannedTrips": "Jangkaan bilangan lori",
       "tripsProgress": "Muatan disemak",
       "tripsAccepted": "Muatan disemak",
-      "tripsTotal": "Muatan dirancang"
+      "tripsTotal": "Muatan dirancang",
+      "supplier": "Pembekal",
+      "vehiclePlates": "Nombor plat lori",
+      "vehiclePlate": "Nombor plat lori",
+      "createdAt": "Dibuat pada"
     },
     "fieldEvidence": {
       "access": "3. Laluan kutipan atau kenderaan",
@@ -14372,7 +14380,9 @@
       "field": {
         "doNo": "Nombor Disposal DO",
         "note": "Catatan kerja",
-        "weight": "Berat sebenar (kg)"
+        "weight": "Berat sebenar (kg)",
+        "vehiclePlate": "Nombor plat lori",
+        "vehiclePlateHint": "Pilihan: nombor plat lori untuk muatan ini"
       },
       "invalid": "Tugas pelupusan ini tidak dapat dibuka. Muat semula Tugas Saya dan cuba lagi.",
       "photosBody": "Ambil foto setiap muatan di tempat pelupusan berlesen. Sehingga 4 foto bagi setiap muatan, apa-apa jenis; sekurang-kurangnya 1 untuk dihantar. Pejabat kemudian menyemak muatan itu.",
@@ -14453,7 +14463,8 @@
       "TRIP_ACCEPTED": "Pejabat menyemak satu muatan",
       "TRIP_ADDED": "Pejabat menambah satu muatan",
       "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan",
-      "TRIP_CORRECTED": "Pejabat membetulkan berat / DO satu muatan"
+      "TRIP_CORRECTED": "Pejabat membetulkan berat / DO / plat satu muatan",
+      "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan"
     },
     "title": "Pelupusan tapak",
     "toast": {
@@ -14468,7 +14479,8 @@
       "tripAccepted": "Muatan disemak",
       "tripAdded": "Muatan ditambah",
       "endedEarly": "Kerja ditamatkan awal",
-      "tripCorrected": "Muatan dibetulkan"
+      "tripCorrected": "Muatan dibetulkan",
+      "supplierSet": "Syarikat pembersihan disimpan"
     },
     "overdue": {
       "badge": "Pengecualian",
@@ -14520,21 +14532,39 @@
       "allSentBody": "Menunggu pejabat menyemaknya. Jika ada lori lagi, minta tapak menambah satu muatan.",
       "correct": "Betulkan",
       "correctTitle": "Betulkan muatan {seq}",
-      "correctHint": "Hanya menukar berat atau nombor DO muatan ini, dengan sebab. Nilai asal dan setiap pembetulan disimpan.",
+      "correctHint": "Hanya menukar berat, nombor DO atau nombor plat lori muatan ini, dengan sebab. Nilai asal dan setiap pembetulan disimpan.",
       "correctReason": "Sebab pembetulan",
       "correctSave": "Simpan pembetulan",
-      "correctUnchanged": "Tukar berat atau nombor DO dahulu",
+      "correctUnchanged": "Tukar berat, nombor DO atau nombor plat dahulu",
       "history": "Pembetulan",
       "historyWeight": "Berat {from} → {to} kg",
       "historyDo": "DO {from} → {to}",
       "historyMeta": "{name} · {at} · Sebab: {reason}",
-      "blank": "(kosong)"
+      "blank": "(kosong)",
+      "historyPlate": "Plat {from} → {to}"
     },
     "tripStatus": {
       "PLANNED": "Belum dihantar",
       "SUBMITTED": "Untuk disemak",
       "ACCEPTED": "Disemak",
       "CANCELLED": "Dibatalkan (tamat awal)"
+    },
+    "supplier": {
+      "internal": "Pembersihan dalaman",
+      "none": "Tiada pembekal"
+    },
+    "supplierPick": {
+      "placeholder": "Pilih syarikat pembersihan",
+      "hint": "Daripada senarai pembekal, supaya kerja setiap syarikat boleh ditapis dan diselesaikan bersama.",
+      "defaultIndustry": "Pembersihan sisa",
+      "defaultProducts": "Pembersihan sisa tapak",
+      "setTitle": "Nyatakan syarikat pembersihan",
+      "changeTitle": "Tukar syarikat pembersihan",
+      "setDescription": "Kerja ini belum menamakan syarikat. Setelah dipilih, ia akan ditemui semasa menapis dan membungkus mengikut syarikat.",
+      "current": "Kini: {name}",
+      "reason": "Sebab perubahan",
+      "unchanged": "Pilih pembekal lain dahulu",
+      "save": "Simpan"
     }
   },
   "onSiteMap": {
@@ -14972,6 +15002,13 @@
     },
     "hint": {
       "profileMissing": "Pembekal ini ditambah sebelum industri dan produk utama direkodkan. Isikan untuk menyimpan."
+    },
+    "quickAdd": {
+      "open": "Tambah pembekal",
+      "title": "Tambah pembekal",
+      "description": "Ia ditambah ke senarai pembekal dan dipilih di sini. Lengkapkan butiran lain di halaman Pembekal kemudian.",
+      "codeHint": "Tidak digunakan oleh pembekal lain, cth. CLR-001",
+      "save": "Tambah dan pilih"
     }
   },
   "support": {
