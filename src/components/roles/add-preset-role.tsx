@@ -52,7 +52,7 @@ export function AddPresetRoleDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[560px]" showCloseButton={false}>
+      <DialogContent className="sm:max-w-xl" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>{t("roles.preset.title")}</DialogTitle>
           <DialogDescription>{t("roles.preset.description")}</DialogDescription>

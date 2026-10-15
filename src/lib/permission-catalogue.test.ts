@@ -55,7 +55,7 @@ describe("the backend's permission catalogue snapshot", () => {
   });
 });
 
-describe.each(LOCALES)("the %s catalogue", (locale) => {
+describe.each([...LOCALES])("the %s catalogue", (locale) => {
   const catalogue = read<Catalogue>(`src/messages/${locale}.json`);
   const groups = catalogue.permissions?.group ?? {};
   const codes = catalogue.permissions?.code ?? {};
