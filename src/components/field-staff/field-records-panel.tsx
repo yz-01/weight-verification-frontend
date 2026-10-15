@@ -42,7 +42,6 @@ import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-captur
 import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
-import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -73,6 +72,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
 import { matchSupplier } from "@/lib/supplier-match";
+import { NO_SUPPLIER_ITEM, supplierFromSelect, supplierSelectValue } from "@/lib/receipt-supplier";
 import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
   type DeliveryNoteOCRLineItem,
@@ -151,10 +151,9 @@ const RECORD_OPTIONS: RecordOption[] = [
   // MR / Other Request (C01): asked from the current project, followed on
   // 「我提交过的」 with its conversation.
   { key: "request", permission: "material_request.submit", icon: FilePlus2, tone: "bg-primary/10 text-primary" },
-  // The gate's two entries, apart (事项2 六, HD5): 访客扫码 reads a visitor's
-  // pass and confirms the entry or exit; 门岗拍照 photographs the gate and,
-  // for a 「特殊事项」, asks project people in.
-  { key: "visitor", permission: "site_access.scan", icon: ScanLine, tone: "bg-primary/10 text-primary" },
+  // 门岗 (I14, ID32): one entry for the guard - 「门岗扫访客二维码为什么分开
+  // 两个模块？」. Inside, 「拍照」 and 「扫访客二维码」; the separate 访客扫码
+  // tile is gone (an old link to it still opens the scan, below).
   { key: "gate", permission: "site_access.scan", icon: DoorOpen, tone: "bg-info/10 text-info" },
 ];
 
@@ -226,11 +225,9 @@ export function FieldRecordsPanel({
   if (mode === "request") {
     return <RecordFrame title={t("records.request")} onBack={() => chooseMode(null)}><FieldDraft scope={`request:${task?.id ?? "new"}`}><MaterialRequestForm initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
-  if (mode === "visitor") {
-    return <RecordFrame title={t("records.visitor")} onBack={() => chooseMode(null)}><VisitorScanPanel project={task?.project ?? boundProject ?? ""} lockProject={Boolean(task?.project ?? boundProject)} /></RecordFrame>;
-  }
-  if (mode === "gate") {
-    return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} /></RecordFrame>;
+  if (mode === "gate" || mode === "visitor") {
+    // `visitor` is an older link to the scan: the same 门岗, on 扫访客二维码.
+    return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} initialAction={mode === "visitor" ? "scan" : "photo"} /></RecordFrame>;
   }
   if (mode === "sundry") {
     return <RecordFrame title={t("records.sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
@@ -794,17 +791,23 @@ export function MaterialCapturePanel({
         />
       </FieldWrapper>
       <DeliveryNoteReadStatus reader={ocr} />
-      <FieldWrapper label={t("material.supplier")} required>
+      {/* Optional, no star (2026-10-15 I23, ID57): a worker who does not know
+          whose lorry it is leaves 「未填供应商」 - the first item and the
+          default - and the office fills it in, rather than picking any one and
+          putting the load on the wrong supplier's books. A scanned code still
+          chooses its supplier. */}
+      <FieldWrapper label={t("material.supplier")}>
         <Select
-          value={draft.supplier || undefined}
-          onValueChange={(supplier) => {
+          value={supplierSelectValue(draft.supplier)}
+          onValueChange={(value) => {
             setScannedQr(undefined);
             setScannedSupplier("");
-            setDraft((old) => ({ ...old, supplier }));
+            setDraft((old) => ({ ...old, supplier: supplierFromSelect(value) }));
           }}
         >
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSupplier")} /></SelectTrigger>
           <SelectContent>
+            <SelectItem value={NO_SUPPLIER_ITEM}>{t("material.noSupplier")}</SelectItem>
             {supplierRows.map((row) => (
               <SelectItem key={row.id} value={row.id}>
                 {row.name}
@@ -813,8 +816,12 @@ export function MaterialCapturePanel({
             ))}
           </SelectContent>
         </Select>
-        {/* 「有退场资料」 (2026-10 C10): this supplier's returns, one press away. */}
-        <SupplierReturnBadge supplier={supplierRows.find((row) => row.id === draft.supplier)} />
+        {/* 「有退货资料」 (2026-10 C10): a real supplier's returns, one press away. */}
+        {draft.supplier ? (
+          <SupplierReturnBadge supplier={supplierRows.find((row) => row.id === draft.supplier)} />
+        ) : (
+          <p className="text-xs text-muted-foreground">{t("material.noSupplierHint")}</p>
+        )}
         {/* Q1: one supplier on the category fills itself in; several are the
             only ones offered. A scanned code names its own. */}
         {fill.supplierFromColumn && draft.supplier && !scannedSupplier ? (
@@ -1060,7 +1067,7 @@ export function MaterialCapturePanel({
         )}
       </div>
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>

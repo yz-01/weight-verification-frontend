@@ -71,6 +71,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 
 const { ReportMenu } = await import("@/components/reports/report-selector");
 const { navLeaves, visibleNavigation } = await import("@/lib/navigation");
+const { PROGRESS_MENU } = await import("@/lib/report-menu");
 
 const reports = navLeaves(
   visibleNavigation(
@@ -134,6 +135,7 @@ function render(search = "date_from=2026-10-01&date_to=2026-10-07") {
       <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
         <ReportMenu
           reports={reports}
+          progressEntries={PROGRESS_MENU}
           open
           onOpenChange={onOpenChange}
           pathname="/reports/contractor/progress"
@@ -243,6 +245,36 @@ describe("【选择报表】 (D6, B9)", () => {
     for (const [text, nth, href] of cases) {
       const { navigate, onOpenChange } = render();
       click(text, nth);
+      expect(navigate, text).toHaveBeenCalledWith(href);
+      expect(onOpenChange, text).toHaveBeenCalledWith(false);
+    }
+  });
+
+  it("lists 工程进度's own reports first, then a line, then 施工分类 (I8, ID24)", () => {
+    render();
+    const texts = rows.map((row) => row.text);
+    const start = texts.indexOf("日报告");
+    expect(start).toBeGreaterThan(texts.lastIndexOf("工程进度"));
+    expect(texts.slice(start, start + 5)).toEqual([
+      "日报告",
+      "往日报告",
+      "施工计划",
+      "项目进度摘要",
+      "打桩",
+    ]);
+    // 施工计划 is under 工程进度 only, no longer on the first level.
+    expect(texts.filter((text) => text === "施工计划")).toHaveLength(1);
+    expect(reports.map((report) => report.href)).not.toContain("/reports/contractor/schedule");
+
+    const cases: Array<[string, string]> = [
+      ["日报告", "/reports/contractor/daily_report?latest=1"],
+      ["往日报告", `/reports/contractor/daily_report?${DATES}&range=1`],
+      ["施工计划", `/reports/contractor/schedule?${DATES}`],
+      ["项目进度摘要", `/reports/contractor/progress_summary?${DATES}`],
+    ];
+    for (const [text, href] of cases) {
+      const { navigate, onOpenChange } = render();
+      click(text);
       expect(navigate, text).toHaveBeenCalledWith(href);
       expect(onOpenChange, text).toHaveBeenCalledWith(false);
     }

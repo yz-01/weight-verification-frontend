@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Lock, Plus, Save } from "lucide-react";
+import { AlertTriangle, Lock, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -20,8 +20,13 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
+import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
 import type { Role, RolePayload } from "@/interfaces/auth";
+import {
+  approvesPermitsWithoutSeeingProjects,
+  withProjectView,
+} from "@/lib/role-permission-hints";
 import { createRole, updateRole } from "@/services/users.service";
 
 /** The role form, shared by create and edit. */
@@ -135,6 +140,28 @@ export function CreateRole({ role }: { role?: Role }) {
             </span>
           )}
         </div>
+
+        {approvesPermitsWithoutSeeingProjects(permissions) && (
+          <div
+            role="status"
+            className="mb-4 flex flex-col gap-3 rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p className="flex gap-2 leading-6">
+              <AlertTriangle className="mt-1 size-4 shrink-0 text-warning" />
+              <span>{t("roles.permitHint.text")}</span>
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="shrink-0"
+              onClick={() => setPermissions(withProjectView(permissions))}
+            >
+              <Plus className="size-4" />
+              {t("roles.permitHint.add")}
+            </Button>
+          </div>
+        )}
 
         <PermissionMatrix selected={permissions} onChange={setPermissions} />
 

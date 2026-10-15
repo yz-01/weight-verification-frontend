@@ -239,3 +239,62 @@ export function materialExportSubtitle(
       : "";
   return [period, level].filter(Boolean).join(" · ");
 }
+
+/**
+ * 工程进度's own reports, listed under it in 【选择报表】 above its 施工分类
+ * (I8, ID24). The client: 「工程进度下拉，->先看到日报告，->往日报告，->施工
+ * 计划，->项目进度摘要，->然后才会见到施工分类」. 施工计划 moved here from the
+ * first level; the page itself has not changed.
+ */
+export interface ProgressMenuEntry {
+  key: "dailyReport" | "pastDailyReports" | "schedule" | "progressSummary";
+  /** Message key of its name. */
+  labelKey: string;
+  href: string;
+}
+
+export const PROGRESS_MENU: readonly ProgressMenuEntry[] = [
+  {
+    key: "dailyReport",
+    labelKey: "reportSelector.progressMenu.dailyReport",
+    href: "/reports/contractor/daily_report",
+  },
+  {
+    key: "pastDailyReports",
+    labelKey: "reportSelector.progressMenu.pastDailyReports",
+    href: "/reports/contractor/daily_report",
+  },
+  {
+    key: "schedule",
+    labelKey: "nav.submodule.schedulePlanning",
+    href: "/reports/contractor/schedule",
+  },
+  {
+    key: "progressSummary",
+    labelKey: "nav.submodule.progressSummary",
+    href: "/reports/contractor/progress_summary",
+  },
+];
+
+/**
+ * Where an entry of 工程进度's menu leads. 「日报告」 opens on the latest day a
+ * report covers (`latest`, its dates worked out on arrival); 「往日报告」 is
+ * the same report, asking for the days first (`range`, the reader's current
+ * days offered). The rest keep the reader's project and days like any pick.
+ */
+export function progressMenuHref(
+  entry: ProgressMenuEntry,
+  current: URLSearchParams,
+): string {
+  const [path, query = ""] = reportHref(entry.href, {}, current).split("?", 2);
+  const next = new URLSearchParams(query);
+  if (entry.key === "dailyReport") {
+    next.delete("date_from");
+    next.delete("date_to");
+    next.set("latest", "1");
+  } else if (entry.key === "pastDailyReports") {
+    next.set("range", "1");
+  }
+  const text = next.toString();
+  return text ? `${path}?${text}` : path;
+}

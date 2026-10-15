@@ -6292,7 +6292,17 @@
       "document_no": "Document no.",
       "subcategory": "Subcategory",
       "version_count": "Versions",
-      "created_at": "Uploaded at"
+      "created_at": "Uploaded at",
+      "name": "Report name",
+      "report_date": "First day",
+      "end_date": "Last day",
+      "author": "Written by",
+      "record_count": "Records",
+      "body": "Text",
+      "generated_at": "Generated",
+      "block_count": "Blocks",
+      "updated_by": "Last edited by",
+      "updated_at": "Last updated"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -6304,7 +6314,9 @@
       "safety": "Track safety findings from assignment through rectification and verification.",
       "schedule": "Compare the current confirmed schedule with actual site progress.",
       "target": "Filter the business targets above by project and overlapping target period, then export the same achievement data.",
-      "documents": "Project documents by category, with their versions and who uploaded them."
+      "documents": "Project documents by category, with their versions and who uploaded them.",
+      "daily_report": "Daily reports by date: each report's full text, the records it holds and their photos. In the PDF each report starts on a new page, its photos watermarked.",
+      "progress_summary": "Progress summaries updated in this period. In the PDF each summary starts on a new page."
     },
     "empty": "No records match this project and date range.",
     "filter": {
@@ -6324,7 +6336,9 @@
         "schedule": "WBS code or task name",
         "target": "Target name",
         "photos": "File name, source or uploader",
-        "documents": "Document no., title or keyword"
+        "documents": "Document no., title or keyword",
+        "daily_report": "Report name, text or writer",
+        "progress_summary": "Title or writer"
       },
       "noMatch": "Nothing matches",
       "submittedBy": "Submitted by",
@@ -6372,11 +6386,21 @@
       "safety": "Safety and rectification report",
       "schedule": "Planned versus actual report",
       "target": "Target and achievement report",
-      "documents": "Project records report"
+      "documents": "Project records report",
+      "daily_report": "Daily reports",
+      "progress_summary": "Progress summaries"
     },
     "what": {
       "filterOptions": "the filter choices",
-      "projects": "the project list"
+      "projects": "the project list",
+      "latestDay": "the latest daily report"
+    },
+    "days": {
+      "title": "Past daily reports",
+      "help": "Choose the days to read first; the daily reports of those days are then listed.",
+      "show": "Show",
+      "choose": "Choose the first and the last day first.",
+      "backwards": "The first day cannot be after the last day."
     }
   },
   "crm": {
@@ -7561,6 +7585,7 @@
       "column_other_project": "That category is not in this record's project. Choose one from the same project.",
       "column_inactive": "“{column}” is closed. Choose an open category.",
       "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further.",
+      "gate_record_not_an_issue": "This gate photo is not a gate issue yet. Press Talk and choose who handles it first.",
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
@@ -7638,7 +7663,11 @@
       "package_nothing_returned": "Nothing has been returned.",
       "package_item_not_returned": "Only a returned record can be resubmitted.",
       "package_source_missing": "The record behind a returned item can no longer be read.",
-      "package_link_not_found": "Not found"
+      "package_link_not_found": "Not found",
+      "role_template_not_found": "There is no preset role with that name.",
+      "role_already_exists": "This company already has that role.",
+      "export_too_many_photos": "This export holds {count} photos; one file takes at most {limit}. Shorten the dates and export again.",
+      "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8198,7 +8227,9 @@
       "autoFilledFromCategory": "Filled in from the category",
       "supplierLimited": "Only the suppliers set for this category",
       "manufacturer": "Named manufacturer (MR)",
-      "chooseColumnFirst": "Choose the category first"
+      "chooseColumnFirst": "Choose the category first",
+      "noSupplier": "Supplier not filled in",
+      "noSupplierHint": "Not sure whose it is? Leave it - the office will fill it in."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -8239,7 +8270,7 @@
       "waste": "Environmental material outgoing",
       "sundry": "Sundry claims",
       "request": "MR / Other Request",
-      "gate": "Gate Photo Record",
+      "gate": "Gate",
       "operatorHours": "Equipment operator hours",
       "permit": "Permit to work",
       "visitor": "Visitor QR Scan"
@@ -10683,7 +10714,11 @@
       "technical": "Technical management",
       "permits": "Permit to work",
       "gateRecords": "Gate Records",
-      "visitorRecords": "Visitor Records"
+      "gatePhotoRecords": "Photo Records",
+      "gateIssues": "Gate Issues",
+      "visitorRecords": "Visitor Records",
+      "dailyReport": "Daily reports",
+      "progressSummary": "Progress summary"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -10854,7 +10889,7 @@
       "WASTE_OUTGOING": "Environmental material outgoing",
       "SUNDRY_CLAIM": "Sundry claims",
       "EQUIPMENT_HOURS_PHOTO": "Equipment operator hours",
-      "GATE_PHOTO": "Gate Photo Record"
+      "GATE_PHOTO": "Gate"
     },
     "pageDescription": "This page is not cached yet. Reconnect once, then open it again for offline use.",
     "queue": {
@@ -11300,7 +11335,7 @@
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
     },
     "site_access": {
-      "what": "Site access: who may enter and when (passes), the guard scanning a visitor's pass and confirming entry or exit (Visitor QR Scan), and automatic gate records. Every entry and exit is listed in Visitor Records; gate photos are under EHS › Gate Records.",
+      "what": "Site access: who may enter and when (passes), the guard scanning a visitor's pass and confirming entry or exit (Visitor QR Scan), and automatic gate records. Every entry and exit is listed in Visitor Records; gate photos are under Site access › Photo Records and Gate Issues.",
       "who": "Holders of site_access.view; issuing and revoking need site_access.manage.",
       "need": "A pass needs the project, the purpose of entry, valid-from and valid-until times and a name; a vehicle pass also needs the plate. Scanning at the gate needs only a phone camera; a scanner gun is an option for a fixed gate computer.",
       "then": "A pass takes effect only after approval, and a revoked one stops working immediately.",
@@ -11428,7 +11463,7 @@
       "what": "Photos the gate guards took: Photo Records (lorries in and out, ordinary gate photos) and Gate Issues (special matters the guards raised).",
       "who": "Holders of site_access.view; a gate issue is confirmed finished by the people assigned or a holder of site_access.manage.",
       "then": "Ordinary photos are filed at once; a gate issue notifies the people assigned, who talk in it, and is read-only once confirmed finished.",
-      "trouble": "A photo is missing: check the date and photographer filters; photos taken offline upload once the phone has a network."
+      "trouble": "A photo is missing: check the date, time and photographer filters, or switch to the photo wall; photos taken offline upload once the phone has a network."
     }
   },
   "partners": {
@@ -11555,16 +11590,14 @@
   },
   "permissions": {
     "code": {
-      "announcement": {
-        "manage": "Publish announcements",
-        "view": "View announcements"
-      },
       "audit": {
         "view": "Read the audit log"
       },
       "billing": {
         "manage": "Manage plans and subscriptions",
-        "view": "View billing"
+        "view": "View billing",
+        "collect": "Confirm payment received",
+        "pay": "Upload payment slips"
       },
       "commission": {
         "manage": "Manage commission",
@@ -11574,7 +11607,8 @@
         "create": "Open a company",
         "suspend": "Suspend or reinstate a company",
         "update": "Edit company details",
-        "view": "View companies"
+        "view": "View companies",
+        "review": "Review company registrations"
       },
       "deduction": {
         "approve": "Approve excess deductions",
@@ -11591,7 +11625,6 @@
         "view": "View payments"
       },
       "platform": {
-        "impersonate": "Sign in as a customer",
         "maintenance": "Put the platform into maintenance",
         "monitor": "View system monitoring"
       },
@@ -11636,13 +11669,8 @@
       "task": {
         "assign": "Assign drivers and vehicles",
         "submit": "Submit task photos and reports",
-        "task_view_all": "See every trip in the yard",
-        "view": "View driver tasks"
-      },
-      "ticket": {
-        "create": "Raise support tickets",
-        "reply": "Reply to support tickets",
-        "view": "View support tickets"
+        "view": "View driver tasks",
+        "view_all": "See every trip in the yard"
       },
       "user": {
         "create": "Invite users",
@@ -11666,6 +11694,211 @@
         "submit": "Raise MR / Other Requests",
         "review": "Approve or return MR / Other Requests",
         "config": "Keep the MR material lists"
+      },
+      "partnership": {
+        "view": "View partnerships",
+        "manage": "Request and manage partnerships"
+      },
+      "evidence": {
+        "manage": "Revise evidence files"
+      },
+      "notification": {
+        "view": "Receive and read notifications",
+        "send": "Send project notifications"
+      },
+      "document": {
+        "view": "View documents",
+        "manage": "Add and edit documents",
+        "archive": "Archive documents"
+      },
+      "approval": {
+        "view": "View approvals and consultant applications",
+        "submit": "Raise approval requests",
+        "review": "Approve or return approvals"
+      },
+      "workflow": {
+        "view": "View approval workflows",
+        "manage": "Set up approval workflows"
+      },
+      "department": {
+        "view": "View departments",
+        "manage": "Manage departments"
+      },
+      "work_trade": {
+        "view": "View trades",
+        "manage": "Manage trades"
+      },
+      "external_access": {
+        "view": "View external access links",
+        "manage": "Create and revoke external access links"
+      },
+      "category": {
+        "view": "View categories",
+        "manage": "Manage categories, specifications, units and budgets"
+      },
+      "equipment": {
+        "view": "View equipment and operating hours",
+        "manage": "Manage equipment, accept entry and exit, adjust hours",
+        "capture": "Record equipment entry, exit and hours on site"
+      },
+      "field_task": {
+        "view": "View site tasks",
+        "manage": "Assign and accept site tasks",
+        "submit": "Submit site tasks from the phone"
+      },
+      "package": {
+        "view": "View Multi Engine packages",
+        "manage": "Prepare and send packages"
+      },
+      "claim": {
+        "view": "View progress claims",
+        "manage": "Prepare and confirm progress claims",
+        "confirm_payment": "Record progress claim payments"
+      },
+      "sundry_claim": {
+        "view": "View sundry claims",
+        "submit": "Submit sundry claims",
+        "review": "Approve or return sundry claims",
+        "pay": "Pay sundry claims (upload the payment voucher)"
+      },
+      "material_outgoing": {
+        "view": "View material outgoing",
+        "submit": "Request material outgoing",
+        "approve": "Approve material outgoing (Return Note)"
+      },
+      "waste_outgoing": {
+        "view": "View waste outgoing",
+        "submit": "Submit waste outgoing applications",
+        "approve": "Approve waste outgoing applications",
+        "delegate": "Receive every application first and pass it on (head office)",
+        "order": "Choose the recycler",
+        "config": "Manage waste outgoing categories"
+      },
+      "disposal": {
+        "view": "View site disposal",
+        "submit": "Request site disposal",
+        "manage": "Review and arrange site disposal",
+        "confirm": "Confirm disposal trips"
+      },
+      "attendance": {
+        "view": "View site entry records",
+        "clock": "Clock in and out on site"
+      },
+      "field_position": {
+        "view": "View staff locations",
+        "submit": "Share own location from the phone"
+      },
+      "dashboard": {
+        "view": "View the dashboard",
+        "search": "Search across modules",
+        "export": "Export the dashboard",
+        "audit_view": "See who used the dashboard"
+      },
+      "announcement": {
+        "publish": "Publish company announcements"
+      },
+      "progress": {
+        "view": "View progress and daily reports",
+        "manage": "Record progress and write daily reports",
+        "confirm": "Confirm progress (summaries, percentage corrections)"
+      },
+      "safety": {
+        "view": "View hazards / EHS and permits to work",
+        "manage": "Report and assign hazards, apply for permits to work",
+        "verify": "Safety verification (can approve permits to work)"
+      },
+      "schedule": {
+        "view": "View the construction schedule",
+        "manage": "Edit the construction schedule",
+        "confirm": "Confirm schedule imports, revisions and progress"
+      },
+      "geofence": {
+        "view": "View geofences",
+        "manage": "Set up geofences"
+      },
+      "site_access": {
+        "view": "View site access and gate records",
+        "manage": "Manage access passes and close gate issues",
+        "scan": "Scan passes and take gate photos"
+      },
+      "company_settings": {
+        "view": "View company settings",
+        "manage": "Change company settings"
+      },
+      "consultant": {
+        "config": "Set up consultant workflows and RFI forms",
+        "submit": "Submit consultant applications"
+      },
+      "fleet": {
+        "view": "View vehicles and drivers",
+        "manage": "Manage vehicles and drivers",
+        "set_tare": "Set a vehicle's tare weight"
+      },
+      "customer": {
+        "view": "View customers and private intake",
+        "manage": "Manage customers"
+      },
+      "inventory": {
+        "view": "View inventory",
+        "manage": "Adjust inventory"
+      },
+      "outbound": {
+        "view": "View buyers and shipments",
+        "manage": "Manage buyers and shipments"
+      },
+      "subscription": {
+        "view": "View subscriptions",
+        "manage": "Manage subscriptions"
+      },
+      "qr": {
+        "view": "View QR codes",
+        "manage": "Issue and manage QR codes"
+      },
+      "sales": {
+        "view": "View salespeople and territories",
+        "manage": "Manage salespeople and territories"
+      },
+      "sales_commission": {
+        "view": "View sales commission",
+        "manage": "Calculate and adjust sales commission",
+        "approve": "Approve sales commission payouts"
+      },
+      "partner": {
+        "view": "View partners",
+        "manage": "Manage partners and agreements"
+      },
+      "asset": {
+        "view": "View assets",
+        "manage": "Manage asset records and purchases",
+        "issue": "Issue and return assets",
+        "transfer": "Transfer assets",
+        "maintain": "Maintain and repair assets",
+        "dispose": "Dispose of assets"
+      },
+      "crm": {
+        "view": "View customer care records",
+        "manage": "Record customer care"
+      },
+      "support": {
+        "view": "View support tickets",
+        "manage": "Handle support tickets",
+        "remote_operate": "Operate site devices remotely"
+      },
+      "cloud_service": {
+        "view": "View cloud services",
+        "manage": "Manage cloud services"
+      },
+      "platform_settings": {
+        "view": "View platform settings",
+        "manage": "Change platform settings"
+      },
+      "platform_version": {
+        "view": "View versions",
+        "manage": "Publish versions"
+      },
+      "integration": {
+        "view": "View integrations and devices",
+        "manage": "Manage integrations and devices"
       }
     },
     "group": {
@@ -11685,11 +11918,55 @@
       "settlement": "Settlements",
       "supplier": "Suppliers",
       "task": "Driver tasks",
-      "ticket": "Support",
       "user": "Users",
       "weighing": "Weighing",
       "yard": "Recycling yards",
-      "material_request": "MR / Other Request"
+      "material_request": "MR / Other Request",
+      "partnership": "Partnerships",
+      "evidence": "Evidence",
+      "notification": "Notifications",
+      "document": "Document archive",
+      "approval": "Approvals",
+      "workflow": "Approval workflows",
+      "department": "Departments",
+      "work_trade": "Trades",
+      "external_access": "External access links",
+      "category": "Categories",
+      "equipment": "Equipment",
+      "field_task": "Site tasks",
+      "package": "Multi Engine packages",
+      "claim": "Progress claims",
+      "sundry_claim": "Sundry claims",
+      "material_outgoing": "Material outgoing",
+      "waste_outgoing": "Waste outgoing",
+      "disposal": "Site disposal",
+      "attendance": "Site entry",
+      "field_position": "Staff location",
+      "dashboard": "Dashboard",
+      "progress": "Progress",
+      "safety": "Safety / EHS",
+      "schedule": "Construction schedule",
+      "geofence": "Geofence",
+      "site_access": "Site access",
+      "company_settings": "Company settings",
+      "consultant": "Consultant applications",
+      "fleet": "Fleet",
+      "customer": "Customers",
+      "inventory": "Inventory",
+      "outbound": "Buyers and shipments",
+      "commission": "Platform commission",
+      "subscription": "Subscriptions",
+      "qr": "QR codes",
+      "sales": "Sales",
+      "sales_commission": "Sales commission",
+      "partner": "Partners",
+      "asset": "Assets",
+      "crm": "Customer care",
+      "support": "Technical support",
+      "cloud_service": "Cloud services",
+      "platform_settings": "Platform settings",
+      "platform_version": "Versions",
+      "integration": "Integrations"
     }
   },
   "photos": {
@@ -12086,7 +12363,8 @@
         "delivery_note_no": "Delivery order no.",
         "notes": "Notes",
         "received_by_name": "Received by",
-        "document_amount": "Delivery order amount"
+        "document_amount": "Delivery order amount",
+        "supplier": "Supplier"
       }
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
@@ -12274,7 +12552,15 @@
     },
     "exportVerdict": "Acceptance result",
     "rejectedReturns": "Rejected returns",
-    "rejectedReturn": "Rejected – returned"
+    "rejectedReturn": "Rejected – returned",
+    "supplierUnfilled": "Supplier not filled in",
+    "supplierUnfilledShort": "not filled in",
+    "fillSupplier": {
+      "action": "Fill in supplier",
+      "hint": "The site did not fill in the supplier. Fill it in before accepting.",
+      "reason": "Supplier filled in (left blank on site)",
+      "formHint": "Choose this delivery's supplier, save, then accept it."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -12917,7 +13203,7 @@
       "company_admin": "Full access to this company's data and users.",
       "dispatcher": "Accepts orders, assigns vehicles and drivers.",
       "driver": "Sees assigned tasks and submits site photos.",
-      "finance": "Settles transactions and records payment proof.",
+      "finance": "Handles payments and settlements, records payment proof and exports reports.",
       "gate_guard": "Scans passes at the gate and photographs what happens there.",
       "platform_admin": "Full access to every platform function.",
       "platform_finance": "Manages plans, commission and collections.",
@@ -12925,7 +13211,14 @@
       "project_manager": "Runs projects and approves excess deductions.",
       "site_staff": "Records material receipts and waste dispatches on site.",
       "viewer": "Read-only access to this company's records.",
-      "weighbridge_operator": "Runs the weighbridge and records deductions."
+      "weighbridge_operator": "Runs the weighbridge and records deductions.",
+      "headquarters": "Head office: sees every project, files what the sites send up, and decides the applications that reach it first.",
+      "safety_manager": "Runs hazards and EHS on their projects, verifies rectification and approves permits to work.",
+      "quantity_surveyor": "Keeps material categories and budgets, prepares progress claims and evidence packages, and reads the reports.",
+      "storekeeper": "Records and corrects material deliveries, requests material outgoing and raises material requests on their projects.",
+      "equipment_manager": "Runs equipment entry and exit, the equipment list, QR stickers and operating hours on every project.",
+      "site_supervisor": "Assigns and accepts site tasks and hazard rectification, records progress and handles gate issues on their projects.",
+      "document_controller": "Keeps the document archive, submits consultant applications and back-office approvals, and maintains the RFI forms."
     },
     "systemHint": "Built-in roles cannot be removed, so a company always keeps a way to manage its own people.",
     "system_": {
@@ -12940,17 +13233,37 @@
       "project_manager": "Project Manager",
       "site_staff": "Site Staff",
       "viewer": "Viewer",
-      "weighbridge_operator": "Weighbridge Operator"
+      "weighbridge_operator": "Weighbridge Operator",
+      "headquarters": "Headquarters",
+      "safety_manager": "Safety Manager",
+      "quantity_surveyor": "Quantity Surveyor (QS)",
+      "storekeeper": "Storekeeper",
+      "equipment_manager": "Equipment Manager",
+      "site_supervisor": "Site Supervisor",
+      "document_controller": "Document Controller"
     },
     "title": "Roles",
     "toast": {
       "created": "Role created",
       "removed": "Role removed",
-      "updated": "Role updated"
+      "updated": "Role updated",
+      "presetAdded": "Preset role added"
     },
     "viewTitle": "Role",
     "what": {
       "permissions": "The permission list"
+    },
+    "preset": {
+      "open": "Add from presets",
+      "title": "Add a preset role",
+      "description": "Preset roles come with the permissions the job needs. These are the ones this company does not have yet; once added, edit them like any role.",
+      "add": "Add",
+      "empty": "Every preset role is already in the list.",
+      "what": "The preset role list"
+    },
+    "permitHint": {
+      "text": "To approve permits to work, this role also needs “View projects”, and the person must be added to the project team (or the role given “See every project in the company”).",
+      "add": "Tick “View projects”"
     }
   },
   "safety": {
@@ -13583,7 +13896,7 @@
       "rejectTitle": "Reject this access pass?",
       "revokeBody": "The QR code will stop working immediately. Record the reason for the audit trail.",
       "revokeTitle": "Revoke this access pass?",
-      "subtitle": "Apply for and approve passes, and scan visitors at the gate. Gate photos are under EHS › Gate Records.",
+      "subtitle": "Apply for and approve passes, and scan visitors at the gate. Gate photos are under Photo Records and Gate Issues, also in Site access.",
       "timeline": "Entry and exit history",
       "title": "Site access",
       "unknownGate": "Gate not named",
@@ -13834,7 +14147,11 @@
       "title": "Site geofences",
       "undoPoint": "Undo point",
       "useGps": "Use current GPS",
-      "useProject": "Use project location"
+      "useProject": "Use project location",
+      "editSwitch": "Edit geofence",
+      "editHint": "Turn on to move the centre, add points or drag them on the map. It turns off again after saving.",
+      "locked": "The map is view-only now. To change the geofence, turn on “Edit geofence” first.",
+      "backToFence": "Back to geofence"
     },
     "homePage": {
       "dashboard": "Dashboard",
@@ -13993,7 +14310,8 @@
       "gateIncidentSaved": "Gate record saved.",
       "gatePhotosAdded": "Photos added.",
       "gateMembersAdded": "People asked in and notified.",
-      "gateIssueClosed": "Gate issue confirmed finished."
+      "gateIssueClosed": "Gate issue confirmed finished.",
+      "gateConversationStarted": "The people you chose are notified; the conversation is open."
     },
     "what": {
       "roles": "The role list",
@@ -14041,7 +14359,8 @@
         "gps": "GPS",
         "latitude": "Latitude",
         "longitude": "Longitude",
-        "photoCount": "Photos"
+        "photoCount": "Photos",
+        "singlePdf": "This record"
       },
       "what": "gate records",
       "whatOne": "this gate record",
@@ -14079,7 +14398,7 @@
       "photoFirst": "Take at least one photo to send.",
       "officeTitle": "Gate Records",
       "recentTitle": "Latest gate records",
-      "issueHelp": "A gate issue: its photos, note, people and conversation stay here and cannot be deleted; once confirmed finished it is read-only.",
+      "issueHelp": "A gate issue: its photos, people and conversation stay here and cannot be deleted; once confirmed finished it is read-only.",
       "kind": {
         "photo": "Gate photo",
         "issue": "Gate issue"
@@ -14093,9 +14412,33 @@
         "issues": "Gate Issues"
       },
       "tabHelp": {
-        "photos": "Lorries in and out and ordinary gate photos, one record per photo, filed at once. Search by date, project and photographer, and export.",
-        "issues": "Special matters the guards raised: photos, note, people asked in, their conversation, status, and who confirmed it finished and when."
+        "photos": "Lorries in and out and ordinary gate photos, one record per photo, filed at once. Search by date and time, project and photographer, and export; or switch to the photo wall.",
+        "issues": "Matters a guard raised with Talk: photos, people asked in, their conversation, status, and who confirmed it finished and when.",
+        "wall": "Photo wall: photos only, newest first; scroll down for more. Press one for the large photo and its full record; use the arrow keys or swipe for the previous or next."
       },
+      "view": {
+        "label": "View as",
+        "list": "List",
+        "wall": "Photo wall"
+      },
+      "wall": {
+        "empty": "No photos match.",
+        "end": "That is the last photo.",
+        "photoAlt": "Gate photo {reference}",
+        "first": "This is the first photo.",
+        "last": "This is the last photo.",
+        "previous": "Previous",
+        "next": "Next",
+        "position": "{number} of {loaded}",
+        "date": "Date",
+        "time": "Time",
+        "photoOfRecord": "Photo {number} of {count} in this record",
+        "openRecord": "Open this record"
+      },
+      "talk": "Talk",
+      "talkTitle": "Talk",
+      "talkHelp": "Does this photo need someone to deal with it? Press Talk and choose people: it becomes a gate issue and the conversation opens.",
+      "singlePdfHint": "This record's PDF: preview, print, export, send",
       "closeTitle": "Confirm finished",
       "close": "Confirm finished",
       "closeHelp": "Press this once it is dealt with. The issue then becomes read-only; its photos and conversation are kept.",
@@ -14105,21 +14448,25 @@
       "closedBy": "Confirmed finished by {name} on {when}"
     },
     "gatePhoto": {
-      "title": "Gate Photo Record",
-      "help": "Lorries in or out, or anything at the gate: take the photo and send. Each photo keeps the project, time, GPS and your name.",
-      "photosHint": "Take as many as you need. Ordinary photos are saved one record each.",
-      "special": "Special matter",
-      "specialOffHelp": "Off: an ordinary gate photo, filed at once, nobody notified.",
-      "specialOnHelp": "On: write a note and choose people of this project; their phones get a to-do and a sound.",
-      "note": "Note",
-      "notePlaceholder": "e.g. This lorry has no exit slip, please check",
-      "assignees": "Assign to",
-      "assigneesHint": "Site people of this project, such as the project manager, site supervisor or safety officer.",
-      "sendPhotos": "Send ({count} photos)",
-      "sendIssue": "Send special matter",
+      "title": "Gate",
+      "help": "Take the photo, then press Send. If something needs dealing with, press Send & talk and choose people - no typing needed. Each photo keeps the project, time, GPS and your name.",
+      "photosHint": "Take as many as you need. Send saves one record per photo; Send & talk makes them one gate issue.",
+      "action": {
+        "photo": "Take photo",
+        "scan": "Scan visitor QR"
+      },
+      "assignees": "Choose who handles it",
+      "assigneesHint": "Site people of this project, such as the project manager, site supervisor or safety officer. Choose at least one; their phones get a to-do and a sound.",
+      "send": "Send",
+      "sendAndTalk": "Send & talk",
+      "chooseTitle": "Choose who handles it",
+      "chooseHelpSend": "These photos ({count}) go as one gate issue to the people you choose, then the conversation opens. Typing is optional.",
+      "chooseHelpTalk": "{reference} becomes a gate issue, the people you choose are notified, and the conversation opens. Typing is optional.",
+      "startTalk": "Start talking",
       "sentPhotos": "{count} gate photos sent.",
-      "sentIssue": "Special matter sent; the people assigned are notified.",
+      "sentTalk": "Sent; the people you chose are notified.",
       "sentQueued": "Saved on this phone; it uploads by itself once there is a network, once.",
+      "sentTalkQueued": "Saved on this phone; it is sent and the people you chose are notified once there is a network. Then press Talk on it in the recent records.",
       "signedOut": "Sign in again, then send."
     },
     "visitorScan": {
@@ -14212,7 +14559,9 @@
       "submit": "Submit request",
       "view": "View",
       "recordNumbers": "Record numbers",
-      "siteEvidence": "Photograph vehicle exit / Gate Pass"
+      "siteEvidence": "Photograph vehicle exit / Gate Pass",
+      "setSupplier": "Name the supplier",
+      "changeSupplier": "Change supplier"
     },
     "assign": {
       "copyNow": "Copy and send this link to the external contractor. No sign-in is required. If it is lost, generate a new link from the disposal list; the old link will stop working.",
@@ -14268,7 +14617,9 @@
         "doNo": "Disposal DO number",
         "note": "Work note",
         "trips": "Number of trips",
-        "weight": "Actual weight (kg)"
+        "weight": "Actual weight (kg)",
+        "vehiclePlate": "Lorry plate",
+        "vehiclePlateHint": "Optional: the plate of the lorry taking this load"
       },
       "invalid": "Task link unavailable",
       "invalidBody": "This link is invalid, expired or the task has already been completed.",
@@ -14328,7 +14679,11 @@
       "plannedTrips": "Lorries expected",
       "tripsProgress": "Loads checked",
       "tripsAccepted": "Loads checked",
-      "tripsTotal": "Loads planned"
+      "tripsTotal": "Loads planned",
+      "supplier": "Supplier",
+      "vehiclePlates": "Lorry plates",
+      "vehiclePlate": "Lorry plate",
+      "createdAt": "Raised on"
     },
     "fieldEvidence": {
       "access": "3. Collection access or vehicle route",
@@ -14349,7 +14704,9 @@
       "field": {
         "doNo": "Disposal DO number",
         "note": "Work note",
-        "weight": "Actual weight (kg)"
+        "weight": "Actual weight (kg)",
+        "vehiclePlate": "Lorry plate",
+        "vehiclePlateHint": "Optional: the plate of the lorry taking this load"
       },
       "invalid": "This disposal task could not be opened. Refresh My Tasks and try again.",
       "photosBody": "Photograph each load at the licensed disposal place. Up to 4 photos per load, any kind; at least 1 to send. The office then checks the load.",
@@ -14430,7 +14787,8 @@
       "TRIP_ACCEPTED": "Office checked a load",
       "TRIP_ADDED": "Office added a load",
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
-      "TRIP_CORRECTED": "Office corrected a load's weight / DO"
+      "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
+      "SUPPLIER_SET": "Office named / changed the clearance company"
     },
     "title": "Site disposal",
     "toast": {
@@ -14445,7 +14803,8 @@
       "tripAccepted": "Load checked",
       "tripAdded": "Load added",
       "endedEarly": "Job ended early",
-      "tripCorrected": "Load corrected"
+      "tripCorrected": "Load corrected",
+      "supplierSet": "Clearance company saved"
     },
     "overdue": {
       "badge": "Exception",
@@ -14497,21 +14856,39 @@
       "allSentBody": "Waiting for the office to check them. If another lorry is going, ask the site to add a load.",
       "correct": "Correct",
       "correctTitle": "Correct load {seq}",
-      "correctHint": "Changes only this load's weight or DO number, with a reason. The original value and every correction are kept.",
+      "correctHint": "Changes only this load's weight, DO number or lorry plate, with a reason. The original value and every correction are kept.",
       "correctReason": "Reason for the correction",
       "correctSave": "Save correction",
-      "correctUnchanged": "Change the weight or the DO number first",
+      "correctUnchanged": "Change the weight, the DO number or the plate first",
       "history": "Corrections",
       "historyWeight": "Weight {from} → {to} kg",
       "historyDo": "DO {from} → {to}",
       "historyMeta": "{name} · {at} · Reason: {reason}",
-      "blank": "(blank)"
+      "blank": "(blank)",
+      "historyPlate": "Plate {from} → {to}"
     },
     "tripStatus": {
       "PLANNED": "Not sent yet",
       "SUBMITTED": "To check",
       "ACCEPTED": "Checked",
       "CANCELLED": "Dropped (ended early)"
+    },
+    "supplier": {
+      "internal": "Internal clearance",
+      "none": "No supplier"
+    },
+    "supplierPick": {
+      "placeholder": "Choose the clearance company",
+      "hint": "From the supplier list, so each company's clearances can be filtered and settled together.",
+      "defaultIndustry": "Waste clearance",
+      "defaultProducts": "Site waste clearance",
+      "setTitle": "Name the clearance company",
+      "changeTitle": "Change the clearance company",
+      "setDescription": "This clearance names no company yet. Once chosen, it is found when filtering and packing by company.",
+      "current": "Now: {name}",
+      "reason": "Reason for the change",
+      "unchanged": "Choose a different supplier first",
+      "save": "Save"
     }
   },
   "onSiteMap": {
@@ -14949,6 +15326,13 @@
     },
     "hint": {
       "profileMissing": "This supplier was added before industry and main products were recorded. Fill them in to save."
+    },
+    "quickAdd": {
+      "open": "Add supplier",
+      "title": "Add a supplier",
+      "description": "It joins the supplier list and is chosen here. Fill in the rest on the Suppliers page later.",
+      "codeHint": "Not used by another supplier, e.g. CLR-001",
+      "save": "Add and choose"
     }
   },
   "support": {
@@ -16051,7 +16435,7 @@
     "noLocation": "No location recorded",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
-    "zoomReset": "Actual size",
+    "fitWhole": "Fit whole photo",
     "previous": "Previous",
     "next": "Next",
     "recorder": "Recorded by",
@@ -16240,7 +16624,11 @@
       "OTHER": "Other"
     },
     "categoriesFailed": "The category list could not be loaded.",
-    "noCategories": "No categories yet - click the report's name to open it."
+    "noCategories": "No categories yet - click the report's name to open it.",
+    "progressMenu": {
+      "dailyReport": "Daily report",
+      "pastDailyReports": "Past daily reports"
+    }
   },
   "wasteClearance": {
     "title": "Waste clearance",
@@ -16567,7 +16955,24 @@
     "what": "the supplier list",
     "allManufacturers": "All named manufacturers",
     "manufacturer": "Named manufacturer (MR)",
-    "whatManufacturers": "The supplier list"
+    "whatManufacturers": "The supplier list",
+    "unfilled": "Supplier not filled in"
+  },
+  "dateTimeRange": {
+    "startDate": "Start date",
+    "startTime": "Start time (24-hour)",
+    "endDate": "End date",
+    "endTime": "End time (24-hour)",
+    "to": "to",
+    "timePlaceholder": "HH:mm",
+    "quick": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "lastHour": "Last 1 hour"
+    },
+    "clear": "Clear the time range",
+    "badTime": "Type the time on a 24-hour clock, e.g. 14:00 or 1430.",
+    "backwards": "The end is before the start, so nothing can match."
   },
   "recordNo": {
     "copy": "Copy {number}",
@@ -16682,7 +17087,16 @@
       "photosCount": "Photos",
       "author": "Written by",
       "recordDeleted": "Record deleted",
-      "maxDays": "A daily report covers at most {days} days."
+      "maxDays": "A daily report covers at most {days} days.",
+      "generatedAt": "Generated {when}",
+      "book": {
+        "position": "{n} of {total}",
+        "previous": "Previous",
+        "next": "Next",
+        "first": "This is the first report.",
+        "last": "This is the last report.",
+        "waiting": "Opening this report, one moment."
+      }
     },
     "summary": {
       "new": "New summary",
@@ -17052,7 +17466,7 @@
     "chooseProject": "Choose a project",
     "chooseApprover": "Choose the safety manager",
     "approverHint": "Only the people on this project who can approve permits are listed.",
-    "noApprovers": "Nobody on this project can approve permits yet (it needs the safety verification permission). Ask your administrator.",
+    "noApprovers": "Nobody on this project can approve permits yet. An administrator sets it up in three steps:",
     "notePlaceholder": "e.g. Hot work, level 3, 12 Oct 9:00-17:00",
     "optional": "Optional",
     "cancel": "Cancel",
@@ -17139,7 +17553,13 @@
       "approved": "{reference} approved and archived",
       "returned": "{reference} returned to the applicant"
     },
-    "openInModule": "Open under Permit to work"
+    "openInModule": "Open under Permit to work",
+    "openProjectTeam": "Add people to the project team",
+    "noApproverSteps": {
+      "role": "Roles: give the approver's role “Safety verification” and “View projects” (the preset “Safety Manager” has both).",
+      "user": "Users: set the approver's account to that role. A new account becomes active once its owner sets a password from the email.",
+      "team": "Project team: add them under “Who can see this project” on this project (not needed if the role has “See every project in the company”)."
+    }
   },
   "gateCard": {
     "title": "Gate",
@@ -17282,5 +17702,9 @@
       "dateFrom": "Start date",
       "dateTo": "End date"
     }
+  },
+  "mapFrame": {
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen"
   }
 }

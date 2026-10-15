@@ -2,12 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Lock, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, Layers, Lock, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { AddPresetRoleDialog } from "@/components/roles/add-preset-role";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, TypeBadge } from "@/components/shared/page-primitives";
@@ -24,6 +25,7 @@ export function Roles() {
   const list = useListQuery();
 
   const [removing, setRemoving] = useState<Role | null>(null);
+  const [addingPreset, setAddingPreset] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["roles", list.query],
@@ -202,12 +204,18 @@ export function Roles() {
         subtitle={isLoading ? "—" : t("roles.count", { count: totalCount })}
         action={
           can("role.create") ? (
-            <Button asChild>
-              <Link href="/roles/create">
-                <Plus className="size-4" />
-                {t("roles.new")}
-              </Link>
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" onClick={() => setAddingPreset(true)}>
+                <Layers className="size-4" />
+                {t("roles.preset.open")}
+              </Button>
+              <Button asChild>
+                <Link href="/roles/create">
+                  <Plus className="size-4" />
+                  {t("roles.new")}
+                </Link>
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -231,6 +239,10 @@ export function Roles() {
         onPageSizeChange={list.setPageSize}
         onClearFilters={list.clearFilters}
       />
+
+      {addingPreset && (
+        <AddPresetRoleDialog onClose={() => setAddingPreset(false)} />
+      )}
 
       {removing && (
         <ConfirmDialog

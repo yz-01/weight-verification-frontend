@@ -121,3 +121,49 @@ describe("an archived delivery's 验收", () => {
     expect(html).not.toContain("验收通过");
   });
 });
+
+/**
+ * 2026-10-15 I23: the phone may leave 「未填供应商」. The office sees it, and
+ * 「补供应商」 sits beside 验收 - which the server refuses until it is filled.
+ */
+describe("a delivery the phone left 「未填供应商」", () => {
+  const withSupplier = (fields: Record<string, unknown>) =>
+    (client: import("@tanstack/react-query").QueryClient) =>
+      client.setQueryData(["receipts", "detail", "r1"], { ...receipt, ...fields });
+
+  it("offers 「补供应商」 beside 验收, opening the correction on the supplier", () => {
+    const html = renderDetail(<ViewReceipt id="r1" />, withSupplier({ supplier: null, supplier_name: "" }));
+    expect(html).toContain("补供应商");
+    expect(html).toContain('href="/receipts/r1/edit?fill=supplier"');
+    expect(html).toContain("未填供应商");
+    expect(html).toContain("验收通过");
+  });
+
+  it("asks nothing more once the supplier is filled in, and the trail says 未填 → the supplier", () => {
+    const html = renderDetail(
+      <ViewReceipt id="r1" />,
+      withSupplier({
+        supplier: "s1",
+        supplier_name: "Ready Mix",
+        correction_trail: {
+          original: { id: "r0", receipt_no: "RC-P1-261008-000", business_at: "2026-10-08T02:00:00Z" },
+          corrections: [
+            {
+              id: "r1",
+              receipt_no: "RC-P1-261008-001",
+              supersedes_receipt_no: "RC-P1-261008-000",
+              corrected_by_name: "Office",
+              corrected_at: "2026-10-09T02:00:00Z",
+              reason: "补供应商（现场未填）",
+              changes: { supplier: ["", "Ready Mix"] },
+            },
+          ],
+        },
+      }),
+    );
+    expect(html).not.toContain("fill=supplier");
+    expect(html).toContain("Ready Mix");
+    // 「供应商：未填 → Ready Mix」, the unfilled side struck through.
+    expect(html).toMatch(/供应商(<!-- -->)?：<span[^>]*>未填<\/span>/);
+  });
+});

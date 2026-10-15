@@ -230,14 +230,19 @@ export function Receipts() {
             {t("receipts.field.supplier")}
           </span>
         ),
-        cell: ({ row }) => (
-          <span
-            className="block max-w-45 truncate"
-            title={row.original.supplier_name}
-          >
-            {row.original.supplier_name}
-          </span>
-        ),
+        // 「未填供应商」 in grey (2026-10-15 I23): the phone left it out, and
+        // the office fills it in from the delivery's 「补供应商」.
+        cell: ({ row }) =>
+          row.original.supplier ? (
+            <span
+              className="block max-w-45 truncate"
+              title={row.original.supplier_name}
+            >
+              {row.original.supplier_name}
+            </span>
+          ) : (
+            <span className="whitespace-nowrap text-muted-foreground">{t("receipts.supplierUnfilled")}</span>
+          ),
       },
       // 指定厂商（MR） (2026-10 D1; 2026-10-10), orange 「非指定厂商」 when
       // the category designates others. Shown only when a row in view names
@@ -375,7 +380,8 @@ export function Receipts() {
         { key: "receipt_no", label: t("receipts.field.receiptNo") },
         { key: "business_at", label: t("receipts.field.businessAt") },
         { key: "project_code", label: t("receipts.field.project") },
-        { key: "supplier_name", label: t("receipts.field.supplier") },
+        // A delivery with no supplier yet reads 「未填供应商」 in the file too (I23).
+        { key: "supplier_name", label: t("receipts.field.supplier"), values: { "": t("receipts.supplierUnfilled") } },
         { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
         { key: "category_name", label: t("receipts.field.category") },
         {
@@ -426,7 +432,7 @@ export function Receipts() {
       />
 
       <MaterialTabs>
-        <SupplierDateListFilter list={list} showManufacturer />
+        <SupplierDateListFilter list={list} showManufacturer showUnfilled />
       </MaterialTabs>
       {tab === "totals" ? (
         <NetTotalsView

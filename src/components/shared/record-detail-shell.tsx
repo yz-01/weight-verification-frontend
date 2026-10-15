@@ -31,14 +31,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Phone,
-  RotateCcw,
+  Shrink,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
@@ -55,6 +55,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useArrowKeys } from "@/hooks/use-arrow-keys";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import type { RecordedBy } from "@/interfaces/recorder";
 import type { ChatRecordKind } from "@/lib/record-chat";
@@ -107,8 +108,27 @@ export interface ShellSignature {
   url: string;
 }
 
+/** 100% is the whole photo fitted in the frame (I21, ID44); 400% the most. */
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
+
+interface Size {
+  width: number;
+  height: number;
+}
+
+/**
+ * The size a photo is drawn at to show all of it in the frame (I21, ID44):
+ * its shape kept, neither side over the frame, never blown up past its own
+ * pixels. The viewer's 100%; zooming multiplies this.
+ */
+export function fitSize(photo: Size, frame: Size): Size {
+  if (photo.width <= 0 || photo.height <= 0 || frame.width <= 0 || frame.height <= 0) {
+    return { width: 0, height: 0 };
+  }
+  const scale = Math.min(frame.width / photo.width, frame.height / photo.height, 1);
+  return { width: photo.width * scale, height: photo.height * scale };
+}
 
 function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => void }) {
   return (
@@ -557,10 +577,15 @@ export function RecordDetailShell({
 /**
  * One photograph, zoomable (「点进去照片之后可以放大缩小」).
  *
- * Zoom with the buttons; once enlarged the frame scrolls, so the reader pans
- * by scrolling - no gesture library, nothing to learn. Neighbours
- * stay one press away because a delivery note is usually checked against the
- * one before it. Preview, print and download sit under the picture (D-236).
+ * It opens whole (I21, ID44 - 「点照片只显示完整照片，现有的照片太大了」): the
+ * photo is fitted into the frame, its shape kept, with no scroll bar, and
+ * that is 100%. Zooming is relative to that whole view - 150% to 400% - and
+ * only then does the frame scroll, so the reader pans by scrolling: no
+ * gesture library, nothing to learn. 「整张显示」 and turning to another photo
+ * both go back to the whole photo. Neighbours stay one press away because a
+ * delivery note is usually checked against the one before it. Preview,
+ * print and download sit under the picture (D-236). One viewer for every
+ * screen, so all of them changed together (ID22's rule).
  */
 export function PhotoViewer({
   photos,
@@ -577,14 +602,45 @@ export function PhotoViewer({
 }) {
   const t = useTranslations("recordShell");
   const df = useDateFormat();
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(MIN_ZOOM);
   const photo = photos[index];
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [frame, setFrame] = useState<Size | null>(null);
+  // The photo's own pixels, kept with the address they belong to so the
+  // next photo is never sized by the last one's shape.
+  const [natural, setNatural] = useState<(Size & { url: string }) | null>(null);
   const step = (by: number) =>
     setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current + by)));
   const go = (by: number) => {
-    setZoom(1);
+    setZoom(MIN_ZOOM);
     onIndex((index + by + photos.length) % photos.length);
   };
+  // ← and → turn the photographs too (I9: over a daily report they are the photo's, not the report's).
+  useArrowKeys(go, { enabled: photos.length > 1 });
+
+  useEffect(() => {
+    const node = frameRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+    const watcher = new ResizeObserver(([entry]) => {
+      if (entry) setFrame({ width: entry.contentRect.width, height: entry.contentRect.height });
+    });
+    watcher.observe(node);
+    return () => watcher.disconnect();
+  }, []);
+
+  const whole = zoom <= MIN_ZOOM;
+  const fitted =
+    frame && natural && natural.url === photo.url ? fitSize(natural, frame) : null;
+  // Enlarged: the fitted size times the zoom, so 200% is twice the whole
+  // photo. Until the frame has been measured, the frame's width stands in.
+  const enlarged: React.CSSProperties = fitted
+    ? {
+        width: `${fitted.width * zoom}px`,
+        height: `${fitted.height * zoom}px`,
+        maxWidth: "none",
+        maxHeight: "none",
+      }
+    : { width: `${zoom * 100}%`, height: "auto", maxWidth: "none", maxHeight: "none" };
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -602,15 +658,37 @@ export function PhotoViewer({
                 ].join(" · ")}
           </DialogDescription>
         </DialogHeader>
-        <div className="photo-hatch max-h-[65dvh] min-h-[40dvh] overflow-auto rounded-xl border border-panel-border">
-          {/* A plain img so the zoom is a width, which scrolls; the stamped
-              copy is shown, because it is the evidence. */}
+        <div
+          ref={frameRef}
+          data-photo-frame={whole ? "whole" : "zoomed"}
+          className={cn(
+            "photo-hatch flex h-[60dvh] rounded-xl border border-panel-border sm:h-[70dvh]",
+            whole ? "items-center justify-center overflow-hidden" : "overflow-auto",
+          )}
+        >
+          {/* A plain img: whole, the browser fits it (object-contain inside
+              the frame); enlarged, it is a size, which scrolls. The stamped
+              copy is shown, because it is the evidence. `m-auto` centres it
+              while it is smaller than the frame and lets it scroll from its
+              edge once it is larger. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            key={photo.url}
             src={photo.url}
             alt={photo.label}
-            style={{ width: `${zoom * 100}%`, maxWidth: "none" }}
-            className="mx-auto block h-auto"
+            data-photo-zoom={Math.round(zoom * 100)}
+            onLoad={(event) =>
+              setNatural({
+                url: photo.url,
+                width: event.currentTarget.naturalWidth,
+                height: event.currentTarget.naturalHeight,
+              })
+            }
+            style={whole ? undefined : enlarged}
+            className={cn(
+              "block",
+              whole ? "max-h-full max-w-full object-contain" : "m-auto object-contain",
+            )}
           />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -641,10 +719,12 @@ export function PhotoViewer({
             <Button
               size="sm"
               variant="ghost"
-              title={t("zoomReset")}
-              onClick={() => setZoom(1)}
+              title={t("fitWhole")}
+              data-photo-fit-whole
+              onClick={() => setZoom(MIN_ZOOM)}
             >
-              <RotateCcw />
+              <Shrink />
+              {t("fitWhole")}
             </Button>
           </div>
           <EvidenceFileActions

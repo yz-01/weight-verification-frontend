@@ -35,3 +35,17 @@ export function roleDescription(
   const key = `roles.systemDescription.${role.code}`;
   return t.has(key) ? t(key) : role.description;
 }
+
+/**
+ * A role named on someone else's row - the user table, the project team
+ * picker, a permit's approver list - where only its code and stored name
+ * travel with the person. Same rule as `roleName`.
+ */
+export function roleLabel(
+  code: string | null | undefined,
+  name: string | null | undefined,
+  t: Translate,
+): string {
+  if (!code) return name ?? "";
+  return roleName({ code, name: name ?? "" }, t);
+}

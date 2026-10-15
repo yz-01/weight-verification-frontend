@@ -13,9 +13,13 @@
  */
 export type ClearanceKind = "all" | "disposal" | "dispatch";
 
-/** What each kind's list filters on besides project and `counted`. */
+/**
+ * What each kind's list filters on besides project and `counted`. 工地清运's
+ * clearance company and dates (I27) too: the header's 数量 / 车次 / 重量 is
+ * then that company's for that period - what is settled with it.
+ */
 const OWN_FILTERS: Record<"disposal" | "dispatch", readonly string[]> = {
-  disposal: ["status"],
+  disposal: ["status", "supplier", "date_from", "date_to"],
   dispatch: ["state", "waste_type"],
 };
 

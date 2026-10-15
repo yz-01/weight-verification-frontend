@@ -11,6 +11,7 @@ import {
   hubDestination,
   isRouteAllowed,
   navLeaves,
+  navTabOf,
   visibleNavigation,
   type FeatureNavChild,
 } from "./navigation";
@@ -218,11 +219,12 @@ describe("the sidebar's waiting counts", () => {
       expect.arrayContaining(["waste_outgoing", "site_disposals"]),
     );
     expect(badgeKeysFor(entry("documents"))).toEqual(expect.arrayContaining(["approvals"]));
+    // 门岗记录 moved to 工地门禁 (I25), and its count with it.
     expect(badgeKeysFor(entry("hazard_rectification"))).toEqual([
       "hazard_rectification",
       "safety",
-      "gate_records",
     ]);
+    expect(badgeKeysFor(entry("site_access"))).toEqual(["site_access", "gate_records"]);
   });
 
   it("lets an entry name its own count when summing its pages would be wrong", () => {
@@ -584,5 +586,82 @@ describe("entries open their pages directly", () => {
     const one = trace(["report_center", "material_cost_report"]).find((item) => item.feature === "report_center");
     expect(one?.children?.find((child) => child.children?.length)?.href).toBe("/reports/material-cost");
     expect(isRouteAllowed("MSE_TRACE", ["material_cost_report"], "/reports/material-cost")).toBe(true);
+  });
+});
+
+/*
+ * I25 (ID61): 「请将以下 5 个现有页面统一放在左侧『工地门禁』分类下面」, in the
+ * client's order, and 门岗记录 no longer under 整改 / EHS. Only the menu moved:
+ * the pages, their addresses and who may open them are as they were.
+ */
+describe("工地门禁 holds the guard's five pages (I25)", () => {
+  const entry = (features: string[]) =>
+    visibleNavigation("MSE_TRACE", features)
+      .flatMap((group) => group.items)
+      .find((item) => item.feature === "site_access");
+
+  it("lists them in the client's order", () => {
+    const access = PORTAL_NAVIGATION.MSE_TRACE.find((item) => item.feature === "site_access");
+    expect(access?.children?.map((child) => [child.labelKey, child.href])).toEqual([
+      ["nav.submodule.gatePhotoRecords", "/gate-records?tab=photos"],
+      ["nav.submodule.gateIssues", "/gate-records?tab=issues"],
+      ["nav.submodule.siteAccessPasses", "/site-access"],
+      ["nav.submodule.gateScanning", "/site-access?tab=gate"],
+      ["nav.submodule.visitorRecords", "/visitor-records"],
+    ]);
+    // Keys stay unique and numbered in that order.
+    expect(access?.children?.map((child) => child.key)).toEqual([
+      "17.2.1",
+      "17.2.2",
+      "17.2.3",
+      "17.2.4",
+      "17.2.5",
+    ]);
+  });
+
+  it("takes 门岗记录 out of 整改 / EHS", () => {
+    const hrefs = PORTAL_NAVIGATION.MSE_TRACE.filter((item) => item.feature !== "site_access").flatMap(
+      (item) => navLeaves(item.children).map((child) => child.href),
+    );
+    expect(hrefs.some((href) => href.startsWith("/gate-records"))).toBe(false);
+    const safety = PORTAL_NAVIGATION.MSE_TRACE.find((item) => item.feature === "hazard_rectification");
+    expect(safety?.children?.map((child) => child.href)).toEqual(["/hazard-rectifications", "/permits"]);
+  });
+
+  it("shows each page to whoever could open it before, and opens on 日常拍照记录", () => {
+    expect(entry(["site_access", "gate_records"])?.children?.map((child) => child.href)).toEqual([
+      "/gate-records?tab=photos",
+      "/gate-records?tab=issues",
+      "/site-access",
+      "/site-access?tab=gate",
+      "/visitor-records",
+    ]);
+    expect(entry(["site_access", "gate_records"])?.href).toBe("/gate-records?tab=photos");
+    // Without the gate records feature, the two gate pages are not offered.
+    expect(entry(["site_access"])?.children?.map((child) => child.href)).toEqual([
+      "/site-access",
+      "/site-access?tab=gate",
+      "/visitor-records",
+    ]);
+    expect(entry(["gate_records"])?.children?.map((child) => child.href)).toEqual([
+      "/gate-records?tab=photos",
+      "/gate-records?tab=issues",
+    ]);
+    expect(entry([])).toBeUndefined();
+    // The addresses open exactly as before.
+    expect(isRouteAllowed("MSE_TRACE", ["gate_records"], "/gate-records")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["site_access"], "/visitor-records")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["safety"], "/gate-records")).toBe(false);
+    expect(hubDestination("MSE_TRACE", "site_access", ["site_access", "gate_records"])).toBe(
+      "/gate-records?tab=photos",
+    );
+  });
+
+  it("lights the entry of the tab on screen, 日常拍照记录 when the address names none", () => {
+    expect(navTabOf("/gate-records", new URLSearchParams(""))).toBe("photos");
+    expect(navTabOf("/gate-records", new URLSearchParams("tab=issues&issue_status=OPEN"))).toBe("issues");
+    expect(navTabOf("/gate-records", new URLSearchParams("gate_incident=g1"))).toBe("photos");
+    expect(navTabOf("/site-access", new URLSearchParams(""))).toBeNull();
+    expect(navTabOf("/site-access", new URLSearchParams("tab=gate"))).toBe("gate");
   });
 });

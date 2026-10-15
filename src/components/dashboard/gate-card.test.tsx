@@ -63,7 +63,13 @@ describe("the dashboards' gate card (HD10)", () => {
     const html = render("p1");
     expect(html).toContain("/gate-records?tab=issues&amp;gate_incident=g1&amp;project=p1");
     expect(html).toContain("/gate-records?tab=issues&amp;issue_status=OPEN&amp;project=p1");
-    expect(html).toMatch(/\/gate-records\?tab=photos&amp;date_from=\d{4}-\d{2}-\d{2}&amp;date_to=/);
+    // I25 + I15: 今日照片 opens 日常拍照记录 on today's date and time range.
+    expect(html).toMatch(
+      /\/gate-records\?tab=photos&amp;occurred_from=\d{4}-\d{2}-\d{2}T00:00&amp;occurred_to=\d{4}-\d{2}-\d{2}T23:59&amp;project=p1/,
+    );
+    // 门岗记录 opens 日常拍照记录 too.
+    expect(html).toContain('href="/gate-records?tab=photos&amp;project=p1"');
+    expect(html).not.toContain("date_from");
   });
 
   it("is not there for someone who may not see site access", () => {

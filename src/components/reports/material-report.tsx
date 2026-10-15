@@ -51,6 +51,7 @@ import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
 import { materialExportSubtitle } from "@/lib/report-menu";
+import { UNFILLED_SUPPLIER, supplierShown } from "@/lib/receipt-supplier";
 import { cn } from "@/lib/utils";
 import {
   exportReceipts,
@@ -88,6 +89,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     search: list.search || undefined,
   };
   const unitValues = useUnitExportValues();
+  // A delivery with no supplier yet prints 「未填供应商」 (I23).
+  const unfilledSupplierValues = { "": t("receipts.supplierUnfilled") };
 
   const summary = useQuery({
     queryKey: ["receipts", "summary", mode, filters],
@@ -100,9 +103,12 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       ? t("common.emptyValue")
       : columns.data?.results.find((row) => row.id === filters.category)?.name
     : t("reportSelector.allMaterials");
-  const supplierName = filters.supplier
-    ? summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name
-    : t("reportSelector.allSuppliers");
+  // 「未填供应商」 (2026-10-15 I23) is a level of its own: `supplier=none`.
+  const supplierName = !filters.supplier
+    ? t("reportSelector.allSuppliers")
+    : filters.supplier === UNFILLED_SUPPLIER
+      ? t("receipts.supplierUnfilled")
+      : summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name;
   const level = [materialName ?? "…", supplierName ?? "…"].join(" › ");
   const chosen = [t(`materialReports.${mode}.title`), level].join(" › ");
 
@@ -139,7 +145,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "receipt_no", label: t("receipts.field.receiptNo") },
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
-              { key: "supplier_name", label: t("receipts.field.supplier") },
+              { key: "supplier_name", label: t("receipts.field.supplier"), values: unfilledSupplierValues },
               // DO and plate head every delivery (2026-10 C12).
               { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
               { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
@@ -158,7 +164,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "receipt_no", label: t("receipts.field.receiptNo") },
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
-              { key: "supplier_name", label: t("receipts.field.supplier") },
+              { key: "supplier_name", label: t("receipts.field.supplier"), values: unfilledSupplierValues },
               // DO and plate head every delivery (2026-10 C12).
               { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
               { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
@@ -212,6 +218,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             value={{ supplier: list.filters.supplier }}
             onChange={(next) => list.setFilter("supplier", next.supplier)}
             showDates={false}
+            showUnfilled
           />
         </FilterField>
         <ReportChoiceField
@@ -371,7 +378,9 @@ function ReportRecords({
             <TableRow key={row.id}>
               <TableCell className="tabular text-muted-foreground">{df.dateTime(row.captured_at)}</TableCell>
               <TableCell className="tabular font-medium">{row.receipt_no}</TableCell>
-              <TableCell>{row.supplier_name}</TableCell>
+              <TableCell className={row.supplier ? undefined : "text-muted-foreground"}>
+                {supplierShown(row.supplier_name, t("receipts.supplierUnfilled"))}
+              </TableCell>
               {showManufacturer && (
                 <TableCell>
                   <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
@@ -677,8 +686,11 @@ function CostReport({
             </TableHeader>
             <TableBody>
               {data.by_supplier.map((row) => (
-                <TableRow key={row.supplier}>
-                  <TableCell className="font-medium">{row.supplier_name}</TableCell>
+                <TableRow key={row.supplier ?? UNFILLED_SUPPLIER}>
+                  {/* The deliveries 「未填供应商」 (I23): their own line, nobody's. */}
+                  <TableCell className={cn("font-medium", !row.supplier && "text-muted-foreground")}>
+                    {supplierShown(row.supplier_name, t("receipts.supplierUnfilled"))}
+                  </TableCell>
                   <TableCell className="tabular text-right">{row.receipts}</TableCell>
                   <TableCell className="tabular text-right">{money(row.total_cost)}</TableCell>
                   <TableCell className="tabular text-right">

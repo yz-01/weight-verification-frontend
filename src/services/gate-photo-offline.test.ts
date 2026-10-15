@@ -121,4 +121,47 @@ describe("a gate photo taken offline", () => {
     expect(data.getAll("members")).toEqual(["u2"]);
     expect(data.get("client_event_id")).toBe("gate-issue-1");
   });
+
+  it("「发送并沟通」 online hands back the record, so its conversation opens at once (I14)", async () => {
+    vi.stubGlobal("navigator", { onLine: true });
+    post.mockImplementation(async () => ({ id: "gate-issue", is_issue: true }));
+
+    const result = await queue.submitGateIssueOfflineAware("guard", {
+      project: "p1",
+      is_issue: true,
+      members: ["u2"],
+      client_event_id: "gate-issue-2",
+      photos: [{ file: shot(), captured_at: "2026-10-13T01:00:00.000Z", client_event_id: "gate-c" }],
+    });
+
+    expect(result).toEqual({ status: "uploaded", incident: { id: "gate-issue", is_issue: true } });
+    expect(store.size).toBe(0);
+    const [url, data] = post.mock.calls[0] as [string, FormData];
+    expect(url).toBe("/api/gate-incidents/create_gate_incident/");
+    expect(data.get("is_issue")).toBe("true");
+    expect(data.getAll("members")).toEqual(["u2"]);
+    // Nothing typed: no first message is sent at all.
+    expect(data.has("first_message")).toBe(false);
+  });
+
+  it("「发送并沟通」 with no signal waits on the phone and goes once, people and all", async () => {
+    vi.stubGlobal("navigator", { onLine: false });
+
+    const result = await queue.submitGateIssueOfflineAware("guard", {
+      project: "p1",
+      is_issue: true,
+      members: ["u2"],
+      client_event_id: "gate-issue-3",
+      photos: [{ file: shot(), captured_at: "2026-10-13T01:00:00.000Z", client_event_id: "gate-d" }],
+    });
+
+    expect(result).toEqual({ status: "queued" });
+    expect(post).not.toHaveBeenCalled();
+    vi.stubGlobal("navigator", { onLine: true });
+    await queue.flushOfflineJobs("guard");
+    expect(post).toHaveBeenCalledTimes(1);
+    const [, data] = post.mock.calls[0] as [string, FormData];
+    expect(data.get("client_event_id")).toBe("gate-issue-3");
+    expect(data.getAll("members")).toEqual(["u2"]);
+  });
 });
