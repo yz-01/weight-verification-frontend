@@ -1175,6 +1175,27 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/progress",
           "report_center",
         ),
+        // 工程进度's own reports (I8, ID24): reached from 工程进度 in
+        // 【选择报表】 (`PROGRESS_MENU`, lib/report-menu), not from the first
+        // level; listed here so the routes open.
+        {
+          ...child(
+            "13.2.4A",
+            "nav.submodule.dailyReport",
+            "/reports/contractor/daily_report",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
+        {
+          ...child(
+            "13.2.4B",
+            "nav.submodule.progressSummary",
+            "/reports/contractor/progress_summary",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
         child(
           "13.2.5",
           "nav.submodule.safetyIncidents",
@@ -1205,12 +1226,16 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/recycling",
           "report_center",
         ),
-        child(
-          "13.2.10",
-          "nav.submodule.schedulePlanning",
-          "/reports/contractor/schedule",
-          "report_center",
-        ),
+        // 施工计划 moved under 工程进度 (I8, ID24); the address stays.
+        {
+          ...child(
+            "13.2.10",
+            "nav.submodule.schedulePlanning",
+            "/reports/contractor/schedule",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
         // 项目资料 is the document archive, by 文档大分类 → 子分类 (D6). The
         // archive's own read permission still applies.
         child(

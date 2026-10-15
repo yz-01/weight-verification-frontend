@@ -55,6 +55,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useArrowKeys } from "@/hooks/use-arrow-keys";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import type { RecordedBy } from "@/interfaces/recorder";
 import type { ChatRecordKind } from "@/lib/record-chat";
@@ -585,6 +586,8 @@ export function PhotoViewer({
     setZoom(1);
     onIndex((index + by + photos.length) % photos.length);
   };
+  // ← and → turn the photographs too (I9: over a daily report they are the photo's, not the report's).
+  useArrowKeys(go, { enabled: photos.length > 1 });
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>

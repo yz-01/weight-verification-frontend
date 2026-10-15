@@ -6292,7 +6292,17 @@
       "document_no": "No. dokumen",
       "subcategory": "Subkategori",
       "version_count": "Versi",
-      "created_at": "Dimuat naik pada"
+      "created_at": "Dimuat naik pada",
+      "name": "Nama laporan",
+      "report_date": "Hari pertama",
+      "end_date": "Hari terakhir",
+      "author": "Ditulis oleh",
+      "record_count": "Rekod",
+      "body": "Teks",
+      "generated_at": "Dijana",
+      "block_count": "Blok",
+      "updated_by": "Terakhir disunting oleh",
+      "updated_at": "Kemas kini terakhir"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -6304,7 +6314,9 @@
       "safety": "Jejak isu keselamatan daripada tugasan hingga pengesahan.",
       "schedule": "Bandingkan jadual disahkan dengan kemajuan sebenar tapak.",
       "target": "Bandingkan kemajuan dirancang dan sebenar serta aktiviti projek.",
-      "documents": "Dokumen projek mengikut kategori, dengan versi dan siapa yang memuat naik."
+      "documents": "Dokumen projek mengikut kategori, dengan versi dan siapa yang memuat naik.",
+      "daily_report": "Laporan harian mengikut tarikh: teks penuh setiap laporan, rekod dan fotonya. Dalam PDF setiap laporan bermula di halaman baharu, fotonya bertera air.",
+      "progress_summary": "Ringkasan kemajuan yang dikemas kini dalam tempoh ini. Dalam PDF setiap ringkasan bermula di halaman baharu."
     },
     "empty": "Tiada rekod sepadan dengan projek dan tarikh ini.",
     "filter": {
@@ -6324,7 +6336,9 @@
         "schedule": "Kod WBS atau nama tugasan",
         "target": "Nama sasaran",
         "photos": "Nama fail, sumber atau pemuat naik",
-        "documents": "No. dokumen, tajuk atau kata kunci"
+        "documents": "No. dokumen, tajuk atau kata kunci",
+        "daily_report": "Nama laporan, teks atau penulis",
+        "progress_summary": "Tajuk atau penulis"
       },
       "noMatch": "Tiada pilihan yang sepadan",
       "submittedBy": "Dihantar oleh",
@@ -6372,11 +6386,21 @@
       "safety": "Laporan keselamatan dan pembetulan",
       "schedule": "Laporan dirancang berbanding sebenar",
       "target": "Laporan sasaran dan pencapaian",
-      "documents": "Laporan rekod projek"
+      "documents": "Laporan rekod projek",
+      "daily_report": "Laporan harian",
+      "progress_summary": "Ringkasan kemajuan"
     },
     "what": {
       "filterOptions": "pilihan penapis",
-      "projects": "senarai projek"
+      "projects": "senarai projek",
+      "latestDay": "laporan harian terkini"
+    },
+    "days": {
+      "title": "Laporan harian lepas",
+      "help": "Pilih tarikh dahulu; laporan harian bagi tarikh itu kemudian disenaraikan.",
+      "show": "Papar",
+      "choose": "Pilih hari pertama dan hari terakhir dahulu.",
+      "backwards": "Hari pertama tidak boleh selepas hari terakhir."
     }
   },
   "crm": {
@@ -7636,7 +7660,8 @@
       "package_nothing_returned": "Tiada yang dipulangkan.",
       "package_item_not_returned": "Hanya rekod yang dipulangkan boleh dihantar semula.",
       "package_source_missing": "Rekod di sebalik item yang dipulangkan tidak lagi boleh dibaca.",
-      "package_link_not_found": "Tidak dijumpai"
+      "package_link_not_found": "Tidak dijumpai",
+      "export_too_many_photos": "Eksport ini mengandungi {count} foto; satu fail paling banyak {limit}. Pendekkan tarikh dan eksport semula."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -10682,7 +10707,9 @@
       "technical": "Pengurusan teknikal",
       "permits": "Permit kerja",
       "gateRecords": "Rekod Pintu",
-      "visitorRecords": "Rekod Pelawat"
+      "visitorRecords": "Rekod Pelawat",
+      "dailyReport": "Laporan harian",
+      "progressSummary": "Ringkasan kemajuan"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -13857,7 +13884,11 @@
       "title": "Geofence tapak",
       "undoPoint": "Undur titik",
       "useGps": "Guna GPS semasa",
-      "useProject": "Guna lokasi projek"
+      "useProject": "Guna lokasi projek",
+      "editSwitch": "Edit geofence",
+      "editHint": "Hidupkan untuk mengubah pusat, menambah atau menyeret titik pada peta. Ia dimatikan semula selepas disimpan.",
+      "locked": "Peta kini untuk dilihat sahaja. Untuk mengubah geofence, hidupkan “Edit geofence” dahulu.",
+      "backToFence": "Kembali ke geofence"
     },
     "homePage": {
       "dashboard": "Dashboard",
@@ -16263,7 +16294,11 @@
       "OTHER": "Lain-lain"
     },
     "categoriesFailed": "Senarai kategori tidak dapat dimuatkan.",
-    "noCategories": "Belum ada kategori - klik nama laporan untuk membukanya."
+    "noCategories": "Belum ada kategori - klik nama laporan untuk membukanya.",
+    "progressMenu": {
+      "dailyReport": "Laporan harian",
+      "pastDailyReports": "Laporan harian lepas"
+    }
   },
   "wasteClearance": {
     "title": "Pembersihan sisa",
@@ -16707,7 +16742,16 @@
       "photosCount": "Foto",
       "author": "Ditulis oleh",
       "recordDeleted": "Rekod dipadam",
-      "maxDays": "Satu laporan harian meliputi paling banyak {days} hari."
+      "maxDays": "Satu laporan harian meliputi paling banyak {days} hari.",
+      "generatedAt": "Dijana {when}",
+      "book": {
+        "position": "{n} daripada {total}",
+        "previous": "Sebelumnya",
+        "next": "Seterusnya",
+        "first": "Ini laporan pertama.",
+        "last": "Ini laporan terakhir.",
+        "waiting": "Sedang membuka laporan ini, sebentar."
+      }
     },
     "summary": {
       "new": "Ringkasan baharu",
@@ -17216,5 +17260,9 @@
     "nameHelp": "Nama anda direkodkan pada pengesahan, pemulangan, tandatangan dan mesej. Pelayar ini mengingatinya.",
     "name": "Nama",
     "continue": "Teruskan"
+  },
+  "mapFrame": {
+    "fullscreen": "Skrin penuh",
+    "exitFullscreen": "Keluar skrin penuh"
   }
 }

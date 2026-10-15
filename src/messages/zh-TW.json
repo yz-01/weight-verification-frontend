@@ -6292,7 +6292,17 @@
       "document_no": "文檔編號",
       "subcategory": "子分類",
       "version_count": "版本數",
-      "created_at": "上傳時間"
+      "created_at": "上傳時間",
+      "name": "日報名稱",
+      "report_date": "開始日期",
+      "end_date": "結束日期",
+      "author": "撰寫人",
+      "record_count": "記錄數",
+      "body": "內容",
+      "generated_at": "生成時間",
+      "block_count": "內容塊數",
+      "updated_by": "最後修改人",
+      "updated_at": "最後更新"
     },
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
@@ -6304,7 +6314,9 @@
       "safety": "追蹤安全問題從分配、整改到驗收的過程。",
       "schedule": "對比當前確認計劃與現場實際進度。",
       "target": "對比計劃和實際進度及項目活動指標。",
-      "documents": "按文檔分類查看項目文件、版本與上傳人。"
+      "documents": "按文檔分類查看項目文件、版本與上傳人。",
+      "daily_report": "按日期看日報告：每篇的全文、收進的記錄和照片。匯出 PDF 時每篇從新的一頁開始，照片帶浮水印。",
+      "progress_summary": "這段期間更新過的項目進度摘要。匯出 PDF 時每份從新的一頁開始。"
     },
     "empty": "此項目和日期範圍沒有符合的記錄。",
     "filter": {
@@ -6324,7 +6336,9 @@
         "schedule": "WBS 編號或任務名稱",
         "target": "目標名稱",
         "photos": "文件名、來源或上傳人員",
-        "documents": "文件編號、標題或關鍵字"
+        "documents": "文件編號、標題或關鍵字",
+        "daily_report": "日報名稱、內容或撰寫人",
+        "progress_summary": "標題或撰寫人"
       },
       "noMatch": "沒有符合的選項",
       "submittedBy": "提交人",
@@ -6372,11 +6386,21 @@
       "safety": "安全與整改報表",
       "schedule": "計劃與實際對比報表",
       "target": "目標與達成報表",
-      "documents": "項目資料報表"
+      "documents": "項目資料報表",
+      "daily_report": "日報告",
+      "progress_summary": "項目進度摘要"
     },
     "what": {
       "filterOptions": "篩選選項",
-      "projects": "項目列表"
+      "projects": "項目列表",
+      "latestDay": "最近一天的日報告"
+    },
+    "days": {
+      "title": "往日報告",
+      "help": "先選要看的日期範圍，再列出這幾天的日報告。",
+      "show": "查看",
+      "choose": "請先選開始和結束日期。",
+      "backwards": "開始日期不能晚於結束日期。"
     }
   },
   "crm": {
@@ -7636,7 +7660,8 @@
       "package_nothing_returned": "沒有被退回的資料。",
       "package_item_not_returned": "只有被退回的資料可以重新提交。",
       "package_source_missing": "有一條退回資料的原記錄讀不到了。",
-      "package_link_not_found": "找不到"
+      "package_link_not_found": "找不到",
+      "export_too_many_photos": "這次匯出共有 {count} 張照片，一次最多 {limit} 張。請縮短日期範圍後再匯出。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -10682,7 +10707,9 @@
       "technical": "技術管理",
       "permits": "施工准證",
       "gateRecords": "門崗記錄",
-      "visitorRecords": "訪客進退場記錄"
+      "visitorRecords": "訪客進退場記錄",
+      "dailyReport": "日報告",
+      "progressSummary": "項目進度摘要"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -13857,7 +13884,11 @@
       "title": "工地電子圍欄",
       "undoPoint": "撤銷上一個點",
       "useGps": "獲取當前 GPS",
-      "useProject": "使用項目位置"
+      "useProject": "使用項目位置",
+      "editSwitch": "編輯圍欄",
+      "editHint": "打開後才能在地圖上改圓心、加點或拖點；儲存後會自動關上。",
+      "locked": "地圖現在只看不改。要修改圍欄，先打開「編輯圍欄」。",
+      "backToFence": "回到圍欄"
     },
     "homePage": {
       "dashboard": "Dashboard 首頁",
@@ -16263,7 +16294,11 @@
       "OTHER": "其他"
     },
     "categoriesFailed": "無法載入分類列表。",
-    "noCategories": "此報表還沒有分類，點報表名稱直接打開。"
+    "noCategories": "此報表還沒有分類，點報表名稱直接打開。",
+    "progressMenu": {
+      "dailyReport": "日報告",
+      "pastDailyReports": "往日報告"
+    }
   },
   "wasteClearance": {
     "title": "垃圾清運",
@@ -16707,7 +16742,16 @@
       "photosCount": "照片數",
       "author": "撰寫人",
       "recordDeleted": "記錄已刪除",
-      "maxDays": "一份日報告最多 {days} 天。"
+      "maxDays": "一份日報告最多 {days} 天。",
+      "generatedAt": "生成於 {when}",
+      "book": {
+        "position": "第 {n} / 共 {total} 篇",
+        "previous": "上一篇",
+        "next": "下一篇",
+        "first": "這已經是第一篇。",
+        "last": "這已經是最後一篇。",
+        "waiting": "正在打開這一篇，請稍候。"
+      }
     },
     "summary": {
       "new": "新建摘要",
@@ -17216,5 +17260,9 @@
     "nameHelp": "名字會記錄在你的確認、退回、簽收和留言上。這個瀏覽器會記住，下次不用再填。",
     "name": "名字",
     "continue": "繼續"
+  },
+  "mapFrame": {
+    "fullscreen": "全螢幕",
+    "exitFullscreen": "退出全螢幕"
   }
 }

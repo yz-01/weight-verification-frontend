@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { createElement, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+
+import { MapFrame } from "@/components/shared/map-frame";
 import { MAP_PRIMARY } from "@/lib/map-palette";
 
 import {
@@ -68,6 +70,12 @@ interface LocationMapProps {
   onMarkerClick?: (id: string) => void;
   /** How close to zoom on a lone point (street level unless asked). */
   singlePointZoom?: number;
+  /**
+   * A button that shows everything on the map again, named for what it
+   * shows (「回到围栏」, I7). With `preserveViewOnDataUpdate`, the one way the
+   * map is re-centred after it first opens.
+   */
+  fitLabel?: string;
 }
 
 const DEFAULT_CENTER: [number, number] = [3.139, 101.6869];
@@ -84,8 +92,13 @@ export function LocationMap({
   fitBoundsKey,
   onMarkerClick,
   singlePointZoom = 16,
+  fitLabel,
 }: LocationMapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  // The map's node, inside the frame that can fill the screen (I7). Held as
+  // state so the map is made once the node exists.
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  // Shows everything drawn again (「回到围栏」); set by the drawing below.
+  const fitRef = useRef<(() => void) | null>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const layerGroupRef = useRef<import("leaflet").LayerGroup | null>(null);
   const leafletRef = useRef<typeof import("leaflet") | null>(null);
@@ -99,12 +112,14 @@ export function LocationMap({
   }, [onMarkerClick]);
 
   useEffect(() => {
+    if (!container) return;
     let disposed = false;
+    let observer: ResizeObserver | null = null;
 
     void import("leaflet").then(({ default: L }) => {
-      if (disposed || !containerRef.current) return;
+      if (disposed) return;
 
-      const map = L.map(containerRef.current, {
+      const map = L.map(container, {
         center: DEFAULT_CENTER,
         zoom: 15,
         zoomControl: true,
@@ -118,18 +133,25 @@ export function LocationMap({
       mapRef.current = map;
       layerGroupRef.current = L.layerGroup().addTo(map);
       leafletRef.current = L;
+      // Full screen and back, or a panel resized: the tiles follow the box,
+      // the view stays where it was.
+      if (typeof ResizeObserver !== "undefined") {
+        observer = new ResizeObserver(() => map.invalidateSize({ animate: false }));
+        observer.observe(container);
+      }
       setReady(true);
     });
 
     return () => {
       disposed = true;
+      observer?.disconnect();
       layerGroupRef.current = null;
       leafletRef.current = null;
       mapRef.current?.stop();
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [container]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -211,6 +233,18 @@ export function LocationMap({
         bounds.extend(point.getLatLng());
       });
 
+      const fit = () => {
+        if (!bounds.isValid()) return;
+        const southWest = bounds.getSouthWest();
+        const northEast = bounds.getNorthEast();
+        if (southWest.equals(northEast)) {
+          map.setView(southWest, singlePointZoom, { animate: false });
+        } else {
+          map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
+        }
+      };
+      fitRef.current = fit;
+
       const viewKey = fitBoundsKey ?? "default";
       if (fittedKeyRef.current !== viewKey) {
         fittedKeyRef.current = viewKey;
@@ -222,13 +256,7 @@ export function LocationMap({
         visibleZones.length > 0
       ) {
         if (!preserveViewOnDataUpdate || !hasFittedRef.current) {
-          const southWest = bounds.getSouthWest();
-          const northEast = bounds.getNorthEast();
-          if (southWest.equals(northEast)) {
-            map.setView(southWest, singlePointZoom, { animate: false });
-          } else {
-            map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
-          }
+          fit();
           hasFittedRef.current = true;
         }
       }
@@ -245,11 +273,13 @@ export function LocationMap({
   ]);
 
   return (
-    <div
-      ref={containerRef}
+    <MapFrame
       className={`min-h-[22rem] w-full overflow-hidden border bg-muted/20 ${className}`}
-      aria-label={ariaLabel}
-    />
+      fitLabel={fitLabel}
+      onFit={fitLabel ? () => fitRef.current?.() : undefined}
+    >
+      <div ref={setContainer} className="h-full w-full" aria-label={ariaLabel} />
+    </MapFrame>
   );
 }
 

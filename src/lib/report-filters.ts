@@ -28,6 +28,9 @@ export const REPORT_FILTERS: Record<ContractorReportType, readonly ReportFilterK
   target: ["target_type", "status"],
   photos: ["actor"],
   documents: ["status", "actor"],
+  // 撰写人 (I8).
+  daily_report: ["actor"],
+  progress_summary: ["actor"],
 };
 
 /** Every filter any report has, for the address (`useListQuery`). */
@@ -66,6 +69,8 @@ const ACTOR_LABEL: Partial<Record<ContractorReportType, string>> = {
   attendance: "contractorReports.column.worker",
   photos: "contractorReports.filter.uploader",
   documents: "contractorReports.column.uploaded_by",
+  daily_report: "contractorReports.column.author",
+  progress_summary: "contractorReports.column.author",
 };
 
 /** The message key naming a filter field on one report. */

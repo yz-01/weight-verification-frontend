@@ -9,13 +9,15 @@ import { describe, expect, it } from "vitest";
 import zh from "@/messages/zh.json";
 
 import type { ReportLevelRow } from "@/interfaces/contractor-report";
-import { navLeaves, visibleNavigation } from "@/lib/navigation";
+import { isRouteAllowed, navLeaves, visibleNavigation } from "@/lib/navigation";
 import {
+  PROGRESS_MENU,
   groupPhotoSources,
   isReportCenterPage,
   materialExportSubtitle,
   photoSourceValue,
   levelRowName,
+  progressMenuHref,
   reportHref,
   reportMenuKind,
 } from "@/lib/report-menu";
@@ -57,7 +59,6 @@ describe("the report menu's levels (D6 table)", () => {
         "reportSelector.level.equipmentClass",
       ],
       "/reports/contractor/recycling": ["reportSelector.level.recycling", null],
-      "/reports/contractor/schedule": "none",
       "/reports/contractor/documents": [
         "reportSelector.level.documents",
         "reportSelector.level.documentSubcategory",
@@ -76,6 +77,48 @@ describe("the report menu's levels (D6 table)", () => {
     const without = reportLeaves(["report.view"]).map((leaf) => leaf.href);
     expect(without).not.toContain("/reports/contractor/documents");
     expect(without).toContain("/reports/contractor/target");
+  });
+});
+
+describe("工程进度's own reports (I8, ID24)", () => {
+  it("are 日报告, 往日报告, 施工计划, 项目进度摘要 - in the client's order", () => {
+    expect(PROGRESS_MENU.map((entry) => entry.key)).toEqual([
+      "dailyReport",
+      "pastDailyReports",
+      "schedule",
+      "progressSummary",
+    ]);
+    const names = PROGRESS_MENU.map((entry) =>
+      entry.labelKey.split(".").reduce<unknown>(
+        (node, part) => (node as Record<string, unknown>)[part],
+        zh,
+      ),
+    );
+    expect(names).toEqual(["日报告", "往日报告", "施工计划", "项目进度摘要"]);
+  });
+
+  it("moved 施工计划 off the first level, and every one of them still opens", () => {
+    const first = reportLeaves(["report.view", "document.view"]).map((leaf) => leaf.href);
+    expect(first).not.toContain("/reports/contractor/schedule");
+    expect(first).not.toContain("/reports/contractor/daily_report");
+    expect(first).not.toContain("/reports/contractor/progress_summary");
+    expect(first).toContain("/reports/contractor/progress");
+    for (const entry of PROGRESS_MENU) {
+      expect(isRouteAllowed("MSE_TRACE", ["report_center"], entry.href), entry.href).toBe(true);
+    }
+  });
+
+  it("opens 日报告 on its latest day and 往日报告 asking for the days", () => {
+    const here = new URLSearchParams("project=p1&date_from=2026-10-01&date_to=2026-10-07&category=x");
+    const [daily, past, schedule, summary] = PROGRESS_MENU;
+    expect(progressMenuHref(daily, here)).toBe("/reports/contractor/daily_report?project=p1&latest=1");
+    expect(progressMenuHref(past, here)).toBe(
+      "/reports/contractor/daily_report?project=p1&date_from=2026-10-01&date_to=2026-10-07&range=1",
+    );
+    expect(progressMenuHref(schedule, here)).toBe(
+      "/reports/contractor/schedule?project=p1&date_from=2026-10-01&date_to=2026-10-07",
+    );
+    expect(progressMenuHref(summary, new URLSearchParams())).toBe("/reports/contractor/progress_summary");
   });
 });
 

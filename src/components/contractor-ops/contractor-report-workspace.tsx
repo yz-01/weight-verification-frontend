@@ -1,11 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
+import { DailyReportBook } from "@/components/progress/daily-reports";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -19,7 +20,13 @@ import {
   useReportLevelName,
 } from "@/components/reports/report-selector";
 import { ExportButton } from "@/components/shared/export-button";
-import { FilterField, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  FieldWrapper,
+  FilterField,
+  ListHeader,
+  QueryFailedNote,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import { opensInPlace } from "@/components/shared/in-place-record";
 import { useRecordOpener } from "@/components/shared/record-opener";
@@ -28,6 +35,15 @@ import {
   ContractorReportFilterFields,
   ReportClearButton,
 } from "@/components/reports/report-filter-bar";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -72,6 +88,7 @@ import {
   getContractorReport,
   getContractorReportHistory,
   getContractorReportOptions,
+  getLatestReportDay,
 } from "@/services/contractor-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
 import { photoMeta } from "@/lib/photo-meta";
@@ -92,6 +109,8 @@ function displayValue(value: string | number | boolean | null): string {
 const PHOTO_COLUMN_WIDTH = 80;
 
 const REPORT_DATE_TIME_COLUMNS = new Set([
+  "generated_at",
+  "updated_at",
   "captured_at",
   "uploaded_at",
   "occurred_at",
@@ -102,6 +121,8 @@ const REPORT_DATE_TIME_COLUMNS = new Set([
 ]);
 
 const REPORT_DATE_ONLY_COLUMNS = new Set([
+  "report_date",
+  "end_date",
   "application_date",
   "planned_start",
   "planned_end",
@@ -111,6 +132,8 @@ const REPORT_DATE_ONLY_COLUMNS = new Set([
 ]);
 
 const REPORT_LONG_COLUMNS = new Set([
+  "body",
+  "name",
   "description",
   "file_name",
   "review_note",
@@ -170,9 +193,11 @@ export function ContractorReportWorkspace({
   const t = useTranslations("contractorReports");
   const tRoot = useTranslations();
   const common = useTranslations("common");
+  const locale = useLocale();
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const opener = useRecordOpener();
   const now = new Date();
@@ -215,6 +240,31 @@ export function ContractorReportWorkspace({
     queryKey: ["contractor-reports", "options"],
     queryFn: getContractorReportOptions,
   });
+  // 工程进度 → 「日报告」 opens on the latest day a report covers; 「往日报告」
+  // asks for the days first (I8, ID24). Both arrive as a flag in the address.
+  const dailyReport = reportType === "daily_report";
+  const wantsLatest = dailyReport && searchParams.get("latest") === "1";
+  const asksDays = dailyReport && searchParams.get("range") === "1";
+  const latest = useQuery({
+    queryKey: ["contractor-reports", "latest-day", project],
+    queryFn: () =>
+      getLatestReportDay({
+        report_type: "daily_report",
+        project: project === "all" ? undefined : project,
+      }),
+    enabled: wantsLatest,
+    staleTime: 0,
+    meta: NOT_LIVE,
+  });
+  const { setFilters } = list;
+  useEffect(() => {
+    if (!wantsLatest || !latest.isSuccess || !latest.isFetchedAfterMount) return;
+    // No report yet: today, which says so.
+    const day = latest.data.day ?? dateValue(new Date());
+    setFilters({ latest: undefined, date_from: day, date_to: day });
+  }, [latest.data, latest.isFetchedAfterMount, latest.isSuccess, setFilters, wantsLatest]);
+  // A daily report opens in the book of the reports listed, by date (I9).
+  const [book, setBook] = useState<number | null>(null);
   const filters = useMemo<ContractorReportFilters>(
     () => ({
       report_type: reportType,
@@ -236,8 +286,13 @@ export function ContractorReportWorkspace({
     queryFn: () => getContractorReport(filters),
     // An aggregation: refreshed by the person, not by the realtime layer (S1).
     meta: NOT_LIVE,
-    enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo),
+    // Not before the days 「日报告」 / 「往日报告」 are about to set.
+    enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
   });
+  const bookIds = useMemo(
+    () => (report.data?.records ?? []).map((entry) => entry.id ?? ""),
+    [report.data],
+  );
   const exportMutation = useMutation({
     mutationFn: (format: "PDF" | "EXCEL") =>
       exportContractorReport({
@@ -251,6 +306,8 @@ export function ContractorReportWorkspace({
         column_labels: Object.fromEntries(
           (report.data?.columns ?? []).map((key) => [key, t(`column.${key}`)]),
         ),
+        // 日报告 and 项目进度摘要 print each document whole, in these words.
+        lang: locale,
       }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["contractor-reports", "history"] }),
@@ -378,6 +435,7 @@ export function ContractorReportWorkspace({
           </p>
         )}
         <QueryFailedNote query={options} what={t("what.projects")} className="w-full" />
+        <QueryFailedNote query={latest} what={t("what.latestDay")} className="w-full" />
       </section>
 
       <section className="surface-panel overflow-hidden rounded-xl">
@@ -430,9 +488,12 @@ export function ContractorReportWorkspace({
                   const record = report.data.records?.[index] ?? null;
                   const reference = reportRowReference(row);
                   const open = rowOpener(record);
-                  const openRow = open
-                    ? () => open(reference, String(row.project ?? ""))
-                    : undefined;
+                  const openRow =
+                    dailyReport && record?.id
+                      ? () => setBook(index)
+                      : open
+                        ? () => open(reference, String(row.project ?? ""))
+                        : undefined;
                   return (
                     // 每一项都可以点进去操作: the row opens its record, where
                     // its module lets the reader act on it.
@@ -512,7 +573,87 @@ export function ContractorReportWorkspace({
         )}
       </section>
       {opener.sheet}
+      {book !== null && (
+        <DailyReportBook
+          source={{ kind: "ids", ids: bookIds }}
+          start={book}
+          onClose={() => setBook(null)}
+          onChanged={() =>
+            queryClient.invalidateQueries({ queryKey: ["contractor-reports", "report"] })
+          }
+        />
+      )}
+      {asksDays && (
+        <ReportDaysPrompt
+          from={list.filters.date_from ?? dateValue(new Date(now.getTime() - 6 * 86_400_000))}
+          to={list.filters.date_to ?? dateValue(now)}
+          onDone={(from, to) => setFilters({ range: undefined, date_from: from, date_to: to })}
+          onCancel={() => setFilters({ range: undefined })}
+        />
+      )}
     </div>
+  );
+}
+
+/**
+ * 「往日报告」 (I8, ID24): the same report as 「日报告」, opened by first asking
+ * which days to read. The reader's current days are offered.
+ */
+function ReportDaysPrompt({
+  from,
+  to,
+  onDone,
+  onCancel,
+}: {
+  from: string;
+  to: string;
+  onDone: (from: string, to: string) => void;
+  onCancel: () => void;
+}) {
+  const t = useTranslations("contractorReports");
+  const common = useTranslations("common");
+  const [start, setStart] = useState(from);
+  const [end, setEnd] = useState(to);
+  const backwards = Boolean(start && end && start > end);
+  return (
+    <Dialog open onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("days.title")}</DialogTitle>
+          <DialogDescription>{t("days.help")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FieldWrapper label={t("filter.dateFrom")}>
+            <Input
+              type="date"
+              value={start}
+              max={end || undefined}
+              onChange={(event) => setStart(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("filter.dateTo")}>
+            <Input
+              type="date"
+              value={end}
+              min={start || undefined}
+              onChange={(event) => setEnd(event.target.value)}
+            />
+          </FieldWrapper>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>
+            {common("cancel")}
+          </Button>
+          <Button
+            disabled={!start || !end || backwards}
+            disabledReason={backwards ? t("days.backwards") : t("days.choose")}
+            onClick={() => onDone(start, end)}
+          >
+            {t("days.show")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

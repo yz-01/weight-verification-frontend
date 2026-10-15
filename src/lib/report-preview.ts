@@ -56,6 +56,13 @@ export function reportRowTarget(
       return { href: `/site-equipment?movement=${id}` };
     case "DOCUMENT":
       return { href: `/documents?document=${id}` };
+    // 项目进度摘要 opens on the progress page's own tab, at that summary (I8).
+    case "PROGRESS_SUMMARY":
+      return {
+        href: `/progress?tab=summary&summary=${id}${
+          entry.project_id ? `&project=${encodeURIComponent(entry.project_id)}` : ""
+        }`,
+      };
     default:
       return recordTarget(entry.kind, entry.id);
   }
@@ -91,6 +98,9 @@ const REFERENCE_COLUMNS = [
   "task",
   "target_name",
   "file_name",
+  // A daily report and a summary are named, not numbered (I8).
+  "name",
+  "title",
 ] as const;
 
 export function reportRowReference(row: ReportRow): string {
