@@ -17578,7 +17578,8 @@
     "dialog": {
       "summary": "Mula {start} · Tamat {end} · {hours} jam",
       "photos": "Foto",
-      "signature": "Tandatangan pemandu - {kind}"
+      "signature": "Tandatangan pemandu - {kind}",
+      "unsigned": "Tiada tandatangan (rekod luar talian daripada aplikasi lama)"
     },
     "history": {
       "title": "Sejarah perubahan",

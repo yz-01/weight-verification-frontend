@@ -17578,7 +17578,8 @@
     "dialog": {
       "summary": "開始 {start} · 結束 {end} · {hours} 小時",
       "photos": "照片",
-      "signature": "{kind}司機簽名"
+      "signature": "{kind}司機簽名",
+      "unsigned": "無簽名（舊版本離線記錄）"
     },
     "history": {
       "title": "修改記錄",

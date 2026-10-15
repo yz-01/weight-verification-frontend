@@ -99,6 +99,7 @@ describe("an equipment-hours photo taken offline", () => {
     expect(data.get("location_accuracy_m")).toBe("12.00");
     expect(data.get("photo")).toBeInstanceOf(File);
     expect(data.get("signature")).toBeInstanceOf(File);
+    expect(data.get("signature_required")).toBe("true");
     expect(store.size).toBe(0);
   });
 

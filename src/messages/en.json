@@ -17578,7 +17578,8 @@
     "dialog": {
       "summary": "Start {start} · End {end} · {hours} h",
       "photos": "Photos",
-      "signature": "Driver signature - {kind}"
+      "signature": "Driver signature - {kind}",
+      "unsigned": "No signature (offline record from the older app)"
     },
     "history": {
       "title": "Change history",

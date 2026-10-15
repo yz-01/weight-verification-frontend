@@ -161,6 +161,10 @@ describe("an operator's start-stop session (E8)", () => {
     expect(html).toContain(words.operator.edit);
   });
 
+  it("says 无签名（旧版本离线记录） for a photo the older screen queued offline (I4)", () => {
+    expect(open(true)).toContain(words.dialog.unsigned);
+  });
+
   it("offers the end-time form only to someone who may adjust", () => {
     const html = open(false);
     expect(html).not.toContain("data-shell-actions");

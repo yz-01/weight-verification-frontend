@@ -925,6 +925,11 @@ export function DayDialog({
           // 操作人员 / CIDB 卡号 as the office wrote them (I4, ID19).
           { label: t("field.operator"), value: day.operator_name || "-" },
           { label: t("field.cidb"), value: day.cidb_no || "-" },
+          // A photo the older phone screen queued offline, before the
+          // signature existed: said, not left as a gap.
+          ...(day.photos.some((photo) => !photo.signature)
+            ? [{ label: t("phone.signature"), value: t("dialog.unsigned") }]
+            : []),
           { label: t("field.plate"), value: day.plate || "-" },
           { label: t("field.project"), value: day.project_name },
           {

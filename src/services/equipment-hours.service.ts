@@ -52,7 +52,13 @@ export function uploadEquipmentHoursPhoto(
   data.append("equipment", upload.equipment);
   if (upload.kind) data.append("kind", upload.kind);
   data.append("photo", upload.photo);
-  if (upload.signature) data.append("signature", upload.signature);
+  // The screen since 2026-10 I4 always signs, and says so: the server then
+  // refuses a photo without the signature. A job the older screen queued
+  // offline has neither and is still kept.
+  if (upload.signature) {
+    data.append("signature", upload.signature);
+    data.append("signature_required", "true");
+  }
   data.append("captured_at", upload.capturedAt);
   data.append("client_event_id", upload.clientEventId);
   if (upload.latitude) data.append("latitude", upload.latitude);
