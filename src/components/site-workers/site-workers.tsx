@@ -131,7 +131,7 @@ function CompanyFilter({ project, value, onChange }: {
   );
 }
 
-function ViewButton({ onClick }: { onClick: () => void }) {
+function OpenWorkerButton({ onClick }: { onClick: () => void }) {
   const t = useTranslations("siteWorkers");
   return (
     <Button type="button" variant="ghost" size="sm" className="gap-1.5 text-primary" onClick={onClick}>
@@ -231,7 +231,7 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
         enableSorting: false,
         meta: { label: t("field.view") },
         header: () => t("field.view"),
-        cell: ({ row }) => <ViewButton onClick={() => onView(row.original.id)} />,
+        cell: ({ row }) => <OpenWorkerButton onClick={() => onView(row.original.id)} />,
       },
     );
     return rows;
@@ -424,7 +424,7 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
         enableSorting: false,
         meta: { label: t("field.view") },
         header: () => t("field.view"),
-        cell: ({ row }) => <ViewButton onClick={() => onView(row.original.worker)} />,
+        cell: ({ row }) => <OpenWorkerButton onClick={() => onView(row.original.worker)} />,
       },
     );
     return rows;

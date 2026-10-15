@@ -78,6 +78,7 @@ const NOT_BUSINESS_RECORDS: Record<string, string> = {
   "src/components/weighing/view-weigh-session.tsx#ViewWeighSession": "recycler weighbridge session, an admin view (E8 brief)",
   "src/components/fleet/fleet-detail.tsx#DriverDetail": "master data: a driver",
   "src/components/fleet/fleet-detail.tsx#VehicleDetail": "master data: a vehicle",
+  "src/components/site-workers/worker-detail.tsx#WorkerDetailDialog": "master data: a worker on the roster (I20)",
   "src/components/site-access/site-access-workspace.tsx#PassDetail": "master data: an access pass",
   "src/components/billing/invoice-list.tsx#InvoiceDetailView": "billing: an invoice",
   "src/components/notifications/admin-notification-workspace.tsx#NotificationDetails": "admin: a notification",

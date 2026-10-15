@@ -11475,6 +11475,12 @@
       "who": "Holders of site_access.view; a gate issue is confirmed finished by the people assigned or a holder of site_access.manage.",
       "then": "Ordinary photos are filed at once; a gate issue notifies the people assigned, who talk in it, and is read-only once confirmed finished.",
       "trouble": "A photo is missing: check the date, time and photographer filters, or switch to the photo wall; photos taken offline upload once the phone has a network."
+    },
+    "site_workers": {
+      "what": "The roster of workers with no system account: register them, send each a location link, and see who is on site and when they came and went.",
+      "who": "site_worker.view reads it; site_worker.manage registers workers and sends links.",
+      "then": "Once the worker opens the link, enters their number and agrees, the open page reports their location; inside the fence records entry, five minutes outside records exit.",
+      "trouble": "\"Location not updated\": the worker closed the page or locked the screen; it does not mean they left. Link will not open: send a new link."
     }
   },
   "partners": {

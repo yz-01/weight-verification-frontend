@@ -11475,6 +11475,12 @@
       "who": "Pemegang site_access.view; isu pintu disahkan selesai oleh orang yang ditugaskan atau pemegang site_access.manage.",
       "then": "Foto biasa terus difailkan; isu pintu memberitahu orang yang ditugaskan, yang berbincang di dalamnya, dan hanya boleh dibaca selepas disahkan selesai.",
       "trouble": "Foto hilang: semak penapis tarikh, masa dan jurugambar, atau tukar ke dinding foto; foto yang diambil luar talian dimuat naik apabila telefon ada rangkaian."
+    },
+    "site_workers": {
+      "what": "Senarai pekerja tanpa akaun sistem: daftar, hantar pautan lokasi, dan lihat siapa di tapak serta masa masuk dan keluar.",
+      "who": "site_worker.view untuk melihat; site_worker.manage untuk mendaftar dan menghantar pautan.",
+      "then": "Selepas pekerja membuka pautan, masukkan nombor dan bersetuju, halaman yang terbuka menghantar lokasi; dalam pagar dicatat masuk, 5 minit di luar dicatat keluar.",
+      "trouble": "\"Lokasi tidak dikemas kini\": pekerja menutup halaman atau mengunci skrin; bukan bermakna keluar. Pautan tidak dibuka: hantar pautan baharu."
     }
   },
   "partners": {
