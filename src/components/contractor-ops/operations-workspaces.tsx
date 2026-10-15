@@ -130,7 +130,6 @@ import type {
   ProjectCategoryKind,
   CategorySubmissionMode,
   ProjectCategoryPayload,
-  BudgetMode,
   SiteEquipment,
 } from "@/interfaces/contractor-ops";
 import { ApiError } from "@/interfaces/api";
@@ -173,6 +172,8 @@ import {
   scanSupplierQr,
 } from "@/services/contractor.service";
 import { getRoles } from "@/services/users.service";
+import { MaterialSpecsEditor } from "@/components/contractor-ops/material-specs-editor";
+import { offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import { OutgoingSupplierField } from "@/components/contractor-ops/outgoing-supplier-field";
 import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/return-note";
 import {
@@ -370,10 +371,9 @@ export function CategoryDialog({
   const [alerts, setAlerts] = useState(
     (row?.budget_alert_percentages ?? []).join(", "),
   );
-  // 2026-10 A6 (X17): the budget counts money (default) or the quantity in
-  // the category's unit, and warns at percentages and/or absolute figures.
-  const [budgetMode, setBudgetMode] = useState<BudgetMode>(row?.budget_mode ?? "AMOUNT");
-  const [budgetQuantity, setBudgetQuantity] = useState(row?.budget_quantity ?? "");
+  // 2026-10 A6 (X17): the budget warns at percentages and/or absolute
+  // figures. Money only since I18 (ID40): a quantity is a material target,
+  // set in 材料管理 → 材料目标, net of returns and per specification.
   const [alertAmounts, setAlertAmounts] = useState(
     (row?.budget_alert_amounts ?? []).join(", "),
   );
@@ -417,10 +417,6 @@ export function CategoryDialog({
   const alertsInvalid = isMaterial && tracksSpend && parsedAlerts === null;
   const parsedAmounts = parseAlertAmounts(alertAmounts);
   const amountsInvalid = isMaterial && tracksSpend && parsedAmounts === null;
-  const quantityMode = budgetMode === "QUANTITY";
-  // 500 what? A quantity budget is counted in the category's unit.
-  const quantityNeedsUnit =
-    isMaterial && tracksSpend && quantityMode && Boolean(budgetQuantity.trim()) && !defaultUnit;
   const save = useMutation({
     mutationFn: () => {
       const payload: ProjectCategoryPayload = isMaterial
@@ -432,9 +428,8 @@ export function CategoryDialog({
             budget_amount: tracksSpend && budget.trim() ? budget.trim() : null,
             budget_alert_percentages:
               parsedAlerts ?? row?.budget_alert_percentages ?? [],
-            budget_mode: budgetMode,
-            budget_quantity:
-              tracksSpend && quantityMode && budgetQuantity.trim() ? budgetQuantity.trim() : null,
+            budget_mode: "AMOUNT",
+            budget_quantity: null,
             budget_alert_amounts: parsedAmounts ?? row?.budget_alert_amounts ?? [],
             default_unit: defaultUnit,
             suppliers: supplierIds,
@@ -687,7 +682,6 @@ export function CategoryDialog({
               <FieldWrapper
                 label={modules("material.defaultUnit")}
                 hint={modules("material.defaultUnitHint")}
-                error={quantityNeedsUnit ? modules("budget.quantityNeedsUnit") : undefined}
               >
                 <Select
                   value={defaultUnit || "__none__"}
@@ -747,6 +741,16 @@ export function CategoryDialog({
               </FieldWrapper>
             </div>
           )}
+          {/* 规格 and their units (I19, ID45): under a saved material. */}
+          {isMaterial && (
+            <div className="border-t pt-4 sm:col-span-2">
+              {row ? (
+                <MaterialSpecsEditor material={row} />
+              ) : (
+                <p className="text-xs text-muted-foreground">{modules("specs.afterSave")}</p>
+              )}
+            </div>
+          )}
           {isMaterial && (
             <div className="grid gap-4 border-t pt-4 sm:col-span-2">
               <div>
@@ -762,51 +766,25 @@ export function CategoryDialog({
                 />
                 {modules("budget.tracksSpend")}
               </label>
+              {/* 「数量目标请到 材料管理 → 材料目标」 (I18, ID40). */}
+              <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                {modules("budget.quantityMoved")}
+              </p>
               {tracksSpend && (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldWrapper label={modules("budget.mode")} className="sm:col-span-2">
-                    <Select value={budgetMode} onValueChange={(value) => setBudgetMode(value as BudgetMode)}>
-                      <SelectTrigger className="w-full sm:w-80"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="AMOUNT">{modules("budget.modeAmount")}</SelectItem>
-                        <SelectItem value="QUANTITY">{modules("budget.modeQuantity")}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <FieldWrapper
+                    label={modules("budget.amount")}
+                    hint={modules("budget.amountHint")}
+                  >
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      step="0.01"
+                      value={budget}
+                      onChange={(event) => setBudget(event.target.value)}
+                    />
                   </FieldWrapper>
-                  {quantityMode ? (
-                    <FieldWrapper
-                      label={modules("budget.quantity")}
-                      hint={
-                        defaultUnit
-                          ? modules("budget.quantityHint", { unit: unitName(defaultUnit, row?.default_unit_label) })
-                          : modules("budget.quantityNeedsUnit")
-                      }
-                      error={quantityNeedsUnit ? modules("budget.quantityNeedsUnit") : undefined}
-                    >
-                      <Input
-                        type="number"
-                        inputMode="decimal"
-                        min="0"
-                        step="0.001"
-                        value={budgetQuantity}
-                        onChange={(event) => setBudgetQuantity(event.target.value)}
-                      />
-                    </FieldWrapper>
-                  ) : (
-                    <FieldWrapper
-                      label={modules("budget.amount")}
-                      hint={modules("budget.amountHint")}
-                    >
-                      <Input
-                        type="number"
-                        inputMode="decimal"
-                        min="0"
-                        step="0.01"
-                        value={budget}
-                        onChange={(event) => setBudget(event.target.value)}
-                      />
-                    </FieldWrapper>
-                  )}
                   <FieldWrapper
                     label={modules("budget.alerts")}
                     hint={modules("budget.alertsHint")}
@@ -899,11 +877,9 @@ export function CategoryDialog({
                 ? modules("budget.alertsInvalid")
                 : amountsInvalid
                   ? modules("budget.thresholdAmountsInvalid")
-                  : quantityNeedsUnit
-                    ? modules("budget.quantityNeedsUnit")
-                    : undefined
+                  : undefined
             }
-            disabled={save.isPending || alertsInvalid || amountsInvalid || quantityNeedsUnit}
+            disabled={save.isPending || alertsInvalid || amountsInvalid}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
@@ -4203,6 +4179,9 @@ export function OutgoingDialog({
   const [project, setProject] = useDraftState("project", initialProject);
   const [form, setForm] = useDraftState("form", {
     category: "",
+    // The specification (I19, ID46); its unit is the unit. 「其他」 is typed.
+    spec_category: "",
+    material_specification: "",
     unit: "",
     supplier: "",
     quantity: "",
@@ -4237,7 +4216,11 @@ export function OutgoingDialog({
     { unit: form.unit, supplier: form.supplier, manufacturer: form.manufacturer },
     { scannedSupplier },
   );
-  const unit = fill.unitLocked ? fill.unit : form.unit;
+  const specs = offeredSpecs(selected, form.spec_category ?? "");
+  const specPick = specChoice(selected, form.spec_category ?? "");
+  const specRequired = specs.length > 0;
+  const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
+  const unit = specPick.unitLocked ? specPick.unit : fill.unitLocked && !specPick.typed ? fill.unit : form.unit;
   const units = useMaterialUnits();
   const unitName = useUnitName();
   const chooseMaterial = (category: string) =>
@@ -4250,6 +4233,9 @@ export function OutgoingDialog({
       return {
         ...old,
         category,
+        // A specification belongs to its material (I19).
+        spec_category: "",
+        material_specification: "",
         unit: filled.unit,
         supplier: filled.supplier,
         manufacturer: filled.manufacturer,
@@ -4275,6 +4261,8 @@ export function OutgoingDialog({
       return submitMaterialOutgoingOfflineAware(user.id, {
         project,
         category: form.category,
+        spec_category: form.spec_category || undefined,
+        material_specification: specPick.typed ? (form.material_specification ?? "").trim() : undefined,
         unit,
         supplier: form.supplier || undefined,
         manufacturer: form.manufacturer || undefined,
@@ -4313,7 +4301,7 @@ export function OutgoingDialog({
               onValueChange={(next) => {
                 setProject(next);
                 // A category belongs to one site.
-                setForm((old) => ({ ...old, category: "", unit: "" }));
+                setForm((old) => ({ ...old, category: "", spec_category: "", material_specification: "", unit: "" }));
               }}
               placeholder={t("field.selectProject")}
               disabled={Boolean(initialProject) && isFieldStaff}
@@ -4341,6 +4329,35 @@ export function OutgoingDialog({
               <p className="text-xs text-muted-foreground">{t("outgoing.noMaterials")}</p>
             ) : null}
           </FieldWrapper>
+          {/* 规格 (I19, ID46): the unit comes with it; 「其他」 is typed. */}
+          {form.category && specRequired && (
+            <FieldWrapper label={t("outgoing.spec")} required={specRequired}>
+              <Select
+                value={form.spec_category || undefined}
+                onValueChange={(next) => setForm((old) => ({ ...old, spec_category: next, material_specification: "" }))}
+              >
+                <SelectTrigger className="w-full" aria-label={t("outgoing.spec")}>
+                  <SelectValue placeholder={t("outgoing.chooseSpec")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {specs.map((spec) => (
+                    <SelectItem key={spec.id} value={spec.id}>
+                      {spec.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
+          )}
+          {specPick.typed && (
+            <FieldWrapper label={t("outgoing.specName")} required={specPick.typed}>
+              <Input
+                value={form.material_specification ?? ""}
+                maxLength={200}
+                onChange={(e) => set("material_specification", e.target.value)}
+              />
+            </FieldWrapper>
+          )}
           <FieldWrapper label={t("outgoing.returnQuantity")} required>
             <Input
               type="number"
@@ -4352,10 +4369,10 @@ export function OutgoingDialog({
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.unit")} required>
-            {fill.unitLocked ? (
-              // The category decided it (A4, Q1): shown, not asked.
+            {unitLocked ? (
+              // The specification - or the category - decided it (I19; A4, Q1): shown, not asked.
               <div className="flex h-10 items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 pointer-coarse:h-11">
-                <span className="text-sm font-medium">{unitName(unit, selected?.default_unit_label)}</span>
+                <span className="text-sm font-medium">{unitName(unit, specPick.unitLocked ? specPick.spec?.default_unit_label : selected?.default_unit_label)}</span>
                 <span className="text-xs text-muted-foreground">{t("outgoing.autoFilled")}</span>
               </div>
             ) : (
@@ -4458,6 +4475,8 @@ export function OutgoingDialog({
             requires={[
               [project, t("field.project")],
               [form.category, t("outgoing.material")],
+              [!specRequired || form.spec_category, t("outgoing.spec")],
+              [!specPick.typed || (form.material_specification ?? "").trim(), t("outgoing.specName")],
               [unit, t("field.unit")],
               [Number(form.quantity) > 0, t("outgoing.returnQuantity")],
               [isFieldStaff || form.executor_name, t("field.executor")],

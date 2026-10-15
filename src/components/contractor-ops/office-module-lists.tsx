@@ -223,6 +223,8 @@ export function MaterialOutgoingOffice() {
     "uncategorised",
     "supplier",
     "manufacturer",
+    // One specification (I19), as a material target opens its returns (I18).
+    "spec_category",
     "date_from",
     "date_to",
   ]);
