@@ -7771,7 +7771,15 @@
       "role_template_not_found": "Tiada peranan pratetap dengan nama itu.",
       "role_already_exists": "Syarikat ini sudah mempunyai peranan itu.",
       "export_too_many_photos": "Eksport ini mengandungi {count} foto; satu fail paling banyak {limit}. Pendekkan tarikh dan eksport semula.",
-      "receipt_needs_supplier": "Penghantaran ini belum ada pembekal. Tekan “Isi pembekal” dahulu, kemudian terima."
+      "receipt_needs_supplier": "Penghantaran ini belum ada pembekal. Tekan “Isi pembekal” dahulu, kemudian terima.",
+      "site_worker_not_found": "Pekerja tidak dijumpai",
+      "site_worker_phone_taken": "Nombor telefon ini sudah ada dalam senarai projek ({name})",
+      "site_worker_inactive": "Pekerja ini telah dikeluarkan; masukkan semula dahulu",
+      "worker_link_invalid": "Pautan tidak berfungsi. Minta pejabat tapak hantar semula.",
+      "worker_link_closed": "Pautan ditutup.",
+      "worker_link_other_device": "Pautan digunakan pada telefon lain.",
+      "worker_link_phone_mismatch": "Nombor telefon tidak sepadan dengan yang didaftarkan.",
+      "worker_link_not_confirmed": "Sahkan nombor telefon dan bersetuju dahulu."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7792,7 +7800,10 @@
       "required": "Ruangan ini wajib diisi",
       "unique": "Nilai ini telah digunakan",
       "percent_range": "Masukkan peratusan dari 0 hingga 100",
-      "percent_unchanged": "Itu sudah peratusan semasa"
+      "percent_unchanged": "Itu sudah peratusan semasa",
+      "invalid_worker_phone": "Masukkan nombor telefon bimbit seperti 012-345 6789",
+      "site_worker_phone_taken": "Nombor telefon ini sudah ada dalam senarai",
+      "too_many_documents": "Maksimum 10 dokumen"
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -10823,7 +10834,8 @@
       "gateIssues": "Isu Pintu",
       "visitorRecords": "Rekod Pelawat",
       "dailyReport": "Laporan harian",
-      "progressSummary": "Ringkasan kemajuan"
+      "progressSummary": "Ringkasan kemajuan",
+      "siteWorkers": "Senarai pekerja"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -11569,6 +11581,12 @@
       "who": "Pemegang site_access.view; isu pintu disahkan selesai oleh orang yang ditugaskan atau pemegang site_access.manage.",
       "then": "Foto biasa terus difailkan; isu pintu memberitahu orang yang ditugaskan, yang berbincang di dalamnya, dan hanya boleh dibaca selepas disahkan selesai.",
       "trouble": "Foto hilang: semak penapis tarikh, masa dan jurugambar, atau tukar ke dinding foto; foto yang diambil luar talian dimuat naik apabila telefon ada rangkaian."
+    },
+    "site_workers": {
+      "what": "Senarai pekerja tanpa akaun sistem: daftar, hantar pautan lokasi, dan lihat siapa di tapak serta masa masuk dan keluar.",
+      "who": "site_worker.view untuk melihat; site_worker.manage untuk mendaftar dan menghantar pautan.",
+      "then": "Selepas pekerja membuka pautan, masukkan nombor dan bersetuju, halaman yang terbuka menghantar lokasi; dalam pagar dicatat masuk, 5 minit di luar dicatat keluar.",
+      "trouble": "\"Lokasi tidak dikemas kini\": pekerja menutup halaman atau mengunci skrin; bukan bermakna keluar. Pautan tidak dibuka: hantar pautan baharu."
     }
   },
   "partners": {
@@ -12004,6 +12022,10 @@
       "integration": {
         "view": "Lihat integrasi dan peranti",
         "manage": "Urus integrasi dan peranti"
+      },
+      "site_worker": {
+        "view": "Lihat senarai pekerja dan rekod masuk keluar",
+        "manage": "Daftar pekerja dan hantar pautan lokasi"
       }
     },
     "group": {
@@ -12071,7 +12093,8 @@
       "cloud_service": "Perkhidmatan awan",
       "platform_settings": "Tetapan platform",
       "platform_version": "Versi",
-      "integration": "Integrasi sistem"
+      "integration": "Integrasi sistem",
+      "site_worker": "Senarai pekerja"
     }
   },
   "photoApprovals": {
@@ -17746,5 +17769,167 @@
   "mapFrame": {
     "fullscreen": "Skrin penuh",
     "exitFullscreen": "Keluar skrin penuh"
+  },
+  "siteWorkers": {
+    "title": "Senarai pekerja",
+    "visitsTitle": "Rekod masuk dan keluar",
+    "count": "{count} pekerja",
+    "visitCount": "{count} rekod",
+    "searchHint": "Cari mengikut nama, nombor telefon, nombor kad CIDB atau nombor dokumen lain; boleh pilih syarikat sekali.",
+    "visitsHint": "Setiap baris ialah satu kehadiran: dalam pagar dicatat masuk, 5 minit di luar dicatat keluar. Jika telefon berhenti menghantar, ia dipaparkan \"Lokasi tidak dikemas kini\" dan tidak dianggap keluar.",
+    "noFence": "Projek ini belum ada geofence, jadi kehadiran tidak dapat ditentukan. Sediakan geofence dahulu.",
+    "tab": {
+      "roster": "Senarai pekerja",
+      "visits": "Rekod masuk dan keluar"
+    },
+    "field": {
+      "name": "Nama",
+      "phone": "Nombor telefon",
+      "cidb": "No. kad CIDB",
+      "company": "Syarikat",
+      "companyNote": "Nama syarikat (tiada dalam senarai)",
+      "project": "Projek",
+      "status": "Status di tapak",
+      "lastPositionAt": "Masa lokasi terakhir",
+      "view": "Lihat",
+      "documents": "Dokumen lain",
+      "enteredAt": "Masa masuk",
+      "exitedAt": "Masa keluar",
+      "exitState": "Status"
+    },
+    "status": {
+      "ON_SITE": "Di tapak",
+      "OFF_SITE": "Tiada di tapak",
+      "STALE": "Lokasi tidak dikemas kini",
+      "NOT_STARTED": "Belum mula"
+    },
+    "visit": {
+      "signalLostAt": "Lokasi tidak dikemas kini (terakhir {at})",
+      "EXITED": "Telah keluar",
+      "in": "Masuk",
+      "out": "Keluar"
+    },
+    "filter": {
+      "company": "Syarikat",
+      "allCompanies": "Semua syarikat",
+      "project": "Pilih projek",
+      "allProjects": "Semua projek",
+      "inactive": "Dikeluarkan",
+      "dateFrom": "Tarikh masuk dari",
+      "dateTo": "Tarikh masuk hingga",
+      "onePerson": "Hanya: {name}"
+    },
+    "action": {
+      "view": "Lihat",
+      "add": "Tambah pekerja",
+      "edit": "Ubah butiran",
+      "deactivate": "Keluarkan dari senarai",
+      "reactivate": "Masukkan semula"
+    },
+    "what": {
+      "companies": "senarai syarikat",
+      "worker": "butiran pekerja"
+    },
+    "toast": {
+      "created": "Pekerja ditambah",
+      "updated": "Butiran dikemas kini",
+      "deactivated": "Dikeluarkan; pautan lokasi tidak lagi berfungsi",
+      "reactivated": "Dimasukkan semula; hantar pautan lokasi baharu"
+    },
+    "form": {
+      "addTitle": "Tambah pekerja",
+      "editTitle": "Ubah butiran",
+      "phoneHint": "Contoh 012-345 6789. Pautan lokasi hanya untuk telefon dengan nombor ini.",
+      "noCompany": "Tiada (tiada dalam senarai)",
+      "pickCompany": "Pilih dari senarai syarikat",
+      "searchCompany": "Cari syarikat",
+      "noCompanyMatch": "Tiada syarikat ini dalam senarai",
+      "companyNoteHint": "Taip syarikat yang tiada dalam senarai; boleh pilih dari senarai kemudian.",
+      "documentName": "Dokumen (cth. pasport)",
+      "documentNumber": "Nombor dokumen",
+      "removeDocument": "Buang dokumen ini",
+      "addDocument": "Tambah dokumen",
+      "documentIncomplete": "Setiap dokumen perlukan nama dan nombor"
+    },
+    "detail": {
+      "title": "Pekerja",
+      "lastAt": "Lokasi terakhir {at}",
+      "profile": "Butiran",
+      "lastPosition": "Lokasi GPS terakhir",
+      "noPosition": "Belum ada lokasi. Hantar pautan lokasi; ia bermula apabila pekerja membuka dan bersetuju.",
+      "outside": "Di luar tapak, kira-kira {km} km dari pagar · {at}",
+      "noFenceAt": "Projek tiada pagar, lokasi tidak dapat ditentukan · {at}",
+      "inside": "Di tapak · {at}",
+      "mapLabel": "Peta lokasi terakhir",
+      "privacyNote": "Hanya lokasi dalam pagar tapak dipaparkan; di luar tapak hanya jarak dipaparkan. Rekod lokasi tidak boleh diubah atau dipadam.",
+      "link": "Pautan lokasi",
+      "visits": "Rekod masuk dan keluar ({count})",
+      "allVisits": "Lihat semua",
+      "noVisits": "Belum ada rekod",
+      "deactivateHelp": "Hidupkan suis untuk keluarkan. Pautan lokasi berhenti serta-merta; rekod lama disimpan.",
+      "armFirst": "Hidupkan suis dahulu"
+    },
+    "link": {
+      "status": {
+        "NONE": "Belum dihantar",
+        "REVOKED": "Tidak berfungsi lagi",
+        "NOT_OPENED": "Dihantar, belum dibuka",
+        "BOUND": "Dibuka, belum bersetuju",
+        "ACTIVE": "Bersetuju berkongsi lokasi"
+      },
+      "issuedAt": "dihantar {at}",
+      "send": "Hantar pautan lokasi",
+      "resend": "Hantar pautan baharu",
+      "resendHint": "Pautan baharu menamatkan yang lama; pekerja perlu taip nombor telefon semula.",
+      "message": "Hai {name}, ini pautan lokasi tapak untuk {project}. Buka di telefon, masukkan nombor telefon anda, tekan \"Setuju dan mula\" dan biarkan halaman terbuka semasa di tapak: {link}",
+      "sentTitle": "Pautan lokasi sedia",
+      "sentBody": "Sistem tidak menghantar SMS. Hantar melalui WhatsApp, atau salin dan hantar sendiri. Pautan dipaparkan sekali sahaja.",
+      "whatsapp": "Hantar melalui WhatsApp",
+      "copy": "Salin pautan"
+    }
+  },
+  "workerLocation": {
+    "chatTitle": "Buka dalam pelayar",
+    "chatBody": "Anda membuka pautan dalam {app}. Pautan kekal di tempat ia dibuka dahulu; salin dan buka dalam Chrome atau Safari.",
+    "copyLink": "Salin pautan",
+    "continueHere": "Buka di sini juga",
+    "failedTitle": "Tidak dapat dibuka sekarang",
+    "failedBody": "Semak sambungan dan cuba lagi.",
+    "invalidTitle": "Pautan tidak berfungsi",
+    "invalidBody": "Minta pejabat tapak hantar semula.",
+    "closedTitle": "Pautan ditutup",
+    "closedBody": "Anda tiada lagi dalam senarai projek ini, atau projek telah tamat.",
+    "otherDeviceTitle": "Pautan digunakan pada telefon lain",
+    "otherDeviceBody": "Pautan ini hanya untuk telefon yang mengesahkan nombor. Minta pejabat tapak hantar semula.",
+    "phoneTitle": "Masukkan nombor telefon anda",
+    "phoneBody": "Nombor yang sama yang didaftarkan oleh pejabat tapak.",
+    "phoneLabel": "Nombor telefon",
+    "phonePlaceholder": "012-345 6789",
+    "phoneConfirm": "Sahkan",
+    "hello": "Hai {name}",
+    "consentTitle": "Sebelum mula",
+    "consent": {
+      "what": "Lokasi GPS telefon dan masa akan dikumpul.",
+      "when": "Hanya semasa halaman ini dibuka; tutup atau kunci skrin akan menghentikannya.",
+      "who": "Pejabat tapak menggunakannya untuk merekod masa masuk dan keluar. Di luar tapak hanya jarak dipaparkan.",
+      "noEdit": "Rekod lokasi tidak boleh diubah atau dipadam."
+    },
+    "agree": "Setuju dan mula",
+    "locating": "Sedang mengesan",
+    "locatingAt": "Sedang mengesan · terakhir dihantar {time}",
+    "keepOpen": "Sila biarkan halaman ini terbuka",
+    "starting": "Mendapatkan lokasi…",
+    "retry": "Cuba lagi",
+    "foregroundOnly": "Penghantaran berhenti apabila skrin dikunci atau tukar aplikasi, dan bersambung apabila kembali ke halaman ini.",
+    "error": {
+      "invalid": "Pautan tidak berfungsi. Minta pejabat tapak hantar semula.",
+      "closed": "Pautan ditutup.",
+      "otherDevice": "Pautan digunakan pada telefon lain.",
+      "phoneMismatch": "Nombor tidak sepadan. Masukkan nombor yang didaftarkan, atau hubungi pejabat.",
+      "failed": "Tidak dapat bersambung; cuba sebentar lagi.",
+      "denied": "Kebenaran lokasi ditolak. Ikut langkah di bawah untuk membenarkannya.",
+      "unavailable": "Tidak dapat lokasi. Pergi ke kawasan terbuka dan pastikan lokasi dihidupkan.",
+      "upload": "Penghantaran terakhir gagal; akan cuba lagi."
+    }
   }
 }

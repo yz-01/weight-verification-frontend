@@ -7771,7 +7771,15 @@
       "role_template_not_found": "找不到这个预设角色。",
       "role_already_exists": "本公司已经有这个角色。",
       "export_too_many_photos": "这次导出共有 {count} 张照片，一次最多 {limit} 张。请缩短日期范围后再导出。",
-      "receipt_needs_supplier": "这批材料还没有供应商。请先按「补供应商」填上，再验收。"
+      "receipt_needs_supplier": "这批材料还没有供应商。请先按「补供应商」填上，再验收。",
+      "site_worker_not_found": "找不到这个人员",
+      "site_worker_phone_taken": "这个电话号码已在这个项目的名单上（{name}）",
+      "site_worker_inactive": "这个人员已移出名单，请先重新加入名单",
+      "worker_link_invalid": "链接已失效，请联系工地办公室重新发送。",
+      "worker_link_closed": "链接已关闭。",
+      "worker_link_other_device": "这个链接已在另一部手机上使用。",
+      "worker_link_phone_mismatch": "电话号码和登记的不一样。",
+      "worker_link_not_confirmed": "请先确认电话号码并同意定位。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7792,7 +7800,10 @@
       "required": "此项为必填",
       "unique": "此值已被占用",
       "percent_range": "请输入 0 到 100 之间的百分比",
-      "percent_unchanged": "与目前的百分比相同"
+      "percent_unchanged": "与目前的百分比相同",
+      "invalid_worker_phone": "请输入有效的手机号码，例如 012-345 6789",
+      "site_worker_phone_taken": "这个电话号码已在名单上",
+      "too_many_documents": "最多 10 张证件"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -10823,7 +10834,8 @@
       "gateIssues": "门岗事项",
       "visitorRecords": "访客进退场记录",
       "dailyReport": "日报告",
-      "progressSummary": "项目进度摘要"
+      "progressSummary": "项目进度摘要",
+      "siteWorkers": "人员名单"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -11569,6 +11581,12 @@
       "who": "持 site_access.view；门岗事项由指定人员或持 site_access.manage 的人确认结束。",
       "then": "普通照片直接归档；门岗事项会通知指定人员，双方在事项里沟通，确认结束后只能查看。",
       "trouble": "找不到某张照片：看一下日期、时间和拍摄人筛选，或切换成照片墙；断网时拍的照片要等手机有网络才会上传。"
+    },
+    "site_workers": {
+      "what": "没有系统账号的工人名单：登记资料、发专属定位链接，看谁在场、几点进几点出。",
+      "who": "持 site_worker.view 可以看；持 site_worker.manage 可以登记人员和发送链接。",
+      "then": "人员打开链接、输入电话号码并同意后，页面开着时会定时上传位置；进围栏记进场，离开围栏满 5 分钟记离场。",
+      "trouble": "显示「定位未更新」：人员关了页面或锁屏，不代表已离场。打不开链接：请「重新发链接」。"
     }
   },
   "partners": {
@@ -12004,6 +12022,10 @@
       "integration": {
         "view": "查看系统集成与设备",
         "manage": "管理系统集成与设备"
+      },
+      "site_worker": {
+        "view": "查看人员名单和进出场记录",
+        "manage": "登记人员、发送定位链接"
       }
     },
     "group": {
@@ -12071,7 +12093,8 @@
       "cloud_service": "云服务",
       "platform_settings": "系统设置",
       "platform_version": "版本管理",
-      "integration": "系统集成"
+      "integration": "系统集成",
+      "site_worker": "人员名单"
     }
   },
   "photoApprovals": {
@@ -17746,5 +17769,167 @@
   "mapFrame": {
     "fullscreen": "全屏",
     "exitFullscreen": "退出全屏"
+  },
+  "siteWorkers": {
+    "title": "人员名单",
+    "visitsTitle": "进出场记录",
+    "count": "{count} 人",
+    "visitCount": "{count} 笔进出场记录",
+    "searchHint": "搜索姓名、电话号码、CIDB 卡号或其他证件号码；可同时选所属公司。",
+    "visitsHint": "每一笔是一次在场：围栏内记进场，离开围栏满 5 分钟记离场。手机停止上传时显示「定位未更新」，不会当作离场。",
+    "noFence": "这个项目还没设电子围栏，系统无法判断在场。请先到「Geofence 设置」设好围栏。",
+    "tab": {
+      "roster": "人员名单",
+      "visits": "进出场记录"
+    },
+    "field": {
+      "name": "姓名",
+      "phone": "电话号码",
+      "cidb": "CIDB 卡号",
+      "company": "所属公司",
+      "companyNote": "公司名称（名单里没有）",
+      "project": "项目",
+      "status": "在场状态",
+      "lastPositionAt": "最后定位时间",
+      "view": "查看",
+      "documents": "其他证件",
+      "enteredAt": "进场时间",
+      "exitedAt": "离场时间",
+      "exitState": "状态"
+    },
+    "status": {
+      "ON_SITE": "在场",
+      "OFF_SITE": "不在场",
+      "STALE": "定位未更新",
+      "NOT_STARTED": "未开始定位"
+    },
+    "visit": {
+      "signalLostAt": "定位未更新（最后 {at}）",
+      "EXITED": "已离场",
+      "in": "进场",
+      "out": "离场"
+    },
+    "filter": {
+      "company": "所属公司",
+      "allCompanies": "全部公司",
+      "project": "选择项目",
+      "allProjects": "全部项目",
+      "inactive": "已停用",
+      "dateFrom": "进场日期从",
+      "dateTo": "进场日期到",
+      "onePerson": "只看：{name}"
+    },
+    "action": {
+      "view": "查看",
+      "add": "新增人员",
+      "edit": "修改资料",
+      "deactivate": "移出名单",
+      "reactivate": "重新加入名单"
+    },
+    "what": {
+      "companies": "公司名单",
+      "worker": "人员资料"
+    },
+    "toast": {
+      "created": "已加入名单",
+      "updated": "资料已更新",
+      "deactivated": "已移出名单，定位链接已停用",
+      "reactivated": "已重新加入名单，请重新发送定位链接"
+    },
+    "form": {
+      "addTitle": "新增人员",
+      "editTitle": "修改资料",
+      "phoneHint": "例如 012-345 6789。定位链接只会绑定这个号码的手机。",
+      "noCompany": "不选（名单里没有）",
+      "pickCompany": "从公司名单选择",
+      "searchCompany": "搜索公司",
+      "noCompanyMatch": "名单里没有这家公司",
+      "companyNoteHint": "名单里没有的公司先打字，之后可以改成从名单选。",
+      "documentName": "证件名称（如护照）",
+      "documentNumber": "证件号码",
+      "removeDocument": "删除这张证件",
+      "addDocument": "加一张证件",
+      "documentIncomplete": "每张证件都要填名称和号码"
+    },
+    "detail": {
+      "title": "人员资料",
+      "lastAt": "最后定位 {at}",
+      "profile": "人员资料",
+      "lastPosition": "最后一次 GPS 位置",
+      "noPosition": "还没收到定位。发送定位链接，人员打开并同意后就会开始。",
+      "outside": "在工地外，距离围栏约 {km} 公里 · {at}",
+      "noFenceAt": "项目没设围栏，无法判断位置 · {at}",
+      "inside": "在工地内 · {at}",
+      "mapLabel": "最后位置地图",
+      "privacyNote": "只显示工地围栏内的位置；离开工地后只显示距离，不显示准确位置。定位记录不能修改或删除。",
+      "link": "定位链接",
+      "visits": "历史进出场记录（{count}）",
+      "allVisits": "查看全部",
+      "noVisits": "还没有进出场记录",
+      "deactivateHelp": "打开开关才能移出名单。移出后定位链接马上失效；之前的进出场和定位记录都保留。",
+      "armFirst": "先打开左边的开关"
+    },
+    "link": {
+      "status": {
+        "NONE": "还没发送",
+        "REVOKED": "已停用",
+        "NOT_OPENED": "已发送，还没打开",
+        "BOUND": "已打开，还没同意定位",
+        "ACTIVE": "已同意定位"
+      },
+      "issuedAt": "发送于 {at}",
+      "send": "发送定位链接",
+      "resend": "重新发链接",
+      "resendHint": "重新发链接后，旧链接马上失效，人员要在手机上重新输入电话号码。",
+      "message": "{name} 你好，这是 {project} 的工地定位链接。请用手机打开，输入你的电话号码，按「同意并开始定位」，在工地时保持页面打开：{link}",
+      "sentTitle": "定位链接已准备好",
+      "sentBody": "系统不发短信。用 WhatsApp 发给人员，或复制后自己发送。这个链接只显示这一次。",
+      "whatsapp": "用 WhatsApp 发送",
+      "copy": "复制链接"
+    }
+  },
+  "workerLocation": {
+    "chatTitle": "建议用浏览器打开",
+    "chatBody": "你正在 {app} 里打开链接。链接会绑定第一次打开它的地方，请复制链接，到 Chrome 或 Safari 打开。",
+    "copyLink": "复制链接",
+    "continueHere": "仍在这里打开",
+    "failedTitle": "暂时打不开",
+    "failedBody": "请检查网络后重试。",
+    "invalidTitle": "链接已失效",
+    "invalidBody": "请联系工地办公室重新发送。",
+    "closedTitle": "链接已关闭",
+    "closedBody": "你已不在这个项目的名单上，或项目已结束。",
+    "otherDeviceTitle": "链接已在另一部手机上使用",
+    "otherDeviceBody": "这个链接只能在确认过电话号码的手机上使用。请联系工地办公室重新发送。",
+    "phoneTitle": "输入你的电话号码",
+    "phoneBody": "要和工地办公室登记的号码一样。",
+    "phoneLabel": "电话号码",
+    "phonePlaceholder": "012-345 6789",
+    "phoneConfirm": "确认",
+    "hello": "{name} 你好",
+    "consentTitle": "开始前请看清楚",
+    "consent": {
+      "what": "会收集你手机的 GPS 位置和时间。",
+      "when": "只在这个页面开着时上传；关掉页面或锁屏就会停。",
+      "who": "工地办公室用来记录你几点进场、几点离场。离开工地后只显示距离，不显示准确位置。",
+      "noEdit": "定位记录不能修改或删除。"
+    },
+    "agree": "同意并开始定位",
+    "locating": "定位中",
+    "locatingAt": "定位中 · 上次上传 {time}",
+    "keepOpen": "请保持此页面打开",
+    "starting": "正在取得位置…",
+    "retry": "重试",
+    "foregroundOnly": "手机锁屏或切到别的 App 时会停止上传，回到这个页面会自动继续。",
+    "error": {
+      "invalid": "链接已失效，请联系工地办公室重新发送。",
+      "closed": "链接已关闭。",
+      "otherDevice": "链接已在另一部手机上使用。",
+      "phoneMismatch": "号码不对。请输入工地办公室登记的号码，或联系办公室。",
+      "failed": "暂时连不上，请稍后再试。",
+      "denied": "定位权限被拒绝，请按下面的步骤允许定位。",
+      "unavailable": "暂时取不到位置。请到空旷处，确认手机定位已打开。",
+      "upload": "上一次没传上去，会自动再试。"
+    }
   }
 }
