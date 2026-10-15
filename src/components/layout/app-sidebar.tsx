@@ -38,6 +38,7 @@ import {
 import {
   badgeKeysFor,
   isActivePath,
+  navTabOf,
   navLeaves,
   visibleNavigation,
   type FeatureNavChild,
@@ -491,7 +492,7 @@ function isActiveChild(
 
   const expected = new URLSearchParams(query);
   if (expected.has("tab")) {
-    return searchParams.get("tab") === expected.get("tab");
+    return navTabOf(route, searchParams) === expected.get("tab");
   }
 
   // A scanned gate link also belongs to the gate view, not the pass list.
