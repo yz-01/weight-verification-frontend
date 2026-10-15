@@ -14570,7 +14570,9 @@
       "submit": "Submit request",
       "view": "View",
       "recordNumbers": "Record numbers",
-      "siteEvidence": "Photograph vehicle exit / Gate Pass"
+      "siteEvidence": "Photograph vehicle exit / Gate Pass",
+      "setSupplier": "Name the supplier",
+      "changeSupplier": "Change supplier"
     },
     "assign": {
       "copyNow": "Copy and send this link to the external contractor. No sign-in is required. If it is lost, generate a new link from the disposal list; the old link will stop working.",
@@ -14626,7 +14628,9 @@
         "doNo": "Disposal DO number",
         "note": "Work note",
         "trips": "Number of trips",
-        "weight": "Actual weight (kg)"
+        "weight": "Actual weight (kg)",
+        "vehiclePlate": "Lorry plate",
+        "vehiclePlateHint": "Optional: the plate of the lorry taking this load"
       },
       "invalid": "Task link unavailable",
       "invalidBody": "This link is invalid, expired or the task has already been completed.",
@@ -14686,7 +14690,11 @@
       "plannedTrips": "Lorries expected",
       "tripsProgress": "Loads checked",
       "tripsAccepted": "Loads checked",
-      "tripsTotal": "Loads planned"
+      "tripsTotal": "Loads planned",
+      "supplier": "Supplier",
+      "vehiclePlates": "Lorry plates",
+      "vehiclePlate": "Lorry plate",
+      "createdAt": "Raised on"
     },
     "fieldEvidence": {
       "access": "3. Collection access or vehicle route",
@@ -14707,7 +14715,9 @@
       "field": {
         "doNo": "Disposal DO number",
         "note": "Work note",
-        "weight": "Actual weight (kg)"
+        "weight": "Actual weight (kg)",
+        "vehiclePlate": "Lorry plate",
+        "vehiclePlateHint": "Optional: the plate of the lorry taking this load"
       },
       "invalid": "This disposal task could not be opened. Refresh My Tasks and try again.",
       "photosBody": "Photograph each load at the licensed disposal place. Up to 4 photos per load, any kind; at least 1 to send. The office then checks the load.",
@@ -14788,7 +14798,8 @@
       "TRIP_ACCEPTED": "Office checked a load",
       "TRIP_ADDED": "Office added a load",
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
-      "TRIP_CORRECTED": "Office corrected a load's weight / DO"
+      "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
+      "SUPPLIER_SET": "Office named / changed the clearance company"
     },
     "title": "Site disposal",
     "toast": {
@@ -14803,7 +14814,8 @@
       "tripAccepted": "Load checked",
       "tripAdded": "Load added",
       "endedEarly": "Job ended early",
-      "tripCorrected": "Load corrected"
+      "tripCorrected": "Load corrected",
+      "supplierSet": "Clearance company saved"
     },
     "overdue": {
       "badge": "Exception",
@@ -14855,21 +14867,39 @@
       "allSentBody": "Waiting for the office to check them. If another lorry is going, ask the site to add a load.",
       "correct": "Correct",
       "correctTitle": "Correct load {seq}",
-      "correctHint": "Changes only this load's weight or DO number, with a reason. The original value and every correction are kept.",
+      "correctHint": "Changes only this load's weight, DO number or lorry plate, with a reason. The original value and every correction are kept.",
       "correctReason": "Reason for the correction",
       "correctSave": "Save correction",
-      "correctUnchanged": "Change the weight or the DO number first",
+      "correctUnchanged": "Change the weight, the DO number or the plate first",
       "history": "Corrections",
       "historyWeight": "Weight {from} → {to} kg",
       "historyDo": "DO {from} → {to}",
       "historyMeta": "{name} · {at} · Reason: {reason}",
-      "blank": "(blank)"
+      "blank": "(blank)",
+      "historyPlate": "Plate {from} → {to}"
     },
     "tripStatus": {
       "PLANNED": "Not sent yet",
       "SUBMITTED": "To check",
       "ACCEPTED": "Checked",
       "CANCELLED": "Dropped (ended early)"
+    },
+    "supplier": {
+      "internal": "Internal clearance",
+      "none": "No supplier"
+    },
+    "supplierPick": {
+      "placeholder": "Choose the clearance company",
+      "hint": "From the supplier list, so each company's clearances can be filtered and settled together.",
+      "defaultIndustry": "Waste clearance",
+      "defaultProducts": "Site waste clearance",
+      "setTitle": "Name the clearance company",
+      "changeTitle": "Change the clearance company",
+      "setDescription": "This clearance names no company yet. Once chosen, it is found when filtering and packing by company.",
+      "current": "Now: {name}",
+      "reason": "Reason for the change",
+      "unchanged": "Choose a different supplier first",
+      "save": "Save"
     }
   },
   "onSiteMap": {
@@ -15307,6 +15337,13 @@
     },
     "hint": {
       "profileMissing": "This supplier was added before industry and main products were recorded. Fill them in to save."
+    },
+    "quickAdd": {
+      "open": "Add supplier",
+      "title": "Add a supplier",
+      "description": "It joins the supplier list and is chosen here. Fill in the rest on the Suppliers page later.",
+      "codeHint": "Not used by another supplier, e.g. CLR-001",
+      "save": "Add and choose"
     }
   },
   "support": {
