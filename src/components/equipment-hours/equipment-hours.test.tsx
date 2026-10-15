@@ -188,7 +188,9 @@ describe("the office page 设备操作员工时", () => {
   });
 
   it("shows the client's columns in the client's order (2026-10 I4)", () => {
-    const html = officePage();
+    const page = officePage();
+    // The day table's own header row (the filters above use some of the words too).
+    const html = page.slice(page.indexOf("<thead"));
     const order = [
       words.field.machineNo,
       words.field.equipmentName,
@@ -204,7 +206,7 @@ describe("the office page 设备操作员工时", () => {
     expect(order.every((at) => at > 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     // The office fills the operator in the table (ID19).
-    expect(html).toContain(words.operator.fill);
+    expect(page).toContain(words.operator.fill);
   });
 
   it("leaves the hours of a session with no stop blank, not 0 (I4)", () => {
