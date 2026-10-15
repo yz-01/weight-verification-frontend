@@ -7636,7 +7636,8 @@
       "package_nothing_returned": "Nothing has been returned.",
       "package_item_not_returned": "Only a returned record can be resubmitted.",
       "package_source_missing": "The record behind a returned item can no longer be read.",
-      "package_link_not_found": "Not found"
+      "package_link_not_found": "Not found",
+      "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8196,7 +8197,9 @@
       "autoFilledFromCategory": "Filled in from the category",
       "supplierLimited": "Only the suppliers set for this category",
       "manufacturer": "Named manufacturer (MR)",
-      "chooseColumnFirst": "Choose the category first"
+      "chooseColumnFirst": "Choose the category first",
+      "noSupplier": "Supplier not filled in",
+      "noSupplierHint": "Not sure whose it is? Leave it - the office will fill it in."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -12111,7 +12114,8 @@
         "delivery_note_no": "Delivery order no.",
         "notes": "Notes",
         "received_by_name": "Received by",
-        "document_amount": "Delivery order amount"
+        "document_amount": "Delivery order amount",
+        "supplier": "Supplier"
       }
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
@@ -12299,7 +12303,15 @@
     },
     "exportVerdict": "Acceptance result",
     "rejectedReturns": "Rejected returns",
-    "rejectedReturn": "Rejected – returned"
+    "rejectedReturn": "Rejected – returned",
+    "supplierUnfilled": "Supplier not filled in",
+    "supplierUnfilledShort": "not filled in",
+    "fillSupplier": {
+      "action": "Fill in supplier",
+      "hint": "The site did not fill in the supplier. Fill it in before accepting.",
+      "reason": "Supplier filled in (left blank on site)",
+      "formHint": "Choose this delivery's supplier, save, then accept it."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -16592,7 +16604,8 @@
     "what": "the supplier list",
     "allManufacturers": "All named manufacturers",
     "manufacturer": "Named manufacturer (MR)",
-    "whatManufacturers": "The supplier list"
+    "whatManufacturers": "The supplier list",
+    "unfilled": "Supplier not filled in"
   },
   "recordNo": {
     "copy": "Copy {number}",

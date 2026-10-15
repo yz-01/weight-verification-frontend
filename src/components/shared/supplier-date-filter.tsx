@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { useListQuery } from "@/hooks/use-list-query";
 import type { ListQuery } from "@/interfaces/api";
+import { UNFILLED_SUPPLIER } from "@/lib/receipt-supplier";
 import { getSupplier, getSuppliers } from "@/services/contractor.service";
 import { getManufacturers } from "@/services/material-setup.service";
 
@@ -55,13 +56,18 @@ export function supplierSearchQuery(term: string): ListQuery {
  * The picker's rows: "every supplier", then this page of results. The chosen
  * supplier's name is carried separately (`selectedLabel`) when it is not on
  * this page, so the button never falls back to showing an id.
+ *
+ * `unfilledLabel` adds 「未填供应商」 second (2026-10-15 I23): the material
+ * deliveries the phone filed without a supplier, `?supplier=none`.
  */
 export function supplierOptions(
   results: readonly ReturnBadgeSupplier[],
   allLabel: string,
+  unfilledLabel?: string,
 ): ComboOption[] {
   return [
     { value: ALL, label: allLabel },
+    ...(unfilledLabel ? [{ value: UNFILLED_SUPPLIER, label: unfilledLabel }] : []),
     ...results.map((row) => ({
       value: row.id,
       label: row.name,
@@ -79,6 +85,7 @@ export function SupplierDateFilter({
   showSupplier = true,
   showDates = true,
   showManufacturer = false,
+  showUnfilled = false,
 }: {
   value: SupplierDateValue;
   /** Only the keys that changed; `undefined` clears one. */
@@ -88,6 +95,11 @@ export function SupplierDateFilter({
   showDates?: boolean;
   /** The manufacturer too (2026-10 D1): material records only. */
   showManufacturer?: boolean;
+  /**
+   * 「未填供应商」 as a choice (2026-10-15 I23): material deliveries only,
+   * whose endpoints read `supplier=none`.
+   */
+  showUnfilled?: boolean;
 }) {
   const t = useTranslations("supplierDateFilter");
   const [term, setTerm] = useState("");
@@ -101,12 +113,19 @@ export function SupplierDateFilter({
     placeholderData: keepPreviousData,
   });
   const results = suppliers.data?.results ?? [];
-  const options = supplierOptions(results, t("allSuppliers"));
+  const options = supplierOptions(
+    results,
+    t("allSuppliers"),
+    showUnfilled ? t("unfilled") : undefined,
+  );
   // The name of the chosen one, remembered from when it was picked, or read
   // once when the filter arrives from a link with only its id.
   const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
   const chosen = value.supplier;
-  const onPage = chosen ? results.some((row) => row.id === chosen) : true;
+  // 「未填供应商」 is a choice of its own, not a supplier to look up.
+  const onPage = chosen
+    ? chosen === UNFILLED_SUPPLIER || results.some((row) => row.id === chosen)
+    : true;
   const known = picked && picked.id === chosen ? picked.name : undefined;
   // query-failure: only the button's label; the picker's own failure note covers the list
   const chosenRow = useQuery({
@@ -230,10 +249,13 @@ function ManufacturerFilter({
 export function SupplierDateListFilter({
   list,
   showManufacturer = false,
+  showUnfilled = false,
 }: {
   list: ReturnType<typeof useListQuery>;
   /** Material lists also filter by manufacturer (2026-10 D1). */
   showManufacturer?: boolean;
+  /** 「未填供应商」 (I23): the material receipts list only. */
+  showUnfilled?: boolean;
 }) {
   return (
     <SupplierDateFilter
@@ -244,6 +266,7 @@ export function SupplierDateListFilter({
         date_to: list.filters.date_to,
       }}
       showManufacturer={showManufacturer}
+      showUnfilled={showUnfilled}
       onChange={(next) => list.setFilters(next as Record<string, string | undefined>)}
     />
   );

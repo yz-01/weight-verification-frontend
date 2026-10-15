@@ -143,6 +143,10 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
   payload: {
     receipt: {
       project: string;
+      /**
+       * "" when the worker left 「未填供应商」 (2026-10-15 I23): the upload
+       * leaves it out and the delivery is filed with none, as online.
+       */
       supplier: string;
       qr_code?: string | null;
       movement_type?: "ENTRY" | "RETURN";

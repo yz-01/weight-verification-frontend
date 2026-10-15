@@ -88,4 +88,21 @@ describe("supplier search", () => {
     );
     expect(html).toContain("Alpha");
   });
+
+  it("offers 「未填供应商」 second where the records may have no supplier (I23)", () => {
+    const options = supplierOptions([{ id: "s1", name: "Alpha" }], "全部供应商", "未填供应商");
+    expect(options.map((o) => o.label)).toEqual(["全部供应商", "未填供应商", "Alpha"]);
+    expect(options[1].value).toBe("none");
+    // Not offered unless asked for: other lists' endpoints do not read `none`.
+    expect(supplierOptions([], "全部供应商").map((o) => o.value)).not.toContain("none");
+  });
+
+  it("names 「未填供应商」 when it is the choice, without looking it up as a supplier", () => {
+    const html = render(
+      <SupplierDateFilter value={{ supplier: "none" }} onChange={() => {}} showDates={false} showUnfilled />,
+      (client) => client.setQueryData(["suppliers", "filter-options", ""], page([{ id: "s1", name: "Alpha" }])),
+    );
+    expect(html).toContain(messages.supplierDateFilter.unfilled);
+    expect(html).not.toMatch(/>none</);
+  });
 });

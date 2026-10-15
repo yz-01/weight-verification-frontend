@@ -30,6 +30,7 @@ import {
   type MaterialUnit,
 } from "@/interfaces/contractor";
 import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
+import { SupplierPicker } from "@/components/shared/supplier-picker";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { correctReceipt, getReceipt } from "@/services/contractor.service";
 
@@ -42,17 +43,27 @@ import { correctReceipt, getReceipt } from "@/services/contractor.service";
  * account's `create_receipt`. What the office still does is put a filed
  * delivery right, here.
  *
- * On a correction the project, the supplier and the docket are shown but not
- * editable. The backend refuses to change them, and for the same reason: they
- * are what the receipt is evidence of. Only the figures a clerk can honestly
- * have got wrong stay open.
+ * On a correction the project and the docket are shown but not editable. The
+ * backend refuses to change them, and for the same reason: they are what the
+ * receipt is evidence of. Only the figures a clerk can honestly have got wrong
+ * stay open - and since 2026-10-15 the supplier is one of them (I23, ID58,
+ * IB14): a worker who did not know whose lorry it was left it 「未填供应商」
+ * or picked any one, and the office puts it right here. Opened from
+ * 「补供应商」 (`fillSupplier`), the reason is filled in and the supplier
+ * must be chosen before saving.
  *
  * A correction files a *new* receipt that points back at the original, so both
  * figures survive. This screen used to send the edit to `update_receipt`, an
  * endpoint that exists only to refuse - the form filled in, the button pressed,
  * and a 409 every single time (F-129).
  */
-function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
+function CorrectReceiptForm({
+  receipt,
+  fillSupplier = false,
+}: {
+  receipt: MaterialReceiptDetail;
+  fillSupplier?: boolean;
+}) {
   const t = useTranslations();
   const finish = useFinishForm();
   const queryClient = useQueryClient();
@@ -113,7 +124,9 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
       // linked record, never the original rewritten.
       movement_type: (receipt.movement_type ?? "ENTRY") as "ENTRY" | "RETURN",
       return_reason: receipt.return_reason ?? "",
-      reason: "",
+      // 「补供应商」 (I23): "" is 「未填供应商」, which the server keeps as none.
+      supplier: receipt.supplier ?? "",
+      reason: fillSupplier ? t("receipts.fillSupplier.reason") : "",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -134,6 +147,7 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
         received_by_name: value.received_by_name,
         category: value.category,
         manufacturer: value.manufacturer || null,
+        supplier: value.supplier,
       };
 
       try {
@@ -171,10 +185,30 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
           label={t("receipts.field.project")}
           value={receipt.project_name}
         />
-        <ReadField
-          label={t("receipts.field.supplier")}
-          value={receipt.supplier_name}
-        />
+        <form.Field
+          name="supplier"
+          validators={fillSupplier ? { onSubmit: required(t("validation.required")) } : undefined}
+        >
+          {(field) => (
+            <FieldWrapper
+              label={t("receipts.field.supplier")}
+              required={fillSupplier}
+              hint={fillSupplier ? t("receipts.fillSupplier.formHint") : undefined}
+              error={shownError(field.state.meta.errors)}
+            >
+              <SupplierPicker
+                value={field.state.value}
+                onChange={field.handleChange}
+                knownName={receipt.supplier_name || null}
+                placeholder={t("receipts.supplierUnfilled")}
+                // Kept unfilled while the office corrects something else; once
+                // a supplier is known it can be changed, not taken away.
+                allowNone={!receipt.supplier}
+                noneLabel={t("receipts.supplierUnfilled")}
+              />
+            </FieldWrapper>
+          )}
+        </form.Field>
         <form.Subscribe selector={(state) => state.values.project}>
           {(project) => (
             <form.Field name="category" validators={{ onSubmit: required(t("validation.required")) }}>
@@ -380,8 +414,21 @@ function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
   );
 }
 
+/** The first of a field's errors, as the shared fields show it. */
+function shownError(errors: readonly unknown[]): string | undefined {
+  const first = errors.find(Boolean);
+  return first ? String(first) : undefined;
+}
+
 /** Fetches the record, then hands it to the correction form. */
-export function EditReceipt({ id }: { id: string }) {
+export function EditReceipt({
+  id,
+  fillSupplier = false,
+}: {
+  id: string;
+  /** Opened from 「补供应商」 beside 验收 (I23): the supplier is the point. */
+  fillSupplier?: boolean;
+}) {
   const t = useTranslations();
   const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["receipts", "detail", id],
@@ -392,5 +439,5 @@ export function EditReceipt({ id }: { id: string }) {
   if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
   }
-  return <CorrectReceiptForm receipt={data} />;
+  return <CorrectReceiptForm receipt={data} fillSupplier={fillSupplier} />;
 }

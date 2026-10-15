@@ -42,6 +42,8 @@ import {
   reportMenuKind,
   type ReportLevels,
 } from "@/lib/report-menu";
+import { supplierFilterValue, supplierShown } from "@/lib/receipt-supplier";
+import { cn } from "@/lib/utils";
 import { getProjects, getReceiptSummary } from "@/services/contractor.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getReportCategories } from "@/services/contractor-report.service";
@@ -315,6 +317,7 @@ function SupplierLevel({
   onPick: (supplier?: string) => void;
 }) {
   const t = useTranslations("reportSelector");
+  const tRoot = useTranslations();
   // Mounted only when this level opens, so a long list of materials does not
   // ask for every material's suppliers up front.
   const summary = useQuery({
@@ -334,8 +337,15 @@ function SupplierLevel({
       )}
       {suppliers.length > 0 && <DropdownMenuSeparator />}
       {suppliers.map((row) => (
-        <DropdownMenuItem key={row.supplier} className="h-8" onSelect={() => onPick(row.supplier)}>
-          <span className="min-w-0 flex-1 truncate">{row.supplier_name}</span>
+        // The deliveries 「未填供应商」 (2026-10-15 I23) open as `supplier=none`.
+        <DropdownMenuItem
+          key={supplierFilterValue(row.supplier)}
+          className="h-8"
+          onSelect={() => onPick(supplierFilterValue(row.supplier))}
+        >
+          <span className={cn("min-w-0 flex-1 truncate", !row.supplier && "text-muted-foreground")}>
+            {supplierShown(row.supplier_name, tRoot("receipts.supplierUnfilled"))}
+          </span>
         </DropdownMenuItem>
       ))}
       {summary.isSuccess && suppliers.length === 0 && (

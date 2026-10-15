@@ -7636,7 +7636,8 @@
       "package_nothing_returned": "沒有被退回的資料。",
       "package_item_not_returned": "只有被退回的資料可以重新提交。",
       "package_source_missing": "有一條退回資料的原記錄讀不到了。",
-      "package_link_not_found": "找不到"
+      "package_link_not_found": "找不到",
+      "receipt_needs_supplier": "這批材料還沒有供應商。請先按「補供應商」填上，再驗收。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8196,7 +8197,9 @@
       "autoFilledFromCategory": "按分類自動帶出",
       "supplierLimited": "只列這個分類設定的供應商",
       "manufacturer": "指定廠商（MR）",
-      "chooseColumnFirst": "請先選分類"
+      "chooseColumnFirst": "請先選分類",
+      "noSupplier": "未填供應商",
+      "noSupplierHint": "不確定是哪家就不用選，後台會補上。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -12111,7 +12114,8 @@
         "delivery_note_no": "送貨單號",
         "notes": "備註",
         "received_by_name": "收貨人",
-        "document_amount": "送貨單金額"
+        "document_amount": "送貨單金額",
+        "supplier": "供應商"
       }
     },
     "count": "{count, plural, =0 {暫無材料進場記錄} other {# 條材料進場記錄}}",
@@ -12299,7 +12303,15 @@
     },
     "exportVerdict": "驗收結果",
     "rejectedReturns": "不合格退貨",
-    "rejectedReturn": "不合格退貨"
+    "rejectedReturn": "不合格退貨",
+    "supplierUnfilled": "未填供應商",
+    "supplierUnfilledShort": "未填",
+    "fillSupplier": {
+      "action": "補供應商",
+      "hint": "現場沒有填供應商。先補供應商，才能驗收。",
+      "reason": "補供應商（現場未填）",
+      "formHint": "選這批貨的供應商，儲存後再驗收。"
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -16592,7 +16604,8 @@
     "what": "供應商列表",
     "allManufacturers": "全部指定廠商",
     "manufacturer": "指定廠商（MR）",
-    "whatManufacturers": "供應商名單"
+    "whatManufacturers": "供應商名單",
+    "unfilled": "未填供應商"
   },
   "recordNo": {
     "copy": "複製 {number}",
