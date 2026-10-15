@@ -3879,7 +3879,8 @@
         "MATERIAL_RECEIPT_QUANTITY": "Jumlah kuantiti dalam unit bahan yang dipilih.",
         "SETTLED_RECYCLING_WEIGHT": "Berat kitar semula yang diselesaikan dalam kilogram."
       },
-      "wasteType": "Jenis sisa kitar semula"
+      "wasteType": "Jenis sisa kitar semula",
+      "quantityMoved": "Kuantiti bahan diterima kini ditetapkan dalam Pengurusan bahan → Sasaran bahan (bersih selepas pemulangan, mengikut spesifikasi); sasaran sedia ada terus berfungsi."
     },
     "loadError": "Sasaran perniagaan tidak dapat dimuatkan.",
     "management": {
@@ -3901,12 +3902,13 @@
       "title": "Sasaran perniagaan"
     },
     "materialUnit": {
-      "BAG": "Beg",
+      "BAG": "Beg (Bag)",
       "KG": "Kilogram",
       "LOAD": "Muatan",
       "M3": "Meter padu",
-      "PIECE": "Unit",
-      "TONNE": "Tan"
+      "PIECE": "Unit (PCS)",
+      "TONNE": "Tan (Ton)",
+      "M2": "Meter persegi (m²)"
     },
     "metric": {
       "FIELD_TASK_COUNT": "Tugasan tapak diterima",
@@ -4021,7 +4023,8 @@
       "thresholdAmountsHint": "Pilihan. Dipisahkan dengan koma, contohnya 400000, 450000 (RM) - atau kuantiti dalam mod kuantiti.",
       "thresholdAmountsInvalid": "Gunakan nombor melebihi sifar, dipisahkan dengan koma.",
       "recipients": "Amaran dihantar kepada pentadbir syarikat dan ketua projek, sekali bagi setiap garis; jika jumlah turun semula, amaran ditarik balik.",
-      "quantityUsed": "{used} daripada {budget} {unit}"
+      "quantityUsed": "{used} daripada {budget} {unit}",
+      "quantityMoved": "Bajet mengira wang sahaja. Tetapkan sasaran kuantiti dalam Pengurusan bahan → Sasaran bahan (bersih selepas pemulangan, mengikut spesifikasi)."
     },
     "saveFailed": "Tidak berjaya. Cuba lagi, atau muat semula halaman.",
     "viewRecords": "Lihat rekod",
@@ -4072,7 +4075,8 @@
       "noneChosen": "Tiada dipilih",
       "what": {
         "suppliers": "Senarai pembekal"
-      }
+      },
+      "specsLine": "Spesifikasi: {specs}"
     },
     "equipment": {
       "majorClass": "Kelas utama",
@@ -4086,7 +4090,27 @@
     "armRemove": "Benarkan buang {name}",
     "armFirst": "Hidupkan suis di sebelahnya dahulu",
     "codeAuto": "Kod dijana oleh sistem dan tidak boleh diubah selepas dicipta.",
-    "codeAutoPlaceholder": "Dijana semasa disimpan"
+    "codeAutoPlaceholder": "Dijana semasa disimpan",
+    "requestTypes": "Jenis permohonan",
+    "specs": {
+      "title": "Spesifikasi dan unit",
+      "help": "Setiap spesifikasi ada unitnya sendiri. MR, penghantaran, pemulangan dan sasaran bahan semua memilih dari sini, dan unit datang bersamanya. 「Lain-lain」 ditaip pada rekod dengan unit dipilih.",
+      "name": "Nama spesifikasi",
+      "unit": "Unit",
+      "chooseUnit": "Pilih unit",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "nameRequired": "Masukkan nama spesifikasi",
+      "unitRequired": "Pilih unit",
+      "otherBadge": "Ditaip di tapak",
+      "active": "Guna {name}",
+      "activeLabel": "Digunakan",
+      "remove": "Buang spesifikasi",
+      "newName": "Spesifikasi baharu",
+      "newPlaceholder": "cth. Y50mm",
+      "add": "Tambah spesifikasi",
+      "afterSave": "Simpan bahan, kemudian buka untuk menambah spesifikasi dan unitnya."
+    }
   },
   "cloudServices": {
     "count": "{count} perkhidmatan",
@@ -5948,7 +5972,10 @@
       "scanSupplier": "Imbas QR pembekal",
       "scannedSupplier": "Diimbas: {name}",
       "scanFailed": "Kod itu bukan kod QR pembekal.",
-      "noSupplier": "Tidak diketahui"
+      "noSupplier": "Tidak diketahui",
+      "spec": "Spesifikasi",
+      "chooseSpec": "Pilih spesifikasi",
+      "specName": "Nama spesifikasi"
     },
     "outgoingStatus": {
       "APPROVED": "Diluluskan / menunggu keluar tapak",
@@ -8227,7 +8254,12 @@
       "manufacturer": "Pengilang dinamakan (MR)",
       "chooseColumnFirst": "Pilih kategori dahulu",
       "noSupplier": "Pembekal belum diisi",
-      "noSupplierHint": "Tidak pasti pembekalnya? Biarkan - pejabat akan mengisinya."
+      "noSupplierHint": "Tidak pasti pembekalnya? Biarkan - pejabat akan mengisinya.",
+      "spec": "Spesifikasi",
+      "chooseSpec": "Pilih spesifikasi",
+      "specName": "Nama spesifikasi",
+      "specNameHint": "Tiada dalam senarai? Pilih 「Lain-lain」 dan taip di sini.",
+      "autoFilledFromSpec": "Dari spesifikasi"
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -8784,6 +8816,14 @@
       "clearanceMonth": "Sisa dibersihkan bulan ini",
       "hazardsOpen": "Terbuka",
       "hazardsOverdue": "Lewat tempoh"
+    },
+    "materialTargets": {
+      "title": "Sasaran bahan",
+      "empty": "Belum ada projek dengan sasaran bahan. Tetapkan dalam Pengurusan bahan → Sasaran bahan.",
+      "targets": "{count} sasaran",
+      "exceeded": "{count} melebihi",
+      "reached": "{count} dicapai",
+      "approaching": "{count} hampir"
     }
   },
   "home": {
@@ -10313,7 +10353,7 @@
       "due_at": "Tarikh akhir",
       "result_note": "Keputusan",
       "person": "Individu",
-      "subject": "Perkara",
+      "subject": "Perkara permohonan",
       "related_record": "Rekod berkaitan",
       "visitor_company": "Syarikat",
       "phone": "Telefon",
@@ -10357,8 +10397,9 @@
       "scope": "Dihantar kepada",
       "published_by": "Diterbitkan oleh",
       "published_at": "Diterbitkan pada",
-      "content": "Kandungan",
-      "read_count": "Dibaca / penerima"
+      "content": "Butiran permohonan",
+      "read_count": "Dibaca / penerima",
+      "request_kind": "Jenis permohonan"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -10370,13 +10411,14 @@
     "failedHelp": "Pelayan tidak menerima ini, jadi ia tidak dihantar semula sendiri. Sebabnya di bawah; minta pentadbir anda menguruskannya.",
     "close": "Tutup",
     "unit": {
-      "BAG": "Guni",
+      "BAG": "Beg (Bag)",
       "KG": "Kilogram",
       "LOAD": "Muatan",
       "M3": "Meter padu",
       "OTHER": "Lain-lain",
-      "PIECE": "Unit",
-      "TONNE": "Tan"
+      "PIECE": "Unit (PCS)",
+      "TONNE": "Tan (Ton)",
+      "M2": "Meter persegi (m²)"
     },
     "returnedClosed": "Permohonan ini telah ditutup. Rekod, sebab dan perbualan dikekalkan; buka permohonan baharu jika ia masih perlu dilakukan.",
     "paymentProofs": "Baucar bayaran",
@@ -10384,7 +10426,9 @@
     "conversation": "Komunikasi rekod",
     "removeFromList": "Keluarkan daripada senarai saya",
     "removeHelp": "Hanya dikeluarkan daripada senarai dalam telefon ini. Rekod di awan, pejabat dan pengguna lain tidak terjejas; tekan \"Tunjukkan semula semuanya\" di bawah senarai untuk memaparkannya semula.",
-    "hiddenNote": "{count} dikeluarkan daripada senarai saya."
+    "hiddenNote": "{count} dikeluarkan daripada senarai saya.",
+    "files": "Fail yang dihantar",
+    "download": "Muat turun"
   },
   "nav": {
     "activity_logs": "Log aktiviti",
@@ -10717,7 +10761,8 @@
       "gateIssues": "Isu Pintu",
       "visitorRecords": "Rekod Pelawat",
       "dailyReport": "Laporan harian",
-      "progressSummary": "Ringkasan kemajuan"
+      "progressSummary": "Ringkasan kemajuan",
+      "materialTargets": "Sasaran bahan"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -11692,7 +11737,7 @@
         "view": "Lihat MR / Permohonan Lain",
         "submit": "Hantar MR / Permohonan Lain",
         "review": "Lulus atau kembalikan MR / Permohonan Lain",
-        "config": "Selenggara senarai bahan MR"
+        "config": "Urus jenis permohonan MR"
       },
       "partnership": {
         "view": "Lihat kerjasama",
@@ -11898,6 +11943,9 @@
       "integration": {
         "view": "Lihat integrasi dan peranti",
         "manage": "Urus integrasi dan peranti"
+      },
+      "material_target": {
+        "manage": "Tetapkan sasaran bahan"
       }
     },
     "group": {
@@ -11965,7 +12013,8 @@
       "cloud_service": "Perkhidmatan awan",
       "platform_settings": "Tetapan platform",
       "platform_version": "Versi",
-      "integration": "Integrasi sistem"
+      "integration": "Integrasi sistem",
+      "material_target": "Sasaran bahan"
     }
   },
   "photoApprovals": {
@@ -12440,7 +12489,11 @@
         "OCR": "Dibaca daripada pesanan penghantaran",
         "MANUAL": "Dimasukkan oleh seseorang"
       },
-      "manufacturer": "Pengilang dinamakan (MR)"
+      "manufacturer": "Pengilang dinamakan (MR)",
+      "spec": "Spesifikasi",
+      "specHint": "Dari data bahan; spesifikasi membawa nama dan unitnya.",
+      "chooseSpec": "Pilih spesifikasi",
+      "noSpec": "Tiada spesifikasi"
     },
     "locationCaptured": "Lokasi direkod",
     "locationMissing": "Tiada lokasi",
@@ -12496,12 +12549,13 @@
     },
     "unfiled": "Belum difailkan",
     "unit": {
-      "BAG": "Beg",
+      "BAG": "Beg (Bag)",
       "KG": "Kilogram",
       "LOAD": "Muatan",
       "M3": "Meter padu",
-      "PIECE": "Unit",
-      "TONNE": "Tan"
+      "PIECE": "Unit (PCS)",
+      "TONNE": "Tan (Ton)",
+      "M2": "Meter persegi (m²)"
     },
     "viewTitle": "Resit",
     "waiting": "Menunggu anda baca",
@@ -12523,7 +12577,8 @@
       "reject": "Reject",
       "totals": "Jumlah diterima & dipulangkan",
       "legacyReturns": "Pemulangan yang direkod melalui borang terimaan sebelum 10-02",
-      "choose": "Pilih paparan"
+      "choose": "Pilih paparan",
+      "targets": "Sasaran bahan"
     },
     "net": {
       "title": "Diterima dan dipulangkan mengikut pembekal dan bahan",
@@ -16742,10 +16797,6 @@
       "MATERIAL": "Permohonan Bahan",
       "OTHER": "Permohonan Lain"
     },
-    "typeHelp": {
-      "MATERIAL": "Borang elektronik: bahan, spesifikasi, kuantiti, unit.",
-      "OTHER": "Muat naik fail dan tulis catatan."
-    },
     "status": {
       "SUBMITTED": "Menunggu kelulusan",
       "APPROVED": "Diluluskan",
@@ -16779,7 +16830,11 @@
       "assignedReviewer": "Hantar kepada",
       "reassignHistory": "Rekod ambil alih",
       "supplier": "Pembekal",
-      "manufacturer": "Pengilang dinamakan pemilik"
+      "manufacturer": "Pengilang dinamakan pemilik",
+      "subject": "Perkara permohonan",
+      "content": "Butiran permohonan",
+      "specificationName": "Nama spesifikasi",
+      "materialOrSubject": "Bahan / perkara"
     },
     "action": {
       "view": "Lihat",
@@ -16825,7 +16880,7 @@
     },
     "form": {
       "title": "Permohonan Baharu",
-      "help": "Pilih Permohonan Bahan untuk borang elektronik, atau Permohonan Lain untuk menghantar fail dengan catatan.",
+      "help": "Pilih jenis permohonan: permohonan bahan meminta bahan, spesifikasi dan kuantiti; jenis lain menggunakan borang ringkas. Setiap permohonan boleh membawa foto, PDF dan fail lain.",
       "raiseAgainHelp": "Permohonan baharu, diisi daripada yang dikembalikan. Ia diberi No. Permohonan baharu; permohonan asal kekal ditutup dalam sejarah.",
       "projectHint": "Projek semasa diisi secara automatik.",
       "chooseProject": "Pilih projek",
@@ -16835,48 +16890,35 @@
       "chooseUnit": "Pilih unit",
       "search": "Taip untuk cari",
       "noMatch": "Tiada padanan",
-      "noSpecifications": "Tiada spesifikasi disenaraikan untuk bahan ini lagi",
-      "listsEmpty": "Senarai bahan kosong. Ibu pejabat atau pentadbir menambah bahan, spesifikasi dan unit di Senarai bahan.",
-      "quantityRule": "Melebihi 0, nombor bulat atau sehingga 2 tempat perpuluhan",
+      "quantityRule": "Melebihi 0, nombor bulat atau sehingga tiga tempat perpuluhan",
       "remarkPlaceholder": "Pilihan: lokasi penghantaran, masa, apa-apa yang perlu diketahui ibu pejabat",
-      "otherRemarkPlaceholder": "Apakah permohonan ini?",
-      "attachmentHint": "Foto produk, sijil atau fail lain. Sehingga {count} fail, {limit} MB setiap satu.",
       "addFiles": "Tambah fail",
       "removeFile": "Buang {name}",
       "fileTooBig": "{name} melebihi {limit} MB.",
-      "fileOrRemark": "Fail atau catatan",
       "submit": "Hantar",
       "assignedReviewerHint": "Hanya orang yang boleh meluluskan permohonan bagi projek ini disenaraikan.",
       "chooseReviewer": "Pilih pelulus",
       "projectFirst": "Pilih projek dahulu",
       "noReviewers": "Belum ada sesiapa yang boleh meluluskan permohonan bagi projek ini. Minta pentadbir syarikat menanda \"Lulus atau kembalikan MR / Permohonan Lain\" pada peranan pelulus di Peranan.",
-      "suggestHint": "Pilihan. Hanya apabila pemilik menamakan pengilang - pilih daripada senarai pembekal."
-    },
-    "options": {
-      "open": "Senarai bahan",
-      "title": "Senarai bahan",
-      "help": "Pilihan borang MR: bahan, spesifikasi setiap bahan, dan unit. Matikan pilihan untuk menghentikannya; permohonan yang telah dihantar kekal seperti asal.",
-      "materials": "Bahan / produk",
-      "specificationList": "Spesifikasi",
-      "specificationsOf": "Spesifikasi {material}",
-      "units": "Unit",
-      "builtIn": "terbina dalam",
-      "empty": "Belum ada pilihan",
-      "addMaterialFirst": "Tambah bahan dahulu; spesifikasinya disenaraikan di bawahnya.",
-      "retire": "Hentikan {name}",
-      "restore": "Tawarkan {name} semula",
-      "failed": "Pilihan tidak dapat disimpan.",
-      "add": {
-        "MATERIAL": "Tambah bahan",
-        "SPECIFICATION": "Tambah spesifikasi",
-        "UNIT": "Tambah unit"
-      }
+      "suggestHint": "Pilihan. Hanya apabila pemilik menamakan pengilang - pilih daripada senarai pembekal.",
+      "chooseType": "Pilih jenis permohonan",
+      "notSetUp": "Bahan ini belum disediakan. Sediakannya dalam Pengurusan Kategori dahulu.",
+      "goToCategories": "Pergi ke Pengurusan Kategori",
+      "askToSetUp": "Minta pegawai pejabat yang mengurus kategori untuk menyediakannya.",
+      "materialData": "Data bahan",
+      "otherSpecHint": "「Lain-lain」 dipilih: taip spesifikasi dan pilih unitnya.",
+      "unitFromSpec": "Unit datang bersama spesifikasi dan tidak boleh diubah.",
+      "unitAfterSpec": "Diisi selepas spesifikasi dipilih",
+      "subjectHint": "Apa yang dipohon, dalam satu baris - contohnya: dua kren, satu pejabat tapak.",
+      "contentOrFile": "Tulis butiran atau lampirkan fail - sekurang-kurangnya satu.",
+      "contentPlaceholder": "Apa yang diperlukan, berapa, bila",
+      "attachmentKindsHint": "Foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP. Sehingga {count} fail, setiap satu bawah {limit} MB.",
+      "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP."
     },
     "toast": {
       "submitted": "Permohonan dihantar.",
       "approved": "Permohonan diluluskan.",
       "returned": "Permohonan dikembalikan dan ditutup.",
-      "optionSaved": "Disimpan.",
       "reassigned": "Kini anda yang meluluskannya."
     },
     "capture": {
@@ -16892,6 +16934,40 @@
       "help": "Meluluskan ialah keputusan pembelian: pilih pembekal - dan, jika pemilik menamakan pengilang, pilih juga daripada senarai pembekal.",
       "chooseSupplier": "Pilih pembekal",
       "confirm": "Luluskan"
+    },
+    "types": {
+      "open": "Jenis permohonan",
+      "title": "Urus jenis permohonan",
+      "help": "Setiap projek menyimpan jenis permohonannya sendiri, semuanya pada satu aras. Setiap satu menggunakan salah satu daripada dua borang: butiran bahan (bahan, spesifikasi, kuantiti) atau borang ringkas (perkara, butiran, catatan, fail). Permohonan Bahan dan Permohonan Lain milik sistem: boleh dinamakan semula, tidak boleh dimatikan, dibuang atau ditukar borang.",
+      "chooseProject": "Pilih projek dahulu - jenis permohonan ditetapkan bagi setiap projek.",
+      "name": "Nama jenis",
+      "nameRequired": "Masukkan nama jenis",
+      "system": "Sistem",
+      "requestCount": "{count, plural, =0 {belum digunakan} other {# permohonan}}",
+      "form": "Borang",
+      "style": {
+        "MATERIAL": "Butiran bahan",
+        "GENERAL": "Borang ringkas"
+      },
+      "fixedHelp": "Jenis sistem: boleh dinamakan semula, tidak boleh dimatikan, dibuang atau ditukar borang.",
+      "active": "Guna {name}",
+      "activeLabel": "Digunakan",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "rename": "Namakan semula",
+      "armRemove": "Sedia untuk buang {name}",
+      "remove": "Buang jenis",
+      "armFirst": "Hidupkan suis di sebelahnya dahulu, kemudian buang.",
+      "newName": "Nama jenis baharu",
+      "newPlaceholder": "cth. Permohonan Tenaga Kerja",
+      "taken": "Projek ini sudah ada jenis itu.",
+      "formHint": "Apa-apa yang bukan bahan menggunakan borang ringkas.",
+      "add": "Tambah jenis",
+      "failed": "Tidak dapat disimpan. Cuba lagi.",
+      "toast": {
+        "saved": "Jenis permohonan disimpan.",
+        "removed": "Jenis permohonan dibuang."
+      }
     }
   },
   "filePreview": {
@@ -17640,5 +17716,64 @@
   "mapFrame": {
     "fullscreen": "Skrin penuh",
     "exitFullscreen": "Keluar skrin penuh"
+  },
+  "materialTargets": {
+    "title": "Sasaran bahan",
+    "count": "{count, plural, =0 {Tiada sasaran} other {# sasaran}}",
+    "basis": "Bersih diterima = penghantaran (muatan ditolak tidak dikira) tolak pemulangan yang disahkan selesai, mengikut bahan, spesifikasi dan unit; unit lain tidak ditukar. Apabila hampir, mencapai atau melebihi sasaran, pengurus projek, QS dan penetapnya dimaklumkan.",
+    "loading": "Memuatkan…",
+    "empty": "Projek ini belum ada sasaran bahan.",
+    "emptyAll": "Belum ada sasaran bahan. Pilih projek di atas, kemudian tambah.",
+    "add": "Tambah sasaran",
+    "chooseProjectFirst": "Pilih projek di atas dahulu",
+    "failed": "Tidak dapat dilakukan. Cuba lagi.",
+    "wholeMaterial": "Semua spesifikasi",
+    "netMakings": "Masuk {received} · dipulang {returned} · ditolak {rejected}",
+    "otherUnits": "Unit lain, tidak dikira: {units}",
+    "deliveries": "Penghantaran",
+    "returns": "Pemulangan",
+    "edit": "Ubah",
+    "armRemove": "Sedia untuk buang sasaran ini",
+    "remove": "Buang sasaran",
+    "armFirst": "Hidupkan suis di sebelahnya dahulu, kemudian buang.",
+    "field": {
+      "project": "Projek",
+      "material": "Bahan",
+      "spec": "Spesifikasi",
+      "unit": "Unit",
+      "target": "Kuantiti sasaran",
+      "net": "Bersih diterima",
+      "remaining": "Baki",
+      "exceeded": "Melebihi",
+      "progress": "Kemajuan",
+      "status": "Status",
+      "records": "Rekod",
+      "action": "Tindakan",
+      "alerts": "Garis amaran (%)",
+      "note": "Catatan"
+    },
+    "status": {
+      "NORMAL": "Normal",
+      "APPROACHING": "Hampir sasaran",
+      "REACHED": "Dicapai",
+      "EXCEEDED": "Melebihi"
+    },
+    "addTitle": "Tambah sasaran bahan",
+    "editTitle": "Ubah sasaran bahan",
+    "dialogHelp": "Bahan dan spesifikasi dari data bahan, dan unit datang bersama spesifikasi. Tanpa spesifikasi: sasaran untuk keseluruhan bahan.",
+    "chooseMaterial": "Pilih bahan",
+    "specHint": "Biarkan untuk keseluruhan bahan.",
+    "unitFromSpec": "Unit datang bersama spesifikasi.",
+    "chooseUnit": "Pilih unit",
+    "quantityRule": "Melebihi 0, sehingga tiga tempat perpuluhan",
+    "alertsHint": "cth. 80, 100: pada 80% 「hampir」, pada 100% 「dicapai」; melebihi 100% 「melebihi」 sentiasa dimaklumkan.",
+    "alertsInvalid": "Gunakan nombor bulat 1 hingga 100, dipisahkan koma.",
+    "recipients": "Siapa dimaklumkan: pengurus projek dan QS projek (sesiapa yang boleh menetapkan sasaran bahan) dan penetapnya, dengan bunyi.",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "toast": {
+      "saved": "Sasaran bahan disimpan.",
+      "removed": "Sasaran bahan dibuang."
+    }
   }
 }

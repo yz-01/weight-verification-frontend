@@ -6,8 +6,9 @@
  * The old 照片审批 entry, rebuilt. Three tabs:
  *
  * 1. **Requests** - every request with its own Request No., the columns the
- *    customer listed (C03) less type and project (D3: the top bar and the
- *    filter row already say them), + New Request, and the detail with its
+ *    customer listed (C03) less project (D3: the top bar says it) and with
+ *    the request type back (I16, ID37: 「沿用现有申请类型表头」, filtered by
+ *    the project's own types), + New Request, 「管理申请类型」, and the detail with its
  *    conversation, Approve and Return (C05) and the formal form's Preview,
  *    Print and Export PDF (C06).
  * 2. **Totals** - per project, material + specification + unit, the approved
@@ -38,7 +39,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { PhotoApprovals } from "@/components/field-staff/photo-approvals";
-import { OptionListsDialog } from "@/components/material-requests/option-lists";
+import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
+import { requestTypeNameOptions } from "@/lib/request-types";
 import { materialRequestReviewView } from "@/components/material-requests/review-gate";
 import {
   MaterialRequestForm,
@@ -96,7 +98,7 @@ import {
   getMaterialRequestTotals,
   materialRequestFormFile,
   reassignMaterialRequestToMe,
-  reviewMaterialRequest, exportMaterialRequestTotals } from "@/services/material-request.service";
+  reviewMaterialRequest, exportMaterialRequestTotals, getRequestTypes } from "@/services/material-request.service";
 
 const TONE: Record<MaterialRequestStatus, "warning" | "positive" | "neutral"> = {
   SUBMITTED: "warning",
@@ -162,9 +164,22 @@ function RequestsTab() {
   const unitLabel = useUnitLabel();
   const { can } = useAuth();
   const list = useListQuery([
-    "project", "status", "request_type", "material", "specification", "unit", "supplier", "manufacturer",
-    "date_from", "date_to",
+    "project", "status", "request_type", "request_kind", "request_kind_name", "material", "specification",
+    "unit", "supplier", "manufacturer", "date_from", "date_to",
   ]);
+  // The type filter (ID37): the chosen project's own types, or on 全部项目
+  // each name once (设备申请 on every site).
+  const typeFilter = useRequestTypeFilter(list.filters.project ?? "");
+  // A type chosen on another project is not this project's: let it go, or the
+  // list would be empty with nothing on screen saying why.
+  const { setFilter } = list;
+  const chosenKind = list.filters.request_kind;
+  useEffect(() => {
+    if (!chosenKind || !typeFilter.ready) return;
+    if (typeFilter.param !== "request_kind" || !typeFilter.options.some((option) => option.value === chosenKind)) {
+      setFilter("request_kind", undefined);
+    }
+  }, [chosenKind, typeFilter, setFilter]);
   const rows = useQuery({
     queryKey: ["material-requests", "office", list.query],
     queryFn: () => getMaterialRequests(list.query),
@@ -193,16 +208,23 @@ function RequestsTab() {
         // watermark like every photograph the platform shows.
         photos: (row) => rowPhotos(row.attachments.filter((file) => file.is_image).map((file) => ({ id: file.id, watermarked: file.watermarked, caption: file.original_name, captured_at: file.uploaded_at })), row.request_no),
       }),
-      // D3: no request-type or project column - the top bar already names
-      // the project and the filter row the type. An Other Request has no
-      // material, so its material cell says so in grey instead of a dash.
+      // 申请类型 is back (I16, ID37: 「沿用现有申请类型表头」); no project
+      // column - the top bar already names the project (D3).
+      {
+        id: "request_kind",
+        meta: { label: t("field.requestType") },
+        header: () => <PlainHeader label={t("field.requestType")} />,
+        cell: ({ row }) => requestTypeName(row.original, t),
+      },
+      // The simple form's 申请事项 sits where a material would (ID48); an old
+      // other request without one says its type in grey instead of a dash.
       {
         accessorKey: "material_name",
-        meta: { label: t("field.material") },
-        header: sortable(t("field.material")),
+        meta: { label: t("field.materialOrSubject") },
+        header: sortable(t("field.materialOrSubject")),
         cell: ({ row }) =>
           row.original.request_type === "OTHER" ? (
-            <span className="text-muted-foreground">{t("type.OTHER")}</span>
+            row.original.subject || <span className="text-muted-foreground">{t("type.OTHER")}</span>
           ) : (
             row.original.material_name || <span className="text-muted-foreground">—</span>
           ),
@@ -290,8 +312,9 @@ function RequestsTab() {
       query: list.query,
       columns: [
         { key: "request_no", label: t("field.requestNo") },
-        { key: "request_type", label: t("field.requestType"), values: { MATERIAL: t("type.MATERIAL"), OTHER: t("type.OTHER") } },
+        { key: "request_kind_name", label: t("field.requestType") },
         { key: "project_name", label: t("field.project") },
+        { key: "subject", label: t("field.subject") },
         { key: "material_name", label: t("field.material") },
         { key: "specification", label: t("field.specification") },
         { key: "quantity", label: t("field.quantity") },
@@ -308,6 +331,8 @@ function RequestsTab() {
         { key: "decided_by_name", label: t("field.decidedBy") },
         { key: "decided_at", label: t("field.decidedAt") },
         { key: "decision_note", label: t("field.returnReason") },
+        { key: "content", label: t("field.content") },
+        { key: "remark", label: t("field.remark") },
       ],
     });
 
@@ -318,10 +343,10 @@ function RequestsTab() {
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
           <div className="flex flex-wrap gap-2">
-            {can("material_request.config") && (
+            {(can("material_request.config") || can("category.manage")) && (
               <Button variant="outline" onClick={() => setManaging(true)}>
                 <Settings2 className="size-4" />
-                {t("options.open")}
+                {t("types.open")}
               </Button>
             )}
             {can("material_request.submit") && (
@@ -341,15 +366,16 @@ function RequestsTab() {
         isError={rows.isError}
         // New key (D3): an old saved column set must not bring back the dropped
         // columns, nor hide the manufacturer and supplier ones (D1).
-        storageKey="material-requests.v3"
+        // `.v4` since the request type column came back (I16, ID37).
+        storageKey="material-requests.v4"
         toolbar={
           <>
             <ProjectListFilter list={list} />
             <FilterSelect
               list={list}
-              param="request_type"
+              param={typeFilter.param}
               allLabel={t("allTypes")}
-              options={(["MATERIAL", "OTHER"] as const).map((type) => ({ value: type, label: t(`type.${type}`) }))}
+              options={typeFilter.options}
             />
             <FilterSelect
               list={list}
@@ -379,7 +405,6 @@ function RequestsTab() {
         <NewRequestDialog
           initialProject={list.filters.project ?? ""}
           prefill={creating === "blank" ? null : creating}
-          onManageLists={can("material_request.config") ? () => setManaging(true) : undefined}
           onClose={() => setCreating(null)}
           onSaved={(row) => {
             setCreating(null);
@@ -387,7 +412,9 @@ function RequestsTab() {
           }}
         />
       )}
-      {managing && <OptionListsDialog onClose={() => setManaging(false)} />}
+      {managing && (
+        <RequestTypesDialog initialProject={list.filters.project ?? ""} onClose={() => setManaging(false)} />
+      )}
     </>
   );
 }
@@ -424,13 +451,11 @@ function TextFilter({
 export function NewRequestDialog({
   initialProject,
   prefill,
-  onManageLists,
   onClose,
   onSaved,
 }: {
   initialProject: string;
   prefill: MaterialRequestPrefill | null;
-  onManageLists?: () => void;
   onClose: () => void;
   onSaved: (row: MaterialRequest) => void;
 }) {
@@ -448,7 +473,6 @@ export function NewRequestDialog({
           <MaterialRequestForm
             initialProject={initialProject}
             prefill={prefill}
-            onManageLists={onManageLists}
             onCancel={onClose}
             onSaved={onSaved}
           />
@@ -647,7 +671,7 @@ export function MaterialRequestDetail({
   const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
 
   return (
-    <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${t(`type.${row.request_type}`)}`} onClose={onClose}>
+    <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
       <RecordDetailShell
         reference={row.request_no}
         // 记录人 (E8): who recorded it, with a number to call.
@@ -664,11 +688,16 @@ export function MaterialRequestDetail({
                     onRaiseAgain({
                       project: row.project,
                       request_type: row.request_type,
+                      request_kind: row.request_kind,
+                      category: row.category,
+                      spec_category: row.spec_category,
                       material_name: row.material_name,
                       specification: row.specification,
                       quantity: row.quantity ?? "",
                       unit: row.unit,
                       remark: row.remark,
+                      subject: row.subject,
+                      content: row.content,
                     })
                   }
                 >
@@ -681,8 +710,11 @@ export function MaterialRequestDetail({
         }
         facts={[
           { label: t("field.status"), value: <StatusBadge label={t(`status.${row.status}`)} tone={TONE[row.status]} /> },
-          { label: t("field.requestType"), value: t(`type.${row.request_type}`) },
+          { label: t("field.requestType"), value: requestTypeName(row, t) },
           { label: t("field.project"), value: `${row.project_code} - ${row.project_name}` },
+          // The simple form (ID48): what is asked for, and the details.
+          ...(!isMaterial && row.subject ? [{ label: t("field.subject"), value: row.subject, wide: true }] : []),
+          ...(!isMaterial && row.content ? [{ label: t("field.content"), value: row.content, wide: true }] : []),
           ...(isMaterial
             ? [
                 { label: t("field.material"), value: row.material_name },
@@ -868,3 +900,38 @@ export function MaterialRequestDetail({
   );
 }
 
+/** The request's type in the reader's words: the project's own name, or the old kind (I16). */
+export function requestTypeName(
+  row: Pick<MaterialRequest, "request_kind_name" | "request_type">,
+  t: (key: string) => string,
+): string {
+  return row.request_kind_name || t(`type.${row.request_type}`);
+}
+
+/**
+ * The list's type filter (I16, ID37): one project's types by id, or - on
+ * 「全部项目」 - every visible project's types by name, each name once.
+ */
+function useRequestTypeFilter(project: string) {
+  // query-failure: no types read leaves the old two kinds, which still filter
+  const types = useQuery({
+    queryKey: ["material-request-types", project || "all"],
+    queryFn: () => getRequestTypes(project),
+    staleTime: 60_000,
+  });
+  const rows = types.data;
+  const t = useTranslations("materialRequest");
+  return useMemo(() => {
+    if (!rows) {
+      return {
+        ready: false,
+        param: "request_type",
+        options: (["MATERIAL", "OTHER"] as const).map((type) => ({ value: type, label: t(`type.${type}`) })),
+      };
+    }
+    if (project) {
+      return { ready: true, param: "request_kind", options: rows.map((row) => ({ value: row.id, label: row.name })) };
+    }
+    return { ready: true, param: "request_kind_name", options: requestTypeNameOptions(rows) };
+  }, [rows, project, t]);
+}

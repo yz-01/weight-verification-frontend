@@ -666,6 +666,25 @@ function StoredDetailSheet({
           // The payment result on the applicant's own record (第 57 条):
           // 「手机端只需要把最终付款结果显示出来即可」.
           panel={
+            row.kind === "MATERIAL_REQUEST" && (detail.data.files ?? []).length > 0 ? (
+              // Every file the request was sent with (I16-14, ID49) - the PDF
+              // and the Excel, not only the pictures: opened to preview, or saved.
+              <ShellPanel title={t("mySubmissions.files")}>
+                <ul className="space-y-1.5">
+                  {(detail.data.files ?? []).map((file) => (
+                    <li key={file.id} className="flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+                      <FileText className="size-4 shrink-0 text-muted-foreground" />
+                      <a href={file.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-primary underline-offset-4 hover:underline">
+                        {file.name}
+                      </a>
+                      <a href={file.url} download={file.name} className="shrink-0 text-xs text-muted-foreground underline-offset-4 hover:underline">
+                        {t("mySubmissions.download")}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </ShellPanel>
+            ) :
             row.kind === "SUNDRY_CLAIM" && (
               <ShellPanel title={t("mySubmissions.paymentProofs")}>
                 {(detail.data.payment_proofs ?? []).length === 0 ? (

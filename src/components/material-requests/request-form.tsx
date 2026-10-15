@@ -1,71 +1,88 @@
 "use client";
 
 /**
- * + New Request (C01, C02): Material Request or Other Request, one form.
+ * + New Request: one form for every request type the project keeps (I16).
  *
- * A material request is the electronic form - material and specification
- * from the back office's lists (the specification narrows to the chosen
- * material), a quantity above zero with at most two decimals, a unit, an
- * optional long remark and any number of attachments. An other request is a
- * file and a remark and nothing else (C07). The project is the current one:
- * on the phone it is the project the worker is on, in the office it is the
- * list's project filter when there is one.
+ * The type comes first after the project: the project's own list (材料申请,
+ * 设备申请, 分包队申请, 现场基础设施申请, 其他申请 and whatever it adds,
+ * ID36), and the type decides which of the two forms follows - never a form
+ * per type (「不需要为每种分类单独开发表格」):
  *
- * 「提交给」 (D2, Q15) names the one person who approves it: only people who
- * can approve on this project, never the applicant, and chosen for them when
- * there is only one. Same form, same words on the phone and in the office.
+ * - **材料明细** (I19, ID46): the material and its specification from the
+ *   project's material data, the unit comes with the specification and cannot
+ *   be changed (「其他」 is typed, with its unit chosen), and the quantity
+ *   with up to three decimals. A material that is not set up says so -
+ *   「该材料尚未建立，请先到分类管理设置。」 - with 「前往分类管理」 for whoever
+ *   may add it, in a new tab; the lists read again when this tab is back, and
+ *   everything typed here stays (it lives in the draft).
+ * - **简单申请表** (ID48): 申请事项, 申请内容, 备注 and files; the subject
+ *   always, and the content or a file.
  *
- * Every field lives in the draft, so a mis-tap or a closed page loses nothing
- * (the same rule as every phone form).
+ * Every type takes photos, PDF and other files of the listed kinds (ID49).
+ * 「提交给」 (D2, Q15) names the one person who approves it. Same form, same
+ * words on the phone and in the office.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FilePlus2, Loader2, Paperclip, Settings2, X } from "lucide-react";
+import { ExternalLink, FilePlus2, Loader2, Paperclip, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { chosenReviewer } from "@/components/material-requests/review-gate";
 import { useAuth } from "@/components/providers/auth-provider";
+import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useUnitName } from "@/hooks/use-material-units";
 import { ApiError } from "@/interfaces/api";
 import {
+  REQUEST_ATTACHMENT_ACCEPT,
+  isAllowedRequestAttachment,
   isValidRequestQuantity,
   type MaterialRequest,
   type MaterialRequestType,
 } from "@/interfaces/material-request";
+import { categoryManagementLink, offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import {
   createMaterialRequest,
-  getMaterialRequestOptions,
+  getMaterialCatalogue,
   getMaterialRequestReviewerOptions,
+  getRequestTypes,
 } from "@/services/material-request.service";
 
 /** The server's own ceilings (`MAX_ATTACHMENTS`, `MAX_ATTACHMENT_BYTES`). */
 const MAX_ATTACHMENTS = 20;
 const MAX_ATTACHMENT_MB = 25;
 
-/** A unit in the reader's words: a built-in code is translated, a company's own unit is its name. */
+/**
+ * A unit in the reader's words: a built-in code is translated (ID47 - the
+ * same 「包（Bag）」 on MR and on deliveries), a company's own unit is its name.
+ */
 export function useUnitLabel() {
-  const t = useTranslations("mySubmissions.unit");
-  return (code: string) => (code && t.has(code) ? t(code) : code);
+  const unitName = useUnitName();
+  return useCallback((code: string) => unitName(code), [unitName]);
 }
 
 /** What a returned request is re-raised with (C05): same words, new number. */
 export interface MaterialRequestPrefill {
   project: string;
   request_type: MaterialRequestType;
+  request_kind?: string | null;
+  category?: string | null;
+  spec_category?: string | null;
   material_name: string;
   specification: string;
   quantity: string;
   unit: string;
   remark: string;
+  subject?: string;
+  content?: string;
 }
 
 export function MaterialRequestForm({
@@ -73,27 +90,27 @@ export function MaterialRequestForm({
   prefill,
   onSaved,
   onCancel,
-  onManageLists,
 }: {
   initialProject?: string;
   prefill?: MaterialRequestPrefill | null;
   onSaved: (row: MaterialRequest) => void;
   onCancel?: () => void;
-  /** Shown to whoever keeps the lists, beside an empty list. */
-  onManageLists?: () => void;
 }) {
   const t = useTranslations("materialRequest");
   const common = useTranslations("common");
-  const unitLabel = useUnitLabel();
+  const unitName = useUnitName();
   const { user } = useAuth();
   const qc = useQueryClient();
   const clearDraft = useClearDraft();
   const [project, setProject] = useDraftState("project", prefill?.project || initialProject);
-  const [requestType, setRequestType] = useDraftState<MaterialRequestType>("requestType", prefill?.request_type ?? "MATERIAL");
-  const [material, setMaterial] = useDraftState("material", prefill?.material_name ?? "");
-  const [specification, setSpecification] = useDraftState("specification", prefill?.specification ?? "");
+  const [requestKind, setRequestKind] = useDraftState("requestKind", prefill?.request_kind ?? "");
+  const [category, setCategory] = useDraftState("category", prefill?.category ?? "");
+  const [spec, setSpec] = useDraftState("spec", prefill?.spec_category ?? "");
+  const [typedSpec, setTypedSpec] = useDraftState("typedSpec", prefill?.specification ?? "");
   const [quantity, setQuantity] = useDraftState("quantity", prefill?.quantity ?? "");
-  const [unit, setUnit] = useDraftState("unit", prefill?.unit ?? "");
+  const [typedUnit, setTypedUnit] = useDraftState("typedUnit", prefill?.unit ?? "");
+  const [subject, setSubject] = useDraftState("subject", prefill?.subject ?? "");
+  const [content, setContent] = useDraftState("content", prefill?.content ?? "");
   const [remark, setRemark] = useDraftState("remark", prefill?.remark ?? "");
   const [attachments, setAttachments] = useDraftState<File[]>("attachments", []);
   const [assignedReviewer, setAssignedReviewer] = useDraftState("assignedReviewer", "");
@@ -102,22 +119,40 @@ export function MaterialRequestForm({
   const [clientId] = useState(() => crypto.randomUUID());
   const [error, setError] = useState("");
 
-  const options = useQuery({
-    queryKey: ["material-request-options"],
-    queryFn: () => getMaterialRequestOptions(),
-    staleTime: 60_000,
+  // The project's types (ID36). Read again when the page comes back into view:
+  // a type added in another tab is offered without reopening the form.
+  const types = useQuery({
+    queryKey: ["material-request-types", project],
+    queryFn: () => getRequestTypes(project),
+    enabled: Boolean(project),
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
   });
-  const rows = useMemo(() => options.data?.options ?? [], [options.data]);
-  const materials = rows.filter((row) => row.kind === "MATERIAL");
-  const chosenMaterial = materials.find((row) => row.name === material);
-  const specifications = rows.filter(
-    (row) => row.kind === "SPECIFICATION" && chosenMaterial && row.parent === chosenMaterial.id,
-  );
-  const units = [
-    ...(options.data?.built_in_units ?? []).map((code) => ({ value: code, label: unitLabel(code) })),
-    ...rows.filter((row) => row.kind === "UNIT").map((row) => ({ value: row.name, label: row.name })),
-  ];
-  const isMaterial = requestType === "MATERIAL";
+  const typeRows = useMemo(() => types.data ?? [], [types.data]);
+  const chosenType = typeRows.find((row) => row.id === requestKind) ?? null;
+  // The first type (材料申请) until somebody picks another; a type that is not
+  // this project's (the project changed, or a stale draft) is not kept.
+  useEffect(() => {
+    if (!types.isSuccess || !typeRows.length) return;
+    if (!typeRows.some((row) => row.id === requestKind)) setRequestKind(typeRows[0].id);
+  }, [types.isSuccess, typeRows, requestKind, setRequestKind]);
+  const isMaterial = chosenType?.form_style === "MATERIAL";
+
+  // The material data (I19): read again when this tab is back, so what was
+  // just set up in 分类管理 can be chosen at once (I19-12).
+  const catalogue = useQuery({
+    queryKey: ["material-catalogue", project],
+    queryFn: () => getMaterialCatalogue(project),
+    enabled: Boolean(project) && isMaterial,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
+  const materials = useMemo(() => catalogue.data?.materials ?? [], [catalogue.data]);
+  const material = materials.find((row) => row.id === category) ?? null;
+  const specs = offeredSpecs(material, spec);
+  const choice = specChoice(material, spec);
+  const unit = choice.unitLocked ? choice.unit : typedUnit;
+  const canSetUp = Boolean(catalogue.data?.can_manage_categories);
   const quantityOk = isValidRequestQuantity(quantity);
 
   // 「提交给」: who may approve on this project (the server's own list).
@@ -128,18 +163,24 @@ export function MaterialRequestForm({
     staleTime: 60_000,
   });
   const reviewerRows = useMemo(() => reviewers.data ?? [], [reviewers.data]);
-  // Only one: chosen for them (Q15). A choice that is not on this project's
-  // list (the project changed, or a stale draft) is not sent.
+  // Only one: chosen for them (Q15).
   const reviewer = chosenReviewer(reviewerRows, assignedReviewer);
 
   const save = useMutation({
     mutationFn: () =>
       createMaterialRequest({
         project,
-        request_type: requestType,
+        request_type: isMaterial ? "MATERIAL" : "OTHER",
+        request_kind: requestKind,
         ...(isMaterial
-          ? { material_name: material, specification, quantity, unit, manufacturer: manufacturer || undefined }
-          : {}),
+          ? {
+              category,
+              spec_category: spec,
+              quantity,
+              ...(choice.typed ? { specification: typedSpec.trim(), unit } : {}),
+              manufacturer: manufacturer || undefined,
+            }
+          : { subject: subject.trim(), content: content.trim() }),
         remark: remark.trim(),
         assigned_reviewer: reviewer,
         client_event_id: `${user?.id ?? "user"}:${clientId}`,
@@ -158,6 +199,12 @@ export function MaterialRequestForm({
   const addFiles = (files: FileList | null) => {
     if (!files) return;
     const picked = Array.from(files);
+    // The listed kinds only (ID49), said before sending, as the server says it.
+    const refused = picked.find((file) => !isAllowedRequestAttachment(file.name));
+    if (refused) {
+      setError(t("form.fileKindRefused", { name: refused.name }));
+      return;
+    }
     const tooBig = picked.find((file) => file.size > MAX_ATTACHMENT_MB * 1024 * 1024);
     if (tooBig) {
       setError(t("form.fileTooBig", { name: tooBig.name, limit: MAX_ATTACHMENT_MB }));
@@ -170,44 +217,60 @@ export function MaterialRequestForm({
   const requirements: [unknown, string][] = isMaterial
     ? [
         [project, t("field.project")],
-        [material, t("field.material")],
-        [specification, t("field.specification")],
+        [requestKind, t("field.requestType")],
+        [category, t("field.material")],
+        [spec, t("field.specification")],
+        ...(choice.typed ? ([[typedSpec.trim(), t("field.specificationName")]] as [unknown, string][]) : []),
         [quantityOk, t("field.quantity")],
         [unit, t("field.unit")],
         [reviewer, t("field.assignedReviewer")],
       ]
     : [
         [project, t("field.project")],
-        [attachments.length > 0 || remark.trim(), t("form.fileOrRemark")],
+        [requestKind, t("field.requestType")],
+        [subject.trim(), t("field.subject")],
+        [attachments.length > 0 || content.trim(), t("field.content")],
         [reviewer, t("field.assignedReviewer")],
       ];
 
-  const listEmpty = !options.isLoading && materials.length === 0;
+  const openCategoryManagement = () => {
+    window.open(categoryManagementLink(project), "_blank", "noopener");
+  };
+  // 「该材料尚未建立」 and what to do about it (I19-11, I19-12): the button for
+  // whoever may set it up, the sentence for everyone else.
+  const notSetUp = canSetUp ? (
+    <Button type="button" size="sm" variant="outline" onClick={openCategoryManagement}>
+      <ExternalLink className="size-4" />
+      {t("form.goToCategories")}
+    </Button>
+  ) : (
+    <span>{t("form.askToSetUp")}</span>
+  );
 
   return (
     <div className="space-y-4">
-      <FieldWrapper label={t("field.requestType")} required>
-        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t("field.requestType")}>
-          {(["MATERIAL", "OTHER"] as const).map((type) => (
-            <button
-              key={type}
-              type="button"
-              role="radio"
-              aria-checked={requestType === type}
-              onClick={() => setRequestType(type)}
-              className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
-                requestType === type ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-muted"
-              }`}
-            >
-              <span className="block">{t(`type.${type}`)}</span>
-              <span className="mt-0.5 block text-xs font-normal text-muted-foreground">{t(`typeHelp.${type}`)}</span>
-            </button>
-          ))}
-        </div>
-      </FieldWrapper>
-
       <FieldWrapper label={t("field.project")} required hint={t("form.projectHint")}>
         <ProjectPicker value={project} onValueChange={setProject} placeholder={t("form.chooseProject")} />
+      </FieldWrapper>
+
+      <FieldWrapper label={t("field.requestType")} required>
+        <Select value={requestKind || undefined} onValueChange={setRequestKind}>
+          <SelectTrigger
+            className="w-full"
+            aria-label={t("field.requestType")}
+            disabled={!project || types.isLoading || types.isError || typeRows.length === 0}
+          >
+            <SelectValue placeholder={project ? t("form.chooseType") : t("form.projectFirst")} />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            {typeRows.map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {types.isError && <LoadFailed what={t("field.requestType")} onRetry={() => void types.refetch()} />}
       </FieldWrapper>
 
       <FieldWrapper label={t("field.assignedReviewer")} required hint={t("form.assignedReviewerHint")}>
@@ -237,48 +300,59 @@ export function MaterialRequestForm({
         )}
       </FieldWrapper>
 
-      {isMaterial && (
+      {chosenType && isMaterial && (
         <>
           <div className="grid gap-3 sm:grid-cols-2">
             <FieldWrapper label={t("field.material")} required>
               <OptionCombobox
                 ariaLabel={t("field.material")}
-                value={material}
+                value={category}
                 onChange={(next) => {
-                  setMaterial(next);
-                  // The specification belongs to the material (C02 「随材料联动」).
-                  if (next !== material) setSpecification("");
+                  setCategory(next);
+                  // The specification belongs to the material.
+                  if (next !== category) {
+                    setSpec("");
+                    setTypedSpec("");
+                  }
                 }}
-                options={materials.map((row) => ({ value: row.name, label: row.name }))}
+                options={materials.map((row) => ({ value: row.id, label: row.name }))}
                 placeholder={t("form.chooseMaterial")}
                 searchPlaceholder={t("form.search")}
-                emptyLabel={t("form.noMatch")}
+                emptyLabel={t("form.notSetUp")}
+                emptyAction={notSetUp}
+                disabled={!project}
               />
             </FieldWrapper>
             <FieldWrapper label={t("field.specification")} required>
               <OptionCombobox
                 ariaLabel={t("field.specification")}
-                value={specification}
-                onChange={setSpecification}
-                options={specifications.map((row) => ({ value: row.name, label: row.name }))}
-                placeholder={material ? t("form.chooseSpecification") : t("form.materialFirst")}
+                value={spec}
+                onChange={(next) => {
+                  setSpec(next);
+                  setTypedSpec("");
+                }}
+                options={specs.map((row) => ({ value: row.id, label: row.name }))}
+                placeholder={category ? t("form.chooseSpecification") : t("form.materialFirst")}
                 searchPlaceholder={t("form.search")}
-                emptyLabel={t("form.noSpecifications")}
-                disabled={!material}
+                emptyLabel={t("form.notSetUp")}
+                emptyAction={notSetUp}
+                disabled={!category}
               />
             </FieldWrapper>
           </div>
-          {options.isError && <LoadFailed what={t("options.title")} onRetry={() => void options.refetch()} />}
-          {listEmpty && !options.isError && (
+          {catalogue.isError && (
+            <LoadFailed what={t("form.materialData")} onRetry={() => void catalogue.refetch()} />
+          )}
+          {catalogue.isSuccess && materials.length === 0 && (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-xs">
-              <span>{t("form.listsEmpty")}</span>
-              {onManageLists && (
-                <Button type="button" size="sm" variant="outline" onClick={onManageLists}>
-                  <Settings2 className="size-4" />
-                  {t("options.open")}
-                </Button>
-              )}
+              <span>{t("form.notSetUp")}</span>
+              {notSetUp}
             </div>
+          )}
+          {choice.typed && (
+            <FieldWrapper label={t("field.specificationName")} required hint={t("form.otherSpecHint")}>
+              <Input value={typedSpec} maxLength={150} onChange={(event) => setTypedSpec(event.target.value)} />
+            </FieldWrapper>
           )}
           <div className="grid grid-cols-[1fr_auto] gap-3 sm:grid-cols-2">
             <FieldWrapper
@@ -290,22 +364,40 @@ export function MaterialRequestForm({
               <Input
                 inputMode="decimal"
                 type="number"
-                min="0.01"
-                step="0.01"
+                min="0.001"
+                step="0.001"
                 value={quantity}
                 onChange={(event) => setQuantity(event.target.value)}
               />
             </FieldWrapper>
-            <FieldWrapper label={t("field.unit")} required>
-              <OptionCombobox
-                ariaLabel={t("field.unit")}
-                value={unit}
-                onChange={setUnit}
-                options={units}
-                placeholder={t("form.chooseUnit")}
-                searchPlaceholder={t("form.search")}
-                emptyLabel={t("form.noMatch")}
-              />
+            <FieldWrapper
+              label={t("field.unit")}
+              required
+              hint={choice.unitLocked ? t("form.unitFromSpec") : undefined}
+            >
+              {choice.typed ? (
+                <Select value={typedUnit || undefined} onValueChange={setTypedUnit}>
+                  <SelectTrigger className="w-full" aria-label={t("field.unit")}>
+                    <SelectValue placeholder={t("form.chooseUnit")} />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {(catalogue.data?.units ?? []).map((row) => (
+                      <SelectItem key={row.code} value={row.code}>
+                        {unitName(row.code, row.label)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                // The unit comes with the specification and cannot be changed (ID46).
+                <Input
+                  aria-label={t("field.unit")}
+                  value={choice.unitLocked ? unitName(choice.unit, choice.spec?.default_unit_label) : ""}
+                  placeholder={t("form.unitAfterSpec")}
+                  readOnly
+                  disabled
+                />
+              )}
             </FieldWrapper>
           </div>
           <FieldWrapper
@@ -318,24 +410,41 @@ export function MaterialRequestForm({
         </>
       )}
 
-      <FieldWrapper
-        label={t("field.remark")}
-        optional={isMaterial ? common("optional") : undefined}
-        required={!isMaterial && attachments.length === 0}
-      >
+      {chosenType && !isMaterial && (
+        <>
+          <FieldWrapper label={t("field.subject")} required hint={t("form.subjectHint")}>
+            <Input value={subject} maxLength={200} onChange={(event) => setSubject(event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("field.content")}
+            required={attachments.length === 0}
+            hint={t("form.contentOrFile")}
+          >
+            <Textarea
+              rows={5}
+              maxLength={10000}
+              value={content}
+              onChange={(event) => setContent(event.target.value)}
+              placeholder={t("form.contentPlaceholder")}
+            />
+          </FieldWrapper>
+        </>
+      )}
+
+      <FieldWrapper label={t("field.remark")} optional={common("optional")}>
         <Textarea
-          rows={isMaterial ? 3 : 5}
+          rows={3}
           maxLength={10000}
           value={remark}
           onChange={(event) => setRemark(event.target.value)}
-          placeholder={isMaterial ? t("form.remarkPlaceholder") : t("form.otherRemarkPlaceholder")}
+          placeholder={t("form.remarkPlaceholder")}
         />
       </FieldWrapper>
 
       <FieldWrapper
         label={t("field.attachments")}
-        optional={isMaterial ? common("optional") : undefined}
-        hint={t("form.attachmentHint", { count: MAX_ATTACHMENTS, limit: MAX_ATTACHMENT_MB })}
+        optional={common("optional")}
+        hint={t("form.attachmentKindsHint", { count: MAX_ATTACHMENTS, limit: MAX_ATTACHMENT_MB })}
       >
         <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-3 text-sm font-medium hover:bg-muted">
           <Paperclip className="size-4" />
@@ -344,7 +453,7 @@ export function MaterialRequestForm({
             className="sr-only"
             type="file"
             multiple
-            accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
+            accept={REQUEST_ATTACHMENT_ACCEPT}
             onChange={(event) => {
               addFiles(event.target.files);
               event.target.value = "";

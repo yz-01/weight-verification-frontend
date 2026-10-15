@@ -632,6 +632,8 @@ export async function createMaterialOutgoing(payload: {
   /** Whose make (2026-10 D1); the server takes the delivery's when absent. */
   manufacturer?: string;
   category?: string; material_name?: string; quantity: string; unit?: string; destination?: string;
+  /** The specification (I19), and its words when 「其他」 is typed. */
+  spec_category?: string; material_specification?: string;
   executor_name: string; vehicle_plate?: string; delivery_note_no?: string; reason: string;
   latitude?: string; longitude?: string; client_event_id?: string;
   field_task?: string;

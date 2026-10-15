@@ -17,22 +17,24 @@ const columns = source.slice(
 );
 
 describe("MR table columns (D3)", () => {
-  it("has no request-type or project column", () => {
-    expect(columns).not.toMatch(/id: "request_type"/);
+  it("has the request-type column back and no project column (I16, ID37)", () => {
+    expect(columns).toMatch(/id: "request_kind"[\s\S]*?requestTypeName\(row\.original, t\)/);
     expect(columns).not.toMatch(/accessorKey: "project_name"/);
   });
 
-  it("still filters by request type", () => {
-    expect(source).toMatch(/param="request_type"\s+allLabel=\{t\("allTypes"\)\}/);
+  it("filters by the project's own request types", () => {
+    expect(source).toMatch(/param=\{typeFilter\.param\}\s+allLabel=\{t\("allTypes"\)\}/);
+    expect(source).toMatch(/param: "request_kind", options: rows\.map/);
+    expect(source).toMatch(/param: "request_kind_name", options: requestTypeNameOptions\(rows\)/);
   });
 
   it("shows the date with its time", () => {
     expect(columns).toMatch(/accessorKey: "created_at"[\s\S]*?df\.dateTime\(row\.original\.created_at\)/);
   });
 
-  it("an Other Request says so, in grey, where the material would be", () => {
+  it("an Other Request shows its subject where the material would be, or says so in grey", () => {
     expect(columns).toMatch(
-      /request_type === "OTHER" \? \(\s*<span className="text-muted-foreground">\{t\("type\.OTHER"\)\}<\/span>/,
+      /request_type === "OTHER" \? \(\s*row\.original\.subject \|\| <span className="text-muted-foreground">\{t\("type\.OTHER"\)\}<\/span>/,
     );
   });
 
@@ -42,8 +44,10 @@ describe("MR table columns (D3)", () => {
   });
 
   it("remembers columns under a new key, so an old saved set cannot bring the dropped ones back", () => {
-    // `.v3` since the manufacturer and supplier columns came in (2026-10 D1).
-    expect(source).toContain('storageKey="material-requests.v3"');
+    // `.v4` since the request type came back (I16); `.v3` brought the
+    // manufacturer and supplier columns (2026-10 D1).
+    expect(source).toContain('storageKey="material-requests.v4"');
+    expect(source).not.toContain('storageKey="material-requests.v3"');
     expect(source).not.toContain('storageKey="material-requests.v2"');
     expect(source).not.toContain('storageKey="material-requests"');
   });

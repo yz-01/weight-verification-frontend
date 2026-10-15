@@ -831,6 +831,14 @@ export const PORTAL_NAVIGATION = {
           "/material-outgoing",
           "material_outgoing",
         ),
+        // 材料目标 (I18-1): 「在材料管理页面没有看到设置入口」 - now it has one,
+        // here and in the page's own view list.
+        child(
+          "5.2.3",
+          "nav.submodule.materialTargets",
+          "/material-targets",
+          "material_receipts",
+        ),
       ],
     ),
     item(

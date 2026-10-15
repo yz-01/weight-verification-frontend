@@ -98,6 +98,10 @@
       "label": "MR / Other Request"
     },
     {
+      "key": "material_target",
+      "label": "Material targets"
+    },
+    {
       "key": "waste_outgoing",
       "label": "Waste outgoing"
     },
@@ -611,7 +615,12 @@
     {
       "code": "material_request.config",
       "group": "material_request",
-      "label": "Keep the MR material lists"
+      "label": "Manage MR request types"
+    },
+    {
+      "code": "material_target.manage",
+      "group": "material_target",
+      "label": "Set material targets"
     },
     {
       "code": "waste_outgoing.view",

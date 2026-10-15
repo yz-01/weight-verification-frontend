@@ -3879,7 +3879,8 @@
         "MATERIAL_RECEIPT_QUANTITY": "Total quantity in the selected material unit.",
         "SETTLED_RECYCLING_WEIGHT": "Settled recycling weight in kilograms."
       },
-      "wasteType": "Recycling waste type"
+      "wasteType": "Recycling waste type",
+      "quantityMoved": "Material quantity received is now set in Material management → Material targets (net of returns, per specification); targets set before keep working."
     },
     "loadError": "Business targets could not be loaded.",
     "management": {
@@ -3905,8 +3906,9 @@
       "KG": "Kilogram",
       "LOAD": "Load",
       "M3": "Cubic metre",
-      "PIECE": "Piece",
-      "TONNE": "Tonne"
+      "PIECE": "PCS",
+      "TONNE": "Ton",
+      "M2": "m²"
     },
     "metric": {
       "FIELD_TASK_COUNT": "Accepted site tasks",
@@ -4021,7 +4023,8 @@
       "thresholdAmountsHint": "Optional. Comma separated, for example 400000, 450000 (RM) - or the quantity in quantity mode.",
       "thresholdAmountsInvalid": "Use numbers above zero, separated by commas.",
       "recipients": "Warnings go to the company administrators and the project lead, once per line; if the total falls back below a line, its warning is withdrawn.",
-      "quantityUsed": "{used} of {budget} {unit}"
+      "quantityUsed": "{used} of {budget} {unit}",
+      "quantityMoved": "The budget counts money only. Set quantity targets in Material management → Material targets (net of returns, per specification)."
     },
     "saveFailed": "That did not go through. Try again, or reload the page.",
     "viewRecords": "View records",
@@ -4072,7 +4075,8 @@
       "noneChosen": "None chosen",
       "what": {
         "suppliers": "The supplier list"
-      }
+      },
+      "specsLine": "Specifications: {specs}"
     },
     "equipment": {
       "majorClass": "Major class",
@@ -4086,7 +4090,27 @@
     "armRemove": "Allow removing {name}",
     "armFirst": "Turn on the switch beside it first",
     "codeAuto": "The code is made by the system and cannot be changed once created.",
-    "codeAutoPlaceholder": "Made when saved"
+    "codeAutoPlaceholder": "Made when saved",
+    "requestTypes": "Request types",
+    "specs": {
+      "title": "Specifications and units",
+      "help": "Each specification has its own unit. MR, deliveries, returns and material targets all choose from here, and the unit comes with it. 「Other」 is typed on the record with its unit chosen.",
+      "name": "Specification name",
+      "unit": "Unit",
+      "chooseUnit": "Choose the unit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "nameRequired": "Enter the specification name",
+      "unitRequired": "Choose the unit",
+      "otherBadge": "Typed on site",
+      "active": "Use {name}",
+      "activeLabel": "In use",
+      "remove": "Remove specification",
+      "newName": "New specification",
+      "newPlaceholder": "e.g. Y50mm",
+      "add": "Add specification",
+      "afterSave": "Save the material, then open it to add its specifications and units."
+    }
   },
   "cloudServices": {
     "count": "{count} services",
@@ -5948,7 +5972,10 @@
       "scanSupplier": "Scan supplier QR",
       "scannedSupplier": "Scanned: {name}",
       "scanFailed": "That code is not a supplier's QR code.",
-      "noSupplier": "Not known"
+      "noSupplier": "Not known",
+      "spec": "Specification",
+      "chooseSpec": "Choose the specification",
+      "specName": "Specification name"
     },
     "outgoingStatus": {
       "APPROVED": "Approved / waiting to leave site",
@@ -8227,7 +8254,12 @@
       "manufacturer": "Named manufacturer (MR)",
       "chooseColumnFirst": "Choose the category first",
       "noSupplier": "Supplier not filled in",
-      "noSupplierHint": "Not sure whose it is? Leave it - the office will fill it in."
+      "noSupplierHint": "Not sure whose it is? Leave it - the office will fill it in.",
+      "spec": "Specification",
+      "chooseSpec": "Choose the specification",
+      "specName": "Specification name",
+      "specNameHint": "Not on the list? Choose 「Other」 and type it here.",
+      "autoFilledFromSpec": "From the specification"
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -8784,6 +8816,14 @@
       "clearanceMonth": "Waste cleared this month",
       "hazardsOpen": "Open",
       "hazardsOverdue": "Overdue"
+    },
+    "materialTargets": {
+      "title": "Material targets",
+      "empty": "No project has material targets yet. Set them in Material management → Material targets.",
+      "targets": "{count, plural, one {# target} other {# targets}}",
+      "exceeded": "{count} over",
+      "reached": "{count} reached",
+      "approaching": "{count} near"
     }
   },
   "home": {
@@ -10313,7 +10353,7 @@
       "due_at": "Due",
       "result_note": "Result",
       "person": "Person",
-      "subject": "Subject",
+      "subject": "Request subject",
       "related_record": "Related record",
       "visitor_company": "Company",
       "phone": "Phone",
@@ -10357,8 +10397,9 @@
       "scope": "Sent to",
       "published_by": "Published by",
       "published_at": "Published at",
-      "content": "Content",
-      "read_count": "Read / recipients"
+      "content": "Request details",
+      "read_count": "Read / recipients",
+      "request_kind": "Request type"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -10375,8 +10416,9 @@
       "LOAD": "Load",
       "M3": "Cubic metre",
       "OTHER": "Other",
-      "PIECE": "Piece",
-      "TONNE": "Tonne"
+      "PIECE": "PCS",
+      "TONNE": "Ton",
+      "M2": "m²"
     },
     "returnedClosed": "This application is closed. The record, the reason and the conversation are kept; raise a new one if you still need it done.",
     "paymentProofs": "Payment vouchers",
@@ -10384,7 +10426,9 @@
     "conversation": "Record communication",
     "removeFromList": "Remove from my list",
     "removeHelp": "Only takes it off the list on this phone. The cloud record, the office and everyone else are not affected; press \"Show them all again\" under the list to bring it back.",
-    "hiddenNote": "{count} removed from my list."
+    "hiddenNote": "{count} removed from my list.",
+    "files": "Files sent",
+    "download": "Download"
   },
   "nav": {
     "activity_logs": "Activity logs",
@@ -10717,7 +10761,8 @@
       "gateIssues": "Gate Issues",
       "visitorRecords": "Visitor Records",
       "dailyReport": "Daily reports",
-      "progressSummary": "Progress summary"
+      "progressSummary": "Progress summary",
+      "materialTargets": "Material targets"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -11692,7 +11737,7 @@
         "view": "View MR / Other Requests",
         "submit": "Raise MR / Other Requests",
         "review": "Approve or return MR / Other Requests",
-        "config": "Keep the MR material lists"
+        "config": "Manage MR request types"
       },
       "partnership": {
         "view": "View partnerships",
@@ -11898,6 +11943,9 @@
       "integration": {
         "view": "View integrations and devices",
         "manage": "Manage integrations and devices"
+      },
+      "material_target": {
+        "manage": "Set material targets"
       }
     },
     "group": {
@@ -11965,7 +12013,8 @@
       "cloud_service": "Cloud services",
       "platform_settings": "Platform settings",
       "platform_version": "Versions",
-      "integration": "Integrations"
+      "integration": "Integrations",
+      "material_target": "Material targets"
     }
   },
   "photoApprovals": {
@@ -12440,7 +12489,11 @@
         "OCR": "Read from the delivery order",
         "MANUAL": "Entered by a person"
       },
-      "manufacturer": "Named manufacturer (MR)"
+      "manufacturer": "Named manufacturer (MR)",
+      "spec": "Specification",
+      "specHint": "From the material data; the specification brings its name and unit.",
+      "chooseSpec": "Choose the specification",
+      "noSpec": "No specification"
     },
     "locationCaptured": "Location captured",
     "locationMissing": "No location",
@@ -12500,8 +12553,9 @@
       "KG": "Kilogram",
       "LOAD": "Load",
       "M3": "Cubic metre",
-      "PIECE": "Piece",
-      "TONNE": "Tonne"
+      "PIECE": "PCS",
+      "TONNE": "Ton",
+      "M2": "m²"
     },
     "viewTitle": "Receipt",
     "waiting": "Waiting for you to read",
@@ -12523,7 +12577,8 @@
       "reject": "Reject",
       "totals": "Received & returned totals",
       "legacyReturns": "Returns filed on the receipt form before 10-02",
-      "choose": "Choose a view"
+      "choose": "Choose a view",
+      "targets": "Material targets"
     },
     "net": {
       "title": "Received and returned by supplier and material",
@@ -16742,10 +16797,6 @@
       "MATERIAL": "Material Request",
       "OTHER": "Other Request"
     },
-    "typeHelp": {
-      "MATERIAL": "Electronic form: material, specification, quantity, unit.",
-      "OTHER": "Upload a file and write a remark."
-    },
     "status": {
       "SUBMITTED": "Pending approval",
       "APPROVED": "Approved",
@@ -16779,7 +16830,11 @@
       "assignedReviewer": "Submit to",
       "reassignHistory": "Take-over record",
       "supplier": "Supplier",
-      "manufacturer": "Owner's named manufacturer"
+      "manufacturer": "Owner's named manufacturer",
+      "subject": "Request subject",
+      "content": "Request details",
+      "specificationName": "Specification name",
+      "materialOrSubject": "Material / subject"
     },
     "action": {
       "view": "View",
@@ -16825,7 +16880,7 @@
     },
     "form": {
       "title": "New Request",
-      "help": "Choose Material Request for the electronic form, or Other Request to send a file with a remark.",
+      "help": "Choose the request type: a material request asks for material, specification and quantity; other types use the simple form. Every request can carry photos, PDF and other files.",
       "raiseAgainHelp": "A new request, filled in from the returned one. It gets its own new Request No.; the returned request stays closed in history.",
       "projectHint": "The current project is filled in automatically.",
       "chooseProject": "Choose a project",
@@ -16835,48 +16890,35 @@
       "chooseUnit": "Choose unit",
       "search": "Type to search",
       "noMatch": "Nothing matches",
-      "noSpecifications": "No specification listed for this material yet",
-      "listsEmpty": "The material list is empty. Head office or an administrator adds materials, specifications and units under Material lists.",
-      "quantityRule": "Above 0, whole number or up to 2 decimal places",
+      "quantityRule": "Above 0, whole or up to three decimal places",
       "remarkPlaceholder": "Optional: delivery location, timing, anything head office should know",
-      "otherRemarkPlaceholder": "What is this request about?",
-      "attachmentHint": "Product photos, certificates or other files. Up to {count} files, {limit} MB each.",
       "addFiles": "Add files",
       "removeFile": "Remove {name}",
       "fileTooBig": "{name} is over {limit} MB.",
-      "fileOrRemark": "A file or a remark",
       "submit": "Submit",
       "assignedReviewerHint": "Only people who can approve requests on this project are listed.",
       "chooseReviewer": "Choose who approves",
       "projectFirst": "Choose the project first",
       "noReviewers": "Nobody can approve requests on this project yet. Ask your company admin to tick \"Approve or return MR / Other Requests\" on the approver's role in Roles.",
-      "suggestHint": "Optional. Only when the owner names a manufacturer - choose it from the supplier list."
-    },
-    "options": {
-      "open": "Material lists",
-      "title": "Material lists",
-      "help": "What the MR form offers: materials, each material's specifications, and units. Switch an option off to retire it; requests already sent keep their own words.",
-      "materials": "Materials / products",
-      "specificationList": "Specifications",
-      "specificationsOf": "Specifications of {material}",
-      "units": "Units",
-      "builtIn": "built in",
-      "empty": "Nothing listed yet",
-      "addMaterialFirst": "Add a material first; its specifications are listed under it.",
-      "retire": "Stop offering {name}",
-      "restore": "Offer {name} again",
-      "failed": "Could not save the option.",
-      "add": {
-        "MATERIAL": "Add a material",
-        "SPECIFICATION": "Add a specification",
-        "UNIT": "Add a unit"
-      }
+      "suggestHint": "Optional. Only when the owner names a manufacturer - choose it from the supplier list.",
+      "chooseType": "Choose the request type",
+      "notSetUp": "This material is not set up yet. Set it up in Category Management first.",
+      "goToCategories": "Go to Category Management",
+      "askToSetUp": "Ask someone in the office who manages categories to set it up.",
+      "materialData": "Material data",
+      "otherSpecHint": "「Other」 chosen: type the specification and choose its unit.",
+      "unitFromSpec": "The unit comes with the specification and cannot be changed.",
+      "unitAfterSpec": "Filled in once a specification is chosen",
+      "subjectHint": "What is asked for, in a line - for example: two cranes, one site office.",
+      "contentOrFile": "Write the details or attach a file - at least one of the two.",
+      "contentPlaceholder": "What is needed, how many, when",
+      "attachmentKindsHint": "Photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP. Up to {count} files, each under {limit} MB.",
+      "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP."
     },
     "toast": {
       "submitted": "Request submitted.",
       "approved": "Request approved.",
       "returned": "Request returned and closed.",
-      "optionSaved": "Saved.",
       "reassigned": "It is now yours to approve."
     },
     "capture": {
@@ -16892,6 +16934,40 @@
       "help": "Approving is the purchase decision: choose who it is bought from - and, when the owner names a manufacturer, choose that too from the supplier list.",
       "chooseSupplier": "Choose supplier",
       "confirm": "Approve"
+    },
+    "types": {
+      "open": "Request types",
+      "title": "Manage request types",
+      "help": "Each project keeps its own request types, all on one level. Each uses one of two forms: material details (material, specification, quantity) or the simple form (subject, details, remark, files). Material Request and Other Request are the system's: they can be renamed, not switched off, removed or given another form.",
+      "chooseProject": "Choose a project first - request types are set per project.",
+      "name": "Type name",
+      "nameRequired": "Enter the type name",
+      "system": "System",
+      "requestCount": "{count, plural, =0 {not used} one {# request} other {# requests}}",
+      "form": "Form",
+      "style": {
+        "MATERIAL": "Material details",
+        "GENERAL": "Simple form"
+      },
+      "fixedHelp": "A system type: it can be renamed, not switched off, removed or given another form.",
+      "active": "Use {name}",
+      "activeLabel": "In use",
+      "save": "Save",
+      "cancel": "Cancel",
+      "rename": "Rename",
+      "armRemove": "Arm removing {name}",
+      "remove": "Remove type",
+      "armFirst": "Turn on the switch beside it first, then remove.",
+      "newName": "New type name",
+      "newPlaceholder": "e.g. Manpower Request",
+      "taken": "This project already has that type.",
+      "formHint": "Anything that is not a material uses the simple form.",
+      "add": "Add type",
+      "failed": "Could not save. Try again.",
+      "toast": {
+        "saved": "Request type saved.",
+        "removed": "Request type removed."
+      }
     }
   },
   "filePreview": {
@@ -17640,5 +17716,64 @@
   "mapFrame": {
     "fullscreen": "Full screen",
     "exitFullscreen": "Exit full screen"
+  },
+  "materialTargets": {
+    "title": "Material targets",
+    "count": "{count, plural, =0 {No targets} one {# target} other {# targets}}",
+    "basis": "Net received = deliveries (rejected loads left out) less the returns confirmed complete, per material, specification and unit; other units are not converted. Near, at and over a target, the project's project manager, QS and whoever set it are told.",
+    "loading": "Loading…",
+    "empty": "This project has no material targets yet.",
+    "emptyAll": "No material targets yet. Choose a project above, then add one.",
+    "add": "Add target",
+    "chooseProjectFirst": "Choose a project above first",
+    "failed": "Could not be done. Try again.",
+    "wholeMaterial": "All specifications",
+    "netMakings": "In {received} · returned {returned} · rejected {rejected}",
+    "otherUnits": "Other units, not counted: {units}",
+    "deliveries": "Deliveries",
+    "returns": "Returns",
+    "edit": "Change",
+    "armRemove": "Arm removing this target",
+    "remove": "Remove target",
+    "armFirst": "Turn on the switch beside it first, then remove.",
+    "field": {
+      "project": "Project",
+      "material": "Material",
+      "spec": "Specification",
+      "unit": "Unit",
+      "target": "Target quantity",
+      "net": "Net received",
+      "remaining": "Remaining",
+      "exceeded": "Over",
+      "progress": "Progress",
+      "status": "Status",
+      "records": "Records",
+      "action": "Action",
+      "alerts": "Alert lines (%)",
+      "note": "Note"
+    },
+    "status": {
+      "NORMAL": "On track",
+      "APPROACHING": "Near target",
+      "REACHED": "Reached",
+      "EXCEEDED": "Over"
+    },
+    "addTitle": "Add a material target",
+    "editTitle": "Change a material target",
+    "dialogHelp": "Material and specification come from the material data, and the unit comes with the specification. No specification: the target is for the material as a whole.",
+    "chooseMaterial": "Choose the material",
+    "specHint": "Leave it for the material as a whole.",
+    "unitFromSpec": "The unit comes with the specification.",
+    "chooseUnit": "Choose the unit",
+    "quantityRule": "Above 0, up to three decimal places",
+    "alertsHint": "e.g. 80, 100: at 80% 「near」, at 100% 「reached」; above 100% 「over」 is always said.",
+    "alertsInvalid": "Use whole numbers from 1 to 100, separated by commas.",
+    "recipients": "Who is told: the project's project manager and QS (whoever may set material targets) and whoever set this one, with a sound.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "toast": {
+      "saved": "Material target saved.",
+      "removed": "Material target removed."
+    }
   }
 }
