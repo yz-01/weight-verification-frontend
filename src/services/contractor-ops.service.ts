@@ -26,6 +26,8 @@ import type {
   FieldTask,
   FieldTaskPayload,
   MaterialOutgoing,
+  MyTaskRow,
+  PersonOption,
   ProjectCategory,
   ProjectCategoryPayload,
   ProjectResponsibility,
@@ -189,6 +191,20 @@ export const addFieldTaskReferences = async (id: string, files: File[]) => {
   toastSuccess("contractorOps.toast.referenceAdded");
   return row;
 };
+
+/** 我的任务 / My Tasks (I1, ID14): what is waiting on me, both modules. */
+export function getMyTasks(project?: string): Promise<{ count: number; results: MyTaskRow[] }> {
+  return api.get<{ count: number; results: MyTaskRow[] }>("/api/my-tasks/get_tasks/", {
+    project: project || undefined,
+  });
+}
+
+/** Who the 现场任务 负责人 filter offers: everybody holding a task I can see. */
+export function getFieldTaskAssignees(project?: string): Promise<PersonOption[]> {
+  return api.get<PersonOption[]>("/api/field-tasks/assignee_options/", {
+    project: project || undefined,
+  });
+}
 
 export const transitionFieldTask = async (id: string, status: FieldTask["status"], note = "") => {
   const row = await api.post<FieldTask>(`/api/field-tasks/${id}/transition_task/`, { status, note });
@@ -2073,6 +2089,9 @@ export interface RecordConversation {
   cleared_notices?: number;
   messages: RecordMessage[];
   audio_seconds_limit: number;
+  /** The 「需要继续整改」 switch (ID11): a field task's confirmer, while it
+   *  waits for them. */
+  can_request_more_work?: boolean;
   /**
    * Non-empty once the record is finished (D-278): `"archived"` after
    * 【确认归档】, `"paid"` for a sundry claim after 【确认已付款】,
@@ -2115,6 +2134,8 @@ export function postRecordMessage(
     longitude?: string;
     accuracy_m?: string;
     client_event_id?: string;
+    /** 「需要继续整改」 on (ID11): a field task goes back to its assignee. */
+    needs_more_work?: boolean;
   },
 ): Promise<RecordMessage> {
   const data = new FormData();

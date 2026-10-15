@@ -7574,6 +7574,8 @@
       "hazard_closed": "{incident_no} telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
       "hazard_message_empty": "Taip sesuatu, atau lampirkan foto, nota suara atau fail, sebelum menghantar.",
       "hazard_not_a_participant": "{incident_no} tidak dilaporkan kepada anda. Minta pelapor atau penyelia keselamatan menambah anda.",
+      "not_awaiting_confirmation": "{reference} tidak sedang menunggu semakan, jadi tidak boleh dikembalikan. Matikan “Perlu kerja lanjut” dan hantar semula.",
+      "may_not_request_more_work": "Hanya orang yang menyemak item ini boleh meminta kerja lanjut.",
       "hazard_self_verification": "Anda yang melaksanakan pembetulan bagi {incident_no}, jadi orang lain perlu mengesahkannya — pelapor, pengurus projek, perunding, atau penyelia tapak atau keselamatan.",
       "incident_thread_not_found": "Laporan insiden itu tidak dijumpai.",
       "incorrect_password": "Kata laluan semasa anda salah.",
@@ -10739,7 +10741,6 @@
       "partnerTerritories": "Wilayah",
       "partnerTypes": "Jenis rakan kongsi",
       "paymentProofs": "Bukti pembayaran",
-      "photoApprovals": "Kelulusan foto",
       "photoReport": "Laporan foto",
       "platformBusinessReports": "Laporan perniagaan platform",
       "platformCommission": "Komisen platform",
@@ -11433,7 +11434,7 @@
     "safety": {
       "what": "Peristiwa keselamatan di tapak: merekodnya dan melaporkannya.",
       "who": "Pemegang safety.view dan project.view sekali.",
-      "need": "Peristiwa memerlukan projek, kategori keselamatan, tajuk, foto, bukti GPS, orang bertanggungjawab dan apa yang dilakukan. Laporan memerlukan projek, tajuk, apa yang berlaku, kepada siapa, bukti dan tempat.",
+      "need": "Peristiwa memerlukan projek, kategori isu, tajuk, foto, bukti GPS, orang bertanggungjawab dan apa yang dilakukan. Laporan memerlukan projek, tajuk, apa yang berlaku, kepada siapa, bukti dan tempat.",
       "then": "Orang yang dinamakan diberitahu serta-merta.",
       "trouble": "Foto dan GPS kedua-duanya diperlukan dan selalunya tiada isyarat. Rakam sahaja - ia beratur dan naik kemudian, dan lokasi yang disimpan ialah tempat anda berdiri."
     },
@@ -11570,7 +11571,7 @@
       "trouble": "Belum ada yang cukup lazim untuk diberi amaran."
     },
     "material_requests": {
-      "what": "Permohonan Bahan dan Permohonan Lain daripada tapak, setiap satu dengan No. Permohonan sendiri; jumlah dipohon; dan kelulusan foto terdahulu.",
+      "what": "Permohonan Bahan dan Permohonan Lain daripada tapak, setiap satu dengan No. Permohonan sendiri; dan jumlah dipohon.",
       "who": "Pemegang material_request.view; meluluskan atau mengembalikan memerlukan material_request.review.",
       "need": "Permohonan bahan memerlukan bahan, spesifikasi, kuantiti dan unit; catatan dan lampiran adalah pilihan. Permohonan lain memerlukan fail atau catatan.",
       "then": "Ibu pejabat berbincang dalam permohonan dan meluluskan atau mengembalikannya. Permohonan yang dikembalikan ditutup; memohon semula ialah permohonan baharu dengan nombor baharu.",
@@ -12096,32 +12097,6 @@
       "integration": "Integrasi sistem",
       "site_worker": "Senarai pekerja"
     }
-  },
-  "photoApprovals": {
-    "noLocation": "Lokasi tidak direkodkan",
-    "noCaption": "Tiada keterangan",
-    "noPhotos": "Tiada foto pada yang ini",
-    "returnReason": "Sebab dihantar balik",
-    "returnPlaceholder": "Contoh: bahagian bawah rasuk tidak masuk dalam gambar",
-    "returnHelp": "Nyatakan apa yang tidak kena. Sebabnya dihantar kepada orang yang mengambil foto, jika tidak dia tidak tahu apa yang perlu diambil semula.",
-    "returnTitle": "Hantar balik untuk ambil semula",
-    "return": "Hantar balik",
-    "accept": "Lulus",
-    "noCategory": "Tiada ruangan",
-    "empty": "Tiada yang menunggu kelulusan",
-    "subtitle": "{count} menunggu anda",
-    "title": "Kelulusan foto",
-    "what": "Foto yang menunggu kelulusan",
-    "historyCount": "{count, plural, =0 {tiada keputusan} other {# diputuskan}}",
-    "historyEmpty": "Tiada apa-apa",
-    "show": "Papar",
-    "reviewNote": "Sebab:",
-    "filter": {
-      "SUBMITTED": "Menunggu",
-      "ACCEPTED": "Diluluskan",
-      "RETURNED": "Dihantar balik"
-    },
-    "loadMore": "Muat lagi ({shown} daripada {total} dipaparkan)"
   },
   "photos": {
     "count": "{count, plural, one {# foto} other {# foto}}",
@@ -13431,7 +13406,7 @@
       "photo": "Buka foto"
     },
     "field": {
-      "category": "Kategori keselamatan",
+      "category": "Kategori isu",
       "description": "Penerangan",
       "dueAt": "Tarikh akhir pembetulan",
       "evidence": "Bukti",
@@ -13474,13 +13449,13 @@
       "title": "Laporkan insiden tapak"
     },
     "filter": {
-      "allCategories": "Semua kategori keselamatan",
+      "allCategories": "Semua kategori isu",
       "allProjects": "Semua projek",
       "allResponsible": "Semua orang bertanggungjawab",
       "dateFrom": "Tarikh mula",
       "dateTo": "Tarikh tamat",
       "project": "Pilih projek",
-      "selectCategory": "Pilih kategori keselamatan"
+      "selectCategory": "Pilih kategori isu"
     },
     "form": {
       "captureLocation": "Rakam GPS",
@@ -13492,8 +13467,8 @@
       "locationTimeout": "Isyarat GPS tidak sampai dalam masa. Pergi ke kawasan lapang dan cuba lagi.",
       "locationUnavailable": "Peranti tidak dapat memperoleh kedudukan. Pastikan lokasi dihidupkan, kemudian cuba lagi.",
       "locationUnsupported": "Peranti ini tidak boleh memberikan kedudukan GPS.",
-      "noSafetyColumns": "Projek ini belum mempunyai kategori keselamatan. Tambah satu dahulu supaya bahaya boleh difailkan ke dalamnya.",
-      "addSafetyColumn": "+ Tambah kategori keselamatan",
+      "noSafetyColumns": "Projek ini belum mempunyai kategori isu. Tambah satu dahulu supaya bahaya boleh difailkan ke dalamnya.",
+      "addSafetyColumn": "+ Tambah kategori isu",
       "askForSafetyColumn": "Minta rakan sekerja yang menguruskan kategori menambahnya di Pengurusan kategori."
     },
     "new": "Laporkan bahaya",
@@ -13513,7 +13488,7 @@
       "title": "Kemas kini status insiden"
     },
     "what": {
-      "categories": "Kategori keselamatan",
+      "categories": "Kategori isu",
       "responsiblePeople": "Senarai orang yang bertanggungjawab",
       "requestedIncident": "Insiden dalam pautan",
       "workers": "Orang yang boleh dimaklumkan"
@@ -13582,6 +13557,8 @@
     },
     "title": "Pembetulan bahaya / EHS",
     "toast": {
+      "reassigned": "Orang bertanggungjawab ditukar",
+      "categoryChanged": "Kategori disimpan",
       "assigned": "Pembetulan ditugaskan",
       "reviewed": "Semakan pembetulan disimpan",
       "submitted": "Bukti pembetulan dihantar"
@@ -16860,13 +16837,11 @@
   },
   "materialRequest": {
     "title": "MR / Permohonan Lain",
-    "noAccess": "Anda tiada akses kepada permohonan atau kelulusan foto.",
+    "noAccess": "Anda tiada akses kepada permohonan.",
     "tab": {
       "requests": "Permohonan",
-      "totals": "Jumlah dipohon",
-      "photos": "Kelulusan foto"
+      "totals": "Jumlah dipohon"
     },
-    "photosNote": "Penghantaran foto yang dahulu dipaparkan di sini kekal tanpa perubahan: yang menunggu masih diputuskan di sini, dan yang lama boleh dibaca bersama foto, penyemak dan sebabnya.",
     "type": {
       "MATERIAL": "Permohonan Bahan",
       "OTHER": "Permohonan Lain"
@@ -17765,6 +17740,97 @@
     "nameHelp": "Nama anda direkodkan pada pengesahan, pemulangan, tandatangan dan mesej. Pelayar ini mengingatinya.",
     "name": "Nama",
     "continue": "Teruskan"
+  },
+  "taskFlow": {
+    "moreWork": {
+      "label": "Perlu kerja lanjut",
+      "off": "Jika tidak dihidupkan, ini hanya mesej; tiada apa dikembalikan.",
+      "on": "Selepas dihantar, perkara ini kembali kepada orang yang bertanggungjawab (Belum selesai) dan muncul semula dalam Tugasan saya mereka.",
+      "send": "Hantar dan minta kerja lanjut",
+      "hint": "Belum lulus? Dalam perbincangan di bawah, hidupkan “Perlu kerja lanjut” dan nyatakan apa yang perlu dibaiki.",
+      "reviewHint": "Belum lulus? Jangan sahkan: hidupkan “Perlu kerja lanjut” dalam perbincangan dan nyatakan apa yang perlu dibaiki - ia kembali kepada orang yang bertanggungjawab."
+    },
+    "stage": {
+      "all": "Semua status",
+      "PENDING": "Belum selesai",
+      "AWAITING": "Menunggu semakan",
+      "DONE": "Selesai"
+    },
+    "myTasks": {
+      "title": "Tugasan saya",
+      "count": "{count} untuk dibuat",
+      "loading": "Memuatkan…",
+      "refresh": "Muat semula",
+      "empty": "Tiada apa untuk dibuat sekarang.",
+      "kind": {
+        "FIELD_TASK": "Tugasan tapak",
+        "HAZARD": "Pembetulan / EHS"
+      },
+      "moreWork": "Perlu kerja lanjut",
+      "due": "Tarikh akhir: {value}",
+      "said": {
+        "text": "Mesej",
+        "photo": "menghantar foto",
+        "voice": "menghantar nota suara",
+        "file": "menghantar fail"
+      }
+    },
+    "work": {
+      "back": "Kembali",
+      "what": "tugasan ini",
+      "locationFailed": "Lokasi tidak dapat diperoleh. Hidupkan lokasi dan cuba lagi.",
+      "failed": "Tidak berjaya. Sila cuba lagi.",
+      "stage": {
+        "PENDING": "Belum selesai",
+        "AWAITING": "Menunggu semakan",
+        "DONE": "Selesai",
+        "CANCELLED": "Dibatalkan"
+      },
+      "assignedBy": "Diberikan oleh {name}",
+      "due": "Tarikh akhir: {value}",
+      "where": "Lokasi: {value}",
+      "moreWork": "Perlu kerja lanjut",
+      "photos": "Foto",
+      "photosHint": "Ambil sekurang-kurangnya {count}",
+      "takePhoto": "Ambil foto",
+      "note": "Catatan",
+      "noteHint": "Tanpa foto, nyatakan dalam satu ayat apa yang dibuat",
+      "optional": "Pilihan",
+      "notePlaceholder": "Apa yang dibuat (pilihan)",
+      "submit": "Hantar sebagai selesai",
+      "workflowHint": "Tugasan ini dihantar melalui borangnya sendiri.",
+      "openWorkflow": "Buka borang kerja",
+      "waiting": "Dihantar, menunggu semakan.",
+      "finished": "Tugasan ini sudah selesai."
+    },
+    "ehs": {
+      "unsorted": "Belum dikategorikan",
+      "create": "Item baharu",
+      "categories": "Kategori",
+      "history": "Arkib sejarah",
+      "backToList": "Kembali ke senarai kerja",
+      "historyTitle": "Arkib sejarah Pembetulan / EHS",
+      "noAndDate": "No. / tarikh",
+      "verifiedBy": "Disahkan oleh",
+      "verifiedAt": "Masa disahkan",
+      "reassign": "Tukar orang bertanggungjawab",
+      "reassignHelp": "{person} bertanggungjawab untuk {incident} sekarang. Pilih siapa yang membaikinya; foto dan perbincangan kekal pada item yang sama.",
+      "newResponsible": "Orang bertanggungjawab baharu",
+      "chooseCategory": "Pilih kategori lain dahulu",
+      "saveCategory": "Simpan kategori"
+    },
+    "fieldTasks": {
+      "history": "Arkib sejarah",
+      "backToList": "Kembali ke senarai kerja",
+      "historyTitle": "Arkib sejarah tugasan tapak",
+      "stageColumn": "Status",
+      "confirmedBy": "Disahkan oleh",
+      "confirmedAt": "Masa disahkan",
+      "search": "Cari tugasan, orang",
+      "allAssignees": "Semua penerima tugasan",
+      "dateFrom": "Tarikh mula",
+      "dateTo": "Tarikh akhir"
+    }
   },
   "mapFrame": {
     "fullscreen": "Skrin penuh",

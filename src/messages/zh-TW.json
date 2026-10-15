@@ -7574,6 +7574,8 @@
       "hazard_closed": "{incident_no} 已驗收並閉環歸檔。記錄仍然可以查看，但不能再傳新訊息。",
       "hazard_message_empty": "傳送前請輸入文字，或附上照片、語音或檔案。",
       "hazard_not_a_participant": "{incident_no} 沒有上報給你。請讓上報人或安全主管把你加進來。",
+      "not_awaiting_confirmation": "{reference} 現在不是待驗收，不能退回整改。請關掉「需要繼續整改」再發送。",
+      "may_not_request_more_work": "只有驗收這件事的人才能要求繼續整改。",
       "hazard_self_verification": "{incident_no} 是你整改的，需要由別人驗收 —— 上報人、專案經理、顧問、現場主管或安全主管都可以。",
       "incident_thread_not_found": "找不到這份事故報告。",
       "incorrect_password": "當前密碼不正確。",
@@ -10739,7 +10741,6 @@
       "partnerTerritories": "區域管理",
       "partnerTypes": "合作類型",
       "paymentProofs": "付款憑證",
-      "photoApprovals": "照片審批",
       "photoReport": "照片報表",
       "platformBusinessReports": "平臺業務報表",
       "platformCommission": "平臺佣金管理",
@@ -11433,7 +11434,7 @@
     "safety": {
       "what": "工地上的安全事件：登記，以及往上報。",
       "who": "同時持 safety.view 和 project.view。",
-      "need": "登記事件要專案、安全分類、標題、照片、GPS 證據、負責人及工地人員、處理說明；上報事故要專案、事故標題、事件經過、報告給誰、證據檔案和地點。",
+      "need": "登記事件要專案、事項分類、標題、照片、GPS 證據、負責人及工地人員、處理說明；上報事故要專案、事故標題、事件經過、報告給誰、證據檔案和地點。",
       "then": "被點名的人會立刻收到通知。",
       "trouble": "照片和 GPS 都是必填，而現場常常沒訊號。照拍就是，它會排隊之後自動傳，存下來的位置是你拍照時站的地方。"
     },
@@ -11570,7 +11571,7 @@
       "trouble": "目前沒有常見到值得預警的問題。"
     },
     "material_requests": {
-      "what": "現場的材料申請和其他申請，每筆有獨立申請編號；申請累計數量；以及原有的照片審批。",
+      "what": "現場的材料申請和其他申請，每筆有獨立申請編號；以及申請累計數量。",
       "who": "持有 material_request.view 的人員；批准或退回需要 material_request.review。",
       "need": "材料申請須填材料、規格、數量和單位；備註和附件選填。其他申請須有文件或備註。",
       "then": "總部在申請內溝通並批准或退回。已退回的申請即結束；再申請須新建，產生新編號。",
@@ -12096,32 +12097,6 @@
       "integration": "系統集成",
       "site_worker": "人員名單"
     }
-  },
-  "photoApprovals": {
-    "noLocation": "沒有記錄位置",
-    "noCaption": "沒有說明",
-    "noPhotos": "這一份沒有照片",
-    "returnReason": "退回理由",
-    "returnPlaceholder": "例如：梁底沒拍進去",
-    "returnHelp": "寫清楚哪裡不行。理由會一起發給拍照的人，不然他不知道要重拍什麼。",
-    "returnTitle": "退回重拍",
-    "return": "退回",
-    "accept": "批准",
-    "noCategory": "未歸分類",
-    "empty": "沒有待審批的",
-    "subtitle": "有 {count} 份等你審",
-    "title": "照片審批",
-    "what": "待審批的照片",
-    "historyCount": "{count, plural, =0 {無記錄} other {# 筆已處理}}",
-    "historyEmpty": "暫無記錄",
-    "show": "顯示",
-    "reviewNote": "原因：",
-    "filter": {
-      "SUBMITTED": "待審批",
-      "ACCEPTED": "已批准",
-      "RETURNED": "已退回"
-    },
-    "loadMore": "載入更多（已顯示 {shown} / {total}）"
   },
   "photos": {
     "count": "{count} 張照片",
@@ -13431,7 +13406,7 @@
       "photo": "打開照片"
     },
     "field": {
-      "category": "安全分類",
+      "category": "事項分類",
       "description": "說明",
       "dueAt": "整改期限",
       "evidence": "證據",
@@ -13474,13 +13449,13 @@
       "title": "上報工地事故"
     },
     "filter": {
-      "allCategories": "全部安全分類",
+      "allCategories": "全部事項分類",
       "allProjects": "所有項目",
       "allResponsible": "全部整改負責人",
       "dateFrom": "開始日期",
       "dateTo": "結束日期",
       "project": "選擇項目",
-      "selectCategory": "選擇安全分類"
+      "selectCategory": "選擇事項分類"
     },
     "form": {
       "captureLocation": "獲取 GPS",
@@ -13513,7 +13488,7 @@
       "title": "更新事故狀態"
     },
     "what": {
-      "categories": "安全分類",
+      "categories": "事項分類",
       "responsiblePeople": "負責人列表",
       "requestedIncident": "連結中的事故",
       "workers": "可通知人員"
@@ -13582,6 +13557,8 @@
     },
     "title": "整改 / EHS",
     "toast": {
+      "reassigned": "已調整負責人",
+      "categoryChanged": "已儲存事項分類",
       "assigned": "已指派整改",
       "reviewed": "已保存驗收結果",
       "submitted": "已提交整改證據"
@@ -16860,13 +16837,11 @@
   },
   "materialRequest": {
     "title": "MR / 其他申請",
-    "noAccess": "你沒有查看申請或照片審批的權限。",
+    "noAccess": "你沒有查看申請的權限。",
     "tab": {
       "requests": "申請",
-      "totals": "申請累計",
-      "photos": "照片審批"
+      "totals": "申請累計"
     },
-    "photosNote": "原「照片審批」的照片提交全部在這裡，沒有改動：待審的照樣在此審批，已處理的連同照片、審批人和原因都可查看。",
     "type": {
       "MATERIAL": "材料申請",
       "OTHER": "其他申請"
@@ -17765,6 +17740,97 @@
     "nameHelp": "名字會記錄在你的確認、退回、簽收和留言上。這個瀏覽器會記住，下次不用再填。",
     "name": "名字",
     "continue": "繼續"
+  },
+  "taskFlow": {
+    "moreWork": {
+      "label": "需要繼續整改",
+      "off": "不打開就只是普通訊息，事情不會退回。",
+      "on": "發送後這件事回到負責人手上（待處理），他的我的任務會重新出現。",
+      "send": "發送並要求繼續整改",
+      "hint": "沒通過：在下方溝通裡打開「需要繼續整改」再發送，說明還要改什麼。",
+      "reviewHint": "沒通過就不要確認：在溝通裡打開「需要繼續整改」再發送，說明還要改什麼，事情會回到負責人手上。"
+    },
+    "stage": {
+      "all": "全部狀態",
+      "PENDING": "待處理",
+      "AWAITING": "待驗收",
+      "DONE": "已完成"
+    },
+    "myTasks": {
+      "title": "我的任務",
+      "count": "{count} 件待處理",
+      "loading": "正在讀取…",
+      "refresh": "重新整理",
+      "empty": "目前沒有要做的任務。",
+      "kind": {
+        "FIELD_TASK": "現場任務",
+        "HAZARD": "整改 / EHS"
+      },
+      "moreWork": "需要繼續整改",
+      "due": "期限：{value}",
+      "said": {
+        "text": "訊息",
+        "photo": "發了一張照片",
+        "voice": "發了一段語音",
+        "file": "發了一個檔案"
+      }
+    },
+    "work": {
+      "back": "返回",
+      "what": "這個任務",
+      "locationFailed": "取不到位置，請打開定位後再試。",
+      "failed": "沒有成功，請再試一次。",
+      "stage": {
+        "PENDING": "待處理",
+        "AWAITING": "待驗收",
+        "DONE": "已完成",
+        "CANCELLED": "已取消"
+      },
+      "assignedBy": "指派人：{name}",
+      "due": "期限：{value}",
+      "where": "地點：{value}",
+      "moreWork": "需要繼續整改",
+      "photos": "照片",
+      "photosHint": "至少拍 {count} 張",
+      "takePhoto": "拍照",
+      "note": "備註",
+      "noteHint": "沒有照片時寫一句做了什麼",
+      "optional": "選填",
+      "notePlaceholder": "做了什麼（選填）",
+      "submit": "提交完成",
+      "workflowHint": "這個任務要在它自己的表單裡提交。",
+      "openWorkflow": "打開工作表單",
+      "waiting": "已提交，等待驗收。",
+      "finished": "這個任務已經結束。"
+    },
+    "ehs": {
+      "unsorted": "未分類",
+      "create": "建立事項",
+      "categories": "分類管理",
+      "history": "歷史檔案",
+      "backToList": "返回待處理列表",
+      "historyTitle": "整改 / EHS 歷史檔案",
+      "noAndDate": "編號 / 日期",
+      "verifiedBy": "驗收人",
+      "verifiedAt": "確認時間",
+      "reassign": "調整負責人",
+      "reassignHelp": "{incident} 現在由 {person} 負責。選一個新的負責人，照片和溝通都留在原事項。",
+      "newResponsible": "新負責人",
+      "chooseCategory": "先選一個不同的事項分類",
+      "saveCategory": "儲存分類"
+    },
+    "fieldTasks": {
+      "history": "歷史檔案",
+      "backToList": "返回待處理列表",
+      "historyTitle": "現場任務歷史檔案",
+      "stageColumn": "狀態",
+      "confirmedBy": "確認人",
+      "confirmedAt": "確認時間",
+      "search": "搜尋任務、負責人",
+      "allAssignees": "全部負責人",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期"
+    }
   },
   "mapFrame": {
     "fullscreen": "全螢幕",

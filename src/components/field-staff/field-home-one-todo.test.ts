@@ -38,11 +38,11 @@ const BELL = "src/components/notifications/notification-button.tsx";
 
 describe("the field home has one My Tasks (L1)", () => {
   it("does not render the task list on the home", () => {
-    expect(componentBody(WORKSPACE, "FieldHomePanel")).not.toContain("<FieldTaskPanel");
+    expect(componentBody(WORKSPACE, "FieldHomePanel")).not.toContain("<MyTasksPanel");
   });
 
-  it("still opens the task list on its own tab, where the task controls are", () => {
-    expect(read(WORKSPACE)).toMatch(/shownTab === "tasks" && \(\s*<FieldTaskPanel/);
+  it("still opens 我的任务 on its own tab, where the task controls are (I1)", () => {
+    expect(read(WORKSPACE)).toMatch(/shownTab === "tasks" && \(\s*<MyTasksPanel/);
     expect(read(CARD)).toContain('"/field-staff?tab=tasks"');
   });
 
