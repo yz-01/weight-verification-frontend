@@ -3079,7 +3079,8 @@
       "PROJECT": "Project",
       "SETTLEMENT": "Payment proofs",
       "WEIGH_SESSION": "Weighing records",
-      "ANNOUNCEMENT": "Announcement"
+      "ANNOUNCEMENT": "Announcement",
+      "VISITOR_ARRIVAL": "Visitor arrival"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -7781,7 +7782,11 @@
       "worker_link_closed": "This link is closed.",
       "worker_link_other_device": "This link is in use on another phone.",
       "worker_link_phone_mismatch": "The phone number does not match the registered one.",
-      "worker_link_not_confirmed": "Confirm your phone number and agree first."
+      "worker_link_not_confirmed": "Confirm your phone number and agree first.",
+      "gate_pass_host_not_confirmed": "The visitor's host has not confirmed yet. Do not let them in.",
+      "visitor_arrival_already_open": "This visitor is already waiting at the gate.",
+      "visitor_arrival_answered": "This visitor has already been answered.",
+      "visitor_arrival_not_host": "Only the visitor's host or a site access manager can answer."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -10477,7 +10482,12 @@
       "published_by": "Published by",
       "published_at": "Published at",
       "content": "Content",
-      "read_count": "Read / recipients"
+      "read_count": "Read / recipients",
+      "host": "Host",
+      "confirmed_by": "Confirmed by",
+      "confirmed_at": "Confirmed at",
+      "entry_at": "Entry time",
+      "exit_at": "Exit time"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -14034,7 +14044,8 @@
         "passes": "Who may enter the site, and when. Request, approve and revoke passes here, and download the QR code to send.",
         "gate": "The guard scans the pass QR code, checks the visitor's details, then presses Confirm Entry or Confirm Exit.",
         "devices": "If automatic barriers, number-plate cameras or face readers are connected, every time a machine lets someone in or turns them away is listed here, with the reason. Without such machines this stays empty."
-      }
+      },
+      "hostHint": "Chosen from the project's people; they are told when the visitor arrives."
     },
     "action": {
       "approve": "Approve",
@@ -14440,7 +14451,11 @@
       "gatePhotosAdded": "Photos added.",
       "gateMembersAdded": "People asked in and notified.",
       "gateIssueClosed": "Gate issue confirmed finished.",
-      "gateConversationStarted": "The people you chose are notified; the conversation is open."
+      "gateConversationStarted": "The people you chose are notified; the conversation is open.",
+      "hostNotified": "Host notified.",
+      "visitorConfirmed": "Visitor confirmed. The gate can let them in.",
+      "visitorDeclined": "Visitor declined. The gate has been told.",
+      "visitorCancelled": "Visitor arrival cancelled."
     },
     "what": {
       "roles": "The role list",
@@ -14599,7 +14614,7 @@
       "signedOut": "Sign in again, then send."
     },
     "visitorScan": {
-      "help": "Scan the visitor's pass QR code, check the details, then press Confirm Entry or Confirm Exit. No photo needed.",
+      "help": "Scan the pass QR code and check the details. A visitor is photographed and their host confirms before you let them in; others press Confirm Entry or Confirm Exit.",
       "project": "Project",
       "chooseProject": "Choose a project",
       "chooseProjectFirst": "Choose a project first",
@@ -14640,12 +14655,13 @@
         "not_yet_valid": "Cannot confirm: this pass is not valid yet.",
         "expired": "Cannot confirm: this pass has expired.",
         "already_inside": "Already recorded as inside; next time press Confirm Exit.",
-        "already_outside": "Not recorded as inside yet; press Confirm Entry first."
+        "already_outside": "Not recorded as inside yet; press Confirm Entry first.",
+        "host_not_confirmed": "Cannot let in: the visitor's host has not confirmed yet."
       }
     },
     "visitorRecords": {
       "title": "Visitor Records",
-      "help": "One row for every entry and exit confirmed at the gate, linked to its pass, never overwritten.",
+      "help": "One row for every visit (photo, host, confirmation, entry and exit) and every other entry or exit confirmed at the gate, never overwritten.",
       "empty": "No entries or exits yet.",
       "allDirections": "In and out",
       "allTypes": "All types",
@@ -14664,8 +14680,86 @@
         "approvedBy": "Approved by",
         "validUntil": "Valid until",
         "gate": "Gate",
-        "guard": "Confirmed by"
+        "guard": "Confirmed by",
+        "photo": "Photo",
+        "host": "Host",
+        "confirmedBy": "Host confirmed",
+        "confirmedAt": "Confirmed at",
+        "entryAt": "Entry time",
+        "exitAt": "Exit time",
+        "visitStatus": "Visit status",
+        "visit": "Visit no.",
+        "declineReason": "Decline reason",
+        "photoCount": "Photos"
       }
+    },
+    "visitorArrival": {
+      "title": "Visitor arrival",
+      "hostHelp": "A visitor is at the gate for you. Check the photo, then confirm or decline.",
+      "detailHelp": "The visitor's photo at the gate, their host and the host's answer.",
+      "what": "this visitor",
+      "whatHosts": "the project's people",
+      "whatOpen": "visitors at the gate",
+      "loading": "Loading…",
+      "status": {
+        "AWAITING_HOST": "Waiting for host",
+        "CONFIRMED": "Confirmed",
+        "DECLINED": "Declined",
+        "CANCELLED": "Cancelled",
+        "ON_SITE": "On site",
+        "LEFT": "Left"
+      },
+      "field": {
+        "visitor": "Visitor",
+        "company": "Company",
+        "purpose": "Purpose",
+        "pass": "Pass",
+        "project": "Project",
+        "host": "Host",
+        "guard": "Gate staff",
+        "arrivedAt": "Arrived at",
+        "confirmedBy": "Confirmed by",
+        "confirmedAt": "Confirmed at",
+        "declinedBy": "Declined by",
+        "reason": "Reason",
+        "entryAt": "Entry time",
+        "exitAt": "Exit time",
+        "photo": "Visitor photo"
+      },
+      "photoNumber": "Photo {number}",
+      "photoOf": "Photo of {name}",
+      "removePhoto": "Remove photo {number}",
+      "answerTitle": "Host confirmation",
+      "confirm": "Confirm visitor",
+      "decline": "Decline",
+      "reasonPlaceholder": "Why? The gate will read this.",
+      "back": "Back",
+      "declineConfirm": "Decline visitor",
+      "answerFailed": "Could not save your answer. Try again.",
+      "waitingFor": "Waiting for {host} to confirm.",
+      "confirmedBanner": "Confirmed ({name} {time})",
+      "declinedBanner": "Declined by {name}: {reason}",
+      "onBehalf": "on the host's behalf",
+      "chooseHost": "Choose the host",
+      "searchHost": "Search by name",
+      "noHosts": "Nobody on this project matches.",
+      "chooseProjectFirst": "Choose a project first",
+      "photoHint": "Take the visitor's photo here and now.",
+      "takePhoto": "Take the visitor's photo",
+      "takeAnother": "Take another ({count} taken)",
+      "hostHint": "The person the visitor came to see. They are told at once.",
+      "changeHost": "Change host",
+      "startFailed": "Could not notify the host. Try again.",
+      "notifyHost": "Notify host",
+      "waiting": "{host} has been notified. Waiting…",
+      "waited": "Waited {minutes} min",
+      "waitingHelp": "This screen turns green by itself when the host confirms.",
+      "cancel": "Cancel",
+      "letIn": "Let in",
+      "declinedHelp": "Do not let this visitor in.",
+      "next": "Scan the next one",
+      "openTitle": "Visitors at the gate",
+      "hostLine": "Host: {host}"
     }
   },
   "siteDisposal": {

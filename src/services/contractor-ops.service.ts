@@ -1651,6 +1651,8 @@ export const RECORD_PDF_KINDS = [
   "ANNOUNCEMENT",
   "ATTENDANCE_DAY",
   "DELIVERY_NOTE",
+  // 访客到访 (I26): a visit's photo, host's answer, entry and exit.
+  "VISITOR_ARRIVAL",
 ] as const;
 
 /** Every kind `record-exports/download` prints: the nine and the rest. */
