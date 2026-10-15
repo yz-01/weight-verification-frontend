@@ -7771,7 +7771,9 @@
       "role_template_not_found": "There is no preset role with that name.",
       "role_already_exists": "This company already has that role.",
       "export_too_many_photos": "This export holds {count} photos; one file takes at most {limit}. Shorten the dates and export again.",
-      "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it."
+      "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it.",
+      "record_not_correctable": "This record cannot be corrected now: it is archived, its project has ended, or it was already decided.",
+      "correction_stale": "Somebody corrected this record a moment ago. The latest values were read again; check them and save again."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7792,7 +7794,12 @@
       "required": "This field is required",
       "unique": "This value is already taken",
       "percent_range": "Enter a percentage from 0 to 100",
-      "percent_unchanged": "That is already the percentage"
+      "percent_unchanged": "That is already the percentage",
+      "not_correctable": "This field cannot be corrected",
+      "correction_unchanged": "Nothing was changed",
+      "positive_number": "Enter a number greater than 0",
+      "claim_decided": "This sundry claim has already been decided",
+      "project_closed": "This project has ended"
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -16543,6 +16550,74 @@
     "loading": "Checking…",
     "what": {
       "state": "Whether this record is already archived"
+    }
+  },
+  "recordCorrection": {
+    "button": "Correct",
+    "title": "Correct this record",
+    "hint": "Only words and choices can be changed; photos, GPS, times, signatures and who submitted it cannot. The original values are kept.",
+    "what": "the fields to correct",
+    "choose": "Choose",
+    "none": "(none)",
+    "was": "Was: {value}",
+    "wasEmpty": "Was: not filled",
+    "reason": "Reason for the correction",
+    "reasonPlaceholder": "e.g. the site picked the wrong supplier",
+    "evidenceNote": "Once saved, lists, exports, reports and PDFs use the new values, and whoever submitted it is told.",
+    "unchanged": "Nothing has been changed yet",
+    "missing": "{field} cannot be left empty",
+    "badNumber": "{field} must be a number greater than 0",
+    "cancel": "Cancel",
+    "save": "Save correction",
+    "tag": "Corrected",
+    "historyTitle": "Corrections",
+    "historyWhat": "the corrections",
+    "empty": "not filled",
+    "reasonLine": "Reason: {reason}",
+    "someone": "(removed user)",
+    "source": {
+      "CORRECTION": "Corrected by the office",
+      "RETURN_NOTE": "Changed by the Return Note",
+      "EDIT": "Edited"
+    },
+    "blocked": {
+      "record_archived": "This record was confirmed and archived; it can no longer be corrected. Raise a new record for anything further.",
+      "project_closed": "This project has ended; its records can no longer be changed.",
+      "claim_decided": "This sundry claim has already been decided; it can no longer be corrected."
+    },
+    "toast": {
+      "saved": "Record corrected"
+    },
+    "field": {
+      "equipment_name": "Equipment name",
+      "equipment_category": "Equipment category",
+      "supplier": "Supplier",
+      "collector_supplier": "Clearance company",
+      "delivery_note_no": "DO number",
+      "do_no": "DO number",
+      "vehicle_plate": "Vehicle plate",
+      "quantity": "Quantity",
+      "returned_quantity": "Quantity returned",
+      "unit": "Unit",
+      "operator_name": "Operator",
+      "notes": "Remarks",
+      "note": "Remarks",
+      "material_name": "Material",
+      "reason": "Reason / remarks",
+      "category": "Category",
+      "phase": "Construction stage",
+      "description": "Description",
+      "percent_complete": "Percent complete",
+      "title": "Title",
+      "instructions": "Instructions",
+      "assigned_to": "Assigned to",
+      "due_at": "Due",
+      "amount": "Amount",
+      "gate_name": "Gate",
+      "weight_kg": "Weight (kg)",
+      "destination": "Returned to",
+      "work_location": "Work location",
+      "priority": "Priority"
     }
   },
   "recordConversation": {

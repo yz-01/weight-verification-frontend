@@ -51,7 +51,6 @@ import { useMemo, useState } from "react";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import {
   EditedTag,
-  ProgressCorrectionHistory,
   ProgressPercentFact,
   wasCorrected,
 } from "@/components/contractor-ops/progress-percent-editor";
@@ -84,6 +83,11 @@ import {
 import { NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -265,7 +269,13 @@ export function MaterialOutgoingOffice() {
         meta: { label: t("outgoing.referenceNo") },
         header: () => <PlainHeader label={t("outgoing.referenceNo")} />,
         // Short number big, project small (2026-10 D4).
-        cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
+        cell: ({ row }) => (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <RecordNo value={row.original.reference_no} />
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
+          </div>
+        ),
       },
       // The record's photograph beside its main column (E3).
       photoColumn<MaterialOutgoing>({
@@ -604,6 +614,12 @@ export function SiteEquipmentOffice() {
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
     void qc.invalidateQueries({ queryKey: ["equipment-summary"] });
   };
+  // After a correction (I30): the open movement shows its new values.
+  const refreshMovement = async (id: string) => {
+    const page = await getEquipmentMovements({ id, page_size: 1 });
+    if (page.results[0]) setViewingMovement(page.results[0]);
+    refresh();
+  };
   // The title follows the direction being looked at (B14): a list of exits
   // is 「设备退场」, not 「设备进退场」, here, in the top bar and in the export.
   const directionTitleKey = equipmentDirectionTitleKey(
@@ -692,6 +708,8 @@ export function SiteEquipmentOffice() {
             <p className="tabular truncate text-xs text-muted-foreground">
               {row.original.equipment_registration_no || row.original.equipment_code}
             </p>
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -1403,6 +1421,12 @@ export function SiteEquipmentOffice() {
                   }}
                   onCompleteProfile={(machineId) => void completeProfile(machineId)}
                 />
+                {/* 【改正】 (I30): name, supplier, DO, plate, quantity… with a reason. */}
+                <RecordCorrectionButton
+                  kind="EQUIPMENT_MOVEMENT"
+                  recordId={shownMovement.id}
+                  onCorrected={() => void refreshMovement(shownMovement.id)}
+                />
                 <AddToPackageButton
                   kind="EQUIPMENT_MOVEMENT"
                   recordId={shownMovement.id}
@@ -1410,6 +1434,9 @@ export function SiteEquipmentOffice() {
                   reference={`${shownMovement.equipment_code} - ${shownMovement.equipment_name}`}
                 />
               </div>
+            }
+            corrections={
+              <RecordCorrectionHistory kind="EQUIPMENT_MOVEMENT" recordId={shownMovement.id} />
             }
             conversation={{
               kind: "EQUIPMENT_MOVEMENT",
@@ -1725,8 +1752,10 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         meta: { label: t("field.phase") },
         header: sortable(t("field.phase")),
         cell: ({ row }) => (
-          <span className="font-medium text-foreground">
+          <span className="inline-flex flex-wrap items-center gap-1.5 font-medium text-foreground">
             {row.original.phase_name}
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
           </span>
         ),
       },
@@ -1983,6 +2012,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                     onSaved={(fresh) => {
                       setViewing(fresh);
                       refreshProgress();
+                      void qc.invalidateQueries({ queryKey: ["record-corrections", "PROGRESS", fresh.id] });
                     }}
                   />
                 ),
@@ -2078,6 +2108,13 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                     }}
                   />
                 )}
+                {/* 【改正】 (I30): the stage and the note; the figure is
+                    corrected beside it, in the facts. */}
+                <RecordCorrectionButton
+                  kind="PROGRESS"
+                  recordId={shown.id}
+                  onCorrected={refreshProgress}
+                />
                 <AddToPackageButton
                   kind="PROGRESS"
                   recordId={shown.id}
@@ -2086,12 +2123,9 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                 />
               </div>
             }
-            // Every change to 实际完成比例: old → new, who, when, why.
-            corrections={
-              wasCorrected(shown) ? (
-                <ProgressCorrectionHistory corrections={shown.corrections ?? []} />
-              ) : null
-            }
+            // Every change (I30): 实际完成比例, the stage and the note -
+            // old → new, who, when, why.
+            corrections={<RecordCorrectionHistory kind="PROGRESS" recordId={shown.id} />}
             conversation={{ kind: "PROGRESS", recordId: shown.id }}
             // 【确认归档】 with the record itself (C4). The list reads the
             // closure for its status, so it is refreshed at once (2026-10-09).

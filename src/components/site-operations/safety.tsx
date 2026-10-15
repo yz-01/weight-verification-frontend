@@ -52,6 +52,11 @@ import {
   RecordDetailShell,
   RecordRecorder,
 } from "@/components/shared/record-detail-shell";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -216,6 +221,7 @@ export function Safety({
   const te = useTranslations("ehs");
   const df = useDateFormat();
   const { can, user } = useAuth();
+  const qc = useQueryClient();
   // 顾问发起 (B21, B22): a consultant raises a rectification, and assigns the
   // ones they raised, without holding safety.manage.
   const isConsultant = user?.account_type === "CONSULTANT";
@@ -389,6 +395,8 @@ export function Safety({
             </p>
             {/* Short number big, project small (2026-10 D4). */}
             <RecordNo value={row.original.incident_no} className="text-xs" />
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -779,6 +787,11 @@ export function Safety({
           incident={opened}
           mayAssign={mayAssign(opened)}
           onClose={() => setOpened(null)}
+          // After 【改正】 (I30): the open incident shows its new values.
+          onCorrected={async () => {
+            setOpened(await getSafetyIncident(opened.id));
+            void qc.invalidateQueries({ queryKey: ["safety"] });
+          }}
           onReview={() => {
             setReviewing(opened);
             setOpened(null);
@@ -822,8 +835,11 @@ export function HazardRecordDetail({
   onClose,
   onReview,
   onAssign,
+  onCorrected,
 }: {
   incident: SafetyIncident;
+  /** After 【改正】 (I30): re-read the incident. */
+  onCorrected?: () => void;
   /** `Safety`'s assignment rule, for this incident. */
   mayAssign: boolean;
   onClose: () => void;
@@ -833,6 +849,15 @@ export function HazardRecordDetail({
   const t = useTranslations();
   const te = useTranslations("ehs");
   const df = useDateFormat();
+  // 【改正】 (I30): a hazard's category, title and description; a permit is
+  // its own form and is not corrected here.
+  const correction = isPermit(incident) ? null : (
+    <RecordCorrectionButton
+      kind="HAZARD"
+      recordId={incident.id}
+      onCorrected={onCorrected}
+    />
+  );
   return (
     <RecordDetailDialog
       title={incident.incident_no}
@@ -902,8 +927,9 @@ export function HazardRecordDetail({
         }))}
         emptyGroupLabel={te("photos.none")}
         actions={
-          incident.can_confirm || mayAssign ? (
+          incident.can_confirm || mayAssign || correction ? (
             <div className="grid gap-2">
+              {correction}
               {incident.can_confirm && (
                 <Button
                   className="min-h-11"
@@ -929,6 +955,11 @@ export function HazardRecordDetail({
               )}
             </div>
           ) : undefined
+        }
+        corrections={
+          isPermit(incident) ? null : (
+            <RecordCorrectionHistory kind="HAZARD" recordId={incident.id} />
+          )
         }
         chat={<HazardConversationPanel incidentId={incident.id} />}
       />

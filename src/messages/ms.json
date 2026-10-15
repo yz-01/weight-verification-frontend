@@ -7771,7 +7771,9 @@
       "role_template_not_found": "Tiada peranan pratetap dengan nama itu.",
       "role_already_exists": "Syarikat ini sudah mempunyai peranan itu.",
       "export_too_many_photos": "Eksport ini mengandungi {count} foto; satu fail paling banyak {limit}. Pendekkan tarikh dan eksport semula.",
-      "receipt_needs_supplier": "Penghantaran ini belum ada pembekal. Tekan “Isi pembekal” dahulu, kemudian terima."
+      "receipt_needs_supplier": "Penghantaran ini belum ada pembekal. Tekan “Isi pembekal” dahulu, kemudian terima.",
+      "record_not_correctable": "Rekod ini tidak boleh dibetulkan sekarang: ia telah diarkibkan, projeknya tamat, atau sudah diputuskan.",
+      "correction_stale": "Seseorang baru sahaja membetulkan rekod ini. Nilai terkini telah dibaca semula; semak dan simpan sekali lagi."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7792,7 +7794,12 @@
       "required": "Ruangan ini wajib diisi",
       "unique": "Nilai ini telah digunakan",
       "percent_range": "Masukkan peratusan dari 0 hingga 100",
-      "percent_unchanged": "Itu sudah peratusan semasa"
+      "percent_unchanged": "Itu sudah peratusan semasa",
+      "not_correctable": "Medan ini tidak boleh dibetulkan",
+      "correction_unchanged": "Tiada yang diubah",
+      "positive_number": "Masukkan nombor lebih daripada 0",
+      "claim_decided": "Tuntutan pelbagai ini telah diputuskan",
+      "project_closed": "Projek ini telah tamat"
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -16543,6 +16550,74 @@
     "loading": "Menyemak…",
     "what": {
       "state": "Sama ada rekod ini sudah diarkibkan"
+    }
+  },
+  "recordCorrection": {
+    "button": "Betulkan",
+    "title": "Betulkan rekod ini",
+    "hint": "Hanya perkataan dan pilihan boleh diubah; foto, GPS, masa, tandatangan dan penghantar tidak boleh. Nilai asal disimpan.",
+    "what": "medan untuk dibetulkan",
+    "choose": "Pilih",
+    "none": "(tiada)",
+    "was": "Asal: {value}",
+    "wasEmpty": "Asal: tidak diisi",
+    "reason": "Sebab pembetulan",
+    "reasonPlaceholder": "cth. tapak memilih pembekal yang salah",
+    "evidenceNote": "Selepas disimpan, senarai, eksport, laporan dan PDF menggunakan nilai baharu, dan penghantar akan dimaklumkan.",
+    "unchanged": "Belum ada yang diubah",
+    "missing": "{field} tidak boleh dibiarkan kosong",
+    "badNumber": "{field} mesti nombor lebih daripada 0",
+    "cancel": "Batal",
+    "save": "Simpan pembetulan",
+    "tag": "Dibetulkan",
+    "historyTitle": "Pembetulan",
+    "historyWhat": "pembetulan",
+    "empty": "tidak diisi",
+    "reasonLine": "Sebab: {reason}",
+    "someone": "(pengguna dipadam)",
+    "source": {
+      "CORRECTION": "Dibetulkan oleh pejabat",
+      "RETURN_NOTE": "Diubah oleh Return Note",
+      "EDIT": "Disunting"
+    },
+    "blocked": {
+      "record_archived": "Rekod ini telah disahkan dan diarkibkan; ia tidak boleh dibetulkan lagi. Buka rekod baharu untuk perkara lain.",
+      "project_closed": "Projek ini telah tamat; rekodnya tidak boleh diubah lagi.",
+      "claim_decided": "Tuntutan pelbagai ini telah diputuskan; ia tidak boleh dibetulkan lagi."
+    },
+    "toast": {
+      "saved": "Rekod dibetulkan"
+    },
+    "field": {
+      "equipment_name": "Nama peralatan",
+      "equipment_category": "Kategori peralatan",
+      "supplier": "Pembekal",
+      "collector_supplier": "Syarikat pembersihan",
+      "delivery_note_no": "Nombor DO",
+      "do_no": "Nombor DO",
+      "vehicle_plate": "Nombor plat",
+      "quantity": "Kuantiti",
+      "returned_quantity": "Kuantiti dipulangkan",
+      "unit": "Unit",
+      "operator_name": "Pengendali",
+      "notes": "Catatan",
+      "note": "Catatan",
+      "material_name": "Bahan",
+      "reason": "Sebab / catatan",
+      "category": "Kategori",
+      "phase": "Peringkat pembinaan",
+      "description": "Keterangan",
+      "percent_complete": "Peratus siap",
+      "title": "Tajuk",
+      "instructions": "Arahan",
+      "assigned_to": "Ditugaskan kepada",
+      "due_at": "Tarikh akhir",
+      "amount": "Jumlah",
+      "gate_name": "Pintu",
+      "weight_kg": "Berat (kg)",
+      "destination": "Dipulangkan kepada",
+      "work_location": "Lokasi kerja",
+      "priority": "Keutamaan"
     }
   },
   "recordConversation": {
