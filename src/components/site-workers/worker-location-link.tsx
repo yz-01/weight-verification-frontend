@@ -25,6 +25,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useScreenWakeLock } from "@/components/driver/use-screen-wake-lock";
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
@@ -166,25 +167,21 @@ function PhoneStep({
   return (
     <section className="space-y-4">
       <h1 className="text-xl font-bold leading-tight">{t("phoneTitle")}</h1>
-      <p className="text-sm text-muted-foreground">{t("phoneBody")}</p>
-      <Input
-        type="tel"
-        inputMode="tel"
-        autoComplete="tel"
-        aria-label={t("phoneLabel")}
-        placeholder={t("phonePlaceholder")}
-        className="h-12 text-lg"
-        value={phone}
-        onChange={(event) => {
-          setError("");
-          setPhone(event.target.value);
-        }}
-      />
-      {error && (
-        <p role="alert" className="text-sm font-medium text-destructive">
-          {error}
-        </p>
-      )}
+      {/* One field on the screen: no red star, the hint says it in words. */}
+      <FieldWrapper label={t("phoneLabel")} required="quiet" hint={t("phoneBody")} error={error}>
+        <Input
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder={t("phonePlaceholder")}
+          className="h-12 text-lg"
+          value={phone}
+          onChange={(event) => {
+            setError("");
+            setPhone(event.target.value);
+          }}
+        />
+      </FieldWrapper>
       <Button
         size="lg"
         className="w-full"
