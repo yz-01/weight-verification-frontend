@@ -7664,7 +7664,8 @@
       "package_link_not_found": "Tidak dijumpai",
       "role_template_not_found": "Tiada peranan pratetap dengan nama itu.",
       "role_already_exists": "Syarikat ini sudah mempunyai peranan itu.",
-      "export_too_many_photos": "Eksport ini mengandungi {count} foto; satu fail paling banyak {limit}. Pendekkan tarikh dan eksport semula."
+      "export_too_many_photos": "Eksport ini mengandungi {count} foto; satu fail paling banyak {limit}. Pendekkan tarikh dan eksport semula.",
+      "receipt_needs_supplier": "Penghantaran ini belum ada pembekal. Tekan “Isi pembekal” dahulu, kemudian terima."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8224,7 +8225,9 @@
       "autoFilledFromCategory": "Diisi daripada kategori",
       "supplierLimited": "Hanya pembekal yang ditetapkan untuk kategori ini",
       "manufacturer": "Pengilang dinamakan (MR)",
-      "chooseColumnFirst": "Pilih kategori dahulu"
+      "chooseColumnFirst": "Pilih kategori dahulu",
+      "noSupplier": "Pembekal belum diisi",
+      "noSupplierHint": "Tidak pasti pembekalnya? Biarkan - pejabat akan mengisinya."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -12385,7 +12388,8 @@
         "delivery_note_no": "No. nota hantaran",
         "notes": "Catatan",
         "received_by_name": "Diterima oleh",
-        "document_amount": "Amaun pesanan penghantaran"
+        "document_amount": "Amaun pesanan penghantaran",
+        "supplier": "Pembekal"
       }
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
@@ -12573,7 +12577,15 @@
     },
     "exportVerdict": "Keputusan penerimaan",
     "rejectedReturns": "Pulangan ditolak",
-    "rejectedReturn": "Ditolak – dipulangkan"
+    "rejectedReturn": "Ditolak – dipulangkan",
+    "supplierUnfilled": "Pembekal belum diisi",
+    "supplierUnfilledShort": "belum diisi",
+    "fillSupplier": {
+      "action": "Isi pembekal",
+      "hint": "Tapak tidak mengisi pembekal. Isi pembekal sebelum menerima.",
+      "reason": "Pembekal diisi (kosong di tapak)",
+      "formHint": "Pilih pembekal penghantaran ini, simpan, kemudian terima."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -16968,7 +16980,8 @@
     "what": "senarai pembekal",
     "allManufacturers": "Semua pengilang dinamakan",
     "manufacturer": "Pengilang dinamakan (MR)",
-    "whatManufacturers": "Senarai pembekal"
+    "whatManufacturers": "Senarai pembekal",
+    "unfilled": "Pembekal belum diisi"
   },
   "dateTimeRange": {
     "startDate": "Tarikh mula",

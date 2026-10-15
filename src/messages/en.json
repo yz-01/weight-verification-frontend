@@ -7664,7 +7664,8 @@
       "package_link_not_found": "Not found",
       "role_template_not_found": "There is no preset role with that name.",
       "role_already_exists": "This company already has that role.",
-      "export_too_many_photos": "This export holds {count} photos; one file takes at most {limit}. Shorten the dates and export again."
+      "export_too_many_photos": "This export holds {count} photos; one file takes at most {limit}. Shorten the dates and export again.",
+      "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8224,7 +8225,9 @@
       "autoFilledFromCategory": "Filled in from the category",
       "supplierLimited": "Only the suppliers set for this category",
       "manufacturer": "Named manufacturer (MR)",
-      "chooseColumnFirst": "Choose the category first"
+      "chooseColumnFirst": "Choose the category first",
+      "noSupplier": "Supplier not filled in",
+      "noSupplierHint": "Not sure whose it is? Leave it - the office will fill it in."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -12385,7 +12388,8 @@
         "delivery_note_no": "Delivery order no.",
         "notes": "Notes",
         "received_by_name": "Received by",
-        "document_amount": "Delivery order amount"
+        "document_amount": "Delivery order amount",
+        "supplier": "Supplier"
       }
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
@@ -12573,7 +12577,15 @@
     },
     "exportVerdict": "Acceptance result",
     "rejectedReturns": "Rejected returns",
-    "rejectedReturn": "Rejected – returned"
+    "rejectedReturn": "Rejected – returned",
+    "supplierUnfilled": "Supplier not filled in",
+    "supplierUnfilledShort": "not filled in",
+    "fillSupplier": {
+      "action": "Fill in supplier",
+      "hint": "The site did not fill in the supplier. Fill it in before accepting.",
+      "reason": "Supplier filled in (left blank on site)",
+      "formHint": "Choose this delivery's supplier, save, then accept it."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -16968,7 +16980,8 @@
     "what": "the supplier list",
     "allManufacturers": "All named manufacturers",
     "manufacturer": "Named manufacturer (MR)",
-    "whatManufacturers": "The supplier list"
+    "whatManufacturers": "The supplier list",
+    "unfilled": "Supplier not filled in"
   },
   "dateTimeRange": {
     "startDate": "Start date",

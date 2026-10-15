@@ -7664,7 +7664,8 @@
       "package_link_not_found": "找不到",
       "role_template_not_found": "找不到这个预设角色。",
       "role_already_exists": "本公司已经有这个角色。",
-      "export_too_many_photos": "这次导出共有 {count} 张照片，一次最多 {limit} 张。请缩短日期范围后再导出。"
+      "export_too_many_photos": "这次导出共有 {count} 张照片，一次最多 {limit} 张。请缩短日期范围后再导出。",
+      "receipt_needs_supplier": "这批材料还没有供应商。请先按「补供应商」填上，再验收。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8224,7 +8225,9 @@
       "autoFilledFromCategory": "按分类自动带出",
       "supplierLimited": "只列这个分类设定的供应商",
       "manufacturer": "指定厂商（MR）",
-      "chooseColumnFirst": "请先选分类"
+      "chooseColumnFirst": "请先选分类",
+      "noSupplier": "未填供应商",
+      "noSupplierHint": "不确定是哪家就不用选，后台会补上。"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -12385,7 +12388,8 @@
         "delivery_note_no": "送货单号",
         "notes": "备注",
         "received_by_name": "收货人",
-        "document_amount": "送货单金额"
+        "document_amount": "送货单金额",
+        "supplier": "供应商"
       }
     },
     "count": "{count, plural, =0 {暂无材料进场记录} other {# 条材料进场记录}}",
@@ -12573,7 +12577,15 @@
     },
     "exportVerdict": "验收结果",
     "rejectedReturns": "不合格退货",
-    "rejectedReturn": "不合格退货"
+    "rejectedReturn": "不合格退货",
+    "supplierUnfilled": "未填供应商",
+    "supplierUnfilledShort": "未填",
+    "fillSupplier": {
+      "action": "补供应商",
+      "hint": "现场没有填供应商。先补供应商，才能验收。",
+      "reason": "补供应商（现场未填）",
+      "formHint": "选这批货的供应商，保存后再验收。"
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -16968,7 +16980,8 @@
     "what": "供应商列表",
     "allManufacturers": "全部指定厂商",
     "manufacturer": "指定厂商（MR）",
-    "whatManufacturers": "供应商名单"
+    "whatManufacturers": "供应商名单",
+    "unfilled": "未填供应商"
   },
   "dateTimeRange": {
     "startDate": "开始日期",

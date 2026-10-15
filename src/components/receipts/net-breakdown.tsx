@@ -123,7 +123,8 @@ export function NetBreakdownDialog({
                       { key: "delivery_note_no", label: t("item.doNo") },
                       { key: "return_note_no", label: t("item.returnNote") },
                       { key: "vehicle_plate", label: t("item.plate") },
-                      { key: "supplier_name", label: tRoot("mySubmissions.field.supplier") },
+                      // A delivery or return naming none prints 「未填供应商」 (Q29.9, I23).
+                      { key: "supplier_name", label: tRoot("mySubmissions.field.supplier"), values: { "": t("noSupplier") } },
                       { key: "manufacturer_name", label: t("item.manufacturer") },
                       { key: "project_name", label: t("breakdown.project") },
                       { key: "reason", label: t("breakdown.reason") },
