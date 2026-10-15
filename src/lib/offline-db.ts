@@ -380,7 +380,8 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
   kind: "SAFETY_INCIDENT";
   payload: {
     project: string;
-    category: string;
+    /** Empty from the phone's 主动上报 (ID12): filed as 「未分类」. */
+    category?: string;
     title: string;
     description: string;
     /** Only on reports queued before 2026-10-10; 严重程度 is gone, the server ignores it. */

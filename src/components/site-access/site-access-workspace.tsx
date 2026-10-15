@@ -37,6 +37,7 @@ import {
   NeedsActionMarker,
   useNeedsActionParam,
 } from "@/components/shared/needs-action";
+import { VisitorHostPicker } from "@/components/site-access/visitor-arrival";
 import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
@@ -511,6 +512,7 @@ export function SiteAccessWorkspace() {
             project={project === "all" ? "" : project}
             lockProject={false}
             initialToken={search.get("scan") ?? ""}
+            initialArrival={search.get("gate_arrival") ?? ""}
             onRecorded={() => void invalidate()}
           />
         </TabsContent>
@@ -623,6 +625,7 @@ function PassDialog({
     driver_name: row?.driver_name ?? "",
     purpose: row?.purpose ?? "",
     host_name: row?.host_name ?? "",
+    host_user: row?.host_user ?? null,
     valid_from: row ? localInput(new Date(row.valid_from)) : localInput(now),
     valid_until: row ? localInput(new Date(row.valid_until)) : localInput(later),
   });
@@ -661,7 +664,14 @@ function PassDialog({
           <FieldWrapper label={t("field.project")} required>
             <ProjectPicker
               value={form.project}
-              onValueChange={(value) => setForm({ ...form, project: value })}
+              onValueChange={(value) =>
+                setForm({
+                  ...form,
+                  project: value,
+                  // A host belongs to the project they were chosen from.
+                  ...(form.host_user ? { host_user: null, host_name: "" } : {}),
+                })
+              }
               placeholder={t("field.chooseProject")}
               disabled={Boolean(row)}
             />
@@ -674,6 +684,8 @@ function PassDialog({
                   ...form,
                   subject_type: value,
                   worker: null,
+                  // 接待人 as a person is a visitor's (I26).
+                  ...(value === "VISITOR" ? {} : { host_user: null }),
                   ...(value === "VISITOR"
                     ? {
                         valid_until: localInput(
@@ -803,14 +815,29 @@ function PassDialog({
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.hostName")}>
-            <Input
-              value={form.host_name}
-              onChange={(event) =>
-                setForm({ ...form, host_name: event.target.value })
-              }
-            />
-          </FieldWrapper>
+          {form.subject_type === "VISITOR" ? (
+            // 接待人 from the project's people (I26, ID64): who the gate
+            // notifies when the visitor arrives, and who confirms them.
+            <FieldWrapper label={t("field.hostName")} hint={t("access.hostHint")}>
+              <VisitorHostPicker
+                project={form.project}
+                value={form.host_user ?? ""}
+                selectedLabel={form.host_user ? form.host_name : undefined}
+                onChange={(id, name) =>
+                  setForm({ ...form, host_user: id || null, host_name: name })
+                }
+              />
+            </FieldWrapper>
+          ) : (
+            <FieldWrapper label={t("field.hostName")}>
+              <Input
+                value={form.host_name}
+                onChange={(event) =>
+                  setForm({ ...form, host_name: event.target.value })
+                }
+              />
+            </FieldWrapper>
+          )}
           <span />
           <FieldWrapper label={t("field.validFrom")} required>
             <Input

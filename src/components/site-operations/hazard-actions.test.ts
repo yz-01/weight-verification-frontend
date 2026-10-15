@@ -56,8 +56,8 @@ describe("the hazard office screen keeps two actions, not five (D-213)", () => {
 
   it("says what to do instead, so the missing button is not a dead end", () => {
     // A screen that simply lost an action reads as broken. The office is told
-    // to use the conversation.
-    expect(reviewDialog()).toContain("review.refuseInstead");
+    // to use the conversation's 「需要继续整改」 switch (ID11).
+    expect(reviewDialog()).toContain("moreWork.reviewHint");
   });
 
   it("the whole row opens the detail drawer", () => {

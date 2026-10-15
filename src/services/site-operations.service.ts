@@ -13,6 +13,7 @@ import type {
   SafetyIncident,
   SafetyIncidentPayload,
 } from "@/interfaces/site-operations";
+import type { PersonOption } from "@/interfaces/contractor-ops";
 import type {
   IncidentReportThread,
   IncidentReportThreadPayload,
@@ -145,6 +146,42 @@ export async function assignSafetyRectification(
   return incident;
 }
 
+/** 调整负责人 (I2): another person fixes it while it is 待处理. */
+export async function reassignSafetyRectification(
+  id: string,
+  payload: { responsible_person: string; due_at?: string; note?: string },
+): Promise<SafetyIncident> {
+  const incident = await api.post<SafetyIncident>(
+    `/api/safety-incidents/${id}/reassign_rectification/`,
+    payload,
+  );
+  toastSuccess("safetyRectification.toast.reassigned");
+  return incident;
+}
+
+/** 改事项分类 (I2): the office files an item - mostly a 「未分类」 phone report. */
+export async function updateSafetyCategory(
+  id: string,
+  category: string,
+): Promise<SafetyIncident> {
+  const incident = await api.post<SafetyIncident>(
+    `/api/safety-incidents/${id}/update_category/`,
+    { category },
+  );
+  toastSuccess("safetyRectification.toast.categoryChanged");
+  return incident;
+}
+
+/** Who the EHS 负责人 filter offers, with or without a project chosen. */
+export function getSafetyResponsibleOptions(
+  query: ListQuery,
+): Promise<PersonOption[]> {
+  return api.get<PersonOption[]>(
+    "/api/safety-incidents/responsible_options/",
+    query,
+  );
+}
+
 export async function submitSafetyRectification(
   id: string,
   payload: {
@@ -218,6 +255,8 @@ export async function postHazardMessage(
     longitude?: string;
     accuracy_m?: string;
     client_event_id?: string;
+    /** 「需要继续整改」 on (ID11): the item goes back to the person fixing it. */
+    needs_more_work?: boolean;
   },
 ): Promise<HazardMessage> {
   return api.post<HazardMessage>(
