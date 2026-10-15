@@ -7,7 +7,8 @@
  * Records…同一访客多次进退场，每次记录独立保存，不得覆盖历史」: one row per
  * confirmed entry or exit, each with the pass it belongs to, searched and
  * exported. Kept apart from the gate photographs (「不与门岗照片混合」).
- * Opening a row opens its pass on 工地门禁.
+ * Opening a row opens its pass on 工地门禁. Searched by 「开始日期 时间 – 结束
+ * 日期 时间」 on a 24-hour clock, like the gate photos (I15, ID62).
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -24,9 +25,9 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
+import { DATE_TIME_RANGE_KEYS, DateTimeRangeFilter } from "@/components/shared/date-time-range-filter";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { RecordNo } from "@/components/shared/record-no";
-import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { VisitorRecord } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
@@ -38,7 +39,7 @@ export function VisitorRecords() {
   const tRoot = useTranslations();
   const df = useDateFormat();
   const router = useRouter();
-  const list = useListQuery(["project", "direction", "subject_type", "date_from", "date_to"]);
+  const list = useListQuery(["project", "direction", "subject_type", ...DATE_TIME_RANGE_KEYS]);
   const rows = useQuery({
     queryKey: ["visitor-records", list.query],
     queryFn: () => getVisitorRecords(list.query),
@@ -197,11 +198,7 @@ export function VisitorRecords() {
               label: tSite(`subjectType.${value}`),
             }))}
           />
-          <SupplierDateFilter
-            showSupplier={false}
-            value={{ date_from: list.filters.date_from, date_to: list.filters.date_to }}
-            onChange={(next) => list.setFilters(next as Record<string, string | undefined>)}
-          />
+          <DateTimeRangeFilter list={list} />
           <ExportButton onExport={runExport} disabled={total === 0} title={title} />
         </>
       }

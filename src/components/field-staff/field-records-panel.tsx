@@ -42,7 +42,6 @@ import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-captur
 import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
-import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -151,10 +150,9 @@ const RECORD_OPTIONS: RecordOption[] = [
   // MR / Other Request (C01): asked from the current project, followed on
   // 「我提交过的」 with its conversation.
   { key: "request", permission: "material_request.submit", icon: FilePlus2, tone: "bg-primary/10 text-primary" },
-  // The gate's two entries, apart (事项2 六, HD5): 访客扫码 reads a visitor's
-  // pass and confirms the entry or exit; 门岗拍照 photographs the gate and,
-  // for a 「特殊事项」, asks project people in.
-  { key: "visitor", permission: "site_access.scan", icon: ScanLine, tone: "bg-primary/10 text-primary" },
+  // 门岗 (I14, ID32): one entry for the guard - 「门岗扫访客二维码为什么分开
+  // 两个模块？」. Inside, 「拍照」 and 「扫访客二维码」; the separate 访客扫码
+  // tile is gone (an old link to it still opens the scan, below).
   { key: "gate", permission: "site_access.scan", icon: DoorOpen, tone: "bg-info/10 text-info" },
 ];
 
@@ -226,11 +224,9 @@ export function FieldRecordsPanel({
   if (mode === "request") {
     return <RecordFrame title={t("records.request")} onBack={() => chooseMode(null)}><FieldDraft scope={`request:${task?.id ?? "new"}`}><MaterialRequestForm initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
-  if (mode === "visitor") {
-    return <RecordFrame title={t("records.visitor")} onBack={() => chooseMode(null)}><VisitorScanPanel project={task?.project ?? boundProject ?? ""} lockProject={Boolean(task?.project ?? boundProject)} /></RecordFrame>;
-  }
-  if (mode === "gate") {
-    return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} /></RecordFrame>;
+  if (mode === "gate" || mode === "visitor") {
+    // `visitor` is an older link to the scan: the same 门岗, on 扫访客二维码.
+    return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} initialAction={mode === "visitor" ? "scan" : "photo"} /></RecordFrame>;
   }
   if (mode === "sundry") {
     return <RecordFrame title={t("records.sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;

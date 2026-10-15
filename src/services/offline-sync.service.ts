@@ -37,7 +37,7 @@ import {
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
 import { createGateIncident } from "@/services/site-access.service";
-import type { GateIncidentPayload } from "@/interfaces/site-access";
+import type { GateIncidentDetail, GateIncidentPayload } from "@/interfaces/site-access";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 import { createSundryClaim } from "@/services/sundry-claim.service";
 import { uploadEquipmentHoursPhoto } from "@/services/equipment-hours.service";
@@ -1044,16 +1044,16 @@ export async function submitWasteOutgoingOfflineAware(
   });
 }
 
-/**
- * 门岗拍照 (H12, HD5): sent now when the phone is online, queued with its
- * ``client_event_id`` otherwise, and sent once when the network is back.
- */
-export async function submitGatePhotoOfflineAware(
+export type GateIssueSubmission =
+  | { status: "uploaded"; incident: GateIncidentDetail }
+  | { status: "queued" };
+
+async function gatePhotoJob(
   ownerId: string,
   draft: GateIncidentPayload,
-): Promise<OfflineSubmission> {
+): Promise<Extract<OfflineJob, { kind: "GATE_PHOTO" }>> {
   const { photos, ...fields } = draft;
-  return submitCaptureJob({
+  return {
     id: newId("gate-photo-job"),
     ownerId,
     kind: "GATE_PHOTO",
@@ -1068,7 +1068,54 @@ export async function submitGatePhotoOfflineAware(
         return meta;
       }),
     },
-  });
+  };
+}
+
+/**
+ * 门岗拍照 (H12, HD5): sent now when the phone is online, queued with its
+ * ``client_event_id`` otherwise, and sent once when the network is back.
+ */
+export async function submitGatePhotoOfflineAware(
+  ownerId: string,
+  draft: GateIncidentPayload,
+): Promise<OfflineSubmission> {
+  return submitCaptureJob(await gatePhotoJob(ownerId, draft));
+}
+
+/**
+ * 「发送并沟通」 (I14, ID31): the same job, with the record handed back when
+ * it reached the server, so the phone opens its conversation at once.
+ * Offline it is queued like any gate photo and sent once; its people are
+ * asked in when it lands, and 「沟通」 on it in the recent list opens the
+ * conversation then.
+ */
+export async function submitGateIssueOfflineAware(
+  ownerId: string,
+  draft: GateIncidentPayload,
+): Promise<GateIssueSubmission> {
+  const job = await gatePhotoJob(ownerId, draft);
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      // The job's copies, so the online attempt sends the compressed photos.
+      const { photos, photo_meta, ...fields } = job.payload;
+      const incident = await submitNow(() =>
+        withOfflineProvenance(job.queuedAt, () =>
+          createGateIncident({
+            ...fields,
+            photos: photos.map((photo, index) => ({
+              ...photo_meta[index],
+              file: restoreFile(photo),
+            })),
+          }),
+        ),
+      );
+      return { status: "uploaded", incident };
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  await enqueue(job);
+  return { status: "queued" };
 }
 
 export async function submitDisposalRequestOfflineAware(

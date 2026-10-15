@@ -195,9 +195,11 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
     module: "site access passes",
     keys: ["nav.submodule.siteAccessPasses", "siteControl.access.passes"],
   },
-  // The gate's two entries on the phone (batch H, 事项2 六): 访客扫码 is the
-  // office's 工地门禁 tab of the same name; 门岗拍照 is the guard's camera,
-  // and what it takes is read in the office under EHS › 门岗记录 (HD9).
+  // 访客扫码 is the office's 工地门禁 tab of the same name. On the phone it is
+  // one of the two big buttons inside 门岗 since I14 (ID32), its own tile
+  // gone; an old link still opens it. 门岗 is the guard's one entry - the
+  // camera and the scan - and what it takes is read in the office under
+  // 工地门禁 › 日常拍照记录 / 门岗事项 (HD9, I25).
   {
     module: "visitor scan",
     keys: [
@@ -217,6 +219,16 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "siteControl.gateRecords.officeTitle",
       "siteControl.gateRecords.title",
     ],
+  },
+  // 工地门禁's two gate entries (I25, ID61) open the two tabs of 门岗记录, and
+  // each tab is called what its entry is called.
+  {
+    module: "gate photo records",
+    keys: ["nav.submodule.gatePhotoRecords", "siteControl.gateRecords.tab.photos"],
+  },
+  {
+    module: "gate issues",
+    keys: ["nav.submodule.gateIssues", "siteControl.gateRecords.tab.issues"],
   },
   {
     module: "visitor records",
