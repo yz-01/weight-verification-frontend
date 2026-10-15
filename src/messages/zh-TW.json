@@ -6293,7 +6293,17 @@
       "document_no": "文檔編號",
       "subcategory": "子分類",
       "version_count": "版本數",
-      "created_at": "上傳時間"
+      "created_at": "上傳時間",
+      "name": "日報名稱",
+      "report_date": "開始日期",
+      "end_date": "結束日期",
+      "author": "撰寫人",
+      "record_count": "記錄數",
+      "body": "內容",
+      "generated_at": "生成時間",
+      "block_count": "內容塊數",
+      "updated_by": "最後修改人",
+      "updated_at": "最後更新"
     },
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
@@ -6305,7 +6315,9 @@
       "safety": "追蹤安全問題從分配、整改到驗收的過程。",
       "schedule": "對比當前確認計劃與現場實際進度。",
       "target": "對比計劃和實際進度及項目活動指標。",
-      "documents": "按文檔分類查看項目文件、版本與上傳人。"
+      "documents": "按文檔分類查看項目文件、版本與上傳人。",
+      "daily_report": "按日期看日報告：每篇的全文、收進的記錄和照片。匯出 PDF 時每篇從新的一頁開始，照片帶浮水印。",
+      "progress_summary": "這段期間更新過的項目進度摘要。匯出 PDF 時每份從新的一頁開始。"
     },
     "empty": "此項目和日期範圍沒有符合的記錄。",
     "filter": {
@@ -6325,7 +6337,9 @@
         "schedule": "WBS 編號或任務名稱",
         "target": "目標名稱",
         "photos": "文件名、來源或上傳人員",
-        "documents": "文件編號、標題或關鍵字"
+        "documents": "文件編號、標題或關鍵字",
+        "daily_report": "日報名稱、內容或撰寫人",
+        "progress_summary": "標題或撰寫人"
       },
       "noMatch": "沒有符合的選項",
       "submittedBy": "提交人",
@@ -6373,11 +6387,21 @@
       "safety": "安全與整改報表",
       "schedule": "計劃與實際對比報表",
       "target": "目標與達成報表",
-      "documents": "項目資料報表"
+      "documents": "項目資料報表",
+      "daily_report": "日報告",
+      "progress_summary": "項目進度摘要"
     },
     "what": {
       "filterOptions": "篩選選項",
-      "projects": "項目列表"
+      "projects": "項目列表",
+      "latestDay": "最近一天的日報告"
+    },
+    "days": {
+      "title": "往日報告",
+      "help": "先選要看的日期範圍，再列出這幾天的日報告。",
+      "show": "查看",
+      "choose": "請先選開始和結束日期。",
+      "backwards": "開始日期不能晚於結束日期。"
     }
   },
   "crm": {
@@ -7641,6 +7665,8 @@
       "package_link_not_found": "找不到",
       "role_template_not_found": "找不到這個預設角色。",
       "role_already_exists": "本公司已經有這個角色。",
+      "export_too_many_photos": "這次匯出共有 {count} 張照片，一次最多 {limit} 張。請縮短日期範圍後再匯出。",
+      "receipt_needs_supplier": "這批材料還沒有供應商。請先按「補供應商」填上，再驗收。",
       "gate_pass_host_not_confirmed": "接待人還沒確認，不能放行。",
       "visitor_arrival_already_open": "這位訪客已經在門口等待確認。",
       "visitor_arrival_answered": "這位訪客已經處理過了。",
@@ -8204,7 +8230,9 @@
       "autoFilledFromCategory": "按分類自動帶出",
       "supplierLimited": "只列這個分類設定的供應商",
       "manufacturer": "指定廠商（MR）",
-      "chooseColumnFirst": "請先選分類"
+      "chooseColumnFirst": "請先選分類",
+      "noSupplier": "未填供應商",
+      "noSupplierHint": "不確定是哪家就不用選，後台會補上。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -10697,7 +10725,9 @@
       "gateRecords": "門崗記錄",
       "gatePhotoRecords": "日常拍照記錄",
       "gateIssues": "門崗事項",
-      "visitorRecords": "訪客進退場記錄"
+      "visitorRecords": "訪客進退場記錄",
+      "dailyReport": "日報告",
+      "progressSummary": "項目進度摘要"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -12368,7 +12398,8 @@
         "delivery_note_no": "送貨單號",
         "notes": "備註",
         "received_by_name": "收貨人",
-        "document_amount": "送貨單金額"
+        "document_amount": "送貨單金額",
+        "supplier": "供應商"
       }
     },
     "count": "{count, plural, =0 {暫無材料進場記錄} other {# 條材料進場記錄}}",
@@ -12556,7 +12587,15 @@
     },
     "exportVerdict": "驗收結果",
     "rejectedReturns": "不合格退貨",
-    "rejectedReturn": "不合格退貨"
+    "rejectedReturn": "不合格退貨",
+    "supplierUnfilled": "未填供應商",
+    "supplierUnfilledShort": "未填",
+    "fillSupplier": {
+      "action": "補供應商",
+      "hint": "現場沒有填供應商。先補供應商，才能驗收。",
+      "reason": "補供應商（現場未填）",
+      "formHint": "選這批貨的供應商，儲存後再驗收。"
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -14142,7 +14181,11 @@
       "title": "工地電子圍欄",
       "undoPoint": "撤銷上一個點",
       "useGps": "獲取當前 GPS",
-      "useProject": "使用項目位置"
+      "useProject": "使用項目位置",
+      "editSwitch": "編輯圍欄",
+      "editHint": "打開後才能在地圖上改圓心、加點或拖點；儲存後會自動關上。",
+      "locked": "地圖現在只看不改。要修改圍欄，先打開「編輯圍欄」。",
+      "backToFence": "回到圍欄"
     },
     "homePage": {
       "dashboard": "Dashboard 首頁",
@@ -14633,7 +14676,9 @@
       "submit": "提交申請",
       "view": "查看",
       "recordNumbers": "補錄數字",
-      "siteEvidence": "拍車輛出場 / Gate Pass"
+      "siteEvidence": "拍車輛出場 / Gate Pass",
+      "setSupplier": "填寫供應商",
+      "changeSupplier": "更改供應商"
     },
     "assign": {
       "copyNow": "複製後發送給外部清運商。鏈接不需要登錄；如遺失，可在清運列表重新生成，舊鏈接會立即失效。",
@@ -14689,7 +14734,9 @@
         "doNo": "Disposal DO 編號",
         "note": "工作備註",
         "trips": "車次數量",
-        "weight": "實際重量（kg）"
+        "weight": "實際重量（kg）",
+        "vehiclePlate": "車牌",
+        "vehiclePlateHint": "選填：這一車的車牌"
       },
       "invalid": "任務鏈接無法使用",
       "invalidBody": "鏈接無效、已到期，或任務已經完成。",
@@ -14749,7 +14796,11 @@
       "plannedTrips": "預計車次",
       "tripsProgress": "車次驗收",
       "tripsAccepted": "已驗收車次",
-      "tripsTotal": "計劃車次"
+      "tripsTotal": "計劃車次",
+      "supplier": "供應商",
+      "vehiclePlates": "清運車牌",
+      "vehiclePlate": "車牌",
+      "createdAt": "建立時間"
     },
     "fieldEvidence": {
       "access": "3. 清運入口或車輛路線",
@@ -14770,7 +14821,9 @@
       "field": {
         "doNo": "Disposal DO 編號",
         "note": "工作備註",
-        "weight": "實際重量（kg）"
+        "weight": "實際重量（kg）",
+        "vehiclePlate": "車牌",
+        "vehiclePlateHint": "選填：這一車的車牌"
       },
       "invalid": "無法打開這項清運任務，請刷新任務列表後重試。",
       "photosBody": "每一車送到合法處理地點後拍照。每車最多 4 張，不限類別；至少 1 張才能送出。送出後由後台驗收這一車。",
@@ -14851,7 +14904,8 @@
       "TRIP_ACCEPTED": "後台已驗收一車",
       "TRIP_ADDED": "後台加了一車",
       "ENDED_EARLY": "後台提前結束，未送的車次已取消",
-      "TRIP_CORRECTED": "後台更正了一車的重量 / DO"
+      "TRIP_CORRECTED": "後台更正了一車的重量 / DO / 車牌",
+      "SUPPLIER_SET": "後台填寫 / 更改了供應商"
     },
     "title": "工地清運",
     "toast": {
@@ -14866,7 +14920,8 @@
       "tripAccepted": "這一車已驗收",
       "tripAdded": "已加一車",
       "endedEarly": "清運已提前結束",
-      "tripCorrected": "這一車已更正"
+      "tripCorrected": "這一車已更正",
+      "supplierSet": "供應商已保存"
     },
     "overdue": {
       "badge": "異常",
@@ -14918,21 +14973,39 @@
       "allSentBody": "等待後台驗收。如果還有車要去，請聯絡工地在後台「加一車」。",
       "correct": "更正",
       "correctTitle": "更正第 {seq} 車",
-      "correctHint": "只改這一車的重量或 DO 編號，要寫原因。原來的數字和每次更正都會保留。",
+      "correctHint": "只改這一車的重量、DO 編號或車牌，要寫原因。原來的數字和每次更正都會保留。",
       "correctReason": "更正原因",
       "correctSave": "儲存更正",
-      "correctUnchanged": "先改重量或 DO 編號",
+      "correctUnchanged": "先改重量、DO 編號或車牌",
       "history": "更正記錄",
       "historyWeight": "重量 {from} → {to} kg",
       "historyDo": "DO {from} → {to}",
       "historyMeta": "{name} · {at} · 原因：{reason}",
-      "blank": "（空）"
+      "blank": "（空）",
+      "historyPlate": "車牌 {from} → {to}"
     },
     "tripStatus": {
       "PLANNED": "還沒送",
       "SUBMITTED": "待驗收",
       "ACCEPTED": "已驗收",
       "CANCELLED": "已取消（提前結束）"
+    },
+    "supplier": {
+      "internal": "內部清運",
+      "none": "未填供應商"
+    },
+    "supplierPick": {
+      "placeholder": "選擇清運公司",
+      "hint": "從供應商名單選擇，每家清運公司的單才能一起篩選、打包結算。",
+      "defaultIndustry": "垃圾清運",
+      "defaultProducts": "工地垃圾清運",
+      "setTitle": "填寫供應商",
+      "changeTitle": "更改供應商",
+      "setDescription": "這張清運單還沒有供應商。選好後，按供應商篩選和打包結算時就找得到。",
+      "current": "現在的供應商：{name}",
+      "reason": "更改原因",
+      "unchanged": "先選另一家供應商",
+      "save": "保存"
     }
   },
   "onSiteMap": {
@@ -15370,6 +15443,13 @@
     },
     "hint": {
       "profileMissing": "這家供應商是舊資料，還沒有行業和主要產品，儲存前請補上。"
+    },
+    "quickAdd": {
+      "open": "新增供應商",
+      "title": "新增供應商",
+      "description": "加入供應商名單後在這裡直接選上。其他資料之後可以在「供應商」頁面補。",
+      "codeHint": "不能和別的供應商重複，例如 CLR-001",
+      "save": "新增並選上"
     }
   },
   "support": {
@@ -16661,7 +16741,11 @@
       "OTHER": "其他"
     },
     "categoriesFailed": "無法載入分類列表。",
-    "noCategories": "此報表還沒有分類，點報表名稱直接打開。"
+    "noCategories": "此報表還沒有分類，點報表名稱直接打開。",
+    "progressMenu": {
+      "dailyReport": "日報告",
+      "pastDailyReports": "往日報告"
+    }
   },
   "wasteClearance": {
     "title": "垃圾清運",
@@ -16990,7 +17074,8 @@
     "what": "供應商列表",
     "allManufacturers": "全部指定廠商",
     "manufacturer": "指定廠商（MR）",
-    "whatManufacturers": "供應商名單"
+    "whatManufacturers": "供應商名單",
+    "unfilled": "未填供應商"
   },
   "dateTimeRange": {
     "startDate": "開始日期",
@@ -17121,7 +17206,16 @@
       "photosCount": "照片數",
       "author": "撰寫人",
       "recordDeleted": "記錄已刪除",
-      "maxDays": "一份日報告最多 {days} 天。"
+      "maxDays": "一份日報告最多 {days} 天。",
+      "generatedAt": "生成於 {when}",
+      "book": {
+        "position": "第 {n} / 共 {total} 篇",
+        "previous": "上一篇",
+        "next": "下一篇",
+        "first": "這已經是第一篇。",
+        "last": "這已經是最後一篇。",
+        "waiting": "正在打開這一篇，請稍候。"
+      }
     },
     "summary": {
       "new": "新建摘要",
@@ -17636,5 +17730,9 @@
     "nameHelp": "名字會記錄在你的確認、退回、簽收和留言上。這個瀏覽器會記住，下次不用再填。",
     "name": "名字",
     "continue": "繼續"
+  },
+  "mapFrame": {
+    "fullscreen": "全螢幕",
+    "exitFullscreen": "退出全螢幕"
   }
 }

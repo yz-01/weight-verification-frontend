@@ -842,6 +842,9 @@ export async function reviewDisposalRequest(
 export async function assignDisposalCollector(
   id: string,
   payload: {
+    /** The clearance company, from the supplier list (I27, ID65). */
+    collector_supplier: string;
+    /** Its name, sent too so a server from before I27 still takes the request. */
     collector_company_name: string;
     collector_contact_name: string;
     collector_phone: string;
@@ -918,10 +921,10 @@ export const addInternalDisposalEvidence = (
   }>(`/api/site-disposals/${id}/execute_internal/`, data);
 };
 
-/** One lorry's proof, weight and DO (X11): the office then checks it. */
+/** One lorry's proof, weight and DO (X11), and its plate if typed (I27): the office then checks it. */
 export const submitInternalDisposalTask = (
   id: string,
-  payload: { actual_weight_kg: string; disposal_do_no: string; note?: string },
+  payload: { actual_weight_kg: string; disposal_do_no: string; vehicle_plate?: string; note?: string },
 ) => api.post<DisposalRequest>(`/api/site-disposals/${id}/execute_internal/`, {
   operation: "submit",
   ...payload,
@@ -943,10 +946,24 @@ export async function acceptDisposalTrip(id: string, trip: string) {
 export async function correctDisposalTrip(
   id: string,
   trip: string,
-  correction: { weight_kg?: string; do_no?: string; reason: string },
+  correction: { weight_kg?: string; do_no?: string; vehicle_plate?: string; reason: string },
 ) {
   const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/correct_trip/`, { trip, ...correction });
   toastSuccess("siteDisposal.toast.tripCorrected");
+  return row;
+}
+
+/**
+ * Name or change the job's clearance company (I27, ID65), any time after
+ * approval - a job the driver started from the forwarded link, or one being
+ * settled after it finished. Replacing a company already named needs a reason.
+ */
+export async function setDisposalSupplier(
+  id: string,
+  payload: { collector_supplier: string; reason?: string },
+) {
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/set_supplier/`, payload);
+  toastSuccess("siteDisposal.toast.supplierSet");
   return row;
 }
 
@@ -1091,7 +1108,8 @@ export const submitExternalDisposalTask = (
   token: string,
   // Nothing but an optional note since T-224: the outside collector
   // photographs, and the contractor types the numbers on their own screen.
-  payload: { note?: string },
+  // And, since I27, the lorry's plate - optional, no star.
+  payload: { note?: string; vehicle_plate?: string },
 ) => externalDisposalFetch<ExternalDisposalTask>(token, { operation: "submit", ...payload });
 
 /**

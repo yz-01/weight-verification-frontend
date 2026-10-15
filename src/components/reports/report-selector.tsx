@@ -31,17 +31,23 @@ import type {
   ReportLevelRow,
 } from "@/interfaces/contractor-report";
 import {
+  isRouteAllowed,
   navLeaves,
   visibleNavigation,
   type FeatureNavChild,
 } from "@/lib/navigation";
 import {
+  PROGRESS_MENU,
   groupPhotoSources,
   levelRowName,
+  progressMenuHref,
   reportHref,
   reportMenuKind,
+  type ProgressMenuEntry,
   type ReportLevels,
 } from "@/lib/report-menu";
+import { supplierFilterValue, supplierShown } from "@/lib/receipt-supplier";
+import { cn } from "@/lib/utils";
 import { getProjects, getReceiptSummary } from "@/services/contractor.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getReportCategories } from "@/services/contractor-report.service";
@@ -80,6 +86,22 @@ export function ReportSelector({ summary }: { summary?: string }) {
       .find((item) => item.feature === "report_center");
     return navLeaves(entry?.children);
   }, [user?.features, user?.is_superuser, user?.permissions, user?.portal]);
+  // 工程进度's own reports (I8): the ones this reader may open.
+  const progressEntries = useMemo(
+    () =>
+      user
+        ? PROGRESS_MENU.filter((entry) =>
+            isRouteAllowed(
+              user.portal,
+              user.features,
+              entry.href,
+              user.permissions,
+              user.is_superuser,
+            ),
+          )
+        : [],
+    [user],
+  );
 
   if (reports.length === 0) return null;
 
@@ -87,6 +109,7 @@ export function ReportSelector({ summary }: { summary?: string }) {
     <div className="flex min-w-0 flex-wrap items-center gap-2">
       <ReportMenu
         reports={reports}
+        progressEntries={progressEntries}
         open={open}
         onOpenChange={setOpen}
         pathname={pathname}
@@ -109,6 +132,7 @@ export function ReportSelector({ summary }: { summary?: string }) {
  */
 export function ReportMenu({
   reports,
+  progressEntries = [],
   open,
   onOpenChange,
   pathname,
@@ -116,6 +140,11 @@ export function ReportMenu({
   navigate,
 }: {
   reports: readonly FeatureNavChild[];
+  /**
+   * 工程进度's own reports (I8, ID24) - 日报告, 往日报告, 施工计划, 项目进度
+   * 摘要 - listed under 工程进度 above its 施工分类.
+   */
+  progressEntries?: readonly ProgressMenuEntry[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pathname: string;
@@ -170,6 +199,30 @@ export function ReportMenu({
             >
               {kind.kind === "material" ? (
                 <MaterialLevel project={project} onPick={choose} />
+              ) : kind.kind === "categories" && kind.reportType === "progress" ? (
+                <>
+                  {progressEntries.map((entry) => (
+                    <DropdownMenuItem
+                      key={entry.key}
+                      className="h-8"
+                      onSelect={() => {
+                        onOpenChange(false);
+                        navigate(
+                          progressMenuHref(entry, new URLSearchParams(searchParams.toString())),
+                        );
+                      }}
+                    >
+                      <span className="min-w-0 flex-1 truncate">{tRoot(entry.labelKey)}</span>
+                    </DropdownMenuItem>
+                  ))}
+                  {progressEntries.length > 0 && <DropdownMenuSeparator />}
+                  <CategoryLevel
+                    reportType={kind.reportType}
+                    label={tRoot(kind.label)}
+                    project={project}
+                    onPick={choose}
+                  />
+                </>
               ) : (
                 <CategoryLevel
                   reportType={kind.reportType}
@@ -315,6 +368,7 @@ function SupplierLevel({
   onPick: (supplier?: string) => void;
 }) {
   const t = useTranslations("reportSelector");
+  const tRoot = useTranslations();
   // Mounted only when this level opens, so a long list of materials does not
   // ask for every material's suppliers up front.
   const summary = useQuery({
@@ -334,8 +388,15 @@ function SupplierLevel({
       )}
       {suppliers.length > 0 && <DropdownMenuSeparator />}
       {suppliers.map((row) => (
-        <DropdownMenuItem key={row.supplier} className="h-8" onSelect={() => onPick(row.supplier)}>
-          <span className="min-w-0 flex-1 truncate">{row.supplier_name}</span>
+        // The deliveries 「未填供应商」 (2026-10-15 I23) open as `supplier=none`.
+        <DropdownMenuItem
+          key={supplierFilterValue(row.supplier)}
+          className="h-8"
+          onSelect={() => onPick(supplierFilterValue(row.supplier))}
+        >
+          <span className={cn("min-w-0 flex-1 truncate", !row.supplier && "text-muted-foreground")}>
+            {supplierShown(row.supplier_name, tRoot("receipts.supplierUnfilled"))}
+          </span>
         </DropdownMenuItem>
       ))}
       {summary.isSuccess && suppliers.length === 0 && (

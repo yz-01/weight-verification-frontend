@@ -61,6 +61,7 @@ function trip(seq: number, status: DisposalTrip["status"], evidence: DisposalEvi
     status,
     weight_kg: status === "PLANNED" ? null : "1200.00",
     do_no: status === "PLANNED" ? "" : `DO-${seq}`,
+    vehicle_plate: "",
     note: "",
     submitted_at: status === "PLANNED" || status === "CANCELLED" ? null : "2026-10-07T02:30:00Z",
     submitted_by_name: status === "PLANNED" ? "" : "Ali Driver",
@@ -97,6 +98,11 @@ function job(trips: DisposalTrip[], extra: Partial<DisposalRequest> = {}): Dispo
     assigned_staff: null,
     assigned_staff_name: null,
     execution_task: null,
+    collector_supplier: null,
+    supplier_name: "",
+    supplier_label: "",
+    vehicle_plates: [],
+    vehicle_plates_text: "",
     collector_company_name: "",
     collector_contact_name: "",
     collector_phone: "",
@@ -266,7 +272,8 @@ describe("the driver and the field form fill the next lorry (X11)", () => {
   );
 
   it("sends no trip count from the field form any more - each submission is one lorry", () => {
-    expect(code).toMatch(/submitInternalDisposalTask\(disposalId, \{ actual_weight_kg: weight, disposal_do_no: doNo, note \}\)/);
+    // The lorry's plate rides along since I27 - optional, no star.
+    expect(code).toMatch(/submitInternalDisposalTask\(disposalId, \{ actual_weight_kg: weight, disposal_do_no: doNo, vehicle_plate: normalisePlate\(plate\), note \}\)/);
     expect(code).not.toMatch(/trip_count: Number\(trips\)/);
   });
 

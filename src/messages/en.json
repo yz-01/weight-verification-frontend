@@ -6293,7 +6293,17 @@
       "document_no": "Document no.",
       "subcategory": "Subcategory",
       "version_count": "Versions",
-      "created_at": "Uploaded at"
+      "created_at": "Uploaded at",
+      "name": "Report name",
+      "report_date": "First day",
+      "end_date": "Last day",
+      "author": "Written by",
+      "record_count": "Records",
+      "body": "Text",
+      "generated_at": "Generated",
+      "block_count": "Blocks",
+      "updated_by": "Last edited by",
+      "updated_at": "Last updated"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -6305,7 +6315,9 @@
       "safety": "Track safety findings from assignment through rectification and verification.",
       "schedule": "Compare the current confirmed schedule with actual site progress.",
       "target": "Filter the business targets above by project and overlapping target period, then export the same achievement data.",
-      "documents": "Project documents by category, with their versions and who uploaded them."
+      "documents": "Project documents by category, with their versions and who uploaded them.",
+      "daily_report": "Daily reports by date: each report's full text, the records it holds and their photos. In the PDF each report starts on a new page, its photos watermarked.",
+      "progress_summary": "Progress summaries updated in this period. In the PDF each summary starts on a new page."
     },
     "empty": "No records match this project and date range.",
     "filter": {
@@ -6325,7 +6337,9 @@
         "schedule": "WBS code or task name",
         "target": "Target name",
         "photos": "File name, source or uploader",
-        "documents": "Document no., title or keyword"
+        "documents": "Document no., title or keyword",
+        "daily_report": "Report name, text or writer",
+        "progress_summary": "Title or writer"
       },
       "noMatch": "Nothing matches",
       "submittedBy": "Submitted by",
@@ -6373,11 +6387,21 @@
       "safety": "Safety and rectification report",
       "schedule": "Planned versus actual report",
       "target": "Target and achievement report",
-      "documents": "Project records report"
+      "documents": "Project records report",
+      "daily_report": "Daily reports",
+      "progress_summary": "Progress summaries"
     },
     "what": {
       "filterOptions": "the filter choices",
-      "projects": "the project list"
+      "projects": "the project list",
+      "latestDay": "the latest daily report"
+    },
+    "days": {
+      "title": "Past daily reports",
+      "help": "Choose the days to read first; the daily reports of those days are then listed.",
+      "show": "Show",
+      "choose": "Choose the first and the last day first.",
+      "backwards": "The first day cannot be after the last day."
     }
   },
   "crm": {
@@ -7641,6 +7665,8 @@
       "package_link_not_found": "Not found",
       "role_template_not_found": "There is no preset role with that name.",
       "role_already_exists": "This company already has that role.",
+      "export_too_many_photos": "This export holds {count} photos; one file takes at most {limit}. Shorten the dates and export again.",
+      "receipt_needs_supplier": "This delivery has no supplier yet. Press “Fill in supplier” first, then accept it.",
       "gate_pass_host_not_confirmed": "The visitor's host has not confirmed yet. Do not let them in.",
       "visitor_arrival_already_open": "This visitor is already waiting at the gate.",
       "visitor_arrival_answered": "This visitor has already been answered.",
@@ -8204,7 +8230,9 @@
       "autoFilledFromCategory": "Filled in from the category",
       "supplierLimited": "Only the suppliers set for this category",
       "manufacturer": "Named manufacturer (MR)",
-      "chooseColumnFirst": "Choose the category first"
+      "chooseColumnFirst": "Choose the category first",
+      "noSupplier": "Supplier not filled in",
+      "noSupplierHint": "Not sure whose it is? Leave it - the office will fill it in."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -10697,7 +10725,9 @@
       "gateRecords": "Gate Records",
       "gatePhotoRecords": "Photo Records",
       "gateIssues": "Gate Issues",
-      "visitorRecords": "Visitor Records"
+      "visitorRecords": "Visitor Records",
+      "dailyReport": "Daily reports",
+      "progressSummary": "Progress summary"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -12368,7 +12398,8 @@
         "delivery_note_no": "Delivery order no.",
         "notes": "Notes",
         "received_by_name": "Received by",
-        "document_amount": "Delivery order amount"
+        "document_amount": "Delivery order amount",
+        "supplier": "Supplier"
       }
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
@@ -12556,7 +12587,15 @@
     },
     "exportVerdict": "Acceptance result",
     "rejectedReturns": "Rejected returns",
-    "rejectedReturn": "Rejected – returned"
+    "rejectedReturn": "Rejected – returned",
+    "supplierUnfilled": "Supplier not filled in",
+    "supplierUnfilledShort": "not filled in",
+    "fillSupplier": {
+      "action": "Fill in supplier",
+      "hint": "The site did not fill in the supplier. Fill it in before accepting.",
+      "reason": "Supplier filled in (left blank on site)",
+      "formHint": "Choose this delivery's supplier, save, then accept it."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -14142,7 +14181,11 @@
       "title": "Site geofences",
       "undoPoint": "Undo point",
       "useGps": "Use current GPS",
-      "useProject": "Use project location"
+      "useProject": "Use project location",
+      "editSwitch": "Edit geofence",
+      "editHint": "Turn on to move the centre, add points or drag them on the map. It turns off again after saving.",
+      "locked": "The map is view-only now. To change the geofence, turn on “Edit geofence” first.",
+      "backToFence": "Back to geofence"
     },
     "homePage": {
       "dashboard": "Dashboard",
@@ -14633,7 +14676,9 @@
       "submit": "Submit request",
       "view": "View",
       "recordNumbers": "Record numbers",
-      "siteEvidence": "Photograph vehicle exit / Gate Pass"
+      "siteEvidence": "Photograph vehicle exit / Gate Pass",
+      "setSupplier": "Name the supplier",
+      "changeSupplier": "Change supplier"
     },
     "assign": {
       "copyNow": "Copy and send this link to the external contractor. No sign-in is required. If it is lost, generate a new link from the disposal list; the old link will stop working.",
@@ -14689,7 +14734,9 @@
         "doNo": "Disposal DO number",
         "note": "Work note",
         "trips": "Number of trips",
-        "weight": "Actual weight (kg)"
+        "weight": "Actual weight (kg)",
+        "vehiclePlate": "Lorry plate",
+        "vehiclePlateHint": "Optional: the plate of the lorry taking this load"
       },
       "invalid": "Task link unavailable",
       "invalidBody": "This link is invalid, expired or the task has already been completed.",
@@ -14749,7 +14796,11 @@
       "plannedTrips": "Lorries expected",
       "tripsProgress": "Loads checked",
       "tripsAccepted": "Loads checked",
-      "tripsTotal": "Loads planned"
+      "tripsTotal": "Loads planned",
+      "supplier": "Supplier",
+      "vehiclePlates": "Lorry plates",
+      "vehiclePlate": "Lorry plate",
+      "createdAt": "Raised on"
     },
     "fieldEvidence": {
       "access": "3. Collection access or vehicle route",
@@ -14770,7 +14821,9 @@
       "field": {
         "doNo": "Disposal DO number",
         "note": "Work note",
-        "weight": "Actual weight (kg)"
+        "weight": "Actual weight (kg)",
+        "vehiclePlate": "Lorry plate",
+        "vehiclePlateHint": "Optional: the plate of the lorry taking this load"
       },
       "invalid": "This disposal task could not be opened. Refresh My Tasks and try again.",
       "photosBody": "Photograph each load at the licensed disposal place. Up to 4 photos per load, any kind; at least 1 to send. The office then checks the load.",
@@ -14851,7 +14904,8 @@
       "TRIP_ACCEPTED": "Office checked a load",
       "TRIP_ADDED": "Office added a load",
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
-      "TRIP_CORRECTED": "Office corrected a load's weight / DO"
+      "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
+      "SUPPLIER_SET": "Office named / changed the clearance company"
     },
     "title": "Site disposal",
     "toast": {
@@ -14866,7 +14920,8 @@
       "tripAccepted": "Load checked",
       "tripAdded": "Load added",
       "endedEarly": "Job ended early",
-      "tripCorrected": "Load corrected"
+      "tripCorrected": "Load corrected",
+      "supplierSet": "Clearance company saved"
     },
     "overdue": {
       "badge": "Exception",
@@ -14918,21 +14973,39 @@
       "allSentBody": "Waiting for the office to check them. If another lorry is going, ask the site to add a load.",
       "correct": "Correct",
       "correctTitle": "Correct load {seq}",
-      "correctHint": "Changes only this load's weight or DO number, with a reason. The original value and every correction are kept.",
+      "correctHint": "Changes only this load's weight, DO number or lorry plate, with a reason. The original value and every correction are kept.",
       "correctReason": "Reason for the correction",
       "correctSave": "Save correction",
-      "correctUnchanged": "Change the weight or the DO number first",
+      "correctUnchanged": "Change the weight, the DO number or the plate first",
       "history": "Corrections",
       "historyWeight": "Weight {from} → {to} kg",
       "historyDo": "DO {from} → {to}",
       "historyMeta": "{name} · {at} · Reason: {reason}",
-      "blank": "(blank)"
+      "blank": "(blank)",
+      "historyPlate": "Plate {from} → {to}"
     },
     "tripStatus": {
       "PLANNED": "Not sent yet",
       "SUBMITTED": "To check",
       "ACCEPTED": "Checked",
       "CANCELLED": "Dropped (ended early)"
+    },
+    "supplier": {
+      "internal": "Internal clearance",
+      "none": "No supplier"
+    },
+    "supplierPick": {
+      "placeholder": "Choose the clearance company",
+      "hint": "From the supplier list, so each company's clearances can be filtered and settled together.",
+      "defaultIndustry": "Waste clearance",
+      "defaultProducts": "Site waste clearance",
+      "setTitle": "Name the clearance company",
+      "changeTitle": "Change the clearance company",
+      "setDescription": "This clearance names no company yet. Once chosen, it is found when filtering and packing by company.",
+      "current": "Now: {name}",
+      "reason": "Reason for the change",
+      "unchanged": "Choose a different supplier first",
+      "save": "Save"
     }
   },
   "onSiteMap": {
@@ -15370,6 +15443,13 @@
     },
     "hint": {
       "profileMissing": "This supplier was added before industry and main products were recorded. Fill them in to save."
+    },
+    "quickAdd": {
+      "open": "Add supplier",
+      "title": "Add a supplier",
+      "description": "It joins the supplier list and is chosen here. Fill in the rest on the Suppliers page later.",
+      "codeHint": "Not used by another supplier, e.g. CLR-001",
+      "save": "Add and choose"
     }
   },
   "support": {
@@ -16661,7 +16741,11 @@
       "OTHER": "Other"
     },
     "categoriesFailed": "The category list could not be loaded.",
-    "noCategories": "No categories yet - click the report's name to open it."
+    "noCategories": "No categories yet - click the report's name to open it.",
+    "progressMenu": {
+      "dailyReport": "Daily report",
+      "pastDailyReports": "Past daily reports"
+    }
   },
   "wasteClearance": {
     "title": "Waste clearance",
@@ -16990,7 +17074,8 @@
     "what": "the supplier list",
     "allManufacturers": "All named manufacturers",
     "manufacturer": "Named manufacturer (MR)",
-    "whatManufacturers": "The supplier list"
+    "whatManufacturers": "The supplier list",
+    "unfilled": "Supplier not filled in"
   },
   "dateTimeRange": {
     "startDate": "Start date",
@@ -17121,7 +17206,16 @@
       "photosCount": "Photos",
       "author": "Written by",
       "recordDeleted": "Record deleted",
-      "maxDays": "A daily report covers at most {days} days."
+      "maxDays": "A daily report covers at most {days} days.",
+      "generatedAt": "Generated {when}",
+      "book": {
+        "position": "{n} of {total}",
+        "previous": "Previous",
+        "next": "Next",
+        "first": "This is the first report.",
+        "last": "This is the last report.",
+        "waiting": "Opening this report, one moment."
+      }
     },
     "summary": {
       "new": "New summary",
@@ -17636,5 +17730,9 @@
     "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
     "name": "Name",
     "continue": "Continue"
+  },
+  "mapFrame": {
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen"
   }
 }

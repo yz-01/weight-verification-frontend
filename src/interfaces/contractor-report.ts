@@ -11,7 +11,10 @@ export type ContractorReportType =
   | "schedule"
   | "target"
   | "photos"
-  | "documents";
+  | "documents"
+  // 工程进度's own reports (I8, ID24).
+  | "daily_report"
+  | "progress_summary";
 
 export interface ContractorReportFilters {
   report_type: ContractorReportType;
