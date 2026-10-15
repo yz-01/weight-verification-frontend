@@ -9,7 +9,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
@@ -57,20 +57,26 @@ function draftOf(worker: SiteWorker | null | undefined, project?: string): Draft
   };
 }
 
-export function WorkerFormDialog({
-  open,
-  worker,
-  defaultProject,
-  onClose,
-  onSaved,
-}: {
-  open: boolean;
+interface FormProps {
   /** Editing this worker; absent for 新增人员. */
   worker?: SiteWorker | null;
   defaultProject?: string;
   onClose: () => void;
   onSaved: (worker: SiteWorker) => void;
-}) {
+}
+
+/** The form starts afresh each time it opens: its body mounts with it. */
+export function WorkerFormDialog({ open, ...props }: FormProps & { open: boolean }) {
+  return (
+    <Dialog open={open} onOpenChange={(value) => !value && props.onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+        {open && <WorkerFormBody {...props} />}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function WorkerFormBody({ worker, defaultProject, onClose, onSaved }: FormProps) {
   const t = useTranslations("siteWorkers");
   const common = useTranslations("common");
   const queryClient = useQueryClient();
@@ -79,18 +85,10 @@ export function WorkerFormDialog({
   const [term, setTerm] = useState("");
   const search = useDebounce(term.trim(), 300);
 
-  useEffect(() => {
-    if (open) {
-      setDraft(draftOf(worker, defaultProject));
-      setErrors({});
-    }
-  }, [open, worker, defaultProject]);
-
   const companies = useQuery({
     queryKey: ["site-workers", "company-options", "list", search],
     queryFn: () => getWorkerCompanyOptions(search ? { search } : {}),
     placeholderData: keepPreviousData,
-    enabled: open,
     staleTime: 60_000,
   });
 
@@ -138,8 +136,7 @@ export function WorkerFormDialog({
   const documentsIncomplete = incompleteDocument(draft.documents);
 
   return (
-    <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+    <>
         <DialogHeader>
           <DialogTitle>{worker ? t("form.editTitle") : t("form.addTitle")}</DialogTitle>
         </DialogHeader>
@@ -269,7 +266,6 @@ export function WorkerFormDialog({
             {common("save")}
           </Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    </>
   );
 }
