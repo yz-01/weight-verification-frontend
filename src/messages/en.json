@@ -5857,6 +5857,19 @@
         "headOffice": "This machine's class is set to head office approval: head office accepts it."
       },
       "oneMachineOnly": "Showing this machine's entries and exits only",
+      "supplierCounts": {
+        "headline": "{onSite} on site / {total} in all",
+        "headlineFor": "{name}: {numbers}",
+        "noSupplier": "No supplier",
+        "what": "the on-site count per supplier",
+        "tableTitle": "By supplier",
+        "supplier": "Supplier",
+        "project": "Project",
+        "onSite": "On site",
+        "total": "In all",
+        "presenceAll": "On site or not",
+        "presence": { "on": "On site", "off": "Not on site" }
+      },
       "newMachinePlateHelp": "If it has one. Leave it blank if not. A machine that came before is matched by its plate.",
       "addClass": "Add a sub class",
       "classMajor": "Major class",

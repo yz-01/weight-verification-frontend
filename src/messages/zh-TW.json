@@ -5857,6 +5857,19 @@
         "headOffice": "這台設備的分類設為「提交總部審批」：由總部驗收。"
       },
       "oneMachineOnly": "只看這台設備的進退場",
+      "supplierCounts": {
+        "headline": "在場 {onSite} 台 / 共 {total} 台",
+        "headlineFor": "{name}：{numbers}",
+        "noSupplier": "沒有供應商",
+        "what": "各供應商的在場台數",
+        "tableTitle": "按供應商彙總",
+        "supplier": "供應商",
+        "project": "專案",
+        "onSite": "在場",
+        "total": "共有",
+        "presenceAll": "全部在場狀態",
+        "presence": { "on": "在場", "off": "不在場" }
+      },
       "newMachinePlateHelp": "有車牌就填；沒有可以留空。以前來過的設備會自動對上。",
       "addClass": "新增小類",
       "classMajor": "大類",

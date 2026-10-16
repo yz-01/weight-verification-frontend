@@ -23,6 +23,7 @@ import type {
   ExternalDisposalTask,
   EquipmentMovement,
   EquipmentSummary,
+  EquipmentSupplierCounts,
   EquipmentPayload,
   FieldTask,
   FieldTaskPayload,
@@ -359,6 +360,9 @@ export const getEquipmentSummary = (project?: string) =>
     "/api/site-equipment/get_summary/",
     project ? { project } : undefined,
   );
+/** 设备清单 (I36): on site and total per supplier, for the register's filters. */
+export const getEquipmentSupplierCounts = (query: ListQuery) =>
+  api.get<EquipmentSupplierCounts>("/api/site-equipment/get_supplier_counts/", query);
 export async function ocrEquipmentDeliveryNote(project: string, image: File, signal?: AbortSignal) {
   const data = new FormData();
   data.append("project", project);

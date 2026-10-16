@@ -5857,6 +5857,19 @@
         "headOffice": "Kelas mesin ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya."
       },
       "oneMachineOnly": "Hanya kemasukan dan keluar mesin ini",
+      "supplierCounts": {
+        "headline": "{onSite} di tapak / {total} semuanya",
+        "headlineFor": "{name}: {numbers}",
+        "noSupplier": "Tiada pembekal",
+        "what": "bilangan di tapak bagi setiap pembekal",
+        "tableTitle": "Mengikut pembekal",
+        "supplier": "Pembekal",
+        "project": "Projek",
+        "onSite": "Di tapak",
+        "total": "Semuanya",
+        "presenceAll": "Semua status tapak",
+        "presence": { "on": "Di tapak", "off": "Tidak di tapak" }
+      },
       "newMachinePlateHelp": "Jika ada. Biarkan kosong jika tiada. Mesin yang pernah datang dipadankan melalui nombor platnya.",
       "addClass": "Tambah subkelas",
       "classMajor": "Kelas utama",
