@@ -37,7 +37,7 @@ import {
   recordEquipmentMovement,
   returnMaterialOutgoingProcessing,
 } from "@/services/contractor-ops.service";
-import { createSafetyIncident } from "@/services/site-operations.service";
+import { createSafetyIncident, submitSafetyRectification } from "@/services/site-operations.service";
 import { createGateIncident } from "@/services/site-access.service";
 import type { GateIncidentDetail, GateIncidentPayload } from "@/interfaces/site-access";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
@@ -103,6 +103,19 @@ interface MaterialReceiptDraft {
 }
 
 export type OfflineSubmission = "uploaded" | "queued";
+
+export type SafetyRectificationSubmission = { status: "uploaded" } | { status: "queued" };
+
+export type SafetyRectificationDraft = Omit<
+  Extract<OfflineJob, { kind: "SAFETY_RECTIFICATION" }>["payload"],
+  "images" | "attachments" | "incidentId"
+> & { images: File[]; attachments?: File[] };
+
+/** What the server is sent for a queued rectification: the job's own copies. */
+export function rectificationRequest(job: Extract<OfflineJob, { kind: "SAFETY_RECTIFICATION" }>) {
+  const { incidentId: _incident, images, attachments, ...rest } = job.payload;
+  return { ...rest, images: images.map(restoreFile), attachments: (attachments ?? []).map(restoreFile) };
+}
 
 export type SafetyIncidentSubmission =
   | { status: "uploaded"; incident: SafetyIncident }
@@ -535,6 +548,11 @@ async function sendJob(job: OfflineJob): Promise<void> {
       photos: job.payload.photos.map(restoreFile),
       attachments: (job.payload.attachments ?? []).map(restoreFile),
     });
+    return;
+  }
+
+  if (job.kind === "SAFETY_RECTIFICATION") {
+    await submitSafetyRectification(job.payload.incidentId, rectificationRequest(job));
     return;
   }
 
@@ -1239,6 +1257,45 @@ export async function submitSafetyIncidentOfflineAware(
         ),
       );
       return { status: "uploaded", incident };
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  await enqueue(job);
+  return { status: "queued" };
+}
+
+/**
+ * 提交整改 (I37), online or queued. The draft carries ONE `client_event_id`
+ * for the online attempt and every replay, and the files ride with the
+ * photos in the same job - so a lost answer, a retry, or a queue replay can
+ * never post the fix twice.
+ */
+export async function submitSafetyRectificationOfflineAware(
+  ownerId: string,
+  incidentId: string,
+  draft: SafetyRectificationDraft,
+): Promise<SafetyRectificationSubmission> {
+  const job: Extract<OfflineJob, { kind: "SAFETY_RECTIFICATION" }> = {
+    id: newId("safety-rectification-job"),
+    ownerId,
+    kind: "SAFETY_RECTIFICATION",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      ...draft,
+      incidentId,
+      images: await storePhotos(draft.images),
+      attachments: await storePhotos(draft.attachments ?? []),
+    },
+  };
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      await submitNow(() =>
+        withOfflineProvenance(job.queuedAt, () => submitSafetyRectification(incidentId, rectificationRequest(job))),
+      );
+      return { status: "uploaded" };
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
     }

@@ -4901,6 +4901,13 @@
       "verify": "Open QR verification"
     },
     "attachment": {
+      "tickFirst": "Tick the files to add first",
+      "archiveCategory": "File category",
+      "allArchiveCategories": "All file categories",
+      "addPicked": "Add the {count} selected",
+      "tileUpload": "Upload {type}",
+      "uploadedCount": "{count} uploaded",
+      "fromArchiveShort": "Choose from file archive",
       "add": "Add attachment",
       "attached": "Attached",
       "category": "Attachment type",
@@ -5016,6 +5023,27 @@
       "failed": "That did not save. Please try again."
     },
     "evidence": {
+      "showing": "Showing the newest {shown} of {count}. Use the filters above to narrow it down.",
+      "loadMore": "Load more",
+      "categoryName": {
+        "material": "Materials",
+        "equipment": "Equipment",
+        "progress": "Project progress",
+        "recycle": "Environmental material outgoing",
+        "equipmentIn": "Equipment in",
+        "equipmentOut": "Equipment out",
+        "materialIn": "Material in",
+        "materialOut": "Material out"
+      },
+      "module": "Module",
+      "allModules": "All modules",
+      "allCategories": "All categories",
+      "allSubcategories": "All subcategories",
+      "allUploaders": "All uploaders",
+      "keyword": "Keyword",
+      "moduleName": {
+        "other": "Other"
+      },
       "selectPhotos": "Photos to link",
       "selectRecord": "Select this complete record",
       "caption": "Caption",
@@ -5354,6 +5382,8 @@
       }
     },
     "what": {
+      "archiveCategories": "The file categories",
+      "evidenceFilters": "The filter choices",
       "credential": "Your approval signature and PIN",
       "evidenceCandidates": "The project's site evidence",
       "archiveDocuments": "The Document Archival list",
@@ -7876,6 +7906,7 @@
       "permit_files_required": "Add the permit form: a Word or PDF file, or a photo of it.",
       "permit_too_many_files": "Send at most {limit} files at a time.",
       "permit_file_type": "{name} is not a Word, Excel, PDF or photo file.",
+      "attachment_file_type": "{name} cannot be uploaded. Allowed: {allowed}.",
       "permit_file_too_large": "{name} is larger than {limit} MB.",
       "permit_approver_unavailable": "Choose a safety manager on this project who can approve permits.",
       "permit_own_application": "You applied for {incident_no}, so somebody else approves or returns it.",
@@ -11212,6 +11243,7 @@
   },
   "offline": {
     "kind": {
+      "SAFETY_RECTIFICATION": "Rectification submit",
       "ATTENDANCE": "Site entry",
       "CATEGORY_EVIDENCE": "Site photos",
       "CONSULTANT_SUBMISSION": "Consultant submission",
@@ -13650,6 +13682,7 @@
       "photo": "Open photo"
     },
     "field": {
+      "attachments": "Attachments (PDF / Word / Excel)",
       "category": "Rectification category",
       "description": "Description",
       "dueAt": "Rectification deadline",
@@ -13771,6 +13804,7 @@
       "surroundings": "4. Safe surrounding condition"
     },
     "field": {
+      "attachments": "Attachments (PDF / Word / Excel)",
       "dueAt": "Rectification deadline",
       "instructions": "Rectification instructions",
       "location": "Work location",
@@ -17552,6 +17586,7 @@
     }
   },
   "attachmentPicker": {
+    "wrongTypeAllowed": "{name} cannot be uploaded. Allowed: {allowed}.",
     "takePhoto": "Take photo",
     "chooseFile": "Choose file",
     "dropHint": "Take a photo with the computer camera, choose a file, drag it here, or copy a picture and press Ctrl+V here.",

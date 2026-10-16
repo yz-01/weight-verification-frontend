@@ -4901,6 +4901,13 @@
       "verify": "打开二维码验证"
     },
     "attachment": {
+      "tickFirst": "先勾选要添加的文件",
+      "archiveCategory": "文件分类",
+      "allArchiveCategories": "全部文件分类",
+      "addPicked": "添加所选的 {count} 个",
+      "tileUpload": "上传{type}",
+      "uploadedCount": "已上传 {count} 个",
+      "fromArchiveShort": "从文件管理选择",
       "add": "添加附件",
       "attached": "已上传",
       "category": "附件类型",
@@ -5016,6 +5023,27 @@
       "failed": "没有改成，请再试一次。"
     },
     "evidence": {
+      "showing": "显示最新 {shown} 笔，共 {count} 笔。请用上面的筛选缩小范围。",
+      "loadMore": "加载更多",
+      "categoryName": {
+        "material": "材料",
+        "equipment": "设备",
+        "progress": "工程进度",
+        "recycle": "环保材料出场申请",
+        "equipmentIn": "设备进场",
+        "equipmentOut": "设备退场",
+        "materialIn": "材料进场",
+        "materialOut": "材料出场"
+      },
+      "module": "模块",
+      "allModules": "全部模块",
+      "allCategories": "全部分类",
+      "allSubcategories": "全部子分类",
+      "allUploaders": "全部上传人",
+      "keyword": "关键词",
+      "moduleName": {
+        "other": "其他"
+      },
       "selectPhotos": "要关联的照片",
       "selectRecord": "选择整条现场资料",
       "caption": "说明",
@@ -5354,6 +5382,8 @@
       }
     },
     "what": {
+      "archiveCategories": "文件分类",
+      "evidenceFilters": "筛选选项",
       "credential": "你的审批签名与 PIN",
       "evidenceCandidates": "本项目的现场证据",
       "archiveDocuments": "文件管理列表",
@@ -7876,6 +7906,7 @@
       "permit_files_required": "请上传准证文件：Word、PDF 或表格照片。",
       "permit_too_many_files": "一次最多上传 {limit} 个文件。",
       "permit_file_type": "{name} 不是 Word、Excel、PDF 或照片文件。",
+      "attachment_file_type": "{name} 这种文件不能上传。可以上传：{allowed}。",
       "permit_file_too_large": "{name} 超过 {limit} MB。",
       "permit_approver_unavailable": "请选择这个项目里能审批准证的安全经理。",
       "permit_own_application": "{incident_no} 是你申请的，需要由别人批准或退回。",
@@ -11212,6 +11243,7 @@
   },
   "offline": {
     "kind": {
+      "SAFETY_RECTIFICATION": "整改提交",
       "ATTENDANCE": "人员进场打卡",
       "CATEGORY_EVIDENCE": "现场照片",
       "CONSULTANT_SUBMISSION": "顾问提交",
@@ -13650,6 +13682,7 @@
       "photo": "打开照片"
     },
     "field": {
+      "attachments": "附件（PDF / Word / Excel）",
       "category": "整改分类",
       "description": "说明",
       "dueAt": "整改期限",
@@ -13771,6 +13804,7 @@
       "surroundings": "4. 周边安全状况"
     },
     "field": {
+      "attachments": "附件（PDF / Word / Excel）",
       "dueAt": "整改期限",
       "instructions": "整改要求",
       "location": "整改位置",
@@ -17552,6 +17586,7 @@
     }
   },
   "attachmentPicker": {
+    "wrongTypeAllowed": "{name} 这种文件不能上传。可以上传：{allowed}。",
     "takePhoto": "拍照",
     "chooseFile": "选择文件",
     "dropHint": "可以用电脑摄像头拍照、选择文件、把文件拖到这里，或复制图片后在这里按 Ctrl+V 粘贴。",
