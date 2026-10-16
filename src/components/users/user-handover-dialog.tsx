@@ -27,6 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { UserRow } from "@/interfaces/auth";
+import { isSignOffCancelled } from "@/lib/sign-off";
 import { getUsers, replaceUser } from "@/services/users.service";
 
 type Mode = "existing" | "new";
@@ -216,7 +217,8 @@ export function UserHandoverDialog({
             {t("warning.description")}
           </p>
         </div>
-        {save.isError && (
+        {/* A closed PIN dialog (I29) is the person's choice: nothing to say. */}
+        {save.isError && !isSignOffCancelled(save.error) && (
           <p
             role="alert"
             className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
