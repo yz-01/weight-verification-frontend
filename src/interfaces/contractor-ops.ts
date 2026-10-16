@@ -642,6 +642,23 @@ export interface EquipmentMovement extends RecordedBy {
   approver_signature?: string | null;
 }
 
+/** 设备清单: on site and total per supplier (2026-10 I36). */
+export interface EquipmentSupplierCounts {
+  /** Whether the rows are also split by project (a `project.view_all` reader on 全部项目). */
+  by_project: boolean;
+  on_site: number;
+  total: number;
+  results: Array<{
+    /** Null: the machines with no supplier recorded. */
+    supplier: string | null;
+    supplier_name: string | null;
+    project: string | null;
+    project_name: string | null;
+    on_site: number;
+    total: number;
+  }>;
+}
+
 export interface EquipmentSummary {
   today: string;
   month: string;
