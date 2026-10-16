@@ -146,7 +146,7 @@ describe("the documents screen", () => {
 
   it("offers PDF, Word, Excel and photos in both upload pickers", () => {
     expect(DOCUMENT_FILE_ACCEPT).toBe(".pdf,.doc,.docx,.xls,.xlsx,image/*");
-    expect(source.match(/accept=\{DOCUMENT_FILE_ACCEPT\}/g)).toHaveLength(2);
+    expect(source.match(/accept: DOCUMENT_FILE_ACCEPT/g)).toHaveLength(2);
   });
 
   it("asks for keywords when uploading", () => {
