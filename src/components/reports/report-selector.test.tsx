@@ -232,7 +232,8 @@ describe("【选择报表】 (D6, B9)", () => {
     // 材料 → 规格: the spec is its own row under 钢筋, not a material of its own.
     expect(texts).toContain("Y12");
     expect(texts).toContain("全部规格");
-    expect(texts.filter((text) => text === "钢筋")).toHaveLength(1);
+    expect(texts.indexOf("Y12")).toBeGreaterThan(texts.indexOf("钢筋"));
+    expect(texts.filter((text) => text === "Y12")).toHaveLength(1);
 
     const spec = render();
     click("Y12");
