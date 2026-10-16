@@ -48,6 +48,7 @@ import {
   getSiteWorkers,
   getWorkerCompanyOptions,
 } from "@/services/site-workers.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 type Tab = "roster" | "visits";
 const TABS: readonly Tab[] = ["roster", "visits"];
@@ -306,7 +307,8 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
         search={list.search}
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
-        storageKey="site-workers.roster"
+        storageKey={LIST_FITS.siteWorkers.storageKey}
+        defaultHidden={LIST_FITS.siteWorkers.hidden}
         toolbarActions={
           <CompanyFilter
             project={list.filters.project}
@@ -498,7 +500,8 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
         search={list.search}
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
-        storageKey="site-workers.visits"
+        storageKey={LIST_FITS.siteWorkerVisits.storageKey}
+        defaultHidden={LIST_FITS.siteWorkerVisits.hidden}
         toolbarActions={
           <div className="flex flex-wrap items-center gap-2">
             <CompanyFilter

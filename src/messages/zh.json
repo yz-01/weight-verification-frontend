@@ -11651,7 +11651,7 @@
     "safety": {
       "what": "工地上的安全事件：登记，以及往上报。",
       "who": "同时持 safety.view 和 project.view。",
-      "need": "登记事件要项目、事项分类、标题、照片、GPS 证据、负责人及工地人员、处理说明；上报事故要项目、事故标题、事件经过、报告给谁、证据档案和地点。",
+      "need": "登记事件要项目、整改分类、标题、照片、GPS 证据、负责人及工地人员、处理说明；上报事故要项目、事故标题、事件经过、报告给谁、证据档案和地点。",
       "then": "被点名的人会立刻收到通知。",
       "trouble": "照片和 GPS 都是必填，而现场常常没信号。照拍就是，它会排队之后自动传，存下来的位置是你拍照时站的地方。"
     },
@@ -13641,7 +13641,7 @@
       "photo": "打开照片"
     },
     "field": {
-      "category": "事项分类",
+      "category": "整改分类",
       "description": "说明",
       "dueAt": "整改期限",
       "evidence": "证据",
@@ -13684,13 +13684,13 @@
       "title": "上报工地事故"
     },
     "filter": {
-      "allCategories": "全部事项分类",
+      "allCategories": "全部整改分类",
       "allProjects": "所有项目",
       "allResponsible": "全部整改负责人",
       "dateFrom": "开始日期",
       "dateTo": "结束日期",
       "project": "选择项目",
-      "selectCategory": "选择事项分类"
+      "selectCategory": "选择整改分类"
     },
     "form": {
       "captureLocation": "获取 GPS",
@@ -13723,7 +13723,7 @@
       "title": "更新事故状态"
     },
     "what": {
-      "categories": "事项分类",
+      "categories": "整改分类",
       "responsiblePeople": "负责人列表",
       "requestedIncident": "链接中的事故",
       "workers": "可通知人员"
@@ -13793,7 +13793,7 @@
     "title": "整改 / EHS",
     "toast": {
       "reassigned": "已调整负责人",
-      "categoryChanged": "已保存事项分类",
+      "categoryChanged": "已保存整改分类",
       "assigned": "已指派整改",
       "reviewed": "已保存验收结果",
       "submitted": "已提交整改证据"
@@ -18361,7 +18361,7 @@
       "reassign": "调整负责人",
       "reassignHelp": "{incident} 现在由 {person} 负责。选一个新的负责人，照片和沟通都留在原事项。",
       "newResponsible": "新负责人",
-      "chooseCategory": "先选一个不同的事项分类",
+      "chooseCategory": "先选一个不同的整改分类",
       "saveCategory": "保存分类"
     },
     "fieldTasks": {

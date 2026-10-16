@@ -11651,7 +11651,7 @@
     "safety": {
       "what": "Safety events on site: logging them and reporting them up.",
       "who": "Holders of both safety.view and project.view.",
-      "need": "An event needs the project, the issue category, a title, photos, GPS evidence, the people responsible and what was done. A report needs the project, a title, what happened, who it goes to, the evidence and the place.",
+      "need": "An event needs the project, the rectification category, a title, photos, GPS evidence, the people responsible and what was done. A report needs the project, a title, what happened, who it goes to, the evidence and the place.",
       "then": "The people named are notified straight away.",
       "trouble": "Photos and GPS are both required and there is often no signal. Shoot anyway - it queues and uploads later, and the location kept is where you stood when you took it."
     },
@@ -13641,7 +13641,7 @@
       "photo": "Open photo"
     },
     "field": {
-      "category": "Issue category",
+      "category": "Rectification category",
       "description": "Description",
       "dueAt": "Rectification deadline",
       "evidence": "Evidence",
@@ -13684,13 +13684,13 @@
       "title": "Report a site incident"
     },
     "filter": {
-      "allCategories": "All issue categories",
+      "allCategories": "All rectification categories",
       "allProjects": "All projects",
       "allResponsible": "All responsible people",
       "dateFrom": "From date",
       "dateTo": "To date",
       "project": "Choose project",
-      "selectCategory": "Choose a issue category"
+      "selectCategory": "Choose a rectification category"
     },
     "form": {
       "captureLocation": "Capture GPS",
@@ -13702,8 +13702,8 @@
       "locationTimeout": "The GPS fix did not arrive in time. Step into the open and try again.",
       "locationUnavailable": "The device could not get a position. Check that location is on, then try again.",
       "locationUnsupported": "This device cannot provide a GPS position.",
-      "noSafetyColumns": "This project has no issue category yet. Add one first so hazards can be filed against it.",
-      "addSafetyColumn": "+ Add a issue category",
+      "noSafetyColumns": "This project has no rectification category yet. Add one first so hazards can be filed against it.",
+      "addSafetyColumn": "+ Add a rectification category",
       "askForSafetyColumn": "Ask a colleague who manages categories to add one under Category management."
     },
     "new": "Report hazard",
@@ -13723,7 +13723,7 @@
       "title": "Update incident status"
     },
     "what": {
-      "categories": "The issue categories",
+      "categories": "The rectification categories",
       "responsiblePeople": "The responsible people",
       "requestedIncident": "The incident in the link",
       "workers": "The people to notify"

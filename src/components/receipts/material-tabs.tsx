@@ -209,8 +209,9 @@ export function NetTotalsView({
         <li>{t("receipts.net.noteReturned")}</li>
         <li>{t("receipts.net.noteRejected")}</li>
       </ul>
-      <div className="surface-panel overflow-x-auto rounded-xl">
-        <Table>
+      <div className="surface-panel overflow-hidden rounded-xl">
+        {/* Fits the page (I39). */}
+        <Table fit>
           <TableHeader>
             <TableRow>
               <TableHead>{t("receipts.field.materialName")}</TableHead>

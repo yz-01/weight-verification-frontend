@@ -329,7 +329,8 @@ function MergedList() {
       </div>
       <QueryFailedNote query={disposals} what={t("kind.disposal")} />
       <QueryFailedNote query={dispatches} what={t("kind.dispatch")} />
-      <Table>
+      {/* Fits the page, 打开 pinned at the right (I39). */}
+      <Table fit>
         <TableHeader>
           <TableRow>
             <TableHead>{t("column.kind")}</TableHead>
@@ -341,7 +342,7 @@ function MergedList() {
             <TableHead>
               <span className="sr-only">{root("needsAction.column")}</span>
             </TableHead>
-            <TableHead className="text-right">{t("column.open")}</TableHead>
+            <TableHead pin="end" className="text-right">{t("column.open")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -366,7 +367,7 @@ function MergedList() {
               <TableCell>
                 <NeedsActionMarker show={row.needsAction} />
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell pin="end" className="text-right">
                 <Button asChild variant="outline" size="sm">
                   <Link href={row.href}>{t("column.open")}</Link>
                 </Button>

@@ -57,6 +57,7 @@ import { useDateFormat } from "@/lib/dates";
 import { absoluteUrl } from "@/lib/share";
 import { recordPdfFile } from "@/services/contractor-ops.service";
 import { exportGateIncidents, getGateIncidents } from "@/services/site-access.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 type Tab = "photos" | "issues";
 const TABS: readonly Tab[] = ["photos", "issues"];
@@ -346,7 +347,8 @@ export function GateRecordsOffice() {
           totalCount={total}
           isLoading={rows.isLoading}
           isError={rows.isError}
-          storageKey={`gate-records.${tab}.v1`}
+          storageKey={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].storageKey}
+          defaultHidden={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].hidden}
           toolbar={toolbar}
           onOpen={(row) => setViewing(row.id)}
         />

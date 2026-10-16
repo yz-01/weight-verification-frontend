@@ -79,7 +79,7 @@ export function PresenceSummary({ project }: { project?: string }) {
           </button>
           {open && (
             <div className="border-t">
-              <Table className="min-w-160">
+              <Table fit>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("project")}</TableHead>

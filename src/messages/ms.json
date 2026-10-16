@@ -11651,7 +11651,7 @@
     "safety": {
       "what": "Peristiwa keselamatan di tapak: merekodnya dan melaporkannya.",
       "who": "Pemegang safety.view dan project.view sekali.",
-      "need": "Peristiwa memerlukan projek, kategori isu, tajuk, foto, bukti GPS, orang bertanggungjawab dan apa yang dilakukan. Laporan memerlukan projek, tajuk, apa yang berlaku, kepada siapa, bukti dan tempat.",
+      "need": "Peristiwa memerlukan projek, kategori pembetulan, tajuk, foto, bukti GPS, orang bertanggungjawab dan apa yang dilakukan. Laporan memerlukan projek, tajuk, apa yang berlaku, kepada siapa, bukti dan tempat.",
       "then": "Orang yang dinamakan diberitahu serta-merta.",
       "trouble": "Foto dan GPS kedua-duanya diperlukan dan selalunya tiada isyarat. Rakam sahaja - ia beratur dan naik kemudian, dan lokasi yang disimpan ialah tempat anda berdiri."
     },
@@ -13641,7 +13641,7 @@
       "photo": "Buka foto"
     },
     "field": {
-      "category": "Kategori isu",
+      "category": "Kategori pembetulan",
       "description": "Penerangan",
       "dueAt": "Tarikh akhir pembetulan",
       "evidence": "Bukti",
@@ -13684,13 +13684,13 @@
       "title": "Laporkan insiden tapak"
     },
     "filter": {
-      "allCategories": "Semua kategori isu",
+      "allCategories": "Semua kategori pembetulan",
       "allProjects": "Semua projek",
       "allResponsible": "Semua orang bertanggungjawab",
       "dateFrom": "Tarikh mula",
       "dateTo": "Tarikh tamat",
       "project": "Pilih projek",
-      "selectCategory": "Pilih kategori isu"
+      "selectCategory": "Pilih kategori pembetulan"
     },
     "form": {
       "captureLocation": "Rakam GPS",
@@ -13702,8 +13702,8 @@
       "locationTimeout": "Isyarat GPS tidak sampai dalam masa. Pergi ke kawasan lapang dan cuba lagi.",
       "locationUnavailable": "Peranti tidak dapat memperoleh kedudukan. Pastikan lokasi dihidupkan, kemudian cuba lagi.",
       "locationUnsupported": "Peranti ini tidak boleh memberikan kedudukan GPS.",
-      "noSafetyColumns": "Projek ini belum mempunyai kategori isu. Tambah satu dahulu supaya bahaya boleh difailkan ke dalamnya.",
-      "addSafetyColumn": "+ Tambah kategori isu",
+      "noSafetyColumns": "Projek ini belum mempunyai kategori pembetulan. Tambah satu dahulu supaya bahaya boleh difailkan ke dalamnya.",
+      "addSafetyColumn": "+ Tambah kategori pembetulan",
       "askForSafetyColumn": "Minta rakan sekerja yang menguruskan kategori menambahnya di Pengurusan kategori."
     },
     "new": "Laporkan bahaya",
@@ -13723,7 +13723,7 @@
       "title": "Kemas kini status insiden"
     },
     "what": {
-      "categories": "Kategori isu",
+      "categories": "Kategori pembetulan",
       "responsiblePeople": "Senarai orang yang bertanggungjawab",
       "requestedIncident": "Insiden dalam pautan",
       "workers": "Orang yang boleh dimaklumkan"

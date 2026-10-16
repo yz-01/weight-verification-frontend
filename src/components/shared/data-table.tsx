@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  CellFit,
   Table,
   TableBody,
   TableCell,
@@ -54,6 +55,7 @@ import {
 } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { PAGE_SIZE_OPTIONS } from "@/hooks/use-list-query";
+import { defaultVisibility, initialVisibility } from "@/lib/table-fit";
 import { cn } from "@/lib/utils";
 
 /** Whether a row says it waits for this reader (`needs_action`, 「待处理」). */
@@ -84,8 +86,18 @@ interface DataTableProps<T> {
   search: string;
   sortBy: string;
   sortOrder: "asc" | "desc";
-  /** Persists column visibility per table. */
+  /**
+   * Persists column visibility per table. A list that changes its
+   * `defaultHidden` bumps the key's version, so a choice saved against the
+   * old defaults does not keep the new ones from applying.
+   */
   storageKey: string;
+  /**
+   * Columns hidden until the reader turns them on under 「字段」 - the less used
+   * ones a list could not fit on a 1366 px screen (I39, ID80). A reader's own
+   * saved choice wins over these.
+   */
+  defaultHidden?: readonly string[];
   filterPills?: FilterPill[];
   /** Extra toolbar controls, shown left of Columns. Secondary actions only. */
   toolbarActions?: React.ReactNode;
@@ -125,6 +137,15 @@ interface TableFrameProps<T> extends DataTableProps<T> {
   above?: React.ReactNode;
   after?: React.ReactNode;
 }
+
+/**
+ * The column kept at the right edge (I39): the row's 「查看 / 更改」 buttons,
+ * or - on a list without them - its 「查看」 column.
+ */
+export const PINNED_END_COLUMNS = ["actions", "view"] as const;
+
+/** Columns whose content is a control, never clamped to two lines. */
+const UNCLAMPED_COLUMNS = new Set<string>([...PINNED_END_COLUMNS, PACK_SELECT_COLUMN]);
 
 /** The columns whose controls must not also open the row they sit in. */
 const OWN_CLICK_COLUMNS = new Set(["actions", PACK_SELECT_COLUMN, PACK_BADGE_COLUMN]);
@@ -177,6 +198,7 @@ function TableFrame<T>({
   sortBy,
   sortOrder,
   storageKey,
+  defaultHidden,
   filterPills,
   toolbarActions,
   onRowClick,
@@ -193,7 +215,9 @@ function TableFrame<T>({
 
   const [searchDraft, setSearchDraft] = useState(search);
   const debouncedSearch = useDebounce(searchDraft, 300);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
+    defaultVisibility(defaultHidden),
+  );
 
   useEffect(() => {
     if (debouncedSearch !== search) onSearchChange(debouncedSearch);
@@ -204,16 +228,28 @@ function TableFrame<T>({
 
   // Column visibility is a personal preference, not shared state, so it stays
   // in local storage rather than the URL.
+  // A list's own defaults (I39) apply until the reader saves a choice.
+  const defaultsKey = (defaultHidden ?? []).join(",");
   useEffect(() => {
-    const stored = window.localStorage.getItem(`mse.columns.${storageKey}`);
-    if (stored) {
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem(`mse.columns.${storageKey}`);
+    } catch {
+      stored = null;
+    }
+    const { visibility, corrupt } = initialVisibility(stored, defaultHidden);
+    if (corrupt) {
       try {
-        setColumnVisibility(JSON.parse(stored) as VisibilityState);
-      } catch {
         window.localStorage.removeItem(`mse.columns.${storageKey}`);
+      } catch {
+        // storage unavailable: the defaults still apply
       }
     }
-  }, [storageKey]);
+    setColumnVisibility(visibility);
+    // `defaultsKey` stands for `defaultHidden`, which a page may rebuild on
+    // every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey, defaultsKey]);
 
   const sorting: SortingState = useMemo(
     () => (sortBy ? [{ id: sortBy, desc: sortOrder === "desc" }] : []),
@@ -237,14 +273,24 @@ function TableFrame<T>({
       const next =
         typeof updater === "function" ? updater(columnVisibility) : updater;
       setColumnVisibility(next);
-      window.localStorage.setItem(
-        `mse.columns.${storageKey}`,
-        JSON.stringify(next),
-      );
+      try {
+        window.localStorage.setItem(
+          `mse.columns.${storageKey}`,
+          JSON.stringify(next),
+        );
+      } catch {
+        // storage unavailable: the choice holds until the page closes
+      }
     },
   });
 
   const columnCount = table.getVisibleLeafColumns().length;
+  const visibleIds = table.getVisibleLeafColumns().map((column) => column.id);
+  // Only the row's last column can stay at the edge without covering another.
+  const lastId = visibleIds[visibleIds.length - 1];
+  const pinnedId = (PINNED_END_COLUMNS as readonly string[]).includes(lastId ?? "")
+    ? lastId
+    : undefined;
   const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, totalCount);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -333,14 +379,15 @@ function TableFrame<T>({
       {/* The table's own box is the one that scrolls (IB3): its header is
           sticky against it, and it fills what the panel leaves. */}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <Table containerClassName="min-h-0 flex-1" className="w-full min-w-max max-sm:[&_tbody_td:first-child]:sticky max-sm:[&_tbody_td:first-child]:left-0 max-sm:[&_tbody_td:first-child]:z-[1] max-sm:[&_tbody_td:first-child]:bg-card max-sm:[&_thead_th:first-child]:sticky max-sm:[&_thead_th:first-child]:left-0 max-sm:[&_thead_th:first-child]:z-[2] max-sm:[&_thead_th:first-child]:bg-card">
+        <Table fit containerClassName="min-h-0 flex-1" className="w-full max-sm:min-w-max max-sm:[&_tbody_td:first-child]:sticky max-sm:[&_tbody_td:first-child]:left-0 max-sm:[&_tbody_td:first-child]:z-[1] max-sm:[&_tbody_td:first-child]:bg-card max-sm:[&_thead_th:first-child]:sticky max-sm:[&_thead_th:first-child]:left-0 max-sm:[&_thead_th:first-child]:z-[2] max-sm:[&_thead_th:first-child]:bg-card">
           <TableHeader className="sticky top-0 z-10 bg-card [&_tr]:bg-transparent">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="h-11 px-4 text-xs font-semibold text-muted-foreground sm:px-6"
+                    pin={header.column.id === pinnedId ? "end" : undefined}
+                    className="h-11 px-4 text-xs font-semibold text-muted-foreground"
                   >
                     {header.isPlaceholder
                       ? null
@@ -362,7 +409,7 @@ function TableFrame<T>({
               Array.from({ length: 8 }).map((_, rowIndex) => (
                 <TableRow key={`skeleton-${rowIndex}`}>
                   {Array.from({ length: columnCount }).map((__, cellIndex) => (
-                    <TableCell key={`skeleton-cell-${cellIndex}`} className="px-4 py-3 sm:px-6">
+                    <TableCell key={`skeleton-cell-${cellIndex}`} className="px-4 py-3">
                       <Skeleton className="h-4 w-full max-w-40" />
                     </TableCell>
                   ))}
@@ -446,7 +493,8 @@ function TableFrame<T>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="px-4 py-2.5 text-sm sm:px-6"
+                      pin={cell.column.id === pinnedId ? "end" : undefined}
+                      className="px-4 py-2.5 text-sm"
                       // A button inside the row must not also open the row.
                       onClick={
                         OWN_CLICK_COLUMNS.has(cell.column.id)
@@ -460,7 +508,14 @@ function TableFrame<T>({
                           : undefined
                       }
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {UNCLAMPED_COLUMNS.has(cell.column.id) ? (
+                        flexRender(cell.column.columnDef.cell, cell.getContext())
+                      ) : (
+                        // Two lines at most, the whole text on hover (I39).
+                        <CellFit>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </CellFit>
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>

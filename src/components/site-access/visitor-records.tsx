@@ -40,6 +40,7 @@ import type { VisitorRecord } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
 import { visitStatusTone } from "@/lib/visitor-arrival";
 import { exportVisitorRecords, getVisitorRecords } from "@/services/site-access.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 export function VisitorRecords() {
   const t = useTranslations("siteControl.visitorRecords");
@@ -279,7 +280,8 @@ export function VisitorRecords() {
       totalCount={total}
       isLoading={rows.isLoading}
       isError={rows.isError}
-      storageKey="visitor-records.v1"
+      storageKey={LIST_FITS.visitors.storageKey}
+        defaultHidden={LIST_FITS.visitors.hidden}
       toolbar={
         <>
           <ProjectListFilter list={list} />
