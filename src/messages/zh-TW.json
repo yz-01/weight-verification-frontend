@@ -18386,6 +18386,7 @@
       "material_target_write": "設定、修改或刪除材料目標",
       "category_budget": "修改分類預算",
       "receipt_correct_quantity_price": "更正進場單的數量或單價",
+      "record_correct": "改正記錄",
       "hazard_create": "建立 EHS 事項",
       "hazard_verify": "驗收確認 EHS 整改",
       "material_exit_approve": "批准材料退場",
