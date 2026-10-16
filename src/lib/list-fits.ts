@@ -316,7 +316,7 @@ export const LIST_FITS = {
   },
   /** 杂费报销 */
   sundryClaims: {
-    storageKey: "sundry-claims.v2",
+    storageKey: "sundry-claims.v3",
     file: "src/components/sundry-claims/sundry-claims-office.tsx",
     columns: {
       claim_no: "recno",
@@ -324,6 +324,7 @@ export const LIST_FITS = {
       cover_photo: "thumb",
       state: "status",
       amount: "number",
+      captured_at: "datetime",
       description: "name",
       submit_to: "person",
       submitted_by_name: "person",
@@ -332,7 +333,7 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["project_name"],
+    hidden: ["project_name", "created_at"],
   },
 } as const satisfies Record<string, ListFit>;
 

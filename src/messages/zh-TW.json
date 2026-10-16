@@ -7974,6 +7974,7 @@
       "visitor_arrival_not_host": "只有接待人或門禁管理人員可以確認。",
       "review_by_head_office": "這個分類設為「提交總部審批」，由總部驗收。",
       "sundry_claim_sent_elsewhere": "這筆雜費報銷交給另一邊審批，你不能批。",
+      "sundry_claim_own": "你不能批自己提交的雜費報銷。",
       "material_request_manager_first": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。",
       "sign_off_pin_required": "請輸入你的六位數簽核密碼。",
       "sign_off_pin_not_set": "你還沒有設定簽核密碼，請先設定。",
@@ -17104,6 +17105,7 @@
       "reviewedBy": "審核人",
       "paidBy": "確認付款人",
       "paidAt": "付款時間",
+      "claimDate": "付款日期",
       "reviewNote": "審核備註",
       "rejectReason": "拒絕原因",
       "payment": "付款",
@@ -17113,6 +17115,7 @@
       "SUBMITTED": "待處理",
       "CONFIRMED": "已確認，待付款",
       "REJECTED": "已拒絕",
+      "CANCELLED": "已撤回",
       "PAID": "已付款"
     },
     "payment": {
@@ -17152,7 +17155,8 @@
       "confirmed": "已確認。",
       "rejected": "已拒絕。",
       "proofAdded": "付款憑證已上傳並鎖定。",
-      "paid": "已確認付款，已通知申請人。"
+      "paid": "已確認付款，已通知申請人。",
+      "withdrawn": "雜費報銷已撤回。"
     },
     "capture": {
       "project": "項目",
@@ -17180,6 +17184,40 @@
       "HQ": "總部",
       "NONE": "未指定",
       "all": "全部提交對象"
+    },
+    "withdraw": {
+      "arm": "開啟撤回",
+      "help": "在還沒人審批之前可以撤回。撤回後記錄保留為「已撤回」，審批人的待辦會消失。",
+      "button": "撤回報銷",
+      "failed": "撤回失敗，請再試一次。"
+    },
+    "ownClaim": "這筆報銷是你提交的，由其他人審批。",
+    "create": {
+      "open": "新建報銷",
+      "title": "新建雜費報銷",
+      "description": "為已付出的款項提交雜費報銷。它會交給你選的一方，和手機提交的一樣。",
+      "project": "專案",
+      "chooseProject": "選擇專案",
+      "date": "付款日期",
+      "dateHint": "不改就是今天。",
+      "amount": "金額（RM）",
+      "descriptionLabel": "說明",
+      "descriptionPlaceholder": "買了什麼、為什麼",
+      "submitTo": "交給誰審批",
+      "submitToHint": "預設交給專案經理。",
+      "submitToOption": {
+        "PROJECT": "專案經理",
+        "HQ": "總部"
+      },
+      "attachments": "照片或收據",
+      "attachmentsHint": "至少一張收據、發票或轉帳憑證的照片，最多 {count} 張。",
+      "dateFuture": "付款日期不能是未來的日子。",
+      "sideEmpty": {
+        "PROJECT": "這一邊沒有其他人可以審批。",
+        "HQ": "這一邊沒有其他人可以審批。"
+      },
+      "submit": "提交雜費報銷",
+      "failed": "沒有提交成功，請再試一次。"
     },
     "sentTo": {
       "PROJECT": "這筆交給專案經理審批，總部不能批。",
