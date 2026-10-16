@@ -17190,6 +17190,8 @@
     "supplier": "供應商",
     "allMaterials": "全部材料",
     "allSuppliers": "全部供應商",
+    "specification": "規格",
+    "allSpecifications": "全部規格",
     "materialsFailed": "無法載入材料列表。",
     "suppliersFailed": "無法載入供應商列表。",
     "noSuppliers": "此選擇還沒有進場記錄。",

@@ -31,6 +31,8 @@ export interface ReportLevels {
   category?: string;
   subcategory?: string;
   supplier?: string;
+  /** A material's specification (I19: its sub-category), under `category`. */
+  spec_category?: string;
 }
 
 export type ReportMenuKind =
@@ -121,6 +123,7 @@ export function reportHref(
   if (levels.category) next.set("category", levels.category);
   if (levels.subcategory) next.set("subcategory", levels.subcategory);
   if (levels.supplier) next.set("supplier", levels.supplier);
+  if (levels.spec_category) next.set("spec_category", levels.spec_category);
   const query = next.toString();
   return query ? `${path}?${query}` : path;
 }

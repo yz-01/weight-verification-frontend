@@ -17190,6 +17190,8 @@
     "supplier": "Supplier",
     "allMaterials": "All materials",
     "allSuppliers": "All suppliers",
+    "specification": "Specification",
+    "allSpecifications": "All specifications",
     "materialsFailed": "The material list could not be loaded.",
     "suppliersFailed": "The supplier list could not be loaded.",
     "noSuppliers": "No deliveries for this choice yet.",

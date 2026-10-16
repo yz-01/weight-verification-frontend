@@ -93,10 +93,17 @@ function client() {
   });
   const set = (key: unknown[], data: unknown) => queries.setQueryData(key, data);
   set(["project-categories", "material-report", ""], {
-    count: 1,
+    count: 2,
     next: null,
     previous: null,
-    results: [{ id: "rebar", name: "钢筋", project: "p1" }],
+    results: [
+      { id: "rebar", name: "钢筋", project: "p1" },
+      // A material's sub-category is its specification (I19).
+      { id: "y12", name: "Y12", project: "p1", parent: "rebar" },
+    ],
+  });
+  set(["receipts", "summary", "report-selector", "", "rebar", "y12"], {
+    by_supplier: [{ supplier: "steel-co", supplier_name: "钢材行" }],
   });
   set(["projects", "report-selector"], { count: 1, results: [{ id: "p1", code: "P1" }] });
   for (const category of ["", "rebar"]) {
@@ -217,6 +224,28 @@ describe("【选择报表】 (D6, B9)", () => {
     click("钢材行", 1);
     expect(supplier.navigate).toHaveBeenCalledWith(
       `/reports/material-quantity?${DATES}&category=rebar&supplier=steel-co`,
+    );
+  });
+
+  it("lists a material's specification under it, and opens the report at that spec (I11, I19)", () => {
+    const texts = (render(), rows.map((row) => row.text));
+    // 材料 → 规格: the spec is its own row under 钢筋, not a material of its own.
+    expect(texts).toContain("Y12");
+    expect(texts).toContain("全部规格");
+    expect(texts.filter((text) => text === "钢筋")).toHaveLength(1);
+
+    const spec = render();
+    click("Y12");
+    expect(spec.navigate).toHaveBeenCalledWith(
+      `/reports/material-quantity?${DATES}&category=rebar&spec_category=y12`,
+    );
+    expect(spec.onOpenChange).toHaveBeenCalledWith(false);
+
+    // The supplier stays reachable under the spec.
+    const supplier = render();
+    click("钢材行", 2);
+    expect(supplier.navigate).toHaveBeenCalledWith(
+      `/reports/material-quantity?${DATES}&category=rebar&spec_category=y12&supplier=steel-co`,
     );
   });
 

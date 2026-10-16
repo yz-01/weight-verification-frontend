@@ -109,6 +109,15 @@ describe("the gate record detail (E8)", () => {
     expect(html).toContain('data-stub="export" data-kind="GATE_INCIDENT"');
   });
 
+  it("shows 旧编号 when the record was renumbered, and nothing when it was not (I6, ID35)", () => {
+    const renumbered = renderDetail(<GateRecordsPanel />, (client) =>
+      client.setQueryData(["gate-incident", "g1"], { ...gateRecord, legacy_no: "GT-OLD-0007" }),
+    );
+    expect(renumbered).toContain("旧编号");
+    expect(renumbered).toContain("GT-OLD-0007");
+    expect(renderDetail(<GateRecordsPanel />, seeded)).not.toContain("旧编号");
+  });
+
   it("keeps its facts, its stamped photographs, its people and its conversation", () => {
     const html = renderDetail(<GateRecordsPanel />, seeded);
     expect(html).toContain("AP-0042 · Lorry WXY 1234");

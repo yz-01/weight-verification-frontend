@@ -73,7 +73,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // choices of their own, 验收 and a keyword - the list's `search`, which
   // the figures, the deliveries and the export all read.
   const list = useListQuery([
-    "project", "date_from", "date_to", "category", "supplier", "manufacturer", "acceptance",
+    "project", "date_from", "date_to", "category", "spec_category", "supplier", "manufacturer", "acceptance",
   ]);
   const topBar = useCurrentProject();
   const projectBoxShown = can("project.view") && !topBar.active;
@@ -82,6 +82,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     date_from: list.filters.date_from,
     date_to: list.filters.date_to,
     category: list.filters.category,
+    // One specification of the material (I11, I19): the figures, the records
+    // and the export all follow it.
+    spec_category: list.filters.spec_category,
     supplier: list.filters.supplier,
     // Whose make (2026-10 D1): the figures, the records and the export.
     manufacturer: list.filters.manufacturer,
@@ -109,7 +112,16 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     : filters.supplier === UNFILLED_SUPPLIER
       ? t("receipts.supplierUnfilled")
       : summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name;
-  const level = [materialName ?? "…", supplierName ?? "…"].join(" › ");
+  const specName = filters.spec_category
+    ? columns.isError
+      ? t("common.emptyValue")
+      : columns.data?.results.find((row) => row.id === filters.spec_category)?.name
+    : undefined;
+  const level = [
+    materialName ?? "…",
+    ...(filters.spec_category ? [specName ?? "…"] : []),
+    supplierName ?? "…",
+  ].join(" › ");
   const chosen = [t(`materialReports.${mode}.title`), level].join(" › ");
 
   function runExport(format: ExportFormat) {
@@ -228,7 +240,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             value: row.id,
             label: row.name,
           }))}
-          onChange={(category) => list.setFilter("category", category)}
+          // A specification belongs to one material: choosing another drops it.
+          onChange={(category) => list.setFilters({ category, spec_category: undefined })}
           loading={columns.isLoading}
         />
         <FilterField label={t("receipts.field.manufacturer")} className="sm:w-52">
