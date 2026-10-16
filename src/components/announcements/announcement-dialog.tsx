@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { CompanyAnnouncement } from "@/interfaces/headquarters";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+import { useRoleLabel } from "@/lib/role-labels";
 import {
   getAnnouncement,
   getAnnouncementReaders,
@@ -166,6 +167,7 @@ function scopeText(row: CompanyAnnouncement, t: ReturnType<typeof useTranslation
 /** Who it reached: read and not yet read, each paged. */
 function Readers({ id }: { id: string }) {
   const t = useTranslations("headquarters.announcements");
+  const roleOf = useRoleLabel();
   const df = useDateFormat();
   const [read, setRead] = useState<"1" | "0">("0");
   const query = useInfiniteQuery({
@@ -206,7 +208,7 @@ function Readers({ id }: { id: string }) {
             <li key={row.id} className="flex items-center justify-between gap-2 px-3 py-2">
               <span className="min-w-0 truncate">
                 {row.full_name}
-                {row.role_name && <span className="text-xs text-muted-foreground"> · {row.role_name}</span>}
+                {row.role_name && <span className="text-xs text-muted-foreground"> · {roleOf(null, row.role_name)}</span>}
               </span>
               {row.read_at ? (
                 <span className="shrink-0 text-xs text-muted-foreground">{df.dateTime(row.read_at)}</span>

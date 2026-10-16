@@ -23,6 +23,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { ApprovalWorkflowDialog } from "@/components/document-workflow/approval-workflow-dialog";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
@@ -1152,6 +1153,10 @@ function ApprovalDetailBody({
           </Table>
         </div>
       </section>
+      {/* Supporting papers: a photo, a scan or a file, kept with who and when
+          (I3). Filed under the approval's project, so a company-wide one has
+          none - the server refuses them too (attachment_needs_project). */}
+      {approval.project && <RecordAttachmentsPanel kind="APPROVAL" recordId={approval.id} />}
     </div>
   );
 }

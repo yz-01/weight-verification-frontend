@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { FieldWrapper } from "@/components/shared/page-primitives";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CategoryOptionItems } from "@/components/shared/category-options";
+import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { ProjectCategoryKind } from "@/interfaces/contractor-ops";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 
@@ -31,9 +32,8 @@ export function ProjectColumnPicker({ project, kind, value, onChange, className,
     <Select value={value || undefined} onValueChange={onChange} disabled={!project || columns.isLoading}>
       <SelectTrigger className="w-full"><SelectValue placeholder={t("field.category")} /></SelectTrigger>
       <SelectContent>
-        {available.map((row) =>
-          <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>,
-        )}
+        {/* 分类组 → 分类 → 子分类 (I11). */}
+        <CategoryOptionItems rows={available} />
       </SelectContent>
     </Select>
     {columns.isError && <p role="alert" className="text-sm text-destructive">{t("state.loadError")}</p>}

@@ -14,6 +14,8 @@ export type OfflineJobKind =
   | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
+  | "SAFETY_RECTIFICATION"
+  | "HAZARD_FILE"
   | "CONSULTANT_SUBMISSION"
   | "CATEGORY_EVIDENCE"
   | "EQUIPMENT_HOURS_PHOTO"
@@ -143,6 +145,10 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
   payload: {
     receipt: {
       project: string;
+      /**
+       * "" when the worker left 「未填供应商」 (2026-10-15 I23): the upload
+       * leaves it out and the delivery is filed with none, as online.
+       */
       supplier: string;
       qr_code?: string | null;
       movement_type?: "ENTRY" | "RETURN";
@@ -151,6 +157,8 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       rejection_reason?: string;
       material_name: string;
       material_specification?: string;
+      /** The specification (I19). Absent on jobs queued before it. */
+      spec_category?: string | null;
       quantity: string;
       /** A code from the company's unit list (2026-10 A4). */
       unit: string;
@@ -190,10 +198,22 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
      */
     entry?: boolean;
     /**
-     * 设备退场 in one step (2026-10 Q27): sent to `record_exit`. Like the
-     * entry, no quantity, unit or application.
+     * 设备退场 in one step (2026-10 Q27), from a build before I13: still sent
+     * to `record_exit`, where the server files it as an exit application with
+     * all its evidence (ID30). Nothing queues it any more.
      */
     exit?: boolean;
+    /** 设备退场申请 (2026-10 I13): the machine, why, a photo - `apply_exit`. */
+    apply_exit?: boolean;
+    /**
+     * 现场实际退场 of the approved exit `movement` (I13): photos, DO, the
+     * machine's QR as scanned, both signatures, GPS - `record_exit_handover`.
+     */
+    exit_handover?: boolean;
+    /** What the camera read off the machine's QR at the actual exit (ID60). */
+    scanned_equipment?: string;
+    /** …typed by hand, the QR broken or missing (P-phonefix). */
+    equipment_typed?: boolean;
     /** A 「新设备」 reported from the phone: its name, `equipment` empty. */
     equipment_name?: string;
     /** …and its plate, if it has one (optional). */
@@ -259,6 +279,9 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     supplier?: string;
     source_receipt?: string;
     category?: string;
+    /** The specification (I19); absent on jobs queued before it. */
+    spec_category?: string;
+    material_specification?: string;
     /** Whose make (2026-10 D1); the delivery's own when absent. */
     manufacturer?: string;
     material_name?: string;
@@ -314,6 +337,8 @@ export interface SundryClaimOfflineJob extends OfflineJobBase {
     project: string;
     amount: string;
     description: string;
+    /** 「交给项目经理」/「交给总部」 (I12); absent on a job queued before. */
+    submit_to?: "PROJECT" | "HQ";
     latitude?: string;
     longitude?: string;
     client_event_id: string;
@@ -335,6 +360,8 @@ export interface WasteOutgoingOfflineJob extends OfflineJobBase {
     device_id?: string;
     client_event_id: string;
     field_task?: string;
+    /** The fixed 「其他」's name (I10, ID43). */
+    other_name?: string;
     photos: StoredFile[];
   };
 }
@@ -366,7 +393,8 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
   kind: "SAFETY_INCIDENT";
   payload: {
     project: string;
-    category: string;
+    /** Empty from the phone's 主动上报 (ID12): filed as 「未分类」. */
+    category?: string;
     title: string;
     description: string;
     /** Only on reports queued before 2026-10-10; 严重程度 is gone, the server ignores it. */
@@ -383,6 +411,44 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
     confirmer?: string;
     responsible_person?: string;
     due_at?: string;
+    attachments?: StoredFile[];
+  };
+}
+
+/**
+ * 提交整改 from the phone (I37): the fix's photos and its PDF / Word / Excel
+ * files in ONE job under ONE `client_event_id`, so a retry after a lost
+ * answer is the same submission, not a second one.
+ */
+/**
+ * One PDF / Word / Excel of a hazard report or a rectification, sent on its
+ * own after the report (P-phonefix). The report and its photos go first, so
+ * the office hears of the hazard at once; a 20 MB file on a weak signal then
+ * takes as long as it takes, without holding the report back. It lands in
+ * the hazard's room under the id the server would have given it inside the
+ * report (``<report id>:attachment:<n>``), so a replay adds no second copy.
+ */
+export interface HazardFileOfflineJob extends OfflineJobBase {
+  kind: "HAZARD_FILE";
+  payload: {
+    incidentId: string;
+    client_event_id: string;
+    file: StoredFile;
+  };
+}
+
+export interface SafetyRectificationOfflineJob extends OfflineJobBase {
+  kind: "SAFETY_RECTIFICATION";
+  payload: {
+    incidentId: string;
+    note: string;
+    captured_at: string;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    device_id?: string;
+    client_event_id: string;
+    images: StoredFile[];
     attachments?: StoredFile[];
   };
 }
@@ -486,6 +552,13 @@ export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
     longitude?: string;
     locationAccuracyM?: string;
     photo: StoredFile;
+    /**
+     * 司机签名 (2026-10 I4, ID20). Absent only on a job queued before the
+     * signature existed.
+     */
+    signature?: StoredFile;
+    /** Queued by the screen that asks for the signature (P-phonefix). */
+    signatureRequired?: boolean;
   };
 }
 
@@ -533,6 +606,8 @@ export type OfflineJob =
   | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
+  | SafetyRectificationOfflineJob
+  | HazardFileOfflineJob
   | ConsultantSubmissionOfflineJob
   | CategoryEvidenceOfflineJob
   | EquipmentHoursPhotoOfflineJob

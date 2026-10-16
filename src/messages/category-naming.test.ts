@@ -49,14 +49,15 @@ describe("栏目 never names a category", () => {
       equipment: "设备分类",
       recycle: "环保材料出场分类",
     });
-    // 分类管理只留四组 (2026-10 B1): 材料、设备、隐患整改、环保材料出场.
+    // 材料、设备、隐患整改、环保材料出场 (2026-10 B1) and Progress Claim (I10).
     expect(Object.keys(zh.categoryManagement.module).sort()).toEqual([
+      "claim",
       "ehs",
       "equipment",
       "material",
       "recycle",
     ]);
-    for (const gone of ["field", "claim", "document", "phase", "progress", "debris", "consultant", "sundry"]) {
+    for (const gone of ["field", "document", "phase", "progress", "debris", "consultant", "sundry"]) {
       expect(zh.categoryManagement.module).not.toHaveProperty(gone);
     }
   });

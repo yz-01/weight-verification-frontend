@@ -46,7 +46,17 @@ const TARGET_METRICS: TargetMetric[] = [
   "MATERIAL_RECEIPT_QUANTITY",
   "SETTLED_RECYCLING_WEIGHT",
 ];
-const MATERIAL_UNITS = ["TONNE", "KG", "M3", "PIECE", "LOAD", "BAG"];
+const MATERIAL_UNITS = ["TONNE", "KG", "M3", "PIECE", "LOAD", "BAG", "M2"];
+
+/**
+ * 材料收货数量 is a material target now (I18, ID40): net of returns, per
+ * specification, in 材料管理 → 材料目标. A target set with it before keeps it.
+ */
+export function offeredMetrics(current: TargetMetric | null | undefined): TargetMetric[] {
+  return TARGET_METRICS.filter(
+    (metric) => metric !== "MATERIAL_RECEIPT_QUANTITY" || current === "MATERIAL_RECEIPT_QUANTITY",
+  );
+}
 const WASTE_TYPES = [
   "MIXED",
   "CONCRETE",
@@ -237,7 +247,7 @@ export function BusinessTargetManagement() {
               <FieldWrapper label={t("field.description")} className="sm:col-span-2"><Textarea value={draft.description ?? ""} onChange={(event) => setField("description", event.target.value)} /></FieldWrapper>
               <FieldWrapper label={t("field.project")}><Select value={draft.project ?? "all"} onValueChange={(value) => { setField("project", value === "all" ? null : value); setField("category", null); }}><SelectTrigger><SelectValue placeholder={t("field.allProjects")} /></SelectTrigger><SelectContent><SelectItem value="all">{t("field.companyWide")}</SelectItem>{(projects.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.code} - {row.name}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={projects} what={t("what.projects")} /></FieldWrapper>
               <FieldWrapper label={t("field.category")} hint={!draft.project ? t("field.categoryHint") : draft.metric !== "FIELD_TASK_COUNT" ? t("field.categoryMetricHint") : undefined}><Select disabled={!draft.project || draft.metric !== "FIELD_TASK_COUNT"} value={draft.category ?? "all"} onValueChange={(value) => setField("category", value === "all" ? null : value)}><SelectTrigger><SelectValue placeholder={t("field.allCategories")} /></SelectTrigger><SelectContent><SelectItem value="all">{t("field.allCategories")}</SelectItem>{(categories.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.code} - {row.name}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={categories} what={t("what.categories")} /></FieldWrapper>
-              <FieldWrapper label={t("field.metric")} required><Select value={draft.metric} onValueChange={(value) => setDraft((current) => ({ ...current, metric: value as TargetMetric, category: value === "FIELD_TASK_COUNT" ? current.category : null, material_keyword: value.startsWith("MATERIAL_RECEIPT") ? current.material_keyword : "", material_unit: value === "MATERIAL_RECEIPT_QUANTITY" ? current.material_unit : "", waste_type: value === "SETTLED_RECYCLING_WEIGHT" ? current.waste_type : "" }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{TARGET_METRICS.map((value) => <SelectItem key={value} value={value}>{t(`metric.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper>
+              <FieldWrapper label={t("field.metric")} required><Select value={draft.metric} onValueChange={(value) => setDraft((current) => ({ ...current, metric: value as TargetMetric, category: value === "FIELD_TASK_COUNT" ? current.category : null, material_keyword: value.startsWith("MATERIAL_RECEIPT") ? current.material_keyword : "", material_unit: value === "MATERIAL_RECEIPT_QUANTITY" ? current.material_unit : "", waste_type: value === "SETTLED_RECYCLING_WEIGHT" ? current.waste_type : "" }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{offeredMetrics(editing !== "new" ? editing.metric : null).map((value) => <SelectItem key={value} value={value}>{t(`metric.${value}`)}</SelectItem>)}</SelectContent></Select><p className="mt-1 text-xs text-muted-foreground">{t("field.quantityMoved")}</p></FieldWrapper>
               <FieldWrapper label={t("field.period")} required><Select value={draft.period} onValueChange={(value) => setField("period", value as TargetPeriod)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{TARGET_PERIODS.map((value) => <SelectItem key={value} value={value}>{t(`period.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper>
               {(draft.metric === "MATERIAL_RECEIPT_COUNT" || draft.metric === "MATERIAL_RECEIPT_QUANTITY") && <FieldWrapper label={t("field.materialKeyword")} hint={t("field.materialKeywordHint")}><Input value={draft.material_keyword ?? ""} onChange={(event) => setField("material_keyword", event.target.value)} /></FieldWrapper>}
               {draft.metric === "MATERIAL_RECEIPT_QUANTITY" && <FieldWrapper label={t("field.materialUnit")} required><Select value={draft.material_unit || undefined} onValueChange={(value) => setField("material_unit", value)}><SelectTrigger><SelectValue placeholder={t("field.chooseUnit")} /></SelectTrigger><SelectContent>{MATERIAL_UNITS.map((value) => <SelectItem key={value} value={value}>{t(`materialUnit.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper>}

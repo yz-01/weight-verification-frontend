@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   ChevronDown,
@@ -27,13 +27,14 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import {
-  ATTACHMENT_TYPES,
   AttachmentRows,
   EvidenceLinkCards,
   LockedNote,
   RelatedRecordRemove,
   RemoveSwitch,
 } from "@/components/consultant-workflow/application-draft-edit";
+import { AttachmentDialog, RequiredAttachmentTile } from "@/components/consultant-workflow/attachment-slots";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import {
   ApplicationFormCard,
   printPdf,
@@ -41,7 +42,6 @@ import {
 import {
   ApplicationConsultantFormPanel,
   FORM_FILE_ACCEPT,
-  isFormFile,
   signingChoices,
   signingNeeds,
   type Signing,
@@ -91,10 +91,12 @@ import type {
   RemedialItem,
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
+import { builtinCategoryKey, groupModules, MODULE_LABEL_PATH, subcategoriesOf } from "@/lib/evidence-filters";
+import { useDebounce } from "@/hooks/use-debounce";
 import { recordConversationKey } from "@/lib/record-chat";
+import { signsWithCredential } from "@/lib/sign-off";
 import { recordPdfObjectUrl } from "@/services/contractor-ops.service";
 import {
-  addApplicationAttachment,
   addRemedialItem,
   closeRemedialItem,
   acknowledgeConsultantApplication,
@@ -102,8 +104,7 @@ import {
   downloadApplicationFinalReport,
   retryApplicationFinalReport,
   getApplicationEvidenceCandidates,
-  getApplicationDocumentCandidates,
-  linkApplicationDocumentAttachment,
+  getEvidenceFilterOptions,
   getApprovalCredential,
   getConsultantApplication,
   linkApplicationEvidence,
@@ -139,6 +140,7 @@ export function ConsultantApplicationDetail({
   const finish = useFinishForm(presentation);
   const queryClient = useQueryClient();
   const [attachmentOpen, setAttachmentOpen] = useState(false);
+  const [tileArchive, setTileArchive] = useState<string | null>(null);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   // One arming switch per block (E6, spec rule 8): Remove buttons appear only
   // while it is on, and a press takes effect at once.
@@ -208,9 +210,6 @@ export function ConsultantApplicationDetail({
   }
 
   const application = query.data;
-  const attachedCategories = new Set(
-    application.attachments.map((attachment) => attachment.category),
-  );
   const templateCustomFields = application.template_field_schema.filter(
     (field) => !["inspection_activity", "acceptance_requirement"].includes(field.key),
   );
@@ -478,16 +477,17 @@ export function ConsultantApplicationDetail({
             >
               {application.template_required_attachment_codes.length ? (
                 <div className="mb-4 grid gap-2 sm:grid-cols-2">
-                  {application.template_required_attachment_codes.map((code) => {
-                    const attached = attachedCategories.has(code);
-                    return (
-                      <div key={code} className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${attached ? "border-success/30 bg-success/5 text-success" : "border-warning/30 bg-warning/5 text-warning"}`}>
-                        {attached ? <CheckCircle2 className="size-4" /> : <Paperclip className="size-4" />}
-                        <span className="font-medium">{t(`attachmentType.${code}`)}</span>
-                        <span className="ml-auto text-xs">{t(attached ? "attachment.attached" : "attachment.required")}</span>
-                      </div>
-                    );
-                  })}
+                  {application.template_required_attachment_codes.map((code) => (
+                    <RequiredAttachmentTile
+                      key={code}
+                      application={application}
+                      code={code}
+                      editable={draftEditable}
+                      canArchive={can("document.view")}
+                      onChanged={() => void refresh()}
+                      onPickFromArchive={() => setTileArchive(code)}
+                    />
+                  ))}
                 </div>
               ) : null}
               {!application.attachments.length ? (
@@ -526,7 +526,7 @@ export function ConsultantApplicationDetail({
             {currentStep && canAct && (
               credential.isError ? (
                 <LoadFailed className="w-full" what={t("what.credential")} onRetry={() => credential.refetch()} />
-              ) : credential.data || (application.consultant_form && credential.isSuccess) ? (
+              ) : signsWithCredential(credential.data) || (application.consultant_form && credential.isSuccess) ? (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
                   <Button className="min-h-11 justify-start" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
                   <Button className="min-h-11 justify-start" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
@@ -590,9 +590,10 @@ export function ConsultantApplicationDetail({
         }
       />
 
-      {attachmentOpen && <AttachmentDialog application={application} onClose={() => setAttachmentOpen(false)} onSaved={() => { void refresh(); setAttachmentOpen(false); }} />}
+      {tileArchive && <AttachmentDialog application={application} preset={tileArchive} openArchive canArchive={can("document.view")} onChanged={() => void refresh()} onClose={() => setTileArchive(null)} onSaved={() => { void refresh(); setTileArchive(null); }} />}
+      {attachmentOpen && <AttachmentDialog application={application} canArchive={can("document.view")} onChanged={() => void refresh()} onClose={() => setAttachmentOpen(false)} onSaved={() => { void refresh(); setAttachmentOpen(false); }} />}
       {evidenceOpen && <EvidenceDialog application={application} onClose={() => setEvidenceOpen(false)} onSaved={() => { void refresh(); setEvidenceOpen(false); }} />}
-      {decision && <DecisionDialog application={application} decision={decision} hasCredential={Boolean(credential.data)} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
+      {decision && <DecisionDialog application={application} decision={decision} hasCredential={signsWithCredential(credential.data)} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
     </RecordDetailFrame>
   );
 }
@@ -1121,18 +1122,20 @@ function Section({ id, title, action, children }: { id?: string; title: string; 
   return id ? <div id={id} className="scroll-mt-20">{panel}</div> : panel;
 }
 
-function AttachmentDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
-  const t = useTranslations("consultantWorkflow");
-  const [file, setFile] = useState<File | null>(null);
-  const [category, setCategory] = useState("OTHER");
-  const [note, setNote] = useState("");
-  const [libraryOpen, setLibraryOpen] = useState(false);
-  const [librarySearch, setLibrarySearch] = useState("");
-  const documents = useQuery({ queryKey: ["application-document-candidates", application.project, librarySearch], queryFn: () => getApplicationDocumentCandidates(application.project, librarySearch || undefined), enabled: libraryOpen });
-  const save = useMutation({ mutationFn: () => addApplicationAttachment(application.id, file as File, category, note), onSuccess: onSaved });
-  const link = useMutation({ mutationFn: (version: string) => linkApplicationDocumentAttachment(application.id, version, category, note), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><Button type="button" variant="outline" onClick={() => setLibraryOpen((value) => !value)}><ClipboardCheck />{t("attachment.fromArchive")}</Button>{libraryOpen && <div className="space-y-2 rounded-lg border p-3"><Input placeholder={t("attachment.searchArchive")} value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} />{documents.isLoading ? <Loader2 className="animate-spin" /> : documents.isError ? <LoadFailed what={t("what.archiveDocuments")} onRetry={() => documents.refetch()} /> : <div className="max-h-56 space-y-2 overflow-y-auto">{(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => <button type="button" key={doc.id} className="flex w-full items-center justify-between rounded border p-2 text-left hover:bg-muted/30" onClick={() => doc.latest_version && link.mutate(doc.latest_version.id)} disabled={link.isPending}><span className="min-w-0"><span className="block truncate font-medium">{doc.document_no} · {doc.title}</span><span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span></span><ExternalLink className="size-4 shrink-0" /></button>)}{!documents.data?.results?.length && <Empty text={t("attachment.noArchive")} />}</div>}</div>}<FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{ATTACHMENT_TYPES.map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
+/** A filter dropdown: 「全部」 first, then the choices with their counts (I40). */
+function FilterSelect({ value, onChange, allLabel, choices, disabled = false }: { value: string; onChange: (value: string) => void; allLabel: string; choices: { value: string; label: string; count: number }[]; disabled?: boolean }) {
+  const ALL = "__all__";
+  return (
+    <Select value={value || ALL} onValueChange={(next) => onChange(next === ALL ? "" : next)} disabled={disabled}>
+      <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+      <SelectContent>
+        <SelectItem value={ALL}>{allLabel}</SelectItem>
+        {choices.map((choice) => <SelectItem key={choice.value} value={choice.value}>{choice.label} ({choice.count})</SelectItem>)}
+      </SelectContent>
+    </Select>
+  );
 }
+
 
 function EvidenceDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("consultantWorkflow");
@@ -1144,20 +1147,43 @@ function EvidenceDialog({ application, onClose, onSaved }: { application: Consul
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");
   const [uploader, setUploader] = useState("");
+  const [moduleFilter, setModuleFilter] = useState("");
+  const root = useTranslations();
+  const categoryLabel = (name: string) => {
+    const key = builtinCategoryKey(name);
+    return key ? t(`evidence.categoryName.${key}`) : name;
+  };
   const [expanded, setExpanded] = useState<string | null>(null);
-  const rows = useQuery({
-    queryKey: ["application-evidence-candidates", application.project, search, dateFrom, dateTo, category, subcategory, uploader],
-    queryFn: () => getApplicationEvidenceCandidates(application.project, {
-      search: search || undefined,
+  // What this project's evidence has, with counts: the dropdowns list only
+  // those, so every choice finds something (I40).
+  const options = useQuery({
+    queryKey: ["application-evidence-filter-options", application.project],
+    queryFn: () => getEvidenceFilterOptions(application.project),
+  });
+  const moduleChoices = useMemo(() => groupModules(options.data?.modules ?? []), [options.data]);
+  const subcategoryChoices = subcategoriesOf(options.data?.categories ?? [], category);
+  // Typing waits a moment before it searches.
+  const keyword = useDebounce(search, 300);
+  // Newest first, a hundred at a time: older evidence is one 「加载更多」 away,
+  // never silently left out.
+  const rows = useInfiniteQuery({
+    queryKey: ["application-evidence-candidates", application.project, keyword, dateFrom, dateTo, moduleFilter, category, subcategory, uploader],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => getApplicationEvidenceCandidates(application.project, {
+      page: pageParam,
+      module: moduleFilter || undefined,
+      search: keyword || undefined,
       date_from: dateFrom || undefined,
       date_to: dateTo || undefined,
       category: category || undefined,
       subcategory: subcategory || undefined,
       uploader: uploader || undefined,
     }),
+    getNextPageParam: (last) => (last.page < last.total_pages ? last.page + 1 : undefined),
   });
+  const totalCount = rows.data?.pages[0]?.count ?? 0;
   const linkedIds = useMemo(() => new Set(application.evidence_links.map((link) => link.evidence)), [application.evidence_links]);
-  const candidates = (rows.data?.results ?? []).filter((row) => !linkedIds.has(row.id));
+  const candidates = (rows.data?.pages.flatMap((page) => page.results) ?? []).filter((row) => !linkedIds.has(row.id));
   const groups = useMemo(() => {
     const grouped = new Map<string, { key: string; rows: EvidenceCandidate[] }>();
     for (const row of candidates) {
@@ -1175,7 +1201,7 @@ function EvidenceDialog({ application, onClose, onSaved }: { application: Consul
     const allSelected = ids.every((id) => selected.includes(id));
     setSelected((current) => allSelected ? current.filter((id) => !ids.includes(id)) : Array.from(new Set([...current, ...ids])));
   };
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-6xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Input placeholder={t("evidence.searchPlaceholder")} value={search} onChange={(event) => setSearch(event.target.value)} /><Input placeholder={t("evidence.category")} value={category} onChange={(event) => setCategory(event.target.value)} /><Input placeholder={t("evidence.subcategory")} value={subcategory} onChange={(event) => setSubcategory(event.target.value)} /><Input placeholder={t("evidence.uploader")} value={uploader} onChange={(event) => setUploader(event.target.value)} /><Input type="date" aria-label={t("evidence.dateFrom")} value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /><Input type="date" aria-label={t("evidence.dateTo")} value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /></div>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : rows.isError ? <LoadFailed what={t("what.evidenceCandidates")} onRetry={() => rows.refetch()} /> : <div className="space-y-3"><FieldWrapper label={t("evidence.selectPhotos")} required><div className="max-h-[58dvh] space-y-3 overflow-y-auto pr-1">{groups.map((group) => { const ids = group.rows.map((row) => row.id); const allSelected = ids.every((id) => selected.includes(id)); const open = expanded === group.key; const first = group.rows[0]; return <div key={group.key} className={`rounded-lg border ${allSelected ? "border-primary ring-2 ring-primary/20" : ""}`}><div className="flex items-start gap-3 p-3"><Checkbox checked={allSelected} onCheckedChange={() => toggleGroup(group)} aria-label={t("evidence.selectRecord")} /><button type="button" className="flex min-w-0 flex-1 items-start gap-3 text-left" onClick={() => setExpanded(open ? null : group.key)}><span className="mt-0.5 shrink-0">{open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</span><span className="min-w-0"><span className="block truncate font-medium">{first.record_reference} · {first.record_type_label} · {first.record_title}</span><span className="block text-xs text-muted-foreground">{first.project_name || t("common.emptyValue")} · {first.category || t("common.emptyValue")} {first.subcategory ? `· ${first.subcategory}` : ""}</span><span className="block text-xs text-muted-foreground">{group.rows.length} {t("evidence.recordPhotos")} · {first.record_uploader || first.photographer_name || t("common.unknown")} · {first.record_date ? new Date(first.record_date).toLocaleString() : new Date(first.captured_at).toLocaleString()}</span></span></button></div>{open && <div className="grid gap-3 border-t bg-muted/20 p-3 sm:grid-cols-4">{group.rows.map((row) => { const checked = selected.includes(row.id); const image = row.watermarked_file || row.file; return <div key={row.id} className={`rounded-md border bg-card p-2 ${checked ? "border-primary" : ""}`}><div className="relative aspect-[4/3] overflow-hidden rounded bg-muted">{row.kind === "PHOTO" ? <Image src={image} alt={row.original_filename} fill unoptimized className="object-cover" /> : <div className="grid h-full place-items-center p-2 text-center text-xs text-muted-foreground">{row.original_filename}</div>}</div><label className="mt-2 flex items-start gap-2 text-xs"><Checkbox checked={checked} onCheckedChange={() => toggle(row.id)} /><span className="min-w-0"><span className="block truncate font-medium">{row.original_filename}</span><span className="block text-muted-foreground">{new Date(row.captured_at).toLocaleString()} · {t("evidence.gps")} {row.latitude ?? "-"}, {row.longitude ?? "-"}</span><span className="block text-muted-foreground">{row.photographer_name || t("common.unknown")} · {row.watermark_text ? t("evidence.watermarked") : ""}</span></span></label></div>; })}</div>}</div>; })}{!groups.length && <Empty text={t("evidence.noCandidates")} />}</div></FieldWrapper><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[selected.length, t("evidence.selectPhotos")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-6xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader><div className="space-y-3">{options.isError ? <LoadFailed what={t("what.evidenceFilters")} onRetry={() => options.refetch()} /> : <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><FieldWrapper label={t("evidence.module")}><FilterSelect value={moduleFilter} onChange={setModuleFilter} allLabel={t("evidence.allModules")} choices={moduleChoices.map((row) => ({ value: row.value, label: MODULE_LABEL_PATH[row.key] ? root(MODULE_LABEL_PATH[row.key] as string) : t("evidence.moduleName.other"), count: row.count }))} /></FieldWrapper><FieldWrapper label={t("evidence.category")}><FilterSelect value={category} onChange={(next) => { setCategory(next); setSubcategory(""); }} allLabel={t("evidence.allCategories")} choices={(options.data?.categories ?? []).map((row) => ({ value: row.value, label: categoryLabel(row.value), count: row.count }))} /></FieldWrapper><FieldWrapper label={t("evidence.subcategory")}><FilterSelect value={subcategory} onChange={setSubcategory} allLabel={t("evidence.allSubcategories")} disabled={!category || subcategoryChoices.length === 0} choices={subcategoryChoices.map((row) => ({ value: row.value, label: categoryLabel(row.value), count: row.count }))} /></FieldWrapper><FieldWrapper label={t("evidence.uploader")}><FilterSelect value={uploader} onChange={setUploader} allLabel={t("evidence.allUploaders")} choices={(options.data?.uploaders ?? []).map((row) => ({ value: row.value, label: row.label || t("common.unknown"), count: row.count }))} /></FieldWrapper></div>}<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Input type="date" aria-label={t("evidence.dateFrom")} value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /><Input type="date" aria-label={t("evidence.dateTo")} value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /><Input className="sm:col-span-2" placeholder={t("evidence.searchPlaceholder")} aria-label={t("evidence.keyword")} value={search} onChange={(event) => setSearch(event.target.value)} /></div></div>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : rows.isError ? <LoadFailed what={t("what.evidenceCandidates")} onRetry={() => rows.refetch()} /> : <div className="space-y-3"><FieldWrapper label={t("evidence.selectPhotos")} required><div className="max-h-[58dvh] space-y-3 overflow-y-auto pr-1">{groups.map((group) => { const ids = group.rows.map((row) => row.id); const allSelected = ids.every((id) => selected.includes(id)); const open = expanded === group.key; const first = group.rows[0]; return <div key={group.key} className={`rounded-lg border ${allSelected ? "border-primary ring-2 ring-primary/20" : ""}`}><div className="flex items-start gap-3 p-3"><Checkbox checked={allSelected} onCheckedChange={() => toggleGroup(group)} aria-label={t("evidence.selectRecord")} /><button type="button" className="flex min-w-0 flex-1 items-start gap-3 text-left" onClick={() => setExpanded(open ? null : group.key)}><span className="mt-0.5 shrink-0">{open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</span><span className="min-w-0"><span className="block truncate font-medium">{first.record_reference} · {first.record_type_label} · {first.record_title}</span><span className="block text-xs text-muted-foreground">{first.project_name || t("common.emptyValue")} · {categoryLabel(first.category) || t("common.emptyValue")} {first.subcategory ? `· ${categoryLabel(first.subcategory)}` : ""}</span><span className="block text-xs text-muted-foreground">{group.rows.length} {t("evidence.recordPhotos")} · {first.record_uploader || first.photographer_name || t("common.unknown")} · {first.record_date ? new Date(first.record_date).toLocaleString() : new Date(first.captured_at).toLocaleString()}</span></span></button></div>{open && <div className="grid gap-3 border-t bg-muted/20 p-3 sm:grid-cols-4">{group.rows.map((row) => { const checked = selected.includes(row.id); const image = row.watermarked_file || row.file; return <div key={row.id} className={`rounded-md border bg-card p-2 ${checked ? "border-primary" : ""}`}><div className="relative aspect-[4/3] overflow-hidden rounded bg-muted">{row.kind === "PHOTO" ? <Image src={image} alt={row.original_filename} fill unoptimized className="object-cover" /> : <div className="grid h-full place-items-center p-2 text-center text-xs text-muted-foreground">{row.original_filename}</div>}</div><label className="mt-2 flex items-start gap-2 text-xs"><Checkbox checked={checked} onCheckedChange={() => toggle(row.id)} /><span className="min-w-0"><span className="block truncate font-medium">{row.original_filename}</span><span className="block text-muted-foreground">{new Date(row.captured_at).toLocaleString()} · {t("evidence.gps")} {row.latitude ?? "-"}, {row.longitude ?? "-"}</span><span className="block text-muted-foreground">{row.photographer_name || t("common.unknown")} · {row.watermark_text ? t("evidence.watermarked") : ""}</span></span></label></div>; })}</div>}</div>; })}{!groups.length && <Empty text={t("evidence.noCandidates")} />}</div></FieldWrapper><div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground"><span>{t("evidence.showing", { shown: candidates.length, count: totalCount })}</span>{rows.hasNextPage && <Button type="button" size="sm" variant="outline" disabled={rows.isFetchingNextPage} onClick={() => void rows.fetchNextPage()}>{rows.isFetchingNextPage ? <Loader2 className="animate-spin" /> : null}{t("evidence.loadMore")}</Button>}</div><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[selected.length, t("evidence.selectPhotos")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function DecisionDialog({ application, decision, hasCredential, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; hasCredential: boolean; onClose: () => void; onSaved: () => void }) {
@@ -1188,7 +1214,6 @@ function DecisionDialog({ application, decision, hasCredential, onClose, onSaved
   const choices = signingChoices(Boolean(application.consultant_form), hasCredential);
   const [signing, setSigning] = useState<Signing>(choices[0]);
   const [signedForm, setSignedForm] = useState<File | null>(null);
-  const [wrongType, setWrongType] = useState(false);
   const needs = signingNeeds(signing, hasCredential);
   const save = useMutation({
     mutationFn: () =>
@@ -1245,16 +1270,12 @@ function DecisionDialog({ application, decision, hasCredential, onClose, onSaved
               required={needs.file}
               optional={needs.file ? undefined : common("optional")}
               hint={t("ownForm.signedFormHint")}
-              error={wrongType ? t("ownForm.fileTypeWrong") : undefined}
             >
-              <Input
-                type="file"
-                accept={FORM_FILE_ACCEPT}
-                onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null;
-                  setWrongType(Boolean(file) && !isFormFile(file?.name ?? ""));
-                  setSignedForm(file && isFormFile(file.name) ? file : null);
-                }}
+              <AttachmentPicker
+                files={signedForm ? [signedForm] : []}
+                onChange={(next) => setSignedForm(next[0] ?? null)}
+                rule={{ accept: FORM_FILE_ACCEPT, multiple: false }}
+                refusalText={(item) => (item.kind === "type" ? t("ownForm.fileTypeWrong") : undefined)}
               />
             </FieldWrapper>
           ) : null}

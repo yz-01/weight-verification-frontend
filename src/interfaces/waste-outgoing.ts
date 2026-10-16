@@ -44,7 +44,7 @@ export interface WasteCategory {
   dispatch_type: string;
   description: string;
   sort_order: number;
-  /** One of the seven the customer named: deactivate rather than delete. */
+  /** A platform preset. Deletable while no record uses it (I35). */
   is_system: boolean;
   is_active: boolean;
   /**
@@ -54,6 +54,14 @@ export interface WasteCategory {
   is_retired: boolean;
   /** Waste records filed under this category, company-wide (D-125). */
   record_count: number;
+  /** A project's own 分类组 (I11); null - the company-wide list. */
+  group?: string | null;
+  group_name?: string | null;
+  /** Two levels (I11, ID3). */
+  parent?: string | null;
+  parent_name?: string | null;
+  /** The fixed 「其他」 (ID43): whoever chooses it types what it is. */
+  is_other?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -73,6 +81,8 @@ export interface WasteOutgoingPhoto {
 }
 
 export interface WasteOutgoingRecord extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

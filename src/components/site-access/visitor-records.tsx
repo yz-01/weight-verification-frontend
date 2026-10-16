@@ -7,14 +7,21 @@
  * Records…同一访客多次进退场，每次记录独立保存，不得覆盖历史」: one row per
  * confirmed entry or exit, each with the pass it belongs to, searched and
  * exported. Kept apart from the gate photographs (「不与门岗照片混合」).
- * Opening a row opens its pass on 工地门禁.
+ * Opening a row opens its pass on 工地门禁. Searched by 「开始日期 时间 – 结束
+ * 日期 时间」 on a 24-hour clock, like the gate photos (I15, ID62).
+ *
+ * I26: a visitor since 访客进场确认 is one row per visit - the photo taken at
+ * the gate, the host, who confirmed and when, the guard, and the entry and
+ * exit times - declined and cancelled visits included. It opens the visit
+ * itself (preview, print, export its PDF). Older entries and exits, and
+ * workers' and lorries', stay a row each, as before.
  */
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { ExportButton } from "@/components/shared/export-button";
 import {
@@ -24,21 +31,26 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
+import { DATE_TIME_RANGE_KEYS, DateTimeRangeFilter } from "@/components/shared/date-time-range-filter";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { RecordNo } from "@/components/shared/record-no";
-import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
+import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { VisitorRecord } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
+import { visitStatusTone } from "@/lib/visitor-arrival";
 import { exportVisitorRecords, getVisitorRecords } from "@/services/site-access.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 export function VisitorRecords() {
   const t = useTranslations("siteControl.visitorRecords");
   const tSite = useTranslations("siteControl");
   const tRoot = useTranslations();
+  const ta = useTranslations("siteControl.visitorArrival");
   const df = useDateFormat();
+  const [openVisit, setOpenVisit] = useState<string | null>(null);
   const router = useRouter();
-  const list = useListQuery(["project", "direction", "subject_type", "date_from", "date_to"]);
+  const list = useListQuery(["project", "direction", "subject_type", ...DATE_TIME_RANGE_KEYS]);
   const rows = useQuery({
     queryKey: ["visitor-records", list.query],
     queryFn: () => getVisitorRecords(list.query),
@@ -57,13 +69,36 @@ export function VisitorRecords() {
       {
         accessorKey: "direction",
         meta: { label: t("field.direction") },
-        header: sortable(t("field.direction")),
-        cell: ({ row }) => (
-          <StatusBadge
-            label={tSite(`direction.${row.original.direction}`)}
-            tone={row.original.direction === "ENTRY" ? "positive" : "neutral"}
-          />
-        ),
+        header: () => <PlainHeader label={t("field.direction")} />,
+        cell: ({ row }) =>
+          row.original.row_type === "ARRIVAL" && row.original.visit_status ? (
+            <StatusBadge
+              label={ta(`status.${row.original.visit_status}`)}
+              tone={visitStatusTone(row.original.visit_status)}
+            />
+          ) : row.original.direction ? (
+            <StatusBadge
+              label={tSite(`direction.${row.original.direction}`)}
+              tone={row.original.direction === "ENTRY" ? "positive" : "neutral"}
+            />
+          ) : (
+            "—"
+          ),
+      },
+      {
+        accessorKey: "photo_thumbnail",
+        meta: { label: t("field.photo") },
+        header: () => <PlainHeader label={t("field.photo")} />,
+        cell: ({ row }) =>
+          row.original.photo_thumbnail ? (
+            <img
+              src={row.original.photo_thumbnail}
+              alt={ta("photoOf", { name: row.original.subject_name })}
+              className="size-10 rounded-md border object-cover"
+            />
+          ) : (
+            "—"
+          ),
       },
       {
         accessorKey: "subject_name",
@@ -77,6 +112,54 @@ export function VisitorRecords() {
               {row.original.subject_company ? ` · ${row.original.subject_company}` : ""}
             </span>
           </span>
+        ),
+      },
+      {
+        accessorKey: "host_name",
+        meta: { label: t("field.host") },
+        header: () => <PlainHeader label={t("field.host")} />,
+        cell: ({ row }) => row.original.host_name || "—",
+      },
+      {
+        accessorKey: "confirmed_by_name",
+        meta: { label: t("field.confirmedBy") },
+        header: () => <PlainHeader label={t("field.confirmedBy")} />,
+        cell: ({ row }) =>
+          row.original.confirmed_at ? (
+            <span>
+              <span className="block">
+                {row.original.confirmed_by_name}
+                {row.original.on_behalf ? ` · ${ta("onBehalf")}` : ""}
+              </span>
+              <span className="block text-xs tabular text-muted-foreground">
+                {df.dateTime(row.original.confirmed_at)}
+              </span>
+            </span>
+          ) : row.original.decline_reason ? (
+            <span className="text-destructive">
+              {ta("declinedBanner", {
+                name: row.original.declined_by_name ?? "",
+                reason: row.original.decline_reason,
+              })}
+            </span>
+          ) : (
+            "—"
+          ),
+      },
+      {
+        accessorKey: "entry_at",
+        meta: { label: t("field.entryAt") },
+        header: () => <PlainHeader label={t("field.entryAt")} />,
+        cell: ({ row }) => (
+          <span className="tabular">{row.original.entry_at ? df.dateTime(row.original.entry_at) : "—"}</span>
+        ),
+      },
+      {
+        accessorKey: "exit_at",
+        meta: { label: t("field.exitAt") },
+        header: () => <PlainHeader label={t("field.exitAt")} />,
+        cell: ({ row }) => (
+          <span className="tabular">{row.original.exit_at ? df.dateTime(row.original.exit_at) : "—"}</span>
         ),
       },
       {
@@ -101,7 +184,10 @@ export function VisitorRecords() {
         accessorKey: "pass_no",
         meta: { label: t("field.pass") },
         header: () => <PlainHeader label={t("field.pass")} />,
-        cell: ({ row }) => <RecordNo value={row.original.pass_no} />,
+        // PS, split by the row's project code (ID35).
+        cell: ({ row }) => (
+          <RecordNo value={row.original.pass_no} projectCode={row.original.project_code} />
+        ),
       },
       {
         accessorKey: "project_name",
@@ -124,7 +210,7 @@ export function VisitorRecords() {
           (row.original.source === "THIRD_PARTY" ? t("device") : "—"),
       },
     ],
-    [t, tSite, df],
+    [t, tSite, ta, df],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -136,6 +222,15 @@ export function VisitorRecords() {
       query: list.query,
       columns: [
         { key: "occurred_at", label: t("field.time") },
+        {
+          key: "visit_status",
+          label: t("field.visitStatus"),
+          values: Object.fromEntries(
+            (["AWAITING_HOST", "CONFIRMED", "DECLINED", "CANCELLED", "ON_SITE", "LEFT"] as const).map(
+              (status) => [status, ta(`status.${status}`)],
+            ),
+          ),
+        },
         {
           key: "direction",
           label: t("field.direction"),
@@ -161,10 +256,20 @@ export function VisitorRecords() {
         { key: "valid_until", label: t("field.validUntil") },
         { key: "gate_name", label: t("field.gate") },
         { key: "scanned_by_name", label: t("field.guard") },
+        { key: "arrival_no", label: t("field.visit") },
+        { key: "host_name", label: t("field.host") },
+        { key: "confirmed_by_name", label: t("field.confirmedBy") },
+        { key: "confirmed_at", label: t("field.confirmedAt") },
+        { key: "on_behalf", label: ta("onBehalf"), values: { true: ta("onBehalf"), false: "" } },
+        { key: "decline_reason", label: t("field.declineReason") },
+        { key: "entry_at", label: t("field.entryAt") },
+        { key: "exit_at", label: t("field.exitAt") },
+        { key: "photo_count", label: t("field.photoCount") },
       ],
     });
 
   return (
+    <>
     <ModuleRecordsTable<VisitorRecord>
       title={title}
       countLabel={tRoot("moduleTable.count", { count: total })}
@@ -175,7 +280,8 @@ export function VisitorRecords() {
       totalCount={total}
       isLoading={rows.isLoading}
       isError={rows.isError}
-      storageKey="visitor-records.v1"
+      storageKey={LIST_FITS.visitors.storageKey}
+        defaultHidden={LIST_FITS.visitors.hidden}
       toolbar={
         <>
           <ProjectListFilter list={list} />
@@ -197,15 +303,17 @@ export function VisitorRecords() {
               label: tSite(`subjectType.${value}`),
             }))}
           />
-          <SupplierDateFilter
-            showSupplier={false}
-            value={{ date_from: list.filters.date_from, date_to: list.filters.date_to }}
-            onChange={(next) => list.setFilters(next as Record<string, string | undefined>)}
-          />
+          <DateTimeRangeFilter list={list} />
           <ExportButton onExport={runExport} disabled={total === 0} title={title} />
         </>
       }
-      onOpen={(row) => router.push(`/site-access?pass=${row.pass_id}&project=${row.project}`)}
+      onOpen={(row) =>
+        row.row_type === "ARRIVAL" && row.arrival_id
+          ? setOpenVisit(row.arrival_id)
+          : router.push(`/site-access?pass=${row.pass_id}&project=${row.project}`)
+      }
     />
+    {openVisit && <VisitorArrivalDialog id={openVisit} onClose={() => setOpenVisit(null)} />}
+    </>
   );
 }

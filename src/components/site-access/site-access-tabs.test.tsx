@@ -204,7 +204,12 @@ describe("menu entries that share one page", () => {
    * has to join this list - after its page is made to follow the address the
    * way 工地门禁's is above.
    */
-  const FOLLOWS_ADDRESS = new Set(["/site-access"]);
+  const FOLLOWS_ADDRESS = new Set([
+    "/site-access",
+    // 日常拍照记录 / 门岗事项 (I25): `gate-records-office.test.tsx` holds it
+    // to the same rule.
+    "/gate-records",
+  ]);
 
   it("only point at pages that follow the address", () => {
     // Within one portal's menu: the same page listed in two portals' menus

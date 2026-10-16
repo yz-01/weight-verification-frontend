@@ -81,11 +81,17 @@ describe("phone 设备进退场 is photos only (D-273)", () => {
     expect(body).toMatch(/t\("equipment\.add"\)/);
   });
 
-  it("records an exit in one step like the entry, never applied for (Q27, F3)", () => {
-    // 进场 / 退场 chosen first; the exit is the entry's form, the other way.
+  it("applies for an exit, and records the actual exit once approved (I13, ID30)", () => {
+    // 进场 / 退场 chosen first; the exit goes the way material leaves site.
     expect(body).toMatch(/data-testid="field-equipment-direction"/);
-    expect(body).toMatch(/<EquipmentEntryDialog[\s\S]*?direction=\{direction\}/);
-    expect(body).not.toMatch(/ApplyExitDialog|MachineStep|<MovementDialog|applyExit/);
+    expect(body).toMatch(/const step = exitStep\(machine\?\.open_exit\)/);
+    expect(body).toMatch(/step === "apply" && \([\s\S]*?<EquipmentExitApplyDialog/);
+    expect(body).toMatch(/step === "leave" && \([\s\S]*?<EquipmentExitHandoverDialog/);
+    // The entry form is the entry's only; the old 直接交接 is the office's.
+    expect(body).not.toMatch(/<EquipmentEntryDialog[^>]*direction=/);
+    expect(body).not.toMatch(/<MovementDialog/);
+    // 「扫描设备二维码」 beside the dropdown (I24, ID60).
+    expect(body).toMatch(/<MachineScanButton/);
   });
 
   it("names a machine 「名称 · 车牌」, the code only for twins (F3)", () => {
@@ -118,8 +124,8 @@ describe("phone 设备进退场 is photos only (D-273)", () => {
     expect(entry).toMatch(/hasRequiredFieldEvidence\(fieldEvidence\)/);
     expect(entry).toMatch(/<FieldSignaturePad[\s\S]*?<FieldSignaturePad/);
     expect(entry).toMatch(/submitEquipmentMovementOfflineAware/);
-    expect(entry).toMatch(/entry: !going/);
-    expect(entry).toMatch(/exit: going/);
+    expect(entry).toMatch(/entry: true/);
+    expect(entry).not.toMatch(/exit: /);
     const dialog = componentBody(code, "MovementDialog");
     expect(dialog).toMatch(/<FieldEvidenceGrid/);
     expect(dialog).not.toMatch(/maxFiles=/);

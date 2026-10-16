@@ -7,12 +7,16 @@
  * small underneath; details, exports, PDFs and notifications keep the whole
  * number. Only the display changes, never what is stored.
  *
- * The sequence restarts every day, so a short number is told apart from
- * another day's by the list's date column, as the spec says.
+ * Since I6 (ID21) a record number runs on per project and module -
+ * `MI-TRX-P1-004` - so `MI-004` names one record of a project. A list passes
+ * the row's project code, so a project code that itself ends in digits is
+ * never mistaken for the sequence (ID35).
  *
- * Three shapes are read:
- * - `PREFIX-<project>-YYMMDD-NNN`, every daily document number
- *   (`utils.reference.next_reference` on the backend);
+ * Four shapes are read:
+ * - `PREFIX-<project>-NNN`, a running record number (I6; three digits or
+ *   more);
+ * - `PREFIX-<project>-YYMMDD-NNN`, a daily number from before I6 - kept as
+ *   a record's 「旧编号」 - and the documents still numbered by the day;
  * - `PREFIX-<project>-YYMM-NN`, a claim's monthly one (`next_claim_no`);
  * - `<project>-<rest>`, a consultant application numbered from a template
  *   that starts with the project code: the rest is shown big.
@@ -28,6 +32,9 @@ export interface ParsedRecordNo {
 
 const DAILY = /^([A-Za-z]+)-(.+)-(\d{6})-(\d{2,})$/;
 const MONTHLY = /^([A-Za-z]+)-(.+)-(\d{4})-(\d{2,})$/;
+const RUNNING = /^([A-Za-z]+)-(.+)-(\d{3,})$/;
+/** What follows `PREFIX-<project>-` when the project code is known. */
+const TAIL = /^(?:\d{6}-|\d{4}-)?(\d{2,})$/;
 
 export function parseRecordNo(
   full: string | null | undefined,
@@ -35,13 +42,19 @@ export function parseRecordNo(
 ): ParsedRecordNo | null {
   const value = (full ?? "").trim();
   if (!value) return null;
-  const match = DAILY.exec(value) ?? MONTHLY.exec(value);
-  if (match) {
-    const [, prefix, project, , sequence] = match;
-    return { short: `${prefix}-${sequence}`, projectCode: projectCode || project };
+  const prefix = /^([A-Za-z]+)-/.exec(value)?.[1];
+  if (prefix && projectCode) {
+    const stem = `${prefix}-${projectCode}-`;
+    const tail = value.startsWith(stem) ? TAIL.exec(value.slice(stem.length)) : null;
+    if (tail) return { short: `${prefix}-${tail[1]}`, projectCode };
   }
   if (projectCode && value.startsWith(`${projectCode}-`) && value.length > projectCode.length + 1) {
     return { short: value.slice(projectCode.length + 1), projectCode };
+  }
+  const match = DAILY.exec(value) ?? MONTHLY.exec(value) ?? RUNNING.exec(value);
+  if (match) {
+    const sequence = match[match.length - 1];
+    return { short: `${match[1]}-${sequence}`, projectCode: projectCode || match[2] };
   }
   return null;
 }

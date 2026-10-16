@@ -1,9 +1,17 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCheck, Coins, FileUp, Inbox, Plus, Trash2 } from "lucide-react";
+import { CheckCheck, Coins, FileUp, Inbox, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+
+import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
+import { CategoryOptionItems } from "@/components/shared/category-options";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
+import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
+import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import { QuickAddSupplierButton } from "@/components/suppliers/quick-add-supplier";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import { AmountDialog, VoucherDialog, Vouchers } from "@/components/contractor-ops/package-claim-facet";
@@ -49,7 +57,10 @@ import {
   getClaimCandidates,
   exportClaims,
   getClaims,
+  getProjectCategories,
+  getSubcontractorOptions,
   removeClaimItem,
+  updateClaim,
   selectClaimItems,
   setClaimPayment,
 } from "@/services/contractor-ops.service";
@@ -85,14 +96,42 @@ import {
  * behind its own dialog with the remarks it requires, rather than beside the
  * ticks where a mis-click would claim a month.
  *
- * ## Not filed under a category
+ * ## Its category and its subcontractor (I10)
  *
- * A period claim used to be filed under a 「Claim 分类」 (D-275). The customer
- * found that set duplicated 杂费报销分类 - 「这里只保留一套」 - so it is gone
- * (D-286), and with it this screen's filing button and category filter.
+ * Progress Claim categories are back, made by each project (ID6: Sundry /
+ * Manpower / Subcontractor / Other Claim to start with): a claim names one,
+ * the list filters and searches by it, and a 分包商 is chosen from the
+ * companies marked so on the supplier list (ID7). 「一般」 Claim (ID50) is for
+ * the categories with no records to tick - a description, an optional amount
+ * and the papers uploaded on it, with a conversation like every record.
  */
 
-const KINDS: ClaimKind[] = ["MATERIAL_ON_SITE", "PROGRESS"];
+const KINDS: ClaimKind[] = ["MATERIAL_ON_SITE", "PROGRESS", "GENERAL"];
+const NO_CATEGORY = "__none__";
+const ALL = "all";
+
+/** One project's claim categories, for a form (on only) or a filter (all). */
+function useClaimCategories(project: string, { offered }: { offered: boolean }) {
+  return useQuery({
+    queryKey: ["project-categories", "claims", project, offered],
+    queryFn: () =>
+      getProjectCategories({
+        project,
+        kind: "CLAIM",
+        page_size: 200,
+        ...(offered ? { is_active: true } : {}),
+      }),
+    enabled: Boolean(project),
+  });
+}
+
+/** The companies marked 分包商 (ID7), searched as typed. */
+function useSubcontractors(search: string) {
+  return useQuery({
+    queryKey: ["subcontractor-options", search],
+    queryFn: () => getSubcontractorOptions(search || undefined),
+  });
+}
 const PAYMENT_STATES: ClaimPaymentState[] = [
   "NOT_RECEIVED",
   "PARTIAL",
@@ -115,7 +154,14 @@ export function ClaimEngineWorkspace() {
   const [kind, setKind] = useState<ClaimKind | "">("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [openId, setOpenId] = useState<string | null>(null);
+  // A record link (a message, the report centre) opens its claim (I10).
+  const searchParams = useSearchParams();
+  const [openId, setOpenId] = useState<string | null>(searchParams.get("claim"));
+  // By category and subcontractor (I10: 「可按 Claim 分类查询记录」).
+  const [category, setCategory] = useState(ALL);
+  const [subcontractor, setSubcontractor] = useState(ALL);
+  const filterCategories = useClaimCategories(project, { offered: false });
+  const subcontractors = useSubcontractors("");
   // Page 1 of the next project, and the one open on the last project closes
   // (B13 audit #8).
   useOnProjectChange(project, () => {
@@ -125,12 +171,18 @@ export function ClaimEngineWorkspace() {
   const [creating, setCreating] = useState(false);
 
   const query = useQuery({
-    queryKey: ["claims", project, kind, search, page],
+    queryKey: ["claims", project, kind, search, page, category, subcontractor],
     queryFn: () =>
       getClaims({
         project: project || undefined,
         kind: kind || undefined,
         search: search || undefined,
+        ...(category === NO_CATEGORY
+          ? { uncategorised: "true" }
+          : category !== ALL
+            ? { category }
+            : {}),
+        ...(subcontractor !== ALL ? { subcontractor } : {}),
         page,
         page_size: PAGE_SIZE,
       }),
@@ -182,6 +234,45 @@ export function ClaimEngineWorkspace() {
             ))}
           </SelectContent>
         </Select>
+        {/* Claim 分类 (I10): a project's categories, 未分类 for older claims. */}
+        <Select
+          value={category}
+          onValueChange={(next) => {
+            setCategory(next);
+            setPage(1);
+          }}
+          disabled={!project}
+        >
+          <SelectTrigger className="w-full sm:w-52" aria-label={t("field.category")}>
+            <SelectValue placeholder={t("filter.allCategories")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>{t("filter.allCategories")}</SelectItem>
+            <SelectItem value={NO_CATEGORY}>{t("filter.noCategory")}</SelectItem>
+            <CategoryOptionItems rows={filterCategories.data?.results ?? []} groupsSelectable />
+          </SelectContent>
+        </Select>
+        <Select
+          value={subcontractor}
+          onValueChange={(next) => {
+            setSubcontractor(next);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-52" aria-label={t("field.subcontractor")}>
+            <SelectValue placeholder={t("filter.allSubcontractors")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>{t("filter.allSubcontractors")}</SelectItem>
+            {(subcontractors.data?.results ?? []).map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <QueryFailedNote query={filterCategories} what={t("what.categories")} />
+        <QueryFailedNote query={subcontractors} what={t("what.subcontractors")} />
         <Input
           value={search}
           onChange={(event) => {
@@ -204,11 +295,19 @@ export function ClaimEngineWorkspace() {
                 project: project || undefined,
                 kind: kind || undefined,
                 search: search || undefined,
+                ...(category === NO_CATEGORY
+                  ? { uncategorised: "true" }
+                  : category !== ALL
+                    ? { category }
+                    : {}),
+                ...(subcontractor !== ALL ? { subcontractor } : {}),
               },
               columns: [
                 { key: "claim_no", label: t("export.claimNo") },
                 { key: "period", label: t("field.period") },
                 { key: "project_name", label: t("field.project") },
+                { key: "category_name", label: t("field.category") },
+                { key: "subcontractor_name", label: t("field.subcontractor") },
                 {
                   key: "state",
                   label: t("column.state"),
@@ -239,16 +338,18 @@ export function ClaimEngineWorkspace() {
         <EmptyState icon={Inbox} title={t("empty")} />
       ) : (
         <div className="surface-panel overflow-hidden rounded-xl">
-          <Table className="min-w-[56rem]">
+          {/* Fits the page, the actions pinned at the right (I39). */}
+          <Table fit>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("column.claimNo")}</TableHead>
                 <TableHead>{t("column.kind")}</TableHead>
+                <TableHead>{t("field.category")}</TableHead>
                 <TableHead>{t("column.period")}</TableHead>
                 <TableHead className="text-right tabular">{t("column.items")}</TableHead>
                 <TableHead>{t("column.state")}</TableHead>
                 <TableHead>{t("column.payment")}</TableHead>
-                <TableHead className="text-right">{t("column.action")}</TableHead>
+                <TableHead pin="end" className="text-right">{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -262,6 +363,16 @@ export function ClaimEngineWorkspace() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {t(`kind.${row.kind}`)}
+                  </TableCell>
+                  <TableCell>
+                    {row.category_name ?? (
+                      <span className="text-muted-foreground">{t("filter.noCategory")}</span>
+                    )}
+                    {row.subcontractor_name && (
+                      <span className="block text-xs text-muted-foreground">
+                        {row.subcontractor_name}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="whitespace-nowrap tabular">
                     {formatter.date(row.period)}
@@ -292,7 +403,7 @@ export function ClaimEngineWorkspace() {
                       }
                     />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell pin="end" className="text-right">
                     <Button
                       size="sm"
                       variant="outline"
@@ -363,14 +474,30 @@ function NewClaimDialog({
   const [project, setProject] = useState("");
   const [kind, setKind] = useState<ClaimKind>("MATERIAL_ON_SITE");
   const [period, setPeriod] = useState(thisMonth());
+  const [fields, setFields] = useState<ClaimFields>(EMPTY_FIELDS);
+  const general = kind === "GENERAL";
 
   const create = useMutation({
-    mutationFn: () => createClaim({ project, kind, period }),
+    mutationFn: () =>
+      createClaim({
+        project,
+        kind,
+        period,
+        ...(fields.category ? { category: fields.category } : {}),
+        ...(fields.otherName.trim() ? { other_name: fields.otherName.trim() } : {}),
+        ...(fields.subcontractor ? { subcontractor: fields.subcontractor } : {}),
+        ...(general
+          ? { description: fields.description.trim(), ...(fields.amount.trim() ? { amount: fields.amount.trim() } : {}) }
+          : {}),
+      }),
     onSuccess: (row) => {
       queryClient.invalidateQueries({ queryKey: ["claims"] });
       onCreated(row);
     },
   });
+  // query-failure: passed to ClaimFieldsForm, which shows QueryFailedNote under the picker.
+  const categories = useClaimCategories(project, { offered: true });
+  const chosen = (categories.data?.results ?? []).find((row) => row.id === fields.category);
 
   return (
     <Shell title={t("newTitle")} onClose={onClose}>
@@ -412,6 +539,13 @@ function NewClaimDialog({
             onChange={(event) => setPeriod(event.target.value)}
           />
         </FieldWrapper>
+        <ClaimFieldsForm
+          project={project}
+          general={general}
+          value={fields}
+          onChange={setFields}
+          categories={categories}
+        />
       </div>
       <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
@@ -422,7 +556,9 @@ function NewClaimDialog({
             [project, t("field.project")],
             [period, t("field.period")],
           ]}
-          disabled={create.isPending}
+          // The claim's own fields sit in ClaimFieldsForm, each marked there.
+          disabled={create.isPending || !claimFieldsComplete(fields, general, chosen?.is_other)}
+          disabledReason={t("completeClaimFields")}
           onClick={() => create.mutate()}
         >
           {t("openPeriod")}
@@ -441,6 +577,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const [confirming, setConfirming] = useState(false);
   const [paying, setPaying] = useState(false);
   const [money, setMoney] = useState<"amount" | "voucher" | null>(null);
+  const [editing, setEditing] = useState(false);
 
   const claim = useQuery({
     queryKey: ["claims", id],
@@ -480,6 +617,12 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
             <div className="grid gap-3 sm:grid-cols-2">
               <Summary label={t("field.project")} value={data.project_name} />
               <Summary label={t("field.kind")} value={t(`kind.${data.kind}`)} />
+              {/* I10: its category and subcontractor. */}
+              <Summary label={t("field.category")} value={data.category_name ?? t("filter.noCategory")} />
+              <Summary label={t("field.subcontractor")} value={data.subcontractor_name ?? t("noSubcontractor")} />
+              {data.kind === "GENERAL" && (
+                <Summary label={t("field.description")} value={data.description || t("noRemarks")} />
+              )}
               <Summary
                 label={t("field.period")}
                 value={formatter.date(data.period)}
@@ -539,10 +682,19 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               </section>
             )}
 
-            {data.state === "DRAFT" && can("claim.manage") && (
+            {data.state === "DRAFT" && can("claim.manage") && data.kind !== "GENERAL" && (
               <CandidatePicker claim={data} onChanged={refresh} />
             )}
 
+            {/* 一般 Claim (ID50): its papers are uploaded on it; every claim
+                keeps its files and its conversation (I10). */}
+            <RecordAttachmentsPanel kind="CLAIM" recordId={data.id} />
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold">{t("conversation")}</h3>
+              <RecordConversationPanel kind="CLAIM" recordId={data.id} />
+            </section>
+
+            {data.kind !== "GENERAL" && (
             <section className="space-y-2">
               <h3 className="text-sm font-semibold">
                 {t("onThisPeriod", { count: data.items.length })}
@@ -625,6 +777,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 </div>
               )}
             </section>
+            )}
           </div>
         )}
       </div>
@@ -643,7 +796,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 {t("discard")}
               </Button>
               <Button
-                disabled={data.items.length === 0}
+                disabled={data.kind !== "GENERAL" && data.items.length === 0}
                 disabledReason={t("nothingSelected")}
                 onClick={() => setConfirming(true)}
               >
@@ -670,9 +823,15 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
             />
           )}
           {can("claim.manage") && data.payment_state !== "RECEIVED" && (
-            <Button variant="outline" onClick={() => setMoney("amount")}>
-              {t("setAmount")}
-            </Button>
+            <>
+              <Button variant="outline" onClick={() => setEditing(true)}>
+                <Pencil />
+                {t("editDetails")}
+              </Button>
+              <Button variant="outline" onClick={() => setMoney("amount")}>
+                {t("setAmount")}
+              </Button>
+            </>
           )}
           {data.state === "CONFIRMED" && can("claim.confirm_payment") && (
             <>
@@ -698,6 +857,16 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
           onClose={() => setConfirming(false)}
           onDone={() => {
             setConfirming(false);
+            refresh();
+          }}
+        />
+      )}
+      {editing && data && (
+        <EditClaimDialog
+          claim={data}
+          onClose={() => setEditing(false)}
+          onDone={() => {
+            setEditing(false);
             refresh();
           }}
         />
@@ -733,6 +902,232 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
           }}
         />
       )}
+    </Shell>
+  );
+}
+
+interface ClaimFields {
+  category: string;
+  otherName: string;
+  subcontractor: string;
+  description: string;
+  amount: string;
+}
+
+/** What a claim needs before it is saved (I10): a general one its category and description; 「其他」 its name. */
+function claimFieldsComplete(fields: ClaimFields, general: boolean, other?: boolean) {
+  if (general && (!fields.category || !fields.description.trim())) return false;
+  if (other && !fields.otherName.trim()) return false;
+  return true;
+}
+
+const EMPTY_FIELDS: ClaimFields = {
+  category: "",
+  otherName: "",
+  subcontractor: "",
+  description: "",
+  amount: "",
+};
+
+/**
+ * A claim's category, 「其他」's name, subcontractor and - for a 一般 Claim -
+ * its description and amount (I10). The category picker has 「＋ 新增分类」
+ * beside it for whoever keeps the categories, opened in place (I11).
+ */
+function ClaimFieldsForm({
+  project,
+  general,
+  value,
+  onChange,
+  categories,
+  withAmount = true,
+}: {
+  project: string;
+  general: boolean;
+  value: ClaimFields;
+  onChange: (next: ClaimFields) => void;
+  categories: ReturnType<typeof useClaimCategories>;
+  withAmount?: boolean;
+}) {
+  const t = useTranslations("claims");
+  const { can } = useAuth();
+  const queryClient = useQueryClient();
+  const [adding, setAdding] = useState(false);
+  const [term, setTerm] = useState("");
+  const subcontractors = useSubcontractors(term.trim());
+  const rows = categories.data?.results ?? [];
+  const chosen = rows.find((row) => row.id === value.category);
+  const set = (patch: Partial<ClaimFields>) => onChange({ ...value, ...patch });
+  return (
+    <>
+      <FieldWrapper
+        label={t("field.category")}
+        required={general}
+        hint={general ? t("categoryHintGeneral") : t("categoryHint")}
+      >
+        <div className="flex gap-2">
+          <Select
+            value={value.category || NO_CATEGORY}
+            onValueChange={(next) =>
+              set({ category: next === NO_CATEGORY ? "" : next, otherName: "" })
+            }
+            disabled={!project}
+          >
+            <SelectTrigger className="min-w-0 flex-1" aria-label={t("field.category")}>
+              <SelectValue placeholder={t("filter.noCategory")} />
+            </SelectTrigger>
+            <SelectContent>
+              {!general && <SelectItem value={NO_CATEGORY}>{t("filter.noCategory")}</SelectItem>}
+              <CategoryOptionItems rows={rows} />
+            </SelectContent>
+          </Select>
+          {can("category.manage") && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!project}
+              disabledReason={t("field.selectProject")}
+              onClick={() => setAdding(true)}
+            >
+              <Plus />
+              {t("addCategory")}
+            </Button>
+          )}
+        </div>
+        <QueryFailedNote query={categories} what={t("what.categories")} />
+      </FieldWrapper>
+      {chosen?.is_other && (
+        <FieldWrapper label={t("field.otherName")} required hint={t("otherNameHint")}>
+          <Input value={value.otherName} onChange={(event) => set({ otherName: event.target.value })} />
+        </FieldWrapper>
+      )}
+      <FieldWrapper label={t("field.subcontractor")} hint={t("subcontractorHint")}>
+        <Input
+          value={term}
+          onChange={(event) => setTerm(event.target.value)}
+          placeholder={t("subcontractorSearch")}
+        />
+        <Select
+          value={value.subcontractor || NO_CATEGORY}
+          onValueChange={(next) => set({ subcontractor: next === NO_CATEGORY ? "" : next })}
+        >
+          <SelectTrigger className="mt-2 w-full" aria-label={t("field.subcontractor")}>
+            <SelectValue placeholder={t("noSubcontractor")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NO_CATEGORY}>{t("noSubcontractor")}</SelectItem>
+            {(subcontractors.data?.results ?? []).map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <QueryFailedNote query={subcontractors} what={t("what.subcontractors")} />
+        {/* 「名单里没有可以顺手新增」 (ID7): marked subcontractor at once. */}
+        <QuickAddSupplierButton
+          defaults={{ company_types: ["SUBCONTRACTOR"] }}
+          onCreated={(supplier) => {
+            void queryClient.invalidateQueries({ queryKey: ["subcontractor-options"] });
+            set({ subcontractor: supplier.id });
+          }}
+        />
+      </FieldWrapper>
+      {general && (
+        <>
+          <FieldWrapper label={t("field.description")} required hint={t("descriptionHint")}>
+            <Textarea
+              rows={3}
+              value={value.description}
+              onChange={(event) => set({ description: event.target.value })}
+            />
+          </FieldWrapper>
+          {withAmount && (
+            <FieldWrapper label={t("field.amount")} hint={t("amountOptional")}>
+              <Input
+                inputMode="decimal"
+                value={value.amount}
+                onChange={(event) => set({ amount: event.target.value })}
+              />
+            </FieldWrapper>
+          )}
+        </>
+      )}
+      {adding && (
+        <CategoryDialog
+          project={project}
+          defaultKind="CLAIM"
+          row={null}
+          nextSortOrder={rows.length}
+          onClose={() => setAdding(false)}
+          onSaved={() => {
+            setAdding(false);
+            void queryClient.invalidateQueries({ queryKey: ["project-categories"] });
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+/** Change a claim's category, subcontractor and description (I10). */
+function EditClaimDialog({
+  claim,
+  onClose,
+  onDone,
+}: {
+  claim: ClaimDetail;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const t = useTranslations("claims");
+  const common = useTranslations("common");
+  const general = claim.kind === "GENERAL";
+  const [fields, setFields] = useState<ClaimFields>({
+    category: claim.category ?? "",
+    otherName: claim.other_name ?? "",
+    subcontractor: claim.subcontractor ?? "",
+    description: claim.description ?? "",
+    amount: "",
+  });
+  // query-failure: passed to ClaimFieldsForm, which shows QueryFailedNote under the picker.
+  const categories = useClaimCategories(claim.project, { offered: true });
+  const rows = categories.data?.results ?? [];
+  const chosen = rows.find((row) => row.id === fields.category);
+  const save = useMutation({
+    mutationFn: () =>
+      updateClaim(claim.id, {
+        category: fields.category || null,
+        other_name: fields.otherName.trim(),
+        subcontractor: fields.subcontractor || null,
+        ...(general ? { description: fields.description.trim() } : {}),
+      }),
+    onSuccess: onDone,
+  });
+  return (
+    <Shell title={t("editDetails")} onClose={onClose}>
+      <div className="space-y-4 p-4">
+        <ClaimFieldsForm
+          project={claim.project}
+          general={general}
+          value={fields}
+          onChange={setFields}
+          categories={categories}
+          withAmount={false}
+        />
+      </div>
+      <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
+        <Button variant="outline" onClick={onClose}>
+          {common("cancel")}
+        </Button>
+        <Button
+          disabled={save.isPending || !claimFieldsComplete(fields, general, chosen?.is_other)}
+          disabledReason={t("completeClaimFields")}
+          onClick={() => save.mutate()}
+        >
+          {common("save")}
+        </Button>
+      </footer>
     </Shell>
   );
 }
@@ -814,8 +1209,8 @@ function CandidatePicker({
         </p>
       ) : (
         <>
-          <div className="max-h-72 overflow-y-auto rounded-lg border">
-            <Table className="min-w-[32rem]">
+          <div className="rounded-lg border">
+            <Table className="min-w-[32rem]" containerClassName="max-h-72">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10" />
@@ -910,7 +1305,9 @@ function ConfirmClaimDialog({
     <Shell title={t("confirmTitle")} onClose={onClose}>
       <div className="space-y-4 p-4">
         <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-sm text-muted-foreground">
-          {t("confirmBody", { count: claim.items.length })}
+          {claim.kind === "GENERAL"
+            ? t("confirmBodyGeneral")
+            : t("confirmBody", { count: claim.items.length })}
         </p>
         <FieldWrapper label={t("field.remarks")} required hint={t("remarksHelp")}>
           <Textarea
@@ -922,6 +1319,7 @@ function ConfirmClaimDialog({
         {/* 客户红笔：「进入 PDF 后可以选择…（不需要照片）只有必要和 DO」. The
             delivery orders are never offered as a choice - they are what the
             claim is made of. */}
+        {claim.kind !== "GENERAL" && (
         <label className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
           <Checkbox
             checked={includePhotos}
@@ -934,6 +1332,7 @@ function ConfirmClaimDialog({
             </span>
           </span>
         </label>
+        )}
       </div>
       <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>

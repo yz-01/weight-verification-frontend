@@ -545,6 +545,12 @@
 }
 
 @layer base {
+  /* IB3 / ID22: a table box is at most the screen less the top bar and a
+   * filter row, so it scrolls itself and its sticky header stays in sight.
+   * A page can set --table-max-h on an ancestor; a utility class overrides. */
+  [data-slot="table-container"] {
+    max-height: var(--table-max-h, max(20rem, calc(100dvh - 9rem)));
+  }
   * {
     @apply border-border outline-ring/50;
   }
@@ -822,4 +828,62 @@
   border-radius: var(--radius-xl);
   border-color: var(--panel-border);
   box-shadow: var(--panel-shadow);
+}
+
+/* I39 / ID80: a back-office list fits a 1366 px screen without scrolling
+ * right. A table marked `data-fit` (the shared Table's `fit`) lays its
+ * columns out by their content inside the page width instead of growing to
+ * every cell's one-line width: long text wraps (two lines at most, then
+ * 「…」 with the whole text on hover - `[data-slot=cell-fit]`), the cells
+ * keep 8 px a side, and nothing in them is smaller than 13 px. Headers stay
+ * on one line, so each column is at least as wide as its name. Unlayered on
+ * purpose: it outranks the padding and nowrap utilities a page put on its
+ * cells before this rule existed. The phone keeps its one-line rows and
+ * sideways scroll (I39: phone views unchanged). */
+@media (min-width: 40rem) {
+  [data-slot="table"][data-fit] {
+    min-width: 0;
+    width: 100%;
+    table-layout: auto;
+    font-size: 13px;
+  }
+  [data-slot="table"][data-fit] > thead > tr > th {
+    padding-inline: 0.5rem;
+    font-size: 13px;
+  }
+  [data-slot="table"][data-fit] > tbody > tr > td {
+    padding-inline: 0.5rem;
+    font-size: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+  /* A one-line `truncate` inside a fitted cell wraps instead, so it no
+   * longer holds the column at its full one-line width; the cell's two-line
+   * clamp cuts it. */
+  [data-slot="table"][data-fit] > tbody > tr > td .truncate {
+    white-space: normal;
+  }
+  [data-slot="table"][data-fit] [data-slot="cell-fit"] {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+}
+
+/* I39: the row's 「查看 / 更改」 stays at the right edge however far the
+ * row scrolls sideways - on the desktop and the phone. */
+[data-slot="table"] :is(th, td)[data-pin="end"] {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background-color: var(--card);
+  box-shadow: inset 1px 0 0 var(--panel-border);
+}
+[data-slot="table"] th[data-pin="end"] {
+  z-index: 11;
+}
+[data-slot="table"] tr:hover > td[data-pin="end"] {
+  background-color: color-mix(in oklab, var(--primary) 5%, var(--card));
 }

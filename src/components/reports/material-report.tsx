@@ -50,7 +50,8 @@ import { ManufacturerCell, anyNamedManufacturer } from "@/components/shared/manu
 import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
-import { materialExportSubtitle } from "@/lib/report-menu";
+import { materialExportSubtitle, materialOptions } from "@/lib/report-menu";
+import { UNFILLED_SUPPLIER, supplierShown } from "@/lib/receipt-supplier";
 import { cn } from "@/lib/utils";
 import {
   exportReceipts,
@@ -72,7 +73,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // choices of their own, 验收 and a keyword - the list's `search`, which
   // the figures, the deliveries and the export all read.
   const list = useListQuery([
-    "project", "date_from", "date_to", "category", "supplier", "manufacturer", "acceptance",
+    "project", "date_from", "date_to", "category", "spec_category", "supplier", "manufacturer", "acceptance",
   ]);
   const topBar = useCurrentProject();
   const projectBoxShown = can("project.view") && !topBar.active;
@@ -81,6 +82,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     date_from: list.filters.date_from,
     date_to: list.filters.date_to,
     category: list.filters.category,
+    // One specification of the material (I11, I19): the figures, the records
+    // and the export all follow it.
+    spec_category: list.filters.spec_category,
     supplier: list.filters.supplier,
     // Whose make (2026-10 D1): the figures, the records and the export.
     manufacturer: list.filters.manufacturer,
@@ -88,6 +92,8 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     search: list.search || undefined,
   };
   const unitValues = useUnitExportValues();
+  // A delivery with no supplier yet prints 「未填供应商」 (I23).
+  const unfilledSupplierValues = { "": t("receipts.supplierUnfilled") };
 
   const summary = useQuery({
     queryKey: ["receipts", "summary", mode, filters],
@@ -100,10 +106,26 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       ? t("common.emptyValue")
       : columns.data?.results.find((row) => row.id === filters.category)?.name
     : t("reportSelector.allMaterials");
-  const supplierName = filters.supplier
-    ? summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name
-    : t("reportSelector.allSuppliers");
-  const level = [materialName ?? "…", supplierName ?? "…"].join(" › ");
+  // 「未填供应商」 (2026-10-15 I23) is a level of its own: `supplier=none`.
+  const supplierName = !filters.supplier
+    ? t("reportSelector.allSuppliers")
+    : filters.supplier === UNFILLED_SUPPLIER
+      ? t("receipts.supplierUnfilled")
+      : summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name;
+  const specName = filters.spec_category
+    ? columns.isError
+      ? t("common.emptyValue")
+      : columns.isSuccess
+        // A specification that is switched off is no longer in the list.
+        ? (columns.data.results.find((row) => row.id === filters.spec_category)?.name ??
+          t("reportSelector.specOff"))
+        : undefined
+    : undefined;
+  const level = [
+    materialName ?? "…",
+    ...(filters.spec_category ? [specName ?? "…"] : []),
+    supplierName ?? "…",
+  ].join(" › ");
   const chosen = [t(`materialReports.${mode}.title`), level].join(" › ");
 
   function runExport(format: ExportFormat) {
@@ -139,7 +161,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "receipt_no", label: t("receipts.field.receiptNo") },
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
-              { key: "supplier_name", label: t("receipts.field.supplier") },
+              { key: "supplier_name", label: t("receipts.field.supplier"), values: unfilledSupplierValues },
               // DO and plate head every delivery (2026-10 C12).
               { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
               { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
@@ -158,7 +180,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "receipt_no", label: t("receipts.field.receiptNo") },
               { key: "captured_at", label: t("receipts.field.capturedAt") },
               { key: "project_code", label: t("receipts.field.project") },
-              { key: "supplier_name", label: t("receipts.field.supplier") },
+              { key: "supplier_name", label: t("receipts.field.supplier"), values: unfilledSupplierValues },
               // DO and plate head every delivery (2026-10 C12).
               { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
               { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
@@ -212,16 +234,15 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             value={{ supplier: list.filters.supplier }}
             onChange={(next) => list.setFilter("supplier", next.supplier)}
             showDates={false}
+            showUnfilled
           />
         </FilterField>
         <ReportChoiceField
           label={t("reportSelector.material")}
           value={list.filters.category}
-          options={(columns.data?.results ?? []).map((row) => ({
-            value: row.id,
-            label: row.name,
-          }))}
-          onChange={(category) => list.setFilter("category", category)}
+          options={materialOptions(columns.data?.results ?? [])}
+          // A specification belongs to one material: choosing another drops it.
+          onChange={(category) => list.setFilters({ category, spec_category: undefined })}
           loading={columns.isLoading}
         />
         <FilterField label={t("receipts.field.manufacturer")} className="sm:w-52">
@@ -371,7 +392,9 @@ function ReportRecords({
             <TableRow key={row.id}>
               <TableCell className="tabular text-muted-foreground">{df.dateTime(row.captured_at)}</TableCell>
               <TableCell className="tabular font-medium">{row.receipt_no}</TableCell>
-              <TableCell>{row.supplier_name}</TableCell>
+              <TableCell className={row.supplier ? undefined : "text-muted-foreground"}>
+                {supplierShown(row.supplier_name, t("receipts.supplierUnfilled"))}
+              </TableCell>
               {showManufacturer && (
                 <TableCell>
                   <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
@@ -677,8 +700,11 @@ function CostReport({
             </TableHeader>
             <TableBody>
               {data.by_supplier.map((row) => (
-                <TableRow key={row.supplier}>
-                  <TableCell className="font-medium">{row.supplier_name}</TableCell>
+                <TableRow key={row.supplier ?? UNFILLED_SUPPLIER}>
+                  {/* The deliveries 「未填供应商」 (I23): their own line, nobody's. */}
+                  <TableCell className={cn("font-medium", !row.supplier && "text-muted-foreground")}>
+                    {supplierShown(row.supplier_name, t("receipts.supplierUnfilled"))}
+                  </TableCell>
                   <TableCell className="tabular text-right">{row.receipts}</TableCell>
                   <TableCell className="tabular text-right">{money(row.total_cost)}</TableCell>
                   <TableCell className="tabular text-right">

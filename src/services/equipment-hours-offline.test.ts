@@ -48,6 +48,7 @@ const draft = {
   equipmentLabel: "EQ-001 · Excavator · WXY 1234",
   kind: "START" as const,
   photo: shot(),
+  signature: new File(["ink"], "signature.png", { type: "image/png" }),
   latitude: "3.1149475",
   longitude: "101.7294695",
   locationAccuracyM: "12.00",
@@ -78,6 +79,8 @@ describe("an equipment-hours photo taken offline", () => {
     expect(job.payload.equipmentLabel).toBe("EQ-001 · Excavator · WXY 1234");
     expect(job.payload.kind).toBe("START");
     expect(job.payload.photo.blob).toBeInstanceOf(Blob);
+    // 司机签名 waits with the photo (2026-10 I4, ID20).
+    expect(job.payload.signature?.blob).toBeInstanceOf(Blob);
 
     // The phone finds signal at lunchtime: the start is still 07:58.
     vi.setSystemTime(new Date("2026-10-07T12:30:00+08:00"));
@@ -95,6 +98,8 @@ describe("an equipment-hours photo taken offline", () => {
     expect(data.get("latitude")).toBe("3.1149475");
     expect(data.get("location_accuracy_m")).toBe("12.00");
     expect(data.get("photo")).toBeInstanceOf(File);
+    expect(data.get("signature")).toBeInstanceOf(File);
+    expect(data.get("signature_required")).toBe("true");
     expect(store.size).toBe(0);
   });
 
@@ -166,5 +171,34 @@ describe("an equipment-hours photo taken offline", () => {
     if (result.status !== "uploaded") throw new Error("not uploaded");
     expect(result.upload.session?.missing_end).toBe(true);
     expect(store.size).toBe(0);
+  });
+});
+
+describe("the driver's signature is enforced by the server (P-phonefix)", () => {
+  it("the new screen's job says the signature is required, also when it went missing", async () => {
+    vi.stubGlobal("navigator", { onLine: false });
+    await queue.submitEquipmentHoursPhotoOfflineAware("ahmad", draft);
+    const [job] = [...store.values()];
+    if (job.kind !== "EQUIPMENT_HOURS_PHOTO") throw new Error("wrong kind");
+    expect(job.payload.signatureRequired).toBe(true);
+    store.set(job.id, { ...job, payload: { ...job.payload, signature: undefined } });
+
+    vi.stubGlobal("navigator", { onLine: true });
+    await queue.flushOfflineJobs("ahmad");
+    const [, data] = post.mock.calls.at(-1) as [string, FormData];
+    expect(data.get("signature")).toBeNull();
+    expect(data.get("signature_required")).toBe("true");
+  });
+
+  it("a job an older screen queued (no flag, no signature) is sent without the flag", async () => {
+    const { uploadEquipmentHoursPhoto } = await import("@/services/equipment-hours.service");
+    await uploadEquipmentHoursPhoto({
+      equipment: "eq-1",
+      photo: shot(),
+      capturedAt: "2026-10-06T23:58:00.000Z",
+      clientEventId: "old-1",
+    });
+    const [, data] = post.mock.calls.at(-1) as [string, FormData];
+    expect(data.get("signature_required")).toBeNull();
   });
 });

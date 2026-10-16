@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, FolderOpen, Pencil } from "lucide-react";
+import { Camera, FolderOpen, Pencil, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -39,6 +39,7 @@ import {
   reviewReceipt,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
+import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
 import { useRecordArchived } from "@/components/shared/record-closure";
 
 /**
@@ -125,6 +126,7 @@ function ReviewDelivery({
   // anybody accepted it said 待验收 and offered nothing to press. Acceptance
   // is a decision recorded afterwards, not evidence, so that one stays open.
   const locked = archived && status !== "PENDING";
+  const missingSupplier = needsSupplier(receipt);
 
   // Said on screen, never swallowed (2026-10 C6): a corrected receipt
   // answered 409 here and the button simply did nothing.
@@ -202,6 +204,24 @@ function ReviewDelivery({
             The same shape guards the driver ending a trip (D-229): arm, then
             act. Never a confirmation dialog — the customer asked for the
             switch in both places and for no second prompt after it. */}
+        {/* 「验收前一定要补供应商」 (2026-10-15 I23, ID57): the phone left the
+            supplier out, so 「补供应商」 sits beside 验收 and opens the
+            correction on the supplier. 验收 stays pressable - the server
+            says why it cannot be done yet. */}
+        {missingSupplier && (
+          <p className="rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning">
+            {t("receipts.fillSupplier.hint")}
+          </p>
+        )}
+        <div className={missingSupplier ? "grid grid-cols-2 gap-2" : undefined}>
+        {missingSupplier && (
+          <Button asChild size="lg" variant="outline" className="w-full">
+            <Link href={`/receipts/${receipt.id}/edit?fill=supplier`}>
+              <Truck className="h-4 w-4" />
+              {t("receipts.fillSupplier.action")}
+            </Link>
+          </Button>
+        )}
         <Button
           size="lg"
           className="w-full"
@@ -215,6 +235,7 @@ function ReviewDelivery({
         >
           {t("receipts.acceptance.accept")}
         </Button>
+        </div>
 
         <ArmRow>
         <label className="flex min-w-0 flex-1 items-center gap-3">
@@ -419,6 +440,7 @@ export function ViewReceipt({
     <RecordDetailFrame
       {...frame}
       title={data.receipt_no}
+      legacyNo={data.legacy_no}
       status={
         <>
           {/* Which way it went (B10): a return used to open on a page that
@@ -536,8 +558,15 @@ export function ViewReceipt({
             {/* Superseded receipts are read-only: a correction has replaced
                 this copy, and deciding on the replaced one would put a
                 decision on a record nobody is working from. */}
-            {can("receipt.update") && !data.superseded_by && (
+            {/* 「提交总部审批」 (I12, ID28): head office accepts it - the server
+                says whether this reader may (`can_review`). */}
+            {(data.can_review ?? can("receipt.update")) && !data.superseded_by && (
               <ReviewDelivery receipt={data} archived={archived} onReviewed={() => void refetch()} />
+            )}
+            {data.review_by_head_office && !data.can_review && data.acceptance_status === "PENDING" && (
+              <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground">
+                {t("receipts.acceptance.headOffice")}
+              </p>
             )}
             <div className="flex flex-wrap gap-2 border-t border-panel-border pt-3">
               <AddToPackageButton
@@ -621,6 +650,12 @@ function CorrectionTrail({
     t.has(`receipts.correction.fields.${field}`)
       ? t(`receipts.correction.fields.${field}`)
       : field;
+  // 「供应商：未填 → AAA」 (I23): the supplier's empty side is 「未填」.
+  const shownValue = (field: string, value: string) => {
+    if (field === "movement_type" && value) return t(`receipts.movement.${value}` as never);
+    if (field === "supplier" && !value) return t("receipts.supplierUnfilledShort");
+    return value || "—";
+  };
   return (
     <section className="surface-panel rounded-xl p-4 text-sm">
       <h3 className="panel-title">
@@ -656,10 +691,10 @@ function CorrectionTrail({
                 <li key={field}>
                   {fieldLabel(field)}：
                   <span className="text-muted-foreground line-through">
-                    {field === "movement_type" && before ? t(`receipts.movement.${before}` as never) : before || "—"}
+                    {shownValue(field, before)}
                   </span>
                   {" → "}
-                  {field === "movement_type" && after ? t(`receipts.movement.${after}` as never) : after || "—"}
+                  {shownValue(field, after)}
                 </li>
               ))}
             </ul>
@@ -688,7 +723,14 @@ function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
   const unitName = useUnitName();
   const rows: Array<[string, React.ReactNode]> = [
     [t("receipts.field.deliveryNoteNo"), receipt.delivery_note_no],
-    [t("receipts.field.supplier"), receipt.supplier_name],
+    [
+      t("receipts.field.supplier"),
+      receipt.supplier ? (
+        receipt.supplier_name
+      ) : (
+        <span className="text-muted-foreground">{supplierShown(null, t("receipts.supplierUnfilled"))}</span>
+      ),
+    ],
     // 指定厂商（MR） (2026-10 D1), with 「非指定厂商」 when the category names
     // others - only when the delivery names one (2026-10-10).
     ...(receipt.manufacturer_name

@@ -71,6 +71,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 
 const { ReportMenu } = await import("@/components/reports/report-selector");
 const { navLeaves, visibleNavigation } = await import("@/lib/navigation");
+const { PROGRESS_MENU } = await import("@/lib/report-menu");
 
 const reports = navLeaves(
   visibleNavigation(
@@ -92,10 +93,17 @@ function client() {
   });
   const set = (key: unknown[], data: unknown) => queries.setQueryData(key, data);
   set(["project-categories", "material-report", ""], {
-    count: 1,
+    count: 2,
     next: null,
     previous: null,
-    results: [{ id: "rebar", name: "钢筋", project: "p1" }],
+    results: [
+      { id: "rebar", name: "钢筋", project: "p1" },
+      // A material's sub-category is its specification (I19).
+      { id: "y12", name: "Y12", project: "p1", parent: "rebar" },
+    ],
+  });
+  set(["receipts", "summary", "report-selector", "", "rebar", "y12"], {
+    by_supplier: [{ supplier: "steel-co", supplier_name: "钢材行" }],
   });
   set(["projects", "report-selector"], { count: 1, results: [{ id: "p1", code: "P1" }] });
   for (const category of ["", "rebar"]) {
@@ -134,6 +142,7 @@ function render(search = "date_from=2026-10-01&date_to=2026-10-07") {
       <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
         <ReportMenu
           reports={reports}
+          progressEntries={PROGRESS_MENU}
           open
           onOpenChange={onOpenChange}
           pathname="/reports/contractor/progress"
@@ -218,6 +227,28 @@ describe("【选择报表】 (D6, B9)", () => {
     );
   });
 
+  it("lists a material's specification under it, and opens the report at that spec (I11, I19)", () => {
+    const texts = (render(), rows.map((row) => row.text));
+    // 材料 → 规格: the spec is its own row under 钢筋, not a material of its own.
+    expect(texts).toContain("Y12");
+    expect(texts).toContain("全部规格");
+    expect(texts.indexOf("Y12")).toBeGreaterThan(texts.indexOf("钢筋"));
+
+    const spec = render();
+    click("Y12");
+    expect(spec.navigate).toHaveBeenCalledWith(
+      `/reports/material-quantity?${DATES}&category=rebar&spec_category=y12`,
+    );
+    expect(spec.onOpenChange).toHaveBeenCalledWith(false);
+
+    // The supplier stays reachable under the spec.
+    const supplier = render();
+    click("钢材行", 2);
+    expect(supplier.navigate).toHaveBeenCalledWith(
+      `/reports/material-quantity?${DATES}&category=rebar&supplier=steel-co&spec_category=y12`,
+    );
+  });
+
   it("opens every category level at exactly that level", () => {
     const cases: Array<[string, number, string]> = [
       ["打桩", 0, `/reports/contractor/progress?${DATES}&category=piling`],
@@ -243,6 +274,36 @@ describe("【选择报表】 (D6, B9)", () => {
     for (const [text, nth, href] of cases) {
       const { navigate, onOpenChange } = render();
       click(text, nth);
+      expect(navigate, text).toHaveBeenCalledWith(href);
+      expect(onOpenChange, text).toHaveBeenCalledWith(false);
+    }
+  });
+
+  it("lists 工程进度's own reports first, then a line, then 施工分类 (I8, ID24)", () => {
+    render();
+    const texts = rows.map((row) => row.text);
+    const start = texts.indexOf("日报告");
+    expect(start).toBeGreaterThan(texts.lastIndexOf("工程进度"));
+    expect(texts.slice(start, start + 5)).toEqual([
+      "日报告",
+      "往日报告",
+      "施工计划",
+      "项目进度摘要",
+      "打桩",
+    ]);
+    // 施工计划 is under 工程进度 only, no longer on the first level.
+    expect(texts.filter((text) => text === "施工计划")).toHaveLength(1);
+    expect(reports.map((report) => report.href)).not.toContain("/reports/contractor/schedule");
+
+    const cases: Array<[string, string]> = [
+      ["日报告", "/reports/contractor/daily_report?latest=1"],
+      ["往日报告", `/reports/contractor/daily_report?${DATES}&range=1`],
+      ["施工计划", `/reports/contractor/schedule?${DATES}`],
+      ["项目进度摘要", `/reports/contractor/progress_summary?${DATES}`],
+    ];
+    for (const [text, href] of cases) {
+      const { navigate, onOpenChange } = render();
+      click(text);
       expect(navigate, text).toHaveBeenCalledWith(href);
       expect(onOpenChange, text).toHaveBeenCalledWith(false);
     }

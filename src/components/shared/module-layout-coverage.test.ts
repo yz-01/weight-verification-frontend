@@ -29,7 +29,16 @@ describe("the detail shell does what the customer asked (T-368)", () => {
     expect(shell).toMatch(/MAX_ZOOM = 4/);
     expect(shell).toMatch(/t\("zoomIn"\)/);
     expect(shell).toMatch(/t\("zoomOut"\)/);
-    expect(shell).toMatch(/width: `\$\{zoom \* 100\}%`/);
+    // I21 (ID44): zooming is relative to the whole photo fitted in the frame.
+    expect(shell).toMatch(/width: `\$\{fitted\.width \* zoom\}px`/);
+  });
+
+  it("opens a photograph whole, with 「整张显示」 in place of 「回到 100%」 (I21)", () => {
+    expect(shell).toMatch(/max-h-full max-w-full object-contain/);
+    expect(shell).toMatch(/t\("fitWhole"\)/);
+    // The old button looked like 「旋转」 and was not one.
+    expect(shell).not.toMatch(/RotateCcw/);
+    expect(shell).not.toMatch(/zoomReset/);
   });
 
   it("shows signatures only when the record has some - 「没有签名就不需要放」", () => {

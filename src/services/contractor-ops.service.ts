@@ -10,6 +10,7 @@ import type {
   ArchiveQueueDetail,
   ArchiveQueuePage,
   ArchiveQueueRow,
+  CategoryGroup,
   ArchiveRecordKind,
   CategoryRecordKind,
   CategoryRecordPage,
@@ -22,10 +23,13 @@ import type {
   ExternalDisposalTask,
   EquipmentMovement,
   EquipmentSummary,
+  EquipmentSupplierCounts,
   EquipmentPayload,
   FieldTask,
   FieldTaskPayload,
   MaterialOutgoing,
+  MyTaskRow,
+  PersonOption,
   ProjectCategory,
   ProjectCategoryPayload,
   ProjectResponsibility,
@@ -94,6 +98,32 @@ export const createMaterialColumn = async (payload: {
     { silent: true },
   );
   return row;
+};
+
+/** 分类组 (I11): one project's groups, system ones first by order. */
+export const getCategoryGroups = (query: { project: string; module?: string; is_active?: boolean }) =>
+  api.get<{ results: CategoryGroup[]; count: number }>("/api/category-groups/get_groups/", query);
+export const createCategoryGroup = async (payload: {
+  project: string;
+  name: string;
+  module: CategoryGroup["module"];
+}) => {
+  const row = await api.post<CategoryGroup>("/api/category-groups/create_group/", payload);
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+export const updateCategoryGroup = async (
+  id: string,
+  payload: Partial<Pick<CategoryGroup, "name" | "sort_order" | "is_active">>,
+  { quiet = false }: { quiet?: boolean } = {},
+) => {
+  const row = await api.post<CategoryGroup>(`/api/category-groups/${id}/update_group/`, payload);
+  if (!quiet) toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+export const deleteCategoryGroup = async (id: string) => {
+  await api.delete(`/api/category-groups/${id}/delete_group/`);
+  toastSuccess("contractorOps.toast.removed");
 };
 
 export const deleteProjectCategory = async (id: string) => {
@@ -189,6 +219,20 @@ export const addFieldTaskReferences = async (id: string, files: File[]) => {
   toastSuccess("contractorOps.toast.referenceAdded");
   return row;
 };
+
+/** 我的任务 / My Tasks (I1, ID14): what is waiting on me, both modules. */
+export function getMyTasks(project?: string): Promise<{ count: number; results: MyTaskRow[] }> {
+  return api.get<{ count: number; results: MyTaskRow[] }>("/api/my-tasks/get_tasks/", {
+    project: project || undefined,
+  });
+}
+
+/** Who the 现场任务 负责人 filter offers: everybody holding a task I can see. */
+export function getFieldTaskAssignees(project?: string): Promise<PersonOption[]> {
+  return api.get<PersonOption[]>("/api/field-tasks/assignee_options/", {
+    project: project || undefined,
+  });
+}
 
 export const transitionFieldTask = async (id: string, status: FieldTask["status"], note = "") => {
   const row = await api.post<FieldTask>(`/api/field-tasks/${id}/transition_task/`, { status, note });
@@ -316,6 +360,9 @@ export const getEquipmentSummary = (project?: string) =>
     "/api/site-equipment/get_summary/",
     project ? { project } : undefined,
   );
+/** 设备清单 (I36): on site and total per supplier, for the register's filters. */
+export const getEquipmentSupplierCounts = (query: ListQuery) =>
+  api.get<EquipmentSupplierCounts>("/api/site-equipment/get_supplier_counts/", query);
 export async function ocrEquipmentDeliveryNote(project: string, image: File, signal?: AbortSignal) {
   const data = new FormData();
   data.append("project", project);
@@ -390,9 +437,9 @@ export async function recordEquipmentEntry(payload: OnSiteMovementPayload) {
 }
 
 /**
- * 设备退场 in one step, like the entry (2026-10 Q27): a machine on site, the
- * same evidence, and - if the worker says - why it is going. No application,
- * no Return Note. The office then accepts it; only then is it off site.
+ * A one-step 设备退场 a phone queued before 2026-10 I13, sent now that it is
+ * online. Nothing new sends it: the server files it as an exit application
+ * (PENDING) with all its evidence, never as an exit (ID30).
  */
 export async function recordEquipmentExit(payload: OnSiteMovementPayload) {
   const row = await api.post<EquipmentMovement>(
@@ -400,9 +447,160 @@ export async function recordEquipmentExit(payload: OnSiteMovementPayload) {
     onSiteMovementForm(payload),
     { silent: true },
   );
+  toastSuccess("contractorOps.toast.exitApplied");
+  return row;
+}
+
+/** 设备退场申请 (2026-10 I13 step 1): a machine on site, why, a photo. */
+export interface ExitApplicationPayload {
+  project: string;
+  equipment: string;
+  /** Why the machine is going out (required). */
+  notes: string;
+  latitude?: string;
+  longitude?: string;
+  accuracy_m?: string;
+  field_task?: string;
+  original_occurred_at: string;
+  client_event_id: string;
+  photos: File[];
+}
+
+export async function applyEquipmentExit(payload: ExitApplicationPayload) {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === "photos") continue;
+    if (value !== undefined && value !== "") data.append(key, String(value));
+  }
+  payload.photos.forEach((photo) => data.append("photos", photo));
+  const row = await api.post<EquipmentMovement>("/api/site-equipment/apply_exit/", data, {
+    silent: true,
+  });
+  toastSuccess("contractorOps.toast.exitApplied");
+  return row;
+}
+
+/**
+ * The Return Note the office approves an exit on (I13 step 2) - the same
+ * note, fields and rules as material's (`fillReturnNote`).
+ */
+export async function fillEquipmentExitReturnNote(
+  id: string,
+  payload: Parameters<typeof fillReturnNote>[1],
+) {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined || value === "") continue;
+    data.append(key, value instanceof File ? value : String(value));
+  }
+  const row = await api.post<EquipmentMovement>(
+    `/api/site-equipment/${id}/fill_exit_return_note/`,
+    data,
+  );
+  toastSuccess("contractorOps.toast.returnNoteSaved");
+  return row;
+}
+
+/** Approve an exit application (Return Note filled first), or return it with a reason. */
+export async function reviewEquipmentExitApplication(
+  id: string,
+  decision: "APPROVED" | "RETURNED",
+  reason = "",
+) {
+  const row = await api.post<EquipmentMovement>(
+    `/api/site-equipment/${id}/review_exit_application/`,
+    { decision, reason },
+  );
+  toastSuccess("contractorOps.toast.exitApplicationReviewed");
+  return row;
+}
+
+/**
+ * 现场实际退场 of an approved exit (I13 step 3): photos, DO, this machine's QR
+ * as scanned (`scanned_equipment`, checked again on the server), the
+ * supplier's QR if any, both signatures and GPS.
+ */
+export interface ExitHandoverPayload {
+  /** The approved exit. */
+  movement: string;
+  scanned_equipment: string;
+  /** The number was typed (「二维码坏了 / 还没有贴？输入编号」), not scanned. */
+  equipment_typed?: boolean;
+  delivery_note_no: string;
+  supplier?: string;
+  vehicle_plate?: string;
+  latitude?: string;
+  longitude?: string;
+  accuracy_m?: string;
+  ocr_confirmed?: boolean;
+  ocr_proof?: string;
+  original_occurred_at: string;
+  client_event_id: string;
+  photos: File[];
+  delivery_note_photo?: File;
+  receiver_signature?: File;
+  supplier_signature?: File;
+}
+
+export async function recordEquipmentExitHandover(payload: ExitHandoverPayload) {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (
+      key === "movement" ||
+      key === "photos" ||
+      key === "delivery_note_photo" ||
+      key === "receiver_signature" ||
+      key === "supplier_signature"
+    ) continue;
+    if (value !== undefined && value !== "") data.append(key, String(value));
+  }
+  payload.photos.forEach((photo) => data.append("photos", photo));
+  if (payload.delivery_note_photo) data.append("delivery_note_photo", payload.delivery_note_photo);
+  if (payload.receiver_signature) data.append("receiver_signature", payload.receiver_signature);
+  if (payload.supplier_signature) data.append("supplier_signature", payload.supplier_signature);
+  const row = await api.post<EquipmentMovement>(
+    `/api/site-equipment/${payload.movement}/record_exit_handover/`,
+    data,
+    { silent: true },
+  );
   toastSuccess("contractorOps.toast.exitSubmitted");
   return row;
 }
+
+/** The machine's QR code as an image the page can show (I24); the caller revokes it. */
+export const equipmentQrObjectUrl = (id: string) =>
+  fetchObjectUrl(`/api/site-equipment/${id}/get_equipment_qr/`, { silent: true });
+
+/** The machine's QR code saved as a PNG. */
+export const downloadEquipmentQr = (id: string, name: string) =>
+  download(`/api/site-equipment/${id}/get_equipment_qr/`, {
+    fallbackFilename: `equipment-qr-${(name || "machine").replace(/[\\/:*?"<>|\s]+/g, "-")}.png`,
+  });
+
+/**
+ * A4 stickers - eight a page: QR, big number, name, supplier, project - for
+ * the machines ticked on 设备清单 (one or many), to print and hand to the
+ * supplier (ID59). As a `File`, for 预览 · 打印 · 导出 · 发送.
+ */
+export const equipmentQrStickers = (ids: string[]) =>
+  fetchAsFile("/api/site-equipment/print_equipment_qr/", {
+    method: "POST",
+    body: { equipment: ids },
+    fallbackFilename: "equipment-qr.pdf",
+  });
+
+/**
+ * The machine a scanned code names on `project` (I24, ID60). Refused with
+ * `equipment_other_project` (carrying the project's name) for a machine of
+ * another site, and `equipment_scan_unknown` for anything else; the caller
+ * words the refusal, so nothing is toasted.
+ */
+export const lookupEquipmentByScan = (code: string, project: string) =>
+  api.get<SiteEquipment>(
+    "/api/site-equipment/lookup_equipment_by_scan/",
+    { code, project },
+    { silent: true },
+  );
 
 /**
  * Make a sub class - and its major class, when `major_name` is new - while
@@ -632,6 +830,8 @@ export async function createMaterialOutgoing(payload: {
   /** Whose make (2026-10 D1); the server takes the delivery's when absent. */
   manufacturer?: string;
   category?: string; material_name?: string; quantity: string; unit?: string; destination?: string;
+  /** The specification (I19), and its words when 「其他」 is typed. */
+  spec_category?: string; material_specification?: string;
   executor_name: string; vehicle_plate?: string; delivery_note_no?: string; reason: string;
   latitude?: string; longitude?: string; client_event_id?: string;
   field_task?: string;
@@ -842,6 +1042,9 @@ export async function reviewDisposalRequest(
 export async function assignDisposalCollector(
   id: string,
   payload: {
+    /** The clearance company, from the supplier list (I27, ID65). */
+    collector_supplier: string;
+    /** Its name, sent too so a server from before I27 still takes the request. */
     collector_company_name: string;
     collector_contact_name: string;
     collector_phone: string;
@@ -918,10 +1121,10 @@ export const addInternalDisposalEvidence = (
   }>(`/api/site-disposals/${id}/execute_internal/`, data);
 };
 
-/** One lorry's proof, weight and DO (X11): the office then checks it. */
+/** One lorry's proof, weight and DO (X11), and its plate if typed (I27): the office then checks it. */
 export const submitInternalDisposalTask = (
   id: string,
-  payload: { actual_weight_kg: string; disposal_do_no: string; note?: string },
+  payload: { actual_weight_kg: string; disposal_do_no: string; vehicle_plate?: string; note?: string },
 ) => api.post<DisposalRequest>(`/api/site-disposals/${id}/execute_internal/`, {
   operation: "submit",
   ...payload,
@@ -943,10 +1146,24 @@ export async function acceptDisposalTrip(id: string, trip: string) {
 export async function correctDisposalTrip(
   id: string,
   trip: string,
-  correction: { weight_kg?: string; do_no?: string; reason: string },
+  correction: { weight_kg?: string; do_no?: string; vehicle_plate?: string; reason: string },
 ) {
   const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/correct_trip/`, { trip, ...correction });
   toastSuccess("siteDisposal.toast.tripCorrected");
+  return row;
+}
+
+/**
+ * Name or change the job's clearance company (I27, ID65), any time after
+ * approval - a job the driver started from the forwarded link, or one being
+ * settled after it finished. Replacing a company already named needs a reason.
+ */
+export async function setDisposalSupplier(
+  id: string,
+  payload: { collector_supplier: string; reason?: string },
+) {
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/set_supplier/`, payload);
+  toastSuccess("siteDisposal.toast.supplierSet");
   return row;
 }
 
@@ -1091,7 +1308,8 @@ export const submitExternalDisposalTask = (
   token: string,
   // Nothing but an optional note since T-224: the outside collector
   // photographs, and the contractor types the numbers on their own screen.
-  payload: { note?: string },
+  // And, since I27, the lorry's plate - optional, no star.
+  payload: { note?: string; vehicle_plate?: string },
 ) => externalDisposalFetch<ExternalDisposalTask>(token, { operation: "submit", ...payload });
 
 /**
@@ -1468,6 +1686,8 @@ export const RECORD_PDF_KINDS = [
   "ANNOUNCEMENT",
   "ATTENDANCE_DAY",
   "DELIVERY_NOTE",
+  // 访客到访 (I26): a visit's photo, host's answer, entry and exit.
+  "VISITOR_ARRIVAL",
 ] as const;
 
 /** Every kind `record-exports/download` prints: the nine and the rest. */
@@ -1775,11 +1995,40 @@ export async function createClaim(payload: {
   /** `YYYY-MM`. The server stores the first of that month (D-164). */
   period: string;
   remarks?: string;
+  /** I10: the project's claim category, its 「其他」 name and the subcontractor. */
+  category?: string;
+  other_name?: string;
+  subcontractor?: string;
+  /** 一般 Claim (ID50). */
+  description?: string;
+  amount?: string;
 }) {
   const row = await api.post<ClaimDetail>("/api/claims/create_claim/", payload);
   toastSuccess("claims.toast.opened");
   return row;
 }
+
+/** A claim's category, subcontractor and description (I10). */
+export async function updateClaim(
+  id: string,
+  payload: {
+    category?: string | null;
+    other_name?: string;
+    subcontractor?: string | null;
+    description?: string;
+  },
+) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/update_claim/`, payload);
+  toastSuccess("claims.toast.saved");
+  return row;
+}
+
+/** The companies marked 分包商 (I10, ID7), searched by name or code. */
+export const getSubcontractorOptions = (search?: string) =>
+  api.get<{ results: { id: string; code: string; name: string }[] }>(
+    "/api/claims/subcontractor_options/",
+    search ? { search } : {},
+  );
 
 export async function deleteClaim(id: string) {
   await api.delete(`/api/claims/${id}/delete_claim/`);
@@ -1906,6 +2155,9 @@ export interface RecordConversation {
   cleared_notices?: number;
   messages: RecordMessage[];
   audio_seconds_limit: number;
+  /** The 「需要继续整改」 switch (ID11): a field task's confirmer, while it
+   *  waits for them. */
+  can_request_more_work?: boolean;
   /**
    * Non-empty once the record is finished (D-278): `"archived"` after
    * 【确认归档】, `"paid"` for a sundry claim after 【确认已付款】,
@@ -1948,6 +2200,8 @@ export function postRecordMessage(
     longitude?: string;
     accuracy_m?: string;
     client_event_id?: string;
+    /** 「需要继续整改」 on (ID11): a field task goes back to its assignee. */
+    needs_more_work?: boolean;
   },
 ): Promise<RecordMessage> {
   const data = new FormData();

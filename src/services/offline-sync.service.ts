@@ -30,14 +30,20 @@ import {
   createConsultantFieldSubmission,
   createMaterialOutgoing,
   createSiteProgressRecord,
+  applyEquipmentExit,
   recordEquipmentEntry,
   recordEquipmentExit,
+  recordEquipmentExitHandover,
   recordEquipmentMovement,
   returnMaterialOutgoingProcessing,
 } from "@/services/contractor-ops.service";
-import { createSafetyIncident } from "@/services/site-operations.service";
+import {
+  createSafetyIncident,
+  postHazardMessage,
+  submitSafetyRectification,
+} from "@/services/site-operations.service";
 import { createGateIncident } from "@/services/site-access.service";
-import type { GateIncidentPayload } from "@/interfaces/site-access";
+import type { GateIncidentDetail, GateIncidentPayload } from "@/interfaces/site-access";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 import { createSundryClaim } from "@/services/sundry-claim.service";
 import { uploadEquipmentHoursPhoto } from "@/services/equipment-hours.service";
@@ -101,6 +107,68 @@ interface MaterialReceiptDraft {
 }
 
 export type OfflineSubmission = "uploaded" | "queued";
+
+export type SafetyRectificationSubmission = { status: "uploaded" } | { status: "queued" };
+
+export type SafetyRectificationDraft = Omit<
+  Extract<OfflineJob, { kind: "SAFETY_RECTIFICATION" }>["payload"],
+  "images" | "attachments" | "incidentId"
+> & { images: File[]; attachments?: File[] };
+
+/**
+ * What the server is sent for a queued rectification: the job's own copies
+ * of its photos. Its files follow, one job each (``hazardFileJobs``).
+ */
+export function rectificationRequest(job: Extract<OfflineJob, { kind: "SAFETY_RECTIFICATION" }>) {
+  const { incidentId: _incident, images, attachments: _files, ...rest } = job.payload;
+  return { ...rest, images: images.map(restoreFile), attachments: [] as File[] };
+}
+
+type HazardFileJob = Extract<OfflineJob, { kind: "HAZARD_FILE" }>;
+
+/**
+ * A report's or a rectification's files as their own jobs (P-phonefix), once
+ * the report itself is on the server. Each carries the id the server gives a
+ * file sent inside the report - ``<report id>:<prefix>:<n>`` - so a replay,
+ * or a report queued by an older version that sent its files along, adds no
+ * second copy. The job ids are fixed too: queued twice, a file is one job.
+ */
+export function hazardFileJobs(
+  ownerId: string,
+  incidentId: string,
+  reportEventId: string,
+  prefix: "attachment" | "rectification-attachment",
+  files: readonly StoredFile[],
+  queuedAt: string,
+): HazardFileJob[] {
+  return files.map((file, index) => ({
+    id: `hazard-file-job-${reportEventId}-${prefix}-${index}`,
+    ownerId,
+    kind: "HAZARD_FILE",
+    queuedAt,
+    attempts: 0,
+    lastError: "",
+    payload: {
+      incidentId,
+      client_event_id: `${reportEventId}:${prefix}:${index}`,
+      file,
+    },
+  }));
+}
+
+async function queueHazardFiles(jobs: readonly HazardFileJob[]): Promise<void> {
+  if (jobs.length === 0) return;
+  for (const job of jobs) await putOfflineJob(job);
+  notifyQueueChanged();
+  await requestBackgroundSync();
+}
+
+/** Queue a report's files after it, and say they are still on their way. */
+async function followWithFiles(jobs: readonly HazardFileJob[]): Promise<void> {
+  if (jobs.length === 0) return;
+  await queueHazardFiles(jobs);
+  toastOutcome("offline.filesFollow", { count: jobs.length });
+}
 
 export type SafetyIncidentSubmission =
   | { status: "uploaded"; incident: SafetyIncident }
@@ -356,10 +424,62 @@ async function sendJob(job: OfflineJob): Promise<void> {
     return;
   }
 
+  if (job.kind === "EQUIPMENT_MOVEMENT" && job.payload.apply_exit) {
+    // 设备退场申请 (2026-10 I13): the same client_event_id on every retry, so
+    // a resend is the same application.
+    const apply = job.payload;
+    await applyEquipmentExit({
+      project: apply.project,
+      equipment: apply.equipment,
+      notes: apply.notes ?? "",
+      latitude: apply.latitude,
+      longitude: apply.longitude,
+      accuracy_m: apply.accuracy_m,
+      field_task: apply.field_task,
+      original_occurred_at: apply.original_occurred_at,
+      client_event_id: apply.client_event_id,
+      photos: apply.photos.map(restoreFile),
+    });
+    return;
+  }
+
+  if (job.kind === "EQUIPMENT_MOVEMENT" && job.payload.exit_handover && job.payload.movement) {
+    // 现场实际退场 of an approved exit (I13): a replay of the same event is
+    // answered with the exit already recorded.
+    const handover = job.payload;
+    await recordEquipmentExitHandover({
+      movement: job.payload.movement,
+      scanned_equipment: handover.scanned_equipment ?? "",
+      equipment_typed: handover.equipment_typed || undefined,
+      delivery_note_no: handover.delivery_note_no ?? "",
+      supplier: handover.supplier,
+      vehicle_plate: handover.vehicle_plate,
+      latitude: handover.latitude,
+      longitude: handover.longitude,
+      accuracy_m: handover.accuracy_m,
+      ocr_confirmed: handover.ocr_confirmed,
+      ocr_proof: handover.ocr_proof,
+      original_occurred_at: handover.original_occurred_at,
+      client_event_id: handover.client_event_id,
+      photos: handover.photos.map(restoreFile),
+      delivery_note_photo: handover.delivery_note_photo
+        ? restoreFile(handover.delivery_note_photo)
+        : undefined,
+      receiver_signature: handover.receiver_signature
+        ? restoreFile(handover.receiver_signature)
+        : undefined,
+      supplier_signature: handover.supplier_signature
+        ? restoreFile(handover.supplier_signature)
+        : undefined,
+    });
+    return;
+  }
+
   if (job.kind === "EQUIPMENT_MOVEMENT" && (job.payload.entry || job.payload.exit)) {
     // One movement is one machine (F3): no quantity, unit or application.
-    // The exit goes the entry's way since Q27; the job carries the one
-    // client_event_id across every retry, so a resend is the same movement.
+    // An entry; or a one-step exit an older build queued (Q27), which the
+    // server now files as an exit application (I13). The job carries the
+    // one client_event_id across every retry, so a resend is the same one.
     const entry = job.payload;
     const movement = {
       project: entry.project,
@@ -477,10 +597,46 @@ async function sendJob(job: OfflineJob): Promise<void> {
     // choice is dropped rather than losing the report.
     const payload = { ...job.payload };
     delete payload.confirmer;
-    await createSafetyIncident({
+    // The report and its photos first, so the office hears of it now; its
+    // files follow as jobs of their own (P-phonefix).
+    const incident = await createSafetyIncident({
       ...payload,
       photos: job.payload.photos.map(restoreFile),
-      attachments: (job.payload.attachments ?? []).map(restoreFile),
+      attachments: [],
+    });
+    await queueHazardFiles(
+      hazardFileJobs(
+        job.ownerId,
+        incident.id,
+        job.payload.client_event_id,
+        "attachment",
+        job.payload.attachments ?? [],
+        job.queuedAt,
+      ),
+    );
+    return;
+  }
+
+  if (job.kind === "SAFETY_RECTIFICATION") {
+    await submitSafetyRectification(job.payload.incidentId, rectificationRequest(job));
+    await queueHazardFiles(
+      hazardFileJobs(
+        job.ownerId,
+        job.payload.incidentId,
+        job.payload.client_event_id,
+        "rectification-attachment",
+        job.payload.attachments ?? [],
+        job.queuedAt,
+      ),
+    );
+    return;
+  }
+
+  if (job.kind === "HAZARD_FILE") {
+    await postHazardMessage(job.payload.incidentId, {
+      attachment: restoreFile(job.payload.file),
+      attachment_name: job.payload.file.name,
+      client_event_id: job.payload.client_event_id,
     });
     return;
   }
@@ -758,7 +914,13 @@ export async function submitFieldTaskTransitionOfflineAware(
       clientEventId: newId("field-task-transition"),
     },
   };
-  if (typeof navigator !== "undefined" && navigator.onLine) {
+  // This task's photos still in the queue go first (P-phonefix): its 提交完成
+  // sent ahead of them would be refused for want of the photos the screen
+  // already counted. So it waits behind them, in the same chain.
+  const behindQueued = await getOfflineJobs(ownerId)
+    .then((jobs) => jobs.some((waiting) => chainOf(waiting) === chainOf(job)))
+    .catch(() => false);
+  if (!behindQueued && typeof navigator !== "undefined" && navigator.onLine) {
     try {
       await uploadJob(job);
       toastSuccess("contractorOps.toast.taskUpdated");
@@ -989,6 +1151,26 @@ export async function submitMaterialOutgoingExitOfflineAware(
   });
 }
 
+/**
+ * Whether this phone already holds the actual exit of that approved machine
+ * exit (2026-10 I13), or an application for that machine, waiting to go.
+ */
+export async function queuedEquipmentExit(
+  ownerId: string,
+  match: { movement?: string; equipment?: string },
+): Promise<boolean> {
+  return (await getOfflineJobs(ownerId)).some(
+    (job) =>
+      job.kind === "EQUIPMENT_MOVEMENT" &&
+      ((match.movement !== undefined &&
+        job.payload.exit_handover === true &&
+        job.payload.movement === match.movement) ||
+        (match.equipment !== undefined &&
+          (job.payload.apply_exit === true || job.payload.exit === true) &&
+          job.payload.equipment === match.equipment)),
+  );
+}
+
 /** Whether this phone already holds an exit for that return, waiting to go. */
 export async function queuedOutgoingExit(ownerId: string, outgoingId: string): Promise<boolean> {
   return (await getOfflineJobs(ownerId)).some(
@@ -1044,16 +1226,16 @@ export async function submitWasteOutgoingOfflineAware(
   });
 }
 
-/**
- * 门岗拍照 (H12, HD5): sent now when the phone is online, queued with its
- * ``client_event_id`` otherwise, and sent once when the network is back.
- */
-export async function submitGatePhotoOfflineAware(
+export type GateIssueSubmission =
+  | { status: "uploaded"; incident: GateIncidentDetail }
+  | { status: "queued" };
+
+async function gatePhotoJob(
   ownerId: string,
   draft: GateIncidentPayload,
-): Promise<OfflineSubmission> {
+): Promise<Extract<OfflineJob, { kind: "GATE_PHOTO" }>> {
   const { photos, ...fields } = draft;
-  return submitCaptureJob({
+  return {
     id: newId("gate-photo-job"),
     ownerId,
     kind: "GATE_PHOTO",
@@ -1068,7 +1250,54 @@ export async function submitGatePhotoOfflineAware(
         return meta;
       }),
     },
-  });
+  };
+}
+
+/**
+ * 门岗拍照 (H12, HD5): sent now when the phone is online, queued with its
+ * ``client_event_id`` otherwise, and sent once when the network is back.
+ */
+export async function submitGatePhotoOfflineAware(
+  ownerId: string,
+  draft: GateIncidentPayload,
+): Promise<OfflineSubmission> {
+  return submitCaptureJob(await gatePhotoJob(ownerId, draft));
+}
+
+/**
+ * 「发送并沟通」 (I14, ID31): the same job, with the record handed back when
+ * it reached the server, so the phone opens its conversation at once.
+ * Offline it is queued like any gate photo and sent once; its people are
+ * asked in when it lands, and 「沟通」 on it in the recent list opens the
+ * conversation then.
+ */
+export async function submitGateIssueOfflineAware(
+  ownerId: string,
+  draft: GateIncidentPayload,
+): Promise<GateIssueSubmission> {
+  const job = await gatePhotoJob(ownerId, draft);
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      // The job's copies, so the online attempt sends the compressed photos.
+      const { photos, photo_meta, ...fields } = job.payload;
+      const incident = await submitNow(() =>
+        withOfflineProvenance(job.queuedAt, () =>
+          createGateIncident({
+            ...fields,
+            photos: photos.map((photo, index) => ({
+              ...photo_meta[index],
+              file: restoreFile(photo),
+            })),
+          }),
+        ),
+      );
+      return { status: "uploaded", incident };
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  await enqueue(job);
+  return { status: "queued" };
 }
 
 export async function submitDisposalRequestOfflineAware(
@@ -1092,6 +1321,8 @@ export async function submitDisposalRequestOfflineAware(
 export async function submitSafetyIncidentOfflineAware(
   ownerId: string,
   draft: SafetyIncidentPayload & { client_event_id: string },
+  /** An office item's sign-off PIN, checked before the upload (I29). */
+  signOffPin?: string,
 ): Promise<SafetyIncidentSubmission> {
   const job: Extract<OfflineJob, { kind: "SAFETY_INCIDENT" }> = {
     id: newId("safety-incident-job"),
@@ -1109,16 +1340,81 @@ export async function submitSafetyIncidentOfflineAware(
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
       // The job's copies, so the online attempt sends the compressed photos.
+      // The report and its photos only: the office hears of it at once. Its
+      // files follow on their own, however slow the signal (P-phonefix).
       const incident = await submitNow(() =>
         withOfflineProvenance(job.queuedAt, () =>
-          createSafetyIncident({
-            ...draft,
-            photos: job.payload.photos.map(restoreFile),
-            attachments: (job.payload.attachments ?? []).map(restoreFile),
-          }),
+          createSafetyIncident(
+            {
+              ...draft,
+              photos: job.payload.photos.map(restoreFile),
+              attachments: [],
+            },
+            signOffPin,
+          ),
+        ),
+      );
+      await followWithFiles(
+        hazardFileJobs(
+          ownerId,
+          incident.id,
+          draft.client_event_id,
+          "attachment",
+          job.payload.attachments ?? [],
+          job.queuedAt,
         ),
       );
       return { status: "uploaded", incident };
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  await enqueue(job);
+  return { status: "queued" };
+}
+
+/**
+ * 提交整改 (I37), online or queued. The draft carries ONE `client_event_id`
+ * for the online attempt and every replay, so a lost answer, a retry, or a
+ * queue replay can never post the fix twice. The fix and its photos go
+ * first; its files wait in the same job until then and follow one job each
+ * (P-phonefix), under ids derived from the fix's.
+ */
+export async function submitSafetyRectificationOfflineAware(
+  ownerId: string,
+  incidentId: string,
+  draft: SafetyRectificationDraft,
+): Promise<SafetyRectificationSubmission> {
+  const job: Extract<OfflineJob, { kind: "SAFETY_RECTIFICATION" }> = {
+    id: newId("safety-rectification-job"),
+    ownerId,
+    kind: "SAFETY_RECTIFICATION",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      ...draft,
+      incidentId,
+      images: await storePhotos(draft.images),
+      attachments: await storePhotos(draft.attachments ?? []),
+    },
+  };
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      await submitNow(() =>
+        withOfflineProvenance(job.queuedAt, () => submitSafetyRectification(incidentId, rectificationRequest(job))),
+      );
+      await followWithFiles(
+        hazardFileJobs(
+          ownerId,
+          incidentId,
+          draft.client_event_id,
+          "rectification-attachment",
+          job.payload.attachments ?? [],
+          job.queuedAt,
+        ),
+      );
+      return { status: "uploaded" };
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
     }
@@ -1135,6 +1431,8 @@ function sendEquipmentHoursPhoto(
     equipment: payload.equipment,
     kind: payload.kind,
     photo: restoreFile(payload.photo),
+    signature: payload.signature ? restoreFile(payload.signature) : undefined,
+    signatureRequired: payload.signatureRequired,
     capturedAt: payload.capturedAt,
     clientEventId: payload.clientEventId,
     latitude: payload.latitude,
@@ -1191,6 +1489,9 @@ export async function submitEquipmentHoursPhotoOfflineAware(
       locationAccuracyM: draft.locationAccuracyM,
       // Compressed on the way in, like every capture screen (A5, A9).
       photo: await storePhoto(draft.photo),
+      // A pad's small PNG: kept as drawn.
+      signature: storeFile(draft.signature),
+      signatureRequired: true,
     },
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {

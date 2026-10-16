@@ -61,6 +61,13 @@ function request(overrides: Partial<MaterialRequest> = {}): MaterialRequest {
     id: "mr-1",
     request_no: "MR-SITE-0001",
     request_type: "MATERIAL",
+    request_kind: "t-material",
+    request_kind_name: "材料申请",
+    request_kind_form_style: "MATERIAL",
+    subject: "",
+    content: "",
+    category: "c-rebar",
+    spec_category: "s-y12",
     status: "SUBMITTED",
     project: "p-1",
     project_name: "Site",
@@ -185,24 +192,58 @@ describe("「提交给」 on the request form (D2, Q15)", () => {
     reader.codes = ["material_request.submit"];
   });
 
+  // A request raised again from a returned one: its type, material and
+  // specification come with it (I16, I19).
   const prefill = {
     project: "p-1",
     request_type: "MATERIAL" as const,
-    material_name: "Rebar",
+    request_kind: "t-material",
+    category: "c-rebar",
+    spec_category: "s-y12",
+    material_name: "钢筋",
     specification: "Y12",
     quantity: "10",
     unit: "TONNE",
     remark: "",
   };
-  const options = { options: [], built_in_units: ["TONNE"] };
+  const types = [
+    {
+      id: "t-material", project: "p-1", code: "REQ-MATERIAL", name: "材料申请", description: "",
+      form_style: "MATERIAL", is_fixed: true, is_active: true, sort_order: 0, request_count: 0,
+    },
+  ];
+  const catalogue = {
+    materials: [
+      {
+        id: "c-rebar", code: "MAT-REBAR", name: "钢筋", is_fixed: false, default_unit: "TONNE",
+        default_unit_label: null,
+        specs: [
+          {
+            id: "s-y12", code: "SPC-001", name: "Y12", default_unit: "TONNE", default_unit_label: null,
+            is_active: true, is_other: false, is_fixed: false, sort_order: 0,
+          },
+        ],
+      },
+    ],
+    units: [{ code: "TONNE", label: null }],
+    can_manage_categories: false,
+  };
 
   function form(reviewers: { id: string; full_name: string }[]) {
     return render(<MaterialRequestForm prefill={prefill} onSaved={() => {}} />, [
-      [["material-request-options"], options],
+      [["material-request-types", "p-1"], types],
+      [["material-catalogue", "p-1"], catalogue],
+      [["material-units", "all"], [{ id: "u-1", code: "TONNE", label: "Tonne", sort_order: 0, is_active: true, built_in: true }]],
       [["projects", "options"], { results: [{ id: "p-1", code: "SITE", name: "Site" }], count: 1 }],
       [["material-request-reviewers", "p-1"], reviewers],
     ]);
   }
+
+  it("takes the unit from the specification, and shows it locked (I19)", () => {
+    const html = form([{ id: HQ_ONE, full_name: "Mei Ling" }]);
+    expect(html).toContain("单位随规格带出，不能修改。");
+    expect(html).toContain("吨（Ton）");
+  });
 
   it("is a required field with the same name as everywhere else", () => {
     const html = form([{ id: HQ_ONE, full_name: "Mei Ling" }]);

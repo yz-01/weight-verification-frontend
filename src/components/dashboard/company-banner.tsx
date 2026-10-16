@@ -10,6 +10,7 @@ import { DASHBOARD_SCOPES } from "@/lib/dashboard-scopes";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { getContractorDashboard } from "@/services/contractor-dashboard.service";
+import { useRoleLabel } from "@/lib/role-labels";
 
 /**
  * The top of both dashboards (C11, C12): the company's own name, logo and
@@ -38,6 +39,7 @@ export function CompanyBanner({
 }) {
   const t = useTranslations("headquarters.banner");
   const levels = useTranslations("dashboard.scope");
+  const roleOf = useRoleLabel();
   const format = useFormatter();
   const df = useDateFormat();
   const { user } = useAuth();
@@ -134,7 +136,7 @@ export function CompanyBanner({
             <span className="font-medium">{user.full_name}</span>
             {user.role_name && (
               <span className="text-muted-foreground">
-                · {user.role_name}
+                · {roleOf(null, user.role_name)}
               </span>
             )}
           </span>

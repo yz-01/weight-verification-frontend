@@ -5,6 +5,8 @@ import type { RecordedBy } from "@/interfaces/recorder";
 export type AttendanceEvent = "CLOCK_IN" | "CLOCK_OUT";
 
 export interface AttendanceRecord {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   id: string;
   project: string;
   project_name: string;
@@ -152,6 +154,8 @@ export interface SafetyRectificationEvidence {
 }
 
 export interface SafetyIncident extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** Waits for this reader's next step - the sidebar counts it (2026-10-09). */
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
@@ -212,6 +216,8 @@ export interface SafetyIncident extends RecordedBy {
   /** Whether the reader is the confirmer, now. The only thing that shows
    *  【确认完成】 - holding safety.verify is not enough (B21). */
   can_confirm?: boolean;
+  /** 待处理 / 待验收 / 已完成 (ID10), as the server reads the status. */
+  stage?: "PENDING" | "AWAITING" | "DONE";
   /** 整改前 / 中 / 后, gathered in one place (B20). */
   photo_groups?: {
     before: HazardPhoto[];
@@ -286,12 +292,16 @@ export interface HazardConversation {
   /** Archived, which means readable but closed to new messages. */
   is_closed: boolean;
   audio_seconds_limit: number;
+  /** The 「需要继续整改」 switch beside the box (ID11): this reader may
+   *  confirm it, and it is waiting for that. */
+  can_request_more_work?: boolean;
 }
 
 export interface SafetyIncidentPayload {
   project: string;
-  /** Every safety report is filed under its project's safety column. */
-  category: string;
+  /** The column it is filed under; empty from the phone, which does not ask
+   *  (ID12) - the office files it later (「未分类」). */
+  category?: string;
   title: string;
   description: string;
   occurred_at?: string;

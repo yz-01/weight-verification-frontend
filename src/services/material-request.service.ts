@@ -1,12 +1,12 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
+  MaterialCatalogue,
   MaterialRequest,
   MaterialRequestDraft,
-  MaterialRequestOption,
-  MaterialRequestOptionKind,
-  MaterialRequestOptions,
   MaterialRequestReviewerOption,
   MaterialRequestTotal,
+  RequestFormStyle,
+  RequestType,
 } from "@/interfaces/material-request";
 import { api, download, fetchAsFile, toastSuccess } from "@/services/api-client";
 import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
@@ -59,6 +59,24 @@ export const getMaterialRequestReviewerOptions = (project: string) =>
   api.get<MaterialRequestReviewerOption[]>("/api/material-requests/reviewer_options/", { project });
 
 /** 「改派给我」 (D2): another approver takes a waiting request over; the history keeps it. */
+/**
+ * The project manager's answer to a site staff's request (I12, ID29):
+ * 「转呈总部」 to a head-office approver, same request and number - or return it.
+ */
+export async function managerDecideMaterialRequest(
+  id: string,
+  decision: "FORWARD" | "RETURNED",
+  { assignedReviewer = "", note = "" }: { assignedReviewer?: string; note?: string } = {},
+) {
+  const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/manager_decide/`, {
+    decision,
+    note,
+    ...(decision === "FORWARD" ? { assigned_reviewer: assignedReviewer } : {}),
+  });
+  toastSuccess(decision === "FORWARD" ? "materialRequest.toast.forwarded" : "materialRequest.toast.returned");
+  return row;
+}
+
 export async function reassignMaterialRequestToMe(id: string) {
   const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/reassign/`, {});
   toastSuccess("materialRequest.toast.reassigned");
@@ -86,30 +104,41 @@ export function exportMaterialRequests(request: ExportRequest): Promise<void> {
   });
 }
 
-export const getMaterialRequestOptions = (includeInactive = false) =>
-  api.get<MaterialRequestOptions>(
-    "/api/material-requests/get_options/",
-    includeInactive ? { include_inactive: "true" } : {},
-  );
+/** The project's request types (I16); `all` adds the switched-off ones for the dialog. */
+export const getRequestTypes = (project: string, all = false) =>
+  api.get<RequestType[]>("/api/material-requests/get_request_types/", {
+    ...(project ? { project } : {}),
+    ...(all ? { all: "true" } : {}),
+  });
 
-export async function createMaterialRequestOption(payload: {
-  kind: MaterialRequestOptionKind;
+export async function createRequestType(payload: {
+  project: string;
   name: string;
-  parent?: string | null;
+  form_style?: RequestFormStyle;
+  description?: string;
 }) {
-  const row = await api.post<MaterialRequestOption>("/api/material-requests/create_option/", payload);
-  toastSuccess("materialRequest.toast.optionSaved");
+  const row = await api.post<RequestType>("/api/material-requests/create_request_type/", payload);
+  toastSuccess("materialRequest.types.toast.saved");
   return row;
 }
 
-export async function updateMaterialRequestOption(
+export async function updateRequestType(
   id: string,
-  payload: { name?: string; is_active?: boolean; sort_order?: number },
+  payload: Partial<Pick<RequestType, "name" | "form_style" | "description" | "is_active" | "sort_order">>,
 ) {
-  const row = await api.post<MaterialRequestOption>(`/api/material-requests/${id}/update_option/`, payload);
-  toastSuccess("materialRequest.toast.optionSaved");
+  const row = await api.post<RequestType>(`/api/material-requests/${id}/update_request_type/`, payload);
+  toastSuccess("materialRequest.types.toast.saved");
   return row;
 }
+
+export async function deleteRequestType(id: string) {
+  await api.delete(`/api/material-requests/${id}/delete_request_type/`);
+  toastSuccess("materialRequest.types.toast.removed");
+}
+
+/** The project's materials, their specifications and units, for the form (I19). */
+export const getMaterialCatalogue = (project: string) =>
+  api.get<MaterialCatalogue>("/api/material-requests/get_material_catalogue/", { project });
 
 /** 申请累计 (H16, HD13): the rows the list shows, as Excel or PDF. */
 export function exportMaterialRequestTotals(request: ExportRequest): Promise<void> {

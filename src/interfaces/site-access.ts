@@ -153,6 +153,10 @@ export interface SiteAccessEvent {
 }
 
 export interface SiteAccessPass {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
+  /** The project code, so the list splits the short number right (ID35). */
+  project_code?: string;
   id: string;
   /** Waits for this reader's approval - the sidebar counts it (2026-10-09). */
   needs_action?: boolean;
@@ -170,6 +174,9 @@ export interface SiteAccessPass {
   driver_name: string;
   purpose: string;
   host_name: string;
+  /** 接待人 as a person on the project (I26), when the pass names one. */
+  host_user?: string | null;
+  host_user_name?: string | null;
   valid_from: string;
   valid_until: string;
   status: AccessPassStatus;
@@ -237,6 +244,8 @@ export interface SiteAccessPassPayload {
   driver_name: string;
   purpose: string;
   host_name: string;
+  /** 接待人 chosen from the project's people (I26); null for none. */
+  host_user?: string | null;
   valid_from: string;
   valid_until: string;
 }
@@ -348,6 +357,10 @@ export interface GateIncidentMember {
 }
 
 export interface GateIncident extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
+  /** The project code, so the list splits the short number right (ID35). */
+  project_code?: string;
   id: string;
   incident_no: string;
   project: string;
@@ -452,7 +465,9 @@ export type GatePassRefusal =
   | "not_yet_valid"
   | "expired"
   | "already_inside"
-  | "already_outside";
+  | "already_outside"
+  // I26: a visitor whose host has not confirmed yet.
+  | "host_not_confirmed";
 
 /** What the guard reads after scanning a pass (HD7). */
 export interface GatePassDetail {
@@ -466,6 +481,9 @@ export interface GatePassDetail {
   driver_name: string;
   purpose: string;
   host_name: string;
+  /** The pass's host, when still reachable on this project (I26). */
+  host_user?: string | null;
+  host_user_name?: string | null;
   project: string;
   project_name: string;
   approved_by_name: string | null;
@@ -485,13 +503,22 @@ export interface GatePassCheck {
   can_exit: boolean;
   last_direction: AccessDirection | null;
   last_at: string | null;
+  /** A visitor's pass: photo and host confirmation before 放行 (I26). */
+  needs_host?: boolean;
+  /** The visit already at the gate on this pass, picked up again. */
+  arrival?: VisitorArrival | null;
 }
 
 /** One confirmed entry or exit, with its pass (Visitor Records, HD9). */
 export interface VisitorRecord {
+  /** The project code, so the list splits the short number right (ID35). */
+  project_code?: string;
   id: string;
+  /** A visit (I26) or a gate event with no visit behind it. */
+  row_type: "ARRIVAL" | "EVENT";
   occurred_at: string;
-  direction: AccessDirection;
+  direction: AccessDirection | null;
+  visit_status: VisitStatus | null;
   source: "GATE_UI" | "THIRD_PARTY";
   gate_name: string;
   pass_id: string;
@@ -510,4 +537,86 @@ export interface VisitorRecord {
   latitude: string | null;
   longitude: string | null;
   created_at: string;
+  arrival_id: string | null;
+  arrival_no: string | null;
+  photo: string | null;
+  photo_thumbnail: string | null;
+  photo_count: number;
+  host_name: string;
+  confirmed_by_name: string | null;
+  confirmed_at: string | null;
+  on_behalf: boolean;
+  declined_by_name: string | null;
+  decline_reason: string | null;
+  entry_at: string | null;
+  exit_at: string | null;
+}
+
+/** 访客进场确认 (I26): where one visit stands. */
+export type VisitorArrivalStatus = "AWAITING_HOST" | "CONFIRMED" | "DECLINED" | "CANCELLED";
+/** The visit in one word, entry and exit included. */
+export type VisitStatus = VisitorArrivalStatus | "ON_SITE" | "LEFT";
+
+export interface VisitorArrivalPhoto {
+  id: string;
+  watermarked_image: string;
+  thumbnail: string;
+  captured_at: string;
+  latitude: string | null;
+  longitude: string | null;
+  gate_user_name: string;
+}
+
+/** One visitor at the gate: photographed, their host asked (I26, ID63). */
+export interface VisitorArrival {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
+  /** The project code, so the list splits the short number right (ID35). */
+  project_code?: string;
+  id: string;
+  arrival_no: string;
+  project: string;
+  project_name: string;
+  pass_id: string;
+  pass_no: string;
+  subject_type: AccessSubjectType;
+  subject_name: string;
+  subject_company: string;
+  phone: string;
+  purpose: string;
+  valid_until: string;
+  host: string;
+  host_name: string;
+  gate_user: string;
+  gate_user_name: string;
+  gate_name: string;
+  arrived_at: string;
+  latitude: string | null;
+  longitude: string | null;
+  status: VisitorArrivalStatus;
+  visit_status: VisitStatus;
+  confirmed_by_name: string;
+  confirmed_at: string | null;
+  declined_by_name: string;
+  declined_at: string | null;
+  decline_reason: string;
+  on_behalf: boolean;
+  cancelled_by_name: string | null;
+  cancelled_at: string | null;
+  entry_at: string | null;
+  exit_at: string | null;
+  photos: VisitorArrivalPhoto[];
+  /** This reader is the host, or manages site access, and it still waits. */
+  may_answer: boolean;
+  may_cancel: boolean;
+  /** Only for whoever works the gate. */
+  qr_value: string | null;
+  created_at: string;
+}
+
+/** A person who may host a visitor on a project (ID64). */
+export interface VisitorHostOption {
+  id: string;
+  full_name: string;
+  role_name: string;
 }

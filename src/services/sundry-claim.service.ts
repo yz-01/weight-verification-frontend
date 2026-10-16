@@ -15,6 +15,10 @@ export async function createSundryClaim(payload: {
   project: string;
   amount: string;
   description: string;
+  /** Who approves it (I12, ID8): the project manager's office or head office. */
+  submit_to?: "PROJECT" | "HQ";
+  /** The day it was paid (the back office form); the phone sends the shutter time. */
+  captured_at?: string;
   latitude?: string;
   longitude?: string;
   client_event_id?: string;
@@ -30,6 +34,17 @@ export async function createSundryClaim(payload: {
   appendPhotoTimes(data, payload.attachments);
   const row = await api.post<SundryClaim>("/api/sundry-claims/create_claim/", data);
   toastSuccess("sundryClaim.toast.submitted");
+  return row;
+}
+
+/** Per side, whether anyone other than the asker can decide (I12-6). */
+export const getSundrySubmitOptions = (project: string) =>
+  api.get<{ PROJECT: boolean; HQ: boolean }>("/api/sundry-claims/submit_options/", { project });
+
+/** 撤回: the submitter takes back their own undecided claim (I12-6). */
+export async function withdrawSundryClaim(id: string, note = "") {
+  const row = await api.post<SundryClaim>(`/api/sundry-claims/${id}/withdraw_claim/`, { note });
+  toastSuccess("sundryClaim.toast.withdrawn");
   return row;
 }
 

@@ -49,8 +49,14 @@ export const dailyReportPdfFile = (id: string, lang: string, name: string) =>
     fallbackFilename: `${(name || "daily-report").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
   });
 
-export async function createDailyReport(payload: DailyReportPayload) {
-  const row = await api.post<DailyReport>("/api/daily-reports/create_report/", payload);
+/**
+ * Write a daily report. `signOffPin` is the sign-off PIN typed when the
+ * editor opened (I29): sent again so it is typed once; the server checks it.
+ */
+export async function createDailyReport(payload: DailyReportPayload, signOffPin?: string) {
+  const row = await api.post<DailyReport>("/api/daily-reports/create_report/", payload, {
+    signOffPin: signOffPin || undefined,
+  });
   toastSuccess("contractorOps.toast.saved");
   return row;
 }
@@ -58,14 +64,21 @@ export async function createDailyReport(payload: DailyReportPayload) {
 export async function updateDailyReport(
   id: string,
   payload: Partial<Omit<DailyReportPayload, "project">>,
+  signOffPin?: string,
 ) {
-  const row = await api.patch<DailyReport>(`/api/daily-reports/${id}/update_report/`, payload);
+  const row = await api.patch<DailyReport>(`/api/daily-reports/${id}/update_report/`, payload, {
+    signOffPin: signOffPin || undefined,
+  });
   toastSuccess("contractorOps.toast.saved");
   return row;
 }
 
-export async function deleteDailyReport(id: string) {
-  await api.delete(`/api/daily-reports/${id}/delete_report/`);
+/** Removed with a reason (删除原因) and the sign-off PIN (I29). */
+export async function deleteDailyReport(id: string, reason: string, signOffPin?: string) {
+  await api.delete(`/api/daily-reports/${id}/delete_report/`, {
+    body: { reason },
+    signOffPin: signOffPin || undefined,
+  });
   toastSuccess("contractorOps.toast.removed");
 }
 

@@ -9,9 +9,10 @@ import {
   LocateFixed,
   MessageSquare,
   Plus,
-  Save,
   ShieldAlert,
-  SlidersHorizontal,
+  Tags,
+  History as HistoryIcon,
+  UserCog,
   UserCheck,
 } from "lucide-react";
 import Image from "next/image";
@@ -30,6 +31,13 @@ import {
   FieldEvidenceGrid,
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
+import {
+  hazardStage,
+  STAGE_TONE,
+  stageFromParam,
+  stageQuery,
+  TASK_STAGES,
+} from "@/lib/task-stages";
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
@@ -39,7 +47,10 @@ import {
 } from "@/components/shared/needs-action";
 import { RecordNo } from "@/components/shared/record-no";
 import { ExportButton } from "@/components/shared/export-button";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { FieldCamera } from "@/components/shared/field-camera";
+import { useAllowedTypeRefusal } from "@/components/shared/attachment-refusal";
+import { HAZARD_ATTACHMENT_ACCEPT, hazardAttachmentRule } from "@/lib/hazard-attachments";
 import {
   FieldWrapper,
   FilterBar,
@@ -52,6 +63,12 @@ import {
   RecordDetailShell,
   RecordRecorder,
 } from "@/components/shared/record-detail-shell";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+  useCanCorrect,
+} from "@/components/shared/record-correction";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -86,11 +103,14 @@ import { useDateFormat } from "@/lib/dates";
 import { hazardColumns, titleForColumn } from "@/lib/hazard-columns";
 import { photoMeta } from "@/lib/photo-meta";
 import {
+  newClientEventId,
   submitSafetyIncidentOfflineAware,
+  submitSafetyRectificationOfflineAware,
   type SafetyIncidentSubmission,
 } from "@/services/offline-sync.service";
 import { DrillNote } from "@/components/shared/drill-note";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { CategoryOptionItems } from "@/components/shared/category-options";
 import { getProjectAssignments } from "@/services/contractor.service";
 import {
   assignSafetyRectification,
@@ -98,15 +118,17 @@ import {
   getSafetyIncident,
   getSafetyIncidents,
   getIncidentRecipientOptions,
+  getSafetyResponsibleOptions,
+  reassignSafetyRectification,
   reviewSafetyRectification,
-  submitSafetyRectification,
-  updateSafetyStatus,
+  updateSafetyCategory,
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
-
-// Open or being looked into - never closed here. X8: only the raiser's
-// confirm closes a hazard; the server refuses RESOLVED from this dialog.
-const MANUAL_STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING"];
+import { signOffBeforeEditing } from "@/services/sign-off.service";
+import { ApiError } from "@/interfaces/api";
+import { SIGN_OFF_CANCELLED } from "@/lib/sign-off";
+import { LIST_FITS } from "@/lib/list-fits";
+import { useRoleLabel } from "@/lib/role-labels";
 
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
 // they would have been the kind of constant a later reader assumes is used.
@@ -181,10 +203,18 @@ interface SafetyDraft {
   latitude?: string;
   longitude?: string;
   photos: Array<File | undefined>;
+  /** PDF / Word / Excel that go with the report (I37); the photos stay the evidence. */
+  attachments?: File[];
   notifyUsers: string[];
   /** 上报 → 指派 in one step (B22); empty leaves it 待分配. */
   rectifier?: string;
   rectifierDueAt?: string;
+  /**
+   * The report's one id, kept with the draft: a second tap after a failure
+   * that was not the network (502 / 504 / 413 - the server may have taken
+   * it) is the same report, never a second one (P-phonefix).
+   */
+  clientEventId?: string;
 }
 
 const EMPTY_DRAFT: SafetyDraft = {
@@ -194,6 +224,7 @@ const EMPTY_DRAFT: SafetyDraft = {
   description: "",
   occurredAt: "",
   photos: createEmptyFieldEvidence(),
+  attachments: [],
   notifyUsers: [],
   rectifier: "",
   rectifierDueAt: "",
@@ -216,6 +247,7 @@ export function Safety({
   const te = useTranslations("ehs");
   const df = useDateFormat();
   const { can, user } = useAuth();
+  const qc = useQueryClient();
   // 顾问发起 (B21, B22): a consultant raises a rectification, and assigns the
   // ones they raised, without holding safety.manage.
   const isConsultant = user?.account_type === "CONSULTANT";
@@ -237,7 +269,20 @@ export function Safety({
     "responsible_person",
     "date_from",
     "date_to",
+    // 待处理 / 待验收 / 已完成 (ID10), and the 历史档案 view (I2).
+    "stage",
+    "view",
   ]);
+  // The office's 隐患整改 / EHS page (I2): three states, the working list,
+  // and the 历史档案 the finished items move to.
+  const officeRectification = mode === "rectification" && !fieldMode;
+  const history = officeRectification && list.filters.view === "history";
+  const chosenStage = stageFromParam(list.filters.stage);
+  const listQuery = {
+    ...list.query,
+    view: undefined,
+    stage: officeRectification ? stageQuery(chosenStage, history) : undefined,
+  };
   const searchParams = useSearchParams();
   const router = useRouter();
   const requestedIncidentId = searchParams.get("incident");
@@ -252,10 +297,16 @@ export function Safety({
   // Kept in the draft, so tapping this 挂号 again reopens the form it was in
   // (D-259). Outside a draft (the office) this is ordinary state.
   const [createOpen, setCreateOpen] = useDraftState("open:createIncident", Boolean(fieldTaskId) || searchParams.get("create") === "1");
-  const [updating, setUpdating] = useState<SafetyIncident | null>(null);
   const [assigning, setAssigning] = useState<SafetyIncident | null>(null);
   const [submitting, setSubmitting] = useState<SafetyIncident | null>(null);
   const [reviewing, setReviewing] = useState<SafetyIncident | null>(null);
+  // 调整负责人 (I2): while it is 待处理 with somebody on it.
+  const [reassigning, setReassigning] = useState<SafetyIncident | null>(null);
+  const mayFile = (incident: SafetyIncident) =>
+    can("safety.manage") &&
+    !user?.is_field_staff &&
+    !isPermit(incident) &&
+    hazardStage(incident.status) !== "DONE";
   // 「建筑商后台也是需要改」: the console takes part in the same conversation
   // the field app uses, rather than reading a summary of it.
   const [talking, setTalking] = useState<SafetyIncident | null>(null);
@@ -270,9 +321,9 @@ export function Safety({
   const clearIncidentParam = useClearSearchParam("incident");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["safety", mode, list.query, overdueOnly, waitingForMe],
+    queryKey: ["safety", mode, listQuery, overdueOnly, waitingForMe],
     queryFn: () => getSafetyIncidents({
-      ...list.query,
+      ...listQuery,
       workflow: mode === "rectification" ? "rectification" : undefined,
       involving: fieldMode ? "me" : undefined,
       overdue: overdueOnly ? "1" : undefined,
@@ -322,10 +373,15 @@ export function Safety({
       return { ...safety, results: [...safety.results, ...legacy.results] };
     },
   });
+  // 「负责人下拉不必先选项目」 (I2): the people responsible for items this
+  // reader can list, on the chosen project or on all of them.
   const responsiblePeople = useQuery({
     queryKey: ["safety-responsible-people", selectedProject],
-    queryFn: () => getProjectAssignments(selectedProject),
-    enabled: selectedProject !== "all",
+    queryFn: () =>
+      getSafetyResponsibleOptions({
+        project: selectedProject === "all" ? undefined : selectedProject,
+      }),
+    enabled: !fieldMode,
   });
 
   // Once the link's incident has opened, the parameter comes back out of the
@@ -374,21 +430,23 @@ export function Safety({
     () => [
       {
         accessorKey: "occurred_at",
-        meta: { label: t("safety.field.occurredAt") },
+        meta: { label: t("taskFlow.ehs.noAndDate") },
         header: ({ column }) => (
           <SortableHeader
-            label={t("safety.field.occurredAt")}
+            label={t("taskFlow.ehs.noAndDate")}
             isSorted={column.getIsSorted()}
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
+        // 编号 / 日期 (I2): the short number big, the date under it.
         cell: ({ row }) => (
           <div>
-            <p className="tabular text-muted-foreground">
+            <RecordNo value={row.original.incident_no} />
+            <p className="tabular text-xs text-muted-foreground">
               {df.dateTime(row.original.occurred_at)}
             </p>
-            {/* Short number big, project small (2026-10 D4). */}
-            <RecordNo value={row.original.incident_no} className="text-xs" />
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -428,7 +486,18 @@ export function Safety({
         header: () => t("safety.field.category"),
         cell: ({ row }) => (
           <span className="block max-w-45 truncate">
-            {row.original.category_name || t("common.emptyValue")}
+            {row.original.category_name || t("taskFlow.ehs.unsorted")}
+          </span>
+        ),
+      },
+      // 负责人, its own column (I2).
+      {
+        accessorKey: "responsible_person_name",
+        meta: { label: t("safety.field.responsible") },
+        header: () => t("safety.field.responsible"),
+        cell: ({ row }) => (
+          <span className="block max-w-40 truncate">
+            {row.original.responsible_person_name || t("hazard.unassigned")}
           </span>
         ),
       },
@@ -453,7 +522,7 @@ export function Safety({
           const waitingOn = nextActor(row.original, te);
           return (
             <div className="min-w-0">
-              <p className="whitespace-nowrap">{t(`safetyRectification.status.${row.original.status}`)}</p>
+              <p className="whitespace-nowrap">{t(`taskFlow.stage.${hazardStage(row.original.status)}`)}</p>
               {waitingOn && (
                 <p className="max-w-40 truncate text-xs text-muted-foreground">{waitingOn}</p>
               )}
@@ -512,9 +581,6 @@ export function Safety({
                 stays readable after closure - 「记录全部都要留着」 - and the
                 panel itself is what refuses a new message. */}
             <Button variant="ghost" size="icon" className="h-7 w-7" title={t("hazard.conversationTitle")} onClick={() => setTalking(row.original)}><MessageSquare className="h-4 w-4" /></Button>
-            {can("safety.manage") && !isPermit(row.original) && !row.original.responsible_person && ["OPEN", "INVESTIGATING"].includes(row.original.status) && (
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" title={t("safety.action.updateStatus")} onClick={() => setUpdating(row.original)}><SlidersHorizontal className="h-3.5 w-3.5" /></Button>
-            )}
           </div>
         ),
       },
@@ -531,7 +597,7 @@ export function Safety({
       emptyLabel: t("common.emptyValue"),
       // The drill-downs the list applies (逾期, 等你处理) go with it (H16).
       query: {
-        ...list.query,
+        ...listQuery,
         workflow: mode === "rectification" ? "rectification" : undefined,
         overdue: overdueOnly ? "1" : undefined,
         waiting: waitingForMe ? "me" : undefined,
@@ -543,8 +609,10 @@ export function Safety({
         { key: "category_name", label: t("safety.field.category") },
         { key: "title", label: t("safety.field.title") },
         { key: "description", label: t("safety.field.description") },
-        { key: "status", label: t("safety.field.status"), values: t.raw("safetyRectification.status") as Record<string, string> },
+        { key: "stage", label: t("safety.field.status"), values: t.raw("taskFlow.stage") as Record<string, string> },
         { key: "responsible_person_name", label: t("safety.field.responsible") },
+        { key: "verified_by_name", label: t("taskFlow.ehs.verifiedBy") },
+        { key: "verified_at", label: t("taskFlow.ehs.verifiedAt") },
         { key: "rectification_due_at", label: t("safety.field.dueAt") },
         { key: "photographer_name", label: t("safety.field.photographer") },
         { key: "latitude", label: t("safety.field.latitude") },
@@ -555,15 +623,34 @@ export function Safety({
   return (
     <div className={fieldMode ? "flex min-h-0 flex-col gap-4" : "flex h-[calc(100dvh-5rem)] flex-col gap-4"}>
       <ListHeader
-        title={t(fieldMode ? "safety.fieldReport.title" : mode === "rectification" ? "safetyRectification.title" : "safety.title")}
+        title={history ? t("taskFlow.ehs.historyTitle") : t(fieldMode ? "safety.fieldReport.title" : mode === "rectification" ? "safetyRectification.title" : "safety.title")}
         subtitle={fieldMode ? t("safety.fieldReport.subtitle") : isLoading ? t("common.loading") : t(mode === "rectification" ? "safetyRectification.count" : "safety.count", { count: total })}
         action={
           <div className="flex flex-wrap items-center gap-2">
             {/* 「待处理 N」: the open items this reader moves on next, the
                 sidebar's number for 隐患整改 (2026-10-09). */}
-            <ListNeedsActionChip list={list} count={data?.needs_action_count} />
+            {!history && <ListNeedsActionChip list={list} count={data?.needs_action_count} />}
+            {officeRectification && can("category.manage") && (
+              <Button asChild variant="outline">
+                <Link href="/category-management?module=ehs">
+                  <Tags className="h-4 w-4" />
+                  {t("taskFlow.ehs.categories")}
+                </Link>
+              </Button>
+            )}
+            {officeRectification && (
+              <Button
+                variant={history ? "default" : "outline"}
+                onClick={() =>
+                  list.setFilters({ view: history ? undefined : "history", stage: undefined })
+                }
+              >
+                <HistoryIcon className="h-4 w-4" />
+                {t(history ? "taskFlow.ehs.backToList" : "taskFlow.ehs.history")}
+              </Button>
+            )}
             {can("report.export") && !fieldMode && (
-              <ExportButton onExport={runExport} disabled={!total} />
+              <ExportButton onExport={runExport} disabled={!total} disabledReason={t("common.emptyValue")} />
             )}
             {/* No longer gated on the mode. 安全事故 is being removed from
                 the console at the customer's request, which makes this screen
@@ -572,7 +659,7 @@ export function Safety({
             {mayRaise && (
             <Button size={fieldMode ? "lg" : "default"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
-              {t(fieldMode ? "safety.fieldReport.new" : "safety.new")}
+              {t(fieldMode ? "safety.fieldReport.new" : officeRectification ? "taskFlow.ehs.create" : "safety.new")}
             </Button>
             )}
           </div>
@@ -605,24 +692,41 @@ export function Safety({
             <SelectTrigger className="w-full sm:w-52.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("safety.filter.allCategories")}</SelectItem>
-              {(filterCategories.data?.results ?? []).map((category) => (
-                <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-              ))}
+              {/* Reported from the phone without one (ID12). */}
+              <SelectItem value="none">{t("taskFlow.ehs.unsorted")}</SelectItem>
+              {/* 分类组 → 分类 → 子分类 (I11): a group, a category with its
+                  sub-categories, or one sub-category. */}
+              <CategoryOptionItems rows={filterCategories.data?.results ?? []} groupsSelectable />
             </SelectContent>
           </Select>
         )}
-        {!fieldMode && selectedProject !== "all" && (
+        {!fieldMode && (
           <Select
             value={selectedResponsible}
             onValueChange={(value) =>
               list.setFilter("responsible_person", value === "all" ? undefined : value)
             }
           >
-            <SelectTrigger className="w-full sm:w-52.5"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-52.5" aria-label={t("safety.field.responsible")}><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("safety.filter.allResponsible")}</SelectItem>
-              {(responsiblePeople.data?.results ?? []).map((person) => (
-                <SelectItem key={person.user} value={person.user}>{person.user_name}</SelectItem>
+              {(responsiblePeople.data ?? []).map((person) => (
+                <SelectItem key={person.id} value={person.id}>{person.full_name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        {/* 状态: 待处理 / 待验收 / 已完成 (ID10). The 历史档案 is 已完成 only. */}
+        {officeRectification && !history && (
+          <Select
+            value={chosenStage ?? "all"}
+            onValueChange={(value) => list.setFilter("stage", value === "all" ? undefined : value)}
+          >
+            <SelectTrigger className="w-full sm:w-40" aria-label={t("safety.field.status")}><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("taskFlow.stage.all")}</SelectItem>
+              {TASK_STAGES.map((stage) => (
+                <SelectItem key={stage} value={stage}>{t(`taskFlow.stage.${stage}`)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -648,7 +752,7 @@ export function Safety({
         {!fieldMode && (
           <QueryFailedNote className="w-full" query={filterCategories} what={t("safety.what.categories")} />
         )}
-        {!fieldMode && selectedProject !== "all" && (
+        {!fieldMode && (
           <QueryFailedNote className="w-full" query={responsiblePeople} what={t("safety.what.responsiblePeople")} />
         )}
       </FilterBar>
@@ -706,7 +810,7 @@ export function Safety({
                     <NeedsActionMarker show={incident.needs_action} />
                     <p className="font-semibold">{incident.title}</p>
                     {isPermit(incident) && <StatusBadge label={te("permit.badge")} tone="info" />}
-                    <StatusBadge label={t(`safetyRectification.status.${incident.status}`)} tone={STATUS_TONE[incident.status]} />
+                    <StatusBadge label={t(`taskFlow.stage.${hazardStage(incident.status)}`)} tone={STAGE_TONE[hazardStage(incident.status)]} />
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{incident.project_name} · {df.dateTime(incident.occurred_at)}</p>
                   {incident.notified_user_names.length > 0 && <p className="mt-2 text-sm">{t("safety.fieldReport.sentTo", { names: incident.notified_user_names.join(", ") })}</p>}
@@ -743,7 +847,8 @@ export function Safety({
         search={list.search}
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
-        storageKey="trace-safety"
+        storageKey={LIST_FITS.hazards.storageKey}
+        defaultHidden={LIST_FITS.hazards.hidden}
         pack={{ kind: "HAZARD" }}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
@@ -756,12 +861,10 @@ export function Safety({
         if (result.status === "uploaded" && !fieldMode) setTalking(result.incident);
         onRecordSaved?.(result);
       }} onClose={() => setCreateOpen(false)} />}
-      {updating && (
-        <SafetyStatusDialog incident={updating} onClose={() => setUpdating(null)} />
-      )}
       {assigning && <SafetyAssignDialog incident={assigning} onClose={() => setAssigning(null)} />}
       {submitting && <SafetySubmitDialog incident={submitting} onClose={() => setSubmitting(null)} />}
       {reviewing && <SafetyReviewDialog incident={reviewing} onClose={() => setReviewing(null)} />}
+      {reassigning && <SafetyReassignDialog incident={reassigning} onClose={() => setReassigning(null)} />}
       {/*
         Two buttons, and D-213 is why there are only two.
 
@@ -778,7 +881,17 @@ export function Safety({
         <HazardRecordDetail
           incident={opened}
           mayAssign={mayAssign(opened)}
+          mayFile={mayFile(opened)}
+          onReassign={() => {
+            setReassigning(opened);
+            setOpened(null);
+          }}
           onClose={() => setOpened(null)}
+          // After 【改正】 (I30): the open incident shows its new values.
+          onCorrected={async () => {
+            setOpened(await getSafetyIncident(opened.id));
+            void qc.invalidateQueries({ queryKey: ["safety"] });
+          }}
           onReview={() => {
             setReviewing(opened);
             setOpened(null);
@@ -819,28 +932,47 @@ export function Safety({
 export function HazardRecordDetail({
   incident,
   mayAssign,
+  mayFile = false,
   onClose,
   onReview,
   onAssign,
+  onReassign,
+  onCorrected,
 }: {
   incident: SafetyIncident;
+  /** After 【改正】 (I30): re-read the incident. */
+  onCorrected?: () => void;
   /** `Safety`'s assignment rule, for this incident. */
   mayAssign: boolean;
+  /** The office may change its category and who fixes it (I2). */
+  mayFile?: boolean;
   onClose: () => void;
   onReview: () => void;
   onAssign: () => void;
+  onReassign?: () => void;
 }) {
   const t = useTranslations();
   const te = useTranslations("ehs");
   const df = useDateFormat();
+  // 【改正】 (I30): a hazard's category, title and description; a permit is
+  // its own form and is not corrected here.
+  const mayCorrect = useCanCorrect("HAZARD");
+  const correction = isPermit(incident) || !mayCorrect ? null : (
+    <RecordCorrectionButton
+      kind="HAZARD"
+      recordId={incident.id}
+      onCorrected={onCorrected}
+    />
+  );
   return (
     <RecordDetailDialog
       title={incident.incident_no}
+      legacyNo={incident.legacy_no}
       description={incident.title}
       status={
         <StatusBadge
-          label={t(`safetyRectification.status.${incident.status}`)}
-          tone={STATUS_TONE[incident.status]}
+          label={t(`taskFlow.stage.${hazardStage(incident.status)}`)}
+          tone={STAGE_TONE[hazardStage(incident.status)]}
         />
       }
       // 「单独导出」 top right (T-386).
@@ -857,7 +989,11 @@ export function HazardRecordDetail({
             value: incident.responsible_person_name || t("hazard.unassigned"),
           },
           { label: t("safety.field.project"), value: incident.project_name },
+          { label: t("safety.field.category"), value: incident.category_name || t("taskFlow.ehs.unsorted") },
           { label: t("safety.field.occurredAt"), value: df.dateTime(incident.occurred_at) },
+          ...(incident.description
+            ? [{ label: t("safety.field.description"), value: incident.description, wide: true }]
+            : []),
           ...(incident.origin
             ? [{ label: te("field.origin"), value: te(`origin.${incident.origin}`) }]
             : []),
@@ -869,7 +1005,7 @@ export function HazardRecordDetail({
                 .join(" · ") || t("common.emptyValue"),
           },
           { label: te("field.confirmer"), value: confirmerLabel(incident, te) },
-          ...(incident.verified_at && incident.status === "VERIFIED"
+          ...(incident.verified_at && hazardStage(incident.status) === "DONE"
             ? [
                 {
                   label: te("field.confirmedBy"),
@@ -902,8 +1038,9 @@ export function HazardRecordDetail({
         }))}
         emptyGroupLabel={te("photos.none")}
         actions={
-          incident.can_confirm || mayAssign ? (
+          incident.can_confirm || mayAssign || mayFile || correction ? (
             <div className="grid gap-2">
+              {correction}
               {incident.can_confirm && (
                 <Button
                   className="min-h-11"
@@ -927,8 +1064,21 @@ export function HazardRecordDetail({
                   {t("safetyRectification.action.assign")}
                 </Button>
               )}
+              {mayFile && onReassign && incident.responsible_person &&
+                ["ASSIGNED", "RETURNED"].includes(incident.status) && (
+                <Button variant="outline" className="min-h-11" onClick={onReassign}>
+                  <UserCog />
+                  {t("taskFlow.ehs.reassign")}
+                </Button>
+              )}
+              {mayFile && <HazardCategoryControl incident={incident} />}
             </div>
           ) : undefined
+        }
+        corrections={
+          isPermit(incident) ? null : (
+            <RecordCorrectionHistory kind="HAZARD" recordId={incident.id} />
+          )
         }
         chat={<HazardConversationPanel incidentId={incident.id} />}
       />
@@ -1009,22 +1159,44 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
 
 export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
+  const commonT = useTranslations("common");
   const qc = useQueryClient();
   const { user } = useAuth();
   const fieldMode = Boolean(user?.is_field_staff);
-  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
+  const refusalText = useAllowedTypeRefusal(HAZARD_ATTACHMENT_ACCEPT, { phone: fieldMode });
+  // 拍照 (at least one) / 备注 → 提交完成 (I1): the same on the phone and
+  // in the office, no four fixed slots any more.
   const [officeImages, setOfficeImages] = useState<File[]>([]);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [note, setNote] = useState("");
   // Automatic, like every field capture form (T-355, D-246).
   const [location, setLocation] = useState<LocationFix | null>(null);
-  const images = fieldMode ? completedFieldEvidence(fieldEvidence) : officeImages;
-  const evidenceLabels = [
-    t("evidence.before"),
-    t("evidence.completed"),
-    t("evidence.detail"),
-    t("evidence.surroundings"),
-  ];
-  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] }); onClose(); } });
+  const images = officeImages;
+  // One id for this dialog: every press, retry and queue replay is the same
+  // submission to the server, so a lost answer can never post the fix twice.
+  const [clientEventId] = useState(() => crypto.randomUUID());
+  const save = useMutation({
+    mutationFn: () => {
+      if (!user) throw new Error("Authentication required.");
+      return submitSafetyRectificationOfflineAware(user.id, incident.id, {
+        images,
+        attachments,
+        note,
+        captured_at: new Date().toISOString(),
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        accuracy_m: location?.accuracy,
+        device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined,
+        client_event_id: clientEventId,
+      });
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["safety"] });
+      void qc.invalidateQueries({ queryKey: ["my-tasks"] });
+      void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] });
+      onClose();
+    },
+  });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
@@ -1033,24 +1205,15 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
           <DialogDescription>{incident.rectification_note || t("submit.description")}</DialogDescription>
         </DialogHeader>
         <FieldWrapper label={t("field.photo")} required>
-          {fieldMode ? (
-            <FieldEvidenceGrid
-              labels={evidenceLabels}
-              files={fieldEvidence}
-              progressLabel={t("evidence.progress", {
-                current: images.length,
-                required: FIELD_EVIDENCE_PHOTO_COUNT,
-              })}
-              onChange={setFieldEvidence}
-            />
-          ) : (
-            <FieldCamera
-              label={t("field.photo")}
-              fileCount={officeImages.length}
-              onCapture={(image) => setOfficeImages((current) => [...current, image])}
-              onClear={() => setOfficeImages([])}
-            />
-          )}
+          <FieldCamera
+            label={t("field.photo")}
+            fileCount={officeImages.length}
+            onCapture={(image) => setOfficeImages((current) => [...current, image])}
+            onClear={() => setOfficeImages([])}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.attachments")} optional={commonT("optional")}>
+          <AttachmentPicker files={attachments} onChange={setAttachments} rule={hazardAttachmentRule(fieldMode)} camera={false} refusalText={refusalText} />
         </FieldWrapper>
         <LocationField
           label={t("field.location")}
@@ -1068,7 +1231,7 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[images.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(fieldEvidence)), t("field.photo")], [location, t("field.location")], [note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[images.length >= 1, t("field.photo")], [location, t("field.location")], [note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             <Camera />
             {t("action.submit")}
           </Button>
@@ -1096,6 +1259,7 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
  */
 export function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
+  const tf = useTranslations("taskFlow");
   const te = useTranslations("ehs");
   const qc = useQueryClient();
   const [note, setNote] = useState("");
@@ -1114,7 +1278,7 @@ export function SafetyReviewDialog({ incident, onClose }: { incident: SafetyInci
         </DialogHeader>
         <HazardPhotoGroups incident={incident} />
         <p className="rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
-          {permit ? te("permit.refuseInstead") : t("review.refuseInstead")}
+          {permit ? te("permit.refuseInstead") : tf("moreWork.reviewHint")}
         </p>
         <FieldWrapper label={t("field.reviewNote")}>
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
@@ -1211,6 +1375,7 @@ function SafetyCreateDialog({
   onSaved?: (result: SafetyIncidentSubmission) => void;
 }) {
   const t = useTranslations();
+  const roleOf = useRoleLabel();
   const { user, can } = useAuth();
   const queryClient = useQueryClient();
   const [draft, setDraft] = useDraftState<SafetyDraft>("draft", {
@@ -1218,6 +1383,7 @@ function SafetyCreateDialog({
     project: initialProject,
   });
   const clearDraft = useClearDraft();
+  const attachmentRefusal = useAllowedTypeRefusal(HAZARD_ATTACHMENT_ACCEPT, { phone: fieldMode });
   /*
    * Whether this device can place the worker at all.
    *
@@ -1288,11 +1454,24 @@ function SafetyCreateDialog({
   }
 
   const create = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!user) throw new Error("Authentication required.");
+      // An item raised in the office is signed (I29, ID68 4). The PIN is
+      // asked and checked BEFORE the photos go, so a wrong one never sends
+      // them twice; the create carries the PIN that was right. The phone and
+      // a consultant are never asked.
+      let signOffPin: string | undefined;
+      if (!fieldMode && user.account_type !== "CONSULTANT") {
+        const pin = await signOffBeforeEditing("hazard.create");
+        if (pin === null) throw new ApiError("", 403, {}, SIGN_OFF_CANCELLED);
+        signOffPin = pin || undefined;
+      }
+      const eventId = draft.clientEventId || newClientEventId("safety-incident");
+      if (!draft.clientEventId) setDraft((value) => ({ ...value, clientEventId: eventId }));
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
-        category,
+        // None from the phone (ID12): the server files it as 「未分类」.
+        category: fieldMode ? undefined : category,
         // The phone has no title field: the server writes it from the column.
         title: fieldMode ? "" : draft.title.trim(),
         description: draft.description.trim(),
@@ -1302,8 +1481,9 @@ function SafetyCreateDialog({
         latitude: draft.latitude,
         longitude: draft.longitude,
         photos: completedPhotos,
+        attachments: draft.attachments ?? [],
         notify_users: draft.notifyUsers,
-        client_event_id: crypto.randomUUID(),
+        client_event_id: eventId,
         field_task: fieldTaskId,
         responsible_person: draft.rectifier || undefined,
         due_at:
@@ -1311,7 +1491,7 @@ function SafetyCreateDialog({
             ? new Date(draft.rectifierDueAt).toISOString()
             : undefined,
       };
-      return submitSafetyIncidentOfflineAware(user.id, payload);
+      return submitSafetyIncidentOfflineAware(user.id, payload, signOffPin);
     },
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["safety"] });
@@ -1400,6 +1580,9 @@ function SafetyCreateDialog({
               className="w-full"
             />
           </FieldWrapper>
+          {/* The phone does not ask (ID12): 「不需要选择部门或详细分类，由后台
+              处理」 - the office files it later (「未分类」). */}
+          {!fieldMode && (
           <FieldWrapper label={t("safety.field.category")} required className="sm:col-span-2">
             <Select
               value={category || undefined}
@@ -1410,7 +1593,8 @@ function SafetyCreateDialog({
                 setDraft((value) => ({
                   ...value,
                   category: categoryId,
-                  title: titleForColumn(value.title, offeredNames, next?.name ?? ""),
+                  // 「其他」 (ID5): the item's own name is typed, not 「其他」.
+                  title: titleForColumn(value.title, offeredNames, next?.name && !next.is_other ? next.name : ""),
                 }));
               }}
               disabled={!draft.project}
@@ -1419,11 +1603,7 @@ function SafetyCreateDialog({
                 <SelectValue placeholder={t("safety.filter.selectCategory")} />
               </SelectTrigger>
               <SelectContent>
-                {offeredCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
+                <CategoryOptionItems rows={offeredCategories} />
               </SelectContent>
             </Select>
             {/* An empty picker that does not say why it is empty is the shell
@@ -1452,6 +1632,7 @@ function SafetyCreateDialog({
                 </p>
               )}
           </FieldWrapper>
+          )}
 
           {/* Title, the four presets, severity and the time: all off the
               phone. The presets were 发生事故／发现危险／设备损坏／其他事项 and
@@ -1485,7 +1666,8 @@ function SafetyCreateDialog({
             />
           </FieldWrapper>
           )}
-          {!fieldMode && <FieldWrapper label={t("safety.field.description")} optional={t("common.optional")} className="sm:col-span-2">
+          {/* 简单说明, optional on the phone too (ID12). */}
+          {<FieldWrapper label={t("safety.field.description")} optional={t("common.optional")} className="sm:col-span-2">
             <Textarea
               rows={4}
               value={draft.description}
@@ -1524,6 +1706,18 @@ function SafetyCreateDialog({
                 },
               )}
               onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
+            />
+          </FieldWrapper>
+          {/* PDF / Word / Excel beside the photos (I37). Never instead of them:
+              the photo rule above is unchanged. The phone's picker has no
+              camera here - the grid above is the camera - so it is 「选文件」. */}
+          <FieldWrapper label={t("safety.field.attachments")} optional={t("common.optional")} className="sm:col-span-2">
+            <AttachmentPicker
+              files={draft.attachments ?? []}
+              onChange={(attachments) => setDraft((value) => ({ ...value, attachments }))}
+              rule={hazardAttachmentRule(fieldMode)}
+              camera={false}
+              refusalText={attachmentRefusal}
             />
           </FieldWrapper>
           {/* 上报 → 指派 in one step (B22), and who confirms it (B21). */}
@@ -1578,8 +1772,8 @@ function SafetyCreateDialog({
                     <span className="block truncate font-medium">{row.full_name}</span>
                     <span className="block truncate text-xs text-muted-foreground">
                       {row.is_supervisor
-                        ? `${row.role_name} / ${t("incidentReporting.supervisor")}`
-                        : row.role_name}
+                        ? `${roleOf(null, row.role_name)} / ${t("incidentReporting.supervisor")}`
+                        : roleOf(null, row.role_name)}
                     </span>
                   </span>
                 </label>
@@ -1639,7 +1833,7 @@ function SafetyCreateDialog({
               grey at somebody who had already photographed the hazard. */}
           <Button requires={[
             ...(fieldMode
-              ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.latitude && draft.longitude, t("safety.field.location")]]
+              ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.latitude && draft.longitude, t("safety.field.location")]]
               : [[draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.title, t("safety.field.title")], [photosReady, t("safety.field.photo")]]),
             [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
           ] as Array<[unknown, string]>} disabled={create.isPending} onClick={() => create.mutate()}>
@@ -1657,70 +1851,150 @@ function SafetyCreateDialog({
   );
 }
 
-function SafetyStatusDialog({
-  incident,
-  onClose,
-}: {
-  incident: SafetyIncident;
-  onClose: () => void;
-}) {
+/**
+ * 改事项分类 (I2): the office files an item - mostly the 「未分类」 the phone
+ * sends (ID12) - under one of the project's EHS categories.
+ */
+function HazardCategoryControl({ incident }: { incident: SafetyIncident }) {
   const t = useTranslations();
-  const queryClient = useQueryClient();
-  const [status, setStatus] = useState<IncidentStatus>(incident.status);
-  const [note, setNote] = useState(incident.resolution_note);
-
-  const update = useMutation({
-    mutationFn: () => updateSafetyStatus(incident.id, status, note.trim()),
+  const qc = useQueryClient();
+  const [chosen, setChosen] = useState(incident.category ?? "");
+  const [reason, setReason] = useState("");
+  // Moving an item already filed is a 「改正」 (ID77): a reason and the PIN.
+  // Filing a 「未分类」 one for the first time is neither.
+  const moving = Boolean(incident.category) && Boolean(chosen) && chosen !== incident.category;
+  const categories = useQuery({
+    queryKey: ["safety-file-categories", incident.project],
+    queryFn: () =>
+      getProjectCategories({
+        project: incident.project,
+        is_active: true,
+        kind: "EHS",
+        page_size: 200,
+      }),
+  });
+  const offered = hazardColumns(categories.data?.results ?? [], false);
+  const save = useMutation({
+    mutationFn: () => updateSafetyCategory(incident.id, chosen, moving ? reason.trim() : ""),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["safety"] });
+      setReason("");
+      void qc.invalidateQueries({ queryKey: ["safety"] });
+      void qc.invalidateQueries({ queryKey: ["safety-incident"] });
+    },
+  });
+  return (
+    <FieldWrapper label={t("safety.field.category")}>
+      <div className="flex gap-2">
+        <Select value={chosen || undefined} onValueChange={setChosen}>
+          <SelectTrigger className="min-w-0 flex-1" aria-label={t("safety.field.category")}>
+            <SelectValue placeholder={t("taskFlow.ehs.unsorted")} />
+          </SelectTrigger>
+          <SelectContent>
+            <CategoryOptionItems rows={offered} />
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          disabled={
+            save.isPending || !chosen || chosen === incident.category || (moving && !reason.trim())
+          }
+          disabledReason={
+            moving && !reason.trim()
+              ? t("taskFlow.ehs.changeReasonNeeded")
+              : t("taskFlow.ehs.chooseCategory")
+          }
+          onClick={() => save.mutate()}
+        >
+          {save.isPending ? <Loader2 className="animate-spin" /> : <Tags />}
+          {t("taskFlow.ehs.saveCategory")}
+        </Button>
+      </div>
+      {moving && (
+        <FieldWrapper
+          label={t("taskFlow.ehs.changeReason")}
+          required
+          hint={t("taskFlow.ehs.changeReasonHint")}
+          className="mt-2"
+        >
+          <Input
+            value={reason}
+            maxLength={1000}
+            aria-label={t("taskFlow.ehs.changeReason")}
+            onChange={(event) => setReason(event.target.value)}
+          />
+        </FieldWrapper>
+      )}
+      <QueryFailedNote query={categories} what={t("safety.what.categories")} />
+    </FieldWrapper>
+  );
+}
+
+/**
+ * 调整负责人 (I2): another person fixes it while it is 待处理. The same item,
+ * its photos and conversation stay; the deadline stays unless changed.
+ */
+function SafetyReassignDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
+  const t = useTranslations();
+  const qc = useQueryClient();
+  const team = useQuery({
+    queryKey: ["project-assignments", incident.project, "safety"],
+    queryFn: () => getProjectAssignments(incident.project),
+  });
+  const [person, setPerson] = useState("");
+  const [dueAt, setDueAt] = useState(
+    incident.rectification_due_at ? incident.rectification_due_at.slice(0, 16) : "",
+  );
+  const choices = (team.data?.results ?? []).filter(
+    (row) => row.user !== incident.responsible_person && row.user !== incident.confirmer,
+  );
+  const save = useMutation({
+    mutationFn: () =>
+      reassignSafetyRectification(incident.id, {
+        responsible_person: person,
+        due_at: dueAt ? new Date(dueAt).toISOString() : undefined,
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["safety"] });
       onClose();
     },
   });
-
   return (
-    <Dialog open onOpenChange={(next) => !next && onClose()}>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t("safety.update.title")}</DialogTitle>
+          <DialogTitle>{t("taskFlow.ehs.reassign")}</DialogTitle>
           <DialogDescription>
-            {t("safety.update.description", { incident: incident.incident_no })}
+            {t("taskFlow.ehs.reassignHelp", {
+              incident: incident.incident_no,
+              person: incident.responsible_person_name ?? "",
+            })}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <FieldWrapper label={t("safety.field.status")} required>
-            <Select
-              value={status}
-              onValueChange={(value) => setStatus(value as IncidentStatus)}
-            >
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {MANUAL_STATUSES.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {t(`safetyRectification.status.${option}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          <FieldWrapper
-            label={t("safety.field.resolutionNote")}
-            optional={t("common.optional")}
-          >
-            <Textarea rows={4} value={note} onChange={(event) => setNote(event.target.value)} />
-          </FieldWrapper>
-          <p className="text-xs text-muted-foreground">{t("safety.update.closeHint")}</p>
-        </div>
+        <FieldWrapper label={t("taskFlow.ehs.newResponsible")} required>
+          <Select value={person || undefined} onValueChange={setPerson}>
+            <SelectTrigger className="w-full" aria-label={t("taskFlow.ehs.newResponsible")}>
+              <SelectValue placeholder={t("safetyRectification.field.selectResponsible")} />
+            </SelectTrigger>
+            <SelectContent>
+              {choices.map((row) => (
+                <SelectItem key={row.user} value={row.user}>{row.user_name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <QueryFailedNote query={team} what={t("safetyRectification.what.team")} />
+        </FieldWrapper>
+        <FieldWrapper label={t("safetyRectification.field.dueAt")} optional={t("common.optional")}>
+          <Input type="datetime-local" value={dueAt} onChange={(event) => setDueAt(event.target.value)} />
+        </FieldWrapper>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            {t("common.cancel")}
-          </Button>
-          <Button disabled={update.isPending} onClick={() => update.mutate()}>
-            {update.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            {t("common.save")}
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button
+            requires={[[person, t("taskFlow.ehs.newResponsible")]]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <UserCog />}
+            {t("taskFlow.ehs.reassign")}
           </Button>
         </DialogFooter>
       </DialogContent>

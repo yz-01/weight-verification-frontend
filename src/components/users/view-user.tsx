@@ -1,9 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Pencil } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { KeyRound, Loader2, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -18,10 +19,13 @@ import {
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { LOCALE_LABELS, resolveLocale } from "@/i18n/config";
-import type { UserStatus } from "@/interfaces/auth";
+import type { UserDetail, UserStatus } from "@/interfaces/auth";
+import { resetUserSignOffPin } from "@/services/sign-off.service";
 import { getUser } from "@/services/users.service";
 import { useDateFormat } from "@/lib/dates";
+import { useRoleLabel } from "@/lib/role-labels";
 
 const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
   ACTIVE: "positive",
@@ -31,6 +35,7 @@ const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
 
 export function ViewUser({ id }: { id: string }) {
   const t = useTranslations();
+  const roleOf = useRoleLabel();
   const df = useDateFormat();
   const { can } = useAuth();
 
@@ -66,7 +71,7 @@ export function ViewUser({ id }: { id: string }) {
           <h2 className="text-base font-semibold text-foreground">
             {data.full_name}
           </h2>
-          {data.role_name && <TypeBadge label={data.role_name} />}
+          {data.role_name && <TypeBadge label={roleOf(data.role_code, data.role_name)} />}
           <StatusBadge
             label={t(`users.status.${data.status}`)}
             tone={STATUS_TONE[data.status]}
@@ -97,6 +102,10 @@ export function ViewUser({ id }: { id: string }) {
             />
           </FormSection>
 
+          {data.sign_off_pin && !data.sign_off_pin.exempt && (
+            <SignOffPinSection user={data} canReset={can("user.update")} />
+          )}
+
           <FormSection title={t("users.section.activity")}>
             <ReadField
               label={t("users.field.lastLoginAt")}
@@ -118,5 +127,58 @@ export function ViewUser({ id }: { id: string }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * The person's six-digit sign-off PIN (I29): set or not, locked, and the
+ * administrator's 「重设签核密码」 (IB17) - behind a switch, not a confirm.
+ * The administrator never sees or chooses the PIN; the person sets a new one.
+ */
+function SignOffPinSection({ user, canReset }: { user: UserDetail; canReset: boolean }) {
+  const t = useTranslations("signOff");
+  const df = useDateFormat();
+  const queryClient = useQueryClient();
+  const [armed, setArmed] = useState(false);
+  const pin = user.sign_off_pin!;
+  const reset = useMutation({
+    mutationFn: () => resetUserSignOffPin(user.id),
+    onSuccess: (next) => {
+      setArmed(false);
+      queryClient.setQueryData(["users", "detail", user.id], next);
+    },
+  });
+  const state = pin.locked_until ? "locked" : pin.was_reset ? "reset" : pin.has_pin ? "set" : "notSet";
+  return (
+    <FormSection title={t("profileTitle")}>
+      <ReadField
+        label={t("statusLabel")}
+        value={
+          state === "locked"
+            ? t("status.locked", { time: df.dateTime(pin.locked_until as string) })
+            : t(`status.${state}`)
+        }
+      />
+      {canReset && (pin.has_pin || pin.locked_until) && (
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm">
+            <Switch tone="danger" checked={armed} onCheckedChange={setArmed} />
+            {t("resetArm")}
+          </label>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            disabledReason={!armed ? t("resetArmFirst") : undefined}
+            disabled={!armed || reset.isPending}
+            onClick={() => reset.mutate()}
+          >
+            {reset.isPending ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+            {t("reset")}
+          </Button>
+          <p className="w-full text-xs text-muted-foreground">{t("resetHint")}</p>
+        </div>
+      )}
+    </FormSection>
   );
 }

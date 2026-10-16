@@ -96,7 +96,9 @@ export function GeofenceWorkspace() {
       </FieldWrapper>}
       <div className="flex h-10 items-center rounded-lg bg-muted/40 px-4 text-sm"><span className="text-muted-foreground">{t("geofence.activeZones")}</span><strong className="ml-2 tabular">{zones.length}</strong></div>
     </FilterBar>
-    <LocationMap center={center} markers={[]} zones={zones} className="rounded-xl" />
+    {/* I7: a refetch never moves the map; it fits on opening, on another
+        project, and on 「回到围栏」. */}
+    <LocationMap center={center} markers={[]} zones={zones} className="rounded-xl" preserveViewOnDataUpdate fitBoundsKey={project} fitLabel={t("geofence.backToFence")} />
     {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !hasDisplayedRows ? <State text={t("geofence.empty")} /> : <div className="grid gap-3 lg:grid-cols-2">
       {rows.data?.results.map((row) => <article key={row.id} className="surface-panel rounded-xl p-4">
         <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.name}</h3>{row.is_primary && <StatusBadge label={t("geofence.primary")} tone="info" />}<StatusBadge label={t(row.is_active ? "status.active" : "status.inactive")} tone={row.is_active ? "positive" : "neutral"} /></div><p className="mt-1 text-sm text-muted-foreground">{row.project_name} · {t(`shape.${row.shape}`)}</p></div>{can("geofence.manage") && <div className="flex shrink-0"><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => setEditing(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" title={t("action.remove")} className="text-destructive" onClick={() => setRemoving(row)}><Trash2 /></Button></div>}</div>
@@ -133,7 +135,19 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
   });
   const [locationError, setLocationError] = useState("");
   const [drawing, setDrawing] = useState(false);
-  const save = useMutation({ mutationFn: () => row ? updateSiteGeofence(row.id, form) : createSiteGeofence(form), onSuccess: onSaved });
+  // 「编辑围栏」 (I7, ID23): a saved fence is only looked at until it is
+  // switched on; a new one is being drawn, so it starts on. Saving turns it off.
+  const [editingFence, setEditingFence] = useState(row === null);
+  // Bumped when the reader puts in a place to look at (project, GPS).
+  const [fitSignal, setFitSignal] = useState(0);
+  const showPlace = () => setFitSignal((value) => value + 1);
+  const save = useMutation({
+    mutationFn: () => row ? updateSiteGeofence(row.id, form) : createSiteGeofence(form),
+    onSuccess: () => {
+      setEditingFence(false);
+      onSaved();
+    },
+  });
   const selectedProject = projects.find((project) => project.id === form.project);
   const center = form.latitude && form.longitude ? [Number(form.latitude), Number(form.longitude)] as [number, number] : undefined;
   const setCenter = useCallback((point: [number, number]) => setForm((current) => ({ ...current, latitude: point[0].toFixed(7), longitude: point[1].toFixed(7) })), []);
@@ -154,6 +168,7 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
           }
         : {}),
     }));
+    if (project?.latitude && project.longitude) showPlace();
   }
 
   function selectShape(shape: "CIRCLE" | "POLYGON") {
@@ -163,17 +178,26 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
       polygon: shape === "POLYGON" ? current.polygon : [],
     }));
     setDrawing(shape === "POLYGON" && form.polygon.length < 3);
+    // Choosing the shape is changing the fence.
+    setEditingFence(true);
+  }
+
+  function setFenceEditing(next: boolean) {
+    setEditingFence(next);
+    // Switched off with a finished polygon: drawing is finished too.
+    if (!next && form.polygon.length >= 3) setDrawing(false);
   }
 
   function useProjectLocation() {
     if (!selectedProject?.latitude || !selectedProject.longitude) { setLocationError(t("geofence.noProjectLocation")); return; }
     setLocationError(""); setCenter([Number(selectedProject.latitude), Number(selectedProject.longitude)]);
     if (selectedProject.geofence_radius_m) setForm((current) => ({ ...current, radius_m: selectedProject.geofence_radius_m }));
+    showPlace();
   }
   function useGps() {
     setLocationError("");
     if (!("geolocation" in navigator)) { setLocationError(t("geofence.gpsError")); return; }
-    navigator.geolocation.getCurrentPosition((position) => setCenter([position.coords.latitude, position.coords.longitude]), () => setLocationError(t("geofence.gpsError")), { enableHighAccuracy: true, timeout: 15000 });
+    navigator.geolocation.getCurrentPosition((position) => { setCenter([position.coords.latitude, position.coords.longitude]); showPlace(); }, () => setLocationError(t("geofence.gpsError")), { enableHighAccuracy: true, timeout: 15000 });
   }
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -216,7 +240,16 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
           </div>
           {locationError && <p role="alert" className="text-sm text-destructive">{locationError}</p>}
 
-          {form.shape === "POLYGON" && (
+          {/* 「编辑围栏」: off, a click on the map changes nothing (I7). */}
+          <label className="flex items-start gap-3 rounded-lg border p-3">
+            <Switch checked={editingFence} onCheckedChange={setFenceEditing} aria-label={t("geofence.editSwitch")} />
+            <span className="min-w-0">
+              <span className="block text-sm font-medium">{t("geofence.editSwitch")}</span>
+              <span className="block text-xs text-muted-foreground">{editingFence ? t("geofence.editHint") : t("geofence.locked")}</span>
+            </span>
+          </label>
+
+          {form.shape === "POLYGON" && editingFence && (
             <div className={`flex items-start gap-3 rounded-lg border p-3 ${drawing ? "border-primary/30 bg-primary/5" : "border-success/30 bg-success/5"}`}>
               <span className={`grid size-9 shrink-0 place-items-center rounded-full ${drawing ? "bg-primary text-primary-foreground" : "bg-success text-success-foreground"}`}>
                 {drawing ? <MousePointerClick className="size-5" /> : <Check className="size-5" />}
@@ -229,12 +262,12 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
           )}
 
           <div className="geofence-map-viewport block w-full min-w-0 max-w-full overflow-hidden">
-            <GeofenceMapEditor shape={form.shape} center={center} radiusM={form.radius_m ?? 150} points={form.polygon} drawingEnabled={form.shape === "POLYGON" && drawing} onCenter={setCenter} onPoints={setPoints} />
+            <GeofenceMapEditor shape={form.shape} center={center} radiusM={form.radius_m ?? 150} points={form.polygon} drawingEnabled={form.shape === "POLYGON" && drawing} editing={editingFence} fitSignal={fitSignal} backLabel={t("geofence.backToFence")} onCenter={setCenter} onPoints={setPoints} />
           </div>
 
           {form.shape === "CIRCLE" ? (
             <div className="space-y-3">
-              <p className="rounded-lg bg-muted/40 p-3 text-sm">{t("geofence.circleInstruction")}</p>
+              {editingFence && <p className="rounded-lg bg-muted/40 p-3 text-sm">{t("geofence.circleInstruction")}</p>}
               <div className="grid gap-4 sm:grid-cols-3">
                 <FieldWrapper label={t("field.latitude")} required><Input inputMode="decimal" value={form.latitude ?? ""} onChange={(event) => setForm({ ...form, latitude: event.target.value })} /></FieldWrapper>
                 <FieldWrapper label={t("field.longitude")} required><Input inputMode="decimal" value={form.longitude ?? ""} onChange={(event) => setForm({ ...form, longitude: event.target.value })} /></FieldWrapper>
@@ -247,8 +280,8 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
           ) : (
             <FieldWrapper label={t("geofence.pointCount", { count: 3 })} required>
             <div className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
-              <div><p className="font-semibold tabular">{t("geofence.drawingCount", { count: form.polygon.length })}</p><p className="mt-1 text-sm text-muted-foreground">{drawing && pointsNeeded > 0 ? t("geofence.finishNeedThree", { count: pointsNeeded }) : t("geofence.dragPointHelp")}</p></div>
-              <div className="flex flex-wrap gap-2">
+              <div><p className="font-semibold tabular">{t("geofence.drawingCount", { count: form.polygon.length })}</p><p className="mt-1 text-sm text-muted-foreground">{!editingFence ? t("geofence.locked") : drawing && pointsNeeded > 0 ? t("geofence.finishNeedThree", { count: pointsNeeded }) : t("geofence.dragPointHelp")}</p></div>
+              {editingFence && <div className="flex flex-wrap gap-2">
                 {drawing ? <>
                   <Button type="button" variant="outline" disabledReason={!form.polygon.length ? t("geofence.noPointsYet") : undefined} disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: form.polygon.slice(0, -1) })}><RotateCcw />{t("geofence.undoPoint")}</Button>
                   <Button type="button" variant="outline" disabledReason={!form.polygon.length ? t("geofence.noPointsYet") : undefined} disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: [] })}><Trash2 />{t("geofence.clearPoints")}</Button>
@@ -257,7 +290,7 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
                   <Button type="button" variant="outline" onClick={() => setDrawing(true)}><MousePointerClick />{t("geofence.continueDrawing")}</Button>
                   <Button type="button" variant="outline" onClick={() => { setForm({ ...form, polygon: [] }); setDrawing(true); }}><RotateCcw />{t("geofence.redraw")}</Button>
                 </>}
-              </div>
+              </div>}
             </div>
             </FieldWrapper>
           )}

@@ -8,6 +8,7 @@ import type {
   LoginRecord,
   Role,
   RolePayload,
+  RoleTemplate,
   UserDetail,
   UserPayload,
   UserReplacement,
@@ -138,6 +139,21 @@ export async function updateRole(
 export async function deleteRole(id: string): Promise<void> {
   await api.delete(`/api/roles/${id}/delete_role/`);
   toastSuccess("roles.toast.removed");
+}
+
+/** The preset roles this company does not have yet (「从预设新增」, I34). */
+export async function getRoleTemplates(): Promise<RoleTemplate[]> {
+  const data = await api.get<{ results: RoleTemplate[]; count: number }>(
+    "/api/roles/get_role_templates/",
+  );
+  return data.results;
+}
+
+/** Add one preset role, exactly as a new company gets it. */
+export async function createRoleFromTemplate(code: string): Promise<Role> {
+  const role = await api.post<Role>("/api/roles/create_role_from_template/", { code });
+  toastSuccess("roles.toast.presetAdded");
+  return role;
 }
 
 export function getLoginRecords(

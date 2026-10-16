@@ -7,8 +7,8 @@
  * is filled; the server refuses an approval without it too.
  *
  * Written for any record that leaves the site (X3): it reads only the note's
- * own fields, so an equipment exit can open the same dialog with its own
- * `save` - see `ReturnNoteSource`.
+ * own fields, so an equipment exit (2026-10 I13) opens the same dialog with
+ * its own `save` - see `ReturnNoteSource`.
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -65,14 +65,26 @@ export type ReturnNoteSource = Pick<
   | "approver_signature"
 > & { unit_label?: string | null };
 
+/** What the dialog sends: the material return's note, or a machine's (I13). */
+export type ReturnNotePayload = Parameters<typeof fillReturnNote>[1];
+
 export function ReturnNoteDialog({
   row,
   onClose,
   onSaved,
+  save: send = fillReturnNote,
+  refreshKey = ["material-outgoing"],
+  machine = false,
 }: {
   row: ReturnNoteSource;
   onClose: () => void;
   onSaved: () => void;
+  /** Where the note is written; material's own endpoint unless given. */
+  save?: (id: string, payload: ReturnNotePayload) => Promise<unknown>;
+  /** The list to bring up to date when the note was locked meanwhile. */
+  refreshKey?: readonly unknown[];
+  /** A machine's exit (I13): 「设备」 where material's says 「材料」. */
+  machine?: boolean;
 }) {
   const t = useTranslations("contractorOps.returnNote");
   const field = useTranslations("fieldStaffPwa");
@@ -96,7 +108,7 @@ export function ReturnNoteDialog({
   const unit = (filled ? row.return_note_unit : row.unit) || row.unit;
   const save = useMutation({
     mutationFn: () =>
-      fillReturnNote(row.id, {
+      send(row.id, {
         material: form.material.trim(),
         delivery_note_no: form.delivery_note_no.trim(),
         supplier: form.supplier || undefined,
@@ -112,7 +124,7 @@ export function ReturnNoteDialog({
         // Decided on another screen meanwhile (audit #16): say so in its own
         // words and bring this record up to date behind the dialog.
         setError(failure.message);
-        void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
+        void qc.invalidateQueries({ queryKey: refreshKey });
         return;
       }
       setError(
@@ -129,7 +141,7 @@ export function ReturnNoteDialog({
           <DialogTitle>
             {t("title")} · {row.reference_no}
           </DialogTitle>
-          <DialogDescription>{t("help")}</DialogDescription>
+          <DialogDescription>{t(machine ? "helpMachine" : "help")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("number")}>
@@ -143,7 +155,7 @@ export function ReturnNoteDialog({
               onChange={(event) => set("delivery_note_no", event.target.value)}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("material")} required className="sm:col-span-2">
+          <FieldWrapper label={t(machine ? "machine" : "material")} required className="sm:col-span-2">
             <Input value={form.material} onChange={(event) => set("material", event.target.value)} />
           </FieldWrapper>
           <FieldWrapper label={t("supplier")} className="sm:col-span-2">
@@ -199,7 +211,7 @@ export function ReturnNoteDialog({
           </Button>
           <Button
             requires={[
-              [form.material.trim(), t("material")],
+              [form.material.trim(), t(machine ? "machine" : "material")],
               [Number(form.quantity) > 0, t("quantity")],
               [form.reason.trim(), t("reason")],
               [signature || row.approver_signature, t("approverSignature")],
@@ -220,7 +232,14 @@ export function ReturnNoteDialog({
  * The note as it was filled, for the record's detail and the supplier's
  * returns list: one block, the approver's signature under it.
  */
-export function ReturnNotePanel({ row }: { row: ReturnNoteSource }) {
+export function ReturnNotePanel({
+  row,
+  machine = false,
+}: {
+  row: ReturnNoteSource;
+  /** A machine's exit (I13): 「设备」 where material's says 「材料」. */
+  machine?: boolean;
+}) {
   const t = useTranslations("contractorOps.returnNote");
   const df = useDateFormat();
   const unitName = useUnitName();
@@ -237,7 +256,7 @@ export function ReturnNotePanel({ row }: { row: ReturnNoteSource }) {
             <dd className="font-medium">{row.return_note_no}</dd>
             <dt className="text-muted-foreground">{t("date")}</dt>
             <dd className="font-medium">{row.return_note_at ? df.dateTime(row.return_note_at) : "—"}</dd>
-            <dt className="text-muted-foreground">{t("material")}</dt>
+            <dt className="text-muted-foreground">{t(machine ? "machine" : "material")}</dt>
             <dd className="font-medium">{row.return_note_material || "—"}</dd>
             <dt className="text-muted-foreground">{t("deliveryNoteNo")}</dt>
             <dd className="font-medium">{row.return_note_delivery_note_no || "—"}</dd>

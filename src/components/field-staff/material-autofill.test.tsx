@@ -30,6 +30,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 vi.mock("@/components/field-staff/field-draft", () => ({
   FieldDraft: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useClearDraft: () => () => {},
+  useDraftEventId: () => () => "receipt-event-1",
   useDraftState: (key: string, initial?: unknown) => [
     key in drafts ? drafts[key] : typeof initial === "function" ? (initial as () => unknown)() : initial,
     () => {},
@@ -112,8 +113,9 @@ describe("choosing 钢筋 on the phone (A4, D1, Q1)", () => {
 
   it("shows the category's unit instead of asking, whatever the draft had", () => {
     const html = render(steel(), { supplier: SUPPLIER_A.id, manufacturer: MAKER_A.id });
-    // 吨 is shown in a read-only box, with where it came from.
-    expect(html).toMatch(/<span class="text-sm font-medium">吨<\/span>/);
+    // 吨 is shown in a read-only box, with where it came from - 「吨（Ton）」
+    // since I19 (ID47).
+    expect(html).toMatch(/<span class="text-sm font-medium">吨（Ton）<\/span>/);
     expect(html).toContain("按分类自动带出");
     // No unit picker: the draft's 立方米 is not what is shown or sent.
     expect(html).not.toContain(">立方米<");
@@ -150,5 +152,74 @@ describe("choosing 钢筋 on the phone (A4, D1, Q1)", () => {
     );
     expect(html).not.toContain("按分类自动带出");
     expect(html).not.toContain("只列这个分类设定的供应商");
+  });
+});
+
+/**
+ * 2026-10-15 I23: the worker often does not know whose lorry it is, so the
+ * supplier is optional - no star, 「未填供应商」 first and chosen - and the
+ * office fills it in later.
+ */
+describe("the supplier on the phone (I23)", () => {
+  beforeEach(() => {
+    for (const key of Object.keys(drafts)) delete drafts[key];
+  });
+
+  const openColumn = () =>
+    steel({ supplier_options: [], suppliers: [], manufacturer_options: [], manufacturers: [] });
+
+  it("has no star and does not hold 提交 back when it is left 「未填供应商」", () => {
+    const html = render(openColumn(), { supplier: "" });
+    expect(html).not.toMatch(/供应商<span class="[^"]*text-destructive[^"]*">\*<\/span>/);
+    expect(html).toContain("不确定是哪家就不用选，后台会补上。");
+    // 提交 is the last button asking for fields: the signatures and the
+    // photographs are still asked for there; the supplier is not.
+    const missing = [...html.matchAll(/title="还差这些没填：([^"]*)"/g)].at(-1)?.[1] ?? "";
+    expect(missing.split("、")).toContain("供应商签名");
+    expect(missing.split("、")).not.toContain("供应商");
+  });
+
+  it("shows the supplier's own hint, not the unfilled one, once a real supplier is chosen", () => {
+    const html = render(openColumn(), { supplier: SUPPLIER_A.id });
+    expect(html).not.toContain("不确定是哪家就不用选，后台会补上。");
+  });
+});
+
+describe("the specification on the phone (I19, ID46)", () => {
+  beforeEach(() => {
+    for (const key of Object.keys(drafts)) delete drafts[key];
+  });
+
+  const withSpecs = () =>
+    steel({
+      specs: [
+        {
+          id: "y12", code: "SPC-001", name: "Y12", default_unit: "TONNE", default_unit_label: null,
+          is_active: true, is_other: false, is_fixed: false, sort_order: 0,
+        },
+        {
+          id: "other", code: "SPC-002", name: "其他", default_unit: "", default_unit_label: null,
+          is_active: true, is_other: true, is_fixed: true, sort_order: 9999,
+        },
+      ],
+    });
+
+  it("asks for the specification, and the material name is not typed", () => {
+    const html = render(withSpecs(), { supplier: SUPPLIER_A.id });
+    expect(html).toContain("选择规格");
+    expect(html).toMatch(/还差这些没填：[^<"]*规格/);
+  });
+
+  it("takes the unit from the chosen specification", () => {
+    const html = render(withSpecs(), { supplier: SUPPLIER_A.id, specCategory: "y12" });
+    expect(html).toContain("随规格带出");
+    expect(html).toMatch(/<span class="text-sm font-medium">吨（Ton）<\/span>/);
+    expect(html).not.toMatch(/还差这些没填：[^<"]*规格/);
+  });
+
+  it("types the specification when it is 「其他」", () => {
+    const html = render(withSpecs(), { supplier: SUPPLIER_A.id, specCategory: "other" });
+    expect(html).toContain("规格名称");
+    expect(html).toMatch(/还差这些没填：[^<"]*规格名称/);
   });
 });

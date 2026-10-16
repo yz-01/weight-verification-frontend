@@ -1,4 +1,5 @@
 import type { ApprovalRow } from "@/interfaces/contractor-dashboard";
+import type { MaterialTargetSummary } from "@/interfaces/material-target";
 
 /** 公司总部 Dashboard (C11, C13–C15, C19). */
 
@@ -95,6 +96,8 @@ export interface HeadquartersProject extends HeadquartersCounts {
   longitude: string | null;
   has_location: boolean;
   latest_photo: HeadquartersPhoto | null;
+  /** 材料目标 (I18, ID42): this project's targets and where they stand. */
+  material_targets?: MaterialTargetSummary;
 }
 
 export interface HeadquartersTotals extends HeadquartersCounts {
@@ -104,6 +107,7 @@ export interface HeadquartersTotals extends HeadquartersCounts {
   app_on_site: number;
   gate_on_site: number;
   today_records_by_kind: Record<TodayRecordKind, number>;
+  material_targets?: MaterialTargetSummary;
 }
 
 export interface HeadquartersOverview {

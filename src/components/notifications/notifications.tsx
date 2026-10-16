@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
+import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useMemo, useState } from "react";
 
@@ -45,6 +46,7 @@ import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import { officeNotificationHref } from "@/lib/office-notification";
+import { useRoleLabel } from "@/lib/role-labels";
 import {
   getProjectAssignments,
   getProjects,
@@ -82,6 +84,9 @@ export function Notifications({
   const searchParams = useSearchParams();
   const announcement = searchParams.get("announcement");
   const clearAnnouncement = useClearSearchParam("announcement");
+  // 访客进场确认 (I26): a host's notice opens 「确认接待」 here.
+  const visitorArrival = searchParams.get("visitor_arrival");
+  const clearVisitorArrival = useClearSearchParam("visitor_arrival");
   const { can } = useAuth();
   const list = useListQuery(["category", "today"]);
   const [composeOpen, setComposeOpen] = useState(
@@ -236,6 +241,9 @@ export function Notifications({
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       {/* 公司公告 (C18): a company announcement's notice opens it here.
           Reading it does not dismiss the notice (D04). */}
+      {visitorArrival && (
+        <VisitorArrivalDialog id={visitorArrival} onClose={clearVisitorArrival} />
+      )}
       {announcement && (
         <AnnouncementDialog id={announcement} onClose={clearAnnouncement} />
       )}
@@ -416,6 +424,7 @@ export function ProjectNotificationDialog({
   onSent: () => void;
 }) {
   const t = useTranslations("notifications.compose");
+  const roleOf = useRoleLabel();
   const [chosenProject, setProject] = useState<string | null>(null);
   const [recipientScope, setRecipientScope] = useState<"ALL" | "ROLE" | "PEOPLE">("ALL");
   const [recipients, setRecipients] = useState<string[]>([]);
@@ -447,7 +456,7 @@ export function ProjectNotificationDialog({
       const current = rows.get(member.role_code);
       rows.set(member.role_code, {
         code: member.role_code,
-        name: member.role_name,
+        name: roleOf(null, member.role_name),
         count: (current?.count ?? 0) + 1,
       });
       return rows;
@@ -609,7 +618,7 @@ export function ProjectNotificationDialog({
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-medium">{row.user_name}</span>
                       <span className="block truncate text-xs text-muted-foreground">{row.user_email}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{row.role_name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{roleOf(null, row.role_name)}</span>
                     </span>
                   </label>
                 ))}

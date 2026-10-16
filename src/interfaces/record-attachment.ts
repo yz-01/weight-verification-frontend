@@ -1,3 +1,8 @@
+import type { ChatRecordKind } from "@/lib/record-chat";
+
+/** Records that take the general attachment slot: every chat kind, plus an approval and a gate pass (I3). */
+export type AttachableKind = ChatRecordKind | "APPROVAL" | "GATE_PASS";
+
 /** One file in a record's general attachment slot (B28, E10). */
 export interface RecordAttachment {
   id: string;
@@ -20,6 +25,12 @@ export interface RecordAttachments {
   attachments: RecordAttachment[];
   /** Why nothing more can be attached, or "" while the record is open. */
   closed: string;
+  /**
+   * Whether this reader may add files here: false on a gate pass read with
+   * 门禁 view only, and on a company-wide approval (no project to file under).
+   * Absent from an older server: then they may.
+   */
+  can_add?: boolean;
   max_files: number;
   max_bytes: number;
 }

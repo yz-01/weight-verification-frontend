@@ -28,6 +28,8 @@ import {
   PackageMinus,
   Pencil,
   Plus,
+  Printer,
+  QrCode,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -35,15 +37,20 @@ import Link from "next/link";
 import { MaterialTabs } from "@/components/receipts/material-tabs";
 import {
   EquipmentMovementActions,
+  equipmentReturnNoteSource,
   movementTone,
 } from "@/components/contractor-ops/equipment-applications";
+import { EquipmentQrDialog } from "@/components/contractor-ops/equipment-qr";
+import { ReturnNotePanel } from "@/components/contractor-ops/return-note";
+import { useFileActions } from "@/components/shared/file-actions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { movementStatusKey } from "@/lib/equipment-exit";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import {
   EditedTag,
-  ProgressCorrectionHistory,
   ProgressPercentFact,
   wasCorrected,
 } from "@/components/contractor-ops/progress-percent-editor";
@@ -61,6 +68,10 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
+import {
+  EquipmentSupplierCountsPanel,
+  useEquipmentSupplierCounts,
+} from "@/components/contractor-ops/equipment-supplier-counts";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
 import { ManufacturerCell, hideEmptyManufacturerColumn } from "@/components/shared/manufacturer-picker";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
@@ -76,6 +87,11 @@ import {
 import { NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,6 +118,7 @@ import {
   exportEquipmentMovements,
   exportEquipmentRegister,
   exportMaterialOutgoing,
+  equipmentQrStickers,
   addProgressPhotos,
   addProgressRemark,
   exportSiteProgressRecords,
@@ -115,6 +132,7 @@ import {
   getSiteProgressSummary,
   reviewMaterialOutgoing,
 } from "@/services/contractor-ops.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 const OUTGOING_STATES = [
   "PENDING",
@@ -210,6 +228,8 @@ export function MaterialOutgoingOffice() {
     "uncategorised",
     "supplier",
     "manufacturer",
+    // One specification (I19), as a material target opens its returns (I18).
+    "spec_category",
     "date_from",
     "date_to",
   ]);
@@ -253,10 +273,17 @@ export function MaterialOutgoingOffice() {
     () => [
       {
         accessorKey: "reference_no",
-        meta: { label: t("outgoing.referenceNo") },
-        header: () => <PlainHeader label={t("outgoing.referenceNo")} />,
+        // 「进退场记录编号」 on the in-and-out lists (I6, the client's words).
+        meta: { label: tRoot("recordNo.inOutColumn") },
+        header: () => <PlainHeader label={tRoot("recordNo.inOutColumn")} />,
         // Short number big, project small (2026-10 D4).
-        cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
+        cell: ({ row }) => (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <RecordNo value={row.original.reference_no} />
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
+          </div>
+        ),
       },
       // The record's photograph beside its main column (E3).
       photoColumn<MaterialOutgoing>({
@@ -379,7 +406,7 @@ export function MaterialOutgoingOffice() {
       emptyLabel: t("state.empty"),
       query: list.query,
       columns: [
-        { key: "reference_no", label: t("outgoing.referenceNo") },
+        { key: "reference_no", label: tRoot("recordNo.inOutColumn") },
         { key: "category_name", label: t("field.category") },
         // Who it went back to (2026-10 C7).
         { key: "supplier_name", label: t("field.supplier") },
@@ -442,7 +469,8 @@ export function MaterialOutgoingOffice() {
         isLoading={rows.isLoading}
         isError={rows.isError}
         // `.v2` with the manufacturer column (2026-10 D1).
-        storageKey="material-outgoing.v2"
+        storageKey={LIST_FITS.materialOutgoing.storageKey}
+        defaultHidden={LIST_FITS.materialOutgoing.hidden}
         pack="MATERIAL_OUTGOING"
         toolbar={
           <>
@@ -517,6 +545,15 @@ export function SiteEquipmentOffice() {
     "expiring",
     // One machine's entries and exits, from its profile (2026-10 B2).
     "equipment",
+    // By supplier and by date (2026-10 I5): chosen from a list, kept in the
+    // address, and read by the export too. The server has always taken them
+    // (`_movement_queryset`: the supplier scanned at the movement, else the
+    // machine's).
+    "supplier",
+    "date_from",
+    "date_to",
+    // 在场状态 of the register (I36): on, off, or every machine.
+    "presence",
   ]);
   // The dashboard's expiring-certificates card links here with ?expiring=1,
   // which is a question about machines, so it opens the register.
@@ -532,6 +569,8 @@ export function SiteEquipmentOffice() {
     queryFn: () => getSiteEquipment(list.query),
     enabled: register,
   });
+  // On site / total per supplier, for the register (I36).
+  const supplierCounts = useEquipmentSupplierCounts(list, register);
   const summary = useQuery({
     queryKey: ["equipment-summary", list.filters.project ?? ""],
     queryFn: () => getEquipmentSummary(list.filters.project || undefined),
@@ -545,6 +584,11 @@ export function SiteEquipmentOffice() {
   const [moving, setMoving] = useState<{ machine: SiteEquipment; movement: EquipmentMovement } | null>(null);
   const [viewingMovement, setViewingMovement] =
     useState<EquipmentMovement | null>(null);
+  // 设备清单's QR (2026-10 I24, ID59): one machine's code, and the machines
+  // ticked for a sheet of stickers.
+  const [qrMachine, setQrMachine] = useState<SiteEquipment | null>(null);
+  const [ticked, setTicked] = useState<string[]>([]);
+  const stickers = useFileActions();
   const [viewingMachine, setViewingMachine] = useState<SiteEquipment | null>(
     null,
   );
@@ -583,6 +627,12 @@ export function SiteEquipmentOffice() {
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
     void qc.invalidateQueries({ queryKey: ["equipment-summary"] });
   };
+  // After a correction (I30): the open movement shows its new values.
+  const refreshMovement = async (id: string) => {
+    const page = await getEquipmentMovements({ id, page_size: 1 });
+    if (page.results[0]) setViewingMovement(page.results[0]);
+    refresh();
+  };
   // The title follows the direction being looked at (B14): a list of exits
   // is 「设备退场」, not 「设备进退场」, here, in the top bar and in the export.
   const directionTitleKey = equipmentDirectionTitleKey(
@@ -608,6 +658,13 @@ export function SiteEquipmentOffice() {
 
   const movementColumns = useMemo<ColumnDef<EquipmentMovement, unknown>[]>(
     () => [
+      // 进退场记录编号 (I6): EI for an entry, EO for an exit.
+      {
+        accessorKey: "record_no",
+        meta: { label: tRoot("recordNo.inOutColumn") },
+        header: () => <PlainHeader label={tRoot("recordNo.inOutColumn")} />,
+        cell: ({ row }) => <RecordNo value={row.original.record_no} />,
+      },
       {
         accessorKey: "occurred_at",
         meta: { label: t("equipment.occurredAt") },
@@ -651,9 +708,10 @@ export function SiteEquipmentOffice() {
         id: "status",
         meta: { label: t("field.status") },
         header: () => <PlainHeader label={t("field.status")} />,
+        // An exit's states read like material leaving site (I13).
         cell: ({ row }) => (
           <StatusBadge
-            label={t(`equipmentMovementStatus.${row.original.status ?? "COMPLETED"}`)}
+            label={t(movementStatusKey(row.original.direction, row.original.status))}
             tone={movementTone(row.original.status)}
           />
         ),
@@ -670,6 +728,8 @@ export function SiteEquipmentOffice() {
             <p className="tabular truncate text-xs text-muted-foreground">
               {row.original.equipment_registration_no || row.original.equipment_code}
             </p>
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -711,8 +771,66 @@ export function SiteEquipmentOffice() {
     [t, tRoot, df],
   );
 
+  const pageMachines = machines.data?.results;
   const machineColumns = useMemo<ColumnDef<SiteEquipment, unknown>[]>(
     () => [
+      {
+        // Tick machines for one sheet of QR stickers (I24, ID59). Its own
+        // click: ticking does not open the machine.
+        id: "qrSelect",
+        enableHiding: false,
+        header: () => {
+          const onPage = (pageMachines ?? []).map((row) => row.id);
+          const all = onPage.length > 0 && onPage.every((id) => ticked.includes(id));
+          const some = onPage.some((id) => ticked.includes(id));
+          return (
+            <Checkbox
+              checked={all ? true : some ? "indeterminate" : false}
+              disabled={onPage.length === 0}
+              aria-label={t("equipmentQr.tickAll")}
+              title={t("equipmentQr.tickAll")}
+              onCheckedChange={(next) =>
+                setTicked((current) =>
+                  next === true
+                    ? [...current.filter((id) => !onPage.includes(id)), ...onPage]
+                    : current.filter((id) => !onPage.includes(id)),
+                )
+              }
+            />
+          );
+        },
+        cell: ({ row }) => (
+          <span
+            className="inline-flex"
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <Checkbox
+              checked={ticked.includes(row.original.id)}
+              aria-label={t("equipmentQr.tick", { name: row.original.name })}
+              onCheckedChange={(next) =>
+                setTicked((current) =>
+                  next === true
+                    ? [...current.filter((id) => id !== row.original.id), row.original.id]
+                    : current.filter((id) => id !== row.original.id),
+                )
+              }
+            />
+          </span>
+        ),
+      },
+      {
+        // 设备编号 (IB18, I24): the number the office gives the machine on
+        // site and prints big on its QR sticker. Set on 设备编号管理.
+        id: "site_no",
+        meta: { label: t("equipmentQr.siteNo") },
+        header: () => <PlainHeader label={t("equipmentQr.siteNo")} />,
+        cell: ({ row }) => (
+          <span className="tabular font-medium text-foreground">
+            {row.original.site_no || "—"}
+          </span>
+        ),
+      },
       {
         // 「编号」 is the plate (2026-10 A8, X4): what the office reads off the
         // machine. The register's own number stays underneath, short (D4).
@@ -755,7 +873,7 @@ export function SiteEquipmentOffice() {
               label={t(`equipmentStatus.${row.original.status}`)}
               tone={tone(row.original.status)}
             />
-            {/* An exit waiting for 验收 is still on site (Q27): both say so. */}
+            {/* An exit waiting for 验收 is still on site: both say so. */}
             {row.original.awaiting_acceptance && (
               <StatusBadge
                 label={t(
@@ -764,6 +882,13 @@ export function SiteEquipmentOffice() {
                     : "equipment.entryWaiting",
                 )}
                 tone="warning"
+              />
+            )}
+            {/* An exit applied for or approved, not left yet (I13). */}
+            {row.original.open_exit && row.original.open_exit.status !== "SUBMITTED" && (
+              <StatusBadge
+                label={t(`equipmentExit.status.${row.original.open_exit.status}`)}
+                tone="info"
               />
             )}
           </div>
@@ -809,8 +934,33 @@ export function SiteEquipmentOffice() {
           <p className="max-w-45 truncate">{row.original.project_name}</p>
         ),
       },
+      {
+        // The machine's own QR code (I24, ID59): shown, printed, downloaded.
+        id: "qr",
+        enableHiding: false,
+        meta: { label: t("equipmentQr.column") },
+        header: () => <PlainHeader label={t("equipmentQr.column")} />,
+        cell: ({ row }) => (
+          <span
+            className="inline-flex"
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-primary hover:bg-primary/10"
+              title={t("equipmentQr.open")}
+              aria-label={t("equipmentQr.open")}
+              onClick={() => setQrMachine(row.original)}
+            >
+              <QrCode className="h-3.5 w-3.5" />
+            </Button>
+          </span>
+        ),
+      },
     ],
-    [t, tRoot],
+    [t, tRoot, ticked, pageMachines],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -830,6 +980,7 @@ export function SiteEquipmentOffice() {
         note: tRoot("exportTotals.note"),
       },
       columns: [
+        { key: "record_no", label: tRoot("recordNo.inOutColumn") },
         { key: "occurred_at", label: t("equipment.occurredAt") },
         { key: "project_name", label: t("field.project") },
         { key: "equipment_code", label: t("field.code") },
@@ -870,6 +1021,24 @@ export function SiteEquipmentOffice() {
         }
       />
       <QueryFailedNote query={summary} what={t("what.equipmentSummary")} />
+      {/* 供应商 and 日期 (I5): with 分类 and 进退场, all at once. */}
+      {!register && <SupplierDateListFilter list={list} />}
+      {/* 设备清单 (I36): the numbers, then 供应商 and 在场状态 beside 分类 and search. */}
+      {register && <EquipmentSupplierCountsPanel list={list} counts={supplierCounts} />}
+      {register && (
+        <div className="flex basis-full flex-wrap items-end gap-3">
+          <SupplierDateListFilter list={list} showDates={false} noneLabel={t("equipment.supplierCounts.noSupplier")} />
+          <FilterSelect
+            list={list}
+            param="presence"
+            allLabel={t("equipment.supplierCounts.presenceAll")}
+            options={(["on", "off"] as const).map((value) => ({
+              value,
+              label: t(`equipment.supplierCounts.presence.${value}`),
+            }))}
+          />
+        </div>
+      )}
       {/* Opened from a machine's profile (B2): its entries and exits only. */}
       {list.filters.equipment && !register && (
         <p className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-xs">
@@ -914,6 +1083,10 @@ export function SiteEquipmentOffice() {
                   uncategorised: undefined,
                   expiring: undefined,
                   equipment: undefined,
+                  supplier: undefined,
+                  presence: undefined,
+                  date_from: undefined,
+                  date_to: undefined,
                   // 「待处理」 is the movements' (the register has none).
                   needs_action: undefined,
                 })
@@ -950,20 +1123,41 @@ export function SiteEquipmentOffice() {
           totalCount={machines.data?.count ?? 0}
           isLoading={machines.isLoading}
           isError={machines.isError}
-          storageKey="site-equipment-register"
+          storageKey={LIST_FITS.equipmentRegister.storageKey}
+        defaultHidden={LIST_FITS.equipmentRegister.hidden}
           toolbar={
             <>
               <ProjectListFilter list={list} />
               <ColumnFilter list={list} kind="EQUIPMENT" />
+              {/* A sheet of QR stickers for the ticked machines (I24, ID59). */}
+              <Button
+                variant="outline"
+                disabled={ticked.length === 0 || Boolean(stickers.busy)}
+                disabledReason={ticked.length === 0 ? t("equipmentQr.tickFirst") : t("equipmentQr.preparing")}
+                onClick={() =>
+                  void stickers.run("preview", {
+                    load: () => equipmentQrStickers(ticked),
+                    title: t("equipmentQr.stickersTitle"),
+                  })
+                }
+              >
+                {stickers.busy ? <Loader2 className="animate-spin" /> : <Printer />}
+                {ticked.length > 0
+                  ? t("equipmentQr.printTicked", { count: ticked.length })
+                  : t("equipmentQr.print")}
+              </Button>
               {/* The register listed, as a file (H16, HD13). */}
               <ExportButton
                 disabled={!machines.data?.count}
                 disabledReason={t("state.empty")}
                 title={tRoot("moduleTable.equipmentView.register")}
-                onExport={(format) =>
+                onExport={async (format) =>
                   exportEquipmentRegister({
                     format,
                     title: tRoot("moduleTable.equipmentView.register"),
+                    // The numbers on screen are printed at the top (I36),
+                    // waited for when the export is pressed before they came.
+                    subtitle: (supplierCounts.text || (await supplierCounts.exportText())) || undefined,
                     query: list.query,
                     columns: [
                       { key: "registration_no", label: t("field.plateNo") },
@@ -1011,7 +1205,8 @@ export function SiteEquipmentOffice() {
           needsActionCount={movements.data?.needs_action_count}
           isLoading={movements.isLoading}
           isError={movements.isError}
-          storageKey="equipment-movements"
+          storageKey={LIST_FITS.equipmentMovements.storageKey}
+        defaultHidden={LIST_FITS.equipmentMovements.hidden}
           pack="EQUIPMENT_MOVEMENT"
           toolbar={
             <>
@@ -1041,6 +1236,7 @@ export function SiteEquipmentOffice() {
       {shownMovement && (
         <RecordDetailDialog
           title={`${shownMovement.equipment_registration_no || shownMovement.equipment_code} - ${shownMovement.equipment_name}`}
+          recordNo={shownMovement.record_no}
           description={`${t(`direction.${shownMovement.direction}`)} · ${df.dateTime(shownMovement.occurred_at)}`}
           exportRecord={{
             kind: "EQUIPMENT_MOVEMENT",
@@ -1071,7 +1267,7 @@ export function SiteEquipmentOffice() {
                 label: t("field.status"),
                 value: (
                   <StatusBadge
-                    label={t(`equipmentMovementStatus.${shownMovement.status ?? "COMPLETED"}`)}
+                    label={t(movementStatusKey(shownMovement.direction, shownMovement.status))}
                     tone={movementTone(shownMovement.status)}
                   />
                 ),
@@ -1102,6 +1298,24 @@ export function SiteEquipmentOffice() {
                           : "equipment.returnReason",
                       ),
                       value: shownMovement.review_note,
+                      wide: true,
+                    },
+                  ]
+                : []),
+              // The office's final 确认 of an exit approved first (I13).
+              ...(shownMovement.accepted_by_name
+                ? [
+                    {
+                      label: t("equipment.acceptedBy"),
+                      value: `${shownMovement.accepted_by_name}${shownMovement.accepted_at ? ` · ${df.dateTime(shownMovement.accepted_at)}` : ""}`,
+                    },
+                  ]
+                : []),
+              ...(shownMovement.acceptance_note
+                ? [
+                    {
+                      label: t("equipment.acceptance.reason"),
+                      value: shownMovement.acceptance_note,
                       wide: true,
                     },
                   ]
@@ -1166,9 +1380,18 @@ export function SiteEquipmentOffice() {
             photos={shownMovement.photos.map((photo) => ({
               id: photo.id,
               url: photo.watermarked || photo.image,
-              label: tRoot(
-                `moduleTable.equipmentPhoto.${photo.kind in PHOTO_KIND ? photo.kind : "OTHER"}`,
-              ),
+              // An exit's application photographs apart from its handover's
+              // (I13), as material leaving site keeps them.
+              label: [
+                photo.stage === "APPLICATION" ? t("equipmentExit.photoStage.APPLICATION") : "",
+                photo.kind === "SIGNATURE"
+                  ? t("equipmentExit.signaturePhoto")
+                  : tRoot(
+                      `moduleTable.equipmentPhoto.${photo.kind in PHOTO_KIND ? photo.kind : "OTHER"}`,
+                    ),
+              ]
+                .filter(Boolean)
+                .join(" · "),
               // The photo's own time and fix, else the entry's (2026-10-09).
               ...photoMeta(photo, shownMovement),
             }))}
@@ -1184,6 +1407,16 @@ export function SiteEquipmentOffice() {
               ) : null
             }
             panel={
+              <div className="flex flex-col gap-3">
+              {/* The Return Note an exit is approved on (I13), as on
+                  material leaving site. */}
+              {shownMovement.direction === "EXIT" &&
+                (shownMovement.has_return_note || shownMovement.status === "PENDING") && (
+                  <ReturnNotePanel
+                    machine
+                    row={equipmentReturnNoteSource(shownMovement, t("equipmentExit.unitMachine"))}
+                  />
+                )}
               <section className="rounded-lg border bg-card p-3">
                 <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {tRoot("moduleTable.deliveryPanel")}
@@ -1209,6 +1442,7 @@ export function SiteEquipmentOffice() {
                   </dd>
                 </dl>
               </section>
+              </div>
             }
             signatures={(
               [
@@ -1231,6 +1465,12 @@ export function SiteEquipmentOffice() {
                   }}
                   onCompleteProfile={(machineId) => void completeProfile(machineId)}
                 />
+                {/* 【改正】 (I30): name, supplier, DO, plate, quantity… with a reason. */}
+                <RecordCorrectionButton
+                  kind="EQUIPMENT_MOVEMENT"
+                  recordId={shownMovement.id}
+                  onCorrected={() => void refreshMovement(shownMovement.id)}
+                />
                 <AddToPackageButton
                   kind="EQUIPMENT_MOVEMENT"
                   recordId={shownMovement.id}
@@ -1238,6 +1478,9 @@ export function SiteEquipmentOffice() {
                   reference={`${shownMovement.equipment_code} - ${shownMovement.equipment_name}`}
                 />
               </div>
+            }
+            corrections={
+              <RecordCorrectionHistory kind="EQUIPMENT_MOVEMENT" recordId={shownMovement.id} />
             }
             conversation={{
               kind: "EQUIPMENT_MOVEMENT",
@@ -1248,6 +1491,9 @@ export function SiteEquipmentOffice() {
           />
         </RecordDetailDialog>
       )}
+
+      {qrMachine && <EquipmentQrDialog machine={qrMachine} onClose={() => setQrMachine(null)} />}
+      {stickers.element}
 
       {shownMachine && (
         <RecordDetailDialog
@@ -1519,6 +1765,13 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
 
   const columns = useMemo<ColumnDef<SiteProgressRecord, unknown>[]>(
     () => [
+      // 记录编号 (I6): PG-<project>-001.
+      {
+        accessorKey: "record_no",
+        meta: { label: tRoot("recordNo.column") },
+        header: () => <PlainHeader label={tRoot("recordNo.column")} />,
+        cell: ({ row }) => <RecordNo value={row.original.record_no} />,
+      },
       {
         accessorKey: "captured_at",
         meta: { label: t("progress.capturedAt") },
@@ -1550,8 +1803,10 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         meta: { label: t("field.phase") },
         header: sortable(t("field.phase")),
         cell: ({ row }) => (
-          <span className="font-medium text-foreground">
+          <span className="inline-flex flex-wrap items-center gap-1.5 font-medium text-foreground">
             {row.original.phase_name}
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
           </span>
         ),
       },
@@ -1637,6 +1892,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
       emptyLabel: t("state.empty"),
       query: list.query,
       columns: [
+        { key: "record_no", label: tRoot("recordNo.column") },
         { key: "captured_at", label: t("progress.capturedAt") },
         { key: "project_name", label: t("field.project") },
         { key: "phase_name", label: t("field.phase") },
@@ -1732,7 +1988,8 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         totalCount={total}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="site-progress"
+        storageKey={LIST_FITS.siteProgress.storageKey}
+        defaultHidden={LIST_FITS.siteProgress.hidden}
         pack="PROGRESS"
         toolbar={
           <>
@@ -1771,6 +2028,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
       {shown && (
         <RecordDetailDialog
           title={reference(shown)}
+          recordNo={shown.record_no}
           description={shown.project_name}
           exportRecord={{
             kind: "PROGRESS",
@@ -1808,6 +2066,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                     onSaved={(fresh) => {
                       setViewing(fresh);
                       refreshProgress();
+                      void qc.invalidateQueries({ queryKey: ["record-corrections", "PROGRESS", fresh.id] });
                     }}
                   />
                 ),
@@ -1903,6 +2162,13 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                     }}
                   />
                 )}
+                {/* 【改正】 (I30): the stage and the note; the figure is
+                    corrected beside it, in the facts. */}
+                <RecordCorrectionButton
+                  kind="PROGRESS"
+                  recordId={shown.id}
+                  onCorrected={refreshProgress}
+                />
                 <AddToPackageButton
                   kind="PROGRESS"
                   recordId={shown.id}
@@ -1911,12 +2177,9 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                 />
               </div>
             }
-            // Every change to 实际完成比例: old → new, who, when, why.
-            corrections={
-              wasCorrected(shown) ? (
-                <ProgressCorrectionHistory corrections={shown.corrections ?? []} />
-              ) : null
-            }
+            // Every change (I30): 实际完成比例, the stage and the note -
+            // old → new, who, when, why.
+            corrections={<RecordCorrectionHistory kind="PROGRESS" recordId={shown.id} />}
             conversation={{ kind: "PROGRESS", recordId: shown.id }}
             // 【确认归档】 with the record itself (C4). The list reads the
             // closure for its status, so it is refreshed at once (2026-10-09).

@@ -42,8 +42,34 @@ export type ProjectCategoryKind =
   // claims and the period claims are filed by the office after the fact.
   | "CONSULTANT"
   | "SUNDRY"
-  | "CLAIM";
-export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
+  | "CLAIM"
+  // 申请类型 (I16, ID36): a project's MR / Other Request types.
+  | "REQUEST_TYPE";
+/** 提交方式 (I12, ID28): 「提交总部审批」 is head office's to accept. */
+export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT" | "HQ";
+
+/** The business module a 分类组 belongs to (I11, ID1). */
+export type CategoryGroupModule =
+  | "MATERIAL"
+  | "EQUIPMENT"
+  | "EHS"
+  | "RECYCLE"
+  | "CLAIM"
+  | "REQUEST_TYPE";
+
+/** One 分类组 on the left of Category Management (I11), per project. */
+export interface CategoryGroup {
+  id: string;
+  project: string;
+  /** Blank on a system group: shown as its module's name. */
+  name: string;
+  module: CategoryGroupModule;
+  sort_order: number;
+  is_active: boolean;
+  /** One per module per project: renamed and moved, never switched off or removed. */
+  is_system: boolean;
+  category_count: number;
+}
 
 /** What a material column's budget counts (2026-10 A6, X17). */
 export type BudgetMode = "AMOUNT" | "QUANTITY";
@@ -61,14 +87,49 @@ export interface CategoryManufacturerOption {
   is_active: boolean;
 }
 
+/**
+ * One specification of a material (I19, ID45): the material's second level,
+ * with the unit it is measured in. 「其他」 (`is_other`) has no unit - whoever
+ * chooses it types the specification and picks the unit.
+ */
+export interface MaterialSpec {
+  id: string;
+  code: string;
+  name: string;
+  default_unit: string;
+  /** A unit the company added; null for a built-in code (translated). */
+  default_unit_label: string | null;
+  is_active: boolean;
+  is_other: boolean;
+  /** 「其他」: renamed, never switched off or removed. */
+  is_fixed: boolean;
+  sort_order: number;
+}
+
 export interface ProjectCategory {
   id: string;
   project: string;
   parent: string | null;
   parent_name: string | null;
+  parent_sort_order?: number | null;
   code: string;
   name: string;
   kind: ProjectCategoryKind;
+  /** Its 分类组 (I11); null on a row of a retired kind. */
+  group?: string | null;
+  group_name?: string | null;
+  group_module?: CategoryGroupModule | null;
+  group_sort_order?: number;
+  group_is_system?: boolean;
+  group_is_active?: boolean;
+  /** A request type's form (I16): the material form or the simple one. */
+  form_style?: "MATERIAL" | "GENERAL" | "";
+  /** Seeded by the system (I16, I19): renamed, never switched off or removed. */
+  is_fixed?: boolean;
+  /** 「其他」: typed on the record (I19). */
+  is_other?: boolean;
+  /** A material's specifications, each with its unit, 「其他」 last (I19). */
+  specs?: MaterialSpec[];
   submission_mode: CategorySubmissionMode;
   description: string;
   sort_order: number;
@@ -156,8 +217,10 @@ export interface ProjectCategory {
  */
 export interface ProjectCategoryPayload {
   project: string;
-  /** Equipment only: the major class of a sub class; null for a major class. */
+  /** The category a sub-category sits under (I11: every module); null at the top. */
   parent?: string | null;
+  /** Its 分类组 (I11); left out, the module's own group. */
+  group?: string | null;
   code: string;
   name: string;
   /**
@@ -247,6 +310,8 @@ export interface FieldTaskReference {
 }
 
 export interface FieldTask extends RecordedBy {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   /** Sent in and waiting for this reader's 验收 - the sidebar counts it (2026-10-09). */
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
@@ -304,8 +369,52 @@ export interface FieldTask extends RecordedBy {
   created_by: string | null;
   /** Past due and not confirmed or cancelled, by the server's clock. */
   is_overdue?: boolean;
+  /** 待处理 / 待验收 / 已完成 (I1), as the server reads the status. */
+  stage?: "PENDING" | "AWAITING" | "DONE";
+  /**
+   * Whether this reader confirms it now - the setter or a task manager, never
+   * the assignee (I1). It also means their conversation box has the
+   * 「需要继续整改」 switch (ID11).
+   */
+  can_confirm?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * One row of 我的任务 / My Tasks (I1, ID14): a field task assigned to me or an
+ * EHS item I fix, still 待处理. Each opens its own record, and is handed in
+ * through that record's own endpoint.
+ */
+export interface MyTaskRow {
+  kind: "FIELD_TASK" | "HAZARD";
+  id: string;
+  /** The hazard's number; a field task has none. */
+  no: string;
+  title: string;
+  project: string;
+  project_name: string;
+  due_at: string | null;
+  status: string;
+  stage: "PENDING";
+  /** Sent back with 「需要继续整改」 (ID11); `note` then says what is wrong. */
+  needs_more_work: boolean;
+  note: string;
+  task_type: FieldTaskType | null;
+  assigned_by_name: string;
+  last_message: {
+    author_name: string;
+    body: string;
+    kind: "text" | "photo" | "voice" | "file";
+    sent_at: string | null;
+  } | null;
+  created_at: string | null;
+}
+
+/** A person a list's 负责人 filter offers. */
+export interface PersonOption {
+  id: string;
+  full_name: string;
 }
 
 export interface FieldTaskPayload {
@@ -375,6 +484,17 @@ export interface SiteEquipment {
    */
   awaiting_acceptance?: "ENTRY" | "EXIT" | null;
   /**
+   * The exit under way for this machine, else null (2026-10 I13): applied
+   * for (`PENDING`, 等待批准), approved (`APPROVED`, 已批准 / 等待退场) or
+   * recorded on site (`SUBMITTED`, 已退场 / 待后台确认).
+   */
+  open_exit?: { id: string; status: "PENDING" | "APPROVED" | "SUBMITTED" } | null;
+  /**
+   * 设备编号 (IB18, I24): the office's 现场编号, printed big on the machine's
+   * QR sticker; empty when none was given.
+   */
+  site_no?: string;
+  /**
    * Every photograph of the machine (T-298): its own, uploaded onto the
    * register (`REGISTER`), and those taken at each entry and exit.
    */
@@ -418,9 +538,13 @@ export interface EquipmentPayload {
 }
 
 /**
- * Exit: 申请 → 后台 Approve / Return → 实际交接双方签名 (B13).
  * Entry since 2026-10 (X2): recorded on site in one step (`SUBMITTED`), then
  * accepted (`COMPLETED`) or not (`REJECTED`) by the office.
+ *
+ * Exit since 2026-10 I13 (ID30), the way material leaves site: applied for
+ * (`PENDING`) → approved on a Return Note (`APPROVED`, 已批准 / 等待退场) or
+ * returned (`RETURNED`) → recorded on site (`SUBMITTED`, 已退场 / 待后台确认)
+ * → confirmed (`COMPLETED`) or not (`REJECTED`).
  */
 export type EquipmentMovementStatus =
   | "PENDING"
@@ -431,6 +555,10 @@ export type EquipmentMovementStatus =
   | "REJECTED";
 
 export interface EquipmentMovement extends RecordedBy {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
+  /** 「提交总部审批」 (I12, ID28): head office accepts this machine's movements. */
+  review_by_head_office?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -441,6 +569,8 @@ export interface EquipmentMovement extends RecordedBy {
   equipment: string;
   equipment_code: string;
   equipment_name: string;
+  /** The machine's 现场编号 (I24). */
+  equipment_site_no?: string;
   /** The machine's plate (2026-10 X4: 车牌号码). */
   equipment_registration_no?: string;
   /** A 「新设备」 whose profile the office has still to complete (C8). */
@@ -456,6 +586,13 @@ export interface EquipmentMovement extends RecordedBy {
   review_note?: string;
   completed_by_name?: string | null;
   completed_at?: string | null;
+  /** The office's final 确认 of an exit approved first (2026-10 I13). */
+  accepted_by_name?: string | null;
+  accepted_at?: string | null;
+  /** Why that exit was not confirmed. */
+  acceptance_note?: string;
+  /** At the actual exit the machine's number was typed, not its QR scanned. */
+  equipment_typed?: boolean;
   receiver_signature?: string | null;
   supplier_signature?: string | null;
   occurred_at: string;
@@ -476,7 +613,52 @@ export interface EquipmentMovement extends RecordedBy {
   ocr_confirmed_by: string | null;
   ocr_confirmed_at: string | null;
   client_event_id: string;
-  photos: Array<{ id: string; image: string; watermarked?: string | null; kind: string; captured_at: string }>;
+  photos: Array<{
+    id: string;
+    image: string;
+    watermarked?: string | null;
+    kind: string;
+    /** With the exit's application, at the handover, or the office's (I13). */
+    stage?: "APPLICATION" | "HANDOVER" | "OFFICE";
+    captured_at: string;
+  }>;
+  supplier?: string | null;
+  /**
+   * The Return Note an exit is approved on (2026-10 I13, the same note as
+   * material's): empty until the office fills it.
+   */
+  has_return_note?: boolean;
+  return_note_no?: string;
+  return_note_at?: string | null;
+  return_note_by_name?: string | null;
+  return_note_material?: string;
+  return_note_delivery_note_no?: string;
+  return_note_supplier?: string | null;
+  return_note_supplier_name?: string | null;
+  return_note_quantity?: string | null;
+  return_note_unit?: string;
+  return_note_reason?: string;
+  approver_name?: string;
+  approver_user?: string | null;
+  approver_user_name?: string | null;
+  approver_signature?: string | null;
+}
+
+/** 设备清单: on site and total per supplier (2026-10 I36). */
+export interface EquipmentSupplierCounts {
+  /** Whether the rows are also split by project (a `project.view_all` reader on 全部项目). */
+  by_project: boolean;
+  on_site: number;
+  total: number;
+  results: Array<{
+    /** Null: the machines with no supplier recorded. */
+    supplier: string | null;
+    supplier_name: string | null;
+    project: string | null;
+    project_name: string | null;
+    on_site: number;
+    total: number;
+  }>;
 }
 
 export interface EquipmentSummary {
@@ -512,6 +694,8 @@ export interface ConstructionPhase {
 }
 
 export interface SiteProgressRecord extends RecordedBy {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -569,6 +753,8 @@ export interface ProgressCorrection {
 }
 
 export interface MaterialOutgoing extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -595,6 +781,9 @@ export interface MaterialOutgoing extends RecordedBy {
   unit_label?: string | null;
   material_name: string;
   material_specification?: string;
+  /** The specification from the project's material data (I19). */
+  spec_category?: string | null;
+  spec_category_name?: string | null;
   /** What the application asked to send back. */
   quantity: string;
   /** What actually left at the handover (B12); this comes off the net. */
@@ -728,6 +917,8 @@ export interface DisposalTrip {
   status: DisposalTripStatus;
   weight_kg: string | null;
   do_no: string;
+  /** Which lorry took this load (I27); "" when nobody typed it. */
+  vehicle_plate: string;
   note: string;
   submitted_at: string | null;
   submitted_by_name: string;
@@ -738,10 +929,10 @@ export interface DisposalTrip {
   evidence: DisposalEvidence[];
 }
 
-/** One office correction of a load's weight or DO number (Q29.7). */
+/** One office correction of a load's weight, DO number or plate (Q29.7, I27). */
 export interface DisposalTripCorrection {
   id: string;
-  field: "weight_kg" | "do_no";
+  field: "weight_kg" | "do_no" | "vehicle_plate";
   from: string;
   to: string;
   reason: string;
@@ -758,6 +949,8 @@ export interface DisposalTimelineEntry {
 }
 
 export interface DisposalRequest extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** A request to accept or a lorry back to check, for this reader (2026-10-09). */
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
@@ -788,6 +981,15 @@ export interface DisposalRequest extends RecordedBy {
   assigned_staff: string | null;
   assigned_staff_name: string | null;
   execution_task: string | null;
+  /** The clearance company on the supplier list (I27); null for field staff's own or none yet. */
+  collector_supplier: string | null;
+  /** 供应商: the supplier's name, else the name typed before I27; "" for field staff's own. */
+  supplier_name: string;
+  /** The 供应商 column as a file prints it: 「内部清运 · 负责人」 for field staff's own. */
+  supplier_label: string;
+  /** 清运车牌: each lorry that took a load, once, in the order they went. */
+  vehicle_plates: string[];
+  vehicle_plates_text: string;
   collector_company_name: string;
   collector_contact_name: string;
   collector_phone: string;
@@ -1416,7 +1618,8 @@ export interface PackageMergeNote {
  * its review machinery.
  * ---------------------------------------------------------------------- */
 
-export type ClaimKind = "MATERIAL_ON_SITE" | "PROGRESS";
+/** 「一般」 Claim (I10, ID50): no records to tick - a description, an amount, papers. */
+export type ClaimKind = "MATERIAL_ON_SITE" | "PROGRESS" | "GENERAL";
 export type ClaimState = "DRAFT" | "CONFIRMED";
 export type ClaimItemState = "SELECTED" | "CLAIMED" | "RETURNED";
 export type ClaimPaymentState = "NOT_RECEIVED" | "PARTIAL" | "RECEIVED";
@@ -1446,9 +1649,17 @@ export interface ClaimRow {
   confirmed_by_name: string;
   created_by_name: string;
   created_at: string;
-  /** The CLAIM column the office filed it under; null is 未归类 (D-275). */
+  /** The project's claim category (I10, ID6); null is 未分类. */
   category: string | null;
+  /** 「Other Claim · what was typed」 for the fixed 「其他」 (ID43). */
   category_name: string | null;
+  category_is_other?: boolean;
+  other_name?: string;
+  /** 分包商 (I10, ID7): a company on the supplier list marked subcontractor. */
+  subcontractor?: string | null;
+  subcontractor_name?: string | null;
+  /** What a general claim is for (ID50). */
+  description?: string;
 }
 
 export interface ClaimItem {

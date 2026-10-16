@@ -53,12 +53,25 @@ export function getContractorReportHistory(
   return api.list("/api/contractor-reports/get_export_history/", query);
 }
 
+/** The latest day a daily report covers - where 「日报告」 opens (I8, ID24). */
+export function getLatestReportDay(query: {
+  report_type: "daily_report";
+  project?: string;
+}): Promise<{ day: string | null }> {
+  return api.get(
+    "/api/contractor-reports/get_latest_day/",
+    query as unknown as ListQuery,
+  );
+}
+
 export function exportContractorReport(
   input: ContractorReportFilters & {
     format: "PDF" | "EXCEL";
     title: string;
     subtitle: string;
     column_labels: Record<string, string>;
+    /** The language a report printed whole is worded in (日报告, 项目进度摘要). */
+    lang?: string;
   },
 ): Promise<void> {
   return download("/api/contractor-reports/export_report/", {

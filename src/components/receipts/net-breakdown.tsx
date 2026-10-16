@@ -26,6 +26,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { ViewReceipt } from "@/components/receipts/view-receipt";
+import { formatNetQuantity, formatNetQuantityInSentence } from "@/lib/net-quantity";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { PhotoThumb, recordPhotos, rowPhotos } from "@/components/shared/photo-thumb";
 import {
@@ -123,7 +124,8 @@ export function NetBreakdownDialog({
                       { key: "delivery_note_no", label: t("item.doNo") },
                       { key: "return_note_no", label: t("item.returnNote") },
                       { key: "vehicle_plate", label: t("item.plate") },
-                      { key: "supplier_name", label: tRoot("mySubmissions.field.supplier") },
+                      // A delivery or return naming none prints 「未填供应商」 (Q29.9, I23).
+                      { key: "supplier_name", label: tRoot("mySubmissions.field.supplier"), values: { "": t("noSupplier") } },
                       { key: "manufacturer_name", label: t("item.manufacturer") },
                       { key: "project_name", label: t("breakdown.project") },
                       { key: "reason", label: t("breakdown.reason") },
@@ -141,7 +143,7 @@ export function NetBreakdownDialog({
               {numbers.map(([key, value]) => (
                 <TabsTrigger key={key} value={key} className="flex-1 gap-1.5 sm:flex-none">
                   {t(key)}
-                  <span className="tabular font-semibold">{value}</span>
+                  <span className="tabular font-semibold">{formatNetQuantity(value)}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -160,7 +162,7 @@ export function NetBreakdownDialog({
               {tab === "received" ? (
                 <BreakdownSection
                   title={t("breakdown.deliveries", { count: data.deliveries.length })}
-                  subtotal={`${line.received} ${unit}`}
+                  subtotal={`${formatNetQuantityInSentence(line.received)} ${unit}`}
                   empty={t("breakdown.emptyDeliveries")}
                   rows={data.deliveries}
                   render={(item) => (
@@ -176,7 +178,7 @@ export function NetBreakdownDialog({
               {tab === "returned" ? (
                 <BreakdownSection
                   title={t("breakdown.returns", { count: data.returns.length })}
-                  subtotal={`${line.returned} ${unit}`}
+                  subtotal={`${formatNetQuantityInSentence(line.returned)} ${unit}`}
                   empty={t("breakdown.emptyReturns")}
                   rows={data.returns}
                   render={(item) => (
@@ -194,7 +196,7 @@ export function NetBreakdownDialog({
               {tab === "received" && data.rejected.length ? (
                 <BreakdownSection
                   title={t("breakdown.rejected", { count: data.rejected.length })}
-                  subtotal={`${line.rejected} ${unit}`}
+                  subtotal={`${formatNetQuantityInSentence(line.rejected)} ${unit}`}
                   muted
                   empty=""
                   rows={data.rejected}
@@ -312,7 +314,7 @@ function BreakdownDeliveryRow({
         <span className="flex items-baseline justify-between gap-2">
           <span className="truncate font-medium text-primary">{item.reference}</span>
           <span className="tabular whitespace-nowrap font-semibold">
-            {item.quantity} {unit}
+            {formatNetQuantityInSentence(item.quantity)} {unit}
           </span>
         </span>
         <span className="block text-xs text-muted-foreground">
@@ -380,7 +382,7 @@ function BreakdownReturnRow({
             {item.return_note_no ? `${t("item.returnNote")} ${item.return_note_no}` : item.reference}
           </span>
           <span className="tabular whitespace-nowrap font-semibold">
-            −{item.quantity} {unit}
+            −{formatNetQuantityInSentence(item.quantity)} {unit}
           </span>
         </span>
         <span className="block text-xs text-muted-foreground">

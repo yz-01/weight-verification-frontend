@@ -120,7 +120,7 @@ const application = {
 
 function seeded(client: import("@tanstack/react-query").QueryClient) {
   client.setQueryData(["consultant-application", "a1"], application);
-  client.setQueryData(["approval-credential"], { id: "cred" });
+  client.setQueryData(["approval-credential"], { id: "cred", signature: "/media/signature.png", is_active: true });
 }
 
 describe("the consultant application detail (E8)", () => {
@@ -165,7 +165,7 @@ describe("the consultant application detail (E8)", () => {
       <ConsultantApplicationDetail id="a1" presentation="dialog" />,
       (client) => {
         client.setQueryData(["consultant-application", "a1"], { ...application, consultant: "u1" });
-        client.setQueryData(["approval-credential"], { id: "cred" });
+        client.setQueryData(["approval-credential"], { id: "cred", signature: "/media/signature.png", is_active: true });
       },
     );
     expect(html).not.toContain('data-stub="closure"');

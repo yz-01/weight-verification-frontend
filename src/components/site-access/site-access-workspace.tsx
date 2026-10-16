@@ -23,6 +23,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
   FieldWrapper,
@@ -37,11 +38,13 @@ import {
   NeedsActionMarker,
   useNeedsActionParam,
 } from "@/components/shared/needs-action";
+import { VisitorHostPicker } from "@/components/site-access/visitor-arrival";
 import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { RecordExportButton } from "@/components/shared/record-export-button";
+import { RecordNumbers } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -100,7 +103,8 @@ type SiteAccessTab = (typeof SITE_ACCESS_TABS)[number];
 
 /**
  * Where an old 门岗拍照记录 address goes now (HD9): that tab moved to
- * EHS / Safety → 门岗记录. `?tab=gate-records` and a notification's
+ * `/gate-records` (in the menu under 工地门禁 again since I25: 日常拍照记录
+ * and 门岗事项). `?tab=gate-records` and a notification's
  * `?gate_incident=` keep working; the record and its project come along.
  */
 export function movedGateRecordsHref(search: Pick<URLSearchParams, "get">): string | null {
@@ -510,6 +514,7 @@ export function SiteAccessWorkspace() {
             project={project === "all" ? "" : project}
             lockProject={false}
             initialToken={search.get("scan") ?? ""}
+            initialArrival={search.get("gate_arrival") ?? ""}
             onRecorded={() => void invalidate()}
           />
         </TabsContent>
@@ -622,6 +627,7 @@ function PassDialog({
     driver_name: row?.driver_name ?? "",
     purpose: row?.purpose ?? "",
     host_name: row?.host_name ?? "",
+    host_user: row?.host_user ?? null,
     valid_from: row ? localInput(new Date(row.valid_from)) : localInput(now),
     valid_until: row ? localInput(new Date(row.valid_until)) : localInput(later),
   });
@@ -660,7 +666,14 @@ function PassDialog({
           <FieldWrapper label={t("field.project")} required>
             <ProjectPicker
               value={form.project}
-              onValueChange={(value) => setForm({ ...form, project: value })}
+              onValueChange={(value) =>
+                setForm({
+                  ...form,
+                  project: value,
+                  // A host belongs to the project they were chosen from.
+                  ...(form.host_user ? { host_user: null, host_name: "" } : {}),
+                })
+              }
               placeholder={t("field.chooseProject")}
               disabled={Boolean(row)}
             />
@@ -673,6 +686,8 @@ function PassDialog({
                   ...form,
                   subject_type: value,
                   worker: null,
+                  // 接待人 as a person is a visitor's (I26).
+                  ...(value === "VISITOR" ? {} : { host_user: null }),
                   ...(value === "VISITOR"
                     ? {
                         valid_until: localInput(
@@ -802,14 +817,29 @@ function PassDialog({
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.hostName")}>
-            <Input
-              value={form.host_name}
-              onChange={(event) =>
-                setForm({ ...form, host_name: event.target.value })
-              }
-            />
-          </FieldWrapper>
+          {form.subject_type === "VISITOR" ? (
+            // 接待人 from the project's people (I26, ID64): who the gate
+            // notifies when the visitor arrives, and who confirms them.
+            <FieldWrapper label={t("field.hostName")} hint={t("access.hostHint")}>
+              <VisitorHostPicker
+                project={form.project}
+                value={form.host_user ?? ""}
+                selectedLabel={form.host_user ? form.host_name : undefined}
+                onChange={(id, name) =>
+                  setForm({ ...form, host_user: id || null, host_name: name })
+                }
+              />
+            </FieldWrapper>
+          ) : (
+            <FieldWrapper label={t("field.hostName")}>
+              <Input
+                value={form.host_name}
+                onChange={(event) =>
+                  setForm({ ...form, host_name: event.target.value })
+                }
+              />
+            </FieldWrapper>
+          )}
           <span />
           <FieldWrapper label={t("field.validFrom")} required>
             <Input
@@ -1073,7 +1103,7 @@ const EXTERNAL_CREDENTIAL_TYPES: Exclude<AccessCredentialType, "QR">[] = [
  * the server and never comes back — the list shows the hint, so revoking
  * the right card is possible without ever re-exposing the card number.
  */
-function PassDetail({
+export function PassDetail({
   row,
   onClose,
 }: {
@@ -1081,6 +1111,7 @@ function PassDetail({
   onClose: () => void;
 }) {
   const t = useTranslations("siteControl");
+  const { can } = useAuth();
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
@@ -1089,6 +1120,8 @@ function PassDetail({
           <DialogDescription>
             {row.subject_name} · {row.project_name}
           </DialogDescription>
+          {/* 「旧编号」 (I6, ID21): printed passes carry the number from before. */}
+          <RecordNumbers legacyNo={row.legacy_no} />
         </DialogHeader>
         {/* 预览 · 打印 · 导出 · 发送 on this one pass and its entries and exits (H16, HD13). */}
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
@@ -1114,6 +1147,9 @@ function PassDetail({
           />
         </div>
         <CredentialsPanel pass={row} />
+        {/* ID photo, permit and related papers, kept with who and when (I3). */}
+        {/* Read with 门禁 view; added to only with 门禁 manage. */}
+        <RecordAttachmentsPanel kind="GATE_PASS" recordId={row.id} readOnly={!can("site_access.manage")} />
 
         <h3 className="mt-2 font-semibold">{t("access.timeline")}</h3>
         {!row.events.length ? (

@@ -25,6 +25,8 @@ import { FileText, ImageIcon, Images, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
+import { FieldCamera } from "@/components/shared/field-camera";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDateFormat } from "@/lib/dates";
@@ -51,6 +53,9 @@ export function VoucherSource({
 }) {
   const t = useTranslations("sundryClaim.proofs");
   const df = useDateFormat();
+  // The phone's own picker already offers its camera (`accept="image/*"`);
+  // a desk gets the computer's camera as a fifth source (I3).
+  const mobile = useIsMobile();
   const [dragging, setDragging] = useState(false);
   const [refused, setRefused] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -129,6 +134,14 @@ export function VoucherSource({
             if (!take({ files: event.target.files }, true)) onChange(null);
           }}
         />
+        {!mobile && (
+          <FieldCamera
+            trigger="button"
+            label={t("takePhoto")}
+            className="w-full"
+            onCapture={(photo) => take({ files: [photo] })}
+          />
+        )}
         {refused && <p role="alert" className="text-xs text-destructive">{t("notImage")}</p>}
         {previewUrl ? (
           <figure className="space-y-1">

@@ -28,6 +28,15 @@ export const REPORT_FILTERS: Record<ContractorReportType, readonly ReportFilterK
   target: ["target_type", "status"],
   photos: ["actor"],
   documents: ["status", "actor"],
+  // 撰写人 (I8).
+  daily_report: ["actor"],
+  progress_summary: ["actor"],
+  // I11 (ID27): the four new reports.
+  field_tasks: ["status", "actor"],
+  material_outgoing: ["status", "supplier"],
+  // 分包商 (I10, ID7).
+  claims: ["status", "subcontractor"],
+  sundry_claims: ["status", "actor"],
 };
 
 /** Every filter any report has, for the address (`useListQuery`). */
@@ -57,6 +66,7 @@ const FILTER_COLUMN: Record<ReportFilterKey, string> = {
   plan: "plan",
   target_type: "target_type",
   actor: "actor",
+  subcontractor: "subcontractor",
 };
 
 const ACTOR_LABEL: Partial<Record<ContractorReportType, string>> = {
@@ -66,6 +76,10 @@ const ACTOR_LABEL: Partial<Record<ContractorReportType, string>> = {
   attendance: "contractorReports.column.worker",
   photos: "contractorReports.filter.uploader",
   documents: "contractorReports.column.uploaded_by",
+  daily_report: "contractorReports.column.author",
+  progress_summary: "contractorReports.column.author",
+  field_tasks: "contractorReports.column.assignee",
+  sundry_claims: "contractorReports.column.applicant",
 };
 
 /** The message key naming a filter field on one report. */
@@ -87,6 +101,7 @@ const NAMED: ReadonlySet<ReportFilterKey> = new Set([
   "supplier",
   "counterparty",
   "plan",
+  "subcontractor",
 ]);
 
 /**

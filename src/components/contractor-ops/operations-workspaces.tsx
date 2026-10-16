@@ -19,6 +19,7 @@ import {
   Plus,
   RotateCcw,
   Save,
+  History as HistoryIcon,
   ScanLine,
   Trash2,
 } from "lucide-react";
@@ -35,6 +36,14 @@ import {
   useNeedsActionParam,
 } from "@/components/shared/needs-action";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
+import { useListQuery } from "@/hooks/use-list-query";
+import {
+  fieldTaskStageKey,
+  STAGE_TONE,
+  stageFromParam,
+  stageQuery,
+  TASK_STAGES,
+} from "@/lib/task-stages";
 import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
@@ -66,8 +75,14 @@ import {
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import {
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { useDateFormat } from "@/lib/dates";
+import { isSignOffCancelled } from "@/lib/sign-off";
 import { hasPercent, usePercentText } from "@/lib/progress-percent";
+import { parseRecordNo } from "@/lib/record-no";
 import { cn } from "@/lib/utils";
 import { NEW_PHASE_OPTION, NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import {
@@ -117,7 +132,6 @@ import type {
   ProjectCategoryKind,
   CategorySubmissionMode,
   ProjectCategoryPayload,
-  BudgetMode,
   SiteEquipment,
 } from "@/interfaces/contractor-ops";
 import { ApiError } from "@/interfaces/api";
@@ -135,6 +149,7 @@ import {
   getConstructionPhases,
   getFieldTask,
   exportFieldTasks,
+  getFieldTaskAssignees,
   getFieldTasks,
   addMaterialOutgoingPhotos,
   exportMaterialOutgoing,
@@ -159,8 +174,16 @@ import {
   scanSupplierQr,
 } from "@/services/contractor.service";
 import { getRoles } from "@/services/users.service";
+import { MaterialSpecsEditor } from "@/components/contractor-ops/material-specs-editor";
+import { offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import { OutgoingSupplierField } from "@/components/contractor-ops/outgoing-supplier-field";
 import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/return-note";
+import {
+  EquipmentExitApplyDialog,
+  EquipmentExitHandoverDialog,
+  MachineScanButton,
+} from "@/components/contractor-ops/equipment-exit";
+import { exitStep } from "@/lib/equipment-exit";
 import {
   SupplierReturnBadge,
   type ReturnBadgeSupplier,
@@ -297,6 +320,8 @@ export function CategoryDialog({
   defaultKind,
   row,
   nextSortOrder,
+  group = null,
+  parent: presetParent = null,
   onClose,
   onSaved,
 }: {
@@ -306,6 +331,10 @@ export function CategoryDialog({
   row: ProjectCategory | null;
   /** Where a new column goes in the list: after the ones already there. */
   nextSortOrder: number;
+  /** The 分类组 a new category joins (I11); null - the module's own group. */
+  group?: string | null;
+  /** 「+ 子分类」 (I11): the category a new one goes under. */
+  parent?: string | null;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -324,8 +353,10 @@ export function CategoryDialog({
   });
   const [form, setForm] = useState<ProjectCategoryPayload>({
     project,
-    // Equipment only (2026-10 B2, X1): the major class a sub class sits under.
-    parent: row?.parent ?? null,
+    // The category a sub-category sits under: equipment's major class (B2,
+    // X1), and since I11 (ID3) any module's category.
+    parent: row?.parent ?? presetParent ?? null,
+    group: row?.group ?? group ?? null,
     code: row?.code ?? "",
     name: row?.name ?? "",
     // A new column joins the list it was created from. An existing row keeps
@@ -350,10 +381,9 @@ export function CategoryDialog({
   const [alerts, setAlerts] = useState(
     (row?.budget_alert_percentages ?? []).join(", "),
   );
-  // 2026-10 A6 (X17): the budget counts money (default) or the quantity in
-  // the category's unit, and warns at percentages and/or absolute figures.
-  const [budgetMode, setBudgetMode] = useState<BudgetMode>(row?.budget_mode ?? "AMOUNT");
-  const [budgetQuantity, setBudgetQuantity] = useState(row?.budget_quantity ?? "");
+  // 2026-10 A6 (X17): the budget warns at percentages and/or absolute
+  // figures. Money only since I18 (ID40): a quantity is a material target,
+  // set in 材料管理 → 材料目标, net of returns and per specification.
   const [alertAmounts, setAlertAmounts] = useState(
     (row?.budget_alert_amounts ?? []).join(", "),
   );
@@ -373,6 +403,35 @@ export function CategoryDialog({
   // the permit module's own, renamed but never switched off.
   const isEhs = form.kind === "EHS";
   const isPermit = isEhs && row?.code === PERMIT_COLUMN_CODE;
+  // Progress Claim categories (I10, ID6): made by the project, flat or with
+  // sub-categories like EHS.
+  const isClaim = form.kind === "CLAIM";
+  // A new equipment category (I38, ID81) is named and filed under a major
+  // class, nothing else: the server numbers it and the rest keeps its
+  // defaults under 「更多设定」.
+  const simpleEquip = !row && isEquipment;
+  const autoCode = isEhs || isClaim || simpleEquip;
+  // EHS and claims (I11): the category a sub-category goes under, from this
+  // group's top-level categories. Equipment keeps its own picker below; a
+  // material's second level is its specifications (I19), set further down.
+  const takesParent = isEhs || isClaim;
+  const parentChoices = useQuery({
+    queryKey: ["project-categories", "parents", form.project, form.kind, form.group ?? ""],
+    queryFn: () =>
+      getProjectCategories({
+        project: form.project,
+        kind: form.kind,
+        page_size: 200,
+        ...(form.group ? { group: form.group } : {}),
+      }),
+    enabled: takesParent && Boolean(form.project),
+  });
+  const parentRows = (parentChoices.data?.results ?? []).filter(
+    (choice) => !choice.parent && choice.id !== row?.id,
+  );
+  const hasChildren = Boolean(
+    row && (parentChoices.data?.results ?? []).some((choice) => choice.parent === row.id),
+  );
   // The major classes it may go under: this project's top-level equipment
   // categories, not itself (X1). One with sub classes of its own stays a
   // major class, so the choice is not offered.
@@ -397,10 +456,6 @@ export function CategoryDialog({
   const alertsInvalid = isMaterial && tracksSpend && parsedAlerts === null;
   const parsedAmounts = parseAlertAmounts(alertAmounts);
   const amountsInvalid = isMaterial && tracksSpend && parsedAmounts === null;
-  const quantityMode = budgetMode === "QUANTITY";
-  // 500 what? A quantity budget is counted in the category's unit.
-  const quantityNeedsUnit =
-    isMaterial && tracksSpend && quantityMode && Boolean(budgetQuantity.trim()) && !defaultUnit;
   const save = useMutation({
     mutationFn: () => {
       const payload: ProjectCategoryPayload = isMaterial
@@ -412,18 +467,19 @@ export function CategoryDialog({
             budget_amount: tracksSpend && budget.trim() ? budget.trim() : null,
             budget_alert_percentages:
               parsedAlerts ?? row?.budget_alert_percentages ?? [],
-            budget_mode: budgetMode,
-            budget_quantity:
-              tracksSpend && quantityMode && budgetQuantity.trim() ? budgetQuantity.trim() : null,
+            budget_mode: "AMOUNT",
+            budget_quantity: null,
             budget_alert_amounts: parsedAmounts ?? row?.budget_alert_amounts ?? [],
             default_unit: defaultUnit,
             suppliers: supplierIds,
             manufacturers: manufacturerIds,
           }
-        : isEquipment
-          ? { ...form, parent: form.parent || null }
-          : // A parent means nothing outside equipment (D-265); not sent.
+        : isEquipment || takesParent
+          ? { ...form, parent: form.parent || null, ...(simpleEquip ? { code: "" } : {}) }
+          : // A material's second level is its specifications (I19); not sent.
             { ...form, parent: undefined };
+      if (row) delete payload.group;
+      else if (!payload.group) delete payload.group;
       return row
         ? updateProjectCategory(row.id, payload)
         : createProjectCategory(payload);
@@ -452,88 +508,13 @@ export function CategoryDialog({
   const restrictedEmpty =
     form.access_mode === "RESTRICTED" &&
     !(form.allowed_roles?.length || form.allowed_users?.length);
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
-            {t(row ? "categories.editTitle" : "categories.createTitle")}
-          </DialogTitle>
-          <DialogDescription>{t("categories.formHelp")}</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Shown, not chosen: the column is made in the project the screen
-              was opened on. */}
-          <FieldWrapper label={t("field.project")} required className="sm:col-span-2">
-            <ProjectPicker
-              value={form.project}
-              onValueChange={(next) => set("project", next)}
-              placeholder={t("field.selectProject")}
-              disabled
-            />
-          </FieldWrapper>
-          {isEhs ? (
-            <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
-              <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
-            </FieldWrapper>
-          ) : (
-            <FieldWrapper label={t("field.code")} required>
-              <Input
-                value={form.code}
-                onChange={(e) => set("code", e.target.value.toUpperCase())}
-              />
-            </FieldWrapper>
-          )}
-          <FieldWrapper label={t("field.name")} required>
-            <Input
-              value={form.name}
-              onChange={(e) => set("name", e.target.value)}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("categories.kind")} required>
-            <Select
-              value={form.kind}
-              onValueChange={(value) =>
-                set("kind", value as ProjectCategoryKind)
-              }
-              // An EHS category stays one (HD4): it is not moved to material.
-              disabled={isEhs}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {/* Named exactly as Category Management names the module,
-                    so the picker and the list on the left agree (one name per
-                    module). Choosing another moves the column to that
-                    module's list - and the server refuses the move if
-                    records are already filed in it. */}
-                <SelectItem value="MATERIAL">
-                  {modules("module.material")}
-                </SelectItem>
-                <SelectItem value="EQUIPMENT">
-                  {modules("module.equipment")}
-                </SelectItem>
-                {/* EHS only for an EHS category (H18): it is made from its
-                    own group and stays there. Progress, clearance, consultant
-                    and sundry have no categories at all (X5). */}
-                {isEhs && <SelectItem value="EHS">{modules("module.ehs")}</SelectItem>}
-                {/* Only offered on a column that already carries the marker.
-                    It is not a scheme somebody should pick on purpose - it
-                    means "not separated yet" - but taking it off the form
-                    would silently reclassify a legacy column on the next
-                    unrelated edit. */}
-                {row?.kind === "BOTH" && (
-                  <SelectItem value="BOTH">
-                    {t("categories.kindBoth")}
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          {/* 大类 → 小类 (2026-10 B2, X1): equipment only. Empty makes it a
-              major class; a machine is registered on a sub class. */}
-          {isEquipment && (
+  const nameField = (
+    <FieldWrapper label={t("field.name")} required>
+      <Input value={form.name} onChange={(e) => set("name", e.target.value)} />
+    </FieldWrapper>
+  );
+  const equipmentParentField = (
+
             <FieldWrapper
               label={modules("equipment.majorClassOf")}
               hint={modules("equipment.majorClassHint")}
@@ -557,22 +538,157 @@ export function CategoryDialog({
               </Select>
               <QueryFailedNote query={equipmentClasses.query} what={t("what.columns")} />
             </FieldWrapper>
+  );
+  // The settings a new equipment category keeps at their defaults are folded
+  // away (I38); everywhere else the dialog is the one it always was.
+  const more = (fields: React.ReactNode) =>
+    simpleEquip ? (
+      <details className="rounded-lg border p-3 sm:col-span-2">
+        <summary className="cursor-pointer text-sm font-medium">
+          {modules("equipment.moreSettings")}
+        </summary>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">{fields}</div>
+      </details>
+    ) : (
+      fields
+    );
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            {t(row ? "categories.editTitle" : "categories.createTitle")}
+          </DialogTitle>
+          <DialogDescription>{t("categories.formHelp")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Shown, not chosen: the column is made in the project the screen
+              was opened on. */}
+          <FieldWrapper label={t("field.project")} required className="sm:col-span-2">
+            <ProjectPicker
+              value={form.project}
+              onValueChange={(next) => set("project", next)}
+              placeholder={t("field.selectProject")}
+              disabled
+            />
+          </FieldWrapper>
+          {simpleEquip && (
+            <>
+              {nameField}
+              {equipmentParentField}
+            </>
           )}
-          <FieldWrapper label={t("categories.submissionMode")} required>
+          {more(<>
+          {autoCode ? (
+            <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
+              <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
+            </FieldWrapper>
+          ) : (
+            <FieldWrapper label={t("field.code")} required>
+              <Input
+                value={form.code}
+                onChange={(e) => set("code", e.target.value.toUpperCase())}
+              />
+            </FieldWrapper>
+          )}
+          {!simpleEquip && nameField}
+          <FieldWrapper label={t("categories.kind")} required>
             <Select
-              value={form.submission_mode}
+              value={form.kind}
               onValueChange={(value) =>
-                set("submission_mode", value as CategorySubmissionMode)
+                set("kind", value as ProjectCategoryKind)
               }
+              // A category stays in its group's module (I11): the group on
+              // the left decides it. Only a legacy BOTH column is settled here.
+              disabled={row?.kind !== "BOTH"}
             >
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem value="DIRECT">{t("categories.submissionDirect")}</SelectItem>
-                <SelectItem value="REVIEW">{t("categories.submissionReview")}</SelectItem>
-                <SelectItem value="CONSULTANT">{t("categories.submissionConsultant")}</SelectItem>
+                {/* Named exactly as Category Management names the module,
+                    so the picker and the list on the left agree (one name per
+                    module). Choosing another moves the column to that
+                    module's list - and the server refuses the move if
+                    records are already filed in it. */}
+                <SelectItem value="MATERIAL">
+                  {modules("module.material")}
+                </SelectItem>
+                <SelectItem value="EQUIPMENT">
+                  {modules("module.equipment")}
+                </SelectItem>
+                {/* EHS only for an EHS category (H18): it is made from its
+                    own group and stays there. Progress, clearance, consultant
+                    and sundry have no categories at all (X5). */}
+                {isEhs && <SelectItem value="EHS">{modules("module.ehs")}</SelectItem>}
+                {isClaim && <SelectItem value="CLAIM">{modules("module.claim")}</SelectItem>}
+                {/* Only offered on a column that already carries the marker.
+                    It is not a scheme somebody should pick on purpose - it
+                    means "not separated yet" - but taking it off the form
+                    would silently reclassify a legacy column on the next
+                    unrelated edit. */}
+                {row?.kind === "BOTH" && (
+                  <SelectItem value="BOTH">
+                    {t("categories.kindBoth")}
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </FieldWrapper>
+          {/* 大类 → 小类 (2026-10 B2, X1): equipment only. Empty makes it a
+              major class; a machine is registered on a sub class. */}
+          {!simpleEquip && isEquipment && equipmentParentField}
+          {/* 子分类 (I11, ID3): EHS and claim categories go one level down. */}
+          {takesParent && (
+            <FieldWrapper
+              label={modules("subCategory.parent")}
+              hint={modules("subCategory.parentHint")}
+            >
+              <Select
+                value={form.parent || "__top__"}
+                onValueChange={(value) => set("parent", value === "__top__" ? null : value)}
+                disabled={hasChildren || Boolean(row?.is_fixed)}
+              >
+                <SelectTrigger className="w-full" aria-label={modules("subCategory.parent")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__top__">{modules("subCategory.isTop")}</SelectItem>
+                  {parentRows.map((choice) => (
+                    <SelectItem key={choice.id} value={choice.id}>
+                      {choice.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <QueryFailedNote query={parentChoices} what={t("what.columns")} />
+            </FieldWrapper>
+          )}
+          {/* 提交方式 (I12, ID28): who accepts what is filed here - material
+              and equipment only. EHS has its own assignment and acceptance
+              (ID9), and a claim is the office's own. */}
+          {(isMaterial || isEquipment) && (
+            <FieldWrapper
+              label={t("categories.submissionMode")}
+              required
+              hint={t(`categories.submissionHint.${form.submission_mode ?? "REVIEW"}`)}
+            >
+              <Select
+                value={form.submission_mode}
+                onValueChange={(value) =>
+                  set("submission_mode", value as CategorySubmissionMode)
+                }
+              >
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="DIRECT">{t("categories.submissionDirect")}</SelectItem>
+                  <SelectItem value="REVIEW">{t("categories.submissionReview")}</SelectItem>
+                  <SelectItem value="CONSULTANT">{t("categories.submissionConsultant")}</SelectItem>
+                  <SelectItem value="HQ">{t("categories.submissionHq")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
+          )}
           <FieldWrapper
             label={t("field.description")}
             className="sm:col-span-2"
@@ -667,7 +783,6 @@ export function CategoryDialog({
               <FieldWrapper
                 label={modules("material.defaultUnit")}
                 hint={modules("material.defaultUnitHint")}
-                error={quantityNeedsUnit ? modules("budget.quantityNeedsUnit") : undefined}
               >
                 <Select
                   value={defaultUnit || "__none__"}
@@ -727,6 +842,16 @@ export function CategoryDialog({
               </FieldWrapper>
             </div>
           )}
+          {/* 规格 and their units (I19, ID45): under a saved material. */}
+          {isMaterial && (
+            <div className="border-t pt-4 sm:col-span-2">
+              {row ? (
+                <MaterialSpecsEditor material={row} />
+              ) : (
+                <p className="text-xs text-muted-foreground">{modules("specs.afterSave")}</p>
+              )}
+            </div>
+          )}
           {isMaterial && (
             <div className="grid gap-4 border-t pt-4 sm:col-span-2">
               <div>
@@ -742,51 +867,25 @@ export function CategoryDialog({
                 />
                 {modules("budget.tracksSpend")}
               </label>
+              {/* 「数量目标请到 材料管理 → 材料目标」 (I18, ID40). */}
+              <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                {modules("budget.quantityMoved")}
+              </p>
               {tracksSpend && (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldWrapper label={modules("budget.mode")} className="sm:col-span-2">
-                    <Select value={budgetMode} onValueChange={(value) => setBudgetMode(value as BudgetMode)}>
-                      <SelectTrigger className="w-full sm:w-80"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="AMOUNT">{modules("budget.modeAmount")}</SelectItem>
-                        <SelectItem value="QUANTITY">{modules("budget.modeQuantity")}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <FieldWrapper
+                    label={modules("budget.amount")}
+                    hint={modules("budget.amountHint")}
+                  >
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      step="0.01"
+                      value={budget}
+                      onChange={(event) => setBudget(event.target.value)}
+                    />
                   </FieldWrapper>
-                  {quantityMode ? (
-                    <FieldWrapper
-                      label={modules("budget.quantity")}
-                      hint={
-                        defaultUnit
-                          ? modules("budget.quantityHint", { unit: unitName(defaultUnit, row?.default_unit_label) })
-                          : modules("budget.quantityNeedsUnit")
-                      }
-                      error={quantityNeedsUnit ? modules("budget.quantityNeedsUnit") : undefined}
-                    >
-                      <Input
-                        type="number"
-                        inputMode="decimal"
-                        min="0"
-                        step="0.001"
-                        value={budgetQuantity}
-                        onChange={(event) => setBudgetQuantity(event.target.value)}
-                      />
-                    </FieldWrapper>
-                  ) : (
-                    <FieldWrapper
-                      label={modules("budget.amount")}
-                      hint={modules("budget.amountHint")}
-                    >
-                      <Input
-                        type="number"
-                        inputMode="decimal"
-                        min="0"
-                        step="0.01"
-                        value={budget}
-                        onChange={(event) => setBudget(event.target.value)}
-                      />
-                    </FieldWrapper>
-                  )}
                   <FieldWrapper
                     label={modules("budget.alerts")}
                     hint={modules("budget.alertsHint")}
@@ -844,6 +943,7 @@ export function CategoryDialog({
               {t("field.active")}
             </label>
           </div>
+          </>)}
         </div>
         {restrictedEmpty && (
           <p
@@ -866,7 +966,7 @@ export function CategoryDialog({
             requires={[
               [form.project, t("field.project")],
               // An EHS code is the server's to make (HD4).
-              [isEhs || form.code, t("field.code")],
+              [autoCode || form.code, t("field.code")],
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
@@ -879,11 +979,9 @@ export function CategoryDialog({
                 ? modules("budget.alertsInvalid")
                 : amountsInvalid
                   ? modules("budget.thresholdAmountsInvalid")
-                  : quantityNeedsUnit
-                    ? modules("budget.quantityNeedsUnit")
-                    : undefined
+                  : undefined
             }
-            disabled={save.isPending || alertsInvalid || amountsInvalid || quantityNeedsUnit}
+            disabled={save.isPending || alertsInvalid || amountsInvalid}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
@@ -899,6 +997,7 @@ export function FieldTasksWorkspace({
   taskType,
 }: { taskType?: FieldTask["task_type"] } = {}) {
   const t = useTranslations("contractorOps");
+  const tRoot = useTranslations();
   // The four 「这次要顾问看什么」 answers by name, not by code (2026-10 F4).
   const askFor = useTranslations("fieldStaffPwa.consultantCapture");
   // A phone submission's title names its type in the reader's words (F4).
@@ -907,6 +1006,11 @@ export function FieldTasksWorkspace({
       askFor.has(`askOption.${code}`) ? askFor(`askOption.${code}` as never) : null,
     );
   const { can, user } = useAuth();
+  const flow = useTranslations("taskFlow");
+  const stageLabel = (status: FieldTask["status"]) => {
+    const key = fieldTaskStageKey(status);
+    return key === "CANCELLED" ? t("taskStatus.CANCELLED") : flow(`stage.${key}`);
+  };
   const router = useRouter();
   const qc = useQueryClient();
   // A task card links here with ?task=<id>: show that one task, with a way
@@ -936,13 +1040,34 @@ export function FieldTasksWorkspace({
   // reader's 验收 - the sidebar's number for 现场任务.
   const [waitingParam, setWaitingOnly] = useNeedsActionParam();
   const waitingOnly = !taskType && waitingParam;
+  // 现场任务's own filters (I1): 关键词、负责人、日期、状态 (待处理 / 待验收 /
+  // 已完成), combined, in the address - and the 历史档案 view of the
+  // confirmed ones. The consultant inbox (`taskType`) keeps its own list.
+  const list = useListQuery(["assigned_to", "stage", "date_from", "date_to", "view"]);
+  const history = !taskType && list.filters.view === "history";
+  const chosenStage = taskType ? null : stageFromParam(list.filters.stage);
+  const filters = taskType
+    ? {}
+    : {
+        search: list.search || undefined,
+        assigned_to: list.filters.assigned_to,
+        date_from: list.filters.date_from,
+        date_to: list.filters.date_to,
+        stage: stageQuery(chosenStage, history),
+      };
+  const assignees = useQuery({
+    queryKey: ["field-task-assignees", project],
+    queryFn: () => getFieldTaskAssignees(project || undefined),
+    enabled: !taskType,
+  });
   const rows = useQuery({
-    queryKey: ["field-tasks", project, taskType, drill, waitingOnly],
+    queryKey: ["field-tasks", project, taskType, drill, waitingOnly, filters],
     queryFn: () =>
       getFieldTasks({
         page_size: 200,
         project: project || undefined,
         task_type: taskType,
+        ...filters,
         ...(drill ? { [drill]: "1" } : {}),
         ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
       }),
@@ -985,28 +1110,18 @@ export function FieldTasksWorkspace({
       addFieldTaskReferences(id, files),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["field-tasks"] }),
   });
-  /*
-   * Same dialog treatment as the outgoing application below, and for the same
-   * reasons: `window.prompt` is untranslated, cannot be marked required, and
-   * is suppressed outright by some browsers - in which case returning a task
-   * silently did nothing at all.
-   */
-  const [returning, setReturning] = useState<FieldTask | null>(null);
-  const review = (row: FieldTask, status: FieldTask["status"]) => {
-    if (status === "RETURNED") {
-      setReturning(row);
-      return;
-    }
-    transition.mutate({ id: row.id, status, note: "" });
-  };
+  // 确认完成 only (ID11): no 退回 button. The confirmer says what is still
+  // wrong in the task's conversation, with 「需要继续整改」 switched on.
+  const confirmTask = (row: FieldTask) =>
+    transition.mutate({ id: row.id, status: "ACCEPTED", note: "" });
   return (
     <div className="space-y-4">
       <ListHeader
-        title={t(
-          taskType === "CONSULTANT"
-            ? "tasks.consultantInboxTitle"
-            : "tasks.title",
-        )}
+        title={
+          history
+            ? flow("fieldTasks.historyTitle")
+            : t(taskType === "CONSULTANT" ? "tasks.consultantInboxTitle" : "tasks.title")
+        }
         subtitle={t(
           taskType === "CONSULTANT"
             ? "tasks.consultantInboxSubtitle"
@@ -1015,11 +1130,22 @@ export function FieldTasksWorkspace({
         action={
           !taskType ? (
             <>
-              <NeedsActionChip
-                count={rows.data?.needs_action_count}
-                active={waitingOnly}
-                onToggle={setWaitingOnly}
-              />
+              {!history && (
+                <NeedsActionChip
+                  count={rows.data?.needs_action_count}
+                  active={waitingOnly}
+                  onToggle={setWaitingOnly}
+                />
+              )}
+              <Button
+                variant={history ? "default" : "outline"}
+                onClick={() =>
+                  list.setFilters({ view: history ? undefined : "history", stage: undefined })
+                }
+              >
+                <HistoryIcon />
+                {flow(history ? "fieldTasks.backToList" : "fieldTasks.history")}
+              </Button>
               {/* The tasks listed, as a file (H16, HD13). */}
               <ExportButton
                 disabled={!rows.data?.count}
@@ -1031,10 +1157,12 @@ export function FieldTasksWorkspace({
                     title: t("tasks.title"),
                     query: {
                       project: project || undefined,
+                      ...filters,
                       ...(drill ? { [drill]: "1" } : {}),
                       ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
                     },
                     columns: [
+                      { key: "record_no", label: tRoot("recordNo.column") },
                       { key: "title", label: t("field.title") },
                       {
                         key: "task_type",
@@ -1057,8 +1185,17 @@ export function FieldTasksWorkspace({
                           ),
                         ),
                       },
+                      {
+                        key: "stage",
+                        label: flow("fieldTasks.stageColumn"),
+                        values: Object.fromEntries(
+                          TASK_STAGES.map((stage) => [stage, flow(`stage.${stage}`)]),
+                        ),
+                      },
                       { key: "photo_count", label: t("field.photos") },
                       { key: "result_note", label: t("field.notes") },
+                      { key: "reviewed_by_name", label: flow("fieldTasks.confirmedBy") },
+                      { key: "reviewed_at", label: flow("fieldTasks.confirmedAt") },
                     ],
                   })
                 }
@@ -1075,6 +1212,71 @@ export function FieldTasksWorkspace({
       />
       <FilterBar className="empty:hidden">
         <ProjectFilter value={project} onChange={setProject} />
+        {!taskType && (
+          <>
+            <Input
+              type="search"
+              aria-label={flow("fieldTasks.search")}
+              placeholder={flow("fieldTasks.search")}
+              key={list.search}
+              defaultValue={list.search}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") list.setSearch(event.currentTarget.value.trim());
+              }}
+              onBlur={(event) => {
+                if (event.currentTarget.value.trim() !== list.search) {
+                  list.setSearch(event.currentTarget.value.trim());
+                }
+              }}
+              className="w-full sm:w-56"
+            />
+            <Select
+              value={list.filters.assigned_to ?? "all"}
+              onValueChange={(value) => list.setFilter("assigned_to", value === "all" ? undefined : value)}
+            >
+              <SelectTrigger className="w-full sm:w-48" aria-label={t("field.assignee")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{flow("fieldTasks.allAssignees")}</SelectItem>
+                {(assignees.data ?? []).map((person) => (
+                  <SelectItem key={person.id} value={person.id}>{person.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {!history && (
+              <Select
+                value={chosenStage ?? "all"}
+                onValueChange={(value) => list.setFilter("stage", value === "all" ? undefined : value)}
+              >
+                <SelectTrigger className="w-full sm:w-40" aria-label={t("field.status")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{flow("stage.all")}</SelectItem>
+                  {TASK_STAGES.map((stage) => (
+                    <SelectItem key={stage} value={stage}>{flow(`stage.${stage}`)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Input
+              type="date"
+              aria-label={flow("fieldTasks.dateFrom")}
+              value={list.filters.date_from ?? ""}
+              onChange={(event) => list.setFilter("date_from", event.target.value || undefined)}
+              className="w-full sm:w-40"
+            />
+            <Input
+              type="date"
+              aria-label={flow("fieldTasks.dateTo")}
+              value={list.filters.date_to ?? ""}
+              onChange={(event) => list.setFilter("date_to", event.target.value || undefined)}
+              className="w-full sm:w-40"
+            />
+            <QueryFailedNote className="w-full" query={assignees} what={t("field.assignee")} />
+          </>
+        )}
       </FilterBar>
       {drill && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
@@ -1144,8 +1346,9 @@ export function FieldTasksWorkspace({
             // detail: only its publisher confirms it, and the assignee
             // submits words and files from the desk.
             const headOffice = row.origin === "HQ";
-            const canReview =
-              can("field_task.manage") && row.status === "SUBMITTED" && !headOffice;
+            // The server's answer (I1): the setter or a task manager, never
+            // the assignee.
+            const canReview = Boolean(row.can_confirm) && row.status === "SUBMITTED" && !headOffice;
             return (
               <article
                 key={row.id}
@@ -1165,6 +1368,16 @@ export function FieldTasksWorkspace({
                       <span className="min-w-0">
                         <span className="block truncate font-medium">{taskTitle(row)}</span>
                         <span className="block truncate text-xs text-muted-foreground">
+                          {/* 记录编号 (I6): the short FT-012, the whole one on hover. */}
+                          {row.record_no && (
+                            <span
+                              className="tabular font-semibold text-foreground"
+                              title={row.record_no}
+                            >
+                              {parseRecordNo(row.record_no)?.short ?? row.record_no}
+                              {" · "}
+                            </span>
+                          )}
                           {row.project_name}
                         </span>
                       </span>
@@ -1176,10 +1389,22 @@ export function FieldTasksWorkspace({
                       </span>
                     </span>
                   </button>
-                  <StatusBadge
-                    label={t(`taskStatus.${row.status}`)}
-                    tone={tone(row.status)}
-                  />
+                  {taskType ? (
+                    <StatusBadge
+                      label={t(`taskStatus.${row.status}`)}
+                      tone={tone(row.status)}
+                    />
+                  ) : (
+                    // 待处理 / 待验收 / 已完成 (I1); a cancelled one says so.
+                    <StatusBadge
+                      label={stageLabel(row.status)}
+                      tone={
+                        fieldTaskStageKey(row.status) === "CANCELLED"
+                          ? "neutral"
+                          : STAGE_TONE[fieldTaskStageKey(row.status) as keyof typeof STAGE_TONE]
+                      }
+                    />
+                  )}
                   <span
                     className="flex items-center gap-1"
                     title={t("tasks.photos", {
@@ -1229,25 +1454,14 @@ export function FieldTasksWorkspace({
                         </>
                       ) : null}
                       {canReview ? (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={transition.isPending}
-                            onClick={() => review(row, "RETURNED")}
-                          >
-                            <RotateCcw />
-                            {t("action.return")}
-                          </Button>
-                          <Button
-                            size="sm"
-                            disabled={transition.isPending}
-                            onClick={() => review(row, "ACCEPTED")}
-                          >
-                            <Check />
-                            {t("tasks.confirmDone")}
-                          </Button>
-                        </>
+                        <Button
+                          size="sm"
+                          disabled={transition.isPending}
+                          onClick={() => confirmTask(row)}
+                        >
+                          <Check />
+                          {t("tasks.confirmDone")}
+                        </Button>
                       ) : null}
                       {canPrepareApplication ? (
                         <Button
@@ -1281,21 +1495,6 @@ export function FieldTasksWorkspace({
             );
           })}
         </div>
-      )}
-      {returning && (
-        <ReturnReasonDialog
-          reference={returning.title}
-          pending={transition.isPending}
-          onClose={() => setReturning(null)}
-          onConfirm={(note) => {
-            transition.mutate({
-              id: returning.id,
-              status: "RETURNED",
-              note,
-            });
-            setReturning(null);
-          }}
-        />
       )}
       {creating && (
         <TaskDialog
@@ -1686,7 +1885,7 @@ function TaskDialog({
             )}
           </FieldWrapper>
         </div>
-        {save.isError && (
+        {save.isError && !isSignOffCancelled(save.error) && (
           <p
             role="alert"
             className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
@@ -1745,7 +1944,7 @@ export function machineLabeller(rows: readonly SiteEquipment[]) {
 }
 
 /**
- * The phone's 设备进退场 (D-273, T-393; 2026-10 C8, F3, A9, Q27).
+ * The phone's 设备进退场 (D-273, T-393; 2026-10 C8, F3, A9, I13, I22, I24).
  *
  * 「设备进退场的数据是不需要显示的，他们的工作就只是拍照而已」: the field
  * worker takes the photos, the office reads the figures. So this screen has no
@@ -1753,14 +1952,22 @@ export function machineLabeller(rows: readonly SiteEquipment[]) {
  * office list (`SiteEquipmentOffice`).
  *
  * What is left: the project (locked to the worker's site), 进场 or 退场, and
- * one dropdown, 「名称 · 车牌」 with no category anywhere on the phone (F3).
- * 进场 offers 「新设备」 first, because nobody knows in advance which machine
- * will arrive (Lucas 2026-10-07), then the machines on file that are not on
- * site, for one coming back. 退场 offers the machines on site on this
- * project (Q27). Either way the movement is taken in one step like 材料进场
- * (X2): photos, DO, the supplier's QR, both signatures, GPS - and the office
- * accepts it. A machine whose movement is waiting for that says so instead of
- * offering a second one. Nothing is applied for (F3: no 「申请」 on the phone).
+ * one dropdown, 「名称 · 车牌」 with no category anywhere on the phone (F3),
+ * with 「扫描设备二维码」 beside it (I24, ID60). 进场 offers 「新设备」 first,
+ * because nobody knows in advance which machine will arrive (Lucas
+ * 2026-10-07), then the machines on file that are not on site, for one coming
+ * back; it is taken in one step like 材料进场 (X2) and the office accepts it.
+ * 退场 offers the machines on site on this project and goes the way material
+ * leaves site (I13, ID30): 申请退场 → the office approves on its Return Note →
+ * 实际退场 here → the office confirms. The step a machine is at is said beside
+ * it, and only the next step is offered.
+ *
+ * No red stars (I22, ID56): each field says in a line what it needs, and the
+ * submit button names what is missing.
+ *
+ * Opened from a scanned sticker (`/scan/equipment`), the address names the
+ * machine and the way (`?machine=&direction=`): it is chosen until the
+ * worker picks another.
  *
  * Only the phone mounts this component (field-records-panel.tsx).
  */
@@ -1774,11 +1981,35 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   // Kept in the draft, so tapping this 挂号 again reopens the way, the
   // machine and the form it was in (D-259). Outside a draft this is ordinary
   // state.
-  const [direction, setDirection] = useDraftState<"ENTRY" | "EXIT">(
+  const [draftDirection, setDraftDirection] = useDraftState<"ENTRY" | "EXIT">(
     "open:equipmentDirection",
     searchParams.get("direction") === "EXIT" ? "EXIT" : "ENTRY",
   );
-  const [chosen, setChosen] = useDraftState("open:chosenEquipment", "");
+  const [draftChosen, setDraftChosen] = useDraftState("open:chosenEquipment", "");
+  // A machine named by the address (a scanned sticker, I24) wins over the
+  // draft until the worker chooses for themselves.
+  const linkedMachine = searchParams.get("machine") ?? "";
+  const [linkSettled, setLinkSettled] = useState(false);
+  const followLink = Boolean(linkedMachine) && !linkSettled;
+  const direction: "ENTRY" | "EXIT" = followLink
+    ? searchParams.get("direction") === "EXIT"
+      ? "EXIT"
+      : "ENTRY"
+    : draftDirection;
+  const chosen = followLink ? linkedMachine : draftChosen;
+  const choose = (next: string, way: "ENTRY" | "EXIT" = direction) => {
+    setLinkSettled(true);
+    setDraftDirection(way);
+    setDraftChosen(next);
+    if (linkedMachine) {
+      // The link has done its job: coming back to this screen later starts
+      // from the worker's own choice, not the sticker scanned before.
+      const url = new URL(window.location.href);
+      url.searchParams.delete("machine");
+      url.searchParams.delete("direction");
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+  };
   const [entering, setEntering] = useDraftState("open:enteringEquipment", false);
   const rows = useQuery({
     queryKey: ["site-equipment", "field", project],
@@ -1790,7 +2021,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   });
   const going = direction === "EXIT";
   // A machine switched off is not offered for a new entry or exit. 退场 takes
-  // a machine on site on this project; 进场 one that is not (Q27).
+  // a machine on site on this project; 进场 one that is not.
   const equipment = (rows.data?.results ?? []).filter((row) => row.is_active);
   const offered = equipment.filter((row) => (row.status === "ON_SITE") === going);
   const machine = offered.find((row) => row.id === chosen) ?? null;
@@ -1799,14 +2030,22 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
     void qc.invalidateQueries({ queryKey: ["site-equipment"] });
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
     void qc.invalidateQueries({ queryKey: ["equipment-summary"] });
+    void qc.invalidateQueries({ queryKey: ["equipment-exit"] });
+    void qc.invalidateQueries({ queryKey: ["my-submissions"] });
   };
   const equipmentError =
     rows.error instanceof Error ? rows.error.message : undefined;
   const label = machineLabeller(equipment);
-  // 「进场待验收」 / 「退场待验收」: already submitted this way, so not again.
-  const waitingWord = t(going ? "equipment.exitWaiting" : "equipment.entryWaiting");
-  const isWaiting = (row: SiteEquipment) => row.awaiting_acceptance === direction;
-  const waiting = machine ? isWaiting(machine) : false;
+  // 「进场待验收」 for an entry; for an exit, where it stands (I13).
+  const stateWord = (row: SiteEquipment) => {
+    if (going) {
+      if (!row.open_exit) return "";
+      return t(`equipmentExit.status.${row.open_exit.status}`);
+    }
+    return row.awaiting_acceptance === "ENTRY" ? t("equipment.entryWaiting") : "";
+  };
+  const entryWaiting = !going && machine?.awaiting_acceptance === "ENTRY";
+  const step = exitStep(machine?.open_exit);
   return (
     <div className="space-y-4">
       <ListHeader
@@ -1824,12 +2063,17 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           ) : undefined
         }
       />
-      <FieldWrapper label={t("field.project")} required className="surface-panel rounded-xl px-4 py-3 sm:px-6 sm:py-4">
+      <FieldWrapper
+        label={t("field.project")}
+        required="quiet"
+        hint={t("equipment.projectHint")}
+        className="surface-panel rounded-xl px-4 py-3 sm:px-6 sm:py-4"
+      >
         <ProjectPicker
           value={project}
           onValueChange={(next) => {
             setProject(next === "all" ? "" : next);
-            setChosen("");
+            choose("");
           }}
           placeholder={t("field.selectProject")}
           className="w-full sm:w-72"
@@ -1844,7 +2088,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         errorMessage={equipmentError}
         empty={false}
       />
-      {/* 进场 or 退场 first (Q27): it decides which machines are offered. */}
+      {/* 进场 or 退场 first: it decides which machines are offered. */}
       <div className="grid grid-cols-2 gap-2" data-testid="field-equipment-direction">
         {(["ENTRY", "EXIT"] as const).map((way) => (
           <Button
@@ -1854,8 +2098,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
             aria-pressed={direction === way}
             className="h-12 text-base"
             onClick={() => {
-              setDirection(way);
-              setChosen("");
+              choose("", way);
               setEntering(false);
             }}
           >
@@ -1864,11 +2107,15 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         ))}
       </div>
       {/* A9: one dropdown instead of the long list of every machine. */}
-      <FieldWrapper label={t("equipment.chooseMachine")} required>
+      <FieldWrapper
+        label={t("equipment.chooseMachine")}
+        required="quiet"
+        hint={t("equipment.chooseMachineHint")}
+      >
         <Select
           value={chosen || undefined}
           onValueChange={(next) => {
-            setChosen(next);
+            choose(next);
             setEntering(false);
           }}
           disabled={!project || rows.isLoading}
@@ -1886,7 +2133,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
             )}
             {offered.map((row) => (
               <SelectItem key={row.id} value={row.id}>
-                {isWaiting(row) ? `${label(row)} · ${waitingWord}` : label(row)}
+                {stateWord(row) ? `${label(row)} · ${stateWord(row)}` : label(row)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -1895,21 +2142,53 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           <p className="mt-1 text-sm text-muted-foreground">{t("equipment.noMachineOnSite")}</p>
         )}
       </FieldWrapper>
+      {/* 「扫描设备二维码」 (I24, ID60): the sticker on the machine picks it. */}
+      <MachineScanButton
+        project={project}
+        machines={equipment}
+        offered={offered}
+        going={going}
+        disabled={!project || rows.isLoading}
+        onChosen={(row) => {
+          choose(row.id);
+          setEntering(false);
+        }}
+      />
       {machine && (
         <section
           data-testid="field-equipment-next-step"
           className="surface-panel flex flex-wrap items-center gap-3 rounded-xl p-4"
         >
           <span className="min-w-0 flex-1 truncate font-medium">{label(machine)}</span>
-          {waiting ? (
-            <span className="text-sm text-warning">{waitingWord}</span>
-          ) : (
+          {!going ? (
+            entryWaiting ? (
+              <span className="text-sm text-warning">{t("equipment.entryWaiting")}</span>
+            ) : (
+              can("equipment.capture") && (
+                <Button onClick={() => setEntering(true)}>
+                  <Camera />
+                  {t("equipment.recordEntry")}
+                </Button>
+              )
+            )
+          ) : step === "apply" ? (
             can("equipment.capture") && (
               <Button onClick={() => setEntering(true)}>
                 <Camera />
-                {t(going ? "equipment.recordExit" : "equipment.recordEntry")}
+                {t("equipmentExit.apply")}
               </Button>
             )
+          ) : step === "leave" ? (
+            can("equipment.capture") && (
+              <Button onClick={() => setEntering(true)}>
+                <Camera />
+                {t("equipmentExit.handover")}
+              </Button>
+            )
+          ) : (
+            <span className="text-sm text-warning">
+              {t(`equipmentExit.status.${machine.open_exit?.status ?? "PENDING"}`)}
+            </span>
           )}
         </section>
       )}
@@ -1929,9 +2208,8 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           }}
         />
       )}
-      {entering && (machine || isNew) && !waiting && (
+      {entering && !going && (machine || isNew) && !entryWaiting && (
         <EquipmentEntryDialog
-          direction={direction}
           project={project || machine?.project || ""}
           machine={isNew ? null : machine}
           fieldTaskId={fieldTaskId}
@@ -1939,7 +2217,35 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           onSaved={() => {
             refresh();
             setEntering(false);
-            setChosen("");
+            choose("");
+            onRecordSaved?.();
+          }}
+        />
+      )}
+      {entering && going && machine && step === "apply" && (
+        <EquipmentExitApplyDialog
+          project={project || machine.project}
+          machine={machine}
+          fieldTaskId={fieldTaskId}
+          onClose={() => setEntering(false)}
+          onSaved={() => {
+            refresh();
+            setEntering(false);
+            choose("");
+            onRecordSaved?.();
+          }}
+        />
+      )}
+      {entering && going && machine?.open_exit && step === "leave" && (
+        <EquipmentExitHandoverDialog
+          movementId={machine.open_exit.id}
+          project={project || machine.project}
+          machine={machine}
+          onClose={() => setEntering(false)}
+          onSaved={() => {
+            refresh();
+            setEntering(false);
+            choose("");
             onRecordSaved?.();
           }}
         />
@@ -1963,11 +2269,14 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
 export function EquipmentDialog({
   project,
   equipment,
+  defaultCategory = null,
   onClose,
   onSaved,
 }: {
   project: string;
   equipment?: SiteEquipment;
+  /** 登记设备 from a sub class row (I38): the class a new machine starts in. */
+  defaultCategory?: string | null;
   onClose: () => void;
   onSaved: (row: SiteEquipment) => void;
 }) {
@@ -1983,7 +2292,7 @@ export function EquipmentDialog({
     name: equipment?.name ?? "",
     registration_no: equipment?.registration_no ?? "",
     supplier: equipment?.supplier ?? null,
-    category: equipment?.category ?? null,
+    category: equipment?.category ?? defaultCategory,
     description: equipment?.description ?? "",
     certificate_expires_on: equipment?.certificate_expires_on ?? null,
     insurance_expires_on: equipment?.insurance_expires_on ?? null,
@@ -2289,24 +2598,19 @@ export function entryRefusalText(
  * one machine, and its class is the office's business. Offline-capable
  * through the same queue as every capture; the office then accepts it.
  *
- * 设备退场 is this same form (Lucas 2026-10-08, Q27: 「跟设备进场一样」): a
- * machine on site, the same evidence - DO number required - and an optional
- * reason; no application and no Return Note. Until the office accepts it the
- * machine stays on site.
+ * Entries only. 设备退场 is applied for and approved first, like material
+ * leaving site (2026-10 I13, ID30): `equipment-exit.tsx`.
+ *
+ * No red stars (2026-10 I22, ID56): every field says in a line what it needs,
+ * and the submit button names what is still missing.
  */
 export function EquipmentEntryDialog({
-  direction = "ENTRY",
   project,
   machine,
   fieldTaskId,
   onClose,
   onSaved,
 }: {
-  /**
-   * 进场, or 退场 (2026-10 Q27): the exit takes the same evidence in the same
-   * one step, for a machine on site, and adds an optional reason.
-   */
-  direction?: "ENTRY" | "EXIT";
   project: string;
   /** Null for a 「新设备」 nobody registered yet (an entry only). */
   machine: SiteEquipment | null;
@@ -2318,10 +2622,7 @@ export function EquipmentEntryDialog({
   const field = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const going = direction === "EXIT";
-  // The exit's draft is its own: an exit begun for a machine must not
-  // reopen as that machine's next entry.
-  const key = going ? `exit:${machine?.id ?? ""}` : machine?.id ?? "new";
+  const key = machine?.id ?? "new";
   const [newName, setNewName] = useDraftState(`entryName:${key}`, "");
   // Optional: not every machine has a plate. One already on file is that
   // machine coming back - the server files the entry on it.
@@ -2379,14 +2680,13 @@ export function EquipmentEntryDialog({
       if (!user) throw new Error("Authentication required.");
       return submitEquipmentMovementOfflineAware(user.id, {
         // One client_event_id for the job, kept across every retry of it.
-        entry: !going,
-        exit: going,
+        entry: true,
         project,
         equipment: machine?.id ?? "",
         equipment_name: machine ? undefined : newName.trim(),
         registration_no: machine ? undefined : newPlate.trim().toUpperCase() || undefined,
         supplier: supplier?.id,
-        direction,
+        direction: "ENTRY",
         operator_name: user.full_name,
         delivery_note_no: deliveryNote.trim(),
         vehicle_plate: machine?.registration_no || undefined,
@@ -2424,7 +2724,7 @@ export function EquipmentEntryDialog({
               project: t("field.project"),
               registration_no: t("field.plateNo"),
               vehicle_plate: t("field.plateNo"),
-              notes: going ? t("equipment.exitReason") : t("field.notes"),
+              notes: t("field.notes"),
             },
           }) ||
             reason.message ||
@@ -2442,18 +2742,16 @@ export function EquipmentEntryDialog({
         <DialogHeader>
           <DialogTitle>
             {machine
-              ? t(going ? "equipment.exitTitle" : "equipment.entryTitle", {
-                  name: machineLabeller([machine])(machine),
-                })
+              ? t("equipment.entryTitle", { name: machineLabeller([machine])(machine) })
               : t("equipment.newMachineEntry")}
           </DialogTitle>
-          <DialogDescription>{t(going ? "equipment.exitHelp" : "equipment.entryHelp")}</DialogDescription>
+          <DialogDescription>{t("equipment.entryHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           {!machine && (
             <FieldWrapper
               label={t("equipment.newMachineName")}
-              required
+              required="quiet"
               hint={t("equipment.newMachineHelp")}
               error={fieldErrors.equipment}
               className="sm:col-span-2"
@@ -2476,7 +2774,8 @@ export function EquipmentEntryDialog({
           )}
           <FieldWrapper
             label={t("field.photos")}
-            required
+            required="quiet"
+            hint={t("equipment.photosHint")}
             error={fieldErrors.photos}
             className="sm:col-span-2"
           >
@@ -2524,7 +2823,12 @@ export function EquipmentEntryDialog({
             />
             <DeliveryNoteReadStatus reader={ocr} className="mt-2" />
           </FieldWrapper>
-          <FieldWrapper label={t("field.deliveryNoteNo")} required error={fieldErrors.delivery_note_no}>
+          <FieldWrapper
+            label={t("field.deliveryNoteNo")}
+            required="quiet"
+            hint={t("equipment.deliveryNoteHint")}
+            error={fieldErrors.delivery_note_no}
+          >
             <Input
               aria-label={t("field.deliveryNoteNo")}
               value={deliveryNote}
@@ -2562,7 +2866,8 @@ export function EquipmentEntryDialog({
               <FieldSignaturePad
                 label={t("equipment.siteSignature")}
                 clearLabel={field("action.clearSignature")}
-                required
+                required="quiet"
+                hint={t("equipment.signatureHint")}
                 value={receiverSignature}
                 onChange={setReceiverSignature}
               />
@@ -2574,7 +2879,8 @@ export function EquipmentEntryDialog({
               <FieldSignaturePad
                 label={t("equipment.supplierSignature")}
                 clearLabel={field("action.clearSignature")}
-                required
+                required="quiet"
+                hint={t("equipment.signatureHint")}
                 value={supplierSignature}
                 onChange={setSupplierSignature}
               />
@@ -2590,15 +2896,13 @@ export function EquipmentEntryDialog({
             readyLabel={t("action.locationReady")}
             value={location}
             onChange={setLocation}
-            required
+            required="quiet"
+            hint={t("equipment.locationHint")}
             error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
           />
-          <FieldWrapper
-            label={going ? t("equipment.exitReason") : t("field.notes")}
-            className="sm:col-span-2"
-          >
+          <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
             <Textarea
-              aria-label={going ? t("equipment.exitReason") : t("field.notes")}
+              aria-label={t("field.notes")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -2631,7 +2935,7 @@ export function EquipmentEntryDialog({
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Camera />}
-            {t(going ? "equipment.exitSubmit" : "equipment.entrySubmit")}
+            {t("equipment.entrySubmit")}
           </Button>
         </DialogFooter>
         <SupplierQrScanner
@@ -2648,13 +2952,13 @@ export function EquipmentEntryDialog({
 }
 
 /**
- * 「直接交接」 of an application made before the one-step flow (B13, then X2
- * for entries and Q27 for exits): at least four photographs, no ceiling
- * (B14), and both signatures - the site person and the supplier or driver.
- * It then waits for the office's acceptance like any movement recorded on
- * site. One movement is one machine (F3): no quantity or unit is asked.
- * Opened from the office's detail of the old application; the phone records
- * an exit in one step instead, which finishes the old application too.
+ * 「直接交接」 of an entry applied for before the one-step flow (B13, then X2):
+ * at least four photographs, no ceiling (B14), and both signatures - the site
+ * person and the supplier or driver. It then waits for the office's
+ * acceptance like any entry recorded on site. One movement is one machine
+ * (F3): no quantity or unit is asked. Opened from the office's detail of the
+ * old application. An old exit application goes the I13 way instead - Return
+ * Note, approval, the actual exit on the phone.
  */
 export function MovementDialog({
   row,
@@ -3992,6 +4296,9 @@ export function OutgoingDialog({
   const [project, setProject] = useDraftState("project", initialProject);
   const [form, setForm] = useDraftState("form", {
     category: "",
+    // The specification (I19, ID46); its unit is the unit. 「其他」 is typed.
+    spec_category: "",
+    material_specification: "",
     unit: "",
     supplier: "",
     quantity: "",
@@ -4026,7 +4333,11 @@ export function OutgoingDialog({
     { unit: form.unit, supplier: form.supplier, manufacturer: form.manufacturer },
     { scannedSupplier },
   );
-  const unit = fill.unitLocked ? fill.unit : form.unit;
+  const specs = offeredSpecs(selected, form.spec_category ?? "");
+  const specPick = specChoice(selected, form.spec_category ?? "");
+  const specRequired = specs.length > 0;
+  const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
+  const unit = specPick.unitLocked ? specPick.unit : fill.unitLocked && !specPick.typed ? fill.unit : form.unit;
   const units = useMaterialUnits();
   const unitName = useUnitName();
   const chooseMaterial = (category: string) =>
@@ -4039,6 +4350,9 @@ export function OutgoingDialog({
       return {
         ...old,
         category,
+        // A specification belongs to its material (I19).
+        spec_category: "",
+        material_specification: "",
         unit: filled.unit,
         supplier: filled.supplier,
         manufacturer: filled.manufacturer,
@@ -4064,6 +4378,8 @@ export function OutgoingDialog({
       return submitMaterialOutgoingOfflineAware(user.id, {
         project,
         category: form.category,
+        spec_category: form.spec_category || undefined,
+        material_specification: specPick.typed ? (form.material_specification ?? "").trim() : undefined,
         unit,
         supplier: form.supplier || undefined,
         manufacturer: form.manufacturer || undefined,
@@ -4102,7 +4418,7 @@ export function OutgoingDialog({
               onValueChange={(next) => {
                 setProject(next);
                 // A category belongs to one site.
-                setForm((old) => ({ ...old, category: "", unit: "" }));
+                setForm((old) => ({ ...old, category: "", spec_category: "", material_specification: "", unit: "" }));
               }}
               placeholder={t("field.selectProject")}
               disabled={Boolean(initialProject) && isFieldStaff}
@@ -4130,6 +4446,35 @@ export function OutgoingDialog({
               <p className="text-xs text-muted-foreground">{t("outgoing.noMaterials")}</p>
             ) : null}
           </FieldWrapper>
+          {/* 规格 (I19, ID46): the unit comes with it; 「其他」 is typed. */}
+          {form.category && specRequired && (
+            <FieldWrapper label={t("outgoing.spec")} required={specRequired}>
+              <Select
+                value={form.spec_category || undefined}
+                onValueChange={(next) => setForm((old) => ({ ...old, spec_category: next, material_specification: "" }))}
+              >
+                <SelectTrigger className="w-full" aria-label={t("outgoing.spec")}>
+                  <SelectValue placeholder={t("outgoing.chooseSpec")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {specs.map((spec) => (
+                    <SelectItem key={spec.id} value={spec.id}>
+                      {spec.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
+          )}
+          {specPick.typed && (
+            <FieldWrapper label={t("outgoing.specName")} required={specPick.typed}>
+              <Input
+                value={form.material_specification ?? ""}
+                maxLength={200}
+                onChange={(e) => set("material_specification", e.target.value)}
+              />
+            </FieldWrapper>
+          )}
           <FieldWrapper label={t("outgoing.returnQuantity")} required>
             <Input
               type="number"
@@ -4141,10 +4486,10 @@ export function OutgoingDialog({
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.unit")} required>
-            {fill.unitLocked ? (
-              // The category decided it (A4, Q1): shown, not asked.
+            {unitLocked ? (
+              // The specification - or the category - decided it (I19; A4, Q1): shown, not asked.
               <div className="flex h-10 items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 pointer-coarse:h-11">
-                <span className="text-sm font-medium">{unitName(unit, selected?.default_unit_label)}</span>
+                <span className="text-sm font-medium">{unitName(unit, specPick.unitLocked ? specPick.spec?.default_unit_label : selected?.default_unit_label)}</span>
                 <span className="text-xs text-muted-foreground">{t("outgoing.autoFilled")}</span>
               </div>
             ) : (
@@ -4247,6 +4592,8 @@ export function OutgoingDialog({
             requires={[
               [project, t("field.project")],
               [form.category, t("outgoing.material")],
+              [!specRequired || form.spec_category, t("outgoing.spec")],
+              [!specPick.typed || (form.material_specification ?? "").trim(), t("outgoing.specName")],
               [unit, t("field.unit")],
               [Number(form.quantity) > 0, t("outgoing.returnQuantity")],
               [isFieldStaff || form.executor_name, t("field.executor")],
@@ -4335,54 +4682,6 @@ export function RejectOutgoingDialog({
  * the next person to unify the copy, and the two sentences have to say
  * opposite things about what happens next.
  */
-function ReturnReasonDialog({
-  reference,
-  pending,
-  onClose,
-  onConfirm,
-}: {
-  reference: string;
-  pending: boolean;
-  onClose: () => void;
-  onConfirm: (note: string) => void;
-}) {
-  const t = useTranslations("contractorOps");
-  const common = useTranslations("common");
-  const [note, setNote] = useState("");
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{t("tasks.returnTitle")}</DialogTitle>
-          <DialogDescription>
-            {t("tasks.returnHelp", { reference })}
-          </DialogDescription>
-        </DialogHeader>
-        <FieldWrapper label={t("tasks.returnReason")} required>
-          <Textarea
-            rows={3}
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-          />
-        </FieldWrapper>
-        <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="outline" onClick={onClose}>
-            {common("cancel")}
-          </Button>
-          <Button
-            requires={[[note.trim(), t("tasks.returnReason")]]}
-            disabled={pending}
-            onClick={() => onConfirm(note.trim())}
-          >
-            <RotateCcw />
-            {t("action.return")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 /**
  * The material actually leaving, on the same record (2026-10 C9, F3).
  *
@@ -4704,6 +5003,7 @@ export function OutgoingDetailDialog({
   return (
     <RecordDetailDialog
       title={row?.reference_no ?? t("outgoing.title")}
+      legacyNo={row?.legacy_no}
       description={row ? `${row.material_name} · ${row.quantity} ${row.unit}` : undefined}
       exportRecord={
         row
@@ -4840,6 +5140,12 @@ export function OutgoingDetailDialog({
             <>
               {renderActions?.(row)}
               <div className="flex flex-wrap gap-2 border-t pt-2 empty:hidden">
+                {/* 【改正】 (I30): supplier, DO, plate, material, quantity… */}
+                <RecordCorrectionButton
+                  kind="MATERIAL_OUTGOING"
+                  recordId={row.id}
+                  onCorrected={() => void qc.invalidateQueries({ queryKey: ["material-outgoing"] })}
+                />
                 <AddToPackageButton
                   kind="MATERIAL_OUTGOING"
                   recordId={row.id}
@@ -4849,6 +5155,7 @@ export function OutgoingDetailDialog({
               </div>
             </>
           }
+          corrections={<RecordCorrectionHistory kind="MATERIAL_OUTGOING" recordId={row.id} />}
           recorder={<RecordRecorder record={row} />}
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
           // 【确认归档】 once the return is finished (C4).

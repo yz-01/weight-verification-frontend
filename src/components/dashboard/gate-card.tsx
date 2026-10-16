@@ -7,7 +7,11 @@
  * On both dashboards - the company's and the project's - beside the six small
  * cards (推翻 Q20 / B8's 「只有 6 张」): today's gate photos, the gate issues
  * still open, and today's photos as thumbnails, each opening its record in
- * EHS / Safety → 门岗记录. Shown to whoever may see site access.
+ * 工地门禁 → 日常拍照记录 / 门岗事项. Shown to whoever may see site access.
+ *
+ * 「今日照片」 and 「门岗记录」 both open 日常拍照记录 (I25, ID61: 「点击后直接
+ * 进入『日常拍照记录』」); 今日照片 with today's date and time range (I15) on
+ * the company's clock, whatever the computer's own clock says.
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -16,25 +20,21 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCompanyTimeZone } from "@/components/shared/date-time-range-filter";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { useDateFormat } from "@/lib/dates";
+import { todayRange } from "@/lib/gate-time-range";
 import { cn } from "@/lib/utils";
 import { getGateSummary } from "@/services/site-access.service";
 
 /** How often the card looks again: a lorry at the gate is now, not tomorrow. */
 const REFRESH_MS = 60_000;
 
-function today() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${now.getFullYear()}-${month}-${day}`;
-}
-
 export function GateCard({ project = "" }: { project?: string }) {
   const t = useTranslations("gateCard");
   const df = useDateFormat();
   const { can } = useAuth();
+  const timeZone = useCompanyTimeZone();
   const allowed = can("site_access.view");
   const summary = useQuery({
     queryKey: ["gate-summary", project],
@@ -45,7 +45,7 @@ export function GateCard({ project = "" }: { project?: string }) {
   if (!allowed) return null;
   const data = summary.data;
   const scope = project ? `&project=${project}` : "";
-  const date = today();
+  const today = todayRange(timeZone);
 
   return (
     <section
@@ -61,7 +61,7 @@ export function GateCard({ project = "" }: { project?: string }) {
           {t("title")}
         </span>
         <Link
-          href={`/gate-records?tab=photos&date_from=${date}&date_to=${date}${scope}`}
+          href={`/gate-records?tab=photos&occurred_from=${today.occurred_from}&occurred_to=${today.occurred_to}${scope}`}
           className="flex items-baseline gap-1.5 text-sm hover:underline"
         >
           <span className="text-muted-foreground">{t("todayPhotos")}</span>
@@ -82,7 +82,7 @@ export function GateCard({ project = "" }: { project?: string }) {
           </span>
         </Link>
         <Link
-          href={`/gate-records${project ? `?project=${project}` : ""}`}
+          href={`/gate-records?tab=photos${scope}`}
           className="ml-auto flex items-center gap-1 text-sm text-primary hover:underline"
         >
           {t("open")}

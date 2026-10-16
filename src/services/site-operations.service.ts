@@ -13,6 +13,7 @@ import type {
   SafetyIncident,
   SafetyIncidentPayload,
 } from "@/interfaces/site-operations";
+import type { PersonOption } from "@/interfaces/contractor-ops";
 import type {
   IncidentReportThread,
   IncidentReportThreadPayload,
@@ -103,6 +104,8 @@ export function exportSafetyIncidents(request: ExportRequest): Promise<void> {
 
 export async function createSafetyIncident(
   payload: SafetyIncidentPayload,
+  /** Checked before the photos went (I29): sent with them, asked once. */
+  signOffPin?: string,
 ): Promise<SafetyIncident> {
   // Left empty, when it happened is when its first photo was taken - not
   // when a queued report reached the server (2026-10-09 audit).
@@ -111,6 +114,7 @@ export async function createSafetyIncident(
   const incident = await api.post<SafetyIncident>(
     "/api/safety-incidents/create_safety_incident/",
     data,
+    signOffPin ? { signOffPin } : undefined,
   );
   toastSuccess("safety.toast.created");
   return incident;
@@ -145,10 +149,53 @@ export async function assignSafetyRectification(
   return incident;
 }
 
+/** 调整负责人 (I2): another person fixes it while it is 待处理. */
+export async function reassignSafetyRectification(
+  id: string,
+  payload: { responsible_person: string; due_at?: string; note?: string },
+): Promise<SafetyIncident> {
+  const incident = await api.post<SafetyIncident>(
+    `/api/safety-incidents/${id}/reassign_rectification/`,
+    payload,
+  );
+  toastSuccess("safetyRectification.toast.reassigned");
+  return incident;
+}
+
+/**
+ * 改事项分类 (I2): the office files an item - mostly a 「未分类」 phone report.
+ * Moving an item already filed is a 「改正」 (ID77): a reason, and the server
+ * asks for the sign-off PIN in the shared dialog.
+ */
+export async function updateSafetyCategory(
+  id: string,
+  category: string,
+  reason = "",
+): Promise<SafetyIncident> {
+  const incident = await api.post<SafetyIncident>(
+    `/api/safety-incidents/${id}/update_category/`,
+    reason ? { category, reason } : { category },
+  );
+  toastSuccess("safetyRectification.toast.categoryChanged");
+  return incident;
+}
+
+/** Who the EHS 负责人 filter offers, with or without a project chosen. */
+export function getSafetyResponsibleOptions(
+  query: ListQuery,
+): Promise<PersonOption[]> {
+  return api.get<PersonOption[]>(
+    "/api/safety-incidents/responsible_options/",
+    query,
+  );
+}
+
 export async function submitSafetyRectification(
   id: string,
   payload: {
     images: File[];
+    /** PDF / Word / Excel with the fix (I37). */
+    attachments?: File[];
     note: string;
     captured_at: string;
     latitude?: string;
@@ -218,6 +265,8 @@ export async function postHazardMessage(
     longitude?: string;
     accuracy_m?: string;
     client_event_id?: string;
+    /** 「需要继续整改」 on (ID11): the item goes back to the person fixing it. */
+    needs_more_work?: boolean;
   },
 ): Promise<HazardMessage> {
   return api.post<HazardMessage>(

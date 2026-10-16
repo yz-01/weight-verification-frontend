@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  CircleHelp,
+  FolderPlus,
   ChevronDown,
   ChevronUp,
   Inbox,
@@ -23,6 +25,7 @@ import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { CategoryDialog, EquipmentDialog } from "@/components/contractor-ops/operations-workspaces";
 import { equipmentClassTree } from "@/components/contractor-ops/equipment-classes";
 import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-dialog";
+import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
 import { Shell } from "@/components/contractor-ops/package-shell";
@@ -32,7 +35,13 @@ import {
   SupplierDateFilter,
   type SupplierDateValue,
 } from "@/components/shared/supplier-date-filter";
-import { EmptyState, FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  EmptyState,
+  FieldWrapper,
+  ListHeader,
+  QueryFailedNote,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
@@ -67,6 +76,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { WASTE_TYPES } from "@/interfaces/contractor";
 import type {
+  CategoryGroup,
+  CategoryGroupModule,
   ArchiveQueueRow,
   CategoryRecordKind,
   ColumnQuantity,
@@ -77,13 +88,19 @@ import type {
 import type { WasteCategory } from "@/interfaces/waste-outgoing";
 import {
   isCategoryModuleKey,
+  registerMachineCategory,
   type CategoryModuleKey,
 } from "@/lib/category-modules";
 import { useDateFormat } from "@/lib/dates";
+import { categoryTree } from "@/lib/category-tree";
 import { useUnitName } from "@/hooks/use-material-units";
 import { recordStatusLabel } from "@/lib/record-status";
 import {
+  createCategoryGroup,
+  deleteCategoryGroup,
   deleteProjectCategory,
+  getCategoryGroups,
+  updateCategoryGroup,
   getCategoryRecord,
   getCategoryRecords,
   getProjectCategories,
@@ -119,8 +136,10 @@ import {
  * columns are per project, and real records point at each. So each brings its
  * own editor - the column dialog, the waste category dialog.
  *
- * 隐患整改分类 are read-only here (B1): listed, and their records open, but
- * nothing is added, changed, removed or reordered.
+ * 隐患整改分类 are added, renamed, switched off and removed here like the
+ * others since H18 (IB7: this note used to say read-only). Since I11 the left
+ * is the project's 分类组 - one per module made by the system, and the ones
+ * the project adds - each with its categories and sub-categories.
  *
  * Deleting follows the server: a category that still holds records is
  * refused with a sentence saying so, and that sentence is shown here as it is.
@@ -140,6 +159,8 @@ interface Row {
    * sub class, listed under it. Every other module is flat (0).
    */
   depth?: number;
+  /** The category a sub-category sits under (I11), for 「上移/下移」 among siblings. */
+  parentId?: string | null;
   /** The source row, for the editor that module opens. */
   column?: ProjectCategory;
   waste?: WasteCategory;
@@ -160,41 +181,56 @@ interface Module {
    * which list a new column joins.
    */
   columnKind?: ProjectCategoryKind;
-  fetch: (project: string) => Promise<Row[]>;
+  /** Whether a row takes 「+ 子分类」 here (I11): a material's are its specifications. */
+  subCategories: boolean;
+  fetch: (project: string, group: CategoryGroup | null) => Promise<Row[]>;
   remove: (id: string) => Promise<void>;
 }
 
-const columnRows = (kind: ProjectCategoryKind) => async (project: string) => {
-  const page = await getProjectCategories({
-    project,
-    kind: kind,
-    page_size: 200,
-    sort_by: "sort_order",
-    sort_order: "asc",
-  });
-  // Equipment is a tree (X1): each major class, then its sub classes. The
-  // other kinds have no parent to sort by, so they keep the server's order.
-  const ordered =
-    kind === "EQUIPMENT"
-      ? (() => {
-          const tree = equipmentClassTree(page.results);
-          return tree.majors.flatMap((major) => [major, ...tree.subClasses(major.id)]);
-        })()
-      : page.results;
-  return ordered.map((row) => ({
-    id: row.id,
-    name: row.name,
-    code: row.code,
-    isActive: row.is_active,
-    recordCount: row.record_count,
-    depth: kind === "EQUIPMENT" && row.parent ? 1 : 0,
-    column: row,
-  }));
-};
+const columnRows =
+  (kind: ProjectCategoryKind) => async (project: string, group: CategoryGroup | null) => {
+    const page = await getProjectCategories({
+      project,
+      kind: kind,
+      page_size: 200,
+      sort_by: "sort_order",
+      sort_order: "asc",
+      // One 分类组's categories (I11).
+      ...(group ? { group: group.id } : {}),
+    });
+    // 分类 → 子分类 (I11, ID3; equipment's 大类 → 小类 since B2): each
+    // category, then its sub-categories.
+    return categoryTree(page.results).flatMap((tree) =>
+      tree.entries.map(({ row, depth }) => ({
+        id: row.id,
+        name: row.name,
+        code: row.code,
+        isActive: row.is_active,
+        recordCount: row.record_count,
+        depth,
+        parentId: row.parent,
+        column: row,
+      })),
+    );
+  };
 
-/** 施工准证申请: renamed, never switched off or removed (H18, HD4). */
+/**
+ * 施工准证申请 (H18, HD4) and 「其他材料」 (I19, ID43): renamed, never switched
+ * off or removed.
+ */
 const isSystemColumn = (row: Row) =>
-  row.column?.kind === "EHS" && row.code === PERMIT_COLUMN_CODE;
+  (row.column?.kind === "EHS" && row.code === PERMIT_COLUMN_CODE) || Boolean(row.column?.is_fixed);
+
+/**
+ * Why a row's bin is dead, or null when it can be armed (I35, ID78): the
+ * permit category, a fixed 「其他」, or records filed under it (it can only be
+ * switched off). The server refuses the same three.
+ */
+const removeBlock = (row: Row): "permit" | "fixed" | "records" | null => {
+  if (row.column?.kind === "EHS" && row.code === PERMIT_COLUMN_CODE) return "permit";
+  if (row.column?.is_fixed || row.waste?.is_other) return "fixed";
+  return row.recordCount > 0 ? "records" : null;
+};
 
 /** The project-column modules share everything except the kind. */
 const columnModule = (
@@ -205,6 +241,7 @@ const columnModule = (
   scope: "project",
   manage: "category.manage",
   columnKind: kind,
+  subCategories: kind !== "MATERIAL",
   fetch: columnRows(kind),
   remove: deleteProjectCategory,
 });
@@ -224,32 +261,63 @@ const MODULES: Module[] = [
     key: "recycle",
     scope: "company",
     manage: "waste_outgoing.config",
+    subCategories: true,
     // Every row, switched-off ones included: a category that vanished when
-    // it was turned off could never be turned back on (F-465).
-    fetch: async () => {
-      const page = await getWasteCategories({ page_size: 200 });
-      return page.results.map((row) => ({
-        id: row.id,
-        // A system preset in the reader's language (2026-10-09); the editor
-        // still edits `row.waste.name`, what is stored.
-        name: row.label,
-        code: row.code,
-        isActive: row.is_active,
-        recordCount: row.record_count,
-        waste: row,
-      }));
+    // it was turned off could never be turned back on (F-465). The system
+    // group is the company-wide list (ID2); a project's own group, its own.
+    fetch: async (project, group) => {
+      const page = await getWasteCategories({
+        page_size: 200,
+        ...(project ? { project } : {}),
+        ...(group ? { group: group.id } : {}),
+      });
+      const tree = categoryTree(
+        page.results.map((row) => ({ ...row, name: row.label, group: null })),
+      );
+      return tree.flatMap((part) =>
+        part.entries.map(({ row, depth }) => ({
+          id: row.id,
+          // A system preset in the reader's language (2026-10-09); the editor
+          // still edits `row.waste.name`, what is stored.
+          name: row.label,
+          code: row.code,
+          isActive: row.is_active,
+          recordCount: row.record_count,
+          depth,
+          parentId: row.parent ?? null,
+          waste: page.results.find((item) => item.id === row.id),
+        })),
+      );
     },
     remove: deleteWasteCategory,
   },
+  // Progress Claim (I10, ID6): the project's own claim categories.
+  columnModule("claim", "CLAIM"),
   // No 文件分类 (managed on 文档档案) and no 施工阶段 (managed on 施工进度),
   // Q5; no progress, clearance, consultant or sundry categories, X5.
 ];
+
+/** The module each 分类组 shows (I11). 申请类型 opens its own dialog (I16). */
+const GROUP_MODULE: Record<Exclude<CategoryGroupModule, "REQUEST_TYPE">, CategoryModuleKey> = {
+  MATERIAL: "material",
+  EQUIPMENT: "equipment",
+  EHS: "ehs",
+  RECYCLE: "recycle",
+  CLAIM: "claim",
+};
+
+const moduleOfGroup = (group: CategoryGroup | null | undefined) => {
+  if (!group || group.module === "REQUEST_TYPE") return null;
+  const key = GROUP_MODULE[group.module];
+  return MODULES.find((entry) => entry.key === key) ?? null;
+};
 
 export function CategoryManagement() {
   const t = useTranslations("categoryManagement");
   const ops = useTranslations("contractorOps");
   const waste = useTranslations("wasteOutgoing");
   const common = useTranslations("common");
+  const root = useTranslations();
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
@@ -262,13 +330,15 @@ export function CategoryManagement() {
   const initialModule =
     MODULES.find((module) => module.key === requestedModule) ?? MODULES[0];
   const initialProject = searchParams.get("project")?.trim() ?? "";
-  const [selected, setSelected] = useState<CategoryModuleKey>(
-    isCategoryModuleKey(requestedModule) ? requestedModule : MODULES[0].key,
-  );
+  // The 分类组 open on the right (I11); until one is clicked, the first
+  // group of the module the address asked for.
+  const [selectedGroup, setSelectedGroup] = useState<string>("");
+  const [groupEditing, setGroupEditing] = useState<CategoryGroup | "new" | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
   // The top bar's 「当前项目」 when it is in force (B13); `?project=` moves it.
   const topBar = useCurrentProject();
   const [project, setProject] = usePageProject(initialProject);
-  const [editing, setEditing] = useState<Row | "new" | null>(
+  const [editing, setEditing] = useState<Row | "new" | { parent: Row } | null>(
     searchParams.get("create") === "1" &&
       can(initialModule.manage) &&
       (initialModule.scope !== "project" || Boolean(project))
@@ -277,22 +347,47 @@ export function CategoryManagement() {
   );
   // The row whose 删除 is armed (rule 8: a switch, not a confirm dialog).
   const [armed, setArmed] = useState<string | null>(null);
+  // 登记设备 (I38): the same dialog as 设备清单; a sub class row starts it in its class.
+  const [registering, setRegistering] = useState<{ category: string | null } | null>(null);
   const [unitsOpen, setUnitsOpen] = useState(false);
+  // 「申请类型」 (I16, ID36): the MR / Other Request types, in the same dialog
+  // the MR page opens.
+  const [requestTypesOpen, setRequestTypesOpen] = useState(false);
+  const canRequestTypes = can("material_request.config") || can("category.manage");
   /** The column whose records are open in the dialog (T-396). */
   const [viewing, setViewing] = useState<Row | null>(null);
   const [refusal, setRefusal] = useState<{ name: string; reason: string } | null>(
     null,
   );
-  const active =
-    MODULES.find((module) => module.key === selected) ?? MODULES[0];
-  const needsProject = active.scope === "project";
+  const groupsQuery = useQuery({
+    queryKey: ["category-groups", project],
+    queryFn: () => getCategoryGroups({ project }),
+    enabled: Boolean(project),
+  });
+  const groups = groupsQuery.data?.results ?? [];
+  const wantedModule = isCategoryModuleKey(requestedModule) ? requestedModule : MODULES[0].key;
+  const group =
+    groups.find((row) => row.id === selectedGroup) ??
+    groups.find((row) => moduleOfGroup(row)?.key === wantedModule) ??
+    groups.find((row) => moduleOfGroup(row) !== null) ??
+    null;
+  const active = moduleOfGroup(group) ?? MODULES.find((module) => module.key === wantedModule) ?? MODULES[0];
+  // Every group is a project's (ID2) - the recyclable system group lists the
+  // company-wide categories, said beside its name.
+  const needsProject = true;
   const canManage = can(active.manage);
+  const canManageGroups = can("category.manage") || can("waste_outgoing.config");
   const isMaterial = active.key === "material";
+  const groupLabel = (row: CategoryGroup) => {
+    const owner = moduleOfGroup(row);
+    return row.name || (owner ? t(`module.${owner.key}`) : t("requestTypes"));
+  };
+  const scope: Scope = active.key === "recycle" && (group?.is_system ?? true) ? "company" : "project";
 
   const rows = useQuery({
-    queryKey: ["category-management", active.key, project],
-    queryFn: () => active.fetch(project),
-    enabled: !needsProject || Boolean(project),
+    queryKey: ["category-management", active.key, project, group?.id ?? ""],
+    queryFn: () => active.fetch(project, group),
+    enabled: Boolean(project) && Boolean(group),
   });
   const list = rows.data ?? [];
 
@@ -300,6 +395,7 @@ export function CategoryManagement() {
   const refresh = () => {
     for (const queryKey of [
       ["category-management"],
+      ["category-groups"],
       ["project-categories"],
       ["construction-phases"],
       ["documents", "categories"],
@@ -332,20 +428,42 @@ export function CategoryManagement() {
   // Only within one project: across projects the row above belongs to a
   // different list, so "move up" would have nothing to swap with. Not in the
   // equipment tree (B2): the row above may be another level.
-  const canReorder =
-    Boolean(active.columnKind) && canManage && Boolean(project) && active.key !== "equipment";
-  /** Swap a column with its neighbour, sending both places at once. */
-  const move = (index: number, delta: number) => {
+  const canReorder = Boolean(active.columnKind) && canManage && Boolean(project);
+  /**
+   * Swap a category with its neighbour among the rows at its level - its
+   * sibling categories, or its sibling sub-categories (I11) - sending both
+   * places at once.
+   */
+  const siblingsOf = (row: Row) =>
+    list.filter((other) => (other.parentId ?? null) === (row.parentId ?? null));
+  const move = (row: Row, delta: number) => {
+    const siblings = siblingsOf(row);
+    const index = siblings.findIndex((other) => other.id === row.id);
     const target = index + delta;
-    if (target < 0 || target >= list.length) return;
+    if (index < 0 || target < 0 || target >= siblings.length) return;
     reorder.mutate([
-      { id: list[index].id, sort_order: target },
-      { id: list[target].id, sort_order: index },
+      { id: siblings[index].id, sort_order: target },
+      { id: siblings[target].id, sort_order: index },
     ]);
   };
+  const groupOrder = useMutation({
+    mutationFn: async (delta: number) => {
+      const index = groups.findIndex((row) => row.id === group?.id);
+      const other = groups[index + delta];
+      if (!group || !other) return;
+      await updateCategoryGroup(group.id, { sort_order: other.sort_order }, { quiet: true });
+      await updateCategoryGroup(other.id, { sort_order: group.sort_order === other.sort_order ? group.sort_order + delta : group.sort_order }, { quiet: true });
+    },
+    onSuccess: refresh,
+  });
 
-  const chooseModule = (key: CategoryModuleKey) => {
-    setSelected(key);
+  const chooseGroup = (row: CategoryGroup) => {
+    if (row.module === "REQUEST_TYPE") {
+      // 申请类型 (I16): its own dialog, shared with the MR page.
+      setRequestTypesOpen(true);
+      return;
+    }
+    setSelectedGroup(row.id);
     setEditing(null);
     setArmed(null);
     setViewing(null);
@@ -359,6 +477,7 @@ export function CategoryManagement() {
 
   const createButton = canManage && (
     <Button
+      variant={active.key === "equipment" ? "outline" : undefined}
       requires={needsProject ? [[project, ops("field.project")]] : []}
       onClick={() => {
         setRefusal(null);
@@ -366,7 +485,18 @@ export function CategoryManagement() {
       }}
     >
       <Plus />
-      {t("create")}
+      {t(active.key === "equipment" ? "equipment.addKind" : "create")}
+    </Button>
+  );
+  // 设备分类 (I38, ID81): the primary button registers a machine, the old
+  // "new category" becomes the secondary 「新增种类」.
+  const registerButton = active.key === "equipment" && can("equipment.manage") && (
+    <Button
+      requires={[[project, ops("field.project")]]}
+      onClick={() => setRegistering({ category: null })}
+    >
+      <Plus />
+      {ops("equipment.createTitle")}
     </Button>
   );
 
@@ -395,32 +525,103 @@ export function CategoryManagement() {
         {/* The left-hand module list the customer asked for. Buttons rather
             than links: the table beside it is the page. */}
         <nav aria-label={t("modules")} className="flex flex-col gap-1">
-          {MODULES.map((module) => (
-            <button
-              key={module.key}
-              type="button"
-              onClick={() => chooseModule(module.key)}
-              aria-current={module.key === selected ? "true" : undefined}
-              className={`flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
-                module.key === selected
-                  ? "border-primary/40 bg-primary/12 font-semibold text-primary"
-                  : "border-border bg-card text-muted-foreground hover:text-foreground"
-              }`}
+          {/* 「+ 新增分类组」 (I11): the groups are the project's, not fixed. */}
+          {canManageGroups && (
+            <Button
+              variant="outline"
+              className="justify-start"
+              requires={[[project, ops("field.project")]]}
+              onClick={() => setGroupEditing("new")}
             >
-              <ListTree className="size-4 shrink-0" />
-              <span className="min-w-0 flex-1 truncate">
-                {t(`module.${module.key}`)}
-              </span>
-            </button>
-          ))}
+              <FolderPlus />
+              {t("groups.create")}
+            </Button>
+          )}
+          {!project ? (
+            <p className="px-1 py-2 text-xs text-muted-foreground">{t("groups.chooseProject")}</p>
+          ) : groupsQuery.isLoading ? (
+            <p className="px-1 py-2 text-xs text-muted-foreground">{t("loading")}</p>
+          ) : null}
+          <QueryFailedNote query={groupsQuery} what={t("groups.what")} />
+          {groups
+            // 申请类型 opens its dialog, for whoever may keep the types (I16).
+            .filter((row) => row.module !== "REQUEST_TYPE" || canRequestTypes)
+            .map((row) => {
+            const owner = moduleOfGroup(row);
+            const current = row.id === group?.id;
+            return (
+              <button
+                key={row.id}
+                type="button"
+                onClick={() => chooseGroup(row)}
+                aria-current={current ? "true" : undefined}
+                className={`flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
+                  current
+                    ? "border-primary/40 bg-primary/12 font-semibold text-primary"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <ListTree className="size-4 shrink-0" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate">{groupLabel(row)}</span>
+                  {/* A group the project made says which module it belongs to. */}
+                  {!row.is_system && (
+                    <span className="block truncate text-xs font-normal text-muted-foreground">
+                      {owner ? t(`module.${owner.key}`) : t("requestTypes")}
+                    </span>
+                  )}
+                </span>
+                {!row.is_active && <StatusBadge label={t("inactive")} tone="neutral" />}
+              </button>
+            );
+          })}
         </nav>
+        {requestTypesOpen && (
+          <RequestTypesDialog initialProject={project} onClose={() => setRequestTypesOpen(false)} />
+        )}
 
         <section className="surface-panel min-w-0 rounded-xl p-4 sm:p-6">
           <header className="mb-3 flex flex-wrap items-center gap-2">
-            <h2 className="panel-title">{t(`module.${active.key}`)}</h2>
+            <h2 className="panel-title">{group ? groupLabel(group) : t(`module.${active.key}`)}</h2>
             {/* Said out loud, not left to be discovered. */}
-            <StatusBadge label={t(`scope.${active.scope}`)} tone="neutral" />
+            <StatusBadge label={t(`scope.${scope}`)} tone="neutral" />
+            {group && canManageGroups && (
+              <>
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  title={t("groups.edit")}
+                  onClick={() => setGroupEditing(group)}
+                >
+                  <Pencil />
+                </Button>
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  title={t("groups.moveUp")}
+                  disabledReason={groups[0]?.id === group.id ? common("alreadyFirst") : undefined}
+                  disabled={groups[0]?.id === group.id || groupOrder.isPending}
+                  onClick={() => groupOrder.mutate(-1)}
+                >
+                  <ChevronUp />
+                </Button>
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  title={t("groups.moveDown")}
+                  disabledReason={groups.at(-1)?.id === group.id ? common("alreadyLast") : undefined}
+                  disabled={groups.at(-1)?.id === group.id || groupOrder.isPending}
+                  onClick={() => groupOrder.mutate(1)}
+                >
+                  <ChevronDown />
+                </Button>
+              </>
+            )}
             <div className="ml-auto flex flex-wrap items-center gap-2">
+              {/* 操作说明 (I11): how groups, categories and sub-categories are made. */}
+              <Button variant="ghost" size="icon-sm" title={t("help.title")} onClick={() => setHelpOpen(true)}>
+                <CircleHelp />
+              </Button>
               {/* 「单位管理」 (2026-10 A4): the units a material category is
                   measured in, kept here beside the categories that use them. */}
               {isMaterial && can("category.manage") && (
@@ -429,9 +630,18 @@ export function CategoryManagement() {
                   {t("units.open")}
                 </Button>
               )}
+              {registerButton}
               {createButton}
             </div>
           </header>
+          {active.key === "equipment" && (
+            <p className="mb-2 rounded-lg border border-panel-border bg-muted/40 p-3 text-sm">
+              {t("equipment.pageNote", {
+                menu: root("nav.submodule.siteEquipment"),
+                tab: root("moduleTable.equipmentView.register"),
+              })}
+            </p>
+          )}
           {unitsOpen && <MaterialUnitsDialog onClose={() => setUnitsOpen(false)} />}
           <p className="mb-1 text-xs text-muted-foreground">
             {t(`moduleHelp.${active.key}`)}
@@ -450,6 +660,11 @@ export function CategoryManagement() {
             </p>
           )}
 
+          {group && !group.is_active && (
+            <p className="mb-3 rounded-lg border border-panel-border bg-muted/40 p-3 text-xs text-muted-foreground">
+              {t("groups.offNote")}
+            </p>
+          )}
           {needsProject && !project ? (
             <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">
               {t("chooseProject")}
@@ -489,7 +704,7 @@ export function CategoryManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {list.map((row, index) => (
+                  {list.map((row) => (
                     <TableRow key={row.id}>
                       <TableCell className="font-medium">
                         {/* The name opens what is filed in it, on this page
@@ -523,9 +738,21 @@ export function CategoryManagement() {
                           {active.key === "equipment" && (
                             <span className="text-xs font-normal text-muted-foreground">
                               {t(row.depth ? "equipment.subClass" : "equipment.majorClass")}
+                              {row.depth ? ` · ${t("equipment.onSite", { count: row.recordCount })}` : ""}
                             </span>
                           )}
                         </span>
+                        {/* A material's specifications (I19, ID45), set in its dialog. */}
+                        {isMaterial && row.column?.specs?.length ? (
+                          <p className="mt-0.5 text-xs font-normal text-muted-foreground">
+                            {t("material.specsLine", {
+                              specs: row.column.specs
+                                .filter((spec) => spec.is_active)
+                                .map((spec) => spec.name)
+                                .join(" · "),
+                            })}
+                          </p>
+                        ) : null}
                       </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {row.code}
@@ -566,6 +793,19 @@ export function CategoryManagement() {
                         >
                           {t("viewRecords")}
                         </Button>
+                        {/* 登记设备 needs equipment.manage, not category.manage (I38). */}
+                        {active.key === "equipment" && registerMachineCategory(row) && can("equipment.manage") && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={!row.isActive}
+                            disabledReason={row.isActive ? undefined : t("equipment.offClass")}
+                            onClick={() => setRegistering({ category: registerMachineCategory(row) })}
+                          >
+                            <Plus />
+                            {ops("equipment.createTitle")}
+                          </Button>
+                        )}
                         {canManage && (
                           <div className="flex items-center gap-1">
                             {canReorder && (
@@ -575,10 +815,10 @@ export function CategoryManagement() {
                                   variant="ghost"
                                   title={ops("categories.moveUp")}
                                   disabledReason={
-                                    index === 0 ? common("alreadyFirst") : undefined
+                                    siblingsOf(row)[0]?.id === row.id ? common("alreadyFirst") : undefined
                                   }
-                                  disabled={index === 0 || reorder.isPending}
-                                  onClick={() => move(index, -1)}
+                                  disabled={siblingsOf(row)[0]?.id === row.id || reorder.isPending}
+                                  onClick={() => move(row, -1)}
                                 >
                                   <ChevronUp />
                                 </Button>
@@ -587,18 +827,35 @@ export function CategoryManagement() {
                                   variant="ghost"
                                   title={ops("categories.moveDown")}
                                   disabledReason={
-                                    index === list.length - 1
+                                    siblingsOf(row).at(-1)?.id === row.id
                                       ? common("alreadyLast")
                                       : undefined
                                   }
                                   disabled={
-                                    index === list.length - 1 || reorder.isPending
+                                    siblingsOf(row).at(-1)?.id === row.id || reorder.isPending
                                   }
-                                  onClick={() => move(index, 1)}
+                                  onClick={() => move(row, 1)}
                                 >
                                   <ChevronDown />
                                 </Button>
                               </>
+                            )}
+                            {/* 「+ 子分类」 (I11, ID3): one level down, never two. */}
+                            {active.subCategories && !row.depth && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                title={t("subCategory.add")}
+                                disabled={!row.isActive}
+                                disabledReason={row.isActive ? undefined : t("subCategory.offParent")}
+                                onClick={() => {
+                                  setRefusal(null);
+                                  setEditing({ parent: row });
+                                }}
+                              >
+                                <Plus />
+                                {t("subCategory.short")}
+                              </Button>
                             )}
                             <Button
                               size="icon-sm"
@@ -612,11 +869,11 @@ export function CategoryManagement() {
                               <Pencil />
                             </Button>
                             {/* Removing is armed by the row's switch, then
-                                the bin acts at once (rule 8, HD4). The seeded
-                                waste categories and 施工准证申请 are refused by
-                                the server every time, so they offer no switch
-                                and the bin says why (F-129). */}
-                            {row.waste?.is_system || isSystemColumn(row) ? null : (
+                                the bin acts at once (rule 8, HD4). Any category
+                                with no records can go, a preset too (I35); one
+                                with records, the fixed 「其他」 and 施工准证申请
+                                offer no switch and the bin says why (F-129). */}
+                            {removeBlock(row) ? null : (
                               <Switch
                                 checked={armed === row.id}
                                 onCheckedChange={(next) => {
@@ -633,15 +890,17 @@ export function CategoryManagement() {
                               className="text-destructive"
                               title={ops("action.remove")}
                               disabledReason={
-                                row.waste?.is_system
-                                  ? waste("category.standardHelp")
-                                  : isSystemColumn(row)
-                                    ? t("systemHelp")
-                                    : armed !== row.id
-                                      ? t("armFirst")
-                                      : undefined
+                                removeBlock(row) === "permit"
+                                  ? t("systemHelp")
+                                  : removeBlock(row) === "fixed"
+                                    ? t("fixedOtherHelp")
+                                    : removeBlock(row) === "records"
+                                      ? t("hasRecordsHelp", { count: row.recordCount })
+                                      : armed !== row.id
+                                        ? t("armFirst")
+                                        : undefined
                               }
-                              disabled={armed !== row.id || removal.isPending}
+                              disabled={removeBlock(row) !== null || armed !== row.id || removal.isPending}
                               onClick={() => removal.mutate(row)}
                             >
                               {removal.isPending && armed === row.id ? (
@@ -663,16 +922,44 @@ export function CategoryManagement() {
         </section>
       </div>
 
+      {registering && (
+        <EquipmentDialog
+          project={project}
+          defaultCategory={registering.category}
+          onClose={() => setRegistering(null)}
+          onSaved={() => {
+            setRegistering(null);
+            refresh();
+            void qc.invalidateQueries({ queryKey: ["category-records"] });
+          }}
+        />
+      )}
       {editing && (
         <CategoryEditor
           module={active}
           project={project}
-          row={editing === "new" ? null : editing}
+          group={group}
+          row={editing === "new" || "parent" in editing ? null : editing}
+          parent={editing !== "new" && "parent" in editing ? editing.parent : null}
           nextSortOrder={list.length}
           onClose={() => setEditing(null)}
           onSaved={saved}
         />
       )}
+      {groupEditing && (
+        <GroupDialog
+          project={project}
+          row={groupEditing === "new" ? null : groupEditing}
+          label={groupEditing === "new" ? "" : groupLabel(groupEditing)}
+          onClose={() => setGroupEditing(null)}
+          onSaved={(saved) => {
+            setGroupEditing(null);
+            if (saved) setSelectedGroup(saved.id);
+            refresh();
+          }}
+        />
+      )}
+      {helpOpen && <CategoryHelpDialog onClose={() => setHelpOpen(false)} />}
       {viewing && (
         <ColumnRecordsDialog
           moduleKey={active.key}
@@ -695,14 +982,19 @@ export function CategoryManagement() {
 function CategoryEditor({
   module,
   project,
+  group,
   row,
+  parent,
   nextSortOrder,
   onClose,
   onSaved,
 }: {
   module: Module;
   project: string;
+  group: CategoryGroup | null;
   row: Row | null;
+  /** 「+ 子分类」: the category the new one goes under (I11). */
+  parent: Row | null;
   nextSortOrder: number;
   onClose: () => void;
   onSaved: () => void;
@@ -713,6 +1005,8 @@ function CategoryEditor({
         project={row?.column?.project ?? project}
         defaultKind={module.columnKind}
         row={row?.column ?? null}
+        group={group?.id ?? null}
+        parent={parent?.id ?? null}
         nextSortOrder={nextSortOrder}
         onClose={onClose}
         onSaved={onSaved}
@@ -722,9 +1016,193 @@ function CategoryEditor({
   return (
     <WasteCategoryDialog
       category={row?.waste ?? null}
+      // The system group is the company-wide list (ID2): nothing to send.
+      group={group && !group.is_system ? group.id : null}
+      parent={parent?.waste ?? null}
       onClose={onClose}
       onSaved={onSaved}
     />
+  );
+}
+
+/**
+ * Add or change one 分类组 (I11). New: a name and its business module, which
+ * never changes afterwards. Existing: rename; a group the project made can be
+ * switched off, or removed while it holds nothing (armed by its switch).
+ */
+function GroupDialog({
+  project,
+  row,
+  label,
+  onClose,
+  onSaved,
+}: {
+  project: string;
+  row: CategoryGroup | null;
+  label: string;
+  onClose: () => void;
+  onSaved: (saved: CategoryGroup | null) => void;
+}) {
+  const t = useTranslations("categoryManagement");
+  const ops = useTranslations("contractorOps");
+  const { can } = useAuth();
+  const [name, setName] = useState(row?.name ?? "");
+  const [chosenModule, setChosenModule] = useState<CategoryGroupModule | "">(row?.module ?? "");
+  const [isActive, setIsActive] = useState(row?.is_active ?? true);
+  const [armed, setArmed] = useState(false);
+  const [error, setError] = useState("");
+  // ID4: material, equipment, EHS and claims by category.manage; the
+  // recyclable module by waste_outgoing.config.
+  const modules: CategoryGroupModule[] = [
+    ...(can("category.manage") ? (["MATERIAL", "EQUIPMENT", "EHS", "CLAIM"] as const) : []),
+    ...(can("waste_outgoing.config") ? (["RECYCLE"] as const) : []),
+  ];
+  const fail = (reason: unknown) =>
+    setError(reason instanceof ApiError ? reason.message : t("saveFailed"));
+  const save = useMutation({
+    mutationFn: () =>
+      row
+        ? updateCategoryGroup(row.id, {
+            name: name.trim(),
+            ...(row.is_system ? {} : { is_active: isActive }),
+          })
+        : createCategoryGroup({ project, name: name.trim(), module: chosenModule as CategoryGroupModule }),
+    onSuccess: (saved) => onSaved(saved),
+    onError: fail,
+  });
+  const removal = useMutation({
+    mutationFn: () => deleteCategoryGroup(row!.id),
+    onSuccess: () => onSaved(null),
+    onError: fail,
+  });
+  const moduleName = (value: CategoryGroupModule) =>
+    value === "REQUEST_TYPE"
+      ? t("requestTypes")
+      : t(`module.${GROUP_MODULE[value]}`);
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{row ? t("groups.editTitle", { name: label }) : t("groups.create")}</DialogTitle>
+          <DialogDescription>{t(row?.is_system ? "groups.systemHelp" : "groups.help")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <FieldWrapper
+            label={t("groups.name")}
+            required={!row?.is_system}
+            hint={row?.is_system ? t("groups.systemNameHint") : undefined}
+          >
+            <Input
+              value={name}
+              placeholder={row?.is_system ? label : t("groups.namePlaceholder")}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("groups.module")}
+            required={!row}
+            hint={row ? t("groups.moduleFixed") : t("groups.moduleHint")}
+          >
+            <Select
+              value={chosenModule || undefined}
+              onValueChange={(value) => setChosenModule(value as CategoryGroupModule)}
+              disabled={Boolean(row)}
+            >
+              <SelectTrigger className="w-full" aria-label={t("groups.module")}>
+                <SelectValue placeholder={t("groups.chooseModule")} />
+              </SelectTrigger>
+              <SelectContent>
+                {(row ? [row.module] : modules).map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {moduleName(value)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          {row && !row.is_system && (
+            <label className="flex min-h-10 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
+              <span>
+                {t("groups.active")}
+                <span className="block text-xs text-muted-foreground">{t("groups.activeHint")}</span>
+              </span>
+              <Switch checked={isActive} onCheckedChange={setIsActive} aria-label={t("groups.active")} />
+            </label>
+          )}
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
+        </div>
+        <DialogFooter className="gap-2 sm:justify-between">
+          {row && !row.is_system ? (
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={armed}
+                onCheckedChange={setArmed}
+                aria-label={t("groups.armRemove", { name: label })}
+              />
+              <Button
+                variant="ghost"
+                className="text-destructive"
+                disabled={!armed || removal.isPending}
+                disabledReason={armed ? undefined : t("armFirst")}
+                onClick={() => removal.mutate()}
+              >
+                <Trash2 />
+                {t("groups.remove")}
+              </Button>
+            </div>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose}>
+              {ops("action.cancel")}
+            </Button>
+            <Button
+              requires={[
+                ...(row?.is_system ? [] : ([[name.trim(), t("groups.name")]] as [string, string][])),
+                ...(row ? [] : ([[chosenModule, t("groups.module")]] as [string, string][])),
+              ]}
+              disabled={save.isPending}
+              onClick={() => save.mutate()}
+            >
+              {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+              {ops("action.save")}
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * 操作说明 (I11-12): 「请……告诉我们实际操作方式」 - the steps, on the screen
+ * they are done on.
+ */
+function CategoryHelpDialog({ onClose }: { onClose: () => void }) {
+  const t = useTranslations("categoryManagement");
+  const steps = ["group", "category", "sub", "off", "where", "other"] as const;
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("help.title")}</DialogTitle>
+          <DialogDescription>{t("help.intro")}</DialogDescription>
+        </DialogHeader>
+        <ol className="grid list-decimal gap-3 pl-5 text-sm">
+          {steps.map((step) => (
+            <li key={step}>
+              <p className="font-medium">{t(`help.${step}.title`)}</p>
+              <p className="text-muted-foreground">{t(`help.${step}.body`)}</p>
+            </li>
+          ))}
+        </ol>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -1208,10 +1686,16 @@ function SpendCell({ column }: { column: ProjectCategory }) {
  */
 function WasteCategoryDialog({
   category,
+  group = null,
+  parent = null,
   onClose,
   onSaved,
 }: {
   category: WasteCategory | null;
+  /** A project's own 分类组 (I11); null - the company-wide list. */
+  group?: string | null;
+  /** 「+ 子分类」 (I11): the category the new one goes under. */
+  parent?: WasteCategory | null;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -1241,6 +1725,8 @@ function WasteCategoryDialog({
             name: name.trim(),
             dispatch_type: dispatchType,
             description: description.trim(),
+            ...(group ? { group } : {}),
+            ...(parent ? { parent: parent.id } : {}),
           }),
     onSuccess: onSaved,
     onError: (reason) =>
@@ -1255,7 +1741,9 @@ function WasteCategoryDialog({
               module: t("module.recycle"),
             })}
           </DialogTitle>
-          <DialogDescription>{t("moduleHelp.recycle")}</DialogDescription>
+          <DialogDescription>
+            {parent ? t("subCategory.under", { name: parent.label }) : t("moduleHelp.recycle")}
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
           <FieldWrapper label={w("category.code")} required>

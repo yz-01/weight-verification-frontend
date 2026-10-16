@@ -31,19 +31,26 @@ import type {
   ReportLevelRow,
 } from "@/interfaces/contractor-report";
 import {
+  isRouteAllowed,
   navLeaves,
   visibleNavigation,
   type FeatureNavChild,
 } from "@/lib/navigation";
 import {
+  PROGRESS_MENU,
   groupPhotoSources,
   levelRowName,
+  progressMenuHref,
   reportHref,
   reportMenuKind,
+  type ProgressMenuEntry,
   type ReportLevels,
 } from "@/lib/report-menu";
+import { supplierFilterValue, supplierShown } from "@/lib/receipt-supplier";
+import { cn } from "@/lib/utils";
 import { getProjects, getReceiptSummary } from "@/services/contractor.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { categoryTree, showsGroups } from "@/lib/category-tree";
 import { getReportCategories } from "@/services/contractor-report.service";
 
 /**
@@ -80,6 +87,22 @@ export function ReportSelector({ summary }: { summary?: string }) {
       .find((item) => item.feature === "report_center");
     return navLeaves(entry?.children);
   }, [user?.features, user?.is_superuser, user?.permissions, user?.portal]);
+  // 工程进度's own reports (I8): the ones this reader may open.
+  const progressEntries = useMemo(
+    () =>
+      user
+        ? PROGRESS_MENU.filter((entry) =>
+            isRouteAllowed(
+              user.portal,
+              user.features,
+              entry.href,
+              user.permissions,
+              user.is_superuser,
+            ),
+          )
+        : [],
+    [user],
+  );
 
   if (reports.length === 0) return null;
 
@@ -87,6 +110,7 @@ export function ReportSelector({ summary }: { summary?: string }) {
     <div className="flex min-w-0 flex-wrap items-center gap-2">
       <ReportMenu
         reports={reports}
+        progressEntries={progressEntries}
         open={open}
         onOpenChange={setOpen}
         pathname={pathname}
@@ -109,6 +133,7 @@ export function ReportSelector({ summary }: { summary?: string }) {
  */
 export function ReportMenu({
   reports,
+  progressEntries = [],
   open,
   onOpenChange,
   pathname,
@@ -116,6 +141,11 @@ export function ReportMenu({
   navigate,
 }: {
   reports: readonly FeatureNavChild[];
+  /**
+   * 工程进度's own reports (I8, ID24) - 日报告, 往日报告, 施工计划, 项目进度
+   * 摘要 - listed under 工程进度 above its 施工分类.
+   */
+  progressEntries?: readonly ProgressMenuEntry[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pathname: string;
@@ -170,6 +200,30 @@ export function ReportMenu({
             >
               {kind.kind === "material" ? (
                 <MaterialLevel project={project} onPick={choose} />
+              ) : kind.kind === "categories" && kind.reportType === "progress" ? (
+                <>
+                  {progressEntries.map((entry) => (
+                    <DropdownMenuItem
+                      key={entry.key}
+                      className="h-8"
+                      onSelect={() => {
+                        onOpenChange(false);
+                        navigate(
+                          progressMenuHref(entry, new URLSearchParams(searchParams.toString())),
+                        );
+                      }}
+                    >
+                      <span className="min-w-0 flex-1 truncate">{tRoot(entry.labelKey)}</span>
+                    </DropdownMenuItem>
+                  ))}
+                  {progressEntries.length > 0 && <DropdownMenuSeparator />}
+                  <CategoryLevel
+                    reportType={kind.reportType}
+                    label={tRoot(kind.label)}
+                    project={project}
+                    onPick={choose}
+                  />
+                </>
               ) : (
                 <CategoryLevel
                   reportType={kind.reportType}
@@ -262,6 +316,18 @@ function MaterialLevel({
   const projectCode = (id: string) =>
     projects.data?.results.find((row) => row.id === id)?.code ?? "";
   const rows = categories.data?.results ?? [];
+  const tRoot = useTranslations();
+  const tree = categoryTree(rows);
+  const headed = showsGroups(tree);
+  // 材料 → 规格 (I11, I19): a material's sub-categories ARE its specifications,
+  // so only the top level is a material here; its children are listed under it.
+  const ordered = tree.flatMap((group) =>
+    group.entries.filter((entry) => entry.depth === 0).map((entry) => entry.row),
+  );
+  const specsOf = (id: string) =>
+    tree.flatMap((group) =>
+      group.entries.filter((entry) => entry.depth === 1 && entry.row.parent === id).map((entry) => entry.row),
+    );
   const shared = new Set(
     rows
       .map((row) => row.name)
@@ -279,7 +345,24 @@ function MaterialLevel({
         <p className="px-2 py-1.5 text-xs text-muted-foreground">{t("materialsFailed")}</p>
       )}
       {rows.length > 0 && <DropdownMenuSeparator />}
-      {rows.map((row) => (
+      {/* I11 (ID27): with a 分类组 of the project's own, the groups first -
+          each one a choice of its own (every material in it). */}
+      {headed &&
+        tree.map((group) =>
+          group.key ? (
+            <DropdownMenuItem
+              key={`group:${group.key}`}
+              className="h-8 font-medium"
+              onSelect={() => onPick({ category: `group:${group.key}` })}
+            >
+              <span className="min-w-0 flex-1 truncate">
+                {t("allOfGroup", { name: group.name || tRoot("categoryManagement.module.material") })}
+              </span>
+            </DropdownMenuItem>
+          ) : null,
+        )}
+      {headed && <DropdownMenuSeparator />}
+      {ordered.map((row) => (
         <PickableSub
           key={row.id}
           className="h-8"
@@ -298,6 +381,56 @@ function MaterialLevel({
             category={row.id}
             onPick={(supplier) => onPick({ category: row.id, supplier })}
           />
+          <SpecLevel
+            specs={specsOf(row.id)}
+            project={project}
+            category={row.id}
+            onPick={(levels) => onPick({ category: row.id, ...levels })}
+          />
+        </PickableSub>
+      ))}
+    </>
+  );
+}
+
+/**
+ * The specification level (I11, I19): 「全部规格」, then the material's
+ * specifications; each one lists whoever delivered it, so the supplier stays
+ * reachable. Nothing is drawn for a material with no specification.
+ */
+function SpecLevel({
+  specs,
+  project,
+  category,
+  onPick,
+}: {
+  specs: readonly { id: string; name: string }[];
+  project?: string;
+  category: string;
+  onPick: (levels: { spec_category?: string; supplier?: string }) => void;
+}) {
+  const t = useTranslations("reportSelector");
+  if (specs.length === 0) return null;
+  return (
+    <>
+      <DropdownMenuSeparator />
+      <DropdownMenuLabel className="text-xs text-muted-foreground">{t("specification")}</DropdownMenuLabel>
+      <DropdownMenuItem className="h-8 font-medium" onSelect={() => onPick({})}>
+        {t("allSpecifications")}
+      </DropdownMenuItem>
+      {specs.map((spec) => (
+        <PickableSub
+          key={spec.id}
+          className="h-8"
+          label={spec.name}
+          onPick={() => onPick({ spec_category: spec.id })}
+        >
+          <SupplierLevel
+            project={project}
+            category={category}
+            spec={spec.id}
+            onPick={(supplier) => onPick({ spec_category: spec.id, supplier })}
+          />
         </PickableSub>
       ))}
     </>
@@ -308,18 +441,24 @@ function MaterialLevel({
 function SupplierLevel({
   project,
   category,
+  spec,
   onPick,
 }: {
   project?: string;
   category?: string;
+  spec?: string;
   onPick: (supplier?: string) => void;
 }) {
   const t = useTranslations("reportSelector");
+  const tRoot = useTranslations();
   // Mounted only when this level opens, so a long list of materials does not
   // ask for every material's suppliers up front.
   const summary = useQuery({
-    queryKey: ["receipts", "summary", "report-selector", project ?? "", category ?? ""],
-    queryFn: () => getReceiptSummary({ project, category }),
+    queryKey: [
+      "receipts", "summary", "report-selector", project ?? "", category ?? "",
+      ...(spec ? [spec] : []),
+    ],
+    queryFn: () => getReceiptSummary({ project, category, spec_category: spec }),
   });
   const suppliers = summary.data?.by_supplier ?? [];
   return (
@@ -334,8 +473,15 @@ function SupplierLevel({
       )}
       {suppliers.length > 0 && <DropdownMenuSeparator />}
       {suppliers.map((row) => (
-        <DropdownMenuItem key={row.supplier} className="h-8" onSelect={() => onPick(row.supplier)}>
-          <span className="min-w-0 flex-1 truncate">{row.supplier_name}</span>
+        // The deliveries 「未填供应商」 (2026-10-15 I23) open as `supplier=none`.
+        <DropdownMenuItem
+          key={supplierFilterValue(row.supplier)}
+          className="h-8"
+          onSelect={() => onPick(supplierFilterValue(row.supplier))}
+        >
+          <span className={cn("min-w-0 flex-1 truncate", !row.supplier && "text-muted-foreground")}>
+            {supplierShown(row.supplier_name, tRoot("receipts.supplierUnfilled"))}
+          </span>
         </DropdownMenuItem>
       ))}
       {summary.isSuccess && suppliers.length === 0 && (
@@ -367,6 +513,9 @@ function CategoryLevel({
 }) {
   const t = useTranslations("reportSelector");
   const { query, rows } = useReportLevel(reportType, project, parent);
+  // I11 (ID27): 分类组 → 分类 → 子分类. A group's value is `group:<id>`; a
+  // category under a group opens like a first-level one.
+  const underCategory = Boolean(parent && !parent.startsWith("group:"));
 
   return (
     <>
@@ -380,10 +529,11 @@ function CategoryLevel({
       )}
       {rows.map((row) => {
         const name = levelRowName(row, rows, Boolean(project));
-        const chosen = parent
+        const isGroup = row.value.startsWith("group:");
+        const chosen = underCategory
           ? { category: parent, subcategory: row.value }
           : { category: row.value };
-        return row.has_children && childLabel && !parent ? (
+        return row.has_children && (isGroup || (childLabel && !underCategory)) ? (
           <PickableSub
             key={row.value}
             label={name}
@@ -392,7 +542,8 @@ function CategoryLevel({
           >
             <CategoryLevel
               reportType={reportType}
-              label={childLabel}
+              label={isGroup ? label : (childLabel ?? label)}
+              childLabel={childLabel}
               project={project}
               parent={row.value}
               onPick={onPick}
@@ -430,7 +581,15 @@ export function useReportLevel(
     enabled,
   });
   const rows = useMemo<ReportLevelRow[]>(() => {
-    const data = query.data ?? [];
+    // A system 分类组 is named by its module; a category that is off but
+    // still has records says 「已停用」 (I11).
+    const data = (query.data ?? []).map((row) => ({
+      ...row,
+      label:
+        (row.label ||
+          (row.module ? tRoot(`reportSelector.groupModule.${row.module}`) : row.value)) +
+        (row.is_active === false ? ` · ${tRoot("reportSelector.inactive")}` : ""),
+    }));
     if (reportType === "photos") return groupPhotoSources(data, (key) => tRoot(key));
     if (reportType === "consultant") {
       return data.map((row) => ({

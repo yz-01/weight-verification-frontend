@@ -10,6 +10,10 @@ const TYPES = new Set<ContractorReportType>([
   "progress", "safety", "consultant", "attendance",
   "equipment", "recycling", "schedule", "target",
   "photos", "documents",
+  // 工程进度's own reports (I8, ID24).
+  "daily_report", "progress_summary",
+  // The four modules that had no report (I11, ID27).
+  "field_tasks", "material_outgoing", "claims", "sundry_claims",
 ]);
 
 export default async function ContractorReportPage({

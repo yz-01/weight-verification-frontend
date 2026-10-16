@@ -22,6 +22,7 @@ import {
   ReceiptText,
   UserRoundCheck,
 } from "lucide-react";
+import { CategoryOptionItems } from "@/components/shared/category-options";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -36,13 +37,12 @@ import {
 } from "@/components/contractor-ops/site-disposal-workspaces";
 import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
 import { useAuth } from "@/components/providers/auth-provider";
-import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
+import { FieldDraft, useClearDraft, useDraftEventId, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
 import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
-import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -73,6 +73,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
 import { matchSupplier } from "@/lib/supplier-match";
+import { NO_SUPPLIER_ITEM, supplierFromSelect, supplierSelectValue } from "@/lib/receipt-supplier";
 import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
   type DeliveryNoteOCRLineItem,
@@ -82,6 +83,7 @@ import {
 import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { columnAutofill } from "@/lib/material-autofill";
+import { offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import {
   getQRCodes,
   getSuppliers,
@@ -151,10 +153,9 @@ const RECORD_OPTIONS: RecordOption[] = [
   // MR / Other Request (C01): asked from the current project, followed on
   // 「我提交过的」 with its conversation.
   { key: "request", permission: "material_request.submit", icon: FilePlus2, tone: "bg-primary/10 text-primary" },
-  // The gate's two entries, apart (事项2 六, HD5): 访客扫码 reads a visitor's
-  // pass and confirms the entry or exit; 门岗拍照 photographs the gate and,
-  // for a 「特殊事项」, asks project people in.
-  { key: "visitor", permission: "site_access.scan", icon: ScanLine, tone: "bg-primary/10 text-primary" },
+  // 门岗 (I14, ID32): one entry for the guard - 「门岗扫访客二维码为什么分开
+  // 两个模块？」. Inside, 「拍照」 and 「扫访客二维码」; the separate 访客扫码
+  // tile is gone (an old link to it still opens the scan, below).
   { key: "gate", permission: "site_access.scan", icon: DoorOpen, tone: "bg-info/10 text-info" },
 ];
 
@@ -226,11 +227,9 @@ export function FieldRecordsPanel({
   if (mode === "request") {
     return <RecordFrame title={t("records.request")} onBack={() => chooseMode(null)}><FieldDraft scope={`request:${task?.id ?? "new"}`}><MaterialRequestForm initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
-  if (mode === "visitor") {
-    return <RecordFrame title={t("records.visitor")} onBack={() => chooseMode(null)}><VisitorScanPanel project={task?.project ?? boundProject ?? ""} lockProject={Boolean(task?.project ?? boundProject)} /></RecordFrame>;
-  }
-  if (mode === "gate") {
-    return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} /></RecordFrame>;
+  if (mode === "gate" || mode === "visitor") {
+    // `visitor` is an older link to the scan: the same 门岗, on 扫访客二维码.
+    return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} initialAction={mode === "visitor" ? "scan" : "photo"} /></RecordFrame>;
   }
   if (mode === "sundry") {
     return <RecordFrame title={t("records.sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
@@ -298,8 +297,18 @@ interface MaterialDraft {
   movementType: "ENTRY" | "RETURN";
   returnReason: string;
   returnReasonOther: string;
+  /**
+   * What OCR read off the DO, kept as a reference only since I19 (ID46): the
+   * record's material name is its material category's name.
+   */
   materialName: string;
+  /** Typed only when 「其他」 is the specification (I19). */
   materialSpecification: string;
+  /**
+   * The specification from the project's material data (I19, ID45); its unit
+   * decides the unit. Optional so a draft saved before it still loads.
+   */
+  specCategory?: string;
   quantity: string;
   unit: MaterialUnit;
   totalWeightKg: string;
@@ -330,6 +339,7 @@ const EMPTY_MATERIAL: MaterialDraft = {
   returnReasonOther: "",
   materialName: "",
   materialSpecification: "",
+  specCategory: "",
   quantity: "",
   unit: "TONNE",
   totalWeightKg: "",
@@ -360,6 +370,7 @@ export function MaterialCapturePanel({
   const [materialEvidence, setMaterialEvidence] = useDraftState("materialEvidence", createEmptyFieldEvidence);
   const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>("receiverSignature");
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>("supplierSignature");
+  const receiptEventId = useDraftEventId("material-receipt");
   const clearDraft = useClearDraft();
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
   // The supplier a scanned code named - a docket or a supplier card. It wins
@@ -433,7 +444,9 @@ export function MaterialCapturePanel({
       getProjectCategories({
         project: draft.project,
         kind: "MATERIAL",
-        is_active: true,
+        // IB1: switched off - or its 分类组 switched off - or hidden from the
+        // phone, it is not offered here.
+        pwa: true,
         page_size: 200,
         sort_by: "sort_order",
         sort_order: "asc",
@@ -460,6 +473,9 @@ export function MaterialCapturePanel({
     return {
       ...old,
       category,
+      // A specification belongs to its material (I19).
+      specCategory: "",
+      materialSpecification: "",
       unit: filled.unit,
       supplier: filled.supplier,
       manufacturer: filled.manufacturer,
@@ -470,9 +486,16 @@ export function MaterialCapturePanel({
     { unit: draft.unit, supplier: draft.supplier, manufacturer: draft.manufacturer ?? "" },
     { scannedSupplier },
   );
-  // The unit a locked category decides is the one sent, whatever a scanned
-  // line or an older draft put in `draft.unit`.
-  const unit = fill.unitLocked ? fill.unit : draft.unit;
+  // The specification (I19, ID46): its unit is the unit, shown and locked;
+  // 「其他」 is typed, with the unit chosen. Before one is chosen, a locked
+  // category still decides the unit, as before.
+  const specs = offeredSpecs(selectedColumn, draft.specCategory ?? "");
+  const specPick = specChoice(selectedColumn, draft.specCategory ?? "");
+  const specRequired = specs.length > 0;
+  const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
+  // The unit a locked specification or category decides is the one sent,
+  // whatever a scanned line or an older draft put in `draft.unit`.
+  const unit = specPick.unitLocked ? specPick.unit : fill.unitLocked && !specPick.typed ? fill.unit : draft.unit;
   const unitName = useUnitName();
   const units = useMaterialUnits();
   const supplierRows = (suppliers.data?.results ?? []).filter(
@@ -665,7 +688,7 @@ export function MaterialCapturePanel({
       if (!user || !location) {
         throw new Error("missing_evidence");
       }
-      const eventId = crypto.randomUUID();
+      const eventId = receiptEventId();
       return submitMaterialReceiptOfflineAware(user.id, {
         receipt: {
           project: draft.project,
@@ -676,8 +699,12 @@ export function MaterialCapturePanel({
           // Same form, other button (D08): recorded and rejected in one step.
           acceptance_status: rejecting ? "REJECTED" : undefined,
           rejection_reason: rejecting ? (draft.rejectionReason ?? "").trim() : undefined,
-          material_name: draft.materialName.trim(),
-          material_specification: draft.materialSpecification.trim(),
+          // The material's own name (I19, ID46): nobody types it at the gate.
+          material_name: selectedColumn?.name ?? draft.materialName.trim(),
+          material_specification: specPick.typed
+            ? draft.materialSpecification.trim()
+            : (specPick.spec?.name ?? draft.materialSpecification.trim()),
+          spec_category: draft.specCategory || null,
           quantity: draft.quantity,
           unit,
           total_weight_kg: draft.totalWeightKg || null,
@@ -749,7 +776,7 @@ export function MaterialCapturePanel({
             setColumnError("");
             // A column belongs to one site, so the one chosen for the old
             // project is not a valid answer for the new one.
-            setDraft((old) => ({ ...old, project, category: "" }));
+            setDraft((old) => ({ ...old, project, category: "", specCategory: "" }));
           }}
           placeholder={t("material.chooseProject")}
           className="h-12 w-full"
@@ -763,7 +790,8 @@ export function MaterialCapturePanel({
       <FieldWrapper label={t("material.column")} required>
         <Select value={draft.category || undefined} onValueChange={(category) => setDraft((old) => withColumn(old, category))} disabled={!draft.project || columns.isLoading}>
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
-          <SelectContent>{columnRows.filter((row) => row.can_upload).map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
+          {/* 分类组 → 材料 (I11): the group a heading only when there are several. */}
+          <SelectContent><CategoryOptionItems rows={columnRows.filter((row) => row.can_upload)} /></SelectContent>
         </Select>
         <FieldLoadNote query={columns} what={t("what.columns")} />
         {draft.project && columns.isSuccess && !columnRows.length && <p className="text-sm text-muted-foreground">{t("material.noColumnsYet")}</p>}
@@ -776,6 +804,34 @@ export function MaterialCapturePanel({
           {columnError && <p role="alert" className="text-sm text-destructive">{columnError}</p>}
         </details>
       </FieldWrapper>
+      {/* 规格 (I19, ID46): this material's specifications and 「其他」; the unit
+          comes with it. Not set up yet? 「其他」 and type it - a lorry is never
+          held at the gate over a list. */}
+      {draft.category && specRequired && (
+        <FieldWrapper label={t("material.spec")} required={specRequired}>
+          <Select
+            value={draft.specCategory || undefined}
+            onValueChange={(next) => setDraft((old) => ({ ...old, specCategory: next, materialSpecification: "" }))}
+          >
+            <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSpec")} /></SelectTrigger>
+            <SelectContent>
+              {specs.map((spec) => (
+                <SelectItem key={spec.id} value={spec.id}>{spec.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FieldWrapper>
+      )}
+      {specPick.typed && (
+        <FieldWrapper label={t("material.specName")} required={specPick.typed} hint={t("material.specNameHint")}>
+          <Input
+            className="h-12"
+            value={draft.materialSpecification}
+            maxLength={200}
+            onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))}
+          />
+        </FieldWrapper>
+      )}
       <FieldWrapper label={t("materialEvidence.title")} required>
         <FieldEvidenceGrid
           labels={materialEvidenceLabels}
@@ -794,17 +850,23 @@ export function MaterialCapturePanel({
         />
       </FieldWrapper>
       <DeliveryNoteReadStatus reader={ocr} />
-      <FieldWrapper label={t("material.supplier")} required>
+      {/* Optional, no star (2026-10-15 I23, ID57): a worker who does not know
+          whose lorry it is leaves 「未填供应商」 - the first item and the
+          default - and the office fills it in, rather than picking any one and
+          putting the load on the wrong supplier's books. A scanned code still
+          chooses its supplier. */}
+      <FieldWrapper label={t("material.supplier")}>
         <Select
-          value={draft.supplier || undefined}
-          onValueChange={(supplier) => {
+          value={supplierSelectValue(draft.supplier)}
+          onValueChange={(value) => {
             setScannedQr(undefined);
             setScannedSupplier("");
-            setDraft((old) => ({ ...old, supplier }));
+            setDraft((old) => ({ ...old, supplier: supplierFromSelect(value) }));
           }}
         >
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSupplier")} /></SelectTrigger>
           <SelectContent>
+            <SelectItem value={NO_SUPPLIER_ITEM}>{t("material.noSupplier")}</SelectItem>
             {supplierRows.map((row) => (
               <SelectItem key={row.id} value={row.id}>
                 {row.name}
@@ -813,8 +875,12 @@ export function MaterialCapturePanel({
             ))}
           </SelectContent>
         </Select>
-        {/* 「有退场资料」 (2026-10 C10): this supplier's returns, one press away. */}
-        <SupplierReturnBadge supplier={supplierRows.find((row) => row.id === draft.supplier)} />
+        {/* 「有退货资料」 (2026-10 C10): a real supplier's returns, one press away. */}
+        {draft.supplier ? (
+          <SupplierReturnBadge supplier={supplierRows.find((row) => row.id === draft.supplier)} />
+        ) : (
+          <p className="text-xs text-muted-foreground">{t("material.noSupplierHint")}</p>
+        )}
         {/* Q1: one supplier on the category fills itself in; several are the
             only ones offered. A scanned code names its own. */}
         {fill.supplierFromColumn && draft.supplier && !scannedSupplier ? (
@@ -863,11 +929,16 @@ export function MaterialCapturePanel({
         />
       </FieldWrapper>
       <FieldWrapper label={t("material.unit")} required>
-        {fill.unitLocked ? (
-          // The category decided it (A4, Q1): shown, not asked.
+        {unitLocked ? (
+          // The specification - or, before one is chosen, the category -
+          // decided it (I19, ID46; A4, Q1): shown, not asked.
           <div className="flex h-12 items-center justify-between rounded-lg border bg-muted/40 px-3">
-            <span className="text-sm font-medium">{unitName(unit, selectedColumn?.default_unit_label)}</span>
-            <span className="text-xs text-muted-foreground">{t("material.autoFilledFromCategory")}</span>
+            <span className="text-sm font-medium">
+              {unitName(unit, specPick.unitLocked ? specPick.spec?.default_unit_label : selectedColumn?.default_unit_label)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {specPick.unitLocked ? t("material.autoFilledFromSpec") : t("material.autoFilledFromCategory")}
+            </span>
           </div>
         ) : (
           <>
@@ -883,7 +954,6 @@ export function MaterialCapturePanel({
           </>
         )}
       </FieldWrapper>
-      <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
@@ -1020,7 +1090,6 @@ export function MaterialCapturePanel({
       <details className="border-y py-3">
         <summary className="cursor-pointer text-sm font-medium">{t("material.additionalDetails")}</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-      <FieldWrapper label={t("material.specification")}><Input className="h-12" value={draft.materialSpecification} onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.totalWeightKg")}><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.totalWeightKg} onChange={(event) => setDraft((old) => ({ ...old, totalWeightKg: event.target.value }))} /></FieldWrapper>
         </div>
       </details>
@@ -1060,7 +1129,7 @@ export function MaterialCapturePanel({
         )}
       </div>
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!specRequired || draft.specCategory, t("material.spec")], [!specPick.typed || draft.materialSpecification.trim(), t("material.specName")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>
@@ -1262,6 +1331,8 @@ function WasteOutgoingCapturePanel({
   // F-282: same shell-without-wiring as the consultant panel above.
   const [project, setProject] = useDraftState("project", initialProject);
   const [category, setCategory] = useDraftState("category", "");
+  // 「其他」 (I10, ID43): what it is, typed.
+  const [otherName, setOtherName] = useDraftState("otherName", "");
   const [quantity, setQuantity] = useDraftState("quantity", "");
   const [unit, setUnit] = useDraftState("unit", "");
   const [note, setNote] = useDraftState("note", "");
@@ -1279,12 +1350,14 @@ function WasteOutgoingCapturePanel({
   ];
 
   const options = useQuery({
-    queryKey: ["waste-outgoing", "options"],
-    queryFn: getWasteOutgoingOptions,
+    // The project's own groups' categories too (I11).
+    queryKey: ["waste-outgoing", "options", project],
+    queryFn: () => getWasteOutgoingOptions(project || undefined),
   });
   const categories = (options.data?.categories ?? []).filter(
     (row) => row.is_active,
   );
+  const chosenCategory = categories.find((row) => row.id === category);
 
   const save = useMutation({
     mutationFn: () => {
@@ -1295,6 +1368,7 @@ function WasteOutgoingCapturePanel({
         quantity: quantity.trim() || undefined,
         unit: quantity.trim() ? unit : undefined,
         note: note.trim() || undefined,
+        ...(chosenCategory?.is_other ? { other_name: otherName.trim() } : {}),
         latitude: location.latitude,
         longitude: location.longitude,
         device_id: getOrCreateFieldDeviceId(),
@@ -1340,13 +1414,22 @@ function WasteOutgoingCapturePanel({
           </SelectTrigger>
           <SelectContent>
             {categories.map((row) => (
-              // A system preset in the phone's language (2026-10-09).
-              <SelectItem key={row.id} value={row.id}>{row.label || row.name}</SelectItem>
+              // A system preset in the phone's language (2026-10-09); a
+              // sub-category with its parent (I11).
+              <SelectItem key={row.id} value={row.id}>
+                {row.parent_name ? `${row.parent_name} › ` : ""}
+                {row.label || row.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <FieldLoadNote query={options} what={t("what.categories")} />
       </FieldWrapper>
+      {chosenCategory?.is_other && (
+        <FieldWrapper label={t("field.otherName")} required>
+          <Input className="h-12" value={otherName} onChange={(event) => setOtherName(event.target.value)} />
+        </FieldWrapper>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label={t("field.quantity")} optional={t("field.optional")}>
           <Input className="h-12" type="number" min="0" step="0.001" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
@@ -1399,7 +1482,7 @@ function WasteOutgoingCapturePanel({
         required
       />
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("evidence.title")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], ...(chosenCategory?.is_other ? ([[otherName.trim(), t("field.otherName")]] as [string, string][]) : []), [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("evidence.title")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}
         {t("action.submit")}
       </Button>

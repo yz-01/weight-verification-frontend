@@ -35,6 +35,11 @@ export interface EquipmentHoursMachine {
   status: string;
   /** When its open session started (its newest photo is a 开工), else null. */
   open_since?: string | null;
+  /**
+   * A 开工 from an earlier day nobody closed (a forgotten 收工): the machine is
+   * not running, the phone offers 开工 and asks the office to enter the 收工.
+   */
+  unclosed_since?: string | null;
 }
 
 export interface EquipmentHoursSupplier {
@@ -59,6 +64,17 @@ export interface EquipmentHoursPhoto {
   longitude?: string | null;
   operator_name: string;
   watermarked_photo: string | null;
+  /** 司机签名 (2026-10 I4, ID20); null on photos from before. */
+  signature?: string | null;
+}
+
+/** 操作人员 / CIDB 卡号 as the office wrote them for one session (I4, ID19). */
+export interface EquipmentSessionOperatorEntry {
+  id: string;
+  operator_name: string;
+  cidb_no: string;
+  created_by_name: string;
+  created_at: string;
 }
 
 /** An office correction of a session: its end, or (no start photo) its start. */
@@ -97,8 +113,11 @@ export interface EquipmentHoursSession extends RecordedBy {
   /** The machine's photos just before and after: an office time stays between. */
   previous_at?: string | null;
   next_at?: string | null;
-  /** Decimal hours as a string, e.g. "9.50". */
-  hours: string;
+  /**
+   * Decimal hours as a string, e.g. "9.50"; null while the start or the end
+   * is missing - blank, not 0 (2026-10 I4: 「未收工的时间及工时留空」).
+   */
+  hours: string | null;
   /** 累计工时 down the rows shown, in the table's order. */
   cumulative_hours?: string | null;
   photo_count: number;
@@ -112,6 +131,22 @@ export interface EquipmentHoursSession extends RecordedBy {
   photos: EquipmentHoursPhoto[];
   /** Newest first; the newest of each kind is the one that counts. */
   adjustments: EquipmentDayAdjustment[];
+  /** 操作人员 and CIDB 卡号 the office wrote (I4, ID19); blank until then. */
+  operator_name?: string;
+  cidb_no?: string;
+  /** Every version, newest first. */
+  operator_history?: EquipmentSessionOperatorEntry[];
+}
+
+/** One machine of the chosen supplier and its hours over the range (I4). */
+export interface EquipmentHoursMachineTotal {
+  equipment: string;
+  equipment_name: string;
+  equipment_code: string;
+  site_no: string;
+  session_count: number;
+  total_hours: string;
+  incomplete_count: number;
 }
 
 export interface EquipmentHoursSessions {
@@ -120,6 +155,8 @@ export interface EquipmentHoursSessions {
   /** No dates were asked for: the range ends on the newest record. */
   automatic_range?: boolean;
   total_hours?: string;
+  /** With a supplier and no single machine: each machine's hours (I4). */
+  machine_totals?: EquipmentHoursMachineTotal[] | null;
   rows: EquipmentHoursSession[];
 }
 
@@ -165,6 +202,8 @@ export interface EquipmentHoursPhotoDraft {
   equipmentLabel: string;
   kind: EquipmentPhotoKind;
   photo: File;
+  /** 司机签名, at the start and the stop alike (2026-10 I4, ID20). */
+  signature: File;
   /**
    * When the photo was taken (ISO), from the camera's file. The session's
    * start and end are counted from it (Q29.10); without it, the moment of
@@ -174,6 +213,14 @@ export interface EquipmentHoursPhotoDraft {
   latitude?: string;
   longitude?: string;
   locationAccuracyM?: string;
+}
+
+/** 操作人员 / CIDB 卡号 for one session, or for the machine's whole day. */
+export interface EquipmentSessionOperatorPayload {
+  session: string;
+  operator_name: string;
+  cidb_no: string;
+  apply_to_day: boolean;
 }
 
 /** The office's time for one session: the end, or the start - one of the two. */

@@ -130,21 +130,17 @@ describe("sundry claims are not filed under a category (2026-10 B1)", () => {
   });
 });
 
-describe("period claims are not filed under a category (D-286)", () => {
-  // 「杂费报销分类和 Claim 分类重复……这里只保留一套」: the set, the button
-  // and the filter all went, and the backend endpoint with them.
-  it("has no filing button, dialog or category filter", () => {
+describe("period claims name a project's claim category (I10, ID6; over D-286)", () => {
+  // The old filing button and its endpoint stay gone: a claim chooses its
+  // category on the claim itself, from the project's own Progress Claim
+  // categories, and the list filters by it.
+  it("chooses the category on the claim, never through the old filing dialog", () => {
     const source = read(CLAIMS);
-    for (const gone of [
-      /setFiling/,
-      /<FileIntoColumnDialog/,
-      /fileClaim/,
-      /ClaimColumnFilter/,
-      /kind: "CLAIM"/,
-      /filing\.unfiled/,
-    ]) {
+    for (const gone of [/setFiling/, /<FileIntoColumnDialog/, /fileClaim/, /ClaimColumnFilter/]) {
       expect(source).not.toMatch(gone);
     }
+    expect(source).toMatch(/kind: "CLAIM"/);
+    expect(source).toMatch(/<CategoryOptionItems/);
   });
 
   it("no longer calls the filing endpoint", () => {

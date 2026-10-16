@@ -21,9 +21,12 @@ import type {
   SiteGeofencePayload,
   SiteLocationPolicy,
   ThirdPartyAccessEvent,
+  VisitorArrival,
+  VisitorHostOption,
   VisitorRecord,
 } from "@/interfaces/site-access";
 import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
+import type { WallRecord } from "@/lib/gate-photo-wall";
 import { api, download, toastSuccess } from "@/services/api-client";
 import {
   exportBody,
@@ -241,6 +244,8 @@ export async function confirmGatePass(payload: {
   qr_value: string;
   direction: "ENTRY" | "EXIT";
   client_event_id: string;
+  /** 放行 on this confirmed visit (I26). */
+  arrival?: string;
   gate_name?: string;
   latitude?: string;
   longitude?: string;
@@ -278,6 +283,30 @@ export const getGateIncidents = (query: ListQuery = {}) =>
 
 export const getGateIncident = (id: string) =>
   api.get<GateIncidentDetail>(`/api/gate-incidents/${id}/get_gate_incident/`);
+
+/**
+ * 日常拍照记录's 照片墙 (I33): the same list and filters, each row with every
+ * one of its photos - small for the wall, stamped full size for the viewer.
+ */
+export const getGateWall = (query: ListQuery = {}) =>
+  api.list<WallRecord>("/api/gate-incidents/get_gate_incidents/", {
+    ...query,
+    with_photos: 1,
+  });
+
+/**
+ * 「沟通」 on a gate record (I14, ID31): the people chosen are asked in, a
+ * plain photo becomes a Gate Issue, and its conversation opens. Saying
+ * something first is optional.
+ */
+export async function startGateConversation(id: string, members: string[], firstMessage = "") {
+  const row = await api.post<GateIncidentDetail>(
+    `/api/gate-incidents/${id}/start_gate_conversation/`,
+    { members, ...(firstMessage.trim() ? { first_message: firstMessage.trim() } : {}) },
+  );
+  toastSuccess("siteControl.toast.gateConversationStarted");
+  return row;
+}
 
 export const getGateMemberOptions = (project: string) =>
   api.get<GateMemberOption[]>("/api/gate-incidents/get_member_options/", {
@@ -412,4 +441,65 @@ export function exportDeviceEvents(request: ExportRequest): Promise<void> {
     body: exportBody(request),
     fallbackFilename: `gate-device-events.${request.format}`,
   });
+}
+
+// -- 访客进场确认 (I26, ID63/ID64) -------------------------------------------
+
+/** 接待人 to choose from: the project's people (ID64). */
+export const getVisitorHostOptions = (project: string, excludeSelf = false) =>
+  api.get<VisitorHostOption[]>("/api/visitor-arrivals/get_host_options/", {
+    project,
+    ...(excludeSelf ? { exclude_self: 1 } : {}),
+  });
+
+/** 「通知接待人」: the scanned pass, the photographs taken, and the host. */
+export async function startVisitorArrival(payload: {
+  project: string;
+  qr_value: string;
+  host?: string;
+  client_event_id: string;
+  photos: GatePhotoDraft[];
+  latitude?: string;
+  longitude?: string;
+  accuracy_m?: string;
+}) {
+  const body = new FormData();
+  const { photos, ...fields } = payload;
+  Object.entries(fields).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") body.append(key, value);
+  });
+  appendGatePhotos(body, photos);
+  const row = await api.post<VisitorArrival>("/api/visitor-arrivals/start_visitor_arrival/", body);
+  toastSuccess("siteControl.toast.hostNotified");
+  return row;
+}
+
+export const getVisitorArrival = (id: string) =>
+  api.get<VisitorArrival>(`/api/visitor-arrivals/${id}/get_visitor_arrival/`);
+
+/** Visitors at this project's gate now: waiting, or confirmed and not let in. */
+export const getOpenVisitorArrivals = (project: string) =>
+  api.get<VisitorArrival[]>("/api/visitor-arrivals/get_open_arrivals/", { project });
+
+/** 「确认接待」 (the host, or a site-access manager on their behalf). */
+export async function confirmVisitorArrival(id: string) {
+  const row = await api.post<VisitorArrival>(`/api/visitor-arrivals/${id}/confirm_visitor_arrival/`, {});
+  toastSuccess("siteControl.toast.visitorConfirmed");
+  return row;
+}
+
+/** 「拒绝」 with the reason the guard reads at the gate. */
+export async function declineVisitorArrival(id: string, reason: string) {
+  const row = await api.post<VisitorArrival>(`/api/visitor-arrivals/${id}/decline_visitor_arrival/`, {
+    reason,
+  });
+  toastSuccess("siteControl.toast.visitorDeclined");
+  return row;
+}
+
+/** The guard's 「取消」: the visitor left before going in. */
+export async function cancelVisitorArrival(id: string) {
+  const row = await api.post<VisitorArrival>(`/api/visitor-arrivals/${id}/cancel_visitor_arrival/`, {});
+  toastSuccess("siteControl.toast.visitorCancelled");
+  return row;
 }

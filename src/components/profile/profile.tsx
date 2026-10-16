@@ -13,6 +13,7 @@ import {
   TextField,
   type BoundField,
 } from "@/components/shared/form-fields";
+import { SignOffPinSettings } from "@/components/profile/sign-off-pin-settings";
 import { AvatarUpload } from "@/components/shared/avatar-upload";
 import { FormSection, minLength, required } from "@/components/shared/form-shell";
 import { ListHeader, ReadField, TypeBadge } from "@/components/shared/page-primitives";
@@ -20,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { LOCALES, LOCALE_LABELS, resolveLocale, type Locale } from "@/i18n/config";
 import { ApiError } from "@/interfaces/api";
 import { changePassword, updateProfile } from "@/services/auth.service";
+import { useRoleLabel } from "@/lib/role-labels";
 
 /**
  * The signed-in user's own account.
@@ -30,6 +32,7 @@ import { changePassword, updateProfile } from "@/services/auth.service";
  */
 export function Profile() {
   const t = useTranslations();
+  const roleOf = useRoleLabel();
   const router = useRouter();
   const { user, refresh } = useAuth();
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -107,7 +110,7 @@ export function Profile() {
           <h3 className="panel-title min-w-0 break-words">
             {user.full_name}
           </h3>
-          {user.role_name && <TypeBadge label={user.role_name} />}
+          {user.role_name && <TypeBadge label={roleOf(null, user.role_name)} />}
           <Button
             type="submit"
             form="profile-form"
@@ -161,7 +164,7 @@ export function Profile() {
             <ReadField label={t("users.field.email")} value={user.email} />
             <ReadField
               label={t("users.field.role")}
-              value={user.role_name}
+              value={roleOf(null, user.role_name)}
             />
             {user.company_name && (
               <ReadField
@@ -297,6 +300,9 @@ export function Profile() {
           </form>
         </div>
       )}
+
+      {/* 我的签核密码 (I29): office accounts only - the phone never asks. */}
+      {!user.is_field_staff && <SignOffPinSettings />}
     </div>
   );
 }

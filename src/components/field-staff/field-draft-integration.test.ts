@@ -15,11 +15,6 @@ describe("field form draft integration", () => {
       fields: ['useDraftState("body"', 'useDraftState<File | null>("file"'],
     },
     {
-      file: "src/components/field-staff/photo-approvals.tsx",
-      scope: "photo-approvals",
-      fields: ['useDraftState("returningId"', 'useDraftState("note"'],
-    },
-    {
       file: "src/components/field-staff/field-access-management.tsx",
       scope: "field-access:${initialUser?.id ?? \"new\"}",
       fields: ['useDraftState<AccessMode>("mode"', 'useDraftState("fullName"', 'useDraftState<string[] | null>("projectIds"'],

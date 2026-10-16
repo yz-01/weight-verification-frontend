@@ -37,6 +37,7 @@ export function OptionCombobox({
   triggerClassName,
   onSearch,
   selectedLabel,
+  emptyAction,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -56,6 +57,11 @@ export function OptionCombobox({
   onSearch?: (term: string) => void;
   /** The chosen value's name when `options` (one page of results) lacks it. */
   selectedLabel?: string;
+  /**
+   * Shown under `emptyLabel` when nothing matches - 「前往分类管理」 beside
+   * 「该材料尚未建立」 (I19-11, I19-12).
+   */
+  emptyAction?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
@@ -107,7 +113,10 @@ export function OptionCombobox({
         </div>
         <ul role="listbox" className="max-h-60 overflow-y-auto">
           {shown.length === 0 ? (
-            <li className="px-2 py-3 text-center text-xs text-muted-foreground">{emptyLabel}</li>
+            <li className="px-2 py-3 text-center text-xs text-muted-foreground">
+              {emptyLabel}
+              {emptyAction && <div className="mt-2 flex justify-center">{emptyAction}</div>}
+            </li>
           ) : (
             shown.map((option) => (
               <li key={option.value}>

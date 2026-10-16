@@ -42,6 +42,13 @@ import {
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
+import { SundryWithdraw } from "@/components/sundry-claims/sundry-withdraw";
+import { SundryClaimCreate } from "@/components/sundry-claims/sundry-claim-create";
 import { VoucherSource } from "@/components/sundry-claims/voucher-source";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,11 +69,13 @@ import {
   getSundryClaims,
   reviewSundryClaim,
 } from "@/services/sundry-claim.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 const TONE: Record<SundryClaimStatus, "neutral" | "positive" | "warning" | "danger" | "info"> = {
   SUBMITTED: "warning",
   CONFIRMED: "info",
   REJECTED: "danger",
+  CANCELLED: "neutral",
   PAID: "positive",
 };
 
@@ -76,7 +85,7 @@ export function SundryClaimsOffice() {
   const df = useDateFormat();
   const { can } = useAuth();
   // No category filter (2026-10 B1, X5): sundry claims have no categories.
-  const list = useListQuery(["project", "state", "payment"]);
+  const list = useListQuery(["project", "state", "payment", "submit_to"]);
   const rows = useQuery({
     queryKey: ["sundry-claims", "office", list.query],
     queryFn: () => getSundryClaims(list.query),
@@ -94,7 +103,13 @@ export function SundryClaimsOffice() {
         meta: { label: t("field.claimNo") },
         header: sortable(t("field.claimNo")),
         // Short number big, project small (2026-10 D4).
-        cell: ({ row }) => <RecordNo value={row.original.claim_no} />,
+        cell: ({ row }) => (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <RecordNo value={row.original.claim_no} />
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
+          </div>
+        ),
       },
       // The record's photograph beside its main column (E3).
       photoColumn<SundryClaim>({
@@ -126,6 +141,17 @@ export function SundryClaimsOffice() {
         cell: ({ row }) => <span className="tabular font-medium">RM {row.original.amount}</span>,
       },
       {
+        // 付款日期 (I12-6): the day the money was paid, not the day it was keyed in.
+        accessorKey: "captured_at",
+        meta: { label: t("field.claimDate") },
+        header: sortable(t("field.claimDate")),
+        cell: ({ row }) => (
+          <span className="tabular text-muted-foreground">
+            {row.original.captured_at ? df.date(row.original.captured_at) : "—"}
+          </span>
+        ),
+      },
+      {
         accessorKey: "description",
         meta: { label: t("field.description") },
         header: () => <PlainHeader label={t("field.description")} />,
@@ -134,6 +160,13 @@ export function SundryClaimsOffice() {
             {row.original.description}
           </span>
         ),
+      },
+      {
+        // 提交给 (I12): the project manager's office or head office.
+        accessorKey: "submit_to",
+        meta: { label: t("field.submitTo") },
+        header: () => <PlainHeader label={t("field.submitTo")} />,
+        cell: ({ row }) => t(`submitTo.${row.original.submit_to || "NONE"}`),
       },
       {
         accessorKey: "submitted_by_name",
@@ -168,11 +201,22 @@ export function SundryClaimsOffice() {
         { key: "claim_no", label: t("field.claimNo") },
         { key: "project_name", label: t("field.project") },
         { key: "amount", label: t("field.amount") },
+        { key: "captured_at", label: t("field.claimDate") },
         { key: "description", label: t("field.description") },
+        {
+          key: "submit_to",
+          label: t("field.submitTo"),
+          values: { PROJECT: t("submitTo.PROJECT"), HQ: t("submitTo.HQ"), "": t("submitTo.NONE") },
+        },
         {
           key: "state",
           label: t("field.status"),
-          values: { SUBMITTED: t("status.SUBMITTED"), CONFIRMED: t("status.CONFIRMED"), REJECTED: t("status.REJECTED") },
+          values: {
+            SUBMITTED: t("status.SUBMITTED"),
+            CONFIRMED: t("status.CONFIRMED"),
+            REJECTED: t("status.REJECTED"),
+            CANCELLED: t("status.CANCELLED"),
+          },
         },
         {
           key: "payment_state",
@@ -199,7 +243,8 @@ export function SundryClaimsOffice() {
         needsActionCount={rows.data?.needs_action_count}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="sundry-claims"
+        storageKey={LIST_FITS.sundryClaims.storageKey}
+        defaultHidden={LIST_FITS.sundryClaims.hidden}
         // HD17: 杂费记录作为来源被打包 into a Sundry Claim package.
         pack="SUNDRY_CLAIM"
         toolbar={
@@ -209,9 +254,18 @@ export function SundryClaimsOffice() {
               list={list}
               param="state"
               allLabel={tRoot("moduleTable.allStatuses")}
-              options={(["SUBMITTED", "CONFIRMED", "REJECTED"] as const).map((state) => ({
+              options={(["SUBMITTED", "CONFIRMED", "REJECTED", "CANCELLED"] as const).map((state) => ({
                 value: state,
                 label: t(`status.${state}`),
+              }))}
+            />
+            <FilterSelect
+              list={list}
+              param="submit_to"
+              allLabel={t("submitTo.all")}
+              options={(["PROJECT", "HQ", "NONE"] as const).map((side) => ({
+                value: side,
+                label: t(`submitTo.${side}`),
               }))}
             />
             <FilterSelect
@@ -226,6 +280,8 @@ export function SundryClaimsOffice() {
             {can("report.export") || can("sundry_claim.view") ? (
               <ExportButton onExport={runExport} disabled={total === 0} />
             ) : null}
+            {/* 新建报销 (I12-6): only for those who may submit, as on the phone. */}
+            {can("sundry_claim.submit") ? <SundryClaimCreate onCreated={(id) => setViewing(id)} /> : null}
           </>
         }
         onOpen={(row) => setViewing(row.id)}
@@ -239,7 +295,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
   const t = useTranslations("sundryClaim");
   const ops = useTranslations("contractorOps");
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const qc = useQueryClient();
   const detail = useQuery({ queryKey: ["sundry-claims", "detail", id], queryFn: () => getSundryClaim(id) });
   const [rejectArmed, setRejectArmed] = useState(false);
@@ -319,6 +375,8 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             ? [{ label: ops("field.category"), value: claim.category_name }]
             : []),
           { label: t("field.amount"), value: `RM ${claim.amount}` },
+          { label: t("field.claimDate"), value: claim.captured_at ? df.date(claim.captured_at) : "—" },
+          { label: t("field.submitTo"), value: t(`submitTo.${claim.submit_to || "NONE"}`) },
           { label: t("field.submittedBy"), value: who(claim.submitted_by_name, null, claim.created_at) },
           { label: t("field.reviewedBy"), value: who(claim.reviewed_by_name, claim.reviewed_by_user_id, claim.reviewed_at) },
           { label: t("field.paidBy"), value: who(claim.paid_by_name, claim.paid_by_user_id, claim.paid_at) },
@@ -372,8 +430,24 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
         actions={
           <div className="space-y-2">
             {error && <p role="alert" className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">{error}</p>}
-            {claim.state === "SUBMITTED" && can("sundry_claim.review") && (
+            {/* Sent to the other side (I12): said, not offered. */}
+            {/* 撤回 (I12-6): the submitter takes back an undecided claim. */}
+            {claim.state === "SUBMITTED" && user?.id && claim.submitted_by === user.id && (
+              <SundryWithdraw id={claim.id} onDone={refresh} />
+            )}
+            {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review === false && (
+              <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground">
+                {/* Your own claim is decided by someone else (I12-6). */}
+                {user?.id && claim.submitted_by === user.id
+                  ? t("ownClaim")
+                  : t(`sentTo.${claim.submit_to || "NONE"}`)}
+              </p>
+            )}
+            {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review !== false && (
               <>
+                {/* 【改正】 (I30): category, amount, description - only
+                    before the claim is decided. */}
+                <RecordCorrectionButton kind="SUNDRY_CLAIM" recordId={claim.id} onCorrected={refresh} />
                 <Button className="w-full" disabled={review.isPending} onClick={() => review.mutate("CONFIRMED")}>
                   <Check />
                   {t("action.confirm")}
@@ -447,6 +521,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             )}
           </div>
         }
+        corrections={<RecordCorrectionHistory kind="SUNDRY_CLAIM" recordId={claim.id} />}
         conversation={{ kind: "SUNDRY_CLAIM", recordId: claim.id }}
         // 【确认归档】 once paid or rejected (C4).
         closure={{ kind: "SUNDRY_CLAIM", recordId: claim.id }}

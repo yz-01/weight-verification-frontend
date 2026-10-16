@@ -40,6 +40,8 @@ export interface PermitFile {
 }
 
 export interface Permit extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   id: string;
   incident_no: string;
   project: string;
@@ -74,6 +76,7 @@ export interface PermitPerson {
   id: string;
   full_name: string;
   role_name?: string;
+  role_code?: string;
 }
 
 export interface PermitApplication {

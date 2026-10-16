@@ -89,3 +89,23 @@ describe("「提交给」 picks who approves (D2, Q15)", () => {
     expect(chosenReviewer([], "hq-1")).toBe("");
   });
 });
+
+describe("a site staff's request with the project manager first (I12, ID29)", () => {
+  const row = {
+    status: "SUBMITTED" as const,
+    submitted_by: "worker",
+    assigned_reviewer: "pm",
+    awaiting_manager: true,
+  };
+  it("is the project manager's to send on, never to approve", () => {
+    expect(materialRequestReviewView(row, "pm", false)).toBe("manager");
+  });
+  it("leaves head office waiting until it is sent on", () => {
+    expect(materialRequestReviewView(row, "hq", true)).toBe("waiting");
+  });
+  it("is decided by head office once sent on", () => {
+    expect(
+      materialRequestReviewView({ ...row, assigned_reviewer: "hq", awaiting_manager: false }, "hq", true),
+    ).toBe("decide");
+  });
+});

@@ -136,6 +136,8 @@ export interface UserRow {
   status: UserStatus;
   role: string | null;
   role_name: string | null;
+  /** The role's code, so a preset role is named in the reader's language. */
+  role_code?: string | null;
   company: string | null;
   company_name: string | null;
   company_type: CompanyType | null;
@@ -152,6 +154,13 @@ export interface UserDetail extends UserRow {
   timezone: string;
   last_login_ip: string | null;
   updated_at: string;
+  /** Their six-digit sign-off PIN (I29): set, reset, locked. */
+  sign_off_pin?: {
+    has_pin: boolean;
+    was_reset: boolean;
+    locked_until: string | null;
+    exempt: boolean;
+  };
 }
 
 export interface UserStats {
@@ -235,6 +244,17 @@ export interface PermissionEntry {
   group: string;
   code: string;
   audiences: Audience[];
+  /** English names from the backend: shown only when a catalogue lacks one. */
+  label?: string;
+  group_label?: string;
+}
+
+/** A preset role this company does not have yet (「从预设新增」). */
+export interface RoleTemplate {
+  code: string;
+  name: string;
+  description: string;
+  permissions: string[];
 }
 
 export type LoginOutcome =

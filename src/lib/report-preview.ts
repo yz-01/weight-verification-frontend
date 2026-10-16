@@ -56,6 +56,13 @@ export function reportRowTarget(
       return { href: `/site-equipment?movement=${id}` };
     case "DOCUMENT":
       return { href: `/documents?document=${id}` };
+    // 项目进度摘要 opens on the progress page's own tab, at that summary (I8).
+    case "PROGRESS_SUMMARY":
+      return {
+        href: `/progress?tab=summary&summary=${id}${
+          entry.project_id ? `&project=${encodeURIComponent(entry.project_id)}` : ""
+        }`,
+      };
     default:
       return recordTarget(entry.kind, entry.id);
   }
@@ -91,6 +98,9 @@ const REFERENCE_COLUMNS = [
   "task",
   "target_name",
   "file_name",
+  // A daily report and a summary are named, not numbered (I8).
+  "name",
+  "title",
 ] as const;
 
 export function reportRowReference(row: ReportRow): string {
@@ -115,6 +125,11 @@ const STATUS_NAMESPACE: Partial<Record<ContractorReportType, string>> = {
   safety: "safetyRectification.status",
   consultant: "consultantWorkflow.status",
   documents: "documents.status",
+  // I11 (ID27): the four new reports, worded as their own pages word them.
+  field_tasks: "contractorOps.taskStatus",
+  material_outgoing: "contractorOps.outgoingStatus",
+  claims: "claims.state",
+  sundry_claims: "sundryClaim.status",
 };
 
 /** Columns that hold a code, wherever they appear. */
@@ -126,6 +141,10 @@ const COLUMN_NAMESPACE: Record<string, string> = {
   ocr_status: "siteDisposal.ocr",
   target_type: "contractorReports.value.targetType",
   period: "businessTargets.period",
+  task_type: "contractorOps.taskType",
+  claim_kind: "claims.kind",
+  payment_state: "claims.payment",
+  submit_to: "sundryClaim.submitTo",
 };
 
 /** 记录类型 of the recycling report: the two tabs of 清运与回收. */

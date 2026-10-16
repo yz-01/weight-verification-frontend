@@ -36,6 +36,11 @@ import {
   SummaryStrip,
 } from "@/components/shared/module-records-table";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -106,6 +111,7 @@ import {
   reviewWasteOutgoingRequest,
   submitWasteCollectionRequest,
 } from "@/services/waste-outgoing.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 /** The eleven stages of 8.2.12, in the order the customer lists them. */
 const MILESTONE_ORDER: MilestoneKey[] = [
@@ -189,7 +195,7 @@ export function WasteOutgoingWorkspace() {
 
   const options = useQuery({
     queryKey: ["waste-outgoing", "options"],
-    queryFn: getWasteOutgoingOptions,
+    queryFn: () => getWasteOutgoingOptions(),
   });
   const records = useQuery({
     queryKey: ["waste-outgoing", "records", list.query],
@@ -353,6 +359,8 @@ export function WasteOutgoingWorkspace() {
             {t("action.cancel")}
           </Button>
         )}
+      {/* 【改正】 (I30): kind of waste, quantity, unit, remarks. */}
+      <RecordCorrectionButton kind="WASTE_OUTGOING" recordId={row.id} onCorrected={refresh} />
       <AddToPackageButton
         kind="WASTE_OUTGOING"
         recordId={row.id}
@@ -365,10 +373,17 @@ export function WasteOutgoingWorkspace() {
   const columns: ColumnDef<WasteOutgoingRecord, unknown>[] = [
     {
       accessorKey: "reference_no",
-      meta: { label: t("field.dispatchNo") },
-      header: sortable(t("field.dispatchNo")),
+      // 记录编号 (I6).
+      meta: { label: tRoot("recordNo.column") },
+      header: sortable(tRoot("recordNo.column")),
       // Short number big, project small (2026-10 D4).
-      cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
+      cell: ({ row }) => (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <RecordNo value={row.original.reference_no} />
+          {/* Corrected by the office (I30); the detail has the history. */}
+          {row.original.was_corrected && <CorrectedTag />}
+        </div>
+      ),
     },
     // The load's photograph beside its number (E3).
     photoColumn<WasteOutgoingRecord>({
@@ -512,7 +527,8 @@ export function WasteOutgoingWorkspace() {
         needsActionCount={records.data?.needs_action_count}
         isLoading={records.isLoading}
         isError={records.isError}
-        storageKey="waste-outgoing"
+        storageKey={LIST_FITS.wasteOutgoing.storageKey}
+        defaultHidden={LIST_FITS.wasteOutgoing.hidden}
         pack="WASTE_OUTGOING"
         toolbar={
           <>
@@ -541,6 +557,7 @@ export function WasteOutgoingWorkspace() {
       {shown && (
         <RecordDetailDialog
           title={shown.reference_no}
+          legacyNo={shown.legacy_no}
           description={`${shown.project_name} · ${shown.category_name}`}
           exportRecord={{
             kind: "WASTE_OUTGOING",
@@ -668,6 +685,7 @@ export function WasteOutgoingWorkspace() {
               </section>
             }
             actions={renderActions(shown)}
+            corrections={<RecordCorrectionHistory kind="WASTE_OUTGOING" recordId={shown.id} />}
             conversation={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
             // 【确认归档】 once the dispatch is completed (C4).
             closure={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
@@ -1060,7 +1078,8 @@ function RecordDialog({
   onClose,
   onSaved,
 }: {
-  categories: { id: string; label: string }[];
+  /** The fixed 「其他」 asks what it is; a sub-category shows its parent (I10, I11). */
+  categories: { id: string; label: string; is_other?: boolean; parent_name?: string | null }[];
   /** Whether `categories` actually arrived, so a failed load is not an empty list. */
   categoriesState: { isError: boolean; refetch?: () => unknown };
   onClose: () => void;
@@ -1069,6 +1088,8 @@ function RecordDialog({
   const t = useTranslations("wasteOutgoing");
   const [project, setProject] = useState("");
   const [category, setCategory] = useState("");
+  // 「其他」 (I10, ID43): what it is, typed.
+  const [otherName, setOtherName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
   const [note, setNote] = useState("");
@@ -1114,6 +1135,9 @@ function RecordDialog({
         quantity: quantity || undefined,
         unit: unit || undefined,
         note: note || undefined,
+        ...(categories.find((row) => row.id === category)?.is_other
+          ? { other_name: otherName.trim() }
+          : {}),
         // Only an address somebody changed is sent as typed; the project's
         // own is what the server falls back to, and it records which it was.
         pickup_address:
@@ -1158,6 +1182,7 @@ function RecordDialog({
               <SelectContent>
                 {categories.map((row) => (
                   <SelectItem key={row.id} value={row.id}>
+                    {row.parent_name ? `${row.parent_name} › ` : ""}
                     {row.label}
                   </SelectItem>
                 ))}
@@ -1165,6 +1190,11 @@ function RecordDialog({
             </Select>
             <QueryFailedNote query={categoriesState} what={t("what.categories")} />
           </FieldWrapper>
+          {categories.find((row) => row.id === category)?.is_other && (
+            <FieldWrapper label={t("field.otherName")} required>
+              <Input value={otherName} onChange={(event) => setOtherName(event.target.value)} />
+            </FieldWrapper>
+          )}
           <div className="grid gap-4 sm:grid-cols-2">
             <FieldWrapper
               label={t("field.quantity")}
@@ -1257,6 +1287,9 @@ function RecordDialog({
             requires={[
               [project, t("field.project")],
               [category, t("field.category")],
+              ...(categories.find((row) => row.id === category)?.is_other
+                ? ([[otherName.trim(), t("field.otherName")]] as [string, string][])
+                : []),
               [!quantityIncomplete, t("field.unit")],
             ]}
             disabled={save.isPending}
@@ -1800,9 +1833,13 @@ function WasteCategoryDialog({
                 >
                   {row.is_active ? t("category.deactivate") : t("category.activate")}
                 </Button>
-                {row.is_system ? (
+                {row.is_other || row.record_count > 0 ? (
+                  // Unused categories go, presets too; one with records can
+                  // only be switched off, and the fixed 「其他」 stays (I35).
                   <span className="text-xs text-muted-foreground">
-                    {t("category.standardHelp")}
+                    {row.is_other
+                      ? t("category.fixedHelp")
+                      : t("category.hasRecordsHelp", { count: row.record_count })}
                   </span>
                 ) : (
                   <Button

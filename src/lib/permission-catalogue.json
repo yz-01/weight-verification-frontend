@@ -1,0 +1,1324 @@
+{
+  "_note": "Written by `python manage.py write_permission_catalogue` in the backend from core/permission_registry.py, core/permission_labels.py and accounts/role_templates.py. Do not edit by hand: add the permission and its English label (or the role template) there, re-run the command, then translate permissions.group.<group>, permissions.code.<domain>.<verb>, roles.system_.<code> and roles.systemDescription.<code> in all four message catalogues.",
+  "groups": [
+    {
+      "key": "company",
+      "label": "Companies"
+    },
+    {
+      "key": "partnership",
+      "label": "Partnerships"
+    },
+    {
+      "key": "user",
+      "label": "Users"
+    },
+    {
+      "key": "role",
+      "label": "Roles"
+    },
+    {
+      "key": "audit",
+      "label": "Audit"
+    },
+    {
+      "key": "evidence",
+      "label": "Evidence"
+    },
+    {
+      "key": "notification",
+      "label": "Notifications"
+    },
+    {
+      "key": "document",
+      "label": "Document archive"
+    },
+    {
+      "key": "approval",
+      "label": "Approvals"
+    },
+    {
+      "key": "workflow",
+      "label": "Approval workflows"
+    },
+    {
+      "key": "department",
+      "label": "Departments"
+    },
+    {
+      "key": "work_trade",
+      "label": "Trades"
+    },
+    {
+      "key": "external_access",
+      "label": "External access links"
+    },
+    {
+      "key": "project",
+      "label": "Projects"
+    },
+    {
+      "key": "supplier",
+      "label": "Suppliers"
+    },
+    {
+      "key": "category",
+      "label": "Categories"
+    },
+    {
+      "key": "receipt",
+      "label": "Material receipts"
+    },
+    {
+      "key": "equipment",
+      "label": "Equipment"
+    },
+    {
+      "key": "field_task",
+      "label": "Site tasks"
+    },
+    {
+      "key": "package",
+      "label": "Multi Engine packages"
+    },
+    {
+      "key": "claim",
+      "label": "Progress claims"
+    },
+    {
+      "key": "sundry_claim",
+      "label": "Sundry claims"
+    },
+    {
+      "key": "material_outgoing",
+      "label": "Material outgoing"
+    },
+    {
+      "key": "material_request",
+      "label": "MR / Other Request"
+    },
+    {
+      "key": "material_target",
+      "label": "Material targets"
+    },
+    {
+      "key": "waste_outgoing",
+      "label": "Waste outgoing"
+    },
+    {
+      "key": "disposal",
+      "label": "Site disposal"
+    },
+    {
+      "key": "attendance",
+      "label": "Site entry"
+    },
+    {
+      "key": "field_position",
+      "label": "Staff location"
+    },
+    {
+      "key": "site_worker",
+      "label": "Worker roster"
+    },
+    {
+      "key": "dashboard",
+      "label": "Dashboard"
+    },
+    {
+      "key": "announcement",
+      "label": "Announcements"
+    },
+    {
+      "key": "progress",
+      "label": "Progress"
+    },
+    {
+      "key": "safety",
+      "label": "Safety / EHS"
+    },
+    {
+      "key": "schedule",
+      "label": "Construction schedule"
+    },
+    {
+      "key": "geofence",
+      "label": "Geofence"
+    },
+    {
+      "key": "site_access",
+      "label": "Site access"
+    },
+    {
+      "key": "company_settings",
+      "label": "Company settings"
+    },
+    {
+      "key": "consultant",
+      "label": "Consultant applications"
+    },
+    {
+      "key": "dispatch",
+      "label": "Waste dispatches"
+    },
+    {
+      "key": "fleet",
+      "label": "Fleet"
+    },
+    {
+      "key": "task",
+      "label": "Driver tasks"
+    },
+    {
+      "key": "customer",
+      "label": "Customers"
+    },
+    {
+      "key": "inventory",
+      "label": "Inventory"
+    },
+    {
+      "key": "outbound",
+      "label": "Buyers and shipments"
+    },
+    {
+      "key": "yard",
+      "label": "Recycling yards"
+    },
+    {
+      "key": "scale",
+      "label": "Weighbridges"
+    },
+    {
+      "key": "weighing",
+      "label": "Weighing"
+    },
+    {
+      "key": "deduction",
+      "label": "Deductions"
+    },
+    {
+      "key": "settlement",
+      "label": "Settlements"
+    },
+    {
+      "key": "payment",
+      "label": "Payments"
+    },
+    {
+      "key": "report",
+      "label": "Reports"
+    },
+    {
+      "key": "billing",
+      "label": "Billing"
+    },
+    {
+      "key": "commission",
+      "label": "Platform commission"
+    },
+    {
+      "key": "subscription",
+      "label": "Subscriptions"
+    },
+    {
+      "key": "qr",
+      "label": "QR codes"
+    },
+    {
+      "key": "sales",
+      "label": "Sales"
+    },
+    {
+      "key": "sales_commission",
+      "label": "Sales commission"
+    },
+    {
+      "key": "partner",
+      "label": "Partners"
+    },
+    {
+      "key": "asset",
+      "label": "Assets"
+    },
+    {
+      "key": "crm",
+      "label": "Customer care"
+    },
+    {
+      "key": "support",
+      "label": "Technical support"
+    },
+    {
+      "key": "cloud_service",
+      "label": "Cloud services"
+    },
+    {
+      "key": "platform",
+      "label": "Platform operations"
+    },
+    {
+      "key": "platform_settings",
+      "label": "Platform settings"
+    },
+    {
+      "key": "platform_version",
+      "label": "Versions"
+    },
+    {
+      "key": "integration",
+      "label": "Integrations"
+    }
+  ],
+  "codes": [
+    {
+      "code": "company.view",
+      "group": "company",
+      "label": "View companies"
+    },
+    {
+      "code": "company.create",
+      "group": "company",
+      "label": "Open a company"
+    },
+    {
+      "code": "company.update",
+      "group": "company",
+      "label": "Edit company details"
+    },
+    {
+      "code": "company.suspend",
+      "group": "company",
+      "label": "Suspend or reinstate a company"
+    },
+    {
+      "code": "company.review",
+      "group": "company",
+      "label": "Review company registrations"
+    },
+    {
+      "code": "partnership.view",
+      "group": "partnership",
+      "label": "View partnerships"
+    },
+    {
+      "code": "partnership.manage",
+      "group": "partnership",
+      "label": "Request and manage partnerships"
+    },
+    {
+      "code": "user.view",
+      "group": "user",
+      "label": "View users"
+    },
+    {
+      "code": "user.create",
+      "group": "user",
+      "label": "Invite users"
+    },
+    {
+      "code": "user.update",
+      "group": "user",
+      "label": "Edit users"
+    },
+    {
+      "code": "user.suspend",
+      "group": "user",
+      "label": "Suspend or remove users"
+    },
+    {
+      "code": "role.view",
+      "group": "role",
+      "label": "View roles"
+    },
+    {
+      "code": "role.create",
+      "group": "role",
+      "label": "Create roles"
+    },
+    {
+      "code": "role.update",
+      "group": "role",
+      "label": "Edit roles and permissions"
+    },
+    {
+      "code": "role.delete",
+      "group": "role",
+      "label": "Remove roles"
+    },
+    {
+      "code": "audit.view",
+      "group": "audit",
+      "label": "Read the audit log"
+    },
+    {
+      "code": "evidence.manage",
+      "group": "evidence",
+      "label": "Revise evidence files"
+    },
+    {
+      "code": "notification.view",
+      "group": "notification",
+      "label": "Receive and read notifications"
+    },
+    {
+      "code": "notification.send",
+      "group": "notification",
+      "label": "Send project notifications"
+    },
+    {
+      "code": "document.view",
+      "group": "document",
+      "label": "View documents"
+    },
+    {
+      "code": "document.manage",
+      "group": "document",
+      "label": "Add and edit documents"
+    },
+    {
+      "code": "document.archive",
+      "group": "document",
+      "label": "Archive documents"
+    },
+    {
+      "code": "approval.view",
+      "group": "approval",
+      "label": "View approvals and consultant applications"
+    },
+    {
+      "code": "approval.submit",
+      "group": "approval",
+      "label": "Raise approval requests"
+    },
+    {
+      "code": "approval.review",
+      "group": "approval",
+      "label": "Approve or return approvals"
+    },
+    {
+      "code": "workflow.view",
+      "group": "workflow",
+      "label": "View approval workflows"
+    },
+    {
+      "code": "workflow.manage",
+      "group": "workflow",
+      "label": "Set up approval workflows"
+    },
+    {
+      "code": "department.view",
+      "group": "department",
+      "label": "View departments"
+    },
+    {
+      "code": "department.manage",
+      "group": "department",
+      "label": "Manage departments"
+    },
+    {
+      "code": "work_trade.view",
+      "group": "work_trade",
+      "label": "View trades"
+    },
+    {
+      "code": "work_trade.manage",
+      "group": "work_trade",
+      "label": "Manage trades"
+    },
+    {
+      "code": "external_access.view",
+      "group": "external_access",
+      "label": "View external access links"
+    },
+    {
+      "code": "external_access.manage",
+      "group": "external_access",
+      "label": "Create and revoke external access links"
+    },
+    {
+      "code": "project.view",
+      "group": "project",
+      "label": "View projects"
+    },
+    {
+      "code": "project.view_all",
+      "group": "project",
+      "label": "See every project in the company"
+    },
+    {
+      "code": "project.assign",
+      "group": "project",
+      "label": "Assign people to projects"
+    },
+    {
+      "code": "project.create",
+      "group": "project",
+      "label": "Create projects"
+    },
+    {
+      "code": "project.update",
+      "group": "project",
+      "label": "Edit projects"
+    },
+    {
+      "code": "project.delete",
+      "group": "project",
+      "label": "Remove projects"
+    },
+    {
+      "code": "supplier.view",
+      "group": "supplier",
+      "label": "View suppliers"
+    },
+    {
+      "code": "supplier.create",
+      "group": "supplier",
+      "label": "Add suppliers"
+    },
+    {
+      "code": "supplier.update",
+      "group": "supplier",
+      "label": "Edit suppliers"
+    },
+    {
+      "code": "supplier.delete",
+      "group": "supplier",
+      "label": "Remove suppliers"
+    },
+    {
+      "code": "category.view",
+      "group": "category",
+      "label": "View categories"
+    },
+    {
+      "code": "category.manage",
+      "group": "category",
+      "label": "Manage categories, specifications, units and budgets"
+    },
+    {
+      "code": "receipt.view",
+      "group": "receipt",
+      "label": "View material receipts"
+    },
+    {
+      "code": "receipt.create",
+      "group": "receipt",
+      "label": "Record material receipts"
+    },
+    {
+      "code": "receipt.update",
+      "group": "receipt",
+      "label": "Edit material receipts"
+    },
+    {
+      "code": "equipment.view",
+      "group": "equipment",
+      "label": "View equipment and operating hours"
+    },
+    {
+      "code": "equipment.manage",
+      "group": "equipment",
+      "label": "Manage equipment, accept entry and exit, adjust hours"
+    },
+    {
+      "code": "equipment.capture",
+      "group": "equipment",
+      "label": "Record equipment entry, exit and hours on site"
+    },
+    {
+      "code": "field_task.view",
+      "group": "field_task",
+      "label": "View site tasks"
+    },
+    {
+      "code": "field_task.manage",
+      "group": "field_task",
+      "label": "Assign and accept site tasks"
+    },
+    {
+      "code": "field_task.submit",
+      "group": "field_task",
+      "label": "Submit site tasks from the phone"
+    },
+    {
+      "code": "package.view",
+      "group": "package",
+      "label": "View Multi Engine packages"
+    },
+    {
+      "code": "package.manage",
+      "group": "package",
+      "label": "Prepare and send packages"
+    },
+    {
+      "code": "claim.view",
+      "group": "claim",
+      "label": "View progress claims"
+    },
+    {
+      "code": "claim.manage",
+      "group": "claim",
+      "label": "Prepare and confirm progress claims"
+    },
+    {
+      "code": "claim.confirm_payment",
+      "group": "claim",
+      "label": "Record progress claim payments"
+    },
+    {
+      "code": "sundry_claim.view",
+      "group": "sundry_claim",
+      "label": "View sundry claims"
+    },
+    {
+      "code": "sundry_claim.submit",
+      "group": "sundry_claim",
+      "label": "Submit sundry claims"
+    },
+    {
+      "code": "sundry_claim.review",
+      "group": "sundry_claim",
+      "label": "Approve or return sundry claims"
+    },
+    {
+      "code": "sundry_claim.pay",
+      "group": "sundry_claim",
+      "label": "Pay sundry claims (upload the payment voucher)"
+    },
+    {
+      "code": "material_outgoing.view",
+      "group": "material_outgoing",
+      "label": "View material outgoing"
+    },
+    {
+      "code": "material_outgoing.submit",
+      "group": "material_outgoing",
+      "label": "Request material outgoing"
+    },
+    {
+      "code": "material_outgoing.approve",
+      "group": "material_outgoing",
+      "label": "Approve material outgoing (Return Note)"
+    },
+    {
+      "code": "material_request.view",
+      "group": "material_request",
+      "label": "View MR / Other Requests"
+    },
+    {
+      "code": "material_request.submit",
+      "group": "material_request",
+      "label": "Raise MR / Other Requests"
+    },
+    {
+      "code": "material_request.review",
+      "group": "material_request",
+      "label": "Approve or return MR / Other Requests"
+    },
+    {
+      "code": "material_request.config",
+      "group": "material_request",
+      "label": "Manage MR request types"
+    },
+    {
+      "code": "material_target.manage",
+      "group": "material_target",
+      "label": "Set material targets"
+    },
+    {
+      "code": "waste_outgoing.view",
+      "group": "waste_outgoing",
+      "label": "View waste outgoing"
+    },
+    {
+      "code": "waste_outgoing.submit",
+      "group": "waste_outgoing",
+      "label": "Submit waste outgoing applications"
+    },
+    {
+      "code": "waste_outgoing.approve",
+      "group": "waste_outgoing",
+      "label": "Approve waste outgoing applications"
+    },
+    {
+      "code": "waste_outgoing.delegate",
+      "group": "waste_outgoing",
+      "label": "Receive every application first and pass it on (head office)"
+    },
+    {
+      "code": "waste_outgoing.order",
+      "group": "waste_outgoing",
+      "label": "Choose the recycler"
+    },
+    {
+      "code": "waste_outgoing.config",
+      "group": "waste_outgoing",
+      "label": "Manage waste outgoing categories"
+    },
+    {
+      "code": "disposal.view",
+      "group": "disposal",
+      "label": "View site disposal"
+    },
+    {
+      "code": "disposal.submit",
+      "group": "disposal",
+      "label": "Request site disposal"
+    },
+    {
+      "code": "disposal.manage",
+      "group": "disposal",
+      "label": "Review and arrange site disposal"
+    },
+    {
+      "code": "disposal.confirm",
+      "group": "disposal",
+      "label": "Confirm disposal trips"
+    },
+    {
+      "code": "attendance.view",
+      "group": "attendance",
+      "label": "View site entry records"
+    },
+    {
+      "code": "attendance.clock",
+      "group": "attendance",
+      "label": "Clock in and out on site"
+    },
+    {
+      "code": "field_position.view",
+      "group": "field_position",
+      "label": "View staff locations"
+    },
+    {
+      "code": "field_position.submit",
+      "group": "field_position",
+      "label": "Share own location from the phone"
+    },
+    {
+      "code": "site_worker.view",
+      "group": "site_worker",
+      "label": "View the worker roster and their entries and exits"
+    },
+    {
+      "code": "site_worker.manage",
+      "group": "site_worker",
+      "label": "Register workers and send their location links"
+    },
+    {
+      "code": "dashboard.view",
+      "group": "dashboard",
+      "label": "View the dashboard"
+    },
+    {
+      "code": "dashboard.search",
+      "group": "dashboard",
+      "label": "Search across modules"
+    },
+    {
+      "code": "dashboard.export",
+      "group": "dashboard",
+      "label": "Export the dashboard"
+    },
+    {
+      "code": "dashboard.audit_view",
+      "group": "dashboard",
+      "label": "See who used the dashboard"
+    },
+    {
+      "code": "announcement.publish",
+      "group": "announcement",
+      "label": "Publish company announcements"
+    },
+    {
+      "code": "progress.view",
+      "group": "progress",
+      "label": "View progress and daily reports"
+    },
+    {
+      "code": "progress.manage",
+      "group": "progress",
+      "label": "Record progress and write daily reports"
+    },
+    {
+      "code": "progress.confirm",
+      "group": "progress",
+      "label": "Confirm progress (summaries, percentage corrections)"
+    },
+    {
+      "code": "safety.view",
+      "group": "safety",
+      "label": "View hazards / EHS and permits to work"
+    },
+    {
+      "code": "safety.manage",
+      "group": "safety",
+      "label": "Report and assign hazards, apply for permits to work"
+    },
+    {
+      "code": "safety.verify",
+      "group": "safety",
+      "label": "Safety verification (can approve permits to work)"
+    },
+    {
+      "code": "schedule.view",
+      "group": "schedule",
+      "label": "View the construction schedule"
+    },
+    {
+      "code": "schedule.manage",
+      "group": "schedule",
+      "label": "Edit the construction schedule"
+    },
+    {
+      "code": "schedule.confirm",
+      "group": "schedule",
+      "label": "Confirm schedule imports, revisions and progress"
+    },
+    {
+      "code": "geofence.view",
+      "group": "geofence",
+      "label": "View geofences"
+    },
+    {
+      "code": "geofence.manage",
+      "group": "geofence",
+      "label": "Set up geofences"
+    },
+    {
+      "code": "site_access.view",
+      "group": "site_access",
+      "label": "View site access and gate records"
+    },
+    {
+      "code": "site_access.manage",
+      "group": "site_access",
+      "label": "Manage access passes and close gate issues"
+    },
+    {
+      "code": "site_access.scan",
+      "group": "site_access",
+      "label": "Scan passes and take gate photos"
+    },
+    {
+      "code": "company_settings.view",
+      "group": "company_settings",
+      "label": "View company settings"
+    },
+    {
+      "code": "company_settings.manage",
+      "group": "company_settings",
+      "label": "Change company settings"
+    },
+    {
+      "code": "consultant.config",
+      "group": "consultant",
+      "label": "Set up consultant workflows and RFI forms"
+    },
+    {
+      "code": "consultant.submit",
+      "group": "consultant",
+      "label": "Submit consultant applications"
+    },
+    {
+      "code": "dispatch.view",
+      "group": "dispatch",
+      "label": "View waste dispatches"
+    },
+    {
+      "code": "dispatch.create",
+      "group": "dispatch",
+      "label": "Record waste dispatches"
+    },
+    {
+      "code": "dispatch.update",
+      "group": "dispatch",
+      "label": "Update waste dispatches"
+    },
+    {
+      "code": "fleet.view",
+      "group": "fleet",
+      "label": "View vehicles and drivers"
+    },
+    {
+      "code": "fleet.manage",
+      "group": "fleet",
+      "label": "Manage vehicles and drivers"
+    },
+    {
+      "code": "fleet.set_tare",
+      "group": "fleet",
+      "label": "Set a vehicle's tare weight"
+    },
+    {
+      "code": "task.view",
+      "group": "task",
+      "label": "View driver tasks"
+    },
+    {
+      "code": "task.view_all",
+      "group": "task",
+      "label": "See every trip in the yard"
+    },
+    {
+      "code": "task.assign",
+      "group": "task",
+      "label": "Assign drivers and vehicles"
+    },
+    {
+      "code": "task.submit",
+      "group": "task",
+      "label": "Submit task photos and reports"
+    },
+    {
+      "code": "customer.view",
+      "group": "customer",
+      "label": "View customers and private intake"
+    },
+    {
+      "code": "customer.manage",
+      "group": "customer",
+      "label": "Manage customers"
+    },
+    {
+      "code": "inventory.view",
+      "group": "inventory",
+      "label": "View inventory"
+    },
+    {
+      "code": "inventory.manage",
+      "group": "inventory",
+      "label": "Adjust inventory"
+    },
+    {
+      "code": "outbound.view",
+      "group": "outbound",
+      "label": "View buyers and shipments"
+    },
+    {
+      "code": "outbound.manage",
+      "group": "outbound",
+      "label": "Manage buyers and shipments"
+    },
+    {
+      "code": "yard.view",
+      "group": "yard",
+      "label": "View recycling yards"
+    },
+    {
+      "code": "yard.manage",
+      "group": "yard",
+      "label": "Create and manage recycling yards"
+    },
+    {
+      "code": "scale.view",
+      "group": "scale",
+      "label": "View weighbridges"
+    },
+    {
+      "code": "scale.manage",
+      "group": "scale",
+      "label": "Configure weighbridges and gateways"
+    },
+    {
+      "code": "weighing.view",
+      "group": "weighing",
+      "label": "View weighing records"
+    },
+    {
+      "code": "weighing.operate",
+      "group": "weighing",
+      "label": "Run the weighbridge"
+    },
+    {
+      "code": "weighing.void",
+      "group": "weighing",
+      "label": "Void a weighing session"
+    },
+    {
+      "code": "weighing.rule_view",
+      "group": "weighing",
+      "label": "View fraud detection settings"
+    },
+    {
+      "code": "weighing.rule_update",
+      "group": "weighing",
+      "label": "Change fraud detection settings"
+    },
+    {
+      "code": "deduction.view",
+      "group": "deduction",
+      "label": "View deductions"
+    },
+    {
+      "code": "deduction.create",
+      "group": "deduction",
+      "label": "Record deductions"
+    },
+    {
+      "code": "deduction.approve",
+      "group": "deduction",
+      "label": "Approve excess deductions"
+    },
+    {
+      "code": "settlement.view",
+      "group": "settlement",
+      "label": "View settlements"
+    },
+    {
+      "code": "settlement.create",
+      "group": "settlement",
+      "label": "Create settlements"
+    },
+    {
+      "code": "settlement.lock",
+      "group": "settlement",
+      "label": "Lock settlement records"
+    },
+    {
+      "code": "payment.view",
+      "group": "payment",
+      "label": "View payments"
+    },
+    {
+      "code": "payment.create",
+      "group": "payment",
+      "label": "Record payment proof"
+    },
+    {
+      "code": "report.view",
+      "group": "report",
+      "label": "View reports"
+    },
+    {
+      "code": "report.export",
+      "group": "report",
+      "label": "Export reports"
+    },
+    {
+      "code": "billing.view",
+      "group": "billing",
+      "label": "View billing"
+    },
+    {
+      "code": "billing.manage",
+      "group": "billing",
+      "label": "Manage plans and subscriptions"
+    },
+    {
+      "code": "billing.collect",
+      "group": "billing",
+      "label": "Confirm payment received"
+    },
+    {
+      "code": "billing.pay",
+      "group": "billing",
+      "label": "Upload payment slips"
+    },
+    {
+      "code": "commission.view",
+      "group": "commission",
+      "label": "View commission"
+    },
+    {
+      "code": "commission.manage",
+      "group": "commission",
+      "label": "Manage commission"
+    },
+    {
+      "code": "subscription.view",
+      "group": "subscription",
+      "label": "View subscriptions"
+    },
+    {
+      "code": "subscription.manage",
+      "group": "subscription",
+      "label": "Manage subscriptions"
+    },
+    {
+      "code": "qr.view",
+      "group": "qr",
+      "label": "View QR codes"
+    },
+    {
+      "code": "qr.manage",
+      "group": "qr",
+      "label": "Issue and manage QR codes"
+    },
+    {
+      "code": "sales.view",
+      "group": "sales",
+      "label": "View salespeople and territories"
+    },
+    {
+      "code": "sales.manage",
+      "group": "sales",
+      "label": "Manage salespeople and territories"
+    },
+    {
+      "code": "sales_commission.view",
+      "group": "sales_commission",
+      "label": "View sales commission"
+    },
+    {
+      "code": "sales_commission.manage",
+      "group": "sales_commission",
+      "label": "Calculate and adjust sales commission"
+    },
+    {
+      "code": "sales_commission.approve",
+      "group": "sales_commission",
+      "label": "Approve sales commission payouts"
+    },
+    {
+      "code": "partner.view",
+      "group": "partner",
+      "label": "View partners"
+    },
+    {
+      "code": "partner.manage",
+      "group": "partner",
+      "label": "Manage partners and agreements"
+    },
+    {
+      "code": "asset.view",
+      "group": "asset",
+      "label": "View assets"
+    },
+    {
+      "code": "asset.manage",
+      "group": "asset",
+      "label": "Manage asset records and purchases"
+    },
+    {
+      "code": "asset.issue",
+      "group": "asset",
+      "label": "Issue and return assets"
+    },
+    {
+      "code": "asset.transfer",
+      "group": "asset",
+      "label": "Transfer assets"
+    },
+    {
+      "code": "asset.maintain",
+      "group": "asset",
+      "label": "Maintain and repair assets"
+    },
+    {
+      "code": "asset.dispose",
+      "group": "asset",
+      "label": "Dispose of assets"
+    },
+    {
+      "code": "crm.view",
+      "group": "crm",
+      "label": "View customer care records"
+    },
+    {
+      "code": "crm.manage",
+      "group": "crm",
+      "label": "Record customer care"
+    },
+    {
+      "code": "support.view",
+      "group": "support",
+      "label": "View support tickets"
+    },
+    {
+      "code": "support.manage",
+      "group": "support",
+      "label": "Handle support tickets"
+    },
+    {
+      "code": "support.remote_operate",
+      "group": "support",
+      "label": "Operate site devices remotely"
+    },
+    {
+      "code": "cloud_service.view",
+      "group": "cloud_service",
+      "label": "View cloud services"
+    },
+    {
+      "code": "cloud_service.manage",
+      "group": "cloud_service",
+      "label": "Manage cloud services"
+    },
+    {
+      "code": "platform.maintenance",
+      "group": "platform",
+      "label": "Put the platform into maintenance"
+    },
+    {
+      "code": "platform.monitor",
+      "group": "platform",
+      "label": "View system monitoring"
+    },
+    {
+      "code": "platform_settings.view",
+      "group": "platform_settings",
+      "label": "View platform settings"
+    },
+    {
+      "code": "platform_settings.manage",
+      "group": "platform_settings",
+      "label": "Change platform settings"
+    },
+    {
+      "code": "platform_version.view",
+      "group": "platform_version",
+      "label": "View versions"
+    },
+    {
+      "code": "platform_version.manage",
+      "group": "platform_version",
+      "label": "Publish versions"
+    },
+    {
+      "code": "integration.view",
+      "group": "integration",
+      "label": "View integrations and devices"
+    },
+    {
+      "code": "integration.manage",
+      "group": "integration",
+      "label": "Manage integrations and devices"
+    }
+  ],
+  "roles": [
+    {
+      "audience": "PLATFORM",
+      "code": "platform_admin",
+      "name": "Platform Administrator",
+      "description": "Full access to every platform function."
+    },
+    {
+      "audience": "PLATFORM",
+      "code": "platform_support",
+      "name": "Support Agent",
+      "description": "Reviews customer records and operational alerts."
+    },
+    {
+      "audience": "PLATFORM",
+      "code": "platform_finance",
+      "name": "Finance",
+      "description": "Manages plans, billing and collections."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "company_admin",
+      "name": "Company Administrator",
+      "description": "Full access to this company's data and users."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "site_staff",
+      "name": "Site Staff",
+      "description": "Records material receipts and waste dispatches on site."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "project_manager",
+      "name": "Project Manager",
+      "description": "Runs projects and approves excess deductions."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "headquarters",
+      "name": "Headquarters",
+      "description": "Head office: sees every project, files what the sites send up, and decides the applications that reach it first."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "gate_guard",
+      "name": "Gate Guard",
+      "description": "Scans passes at the gate and photographs what happens there."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "viewer",
+      "name": "Viewer",
+      "description": "Read-only access to this company's records."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "safety_manager",
+      "name": "Safety Manager",
+      "description": "Runs hazards and EHS on their projects, verifies rectification and approves permits to work."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "quantity_surveyor",
+      "name": "Quantity Surveyor (QS)",
+      "description": "Keeps material categories and budgets, prepares progress claims and evidence packages, and reads the reports."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "storekeeper",
+      "name": "Storekeeper",
+      "description": "Records and corrects material deliveries, requests material outgoing and raises material requests on their projects."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "equipment_manager",
+      "name": "Equipment Manager",
+      "description": "Runs equipment entry and exit, the equipment list, QR stickers and operating hours on every project."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "site_supervisor",
+      "name": "Site Supervisor",
+      "description": "Assigns and accepts site tasks and hazard rectification, records progress and handles gate issues on their projects."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "finance",
+      "name": "Finance",
+      "description": "Approves and pays sundry claims, records progress claim payments and exports the reports."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "document_controller",
+      "name": "Document Controller",
+      "description": "Keeps the document archive, submits consultant applications and back-office approvals, and maintains the RFI forms."
+    },
+    {
+      "audience": "RECYCLER",
+      "code": "company_admin",
+      "name": "Company Administrator",
+      "description": "Full access to this company's data and users."
+    },
+    {
+      "audience": "RECYCLER",
+      "code": "dispatcher",
+      "name": "Dispatcher",
+      "description": "Accepts orders, assigns vehicles and drivers."
+    },
+    {
+      "audience": "RECYCLER",
+      "code": "weighbridge_operator",
+      "name": "Weighbridge Operator",
+      "description": "Runs the weighbridge and records deductions."
+    },
+    {
+      "audience": "RECYCLER",
+      "code": "driver",
+      "name": "Driver",
+      "description": "Sees assigned tasks and submits site photos."
+    },
+    {
+      "audience": "RECYCLER",
+      "code": "finance",
+      "name": "Finance",
+      "description": "Settles transactions and records payment proof."
+    },
+    {
+      "audience": "RECYCLER",
+      "code": "viewer",
+      "name": "Viewer",
+      "description": "Read-only access to this company's records."
+    }
+  ]
+}

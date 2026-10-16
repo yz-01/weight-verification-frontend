@@ -46,20 +46,23 @@ function modulesBlock(): string {
 }
 
 describe("every module is managed on this one page (D-264)", () => {
-  it("lists only the four groups the client uses (2026-10 B1)", () => {
+  it("lists the modules a 分类组 can belong to (2026-10 B1; I10 adds Progress Claim)", () => {
     const block = modulesBlock();
     const keys = [
       ...[...block.matchAll(/columnModule\("([a-z]+)"/g)].map((m) => m[1]),
       ...[...block.matchAll(/\bkey: "([a-z]+)"/g)].map((m) => m[1]),
     ];
     expect(keys.sort()).toEqual([...CATEGORY_MODULE_KEYS].sort());
-    // 分类管理只留四组: 材料、设备、隐患整改、环保材料出场 (Q5, X5).
-    expect([...CATEGORY_MODULE_KEYS].sort()).toEqual(["ehs", "equipment", "material", "recycle"]);
+    // 材料、设备、隐患整改、环保材料出场 (Q5, X5) and, since I10 (ID6),
+    // Progress Claim. The groups on the left are the project's (I11).
+    expect([...CATEGORY_MODULE_KEYS].sort()).toEqual([
+      "claim", "ehs", "equipment", "material", "recycle",
+    ]);
     // 现场资料分类 was never a business module (D-285); Claim 分类
     // duplicated 杂费报销分类 (D-286); 文件分类 lives on 文档档案, 施工阶段 on
     // 施工进度, and progress, clearance, consultant and sundry have none.
     for (const gone of [
-      "field", "claim", "document", "phase", "progress", "debris", "consultant", "sundry",
+      "field", "document", "phase", "progress", "debris", "consultant", "sundry",
     ]) {
       expect(keys).not.toContain(gone);
     }
@@ -75,7 +78,14 @@ describe("every module is managed on this one page (D-264)", () => {
     expect(source).toMatch(/const canReorder =\s+Boolean\(active\.columnKind\) && canManage/);
     // 施工准证申请 is the system's: marked, and offers no removal.
     expect(source).toMatch(/row\.column\?\.kind === "EHS" && row\.code === PERMIT_COLUMN_CODE/);
-    expect(source).toMatch(/row\.waste\?\.is_system \|\| isSystemColumn\(row\) \? null : \(\s*<Switch/);
+    // I35: a preset with no records can be deleted; only the permit column,
+    // a fixed 「其他」 and a category holding records offer no switch.
+    expect(source).toMatch(/removeBlock\(row\) \? null : \(\s*<Switch/);
+    expect(source).not.toMatch(/row\.waste\?\.is_system \|\|/);
+    const block = functionBody(source, "const removeBlock");
+    expect(block).toMatch(/return "permit"/);
+    expect(block).toMatch(/row\.column\?\.is_fixed \|\| row\.waste\?\.is_other/);
+    expect(block).toMatch(/row\.recordCount > 0 \? "records" : null/);
   });
 
   it("gives every module a delete", () => {
@@ -114,7 +124,7 @@ describe("every module is managed on this one page (D-264)", () => {
     // And deleting is armed by a switch, never a confirm dialog (rule 8,
     // HD4), with the server's refusal shown when it says no.
     expect(source).not.toMatch(/ConfirmDialog/);
-    expect(source).toMatch(/disabled=\{armed !== row\.id \|\| removal\.isPending\}/);
+    expect(source).toMatch(/removeBlock\(row\) !== null \|\| armed !== row\.id \|\| removal\.isPending\}/);
     expect(source).toMatch(/t\("removeFailed", refusal\)/);
   });
 
@@ -138,7 +148,8 @@ describe("the column form (D-265, D-266; X1 for equipment)", () => {
   it("offers a major class to equipment only (2026-10 B2, X1)", () => {
     // The picker hangs off the kind, and every other kind's payload drops it.
     expect(dialog).toMatch(/const isEquipment = form\.kind === "EQUIPMENT";/);
-    expect(dialog).toMatch(/\{isEquipment && \(\s*<FieldWrapper\s+label=\{modules\("equipment\.majorClassOf"\)\}/);
+    expect(dialog).toMatch(/const equipmentParentField = \(\s*<FieldWrapper\s+label=\{modules\("equipment\.majorClassOf"\)\}/);
+    expect(dialog).toMatch(/\{!simpleEquip && isEquipment && equipmentParentField\}/);
     expect(dialog).toMatch(/\{ \.\.\.form, parent: undefined \}/);
   });
 

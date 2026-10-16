@@ -50,6 +50,8 @@ export interface DailyReportEntry {
  * `entries` and `photos` arrive when one report is opened.
  */
 export interface DailyReport {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   id: string;
   project: string;
   project_name: string;
@@ -68,8 +70,28 @@ export interface DailyReport {
   collected_at: string | null;
   author: string | null;
   author_name: string | null;
+  /**
+   * 填写人 and 修改记录 (I29, ID69): every write, change, export and removal,
+   * oldest first, recorded by the server from the signed-in account. Empty
+   * in a list (compact) and for a report written before I29.
+   */
+  signatures?: DailyReportSignature[];
   created_at: string;
   updated_at: string;
+}
+
+export type DailyReportSignatureAction = "CREATE" | "UPDATE" | "EXPORT" | "DELETE";
+
+export interface DailyReportSignature {
+  id: string;
+  action: DailyReportSignatureAction;
+  signer_name: string;
+  /** The account: its sign-in email. */
+  signer_account: string;
+  signed_at: string;
+  /** Confirmed with the sign-off PIN. */
+  pin_verified: boolean;
+  detail: string;
 }
 
 export interface DailyReportPayload {

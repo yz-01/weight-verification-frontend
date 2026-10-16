@@ -23,12 +23,14 @@ import { ManufacturerCell, hideEmptyManufacturerColumn } from "@/components/shar
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { CategoryOptionItems } from "@/components/shared/category-options";
 import {
   getReceipts,
   exportReceipts,
   type ExportFormat,
 } from "@/services/contractor.service";
 import { MaterialTabs, NetTotalsView, useMaterialTab } from "@/components/receipts/material-tabs";
+import { LIST_FITS } from "@/lib/list-fits";
 
 // Sentinels rather than "": a Radix SelectItem cannot carry an empty
 // value, and the two "no column chosen" answers are different questions -
@@ -48,6 +50,8 @@ export function Receipts() {
     "date_to",
     "unit",
     "category",
+    // One specification (I19), as a material target opens it (I18, ID42).
+    "spec_category",
     "uncategorised",
     "acceptance",
     "direction",
@@ -230,14 +234,19 @@ export function Receipts() {
             {t("receipts.field.supplier")}
           </span>
         ),
-        cell: ({ row }) => (
-          <span
-            className="block max-w-45 truncate"
-            title={row.original.supplier_name}
-          >
-            {row.original.supplier_name}
-          </span>
-        ),
+        // 「未填供应商」 in grey (2026-10-15 I23): the phone left it out, and
+        // the office fills it in from the delivery's 「补供应商」.
+        cell: ({ row }) =>
+          row.original.supplier ? (
+            <span
+              className="block max-w-45 truncate"
+              title={row.original.supplier_name}
+            >
+              {row.original.supplier_name}
+            </span>
+          ) : (
+            <span className="whitespace-nowrap text-muted-foreground">{t("receipts.supplierUnfilled")}</span>
+          ),
       },
       // 指定厂商（MR） (2026-10 D1; 2026-10-10), orange 「非指定厂商」 when
       // the category designates others. Shown only when a row in view names
@@ -360,7 +369,7 @@ export function Receipts() {
               quantityLabel: t("exportTotals.quantity"),
               note: t("receipts.net.note"),
               materialLabel: t("receipts.field.materialName"),
-              specificationLabel: t("receipts.field.materialSpecification"),
+              specificationLabel: t("receipts.net.specification"),
               receivedLabel: t("receipts.net.received"),
               returnedLabel: t("receipts.net.returned"),
             }
@@ -375,7 +384,8 @@ export function Receipts() {
         { key: "receipt_no", label: t("receipts.field.receiptNo") },
         { key: "business_at", label: t("receipts.field.businessAt") },
         { key: "project_code", label: t("receipts.field.project") },
-        { key: "supplier_name", label: t("receipts.field.supplier") },
+        // A delivery with no supplier yet reads 「未填供应商」 in the file too (I23).
+        { key: "supplier_name", label: t("receipts.field.supplier"), values: { "": t("receipts.supplierUnfilled") } },
         { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
         { key: "category_name", label: t("receipts.field.category") },
         {
@@ -426,7 +436,7 @@ export function Receipts() {
       />
 
       <MaterialTabs>
-        <SupplierDateListFilter list={list} showManufacturer />
+        <SupplierDateListFilter list={list} showManufacturer showUnfilled />
       </MaterialTabs>
       {tab === "totals" ? (
         <NetTotalsView
@@ -458,7 +468,8 @@ export function Receipts() {
         // choice of the old columns would otherwise hide the DO and plate.
         // `.v3` with the manufacturer column (2026-10 D1); `.v4` with the
         // photograph in place of the photo count (E3).
-        storageKey="receipts.v4"
+        storageKey={LIST_FITS.materialReceipts.storageKey}
+        defaultHidden={LIST_FITS.materialReceipts.hidden}
         // Multi Engine picks deliveries here (2026-10-10): 「✅ 已打包 X 次」,
         // and tick boxes while a package is being put together.
         pack={{ kind: "MATERIAL_RECEIPT" }}
@@ -479,9 +490,8 @@ export function Receipts() {
               <SelectContent>
                 <SelectItem value={ALL_COLUMNS}>{t("receipts.allColumns")}</SelectItem>
                 <SelectItem value={UNFILED}>{t("receipts.unfiled")}</SelectItem>
-                {(categories.data?.results ?? []).map((row) => (
-                  <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
-                ))}
+                {/* 分类组 → 分类 (I11): a group, or one material. */}
+                <CategoryOptionItems rows={categories.data?.results ?? []} groupsSelectable />
               </SelectContent>
             </Select>
             <QueryFailedNote query={categories} what={t("receipts.what.columns")} />

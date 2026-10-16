@@ -12,20 +12,28 @@ import type { MaterialRequest } from "@/interfaces/material-request";
  *   the customer's screenshot showed the applicant "test" approving his own
  *   request. The server refuses it too (`cannot_review_own_request`).
  * - `waiting`: somebody else decides it; the reader only waits.
+ * - `manager`: the project manager a site staff's request was sent to first
+ *   (I12, ID29) - 「转呈总部」 or return; never approve.
  * - `none`: already decided.
  *
  * An unknown reader is treated as not allowed to decide: the buttons appear
  * only once we know the reader is not the applicant.
  */
-export type MaterialRequestReviewView = "decide" | "takeOver" | "own" | "waiting" | "none";
+export type MaterialRequestReviewView = "decide" | "takeOver" | "own" | "waiting" | "manager" | "none";
 
 export function materialRequestReviewView(
-  row: Pick<MaterialRequest, "status" | "submitted_by"> & Partial<Pick<MaterialRequest, "assigned_reviewer">>,
+  row: Pick<MaterialRequest, "status" | "submitted_by"> &
+    Partial<Pick<MaterialRequest, "assigned_reviewer" | "awaiting_manager">>,
   readerId: string | null | undefined,
   canReview: boolean,
 ): MaterialRequestReviewView {
   if (row.status !== "SUBMITTED") return "none";
   if (readerId && row.submitted_by === readerId) return "own";
+  // With the project manager first (I12, ID29): theirs to send on; head
+  // office and everybody else wait for it.
+  if (row.awaiting_manager) {
+    return readerId && row.assigned_reviewer === readerId ? "manager" : "waiting";
+  }
   if (!readerId || !canReview) return "waiting";
   if (row.assigned_reviewer && row.assigned_reviewer !== readerId) return "takeOver";
   return "decide";

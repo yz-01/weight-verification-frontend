@@ -7,6 +7,8 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { LIST_FITS } from "@/lib/list-fits";
+
 const source = readFileSync(
   join(process.cwd(), "src/components/material-requests/material-requests-office.tsx"),
   "utf8",
@@ -17,22 +19,32 @@ const columns = source.slice(
 );
 
 describe("MR table columns (D3)", () => {
-  it("has no request-type or project column", () => {
-    expect(columns).not.toMatch(/id: "request_type"/);
+  it("has the request-type column back and no project column (I16, ID37)", () => {
+    expect(columns).toMatch(/id: "request_kind"[\s\S]*?requestTypeName\(row\.original, t\)/);
     expect(columns).not.toMatch(/accessorKey: "project_name"/);
   });
 
-  it("still filters by request type", () => {
-    expect(source).toMatch(/param="request_type"\s+allLabel=\{t\("allTypes"\)\}/);
+  it("filters by the project's own request types", () => {
+    expect(source).toMatch(/param=\{typeFilter\.param\}\s+allLabel=\{t\("allTypes"\)\}/);
+    expect(source).toMatch(/param: "request_kind", options: rows\.map/);
+    expect(source).toMatch(/param: "request_kind_name", options: requestTypeNameOptions\(rows\)/);
+  });
+
+  it("has a 材料编号 column from the category's code, a dash for an old request (I19-15)", () => {
+    expect(columns).toMatch(
+      /id: "category_code"[\s\S]*?row\.original\.category_code \|\| <span className="text-muted-foreground">—<\/span>/,
+    );
+    expect(source).toMatch(/\{ key: "category_code", label: t\("field\.materialCode"\) \}/);
+    expect(source).toMatch(/label: t\("field\.materialCode"\), value: row\.category_code \|\| "—"/);
   });
 
   it("shows the date with its time", () => {
     expect(columns).toMatch(/accessorKey: "created_at"[\s\S]*?df\.dateTime\(row\.original\.created_at\)/);
   });
 
-  it("an Other Request says so, in grey, where the material would be", () => {
+  it("an Other Request shows its subject where the material would be, or says so in grey", () => {
     expect(columns).toMatch(
-      /request_type === "OTHER" \? \(\s*<span className="text-muted-foreground">\{t\("type\.OTHER"\)\}<\/span>/,
+      /request_type === "OTHER" \? \(\s*row\.original\.subject \|\| <span className="text-muted-foreground">\{t\("type\.OTHER"\)\}<\/span>/,
     );
   });
 
@@ -42,9 +54,20 @@ describe("MR table columns (D3)", () => {
   });
 
   it("remembers columns under a new key, so an old saved set cannot bring the dropped ones back", () => {
-    // `.v3` since the manufacturer and supplier columns came in (2026-10 D1).
-    expect(source).toContain('storageKey="material-requests.v3"');
-    expect(source).not.toContain('storageKey="material-requests.v2"');
-    expect(source).not.toContain('storageKey="material-requests"');
+    // `.v4` since the request type came back (I16); `.v3` brought the
+    // manufacturer and supplier columns (2026-10 D1); `.v6` since the list
+    // hides some columns by default to fit 1366 px (I39).
+    expect(source).toContain("storageKey={LIST_FITS.materialRequests.storageKey}");
+    expect(source).toContain("defaultHidden={LIST_FITS.materialRequests.hidden}");
+    expect(LIST_FITS.materialRequests.storageKey).toBe("material-requests.v6");
+    expect(source).not.toMatch(/storageKey="material-requests/);
+  });
+
+  it("reads 材料编号 and the spec under the material, the unit by the quantity (I39)", () => {
+    expect(columns).toMatch(/<MaterialSubLine code=\{row\.original\.category_code\} spec=\{row\.original\.specification\} \/>/);
+    expect(columns).toMatch(/row\.original\.quantity != null && row\.original\.unit \? ` \$\{unitLabel\(row\.original\.unit\)\}`/);
+    expect(LIST_FITS.materialRequests.hidden).toEqual(
+      expect.arrayContaining(["category_code", "specification", "unit"]),
+    );
   });
 });

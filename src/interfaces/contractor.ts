@@ -115,8 +115,13 @@ export interface Supplier {
   qr_code_count?: number;
   /** 「有退场资料」 (2026-10 C10): finished returns to this supplier. */
   completed_return_count?: number;
+  /** 公司类型 (I10, ID7): supplier and/or subcontractor. */
+  company_types?: SupplierCompanyType[];
   created_at: string;
 }
+
+/** What a company on the supplier list is to the contractor (I10, ID7). */
+export type SupplierCompanyType = "SUPPLIER" | "SUBCONTRACTOR";
 
 export interface SupplierPayload {
   code: string;
@@ -131,6 +136,8 @@ export interface SupplierPayload {
   industry: string;
   main_products: string;
   is_active?: boolean;
+  /** 公司类型 (I10, ID7): one or both. */
+  company_types?: SupplierCompanyType[];
 }
 
 export interface SupplierQRCode {
@@ -171,6 +178,8 @@ export interface DeliveryNoteEvidence {
 }
 
 export interface DeliveryNote {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   id: string;
   note_no: string;
   project: string;
@@ -230,6 +239,7 @@ export interface DeliveryNote {
 
 export interface DeliveryNotePublic {
   note_no: string;
+  legacy_no?: string;
   company_name: string;
   project_name: string;
   supplier_name: string;
@@ -254,8 +264,8 @@ export interface DeliveryNotePublic {
   evidence: DeliveryNoteEvidence[];
 }
 
-/** The six codes every company starts with; the screens translate these. */
-export type BuiltInMaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
+/** The codes every company starts with (m² since I19); the screens translate these. */
+export type BuiltInMaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG" | "M2";
 
 /**
  * A code from the company's unit list (2026-10 A4, 「单位管理」): one of the six
@@ -274,6 +284,7 @@ export const BUILT_IN_MATERIAL_UNITS: readonly BuiltInMaterialUnit[] = [
   "PIECE",
   "LOAD",
   "BAG",
+  "M2",
 ];
 
 export function isBuiltInMaterialUnit(code: string): code is BuiltInMaterialUnit {
@@ -341,6 +352,8 @@ export interface ReceiptPhoto {
 }
 
 export interface MaterialReceipt {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** 待验收 for this reader - the sidebar counts it (2026-10-09). */
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
@@ -350,7 +363,12 @@ export interface MaterialReceipt {
   project: string;
   project_code: string;
   project_name: string;
-  supplier: string;
+  /**
+   * Null for a delivery the phone left 「未填供应商」 (2026-10-15 I23): the
+   * office fills it in (「补供应商」) before it can be accepted.
+   */
+  supplier: string | null;
+  /** "" while the supplier is not filled in. */
   supplier_name: string;
   /** The factory that made it (2026-10 D1); null when nobody said. */
   manufacturer?: string | null;
@@ -365,6 +383,9 @@ export interface MaterialReceipt {
   category: string | null;
   category_code: string | null;
   category_name: string | null;
+  /** The specification from the project's material data (I19). */
+  spec_category?: string | null;
+  spec_category_name?: string | null;
   material_name: string;
   material_specification: string;
   quantity: string;
@@ -479,6 +500,24 @@ export interface MySubmissionRow {
    * history (client 2026-10-09 二.3: the list shows only `cover_photo_url`).
    */
   photo?: string | null;
+  /**
+   * An equipment movement's own status beside its direction (`status`):
+   * an exit is applied for, approved and recorded in steps (2026-10 I13), and
+   * 「已批准 / 等待退场」 is where the actual exit is done.
+   */
+  movement_status?: string;
+  /**
+   * The machine an equipment movement is about: what the phone checks the
+   * scanned QR against at the actual exit, with or without signal (ID60).
+   */
+  machine?: {
+    id: string;
+    code: string;
+    name: string;
+    site_no: string;
+    registration_no: string;
+    serial_no: string;
+  } | null;
 }
 
 /**
@@ -539,6 +578,8 @@ export interface MySubmissionDetail extends MySubmissionRow {
   photos: MySubmissionPhoto[];
   /** Sundry claims only: the payment vouchers finance uploaded (第 54、57 条). */
   payment_proofs?: Array<{ id: string; url: string; name?: string; amount: string | null; uploaded_at: string }>;
+  /** MR / Other Request only (I16, ID49): every file sent with it, pictures and documents. */
+  files?: Array<{ id: string; name: string; url: string; content_type: string; size_bytes: number; is_image: boolean }>;
 }
 
 export interface MySubmissionsPage {
@@ -568,6 +609,10 @@ export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
 
 export interface MaterialReceiptDetail extends MaterialReceipt {
   qr_code: string | null;
+  /** 「提交总部审批」 (I12, ID28): head office accepts this delivery. */
+  review_by_head_office?: boolean;
+  /** Whether this reader may accept or reject it. */
+  can_review?: boolean;
   acceptance_status?: MaterialAcceptance;
   accepted_by_name?: string | null;
   accepted_at?: string | null;
@@ -614,6 +659,7 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
 
 export interface MaterialReceiptPayload {
   project: string;
+  /** "" for 「未填供应商」 (I23): left out of the upload, filed with none. */
   supplier: string;
   /** The factory that made it (2026-10 D1); optional. */
   manufacturer?: string | null;
@@ -625,6 +671,8 @@ export interface MaterialReceiptPayload {
   rejection_reason?: string;
   material_name: string;
   material_specification?: string;
+  /** The specification from the project's material data (I19); null for none. */
+  spec_category?: string | null;
   quantity: string;
   unit: MaterialUnit;
   total_weight_kg?: string | null;
@@ -720,8 +768,9 @@ export interface ReceiptSummary {
     total_cost: string | null;
     unpriced_receipts: number;
   }>;
+  /** The line with `supplier: null` is the deliveries 「未填供应商」 (I23). */
   by_supplier: Array<{
-    supplier: string;
+    supplier: string | null;
     supplier_name: string;
     receipts: number;
     total_cost: string | null;

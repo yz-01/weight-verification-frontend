@@ -32,9 +32,16 @@ const PAGES: Record<string, (id: string) => string> = {
   SAFETY_INCIDENT: (id) => `/hazard-rectifications?incident=${id}`,
   FIELD_TASK: (id) => `/field-tasks?task=${id}`,
   GATE_INCIDENT: (id) => `/gate-records?gate_incident=${id}`,
+  // 访客到访 (I26): opens over the notification centre, which every account reaches.
+  VISITOR_ARRIVAL: (id) => `/notifications?visitor_arrival=${id}`,
   CONSULTANT_APPLICATION: (id) => `/consultant-applications/${id}`,
   SUNDRY_CLAIM: (id) => `/sundry-claims?record=${id}`,
   MATERIAL_REQUEST: (id) => `/material-requests?record=${id}`,
+  // A Progress Claim (I10): its tab in Multi Engine, opened on the claim.
+  CLAIM: (id) => `/evidence-packages?type=PROGRESS_CLAIM&claim=${id}`,
+  // The general attachment slot's own kinds (I3), as the archive names them.
+  APPROVAL: (id) => `/approvals?approval=${id}`,
+  GATE_PASS: (id) => `/site-access?pass=${id}`,
 };
 
 /** No detail page of their own yet: the read-only record sheet. */

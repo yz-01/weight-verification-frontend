@@ -14,11 +14,15 @@
 // Progress, clearance, consultant and sundry records file under no category
 // any more; 文件分类 is managed on 文档档案 and 施工阶段 on 施工进度. Their old
 // rows stay in the database, unlisted here.
+// 2026-10 I10 (ID6): Progress Claim categories are back, made per project.
+// I11: the left-hand list is the project's 分类组; these are the modules a
+// group belongs to.
 export const CATEGORY_MODULE_KEYS = [
   "material",
   "equipment",
   "ehs",
   "recycle",
+  "claim",
 ] as const;
 
 export type CategoryModuleKey = (typeof CATEGORY_MODULE_KEYS)[number];
@@ -28,6 +32,7 @@ export const KIND_MODULE: Record<string, CategoryModuleKey> = {
   MATERIAL: "material",
   EQUIPMENT: "equipment",
   EHS: "ehs",
+  CLAIM: "claim",
 };
 
 export const isCategoryModuleKey = (value: string): value is CategoryModuleKey =>
@@ -111,4 +116,12 @@ export function parseAlertAmounts(text: string): number[] | null {
     return null;
   }
   return [...new Set(numbers)].sort((a, b) => a - b);
+}
+
+/**
+ * The class a machine registered from an equipment row starts in (I38, ID81):
+ * a sub class is a place to file a machine, a major class is not.
+ */
+export function registerMachineCategory(row: { id: string; depth?: number }): string | null {
+  return (row.depth ?? 0) > 0 ? row.id : null;
 }

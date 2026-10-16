@@ -17,23 +17,21 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Camera,
   Check,
   Download,
   Eye,
   FileText,
-  FileUp,
-  ImageIcon,
   Loader2,
   Lock,
   Printer,
   RotateCcw,
   Send,
-  X,
+  UserPlus,
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -45,6 +43,7 @@ import {
   QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import {
   RecordDetailDialog,
@@ -71,6 +70,7 @@ import type { Permit, PermitFile, PermitStatus } from "@/interfaces/permit";
 import { useDateFormat } from "@/lib/dates";
 import { printFile } from "@/lib/file-actions";
 import { photoMeta } from "@/lib/photo-meta";
+import { roleLabel } from "@/lib/role-labels";
 import {
   approvePermit,
   createPermit,
@@ -83,9 +83,16 @@ import {
   returnPermit,
 } from "@/services/permit.service";
 
-/** What a permit form arrives as: Word, Excel, PDF or a photo of it. */
-export const PERMIT_FILE_ACCEPT =
-  ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*";
+/**
+ * What a permit form arrives as: Word, Excel, PDF or a photo of it. Exactly
+ * the server's suffixes (`site_operations/permits.py` PERMIT_FILE_SUFFIXES):
+ * no `image/*`, which let a .gif, .bmp or .avif through here only for the
+ * server to refuse it.
+ */
+export const PERMIT_FILE_SUFFIXES = [
+  ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif",
+] as const;
+export const PERMIT_FILE_ACCEPT = PERMIT_FILE_SUFFIXES.join(",");
 
 export const PERMIT_TONE: Record<PermitStatus, "warning" | "danger" | "positive"> = {
   RECTIFICATION_SUBMITTED: "warning",
@@ -116,13 +123,20 @@ function failure(error: unknown, fallback: string) {
 /* ---------------------------------------------------------------- files */
 
 /**
- * The 准证文件 slot: one place, any number of pages.
+ * The 准证文件 slot: one place, any number of pages (I3).
  *
- * Two buttons, because the two ends start differently: on the phone the
- * form is often paper, so 拍照 opens the camera; at a desk it is the Word or
- * PDF file, so 选择文件 opens the file picker (which on a phone also offers
- * the gallery and the files app).
+ * The shared attachment picker: at a desk it is the Word or PDF file, a
+ * file dragged in, a picture pasted, or the computer's camera; on a phone
+ * the form is often paper, so 拍照 opens the phone's own camera. The limits
+ * and the refusals are the permit endpoint's own.
  */
+export const PERMIT_FILE_RULE = {
+  accept: PERMIT_FILE_ACCEPT,
+  maxFiles: 10,
+  maxBytes: 50 * 1024 * 1024,
+  multiple: true,
+} as const;
+
 export function PermitFilesInput({
   files,
   onChange,
@@ -131,82 +145,23 @@ export function PermitFilesInput({
   onChange: (files: File[]) => void;
 }) {
   const t = useTranslations("permits.files");
-  const camera = useRef<HTMLInputElement>(null);
-  const picker = useRef<HTMLInputElement>(null);
-  const add = (list: FileList | null) => {
-    const picked = Array.from(list ?? []);
-    if (picked.length) onChange([...files, ...picked]);
-  };
+  const tApi = useTranslations("errors.api");
   return (
     <div className="space-y-2" data-slot="permit-files">
       <p className="text-xs text-muted-foreground">{t("hint")}</p>
-      <div className="grid grid-cols-2 gap-2">
-        <Button type="button" variant="outline" className="min-h-11" onClick={() => camera.current?.click()}>
-          <Camera className="size-4" />
-          {t("takePhoto")}
-        </Button>
-        <Button type="button" variant="outline" className="min-h-11" onClick={() => picker.current?.click()}>
-          <FileUp className="size-4" />
-          {t("chooseFile")}
-        </Button>
-      </div>
-      <input
-        ref={camera}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        aria-label={t("takePhoto")}
-        onChange={(event) => {
-          add(event.target.files);
-          event.target.value = "";
-        }}
+      <AttachmentPicker
+        files={files}
+        onChange={onChange}
+        rule={PERMIT_FILE_RULE}
+        refusalText={(item, { maxFiles, limit }) =>
+          // The permit endpoint's own sentences, said before sending.
+          item.kind === "type"
+            ? tApi("permit_file_type", { name: item.name })
+            : item.kind === "size"
+              ? tApi("permit_file_too_large", { name: item.name, limit })
+              : tApi("permit_too_many_files", { limit: maxFiles ?? 0 })
+        }
       />
-      <input
-        ref={picker}
-        type="file"
-        multiple
-        accept={PERMIT_FILE_ACCEPT}
-        className="hidden"
-        aria-label={t("chooseFile")}
-        onChange={(event) => {
-          add(event.target.files);
-          event.target.value = "";
-        }}
-      />
-      {files.length === 0 ? (
-        <p className="rounded-lg border border-dashed px-3 py-3 text-center text-sm text-muted-foreground">
-          {t("none")}
-        </p>
-      ) : (
-        <ul className="space-y-1.5">
-          {files.map((file, index) => (
-            <li
-              key={`${file.name}-${index}`}
-              className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-sm"
-            >
-              {file.type.startsWith("image/") ? (
-                <ImageIcon className="size-4 shrink-0 text-muted-foreground" />
-              ) : (
-                <FileText className="size-4 shrink-0 text-muted-foreground" />
-              )}
-              <span className="min-w-0 flex-1 truncate">{file.name}</span>
-              <span className="shrink-0 text-xs text-muted-foreground">{size(file.size)}</span>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="size-8 shrink-0"
-                title={t("remove")}
-                aria-label={t("remove")}
-                onClick={() => onChange(files.filter((_, at) => at !== index))}
-              >
-                <X className="size-4" />
-              </Button>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
@@ -452,6 +407,7 @@ export function PermitApplyForm({
   onCancel?: () => void;
 }) {
   const t = useTranslations("permits");
+  const tRoot = useTranslations();
   const queryClient = useQueryClient();
   const clearDraft = useClearDraft();
   const [project, setProject] = useDraftState("project", initialProject);
@@ -519,7 +475,9 @@ export function PermitApplyForm({
           <SelectContent>
             {choices.map((person) => (
               <SelectItem key={person.id} value={person.id}>
-                {person.role_name ? `${person.full_name} · ${person.role_name}` : person.full_name}
+                {person.role_name
+                  ? `${person.full_name} · ${roleLabel(person.role_code, person.role_name, tRoot)}`
+                  : person.full_name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -527,7 +485,7 @@ export function PermitApplyForm({
         <p className="mt-1.5 text-xs text-muted-foreground">{t("approverHint")}</p>
         <QueryFailedNote className="mt-2" query={approvers} what={t("what.approvers")} />
         {project && approvers.isSuccess && choices.length === 0 && (
-          <p className="mt-2 text-xs text-destructive">{t("noApprovers")}</p>
+          <NoApproversHelp project={project} />
         )}
       </FieldWrapper>
       {error && (
@@ -555,6 +513,42 @@ export function PermitApplyForm({
           {t("submit")}
         </Button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Nobody can approve a permit on this project yet (I32, appendix A4).
+ *
+ * The client asked 「目前缺少哪个设置，以及客户管理员应该在哪里自行指定审批人员」.
+ * The answer is three settings, said here in the order they are done. Whoever
+ * can staff projects also gets the way to the last one - in a new tab, so the
+ * pages already photographed stay in this form, and the list refreshes when
+ * they come back (the query refetches on focus).
+ */
+function NoApproversHelp({ project }: { project: string }) {
+  const t = useTranslations("permits");
+  const { can, user } = useAuth();
+  const mayStaff = can("project.assign") && !user?.is_field_staff;
+  return (
+    <div
+      role="alert"
+      className="mt-2 space-y-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-xs leading-5"
+    >
+      <p className="font-medium text-foreground">{t("noApprovers")}</p>
+      <ol className="list-decimal space-y-1 pl-4 text-muted-foreground">
+        <li>{t("noApproverSteps.role")}</li>
+        <li>{t("noApproverSteps.user")}</li>
+        <li>{t("noApproverSteps.team")}</li>
+      </ol>
+      {mayStaff && (
+        <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+          <Link href={`/projects/${project}#project-team`} target="_blank" rel="noopener noreferrer">
+            <UserPlus className="size-4" />
+            {t("openProjectTeam")}
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }
@@ -829,6 +823,7 @@ export function PermitDetail({
   return (
     <RecordDetailDialog
       title={permit?.incident_no ?? t("title")}
+      legacyNo={permit?.legacy_no}
       description={permit ? `${permit.project_name} · ${permit.title}` : undefined}
       status={permit ? <PermitStatusBadge status={permit.status} /> : undefined}
       // 完整证据 PDF (2026-10-10, 审批证据完整性): the permit's details, its

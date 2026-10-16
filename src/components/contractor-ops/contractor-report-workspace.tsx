@@ -1,11 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
+import { DailyReportBook } from "@/components/progress/daily-reports";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -19,7 +20,13 @@ import {
   useReportLevelName,
 } from "@/components/reports/report-selector";
 import { ExportButton } from "@/components/shared/export-button";
-import { FilterField, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  FieldWrapper,
+  FilterField,
+  ListHeader,
+  QueryFailedNote,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import { opensInPlace } from "@/components/shared/in-place-record";
 import { useRecordOpener } from "@/components/shared/record-opener";
@@ -28,6 +35,15 @@ import {
   ContractorReportFilterFields,
   ReportClearButton,
 } from "@/components/reports/report-filter-bar";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -72,6 +88,7 @@ import {
   getContractorReport,
   getContractorReportHistory,
   getContractorReportOptions,
+  getLatestReportDay,
 } from "@/services/contractor-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
 import { photoMeta } from "@/lib/photo-meta";
@@ -89,9 +106,10 @@ function displayValue(value: string | number | boolean | null): string {
 }
 
 /** The preview's photograph column, before the report's own columns. */
-const PHOTO_COLUMN_WIDTH = 80;
 
 const REPORT_DATE_TIME_COLUMNS = new Set([
+  "generated_at",
+  "updated_at",
   "captured_at",
   "uploaded_at",
   "occurred_at",
@@ -99,9 +117,14 @@ const REPORT_DATE_TIME_COLUMNS = new Set([
   "confirmed_at",
   "submitted_at",
   "verified_at",
+  "due_at",
+  "reviewed_at",
 ]);
 
 const REPORT_DATE_ONLY_COLUMNS = new Set([
+  "report_date",
+  "claim_period",
+  "end_date",
   "application_date",
   "planned_start",
   "planned_end",
@@ -110,47 +133,17 @@ const REPORT_DATE_ONLY_COLUMNS = new Set([
   "rectification_due_at",
 ]);
 
-const REPORT_LONG_COLUMNS = new Set([
-  "description",
-  "file_name",
-  "review_note",
-  "source",
-  "target_name",
-  "task",
-  "title",
-]);
-
-function reportColumnWidth(key: string): number {
-  if (key === "latitude" || key === "longitude") {
-    return 136;
-  }
-  if (REPORT_DATE_TIME_COLUMNS.has(key)) {
-    return 216;
-  }
-  if (REPORT_DATE_ONLY_COLUMNS.has(key)) {
-    return 152;
-  }
-  if (key === "device_id") {
-    return 216;
-  }
-  if (key === "file_name") {
-    return 304;
-  }
-  if (REPORT_REFERENCE_COLUMNS.has(key)) {
-    return 224;
-  }
-  if (REPORT_LONG_COLUMNS.has(key)) {
-    return 264;
-  }
-  return 176;
-}
-
+/**
+ * How a preview cell reads (I39: the preview fits the page width). A date
+ * with its time may take two lines - date over time - rather than widen the
+ * table; every other cell stops at two lines with the whole text on hover.
+ */
 function reportCellClass(key: string): string {
   if (key === "latitude" || key === "longitude") {
     return "whitespace-nowrap tabular-nums";
   }
   if (REPORT_DATE_TIME_COLUMNS.has(key) || REPORT_DATE_ONLY_COLUMNS.has(key)) {
-    return "whitespace-nowrap tabular-nums";
+    return "line-clamp-2 tabular-nums";
   }
   if (key === "device_id" || key === "file_name") {
     return "line-clamp-2 break-all";
@@ -170,12 +163,16 @@ export function ContractorReportWorkspace({
   const t = useTranslations("contractorReports");
   const tRoot = useTranslations();
   const common = useTranslations("common");
+  const locale = useLocale();
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const opener = useRecordOpener();
   const now = new Date();
+  // 「往日报告」 offers the last seven days when the address names none (I8).
+  const weekAgo = dateValue(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6));
   // Project, dates and the report menu's levels live in the address (D6):
   // 【选择报表】 opens a report at a category by writing them there, and keeps
   // the reader's project and dates when they move to another report. So do
@@ -215,6 +212,31 @@ export function ContractorReportWorkspace({
     queryKey: ["contractor-reports", "options"],
     queryFn: getContractorReportOptions,
   });
+  // 工程进度 → 「日报告」 opens on the latest day a report covers; 「往日报告」
+  // asks for the days first (I8, ID24). Both arrive as a flag in the address.
+  const dailyReport = reportType === "daily_report";
+  const wantsLatest = dailyReport && searchParams.get("latest") === "1";
+  const asksDays = dailyReport && searchParams.get("range") === "1";
+  const latest = useQuery({
+    queryKey: ["contractor-reports", "latest-day", project],
+    queryFn: () =>
+      getLatestReportDay({
+        report_type: "daily_report",
+        project: project === "all" ? undefined : project,
+      }),
+    enabled: wantsLatest,
+    staleTime: 0,
+    meta: NOT_LIVE,
+  });
+  const { setFilters } = list;
+  useEffect(() => {
+    if (!wantsLatest || !latest.isSuccess || !latest.isFetchedAfterMount) return;
+    // No report yet: today, which says so.
+    const day = latest.data.day ?? dateValue(new Date());
+    setFilters({ latest: undefined, date_from: day, date_to: day });
+  }, [latest.data, latest.isFetchedAfterMount, latest.isSuccess, setFilters, wantsLatest]);
+  // A daily report opens in the book of the reports listed, by date (I9).
+  const [book, setBook] = useState<number | null>(null);
   const filters = useMemo<ContractorReportFilters>(
     () => ({
       report_type: reportType,
@@ -236,8 +258,13 @@ export function ContractorReportWorkspace({
     queryFn: () => getContractorReport(filters),
     // An aggregation: refreshed by the person, not by the realtime layer (S1).
     meta: NOT_LIVE,
-    enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo),
+    // Not before the days 「日报告」 / 「往日报告」 are about to set.
+    enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
   });
+  const bookIds = useMemo(
+    () => (report.data?.records ?? []).map((entry) => entry.id ?? ""),
+    [report.data],
+  );
   const exportMutation = useMutation({
     mutationFn: (format: "PDF" | "EXCEL") =>
       exportContractorReport({
@@ -251,14 +278,12 @@ export function ContractorReportWorkspace({
         column_labels: Object.fromEntries(
           (report.data?.columns ?? []).map((key) => [key, t(`column.${key}`)]),
         ),
+        // 日报告 and 项目进度摘要 print each document whole, in these words.
+        lang: locale,
       }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["contractor-reports", "history"] }),
   });
-  const previewWidth = (report.data?.columns ?? []).reduce(
-    (total, key) => total + reportColumnWidth(key),
-    PHOTO_COLUMN_WIDTH,
-  );
 
   function formatReportValue(
     key: string,
@@ -378,6 +403,7 @@ export function ContractorReportWorkspace({
           </p>
         )}
         <QueryFailedNote query={options} what={t("what.projects")} className="w-full" />
+        <QueryFailedNote query={latest} what={t("what.latestDay")} className="w-full" />
       </section>
 
       <section className="surface-panel overflow-hidden rounded-xl">
@@ -401,27 +427,15 @@ export function ContractorReportWorkspace({
         ) : (report.data?.rows.length ?? 0) === 0 ? (
           <p className="p-10 text-center text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
-          <div className="max-h-[60dvh] overflow-auto">
-            <Table
-              className="table-fixed"
-              style={{ width: previewWidth, minWidth: "100%" }}
-            >
-              <colgroup>
-                <col style={{ width: PHOTO_COLUMN_WIDTH }} />
-                {report.data?.columns.map((key) => (
-                  <col key={key} style={{ width: reportColumnWidth(key) }} />
-                ))}
-              </colgroup>
-              <TableHeader className="sticky top-0 z-10 bg-card">
+          // The table's own box scrolls (IB3), so its header stays on top;
+          // the columns fit the page width (I39) - no sideways scroll at
+          // 1366 px - each at least as wide as its one-line header.
+          <Table fit containerClassName="max-h-[60dvh]">
+              <TableHeader>
                 <TableRow>
-                  <TableHead className="whitespace-normal">{t("photo")}</TableHead>
+                  <TableHead>{t("photo")}</TableHead>
                   {report.data?.columns.map((key) => (
-                    <TableHead
-                      key={key}
-                      className="whitespace-normal [overflow-wrap:anywhere]"
-                    >
-                      {t(`column.${key}`)}
-                    </TableHead>
+                    <TableHead key={key}>{t(`column.${key}`)}</TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
@@ -430,9 +444,12 @@ export function ContractorReportWorkspace({
                   const record = report.data.records?.[index] ?? null;
                   const reference = reportRowReference(row);
                   const open = rowOpener(record);
-                  const openRow = open
-                    ? () => open(reference, String(row.project ?? ""))
-                    : undefined;
+                  const openRow =
+                    dailyReport && record?.id
+                      ? () => setBook(index)
+                      : open
+                        ? () => open(reference, String(row.project ?? ""))
+                        : undefined;
                   return (
                     // 每一项都可以点进去操作: the row opens its record, where
                     // its module lets the reader act on it.
@@ -507,12 +524,91 @@ export function ContractorReportWorkspace({
                   );
                 })}
               </TableBody>
-            </Table>
-          </div>
+          </Table>
         )}
       </section>
       {opener.sheet}
+      {book !== null && (
+        <DailyReportBook
+          source={{ kind: "ids", ids: bookIds }}
+          start={book}
+          onClose={() => setBook(null)}
+          onChanged={() =>
+            queryClient.invalidateQueries({ queryKey: ["contractor-reports", "report"] })
+          }
+        />
+      )}
+      {asksDays && (
+        <ReportDaysPrompt
+          from={list.filters.date_from ?? weekAgo}
+          to={dateTo}
+          onDone={(from, to) => setFilters({ range: undefined, date_from: from, date_to: to })}
+          onCancel={() => setFilters({ range: undefined })}
+        />
+      )}
     </div>
+  );
+}
+
+/**
+ * 「往日报告」 (I8, ID24): the same report as 「日报告」, opened by first asking
+ * which days to read. The reader's current days are offered.
+ */
+function ReportDaysPrompt({
+  from,
+  to,
+  onDone,
+  onCancel,
+}: {
+  from: string;
+  to: string;
+  onDone: (from: string, to: string) => void;
+  onCancel: () => void;
+}) {
+  const t = useTranslations("contractorReports");
+  const common = useTranslations("common");
+  const [start, setStart] = useState(from);
+  const [end, setEnd] = useState(to);
+  const backwards = Boolean(start && end && start > end);
+  return (
+    <Dialog open onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("days.title")}</DialogTitle>
+          <DialogDescription>{t("days.help")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FieldWrapper label={t("filter.dateFrom")}>
+            <Input
+              type="date"
+              value={start}
+              max={end || undefined}
+              onChange={(event) => setStart(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("filter.dateTo")}>
+            <Input
+              type="date"
+              value={end}
+              min={start || undefined}
+              onChange={(event) => setEnd(event.target.value)}
+            />
+          </FieldWrapper>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>
+            {common("cancel")}
+          </Button>
+          <Button
+            disabled={!start || !end || backwards}
+            disabledReason={backwards ? t("days.backwards") : t("days.choose")}
+            onClick={() => onDone(start, end)}
+          >
+            {t("days.show")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -554,18 +650,9 @@ export function ContractorReportHistoryWorkspace() {
         ) : (history.data?.results.length ?? 0) === 0 ? (
           <p className="p-10 text-center text-sm text-muted-foreground">{t("history.empty")}</p>
         ) : (
-          <div className="overflow-auto">
-            <Table className="min-w-300 table-fixed">
-              <colgroup>
-                <col className="w-72" />
-                <col className="w-36" />
-                <col className="w-44" />
-                <col className="w-48" />
-                <col className="w-20" />
-                <col className="w-44" />
-                <col className="w-44" />
-                <col className="w-48" />
-              </colgroup>
+          <>
+            {/* Fits the page (I39): the file name wraps, the dates stack. */}
+            <Table fit>
               <TableHeader><TableRow>
                 <TableHead>{t("history.file")}</TableHead>
                 <TableHead>{t("history.report")}</TableHead>
@@ -574,7 +661,7 @@ export function ContractorReportHistoryWorkspace() {
                 <TableHead className="text-right tabular">{t("history.rows")}</TableHead>
                 <TableHead>{t("history.generatedBy")}</TableHead>
                 <TableHead>{t("history.generatedAt")}</TableHead>
-                <TableHead>{archiveT("column")}</TableHead>
+                <TableHead pin="end">{archiveT("column")}</TableHead>
               </TableRow></TableHeader>
               <TableBody>
                 {history.data?.results.map((row) => (
@@ -589,14 +676,14 @@ export function ContractorReportHistoryWorkspace() {
                     <TableCell className="text-right tabular">{row.metric_count}</TableCell>
                     <TableCell>{row.generated_by_name || row.generated_by_email}</TableCell>
                     <TableCell className="whitespace-nowrap tabular">{df.dateTime(row.created_at)}</TableCell>
-                    <TableCell>
+                    <TableCell pin="end">
                       <ArchivedReportActions row={row} archive={archive} title={previewTitle(row)} />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </>
         )}
       </section>
       {archive.element}

@@ -42,6 +42,7 @@ import {
   sendIncidentMessage,
 } from "@/services/site-operations.service";
 import { toast } from "sonner";
+import { useRoleLabel } from "@/lib/role-labels";
 
 /**
  * One incident report in the record-detail popup (E8, Q31), over the list in
@@ -161,6 +162,7 @@ export function IncidentThreadDetail({
   // was filed.
   const header = {
     title: record?.thread_no ?? t("title"),
+    legacyNo: record?.legacy_no,
     description: record?.title,
     status: record?.is_resolved ? (
       <StatusBadge label={t("status.resolved")} tone="positive" />
@@ -343,6 +345,7 @@ function ParticipantChip({
   participant: IncidentReportRecipient;
 }) {
   const t = useTranslations("incidentReporting");
+  const roleOf = useRoleLabel();
   return (
     <div className="flex shrink-0 items-center gap-2 rounded-full border bg-background px-2.5 py-1.5">
       <Avatar name={participant.full_name} />
@@ -353,7 +356,7 @@ function ParticipantChip({
         <span className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
           {participant.is_supervisor ? <ShieldCheck className="size-3 shrink-0" /> : null}
           <span className="truncate">
-            {[participant.role_name, participant.is_reporter
+            {[roleOf(null, participant.role_name), participant.is_reporter
               ? t("reporter")
               : participant.is_supervisor
                 ? t("supervisor")
@@ -377,13 +380,14 @@ function MessageCard({
   onOpenPhoto: (id: string) => void;
 }) {
   const tPhoto = useTranslations("hazard");
+  const roleOf = useRoleLabel();
   return (
     <article className={`flex items-end gap-2 ${own ? "justify-end" : "justify-start"}`}>
       {!own ? <Avatar name={message.author_name} /> : null}
       <div className={`flex min-w-0 max-w-[82%] flex-col ${own ? "items-end" : "items-start"}`}>
         <div className={`mb-1 flex flex-wrap items-center gap-x-2 px-1 text-[11px] text-muted-foreground ${own ? "justify-end" : "justify-start"}`}>
           <span className="font-semibold text-foreground">{message.author_name}</span>
-          {participant?.role_name ? <span>{participant.role_name}</span> : null}
+          {participant?.role_name ? <span>{roleOf(null, participant.role_name)}</span> : null}
           <span>{new Date(message.sent_at).toLocaleString()}</span>
         </div>
         <div

@@ -23,6 +23,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { RecordExportButton } from "@/components/shared/record-export-button";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -117,6 +118,7 @@ import {
   DOCUMENT_FILE_ACCEPT,
   DocumentCategoryPicker,
   DocumentThumb,
+  nextUploadBatch,
 } from "@/components/document-workflow/document-archive-parts";
 import { cn } from "@/lib/utils";
 
@@ -915,28 +917,22 @@ function UploadDocumentDialog({
             hint={t("documents.uploadFile.fileHint")}
             className="sm:col-span-2"
           >
-            <Input
-              type="file"
-              multiple
-              accept={DOCUMENT_FILE_ACCEPT}
+            <AttachmentPicker
+              files={files}
+              camera={false}
               disabled={pending}
-              onChange={(event) => {
-                setFiles(Array.from(event.target.files ?? []));
-                // A new choice is a new document.
-                setCreatedId(null);
-                setDone(0);
+              doneCount={done}
+              rule={{ accept: DOCUMENT_FILE_ACCEPT, multiple: true }}
+              onChange={(next) => {
+                // A new choice is a new document - but not a file added or
+                // taken off part-way through, which stays in the one made.
+                const batch = nextUploadBatch({ files, done, createdId }, next);
+                setFiles(batch.files);
+                setDone(batch.done);
+                setCreatedId(batch.createdId);
               }}
             />
           </FieldWrapper>
-          {files.length > 1 && (
-            <ul className="max-h-28 overflow-y-auto rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
-              {files.map((file, index) => (
-                <li key={`${file.name}-${file.size}-${index}`} className={cn("truncate", index < done && "text-success")}>
-                  {file.name}
-                </li>
-              ))}
-            </ul>
-          )}
           {partial && !mutation.isPending && (
             <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground sm:col-span-2">
               {t("documents.uploadFile.partial", { done, total: files.length })}
@@ -1449,26 +1445,18 @@ function VersionUploadDialog({
               error={errors.file}
               hint={t("documents.upload.limit")}
             >
-              <Input
-                type="file"
-                multiple
-                accept={DOCUMENT_FILE_ACCEPT}
+              <AttachmentPicker
+                files={files}
+                camera={false}
                 disabled={mutation.isPending}
-                onChange={(event) => {
-                  setFiles(Array.from(event.target.files ?? []));
+                doneCount={done}
+                rule={{ accept: DOCUMENT_FILE_ACCEPT, multiple: true }}
+                onChange={(next) => {
+                  setFiles(next);
                   setDone(0);
                 }}
               />
             </FieldWrapper>
-            {files.length > 1 && (
-              <ul className="max-h-28 overflow-y-auto rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                {files.map((file, index) => (
-                  <li key={`${file.name}-${file.size}-${index}`} className={cn("truncate", index < done && "text-success")}>
-                    {file.name}
-                  </li>
-                ))}
-              </ul>
-            )}
             <FieldWrapper
               label={t("documents.field.versionNote")}
               optional={t("common.optional")}

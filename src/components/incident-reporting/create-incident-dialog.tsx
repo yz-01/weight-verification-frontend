@@ -38,6 +38,7 @@ import {
 } from "@/services/site-operations.service";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useRoleLabel } from "@/lib/role-labels";
 
 export function CreateIncidentDialog({
   onClose,
@@ -47,6 +48,7 @@ export function CreateIncidentDialog({
   onSuccess: () => void;
 }) {
   const t = useTranslations("incidentReporting");
+  const roleOf = useRoleLabel();
   const { user } = useAuth();
   const qc = useQueryClient();
   // A new report is for the top bar's 「当前项目」 in the office (B13); on
@@ -303,8 +305,8 @@ export function CreateIncidentDialog({
                         </span>
                         <span className="block truncate text-xs text-muted-foreground">
                           {recipient.is_supervisor
-                            ? `${recipient.role_name} / ${t("supervisor")}`
-                            : recipient.role_name}
+                            ? `${roleOf(null, recipient.role_name)} / ${t("supervisor")}`
+                            : roleOf(null, recipient.role_name)}
                         </span>
                       </span>
                       {checked && <Check className="size-4 text-primary" />}

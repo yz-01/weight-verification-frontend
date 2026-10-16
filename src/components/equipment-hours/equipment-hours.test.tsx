@@ -48,13 +48,19 @@ const {
 const {
   EquipmentHoursCapture,
   LastSentNote,
+  isForgottenStart,
+  kindToTake,
   machineLabel,
+  machineNumber,
   matchScannedMachine,
   matchTypedMachine,
-  noSupplierNamed,
   nextKind,
   photoTakenAt,
 } = await import("@/components/equipment-hours/equipment-hours-capture");
+const { SupplierTotals } = await import("@/components/equipment-hours/equipment-operator-hours");
+const { OperatorHistory, operatorPayload } = await import(
+  "@/components/equipment-hours/equipment-session-operator"
+);
 const { machineMatchesSearch } = await import("@/components/equipment-hours/equipment-site-numbers");
 
 const words = messages.equipmentHours;
@@ -133,7 +139,7 @@ function officePage(answer: Partial<{ date_from: string; date_to: string; automa
           supplier_name: "Lift Masters",
           end_at: null,
           photo_end_at: null,
-          hours: "0.00",
+          hours: null,
           cumulative_hours: "13.50",
           photo_count: 1,
           missing_end: true,
@@ -176,11 +182,81 @@ describe("the office page 设备操作员工时", () => {
     expect(html).toContain("13.50");
     expect(html).toContain("Ace Plant Hire");
     expect(html).toContain("EQ-001");
-    expect(html).toContain("/media/a.jpg");
-    // The crane has only its start: 0 h and 缺收工, and the office may add the end.
+    // The crane has only its start: blank hours and 缺收工, and the office may add the end.
     expect(html).toContain("Crane");
     expect(html).toContain(words.status.MISSING_END);
     expect(html).toContain(words.adjust.add);
+  });
+
+  it("shows the client's columns in the client's order (2026-10 I4)", () => {
+    const page = officePage();
+    // The day table's own header row (the filters above use some of the words too).
+    const html = page.slice(page.indexOf("<thead"));
+    const order = [
+      words.field.machineNo,
+      words.field.equipmentName,
+      words.field.supplier,
+      words.field.operator,
+      words.field.cidb,
+      words.field.date,
+      words.field.startTime,
+      words.field.endTime,
+      words.field.hours,
+      words.field.view,
+    ].map((label) => html.indexOf(`>${label}<`));
+    expect(order.every((at) => at > 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    // The office fills the operator in the table (ID19).
+    expect(page).toContain(words.operator.fill);
+  });
+
+  it("leaves the hours of a session with no stop blank, not 0 (I4)", () => {
+    const html = officePage();
+    expect(html).not.toContain(">0.00<");
+  });
+
+  it("shows a supplier's machines and the company's total (I4)", () => {
+    const html = render(
+      <SupplierTotals
+        supplier="Ace Plant Hire"
+        total="5.50"
+        onPick={() => undefined}
+        rows={[
+          { equipment: "eq-1", equipment_name: "Excavator", equipment_code: "EQ-001", site_no: "12", session_count: 1, total_hours: "4.00", incomplete_count: 0 },
+          { equipment: "eq-3", equipment_name: "Dozer", equipment_code: "EQ-010", site_no: "", session_count: 1, total_hours: "1.50", incomplete_count: 0 },
+        ]}
+      />,
+    );
+    expect(html).toContain(words.supplierTotals.title.replace("{supplier}", "Ace Plant Hire"));
+    expect(html).toContain("12");
+    expect(html).toContain("EQ-010");
+    expect(html).toContain("4.00");
+    expect(html).toContain("5.50");
+    expect(html).toContain(words.supplierTotals.total);
+  });
+
+  it("sends the operator trimmed, for one session or its whole day, and keeps the history (ID19)", () => {
+    expect(operatorPayload(session(), "  Ali bin Abu ", " CIDB-1 ", true)).toEqual({
+      session: "log-a",
+      operator_name: "Ali bin Abu",
+      cidb_no: "CIDB-1",
+      apply_to_day: true,
+    });
+    const html = render(
+      <OperatorHistory
+        session={session({
+          operator_name: "Muthu",
+          cidb_no: "CIDB-900",
+          operator_history: [
+            { id: "2", operator_name: "Muthu", cidb_no: "CIDB-900", created_by_name: "Ong", created_at: "2026-10-08T01:00:00Z" },
+            { id: "1", operator_name: "Ali", cidb_no: "", created_by_name: "Ong", created_at: "2026-10-07T12:00:00Z" },
+          ],
+        })}
+      />,
+    );
+    expect(html.indexOf("Muthu")).toBeLessThan(html.indexOf("Ali"));
+    expect(html).toContain("CIDB CIDB-900");
+    expect(html.match(new RegExp(words.history.current, "g"))).toHaveLength(1);
   });
 
   it("filters by supplier, machine, plate or number, project and dates (图11)", () => {
@@ -190,6 +266,8 @@ describe("the office page 设备操作员工时", () => {
     expect(html).toContain(words.filter.search);
     expect(html).toContain(words.filter.from);
     expect(html).toContain(words.filter.to);
+    // 设备编号 can be found by its QR too (I4).
+    expect(html).toContain(words.filter.scan);
   });
 
   it("opens on the dates that have records and says so (图6)", () => {
@@ -348,29 +426,22 @@ describe("the phone screen 设备操作员工时", () => {
       "EQ-001 · Excavator · WXY 1234",
     );
     expect(machineLabel({ name: "Generator", plate: "" })).toBe("Generator");
-    const html = render(<EquipmentHoursCapture initialProject="p1" />);
+    expect(machineNumber({ code: "EQ-001", site_no: "12" })).toBe("12");
+    expect(machineNumber({ code: "EQ-001" })).toBe("EQ-001");
+  });
+
+  it("has one entry: a big 「扫描设备二维码」 and a small 「二维码坏了？输入编号」 (I4)", () => {
+    const html = render(<EquipmentHoursCapture initialProject="p1" />, (client) =>
+      client.setQueryData(["equipment-hours", "machines", "p1"], MACHINES),
+    );
     expect(html).toContain(words.phone.howTo);
-    expect(html).toContain(words.phone.pickMachine);
-    expect(html).toContain(words.phone.scan);
-    expect(html).toContain(words.kind.START);
-    expect(html).toContain(words.kind.FINISH);
+    expect(html).toContain(words.phone.scanBig);
+    expect(html).toContain(words.phone.brokenQr);
+    // No supplier filter, no machine list, no machine details (ID18).
+    expect(html).not.toContain(`aria-label="${words.phone.supplier}"`);
+    expect(html).not.toContain(words.phone.pickMachine);
+    expect(html).not.toContain("Ace Plant Hire");
     expect(html).not.toContain("分类");
-  });
-
-  it("always offers the supplier, even with one company's machines", () => {
-    const seeded = (rows: EquipmentHoursMachine[]) =>
-      render(<EquipmentHoursCapture initialProject="p1" />, (client) =>
-        client.setQueryData(["equipment-hours", "machines", "p1"], rows),
-      );
-    const picker = `aria-label="${words.phone.supplier}"`;
-    expect(seeded(MACHINES)).toContain(picker);
-    expect(seeded([MACHINES[0]])).toContain(picker);
-  });
-
-  it("starts on 「未填供应商」 when no machine names its company", () => {
-    expect(noSupplierNamed([{ ...MACHINES[0], supplier: "" }])).toBe(true);
-    expect(noSupplierNamed([])).toBe(true);
-    expect(noSupplierNamed(MACHINES)).toBe(false);
   });
 
   it("finds the machine a QR names: id, equipment number, plate or serial, also in a link", () => {
@@ -384,10 +455,59 @@ describe("the phone screen 设备操作员工时", () => {
     expect(matchScannedMachine("", MACHINES)).toBeNull();
   });
 
+  it("reads the system's own machine QR from 设备清单 (2026-10 I24, ID59)", () => {
+    // The sticker the office prints: its scan page, with the machine's id.
+    expect(
+      matchScannedMachine("https://trace.example.my/scan/equipment?equipment=eq-2", MACHINES)?.name,
+    ).toBe("Crane");
+    expect(
+      matchScannedMachine(" https://trace.example.my/scan/equipment?equipment=eq-1 ", MACHINES)?.name,
+    ).toBe("Excavator");
+    // A sticker for a machine not on this site's list picks nothing.
+    expect(
+      matchScannedMachine("https://trace.example.my/scan/equipment?equipment=eq-9", MACHINES),
+    ).toBeNull();
+  });
+
   it("offers 收工 first for a machine that is running, 开工 otherwise", () => {
     expect(nextKind(MACHINES[0])).toBe("FINISH");
     expect(nextKind(MACHINES[1])).toBe("START");
     expect(nextKind(undefined)).toBe("START");
+  });
+
+  it("counts a photo still waiting on the phone before the server's word (ID17, IB4)", () => {
+    // Offline: the crane's 开工 waits in the queue; the server still says it is not running.
+    const waiting = [{ equipment: "eq-2", kind: "START" as const, capturedAt: "2026-10-07T00:00:00Z" }];
+    const sameDay = new Date("2026-10-07T03:00:00Z");
+    expect(kindToTake(MACHINES[1], waiting, sameDay)).toBe("FINISH");
+    // Its 收工 queued after it: next is a 开工 again.
+    expect(
+      kindToTake(MACHINES[1], [
+        ...waiting,
+        { equipment: "eq-2", kind: "FINISH" as const, capturedAt: "2026-10-07T09:00:00Z" },
+      ], sameDay),
+    ).toBe("START");
+    // Another machine's queued photo changes nothing.
+    expect(kindToTake(MACHINES[0], waiting)).toBe("FINISH");
+    expect(kindToTake(MACHINES[1], [])).toBe("START");
+  });
+
+  it("a 开工 left open from an earlier day is a forgotten 收工: the new day starts with 开工 (P-phonefix)", () => {
+    // 08:00 yesterday (KL), never stopped; 07:00 this morning.
+    const yesterday = "2026-10-07T00:00:00Z";
+    const thisMorning = new Date("2026-10-07T23:00:00Z");
+    expect(isForgottenStart(yesterday, thisMorning)).toBe(true);
+    const waiting = [{ equipment: "eq-2", kind: "START" as const, capturedAt: yesterday }];
+    expect(kindToTake(MACHINES[1], waiting, thisMorning)).toBe("START");
+    // A night shift across midnight is still running: 22:00 to 02:00.
+    expect(isForgottenStart("2026-10-07T14:00:00Z", new Date("2026-10-07T18:00:00Z"))).toBe(false);
+    // The same day, however long, is never forgotten.
+    expect(isForgottenStart("2026-10-07T00:00:00Z", new Date("2026-10-07T15:00:00Z"))).toBe(false);
+    // The server says it the same way: no open_since, an unclosed_since.
+    expect(nextKind({ open_since: null })).toBe("START");
+    expect(messages.equipmentHours.phone.unclosedYesterday).toBe(
+      "这部设备昨天没有收工，请办公室补上收工时间",
+    );
   });
 
   it("is a tile on the phone's 拍照 grid, with the equipment entry's permission", () => {
@@ -402,44 +522,17 @@ describe("the phone screen 设备操作员工时", () => {
     );
   });
 
-  it("after a photo, says how the session stands", () => {
-    const started = render(
-      <LastSentNote
-        last={{
-          status: "uploaded",
-          kind: "START",
-          label: "EQ-001 · Excavator",
-          session: session({ end_at: null, photo_end_at: null, hours: "0.00", photo_count: 1, missing_end: true }),
-        }}
-      />,
+  it("after a photo, says in one line what went: 「已提交：12 号 收工 19:23」", () => {
+    const sent = render(
+      <LastSentNote last={{ status: "uploaded", number: "12", kind: "FINISH", at: "2026-10-07T11:23:00Z" }} />,
     );
-    expect(started).toContain("开工 · EQ-001 · Excavator");
-    expect(started).toContain("2026-10-07 08:00 开工");
-    expect(started).toContain(words.phone.stopHint);
-
-    const stopped = render(
-      <LastSentNote last={{ status: "uploaded", kind: "FINISH", label: "Excavator", session: session() }} />,
+    expect(sent).toContain("已提交：12 号 收工 19:23");
+    const waiting = render(
+      <LastSentNote last={{ status: "queued", number: "12", kind: "START", at: "2026-10-07T00:05:00Z" }} />,
     );
-    expect(stopped).toContain("2026-10-07 08:00 至 2026-10-07 17:30，共 9.50 小时");
-
-    const night = render(
-      <LastSentNote
-        last={{
-          status: "uploaded",
-          kind: "FINISH",
-          label: "Crane",
-          session: session({
-            start_at: "2026-10-06T14:00:00Z",
-            end_at: "2026-10-06T18:00:00Z",
-            hours: "4.00",
-          }),
-        }}
-      />,
+    expect(waiting).toContain(
+      words.phone.sentQueued.replace("{number}", "12").replace("{kind}", "开工").replace("{time}", "08:05"),
     );
-    expect(night).toContain("2026-10-06 22:00 至 2026-10-07 02:00，共 4.00 小时");
-
-    const waiting = render(<LastSentNote last={{ status: "queued", kind: "START", label: "Excavator" }} />);
-    expect(waiting).toContain(words.phone.queued);
   });
 
   it("takes the photo's own moment from the camera's file, not the send button (#30)", () => {
@@ -489,25 +582,6 @@ describe("现场编号: the number the office paints on each machine", () => {
     );
   });
 
-  it("offers 输入编号 beside the list and 扫码, with no red star on the machine or the supplier", () => {
-    const html = render(<EquipmentHoursCapture initialProject="p1" />, (client) =>
-      client.setQueryData(["equipment-hours", "machines", "p1"], NUMBERED),
-    );
-    expect(html).toContain(words.phone.typeNumber);
-    expect(html).toContain(words.phone.typeNumberPlaceholder);
-    expect(html).toContain(words.phone.scan);
-    // One requirement, said once in words instead of a star on each picker.
-    expect(html).toContain(words.phone.machineAnyWay);
-    const star = (label: string) =>
-      new RegExp(`${label}<span class="[^"]*text-destructive[^"]*">\\*</span>`);
-    expect(html).not.toMatch(star(words.phone.machine));
-    expect(html).not.toMatch(star(words.phone.supplier));
-    // The photo is still compulsory and still says so.
-    expect(html).toMatch(star(words.phone.photo));
-    // Nothing typed yet: no 「找不到这个编号」.
-    expect(html).not.toContain(words.phone.typedNoMatch);
-  });
-
   it("shows the site number on the office table and in its export", () => {
     const html = render(<EquipmentOperatorHours />, (client) =>
       client.setQueryData(["equipment-hours", "days", NO_FILTERS], {
@@ -518,13 +592,13 @@ describe("现场编号: the number the office paints on each machine", () => {
         rows: [session({ site_no: "Z12" })],
       }),
     );
-    expect(html).toContain(words.field.siteNo);
+    expect(html).toContain(words.field.machineNo);
     expect(html).toContain("Z12");
     const source = readFileSync(
       path.join(process.cwd(), "src/components/equipment-hours/equipment-operator-hours.tsx"),
       "utf8",
     );
-    expect(source).toContain('{ key: "site_no", label: t("field.siteNo") }');
+    expect(source).toContain('{ key: "site_no", label: t("field.machineNo") }');
     expect(source).toContain('site_no_label: t("field.siteNo")');
   });
 

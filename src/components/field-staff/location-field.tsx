@@ -99,7 +99,8 @@ export function LocationField({
   readyLabel: string;
   value: LocationFix | null;
   onChange: (fix: LocationFix | null) => void;
-  required?: boolean;
+  /** `"quiet"`: required, no red star; the `hint` says so (I22, ID56). */
+  required?: boolean | "quiet";
   className?: string;
   /** A server-side rejection of the coordinates, shown under the field. */
   error?: string;

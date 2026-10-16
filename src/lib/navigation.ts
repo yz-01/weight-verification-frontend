@@ -89,6 +89,7 @@ export type PortalFeatureKey =
   | "geofences"
   | "site_access"
   | "emergency_list"
+  | "site_workers"
   | "company_settings"
   | "integrations"
   | "company_management"
@@ -758,20 +759,13 @@ export const PORTAL_NAVIGATION = {
     // B03: 项目 holds project records only (the test in navigation.test.ts
     // keeps it that way); 现场任务 and MR / Other Request are business
     // entries of their own, here beside each other.
-    // `/material-requests` and `/photo-approvals` are also reachable with
-    // field tasks alone: the old 照片审批 entry became a tab of MR / Other
-    // Request (D02), and someone who decided photo submissions there must
-    // still reach them even without the request permissions.
-    item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals", "/material-requests"]),
-    // MR / Other Request (C01–C07), in the old 照片审批 entry's place, after
-    // 现场任务. The old address forwards to its photo tab (D02).
-    item(
-      "material_requests",
-      "/material-requests",
-      ClipboardCheck,
-      "operations",
-      ["/photo-approvals"],
-    ),
+    // `/photo-approvals` is the address of the photo review that was taken
+    // out (I17): it forwards to the 待验收 view of 现场任务, so it opens with
+    // field tasks and belongs to this entry alone.
+    item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals"]),
+    // MR / Other Request (C01–C07), right after 现场任务. Requests only: it
+    // has no photo tab any more (I17), so field tasks alone do not open it.
+    item("material_requests", "/material-requests", ClipboardCheck, "operations"),
     item(
       "suppliers",
       "/modules/suppliers",
@@ -830,6 +824,14 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.materialOutgoing",
           "/material-outgoing",
           "material_outgoing",
+        ),
+        // 材料目标 (I18-1): 「在材料管理页面没有看到设置入口」 - now it has one,
+        // here and in the page's own view list.
+        child(
+          "5.2.3",
+          "nav.submodule.materialTargets",
+          "/material-targets",
+          "material_receipts",
         ),
       ],
     ),
@@ -1099,9 +1101,8 @@ export const PORTAL_NAVIGATION = {
         // entry, beside 隐患整改 rather than a column inside it. The same
         // `safety` feature and permissions: the safety team runs both.
         child("11.2.2", "nav.submodule.permits", "/permits", "safety"),
-        // 门岗记录 (batch H, HD9): 「EHS / Safety → Gate Records」, the guards'
-        // photos and gate issues, for whoever may see site access.
-        child("11.2.3", "nav.submodule.gateRecords", "/gate-records", "gate_records"),
+        // 门岗记录 lived here (batch H, HD9) until the client moved it to
+        // 工地门禁 (I25, ID61): 「整改 / EHS 拿掉门岗记录」.
       ],
     ),
     item(
@@ -1175,6 +1176,27 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/progress",
           "report_center",
         ),
+        // 工程进度's own reports (I8, ID24): reached from 工程进度 in
+        // 【选择报表】 (`PROGRESS_MENU`, lib/report-menu), not from the first
+        // level; listed here so the routes open.
+        {
+          ...child(
+            "13.2.4A",
+            "nav.submodule.dailyReport",
+            "/reports/contractor/daily_report",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
+        {
+          ...child(
+            "13.2.4B",
+            "nav.submodule.progressSummary",
+            "/reports/contractor/progress_summary",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
         child(
           "13.2.5",
           "nav.submodule.safetyIncidents",
@@ -1205,12 +1227,43 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/recycling",
           "report_center",
         ),
+        // The four modules that had no report (I11, ID27), named as their
+        // pages are named; material outgoing and Progress Claim open at their
+        // categories.
         child(
-          "13.2.10",
-          "nav.submodule.schedulePlanning",
-          "/reports/contractor/schedule",
+          "13.2.9A",
+          "nav.submodule.fieldTasks",
+          "/reports/contractor/field_tasks",
           "report_center",
         ),
+        child(
+          "13.2.9B",
+          "nav.submodule.materialOutgoing",
+          "/reports/contractor/material_outgoing",
+          "report_center",
+        ),
+        child(
+          "13.2.9C",
+          "nav.submodule.claimEngine",
+          "/reports/contractor/claims",
+          "report_center",
+        ),
+        child(
+          "13.2.9D",
+          "nav.submodule.sundryClaims",
+          "/reports/contractor/sundry_claims",
+          "report_center",
+        ),
+        // 施工计划 moved under 工程进度 (I8, ID24); the address stays.
+        {
+          ...child(
+            "13.2.10",
+            "nav.submodule.schedulePlanning",
+            "/reports/contractor/schedule",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
         // 项目资料 is the document archive, by 文档大分类 → 子分类 (D6). The
         // archive's own read permission still applies.
         child(
@@ -1278,6 +1331,13 @@ export const PORTAL_NAVIGATION = {
           "/emergency-list",
           "emergency_list",
         ),
+        // 人员名单 (I20): workers with no account, located by their own link.
+        child(
+          "15.2.5",
+          "nav.submodule.siteWorkers",
+          "/site-workers",
+          "site_workers",
+        ),
       ],
     ),
     // What used to sit together under 「现场资料」 (F-484), each at its own
@@ -1342,15 +1402,32 @@ export const PORTAL_NAVIGATION = {
       undefined,
       false,
       [
+        // 工地门禁 is the five pages a guard's work is read on, in the
+        // client's order (I25, ID61): 「请将以下 5 个现有页面统一放在左侧
+        // 『工地门禁』分类下面：日常拍照记录、门岗事项、通行证、访客扫码、访客进
+        // 退场记录」. The first two are the two tabs of 门岗记录 (HD9), moved
+        // here from 整改 / EHS; pages, addresses and permissions unchanged.
         child(
           "17.2.1",
+          "nav.submodule.gatePhotoRecords",
+          "/gate-records?tab=photos",
+          "gate_records",
+        ),
+        child(
+          "17.2.2",
+          "nav.submodule.gateIssues",
+          "/gate-records?tab=issues",
+          "gate_records",
+        ),
+        child(
+          "17.2.3",
           "nav.submodule.siteAccessPasses",
           "/site-access",
           "site_access",
         ),
         // 访客扫码 (HD7): scan, read the pass, Confirm Entry / Exit.
         child(
-          "17.2.2",
+          "17.2.4",
           "nav.submodule.gateScanning",
           "/site-access?tab=gate",
           "site_access",
@@ -1358,7 +1435,7 @@ export const PORTAL_NAVIGATION = {
         // Visitor Records (HD9): every confirmed entry and exit, kept apart
         // from the gate photographs.
         child(
-          "17.2.3",
+          "17.2.5",
           "nav.submodule.visitorRecords",
           "/visitor-records",
           "site_access",
@@ -1747,6 +1824,20 @@ export function hubDestination(
     isSuperuser,
   );
   return children[0]?.href ?? null;
+}
+
+/**
+ * The tab a page shows when its address names none: `/gate-records` opens
+ * on 日常拍照记录, so that menu entry is the one lit (I25: 「菜单高亮跟着分页
+ * 走」).
+ */
+export const DEFAULT_NAV_TABS: Readonly<Record<string, string>> = {
+  "/gate-records": "photos",
+};
+
+/** The tab this address is on, counting a page's default tab. */
+export function navTabOf(route: string, searchParams: Pick<URLSearchParams, "get">): string | null {
+  return searchParams.get("tab") ?? DEFAULT_NAV_TABS[route] ?? null;
 }
 
 /** Whether a navigation entry matches the current route. */

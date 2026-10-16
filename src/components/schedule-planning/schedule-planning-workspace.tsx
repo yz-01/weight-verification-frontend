@@ -143,6 +143,7 @@ export function SchedulePlanningWorkspace({
   onProjectChange?: (project: string) => void;
 } = {}) {
   const t = useTranslations("schedulePlanning");
+  const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
   // `/schedule` on its own: the top bar's 「当前项目」 (B13).
@@ -360,6 +361,13 @@ export function SchedulePlanningWorkspace({
             {revision.status === "DRAFT" && (
               <p className="basis-full text-xs text-muted-foreground">{t("version.draftNote")}</p>
             )}
+            {/* 填写人 (I29, ID69): from the schedule's own history, not a field. */}
+            <p className="basis-full text-xs text-muted-foreground" data-slot="schedule-signers">
+              {t("signers.createdBy", { name: plan.created_by_name || "—", when: df.dateTime(plan.created_at) })}
+              {plan.last_changed_by_name && plan.last_changed_at
+                ? ` · ${t("signers.changedBy", { name: plan.last_changed_by_name, when: df.dateTime(plan.last_changed_at) })}`
+                : ""}
+            </p>
           </div>
         )}
       </div>

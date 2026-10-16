@@ -44,6 +44,7 @@ import { useUrlSelection } from "@/hooks/use-url-selection";
 import { PERMIT_STATUSES, type Permit } from "@/interfaces/permit";
 import { useDateFormat } from "@/lib/dates";
 import { exportPermits, getPermitApplicants, getPermits } from "@/services/permit.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 export function PermitsOffice() {
   const t = useTranslations("permits");
@@ -68,8 +69,9 @@ export function PermitsOffice() {
     () => [
       {
         accessorKey: "incident_no",
-        meta: { label: t("field.no") },
-        header: sortable(t("field.no")),
+        // 记录编号 (I6).
+        meta: { label: tRoot("recordNo.column") },
+        header: sortable(tRoot("recordNo.column")),
         cell: ({ row }) => <RecordNo value={row.original.incident_no} />,
       },
       {
@@ -141,7 +143,7 @@ export function PermitsOffice() {
           ),
       },
     ],
-    [t, df],
+    [t, tRoot, df],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -198,7 +200,8 @@ export function PermitsOffice() {
         needsActionCount={rows.data?.needs_action_count}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="permits.v1"
+        storageKey={LIST_FITS.permits.storageKey}
+        defaultHidden={LIST_FITS.permits.hidden}
         pack="HAZARD"
         toolbar={
           <>

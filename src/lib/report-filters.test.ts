@@ -33,6 +33,10 @@ describe("report centre filter bar (2026-10-10, 图11)", () => {
       [
         "attendance", "consultant", "documents", "equipment", "photos",
         "progress", "recycling", "safety", "schedule", "target",
+        // 工程进度's own reports (I8): who wrote it.
+        "daily_report", "progress_summary",
+        // The four modules that had no report (I11, ID27).
+        "field_tasks", "material_outgoing", "claims", "sundry_claims",
       ].sort(),
     );
     for (const report of REPORTS) {
