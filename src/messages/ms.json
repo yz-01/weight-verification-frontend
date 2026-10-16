@@ -4894,9 +4894,11 @@
       "verify": "Buka pengesahan QR"
     },
     "attachment": {
+      "archiveCategory": "Kategori fail",
+      "allArchiveCategories": "Semua kategori fail",
+      "addPicked": "Tambah {count} yang dipilih",
       "tileUpload": "Muat naik {type}",
       "uploadedCount": "{count} dimuat naik",
-      "tileHint": "Klik untuk pilih fail, atau seret fail ke sini.",
       "fromArchiveShort": "Pilih daripada arkib fail",
       "add": "Tambah lampiran",
       "attached": "Dilampirkan",
@@ -5013,6 +5015,18 @@
       "failed": "Tidak berjaya disimpan. Sila cuba lagi."
     },
     "evidence": {
+      "showing": "Menunjukkan {shown} terbaharu daripada {count}. Gunakan penapis di atas untuk mengecilkan senarai.",
+      "loadMore": "Muat lagi",
+      "categoryName": {
+        "material": "Bahan",
+        "equipment": "Peralatan",
+        "progress": "Kemajuan projek",
+        "recycle": "Permohonan bahan alam sekitar keluar",
+        "equipmentIn": "Peralatan masuk",
+        "equipmentOut": "Peralatan keluar",
+        "materialIn": "Bahan masuk",
+        "materialOut": "Bahan keluar"
+      },
       "module": "Modul",
       "allModules": "Semua modul",
       "allCategories": "Semua kategori",
@@ -5020,15 +5034,6 @@
       "allUploaders": "Semua pemuat naik",
       "keyword": "Kata kunci",
       "moduleName": {
-        "fieldTask": "Tugas tapak",
-        "equipment": "Peralatan masuk dan keluar",
-        "progress": "Kemajuan tapak",
-        "disposal": "Pelupusan tapak",
-        "wasteOut": "Sisa keluar",
-        "wasteDispatch": "Pesanan sisa",
-        "materialIn": "Bahan masuk",
-        "materialOut": "Bahan keluar",
-        "hazard": "Pembetulan bahaya",
         "other": "Lain-lain"
       },
       "selectPhotos": "Foto untuk dipautkan",
@@ -5369,6 +5374,7 @@
       }
     },
     "what": {
+      "archiveCategories": "Kategori fail",
       "evidenceFilters": "Pilihan penapis",
       "credential": "Tandatangan dan PIN kelulusan anda",
       "evidenceCandidates": "Bukti tapak projek",
@@ -7885,6 +7891,7 @@
       "permit_files_required": "Tambah borang permit: fail Word atau PDF, atau foto borang itu.",
       "permit_too_many_files": "Hantar paling banyak {limit} fail sekali gus.",
       "permit_file_type": "{name} bukan fail Word, Excel, PDF atau foto.",
+      "attachment_file_type": "{name} tidak boleh dimuat naik. Dibenarkan: {allowed}.",
       "permit_file_too_large": "{name} melebihi {limit} MB.",
       "permit_approver_unavailable": "Pilih pengurus keselamatan projek ini yang boleh meluluskan permit.",
       "permit_own_application": "Anda yang memohon {incident_no}, jadi orang lain perlu meluluskan atau memulangkannya.",
@@ -11221,6 +11228,7 @@
   },
   "offline": {
     "kind": {
+      "SAFETY_RECTIFICATION": "Penyerahan pembetulan",
       "ATTENDANCE": "Kemasukan tapak",
       "CATEGORY_EVIDENCE": "Foto tapak",
       "CONSULTANT_SUBMISSION": "Penyerahan perunding",
@@ -17554,6 +17562,7 @@
     }
   },
   "attachmentPicker": {
+    "wrongTypeAllowed": "{name} tidak boleh dimuat naik. Dibenarkan: {allowed}.",
     "takePhoto": "Ambil foto",
     "chooseFile": "Pilih fail",
     "dropHint": "Ambil foto dengan kamera komputer, pilih fail, seret fail ke sini, atau salin gambar dan tekan Ctrl+V di sini.",

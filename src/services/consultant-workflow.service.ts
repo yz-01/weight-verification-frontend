@@ -30,6 +30,7 @@ import type {
   WorkflowReviewerChoices,
 } from "@/interfaces/consultant-workflow";
 import type { DocumentRecord } from "@/interfaces/document-workflow";
+import { uploadEach, type BatchResult } from "@/lib/attachment-batch";
 import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getApplicationOptions = (
@@ -354,40 +355,40 @@ export const addApplicationAttachment = async (
 };
 
 /**
- * Several files of one type, one after the other (I40): the tile and the
- * dialog both take many at once; the server takes one per call. Stops at the
- * first refusal so the person is told which file, and what went up stays.
+ * Several files of one type, one call each (I40). A refused file does not stop
+ * the rest; the caller keeps only `failed` to send again (nothing saved is
+ * sent twice) and refreshes whatever happened.
  */
 export const addApplicationAttachments = async (
   id: string,
   files: File[],
   category: string,
   note = "",
-) => {
-  let row: ConsultantApplication | undefined;
-  for (const file of files) {
-    row = await addApplicationAttachment(id, file, category, note, true);
-  }
-  if (row) toastSuccess("consultantWorkflow.toast.attachmentAdded");
-  return row;
+): Promise<BatchResult<File>> => {
+  const result = await uploadEach(files, (file) =>
+    addApplicationAttachment(id, file, category, note, true),
+  );
+  if (result.saved.length) toastSuccess("consultantWorkflow.toast.attachmentAdded");
+  return result;
 };
 
 export const getApplicationEvidenceCandidates = (
   project: string,
-  filters: { search?: string; date_from?: string; date_to?: string; kind?: string; module?: string; category?: string; subcategory?: string; uploader?: string } = {},
+  filters: { page?: number; search?: string; date_from?: string; date_to?: string; kind?: string; module?: string; category?: string; subcategory?: string; uploader?: string } = {},
 ) =>
   api.list<EvidenceCandidate>(
     "/api/consultant-applications/get_evidence_candidates/",
-    { project, page_size: 500, ...filters },
+    { project, page_size: 100, ...filters },
   );
 
 export const getEvidenceFilterOptions = (project: string) =>
   api.get<EvidenceFilterOptions>("/api/consultant-applications/get_evidence_filter_options/", { project });
 
-export const getApplicationDocumentCandidates = (project: string, search?: string) =>
+export const getApplicationDocumentCandidates = (project: string, search?: string, category?: string) =>
   api.list<DocumentRecord>("/api/documents/get_documents/", {
     project,
     search: search || undefined,
+    category: category || undefined,
     page_size: 100,
   });
 
@@ -403,6 +404,24 @@ export const linkApplicationDocumentAttachment = async (
   );
   toastSuccess("consultantWorkflow.toast.attachmentAdded");
   return row;
+};
+
+/** Several archive files at once: the same partial-failure rule as uploads. */
+export const linkApplicationDocumentAttachments = async (
+  id: string,
+  versions: string[],
+  category?: string,
+  note?: string,
+): Promise<BatchResult<string>> => {
+  const result = await uploadEach(versions, (version) =>
+    api.post<ConsultantApplication>(`/api/consultant-applications/${id}/link_document_attachment/`, {
+      version,
+      category,
+      note,
+    }),
+  );
+  if (result.saved.length) toastSuccess("consultantWorkflow.toast.attachmentAdded");
+  return result;
 };
 
 export const linkApplicationEvidence = async (

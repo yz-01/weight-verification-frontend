@@ -49,7 +49,8 @@ import { RecordNo } from "@/components/shared/record-no";
 import { ExportButton } from "@/components/shared/export-button";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { FieldCamera } from "@/components/shared/field-camera";
-import { HAZARD_ATTACHMENT_RULE } from "@/lib/hazard-attachments";
+import { useAllowedTypeRefusal } from "@/components/shared/attachment-refusal";
+import { HAZARD_ATTACHMENT_ACCEPT, HAZARD_ATTACHMENT_RULE } from "@/lib/hazard-attachments";
 import {
   FieldWrapper,
   FilterBar,
@@ -103,6 +104,7 @@ import { hazardColumns, titleForColumn } from "@/lib/hazard-columns";
 import { photoMeta } from "@/lib/photo-meta";
 import {
   submitSafetyIncidentOfflineAware,
+  submitSafetyRectificationOfflineAware,
   type SafetyIncidentSubmission,
 } from "@/services/offline-sync.service";
 import { DrillNote } from "@/components/shared/drill-note";
@@ -118,7 +120,6 @@ import {
   getSafetyResponsibleOptions,
   reassignSafetyRectification,
   reviewSafetyRectification,
-  submitSafetyRectification,
   updateSafetyCategory,
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
@@ -1146,6 +1147,7 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
 export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const commonT = useTranslations("common");
+  const refusalText = useAllowedTypeRefusal(HAZARD_ATTACHMENT_ACCEPT);
   const qc = useQueryClient();
   const { user } = useAuth();
   const fieldMode = Boolean(user?.is_field_staff);
@@ -1157,7 +1159,31 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
   // Automatic, like every field capture form (T-355, D-246).
   const [location, setLocation] = useState<LocationFix | null>(null);
   const images = officeImages;
-  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, attachments, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); void qc.invalidateQueries({ queryKey: ["my-tasks"] }); void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] }); onClose(); } });
+  // One id for this dialog: every press, retry and queue replay is the same
+  // submission to the server, so a lost answer can never post the fix twice.
+  const [clientEventId] = useState(() => crypto.randomUUID());
+  const save = useMutation({
+    mutationFn: () => {
+      if (!user) throw new Error("Authentication required.");
+      return submitSafetyRectificationOfflineAware(user.id, incident.id, {
+        images,
+        attachments,
+        note,
+        captured_at: new Date().toISOString(),
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        accuracy_m: location?.accuracy,
+        device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined,
+        client_event_id: clientEventId,
+      });
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["safety"] });
+      void qc.invalidateQueries({ queryKey: ["my-tasks"] });
+      void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] });
+      onClose();
+    },
+  });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
@@ -1174,7 +1200,7 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
           />
         </FieldWrapper>
         <FieldWrapper label={t("field.attachments")} optional={commonT("optional")}>
-          <AttachmentPicker files={attachments} onChange={setAttachments} rule={HAZARD_ATTACHMENT_RULE} camera={false} />
+          <AttachmentPicker files={attachments} onChange={setAttachments} rule={HAZARD_ATTACHMENT_RULE} camera={false} refusalText={refusalText} />
         </FieldWrapper>
         <LocationField
           label={t("field.location")}
@@ -1343,6 +1369,7 @@ function SafetyCreateDialog({
     project: initialProject,
   });
   const clearDraft = useClearDraft();
+  const attachmentRefusal = useAllowedTypeRefusal(HAZARD_ATTACHMENT_ACCEPT);
   /*
    * Whether this device can place the worker at all.
    *
@@ -1664,6 +1691,7 @@ function SafetyCreateDialog({
               onChange={(attachments) => setDraft((value) => ({ ...value, attachments }))}
               rule={HAZARD_ATTACHMENT_RULE}
               camera={false}
+              refusalText={attachmentRefusal}
             />
           </FieldWrapper>
           {/* 上报 → 指派 in one step (B22), and who confirms it (B21). */}

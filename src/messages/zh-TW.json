@@ -4894,9 +4894,11 @@
       "verify": "打開二維碼驗證"
     },
     "attachment": {
+      "archiveCategory": "檔案分類",
+      "allArchiveCategories": "全部檔案分類",
+      "addPicked": "新增所選的 {count} 個",
       "tileUpload": "上傳{type}",
       "uploadedCount": "已上傳 {count} 個",
-      "tileHint": "點這裡選檔案，或把檔案拖到這裡。",
       "fromArchiveShort": "從檔案管理選擇",
       "add": "添加附件",
       "attached": "已上傳",
@@ -5013,6 +5015,18 @@
       "failed": "沒有改成，請再試一次。"
     },
     "evidence": {
+      "showing": "顯示最新 {shown} 筆，共 {count} 筆。請用上面的篩選縮小範圍。",
+      "loadMore": "載入更多",
+      "categoryName": {
+        "material": "材料",
+        "equipment": "設備",
+        "progress": "工程進度",
+        "recycle": "環保材料出場申請",
+        "equipmentIn": "設備進場",
+        "equipmentOut": "設備退場",
+        "materialIn": "材料進場",
+        "materialOut": "材料出場"
+      },
       "module": "模組",
       "allModules": "全部模組",
       "allCategories": "全部分類",
@@ -5020,15 +5034,6 @@
       "allUploaders": "全部上傳人",
       "keyword": "關鍵字",
       "moduleName": {
-        "fieldTask": "現場任務",
-        "equipment": "設備進退場",
-        "progress": "工程進度",
-        "disposal": "工地清運",
-        "wasteOut": "環保材料出場申請",
-        "wasteDispatch": "廢料訂單",
-        "materialIn": "材料進場",
-        "materialOut": "材料出場",
-        "hazard": "整改",
         "other": "其他"
       },
       "selectPhotos": "要關聯的照片",
@@ -5369,6 +5374,7 @@
       }
     },
     "what": {
+      "archiveCategories": "檔案分類",
       "evidenceFilters": "篩選選項",
       "credential": "你的審批簽名與 PIN",
       "evidenceCandidates": "本項目的現場證據",
@@ -7885,6 +7891,7 @@
       "permit_files_required": "請上傳准證文件：Word、PDF 或表格照片。",
       "permit_too_many_files": "一次最多上傳 {limit} 個檔案。",
       "permit_file_type": "{name} 不是 Word、Excel、PDF 或照片檔案。",
+      "attachment_file_type": "{name} 這種檔案不能上傳。可以上傳：{allowed}。",
       "permit_file_too_large": "{name} 超過 {limit} MB。",
       "permit_approver_unavailable": "請選擇這個專案裡能審批准證的安全經理。",
       "permit_own_application": "{incident_no} 是你申請的，需要由別人批准或退回。",
@@ -11221,6 +11228,7 @@
   },
   "offline": {
     "kind": {
+      "SAFETY_RECTIFICATION": "整改提交",
       "ATTENDANCE": "人員進場打卡",
       "CATEGORY_EVIDENCE": "現場照片",
       "CONSULTANT_SUBMISSION": "顧問提交",
@@ -17554,6 +17562,7 @@
     }
   },
   "attachmentPicker": {
+    "wrongTypeAllowed": "{name} 這種檔案不能上傳。可以上傳：{allowed}。",
     "takePhoto": "拍照",
     "chooseFile": "選擇檔案",
     "dropHint": "可以用電腦攝影機拍照、選擇檔案、把檔案拖到這裡，或複製圖片後在這裡按 Ctrl+V 貼上。",
