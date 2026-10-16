@@ -7828,6 +7828,7 @@
       "rejection_needs_conversation": "Terangkan masalah dalam komunikasi rekod ini dahulu supaya tapak nampak sebabnya dan boleh membalas. Kemudian tolaknya.",
       "column_not_empty": "Masih ada rekod dalam ruangan ini: {records}. Pindahkan dahulu, kemudian buang ruangan itu.",
       "category_has_records": "Kategori ini ada {count} rekod ({records}), jadi hanya boleh dimatikan, tidak boleh dibuang.",
+      "category_has_children": "Kategori ini masih ada subkategori: {records}. Buang atau pindahkan dahulu.",
       "category_fixed_other": "“Lain-lain” tetap tidak boleh dibuang. Anda boleh menamakannya semula.",
       "category_permit_required": "Kategori permit kerja digunakan oleh sistem dan tidak boleh dibuang. Anda boleh menamakannya semula.",
       "category_system_group": "Kumpulan kategori sistem tidak boleh dibuang. Anda boleh menamakannya semula.",

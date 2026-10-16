@@ -7828,6 +7828,7 @@
       "rejection_needs_conversation": "请先在这条记录的【沟通】里说明问题，让现场看得到原因并能回复，然后才能退回。",
       "column_not_empty": "这个分类下还有记录：{records}。请先移走，再删除分类。",
       "category_has_records": "这个分类已有 {count} 条记录（{records}），只能停用，不能删除。",
+      "category_has_children": "这个分类下面还有子分类：{records}，请先删除或移走子分类。",
       "category_fixed_other": "固定的「其他」不能删除，可以改名。",
       "category_permit_required": "施工准证申请由系统使用，不能删除，可以改名。",
       "category_system_group": "系统分类组不能删除，可以改名。",
