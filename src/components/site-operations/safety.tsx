@@ -128,6 +128,7 @@ import { signOffBeforeEditing } from "@/services/sign-off.service";
 import { ApiError } from "@/interfaces/api";
 import { SIGN_OFF_CANCELLED } from "@/lib/sign-off";
 import { LIST_FITS } from "@/lib/list-fits";
+import { useRoleLabel } from "@/lib/role-labels";
 
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
 // they would have been the kind of constant a later reader assumes is used.
@@ -1374,6 +1375,7 @@ function SafetyCreateDialog({
   onSaved?: (result: SafetyIncidentSubmission) => void;
 }) {
   const t = useTranslations();
+  const roleOf = useRoleLabel();
   const { user, can } = useAuth();
   const queryClient = useQueryClient();
   const [draft, setDraft] = useDraftState<SafetyDraft>("draft", {
@@ -1770,8 +1772,8 @@ function SafetyCreateDialog({
                     <span className="block truncate font-medium">{row.full_name}</span>
                     <span className="block truncate text-xs text-muted-foreground">
                       {row.is_supervisor
-                        ? `${row.role_name} / ${t("incidentReporting.supervisor")}`
-                        : row.role_name}
+                        ? `${roleOf(null, row.role_name)} / ${t("incidentReporting.supervisor")}`
+                        : roleOf(null, row.role_name)}
                     </span>
                   </span>
                 </label>

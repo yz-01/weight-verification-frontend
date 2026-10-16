@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { LOCALES, LOCALE_LABELS, resolveLocale, type Locale } from "@/i18n/config";
 import { ApiError } from "@/interfaces/api";
 import { changePassword, updateProfile } from "@/services/auth.service";
+import { useRoleLabel } from "@/lib/role-labels";
 
 /**
  * The signed-in user's own account.
@@ -31,6 +32,7 @@ import { changePassword, updateProfile } from "@/services/auth.service";
  */
 export function Profile() {
   const t = useTranslations();
+  const roleOf = useRoleLabel();
   const router = useRouter();
   const { user, refresh } = useAuth();
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -108,7 +110,7 @@ export function Profile() {
           <h3 className="panel-title min-w-0 break-words">
             {user.full_name}
           </h3>
-          {user.role_name && <TypeBadge label={user.role_name} />}
+          {user.role_name && <TypeBadge label={roleOf(null, user.role_name)} />}
           <Button
             type="submit"
             form="profile-form"
@@ -162,7 +164,7 @@ export function Profile() {
             <ReadField label={t("users.field.email")} value={user.email} />
             <ReadField
               label={t("users.field.role")}
-              value={user.role_name}
+              value={roleOf(null, user.role_name)}
             />
             {user.company_name && (
               <ReadField

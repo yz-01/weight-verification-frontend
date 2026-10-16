@@ -46,6 +46,7 @@ import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import { officeNotificationHref } from "@/lib/office-notification";
+import { useRoleLabel } from "@/lib/role-labels";
 import {
   getProjectAssignments,
   getProjects,
@@ -423,6 +424,7 @@ export function ProjectNotificationDialog({
   onSent: () => void;
 }) {
   const t = useTranslations("notifications.compose");
+  const roleOf = useRoleLabel();
   const [chosenProject, setProject] = useState<string | null>(null);
   const [recipientScope, setRecipientScope] = useState<"ALL" | "ROLE" | "PEOPLE">("ALL");
   const [recipients, setRecipients] = useState<string[]>([]);
@@ -454,7 +456,7 @@ export function ProjectNotificationDialog({
       const current = rows.get(member.role_code);
       rows.set(member.role_code, {
         code: member.role_code,
-        name: member.role_name,
+        name: roleOf(null, member.role_name),
         count: (current?.count ?? 0) + 1,
       });
       return rows;
@@ -616,7 +618,7 @@ export function ProjectNotificationDialog({
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-medium">{row.user_name}</span>
                       <span className="block truncate text-xs text-muted-foreground">{row.user_email}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{row.role_name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{roleOf(null, row.role_name)}</span>
                     </span>
                   </label>
                 ))}

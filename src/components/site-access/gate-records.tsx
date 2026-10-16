@@ -86,6 +86,7 @@ import { useDateFormat } from "@/lib/dates";
 import { requestLocation, type LocationFix } from "@/lib/field-location";
 import { recordConversationKey } from "@/lib/record-chat";
 import { cn } from "@/lib/utils";
+import { useRoleLabel } from "@/lib/role-labels";
 import {
   submitGateIssueOfflineAware,
   submitGatePhotoOfflineAware,
@@ -788,6 +789,7 @@ function MemberChecklist({
   onChange: (next: string[]) => void;
 }) {
   const t = useTranslations("siteControl.gateRecords");
+  const roleOf = useRoleLabel();
   if (loading) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   if (!options.length) return <p className="text-sm text-muted-foreground">{t("noMembers")}</p>;
   return (
@@ -809,7 +811,7 @@ function MemberChecklist({
               />
               <span className="text-sm font-medium">{person.full_name}</span>
               {person.role_name && (
-                <span className="text-xs text-muted-foreground">{person.role_name}</span>
+                <span className="text-xs text-muted-foreground">{roleOf(null, person.role_name)}</span>
               )}
             </label>
           </li>
@@ -897,6 +899,7 @@ export function GateIncidentDetailDialog({
 }) {
   const t = useTranslations("siteControl.gateRecords");
   const category = useTranslations("siteControl.gateCategory");
+  const roleOf = useRoleLabel();
   const df = useDateFormat();
   const { can } = useAuth();
   const detail = useQuery({
@@ -1049,7 +1052,7 @@ export function GateIncidentDetailDialog({
                         <li key={member.id} className="rounded-full border px-3 py-1 text-sm">
                           {member.full_name}
                           {member.role_name ? (
-                            <span className="text-muted-foreground"> · {member.role_name}</span>
+                            <span className="text-muted-foreground"> · {roleOf(null, member.role_name)}</span>
                           ) : null}
                         </li>
                       ))}

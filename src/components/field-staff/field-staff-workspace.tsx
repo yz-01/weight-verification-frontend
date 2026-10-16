@@ -62,6 +62,7 @@ import { getProjects } from "@/services/contractor.service";
 import { submitAttendanceOfflineAware } from "@/services/offline-sync.service";
 import { getAttendance, getSafetyIncident } from "@/services/site-operations.service";
 import { createFieldPwaBootstrap } from "@/services/field-access.service";
+import { useRoleLabel } from "@/lib/role-labels";
 
 // 「位置」 is gone (T-321, customer item 43): the coordinates were only ever
 // useful to the office, and the customer asked for four entries at the bottom.
@@ -125,6 +126,7 @@ function FieldStaffWorkspaceContent({
   supplierToken: string;
 }) {
   const t = useTranslations("fieldStaffPwa");
+  const roleOf = useRoleLabel();
   const { user } = useAuth();
   const [tab, setTab] = useState<MobileTab>(
     requestedTab && ["home", "tasks", "attendance", "records", "incidents"].includes(requestedTab)
@@ -331,7 +333,7 @@ function FieldStaffWorkspaceContent({
             {t("identity.company", { company: user?.company_name ?? "-" })}
           </span>
           <span className="rounded-full border border-panel-border bg-muted/40 px-3 py-1.5 font-medium">
-            {t("identity.role", { role: user?.role_name ?? "-" })}
+            {t("identity.role", { role: user?.role_name ? roleOf(null, user.role_name) : "-" })}
           </span>
         </div>
         {projects.isError ? (
