@@ -524,6 +524,8 @@ export interface ExitHandoverPayload {
   /** The approved exit. */
   movement: string;
   scanned_equipment: string;
+  /** The number was typed (「二维码坏了 / 还没有贴？输入编号」), not scanned. */
+  equipment_typed?: boolean;
   delivery_note_no: string;
   supplier?: string;
   vehicle_plate?: string;

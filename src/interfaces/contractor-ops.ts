@@ -591,6 +591,8 @@ export interface EquipmentMovement extends RecordedBy {
   accepted_at?: string | null;
   /** Why that exit was not confirmed. */
   acceptance_note?: string;
+  /** At the actual exit the machine's number was typed, not its QR scanned. */
+  equipment_typed?: boolean;
   receiver_signature?: string | null;
   supplier_signature?: string | null;
   occurred_at: string;

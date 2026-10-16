@@ -26,7 +26,7 @@
  */
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Camera, Check, CheckCircle2, Loader2, ScanLine } from "lucide-react";
+import { Camera, Check, CheckCircle2, Keyboard, Loader2, ScanLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -92,8 +92,15 @@ export function exitMachineLabel(machine: ExitMachine): string {
     .join(" · ");
 }
 
-function errorText(failure: unknown, fallback: string): string {
+/**
+ * What a failed submit says. A failure with a code says the translated
+ * sentence for that code (P-phonefix): the server's field errors are its own
+ * English and were shown first, so a Malay or Chinese phone read English.
+ * Field errors only when there is no code to translate.
+ */
+export function errorText(failure: unknown, fallback: string): string {
   if (failure instanceof ApiError) {
+    if (failure.code && failure.message) return failure.message;
     const fields = Object.values(failure.errors).filter(Boolean).join(" ");
     return fields || failure.message || fallback;
   }
@@ -318,6 +325,10 @@ export function EquipmentExitHandoverForm({
   const [deliveryNote, setDeliveryNote] = useDraftState(key("doNo"), "");
   const [ocrProof, setOcrProof] = useDraftState(key("ocrProof"), "");
   const [scanned, setScanned] = useDraftState(key("scanned"), "");
+  // 「二维码坏了 / 还没有贴？输入编号」 (P-phonefix), as on 设备工时 (I4).
+  const [typedNumber, setTypedNumber] = useDraftState(key("typedNumber"), false);
+  const [typing, setTyping] = useState(false);
+  const [typed, setTyped] = useState("");
   const [supplier, setSupplier] = useDraftState<ReturnBadgeSupplier | null>(key("supplier"), null);
   const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>(key("siteSignature"));
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>(key("supplierSignature"));
@@ -357,6 +368,7 @@ export function EquipmentExitHandoverForm({
         exit_handover: true,
         movement: movementId,
         scanned_equipment: scanned,
+        equipment_typed: typedNumber || undefined,
         project,
         equipment: machine.id,
         direction: "EXIT",
@@ -384,6 +396,20 @@ export function EquipmentExitHandoverForm({
     },
     onError: (failure) => setError(errorText(failure, t("equipmentExit.handoverFailed"))),
   });
+  /** A typed site no / code / plate, read like a scan: this machine or no. */
+  const takeTyped = () => {
+    const text = typed.trim();
+    if (!text) return;
+    if (matchScanned(text, [machine], registerScanKeys)) {
+      setScanned(text);
+      setTypedNumber(true);
+      setTyping(false);
+      setTyped("");
+      setScanNote("");
+    } else {
+      setScanNote(t("equipmentExit.typedWrongMachine", { name: exitMachineLabel(machine) }));
+    }
+  };
   const photoCount = submissionPhotos.length + (deliveryNotePhoto ? 1 : 0);
   return (
     <>
@@ -399,12 +425,44 @@ export function EquipmentExitHandoverForm({
             <p className="flex min-h-10 items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm">
               <CheckCircle2 className="size-4 shrink-0 text-success" />
               <span className="min-w-0 flex-1 truncate">
-                {t("equipmentExit.scanMatched", { name: exitMachineLabel(machine) })}
+                {t(typedNumber ? "equipmentExit.typedMatched" : "equipmentExit.scanMatched", {
+                  name: exitMachineLabel(machine),
+                })}
               </span>
-              <Button size="sm" variant="ghost" onClick={() => setScanned("")}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setScanned("");
+                  setTypedNumber(false);
+                }}
+              >
                 {t("equipmentExit.scanAgain")}
               </Button>
             </p>
+          ) : typing ? (
+            <div className="flex items-center gap-2">
+              <Input
+                className="h-12 min-w-0 flex-1"
+                value={typed}
+                maxLength={40}
+                aria-label={t("equipmentExit.typeNumber")}
+                autoCapitalize="characters"
+                autoComplete="off"
+                enterKeyHint="go"
+                placeholder={t("equipmentExit.typeNumber")}
+                onChange={(event) => {
+                  setTyped(event.target.value);
+                  setScanNote("");
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") takeTyped();
+                }}
+              />
+              <Button type="button" className="h-12 shrink-0" onClick={takeTyped}>
+                {t("equipmentExit.useNumber")}
+              </Button>
+            </div>
           ) : (
             <Button
               type="button"
@@ -418,6 +476,19 @@ export function EquipmentExitHandoverForm({
               <ScanLine />
               {t("equipmentExit.scanMachine")}
             </Button>
+          )}
+          {!scanned && !typing && (
+            <button
+              type="button"
+              className="mt-1 flex w-full items-center justify-center gap-1.5 py-1 text-sm text-muted-foreground underline underline-offset-4"
+              onClick={() => {
+                setScanNote("");
+                setTyping(true);
+              }}
+            >
+              <Keyboard className="size-4" />
+              {t("equipmentExit.brokenQr")}
+            </button>
           )}
           {scanNote && (
             <p role="alert" className="mt-1 text-xs font-medium text-destructive">
@@ -581,6 +652,7 @@ export function EquipmentExitHandoverForm({
           // with no signal; the server reads it again.
           if (matchScanned(text, [machine], registerScanKeys)) {
             setScanned(text);
+            setTypedNumber(false);
             setScanNote("");
           } else {
             setScanNote(t("equipmentExit.scanWrongMachine", { name: exitMachineLabel(machine) }));

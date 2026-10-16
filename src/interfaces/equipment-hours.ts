@@ -35,6 +35,11 @@ export interface EquipmentHoursMachine {
   status: string;
   /** When its open session started (its newest photo is a 开工), else null. */
   open_since?: string | null;
+  /**
+   * A 开工 from an earlier day nobody closed (a forgotten 收工): the machine is
+   * not running, the phone offers 开工 and asks the office to enter the 收工.
+   */
+  unclosed_since?: string | null;
 }
 
 export interface EquipmentHoursSupplier {

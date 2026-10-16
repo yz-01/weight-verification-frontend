@@ -15,6 +15,7 @@ export type OfflineJobKind =
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
   | "SAFETY_RECTIFICATION"
+  | "HAZARD_FILE"
   | "CONSULTANT_SUBMISSION"
   | "CATEGORY_EVIDENCE"
   | "EQUIPMENT_HOURS_PHOTO"
@@ -211,6 +212,8 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     exit_handover?: boolean;
     /** What the camera read off the machine's QR at the actual exit (ID60). */
     scanned_equipment?: string;
+    /** …typed by hand, the QR broken or missing (P-phonefix). */
+    equipment_typed?: boolean;
     /** A 「新设备」 reported from the phone: its name, `equipment` empty. */
     equipment_name?: string;
     /** …and its plate, if it has one (optional). */
@@ -417,6 +420,23 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
  * files in ONE job under ONE `client_event_id`, so a retry after a lost
  * answer is the same submission, not a second one.
  */
+/**
+ * One PDF / Word / Excel of a hazard report or a rectification, sent on its
+ * own after the report (P-phonefix). The report and its photos go first, so
+ * the office hears of the hazard at once; a 20 MB file on a weak signal then
+ * takes as long as it takes, without holding the report back. It lands in
+ * the hazard's room under the id the server would have given it inside the
+ * report (``<report id>:attachment:<n>``), so a replay adds no second copy.
+ */
+export interface HazardFileOfflineJob extends OfflineJobBase {
+  kind: "HAZARD_FILE";
+  payload: {
+    incidentId: string;
+    client_event_id: string;
+    file: StoredFile;
+  };
+}
+
 export interface SafetyRectificationOfflineJob extends OfflineJobBase {
   kind: "SAFETY_RECTIFICATION";
   payload: {
@@ -585,6 +605,7 @@ export type OfflineJob =
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
   | SafetyRectificationOfflineJob
+  | HazardFileOfflineJob
   | ConsultantSubmissionOfflineJob
   | CategoryEvidenceOfflineJob
   | EquipmentHoursPhotoOfflineJob
