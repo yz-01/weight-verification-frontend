@@ -17267,6 +17267,7 @@
       "requestType": "Jenis Permohonan",
       "project": "Projek",
       "material": "Produk / Bahan",
+      "materialCode": "Kod bahan",
       "specification": "Jenis / Spesifikasi",
       "quantity": "Kuantiti",
       "unit": "Unit",

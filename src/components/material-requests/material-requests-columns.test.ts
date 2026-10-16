@@ -28,6 +28,14 @@ describe("MR table columns (D3)", () => {
     expect(source).toMatch(/param: "request_kind_name", options: requestTypeNameOptions\(rows\)/);
   });
 
+  it("has a 材料编号 column from the category's code, a dash for an old request (I19-15)", () => {
+    expect(columns).toMatch(
+      /id: "category_code"[\s\S]*?row\.original\.category_code \|\| <span className="text-muted-foreground">—<\/span>/,
+    );
+    expect(source).toMatch(/\{ key: "category_code", label: t\("field\.materialCode"\) \}/);
+    expect(source).toMatch(/label: t\("field\.materialCode"\), value: row\.category_code \|\| "—"/);
+  });
+
   it("shows the date with its time", () => {
     expect(columns).toMatch(/accessorKey: "created_at"[\s\S]*?df\.dateTime\(row\.original\.created_at\)/);
   });
@@ -46,7 +54,7 @@ describe("MR table columns (D3)", () => {
   it("remembers columns under a new key, so an old saved set cannot bring the dropped ones back", () => {
     // `.v4` since the request type came back (I16); `.v3` brought the
     // manufacturer and supplier columns (2026-10 D1).
-    expect(source).toContain('storageKey="material-requests.v4"');
+    expect(source).toContain('storageKey="material-requests.v5"');
     expect(source).not.toContain('storageKey="material-requests.v3"');
     expect(source).not.toContain('storageKey="material-requests.v2"');
     expect(source).not.toContain('storageKey="material-requests"');

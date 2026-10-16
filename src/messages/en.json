@@ -17267,6 +17267,7 @@
       "requestType": "Request Type",
       "project": "Project",
       "material": "Product / Material",
+      "materialCode": "Material code",
       "specification": "Type / Specification",
       "quantity": "Quantity",
       "unit": "Unit",
