@@ -88,6 +88,7 @@ import type {
 import type { WasteCategory } from "@/interfaces/waste-outgoing";
 import {
   isCategoryModuleKey,
+  registerMachineCategory,
   type CategoryModuleKey,
 } from "@/lib/category-modules";
 import { useDateFormat } from "@/lib/dates";
@@ -334,6 +335,8 @@ export function CategoryManagement() {
   );
   // The row whose 删除 is armed (rule 8: a switch, not a confirm dialog).
   const [armed, setArmed] = useState<string | null>(null);
+  // 登记设备 (I38): the same dialog as 设备清单; a sub class row starts it in its class.
+  const [registering, setRegistering] = useState<{ category: string | null } | null>(null);
   const [unitsOpen, setUnitsOpen] = useState(false);
   // 「申请类型」 (I16, ID36): the MR / Other Request types, in the same dialog
   // the MR page opens.
@@ -462,6 +465,7 @@ export function CategoryManagement() {
 
   const createButton = canManage && (
     <Button
+      variant={active.key === "equipment" ? "outline" : undefined}
       requires={needsProject ? [[project, ops("field.project")]] : []}
       onClick={() => {
         setRefusal(null);
@@ -469,7 +473,18 @@ export function CategoryManagement() {
       }}
     >
       <Plus />
-      {t("create")}
+      {t(active.key === "equipment" ? "equipment.addKind" : "create")}
+    </Button>
+  );
+  // 设备分类 (I38, ID81): the primary button registers a machine, the old
+  // "new category" becomes the secondary 「新增种类」.
+  const registerButton = active.key === "equipment" && can("equipment.manage") && (
+    <Button
+      requires={[[project, ops("field.project")]]}
+      onClick={() => setRegistering({ category: null })}
+    >
+      <Plus />
+      {ops("equipment.createTitle")}
     </Button>
   );
 
@@ -603,9 +618,21 @@ export function CategoryManagement() {
                   {t("units.open")}
                 </Button>
               )}
-              {createButton}
+              {active.key === "equipment" && canManage ? (
+                <>
+                  {registerButton}
+                  {createButton}
+                </>
+              ) : (
+                createButton
+              )}
             </div>
           </header>
+          {active.key === "equipment" && (
+            <p className="mb-2 rounded-lg border border-panel-border bg-muted/40 p-3 text-sm">
+              {t("equipment.pageNote")}
+            </p>
+          )}
           {unitsOpen && <MaterialUnitsDialog onClose={() => setUnitsOpen(false)} />}
           <p className="mb-1 text-xs text-muted-foreground">
             {t(`moduleHelp.${active.key}`)}
@@ -702,6 +729,7 @@ export function CategoryManagement() {
                           {active.key === "equipment" && (
                             <span className="text-xs font-normal text-muted-foreground">
                               {t(row.depth ? "equipment.subClass" : "equipment.majorClass")}
+                              {row.depth ? ` · ${t("equipment.onSite", { count: row.recordCount })}` : ""}
                             </span>
                           )}
                         </span>
@@ -790,6 +818,18 @@ export function CategoryManagement() {
                                 </Button>
                               </>
                             )}
+                            {/* 登记设备 from a sub class (I38): that class is preselected. */}
+                            {active.key === "equipment" && registerMachineCategory(row) && can("equipment.manage") && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                disabled={!row.isActive}
+                                onClick={() => setRegistering({ category: registerMachineCategory(row) })}
+                              >
+                                <Plus />
+                                {ops("equipment.createTitle")}
+                              </Button>
+                            )}
                             {/* 「+ 子分类」 (I11, ID3): one level down, never two. */}
                             {active.subCategories && !row.depth && (
                               <Button
@@ -870,6 +910,18 @@ export function CategoryManagement() {
         </section>
       </div>
 
+      {registering && (
+        <EquipmentDialog
+          project={project}
+          defaultCategory={registering.category}
+          onClose={() => setRegistering(null)}
+          onSaved={() => {
+            setRegistering(null);
+            refresh();
+            void qc.invalidateQueries({ queryKey: ["category-records"] });
+          }}
+        />
+      )}
       {editing && (
         <CategoryEditor
           module={active}

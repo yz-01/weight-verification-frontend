@@ -404,6 +404,11 @@ export function CategoryDialog({
   // Progress Claim categories (I10, ID6): made by the project, flat or with
   // sub-categories like EHS.
   const isClaim = form.kind === "CLAIM";
+  // A new equipment category (I38, ID81) is named and filed under a major
+  // class, nothing else: the server numbers it and the rest keeps its
+  // defaults under 「更多设定」.
+  const simpleEquip = !row && isEquipment;
+  const autoCode = isEhs || isClaim || simpleEquip;
   // EHS and claims (I11): the category a sub-category goes under, from this
   // group's top-level categories. Equipment keeps its own picker below; a
   // material's second level is its specifications (I19), set further down.
@@ -468,7 +473,7 @@ export function CategoryDialog({
             manufacturers: manufacturerIds,
           }
         : isEquipment || takesParent
-          ? { ...form, parent: form.parent || null }
+          ? { ...form, parent: form.parent || null, ...(simpleEquip ? { code: "" } : {}) }
           : // A material's second level is its specifications (I19); not sent.
             { ...form, parent: undefined };
       if (row) delete payload.group;
@@ -501,6 +506,50 @@ export function CategoryDialog({
   const restrictedEmpty =
     form.access_mode === "RESTRICTED" &&
     !(form.allowed_roles?.length || form.allowed_users?.length);
+  const nameField = (
+    <FieldWrapper label={t("field.name")} required>
+      <Input value={form.name} onChange={(e) => set("name", e.target.value)} />
+    </FieldWrapper>
+  );
+  const equipmentParentField = (
+
+            <FieldWrapper
+              label={modules("equipment.majorClassOf")}
+              hint={modules("equipment.majorClassHint")}
+            >
+              <Select
+                value={form.parent || "__major__"}
+                onValueChange={(value) => set("parent", value === "__major__" ? null : value)}
+                disabled={hasSubClasses}
+              >
+                <SelectTrigger className="w-full" aria-label={modules("equipment.majorClassOf")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__major__">{modules("equipment.isMajorClass")}</SelectItem>
+                  {majorChoices.map((major) => (
+                    <SelectItem key={major.id} value={major.id}>
+                      {major.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <QueryFailedNote query={equipmentClasses.query} what={t("what.columns")} />
+            </FieldWrapper>
+  );
+  // The settings a new equipment category keeps at their defaults are folded
+  // away (I38); everywhere else the dialog is the one it always was.
+  const more = (fields: React.ReactNode) =>
+    simpleEquip ? (
+      <details className="rounded-lg border p-3 sm:col-span-2">
+        <summary className="cursor-pointer text-sm font-medium">
+          {modules("equipment.moreSettings")}
+        </summary>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">{fields}</div>
+      </details>
+    ) : (
+      fields
+    );
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
@@ -521,7 +570,14 @@ export function CategoryDialog({
               disabled
             />
           </FieldWrapper>
-          {isEhs || isClaim ? (
+          {simpleEquip && (
+            <>
+              {nameField}
+              {equipmentParentField}
+            </>
+          )}
+          {more(<>
+          {autoCode ? (
             <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
               <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
             </FieldWrapper>
@@ -533,12 +589,7 @@ export function CategoryDialog({
               />
             </FieldWrapper>
           )}
-          <FieldWrapper label={t("field.name")} required>
-            <Input
-              value={form.name}
-              onChange={(e) => set("name", e.target.value)}
-            />
-          </FieldWrapper>
+          {!simpleEquip && nameField}
           <FieldWrapper label={t("categories.kind")} required>
             <Select
               value={form.kind}
@@ -584,31 +635,7 @@ export function CategoryDialog({
           </FieldWrapper>
           {/* 大类 → 小类 (2026-10 B2, X1): equipment only. Empty makes it a
               major class; a machine is registered on a sub class. */}
-          {isEquipment && (
-            <FieldWrapper
-              label={modules("equipment.majorClassOf")}
-              hint={modules("equipment.majorClassHint")}
-            >
-              <Select
-                value={form.parent || "__major__"}
-                onValueChange={(value) => set("parent", value === "__major__" ? null : value)}
-                disabled={hasSubClasses}
-              >
-                <SelectTrigger className="w-full" aria-label={modules("equipment.majorClassOf")}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__major__">{modules("equipment.isMajorClass")}</SelectItem>
-                  {majorChoices.map((major) => (
-                    <SelectItem key={major.id} value={major.id}>
-                      {major.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <QueryFailedNote query={equipmentClasses.query} what={t("what.columns")} />
-            </FieldWrapper>
-          )}
+          {!simpleEquip && isEquipment && equipmentParentField}
           {/* 子分类 (I11, ID3): EHS and claim categories go one level down. */}
           {takesParent && (
             <FieldWrapper
@@ -914,6 +941,7 @@ export function CategoryDialog({
               {t("field.active")}
             </label>
           </div>
+          </>)}
         </div>
         {restrictedEmpty && (
           <p
@@ -936,7 +964,7 @@ export function CategoryDialog({
             requires={[
               [form.project, t("field.project")],
               // An EHS code is the server's to make (HD4).
-              [isEhs || form.code, t("field.code")],
+              [autoCode || form.code, t("field.code")],
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
@@ -2227,11 +2255,14 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
 export function EquipmentDialog({
   project,
   equipment,
+  defaultCategory = null,
   onClose,
   onSaved,
 }: {
   project: string;
   equipment?: SiteEquipment;
+  /** 登记设备 from a sub class row (I38): the class a new machine starts in. */
+  defaultCategory?: string | null;
   onClose: () => void;
   onSaved: (row: SiteEquipment) => void;
 }) {
@@ -2247,7 +2278,7 @@ export function EquipmentDialog({
     name: equipment?.name ?? "",
     registration_no: equipment?.registration_no ?? "",
     supplier: equipment?.supplier ?? null,
-    category: equipment?.category ?? null,
+    category: equipment?.category ?? defaultCategory,
     description: equipment?.description ?? "",
     certificate_expires_on: equipment?.certificate_expires_on ?? null,
     insurance_expires_on: equipment?.insurance_expires_on ?? null,

@@ -4088,7 +4088,11 @@
       "subClass": "Sub class",
       "majorClassOf": "Major class it belongs to",
       "majorClassHint": "Leave it to make this a major class. Machines are registered under a sub class.",
-      "isMajorClass": "(This is a major class)"
+      "isMajorClass": "(This is a major class)",
+      "addKind": "Add class",
+      "pageNote": "Equipment classes are managed here. To add a machine, press “Register site equipment”, or go to Equipment → Equipment list.",
+      "onSite": "{count, plural, one {# machine} other {# machines}} on site",
+      "moreSettings": "More settings"
     },
     "system": "System",
     "systemHelp": "Work permits are used by the system: they can be renamed, not switched off or removed.",

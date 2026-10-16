@@ -4088,7 +4088,11 @@
       "subClass": "小類",
       "majorClassOf": "上級（大類）",
       "majorClassHint": "不選就是大類。設備要登記在小類下面。",
-      "isMajorClass": "（這是大類）"
+      "isMajorClass": "（這是大類）",
+      "addKind": "新增種類",
+      "pageNote": "這裡管理設備的種類；每一台機器請按「登記設備」，或到 設備進退場 → 設備清單。",
+      "onSite": "設備 {count} 台",
+      "moreSettings": "更多設定"
     },
     "system": "系統",
     "systemHelp": "施工准證申請由系統使用：可以改名，不能停用或刪除。",
