@@ -587,7 +587,7 @@ function ConfigRow({
   const serviceStatus = row.key.endsWith(".service_status");
 
   return (
-    <div className="grid gap-3 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(14rem,0.8fr)_minmax(18rem,1.2fr)_auto] lg:items-center">
+    <div className="grid gap-3 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(14rem,0.8fr)_minmax(18rem,1.2fr)_10rem] lg:items-center">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <label htmlFor={row.key} className="text-sm font-medium">
@@ -683,7 +683,9 @@ function ConfigRow({
         />
       )}
 
-      <div className="flex w-full items-center gap-2 lg:w-auto">
+      {/* A fixed last column (2026-10-17): a row with the reset button and
+          one without keep their value boxes at the same x. */}
+      <div className="flex w-full items-center gap-2 lg:w-auto lg:justify-end">
         {company && row.is_overridden && can("platform_settings.manage") && (
           <Button
             size="icon"
