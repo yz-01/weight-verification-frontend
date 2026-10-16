@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { RecordNo } from "@/components/shared/record-no";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { OnSiteMap } from "@/components/site-operations/on-site-map";
 import { PresenceSummary } from "@/components/site-operations/presence-summary";
@@ -176,6 +177,13 @@ export function Attendance() {
 
   const columns = useMemo<ColumnDef<AttendanceRecord, unknown>[]>(
     () => [
+      // 记录编号 (I6): AT-<project>-001, one per clock-in or clock-out.
+      {
+        accessorKey: "record_no",
+        meta: { label: t("recordNo.column") },
+        header: () => t("recordNo.column"),
+        cell: ({ row }) => <RecordNo value={row.original.record_no} />,
+      },
       {
         accessorKey: "occurred_at",
         meta: { label: t("attendance.field.time") },
@@ -288,6 +296,7 @@ export function Attendance() {
                   subtitle: t("attendance.count", { count: total }),
                   query: list.query,
                   columns: [
+                    { key: "record_no", label: t("recordNo.column") },
                     { key: "occurred_at", label: t("attendance.field.time") },
                     { key: "user_name", label: t("attendance.field.worker") },
                     {

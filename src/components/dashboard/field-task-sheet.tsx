@@ -127,6 +127,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   return (
     <RecordDetailDialog
       title={consultantTaskTitle(row, askOption)}
+      recordNo={row.record_no}
       description={[row.project_name, headOffice ? t("fromHeadOffice") : t("fromSite")].join(" · ")}
       status={
         <>

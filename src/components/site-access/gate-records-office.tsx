@@ -115,9 +115,12 @@ export function GateRecordsOffice() {
     const common: ColumnDef<Row, unknown>[] = [
       {
         accessorKey: "incident_no",
-        meta: { label: t("field.number") },
-        header: sortable(t("field.number")),
-        cell: ({ row }) => <RecordNo value={row.original.incident_no} />,
+        // 记录编号 (I6); GT, split by the row's project code (ID35).
+        meta: { label: tRoot("recordNo.column") },
+        header: sortable(tRoot("recordNo.column")),
+        cell: ({ row }) => (
+          <RecordNo value={row.original.incident_no} projectCode={row.original.project_code} />
+        ),
       },
       photoColumn<Row>({
         label: tRoot("moduleTable.photos"),

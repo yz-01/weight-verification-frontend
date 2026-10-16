@@ -372,8 +372,9 @@ export function WasteOutgoingWorkspace() {
   const columns: ColumnDef<WasteOutgoingRecord, unknown>[] = [
     {
       accessorKey: "reference_no",
-      meta: { label: t("field.dispatchNo") },
-      header: sortable(t("field.dispatchNo")),
+      // 记录编号 (I6).
+      meta: { label: tRoot("recordNo.column") },
+      header: sortable(tRoot("recordNo.column")),
       // Short number big, project small (2026-10 D4).
       cell: ({ row }) => (
         <div className="flex flex-wrap items-center gap-1.5">
@@ -554,6 +555,7 @@ export function WasteOutgoingWorkspace() {
       {shown && (
         <RecordDetailDialog
           title={shown.reference_no}
+          legacyNo={shown.legacy_no}
           description={`${shown.project_name} · ${shown.category_name}`}
           exportRecord={{
             kind: "WASTE_OUTGOING",

@@ -948,6 +948,7 @@ export function HazardRecordDetail({
   return (
     <RecordDetailDialog
       title={incident.incident_no}
+      legacyNo={incident.legacy_no}
       description={incident.title}
       status={
         <StatusBadge

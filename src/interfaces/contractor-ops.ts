@@ -310,6 +310,8 @@ export interface FieldTaskReference {
 }
 
 export interface FieldTask extends RecordedBy {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   /** Sent in and waiting for this reader's 验收 - the sidebar counts it (2026-10-09). */
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
@@ -553,6 +555,8 @@ export type EquipmentMovementStatus =
   | "REJECTED";
 
 export interface EquipmentMovement extends RecordedBy {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   /** 「提交总部审批」 (I12, ID28): head office accepts this machine's movements. */
   review_by_head_office?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
@@ -671,6 +675,8 @@ export interface ConstructionPhase {
 }
 
 export interface SiteProgressRecord extends RecordedBy {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -728,6 +734,8 @@ export interface ProgressCorrection {
 }
 
 export interface MaterialOutgoing extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -922,6 +930,8 @@ export interface DisposalTimelineEntry {
 }
 
 export interface DisposalRequest extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** A request to accept or a lorry back to check, for this reader (2026-10-09). */
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */

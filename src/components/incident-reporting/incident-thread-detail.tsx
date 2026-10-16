@@ -161,6 +161,7 @@ export function IncidentThreadDetail({
   // was filed.
   const header = {
     title: record?.thread_no ?? t("title"),
+    legacyNo: record?.legacy_no,
     description: record?.title,
     status: record?.is_resolved ? (
       <StatusBadge label={t("status.resolved")} tone="positive" />
