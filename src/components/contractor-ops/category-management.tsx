@@ -294,10 +294,11 @@ const GROUP_MODULE: Record<Exclude<CategoryGroupModule, "REQUEST_TYPE">, Categor
   CLAIM: "claim",
 };
 
-const moduleOfGroup = (group: CategoryGroup | null | undefined) =>
-  group && group.module !== "REQUEST_TYPE"
-    ? MODULES.find((module) => module.key === GROUP_MODULE[group.module]) ?? null
-    : null;
+const moduleOfGroup = (group: CategoryGroup | null | undefined) => {
+  if (!group || group.module === "REQUEST_TYPE") return null;
+  const key = GROUP_MODULE[group.module];
+  return MODULES.find((entry) => entry.key === key) ?? null;
+};
 
 export function CategoryManagement() {
   const t = useTranslations("categoryManagement");

@@ -1060,7 +1060,8 @@ function RecordDialog({
   onClose,
   onSaved,
 }: {
-  categories: { id: string; label: string }[];
+  /** The fixed 「其他」 asks what it is; a sub-category shows its parent (I10, I11). */
+  categories: { id: string; label: string; is_other?: boolean; parent_name?: string | null }[];
   /** Whether `categories` actually arrived, so a failed load is not an empty list. */
   categoriesState: { isError: boolean; refetch?: () => unknown };
   onClose: () => void;
