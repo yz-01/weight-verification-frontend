@@ -4899,6 +4899,7 @@
       "verify": "Open QR verification"
     },
     "attachment": {
+      "tickFirst": "Tick the files to add first",
       "archiveCategory": "File category",
       "allArchiveCategories": "All file categories",
       "addPicked": "Add the {count} selected",

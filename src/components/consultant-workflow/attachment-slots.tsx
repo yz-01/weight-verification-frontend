@@ -235,7 +235,7 @@ export function AttachmentDialog({
                   {!documents.data?.results?.length && <div className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">{t("attachment.noArchive")}</div>}
                 </div>
               )}
-              <Button type="button" disabled={!picked.length || busy} onClick={() => link.mutate()}>
+              <Button type="button" disabled={!picked.length || busy} disabledReason={!picked.length ? t("attachment.tickFirst") : undefined} onClick={() => link.mutate()}>
                 {link.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}
                 {t("attachment.addPicked", { count: picked.length })}
               </Button>

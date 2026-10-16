@@ -4899,6 +4899,7 @@
       "verify": "打开二维码验证"
     },
     "attachment": {
+      "tickFirst": "先勾选要添加的文件",
       "archiveCategory": "文件分类",
       "allArchiveCategories": "全部文件分类",
       "addPicked": "添加所选的 {count} 个",

@@ -4899,6 +4899,7 @@
       "verify": "Buka pengesahan QR"
     },
     "attachment": {
+      "tickFirst": "Tandakan fail yang hendak ditambah dahulu",
       "archiveCategory": "Kategori fail",
       "allArchiveCategories": "Semua kategori fail",
       "addPicked": "Tambah {count} yang dipilih",
