@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatNetQuantity } from "@/lib/net-quantity";
+import { formatNetQuantity, formatNetQuantityInSentence } from "@/lib/net-quantity";
 
 describe("累计进场与退场 numbers (I41-5)", () => {
   it("drops useless decimals and keeps the real ones", () => {
@@ -12,6 +12,11 @@ describe("累计进场与退场 numbers (I41-5)", () => {
   it("groups thousands", () => {
     expect(formatNetQuantity("50350")).toBe("50,350");
     expect(formatNetQuantity("1234567.500")).toBe("1,234,567.5");
+  });
+
+  it("says 0 in a sentence, where a dash would be odd", () => {
+    expect(formatNetQuantityInSentence("0.000")).toBe("0");
+    expect(formatNetQuantityInSentence("22.000")).toBe("22");
   });
 
   it("shows nothing as a dash", () => {

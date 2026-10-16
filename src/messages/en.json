@@ -12851,7 +12851,7 @@
       "targets": "Material targets"
     },
     "net": {
-      "title": "Received and returned by supplier and material",
+      "title": "Totals by supplier",
       "note": "Delivered to site: what passed the check, added up over time. Sent back to supplier: returns the office has confirmed as done. Failed check: not accepted, so not counted.",
       "received": "Delivered to site",
       "returned": "Sent back to supplier",

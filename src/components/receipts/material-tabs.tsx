@@ -4,7 +4,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, Search, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { NetBreakdownDialog, type NetFocus } from "@/components/receipts/net-breakdown";
@@ -136,6 +136,11 @@ export function NetTotalsView({
   const [term, setTerm] = useState("");
   const material = useDebounce(term.trim(), 300);
   const [toggled, setToggled] = useState<ReadonlySet<string>>(new Set());
+  // A new search starts with every supplier heading as it comes (IB20): a
+  // group closed before must not hide what the search found.
+  useEffect(() => {
+    setToggled(new Set());
+  }, [material]);
   const [drill, setDrill] = useState<{ row: MaterialNetTotalRow; focus: NetFocus } | null>(null);
   const query = Object.fromEntries(
     Object.entries({ project, material, ...filters }).filter(([, value]) => Boolean(value)),
@@ -235,9 +240,9 @@ export function NetTotalsView({
                           data-slot="net-supplier-toggle"
                           aria-expanded={isOpen(group)}
                           onClick={() => toggle(group)}
-                          className="inline-flex cursor-pointer items-center gap-1.5 rounded text-left focus-visible:ring-2 focus-visible:ring-ring"
+                          className="-my-1 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded px-2 text-left text-base focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          {isOpen(group) ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+                          {isOpen(group) ? <ChevronDown className="size-6 shrink-0" /> : <ChevronRight className="size-6 shrink-0" />}
                           {t("receipts.net.groupTitle", {
                             name: group.supplierName || t("receipts.net.noSupplier"),
                             count: group.rows.length,

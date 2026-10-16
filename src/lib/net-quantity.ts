@@ -11,6 +11,12 @@ const formatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 3,
 });
 
+/** The same, but a zero reads 「0」: for a sentence or a subtotal, where a dash would be odd. */
+export function formatNetQuantityInSentence(value: string | number | null | undefined): string {
+  const shown = formatNetQuantity(value);
+  return shown === NO_QUANTITY ? "0" : shown;
+}
+
 /** `"22.000"` -> `22`, `"12.700"` -> `12.7`, `"50350"` -> `50,350`, zero -> `—`. */
 export function formatNetQuantity(value: string | number | null | undefined): string {
   const number = typeof value === "number" ? value : Number(value);

@@ -170,11 +170,12 @@ describe("「累计进场」 opens every delivery behind it", () => {
   it("lists each delivery with its DO, quantity, photograph, supplier and project, and the subtotal is the number pressed", () => {
     const html = render("received");
     expect(rows(html, "DELIVERY")).toHaveLength(2);
-    for (const text of ["RC-1", "DO-301", "RC-2", "DO-302", "300.000", "star marketing", "builder-001"]) {
+    for (const text of ["RC-1", "DO-301", "RC-2", "DO-302", "300", "star marketing", "builder-001"]) {
       expect(html).toContain(text);
     }
     expect(html).toContain("每一笔进场（2 笔）");
-    expect(html).toContain("301.000");
+    expect(html).toContain("301");
+    expect(html).not.toContain("301.000");
     // The photograph, three of them behind it.
     expect(html).toContain("thumb-1.jpg");
     // No returns on this tab.
@@ -199,11 +200,12 @@ describe("「已退场」 opens every completed return behind it", () => {
   it("says why it went back, who approved it and when, with Return Note, photographs and signatures", () => {
     const html = render("returned");
     expect(rows(html, "RETURN")).toHaveLength(2);
-    for (const text of ["RN-001", "RN-002", "Wrong size", "Damaged", "Mr Lim", "Ms Wong", "Office Tan", "−20.000", "−5.000"]) {
+    for (const text of ["RN-001", "RN-002", "Wrong size", "Damaged", "Mr Lim", "Ms Wong", "Office Tan", "−20", "−5"]) {
       expect(html).toContain(text);
     }
     expect(html).toContain("每一笔已完成退场（2 笔）");
-    expect(html).toContain("25.000");
+    expect(html).toContain("25");
+    expect(html).not.toContain("25.000");
     expect(html).toContain("thumb-o1.jpg");
     expect(html).toContain("site.png");
     expect(html).toContain("driver.png");

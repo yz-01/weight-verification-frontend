@@ -12851,7 +12851,7 @@
       "targets": "Sasaran bahan"
     },
     "net": {
-      "title": "Diterima dan dipulangkan mengikut pembekal dan bahan",
+      "title": "Jumlah mengikut pembekal",
       "note": "Dihantar ke tapak: jumlah yang lulus semakan, dikumpul dari semasa ke semasa. Dipulangkan kepada pembekal: pemulangan yang telah disahkan siap oleh pejabat. Gagal semakan: tidak diterima, jadi tidak dikira.",
       "received": "Dihantar ke tapak",
       "returned": "Dipulangkan kepada pembekal",

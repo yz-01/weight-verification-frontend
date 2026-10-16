@@ -200,6 +200,28 @@ describe("plain words (I41, IB20)", () => {
   });
 });
 
+describe("leftovers of the plain-words pass (I41 review)", () => {
+  it("clears the closed groups when the search changes, and names the Material In summary in plain words", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"),
+      "utf8",
+    ).replace(/
+/g, "
+");
+    expect(source).toMatch(/useEffect\(\(\) => \{\s*setToggled\(new Set\(\)\);\s*\}, \[material\]\)/);
+    expect(zh.receipts.net.title).toBe("按供应商看总数");
+    expect(zhTW.receipts.net.title).toBe("按供應商看總數");
+    expect(en.receipts.net.title).toBe("Totals by supplier");
+    expect(ms.receipts.net.title).toBe("Jumlah mengikut pembekal");
+  });
+
+  it("joins the Chinese note sentences without an ASCII space", () => {
+    for (const note of [zh.receipts.net.note, zhTW.receipts.net.note]) {
+      expect(note).not.toContain("。 ");
+    }
+  });
+});
+
 describe("每个数字点进去 (client, 2026-10-09)", () => {
   const source = readFileSync(
     path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"),
