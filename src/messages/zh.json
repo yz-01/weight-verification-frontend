@@ -4894,6 +4894,10 @@
       "verify": "打开二维码验证"
     },
     "attachment": {
+      "tileUpload": "上传{type}",
+      "uploadedCount": "已上传 {count} 个",
+      "tileHint": "点这里选文件，或把文件拖到这里。",
+      "fromArchiveShort": "从文件管理选择",
       "add": "添加附件",
       "attached": "已上传",
       "category": "附件类型",
@@ -5009,6 +5013,24 @@
       "failed": "没有改成，请再试一次。"
     },
     "evidence": {
+      "module": "模块",
+      "allModules": "全部模块",
+      "allCategories": "全部分类",
+      "allSubcategories": "全部子分类",
+      "allUploaders": "全部上传人",
+      "keyword": "关键词",
+      "moduleName": {
+        "fieldTask": "现场任务",
+        "equipment": "设备进退场",
+        "progress": "施工进度",
+        "disposal": "工地清运",
+        "wasteOut": "废料出场",
+        "wasteDispatch": "废料订单",
+        "materialIn": "材料进场",
+        "materialOut": "材料出场",
+        "hazard": "隐患整改",
+        "other": "其他"
+      },
       "selectPhotos": "要关联的照片",
       "selectRecord": "选择整条现场资料",
       "caption": "说明",
@@ -5347,6 +5369,7 @@
       }
     },
     "what": {
+      "evidenceFilters": "筛选选项",
       "credential": "你的审批签名与 PIN",
       "evidenceCandidates": "本项目的现场证据",
       "archiveDocuments": "文件管理列表",

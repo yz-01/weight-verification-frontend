@@ -22,6 +22,7 @@ import type {
   ConsultantWorkflow,
   ConsultantWorkflowStep,
   EvidenceCandidate,
+  EvidenceFilterOptions,
   ProjectApplicationOption,
   ProjectOptionCategory,
   RemedialItem,
@@ -338,6 +339,7 @@ export const addApplicationAttachment = async (
   file: File,
   category: string,
   note: string,
+  quiet = false,
 ) => {
   const data = new FormData();
   data.append("file", file);
@@ -347,18 +349,40 @@ export const addApplicationAttachment = async (
     `/api/consultant-applications/${id}/add_attachment/`,
     data,
   );
-  toastSuccess("consultantWorkflow.toast.attachmentAdded");
+  if (!quiet) toastSuccess("consultantWorkflow.toast.attachmentAdded");
+  return row;
+};
+
+/**
+ * Several files of one type, one after the other (I40): the tile and the
+ * dialog both take many at once; the server takes one per call. Stops at the
+ * first refusal so the person is told which file, and what went up stays.
+ */
+export const addApplicationAttachments = async (
+  id: string,
+  files: File[],
+  category: string,
+  note = "",
+) => {
+  let row: ConsultantApplication | undefined;
+  for (const file of files) {
+    row = await addApplicationAttachment(id, file, category, note, true);
+  }
+  if (row) toastSuccess("consultantWorkflow.toast.attachmentAdded");
   return row;
 };
 
 export const getApplicationEvidenceCandidates = (
   project: string,
-  filters: { search?: string; date_from?: string; date_to?: string; kind?: string; category?: string; subcategory?: string; uploader?: string } = {},
+  filters: { search?: string; date_from?: string; date_to?: string; kind?: string; module?: string; category?: string; subcategory?: string; uploader?: string } = {},
 ) =>
   api.list<EvidenceCandidate>(
     "/api/consultant-applications/get_evidence_candidates/",
     { project, page_size: 500, ...filters },
   );
+
+export const getEvidenceFilterOptions = (project: string) =>
+  api.get<EvidenceFilterOptions>("/api/consultant-applications/get_evidence_filter_options/", { project });
 
 export const getApplicationDocumentCandidates = (project: string, search?: string) =>
   api.list<DocumentRecord>("/api/documents/get_documents/", {

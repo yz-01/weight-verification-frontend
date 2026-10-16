@@ -4894,6 +4894,10 @@
       "verify": "Open QR verification"
     },
     "attachment": {
+      "tileUpload": "Upload {type}",
+      "uploadedCount": "{count} uploaded",
+      "tileHint": "Click to choose files, or drop them here.",
+      "fromArchiveShort": "Choose from file archive",
       "add": "Add attachment",
       "attached": "Attached",
       "category": "Attachment type",
@@ -5009,6 +5013,24 @@
       "failed": "That did not save. Please try again."
     },
     "evidence": {
+      "module": "Module",
+      "allModules": "All modules",
+      "allCategories": "All categories",
+      "allSubcategories": "All subcategories",
+      "allUploaders": "All uploaders",
+      "keyword": "Keyword",
+      "moduleName": {
+        "fieldTask": "Field tasks",
+        "equipment": "Equipment in and out",
+        "progress": "Site progress",
+        "disposal": "Site clearance",
+        "wasteOut": "Waste outgoing",
+        "wasteDispatch": "Waste orders",
+        "materialIn": "Material receipts",
+        "materialOut": "Material outgoing",
+        "hazard": "Hazard rectification",
+        "other": "Other"
+      },
       "selectPhotos": "Photos to link",
       "selectRecord": "Select this complete record",
       "caption": "Caption",
@@ -5347,6 +5369,7 @@
       }
     },
     "what": {
+      "evidenceFilters": "The filter choices",
       "credential": "Your approval signature and PIN",
       "evidenceCandidates": "The project's site evidence",
       "archiveDocuments": "The Document Archival list",

@@ -4894,6 +4894,10 @@
       "verify": "Buka pengesahan QR"
     },
     "attachment": {
+      "tileUpload": "Muat naik {type}",
+      "uploadedCount": "{count} dimuat naik",
+      "tileHint": "Klik untuk pilih fail, atau seret fail ke sini.",
+      "fromArchiveShort": "Pilih daripada arkib fail",
       "add": "Tambah lampiran",
       "attached": "Dilampirkan",
       "category": "Jenis lampiran",
@@ -5009,6 +5013,24 @@
       "failed": "Tidak berjaya disimpan. Sila cuba lagi."
     },
     "evidence": {
+      "module": "Modul",
+      "allModules": "Semua modul",
+      "allCategories": "Semua kategori",
+      "allSubcategories": "Semua subkategori",
+      "allUploaders": "Semua pemuat naik",
+      "keyword": "Kata kunci",
+      "moduleName": {
+        "fieldTask": "Tugas tapak",
+        "equipment": "Peralatan masuk dan keluar",
+        "progress": "Kemajuan tapak",
+        "disposal": "Pelupusan tapak",
+        "wasteOut": "Sisa keluar",
+        "wasteDispatch": "Pesanan sisa",
+        "materialIn": "Penerimaan bahan",
+        "materialOut": "Bahan keluar",
+        "hazard": "Pembetulan bahaya",
+        "other": "Lain-lain"
+      },
       "selectPhotos": "Foto untuk dipautkan",
       "selectRecord": "Pilih rekod lengkap ini",
       "caption": "Kapsyen",
@@ -5347,6 +5369,7 @@
       }
     },
     "what": {
+      "evidenceFilters": "Pilihan penapis",
       "credential": "Tandatangan dan PIN kelulusan anda",
       "evidenceCandidates": "Bukti tapak projek",
       "archiveDocuments": "Senarai Arkib Dokumen",

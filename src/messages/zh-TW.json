@@ -4894,6 +4894,10 @@
       "verify": "打開二維碼驗證"
     },
     "attachment": {
+      "tileUpload": "上傳{type}",
+      "uploadedCount": "已上傳 {count} 個",
+      "tileHint": "點這裡選檔案，或把檔案拖到這裡。",
+      "fromArchiveShort": "從檔案管理選擇",
       "add": "添加附件",
       "attached": "已上傳",
       "category": "附件類型",
@@ -5009,6 +5013,24 @@
       "failed": "沒有改成，請再試一次。"
     },
     "evidence": {
+      "module": "模組",
+      "allModules": "全部模組",
+      "allCategories": "全部分類",
+      "allSubcategories": "全部子分類",
+      "allUploaders": "全部上傳人",
+      "keyword": "關鍵字",
+      "moduleName": {
+        "fieldTask": "現場任務",
+        "equipment": "設備進退場",
+        "progress": "施工進度",
+        "disposal": "工地清運",
+        "wasteOut": "廢料出場",
+        "wasteDispatch": "廢料訂單",
+        "materialIn": "材料進場",
+        "materialOut": "材料出場",
+        "hazard": "隱患整改",
+        "other": "其他"
+      },
       "selectPhotos": "要關聯的照片",
       "selectRecord": "選擇整筆現場資料",
       "caption": "說明",
@@ -5347,6 +5369,7 @@
       }
     },
     "what": {
+      "evidenceFilters": "篩選選項",
       "credential": "你的審批簽名與 PIN",
       "evidenceCandidates": "本項目的現場證據",
       "archiveDocuments": "文件管理列表",
