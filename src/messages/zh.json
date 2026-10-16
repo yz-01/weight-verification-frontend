@@ -5022,13 +5022,13 @@
       "moduleName": {
         "fieldTask": "现场任务",
         "equipment": "设备进退场",
-        "progress": "施工进度",
+        "progress": "工程进度",
         "disposal": "工地清运",
-        "wasteOut": "废料出场",
+        "wasteOut": "环保材料出场申请",
         "wasteDispatch": "废料订单",
         "materialIn": "材料进场",
         "materialOut": "材料出场",
-        "hazard": "隐患整改",
+        "hazard": "整改",
         "other": "其他"
       },
       "selectPhotos": "要关联的照片",
