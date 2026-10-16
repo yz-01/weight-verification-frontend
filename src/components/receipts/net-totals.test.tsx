@@ -205,10 +205,8 @@ describe("leftovers of the plain-words pass (I41 review)", () => {
     const source = readFileSync(
       path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"),
       "utf8",
-    ).replace(/
-/g, "
-");
-    expect(source).toMatch(/useEffect\(\(\) => \{\s*setToggled\(new Set\(\)\);\s*\}, \[material\]\)/);
+    ).replace(/\r\n/g, "\n");
+    expect(source).toContain("pressed.search === material");
     expect(zh.receipts.net.title).toBe("按供应商看总数");
     expect(zhTW.receipts.net.title).toBe("按供應商看總數");
     expect(en.receipts.net.title).toBe("Totals by supplier");

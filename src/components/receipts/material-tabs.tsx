@@ -4,7 +4,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, Search, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { NetBreakdownDialog, type NetFocus } from "@/components/receipts/net-breakdown";
@@ -22,6 +22,8 @@ import {
   getReceiptNetTotals,
   type MaterialNetTotalRow,
 } from "@/services/contractor.service";
+
+const EMPTY_KEYS: ReadonlySet<string> = new Set();
 
 export type MaterialTab = "in" | "out" | "reject" | "totals" | "targets";
 
@@ -135,12 +137,14 @@ export function NetTotalsView({
   const unitValues = useUnitExportValues();
   const [term, setTerm] = useState("");
   const material = useDebounce(term.trim(), 300);
-  const [toggled, setToggled] = useState<ReadonlySet<string>>(new Set());
-  // A new search starts with every supplier heading as it comes (IB20): a
-  // group closed before must not hide what the search found.
-  useEffect(() => {
-    setToggled(new Set());
-  }, [material]);
+  // Which supplier headings were pressed - for this search only (IB20): a new
+  // search starts with every group as it comes, so a group closed before
+  // never hides what the search found.
+  const [pressed, setPressed] = useState<{ search: string; keys: ReadonlySet<string> }>({
+    search: "",
+    keys: new Set(),
+  });
+  const toggled = pressed.search === material ? pressed.keys : EMPTY_KEYS;
   const [drill, setDrill] = useState<{ row: MaterialNetTotalRow; focus: NetFocus } | null>(null);
   const query = Object.fromEntries(
     Object.entries({ project, material, ...filters }).filter(([, value]) => Boolean(value)),
@@ -162,10 +166,13 @@ export function NetTotalsView({
   // A group is open unless it was toggled away from the starting state.
   const isOpen = (group: { supplier: string }) => toggled.has(group.supplier) === defaultCollapsed;
   const toggle = (group: { supplier: string }) =>
-    setToggled((current) => {
-      const next = new Set(current);
-      if (!next.delete(group.supplier)) next.add(group.supplier);
-      return next;
+    setPressed({
+      search: material,
+      keys: (() => {
+        const next = new Set(toggled);
+        if (!next.delete(group.supplier)) next.add(group.supplier);
+        return next;
+      })(),
     });
   const keyOf = (row: MaterialNetTotalRow) =>
     `${row.project}:${row.supplier}:${row.material_name}:${row.material_specification}:${row.unit}`;
