@@ -135,8 +135,10 @@ import {
  * columns are per project, and real records point at each. So each brings its
  * own editor - the column dialog, the waste category dialog.
  *
- * 隐患整改分类 are read-only here (B1): listed, and their records open, but
- * nothing is added, changed, removed or reordered.
+ * 隐患整改分类 are added, renamed, switched off and removed here like the
+ * others since H18 (IB7: this note used to say read-only). Since I11 the left
+ * is the project's 分类组 - one per module made by the system, and the ones
+ * the project adds - each with its categories and sub-categories.
  *
  * Deleting follows the server: a category that still holds records is
  * refused with a sentence saying so, and that sentence is shown here as it is.
