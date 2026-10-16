@@ -4092,7 +4092,8 @@
       "addKind": "新增种类",
       "pageNote": "这里管理设备的种类；每一台机器请按「登记设备」，或到 设备进退场 → 设备清单。",
       "onSite": "设备 {count} 台",
-      "moreSettings": "更多设定"
+      "moreSettings": "更多设定",
+      "offClass": "这个种类已停用，启用后才能登记设备。"
     },
     "system": "系统",
     "systemHelp": "施工准证申请由系统使用：可以改名，不能停用或删除。",

@@ -824,7 +824,7 @@ export function CategoryManagement() {
                                 size="sm"
                                 variant="ghost"
                                 disabled={!row.isActive}
-                                disabledReason={row.isActive ? undefined : t("subCategory.offParent")}
+                                disabledReason={row.isActive ? undefined : t("equipment.offClass")}
                                 onClick={() => setRegistering({ category: registerMachineCategory(row) })}
                               >
                                 <Plus />

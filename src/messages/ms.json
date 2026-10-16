@@ -4092,7 +4092,8 @@
       "addKind": "Tambah jenis",
       "pageNote": "Jenis peralatan diurus di sini. Untuk setiap mesin, tekan “Daftar peralatan”, atau pergi ke Peralatan → Senarai peralatan.",
       "onSite": "{count} mesin di tapak",
-      "moreSettings": "Tetapan lain"
+      "moreSettings": "Tetapan lain",
+      "offClass": "Jenis ini dimatikan. Hidupkannya untuk mendaftar mesin di bawahnya."
     },
     "system": "Sistem",
     "systemHelp": "Permit kerja digunakan oleh sistem: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",

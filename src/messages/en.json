@@ -4092,7 +4092,8 @@
       "addKind": "Add class",
       "pageNote": "Equipment classes are managed here. To add a machine, press “Register site equipment”, or go to Equipment → Equipment list.",
       "onSite": "{count, plural, one {# machine} other {# machines}} on site",
-      "moreSettings": "More settings"
+      "moreSettings": "More settings",
+      "offClass": "This class is switched off. Switch it on to register a machine in it."
     },
     "system": "System",
     "systemHelp": "Work permits are used by the system: they can be renamed, not switched off or removed.",
