@@ -255,8 +255,14 @@ export function SupplierDateListFilter({
   list,
   showManufacturer = false,
   showUnfilled = false,
+  showDates = true,
+  noneLabel,
 }: {
   list: ReturnType<typeof useListQuery>;
+  /** Off where the list has no date to range over (设备清单, I36). */
+  showDates?: boolean;
+  /** 「没有供应商」 under this name, where the endpoint reads `supplier=none` (I36). */
+  noneLabel?: string;
   /** Material lists also filter by manufacturer (2026-10 D1). */
   showManufacturer?: boolean;
   /** 「未填供应商」 (I23): the material receipts list only. */
@@ -272,6 +278,8 @@ export function SupplierDateListFilter({
       }}
       showManufacturer={showManufacturer}
       showUnfilled={showUnfilled}
+      showDates={showDates}
+      noneLabel={noneLabel}
       onChange={(next) => list.setFilters(next as Record<string, string | undefined>)}
     />
   );

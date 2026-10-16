@@ -5857,6 +5857,19 @@
         "headOffice": "这台设备的分类设为「提交总部审批」：由总部验收。"
       },
       "oneMachineOnly": "只看这台设备的进退场",
+      "supplierCounts": {
+        "headline": "在场 {onSite} 台 / 共 {total} 台",
+        "headlineFor": "{name}：{numbers}",
+        "noSupplier": "没有供应商",
+        "what": "各供应商的在场台数",
+        "tableTitle": "按供应商汇总",
+        "supplier": "供应商",
+        "project": "项目",
+        "onSite": "在场",
+        "total": "共有",
+        "presenceAll": "全部在场状态",
+        "presence": { "on": "在场", "off": "不在场" }
+      },
       "newMachinePlateHelp": "有车牌就填；没有可以留空。以前来过的设备会自动对上。",
       "addClass": "新增小类",
       "classMajor": "大类",

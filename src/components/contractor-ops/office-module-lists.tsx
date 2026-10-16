@@ -68,6 +68,10 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
+import {
+  EquipmentSupplierCountsPanel,
+  useEquipmentSupplierCounts,
+} from "@/components/contractor-ops/equipment-supplier-counts";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
 import { ManufacturerCell, hideEmptyManufacturerColumn } from "@/components/shared/manufacturer-picker";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
@@ -545,6 +549,8 @@ export function SiteEquipmentOffice() {
     "supplier",
     "date_from",
     "date_to",
+    // 在场状态 of the register (I36): on, off, or every machine.
+    "presence",
   ]);
   // The dashboard's expiring-certificates card links here with ?expiring=1,
   // which is a question about machines, so it opens the register.
@@ -560,6 +566,8 @@ export function SiteEquipmentOffice() {
     queryFn: () => getSiteEquipment(list.query),
     enabled: register,
   });
+  // On site / total per supplier, for the register (I36).
+  const supplierCounts = useEquipmentSupplierCounts(list, register);
   const summary = useQuery({
     queryKey: ["equipment-summary", list.filters.project ?? ""],
     queryFn: () => getEquipmentSummary(list.filters.project || undefined),
@@ -1004,6 +1012,22 @@ export function SiteEquipmentOffice() {
       <QueryFailedNote query={summary} what={t("what.equipmentSummary")} />
       {/* 供应商 and 日期 (I5): with 分类 and 进退场, all at once. */}
       {!register && <SupplierDateListFilter list={list} />}
+      {/* 设备清单 (I36): the numbers, then 供应商 and 在场状态 beside 分类 and search. */}
+      {register && <EquipmentSupplierCountsPanel list={list} counts={supplierCounts} />}
+      {register && (
+        <div className="flex basis-full flex-wrap items-end gap-3">
+          <SupplierDateListFilter list={list} showDates={false} noneLabel={t("equipment.supplierCounts.noSupplier")} />
+          <FilterSelect
+            list={list}
+            param="presence"
+            allLabel={t("equipment.supplierCounts.presenceAll")}
+            options={(["on", "off"] as const).map((value) => ({
+              value,
+              label: t(`equipment.supplierCounts.presence.${value}`),
+            }))}
+          />
+        </div>
+      )}
       {/* Opened from a machine's profile (B2): its entries and exits only. */}
       {list.filters.equipment && !register && (
         <p className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-xs">
@@ -1049,6 +1073,7 @@ export function SiteEquipmentOffice() {
                   expiring: undefined,
                   equipment: undefined,
                   supplier: undefined,
+                  presence: undefined,
                   date_from: undefined,
                   date_to: undefined,
                   // 「待处理」 is the movements' (the register has none).
@@ -1118,6 +1143,8 @@ export function SiteEquipmentOffice() {
                   exportEquipmentRegister({
                     format,
                     title: tRoot("moduleTable.equipmentView.register"),
+                    // The numbers on screen are printed at the top (I36).
+                    subtitle: supplierCounts.text || undefined,
                     query: list.query,
                     columns: [
                       { key: "registration_no", label: t("field.plateNo") },
