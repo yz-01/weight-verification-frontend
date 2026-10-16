@@ -86,7 +86,10 @@ export function MapFrame({
   useLayoutEffect(() => {
     if (!holder) return;
     if (mode !== "overlay") {
-      slotRef.current?.appendChild(holder);
+      // Only when it is not there already: appending a node moves it, and a
+      // node taken out of the page leaves the browser's full screen - the
+      // 「全屏」 press went full screen and straight back (Lucas 10/17).
+      if (holder.parentNode !== slotRef.current) slotRef.current?.appendChild(holder);
       return;
     }
     const overlay = document.createElement("div");
@@ -102,7 +105,7 @@ export function MapFrame({
     document.body.appendChild(overlay);
     const slot = slotRef.current;
     return () => {
-      slot?.appendChild(holder);
+      if (holder.parentNode !== slot) slot?.appendChild(holder);
       overlay.remove();
     };
   }, [holder, mode]);
