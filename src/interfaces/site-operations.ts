@@ -5,6 +5,8 @@ import type { RecordedBy } from "@/interfaces/recorder";
 export type AttendanceEvent = "CLOCK_IN" | "CLOCK_OUT";
 
 export interface AttendanceRecord {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   id: string;
   project: string;
   project_name: string;
@@ -152,6 +154,8 @@ export interface SafetyRectificationEvidence {
 }
 
 export interface SafetyIncident extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** Waits for this reader's next step - the sidebar counts it (2026-10-09). */
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */

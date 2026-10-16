@@ -183,7 +183,10 @@ export function VisitorRecords() {
         accessorKey: "pass_no",
         meta: { label: t("field.pass") },
         header: () => <PlainHeader label={t("field.pass")} />,
-        cell: ({ row }) => <RecordNo value={row.original.pass_no} />,
+        // PS, split by the row's project code (ID35).
+        cell: ({ row }) => (
+          <RecordNo value={row.original.pass_no} projectCode={row.original.project_code} />
+        ),
       },
       {
         accessorKey: "project_name",

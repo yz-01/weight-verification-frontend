@@ -50,6 +50,8 @@ export interface DailyReportEntry {
  * `entries` and `photos` arrive when one report is opened.
  */
 export interface DailyReport {
+  /** Record No. (I6): `FT-<project>-001`, running on per project. */
+  record_no?: string;
   id: string;
   project: string;
   project_name: string;

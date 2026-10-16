@@ -5,11 +5,31 @@ import { useTranslations } from "next-intl"
 
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+/**
+ * Every table scrolls inside its own box, both ways, and the box is never
+ * taller than the screen (IB3, ID22: 「表头不动…要改的话就全部一起改」).
+ *
+ * The header is `sticky top-0`, and sticky holds against the nearest
+ * scrolling ancestor. That used to be this container - `overflow-x-auto`,
+ * which makes it a scroll box on both axes - but it never scrolled up and
+ * down, because it grew with its rows; the page scrolled instead and the
+ * header went with it. Now the container itself is capped to the viewport
+ * (`--table-max-h`, globals.css) and scrolls vertically, so the header stays
+ * on top of every list on the desktop and on the phone. Printing lets it run
+ * to its full length again.
+ */
+function Table({
+  className,
+  containerClassName,
+  ...props
+}: React.ComponentProps<"table"> & { containerClassName?: string }) {
   return (
     <div
       data-slot="table-container"
-      className="relative min-w-0 max-w-full overflow-x-auto overscroll-x-contain [container-type:inline-size]"
+      className={cn(
+        "relative min-w-0 max-w-full overflow-auto overscroll-contain [container-type:inline-size] print:max-h-none print:overflow-visible",
+        containerClassName,
+      )}
     >
       <table
         data-slot="table"
@@ -24,7 +44,12 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("bg-muted/60 text-muted-foreground [&_tr]:border-b [&_tr]:border-panel-border", className)}
+      className={cn(
+        // Opaque under the tint, so rows scrolling beneath the sticky header
+        // do not show through it.
+        "sticky top-0 z-10 bg-card text-muted-foreground [&_tr]:border-b [&_tr]:border-panel-border [&_tr]:bg-muted/60",
+        className,
+      )}
       {...props}
     />
   )

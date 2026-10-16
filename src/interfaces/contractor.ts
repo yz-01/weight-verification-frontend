@@ -178,6 +178,8 @@ export interface DeliveryNoteEvidence {
 }
 
 export interface DeliveryNote {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   id: string;
   note_no: string;
   project: string;
@@ -349,6 +351,8 @@ export interface ReceiptPhoto {
 }
 
 export interface MaterialReceipt {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   /** 待验收 for this reader - the sidebar counts it (2026-10-09). */
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */

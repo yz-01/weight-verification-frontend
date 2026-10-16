@@ -1,6 +1,8 @@
 import type { RecordedBy } from "@/interfaces/recorder";
 
 export interface IncidentReportThread extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
   id: string;
   thread_no: string;
   title: string;

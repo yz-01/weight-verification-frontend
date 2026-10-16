@@ -545,6 +545,12 @@
 }
 
 @layer base {
+  /* IB3 / ID22: a table box is at most the screen less the top bar and a
+   * filter row, so it scrolls itself and its sticky header stays in sight.
+   * A page can set --table-max-h on an ancestor; a utility class overrides. */
+  [data-slot="table-container"] {
+    max-height: var(--table-max-h, max(20rem, calc(100dvh - 9rem)));
+  }
   * {
     @apply border-border outline-ring/50;
   }

@@ -10628,6 +10628,8 @@
       "start_at": "开工时间",
       "end_at": "收工时间",
       "hours": "工时（小时）",
+      "record_no": "记录编号",
+      "legacy_no": "旧编号",
       "task_title": "任务",
       "due_at": "期限",
       "result_note": "完成说明",
@@ -12742,7 +12744,7 @@
       "qrCode": "送货单",
       "quantity": "数量",
       "cumulativeQuantity": "累计数量",
-      "receiptNo": "收货单号",
+      "receiptNo": "进退场记录编号",
       "receivedBy": "收货人",
       "recordedBy": "记录人",
       "supplier": "供应商",
@@ -17573,6 +17575,10 @@
     "backwards": "结束时间早于开始时间，没有记录会符合。"
   },
   "recordNo": {
+    "column": "记录编号",
+    "inOutColumn": "进退场记录编号",
+    "legacy": "旧编号",
+    "legacyHint": "重新编号前的编号，已印出的文件上可能是这个编号。",
     "copy": "复制 {number}",
     "copied": "已复制 {number}",
     "copyFailed": "复制失败。长按编号可以看到完整编号。"

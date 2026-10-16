@@ -68,8 +68,9 @@ export function PermitsOffice() {
     () => [
       {
         accessorKey: "incident_no",
-        meta: { label: t("field.no") },
-        header: sortable(t("field.no")),
+        // 记录编号 (I6).
+        meta: { label: tRoot("recordNo.column") },
+        header: sortable(tRoot("recordNo.column")),
         cell: ({ row }) => <RecordNo value={row.original.incident_no} />,
       },
       {
@@ -141,7 +142,7 @@ export function PermitsOffice() {
           ),
       },
     ],
-    [t, df],
+    [t, tRoot, df],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>

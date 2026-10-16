@@ -81,6 +81,7 @@ import {
 } from "@/components/shared/record-correction";
 import { useDateFormat } from "@/lib/dates";
 import { hasPercent, usePercentText } from "@/lib/progress-percent";
+import { parseRecordNo } from "@/lib/record-no";
 import { cn } from "@/lib/utils";
 import { NEW_PHASE_OPTION, NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import {
@@ -967,6 +968,7 @@ export function FieldTasksWorkspace({
   taskType,
 }: { taskType?: FieldTask["task_type"] } = {}) {
   const t = useTranslations("contractorOps");
+  const tRoot = useTranslations();
   // The four 「这次要顾问看什么」 answers by name, not by code (2026-10 F4).
   const askFor = useTranslations("fieldStaffPwa.consultantCapture");
   // A phone submission's title names its type in the reader's words (F4).
@@ -1131,6 +1133,7 @@ export function FieldTasksWorkspace({
                       ...(waitingOnly ? { [NEEDS_ACTION_PARAM]: "1" } : {}),
                     },
                     columns: [
+                      { key: "record_no", label: tRoot("recordNo.column") },
                       { key: "title", label: t("field.title") },
                       {
                         key: "task_type",
@@ -1336,6 +1339,16 @@ export function FieldTasksWorkspace({
                       <span className="min-w-0">
                         <span className="block truncate font-medium">{taskTitle(row)}</span>
                         <span className="block truncate text-xs text-muted-foreground">
+                          {/* 记录编号 (I6): the short FT-012, the whole one on hover. */}
+                          {row.record_no && (
+                            <span
+                              className="tabular font-semibold text-foreground"
+                              title={row.record_no}
+                            >
+                              {parseRecordNo(row.record_no)?.short ?? row.record_no}
+                              {" · "}
+                            </span>
+                          )}
                           {row.project_name}
                         </span>
                       </span>
@@ -4958,6 +4971,7 @@ export function OutgoingDetailDialog({
   return (
     <RecordDetailDialog
       title={row?.reference_no ?? t("outgoing.title")}
+      legacyNo={row?.legacy_no}
       description={row ? `${row.material_name} · ${row.quantity} ${row.unit}` : undefined}
       exportRecord={
         row
