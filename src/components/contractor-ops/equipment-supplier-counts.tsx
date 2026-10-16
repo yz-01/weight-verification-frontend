@@ -58,6 +58,7 @@ export function headlineOf(data: EquipmentSupplierCounts, supplier: string | und
 /** The line, for the screen and for the top of the exported file. */
 export function useEquipmentSupplierCounts(list: ReturnType<typeof useListQuery>, enabled: boolean) {
   const t = useTranslations("contractorOps.equipment.supplierCounts");
+  // query-failure: EquipmentSupplierCountsPanel shows the QueryFailedNote for this query
   const query = useQuery({
     queryKey: ["equipment-supplier-counts", countsQuery(list.query)],
     queryFn: () => getEquipmentSupplierCounts(countsQuery(list.query)),
