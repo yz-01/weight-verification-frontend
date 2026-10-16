@@ -25,6 +25,12 @@ export interface RecordAttachments {
   attachments: RecordAttachment[];
   /** Why nothing more can be attached, or "" while the record is open. */
   closed: string;
+  /**
+   * Whether this reader may add files here: false on a gate pass read with
+   * 门禁 view only, and on a company-wide approval (no project to file under).
+   * Absent from an older server: then they may.
+   */
+  can_add?: boolean;
   max_files: number;
   max_bytes: number;
 }

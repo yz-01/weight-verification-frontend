@@ -1153,8 +1153,10 @@ function ApprovalDetailBody({
           </Table>
         </div>
       </section>
-      {/* Supporting papers: a photo, a scan or a file, kept with who and when (I3). */}
-      <RecordAttachmentsPanel kind="APPROVAL" recordId={approval.id} />
+      {/* Supporting papers: a photo, a scan or a file, kept with who and when
+          (I3). Filed under the approval's project, so a company-wide one has
+          none - the server refuses them too (attachment_needs_project). */}
+      {approval.project && <RecordAttachmentsPanel kind="APPROVAL" recordId={approval.id} />}
     </div>
   );
 }

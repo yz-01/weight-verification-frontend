@@ -338,7 +338,7 @@ export async function request<T>(
         attempt = { ...attempt, signOffPin: pin };
         continue;
       }
-      if (pin === null) throw new ApiError(message, response.status, errors, SIGN_OFF_CANCELLED);
+      if (pin === null) throw signOffCancelled(response.status);
 
       const failure = new ApiError(message, response.status, errors, code);
 
@@ -362,6 +362,16 @@ export async function request<T>(
     if (declared.length) await markOriginalsDeclared(declared);
     return envelope.data;
   }
+}
+
+/**
+ * The failure a closed PIN dialog leaves (I29, ID77): the person chose not to
+ * go on, so there is nothing to say. It carries no message and no field
+ * errors, so every screen that shows `error.message` or places
+ * `error.errors` stays quiet without checking the code itself.
+ */
+function signOffCancelled(status: number): ApiError {
+  return new ApiError("", status, {}, SIGN_OFF_CANCELLED);
 }
 
 /**
@@ -540,7 +550,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
         attempt = { ...attempt, signOffPin: pin };
         continue;
       }
-      if (pin === null) throw new ApiError(message, response.status, {}, SIGN_OFF_CANCELLED);
+      if (pin === null) throw signOffCancelled(response.status);
       if (!attempt.silent) toast.error(message);
       throw new ApiError(message, response.status, {}, code);
     }

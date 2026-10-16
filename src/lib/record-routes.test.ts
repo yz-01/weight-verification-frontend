@@ -17,6 +17,8 @@ describe("record → business detail (F9)", () => {
     ["CONSULTANT_APPLICATION", "/consultant-applications/r1"],
     ["SUNDRY_CLAIM", "/sundry-claims?record=r1"],
     ["MATERIAL_REQUEST", "/material-requests?record=r1"],
+    ["APPROVAL", "/approvals?approval=r1"],
+    ["GATE_PASS", "/site-access?pass=r1"],
   ])("opens %s on its own page", (kind, href) => {
     expect(recordTarget(kind, "r1")).toEqual({ href });
   });

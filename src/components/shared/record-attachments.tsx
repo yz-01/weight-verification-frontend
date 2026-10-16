@@ -46,7 +46,7 @@ function size(bytes: number) {
 export function RecordAttachmentsPanel({
   kind,
   recordId,
-  readOnly = false,
+  readOnly: readOnlyProp = false,
 }: {
   kind: AttachableKind;
   recordId: string;
@@ -78,6 +78,8 @@ export function RecordAttachmentsPanel({
 
   const rows = state.data?.attachments ?? [];
   const closed = state.data?.closed ?? "";
+  // The server's word on who may add (a gate pass: 门禁 manage only, I3).
+  const readOnly = readOnlyProp || state.data?.can_add === false;
 
   return (
     <section className="rounded-lg border p-3" data-slot="record-attachments">

@@ -1151,12 +1151,13 @@ export function SiteEquipmentOffice() {
                 disabled={!machines.data?.count}
                 disabledReason={t("state.empty")}
                 title={tRoot("moduleTable.equipmentView.register")}
-                onExport={(format) =>
+                onExport={async (format) =>
                   exportEquipmentRegister({
                     format,
                     title: tRoot("moduleTable.equipmentView.register"),
-                    // The numbers on screen are printed at the top (I36).
-                    subtitle: supplierCounts.text || undefined,
+                    // The numbers on screen are printed at the top (I36),
+                    // waited for when the export is pressed before they came.
+                    subtitle: (supplierCounts.text || (await supplierCounts.exportText())) || undefined,
                     query: list.query,
                     columns: [
                       { key: "registration_no", label: t("field.plateNo") },

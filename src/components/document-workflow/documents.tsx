@@ -118,6 +118,7 @@ import {
   DOCUMENT_FILE_ACCEPT,
   DocumentCategoryPicker,
   DocumentThumb,
+  nextUploadBatch,
 } from "@/components/document-workflow/document-archive-parts";
 import { cn } from "@/lib/utils";
 
@@ -923,10 +924,12 @@ function UploadDocumentDialog({
               doneCount={done}
               rule={{ accept: DOCUMENT_FILE_ACCEPT, multiple: true }}
               onChange={(next) => {
-                setFiles(next);
-                // A new choice is a new document.
-                setCreatedId(null);
-                setDone(0);
+                // A new choice is a new document - but not a file added or
+                // taken off part-way through, which stays in the one made.
+                const batch = nextUploadBatch({ files, done, createdId }, next);
+                setFiles(batch.files);
+                setDone(batch.done);
+                setCreatedId(batch.createdId);
               }}
             />
           </FieldWrapper>

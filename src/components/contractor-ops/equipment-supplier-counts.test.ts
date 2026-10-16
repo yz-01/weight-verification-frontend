@@ -31,6 +31,18 @@ describe("headlineOf", () => {
   it("is zero for a supplier with no machines", () => {
     expect(headlineOf(data, "s9")).toMatchObject({ chosen: false, onSite: 0, total: 0 });
   });
+
+  it("names a supplier with no machines from the filter, with 0 / 0", () => {
+    expect(headlineOf(data, "s9", "Idle Hire")).toEqual({
+      supplier: "Idle Hire",
+      chosen: true,
+      noSupplier: false,
+      onSite: 0,
+      total: 0,
+    });
+    // A row's own name wins over the filter's.
+    expect(headlineOf(data, "s1", "Old name")).toMatchObject({ supplier: "ABC Rental" });
+  });
 });
 
 describe("countsQuery", () => {
