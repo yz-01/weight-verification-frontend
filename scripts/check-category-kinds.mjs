@@ -104,10 +104,10 @@ function callArguments(body, callIndex) {
  * files into one again. A screen that did would offer columns nobody can see
  * on Category Management - 「为什么会有整改 VO？」 all over again.
  */
+// CLAIM is back since I10 (ID6): Progress Claim categories, made per project.
 const RETIRED_KINDS = [
   "FIELD",
   "BOTH",
-  "CLAIM",
   "PROGRESS",
   "CONSTRUCTION_WASTE",
   "CONSULTANT",
