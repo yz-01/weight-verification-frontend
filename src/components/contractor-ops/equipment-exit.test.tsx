@@ -433,7 +433,7 @@ describe("a broken QR: the number is typed (P-phonefix)", () => {
 
   it("every language has the typed-number words", () => {
     for (const catalogue of [messages, zhTW, en, ms]) {
-      const exit = catalogue.contractorOps.equipmentExit as Record<string, string>;
+      const exit = catalogue.contractorOps.equipmentExit as unknown as Record<string, unknown>;
       for (const key of ["brokenQr", "typeNumber", "useNumber", "typedMatched", "typedWrongMachine", "typedNotScanned"]) {
         expect(exit[key], key).toBeTruthy();
       }
