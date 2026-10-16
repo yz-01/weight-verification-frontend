@@ -124,7 +124,7 @@ describe("every module is managed on this one page (D-264)", () => {
     // And deleting is armed by a switch, never a confirm dialog (rule 8,
     // HD4), with the server's refusal shown when it says no.
     expect(source).not.toMatch(/ConfirmDialog/);
-    expect(source).toMatch(/disabled=\{armed !== row\.id \|\| removal\.isPending\}/);
+    expect(source).toMatch(/removeBlock\(row\) !== null \|\| armed !== row\.id \|\| removal\.isPending\}/);
     expect(source).toMatch(/t\("removeFailed", refusal\)/);
   });
 
