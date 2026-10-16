@@ -20,11 +20,11 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FilePreviewDialog } from "@/components/shared/file-preview";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { RecordAttachment } from "@/interfaces/record-attachment";
-import type { ChatRecordKind } from "@/lib/record-chat";
+import type { AttachableKind, RecordAttachment } from "@/interfaces/record-attachment";
 import { useDateFormat } from "@/lib/dates";
 import {
   downloadRecordAttachment,
@@ -33,7 +33,7 @@ import {
   uploadRecordAttachments,
 } from "@/services/record-attachment.service";
 
-export function recordAttachmentsKey(kind: ChatRecordKind, recordId: string) {
+export function recordAttachmentsKey(kind: AttachableKind, recordId: string) {
   return ["record-attachments", kind, recordId] as const;
 }
 
@@ -48,7 +48,7 @@ export function RecordAttachmentsPanel({
   recordId,
   readOnly = false,
 }: {
-  kind: ChatRecordKind;
+  kind: AttachableKind;
   recordId: string;
   /** Read and open only, no 加附件 - the phone's view of a permit. */
   readOnly?: boolean;
@@ -59,7 +59,6 @@ export function RecordAttachmentsPanel({
   const [adding, setAdding] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
-  const [inputKey, setInputKey] = useState(0);
   const [previewing, setPreviewing] = useState<RecordAttachment | null>(null);
 
   const state = useQuery({
@@ -71,7 +70,6 @@ export function RecordAttachmentsPanel({
     onSuccess: () => {
       setFiles([]);
       setNote("");
-      setInputKey((value) => value + 1);
       setAdding(false);
     },
     // A finished record refuses with 409; refetching shows why instead of the form.
@@ -163,13 +161,14 @@ export function RecordAttachmentsPanel({
             <div className="mt-2 space-y-2 rounded-md border border-dashed p-2">
               <p className="text-2xs text-muted-foreground">{t("hint")}</p>
               <FieldWrapper label={t("files")} required>
-                <Input
-                  key={inputKey}
-                  type="file"
-                  multiple
-                  className="h-8 text-xs"
-                  aria-label={t("files")}
-                  onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+                <AttachmentPicker
+                  files={files}
+                  onChange={setFiles}
+                  rule={{
+                    maxFiles: state.data?.max_files,
+                    maxBytes: state.data?.max_bytes,
+                    multiple: true,
+                  }}
                 />
               </FieldWrapper>
               <Input

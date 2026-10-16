@@ -24,7 +24,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, FilePlus2, Loader2, Paperclip, X } from "lucide-react";
+import { ExternalLink, FilePlus2, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -32,6 +32,7 @@ import { useClearDraft, useDraftState } from "@/components/field-staff/field-dra
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { chosenReviewer } from "@/components/material-requests/review-gate";
 import { useAuth } from "@/components/providers/auth-provider";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -43,7 +44,6 @@ import { useUnitName } from "@/hooks/use-material-units";
 import { ApiError } from "@/interfaces/api";
 import {
   REQUEST_ATTACHMENT_ACCEPT,
-  isAllowedRequestAttachment,
   isValidRequestQuantity,
   type MaterialRequest,
   type MaterialRequestType,
@@ -195,24 +195,6 @@ export function MaterialRequestForm({
     },
     onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("failed")),
   });
-
-  const addFiles = (files: FileList | null) => {
-    if (!files) return;
-    const picked = Array.from(files);
-    // The listed kinds only (ID49), said before sending, as the server says it.
-    const refused = picked.find((file) => !isAllowedRequestAttachment(file.name));
-    if (refused) {
-      setError(t("form.fileKindRefused", { name: refused.name }));
-      return;
-    }
-    const tooBig = picked.find((file) => file.size > MAX_ATTACHMENT_MB * 1024 * 1024);
-    if (tooBig) {
-      setError(t("form.fileTooBig", { name: tooBig.name, limit: MAX_ATTACHMENT_MB }));
-      return;
-    }
-    setError("");
-    setAttachments((current) => [...(current ?? []), ...picked].slice(0, MAX_ATTACHMENTS));
-  };
 
   const requirements: [unknown, string][] = isMaterial
     ? [
@@ -463,39 +445,28 @@ export function MaterialRequestForm({
         optional={common("optional")}
         hint={t("form.attachmentKindsHint", { count: MAX_ATTACHMENTS, limit: MAX_ATTACHMENT_MB })}
       >
-        <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-3 text-sm font-medium hover:bg-muted">
-          <Paperclip className="size-4" />
-          {t("form.addFiles")}
-          <input
-            className="sr-only"
-            type="file"
-            multiple
-            accept={REQUEST_ATTACHMENT_ACCEPT}
-            onChange={(event) => {
-              addFiles(event.target.files);
-              event.target.value = "";
-            }}
-          />
-        </label>
-        {attachments.length > 0 && (
-          <ul className="mt-2 space-y-1">
-            {attachments.map((file, index) => (
-              <li key={`${file.name}-${index}`} className="flex min-w-0 items-center justify-between gap-2 rounded-lg border px-2 py-1 text-xs">
-                <span className="truncate">
-                  {index + 1}. {file.name}
-                </span>
-                <button
-                  type="button"
-                  aria-label={t("form.removeFile", { name: file.name })}
-                  className="rounded p-0.5 text-muted-foreground hover:bg-muted"
-                  onClick={() => setAttachments((current) => (current ?? []).filter((_, at) => at !== index))}
-                >
-                  <X className="size-3.5" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <AttachmentPicker
+          files={attachments}
+          showLimits={false}
+          onChange={(next) => {
+            setError("");
+            setAttachments(next);
+          }}
+          rule={{
+            accept: REQUEST_ATTACHMENT_ACCEPT,
+            maxFiles: MAX_ATTACHMENTS,
+            maxBytes: MAX_ATTACHMENT_MB * 1024 * 1024,
+            multiple: true,
+          }}
+          // The listed kinds only (ID49), said before sending, as the server says it.
+          refusalText={(item) =>
+            item.kind === "type"
+              ? t("form.fileKindRefused", { name: item.name })
+              : item.kind === "size"
+                ? t("form.fileTooBig", { name: item.name, limit: MAX_ATTACHMENT_MB })
+                : undefined
+          }
+        />
       </FieldWrapper>
 
       {error && (

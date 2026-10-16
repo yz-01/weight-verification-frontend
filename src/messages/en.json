@@ -17068,6 +17068,7 @@
       "file": "Voucher image",
       "amount": "Amount paid (optional)",
       "lockHint": "Locked as soon as you press Upload voucher and cannot be changed or deleted; if it is wrong, add the correct one.",
+      "takePhoto": "Take a photo with the computer camera",
       "dropHint": "Choose a file, drag it here, or copy a screenshot and press Ctrl+V to paste it.",
       "pickFromChat": "Pick from the conversation",
       "hideChat": "Hide conversation photos",
@@ -17524,6 +17525,22 @@
     "toast": {
       "added": "{count, plural, one {# file attached} other {# files attached}}"
     }
+  },
+  "attachmentPicker": {
+    "takePhoto": "Take photo",
+    "chooseFile": "Choose file",
+    "dropHint": "Take a photo with the computer camera, choose a file, drag it here, or copy a picture and press Ctrl+V here.",
+    "dropHintPhone": "Take a photo or choose a file.",
+    "limitsMany": "Up to {count} files, {limit} MB each.",
+    "limitsCount": "Up to {count} files.",
+    "limitsOne": "One file, up to {limit} MB.",
+    "copiedNote": "A picture that is pasted or dragged in (for example copied from WhatsApp Web) has no shooting time or location. The system records the time you upload it.",
+    "none": "No files chosen yet.",
+    "remove": "Remove",
+    "wrongType": "{name} cannot be attached: this kind of file is not accepted here.",
+    "tooBig": "{name} is larger than {limit} MB.",
+    "tooMany": "Send at most {limit} files at a time.",
+    "notAFile": "What you pasted is not a file or a picture. Copy the picture itself and try again."
   },
   "supplierDateFilter": {
     "allSuppliers": "All suppliers",

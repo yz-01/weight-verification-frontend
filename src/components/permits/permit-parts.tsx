@@ -17,25 +17,21 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Camera,
   Check,
   Download,
   Eye,
   FileText,
-  FileUp,
-  ImageIcon,
   Loader2,
   Lock,
   Printer,
   RotateCcw,
   Send,
   UserPlus,
-  X,
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -47,6 +43,7 @@ import {
   QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import {
   RecordDetailDialog,
@@ -119,13 +116,20 @@ function failure(error: unknown, fallback: string) {
 /* ---------------------------------------------------------------- files */
 
 /**
- * The 准证文件 slot: one place, any number of pages.
+ * The 准证文件 slot: one place, any number of pages (I3).
  *
- * Two buttons, because the two ends start differently: on the phone the
- * form is often paper, so 拍照 opens the camera; at a desk it is the Word or
- * PDF file, so 选择文件 opens the file picker (which on a phone also offers
- * the gallery and the files app).
+ * The shared attachment picker: at a desk it is the Word or PDF file, a
+ * file dragged in, a picture pasted, or the computer's camera; on a phone
+ * the form is often paper, so 拍照 opens the phone's own camera. The limits
+ * and the refusals are the permit endpoint's own.
  */
+export const PERMIT_FILE_RULE = {
+  accept: PERMIT_FILE_ACCEPT,
+  maxFiles: 10,
+  maxBytes: 50 * 1024 * 1024,
+  multiple: true,
+} as const;
+
 export function PermitFilesInput({
   files,
   onChange,
@@ -134,82 +138,23 @@ export function PermitFilesInput({
   onChange: (files: File[]) => void;
 }) {
   const t = useTranslations("permits.files");
-  const camera = useRef<HTMLInputElement>(null);
-  const picker = useRef<HTMLInputElement>(null);
-  const add = (list: FileList | null) => {
-    const picked = Array.from(list ?? []);
-    if (picked.length) onChange([...files, ...picked]);
-  };
+  const tApi = useTranslations("errors.api");
   return (
     <div className="space-y-2" data-slot="permit-files">
       <p className="text-xs text-muted-foreground">{t("hint")}</p>
-      <div className="grid grid-cols-2 gap-2">
-        <Button type="button" variant="outline" className="min-h-11" onClick={() => camera.current?.click()}>
-          <Camera className="size-4" />
-          {t("takePhoto")}
-        </Button>
-        <Button type="button" variant="outline" className="min-h-11" onClick={() => picker.current?.click()}>
-          <FileUp className="size-4" />
-          {t("chooseFile")}
-        </Button>
-      </div>
-      <input
-        ref={camera}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        aria-label={t("takePhoto")}
-        onChange={(event) => {
-          add(event.target.files);
-          event.target.value = "";
-        }}
+      <AttachmentPicker
+        files={files}
+        onChange={onChange}
+        rule={PERMIT_FILE_RULE}
+        refusalText={(item, { maxFiles, limit }) =>
+          // The permit endpoint's own sentences, said before sending.
+          item.kind === "type"
+            ? tApi("permit_file_type", { name: item.name })
+            : item.kind === "size"
+              ? tApi("permit_file_too_large", { name: item.name, limit })
+              : tApi("permit_too_many_files", { limit: maxFiles ?? 0 })
+        }
       />
-      <input
-        ref={picker}
-        type="file"
-        multiple
-        accept={PERMIT_FILE_ACCEPT}
-        className="hidden"
-        aria-label={t("chooseFile")}
-        onChange={(event) => {
-          add(event.target.files);
-          event.target.value = "";
-        }}
-      />
-      {files.length === 0 ? (
-        <p className="rounded-lg border border-dashed px-3 py-3 text-center text-sm text-muted-foreground">
-          {t("none")}
-        </p>
-      ) : (
-        <ul className="space-y-1.5">
-          {files.map((file, index) => (
-            <li
-              key={`${file.name}-${index}`}
-              className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-sm"
-            >
-              {file.type.startsWith("image/") ? (
-                <ImageIcon className="size-4 shrink-0 text-muted-foreground" />
-              ) : (
-                <FileText className="size-4 shrink-0 text-muted-foreground" />
-              )}
-              <span className="min-w-0 flex-1 truncate">{file.name}</span>
-              <span className="shrink-0 text-xs text-muted-foreground">{size(file.size)}</span>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="size-8 shrink-0"
-                title={t("remove")}
-                aria-label={t("remove")}
-                onClick={() => onChange(files.filter((_, at) => at !== index))}
-              >
-                <X className="size-4" />
-              </Button>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
