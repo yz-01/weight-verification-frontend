@@ -54,6 +54,14 @@ export interface WasteCategory {
   is_retired: boolean;
   /** Waste records filed under this category, company-wide (D-125). */
   record_count: number;
+  /** A project's own 分类组 (I11); null - the company-wide list. */
+  group?: string | null;
+  group_name?: string | null;
+  /** Two levels (I11, ID3). */
+  parent?: string | null;
+  parent_name?: string | null;
+  /** The fixed 「其他」 (ID43): whoever chooses it types what it is. */
+  is_other?: boolean;
   created_at: string;
   updated_at: string;
 }

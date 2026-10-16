@@ -115,8 +115,13 @@ export interface Supplier {
   qr_code_count?: number;
   /** 「有退场资料」 (2026-10 C10): finished returns to this supplier. */
   completed_return_count?: number;
+  /** 公司类型 (I10, ID7): supplier and/or subcontractor. */
+  company_types?: SupplierCompanyType[];
   created_at: string;
 }
+
+/** What a company on the supplier list is to the contractor (I10, ID7). */
+export type SupplierCompanyType = "SUPPLIER" | "SUBCONTRACTOR";
 
 export interface SupplierPayload {
   code: string;
@@ -131,6 +136,8 @@ export interface SupplierPayload {
   industry: string;
   main_products: string;
   is_active?: boolean;
+  /** 公司类型 (I10, ID7): one or both. */
+  company_types?: SupplierCompanyType[];
 }
 
 export interface SupplierQRCode {
@@ -597,6 +604,10 @@ export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
 
 export interface MaterialReceiptDetail extends MaterialReceipt {
   qr_code: string | null;
+  /** 「提交总部审批」 (I12, ID28): head office accepts this delivery. */
+  review_by_head_office?: boolean;
+  /** Whether this reader may accept or reject it. */
+  can_review?: boolean;
   acceptance_status?: MaterialAcceptance;
   accepted_by_name?: string | null;
   accepted_at?: string | null;

@@ -30,6 +30,7 @@ import {
   Loader2,
   Paperclip,
   RotateCcw,
+  Send,
   Settings2,
   UserCheck,
   XCircle,
@@ -41,7 +42,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
 import { requestTypeNameOptions } from "@/lib/request-types";
-import { materialRequestReviewView } from "@/components/material-requests/review-gate";
+import { chosenReviewer, materialRequestReviewView } from "@/components/material-requests/review-gate";
 import {
   MaterialRequestForm,
   type MaterialRequestPrefill,
@@ -66,7 +67,15 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { EmptyState, FieldWrapper, FilterBar, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  EmptyState,
+  FieldWrapper,
+  FilterBar,
+  LoadFailed,
+  QueryFailedNote,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -98,6 +107,8 @@ import {
   getMaterialRequests,
   getMaterialRequestTotals,
   materialRequestFormFile,
+  managerDecideMaterialRequest,
+  getMaterialRequestReviewerOptions,
   reassignMaterialRequestToMe,
   reviewMaterialRequest, exportMaterialRequestTotals, getRequestTypes } from "@/services/material-request.service";
 
@@ -667,6 +678,8 @@ export function MaterialRequestDetail({
     ? t("waitingFor", { name: row.assigned_reviewer_name })
     : null;
   const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
+  // 「转呈总部」 (I12, ID29): the project manager sent it on.
+  const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");
 
   return (
     <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
@@ -733,6 +746,30 @@ export function MaterialRequestDetail({
           { label: t("field.remark"), value: row.remark || t("noRemark"), wide: true },
           ...(row.decision_note
             ? [{ label: row.status === "RETURNED" ? t("field.returnReason") : t("field.decisionNote"), value: row.decision_note, wide: true }]
+            : []),
+          ...(row.awaiting_manager
+            ? [{ label: t("field.stage"), value: t("stage.manager") }]
+            : []),
+          ...(forwards.length
+            ? [
+                {
+                  label: t("field.forwardHistory"),
+                  wide: true,
+                  value: (
+                    <ul className="space-y-0.5">
+                      {forwards.map((entry) => (
+                        <li key={entry.id}>
+                          {t("forwarded", {
+                            by: entry.decided_by_name ?? "—",
+                            at: df.dateTime(entry.decided_at),
+                          })}
+                          {entry.note ? ` · ${entry.note}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                },
+              ]
             : []),
           // The record of every take-over (Q15 「留改派记录」).
           ...(takeOvers.length
@@ -874,6 +911,18 @@ export function MaterialRequestDetail({
                 )}
               </>
             )}
+            {reviewView === "manager" && (
+              <ManagerForward
+                requestId={row.id}
+                project={row.project}
+                onDone={() => {
+                  setError("");
+                  void qc.invalidateQueries({ queryKey: ["material-requests"] });
+                  void qc.invalidateQueries({ queryKey: recordConversationKey("MATERIAL_REQUEST", id) });
+                }}
+                onError={(message) => setError(message)}
+              />
+            )}
             {reviewView === "takeOver" && (
               <div className="space-y-1.5">
                 <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("waitingForReview")}</p>
@@ -899,6 +948,99 @@ export function MaterialRequestDetail({
 }
 
 /** The request's type in the reader's words: the project's own name, or the old kind (I16). */
+/**
+ * The project manager's part (I12, ID29): 「提交总部审批」 - choose who at
+ * head office approves, and send it on (same request, same number) - or
+ * return it, behind its switch like every return.
+ */
+function ManagerForward({
+  requestId,
+  project,
+  onDone,
+  onError,
+}: {
+  requestId: string;
+  project: string;
+  onDone: () => void;
+  onError: (message: string) => void;
+}) {
+  const t = useTranslations("materialRequest");
+  // The project manager's own list is head office's (`stage` HEAD_OFFICE).
+  const options = useQuery({
+    queryKey: ["material-request-reviewers", project],
+    queryFn: () => getMaterialRequestReviewerOptions(project),
+  });
+  const rows = (options.data ?? []).filter((row) => row.stage !== "MANAGER");
+  const [chosen, setChosen] = useState("");
+  const target = chosenReviewer(rows, chosen);
+  const [returnArmed, setReturnArmed] = useState(false);
+  const [reason, setReason] = useState("");
+  const decide = useMutation({
+    mutationFn: (decision: "FORWARD" | "RETURNED") =>
+      managerDecideMaterialRequest(requestId, decision, {
+        assignedReviewer: target,
+        note: decision === "RETURNED" ? reason.trim() : "",
+      }),
+    onSuccess: onDone,
+    onError: (failure) => onError(failure instanceof ApiError ? failure.message : t("failed")),
+  });
+  return (
+    <div className="space-y-2">
+      <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{t("managerHelp")}</p>
+      <FieldWrapper label={t("field.headOfficeReviewer")} required>
+        <Select value={target || undefined} onValueChange={setChosen}>
+          <SelectTrigger className="w-full" aria-label={t("field.headOfficeReviewer")}>
+            <SelectValue placeholder={t("form.chooseReviewer")} />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            {rows.map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.full_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <QueryFailedNote query={options} what={t("field.headOfficeReviewer")} />
+      </FieldWrapper>
+      <Button
+        className="w-full"
+        requires={[[target, t("field.headOfficeReviewer")]]}
+        disabled={decide.isPending}
+        onClick={() => decide.mutate("FORWARD")}
+      >
+        <Send />
+        {t("action.forward")}
+      </Button>
+      <label className="flex items-center gap-2 rounded-md border px-2 py-1.5">
+        <Switch
+          checked={returnArmed}
+          onCheckedChange={(next) => {
+            setReturnArmed(next);
+            if (!next) setReason("");
+          }}
+          aria-label={t("action.armReturn")}
+        />
+        <span className="text-xs text-muted-foreground">{t("action.armReturnHelp")}</span>
+      </label>
+      {returnArmed && (
+        <FieldWrapper label={t("field.returnReason")} required>
+          <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
+          <Button
+            className="mt-2 w-full"
+            variant="destructive"
+            requires={[[reason.trim(), t("field.returnReason")]]}
+            disabled={decide.isPending}
+            onClick={() => decide.mutate("RETURNED")}
+          >
+            <XCircle />
+            {t("action.return")}
+          </Button>
+        </FieldWrapper>
+      )}
+    </div>
+  );
+}
+
 export function requestTypeName(
   row: Pick<MaterialRequest, "request_kind_name" | "request_type">,
   t: (key: string) => string,

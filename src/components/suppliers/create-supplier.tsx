@@ -23,7 +23,9 @@ import {
   required,
 } from "@/components/shared/form-shell";
 import { ApiError } from "@/interfaces/api";
-import type { Supplier, SupplierPayload } from "@/interfaces/contractor";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FieldWrapper } from "@/components/shared/page-primitives";
+import type { Supplier, SupplierCompanyType, SupplierPayload } from "@/interfaces/contractor";
 import {
   createSupplier,
   getSupplier,
@@ -64,6 +66,8 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
       registration_no: supplier?.registration_no ?? "",
       industry: supplier?.industry ?? "",
       main_products: supplier?.main_products ?? "",
+      // 公司类型 (I10, ID7): a company that existed before is a supplier.
+      company_types: supplier?.company_types?.length ? supplier.company_types : (["SUPPLIER"] as SupplierCompanyType[]),
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -147,6 +151,43 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
               rows={2}
               required
             />
+          )}
+        </form.Field>
+
+        {/* 公司类型 (I10, ID7): a Progress Claim's 分包商 is chosen from the
+            companies marked subcontractor. One or both. */}
+        <form.Field
+          name="company_types"
+          validators={{
+            onSubmit: ({ value }) =>
+              value.length ? undefined : t("suppliers.companyTypes.required"),
+          }}
+        >
+          {(field) => (
+            <FieldWrapper
+              label={t("suppliers.companyTypes.label")}
+              required
+              hint={t("suppliers.companyTypes.hint")}
+              error={field.state.meta.errors[0] ? String(field.state.meta.errors[0]) : undefined}
+            >
+              <div className="flex flex-wrap gap-4">
+                {(["SUPPLIER", "SUBCONTRACTOR"] as const).map((type) => (
+                  <label key={type} className="flex min-h-10 items-center gap-2 text-sm">
+                    <Checkbox
+                      checked={field.state.value.includes(type)}
+                      onCheckedChange={(checked) =>
+                        field.handleChange(
+                          checked === true
+                            ? [...new Set([...field.state.value, type])]
+                            : field.state.value.filter((value) => value !== type),
+                        )
+                      }
+                    />
+                    {t(`suppliers.companyTypes.${type}`)}
+                  </label>
+                ))}
+              </div>
+            </FieldWrapper>
           )}
         </form.Field>
       </FormSection>

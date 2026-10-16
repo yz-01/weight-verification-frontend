@@ -45,6 +45,7 @@ import type { useListQuery } from "@/hooks/use-list-query";
 import type { ArchiveRecordKind, ProjectCategoryKind } from "@/interfaces/contractor-ops";
 import { cn } from "@/lib/utils";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { CategoryOptionItems } from "@/components/shared/category-options";
 
 export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   title,
@@ -309,11 +310,9 @@ export function ColumnFilter({
         <SelectContent>
           <SelectItem value={ALL}>{t("allColumns")}</SelectItem>
           <SelectItem value={UNFILED}>{t("unfiled")}</SelectItem>
-          {(columns.data?.results ?? []).map((row) => (
-            <SelectItem key={row.id} value={row.id}>
-              {row.name}
-            </SelectItem>
-          ))}
+          {/* 分类组 → 分类 → 子分类 (I11): every list reads a group, or a
+              category with its sub-categories. */}
+          <CategoryOptionItems rows={columns.data?.results ?? []} groupsSelectable />
         </SelectContent>
       </Select>
       <QueryFailedNote query={columns} what={t("what.columns")} />

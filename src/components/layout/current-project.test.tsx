@@ -223,7 +223,8 @@ describe("one project chosen in the top bar", () => {
     nav.pathname = "/category-management";
     const { html, keys } = render(<CategoryManagement />, { state: topBar(NORTH.id) });
     expect(html).not.toContain(PAGE_PICKER);
-    expect(keysOf(keys, "category-management")[0]).toEqual(["category-management", "material", NORTH.id]);
+    // Then the 分类组 open on the right (I11), "" until the groups arrive.
+    expect(keysOf(keys, "category-management")[0]?.slice(0, 3)).toEqual(["category-management", "material", NORTH.id]);
   });
 
   it("a form that creates a record is on that project, as text", () => {

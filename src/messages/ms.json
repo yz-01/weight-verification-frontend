@@ -3065,7 +3065,7 @@
       "SITE_RECORD": "Rekod tapak",
       "SITE_EQUIPMENT": "Peralatan",
       "DOCUMENT": "Dokumen",
-      "CLAIM": "Tuntutan kemajuan",
+      "CLAIM": "Progress Claim",
       "MATERIAL_RETURN": "Bahan dipulangkan",
       "PERMIT": "Permit kerja",
       "GATE_INCIDENT": "Rekod Pintu",
@@ -3979,19 +3979,22 @@
       "material": "Kategori bahan",
       "equipment": "Kategori peralatan",
       "ehs": "Kategori EHS",
-      "recycle": "Kategori bahan alam sekitar keluar"
+      "recycle": "Kategori bahan alam sekitar keluar",
+      "claim": "Kategori Progress Claim"
     },
     "moduleHelp": {
       "material": "Penghantaran dan kosnya difailkan di sini. Satu senarai bagi setiap projek.",
       "equipment": "Kren, jengkaut, penjana. Satu senarai bagi setiap projek, diselenggara oleh syarikat ini.",
       "ehs": "Setiap projek bermula dengan pembetulan keselamatan, pembinaan dan perunding serta permit kerja. Tambah, namakan semula atau matikan kategori di sini; hanya kategori tanpa rekod boleh dibuang. Permit kerja ialah kategori sistem dan hanya boleh dinamakan semula.",
-      "recycle": "Sisa kitar semula yang dihantar keluar dari tapak: besi buruk, tembaga, aluminium, kabel. Satu senarai untuk seluruh syarikat; yang disediakan boleh ditutup tetapi tidak dipadam."
+      "recycle": "Sisa kitar semula yang dihantar keluar dari tapak: besi buruk, tembaga, aluminium, kabel. Satu senarai untuk seluruh syarikat; yang disediakan boleh ditutup tetapi tidak dipadam.",
+      "claim": "Kategori tuntutan setiap projek. Sundry, Manpower dan Subcontractor Claim hanya contoh, boleh ditukar nama, dimatikan atau dibuang; Other Claim kekal."
     },
     "moduleSource": {
       "material": "Rekod datang daripada penerimaan barang di tapak dan daftar resit pejabat. Kakitangan tapak boleh memfailkan di sini.",
       "equipment": "Rekod datang daripada Pergerakan peralatan di pejabat. Mesin didaftarkan di pejabat; telefon hanya merekod masuk dan keluar.",
       "ehs": "Rekod datang daripada laporan bahaya, di tapak mahupun di pejabat. Kakitangan tapak boleh memfailkan di sini.",
-      "recycle": "Rekod datang daripada sisa boleh kitar semula yang dihantar keluar oleh pejabat. Kakitangan tapak tidak memfailkan di sini."
+      "recycle": "Rekod datang daripada sisa boleh kitar semula yang dihantar keluar oleh pejabat. Kakitangan tapak tidak memfailkan di sini.",
+      "claim": "Rekod daripada: Progress Claim di pejabat (Multi Engine)."
     },
     "modules": "Modul",
     "scope": {
@@ -4112,6 +4115,67 @@
       "newPlaceholder": "cth. Y50mm",
       "add": "Tambah spesifikasi",
       "afterSave": "Simpan bahan, kemudian buka untuk menambah spesifikasi dan unitnya."
+    },
+    "groups": {
+      "create": "Kumpulan kategori baharu",
+      "chooseProject": "Pilih projek untuk melihat kumpulan kategorinya.",
+      "what": "kumpulan kategori",
+      "edit": "Sunting kumpulan",
+      "moveUp": "Naikkan kumpulan",
+      "moveDown": "Turunkan kumpulan",
+      "offNote": "Kumpulan ini dimatikan: kategorinya tidak ditawarkan di mana-mana. Rekod sedia ada kekal dan masih boleh dicari.",
+      "editTitle": "Sunting kumpulan · {name}",
+      "systemHelp": "Kumpulan sistem: boleh ditukar nama, tidak boleh dimatikan atau dibuang.",
+      "help": "Kumpulan milik satu modul perniagaan: kategorinya ialah kategori modul itu dan rekodnya mengikut aliran modul itu.",
+      "name": "Nama kumpulan",
+      "systemNameHint": "Biarkan kosong untuk memaparkan nama modul.",
+      "namePlaceholder": "cth. Bahan M&E",
+      "module": "Modul perniagaan",
+      "moduleFixed": "Modul tidak boleh ditukar selepas kumpulan dibuat.",
+      "moduleHint": "Kategorinya dipaparkan di telefon, pejabat dan pusat laporan modul ini.",
+      "chooseModule": "Pilih modul",
+      "active": "Dihidupkan",
+      "activeHint": "Apabila dimatikan, kategorinya tidak ditawarkan lagi; rekod sedia ada tidak terjejas.",
+      "armRemove": "Benarkan buang “{name}”",
+      "remove": "Buang kumpulan",
+      "all": "Semua · {name}"
+    },
+    "help": {
+      "title": "Cara guna",
+      "intro": "Kumpulan → kategori → subkategori: disediakan sendiri oleh pentadbir projek.",
+      "group": {
+        "title": "Tambah kumpulan",
+        "body": "Tekan “Kumpulan kategori baharu” di kiri, taip nama dan pilih modulnya. Ia terus dipaparkan di kiri."
+      },
+      "category": {
+        "title": "Tambah kategori",
+        "body": "Klik kumpulan di kiri, kemudian “Kategori baharu” di kanan atas."
+      },
+      "sub": {
+        "title": "Tambah subkategori",
+        "body": "Tekan “+ Sub” pada baris kategori. Aras kedua bahan ialah spesifikasinya, ditetapkan dalam dialog bahan. Dua aras sahaja."
+      },
+      "off": {
+        "title": "Mematikan",
+        "body": "Sunting kategori atau kumpulan dan matikan. Ia tidak lagi ditawarkan; rekod lama kekal dan ditanda “dimatikan” dalam laporan."
+      },
+      "where": {
+        "title": "Di mana ia dipaparkan",
+        "body": "Skrin telefon projek ini untuk modul itu, penapis kategori senarai pejabat dan menu pusat laporan. Projek lain tidak melihatnya."
+      },
+      "other": {
+        "title": "“Lain-lain” tetap",
+        "body": "Setiap modul ada “Lain-lain”: boleh ditukar nama, tidak boleh dimatikan atau dibuang, dan memilihnya meminta nama."
+      }
+    },
+    "subCategory": {
+      "add": "Tambah subkategori",
+      "short": "Sub",
+      "offParent": "Kategori ini dimatikan. Hidupkan untuk menambah subkategori.",
+      "under": "Subkategori baharu di bawah “{name}”.",
+      "parent": "Kategori induk",
+      "parentHint": "Tiada: kategori. Dipilih: subkategorinya. Dua aras sahaja.",
+      "isTop": "(kategori)"
     }
   },
   "cloudServices": {
@@ -5696,7 +5760,14 @@
       "submissionMode": "Tindakan penyerahan",
       "submissionDirect": "Hantar terus",
       "submissionReview": "Hantar untuk semakan",
-      "submissionConsultant": "Hantar untuk kelulusan perunding"
+      "submissionConsultant": "Hantar untuk kelulusan perunding",
+      "submissionHq": "Kelulusan ibu pejabat",
+      "submissionHint": {
+        "DIRECT": "Diterima sebaik dihantar; pejabat dimaklumkan.",
+        "REVIEW": "Pejabat projek menerimanya.",
+        "CONSULTANT": "Diterima oleh pejabat projek, kemudian juga menunggu dalam penghantaran tapak permohonan perunding.",
+        "HQ": "Ibu pejabat (dan pentadbir syarikat) menerimanya; pejabat projek tidak boleh."
+      }
     },
     "direction": {
       "ENTRY": "Masuk",
@@ -5782,7 +5853,8 @@
           "registration_no": "nombor plat",
           "category": "subkelas",
           "expiry": "tarikh tamat"
-        }
+        },
+        "headOffice": "Kelas mesin ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya."
       },
       "oneMachineOnly": "Hanya kemasukan dan keluar mesin ini",
       "newMachinePlateHelp": "Jika ada. Biarkan kosong jika tiada. Mesin yang pernah datang dipadankan melalui nombor platnya.",
@@ -6433,7 +6505,25 @@
       "generated_at": "Dijana",
       "block_count": "Blok",
       "updated_by": "Terakhir disunting oleh",
-      "updated_at": "Kemas kini terakhir"
+      "updated_at": "Kemas kini terakhir",
+      "task_type": "Jenis tugas",
+      "assignee": "Pelaksana",
+      "due_at": "Tarikh akhir",
+      "reviewed_at": "Disemak",
+      "material": "Bahan",
+      "quantity": "Kuantiti",
+      "returned_quantity": "Dipulangkan",
+      "unit": "Unit",
+      "supplier": "Pembekal",
+      "claim_no": "No. tuntutan",
+      "claim_kind": "Jenis tuntutan",
+      "subcontractor": "Subkontraktor",
+      "claim_period": "Tempoh",
+      "amount": "Amaun",
+      "payment_state": "Bayaran",
+      "item_count": "Item",
+      "submit_to": "Dihantar kepada",
+      "applicant": "Pemohon"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -6469,7 +6559,11 @@
         "photos": "Nama fail, sumber atau pemuat naik",
         "documents": "No. dokumen, tajuk atau kata kunci",
         "daily_report": "Nama laporan, teks atau penulis",
-        "progress_summary": "Tajuk atau penulis"
+        "progress_summary": "Tajuk atau penulis",
+        "field_tasks": "Cari tugas, arahan, lokasi, pelaksana",
+        "material_outgoing": "Cari nombor, bahan, spesifikasi, DO, plat, Return Note, pembekal",
+        "claims": "Cari no. tuntutan, catatan, keterangan, kategori, subkontraktor",
+        "sundry_claims": "Cari nombor, keterangan, pemohon"
       },
       "noMatch": "Tiada pilihan yang sepadan",
       "submittedBy": "Dihantar oleh",
@@ -7819,6 +7913,9 @@
       "visitor_arrival_already_open": "Pelawat ini sudah menunggu di pintu masuk.",
       "visitor_arrival_answered": "Pelawat ini sudah dijawab.",
       "visitor_arrival_not_host": "Hanya tuan rumah atau pengurus akses tapak boleh menjawab.",
+      "review_by_head_office": "Kategori ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya.",
+      "sundry_claim_sent_elsewhere": "Tuntutan sundry ini dihantar kepada pihak lain untuk kelulusan.",
+      "material_request_manager_first": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
       "sign_off_pin_required": "Masukkan PIN pengesahan enam digit anda untuk meneruskan.",
       "sign_off_pin_not_set": "Anda belum menetapkan PIN pengesahan. Tetapkan dahulu.",
       "sign_off_pin_incorrect": "PIN pengesahan salah. Tinggal {attempts_left} cubaan sebelum dikunci 15 minit.",
@@ -8778,7 +8875,8 @@
       "DISPOSAL": "Pembersihan tapak",
       "WASTE_DISPATCH": "Pesanan sisa",
       "WASTE_OUTGOING": "Bahan kitar semula keluar",
-      "GATE_INCIDENT": "Rekod foto pintu"
+      "GATE_INCIDENT": "Rekod foto pintu",
+      "CLAIM": "Progress Claim"
     },
     "map": {
       "title": "Peta gambaran projek",
@@ -9942,10 +10040,17 @@
       "period": "Tempoh",
       "project": "Tapak",
       "remarks": "Catatan",
-      "amount": "Jumlah"
+      "amount": "Jumlah",
+      "category": "Kategori tuntutan",
+      "subcontractor": "Subkontraktor",
+      "description": "Keterangan",
+      "otherName": "Nama"
     },
     "filter": {
-      "allKinds": "Semua jenis"
+      "allKinds": "Semua jenis",
+      "allCategories": "Semua kategori",
+      "noCategory": "Tiada kategori",
+      "allSubcontractors": "Semua subkontraktor"
     },
     "firstPage": "Ini halaman pertama.",
     "includePhotos": "Sertakan gambar",
@@ -9957,11 +10062,13 @@
     },
     "kind": {
       "MATERIAL_ON_SITE": "Bahan di tapak",
-      "PROGRESS": "Kemajuan"
+      "PROGRESS": "Kemajuan",
+      "GENERAL": "Tuntutan am"
     },
     "kindHelp": {
       "MATERIAL_ON_SITE": "Penghantaran yang diterima dan membawa nota penghantaran.",
-      "PROGRESS": "Permohonan yang diluluskan perunding: RFI, WIR, permohonan pemeriksaan, penuangan konkrit, lukisan kerja, kelulusan bahan."
+      "PROGRESS": "Permohonan yang diluluskan perunding: RFI, WIR, permohonan pemeriksaan, penuangan konkrit, lukisan kerja, kelulusan bahan.",
+      "GENERAL": "Untuk tuntutan tanpa rekod untuk ditanda, seperti tenaga kerja atau subkontraktor: keterangan, amaun pilihan dan dokumen."
     },
     "lastPage": "Ini halaman terakhir.",
     "loading": "Memuatkan...",
@@ -10027,7 +10134,24 @@
       "claimNo": "No. tuntutan",
       "returned": "Dipulangkan",
       "confirmedAt": "Disahkan pada"
-    }
+    },
+    "what": {
+      "categories": "kategori tuntutan",
+      "subcontractors": "senarai subkontraktor"
+    },
+    "noSubcontractor": "Tiada subkontraktor",
+    "conversation": "Perbualan",
+    "editDetails": "Kategori dan subkontraktor",
+    "categoryHint": "Kategori tuntutan ini; pilihan.",
+    "categoryHintGeneral": "Tuntutan am menamakan kategorinya, cth. Manpower Claim.",
+    "addCategory": "Kategori baharu",
+    "otherNameHint": "“Lain-lain” dipilih: nyatakan tuntutan ini.",
+    "subcontractorHint": "Daripada syarikat bertanda subkontraktor dalam senarai pembekal; tambah di sini jika tiada.",
+    "subcontractorSearch": "Taip untuk cari",
+    "descriptionHint": "Untuk apa tuntutan ini, cth. “Tenaga kerja Oktober”.",
+    "amountOptional": "Pilihan; boleh diisi kemudian.",
+    "confirmBodyGeneral": "Selepas disahkan tuntutan am ini dikira dituntut; rekod bayaran seperti biasa.",
+    "completeClaimFields": "Isi kategori dan keterangan (tuntutan am) serta nama untuk “Lain-lain” dahulu."
   },
   "multiEngine": {
     "acceptItem": "Terima",
@@ -12530,7 +12654,8 @@
       "armRejectHelp": "Hidupkan hanya apabila bahan tidak menepati spesifikasi. Ia membuka sebab dan butang tolak.",
       "rejectedAtGate": "Ditolak di pintu masuk oleh tapak, dengan kedua-dua tandatangan. Keputusan ini muktamad.",
       "archived": "Penghantaran ini telah disahkan dan diarkibkan. Ia boleh dibaca, tetapi tidak boleh diterima atau ditolak lagi.",
-      "failed": "Keputusan tidak disimpan. Cuba lagi."
+      "failed": "Keputusan tidak disimpan. Cuba lagi.",
+      "headOffice": "Kategori ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya."
     },
     "addPhoto": {
       "caption": "Nota (pilihan)",
@@ -15633,6 +15758,13 @@
       "description": "Ia ditambah ke senarai pembekal dan dipilih di sini. Lengkapkan butiran lain di halaman Pembekal kemudian.",
       "codeHint": "Tidak digunakan oleh pembekal lain, cth. CLR-001",
       "save": "Tambah dan pilih"
+    },
+    "companyTypes": {
+      "label": "Jenis syarikat",
+      "hint": "Boleh kedua-duanya. Subkontraktor Progress Claim dipilih daripada syarikat bertanda subkontraktor.",
+      "required": "Pilih sekurang-kurangnya satu.",
+      "SUPPLIER": "Pembekal",
+      "SUBCONTRACTOR": "Subkontraktor"
     }
   },
   "support": {
@@ -16309,7 +16441,8 @@
       "unitRequired": "Pilih unit untuk kuantiti yang dimasukkan.",
       "vehiclePlate": "Nombor plat",
       "collectionAt": "Masa pungutan dikehendaki",
-      "collectionAtHint": "Bila anda mahu lori datang. Pengitar boleh cadangkan masa lain, kemudian anda sahkan."
+      "collectionAtHint": "Bila anda mahu lori datang. Pengitar boleh cadangkan masa lain, kemudian anda sahkan.",
+      "otherName": "Apakah ia"
     },
     "filter": {
       "allCategories": "Semua kategori",
@@ -16901,7 +17034,8 @@
       "paidAt": "Dibayar pada",
       "reviewNote": "Nota semakan",
       "rejectReason": "Sebab ditolak",
-      "payment": "Bayaran"
+      "payment": "Bayaran",
+      "submitTo": "Dihantar kepada"
     },
     "status": {
       "SUBMITTED": "Belum diproses",
@@ -16960,7 +17094,24 @@
       "addAttachment": "Ambil atau tambah foto",
       "location": "Lokasi",
       "submit": "Hantar tuntutan pelbagai",
-      "failed": "Tuntutan tidak berjaya dihantar; sila cuba lagi."
+      "failed": "Tuntutan tidak berjaya dihantar; sila cuba lagi.",
+      "submitTo": "Hantar untuk kelulusan kepada",
+      "submitToHint": "Pengurus projek secara lalai.",
+      "submitToOption": {
+        "PROJECT": "Pengurus projek",
+        "HQ": "Ibu pejabat"
+      }
+    },
+    "submitTo": {
+      "PROJECT": "Pengurus projek",
+      "HQ": "Ibu pejabat",
+      "NONE": "Tidak dipilih",
+      "all": "Dihantar kepada sesiapa"
+    },
+    "sentTo": {
+      "PROJECT": "Dihantar kepada pengurus projek: ibu pejabat tidak memutuskannya.",
+      "HQ": "Dihantar kepada ibu pejabat: pengurus projek tidak memutuskannya.",
+      "NONE": "Sesiapa yang boleh menyemak memutuskannya."
     }
   },
   "moduleHub": {
@@ -16987,7 +17138,10 @@
       "equipmentClass": "Jenis",
       "recycling": "Kategori bahan alam sekitar keluar",
       "documents": "Kategori dokumen",
-      "documentSubcategory": "Subkategori"
+      "documentSubcategory": "Subkategori",
+      "materialOutgoing": "Kategori bahan",
+      "claims": "Kategori tuntutan",
+      "subcategory": "Subkategori"
     },
     "consultantType": {
       "MATERIAL_APPROVAL": "Permohonan bahan",
@@ -17000,7 +17154,16 @@
     "progressMenu": {
       "dailyReport": "Laporan harian",
       "pastDailyReports": "Laporan harian lepas"
-    }
+    },
+    "groupModule": {
+      "MATERIAL": "Kategori bahan",
+      "EQUIPMENT": "Kategori peralatan",
+      "EHS": "Kategori pembetulan / EHS",
+      "RECYCLE": "Kategori bahan kitar semula",
+      "CLAIM": "Kategori Progress Claim"
+    },
+    "inactive": "dimatikan",
+    "allOfGroup": "Semua · {name}"
   },
   "wasteClearance": {
     "title": "Pembersihan sisa",
@@ -17126,7 +17289,10 @@
       "subject": "Perkara permohonan",
       "content": "Butiran permohonan",
       "specificationName": "Nama spesifikasi",
-      "materialOrSubject": "Bahan / perkara"
+      "materialOrSubject": "Bahan / perkara",
+      "stage": "Peringkat",
+      "forwardHistory": "Dihantar",
+      "headOfficeReviewer": "Pelulus ibu pejabat"
     },
     "action": {
       "view": "Lihat",
@@ -17139,7 +17305,8 @@
       "print": "Cetak",
       "exportPdf": "Eksport PDF",
       "raiseAgain": "Buat permohonan baharu",
-      "reassignToMe": "Ambil alih"
+      "reassignToMe": "Ambil alih",
+      "forward": "Hantar ke ibu pejabat"
     },
     "empty": "Tiada permohonan lagi",
     "loading": "Memuatkan…",
@@ -17205,13 +17372,15 @@
       "contentOrFile": "Tulis butiran atau lampirkan fail - sekurang-kurangnya satu.",
       "contentPlaceholder": "Apa yang diperlukan, berapa, bila",
       "attachmentKindsHint": "Foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP. Sehingga {count} fail, setiap satu bawah {limit} MB.",
-      "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP."
+      "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP.",
+      "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat."
     },
     "toast": {
       "submitted": "Permohonan dihantar.",
       "approved": "Permohonan diluluskan.",
       "returned": "Permohonan dikembalikan dan ditutup.",
-      "reassigned": "Kini anda yang meluluskannya."
+      "reassigned": "Kini anda yang meluluskannya.",
+      "forwarded": "Dihantar ke ibu pejabat."
     },
     "capture": {
       "mine": "Permohonan saya",
@@ -17260,7 +17429,12 @@
         "saved": "Jenis permohonan disimpan.",
         "removed": "Jenis permohonan dibuang."
       }
-    }
+    },
+    "stage": {
+      "manager": "Menunggu pengurus projek"
+    },
+    "forwarded": "Dihantar ke ibu pejabat oleh {by} pada {at}",
+    "managerHelp": "Permohonan tapak kepada anda: pilih pelulus ibu pejabat dan tekan “Hantar ke ibu pejabat”, atau pulangkan."
   },
   "filePreview": {
     "unsupported": "Fail {ext} tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",

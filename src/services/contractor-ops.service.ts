@@ -10,6 +10,7 @@ import type {
   ArchiveQueueDetail,
   ArchiveQueuePage,
   ArchiveQueueRow,
+  CategoryGroup,
   ArchiveRecordKind,
   CategoryRecordKind,
   CategoryRecordPage,
@@ -96,6 +97,32 @@ export const createMaterialColumn = async (payload: {
     { silent: true },
   );
   return row;
+};
+
+/** 分类组 (I11): one project's groups, system ones first by order. */
+export const getCategoryGroups = (query: { project: string; module?: string; is_active?: boolean }) =>
+  api.get<{ results: CategoryGroup[]; count: number }>("/api/category-groups/get_groups/", query);
+export const createCategoryGroup = async (payload: {
+  project: string;
+  name: string;
+  module: CategoryGroup["module"];
+}) => {
+  const row = await api.post<CategoryGroup>("/api/category-groups/create_group/", payload);
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+export const updateCategoryGroup = async (
+  id: string,
+  payload: Partial<Pick<CategoryGroup, "name" | "sort_order" | "is_active">>,
+  { quiet = false }: { quiet?: boolean } = {},
+) => {
+  const row = await api.post<CategoryGroup>(`/api/category-groups/${id}/update_group/`, payload);
+  if (!quiet) toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+export const deleteCategoryGroup = async (id: string) => {
+  await api.delete(`/api/category-groups/${id}/delete_group/`);
+  toastSuccess("contractorOps.toast.removed");
 };
 
 export const deleteProjectCategory = async (id: string) => {
@@ -1962,11 +1989,40 @@ export async function createClaim(payload: {
   /** `YYYY-MM`. The server stores the first of that month (D-164). */
   period: string;
   remarks?: string;
+  /** I10: the project's claim category, its 「其他」 name and the subcontractor. */
+  category?: string;
+  other_name?: string;
+  subcontractor?: string;
+  /** 一般 Claim (ID50). */
+  description?: string;
+  amount?: string;
 }) {
   const row = await api.post<ClaimDetail>("/api/claims/create_claim/", payload);
   toastSuccess("claims.toast.opened");
   return row;
 }
+
+/** A claim's category, subcontractor and description (I10). */
+export async function updateClaim(
+  id: string,
+  payload: {
+    category?: string | null;
+    other_name?: string;
+    subcontractor?: string | null;
+    description?: string;
+  },
+) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/update_claim/`, payload);
+  toastSuccess("claims.toast.saved");
+  return row;
+}
+
+/** The companies marked 分包商 (I10, ID7), searched by name or code. */
+export const getSubcontractorOptions = (search?: string) =>
+  api.get<{ results: { id: string; code: string; name: string }[] }>(
+    "/api/claims/subcontractor_options/",
+    search ? { search } : {},
+  );
 
 export async function deleteClaim(id: string) {
   await api.delete(`/api/claims/${id}/delete_claim/`);

@@ -318,6 +318,8 @@ export function CategoryDialog({
   defaultKind,
   row,
   nextSortOrder,
+  group = null,
+  parent: presetParent = null,
   onClose,
   onSaved,
 }: {
@@ -327,6 +329,10 @@ export function CategoryDialog({
   row: ProjectCategory | null;
   /** Where a new column goes in the list: after the ones already there. */
   nextSortOrder: number;
+  /** The 分类组 a new category joins (I11); null - the module's own group. */
+  group?: string | null;
+  /** 「+ 子分类」 (I11): the category a new one goes under. */
+  parent?: string | null;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -345,8 +351,10 @@ export function CategoryDialog({
   });
   const [form, setForm] = useState<ProjectCategoryPayload>({
     project,
-    // Equipment only (2026-10 B2, X1): the major class a sub class sits under.
-    parent: row?.parent ?? null,
+    // The category a sub-category sits under: equipment's major class (B2,
+    // X1), and since I11 (ID3) any module's category.
+    parent: row?.parent ?? presetParent ?? null,
+    group: row?.group ?? group ?? null,
     code: row?.code ?? "",
     name: row?.name ?? "",
     // A new column joins the list it was created from. An existing row keeps
@@ -393,6 +401,30 @@ export function CategoryDialog({
   // the permit module's own, renamed but never switched off.
   const isEhs = form.kind === "EHS";
   const isPermit = isEhs && row?.code === PERMIT_COLUMN_CODE;
+  // Progress Claim categories (I10, ID6): made by the project, flat or with
+  // sub-categories like EHS.
+  const isClaim = form.kind === "CLAIM";
+  // EHS and claims (I11): the category a sub-category goes under, from this
+  // group's top-level categories. Equipment keeps its own picker below; a
+  // material's second level is its specifications (I19), set further down.
+  const takesParent = isEhs || isClaim;
+  const parentChoices = useQuery({
+    queryKey: ["project-categories", "parents", form.project, form.kind, form.group ?? ""],
+    queryFn: () =>
+      getProjectCategories({
+        project: form.project,
+        kind: form.kind,
+        page_size: 200,
+        ...(form.group ? { group: form.group } : {}),
+      }),
+    enabled: takesParent && Boolean(form.project),
+  });
+  const parentRows = (parentChoices.data?.results ?? []).filter(
+    (choice) => !choice.parent && choice.id !== row?.id,
+  );
+  const hasChildren = Boolean(
+    row && (parentChoices.data?.results ?? []).some((choice) => choice.parent === row.id),
+  );
   // The major classes it may go under: this project's top-level equipment
   // categories, not itself (X1). One with sub classes of its own stays a
   // major class, so the choice is not offered.
@@ -435,10 +467,12 @@ export function CategoryDialog({
             suppliers: supplierIds,
             manufacturers: manufacturerIds,
           }
-        : isEquipment
+        : isEquipment || takesParent
           ? { ...form, parent: form.parent || null }
-          : // A parent means nothing outside equipment (D-265); not sent.
+          : // A material's second level is its specifications (I19); not sent.
             { ...form, parent: undefined };
+      if (row) delete payload.group;
+      else if (!payload.group) delete payload.group;
       return row
         ? updateProjectCategory(row.id, payload)
         : createProjectCategory(payload);
@@ -487,7 +521,7 @@ export function CategoryDialog({
               disabled
             />
           </FieldWrapper>
-          {isEhs ? (
+          {isEhs || isClaim ? (
             <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
               <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
             </FieldWrapper>
@@ -511,8 +545,9 @@ export function CategoryDialog({
               onValueChange={(value) =>
                 set("kind", value as ProjectCategoryKind)
               }
-              // An EHS category stays one (HD4): it is not moved to material.
-              disabled={isEhs}
+              // A category stays in its group's module (I11): the group on
+              // the left decides it. Only a legacy BOTH column is settled here.
+              disabled={row?.kind !== "BOTH"}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -533,6 +568,7 @@ export function CategoryDialog({
                     own group and stays there. Progress, clearance, consultant
                     and sundry have no categories at all (X5). */}
                 {isEhs && <SelectItem value="EHS">{modules("module.ehs")}</SelectItem>}
+                {isClaim && <SelectItem value="CLAIM">{modules("module.claim")}</SelectItem>}
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
                     means "not separated yet" - but taking it off the form
@@ -573,21 +609,57 @@ export function CategoryDialog({
               <QueryFailedNote query={equipmentClasses.query} what={t("what.columns")} />
             </FieldWrapper>
           )}
-          <FieldWrapper label={t("categories.submissionMode")} required>
-            <Select
-              value={form.submission_mode}
-              onValueChange={(value) =>
-                set("submission_mode", value as CategorySubmissionMode)
-              }
+          {/* 子分类 (I11, ID3): EHS and claim categories go one level down. */}
+          {takesParent && (
+            <FieldWrapper
+              label={modules("subCategory.parent")}
+              hint={modules("subCategory.parentHint")}
             >
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="DIRECT">{t("categories.submissionDirect")}</SelectItem>
-                <SelectItem value="REVIEW">{t("categories.submissionReview")}</SelectItem>
-                <SelectItem value="CONSULTANT">{t("categories.submissionConsultant")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
+              <Select
+                value={form.parent || "__top__"}
+                onValueChange={(value) => set("parent", value === "__top__" ? null : value)}
+                disabled={hasChildren || Boolean(row?.is_fixed)}
+              >
+                <SelectTrigger className="w-full" aria-label={modules("subCategory.parent")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__top__">{modules("subCategory.isTop")}</SelectItem>
+                  {parentRows.map((choice) => (
+                    <SelectItem key={choice.id} value={choice.id}>
+                      {choice.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <QueryFailedNote query={parentChoices} what={t("what.columns")} />
+            </FieldWrapper>
+          )}
+          {/* 提交方式 (I12, ID28): who accepts what is filed here - material
+              and equipment only. EHS has its own assignment and acceptance
+              (ID9), and a claim is the office's own. */}
+          {(isMaterial || isEquipment) && (
+            <FieldWrapper
+              label={t("categories.submissionMode")}
+              required
+              hint={t(`categories.submissionHint.${form.submission_mode ?? "REVIEW"}`)}
+            >
+              <Select
+                value={form.submission_mode}
+                onValueChange={(value) =>
+                  set("submission_mode", value as CategorySubmissionMode)
+                }
+              >
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="DIRECT">{t("categories.submissionDirect")}</SelectItem>
+                  <SelectItem value="REVIEW">{t("categories.submissionReview")}</SelectItem>
+                  <SelectItem value="CONSULTANT">{t("categories.submissionConsultant")}</SelectItem>
+                  <SelectItem value="HQ">{t("categories.submissionHq")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
+          )}
           <FieldWrapper
             label={t("field.description")}
             className="sm:col-span-2"

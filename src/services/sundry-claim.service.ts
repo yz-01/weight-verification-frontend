@@ -15,6 +15,8 @@ export async function createSundryClaim(payload: {
   project: string;
   amount: string;
   description: string;
+  /** Who approves it (I12, ID8): the project manager's office or head office. */
+  submit_to?: "PROJECT" | "HQ";
   latitude?: string;
   longitude?: string;
   client_event_id?: string;

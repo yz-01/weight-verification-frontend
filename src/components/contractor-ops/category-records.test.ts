@@ -126,8 +126,8 @@ describe("clicking a column opens its records here (D-276)", () => {
     const list = service.slice(service.indexOf("export function getCategoryRecords("));
     expect(list).toMatch(/module: CategoryModuleKey;/);
     expect(list).toMatch(/api\.get<CategoryRecordPage>\("\/api\/category-records\/", query\)/);
-    // 分类管理只留四组 (2026-10 B1).
-    expect(CATEGORY_MODULE_KEYS).toHaveLength(4);
+    // 材料、设备、整改 / EHS、环保材料出场 and Progress Claim (B1, I10).
+    expect(CATEGORY_MODULE_KEYS).toHaveLength(5);
   });
 
   it("is a dialog on this page, never a link or a push", () => {
@@ -215,7 +215,8 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     expect(sheet).toMatch(/confirm && canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
     expect(sheet).not.toMatch(/AddToPackageButton|markRecordsSeen|markRecordsArchived/);
     for (const kind of QUEUE_ONLY_NOT) {
-      expect(canDiscuss(kind), kind).toBe(false);
+      // A Progress Claim talks on itself since I10 (ID50).
+      expect(canDiscuss(kind), kind).toBe(kind === "CLAIM");
       expect(canConfirmClosure(kind), kind).toBe(false);
       expect(isQueueKind(kind), kind).toBe(false);
     }

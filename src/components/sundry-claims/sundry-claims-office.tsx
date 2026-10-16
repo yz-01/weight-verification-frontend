@@ -81,7 +81,7 @@ export function SundryClaimsOffice() {
   const df = useDateFormat();
   const { can } = useAuth();
   // No category filter (2026-10 B1, X5): sundry claims have no categories.
-  const list = useListQuery(["project", "state", "payment"]);
+  const list = useListQuery(["project", "state", "payment", "submit_to"]);
   const rows = useQuery({
     queryKey: ["sundry-claims", "office", list.query],
     queryFn: () => getSundryClaims(list.query),
@@ -147,6 +147,13 @@ export function SundryClaimsOffice() {
         ),
       },
       {
+        // 提交给 (I12): the project manager's office or head office.
+        accessorKey: "submit_to",
+        meta: { label: t("field.submitTo") },
+        header: () => <PlainHeader label={t("field.submitTo")} />,
+        cell: ({ row }) => t(`submitTo.${row.original.submit_to || "NONE"}`),
+      },
+      {
         accessorKey: "submitted_by_name",
         meta: { label: t("field.submittedBy") },
         header: () => <PlainHeader label={t("field.submittedBy")} />,
@@ -180,6 +187,11 @@ export function SundryClaimsOffice() {
         { key: "project_name", label: t("field.project") },
         { key: "amount", label: t("field.amount") },
         { key: "description", label: t("field.description") },
+        {
+          key: "submit_to",
+          label: t("field.submitTo"),
+          values: { PROJECT: t("submitTo.PROJECT"), HQ: t("submitTo.HQ"), "": t("submitTo.NONE") },
+        },
         {
           key: "state",
           label: t("field.status"),
@@ -223,6 +235,15 @@ export function SundryClaimsOffice() {
               options={(["SUBMITTED", "CONFIRMED", "REJECTED"] as const).map((state) => ({
                 value: state,
                 label: t(`status.${state}`),
+              }))}
+            />
+            <FilterSelect
+              list={list}
+              param="submit_to"
+              allLabel={t("submitTo.all")}
+              options={(["PROJECT", "HQ", "NONE"] as const).map((side) => ({
+                value: side,
+                label: t(`submitTo.${side}`),
               }))}
             />
             <FilterSelect
@@ -330,6 +351,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             ? [{ label: ops("field.category"), value: claim.category_name }]
             : []),
           { label: t("field.amount"), value: `RM ${claim.amount}` },
+          { label: t("field.submitTo"), value: t(`submitTo.${claim.submit_to || "NONE"}`) },
           { label: t("field.submittedBy"), value: who(claim.submitted_by_name, null, claim.created_at) },
           { label: t("field.reviewedBy"), value: who(claim.reviewed_by_name, claim.reviewed_by_user_id, claim.reviewed_at) },
           { label: t("field.paidBy"), value: who(claim.paid_by_name, claim.paid_by_user_id, claim.paid_at) },
@@ -383,7 +405,13 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
         actions={
           <div className="space-y-2">
             {error && <p role="alert" className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">{error}</p>}
-            {claim.state === "SUBMITTED" && can("sundry_claim.review") && (
+            {/* Sent to the other side (I12): said, not offered. */}
+            {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review === false && (
+              <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground">
+                {t(`sentTo.${claim.submit_to || "NONE"}`)}
+              </p>
+            )}
+            {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review !== false && (
               <>
                 {/* 【改正】 (I30): category, amount, description - only
                     before the claim is decided. */}

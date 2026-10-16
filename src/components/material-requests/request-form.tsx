@@ -273,7 +273,18 @@ export function MaterialRequestForm({
         {types.isError && <LoadFailed what={t("field.requestType")} onRetry={() => void types.refetch()} />}
       </FieldWrapper>
 
-      <FieldWrapper label={t("field.assignedReviewer")} required hint={t("form.assignedReviewerHint")}>
+      <FieldWrapper
+        label={t("field.assignedReviewer")}
+        required
+        // A site staff's request goes to the project manager first, who
+        // sends it on to head office (I12, ID29) - said, so nobody looks
+        // for head office in the list.
+        hint={
+          reviewerRows[0]?.stage === "MANAGER"
+            ? t("form.assignedReviewerManagerHint")
+            : t("form.assignedReviewerHint")
+        }
+      >
         <Select value={reviewer || undefined} onValueChange={setAssignedReviewer}>
           <SelectTrigger
             className="w-full"

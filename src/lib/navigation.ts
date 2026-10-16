@@ -1227,6 +1227,33 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/recycling",
           "report_center",
         ),
+        // The four modules that had no report (I11, ID27), named as their
+        // pages are named; material outgoing and Progress Claim open at their
+        // categories.
+        child(
+          "13.2.9A",
+          "nav.submodule.fieldTasks",
+          "/reports/contractor/field_tasks",
+          "report_center",
+        ),
+        child(
+          "13.2.9B",
+          "nav.submodule.materialOutgoing",
+          "/reports/contractor/material_outgoing",
+          "report_center",
+        ),
+        child(
+          "13.2.9C",
+          "nav.submodule.claimEngine",
+          "/reports/contractor/claims",
+          "report_center",
+        ),
+        child(
+          "13.2.9D",
+          "nav.submodule.sundryClaims",
+          "/reports/contractor/sundry_claims",
+          "report_center",
+        ),
         // 施工计划 moved under 工程进度 (I8, ID24); the address stays.
         {
           ...child(

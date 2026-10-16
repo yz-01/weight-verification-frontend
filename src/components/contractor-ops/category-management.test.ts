@@ -46,20 +46,23 @@ function modulesBlock(): string {
 }
 
 describe("every module is managed on this one page (D-264)", () => {
-  it("lists only the four groups the client uses (2026-10 B1)", () => {
+  it("lists the modules a 分类组 can belong to (2026-10 B1; I10 adds Progress Claim)", () => {
     const block = modulesBlock();
     const keys = [
       ...[...block.matchAll(/columnModule\("([a-z]+)"/g)].map((m) => m[1]),
       ...[...block.matchAll(/\bkey: "([a-z]+)"/g)].map((m) => m[1]),
     ];
     expect(keys.sort()).toEqual([...CATEGORY_MODULE_KEYS].sort());
-    // 分类管理只留四组: 材料、设备、隐患整改、环保材料出场 (Q5, X5).
-    expect([...CATEGORY_MODULE_KEYS].sort()).toEqual(["ehs", "equipment", "material", "recycle"]);
+    // 材料、设备、隐患整改、环保材料出场 (Q5, X5) and, since I10 (ID6),
+    // Progress Claim. The groups on the left are the project's (I11).
+    expect([...CATEGORY_MODULE_KEYS].sort()).toEqual([
+      "claim", "ehs", "equipment", "material", "recycle",
+    ]);
     // 现场资料分类 was never a business module (D-285); Claim 分类
     // duplicated 杂费报销分类 (D-286); 文件分类 lives on 文档档案, 施工阶段 on
     // 施工进度, and progress, clearance, consultant and sundry have none.
     for (const gone of [
-      "field", "claim", "document", "phase", "progress", "debris", "consultant", "sundry",
+      "field", "document", "phase", "progress", "debris", "consultant", "sundry",
     ]) {
       expect(keys).not.toContain(gone);
     }

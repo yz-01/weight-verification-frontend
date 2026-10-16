@@ -557,8 +557,15 @@ export function ViewReceipt({
             {/* Superseded receipts are read-only: a correction has replaced
                 this copy, and deciding on the replaced one would put a
                 decision on a record nobody is working from. */}
-            {can("receipt.update") && !data.superseded_by && (
+            {/* 「提交总部审批」 (I12, ID28): head office accepts it - the server
+                says whether this reader may (`can_review`). */}
+            {(data.can_review ?? can("receipt.update")) && !data.superseded_by && (
               <ReviewDelivery receipt={data} archived={archived} onReviewed={() => void refetch()} />
+            )}
+            {data.review_by_head_office && !data.can_review && data.acceptance_status === "PENDING" && (
+              <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground">
+                {t("receipts.acceptance.headOffice")}
+              </p>
             )}
             <div className="flex flex-wrap gap-2 border-t border-panel-border pt-3">
               <AddToPackageButton

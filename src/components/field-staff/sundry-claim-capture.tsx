@@ -46,6 +46,9 @@ export function SundryClaimCapture({
   const [project, setProject] = useDraftState("project", initialProject);
   const [amount, setAmount] = useDraftState("amount", "");
   const [description, setDescription] = useDraftState("description", "");
+  // 「交给项目经理」/「交给总部」 (I12, ID8): the one request the site may send
+  // to head office. The project manager by default.
+  const [submitTo, setSubmitTo] = useDraftState<"PROJECT" | "HQ">("submitTo", "PROJECT");
   const [attachments, setAttachments] = useDraftState<File[]>("attachments", []);
   const clearDraft = useClearDraft();
   // Not in the draft, like every other phone form: a location restored the
@@ -61,6 +64,7 @@ export function SundryClaimCapture({
         project,
         amount: amount.trim(),
         description: description.trim(),
+        submit_to: submitTo,
         latitude: location.latitude,
         longitude: location.longitude,
         client_event_id: crypto.randomUUID(),
@@ -105,6 +109,24 @@ export function SundryClaimCapture({
           onChange={(event) => setDescription(event.target.value)}
           placeholder={t("descriptionPlaceholder")}
         />
+      </FieldWrapper>
+      {/* Two big buttons, no typing (I12): who approves this claim. */}
+      <FieldWrapper label={t("submitTo")} required="quiet" hint={t("submitToHint")}>
+        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t("submitTo")}>
+          {(["PROJECT", "HQ"] as const).map((side) => (
+            <Button
+              key={side}
+              type="button"
+              role="radio"
+              aria-checked={submitTo === side}
+              variant={submitTo === side ? "default" : "outline"}
+              className="h-12"
+              onClick={() => setSubmitTo(side)}
+            >
+              {t(`submitToOption.${side}`)}
+            </Button>
+          ))}
+        </div>
       </FieldWrapper>
       <FieldWrapper label={t("attachments")} required hint={t("attachmentsHint")}>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

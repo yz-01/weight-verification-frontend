@@ -3065,7 +3065,7 @@
       "SITE_RECORD": "Site record",
       "SITE_EQUIPMENT": "Equipment",
       "DOCUMENT": "Document",
-      "CLAIM": "Progress claim",
+      "CLAIM": "Progress Claim",
       "MATERIAL_RETURN": "Material return",
       "PERMIT": "Permit to work",
       "GATE_INCIDENT": "Gate Records",
@@ -3979,19 +3979,22 @@
       "material": "Material categories",
       "equipment": "Equipment categories",
       "ehs": "EHS categories",
-      "recycle": "Environmental material outgoing categories"
+      "recycle": "Environmental material outgoing categories",
+      "claim": "Progress Claim categories"
     },
     "moduleHelp": {
       "material": "Deliveries and the money they cost file here. One list per project.",
       "equipment": "Cranes, excavators, generators. One list per project, kept by this company.",
       "ehs": "Each project starts with safety, construction and consultant rectifications and work permits. Add, rename or switch off categories here; only one with no records can be removed. Work permits is a system category and can only be renamed.",
-      "recycle": "Recyclable waste the site sends out: scrap iron, copper, aluminium, cable. One list for the whole company; the seeded ones can be closed but not deleted."
+      "recycle": "Recyclable waste the site sends out: scrap iron, copper, aluminium, cable. One list for the whole company; the seeded ones can be closed but not deleted.",
+      "claim": "Each project's own claim categories. Sundry, Manpower and Subcontractor Claim are examples you can rename, switch off or remove; Other Claim always stays."
     },
     "moduleSource": {
       "material": "Records come from site goods-receipt and the back-office receipt register. Field staff can file here.",
       "equipment": "Records come from Equipment movement in the back office. Machines are registered in the office; the phone only logs them in and out.",
       "ehs": "Records come from hazard reports, on site and in the office alike. Field staff can file here.",
-      "recycle": "Records come from recyclable waste sent out by the back office. Field staff do not file here."
+      "recycle": "Records come from recyclable waste sent out by the back office. Field staff do not file here.",
+      "claim": "Records come from: Progress Claim in the back office (Multi Engine)."
     },
     "modules": "Modules",
     "scope": {
@@ -4112,6 +4115,67 @@
       "newPlaceholder": "e.g. Y50mm",
       "add": "Add specification",
       "afterSave": "Save the material, then open it to add its specifications and units."
+    },
+    "groups": {
+      "create": "New category group",
+      "chooseProject": "Choose a project to see its category groups.",
+      "what": "category groups",
+      "edit": "Edit group",
+      "moveUp": "Move group up",
+      "moveDown": "Move group down",
+      "offNote": "This group is switched off: its categories are not offered anywhere. Records already filed stay and can still be found.",
+      "editTitle": "Edit group · {name}",
+      "systemHelp": "A system group: it can be renamed, not switched off or removed.",
+      "help": "A group belongs to one business module: its categories are that module's categories and their records follow that module's own flow.",
+      "name": "Group name",
+      "systemNameHint": "Leave blank to show the module's name.",
+      "namePlaceholder": "e.g. M&E materials",
+      "module": "Business module",
+      "moduleFixed": "The module cannot change once the group is made.",
+      "moduleHint": "Its categories appear on this module's phone screens, back office and report centre.",
+      "chooseModule": "Choose a module",
+      "active": "Switched on",
+      "activeHint": "Switched off, its categories are no longer offered; existing records are unaffected.",
+      "armRemove": "Allow removing “{name}”",
+      "remove": "Remove group",
+      "all": "All · {name}"
+    },
+    "help": {
+      "title": "How it works",
+      "intro": "Group → category → sub-category: set up by the project's administrators themselves.",
+      "group": {
+        "title": "Add a group",
+        "body": "Press “New category group” on the left, type a name and choose its business module (material, equipment, rectification / EHS, recyclables, Progress Claim). It appears on the left at once."
+      },
+      "category": {
+        "title": "Add a category",
+        "body": "Click the group on the left, then “New category” at the top right."
+      },
+      "sub": {
+        "title": "Add a sub-category",
+        "body": "Press “+ Sub” on the category's row. A material's second level is its specifications, set in the material's dialog. Two levels only."
+      },
+      "off": {
+        "title": "Switching off",
+        "body": "Edit the category or group and switch it off. It is no longer offered on the phone or in the office; old records stay and show “switched off” in reports."
+      },
+      "where": {
+        "title": "Where it appears",
+        "body": "This project's phone screens for the module, the office lists' category filter and the report centre's menu. Other projects do not see it."
+      },
+      "other": {
+        "title": "The fixed “Other”",
+        "body": "Every module has “Other”: it can be renamed, never switched off or removed, and choosing it asks for a name."
+      }
+    },
+    "subCategory": {
+      "add": "Add a sub-category",
+      "short": "Sub",
+      "offParent": "This category is switched off. Switch it on to add sub-categories.",
+      "under": "A new sub-category under “{name}”.",
+      "parent": "Parent category",
+      "parentHint": "None: a category. Chosen: its sub-category. Two levels only.",
+      "isTop": "(a category)"
     }
   },
   "cloudServices": {
@@ -5696,7 +5760,14 @@
       "submissionMode": "Submission action",
       "submissionDirect": "Submit directly",
       "submissionReview": "Submit for review",
-      "submissionConsultant": "Submit for consultant approval"
+      "submissionConsultant": "Submit for consultant approval",
+      "submissionHq": "Head office approval",
+      "submissionHint": {
+        "DIRECT": "Accepted when it arrives; the office is told.",
+        "REVIEW": "The project's office accepts it.",
+        "CONSULTANT": "Accepted by the project's office, then also waits in the consultant application's site submissions.",
+        "HQ": "Head office (and the company administrator) accepts it; the project's office cannot."
+      }
     },
     "direction": {
       "ENTRY": "Entry",
@@ -5782,7 +5853,8 @@
           "registration_no": "plate number",
           "category": "sub class",
           "expiry": "an expiry date"
-        }
+        },
+        "headOffice": "This machine's class is set to head office approval: head office accepts it."
       },
       "oneMachineOnly": "Showing this machine's entries and exits only",
       "newMachinePlateHelp": "If it has one. Leave it blank if not. A machine that came before is matched by its plate.",
@@ -6433,7 +6505,25 @@
       "generated_at": "Generated",
       "block_count": "Blocks",
       "updated_by": "Last edited by",
-      "updated_at": "Last updated"
+      "updated_at": "Last updated",
+      "task_type": "Task type",
+      "assignee": "Assignee",
+      "due_at": "Due",
+      "reviewed_at": "Reviewed",
+      "material": "Material",
+      "quantity": "Quantity",
+      "returned_quantity": "Returned",
+      "unit": "Unit",
+      "supplier": "Supplier",
+      "claim_no": "Claim no.",
+      "claim_kind": "Claim type",
+      "subcontractor": "Subcontractor",
+      "claim_period": "Period",
+      "amount": "Amount",
+      "payment_state": "Payment",
+      "item_count": "Items",
+      "submit_to": "Sent to",
+      "applicant": "Applicant"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -6469,7 +6559,11 @@
         "photos": "File name, source or uploader",
         "documents": "Document no., title or keyword",
         "daily_report": "Report name, text or writer",
-        "progress_summary": "Title or writer"
+        "progress_summary": "Title or writer",
+        "field_tasks": "Search task, instructions, place, assignee",
+        "material_outgoing": "Search number, material, spec, DO, plate, Return Note, supplier",
+        "claims": "Search claim no., remarks, description, category, subcontractor",
+        "sundry_claims": "Search number, description, applicant"
       },
       "noMatch": "Nothing matches",
       "submittedBy": "Submitted by",
@@ -7819,6 +7913,9 @@
       "visitor_arrival_already_open": "This visitor is already waiting at the gate.",
       "visitor_arrival_answered": "This visitor has already been answered.",
       "visitor_arrival_not_host": "Only the visitor's host or a site access manager can answer.",
+      "review_by_head_office": "This category is set to head office approval: head office accepts it.",
+      "sundry_claim_sent_elsewhere": "This sundry claim was sent to the other side for approval.",
+      "material_request_manager_first": "A site request goes to the project manager first, who sends it on to head office.",
       "sign_off_pin_required": "Enter your six-digit sign-off PIN to continue.",
       "sign_off_pin_not_set": "You have not set a sign-off PIN yet. Set one first.",
       "sign_off_pin_incorrect": "The sign-off PIN is wrong. {attempts_left} tries left before it locks for 15 minutes.",
@@ -8778,7 +8875,8 @@
       "DISPOSAL": "Site clearance",
       "WASTE_DISPATCH": "Waste order",
       "WASTE_OUTGOING": "Recyclable outgoing",
-      "GATE_INCIDENT": "Gate photo record"
+      "GATE_INCIDENT": "Gate photo record",
+      "CLAIM": "Progress Claim"
     },
     "map": {
       "title": "Project overview map",
@@ -9942,10 +10040,17 @@
       "period": "Period",
       "project": "Site",
       "remarks": "Remarks",
-      "amount": "Amount"
+      "amount": "Amount",
+      "category": "Claim category",
+      "subcontractor": "Subcontractor",
+      "description": "Description",
+      "otherName": "Name"
     },
     "filter": {
-      "allKinds": "All kinds"
+      "allKinds": "All kinds",
+      "allCategories": "All categories",
+      "noCategory": "Uncategorised",
+      "allSubcontractors": "All subcontractors"
     },
     "firstPage": "You are on the first page.",
     "includePhotos": "Include the photographs",
@@ -9957,11 +10062,13 @@
     },
     "kind": {
       "MATERIAL_ON_SITE": "Material on site",
-      "PROGRESS": "Progress"
+      "PROGRESS": "Progress",
+      "GENERAL": "General claim"
     },
     "kindHelp": {
       "MATERIAL_ON_SITE": "Accepted deliveries that carry a delivery order.",
-      "PROGRESS": "Applications the consultant has approved: RFI, WIR, inspection request, concrete pour, shop drawing, material approval."
+      "PROGRESS": "Applications the consultant has approved: RFI, WIR, inspection request, concrete pour, shop drawing, material approval.",
+      "GENERAL": "For claims with no records to tick, such as manpower or subcontractors: a description, an optional amount and the papers."
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading...",
@@ -10027,7 +10134,24 @@
       "claimNo": "Claim no.",
       "returned": "Returned",
       "confirmedAt": "Confirmed at"
-    }
+    },
+    "what": {
+      "categories": "claim categories",
+      "subcontractors": "subcontractors"
+    },
+    "noSubcontractor": "No subcontractor",
+    "conversation": "Conversation",
+    "editDetails": "Category and subcontractor",
+    "categoryHint": "Which category this claim belongs to; optional.",
+    "categoryHintGeneral": "A general claim names its category, e.g. Manpower Claim.",
+    "addCategory": "New category",
+    "otherNameHint": "“Other” chosen: say what this claim is.",
+    "subcontractorHint": "From the companies marked subcontractor on the supplier list; add one here if missing.",
+    "subcontractorSearch": "Type to search",
+    "descriptionHint": "What this claim is for, e.g. “October manpower”.",
+    "amountOptional": "Optional; it can be filled later.",
+    "confirmBodyGeneral": "Once confirmed this general claim is claimed; record the payment as usual afterwards.",
+    "completeClaimFields": "Fill in the category and description (general claim) and the name for “Other” first."
   },
   "multiEngine": {
     "acceptItem": "Accept",
@@ -12530,7 +12654,8 @@
       "armRejectHelp": "Turn this on only when the material is off specification. It unlocks the reason and the reject button.",
       "rejectedAtGate": "Rejected at the gate by the site, with both signatures. This decision is final.",
       "archived": "This delivery has been confirmed and archived. It can be read, but no longer accepted or rejected.",
-      "failed": "The decision was not saved. Try again."
+      "failed": "The decision was not saved. Try again.",
+      "headOffice": "This category is set to head office approval: head office accepts it."
     },
     "addPhoto": {
       "caption": "Note (optional)",
@@ -15633,6 +15758,13 @@
       "description": "It joins the supplier list and is chosen here. Fill in the rest on the Suppliers page later.",
       "codeHint": "Not used by another supplier, e.g. CLR-001",
       "save": "Add and choose"
+    },
+    "companyTypes": {
+      "label": "Company type",
+      "hint": "Can be both. A Progress Claim's subcontractor is chosen from the companies marked subcontractor.",
+      "required": "Choose at least one.",
+      "SUPPLIER": "Supplier",
+      "SUBCONTRACTOR": "Subcontractor"
     }
   },
   "support": {
@@ -16309,7 +16441,8 @@
       "unitRequired": "Choose a unit for the quantity entered.",
       "vehiclePlate": "Vehicle plate",
       "collectionAt": "Wanted collection time",
-      "collectionAtHint": "When you want the lorry to come. The recycler can propose a different time, which you then confirm."
+      "collectionAtHint": "When you want the lorry to come. The recycler can propose a different time, which you then confirm.",
+      "otherName": "What it is"
     },
     "filter": {
       "allCategories": "All categories",
@@ -16901,7 +17034,8 @@
       "paidAt": "Paid on",
       "reviewNote": "Review note",
       "rejectReason": "Reason for rejecting",
-      "payment": "Payment"
+      "payment": "Payment",
+      "submitTo": "Sent to"
     },
     "status": {
       "SUBMITTED": "Pending",
@@ -16960,7 +17094,24 @@
       "addAttachment": "Take or add a photo",
       "location": "Location",
       "submit": "Submit sundry claim",
-      "failed": "The claim did not go through; please try again."
+      "failed": "The claim did not go through; please try again.",
+      "submitTo": "Send for approval to",
+      "submitToHint": "The project manager by default.",
+      "submitToOption": {
+        "PROJECT": "Project manager",
+        "HQ": "Head office"
+      }
+    },
+    "submitTo": {
+      "PROJECT": "Project manager",
+      "HQ": "Head office",
+      "NONE": "Not chosen",
+      "all": "Sent to anyone"
+    },
+    "sentTo": {
+      "PROJECT": "Sent to the project manager: head office does not decide it.",
+      "HQ": "Sent to head office: the project manager does not decide it.",
+      "NONE": "Anyone who may review decides it."
     }
   },
   "moduleHub": {
@@ -16987,7 +17138,10 @@
       "equipmentClass": "Type",
       "recycling": "Environmental material outgoing category",
       "documents": "Document category",
-      "documentSubcategory": "Subcategory"
+      "documentSubcategory": "Subcategory",
+      "materialOutgoing": "Material category",
+      "claims": "Claim category",
+      "subcategory": "Sub-category"
     },
     "consultantType": {
       "MATERIAL_APPROVAL": "Material application",
@@ -17000,7 +17154,16 @@
     "progressMenu": {
       "dailyReport": "Daily report",
       "pastDailyReports": "Past daily reports"
-    }
+    },
+    "groupModule": {
+      "MATERIAL": "Material categories",
+      "EQUIPMENT": "Equipment categories",
+      "EHS": "Rectification / EHS categories",
+      "RECYCLE": "Recyclable categories",
+      "CLAIM": "Progress Claim categories"
+    },
+    "inactive": "switched off",
+    "allOfGroup": "All · {name}"
   },
   "wasteClearance": {
     "title": "Waste clearance",
@@ -17126,7 +17289,10 @@
       "subject": "Request subject",
       "content": "Request details",
       "specificationName": "Specification name",
-      "materialOrSubject": "Material / subject"
+      "materialOrSubject": "Material / subject",
+      "stage": "Stage",
+      "forwardHistory": "Sent on",
+      "headOfficeReviewer": "Head office approver"
     },
     "action": {
       "view": "View",
@@ -17139,7 +17305,8 @@
       "print": "Print",
       "exportPdf": "Export PDF",
       "raiseAgain": "Raise a new request",
-      "reassignToMe": "Take it over"
+      "reassignToMe": "Take it over",
+      "forward": "Send to head office"
     },
     "empty": "No requests yet",
     "loading": "Loading…",
@@ -17205,13 +17372,15 @@
       "contentOrFile": "Write the details or attach a file - at least one of the two.",
       "contentPlaceholder": "What is needed, how many, when",
       "attachmentKindsHint": "Photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP. Up to {count} files, each under {limit} MB.",
-      "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP."
+      "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP.",
+      "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office."
     },
     "toast": {
       "submitted": "Request submitted.",
       "approved": "Request approved.",
       "returned": "Request returned and closed.",
-      "reassigned": "It is now yours to approve."
+      "reassigned": "It is now yours to approve.",
+      "forwarded": "Sent to head office."
     },
     "capture": {
       "mine": "My requests",
@@ -17260,7 +17429,12 @@
         "saved": "Request type saved.",
         "removed": "Request type removed."
       }
-    }
+    },
+    "stage": {
+      "manager": "Waiting for the project manager"
+    },
+    "forwarded": "Sent to head office by {by} on {at}",
+    "managerHelp": "A site request sent to you: choose who at head office approves it and press “Send to head office”, or return it."
   },
   "filePreview": {
     "unsupported": "{ext} files cannot be previewed here. Use Download to view.",

@@ -76,10 +76,10 @@ describe("the column schemes", () => {
   // never a business module, and Claim 分类 duplicated 杂费报销分类.
   // 2026-10 B1 (X5): 分类管理只留四组, so progress, clearance, consultant and
   // sundry categories are retired too.
+  // CLAIM is back since I10 (ID6): Progress Claim categories.
   const RETIRED = [
     "BOTH",
     "FIELD",
-    "CLAIM",
     "PROGRESS",
     "CONSTRUCTION_WASTE",
     "CONSULTANT",
@@ -89,7 +89,8 @@ describe("the column schemes", () => {
   // column is created as, or moved onto, a hazard category from the form.
   // Made from its own group and kept there (H18, HD4): offered only on an
   // EHS category, never as a move for another kind.
-  const OWN_GROUP_ONLY = ["EHS"];
+  // Progress Claim (I10) likewise: made from its own group, never a move.
+  const OWN_GROUP_ONLY = ["EHS", "CLAIM"];
   // 申请类型 (I16, ID36): kept in its own dialog - the one the MR page opens
   // too - never offered as a module a column moves to.
   const OWN_DIALOG = ["REQUEST_TYPE"];

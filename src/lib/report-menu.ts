@@ -17,6 +17,10 @@ import type {
  * | 设备进退场         | 设备大类           | 小类     |
  * | 废料订单           | 环保材料出场分类    |         |
  * | 项目资料           | 文档大分类          | 子分类   |
+ * | 材料出场 / 进度 Claim | 分类              | 子分类   |
+ *
+ * I11 (ID27): a module whose project made a 分类组 of its own shows the groups
+ * first - 「分类组 → 分类 → 子分类」, a group's value ``group:<id>``.
  *
  * Everything else (人员进场记录, 施工计划, 目标与达成, 报表历史记录) opens
  * directly. Every level is clickable, and opens the report at that level.
@@ -58,6 +62,15 @@ const CATEGORY_LEVELS: Partial<
     childLabel: "reportSelector.level.equipmentClass",
   },
   recycling: { label: "reportSelector.level.recycling" },
+  // 分类组 → 分类 → 子分类 (I11, ID27).
+  material_outgoing: {
+    label: "reportSelector.level.materialOutgoing",
+    childLabel: "reportSelector.level.subcategory",
+  },
+  claims: {
+    label: "reportSelector.level.claims",
+    childLabel: "reportSelector.level.subcategory",
+  },
   documents: {
     label: "reportSelector.level.documents",
     childLabel: "reportSelector.level.documentSubcategory",

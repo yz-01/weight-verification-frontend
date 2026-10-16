@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { Supplier } from "@/interfaces/contractor";
+import type { Supplier, SupplierCompanyType } from "@/interfaces/contractor";
 import { createSupplier } from "@/services/contractor.service";
 
 /** 「＋ 新增供应商」 under a supplier picker, for whoever may add one. */
@@ -38,7 +38,7 @@ export function QuickAddSupplierButton({
 }: {
   onCreated: (supplier: Supplier) => void;
   /** What the form starts with - a clearance company's line of business. */
-  defaults?: { industry?: string; main_products?: string };
+  defaults?: { industry?: string; main_products?: string; company_types?: SupplierCompanyType[] };
 }) {
   const t = useTranslations("suppliers.quickAdd");
   const { can } = useAuth();
@@ -69,7 +69,7 @@ function QuickAddSupplierDialog({
   onClose,
   onCreated,
 }: {
-  defaults?: { industry?: string; main_products?: string };
+  defaults?: { industry?: string; main_products?: string; company_types?: SupplierCompanyType[] };
   onClose: () => void;
   onCreated: (supplier: Supplier) => void;
 }) {
@@ -90,6 +90,8 @@ function QuickAddSupplierDialog({
         main_products: products.trim(),
         contact_person: contact.trim(),
         contact_phone: phone.trim(),
+        // A subcontractor added from a claim is marked so (I10, ID7).
+        ...(defaults?.company_types ? { company_types: defaults.company_types } : {}),
       }),
     onSuccess: (supplier) => {
       // Every picker and filter reads the list afresh, so the new one is there.

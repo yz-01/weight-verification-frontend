@@ -45,7 +45,31 @@ export type ProjectCategoryKind =
   | "CLAIM"
   // 申请类型 (I16, ID36): a project's MR / Other Request types.
   | "REQUEST_TYPE";
-export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
+/** 提交方式 (I12, ID28): 「提交总部审批」 is head office's to accept. */
+export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT" | "HQ";
+
+/** The business module a 分类组 belongs to (I11, ID1). */
+export type CategoryGroupModule =
+  | "MATERIAL"
+  | "EQUIPMENT"
+  | "EHS"
+  | "RECYCLE"
+  | "CLAIM"
+  | "REQUEST_TYPE";
+
+/** One 分类组 on the left of Category Management (I11), per project. */
+export interface CategoryGroup {
+  id: string;
+  project: string;
+  /** Blank on a system group: shown as its module's name. */
+  name: string;
+  module: CategoryGroupModule;
+  sort_order: number;
+  is_active: boolean;
+  /** One per module per project: renamed and moved, never switched off or removed. */
+  is_system: boolean;
+  category_count: number;
+}
 
 /** What a material column's budget counts (2026-10 A6, X17). */
 export type BudgetMode = "AMOUNT" | "QUANTITY";
@@ -87,9 +111,17 @@ export interface ProjectCategory {
   project: string;
   parent: string | null;
   parent_name: string | null;
+  parent_sort_order?: number | null;
   code: string;
   name: string;
   kind: ProjectCategoryKind;
+  /** Its 分类组 (I11); null on a row of a retired kind. */
+  group?: string | null;
+  group_name?: string | null;
+  group_module?: CategoryGroupModule | null;
+  group_sort_order?: number;
+  group_is_system?: boolean;
+  group_is_active?: boolean;
   /** A request type's form (I16): the material form or the simple one. */
   form_style?: "MATERIAL" | "GENERAL" | "";
   /** Seeded by the system (I16, I19): renamed, never switched off or removed. */
@@ -185,8 +217,10 @@ export interface ProjectCategory {
  */
 export interface ProjectCategoryPayload {
   project: string;
-  /** Equipment only: the major class of a sub class; null for a major class. */
+  /** The category a sub-category sits under (I11: every module); null at the top. */
   parent?: string | null;
+  /** Its 分类组 (I11); left out, the module's own group. */
+  group?: string | null;
   code: string;
   name: string;
   /**
@@ -519,6 +553,8 @@ export type EquipmentMovementStatus =
   | "REJECTED";
 
 export interface EquipmentMovement extends RecordedBy {
+  /** 「提交总部审批」 (I12, ID28): head office accepts this machine's movements. */
+  review_by_head_office?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
@@ -1553,7 +1589,8 @@ export interface PackageMergeNote {
  * its review machinery.
  * ---------------------------------------------------------------------- */
 
-export type ClaimKind = "MATERIAL_ON_SITE" | "PROGRESS";
+/** 「一般」 Claim (I10, ID50): no records to tick - a description, an amount, papers. */
+export type ClaimKind = "MATERIAL_ON_SITE" | "PROGRESS" | "GENERAL";
 export type ClaimState = "DRAFT" | "CONFIRMED";
 export type ClaimItemState = "SELECTED" | "CLAIMED" | "RETURNED";
 export type ClaimPaymentState = "NOT_RECEIVED" | "PARTIAL" | "RECEIVED";
@@ -1583,9 +1620,17 @@ export interface ClaimRow {
   confirmed_by_name: string;
   created_by_name: string;
   created_at: string;
-  /** The CLAIM column the office filed it under; null is 未归类 (D-275). */
+  /** The project's claim category (I10, ID6); null is 未分类. */
   category: string | null;
+  /** 「Other Claim · what was typed」 for the fixed 「其他」 (ID43). */
   category_name: string | null;
+  category_is_other?: boolean;
+  other_name?: string;
+  /** 分包商 (I10, ID7): a company on the supplier list marked subcontractor. */
+  subcontractor?: string | null;
+  subcontractor_name?: string | null;
+  /** What a general claim is for (ID50). */
+  description?: string;
 }
 
 export interface ClaimItem {

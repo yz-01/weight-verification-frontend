@@ -37,6 +37,8 @@ const PAGES: Record<string, (id: string) => string> = {
   CONSULTANT_APPLICATION: (id) => `/consultant-applications/${id}`,
   SUNDRY_CLAIM: (id) => `/sundry-claims?record=${id}`,
   MATERIAL_REQUEST: (id) => `/material-requests?record=${id}`,
+  // A Progress Claim (I10): its tab in Multi Engine, opened on the claim.
+  CLAIM: (id) => `/evidence-packages?type=PROGRESS_CLAIM&claim=${id}`,
 };
 
 /** No detail page of their own yet: the read-only record sheet. */
