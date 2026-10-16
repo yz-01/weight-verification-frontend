@@ -887,3 +887,17 @@
 [data-slot="table"] tr:hover > td[data-pin="end"] {
   background-color: color-mix(in oklab, var(--primary) 5%, var(--card));
 }
+/* The pinned column is as wide as its buttons and they sit in its middle,
+ * the same space on both sides (Lucas 10/17: the icons hugged the right and
+ * left a gap before them). Doubled attribute: it outranks the fit rule's
+ * padding and wrapping and a cell's own `justify-end`. */
+[data-slot="table"] > :is(thead, tbody) > tr > :is(th, td)[data-pin="end"][data-pin] {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+  padding-inline: 0.75rem;
+}
+[data-slot="table"] > :is(thead, tbody) > tr > :is(th, td)[data-pin="end"][data-pin] > :is(div, span) {
+  justify-content: center;
+  margin-inline: auto;
+}

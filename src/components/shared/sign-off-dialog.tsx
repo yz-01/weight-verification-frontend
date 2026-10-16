@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ApiError } from "@/interfaces/api";
 import { SIGN_OFF_CODES, registerSignOff, type SignOffAsk } from "@/lib/sign-off";
 import { getSignOffPinStatus, setSignOffPin, type SignOffPinStatus } from "@/services/sign-off.service";
@@ -69,46 +70,51 @@ export function SignOffHost() {
     resolve?.(value);
   }, []);
 
-  useEffect(
-    () =>
-      registerSignOff(
-        (next) =>
-          new Promise<string | null>((resolve) => {
-            resolver.current = resolve;
-            setAsk(next);
-            setBusy(false);
-            setPin("");
-            setSetupError(null);
-            setBackTo(null);
-            if (next.code === SIGN_OFF_CODES.locked && !next.lockedUntil) {
-              // The time it opens: from the PIN's status when the refusal
-              // did not say (a check before an editor opens).
-              getSignOffPinStatus().then(setStatus).catch(() => undefined);
-            }
-            if (next.code === SIGN_OFF_CODES.required || next.code === SIGN_OFF_CODES.notSet) {
-              setMode(next.code === SIGN_OFF_CODES.notSet ? "setup" : "loading");
-              getSignOffPinStatus()
-                .then((found) => {
-                  setStatus(found);
-                  setMode((current) => (current === "loading" ? modeFor(next.code, found) : current));
-                })
-                .catch(() => setMode((current) => (current === "loading" ? "enter" : current)));
-            } else {
-              setMode(modeFor(next.code, null));
-            }
-          }),
-        () => {
-          answer(null);
-          setAsk(null);
+  useEffect(() => {
+    const unregister = registerSignOff(
+      (next) =>
+        new Promise<string | null>((resolve) => {
+          resolver.current = resolve;
+          setAsk(next);
           setBusy(false);
           setPin("");
-          setNewPin("");
-          setConfirmPin("");
-          setPassword("");
-        },
-      ),
-    [answer],
-  );
+          setSetupError(null);
+          setBackTo(null);
+          if (next.code === SIGN_OFF_CODES.locked && !next.lockedUntil) {
+            // The time it opens: from the PIN's status when the refusal
+            // did not say (a check before an editor opens).
+            getSignOffPinStatus().then(setStatus).catch(() => undefined);
+          }
+          if (next.code === SIGN_OFF_CODES.required || next.code === SIGN_OFF_CODES.notSet) {
+            setMode(next.code === SIGN_OFF_CODES.notSet ? "setup" : "loading");
+            getSignOffPinStatus()
+              .then((found) => {
+                setStatus(found);
+                setMode((current) => (current === "loading" ? modeFor(next.code, found) : current));
+              })
+              .catch(() => setMode((current) => (current === "loading" ? "enter" : current)));
+          } else {
+            setMode(modeFor(next.code, null));
+          }
+        }),
+      () => {
+        answer(null);
+        setAsk(null);
+        setBusy(false);
+        setPin("");
+        setNewPin("");
+        setConfirmPin("");
+        setPassword("");
+      },
+    );
+    return () => {
+      unregister();
+      // Taken off the page with a PIN still asked for (a crash below, a
+      // sign-out): the operation hears 「closed」, or every later PIN would
+      // wait behind this one and its 保存 spin for ever (Lucas 10/17).
+      answer(null);
+    };
+  }, [answer]);
 
   const actionKey = ask?.action ? ask.action.replace(/\./g, "_") : "";
   const actionLabel =
@@ -154,201 +160,206 @@ export function SignOffHost() {
     setMode("setup");
   };
 
+  // Its own tooltip provider: a disabled button explains itself in a tooltip,
+  // and this dialog is mounted beside the page, outside the page's provider.
+  // Without it the first PIN asked for crashed the whole page (Lucas 10/17).
   return (
-    <Dialog open={ask !== null} onOpenChange={(open) => !open && close()}>
-      <DialogContent className="sm:max-w-md" data-testid="sign-off-dialog">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {mode === "locked" ? <Lock className="size-5 text-destructive" /> : mode === "setup" ? <ShieldCheck className="size-5 text-primary" /> : <KeyRound className="size-5 text-primary" />}
-            {mode === "setup" ? t("setupTitle") : mode === "locked" ? t("lockedTitle") : t("title")}
-          </DialogTitle>
-          <DialogDescription>{actionLabel}</DialogDescription>
-        </DialogHeader>
+    <TooltipProvider delayDuration={300}>
+      <Dialog open={ask !== null} onOpenChange={(open) => !open && close()}>
+        <DialogContent className="sm:max-w-md" data-testid="sign-off-dialog">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {mode === "locked" ? <Lock className="size-5 text-destructive" /> : mode === "setup" ? <ShieldCheck className="size-5 text-primary" /> : <KeyRound className="size-5 text-primary" />}
+              {mode === "setup" ? t("setupTitle") : mode === "locked" ? t("lockedTitle") : t("title")}
+            </DialogTitle>
+            <DialogDescription>{actionLabel}</DialogDescription>
+          </DialogHeader>
 
-        {mode === "loading" && (
-          <div className="flex justify-center py-6 text-muted-foreground">
-            <Loader2 className="size-5 animate-spin" />
-          </div>
-        )}
+          {mode === "loading" && (
+            <div className="flex justify-center py-6 text-muted-foreground">
+              <Loader2 className="size-5 animate-spin" />
+            </div>
+          )}
 
-        {mode === "enter" && (
-          <form
-            className="space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              submitPin();
-            }}
-          >
-            <p className="text-sm text-muted-foreground">{t("enterHelp")}</p>
-            <FieldWrapper label={t("pin")} required error={wrong || undefined}>
-              <Input
-                autoFocus
-                type="password"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                value={pin}
-                disabled={busy}
-                className="text-center font-mono text-lg tracking-[0.5em]"
-                onChange={(event) => setPin(pinDigits(event.target.value))}
-              />
-            </FieldWrapper>
-            <button
-              type="button"
-              className="text-sm font-medium text-primary hover:underline"
-              disabled={busy}
-              onClick={() => openSetup("enter")}
+          {mode === "enter" && (
+            <form
+              className="space-y-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                submitPin();
+              }}
             >
-              {t("forgot")}
-            </button>
-            <DialogFooter>
-              <Button type="button" variant="outline" disabled={busy} onClick={close}>
-                {t("cancel")}
-              </Button>
-              <Button type="submit" requires={[[pin.length === 6, t("pin")]]} disabled={busy}>
-                {busy ? <Loader2 className="animate-spin" /> : <KeyRound />}
-                {busy ? t("checking") : t("confirm")}
-              </Button>
-            </DialogFooter>
-          </form>
-        )}
-
-        {mode === "setup" && (
-          <form
-            className="space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void submitSetup();
-            }}
-          >
-            <p className="text-sm text-muted-foreground">
-              {status?.was_reset ? t("resetHelp") : status?.has_pin ? t("changeHelp") : t("setupHelp")}
-            </p>
-            <FieldWrapper
-              label={t("newPin")}
-              required
-              error={setupError?.field === "pin" ? setupError.message : undefined}
-            >
-              <Input
-                autoFocus
-                type="password"
-                inputMode="numeric"
-                autoComplete="new-password"
-                maxLength={6}
-                value={newPin}
-                disabled={busy}
-                onChange={(event) => setNewPin(pinDigits(event.target.value))}
-              />
-            </FieldWrapper>
-            <FieldWrapper
-              label={t("confirmPin")}
-              required
-              error={confirmPin.length === 6 && confirmPin !== newPin ? t("pinMismatch") : undefined}
-            >
-              <Input
-                type="password"
-                inputMode="numeric"
-                autoComplete="new-password"
-                maxLength={6}
-                value={confirmPin}
-                disabled={busy}
-                onChange={(event) => setConfirmPin(pinDigits(event.target.value))}
-              />
-            </FieldWrapper>
-            <FieldWrapper
-              label={t("accountPassword")}
-              required
-              hint={t("accountPasswordHint")}
-              error={setupError?.field === "current_password" ? setupError.message : undefined}
-            >
-              <Input
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                disabled={busy}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-            </FieldWrapper>
-            {backTo !== null && (
-              // Someone who forgot the PIN may have forgotten the password
-              // too: say where that is put right.
-              <p className="text-sm text-muted-foreground">{t("forgotPassword")}</p>
-            )}
-            <DialogFooter>
-              {backTo !== null ? (
-                // 「返回」 goes back to the PIN box; the operation still waits.
-                <Button
-                  type="button"
-                  variant="outline"
+              <p className="text-sm text-muted-foreground">{t("enterHelp")}</p>
+              <FieldWrapper label={t("pin")} required error={wrong || undefined}>
+                <Input
+                  autoFocus
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={pin}
                   disabled={busy}
-                  onClick={() => {
-                    setSetupError(null);
-                    setNewPin("");
-                    setConfirmPin("");
-                    setPassword("");
-                    setMode(backTo);
-                    setBackTo(null);
-                  }}
-                >
-                  {t("back")}
-                </Button>
-              ) : (
+                  className="text-center font-mono text-lg tracking-[0.5em]"
+                  onChange={(event) => setPin(pinDigits(event.target.value))}
+                />
+              </FieldWrapper>
+              <button
+                type="button"
+                className="text-sm font-medium text-primary hover:underline"
+                disabled={busy}
+                onClick={() => openSetup("enter")}
+              >
+                {t("forgot")}
+              </button>
+              <DialogFooter>
                 <Button type="button" variant="outline" disabled={busy} onClick={close}>
                   {t("cancel")}
                 </Button>
-              )}
-              <Button
-                type="submit"
-                requires={[
-                  [newPin.length === 6, t("newPin")],
-                  [confirmPin.length === 6, t("confirmPin")],
-                  [password, t("accountPassword")],
-                ]}
-                disabledReason={
-                  newPin.length === 6 && confirmPin.length === 6 && newPin !== confirmPin
-                    ? t("pinMismatch")
-                    : undefined
-                }
-                disabled={busy || newPin !== confirmPin}
-              >
-                {busy ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
-                {t("saveAndContinue")}
-              </Button>
-            </DialogFooter>
-          </form>
-        )}
+                <Button type="submit" requires={[[pin.length === 6, t("pin")]]} disabled={busy}>
+                  {busy ? <Loader2 className="animate-spin" /> : <KeyRound />}
+                  {busy ? t("checking") : t("confirm")}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
 
-        {mode === "locked" && (
-          <div className="space-y-3">
-            <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-              {opensAt
-                ? t("lockedUntil", {
-                    time: format.dateTime(new Date(opensAt), {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hourCycle: "h23",
-                    }),
-                  })
-                : ask?.code === SIGN_OFF_CODES.locked
-                  ? ask.message
-                  : t("lockedHelp")}
-            </p>
-            <p className="text-sm text-muted-foreground">{t("lockedHint")}</p>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => openSetup("locked")}
+          {mode === "setup" && (
+            <form
+              className="space-y-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void submitSetup();
+              }}
+            >
+              <p className="text-sm text-muted-foreground">
+                {status?.was_reset ? t("resetHelp") : status?.has_pin ? t("changeHelp") : t("setupHelp")}
+              </p>
+              <FieldWrapper
+                label={t("newPin")}
+                required
+                error={setupError?.field === "pin" ? setupError.message : undefined}
               >
-                {t("setAgain")}
-              </Button>
-              <Button type="button" onClick={close}>
-                {t("close")}
-              </Button>
-            </DialogFooter>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+                <Input
+                  autoFocus
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="new-password"
+                  maxLength={6}
+                  value={newPin}
+                  disabled={busy}
+                  onChange={(event) => setNewPin(pinDigits(event.target.value))}
+                />
+              </FieldWrapper>
+              <FieldWrapper
+                label={t("confirmPin")}
+                required
+                error={confirmPin.length === 6 && confirmPin !== newPin ? t("pinMismatch") : undefined}
+              >
+                <Input
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="new-password"
+                  maxLength={6}
+                  value={confirmPin}
+                  disabled={busy}
+                  onChange={(event) => setConfirmPin(pinDigits(event.target.value))}
+                />
+              </FieldWrapper>
+              <FieldWrapper
+                label={t("accountPassword")}
+                required
+                hint={t("accountPasswordHint")}
+                error={setupError?.field === "current_password" ? setupError.message : undefined}
+              >
+                <Input
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  disabled={busy}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </FieldWrapper>
+              {backTo !== null && (
+                // Someone who forgot the PIN may have forgotten the password
+                // too: say where that is put right.
+                <p className="text-sm text-muted-foreground">{t("forgotPassword")}</p>
+              )}
+              <DialogFooter>
+                {backTo !== null ? (
+                  // 「返回」 goes back to the PIN box; the operation still waits.
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={() => {
+                      setSetupError(null);
+                      setNewPin("");
+                      setConfirmPin("");
+                      setPassword("");
+                      setMode(backTo);
+                      setBackTo(null);
+                    }}
+                  >
+                    {t("back")}
+                  </Button>
+                ) : (
+                  <Button type="button" variant="outline" disabled={busy} onClick={close}>
+                    {t("cancel")}
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  requires={[
+                    [newPin.length === 6, t("newPin")],
+                    [confirmPin.length === 6, t("confirmPin")],
+                    [password, t("accountPassword")],
+                  ]}
+                  disabledReason={
+                    newPin.length === 6 && confirmPin.length === 6 && newPin !== confirmPin
+                      ? t("pinMismatch")
+                      : undefined
+                  }
+                  disabled={busy || newPin !== confirmPin}
+                >
+                  {busy ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
+                  {t("saveAndContinue")}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+
+          {mode === "locked" && (
+            <div className="space-y-3">
+              <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                {opensAt
+                  ? t("lockedUntil", {
+                      time: format.dateTime(new Date(opensAt), {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hourCycle: "h23",
+                      }),
+                    })
+                  : ask?.code === SIGN_OFF_CODES.locked
+                    ? ask.message
+                    : t("lockedHelp")}
+              </p>
+              <p className="text-sm text-muted-foreground">{t("lockedHint")}</p>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => openSetup("locked")}
+                >
+                  {t("setAgain")}
+                </Button>
+                <Button type="button" onClick={close}>
+                  {t("close")}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
   );
 }
