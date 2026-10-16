@@ -333,6 +333,12 @@ export function MaterialRequestForm({
                 emptyAction={notSetUp}
                 disabled={!project}
               />
+              {/* 材料编号 (I19-15): read-only, from Category Management. */}
+              {material && (
+                <p className="mt-1.5 text-xs text-muted-foreground" data-testid="mr-material-code">
+                  {t("field.materialCode")} <span className="font-medium text-foreground">{material.code || "—"}</span>
+                </p>
+              )}
             </FieldWrapper>
             <FieldWrapper label={t("field.specification")} required>
               <OptionCombobox

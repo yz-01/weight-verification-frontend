@@ -238,6 +238,13 @@ function RequestsTab() {
             row.original.material_name || <span className="text-muted-foreground">—</span>
           ),
       },
+      // 材料编号 (I19-15): the category's code; toggled in 「栏位」.
+      {
+        id: "category_code",
+        meta: { label: t("field.materialCode") },
+        header: () => <PlainHeader label={t("field.materialCode")} />,
+        cell: ({ row }) => row.original.category_code || <span className="text-muted-foreground">—</span>,
+      },
       {
         accessorKey: "specification",
         meta: { label: t("field.specification") },
@@ -324,6 +331,7 @@ function RequestsTab() {
         { key: "request_kind_name", label: t("field.requestType") },
         { key: "project_name", label: t("field.project") },
         { key: "subject", label: t("field.subject") },
+        { key: "category_code", label: t("field.materialCode") },
         { key: "material_name", label: t("field.material") },
         { key: "specification", label: t("field.specification") },
         { key: "quantity", label: t("field.quantity") },
@@ -375,8 +383,9 @@ function RequestsTab() {
         isError={rows.isError}
         // New key (D3): an old saved column set must not bring back the dropped
         // columns, nor hide the manufacturer and supplier ones (D1).
-        // `.v4` since the request type column came back (I16, ID37).
-        storageKey="material-requests.v4"
+        // `.v4` since the request type column came back (I16, ID37); `.v5`
+        // since 材料编号 joined (I19-15), so a saved set shows it.
+        storageKey="material-requests.v5"
         toolbar={
           <>
             <ProjectListFilter list={list} />
@@ -729,6 +738,7 @@ export function MaterialRequestDetail({
           ...(isMaterial
             ? [
                 { label: t("field.material"), value: row.material_name },
+                { label: t("field.materialCode"), value: row.category_code || "—" },
                 { label: t("field.specification"), value: row.specification },
                 { label: t("field.quantity"), value: `${row.quantity ?? "—"} ${unitLabel(row.unit)}` },
                 { label: t("field.supplier"), value: row.supplier_name || "—" },

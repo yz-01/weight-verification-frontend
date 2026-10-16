@@ -107,6 +107,8 @@ export interface MaterialRequest extends RecordedBy {
   /** The material and specification from the material data (I19). */
   category: string | null;
   spec_category: string | null;
+  /** 材料编号 (I19-15): the linked category's code; null for a request with no material. */
+  category_code?: string | null;
   status: MaterialRequestStatus;
   project: string;
   project_name: string;

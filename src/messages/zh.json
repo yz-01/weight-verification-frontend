@@ -17267,6 +17267,7 @@
       "requestType": "申请类型",
       "project": "项目",
       "material": "产品 / 材料",
+      "materialCode": "材料编号",
       "specification": "类型 / 规格",
       "quantity": "数量",
       "unit": "单位",
