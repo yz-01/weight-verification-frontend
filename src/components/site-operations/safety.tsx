@@ -1454,7 +1454,6 @@ function SafetyCreateDialog({
   const create = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Authentication required.");
-<<<<<<< HEAD
       // An item raised in the office is signed (I29, ID68 4). The PIN is
       // asked and checked BEFORE the photos go, so a wrong one never sends
       // them twice; the create carries the PIN that was right. The phone and
@@ -1465,10 +1464,8 @@ function SafetyCreateDialog({
         if (pin === null) throw new ApiError("", 403, {}, SIGN_OFF_CANCELLED);
         signOffPin = pin || undefined;
       }
-=======
       const eventId = draft.clientEventId || newClientEventId("safety-incident");
       if (!draft.clientEventId) setDraft((value) => ({ ...value, clientEventId: eventId }));
->>>>>>> origin/develop
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
         // None from the phone (ID12): the server files it as 「未分类」.
