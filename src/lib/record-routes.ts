@@ -39,6 +39,9 @@ const PAGES: Record<string, (id: string) => string> = {
   MATERIAL_REQUEST: (id) => `/material-requests?record=${id}`,
   // A Progress Claim (I10): its tab in Multi Engine, opened on the claim.
   CLAIM: (id) => `/evidence-packages?type=PROGRESS_CLAIM&claim=${id}`,
+  // The general attachment slot's own kinds (I3), as the archive names them.
+  APPROVAL: (id) => `/approvals?approval=${id}`,
+  GATE_PASS: (id) => `/site-access?pass=${id}`,
 };
 
 /** No detail page of their own yet: the read-only record sheet. */

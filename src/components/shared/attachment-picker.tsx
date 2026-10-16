@@ -54,6 +54,12 @@ function Thumb({ file }: { file: File }) {
   );
 }
 
+/** The picker's one-line hint: no camera named where there is none (the archive). */
+export function dropHintKey(camera: boolean, mobile: boolean) {
+  if (camera) return mobile ? "dropHintPhone" : "dropHint";
+  return mobile ? "dropHintPhoneNoCamera" : "dropHintNoCamera";
+}
+
 export function AttachmentPicker({
   files,
   onChange,
@@ -131,7 +137,7 @@ export function AttachmentPicker({
     >
       <div
         tabIndex={disabled ? -1 : 0}
-        aria-label={t("dropHint")}
+        aria-label={t(dropHintKey(camera, false))}
         className={cn(
           "space-y-2 rounded-lg border border-dashed border-panel-border p-3 outline-none focus-visible:ring-2 focus-visible:ring-ring",
           dragging && "border-primary bg-primary/5",
@@ -149,7 +155,7 @@ export function AttachmentPicker({
       >
         <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
           <ImageIcon className="mt-0.5 size-3.5 shrink-0" />
-          {mobile ? t("dropHintPhone") : t("dropHint")}
+          {t(dropHintKey(camera, mobile))}
         </p>
         <div className={cn("grid gap-2", camera ? "grid-cols-2" : "grid-cols-1")}>
           {camera &&

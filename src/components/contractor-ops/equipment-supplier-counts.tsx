@@ -11,7 +11,7 @@
  * disagree with the entry and exit pages.
  */
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
 import { QueryFailedNote } from "@/components/shared/page-primitives";
@@ -21,6 +21,7 @@ import type { useListQuery } from "@/hooks/use-list-query";
 import type { ListQuery } from "@/interfaces/api";
 import type { EquipmentSupplierCounts } from "@/interfaces/contractor-ops";
 import { getEquipmentSupplierCounts } from "@/services/contractor-ops.service";
+import { getSupplier } from "@/services/contractor.service";
 
 /** What the numbers follow: everything but the supplier and 在场状态 chosen, and the page. */
 const NOT_COUNTED = ["page", "page_size", "sort_by", "sort_order", "supplier", "presence", "view"];
@@ -32,46 +33,95 @@ export function countsQuery(query: ListQuery): ListQuery {
 export interface Headline {
   /** The supplier's name, null for 「没有供应商」 and when none is chosen. */
   supplier: string | null;
-  /** Whether a supplier (or 「没有供应商」) is chosen. */
+  /** Whether a supplier is chosen and named (「没有供应商」 is `noSupplier`). */
   chosen: boolean;
   noSupplier: boolean;
   onSite: number;
   total: number;
 }
 
-/** The numbers of the supplier chosen (summed over projects), or of everything. */
-export function headlineOf(data: EquipmentSupplierCounts, supplier: string | undefined): Headline {
+/**
+ * The numbers of the supplier chosen (summed over projects), or of everything.
+ *
+ * A supplier with no machines here has no row to read its name from, so the
+ * name the filter knows (`knownName`) says whose 0 / 0 it is.
+ */
+export function headlineOf(
+  data: EquipmentSupplierCounts,
+  supplier: string | undefined,
+  knownName?: string | null,
+): Headline {
   if (!supplier) {
     return { supplier: null, chosen: false, noSupplier: false, onSite: data.on_site, total: data.total };
   }
   const noSupplier = supplier === NO_SUPPLIER_VALUE;
   const rows = data.results.filter((row) => (noSupplier ? row.supplier === null : row.supplier === supplier));
+  const name = noSupplier ? null : (rows[0]?.supplier_name ?? knownName ?? null);
   return {
-    supplier: noSupplier ? null : (rows[0]?.supplier_name ?? null),
-    chosen: !noSupplier && rows.length > 0,
+    supplier: name,
+    chosen: !noSupplier && Boolean(name),
     noSupplier,
     onSite: rows.reduce((sum, row) => sum + row.on_site, 0),
     total: rows.reduce((sum, row) => sum + row.total, 0),
   };
 }
 
+type CountsT = ReturnType<typeof useTranslations<"contractorOps.equipment.supplierCounts">>;
+
+/** 「ABC 租赁：在场 3 台 / 共 5 台」, 「没有供应商：…」 or the whole line. */
+export function headlineText(t: CountsT, headline: Headline): string {
+  const numbers = t("headline", { onSite: headline.onSite, total: headline.total });
+  const name = headline.noSupplier ? t("noSupplier") : headline.chosen ? headline.supplier : null;
+  return name ? t("headlineFor", { name, numbers }) : numbers;
+}
+
 /** The line, for the screen and for the top of the exported file. */
 export function useEquipmentSupplierCounts(list: ReturnType<typeof useListQuery>, enabled: boolean) {
   const t = useTranslations("contractorOps.equipment.supplierCounts");
+  const qc = useQueryClient();
+  const supplier = list.filters.supplier;
   // query-failure: EquipmentSupplierCountsPanel shows the QueryFailedNote for this query
   const query = useQuery({
     queryKey: ["equipment-supplier-counts", countsQuery(list.query)],
     queryFn: () => getEquipmentSupplierCounts(countsQuery(list.query)),
     enabled,
   });
-  const headline = query.data ? headlineOf(query.data, list.filters.supplier) : null;
-  let text = "";
-  if (headline) {
-    const numbers = t("headline", { onSite: headline.onSite, total: headline.total });
-    const name = headline.noSupplier ? t("noSupplier") : headline.chosen ? headline.supplier : null;
-    text = name ? t("headlineFor", { name: name ?? "", numbers }) : numbers;
-  }
-  return { query, headline, text };
+  // The chosen supplier's name, for one with no machines here (no row names
+  // it). The filter's own label query, so it is usually already cached.
+  const named = Boolean(supplier) && supplier !== NO_SUPPLIER_VALUE;
+  const nameKey = ["suppliers", "filter-label", supplier];
+  // query-failure: only the headline's name; the 0 / 0 shows without it
+  const nameQuery = useQuery({
+    queryKey: nameKey,
+    queryFn: () => getSupplier(supplier!),
+    enabled:
+      enabled &&
+      named &&
+      Boolean(query.data) &&
+      !query.data?.results.some((row) => row.supplier === supplier),
+    staleTime: 5 * 60_000,
+  });
+  const headline = query.data ? headlineOf(query.data, supplier, nameQuery.data?.name) : null;
+  const text = headline ? headlineText(t, headline) : "";
+
+  /**
+   * The line for an export: waits for the numbers (and the name) when the
+   * export is pressed before they arrived, so the file never goes out
+   * without its summary.
+   */
+  const exportText = async (): Promise<string> => {
+    const data = query.data ?? (await query.refetch()).data;
+    if (!data) return "";
+    let name: string | null | undefined;
+    if (named && !data.results.some((row) => row.supplier === supplier)) {
+      name = await qc
+        .fetchQuery({ queryKey: nameKey, queryFn: () => getSupplier(supplier!), staleTime: 5 * 60_000 })
+        .then((row) => row.name)
+        .catch(() => null);
+    }
+    return headlineText(t, headlineOf(data, supplier, name));
+  };
+  return { query, headline, text, exportText };
 }
 
 export function EquipmentSupplierCountsPanel({
@@ -89,6 +139,8 @@ export function EquipmentSupplierCountsPanel({
       {counts.text && (
         <p className="text-sm font-semibold" aria-live="polite">
           {counts.text}
+          {/* Machines, not the quantity typed on an entry (I36): 台 is a machine. */}
+          <span className="ml-2 text-xs font-normal text-muted-foreground">{t("countRule")}</span>
         </p>
       )}
       <QueryFailedNote query={counts.query} what={t("what")} />

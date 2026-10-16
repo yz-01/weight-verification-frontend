@@ -83,6 +83,8 @@ describe("where a system file came from", () => {
       "MATERIAL_REQUEST",
       "SUNDRY_CLAIM",
       "CONSULTANT_APPLICATION",
+      "APPROVAL",
+      "GATE_PASS",
     ]);
     for (const catalogue of [zh, zhTW, en, ms]) {
       for (const key of Object.values(SYSTEM_FILE_MODULES)) {

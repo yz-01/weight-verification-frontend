@@ -49,6 +49,9 @@ export const SYSTEM_FILE_MODULES: Record<string, string> = {
   SUNDRY_CLAIM: "nav.submodule.sundryClaims",
   // 顾问申请附件 (E4): only the applications the reader can open.
   CONSULTANT_APPLICATION: "nav.consultant_applications",
+  // Files added to a 后台审批 or a 门禁通行证 through the general slot (I3).
+  APPROVAL: "nav.approvals",
+  GATE_PASS: "nav.submodule.siteAccessPasses",
 };
 
 /** The drag payload's type: only a thumbnail from this picker drops here. */
