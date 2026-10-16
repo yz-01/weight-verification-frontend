@@ -9,4 +9,9 @@ export interface RecordedBy {
   created_by_phone?: string | null;
   /** An absolute URL, or null. */
   created_by_avatar?: string | null;
+  /**
+   * The office corrected a value of it (I30): the list's 「已改正」 tag. Sent
+   * by the kinds the shared correction covers; absent elsewhere.
+   */
+  was_corrected?: boolean;
 }

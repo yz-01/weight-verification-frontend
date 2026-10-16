@@ -56,6 +56,11 @@ import {
   RecordRecorder,
   ShellPanel,
 } from "@/components/shared/record-detail-shell";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { Button } from "@/components/ui/button";
@@ -340,6 +345,8 @@ function GateIncidentCard({
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-semibold tabular">{row.incident_no}</span>
             {row.is_issue && <span className="text-xs font-medium text-warning">{t("kind.issue")}</span>}
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.was_corrected && <CorrectedTag />}
             <GateIssueStatusBadge status={row.issue_status} />
           </span>
           <span className="block truncate text-sm text-muted-foreground">{row.project_name}</span>
@@ -897,6 +904,7 @@ export function GateIncidentDetailDialog({
     queryFn: () => getGateIncident(id),
   });
   const row = detail.data;
+  const gateQueries = useQueryClient();
   const [adding, setAdding] = useState<"photos" | "members" | "talk" | null>(null);
   // Each ask to talk (opened by 「沟通」, or 「沟通」 pressed here) brings the
   // conversation into view once it is there.
@@ -995,6 +1003,21 @@ export function GateIncidentDetailDialog({
               </Button>
             ) : undefined
           }
+          // 【改正】 (I30): only the words - the note and the gate; the
+          // photos, time, GPS and guard stay as taken.
+          actions={
+            can("site_access.manage") ? (
+              <RecordCorrectionButton
+                kind="GATE_INCIDENT"
+                recordId={row.id}
+                onCorrected={() => {
+                  void detail.refetch();
+                  void gateQueries.invalidateQueries({ queryKey: ["gate-incidents"] });
+                }}
+              />
+            ) : undefined
+          }
+          corrections={<RecordCorrectionHistory kind="GATE_INCIDENT" recordId={row.id} />}
           aside={
             !row.is_issue && can("site_access.scan") ? (
               // 「沟通」 on a plain photo (I14, ID31): pick people, and it
