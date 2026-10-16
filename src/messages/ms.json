@@ -11254,7 +11254,7 @@
   "offline": {
     "kind": {
       "SAFETY_RECTIFICATION": "Penyerahan pembetulan",
-      "HAZARD_FILE": "Fail bahaya",
+      "HAZARD_FILE": "Fail pembetulan",
       "ATTENDANCE": "Kemasukan tapak",
       "CATEGORY_EVIDENCE": "Foto tapak",
       "CONSULTANT_SUBMISSION": "Penyerahan perunding",

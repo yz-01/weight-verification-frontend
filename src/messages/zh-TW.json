@@ -11254,7 +11254,7 @@
   "offline": {
     "kind": {
       "SAFETY_RECTIFICATION": "整改提交",
-      "HAZARD_FILE": "隱患附件",
+      "HAZARD_FILE": "整改附件",
       "ATTENDANCE": "人員進場打卡",
       "CATEGORY_EVIDENCE": "現場照片",
       "CONSULTANT_SUBMISSION": "顧問提交",

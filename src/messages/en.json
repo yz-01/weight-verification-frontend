@@ -11254,7 +11254,7 @@
   "offline": {
     "kind": {
       "SAFETY_RECTIFICATION": "Rectification submit",
-      "HAZARD_FILE": "Hazard file",
+      "HAZARD_FILE": "Rectification file",
       "ATTENDANCE": "Site entry",
       "CATEGORY_EVIDENCE": "Site photos",
       "CONSULTANT_SUBMISSION": "Consultant submission",
