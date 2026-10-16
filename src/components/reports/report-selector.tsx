@@ -50,6 +50,7 @@ import { supplierFilterValue, supplierShown } from "@/lib/receipt-supplier";
 import { cn } from "@/lib/utils";
 import { getProjects, getReceiptSummary } from "@/services/contractor.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { categoryTree, showsGroups } from "@/lib/category-tree";
 import { getReportCategories } from "@/services/contractor-report.service";
 
 /**
@@ -315,6 +316,10 @@ function MaterialLevel({
   const projectCode = (id: string) =>
     projects.data?.results.find((row) => row.id === id)?.code ?? "";
   const rows = categories.data?.results ?? [];
+  const tRoot = useTranslations();
+  const tree = categoryTree(rows);
+  const headed = showsGroups(tree);
+  const ordered = tree.flatMap((group) => group.entries.map((entry) => entry.row));
   const shared = new Set(
     rows
       .map((row) => row.name)
@@ -332,7 +337,24 @@ function MaterialLevel({
         <p className="px-2 py-1.5 text-xs text-muted-foreground">{t("materialsFailed")}</p>
       )}
       {rows.length > 0 && <DropdownMenuSeparator />}
-      {rows.map((row) => (
+      {/* I11 (ID27): with a 分类组 of the project's own, the groups first -
+          each one a choice of its own (every material in it). */}
+      {headed &&
+        tree.map((group) =>
+          group.key ? (
+            <DropdownMenuItem
+              key={`group:${group.key}`}
+              className="h-8 font-medium"
+              onSelect={() => onPick({ category: `group:${group.key}` })}
+            >
+              <span className="min-w-0 flex-1 truncate">
+                {t("allOfGroup", { name: group.name || tRoot("categoryManagement.module.material") })}
+              </span>
+            </DropdownMenuItem>
+          ) : null,
+        )}
+      {headed && <DropdownMenuSeparator />}
+      {ordered.map((row) => (
         <PickableSub
           key={row.id}
           className="h-8"
@@ -428,6 +450,9 @@ function CategoryLevel({
 }) {
   const t = useTranslations("reportSelector");
   const { query, rows } = useReportLevel(reportType, project, parent);
+  // I11 (ID27): 分类组 → 分类 → 子分类. A group's value is `group:<id>`; a
+  // category under a group opens like a first-level one.
+  const underCategory = Boolean(parent && !parent.startsWith("group:"));
 
   return (
     <>
@@ -441,10 +466,11 @@ function CategoryLevel({
       )}
       {rows.map((row) => {
         const name = levelRowName(row, rows, Boolean(project));
-        const chosen = parent
+        const isGroup = row.value.startsWith("group:");
+        const chosen = underCategory
           ? { category: parent, subcategory: row.value }
           : { category: row.value };
-        return row.has_children && childLabel && !parent ? (
+        return row.has_children && (isGroup || (childLabel && !underCategory)) ? (
           <PickableSub
             key={row.value}
             label={name}
@@ -453,7 +479,8 @@ function CategoryLevel({
           >
             <CategoryLevel
               reportType={reportType}
-              label={childLabel}
+              label={isGroup ? label : (childLabel ?? label)}
+              childLabel={childLabel}
               project={project}
               parent={row.value}
               onPick={onPick}
@@ -491,7 +518,15 @@ export function useReportLevel(
     enabled,
   });
   const rows = useMemo<ReportLevelRow[]>(() => {
-    const data = query.data ?? [];
+    // A system 分类组 is named by its module; a category that is off but
+    // still has records says 「已停用」 (I11).
+    const data = (query.data ?? []).map((row) => ({
+      ...row,
+      label:
+        (row.label ||
+          (row.module ? tRoot(`reportSelector.groupModule.${row.module}`) : row.value)) +
+        (row.is_active === false ? ` · ${tRoot("reportSelector.inactive")}` : ""),
+    }));
     if (reportType === "photos") return groupPhotoSources(data, (key) => tRoot(key));
     if (reportType === "consultant") {
       return data.map((row) => ({

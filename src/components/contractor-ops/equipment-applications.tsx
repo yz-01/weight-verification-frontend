@@ -267,6 +267,13 @@ export function MovementAcceptance({
   // filed before B2 on no class or a flat one (Fable B4 #2) - so the office
   // is never left with an Accept that is refused and no way to fix it.
   const missing = exit ? [] : movement.equipment_profile_missing ?? [];
+  // 「提交总部审批」 (I12, ID28): head office (or the company administrator,
+  // who keeps the roles) decides a machine whose class sends it there; the
+  // project's office decides the rest.
+  const headOffice = Boolean(movement.review_by_head_office);
+  const mayDecide = headOffice
+    ? can("material_request.review") || can("role.update")
+    : can("equipment.manage");
   return (
     <div className="space-y-2" data-testid="equipment-acceptance">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -296,7 +303,10 @@ export function MovementAcceptance({
           {error}
         </p>
       )}
-      {can("equipment.manage") && (
+      {headOffice && !mayDecide && (
+        <p className="text-xs text-muted-foreground">{t("equipment.acceptance.headOffice")}</p>
+      )}
+      {mayDecide && (
         <>
           {/* The server refuses it too (equipment_profile_incomplete); the
               note above says what is missing and opens the profile. */}

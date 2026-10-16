@@ -22,6 +22,7 @@ import {
   ReceiptText,
   UserRoundCheck,
 } from "lucide-react";
+import { CategoryOptionItems } from "@/components/shared/category-options";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -442,7 +443,9 @@ export function MaterialCapturePanel({
       getProjectCategories({
         project: draft.project,
         kind: "MATERIAL",
-        is_active: true,
+        // IB1: switched off - or its 分类组 switched off - or hidden from the
+        // phone, it is not offered here.
+        pwa: true,
         page_size: 200,
         sort_by: "sort_order",
         sort_order: "asc",
@@ -786,7 +789,8 @@ export function MaterialCapturePanel({
       <FieldWrapper label={t("material.column")} required>
         <Select value={draft.category || undefined} onValueChange={(category) => setDraft((old) => withColumn(old, category))} disabled={!draft.project || columns.isLoading}>
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
-          <SelectContent>{columnRows.filter((row) => row.can_upload).map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
+          {/* 分类组 → 材料 (I11): the group a heading only when there are several. */}
+          <SelectContent><CategoryOptionItems rows={columnRows.filter((row) => row.can_upload)} /></SelectContent>
         </Select>
         <FieldLoadNote query={columns} what={t("what.columns")} />
         {draft.project && columns.isSuccess && !columnRows.length && <p className="text-sm text-muted-foreground">{t("material.noColumnsYet")}</p>}
@@ -1326,6 +1330,8 @@ function WasteOutgoingCapturePanel({
   // F-282: same shell-without-wiring as the consultant panel above.
   const [project, setProject] = useDraftState("project", initialProject);
   const [category, setCategory] = useDraftState("category", "");
+  // 「其他」 (I10, ID43): what it is, typed.
+  const [otherName, setOtherName] = useDraftState("otherName", "");
   const [quantity, setQuantity] = useDraftState("quantity", "");
   const [unit, setUnit] = useDraftState("unit", "");
   const [note, setNote] = useDraftState("note", "");
@@ -1343,12 +1349,14 @@ function WasteOutgoingCapturePanel({
   ];
 
   const options = useQuery({
-    queryKey: ["waste-outgoing", "options"],
-    queryFn: getWasteOutgoingOptions,
+    // The project's own groups' categories too (I11).
+    queryKey: ["waste-outgoing", "options", project],
+    queryFn: () => getWasteOutgoingOptions(project || undefined),
   });
   const categories = (options.data?.categories ?? []).filter(
     (row) => row.is_active,
   );
+  const chosenCategory = categories.find((row) => row.id === category);
 
   const save = useMutation({
     mutationFn: () => {
@@ -1359,6 +1367,7 @@ function WasteOutgoingCapturePanel({
         quantity: quantity.trim() || undefined,
         unit: quantity.trim() ? unit : undefined,
         note: note.trim() || undefined,
+        ...(chosenCategory?.is_other ? { other_name: otherName.trim() } : {}),
         latitude: location.latitude,
         longitude: location.longitude,
         device_id: getOrCreateFieldDeviceId(),
@@ -1404,13 +1413,22 @@ function WasteOutgoingCapturePanel({
           </SelectTrigger>
           <SelectContent>
             {categories.map((row) => (
-              // A system preset in the phone's language (2026-10-09).
-              <SelectItem key={row.id} value={row.id}>{row.label || row.name}</SelectItem>
+              // A system preset in the phone's language (2026-10-09); a
+              // sub-category with its parent (I11).
+              <SelectItem key={row.id} value={row.id}>
+                {row.parent_name ? `${row.parent_name} › ` : ""}
+                {row.label || row.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <FieldLoadNote query={options} what={t("what.categories")} />
       </FieldWrapper>
+      {chosenCategory?.is_other && (
+        <FieldWrapper label={t("field.otherName")} required>
+          <Input className="h-12" value={otherName} onChange={(event) => setOtherName(event.target.value)} />
+        </FieldWrapper>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label={t("field.quantity")} optional={t("field.optional")}>
           <Input className="h-12" type="number" min="0" step="0.001" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
@@ -1463,7 +1481,7 @@ function WasteOutgoingCapturePanel({
         required
       />
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("evidence.title")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], ...(chosenCategory?.is_other ? ([[otherName.trim(), t("field.otherName")]] as [string, string][]) : []), [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("evidence.title")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}
         {t("action.submit")}
       </Button>

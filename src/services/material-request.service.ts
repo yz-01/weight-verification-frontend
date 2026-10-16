@@ -59,6 +59,24 @@ export const getMaterialRequestReviewerOptions = (project: string) =>
   api.get<MaterialRequestReviewerOption[]>("/api/material-requests/reviewer_options/", { project });
 
 /** 「改派给我」 (D2): another approver takes a waiting request over; the history keeps it. */
+/**
+ * The project manager's answer to a site staff's request (I12, ID29):
+ * 「转呈总部」 to a head-office approver, same request and number - or return it.
+ */
+export async function managerDecideMaterialRequest(
+  id: string,
+  decision: "FORWARD" | "RETURNED",
+  { assignedReviewer = "", note = "" }: { assignedReviewer?: string; note?: string } = {},
+) {
+  const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/manager_decide/`, {
+    decision,
+    note,
+    ...(decision === "FORWARD" ? { assigned_reviewer: assignedReviewer } : {}),
+  });
+  toastSuccess(decision === "FORWARD" ? "materialRequest.toast.forwarded" : "materialRequest.toast.returned");
+  return row;
+}
+
 export async function reassignMaterialRequestToMe(id: string) {
   const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/reassign/`, {});
   toastSuccess("materialRequest.toast.reassigned");

@@ -126,8 +126,8 @@ describe("clicking a column opens its records here (D-276)", () => {
     const list = service.slice(service.indexOf("export function getCategoryRecords("));
     expect(list).toMatch(/module: CategoryModuleKey;/);
     expect(list).toMatch(/api\.get<CategoryRecordPage>\("\/api\/category-records\/", query\)/);
-    // 分类管理只留四组 (2026-10 B1).
-    expect(CATEGORY_MODULE_KEYS).toHaveLength(4);
+    // 材料、设备、整改 / EHS、环保材料出场 and Progress Claim (B1, I10).
+    expect(CATEGORY_MODULE_KEYS).toHaveLength(5);
   });
 
   it("is a dialog on this page, never a link or a push", () => {

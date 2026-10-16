@@ -118,10 +118,13 @@ const REPORT_DATE_TIME_COLUMNS = new Set([
   "confirmed_at",
   "submitted_at",
   "verified_at",
+  "due_at",
+  "reviewed_at",
 ]);
 
 const REPORT_DATE_ONLY_COLUMNS = new Set([
   "report_date",
+  "claim_period",
   "end_date",
   "application_date",
   "planned_start",

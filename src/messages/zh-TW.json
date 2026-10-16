@@ -3065,7 +3065,7 @@
       "SITE_RECORD": "現場記錄",
       "SITE_EQUIPMENT": "機械設備",
       "DOCUMENT": "文件",
-      "CLAIM": "進度 Claim",
+      "CLAIM": "Progress Claim",
       "MATERIAL_RETURN": "材料退場",
       "PERMIT": "施工准證",
       "GATE_INCIDENT": "門崗記錄",
@@ -3978,19 +3978,22 @@
       "material": "材料分類",
       "equipment": "設備分類",
       "ehs": "整改 / EHS 分類",
-      "recycle": "環保材料出場分類"
+      "recycle": "環保材料出場分類",
+      "claim": "Progress Claim 分類"
     },
     "moduleHelp": {
       "material": "收貨與它的金額歸在這裡。按專案各一份。",
       "equipment": "吊車、挖掘機、發電機等。每個項目一份，由本公司維護。",
       "ehs": "每個項目預設有安全部整改、施工部整改、顧問要求整改、施工准證申請，可以新增、改名、停用；沒有記錄的分類才能刪除。施工准證申請是系統分類，只能改名。",
-      "recycle": "現場外運的可回收廢料：廢鐵、銅、鋁、電纜。全公司一份；系統預置的可停用、不可刪除。"
+      "recycle": "現場外運的可回收廢料：廢鐵、銅、鋁、電纜。全公司一份；系統預置的可停用、不可刪除。",
+      "claim": "每個專案自己的 Claim 分類：Sundry、Manpower、Subcontractor Claim 只是例子，可以改名、停用、刪除；Other Claim 固定保留。"
     },
     "moduleSource": {
       "material": "記錄來自：現場材料進場、後台材料進場台帳。現場工作人員可以填。",
       "equipment": "記錄來自：後台「設備登記」。設備檔案在辦公室建，手機只記進出。",
       "ehs": "記錄來自：整改上報（現場與後台都算）。現場工作人員可以填。",
-      "recycle": "記錄來自：後台的可回收廢料外運。現場工作人員不填這裡。"
+      "recycle": "記錄來自：後台的可回收廢料外運。現場工作人員不填這裡。",
+      "claim": "記錄來自：後台 Progress Claim（Multi Engine）。"
     },
     "modules": "模組",
     "scope": {
@@ -4111,6 +4114,67 @@
       "newPlaceholder": "例如：Y50mm",
       "add": "新增規格",
       "afterSave": "儲存材料後，打開它就可以加規格和單位。"
+    },
+    "groups": {
+      "create": "新增分類組",
+      "chooseProject": "先選專案，才能看到它的分類組。",
+      "what": "分類組",
+      "edit": "編輯分類組",
+      "moveUp": "分類組上移",
+      "moveDown": "分類組下移",
+      "offNote": "這個分類組已停用：它的分類不會出現在任何下拉裡；已有記錄照常保留、照常查得到。",
+      "editTitle": "編輯分類組 · {name}",
+      "systemHelp": "系統分類組：可以改名，不能停用或刪除。",
+      "help": "分類組屬於一個業務模組，裡面的分類就是那個模組的分類，記錄照那個模組原來的流程走。",
+      "name": "分類組名稱",
+      "systemNameHint": "留空就顯示模組名稱。",
+      "namePlaceholder": "例如：機電材料",
+      "module": "關聯業務模組",
+      "moduleFixed": "建好後不能改模組。",
+      "moduleHint": "新分類組的分類會出現在這個模組的手機、後台和報表中心。",
+      "chooseModule": "選擇模組",
+      "active": "啟用",
+      "activeHint": "停用後它的分類不再供選擇，已有記錄不受影響。",
+      "armRemove": "允許刪除「{name}」",
+      "remove": "刪除分類組",
+      "all": "全部 · {name}"
+    },
+    "help": {
+      "title": "操作說明",
+      "intro": "分類組 → 分類 → 子分類，由專案管理員自己建立，不需要開發團隊。",
+      "group": {
+        "title": "新增分類組",
+        "body": "左邊按「新增分類組」，填名稱、選關聯的業務模組（材料、設備、整改 / EHS、環保材料出場、Progress Claim），儲存後馬上出現在左邊。"
+      },
+      "category": {
+        "title": "新增分類",
+        "body": "點左邊的分類組，右上角按「新增分類」。"
+      },
+      "sub": {
+        "title": "新增子分類",
+        "body": "在分類那一行按「+ 子分類」。材料的第二層是規格，在材料的編輯視窗裡設。只有兩層。"
+      },
+      "off": {
+        "title": "停用",
+        "body": "編輯分類或分類組，關掉「啟用」。停用後手機和後台都選不到；舊記錄照常保留，報表裡標「已停用」。"
+      },
+      "where": {
+        "title": "會出現在哪裡",
+        "body": "這個專案對應模組的手機拍照、後台列表的分類篩選、報表中心「選擇報表」的下拉。別的專案看不到。"
+      },
+      "other": {
+        "title": "固定的「其他」",
+        "body": "每個模組都有「其他」：可以改名，不能停用或刪除；選它時要填寫名稱。"
+      }
+    },
+    "subCategory": {
+      "add": "新增子分類",
+      "short": "子分類",
+      "offParent": "這個分類已停用，先啟用才能加子分類。",
+      "under": "在「{name}」下面新增子分類。",
+      "parent": "上級分類",
+      "parentHint": "不選就是分類；選了就是它的子分類。只有兩層。",
+      "isTop": "（這是分類）"
     }
   },
   "cloudServices": {
@@ -5695,7 +5759,14 @@
       "submissionMode": "提交方式",
       "submissionDirect": "直接提交",
       "submissionReview": "提交審核",
-      "submissionConsultant": "提交顧問審批"
+      "submissionConsultant": "提交顧問審批",
+      "submissionHq": "提交總部審批",
+      "submissionHint": {
+        "DIRECT": "提交即通過，不用驗收；後台會收到通知。",
+        "REVIEW": "由專案後台驗收。",
+        "CONSULTANT": "專案後台驗收後，同時放進顧問申請的「待整理現場資料」。",
+        "HQ": "由總部（和公司管理員）驗收，專案後台不能驗收。"
+      }
     },
     "direction": {
       "ENTRY": "進場",
@@ -5781,7 +5852,8 @@
           "registration_no": "車牌號碼",
           "category": "小類",
           "expiry": "到期日"
-        }
+        },
+        "headOffice": "這台設備的分類設為「提交總部審批」：由總部驗收。"
       },
       "oneMachineOnly": "只看這台設備的進退場",
       "newMachinePlateHelp": "有車牌就填；沒有可以留空。以前來過的設備會自動對上。",
@@ -6432,7 +6504,25 @@
       "generated_at": "生成時間",
       "block_count": "內容塊數",
       "updated_by": "最後修改人",
-      "updated_at": "最後更新"
+      "updated_at": "最後更新",
+      "task_type": "任務類型",
+      "assignee": "負責人",
+      "due_at": "期限",
+      "reviewed_at": "審核時間",
+      "material": "材料",
+      "quantity": "數量",
+      "returned_quantity": "實際退回",
+      "unit": "單位",
+      "supplier": "供應商",
+      "claim_no": "Claim 編號",
+      "claim_kind": "Claim 類型",
+      "subcontractor": "分包商",
+      "claim_period": "期數",
+      "amount": "金額",
+      "payment_state": "收款",
+      "item_count": "條數",
+      "submit_to": "提交給",
+      "applicant": "申請人"
     },
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
@@ -7813,7 +7903,10 @@
       "gate_pass_host_not_confirmed": "接待人還沒確認，不能放行。",
       "visitor_arrival_already_open": "這位訪客已經在門口等待確認。",
       "visitor_arrival_answered": "這位訪客已經處理過了。",
-      "visitor_arrival_not_host": "只有接待人或門禁管理人員可以確認。"
+      "visitor_arrival_not_host": "只有接待人或門禁管理人員可以確認。",
+      "review_by_head_office": "這個分類設為「提交總部審批」，由總部驗收。",
+      "sundry_claim_sent_elsewhere": "這筆雜費報銷交給另一邊審批，你不能批。",
+      "material_request_manager_first": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8760,7 +8853,8 @@
       "DISPOSAL": "工地清運",
       "WASTE_DISPATCH": "廢料訂單",
       "WASTE_OUTGOING": "環保材料出場",
-      "GATE_INCIDENT": "門崗拍照記錄"
+      "GATE_INCIDENT": "門崗拍照記錄",
+      "CLAIM": "Progress Claim"
     },
     "map": {
       "title": "項目分布地圖",
@@ -9924,10 +10018,17 @@
       "period": "期數",
       "project": "工地",
       "remarks": "備註",
-      "amount": "金額"
+      "amount": "金額",
+      "category": "Claim 分類",
+      "subcontractor": "分包商",
+      "description": "說明",
+      "otherName": "名稱"
     },
     "filter": {
-      "allKinds": "全部類型"
+      "allKinds": "全部類型",
+      "allCategories": "全部分類",
+      "noCategory": "未分類",
+      "allSubcontractors": "全部分包商"
     },
     "firstPage": "已經是第一頁。",
     "includePhotos": "包含照片",
@@ -9939,11 +10040,13 @@
     },
     "kind": {
       "MATERIAL_ON_SITE": "材料到場",
-      "PROGRESS": "工程進度"
+      "PROGRESS": "工程進度",
+      "GENERAL": "一般 Claim"
     },
     "kindHelp": {
       "MATERIAL_ON_SITE": "已驗收、並且帶交貨單的進場材料。",
-      "PROGRESS": "顧問已批准的申請：RFI、WIR、檢查申請、混凝土澆築、施工圖、材料報批。"
+      "PROGRESS": "顧問已批准的申請：RFI、WIR、檢查申請、混凝土澆築、施工圖、材料報批。",
+      "GENERAL": "人工、分包這類沒有記錄可勾的 Claim：寫說明、金額（選填），上傳資料。"
     },
     "lastPage": "已經是最後一頁。",
     "loading": "載入中……",
@@ -10009,7 +10112,23 @@
       "claimNo": "Claim 編號",
       "returned": "退回數",
       "confirmedAt": "確認時間"
-    }
+    },
+    "what": {
+      "categories": "Claim 分類",
+      "subcontractors": "分包商名單"
+    },
+    "noSubcontractor": "沒有分包商",
+    "conversation": "溝通",
+    "editDetails": "分類與分包商",
+    "categoryHint": "這期 Claim 屬於哪個分類，可以不選。",
+    "categoryHintGeneral": "一般 Claim 要選分類，例如 Manpower Claim。",
+    "addCategory": "新增分類",
+    "otherNameHint": "選了「其他」，寫這是什麼 Claim。",
+    "subcontractorHint": "從供應商名單裡標為「分包商」的公司選；沒有可以順手新增。",
+    "subcontractorSearch": "輸入名稱搜尋",
+    "descriptionHint": "這期 Claim 是什麼，例如「10 月人工」。",
+    "amountOptional": "選填，之後也可以填。",
+    "confirmBodyGeneral": "確認後這張一般 Claim 就算已 Claim，之後照常登記收款。"
   },
   "multiEngine": {
     "acceptItem": "接受",
@@ -12512,7 +12631,8 @@
       "armRejectHelp": "材料不符規格才打開。打開後才能填寫原因並退回。",
       "rejectedAtGate": "現場交接時已當場 Reject（雙方已簽名），不能再更改。",
       "archived": "這批材料已確認歸檔，只能查看，不能再驗收或退回。",
-      "failed": "驗收沒有成功，請重試。"
+      "failed": "驗收沒有成功，請重試。",
+      "headOffice": "這個分類設為「提交總部審批」：由總部驗收。"
     },
     "addPhoto": {
       "caption": "備註（可不填）",
@@ -15611,6 +15731,13 @@
       "description": "加入供應商名單後在這裡直接選上。其他資料之後可以在「供應商」頁面補。",
       "codeHint": "不能和別的供應商重複，例如 CLR-001",
       "save": "新增並選上"
+    },
+    "companyTypes": {
+      "label": "公司類型",
+      "hint": "可以兩者都是。Progress Claim 的分包商從標為「分包商」的公司選。",
+      "required": "至少選一種。",
+      "SUPPLIER": "供應商",
+      "SUBCONTRACTOR": "分包商"
     }
   },
   "support": {
@@ -16287,7 +16414,8 @@
       "unitRequired": "填了數量必須選擇單位。",
       "vehiclePlate": "車牌",
       "collectionAt": "希望收運時間",
-      "collectionAtHint": "你希望車什麼時候來。回收商可以另提一個時間，之後由你確認。"
+      "collectionAtHint": "你希望車什麼時候來。回收商可以另提一個時間，之後由你確認。",
+      "otherName": "名稱"
     },
     "filter": {
       "allCategories": "全部類別",
@@ -16807,7 +16935,8 @@
       "paidAt": "付款時間",
       "reviewNote": "審核備註",
       "rejectReason": "拒絕原因",
-      "payment": "付款"
+      "payment": "付款",
+      "submitTo": "提交給"
     },
     "status": {
       "SUBMITTED": "待處理",
@@ -16866,7 +16995,24 @@
       "addAttachment": "拍照／加一張",
       "location": "位置",
       "submit": "提交雜費報銷",
-      "failed": "提交沒有成功，請再試一次。"
+      "failed": "提交沒有成功，請再試一次。",
+      "submitTo": "交給誰審批",
+      "submitToHint": "預設交給專案經理。",
+      "submitToOption": {
+        "PROJECT": "交給專案經理",
+        "HQ": "交給總部"
+      }
+    },
+    "submitTo": {
+      "PROJECT": "專案經理",
+      "HQ": "總部",
+      "NONE": "未指定",
+      "all": "全部提交對象"
+    },
+    "sentTo": {
+      "PROJECT": "這筆交給專案經理審批，總部不能批。",
+      "HQ": "這筆交給總部審批，專案經理不能批。",
+      "NONE": "有審批權限的人都可以批。"
     }
   },
   "moduleHub": {
@@ -16893,7 +17039,10 @@
       "equipmentClass": "小類",
       "recycling": "環保材料出場分類",
       "documents": "文檔大分類",
-      "documentSubcategory": "子分類"
+      "documentSubcategory": "子分類",
+      "materialOutgoing": "材料分類",
+      "claims": "Claim 分類",
+      "subcategory": "子分類"
     },
     "consultantType": {
       "MATERIAL_APPROVAL": "材料申請",
@@ -16906,7 +17055,16 @@
     "progressMenu": {
       "dailyReport": "日報告",
       "pastDailyReports": "往日報告"
-    }
+    },
+    "groupModule": {
+      "MATERIAL": "材料分類",
+      "EQUIPMENT": "設備分類",
+      "EHS": "整改 / EHS 分類",
+      "RECYCLE": "環保材料出場分類",
+      "CLAIM": "Progress Claim 分類"
+    },
+    "inactive": "已停用",
+    "allOfGroup": "全部 · {name}"
   },
   "wasteClearance": {
     "title": "垃圾清運",
@@ -17032,7 +17190,10 @@
       "subject": "申請事項",
       "content": "申請內容",
       "specificationName": "規格名稱",
-      "materialOrSubject": "材料 / 申請事項"
+      "materialOrSubject": "材料 / 申請事項",
+      "stage": "進度",
+      "forwardHistory": "轉呈記錄",
+      "headOfficeReviewer": "總部審批人"
     },
     "action": {
       "view": "查看",
@@ -17045,7 +17206,8 @@
       "print": "列印",
       "exportPdf": "匯出 PDF",
       "raiseAgain": "新建申請",
-      "reassignToMe": "改派給我"
+      "reassignToMe": "改派給我",
+      "forward": "提交總部審批"
     },
     "empty": "暫無申請",
     "loading": "載入中…",
@@ -17111,13 +17273,15 @@
       "contentOrFile": "申請內容和上傳資料至少要有一樣。",
       "contentPlaceholder": "說明申請的內容、數量、時間等",
       "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超過 {limit} MB。",
-      "fileKindRefused": "{name} 不能上傳。請上傳照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。"
+      "fileKindRefused": "{name} 不能上傳。請上傳照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。",
+      "assignedReviewerManagerHint": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。"
     },
     "toast": {
       "submitted": "申請已提交。",
       "approved": "申請已批准。",
       "returned": "申請已退回並結束。",
-      "reassigned": "已改派給你，現在由你審批。"
+      "reassigned": "已改派給你，現在由你審批。",
+      "forwarded": "已轉呈總部。"
     },
     "capture": {
       "mine": "我的申請",
@@ -17166,7 +17330,12 @@
         "saved": "申請類型已儲存。",
         "removed": "申請類型已刪除。"
       }
-    }
+    },
+    "stage": {
+      "manager": "待專案經理確認"
+    },
+    "forwarded": "{by} 於 {at} 轉呈總部",
+    "managerHelp": "現場人員交給你的申請：確認後選總部審批人，按「提交總部審批」；不對就退回。"
   },
   "filePreview": {
     "unsupported": "{ext} 檔案不能在頁面裡預覽，請按「下載查看」。",

@@ -23,6 +23,7 @@ import { ManufacturerCell, hideEmptyManufacturerColumn } from "@/components/shar
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { CategoryOptionItems } from "@/components/shared/category-options";
 import {
   getReceipts,
   exportReceipts,
@@ -487,9 +488,8 @@ export function Receipts() {
               <SelectContent>
                 <SelectItem value={ALL_COLUMNS}>{t("receipts.allColumns")}</SelectItem>
                 <SelectItem value={UNFILED}>{t("receipts.unfiled")}</SelectItem>
-                {(categories.data?.results ?? []).map((row) => (
-                  <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
-                ))}
+                {/* 分类组 → 分类 (I11): a group, or one material. */}
+                <CategoryOptionItems rows={categories.data?.results ?? []} groupsSelectable />
               </SelectContent>
             </Select>
             <QueryFailedNote query={categories} what={t("receipts.what.columns")} />

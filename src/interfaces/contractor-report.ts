@@ -14,7 +14,12 @@ export type ContractorReportType =
   | "documents"
   // 工程进度's own reports (I8, ID24).
   | "daily_report"
-  | "progress_summary";
+  | "progress_summary"
+  // The four modules that had no report (I11, ID27).
+  | "field_tasks"
+  | "material_outgoing"
+  | "claims"
+  | "sundry_claims";
 
 export interface ContractorReportFilters {
   report_type: ContractorReportType;
@@ -36,6 +41,7 @@ export interface ContractorReportFilters {
   direction?: string;
   record_type?: string;
   counterparty?: string;
+  subcontractor?: string;
   plan?: string;
   target_type?: string;
 }
@@ -52,7 +58,9 @@ export type ReportFilterKey =
   | "record_type"
   | "counterparty"
   | "plan"
-  | "target_type";
+  | "target_type"
+  // 分包商 on the Progress Claim report (I10, ID7).
+  | "subcontractor";
 
 /**
  * One choice of a filter. `label` is a name (a person, a machine) or, for a
@@ -116,6 +124,10 @@ export interface ReportLevelRow {
   project_code: string;
   /** Whether hovering it opens another level. */
   has_children: boolean;
+  /** 「已停用」 beside a category that is off but still has records (I11). */
+  is_active?: boolean;
+  /** A system 分类组 with no name of its own: named by its module (I11). */
+  module?: string | null;
 }
 
 /** One row of 报表导出历史, and the file it keeps (`ArchivedReportFile`). */

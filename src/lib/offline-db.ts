@@ -333,6 +333,8 @@ export interface SundryClaimOfflineJob extends OfflineJobBase {
     project: string;
     amount: string;
     description: string;
+    /** 「交给项目经理」/「交给总部」 (I12); absent on a job queued before. */
+    submit_to?: "PROJECT" | "HQ";
     latitude?: string;
     longitude?: string;
     client_event_id: string;
@@ -354,6 +356,8 @@ export interface WasteOutgoingOfflineJob extends OfflineJobBase {
     device_id?: string;
     client_event_id: string;
     field_task?: string;
+    /** The fixed 「其他」's name (I10, ID43). */
+    other_name?: string;
     photos: StoredFile[];
   };
 }

@@ -189,7 +189,7 @@ export function WasteOutgoingWorkspace() {
 
   const options = useQuery({
     queryKey: ["waste-outgoing", "options"],
-    queryFn: getWasteOutgoingOptions,
+    queryFn: () => getWasteOutgoingOptions(),
   });
   const records = useQuery({
     queryKey: ["waste-outgoing", "records", list.query],
@@ -1069,6 +1069,8 @@ function RecordDialog({
   const t = useTranslations("wasteOutgoing");
   const [project, setProject] = useState("");
   const [category, setCategory] = useState("");
+  // 「其他」 (I10, ID43): what it is, typed.
+  const [otherName, setOtherName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
   const [note, setNote] = useState("");
@@ -1114,6 +1116,9 @@ function RecordDialog({
         quantity: quantity || undefined,
         unit: unit || undefined,
         note: note || undefined,
+        ...(categories.find((row) => row.id === category)?.is_other
+          ? { other_name: otherName.trim() }
+          : {}),
         // Only an address somebody changed is sent as typed; the project's
         // own is what the server falls back to, and it records which it was.
         pickup_address:
@@ -1158,6 +1163,7 @@ function RecordDialog({
               <SelectContent>
                 {categories.map((row) => (
                   <SelectItem key={row.id} value={row.id}>
+                    {row.parent_name ? `${row.parent_name} › ` : ""}
                     {row.label}
                   </SelectItem>
                 ))}
@@ -1165,6 +1171,11 @@ function RecordDialog({
             </Select>
             <QueryFailedNote query={categoriesState} what={t("what.categories")} />
           </FieldWrapper>
+          {categories.find((row) => row.id === category)?.is_other && (
+            <FieldWrapper label={t("field.otherName")} required>
+              <Input value={otherName} onChange={(event) => setOtherName(event.target.value)} />
+            </FieldWrapper>
+          )}
           <div className="grid gap-4 sm:grid-cols-2">
             <FieldWrapper
               label={t("field.quantity")}
@@ -1257,6 +1268,9 @@ function RecordDialog({
             requires={[
               [project, t("field.project")],
               [category, t("field.category")],
+              ...(categories.find((row) => row.id === category)?.is_other
+                ? ([[otherName.trim(), t("field.otherName")]] as [string, string][])
+                : []),
               [!quantityIncomplete, t("field.unit")],
             ]}
             disabled={save.isPending}

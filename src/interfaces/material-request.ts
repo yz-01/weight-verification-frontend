@@ -38,7 +38,8 @@ export interface MaterialRequestAttachment {
  */
 export interface MaterialRequestDecision {
   id: string;
-  decision: Exclude<MaterialRequestStatus, "SUBMITTED"> | "REASSIGNED";
+  /** ``FORWARDED``: the project manager sent it on to head office (I12, ID29). */
+  decision: Exclude<MaterialRequestStatus, "SUBMITTED"> | "REASSIGNED" | "FORWARDED";
   note: string;
   /** On `REASSIGNED`: who took it over. */
   decided_by_name: string | null;
@@ -129,6 +130,8 @@ export interface MaterialRequest extends RecordedBy {
   /** 「提交给」 (D2): the one person who approves it. Empty on requests from before D2. */
   assigned_reviewer: string | null;
   assigned_reviewer_name: string | null;
+  /** 「待项目经理确认」 (I12, ID29): with the project manager, not head office yet. */
+  awaiting_manager?: boolean;
   decided_by_name: string | null;
   decided_at: string | null;
   decision_note: string;
@@ -179,6 +182,11 @@ export interface MaterialRequestDraft {
 export interface MaterialRequestReviewerOption {
   id: string;
   full_name: string;
+  /**
+   * Who the list is (I12, ID29): ``MANAGER`` - a site staff's request goes
+   * to the project manager first; ``HEAD_OFFICE`` - straight to head office.
+   */
+  stage?: "MANAGER" | "HEAD_OFFICE";
 }
 
 /**

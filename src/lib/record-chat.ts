@@ -33,6 +33,8 @@ export const DISCUSSABLE_KINDS: readonly ChatRecordKind[] = [
   // 总部任务 (C17): head office and the assignee talk on the task itself.
   // Not an archive-queue kind; a task closes by being confirmed (B18).
   "FIELD_TASK",
+  // Progress Claim (I10, ID50): the office talks and keeps papers on it.
+  "CLAIM",
 ];
 
 /**
@@ -44,14 +46,16 @@ export type ChatRecordKind =
   | ArchiveRecordKind
   | "MATERIAL_REQUEST"
   | "GATE_INCIDENT"
-  | "FIELD_TASK";
+  | "FIELD_TASK"
+  | "CLAIM";
 
 /** The chat kinds that are also archive-queue kinds. */
 const ARCHIVE_CHAT_KINDS = DISCUSSABLE_KINDS.filter(
   (kind): kind is ArchiveRecordKind =>
     kind !== "MATERIAL_REQUEST" &&
     kind !== "GATE_INCIDENT" &&
-    kind !== "FIELD_TASK",
+    kind !== "FIELD_TASK" &&
+    kind !== "CLAIM",
 );
 
 /**

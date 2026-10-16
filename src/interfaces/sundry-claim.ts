@@ -42,6 +42,10 @@ export interface SundryClaim extends RecordedBy {
   project_code: string;
   amount: string;
   description: string;
+  /** 提交给 (I12, ID8): blank on a claim made before the choice existed. */
+  submit_to?: "PROJECT" | "HQ" | "";
+  /** Whether the reader is on the side it was sent to (I12). */
+  can_review?: boolean;
   state: SundryClaimState;
   /** RECEIVED means 已付款 for a sundry claim (the applicant received it). */
   payment_state: "NOT_RECEIVED" | "PARTIAL" | "RECEIVED";

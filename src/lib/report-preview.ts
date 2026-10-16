@@ -125,6 +125,11 @@ const STATUS_NAMESPACE: Partial<Record<ContractorReportType, string>> = {
   safety: "safetyRectification.status",
   consultant: "consultantWorkflow.status",
   documents: "documents.status",
+  // I11 (ID27): the four new reports, worded as their own pages word them.
+  field_tasks: "contractorOps.taskStatus",
+  material_outgoing: "contractorOps.outgoingStatus",
+  claims: "claims.state",
+  sundry_claims: "sundryClaim.status",
 };
 
 /** Columns that hold a code, wherever they appear. */
@@ -136,6 +141,10 @@ const COLUMN_NAMESPACE: Record<string, string> = {
   ocr_status: "siteDisposal.ocr",
   target_type: "contractorReports.value.targetType",
   period: "businessTargets.period",
+  task_type: "contractorOps.taskType",
+  claim_kind: "claims.kind",
+  payment_state: "claims.payment",
+  submit_to: "sundryClaim.submitTo",
 };
 
 /** 记录类型 of the recycling report: the two tabs of 清运与回收. */

@@ -99,6 +99,7 @@ import {
 } from "@/services/offline-sync.service";
 import { DrillNote } from "@/components/shared/drill-note";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { CategoryOptionItems } from "@/components/shared/category-options";
 import { getProjectAssignments } from "@/services/contractor.service";
 import {
   assignSafetyRectification,
@@ -666,9 +667,9 @@ export function Safety({
               <SelectItem value="all">{t("safety.filter.allCategories")}</SelectItem>
               {/* Reported from the phone without one (ID12). */}
               <SelectItem value="none">{t("taskFlow.ehs.unsorted")}</SelectItem>
-              {(filterCategories.data?.results ?? []).map((category) => (
-                <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-              ))}
+              {/* 分类组 → 分类 → 子分类 (I11): a group, a category with its
+                  sub-categories, or one sub-category. */}
+              <CategoryOptionItems rows={filterCategories.data?.results ?? []} groupsSelectable />
             </SelectContent>
           </Select>
         )}
@@ -1494,7 +1495,8 @@ function SafetyCreateDialog({
                 setDraft((value) => ({
                   ...value,
                   category: categoryId,
-                  title: titleForColumn(value.title, offeredNames, next?.name ?? ""),
+                  // 「其他」 (ID5): the item's own name is typed, not 「其他」.
+                  title: titleForColumn(value.title, offeredNames, next?.is_other ? "" : (next?.name ?? "")),
                 }));
               }}
               disabled={!draft.project}
@@ -1503,11 +1505,7 @@ function SafetyCreateDialog({
                 <SelectValue placeholder={t("safety.filter.selectCategory")} />
               </SelectTrigger>
               <SelectContent>
-                {offeredCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
+                <CategoryOptionItems rows={offeredCategories} />
               </SelectContent>
             </Select>
             {/* An empty picker that does not say why it is empty is the shell
@@ -1777,9 +1775,7 @@ function HazardCategoryControl({ incident }: { incident: SafetyIncident }) {
             <SelectValue placeholder={t("taskFlow.ehs.unsorted")} />
           </SelectTrigger>
           <SelectContent>
-            {offered.map((category) => (
-              <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-            ))}
+            <CategoryOptionItems rows={offered} />
           </SelectContent>
         </Select>
         <Button

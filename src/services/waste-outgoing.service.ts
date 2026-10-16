@@ -19,8 +19,9 @@ export const getWasteCategories = (query: ListQuery = {}) =>
   api.list<WasteCategory>("/api/waste-categories/get_categories/", query);
 
 /** Categories plus the unit list, for the record form's pickers. */
-export const getWasteOutgoingOptions = () =>
-  api.get<WasteOutgoingOptions>("/api/waste-categories/get_options/");
+/** The pickers' categories: the company list and, with a project, its own groups' (I11). */
+export const getWasteOutgoingOptions = (project?: string) =>
+  api.get<WasteOutgoingOptions>("/api/waste-categories/get_options/", project ? { project } : {});
 
 export const createWasteCategory = async (payload: {
   code: string;
@@ -28,6 +29,10 @@ export const createWasteCategory = async (payload: {
   dispatch_type: string;
   description?: string;
   sort_order?: number;
+  /** A project's own 分类组 (I11); left out - the company-wide list. */
+  group?: string;
+  /** Two levels (I11): the category it goes under. */
+  parent?: string;
 }) => {
   const row = await api.post<WasteCategory>(
     "/api/waste-categories/create_category/",
@@ -121,6 +126,8 @@ export async function createWasteOutgoingRecord(input: {
   client_event_id?: string;
   field_task?: string;
   pickup_address?: string;
+  /** What it is, when the category is the fixed 「其他」 (I10, ID43). */
+  other_name?: string;
   photos: File[];
 }): Promise<WasteOutgoingRecord> {
   const data = new FormData();

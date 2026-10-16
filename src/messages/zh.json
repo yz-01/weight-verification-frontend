@@ -3065,7 +3065,7 @@
       "SITE_RECORD": "现场记录",
       "SITE_EQUIPMENT": "机械设备",
       "DOCUMENT": "文件",
-      "CLAIM": "进度 Claim",
+      "CLAIM": "Progress Claim",
       "MATERIAL_RETURN": "材料退场",
       "PERMIT": "施工准证",
       "GATE_INCIDENT": "门岗记录",
@@ -3978,19 +3978,22 @@
       "material": "材料分类",
       "equipment": "设备分类",
       "ehs": "整改 / EHS 分类",
-      "recycle": "环保材料出场分类"
+      "recycle": "环保材料出场分类",
+      "claim": "Progress Claim 分类"
     },
     "moduleHelp": {
       "material": "收货与它的金额归在这里。按项目各一份。",
       "equipment": "吊车、挖掘机、发电机等。每个项目一份，由本公司维护。",
       "ehs": "每个项目默认有安全部整改、施工部整改、顾问要求整改、施工准证申请，可以新增、改名、停用；没有记录的分类才能删除。施工准证申请是系统分类，只能改名。",
-      "recycle": "现场外运的可回收废料：废铁、铜、铝、电缆。全公司一份；系统预置的可停用、不可删除。"
+      "recycle": "现场外运的可回收废料：废铁、铜、铝、电缆。全公司一份；系统预置的可停用、不可删除。",
+      "claim": "每个项目自己的 Claim 分类：Sundry、Manpower、Subcontractor Claim 只是例子，可以改名、停用、删除；Other Claim 固定保留。"
     },
     "moduleSource": {
       "material": "记录来自：现场材料进场、后台材料进场台账。现场工作人员可以填。",
       "equipment": "记录来自：后台「设备登记」。设备档案在办公室建，手机只记进出。",
       "ehs": "记录来自：整改上报（现场与后台都算）。现场工作人员可以填。",
-      "recycle": "记录来自：后台的可回收废料外运。现场工作人员不填这里。"
+      "recycle": "记录来自：后台的可回收废料外运。现场工作人员不填这里。",
+      "claim": "记录来自：后台 Progress Claim（Multi Engine）。"
     },
     "modules": "模块",
     "scope": {
@@ -4111,6 +4114,67 @@
       "newPlaceholder": "例如：Y50mm",
       "add": "新增规格",
       "afterSave": "保存材料后，打开它就可以加规格和单位。"
+    },
+    "groups": {
+      "create": "新增分类组",
+      "chooseProject": "先选项目，才能看到它的分类组。",
+      "what": "分类组",
+      "edit": "编辑分类组",
+      "moveUp": "分类组上移",
+      "moveDown": "分类组下移",
+      "offNote": "这个分类组已停用：它的分类不会出现在任何下拉里；已有记录照常保留、照常查得到。",
+      "editTitle": "编辑分类组 · {name}",
+      "systemHelp": "系统分类组：可以改名，不能停用或删除。",
+      "help": "分类组属于一个业务模块，里面的分类就是那个模块的分类，记录照那个模块原来的流程走。",
+      "name": "分类组名称",
+      "systemNameHint": "留空就显示模块名称。",
+      "namePlaceholder": "例如：机电材料",
+      "module": "关联业务模块",
+      "moduleFixed": "建好后不能改模块。",
+      "moduleHint": "新分类组的分类会出现在这个模块的手机、后台和报表中心。",
+      "chooseModule": "选择模块",
+      "active": "启用",
+      "activeHint": "停用后它的分类不再供选择，已有记录不受影响。",
+      "armRemove": "允许删除「{name}」",
+      "remove": "删除分类组",
+      "all": "全部 · {name}"
+    },
+    "help": {
+      "title": "操作说明",
+      "intro": "分类组 → 分类 → 子分类，由项目管理员自己建立，不需要开发团队。",
+      "group": {
+        "title": "新增分类组",
+        "body": "左边按「新增分类组」，填名称、选关联的业务模块（材料、设备、整改 / EHS、环保材料出场、Progress Claim），保存后马上出现在左边。"
+      },
+      "category": {
+        "title": "新增分类",
+        "body": "点左边的分类组，右上角按「新增分类」。"
+      },
+      "sub": {
+        "title": "新增子分类",
+        "body": "在分类那一行按「+ 子分类」。材料的第二层是规格，在材料的编辑窗口里设。只有两层。"
+      },
+      "off": {
+        "title": "停用",
+        "body": "编辑分类或分类组，关掉「启用」。停用后手机和后台都选不到；旧记录照常保留，报表里标「已停用」。"
+      },
+      "where": {
+        "title": "会出现在哪里",
+        "body": "这个项目对应模块的手机拍照、后台列表的分类筛选、报表中心「选择报表」的下拉。别的项目看不到。"
+      },
+      "other": {
+        "title": "固定的「其他」",
+        "body": "每个模块都有「其他」：可以改名，不能停用或删除；选它时要填写名称。"
+      }
+    },
+    "subCategory": {
+      "add": "新增子分类",
+      "short": "子分类",
+      "offParent": "这个分类已停用，先启用才能加子分类。",
+      "under": "在「{name}」下面新增子分类。",
+      "parent": "上级分类",
+      "parentHint": "不选就是分类；选了就是它的子分类。只有两层。",
+      "isTop": "（这是分类）"
     }
   },
   "cloudServices": {
@@ -5695,7 +5759,14 @@
       "submissionMode": "提交方式",
       "submissionDirect": "直接提交",
       "submissionReview": "提交审核",
-      "submissionConsultant": "提交顾问审批"
+      "submissionConsultant": "提交顾问审批",
+      "submissionHq": "提交总部审批",
+      "submissionHint": {
+        "DIRECT": "提交即通过，不用验收；后台会收到通知。",
+        "REVIEW": "由项目后台验收。",
+        "CONSULTANT": "项目后台验收后，同时放进顾问申请的「待整理现场资料」。",
+        "HQ": "由总部（和公司管理员）验收，项目后台不能验收。"
+      }
     },
     "direction": {
       "ENTRY": "进场",
@@ -5781,7 +5852,8 @@
           "registration_no": "车牌号码",
           "category": "小类",
           "expiry": "到期日"
-        }
+        },
+        "headOffice": "这台设备的分类设为「提交总部审批」：由总部验收。"
       },
       "oneMachineOnly": "只看这台设备的进退场",
       "newMachinePlateHelp": "有车牌就填；没有可以留空。以前来过的设备会自动对上。",
@@ -6432,7 +6504,25 @@
       "generated_at": "生成时间",
       "block_count": "内容块数",
       "updated_by": "最后修改人",
-      "updated_at": "最后更新"
+      "updated_at": "最后更新",
+      "task_type": "任务类型",
+      "assignee": "负责人",
+      "due_at": "期限",
+      "reviewed_at": "审核时间",
+      "material": "材料",
+      "quantity": "数量",
+      "returned_quantity": "实际退回",
+      "unit": "单位",
+      "supplier": "供应商",
+      "claim_no": "Claim 编号",
+      "claim_kind": "Claim 类型",
+      "subcontractor": "分包商",
+      "claim_period": "期数",
+      "amount": "金额",
+      "payment_state": "收款",
+      "item_count": "条数",
+      "submit_to": "提交给",
+      "applicant": "申请人"
     },
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
@@ -7813,7 +7903,10 @@
       "gate_pass_host_not_confirmed": "接待人还没确认，不能放行。",
       "visitor_arrival_already_open": "这位访客已经在门口等待确认。",
       "visitor_arrival_answered": "这位访客已经处理过了。",
-      "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。"
+      "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。",
+      "review_by_head_office": "这个分类设为「提交总部审批」，由总部验收。",
+      "sundry_claim_sent_elsewhere": "这笔杂费报销交给另一边审批，你不能批。",
+      "material_request_manager_first": "现场人员的申请先交项目经理，项目经理确认后再转给总部。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8760,7 +8853,8 @@
       "DISPOSAL": "工地清运",
       "WASTE_DISPATCH": "废料订单",
       "WASTE_OUTGOING": "环保材料出场",
-      "GATE_INCIDENT": "门岗拍照记录"
+      "GATE_INCIDENT": "门岗拍照记录",
+      "CLAIM": "Progress Claim"
     },
     "map": {
       "title": "项目分布地图",
@@ -9924,10 +10018,17 @@
       "period": "期数",
       "project": "工地",
       "remarks": "备注",
-      "amount": "金额"
+      "amount": "金额",
+      "category": "Claim 分类",
+      "subcontractor": "分包商",
+      "description": "说明",
+      "otherName": "名称"
     },
     "filter": {
-      "allKinds": "全部类型"
+      "allKinds": "全部类型",
+      "allCategories": "全部分类",
+      "noCategory": "未分类",
+      "allSubcontractors": "全部分包商"
     },
     "firstPage": "已经是第一页。",
     "includePhotos": "包含照片",
@@ -9939,11 +10040,13 @@
     },
     "kind": {
       "MATERIAL_ON_SITE": "材料到场",
-      "PROGRESS": "工程进度"
+      "PROGRESS": "工程进度",
+      "GENERAL": "一般 Claim"
     },
     "kindHelp": {
       "MATERIAL_ON_SITE": "已验收、并且带交货单的进场材料。",
-      "PROGRESS": "顾问已批准的申请：RFI、WIR、检查申请、混凝土浇筑、施工图、材料报批。"
+      "PROGRESS": "顾问已批准的申请：RFI、WIR、检查申请、混凝土浇筑、施工图、材料报批。",
+      "GENERAL": "人工、分包这类没有记录可勾的 Claim：写说明、金额（选填），上传资料。"
     },
     "lastPage": "已经是最后一页。",
     "loading": "加载中……",
@@ -10009,7 +10112,23 @@
       "claimNo": "Claim 编号",
       "returned": "退回数",
       "confirmedAt": "确认时间"
-    }
+    },
+    "what": {
+      "categories": "Claim 分类",
+      "subcontractors": "分包商名单"
+    },
+    "noSubcontractor": "没有分包商",
+    "conversation": "沟通",
+    "editDetails": "分类与分包商",
+    "categoryHint": "这期 Claim 属于哪个分类，可以不选。",
+    "categoryHintGeneral": "一般 Claim 要选分类，例如 Manpower Claim。",
+    "addCategory": "新增分类",
+    "otherNameHint": "选了「其他」，写这是什么 Claim。",
+    "subcontractorHint": "从供应商名单里标为「分包商」的公司选；没有可以顺手新增。",
+    "subcontractorSearch": "输入名称搜索",
+    "descriptionHint": "这期 Claim 是什么，例如「10 月人工」。",
+    "amountOptional": "选填，之后也可以填。",
+    "confirmBodyGeneral": "确认后这张一般 Claim 就算已 Claim，之后照常登记收款。"
   },
   "multiEngine": {
     "acceptItem": "接受",
@@ -12512,7 +12631,8 @@
       "armRejectHelp": "材料不符规格才打开。打开后才能填写原因并退回。",
       "rejectedAtGate": "现场交接时已当场 Reject（双方已签名），不能再更改。",
       "archived": "这批材料已确认归档，只能查看，不能再验收或退回。",
-      "failed": "验收没有成功，请重试。"
+      "failed": "验收没有成功，请重试。",
+      "headOffice": "这个分类设为「提交总部审批」：由总部验收。"
     },
     "addPhoto": {
       "caption": "备注（可不填）",
@@ -15611,6 +15731,13 @@
       "description": "加入供应商名单后在这里直接选上。其他资料之后可以在「供应商」页面补。",
       "codeHint": "不能和别的供应商重复，例如 CLR-001",
       "save": "新增并选上"
+    },
+    "companyTypes": {
+      "label": "公司类型",
+      "hint": "可以两者都是。Progress Claim 的分包商从标为「分包商」的公司选。",
+      "required": "至少选一种。",
+      "SUPPLIER": "供应商",
+      "SUBCONTRACTOR": "分包商"
     }
   },
   "support": {
@@ -16287,7 +16414,8 @@
       "unitRequired": "填了数量必须选择单位。",
       "vehiclePlate": "车牌",
       "collectionAt": "希望收运时间",
-      "collectionAtHint": "你希望车什么时候来。回收商可以另提一个时间，之后由你确认。"
+      "collectionAtHint": "你希望车什么时候来。回收商可以另提一个时间，之后由你确认。",
+      "otherName": "名称"
     },
     "filter": {
       "allCategories": "全部类别",
@@ -16807,7 +16935,8 @@
       "paidAt": "付款时间",
       "reviewNote": "审核备注",
       "rejectReason": "拒绝原因",
-      "payment": "付款"
+      "payment": "付款",
+      "submitTo": "提交给"
     },
     "status": {
       "SUBMITTED": "待处理",
@@ -16866,7 +16995,24 @@
       "addAttachment": "拍照／加一张",
       "location": "位置",
       "submit": "提交杂费报销",
-      "failed": "提交没有成功，请再试一次。"
+      "failed": "提交没有成功，请再试一次。",
+      "submitTo": "交给谁审批",
+      "submitToHint": "默认交给项目经理。",
+      "submitToOption": {
+        "PROJECT": "交给项目经理",
+        "HQ": "交给总部"
+      }
+    },
+    "submitTo": {
+      "PROJECT": "项目经理",
+      "HQ": "总部",
+      "NONE": "未指定",
+      "all": "全部提交对象"
+    },
+    "sentTo": {
+      "PROJECT": "这笔交给项目经理审批，总部不能批。",
+      "HQ": "这笔交给总部审批，项目经理不能批。",
+      "NONE": "有审批权限的人都可以批。"
     }
   },
   "moduleHub": {
@@ -16893,7 +17039,10 @@
       "equipmentClass": "小类",
       "recycling": "环保材料出场分类",
       "documents": "文档大分类",
-      "documentSubcategory": "子分类"
+      "documentSubcategory": "子分类",
+      "materialOutgoing": "材料分类",
+      "claims": "Claim 分类",
+      "subcategory": "子分类"
     },
     "consultantType": {
       "MATERIAL_APPROVAL": "材料申请",
@@ -16906,7 +17055,16 @@
     "progressMenu": {
       "dailyReport": "日报告",
       "pastDailyReports": "往日报告"
-    }
+    },
+    "groupModule": {
+      "MATERIAL": "材料分类",
+      "EQUIPMENT": "设备分类",
+      "EHS": "整改 / EHS 分类",
+      "RECYCLE": "环保材料出场分类",
+      "CLAIM": "Progress Claim 分类"
+    },
+    "inactive": "已停用",
+    "allOfGroup": "全部 · {name}"
   },
   "wasteClearance": {
     "title": "垃圾清运",
@@ -17032,7 +17190,10 @@
       "subject": "申请事项",
       "content": "申请内容",
       "specificationName": "规格名称",
-      "materialOrSubject": "材料 / 申请事项"
+      "materialOrSubject": "材料 / 申请事项",
+      "stage": "进度",
+      "forwardHistory": "转呈记录",
+      "headOfficeReviewer": "总部审批人"
     },
     "action": {
       "view": "查看",
@@ -17045,7 +17206,8 @@
       "print": "打印",
       "exportPdf": "导出 PDF",
       "raiseAgain": "新建申请",
-      "reassignToMe": "改派给我"
+      "reassignToMe": "改派给我",
+      "forward": "提交总部审批"
     },
     "empty": "暂无申请",
     "loading": "加载中…",
@@ -17111,13 +17273,15 @@
       "contentOrFile": "申请内容和上传资料至少要有一样。",
       "contentPlaceholder": "说明申请的内容、数量、时间等",
       "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超过 {limit} MB。",
-      "fileKindRefused": "{name} 不能上传。请上传照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。"
+      "fileKindRefused": "{name} 不能上传。请上传照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。",
+      "assignedReviewerManagerHint": "现场人员的申请先交项目经理，项目经理确认后再转给总部。"
     },
     "toast": {
       "submitted": "申请已提交。",
       "approved": "申请已批准。",
       "returned": "申请已退回并结束。",
-      "reassigned": "已改派给你，现在由你审批。"
+      "reassigned": "已改派给你，现在由你审批。",
+      "forwarded": "已转呈总部。"
     },
     "capture": {
       "mine": "我的申请",
@@ -17166,7 +17330,12 @@
         "saved": "申请类型已保存。",
         "removed": "申请类型已删除。"
       }
-    }
+    },
+    "stage": {
+      "manager": "待项目经理确认"
+    },
+    "forwarded": "{by} 于 {at} 转呈总部",
+    "managerHelp": "现场人员交给你的申请：确认后选总部审批人，按「提交总部审批」；不对就退回。"
   },
   "filePreview": {
     "unsupported": "{ext} 文件不能在页面里预览，请按「下载查看」。",
