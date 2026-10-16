@@ -18386,6 +18386,7 @@
       "material_target_write": "Set, change or remove a material target",
       "category_budget": "Change a category budget",
       "receipt_correct_quantity_price": "Correct a delivery's quantity or unit price",
+      "record_correct": "Correct a record",
       "hazard_create": "Raise an EHS item",
       "hazard_verify": "Verify an EHS rectification",
       "material_exit_approve": "Approve a material exit",
