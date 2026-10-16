@@ -37,6 +37,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { FieldWrapper } from "@/components/shared/page-primitives";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -470,7 +471,7 @@ function AttachmentEditDialog({
             {attachment.original_name}
           </p>
           <FieldWrapper label={t("draftEdit.replaceFile")} hint={t("draftEdit.replaceFileHint")}>
-            <Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+            <AttachmentPicker files={file ? [file] : []} onChange={(next) => setFile(next[0] ?? null)} rule={{ multiple: false }} />
           </FieldWrapper>
           <FieldWrapper label={t("attachment.category")}>
             <Select value={category} onValueChange={setCategory}>

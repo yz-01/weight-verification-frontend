@@ -23,6 +23,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
   FieldWrapper,
@@ -1142,6 +1143,8 @@ function PassDetail({
           />
         </div>
         <CredentialsPanel pass={row} />
+        {/* ID photo, permit and related papers, kept with who and when (I3). */}
+        <RecordAttachmentsPanel kind="GATE_PASS" recordId={row.id} />
 
         <h3 className="mt-2 font-semibold">{t("access.timeline")}</h3>
         {!row.events.length ? (

@@ -1,3 +1,8 @@
+import type { ChatRecordKind } from "@/lib/record-chat";
+
+/** Records that take the general attachment slot: every chat kind, plus an approval and a gate pass (I3). */
+export type AttachableKind = ChatRecordKind | "APPROVAL" | "GATE_PASS";
+
 /** One file in a record's general attachment slot (B28, E10). */
 export interface RecordAttachment {
   id: string;

@@ -51,6 +51,12 @@ interface FieldCameraProps {
    */
   previewUrl?: string;
   facingMode?: FacingMode;
+  /**
+   * "button" draws a plain button instead of the photo tile, for a screen
+   * that offers the camera beside other ways of adding a file (the desktop
+   * attachment picker, I3). The dialog and the camera handling are the same.
+   */
+  trigger?: "tile" | "button";
   disabled?: boolean;
   className?: string;
   onCapture: (file: File) => void;
@@ -63,6 +69,7 @@ export function FieldCamera({
   file,
   previewUrl: storedPreviewUrl,
   facingMode = "environment",
+  trigger = "tile",
   disabled = false,
   className = "",
   onCapture: handOver,
@@ -206,6 +213,21 @@ export function FieldCamera({
 
   return (
     <>
+      {trigger === "button" ? (
+        <Button
+          type="button"
+          variant="outline"
+          className={className}
+          disabled={disabled}
+          onClick={() => {
+            setFacing(facingMode);
+            setOpen(true);
+          }}
+        >
+          <Camera />
+          {label}
+        </Button>
+      ) : (
       <div className={`relative ${className}`}>
         <button
           type="button"
@@ -263,6 +285,7 @@ export function FieldCamera({
           </Button>
         ) : null}
       </div>
+      )}
 
       <Dialog
         open={open}

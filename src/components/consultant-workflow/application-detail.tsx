@@ -34,6 +34,7 @@ import {
   RelatedRecordRemove,
   RemoveSwitch,
 } from "@/components/consultant-workflow/application-draft-edit";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import {
   ApplicationFormCard,
   printPdf,
@@ -41,7 +42,6 @@ import {
 import {
   ApplicationConsultantFormPanel,
   FORM_FILE_ACCEPT,
-  isFormFile,
   signingChoices,
   signingNeeds,
   type Signing,
@@ -1132,7 +1132,7 @@ function AttachmentDialog({ application, onClose, onSaved }: { application: Cons
   const documents = useQuery({ queryKey: ["application-document-candidates", application.project, librarySearch], queryFn: () => getApplicationDocumentCandidates(application.project, librarySearch || undefined), enabled: libraryOpen });
   const save = useMutation({ mutationFn: () => addApplicationAttachment(application.id, file as File, category, note), onSuccess: onSaved });
   const link = useMutation({ mutationFn: (version: string) => linkApplicationDocumentAttachment(application.id, version, category, note), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><Button type="button" variant="outline" onClick={() => setLibraryOpen((value) => !value)}><ClipboardCheck />{t("attachment.fromArchive")}</Button>{libraryOpen && <div className="space-y-2 rounded-lg border p-3"><Input placeholder={t("attachment.searchArchive")} value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} />{documents.isLoading ? <Loader2 className="animate-spin" /> : documents.isError ? <LoadFailed what={t("what.archiveDocuments")} onRetry={() => documents.refetch()} /> : <div className="max-h-56 space-y-2 overflow-y-auto">{(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => <button type="button" key={doc.id} className="flex w-full items-center justify-between rounded border p-2 text-left hover:bg-muted/30" onClick={() => doc.latest_version && link.mutate(doc.latest_version.id)} disabled={link.isPending}><span className="min-w-0"><span className="block truncate font-medium">{doc.document_no} · {doc.title}</span><span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span></span><ExternalLink className="size-4 shrink-0" /></button>)}{!documents.data?.results?.length && <Empty text={t("attachment.noArchive")} />}</div>}</div>}<FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{ATTACHMENT_TYPES.map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><Button type="button" variant="outline" onClick={() => setLibraryOpen((value) => !value)}><ClipboardCheck />{t("attachment.fromArchive")}</Button>{libraryOpen && <div className="space-y-2 rounded-lg border p-3"><Input placeholder={t("attachment.searchArchive")} value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} />{documents.isLoading ? <Loader2 className="animate-spin" /> : documents.isError ? <LoadFailed what={t("what.archiveDocuments")} onRetry={() => documents.refetch()} /> : <div className="max-h-56 space-y-2 overflow-y-auto">{(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => <button type="button" key={doc.id} className="flex w-full items-center justify-between rounded border p-2 text-left hover:bg-muted/30" onClick={() => doc.latest_version && link.mutate(doc.latest_version.id)} disabled={link.isPending}><span className="min-w-0"><span className="block truncate font-medium">{doc.document_no} · {doc.title}</span><span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span></span><ExternalLink className="size-4 shrink-0" /></button>)}{!documents.data?.results?.length && <Empty text={t("attachment.noArchive")} />}</div>}</div>}<FieldWrapper label={t("attachment.file")} required><AttachmentPicker files={file ? [file] : []} onChange={(next) => setFile(next[0] ?? null)} rule={{ multiple: false }} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{ATTACHMENT_TYPES.map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function EvidenceDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
@@ -1189,7 +1189,6 @@ function DecisionDialog({ application, decision, hasCredential, onClose, onSaved
   const choices = signingChoices(Boolean(application.consultant_form), hasCredential);
   const [signing, setSigning] = useState<Signing>(choices[0]);
   const [signedForm, setSignedForm] = useState<File | null>(null);
-  const [wrongType, setWrongType] = useState(false);
   const needs = signingNeeds(signing, hasCredential);
   const save = useMutation({
     mutationFn: () =>
@@ -1246,16 +1245,12 @@ function DecisionDialog({ application, decision, hasCredential, onClose, onSaved
               required={needs.file}
               optional={needs.file ? undefined : common("optional")}
               hint={t("ownForm.signedFormHint")}
-              error={wrongType ? t("ownForm.fileTypeWrong") : undefined}
             >
-              <Input
-                type="file"
-                accept={FORM_FILE_ACCEPT}
-                onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null;
-                  setWrongType(Boolean(file) && !isFormFile(file?.name ?? ""));
-                  setSignedForm(file && isFormFile(file.name) ? file : null);
-                }}
+              <AttachmentPicker
+                files={signedForm ? [signedForm] : []}
+                onChange={(next) => setSignedForm(next[0] ?? null)}
+                rule={{ accept: FORM_FILE_ACCEPT, multiple: false }}
+                refusalText={(item) => (item.kind === "type" ? t("ownForm.fileTypeWrong") : undefined)}
               />
             </FieldWrapper>
           ) : null}

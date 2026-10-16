@@ -17068,6 +17068,7 @@
       "file": "凭证图片",
       "amount": "付款金额（可不填）",
       "lockHint": "按【上传付款凭证】后立即锁定，不能修改或删除；传错了请再追加一张正确的。",
+      "takePhoto": "用电脑摄像头拍照",
       "dropHint": "选文件、拖进来，或复制截图后按 Ctrl+V 贴上",
       "pickFromChat": "从聊天室挑选",
       "hideChat": "收起聊天室照片",
@@ -17524,6 +17525,22 @@
     "toast": {
       "added": "已上传 {count} 个附件"
     }
+  },
+  "attachmentPicker": {
+    "takePhoto": "拍照",
+    "chooseFile": "选择文件",
+    "dropHint": "可以用电脑摄像头拍照、选择文件、把文件拖到这里，或复制图片后在这里按 Ctrl+V 粘贴。",
+    "dropHintPhone": "拍照或选择文件。",
+    "limitsMany": "最多 {count} 个文件，每个不超过 {limit} MB。",
+    "limitsCount": "最多 {count} 个文件。",
+    "limitsOne": "一个文件，不超过 {limit} MB。",
+    "copiedNote": "粘贴或拖进来的图片（例如从 WhatsApp Web 复制的）没有拍摄时间和位置，系统记录的是您上传的时间。",
+    "none": "还没有选择文件。",
+    "remove": "移除",
+    "wrongType": "{name} 不能上传：这里不接受这种文件。",
+    "tooBig": "{name} 超过 {limit} MB。",
+    "tooMany": "一次最多上传 {limit} 个文件。",
+    "notAFile": "粘贴的内容不是文件或图片。请复制图片本身再试一次。"
   },
   "supplierDateFilter": {
     "allSuppliers": "全部供应商",

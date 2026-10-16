@@ -17068,6 +17068,7 @@
       "file": "Imej baucar",
       "amount": "Jumlah dibayar (pilihan)",
       "lockHint": "Dikunci sebaik sahaja anda tekan Muat naik baucar dan tidak boleh diubah atau dipadam; jika salah, tambah yang betul.",
+      "takePhoto": "Ambil foto dengan kamera komputer",
       "dropHint": "Pilih fail, seret ke sini, atau salin tangkapan skrin dan tekan Ctrl+V untuk menampal.",
       "pickFromChat": "Pilih daripada perbualan",
       "hideChat": "Sembunyikan foto perbualan",
@@ -17524,6 +17525,22 @@
     "toast": {
       "added": "{count} fail dilampirkan"
     }
+  },
+  "attachmentPicker": {
+    "takePhoto": "Ambil foto",
+    "chooseFile": "Pilih fail",
+    "dropHint": "Ambil foto dengan kamera komputer, pilih fail, seret fail ke sini, atau salin gambar dan tekan Ctrl+V di sini.",
+    "dropHintPhone": "Ambil foto atau pilih fail.",
+    "limitsMany": "Sehingga {count} fail, setiap satu tidak lebih {limit} MB.",
+    "limitsCount": "Sehingga {count} fail.",
+    "limitsOne": "Satu fail, tidak lebih {limit} MB.",
+    "copiedNote": "Gambar yang ditampal atau diseret masuk (contohnya disalin dari WhatsApp Web) tiada masa dan lokasi pengambilan. Sistem merekodkan masa anda memuat naiknya.",
+    "none": "Belum ada fail dipilih.",
+    "remove": "Buang",
+    "wrongType": "{name} tidak boleh dilampirkan: jenis fail ini tidak diterima di sini.",
+    "tooBig": "{name} melebihi {limit} MB.",
+    "tooMany": "Hantar paling banyak {limit} fail pada satu masa.",
+    "notAFile": "Yang anda tampal bukan fail atau gambar. Salin gambar itu sendiri dan cuba lagi."
   },
   "supplierDateFilter": {
     "allSuppliers": "Semua pembekal",
