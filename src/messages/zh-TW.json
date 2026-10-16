@@ -18300,6 +18300,7 @@
       "daily_report_export": "匯出日報告",
       "daily_report_delete": "刪除日報告",
       "schedule_write": "修改施工計劃",
+      "material_target_write": "設定、修改或刪除材料目標",
       "category_budget": "修改分類預算",
       "receipt_correct_quantity_price": "更正進場單的數量或單價",
       "hazard_create": "建立 EHS 事項",

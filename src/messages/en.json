@@ -18300,6 +18300,7 @@
       "daily_report_export": "Export a daily report",
       "daily_report_delete": "Remove a daily report",
       "schedule_write": "Change the construction schedule",
+      "material_target_write": "Set, change or remove a material target",
       "category_budget": "Change a category budget",
       "receipt_correct_quantity_price": "Correct a delivery's quantity or unit price",
       "hazard_create": "Raise an EHS item",
