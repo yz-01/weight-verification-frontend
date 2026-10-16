@@ -14,6 +14,7 @@ export type OfflineJobKind =
   | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
+  | "SAFETY_RECTIFICATION"
   | "CONSULTANT_SUBMISSION"
   | "CATEGORY_EVIDENCE"
   | "EQUIPMENT_HOURS_PHOTO"
@@ -411,6 +412,27 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
   };
 }
 
+/**
+ * 提交整改 from the phone (I37): the fix's photos and its PDF / Word / Excel
+ * files in ONE job under ONE `client_event_id`, so a retry after a lost
+ * answer is the same submission, not a second one.
+ */
+export interface SafetyRectificationOfflineJob extends OfflineJobBase {
+  kind: "SAFETY_RECTIFICATION";
+  payload: {
+    incidentId: string;
+    note: string;
+    captured_at: string;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    device_id?: string;
+    client_event_id: string;
+    images: StoredFile[];
+    attachments?: StoredFile[];
+  };
+}
+
 export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
   kind: "CONSULTANT_SUBMISSION";
   payload: {
@@ -562,6 +584,7 @@ export type OfflineJob =
   | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
+  | SafetyRectificationOfflineJob
   | ConsultantSubmissionOfflineJob
   | CategoryEvidenceOfflineJob
   | EquipmentHoursPhotoOfflineJob

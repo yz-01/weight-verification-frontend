@@ -441,6 +441,14 @@ export interface ConsultantDashboardData {
   recent_decisions: ConsultantDashboardRow[];
 }
 
+/** What the project's site evidence can be filtered by, each with its count (I40). */
+export interface EvidenceFilterOptions {
+  modules: { value: string; count: number }[];
+  kinds: { value: string; count: number }[];
+  categories: { value: string; count: number; subcategories: { value: string; count: number }[] }[];
+  uploaders: { value: string; label: string; count: number }[];
+}
+
 export interface EvidenceCandidate {
   id: string;
   kind: string;

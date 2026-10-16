@@ -186,6 +186,8 @@ export async function submitSafetyRectification(
   id: string,
   payload: {
     images: File[];
+    /** PDF / Word / Excel with the fix (I37). */
+    attachments?: File[];
     note: string;
     captured_at: string;
     latitude?: string;
