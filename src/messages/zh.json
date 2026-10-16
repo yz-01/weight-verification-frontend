@@ -5906,7 +5906,14 @@
         "onSite": "在场",
         "total": "共有",
         "presenceAll": "全部在场状态",
-        "presence": { "on": "在场", "off": "不在场" }
+        "presence": {
+          "on": "在场",
+          "off": "不在场"
+        },
+        "supplierCount": "{count} 家",
+        "foldHint": "点这里收起",
+        "unfoldHint": "点这里展开",
+        "pickHint": "点一家供应商，下面的设备清单就只显示这家；再点一次取消。"
       },
       "newMachinePlateHelp": "有车牌就填；没有可以留空。以前来过的设备会自动对上。",
       "addClass": "新增小类",
@@ -18783,6 +18790,9 @@
       "user_change_role": "修改用户角色",
       "user_change_status": "停用或恢复账号",
       "consultant_review": "顾问审批签核"
-    }
+    },
+    "firstTitle": "第一次设定签核密码",
+    "firstBanner": "这是你第一次使用签核密码",
+    "firstHelp": "请先设一个只有你知道的六位数密码，再输入一次确认，最后填登录系统用的密码。设好后会直接继续刚才的操作；以后重要的后台操作都用这个密码确认。"
   }
 }

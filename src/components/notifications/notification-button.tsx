@@ -287,13 +287,16 @@ export function NotificationButton() {
         sideOffset={10}
         className="w-[min(25rem,calc(100vw-1.5rem))] gap-0 overflow-hidden border-primary/15 p-0 shadow-xl"
       >
-        <div className="flex items-center justify-between border-b bg-muted/35 px-4 py-3.5">
-          <div className="flex min-w-0 items-center gap-3">
+        {/* Two rows (Lucas 10/17): the title and its counts get the whole
+            width, one character a line no more; the buttons sit under them. */}
+        <div className="flex flex-col gap-2.5 border-b bg-muted/35 px-4 py-3.5">
+          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/12 text-primary">
               <Bell className="size-4" />
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-semibold">
+              <p className="text-sm font-semibold whitespace-nowrap">
                 {t("notifications.title")}
               </p>
               <p
@@ -326,6 +329,8 @@ export function NotificationButton() {
           >
             {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
           </Button>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
           <Button
             asChild
             size="sm"
@@ -355,6 +360,7 @@ export function NotificationButton() {
               {t("notifications.push.enable")}
             </Button>
           )}
+          </div>
         </div>
         {!pushEnabled && (
           // Without the push settings the "turn on phone alerts" offer cannot be shown.

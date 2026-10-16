@@ -12,11 +12,12 @@
  */
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { NO_SUPPLIER_VALUE } from "@/components/shared/supplier-date-filter";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { useListQuery } from "@/hooks/use-list-query";
 import type { ListQuery } from "@/interfaces/api";
 import type { EquipmentSupplierCounts } from "@/interfaces/contractor-ops";
@@ -64,6 +65,16 @@ export function headlineOf(
     onSite: rows.reduce((sum, row) => sum + row.on_site, 0),
     total: rows.reduce((sum, row) => sum + row.total, 0),
   };
+}
+
+/** Whether 按供应商汇总 is open: the reader's last choice on this browser, open at first. */
+const FOLD_KEY = "equipment-supplier-counts-open";
+function readOpen(): boolean {
+  try {
+    return typeof window === "undefined" || window.localStorage.getItem(FOLD_KEY) !== "closed";
+  } catch {
+    return true;
+  }
 }
 
 type CountsT = ReturnType<typeof useTranslations<"contractorOps.equipment.supplierCounts">>;
@@ -134,6 +145,15 @@ export function EquipmentSupplierCountsPanel({
   const t = useTranslations("contractorOps.equipment.supplierCounts");
   const data = counts.query.data;
   const chosen = list.filters.supplier;
+  const [open, setOpen] = useState(readOpen);
+  const remember = (next: boolean) => {
+    setOpen(next);
+    try {
+      window.localStorage.setItem(FOLD_KEY, next ? "open" : "closed");
+    } catch {
+      // Private window: it just opens next time.
+    }
+  };
   return (
     <div className="flex basis-full flex-col gap-2">
       {counts.text && (
@@ -145,45 +165,57 @@ export function EquipmentSupplierCountsPanel({
       )}
       <QueryFailedNote query={counts.query} what={t("what")} />
       {data && data.results.length > 0 && (
-        <details open className="rounded-lg border bg-muted/20 px-3 py-2">
-          <summary className="flex min-h-9 cursor-pointer items-center text-sm font-medium">
-            {t("tableTitle")}
+        // A folding card (Lucas 10/17: the small table looked plain, and nobody
+        // could tell it folds). The heading says it folds and which way; the
+        // reader's choice is kept on this browser.
+        <details
+          open={open}
+          onToggle={(event) => remember(event.currentTarget.open)}
+          className="group rounded-xl border border-panel-border bg-muted/20"
+        >
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 py-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+            <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-0 -rotate-90" />
+            <span>{t("tableTitle")}</span>
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+              {t("supplierCount", { count: data.results.length })}
+            </span>
+            <span className="ml-auto text-xs font-normal text-muted-foreground">
+              <span className="hidden group-open:inline">{t("foldHint")}</span>
+              <span className="group-open:hidden">{t("unfoldHint")}</span>
+            </span>
           </summary>
-          {/* The table's own box scrolls, so its header stays on top (I39). */}
-          <div className="mt-2">
-            <Table fit containerClassName="max-h-72">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("supplier")}</TableHead>
-                  {data.by_project && <TableHead>{t("project")}</TableHead>}
-                  <TableHead className="text-right">{t("onSite")}</TableHead>
-                  <TableHead className="text-right">{t("total")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.results.map((row) => {
-                  const value = row.supplier ?? NO_SUPPLIER_VALUE;
-                  const active = chosen === value;
-                  return (
-                    <TableRow key={`${row.supplier ?? "none"}:${row.project ?? ""}`} data-state={active ? "selected" : undefined}>
-                      <TableCell>
-                        <button
-                          type="button"
-                          aria-pressed={active}
-                          className="min-h-9 text-left font-medium text-primary underline-offset-2 hover:underline pointer-coarse:min-h-11"
-                          onClick={() => list.setFilter("supplier", active ? undefined : value)}
-                        >
-                          {row.supplier ? row.supplier_name : t("noSupplier")}
-                        </button>
-                      </TableCell>
-                      {data.by_project && <TableCell>{row.project_name}</TableCell>}
-                      <TableCell className="text-right tabular-nums">{row.on_site}</TableCell>
-                      <TableCell className="text-right tabular-nums">{row.total}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+          <div className="border-t border-panel-border px-4 py-3">
+            <p className="mb-2 text-xs text-muted-foreground">{t("pickHint")}</p>
+            <ul className="grid max-h-64 grid-cols-[repeat(auto-fill,minmax(13rem,1fr))] gap-2 overflow-y-auto">
+              {data.results.map((row) => {
+                const value = row.supplier ?? NO_SUPPLIER_VALUE;
+                const active = chosen === value;
+                return (
+                  <li key={`${row.supplier ?? "none"}:${row.project ?? ""}`}>
+                    <button
+                      type="button"
+                      aria-pressed={active}
+                      className={`flex w-full min-h-14 flex-col items-start gap-1 rounded-lg border px-3 py-2 text-left transition hover:border-primary/60 hover:bg-primary/5 ${active ? "border-primary bg-primary/10" : "border-panel-border bg-card"}`}
+                      onClick={() => list.setFilter("supplier", active ? undefined : value)}
+                    >
+                      <span className="w-full truncate text-sm font-medium text-foreground" title={row.supplier ? row.supplier_name : t("noSupplier")}>
+                        {row.supplier ? row.supplier_name : t("noSupplier")}
+                      </span>
+                      {data.by_project && (
+                        <span className="w-full truncate text-xs text-muted-foreground">{row.project_name}</span>
+                      )}
+                      <span className="text-xs text-muted-foreground tabular-nums">
+                        <span className={`font-semibold ${row.on_site > 0 ? "text-success" : "text-muted-foreground"}`}>
+                          {t("onSite")} {row.on_site}
+                        </span>
+                        {" · "}
+                        {t("total")} {row.total}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </details>
       )}

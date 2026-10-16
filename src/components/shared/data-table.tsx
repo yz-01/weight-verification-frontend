@@ -295,8 +295,11 @@ function TableFrame<T>({
   const to = Math.min(page * pageSize, totalCount);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+  // At least about eight rows tall (Lucas 10/17: with the supplier summary
+  // above, the register was squeezed to one row). A page with more above
+  // than that scrolls instead.
   return (
-    <div className="surface-panel flex min-h-0 min-w-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-xl">
+    <div className="surface-panel flex min-h-[min(32rem,calc(100dvh-6rem))] min-w-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-xl">
       <div className="shrink-0 border-b border-panel-border">
         {filterPills && filterPills.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 px-4 pt-4 sm:px-6">
