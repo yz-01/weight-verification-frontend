@@ -211,7 +211,7 @@ export function RequestTypesEditor({ project }: { project: string }) {
               )}
               {/* Removing is armed by the switch, then the bin acts (rule 8).
                   The two fixed types offer no switch; the bin says why. */}
-              {!row.is_fixed && (
+              {!row.is_fixed && row.request_count === 0 && (
                 <Switch
                   checked={armed === row.id}
                   onCheckedChange={(next) => setArmed(next ? row.id : null)}
@@ -224,9 +224,15 @@ export function RequestTypesEditor({ project }: { project: string }) {
                 className="text-destructive"
                 title={t("types.remove")}
                 disabledReason={
-                  row.is_fixed ? t("types.fixedHelp") : armed !== row.id ? t("types.armFirst") : undefined
+                  row.is_fixed
+                    ? t("types.fixedHelp")
+                    : row.request_count > 0
+                      ? t("types.hasRecordsHelp", { count: row.request_count })
+                      : armed !== row.id
+                        ? t("types.armFirst")
+                        : undefined
                 }
-                disabled={row.is_fixed || armed !== row.id || removal.isPending}
+                disabled={row.is_fixed || row.request_count > 0 || armed !== row.id || removal.isPending}
                 onClick={() => removal.mutate(row.id)}
               >
                 {removal.isPending && armed === row.id ? <Loader2 className="animate-spin" /> : <Trash2 />}

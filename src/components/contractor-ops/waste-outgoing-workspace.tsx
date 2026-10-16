@@ -1833,9 +1833,13 @@ function WasteCategoryDialog({
                 >
                   {row.is_active ? t("category.deactivate") : t("category.activate")}
                 </Button>
-                {row.is_system ? (
+                {row.is_other || row.record_count > 0 ? (
+                  // Unused categories go, presets too; one with records can
+                  // only be switched off, and the fixed 「其他」 stays (I35).
                   <span className="text-xs text-muted-foreground">
-                    {t("category.standardHelp")}
+                    {row.is_other
+                      ? t("category.fixedHelp")
+                      : t("category.hasRecordsHelp", { count: row.record_count })}
                   </span>
                 ) : (
                   <Button
