@@ -225,10 +225,10 @@ describe("「已退场」 opens every completed return behind it", () => {
 });
 
 describe("no 「累计净数量」 (Lucas 2026-10-10: 「不需要进场减退场」)", () => {
-  it("has a tab for 累计进场 and 已退场 only, and no net sum", () => {
+  it("has a tab for 送来工地 and 退回供应商 only (I41 words), and no net sum", () => {
     for (const focus of ["received", "returned"] as const) {
       const html = render(focus);
-      for (const text of ["累计进场", "已退场"]) expect(html).toContain(text);
+      for (const text of ["送来工地", "退回供应商"]) expect(html).toContain(text);
       expect(html).not.toContain("累计净数量");
       expect(html).not.toContain("276.000");
       expect(html).not.toContain('data-slot="net-sum"');

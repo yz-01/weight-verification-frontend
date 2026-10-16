@@ -1,7 +1,7 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { Search, Undo2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useState } from "react";
@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
+import { formatNetQuantity } from "@/lib/net-quantity";
 import {
   exportReceiptNetTotals,
   getReceiptNetTotals,
@@ -108,7 +109,9 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
  * returns the office has confirmed as complete, matched on material category
  * and unit (Q4). The two stand side by side: the 「累计净数量」 column (进场 −
  * 退场) is gone (Lucas 2026-10-10: 「累计净数量可以移除，不需要进场减退场」).
- * Grouped under each supplier, searchable by material. Each number opens onto
+ * Grouped under each supplier (a collapsible heading, I41), searchable by
+ * material or supplier (IB20: the server matches the supplier's and the 指定厂商's
+ * name too). Numbers read plainly (`formatNetQuantity`). Each number opens onto
  * the records it adds up (client request 2026-10-09): 「累计进场」 every
  * delivery, 「已退场」 every completed return (`NetBreakdownDialog`); a line
  * with returns says 「有退货资料」, which opens them too. DO is per delivery,
@@ -118,8 +121,11 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
 export function NetTotalsView({
   project,
   filters = {},
+  defaultCollapsed = false,
 }: {
   project?: string;
+  /** Start with every supplier heading closed (the test's way to press ▼). */
+  defaultCollapsed?: boolean;
   /** Supplier, manufacturer (2026-10 D1) and dates, as the list filters them. */
   filters?: Record<string, string | undefined>;
 }) {
@@ -129,6 +135,7 @@ export function NetTotalsView({
   const unitValues = useUnitExportValues();
   const [term, setTerm] = useState("");
   const material = useDebounce(term.trim(), 300);
+  const [toggled, setToggled] = useState<ReadonlySet<string>>(new Set());
   const [drill, setDrill] = useState<{ row: MaterialNetTotalRow; focus: NetFocus } | null>(null);
   const query = Object.fromEntries(
     Object.entries({ project, material, ...filters }).filter(([, value]) => Boolean(value)),
@@ -147,6 +154,14 @@ export function NetTotalsView({
   }
   const rows = totals.data?.results ?? [];
   const groups = groupBySupplier(rows);
+  // A group is open unless it was toggled away from the starting state.
+  const isOpen = (group: { supplier: string }) => toggled.has(group.supplier) === defaultCollapsed;
+  const toggle = (group: { supplier: string }) =>
+    setToggled((current) => {
+      const next = new Set(current);
+      if (!next.delete(group.supplier)) next.add(group.supplier);
+      return next;
+    });
   const keyOf = (row: MaterialNetTotalRow) =>
     `${row.project}:${row.supplier}:${row.material_name}:${row.material_specification}:${row.unit}`;
   const runExport = (format: "xlsx" | "pdf") =>
@@ -177,13 +192,17 @@ export function NetTotalsView({
           </div>
         ) : null}
       </div>
-      <p className="text-xs text-muted-foreground">{t("receipts.net.note")}</p>
+      <ul className="space-y-0.5 text-xs text-muted-foreground" data-slot="net-notes">
+        <li>{t("receipts.net.noteReceived")}</li>
+        <li>{t("receipts.net.noteReturned")}</li>
+        <li>{t("receipts.net.noteRejected")}</li>
+      </ul>
       <div className="surface-panel overflow-x-auto rounded-xl">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t("receipts.field.materialName")}</TableHead>
-              <TableHead>{t("receipts.field.materialSpecification")}</TableHead>
+              <TableHead>{t("receipts.net.specification")}</TableHead>
               <TableHead>{t("receipts.field.unit")}</TableHead>
               <TableHead className="tabular text-right">{t("receipts.net.received")}</TableHead>
               <TableHead className="tabular text-right">{t("receipts.net.returned")}</TableHead>
@@ -198,15 +217,32 @@ export function NetTotalsView({
               </TableRow>
             ) : rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-muted-foreground">{t("table.noResults")}</TableCell>
+                <TableCell colSpan={7} className="text-muted-foreground">
+                  {material ? t("receipts.net.searchEmpty", { term: material }) : t("table.noResults")}
+                </TableCell>
               </TableRow>
             ) : (
               groups.map((group) => (
                 <Fragment key={group.supplier || "-"}>
-                  <TableRow className="bg-muted/40 hover:bg-muted/40" data-slot="net-supplier">
-                    <TableCell colSpan={7} className="py-1.5">
-                      <span className="inline-flex items-center gap-1.5 text-sm font-semibold">
-                        {group.supplierName || t("receipts.net.noSupplier")}
+                  <TableRow
+                    className="border-y-2 border-primary/25 bg-primary/10 hover:bg-primary/10"
+                    data-slot="net-supplier"
+                  >
+                    <TableCell colSpan={7} className="py-2">
+                      <span className="inline-flex flex-wrap items-center gap-2 text-sm font-semibold">
+                        <button
+                          type="button"
+                          data-slot="net-supplier-toggle"
+                          aria-expanded={isOpen(group)}
+                          onClick={() => toggle(group)}
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded text-left focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {isOpen(group) ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+                          {t("receipts.net.groupTitle", {
+                            name: group.supplierName || t("receipts.net.noSupplier"),
+                            count: group.rows.length,
+                          })}
+                        </button>
                         {group.supplier ? (
                           <SupplierReturnBadge
                             supplier={{
@@ -219,7 +255,7 @@ export function NetTotalsView({
                       </span>
                     </TableCell>
                   </TableRow>
-                  {group.rows.map((row) => (
+                  {(isOpen(group) ? group.rows : []).map((row) => (
                     <TableRow key={keyOf(row)} data-slot="net-line">
                       <TableCell className="font-medium">
                         <span className="inline-flex flex-wrap items-center gap-1.5">
@@ -247,7 +283,7 @@ export function NetTotalsView({
                       <TableCell className="tabular text-right">
                         <NetNumber label={t("receipts.net.returned")} value={row.returned} onOpen={() => setDrill({ row, focus: "returned" })} />
                       </TableCell>
-                      <TableCell className="tabular text-right text-muted-foreground">{row.rejected}</TableCell>
+                      <TableCell className="tabular text-right text-muted-foreground">{formatNetQuantity(row.rejected)}</TableCell>
                       <TableCell className="text-muted-foreground">{row.project_name}</TableCell>
                     </TableRow>
                   ))}
@@ -273,17 +309,19 @@ export function NetTotalsView({
 /** A number of the totals that opens the records behind it (2026-10-09). */
 function NetNumber({ label, value, onOpen }: { label: string; value: string; onOpen: () => void }) {
   const t = useTranslations();
-  const name = t("receipts.net.openNumber", { label, value });
+  const shown = formatNetQuantity(value);
+  // A zero reads 「—」 on screen but is still said as a number to a screen reader.
+  const name = t("receipts.net.openNumber", { label, value: shown === "—" ? "0" : shown });
   return (
     <button
       type="button"
       data-slot="net-number"
       onClick={onOpen}
       aria-label={name}
-      title={name}
+      title={t("receipts.net.clickHint")}
       className="tabular cursor-pointer rounded px-1 text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary focus-visible:ring-2 focus-visible:ring-ring"
     >
-      {value}
+      {shown}
     </button>
   );
 }
@@ -299,7 +337,7 @@ export function netTotalsExportColumns(
   return [
     { key: "supplier_name", label: t("receipts.net.supplier"), values: { "": t("receipts.net.noSupplier") } },
     { key: "material_name", label: t("receipts.field.materialName") },
-    { key: "material_specification", label: t("receipts.field.materialSpecification") },
+    { key: "material_specification", label: t("receipts.net.specification") },
     { key: "unit", label: t("receipts.field.unit"), values: unitValues },
     { key: "received", label: t("receipts.net.received") },
     { key: "returned", label: t("receipts.net.returned") },
