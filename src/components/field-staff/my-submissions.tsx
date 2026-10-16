@@ -64,6 +64,7 @@ function submissionStatusText(
   return `${base} · ${t(`contractorOps.${movementStatusKey(row.status, row.movement_status)}`)}`;
 }
 
+import { SundryWithdraw } from "@/components/sundry-claims/sundry-withdraw";
 import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
 import { EquipmentExitHandoverDialog } from "@/components/contractor-ops/equipment-exit";
@@ -682,6 +683,9 @@ function StoredDetailSheet({
                 <Camera />
                 {t("contractorOps.outgoing.returnProcessing")}
               </Button>
+            ) : row.kind === "SUNDRY_CLAIM" && row.status === "SUBMITTED" ? (
+              // 撤回 (I12-6): still undecided, so the applicant may take it back.
+              <SundryWithdraw id={row.id} onDone={onClose} />
             ) : offersEquipmentExit(row) && row.machine ? (
               <Button className="h-12 w-full" onClick={() => setLeaving(true)}>
                 <Camera />

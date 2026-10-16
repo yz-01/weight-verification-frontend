@@ -9,7 +9,7 @@
  * picker, with the server's own limits) and two big buttons for who approves.
  */
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -22,7 +22,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
-import { createSundryClaim } from "@/services/sundry-claim.service";
+import { createSundryClaim, getSundrySubmitOptions } from "@/services/sundry-claim.service";
 
 /** The server's own ceiling (`MAX_ATTACHMENTS`); the attachments are photos. */
 export const SUNDRY_MAX_ATTACHMENTS = 10;
@@ -53,6 +53,19 @@ export function SundryClaimCreate({ onCreated }: { onCreated: (id: string) => vo
   const [attachments, setAttachments] = useState<File[]>([]);
   const [error, setError] = useState("");
   const validAmount = Number(amount) > 0;
+  // A day after today is refused here with a sentence, not quietly changed.
+  const futureDate = date > today();
+
+  // Per side: is there anyone other than me who can decide? A side with nobody
+  // is switched off with the reason, so the claim can never be stuck (I12-6).
+  // query-failure: only dims nothing - the server refuses a side with nobody anyway
+  const sides = useQuery({
+    queryKey: ["sundry-claims", "submit-options", project],
+    queryFn: () => getSundrySubmitOptions(project),
+    enabled: open && Boolean(project),
+  });
+  const available = (side: "PROJECT" | "HQ") => sides.data?.[side] !== false;
+  const chosen = available(submitTo) ? submitTo : (["PROJECT", "HQ"] as const).find(available);
 
   const reset = () => {
     setProject("");
@@ -70,7 +83,7 @@ export function SundryClaimCreate({ onCreated }: { onCreated: (id: string) => vo
         project,
         amount: amount.trim(),
         description: description.trim(),
-        submit_to: submitTo,
+        submit_to: chosen ?? submitTo,
         captured_at: claimDateToCapturedAt(date),
         attachments,
       }),
@@ -102,6 +115,11 @@ export function SundryClaimCreate({ onCreated }: { onCreated: (id: string) => vo
             <div className="grid gap-4 sm:grid-cols-2">
               <FieldWrapper label={t("date")} hint={t("dateHint")}>
                 <Input type="date" max={today()} value={date} onChange={(event) => setDate(event.target.value)} />
+                {futureDate && (
+                  <p role="alert" className="mt-1 text-xs text-destructive">
+                    {t("dateFuture")}
+                  </p>
+                )}
               </FieldWrapper>
               <FieldWrapper label={t("amount")} required>
                 <Input
@@ -128,8 +146,10 @@ export function SundryClaimCreate({ onCreated }: { onCreated: (id: string) => vo
                     key={side}
                     type="button"
                     role="radio"
-                    aria-checked={submitTo === side}
-                    variant={submitTo === side ? "default" : "outline"}
+                    aria-checked={chosen === side}
+                    aria-disabled={!available(side)}
+                    disabled={!available(side)}
+                    variant={chosen === side ? "default" : "outline"}
                     className="h-12"
                     onClick={() => setSubmitTo(side)}
                   >
@@ -137,6 +157,13 @@ export function SundryClaimCreate({ onCreated }: { onCreated: (id: string) => vo
                   </Button>
                 ))}
               </div>
+              {(["PROJECT", "HQ"] as const)
+                .filter((side) => !available(side))
+                .map((side) => (
+                  <p key={side} className="mt-1 text-xs text-muted-foreground">
+                    {t(`sideEmpty.${side}`)}
+                  </p>
+                ))}
             </FieldWrapper>
             <FieldWrapper label={t("attachments")} required hint={t("attachmentsHint", { count: SUNDRY_MAX_ATTACHMENTS })}>
               <AttachmentPicker
@@ -162,7 +189,7 @@ export function SundryClaimCreate({ onCreated }: { onCreated: (id: string) => vo
                 [description.trim(), t("descriptionLabel")],
                 [attachments.length > 0, t("attachments")],
               ]}
-              disabled={save.isPending}
+              disabled={save.isPending || futureDate || !chosen}
               onClick={() => save.mutate()}
             >
               {save.isPending && <Loader2 className="animate-spin" />}

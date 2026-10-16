@@ -37,6 +37,17 @@ export async function createSundryClaim(payload: {
   return row;
 }
 
+/** Per side, whether anyone other than the asker can decide (I12-6). */
+export const getSundrySubmitOptions = (project: string) =>
+  api.get<{ PROJECT: boolean; HQ: boolean }>("/api/sundry-claims/submit_options/", { project });
+
+/** 撤回: the submitter takes back their own undecided claim (I12-6). */
+export async function withdrawSundryClaim(id: string, note = "") {
+  const row = await api.post<SundryClaim>(`/api/sundry-claims/${id}/withdraw_claim/`, { note });
+  toastSuccess("sundryClaim.toast.withdrawn");
+  return row;
+}
+
 export async function reviewSundryClaim(id: string, decision: "CONFIRMED" | "REJECTED", note = "") {
   const row = await api.post<SundryClaim>(`/api/sundry-claims/${id}/review_claim/`, { decision, note });
   toastSuccess(decision === "CONFIRMED" ? "sundryClaim.toast.confirmed" : "sundryClaim.toast.rejected");

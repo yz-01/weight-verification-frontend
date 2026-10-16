@@ -17096,6 +17096,7 @@
       "reviewedBy": "Reviewed by",
       "paidBy": "Payment confirmed by",
       "paidAt": "Paid on",
+      "claimDate": "Date paid",
       "reviewNote": "Review note",
       "rejectReason": "Reason for rejecting",
       "payment": "Payment",
@@ -17105,6 +17106,7 @@
       "SUBMITTED": "Pending",
       "CONFIRMED": "Confirmed, awaiting payment",
       "REJECTED": "Rejected",
+      "CANCELLED": "Withdrawn",
       "PAID": "Paid"
     },
     "payment": {
@@ -17144,7 +17146,8 @@
       "confirmed": "Confirmed.",
       "rejected": "Rejected.",
       "proofAdded": "Payment voucher uploaded and locked.",
-      "paid": "Payment confirmed; the applicant has been told."
+      "paid": "Payment confirmed; the applicant has been told.",
+      "withdrawn": "Sundry claim withdrawn."
     },
     "capture": {
       "project": "Project",
@@ -17173,6 +17176,12 @@
       "NONE": "Not chosen",
       "all": "Sent to anyone"
     },
+    "withdraw": {
+      "arm": "Enable withdraw",
+      "help": "Take this claim back while nobody has decided it. It stays in the history as withdrawn, and the approvers' to-do is cleared.",
+      "button": "Withdraw claim",
+      "failed": "Could not withdraw the claim; please try again."
+    },
     "ownClaim": "You submitted this claim, so someone else decides it.",
     "create": {
       "open": "New claim",
@@ -17193,6 +17202,11 @@
       },
       "attachments": "Photos or receipts",
       "attachmentsHint": "At least one photo of the receipt, invoice or transfer slip, up to {count}.",
+      "dateFuture": "The date paid cannot be in the future.",
+      "sideEmpty": {
+        "PROJECT": "No one else on this side can approve.",
+        "HQ": "No one else on this side can approve."
+      },
       "submit": "Submit sundry claim",
       "failed": "The claim did not go through; please try again."
     },

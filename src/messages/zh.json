@@ -17096,6 +17096,7 @@
       "reviewedBy": "审核人",
       "paidBy": "确认付款人",
       "paidAt": "付款时间",
+      "claimDate": "付款日期",
       "reviewNote": "审核备注",
       "rejectReason": "拒绝原因",
       "payment": "付款",
@@ -17105,6 +17106,7 @@
       "SUBMITTED": "待处理",
       "CONFIRMED": "已确认，待付款",
       "REJECTED": "已拒绝",
+      "CANCELLED": "已撤回",
       "PAID": "已付款"
     },
     "payment": {
@@ -17144,7 +17146,8 @@
       "confirmed": "已确认。",
       "rejected": "已拒绝。",
       "proofAdded": "付款凭证已上传并锁定。",
-      "paid": "已确认付款，已通知申请人。"
+      "paid": "已确认付款，已通知申请人。",
+      "withdrawn": "杂费报销已撤回。"
     },
     "capture": {
       "project": "项目",
@@ -17173,6 +17176,12 @@
       "NONE": "未指定",
       "all": "全部提交对象"
     },
+    "withdraw": {
+      "arm": "开启撤回",
+      "help": "在还没人审批之前可以撤回。撤回后记录保留为「已撤回」，审批人的待办会消失。",
+      "button": "撤回报销",
+      "failed": "撤回失败，请再试一次。"
+    },
     "ownClaim": "这笔报销是你提交的，由其他人审批。",
     "create": {
       "open": "新建报销",
@@ -17193,6 +17202,11 @@
       },
       "attachments": "照片或收据",
       "attachmentsHint": "至少一张收据、发票或转账凭证的照片，最多 {count} 张。",
+      "dateFuture": "付款日期不能是将来的日子。",
+      "sideEmpty": {
+        "PROJECT": "这一边没有其他人可以审批。",
+        "HQ": "这一边没有其他人可以审批。"
+      },
       "submit": "提交杂费报销",
       "failed": "没有提交成功，请再试一次。"
     },

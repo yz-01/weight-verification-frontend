@@ -324,6 +324,7 @@ export const LIST_FITS = {
       cover_photo: "thumb",
       state: "status",
       amount: "number",
+      captured_at: "datetime",
       description: "name",
       submit_to: "person",
       submitted_by_name: "person",

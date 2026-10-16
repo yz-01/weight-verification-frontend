@@ -17096,6 +17096,7 @@
       "reviewedBy": "Disemak oleh",
       "paidBy": "Bayaran disahkan oleh",
       "paidAt": "Dibayar pada",
+      "claimDate": "Tarikh bayar",
       "reviewNote": "Nota semakan",
       "rejectReason": "Sebab ditolak",
       "payment": "Bayaran",
@@ -17105,6 +17106,7 @@
       "SUBMITTED": "Belum diproses",
       "CONFIRMED": "Disahkan, menunggu bayaran",
       "REJECTED": "Ditolak",
+      "CANCELLED": "Ditarik balik",
       "PAID": "Dibayar"
     },
     "payment": {
@@ -17144,7 +17146,8 @@
       "confirmed": "Disahkan.",
       "rejected": "Ditolak.",
       "proofAdded": "Baucar bayaran dimuat naik dan dikunci.",
-      "paid": "Bayaran disahkan; pemohon telah dimaklumkan."
+      "paid": "Bayaran disahkan; pemohon telah dimaklumkan.",
+      "withdrawn": "Tuntutan sundry ditarik balik."
     },
     "capture": {
       "project": "Projek",
@@ -17173,6 +17176,12 @@
       "NONE": "Tidak dipilih",
       "all": "Dihantar kepada sesiapa"
     },
+    "withdraw": {
+      "arm": "Aktifkan tarik balik",
+      "help": "Tarik balik tuntutan ini selagi belum ada yang memutuskan. Ia kekal dalam sejarah sebagai ditarik balik, dan tugas pelulus dikosongkan.",
+      "button": "Tarik balik tuntutan",
+      "failed": "Tidak dapat menarik balik tuntutan; sila cuba lagi."
+    },
     "ownClaim": "Anda yang menghantar tuntutan ini, jadi orang lain yang meluluskannya.",
     "create": {
       "open": "Tuntutan baharu",
@@ -17193,6 +17202,11 @@
       },
       "attachments": "Foto atau resit",
       "attachmentsHint": "Sekurang-kurangnya satu foto resit, invois atau slip pindahan, hingga {count}.",
+      "dateFuture": "Tarikh bayar tidak boleh pada masa hadapan.",
+      "sideEmpty": {
+        "PROJECT": "Tiada orang lain di pihak ini yang boleh meluluskan.",
+        "HQ": "Tiada orang lain di pihak ini yang boleh meluluskan."
+      },
       "submit": "Hantar tuntutan sundry",
       "failed": "Tuntutan tidak berjaya dihantar; sila cuba lagi."
     },

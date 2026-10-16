@@ -4,7 +4,7 @@ import type { RecordedBy } from "@/interfaces/recorder";
  * Sundry Claim / 杂费报销 (D-232, D-252). A claim of kind SUNDRY on the one
  * claim table; the fields below are the ones a sundry claim fills.
  */
-export type SundryClaimState = "SUBMITTED" | "CONFIRMED" | "REJECTED";
+export type SundryClaimState = "SUBMITTED" | "CONFIRMED" | "REJECTED" | "CANCELLED";
 
 export interface SundryClaimAttachment {
   id: string;
