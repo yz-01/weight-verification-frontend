@@ -186,9 +186,7 @@ describe("plain words (I41, IB20)", () => {
     const source = readFileSync(
       path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"),
       "utf8",
-    ).replace(/
-/g, "
-");
+    ).replace(/\r\n/g, "\n");
     // One box, one `material` term: the server matches the supplier's name too,
     // so the screen, the export and the breakdown share it.
     expect(source).toMatch(/Object\.entries\(\{ project, material, \.\.\.filters \}\)/);
