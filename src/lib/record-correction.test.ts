@@ -3,6 +3,10 @@ import { describe, expect, it } from "vitest";
 import type { CorrectionField, RecordCorrectionEntry } from "@/interfaces/record-correction";
 import {
   badNumber,
+  changeDraft,
+  isShown,
+  lockedValue,
+  offeredOptions,
   correctionChanges,
   fromLocalInput,
   groupCorrections,
@@ -102,5 +106,65 @@ describe("groupCorrections", () => {
     ]);
 
     expect(groups.map((group) => group.map((entry) => entry.id))).toEqual([["3"], ["1", "2"]]);
+  });
+});
+
+describe("material → specification (I19, ID46)", () => {
+  const fields = [
+    field({
+      name: "material",
+      type: "choice",
+      required: true,
+      value: "rebar",
+      options: [
+        { value: "rebar", label: "Rebar" },
+        { value: "cement", label: "Cement" },
+      ],
+    }),
+    field({
+      name: "specification",
+      type: "choice",
+      value: "y10",
+      depends_on: "material",
+      options: [
+        { value: "y10", label: "Y10", parent: "rebar", unit: "TONNE" },
+        { value: "other", label: "Other", parent: "rebar", is_other: true, unit: "" },
+        { value: "bag", label: "50kg", parent: "cement", unit: "BAG" },
+      ],
+    }),
+    field({ name: "material_specification", value: "Y10", only_for_other: "specification" }),
+    field({ name: "unit", type: "choice", required: true, value: "TONNE", follows: "specification", options: [] }),
+  ];
+
+  it("offers only the chosen material's specifications", () => {
+    const values = initialDraft(fields);
+    expect(offeredOptions(fields[1], values).map((o) => o.value)).toEqual(["y10", "other"]);
+  });
+
+  it("another material clears the specification and asks for one", () => {
+    const draft = changeDraft(fields, initialDraft(fields), "material", "cement");
+    expect(draft.specification).toBe("");
+    expect(missingRequired(fields, draft)?.name).toBe("specification");
+  });
+
+  it("a specification with a unit sets and locks the unit", () => {
+    let draft = changeDraft(fields, initialDraft(fields), "material", "cement");
+    draft = changeDraft(fields, draft, "specification", "bag");
+    expect(draft.unit).toBe("BAG");
+    expect(lockedValue(fields, fields[3], draft)).toBe("BAG");
+    expect(correctionChanges(fields, draft).changes).toEqual({
+      material: "cement",
+      specification: "bag",
+      unit: "BAG",
+    });
+  });
+
+  it("the typed specification shows only for 「其他」, and must then be filled", () => {
+    const values = initialDraft(fields);
+    expect(isShown(fields, fields[2], values)).toBe(false);
+    const other = changeDraft(fields, { ...values, material_specification: "" }, "specification", "other");
+    expect(isShown(fields, fields[2], other)).toBe(true);
+    expect(lockedValue(fields, fields[3], other)).toBeNull();
+    expect(missingRequired(fields, other)?.name).toBe("material_specification");
   });
 });

@@ -7844,7 +7844,11 @@
       "project_closed": "这个项目已经结束",
       "invalid_worker_phone": "请输入有效的手机号码，例如 012-345 6789",
       "site_worker_phone_taken": "这个电话号码已在名单上",
-      "too_many_documents": "最多 10 张证件"
+      "too_many_documents": "最多 10 张证件",
+      "material_linked": "这条记录用项目的材料资料：请选材料和规格，不能直接打名称",
+      "spec_mismatch": "请选这个材料的规格",
+      "spec_not_other": "要自己打规格，请先选「其他」",
+      "unit_follows_spec": "单位跟着规格，不能改"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -16766,8 +16770,12 @@
       "weight_kg": "重量（公斤）",
       "destination": "退回去处",
       "work_location": "工作地点",
-      "priority": "优先级"
-    }
+      "priority": "优先级",
+      "material": "材料",
+      "specification": "规格",
+      "material_specification": "规格（自填）"
+    },
+    "followsSpec": "单位跟着规格，不能改"
   },
   "recordConversation": {
     "open": "沟通",

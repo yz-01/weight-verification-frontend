@@ -51,6 +51,10 @@ import type {
 import { useDateFormat } from "@/lib/dates";
 import {
   badNumber,
+  changeDraft,
+  isShown,
+  lockedValue,
+  offeredOptions,
   CORRECTION_PERMISSION,
   correctionChanges,
   groupCorrections,
@@ -132,19 +136,26 @@ function CorrectionInput({
   field,
   value,
   onChange,
+  options: offered,
+  locked = false,
 }: {
   field: CorrectionField;
   value: string;
   onChange: (value: string) => void;
+  /** What a choice offers now (a specification only under its material). */
+  options?: CorrectionField["options"];
+  /** The unit a chosen specification brings: shown, not chosen (ID46). */
+  locked?: boolean;
 }) {
   const t = useTranslations("recordCorrection");
   if (field.type === "textarea") {
     return <Textarea rows={2} value={value} onChange={(event) => onChange(event.target.value)} />;
   }
   if (field.type === "choice") {
-    const options = field.options ?? [];
+    const options = offered ?? field.options ?? [];
     return (
       <Select
+        disabled={locked}
         value={value || (field.required ? "" : NO_CHOICE)}
         onValueChange={(next) => onChange(next === NO_CHOICE ? "" : next)}
       >
@@ -277,25 +288,33 @@ export function RecordCorrectionDialog({
           </p>
         ) : (
           <div className="grid gap-3" data-record-correction-form={kind}>
-            {fields.map((field) => (
-              <FieldWrapper
-                key={field.name}
-                label={fieldLabel(field.name)}
-                required={field.required}
-                hint={
-                  field.display
-                    ? t("was", { value: field.display })
-                    : t("wasEmpty")
-                }
-                error={failure?.fieldError(field.name) ?? undefined}
-              >
-                <CorrectionInput
-                  field={field}
-                  value={values[field.name] ?? ""}
-                  onChange={(next) => setDraft({ ...values, [field.name]: next })}
-                />
-              </FieldWrapper>
-            ))}
+            {fields
+              .filter((field) => isShown(fields, field, values))
+              .map((field) => {
+                const locked = lockedValue(fields, field, values) !== null;
+                return (
+                  <FieldWrapper
+                    key={field.name}
+                    label={fieldLabel(field.name)}
+                    required={field.required}
+                    hint={[
+                      field.display ? t("was", { value: field.display }) : t("wasEmpty"),
+                      locked ? t("followsSpec") : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                    error={failure?.fieldError(field.name) ?? undefined}
+                  >
+                    <CorrectionInput
+                      field={field}
+                      value={values[field.name] ?? ""}
+                      options={field.depends_on ? offeredOptions(field, values) : undefined}
+                      locked={locked}
+                      onChange={(next) => setDraft(changeDraft(fields, values, field.name, next))}
+                    />
+                  </FieldWrapper>
+                );
+              })}
             <FieldWrapper
               label={t("reason")}
               required

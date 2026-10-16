@@ -87,12 +87,83 @@ export function correctionChanges(
   return { changes, expected };
 }
 
+function chosenOption(fields: CorrectionField[], name: string, values: Record<string, string>) {
+  const field = fields.find((item) => item.name === name);
+  return field?.options?.find((option) => option.value === values[name]) ?? null;
+}
+
+/** The options a field offers now: a specification only under its material. */
+export function offeredOptions(
+  field: CorrectionField,
+  values: Record<string, string>,
+): NonNullable<CorrectionField["options"]> {
+  const options = field.options ?? [];
+  if (!field.depends_on) return options;
+  const parent = values[field.depends_on] ?? "";
+  return options.filter((option) => option.parent === parent);
+}
+
+/** Whether a field is shown now (a typed specification only for 「其他」). */
+export function isShown(
+  fields: CorrectionField[],
+  field: CorrectionField,
+  values: Record<string, string>,
+): boolean {
+  if (!field.only_for_other) return true;
+  return Boolean(chosenOption(fields, field.only_for_other, values)?.is_other);
+}
+
+/** The unit a field is locked to by the specification chosen, or null. */
+export function lockedValue(
+  fields: CorrectionField[],
+  field: CorrectionField,
+  values: Record<string, string>,
+): string | null {
+  if (!field.follows) return null;
+  const option = chosenOption(fields, field.follows, values);
+  return option && !option.is_other && option.unit ? option.unit : null;
+}
+
+/**
+ * One change in the dialog, with what it brings (I19): another material
+ * clears a specification that is not its own; a specification with a unit
+ * sets the unit.
+ */
+export function changeDraft(
+  fields: CorrectionField[],
+  values: Record<string, string>,
+  name: string,
+  next: string,
+): Record<string, string> {
+  const draft = { ...values, [name]: next };
+  for (const field of fields) {
+    if (field.depends_on && draft[field.name]) {
+      const offered = offeredOptions(field, draft);
+      if (!offered.some((option) => option.value === draft[field.name])) draft[field.name] = "";
+    }
+  }
+  for (const field of fields) {
+    const locked = lockedValue(fields, field, draft);
+    if (locked) draft[field.name] = locked;
+  }
+  return draft;
+}
+
 /** The first required field left empty, or null. */
 export function missingRequired(
   fields: CorrectionField[],
   draft: Record<string, string>,
 ): CorrectionField | null {
-  return fields.find((field) => field.required && !(draft[field.name] ?? "").trim()) ?? null;
+  return (
+    fields.find(
+      (field) =>
+        (field.required ||
+          (field.only_for_other && isShown(fields, field, draft)) ||
+          (field.depends_on && offeredOptions(field, draft).length > 0)) &&
+        isShown(fields, field, draft) &&
+        !(draft[field.name] ?? "").trim(),
+    ) ?? null
+  );
 }
 
 /** A number the server would refuse (not a number, zero or less), by field. */

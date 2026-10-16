@@ -22,6 +22,12 @@ export type CorrectionFieldType = "text" | "textarea" | "decimal" | "choice" | "
 export interface CorrectionOption {
   value: string;
   label: string;
+  /** A specification's material (I19): offered under that material only. */
+  parent?: string;
+  /** 「其他」: the words are typed on the record. */
+  is_other?: boolean;
+  /** The unit a specification brings with it ("" when it has none). */
+  unit?: string;
 }
 
 export interface CorrectionField {
@@ -34,6 +40,12 @@ export interface CorrectionField {
   /** The same, as a reader reads it (a supplier's name). */
   display: string;
   options: CorrectionOption[] | null;
+  /** Offer only the options whose `parent` is this field's value. */
+  depends_on?: string;
+  /** Take the unit of this field's chosen option, and lock while it has one. */
+  follows?: string;
+  /** Shown only while this field's chosen option is 「其他」. */
+  only_for_other?: string;
 }
 
 export interface CorrectionForm {

@@ -7844,7 +7844,11 @@
       "project_closed": "This project has ended",
       "invalid_worker_phone": "Enter a mobile number such as 012-345 6789",
       "site_worker_phone_taken": "This phone number is already on the roster",
-      "too_many_documents": "Up to 10 documents"
+      "too_many_documents": "Up to 10 documents",
+      "material_linked": "This record uses the project's materials: choose the material and specification instead of typing a name",
+      "spec_mismatch": "Choose a specification of this material",
+      "spec_not_other": "Choose 「其他」 to type a specification",
+      "unit_follows_spec": "The unit follows the specification"
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -16766,8 +16770,12 @@
       "weight_kg": "Weight (kg)",
       "destination": "Returned to",
       "work_location": "Work location",
-      "priority": "Priority"
-    }
+      "priority": "Priority",
+      "material": "Material",
+      "specification": "Specification",
+      "material_specification": "Specification (typed)"
+    },
+    "followsSpec": "The unit follows the specification"
   },
   "recordConversation": {
     "open": "Communicate",
