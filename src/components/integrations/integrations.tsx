@@ -706,10 +706,12 @@ export function Integrations() {
         <h2 className="panel-title">
           {t("integrations.connections")}
         </h2>
-        <div className="divide-y overflow-hidden surface-panel rounded-xl">
+        {/* The rows share one set of columns (2026-10-17): status and
+            buttons line up from row to row however long a label is. */}
+        <div className="divide-y overflow-hidden surface-panel rounded-xl md:grid md:grid-cols-[minmax(0,1fr)_auto_auto]">
           {integrations.isError ? (
             <LoadFailed
-              className="m-4"
+              className="m-4 md:col-span-3"
               what={t("integrations.what.connections")}
               onRetry={() => integrations.refetch()}
             />
@@ -717,13 +719,13 @@ export function Integrations() {
             <EmptyState
               icon={Cable}
               title={t("integrations.empty")}
-              className="m-4"
+              className="m-4 md:col-span-3"
             />
           ) : (
             rows.map((row) => (
               <div
                 key={row.id}
-                className="grid gap-3 px-4 py-3 sm:px-6 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center"
+                className="grid gap-3 px-4 py-3 sm:px-6 md:col-span-3 md:grid-cols-subgrid md:items-center"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{row.name}</p>
@@ -750,16 +752,18 @@ export function Integrations() {
                     </p>
                   )}
                 </div>
-                <StatusBadge
-                  label={t(`integrations.status.${row.status}`)}
-                  tone={
-                    row.status === "ERROR"
-                      ? "danger"
-                      : row.status === "READY"
-                        ? "positive"
-                        : "neutral"
-                  }
-                />
+                <span className="flex">
+                  <StatusBadge
+                    label={t(`integrations.status.${row.status}`)}
+                    tone={
+                      row.status === "ERROR"
+                        ? "danger"
+                        : row.status === "READY"
+                          ? "positive"
+                          : "neutral"
+                    }
+                  />
+                </span>
                 <div className="flex flex-wrap items-center gap-2 md:justify-end">
                   {can("integration.manage") && (
                     <select

@@ -152,6 +152,9 @@ export function SignOffHost() {
     setAsk(null);
   };
 
+  // No PIN at all yet (not one reset or forgotten): said plainly as the first
+  // time, so nobody wonders whether they once set one (Lucas 10/17).
+  const firstTime = mode === "setup" && backTo === null && !status?.has_pin && !status?.was_reset;
   const wrong = ask && ask.code === SIGN_OFF_CODES.incorrect ? ask.message : "";
   const opensAt = ask?.lockedUntil ?? status?.locked_until ?? null;
   const openSetup = (from: Mode) => {
@@ -170,7 +173,7 @@ export function SignOffHost() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {mode === "locked" ? <Lock className="size-5 text-destructive" /> : mode === "setup" ? <ShieldCheck className="size-5 text-primary" /> : <KeyRound className="size-5 text-primary" />}
-              {mode === "setup" ? t("setupTitle") : mode === "locked" ? t("lockedTitle") : t("title")}
+              {firstTime ? t("firstTitle") : mode === "setup" ? t("setupTitle") : mode === "locked" ? t("lockedTitle") : t("title")}
             </DialogTitle>
             <DialogDescription>{actionLabel}</DialogDescription>
           </DialogHeader>
@@ -231,9 +234,16 @@ export function SignOffHost() {
                 void submitSetup();
               }}
             >
-              <p className="text-sm text-muted-foreground">
-                {status?.was_reset ? t("resetHelp") : status?.has_pin ? t("changeHelp") : t("setupHelp")}
-              </p>
+              {firstTime ? (
+                <div className="rounded-lg border border-primary/30 bg-primary/8 p-3 text-sm">
+                  <p className="font-semibold text-primary">{t("firstBanner")}</p>
+                  <p className="mt-1 text-muted-foreground">{t("firstHelp")}</p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {status?.was_reset ? t("resetHelp") : status?.has_pin ? t("changeHelp") : t("setupHelp")}
+                </p>
+              )}
               <FieldWrapper
                 label={t("newPin")}
                 required

@@ -60,7 +60,6 @@ const SHARED_TABLE_LISTS: Record<string, { pinned: boolean }> = {
   "src/components/contractor-ops/claim-engine.tsx": { pinned: true },
   "src/components/contractor-ops/archive-queue.tsx": { pinned: true },
   "src/components/contractor-ops/contractor-report-workspace.tsx": { pinned: true },
-  "src/components/contractor-ops/equipment-supplier-counts.tsx": { pinned: false },
   "src/components/site-operations/presence-summary.tsx": { pinned: false },
 };
 

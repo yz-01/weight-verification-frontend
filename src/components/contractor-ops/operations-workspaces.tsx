@@ -1355,7 +1355,12 @@ export function FieldTasksWorkspace({
                 data-testid="field-task-row"
                 className="overflow-hidden surface-panel rounded-xl"
               >
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
+                {/* On a desk screen every strip shares one column grid
+                    (2026-10-17): status, photos, marker and buttons each have
+                    a fixed slot, so a task without buttons leaves its slot
+                    empty instead of pulling the other columns across. Below
+                    lg the strip wraps as before. */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 lg:grid lg:grid-cols-[minmax(0,1fr)_7.5rem_4.5rem_5.5rem_minmax(0,17rem)] lg:gap-x-4">
                   <button
                     type="button"
                     aria-haspopup="dialog"
@@ -1389,6 +1394,7 @@ export function FieldTasksWorkspace({
                       </span>
                     </span>
                   </button>
+                  <span className="contents lg:flex lg:min-w-0">
                   {taskType ? (
                     <StatusBadge
                       label={t(`taskStatus.${row.status}`)}
@@ -1405,6 +1411,7 @@ export function FieldTasksWorkspace({
                       }
                     />
                   )}
+                  </span>
                   <span
                     className="flex items-center gap-1"
                     title={t("tasks.photos", {
@@ -1424,7 +1431,9 @@ export function FieldTasksWorkspace({
                       {row.photos.length}/{row.evidence_required}
                     </span>
                   </span>
-                  <NeedsActionMarker show={row.needs_action} />
+                  <span className="contents lg:flex lg:min-w-0">
+                    <NeedsActionMarker show={row.needs_action} />
+                  </span>
                   {(canEdit || canReview || canPrepareApplication || headOffice) && (
                     <div className="flex flex-wrap justify-end gap-1.5">
                       {headOffice ? (

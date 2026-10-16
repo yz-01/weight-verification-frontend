@@ -138,11 +138,13 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
           {t("gateways.none")}
         </p>
       ) : (
-        <div className="divide-y rounded-lg border">
+        // One set of columns for every gateway (2026-10-17): a revoked one
+        // has no buttons, and its status still sits where the others do.
+        <div className="divide-y rounded-lg border sm:grid sm:grid-cols-[auto_minmax(0,1fr)_auto_auto]">
           {gateways.map((gateway) => (
             <div
               key={gateway.id}
-              className="flex flex-wrap items-center gap-3 px-4 py-3"
+              className="flex flex-wrap items-center gap-3 px-4 py-3 sm:col-span-4 sm:grid sm:grid-cols-subgrid sm:justify-items-start"
             >
               <RadioTower className="size-4 shrink-0 text-muted-foreground" />
               <div className="min-w-0 flex-1">
@@ -172,7 +174,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
                 }
               />
               {can("scale.manage") && gateway.is_active && (
-                <>
+                <div className="flex flex-wrap items-center gap-1">
                   <Button
                     type="button"
                     variant="ghost"
@@ -196,7 +198,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
                     <Ban className="size-3.5" />
                     {t("gateways.revoke")}
                   </Button>
-                </>
+                </div>
               )}
             </div>
           ))}

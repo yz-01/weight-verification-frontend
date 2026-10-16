@@ -240,23 +240,28 @@ export function ViewSettlement({ id }: { id: string }) {
                 {t("settlements.payment.none")}
               </p>
             ) : (
-              <div className="divide-y rounded-md border">
+              // Amount, method, date and reference each keep one column for
+              // every payment (2026-10-17), so a longer amount does not push
+              // the method and date of that row across.
+              <div className="divide-y rounded-md border sm:grid sm:grid-cols-[auto_auto_auto_minmax(0,1fr)]">
                 {data.payments.map((payment) => (
                   <div
                     key={payment.id}
-                    className="flex flex-wrap items-center gap-3 px-4 py-3"
+                    className="flex flex-wrap items-center gap-3 px-4 py-3 sm:col-span-4 sm:grid sm:grid-cols-subgrid"
                   >
                     <span className="tabular font-medium text-foreground">
                       {data.currency} {payment.amount}
                     </span>
-                    <TypeBadge
-                      label={t(`settlements.method.${payment.method}`)}
-                    />
+                    <span className="flex">
+                      <TypeBadge
+                        label={t(`settlements.method.${payment.method}`)}
+                      />
+                    </span>
                     <span className="tabular text-sm text-muted-foreground">
                       {df.date(payment.paid_on)}
                     </span>
                     {payment.reference && (
-                      <span className="tabular ml-auto text-xs text-muted-foreground">
+                      <span className="tabular ml-auto text-xs text-muted-foreground sm:justify-self-end">
                         {payment.reference}
                       </span>
                     )}

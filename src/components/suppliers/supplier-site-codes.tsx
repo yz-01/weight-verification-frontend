@@ -117,11 +117,13 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
           {t("suppliers.siteCodes.empty")}
         </p>
       ) : (
-        <ul className="divide-y rounded-lg border">
+        // One set of columns for every code (2026-10-17): a revoked code has
+        // no buttons, and its status still sits where the others do.
+        <ul className="divide-y rounded-lg border sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto]">
           {rows.map((row) => (
             <li
               key={row.id}
-              className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm"
+              className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm sm:col-span-3 sm:grid sm:grid-cols-subgrid"
             >
               <div className="min-w-0">
                 <p className="font-medium">
@@ -137,7 +139,8 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
                       })}
                 </p>
               </div>
-              <div className="ml-auto flex flex-wrap items-center gap-2">
+              <div className="ml-auto flex flex-wrap items-center gap-2 sm:contents">
+                <span className="flex">
                 <StatusBadge
                   label={t(
                     row.is_active
@@ -146,6 +149,8 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
                   )}
                   tone={row.is_active ? "positive" : "neutral"}
                 />
+                </span>
+                <div className="flex flex-wrap items-center justify-end gap-2 empty:hidden sm:empty:block">
                 {row.is_active && (
                   <Button
                     type="button"
@@ -169,6 +174,7 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
                     {t("qrCodes.revoke.confirm")}
                   </Button>
                 )}
+                </div>
               </div>
             </li>
           ))}

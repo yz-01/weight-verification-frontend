@@ -5906,7 +5906,14 @@
         "onSite": "Di tapak",
         "total": "Semuanya",
         "presenceAll": "Semua status tapak",
-        "presence": { "on": "Di tapak", "off": "Tidak di tapak" }
+        "presence": {
+          "on": "Di tapak",
+          "off": "Tidak di tapak"
+        },
+        "supplierCount": "{count} pembekal",
+        "foldHint": "Klik untuk lipat",
+        "unfoldHint": "Klik untuk buka",
+        "pickHint": "Klik pembekal untuk papar mesinnya sahaja di bawah; klik lagi untuk papar semua."
       },
       "newMachinePlateHelp": "Jika ada. Biarkan kosong jika tiada. Mesin yang pernah datang dipadankan melalui nombor platnya.",
       "addClass": "Tambah subkelas",
@@ -8850,8 +8857,8 @@
     "empty": "Belum ada apa-apa dikatakan.",
     "send": "Hantar",
     "placeholder": "Taip mesej",
-    "recordStart": "Rakam nota suara",
-    "recordStop": "Berhenti",
+    "recordStart": "Ketik untuk rakam nota suara",
+    "recordStop": "Ketik untuk berhenti dan hantar",
     "recordingFor": "Merakam {seconds}s daripada {limit}s",
     "attach": "Lampirkan fail",
     "takePhoto": "Ambil foto",
@@ -18783,6 +18790,9 @@
       "user_change_role": "Ubah peranan pengguna",
       "user_change_status": "Gantung atau aktifkan semula akaun",
       "consultant_review": "Tandatangani keputusan perunding"
-    }
+    },
+    "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
+    "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
+    "firstHelp": "Pilih enam digit yang hanya anda tahu, taip sekali lagi, kemudian masukkan kata laluan log masuk anda. Setelah ditetapkan, tindakan tadi diteruskan; operasi pejabat yang penting disahkan dengan PIN ini mulai sekarang."
   }
 }

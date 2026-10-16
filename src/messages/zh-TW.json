@@ -5906,7 +5906,14 @@
         "onSite": "在場",
         "total": "共有",
         "presenceAll": "全部在場狀態",
-        "presence": { "on": "在場", "off": "不在場" }
+        "presence": {
+          "on": "在場",
+          "off": "不在場"
+        },
+        "supplierCount": "{count} 家",
+        "foldHint": "點這裡收起",
+        "unfoldHint": "點這裡展開",
+        "pickHint": "點一家供應商，下面的設備清單就只顯示這家；再點一次取消。"
       },
       "newMachinePlateHelp": "有車牌就填；沒有可以留空。以前來過的設備會自動對上。",
       "addClass": "新增小類",
@@ -8850,8 +8857,8 @@
     "empty": "還沒有人說話。",
     "send": "傳送",
     "placeholder": "輸入訊息",
-    "recordStart": "按住錄音",
-    "recordStop": "停止",
+    "recordStart": "點一下開始錄音",
+    "recordStop": "點一下停止並發送",
     "recordingFor": "已錄 {seconds} 秒，上限 {limit} 秒",
     "attach": "傳送檔案",
     "takePhoto": "拍照",
@@ -18783,6 +18790,9 @@
       "user_change_role": "修改用戶角色",
       "user_change_status": "停用或恢復帳號",
       "consultant_review": "顧問審批簽核"
-    }
+    },
+    "firstTitle": "第一次設定簽核密碼",
+    "firstBanner": "這是你第一次使用簽核密碼",
+    "firstHelp": "請先設一個只有你知道的六位數密碼，再輸入一次確認，最後填登入系統用的密碼。設好後會直接繼續剛才的操作；以後重要的後台操作都用這個密碼確認。"
   }
 }
