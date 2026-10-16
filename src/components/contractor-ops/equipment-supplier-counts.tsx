@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { NO_SUPPLIER_VALUE } from "@/components/shared/supplier-date-filter";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { useListQuery } from "@/hooks/use-list-query";
 import type { ListQuery } from "@/interfaces/api";
 import type { EquipmentSupplierCounts } from "@/interfaces/contractor-ops";
@@ -96,22 +97,22 @@ export function EquipmentSupplierCountsPanel({
             {t("tableTitle")}
           </summary>
           <div className="mt-2 max-h-72 overflow-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-xs text-muted-foreground">
-                <tr>
-                  <th className="py-1 pr-3 font-medium">{t("supplier")}</th>
-                  {data.by_project && <th className="py-1 pr-3 font-medium">{t("project")}</th>}
-                  <th className="py-1 pr-3 text-right font-medium">{t("onSite")}</th>
-                  <th className="py-1 text-right font-medium">{t("total")}</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("supplier")}</TableHead>
+                  {data.by_project && <TableHead>{t("project")}</TableHead>}
+                  <TableHead className="text-right">{t("onSite")}</TableHead>
+                  <TableHead className="text-right">{t("total")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {data.results.map((row) => {
                   const value = row.supplier ?? NO_SUPPLIER_VALUE;
                   const active = chosen === value;
                   return (
-                    <tr key={`${row.supplier ?? "none"}:${row.project ?? ""}`} className={active ? "bg-primary/10" : undefined}>
-                      <td className="py-0.5 pr-3">
+                    <TableRow key={`${row.supplier ?? "none"}:${row.project ?? ""}`} data-state={active ? "selected" : undefined}>
+                      <TableCell>
                         <button
                           type="button"
                           aria-pressed={active}
@@ -120,15 +121,15 @@ export function EquipmentSupplierCountsPanel({
                         >
                           {row.supplier ? row.supplier_name : t("noSupplier")}
                         </button>
-                      </td>
-                      {data.by_project && <td className="py-0.5 pr-3">{row.project_name}</td>}
-                      <td className="py-0.5 pr-3 text-right tabular-nums">{row.on_site}</td>
-                      <td className="py-0.5 text-right tabular-nums">{row.total}</td>
-                    </tr>
+                      </TableCell>
+                      {data.by_project && <TableCell>{row.project_name}</TableCell>}
+                      <TableCell className="text-right tabular-nums">{row.on_site}</TableCell>
+                      <TableCell className="text-right tabular-nums">{row.total}</TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </details>
       )}
