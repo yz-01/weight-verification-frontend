@@ -338,7 +338,8 @@ export function ClaimEngineWorkspace() {
         <EmptyState icon={Inbox} title={t("empty")} />
       ) : (
         <div className="surface-panel overflow-hidden rounded-xl">
-          <Table className="min-w-[56rem]">
+          {/* Fits the page, the actions pinned at the right (I39). */}
+          <Table fit>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("column.claimNo")}</TableHead>
@@ -348,7 +349,7 @@ export function ClaimEngineWorkspace() {
                 <TableHead className="text-right tabular">{t("column.items")}</TableHead>
                 <TableHead>{t("column.state")}</TableHead>
                 <TableHead>{t("column.payment")}</TableHead>
-                <TableHead className="text-right">{t("column.action")}</TableHead>
+                <TableHead pin="end" className="text-right">{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -402,7 +403,7 @@ export function ClaimEngineWorkspace() {
                       }
                     />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell pin="end" className="text-right">
                     <Button
                       size="sm"
                       variant="outline"
@@ -1208,8 +1209,8 @@ function CandidatePicker({
         </p>
       ) : (
         <>
-          <div className="max-h-72 overflow-y-auto rounded-lg border">
-            <Table className="min-w-[32rem]">
+          <div className="rounded-lg border">
+            <Table className="min-w-[32rem]" containerClassName="max-h-72">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10" />

@@ -30,6 +30,7 @@ import {
   type ExportFormat,
 } from "@/services/contractor.service";
 import { MaterialTabs, NetTotalsView, useMaterialTab } from "@/components/receipts/material-tabs";
+import { LIST_FITS } from "@/lib/list-fits";
 
 // Sentinels rather than "": a Radix SelectItem cannot carry an empty
 // value, and the two "no column chosen" answers are different questions -
@@ -368,7 +369,7 @@ export function Receipts() {
               quantityLabel: t("exportTotals.quantity"),
               note: t("receipts.net.note"),
               materialLabel: t("receipts.field.materialName"),
-              specificationLabel: t("receipts.field.materialSpecification"),
+              specificationLabel: t("receipts.net.specification"),
               receivedLabel: t("receipts.net.received"),
               returnedLabel: t("receipts.net.returned"),
             }
@@ -467,7 +468,8 @@ export function Receipts() {
         // choice of the old columns would otherwise hide the DO and plate.
         // `.v3` with the manufacturer column (2026-10 D1); `.v4` with the
         // photograph in place of the photo count (E3).
-        storageKey="receipts.v4"
+        storageKey={LIST_FITS.materialReceipts.storageKey}
+        defaultHidden={LIST_FITS.materialReceipts.hidden}
         // Multi Engine picks deliveries here (2026-10-10): 「✅ 已打包 X 次」,
         // and tick boxes while a package is being put together.
         pack={{ kind: "MATERIAL_RECEIPT" }}

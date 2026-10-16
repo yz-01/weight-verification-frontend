@@ -182,14 +182,15 @@ export function DailyReportsTab() {
       </FilterBar>
       <QueryFailedNote query={rows} what={t("tabs.reports")} />
       <div className="surface-panel overflow-hidden rounded-xl">
-        <Table>
+        {/* Fits the page, 查看 pinned at the right (I39). */}
+        <Table fit>
           <TableHeader>
             <TableRow>
               {/* 记录编号 (I6): DR-<project>-001. */}
               <TableHead className="w-32">{tRoot("recordNo.column")}</TableHead>
               <TableHead>{t("reports.name")}</TableHead>
               <TableHead className="w-48">{t("reports.date")}</TableHead>
-              <TableHead className="w-20 text-right">{t("reports.view")}</TableHead>
+              <TableHead pin="end" className="w-20 text-right">{t("reports.view")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -232,7 +233,7 @@ export function DailyReportsTab() {
                     </p>
                   </TableCell>
                   <TableCell className="tabular">{days(row)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell pin="end" className="text-right">
                     <Button
                       variant="ghost"
                       size="icon"

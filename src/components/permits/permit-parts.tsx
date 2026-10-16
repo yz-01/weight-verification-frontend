@@ -83,9 +83,16 @@ import {
   returnPermit,
 } from "@/services/permit.service";
 
-/** What a permit form arrives as: Word, Excel, PDF or a photo of it. */
-export const PERMIT_FILE_ACCEPT =
-  ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*";
+/**
+ * What a permit form arrives as: Word, Excel, PDF or a photo of it. Exactly
+ * the server's suffixes (`site_operations/permits.py` PERMIT_FILE_SUFFIXES):
+ * no `image/*`, which let a .gif, .bmp or .avif through here only for the
+ * server to refuse it.
+ */
+export const PERMIT_FILE_SUFFIXES = [
+  ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif",
+] as const;
+export const PERMIT_FILE_ACCEPT = PERMIT_FILE_SUFFIXES.join(",");
 
 export const PERMIT_TONE: Record<PermitStatus, "warning" | "danger" | "positive"> = {
   RECTIFICATION_SUBMITTED: "warning",

@@ -25,6 +25,19 @@ export const SIGN_OFF_CODES = {
 /** The failure a cancelled PIN dialog leaves: nothing to toast. */
 export const SIGN_OFF_CANCELLED = "sign_off_cancelled";
 
+/**
+ * Whether a failure is only the PIN dialog being closed. The API client
+ * already throws it without a message or field errors; a screen that words
+ * its own fallback (`error.message || t("failed")`) asks this first.
+ */
+export function isSignOffCancelled(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { code?: unknown }).code === SIGN_OFF_CANCELLED
+  );
+}
+
 const FOLLOW_UPS: ReadonlySet<string> = new Set([
   SIGN_OFF_CODES.notSet,
   SIGN_OFF_CODES.incorrect,

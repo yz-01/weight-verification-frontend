@@ -5,13 +5,14 @@ import { publishTranslator } from "@/lib/i18n-runtime";
 import { ApiError } from "@/interfaces/api";
 import {
   SIGN_OFF_CANCELLED,
+  isSignOffCancelled,
   isSignOffRefusal,
   registerSignOff,
   resetSignOffForTests,
   signsWithCredential,
   type SignOffAsk,
 } from "@/lib/sign-off";
-import { api } from "./api-client";
+import { api, fetchObjectUrl } from "./api-client";
 
 /**
  * The sign-off PIN (I29): an office operation refused for want of the PIN
@@ -107,6 +108,28 @@ describe("the sign-off PIN in the API client", () => {
 
     expect(failure).toBeInstanceOf(ApiError);
     expect((failure as ApiError).code).toBe(SIGN_OFF_CANCELLED);
+    // ID77: nothing for any screen to show - no "Enter your six-digit
+    // sign-off PIN." under the 改正 dialog or the 更换清运公司 one.
+    expect((failure as ApiError).message).toBe("");
+    expect((failure as ApiError).errors).toEqual({});
+    expect(isSignOffCancelled(failure)).toBe(true);
+  });
+
+  it("ends a cancelled download quietly too", async () => {
+    serverSays([REQUIRED, 403]);
+    registerSignOff(async () => null, () => undefined);
+
+    const failure = await fetchObjectUrl("/api/daily-reports/export/").catch((error) => error);
+
+    expect((failure as ApiError).code).toBe(SIGN_OFF_CANCELLED);
+    expect((failure as ApiError).message).toBe("");
+  });
+
+  it("tells a cancel from a real refusal", () => {
+    expect(isSignOffCancelled(new ApiError("", 403, {}, SIGN_OFF_CANCELLED))).toBe(true);
+    expect(isSignOffCancelled(new ApiError("No", 403, {}, "sign_off_pin_required"))).toBe(false);
+    expect(isSignOffCancelled(new Error("x"))).toBe(false);
+    expect(isSignOffCancelled(null)).toBe(false);
   });
 
   it("is an ordinary failure where no dialog is mounted (the phone)", async () => {

@@ -4088,7 +4088,12 @@
       "subClass": "Sub class",
       "majorClassOf": "Major class it belongs to",
       "majorClassHint": "Leave it to make this a major class. Machines are registered under a sub class.",
-      "isMajorClass": "(This is a major class)"
+      "isMajorClass": "(This is a major class)",
+      "addKind": "Add class",
+      "pageNote": "Equipment classes are managed here. To add a machine, press “Register site equipment”, or go to {menu} → {tab}.",
+      "onSite": "{count, plural, one {# machine} other {# machines}}",
+      "moreSettings": "More settings",
+      "offClass": "This class is switched off. Switch it on to register a machine in it."
     },
     "system": "System",
     "systemHelp": "Work permits are used by the system: they can be renamed, not switched off or removed.",
@@ -5890,6 +5895,7 @@
         "headline": "{onSite} on site / {total} in all",
         "headlineFor": "{name}: {numbers}",
         "noSupplier": "No supplier",
+        "countRule": "Counted in machines: each machine counts as 1.",
         "what": "the on-site count per supplier",
         "tableTitle": "By supplier",
         "supplier": "Supplier",
@@ -7855,6 +7861,7 @@
       "gate_record_not_an_issue": "This gate photo is not a gate issue yet. Press Talk and choose who handles it first.",
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
+      "attachment_needs_project": "This approval is not for one project, so it takes no attachments. Put its papers in the document archive.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
       "receipt_awaiting_acceptance": "This delivery has not been accepted yet. Accept or reject it first, then archive it.",
       "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead.",
@@ -11677,7 +11684,7 @@
     "safety": {
       "what": "Safety events on site: logging them and reporting them up.",
       "who": "Holders of both safety.view and project.view.",
-      "need": "An event needs the project, the issue category, a title, photos, GPS evidence, the people responsible and what was done. A report needs the project, a title, what happened, who it goes to, the evidence and the place.",
+      "need": "An event needs the project, the rectification category, a title, photos, GPS evidence, the people responsible and what was done. A report needs the project, a title, what happened, who it goes to, the evidence and the place.",
       "then": "The people named are notified straight away.",
       "trouble": "Photos and GPS are both required and there is often no signal. Shoot anyway - it queues and uploads later, and the location kept is where you stood when you took it."
     },
@@ -12878,20 +12885,27 @@
       "in": "Material In",
       "out": "Material Out",
       "reject": "Reject",
-      "totals": "Received & returned totals",
+      "totals": "Totals by supplier",
       "legacyReturns": "Returns filed on the receipt form before 10-02",
       "choose": "Choose a view",
       "targets": "Material targets"
     },
     "net": {
-      "title": "Received and returned by supplier and material",
-      "note": "Received never goes down and returns are not taken off it. Returned = returns the office has confirmed as complete, matched by material category and unit. Rejected loads are not counted in received. Different units are never added together.",
-      "received": "Received (total in)",
-      "returned": "Returned",
-      "rejected": "Rejected (not counted)",
+      "title": "Totals by supplier",
+      "note": "Delivered to site: what passed the check, added up over time. Sent back to supplier: returns the office has confirmed as done. Failed check: not accepted, so not counted.",
+      "received": "Delivered to site",
+      "returned": "Sent back to supplier",
+      "rejected": "Failed check (not counted)",
       "supplier": "Supplier",
       "noSupplier": "No supplier named",
-      "searchMaterial": "Search material",
+      "searchMaterial": "Search material or supplier",
+      "searchEmpty": "Nothing found for \"{term}\". You can search a material name or a supplier name.",
+      "specification": "Spec",
+      "noteReceived": "Delivered to site: what passed the check, added up over time.",
+      "noteReturned": "Sent back to supplier: returns the office has confirmed as done.",
+      "noteRejected": "Failed check: not accepted, so not counted.",
+      "groupTitle": "Supplier: {name} · {count, plural, one {# material} other {# materials}}",
+      "clickHint": "Click to see which records",
       "expand": "Show each delivery",
       "collapse": "Hide",
       "deliveries": "Deliveries",
@@ -13660,8 +13674,12 @@
       "photo": "Open photo"
     },
     "field": {
+<<<<<<< HEAD
       "attachments": "Attachments (PDF / Word / Excel)",
       "category": "Issue category",
+=======
+      "category": "Rectification category",
+>>>>>>> origin/develop
       "description": "Description",
       "dueAt": "Rectification deadline",
       "evidence": "Evidence",
@@ -13704,13 +13722,13 @@
       "title": "Report a site incident"
     },
     "filter": {
-      "allCategories": "All issue categories",
+      "allCategories": "All rectification categories",
       "allProjects": "All projects",
       "allResponsible": "All responsible people",
       "dateFrom": "From date",
       "dateTo": "To date",
       "project": "Choose project",
-      "selectCategory": "Choose a issue category"
+      "selectCategory": "Choose a rectification category"
     },
     "form": {
       "captureLocation": "Capture GPS",
@@ -13722,8 +13740,8 @@
       "locationTimeout": "The GPS fix did not arrive in time. Step into the open and try again.",
       "locationUnavailable": "The device could not get a position. Check that location is on, then try again.",
       "locationUnsupported": "This device cannot provide a GPS position.",
-      "noSafetyColumns": "This project has no issue category yet. Add one first so hazards can be filed against it.",
-      "addSafetyColumn": "+ Add a issue category",
+      "noSafetyColumns": "This project has no rectification category yet. Add one first so hazards can be filed against it.",
+      "addSafetyColumn": "+ Add a rectification category",
       "askForSafetyColumn": "Ask a colleague who manages categories to add one under Category management."
     },
     "new": "Report hazard",
@@ -13743,7 +13761,7 @@
       "title": "Update incident status"
     },
     "what": {
-      "categories": "The issue categories",
+      "categories": "The rectification categories",
       "responsiblePeople": "The responsible people",
       "requestedIncident": "The incident in the link",
       "workers": "The people to notify"
@@ -17567,6 +17585,8 @@
     "chooseFile": "Choose file",
     "dropHint": "Take a photo with the computer camera, choose a file, drag it here, or copy a picture and press Ctrl+V here.",
     "dropHintPhone": "Take a photo or choose a file.",
+    "dropHintNoCamera": "Choose a file, drag it here, or copy a picture and press Ctrl+V here.",
+    "dropHintPhoneNoCamera": "Choose a file.",
     "limitsMany": "Up to {count} files, {limit} MB each.",
     "limitsCount": "Up to {count} files.",
     "limitsOne": "One file, up to {limit} MB.",

@@ -106,7 +106,6 @@ function displayValue(value: string | number | boolean | null): string {
 }
 
 /** The preview's photograph column, before the report's own columns. */
-const PHOTO_COLUMN_WIDTH = 80;
 
 const REPORT_DATE_TIME_COLUMNS = new Set([
   "generated_at",
@@ -134,49 +133,17 @@ const REPORT_DATE_ONLY_COLUMNS = new Set([
   "rectification_due_at",
 ]);
 
-const REPORT_LONG_COLUMNS = new Set([
-  "body",
-  "name",
-  "description",
-  "file_name",
-  "review_note",
-  "source",
-  "target_name",
-  "task",
-  "title",
-]);
-
-function reportColumnWidth(key: string): number {
-  if (key === "latitude" || key === "longitude") {
-    return 136;
-  }
-  if (REPORT_DATE_TIME_COLUMNS.has(key)) {
-    return 216;
-  }
-  if (REPORT_DATE_ONLY_COLUMNS.has(key)) {
-    return 152;
-  }
-  if (key === "device_id") {
-    return 216;
-  }
-  if (key === "file_name") {
-    return 304;
-  }
-  if (REPORT_REFERENCE_COLUMNS.has(key)) {
-    return 224;
-  }
-  if (REPORT_LONG_COLUMNS.has(key)) {
-    return 264;
-  }
-  return 176;
-}
-
+/**
+ * How a preview cell reads (I39: the preview fits the page width). A date
+ * with its time may take two lines - date over time - rather than widen the
+ * table; every other cell stops at two lines with the whole text on hover.
+ */
 function reportCellClass(key: string): string {
   if (key === "latitude" || key === "longitude") {
     return "whitespace-nowrap tabular-nums";
   }
   if (REPORT_DATE_TIME_COLUMNS.has(key) || REPORT_DATE_ONLY_COLUMNS.has(key)) {
-    return "whitespace-nowrap tabular-nums";
+    return "line-clamp-2 tabular-nums";
   }
   if (key === "device_id" || key === "file_name") {
     return "line-clamp-2 break-all";
@@ -317,10 +284,6 @@ export function ContractorReportWorkspace({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["contractor-reports", "history"] }),
   });
-  const previewWidth = (report.data?.columns ?? []).reduce(
-    (total, key) => total + reportColumnWidth(key),
-    PHOTO_COLUMN_WIDTH,
-  );
 
   function formatReportValue(
     key: string,
@@ -464,27 +427,15 @@ export function ContractorReportWorkspace({
         ) : (report.data?.rows.length ?? 0) === 0 ? (
           <p className="p-10 text-center text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
-          <div className="max-h-[60dvh] overflow-auto">
-            <Table
-              className="table-fixed"
-              style={{ width: previewWidth, minWidth: "100%" }}
-            >
-              <colgroup>
-                <col style={{ width: PHOTO_COLUMN_WIDTH }} />
-                {report.data?.columns.map((key) => (
-                  <col key={key} style={{ width: reportColumnWidth(key) }} />
-                ))}
-              </colgroup>
-              <TableHeader className="sticky top-0 z-10 bg-card">
+          // The table's own box scrolls (IB3), so its header stays on top;
+          // the columns fit the page width (I39) - no sideways scroll at
+          // 1366 px - each at least as wide as its one-line header.
+          <Table fit containerClassName="max-h-[60dvh]">
+              <TableHeader>
                 <TableRow>
-                  <TableHead className="whitespace-normal">{t("photo")}</TableHead>
+                  <TableHead>{t("photo")}</TableHead>
                   {report.data?.columns.map((key) => (
-                    <TableHead
-                      key={key}
-                      className="whitespace-normal [overflow-wrap:anywhere]"
-                    >
-                      {t(`column.${key}`)}
-                    </TableHead>
+                    <TableHead key={key}>{t(`column.${key}`)}</TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
@@ -573,8 +524,7 @@ export function ContractorReportWorkspace({
                   );
                 })}
               </TableBody>
-            </Table>
-          </div>
+          </Table>
         )}
       </section>
       {opener.sheet}
@@ -700,18 +650,9 @@ export function ContractorReportHistoryWorkspace() {
         ) : (history.data?.results.length ?? 0) === 0 ? (
           <p className="p-10 text-center text-sm text-muted-foreground">{t("history.empty")}</p>
         ) : (
-          <div className="overflow-auto">
-            <Table className="min-w-300 table-fixed">
-              <colgroup>
-                <col className="w-72" />
-                <col className="w-36" />
-                <col className="w-44" />
-                <col className="w-48" />
-                <col className="w-20" />
-                <col className="w-44" />
-                <col className="w-44" />
-                <col className="w-48" />
-              </colgroup>
+          <>
+            {/* Fits the page (I39): the file name wraps, the dates stack. */}
+            <Table fit>
               <TableHeader><TableRow>
                 <TableHead>{t("history.file")}</TableHead>
                 <TableHead>{t("history.report")}</TableHead>
@@ -720,7 +661,7 @@ export function ContractorReportHistoryWorkspace() {
                 <TableHead className="text-right tabular">{t("history.rows")}</TableHead>
                 <TableHead>{t("history.generatedBy")}</TableHead>
                 <TableHead>{t("history.generatedAt")}</TableHead>
-                <TableHead>{archiveT("column")}</TableHead>
+                <TableHead pin="end">{archiveT("column")}</TableHead>
               </TableRow></TableHeader>
               <TableBody>
                 {history.data?.results.map((row) => (
@@ -735,14 +676,14 @@ export function ContractorReportHistoryWorkspace() {
                     <TableCell className="text-right tabular">{row.metric_count}</TableCell>
                     <TableCell>{row.generated_by_name || row.generated_by_email}</TableCell>
                     <TableCell className="whitespace-nowrap tabular">{df.dateTime(row.created_at)}</TableCell>
-                    <TableCell>
+                    <TableCell pin="end">
                       <ArchivedReportActions row={row} archive={archive} title={previewTitle(row)} />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </>
         )}
       </section>
       {archive.element}

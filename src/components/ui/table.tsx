@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useTranslations } from "next-intl"
 
+import { clippedText } from "@/lib/table-fit"
 import { cn } from "@/lib/utils"
 
 /**
@@ -21,8 +22,17 @@ import { cn } from "@/lib/utils"
 function Table({
   className,
   containerClassName,
+  fit,
   ...props
-}: React.ComponentProps<"table"> & { containerClassName?: string }) {
+}: React.ComponentProps<"table"> & {
+  containerClassName?: string
+  /**
+   * A back-office list that must fit the screen (I39, ID80): columns sized by
+   * their content, long text on two lines at most, 13 px, tight padding.
+   * The rules are in globals.css under `[data-fit]`; the phone is unchanged.
+   */
+  fit?: boolean
+}) {
   return (
     <div
       data-slot="table-container"
@@ -33,6 +43,7 @@ function Table({
     >
       <table
         data-slot="table"
+        data-fit={fit ? "" : undefined}
         className={cn("w-full caption-bottom text-sm", className)}
         {...props}
       />
@@ -107,10 +118,18 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   )
 }
 
-function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+/**
+ * `pin="end"` keeps the cell at the right edge while the row scrolls sideways
+ * - the row's 「查看 / 更改」 (I39). Give the column's head and every one of
+ * its cells the same pin.
+ */
+type Pin = { pin?: "end" }
+
+function TableHead({ className, pin, ...props }: React.ComponentProps<"th"> & Pin) {
   return (
     <th
       data-slot="table-head"
+      data-pin={pin}
       className={cn(
         "h-11 px-3.5 text-left align-middle text-xs font-semibold whitespace-nowrap text-muted-foreground [&:has([role=checkbox])]:pr-0",
         className
@@ -120,10 +139,17 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   )
 }
 
-function TableCell({ className, children, colSpan, ...props }: React.ComponentProps<"td">) {
+function TableCell({
+  className,
+  children,
+  colSpan,
+  pin,
+  ...props
+}: React.ComponentProps<"td"> & Pin) {
   return (
     <td
       data-slot="table-cell"
+      data-pin={pin}
       colSpan={colSpan}
       className={cn(
         "px-3.5 py-2.5 align-middle whitespace-nowrap [overflow-wrap:normal] [&:has([role=checkbox])]:pr-0",
@@ -137,6 +163,25 @@ function TableCell({ className, children, colSpan, ...props }: React.ComponentPr
         </div>
       ) : children}
     </td>
+  )
+}
+
+/**
+ * A cell's content in a fitted table (I39): two lines at most, then 「…」, and
+ * the whole text as the hover tip when - and only when - some of it is cut.
+ */
+function CellFit({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="cell-fit"
+      className={cn("min-w-0", className)}
+      onMouseEnter={(event) => {
+        const text = clippedText(event.currentTarget)
+        if (text) event.currentTarget.title = text
+        else event.currentTarget.removeAttribute("title")
+      }}
+      {...props}
+    />
   )
 }
 
@@ -162,4 +207,5 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  CellFit,
 }

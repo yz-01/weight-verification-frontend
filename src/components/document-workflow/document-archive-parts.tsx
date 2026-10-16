@@ -42,6 +42,35 @@ import { documentVersionThumbnailUrl } from "@/services/document-workflow.servic
 /** The upload pickers' `accept`: PDF, Word, Excel and photographs (B6). */
 export const DOCUMENT_FILE_ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,image/*";
 
+/** Where an upload of several files into one document stands. */
+export interface UploadBatch {
+  files: File[];
+  /** The first this many of `files` are in the document already. */
+  done: number;
+  /** The document the first file made; null until then. */
+  createdId: string | null;
+}
+
+/**
+ * The batch after the picker changes its files.
+ *
+ * Before anything was sent, or once every file was in, a new choice is a new
+ * document. Part-way through (a file failed), the document stays: the files
+ * already in it go first and count as done, a file added joins the same
+ * document, and taking one off only leaves it out of what is still to send.
+ * Starting again there filed the files already sent a second time.
+ */
+export function nextUploadBatch(batch: UploadBatch, next: File[]): UploadBatch {
+  const complete = batch.done >= batch.files.length && batch.files.length > 0;
+  if (batch.createdId === null || complete) {
+    return { files: next, done: 0, createdId: null };
+  }
+  const sent = batch.files.slice(0, batch.done);
+  const keptSent = sent.filter((file) => next.includes(file));
+  const rest = next.filter((file) => !sent.includes(file));
+  return { files: [...keptSent, ...rest], done: keptSent.length, createdId: batch.createdId };
+}
+
 /**
  * What the category filter's button says: the subcategory as a path, the
  * category alone, or "all" when nothing is chosen (or the choice is gone).

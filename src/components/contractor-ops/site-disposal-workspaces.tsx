@@ -123,6 +123,7 @@ import {
 } from "@/services/contractor-ops.service";
 import { getProjectAssignments, getSupplier } from "@/services/contractor.service";
 import { submitDisposalRequestOfflineAware } from "@/services/offline-sync.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
@@ -1335,7 +1336,8 @@ export function SiteDisposalOffice() {
         needsActionCount={rows.data?.needs_action_count}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="site-disposals"
+        storageKey={LIST_FITS.siteDisposals.storageKey}
+        defaultHidden={LIST_FITS.siteDisposals.hidden}
         pack="DISPOSAL_REQUEST"
         // I27: by clearance company (or none on the list) and by the day it
         // was raised - one company's period, to settle (and pack) with it.

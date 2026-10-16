@@ -533,8 +533,9 @@ export function EquipmentOperatorHours() {
           <QueryFailedNote query={days} what={t("what.days")} className="p-3" />
           {/* The client's columns, in the client's order (2026-10 I4):
               设备编号｜设备名称｜供应商｜操作人员｜CIDB 卡号｜日期｜开工时间｜收工时间｜
-              工时｜查看 - with 累计工时 (Lucas, 2026-10-10) before 查看. */}
-          <Table>
+              工时｜查看 - with 累计工时 (Lucas, 2026-10-10) before 查看.
+              Fits the page with 查看 pinned at the right (I39). */}
+          <Table fit>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.machineNo")}</TableHead>
@@ -547,7 +548,7 @@ export function EquipmentOperatorHours() {
                 <TableHead>{t("field.endTime")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.hours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.cumulative")}</TableHead>
-                <TableHead className="text-right">{t("field.view")}</TableHead>
+                <TableHead pin="end" className="text-right">{t("field.view")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -623,7 +624,7 @@ export function EquipmentOperatorHours() {
                       <TableCell className="tabular text-right text-muted-foreground">
                         {row.cumulative_hours ?? ""}
                       </TableCell>
-                      <TableCell>
+                      <TableCell pin="end">
                         <div className="flex items-center justify-end gap-0.5">
                           {canAdjust && (row.missing_end || row.missing_start) ? (
                             <Button
@@ -666,7 +667,7 @@ export function EquipmentOperatorHours() {
                       {days.data?.total_hours ?? ""}
                     </TableCell>
                     <TableCell className="text-right" />
-                    <TableCell className="text-right" />
+                    <TableCell pin="end" className="text-right" />
                   </TableRow>
                 </>
               )}
@@ -676,7 +677,7 @@ export function EquipmentOperatorHours() {
       ) : (
         <div className="surface-panel overflow-hidden rounded-xl">
           <QueryFailedNote query={monthly} what={t("what.month")} className="p-3" />
-          <Table>
+          <Table fit>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("field.equipment")}</TableHead>

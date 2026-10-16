@@ -4088,7 +4088,12 @@
       "subClass": "小類",
       "majorClassOf": "上級（大類）",
       "majorClassHint": "不選就是大類。設備要登記在小類下面。",
-      "isMajorClass": "（這是大類）"
+      "isMajorClass": "（這是大類）",
+      "addKind": "新增種類",
+      "pageNote": "這裡管理設備的種類；每一台機器請按「登記設備」，或到 {menu} → {tab}。",
+      "onSite": "設備 {count} 台",
+      "moreSettings": "更多設定",
+      "offClass": "這個種類已停用，啟用後才能登記設備。"
     },
     "system": "系統",
     "systemHelp": "施工准證申請由系統使用：可以改名，不能停用或刪除。",
@@ -5890,10 +5895,11 @@
         "headline": "在場 {onSite} 台 / 共 {total} 台",
         "headlineFor": "{name}：{numbers}",
         "noSupplier": "沒有供應商",
+        "countRule": "按台數計算，一台設備算 1 台。",
         "what": "各供應商的在場台數",
         "tableTitle": "按供應商彙總",
         "supplier": "供應商",
-        "project": "專案",
+        "project": "項目",
         "onSite": "在場",
         "total": "共有",
         "presenceAll": "全部在場狀態",
@@ -7855,6 +7861,7 @@
       "gate_record_not_an_issue": "這張門崗照片還不是門崗事項。先按「溝通」選處理人員，才能在裡面溝通。",
       "receipt_rejected_at_gate": "這批貨已在現場交接時 Reject，不能再更改。",
       "record_finished": "此事項已結束，不能再上傳附件；已有附件仍可查看。",
+      "attachment_needs_project": "這個審批不屬於某個項目，不能加附件；請把檔案放到「文檔檔案」裡。",
       "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
       "receipt_awaiting_acceptance": "這批材料還沒驗收，請先驗收或判不合格再歸檔。",
       "site_record_field_only": "只有現場人員能在手機上新增這條記錄。後台可以更正已有的記錄。",
@@ -11677,7 +11684,7 @@
     "safety": {
       "what": "工地上的安全事件：登記，以及往上報。",
       "who": "同時持 safety.view 和 project.view。",
-      "need": "登記事件要專案、事項分類、標題、照片、GPS 證據、負責人及工地人員、處理說明；上報事故要專案、事故標題、事件經過、報告給誰、證據檔案和地點。",
+      "need": "登記事件要專案、整改分類、標題、照片、GPS 證據、負責人及工地人員、處理說明；上報事故要專案、事故標題、事件經過、報告給誰、證據檔案和地點。",
       "then": "被點名的人會立刻收到通知。",
       "trouble": "照片和 GPS 都是必填，而現場常常沒訊號。照拍就是，它會排隊之後自動傳，存下來的位置是你拍照時站的地方。"
     },
@@ -12878,20 +12885,27 @@
       "in": "Material In 進場",
       "out": "Material Out 退場",
       "reject": "Reject 不合格",
-      "totals": "累計進場與退場",
+      "totals": "按供應商看總數",
       "legacyReturns": "10-02 前用進場單登記的退場記錄",
       "choose": "選擇查看",
       "targets": "材料目標"
     },
     "net": {
-      "title": "按供應商、材料匯總的累計進場與退場",
-      "note": "累計進場不會減少，退場也不從中扣除。已退場 = 後台已確認完成的退場（按材料分類和單位配對）。不合格不計入累計進場。不同單位不混加。",
-      "received": "累計進場",
-      "returned": "已退場",
-      "rejected": "Reject（不計入）",
+      "title": "按供應商看總數",
+      "note": "送來工地：驗收合格的數量，一直累計。退回供應商：後台確認完成的退貨。驗收不合格：沒有收下，不算進去。",
+      "received": "送來工地",
+      "returned": "退回供應商",
+      "rejected": "驗收不合格（不算）",
       "supplier": "供應商",
       "noSupplier": "未填供應商",
-      "searchMaterial": "搜尋材料",
+      "searchMaterial": "搜尋材料或供應商",
+      "searchEmpty": "找不到「{term}」。可以搜尋材料名稱或供應商名稱。",
+      "specification": "規格",
+      "noteReceived": "送來工地：驗收合格的數量，一直累計。",
+      "noteReturned": "退回供應商：後台確認完成的退貨。",
+      "noteRejected": "驗收不合格：沒有收下，不算進去。",
+      "groupTitle": "供應商：{name} · {count} 種材料",
+      "clickHint": "點一下看是哪幾筆",
       "expand": "查看逐筆",
       "collapse": "收起",
       "deliveries": "筆數",
@@ -13660,8 +13674,12 @@
       "photo": "打開照片"
     },
     "field": {
+<<<<<<< HEAD
       "attachments": "附件（PDF / Word / Excel）",
       "category": "事項分類",
+=======
+      "category": "整改分類",
+>>>>>>> origin/develop
       "description": "說明",
       "dueAt": "整改期限",
       "evidence": "證據",
@@ -13704,13 +13722,13 @@
       "title": "上報工地事故"
     },
     "filter": {
-      "allCategories": "全部事項分類",
+      "allCategories": "全部整改分類",
       "allProjects": "所有項目",
       "allResponsible": "全部整改負責人",
       "dateFrom": "開始日期",
       "dateTo": "結束日期",
       "project": "選擇項目",
-      "selectCategory": "選擇事項分類"
+      "selectCategory": "選擇整改分類"
     },
     "form": {
       "captureLocation": "獲取 GPS",
@@ -13743,7 +13761,7 @@
       "title": "更新事故狀態"
     },
     "what": {
-      "categories": "事項分類",
+      "categories": "整改分類",
       "responsiblePeople": "負責人列表",
       "requestedIncident": "連結中的事故",
       "workers": "可通知人員"
@@ -13814,7 +13832,7 @@
     "title": "整改 / EHS",
     "toast": {
       "reassigned": "已調整負責人",
-      "categoryChanged": "已儲存事項分類",
+      "categoryChanged": "已儲存整改分類",
       "assigned": "已指派整改",
       "reviewed": "已保存驗收結果",
       "submitted": "已提交整改證據"
@@ -17567,6 +17585,8 @@
     "chooseFile": "選擇檔案",
     "dropHint": "可以用電腦攝影機拍照、選擇檔案、把檔案拖到這裡，或複製圖片後在這裡按 Ctrl+V 貼上。",
     "dropHintPhone": "拍照或選擇檔案。",
+    "dropHintNoCamera": "選擇檔案、拖到這裡，或複製截圖後按 Ctrl+V 貼上。",
+    "dropHintPhoneNoCamera": "選擇檔案。",
     "limitsMany": "最多 {count} 個檔案，每個不超過 {limit} MB。",
     "limitsCount": "最多 {count} 個檔案。",
     "limitsOne": "一個檔案，不超過 {limit} MB。",
@@ -18383,7 +18403,7 @@
       "reassign": "調整負責人",
       "reassignHelp": "{incident} 現在由 {person} 負責。選一個新的負責人，照片和溝通都留在原事項。",
       "newResponsible": "新負責人",
-      "chooseCategory": "先選一個不同的事項分類",
+      "chooseCategory": "先選一個不同的整改分類",
       "saveCategory": "儲存分類"
     },
     "fieldTasks": {

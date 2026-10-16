@@ -123,6 +123,7 @@ import {
   updateSafetyCategory,
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
 // they would have been the kind of constant a later reader assumes is used.
@@ -835,7 +836,8 @@ export function Safety({
         search={list.search}
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
-        storageKey="trace-safety"
+        storageKey={LIST_FITS.hazards.storageKey}
+        defaultHidden={LIST_FITS.hazards.hidden}
         pack={{ kind: "HAZARD" }}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

@@ -132,6 +132,7 @@ import {
   getSiteProgressSummary,
   reviewMaterialOutgoing,
 } from "@/services/contractor-ops.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 const OUTGOING_STATES = [
   "PENDING",
@@ -468,7 +469,8 @@ export function MaterialOutgoingOffice() {
         isLoading={rows.isLoading}
         isError={rows.isError}
         // `.v2` with the manufacturer column (2026-10 D1).
-        storageKey="material-outgoing.v2"
+        storageKey={LIST_FITS.materialOutgoing.storageKey}
+        defaultHidden={LIST_FITS.materialOutgoing.hidden}
         pack="MATERIAL_OUTGOING"
         toolbar={
           <>
@@ -1121,7 +1123,8 @@ export function SiteEquipmentOffice() {
           totalCount={machines.data?.count ?? 0}
           isLoading={machines.isLoading}
           isError={machines.isError}
-          storageKey="site-equipment-register"
+          storageKey={LIST_FITS.equipmentRegister.storageKey}
+        defaultHidden={LIST_FITS.equipmentRegister.hidden}
           toolbar={
             <>
               <ProjectListFilter list={list} />
@@ -1148,12 +1151,13 @@ export function SiteEquipmentOffice() {
                 disabled={!machines.data?.count}
                 disabledReason={t("state.empty")}
                 title={tRoot("moduleTable.equipmentView.register")}
-                onExport={(format) =>
+                onExport={async (format) =>
                   exportEquipmentRegister({
                     format,
                     title: tRoot("moduleTable.equipmentView.register"),
-                    // The numbers on screen are printed at the top (I36).
-                    subtitle: supplierCounts.text || undefined,
+                    // The numbers on screen are printed at the top (I36),
+                    // waited for when the export is pressed before they came.
+                    subtitle: (supplierCounts.text || (await supplierCounts.exportText())) || undefined,
                     query: list.query,
                     columns: [
                       { key: "registration_no", label: t("field.plateNo") },
@@ -1201,7 +1205,8 @@ export function SiteEquipmentOffice() {
           needsActionCount={movements.data?.needs_action_count}
           isLoading={movements.isLoading}
           isError={movements.isError}
-          storageKey="equipment-movements"
+          storageKey={LIST_FITS.equipmentMovements.storageKey}
+        defaultHidden={LIST_FITS.equipmentMovements.hidden}
           pack="EQUIPMENT_MOVEMENT"
           toolbar={
             <>
@@ -1983,7 +1988,8 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         totalCount={total}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="site-progress"
+        storageKey={LIST_FITS.siteProgress.storageKey}
+        defaultHidden={LIST_FITS.siteProgress.hidden}
         pack="PROGRESS"
         toolbar={
           <>

@@ -4088,7 +4088,12 @@
       "subClass": "Subkelas",
       "majorClassOf": "Kelas utama",
       "majorClassHint": "Biarkan untuk jadikan kelas utama. Mesin didaftarkan di bawah subkelas.",
-      "isMajorClass": "(Ini kelas utama)"
+      "isMajorClass": "(Ini kelas utama)",
+      "addKind": "Tambah kelas",
+      "pageNote": "Kelas peralatan diurus di sini. Untuk setiap mesin, tekan “Daftar peralatan”, atau pergi ke {menu} → {tab}.",
+      "onSite": "{count} mesin",
+      "moreSettings": "Tetapan lain",
+      "offClass": "Jenis ini dimatikan. Hidupkannya untuk mendaftar mesin di bawahnya."
     },
     "system": "Sistem",
     "systemHelp": "Permit kerja digunakan oleh sistem: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
@@ -5890,6 +5895,7 @@
         "headline": "{onSite} di tapak / {total} semuanya",
         "headlineFor": "{name}: {numbers}",
         "noSupplier": "Tiada pembekal",
+        "countRule": "Dikira mengikut mesin: setiap mesin dikira 1.",
         "what": "bilangan di tapak bagi setiap pembekal",
         "tableTitle": "Mengikut pembekal",
         "supplier": "Pembekal",
@@ -7855,6 +7861,7 @@
       "gate_record_not_an_issue": "Foto pintu ini belum menjadi isu pintu. Tekan Bincang dan pilih pengendali dahulu.",
       "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah.",
       "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka.",
+      "attachment_needs_project": "Kelulusan ini bukan untuk satu projek, jadi lampiran tidak boleh ditambah. Simpan dokumennya dalam arkib dokumen.",
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
       "receipt_awaiting_acceptance": "Penghantaran ini belum diterima. Terima atau tolak dahulu, kemudian arkibkan.",
       "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada.",
@@ -11677,7 +11684,7 @@
     "safety": {
       "what": "Peristiwa keselamatan di tapak: merekodnya dan melaporkannya.",
       "who": "Pemegang safety.view dan project.view sekali.",
-      "need": "Peristiwa memerlukan projek, kategori isu, tajuk, foto, bukti GPS, orang bertanggungjawab dan apa yang dilakukan. Laporan memerlukan projek, tajuk, apa yang berlaku, kepada siapa, bukti dan tempat.",
+      "need": "Peristiwa memerlukan projek, kategori pembetulan, tajuk, foto, bukti GPS, orang bertanggungjawab dan apa yang dilakukan. Laporan memerlukan projek, tajuk, apa yang berlaku, kepada siapa, bukti dan tempat.",
       "then": "Orang yang dinamakan diberitahu serta-merta.",
       "trouble": "Foto dan GPS kedua-duanya diperlukan dan selalunya tiada isyarat. Rakam sahaja - ia beratur dan naik kemudian, dan lokasi yang disimpan ialah tempat anda berdiri."
     },
@@ -12878,20 +12885,27 @@
       "in": "Material In",
       "out": "Material Out",
       "reject": "Reject",
-      "totals": "Jumlah diterima & dipulangkan",
+      "totals": "Jumlah mengikut pembekal",
       "legacyReturns": "Pemulangan yang direkod melalui borang terimaan sebelum 10-02",
       "choose": "Pilih paparan",
       "targets": "Sasaran bahan"
     },
     "net": {
-      "title": "Diterima dan dipulangkan mengikut pembekal dan bahan",
-      "note": "Diterima tidak pernah berkurang dan pemulangan tidak ditolak daripadanya. Dipulangkan = pemulangan yang telah disahkan selesai oleh pejabat, dipadankan mengikut kategori bahan dan unit. Muatan ditolak tidak dikira dalam diterima. Unit berbeza tidak dicampur.",
-      "received": "Diterima (jumlah masuk)",
-      "returned": "Dipulangkan",
-      "rejected": "Ditolak (tidak dikira)",
+      "title": "Jumlah mengikut pembekal",
+      "note": "Dihantar ke tapak: jumlah yang lulus semakan, dikumpul dari semasa ke semasa. Dipulangkan kepada pembekal: pemulangan yang telah disahkan siap oleh pejabat. Gagal semakan: tidak diterima, jadi tidak dikira.",
+      "received": "Dihantar ke tapak",
+      "returned": "Dipulangkan kepada pembekal",
+      "rejected": "Gagal semakan (tidak dikira)",
       "supplier": "Pembekal",
       "noSupplier": "Tiada pembekal",
-      "searchMaterial": "Cari bahan",
+      "searchMaterial": "Cari bahan atau pembekal",
+      "searchEmpty": "Tiada hasil untuk \"{term}\". Anda boleh cari nama bahan atau nama pembekal.",
+      "specification": "Spesifikasi",
+      "noteReceived": "Dihantar ke tapak: jumlah yang lulus semakan, dikumpul dari semasa ke semasa.",
+      "noteReturned": "Dipulangkan kepada pembekal: pemulangan yang telah disahkan siap oleh pejabat.",
+      "noteRejected": "Gagal semakan: tidak diterima, jadi tidak dikira.",
+      "groupTitle": "Pembekal: {name} · {count} bahan",
+      "clickHint": "Klik untuk lihat rekod mana",
       "expand": "Tunjuk setiap penghantaran",
       "collapse": "Sembunyi",
       "deliveries": "Penghantaran",
@@ -13660,8 +13674,12 @@
       "photo": "Buka foto"
     },
     "field": {
+<<<<<<< HEAD
       "attachments": "Lampiran (PDF / Word / Excel)",
       "category": "Kategori isu",
+=======
+      "category": "Kategori pembetulan",
+>>>>>>> origin/develop
       "description": "Penerangan",
       "dueAt": "Tarikh akhir pembetulan",
       "evidence": "Bukti",
@@ -13704,13 +13722,13 @@
       "title": "Laporkan insiden tapak"
     },
     "filter": {
-      "allCategories": "Semua kategori isu",
+      "allCategories": "Semua kategori pembetulan",
       "allProjects": "Semua projek",
       "allResponsible": "Semua orang bertanggungjawab",
       "dateFrom": "Tarikh mula",
       "dateTo": "Tarikh tamat",
       "project": "Pilih projek",
-      "selectCategory": "Pilih kategori isu"
+      "selectCategory": "Pilih kategori pembetulan"
     },
     "form": {
       "captureLocation": "Rakam GPS",
@@ -13722,8 +13740,8 @@
       "locationTimeout": "Isyarat GPS tidak sampai dalam masa. Pergi ke kawasan lapang dan cuba lagi.",
       "locationUnavailable": "Peranti tidak dapat memperoleh kedudukan. Pastikan lokasi dihidupkan, kemudian cuba lagi.",
       "locationUnsupported": "Peranti ini tidak boleh memberikan kedudukan GPS.",
-      "noSafetyColumns": "Projek ini belum mempunyai kategori isu. Tambah satu dahulu supaya bahaya boleh difailkan ke dalamnya.",
-      "addSafetyColumn": "+ Tambah kategori isu",
+      "noSafetyColumns": "Projek ini belum mempunyai kategori pembetulan. Tambah satu dahulu supaya bahaya boleh difailkan ke dalamnya.",
+      "addSafetyColumn": "+ Tambah kategori pembetulan",
       "askForSafetyColumn": "Minta rakan sekerja yang menguruskan kategori menambahnya di Pengurusan kategori."
     },
     "new": "Laporkan bahaya",
@@ -13743,7 +13761,7 @@
       "title": "Kemas kini status insiden"
     },
     "what": {
-      "categories": "Kategori isu",
+      "categories": "Kategori pembetulan",
       "responsiblePeople": "Senarai orang yang bertanggungjawab",
       "requestedIncident": "Insiden dalam pautan",
       "workers": "Orang yang boleh dimaklumkan"
@@ -17567,6 +17585,8 @@
     "chooseFile": "Pilih fail",
     "dropHint": "Ambil foto dengan kamera komputer, pilih fail, seret fail ke sini, atau salin gambar dan tekan Ctrl+V di sini.",
     "dropHintPhone": "Ambil foto atau pilih fail.",
+    "dropHintNoCamera": "Pilih fail, seret ke sini, atau salin gambar dan tekan Ctrl+V di sini.",
+    "dropHintPhoneNoCamera": "Pilih fail.",
     "limitsMany": "Sehingga {count} fail, setiap satu tidak lebih {limit} MB.",
     "limitsCount": "Sehingga {count} fail.",
     "limitsOne": "Satu fail, tidak lebih {limit} MB.",

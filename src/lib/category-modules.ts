@@ -117,3 +117,11 @@ export function parseAlertAmounts(text: string): number[] | null {
   }
   return [...new Set(numbers)].sort((a, b) => a - b);
 }
+
+/**
+ * The class a machine registered from an equipment row starts in (I38, ID81):
+ * a sub class is a place to file a machine, a major class is not.
+ */
+export function registerMachineCategory(row: { id: string; depth?: number }): string | null {
+  return (row.depth ?? 0) > 0 ? row.id : null;
+}

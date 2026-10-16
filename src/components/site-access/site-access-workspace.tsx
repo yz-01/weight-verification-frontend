@@ -1110,6 +1110,7 @@ function PassDetail({
   onClose: () => void;
 }) {
   const t = useTranslations("siteControl");
+  const { can } = useAuth();
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
@@ -1144,7 +1145,8 @@ function PassDetail({
         </div>
         <CredentialsPanel pass={row} />
         {/* ID photo, permit and related papers, kept with who and when (I3). */}
-        <RecordAttachmentsPanel kind="GATE_PASS" recordId={row.id} />
+        {/* Read with 门禁 view; added to only with 门禁 manage. */}
+        <RecordAttachmentsPanel kind="GATE_PASS" recordId={row.id} readOnly={!can("site_access.manage")} />
 
         <h3 className="mt-2 font-semibold">{t("access.timeline")}</h3>
         {!row.events.length ? (
