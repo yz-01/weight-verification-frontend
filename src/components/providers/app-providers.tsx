@@ -11,6 +11,7 @@ import { NavigationRecovery } from "@/components/providers/navigation-recovery";
 import { OfflineSyncProvider } from "@/components/providers/offline-sync-provider";
 import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
 import { TranslationBridge } from "@/components/providers/translation-bridge";
+import { SignOffHost } from "@/components/shared/sign-off-dialog";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ApiError } from "@/interfaces/api";
@@ -82,6 +83,8 @@ export function AppProviders({
             <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
           </OfflineSyncProvider>
           <Toaster position="top-right" richColors closeButton />
+          {/* The sign-off PIN dialog every office operation shares (I29). */}
+          <SignOffHost />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

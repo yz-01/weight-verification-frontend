@@ -154,6 +154,13 @@ export interface UserDetail extends UserRow {
   timezone: string;
   last_login_ip: string | null;
   updated_at: string;
+  /** Their six-digit sign-off PIN (I29): set, reset, locked. */
+  sign_off_pin?: {
+    has_pin: boolean;
+    was_reset: boolean;
+    locked_until: string | null;
+    exempt: boolean;
+  };
 }
 
 export interface UserStats {
