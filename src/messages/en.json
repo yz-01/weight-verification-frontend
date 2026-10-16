@@ -5906,7 +5906,14 @@
         "onSite": "On site",
         "total": "In all",
         "presenceAll": "On site or not",
-        "presence": { "on": "On site", "off": "Not on site" }
+        "presence": {
+          "on": "On site",
+          "off": "Not on site"
+        },
+        "supplierCount": "{count} suppliers",
+        "foldHint": "Click to fold",
+        "unfoldHint": "Click to open",
+        "pickHint": "Click a supplier to show only its machines below; click again to show all."
       },
       "newMachinePlateHelp": "If it has one. Leave it blank if not. A machine that came before is matched by its plate.",
       "addClass": "Add a sub class",
@@ -8850,8 +8857,8 @@
     "empty": "Nothing has been said yet.",
     "send": "Send",
     "placeholder": "Type a message",
-    "recordStart": "Record a voice note",
-    "recordStop": "Stop",
+    "recordStart": "Tap to record a voice note",
+    "recordStop": "Tap to stop and send",
     "recordingFor": "Recording {seconds}s of {limit}s",
     "attach": "Attach a file",
     "takePhoto": "Take a photo",
@@ -18783,6 +18790,9 @@
       "user_change_role": "Change a user's role",
       "user_change_status": "Suspend or reinstate an account",
       "consultant_review": "Sign a consultant decision"
-    }
+    },
+    "firstTitle": "Set your sign-off PIN for the first time",
+    "firstBanner": "This is your first time using a sign-off PIN",
+    "firstHelp": "Choose six digits only you know, type them again, then enter the password you sign in with. Once it is set, what you were doing carries on; important office operations are confirmed with this PIN from now on."
   }
 }
