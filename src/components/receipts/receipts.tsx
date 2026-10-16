@@ -368,7 +368,7 @@ export function Receipts() {
               quantityLabel: t("exportTotals.quantity"),
               note: t("receipts.net.note"),
               materialLabel: t("receipts.field.materialName"),
-              specificationLabel: t("receipts.field.materialSpecification"),
+              specificationLabel: t("receipts.net.specification"),
               receivedLabel: t("receipts.net.received"),
               returnedLabel: t("receipts.net.returned"),
             }
