@@ -13650,6 +13650,7 @@
       "photo": "打開照片"
     },
     "field": {
+      "attachments": "附件（PDF / Word / Excel）",
       "category": "事項分類",
       "description": "說明",
       "dueAt": "整改期限",
@@ -13771,6 +13772,7 @@
       "surroundings": "4. 周邊安全狀況"
     },
     "field": {
+      "attachments": "附件（PDF / Word / Excel）",
       "dueAt": "整改期限",
       "instructions": "整改要求",
       "location": "整改位置",

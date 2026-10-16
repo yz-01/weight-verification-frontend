@@ -47,7 +47,9 @@ import {
 } from "@/components/shared/needs-action";
 import { RecordNo } from "@/components/shared/record-no";
 import { ExportButton } from "@/components/shared/export-button";
+import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { FieldCamera } from "@/components/shared/field-camera";
+import { HAZARD_ATTACHMENT_RULE } from "@/lib/hazard-attachments";
 import {
   FieldWrapper,
   FilterBar,
@@ -194,6 +196,8 @@ interface SafetyDraft {
   latitude?: string;
   longitude?: string;
   photos: Array<File | undefined>;
+  /** PDF / Word / Excel that go with the report (I37); the photos stay the evidence. */
+  attachments?: File[];
   notifyUsers: string[];
   /** 上报 → 指派 in one step (B22); empty leaves it 待分配. */
   rectifier?: string;
@@ -207,6 +211,7 @@ const EMPTY_DRAFT: SafetyDraft = {
   description: "",
   occurredAt: "",
   photos: createEmptyFieldEvidence(),
+  attachments: [],
   notifyUsers: [],
   rectifier: "",
   rectifierDueAt: "",
@@ -1139,17 +1144,19 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
 
 export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
+  const commonT = useTranslations("common");
   const qc = useQueryClient();
   const { user } = useAuth();
   const fieldMode = Boolean(user?.is_field_staff);
   // 拍照 (at least one) / 备注 → 提交完成 (I1): the same on the phone and
   // in the office, no four fixed slots any more.
   const [officeImages, setOfficeImages] = useState<File[]>([]);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [note, setNote] = useState("");
   // Automatic, like every field capture form (T-355, D-246).
   const [location, setLocation] = useState<LocationFix | null>(null);
   const images = officeImages;
-  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); void qc.invalidateQueries({ queryKey: ["my-tasks"] }); void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] }); onClose(); } });
+  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, attachments, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); void qc.invalidateQueries({ queryKey: ["my-tasks"] }); void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
@@ -1164,6 +1171,9 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
             onCapture={(image) => setOfficeImages((current) => [...current, image])}
             onClear={() => setOfficeImages([])}
           />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.attachments")} optional={commonT("optional")}>
+          <AttachmentPicker files={attachments} onChange={setAttachments} rule={HAZARD_ATTACHMENT_RULE} camera={false} />
         </FieldWrapper>
         <LocationField
           label={t("field.location")}
@@ -1417,6 +1427,7 @@ function SafetyCreateDialog({
         latitude: draft.latitude,
         longitude: draft.longitude,
         photos: completedPhotos,
+        attachments: draft.attachments ?? [],
         notify_users: draft.notifyUsers,
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
@@ -1641,6 +1652,17 @@ function SafetyCreateDialog({
                 },
               )}
               onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
+            />
+          </FieldWrapper>
+          {/* PDF / Word / Excel beside the photos (I37). Never instead of them:
+              the photo rule above is unchanged. The phone's picker has no
+              camera here - the grid above is the camera - so it is 「选文件」. */}
+          <FieldWrapper label={t("safety.field.attachments")} optional={t("common.optional")} className="sm:col-span-2">
+            <AttachmentPicker
+              files={draft.attachments ?? []}
+              onChange={(attachments) => setDraft((value) => ({ ...value, attachments }))}
+              rule={HAZARD_ATTACHMENT_RULE}
+              camera={false}
             />
           </FieldWrapper>
           {/* 上报 → 指派 in one step (B22), and who confirms it (B21). */}

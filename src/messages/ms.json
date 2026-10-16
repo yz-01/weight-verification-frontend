@@ -13650,6 +13650,7 @@
       "photo": "Buka foto"
     },
     "field": {
+      "attachments": "Lampiran (PDF / Word / Excel)",
       "category": "Kategori isu",
       "description": "Penerangan",
       "dueAt": "Tarikh akhir pembetulan",
@@ -13771,6 +13772,7 @@
       "surroundings": "4. Keadaan sekeliling yang selamat"
     },
     "field": {
+      "attachments": "Lampiran (PDF / Word / Excel)",
       "dueAt": "Tarikh akhir pembetulan",
       "instructions": "Arahan pembetulan",
       "location": "Lokasi kerja",

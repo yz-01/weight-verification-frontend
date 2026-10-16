@@ -13650,6 +13650,7 @@
       "photo": "Open photo"
     },
     "field": {
+      "attachments": "Attachments (PDF / Word / Excel)",
       "category": "Issue category",
       "description": "Description",
       "dueAt": "Rectification deadline",
@@ -13771,6 +13772,7 @@
       "surroundings": "4. Safe surrounding condition"
     },
     "field": {
+      "attachments": "Attachments (PDF / Word / Excel)",
       "dueAt": "Rectification deadline",
       "instructions": "Rectification instructions",
       "location": "Work location",
