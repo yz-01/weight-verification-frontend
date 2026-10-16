@@ -75,6 +75,10 @@ import {
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import {
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { useDateFormat } from "@/lib/dates";
 import { hasPercent, usePercentText } from "@/lib/progress-percent";
 import { cn } from "@/lib/utils";
@@ -5090,6 +5094,12 @@ export function OutgoingDetailDialog({
             <>
               {renderActions?.(row)}
               <div className="flex flex-wrap gap-2 border-t pt-2 empty:hidden">
+                {/* 【改正】 (I30): supplier, DO, plate, material, quantity… */}
+                <RecordCorrectionButton
+                  kind="MATERIAL_OUTGOING"
+                  recordId={row.id}
+                  onCorrected={() => void qc.invalidateQueries({ queryKey: ["material-outgoing"] })}
+                />
                 <AddToPackageButton
                   kind="MATERIAL_OUTGOING"
                   recordId={row.id}
@@ -5099,6 +5109,7 @@ export function OutgoingDetailDialog({
               </div>
             </>
           }
+          corrections={<RecordCorrectionHistory kind="MATERIAL_OUTGOING" recordId={row.id} />}
           recorder={<RecordRecorder record={row} />}
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
           // 【确认归档】 once the return is finished (C4).

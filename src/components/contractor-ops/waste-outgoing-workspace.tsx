@@ -36,6 +36,11 @@ import {
   SummaryStrip,
 } from "@/components/shared/module-records-table";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -353,6 +358,8 @@ export function WasteOutgoingWorkspace() {
             {t("action.cancel")}
           </Button>
         )}
+      {/* 【改正】 (I30): kind of waste, quantity, unit, remarks. */}
+      <RecordCorrectionButton kind="WASTE_OUTGOING" recordId={row.id} onCorrected={refresh} />
       <AddToPackageButton
         kind="WASTE_OUTGOING"
         recordId={row.id}
@@ -368,7 +375,13 @@ export function WasteOutgoingWorkspace() {
       meta: { label: t("field.dispatchNo") },
       header: sortable(t("field.dispatchNo")),
       // Short number big, project small (2026-10 D4).
-      cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
+      cell: ({ row }) => (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <RecordNo value={row.original.reference_no} />
+          {/* Corrected by the office (I30); the detail has the history. */}
+          {row.original.was_corrected && <CorrectedTag />}
+        </div>
+      ),
     },
     // The load's photograph beside its number (E3).
     photoColumn<WasteOutgoingRecord>({
@@ -668,6 +681,7 @@ export function WasteOutgoingWorkspace() {
               </section>
             }
             actions={renderActions(shown)}
+            corrections={<RecordCorrectionHistory kind="WASTE_OUTGOING" recordId={shown.id} />}
             conversation={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
             // 【确认归档】 once the dispatch is completed (C4).
             closure={{ kind: "WASTE_OUTGOING", recordId: shown.id }}

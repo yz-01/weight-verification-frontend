@@ -42,6 +42,11 @@ import {
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import {
+  CorrectedTag,
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+} from "@/components/shared/record-correction";
 import { VoucherSource } from "@/components/sundry-claims/voucher-source";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,7 +99,13 @@ export function SundryClaimsOffice() {
         meta: { label: t("field.claimNo") },
         header: sortable(t("field.claimNo")),
         // Short number big, project small (2026-10 D4).
-        cell: ({ row }) => <RecordNo value={row.original.claim_no} />,
+        cell: ({ row }) => (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <RecordNo value={row.original.claim_no} />
+            {/* Corrected by the office (I30); the detail has the history. */}
+            {row.original.was_corrected && <CorrectedTag />}
+          </div>
+        ),
       },
       // The record's photograph beside its main column (E3).
       photoColumn<SundryClaim>({
@@ -402,6 +413,9 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             )}
             {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review !== false && (
               <>
+                {/* 【改正】 (I30): category, amount, description - only
+                    before the claim is decided. */}
+                <RecordCorrectionButton kind="SUNDRY_CLAIM" recordId={claim.id} onCorrected={refresh} />
                 <Button className="w-full" disabled={review.isPending} onClick={() => review.mutate("CONFIRMED")}>
                   <Check />
                   {t("action.confirm")}
@@ -475,6 +489,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             )}
           </div>
         }
+        corrections={<RecordCorrectionHistory kind="SUNDRY_CLAIM" recordId={claim.id} />}
         conversation={{ kind: "SUNDRY_CLAIM", recordId: claim.id }}
         // 【确认归档】 once paid or rejected (C4).
         closure={{ kind: "SUNDRY_CLAIM", recordId: claim.id }}

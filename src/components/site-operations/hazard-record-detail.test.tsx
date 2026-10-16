@@ -16,8 +16,13 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/safety",
   useSearchParams: () => new URLSearchParams(),
 }));
+// Every permission but the one 【改正】 needs, unless a test grants it (I30).
+const granted = vi.hoisted(() => ({ correct: false }));
 vi.mock("@/components/providers/auth-provider", () => ({
-  useAuth: () => ({ user: null, can: () => true }),
+  useAuth: () => ({
+    user: null,
+    can: (code: string) => code !== "safety.manage" || granted.correct,
+  }),
 }));
 vi.mock("@/components/shared/record-conversation", () => ({
   RecordConversationPanel: () => <div data-stub="conversation" />,
@@ -121,6 +126,18 @@ describe("the hazard detail (E8)", () => {
 
     const reader = render({ can_confirm: false });
     expect(reader).not.toContain("data-shell-actions");
+  });
+
+  it("offers 【改正】 on a hazard to whoever manages safety, never on a permit (I30)", () => {
+    granted.correct = true;
+    try {
+      expect(render({ can_confirm: false })).toContain('data-record-correct="HAZARD"');
+      expect(render({ can_confirm: false, record_type: "PERMIT" })).not.toContain(
+        "data-record-correct",
+      );
+    } finally {
+      granted.correct = false;
+    }
   });
 
   it("a permit's after rows are left out while they are empty", () => {
