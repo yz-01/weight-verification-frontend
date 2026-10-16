@@ -4088,7 +4088,12 @@
       "subClass": "Subkelas",
       "majorClassOf": "Kelas utama",
       "majorClassHint": "Biarkan untuk jadikan kelas utama. Mesin didaftarkan di bawah subkelas.",
-      "isMajorClass": "(Ini kelas utama)"
+      "isMajorClass": "(Ini kelas utama)",
+      "addKind": "Tambah kelas",
+      "pageNote": "Kelas peralatan diurus di sini. Untuk setiap mesin, tekan “Daftar peralatan”, atau pergi ke {menu} → {tab}.",
+      "onSite": "{count} mesin",
+      "moreSettings": "Tetapan lain",
+      "offClass": "Jenis ini dimatikan. Hidupkannya untuk mendaftar mesin di bawahnya."
     },
     "system": "Sistem",
     "systemHelp": "Permit kerja digunakan oleh sistem: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
