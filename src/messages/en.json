@@ -7966,6 +7966,7 @@
       "visitor_arrival_not_host": "Only the visitor's host or a site access manager can answer.",
       "review_by_head_office": "This category is set to head office approval: head office accepts it.",
       "sundry_claim_sent_elsewhere": "This sundry claim was sent to the other side for approval.",
+      "sundry_claim_own": "You cannot approve a sundry claim you submitted yourself.",
       "material_request_manager_first": "A site request goes to the project manager first, who sends it on to head office.",
       "sign_off_pin_required": "Enter your six-digit sign-off PIN to continue.",
       "sign_off_pin_not_set": "You have not set a sign-off PIN yet. Set one first.",
@@ -17171,6 +17172,29 @@
       "HQ": "Head office",
       "NONE": "Not chosen",
       "all": "Sent to anyone"
+    },
+    "ownClaim": "You submitted this claim, so someone else decides it.",
+    "create": {
+      "open": "New claim",
+      "title": "New sundry claim",
+      "description": "Raise a sundry claim for money paid out. It goes to the side you choose, exactly like one sent from the phone.",
+      "project": "Project",
+      "chooseProject": "Choose the project",
+      "date": "Date paid",
+      "dateHint": "Today unless you change it.",
+      "amount": "Amount (RM)",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "What was bought and why",
+      "submitTo": "Send for approval to",
+      "submitToHint": "The project manager by default.",
+      "submitToOption": {
+        "PROJECT": "Project manager",
+        "HQ": "Head office"
+      },
+      "attachments": "Photos or receipts",
+      "attachmentsHint": "At least one photo of the receipt, invoice or transfer slip, up to {count}.",
+      "submit": "Submit sundry claim",
+      "failed": "The claim did not go through; please try again."
     },
     "sentTo": {
       "PROJECT": "Sent to the project manager: head office does not decide it.",

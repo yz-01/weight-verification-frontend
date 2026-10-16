@@ -17,6 +17,8 @@ export async function createSundryClaim(payload: {
   description: string;
   /** Who approves it (I12, ID8): the project manager's office or head office. */
   submit_to?: "PROJECT" | "HQ";
+  /** The day it was paid (the back office form); the phone sends the shutter time. */
+  captured_at?: string;
   latitude?: string;
   longitude?: string;
   client_event_id?: string;

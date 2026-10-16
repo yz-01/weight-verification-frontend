@@ -47,6 +47,7 @@ import {
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
+import { SundryClaimCreate } from "@/components/sundry-claims/sundry-claim-create";
 import { VoucherSource } from "@/components/sundry-claims/voucher-source";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -260,6 +261,8 @@ export function SundryClaimsOffice() {
             {can("report.export") || can("sundry_claim.view") ? (
               <ExportButton onExport={runExport} disabled={total === 0} />
             ) : null}
+            {/* 新建报销 (I12-6): only for those who may submit, as on the phone. */}
+            {can("sundry_claim.submit") ? <SundryClaimCreate onCreated={(id) => setViewing(id)} /> : null}
           </>
         }
         onOpen={(row) => setViewing(row.id)}
@@ -273,7 +276,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
   const t = useTranslations("sundryClaim");
   const ops = useTranslations("contractorOps");
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const qc = useQueryClient();
   const detail = useQuery({ queryKey: ["sundry-claims", "detail", id], queryFn: () => getSundryClaim(id) });
   const [rejectArmed, setRejectArmed] = useState(false);
@@ -410,7 +413,10 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             {/* Sent to the other side (I12): said, not offered. */}
             {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review === false && (
               <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground">
-                {t(`sentTo.${claim.submit_to || "NONE"}`)}
+                {/* Your own claim is decided by someone else (I12-6). */}
+                {user?.id && claim.submitted_by === user.id
+                  ? t("ownClaim")
+                  : t(`sentTo.${claim.submit_to || "NONE"}`)}
               </p>
             )}
             {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review !== false && (

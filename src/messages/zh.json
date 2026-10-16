@@ -7966,6 +7966,7 @@
       "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。",
       "review_by_head_office": "这个分类设为「提交总部审批」，由总部验收。",
       "sundry_claim_sent_elsewhere": "这笔杂费报销交给另一边审批，你不能批。",
+      "sundry_claim_own": "你不能批自己提交的杂费报销。",
       "material_request_manager_first": "现场人员的申请先交项目经理，项目经理确认后再转给总部。",
       "sign_off_pin_required": "请输入你的六位数签核密码。",
       "sign_off_pin_not_set": "你还没有设定签核密码，请先设定。",
@@ -17171,6 +17172,29 @@
       "HQ": "总部",
       "NONE": "未指定",
       "all": "全部提交对象"
+    },
+    "ownClaim": "这笔报销是你提交的，由其他人审批。",
+    "create": {
+      "open": "新建报销",
+      "title": "新建杂费报销",
+      "description": "为已付出的款项提交杂费报销。它会交给你选的一方，和手机提交的一样。",
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "date": "付款日期",
+      "dateHint": "不改就是今天。",
+      "amount": "金额（RM）",
+      "descriptionLabel": "说明",
+      "descriptionPlaceholder": "买了什么、为什么",
+      "submitTo": "交给谁审批",
+      "submitToHint": "默认交给项目经理。",
+      "submitToOption": {
+        "PROJECT": "项目经理",
+        "HQ": "总部"
+      },
+      "attachments": "照片或收据",
+      "attachmentsHint": "至少一张收据、发票或转账凭证的照片，最多 {count} 张。",
+      "submit": "提交杂费报销",
+      "failed": "没有提交成功，请再试一次。"
     },
     "sentTo": {
       "PROJECT": "这笔交给项目经理审批，总部不能批。",

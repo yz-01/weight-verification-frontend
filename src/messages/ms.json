@@ -7966,6 +7966,7 @@
       "visitor_arrival_not_host": "Hanya tuan rumah atau pengurus akses tapak boleh menjawab.",
       "review_by_head_office": "Kategori ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya.",
       "sundry_claim_sent_elsewhere": "Tuntutan sundry ini dihantar kepada pihak lain untuk kelulusan.",
+      "sundry_claim_own": "Anda tidak boleh meluluskan tuntutan sundry yang anda hantar sendiri.",
       "material_request_manager_first": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
       "sign_off_pin_required": "Masukkan PIN pengesahan enam digit anda untuk meneruskan.",
       "sign_off_pin_not_set": "Anda belum menetapkan PIN pengesahan. Tetapkan dahulu.",
@@ -17171,6 +17172,29 @@
       "HQ": "Ibu pejabat",
       "NONE": "Tidak dipilih",
       "all": "Dihantar kepada sesiapa"
+    },
+    "ownClaim": "Anda yang menghantar tuntutan ini, jadi orang lain yang meluluskannya.",
+    "create": {
+      "open": "Tuntutan baharu",
+      "title": "Tuntutan sundry baharu",
+      "description": "Hantar tuntutan sundry untuk wang yang telah dibayar. Ia pergi ke pihak yang anda pilih, sama seperti yang dihantar dari telefon.",
+      "project": "Projek",
+      "chooseProject": "Pilih projek",
+      "date": "Tarikh bayar",
+      "dateHint": "Hari ini kecuali anda tukar.",
+      "amount": "Jumlah (RM)",
+      "descriptionLabel": "Keterangan",
+      "descriptionPlaceholder": "Apa yang dibeli dan kenapa",
+      "submitTo": "Hantar untuk kelulusan kepada",
+      "submitToHint": "Pengurus projek secara lalai.",
+      "submitToOption": {
+        "PROJECT": "Pengurus projek",
+        "HQ": "Ibu pejabat"
+      },
+      "attachments": "Foto atau resit",
+      "attachmentsHint": "Sekurang-kurangnya satu foto resit, invois atau slip pindahan, hingga {count}.",
+      "submit": "Hantar tuntutan sundry",
+      "failed": "Tuntutan tidak berjaya dihantar; sila cuba lagi."
     },
     "sentTo": {
       "PROJECT": "Dihantar kepada pengurus projek: ibu pejabat tidak memutuskannya.",
