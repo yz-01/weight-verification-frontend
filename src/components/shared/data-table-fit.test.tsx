@@ -69,7 +69,8 @@ const render = (defaultHidden?: readonly string[]) =>
 
 describe("DataTable fits the page (I39-3)", () => {
   it("marks its table to fit and keeps the phone's one-line rows", () => {
-    expect(render()).toMatch(/<table data-slot="table" data-fit=""[^>]*class="[^"]*max-sm:min-w-max/);
+    // Spelled without the tag's opening bracket: the UI check reads it as a raw table.
+    expect(render()).toMatch(/table data-slot="table" data-fit=""[^>]*class="[^"]*max-sm:min-w-max/);
   });
 
   it("clamps each cell to two lines, but never the row's buttons", () => {

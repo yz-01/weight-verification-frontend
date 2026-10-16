@@ -1107,5 +1107,5 @@ function useRequestTypeFilter(project: string) {
 function MaterialSubLine({ code, spec }: { code?: string | null; spec?: string | null }) {
   const text = [code, spec].filter(Boolean).join(" · ");
   if (!text) return null;
-  return <span className="block text-[13px] text-muted-foreground">{text}</span>;
+  return <span className="block text-muted-foreground">{text}</span>;
 }

@@ -29,7 +29,7 @@ function walk(dir: string): string[] {
 const COMPONENTS = walk("src/components");
 
 /**
- * The only hand-written `<table>`s left, none of them a list: the printed
+ * The only hand-written HTML tables left, none of them a list: the printed
  * emergency list's own HTML, the Excel import preview inside a dialog, and
  * the weighbridge gateway's raw readings.
  */
@@ -109,7 +109,7 @@ describe("the shared table keeps its header and its actions in sight", () => {
 });
 
 describe("no back-office list escapes the rule (I39-2)", () => {
-  it("draws no hand-written <table> outside the allowed few", () => {
+  it("draws no hand-written HTML table outside the allowed few", () => {
     const raw = COMPONENTS.filter(
       (file) => !RAW_TABLE_ALLOWED.has(file) && /<table\b/.test(read(file)),
     );
