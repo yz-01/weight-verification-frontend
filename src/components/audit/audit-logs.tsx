@@ -61,6 +61,8 @@ const ACTION_TONE: Record<
   // interesting next to the rest of a session, never on its own.
   VIEW: "neutral",
   SEARCH: "neutral",
+  // A sign-off PIN checked (I29); a failed one reads 失败 in its result.
+  SIGN_OFF: "warning",
 };
 
 const FILTERABLE_ACTIONS: AuditAction[] = [
@@ -69,6 +71,7 @@ const FILTERABLE_ACTIONS: AuditAction[] = [
   "DELETE",
   "PERMISSION_CHANGE",
   "LOGIN_FAILED",
+  "SIGN_OFF",
 ];
 
 const ALL_ACTIONS: AuditAction[] = [
@@ -88,6 +91,7 @@ const ALL_ACTIONS: AuditAction[] = [
   "LOCK",
   "VIEW",
   "SEARCH",
+  "SIGN_OFF",
 ];
 
 const AUDIT_CATEGORIES = [

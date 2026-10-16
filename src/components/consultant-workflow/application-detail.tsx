@@ -92,6 +92,7 @@ import type {
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
 import { recordConversationKey } from "@/lib/record-chat";
+import { signsWithCredential } from "@/lib/sign-off";
 import { recordPdfObjectUrl } from "@/services/contractor-ops.service";
 import {
   addApplicationAttachment,
@@ -526,7 +527,7 @@ export function ConsultantApplicationDetail({
             {currentStep && canAct && (
               credential.isError ? (
                 <LoadFailed className="w-full" what={t("what.credential")} onRetry={() => credential.refetch()} />
-              ) : credential.data || (application.consultant_form && credential.isSuccess) ? (
+              ) : signsWithCredential(credential.data) || (application.consultant_form && credential.isSuccess) ? (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
                   <Button className="min-h-11 justify-start" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
                   <Button className="min-h-11 justify-start" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
@@ -592,7 +593,7 @@ export function ConsultantApplicationDetail({
 
       {attachmentOpen && <AttachmentDialog application={application} onClose={() => setAttachmentOpen(false)} onSaved={() => { void refresh(); setAttachmentOpen(false); }} />}
       {evidenceOpen && <EvidenceDialog application={application} onClose={() => setEvidenceOpen(false)} onSaved={() => { void refresh(); setEvidenceOpen(false); }} />}
-      {decision && <DecisionDialog application={application} decision={decision} hasCredential={Boolean(credential.data)} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
+      {decision && <DecisionDialog application={application} decision={decision} hasCredential={signsWithCredential(credential.data)} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
     </RecordDetailFrame>
   );
 }

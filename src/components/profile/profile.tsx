@@ -13,6 +13,7 @@ import {
   TextField,
   type BoundField,
 } from "@/components/shared/form-fields";
+import { SignOffPinSettings } from "@/components/profile/sign-off-pin-settings";
 import { AvatarUpload } from "@/components/shared/avatar-upload";
 import { FormSection, minLength, required } from "@/components/shared/form-shell";
 import { ListHeader, ReadField, TypeBadge } from "@/components/shared/page-primitives";
@@ -297,6 +298,9 @@ export function Profile() {
           </form>
         </div>
       )}
+
+      {/* 我的签核密码 (I29): office accounts only - the phone never asks. */}
+      {!user.is_field_staff && <SignOffPinSettings />}
     </div>
   );
 }

@@ -3246,6 +3246,7 @@
       "PERMISSION_CHANGE": "权限变更",
       "RESTORE": "恢复",
       "SEARCH": "搜索",
+      "SIGN_OFF": "签核密码",
       "UPDATE": "修改",
       "VIEW": "查看"
     },
@@ -7815,7 +7816,11 @@
       "gate_pass_host_not_confirmed": "接待人还没确认，不能放行。",
       "visitor_arrival_already_open": "这位访客已经在门口等待确认。",
       "visitor_arrival_answered": "这位访客已经处理过了。",
-      "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。"
+      "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。",
+      "sign_off_pin_required": "请输入你的六位数签核密码。",
+      "sign_off_pin_not_set": "你还没有设定签核密码，请先设定。",
+      "sign_off_pin_incorrect": "签核密码不对。再错 {attempts_left} 次会锁 15 分钟。",
+      "sign_off_pin_locked": "签核密码输错 5 次，已锁定。请 {minutes} 分钟后再试，或用账号密码重新设定。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -13944,6 +13949,10 @@
       "help": "原始计划、每次修改的版本和操作记录都在这里，平时不用打开。",
       "revisions": "计划版本",
       "history": "操作记录"
+    },
+    "signers": {
+      "createdBy": "建立人：{name} · {when}",
+      "changedBy": "最后修改：{name} · {when}"
     }
   },
   "session": {
@@ -17370,7 +17379,8 @@
       "remove": {
         "switch": "删除这份日报告",
         "hint": "写错了才删除。照片本身不受影响。",
-        "confirm": "删除日报告"
+        "confirm": "删除日报告",
+        "reason": "删除原因"
       },
       "file": "日报告 PDF",
       "content": "收进的记录",
@@ -17397,6 +17407,19 @@
         "first": "这已经是第一篇。",
         "last": "这已经是最后一篇。",
         "waiting": "正在打开这一篇，请稍候。"
+      },
+      "signer": {
+        "author": "填写人",
+        "editor": "修改人",
+        "fixed": "由登录账号自动带出，不能修改",
+        "pinSigned": "已用签核密码确认",
+        "history": "修改记录（{count}）",
+        "action": {
+          "CREATE": "填写",
+          "UPDATE": "修改",
+          "EXPORT": "导出",
+          "DELETE": "删除"
+        }
       }
     },
     "summary": {
@@ -18271,6 +18294,76 @@
     "toast": {
       "saved": "材料目标已保存。",
       "removed": "材料目标已删除。"
+    }
+  },
+  "signOff": {
+    "title": "签核密码",
+    "enterHelp": "输入你的六位数签核密码，系统会记录是你本人操作。",
+    "pin": "签核密码（六位数）",
+    "confirm": "确认",
+    "checking": "核对中…",
+    "cancel": "取消",
+    "close": "关闭",
+    "forgot": "忘记了？用账号密码重新设定",
+    "setupTitle": "设定签核密码",
+    "setupHelp": "你还没有签核密码。设定一个只有你知道的六位数，以后重要的后台操作都用它确认。",
+    "changeHelp": "设定新的六位数签核密码，用账号密码确认是你本人。",
+    "resetHelp": "公司管理员已重设你的签核密码，请重新设定后继续。",
+    "newPin": "新签核密码（六位数）",
+    "confirmPin": "再输入一次",
+    "pinMismatch": "两次输入的签核密码不一样",
+    "accountPassword": "账号密码",
+    "accountPasswordHint": "登录系统用的密码，用来确认是你本人",
+    "saveAndContinue": "设定并继续",
+    "lockedTitle": "签核密码已锁定",
+    "lockedHelp": "签核密码输错 5 次，已锁定，最后一次输错后 15 分钟自动解锁。",
+    "lockedHint": "忘记了可以用账号密码重新设定，或请公司管理员重设。",
+    "setAgain": "重新设定",
+    "failed": "保存失败，请再试一次。",
+    "profileTitle": "我的签核密码",
+    "profileHelp": "只有你知道的六位数。日报告、施工计划、审批等重要后台操作都用它确认；手机端不用。",
+    "statusLabel": "状态",
+    "status": {
+      "set": "已设定",
+      "notSet": "未设定",
+      "reset": "已被管理员重设，请重新设定",
+      "locked": "已锁定，{time} 解锁"
+    },
+    "save": "保存签核密码",
+    "change": "更改签核密码",
+    "reset": "重设签核密码",
+    "resetArm": "重设这个人的签核密码",
+    "resetArmFirst": "先打开左边的开关",
+    "resetHint": "重设后旧密码失效、锁定解除；本人下次用自己的账号密码重新设定，管理员看不到密码。",
+    "toast": {
+      "saved": "签核密码已保存",
+      "reset": "已重设签核密码，对方下次要重新设定。"
+    },
+    "action": {
+      "generic": "这个操作要用签核密码确认。",
+      "daily_report_create": "写日报告",
+      "daily_report_update": "修改日报告",
+      "daily_report_export": "导出日报告",
+      "daily_report_delete": "删除日报告",
+      "schedule_write": "修改施工计划",
+      "material_target_write": "设定、修改或删除材料目标",
+      "category_budget": "修改分类预算",
+      "receipt_correct_quantity_price": "更正进场单的数量或单价",
+      "hazard_create": "建立 EHS 事项",
+      "hazard_verify": "验收确认 EHS 整改",
+      "material_exit_approve": "批准材料退场",
+      "material_exit_confirm": "最终确认材料退场",
+      "equipment_exit_approve": "批准设备退场",
+      "equipment_exit_confirm": "最终确认设备退场",
+      "disposal_review": "审批垃圾清运申请",
+      "waste_outgoing_review": "审批环保材料出场",
+      "equipment_hours_adjust": "人工调整设备工时",
+      "role_create": "新增角色",
+      "role_update": "修改角色权限",
+      "role_delete": "删除角色",
+      "user_change_role": "修改用户角色",
+      "user_change_status": "停用或恢复账号",
+      "consultant_review": "顾问审批签核"
     }
   }
 }
