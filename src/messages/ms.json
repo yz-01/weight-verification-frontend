@@ -6995,6 +6995,7 @@
     }
   },
   "deliveryNotePublic": {
+    "legacyNo": "No. lama",
     "compare": {
       "amended": "Dipinda daripada {from} kepada {to}",
       "amendNotice": "Angka asal pada nota turut disimpan, bersama nama anda dan masanya.",

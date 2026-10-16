@@ -6995,6 +6995,7 @@
     }
   },
   "deliveryNotePublic": {
+    "legacyNo": "旧编号",
     "compare": {
       "amended": "由 {from} 改成 {to}",
       "amendNotice": "单据上的原数字会一起留着，还有你的名字和时间。",
