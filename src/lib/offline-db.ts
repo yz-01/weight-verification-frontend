@@ -506,6 +506,11 @@ export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
     longitude?: string;
     locationAccuracyM?: string;
     photo: StoredFile;
+    /**
+     * 司机签名 (2026-10 I4, ID20). Absent only on a job queued before the
+     * signature existed.
+     */
+    signature?: StoredFile;
   };
 }
 

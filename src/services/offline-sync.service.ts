@@ -1255,6 +1255,7 @@ function sendEquipmentHoursPhoto(
     equipment: payload.equipment,
     kind: payload.kind,
     photo: restoreFile(payload.photo),
+    signature: payload.signature ? restoreFile(payload.signature) : undefined,
     capturedAt: payload.capturedAt,
     clientEventId: payload.clientEventId,
     latitude: payload.latitude,
@@ -1311,6 +1312,8 @@ export async function submitEquipmentHoursPhotoOfflineAware(
       locationAccuracyM: draft.locationAccuracyM,
       // Compressed on the way in, like every capture screen (A5, A9).
       photo: await storePhoto(draft.photo),
+      // A pad's small PNG: kept as drawn.
+      signature: storeFile(draft.signature),
     },
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {

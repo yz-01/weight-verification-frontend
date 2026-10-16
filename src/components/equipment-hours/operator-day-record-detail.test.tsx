@@ -134,6 +134,37 @@ describe("an operator's start-stop session (E8)", () => {
     expect(html.indexOf("data-shell-actions")).toBeLessThan(html.indexOf(words.adjust.save));
   });
 
+  it("shows both driver signatures, the operator and CIDB, and lets the office fill them (I4)", () => {
+    const html = renderDetail(
+      <DayDialog
+        day={{
+          ...day,
+          site_no: "12",
+          operator_name: "Ali bin Abu",
+          cidb_no: "CIDB-778",
+          operator_history: [
+            { id: "o1", operator_name: "Ali bin Abu", cidb_no: "CIDB-778", created_by_name: "Ong", created_at: "2026-10-08T01:00:00Z" },
+          ],
+          photos: day.photos.map((photo) => ({ ...photo, signature: `/media/sign-${photo.id}.png` })),
+        }}
+        canAdjust
+        onClose={() => {}}
+        onSaved={() => {}}
+      />,
+    );
+    expect(html).toContain("/media/sign-a.png");
+    expect(html).toContain("/media/sign-b.png");
+    expect(html).toContain(words.dialog.signature.replace("{kind}", words.kind.START));
+    expect(html).toContain("Ali bin Abu");
+    expect(html).toContain("CIDB-778");
+    expect(html).toContain(words.operator.history);
+    expect(html).toContain(words.operator.edit);
+  });
+
+  it("says 无签名（旧版本离线记录） for a photo the older screen queued offline (I4)", () => {
+    expect(open(true)).toContain(words.dialog.unsigned);
+  });
+
   it("offers the end-time form only to someone who may adjust", () => {
     const html = open(false);
     expect(html).not.toContain("data-shell-actions");

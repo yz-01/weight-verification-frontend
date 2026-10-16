@@ -1,12 +1,15 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Hash, Loader2, PencilLine, RotateCcw, Search } from "lucide-react";
+import { Eye, Hash, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { matchScannedMachine } from "@/components/equipment-hours/equipment-hours-capture";
+import { OperatorDialog, OperatorHistory } from "@/components/equipment-hours/equipment-session-operator";
 import { EquipmentSiteNumbersDialog } from "@/components/equipment-hours/equipment-site-numbers";
+import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   FieldWrapper,
@@ -46,6 +49,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { ApiError } from "@/interfaces/api";
 import type {
   EquipmentDayAdjustmentPayload,
+  EquipmentHoursMachineTotal,
   EquipmentHoursSession,
 } from "@/interfaces/equipment-hours";
 import { useDateFormat } from "@/lib/dates";
@@ -204,6 +208,11 @@ export function EquipmentOperatorHours() {
   const [month, setMonth] = useState<string | null>(null);
   const [opened, setOpened] = useState<EquipmentHoursSession | null>(null);
   const [numbering, setNumbering] = useState(false);
+  // 操作人员 / CIDB 卡号 being written for this row (I4, ID19).
+  const [naming, setNaming] = useState<EquipmentHoursSession | null>(null);
+  // 「设备编号 / 扫描二维码」 in the filters (I4): a webcam or a scanner gun.
+  const [scanning, setScanning] = useState(false);
+  const [scanMiss, setScanMiss] = useState("");
   const canAdjust = can("equipment.manage");
   const canExport = can("report.export");
 
@@ -267,17 +276,22 @@ export function EquipmentOperatorHours() {
         title: tRoot("nav.submodule.equipmentOperatorHours"),
         subtitle,
         emptyLabel: t("day.empty"),
+        // The client's order (2026-10 I4): 设备编号｜设备名称｜供应商｜操作人员｜
+        // CIDB 卡号｜日期｜开工时间｜收工时间｜工时, then the office's own.
         columns: [
-          { key: "equipment_name", label: t("field.equipment") },
-          { key: "site_no", label: t("field.siteNo") },
-          { key: "equipment_code", label: t("field.code") },
+          { key: "site_no", label: t("field.machineNo") },
+          { key: "equipment_name", label: t("field.equipmentName") },
           { key: "supplier_name", label: t("field.supplier") },
-          { key: "plate", label: t("field.plate") },
-          { key: "project_name", label: t("field.project") },
-          { key: "start_at", label: t("field.start") },
-          { key: "end_at", label: t("field.end") },
+          { key: "operator_name", label: t("field.operator") },
+          { key: "cidb_no", label: t("field.cidb") },
+          { key: "work_date", label: t("field.date") },
+          { key: "start_at", label: t("field.startTime") },
+          { key: "end_at", label: t("field.endTime") },
           { key: "hours", label: t("field.hours") },
           { key: "cumulative_hours", label: t("field.cumulative") },
+          { key: "equipment_code", label: t("field.code") },
+          { key: "plate", label: t("field.plate") },
+          { key: "project_name", label: t("field.project") },
           {
             key: "status",
             label: t("field.status"),
@@ -412,6 +426,17 @@ export function EquipmentOperatorHours() {
             </SelectContent>
           </Select>
         </label>
+        <Button
+          variant="outline"
+          className="self-end"
+          onClick={() => {
+            setScanMiss("");
+            setScanning(true);
+          }}
+        >
+          <ScanLine />
+          {t("filter.scan")}
+        </Button>
         <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
           {t("filter.search")}
           <span className="relative">
@@ -478,6 +503,11 @@ export function EquipmentOperatorHours() {
         )}
       </FilterBar>
 
+      {scanMiss ? (
+        <p className="text-xs font-medium text-destructive" role="status">
+          {scanMiss}
+        </p>
+      ) : null}
       {view === "day" && automatic && days.data ? (
         <p className="text-xs text-muted-foreground" role="status">
           {t("filter.automatic", { from: df.date(shown.from), to: df.date(shown.to) })}
@@ -489,36 +519,47 @@ export function EquipmentOperatorHours() {
         </p>
       ) : null}
 
+      {view === "day" && days.data?.machine_totals ? (
+        <SupplierTotals
+          supplier={suppliers.find((row) => row.id === filters.supplier)?.name ?? ""}
+          rows={days.data.machine_totals}
+          total={days.data.total_hours ?? ""}
+          onPick={setEquipment}
+        />
+      ) : null}
+
       {view === "day" ? (
         <div className="surface-panel overflow-hidden rounded-xl">
           <QueryFailedNote query={days} what={t("what.days")} className="p-3" />
+          {/* The client's columns, in the client's order (2026-10 I4):
+              设备编号｜设备名称｜供应商｜操作人员｜CIDB 卡号｜日期｜开工时间｜收工时间｜
+              工时｜查看 - with 累计工时 (Lucas, 2026-10-10) before 查看. */}
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("field.equipment")}</TableHead>
-                <TableHead>{t("field.siteNo")}</TableHead>
+                <TableHead>{t("field.machineNo")}</TableHead>
+                <TableHead>{t("field.equipmentName")}</TableHead>
                 <TableHead>{t("field.supplier")}</TableHead>
-                <TableHead>{t("field.plate")}</TableHead>
-                <TableHead>{t("field.start")}</TableHead>
-                <TableHead>{t("field.end")}</TableHead>
+                <TableHead>{t("field.operator")}</TableHead>
+                <TableHead>{t("field.cidb")}</TableHead>
+                <TableHead>{t("field.date")}</TableHead>
+                <TableHead>{t("field.startTime")}</TableHead>
+                <TableHead>{t("field.endTime")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.hours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.cumulative")}</TableHead>
-                <TableHead>{t("field.photos")}</TableHead>
-                <TableHead className="text-right">
-                  <span className="sr-only">{t("field.actions")}</span>
-                </TableHead>
+                <TableHead className="text-right">{t("field.view")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
@@ -526,15 +567,40 @@ export function EquipmentOperatorHours() {
                 <>
                   {rows.map((row) => (
                     <TableRow key={row.key} className="cursor-pointer" onClick={() => setOpened(row)}>
+                      <TableCell className="font-medium">{row.site_no || row.equipment_code || "-"}</TableCell>
                       <TableCell>
                         <p className="font-medium">{row.equipment_name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {[row.equipment_code, row.project_name].filter(Boolean).join(" · ")}
-                        </p>
+                        {row.project_name ? (
+                          <p className="text-xs text-muted-foreground">{row.project_name}</p>
+                        ) : null}
                       </TableCell>
-                      <TableCell className="font-medium">{row.site_no || "-"}</TableCell>
                       <TableCell>{row.supplier_name || "-"}</TableCell>
-                      <TableCell>{row.plate || "-"}</TableCell>
+                      <TableCell>
+                        {canAdjust ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-auto px-1.5 py-1 font-normal"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setNaming(row);
+                            }}
+                          >
+                            {row.operator_name ? (
+                              row.operator_name
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                <UserRound />
+                                {t("operator.fill")}
+                              </span>
+                            )}
+                          </Button>
+                        ) : (
+                          row.operator_name || ""
+                        )}
+                      </TableCell>
+                      <TableCell>{row.cidb_no || ""}</TableCell>
+                      <TableCell className="tabular whitespace-nowrap">{df.date(row.work_date)}</TableCell>
                       <TableCell className="tabular whitespace-nowrap">
                         {row.missing_start ? (
                           <StatusBadge label={t("status.MISSING_START")} tone="warning" />
@@ -552,19 +618,16 @@ export function EquipmentOperatorHours() {
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="tabular text-right font-medium">{row.hours}</TableCell>
+                      {/* Blank, not 0, while an end is missing (「未收工的时间及工时留空」). */}
+                      <TableCell className="tabular text-right font-medium">{row.hours ?? ""}</TableCell>
                       <TableCell className="tabular text-right text-muted-foreground">
                         {row.cumulative_hours ?? ""}
                       </TableCell>
                       <TableCell>
-                        <PhotoStrip session={row} />
-                      </TableCell>
-                      <TableCell>
                         <div className="flex items-center justify-end gap-0.5">
-                          {canAdjust && (
+                          {canAdjust && (row.missing_end || row.missing_start) ? (
                             <Button
                               size="sm"
-                              variant={row.missing_end || row.missing_start ? "default" : "ghost"}
                               onClick={(event) => {
                                 event.stopPropagation();
                                 setOpened(row);
@@ -572,6 +635,18 @@ export function EquipmentOperatorHours() {
                             >
                               <PencilLine />
                               {t(adjustLabelKey(row))}
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setOpened(row);
+                              }}
+                            >
+                              <Eye />
+                              {t("field.view")}
                             </Button>
                           )}
                         </div>
@@ -585,11 +660,12 @@ export function EquipmentOperatorHours() {
                     <TableCell />
                     <TableCell />
                     <TableCell />
+                    <TableCell />
+                    <TableCell />
                     <TableCell className="tabular text-right font-semibold">
                       {days.data?.total_hours ?? ""}
                     </TableCell>
                     <TableCell className="text-right" />
-                    <TableCell />
                     <TableCell className="text-right" />
                   </TableRow>
                 </>
@@ -685,6 +761,30 @@ export function EquipmentOperatorHours() {
           onSaved={setOpened}
         />
       )}
+
+      {naming && <OperatorDialog session={naming} onClose={() => setNaming(null)} />}
+
+      <SupplierQrScanner
+        open={scanning}
+        raw
+        labels={{
+          title: t("filter.scanTitle"),
+          help: t("filter.scanHelp"),
+          image: t("phone.scanImage"),
+        }}
+        onClose={() => setScanning(false)}
+        onDetected={(text) => {
+          setScanning(false);
+          const found = matchScannedMachine(text, options.data?.equipment ?? []);
+          if (!found) {
+            setScanMiss(t("filter.scanNoMatch"));
+            return;
+          }
+          setScanMiss("");
+          if (supplier !== ALL && found.supplier !== supplier) setSupplier(ALL);
+          setEquipment(found.id);
+        }}
+      />
     </div>
   );
 }
@@ -697,26 +797,53 @@ export function adjustLabelKey(
   return session.missing_end ? "adjust.add" : "adjust.edit";
 }
 
-/** The session's photos, small, and how many there are. */
-function PhotoStrip({ session }: { session: EquipmentHoursSession }) {
+/**
+ * 「可查看该公司全部设备……的累计工时」 (2026-10 I4): with a supplier chosen and
+ * no single machine, each of its machines on one line and the company's total.
+ * A line opens that machine's rows.
+ */
+export function SupplierTotals({
+  supplier,
+  rows,
+  total,
+  onPick,
+}: {
+  supplier: string;
+  rows: EquipmentHoursMachineTotal[];
+  total: string;
+  onPick: (equipment: string) => void;
+}) {
   const t = useTranslations("equipmentHours");
   return (
-    <span className="inline-flex items-center gap-1">
-      {session.photos.slice(0, 3).map((photo) =>
-        photo.watermarked_photo ? (
-          // eslint-disable-next-line @next/next/no-img-element -- a stamped evidence file served by the API
-          <img loading="lazy" decoding="async"
-            key={photo.id}
-            src={photo.watermarked_photo}
-            alt={t("photoAlt")}
-            className="size-8 rounded object-cover"
-          />
-        ) : (
-          <Camera key={photo.id} className="size-4 text-muted-foreground" />
-        ),
+    <section className="surface-panel space-y-2 rounded-xl p-3">
+      <h2 className="panel-title">{t("supplierTotals.title", { supplier })}</h2>
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("day.empty")}</p>
+      ) : (
+        <ul className="divide-y text-sm">
+          {rows.map((row) => (
+            <li key={row.equipment}>
+              <button
+                type="button"
+                className="flex w-full items-center gap-3 py-1.5 text-left hover:bg-muted/40"
+                onClick={() => onPick(row.equipment)}
+              >
+                <span className="w-16 shrink-0 font-medium">{row.site_no || row.equipment_code || "-"}</span>
+                <span className="min-w-0 flex-1 truncate">{row.equipment_name}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("supplierTotals.sessions", { count: row.session_count })}
+                </span>
+                <span className="tabular w-20 text-right font-medium">{row.total_hours}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
-      <span className="text-xs text-muted-foreground">{t("photoCount", { count: session.photo_count })}</span>
-    </span>
+      <p className="flex justify-between border-t pt-2 text-sm font-semibold">
+        <span>{t("supplierTotals.total")}</span>
+        <span className="tabular">{total}</span>
+      </p>
+    </section>
   );
 }
 
@@ -757,6 +884,7 @@ export function DayDialog({
   });
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  const [naming, setNaming] = useState(false);
   const timeLabel = mode === "start" ? t("adjust.startAt") : t("adjust.endAt");
 
   const save = useMutation({
@@ -777,7 +905,7 @@ export function DayDialog({
   return (
     <RecordDetailDialog
       title={`${day.equipment_name}${day.plate ? ` · ${day.plate}` : ""}`}
-      description={t("dialog.summary", { start, end, hours: day.hours })}
+      description={t("dialog.summary", { start, end, hours: day.hours ?? "-" })}
       onClose={onClose}
       // 预览 · 打印 · 导出 · 发送 on this one start-to-stop (H16, HD13): the
       // session is named by its start (or stop) photograph.
@@ -791,9 +919,17 @@ export function DayDialog({
       <RecordDetailShell
         reference={`${day.equipment_code || day.equipment_name}-${day.work_date}`}
         facts={[
+          { label: t("field.machineNo"), value: day.site_no || "-" },
           { label: t("field.code"), value: day.equipment_code || "-" },
-          { label: t("field.siteNo"), value: day.site_no || "-" },
           { label: t("field.supplier"), value: day.supplier_name || "-" },
+          // 操作人员 / CIDB 卡号 as the office wrote them (I4, ID19).
+          { label: t("field.operator"), value: day.operator_name || "-" },
+          { label: t("field.cidb"), value: day.cidb_no || "-" },
+          // A photo the older phone screen queued offline, before the
+          // signature existed: said, not left as a gap.
+          ...(day.photos.some((photo) => !photo.signature)
+            ? [{ label: t("phone.signature"), value: t("dialog.unsigned") }]
+            : []),
           { label: t("field.plate"), value: day.plate || "-" },
           { label: t("field.project"), value: day.project_name },
           {
@@ -815,8 +951,19 @@ export function DayDialog({
               </span>
             ),
           },
-          { label: t("field.hours"), value: <span className="tabular-nums">{day.hours}</span> },
+          { label: t("field.hours"), value: <span className="tabular-nums">{day.hours ?? "-"}</span> },
         ]}
+        // 司机签名 at the start and at the stop (I4, ID20).
+        signatures={day.photos.flatMap((photo) =>
+          photo.signature
+            ? [
+                {
+                  label: t("dialog.signature", { kind: photo.kind ? t(`kind.${photo.kind}`) : "" }),
+                  url: photo.signature,
+                },
+              ]
+            : [],
+        )}
         // The stamped copy, as the table shows it; a photo the server has
         // not stamped yet has nothing to show.
         photos={day.photos.flatMap((photo) =>
@@ -836,9 +983,27 @@ export function DayDialog({
             : [],
         )}
         recorder={<RecordRecorder record={day} />}
-        corrections={<AdjustmentHistory day={day} />}
+        corrections={
+          <div className="space-y-4">
+            <AdjustmentHistory day={day} />
+            <OperatorHistory session={day} />
+          </div>
+        }
         actions={
           canAdjust ? (
+            <div className="space-y-4">
+            <section className="space-y-3">
+              <h3 className="panel-title">{t("operator.title")}</h3>
+              <p className="text-sm">
+                {day.operator_name
+                  ? [day.operator_name, day.cidb_no ? `CIDB ${day.cidb_no}` : ""].filter(Boolean).join(" · ")
+                  : t("operator.none")}
+              </p>
+              <Button variant="outline" onClick={() => setNaming(true)}>
+                <UserRound />
+                {day.operator_name ? t("operator.edit") : t("operator.fill")}
+              </Button>
+            </section>
             <section className="space-y-3">
               <h3 className="panel-title">{t(adjustLabelKey(day))}</h3>
               <p className="text-xs text-muted-foreground">
@@ -876,9 +1041,20 @@ export function DayDialog({
                 </Button>
               </div>
             </section>
+            </div>
           ) : undefined
         }
       />
+      {naming && (
+        <OperatorDialog
+          session={day}
+          onClose={() => setNaming(false)}
+          onSaved={(rows) => {
+            const mine = rows.find((row) => row.key === day.key);
+            if (mine) onSaved(mine);
+          }}
+        />
+      )}
     </RecordDetailDialog>
   );
 }
