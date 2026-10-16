@@ -17,7 +17,7 @@
  * Finance and Support Agent showing English inside a Chinese interface.
  */
 
-import type { useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import type { Role } from "@/interfaces/auth";
 
@@ -46,6 +46,42 @@ export function roleLabel(
   name: string | null | undefined,
   t: Translate,
 ): string {
-  if (!code) return name ?? "";
-  return roleName({ code, name: name ?? "" }, t);
+  const stored = name ?? "";
+  const resolved = code || SEEDED_ROLE_CODE_BY_NAME[stored];
+  if (!resolved) return stored;
+  return roleName({ code: resolved, name: stored }, t);
+}
+
+/**
+ * Some payloads (the signed-in user, a gate record's members) carry only the
+ * stored role name. Seeded roles keep the platform's English template name, so
+ * that name identifies the preset. A tenant role with a different name is left
+ * alone. Prefer passing the code whenever the API sends it.
+ */
+export const SEEDED_ROLE_CODE_BY_NAME: Record<string, string> = {
+  "Platform Administrator": "platform_admin",
+  "Support Agent": "platform_support",
+  "Company Administrator": "company_admin",
+  "Site Staff": "site_staff",
+  "Project Manager": "project_manager",
+  Headquarters: "headquarters",
+  "Gate Guard": "gate_guard",
+  Viewer: "viewer",
+  "Safety Manager": "safety_manager",
+  "Quantity Surveyor (QS)": "quantity_surveyor",
+  Storekeeper: "storekeeper",
+  "Equipment Manager": "equipment_manager",
+  "Site Supervisor": "site_supervisor",
+  Finance: "finance",
+  "Document Controller": "document_controller",
+  Dispatcher: "dispatcher",
+  "Weighbridge Operator": "weighbridge_operator",
+  Driver: "driver",
+};
+
+/** Hook form of `roleLabel` for components that only need to show a name. */
+export function useRoleLabel() {
+  const t = useTranslations();
+  return (code: string | null | undefined, name: string | null | undefined) =>
+    roleLabel(code, name, t);
 }

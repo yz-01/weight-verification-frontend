@@ -25,6 +25,7 @@ import type { UserDetail, UserStatus } from "@/interfaces/auth";
 import { resetUserSignOffPin } from "@/services/sign-off.service";
 import { getUser } from "@/services/users.service";
 import { useDateFormat } from "@/lib/dates";
+import { useRoleLabel } from "@/lib/role-labels";
 
 const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
   ACTIVE: "positive",
@@ -34,6 +35,7 @@ const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
 
 export function ViewUser({ id }: { id: string }) {
   const t = useTranslations();
+  const roleOf = useRoleLabel();
   const df = useDateFormat();
   const { can } = useAuth();
 
@@ -69,7 +71,7 @@ export function ViewUser({ id }: { id: string }) {
           <h2 className="text-base font-semibold text-foreground">
             {data.full_name}
           </h2>
-          {data.role_name && <TypeBadge label={data.role_name} />}
+          {data.role_name && <TypeBadge label={roleOf(data.role_code, data.role_name)} />}
           <StatusBadge
             label={t(`users.status.${data.status}`)}
             tone={STATUS_TONE[data.status]}

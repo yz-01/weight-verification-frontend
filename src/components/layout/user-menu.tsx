@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useRoleLabel } from "@/lib/role-labels";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +28,7 @@ function initials(name: string): string {
 
 export function UserMenu() {
   const t = useTranslations();
+  const roleOf = useRoleLabel();
   const { user, signOut } = useAuth();
 
   if (user === null) return null;
@@ -52,7 +54,7 @@ export function UserMenu() {
           <p className="truncate text-xs text-muted-foreground">{user.email}</p>
           {user.role_name && (
             <p className="mt-1.5 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium text-primary ring-1 ring-inset ring-primary/20">
-              {user.role_name}
+              {roleOf(null, user.role_name)}
             </p>
           )}
         </DropdownMenuLabel>
