@@ -319,7 +319,15 @@ function MaterialLevel({
   const tRoot = useTranslations();
   const tree = categoryTree(rows);
   const headed = showsGroups(tree);
-  const ordered = tree.flatMap((group) => group.entries.map((entry) => entry.row));
+  // 材料 → 规格 (I11, I19): a material's sub-categories ARE its specifications,
+  // so only the top level is a material here; its children are listed under it.
+  const ordered = tree.flatMap((group) =>
+    group.entries.filter((entry) => entry.depth === 0).map((entry) => entry.row),
+  );
+  const specsOf = (id: string) =>
+    tree.flatMap((group) =>
+      group.entries.filter((entry) => entry.depth === 1 && entry.row.parent === id).map((entry) => entry.row),
+    );
   const shared = new Set(
     rows
       .map((row) => row.name)
@@ -373,6 +381,56 @@ function MaterialLevel({
             category={row.id}
             onPick={(supplier) => onPick({ category: row.id, supplier })}
           />
+          <SpecLevel
+            specs={specsOf(row.id)}
+            project={project}
+            category={row.id}
+            onPick={(levels) => onPick({ category: row.id, ...levels })}
+          />
+        </PickableSub>
+      ))}
+    </>
+  );
+}
+
+/**
+ * The specification level (I11, I19): 「全部规格」, then the material's
+ * specifications; each one lists whoever delivered it, so the supplier stays
+ * reachable. Nothing is drawn for a material with no specification.
+ */
+function SpecLevel({
+  specs,
+  project,
+  category,
+  onPick,
+}: {
+  specs: readonly { id: string; name: string }[];
+  project?: string;
+  category: string;
+  onPick: (levels: { spec_category?: string; supplier?: string }) => void;
+}) {
+  const t = useTranslations("reportSelector");
+  if (specs.length === 0) return null;
+  return (
+    <>
+      <DropdownMenuSeparator />
+      <DropdownMenuLabel className="text-xs text-muted-foreground">{t("specification")}</DropdownMenuLabel>
+      <DropdownMenuItem className="h-8 font-medium" onSelect={() => onPick({})}>
+        {t("allSpecifications")}
+      </DropdownMenuItem>
+      {specs.map((spec) => (
+        <PickableSub
+          key={spec.id}
+          className="h-8"
+          label={spec.name}
+          onPick={() => onPick({ spec_category: spec.id })}
+        >
+          <SupplierLevel
+            project={project}
+            category={category}
+            spec={spec.id}
+            onPick={(supplier) => onPick({ spec_category: spec.id, supplier })}
+          />
         </PickableSub>
       ))}
     </>
@@ -383,10 +441,12 @@ function MaterialLevel({
 function SupplierLevel({
   project,
   category,
+  spec,
   onPick,
 }: {
   project?: string;
   category?: string;
+  spec?: string;
   onPick: (supplier?: string) => void;
 }) {
   const t = useTranslations("reportSelector");
@@ -394,8 +454,11 @@ function SupplierLevel({
   // Mounted only when this level opens, so a long list of materials does not
   // ask for every material's suppliers up front.
   const summary = useQuery({
-    queryKey: ["receipts", "summary", "report-selector", project ?? "", category ?? ""],
-    queryFn: () => getReceiptSummary({ project, category }),
+    queryKey: [
+      "receipts", "summary", "report-selector", project ?? "", category ?? "",
+      ...(spec ? [spec] : []),
+    ],
+    queryFn: () => getReceiptSummary({ project, category, spec_category: spec }),
   });
   const suppliers = summary.data?.by_supplier ?? [];
   return (

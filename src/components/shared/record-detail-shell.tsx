@@ -804,7 +804,7 @@ export interface RecordDetailHeaderProps {
  * 「记录编号」 and 「旧编号」 under the heading (I6, ID21): the old number stays
  * readable on the detail, because printed PDFs carry it.
  */
-function RecordNumbers({
+export function RecordNumbers({
   recordNo,
   legacyNo,
 }: {
