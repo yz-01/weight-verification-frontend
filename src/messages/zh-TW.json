@@ -13674,12 +13674,8 @@
       "photo": "打開照片"
     },
     "field": {
-<<<<<<< HEAD
       "attachments": "附件（PDF / Word / Excel）",
-      "category": "事項分類",
-=======
       "category": "整改分類",
->>>>>>> origin/develop
       "description": "說明",
       "dueAt": "整改期限",
       "evidence": "證據",

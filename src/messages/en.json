@@ -13674,12 +13674,8 @@
       "photo": "Open photo"
     },
     "field": {
-<<<<<<< HEAD
       "attachments": "Attachments (PDF / Word / Excel)",
-      "category": "Issue category",
-=======
       "category": "Rectification category",
->>>>>>> origin/develop
       "description": "Description",
       "dueAt": "Rectification deadline",
       "evidence": "Evidence",

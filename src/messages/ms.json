@@ -13674,12 +13674,8 @@
       "photo": "Buka foto"
     },
     "field": {
-<<<<<<< HEAD
       "attachments": "Lampiran (PDF / Word / Excel)",
-      "category": "Kategori isu",
-=======
       "category": "Kategori pembetulan",
->>>>>>> origin/develop
       "description": "Penerangan",
       "dueAt": "Tarikh akhir pembetulan",
       "evidence": "Bukti",
