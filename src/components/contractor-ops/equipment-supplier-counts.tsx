@@ -97,8 +97,9 @@ export function EquipmentSupplierCountsPanel({
           <summary className="flex min-h-9 cursor-pointer items-center text-sm font-medium">
             {t("tableTitle")}
           </summary>
-          <div className="mt-2 max-h-72 overflow-auto">
-            <Table>
+          {/* The table's own box scrolls, so its header stays on top (I39). */}
+          <div className="mt-2">
+            <Table fit containerClassName="max-h-72">
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("supplier")}</TableHead>

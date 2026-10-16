@@ -111,6 +111,7 @@ import {
   getMaterialRequestReviewerOptions,
   reassignMaterialRequestToMe,
   reviewMaterialRequest, exportMaterialRequestTotals, getRequestTypes } from "@/services/material-request.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 const TONE: Record<MaterialRequestStatus, "warning" | "positive" | "neutral"> = {
   SUBMITTED: "warning",
@@ -232,12 +233,20 @@ function RequestsTab() {
         accessorKey: "material_name",
         meta: { label: t("field.materialOrSubject") },
         header: sortable(t("field.materialOrSubject")),
-        cell: ({ row }) =>
-          row.original.request_type === "OTHER" ? (
-            row.original.subject || <span className="text-muted-foreground">{t("type.OTHER")}</span>
-          ) : (
-            row.original.material_name || <span className="text-muted-foreground">—</span>
-          ),
+        cell: ({ row }) => (
+          <>
+            <span className="block">
+              {row.original.request_type === "OTHER" ? (
+                row.original.subject || <span className="text-muted-foreground">{t("type.OTHER")}</span>
+              ) : (
+                row.original.material_name || <span className="text-muted-foreground">—</span>
+              )}
+            </span>
+            {/* 材料编号 and the spec under the material (I39), so the list
+                fits without their own columns, which 「栏位」 still offers. */}
+            <MaterialSubLine code={row.original.category_code} spec={row.original.specification} />
+          </>
+        ),
       },
       // 材料编号 (I19-15): the category's code; toggled in 「栏位」.
       {
@@ -256,7 +265,13 @@ function RequestsTab() {
         accessorKey: "quantity",
         meta: { label: t("field.quantity") },
         header: sortable(t("field.quantity")),
-        cell: ({ row }) => <span className="tabular font-medium">{row.original.quantity ?? "—"}</span>,
+        // The unit beside the number (I39); its own column is in 「栏位」.
+        cell: ({ row }) => (
+          <span className="tabular font-medium">
+            {row.original.quantity ?? "—"}
+            {row.original.quantity != null && row.original.unit ? ` ${unitLabel(row.original.unit)}` : ""}
+          </span>
+        ),
       },
       {
         accessorKey: "unit",
@@ -386,7 +401,8 @@ function RequestsTab() {
         // columns, nor hide the manufacturer and supplier ones (D1).
         // `.v4` since the request type column came back (I16, ID37); `.v5`
         // since 材料编号 joined (I19-15), so a saved set shows it.
-        storageKey="material-requests.v5"
+        storageKey={LIST_FITS.materialRequests.storageKey}
+        defaultHidden={LIST_FITS.materialRequests.hidden}
         toolbar={
           <>
             <ProjectListFilter list={list} />
@@ -1085,4 +1101,11 @@ function useRequestTypeFilter(project: string) {
     }
     return { ready: true, param: "request_kind_name", options: requestTypeNameOptions(rows) };
   }, [rows, project, t]);
+}
+
+/** 材料编号 · 规格, one small grey line under the material; nothing when neither. */
+function MaterialSubLine({ code, spec }: { code?: string | null; spec?: string | null }) {
+  const text = [code, spec].filter(Boolean).join(" · ");
+  if (!text) return null;
+  return <span className="block text-[13px] text-muted-foreground">{text}</span>;
 }

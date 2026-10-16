@@ -64,6 +64,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   onOpen,
   rowClassName,
   pack,
+  defaultHidden,
 }: {
   title: string;
   /** "12 records", already in the reader's language. */
@@ -97,6 +98,11 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
    * 「加入当前资料包」 while a package is being put together.
    */
   pack?: ArchiveRecordKind;
+  /**
+   * Columns hidden until turned on under 「字段」, so the list fits a 1366 px
+   * screen (I39); from the list's entry in `lib/list-fits`.
+   */
+  defaultHidden?: readonly string[];
 }) {
   const t = useTranslations();
   const counted = needsActionCount !== undefined;
@@ -164,6 +170,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
         storageKey={storageKey}
+        defaultHidden={defaultHidden}
         toolbarActions={
           toolbar ? <div className="ml-auto flex items-center gap-2">{toolbar}</div> : undefined
         }

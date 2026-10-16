@@ -132,8 +132,9 @@ export function MaterialTargets() {
       ) : rows.length === 0 ? (
         <EmptyState title={project ? t("empty") : t("emptyAll")} action={addButton || undefined} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <Table className="min-w-[64rem]">
+        <div className="rounded-lg border">
+          {/* Fits the page (I39): no sideways scroll at 1366 px. */}
+          <Table fit>
             <TableHeader>
               <TableRow>
                 {!project && <TableHead>{t("field.project")}</TableHead>}
@@ -147,7 +148,7 @@ export function MaterialTargets() {
                 <TableHead>{t("field.progress")}</TableHead>
                 <TableHead>{t("field.status")}</TableHead>
                 <TableHead>{t("field.records")}</TableHead>
-                {canManage && <TableHead>{t("field.action")}</TableHead>}
+                {canManage && <TableHead pin="end">{t("field.action")}</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -182,7 +183,7 @@ export function MaterialTargets() {
                       {row.exceeded}
                     </TableCell>
                     <TableCell>
-                      <div className="min-w-28 space-y-1">
+                      <div className="min-w-20 space-y-1">
                         <div className="h-2 overflow-hidden rounded-full bg-muted">
                           <div className={`h-full ${bar.tone}`} style={{ width: `${bar.width}%` }} />
                         </div>
@@ -205,7 +206,7 @@ export function MaterialTargets() {
                       </div>
                     </TableCell>
                     {canManage && (
-                      <TableCell>
+                      <TableCell pin="end">
                         <div className="flex items-center gap-1">
                           <Button size="icon-sm" variant="ghost" title={t("edit")} onClick={() => setEditing(row)}>
                             <Pencil />

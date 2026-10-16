@@ -67,6 +67,7 @@ import {
   getSundryClaims,
   reviewSundryClaim,
 } from "@/services/sundry-claim.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 const TONE: Record<SundryClaimStatus, "neutral" | "positive" | "warning" | "danger" | "info"> = {
   SUBMITTED: "warning",
@@ -222,7 +223,8 @@ export function SundryClaimsOffice() {
         needsActionCount={rows.data?.needs_action_count}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="sundry-claims"
+        storageKey={LIST_FITS.sundryClaims.storageKey}
+        defaultHidden={LIST_FITS.sundryClaims.hidden}
         // HD17: 杂费记录作为来源被打包 into a Sundry Claim package.
         pack="SUNDRY_CLAIM"
         toolbar={

@@ -111,6 +111,7 @@ import {
   reviewWasteOutgoingRequest,
   submitWasteCollectionRequest,
 } from "@/services/waste-outgoing.service";
+import { LIST_FITS } from "@/lib/list-fits";
 
 /** The eleven stages of 8.2.12, in the order the customer lists them. */
 const MILESTONE_ORDER: MilestoneKey[] = [
@@ -526,7 +527,8 @@ export function WasteOutgoingWorkspace() {
         needsActionCount={records.data?.needs_action_count}
         isLoading={records.isLoading}
         isError={records.isError}
-        storageKey="waste-outgoing"
+        storageKey={LIST_FITS.wasteOutgoing.storageKey}
+        defaultHidden={LIST_FITS.wasteOutgoing.hidden}
         pack="WASTE_OUTGOING"
         toolbar={
           <>

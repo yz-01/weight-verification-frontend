@@ -341,7 +341,8 @@ export function ArchiveQueue() {
         />
       ) : (
         <div className="surface-panel overflow-hidden rounded-xl">
-          <Table className="min-w-[58rem]">
+          {/* Fits the page, the actions pinned at the right (I39). */}
+          <Table fit>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("column.record")}</TableHead>
@@ -351,7 +352,7 @@ export function ArchiveQueue() {
                 <TableHead>{t("column.status")}</TableHead>
                 <TableHead>{t("column.archived")}</TableHead>
                 <TableHead>{t("column.seen")}</TableHead>
-                <TableHead className="text-right">{t("column.action")}</TableHead>
+                <TableHead pin="end" className="text-right">{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -432,7 +433,7 @@ export function ArchiveQueue() {
                       <span className="text-muted-foreground">{t("state.pending")}</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell pin="end" className="text-right">
                     <Button
                       size="sm"
                       variant="outline"

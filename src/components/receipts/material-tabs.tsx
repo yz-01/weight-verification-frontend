@@ -178,8 +178,9 @@ export function NetTotalsView({
         ) : null}
       </div>
       <p className="text-xs text-muted-foreground">{t("receipts.net.note")}</p>
-      <div className="surface-panel overflow-x-auto rounded-xl">
-        <Table>
+      <div className="surface-panel overflow-hidden rounded-xl">
+        {/* Fits the page (I39). */}
+        <Table fit>
           <TableHeader>
             <TableRow>
               <TableHead>{t("receipts.field.materialName")}</TableHead>
