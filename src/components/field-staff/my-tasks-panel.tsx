@@ -26,6 +26,7 @@ import {
   Check,
   ClipboardList,
   Clock3,
+  CloudOff,
   FileText,
   Loader2,
   MessageSquare,
@@ -35,7 +36,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -49,10 +50,13 @@ import type { FieldTask, MyTaskRow } from "@/interfaces/contractor-ops";
 import type { SafetyIncident } from "@/interfaces/site-operations";
 import { useDateFormat } from "@/lib/dates";
 import { LocationRefused, requestLocation as locate } from "@/lib/field-location";
+import { getOfflineJobs } from "@/lib/offline-db";
+import { queuedTaskPhotoCount } from "@/lib/queued-task-photos";
 import { fieldTaskStageKey, STAGE_TONE } from "@/lib/task-stages";
 import { getFieldTask, getMyTasks } from "@/services/contractor-ops.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 import {
+  OFFLINE_QUEUE_CHANGED,
   submitFieldTaskPhotoOfflineAware,
   submitFieldTaskTransitionOfflineAware,
 } from "@/services/offline-sync.service";
@@ -218,6 +222,27 @@ function FieldTaskWork({
     queryKey: ["field-tasks", "detail", taskId],
     queryFn: () => getFieldTask(taskId),
   });
+  // This task's photos still on the phone (P-phonefix): they count, and show
+  // as waiting, so 提交完成 is not blocked with no signal.
+  // query-failure: no offline store on this browser reads as none waiting.
+  const queuedPhotos = useQuery({
+    queryKey: ["offline-queue", "field-task-photos", user?.id, taskId],
+    queryFn: async () => {
+      if (!user) return 0;
+      try {
+        return queuedTaskPhotoCount(await getOfflineJobs(user.id), taskId);
+      } catch {
+        return 0;
+      }
+    },
+    enabled: Boolean(user),
+  });
+  const refetchQueued = queuedPhotos.refetch;
+  useEffect(() => {
+    const changed = () => void refetchQueued();
+    window.addEventListener(OFFLINE_QUEUE_CHANGED, changed);
+    return () => window.removeEventListener(OFFLINE_QUEUE_CHANGED, changed);
+  }, [refetchQueued]);
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["field-tasks"] });
     void queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
@@ -246,6 +271,7 @@ function FieldTaskWork({
     onSuccess: () => {
       setError("");
       refresh();
+      void refetchQueued();
     },
     onError: failed,
   });
@@ -293,7 +319,8 @@ function FieldTaskWork({
 
   const open = ["OPEN", "IN_PROGRESS", "RETURNED"].includes(row.status);
   const headOffice = row.origin === "HQ";
-  const photos = row.photos.length;
+  const waitingPhotos = queuedPhotos.data ?? 0;
+  const photos = row.photos.length + waitingPhotos;
   // At least one photo, or as many as the office asked for (I1); a
   // head-office task can be words alone.
   const needed = headOffice ? 0 : Math.max(row.evidence_required, 1);
@@ -368,7 +395,7 @@ function FieldTaskWork({
             required={needed > 0 ? "quiet" : undefined}
             hint={needed > 0 ? t("photosHint", { count: needed }) : undefined}
           >
-            {photos > 0 && (
+            {row.photos.length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
                 {row.photos.map((item) => (
                   <a
@@ -389,6 +416,12 @@ function FieldTaskWork({
                   </a>
                 ))}
               </div>
+            )}
+            {waitingPhotos > 0 && (
+              <p role="status" className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <CloudOff className="size-3.5 shrink-0" />
+                {t("photosQueued", { count: waitingPhotos })}
+              </p>
             )}
             <FieldCamera
               label={t("takePhoto")}

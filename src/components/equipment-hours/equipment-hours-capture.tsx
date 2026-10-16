@@ -93,9 +93,32 @@ export function matchTypedMachine(
   );
 }
 
-/** 开工 when the machine is not running, 收工 when it is. */
+/**
+ * 开工 when the machine is not running, 收工 when it is. A 开工 left open
+ * from an earlier day (a forgotten 收工) is not running: the server leaves
+ * ``open_since`` empty and says ``unclosed_since`` instead, so a new day
+ * starts with 开工, never with a 收工 that would bill the whole night.
+ */
 export function nextKind(machine: Pick<EquipmentHoursMachine, "open_since"> | undefined): EquipmentPhotoKind {
   return machine?.open_since ? "FINISH" : "START";
+}
+
+/** How long a 开工 from an earlier day still counts as running (a night
+ * shift across midnight); the server's ``OPEN_START_ACROSS_DAYS``. */
+export const OPEN_START_ACROSS_DAYS_MS = 16 * 60 * 60 * 1000;
+
+const siteDay = (iso: string) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kuala_Lumpur" }).format(new Date(iso));
+
+/** Whether a still-open 开工 at ``startedAt`` is a forgotten one by ``now``:
+ * from an earlier day on the site's clock and older than 16 hours. */
+export function isForgottenStart(startedAt: string, now: Date = new Date()): boolean {
+  const started = new Date(startedAt);
+  if (Number.isNaN(started.getTime())) return false;
+  return (
+    siteDay(startedAt) < siteDay(now.toISOString()) &&
+    now.getTime() - started.getTime() > OPEN_START_ACROSS_DAYS_MS
+  );
 }
 
 /** A photo of a machine still waiting on this phone (no signal yet). */
@@ -115,12 +138,16 @@ export interface WaitingPhoto {
 export function kindToTake(
   machine: Pick<EquipmentHoursMachine, "id" | "open_since">,
   waiting: readonly WaitingPhoto[],
+  now: Date = new Date(),
 ): EquipmentPhotoKind {
   const newest = waiting
     .filter((photo) => photo.equipment === machine.id && photo.kind)
     .sort((a, b) => a.capturedAt.localeCompare(b.capturedAt))
     .at(-1);
-  if (newest) return newest.kind === "START" ? "FINISH" : "START";
+  if (newest) {
+    if (newest.kind !== "START") return "START";
+    return isForgottenStart(newest.capturedAt, now) ? "START" : "FINISH";
+  }
   return nextKind(machine);
 }
 
@@ -374,6 +401,10 @@ export function EquipmentHoursCapture({
           {machine.open_since ? (
             <p className="-mt-2 text-xs text-muted-foreground">
               {t("phone.openSince", { start: df.dateTime(machine.open_since) })}
+            </p>
+          ) : machine.unclosed_since ? (
+            <p role="status" className="-mt-2 text-xs font-medium text-warning">
+              {t("phone.unclosedYesterday")}
             </p>
           ) : null}
 

@@ -30,6 +30,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 vi.mock("@/components/field-staff/field-draft", () => ({
   FieldDraft: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useClearDraft: () => () => {},
+  useDraftEventId: () => () => "receipt-event-1",
   useDraftState: (key: string, initial?: unknown) => [
     key in drafts ? drafts[key] : typeof initial === "function" ? (initial as () => unknown)() : initial,
     () => {},

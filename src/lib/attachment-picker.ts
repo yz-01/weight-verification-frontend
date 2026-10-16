@@ -16,11 +16,13 @@ export interface AttachmentRule {
   maxFiles?: number;
   /** One file's ceiling in bytes. Undefined = no client-side ceiling. */
   maxBytes?: number;
+  /** All the files together, in bytes. Undefined = no client-side ceiling. */
+  maxTotalBytes?: number;
   /** More than one file at a time. Off = a new file replaces the old one. */
   multiple?: boolean;
 }
 
-export type RefusalKind = "type" | "size" | "count";
+export type RefusalKind = "type" | "size" | "count" | "total";
 
 export interface Refusal {
   kind: RefusalKind;
@@ -70,8 +72,20 @@ export function acceptFiles(
     return { files: first ? [first] : [...existing], refused };
   }
   const room = rule.maxFiles === undefined ? Infinity : Math.max(0, rule.maxFiles - existing.length);
-  const taken = accepted.slice(0, room);
+  const counted = accepted.slice(0, room);
   for (const file of accepted.slice(room)) refused.push({ kind: "count", name: file.name });
+  // All together under the total, in the order offered: a file that would
+  // pass it is refused, a smaller one after it may still fit.
+  let total = existing.reduce((sum, file) => sum + file.size, 0);
+  const taken: File[] = [];
+  for (const file of counted) {
+    if (rule.maxTotalBytes !== undefined && total + file.size > rule.maxTotalBytes) {
+      refused.push({ kind: "total", name: file.name });
+      continue;
+    }
+    total += file.size;
+    taken.push(file);
+  }
   return { files: [...existing, ...taken], refused };
 }
 

@@ -50,7 +50,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { useAllowedTypeRefusal } from "@/components/shared/attachment-refusal";
-import { HAZARD_ATTACHMENT_ACCEPT, HAZARD_ATTACHMENT_RULE } from "@/lib/hazard-attachments";
+import { HAZARD_ATTACHMENT_ACCEPT, hazardAttachmentRule } from "@/lib/hazard-attachments";
 import {
   FieldWrapper,
   FilterBar,
@@ -103,6 +103,7 @@ import { useDateFormat } from "@/lib/dates";
 import { hazardColumns, titleForColumn } from "@/lib/hazard-columns";
 import { photoMeta } from "@/lib/photo-meta";
 import {
+  newClientEventId,
   submitSafetyIncidentOfflineAware,
   submitSafetyRectificationOfflineAware,
   type SafetyIncidentSubmission,
@@ -207,6 +208,12 @@ interface SafetyDraft {
   /** 上报 → 指派 in one step (B22); empty leaves it 待分配. */
   rectifier?: string;
   rectifierDueAt?: string;
+  /**
+   * The report's one id, kept with the draft: a second tap after a failure
+   * that was not the network (502 / 504 / 413 - the server may have taken
+   * it) is the same report, never a second one (P-phonefix).
+   */
+  clientEventId?: string;
 }
 
 const EMPTY_DRAFT: SafetyDraft = {
@@ -1152,10 +1159,10 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
 export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const commonT = useTranslations("common");
-  const refusalText = useAllowedTypeRefusal(HAZARD_ATTACHMENT_ACCEPT);
   const qc = useQueryClient();
   const { user } = useAuth();
   const fieldMode = Boolean(user?.is_field_staff);
+  const refusalText = useAllowedTypeRefusal(HAZARD_ATTACHMENT_ACCEPT, { phone: fieldMode });
   // 拍照 (at least one) / 备注 → 提交完成 (I1): the same on the phone and
   // in the office, no four fixed slots any more.
   const [officeImages, setOfficeImages] = useState<File[]>([]);
@@ -1205,7 +1212,7 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
           />
         </FieldWrapper>
         <FieldWrapper label={t("field.attachments")} optional={commonT("optional")}>
-          <AttachmentPicker files={attachments} onChange={setAttachments} rule={HAZARD_ATTACHMENT_RULE} camera={false} refusalText={refusalText} />
+          <AttachmentPicker files={attachments} onChange={setAttachments} rule={hazardAttachmentRule(fieldMode)} camera={false} refusalText={refusalText} />
         </FieldWrapper>
         <LocationField
           label={t("field.location")}
@@ -1374,7 +1381,7 @@ function SafetyCreateDialog({
     project: initialProject,
   });
   const clearDraft = useClearDraft();
-  const attachmentRefusal = useAllowedTypeRefusal(HAZARD_ATTACHMENT_ACCEPT);
+  const attachmentRefusal = useAllowedTypeRefusal(HAZARD_ATTACHMENT_ACCEPT, { phone: fieldMode });
   /*
    * Whether this device can place the worker at all.
    *
@@ -1447,6 +1454,7 @@ function SafetyCreateDialog({
   const create = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Authentication required.");
+<<<<<<< HEAD
       // An item raised in the office is signed (I29, ID68 4). The PIN is
       // asked and checked BEFORE the photos go, so a wrong one never sends
       // them twice; the create carries the PIN that was right. The phone and
@@ -1457,6 +1465,10 @@ function SafetyCreateDialog({
         if (pin === null) throw new ApiError("", 403, {}, SIGN_OFF_CANCELLED);
         signOffPin = pin || undefined;
       }
+=======
+      const eventId = draft.clientEventId || newClientEventId("safety-incident");
+      if (!draft.clientEventId) setDraft((value) => ({ ...value, clientEventId: eventId }));
+>>>>>>> origin/develop
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
         // None from the phone (ID12): the server files it as 「未分类」.
@@ -1472,7 +1484,7 @@ function SafetyCreateDialog({
         photos: completedPhotos,
         attachments: draft.attachments ?? [],
         notify_users: draft.notifyUsers,
-        client_event_id: crypto.randomUUID(),
+        client_event_id: eventId,
         field_task: fieldTaskId,
         responsible_person: draft.rectifier || undefined,
         due_at:
@@ -1704,7 +1716,7 @@ function SafetyCreateDialog({
             <AttachmentPicker
               files={draft.attachments ?? []}
               onChange={(attachments) => setDraft((value) => ({ ...value, attachments }))}
-              rule={HAZARD_ATTACHMENT_RULE}
+              rule={hazardAttachmentRule(fieldMode)}
               camera={false}
               refusalText={attachmentRefusal}
             />

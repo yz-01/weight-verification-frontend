@@ -183,8 +183,41 @@ function endSession(): void {
  * given up, reported as `timeout`, and the offline queue tries it again.
  * Only uploads (a FormData body) are timed: a plain read has its own retries
  * and no photo to push.
+ *
+ * That is the floor. A bigger body gets longer (P-phonefix): a 20 MB PDF on
+ * a weak site link takes far more than two minutes, and cutting it off every
+ * time meant it never arrived. See `uploadTimeoutMs`.
  */
 export const UPLOAD_TIMEOUT_MS = 120_000;
+
+/** The slowest link an upload is still given time for: ~0.5 Mbit/s. */
+export const UPLOAD_SLOWEST_BYTES_PER_SECOND = 64 * 1024;
+
+/** What the two minutes already cover: a few compressed photos. */
+export const UPLOAD_BYTES_IN_FLOOR = 5 * 1024 * 1024;
+
+/** No upload waits longer than this, however big. */
+export const UPLOAD_TIMEOUT_MAX_MS = 30 * 60_000;
+
+/** The bytes a multipart body will push: its files plus its text fields. */
+export function formDataBytes(body: FormData): number {
+  let bytes = 0;
+  body.forEach((value) => {
+    bytes += typeof value === "string" ? value.length : value.size;
+  });
+  return bytes;
+}
+
+/**
+ * How long an upload of ``bytes`` may run: two minutes, plus the time what
+ * is over ``UPLOAD_BYTES_IN_FLOOR`` needs at ``UPLOAD_SLOWEST_BYTES_PER_SECOND``,
+ * never over ``UPLOAD_TIMEOUT_MAX_MS``. A few photos stay at two minutes.
+ */
+export function uploadTimeoutMs(bytes: number): number {
+  const over = Math.max(bytes - UPLOAD_BYTES_IN_FLOOR, 0);
+  const extra = Math.ceil((over / UPLOAD_SLOWEST_BYTES_PER_SECOND) * 1000);
+  return Math.min(UPLOAD_TIMEOUT_MS + extra, UPLOAD_TIMEOUT_MAX_MS);
+}
 
 /** The reason an upload was cut off, told apart from a caller's own abort. */
 class UploadTimeout extends Error {
@@ -203,7 +236,8 @@ async function fetchWithUploadTimeout(
   const forward = () => controller.abort(callerSignal?.reason);
   if (callerSignal?.aborted) forward();
   else callerSignal?.addEventListener("abort", forward, { once: true });
-  const timer = setTimeout(() => controller.abort(new UploadTimeout()), UPLOAD_TIMEOUT_MS);
+  const limit = init.body instanceof FormData ? uploadTimeoutMs(formDataBytes(init.body)) : UPLOAD_TIMEOUT_MS;
+  const timer = setTimeout(() => controller.abort(new UploadTimeout()), limit);
   try {
     return await fetch(url, { ...init, signal: controller.signal });
   } catch (error) {
@@ -258,15 +292,31 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
   return fetch(buildUrl(path, query), { method, headers, body: payload, signal });
 }
 
+/**
+ * What to say when the answer is not ours: a proxy's HTML page. A body too
+ * big for the gateway (413) says what to do instead; a gateway that got no
+ * answer from the server (502 / 503 / 504) says to try again later - never
+ * the bare 「出了点问题」 (P-phonefix).
+ */
+export function proxyFailureMessage(status: number): { message: string; code: string } {
+  if (status === 413) return { message: t("errors.uploadTooLarge"), code: "upload_too_large" };
+  if (status === 502 || status === 503 || status === 504) {
+    return { message: t("errors.serverBusy"), code: "server_busy" };
+  }
+  return { message: t("errors.generic"), code: "" };
+}
+
 async function parseEnvelope<T>(response: Response): Promise<ApiEnvelope<T>> {
   try {
     return (await response.json()) as ApiEnvelope<T>;
   } catch {
     // A gateway timeout or a proxy error page: not JSON, but still a failure
     // the caller has to see as one.
+    const { message, code } = proxyFailureMessage(response.status);
     return {
       success: false,
-      message: t("errors.generic"),
+      message,
+      ...(code ? { code } : {}),
       errors: {},
     };
   }

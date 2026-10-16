@@ -230,6 +230,7 @@ export function WorkerDetailDialog({
                     </Button>
                   )}
                   {mayManage && hasLink && <p className="text-xs text-muted-foreground">{t("link.resendHint")}</p>}
+                  {mayManage && hasLink && <p className="text-xs text-muted-foreground">{t("link.otherBrowser")}</p>}
                 </section>
 
                 <section className="space-y-2">
@@ -343,6 +344,8 @@ function LinkSentDialog({
           <DialogTitle>{t("link.sentTitle")}</DialogTitle>
           <DialogDescription>{t("link.sentBody")}</DialogDescription>
         </DialogHeader>
+        {/* One phone is one browser (P-phonefix): the link binds where it is first opened. */}
+        <p className="text-xs text-muted-foreground">{t("link.otherBrowser")}</p>
         {issued && (
           <div className="space-y-3">
             <p className="break-all rounded-md border bg-muted/30 p-2 text-xs">{issued.url}</p>

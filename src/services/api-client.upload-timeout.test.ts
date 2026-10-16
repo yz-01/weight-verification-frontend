@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError } from "@/interfaces/api";
-import { api, UPLOAD_TIMEOUT_MS } from "./api-client";
+import {
+  api,
+  formDataBytes,
+  proxyFailureMessage,
+  UPLOAD_TIMEOUT_MAX_MS,
+  UPLOAD_TIMEOUT_MS,
+  uploadTimeoutMs,
+} from "./api-client";
 
 /**
  * An upload that never answers is given up after two minutes (A9).
@@ -85,5 +92,67 @@ describe("an upload with no answer", () => {
     const error = await failure;
     expect(error).not.toBeInstanceOf(ApiError);
     expect((error as DOMException).name).toBe("AbortError");
+  });
+});
+
+describe("a big upload gets the time it needs (P-phonefix)", () => {
+  const MB = 1024 * 1024;
+
+  it("a few photos keep the two minutes; a 20 MB file gets six; nothing waits past 30", () => {
+    expect(uploadTimeoutMs(0)).toBe(UPLOAD_TIMEOUT_MS);
+    expect(uploadTimeoutMs(3 * MB)).toBe(UPLOAD_TIMEOUT_MS);
+    // 15 MB over the floor at 64 KB/s is 240 s more.
+    expect(uploadTimeoutMs(20 * MB)).toBe(UPLOAD_TIMEOUT_MS + 240_000);
+    expect(uploadTimeoutMs(2000 * MB)).toBe(UPLOAD_TIMEOUT_MAX_MS);
+  });
+
+  it("counts the files and the text of a multipart body", () => {
+    const data = new FormData();
+    data.append("note", "abc");
+    data.append("file", new File([new Uint8Array(1000)], "a.pdf"));
+    expect(formDataBytes(data)).toBe(1003);
+  });
+
+  it("a 20 MB upload is not cut off at two minutes", async () => {
+    globalThis.fetch = stalledFetch() as unknown as typeof fetch;
+    const data = new FormData();
+    data.append("attachment", new File([new Uint8Array(20 * MB)], "plan.pdf"));
+    const failure = api
+      .post("/api/safety-incidents/i1/post_hazard_message/", data, { silent: true })
+      .catch((error: unknown) => error);
+    let settled = false;
+    void failure.then(() => (settled = true));
+    await vi.advanceTimersByTimeAsync(UPLOAD_TIMEOUT_MS + 60_000);
+    expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(240_000);
+    expect(await failure).toMatchObject({ status: 0, code: "timeout" });
+  });
+});
+
+describe("a proxy's error page says what happened", () => {
+  it("413 says the file is too big, 502 / 504 say to try later", () => {
+    expect(proxyFailureMessage(413).code).toBe("upload_too_large");
+    expect(proxyFailureMessage(502).code).toBe("server_busy");
+    expect(proxyFailureMessage(504).code).toBe("server_busy");
+    expect(proxyFailureMessage(500).code).toBe("");
+  });
+
+  it("an HTML 413 from nginx reaches the caller with its own message, not the generic one", async () => {
+    globalThis.fetch = vi.fn(
+      async () =>
+        new Response("<html><body>413 Request Entity Too Large</body></html>", {
+          status: 413,
+          headers: { "Content-Type": "text/html" },
+        }),
+    ) as unknown as typeof fetch;
+    const data = new FormData();
+    data.append("attachment", new File(["x"], "plan.pdf"));
+    const error = await api
+      .post("/api/safety-incidents/i1/post_hazard_message/", data, { silent: true })
+      .catch((reason: unknown) => reason);
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({ status: 413, code: "upload_too_large" });
+    expect((error as ApiError).message).toBe(proxyFailureMessage(413).message);
+    expect((error as ApiError).message).not.toBe(proxyFailureMessage(500).message);
   });
 });

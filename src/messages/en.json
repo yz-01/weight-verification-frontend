@@ -6389,6 +6389,12 @@
       "scanMachineHelp": "Point the camera at the QR code on the machine.",
       "scanMachineImage": "Read the code from a photo",
       "scanMatched": "Confirmed: {name}",
+      "typedMatched": "Number entered: {name}",
+      "brokenQr": "QR code broken or not stuck on yet? Type the number",
+      "typeNumber": "Site no. / equipment code / plate",
+      "useNumber": "OK",
+      "typedWrongMachine": "That number is not the machine approved to leave ({name}). Please check again.",
+      "typedNotScanned": "The QR code was not scanned on site: the machine's number was typed by hand.",
       "scanAgain": "Scan again",
       "scanWrongMachine": "That is not the machine approved to leave ({name}). Scan this machine's QR code.",
       "photosHint": "At least {min} photos, the DO photo counted in.",
@@ -8023,7 +8029,9 @@
     "networkBody": "Check your connection and try again.",
     "notFound": "We could not find that.",
     "notFoundBody": "It may have been removed, or you may not have access to it.",
-    "uploadTimeout": "The upload timed out: the signal was too weak to finish within two minutes."
+    "uploadTimeout": "The upload timed out: the signal was too weak to finish. It will try again by itself.",
+    "uploadTooLarge": "The file is too big. Please upload it from the office computer.",
+    "serverBusy": "The server is not answering right now. Please try again later."
   },
   "evidence": {
     "revision": {
@@ -11247,6 +11255,7 @@
   "offline": {
     "kind": {
       "SAFETY_RECTIFICATION": "Rectification submit",
+      "HAZARD_FILE": "Rectification file",
       "ATTENDANCE": "Site entry",
       "CATEGORY_EVIDENCE": "Site photos",
       "CONSULTANT_SUBMISSION": "Consultant submission",
@@ -11294,6 +11303,7 @@
       "refusedHelp": "{count, plural, one {# of them was not accepted by the server} other {# of them were not accepted by the server}}. See why under \"My submissions\" and ask your administrator to sort it out."
     },
     "synced": "Uploaded {count, plural, one {# saved record} other {# saved records}}",
+    "filesFollow": "Sent to the office. {count, plural, one {# file is} other {# files are}} still uploading in the background.",
     "alreadyQueued": "This action is already waiting to sync. It will not be sent twice.",
     "state": {
       "waiting": "Waiting to sync",
@@ -17644,6 +17654,8 @@
     "remove": "Remove",
     "wrongType": "{name} cannot be attached: this kind of file is not accepted here.",
     "tooBig": "{name} is larger than {limit} MB.",
+    "tooBigTotal": "{name} would take the files over {limit} MB in all.",
+    "phoneTooBig": "{name}: the file is too big. Please upload it from the office computer. On the phone each file can be up to 20 MB, and 50 MB in all.",
     "tooMany": "Send at most {limit} files at a time.",
     "notAFile": "What you pasted is not a file or a picture. Copy the picture itself and try again."
   },
@@ -18035,6 +18047,7 @@
       "qrNoMatch": "This QR code does not match a machine on this project: {text}",
       "kind": "Start / Stop",
       "openSince": "This machine was started at {start} and has not been stopped.",
+      "unclosedYesterday": "This machine was not stopped yesterday. Please ask the office to enter the stop time.",
       "photo": "Machine photo",
       "takePhoto": "Take photo",
       "photoReady": "Photo taken - tap to retake",
@@ -18429,6 +18442,7 @@
       "photos": "Photos",
       "photosHint": "Take at least {count}",
       "takePhoto": "Take photo",
+      "photosQueued": "{count, plural, one {# photo is} other {# photos are}} waiting on this phone and will go when there is signal.",
       "note": "Note",
       "noteHint": "With no photo, say in one line what was done",
       "optional": "Optional",
@@ -18589,6 +18603,7 @@
       "message": "Hi {name}, this is the site location link for {project}. Open it on your phone, enter your phone number, press \"Agree and start\" and keep the page open while on site: {link}",
       "sentTitle": "Location link ready",
       "sentBody": "The system sends no SMS. Send it by WhatsApp, or copy it and send it yourself. The link is shown this once only.",
+      "otherBrowser": "If the worker opens the link in another browser or app (for example first in WhatsApp, then in Safari), the system treats it as another phone, and the office must send the link again.",
       "whatsapp": "Send by WhatsApp",
       "copy": "Copy link"
     }

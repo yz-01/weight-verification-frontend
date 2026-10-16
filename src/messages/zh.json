@@ -6389,6 +6389,12 @@
       "scanMachineHelp": "把相机对准设备上的二维码。",
       "scanMachineImage": "从照片读取二维码",
       "scanMatched": "已确认：{name}",
+      "typedMatched": "已输入编号：{name}",
+      "brokenQr": "二维码坏了 / 还没有贴？输入编号",
+      "typeNumber": "现场编号 / 设备编号 / 车牌",
+      "useNumber": "确定",
+      "typedWrongMachine": "这个编号不是批准退场的设备（{name}），请再看一次。",
+      "typedNotScanned": "现场没有扫二维码，设备编号是手动输入的。",
       "scanAgain": "重扫",
       "scanWrongMachine": "扫到的不是批准退场的设备（{name}），请扫这台设备的二维码。",
       "photosHint": "至少 {min} 张（含 DO 照片）。",
@@ -8023,7 +8029,9 @@
     "networkBody": "请检查网络连接后重试。",
     "notFound": "找不到这条记录。",
     "notFoundBody": "它可能已被移除，或你没有访问权限。",
-    "uploadTimeout": "上传超时：信号太弱，两分钟内没有传完。"
+    "uploadTimeout": "上传超时：信号太弱，没有传完。系统会自动再试。",
+    "uploadTooLarge": "文件太大，请在电脑后台上传。",
+    "serverBusy": "服务器暂时没有回应，请稍后再试。"
   },
   "evidence": {
     "revision": {
@@ -11247,6 +11255,7 @@
   "offline": {
     "kind": {
       "SAFETY_RECTIFICATION": "整改提交",
+      "HAZARD_FILE": "整改附件",
       "ATTENDANCE": "人员进场打卡",
       "CATEGORY_EVIDENCE": "现场照片",
       "CONSULTANT_SUBMISSION": "顾问提交",
@@ -11294,6 +11303,7 @@
       "refusedHelp": "其中 {count} 条服务器没有接收，可以在「我提交过的」看原因，请联系管理员处理。"
     },
     "synced": "已上传 {count} 条暂存的记录",
+    "filesFollow": "已送到办公室。{count} 个附件正在后台上传。",
     "alreadyQueued": "这条动作已经在等待同步，不会重复送出。",
     "state": {
       "waiting": "待同步",
@@ -17644,6 +17654,8 @@
     "remove": "移除",
     "wrongType": "{name} 不能上传：这里不接受这种文件。",
     "tooBig": "{name} 超过 {limit} MB。",
+    "tooBigTotal": "{name} 加上去超过合计 {limit} MB。",
+    "phoneTooBig": "{name}：文件太大，请在电脑后台上传。手机上每个文件最多 20 MB，合计最多 50 MB。",
     "tooMany": "一次最多上传 {limit} 个文件。",
     "notAFile": "粘贴的内容不是文件或图片。请复制图片本身再试一次。"
   },
@@ -18035,6 +18047,7 @@
       "qrNoMatch": "这个二维码对不上这个项目的设备：{text}",
       "kind": "开工 / 收工",
       "openSince": "这台设备 {start} 开工，还没收工。",
+      "unclosedYesterday": "这部设备昨天没有收工，请办公室补上收工时间",
       "photo": "设备照片",
       "takePhoto": "拍照",
       "photoReady": "已拍好，可以重拍",
@@ -18429,6 +18442,7 @@
       "photos": "照片",
       "photosHint": "至少拍 {count} 张",
       "takePhoto": "拍照",
+      "photosQueued": "还有 {count} 张照片在手机上等待上传，有信号会自动送出。",
       "note": "备注",
       "noteHint": "没有照片时写一句做了什么",
       "optional": "选填",
@@ -18589,6 +18603,7 @@
       "message": "{name} 你好，这是 {project} 的工地定位链接。请用手机打开，输入你的电话号码，按「同意并开始定位」，在工地时保持页面打开：{link}",
       "sentTitle": "定位链接已准备好",
       "sentBody": "系统不发短信。用 WhatsApp 发给人员，或复制后自己发送。这个链接只显示这一次。",
+      "otherBrowser": "如果人员换了浏览器或 App 打开链接（例如先在 WhatsApp 里打开，后来又用 Safari 打开），系统会当成另一部手机，办公室要重新发链接。",
       "whatsapp": "用 WhatsApp 发送",
       "copy": "复制链接"
     }
