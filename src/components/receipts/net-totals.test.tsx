@@ -170,9 +170,9 @@ describe("plain words (I41, IB20)", () => {
     expect(html).toContain('aria-expanded="true"');
     // Not a record: not the material rows' background.
     const heading = (html.match(/<tr[^>]*>/g) ?? []).find((tag) => tag.includes('data-slot="net-supplier"'));
-    expect(heading).toContain("bg-primary/10");
+    expect(heading?.split(" ")).toContain("bg-primary/10");
     const materialRow = (html.match(/<tr[^>]*>/g) ?? []).find((tag) => tag.includes('data-slot="net-line"'));
-    expect(materialRow).not.toContain("bg-primary/10");
+    expect(materialRow?.split(" ")).not.toContain("bg-primary/10");
     expect(html.match(/data-slot="net-line"/g)).toHaveLength(3);
   });
 
