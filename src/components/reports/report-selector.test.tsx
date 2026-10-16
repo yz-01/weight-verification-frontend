@@ -245,7 +245,7 @@ describe("【选择报表】 (D6, B9)", () => {
     const supplier = render();
     click("钢材行", 2);
     expect(supplier.navigate).toHaveBeenCalledWith(
-      `/reports/material-quantity?${DATES}&category=rebar&spec_category=y12&supplier=steel-co`,
+      `/reports/material-quantity?${DATES}&category=rebar&supplier=steel-co&spec_category=y12`,
     );
   });
 
