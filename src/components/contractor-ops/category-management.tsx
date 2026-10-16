@@ -221,6 +221,17 @@ const columnRows =
 const isSystemColumn = (row: Row) =>
   (row.column?.kind === "EHS" && row.code === PERMIT_COLUMN_CODE) || Boolean(row.column?.is_fixed);
 
+/**
+ * Why a row's bin is dead, or null when it can be armed (I35, ID78): the
+ * permit category, a fixed 「其他」, or records filed under it (it can only be
+ * switched off). The server refuses the same three.
+ */
+const removeBlock = (row: Row): "permit" | "fixed" | "records" | null => {
+  if (row.column?.kind === "EHS" && row.code === PERMIT_COLUMN_CODE) return "permit";
+  if (row.column?.is_fixed || row.waste?.is_other) return "fixed";
+  return row.recordCount > 0 ? "records" : null;
+};
+
 /** The project-column modules share everything except the kind. */
 const columnModule = (
   key: CategoryModuleKey,
@@ -858,11 +869,11 @@ export function CategoryManagement() {
                               <Pencil />
                             </Button>
                             {/* Removing is armed by the row's switch, then
-                                the bin acts at once (rule 8, HD4). The seeded
-                                waste categories and 施工准证申请 are refused by
-                                the server every time, so they offer no switch
-                                and the bin says why (F-129). */}
-                            {row.waste?.is_system || isSystemColumn(row) ? null : (
+                                the bin acts at once (rule 8, HD4). Any category
+                                with no records can go, a preset too (I35); one
+                                with records, the fixed 「其他」 and 施工准证申请
+                                offer no switch and the bin says why (F-129). */}
+                            {removeBlock(row) ? null : (
                               <Switch
                                 checked={armed === row.id}
                                 onCheckedChange={(next) => {
@@ -879,15 +890,17 @@ export function CategoryManagement() {
                               className="text-destructive"
                               title={ops("action.remove")}
                               disabledReason={
-                                row.waste?.is_system
-                                  ? waste("category.standardHelp")
-                                  : isSystemColumn(row)
-                                    ? t("systemHelp")
-                                    : armed !== row.id
-                                      ? t("armFirst")
-                                      : undefined
+                                removeBlock(row) === "permit"
+                                  ? t("systemHelp")
+                                  : removeBlock(row) === "fixed"
+                                    ? t("fixedOtherHelp")
+                                    : removeBlock(row) === "records"
+                                      ? t("hasRecordsHelp", { count: row.recordCount })
+                                      : armed !== row.id
+                                        ? t("armFirst")
+                                        : undefined
                               }
-                              disabled={armed !== row.id || removal.isPending}
+                              disabled={removeBlock(row) !== null || armed !== row.id || removal.isPending}
                               onClick={() => removal.mutate(row)}
                             >
                               {removal.isPending && armed === row.id ? (

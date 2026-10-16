@@ -78,7 +78,14 @@ describe("every module is managed on this one page (D-264)", () => {
     expect(source).toMatch(/const canReorder =\s+Boolean\(active\.columnKind\) && canManage/);
     // 施工准证申请 is the system's: marked, and offers no removal.
     expect(source).toMatch(/row\.column\?\.kind === "EHS" && row\.code === PERMIT_COLUMN_CODE/);
-    expect(source).toMatch(/row\.waste\?\.is_system \|\| isSystemColumn\(row\) \? null : \(\s*<Switch/);
+    // I35: a preset with no records can be deleted; only the permit column,
+    // a fixed 「其他」 and a category holding records offer no switch.
+    expect(source).toMatch(/removeBlock\(row\) \? null : \(\s*<Switch/);
+    expect(source).not.toMatch(/row\.waste\?\.is_system \|\|/);
+    const block = functionBody(source, "const removeBlock");
+    expect(block).toMatch(/return "permit"/);
+    expect(block).toMatch(/row\.column\?\.is_fixed \|\| row\.waste\?\.is_other/);
+    expect(block).toMatch(/row\.recordCount > 0 \? "records" : null/);
   });
 
   it("gives every module a delete", () => {
