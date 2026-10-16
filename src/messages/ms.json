@@ -3246,6 +3246,7 @@
       "PERMISSION_CHANGE": "Kebenaran diubah",
       "RESTORE": "Dipulihkan",
       "SEARCH": "Dicari",
+      "SIGN_OFF": "PIN pengesahan",
       "UPDATE": "Dikemas kini",
       "VIEW": "Dilihat"
     },
@@ -7815,7 +7816,11 @@
       "gate_pass_host_not_confirmed": "Tuan rumah pelawat belum mengesahkan. Jangan benarkan masuk.",
       "visitor_arrival_already_open": "Pelawat ini sudah menunggu di pintu masuk.",
       "visitor_arrival_answered": "Pelawat ini sudah dijawab.",
-      "visitor_arrival_not_host": "Hanya tuan rumah atau pengurus akses tapak boleh menjawab."
+      "visitor_arrival_not_host": "Hanya tuan rumah atau pengurus akses tapak boleh menjawab.",
+      "sign_off_pin_required": "Masukkan PIN pengesahan enam digit anda untuk meneruskan.",
+      "sign_off_pin_not_set": "Anda belum menetapkan PIN pengesahan. Tetapkan dahulu.",
+      "sign_off_pin_incorrect": "PIN pengesahan salah. Tinggal {attempts_left} cubaan sebelum dikunci 15 minit.",
+      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -13953,6 +13958,10 @@
       "help": "Pelan asal, setiap versi semakan dan log aktiviti. Tidak diperlukan setiap hari.",
       "revisions": "Versi pelan",
       "history": "Log aktiviti"
+    },
+    "signers": {
+      "createdBy": "Dicipta oleh {name} · {when}",
+      "changedBy": "Terakhir diubah oleh {name} · {when}"
     }
   },
   "session": {
@@ -17451,7 +17460,8 @@
       "remove": {
         "switch": "Buang laporan harian ini",
         "hint": "Hanya untuk yang ditulis secara silap. Foto itu sendiri tidak terjejas.",
-        "confirm": "Buang laporan harian"
+        "confirm": "Buang laporan harian",
+        "reason": "Sebab dipadam"
       },
       "file": "PDF laporan harian",
       "content": "Rekod yang dimasukkan",
@@ -17478,6 +17488,19 @@
         "first": "Ini laporan pertama.",
         "last": "Ini laporan terakhir.",
         "waiting": "Sedang membuka laporan ini, sebentar."
+      },
+      "signer": {
+        "author": "Ditulis oleh",
+        "editor": "Diubah oleh",
+        "fixed": "daripada akaun anda, tidak boleh diubah",
+        "pinSigned": "disahkan dengan PIN pengesahan",
+        "history": "Sejarah perubahan ({count})",
+        "action": {
+          "CREATE": "Ditulis",
+          "UPDATE": "Diubah",
+          "EXPORT": "Dieksport",
+          "DELETE": "Dipadam"
+        }
       }
     },
     "summary": {
@@ -18308,6 +18331,76 @@
     "toast": {
       "saved": "Sasaran bahan disimpan.",
       "removed": "Sasaran bahan dibuang."
+    }
+  },
+  "signOff": {
+    "title": "PIN pengesahan",
+    "enterHelp": "Masukkan PIN pengesahan enam digit anda. Sistem merekodkan bahawa ia anda.",
+    "pin": "PIN pengesahan (6 digit)",
+    "confirm": "Sahkan",
+    "checking": "Menyemak…",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "forgot": "Terlupa? Tetapkan yang baharu dengan kata laluan akaun",
+    "setupTitle": "Tetapkan PIN pengesahan",
+    "setupHelp": "Anda belum mempunyai PIN pengesahan. Pilih enam digit yang hanya anda tahu; operasi pejabat yang penting disahkan dengannya.",
+    "changeHelp": "Pilih PIN enam digit baharu. Kata laluan akaun anda mengesahkan ia anda.",
+    "resetHelp": "Pentadbir syarikat telah menetapkan semula PIN anda. Tetapkan yang baharu untuk meneruskan.",
+    "newPin": "PIN pengesahan baharu (6 digit)",
+    "confirmPin": "Masukkan sekali lagi",
+    "pinMismatch": "Kedua-dua PIN tidak sama",
+    "accountPassword": "Kata laluan akaun",
+    "accountPasswordHint": "Kata laluan log masuk anda, untuk mengesahkan ia anda",
+    "saveAndContinue": "Simpan dan teruskan",
+    "lockedTitle": "PIN pengesahan dikunci",
+    "lockedHelp": "PIN anda dikunci selepas 5 cubaan salah. Ia dibuka semula 15 minit selepas cubaan terakhir.",
+    "lockedHint": "Jika terlupa, tetapkan yang baharu dengan kata laluan akaun, atau minta pentadbir syarikat menetapkannya semula.",
+    "setAgain": "Tetapkan PIN baharu",
+    "failed": "Tidak dapat disimpan. Cuba lagi.",
+    "profileTitle": "PIN pengesahan saya",
+    "profileHelp": "Enam digit yang hanya anda tahu. Laporan harian, jadual, kelulusan dan operasi pejabat penting lain disahkan dengannya. Telefon tidak memintanya.",
+    "statusLabel": "Status",
+    "status": {
+      "set": "Telah ditetapkan",
+      "notSet": "Belum ditetapkan",
+      "reset": "Ditetapkan semula oleh pentadbir - tetapkan yang baharu",
+      "locked": "Dikunci sehingga {time}"
+    },
+    "save": "Simpan PIN",
+    "change": "Tukar PIN",
+    "reset": "Tetapkan semula PIN",
+    "resetArm": "Tetapkan semula PIN orang ini",
+    "resetArmFirst": "Hidupkan suis dahulu",
+    "resetHint": "PIN dimatikan dan kunci dibuka. Orang itu menetapkan yang baharu dengan kata laluan akaunnya sendiri; anda tidak melihatnya.",
+    "toast": {
+      "saved": "PIN pengesahan disimpan",
+      "reset": "PIN ditetapkan semula. Orang itu menetapkan yang baharu kali seterusnya."
+    },
+    "action": {
+      "generic": "Operasi ini memerlukan PIN pengesahan anda.",
+      "daily_report_create": "Tulis laporan harian",
+      "daily_report_update": "Ubah laporan harian",
+      "daily_report_export": "Eksport laporan harian",
+      "daily_report_delete": "Padam laporan harian",
+      "schedule_write": "Ubah jadual pembinaan",
+      "material_target_write": "Tetapkan, ubah atau padam sasaran bahan",
+      "category_budget": "Ubah bajet kategori",
+      "receipt_correct_quantity_price": "Betulkan kuantiti atau harga seunit penghantaran",
+      "hazard_create": "Buka item EHS",
+      "hazard_verify": "Sahkan pembetulan EHS",
+      "material_exit_approve": "Luluskan keluar bahan",
+      "material_exit_confirm": "Sahkan keluar bahan",
+      "equipment_exit_approve": "Luluskan keluar peralatan",
+      "equipment_exit_confirm": "Sahkan keluar peralatan",
+      "disposal_review": "Putuskan permohonan pelupusan",
+      "waste_outgoing_review": "Putuskan permohonan bahan buangan keluar",
+      "equipment_hours_adjust": "Laraskan jam peralatan",
+      "role_create": "Tambah peranan",
+      "role_update": "Ubah kebenaran peranan",
+      "role_delete": "Padam peranan",
+      "user_change_role": "Ubah peranan pengguna",
+      "user_change_status": "Gantung atau aktifkan semula akaun",
+      "consultant_review": "Tandatangani keputusan perunding"
     }
   }
 }
