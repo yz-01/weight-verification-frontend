@@ -330,9 +330,11 @@ function TableFrame<T>({
 
       {above}
 
-      <div className="min-h-0 min-w-0 flex-1 overflow-auto">
-        <Table className="w-full min-w-max max-sm:[&_tbody_td:first-child]:sticky max-sm:[&_tbody_td:first-child]:left-0 max-sm:[&_tbody_td:first-child]:z-[1] max-sm:[&_tbody_td:first-child]:bg-card max-sm:[&_thead_th:first-child]:sticky max-sm:[&_thead_th:first-child]:left-0 max-sm:[&_thead_th:first-child]:z-[2] max-sm:[&_thead_th:first-child]:bg-card">
-          <TableHeader className="sticky top-0 z-10 bg-card">
+      {/* The table's own box is the one that scrolls (IB3): its header is
+          sticky against it, and it fills what the panel leaves. */}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <Table containerClassName="min-h-0 flex-1" className="w-full min-w-max max-sm:[&_tbody_td:first-child]:sticky max-sm:[&_tbody_td:first-child]:left-0 max-sm:[&_tbody_td:first-child]:z-[1] max-sm:[&_tbody_td:first-child]:bg-card max-sm:[&_thead_th:first-child]:sticky max-sm:[&_thead_th:first-child]:left-0 max-sm:[&_thead_th:first-child]:z-[2] max-sm:[&_thead_th:first-child]:bg-card">
+          <TableHeader className="sticky top-0 z-10 bg-card [&_tr]:bg-transparent">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => (

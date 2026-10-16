@@ -1001,6 +1001,7 @@ function DisposalDetailDialog({
   return (
     <RecordDetailDialog
       title={row.reference_no}
+      legacyNo={row.legacy_no}
       description={`${row.project_name} / ${row.waste_description}`}
       exportRecord={{ kind: "DISPOSAL_REQUEST", recordId: row.id, reference: row.reference_no }}
       onClose={onClose}
@@ -1204,8 +1205,9 @@ export function SiteDisposalOffice() {
     () => [
       {
         accessorKey: "reference_no",
-        meta: { label: tRoot("moduleTable.reference") },
-        header: sortable(tRoot("moduleTable.reference")),
+        // 记录编号 (I6).
+        meta: { label: tRoot("recordNo.column") },
+        header: sortable(tRoot("recordNo.column")),
         // Short number big, project small (2026-10 D4).
         cell: ({ row }) => (
           <div className="flex flex-wrap items-center gap-1.5">

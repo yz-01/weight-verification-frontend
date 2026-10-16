@@ -10651,6 +10651,8 @@
       "start_at": "Mula",
       "end_at": "Tamat",
       "hours": "Jam",
+      "record_no": "No. Rekod",
+      "legacy_no": "No. lama",
       "task_title": "Tugasan",
       "due_at": "Tarikh akhir",
       "result_note": "Keputusan",
@@ -12765,7 +12767,7 @@
       "project": "Projek",
       "qrCode": "Nota hantar",
       "quantity": "Kuantiti",
-      "receiptNo": "No. resit",
+      "receiptNo": "No. Rekod Keluar Masuk",
       "receivedBy": "Diterima oleh",
       "recordedBy": "Direkod oleh",
       "supplier": "Pembekal",
@@ -17598,6 +17600,10 @@
     "backwards": "Masa tamat sebelum masa mula, jadi tiada rekod yang sepadan."
   },
   "recordNo": {
+    "column": "No. Rekod",
+    "inOutColumn": "No. Rekod Keluar Masuk",
+    "legacy": "No. lama",
+    "legacyHint": "Nombor sebelum dinomborkan semula; salinan bercetak mungkin membawanya.",
     "copy": "Salin {number}",
     "copied": "{number} disalin",
     "copyFailed": "Tidak dapat menyalin. Tekan lama nombor untuk melihatnya penuh."

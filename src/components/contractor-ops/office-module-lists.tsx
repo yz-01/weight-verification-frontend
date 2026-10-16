@@ -272,8 +272,9 @@ export function MaterialOutgoingOffice() {
     () => [
       {
         accessorKey: "reference_no",
-        meta: { label: t("outgoing.referenceNo") },
-        header: () => <PlainHeader label={t("outgoing.referenceNo")} />,
+        // 「进退场记录编号」 on the in-and-out lists (I6, the client's words).
+        meta: { label: tRoot("recordNo.inOutColumn") },
+        header: () => <PlainHeader label={tRoot("recordNo.inOutColumn")} />,
         // Short number big, project small (2026-10 D4).
         cell: ({ row }) => (
           <div className="flex flex-wrap items-center gap-1.5">
@@ -404,7 +405,7 @@ export function MaterialOutgoingOffice() {
       emptyLabel: t("state.empty"),
       query: list.query,
       columns: [
-        { key: "reference_no", label: t("outgoing.referenceNo") },
+        { key: "reference_no", label: tRoot("recordNo.inOutColumn") },
         { key: "category_name", label: t("field.category") },
         // Who it went back to (2026-10 C7).
         { key: "supplier_name", label: t("field.supplier") },
@@ -655,6 +656,13 @@ export function SiteEquipmentOffice() {
 
   const movementColumns = useMemo<ColumnDef<EquipmentMovement, unknown>[]>(
     () => [
+      // 进退场记录编号 (I6): EI for an entry, EO for an exit.
+      {
+        accessorKey: "record_no",
+        meta: { label: tRoot("recordNo.inOutColumn") },
+        header: () => <PlainHeader label={tRoot("recordNo.inOutColumn")} />,
+        cell: ({ row }) => <RecordNo value={row.original.record_no} />,
+      },
       {
         accessorKey: "occurred_at",
         meta: { label: t("equipment.occurredAt") },
@@ -970,6 +978,7 @@ export function SiteEquipmentOffice() {
         note: tRoot("exportTotals.note"),
       },
       columns: [
+        { key: "record_no", label: tRoot("recordNo.inOutColumn") },
         { key: "occurred_at", label: t("equipment.occurredAt") },
         { key: "project_name", label: t("field.project") },
         { key: "equipment_code", label: t("field.code") },
@@ -1222,6 +1231,7 @@ export function SiteEquipmentOffice() {
       {shownMovement && (
         <RecordDetailDialog
           title={`${shownMovement.equipment_registration_no || shownMovement.equipment_code} - ${shownMovement.equipment_name}`}
+          recordNo={shownMovement.record_no}
           description={`${t(`direction.${shownMovement.direction}`)} · ${df.dateTime(shownMovement.occurred_at)}`}
           exportRecord={{
             kind: "EQUIPMENT_MOVEMENT",
@@ -1750,6 +1760,13 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
 
   const columns = useMemo<ColumnDef<SiteProgressRecord, unknown>[]>(
     () => [
+      // 记录编号 (I6): PG-<project>-001.
+      {
+        accessorKey: "record_no",
+        meta: { label: tRoot("recordNo.column") },
+        header: () => <PlainHeader label={tRoot("recordNo.column")} />,
+        cell: ({ row }) => <RecordNo value={row.original.record_no} />,
+      },
       {
         accessorKey: "captured_at",
         meta: { label: t("progress.capturedAt") },
@@ -1870,6 +1887,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
       emptyLabel: t("state.empty"),
       query: list.query,
       columns: [
+        { key: "record_no", label: tRoot("recordNo.column") },
         { key: "captured_at", label: t("progress.capturedAt") },
         { key: "project_name", label: t("field.project") },
         { key: "phase_name", label: t("field.phase") },
@@ -2004,6 +2022,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
       {shown && (
         <RecordDetailDialog
           title={reference(shown)}
+          recordNo={shown.record_no}
           description={shown.project_name}
           exportRecord={{
             kind: "PROGRESS",

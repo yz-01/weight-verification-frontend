@@ -41,6 +41,7 @@ import {
   localDay,
   usePhotoViewer,
 } from "@/components/progress/progress-photos";
+import { RecordNo } from "@/components/shared/record-no";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -119,6 +120,7 @@ function useReportDays() {
 
 export function DailyReportsTab() {
   const t = useTranslations("progressPage");
+  const tRoot = useTranslations();
   const { can } = useAuth();
   const days = useReportDays();
   const df = useDateFormat();
@@ -159,6 +161,7 @@ export function DailyReportsTab() {
               title: t("tabs.reports"),
               query: list.filters,
               columns: [
+                { key: "record_no", label: tRoot("recordNo.column") },
                 { key: "name", label: t("reports.name") },
                 { key: "report_date", label: t("dateFrom") },
                 { key: "end_date", label: t("dateTo") },
@@ -182,6 +185,8 @@ export function DailyReportsTab() {
         <Table>
           <TableHeader>
             <TableRow>
+              {/* 记录编号 (I6): DR-<project>-001. */}
+              <TableHead className="w-32">{tRoot("recordNo.column")}</TableHead>
               <TableHead>{t("reports.name")}</TableHead>
               <TableHead className="w-48">{t("reports.date")}</TableHead>
               <TableHead className="w-20 text-right">{t("reports.view")}</TableHead>
@@ -190,13 +195,13 @@ export function DailyReportsTab() {
           <TableBody>
             {rows.isLoading ? (
               <TableRow>
-                <TableCell colSpan={3}>
+                <TableCell colSpan={4}>
                   <Loader2 className="size-4 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
             ) : (rows.data?.results ?? []).length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="py-8 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={4} className="py-8 text-center text-sm text-muted-foreground">
                   {rows.isError ? "—" : t("reports.empty")}
                 </TableCell>
               </TableRow>
@@ -207,6 +212,9 @@ export function DailyReportsTab() {
                   className="cursor-pointer"
                   onClick={() => setViewing({ position: bookPosition(list.page, index, PAGE) })}
                 >
+                  <TableCell>
+                    <RecordNo value={row.record_no} />
+                  </TableCell>
                   <TableCell>
                     <p className="font-medium text-foreground">{row.name}</p>
                     <p className="text-xs text-muted-foreground">

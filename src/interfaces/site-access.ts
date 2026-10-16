@@ -153,6 +153,10 @@ export interface SiteAccessEvent {
 }
 
 export interface SiteAccessPass {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
+  /** The project code, so the list splits the short number right (ID35). */
+  project_code?: string;
   id: string;
   /** Waits for this reader's approval - the sidebar counts it (2026-10-09). */
   needs_action?: boolean;
@@ -353,6 +357,10 @@ export interface GateIncidentMember {
 }
 
 export interface GateIncident extends RecordedBy {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
+  /** The project code, so the list splits the short number right (ID35). */
+  project_code?: string;
   id: string;
   incident_no: string;
   project: string;
@@ -503,6 +511,8 @@ export interface GatePassCheck {
 
 /** One confirmed entry or exit, with its pass (Visitor Records, HD9). */
 export interface VisitorRecord {
+  /** The project code, so the list splits the short number right (ID35). */
+  project_code?: string;
   id: string;
   /** A visit (I26) or a gate event with no visit behind it. */
   row_type: "ARRIVAL" | "EVENT";
@@ -559,6 +569,10 @@ export interface VisitorArrivalPhoto {
 
 /** One visitor at the gate: photographed, their host asked (I26, ID63). */
 export interface VisitorArrival {
+  /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
+  legacy_no?: string;
+  /** The project code, so the list splits the short number right (ID35). */
+  project_code?: string;
   id: string;
   arrival_no: string;
   project: string;

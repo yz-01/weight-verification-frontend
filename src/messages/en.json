@@ -10651,6 +10651,8 @@
       "start_at": "Start",
       "end_at": "Stop",
       "hours": "Hours",
+      "record_no": "Record No.",
+      "legacy_no": "Old number",
       "task_title": "Task",
       "due_at": "Due",
       "result_note": "Result",
@@ -12765,7 +12767,7 @@
       "project": "Project",
       "qrCode": "Docket",
       "quantity": "Quantity",
-      "receiptNo": "Receipt no.",
+      "receiptNo": "Record No.",
       "receivedBy": "Received by",
       "recordedBy": "Recorded by",
       "supplier": "Supplier",
@@ -17598,6 +17600,10 @@
     "backwards": "The end is before the start, so nothing can match."
   },
   "recordNo": {
+    "column": "Record No.",
+    "inOutColumn": "Record No.",
+    "legacy": "Old number",
+    "legacyHint": "The number before renumbering; printed copies may carry it.",
     "copy": "Copy {number}",
     "copied": "Copied {number}",
     "copyFailed": "Could not copy. Hold the number to see it in full."
