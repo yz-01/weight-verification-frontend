@@ -4090,7 +4090,7 @@
       "majorClassHint": "不选就是大类。设备要登记在小类下面。",
       "isMajorClass": "（这是大类）",
       "addKind": "新增种类",
-      "pageNote": "这里管理设备的种类；每一台机器请按「登记设备」，或到 设备进退场 → 设备清单。",
+      "pageNote": "这里管理设备的种类；每一台机器请按「登记设备」，或到 {menu} → {tab}。",
       "onSite": "设备 {count} 台",
       "moreSettings": "更多设定",
       "offClass": "这个种类已停用，启用后才能登记设备。"

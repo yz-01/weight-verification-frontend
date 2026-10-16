@@ -4089,9 +4089,9 @@
       "majorClassOf": "Kelas utama",
       "majorClassHint": "Biarkan untuk jadikan kelas utama. Mesin didaftarkan di bawah subkelas.",
       "isMajorClass": "(Ini kelas utama)",
-      "addKind": "Tambah jenis",
-      "pageNote": "Jenis peralatan diurus di sini. Untuk setiap mesin, tekan “Daftar peralatan”, atau pergi ke Peralatan → Senarai peralatan.",
-      "onSite": "{count} mesin di tapak",
+      "addKind": "Tambah kelas",
+      "pageNote": "Kelas peralatan diurus di sini. Untuk setiap mesin, tekan “Daftar peralatan”, atau pergi ke {menu} → {tab}.",
+      "onSite": "{count} mesin",
       "moreSettings": "Tetapan lain",
       "offClass": "Jenis ini dimatikan. Hidupkannya untuk mendaftar mesin di bawahnya."
     },

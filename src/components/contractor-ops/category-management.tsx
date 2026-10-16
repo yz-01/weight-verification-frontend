@@ -306,6 +306,7 @@ export function CategoryManagement() {
   const ops = useTranslations("contractorOps");
   const waste = useTranslations("wasteOutgoing");
   const common = useTranslations("common");
+  const root = useTranslations();
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
@@ -618,19 +619,16 @@ export function CategoryManagement() {
                   {t("units.open")}
                 </Button>
               )}
-              {active.key === "equipment" && canManage ? (
-                <>
-                  {registerButton}
-                  {createButton}
-                </>
-              ) : (
-                createButton
-              )}
+              {registerButton}
+              {createButton}
             </div>
           </header>
           {active.key === "equipment" && (
             <p className="mb-2 rounded-lg border border-panel-border bg-muted/40 p-3 text-sm">
-              {t("equipment.pageNote")}
+              {t("equipment.pageNote", {
+                menu: root("nav.submodule.siteEquipment"),
+                tab: root("moduleTable.equipmentView.register"),
+              })}
             </p>
           )}
           {unitsOpen && <MaterialUnitsDialog onClose={() => setUnitsOpen(false)} />}
@@ -784,6 +782,19 @@ export function CategoryManagement() {
                         >
                           {t("viewRecords")}
                         </Button>
+                        {/* 登记设备 needs equipment.manage, not category.manage (I38). */}
+                        {active.key === "equipment" && registerMachineCategory(row) && can("equipment.manage") && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={!row.isActive}
+                            disabledReason={row.isActive ? undefined : t("equipment.offClass")}
+                            onClick={() => setRegistering({ category: registerMachineCategory(row) })}
+                          >
+                            <Plus />
+                            {ops("equipment.createTitle")}
+                          </Button>
+                        )}
                         {canManage && (
                           <div className="flex items-center gap-1">
                             {canReorder && (
@@ -817,19 +828,6 @@ export function CategoryManagement() {
                                   <ChevronDown />
                                 </Button>
                               </>
-                            )}
-                            {/* 登记设备 from a sub class (I38): that class is preselected. */}
-                            {active.key === "equipment" && registerMachineCategory(row) && can("equipment.manage") && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                disabled={!row.isActive}
-                                disabledReason={row.isActive ? undefined : t("equipment.offClass")}
-                                onClick={() => setRegistering({ category: registerMachineCategory(row) })}
-                              >
-                                <Plus />
-                                {ops("equipment.createTitle")}
-                              </Button>
                             )}
                             {/* 「+ 子分类」 (I11, ID3): one level down, never two. */}
                             {active.subCategories && !row.depth && (
