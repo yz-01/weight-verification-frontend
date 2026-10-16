@@ -14,6 +14,11 @@ import {
   RecordRecorder,
   ShellPanel,
 } from "@/components/shared/record-detail-shell";
+import {
+  RecordCorrectionButton,
+  RecordCorrectionHistory,
+  useCanCorrect,
+} from "@/components/shared/record-correction";
 import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -60,6 +65,8 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const task = useQuery({ queryKey: ["field-tasks", "detail", id], queryFn: () => getFieldTask(id) });
   const [result, setResult] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
+  // 【改正】 (I30): title, instructions, who does it and by when, with a reason.
+  const mayCorrect = useCanCorrect("FIELD_TASK");
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["field-tasks"] });
     void queryClient.invalidateQueries({ queryKey: ["contractor-dashboard"] });
@@ -220,8 +227,9 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
           }
           recorder={<RecordRecorder record={row} />}
           actions={
-            maySubmit || mayDecide ? (
+            maySubmit || mayDecide || mayCorrect ? (
               <>
+                <RecordCorrectionButton kind="FIELD_TASK" recordId={row.id} onCorrected={refresh} />
                 {maySubmit && (
                   <div className="space-y-2" data-task-submit>
                     <FieldWrapper label={t("resultLabel")} required>
@@ -264,6 +272,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
               </>
             ) : undefined
           }
+          corrections={<RecordCorrectionHistory kind="FIELD_TASK" recordId={row.id} />}
           aside={
             row.result_note || row.submitted_at || row.reviewed_at || sentOn ? (
               <>

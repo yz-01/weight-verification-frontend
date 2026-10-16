@@ -52,6 +52,7 @@ import {
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import { CorrectedTag } from "@/components/shared/record-correction";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
@@ -1206,7 +1207,14 @@ export function SiteDisposalOffice() {
         meta: { label: tRoot("moduleTable.reference") },
         header: sortable(tRoot("moduleTable.reference")),
         // Short number big, project small (2026-10 D4).
-        cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
+        cell: ({ row }) => (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <RecordNo value={row.original.reference_no} />
+            {/* A lorry or the clearance company corrected (I30); the
+                lorries panel keeps each change. */}
+            {row.original.was_corrected && <CorrectedTag />}
+          </div>
+        ),
       },
       // The record's photograph beside its main column (E3).
       photoColumn<DisposalRequest>({
