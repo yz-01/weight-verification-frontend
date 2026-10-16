@@ -3246,6 +3246,7 @@
       "PERMISSION_CHANGE": "Permissions changed",
       "RESTORE": "Restored",
       "SEARCH": "Searched",
+      "SIGN_OFF": "Sign-off PIN",
       "UPDATE": "Updated",
       "VIEW": "Viewed"
     },
@@ -7813,7 +7814,11 @@
       "gate_pass_host_not_confirmed": "The visitor's host has not confirmed yet. Do not let them in.",
       "visitor_arrival_already_open": "This visitor is already waiting at the gate.",
       "visitor_arrival_answered": "This visitor has already been answered.",
-      "visitor_arrival_not_host": "Only the visitor's host or a site access manager can answer."
+      "visitor_arrival_not_host": "Only the visitor's host or a site access manager can answer.",
+      "sign_off_pin_required": "Enter your six-digit sign-off PIN to continue.",
+      "sign_off_pin_not_set": "You have not set a sign-off PIN yet. Set one first.",
+      "sign_off_pin_incorrect": "The sign-off PIN is wrong. {attempts_left} tries left before it locks for 15 minutes.",
+      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with your account password."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -13942,6 +13947,10 @@
       "help": "The original plan, each revised version and the activity log. Not needed day to day.",
       "revisions": "Plan versions",
       "history": "Activity log"
+    },
+    "signers": {
+      "createdBy": "Created by {name} · {when}",
+      "changedBy": "Last changed by {name} · {when}"
     }
   },
   "session": {
@@ -17368,7 +17377,8 @@
       "remove": {
         "switch": "Remove this daily report",
         "hint": "Only for one written by mistake. The photos themselves are not touched.",
-        "confirm": "Remove daily report"
+        "confirm": "Remove daily report",
+        "reason": "Why it is removed"
       },
       "file": "Daily report PDF",
       "content": "Records taken in",
@@ -17395,6 +17405,19 @@
         "first": "This is the first report.",
         "last": "This is the last report.",
         "waiting": "Opening this report, one moment."
+      },
+      "signer": {
+        "author": "Written by",
+        "editor": "Changed by",
+        "fixed": "from your account, cannot be changed",
+        "pinSigned": "signed with the sign-off PIN",
+        "history": "Change history ({count})",
+        "action": {
+          "CREATE": "Written",
+          "UPDATE": "Changed",
+          "EXPORT": "Exported",
+          "DELETE": "Removed"
+        }
       }
     },
     "summary": {
@@ -18225,6 +18248,76 @@
     "toast": {
       "saved": "Material target saved.",
       "removed": "Material target removed."
+    }
+  },
+  "signOff": {
+    "title": "Sign-off PIN",
+    "enterHelp": "Enter your six-digit sign-off PIN. The system records that it was you.",
+    "pin": "Sign-off PIN (6 digits)",
+    "confirm": "Confirm",
+    "checking": "Checking…",
+    "cancel": "Cancel",
+    "close": "Close",
+    "forgot": "Forgot it? Set a new one with your account password",
+    "setupTitle": "Set your sign-off PIN",
+    "setupHelp": "You do not have a sign-off PIN yet. Choose six digits only you know; important office operations are confirmed with it.",
+    "changeHelp": "Choose a new six-digit PIN. Your account password confirms it is you.",
+    "resetHelp": "Your company administrator reset your sign-off PIN. Set a new one to continue.",
+    "newPin": "New sign-off PIN (6 digits)",
+    "confirmPin": "Enter it again",
+    "pinMismatch": "The two PINs are not the same",
+    "accountPassword": "Account password",
+    "accountPasswordHint": "The password you sign in with, to confirm it is you",
+    "saveAndContinue": "Save and continue",
+    "lockedTitle": "Sign-off PIN locked",
+    "lockedHelp": "Your sign-off PIN is locked after 5 wrong tries. It opens again 15 minutes after the last one.",
+    "lockedHint": "If you forgot it, set a new one with your account password, or ask your company administrator to reset it.",
+    "setAgain": "Set a new PIN",
+    "failed": "Could not save. Try again.",
+    "profileTitle": "Sign-off PIN",
+    "profileHelp": "Six digits only you know. Daily reports, the schedule, approvals and other important office operations are confirmed with it. The phone never asks for it.",
+    "statusLabel": "Status",
+    "status": {
+      "set": "Set",
+      "notSet": "Not set",
+      "reset": "Reset by an administrator - set a new one",
+      "locked": "Locked until {time}"
+    },
+    "save": "Save PIN",
+    "change": "Change PIN",
+    "reset": "Reset sign-off PIN",
+    "resetArm": "Reset this person's sign-off PIN",
+    "resetArmFirst": "Turn on the switch first",
+    "resetHint": "The PIN is turned off and any lock lifted. The person sets a new one with their own account password; you never see it.",
+    "toast": {
+      "saved": "Sign-off PIN saved",
+      "reset": "Sign-off PIN reset. The person sets a new one next time."
+    },
+    "action": {
+      "generic": "This operation needs your sign-off PIN.",
+      "daily_report_create": "Write a daily report",
+      "daily_report_update": "Change a daily report",
+      "daily_report_export": "Export a daily report",
+      "daily_report_delete": "Remove a daily report",
+      "schedule_write": "Change the construction schedule",
+      "material_target_write": "Set, change or remove a material target",
+      "category_budget": "Change a category budget",
+      "receipt_correct_quantity_price": "Correct a delivery's quantity or unit price",
+      "hazard_create": "Raise an EHS item",
+      "hazard_verify": "Verify an EHS rectification",
+      "material_exit_approve": "Approve a material exit",
+      "material_exit_confirm": "Confirm a material exit",
+      "equipment_exit_approve": "Approve an equipment exit",
+      "equipment_exit_confirm": "Confirm an equipment exit",
+      "disposal_review": "Decide a clearance request",
+      "waste_outgoing_review": "Decide a waste outgoing application",
+      "equipment_hours_adjust": "Adjust equipment hours",
+      "role_create": "Add a role",
+      "role_update": "Change a role's permissions",
+      "role_delete": "Remove a role",
+      "user_change_role": "Change a user's role",
+      "user_change_status": "Suspend or reinstate an account",
+      "consultant_review": "Sign a consultant decision"
     }
   }
 }

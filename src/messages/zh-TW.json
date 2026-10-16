@@ -3246,6 +3246,7 @@
       "PERMISSION_CHANGE": "權限變更",
       "RESTORE": "恢復",
       "SEARCH": "搜索",
+      "SIGN_OFF": "簽核密碼",
       "UPDATE": "修改",
       "VIEW": "查看"
     },
@@ -7813,7 +7814,11 @@
       "gate_pass_host_not_confirmed": "接待人還沒確認，不能放行。",
       "visitor_arrival_already_open": "這位訪客已經在門口等待確認。",
       "visitor_arrival_answered": "這位訪客已經處理過了。",
-      "visitor_arrival_not_host": "只有接待人或門禁管理人員可以確認。"
+      "visitor_arrival_not_host": "只有接待人或門禁管理人員可以確認。",
+      "sign_off_pin_required": "請輸入你的六位數簽核密碼。",
+      "sign_off_pin_not_set": "你還沒有設定簽核密碼，請先設定。",
+      "sign_off_pin_incorrect": "簽核密碼不對。再錯 {attempts_left} 次會鎖 15 分鐘。",
+      "sign_off_pin_locked": "簽核密碼輸錯 5 次，已鎖定。請 {minutes} 分鐘後再試，或用帳號密碼重新設定。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -13942,6 +13947,10 @@
       "help": "原始計劃、每次修改的版本和操作記錄都在這裡，平時不用打開。",
       "revisions": "計劃版本",
       "history": "操作記錄"
+    },
+    "signers": {
+      "createdBy": "建立人：{name} · {when}",
+      "changedBy": "最後修改：{name} · {when}"
     }
   },
   "session": {
@@ -17368,7 +17377,8 @@
       "remove": {
         "switch": "刪除這份日報告",
         "hint": "寫錯了才刪除。照片本身不受影響。",
-        "confirm": "刪除日報告"
+        "confirm": "刪除日報告",
+        "reason": "刪除原因"
       },
       "file": "日報告 PDF",
       "content": "收進的記錄",
@@ -17395,6 +17405,19 @@
         "first": "這已經是第一篇。",
         "last": "這已經是最後一篇。",
         "waiting": "正在打開這一篇，請稍候。"
+      },
+      "signer": {
+        "author": "填寫人",
+        "editor": "修改人",
+        "fixed": "由登入帳號自動帶出，不能修改",
+        "pinSigned": "已用簽核密碼確認",
+        "history": "修改記錄（{count}）",
+        "action": {
+          "CREATE": "填寫",
+          "UPDATE": "修改",
+          "EXPORT": "匯出",
+          "DELETE": "刪除"
+        }
       }
     },
     "summary": {
@@ -18225,6 +18248,76 @@
     "toast": {
       "saved": "材料目標已儲存。",
       "removed": "材料目標已刪除。"
+    }
+  },
+  "signOff": {
+    "title": "簽核密碼",
+    "enterHelp": "輸入你的六位數簽核密碼，系統會記錄是你本人操作。",
+    "pin": "簽核密碼（六位數）",
+    "confirm": "確認",
+    "checking": "核對中…",
+    "cancel": "取消",
+    "close": "關閉",
+    "forgot": "忘記了？用帳號密碼重新設定",
+    "setupTitle": "設定簽核密碼",
+    "setupHelp": "你還沒有簽核密碼。設定一個只有你知道的六位數，以後重要的後台操作都用它確認。",
+    "changeHelp": "設定新的六位數簽核密碼，用帳號密碼確認是你本人。",
+    "resetHelp": "公司管理員已重設你的簽核密碼，請重新設定後繼續。",
+    "newPin": "新簽核密碼（六位數）",
+    "confirmPin": "再輸入一次",
+    "pinMismatch": "兩次輸入的簽核密碼不一樣",
+    "accountPassword": "帳號密碼",
+    "accountPasswordHint": "登入系統用的密碼，用來確認是你本人",
+    "saveAndContinue": "設定並繼續",
+    "lockedTitle": "簽核密碼已鎖定",
+    "lockedHelp": "簽核密碼輸錯 5 次，已鎖定，最後一次輸錯後 15 分鐘自動解鎖。",
+    "lockedHint": "忘記了可以用帳號密碼重新設定，或請公司管理員重設。",
+    "setAgain": "重新設定",
+    "failed": "儲存失敗，請再試一次。",
+    "profileTitle": "我的簽核密碼",
+    "profileHelp": "只有你知道的六位數。日報告、施工計劃、審批等重要後台操作都用它確認；手機端不用。",
+    "statusLabel": "狀態",
+    "status": {
+      "set": "已設定",
+      "notSet": "未設定",
+      "reset": "已被管理員重設，請重新設定",
+      "locked": "已鎖定，{time} 解鎖"
+    },
+    "save": "儲存簽核密碼",
+    "change": "更改簽核密碼",
+    "reset": "重設簽核密碼",
+    "resetArm": "重設這個人的簽核密碼",
+    "resetArmFirst": "先打開左邊的開關",
+    "resetHint": "重設後舊密碼失效、鎖定解除；本人下次用自己的帳號密碼重新設定，管理員看不到密碼。",
+    "toast": {
+      "saved": "簽核密碼已儲存",
+      "reset": "已重設簽核密碼，對方下次要重新設定。"
+    },
+    "action": {
+      "generic": "這個操作要用簽核密碼確認。",
+      "daily_report_create": "寫日報告",
+      "daily_report_update": "修改日報告",
+      "daily_report_export": "匯出日報告",
+      "daily_report_delete": "刪除日報告",
+      "schedule_write": "修改施工計劃",
+      "material_target_write": "設定、修改或刪除材料目標",
+      "category_budget": "修改分類預算",
+      "receipt_correct_quantity_price": "更正進場單的數量或單價",
+      "hazard_create": "建立 EHS 事項",
+      "hazard_verify": "驗收確認 EHS 整改",
+      "material_exit_approve": "批准材料退場",
+      "material_exit_confirm": "最終確認材料退場",
+      "equipment_exit_approve": "批准設備退場",
+      "equipment_exit_confirm": "最終確認設備退場",
+      "disposal_review": "審批垃圾清運申請",
+      "waste_outgoing_review": "審批環保材料出場",
+      "equipment_hours_adjust": "人工調整設備工時",
+      "role_create": "新增角色",
+      "role_update": "修改角色權限",
+      "role_delete": "刪除角色",
+      "user_change_role": "修改用戶角色",
+      "user_change_status": "停用或恢復帳號",
+      "consultant_review": "顧問審批簽核"
     }
   }
 }

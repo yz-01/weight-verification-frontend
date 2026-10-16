@@ -90,7 +90,7 @@ export function ApprovalCredentialSettings() {
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper
             label={t("credential.signature")}
-            required={!credential.data}
+            required={!credential.data?.signature}
             hint={t("credential.signatureHelp")}
           >
             <Input
@@ -154,7 +154,7 @@ export function ApprovalCredentialSettings() {
       </section>
 
       <div className="flex justify-end max-sm:[&_button]:w-full">
-        <Button requires={[[password, t("credential.currentPassword")], [pin.length === 6, t("credential.pin")], [pinConfirm.length === 6, t("credential.pinConfirm")], [credential.data || signature, t("credential.signature")]]}
+        <Button requires={[[password, t("credential.currentPassword")], [pin.length === 6, t("credential.pin")], [pinConfirm.length === 6, t("credential.pinConfirm")], [credential.data?.signature || signature, t("credential.signature")]]}
 disabledReason={pin.length === 6 && pinConfirm.length === 6 && pin !== pinConfirm ? t("credential.pinMismatch") : undefined}
                 disabled={pin !== pinConfirm || save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : credential.data ? <Save /> : <Stamp />}
