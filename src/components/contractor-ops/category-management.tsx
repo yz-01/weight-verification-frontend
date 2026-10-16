@@ -363,8 +363,8 @@ export function CategoryManagement() {
   const canManageGroups = can("category.manage") || can("waste_outgoing.config");
   const isMaterial = active.key === "material";
   const groupLabel = (row: CategoryGroup) => {
-    const module = moduleOfGroup(row);
-    return row.name || (module ? t(`module.${module.key}`) : t("requestTypes"));
+    const owner = moduleOfGroup(row);
+    return row.name || (owner ? t(`module.${owner.key}`) : t("requestTypes"));
   };
   const scope: Scope = active.key === "recycle" && (group?.is_system ?? true) ? "company" : "project";
 
@@ -519,7 +519,7 @@ export function CategoryManagement() {
             // 申请类型 opens its dialog, for whoever may keep the types (I16).
             .filter((row) => row.module !== "REQUEST_TYPE" || canRequestTypes)
             .map((row) => {
-            const module = moduleOfGroup(row);
+            const owner = moduleOfGroup(row);
             const current = row.id === group?.id;
             return (
               <button
@@ -539,7 +539,7 @@ export function CategoryManagement() {
                   {/* A group the project made says which module it belongs to. */}
                   {!row.is_system && (
                     <span className="block truncate text-xs font-normal text-muted-foreground">
-                      {module ? t(`module.${module.key}`) : t("requestTypes")}
+                      {owner ? t(`module.${owner.key}`) : t("requestTypes")}
                     </span>
                   )}
                 </span>
@@ -982,7 +982,7 @@ function GroupDialog({
   const ops = useTranslations("contractorOps");
   const { can } = useAuth();
   const [name, setName] = useState(row?.name ?? "");
-  const [module, setModule] = useState<CategoryGroupModule | "">(row?.module ?? "");
+  const [chosenModule, setChosenModule] = useState<CategoryGroupModule | "">(row?.module ?? "");
   const [isActive, setIsActive] = useState(row?.is_active ?? true);
   const [armed, setArmed] = useState(false);
   const [error, setError] = useState("");
@@ -1001,7 +1001,7 @@ function GroupDialog({
             name: name.trim(),
             ...(row.is_system ? {} : { is_active: isActive }),
           })
-        : createCategoryGroup({ project, name: name.trim(), module: module as CategoryGroupModule }),
+        : createCategoryGroup({ project, name: name.trim(), module: chosenModule as CategoryGroupModule }),
     onSuccess: (saved) => onSaved(saved),
     onError: fail,
   });
@@ -1039,8 +1039,8 @@ function GroupDialog({
             hint={row ? t("groups.moduleFixed") : t("groups.moduleHint")}
           >
             <Select
-              value={module || undefined}
-              onValueChange={(value) => setModule(value as CategoryGroupModule)}
+              value={chosenModule || undefined}
+              onValueChange={(value) => setChosenModule(value as CategoryGroupModule)}
               disabled={Boolean(row)}
             >
               <SelectTrigger className="w-full" aria-label={t("groups.module")}>
@@ -1099,7 +1099,7 @@ function GroupDialog({
             <Button
               requires={[
                 ...(row?.is_system ? [] : ([[name.trim(), t("groups.name")]] as [string, string][])),
-                ...(row ? [] : ([[module, t("groups.module")]] as [string, string][])),
+                ...(row ? [] : ([[chosenModule, t("groups.module")]] as [string, string][])),
               ]}
               disabled={save.isPending}
               onClick={() => save.mutate()}
