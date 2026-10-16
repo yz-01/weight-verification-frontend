@@ -123,6 +123,9 @@ import {
   updateSafetyCategory,
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
+import { signOffBeforeEditing } from "@/services/sign-off.service";
+import { ApiError } from "@/interfaces/api";
+import { SIGN_OFF_CANCELLED } from "@/lib/sign-off";
 import { LIST_FITS } from "@/lib/list-fits";
 
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
@@ -1442,8 +1445,18 @@ function SafetyCreateDialog({
   }
 
   const create = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!user) throw new Error("Authentication required.");
+      // An item raised in the office is signed (I29, ID68 4). The PIN is
+      // asked and checked BEFORE the photos go, so a wrong one never sends
+      // them twice; the create carries the PIN that was right. The phone and
+      // a consultant are never asked.
+      let signOffPin: string | undefined;
+      if (!fieldMode && user.account_type !== "CONSULTANT") {
+        const pin = await signOffBeforeEditing("hazard.create");
+        if (pin === null) throw new ApiError("", 403, {}, SIGN_OFF_CANCELLED);
+        signOffPin = pin || undefined;
+      }
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
         // None from the phone (ID12): the server files it as 「未分类」.
@@ -1467,7 +1480,7 @@ function SafetyCreateDialog({
             ? new Date(draft.rectifierDueAt).toISOString()
             : undefined,
       };
-      return submitSafetyIncidentOfflineAware(user.id, payload);
+      return submitSafetyIncidentOfflineAware(user.id, payload, signOffPin);
     },
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["safety"] });
@@ -1835,6 +1848,10 @@ function HazardCategoryControl({ incident }: { incident: SafetyIncident }) {
   const t = useTranslations();
   const qc = useQueryClient();
   const [chosen, setChosen] = useState(incident.category ?? "");
+  const [reason, setReason] = useState("");
+  // Moving an item already filed is a 「改正」 (ID77): a reason and the PIN.
+  // Filing a 「未分类」 one for the first time is neither.
+  const moving = Boolean(incident.category) && Boolean(chosen) && chosen !== incident.category;
   const categories = useQuery({
     queryKey: ["safety-file-categories", incident.project],
     queryFn: () =>
@@ -1847,8 +1864,9 @@ function HazardCategoryControl({ incident }: { incident: SafetyIncident }) {
   });
   const offered = hazardColumns(categories.data?.results ?? [], false);
   const save = useMutation({
-    mutationFn: () => updateSafetyCategory(incident.id, chosen),
+    mutationFn: () => updateSafetyCategory(incident.id, chosen, moving ? reason.trim() : ""),
     onSuccess: () => {
+      setReason("");
       void qc.invalidateQueries({ queryKey: ["safety"] });
       void qc.invalidateQueries({ queryKey: ["safety-incident"] });
     },
@@ -1866,14 +1884,35 @@ function HazardCategoryControl({ incident }: { incident: SafetyIncident }) {
         </Select>
         <Button
           variant="outline"
-          disabled={save.isPending || !chosen || chosen === incident.category}
-          disabledReason={t("taskFlow.ehs.chooseCategory")}
+          disabled={
+            save.isPending || !chosen || chosen === incident.category || (moving && !reason.trim())
+          }
+          disabledReason={
+            moving && !reason.trim()
+              ? t("taskFlow.ehs.changeReasonNeeded")
+              : t("taskFlow.ehs.chooseCategory")
+          }
           onClick={() => save.mutate()}
         >
           {save.isPending ? <Loader2 className="animate-spin" /> : <Tags />}
           {t("taskFlow.ehs.saveCategory")}
         </Button>
       </div>
+      {moving && (
+        <FieldWrapper
+          label={t("taskFlow.ehs.changeReason")}
+          required
+          hint={t("taskFlow.ehs.changeReasonHint")}
+          className="mt-2"
+        >
+          <Input
+            value={reason}
+            maxLength={1000}
+            aria-label={t("taskFlow.ehs.changeReason")}
+            onChange={(event) => setReason(event.target.value)}
+          />
+        </FieldWrapper>
+      )}
       <QueryFailedNote query={categories} what={t("safety.what.categories")} />
     </FieldWrapper>
   );

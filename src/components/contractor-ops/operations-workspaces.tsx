@@ -80,6 +80,7 @@ import {
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
 import { useDateFormat } from "@/lib/dates";
+import { isSignOffCancelled } from "@/lib/sign-off";
 import { hasPercent, usePercentText } from "@/lib/progress-percent";
 import { parseRecordNo } from "@/lib/record-no";
 import { cn } from "@/lib/utils";
@@ -1884,7 +1885,7 @@ function TaskDialog({
             )}
           </FieldWrapper>
         </div>
-        {save.isError && (
+        {save.isError && !isSignOffCancelled(save.error) && (
           <p
             role="alert"
             className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"

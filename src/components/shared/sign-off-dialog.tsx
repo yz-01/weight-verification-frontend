@@ -1,7 +1,7 @@
 "use client";
 
 import { KeyRound, Loader2, Lock, ShieldCheck } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { FieldWrapper } from "@/components/shared/page-primitives";
@@ -48,6 +48,7 @@ export function modeFor(code: string, status: SignOffPinStatus | null): Mode {
  */
 export function SignOffHost() {
   const t = useTranslations("signOff");
+  const format = useFormatter();
   const [ask, setAsk] = useState<SignOffAsk | null>(null);
   const [mode, setMode] = useState<Mode>("loading");
   const [status, setStatus] = useState<SignOffPinStatus | null>(null);
@@ -57,6 +58,9 @@ export function SignOffHost() {
   const [confirmPin, setConfirmPin] = useState("");
   const [password, setPassword] = useState("");
   const [setupError, setSetupError] = useState<{ field: string; message: string } | null>(null);
+  // Where 「返回」 on the set-again form goes: the box it was opened from.
+  // `null` when the form is the first thing shown (no PIN yet): it cancels.
+  const [backTo, setBackTo] = useState<Mode | null>(null);
   const resolver = useRef<((pin: string | null) => void) | null>(null);
 
   const answer = useCallback((value: string | null) => {
@@ -75,6 +79,12 @@ export function SignOffHost() {
             setBusy(false);
             setPin("");
             setSetupError(null);
+            setBackTo(null);
+            if (next.code === SIGN_OFF_CODES.locked && !next.lockedUntil) {
+              // The time it opens: from the PIN's status when the refusal
+              // did not say (a check before an editor opens).
+              getSignOffPinStatus().then(setStatus).catch(() => undefined);
+            }
             if (next.code === SIGN_OFF_CODES.required || next.code === SIGN_OFF_CODES.notSet) {
               setMode(next.code === SIGN_OFF_CODES.notSet ? "setup" : "loading");
               getSignOffPinStatus()
@@ -137,6 +147,12 @@ export function SignOffHost() {
   };
 
   const wrong = ask && ask.code === SIGN_OFF_CODES.incorrect ? ask.message : "";
+  const opensAt = ask?.lockedUntil ?? status?.locked_until ?? null;
+  const openSetup = (from: Mode) => {
+    setSetupError(null);
+    setBackTo(from);
+    setMode("setup");
+  };
 
   return (
     <Dialog open={ask !== null} onOpenChange={(open) => !open && close()}>
@@ -181,10 +197,7 @@ export function SignOffHost() {
               type="button"
               className="text-sm font-medium text-primary hover:underline"
               disabled={busy}
-              onClick={() => {
-                setSetupError(null);
-                setMode("setup");
-              }}
+              onClick={() => openSetup("enter")}
             >
               {t("forgot")}
             </button>
@@ -256,10 +269,34 @@ export function SignOffHost() {
                 onChange={(event) => setPassword(event.target.value)}
               />
             </FieldWrapper>
+            {backTo !== null && (
+              // Someone who forgot the PIN may have forgotten the password
+              // too: say where that is put right.
+              <p className="text-sm text-muted-foreground">{t("forgotPassword")}</p>
+            )}
             <DialogFooter>
-              <Button type="button" variant="outline" disabled={busy} onClick={close}>
-                {t("cancel")}
-              </Button>
+              {backTo !== null ? (
+                // 「返回」 goes back to the PIN box; the operation still waits.
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => {
+                    setSetupError(null);
+                    setNewPin("");
+                    setConfirmPin("");
+                    setPassword("");
+                    setMode(backTo);
+                    setBackTo(null);
+                  }}
+                >
+                  {t("back")}
+                </Button>
+              ) : (
+                <Button type="button" variant="outline" disabled={busy} onClick={close}>
+                  {t("cancel")}
+                </Button>
+              )}
               <Button
                 type="submit"
                 requires={[
@@ -284,17 +321,24 @@ export function SignOffHost() {
         {mode === "locked" && (
           <div className="space-y-3">
             <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-              {ask?.code === SIGN_OFF_CODES.locked ? ask.message : t("lockedHelp")}
+              {opensAt
+                ? t("lockedUntil", {
+                    time: format.dateTime(new Date(opensAt), {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hourCycle: "h23",
+                    }),
+                  })
+                : ask?.code === SIGN_OFF_CODES.locked
+                  ? ask.message
+                  : t("lockedHelp")}
             </p>
             <p className="text-sm text-muted-foreground">{t("lockedHint")}</p>
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => {
-                  setSetupError(null);
-                  setMode("setup");
-                }}
+                onClick={() => openSetup("locked")}
               >
                 {t("setAgain")}
               </Button>

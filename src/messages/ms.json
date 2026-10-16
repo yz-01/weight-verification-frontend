@@ -7979,6 +7979,7 @@
       "sign_off_pin_required": "Masukkan PIN pengesahan enam digit anda untuk meneruskan.",
       "sign_off_pin_not_set": "Anda belum menetapkan PIN pengesahan. Tetapkan dahulu.",
       "sign_off_pin_incorrect": "PIN pengesahan salah. Tinggal {attempts_left} cubaan sebelum dikunci 15 minit.",
+      "sign_off_office_only": "Sila buat ini di pejabat belakang, pada komputer. Telefon tidak boleh membuat langkah ini.",
       "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda."
     },
     "backToDashboard": "Kembali ke papan pemuka",
@@ -18452,7 +18453,10 @@
       "reassignHelp": "{person} bertanggungjawab untuk {incident} sekarang. Pilih siapa yang membaikinya; foto dan perbincangan kekal pada item yang sama.",
       "newResponsible": "Orang bertanggungjawab baharu",
       "chooseCategory": "Pilih kategori lain dahulu",
-      "saveCategory": "Simpan kategori"
+      "saveCategory": "Simpan kategori",
+      "changeReason": "Sebab tukar kategori",
+      "changeReasonHint": "Memindahkan perkara yang sudah dikategorikan ke kategori lain memerlukan sebab dan PIN pengesahan anda.",
+      "changeReasonNeeded": "Nyatakan sebab kategori ditukar"
     },
     "fieldTasks": {
       "history": "Arkib sejarah",
@@ -18715,6 +18719,9 @@
     "lockedHelp": "PIN anda dikunci selepas 5 cubaan salah. Ia dibuka semula 15 minit selepas cubaan terakhir.",
     "lockedHint": "Jika terlupa, tetapkan yang baharu dengan kata laluan akaun, atau minta pentadbir syarikat menetapkannya semula.",
     "setAgain": "Tetapkan PIN baharu",
+    "back": "Kembali",
+    "lockedUntil": "PIN pengesahan anda dikunci selepas 5 kali salah. Ia dibuka semula pada {time}.",
+    "forgotPassword": "Lupa kata laluan akaun juga? Tekan “Lupa kata laluan?” di halaman log masuk, atau minta pentadbir menetapkan semula PIN pengesahan anda.",
     "failed": "Tidak dapat disimpan. Cuba lagi.",
     "profileTitle": "PIN pengesahan saya",
     "profileHelp": "Enam digit yang hanya anda tahu. Laporan harian, jadual, kelulusan dan operasi pejabat penting lain disahkan dengannya. Telefon tidak memintanya.",

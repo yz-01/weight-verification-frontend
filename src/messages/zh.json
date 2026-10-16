@@ -7979,6 +7979,7 @@
       "sign_off_pin_required": "请输入你的六位数签核密码。",
       "sign_off_pin_not_set": "你还没有设定签核密码，请先设定。",
       "sign_off_pin_incorrect": "签核密码不对。再错 {attempts_left} 次会锁 15 分钟。",
+      "sign_off_office_only": "请在电脑后台操作。手机端不能做这一步。",
       "sign_off_pin_locked": "签核密码输错 5 次，已锁定。请 {minutes} 分钟后再试，或用账号密码重新设定。"
     },
     "backToDashboard": "返回仪表板",
@@ -18452,7 +18453,10 @@
       "reassignHelp": "{incident} 现在由 {person} 负责。选一个新的负责人，照片和沟通都留在原事项。",
       "newResponsible": "新负责人",
       "chooseCategory": "先选一个不同的整改分类",
-      "saveCategory": "保存分类"
+      "saveCategory": "保存分类",
+      "changeReason": "为什么改分类",
+      "changeReasonHint": "已分好类的事项改到别的分类，要写原因，并输入签核密码。",
+      "changeReasonNeeded": "写改分类的原因"
     },
     "fieldTasks": {
       "history": "历史档案",
@@ -18715,6 +18719,9 @@
     "lockedHelp": "签核密码输错 5 次，已锁定，最后一次输错后 15 分钟自动解锁。",
     "lockedHint": "忘记了可以用账号密码重新设定，或请公司管理员重设。",
     "setAgain": "重新设定",
+    "back": "返回",
+    "lockedUntil": "签核密码输错 5 次，已锁定，{time} 自动解锁。",
+    "forgotPassword": "忘记账号密码？请到登录页按『忘记密码』，或请管理员帮你重设签核密码。",
     "failed": "保存失败，请再试一次。",
     "profileTitle": "我的签核密码",
     "profileHelp": "只有你知道的六位数。日报告、施工计划、审批等重要后台操作都用它确认；手机端不用。",

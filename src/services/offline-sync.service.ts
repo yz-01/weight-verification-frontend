@@ -1230,6 +1230,8 @@ export async function submitDisposalRequestOfflineAware(
 export async function submitSafetyIncidentOfflineAware(
   ownerId: string,
   draft: SafetyIncidentPayload & { client_event_id: string },
+  /** An office item's sign-off PIN, checked before the upload (I29). */
+  signOffPin?: string,
 ): Promise<SafetyIncidentSubmission> {
   const job: Extract<OfflineJob, { kind: "SAFETY_INCIDENT" }> = {
     id: newId("safety-incident-job"),
@@ -1249,11 +1251,14 @@ export async function submitSafetyIncidentOfflineAware(
       // The job's copies, so the online attempt sends the compressed photos.
       const incident = await submitNow(() =>
         withOfflineProvenance(job.queuedAt, () =>
-          createSafetyIncident({
-            ...draft,
-            photos: job.payload.photos.map(restoreFile),
-            attachments: (job.payload.attachments ?? []).map(restoreFile),
-          }),
+          createSafetyIncident(
+            {
+              ...draft,
+              photos: job.payload.photos.map(restoreFile),
+              attachments: (job.payload.attachments ?? []).map(restoreFile),
+            },
+            signOffPin,
+          ),
         ),
       );
       return { status: "uploaded", incident };

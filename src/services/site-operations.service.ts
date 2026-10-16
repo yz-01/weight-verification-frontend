@@ -104,6 +104,8 @@ export function exportSafetyIncidents(request: ExportRequest): Promise<void> {
 
 export async function createSafetyIncident(
   payload: SafetyIncidentPayload,
+  /** Checked before the photos went (I29): sent with them, asked once. */
+  signOffPin?: string,
 ): Promise<SafetyIncident> {
   // Left empty, when it happened is when its first photo was taken - not
   // when a queued report reached the server (2026-10-09 audit).
@@ -112,6 +114,7 @@ export async function createSafetyIncident(
   const incident = await api.post<SafetyIncident>(
     "/api/safety-incidents/create_safety_incident/",
     data,
+    signOffPin ? { signOffPin } : undefined,
   );
   toastSuccess("safety.toast.created");
   return incident;
@@ -159,14 +162,19 @@ export async function reassignSafetyRectification(
   return incident;
 }
 
-/** 改事项分类 (I2): the office files an item - mostly a 「未分类」 phone report. */
+/**
+ * 改事项分类 (I2): the office files an item - mostly a 「未分类」 phone report.
+ * Moving an item already filed is a 「改正」 (ID77): a reason, and the server
+ * asks for the sign-off PIN in the shared dialog.
+ */
 export async function updateSafetyCategory(
   id: string,
   category: string,
+  reason = "",
 ): Promise<SafetyIncident> {
   const incident = await api.post<SafetyIncident>(
     `/api/safety-incidents/${id}/update_category/`,
-    { category },
+    reason ? { category, reason } : { category },
   );
   toastSuccess("safetyRectification.toast.categoryChanged");
   return incident;

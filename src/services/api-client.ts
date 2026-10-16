@@ -283,6 +283,7 @@ export async function request<T>(
       ? await attachOriginalManifest(options.body)
       : [];
   // Sent again with the sign-off PIN when the server asks for it (I29).
+  const asked: SignOffMemory = {};
   for (let attempt = options; ; ) {
     let response: Response;
     try {
@@ -333,7 +334,7 @@ export async function request<T>(
       // The sign-off PIN (I29): ask, and send the same request again.
       const pin = attempt.noSignOffPrompt
         ? undefined
-        : await answerSignOff(response.status, code, message, attempt.signOffPin, values);
+        : await answerSignOff(response.status, code, message, attempt.signOffPin, values, asked);
       if (pin) {
         attempt = { ...attempt, signOffPin: pin };
         continue;
@@ -374,6 +375,11 @@ function signOffCancelled(status: number): ApiError {
   return new ApiError("", status, {}, SIGN_OFF_CANCELLED);
 }
 
+/** What one request's PIN dialog remembers between its retries. */
+interface SignOffMemory {
+  action?: string;
+}
+
 /**
  * A refusal about the sign-off PIN, answered in the shared dialog (I29).
  *
@@ -387,13 +393,18 @@ async function answerSignOff(
   message: string,
   sentPin: string | undefined,
   values: Record<string, string | number> | undefined,
+  asked: SignOffMemory,
 ): Promise<string | null | undefined> {
   if (!isSignOffRefusal(status, code, Boolean(sentPin)) || !hasSignOffDialog()) {
     if (sentPin) settleSignOff();
     return undefined;
   }
-  const action = typeof values?.action === "string" ? values.action : undefined;
-  const pin = await askSignOff({ code, message, action });
+  // The operation the first refusal named: a wrong PIN's answer keeps
+  // saying what the PIN is for, even if the server left it out.
+  const action = typeof values?.action === "string" ? values.action : asked.action;
+  if (!asked.action) asked.action = action;
+  const lockedUntil = typeof values?.locked_until === "string" ? values.locked_until : undefined;
+  const pin = await askSignOff({ code, message, action: asked.action, lockedUntil });
   if (!pin) settleSignOff();
   return pin || null;
 }
@@ -516,6 +527,7 @@ export async function fetchObjectUrl(path: string, options: RequestOptions = {})
 async function fetchFile(path: string, options: RequestOptions): Promise<Response> {
   // Sent again with the sign-off PIN when the server asks for it (I29): a
   // daily report's PDF and the list's export are signed.
+  const asked: SignOffMemory = {};
   for (let attempt = options; ; ) {
     let response: Response;
     try {
@@ -545,7 +557,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
       const message = resolveMessage(code, envelope.success ? "" : envelope.message, values);
       const pin = attempt.noSignOffPrompt
         ? undefined
-        : await answerSignOff(response.status, code, message, attempt.signOffPin, values);
+        : await answerSignOff(response.status, code, message, attempt.signOffPin, values, asked);
       if (pin) {
         attempt = { ...attempt, signOffPin: pin };
         continue;

@@ -64,6 +64,8 @@ export interface SignOffAsk {
   message: string;
   /** The operation, `daily_report.delete` etc. - the dialog names it. */
   action?: string;
+  /** While locked: the ISO time it opens again, to show the real time. */
+  lockedUntil?: string;
 }
 
 type Ask = (ask: SignOffAsk) => Promise<string | null>;

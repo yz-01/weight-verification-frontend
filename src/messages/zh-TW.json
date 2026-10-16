@@ -7979,6 +7979,7 @@
       "sign_off_pin_required": "請輸入你的六位數簽核密碼。",
       "sign_off_pin_not_set": "你還沒有設定簽核密碼，請先設定。",
       "sign_off_pin_incorrect": "簽核密碼不對。再錯 {attempts_left} 次會鎖 15 分鐘。",
+      "sign_off_office_only": "請在電腦後台操作。手機端不能做這一步。",
       "sign_off_pin_locked": "簽核密碼輸錯 5 次，已鎖定。請 {minutes} 分鐘後再試，或用帳號密碼重新設定。"
     },
     "backToDashboard": "返回儀表板",
@@ -18452,7 +18453,10 @@
       "reassignHelp": "{incident} 現在由 {person} 負責。選一個新的負責人，照片和溝通都留在原事項。",
       "newResponsible": "新負責人",
       "chooseCategory": "先選一個不同的整改分類",
-      "saveCategory": "儲存分類"
+      "saveCategory": "儲存分類",
+      "changeReason": "為什麼改分類",
+      "changeReasonHint": "已分好類的事項改到別的分類，要寫原因，並輸入簽核密碼。",
+      "changeReasonNeeded": "寫改分類的原因"
     },
     "fieldTasks": {
       "history": "歷史檔案",
@@ -18715,6 +18719,9 @@
     "lockedHelp": "簽核密碼輸錯 5 次，已鎖定，最後一次輸錯後 15 分鐘自動解鎖。",
     "lockedHint": "忘記了可以用帳號密碼重新設定，或請公司管理員重設。",
     "setAgain": "重新設定",
+    "back": "返回",
+    "lockedUntil": "簽核密碼輸錯 5 次，已鎖定，{time} 自動解鎖。",
+    "forgotPassword": "忘記帳號密碼？請到登入頁按『忘記密碼』，或請管理員幫你重設簽核密碼。",
     "failed": "儲存失敗，請再試一次。",
     "profileTitle": "我的簽核密碼",
     "profileHelp": "只有你知道的六位數。日報告、施工計劃、審批等重要後台操作都用它確認；手機端不用。",

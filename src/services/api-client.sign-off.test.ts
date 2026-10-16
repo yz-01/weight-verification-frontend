@@ -100,6 +100,35 @@ describe("the sign-off PIN in the API client", () => {
     expect(asks[1].message).toContain("4");
   });
 
+  it("keeps naming the operation after a wrong PIN, and passes the lock's time", async () => {
+    // WRONG carries no action, as an older server answered: the dialog
+    // still says what the PIN is for (not 「操作」).
+    const LOCKED = {
+      success: false,
+      message: "Locked.",
+      code: "sign_off_pin_locked",
+      errors: {},
+      values: { minutes: 15, locked_until: "2026-10-16T09:30:00+08:00" },
+    };
+    serverSays([REQUIRED, 403], [WRONG, 403], [LOCKED, 403]);
+    const asks: SignOffAsk[] = [];
+    const typed = ["111111", "222222"];
+    registerSignOff(async (ask) => {
+      asks.push(ask);
+      return typed.shift() ?? null;
+    }, () => undefined);
+
+    await api.delete("/api/daily-reports/1/delete_report/", { body: { reason: "x" } }).catch(() => undefined);
+
+    expect(asks.map((ask) => ask.action)).toEqual([
+      "daily_report.delete",
+      "daily_report.delete",
+      "daily_report.delete",
+    ]);
+    expect(asks[2].code).toBe("sign_off_pin_locked");
+    expect(asks[2].lockedUntil).toBe("2026-10-16T09:30:00+08:00");
+  });
+
   it("ends quietly when the dialog is closed", async () => {
     serverSays([REQUIRED, 403]);
     registerSignOff(async () => null, () => undefined);
