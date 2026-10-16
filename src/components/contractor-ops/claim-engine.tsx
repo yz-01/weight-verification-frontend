@@ -128,7 +128,7 @@ function useClaimCategories(project: string, { offered }: { offered: boolean }) 
 /** The companies marked 分包商 (ID7), searched as typed. */
 function useSubcontractors(search: string) {
   return useQuery({
-    queryKey: ["claims", "subcontractors", search],
+    queryKey: ["subcontractor-options", search],
     queryFn: () => getSubcontractorOptions(search || undefined),
   });
 }
@@ -1027,7 +1027,7 @@ function ClaimFieldsForm({
         <QuickAddSupplierButton
           defaults={{ company_types: ["SUBCONTRACTOR"] }}
           onCreated={(supplier) => {
-            void queryClient.invalidateQueries({ queryKey: ["claims", "subcontractors"] });
+            void queryClient.invalidateQueries({ queryKey: ["subcontractor-options"] });
             set({ subcontractor: supplier.id });
           }}
         />

@@ -6559,7 +6559,11 @@
         "photos": "File name, source or uploader",
         "documents": "Document no., title or keyword",
         "daily_report": "Report name, text or writer",
-        "progress_summary": "Title or writer"
+        "progress_summary": "Title or writer",
+        "field_tasks": "Search task, instructions, place, assignee",
+        "material_outgoing": "Search number, material, spec, DO, plate, Return Note, supplier",
+        "claims": "Search claim no., remarks, description, category, subcontractor",
+        "sundry_claims": "Search number, description, applicant"
       },
       "noMatch": "Nothing matches",
       "submittedBy": "Submitted by",

@@ -59,6 +59,17 @@ describe("the report menu's levels (D6 table)", () => {
         "reportSelector.level.equipmentClass",
       ],
       "/reports/contractor/recycling": ["reportSelector.level.recycling", null],
+      // I11 (ID27): the four new reports; two open at their categories.
+      "/reports/contractor/field_tasks": "none",
+      "/reports/contractor/material_outgoing": [
+        "reportSelector.level.materialOutgoing",
+        "reportSelector.level.subcategory",
+      ],
+      "/reports/contractor/claims": [
+        "reportSelector.level.claims",
+        "reportSelector.level.subcategory",
+      ],
+      "/reports/contractor/sundry_claims": "none",
       "/reports/contractor/documents": [
         "reportSelector.level.documents",
         "reportSelector.level.documentSubcategory",

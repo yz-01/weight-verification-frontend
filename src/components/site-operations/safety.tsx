@@ -1496,7 +1496,7 @@ function SafetyCreateDialog({
                   ...value,
                   category: categoryId,
                   // 「其他」 (ID5): the item's own name is typed, not 「其他」.
-                  title: titleForColumn(value.title, offeredNames, next?.is_other ? "" : (next?.name ?? "")),
+                  title: titleForColumn(value.title, offeredNames, next?.name && !next.is_other ? next.name : ""),
                 }));
               }}
               disabled={!draft.project}

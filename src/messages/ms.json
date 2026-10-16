@@ -6559,7 +6559,11 @@
         "photos": "Nama fail, sumber atau pemuat naik",
         "documents": "No. dokumen, tajuk atau kata kunci",
         "daily_report": "Nama laporan, teks atau penulis",
-        "progress_summary": "Tajuk atau penulis"
+        "progress_summary": "Tajuk atau penulis",
+        "field_tasks": "Cari tugas, arahan, lokasi, pelaksana",
+        "material_outgoing": "Cari nombor, bahan, spesifikasi, DO, plat, Return Note, pembekal",
+        "claims": "Cari no. tuntutan, catatan, keterangan, kategori, subkontraktor",
+        "sundry_claims": "Cari nombor, keterangan, pemohon"
       },
       "noMatch": "Tiada pilihan yang sepadan",
       "submittedBy": "Dihantar oleh",

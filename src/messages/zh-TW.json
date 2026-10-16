@@ -6559,7 +6559,11 @@
         "photos": "文件名、來源或上傳人員",
         "documents": "文件編號、標題或關鍵字",
         "daily_report": "日報名稱、內容或撰寫人",
-        "progress_summary": "標題或撰寫人"
+        "progress_summary": "標題或撰寫人",
+        "field_tasks": "搜尋任務名稱、說明、地點、負責人",
+        "material_outgoing": "搜尋編號、材料、規格、DO、車牌、Return Note、供應商",
+        "claims": "搜尋 Claim 編號、備註、說明、分類、分包商",
+        "sundry_claims": "搜尋編號、說明、申請人"
       },
       "noMatch": "沒有符合的選項",
       "submittedBy": "提交人",

@@ -6559,7 +6559,11 @@
         "photos": "文件名、来源或上传人员",
         "documents": "文件编号、标题或关键字",
         "daily_report": "日报名称、内容或撰写人",
-        "progress_summary": "标题或撰写人"
+        "progress_summary": "标题或撰写人",
+        "field_tasks": "搜索任务名称、说明、地点、负责人",
+        "material_outgoing": "搜索编号、材料、规格、DO、车牌、Return Note、供应商",
+        "claims": "搜索 Claim 编号、备注、说明、分类、分包商",
+        "sundry_claims": "搜索编号、说明、申请人"
       },
       "noMatch": "没有符合的选项",
       "submittedBy": "提交人",

@@ -215,7 +215,8 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     expect(sheet).toMatch(/confirm && canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
     expect(sheet).not.toMatch(/AddToPackageButton|markRecordsSeen|markRecordsArchived/);
     for (const kind of QUEUE_ONLY_NOT) {
-      expect(canDiscuss(kind), kind).toBe(false);
+      // A Progress Claim talks on itself since I10 (ID50).
+      expect(canDiscuss(kind), kind).toBe(kind === "CLAIM");
       expect(canConfirmClosure(kind), kind).toBe(false);
       expect(isQueueKind(kind), kind).toBe(false);
     }
