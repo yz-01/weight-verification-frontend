@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { ApiError } from "@/interfaces/api";
 import type { OfflineJob } from "@/lib/offline-db";
 
 /**
@@ -79,7 +80,7 @@ describe("a rectification submitted offline", () => {
 
   it("a retry after a lost answer sends the same client_event_id", async () => {
     vi.stubGlobal("navigator", { onLine: true });
-    post.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    post.mockRejectedValueOnce(new ApiError("offline", 0));
     const first = await queue.submitSafetyRectificationOfflineAware("worker", "inc-1", draft());
     expect(first).toEqual({ status: "queued" });
     await queue.flushOfflineJobs("worker");
