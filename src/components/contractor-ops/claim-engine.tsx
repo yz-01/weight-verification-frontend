@@ -494,6 +494,7 @@ function NewClaimDialog({
       onCreated(row);
     },
   });
+  // query-failure: passed to ClaimFieldsForm, which shows QueryFailedNote under the picker.
   const categories = useClaimCategories(project, { offered: true });
   const chosen = (categories.data?.results ?? []).find((row) => row.id === fields.category);
 
@@ -1088,6 +1089,7 @@ function EditClaimDialog({
     description: claim.description ?? "",
     amount: "",
   });
+  // query-failure: passed to ClaimFieldsForm, which shows QueryFailedNote under the picker.
   const categories = useClaimCategories(claim.project, { offered: true });
   const rows = categories.data?.results ?? [];
   const chosen = rows.find((row) => row.id === fields.category);
