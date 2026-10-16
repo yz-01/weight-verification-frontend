@@ -198,7 +198,7 @@ export function EquipmentSupplierCountsPanel({
                       className={`flex w-full min-h-14 flex-col items-start gap-1 rounded-lg border px-3 py-2 text-left transition hover:border-primary/60 hover:bg-primary/5 ${active ? "border-primary bg-primary/10" : "border-panel-border bg-card"}`}
                       onClick={() => list.setFilter("supplier", active ? undefined : value)}
                     >
-                      <span className="w-full truncate text-sm font-medium text-foreground" title={row.supplier ? row.supplier_name : t("noSupplier")}>
+                      <span className="w-full truncate text-sm font-medium text-foreground" title={row.supplier ? (row.supplier_name ?? undefined) : t("noSupplier")}>
                         {row.supplier ? row.supplier_name : t("noSupplier")}
                       </span>
                       {data.by_project && (
