@@ -141,7 +141,8 @@ describe("the column form (D-265, D-266; X1 for equipment)", () => {
   it("offers a major class to equipment only (2026-10 B2, X1)", () => {
     // The picker hangs off the kind, and every other kind's payload drops it.
     expect(dialog).toMatch(/const isEquipment = form\.kind === "EQUIPMENT";/);
-    expect(dialog).toMatch(/\{isEquipment && \(\s*<FieldWrapper\s+label=\{modules\("equipment\.majorClassOf"\)\}/);
+    expect(dialog).toMatch(/const equipmentParentField = \(\s*<FieldWrapper\s+label=\{modules\("equipment\.majorClassOf"\)\}/);
+    expect(dialog).toMatch(/\{!simpleEquip && isEquipment && equipmentParentField\}/);
     expect(dialog).toMatch(/\{ \.\.\.form, parent: undefined \}/);
   });
 

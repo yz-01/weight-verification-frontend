@@ -4088,7 +4088,12 @@
       "subClass": "小类",
       "majorClassOf": "上级（大类）",
       "majorClassHint": "不选就是大类。设备要登记在小类下面。",
-      "isMajorClass": "（这是大类）"
+      "isMajorClass": "（这是大类）",
+      "addKind": "新增种类",
+      "pageNote": "这里管理设备的种类；每一台机器请按「登记设备」，或到 {menu} → {tab}。",
+      "onSite": "设备 {count} 台",
+      "moreSettings": "更多设定",
+      "offClass": "这个种类已停用，启用后才能登记设备。"
     },
     "system": "系统",
     "systemHelp": "施工准证申请由系统使用：可以改名，不能停用或删除。",
