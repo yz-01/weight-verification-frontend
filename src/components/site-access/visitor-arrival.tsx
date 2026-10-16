@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { VisitorArrival } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
 import { visitStatusTone } from "@/lib/visitor-arrival";
+import { useRoleLabel } from "@/lib/role-labels";
 import {
   confirmVisitorArrival,
   declineVisitorArrival,
@@ -249,6 +250,7 @@ export function VisitorHostPicker({
   selectedLabel?: string;
 }) {
   const t = useTranslations("siteControl.visitorArrival");
+  const roleOf = useRoleLabel();
   const options = useQuery({
     queryKey: ["visitor-host-options", project, excludeSelf],
     queryFn: () => getVisitorHostOptions(project, excludeSelf),
@@ -263,7 +265,7 @@ export function VisitorHostPicker({
         onChange={(id) => onChange(id, rows.find((row) => row.id === id)?.full_name ?? "")}
         options={rows.map((row) => ({
           value: row.id,
-          label: row.role_name ? `${row.full_name} · ${row.role_name}` : row.full_name,
+          label: row.role_name ? `${row.full_name} · ${roleOf(null, row.role_name)}` : row.full_name,
         }))}
         placeholder={t("chooseHost")}
         searchPlaceholder={t("searchHost")}
