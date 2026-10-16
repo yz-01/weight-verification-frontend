@@ -264,3 +264,20 @@ describe("a material report's export says what it was narrowed to (B3 #15)", () 
     ).toBe("期间：2026-10-01 至 … · 混凝土 › 全部供应商");
   });
 });
+
+describe("materialOptions (I19)", () => {
+  it("lists materials only: a specification, 其他 included, is not a material", async () => {
+    const { materialOptions } = await import("@/lib/report-menu");
+    expect(
+      materialOptions([
+        { id: "rebar", name: "钢筋", parent: null },
+        { id: "y12", name: "Y12", parent: "rebar" },
+        { id: "other", name: "其他", parent: "rebar" },
+        { id: "sand", name: "沙" },
+      ]),
+    ).toEqual([
+      { value: "rebar", label: "钢筋" },
+      { value: "sand", label: "沙" },
+    ]);
+  });
+});

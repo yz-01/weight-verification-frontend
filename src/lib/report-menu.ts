@@ -314,3 +314,14 @@ export function progressMenuHref(
   const text = next.toString();
   return text ? `${path}?${text}` : path;
 }
+
+/**
+ * The material dropdown of the material reports (I19): materials only. A
+ * material's specifications are its sub-categories, chosen at the spec level
+ * of 【选择报表】, so a row with a parent is never a 「材料」 of its own.
+ */
+export function materialOptions(
+  rows: readonly { id: string; name: string; parent?: string | null }[],
+): { value: string; label: string }[] {
+  return rows.filter((row) => !row.parent).map((row) => ({ value: row.id, label: row.name }));
+}

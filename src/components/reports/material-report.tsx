@@ -50,7 +50,7 @@ import { ManufacturerCell, anyNamedManufacturer } from "@/components/shared/manu
 import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
-import { materialExportSubtitle } from "@/lib/report-menu";
+import { materialExportSubtitle, materialOptions } from "@/lib/report-menu";
 import { UNFILLED_SUPPLIER, supplierShown } from "@/lib/receipt-supplier";
 import { cn } from "@/lib/utils";
 import {
@@ -115,7 +115,11 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const specName = filters.spec_category
     ? columns.isError
       ? t("common.emptyValue")
-      : columns.data?.results.find((row) => row.id === filters.spec_category)?.name
+      : columns.isSuccess
+        // A specification that is switched off is no longer in the list.
+        ? (columns.data.results.find((row) => row.id === filters.spec_category)?.name ??
+          t("reportSelector.specOff"))
+        : undefined
     : undefined;
   const level = [
     materialName ?? "…",
@@ -236,10 +240,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         <ReportChoiceField
           label={t("reportSelector.material")}
           value={list.filters.category}
-          options={(columns.data?.results ?? []).map((row) => ({
-            value: row.id,
-            label: row.name,
-          }))}
+          options={materialOptions(columns.data?.results ?? [])}
           // A specification belongs to one material: choosing another drops it.
           onChange={(category) => list.setFilters({ category, spec_category: undefined })}
           loading={columns.isLoading}
