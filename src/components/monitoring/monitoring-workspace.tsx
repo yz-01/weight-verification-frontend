@@ -322,7 +322,10 @@ function MonitoringSummary({ data }: { data: MonitoringOverview }) {
               >
                 <span className="min-w-0 flex-1 font-medium">{service.name}</span>
                 <TypeBadge label={t(`mode.${service.mode}`)} />
-                <HealthBadge status={service.status} />
+                {/* A fixed slot (2026-10-17) keeps the mode badges in one column. */}
+                <span className="flex min-w-24 justify-end">
+                  <HealthBadge status={service.status} />
+                </span>
               </div>
             ))}
             {detail === "attention" && data.exceptions.open > 0 && (
