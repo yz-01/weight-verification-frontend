@@ -239,6 +239,7 @@ export interface DeliveryNote {
 
 export interface DeliveryNotePublic {
   note_no: string;
+  legacy_no?: string;
   company_name: string;
   project_name: string;
   supplier_name: string;

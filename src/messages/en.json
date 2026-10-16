@@ -6993,6 +6993,7 @@
     }
   },
   "deliveryNotePublic": {
+    "legacyNo": "Old number",
     "compare": {
       "amended": "Amended from {from} to {to}",
       "amendNotice": "The docket figure is kept as well, along with your name and the time.",
