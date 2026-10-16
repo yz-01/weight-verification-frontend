@@ -553,15 +553,10 @@ function NewClaimDialog({
           requires={[
             [project, t("field.project")],
             [period, t("field.period")],
-            ...(general
-              ? ([
-                  [fields.category, t("field.category")],
-                  [fields.description.trim(), t("field.description")],
-                ] as [string, string][])
-              : []),
-            ...(chosen?.is_other ? ([[fields.otherName.trim(), t("field.otherName")]] as [string, string][]) : []),
           ]}
-          disabled={create.isPending}
+          // The claim's own fields sit in ClaimFieldsForm, each marked there.
+          disabled={create.isPending || !claimFieldsComplete(fields, general, chosen?.is_other)}
+          disabledReason={t("completeClaimFields")}
           onClick={() => create.mutate()}
         >
           {t("openPeriod")}
@@ -917,6 +912,13 @@ interface ClaimFields {
   amount: string;
 }
 
+/** What a claim needs before it is saved (I10): a general one its category and description; 「其他」 its name. */
+function claimFieldsComplete(fields: ClaimFields, general: boolean, other?: boolean) {
+  if (general && (!fields.category || !fields.description.trim())) return false;
+  if (other && !fields.otherName.trim()) return false;
+  return true;
+}
+
 const EMPTY_FIELDS: ClaimFields = {
   category: "",
   otherName: "",
@@ -981,7 +983,8 @@ function ClaimFieldsForm({
             <Button
               type="button"
               variant="outline"
-              requires={[[project, t("field.project")]]}
+              disabled={!project}
+              disabledReason={t("field.selectProject")}
               onClick={() => setAdding(true)}
             >
               <Plus />
@@ -1115,16 +1118,8 @@ function EditClaimDialog({
           {common("cancel")}
         </Button>
         <Button
-          requires={[
-            ...(general
-              ? ([
-                  [fields.category, t("field.category")],
-                  [fields.description.trim(), t("field.description")],
-                ] as [string, string][])
-              : []),
-            ...(chosen?.is_other ? ([[fields.otherName.trim(), t("field.otherName")]] as [string, string][]) : []),
-          ]}
-          disabled={save.isPending}
+          disabled={save.isPending || !claimFieldsComplete(fields, general, chosen?.is_other)}
+          disabledReason={t("completeClaimFields")}
           onClick={() => save.mutate()}
         >
           {common("save")}

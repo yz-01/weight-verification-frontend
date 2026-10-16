@@ -10128,7 +10128,8 @@
     "subcontractorSearch": "Type to search",
     "descriptionHint": "What this claim is for, e.g. “October manpower”.",
     "amountOptional": "Optional; it can be filled later.",
-    "confirmBodyGeneral": "Once confirmed this general claim is claimed; record the payment as usual afterwards."
+    "confirmBodyGeneral": "Once confirmed this general claim is claimed; record the payment as usual afterwards.",
+    "completeClaimFields": "Fill in the category and description (general claim) and the name for “Other” first."
   },
   "multiEngine": {
     "acceptItem": "Accept",

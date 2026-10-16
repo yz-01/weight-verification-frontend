@@ -10128,7 +10128,8 @@
     "subcontractorSearch": "输入名称搜索",
     "descriptionHint": "这期 Claim 是什么，例如「10 月人工」。",
     "amountOptional": "选填，之后也可以填。",
-    "confirmBodyGeneral": "确认后这张一般 Claim 就算已 Claim，之后照常登记收款。"
+    "confirmBodyGeneral": "确认后这张一般 Claim 就算已 Claim，之后照常登记收款。",
+    "completeClaimFields": "请先填好分类、说明（一般 Claim）和「其他」的名称。"
   },
   "multiEngine": {
     "acceptItem": "接受",
