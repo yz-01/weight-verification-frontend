@@ -283,6 +283,12 @@ export function MovementAcceptance({
       <p className="text-sm font-medium text-warning">
         {t(exit ? "equipmentExit.status.SUBMITTED" : "equipmentMovementStatus.SUBMITTED")}
       </p>
+      {/* 「二维码坏了 / 还没有贴？输入编号」 at the gate (P-phonefix). */}
+      {exit && movement.equipment_typed && (
+        <p role="status" className="rounded-md border border-warning/40 bg-warning/10 p-2 text-xs">
+          {t("equipmentExit.typedNotScanned")}
+        </p>
+      )}
       {missing.length > 0 && (
         <div role="status" className="space-y-2 rounded-md border border-warning/40 bg-warning/10 p-2 text-xs">
           <p>

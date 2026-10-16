@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { formDraftKey, getFormDraftStore, type FormDraftStore } from "@/lib/form-draft-store";
+import { keptEventId } from "@/lib/kept-event-id";
+import { newClientEventId } from "@/services/offline-sync.service";
 
 const DraftContext = createContext<FormDraftStore | null>(null);
 const noDraft = () => {};
@@ -67,6 +69,24 @@ export function useDraftState<T>(key: string, initial?: T | (() => T)) {
     store.set(key, typeof action === "function" ? (action as (value: T | undefined) => T)(current) : action);
   }, [fallback, key, store]);
   return [value, set];
+}
+
+/**
+ * The submission's one ``client_event_id``, kept with the draft (P-phonefix).
+ *
+ * A tap that failed on something other than the network - a 502 / 504 from
+ * the gateway, a 413 - may still have reached the server. A new id on the
+ * next tap made that a second record; the kept one is answered with the
+ * record the server already has. Cleared with the draft on success, so the
+ * next submission gets its own.
+ */
+export function useDraftEventId(prefix: string): () => string {
+  const [kept, setKept] = useDraftState("clientEventId", "");
+  return useCallback(() => {
+    const id = keptEventId(kept, () => newClientEventId(prefix));
+    if (id !== kept) setKept(id);
+    return id;
+  }, [kept, prefix, setKept]);
 }
 
 /**

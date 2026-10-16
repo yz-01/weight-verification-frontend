@@ -37,7 +37,7 @@ import {
 } from "@/components/contractor-ops/site-disposal-workspaces";
 import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
 import { useAuth } from "@/components/providers/auth-provider";
-import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
+import { FieldDraft, useClearDraft, useDraftEventId, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
 import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
@@ -370,6 +370,7 @@ export function MaterialCapturePanel({
   const [materialEvidence, setMaterialEvidence] = useDraftState("materialEvidence", createEmptyFieldEvidence);
   const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>("receiverSignature");
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>("supplierSignature");
+  const receiptEventId = useDraftEventId("material-receipt");
   const clearDraft = useClearDraft();
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
   // The supplier a scanned code named - a docket or a supplier card. It wins
@@ -687,7 +688,7 @@ export function MaterialCapturePanel({
       if (!user || !location) {
         throw new Error("missing_evidence");
       }
-      const eventId = crypto.randomUUID();
+      const eventId = receiptEventId();
       return submitMaterialReceiptOfflineAware(user.id, {
         receipt: {
           project: draft.project,

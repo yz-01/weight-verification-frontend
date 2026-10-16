@@ -6389,6 +6389,12 @@
       "scanMachineHelp": "把相機對準設備上的二維碼。",
       "scanMachineImage": "從照片讀取二維碼",
       "scanMatched": "已確認：{name}",
+      "typedMatched": "已輸入編號：{name}",
+      "brokenQr": "二維碼壞了 / 還沒有貼？輸入編號",
+      "typeNumber": "現場編號 / 設備編號 / 車牌",
+      "useNumber": "確定",
+      "typedWrongMachine": "這個編號不是批准退場的設備（{name}），請再看一次。",
+      "typedNotScanned": "現場沒有掃二維碼，設備編號是手動輸入的。",
       "scanAgain": "重掃",
       "scanWrongMachine": "掃到的不是批准退場的設備（{name}），請掃這台設備的二維碼。",
       "photosHint": "至少 {min} 張（含 DO 照片）。",
@@ -8022,7 +8028,9 @@
     "networkBody": "請檢查網絡連接後重試。",
     "notFound": "找不到這條記錄。",
     "notFoundBody": "它可能已被移除，或你沒有訪問權限。",
-    "uploadTimeout": "上傳超時：信號太弱，兩分鐘內沒有傳完。"
+    "uploadTimeout": "上傳超時：信號太弱，沒有傳完。系統會自動再試。",
+    "uploadTooLarge": "文件太大，請在電腦後台上傳。",
+    "serverBusy": "服務器暫時沒有回應，請稍後再試。"
   },
   "evidence": {
     "revision": {
@@ -11246,6 +11254,7 @@
   "offline": {
     "kind": {
       "SAFETY_RECTIFICATION": "整改提交",
+      "HAZARD_FILE": "整改附件",
       "ATTENDANCE": "人員進場打卡",
       "CATEGORY_EVIDENCE": "現場照片",
       "CONSULTANT_SUBMISSION": "顧問提交",
@@ -11293,6 +11302,7 @@
       "refusedHelp": "其中 {count} 條伺服器沒有接收，可以在「我提交過的」看原因，請聯絡管理員處理。"
     },
     "synced": "已上傳 {count} 條暫存的記錄",
+    "filesFollow": "已送到辦公室。{count} 個附件正在後台上傳。",
     "alreadyQueued": "這條動作已經在等待同步，不會重複送出。",
     "state": {
       "waiting": "待同步",
@@ -17643,6 +17653,8 @@
     "remove": "移除",
     "wrongType": "{name} 不能上傳：這裡不接受這種檔案。",
     "tooBig": "{name} 超過 {limit} MB。",
+    "tooBigTotal": "{name} 加上去超過合計 {limit} MB。",
+    "phoneTooBig": "{name}：檔案太大，請在電腦後台上傳。手機上每個檔案最多 20 MB，合計最多 50 MB。",
     "tooMany": "一次最多上傳 {limit} 個檔案。",
     "notAFile": "貼上的內容不是檔案或圖片。請複製圖片本身再試一次。"
   },
@@ -18034,6 +18046,7 @@
       "qrNoMatch": "這個二維碼對不上這個項目的設備：{text}",
       "kind": "開工 / 收工",
       "openSince": "這台設備 {start} 開工，還沒收工。",
+      "unclosedYesterday": "這部設備昨天沒有收工，請辦公室補上收工時間",
       "photo": "設備照片",
       "takePhoto": "拍照",
       "photoReady": "已拍好，可以重拍",
@@ -18428,6 +18441,7 @@
       "photos": "照片",
       "photosHint": "至少拍 {count} 張",
       "takePhoto": "拍照",
+      "photosQueued": "還有 {count} 張照片在手機上等待上傳，有信號會自動送出。",
       "note": "備註",
       "noteHint": "沒有照片時寫一句做了什麼",
       "optional": "選填",
@@ -18585,6 +18599,7 @@
       "message": "{name} 你好，這是 {project} 的工地定位連結。請用手機打開，輸入你的電話號碼，按「同意並開始定位」，在工地時保持頁面打開：{link}",
       "sentTitle": "定位連結已準備好",
       "sentBody": "系統不發簡訊。用 WhatsApp 發給人員，或複製後自己發送。這個連結只顯示這一次。",
+      "otherBrowser": "如果人員換了瀏覽器或 App 打開連結（例如先在 WhatsApp 裡打開，後來又用 Safari 打開），系統會當成另一部手機，辦公室要重新發連結。",
       "whatsapp": "用 WhatsApp 發送",
       "copy": "複製連結"
     }

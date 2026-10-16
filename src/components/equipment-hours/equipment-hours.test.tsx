@@ -48,6 +48,7 @@ const {
 const {
   EquipmentHoursCapture,
   LastSentNote,
+  isForgottenStart,
   kindToTake,
   machineLabel,
   machineNumber,
@@ -477,17 +478,36 @@ describe("the phone screen 设备操作员工时", () => {
   it("counts a photo still waiting on the phone before the server's word (ID17, IB4)", () => {
     // Offline: the crane's 开工 waits in the queue; the server still says it is not running.
     const waiting = [{ equipment: "eq-2", kind: "START" as const, capturedAt: "2026-10-07T00:00:00Z" }];
-    expect(kindToTake(MACHINES[1], waiting)).toBe("FINISH");
+    const sameDay = new Date("2026-10-07T03:00:00Z");
+    expect(kindToTake(MACHINES[1], waiting, sameDay)).toBe("FINISH");
     // Its 收工 queued after it: next is a 开工 again.
     expect(
       kindToTake(MACHINES[1], [
         ...waiting,
         { equipment: "eq-2", kind: "FINISH" as const, capturedAt: "2026-10-07T09:00:00Z" },
-      ]),
+      ], sameDay),
     ).toBe("START");
     // Another machine's queued photo changes nothing.
     expect(kindToTake(MACHINES[0], waiting)).toBe("FINISH");
     expect(kindToTake(MACHINES[1], [])).toBe("START");
+  });
+
+  it("a 开工 left open from an earlier day is a forgotten 收工: the new day starts with 开工 (P-phonefix)", () => {
+    // 08:00 yesterday (KL), never stopped; 07:00 this morning.
+    const yesterday = "2026-10-07T00:00:00Z";
+    const thisMorning = new Date("2026-10-07T23:00:00Z");
+    expect(isForgottenStart(yesterday, thisMorning)).toBe(true);
+    const waiting = [{ equipment: "eq-2", kind: "START" as const, capturedAt: yesterday }];
+    expect(kindToTake(MACHINES[1], waiting, thisMorning)).toBe("START");
+    // A night shift across midnight is still running: 22:00 to 02:00.
+    expect(isForgottenStart("2026-10-07T14:00:00Z", new Date("2026-10-07T18:00:00Z"))).toBe(false);
+    // The same day, however long, is never forgotten.
+    expect(isForgottenStart("2026-10-07T00:00:00Z", new Date("2026-10-07T15:00:00Z"))).toBe(false);
+    // The server says it the same way: no open_since, an unclosed_since.
+    expect(nextKind({ open_since: null })).toBe("START");
+    expect(messages.equipmentHours.phone.unclosedYesterday).toBe(
+      "这部设备昨天没有收工，请办公室补上收工时间",
+    );
   });
 
   it("is a tile on the phone's 拍照 grid, with the equipment entry's permission", () => {

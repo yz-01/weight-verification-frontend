@@ -113,6 +113,9 @@ export function AttachmentPicker({
     if (own) return own;
     if (item.kind === "type") return t("wrongType", { name: item.name });
     if (item.kind === "size") return t("tooBig", { name: item.name, limit });
+    if (item.kind === "total") {
+      return t("tooBigTotal", { name: item.name, limit: megabytes(rule.maxTotalBytes ?? 0) });
+    }
     return t("tooMany", { limit: rule.maxFiles ?? 0, name: item.name });
   };
 

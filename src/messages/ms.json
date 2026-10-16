@@ -6389,6 +6389,12 @@
       "scanMachineHelp": "Halakan kamera ke kod QR pada mesin.",
       "scanMachineImage": "Baca kod daripada foto",
       "scanMatched": "Disahkan: {name}",
+      "typedMatched": "Nombor dimasukkan: {name}",
+      "brokenQr": "Kod QR rosak atau belum ditampal? Taip nombor",
+      "typeNumber": "No. tapak / kod peralatan / plat",
+      "useNumber": "OK",
+      "typedWrongMachine": "Nombor itu bukan mesin yang diluluskan untuk keluar ({name}). Sila semak semula.",
+      "typedNotScanned": "Kod QR tidak diimbas di tapak: nombor mesin ditaip dengan tangan.",
       "scanAgain": "Imbas semula",
       "scanWrongMachine": "Itu bukan mesin yang diluluskan untuk keluar ({name}). Imbas kod QR mesin ini.",
       "photosHint": "Sekurang-kurangnya {min} foto, termasuk foto DO.",
@@ -8022,7 +8028,9 @@
     "networkBody": "Semak sambungan anda dan cuba lagi.",
     "notFound": "Kami tidak jumpa itu.",
     "notFoundBody": "Ia mungkin telah dibuang, atau anda tiada akses kepadanya.",
-    "uploadTimeout": "Muat naik tamat masa: isyarat terlalu lemah untuk selesai dalam dua minit."
+    "uploadTimeout": "Muat naik tamat masa: isyarat terlalu lemah untuk selesai. Ia akan cuba lagi sendiri.",
+    "uploadTooLarge": "Fail terlalu besar. Sila muat naik dari komputer pejabat.",
+    "serverBusy": "Pelayan tidak menjawab sekarang. Sila cuba lagi nanti."
   },
   "evidence": {
     "revision": {
@@ -11246,6 +11254,7 @@
   "offline": {
     "kind": {
       "SAFETY_RECTIFICATION": "Penyerahan pembetulan",
+      "HAZARD_FILE": "Fail pembetulan",
       "ATTENDANCE": "Kemasukan tapak",
       "CATEGORY_EVIDENCE": "Foto tapak",
       "CONSULTANT_SUBMISSION": "Penyerahan perunding",
@@ -11293,6 +11302,7 @@
       "refusedHelp": "{count} daripadanya tidak diterima oleh pelayan. Lihat sebabnya di \"Hantaran saya\" dan minta pentadbir anda menguruskannya."
     },
     "synced": "{count} rekod yang disimpan telah dimuat naik",
+    "filesFollow": "Dihantar ke pejabat. {count} fail masih dimuat naik di latar belakang.",
     "alreadyQueued": "Tindakan ini sudah menunggu untuk disegerakkan. Ia tidak akan dihantar dua kali.",
     "state": {
       "waiting": "Menunggu segerak",
@@ -17643,6 +17653,8 @@
     "remove": "Buang",
     "wrongType": "{name} tidak boleh dilampirkan: jenis fail ini tidak diterima di sini.",
     "tooBig": "{name} melebihi {limit} MB.",
+    "tooBigTotal": "{name} akan menjadikan jumlah fail melebihi {limit} MB.",
+    "phoneTooBig": "{name}: fail terlalu besar. Sila muat naik dari komputer pejabat. Di telefon, setiap fail paling banyak 20 MB, dan 50 MB semuanya.",
     "tooMany": "Hantar paling banyak {limit} fail pada satu masa.",
     "notAFile": "Yang anda tampal bukan fail atau gambar. Salin gambar itu sendiri dan cuba lagi."
   },
@@ -18034,6 +18046,7 @@
       "qrNoMatch": "Kod QR ini tidak sepadan dengan mana-mana mesin projek ini: {text}",
       "kind": "Mula / Tamat",
       "openSince": "Mesin ini dimulakan pada {start} dan belum dihentikan.",
+      "unclosedYesterday": "Mesin ini tidak dihentikan semalam. Sila minta pejabat masukkan masa berhenti.",
       "photo": "Foto mesin",
       "takePhoto": "Ambil foto",
       "photoReady": "Foto diambil - ketik untuk ambil semula",
@@ -18428,6 +18441,7 @@
       "photos": "Foto",
       "photosHint": "Ambil sekurang-kurangnya {count}",
       "takePhoto": "Ambil foto",
+      "photosQueued": "{count} foto menunggu di telefon ini dan akan dihantar apabila ada isyarat.",
       "note": "Catatan",
       "noteHint": "Tanpa foto, nyatakan dalam satu ayat apa yang dibuat",
       "optional": "Pilihan",
@@ -18585,6 +18599,7 @@
       "message": "Hai {name}, ini pautan lokasi tapak untuk {project}. Buka di telefon, masukkan nombor telefon anda, tekan \"Setuju dan mula\" dan biarkan halaman terbuka semasa di tapak: {link}",
       "sentTitle": "Pautan lokasi sedia",
       "sentBody": "Sistem tidak menghantar SMS. Hantar melalui WhatsApp, atau salin dan hantar sendiri. Pautan dipaparkan sekali sahaja.",
+      "otherBrowser": "Jika pekerja membuka pautan dalam pelayar atau aplikasi lain (contohnya mula-mula dalam WhatsApp, kemudian dalam Safari), sistem menganggapnya telefon lain, dan pejabat perlu menghantar pautan semula.",
       "whatsapp": "Hantar melalui WhatsApp",
       "copy": "Salin pautan"
     }
