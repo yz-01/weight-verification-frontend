@@ -45,7 +45,7 @@ export function SundryWithdraw({ id, onDone }: { id: string; onDone?: () => void
         <span>{t("arm")}</span>
       </label>
       <p className="text-xs text-muted-foreground">{t("help")}</p>
-      <Button variant="outline" className="h-11 w-full" disabled={!armed || withdraw.isPending} onClick={() => withdraw.mutate()}>
+      <Button variant="outline" className="h-11 w-full" disabled={!armed || withdraw.isPending} disabledReason={armed ? undefined : t("arm")} onClick={() => withdraw.mutate()}>
         {withdraw.isPending ? <Loader2 className="animate-spin" /> : <Undo2 />}
         {t("button")}
       </Button>

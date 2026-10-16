@@ -149,6 +149,7 @@ export function SundryClaimCreate({ onCreated }: { onCreated: (id: string) => vo
                     aria-checked={chosen === side}
                     aria-disabled={!available(side)}
                     disabled={!available(side)}
+                    disabledReason={t(`sideEmpty.${side}`)}
                     variant={chosen === side ? "default" : "outline"}
                     className="h-12"
                     onClick={() => setSubmitTo(side)}
