@@ -44,7 +44,7 @@ export interface WasteCategory {
   dispatch_type: string;
   description: string;
   sort_order: number;
-  /** One of the seven the customer named: deactivate rather than delete. */
+  /** A platform preset. Deletable while no record uses it (I35). */
   is_system: boolean;
   is_active: boolean;
   /**
