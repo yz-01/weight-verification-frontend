@@ -557,6 +557,8 @@ export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
      * signature existed.
      */
     signature?: StoredFile;
+    /** Queued by the screen that asks for the signature (P-phonefix). */
+    signatureRequired?: boolean;
   };
 }
 

@@ -914,7 +914,13 @@ export async function submitFieldTaskTransitionOfflineAware(
       clientEventId: newId("field-task-transition"),
     },
   };
-  if (typeof navigator !== "undefined" && navigator.onLine) {
+  // This task's photos still in the queue go first (P-phonefix): its 提交完成
+  // sent ahead of them would be refused for want of the photos the screen
+  // already counted. So it waits behind them, in the same chain.
+  const behindQueued = await getOfflineJobs(ownerId)
+    .then((jobs) => jobs.some((waiting) => chainOf(waiting) === chainOf(job)))
+    .catch(() => false);
+  if (!behindQueued && typeof navigator !== "undefined" && navigator.onLine) {
     try {
       await uploadJob(job);
       toastSuccess("contractorOps.toast.taskUpdated");
@@ -1421,6 +1427,7 @@ function sendEquipmentHoursPhoto(
     kind: payload.kind,
     photo: restoreFile(payload.photo),
     signature: payload.signature ? restoreFile(payload.signature) : undefined,
+    signatureRequired: payload.signatureRequired,
     capturedAt: payload.capturedAt,
     clientEventId: payload.clientEventId,
     latitude: payload.latitude,
@@ -1479,6 +1486,7 @@ export async function submitEquipmentHoursPhotoOfflineAware(
       photo: await storePhoto(draft.photo),
       // A pad's small PNG: kept as drawn.
       signature: storeFile(draft.signature),
+      signatureRequired: true,
     },
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {

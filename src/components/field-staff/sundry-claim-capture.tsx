@@ -16,7 +16,7 @@ import { Loader2, ReceiptText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
+import { useClearDraft, useDraftEventId, useDraftState } from "@/components/field-staff/field-draft";
 import { LocationField } from "@/components/field-staff/location-field";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -51,6 +51,7 @@ export function SundryClaimCapture({
   const [submitTo, setSubmitTo] = useDraftState<"PROJECT" | "HQ">("submitTo", "PROJECT");
   const [attachments, setAttachments] = useDraftState<File[]>("attachments", []);
   const clearDraft = useClearDraft();
+  const claimEventId = useDraftEventId("sundry-claim");
   // Not in the draft, like every other phone form: a location restored the
   // next day would be yesterday's place stamped on today's claim.
   const [location, setLocation] = useState<LocationFix | null>(null);
@@ -67,7 +68,7 @@ export function SundryClaimCapture({
         submit_to: submitTo,
         latitude: location.latitude,
         longitude: location.longitude,
-        client_event_id: crypto.randomUUID(),
+        client_event_id: claimEventId(),
         attachments,
       });
     },

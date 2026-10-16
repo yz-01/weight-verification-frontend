@@ -18441,6 +18441,7 @@
       "photos": "Photos",
       "photosHint": "Take at least {count}",
       "takePhoto": "Take photo",
+      "photosQueued": "{count, plural, one {# photo is} other {# photos are}} waiting on this phone and will go when there is signal.",
       "note": "Note",
       "noteHint": "With no photo, say in one line what was done",
       "optional": "Optional",
@@ -18598,6 +18599,7 @@
       "message": "Hi {name}, this is the site location link for {project}. Open it on your phone, enter your phone number, press \"Agree and start\" and keep the page open while on site: {link}",
       "sentTitle": "Location link ready",
       "sentBody": "The system sends no SMS. Send it by WhatsApp, or copy it and send it yourself. The link is shown this once only.",
+      "otherBrowser": "If the worker opens the link in another browser or app (for example first in WhatsApp, then in Safari), the system treats it as another phone, and the office must send the link again.",
       "whatsapp": "Send by WhatsApp",
       "copy": "Copy link"
     }

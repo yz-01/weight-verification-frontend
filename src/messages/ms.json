@@ -18441,6 +18441,7 @@
       "photos": "Foto",
       "photosHint": "Ambil sekurang-kurangnya {count}",
       "takePhoto": "Ambil foto",
+      "photosQueued": "{count} foto menunggu di telefon ini dan akan dihantar apabila ada isyarat.",
       "note": "Catatan",
       "noteHint": "Tanpa foto, nyatakan dalam satu ayat apa yang dibuat",
       "optional": "Pilihan",
@@ -18598,6 +18599,7 @@
       "message": "Hai {name}, ini pautan lokasi tapak untuk {project}. Buka di telefon, masukkan nombor telefon anda, tekan \"Setuju dan mula\" dan biarkan halaman terbuka semasa di tapak: {link}",
       "sentTitle": "Pautan lokasi sedia",
       "sentBody": "Sistem tidak menghantar SMS. Hantar melalui WhatsApp, atau salin dan hantar sendiri. Pautan dipaparkan sekali sahaja.",
+      "otherBrowser": "Jika pekerja membuka pautan dalam pelayar atau aplikasi lain (contohnya mula-mula dalam WhatsApp, kemudian dalam Safari), sistem menganggapnya telefon lain, dan pejabat perlu menghantar pautan semula.",
       "whatsapp": "Hantar melalui WhatsApp",
       "copy": "Salin pautan"
     }

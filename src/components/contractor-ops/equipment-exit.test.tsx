@@ -19,6 +19,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ApiError } from "@/interfaces/api";
 import type { EquipmentMovement, SiteEquipment } from "@/interfaces/contractor-ops";
 import { EXIT_STATUSES, exitStep, movementStatusKey, offersEquipmentExit } from "@/lib/equipment-exit";
 import en from "@/messages/en.json";
@@ -75,7 +76,7 @@ vi.mock("@/components/ui/select", async (importOriginal) => {
 const { SiteEquipmentWorkspace, EquipmentEntryDialog } = await import(
   "@/components/contractor-ops/operations-workspaces"
 );
-const { EquipmentExitApplyDialog, EquipmentExitHandoverForm } = await import(
+const { EquipmentExitApplyDialog, EquipmentExitHandoverForm, errorText } = await import(
   "@/components/contractor-ops/equipment-exit"
 );
 const { MovementAcceptance, EquipmentMovementActions, ExitApplicationActions } = await import(
@@ -403,6 +404,53 @@ describe("the office decides the application on its Return Note (I13 step 2)", (
     for (const status of ["RETURNED", "COMPLETED", "REJECTED"] as const) {
       expect(render(<ExitApplicationActions movement={movement({ status })} onDone={() => {}} />)).toBe("");
     }
+  });
+});
+
+describe("a broken QR: the number is typed (P-phonefix)", () => {
+  it("offers 「二维码坏了 / 还没有贴？输入编号」 under the scan button", () => {
+    const html = render(
+      <EquipmentExitHandoverForm
+        movementId="x-4"
+        project="p-1"
+        machine={machine()}
+        onClose={() => {}}
+        onSaved={() => {}}
+      />,
+    );
+    expect(html).toContain(exitWords.brokenQr);
+    expect(exitWords.brokenQr).toBe("二维码坏了 / 还没有贴？输入编号");
+  });
+
+  it("the office sees that the number was typed, not scanned", () => {
+    reader.fieldStaff = false;
+    reader.codes = ["equipment.manage"];
+    const typed = render(<MovementAcceptance movement={movement({ equipment_typed: true })} onDone={() => {}} />);
+    expect(typed).toContain(exitWords.typedNotScanned);
+    const scanned = render(<MovementAcceptance movement={movement()} onDone={() => {}} />);
+    expect(scanned).not.toContain(exitWords.typedNotScanned);
+  });
+
+  it("every language has the typed-number words", () => {
+    for (const catalogue of [messages, zhTW, en, ms]) {
+      const exit = catalogue.contractorOps.equipmentExit as Record<string, string>;
+      for (const key of ["brokenQr", "typeNumber", "useNumber", "typedMatched", "typedWrongMachine", "typedNotScanned"]) {
+        expect(exit[key], key).toBeTruthy();
+      }
+    }
+  });
+});
+
+describe("a failed submit speaks the phone's language (P-phonefix)", () => {
+  it("says the translated sentence of a coded failure, not the server's English field errors", () => {
+    const failure = new ApiError("这台设备不在现场。", 409, { equipment: "Not on site." }, "equipment_not_on_site");
+    expect(errorText(failure, "fallback")).toBe("这台设备不在现场。");
+  });
+
+  it("falls back to the field errors when there is no code", () => {
+    const failure = new ApiError("", 400, { delivery_note_no: "请填 DO 号码。" });
+    expect(errorText(failure, "fallback")).toBe("请填 DO 号码。");
+    expect(errorText(new Error("x"), "fallback")).toBe("fallback");
   });
 });
 

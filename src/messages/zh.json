@@ -18441,6 +18441,7 @@
       "photos": "照片",
       "photosHint": "至少拍 {count} 张",
       "takePhoto": "拍照",
+      "photosQueued": "还有 {count} 张照片在手机上等待上传，有信号会自动送出。",
       "note": "备注",
       "noteHint": "没有照片时写一句做了什么",
       "optional": "选填",
@@ -18598,6 +18599,7 @@
       "message": "{name} 你好，这是 {project} 的工地定位链接。请用手机打开，输入你的电话号码，按「同意并开始定位」，在工地时保持页面打开：{link}",
       "sentTitle": "定位链接已准备好",
       "sentBody": "系统不发短信。用 WhatsApp 发给人员，或复制后自己发送。这个链接只显示这一次。",
+      "otherBrowser": "如果人员换了浏览器或 App 打开链接（例如先在 WhatsApp 里打开，后来又用 Safari 打开），系统会当成另一部手机，办公室要重新发链接。",
       "whatsapp": "用 WhatsApp 发送",
       "copy": "复制链接"
     }

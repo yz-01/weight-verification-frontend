@@ -18441,6 +18441,7 @@
       "photos": "照片",
       "photosHint": "至少拍 {count} 張",
       "takePhoto": "拍照",
+      "photosQueued": "還有 {count} 張照片在手機上等待上傳，有信號會自動送出。",
       "note": "備註",
       "noteHint": "沒有照片時寫一句做了什麼",
       "optional": "選填",
@@ -18598,6 +18599,7 @@
       "message": "{name} 你好，這是 {project} 的工地定位連結。請用手機打開，輸入你的電話號碼，按「同意並開始定位」，在工地時保持頁面打開：{link}",
       "sentTitle": "定位連結已準備好",
       "sentBody": "系統不發簡訊。用 WhatsApp 發給人員，或複製後自己發送。這個連結只顯示這一次。",
+      "otherBrowser": "如果人員換了瀏覽器或 App 打開連結（例如先在 WhatsApp 裡打開，後來又用 Safari 打開），系統會當成另一部手機，辦公室要重新發連結。",
       "whatsapp": "用 WhatsApp 發送",
       "copy": "複製連結"
     }
