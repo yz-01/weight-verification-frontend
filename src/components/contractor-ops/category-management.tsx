@@ -31,6 +31,7 @@ import { RecordSheet } from "@/components/contractor-ops/archive-queue";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { RecordNo } from "@/components/shared/record-no";
+import { SpecFilterSelect } from "@/components/shared/spec-filter";
 import {
   SupplierDateFilter,
   type SupplierDateValue,
@@ -1238,8 +1239,17 @@ export function QuantityCell({
   }
   return (
     <span className={inline ? "inline" : "block space-y-0.5"}>
+      {/* One line per specification and unit (J7-4, J7-6): never 「件」 and
+          「吨」 in one figure, never two specifications added up. */}
       {quantities.map((quantity) => (
-        <span key={quantity.unit} className={inline ? "inline" : "block"}>
+        <span
+          key={`${quantity.material_specification ?? ""}|${quantity.unit}`}
+          className={inline ? "inline" : "block"}
+        >
+          {/* Inline, the line beside it already names the specification. */}
+          {quantity.material_specification && !inline ? (
+            <span className="text-muted-foreground">{quantity.material_specification}: </span>
+          ) : null}
           {quantity.received} {unitName(quantity.unit)}
           {Number(quantity.returned) > 0 && (
             <span className="text-xs text-muted-foreground">
@@ -1301,6 +1311,8 @@ function ColumnRecordsDialog({
   // Supplier, dates and a search box (2026-10 B3, B16): 「点『钢筋』→ 选供应商
   // + 日期 → 只剩对应记录」. Any change goes back to the first page.
   const [filters, setFilters] = useState<SupplierDateValue>({});
+  // 只选材料 → 全部规格各自累计；再选规格 → 只看这个规格 (J7-4, J7-5, Q7-3).
+  const [spec, setSpec] = useState<string | undefined>(undefined);
   const [typed, setTyped] = useState("");
   const [search, setSearch] = useState("");
   useEffect(() => {
@@ -1313,7 +1325,7 @@ function ColumnRecordsDialog({
   }, [typed]);
 
   const records = useQuery({
-    queryKey: ["category-records", moduleKey, column.id, page, filters, search],
+    queryKey: ["category-records", moduleKey, column.id, page, filters, search, spec],
     queryFn: () =>
       getCategoryRecords({
         module: moduleKey,
@@ -1322,6 +1334,7 @@ function ColumnRecordsDialog({
         page_size: RECORDS_PAGE_SIZE,
         ...filters,
         search: search || undefined,
+        spec_category: spec,
       }),
   });
   // Whether the records of this module come from a supplier at all: the
@@ -1331,7 +1344,7 @@ function ColumnRecordsDialog({
   // By whose make too (2026-10 D1): material only.
   const manufacturerFilter = records.data?.manufacturer_filter ?? moduleKey === "material";
   const filtered = Boolean(
-    filters.supplier || filters.manufacturer || filters.date_from || filters.date_to || search,
+    filters.supplier || filters.manufacturer || filters.date_from || filters.date_to || search || spec,
   );
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
@@ -1361,6 +1374,16 @@ function ColumnRecordsDialog({
                 setPage(1);
               }}
             />
+            {moduleKey === "material" && (column.column?.specs ?? []).length > 0 && (
+              <SpecFilterSelect
+                material={column.column}
+                value={spec}
+                onChange={(next) => {
+                  setSpec(next);
+                  setPage(1);
+                }}
+              />
+            )}
           </div>
           {records.isLoading ? (
             <p className="text-sm text-muted-foreground">{queue("loading")}</p>

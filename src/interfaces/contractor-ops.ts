@@ -1173,6 +1173,8 @@ export interface ArchiveQueueDetail<K extends string = ArchiveRecordKind>
 
 /** The records filed in one column, newest first (T-396). */
 export interface ColumnQuantity {
+  /** The specification this line counts (J7-4); blank for records with none. */
+  material_specification?: string;
   unit: string;
   received: string;
   returned: string;
