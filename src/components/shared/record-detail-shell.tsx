@@ -775,8 +775,6 @@ export interface RecordDetailHeaderProps {
    * a phase - so the number is on the detail too.
    */
   recordNo?: string | null;
-  /** The number before I6 renumbered the record (「旧编号」, ID21). */
-  legacyNo?: string | null;
   /** 预览 / 打印, 分享 and the like, left of 「单独导出」. */
   headerActions?: React.ReactNode;
   /**
@@ -801,30 +799,18 @@ export interface RecordDetailHeaderProps {
  * must be the dialog's own, for the screen reader).
  */
 /**
- * 「记录编号」 and 「旧编号」 under the heading (I6, ID21): the old number stays
- * readable on the detail, because printed PDFs carry it.
+ * 「记录编号」 under the heading (I6, ID21). One number per record (J15-1,
+ * Q15): the 「旧编号」 from before I6 is no longer shown or searched.
  */
-export function RecordNumbers({
-  recordNo,
-  legacyNo,
-}: {
-  recordNo?: string | null;
-  legacyNo?: string | null;
-}) {
+export function RecordNumbers({ recordNo }: { recordNo?: string | null }) {
   const t = useTranslations("recordNo");
-  if (!recordNo && !legacyNo) return null;
+  if (!recordNo) return null;
   return (
     <dl className="tabular flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
       {recordNo ? (
         <div className="flex gap-1">
           <dt>{t("column")}</dt>
           <dd className="font-medium text-foreground">{recordNo}</dd>
-        </div>
-      ) : null}
-      {legacyNo ? (
-        <div className="flex gap-1" title={t("legacyHint")}>
-          <dt>{t("legacy")}</dt>
-          <dd className="font-medium text-foreground">{legacyNo}</dd>
         </div>
       ) : null}
     </dl>
@@ -837,7 +823,6 @@ function RecordDetailHeading({
   status,
   caption,
   recordNo,
-  legacyNo,
   headerActions,
   exportRecord,
   inDialog,
@@ -863,7 +848,7 @@ function RecordDetailHeading({
       {caption ? (
         <div className="tabular text-xs text-muted-foreground">{caption}</div>
       ) : null}
-      <RecordNumbers recordNo={recordNo} legacyNo={legacyNo} />
+      <RecordNumbers recordNo={recordNo} />
     </div>
   );
   const actions =

@@ -1001,8 +1001,7 @@ function DisposalDetailDialog({
   const qc = useQueryClient();
   return (
     <RecordDetailDialog
-      title={row.reference_no}
-      legacyNo={row.legacy_no}
+      title={row.reference_no}
       description={`${row.project_name} / ${row.waste_description}`}
       exportRecord={{ kind: "DISPOSAL_REQUEST", recordId: row.id, reference: row.reference_no }}
       onClose={onClose}

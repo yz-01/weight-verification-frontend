@@ -451,8 +451,7 @@ export function ViewReceipt({
   return (
     <RecordDetailFrame
       {...frame}
-      title={data.receipt_no}
-      legacyNo={data.legacy_no}
+      title={data.receipt_no}
       status={
         <>
           {/* Which way it went (B10): a return used to open on a page that
