@@ -6470,6 +6470,16 @@
       "otherProject": "{name} 属于项目「{project}」，不是你现在的项目。",
       "notFound": "没有找到这台设备，或你没有权限查看。",
       "loadFailed": "暂时读取不到设备资料，请检查网络后再试。"
+    },
+    "equipmentToday": {
+      "column": "今日",
+      "status": {
+        "WORKING": "工作中",
+        "FINISHED": "已收工",
+        "IDLE": "未开工",
+        "LEFT": "已离场"
+      },
+      "summary": "今日：工作中 {working} 台 · 已收工 {finished} 台 · 未开工 {idle} 台"
     }
   },
   "contractorPartners": {

@@ -131,6 +131,7 @@ import {
   getSiteProgressSummary,
   reviewMaterialOutgoing,
 } from "@/services/contractor-ops.service";
+import { getEquipmentToday } from "@/services/equipment-hours.service";
 import { LIST_FITS } from "@/lib/list-fits";
 
 const OUTGOING_STATES = [
@@ -544,6 +545,8 @@ export function MaterialOutgoingOffice() {
  * register of machines they are recorded against. A tab rather than two
  * tables stacked, so the page keeps the receipt list's one-table shape.
  */
+const TODAY_TONE = { WORKING: "positive", FINISHED: "info", IDLE: "neutral", LEFT: "neutral" } as const;
+
 export function SiteEquipmentOffice() {
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
@@ -784,6 +787,13 @@ export function SiteEquipmentOffice() {
   );
 
   const pageMachines = machines.data?.results;
+  // 今日状态 (J27): 工作中 / 已收工 / 未开工 / 已离场, read with the register.
+  const today = useQuery({
+    queryKey: ["equipment-hours", "today", list.filters.project ?? ""],
+    queryFn: () => getEquipmentToday(list.filters.project || undefined),
+    enabled: register,
+  });
+  const todayRows = today.data?.rows;
   const machineColumns = useMemo<ColumnDef<SiteEquipment, unknown>[]>(
     () => [
       {
@@ -834,6 +844,25 @@ export function SiteEquipmentOffice() {
       {
         // 设备编号 (IB18, I24): the number the office gives the machine on
         // site and prints big on its QR sticker. Set on 设备编号管理.
+        id: "today",
+        meta: { label: t("equipmentToday.column") },
+        header: () => <PlainHeader label={t("equipmentToday.column")} />,
+        cell: ({ row }) => {
+          const state = todayRows?.find((entry) => entry.equipment === row.original.id);
+          if (!state) return <span className="text-muted-foreground">—</span>;
+          return (
+            <div className="min-w-0" data-testid="equipment-today">
+              <StatusBadge label={t(`equipmentToday.status.${state.status}`)} tone={TODAY_TONE[state.status]} />
+              {state.operator_name ? (
+                <p className="truncate text-xs text-muted-foreground">
+                  {[state.operator_name, state.cidb_no ? `CIDB ${state.cidb_no}` : ""].filter(Boolean).join(" · ")}
+                </p>
+              ) : null}
+            </div>
+          );
+        },
+      },
+      {
         id: "site_no",
         meta: { label: t("equipmentQr.siteNo") },
         header: () => <PlainHeader label={t("equipmentQr.siteNo")} />,
@@ -972,7 +1001,7 @@ export function SiteEquipmentOffice() {
         ),
       },
     ],
-    [t, tRoot, ticked, pageMachines],
+    [t, tRoot, ticked, pageMachines, todayRows],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -1128,7 +1157,22 @@ export function SiteEquipmentOffice() {
             count: machines.data?.count ?? 0,
           })}
           headerAction={headerAction}
-          above={tabs}
+          above={
+            <>
+              {tabs}
+              {/* 今日：只算在场设备，已离场不算 (J27). */}
+              {today.data ? (
+                <p className="text-sm text-muted-foreground" data-testid="equipment-today-summary">
+                  {t("equipmentToday.summary", {
+                    working: today.data.counts.WORKING,
+                    finished: today.data.counts.FINISHED,
+                    idle: today.data.counts.IDLE,
+                  })}
+                </p>
+              ) : null}
+              <QueryFailedNote query={today} what={t("equipmentToday.column")} />
+            </>
+          }
           list={list}
           columns={machineColumns}
           rows={machines.data?.results ?? []}
