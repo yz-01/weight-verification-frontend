@@ -766,6 +766,8 @@ export interface ReceiptSummary {
   }>;
   by_material: Array<{
     material_name: string;
+    /** Per specification too (J2-2): G15 and G25 are two lines. */
+    material_specification?: string;
     unit: MaterialUnit;
     quantity: string;
     cumulative_quantity?: string;

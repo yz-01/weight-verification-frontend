@@ -202,6 +202,29 @@ export function Receipts() {
           </span>
         ),
       },
+      // 「材料｜规格｜照片｜数量」 (J2-1, Q2-1): the specification in its own
+      // column between the material and the photograph.
+      {
+        accessorKey: "material_specification",
+        meta: { label: t("receipts.field.spec") },
+        header: ({ column }) => (
+          <SortableHeader
+            label={t("receipts.field.spec")}
+            isSorted={column.getIsSorted()}
+            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          />
+        ),
+        cell: ({ row }) => {
+          const spec = row.original.material_specification || row.original.spec_category_name || "";
+          return spec ? (
+            <span className="block max-w-40 truncate text-foreground" title={spec}>
+              {spec}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          );
+        },
+      },
       // The delivery's photograph, between 材料 and 数量 as the client drew
       // it (E3): the arrival photo before the DO's, opened on click.
       photoColumn<MaterialReceipt>({

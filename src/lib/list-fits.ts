@@ -16,7 +16,8 @@ import type { ListFit } from "@/lib/table-fit";
 export const LIST_FITS = {
   /** 材料进场 */
   materialReceipts: {
-    storageKey: "receipts.v5",
+    // `.v6`: 规格 between 材料 and 照片 (J2-1).
+    storageKey: "receipts.v6",
     file: "src/components/receipts/receipts.tsx",
     columns: {
       receipt_no: "recno",
@@ -25,6 +26,7 @@ export const LIST_FITS = {
       acceptance: "status",
       category_name: "text",
       material_name: "name",
+      material_specification: "short",
       cover_photo: "thumb",
       quantity: "number",
       supplier_name: "text",
@@ -34,11 +36,12 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["category_name", "manufacturer_name", "vehicle_plate"],
+    hidden: ["category_name", "manufacturer_name", "vehicle_plate", "delivery_note_no"],
   },
   /** 材料退场 */
   materialOutgoing: {
-    storageKey: "material-outgoing.v3",
+    // `.v4`: 规格 after 材料 (J2-2).
+    storageKey: "material-outgoing.v4",
     file: "src/components/contractor-ops/office-module-lists.tsx",
     columns: {
       reference_no: "recno",
@@ -48,6 +51,7 @@ export const LIST_FITS = {
       category_name: "text",
       captured_at: "datetime",
       material_name: "name",
+      material_specification: "short",
       quantity: "number",
       supplier_name: "text",
       manufacturer_name: "text",
@@ -56,7 +60,7 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["category_name", "manufacturer_name", "project_name"],
+    hidden: ["category_name", "manufacturer_name", "project_name", "executor_name"],
   },
   /** MR 材料申请 */
   materialRequests: {
