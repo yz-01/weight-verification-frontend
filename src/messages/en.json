@@ -6114,7 +6114,8 @@
       "noSupplier": "Not known",
       "spec": "Specification",
       "chooseSpec": "Choose the specification",
-      "specName": "Specification name"
+      "specName": "Specification name",
+      "materialName": "Material name"
     },
     "outgoingStatus": {
       "APPROVED": "Approved / waiting to leave site",
@@ -8537,11 +8538,11 @@
         "confirmHint": "Check against the paper",
         "title": "Materials read from the note",
         "unclassified": "Pick category",
-        "makeColumn": "Make a category",
         "editHint": "Fix any wrong text, pick a category, delete a bad row, then tap Use.",
         "remove": "Remove row",
         "use": "Use",
-        "noUnit": "No unit"
+        "noUnit": "No unit",
+        "useOther": "Use 「其他材料」"
       },
       "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -8580,9 +8581,6 @@
       "columnAuto": "Files under {name}. The office can change it.",
       "columnUnfiledNote": "Not filed yet. The office files it after checking.",
       "noColumnsYet": "This site has no material categories yet. Add the first one below.",
-      "newColumnName": "New category name",
-      "addColumn": "Add category",
-      "columnOffline": "Offline: choose an existing category. A new category needs a connection.",
       "reject": {
         "toggle": "Goods wrong - Reject",
         "help": "Turn this delivery away at the gate. Both sides still sign; it is kept on record and not counted.",
@@ -8605,7 +8603,9 @@
       "chooseSpec": "Choose the specification",
       "specName": "Specification name",
       "specNameHint": "Not on the list? Choose 「Other」 and type it here.",
-      "autoFilledFromSpec": "From the specification"
+      "autoFilledFromSpec": "From the specification",
+      "otherName": "Material name",
+      "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here; the office adds it to the list."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -17468,7 +17468,8 @@
       "materialOrSubject": "Material / subject",
       "stage": "Stage",
       "forwardHistory": "Sent on",
-      "headOfficeReviewer": "Head office approver"
+      "headOfficeReviewer": "Head office approver",
+      "materialName": "Material name"
     },
     "action": {
       "view": "View",
@@ -17549,7 +17550,8 @@
       "contentPlaceholder": "What is needed, how many, when",
       "attachmentKindsHint": "Photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP. Up to {count} files, each under {limit} MB.",
       "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP.",
-      "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office."
+      "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office.",
+      "otherMaterialHint": "「其他材料」: type what the material is."
     },
     "toast": {
       "submitted": "Request submitted.",

@@ -35,6 +35,8 @@ import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { SupplierPicker } from "@/components/shared/supplier-picker";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { correctReceipt, getReceipt } from "@/services/contractor.service";
+import { getProjectCategories } from "@/services/contractor-ops.service";
+import { typedWords } from "@/lib/material-catalogue";
 
 /**
  * The delivery correction form.
@@ -104,6 +106,16 @@ function CorrectReceiptForm({
       ? []
       : [{ value: receipt.unit, label: unitName(receipt.unit, receipt.unit_label) }]),
   ];
+  // The project's materials, as the material picker reads them (same query):
+  // a material from the list names the record (J14-3, 只能从分类管理下拉选).
+  // query-failure: the same query as the material picker above, which says when it fails.
+  const materials = useQuery({
+    queryKey: ["project-categories", "capture", receipt.project ?? "", "MATERIAL"],
+    queryFn: () =>
+      getProjectCategories({ project: receipt.project ?? "", kind: "MATERIAL", is_active: true, page_size: 200 }),
+    enabled: Boolean(receipt.project),
+  });
+  const materialRows = materials.data?.results ?? [];
   const form = useForm({
     defaultValues: {
       project: receipt.project ?? "",
@@ -138,9 +150,17 @@ function CorrectReceiptForm({
 
       // A price left blank means "not recorded", which is a null rather than
       // an empty string the API would read as a malformed decimal.
+      // Typed words only where typing is allowed (J14-3); else the list's.
+      const material = materialRows.find((row) => row.id === value.category);
+      const words = typedWords(material, value.spec_category);
+      const spec = material?.specs?.find((row) => row.id === value.spec_category);
+      // The material left as it was keeps the record's own name: an old
+      // delivery under a general column is not renamed after the column.
+      const sameMaterial = value.category === (receipt.category ?? "");
       const common = {
-        material_name: value.material_name,
-        material_specification: value.material_specification,
+        material_name:
+          words.name || sameMaterial ? value.material_name : (material?.name ?? value.material_name),
+        material_specification: words.spec || !spec ? value.material_specification : spec.name,
         quantity: value.quantity,
         unit: value.unit,
         total_weight_kg: value.total_weight_kg || null,
@@ -285,30 +305,69 @@ function CorrectReceiptForm({
         </FormSection>
 
       <FormSection title={t("receipts.section.material")}>
-        <form.Field
-          name="material_name"
-          validators={{ onSubmit: required(t("validation.required")) }}
+        {/* 只能从分类管理下拉选 (J14-3, Q14-2): the material and specification
+            chosen above name the record; words are typed only under
+            「其他材料」 / 「其他」 (or a material with no specifications). */}
+        <form.Subscribe
+          selector={(state) =>
+            [
+              state.values.category,
+              state.values.spec_category,
+              state.values.material_name,
+              state.values.material_specification,
+            ] as const
+          }
         >
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("receipts.field.materialName")}
-              required
-              className="md:col-span-2"
-            />
-          )}
-        </form.Field>
-
-        <form.Field name="material_specification">
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("receipts.field.materialSpecification")}
-              optional
-              className="md:col-span-2"
-            />
-          )}
-        </form.Field>
+          {([category, specCategory, typedName, typedSpec]) => {
+            const material = materialRows.find((row) => row.id === category);
+            const words = typedWords(material, specCategory);
+            const spec = material?.specs?.find((row) => row.id === specCategory);
+            const shownName = category === (receipt.category ?? "") ? typedName : (material?.name ?? "");
+            return (
+              <>
+                {words.name ? (
+                  <form.Field
+                    name="material_name"
+                    validators={{ onSubmit: required(t("validation.required")) }}
+                  >
+                    {(field) => (
+                      <TextField
+                        field={field as unknown as BoundField}
+                        label={t("receipts.field.materialName")}
+                        required
+                        className="md:col-span-2"
+                      />
+                    )}
+                  </form.Field>
+                ) : (
+                  <ReadField
+                    label={t("receipts.field.materialName")}
+                    value={shownName}
+                    className="md:col-span-2"
+                  />
+                )}
+                {words.spec ? (
+                  <form.Field name="material_specification">
+                    {(field) => (
+                      <TextField
+                        field={field as unknown as BoundField}
+                        label={t("receipts.field.materialSpecification")}
+                        optional
+                        className="md:col-span-2"
+                      />
+                    )}
+                  </form.Field>
+                ) : (
+                  <ReadField
+                    label={t("receipts.field.materialSpecification")}
+                    value={spec?.name ?? typedSpec}
+                    className="md:col-span-2"
+                  />
+                )}
+              </>
+            );
+          }}
+        </form.Subscribe>
 
         <form.Field
           name="quantity"
