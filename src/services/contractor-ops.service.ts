@@ -1364,6 +1364,8 @@ export function getCategoryRecords(query: {
   date_from?: string;
   date_to?: string;
   search?: string;
+  /** J7-5: one specification of the material. */
+  spec_category?: string;
 }): Promise<CategoryRecordPage> {
   return api.get<CategoryRecordPage>("/api/category-records/", query);
 }
