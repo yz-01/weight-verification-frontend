@@ -14,6 +14,8 @@ const TYPES = new Set<ContractorReportType>([
   "daily_report", "progress_summary",
   // The four modules that had no report (I11, ID27).
   "field_tasks", "material_outgoing", "claims", "sundry_claims",
+  // 材料退货记录（RN）and 材料不合格记录 (J29).
+  "material_returns", "material_rejections",
 ]);
 
 export default async function ContractorReportPage({

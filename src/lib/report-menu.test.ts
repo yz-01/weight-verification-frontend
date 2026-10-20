@@ -70,6 +70,9 @@ describe("the report menu's levels (D6 table)", () => {
         "reportSelector.level.subcategory",
       ],
       "/reports/contractor/sundry_claims": "none",
+      // J29: filtered by supplier, material and specification, no levels.
+      "/reports/contractor/material_returns": "none",
+      "/reports/contractor/material_rejections": "none",
       "/reports/contractor/documents": [
         "reportSelector.level.documents",
         "reportSelector.level.documentSubcategory",

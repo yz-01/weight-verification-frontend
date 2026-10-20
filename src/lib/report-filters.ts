@@ -37,6 +37,9 @@ export const REPORT_FILTERS: Record<ContractorReportType, readonly ReportFilterK
   // 分包商 (I10, ID7).
   claims: ["status", "subcontractor"],
   sundry_claims: ["status", "actor"],
+  // 供应商、材料名称、规格 (J29); the period is every report's own.
+  material_returns: ["supplier", "material", "specification"],
+  material_rejections: ["supplier", "material", "specification"],
 };
 
 /** Every filter any report has, for the address (`useListQuery`). */
@@ -67,6 +70,8 @@ const FILTER_COLUMN: Record<ReportFilterKey, string> = {
   target_type: "target_type",
   actor: "actor",
   subcontractor: "subcontractor",
+  material: "material",
+  specification: "specification",
 };
 
 const ACTOR_LABEL: Partial<Record<ContractorReportType, string>> = {
@@ -102,6 +107,9 @@ const NAMED: ReadonlySet<ReportFilterKey> = new Set([
   "counterparty",
   "plan",
   "subcontractor",
+  // Material names and specifications are the words on the records (J29).
+  "material",
+  "specification",
 ]);
 
 /**

@@ -119,6 +119,9 @@ const REPORT_DATE_TIME_COLUMNS = new Set([
   "verified_at",
   "due_at",
   "reviewed_at",
+  // J29: the day a return left, a delivery's own day.
+  "returned_at",
+  "business_at",
 ]);
 
 const REPORT_DATE_ONLY_COLUMNS = new Set([
