@@ -12963,8 +12963,8 @@
       "rejected": "驗收不合格（不算）",
       "supplier": "供應商",
       "noSupplier": "未填供應商",
-      "searchMaterial": "搜尋材料或供應商",
-      "searchEmpty": "找不到「{term}」。可以搜尋材料名稱或供應商名稱。",
+      "searchMaterial": "搜尋材料名稱",
+      "searchEmpty": "找不到「{term}」。",
       "specification": "規格",
       "noteReceived": "送來工地：驗收合格的數量，一直累計。",
       "noteReturned": "退回供應商：後台確認完成的退貨。",
@@ -13010,7 +13010,9 @@
         "open": "打開 {reference}",
         "legacyReturn": "10-02 前在進場單上登記的退場",
         "project": "項目"
-      }
+      },
+      "searchSpec": "規格",
+      "subtotal": "{material} 小計"
     },
     "exportVerdict": "驗收結果",
     "rejectedReturns": "不合格退貨",

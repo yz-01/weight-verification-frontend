@@ -12963,8 +12963,8 @@
       "rejected": "验收不合格（不算）",
       "supplier": "供应商",
       "noSupplier": "未填供应商",
-      "searchMaterial": "搜索材料或供应商",
-      "searchEmpty": "找不到「{term}」。可以搜材料名称或供应商名称。",
+      "searchMaterial": "搜索材料名称",
+      "searchEmpty": "找不到「{term}」。",
       "specification": "规格",
       "noteReceived": "送来工地：验收合格的数量，一直累计。",
       "noteReturned": "退回供应商：后台确认完成的退货。",
@@ -13010,7 +13010,9 @@
         "open": "打开 {reference}",
         "legacyReturn": "10-02 前在进场单上登记的退场",
         "project": "项目"
-      }
+      },
+      "searchSpec": "规格",
+      "subtotal": "{material} 小计"
     },
     "exportVerdict": "验收结果",
     "rejectedReturns": "不合格退货",
