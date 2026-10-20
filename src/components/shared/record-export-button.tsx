@@ -1,11 +1,20 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
 import { FileActionButtons } from "@/components/shared/file-actions";
+import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import { recordTarget } from "@/lib/record-routes";
 import { absoluteUrl } from "@/lib/share";
 import { recordPdfFile, type RecordPdfKind } from "@/services/contractor-ops.service";
+import { listRecordCorrections } from "@/services/record-corrections.service";
+
+/** The kinds whose history can say there is an earlier version (J1-21). */
+const VERSIONED: ReadonlySet<string> = new Set<CorrectionHistoryKind>([
+  "MATERIAL_RECEIPT", "MATERIAL_OUTGOING", "EQUIPMENT_MOVEMENT", "PROGRESS", "HAZARD",
+  "FIELD_TASK", "SUNDRY_CLAIM", "GATE_INCIDENT", "WASTE_OUTGOING", "DISPOSAL_REQUEST",
+]);
 
 /**
  * This one record as a PDF, from the top right of its detail (T-386, D-267):
@@ -46,10 +55,22 @@ export function RecordExportButton({
   href?: string;
 }) {
   const t = useTranslations("fileActions");
+  // The same history the detail's 修改记录 reads (one cached request): a
+  // corrected record also offers its original (J1-21, Q1-6).
+  const versioned = Boolean(recordId) && VERSIONED.has(kind);
+  // query-failure: without the history the latest PDF is still offered; only the original is left out
+  const history = useQuery({
+    // `recordCorrectionsKey`, written out: importing it would close a
+    // loop through the detail shell.
+    queryKey: ["record-corrections", kind, recordId ?? ""],
+    queryFn: () => listRecordCorrections(kind as CorrectionHistoryKind, recordId ?? ""),
+    enabled: versioned,
+  });
   if (!recordId) return null;
   const target = recordTarget(kind, recordId);
   const href = givenHref ?? (target && "href" in target ? target.href : "/");
-  return (
+  const corrected = versioned && (history.data?.corrections?.length ?? 0) > 0;
+  const latest = (
     <FileActionButtons
       label={t("completeEvidence")}
       labelHint={t("completeEvidenceHint")}
@@ -59,5 +80,20 @@ export function RecordExportButton({
         link: absoluteUrl(href),
       }}
     />
+  );
+  if (!corrected) return latest;
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {latest}
+      <FileActionButtons
+        label={t("originalVersion")}
+        labelHint={t("originalVersionHint")}
+        source={{
+          load: () => recordPdfFile(kind, recordId, reference, 1),
+          title: t("originalVersionTitle", { reference }),
+          link: absoluteUrl(href),
+        }}
+      />
+    </div>
   );
 }

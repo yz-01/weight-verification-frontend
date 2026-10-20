@@ -17634,6 +17634,9 @@
     "openInViewer": "Open in the phone's viewer"
   },
   "fileActions": {
+    "originalVersion": "Original (before changes)",
+    "originalVersionHint": "This record as first filed (version 1), under the same number; it counts in no total.",
+    "originalVersionTitle": "{reference} · original",
     "preview": "Preview",
     "print": "Print",
     "save": "Export",

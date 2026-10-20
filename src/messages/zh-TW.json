@@ -17634,6 +17634,9 @@
     "openInViewer": "用手機的閱讀器打開"
   },
   "fileActions": {
+    "originalVersion": "修改前原單",
+    "originalVersionHint": "這筆記錄第一次提交時的樣子（版本 1），同一個編號；不計入任何累計。",
+    "originalVersionTitle": "{reference} · 修改前原單",
     "preview": "預覽",
     "print": "列印",
     "save": "匯出",
