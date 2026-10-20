@@ -482,11 +482,11 @@ export function ViewReceipt({
                   {t("receipts.correction.supersededBody")}
                 </p>
                 <Link
-                  href={`/receipts/${data.superseded_by.id}`}
+                  href={`/receipts/${(data.superseded_by.latest ?? data.superseded_by).id}`}
                   className="mt-1 inline-block font-medium text-primary underline-offset-2 hover:underline"
                 >
                   {t("receipts.correction.supersededLink", {
-                    name: data.superseded_by.receipt_no,
+                    name: (data.superseded_by.latest ?? data.superseded_by).receipt_no,
                   })}
                 </Link>
               </div>

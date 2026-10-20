@@ -633,7 +633,12 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
    * totals, so an old link would otherwise open a receipt that looks entirely
    * current while its figures have been corrected away.
    */
-  superseded_by?: { id: string; receipt_no: string } | null;
+  superseded_by?: {
+    id: string;
+    receipt_no: string;
+    /** The copy that counts now, at the end of the chain (JB1-2). */
+    latest?: { id: string; receipt_no: string };
+  } | null;
   /** From the first record to the one that counts; null when never corrected. */
   correction_trail?: {
     original: { id: string; receipt_no: string; business_at: string };

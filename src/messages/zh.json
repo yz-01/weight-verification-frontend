@@ -7817,7 +7817,7 @@
       "receipt_not_found": "找不到该收货单。",
       "receipt_photo_not_found": "找不到该照片。",
       "receipt_rejection_needs_reason": "请填写退回这批材料的原因。没有原因的退回，现场无从处理。",
-      "receipt_superseded": "这条材料进场记录已被更正记录取代，不能再验收或退回。请打开当前那一条来处理。",
+      "receipt_superseded": "这张材料进场单已经更正过，这张不能再验收、退回、归类或更正。请打开最新那张（{receipt}）来处理。",
       "record_not_found": "这条记录不在你这个账号的范围内。",
       "refresh_token_required": "登录状态无法续期，请重新登录。",
       "report_export_file_altered": "这份存档文件和生成时记录的指纹（SHA-256）不一致，系统不会把它当作原件打开。请联系管理员。",
@@ -12751,6 +12751,9 @@
     "archived": "已归档",
     "correction": {
       "action": "更正",
+      "alreadyCorrectedBody": "更正一律在最新那张上做，算数的数字才不会分成两条。请到最新那张（{name}）再改。",
+      "alreadyCorrectedLink": "去更正 {name}",
+      "alreadyCorrectedTitle": "这张收货单已经更正过",
       "note": "更正会新开一张收货单，并指回原来那一张。两张都保留 —— 以后有人来查，能看到改了什么、为什么改。",
       "reason": "更正原因",
       "supersededBody": "它保留下来，是为了原来的数字还查得到；但它不再计入你的送货记录和材料统计。",
