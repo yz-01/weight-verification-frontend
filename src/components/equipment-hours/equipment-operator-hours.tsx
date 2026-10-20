@@ -1,13 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, Hash, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound } from "lucide-react";
+import { Eye, Hash, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { matchScannedMachine } from "@/components/equipment-hours/equipment-hours-capture";
 import { OperatorDialog, OperatorHistory } from "@/components/equipment-hours/equipment-session-operator";
+import { DriverClockLinksDialog } from "@/components/equipment-hours/driver-clock-links";
 import { EquipmentSiteNumbersDialog } from "@/components/equipment-hours/equipment-site-numbers";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { ExportButton } from "@/components/shared/export-button";
@@ -218,6 +219,8 @@ export function EquipmentOperatorHours() {
   const [month, setMonth] = useState<string | null>(null);
   const [opened, setOpened] = useState<EquipmentHoursSession | null>(null);
   const [numbering, setNumbering] = useState(false);
+  // 司机打卡链接 (J26): the drivers' own clock-in links.
+  const [driverLinks, setDriverLinks] = useState(false);
   // 操作人员 / CIDB 卡号 being written for this row (I4, ID19).
   const [naming, setNaming] = useState<EquipmentHoursSession | null>(null);
   // 「设备编号 / 扫描二维码」 in the filters (I4): a webcam or a scanner gun.
@@ -345,6 +348,12 @@ export function EquipmentOperatorHours() {
                 <Button variant="outline" onClick={() => setNumbering(true)}>
                   <Hash />
                   {t("siteNo.open")}
+                </Button>
+              )}
+              {canAdjust && (
+                <Button variant="outline" onClick={() => setDriverLinks(true)}>
+                  <Link2 />
+                  {tRoot("driverClock.office.title")}
                 </Button>
               )}
               {view === "day" && canExport && (
@@ -772,6 +781,10 @@ export function EquipmentOperatorHours() {
 
       {numbering && (
         <EquipmentSiteNumbersDialog project={project} onClose={() => setNumbering(false)} />
+      )}
+
+      {driverLinks && (
+        <DriverClockLinksDialog project={project} onClose={() => setDriverLinks(false)} />
       )}
 
       {opened && (

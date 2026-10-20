@@ -7943,9 +7943,9 @@
       "original_not_expected": "服务器上还没有这张原图对应的照片，请先让记录上传完成。",
       "original_hash_mismatch": "原图在传送中出错，和手机上的不一致，服务器没有保存。系统会再试；也可以在技术管理页面重试。",
       "original_not_found": "这张照片没有已备份的原图。",
-      "driver_link_invalid": "链接已失效，请联系回收商重新发送。",
-      "driver_link_closed": "这趟任务已结束，链接已关闭。",
-      "driver_link_other_device": "这个链接已在另一部手机上使用，请联系回收商重新发送。",
+      "driver_link_invalid": "这个链接已经无效，请工地办公室重新发送。",
+      "driver_link_closed": "这个链接已经停用，请联络工地办公室。",
+      "driver_link_other_device": "这个链接已经在另一支手机使用。",
       "driver_link_expired": "链接已失效，请联系回收商重新发送。",
       "driver_login_retired": "司机不用登录了，请打开回收商发给你的任务链接。",
       "document_system_files_mixed_projects": "选的文件来自不同项目。一份档案只属于一个项目，请只选同一个项目的文件。",
@@ -8028,7 +8028,13 @@
       "sign_off_office_only": "请在电脑后台操作。手机端不能做这一步。",
       "sign_off_pin_locked": "签核密码输错 5 次，已锁定。请 {minutes} 分钟后再试，或用账号密码重新设定。",
       "equipment_hours_same_machine": "这笔工时已经是这台设备的。",
-      "equipment_hours_overlap": "那台设备在这段时间已经有工时，同一段时间不能重复算。"
+      "equipment_hours_overlap": "那台设备在这段时间已经有工时，同一段时间不能重复算。",
+      "equipment_hours_equipment_gone": "这部设备已经离场，不能再打卡。",
+      "equipment_hours_no_gps": "没有准确的定位。请到户外开定位再试。",
+      "equipment_hours_outside_fence": "你不在工地范围内，请在工地打卡。",
+      "equipment_hours_no_fence": "项目还没设电子围栏，请联络工地办公室。",
+      "driver_link_not_confirmed": "请先确认你的电话号码。",
+      "driver_link_phone_mismatch": "这个号码和工地办公室登记的不一样。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -18872,5 +18878,66 @@
     "label": "规格",
     "all": "全部规格",
     "materialFirst": "先选材料"
+  },
+  "driverClock": {
+    "title": "设备打卡",
+    "failedTitle": "链接打不开，请检查网络再试一次。",
+    "phoneTitle": "确认你的电话号码",
+    "phoneLabel": "你的手机号码",
+    "phoneBody": "工地办公室登记的号码。确认后，这个链接只能在这支手机使用。",
+    "phoneConfirm": "确认",
+    "phoneMismatch": "这个号码和工地办公室登记的不一样。",
+    "driverLine": "司机：{name} · CIDB {cidb} · {company}",
+    "photoHint": "扫设备二维码，拍设备或自己的照片，签名后提交。必须在工地范围内，并打开定位。",
+    "ended": {
+      "invalid": {
+        "title": "这个链接已经无效",
+        "body": "请工地办公室重新发送。"
+      },
+      "closed": {
+        "title": "这个链接已经停用",
+        "body": "如果你还在这个工地工作，请联络工地办公室。"
+      },
+      "otherDevice": {
+        "title": "这个链接已经在另一支手机使用",
+        "body": "请工地办公室为这支手机重新发送。"
+      }
+    },
+    "status": {
+      "NOT_OPENED": "还没打开",
+      "IN_USE": "使用中",
+      "STOPPED": "已停用"
+    },
+    "toast": {
+      "created": "链接已建立",
+      "reissued": "已建立新链接，旧链接不能再用",
+      "stopped": "链接已停用"
+    },
+    "office": {
+      "title": "司机打卡链接",
+      "help": "每位司机一个专属链接，打开只看到本项目设备的开工 / 收工打卡。用 WhatsApp 发给司机；司机离开项目就停用。",
+      "add": "新增司机链接",
+      "empty": "还没有司机链接。",
+      "driverName": "司机姓名",
+      "cidb": "CIDB 卡号码",
+      "company": "所属公司",
+      "companyHint": "从供应商名单选，或在下面填写。",
+      "companyTyped": "名单里没有（手填）",
+      "companyName": "公司名称",
+      "phone": "手机号码",
+      "phoneHint": "司机第一次打开链接时要确认这个号码。",
+      "make": "建立链接",
+      "cancel": "取消",
+      "close": "关闭",
+      "linkFor": "{name} 的链接",
+      "shownOnce": "请现在复制：链接只显示这一次。重新发送会建立新链接。",
+      "copy": "复制链接",
+      "copied": "已复制",
+      "sendAgain": "重新发送",
+      "stop": "停用",
+      "lastUsed": "最近使用 {at}",
+      "failed": "保存没有成功，请再试一次。",
+      "chooseProject": "先在页面上方选一个项目，才能新增链接。"
+    }
   }
 }

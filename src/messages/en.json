@@ -7943,9 +7943,9 @@
       "original_not_expected": "The server has no photo waiting for this original yet. Let the record finish uploading first.",
       "original_hash_mismatch": "The original was damaged on the way and does not match the one on the phone, so nothing was saved. The system tries again; it can also be retried on the Technical management page.",
       "original_not_found": "This photo has no backed-up original.",
-      "driver_link_invalid": "This link no longer works. Ask the recycler to send it again.",
-      "driver_link_closed": "This trip is finished and its link is closed.",
-      "driver_link_other_device": "This link is in use on another phone. Ask the recycler to send it again.",
+      "driver_link_invalid": "This link is not valid any more. Ask the site office to send it again.",
+      "driver_link_closed": "This link has been stopped. Ask the site office.",
+      "driver_link_other_device": "This link is already in use on another phone.",
       "driver_link_expired": "This link no longer works. Ask the recycler to send it again.",
       "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you.",
       "document_system_files_mixed_projects": "These files come from different projects. A document belongs to one project, so pick files from one project only.",
@@ -8028,7 +8028,13 @@
       "sign_off_office_only": "Please do this in the office back office, on a computer. The phone cannot do this step.",
       "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with your account password.",
       "equipment_hours_same_machine": "These hours are already that machine's.",
-      "equipment_hours_overlap": "That machine already has hours at this time. The same time cannot be counted twice."
+      "equipment_hours_overlap": "That machine already has hours at this time. The same time cannot be counted twice.",
+      "equipment_hours_equipment_gone": "This machine has left the site; it cannot be clocked any more.",
+      "equipment_hours_no_gps": "No precise location. Go outdoors, turn on location and try again.",
+      "equipment_hours_outside_fence": "You are outside the site's area. Clock in on site.",
+      "equipment_hours_no_fence": "The site's area has not been set up yet. Contact the site office.",
+      "driver_link_not_confirmed": "Confirm your phone number first.",
+      "driver_link_phone_mismatch": "This phone number does not match the one the site office registered."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -18872,5 +18878,66 @@
     "label": "Specification",
     "all": "All specifications",
     "materialFirst": "Choose the material first"
+  },
+  "driverClock": {
+    "title": "Equipment clock-in",
+    "failedTitle": "Could not open the link. Check the signal and try again.",
+    "phoneTitle": "Confirm your phone number",
+    "phoneLabel": "Your mobile number",
+    "phoneBody": "The number the site office registered for you. This link then works only on this phone.",
+    "phoneConfirm": "Confirm",
+    "phoneMismatch": "This number does not match the one the site office registered.",
+    "driverLine": "Driver: {name} · CIDB {cidb} · {company}",
+    "photoHint": "Scan the machine's QR code, then take a photo of the machine or of yourself, sign and send. You must be on site with location on.",
+    "ended": {
+      "invalid": {
+        "title": "This link is not valid any more",
+        "body": "Ask the site office to send it again."
+      },
+      "closed": {
+        "title": "This link has been stopped",
+        "body": "Ask the site office if you still work on this site."
+      },
+      "otherDevice": {
+        "title": "This link is in use on another phone",
+        "body": "Ask the site office to send it again for this phone."
+      }
+    },
+    "status": {
+      "NOT_OPENED": "Not opened yet",
+      "IN_USE": "In use",
+      "STOPPED": "Stopped"
+    },
+    "toast": {
+      "created": "Link made",
+      "reissued": "New link made; the old one no longer works",
+      "stopped": "Link stopped"
+    },
+    "office": {
+      "title": "Driver links",
+      "help": "One link per driver: it opens only start / stop clock-in for this project's machines. Send it by WhatsApp. Stop it when the driver leaves the project.",
+      "add": "New driver link",
+      "empty": "No driver links yet.",
+      "driverName": "Driver name",
+      "cidb": "CIDB card no.",
+      "company": "Company",
+      "companyHint": "Choose from the supplier list, or type it below.",
+      "companyTyped": "Not on the list (type it)",
+      "companyName": "Company name",
+      "phone": "Mobile number",
+      "phoneHint": "The driver confirms this number the first time the link is opened.",
+      "make": "Make link",
+      "cancel": "Cancel",
+      "close": "Close",
+      "linkFor": "Link for {name}",
+      "shownOnce": "Copy it now: it is shown only this once. Sending again makes a new one.",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "sendAgain": "Send again",
+      "stop": "Stop",
+      "lastUsed": "Last used {at}",
+      "failed": "Could not save. Please try again.",
+      "chooseProject": "Choose a project at the top of the page to make a link."
+    }
   }
 }
