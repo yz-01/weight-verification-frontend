@@ -18037,7 +18037,9 @@
       "startTime": "Masa mula",
       "endTime": "Masa tamat",
       "view": "Lihat",
-      "takenOn": "Difoto pada"
+      "takenOn": "Difoto pada",
+      "normalHours": "Jam biasa (j)",
+      "overtimeHours": "Jam lebih masa (j)"
     },
     "status": {
       "MISSING_END": "Tiada foto tamat",
@@ -18095,7 +18097,8 @@
       "siteNoSaved": "Nombor peralatan disimpan",
       "siteNoCleared": "Nombor peralatan dikosongkan",
       "operatorSaved": "Pengendali disimpan",
-      "moved": "Jam dipindahkan ke mesin lain"
+      "moved": "Jam dipindahkan ke mesin lain",
+      "normalSaved": "Jam biasa disimpan"
     },
     "phone": {
       "howTo": "Imbas QR pada mesin → foto → pemandu tandatangan → hantar. Kemudian imbas yang seterusnya.",
@@ -18188,6 +18191,15 @@
       "reasonPlaceholder": "Contoh: pemandu mengimbas kod jengkaut tetapi memandu kren",
       "save": "Tukar mesin",
       "failed": "Tidak dapat menukar mesin. Sila cuba lagi."
+    },
+    "normal": {
+      "open": "Jam biasa: {hours} j",
+      "title": "Jam biasa sehari",
+      "help": "Jam pertama setiap pengendali dalam sehari dikira biasa dan bakinya lebih masa; mesin tanpa pengendali, mengikut mesin. Hari ialah hari mula. Perubahan dikira untuk sesi yang tamat selepasnya; sesi lebih awal kekal seperti diselesaikan.",
+      "label": "Jam biasa sehari",
+      "save": "Simpan",
+      "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
+      "current": "Ditetapkan {at} oleh {name}"
     }
   },
   "theme": {

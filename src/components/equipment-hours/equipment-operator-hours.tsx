@@ -9,6 +9,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { matchScannedMachine } from "@/components/equipment-hours/equipment-hours-capture";
 import { OperatorDialog, OperatorHistory } from "@/components/equipment-hours/equipment-session-operator";
 import { DriverClockLinksDialog } from "@/components/equipment-hours/driver-clock-links";
+import { EquipmentNormalHoursButton } from "@/components/equipment-hours/equipment-normal-hours";
 import { EquipmentSiteNumbersDialog } from "@/components/equipment-hours/equipment-site-numbers";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { ExportButton } from "@/components/shared/export-button";
@@ -300,6 +301,8 @@ export function EquipmentOperatorHours() {
           { key: "work_date", label: t("field.date") },
           { key: "start_at", label: t("field.startTime") },
           { key: "end_at", label: t("field.endTime") },
+          { key: "normal_hours", label: t("field.normalHours") },
+          { key: "overtime_hours", label: t("field.overtimeHours") },
           { key: "hours", label: t("field.hours") },
           { key: "cumulative_hours", label: t("field.cumulative") },
           { key: "equipment_code", label: t("field.code") },
@@ -350,6 +353,10 @@ export function EquipmentOperatorHours() {
                   {t("siteNo.open")}
                 </Button>
               )}
+              {/* 每日正常工时 (J31): one project's own setting. */}
+              {canAdjust && projectFilterValue(project) ? (
+                <EquipmentNormalHoursButton project={projectFilterValue(project)} />
+              ) : null}
               {canAdjust && (
                 <Button variant="outline" onClick={() => setDriverLinks(true)}>
                   <Link2 />
@@ -379,6 +386,8 @@ export function EquipmentOperatorHours() {
                         { key: "project_name", label: t("field.project") },
                         { key: "days_worked", label: t("field.daysWorked") },
                         { key: "session_count", label: t("field.sessions") },
+                        { key: "normal_hours", label: t("field.normalHours") },
+                        { key: "overtime_hours", label: t("field.overtimeHours") },
                         { key: "total_hours", label: t("field.totalHours") },
                         { key: "incomplete_count", label: t("field.incomplete") },
                         { key: "adjusted_count", label: t("field.adjustedCount") },
@@ -565,6 +574,9 @@ export function EquipmentOperatorHours() {
                 <TableHead>{t("field.date")}</TableHead>
                 <TableHead>{t("field.startTime")}</TableHead>
                 <TableHead>{t("field.endTime")}</TableHead>
+                {/* 正常 / 超时 (J31), each its own colour, then the total. */}
+                <TableHead className="tabular text-right">{t("field.normalHours")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.overtimeHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.hours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.cumulative")}</TableHead>
                 <TableHead pin="end" className="text-right">{t("field.view")}</TableHead>
@@ -573,13 +585,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={13} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={13} className="h-20 text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
@@ -649,6 +661,10 @@ export function EquipmentOperatorHours() {
                         )}
                       </TableCell>
                       {/* Blank, not 0, while an end is missing (「未收工的时间及工时留空」). */}
+                      <TableCell className={cn("tabular text-right", NORMAL_CLASS)}>{row.normal_hours ?? ""}</TableCell>
+                      <TableCell className={cn("tabular text-right", OVERTIME_CLASS)}>
+                        {row.overtime_hours ?? ""}
+                      </TableCell>
                       <TableCell className="tabular text-right font-medium">{row.hours ?? ""}</TableCell>
                       <TableCell className="tabular text-right text-muted-foreground">
                         {row.cumulative_hours ?? ""}
@@ -692,6 +708,12 @@ export function EquipmentOperatorHours() {
                     <TableCell />
                     <TableCell />
                     <TableCell />
+                    <TableCell className={cn("tabular text-right font-semibold", NORMAL_CLASS)}>
+                      {sumHours(rows, "normal_hours")}
+                    </TableCell>
+                    <TableCell className={cn("tabular text-right font-semibold", OVERTIME_CLASS)}>
+                      {sumHours(rows, "overtime_hours")}
+                    </TableCell>
                     <TableCell className="tabular text-right font-semibold">
                       {days.data?.total_hours ?? ""}
                     </TableCell>
@@ -715,6 +737,8 @@ export function EquipmentOperatorHours() {
                 <TableHead>{t("field.plate")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.daysWorked")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.sessions")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.normalHours")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.overtimeHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.totalHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.incomplete")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.adjustedCount")}</TableHead>
@@ -723,13 +747,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {monthly.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : monthRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
                     {t("month.empty")}
                   </TableCell>
                 </TableRow>
@@ -748,6 +772,8 @@ export function EquipmentOperatorHours() {
                       <TableCell>{row.plate || "-"}</TableCell>
                       <TableCell className="tabular text-right">{row.days_worked}</TableCell>
                       <TableCell className="tabular text-right">{row.session_count}</TableCell>
+                      <TableCell className={cn("tabular text-right", NORMAL_CLASS)}>{row.normal_hours ?? ""}</TableCell>
+                      <TableCell className={cn("tabular text-right", OVERTIME_CLASS)}>{row.overtime_hours ?? ""}</TableCell>
                       <TableCell className="tabular text-right font-medium">{row.total_hours}</TableCell>
                       <TableCell className="tabular text-right">
                         {row.incomplete_count > 0 ? (
@@ -766,6 +792,12 @@ export function EquipmentOperatorHours() {
                     <TableCell />
                     <TableCell className="text-right" />
                     <TableCell className="text-right" />
+                    <TableCell className={cn("tabular text-right font-semibold", NORMAL_CLASS)}>
+                      {sumHours(monthRows, "normal_hours")}
+                    </TableCell>
+                    <TableCell className={cn("tabular text-right font-semibold", OVERTIME_CLASS)}>
+                      {sumHours(monthRows, "overtime_hours")}
+                    </TableCell>
                     <TableCell className="tabular text-right font-semibold">
                       {monthly.data?.total_hours}
                     </TableCell>
@@ -784,7 +816,7 @@ export function EquipmentOperatorHours() {
       )}
 
       {driverLinks && (
-        <DriverClockLinksDialog project={project} onClose={() => setDriverLinks(false)} />
+        <DriverClockLinksDialog project={projectFilterValue(project)} onClose={() => setDriverLinks(false)} />
       )}
 
       {opened && (
@@ -821,6 +853,22 @@ export function EquipmentOperatorHours() {
       />
     </div>
   );
+}
+
+/**
+ * 正常工时 / 超时工时 (J31): blue and orange - never gold (that is 已修改) and
+ * never red. The totals and the month keep the same two colours.
+ */
+export const NORMAL_CLASS = "text-tone-blue-fg";
+export const OVERTIME_CLASS = "text-tone-orange-fg";
+
+/** A column's total over the rows shown, two decimals; blank when nothing counts. */
+export function sumHours(
+  rows: ReadonlyArray<Partial<Record<"normal_hours" | "overtime_hours", string | null>>>,
+  key: "normal_hours" | "overtime_hours",
+): string {
+  const cents = rows.reduce((total, row) => total + Math.round(Number(row[key] ?? 0) * 100), 0);
+  return rows.some((row) => row[key] != null) ? (cents / 100).toFixed(2) : "";
 }
 
 /** The words on the button that opens the office's time form. */
@@ -1011,6 +1059,15 @@ export function DayDialog({
                 {day.adjusted && <StatusBadge label={t("status.ADJUSTED")} tone="info" />}
               </span>
             ),
+          },
+          // 正常 / 超时 (J31), settled when the session ended.
+          {
+            label: t("field.normalHours"),
+            value: <span className={cn("tabular-nums", NORMAL_CLASS)}>{day.normal_hours ?? "-"}</span>,
+          },
+          {
+            label: t("field.overtimeHours"),
+            value: <span className={cn("tabular-nums", OVERTIME_CLASS)}>{day.overtime_hours ?? "-"}</span>,
           },
           { label: t("field.hours"), value: <span className="tabular-nums">{day.hours ?? "-"}</span> },
         ]}
