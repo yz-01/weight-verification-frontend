@@ -177,7 +177,7 @@ import {
 } from "@/services/contractor.service";
 import { getRoles } from "@/services/users.service";
 import { MaterialSpecsEditor } from "@/components/contractor-ops/material-specs-editor";
-import { offeredSpecs, specChoice } from "@/lib/material-catalogue";
+import { isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import { OutgoingSupplierField } from "@/components/contractor-ops/outgoing-supplier-field";
 import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/return-note";
 import {
@@ -4349,7 +4349,7 @@ export function OutgoingDialog({
   const specPick = specChoice(selected, form.spec_category ?? "");
   const specRequired = specs.length > 0;
   // 「其他材料」 (J14-3, 只能从分类管理下拉选): the one material typed by name.
-  const typedMaterial = Boolean(selected?.is_other && !selected.parent);
+  const typedMaterial = isOtherMaterial(selected);
   const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
   const unit = specPick.unitLocked ? specPick.unit : fill.unitLocked && !specPick.typed ? fill.unit : form.unit;
   const units = useMaterialUnits();

@@ -48,7 +48,7 @@ import {
   type MaterialRequest,
   type MaterialRequestType,
 } from "@/interfaces/material-request";
-import { categoryManagementLink, offeredSpecs, specChoice } from "@/lib/material-catalogue";
+import { categoryManagementLink, isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import {
   createMaterialRequest,
   getMaterialCatalogue,
@@ -178,7 +178,7 @@ export function MaterialRequestForm({
           ? {
               category,
               spec_category: spec,
-              ...(material?.is_other ? { material_name: typedMaterial.trim() } : {}),
+              ...(isOtherMaterial(material) ? { material_name: typedMaterial.trim() } : {}),
               quantity,
               ...(choice.typed ? { specification: typedSpec.trim(), unit } : {}),
               manufacturer: manufacturer || undefined,
@@ -204,7 +204,7 @@ export function MaterialRequestForm({
         [project, t("field.project")],
         [requestKind, t("field.requestType")],
         [category, t("field.material")],
-        ...(material?.is_other ? ([[typedMaterial.trim(), t("field.materialName")]] as [unknown, string][]) : []),
+        ...(isOtherMaterial(material) ? ([[typedMaterial.trim(), t("field.materialName")]] as [unknown, string][]) : []),
         [spec, t("field.specification")],
         ...(choice.typed ? ([[typedSpec.trim(), t("field.specificationName")]] as [unknown, string][]) : []),
         [quantityOk, t("field.quantity")],
@@ -353,7 +353,7 @@ export function MaterialRequestForm({
               {notSetUp}
             </div>
           )}
-          {material?.is_other && (
+          {isOtherMaterial(material) && (
             <FieldWrapper label={t("field.materialName")} required hint={t("form.otherMaterialHint")}>
               <Input value={typedMaterial} maxLength={150} onChange={(event) => setTypedMaterial(event.target.value)} />
             </FieldWrapper>

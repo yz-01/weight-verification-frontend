@@ -83,7 +83,7 @@ import {
 import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { columnAutofill } from "@/lib/material-autofill";
-import { offeredSpecs, specChoice } from "@/lib/material-catalogue";
+import { isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import {
   getQRCodes,
   getSuppliers,
@@ -507,7 +507,7 @@ export function MaterialCapturePanel({
    * the project's fixed 「其他材料」 with its name typed, and the office puts
    * it on the list in Category Management.
    */
-  const otherMaterial = columnRows.find((row) => row.is_other && !row.parent && row.can_upload);
+  const otherMaterial = columnRows.find((row) => isOtherMaterial(row) && row.can_upload);
   const fileUnderOther = (name: string, index?: number) => {
     if (!otherMaterial) return;
     setDraft((old) => ({ ...withColumn(old, otherMaterial.id), materialName: name }));
@@ -676,7 +676,7 @@ export function MaterialCapturePanel({
           // The material's own name (I19, ID46): nobody types it at the gate.
           // Under 「其他材料」 the name typed for it (J14-3).
           material_name:
-            selectedColumn && !(selectedColumn.is_other && !selectedColumn.parent)
+            selectedColumn && !isOtherMaterial(selectedColumn)
               ? selectedColumn.name
               : draft.materialName.trim(),
           material_specification: specPick.typed
@@ -773,7 +773,7 @@ export function MaterialCapturePanel({
         {draft.project && columns.isSuccess && !columnRows.length && <p className="text-sm text-muted-foreground">{t("material.noColumnsYet")}</p>}
       </FieldWrapper>
       {/* 「其他材料」 (J14-3): the one material whose name is typed. */}
-      {selectedColumn?.is_other && !selectedColumn.parent && (
+      {isOtherMaterial(selectedColumn) && (
         <FieldWrapper label={t("material.otherName")} required hint={t("material.otherNameHint")}>
           <Input
             className="h-12"
@@ -1103,7 +1103,7 @@ export function MaterialCapturePanel({
         )}
       </div>
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!(selectedColumn?.is_other && !selectedColumn.parent) || draft.materialName.trim(), t("material.otherName")], [!specRequired || draft.specCategory, t("material.spec")], [!specPick.typed || draft.materialSpecification.trim(), t("material.specName")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!isOtherMaterial(selectedColumn) || draft.materialName.trim(), t("material.otherName")], [!specRequired || draft.specCategory, t("material.spec")], [!specPick.typed || draft.materialSpecification.trim(), t("material.specName")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>
