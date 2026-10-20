@@ -18037,7 +18037,9 @@
       "startTime": "開工時間",
       "endTime": "收工時間",
       "view": "查看",
-      "takenOn": "拍照時掃的設備"
+      "takenOn": "拍照時掃的設備",
+      "normalHours": "正常工時（小時）",
+      "overtimeHours": "超時工時（小時）"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -18095,7 +18097,8 @@
       "siteNoSaved": "設備號碼已保存",
       "siteNoCleared": "設備號碼已清除",
       "operatorSaved": "操作人員已儲存",
-      "moved": "工時已移到另一台設備"
+      "moved": "工時已移到另一台設備",
+      "normalSaved": "正常工時已保存"
     },
     "phone": {
       "howTo": "掃設備上的二維碼 → 拍照 → 司機簽名 → 提交。提交後可以接著掃下一部。",
@@ -18188,6 +18191,15 @@
       "reasonPlaceholder": "例如：司機掃了挖掘機的碼，其實開的是吊車",
       "save": "改設備",
       "failed": "改設備沒有成功，請再試一次。"
+    },
+    "normal": {
+      "open": "正常工時：每天 {hours} 小時",
+      "title": "每日正常工時",
+      "help": "每位操作人員每天前面的工時算正常，超過的算超時；沒有操作人員的按設備算。跨天的算開工那天。改了只影響之後收工結算的工時，之前已結算的不變。",
+      "label": "每天正常工時（小時）",
+      "save": "保存",
+      "failed": "保存沒有成功，請再試一次。",
+      "current": "{name} 於 {at} 設定"
     }
   },
   "theme": {

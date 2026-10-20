@@ -18037,7 +18037,9 @@
       "startTime": "Start time",
       "endTime": "Stop time",
       "view": "View",
-      "takenOn": "Photographed on"
+      "takenOn": "Photographed on",
+      "normalHours": "Normal hours (h)",
+      "overtimeHours": "Overtime hours (h)"
     },
     "status": {
       "MISSING_END": "No stop photo",
@@ -18095,7 +18097,8 @@
       "siteNoSaved": "Equipment number saved",
       "siteNoCleared": "Equipment number cleared",
       "operatorSaved": "Operator saved",
-      "moved": "Hours moved to the other machine"
+      "moved": "Hours moved to the other machine",
+      "normalSaved": "Normal hours saved"
     },
     "phone": {
       "howTo": "Scan the QR on the machine → photo → driver signs → send. Then scan the next one.",
@@ -18188,6 +18191,15 @@
       "reasonPlaceholder": "For example: the driver scanned the excavator's code but drove the crane",
       "save": "Change machine",
       "failed": "Could not change the machine. Please try again."
+    },
+    "normal": {
+      "open": "Normal hours: {hours} h",
+      "title": "Daily normal hours",
+      "help": "Each operator's first hours of a day count as normal and the rest as overtime; a machine with no operator, per machine. The day is the start's day. A change counts for sessions that end after it; earlier ones stay as they were settled.",
+      "label": "Normal hours a day",
+      "save": "Save",
+      "failed": "Could not save. Please try again.",
+      "current": "Set {at} by {name}"
     }
   },
   "theme": {

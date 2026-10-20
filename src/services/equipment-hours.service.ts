@@ -258,3 +258,25 @@ export function exportEquipmentHoursMonth(request: ExportRequest): Promise<void>
     fallbackFilename: `equipment-hours-month.${request.format}`,
   });
 }
+
+/** 每日正常工时 of a project (J31): in force now, 8 when none is set. */
+export interface EquipmentNormalHours {
+  project: string;
+  daily_hours: string;
+  set_at: string | null;
+  set_by_name?: string;
+}
+
+export function getEquipmentNormalHours(project: string): Promise<EquipmentNormalHours> {
+  return api.get<EquipmentNormalHours>("/api/equipment-hours/get_normal_hours/", { project });
+}
+
+/** Change it from now on; sessions that ended before keep their settlement. */
+export async function setEquipmentNormalHours(project: string, dailyHours: string): Promise<EquipmentNormalHours> {
+  const saved = await api.post<EquipmentNormalHours>("/api/equipment-hours/set_normal_hours/", {
+    project,
+    daily_hours: dailyHours,
+  });
+  toastSuccess("equipmentHours.toast.normalSaved");
+  return saved;
+}

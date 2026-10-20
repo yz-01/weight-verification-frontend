@@ -118,6 +118,9 @@ export interface EquipmentHoursSession extends RecordedBy {
    * is missing - blank, not 0 (2026-10 I4: 「未收工的时间及工时留空」).
    */
   hours: string | null;
+  /** 正常工时 / 超时工时 (J31): settled when the session ended; null while an end is missing. */
+  normal_hours?: string | null;
+  overtime_hours?: string | null;
   /** 累计工时 down the rows shown, in the table's order. */
   cumulative_hours?: string | null;
   photo_count: number;
@@ -149,6 +152,8 @@ export interface EquipmentHoursMachineTotal {
   equipment_code: string;
   site_no: string;
   session_count: number;
+  normal_hours?: string;
+  overtime_hours?: string;
   total_hours: string;
   incomplete_count: number;
 }
@@ -175,6 +180,9 @@ export interface EquipmentHoursMonthRow {
   project_name: string;
   days_worked: number;
   session_count: number;
+  /** J31: the month's normal and overtime hours. */
+  normal_hours?: string;
+  overtime_hours?: string;
   total_hours: string;
   /** Sessions still missing a start or an end. */
   incomplete_count: number;
