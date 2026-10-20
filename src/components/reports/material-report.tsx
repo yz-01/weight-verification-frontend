@@ -47,6 +47,7 @@ import {
 import { PAGE_SIZE_OPTIONS, useListQuery } from "@/hooks/use-list-query";
 import { type MaterialReceipt } from "@/interfaces/contractor";
 import { ManufacturerCell, anyNamedManufacturer } from "@/components/shared/manufacturer-picker";
+import { SpecFilterSelect } from "@/components/shared/spec-filter";
 import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
@@ -247,6 +248,15 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
           onChange={(category) => list.setFilters({ category, spec_category: undefined })}
           loading={columns.isLoading}
         />
+        {/* 规格 (J2-3, Q2-2): one specification of the chosen material. */}
+        <FilterField label={t("specFilter.label")} className="sm:w-44">
+          <SpecFilterSelect
+            material={columns.data?.results.find((row) => row.id === list.filters.category)}
+            value={list.filters.spec_category}
+            onChange={(spec) => list.setFilter("spec_category", spec)}
+            className="sm:w-full"
+          />
+        </FilterField>
         <FilterField label={t("receipts.field.manufacturer")} className="sm:w-52">
           <SupplierDateFilter
             value={{ manufacturer: list.filters.manufacturer }}

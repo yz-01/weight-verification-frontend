@@ -18861,5 +18861,10 @@
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
     "firstHelp": "Pilih enam digit yang hanya anda tahu, taip sekali lagi, kemudian masukkan kata laluan log masuk anda. Setelah ditetapkan, tindakan tadi diteruskan; operasi pejabat yang penting disahkan dengan PIN ini mulai sekarang."
+  },
+  "specFilter": {
+    "label": "Spesifikasi",
+    "all": "Semua spesifikasi",
+    "materialFirst": "Pilih bahan dahulu"
   }
 }

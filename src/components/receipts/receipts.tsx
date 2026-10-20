@@ -15,6 +15,7 @@ import { photoColumn, recordPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { SpecFilterSelect } from "@/components/shared/spec-filter";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -505,6 +506,8 @@ export function Receipts() {
                 list.setFilters({
                   category: value === ALL_COLUMNS || value === UNFILED ? undefined : value,
                   uncategorised: value === UNFILED ? "true" : undefined,
+                  // A specification belongs to its material.
+                  spec_category: undefined,
                 })
               }
             >
@@ -518,6 +521,12 @@ export function Receipts() {
                 <CategoryOptionItems rows={categories.data?.results ?? []} groupsSelectable />
               </SelectContent>
             </Select>
+            {/* 规格 (J2-3, Q2-2): one specification of the chosen material. */}
+            <SpecFilterSelect
+              material={(categories.data?.results ?? []).find((row) => row.id === list.filters.category)}
+              value={list.filters.spec_category}
+              onChange={(spec) => list.setFilter("spec_category", spec)}
+            />
             <QueryFailedNote query={categories} what={t("receipts.what.columns")} />
             {/* By the delivery's own state (T-293, T-295). 已结案 is accepted,
                 because acceptance is what closes a receipt - not payment. */}

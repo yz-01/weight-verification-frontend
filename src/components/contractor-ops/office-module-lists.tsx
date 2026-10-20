@@ -489,7 +489,7 @@ export function MaterialOutgoingOffice() {
         toolbar={
           <>
             <ProjectListFilter list={list} />
-            <ColumnFilter list={list} kind="MATERIAL" />
+            <ColumnFilter list={list} kind="MATERIAL" withSpecs />
             <FilterSelect
               list={list}
               param="status"

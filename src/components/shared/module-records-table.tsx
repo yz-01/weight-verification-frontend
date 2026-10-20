@@ -47,6 +47,7 @@ import { cn } from "@/lib/utils";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import { CategoryOptionItems } from "@/components/shared/category-options";
+import { SpecFilterSelect } from "@/components/shared/spec-filter";
 
 export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   title,
@@ -285,9 +286,12 @@ const ADD = "__add__";
 export function ColumnFilter({
   list,
   kind,
+  withSpecs = false,
 }: {
   list: ReturnType<typeof useListQuery>;
   kind: ProjectCategoryKind;
+  /** 规格 beside the material (J2-3), for a list that reads `spec_category`. */
+  withSpecs?: boolean;
 }) {
   const t = useTranslations("moduleTable");
   const project = list.filters.project;
@@ -313,6 +317,8 @@ export function ColumnFilter({
           list.setFilters({
             category: value === ALL || value === UNFILED ? undefined : value,
             uncategorised: value === UNFILED ? "true" : undefined,
+            // A specification belongs to its material.
+            ...(withSpecs ? { spec_category: undefined } : {}),
           })
         }
       >
@@ -327,6 +333,13 @@ export function ColumnFilter({
           <CategoryOptionItems rows={columns.data?.results ?? []} groupsSelectable />
         </SelectContent>
       </Select>
+      {withSpecs && (
+        <SpecFilterSelect
+          material={(columns.data?.results ?? []).find((row) => row.id === list.filters.category)}
+          value={list.filters.spec_category}
+          onChange={(spec) => list.setFilter("spec_category", spec)}
+        />
+      )}
       <QueryFailedNote query={columns} what={t("what.columns")} />
     </>
   );
