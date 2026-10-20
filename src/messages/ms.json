@@ -12963,8 +12963,8 @@
       "rejected": "Gagal semakan (tidak dikira)",
       "supplier": "Pembekal",
       "noSupplier": "Tiada pembekal",
-      "searchMaterial": "Cari bahan atau pembekal",
-      "searchEmpty": "Tiada hasil untuk \"{term}\". Anda boleh cari nama bahan atau nama pembekal.",
+      "searchMaterial": "Cari nama bahan",
+      "searchEmpty": "Tiada hasil untuk 「{term}」.",
       "specification": "Spesifikasi",
       "noteReceived": "Dihantar ke tapak: jumlah yang lulus semakan, dikumpul dari semasa ke semasa.",
       "noteReturned": "Dipulangkan kepada pembekal: pemulangan yang telah disahkan siap oleh pejabat.",
@@ -13010,7 +13010,9 @@
         "open": "Buka {reference}",
         "legacyReturn": "Pemulangan yang direkod pada resit sebelum 10-02",
         "project": "Projek"
-      }
+      },
+      "searchSpec": "Spesifikasi",
+      "subtotal": "Subjumlah {material}"
     },
     "exportVerdict": "Keputusan penerimaan",
     "rejectedReturns": "Pulangan ditolak",

@@ -12963,8 +12963,8 @@
       "rejected": "Failed check (not counted)",
       "supplier": "Supplier",
       "noSupplier": "No supplier named",
-      "searchMaterial": "Search material or supplier",
-      "searchEmpty": "Nothing found for \"{term}\". You can search a material name or a supplier name.",
+      "searchMaterial": "Search material name",
+      "searchEmpty": "Nothing found for 「{term}」.",
       "specification": "Spec",
       "noteReceived": "Delivered to site: what passed the check, added up over time.",
       "noteReturned": "Sent back to supplier: returns the office has confirmed as done.",
@@ -13010,7 +13010,9 @@
         "open": "Open {reference}",
         "legacyReturn": "Return entered on a receipt before 10-02",
         "project": "Project"
-      }
+      },
+      "searchSpec": "Specification",
+      "subtotal": "{material} subtotal"
     },
     "exportVerdict": "Acceptance result",
     "rejectedReturns": "Rejected returns",

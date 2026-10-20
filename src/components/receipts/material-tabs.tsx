@@ -111,9 +111,12 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
  * returns the office has confirmed as complete, matched on material category
  * and unit (Q4). The two stand side by side: the 「累计净数量」 column (进场 −
  * 退场) is gone (Lucas 2026-10-10: 「累计净数量可以移除，不需要进场减退场」).
- * Grouped under each supplier (a collapsible heading, I41), searchable by
- * material or supplier (IB20: the server matches the supplier's and the 指定厂商's
- * name too). Numbers read plainly (`formatNetQuantity`). Each number opens onto
+ * Grouped under each supplier (a collapsible heading, I41); inside it each
+ * material heads its specifications and closes with its own subtotal per unit
+ * (J5-2) - no total of the whole table. Searched by material name and by
+ * specification, each its own box, with the supplier filter beside them
+ * (J5-1: a supplier's name no longer finds its every material). Numbers read
+ * plainly (`formatNetQuantity`). Each number opens onto
  * the records it adds up (client request 2026-10-09): 「累计进场」 every
  * delivery, 「已退场」 every completed return (`NetBreakdownDialog`); a line
  * with returns says 「有退货资料」, which opens them too. DO is per delivery,
@@ -135,8 +138,14 @@ export function NetTotalsView({
   const { can } = useAuth();
   const unitName = useUnitName();
   const unitValues = useUnitExportValues();
+  // Three independent filters (J5-1, Q5-1): the material's name (across every
+  // supplier, never a supplier's name), the specification, and the supplier
+  // the page's own filter chose. Changing one never clears another.
   const [term, setTerm] = useState("");
   const material = useDebounce(term.trim(), 300);
+  const [specTerm, setSpecTerm] = useState("");
+  const specification = useDebounce(specTerm.trim(), 300);
+  const searched = `${material}\u0000${specification}`;
   // Which supplier headings were pressed - for this search only (IB20): a new
   // search starts with every group as it comes, so a group closed before
   // never hides what the search found.
@@ -144,10 +153,10 @@ export function NetTotalsView({
     search: "",
     keys: new Set(),
   });
-  const toggled = pressed.search === material ? pressed.keys : EMPTY_KEYS;
+  const toggled = pressed.search === searched ? pressed.keys : EMPTY_KEYS;
   const [drill, setDrill] = useState<{ row: MaterialNetTotalRow; focus: NetFocus } | null>(null);
   const query = Object.fromEntries(
-    Object.entries({ project, material, ...filters }).filter(([, value]) => Boolean(value)),
+    Object.entries({ project, material, specification, ...filters }).filter(([, value]) => Boolean(value)),
   ) as Record<string, string>;
   const totals = useQuery({
     queryKey: ["receipts", "net-totals", query],
@@ -163,11 +172,12 @@ export function NetTotalsView({
   }
   const rows = totals.data?.results ?? [];
   const groups = groupBySupplier(rows);
+  const subtotals = totals.data?.subtotals ?? [];
   // A group is open unless it was toggled away from the starting state.
   const isOpen = (group: { supplier: string }) => toggled.has(group.supplier) === defaultCollapsed;
   const toggle = (group: { supplier: string }) =>
     setPressed({
-      search: material,
+      search: searched,
       keys: (() => {
         const next = new Set(toggled);
         if (!next.delete(group.supplier)) next.add(group.supplier);
@@ -198,6 +208,13 @@ export function NetTotalsView({
             className="pl-8 text-sm"
           />
         </div>
+        <Input
+          value={specTerm}
+          onChange={(event) => setSpecTerm(event.target.value)}
+          placeholder={t("receipts.net.searchSpec")}
+          aria-label={t("receipts.net.searchSpec")}
+          className="w-full text-sm sm:w-40"
+        />
         {can("report.export") ? (
           <div className="ml-auto">
             <ExportButton onExport={runExport} disabled={!rows.length} />
@@ -231,7 +248,9 @@ export function NetTotalsView({
             ) : rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-muted-foreground">
-                  {material ? t("receipts.net.searchEmpty", { term: material }) : t("table.noResults")}
+                  {material || specification
+                    ? t("receipts.net.searchEmpty", { term: [material, specification].filter(Boolean).join(" · ") })
+                    : t("table.noResults")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -268,11 +287,15 @@ export function NetTotalsView({
                       </span>
                     </TableCell>
                   </TableRow>
-                  {(isOpen(group) ? group.rows : []).map((row) => (
-                    <TableRow key={keyOf(row)} data-slot="net-line">
+                  {(isOpen(group) ? group.rows : []).map((row, index, shown) => (
+                    <Fragment key={keyOf(row)}>
+                    <TableRow data-slot="net-line">
                       <TableCell className="font-medium">
                         <span className="inline-flex flex-wrap items-center gap-1.5">
-                          {row.material_name}
+                          {/* The material heads its specifications (J5-2). */}
+                          {index === 0 || shown[index - 1].material_name !== row.material_name
+                            ? row.material_name
+                            : null}
                           {(row.return_count ?? 0) > 0 ? (
                             <button
                               type="button"
@@ -299,6 +322,37 @@ export function NetTotalsView({
                       <TableCell className="tabular text-right text-muted-foreground">{formatNetQuantity(row.rejected)}</TableCell>
                       <TableCell className="text-muted-foreground">{row.project_name}</TableCell>
                     </TableRow>
+                    {/* 「该材料小计」 after its last line, per unit (J5-2, Q5-2):
+                        one material only, never one added to another. */}
+                    {index === shown.length - 1 || shown[index + 1].material_name !== row.material_name
+                      ? subtotals
+                          .filter(
+                            (entry) =>
+                              entry.supplier === row.supplier && entry.material_name === row.material_name,
+                          )
+                          .map((entry) => (
+                            <TableRow
+                              key={`subtotal:${keyOf(row)}:${entry.unit}`}
+                              data-slot="net-subtotal"
+                              className="bg-muted/40 hover:bg-muted/40"
+                            >
+                              <TableCell className="text-xs font-semibold">
+                                {t("receipts.net.subtotal", { material: entry.material_name })}
+                              </TableCell>
+                              <TableCell />
+                              <TableCell>{unitName(entry.unit)}</TableCell>
+                              <TableCell className="tabular text-right font-semibold">
+                                {formatNetQuantity(entry.received)}
+                              </TableCell>
+                              <TableCell className="tabular text-right font-semibold">
+                                {formatNetQuantity(entry.returned)}
+                              </TableCell>
+                              <TableCell className="text-right" />
+                              <TableCell />
+                            </TableRow>
+                          ))
+                      : null}
+                    </Fragment>
                   ))}
                 </Fragment>
               ))
