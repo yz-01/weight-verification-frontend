@@ -36,6 +36,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { PhotoThumb, recordPhotos } from "@/components/shared/photo-thumb";
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { DashboardCards } from "@/components/dashboard/dashboard-cards";
+import { InspectionExpiry } from "@/components/dashboard/inspection-expiry";
 import { GateCard } from "@/components/dashboard/gate-card";
 import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -203,6 +204,8 @@ export function ContractorDashboard({
         rectifications={rectifications}
         project={project}
       />
+      {/* 检验报告到期 (J11-4): shown here, nobody told. */}
+      <InspectionExpiry project={project || undefined} />
     </section>
   ) : null;
 

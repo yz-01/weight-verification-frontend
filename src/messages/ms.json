@@ -6480,6 +6480,9 @@
         "LEFT": "Sudah keluar"
       },
       "summary": "Hari ini: {working} bekerja · {finished} tamat · {idle} belum mula"
+    },
+    "equipmentInspection": {
+      "column": "Pemeriksaan"
     }
   },
   "contractorPartners": {
@@ -7330,7 +7333,8 @@
       "versionUploaded": "Fail ditambah ke dokumen",
       "uploaded": "Fail dimuat naik",
       "systemFilesAdded": "Difailkan dalam arkib",
-      "recordsAdded": "Rekod difailkan"
+      "recordsAdded": "Rekod difailkan",
+      "inspectionFiled": "Keputusan pemeriksaan difailkan"
     },
     "upload": {
       "action": "Tambah fail",
@@ -7441,6 +7445,45 @@
       "title": "Rekod penuh",
       "allPdf": "Semua rekod sebagai satu PDF",
       "gone": "Rekod asal telah dipadam."
+    },
+    "inspection": {
+      "needs": "Perlu medan pemeriksaan",
+      "needsHint": "Dokumen di sini menerima keputusan pemeriksaan (lulus / gagal, tarikh).",
+      "section": "Pemeriksaan",
+      "add": "Isi keputusan pemeriksaan",
+      "none": "Belum ada keputusan pemeriksaan.",
+      "title": "Keputusan pemeriksaan",
+      "help": "Daripada laporan: selepas dihantar tidak boleh diubah. Pemeriksaan semula ialah keputusan baharu.",
+      "target": "Untuk",
+      "equipment": "Mesin",
+      "material": "Bahan",
+      "spec": "Spesifikasi",
+      "allSpecs": "Seluruh bahan",
+      "choose": "Pilih",
+      "number": "No. pemeriksaan",
+      "numberHint": "Nombor laporan; rujukan dokumen kekal.",
+      "inspectedOn": "Tarikh pemeriksaan / hantar",
+      "inspector": "Pemeriksa / badan ujian",
+      "reportDate": "Tarikh laporan",
+      "validUntilLabel": "Sah sehingga",
+      "validUntilHint": "Bila laporan tamat; pejabat diingatkan 30 hari sebelum.",
+      "result": {
+        "label": "Keputusan",
+        "PASS": "Lulus",
+        "FAIL": "Gagal"
+      },
+      "submit": "Hantar",
+      "confirm": "Selepas dihantar tidak boleh diubah. Hantar sekarang?",
+      "submitNow": "Ya, hantar",
+      "back": "Kembali",
+      "cancel": "Batal",
+      "failed": "Tidak dapat memfailkan keputusan. Sila cuba lagi.",
+      "expiring": "Tamat {date}",
+      "expired": "Telah tamat {date}",
+      "validUntil": "sah sehingga {date}",
+      "filedBy": "difailkan oleh {name}, {at}",
+      "expiryTitle": "Laporan pemeriksaan akan tamat ({count})",
+      "openArchive": "Buka arkib dokumen"
     }
   },
   "driver": {
@@ -12389,6 +12432,9 @@
       },
       "material_target": {
         "manage": "Tetapkan sasaran bahan"
+      },
+      "inspection": {
+        "record": "Isi keputusan pemeriksaan"
       }
     },
     "group": {
@@ -12458,7 +12504,8 @@
       "platform_version": "Versi",
       "integration": "Integrasi sistem",
       "site_worker": "Senarai pekerja",
-      "material_target": "Sasaran bahan"
+      "material_target": "Sasaran bahan",
+      "inspection": "Pemeriksaan"
     }
   },
   "photos": {
@@ -18079,7 +18126,8 @@
       "normalHours": "Jam biasa (j)",
       "overtimeHours": "Jam lebih masa (j)",
       "cumulativeNormal": "Jam biasa terkumpul (j)",
-      "cumulativeOvertime": "Lebih masa terkumpul (j)"
+      "cumulativeOvertime": "Lebih masa terkumpul (j)",
+      "inspection": "Pemeriksaan"
     },
     "status": {
       "MISSING_END": "Tiada foto tamat",

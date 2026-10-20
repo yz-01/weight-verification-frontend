@@ -13,6 +13,8 @@ import type {
   DocumentDetail,
   DocumentPayload,
   DocumentRecord,
+  InspectionInfo,
+  InspectionPayload,
   LinkableRecord,
   DocumentSubcategory,
   DocumentSubcategoryPayload,
@@ -451,3 +453,15 @@ export async function attachDocumentRecords(
 /** The linked records' complete evidence as one PDF (J12-4). */
 export const documentRecordsPdf = (documentId: string, name: string) =>
   fetchAsFile(`/api/documents/${documentId}/download_records/`, { fallbackFilename: `${name || "records"}.pdf` });
+
+/** 填写检验结果 (J12-7): filed once, never changed; a re-inspection is a new one. */
+export async function addInspection(documentId: string, payload: InspectionPayload): Promise<InspectionInfo> {
+  const row = await api.post<InspectionInfo>(`/api/documents/${documentId}/add_inspection/`, payload);
+  toastSuccess("documents.toast.inspectionFiled");
+  return row;
+}
+
+/** Inspection reports running out within 30 days, or out (Q11-3). */
+export function getExpiringInspections(project?: string): Promise<InspectionInfo[]> {
+  return api.get<InspectionInfo[]>("/api/documents/expiring_inspections/", project ? { project } : undefined);
+}

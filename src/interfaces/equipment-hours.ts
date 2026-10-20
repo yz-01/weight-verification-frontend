@@ -1,3 +1,4 @@
+import type { InspectionInfo } from "@/interfaces/document-workflow";
 import type { RecordedBy } from "@/interfaces/recorder";
 
 /**
@@ -133,6 +134,8 @@ export interface EquipmentHoursSession extends RecordedBy {
   missing_end: boolean;
   has_start_photo: boolean;
   adjusted: boolean;
+  /** 检验 (J11-1): the machine's latest inspection, or none. */
+  inspection?: InspectionInfo | null;
   /** The gold 已修改 (J20): a time or the machine corrected by the office. */
   was_corrected?: boolean;
   /** 改设备归属 (J1-13): the machine the photos were taken of, when moved. */

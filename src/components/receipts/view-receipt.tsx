@@ -42,6 +42,7 @@ import { useDateFormat } from "@/lib/dates";
 import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { RecordCorrectionHistory } from "@/components/shared/record-correction";
+import { InspectionBadge } from "@/components/document-workflow/inspection";
 
 /**
  * Whether this delivery's next step is the final 【确认归档】 (C4, X10):
@@ -530,6 +531,10 @@ export function ViewReceipt({
           { label: t("receipts.field.businessAt"), value: df.dateTime(data.business_at ?? data.captured_at) },
           ...(data.received_by_name
             ? [{ label: t("receipts.field.receivedBy"), value: data.received_by_name }]
+            : []),
+          // 检验 (J12-8): this material's latest inspection; nothing for none.
+          ...(data.inspection
+            ? [{ label: t("documents.inspection.section"), value: <InspectionBadge inspection={data.inspection} /> }]
             : []),
           ...(data.notes
             ? [{ label: t("receipts.field.notes"), value: data.notes, wide: true }]

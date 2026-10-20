@@ -20,6 +20,8 @@ export interface DocumentSubcategory {
   name: string;
   description: string;
   is_active: boolean;
+  /** 「需要检验栏位」 (J12-6): documents here take inspection results. */
+  needs_inspection?: boolean;
   /** Documents filed in this subcategory, for the folder list (B28). */
   record_count?: number;
   created_at: string;
@@ -155,6 +157,10 @@ export interface DocumentDetail extends DocumentRecord {
   system_files?: DocumentSystemFileInfo[];
   /** Whole records linked into it (J12), each as it is today. */
   record_links?: DocumentRecordLinkInfo[];
+  /** Its subcategory takes inspection results (J12-6). */
+  needs_inspection?: boolean;
+  /** Every result filed with it, newest first (J12-11). */
+  inspections?: InspectionInfo[];
 }
 
 /** A whole business record filed into a document (J12): linked, not copied. */
@@ -198,6 +204,45 @@ export interface DocumentSubcategoryPayload {
   name: string;
   description?: string;
   is_active?: boolean;
+  needs_inspection?: boolean;
+}
+
+/** One inspection result (J11, J12-7..J12-12): filed once, never changed. */
+export interface InspectionInfo {
+  id: string;
+  document: string;
+  document_no: string;
+  target: "EQUIPMENT" | "MATERIAL";
+  equipment: string | null;
+  equipment_name: string;
+  material: string | null;
+  material_name: string;
+  spec: string | null;
+  spec_name: string;
+  receipt: string | null;
+  inspection_no: string;
+  inspected_on: string;
+  inspector: string;
+  result: "PASS" | "FAIL";
+  report_date: string | null;
+  valid_until: string | null;
+  /** The report running out within 30 days, or out (Q11-3). */
+  expiry: "EXPIRING" | "EXPIRED" | null;
+  created_by_name: string;
+  created_at: string;
+}
+
+export interface InspectionPayload {
+  target: "EQUIPMENT" | "MATERIAL";
+  equipment?: string;
+  material?: string;
+  spec?: string;
+  inspection_no: string;
+  inspected_on: string;
+  inspector: string;
+  result: "PASS" | "FAIL";
+  report_date?: string;
+  valid_until?: string;
 }
 
 export interface DocumentPayload {

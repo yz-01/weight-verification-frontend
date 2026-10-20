@@ -6480,6 +6480,9 @@
         "LEFT": "已离场"
       },
       "summary": "今日：工作中 {working} 台 · 已收工 {finished} 台 · 未开工 {idle} 台"
+    },
+    "equipmentInspection": {
+      "column": "检验"
     }
   },
   "contractorPartners": {
@@ -7330,7 +7333,8 @@
       "versionUploaded": "文件已加进档案",
       "uploaded": "文件已上传",
       "systemFilesAdded": "已放进档案",
-      "recordsAdded": "记录已放入档案"
+      "recordsAdded": "记录已放入档案",
+      "inspectionFiled": "检验结果已提交"
     },
     "upload": {
       "action": "添加文件",
@@ -7441,6 +7445,45 @@
       "title": "整条记录",
       "allPdf": "全部记录合成一份 PDF",
       "gone": "原记录已删除。"
+    },
+    "inspection": {
+      "needs": "需要检验栏位",
+      "needsHint": "放在这里的档案可以填检验结果（合格 / 不合格、日期）。",
+      "section": "检验",
+      "add": "填写检验结果",
+      "none": "还没有检验结果。",
+      "title": "检验结果",
+      "help": "照报告填写：提交后不能修改；重新检验要新增一笔。",
+      "target": "对象",
+      "equipment": "设备",
+      "material": "材料",
+      "spec": "规格",
+      "allSpecs": "整个材料",
+      "choose": "选择",
+      "number": "检验编号",
+      "numberHint": "报告上的编号；档案原有的参考编号不变。",
+      "inspectedOn": "检验 / 送检日期",
+      "inspector": "检验人 / 检测单位",
+      "reportDate": "报告日期",
+      "validUntilLabel": "有效期至",
+      "validUntilHint": "报告到期日期；到期前 30 天在电脑后台提醒。",
+      "result": {
+        "label": "检验结果",
+        "PASS": "合格",
+        "FAIL": "不合格"
+      },
+      "submit": "提交",
+      "confirm": "提交后不能修改，确定吗？",
+      "submitNow": "确定提交",
+      "back": "返回",
+      "cancel": "取消",
+      "failed": "提交没有成功，请再试一次。",
+      "expiring": "将于 {date} 到期",
+      "expired": "已于 {date} 过期",
+      "validUntil": "有效期至 {date}",
+      "filedBy": "{name} 于 {at} 填写",
+      "expiryTitle": "检验报告到期（{count}）",
+      "openArchive": "打开文件档案"
     }
   },
   "driver": {
@@ -12389,6 +12432,9 @@
       },
       "material_target": {
         "manage": "设定材料目标"
+      },
+      "inspection": {
+        "record": "填写检验结果"
       }
     },
     "group": {
@@ -12458,7 +12504,8 @@
       "platform_version": "版本管理",
       "integration": "系统集成",
       "site_worker": "人员名单",
-      "material_target": "材料目标"
+      "material_target": "材料目标",
+      "inspection": "检验"
     }
   },
   "photos": {
@@ -18079,7 +18126,8 @@
       "normalHours": "正常工时（小时）",
       "overtimeHours": "超时工时（小时）",
       "cumulativeNormal": "正常工时累计（小时）",
-      "cumulativeOvertime": "超时工时累计（小时）"
+      "cumulativeOvertime": "超时工时累计（小时）",
+      "inspection": "检验"
     },
     "status": {
       "MISSING_END": "缺收工",

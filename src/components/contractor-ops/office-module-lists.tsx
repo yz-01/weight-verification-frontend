@@ -132,6 +132,7 @@ import {
   reviewMaterialOutgoing,
 } from "@/services/contractor-ops.service";
 import { getEquipmentToday } from "@/services/equipment-hours.service";
+import { InspectionBadge } from "@/components/document-workflow/inspection";
 import { LIST_FITS } from "@/lib/list-fits";
 
 const OUTGOING_STATES = [
@@ -861,6 +862,13 @@ export function SiteEquipmentOffice() {
             </div>
           );
         },
+      },
+      {
+        // 检验 (J11-1, J11-2): 合格 / 不合格 and the date; empty for none.
+        id: "inspection",
+        meta: { label: t("equipmentInspection.column") },
+        header: () => <PlainHeader label={t("equipmentInspection.column")} />,
+        cell: ({ row }) => <InspectionBadge inspection={row.original.inspection} />,
       },
       {
         id: "site_no",
