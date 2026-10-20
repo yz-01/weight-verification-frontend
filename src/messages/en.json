@@ -4902,6 +4902,7 @@
     },
     "attachment": {
       "tickFirst": "Tick the files to add first",
+      "wholeRecord": "Whole record: {records} (with its complete evidence PDF)",
       "archiveCategory": "File category",
       "allArchiveCategories": "All file categories",
       "addPicked": "Add the {count} selected",

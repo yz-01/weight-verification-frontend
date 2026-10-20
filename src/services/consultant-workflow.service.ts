@@ -29,7 +29,18 @@ import type {
   WorkflowReviewerKind,
   WorkflowReviewerChoices,
 } from "@/interfaces/consultant-workflow";
-import type { DocumentRecord } from "@/interfaces/document-workflow";
+import type { DocumentSystemFileInfo } from "@/interfaces/document-workflow";
+
+/** One 文件管理 file a consultant application may take (J22). */
+export interface ApplicationDocumentCandidate {
+  id: string;
+  document_no: string;
+  title: string;
+  category_name: string;
+  subcategory_name: string;
+  latest_version: { id: string; original_name: string } | null;
+  system_files: DocumentSystemFileInfo[];
+}
 import { uploadEach, type BatchResult } from "@/lib/attachment-batch";
 import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
@@ -384,13 +395,16 @@ export const getApplicationEvidenceCandidates = (
 export const getEvidenceFilterOptions = (project: string) =>
   api.get<EvidenceFilterOptions>("/api/consultant-applications/get_evidence_filter_options/", { project });
 
-export const getApplicationDocumentCandidates = (project: string, search?: string, category?: string) =>
-  api.list<DocumentRecord>("/api/documents/get_documents/", {
-    project,
-    search: search || undefined,
-    category: category || undefined,
-    page_size: 100,
-  });
+/**
+ * 文件管理's files on the application's own project (J22, Q22-1): listed by
+ * the application, so no 查看文件 permission is needed. A file the system
+ * filed (only photographs, or a whole record - JB7) comes too.
+ */
+export const getApplicationDocumentCandidates = (application: string, search?: string) =>
+  api.get<{ results: ApplicationDocumentCandidate[]; count: number }>(
+    `/api/consultant-applications/${application}/document_candidates/`,
+    { search: search || undefined },
+  );
 
 export const linkApplicationDocumentAttachment = async (
   id: string,
@@ -406,22 +420,23 @@ export const linkApplicationDocumentAttachment = async (
   return row;
 };
 
-/** Several archive files at once: the same partial-failure rule as uploads. */
-export const linkApplicationDocumentAttachments = async (
+/**
+ * Several archive files at once, in one request so the sign-off PIN is asked
+ * once (J22, Q22-1). A file holding a whole record brings its photographs and
+ * the record's complete evidence PDF (Q22-2).
+ */
+export const linkApplicationDocuments = async (
   id: string,
-  versions: string[],
+  documents: string[],
   category?: string,
   note?: string,
-): Promise<BatchResult<string>> => {
-  const result = await uploadEach(versions, (version) =>
-    api.post<ConsultantApplication>(`/api/consultant-applications/${id}/link_document_attachment/`, {
-      version,
-      category,
-      note,
-    }),
+) => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/link_document_attachment/`,
+    { documents, category, note },
   );
-  if (result.saved.length) toastSuccess("consultantWorkflow.toast.attachmentAdded");
-  return result;
+  toastSuccess("consultantWorkflow.toast.attachmentAdded");
+  return row;
 };
 
 export const linkApplicationEvidence = async (

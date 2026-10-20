@@ -4902,6 +4902,7 @@
     },
     "attachment": {
       "tickFirst": "先勾选要添加的文件",
+      "wholeRecord": "整条记录：{records}（附完整证据 PDF）",
       "archiveCategory": "文件分类",
       "allArchiveCategories": "全部文件分类",
       "addPicked": "添加所选的 {count} 个",

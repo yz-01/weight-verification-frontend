@@ -4902,6 +4902,7 @@
     },
     "attachment": {
       "tickFirst": "Tandakan fail yang hendak ditambah dahulu",
+      "wholeRecord": "Rekod penuh: {records} (dengan PDF bukti lengkap)",
       "archiveCategory": "Kategori fail",
       "allArchiveCategories": "Semua kategori fail",
       "addPicked": "Tambah {count} yang dipilih",
