@@ -18826,7 +18826,12 @@
       "user_change_role": "修改用戶角色",
       "user_change_status": "停用或恢復帳號",
       "consultant_review": "顧問審批簽核",
-      "consultant_link_document": "把文件管理的檔案加進顧問申請"
+      "consultant_link_document": "把文件管理的檔案加進顧問申請",
+      "receipt_refile": "把進場單歸入另一種材料",
+      "receipt_review": "驗收合格 / 不合格",
+      "receipt_add_photo": "給進場單補照片",
+      "equipment_hours_set_operator": "填寫操作人員和 CIDB",
+      "equipment_set_site_no": "修改設備號碼"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
