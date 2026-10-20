@@ -388,7 +388,7 @@
     {
       "code": "inspection.record",
       "group": "inspection",
-      "label": "Inspection: record"
+      "label": "Fill in inspection results"
     },
     {
       "code": "approval.view",
