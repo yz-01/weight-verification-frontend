@@ -8022,7 +8022,9 @@
       "sign_off_pin_not_set": "Anda belum menetapkan PIN pengesahan. Tetapkan dahulu.",
       "sign_off_pin_incorrect": "PIN pengesahan salah. Tinggal {attempts_left} cubaan sebelum dikunci 15 minit.",
       "sign_off_office_only": "Sila buat ini di pejabat belakang, pada komputer. Telefon tidak boleh membuat langkah ini.",
-      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda."
+      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda.",
+      "equipment_hours_same_machine": "Jam ini sudah milik mesin itu.",
+      "equipment_hours_overlap": "Mesin itu sudah ada jam pada masa ini. Masa yang sama tidak boleh dikira dua kali."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -17046,7 +17048,10 @@
       "priority": "Keutamaan",
       "material": "Bahan",
       "specification": "Spesifikasi",
-      "material_specification": "Spesifikasi (ditaip)"
+      "material_specification": "Spesifikasi (ditaip)",
+      "equipment": "Mesin",
+      "start_at": "Masa mula",
+      "end_at": "Masa tamat"
     },
     "followsSpec": "Unit mengikut spesifikasi"
   },
@@ -18018,7 +18023,8 @@
       "cidb": "No. kad CIDB",
       "startTime": "Masa mula",
       "endTime": "Masa tamat",
-      "view": "Lihat"
+      "view": "Lihat",
+      "takenOn": "Difoto pada"
     },
     "status": {
       "MISSING_END": "Tiada foto tamat",
@@ -18075,7 +18081,8 @@
       "startSaved": "Masa mula disimpan",
       "siteNoSaved": "No. tapak disimpan",
       "siteNoCleared": "No. tapak dikosongkan",
-      "operatorSaved": "Pengendali disimpan"
+      "operatorSaved": "Pengendali disimpan",
+      "moved": "Jam dipindahkan ke mesin lain"
     },
     "phone": {
       "howTo": "Imbas QR pada mesin → foto → pemandu tandatangan → hantar. Kemudian imbas yang seterusnya.",
@@ -18157,6 +18164,16 @@
       "title": "{supplier}: jam bagi setiap mesin",
       "total": "Jumlah syarikat (jam)",
       "sessions": "{count} kali"
+    },
+    "move": {
+      "title": "Tukar mesin",
+      "help": "Untuk jam yang direkod pada mesin yang salah (imbas kod yang salah). Foto, GPS dan masa kekal seperti diambil; jam dikira untuk mesin yang dipilih di sini, dan perubahan disimpan dalam sejarah.",
+      "machine": "Mesin yang betul",
+      "choose": "Pilih mesin",
+      "reason": "Sebab",
+      "reasonPlaceholder": "Contoh: pemandu mengimbas kod jengkaut tetapi memandu kren",
+      "save": "Tukar mesin",
+      "failed": "Tidak dapat menukar mesin. Sila cuba lagi."
     }
   },
   "theme": {
@@ -18836,7 +18853,8 @@
       "receipt_review": "Terima atau tolak penghantaran",
       "receipt_add_photo": "Tambah foto pada penghantaran",
       "equipment_hours_set_operator": "Isi pengendali dan CIDB",
-      "equipment_set_site_no": "Tukar nombor peralatan"
+      "equipment_set_site_no": "Tukar nombor peralatan",
+      "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",

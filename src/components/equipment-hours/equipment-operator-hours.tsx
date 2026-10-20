@@ -60,7 +60,17 @@ import {
   exportEquipmentHoursDays,
   getEquipmentHoursDays,
   getEquipmentHoursFilterOptions,
-  getEquipmentHoursMonth, exportEquipmentHoursMonth } from "@/services/equipment-hours.service";
+  getEquipmentHoursMonth, exportEquipmentHoursMonth,
+  getEquipmentSiteNumbers,
+  moveEquipmentSession,
+} from "@/services/equipment-hours.service";
+import {
+  CORRECTED_ROW_CLASS,
+  CorrectedTag,
+  RecordCorrectionHistory,
+  recordCorrectionsKey,
+} from "@/components/shared/record-correction";
+import { cn } from "@/lib/utils";
 
 /** `YYYY-MM-DD` of a date in the browser's own day. */
 function isoDay(value: Date): string {
@@ -567,8 +577,18 @@ export function EquipmentOperatorHours() {
               ) : (
                 <>
                   {rows.map((row) => (
-                    <TableRow key={row.key} className="cursor-pointer" onClick={() => setOpened(row)}>
-                      <TableCell className="font-medium">{row.site_no || row.equipment_code || "-"}</TableCell>
+                    <TableRow
+                      key={row.key}
+                      className={cn("cursor-pointer", row.was_corrected && CORRECTED_ROW_CLASS)}
+                      onClick={() => setOpened(row)}
+                    >
+                      <TableCell className="font-medium">
+                        {/* The gold 已修改 at the front (J20): a time or the machine corrected. */}
+                        <span className="inline-flex items-center gap-1.5">
+                          {row.was_corrected && <CorrectedTag kind="EQUIPMENT_HOURS" recordId={row.key} />}
+                          {row.site_no || row.equipment_code || "-"}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <p className="font-medium">{row.equipment_name}</p>
                         {row.project_name ? (
@@ -895,9 +915,34 @@ export function DayDialog({
       setError("");
       onSaved(saved);
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours"] });
+      void queryClient.invalidateQueries({ queryKey: recordCorrectionsKey("EQUIPMENT_HOURS", day.key) });
     },
     onError: (reason_) =>
       setError(reason_ instanceof ApiError ? reason_.message : t("adjust.failed")),
+  });
+
+  // 改设备归属 (J1-13): the project's other machines.
+  const [machine, setMachine] = useState("");
+  const [moveReason, setMoveReason] = useState("");
+  const [moveError, setMoveError] = useState("");
+  const machines = useQuery({
+    queryKey: ["equipment-hours", "site-numbers", day.project],
+    queryFn: () => getEquipmentSiteNumbers(day.project),
+    enabled: canAdjust,
+  });
+  const otherMachines = (machines.data ?? []).filter((row) => row.id !== day.equipment);
+  const move = useMutation({
+    mutationFn: () => moveEquipmentSession({ session: day.key, equipment: machine, reason: moveReason }),
+    onSuccess: (moved) => {
+      setMachine("");
+      setMoveReason("");
+      setMoveError("");
+      onSaved(moved);
+      void queryClient.invalidateQueries({ queryKey: ["equipment-hours"] });
+      void queryClient.invalidateQueries({ queryKey: recordCorrectionsKey("EQUIPMENT_HOURS", day.key) });
+    },
+    onError: (reason_) =>
+      setMoveError(reason_ instanceof ApiError ? reason_.message : t("move.failed")),
   });
 
   const start = day.start_at ? df.dateTime(day.start_at) : t("status.MISSING_START");
@@ -922,6 +967,8 @@ export function DayDialog({
         facts={[
           { label: t("field.machineNo"), value: day.site_no || "-" },
           { label: t("field.code"), value: day.equipment_code || "-" },
+          // 改设备归属 (J1-13): the machine the photos were taken of stays known.
+          ...(day.taken_on_name ? [{ label: t("field.takenOn"), value: day.taken_on_name }] : []),
           { label: t("field.supplier"), value: day.supplier_name || "-" },
           // 操作人员 / CIDB 卡号 as the office wrote them (I4, ID19).
           { label: t("field.operator"), value: day.operator_name || "-" },
@@ -986,6 +1033,8 @@ export function DayDialog({
         recorder={<RecordRecorder record={day} />}
         corrections={
           <div className="space-y-4">
+            {/* Who, when, why: the machine and the times, as for every record (J1-16). */}
+            <RecordCorrectionHistory kind="EQUIPMENT_HOURS" recordId={day.key} />
             <AdjustmentHistory day={day} />
             <OperatorHistory session={day} />
           </div>
@@ -1039,6 +1088,49 @@ export function DayDialog({
                 >
                   {save.isPending && <Loader2 className="animate-spin" />}
                   {t("adjust.save")}
+                </Button>
+              </div>
+            </section>
+            {/* 改设备 (J1-13): scanned the wrong machine. Signed; office only. */}
+            <section className="space-y-3">
+              <h3 className="panel-title">{t("move.title")}</h3>
+              <p className="text-xs text-muted-foreground">{t("move.help")}</p>
+              <QueryFailedNote query={machines} what={t("move.machine")} />
+              <FieldWrapper label={t("move.machine")} required>
+                <Select value={machine} onValueChange={setMachine}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("move.choose")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {otherMachines.map((row) => (
+                      <SelectItem key={row.id} value={row.id}>
+                        {[row.site_no || row.code, row.name, row.plate].filter(Boolean).join(" · ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FieldWrapper>
+              <FieldWrapper label={t("move.reason")} required>
+                <Textarea
+                  value={moveReason}
+                  maxLength={500}
+                  onChange={(event) => setMoveReason(event.target.value)}
+                  placeholder={t("move.reasonPlaceholder")}
+                />
+              </FieldWrapper>
+              {moveError && <p className="text-sm text-destructive">{moveError}</p>}
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  requires={[
+                    [machine, t("move.machine")],
+                    [moveReason.trim(), t("move.reason")],
+                  ]}
+                  disabled={move.isPending}
+                  onClick={() => move.mutate()}
+                >
+                  {move.isPending && <Loader2 className="animate-spin" />}
+                  {t("move.save")}
                 </Button>
               </div>
             </section>

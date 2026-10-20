@@ -127,6 +127,10 @@ export interface EquipmentHoursSession extends RecordedBy {
   missing_end: boolean;
   has_start_photo: boolean;
   adjusted: boolean;
+  /** The gold 已修改 (J20): a time or the machine corrected by the office. */
+  was_corrected?: boolean;
+  /** 改设备归属 (J1-13): the machine the photos were taken of, when moved. */
+  taken_on_name?: string;
   status: EquipmentSessionStatus;
   photos: EquipmentHoursPhoto[];
   /** Newest first; the newest of each kind is the one that counts. */

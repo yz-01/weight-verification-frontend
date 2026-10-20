@@ -8022,7 +8022,9 @@
       "sign_off_pin_not_set": "You have not set a sign-off PIN yet. Set one first.",
       "sign_off_pin_incorrect": "The sign-off PIN is wrong. {attempts_left} tries left before it locks for 15 minutes.",
       "sign_off_office_only": "Please do this in the office back office, on a computer. The phone cannot do this step.",
-      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with your account password."
+      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with your account password.",
+      "equipment_hours_same_machine": "These hours are already that machine's.",
+      "equipment_hours_overlap": "That machine already has hours at this time. The same time cannot be counted twice."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -17046,7 +17048,10 @@
       "priority": "Priority",
       "material": "Material",
       "specification": "Specification",
-      "material_specification": "Specification (typed)"
+      "material_specification": "Specification (typed)",
+      "equipment": "Machine",
+      "start_at": "Start time",
+      "end_at": "End time"
     },
     "followsSpec": "The unit follows the specification"
   },
@@ -18018,7 +18023,8 @@
       "cidb": "CIDB card no.",
       "startTime": "Start time",
       "endTime": "Stop time",
-      "view": "View"
+      "view": "View",
+      "takenOn": "Photographed on"
     },
     "status": {
       "MISSING_END": "No stop photo",
@@ -18075,7 +18081,8 @@
       "startSaved": "Start time saved",
       "siteNoSaved": "Site number saved",
       "siteNoCleared": "Site number cleared",
-      "operatorSaved": "Operator saved"
+      "operatorSaved": "Operator saved",
+      "moved": "Hours moved to the other machine"
     },
     "phone": {
       "howTo": "Scan the QR on the machine → photo → driver signs → send. Then scan the next one.",
@@ -18157,6 +18164,16 @@
       "title": "{supplier}: hours per machine",
       "total": "Company total (hours)",
       "sessions": "{count} time(s)"
+    },
+    "move": {
+      "title": "Change machine",
+      "help": "For hours recorded on the wrong machine (scanned the wrong one). The photos, GPS and times stay as taken; the hours count for the machine chosen here, and the change is kept in the history.",
+      "machine": "Correct machine",
+      "choose": "Choose the machine",
+      "reason": "Reason",
+      "reasonPlaceholder": "For example: the driver scanned the excavator's code but drove the crane",
+      "save": "Change machine",
+      "failed": "Could not change the machine. Please try again."
     }
   },
   "theme": {
@@ -18836,7 +18853,8 @@
       "receipt_review": "Accept or reject a delivery",
       "receipt_add_photo": "Add a photo to a delivery",
       "equipment_hours_set_operator": "Fill in the operator and CIDB",
-      "equipment_set_site_no": "Change an equipment number"
+      "equipment_set_site_no": "Change an equipment number",
+      "equipment_hours_move": "Move equipment hours to another machine"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",

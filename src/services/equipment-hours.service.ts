@@ -151,6 +151,23 @@ export async function setEquipmentSessionOperator(
 }
 
 /**
+ * 改设备归属 (J1-13): a session scanned on the wrong machine counts for the
+ * right one; the photos keep the machine they were taken of. Signed.
+ */
+export async function moveEquipmentSession(payload: {
+  session: string;
+  equipment: string;
+  reason: string;
+}): Promise<EquipmentHoursSession> {
+  const session = await api.post<EquipmentHoursSession>(
+    "/api/equipment-hours/move_session/",
+    payload,
+  );
+  toastSuccess("equipmentHours.toast.moved");
+  return session;
+}
+
+/**
  * 「设备编号管理」: the project's working machines with their 现场编号 - or
  * every project's, with no project.
  */
