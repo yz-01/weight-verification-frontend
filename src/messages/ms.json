@@ -18826,7 +18826,12 @@
       "user_change_role": "Ubah peranan pengguna",
       "user_change_status": "Gantung atau aktifkan semula akaun",
       "consultant_review": "Tandatangani keputusan perunding",
-      "consultant_link_document": "Tambah fail arkib ke permohonan perunding"
+      "consultant_link_document": "Tambah fail arkib ke permohonan perunding",
+      "receipt_refile": "Failkan penghantaran di bawah bahan lain",
+      "receipt_review": "Terima atau tolak penghantaran",
+      "receipt_add_photo": "Tambah foto pada penghantaran",
+      "equipment_hours_set_operator": "Isi pengendali dan CIDB",
+      "equipment_set_site_no": "Tukar nombor peralatan"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",

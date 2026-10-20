@@ -18826,7 +18826,12 @@
       "user_change_role": "修改用户角色",
       "user_change_status": "停用或恢复账号",
       "consultant_review": "顾问审批签核",
-      "consultant_link_document": "把文件管理的文件加进顾问申请"
+      "consultant_link_document": "把文件管理的文件加进顾问申请",
+      "receipt_refile": "把进场单归入另一种材料",
+      "receipt_review": "验收合格 / 不合格",
+      "receipt_add_photo": "给进场单补照片",
+      "equipment_hours_set_operator": "填写操作人员和 CIDB",
+      "equipment_set_site_no": "修改设备号码"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",

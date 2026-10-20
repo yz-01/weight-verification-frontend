@@ -18826,7 +18826,12 @@
       "user_change_role": "Change a user's role",
       "user_change_status": "Suspend or reinstate an account",
       "consultant_review": "Sign a consultant decision",
-      "consultant_link_document": "Add archive files to a consultant application"
+      "consultant_link_document": "Add archive files to a consultant application",
+      "receipt_refile": "File a delivery under another material",
+      "receipt_review": "Accept or reject a delivery",
+      "receipt_add_photo": "Add a photo to a delivery",
+      "equipment_hours_set_operator": "Fill in the operator and CIDB",
+      "equipment_set_site_no": "Change an equipment number"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
