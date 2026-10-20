@@ -18049,7 +18049,9 @@
       "view": "查看",
       "takenOn": "拍照时扫的设备",
       "normalHours": "正常工时（小时）",
-      "overtimeHours": "超时工时（小时）"
+      "overtimeHours": "超时工时（小时）",
+      "cumulativeNormal": "正常工时累计（小时）",
+      "cumulativeOvertime": "超时工时累计（小时）"
     },
     "status": {
       "MISSING_END": "缺收工",

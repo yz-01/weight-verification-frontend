@@ -304,6 +304,8 @@ export function EquipmentOperatorHours() {
           { key: "normal_hours", label: t("field.normalHours") },
           { key: "overtime_hours", label: t("field.overtimeHours") },
           { key: "hours", label: t("field.hours") },
+          { key: "cumulative_normal_hours", label: t("field.cumulativeNormal") },
+          { key: "cumulative_overtime_hours", label: t("field.cumulativeOvertime") },
           { key: "cumulative_hours", label: t("field.cumulative") },
           { key: "equipment_code", label: t("field.code") },
           { key: "plate", label: t("field.plate") },
@@ -578,6 +580,9 @@ export function EquipmentOperatorHours() {
                 <TableHead className="tabular text-right">{t("field.normalHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.overtimeHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.hours")}</TableHead>
+                {/* 累计 also in two, coloured as their columns (J31-5), then the total. */}
+                <TableHead className="tabular text-right">{t("field.cumulativeNormal")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.cumulativeOvertime")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.cumulative")}</TableHead>
                 <TableHead pin="end" className="text-right">{t("field.view")}</TableHead>
               </TableRow>
@@ -585,13 +590,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={13} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={15} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={13} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={15} className="h-20 text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
@@ -666,6 +671,12 @@ export function EquipmentOperatorHours() {
                         {row.overtime_hours ?? ""}
                       </TableCell>
                       <TableCell className="tabular text-right font-medium">{row.hours ?? ""}</TableCell>
+                      <TableCell className={cn("tabular text-right", NORMAL_CLASS)}>
+                        {row.cumulative_normal_hours ?? ""}
+                      </TableCell>
+                      <TableCell className={cn("tabular text-right", OVERTIME_CLASS)}>
+                        {row.cumulative_overtime_hours ?? ""}
+                      </TableCell>
                       <TableCell className="tabular text-right text-muted-foreground">
                         {row.cumulative_hours ?? ""}
                       </TableCell>
@@ -717,6 +728,8 @@ export function EquipmentOperatorHours() {
                     <TableCell className="tabular text-right font-semibold">
                       {days.data?.total_hours ?? ""}
                     </TableCell>
+                    <TableCell className="text-right" />
+                    <TableCell className="text-right" />
                     <TableCell className="text-right" />
                     <TableCell pin="end" className="text-right" />
                   </TableRow>

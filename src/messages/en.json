@@ -18049,7 +18049,9 @@
       "view": "View",
       "takenOn": "Photographed on",
       "normalHours": "Normal hours (h)",
-      "overtimeHours": "Overtime hours (h)"
+      "overtimeHours": "Overtime hours (h)",
+      "cumulativeNormal": "Normal to date (h)",
+      "cumulativeOvertime": "Overtime to date (h)"
     },
     "status": {
       "MISSING_END": "No stop photo",
