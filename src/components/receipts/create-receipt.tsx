@@ -84,10 +84,11 @@ function CorrectReceiptForm({
         client_event_id: correctionEvent.current,
       });
     },
-    // A correction is a new record with a new id. Landing on it is the point:
-    // the clerk sees the figure that was actually filed, not the one they typed.
+    // Corrected on the delivery itself, its number kept (J6, Q6): back to it,
+    // with the figure that was actually filed and its history up to date.
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["receipts"] });
+      void queryClient.invalidateQueries({ queryKey: ["record-corrections"] });
       finish(`/receipts/${saved.id}`);
     },
   });

@@ -12786,7 +12786,7 @@
       "alreadyCorrectedBody": "Pembetulan dibuat pada salinan terkini supaya angka yang dikira kekal dalam satu baris. Buat perubahan ini pada {name}.",
       "alreadyCorrectedLink": "Betulkan {name}",
       "alreadyCorrectedTitle": "Resit ini sudah dibetulkan",
-      "note": "Pembetulan membuka resit baharu yang merujuk kembali kepada resit ini. Kedua-duanya kekal dalam rekod, jadi sesiapa yang menyemak kemudian nampak apa yang diubah dan mengapa.",
+      "note": "Pembetulan mengubah resit ini sendiri dan nombornya kekal; angka lama, siapa mengubahnya, bila dan mengapa kekal dalam sejarahnya. Kuantiti, harga, pembekal dan seumpamanya memerlukan PIN pengesahan; spesifikasi atau unit sahaja tidak.",
       "reason": "Sebab",
       "supersededBody": "Ia disimpan supaya angka asal masih boleh dibaca, tetapi ia tidak lagi dikira dalam penghantaran atau jumlah bahan anda.",
       "supersededLink": "Buka resit yang dibetulkan {name}",

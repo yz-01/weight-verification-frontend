@@ -12786,7 +12786,7 @@
       "alreadyCorrectedBody": "Corrections are made on the latest copy, so the figures that count stay in one line. Make this change on {name}.",
       "alreadyCorrectedLink": "Correct {name} instead",
       "alreadyCorrectedTitle": "This receipt has already been corrected",
-      "note": "A correction files a new receipt that points back at this one. Both stay on record, so anyone checking later can see what was changed and why.",
+      "note": "A correction changes this receipt itself and keeps its number; the old figures, who changed them, when and why stay in its history. Quantity, price, supplier and the like need your sign-off PIN; a specification or unit alone does not.",
       "reason": "Reason",
       "supersededBody": "It is kept so the original figures can still be read, but it no longer counts in your deliveries or your material totals.",
       "supersededLink": "Open the corrected receipt {name}",
