@@ -33,5 +33,9 @@ describe("normal and overtime hours", () => {
     expect(page.match(/key: "overtime_hours"/g)?.length).toBe(2);
     expect(page).toContain("<EquipmentNormalHoursButton project={projectFilterValue(project)} />");
     expect(zh.equipmentHours.field.overtimeHours).toBe("超时工时（小时）");
+    // 累计 in two, coloured as their columns (J31-5), with the total (J31-6).
+    expect(page).toContain("{row.cumulative_normal_hours ?? \"\"}");
+    expect(page).toContain("{row.cumulative_overtime_hours ?? \"\"}");
+    expect(zh.equipmentHours.field.cumulativeOvertime).toBe("超时工时累计（小时）");
   });
 });

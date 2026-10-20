@@ -18049,7 +18049,9 @@
       "view": "Lihat",
       "takenOn": "Difoto pada",
       "normalHours": "Jam biasa (j)",
-      "overtimeHours": "Jam lebih masa (j)"
+      "overtimeHours": "Jam lebih masa (j)",
+      "cumulativeNormal": "Jam biasa terkumpul (j)",
+      "cumulativeOvertime": "Lebih masa terkumpul (j)"
     },
     "status": {
       "MISSING_END": "Tiada foto tamat",

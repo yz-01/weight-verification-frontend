@@ -123,6 +123,9 @@ export interface EquipmentHoursSession extends RecordedBy {
   overtime_hours?: string | null;
   /** 累计工时 down the rows shown, in the table's order. */
   cumulative_hours?: string | null;
+  /** The running 正常 / 超时 totals down the same rows (J31-5). */
+  cumulative_normal_hours?: string | null;
+  cumulative_overtime_hours?: string | null;
   photo_count: number;
   /** 「缺开工」: a stop photo with no start, and none entered. */
   missing_start: boolean;
