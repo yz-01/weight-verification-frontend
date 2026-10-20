@@ -34,6 +34,10 @@
       "label": "Document archive"
     },
     {
+      "key": "inspection",
+      "label": "Inspection"
+    },
+    {
       "key": "approval",
       "label": "Approvals"
     },
@@ -380,6 +384,11 @@
       "code": "document.archive",
       "group": "document",
       "label": "Archive documents"
+    },
+    {
+      "code": "inspection.record",
+      "group": "inspection",
+      "label": "Inspection: record"
     },
     {
       "code": "approval.view",
