@@ -18807,7 +18807,8 @@
       "role_delete": "删除角色",
       "user_change_role": "修改用户角色",
       "user_change_status": "停用或恢复账号",
-      "consultant_review": "顾问审批签核"
+      "consultant_review": "顾问审批签核",
+      "consultant_link_document": "把文件管理的文件加进顾问申请"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",

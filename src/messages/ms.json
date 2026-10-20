@@ -18807,7 +18807,8 @@
       "role_delete": "Padam peranan",
       "user_change_role": "Ubah peranan pengguna",
       "user_change_status": "Gantung atau aktifkan semula akaun",
-      "consultant_review": "Tandatangani keputusan perunding"
+      "consultant_review": "Tandatangani keputusan perunding",
+      "consultant_link_document": "Tambah fail arkib ke permohonan perunding"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
