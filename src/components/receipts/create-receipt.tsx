@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { useFinishForm } from "@/components/shared/dialog-navigation";
@@ -475,6 +476,27 @@ export function EditReceipt({
   if (isLoading) return <FormSkeleton sections={4} />;
   if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
+  }
+  if (data.superseded_by) {
+    // Already corrected (JB1-2): a second correction here would fork the
+    // delivery and count it twice. Send the reader to the copy that counts.
+    const latest = data.superseded_by.latest ?? data.superseded_by;
+    return (
+      <LoadErrorCard
+        backHref={`/receipts/${data.id}`}
+        backLabel={data.receipt_no}
+        title={t("receipts.correction.alreadyCorrectedTitle")}
+        body={t("receipts.correction.alreadyCorrectedBody", { name: latest.receipt_no })}
+        action={
+          <Link
+            href={`/receipts/${latest.id}/edit${fillSupplier ? "?fill=supplier" : ""}`}
+            className="font-medium text-primary underline-offset-2 hover:underline"
+          >
+            {t("receipts.correction.alreadyCorrectedLink", { name: latest.receipt_no })}
+          </Link>
+        }
+      />
+    );
   }
   return <CorrectReceiptForm receipt={data} fillSupplier={fillSupplier} />;
 }

@@ -7817,7 +7817,7 @@
       "receipt_not_found": "That receipt could not be found.",
       "receipt_photo_not_found": "That photo could not be found.",
       "receipt_rejection_needs_reason": "Type the reason for rejecting this delivery. A rejection with no reason gives the site nothing to act on.",
-      "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
+      "receipt_superseded": "This delivery record has already been corrected, so this copy can no longer be accepted, rejected, filed or corrected. Open the latest copy, {receipt}, and work on that one.",
       "record_not_found": "That record is not available to this account.",
       "refresh_token_required": "Your session could not be renewed. Sign in again.",
       "report_export_file_altered": "This archived file no longer matches the fingerprint (SHA-256) recorded when it was generated, so it will not be opened as the original. Please contact your administrator.",
@@ -12751,6 +12751,9 @@
     "archived": "Filed",
     "correction": {
       "action": "Correct",
+      "alreadyCorrectedBody": "Corrections are made on the latest copy, so the figures that count stay in one line. Make this change on {name}.",
+      "alreadyCorrectedLink": "Correct {name} instead",
+      "alreadyCorrectedTitle": "This receipt has already been corrected",
       "note": "A correction files a new receipt that points back at this one. Both stay on record, so anyone checking later can see what was changed and why.",
       "reason": "Reason",
       "supersededBody": "It is kept so the original figures can still be read, but it no longer counts in your deliveries or your material totals.",

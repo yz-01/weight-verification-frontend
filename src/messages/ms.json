@@ -7817,7 +7817,7 @@
       "receipt_not_found": "Resit itu tidak dijumpai.",
       "receipt_photo_not_found": "Foto itu tidak dijumpai.",
       "receipt_rejection_needs_reason": "Taip sebab penolakan penghantaran ini. Penolakan tanpa sebab tidak memberi tapak apa-apa untuk ditindaki.",
-      "receipt_superseded": "Rekod penerimaan ini telah digantikan oleh rekod pembetulan, jadi salinan ini tidak boleh diterima atau ditolak lagi. Buka rekod semasa dan semak yang itu.",
+      "receipt_superseded": "Rekod penerimaan ini sudah dibetulkan, jadi salinan ini tidak boleh diterima, ditolak, difailkan atau dibetulkan lagi. Buka salinan terkini, {receipt}, dan uruskan yang itu.",
       "record_not_found": "Rekod itu tidak tersedia untuk akaun ini.",
       "refresh_token_required": "Sesi anda tidak dapat diperbaharui. Sila log masuk semula.",
       "report_export_file_altered": "Fail arkib ini tidak lagi sepadan dengan cap jari (SHA-256) yang direkodkan semasa ia dijana, jadi ia tidak akan dibuka sebagai yang asal. Sila hubungi pentadbir anda.",
@@ -12751,6 +12751,9 @@
     "archived": "Sudah difailkan",
     "correction": {
       "action": "Betulkan",
+      "alreadyCorrectedBody": "Pembetulan dibuat pada salinan terkini supaya angka yang dikira kekal dalam satu baris. Buat perubahan ini pada {name}.",
+      "alreadyCorrectedLink": "Betulkan {name}",
+      "alreadyCorrectedTitle": "Resit ini sudah dibetulkan",
       "note": "Pembetulan membuka resit baharu yang merujuk kembali kepada resit ini. Kedua-duanya kekal dalam rekod, jadi sesiapa yang menyemak kemudian nampak apa yang diubah dan mengapa.",
       "reason": "Sebab",
       "supersededBody": "Ia disimpan supaya angka asal masih boleh dibaca, tetapi ia tidak lagi dikira dalam penghantaran atau jumlah bahan anda.",
