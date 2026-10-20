@@ -153,6 +153,36 @@ export interface DocumentDetail extends DocumentRecord {
   versions: DocumentVersion[];
   /** Every file picked from the system into it, in the order picked. */
   system_files?: DocumentSystemFileInfo[];
+  /** Whole records linked into it (J12), each as it is today. */
+  record_links?: DocumentRecordLinkInfo[];
+}
+
+/** A whole business record filed into a document (J12): linked, not copied. */
+export interface DocumentRecordLinkInfo {
+  id: string;
+  kind: string;
+  record_id: string;
+  reference: string;
+  detail: string;
+  submitted_at: string | null;
+  project_name: string;
+  status_label: string;
+  /** False when the record is gone, or out of this reader's reach. */
+  exists: boolean;
+  /** The gold 「已修改」 (Q12-3). */
+  was_corrected: boolean;
+}
+
+/** One record the 「选整条记录」 search offers (J12-2). */
+export interface LinkableRecord {
+  id: string;
+  kind: string;
+  reference: string;
+  detail: string;
+  project_id: string | null;
+  project_name: string;
+  submitted_at: string | null;
+  status_label: string;
 }
 
 export interface DocumentCategoryPayload {

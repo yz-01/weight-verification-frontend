@@ -7329,7 +7329,8 @@
       "updated": "文档已更新",
       "versionUploaded": "文件已加进档案",
       "uploaded": "文件已上传",
-      "systemFilesAdded": "已放进档案"
+      "systemFilesAdded": "已放进档案",
+      "recordsAdded": "记录已放入档案"
     },
     "upload": {
       "action": "添加文件",
@@ -7413,6 +7414,33 @@
       "hint": "只能选这份档案所在项目的文件；已经在档案里的文件会变灰。",
       "what": "这份档案已有的文件",
       "confirm": "加进这份档案（{count}）"
+    },
+    "pickRecords": {
+      "tab": "选整条记录",
+      "description": "把各模块的整条记录放进档案：只是连到原记录，不复制，打开永远是原记录的最新内容。",
+      "way": "选整条记录：材料进场、退货、设备进退场……连同全部证据连到原记录。",
+      "records": "整条记录",
+      "hint": "勾选同一个项目的一条或多条记录。",
+      "mixedProjects": "这些记录属于不同项目；一份档案只能属于一个项目。",
+      "confirm": "放入 {count} 条记录",
+      "kind": "类型",
+      "project": "项目",
+      "allProjects": "全部项目",
+      "number": "编号",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "supplier": "供应商",
+      "allSuppliers": "全部供应商",
+      "material": "材料",
+      "specification": "规格",
+      "results": "记录",
+      "empty": "找不到记录。",
+      "picked": "已勾选 {count} 条"
+    },
+    "recordLinks": {
+      "title": "整条记录",
+      "allPdf": "全部记录合成一份 PDF",
+      "gone": "原记录已删除。"
     }
   },
   "driver": {

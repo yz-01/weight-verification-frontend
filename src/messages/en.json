@@ -7329,7 +7329,8 @@
       "updated": "Document updated",
       "versionUploaded": "Files added to the document",
       "uploaded": "File uploaded",
-      "systemFilesAdded": "Filed in the archive"
+      "systemFilesAdded": "Filed in the archive",
+      "recordsAdded": "Records filed"
     },
     "upload": {
       "action": "Add files",
@@ -7413,6 +7414,33 @@
       "hint": "Only files of this document's project can be added; files it already holds are greyed out.",
       "what": "the files this document already holds",
       "confirm": "Add to this document ({count})"
+    },
+    "pickRecords": {
+      "tab": "Pick whole records",
+      "description": "File whole records from the modules: they are linked, not copied, and always open as they are today.",
+      "way": "Pick whole records: a delivery, a return, a machine movement… linked as they are, with all their evidence.",
+      "records": "Records",
+      "hint": "Tick one or more records of one project.",
+      "mixedProjects": "These records are from different projects. A document belongs to one project.",
+      "confirm": "File {count, plural, one {# record} other {# records}}",
+      "kind": "Kind",
+      "project": "Project",
+      "allProjects": "All projects",
+      "number": "Number",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "supplier": "Supplier",
+      "allSuppliers": "All suppliers",
+      "material": "Material",
+      "specification": "Specification",
+      "results": "Records",
+      "empty": "No records found.",
+      "picked": "{count, plural, =0 {Nothing ticked} one {# ticked} other {# ticked}}"
+    },
+    "recordLinks": {
+      "title": "Whole records",
+      "allPdf": "All records as one PDF",
+      "gone": "The original record has been deleted."
     }
   },
   "driver": {

@@ -76,6 +76,12 @@ import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import type { Requirement } from "@/lib/missing-fields";
 import type { Project } from "@/interfaces/contractor";
+import type { LinkableRecord } from "@/interfaces/document-workflow";
+import { RecordLinkPicker } from "@/components/document-workflow/record-link-picker";
+import { FileActionButtons } from "@/components/shared/file-actions";
+import { CorrectedTag } from "@/components/shared/record-correction";
+import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
+import type { RecordPdfKind } from "@/services/contractor-ops.service";
 import type {
   DocumentCategory,
   DocumentCategoryPayload,
@@ -93,9 +99,12 @@ import { toastSuccess } from "@/services/api-client";
 import { getProjects } from "@/services/contractor.service";
 import { getUsers } from "@/services/users.service";
 import {
+  addDocumentRecords,
   addSystemFiles,
   archiveDocument,
+  attachDocumentRecords,
   attachSystemFiles,
+  documentRecordsPdf,
   createDocumentCategory,
   createDocumentSubcategory,
   deleteDocumentCategory,
@@ -784,9 +793,12 @@ function UploadDocumentDialog({
   const [done, setDone] = useState(0);
   const [createdId, setCreatedId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  // E4: 「从电脑上传」｜「从系统里选」.
-  const [origin, setOrigin] = useState<"computer" | "system">("computer");
+  // E4: 「从电脑上传」｜「从系统里选」; J12: 「选整条记录」.
+  const [origin, setOrigin] = useState<"computer" | "system" | "records">("computer");
   const [picked, setPicked] = useState<Record<string, SystemFile>>({});
+  const [pickedRecords, setPickedRecords] = useState<Record<string, LinkableRecord>>({});
+  const recordList = Object.values(pickedRecords);
+  const mixedRecordProjects = new Set(recordList.map((record) => record.project_id ?? "")).size > 1;
   const pickedIds = Object.keys(picked);
   // A document belongs to one project, so the picked files must share one.
   const mixedProjects = new Set(Object.values(picked).map((file) => file.project ?? "")).size > 1;
@@ -798,9 +810,11 @@ function UploadDocumentDialog({
   const formatGroup = (values: { name: string; count: number }) =>
     t("documents.uploadFile.groupTitle", values);
   const defaultTitle =
-    origin === "system"
-      ? groupTitle(Object.values(picked).map((file) => file.file_name), formatGroup)
-      : groupTitle(files.map((file) => file.name), formatGroup);
+    origin === "records"
+      ? groupTitle(recordList.map((record) => record.reference), formatGroup)
+      : origin === "system"
+        ? groupTitle(Object.values(picked).map((file) => file.file_name), formatGroup)
+        : groupTitle(files.map((file) => file.name), formatGroup);
   // Once part of a several-file upload is in, what it was filed as is fixed.
   const started = createdId !== null;
 
@@ -857,7 +871,23 @@ function UploadDocumentDialog({
     },
     onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
   });
-  const pending = mutation.isPending || filing.isPending;
+  // J12: whole records, linked into one new document.
+  const recordFiling = useMutation({
+    mutationFn: () =>
+      addDocumentRecords({
+        records: recordList.map((record) => ({ kind: record.kind, id: record.id })),
+        category,
+        subcategory: subcategory === "none" ? null : subcategory,
+        keywords: keywords.trim(),
+        title: title.trim() || defaultTitle,
+      }),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+    onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
+  });
+  const pending = mutation.isPending || filing.isPending || recordFiling.isPending;
   // Part of a several-file upload is in: say so, and that 「上传」 carries on.
   const partial = started && done < files.length;
 
@@ -866,20 +896,30 @@ function UploadDocumentDialog({
       <DialogContent
         className={cn(
           "max-h-[92dvh] overflow-y-auto [&>button]:hidden",
-          origin === "system" ? "sm:max-w-260" : "sm:max-w-170",
+          origin === "computer" ? "sm:max-w-170" : "sm:max-w-260",
         )}
       >
         <DialogHeader>
           <DialogTitle>{t("documents.uploadFile.title")}</DialogTitle>
           <DialogDescription>
-            {t(origin === "system" ? "documents.pickFromSystem.description" : "documents.uploadFile.description")}
+            {t(
+              origin === "records"
+                ? "documents.pickRecords.description"
+                : origin === "system"
+                  ? "documents.pickFromSystem.description"
+                  : "documents.uploadFile.description",
+            )}
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={origin} onValueChange={(value) => !started && setOrigin(value as "computer" | "system")}>
+        <Tabs
+          value={origin}
+          onValueChange={(value) => !started && setOrigin(value as "computer" | "system" | "records")}
+        >
           <TabsList>
             <TabsTrigger value="computer">{t("documents.uploadFile.fromComputer")}</TabsTrigger>
             <TabsTrigger value="system">{t("documents.pickFromSystem.tab")}</TabsTrigger>
+            <TabsTrigger value="records">{t("documents.pickRecords.tab")}</TabsTrigger>
           </TabsList>
         </Tabs>
         {/* One plain line for each way in (2026-10-10: 「我不会用」). */}
@@ -890,10 +930,28 @@ function UploadDocumentDialog({
           <li className={cn(origin === "system" && "font-medium text-foreground")}>
             {t("documents.pickFromSystem.systemWay")}
           </li>
+          <li className={cn(origin === "records" && "font-medium text-foreground")}>
+            {t("documents.pickRecords.way")}
+          </li>
         </ul>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {origin === "system" ? (
+          {origin === "records" ? (
+            <FieldWrapper
+              label={t("documents.pickRecords.records")}
+              required
+              error={errors.records}
+              hint={t("documents.pickRecords.hint")}
+              className="sm:col-span-2"
+            >
+              <RecordLinkPicker
+                projects={projects}
+                initialProject={initialProject}
+                selected={pickedRecords}
+                onSelectedChange={setPickedRecords}
+              />
+            </FieldWrapper>
+          ) : origin === "system" ? (
             <FieldWrapper
               label={t("documents.pickFromSystem.files")}
               required
@@ -939,6 +997,11 @@ function UploadDocumentDialog({
             </p>
           )}
           </>
+          )}
+          {origin === "records" && mixedRecordProjects && (
+            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground sm:col-span-2">
+              {t("documents.pickRecords.mixedProjects")}
+            </p>
           )}
           {origin === "system" && mixedProjects && (
             <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground sm:col-span-2">
@@ -1082,7 +1145,20 @@ function UploadDocumentDialog({
             <X className="h-4 w-4" />
             {t("common.cancel")}
           </Button>
-          {origin === "system" ? (
+          {origin === "records" ? (
+            <Button
+              requires={[
+                [recordList.length > 0, t("documents.pickRecords.records")],
+                [category, t("documents.field.category")],
+              ]}
+              disabled={recordFiling.isPending || mixedRecordProjects}
+              disabledReason={mixedRecordProjects ? t("documents.pickRecords.mixedProjects") : undefined}
+              onClick={() => recordFiling.mutate()}
+            >
+              {recordFiling.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderInput className="h-4 w-4" />}
+              {t("documents.pickRecords.confirm", { count: recordList.length })}
+            </Button>
+          ) : origin === "system" ? (
             <Button
               requires={[
                 [pickedIds.length > 0, t("documents.pickFromSystem.files")],
@@ -1341,11 +1417,15 @@ function VersionUploadDialog({
   onDone: () => void;
 }) {
   const t = useTranslations();
-  const [origin, setOrigin] = useState<"computer" | "system">("computer");
+  const [origin, setOrigin] = useState<"computer" | "system" | "records">("computer");
   const [files, setFiles] = useState<File[]>([]);
   const [done, setDone] = useState(0);
   const [note, setNote] = useState("");
   const [picked, setPicked] = useState<Record<string, SystemFile>>({});
+  // J12-3: whole records join the document beside its files.
+  const [pickedRecords, setPickedRecords] = useState<Record<string, LinkableRecord>>({});
+  const recordList = Object.values(pickedRecords);
+  const otherProjectRecord = recordList.some((record) => (record.project_id ?? null) !== (document.project ?? null));
   const pickedIds = Object.keys(picked);
   const [errors, setErrors] = useState<Record<string, string>>({});
   // The files it already holds from the system: greyed in the picker.
@@ -1388,14 +1468,26 @@ function VersionUploadDialog({
     },
     onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
   });
-  const pending = mutation.isPending || attaching.isPending;
+  const linking = useMutation({
+    mutationFn: () =>
+      attachDocumentRecords(
+        document.id,
+        recordList.map((record) => ({ kind: record.kind, id: record.id })),
+      ),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+    onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
+  });
+  const pending = mutation.isPending || attaching.isPending || linking.isPending;
 
   return (
     <Dialog open onOpenChange={(next) => !next && !pending && onClose()}>
       <DialogContent
         className={cn(
           "max-h-[92dvh] overflow-y-auto [&>button]:hidden",
-          origin === "system" ? "sm:max-w-260" : "sm:max-w-130",
+          origin === "computer" ? "sm:max-w-130" : "sm:max-w-260",
         )}
       >
         <DialogHeader>
@@ -1404,10 +1496,14 @@ function VersionUploadDialog({
             {t("documents.upload.description", { name: document.title })}
           </DialogDescription>
         </DialogHeader>
-        <Tabs value={origin} onValueChange={(value) => !pending && setOrigin(value as "computer" | "system")}>
+        <Tabs
+          value={origin}
+          onValueChange={(value) => !pending && setOrigin(value as "computer" | "system" | "records")}
+        >
           <TabsList>
             <TabsTrigger value="computer">{t("documents.uploadFile.fromComputer")}</TabsTrigger>
             <TabsTrigger value="system">{t("documents.pickFromSystem.tab")}</TabsTrigger>
+            <TabsTrigger value="records">{t("documents.pickRecords.tab")}</TabsTrigger>
           </TabsList>
         </Tabs>
         <ul className="space-y-1 rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground" data-slot="upload-ways">
@@ -1417,8 +1513,32 @@ function VersionUploadDialog({
           <li className={cn(origin === "system" && "font-medium text-foreground")}>
             {t("documents.pickFromSystem.systemWay")}
           </li>
+          <li className={cn(origin === "records" && "font-medium text-foreground")}>
+            {t("documents.pickRecords.way")}
+          </li>
         </ul>
-        {origin === "system" ? (
+        {origin === "records" ? (
+          <div className="space-y-2">
+            <FieldWrapper
+              label={t("documents.pickRecords.records")}
+              required
+              error={errors.records}
+              hint={t("documents.pickRecords.hint")}
+            >
+              <RecordLinkPicker
+                projects={projects}
+                initialProject={document.project ?? undefined}
+                selected={pickedRecords}
+                onSelectedChange={setPickedRecords}
+              />
+            </FieldWrapper>
+            {otherProjectRecord ? (
+              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground">
+                {t("documents.attach.otherProject")}
+              </p>
+            ) : null}
+          </div>
+        ) : origin === "system" ? (
           <div className="space-y-2">
             <QueryFailedNote query={detail} what={t("documents.attach.what")} />
             <FieldWrapper
@@ -1475,7 +1595,17 @@ function VersionUploadDialog({
             <X className="h-4 w-4" />
             {t("common.cancel")}
           </Button>
-          {origin === "system" ? (
+          {origin === "records" ? (
+            <Button
+              requires={[[recordList.length > 0, t("documents.pickRecords.records")]]}
+              disabled={linking.isPending || otherProjectRecord}
+              disabledReason={otherProjectRecord ? t("documents.attach.otherProject") : undefined}
+              onClick={() => linking.mutate()}
+            >
+              {linking.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderInput className="h-4 w-4" />}
+              {t("documents.pickRecords.confirm", { count: recordList.length })}
+            </Button>
+          ) : origin === "system" ? (
             <Button
               requires={[[pickedIds.length > 0, t("documents.pickFromSystem.files")]]}
               disabled={attaching.isPending}
@@ -1740,6 +1870,52 @@ function DocumentDetailBody({
           />
         )}
       </div>
+
+      {/* Whole records linked into it (J12-1..J12-5): each as it is today,
+          its gold 已修改 opening the history, its complete evidence PDF; and
+          all of them as one PDF. */}
+      {(document.record_links ?? []).length > 0 && (
+        <section className="space-y-2 border-t pt-5" data-testid="document-record-links">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-foreground">{t("documents.recordLinks.title")}</h3>
+            <FileActionButtons
+              label={t("documents.recordLinks.allPdf")}
+              source={{
+                load: () => documentRecordsPdf(document.id, document.document_no),
+                title: t("documents.recordLinks.allPdf"),
+              }}
+            />
+          </div>
+          <ul className="divide-y rounded-md border">
+            {(document.record_links ?? []).map((link) => (
+              <li key={link.id} className="flex flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center">
+                <div className="min-w-0 flex-1">
+                  <p className="flex flex-wrap items-center gap-1.5 text-sm font-medium">
+                    {link.was_corrected ? (
+                      <CorrectedTag kind={link.kind as CorrectionHistoryKind} recordId={link.record_id} />
+                    ) : null}
+                    {link.reference}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {link.exists
+                      ? [t(`archiveQueue.kind.${link.kind}`), link.detail, link.project_name, link.status_label]
+                          .filter(Boolean)
+                          .join(" · ")
+                      : t("documents.recordLinks.gone")}
+                  </p>
+                </div>
+                {link.exists ? (
+                  <RecordExportButton
+                    kind={link.kind as RecordPdfKind}
+                    recordId={link.record_id}
+                    reference={link.reference}
+                  />
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* The files picked from the system into it (2026-10-10: kept
           together), each previewed, saved or traced to its record. */}
