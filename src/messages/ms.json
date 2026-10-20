@@ -7943,9 +7943,9 @@
       "original_not_expected": "Pelayan belum ada foto yang menunggu foto asal ini. Biar rekod selesai dimuat naik dahulu.",
       "original_hash_mismatch": "Foto asal rosak semasa dihantar dan tidak sama dengan yang di telefon, jadi tiada apa disimpan. Sistem akan cuba lagi; ia juga boleh dicuba semula di halaman Pengurusan teknikal.",
       "original_not_found": "Foto ini tiada foto asal yang telah disandarkan.",
-      "driver_link_invalid": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
-      "driver_link_closed": "Perjalanan ini selesai dan pautannya ditutup.",
-      "driver_link_other_device": "Pautan ini digunakan pada telefon lain. Minta pengitar semula hantar semula.",
+      "driver_link_invalid": "Pautan ini tidak sah lagi. Minta pejabat tapak menghantarnya semula.",
+      "driver_link_closed": "Pautan ini telah dihentikan. Tanya pejabat tapak.",
+      "driver_link_other_device": "Pautan ini sudah digunakan pada telefon lain.",
       "driver_link_expired": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
       "driver_login_retired": "Pemandu tidak perlu log masuk lagi. Buka pautan perjalanan yang dihantar oleh pengitar semula.",
       "document_system_files_mixed_projects": "Fail ini dari projek berlainan. Satu dokumen milik satu projek, jadi pilih fail dari satu projek sahaja.",
@@ -8028,7 +8028,13 @@
       "sign_off_office_only": "Sila buat ini di pejabat belakang, pada komputer. Telefon tidak boleh membuat langkah ini.",
       "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda.",
       "equipment_hours_same_machine": "Jam ini sudah milik mesin itu.",
-      "equipment_hours_overlap": "Mesin itu sudah ada jam pada masa ini. Masa yang sama tidak boleh dikira dua kali."
+      "equipment_hours_overlap": "Mesin itu sudah ada jam pada masa ini. Masa yang sama tidak boleh dikira dua kali.",
+      "equipment_hours_equipment_gone": "Mesin ini telah meninggalkan tapak; ia tidak boleh didaftar masuk lagi.",
+      "equipment_hours_no_gps": "Tiada lokasi yang tepat. Keluar ke kawasan terbuka, hidupkan lokasi dan cuba lagi.",
+      "equipment_hours_outside_fence": "Anda berada di luar kawasan tapak. Daftar masuk di tapak.",
+      "equipment_hours_no_fence": "Kawasan tapak belum ditetapkan. Hubungi pejabat tapak.",
+      "driver_link_not_confirmed": "Sahkan nombor telefon anda dahulu.",
+      "driver_link_phone_mismatch": "Nombor telefon ini tidak sepadan dengan nombor yang didaftarkan oleh pejabat tapak."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -18872,5 +18878,66 @@
     "label": "Spesifikasi",
     "all": "Semua spesifikasi",
     "materialFirst": "Pilih bahan dahulu"
+  },
+  "driverClock": {
+    "title": "Daftar masuk peralatan",
+    "failedTitle": "Pautan tidak dapat dibuka. Semak isyarat dan cuba lagi.",
+    "phoneTitle": "Sahkan nombor telefon anda",
+    "phoneLabel": "Nombor telefon bimbit anda",
+    "phoneBody": "Nombor yang didaftarkan oleh pejabat tapak. Pautan ini kemudian hanya berfungsi pada telefon ini.",
+    "phoneConfirm": "Sahkan",
+    "phoneMismatch": "Nombor ini tidak sepadan dengan nombor yang didaftarkan oleh pejabat tapak.",
+    "driverLine": "Pemandu: {name} · CIDB {cidb} · {company}",
+    "photoHint": "Imbas kod QR mesin, kemudian ambil foto mesin atau diri anda, tandatangan dan hantar. Anda mesti berada di tapak dengan lokasi dihidupkan.",
+    "ended": {
+      "invalid": {
+        "title": "Pautan ini tidak sah lagi",
+        "body": "Minta pejabat tapak menghantarnya semula."
+      },
+      "closed": {
+        "title": "Pautan ini telah dihentikan",
+        "body": "Tanya pejabat tapak jika anda masih bekerja di tapak ini."
+      },
+      "otherDevice": {
+        "title": "Pautan ini digunakan pada telefon lain",
+        "body": "Minta pejabat tapak menghantarnya semula untuk telefon ini."
+      }
+    },
+    "status": {
+      "NOT_OPENED": "Belum dibuka",
+      "IN_USE": "Digunakan",
+      "STOPPED": "Dihentikan"
+    },
+    "toast": {
+      "created": "Pautan dibuat",
+      "reissued": "Pautan baharu dibuat; pautan lama tidak berfungsi lagi",
+      "stopped": "Pautan dihentikan"
+    },
+    "office": {
+      "title": "Pautan pemandu",
+      "help": "Satu pautan bagi setiap pemandu: ia hanya membuka daftar masuk mula / tamat untuk mesin projek ini. Hantar melalui WhatsApp. Hentikan apabila pemandu meninggalkan projek.",
+      "add": "Pautan pemandu baharu",
+      "empty": "Belum ada pautan pemandu.",
+      "driverName": "Nama pemandu",
+      "cidb": "No. kad CIDB",
+      "company": "Syarikat",
+      "companyHint": "Pilih daripada senarai pembekal, atau taip di bawah.",
+      "companyTyped": "Tiada dalam senarai (taip)",
+      "companyName": "Nama syarikat",
+      "phone": "Nombor telefon bimbit",
+      "phoneHint": "Pemandu mengesahkan nombor ini kali pertama pautan dibuka.",
+      "make": "Buat pautan",
+      "cancel": "Batal",
+      "close": "Tutup",
+      "linkFor": "Pautan untuk {name}",
+      "shownOnce": "Salin sekarang: ia dipaparkan sekali sahaja. Hantar semula akan membuat pautan baharu.",
+      "copy": "Salin pautan",
+      "copied": "Disalin",
+      "sendAgain": "Hantar semula",
+      "stop": "Hentikan",
+      "lastUsed": "Terakhir digunakan {at}",
+      "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
+      "chooseProject": "Pilih projek di bahagian atas halaman untuk membuat pautan."
+    }
   }
 }

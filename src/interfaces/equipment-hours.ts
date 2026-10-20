@@ -217,6 +217,8 @@ export interface EquipmentHoursPhotoDraft {
   latitude?: string;
   longitude?: string;
   locationAccuracyM?: string;
+  /** A driver's own link (J26), instead of an account. */
+  driverLink?: { token: string; device: string };
 }
 
 /** 操作人员 / CIDB 卡号 for one session, or for the machine's whole day. */

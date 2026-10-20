@@ -23,6 +23,7 @@ import { getOfflineJobs } from "@/lib/offline-db";
 import { photoTakenAt } from "@/lib/photo-meta";
 import { matchScanned, squashCode } from "@/lib/machine-scan";
 import { cn } from "@/lib/utils";
+import { getDriverMachines } from "@/services/driver-clock.service";
 import { loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
 import { submitEquipmentHoursPhotoOfflineAware } from "@/services/offline-sync.service";
 
@@ -151,6 +152,29 @@ export function kindToTake(
   return nextKind(machine);
 }
 
+/** The offline queue's owner for a driver's link (J26): one queue per link. */
+export function driverQueueOwner(token: string): string {
+  return `driver-link:${token}`;
+}
+
+/** A driver's link's machines, in the phone list's shape (J26). */
+async function loadDriverMachines(token: string, device: string): Promise<EquipmentHoursMachine[]> {
+  const rows = await getDriverMachines(token, device);
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    code: row.code,
+    site_no: row.site_no,
+    plate: row.plate,
+    supplier_name: row.supplier_name,
+    project: "",
+    project_name: "",
+    status: "",
+    open_since: row.open_since,
+    unclosed_since: row.unclosed_since,
+  }));
+}
+
 async function waitingPhotos(ownerId: string): Promise<WaitingPhoto[]> {
   try {
     const jobs = await getOfflineJobs(ownerId);
@@ -192,14 +216,23 @@ export interface LastSent {
  */
 export function EquipmentHoursCapture({
   initialProject = "",
+  driver,
 }: {
   initialProject?: string;
+  /**
+   * A driver's own clock-in link (J26): no account and no project to pick -
+   * the link's machines, the link's endpoint, its own offline queue, and a
+   * GPS fix inside the site's fence required (item 125-4).
+   */
+  driver?: { token: string; device: string };
 }) {
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
   const { user } = useAuth();
+  // Whose queue a photo waits in: the account's, or the link's.
+  const ownerId = driver ? driverQueueOwner(driver.token) : user?.id;
   const queryClient = useQueryClient();
-  const [project, setProject] = useState(initialProject);
+  const [project, setProject] = useState(driver ? "driver-link" : initialProject);
   const [machine, setMachine] = useState<EquipmentHoursMachine | null>(null);
   const [kind, setKind] = useState<EquipmentPhotoKind>("START");
   const [shot, setShot] = useState<File>();
@@ -214,8 +247,8 @@ export function EquipmentHoursCapture({
   const [last, setLast] = useState<LastSent | null>(null);
 
   const machines = useQuery({
-    queryKey: ["equipment-hours", "machines", project],
-    queryFn: () => loadEquipmentHoursMachines(project),
+    queryKey: ["equipment-hours", "machines", project, driver?.token ?? ""],
+    queryFn: () => (driver ? loadDriverMachines(driver.token, driver.device) : loadEquipmentHoursMachines(project)),
     enabled: Boolean(project),
     staleTime: 60_000,
   });
@@ -230,8 +263,8 @@ export function EquipmentHoursCapture({
     setError("");
     setTyping(false);
     setTyped("");
-    if (user) {
-      void waitingPhotos(user.id).then((waiting) => setKind(kindToTake(found, waiting)));
+    if (ownerId) {
+      void waitingPhotos(ownerId).then((waiting) => setKind(kindToTake(found, waiting)));
     }
   };
 
@@ -253,8 +286,8 @@ export function EquipmentHoursCapture({
 
   const send = useMutation({
     mutationFn: () => {
-      if (!user || !machine || !shot || !signature) throw new Error("missing");
-      return submitEquipmentHoursPhotoOfflineAware(user.id, {
+      if (!ownerId || !machine || !shot || !signature) throw new Error("missing");
+      return submitEquipmentHoursPhotoOfflineAware(ownerId, {
         equipment: machine.id,
         equipmentLabel: machineLabel(machine),
         kind,
@@ -264,6 +297,7 @@ export function EquipmentHoursCapture({
         latitude: fix?.latitude,
         longitude: fix?.longitude,
         locationAccuracyM: fix?.accuracy,
+        ...(driver ? { driverLink: driver } : {}),
       });
     },
     onSuccess: (result) => {
@@ -287,7 +321,7 @@ export function EquipmentHoursCapture({
 
   return (
     <div className="space-y-4">
-      {!initialProject && (
+      {!initialProject && !driver && (
         <FieldWrapper label={t("phone.project")} required>
           <ProjectPicker
             value={project}
@@ -443,6 +477,8 @@ export function EquipmentHoursCapture({
             requires={[
               [shot, t("phone.photo")],
               [signature, t("phone.signature")],
+              // On a driver's link the server judges the fence (item 125-4).
+              ...(driver ? ([[fix, t("phone.location")]] as [unknown, string][]) : []),
             ]}
             disabled={send.isPending}
             onClick={() => send.mutate()}
