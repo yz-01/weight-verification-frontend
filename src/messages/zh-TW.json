@@ -8858,6 +8858,7 @@
     "empty": "還沒有人說話。",
     "send": "傳送",
     "placeholder": "輸入訊息",
+    "recordCancel": "取消",
     "recordStart": "點一下開始錄音",
     "recordStop": "點一下停止並發送",
     "recordingFor": "已錄 {seconds} 秒，上限 {limit} 秒",

@@ -23,7 +23,7 @@
  * risks a customer's evidence for no visible gain.
  */
 
-import { Mic, Paperclip, Send, Square } from "lucide-react";
+import { Mic, Paperclip, Send, Square, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -73,72 +73,130 @@ export function canRecord(): boolean {
   );
 }
 
+export type VoiceResult = { file: File | null; seconds: number };
+
+/** The part of a `MediaRecorder` a voice note uses (a fake one in tests). */
+export type VoiceMedia = {
+  state: string;
+  stream: { getTracks(): { stop(): void }[] };
+  start(): void;
+  stop(): void;
+  ondataavailable: ((event: { data: Blob }) => void) | null;
+  onstop: (() => void) | null;
+};
+
+/**
+ * One recording, from the microphone opening to the file - or to nothing.
+ *
+ * Kept out of the hook so it can be driven without a browser. Three ways it
+ * ends: 「停止并发送」 (`stop`, the file), 「取消」 (`cancel`, nothing - J3,
+ * Q3-1), and the limit, which hands the file to `onLimit` as a stop would
+ * (JB3: the cap used to stop the recorder with nobody waiting for the file,
+ * and the stop button never finished after that - the note was lost).
+ */
+export function startVoiceSession(
+  media: VoiceMedia,
+  limitSeconds: number,
+  events: { tick: (seconds: number) => void; limit: (result: VoiceResult) => void; ended: () => void },
+  timers: { every: (run: () => void) => unknown; clear: (handle: unknown) => void } = {
+    every: (run) => setInterval(run, 1000),
+    clear: (handle) => clearInterval(handle as ReturnType<typeof setInterval>),
+  },
+) {
+  let chunks: Blob[] = [];
+  let take: ((file: File | null) => void) | null = null;
+  let elapsed = 0;
+  let open = true;
+  media.ondataavailable = (event) => {
+    if (event.data.size) chunks.push(event.data);
+  };
+  media.onstop = () => {
+    const blob = new Blob(chunks, { type: "audio/webm" });
+    take?.(blob.size ? new File([blob], `voice-${Date.now()}.webm`, { type: "audio/webm" }) : null);
+    take = null;
+  };
+  media.start();
+  const ticker = timers.every(() => {
+    elapsed += 1;
+    events.tick(elapsed);
+    // Stop at the cap rather than let it run past and be refused - and send
+    // what was said, as 「停止并发送」 would.
+    if (elapsed >= limitSeconds) {
+      const taken = elapsed;
+      end((file) => events.limit({ file, seconds: taken }));
+    }
+  });
+
+  function end(next: ((file: File | null) => void) | null) {
+    if (!open) return false;
+    open = false;
+    timers.clear(ticker);
+    take = next;
+    if (!next) chunks = [];
+    if (media.state !== "inactive") media.stop();
+    media.stream.getTracks().forEach((track) => track.stop());
+    events.ended();
+    return true;
+  }
+
+  return {
+    stop(): Promise<VoiceResult> {
+      const taken = elapsed;
+      return new Promise((resolve) => {
+        if (!end((file) => resolve({ file, seconds: taken }))) resolve({ file: null, seconds: 0 });
+      });
+    },
+    /** The microphone off, the recording dropped, nothing sent. */
+    cancel() {
+      end(null);
+    },
+  };
+}
+
 /**
  * Record a voice note, stopping itself at the limit.
  *
  * Stopping on its own matters more than it looks: a worker who holds the
  * button too long would otherwise finish a recording, upload it over a poor
  * site connection, and only then be told it was too long - having lost both
- * the recording and the time.
+ * the recording and the time. What was said is sent (`onLimit`).
  */
-export function useRecorder(limitSeconds: number) {
+export function useRecorder(limitSeconds: number, onLimit?: (result: VoiceResult) => void) {
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const recorder = useRef<MediaRecorder | null>(null);
-  const chunks = useRef<Blob[]>([]);
-  const resolver = useRef<((file: File | null) => void) | null>(null);
-  const ticker = useRef<ReturnType<typeof setInterval> | null>(null);
+  const session = useRef<ReturnType<typeof startVoiceSession> | null>(null);
+  const limitHandler = useRef(onLimit);
+  useEffect(() => {
+    limitHandler.current = onLimit;
+  }, [onLimit]);
 
-  const finish = useCallback(() => {
-    if (ticker.current) clearInterval(ticker.current);
-    ticker.current = null;
-    recorder.current?.stream.getTracks().forEach((track) => track.stop());
-    recorder.current = null;
-    setRecording(false);
-  }, []);
-
-  useEffect(() => finish, [finish]);
+  // Leaving the page drops a recording in progress.
+  useEffect(() => () => session.current?.cancel(), []);
 
   const start = useCallback(async (): Promise<void> => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const media = new MediaRecorder(stream, { mimeType: "audio/webm" });
-    chunks.current = [];
-    media.ondataavailable = (event) => {
-      if (event.data.size) chunks.current.push(event.data);
-    };
-    media.onstop = () => {
-      const blob = new Blob(chunks.current, { type: "audio/webm" });
-      resolver.current?.(
-        blob.size
-          ? new File([blob], `voice-${Date.now()}.webm`, { type: "audio/webm" })
-          : null,
-      );
-      resolver.current = null;
-    };
-    recorder.current = media;
     setSeconds(0);
     setRecording(true);
-    media.start();
-    ticker.current = setInterval(() => {
-      setSeconds((current) => {
-        // Stop at the cap rather than let it run past and be refused.
-        if (current + 1 >= limitSeconds) media.stop();
-        return current + 1;
-      });
-    }, 1000);
+    session.current = startVoiceSession(media as unknown as VoiceMedia, limitSeconds, {
+      tick: setSeconds,
+      limit: (result) => limitHandler.current?.(result),
+      ended: () => {
+        session.current = null;
+        setRecording(false);
+      },
+    });
   }, [limitSeconds]);
 
-  const stop = useCallback((): Promise<{ file: File | null; seconds: number }> => {
-    const taken = seconds;
-    return new Promise((resolve) => {
-      if (!recorder.current) return resolve({ file: null, seconds: 0 });
-      resolver.current = (file) => resolve({ file, seconds: taken });
-      recorder.current.stop();
-      finish();
-    });
-  }, [finish, seconds]);
+  const stop = useCallback(
+    (): Promise<VoiceResult> => session.current?.stop() ?? Promise.resolve({ file: null, seconds: 0 }),
+    [],
+  );
 
-  return { recording, seconds, start, stop, supported: canRecord() };
+  /** 「取消」 (J3, Q3-1): the microphone off, the recording dropped, nothing sent. */
+  const cancel = useCallback(() => session.current?.cancel(), []);
+
+  return { recording, seconds, start, stop, cancel, supported: canRecord() };
 }
 
 /**
@@ -479,7 +537,9 @@ export function ConversationComposer({
   moreWork?: { on: boolean; onChange: (next: boolean) => void };
 }) {
   const t = useTranslations();
-  const recorder = useRecorder(limit);
+  const recorder = useRecorder(limit, ({ file: audio, seconds }) => {
+    if (audio) onSend({ audio, audio_seconds: seconds });
+  });
   const fileInput = useRef<HTMLInputElement>(null);
   const fieldMode = isFieldChatPath(usePathname());
   const place = usePhotoLocation();
@@ -600,11 +660,18 @@ export function ConversationComposer({
 
         {recorder.supported ? (
           recorder.recording ? (
-            <Button size="sm" variant="destructive" onClick={submitVoice}>
-              <Square className="h-4 w-4" />
-              {t("hazard.recordStop")} ·{" "}
-              {t("hazard.recordingFor", { seconds: recorder.seconds, limit })}
-            </Button>
+            <>
+              <Button size="sm" variant="destructive" onClick={submitVoice}>
+                <Square className="h-4 w-4" />
+                {t("hazard.recordStop")} ·{" "}
+                {t("hazard.recordingFor", { seconds: recorder.seconds, limit })}
+              </Button>
+              {/* 「取消」 (J3, Q3-1): dropped at once, nothing sent, no second question. */}
+              <Button size="sm" variant="outline" onClick={recorder.cancel}>
+                <X className="h-4 w-4" />
+                {t("hazard.recordCancel")}
+              </Button>
+            </>
           ) : (
             <Button
               size="sm"

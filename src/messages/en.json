@@ -8858,6 +8858,7 @@
     "empty": "Nothing has been said yet.",
     "send": "Send",
     "placeholder": "Type a message",
+    "recordCancel": "Cancel",
     "recordStart": "Tap to record a voice note",
     "recordStop": "Tap to stop and send",
     "recordingFor": "Recording {seconds}s of {limit}s",
