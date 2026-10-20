@@ -19,7 +19,10 @@ export type ContractorReportType =
   | "field_tasks"
   | "material_outgoing"
   | "claims"
-  | "sundry_claims";
+  | "sundry_claims"
+  // 材料退货记录（RN）and 材料不合格记录 (J29).
+  | "material_returns"
+  | "material_rejections";
 
 export interface ContractorReportFilters {
   report_type: ContractorReportType;
@@ -60,7 +63,10 @@ export type ReportFilterKey =
   | "plan"
   | "target_type"
   // 分包商 on the Progress Claim report (I10, ID7).
-  | "subcontractor";
+  | "subcontractor"
+  // 材料名称 and 规格 on the two material reports (J29).
+  | "material"
+  | "specification";
 
 /**
  * One choice of a filter. `label` is a name (a person, a machine) or, for a
