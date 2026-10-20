@@ -7886,6 +7886,7 @@
       "attachment_needs_project": "Kelulusan ini bukan untuk satu projek, jadi lampiran tidak boleh ditambah. Simpan dokumennya dalam arkib dokumen.",
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
       "receipt_awaiting_acceptance": "Penghantaran ini belum diterima. Terima atau tolak dahulu, kemudian arkibkan.",
+      "receipt_archive_needs_supplier": "Penghantaran ini ({receipt}) belum ada pembekal. Yang ditolak juga: tekan 「Isi pembekal」 sebelum mengarkibkan.",
       "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada.",
       "material_request_assigned_to_other": "Permohonan ini dihantar kepada orang lain untuk diluluskan. Untuk memutuskannya sendiri, tekan \"Ambil alih\" dahulu.",
       "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
@@ -12985,6 +12986,7 @@
     "supplierUnfilledShort": "belum diisi",
     "fillSupplier": {
       "action": "Isi pembekal",
+      "archiveHint": "Pembekal tidak diisi di tapak. Isi pembekal sebelum penghantaran ini boleh diarkibkan.",
       "hint": "Tapak tidak mengisi pembekal. Isi pembekal sebelum menerima.",
       "reason": "Pembekal diisi (kosong di tapak)",
       "formHint": "Pilih pembekal penghantaran ini, simpan, kemudian terima."

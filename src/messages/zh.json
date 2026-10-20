@@ -7886,6 +7886,7 @@
       "attachment_needs_project": "这个审批不属于某个项目，不能加附件；请把文件放到「文档档案」里。",
       "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
       "receipt_awaiting_acceptance": "这批材料还没验收，请先验收或判不合格再归档。",
+      "receipt_archive_needs_supplier": "这批材料（{receipt}）还没有供应商。被拒收、不合格的也要先按「补供应商」填上，才能归档。",
       "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。",
       "material_request_assigned_to_other": "这个申请已提交给别人审批。要由你审批，请先按「改派给我」。",
       "material_request_reviewer_not_eligible": "所选的人不能批准这个项目的申请，请从名单里重新选择。",
@@ -12985,6 +12986,7 @@
     "supplierUnfilledShort": "未填",
     "fillSupplier": {
       "action": "补供应商",
+      "archiveHint": "现场没有填供应商。先补供应商，才能归档。",
       "hint": "现场没有填供应商。先补供应商，才能验收。",
       "reason": "补供应商（现场未填）",
       "formHint": "选这批货的供应商，保存后再验收。"
