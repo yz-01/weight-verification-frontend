@@ -4902,6 +4902,7 @@
     },
     "attachment": {
       "tickFirst": "請先勾選要新增的檔案",
+      "wholeRecord": "整筆記錄：{records}（附完整證據 PDF）",
       "archiveCategory": "檔案分類",
       "allArchiveCategories": "全部檔案分類",
       "addPicked": "新增所選的 {count} 個",
