@@ -8858,6 +8858,7 @@
     "empty": "Belum ada apa-apa dikatakan.",
     "send": "Hantar",
     "placeholder": "Taip mesej",
+    "recordCancel": "Batal",
     "recordStart": "Ketik untuk rakam nota suara",
     "recordStop": "Ketik untuk berhenti dan hantar",
     "recordingFor": "Merakam {seconds}s daripada {limit}s",
