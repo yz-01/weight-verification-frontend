@@ -339,6 +339,22 @@ export function MaterialOutgoingOffice() {
           </span>
         ),
       },
+      // 规格 in its own column, after the material (J2-2, Q2-2).
+      {
+        id: "material_specification",
+        meta: { label: t("outgoing.specification") },
+        header: () => <PlainHeader label={t("outgoing.specification")} />,
+        cell: ({ row }) => {
+          const spec = row.original.material_specification || row.original.spec_category_name || "";
+          return spec ? (
+            <span className="block max-w-40 truncate text-foreground" title={spec}>
+              {spec}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          );
+        },
+      },
       {
         id: "quantity",
         meta: { label: t("field.quantity") },
