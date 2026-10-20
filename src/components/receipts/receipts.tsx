@@ -473,6 +473,7 @@ export function Receipts() {
         />
       ) : (
       <DataTable
+        corrected={{ kind: "MATERIAL_RECEIPT" }}
         columns={withNeedsActionColumn(
           hideEmptyManufacturerColumn(columns, data?.results),
           t("needsAction.column"),

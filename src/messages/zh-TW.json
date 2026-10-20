@@ -16977,6 +16977,8 @@
     }
   },
   "recordCorrection": {
+    "openHistory": "看修改記錄",
+    "historyHelp": "這筆記錄每一次修改：改了什麼、原來是什麼、誰改的、什麼時候、為什麼。",
     "button": "改正",
     "title": "改正記錄內容",
     "hint": "只能改文字和選項；照片、GPS、時間、簽名和提交人不能改。原來的內容會保留。",
@@ -16993,8 +16995,8 @@
     "badNumber": "{field} 要填大於 0 的數字",
     "cancel": "取消",
     "save": "儲存改正",
-    "tag": "已改正",
-    "historyTitle": "改正記錄",
+    "tag": "已修改",
+    "historyTitle": "修改記錄",
     "historyWhat": "改正記錄",
     "empty": "未填",
     "reasonLine": "原因：{reason}",

@@ -76,6 +76,8 @@ import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner"
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import {
+  CORRECTED_ROW_CLASS,
+  CorrectedTag,
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
@@ -1349,7 +1351,7 @@ export function FieldTasksWorkspace({
               <article
                 key={row.id}
                 data-testid="field-task-row"
-                className="overflow-hidden surface-panel rounded-xl"
+                className={cn("overflow-hidden surface-panel rounded-xl", row.was_corrected && CORRECTED_ROW_CLASS)}
               >
                 {/* On a desk screen every strip shares one column grid
                     (2026-10-17): status, photos, marker and buttons each have
@@ -1367,7 +1369,11 @@ export function FieldTasksWorkspace({
                     <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                     <span className="grid min-w-0 flex-1 gap-0.5 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] sm:items-center sm:gap-3">
                       <span className="min-w-0">
-                        <span className="block truncate font-medium">{taskTitle(row)}</span>
+                        <span className="flex min-w-0 items-center gap-1.5">
+                          {/* 「已修改」 (J20): the task's detail holds its history. */}
+                          {row.was_corrected && <CorrectedTag />}
+                          <span className="truncate font-medium">{taskTitle(row)}</span>
+                        </span>
                         <span className="block truncate text-xs text-muted-foreground">
                           {/* 记录编号 (I6): the short FT-012, the whole one on hover. */}
                           {row.record_no && (

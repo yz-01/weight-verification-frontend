@@ -52,7 +52,6 @@ import {
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
-import { CorrectedTag } from "@/components/shared/record-correction";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
@@ -1214,7 +1213,6 @@ export function SiteDisposalOffice() {
             <RecordNo value={row.original.reference_no} />
             {/* A lorry or the clearance company corrected (I30); the
                 lorries panel keeps each change. */}
-            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -1318,6 +1316,7 @@ export function SiteDisposalOffice() {
         />
       )}
       <ModuleRecordsTable
+        corrected={{ kind: "DISPOSAL_REQUEST" }}
         title={tRoot("nav.submodule.siteDisposals")}
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={

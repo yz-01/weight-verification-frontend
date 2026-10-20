@@ -43,7 +43,6 @@ import {
 import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import {
-  CorrectedTag,
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
@@ -106,8 +105,6 @@ export function SundryClaimsOffice() {
         cell: ({ row }) => (
           <div className="flex flex-wrap items-center gap-1.5">
             <RecordNo value={row.original.claim_no} />
-            {/* Corrected by the office (I30); the detail has the history. */}
-            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -234,6 +231,7 @@ export function SundryClaimsOffice() {
   return (
     <>
       <ModuleRecordsTable
+        corrected={{ kind: "SUNDRY_CLAIM" }}
         title={title}
         countLabel={tRoot("moduleTable.count", { count: total })}
         list={list}

@@ -15,7 +15,7 @@ export type CorrectableKind =
   | "GATE_INCIDENT";
 
 /** Kinds whose correction history can be read (their own module corrects them). */
-export type CorrectionHistoryKind = CorrectableKind | "DISPOSAL_REQUEST" | "MATERIAL_RECEIPT";
+export type CorrectionHistoryKind = CorrectableKind | "DISPOSAL_REQUEST" | "MATERIAL_RECEIPT" | "DAILY_REPORT";
 
 export type CorrectionFieldType = "text" | "textarea" | "decimal" | "choice" | "datetime";
 

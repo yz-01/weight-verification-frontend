@@ -16977,6 +16977,8 @@
     }
   },
   "recordCorrection": {
+    "openHistory": "Buka sejarah pengubahan",
+    "historyHelp": "Setiap perubahan pada rekod ini: apa yang berubah, asalnya, siapa mengubahnya, bila dan mengapa.",
     "button": "Betulkan",
     "title": "Betulkan rekod ini",
     "hint": "Hanya perkataan dan pilihan boleh diubah; foto, GPS, masa, tandatangan dan penghantar tidak boleh. Nilai asal disimpan.",
@@ -16993,8 +16995,8 @@
     "badNumber": "{field} mesti nombor lebih daripada 0",
     "cancel": "Batal",
     "save": "Simpan pembetulan",
-    "tag": "Dibetulkan",
-    "historyTitle": "Pembetulan",
+    "tag": "Diubah",
+    "historyTitle": "Sejarah pengubahan",
     "historyWhat": "pembetulan",
     "empty": "tidak diisi",
     "reasonLine": "Sebab: {reason}",

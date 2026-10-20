@@ -52,6 +52,8 @@ export interface DailyReportEntry {
 export interface DailyReport {
   /** Record No. (I6): `FT-<project>-001`, running on per project. */
   record_no?: string;
+  /** Edited since it was written: the gold 「已修改」 (J20). */
+  was_corrected?: boolean;
   id: string;
   project: string;
   project_name: string;

@@ -95,6 +95,7 @@ import {
   updateDailyReport,
 } from "@/services/progress-reports.service";
 import { signOffBeforeEditing } from "@/services/sign-off.service";
+import { CORRECTED_ROW_CLASS, CorrectedTag } from "@/components/shared/record-correction";
 
 const PAGE = 20;
 
@@ -210,11 +211,15 @@ export function DailyReportsTab() {
               (rows.data?.results ?? []).map((row, index) => (
                 <TableRow
                   key={row.id}
-                  className="cursor-pointer"
+                  className={cn("cursor-pointer", row.was_corrected && CORRECTED_ROW_CLASS)}
                   onClick={() => setViewing({ position: bookPosition(list.page, index, PAGE) })}
                 >
                   <TableCell>
-                    <RecordNo value={row.record_no} />
+                    <span className="flex items-center gap-1.5">
+                      {/* 「已修改」 (J20): opens the report's edit history. */}
+                      {row.was_corrected && <CorrectedTag kind="DAILY_REPORT" recordId={row.id} />}
+                      <RecordNo value={row.record_no} />
+                    </span>
                   </TableCell>
                   <TableCell>
                     <p className="font-medium text-foreground">{row.name}</p>
