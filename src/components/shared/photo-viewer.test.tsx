@@ -19,7 +19,7 @@ vi.mock("@/components/shared/evidence-file-actions", () => ({
 }));
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { PhotoViewer, fitSize } = await import("@/components/shared/record-detail-shell");
+const { PhotoViewer, fitSize, photoFrameWidth } = await import("@/components/shared/record-detail-shell");
 
 const photos = [
   {
@@ -109,5 +109,30 @@ describe("the whole-photo size", () => {
   it("draws nothing for a photo or frame with no size yet", () => {
     expect(fitSize({ width: 0, height: 0 }, frame)).toEqual({ width: 0, height: 0 });
     expect(fitSize({ width: 100, height: 100 }, { width: 0, height: 0 })).toEqual({ width: 0, height: 0 });
+  });
+});
+
+// J34-1 (Lucas 10-20): 「框刚好包住照片」 - no blurred background, no bands.
+describe("the frame is the photograph's own shape", () => {
+  it("has no hatching and no fixed height, and takes the photo's shape", () => {
+    const html = render();
+    const frame = html.slice(html.indexOf("<div", html.indexOf("data-photo-frame") - 200), html.indexOf("<img"));
+    expect(frame).not.toContain("photo-hatch");
+    expect(frame).not.toMatch(/h-\[\d+dvh\]/);
+    expect(frame).toContain("aspect-ratio");
+    expect(frame).toContain("mx-auto");
+  });
+
+  it("is as tall as the window allows, never wider than its space or its pixels", () => {
+    const portrait = photoFrameWidth({ width: 3024, height: 4032 }, "(100dvh - 15rem)");
+    expect(portrait).toBe("min(100%, calc((100dvh - 15rem) * 0.7500), 3024px)");
+    const landscape = photoFrameWidth({ width: 4032, height: 3024 }, "28rem");
+    expect(landscape).toBe("min(100%, calc(28rem * 1.3333), 4032px)");
+  });
+
+  it("makes the dialog as wide as the frame, so title and buttons sit over and under it", () => {
+    const html = render();
+    expect(html).toContain("--viewer-width");
+    expect(html).toContain("sm:w-(--viewer-width)");
   });
 });

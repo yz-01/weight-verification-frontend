@@ -42,6 +42,11 @@ export const FIT_KIND_PX = {
   date: 76,
   /** The 48 px photo thumbnail. */
   thumb: 48,
+  /**
+   * A row's photo strip (J34-2): four 56 px squares, 6 px apart - the most
+   * that lets a list keep its columns on a 1366 px screen.
+   */
+  strip: 242,
   /** A short pill: 进场 / 退场, a type. */
   badge: 60,
   /** A status pill, one line, up to 「已批准，待交接签名」. */

@@ -90,13 +90,15 @@ export const LIST_FITS = {
   },
   /** 设备进退场 (图 1 of I39) */
   equipmentMovements: {
-    storageKey: "equipment-movements.v2",
+    // `.v3`: the photo strip (J34-2); 方向 and 供应商 under 「字段」 for it -
+    // the EI / EO number and the status words already say which way.
+    storageKey: "equipment-movements.v3",
     file: "src/components/contractor-ops/office-module-lists.tsx",
     columns: {
       record_no: "recno",
       pack: "pack",
       occurred_at: "datetime",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       direction: "badge",
       status: "status",
       equipment: "name",
@@ -108,7 +110,7 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["delivery_note_no", "operator_name", "project_name"],
+    hidden: ["direction", "supplier_name", "delivery_note_no", "operator_name", "project_name"],
   },
   /** 设备清单 */
   equipmentRegister: {

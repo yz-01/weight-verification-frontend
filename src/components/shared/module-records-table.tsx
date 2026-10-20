@@ -23,7 +23,7 @@ import { Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
-import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { DataTable, SortableHeader, type PhoneCard } from "@/components/shared/data-table";
 import {
   NEEDS_ACTION_PARAM,
   NeedsActionChip,
@@ -68,6 +68,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   pack,
   defaultHidden,
   corrected,
+  phoneCard,
 }: {
   title: string;
   /** "12 records", already in the reader's language. */
@@ -108,6 +109,8 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   defaultHidden?: readonly string[];
   /** The gold 「已修改」 on corrected rows (J1-4, J20). */
   corrected?: { kind: CorrectionHistoryKind };
+  /** Cards with the photo strip instead of the table on a phone (J34-2). */
+  phoneCard?: PhoneCard;
 }) {
   const t = useTranslations();
   const counted = needsActionCount !== undefined;
@@ -182,6 +185,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
         onRowClick={onOpen}
         rowClassName={rowClassName}
         corrected={corrected}
+        phoneCard={phoneCard}
         pack={pack ? { kind: pack } : undefined}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

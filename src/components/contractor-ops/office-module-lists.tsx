@@ -701,12 +701,13 @@ export function SiteEquipmentOffice() {
           </div>
         ),
       },
-      // The record's photograph beside its main column (E3).
+      // The record's photographs, four a row, left by the menu (J34-2, 图 4).
       photoColumn<EquipmentMovement>({
         label: tRoot("moduleTable.photos"),
         icon: HardHat,
         reference: (row) => row.equipment_name,
         photos: (row) => rowPhotos(row.photos, row.equipment_name, row),
+        strip: true,
       }),
       {
         accessorKey: "direction",
@@ -1272,6 +1273,11 @@ export function SiteEquipmentOffice() {
           isError={movements.isError}
           storageKey={LIST_FITS.equipmentMovements.storageKey}
         defaultHidden={LIST_FITS.equipmentMovements.hidden}
+          phoneCard={{
+            title: ["record_no", "equipment", "status"],
+            detail: ["occurred_at", "quantity", "project_name"],
+            photo: "cover_photo",
+          }}
           pack="EQUIPMENT_MOVEMENT"
           toolbar={
             <>
