@@ -29,6 +29,8 @@ describe("typedWords", () => {
 
   it("types the material only under 「其他材料」", () => {
     expect(typedWords({ ...concrete, is_other: true }, "s1").name).toBe(true);
+    expect(typedWords({ ...concrete, is_fixed: true }, "s1").name).toBe(true);
+    expect(typedWords({ ...concrete, is_fixed: true, parent: "m0" }, "s1").name).toBe(false);
   });
 
   it("lets a material with no specifications, or an old record filed nowhere, keep its words", () => {
@@ -42,7 +44,7 @@ describe("the forms", () => {
     const phone = read("src/components/field-staff/field-records-panel.tsx");
     expect(phone).not.toContain("createMaterialColumn");
     expect(phone).toContain('t("material.otherName")');
-    expect(phone).toContain("selectedColumn?.is_other && !selectedColumn.parent");
+    expect(phone).toContain("isOtherMaterial(selectedColumn) && (");
   });
 
   it("the office's correction reads the words from the chosen material", () => {
@@ -53,10 +55,10 @@ describe("the forms", () => {
 
   it("MR and the material exit type a name only under 「其他材料」", () => {
     expect(read("src/components/material-requests/request-form.tsx")).toContain(
-      "...(material?.is_other ? { material_name: typedMaterial.trim() } : {})",
+      "...(isOtherMaterial(material) ? { material_name: typedMaterial.trim() } : {})",
     );
     expect(read("src/components/contractor-ops/operations-workspaces.tsx")).toContain(
-      "const typedMaterial = Boolean(selected?.is_other && !selected.parent);",
+      "const typedMaterial = isOtherMaterial(selected);",
     );
   });
 });

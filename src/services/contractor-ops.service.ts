@@ -73,33 +73,6 @@ export const updateProjectCategory = async (id: string, payload: Partial<Project
   toastSuccess("contractorOps.toast.saved");
   return row;
 };
-/**
- * Open a material column from the field, while the delivery is at the gate.
- *
- * The narrow counterpart of `createProjectCategory`. Site staff hold
- * `receipt.create` and not `category.manage`, so they could not create a
- * column at all - a delivery of something nobody had set up a column for could
- * only be filed nowhere, and the OCR classifier could only ever suggest a
- * column that already existed (F-200, T-161).
- *
- * The server decides everything except the name and the project: the column is
- * always a material column, always in a project the caller is on, and never
- * carries a budget or an access restriction. Asking twice for the same name
- * returns the existing column rather than an error, because the field app
- * retries.
- */
-export const createMaterialColumn = async (payload: {
-  project: string;
-  name: string;
-}) => {
-  const row = await api.post<ProjectCategory>(
-    "/api/project-categories/create_material_column/",
-    payload,
-    { silent: true },
-  );
-  return row;
-};
-
 /** 分类组 (I11): one project's groups, system ones first by order. */
 export const getCategoryGroups = (query: { project: string; module?: string; is_active?: boolean }) =>
   api.get<{ results: CategoryGroup[]; count: number }>("/api/category-groups/get_groups/", query);

@@ -54,6 +54,22 @@ export function specChoice(material: MaterialWithSpecs | null | undefined, specI
   return { spec, typed: false, unit: spec.default_unit, unitLocked: true };
 }
 
+/** What tells the project's 「其他材料」 apart. */
+export interface OtherMaterialFlags {
+  parent?: string | null;
+  is_other?: boolean;
+  is_fixed?: boolean;
+}
+
+/**
+ * The project's 「其他材料」 (J14-3): the fixed top-level material (or one an
+ * older project marked 「其他」) - the one material whose name is typed. The
+ * server's `is_other_material`.
+ */
+export function isOtherMaterial(row: OtherMaterialFlags | null | undefined): boolean {
+  return Boolean(row && !row.parent && (row.is_other || row.is_fixed));
+}
+
 /**
  * 只能从分类管理下拉选 (J14-3, Q14-2): which words a form may type. The
  * material's name is typed only under 「其他材料」 (or on an old record filed
@@ -61,13 +77,13 @@ export function specChoice(material: MaterialWithSpecs | null | undefined, specI
  * material has no specifications to choose from.
  */
 export function typedWords(
-  material: (MaterialWithSpecs & { is_other?: boolean }) | null | undefined,
+  material: (MaterialWithSpecs & OtherMaterialFlags) | null | undefined,
   specId: string,
 ): { name: boolean; spec: boolean } {
   if (!material) return { name: true, spec: true };
   const listed = (material.specs ?? []).some((spec) => !spec.is_other);
   return {
-    name: Boolean(material.is_other),
+    name: isOtherMaterial(material),
     spec: !listed || specChoice(material, specId).typed,
   };
 }
