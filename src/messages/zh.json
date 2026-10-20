@@ -17634,6 +17634,9 @@
     "openInViewer": "用手机的阅读器打开"
   },
   "fileActions": {
+    "originalVersion": "修改前原单",
+    "originalVersionHint": "这笔记录第一次提交时的样子（版本 1），同一个编号；不计入任何累计。",
+    "originalVersionTitle": "{reference} · 修改前原单",
     "preview": "预览",
     "print": "打印",
     "save": "导出",

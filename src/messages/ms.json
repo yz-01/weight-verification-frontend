@@ -17634,6 +17634,9 @@
     "openInViewer": "Buka dalam pemapar telefon"
   },
   "fileActions": {
+    "originalVersion": "Asal (sebelum diubah)",
+    "originalVersionHint": "Rekod ini seperti mula-mula difailkan (versi 1), nombor yang sama; tidak dikira dalam mana-mana jumlah.",
+    "originalVersionTitle": "{reference} · asal",
     "preview": "Pratonton",
     "print": "Cetak",
     "save": "Eksport",

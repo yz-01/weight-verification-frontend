@@ -116,7 +116,8 @@ describe("the button and the endpoint (T-386)", () => {
     const service = read("src/services/contractor-ops.service.ts");
     const fn = service.slice(service.indexOf("export const recordPdfFile"));
     expect(fn).toMatch(/fetchAsFile\("\/api\/record-exports\/download\/"/);
-    expect(fn).toMatch(/query: \{ kind, record: recordId \}/);
+    // `version` (J1-21): 1 for the original, left out for the latest.
+    expect(fn).toMatch(/query: \{ kind, record: recordId[ ,]/);
   });
 
   it("draws nothing without an id, and offers the four shared file actions (PDF 统一操作规则)", () => {

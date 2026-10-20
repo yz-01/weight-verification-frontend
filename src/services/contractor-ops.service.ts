@@ -1715,9 +1715,13 @@ export function recordPdfKindFor(kind: string): RecordPdfKind | null {
  * As a `File`, fetched once for 预览 · 打印 · 导出 · 发送 alike (PDF 统一操作
  * 规则, 2026-10-10), so the preview is what prints, saves and is sent.
  */
-export const recordPdfFile = (kind: RecordPdfKind, recordId: string, reference: string) =>
+/**
+ * `version` (J1-21, Q1-6): 1 is the record as first filed (修改前原单),
+ * left out it is the latest, its changed fields marked 「已修改」.
+ */
+export const recordPdfFile = (kind: RecordPdfKind, recordId: string, reference: string, version?: number) =>
   fetchAsFile("/api/record-exports/download/", {
-    query: { kind, record: recordId },
+    query: { kind, record: recordId, ...(version ? { version: String(version) } : {}) },
     // Only used when the server sends no filename. Some references are
     // labels rather than numbers (a progress record's 「phase / 40%」), so
     // the characters a filename cannot hold become dashes.
