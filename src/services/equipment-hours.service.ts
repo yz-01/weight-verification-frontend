@@ -279,6 +279,8 @@ export async function setEquipmentNormalHours(project: string, dailyHours: strin
   });
   toastSuccess("equipmentHours.toast.normalSaved");
   return saved;
+}
+
 /** 设备清单今日状态 (J27): each machine's state today, Malaysia time. */
 export type EquipmentTodayStatus = "WORKING" | "FINISHED" | "IDLE" | "LEFT";
 
