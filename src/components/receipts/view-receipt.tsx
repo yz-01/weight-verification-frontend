@@ -126,7 +126,19 @@ function ReviewDelivery({
   // anybody accepted it said 待验收 and offered nothing to press. Acceptance
   // is a decision recorded afterwards, not evidence, so that one stays open.
   const locked = archived && status !== "PENDING";
-  const missingSupplier = needsSupplier(receipt);
+  // Archived: nothing more is filled in. Otherwise a delivery with no
+  // supplier is filled before 验收, and - rejected too - before 归档 (J19).
+  const missingSupplier = needsSupplier(receipt) && !archived;
+  const supplierHint =
+    status === "PENDING" ? t("receipts.fillSupplier.hint") : t("receipts.fillSupplier.archiveHint");
+  const fillSupplierButton = (
+    <Button asChild size="lg" variant="outline" className="w-full">
+      <Link href={`/receipts/${receipt.id}/edit?fill=supplier`}>
+        <Truck className="h-4 w-4" />
+        {t("receipts.fillSupplier.action")}
+      </Link>
+    </Button>
+  );
 
   // Said on screen, never swallowed (2026-10 C6): a corrected receipt
   // answered 409 here and the button simply did nothing.
@@ -174,6 +186,12 @@ function ReviewDelivery({
         {rejectedAtGate && (
           <p className="text-xs text-muted-foreground">{t("receipts.acceptance.rejectedAtGate")}</p>
         )}
+        {rejectedAtGate && missingSupplier && (
+          <>
+            <p className="rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning">{supplierHint}</p>
+            {fillSupplierButton}
+          </>
+        )}
         {/* A rejection that survives on the record without its reason tells
             the next person on site nothing they can act on, so the reason is
             shown whenever there is one - not only while deciding. */}
@@ -210,18 +228,11 @@ function ReviewDelivery({
             says why it cannot be done yet. */}
         {missingSupplier && (
           <p className="rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning">
-            {t("receipts.fillSupplier.hint")}
+            {supplierHint}
           </p>
         )}
         <div className={missingSupplier ? "grid grid-cols-2 gap-2" : undefined}>
-        {missingSupplier && (
-          <Button asChild size="lg" variant="outline" className="w-full">
-            <Link href={`/receipts/${receipt.id}/edit?fill=supplier`}>
-              <Truck className="h-4 w-4" />
-              {t("receipts.fillSupplier.action")}
-            </Link>
-          </Button>
-        )}
+        {missingSupplier && fillSupplierButton}
         <Button
           size="lg"
           className="w-full"

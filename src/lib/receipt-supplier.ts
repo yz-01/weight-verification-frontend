@@ -34,13 +34,15 @@ export function supplierShown(name: string | null | undefined, unfilledLabel: st
   return name && name.trim() ? name : unfilledLabel;
 }
 
-/** Whether a delivery still needs its supplier before the office can accept it. */
+/**
+ * Whether a delivery still needs its supplier: before the office can accept
+ * it, and - rejected or 不合格 too (J19, Q19-1) - before it can be archived.
+ */
 export function needsSupplier(receipt: {
   supplier?: string | null;
-  acceptance_status?: string | null;
   superseded_by?: unknown;
 }): boolean {
-  return !receipt.supplier && (receipt.acceptance_status ?? "PENDING") === "PENDING" && !receipt.superseded_by;
+  return !receipt.supplier && !receipt.superseded_by;
 }
 
 /**

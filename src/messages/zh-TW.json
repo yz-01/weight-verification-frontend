@@ -7886,6 +7886,7 @@
       "attachment_needs_project": "這個審批不屬於某個項目，不能加附件；請把檔案放到「文檔檔案」裡。",
       "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
       "receipt_awaiting_acceptance": "這批材料還沒驗收，請先驗收或判不合格再歸檔。",
+      "receipt_archive_needs_supplier": "這批材料（{receipt}）還沒有供應商。被拒收、不合格的也要先按「補供應商」填上，才能歸檔。",
       "site_record_field_only": "只有現場人員能在手機上新增這條記錄。後台可以更正已有的記錄。",
       "material_request_assigned_to_other": "這個申請已提交給別人審批。要由你審批，請先按「改派給我」。",
       "material_request_reviewer_not_eligible": "所選的人不能批准這個項目的申請，請從名單裡重新選擇。",
@@ -12985,6 +12986,7 @@
     "supplierUnfilledShort": "未填",
     "fillSupplier": {
       "action": "補供應商",
+      "archiveHint": "現場沒有填供應商。先補供應商，才能歸檔。",
       "hint": "現場沒有填供應商。先補供應商，才能驗收。",
       "reason": "補供應商（現場未填）",
       "formHint": "選這批貨的供應商，儲存後再驗收。"
