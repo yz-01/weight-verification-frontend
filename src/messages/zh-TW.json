@@ -8022,7 +8022,9 @@
       "sign_off_pin_not_set": "你還沒有設定簽核密碼，請先設定。",
       "sign_off_pin_incorrect": "簽核密碼不對。再錯 {attempts_left} 次會鎖 15 分鐘。",
       "sign_off_office_only": "請在電腦後台操作。手機端不能做這一步。",
-      "sign_off_pin_locked": "簽核密碼輸錯 5 次，已鎖定。請 {minutes} 分鐘後再試，或用帳號密碼重新設定。"
+      "sign_off_pin_locked": "簽核密碼輸錯 5 次，已鎖定。請 {minutes} 分鐘後再試，或用帳號密碼重新設定。",
+      "equipment_hours_same_machine": "這筆工時已經是這台設備的。",
+      "equipment_hours_overlap": "那台設備在這段時間已經有工時，同一段時間不能重複算。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -17046,7 +17048,10 @@
       "priority": "優先級",
       "material": "材料",
       "specification": "規格",
-      "material_specification": "規格（自填）"
+      "material_specification": "規格（自填）",
+      "equipment": "設備",
+      "start_at": "開始時間",
+      "end_at": "結束時間"
     },
     "followsSpec": "單位跟著規格，不能改"
   },
@@ -18018,7 +18023,8 @@
       "cidb": "CIDB 卡號",
       "startTime": "開工時間",
       "endTime": "收工時間",
-      "view": "查看"
+      "view": "查看",
+      "takenOn": "拍照時掃的設備"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -18075,7 +18081,8 @@
       "startSaved": "開始時間已保存",
       "siteNoSaved": "現場編號已保存",
       "siteNoCleared": "現場編號已清除",
-      "operatorSaved": "操作人員已儲存"
+      "operatorSaved": "操作人員已儲存",
+      "moved": "工時已移到另一台設備"
     },
     "phone": {
       "howTo": "掃設備上的二維碼 → 拍照 → 司機簽名 → 提交。提交後可以接著掃下一部。",
@@ -18157,6 +18164,16 @@
       "title": "{supplier} 的設備工時",
       "total": "這家公司合計（小時）",
       "sessions": "{count} 次"
+    },
+    "move": {
+      "title": "改設備",
+      "help": "掃錯設備時用：把這一筆移到正確的設備。原始照片、GPS、時間原樣保留；工時算到這裡選的設備，修改留在修改記錄裡。",
+      "machine": "正確的設備",
+      "choose": "選設備",
+      "reason": "原因",
+      "reasonPlaceholder": "例如：司機掃了挖掘機的碼，其實開的是吊車",
+      "save": "改設備",
+      "failed": "改設備沒有成功，請再試一次。"
     }
   },
   "theme": {
@@ -18836,7 +18853,8 @@
       "receipt_review": "驗收合格 / 不合格",
       "receipt_add_photo": "給進場單補照片",
       "equipment_hours_set_operator": "填寫操作人員和 CIDB",
-      "equipment_set_site_no": "修改設備號碼"
+      "equipment_set_site_no": "修改設備號碼",
+      "equipment_hours_move": "設備工時改設備歸屬"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",

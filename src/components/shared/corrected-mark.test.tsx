@@ -57,6 +57,18 @@ describe("the gold 已修改 (J20)", () => {
     expect(read("src/components/contractor-ops/operations-workspaces.tsx")).toContain(
       "row.was_corrected && CORRECTED_ROW_CLASS",
     );
-    // 设备工时 joins with its own corrections (J1-13..16).
+    // 设备工时, with its own corrections (J1-13..16): the row and the mark.
+    const hours = read("src/components/equipment-hours/equipment-operator-hours.tsx");
+    expect(hours).toContain('<CorrectedTag kind="EQUIPMENT_HOURS" recordId={row.key} />');
+    expect(hours).toContain("row.was_corrected && CORRECTED_ROW_CLASS");
+  });
+
+  it("设备工时's detail offers 改设备 and shows the shared history (J1-13, J1-16)", () => {
+    const hours = read("src/components/equipment-hours/equipment-operator-hours.tsx");
+    expect(hours).toContain("moveEquipmentSession({ session: day.key, equipment: machine, reason: moveReason })");
+    expect(hours).toContain('<RecordCorrectionHistory kind="EQUIPMENT_HOURS" recordId={day.key} />');
+    // Only the office's managers see the forms; the phone has no entry.
+    expect(hours).toMatch(/actions=\{\s*canAdjust \?/);
+    expect(read("src/services/equipment-hours.service.ts")).toContain('"/api/equipment-hours/move_session/"');
   });
 });

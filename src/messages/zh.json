@@ -8022,7 +8022,9 @@
       "sign_off_pin_not_set": "你还没有设定签核密码，请先设定。",
       "sign_off_pin_incorrect": "签核密码不对。再错 {attempts_left} 次会锁 15 分钟。",
       "sign_off_office_only": "请在电脑后台操作。手机端不能做这一步。",
-      "sign_off_pin_locked": "签核密码输错 5 次，已锁定。请 {minutes} 分钟后再试，或用账号密码重新设定。"
+      "sign_off_pin_locked": "签核密码输错 5 次，已锁定。请 {minutes} 分钟后再试，或用账号密码重新设定。",
+      "equipment_hours_same_machine": "这笔工时已经是这台设备的。",
+      "equipment_hours_overlap": "那台设备在这段时间已经有工时，同一段时间不能重复算。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -17046,7 +17048,10 @@
       "priority": "优先级",
       "material": "材料",
       "specification": "规格",
-      "material_specification": "规格（自填）"
+      "material_specification": "规格（自填）",
+      "equipment": "设备",
+      "start_at": "开始时间",
+      "end_at": "结束时间"
     },
     "followsSpec": "单位跟着规格，不能改"
   },
@@ -18018,7 +18023,8 @@
       "cidb": "CIDB 卡号",
       "startTime": "开工时间",
       "endTime": "收工时间",
-      "view": "查看"
+      "view": "查看",
+      "takenOn": "拍照时扫的设备"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -18075,7 +18081,8 @@
       "startSaved": "开始时间已保存",
       "siteNoSaved": "现场编号已保存",
       "siteNoCleared": "现场编号已清除",
-      "operatorSaved": "操作人员已保存"
+      "operatorSaved": "操作人员已保存",
+      "moved": "工时已移到另一台设备"
     },
     "phone": {
       "howTo": "扫设备上的二维码 → 拍照 → 司机签名 → 提交。提交后可以接着扫下一部。",
@@ -18157,6 +18164,16 @@
       "title": "{supplier} 的设备工时",
       "total": "这家公司合计（小时）",
       "sessions": "{count} 次"
+    },
+    "move": {
+      "title": "改设备",
+      "help": "扫错设备时用：把这一笔移到正确的设备。原始照片、GPS、时间原样保留；工时算到这里选的设备，修改留在修改记录里。",
+      "machine": "正确的设备",
+      "choose": "选设备",
+      "reason": "原因",
+      "reasonPlaceholder": "例如：司机扫了挖掘机的码，其实开的是吊车",
+      "save": "改设备",
+      "failed": "改设备没有成功，请再试一次。"
     }
   },
   "theme": {
@@ -18836,7 +18853,8 @@
       "receipt_review": "验收合格 / 不合格",
       "receipt_add_photo": "给进场单补照片",
       "equipment_hours_set_operator": "填写操作人员和 CIDB",
-      "equipment_set_site_no": "修改设备号码"
+      "equipment_set_site_no": "修改设备号码",
+      "equipment_hours_move": "设备工时改设备归属"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
