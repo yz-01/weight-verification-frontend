@@ -406,11 +406,11 @@ export function CategoryDialog({
   // Progress Claim categories (I10, ID6): made by the project, flat or with
   // sub-categories like EHS.
   const isClaim = form.kind === "CLAIM";
-  // A new equipment category (I38, ID81) is named and filed under a major
-  // class, nothing else: the server numbers it and the rest keeps its
-  // defaults under 「更多设定」.
-  const simpleEquip = !row && isEquipment;
-  const autoCode = isEhs || isClaim || simpleEquip;
+  // A new category is named and filed under its parent, nothing else: the
+  // server numbers it and the rest keeps its defaults under 「更多设定」 -
+  // equipment since I38 (ID81), every module since J28 (客户 10-19). The
+  // code is shown, never typed, and never changes once made.
+  const simpleNew = !row;
   // EHS and claims (I11): the category a sub-category goes under, from this
   // group's top-level categories. Equipment keeps its own picker below; a
   // material's second level is its specifications (I19), set further down.
@@ -475,9 +475,11 @@ export function CategoryDialog({
             manufacturers: manufacturerIds,
           }
         : isEquipment || takesParent
-          ? { ...form, parent: form.parent || null, ...(simpleEquip ? { code: "" } : {}) }
+          ? { ...form, parent: form.parent || null }
           : // A material's second level is its specifications (I19); not sent.
             { ...form, parent: undefined };
+      // The server numbers a new category (J28); an old one keeps its code.
+      if (!row) payload.code = "";
       if (row) delete payload.group;
       else if (!payload.group) delete payload.group;
       return row
@@ -539,10 +541,36 @@ export function CategoryDialog({
               <QueryFailedNote query={equipmentClasses.query} what={t("what.columns")} />
             </FieldWrapper>
   );
-  // The settings a new equipment category keeps at their defaults are folded
-  // away (I38); everywhere else the dialog is the one it always was.
+  // 子分类 (I11, ID3): EHS and claim categories go one level down.
+  const subCategoryParentField = (
+    <FieldWrapper
+      label={modules("subCategory.parent")}
+      hint={modules("subCategory.parentHint")}
+    >
+      <Select
+        value={form.parent || "__top__"}
+        onValueChange={(value) => set("parent", value === "__top__" ? null : value)}
+        disabled={hasChildren || Boolean(row?.is_fixed)}
+      >
+        <SelectTrigger className="w-full" aria-label={modules("subCategory.parent")}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__top__">{modules("subCategory.isTop")}</SelectItem>
+          {parentRows.map((choice) => (
+            <SelectItem key={choice.id} value={choice.id}>
+              {choice.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <QueryFailedNote query={parentChoices} what={t("what.columns")} />
+    </FieldWrapper>
+  );
+  // The settings a new category keeps at their defaults are folded away
+  // (I38, J28); an existing one opens with everything, as it always did.
   const more = (fields: React.ReactNode) =>
-    simpleEquip ? (
+    simpleNew ? (
       <details className="rounded-lg border p-3 sm:col-span-2">
         <summary className="cursor-pointer text-sm font-medium">
           {modules("equipment.moreSettings")}
@@ -572,26 +600,20 @@ export function CategoryDialog({
               disabled
             />
           </FieldWrapper>
-          {simpleEquip && (
+          {simpleNew && (
             <>
               {nameField}
-              {equipmentParentField}
+              {isEquipment && equipmentParentField}
+              {takesParent && subCategoryParentField}
             </>
           )}
           {more(<>
-          {autoCode ? (
-            <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
-              <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
-            </FieldWrapper>
-          ) : (
-            <FieldWrapper label={t("field.code")} required>
-              <Input
-                value={form.code}
-                onChange={(e) => set("code", e.target.value.toUpperCase())}
-              />
-            </FieldWrapper>
-          )}
-          {!simpleEquip && nameField}
+          {/* Shown, never typed (J28): 「保存后自动生成」 on a new one, and
+              read-only once made - MR's 材料编号 and old records point at it. */}
+          <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
+            <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
+          </FieldWrapper>
+          {!simpleNew && nameField}
           <FieldWrapper label={t("categories.kind")} required>
             <Select
               value={form.kind}
@@ -637,33 +659,9 @@ export function CategoryDialog({
           </FieldWrapper>
           {/* 大类 → 小类 (2026-10 B2, X1): equipment only. Empty makes it a
               major class; a machine is registered on a sub class. */}
-          {!simpleEquip && isEquipment && equipmentParentField}
+          {!simpleNew && isEquipment && equipmentParentField}
           {/* 子分类 (I11, ID3): EHS and claim categories go one level down. */}
-          {takesParent && (
-            <FieldWrapper
-              label={modules("subCategory.parent")}
-              hint={modules("subCategory.parentHint")}
-            >
-              <Select
-                value={form.parent || "__top__"}
-                onValueChange={(value) => set("parent", value === "__top__" ? null : value)}
-                disabled={hasChildren || Boolean(row?.is_fixed)}
-              >
-                <SelectTrigger className="w-full" aria-label={modules("subCategory.parent")}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__top__">{modules("subCategory.isTop")}</SelectItem>
-                  {parentRows.map((choice) => (
-                    <SelectItem key={choice.id} value={choice.id}>
-                      {choice.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <QueryFailedNote query={parentChoices} what={t("what.columns")} />
-            </FieldWrapper>
-          )}
+          {!simpleNew && takesParent && subCategoryParentField}
           {/* 提交方式 (I12, ID28): who accepts what is filed here - material
               and equipment only. EHS has its own assignment and acceptance
               (ID9), and a claim is the office's own. */}
@@ -965,8 +963,6 @@ export function CategoryDialog({
           <Button
             requires={[
               [form.project, t("field.project")],
-              // An EHS code is the server's to make (HD4).
-              [autoCode || form.code, t("field.code")],
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
