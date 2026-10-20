@@ -68,3 +68,12 @@ describe("the consultant application's archive picker (J22)", () => {
     expect(html).toContain("整条记录：MI-P1-001（附完整证据 PDF）");
   });
 });
+
+describe("the PIN dialog names the J22 action", () => {
+  it("in every language", async () => {
+    for (const locale of ["en", "ms", "zh", "zh-TW"]) {
+      const words = (await import(`@/messages/${locale}.json`)).default;
+      expect(words.signOff.action.consultant_link_document, locale).toBeTruthy();
+    }
+  });
+});

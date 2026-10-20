@@ -18807,7 +18807,8 @@
       "role_delete": "Remove a role",
       "user_change_role": "Change a user's role",
       "user_change_status": "Suspend or reinstate an account",
-      "consultant_review": "Sign a consultant decision"
+      "consultant_review": "Sign a consultant decision",
+      "consultant_link_document": "Add archive files to a consultant application"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",

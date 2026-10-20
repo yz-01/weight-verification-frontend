@@ -18807,7 +18807,8 @@
       "role_delete": "刪除角色",
       "user_change_role": "修改用戶角色",
       "user_change_status": "停用或恢復帳號",
-      "consultant_review": "顧問審批簽核"
+      "consultant_review": "顧問審批簽核",
+      "consultant_link_document": "把文件管理的檔案加進顧問申請"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
