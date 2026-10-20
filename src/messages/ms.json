@@ -6114,7 +6114,8 @@
       "noSupplier": "Tidak diketahui",
       "spec": "Spesifikasi",
       "chooseSpec": "Pilih spesifikasi",
-      "specName": "Nama spesifikasi"
+      "specName": "Nama spesifikasi",
+      "materialName": "Nama bahan"
     },
     "outgoingStatus": {
       "APPROVED": "Diluluskan / menunggu keluar tapak",
@@ -8537,11 +8538,11 @@
         "confirmHint": "Semak dengan dokumen kertas",
         "title": "Bahan dibaca dari nota",
         "unclassified": "Pilih kategori",
-        "makeColumn": "Jadikan kategori",
         "editHint": "Betulkan teks salah, pilih kategori, buang baris salah, kemudian tekan Guna.",
         "remove": "Buang baris",
         "use": "Guna",
-        "noUnit": "Tiada unit"
+        "noUnit": "Tiada unit",
+        "useOther": "Guna 「其他材料」"
       },
       "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Isi butiran secara manual.",
@@ -8580,9 +8581,6 @@
       "columnAuto": "Difailkan di bawah {name}. Pejabat boleh menukarnya.",
       "columnUnfiledNote": "Belum difailkan. Pejabat akan memfailkannya selepas memeriksa.",
       "noColumnsYet": "Tapak ini belum ada kategori bahan. Tambah yang pertama di bawah.",
-      "newColumnName": "Nama kategori baharu",
-      "addColumn": "Tambah kategori",
-      "columnOffline": "Luar talian: pilih kategori sedia ada. Kategori baharu memerlukan sambungan.",
       "reject": {
         "toggle": "Barang salah - Tolak",
         "help": "Tolak penghantaran ini di pintu masuk. Kedua-dua pihak tetap menandatangani; rekod disimpan dan tidak dikira.",
@@ -8605,7 +8603,9 @@
       "chooseSpec": "Pilih spesifikasi",
       "specName": "Nama spesifikasi",
       "specNameHint": "Tiada dalam senarai? Pilih 「Lain-lain」 dan taip di sini.",
-      "autoFilledFromSpec": "Dari spesifikasi"
+      "autoFilledFromSpec": "Dari spesifikasi",
+      "otherName": "Nama bahan",
+      "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini; pejabat akan menambahnya ke senarai."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -17468,7 +17468,8 @@
       "materialOrSubject": "Bahan / perkara",
       "stage": "Peringkat",
       "forwardHistory": "Dihantar",
-      "headOfficeReviewer": "Pelulus ibu pejabat"
+      "headOfficeReviewer": "Pelulus ibu pejabat",
+      "materialName": "Nama bahan"
     },
     "action": {
       "view": "Lihat",
@@ -17549,7 +17550,8 @@
       "contentPlaceholder": "Apa yang diperlukan, berapa, bila",
       "attachmentKindsHint": "Foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP. Sehingga {count} fail, setiap satu bawah {limit} MB.",
       "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP.",
-      "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat."
+      "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
+      "otherMaterialHint": "「其他材料」: taip bahan apakah itu."
     },
     "toast": {
       "submitted": "Permohonan dihantar.",

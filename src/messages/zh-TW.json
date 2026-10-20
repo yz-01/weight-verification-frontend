@@ -6114,7 +6114,8 @@
       "noSupplier": "不填",
       "spec": "規格",
       "chooseSpec": "選擇規格",
-      "specName": "規格名稱"
+      "specName": "規格名稱",
+      "materialName": "材料名稱"
     },
     "outgoingStatus": {
       "APPROVED": "已批准 / 等待退場",
@@ -8537,11 +8538,11 @@
         "confirmHint": "請對照紙質單核對",
         "title": "從送貨單讀到的物料",
         "unclassified": "選擇分類",
-        "makeColumn": "建成分類",
         "editHint": "改掉讀錯的文字、選分類、刪掉多餘行,再點「填入」。",
         "remove": "刪除此行",
         "use": "填入",
-        "noUnit": "無單位"
+        "noUnit": "無單位",
+        "useOther": "用「其他材料」"
       },
       "ocrLowConfidence": "以下欄位識別置信度較低：{fields}。保存前請對照紙質單據核對。",
       "ocrManual": "無法讀取送貨單，請手動填寫資料。",
@@ -8580,9 +8581,6 @@
       "columnAuto": "將歸入「{name}」。後台可以改。",
       "columnUnfiledNote": "尚未歸類。後台查看後再歸。",
       "noColumnsYet": "這個工地還沒有材料分類。在下面新增第一個。",
-      "newColumnName": "新分類名稱",
-      "addColumn": "新增分類",
-      "columnOffline": "離線時請選擇已有分類，新增分類需要網路連線。",
       "reject": {
         "toggle": "當天貨不對 · Reject",
         "help": "在交接時直接退回這批貨。雙方仍要簽名；記錄保留，不計入累計。",
@@ -8605,7 +8603,9 @@
       "chooseSpec": "選擇規格",
       "specName": "規格名稱",
       "specNameHint": "名單裡沒有的規格，選「其他」在這裡填寫。",
-      "autoFilledFromSpec": "隨規格帶出"
+      "autoFilledFromSpec": "隨規格帶出",
+      "otherName": "材料名稱",
+      "otherNameHint": "名單裡沒有的材料，選「其他材料」在這裡填寫；辦公室會在分類管理加進名單。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -17468,7 +17468,8 @@
       "materialOrSubject": "材料 / 申請事項",
       "stage": "進度",
       "forwardHistory": "轉呈記錄",
-      "headOfficeReviewer": "總部審批人"
+      "headOfficeReviewer": "總部審批人",
+      "materialName": "材料名稱"
     },
     "action": {
       "view": "查看",
@@ -17549,7 +17550,8 @@
       "contentPlaceholder": "說明申請的內容、數量、時間等",
       "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超過 {limit} MB。",
       "fileKindRefused": "{name} 不能上傳。請上傳照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。",
-      "assignedReviewerManagerHint": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。"
+      "assignedReviewerManagerHint": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。",
+      "otherMaterialHint": "選了「其他材料」：請填寫材料名稱。"
     },
     "toast": {
       "submitted": "申請已提交。",

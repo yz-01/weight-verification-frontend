@@ -6114,7 +6114,8 @@
       "noSupplier": "不填",
       "spec": "规格",
       "chooseSpec": "选择规格",
-      "specName": "规格名称"
+      "specName": "规格名称",
+      "materialName": "材料名称"
     },
     "outgoingStatus": {
       "APPROVED": "已批准 / 等待退场",
@@ -8537,11 +8538,11 @@
         "confirmHint": "请对照纸质单核对",
         "title": "从送货单读到的物料",
         "unclassified": "选择分类",
-        "makeColumn": "建成分类",
         "editHint": "改掉读错的文字、选分类、删掉多余行,再点「填入」。",
         "remove": "删除此行",
         "use": "填入",
-        "noUnit": "无单位"
+        "noUnit": "无单位",
+        "useOther": "用「其他材料」"
       },
       "ocrLowConfidence": "以下字段识别置信度较低：{fields}。保存前请对照纸质单据核对。",
       "ocrManual": "无法读取送货单，请手动填写资料。",
@@ -8580,9 +8581,6 @@
       "columnAuto": "将归入「{name}」。后台可以改。",
       "columnUnfiledNote": "暂未归类。后台查看后再归。",
       "noColumnsYet": "这个工地还没有材料分类。在下面新增第一个。",
-      "newColumnName": "新分类名称",
-      "addColumn": "新增分类",
-      "columnOffline": "离线时请选择已有分类，新增分类需要网络连接。",
       "reject": {
         "toggle": "当天货不对 · Reject",
         "help": "在交接时直接退回这批货。双方仍要签名；记录保留，不计入累计。",
@@ -8605,7 +8603,9 @@
       "chooseSpec": "选择规格",
       "specName": "规格名称",
       "specNameHint": "名单里没有的规格，选「其他」在这里填写。",
-      "autoFilledFromSpec": "随规格带出"
+      "autoFilledFromSpec": "随规格带出",
+      "otherName": "材料名称",
+      "otherNameHint": "名单里没有的材料，选「其他材料」在这里填写；办公室会在分类管理加进名单。"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -17468,7 +17468,8 @@
       "materialOrSubject": "材料 / 申请事项",
       "stage": "进度",
       "forwardHistory": "转呈记录",
-      "headOfficeReviewer": "总部审批人"
+      "headOfficeReviewer": "总部审批人",
+      "materialName": "材料名称"
     },
     "action": {
       "view": "查看",
@@ -17549,7 +17550,8 @@
       "contentPlaceholder": "说明申请的内容、数量、时间等",
       "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超过 {limit} MB。",
       "fileKindRefused": "{name} 不能上传。请上传照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。",
-      "assignedReviewerManagerHint": "现场人员的申请先交项目经理，项目经理确认后再转给总部。"
+      "assignedReviewerManagerHint": "现场人员的申请先交项目经理，项目经理确认后再转给总部。",
+      "otherMaterialHint": "选了「其他材料」：请填写材料名称。"
     },
     "toast": {
       "submitted": "申请已提交。",

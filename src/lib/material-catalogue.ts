@@ -54,6 +54,24 @@ export function specChoice(material: MaterialWithSpecs | null | undefined, specI
   return { spec, typed: false, unit: spec.default_unit, unitLocked: true };
 }
 
+/**
+ * 只能从分类管理下拉选 (J14-3, Q14-2): which words a form may type. The
+ * material's name is typed only under 「其他材料」 (or on an old record filed
+ * nowhere); the specification only when 「其他」 is chosen, or when the
+ * material has no specifications to choose from.
+ */
+export function typedWords(
+  material: (MaterialWithSpecs & { is_other?: boolean }) | null | undefined,
+  specId: string,
+): { name: boolean; spec: boolean } {
+  if (!material) return { name: true, spec: true };
+  const listed = (material.specs ?? []).some((spec) => !spec.is_other);
+  return {
+    name: Boolean(material.is_other),
+    spec: !listed || specChoice(material, specId).typed,
+  };
+}
+
 /** A material whose name contains the words typed, ignoring case and spaces. */
 export function matchesMaterial(name: string, term: string): boolean {
   const squash = (text: string) => text.replace(/\s+/g, "").toLocaleLowerCase();

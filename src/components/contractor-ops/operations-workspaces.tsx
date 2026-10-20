@@ -4310,6 +4310,7 @@ export function OutgoingDialog({
     // The specification (I19, ID46); its unit is the unit. 「其他」 is typed.
     spec_category: "",
     material_specification: "",
+    material_name: "",
     unit: "",
     supplier: "",
     quantity: "",
@@ -4347,6 +4348,8 @@ export function OutgoingDialog({
   const specs = offeredSpecs(selected, form.spec_category ?? "");
   const specPick = specChoice(selected, form.spec_category ?? "");
   const specRequired = specs.length > 0;
+  // 「其他材料」 (J14-3, 只能从分类管理下拉选): the one material typed by name.
+  const typedMaterial = Boolean(selected?.is_other && !selected.parent);
   const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
   const unit = specPick.unitLocked ? specPick.unit : fill.unitLocked && !specPick.typed ? fill.unit : form.unit;
   const units = useMaterialUnits();
@@ -4391,6 +4394,8 @@ export function OutgoingDialog({
         category: form.category,
         spec_category: form.spec_category || undefined,
         material_specification: specPick.typed ? (form.material_specification ?? "").trim() : undefined,
+        // 「其他材料」 (J14-3): the one material whose name is typed.
+        material_name: typedMaterial ? (form.material_name ?? "").trim() : undefined,
         unit,
         supplier: form.supplier || undefined,
         manufacturer: form.manufacturer || undefined,
@@ -4457,6 +4462,15 @@ export function OutgoingDialog({
               <p className="text-xs text-muted-foreground">{t("outgoing.noMaterials")}</p>
             ) : null}
           </FieldWrapper>
+          {typedMaterial && (
+            <FieldWrapper label={t("outgoing.materialName")} required>
+              <Input
+                value={form.material_name ?? ""}
+                maxLength={200}
+                onChange={(e) => set("material_name", e.target.value)}
+              />
+            </FieldWrapper>
+          )}
           {/* 规格 (I19, ID46): the unit comes with it; 「其他」 is typed. */}
           {form.category && specRequired && (
             <FieldWrapper label={t("outgoing.spec")} required={specRequired}>
@@ -4603,6 +4617,7 @@ export function OutgoingDialog({
             requires={[
               [project, t("field.project")],
               [form.category, t("outgoing.material")],
+              [!typedMaterial || (form.material_name ?? "").trim(), t("outgoing.materialName")],
               [!specRequired || form.spec_category, t("outgoing.spec")],
               [!specPick.typed || (form.material_specification ?? "").trim(), t("outgoing.specName")],
               [unit, t("field.unit")],
@@ -5013,7 +5028,7 @@ export function OutgoingDetailDialog({
     name ? `${name}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
   return (
     <RecordDetailDialog
-      title={row?.reference_no ?? t("outgoing.title")}
+      title={row?.reference_no ?? t("outgoing.title")}
       description={row ? `${row.material_name} · ${row.quantity} ${row.unit}` : undefined}
       exportRecord={
         row

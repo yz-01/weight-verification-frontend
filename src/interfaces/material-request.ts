@@ -76,6 +76,8 @@ export interface CatalogueMaterial {
   code: string;
   name: string;
   is_fixed: boolean;
+  /** 「其他材料」: the one material whose name is typed (J14-3). */
+  is_other?: boolean;
   default_unit: string;
   default_unit_label: string | null;
   specs: MaterialSpec[];
