@@ -5007,8 +5007,7 @@ export function OutgoingDetailDialog({
     name ? `${name}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
   return (
     <RecordDetailDialog
-      title={row?.reference_no ?? t("outgoing.title")}
-      legacyNo={row?.legacy_no}
+      title={row?.reference_no ?? t("outgoing.title")}
       description={row ? `${row.material_name} · ${row.quantity} ${row.unit}` : undefined}
       exportRecord={
         row

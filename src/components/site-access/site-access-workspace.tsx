@@ -44,7 +44,6 @@ import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { RecordExportButton } from "@/components/shared/record-export-button";
-import { RecordNumbers } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -1121,7 +1120,6 @@ export function PassDetail({
             {row.subject_name} · {row.project_name}
           </DialogDescription>
           {/* 「旧编号」 (I6, ID21): printed passes carry the number from before. */}
-          <RecordNumbers legacyNo={row.legacy_no} />
         </DialogHeader>
         {/* 预览 · 打印 · 导出 · 发送 on this one pass and its entries and exits (H16, HD13). */}
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">

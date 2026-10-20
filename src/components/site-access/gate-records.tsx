@@ -923,8 +923,7 @@ export function GateIncidentDetailDialog({
 
   return (
     <RecordDetailDialog
-      title={row?.incident_no ?? t("title")}
-      legacyNo={row?.legacy_no}
+      title={row?.incident_no ?? t("title")}
       description={row?.is_issue ? t("issueHelp") : t("detailHelp")}
       onClose={onClose}
       // 预览 · 打印 · 导出 · 发送 on this one record (H16, HD13).

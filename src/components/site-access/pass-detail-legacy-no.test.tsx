@@ -1,6 +1,6 @@
 /**
- * The gate pass detail shows 「旧编号」 when the pass was renumbered (I6, ID35),
- * and nothing when it was not.
+ * One number per record (J15-1, Q15): the gate pass detail no longer shows
+ * the 「旧编号」 a pass kept when I6 renumbered it.
  */
 import { describe, expect, it, vi } from "vitest";
 
@@ -45,12 +45,12 @@ const pass = {
   credentials: [],
 } as unknown as SiteAccessPass;
 
-describe("the gate pass detail (I6, ID35)", () => {
-  it("shows 旧编号 when the pass kept its old number", () => {
+describe("the gate pass detail (J15-1)", () => {
+  it("shows its one number even when it kept an old one", () => {
     const html = renderDetail(<PassDetail row={{ ...pass, legacy_no: "AP-0042" }} onClose={() => {}} />);
     expect(html).toContain("AP-P1-261008-001");
-    expect(html).toContain("旧编号");
-    expect(html).toContain("AP-0042");
+    expect(html).not.toContain("旧编号");
+    expect(html).not.toContain("AP-0042");
   });
 
   it("shows nothing extra on a pass numbered since", () => {

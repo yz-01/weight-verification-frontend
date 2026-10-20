@@ -708,7 +708,7 @@ export function MaterialRequestDetail({
   const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");
 
   return (
-    <RecordDetailDialog title={row.request_no} legacyNo={row.legacy_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
+    <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
       <RecordDetailShell
         reference={row.request_no}
         // 记录人 (E8): who recorded it, with a number to call.

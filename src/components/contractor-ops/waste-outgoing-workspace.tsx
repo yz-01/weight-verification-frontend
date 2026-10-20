@@ -556,8 +556,7 @@ export function WasteOutgoingWorkspace() {
 
       {shown && (
         <RecordDetailDialog
-          title={shown.reference_no}
-          legacyNo={shown.legacy_no}
+          title={shown.reference_no}
           description={`${shown.project_name} · ${shown.category_name}`}
           exportRecord={{
             kind: "WASTE_OUTGOING",

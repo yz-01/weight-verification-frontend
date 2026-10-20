@@ -88,8 +88,7 @@ export function VisitorArrivalDialog({ id, onClose }: { id: string; onClose: () 
 
   return (
     <RecordDetailDialog
-      title={row?.arrival_no ?? t("title")}
-      legacyNo={row?.legacy_no}
+      title={row?.arrival_no ?? t("title")}
       description={row?.may_answer ? t("hostHelp") : t("detailHelp")}
       status={
         row ? <StatusBadge label={t(`status.${row.visit_status}`)} tone={visitStatusTone(row.visit_status)} /> : undefined
