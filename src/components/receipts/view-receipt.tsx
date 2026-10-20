@@ -41,6 +41,7 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
 import { useRecordArchived } from "@/components/shared/record-closure";
+import { RecordCorrectionHistory } from "@/components/shared/record-correction";
 
 /**
  * Whether this delivery's next step is the final 【确认归档】 (C4, X10):
@@ -507,14 +508,20 @@ export function ViewReceipt({
         // 更正记录 sits under the facts in the left column (the canvas's
         // 记录详情), not above the photographs.
         corrections={
-          data.correction_trail ? (
-            <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
-          ) : data.correction_reason ? (
-            <p className="rounded-xl border border-dashed border-panel-border px-4 py-3 text-sm">
-              <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
-              {data.correction_reason}
-            </p>
-          ) : null
+          <>
+            {/* Corrections filed as a second receipt, before J6. */}
+            {data.correction_trail ? (
+              <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
+            ) : data.correction_reason ? (
+              <p className="rounded-xl border border-dashed border-panel-border px-4 py-3 text-sm">
+                <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
+                {data.correction_reason}
+              </p>
+            ) : null}
+            {/* J6: corrected on the delivery itself, its number kept - who,
+                when, old → new and why, in the history every module keeps. */}
+            <RecordCorrectionHistory kind="MATERIAL_RECEIPT" recordId={data.id} />
+          </>
         }
         facts={[
           { label: t("receipts.field.project"), value: data.project_name },
