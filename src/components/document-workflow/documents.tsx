@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
   Archive,
   ChevronRight,
+  ClipboardCheck,
   Download,
   Eye,
   FilePlus2,
@@ -78,6 +79,7 @@ import type { Requirement } from "@/lib/missing-fields";
 import type { Project } from "@/interfaces/contractor";
 import type { LinkableRecord } from "@/interfaces/document-workflow";
 import { RecordLinkPicker } from "@/components/document-workflow/record-link-picker";
+import { InspectionDialog, InspectionList } from "@/components/document-workflow/inspection";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { CorrectedTag } from "@/components/shared/record-correction";
 import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
@@ -1811,6 +1813,9 @@ function DocumentDetailBody({
 }) {
   const t = useTranslations();
   const df = useDateFormat();
+  const { can } = useAuth();
+  // 填写检验结果 (J12-7): only where the subcategory asks for it.
+  const [inspecting, setInspecting] = useState(false);
   const [savingFile, setSavingFile] = useState<string | null>(null);
   const saveSystemFile = async (file: DocumentSystemFileInfo) => {
     setSavingFile(file.id ?? "");
@@ -1914,6 +1919,29 @@ function DocumentDetailBody({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {/* 检验结果 (J12-6..J12-12): filed once, never changed; the newest first. */}
+      {(document.needs_inspection || (document.inspections ?? []).length > 0) && (
+        <section className="space-y-2 border-t pt-5" data-testid="document-inspections">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-foreground">{t("documents.inspection.section")}</h3>
+            {document.needs_inspection && can("inspection.record") && document.status !== "ARCHIVED" ? (
+              <Button size="sm" variant="outline" onClick={() => setInspecting(true)}>
+                <ClipboardCheck className="h-4 w-4" />
+                {t("documents.inspection.add")}
+              </Button>
+            ) : null}
+          </div>
+          <InspectionList rows={document.inspections ?? []} />
+          {inspecting ? (
+            <InspectionDialog
+              documentId={document.id}
+              project={document.project ?? null}
+              onClose={() => setInspecting(false)}
+            />
+          ) : null}
         </section>
       )}
 
@@ -2410,6 +2438,8 @@ function SubcategoryForm({
   const [name, setName] = useState(subcategory?.name ?? "");
   const [description, setDescription] = useState(subcategory?.description ?? "");
   const [active, setActive] = useState(subcategory?.is_active ?? true);
+  // 「需要检验栏位」 (J12-6, Q12-4).
+  const [needsInspection, setNeedsInspection] = useState(subcategory?.needs_inspection ?? false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const mutation = useMutation({
     mutationFn: () => {
@@ -2419,6 +2449,7 @@ function SubcategoryForm({
         name: name.trim(),
         description: description.trim(),
         is_active: active,
+        needs_inspection: needsInspection,
       };
       return subcategory
         ? updateDocumentSubcategory(subcategory.id, payload)
@@ -2493,6 +2524,17 @@ function SubcategoryForm({
           </p>
         </div>
         <Switch checked={active} onCheckedChange={setActive} />
+      </div>
+      <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-3 sm:col-span-2">
+        <div className="min-w-0">
+          <p className="text-sm font-medium">{t("documents.inspection.needs")}</p>
+          <p className="text-xs text-muted-foreground">{t("documents.inspection.needsHint")}</p>
+        </div>
+        <Switch
+          checked={needsInspection}
+          onCheckedChange={setNeedsInspection}
+          aria-label={t("documents.inspection.needs")}
+        />
       </div>
     </TaxonomyFormShell>
   );

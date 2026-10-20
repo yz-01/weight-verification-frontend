@@ -1,3 +1,4 @@
+import type { InspectionInfo } from "@/interfaces/document-workflow";
 import type { RecordedBy } from "@/interfaces/recorder";
 
 /**
@@ -437,6 +438,8 @@ export interface FieldTaskPayload {
 
 export type EquipmentStatus = "OFF_SITE" | "ON_SITE" | "MAINTENANCE" | "RETIRED";
 export interface SiteEquipment {
+  /** 检验 (J11-1): the latest inspection, or none. */
+  inspection?: InspectionInfo | null;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */

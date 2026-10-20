@@ -73,6 +73,7 @@ import {
   recordCorrectionsKey,
 } from "@/components/shared/record-correction";
 import { cn } from "@/lib/utils";
+import { InspectionBadge } from "@/components/document-workflow/inspection";
 
 /** `YYYY-MM-DD` of a date in the browser's own day. */
 function isoDay(value: Date): string {
@@ -571,6 +572,7 @@ export function EquipmentOperatorHours() {
                 <TableHead>{t("field.machineNo")}</TableHead>
                 <TableHead>{t("field.equipmentName")}</TableHead>
                 <TableHead>{t("field.supplier")}</TableHead>
+                <TableHead>{t("field.inspection")}</TableHead>
                 <TableHead>{t("field.operator")}</TableHead>
                 <TableHead>{t("field.cidb")}</TableHead>
                 <TableHead>{t("field.date")}</TableHead>
@@ -590,13 +592,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={15} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={16} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={15} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={16} className="h-20 text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
@@ -622,6 +624,10 @@ export function EquipmentOperatorHours() {
                         ) : null}
                       </TableCell>
                       <TableCell>{row.supplier_name || "-"}</TableCell>
+                      {/* 检验 (J11-1): never stops a clock-in (Q11-2). */}
+                      <TableCell>
+                        <InspectionBadge inspection={row.inspection} />
+                      </TableCell>
                       <TableCell>
                         {canAdjust ? (
                           <Button
@@ -712,6 +718,7 @@ export function EquipmentOperatorHours() {
                   ))}
                   <TableRow>
                     <TableCell className="font-semibold">{t("month.total")}</TableCell>
+                    <TableCell />
                     <TableCell />
                     <TableCell />
                     <TableCell />

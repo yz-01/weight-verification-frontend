@@ -6480,6 +6480,9 @@
         "LEFT": "已離場"
       },
       "summary": "今日：工作中 {working} 台 · 已收工 {finished} 台 · 未開工 {idle} 台"
+    },
+    "equipmentInspection": {
+      "column": "檢驗"
     }
   },
   "contractorPartners": {
@@ -7330,7 +7333,8 @@
       "versionUploaded": "文件已加進檔案",
       "uploaded": "文件已上傳",
       "systemFilesAdded": "已放進檔案",
-      "recordsAdded": "記錄已放入檔案"
+      "recordsAdded": "記錄已放入檔案",
+      "inspectionFiled": "檢驗結果已提交"
     },
     "upload": {
       "action": "添加文件",
@@ -7441,6 +7445,45 @@
       "title": "整條記錄",
       "allPdf": "全部記錄合成一份 PDF",
       "gone": "原記錄已刪除。"
+    },
+    "inspection": {
+      "needs": "需要檢驗欄位",
+      "needsHint": "放在這裡的檔案可以填檢驗結果（合格 / 不合格、日期）。",
+      "section": "檢驗",
+      "add": "填寫檢驗結果",
+      "none": "還沒有檢驗結果。",
+      "title": "檢驗結果",
+      "help": "照報告填寫：提交後不能修改；重新檢驗要新增一筆。",
+      "target": "對象",
+      "equipment": "設備",
+      "material": "材料",
+      "spec": "規格",
+      "allSpecs": "整個材料",
+      "choose": "選擇",
+      "number": "檢驗編號",
+      "numberHint": "報告上的編號；檔案原有的參考編號不變。",
+      "inspectedOn": "檢驗 / 送檢日期",
+      "inspector": "檢驗人 / 檢測單位",
+      "reportDate": "報告日期",
+      "validUntilLabel": "有效期至",
+      "validUntilHint": "報告到期日期；到期前 30 天在電腦後台提醒。",
+      "result": {
+        "label": "檢驗結果",
+        "PASS": "合格",
+        "FAIL": "不合格"
+      },
+      "submit": "提交",
+      "confirm": "提交後不能修改，確定嗎？",
+      "submitNow": "確定提交",
+      "back": "返回",
+      "cancel": "取消",
+      "failed": "提交沒有成功，請再試一次。",
+      "expiring": "將於 {date} 到期",
+      "expired": "已於 {date} 過期",
+      "validUntil": "有效期至 {date}",
+      "filedBy": "{name} 於 {at} 填寫",
+      "expiryTitle": "檢驗報告到期（{count}）",
+      "openArchive": "打開文件檔案"
     }
   },
   "driver": {
@@ -12389,6 +12432,9 @@
       },
       "material_target": {
         "manage": "設定材料目標"
+      },
+      "inspection": {
+        "record": "填寫檢驗結果"
       }
     },
     "group": {
@@ -12458,7 +12504,8 @@
       "platform_version": "版本管理",
       "integration": "系統集成",
       "site_worker": "人員名單",
-      "material_target": "材料目標"
+      "material_target": "材料目標",
+      "inspection": "檢驗"
     }
   },
   "photos": {
@@ -18079,7 +18126,8 @@
       "normalHours": "正常工時（小時）",
       "overtimeHours": "超時工時（小時）",
       "cumulativeNormal": "正常工時累計（小時）",
-      "cumulativeOvertime": "超時工時累計（小時）"
+      "cumulativeOvertime": "超時工時累計（小時）",
+      "inspection": "檢驗"
     },
     "status": {
       "MISSING_END": "缺收工",

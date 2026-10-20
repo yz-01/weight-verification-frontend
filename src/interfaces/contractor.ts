@@ -1,3 +1,4 @@
+import type { InspectionInfo } from "@/interfaces/document-workflow";
 import type { OriginalBackupSummary, OriginalStatus } from "@/interfaces/evidence";
 
 /** The contractor console's records: sites, suppliers, deliveries and loads out. */
@@ -608,6 +609,8 @@ export interface MySubmissionsPage {
 export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
 
 export interface MaterialReceiptDetail extends MaterialReceipt {
+  /** 检验 (J12-8): the latest inspection of its material and specification. */
+  inspection?: InspectionInfo | null;
   qr_code: string | null;
   /** 「提交总部审批」 (I12, ID28): head office accepts this delivery. */
   review_by_head_office?: boolean;

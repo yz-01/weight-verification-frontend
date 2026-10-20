@@ -6480,6 +6480,9 @@
         "LEFT": "Left site"
       },
       "summary": "Today: {working} working · {finished} stopped · {idle} not started"
+    },
+    "equipmentInspection": {
+      "column": "Inspection"
     }
   },
   "contractorPartners": {
@@ -7330,7 +7333,8 @@
       "versionUploaded": "Files added to the document",
       "uploaded": "File uploaded",
       "systemFilesAdded": "Filed in the archive",
-      "recordsAdded": "Records filed"
+      "recordsAdded": "Records filed",
+      "inspectionFiled": "Inspection result filed"
     },
     "upload": {
       "action": "Add files",
@@ -7441,6 +7445,45 @@
       "title": "Whole records",
       "allPdf": "All records as one PDF",
       "gone": "The original record has been deleted."
+    },
+    "inspection": {
+      "needs": "Needs inspection fields",
+      "needsHint": "Documents filed here take an inspection result (pass / fail, dates).",
+      "section": "Inspection",
+      "add": "Fill in inspection result",
+      "none": "No inspection result yet.",
+      "title": "Inspection result",
+      "help": "From the report: once submitted it cannot be changed. A re-inspection is a new result.",
+      "target": "For",
+      "equipment": "Machine",
+      "material": "Material",
+      "spec": "Specification",
+      "allSpecs": "The whole material",
+      "choose": "Choose",
+      "number": "Inspection no.",
+      "numberHint": "The report's own number; the document's reference stays as it is.",
+      "inspectedOn": "Inspection / sending date",
+      "inspector": "Inspector / testing body",
+      "reportDate": "Report date",
+      "validUntilLabel": "Valid until",
+      "validUntilHint": "When the report runs out; the back office is reminded 30 days before.",
+      "result": {
+        "label": "Result",
+        "PASS": "Pass",
+        "FAIL": "Fail"
+      },
+      "submit": "Submit",
+      "confirm": "Once submitted it cannot be changed. Submit now?",
+      "submitNow": "Yes, submit",
+      "back": "Back",
+      "cancel": "Cancel",
+      "failed": "Could not file the result. Please try again.",
+      "expiring": "Runs out {date}",
+      "expired": "Ran out {date}",
+      "validUntil": "valid until {date}",
+      "filedBy": "filed by {name}, {at}",
+      "expiryTitle": "Inspection reports running out ({count})",
+      "openArchive": "Open the document archive"
     }
   },
   "driver": {
@@ -12389,6 +12432,9 @@
       },
       "material_target": {
         "manage": "Set material targets"
+      },
+      "inspection": {
+        "record": "Fill in inspection results"
       }
     },
     "group": {
@@ -12458,7 +12504,8 @@
       "platform_version": "Versions",
       "integration": "Integrations",
       "site_worker": "Worker roster",
-      "material_target": "Material targets"
+      "material_target": "Material targets",
+      "inspection": "Inspection"
     }
   },
   "photos": {
@@ -18079,7 +18126,8 @@
       "normalHours": "Normal hours (h)",
       "overtimeHours": "Overtime hours (h)",
       "cumulativeNormal": "Normal to date (h)",
-      "cumulativeOvertime": "Overtime to date (h)"
+      "cumulativeOvertime": "Overtime to date (h)",
+      "inspection": "Inspection"
     },
     "status": {
       "MISSING_END": "No stop photo",
