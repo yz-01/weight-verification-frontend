@@ -103,7 +103,7 @@ export function FieldSignaturePad({
         <span className="flex items-center gap-2 text-sm font-medium">
           <PenLine className="size-4" />
           {label}
-          {required === true && <span className="text-destructive">*</span>}
+          {required === true && <span className="text-destructive pointer-coarse:hidden">*</span>}
         </span>
         {value ? <Check className="size-5 text-success" aria-label={`${label} ready`} /> : null}
       </div>

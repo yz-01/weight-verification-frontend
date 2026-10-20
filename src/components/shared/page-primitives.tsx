@@ -187,7 +187,8 @@ export function FieldWrapper({
     <div className={cn("space-y-1", className)}>
       <Label className={cn("text-sm font-medium", error && "text-destructive")}>
         {label}
-        {required === true && <span className="ml-0.5 text-destructive">*</span>}
+        {/* No red star on a phone (J13-2, Q13-3): the button says what is missing. */}
+        {required === true && <span className="ml-0.5 text-destructive pointer-coarse:hidden">*</span>}
         {optional && (
           <span className="ml-1.5 text-xs font-normal text-muted-foreground">
             ({optional})

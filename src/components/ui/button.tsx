@@ -17,8 +17,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // Disabled reads as disabled (J13, JB4): flat grey, no gradient or
+        // glow - at half opacity the blue gradient still looked pressable.
         default:
-          "bg-primary bg-(image:--primary-gradient) font-semibold text-primary-foreground shadow-glow hover:brightness-110",
+          "bg-primary bg-(image:--primary-gradient) font-semibold text-primary-foreground shadow-glow hover:brightness-110 disabled:bg-muted disabled:bg-none disabled:text-muted-foreground disabled:shadow-none disabled:opacity-100",
         outline:
           "border-input bg-card text-foreground hover:border-primary/50 hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground dark:bg-field dark:text-accent-foreground",
         secondary:
@@ -78,6 +80,10 @@ const buttonVariants = cva(
  *   disabled={save.isPending}
  * />
  * ```
+ *
+ * A phone has no hover, so a tooltip is never seen there (J13, JB4: 「提交退场」
+ * just would not press). On a touch screen the missing fields from `requires`
+ * - or any reason, with `showReason` - are written above the button instead.
  */
 /** A plain `bg-…` fill in a caller's classes (not `hover:bg-…`, not a clip). */
 const OWN_FILL = /(^|\s)bg-(?!clip-|none\b|\(image)[a-z]/
@@ -89,12 +95,15 @@ function Button({
   asChild = false,
   disabledReason,
   requires,
+  showReason,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
     disabledReason?: string
     requires?: readonly Requirement[]
+    /** Also write `disabledReason` above the button on a touch screen. */
+    showReason?: boolean
   }) {
   const Comp = asChild ? Slot.Root : "button"
   const reasonId = React.useId()
@@ -108,6 +117,8 @@ function Button({
       ? t("missingFields", { fields: missing.join(t("listSeparator")) })
       : undefined)
   const explained = Boolean(disabled && reason)
+  // Said on screen on a touch device: what is still missing (J13-1).
+  const inline = explained && (missing.length > 0 || showReason)
 
   const button = (
     <Comp
@@ -129,7 +140,7 @@ function Button({
 
   if (!explained) return button
 
-  return (
+  const tipped = (
     <Tooltip>
       <TooltipTrigger asChild>
         <span className="contents" title={reason}>
@@ -138,6 +149,27 @@ function Button({
       </TooltipTrigger>
       <TooltipContent id={reasonId}>{reason}</TooltipContent>
     </Tooltip>
+  )
+  if (!inline) return tipped
+
+  // `contents` on a desk, so nothing moves; on a touch screen a column with
+  // the words above the button, as wide as the button asked to be.
+  return (
+    <span
+      data-slot="button-reason"
+      className={cn(
+        "contents pointer-coarse:inline-flex pointer-coarse:flex-col pointer-coarse:items-stretch pointer-coarse:gap-1",
+        /(^|s)w-full(s|$)/.test(className ?? "") && "pointer-coarse:w-full",
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className="hidden text-left text-xs font-medium whitespace-normal text-warning pointer-coarse:block"
+      >
+        {reason}
+      </span>
+      {tipped}
+    </span>
   )
 }
 
