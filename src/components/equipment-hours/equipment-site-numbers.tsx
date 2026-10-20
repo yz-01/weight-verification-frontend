@@ -153,6 +153,11 @@ function SiteNumberLine({
         className="flex items-center gap-2"
         onSubmit={(event) => {
           event.preventDefault();
+          // A machine keeps a number (J21-3): put right, never cleared.
+          if (!value.trim()) {
+            setError(t("siteNo.keep"));
+            return;
+          }
           if (changed && !save.isPending) save.mutate();
         }}
       >

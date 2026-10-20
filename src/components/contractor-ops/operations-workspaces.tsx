@@ -2401,7 +2401,16 @@ export function EquipmentDialog({
               disabled={Boolean(equipment)}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.code")} required>
+          {/* 设备号码 (J21-1, J21-2): given by the system with the QR code -
+              shown, never typed here. */}
+          {equipment ? (
+            <FieldWrapper label={t("equipment.siteNo")} className="sm:col-span-2">
+              <p className="text-sm font-semibold" data-testid="equipment-site-no">
+                {equipment.site_no ? t("equipment.siteNoAuto", { no: equipment.site_no }) : "—"}
+              </p>
+            </FieldWrapper>
+          ) : null}
+          <FieldWrapper label={t("equipment.systemNo")} required>
             <Input
               value={form.code}
               onChange={(e) => set("code", e.target.value.toUpperCase())}
@@ -2542,7 +2551,7 @@ export function EquipmentDialog({
           <Button
             requires={[
               [form.project, t("field.project")],
-              [form.code, t("field.code")],
+              [form.code, t("equipment.systemNo")],
               [form.name, t("field.name")],
               [form.category, t("field.equipmentSubClass")],
             ]}
