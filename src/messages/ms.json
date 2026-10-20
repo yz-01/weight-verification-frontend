@@ -7329,7 +7329,8 @@
       "updated": "Dokumen dikemas kini",
       "versionUploaded": "Fail ditambah ke dokumen",
       "uploaded": "Fail dimuat naik",
-      "systemFilesAdded": "Difailkan dalam arkib"
+      "systemFilesAdded": "Difailkan dalam arkib",
+      "recordsAdded": "Rekod difailkan"
     },
     "upload": {
       "action": "Tambah fail",
@@ -7413,6 +7414,33 @@
       "hint": "Hanya fail projek dokumen ini boleh ditambah; fail yang sudah ada dikelabukan.",
       "what": "fail yang sudah ada dalam dokumen ini",
       "confirm": "Tambah ke dokumen ini ({count})"
+    },
+    "pickRecords": {
+      "tab": "Pilih rekod penuh",
+      "description": "Failkan rekod penuh dari modul: ia dipautkan, bukan disalin, dan sentiasa dibuka seperti hari ini.",
+      "way": "Pilih rekod penuh: penghantaran, pemulangan, pergerakan mesin… dipautkan bersama semua buktinya.",
+      "records": "Rekod",
+      "hint": "Tandakan satu atau lebih rekod daripada satu projek.",
+      "mixedProjects": "Rekod ini daripada projek berbeza. Satu dokumen milik satu projek.",
+      "confirm": "Failkan {count, plural, one {# rekod} other {# rekod}}",
+      "kind": "Jenis",
+      "project": "Projek",
+      "allProjects": "Semua projek",
+      "number": "Nombor",
+      "dateFrom": "Dari",
+      "dateTo": "Hingga",
+      "supplier": "Pembekal",
+      "allSuppliers": "Semua pembekal",
+      "material": "Bahan",
+      "specification": "Spesifikasi",
+      "results": "Rekod",
+      "empty": "Tiada rekod ditemui.",
+      "picked": "{count, plural, =0 {Tiada ditanda} other {# ditanda}}"
+    },
+    "recordLinks": {
+      "title": "Rekod penuh",
+      "allPdf": "Semua rekod sebagai satu PDF",
+      "gone": "Rekod asal telah dipadam."
     }
   },
   "driver": {

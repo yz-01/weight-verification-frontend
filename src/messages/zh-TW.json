@@ -7329,7 +7329,8 @@
       "updated": "文檔已更新",
       "versionUploaded": "文件已加進檔案",
       "uploaded": "文件已上傳",
-      "systemFilesAdded": "已放進檔案"
+      "systemFilesAdded": "已放進檔案",
+      "recordsAdded": "記錄已放入檔案"
     },
     "upload": {
       "action": "添加文件",
@@ -7413,6 +7414,33 @@
       "hint": "只能選這份檔案所在項目的文件；已經在檔案裡的文件會變灰。",
       "what": "這份檔案已有的文件",
       "confirm": "加進這份檔案（{count}）"
+    },
+    "pickRecords": {
+      "tab": "選整條記錄",
+      "description": "把各模組的整條記錄放進檔案：只是連到原記錄，不複製，打開永遠是原記錄的最新內容。",
+      "way": "選整條記錄：材料進場、退貨、設備進退場……連同全部證據連到原記錄。",
+      "records": "整條記錄",
+      "hint": "勾選同一個項目的一條或多條記錄。",
+      "mixedProjects": "這些記錄屬於不同項目；一份檔案只能屬於一個項目。",
+      "confirm": "放入 {count} 條記錄",
+      "kind": "類型",
+      "project": "項目",
+      "allProjects": "全部項目",
+      "number": "編號",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期",
+      "supplier": "供應商",
+      "allSuppliers": "全部供應商",
+      "material": "材料",
+      "specification": "規格",
+      "results": "記錄",
+      "empty": "找不到記錄。",
+      "picked": "已勾選 {count} 條"
+    },
+    "recordLinks": {
+      "title": "整條記錄",
+      "allPdf": "全部記錄合成一份 PDF",
+      "gone": "原記錄已刪除。"
     }
   },
   "driver": {
