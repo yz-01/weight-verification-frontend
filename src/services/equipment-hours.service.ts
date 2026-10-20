@@ -279,4 +279,22 @@ export async function setEquipmentNormalHours(project: string, dailyHours: strin
   });
   toastSuccess("equipmentHours.toast.normalSaved");
   return saved;
+/** 设备清单今日状态 (J27): each machine's state today, Malaysia time. */
+export type EquipmentTodayStatus = "WORKING" | "FINISHED" | "IDLE" | "LEFT";
+
+export interface EquipmentToday {
+  date: string;
+  counts: Record<EquipmentTodayStatus, number>;
+  rows: Array<{
+    equipment: string;
+    status: EquipmentTodayStatus;
+    start_at: string | null;
+    end_at: string | null;
+    operator_name: string;
+    cidb_no: string;
+  }>;
+}
+
+export function getEquipmentToday(project?: string): Promise<EquipmentToday> {
+  return api.get<EquipmentToday>("/api/equipment-hours/today_status/", project ? { project } : undefined);
 }

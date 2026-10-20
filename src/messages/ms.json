@@ -6470,6 +6470,16 @@
       "otherProject": "{name} milik projek {project}, bukan projek anda sekarang.",
       "notFound": "Mesin ini tidak ditemui, atau anda tidak dibenarkan melihatnya.",
       "loadFailed": "Mesin tidak dapat dibaca sekarang. Semak sambungan dan cuba lagi."
+    },
+    "equipmentToday": {
+      "column": "Hari ini",
+      "status": {
+        "WORKING": "Sedang bekerja",
+        "FINISHED": "Sudah tamat",
+        "IDLE": "Belum mula",
+        "LEFT": "Sudah keluar"
+      },
+      "summary": "Hari ini: {working} bekerja · {finished} tamat · {idle} belum mula"
     }
   },
   "contractorPartners": {

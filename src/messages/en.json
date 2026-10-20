@@ -6470,6 +6470,16 @@
       "otherProject": "{name} belongs to project {project}, not the one you are on.",
       "notFound": "This machine was not found, or you may not see it.",
       "loadFailed": "The machine could not be read just now. Check the connection and try again."
+    },
+    "equipmentToday": {
+      "column": "Today",
+      "status": {
+        "WORKING": "Working",
+        "FINISHED": "Stopped",
+        "IDLE": "Not started",
+        "LEFT": "Left site"
+      },
+      "summary": "Today: {working} working · {finished} stopped · {idle} not started"
     }
   },
   "contractorPartners": {

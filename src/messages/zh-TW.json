@@ -6470,6 +6470,16 @@
       "otherProject": "{name} 屬於項目「{project}」，不是你現在的項目。",
       "notFound": "沒有找到這台設備，或你沒有權限查看。",
       "loadFailed": "暫時讀取不到設備資料，請檢查網路後再試。"
+    },
+    "equipmentToday": {
+      "column": "今日",
+      "status": {
+        "WORKING": "工作中",
+        "FINISHED": "已收工",
+        "IDLE": "未開工",
+        "LEFT": "已離場"
+      },
+      "summary": "今日：工作中 {working} 台 · 已收工 {finished} 台 · 未開工 {idle} 台"
     }
   },
   "contractorPartners": {
