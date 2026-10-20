@@ -16977,6 +16977,8 @@
     }
   },
   "recordCorrection": {
+    "openHistory": "Open the modification history",
+    "historyHelp": "Every change to this record: what changed, what it was, who changed it, when and why.",
     "button": "Correct",
     "title": "Correct this record",
     "hint": "Only words and choices can be changed; photos, GPS, times, signatures and who submitted it cannot. The original values are kept.",
@@ -16993,8 +16995,8 @@
     "badNumber": "{field} must be a number greater than 0",
     "cancel": "Cancel",
     "save": "Save correction",
-    "tag": "Corrected",
-    "historyTitle": "Corrections",
+    "tag": "Modified",
+    "historyTitle": "Modification history",
     "historyWhat": "the corrections",
     "empty": "not filled",
     "reasonLine": "Reason: {reason}",

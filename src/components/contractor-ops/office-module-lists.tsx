@@ -88,7 +88,6 @@ import { NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import {
-  CorrectedTag,
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
@@ -280,8 +279,6 @@ export function MaterialOutgoingOffice() {
         cell: ({ row }) => (
           <div className="flex flex-wrap items-center gap-1.5">
             <RecordNo value={row.original.reference_no} />
-            {/* Corrected by the office (I30); the detail has the history. */}
-            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -462,6 +459,7 @@ export function MaterialOutgoingOffice() {
   return (
     <>
       <ModuleRecordsTable
+        corrected={{ kind: "MATERIAL_OUTGOING" }}
         title={title}
         countLabel={tRoot("moduleTable.count", { count: total })}
         // Material Out in 材料管理's views (B09, C14), with the supplier and
@@ -744,8 +742,6 @@ export function SiteEquipmentOffice() {
             <p className="tabular truncate text-xs text-muted-foreground">
               {row.original.equipment_registration_no || row.original.equipment_code}
             </p>
-            {/* Corrected by the office (I30); the detail has the history. */}
-            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -1208,6 +1204,7 @@ export function SiteEquipmentOffice() {
         />
       ) : (
         <ModuleRecordsTable
+        corrected={{ kind: "EQUIPMENT_MOVEMENT" }}
           title={title}
           countLabel={tRoot("moduleTable.count", {
             count: movements.data?.count ?? 0,
@@ -1821,8 +1818,6 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         cell: ({ row }) => (
           <span className="inline-flex flex-wrap items-center gap-1.5 font-medium text-foreground">
             {row.original.phase_name}
-            {/* Corrected by the office (I30); the detail has the history. */}
-            {row.original.was_corrected && <CorrectedTag />}
           </span>
         ),
       },
@@ -1986,6 +1981,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
   return (
     <>
       <ModuleRecordsTable
+        corrected={{ kind: "PROGRESS" }}
         title={title}
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={

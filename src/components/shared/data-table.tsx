@@ -28,6 +28,7 @@ import {
   withPackColumns,
 } from "@/components/contractor-ops/pack-collect";
 import { InsideRowControl } from "@/components/shared/inside-row-control";
+import { CORRECTED_ROW_CLASS, CorrectedTag } from "@/components/shared/record-correction";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -55,6 +56,7 @@ import {
 } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { PAGE_SIZE_OPTIONS } from "@/hooks/use-list-query";
+import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import { defaultVisibility, initialVisibility } from "@/lib/table-fit";
 import { cn } from "@/lib/utils";
 
@@ -119,6 +121,13 @@ interface DataTableProps<T> {
    */
   rowClassName?: (row: T) => string | undefined;
   /**
+   * The list's records can be corrected (J1-3, J1-4, J20): a row whose
+   * `was_corrected` is true gets the gold frame and, at the front of its
+   * first column, the gold 「已修改」 that opens its history. One place, so
+   * the twelve lists show the same mark.
+   */
+  corrected?: { kind: CorrectionHistoryKind };
+  /**
    * The list's records can go into a Multi Engine package (2026-10-10,
    * 添加资料及勾选关联): rows show 「✅ 已打包 X 次」, and while a package is
    * being put together they get tick boxes and 「加入当前资料包」. Written
@@ -148,6 +157,16 @@ export const PINNED_END_COLUMNS = ["actions", "view"] as const;
 const UNCLAMPED_COLUMNS = new Set<string>([...PINNED_END_COLUMNS, PACK_SELECT_COLUMN]);
 
 /** The columns whose controls must not also open the row they sit in. */
+/** Whether a list row says the office corrected it (I30, J20). */
+function isCorrected(row: unknown): boolean {
+  return Boolean((row as { was_corrected?: boolean } | null)?.was_corrected);
+}
+
+function rowId(row: unknown): string | undefined {
+  const id = (row as { id?: unknown } | null)?.id;
+  return id == null ? undefined : String(id);
+}
+
 const OWN_CLICK_COLUMNS = new Set(["actions", PACK_SELECT_COLUMN, PACK_BADGE_COLUMN]);
 
 /**
@@ -203,6 +222,7 @@ function TableFrame<T>({
   toolbarActions,
   onRowClick,
   rowClassName,
+  corrected,
   onSearchChange,
   onSortChange,
   onPageChange,
@@ -470,6 +490,7 @@ function TableFrame<T>({
                         ? "[&>td:first-child]:border-l-4 [&>td:first-child]:border-l-primary"
                         : "",
                       rowClassName?.(row.original) ?? "",
+                      corrected && isCorrected(row.original) ? CORRECTED_ROW_CLASS : "",
                     ]
                       .filter(Boolean)
                       .join(" ") || undefined
@@ -493,7 +514,7 @@ function TableFrame<T>({
                       : undefined
                   }
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map((cell, index, cells) => (
                     <TableCell
                       key={cell.id}
                       pin={cell.column.id === pinnedId ? "end" : undefined}
@@ -511,7 +532,17 @@ function TableFrame<T>({
                           : undefined
                       }
                     >
-                      {UNCLAMPED_COLUMNS.has(cell.column.id) ? (
+                      {corrected &&
+                      isCorrected(row.original) &&
+                      cell.id === cells.find((one) => one.column.id !== PACK_SELECT_COLUMN)?.id ? (
+                        // 「已修改」 at the very front of the row (J1-4).
+                        <div className="flex items-center gap-1.5">
+                          <CorrectedTag kind={corrected.kind} recordId={rowId(row.original)} />
+                          <div className="min-w-0">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
+                        </div>
+                      ) : UNCLAMPED_COLUMNS.has(cell.column.id) ? (
                         flexRender(cell.column.columnDef.cell, cell.getContext())
                       ) : (
                         // Two lines at most, the whole text on hover (I39).

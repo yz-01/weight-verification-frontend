@@ -37,7 +37,6 @@ import {
 } from "@/components/shared/module-records-table";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import {
-  CorrectedTag,
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
@@ -380,8 +379,6 @@ export function WasteOutgoingWorkspace() {
       cell: ({ row }) => (
         <div className="flex flex-wrap items-center gap-1.5">
           <RecordNo value={row.original.reference_no} />
-          {/* Corrected by the office (I30); the detail has the history. */}
-          {row.original.was_corrected && <CorrectedTag />}
         </div>
       ),
     },
@@ -468,6 +465,7 @@ export function WasteOutgoingWorkspace() {
     <>
       <QueryFailedNote query={viewingRecord} what={tRoot("notifications.actionCards.linkedRecord")} />
       <ModuleRecordsTable
+        corrected={{ kind: "WASTE_OUTGOING" }}
         title={tRoot("nav.submodule.wasteOutgoing")}
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={

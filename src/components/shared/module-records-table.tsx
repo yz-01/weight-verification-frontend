@@ -45,6 +45,7 @@ import type { useListQuery } from "@/hooks/use-list-query";
 import type { ArchiveRecordKind, ProjectCategoryKind } from "@/interfaces/contractor-ops";
 import { cn } from "@/lib/utils";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import { CategoryOptionItems } from "@/components/shared/category-options";
 
 export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
@@ -65,6 +66,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   rowClassName,
   pack,
   defaultHidden,
+  corrected,
 }: {
   title: string;
   /** "12 records", already in the reader's language. */
@@ -103,6 +105,8 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
    * screen (I39); from the list's entry in `lib/list-fits`.
    */
   defaultHidden?: readonly string[];
+  /** The gold 「已修改」 on corrected rows (J1-4, J20). */
+  corrected?: { kind: CorrectionHistoryKind };
 }) {
   const t = useTranslations();
   const counted = needsActionCount !== undefined;
@@ -176,6 +180,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
         }
         onRowClick={onOpen}
         rowClassName={rowClassName}
+        corrected={corrected}
         pack={pack ? { kind: pack } : undefined}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

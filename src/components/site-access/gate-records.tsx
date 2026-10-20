@@ -57,6 +57,7 @@ import {
   ShellPanel,
 } from "@/components/shared/record-detail-shell";
 import {
+  CORRECTED_ROW_CLASS,
   CorrectedTag,
   RecordCorrectionButton,
   RecordCorrectionHistory,
@@ -329,7 +330,9 @@ function GateIncidentCard({
   const t = useTranslations("siteControl.gateRecords");
   const df = useDateFormat();
   return (
-    <div className="surface-panel flex w-full items-center gap-2 rounded-xl p-3">
+    <div className={cn("surface-panel flex w-full items-center gap-2 rounded-xl p-3", row.was_corrected && CORRECTED_ROW_CLASS)}>
+      {/* 「已修改」 at the front (J20); it opens the history, the card the record. */}
+      {row.was_corrected && <CorrectedTag kind="GATE_INCIDENT" recordId={row.id} />}
       <button
         type="button"
         onClick={onOpen}
@@ -346,8 +349,6 @@ function GateIncidentCard({
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-semibold tabular">{row.incident_no}</span>
             {row.is_issue && <span className="text-xs font-medium text-warning">{t("kind.issue")}</span>}
-            {/* Corrected by the office (I30); the detail has the history. */}
-            {row.was_corrected && <CorrectedTag />}
             <GateIssueStatusBadge status={row.issue_status} />
           </span>
           <span className="block truncate text-sm text-muted-foreground">{row.project_name}</span>
