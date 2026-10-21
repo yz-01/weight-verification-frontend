@@ -403,6 +403,8 @@ function RequestsTab() {
         // since 材料编号 joined (I19-15), so a saved set shows it.
         storageKey={LIST_FITS.materialRequests.storageKey}
         phoneCard={LIST_FITS.materialRequests.phoneCard}
+        // 加入资料包 (J30-2): ticked into a package while one is being put together.
+        pack="MATERIAL_REQUEST"
         defaultHidden={LIST_FITS.materialRequests.hidden}
         toolbar={
           <>

@@ -10489,7 +10489,8 @@
       "DISPOSAL_REQUEST": "Disposal request",
       "PROGRESS": "Progress",
       "CONSULTANT_APPLICATION": "Consultant application",
-      "SUNDRY_CLAIM": "Sundry claim"
+      "SUNDRY_CLAIM": "Sundry claim",
+      "MATERIAL_REQUEST": "MR / Other requests"
     },
     "lastPage": "This is the last page.",
     "loading": "Loading…",
@@ -10645,7 +10646,8 @@
         "CONSULTANT": "Consultant",
         "OWNER": "Owner",
         "SUPPLIER": "Supplier",
-        "OTHER": "Other"
+        "OTHER": "Other",
+        "HEADQUARTERS": "Head office (in the system)"
       },
       "expired": "Expired",
       "status": {
@@ -10746,7 +10748,9 @@
         "REPORT": "Correspondence record made"
       },
       "ip": "IP {ip}",
-      "writeFirst": "Write a message or choose a file first."
+      "writeFirst": "Write a message or choose a file first.",
+      "headquartersHelp": "Sent to your own company's head office in the system: no link is made. Head office finds it under Received packages in Multi Engine and gets a notice; who opened it is kept.",
+      "sendToHeadquarters": "Send to head office"
     },
     "claimFacet": {
       "title": "Claim amount and payment",
@@ -10771,7 +10775,8 @@
       "recipients": "Recipients",
       "round": "Current round",
       "returned": "Returned"
-    }
+    },
+    "received": "Received packages"
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -11306,7 +11311,8 @@
       "dailyReport": "Daily reports",
       "progressSummary": "Progress summary",
       "siteWorkers": "Worker roster",
-      "materialTargets": "Material targets"
+      "materialTargets": "Material targets",
+      "materialRequests": "MR / Other Request"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",

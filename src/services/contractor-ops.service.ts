@@ -1402,6 +1402,8 @@ export const getEvidencePackages = (
     state?: PackageState;
     /** HD17: one of the six package types. */
     type?: PackageType;
+    /** 收到的资料包 (J30-1): sent to head office in the system. */
+    received?: 1;
     created_by?: string;
     from?: string;
     to?: string;
