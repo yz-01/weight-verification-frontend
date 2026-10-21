@@ -708,33 +708,31 @@ function HistoryPositionRow({
     : null;
 
   return (
+    // One person, one line (J34-8, 图 7: 「尽量利用空间，可以把它缩小成一半」):
+    // name · project · last update · distance, then 围栏内 / 外 and the state.
+    // The coordinates are on the map and in the person's detail, not here.
     <button
       type="button"
       aria-pressed={active}
+      data-position-row
       className={cn(
-        "grid w-full gap-3 px-3 py-3 text-left transition-colors sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center",
+        "flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-3 py-1.5 text-left transition-colors",
         active ? "bg-primary/8" : "hover:bg-muted/50",
       )}
       onClick={onSelect}
     >
-      <div className="flex min-w-0 items-start gap-2">
-        <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-        <div className="min-w-0 space-y-1">
-          <p className="truncate text-sm font-medium">{position.user_name}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {position.project_code} · {position.latitude}, {position.longitude}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t("siteGps.lastSeen", {
-              value: dates.precise(position.original_occurred_at),
-            })}
-            {distance !== null
-              ? ` · ${t("siteGps.distance", { value: distance })}`
-              : ""}
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+      <UserRound className="h-4 w-4 shrink-0 text-muted-foreground" />
+      <span className="min-w-0 max-w-48 truncate text-sm font-medium">{position.user_name}</span>
+      <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+        {[
+          position.project_code,
+          t("siteGps.lastSeen", { value: dates.precise(position.original_occurred_at) }),
+          distance !== null ? t("siteGps.distance", { value: distance }) : "",
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+      </span>
+      <span className="ml-auto flex shrink-0 items-center gap-1.5">
         <StatusBadge
           label={t(`siteGps.geofence.${position.geofence_result}`)}
           tone={
@@ -749,7 +747,7 @@ function HistoryPositionRow({
           label={t(`siteGps.status.${sharingStatus}`)}
           tone={sharingTone}
         />
-      </div>
+      </span>
     </button>
   );
 }

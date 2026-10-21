@@ -8,7 +8,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { FilePlus2, FileText } from "lucide-react";
+import { FilePlus2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -16,10 +16,10 @@ import { FieldDraft } from "@/components/field-staff/field-draft";
 import {
   PermitApplyForm,
   PermitDetail,
-  PermitFileActions,
   PermitStatusBadge,
 } from "@/components/permits/permit-parts";
 import { useAuth } from "@/components/providers/auth-provider";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   FilterSelect,
@@ -84,23 +84,14 @@ export function PermitsOffice() {
         id: "files",
         meta: { label: t("field.files") },
         header: () => <PlainHeader label={t("field.files")} />,
-        cell: ({ row }) => {
-          const current = row.original.files.filter((file) => file.is_current);
-          const first = current[0];
-          if (!first) return <span className="text-muted-foreground">—</span>;
-          return (
-            <div className="flex min-w-0 max-w-72 items-center gap-1">
-              <FileText className="size-4 shrink-0 text-muted-foreground" />
-              <span className="min-w-0 flex-1 truncate" title={first.original_name}>
-                {first.original_name}
-                {current.length > 1 && (
-                  <span className="ml-1 text-xs text-muted-foreground">+{current.length - 1}</span>
-                )}
-              </span>
-              <PermitFileActions permitId={row.original.id} file={first} compact />
-            </div>
-          );
-        },
+        // The files as pictures, never their names (J34-10, 图 c09).
+        cell: ({ row }) => (
+          <FileThumbs
+            files={row.original.files
+              .filter((file) => file.is_current)
+              .map((file) => ({ id: file.id, name: file.original_name, thumbnail_url: file.thumbnail_url }))}
+          />
+        ),
       },
       {
         accessorKey: "applicant_name",
