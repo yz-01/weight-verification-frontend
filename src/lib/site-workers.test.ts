@@ -68,7 +68,9 @@ describe("the worker's page", () => {
   it("reports at the company's interval within the server's limits", () => {
     expect(reportIntervalMs(60)).toBe(60_000);
     expect(reportIntervalMs(5)).toBe(30_000);
-    expect(reportIntervalMs(5000)).toBe(900_000);
+    // J24-2: a location link reports every two hours, the most allowed.
+    expect(reportIntervalMs(7200)).toBe(7_200_000);
+    expect(reportIntervalMs(9000)).toBe(7_200_000);
     expect(reportIntervalMs(undefined)).toBe(60_000);
   });
 });

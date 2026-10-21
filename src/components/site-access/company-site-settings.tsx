@@ -231,7 +231,7 @@ export function CompanySiteSettingsWorkspace() {
     <section className="space-y-4">
       <SectionTitle icon={FileArchive} title={t("settings.siteRules")} description={t("settings.siteRulesHelp")} />
       <div className="grid gap-4 surface-panel rounded-xl p-4 sm:p-6 sm:grid-cols-2 xl:grid-cols-4">
-        <NumberField label={t("field.locationInterval")} value={form.location_update_interval_seconds} min={30} max={900} disabled={!canManage} onChange={(value) => setForm({ ...form, location_update_interval_seconds: value })} />
+        <NumberField label={t("field.locationInterval")} value={form.location_update_interval_seconds} min={30} max={7200} disabled={!canManage} onChange={(value) => setForm({ ...form, location_update_interval_seconds: value })} />
         <NumberField label={t("field.liveWindow")} value={form.live_position_window_seconds} min={60} max={3600} disabled={!canManage} onChange={(value) => setForm({ ...form, live_position_window_seconds: value })} />
         <NumberField label={t("field.visitorHours")} value={form.visitor_pass_hours} min={1} max={168} disabled={!canManage} onChange={(value) => setForm({ ...form, visitor_pass_hours: value })} />
         <NumberField label={t("field.fieldPinExpiry")} value={form.field_pin_expiry_days} min={1} max={365} disabled={!canManage} onChange={(value) => setForm({ ...form, field_pin_expiry_days: value })} />
