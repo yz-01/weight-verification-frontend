@@ -242,7 +242,7 @@ export function MapFrame({
     <div
       ref={slotRef}
       data-map-frame={mode}
-      className={cn("relative", className)}
+      className={cn("relative isolate", className)}
       style={height ? { height, minHeight: height } : undefined}
     >
       {holder &&
