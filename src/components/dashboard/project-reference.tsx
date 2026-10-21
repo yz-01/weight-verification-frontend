@@ -217,13 +217,15 @@ function LatestReceipts({ data, project }: { data: ProjectOverview; project: str
         <ul className="divide-y" data-latest-receipts>
           {data.latest_receipts.map((row) => (
             <li key={row.id} className="flex flex-wrap items-center gap-x-4 gap-y-0.5 py-2 text-sm">
-              <Link href={`/receipts/${row.id}`} className="w-32 shrink-0 font-medium text-primary hover:underline">
+              {/* A phone wraps the row (J34-5): number and time, then
+                  supplier and material, then quantity and state. */}
+              <Link href={`/receipts/${row.id}`} className="shrink-0 font-medium text-primary hover:underline sm:w-32">
                 {row.receipt_no}
               </Link>
-              <span className="w-32 shrink-0 text-xs text-muted-foreground tabular-nums">
+              <span className="shrink-0 text-xs text-muted-foreground tabular-nums sm:w-32">
                 {row.business_at ? df.dateTime(row.business_at) : "—"}
               </span>
-              <span className="min-w-0 flex-1 truncate">{[row.supplier, row.material].filter(Boolean).join(" · ")}</span>
+              <span className="min-w-0 basis-full truncate sm:basis-0 sm:flex-1">{[row.supplier, row.material].filter(Boolean).join(" · ")}</span>
               <span className="shrink-0 tabular-nums">
                 {Number(row.quantity)} {units.has(row.unit) ? units(row.unit) : row.unit}
               </span>
