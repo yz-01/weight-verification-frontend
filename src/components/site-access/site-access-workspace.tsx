@@ -93,6 +93,8 @@ import {
   revokeSiteAccessPass,
   updateSiteAccessPass, exportDeviceEvents } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
+import { FileThumbs } from "@/components/shared/file-thumbs";
+import { VisitorConsent, useVisitorNotice } from "@/components/site-access/visitor-consent";
 
 /** The status filter's "approved, running out within the week" choice. */
 const EXPIRING = "expiring";
@@ -525,6 +527,10 @@ export function SiteAccessWorkspace() {
         <PassDialog
           defaultProject={project === "all" ? "" : project}
           visitorPassHours={defaults.data?.visitor_pass_hours ?? 12}
+          pdpa={{
+            notice: defaults.data?.visitor_pdpa_notice,
+            months: defaults.data?.visitor_photo_retention_months ?? 12,
+          }}
           onClose={() => setCreating(false)}
           onSaved={async () => {
             setCreating(false);
@@ -537,6 +543,10 @@ export function SiteAccessWorkspace() {
           row={editing}
           defaultProject={editing.project}
           visitorPassHours={defaults.data?.visitor_pass_hours ?? 12}
+          pdpa={{
+            notice: defaults.data?.visitor_pdpa_notice,
+            months: defaults.data?.visitor_photo_retention_months ?? 12,
+          }}
           onClose={() => setEditing(null)}
           onSaved={async () => {
             setEditing(null);
@@ -601,6 +611,7 @@ function PassDialog({
   row,
   defaultProject,
   visitorPassHours,
+  pdpa,
   onClose,
   onSaved,
 }: {
@@ -608,10 +619,14 @@ function PassDialog({
   row?: SiteAccessPass;
   defaultProject: string;
   visitorPassHours: number;
+  /** J33-4: the company's notice per language, and the photos' keeping time. */
+  pdpa: { notice?: Partial<Record<string, string>>; months: number };
   onClose: () => void;
   onSaved: () => void;
 }) {
   const t = useTranslations("siteControl");
+  const notice = useVisitorNotice(pdpa.notice, pdpa.months);
+  const [agreed, setAgreed] = useState(false);
   const now = new Date();
   const later = new Date(now.getTime() + visitorPassHours * 3600_000);
   const [form, setForm] = useState<SiteAccessPassPayload>({
@@ -641,7 +656,10 @@ function PassDialog({
         valid_from: new Date(form.valid_from).toISOString(),
         valid_until: new Date(form.valid_until).toISOString(),
       };
-      if (!row) return createSiteAccessPass(payload);
+      if (!row)
+        return createSiteAccessPass(
+          form.subject_type === "VISITOR" ? { ...payload, pdpa_consent: agreed, pdpa_notice: notice } : payload,
+        );
       // The backend refuses a project change on an existing pass, so an edit
       // never sends one.
       const editable: Partial<SiteAccessPassPayload> = { ...payload };
@@ -873,12 +891,19 @@ function PassDialog({
             />
           </FieldWrapper>
         </div>
+        {/* PDPA (J33-4): a new visitor's pass, only once they agreed. */}
+        {!row && form.subject_type === "VISITOR" && (
+          <FieldWrapper label={t("pdpa.title")} required>
+            <VisitorConsent notice={notice} checked={agreed} onChange={setAgreed} />
+          </FieldWrapper>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
           </Button>
           <Button
             requires={[
+              [row || form.subject_type !== "VISITOR" || agreed, t("pdpa.title")],
               [form.project, t("field.project")],
               [form.purpose, t("field.purpose")],
               [form.valid_from, t("field.validFrom")],
@@ -1144,6 +1169,14 @@ export function PassDetail({
             value={formatDate(row.valid_until)}
           />
         </div>
+        {row.pdpa_consent_at ? (
+          <details className="rounded-lg border p-3 text-sm" data-pdpa-consent>
+            <summary className="cursor-pointer font-medium">
+              {t("pdpa.agreedAt", { time: formatDate(row.pdpa_consent_at) })}
+            </summary>
+            <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{row.pdpa_notice}</p>
+          </details>
+        ) : null}
         <CredentialsPanel pass={row} />
         {/* ID photo, permit and related papers, kept with who and when (I3). */}
         {/* Read with 门禁 view; added to only with 门禁 manage. */}
@@ -1169,6 +1202,20 @@ export function PassDetail({
                   {event.gate_name || t("access.unknownGate")} ·{" "}
                   {event.scanned_by_name || t("access.integrationReader")}
                 </p>
+                {/* The scan's photograph itself, stamped (J33-2, J34-11). */}
+                {event.watermarked_photo ? (
+                  <FileThumbs
+                    className="mt-2"
+                    files={[
+                      {
+                        id: event.id,
+                        name: t(`direction.${event.direction}`),
+                        thumbnail_url: event.watermarked_photo,
+                        href: event.watermarked_photo,
+                      },
+                    ]}
+                  />
+                ) : null}
               </div>
             ))}
           </div>

@@ -24,6 +24,7 @@ import type {
   VisitorArrival,
   VisitorHostOption,
   VisitorRecord,
+  ExpiredVisitorPhotos,
 } from "@/interfaces/site-access";
 import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
 import type { WallRecord } from "@/lib/gate-photo-wall";
@@ -145,9 +146,26 @@ export const getSiteAccessPasses = (query: ListQuery = {}) =>
   api.list<SiteAccessPass>("/api/site-access-passes/get_passes/", query);
 
 export const getSiteAccessDefaults = () =>
-  api.get<{ visitor_pass_hours: number }>(
-    "/api/site-access-passes/get_defaults/",
+  api.get<{
+    visitor_pass_hours: number;
+    /** J33-4, J33-5: the company's PDPA notice per language, and the photos' keeping time. */
+    visitor_pdpa_notice?: Partial<Record<string, string>>;
+    visitor_photo_retention_months?: number;
+  }>("/api/site-access-passes/get_defaults/");
+
+/** 到期访客照片 (J33-5): past their keeping time, not yet removed. */
+export const getExpiredVisitorPhotos = () =>
+  api.get<ExpiredVisitorPhotos>("/api/contractor-site-settings/get_expired_visitor_photos/");
+
+/** Remove them - the server asks for the administrator's sign-off PIN (J33-5). */
+export async function purgeVisitorPhotos() {
+  const row = await api.post<{ purged: number; id?: string }>(
+    "/api/contractor-site-settings/purge_visitor_photos/",
+    {},
   );
+  toastSuccess("siteControl.toast.visitorPhotosRemoved");
+  return row;
+}
 
 export const getSiteAccessPass = (id: string) =>
   api.get<SiteAccessPass>(`/api/site-access-passes/${id}/get_pass/`);
@@ -249,10 +267,22 @@ export async function confirmGatePass(payload: {
   gate_name?: string;
   latitude?: string;
   longitude?: string;
+  /** A visitor's way out, photographed (J33-2). */
+  photo?: File | null;
 }) {
+  const { photo, ...fields } = payload;
+  let body: typeof fields | FormData = fields;
+  if (photo) {
+    const form = new FormData();
+    Object.entries(fields).forEach(([key, value]) => {
+      if (value !== undefined && value !== "") form.append(key, String(value));
+    });
+    form.append("photo", photo);
+    body = form;
+  }
   const row = await api.post<{ pass: GatePassDetail; event: SiteAccessEvent }>(
     "/api/site-access-passes/confirm_gate_pass/",
-    payload,
+    body,
   );
   toastSuccess("siteControl.toast.gateRecorded");
   return row;
