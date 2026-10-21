@@ -66,6 +66,7 @@ function submissionStatusText(
 
 import { SundryWithdraw } from "@/components/sundry-claims/sundry-withdraw";
 import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
 import { EquipmentExitHandoverDialog } from "@/components/contractor-ops/equipment-exit";
 import { useEffect, useMemo, useState } from "react";
@@ -703,7 +704,10 @@ function StoredDetailSheet({
                 <ul className="space-y-1.5">
                   {(detail.data.files ?? []).map((file) => (
                     <li key={file.id} className="flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-                      <FileText className="size-4 shrink-0 text-muted-foreground" />
+                      {/* The file as a picture (J34-11): a photo itself, else its type. */}
+                      <FileThumbs
+                        files={[{ id: file.id, name: file.name, thumbnail_url: file.is_image ? file.url : null, href: file.url }]}
+                      />
                       <a href={file.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-primary underline-offset-4 hover:underline">
                         {file.name}
                       </a>

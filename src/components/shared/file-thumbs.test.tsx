@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 
 import messages from "@/messages/zh.json";
 
-const { FileThumbs } = await import("@/components/shared/file-thumbs");
+const { FileThumbs, pictureByName, stampedPicture } = await import("@/components/shared/file-thumbs");
 
 function render(files: Parameters<typeof FileThumbs>[0]["files"]) {
   return renderToStaticMarkup(
@@ -43,5 +43,41 @@ describe("a row's files as pictures (J34-10)", () => {
 
   it("says nothing for no files", () => {
     expect(render([])).toContain("—");
+  });
+});
+
+describe("a record's files as pictures everywhere (J34-11)", () => {
+  function renderAll(files: Parameters<typeof FileThumbs>[0]["files"]) {
+    return renderToStaticMarkup(
+      <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
+        <FileThumbs all files={files} />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  it("shows every file in a detail, none behind 「+N」", () => {
+    const html = renderAll(
+      Array.from({ length: 6 }, (_, index) => ({ id: `${index}`, name: `f${index}.pdf`, thumbnail_url: null })),
+    );
+    expect(html.match(/data-file-thumb=/g)).toHaveLength(6);
+    expect(html).not.toContain("+");
+  });
+
+  it("opens a file from its picture - a link, or a button for a preview", () => {
+    const html = renderAll([
+      { id: "a", name: "slip.jpg", thumbnail_url: "https://cdn.example/slip.jpg", href: "https://cdn.example/slip.jpg" },
+      { id: "b", name: "quote.xlsx", onOpen: () => {} },
+    ]);
+    expect(html.match(/data-file-open/g)).toHaveLength(2);
+    expect(html).toContain('href="https://cdn.example/slip.jpg"');
+    expect(html).toContain('type="button"');
+  });
+
+  it("uses a photograph's stamped copy, and a name only says photograph by its ending", () => {
+    expect(stampedPicture("image/jpeg", "https://cdn.example/stamped.jpg")).toBe("https://cdn.example/stamped.jpg");
+    expect(stampedPicture("image/jpeg", null)).toBeNull();
+    expect(stampedPicture("application/pdf", "https://cdn.example/x.pdf")).toBeNull();
+    expect(pictureByName("site.PNG", "https://cdn.example/site.png")).toBe("https://cdn.example/site.png");
+    expect(pictureByName("ptw.pdf", "https://cdn.example/ptw.pdf")).toBeNull();
   });
 });

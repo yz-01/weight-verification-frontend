@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Plus } from "lucide-react";
+import { Camera, Eye, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -16,7 +16,6 @@ import {
   ListHeader,
   QueryFailedNote,
   StatusBadge,
-  TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +24,7 @@ import type { DriverTask, TaskState } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
 import { getTaskSummary } from "@/services/recycler.service";
 import { getTasksOfflineAware } from "@/services/recycler-offline.service";
+import { PhotoStrip } from "@/components/shared/photo-thumb";
 
 export const TASK_STATE_TONE: Record<
   TaskState,
@@ -175,8 +175,16 @@ export function Tasks() {
             {t("tasks.field.photoCount")}
           </span>
         ),
+        // The photographs themselves (J34-11), not their number.
         cell: ({ row }) => (
-          <TypeBadge label={String(row.original.photo_count ?? 0)} />
+          <PhotoStrip
+            thumbs={row.original.photo_thumbs}
+            coverUrl={row.original.cover_photo_url}
+            count={row.original.photo_count ?? 0}
+            icon={Camera}
+            reference={row.original.task_no}
+            openable={false}
+          />
         ),
       },
       {

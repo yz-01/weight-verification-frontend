@@ -1532,6 +1532,8 @@ export interface PackageLinkItem {
   photo_count: number;
   document_count: number;
   file_count: number;
+  /** J34-11: its photographs and slips as stamped thumbnails (the first few; its PDF has all). */
+  pictures?: Array<{ id: string; thumbnail_url: string; url: string; caption: string; captured_at: string | null }>;
   round_no: number;
   review_state: PackageItemReviewState;
   returned_reason: string;

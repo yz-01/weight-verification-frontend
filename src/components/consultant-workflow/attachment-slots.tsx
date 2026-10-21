@@ -32,6 +32,7 @@ import {
   getApplicationDocumentCandidates,
   linkApplicationDocuments,
 } from "@/services/consultant-workflow.service";
+import { FileThumbs, stampedPicture } from "@/components/shared/file-thumbs";
 
 /** The server's limits (`utils/attachment_files.py`): 10 files, 50 MB each. */
 const RULE: AttachmentRule = {
@@ -95,9 +96,17 @@ export function RequiredAttachmentTile({
         <span className="ml-auto text-xs">{attached ? t("attachment.uploadedCount", { count: mine.length }) : t("attachment.required")}</span>
       </button>
       {attached && (
-        <ul className="mt-1 space-y-0.5 text-xs text-foreground">
-          {mine.map((attachment) => <li key={attachment.id} className="truncate">{attachment.original_name}</li>)}
-        </ul>
+        // What is in the slot as pictures, never names (J34-11).
+        <FileThumbs
+          all
+          className="mt-1"
+          files={mine.map((attachment) => ({
+            id: attachment.id,
+            name: attachment.original_name,
+            thumbnail_url: stampedPicture(attachment.content_type, attachment.watermarked_file),
+            href: attachment.watermarked_file || attachment.file,
+          }))}
+        />
       )}
       {editable && (
         <div ref={zone} className="mt-2 text-foreground">
@@ -225,11 +234,20 @@ export function AttachmentDialog({
                     return (
                       <label key={doc.id} className="flex w-full cursor-pointer items-center gap-3 rounded border p-2 hover:bg-muted/30">
                         <Checkbox checked={picked.includes(doc.id)} onCheckedChange={() => toggle(doc.id)} />
+                        {doc.latest_version ? (
+                          <FileThumbs
+                            files={[
+                              {
+                                id: doc.latest_version.id,
+                                name: doc.latest_version.original_name,
+                              },
+                            ]}
+                          />
+                        ) : null}
                         <span className="min-w-0">
                           <span className="block truncate font-medium">{doc.document_no} · {doc.title}</span>
                           <span className="block truncate text-xs text-muted-foreground">
                             {doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""}
-                            {doc.latest_version ? ` · ${doc.latest_version.original_name}` : ""}
                             {records.length ? ` · ${t("attachment.wholeRecord", { records: records.join("、") })}` : ""}
                           </span>
                         </span>

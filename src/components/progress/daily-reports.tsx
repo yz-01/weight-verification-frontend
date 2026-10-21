@@ -20,6 +20,7 @@
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Camera,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -96,6 +97,7 @@ import {
 } from "@/services/progress-reports.service";
 import { signOffBeforeEditing } from "@/services/sign-off.service";
 import { CORRECTED_ROW_CLASS, CorrectedTag } from "@/components/shared/record-correction";
+import { PhotoStrip } from "@/components/shared/photo-thumb";
 
 const PAGE = 20;
 
@@ -236,6 +238,17 @@ export function DailyReportsTab() {
                     <p className="text-xs tabular text-muted-foreground">
                       {t("reports.generatedAt", { when: df.dateTime(row.created_at) })}
                     </p>
+                    {/* Its photographs themselves (J34-11); the row opens the report. */}
+                    {(row.photo_thumbs ?? []).length > 0 && (
+                      <PhotoStrip
+                        className="mt-1"
+                        thumbs={row.photo_thumbs}
+                        count={row.photo_count}
+                        icon={Camera}
+                        reference={row.record_no || row.name}
+                        openable={false}
+                      />
+                    )}
                   </TableCell>
                   <TableCell className="tabular">{days(row)}</TableCell>
                   <TableCell pin="end" className="text-right">

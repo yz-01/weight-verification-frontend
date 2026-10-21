@@ -66,6 +66,8 @@ export interface DailyReport {
   end_date: string | null;
   photos: ProgressPhoto[];
   photo_count: number;
+  /** J34-11: the first photographs' thumbnails, for the list's photo strip. */
+  photo_thumbs?: string[];
   record_count: number;
   entries: DailyReportEntry[];
   /** When its records were collected; null for a report from before H15 (photos ticked by hand). */

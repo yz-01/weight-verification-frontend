@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, FileSearch, Loader2, PackageOpen, RotateCcw, UserRound } from "lucide-react";
+import { CheckCircle2, FileSearch, Images, Loader2, PackageOpen, RotateCcw, UserRound } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
@@ -28,6 +28,7 @@ import {
   sendLinkMessage,
   signPackageLink,
 } from "@/services/package-link.service";
+import { PhotoStrip, toShellPhotos } from "@/components/shared/photo-thumb";
 
 /**
  * The package link's page (batch H, H17 八 3) - what an owner, a supplier or
@@ -258,6 +259,17 @@ function LinkPage({
                   <p className="text-xs text-muted-foreground">
                     {t("parts", { photos: item.photo_count, documents: item.document_count, files: item.file_count })}
                   </p>
+                  {/* The pictures themselves (J34-11), each opening the viewer. */}
+                  {(item.pictures ?? []).length > 0 && (
+                    <PhotoStrip
+                      className="mt-2"
+                      thumbs={(item.pictures ?? []).map((picture) => picture.thumbnail_url)}
+                      count={item.photo_count + item.document_count}
+                      icon={Images}
+                      reference={item.reference}
+                      photos={toShellPhotos(item.pictures ?? [], item.reference)}
+                    />
+                  )}
                 </div>
                 {item.fields.length > 0 && (
                   /* The record's words as they were frozen - never an amount (六 7). */

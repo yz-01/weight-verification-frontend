@@ -42,6 +42,7 @@ import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useDateFormat } from "@/lib/dates";
 import { submitAttendanceOfflineAware } from "@/services/offline-sync.service";
 import { exportAttendance, getAttendance } from "@/services/site-operations.service";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 
 interface ClockDraft {
   project: string;
@@ -251,7 +252,14 @@ export function Attendance() {
               className="gap-1.5 text-primary"
               onClick={() => setSelectedRecord(record)}
             >
-              {record.photo ? <Camera className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+              {/* The photo itself (J34-11), its stamped copy; a fix only, the pin. */}
+              {record.photo && record.watermarked_photo ? (
+                <FileThumbs files={[{ id: String(record.id), name: t("attendance.evidence.view"), thumbnail_url: record.watermarked_photo }]} />
+              ) : record.photo ? (
+                <Camera className="h-4 w-4" />
+              ) : (
+                <MapPin className="h-4 w-4" />
+              )}
               <span>{t("attendance.evidence.view")}</span>
               <Eye className="h-3.5 w-3.5" />
             </Button>

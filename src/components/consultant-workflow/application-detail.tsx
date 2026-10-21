@@ -112,6 +112,7 @@ import {
   reviewConsultantApplication,
   submitConsultantApplication,
 } from "@/services/consultant-workflow.service";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 
 /**
  * One consultant application, in the record-detail frame every module
@@ -1072,8 +1073,11 @@ function CloseRemedialDialog({
                       )
                     }
                   />
+                  {/* The photograph itself (J34-11), its stamped copy only. */}
+                  <FileThumbs
+                    files={[{ id: asset.id, name: asset.original_filename, thumbnail_url: asset.watermarked_file ?? null }]}
+                  />
                   <span className="truncate">
-                    {asset.original_filename} ·{" "}
                     {new Date(asset.captured_at).toLocaleString()}
                   </span>
                 </label>

@@ -25,6 +25,7 @@ import { useMemo, useState } from "react";
 
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -265,14 +266,32 @@ export function Documents() {
         enableSorting: false,
         meta: { label: t("documents.field.thumbnail") },
         header: () => <span className="sr-only">{t("documents.field.thumbnail")}</span>,
-        cell: ({ row }) => (
-          <DocumentThumb
-            version={row.original.latest_version}
-            systemFile={row.original.system_file}
-            coverUrl={row.original.cover_photo_url}
-            onOpen={() => setViewingId(row.original.id)}
-          />
-        ),
+        cell: ({ row }) => {
+          // The document's other files as 「+N」 beside its picture (J34-11),
+          // never 「等 N 个文件」 in words.
+          const more = (row.original.file_count ?? 1) - 1;
+          return (
+            <span className="inline-flex gap-1">
+              <DocumentThumb
+                version={row.original.latest_version}
+                systemFile={row.original.system_file}
+                coverUrl={row.original.cover_photo_url}
+                onOpen={() => setViewingId(row.original.id)}
+              />
+              {more > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setViewingId(row.original.id)}
+                  aria-label={t("documents.filesMore", { count: more })}
+                  title={t("documents.filesMore", { count: more })}
+                  className="flex size-12 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-semibold text-muted-foreground ring-1 ring-panel-border"
+                >
+                  +{more}
+                </button>
+              ) : null}
+            </span>
+          );
+        },
       },
       {
         accessorKey: "title",
@@ -296,12 +315,11 @@ export function Documents() {
               <SourceTag
                 source={row.original.system_file}
                 onOpen={() => openSource(row.original)}
-                more={(row.original.file_count ?? 1) - 1}
               />
-            ) : (
+            ) : row.original.latest_version ? null : (
+              // A list names no file (J34-10, J34-11): the picture beside says what it is.
               <p className="max-w-65 truncate text-xs text-muted-foreground">
-                {row.original.latest_version?.original_name ??
-                  t("documents.noFile")}
+                {t("documents.noFile")}
               </p>
             )}
           </div>
@@ -1960,6 +1978,17 @@ function DocumentDetailBody({
               const key = `s:${file.id}`;
               return (
                 <li key={file.id ?? index} className="flex items-center gap-2 px-3 py-2">
+                  {/* The file as a picture (J34-11), opening its preview. */}
+                  <FileThumbs
+                    files={[
+                      {
+                        id: String(file.id ?? index),
+                        name: file.file_name,
+                        thumbnail_url: file.thumbnail_url ?? null,
+                        onOpen: () => onPreview(key),
+                      },
+                    ]}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm" title={file.file_name}>
                       {file.file_name}
@@ -2032,7 +2061,12 @@ function DocumentDetailBody({
                     <TableCell className="font-medium tabular-nums">
                       v{version.version_number}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="flex items-center gap-2">
+                      {/* The version as a picture (J34-11); its name beside it. */}
+                      <FileThumbs
+                        files={[{ id: version.id, name: version.original_name, thumbnail_url: version.thumbnail_url ?? null }]}
+                      />
+                      <span className="min-w-0">
                       <p className="max-w-55 truncate" title={version.original_name}>
                         {version.original_name}
                       </p>
@@ -2040,6 +2074,7 @@ function DocumentDetailBody({
                         {formatBytes(version.byte_size)}
                         {version.note ? ` - ${version.note}` : ""}
                       </p>
+                      </span>
                     </TableCell>
                     <TableCell>{version.uploaded_by_name ?? t("common.emptyValue")}</TableCell>
                     <TableCell className="hidden xl:table-cell">

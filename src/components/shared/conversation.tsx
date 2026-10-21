@@ -23,7 +23,8 @@
  * risks a customer's evidence for no visible gain.
  */
 
-import { Mic, Paperclip, Send, Square, X } from "lucide-react";
+import { Mic, Send, Square, X } from "lucide-react";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -395,15 +396,22 @@ function ChatAttachment({ url, name, sentBy }: { url: string; name: string; sent
   const type = chatAttachmentType(name);
   return (
     <>
-      <button
-        type="button"
-        className="mt-2 inline-flex max-w-full items-center gap-1 text-left text-xs text-primary underline"
-        onClick={() => setOpen(true)}
-        data-chat-attachment
-      >
-        <Paperclip className="h-3 w-3 shrink-0" />
-        <span className="truncate">{name}</span>
-      </button>
+      {/* The file as a picture, never its name (J34-11): a photo is
+          itself, anything else its type's square; the name is the tooltip
+          and the preview's title. */}
+      <span className="mt-2 block" data-chat-attachment>
+        <FileThumbs
+          all
+          files={[
+            {
+              id: url,
+              name,
+              thumbnail_url: type?.startsWith("image/") ? url : null,
+              onOpen: () => setOpen(true),
+            },
+          ]}
+        />
+      </span>
       {open && (
         <FilePreviewDialog
           title={name}

@@ -41,6 +41,7 @@ import type { Settlement } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
 import { exportTransactions, getSettlements } from "@/services/recycler.service";
+import { FileThumbs, pictureByName } from "@/components/shared/file-thumbs";
 
 export function PaymentProofs() {
   const t = useTranslations();
@@ -381,12 +382,17 @@ function PaymentProofDialog({
                     </TableCell>
                     <TableCell>
                       {payment.document ? (
-                        <Button asChild variant="outline" size="sm">
-                          <a href={payment.document} target="_blank" rel="noreferrer">
-                            <FileText className="size-4" />
-                            {t("paymentProofs.action.openDocument")}
-                          </a>
-                        </Button>
+                        // The proof as a picture (J34-11): a photo itself, a PDF its type.
+                        <FileThumbs
+                          files={[
+                            {
+                              id: String(payment.id),
+                              name: t("paymentProofs.action.openDocument"),
+                              thumbnail_url: pictureByName(payment.document, payment.document),
+                              href: payment.document,
+                            },
+                          ]}
+                        />
                       ) : (
                         <span className="text-muted-foreground">{t("common.emptyValue")}</span>
                       )}

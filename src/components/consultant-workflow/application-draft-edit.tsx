@@ -25,7 +25,6 @@ import {
   Loader2,
   ZoomIn,
   Lock,
-  Paperclip,
   Pencil,
   Save,
   Trash2,
@@ -70,6 +69,7 @@ import {
   updateApplicationAttachment,
   updateApplicationEvidenceCaption,
 } from "@/services/consultant-workflow.service";
+import { FileThumbs, stampedPicture } from "@/components/shared/file-thumbs";
 
 /** The attachment types the add dialog offers; editing offers the same. */
 export const ATTACHMENT_TYPES = [
@@ -373,7 +373,16 @@ export function AttachmentRows({
               rel="noreferrer"
               className="flex min-w-0 flex-1 items-center gap-3 transition-colors hover:text-primary"
             >
-              <Paperclip className="size-4 shrink-0 text-primary" />
+              {/* The file as a picture (J34-11): the stamped copy, else its type. */}
+              <FileThumbs
+                files={[
+                  {
+                    id: attachment.id,
+                    name: attachment.original_name,
+                    thumbnail_url: stampedPicture(attachment.content_type, attachment.watermarked_file),
+                  },
+                ]}
+              />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{attachment.original_name}</p>
                 <p className="truncate text-xs text-muted-foreground">
@@ -467,8 +476,16 @@ function AttachmentEditDialog({
         </DialogHeader>
         <div className="space-y-4">
           <p className="flex items-center gap-2 truncate rounded-lg border bg-muted/30 p-3 text-sm">
-            <Paperclip className="size-4 shrink-0 text-primary" />
-            {attachment.original_name}
+            <FileThumbs
+              files={[
+                {
+                  id: attachment.id,
+                  name: attachment.original_name,
+                  thumbnail_url: stampedPicture(attachment.content_type, attachment.watermarked_file),
+                },
+              ]}
+            />
+            <span className="min-w-0 truncate">{attachment.original_name}</span>
           </p>
           <FieldWrapper label={t("draftEdit.replaceFile")} hint={t("draftEdit.replaceFileHint")}>
             <AttachmentPicker files={file ? [file] : []} onChange={(next) => setFile(next[0] ?? null)} rule={{ multiple: false }} />

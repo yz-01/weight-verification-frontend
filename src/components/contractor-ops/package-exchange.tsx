@@ -8,7 +8,6 @@ import {
   History,
   Link2,
   MessageCircle,
-  Paperclip,
   RefreshCw,
   Send,
   Users,
@@ -18,6 +17,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Shell } from "@/components/contractor-ops/package-shell";
+import { LoadedFileThumb } from "@/components/shared/file-thumbs";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FileActionButtons, useFileActions } from "@/components/shared/file-actions";
@@ -677,19 +677,18 @@ export function ThreadView({
                   )}
                   {message.body && <p className="whitespace-pre-wrap break-words">{message.body}</p>}
                   {message.attachment_name && (
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 text-xs text-primary underline"
-                      onClick={() =>
+                    // The file as a picture (J34-11); its name is the tooltip and the preview's title.
+                    <LoadedFileThumb
+                      id={`package-message:${message.id}`}
+                      name={message.attachment_name}
+                      load={() => openAttachment(message)}
+                      onOpen={() =>
                         void files.run("preview", {
                           load: () => openAttachment(message),
                           title: message.attachment_name,
                         })
                       }
-                    >
-                      <Paperclip className="size-3.5" />
-                      {message.attachment_name}
-                    </button>
+                    />
                   )}
                 </div>
               </li>

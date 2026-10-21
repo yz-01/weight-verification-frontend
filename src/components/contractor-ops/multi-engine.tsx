@@ -43,6 +43,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Shell } from "@/components/contractor-ops/package-shell";
+import { PackageItemPictures } from "@/components/contractor-ops/package-item-pictures";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
 import {
@@ -711,6 +713,11 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                               files: (item.files ?? []).length,
                             })}
                           </p>
+                          <PackageItemPictures
+                            reference={item.reference}
+                            photos={item.photos}
+                            documents={item.documents}
+                          />
                           {item.source_missing && (
                             <p className="text-xs text-destructive">
                               {t("sourceMissing")}
@@ -1194,7 +1201,9 @@ function RecordPreviewDialog({
                 <ul className="divide-y rounded-lg border">
                   {(data.files ?? []).map((file) => (
                     <li key={file.id} className="flex items-center justify-between gap-3 p-2.5 text-sm">
-                      <span className="truncate">{file.name}</span>
+                      {/* Its type as a picture (J34-11); the name beside it in a detail. */}
+                      <FileThumbs files={[{ id: file.id, name: file.name }]} />
+                      <span className="min-w-0 flex-1 truncate">{file.name}</span>
                       <span className="shrink-0 text-xs text-muted-foreground">
                         {file.uploaded_by_name} · {formatter.dateTime(file.uploaded_at)}
                       </span>
@@ -1209,7 +1218,8 @@ function RecordPreviewDialog({
                 <ul className="divide-y rounded-lg border">
                   {data.documents.map((document) => (
                     <li key={document.id} className="flex items-center justify-between gap-3 p-2.5 text-sm">
-                      <span className="truncate">{document.caption}</span>
+                      <FileThumbs files={[{ id: document.id, name: document.caption, thumbnail_url: document.url, href: document.url }]} />
+                      <span className="min-w-0 flex-1 truncate">{document.caption}</span>
                       <a href={document.url} target="_blank" rel="noreferrer" className="shrink-0 text-primary underline">{t("open")}</a>
                     </li>
                   ))}
@@ -1366,6 +1376,7 @@ function TickPartsDialog({
                     onCheckedChange={() => toggle("documents", doc.id)}
                     aria-label={doc.caption}
                   />
+                  <FileThumbs files={[{ id: doc.id, name: doc.caption, thumbnail_url: doc.url }]} />
                   <span className="truncate text-sm">{doc.caption}</span>
                 </li>
               ))}
@@ -1385,6 +1396,7 @@ function TickPartsDialog({
                     onCheckedChange={() => toggle("files", file.id)}
                     aria-label={file.name}
                   />
+                  <FileThumbs files={[{ id: file.id, name: file.name }]} />
                   <span className="min-w-0 flex-1 truncate text-sm">{file.name}</span>
                   <span className="shrink-0 text-xs text-muted-foreground">{file.uploaded_by_name}</span>
                 </li>

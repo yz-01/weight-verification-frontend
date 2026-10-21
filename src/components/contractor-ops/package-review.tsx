@@ -8,6 +8,7 @@ import { useRef, useState } from "react";
 
 import { ThreadView } from "@/components/contractor-ops/package-exchange";
 import { Shell } from "@/components/contractor-ops/package-shell";
+import { PackageItemPictures } from "@/components/contractor-ops/package-item-pictures";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import {
@@ -252,6 +253,11 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                           })}
                           {(item.round_no ?? 1) > 1 && <> · {t("exchange.newInRound", { n: item.round_no ?? 1 })}</>}
                         </p>
+                        <PackageItemPictures
+                          reference={item.reference}
+                          photos={item.photos}
+                          documents={item.documents}
+                        />
                       </div>
                       <FileActionButtons
                         allowSave
