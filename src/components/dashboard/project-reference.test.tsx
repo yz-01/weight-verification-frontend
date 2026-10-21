@@ -87,7 +87,7 @@ describe("the project dashboard as the client's picture (J34-5)", () => {
 
   it("says so where there is nothing - no sample figures, photos or slices", () => {
     const html = render(empty);
-    expect(html).toContain("还没有收货记录。");
+    expect(html).toContain("还没有材料进场记录。");
     expect(html).toContain("本月还没有称重的数量。");
     expect(html).toContain("没有待处理事项。");
     expect(html).toContain("还没有现场照片。");

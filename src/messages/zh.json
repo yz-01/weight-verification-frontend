@@ -19259,9 +19259,9 @@
     "equipmentSplit": "在场 {on} | 离场 {off}",
     "seeBelow": "见下方",
     "tonnesNote": "吨数只算称重的：吨，公斤换算成吨；废料指环保材料出场。",
-    "latestReceipts": "最新物料收货记录",
+    "latestReceipts": "最新材料进场记录",
     "seeAll": "查看全部",
-    "noReceipts": "还没有收货记录。",
+    "noReceipts": "还没有材料进场记录。",
     "map": "项目现场地图",
     "point": {
       "RECEIPT": "物料收货点",
