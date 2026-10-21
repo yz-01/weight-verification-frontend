@@ -4042,7 +4042,70 @@
       "groupCount": "{count} 筆",
       "search": "搜尋編號、材料、DO",
       "emptyFiltered": "這個分類裡沒有符合篩選條件的記錄。",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "這個分類的數字",
+        "quantity": {
+          "today": "今日收貨",
+          "month": "本月累計",
+          "total": "項目累計"
+        },
+        "count": {
+          "today": "今日記錄",
+          "month": "本月記錄",
+          "total": "全部記錄"
+        },
+        "vsYesterday": "較昨日",
+        "vsLastMonth": "較上月同期",
+        "same": "持平",
+        "ofTarget": "占項目目標 {percent}%",
+        "target": "項目目標",
+        "remaining": "剩餘 {value}",
+        "reached": "已達到目標",
+        "noTarget": "未設定目標",
+        "completion": "完成率",
+        "suppliers": "供應商數量",
+        "suppliersNote": "累計供應商",
+        "otherUnits": "只算單位是「{unit}」的收貨；其他單位的沒有換算，不在數字裡。"
+      },
+      "stage": {
+        "label": "按狀態",
+        "all": "全部記錄",
+        "material": {
+          "pending": "待驗收",
+          "done": "已驗收",
+          "returned": "已拒收"
+        },
+        "other": {
+          "pending": "待處理",
+          "done": "已完成",
+          "returned": "已退回"
+        }
+      },
+      "table": {
+        "index": "序號",
+        "photos": "照片（點擊查看）",
+        "record": "記錄資訊",
+        "supplier": "供應商 / 車牌",
+        "time": "時間",
+        "quantity": "數量",
+        "location": "位置",
+        "status": "狀態",
+        "actions": "操作",
+        "view": "查看",
+        "note": "備註：{note}",
+        "receivedBy": "現場簽收：{name}",
+        "gps": "有 GPS",
+        "noGps": "無 GPS"
+      },
+      "pager": {
+        "label": "分頁",
+        "showing": "顯示第 {from} 到 {to} 條，共 {total} 條記錄",
+        "previous": "上一頁",
+        "next": "下一頁",
+        "first": "已是第一頁",
+        "last": "已是最後一頁"
+      }
     },
     "quantityReturned": "退場 {quantity}",
     "units": {
@@ -19182,5 +19245,38 @@
       "failed": "保存沒有成功，請再試一次。",
       "chooseProject": "先在頁面上方選一個項目，才能新增連結。"
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "今日收貨（噸）",
+      "wasteToday": "今日廢料（噸）",
+      "receiptsTotal": "累計收貨（噸）",
+      "wasteTotal": "累計廢料（噸）",
+      "equipment": "設備總數",
+      "pending": "待處理事項"
+    },
+    "thisMonth": "本月 {value} 噸",
+    "equipmentSplit": "在場 {on} | 離場 {off}",
+    "seeBelow": "見下方",
+    "tonnesNote": "噸數只算稱重的：噸，公斤換算成噸；廢料指環保材料出場。",
+    "latestReceipts": "最新物料收貨記錄",
+    "seeAll": "查看全部",
+    "noReceipts": "還沒有收貨記錄。",
+    "map": "項目現場地圖",
+    "point": {
+      "RECEIPT": "物料收貨點",
+      "WASTE": "廢料處理點",
+      "EQUIPMENT": "設備位置"
+    },
+    "noPoints": "最近 30 天沒有帶 GPS 的記錄。",
+    "materialMix": "物料分類統計（本月）",
+    "wasteMix": "廢料分類統計（本月）",
+    "noMix": "本月還沒有稱重的數量。",
+    "mixTotal": "總噸數 {value}",
+    "others": "其他",
+    "pending": "待處理事項",
+    "noPending": "沒有待處理事項。",
+    "photos": "最新現場照片記錄",
+    "noPhotos": "還沒有現場照片。"
   }
 }

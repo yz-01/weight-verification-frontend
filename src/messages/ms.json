@@ -4042,7 +4042,70 @@
       "groupCount": "{count} penghantaran",
       "search": "Cari nombor, bahan, DO",
       "emptyFiltered": "Tiada rekod dalam kategori ini yang sepadan dengan penapis ini.",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "Kategori ini dalam angka",
+        "quantity": {
+          "today": "Diterima hari ini",
+          "month": "Bulan ini",
+          "total": "Jumlah projek"
+        },
+        "count": {
+          "today": "Rekod hari ini",
+          "month": "Bulan ini",
+          "total": "Semua rekod"
+        },
+        "vsYesterday": "berbanding semalam",
+        "vsLastMonth": "berbanding hari sama bulan lalu",
+        "same": "tiada perubahan",
+        "ofTarget": "{percent}% daripada sasaran projek",
+        "target": "Sasaran projek",
+        "remaining": "Baki {value}",
+        "reached": "Sasaran tercapai",
+        "noTarget": "Tiada sasaran",
+        "completion": "Kemajuan",
+        "suppliers": "Pembekal",
+        "suppliersNote": "yang menghantar ke sini",
+        "otherUnits": "Hanya penghantaran dalam {unit} dikira; unit lain tidak ditukar dan tidak dikira."
+      },
+      "stage": {
+        "label": "Ikut status",
+        "all": "Semua rekod",
+        "material": {
+          "pending": "Menunggu terima",
+          "done": "Diterima",
+          "returned": "Ditolak"
+        },
+        "other": {
+          "pending": "Terbuka",
+          "done": "Selesai",
+          "returned": "Dipulangkan"
+        }
+      },
+      "table": {
+        "index": "No.",
+        "photos": "Foto (klik untuk lihat)",
+        "record": "Rekod",
+        "supplier": "Pembekal / plat",
+        "time": "Masa",
+        "quantity": "Kuantiti",
+        "location": "Lokasi",
+        "status": "Status",
+        "actions": "Tindakan",
+        "view": "Lihat",
+        "note": "Nota: {note}",
+        "receivedBy": "Diterima oleh: {name}",
+        "gps": "Ada GPS",
+        "noGps": "Tiada GPS"
+      },
+      "pager": {
+        "label": "Halaman",
+        "showing": "Menunjukkan {from} hingga {to} daripada {total} rekod",
+        "previous": "Sebelumnya",
+        "next": "Seterusnya",
+        "first": "Ini halaman pertama",
+        "last": "Ini halaman terakhir"
+      }
     },
     "quantityReturned": "{quantity} dipulangkan",
     "units": {
@@ -19182,5 +19245,38 @@
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
       "chooseProject": "Pilih projek di bahagian atas halaman untuk membuat pautan."
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "Bahan masuk hari ini (t)",
+      "wasteToday": "Sisa keluar hari ini (t)",
+      "receiptsTotal": "Bahan masuk, semua (t)",
+      "wasteTotal": "Sisa keluar, semua (t)",
+      "equipment": "Mesin",
+      "pending": "Menunggu"
+    },
+    "thisMonth": "Bulan ini {value} t",
+    "equipmentSplit": "Di tapak {on} | Keluar {off}",
+    "seeBelow": "Lihat di bawah",
+    "tonnesNote": "Tan hanya mengira yang ditimbang: tan, dan kilogram ditukar ke tan. Sisa ialah bahan mesra alam keluar.",
+    "latestReceipts": "Bahan masuk terkini",
+    "seeAll": "Lihat semua",
+    "noReceipts": "Belum ada penghantaran.",
+    "map": "Peta tapak projek",
+    "point": {
+      "RECEIPT": "Bahan masuk",
+      "WASTE": "Sisa keluar",
+      "EQUIPMENT": "Mesin"
+    },
+    "noPoints": "Tiada rekod ber-GPS dalam 30 hari.",
+    "materialMix": "Bahan ikut kategori (bulan ini)",
+    "wasteMix": "Sisa ikut kategori (bulan ini)",
+    "noMix": "Tiada yang ditimbang bulan ini.",
+    "mixTotal": "{value} t semuanya",
+    "others": "Lain-lain",
+    "pending": "Menunggu",
+    "noPending": "Tiada yang menunggu.",
+    "photos": "Foto tapak terkini",
+    "noPhotos": "Belum ada foto tapak."
   }
 }

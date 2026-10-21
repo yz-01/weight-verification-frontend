@@ -130,7 +130,8 @@ export function HeadquartersHero({ date, action }: { date: string; action?: Reac
   );
 }
 
-function Delta({ today, yesterday }: { today: number; yesterday: number | undefined }) {
+/** 「较昨日 +N」, only where yesterday is counted the same way (J32, J34-9). */
+export function Delta({ today, yesterday }: { today: number; yesterday: number | undefined }) {
   const t = useTranslations("headquarters.reference");
   const format = useFormatter();
   if (yesterday === undefined) return null;

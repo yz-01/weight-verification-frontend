@@ -133,6 +133,50 @@ export interface HeadquartersTotals extends HeadquartersCounts {
   material_targets?: MaterialTargetSummary;
 }
 
+/** 项目仪表板 (J34-5): one project's figures, as the client's picture lays them out. */
+export interface ProjectOverview {
+  date: string;
+  project: { id: string; code: string; name: string; latitude: string | null; longitude: string | null };
+  cards: {
+    receipts_today_t: string;
+    receipts_yesterday_t: string;
+    waste_today_t: string;
+    waste_yesterday_t: string;
+    receipts_month_t: string;
+    receipts_total_t: string;
+    waste_month_t: string;
+    waste_total_t: string;
+    equipment_total: number;
+    equipment_on_site: number;
+    equipment_off_site: number;
+    pending_total: number;
+  };
+  latest_receipts: Array<{
+    id: string;
+    receipt_no: string;
+    business_at: string | null;
+    supplier: string;
+    material: string;
+    category: string;
+    quantity: string;
+    unit: string;
+    acceptance_status: string;
+  }>;
+  map_points: Array<{ kind: "RECEIPT" | "WASTE" | "EQUIPMENT"; id: string; label: string; latitude: string; longitude: string }>;
+  material_mix: Array<{ name: string; tonnes: string; other?: boolean }>;
+  waste_mix: Array<{ name: string; tonnes: string; other?: boolean }>;
+  pending: Array<{ feature: string; count: number }>;
+  photos: Array<{
+    kind: string;
+    record_id: string;
+    reference: string;
+    captured_at: string | null;
+    thumbnail_url: string | null;
+    url: string | null;
+    photo_count: number;
+  }>;
+}
+
 export interface HeadquartersOverview {
   date: string;
   generated_at: string;

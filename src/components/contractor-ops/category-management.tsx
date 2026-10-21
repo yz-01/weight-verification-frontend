@@ -10,6 +10,7 @@ import {
   Inbox,
   ListTree,
   Loader2,
+  MapPin,
   Pencil,
   Plus,
   Ruler,
@@ -21,7 +22,9 @@ import { recordKindKey } from "@/lib/record-kind";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
+import { PhotoStrip, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
+import { StripFillsWidth } from "@/components/shared/inside-row-control";
+import { ColumnSummary, PageNumbers, StageTabs } from "@/components/contractor-ops/column-records";
 import { CategoryDialog, EquipmentDialog } from "@/components/contractor-ops/operations-workspaces";
 import { equipmentClassTree } from "@/components/contractor-ops/equipment-classes";
 import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-dialog";
@@ -81,6 +84,7 @@ import type {
   CategoryGroupModule,
   ArchiveQueueRow,
   CategoryRecordKind,
+  CategoryRecordStage,
   ColumnQuantity,
   ProjectCategory,
   ProjectCategoryKind,
@@ -1313,6 +1317,8 @@ function ColumnRecordsDialog({
   const [filters, setFilters] = useState<SupplierDateValue>({});
   // 只选材料 → 全部规格各自累计；再选规格 → 只看这个规格 (J7-4, J7-5, Q7-3).
   const [spec, setSpec] = useState<string | undefined>(undefined);
+  // 图 6's tabs (J34-6): 全部 / 待处理 / 已完成 / 已退回.
+  const [stage, setStage] = useState<CategoryRecordStage | undefined>(undefined);
   const [typed, setTyped] = useState("");
   const [search, setSearch] = useState("");
   useEffect(() => {
@@ -1325,7 +1331,7 @@ function ColumnRecordsDialog({
   }, [typed]);
 
   const records = useQuery({
-    queryKey: ["category-records", moduleKey, column.id, page, filters, search, spec],
+    queryKey: ["category-records", moduleKey, column.id, page, filters, search, spec, stage],
     queryFn: () =>
       getCategoryRecords({
         module: moduleKey,
@@ -1335,6 +1341,7 @@ function ColumnRecordsDialog({
         ...filters,
         search: search || undefined,
         spec_category: spec,
+        stage,
       }),
   });
   // Whether the records of this module come from a supplier at all: the
@@ -1344,17 +1351,31 @@ function ColumnRecordsDialog({
   // By whose make too (2026-10 D1): material only.
   const manufacturerFilter = records.data?.manufacturer_filter ?? moduleKey === "material";
   const filtered = Boolean(
-    filters.supplier || filters.manufacturer || filters.date_from || filters.date_to || search || spec,
+    filters.supplier || filters.manufacturer || filters.date_from || filters.date_to || search || spec || stage,
   );
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
   const groups = records.data?.groups ?? [];
-  const lastPage = Math.max(1, Math.ceil(total / RECORDS_PAGE_SIZE));
+  const hasQuantity = rows.some((row) => row.quantity);
+  const unitName = useUnitName();
 
   return (
     <>
-      <Shell title={t("records.title", { name: column.name })} onClose={onClose}>
+      <Shell wide title={t("records.title", { name: column.name })} onClose={onClose}>
         <div className="flex-1 space-y-3 overflow-y-auto p-4">
+          {/* 图 6: the figures, then the tabs, then the filters (J34-6). */}
+          <ColumnSummary moduleKey={moduleKey} column={column.id} />
+          {records.data?.tabs ? (
+            <StageTabs
+              moduleKey={moduleKey}
+              tabs={records.data.tabs}
+              value={stage}
+              onChange={(next) => {
+                setStage(next);
+                setPage(1);
+              }}
+            />
+          ) : null}
           <p className="text-xs text-muted-foreground">{t("records.help")}</p>
           <div className="flex flex-wrap items-center gap-2">
             <Input
@@ -1398,9 +1419,6 @@ function ColumnRecordsDialog({
             />
           ) : (
             <>
-              <p className="text-xs text-muted-foreground">
-                {t("records.count", { count: total })}
-              </p>
               {/* Each material on its own line with its own total (D-281):
                   「之前的混凝土和今天的混凝土混在一起了，不会分开」. */}
               {groups.length > 0 && (
@@ -1430,139 +1448,102 @@ function ColumnRecordsDialog({
                   </ul>
                 </div>
               )}
-              <ul className="divide-y rounded-lg border">
+              {/* 图 6 (J34-6, J34-7): the photographs on the left, by the
+                  menu; the record in two lines, then supplier and plate,
+                  time, quantity, location, state and 查看. A phone reads
+                  each record as a card, its photographs underneath. */}
+              <div className="hidden overflow-x-auto rounded-lg border sm:block">
+                <Table className="min-w-[60rem]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">{t("records.table.index")}</TableHead>
+                      <TableHead>{t("records.table.photos")}</TableHead>
+                      <TableHead>{t("records.table.record")}</TableHead>
+                      {supplierFilter && <TableHead>{t("records.table.supplier")}</TableHead>}
+                      <TableHead>{t("records.table.time")}</TableHead>
+                      {hasQuantity && <TableHead className="text-right">{t("records.table.quantity")}</TableHead>}
+                      <TableHead>{t("records.table.location")}</TableHead>
+                      <TableHead>{t("records.table.status")}</TableHead>
+                      <TableHead className="text-right">{t("records.table.actions")}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rows.map((row, index) => (
+                      <TableRow key={`${row.kind}:${row.id}`} data-column-record={row.reference}>
+                        <TableCell className="tabular-nums text-muted-foreground">
+                          {(page - 1) * RECORDS_PAGE_SIZE + index + 1}
+                        </TableCell>
+                        <TableCell>
+                          <ColumnRecordPhotos row={row} />
+                        </TableCell>
+                        <TableCell className="max-w-72">
+                          <ColumnRecordInfo row={row} isEquipment={isEquipment} />
+                        </TableCell>
+                        {supplierFilter && (
+                          <TableCell className="max-w-48">
+                            <span className="block truncate">{row.supplier_name || "—"}</span>
+                            {row.vehicle_plate ? (
+                              <span className="mt-1 inline-block rounded bg-muted px-1.5 py-0.5 text-xs">
+                                {row.vehicle_plate}
+                              </span>
+                            ) : null}
+                          </TableCell>
+                        )}
+                        <TableCell className="whitespace-nowrap text-xs">
+                          {formatter.dateTime(row.submitted_at)}
+                        </TableCell>
+                        {hasQuantity && (
+                          <TableCell className="whitespace-nowrap text-right font-medium tabular-nums">
+                            {row.quantity ? `${row.quantity} ${unitName(row.unit ?? "")}` : "—"}
+                          </TableCell>
+                        )}
+                        <TableCell>
+                          <GpsMark has={Boolean(row.has_gps)} />
+                        </TableCell>
+                        <TableCell>
+                          <ColumnRecordState row={row} />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button size="sm" variant="ghost" onClick={() => openRow(row)}>
+                            {t("records.table.view")}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <ul className="space-y-2 sm:hidden">
                 {rows.map((row) => (
-                  <li key={`${row.kind}:${row.id}`}>
-                    {/* A div acting as the row's button, not a <button>: the
-                        number inside carries its own copy button (D4), and a
-                        button cannot hold another. */}
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => openRow(row)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          openRow(row);
-                        }
-                      }}
-                      className="flex w-full cursor-pointer items-start gap-3 px-3 py-2 text-left hover:bg-muted/40"
-                    >
-                      {/* The record's photograph on the left (E3). A picture
-                          only: the row is the button, and it opens the
-                          record with every photograph (audit #11). */}
-                      <PhotoThumb
-                        coverUrl={row.cover_photo_url}
-                        count={row.photo_count}
-                        icon={recordKindIcon(row.kind)}
-                        reference={row.reference}
-                        openable={false}
-                      />
-                      <span className="min-w-0 flex-1">
-                        {/* The short number big, the project small (D4). */}
-                        <RecordNo value={row.reference} projectCode={row.project_code} />
-                        {row.detail && (
-                          <span className="block truncate text-xs text-muted-foreground">
-                            {row.detail}
-                          </span>
-                        )}
-                        {/* The DO and the supplier (B3): what the office
-                            matches a delivery against. */}
-                        {(row.delivery_note_no || row.supplier_name) && (
-                          <span className="block truncate text-xs">
-                            {[
-                              row.delivery_note_no
-                                ? `${t("records.deliveryNoteNo")} ${row.delivery_note_no}`
-                                : "",
-                              row.supplier_name ?? "",
-                            ]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </span>
-                        )}
-                        {/* A machine's plate and paperwork dates (B2). */}
-                        {isEquipment && row.kind === "SITE_EQUIPMENT" && (
-                          <MachineProfileLine row={row as EquipmentProfileRow} />
-                        )}
-                        {/* Whose make (D1), orange when not designated. */}
-                        {row.manufacturer_name && (
-                          <span className="block text-xs">
-                            <ManufacturerCell
-                              name={row.manufacturer_name}
-                              offList={row.manufacturer_off_list}
-                            />
-                          </span>
-                        )}
-                        <span className="block text-xs text-muted-foreground">
-                          {[
-                            queue(`kind.${recordKindKey(row)}` as never),
-                            row.project_name,
-                            formatter.dateTime(row.submitted_at),
-                          ]
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </span>
-                      </span>
-                      <span className="flex shrink-0 flex-col items-end gap-1 text-xs">
-                        <StatusBadge
-                          label={recordStatusLabel(root, row)}
-                          tone="neutral"
-                        />
-                        {/* Who archived it and when (T-391), in the queue's
-                            own words. */}
-                        {!row.archivable ? (
-                          <span className="text-muted-foreground">
-                            {queue("closure.notApplicable")}
-                          </span>
-                        ) : row.archived ? (
-                          <span className="text-right">
-                            <span className="font-medium text-success">
-                              {queue("closure.closed")}
-                            </span>
-                            <span className="block text-muted-foreground">
-                              {row.archived.by}
-                              {row.archived.at
-                                ? ` · ${formatter.dateTime(row.archived.at)}`
-                                : ""}
-                            </span>
-                          </span>
-                        ) : (
-                          <span className="text-warning">{queue("closure.open")}</span>
-                        )}
-                      </span>
+                  <li key={`${row.kind}:${row.id}`} className="space-y-2 rounded-lg border p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <ColumnRecordInfo row={row} isEquipment={isEquipment} />
+                      <ColumnRecordState row={row} />
                     </div>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {[
+                        row.supplier_name,
+                        row.vehicle_plate,
+                        row.quantity ? `${row.quantity} ${unitName(row.unit ?? "")}` : "",
+                        formatter.dateTime(row.submitted_at),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                    <StripFillsWidth.Provider value>
+                      <ColumnRecordPhotos row={row} />
+                    </StripFillsWidth.Provider>
+                    <Button size="sm" variant="outline" className="w-full" onClick={() => openRow(row)}>
+                      {t("records.table.view")}
+                    </Button>
                   </li>
                 ))}
               </ul>
             </>
           )}
         </div>
-        {lastPage > 1 && (
-          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-panel-border bg-muted p-4 text-sm">
-            <span className="text-muted-foreground">
-              {queue("pageOf", { page, pages: lastPage })}
-            </span>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={page <= 1}
-                disabledReason={queue("firstPage")}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                {queue("previous")}
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={page >= lastPage}
-                disabledReason={queue("lastPage")}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                {queue("next")}
-              </Button>
-            </div>
-          </footer>
+        {total > 0 && (
+          <PageNumbers page={page} pageSize={RECORDS_PAGE_SIZE} total={total} onPage={setPage} />
         )}
       </Shell>
       {machineError && (
@@ -1594,6 +1575,100 @@ function ColumnRecordsDialog({
         />
       )}
     </>
+  );
+}
+
+type ColumnRow = ArchiveQueueRow<CategoryRecordKind>;
+
+/** A row's photographs as the strip (J34-2), each opening the viewer. */
+function ColumnRecordPhotos({ row }: { row: ColumnRow }) {
+  return (
+    <PhotoStrip
+      thumbs={row.photo_thumbs}
+      coverUrl={row.cover_photo_url}
+      count={row.photo_count}
+      icon={recordKindIcon(row.kind)}
+      reference={row.reference}
+      photos={recordPhotos(row.kind, row.id, row.reference)}
+    />
+  );
+}
+
+/** The record in two lines (图 6): its number, then what it is; the note and receiver small. */
+function ColumnRecordInfo({ row, isEquipment }: { row: ColumnRow; isEquipment: boolean }) {
+  const t = useTranslations("categoryManagement");
+  const queue = useTranslations("archiveQueue");
+  const what = [
+    row.delivery_note_no ? `${t("records.deliveryNoteNo")} ${row.delivery_note_no}` : "",
+    row.detail,
+    row.specification,
+  ].filter(Boolean);
+  return (
+    <span className="block min-w-0 space-y-0.5">
+      {/* The short number big, the project small (D4). */}
+      <RecordNo value={row.reference} projectCode={row.project_code} />
+      <span className="block truncate text-xs text-muted-foreground">
+        {what.length > 0 ? what.join(" · ") : queue(`kind.${recordKindKey(row)}` as never)}
+      </span>
+      {row.note ? (
+        <span className="block truncate text-xs text-muted-foreground">
+          {t("records.table.note", { note: row.note })}
+        </span>
+      ) : null}
+      {row.received_by ? (
+        <span className="inline-block rounded bg-primary/10 px-1.5 py-0.5 text-2xs text-primary">
+          {t("records.table.receivedBy", { name: row.received_by })}
+        </span>
+      ) : null}
+      {/* A machine's plate and paperwork dates (B2). */}
+      {isEquipment && row.kind === "SITE_EQUIPMENT" && (
+        <MachineProfileLine row={row as EquipmentProfileRow} />
+      )}
+      {/* Whose make (D1), orange when not designated. */}
+      {row.manufacturer_name && (
+        <span className="block text-xs">
+          <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** The record's state, and who archived it and when (T-391). */
+function ColumnRecordState({ row }: { row: ColumnRow }) {
+  const queue = useTranslations("archiveQueue");
+  const root = useTranslations();
+  const formatter = useDateFormat();
+  return (
+    <span className="flex shrink-0 flex-col items-start gap-1 text-xs">
+      <StatusBadge label={recordStatusLabel(root, row)} tone="neutral" />
+      {!row.archivable ? (
+        <span className="text-muted-foreground">{queue("closure.notApplicable")}</span>
+      ) : row.archived ? (
+        <span>
+          <span className="font-medium text-success">{queue("closure.closed")}</span>
+          <span className="block text-muted-foreground">
+            {row.archived.by}
+            {row.archived.at ? ` · ${formatter.dateTime(row.archived.at)}` : ""}
+          </span>
+        </span>
+      ) : (
+        <span className="text-warning">{queue("closure.open")}</span>
+      )}
+    </span>
+  );
+}
+
+/** Whether the record carries GPS; the coordinates are in the record and the viewer. */
+function GpsMark({ has }: { has: boolean }) {
+  const t = useTranslations("categoryManagement.records.table");
+  return has ? (
+    <span className="inline-flex items-center gap-1 text-xs text-success">
+      <MapPin className="size-3.5" aria-hidden />
+      {t("gps")}
+    </span>
+  ) : (
+    <span className="text-xs text-muted-foreground">{t("noGps")}</span>
   );
 }
 

@@ -65,7 +65,8 @@ describe("supplier search", () => {
     expect(source).not.toMatch(/page_size: 200/);
     // The combobox hands the term over instead of filtering the page itself.
     const combobox = read("components/material-requests/option-combobox.tsx");
-    expect(combobox).toMatch(/if \(onSearch \|\| !needle\) return options;/);
+    // J10: then narrowed by the A-Z letter, which the server never sees.
+    expect(combobox).toMatch(/onSearch \|\| !needle/);
     expect(combobox).toMatch(/onSearch\?\.\(next\)/);
   });
 
