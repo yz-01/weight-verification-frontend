@@ -5,7 +5,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
   CheckCircle2,
   Eye,
-  FileUp,
   Loader2,
   PackageCheck,
   Pencil,
@@ -73,6 +72,7 @@ import {
   updateOutboundShipment,
   uploadOutboundAttachment,
 } from "@/services/recycler-business.service";
+import { FileThumbs, pictureByName } from "@/components/shared/file-thumbs";
 
 export function RecyclerOutboundWorkspace() {
   const t = useTranslations("recyclerBusiness");
@@ -205,7 +205,7 @@ export function ShipmentDetailDialog({ shipment, onClose }: { shipment: Outbound
         { label: t("field.vehiclePlate"), value: current.vehicle_plate || "—" },
         { label: t("field.balance"), value: current.balance_after_kg ? `${current.balance_after_kg} kg` : "—" },
       ]}
-      panel={<ShellPanel title={t("outbound.attachments")}><div className="space-y-3">{current.attachments.length ? <div className="grid gap-2">{current.attachments.map((attachment) => <a key={attachment.id} href={attachment.file} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg border px-3 py-2 hover:bg-muted"><FileUp className="size-4 text-primary" /><div className="min-w-0"><p className="font-medium">{t(`attachmentKind.${attachment.kind}`)}</p><p className="truncate text-xs text-muted-foreground">{attachment.description || attachment.file}</p></div></a>)}</div> : <p className="rounded-lg border border-dashed p-5 text-center text-muted-foreground">{t("outbound.noAttachments")}</p>}<div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[10rem_1fr_auto]"><Select value={kind} onValueChange={(value) => setKind(value as OutboundAttachmentKind)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{(["DELIVERY_ORDER", "E_INVOICE", "PHOTO", "OTHER"] as const).map((value) => <SelectItem key={value} value={value}>{t(`attachmentKind.${value}`)}</SelectItem>)}</SelectContent></Select><div className="grid gap-2"><FieldWrapper label={t("outbound.attachmentFile")} required><Input ref={inputRef} type="file" accept="image/*,.pdf" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><Input value={description} placeholder={t("field.description")} onChange={(event) => setDescription(event.target.value)} /></div><Button requires={[[file, t("outbound.attachmentFile")]]} disabled={upload.isPending} onClick={() => upload.mutate()}><Upload />{t("action.upload")}</Button></div></div></ShellPanel>}
+      panel={<ShellPanel title={t("outbound.attachments")}><div className="space-y-3">{current.attachments.length ? <div className="grid gap-2">{current.attachments.map((attachment) => <a key={attachment.id} href={attachment.file} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg border px-3 py-2 hover:bg-muted"><FileThumbs files={[{ id: attachment.id, name: attachment.description || t(`attachmentKind.${attachment.kind}`), thumbnail_url: attachment.kind === "PHOTO" ? attachment.file : pictureByName(attachment.file, attachment.file) }]} /><div className="min-w-0"><p className="font-medium">{t(`attachmentKind.${attachment.kind}`)}</p>{attachment.description ? <p className="truncate text-xs text-muted-foreground">{attachment.description}</p> : null}</div></a>)}</div> : <p className="rounded-lg border border-dashed p-5 text-center text-muted-foreground">{t("outbound.noAttachments")}</p>}<div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[10rem_1fr_auto]"><Select value={kind} onValueChange={(value) => setKind(value as OutboundAttachmentKind)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{(["DELIVERY_ORDER", "E_INVOICE", "PHOTO", "OTHER"] as const).map((value) => <SelectItem key={value} value={value}>{t(`attachmentKind.${value}`)}</SelectItem>)}</SelectContent></Select><div className="grid gap-2"><FieldWrapper label={t("outbound.attachmentFile")} required><Input ref={inputRef} type="file" accept="image/*,.pdf" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><Input value={description} placeholder={t("field.description")} onChange={(event) => setDescription(event.target.value)} /></div><Button requires={[[file, t("outbound.attachmentFile")]]} disabled={upload.isPending} onClick={() => upload.mutate()}><Upload />{t("action.upload")}</Button></div></div></ShellPanel>}
     />
     <DialogFooter><Button variant="outline" onClick={onClose}><X />{common("close")}</Button></DialogFooter>
   </RecordDetailDialog>;

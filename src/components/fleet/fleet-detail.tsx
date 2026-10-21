@@ -38,6 +38,7 @@ import {
   getVehicle,
   getVehicleHistory,
 } from "@/services/recycler.service";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 
 export function DriverDetail({ id }: { id: string }) {
   const t = useTranslations();
@@ -204,11 +205,11 @@ export function VehicleDetail({ id }: { id: string }) {
 }
 
 function PhotoLink({ label, href }: { label: string; href: string | null }) {
-  const t = useTranslations();
   return (
     <ReadField
       label={label}
-      value={href ? <a href={href} target="_blank" rel="noreferrer" className="font-medium text-primary hover:underline">{t("common.view")}</a> : null}
+      // The photo itself, opening full size (J34-11) - not the word 「查看」.
+      value={href ? <FileThumbs files={[{ id: href, name: label, thumbnail_url: href, href }]} /> : null}
     />
   );
 }

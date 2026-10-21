@@ -15,11 +15,12 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, Eye, FileText, ImageIcon, Loader2, Lock, Paperclip, Upload, X } from "lucide-react";
+import { Download, Eye, Loader2, Lock, Paperclip, Upload, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FilePreviewDialog } from "@/components/shared/file-preview";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -110,10 +111,19 @@ export function RecordAttachmentsPanel({
           ) : (
             <ul className="space-y-1.5">
               {rows.map((row) => {
-                const Icon = row.preview_type?.startsWith("image/") ? ImageIcon : FileText;
                 return (
                   <li key={row.id} className="flex items-start gap-2 rounded-md border px-2 py-1.5 text-xs">
-                    <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    {/* The file as a picture (J34-11): a photo itself, else its type. */}
+                    <FileThumbs
+                      files={[
+                        {
+                          id: row.id,
+                          name: row.original_name,
+                          thumbnail_url: row.preview_type?.startsWith("image/") ? row.url : null,
+                          onOpen: () => setPreviewing(row),
+                        },
+                      ]}
+                    />
                     <div className="min-w-0 flex-1">
                       <button
                         type="button"

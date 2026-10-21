@@ -19259,9 +19259,9 @@
     "equipmentSplit": "在場 {on} | 離場 {off}",
     "seeBelow": "見下方",
     "tonnesNote": "噸數只算稱重的：噸，公斤換算成噸；廢料指環保材料出場。",
-    "latestReceipts": "最新物料收貨記錄",
+    "latestReceipts": "最新材料進場記錄",
     "seeAll": "查看全部",
-    "noReceipts": "還沒有收貨記錄。",
+    "noReceipts": "還沒有材料進場記錄。",
     "map": "項目現場地圖",
     "point": {
       "RECEIPT": "物料收貨點",

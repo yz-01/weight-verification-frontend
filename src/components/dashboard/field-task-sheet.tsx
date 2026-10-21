@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, FileText, Loader2, MapPin, Send } from "lucide-react";
+import { Check, Loader2, MapPin, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,6 +31,7 @@ import {
   getFieldTask,
   transitionFieldTask,
 } from "@/services/contractor-ops.service";
+import { FileThumbs, pictureByName } from "@/components/shared/file-thumbs";
 
 const OPEN_FOR_RESULT: FieldTask["status"][] = ["OPEN", "IN_PROGRESS", "RETURNED"];
 
@@ -215,7 +216,15 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                         rel="noreferrer"
                         className="col-span-3 flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm font-medium text-primary hover:underline"
                       >
-                        <FileText className="size-4" />
+                        <FileThumbs
+                          files={[
+                            {
+                              id: reference.id,
+                              name: reference.original_filename || reference.label,
+                              thumbnail_url: pictureByName(reference.original_filename ?? "", reference.file),
+                            },
+                          ]}
+                        />
                         <span className="truncate">
                           {reference.label || reference.original_filename}
                         </span>

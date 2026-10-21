@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Loader2, Paperclip } from "lucide-react";
+import { Ban, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -27,6 +27,7 @@ import {
   readAnnouncement,
   withdrawAnnouncement,
 } from "@/services/contractor-dashboard.service";
+import { FileThumbs, pictureByName } from "@/components/shared/file-thumbs";
 
 /**
  * One 公司公告 (C18), opened.
@@ -114,9 +115,10 @@ export function AnnouncementDialog({ id, onClose }: { id: string; onClose: () =>
                       href={file.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                      className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
                     >
-                      <Paperclip className="size-3.5" aria-hidden />
+                      {/* The file as a picture (J34-11); its name beside it here. */}
+                      <FileThumbs files={[{ id: file.id, name: file.original_name, thumbnail_url: pictureByName(file.original_name, file.url) }]} />
                       {file.original_name}
                     </a>
                   </li>

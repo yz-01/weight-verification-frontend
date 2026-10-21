@@ -59,6 +59,7 @@ import {
   voidWeighTicket,
   verifySessionChain,
 } from "@/services/weighing.service";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 
 const VERDICT_TONE: Record<SessionVerdict, "positive" | "danger" | "warning"> = {
   VALID: "positive",
@@ -472,7 +473,17 @@ export function ViewWeighSession({ id }: { id: string }) {
                     rel="noreferrer"
                     className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm hover:bg-muted/50"
                   >
-                    <span className="min-w-0 truncate">
+                    {/* The file as a picture (J34-11); its name beside it in the detail. */}
+                    <FileThumbs
+                      files={[
+                        {
+                          id: attachment.id,
+                          name: attachment.original_filename,
+                          thumbnail_url: attachment.content_type.startsWith("image/") ? attachment.file : null,
+                        },
+                      ]}
+                    />
+                    <span className="min-w-0 flex-1 truncate">
                       {t(`weighing.attachment.${attachment.kind}`)} · {attachment.original_filename}
                     </span>
                     <span className="shrink-0 text-xs text-muted-foreground">
@@ -661,7 +672,17 @@ function DeviceMediaList({ sessionId }: { sessionId: string }) {
           const label = `${t(`weighing.deviceMedia.kind.${row.kind}`)} · ${row.device_name}`;
           const inner = (
             <>
-              <span className="min-w-0 truncate">{label}</span>
+              {/* A device photo as itself (J34-11); a clip its type. */}
+              <FileThumbs
+                files={[
+                  {
+                    id: row.id,
+                    name: row.original_filename || label,
+                    thumbnail_url: row.kind === "PHOTO" && !row.is_purged ? row.file_url || null : null,
+                  },
+                ]}
+              />
+              <span className="min-w-0 flex-1 truncate">{label}</span>
               <span className="shrink-0 text-xs text-muted-foreground">
                 {df.precise(row.captured_at)}
               </span>
