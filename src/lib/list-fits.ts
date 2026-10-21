@@ -17,7 +17,8 @@ export const LIST_FITS = {
   /** 材料进场 */
   materialReceipts: {
     // `.v6`: 规格 between 材料 and 照片 (J2-1).
-    storageKey: "receipts.v6",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; supplier_name, pack under 「字段」 for them.
+    storageKey: "receipts.v7",
     file: "src/components/receipts/receipts.tsx",
     columns: {
       receipt_no: "recno",
@@ -27,7 +28,7 @@ export const LIST_FITS = {
       category_name: "text",
       material_name: "name",
       material_specification: "short",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       quantity: "number",
       supplier_name: "text",
       manufacturer_name: "text",
@@ -36,17 +37,19 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["category_name", "manufacturer_name", "vehicle_plate", "delivery_note_no"],
+    hidden: ["category_name", "manufacturer_name", "vehicle_plate", "delivery_note_no", "supplier_name", "pack"],
+    phoneCard: { title: ["receipt_no", "material_name", "acceptance"], detail: ["business_at", "quantity", "supplier_name"], photo: "cover_photo" },
   },
   /** 材料退场 */
   materialOutgoing: {
     // `.v4`: 规格 after 材料 (J2-2).
-    storageKey: "material-outgoing.v4",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; supplier_name, pack under 「字段」 for them.
+    storageKey: "material-outgoing.v5",
     file: "src/components/contractor-ops/office-module-lists.tsx",
     columns: {
       reference_no: "recno",
       pack: "pack",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       status: "status",
       category_name: "text",
       captured_at: "datetime",
@@ -60,15 +63,17 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["category_name", "manufacturer_name", "project_name", "executor_name"],
+    hidden: ["category_name", "manufacturer_name", "project_name", "executor_name", "supplier_name", "pack"],
+    phoneCard: { title: ["reference_no", "material_name", "status"], detail: ["captured_at", "quantity", "supplier_name"], photo: "cover_photo" },
   },
   /** MR 材料申请 */
   materialRequests: {
-    storageKey: "material-requests.v6",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; supplier_name, submitted_by_name under 「字段」 for them.
+    storageKey: "material-requests.v7",
     file: "src/components/material-requests/material-requests-office.tsx",
     columns: {
       request_no: "recno",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       request_kind: "badge",
       material_name: "name",
       category_code: "short",
@@ -86,13 +91,15 @@ export const LIST_FITS = {
     },
     // 材料编号 and the spec now read under the material, the unit beside
     // the quantity; 「查看」 is the pinned eye at the row's end as well.
-    hidden: ["category_code", "specification", "unit", "manufacturer_name", "view"],
+    hidden: ["category_code", "specification", "unit", "manufacturer_name", "view", "supplier_name", "submitted_by_name"],
+    phoneCard: { title: ["request_no", "material_name", "status"], detail: ["created_at", "quantity", "submitted_by_name"], photo: "cover_photo" },
   },
   /** 设备进退场 (图 1 of I39) */
   equipmentMovements: {
     // `.v3`: the photo strip (J34-2); 方向 and 供应商 under 「字段」 for it -
     // the EI / EO number and the status words already say which way.
-    storageKey: "equipment-movements.v3",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; pack under 「字段」 for them.
+    storageKey: "equipment-movements.v4",
     file: "src/components/contractor-ops/office-module-lists.tsx",
     columns: {
       record_no: "recno",
@@ -110,17 +117,19 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["direction", "supplier_name", "delivery_note_no", "operator_name", "project_name"],
+    hidden: ["direction", "supplier_name", "delivery_note_no", "operator_name", "project_name", "pack"],
+    phoneCard: { title: ["record_no", "equipment", "status"], detail: ["occurred_at", "quantity", "project_name"], photo: "cover_photo" },
   },
   /** 设备清单 */
   equipmentRegister: {
-    storageKey: "site-equipment-register",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; project_name, code under 「字段」 for them.
+    storageKey: "site-equipment-register.v2",
     file: "src/components/contractor-ops/office-module-lists.tsx",
     columns: {
       qrSelect: "select",
       site_no: "short",
       code: "short",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       name: "name",
       status: "status",
       category_name: "text",
@@ -129,17 +138,19 @@ export const LIST_FITS = {
       qr: "button",
       actions: "actions",
     },
-    hidden: [],
+    hidden: ["project_name", "code"],
+    phoneCard: { title: ["site_no", "name", "status"], detail: ["category_name", "quantity_on_site", "project_name"], photo: "cover_photo" },
   },
   /** 施工进度 */
   siteProgress: {
-    storageKey: "site-progress.v2",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; description, submitted_by_name under 「字段」 for them.
+    storageKey: "site-progress.v3",
     file: "src/components/contractor-ops/office-module-lists.tsx",
     columns: {
       record_no: "recno",
       pack: "pack",
       captured_at: "datetime",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       phase__name: "text",
       description: "name",
       percent_complete: "number",
@@ -148,7 +159,8 @@ export const LIST_FITS = {
       project_name: "text",
       actions: "actions",
     },
-    hidden: ["project_name"],
+    hidden: ["project_name", "description", "submitted_by_name"],
+    phoneCard: { title: ["record_no", "phase__name", "status"], detail: ["captured_at", "percent_complete", "submitted_by_name"], photo: "cover_photo" },
   },
   /** 隐患整改 → 整改记录 */
   hazards: {
@@ -194,7 +206,7 @@ export const LIST_FITS = {
     file: "src/components/site-access/gate-records-office.tsx",
     columns: {
       incident_no: "recno",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       project_name: "text",
       guard_name: "person",
       occurred_at: "datetime",
@@ -203,14 +215,16 @@ export const LIST_FITS = {
       actions: "actions",
     },
     hidden: [],
+    phoneCard: { title: ["incident_no", "project_name"], detail: ["occurred_at", "guard_name"], photo: "cover_photo" },
   },
   /** 门岗记录 → 问题 */
   gateIssues: {
-    storageKey: "gate-records.issues.v1",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; member_names, guard_name under 「字段」 for them.
+    storageKey: "gate-records.issues.v2",
     file: "src/components/site-access/gate-records-office.tsx",
     columns: {
       incident_no: "recno",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       project_name: "text",
       guard_name: "person",
       occurred_at: "datetime",
@@ -220,7 +234,8 @@ export const LIST_FITS = {
       closed: "person",
       actions: "actions",
     },
-    hidden: [],
+    hidden: ["member_names", "guard_name"],
+    phoneCard: { title: ["incident_no", "issue_note", "issue_status"], detail: ["occurred_at", "project_name"], photo: "cover_photo" },
   },
   /** 访客记录 */
   visitors: {
@@ -280,12 +295,13 @@ export const LIST_FITS = {
   },
   /** 工地清运 */
   siteDisposals: {
-    storageKey: "site-disposals.v2",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; waste_description, supplier under 「字段」 for them.
+    storageKey: "site-disposals.v3",
     file: "src/components/contractor-ops/site-disposal-workspaces.tsx",
     columns: {
       reference_no: "recno",
       pack: "pack",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       status: "status",
       trips: "number",
       waste_description: "name",
@@ -298,16 +314,18 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["location_description", "vehicle_plates", "project_name"],
+    hidden: ["location_description", "vehicle_plates", "project_name", "waste_description", "supplier"],
+    phoneCard: { title: ["reference_no", "waste_description", "status"], detail: ["preferred_at", "trips", "requested_by_name"], photo: "cover_photo" },
   },
   /** 环保材料出场 */
   wasteOutgoing: {
-    storageKey: "waste-outgoing.v2",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; recycler_name, pack under 「字段」 for them.
+    storageKey: "waste-outgoing.v3",
     file: "src/components/contractor-ops/waste-outgoing-workspace.tsx",
     columns: {
       reference_no: "recno",
       pack: "pack",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       status: "status",
       category_name: "text",
       captured_at: "datetime",
@@ -318,16 +336,18 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["project_name"],
+    hidden: ["project_name", "recycler_name", "pack"],
+    phoneCard: { title: ["reference_no", "category_name", "status"], detail: ["captured_at", "quantity", "recycler_name"], photo: "cover_photo" },
   },
   /** 杂费报销 */
   sundryClaims: {
-    storageKey: "sundry-claims.v3",
+    // J34-2 (Lucas 10-21): four 64 px photos a row; description, submit_to under 「字段」 for them.
+    storageKey: "sundry-claims.v4",
     file: "src/components/sundry-claims/sundry-claims-office.tsx",
     columns: {
       claim_no: "recno",
       pack: "pack",
-      cover_photo: "thumb",
+      cover_photo: "strip",
       state: "status",
       amount: "number",
       captured_at: "datetime",
@@ -339,7 +359,8 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["project_name", "created_at"],
+    hidden: ["project_name", "created_at", "description", "submit_to"],
+    phoneCard: { title: ["claim_no", "description", "state"], detail: ["captured_at", "amount", "submitted_by_name"], photo: "cover_photo" },
   },
 } as const satisfies Record<string, ListFit>;
 

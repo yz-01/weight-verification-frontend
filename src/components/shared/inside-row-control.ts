@@ -14,8 +14,7 @@ import { createContext } from "react";
 export const InsideRowControl = createContext(false);
 
 /**
- * True inside a phone card (J34-2 point 4): a photo strip there takes the
- * card's width - four squares, each up to 80 px - rather than the table's
- * fixed 56 px ones.
+ * True inside a phone card (J34-2 point 4): a photo strip there keeps the
+ * phone's 56 px squares whatever the screen's width (Lucas 10-21).
  */
 export const StripFillsWidth = createContext(false);

@@ -1335,6 +1335,7 @@ export function SiteDisposalOffice() {
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey={LIST_FITS.siteDisposals.storageKey}
+        phoneCard={LIST_FITS.siteDisposals.phoneCard}
         defaultHidden={LIST_FITS.siteDisposals.hidden}
         pack="DISPOSAL_REQUEST"
         // I27: by clearance company (or none on the list) and by the day it

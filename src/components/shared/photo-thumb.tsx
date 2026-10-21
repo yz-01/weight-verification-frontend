@@ -242,9 +242,8 @@ export interface PhotoStripProps {
  * the 「+N」 at the first photo it stands for. No photograph: the module's
  * icon, as `PhotoThumb`.
  *
- * In a table the squares are 56 px, so a list with four of them still fits a
- * 1366 px screen without scrolling sideways (I39); on a phone card
- * (`StripFillsWidth`) the four share the card's width.
+ * Lucas 10-21, from the screenshots: 64 px squares on a desktop, 56 px on a
+ * phone - a table below the `sm` width and a phone card (`StripFillsWidth`).
  */
 export function PhotoStrip({
   thumbs,
@@ -265,7 +264,8 @@ export function PhotoStrip({
   const [loading, setLoading] = useState(false);
   const list = thumbs && thumbs.length > 0 ? thumbs : coverUrl ? [coverUrl] : [];
   const total = Math.max(count ?? 0, list.length);
-  const square = fills ? "aspect-square w-full" : "size-14";
+  // 64 px in a desktop table, 56 px on a phone (Lucas 10-21).
+  const square = fills ? "size-14" : "size-14 sm:size-16";
 
   if (list.length === 0) {
     return (
@@ -337,7 +337,7 @@ export function PhotoStrip({
         aria-label={`${reference} · ${t("count", { count: total })}`}
         data-photo-strip="photos"
         className={cn(
-          fills ? "grid w-full max-w-84 grid-cols-4 gap-1.5" : "inline-flex shrink-0 gap-1.5",
+          "inline-flex shrink-0 gap-1",
           className,
         )}
       >
@@ -511,15 +511,15 @@ export function photoColumn<T extends CoveredRow>({
   icon,
   reference,
   photos,
-  strip = false,
+  strip = true,
 }: {
   label: string;
   icon: LucideIcon;
   reference: (row: T) => string;
   photos?: (row: T) => PhotoThumbPhotos | undefined;
   /**
-   * Four photographs a row (J34-2) rather than one. Lists move over one by
-   * one: each needs room for 242 px (`lib/list-fits`, kind `strip`).
+   * Four photographs a row (J34-2); ``false`` for the single picture of
+   * before. A list needs room for 268 px (`lib/list-fits`, kind `strip`).
    */
   strip?: boolean;
 }): ColumnDef<T, unknown> {

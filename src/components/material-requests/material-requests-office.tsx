@@ -402,6 +402,7 @@ function RequestsTab() {
         // `.v4` since the request type column came back (I16, ID37); `.v5`
         // since 材料编号 joined (I19-15), so a saved set shows it.
         storageKey={LIST_FITS.materialRequests.storageKey}
+        phoneCard={LIST_FITS.materialRequests.phoneCard}
         defaultHidden={LIST_FITS.materialRequests.hidden}
         toolbar={
           <>

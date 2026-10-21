@@ -56,10 +56,11 @@ describe("MR table columns (D3)", () => {
   it("remembers columns under a new key, so an old saved set cannot bring the dropped ones back", () => {
     // `.v4` since the request type came back (I16); `.v3` brought the
     // manufacturer and supplier columns (2026-10 D1); `.v6` since the list
-    // hides some columns by default to fit 1366 px (I39).
+    // hides some columns by default to fit 1366 px (I39); `.v7` for the four
+    // 64 px photos a row (J34-2).
     expect(source).toContain("storageKey={LIST_FITS.materialRequests.storageKey}");
     expect(source).toContain("defaultHidden={LIST_FITS.materialRequests.hidden}");
-    expect(LIST_FITS.materialRequests.storageKey).toBe("material-requests.v6");
+    expect(LIST_FITS.materialRequests.storageKey).toBe("material-requests.v7");
     expect(source).not.toMatch(/storageKey="material-requests/);
   });
 

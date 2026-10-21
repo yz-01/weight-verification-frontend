@@ -486,6 +486,7 @@ export function MaterialOutgoingOffice() {
         isError={rows.isError}
         // `.v2` with the manufacturer column (2026-10 D1).
         storageKey={LIST_FITS.materialOutgoing.storageKey}
+        phoneCard={LIST_FITS.materialOutgoing.phoneCard}
         defaultHidden={LIST_FITS.materialOutgoing.hidden}
         pack="MATERIAL_OUTGOING"
         toolbar={
@@ -1189,6 +1190,7 @@ export function SiteEquipmentOffice() {
           isLoading={machines.isLoading}
           isError={machines.isError}
           storageKey={LIST_FITS.equipmentRegister.storageKey}
+          phoneCard={LIST_FITS.equipmentRegister.phoneCard}
         defaultHidden={LIST_FITS.equipmentRegister.hidden}
           toolbar={
             <>
@@ -1273,11 +1275,7 @@ export function SiteEquipmentOffice() {
           isError={movements.isError}
           storageKey={LIST_FITS.equipmentMovements.storageKey}
         defaultHidden={LIST_FITS.equipmentMovements.hidden}
-          phoneCard={{
-            title: ["record_no", "equipment", "status"],
-            detail: ["occurred_at", "quantity", "project_name"],
-            photo: "cover_photo",
-          }}
+          phoneCard={LIST_FITS.equipmentMovements.phoneCard}
           pack="EQUIPMENT_MOVEMENT"
           toolbar={
             <>
@@ -2059,6 +2057,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey={LIST_FITS.siteProgress.storageKey}
+        phoneCard={LIST_FITS.siteProgress.phoneCard}
         defaultHidden={LIST_FITS.siteProgress.hidden}
         pack="PROGRESS"
         toolbar={
