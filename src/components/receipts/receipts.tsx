@@ -448,7 +448,7 @@ export function Receipts() {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    <div className="flex flex-col gap-4 max-sm:[&>*]:shrink-0 sm:h-[calc(100dvh-5rem)]">
       <ListHeader
         title={t("receipts.title")}
         subtitle={isLoading ? "—" : t("receipts.count", { count: totalCount })}

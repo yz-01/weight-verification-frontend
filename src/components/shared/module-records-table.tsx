@@ -145,7 +145,10 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   const waitingOnly = needsActionActive(list.filters);
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    // A fixed height from a tablet up, so the rows scroll under a pinned
+    // header; on a phone the page scrolls, and nothing is squeezed into what
+    // follows it (J34-2: the header's buttons wrapped over the summary).
+    <div className="flex flex-col gap-4 max-sm:[&>*]:shrink-0 sm:h-[calc(100dvh-5rem)]">
       <ListHeader
         title={title}
         subtitle={isLoading ? "—" : countLabel}
