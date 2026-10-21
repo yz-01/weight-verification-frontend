@@ -62,6 +62,7 @@ const CONSULTANT_PERMISSIONS = ["project.view", "approval.view", "approval.revie
 
 export function CompanySiteSettingsWorkspace() {
   const t = useTranslations("siteControl");
+  const tHq = useTranslations("headquarters.reference");
   const { can, refresh } = useAuth();
   const qc = useQueryClient();
   const canManage = can("company_settings.manage");
@@ -189,6 +190,9 @@ export function CompanySiteSettingsWorkspace() {
         <ChoiceField label={t("field.timezone")} value={form.timezone} disabled={!canManage} options={TIMEZONES} onChange={(value) => setForm({ ...form, timezone: value })} />
         <ChoiceField label={t("field.homePage")} value={form.home_page} disabled={!canManage} options={["/dashboard", "/projects", "/notifications", "/field-staff"]} optionLabel={(value) => t(`homePage.${value.slice(1).replace("-", "_")}`)} onChange={(value) => setForm({ ...form, home_page: value as ContractorSiteSettings["home_page"] })} />
         <ChoiceField label={t("field.notificationChannel")} value={form.default_notification_channel} disabled={!canManage} options={["IN_APP", "PUSH"]} optionLabel={(value) => t(`notificationChannel.${value}`)} onChange={(value) => setForm({ ...form, default_notification_channel: value as ContractorSiteSettings["default_notification_channel"] })} />
+        {/* 总部 Dashboard 的标题文字 (J32): blank keeps the default words. */}
+        <FieldWrapper label={tHq("settingsTitle")} hint={tHq("settingsHint")}><Input disabled={!canManage} maxLength={60} value={form.dashboard_title ?? ""} placeholder={tHq("title")} onChange={(event) => setForm({ ...form, dashboard_title: event.target.value })} /></FieldWrapper>
+        <FieldWrapper label={tHq("settingsSubtitle")} hint={tHq("settingsHint")} className="sm:col-span-2"><Input disabled={!canManage} maxLength={160} value={form.dashboard_subtitle ?? ""} placeholder={tHq("subtitle")} onChange={(event) => setForm({ ...form, dashboard_subtitle: event.target.value })} /></FieldWrapper>
       </div>
     </section>
 

@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { GateCard } from "@/components/dashboard/gate-card";
 import { HeadquartersFigures } from "@/components/dashboard/headquarters-figures";
 import { HeadquartersMap } from "@/components/dashboard/headquarters-map";
@@ -21,6 +20,15 @@ import {
   type WorkTab,
 } from "@/components/dashboard/headquarters-work";
 import { WallButton } from "@/components/dashboard/headquarters-wall";
+import {
+  HeadquartersByState,
+  HeadquartersHero,
+  HeadquartersKpis,
+  HeadquartersNotices,
+  HeadquartersPresenceSplit,
+  HeadquartersQuickLinks,
+  HeadquartersSiteActivity,
+} from "@/components/dashboard/headquarters-reference";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import { legacyDashboardTarget } from "@/lib/dashboard-scopes";
@@ -44,12 +52,14 @@ export function HeadquartersHome() {
 }
 
 /**
- * 公司总部 Dashboard (C11, C19), top to bottom: the company banner; the
- * company's figures (what is waiting comes first - each opens the list of
- * exactly what it counts, F8);
- * the 交互总览地图 with 项目总览 as the main overview; what waits on a decision
- * and what is overdue, beside 在场人数 by project; then today's site photos.
- * Every row and figure leads to the item, the list or the project.
+ * 公司总部 Dashboard as the client's reference (J32, 10-20 图 3), top to
+ * bottom: the title, date and weather; six figures, each with 较昨日 where
+ * yesterday is counted the same way; 今日现场动态 - each project's latest site
+ * photo, or the map; 待处理事项 beside 通知中心; projects by state, 在场人数
+ * and 快捷入口. Below, everything head office had before (J32-5): every
+ * figure, the gate, 在场人数 by project, material targets and today's
+ * photos. Refreshed every minute and when the page comes back (要做 3). Every
+ * row and figure leads to the item, the list or the project.
  */
 export function HeadquartersDashboard() {
   const t = useTranslations("headquarters");
@@ -63,52 +73,65 @@ export function HeadquartersDashboard() {
   const overview = useQuery({
     queryKey: ["contractor-dashboard", "headquarters"],
     queryFn: getHeadquarters,
+    // A new site photo shows within a minute, or when the page is back.
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   });
   const data = overview.data;
   const photos = usePhotoOpener();
 
   return (
     <div className="space-y-4">
-      <CompanyBanner scope="company" date={data?.date} action={<WallButton />} />
       {overview.isError ? (
         <LoadFailed onRetry={() => void overview.refetch()} />
       ) : !data ? (
         <Skeleton className="h-48 w-full" />
       ) : (
         <>
-        <section
-          aria-label={t("figures.title")}
-          className="space-y-2"
-          data-dashboard-priority
-        >
-          <HeadquartersFigures data={data} />
-          {!data.all_projects && (
-            <p className="text-xs text-muted-foreground">{t("figures.someProjects")}</p>
-          )}
-        </section>
-        {/* 门岗 (HD10): every project's gate photos today and open issues. */}
-        <GateCard />
-        <div data-dashboard-overview>
-          <HeadquartersMap
-            projects={data.projects}
-            withoutLocation={data.without_location}
-            date={data.date}
-            onOpenPhoto={photos.open}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <div className="xl:col-span-2">
-            <HeadquartersWork
-              key={`${workTab}:${workProject}`}
-              initialTab={workTab}
-              approvalsProject={workProject}
+          <HeadquartersHero date={data.date} action={<WallButton />} />
+          <section aria-label={t("figures.title")} className="space-y-2" data-dashboard-priority>
+            <HeadquartersKpis data={data} />
+            {!data.all_projects && (
+              <p className="text-xs text-muted-foreground">{t("figures.someProjects")}</p>
+            )}
+          </section>
+          <div data-dashboard-overview>
+            <HeadquartersSiteActivity
+              data={data}
+              onOpenPhoto={photos.open}
+              map={
+                <HeadquartersMap
+                  projects={data.projects}
+                  withoutLocation={data.without_location}
+                  date={data.date}
+                  onOpenPhoto={photos.open}
+                />
+              }
             />
           </div>
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            <div className="xl:col-span-2">
+              <HeadquartersWork
+                key={`${workTab}:${workProject}`}
+                initialTab={workTab}
+                approvalsProject={workProject}
+              />
+            </div>
+            <HeadquartersNotices />
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <HeadquartersByState data={data} />
+            <HeadquartersPresenceSplit data={data} />
+            <HeadquartersQuickLinks />
+          </div>
+          {/* What head office had before, kept (J32-5). */}
+          <HeadquartersFigures data={data} />
+          {/* 门岗 (HD10): every project's gate photos today and open issues. */}
+          <GateCard />
           <HeadquartersPresence data={data} />
-        </div>
-        {/* 材料目标 (I18, ID42): each project's targets over, at and near. */}
-        <HeadquartersMaterialTargets data={data} />
-        <HeadquartersPhotos onOpen={photos.open} />
+          {/* 材料目标 (I18, ID42): each project's targets over, at and near. */}
+          <HeadquartersMaterialTargets data={data} />
+          <HeadquartersPhotos onOpen={photos.open} />
         </>
       )}
       {photos.sheet}

@@ -81,6 +81,11 @@ export interface HeadquartersPhoto {
   photographer: string;
   record_kind: PhotoRecordKind;
   record_id: string | null;
+  /**
+   * What the record is, from its own fields (J32): a material and its
+   * quantity, a task's title... Null when the record says nothing more.
+   */
+  headline?: { title: string; quantity: string | null; unit: string | null } | null;
 }
 
 export interface HeadquartersProject extends HeadquartersCounts {
@@ -106,6 +111,10 @@ export interface HeadquartersTotals extends HeadquartersCounts {
   /** 当前在场人数 = App 人员 + 门岗通行 (Phase 8). */
   app_on_site: number;
   gate_on_site: number;
+  /** Passes on site by their subject: WORKER, VISITOR, VEHICLE (J32). */
+  gate_by_type?: Partial<Record<string, number>>;
+  /** 较昨日 (J32): only the figures yesterday is counted the same way for. */
+  yesterday?: { today_records: number; material_receipts_today: number };
   today_records_by_kind: Record<TodayRecordKind, number>;
   material_targets?: MaterialTargetSummary;
 }

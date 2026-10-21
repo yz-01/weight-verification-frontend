@@ -9267,6 +9267,67 @@
       "exceeded": "已超出 {count}",
       "reached": "已达到 {count}",
       "approaching": "接近 {count}"
+    },
+    "reference": {
+      "title": "让老板从看报表变成看现场",
+      "subtitle": "汇总全公司所有项目的现场数据，连接人、物、机、料、进度与安全，让管理更简单、更透明、更高效。",
+      "companyView": "总公司视图",
+      "same": "持平",
+      "vsYesterday": "较昨日",
+      "kpi": {
+        "projects": "进行中项目",
+        "today_records": "今日工地记录",
+        "pending_approvals": "待审批事项",
+        "overdue_rectifications": "整改逾期",
+        "material_receipts_today": "今日材料进场",
+        "on_site_now": "当前在场人数"
+      },
+      "activity": "今日现场动态（各项目）",
+      "activityHint": "来自全公司各项目的最新现场记录",
+      "view": {
+        "photos": "照片",
+        "map": "地图"
+      },
+      "noProjects": "还没有项目。",
+      "noPhoto": "还没有现场照片",
+      "notices": "通知中心",
+      "seeAll": "查看全部",
+      "noNotices": "没有新通知。",
+      "byState": "项目分布",
+      "allProjects": "查看全部项目",
+      "noState": "未填州属",
+      "projectCount": "{count} 个项目",
+      "presence": "在场人数",
+      "presenceTotal": "在场 {count} 人",
+      "split": {
+        "APP": "系统人员（打卡）",
+        "WORKER": "工人通行证",
+        "VISITOR": "访客",
+        "VEHICLE": "车辆"
+      },
+      "weather": {
+        "clear": "晴",
+        "partly": "多云",
+        "cloudy": "阴",
+        "fog": "雾",
+        "drizzle": "毛毛雨",
+        "rain": "雨",
+        "snow": "雪",
+        "storm": "雷雨"
+      },
+      "quick": {
+        "title": "快捷入口",
+        "siteRecord": "上传工地记录",
+        "request": "发起申请",
+        "approvals": "审批处理",
+        "rectification": "查看整改",
+        "archive": "文件归档",
+        "reports": "导出报表"
+      },
+      "settingsTitle": "总部 Dashboard 大标题",
+      "settingsSubtitle": "总部 Dashboard 副标题",
+      "settingsHint": "留空就用默认文字。",
+      "temperature": "{value}°C"
     }
   },
   "home": {

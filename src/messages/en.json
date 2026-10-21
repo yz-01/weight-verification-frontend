@@ -9267,6 +9267,67 @@
       "exceeded": "{count} over",
       "reached": "{count} reached",
       "approaching": "{count} near"
+    },
+    "reference": {
+      "title": "From reading reports to seeing the site",
+      "subtitle": "Every project's site data in one place - people, materials, machines, progress and safety - so managing is simpler, clearer and faster.",
+      "companyView": "Head office view",
+      "same": "Same",
+      "vsYesterday": "vs yesterday",
+      "kpi": {
+        "projects": "Projects in progress",
+        "today_records": "Site records today",
+        "pending_approvals": "Waiting for approval",
+        "overdue_rectifications": "Overdue rectifications",
+        "material_receipts_today": "Material in today",
+        "on_site_now": "On site now"
+      },
+      "activity": "Today on site (by project)",
+      "activityHint": "Each project's latest site record",
+      "view": {
+        "photos": "Photos",
+        "map": "Map"
+      },
+      "noProjects": "No projects yet.",
+      "noPhoto": "No site photo yet",
+      "notices": "Notifications",
+      "seeAll": "See all",
+      "noNotices": "Nothing new.",
+      "byState": "Projects by state",
+      "allProjects": "All projects",
+      "noState": "No state",
+      "projectCount": "{count} projects",
+      "presence": "On site now",
+      "presenceTotal": "{count} on site",
+      "split": {
+        "APP": "Clocked in (accounts)",
+        "WORKER": "Worker passes",
+        "VISITOR": "Visitors",
+        "VEHICLE": "Vehicles"
+      },
+      "weather": {
+        "clear": "Clear",
+        "partly": "Partly cloudy",
+        "cloudy": "Cloudy",
+        "fog": "Fog",
+        "drizzle": "Drizzle",
+        "rain": "Rain",
+        "snow": "Snow",
+        "storm": "Thunderstorm"
+      },
+      "quick": {
+        "title": "Shortcuts",
+        "siteRecord": "Site records",
+        "request": "Raise a request",
+        "approvals": "Approvals",
+        "rectification": "Rectifications",
+        "archive": "File archive",
+        "reports": "Export reports"
+      },
+      "settingsTitle": "Head office dashboard title",
+      "settingsSubtitle": "Head office dashboard subtitle",
+      "settingsHint": "Leave blank for the default words.",
+      "temperature": "{value}°C"
     }
   },
   "home": {
