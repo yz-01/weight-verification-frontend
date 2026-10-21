@@ -19081,7 +19081,8 @@
       "denied": "Kebenaran lokasi ditolak. Ikut langkah di bawah untuk membenarkannya.",
       "unavailable": "Tidak dapat lokasi. Pergi ke kawasan terbuka dan pastikan lokasi dihidupkan.",
       "upload": "Penghantaran terakhir gagal; akan cuba lagi."
-    }
+    },
+    "outsideFence": "Anda tiada di tapak sekarang, jadi lokasi anda tidak direkodkan."
   },
   "materialTargets": {
     "title": "Sasaran bahan",

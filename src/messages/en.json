@@ -19081,7 +19081,8 @@
       "denied": "Location permission was refused. Follow the steps below to allow it.",
       "unavailable": "Cannot get a location right now. Move into the open and check location is on.",
       "upload": "The last send did not get through; it will try again."
-    }
+    },
+    "outsideFence": "You are not on site right now, so your location is not recorded."
   },
   "materialTargets": {
     "title": "Material targets",

@@ -28,8 +28,9 @@ export function recordWorkerPosition(
   token: string,
   device: string,
   fix: { latitude: string; longitude: string; accuracy_m?: string; recorded_at?: string },
-): Promise<{ received_at: string }> {
-  return api.post<{ received_at: string }>(
+): Promise<{ received_at: string; outside_fence?: boolean }> {
+  // J25: `outside_fence` - outside the site nothing of where was kept.
+  return api.post<{ received_at: string; outside_fence?: boolean }>(
     `${base(token)}/record_position/`,
     { device, ...fix },
     { auth: false, silent: true },
