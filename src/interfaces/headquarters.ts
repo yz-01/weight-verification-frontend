@@ -88,6 +88,18 @@ export interface HeadquartersPhoto {
   headline?: { title: string; quantity: string | null; unit: string | null } | null;
 }
 
+/** One fence of a project (J23-3): a circle or a polygon, never moved by a map. */
+export interface HeadquartersFence {
+  id: string;
+  name: string;
+  shape: "CIRCLE" | "POLYGON";
+  latitude: string | null;
+  longitude: string | null;
+  radius_m: number | null;
+  polygon: Array<[number, number]>;
+  is_primary: boolean;
+}
+
 export interface HeadquartersProject extends HeadquartersCounts {
   id: string;
   code: string;
@@ -101,6 +113,8 @@ export interface HeadquartersProject extends HeadquartersCounts {
   longitude: string | null;
   has_location: boolean;
   latest_photo: HeadquartersPhoto | null;
+  /** Its active fences as stored (J23-3), the main one first. */
+  fences?: HeadquartersFence[];
   /** 材料目标 (I18, ID42): this project's targets and where they stand. */
   material_targets?: MaterialTargetSummary;
 }

@@ -8,7 +8,15 @@ import { useMemo, useState } from "react";
 import {
   LocationMap,
   type LocationMapMarker,
+  type LocationMapZone,
 } from "@/components/shared/location-map";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +32,31 @@ import type {
   HeadquartersPhoto,
   HeadquartersProject,
 } from "@/interfaces/headquarters";
+
+/**
+ * A project's fences as map zones (J23-3): the main one solid, the others
+ * dashed - drawn from their stored coordinates, which no map changes.
+ */
+export function fenceZones(project: HeadquartersProject): LocationMapZone[] {
+  return (project.fences ?? []).flatMap((fence): LocationMapZone[] => {
+    const label = `${project.code} · ${fence.name}`;
+    if (fence.shape === "POLYGON" && fence.polygon.length >= 3) {
+      return [{ id: fence.id, points: fence.polygon, label, dashed: !fence.is_primary }];
+    }
+    if (fence.latitude && fence.longitude && fence.radius_m) {
+      return [
+        {
+          id: fence.id,
+          center: [Number(fence.latitude), Number(fence.longitude)] as [number, number],
+          radiusM: fence.radius_m,
+          label,
+          dashed: !fence.is_primary,
+        },
+      ];
+    }
+    return [];
+  });
+}
 import { useDateFormat } from "@/lib/dates";
 import { cardHref, projectDashboardHref } from "@/lib/headquarters-links";
 import { cn } from "@/lib/utils";
@@ -63,6 +96,11 @@ export function HeadquartersMap({
   const format = useFormatter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showProjects, setShowProjects] = useState(true);
+  const [showFences, setShowFences] = useState(true);
+  const zones = useMemo(
+    () => (showFences ? projects.flatMap((project) => fenceZones(project)) : []),
+    [projects, showFences],
+  );
   const placed = useMemo(() => projects.filter((row) => row.has_location), [projects]);
   const markers = useMemo<LocationMapMarker[]>(
     () =>
@@ -115,6 +153,14 @@ export function HeadquartersMap({
             />
             {t("layerProjects")}
           </label>
+          <label className="inline-flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              checked={showFences}
+              onChange={(event) => setShowFences(event.target.checked)}
+            />
+            {t("layerFences")}
+          </label>
           <label
             className="inline-flex items-center gap-1.5 text-muted-foreground"
             title={t("layerDevicesHelp")}
@@ -129,6 +175,8 @@ export function HeadquartersMap({
         <div className="relative">
           <LocationMap
             markers={markers}
+            zones={zones}
+            sizeKey="headquarters-map"
             className="min-h-[24rem] rounded-lg xl:min-h-[30rem]"
             ariaLabel={t("title")}
             preserveViewOnDataUpdate
@@ -249,6 +297,7 @@ export function ProjectCard({
 }) {
   const t = useTranslations("headquarters.map");
   const figures = useTranslations("headquarters.figures");
+  const [mapOpen, setMapOpen] = useState(false);
   return (
     <div className="space-y-2 rounded-lg border p-3" data-selected-project={project.id}>
       <div className="flex items-start justify-between gap-2">
@@ -291,13 +340,57 @@ export function ProjectCard({
           </div>
         ))}
       </dl>
+      {/* 打开项目地图 (J23-3): this project alone, with every fence. */}
+      <Button className="w-full" size="sm" variant="outline" onClick={() => setMapOpen(true)}>
+        <MapPinned aria-hidden />
+        {t("openProjectMap")}
+      </Button>
       <Button asChild className="w-full" size="sm">
         <Link href={projectDashboardHref(project.id)}>
           {t("enter")}
           <ArrowRight aria-hidden />
         </Link>
       </Button>
+      {mapOpen ? <ProjectMapDialog project={project} onClose={() => setMapOpen(false)} /> : null}
     </div>
+  );
+}
+
+function ProjectMapDialog({ project, onClose }: { project: HeadquartersProject; onClose: () => void }) {
+  const t = useTranslations("headquarters.map");
+  const zones = fenceZones(project);
+  const markers: LocationMapMarker[] = project.has_location
+    ? [
+        {
+          id: project.id,
+          latitude: Number(project.latitude),
+          longitude: Number(project.longitude),
+          label: `${project.code} · ${project.name}`,
+          icon: "project",
+          tone: projectTone(project),
+        },
+      ]
+    : [];
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="sm:max-w-5xl">
+        <DialogHeader>
+          <DialogTitle>{t("projectMapTitle", { project: project.name })}</DialogTitle>
+          <DialogDescription>
+            {zones.length > 0 ? t("projectMapFences", { count: zones.length }) : t("projectMapNoFence")}
+          </DialogDescription>
+        </DialogHeader>
+        <LocationMap
+          markers={markers}
+          zones={zones}
+          sizeKey="project-map"
+          className="min-h-[28rem] rounded-lg"
+          ariaLabel={t("projectMapTitle", { project: project.name })}
+          fitBoundsKey={project.id}
+          singlePointZoom={16}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -248,6 +248,7 @@ export function GeofenceMapEditor({
 
   return (
     <MapFrame
+      sizeKey="geofence-editor"
       className="geofence-map-editor relative z-0 isolate block h-72 min-h-72 w-full min-w-0 max-w-full shrink-0 overflow-hidden rounded-lg border bg-muted/20"
       fitLabel={backLabel}
       onFit={() => fitFenceRef.current()}
