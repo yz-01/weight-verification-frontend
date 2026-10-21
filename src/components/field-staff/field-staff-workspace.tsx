@@ -63,6 +63,8 @@ import { submitAttendanceOfflineAware } from "@/services/offline-sync.service";
 import { getAttendance, getSafetyIncident } from "@/services/site-operations.service";
 import { createFieldPwaBootstrap } from "@/services/field-access.service";
 import { useRoleLabel } from "@/lib/role-labels";
+import { fieldBellCount } from "@/lib/conversation-notices";
+import { fieldTodoCountQuery } from "@/services/platform-ops.service";
 
 // 「位置」 is gone (T-321, customer item 43): the coordinates were only ever
 // useful to the office, and the customer asked for four entries at the bottom.
@@ -312,6 +314,11 @@ function FieldStaffWorkspaceContent({
    * form above, and the navigation has to follow it there.
    */
   const activeNav = activeFieldNav(shownTab, shownRecordMode);
+  // J4: the bell's number beside 首页 - the same query, under the same key,
+  // as the bell's red dot, so they are one answer.
+  // query-failure: the bell says when its count fails; the menu then shows no number.
+  const bellCount = useQuery({ ...fieldTodoCountQuery });
+  const homeCount = fieldBellCount(bellCount.data)?.total ?? 0;
 
   const projects = useQuery({
     queryKey: ["projects", "options"],
@@ -433,7 +440,8 @@ function FieldStaffWorkspaceContent({
         {/* Four buttons since 「位置」 was removed (T-321). The column count has
             to match or the icons bunch to the left of an empty cell. */}
         <div className="mx-auto grid max-w-2xl grid-cols-4 gap-1 px-3">
-          <MobileNavButton active={activeNav === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
+          {/* J4: the bell's number on 首页, where the to-dos and notices are. */}
+          <MobileNavButton active={activeNav === "home"} icon={House} label={t("nav.home")} count={homeCount} onClick={() => openTab("home")} />
           <MobileNavButton active={activeNav === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
           <MobileNavButton active={activeNav === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
           {/*
@@ -584,8 +592,8 @@ function FieldDeviceHandoff() {
   );
 }
 
-function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/12 text-tone-cyan-fg" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
+function MobileNavButton({ active, icon: Icon, label, onClick, count = 0 }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void; count?: number }) {
+  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/12 text-tone-cyan-fg" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}><span className="relative"><Icon className="size-5" />{count > 0 ? <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-destructive px-1 text-center text-2xs font-semibold leading-4 text-destructive-foreground tabular-nums" data-nav-count>{count > 99 ? "99+" : count}</span> : null}</span><span className="max-w-full truncate">{label}</span></button>;
 }
 
 function taskRecordMode(task: FieldTask): FieldRecordMode | null {

@@ -44,6 +44,7 @@ import {
   getPushConfig,
   isPushSupported,
 } from "@/services/push-notification.service";
+import { setAppBadgeCount } from "@/lib/app-badge";
 
 /** How often the bell's number is asked for. */
 const BELL_COUNT_POLL_MS = 30_000;
@@ -199,6 +200,10 @@ export function NotificationButton() {
   const todayCount = counted?.today ?? 0;
   const earlierCount = counted?.earlier ?? 0;
   const countFailed = countQuery.isError;
+  // J4: the installed app's icon carries the bell's number.
+  useEffect(() => {
+    if (countQuery.isSuccess) setAppBadgeCount(count);
+  }, [count, countQuery.isSuccess]);
   const notificationHref =
     user?.is_field_staff
       ? "/field-staff?tab=home"
