@@ -110,7 +110,7 @@ export function HeadquartersHero({ date, action }: { date: string; action?: Reac
           </div>
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
-        <div className="flex flex-col items-end gap-2 text-right">
+        <div className="flex flex-col items-start gap-2 sm:items-end sm:text-right">
           <p className="text-sm font-medium tabular-nums">
             {format.dateTime(day, { year: "numeric", month: "long", day: "numeric" })}{" "}
             <span className="text-muted-foreground">{format.dateTime(day, { weekday: "long" })}</span>
@@ -455,7 +455,7 @@ export function HeadquartersQuickLinks() {
   return (
     <section className="surface-panel space-y-3 rounded-2xl p-4 sm:p-5" data-quick-links>
       <h2 className="text-base font-semibold">{t("title")}</h2>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2">
         {shown.map(({ key, href, icon: Icon, tone }) => (
           <Link
             key={key}
