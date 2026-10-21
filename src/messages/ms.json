@@ -10489,7 +10489,8 @@
       "DISPOSAL_REQUEST": "Permohonan pelupusan",
       "PROGRESS": "Kemajuan",
       "CONSULTANT_APPLICATION": "Permohonan perunding",
-      "SUNDRY_CLAIM": "Tuntutan pelbagai"
+      "SUNDRY_CLAIM": "Tuntutan pelbagai",
+      "MATERIAL_REQUEST": "MR / Permohonan lain"
     },
     "lastPage": "Ini halaman terakhir.",
     "loading": "Memuatkan…",
@@ -10645,7 +10646,8 @@
         "CONSULTANT": "Perunding",
         "OWNER": "Pemilik",
         "SUPPLIER": "Pembekal",
-        "OTHER": "Lain-lain"
+        "OTHER": "Lain-lain",
+        "HEADQUARTERS": "Ibu pejabat (dalam sistem)"
       },
       "expired": "Tamat tempoh",
       "status": {
@@ -10746,7 +10748,9 @@
         "REPORT": "Rekod surat-menyurat dijana"
       },
       "ip": "IP {ip}",
-      "writeFirst": "Tulis mesej atau pilih fail dahulu."
+      "writeFirst": "Tulis mesej atau pilih fail dahulu.",
+      "headquartersHelp": "Dihantar ke ibu pejabat syarikat anda dalam sistem: tiada pautan dibuat. Ibu pejabat melihatnya di Pakej diterima dalam Multi Engine dan menerima notis; siapa yang membukanya disimpan.",
+      "sendToHeadquarters": "Hantar ke ibu pejabat"
     },
     "claimFacet": {
       "title": "Jumlah dan bayaran tuntutan",
@@ -10771,7 +10775,8 @@
       "recipients": "Penerima",
       "round": "Pusingan semasa",
       "returned": "Dipulangkan"
-    }
+    },
+    "received": "Pakej diterima"
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",
@@ -11306,7 +11311,8 @@
       "dailyReport": "Laporan harian",
       "progressSummary": "Ringkasan kemajuan",
       "siteWorkers": "Senarai pekerja",
-      "materialTargets": "Sasaran bahan"
+      "materialTargets": "Sasaran bahan",
+      "materialRequests": "MR / Permohonan Lain"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",

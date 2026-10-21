@@ -298,6 +298,7 @@ const KIND_PERMISSION: Record<ArchiveRecordKind, string> = {
   CONSULTANT_APPLICATION: "approval.view",
   ATTENDANCE_DAY: "attendance.view",
   SUNDRY_CLAIM: "sundry_claim.view",
+  MATERIAL_REQUEST: "material_request.view",
 };
 
 /**

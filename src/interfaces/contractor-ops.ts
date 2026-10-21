@@ -1085,7 +1085,9 @@ export type ArchiveRecordKind =
   | "PROGRESS"
   | "CONSULTANT_APPLICATION"
   | "ATTENDANCE_DAY"
-  | "SUNDRY_CLAIM";
+  | "SUNDRY_CLAIM"
+  /** MR / 其他申请 (J30-2): packable in Multi Engine, not a 现场记录中心 row. */
+  | "MATERIAL_REQUEST";
 
 /**
  * Every kind a Category Management column can hold (T-396, D-276).
@@ -1245,7 +1247,13 @@ export const PACKAGE_TYPES: readonly PackageType[] = [
 export const CLAIM_PACKAGE_TYPES: readonly PackageType[] = ["PROGRESS_CLAIM", "SUNDRY_CLAIM"];
 
 /** Who a package went to (H17 四 2). Only a consultant signs in. */
-export type RecipientKind = "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
+/** HEADQUARTERS (J30-1): the company's own head office, in the system - no link. */
+export type RecipientKind = "HEADQUARTERS" | "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
+
+/** Whether a recipient reads through a link (not a consultant, not head office). */
+export function isLinkRecipient(kind: RecipientKind): boolean {
+  return kind !== "CONSULTANT" && kind !== "HEADQUARTERS";
+}
 export type RecipientStatus = "SENT" | "VIEWED" | "SIGNED" | "REVOKED";
 export type PackageEventKind =
   | "CONFIRMED"

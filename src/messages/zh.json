@@ -10489,7 +10489,8 @@
       "DISPOSAL_REQUEST": "清运申请",
       "PROGRESS": "工程进度",
       "CONSULTANT_APPLICATION": "顾问申请",
-      "SUNDRY_CLAIM": "杂费报销"
+      "SUNDRY_CLAIM": "杂费报销",
+      "MATERIAL_REQUEST": "MR / 其他申请"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "加载中…",
@@ -10645,7 +10646,8 @@
         "CONSULTANT": "顾问",
         "OWNER": "业主",
         "SUPPLIER": "供应商",
-        "OTHER": "其他单位"
+        "OTHER": "其他单位",
+        "HEADQUARTERS": "总部（系统内）"
       },
       "expired": "已过期",
       "status": {
@@ -10746,7 +10748,9 @@
         "REPORT": "生成往来记录"
       },
       "ip": "IP {ip}",
-      "writeFirst": "先写留言或选附件。"
+      "writeFirst": "先写留言或选附件。",
+      "headquartersHelp": "发给贵司系统里的总部，不用生成链接。总部在 Multi Engine 的「收到的资料包」看到，并收到系统通知；系统记录谁打开过。",
+      "sendToHeadquarters": "发给总部"
     },
     "claimFacet": {
       "title": "Claim 金额与收款",
@@ -10771,7 +10775,8 @@
       "recipients": "收件方数",
       "round": "当前轮次",
       "returned": "退回数"
-    }
+    },
+    "received": "收到的资料包"
   },
   "mySubmissions": {
     "title": "我提交过的",
@@ -11306,7 +11311,8 @@
       "dailyReport": "日报告",
       "progressSummary": "项目进度摘要",
       "siteWorkers": "人员名单",
-      "materialTargets": "材料目标"
+      "materialTargets": "材料目标",
+      "materialRequests": "MR / 其他申请"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",

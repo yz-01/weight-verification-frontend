@@ -10489,7 +10489,8 @@
       "DISPOSAL_REQUEST": "清運申請",
       "PROGRESS": "工程進度",
       "CONSULTANT_APPLICATION": "顧問申請",
-      "SUNDRY_CLAIM": "雜費報銷"
+      "SUNDRY_CLAIM": "雜費報銷",
+      "MATERIAL_REQUEST": "MR / 其他申請"
     },
     "lastPage": "已經是最後一頁了。",
     "loading": "載入中…",
@@ -10645,7 +10646,8 @@
         "CONSULTANT": "顧問",
         "OWNER": "業主",
         "SUPPLIER": "供應商",
-        "OTHER": "其他單位"
+        "OTHER": "其他單位",
+        "HEADQUARTERS": "總部（系統內）"
       },
       "expired": "已過期",
       "status": {
@@ -10746,7 +10748,9 @@
         "REPORT": "產生往來記錄"
       },
       "ip": "IP {ip}",
-      "writeFirst": "先寫留言或選附件。"
+      "writeFirst": "先寫留言或選附件。",
+      "headquartersHelp": "發給貴司系統裡的總部，不用生成連結。總部在 Multi Engine 的「收到的資料包」看到，並收到系統通知；系統記錄誰打開過。",
+      "sendToHeadquarters": "發給總部"
     },
     "claimFacet": {
       "title": "Claim 金額與收款",
@@ -10771,7 +10775,8 @@
       "recipients": "收件方數",
       "round": "當前輪次",
       "returned": "退回數"
-    }
+    },
+    "received": "收到的資料包"
   },
   "mySubmissions": {
     "title": "我提交過的",
@@ -11306,7 +11311,8 @@
       "dailyReport": "日報告",
       "progressSummary": "項目進度摘要",
       "siteWorkers": "人員名單",
-      "materialTargets": "材料目標"
+      "materialTargets": "材料目標",
+      "materialRequests": "MR / 其他申請"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
