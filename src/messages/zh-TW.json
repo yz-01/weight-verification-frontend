@@ -8115,7 +8115,12 @@
       "equipment_hours_outside_fence": "你不在工地範圍內，請在工地打卡。",
       "equipment_hours_no_fence": "項目還沒設電子圍欄，請聯絡工地辦公室。",
       "driver_link_not_confirmed": "請先確認你的電話號碼。",
-      "driver_link_phone_mismatch": "這個號碼和工地辦公室登記的不一樣。"
+      "driver_link_phone_mismatch": "這個號碼和工地辦公室登記的不一樣。",
+      "permission_switches_unavailable": "只有建築商的後台帳號有權限開關。",
+      "permission_switches_unknown_permission": "其中一個權限不存在。",
+      "permission_switches_unknown_project": "請選擇本公司的項目。",
+      "permission_switches_self_lockout": "不能關掉自己的「用戶管理」。",
+      "permission_switches_last_user_manager": "公司裡至少要有一個人保留「用戶管理」。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -12435,6 +12440,9 @@
       },
       "inspection": {
         "record": "填寫檢驗結果"
+      },
+      "finance": {
+        "view_amounts": "金額查看（單價、成本、預算、Claim）"
       }
     },
     "group": {
@@ -12505,7 +12513,8 @@
       "integration": "系統集成",
       "site_worker": "人員名單",
       "material_target": "材料目標",
-      "inspection": "檢驗"
+      "inspection": "檢驗",
+      "finance": "金額"
     }
   },
   "photos": {
@@ -16441,13 +16450,40 @@
       "created": "用戶已邀請",
       "removed": "用戶已移除",
       "statusUpdated": "用戶狀態已更新",
-      "updated": "用戶已更新"
+      "updated": "用戶已更新",
+      "switchesSaved": "權限已更新"
     },
     "viewTitle": "用戶詳情",
     "what": {
       "roles": "角色列表",
       "stats": "用戶統計",
       "companies": "公司列表"
+    },
+    "switches": {
+      "what": "權限開關",
+      "title": "權限開關",
+      "intro": "每個權限都是獨立的 ON / OFF 開關；新增用戶預設全開。審批打開後，審批時仍要本人簽核密碼。",
+      "hq": "總部後台",
+      "hqHint": "公司設定、用戶、角色、帳單、項目、供應商。「用戶管理」只在這裡。",
+      "project": "項目後台",
+      "scope": "項目查看",
+      "allProjects": "全部項目",
+      "chosenProjects": "指定項目",
+      "noProjects": "公司還沒有項目。",
+      "needOneProject": "至少選一個項目，或選全部項目。",
+      "amounts": "金額查看",
+      "amountsHint": "材料成本、單價、預算、Claim、雜費報銷金額；關掉後顯示「—」，匯出也拿掉。",
+      "operate": "業務操作",
+      "approve": "審批",
+      "approveHint": "打開只代表可以審批，審批時仍要本人簽核密碼。",
+      "allOn": "全開",
+      "allOff": "全關",
+      "countOn": "已打開 {on} / {total}",
+      "applyRole": "按角色套用",
+      "applyRoleHint": "照這個角色的權限打開開關，其餘關掉；保存前可以再改。",
+      "save": "保存權限",
+      "failed": "保存沒有成功，請再試一次。",
+      "notSwitchable": "手機現場人員、顧問等帳號的權限不變，由角色決定。"
     }
   },
   "validation": {
@@ -18969,7 +19005,9 @@
       "receipt_add_photo": "給進場單補照片",
       "equipment_hours_set_operator": "填寫操作人員和 CIDB",
       "equipment_set_site_no": "修改設備號碼",
-      "equipment_hours_move": "設備工時改設備歸屬"
+      "equipment_hours_move": "設備工時改設備歸屬",
+      "user_change_permissions": "修改用戶的權限開關",
+      "consultant_submit": "提交顧問申請"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",

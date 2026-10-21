@@ -8115,7 +8115,12 @@
       "equipment_hours_outside_fence": "Anda berada di luar kawasan tapak. Daftar masuk di tapak.",
       "equipment_hours_no_fence": "Kawasan tapak belum ditetapkan. Hubungi pejabat tapak.",
       "driver_link_not_confirmed": "Sahkan nombor telefon anda dahulu.",
-      "driver_link_phone_mismatch": "Nombor telefon ini tidak sepadan dengan nombor yang didaftarkan oleh pejabat tapak."
+      "driver_link_phone_mismatch": "Nombor telefon ini tidak sepadan dengan nombor yang didaftarkan oleh pejabat tapak.",
+      "permission_switches_unavailable": "Hanya akaun pejabat kontraktor mempunyai suis kebenaran.",
+      "permission_switches_unknown_permission": "Salah satu kebenaran tidak wujud.",
+      "permission_switches_unknown_project": "Pilih projek syarikat ini.",
+      "permission_switches_self_lockout": "Anda tidak boleh mematikan pengurusan pengguna anda sendiri.",
+      "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -12435,6 +12440,9 @@
       },
       "inspection": {
         "record": "Isi keputusan pemeriksaan"
+      },
+      "finance": {
+        "view_amounts": "Lihat jumlah wang (harga, kos, bajet, tuntutan)"
       }
     },
     "group": {
@@ -12505,7 +12513,8 @@
       "integration": "Integrasi sistem",
       "site_worker": "Senarai pekerja",
       "material_target": "Sasaran bahan",
-      "inspection": "Pemeriksaan"
+      "inspection": "Pemeriksaan",
+      "finance": "Jumlah wang"
     }
   },
   "photos": {
@@ -16441,13 +16450,40 @@
       "created": "Pengguna dijemput",
       "removed": "Pengguna dibuang",
       "statusUpdated": "Status pengguna dikemas kini",
-      "updated": "Pengguna dikemas kini"
+      "updated": "Pengguna dikemas kini",
+      "switchesSaved": "Kebenaran dikemas kini"
     },
     "viewTitle": "Pengguna",
     "what": {
       "roles": "Senarai peranan",
       "stats": "Kiraan pengguna",
       "companies": "Senarai syarikat"
+    },
+    "switches": {
+      "what": "suis kebenaran",
+      "title": "Kebenaran",
+      "intro": "Setiap kebenaran ialah suis HIDUP / MATI sendiri; pengguna baharu bermula dengan semuanya hidup. Kelulusan yang dihidupkan masih meminta PIN pengesahan pelulus sendiri.",
+      "hq": "Ibu pejabat",
+      "hqHint": "Tetapan syarikat, pengguna, peranan, bil, projek, pembekal. Pengurusan pengguna hanya di sini.",
+      "project": "Pejabat projek",
+      "scope": "Projek yang dilihat",
+      "allProjects": "Semua projek",
+      "chosenProjects": "Projek dipilih",
+      "noProjects": "Syarikat belum ada projek.",
+      "needOneProject": "Pilih sekurang-kurangnya satu projek, atau semua projek.",
+      "amounts": "Lihat jumlah wang",
+      "amountsHint": "Kos bahan, harga seunit, bajet, tuntutan dan jumlah tuntutan pelbagai. Mati: ditunjukkan sebagai —, dan tidak dieksport.",
+      "operate": "Kerja harian",
+      "approve": "Kelulusan",
+      "approveHint": "Hidup bermaksud boleh meluluskan; meluluskan masih meminta PIN pengesahan sendiri.",
+      "allOn": "Hidupkan semua",
+      "allOff": "Matikan semua",
+      "countOn": "{on} daripada {total} hidup",
+      "applyRole": "Mula daripada peranan",
+      "applyRoleHint": "Menghidupkan apa yang dipegang peranan itu dan mematikan selebihnya; boleh diubah sebelum simpan.",
+      "save": "Simpan kebenaran",
+      "failed": "Tidak dapat disimpan. Sila cuba lagi.",
+      "notSwitchable": "Akaun pekerja tapak dan perunding kekal dengan peranan mereka: kebenaran mereka bukan suis."
     }
   },
   "validation": {
@@ -18969,7 +19005,9 @@
       "receipt_add_photo": "Tambah foto pada penghantaran",
       "equipment_hours_set_operator": "Isi pengendali dan CIDB",
       "equipment_set_site_no": "Tukar nombor peralatan",
-      "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain"
+      "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain",
+      "user_change_permissions": "Tukar suis kebenaran pengguna",
+      "consultant_submit": "Hantar permohonan perunding"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",

@@ -38,6 +38,10 @@
       "label": "Inspection"
     },
     {
+      "key": "finance",
+      "label": "Amounts"
+    },
+    {
       "key": "approval",
       "label": "Approvals"
     },
@@ -388,7 +392,12 @@
     {
       "code": "inspection.record",
       "group": "inspection",
-      "label": "Inspection: record"
+      "label": "Fill in inspection results"
+    },
+    {
+      "code": "finance.view_amounts",
+      "group": "finance",
+      "label": "See amounts (prices, costs, budgets, claims)"
     },
     {
       "code": "approval.view",

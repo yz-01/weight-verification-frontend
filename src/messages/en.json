@@ -8115,7 +8115,12 @@
       "equipment_hours_outside_fence": "You are outside the site's area. Clock in on site.",
       "equipment_hours_no_fence": "The site's area has not been set up yet. Contact the site office.",
       "driver_link_not_confirmed": "Confirm your phone number first.",
-      "driver_link_phone_mismatch": "This phone number does not match the one the site office registered."
+      "driver_link_phone_mismatch": "This phone number does not match the one the site office registered.",
+      "permission_switches_unavailable": "Only a contractor's back-office account has permission switches.",
+      "permission_switches_unknown_permission": "One of the permissions does not exist.",
+      "permission_switches_unknown_project": "Choose projects of this company.",
+      "permission_switches_self_lockout": "You cannot switch off your own user management.",
+      "permission_switches_last_user_manager": "Somebody in the company must keep user management."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -12435,6 +12440,9 @@
       },
       "inspection": {
         "record": "Fill in inspection results"
+      },
+      "finance": {
+        "view_amounts": "See amounts (prices, costs, budgets, claims)"
       }
     },
     "group": {
@@ -12505,7 +12513,8 @@
       "integration": "Integrations",
       "site_worker": "Worker roster",
       "material_target": "Material targets",
-      "inspection": "Inspection"
+      "inspection": "Inspection",
+      "finance": "Amounts"
     }
   },
   "photos": {
@@ -16441,13 +16450,40 @@
       "created": "User invited",
       "removed": "User removed",
       "statusUpdated": "User status updated",
-      "updated": "User updated"
+      "updated": "User updated",
+      "switchesSaved": "Permissions updated"
     },
     "viewTitle": "User",
     "what": {
       "roles": "The role list",
       "stats": "The user counts",
       "companies": "The company list"
+    },
+    "switches": {
+      "what": "permission switches",
+      "title": "Permissions",
+      "intro": "Each permission is its own ON / OFF switch; a new user starts with all of them on. An approval switched on still asks for the approver's own sign-off PIN.",
+      "hq": "Head office",
+      "hqHint": "Company settings, users, roles, billing, projects, suppliers. User management is only here.",
+      "project": "Project back office",
+      "scope": "Projects they see",
+      "allProjects": "All projects",
+      "chosenProjects": "Chosen projects",
+      "noProjects": "The company has no projects yet.",
+      "needOneProject": "Choose at least one project, or all projects.",
+      "amounts": "See amounts",
+      "amountsHint": "Material cost, unit price, budgets, claims and sundry claim amounts. Off: shown as —, and left out of exports.",
+      "operate": "Everyday work",
+      "approve": "Approvals",
+      "approveHint": "On means they may approve; approving still asks for their own sign-off PIN.",
+      "allOn": "All on",
+      "allOff": "All off",
+      "countOn": "{on} of {total} on",
+      "applyRole": "Start from a role",
+      "applyRoleHint": "Turns on what the role holds and off the rest; change anything before saving.",
+      "save": "Save permissions",
+      "failed": "Could not save. Please try again.",
+      "notSwitchable": "Field staff and consultant accounts keep their role: their permissions are not switches."
     }
   },
   "validation": {
@@ -18969,7 +19005,9 @@
       "receipt_add_photo": "Add a photo to a delivery",
       "equipment_hours_set_operator": "Fill in the operator and CIDB",
       "equipment_set_site_no": "Change an equipment number",
-      "equipment_hours_move": "Move equipment hours to another machine"
+      "equipment_hours_move": "Move equipment hours to another machine",
+      "user_change_permissions": "Change a user's permission switches",
+      "consultant_submit": "Send a consultant application"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",

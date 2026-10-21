@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { FormSkeleton, LoadErrorCard } from "@/components/shared/form-shell";
 import { CreateUser } from "@/components/users/create-user";
+import { PermissionSwitches } from "@/components/users/permission-switches";
 import { getUser } from "@/services/users.service";
 
 /** Fetches the record, then hands it to the shared form. */
@@ -19,5 +20,15 @@ export function EditUser({ id }: { id: string }) {
   if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/users" backLabel={t("users.title")} />;
   }
-  return <CreateUser user={data} />;
+  return (
+    <div className="space-y-8">
+      <CreateUser user={data} />
+      {/* 用户管理 → 编辑用户 → 权限 (J17): a contractor's back-office person. */}
+      {data.permission_switches?.switchable ? (
+        <div className="surface-panel mx-auto max-w-5xl rounded-xl p-4 sm:p-6">
+          <PermissionSwitches userId={data.id} />
+        </div>
+      ) : null}
+    </div>
+  );
 }

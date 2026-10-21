@@ -6,6 +6,8 @@ import type {
   DepartmentPayload,
   EmailCopy,
   LoginRecord,
+  PermissionSwitchPayload,
+  PermissionSwitchState,
   Role,
   RolePayload,
   RoleTemplate,
@@ -51,6 +53,24 @@ export async function updateUser(
   );
   toastSuccess("users.toast.updated");
   return user;
+}
+
+/** 权限开关 (J17): what one back-office person may do, switch by switch. */
+export function getPermissionSwitches(id: string): Promise<PermissionSwitchState> {
+  return api.get<PermissionSwitchState>(`/api/users/${id}/get_permission_switches/`);
+}
+
+/** Saves the switches; the server asks for the editor's sign-off PIN. */
+export async function setPermissionSwitches(
+  id: string,
+  payload: PermissionSwitchPayload,
+): Promise<PermissionSwitchState> {
+  const state = await api.post<PermissionSwitchState>(
+    `/api/users/${id}/set_permission_switches/`,
+    payload,
+  );
+  toastSuccess("users.toast.switchesSaved");
+  return state;
 }
 
 export async function updateUserStatus(
