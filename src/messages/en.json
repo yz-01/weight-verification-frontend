@@ -19145,5 +19145,38 @@
       "failed": "Could not save. Please try again.",
       "chooseProject": "Choose a project at the top of the page to make a link."
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "Material in today (t)",
+      "wasteToday": "Waste out today (t)",
+      "receiptsTotal": "Material in, all (t)",
+      "wasteTotal": "Waste out, all (t)",
+      "equipment": "Machines",
+      "pending": "Waiting"
+    },
+    "thisMonth": "This month {value} t",
+    "equipmentSplit": "On site {on} | Left {off}",
+    "seeBelow": "See below",
+    "tonnesNote": "Tonnes count what is weighed: tonnes, and kilograms turned into tonnes. Waste is eco-material outgoing.",
+    "latestReceipts": "Latest material in",
+    "seeAll": "See all",
+    "noReceipts": "No deliveries yet.",
+    "map": "Project site map",
+    "point": {
+      "RECEIPT": "Material in",
+      "WASTE": "Waste out",
+      "EQUIPMENT": "Machine"
+    },
+    "noPoints": "Nothing with GPS in the last 30 days.",
+    "materialMix": "Materials by category (this month)",
+    "wasteMix": "Waste by category (this month)",
+    "noMix": "Nothing weighed this month.",
+    "mixTotal": "{value} t in all",
+    "others": "Others",
+    "pending": "Waiting",
+    "noPending": "Nothing waiting.",
+    "photos": "Latest site photos",
+    "noPhotos": "No site photos yet."
   }
 }

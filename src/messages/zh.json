@@ -19145,5 +19145,38 @@
       "failed": "保存没有成功，请再试一次。",
       "chooseProject": "先在页面上方选一个项目，才能新增链接。"
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "今日收货（吨）",
+      "wasteToday": "今日废料（吨）",
+      "receiptsTotal": "累计收货（吨）",
+      "wasteTotal": "累计废料（吨）",
+      "equipment": "设备总数",
+      "pending": "待处理事项"
+    },
+    "thisMonth": "本月 {value} 吨",
+    "equipmentSplit": "在场 {on} | 离场 {off}",
+    "seeBelow": "见下方",
+    "tonnesNote": "吨数只算称重的：吨，公斤换算成吨；废料指环保材料出场。",
+    "latestReceipts": "最新物料收货记录",
+    "seeAll": "查看全部",
+    "noReceipts": "还没有收货记录。",
+    "map": "项目现场地图",
+    "point": {
+      "RECEIPT": "物料收货点",
+      "WASTE": "废料处理点",
+      "EQUIPMENT": "设备位置"
+    },
+    "noPoints": "最近 30 天没有带 GPS 的记录。",
+    "materialMix": "物料分类统计（本月）",
+    "wasteMix": "废料分类统计（本月）",
+    "noMix": "本月还没有称重的数量。",
+    "mixTotal": "总吨数 {value}",
+    "others": "其他",
+    "pending": "待处理事项",
+    "noPending": "没有待处理事项。",
+    "photos": "最新现场照片记录",
+    "noPhotos": "还没有现场照片。"
   }
 }

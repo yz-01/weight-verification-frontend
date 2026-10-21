@@ -19145,5 +19145,38 @@
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
       "chooseProject": "Pilih projek di bahagian atas halaman untuk membuat pautan."
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "Bahan masuk hari ini (t)",
+      "wasteToday": "Sisa keluar hari ini (t)",
+      "receiptsTotal": "Bahan masuk, semua (t)",
+      "wasteTotal": "Sisa keluar, semua (t)",
+      "equipment": "Mesin",
+      "pending": "Menunggu"
+    },
+    "thisMonth": "Bulan ini {value} t",
+    "equipmentSplit": "Di tapak {on} | Keluar {off}",
+    "seeBelow": "Lihat di bawah",
+    "tonnesNote": "Tan hanya mengira yang ditimbang: tan, dan kilogram ditukar ke tan. Sisa ialah bahan mesra alam keluar.",
+    "latestReceipts": "Bahan masuk terkini",
+    "seeAll": "Lihat semua",
+    "noReceipts": "Belum ada penghantaran.",
+    "map": "Peta tapak projek",
+    "point": {
+      "RECEIPT": "Bahan masuk",
+      "WASTE": "Sisa keluar",
+      "EQUIPMENT": "Mesin"
+    },
+    "noPoints": "Tiada rekod ber-GPS dalam 30 hari.",
+    "materialMix": "Bahan ikut kategori (bulan ini)",
+    "wasteMix": "Sisa ikut kategori (bulan ini)",
+    "noMix": "Tiada yang ditimbang bulan ini.",
+    "mixTotal": "{value} t semuanya",
+    "others": "Lain-lain",
+    "pending": "Menunggu",
+    "noPending": "Tiada yang menunggu.",
+    "photos": "Foto tapak terkini",
+    "noPhotos": "Belum ada foto tapak."
   }
 }

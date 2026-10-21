@@ -19145,5 +19145,38 @@
       "failed": "保存沒有成功，請再試一次。",
       "chooseProject": "先在頁面上方選一個項目，才能新增連結。"
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "今日收貨（噸）",
+      "wasteToday": "今日廢料（噸）",
+      "receiptsTotal": "累計收貨（噸）",
+      "wasteTotal": "累計廢料（噸）",
+      "equipment": "設備總數",
+      "pending": "待處理事項"
+    },
+    "thisMonth": "本月 {value} 噸",
+    "equipmentSplit": "在場 {on} | 離場 {off}",
+    "seeBelow": "見下方",
+    "tonnesNote": "噸數只算稱重的：噸，公斤換算成噸；廢料指環保材料出場。",
+    "latestReceipts": "最新物料收貨記錄",
+    "seeAll": "查看全部",
+    "noReceipts": "還沒有收貨記錄。",
+    "map": "項目現場地圖",
+    "point": {
+      "RECEIPT": "物料收貨點",
+      "WASTE": "廢料處理點",
+      "EQUIPMENT": "設備位置"
+    },
+    "noPoints": "最近 30 天沒有帶 GPS 的記錄。",
+    "materialMix": "物料分類統計（本月）",
+    "wasteMix": "廢料分類統計（本月）",
+    "noMix": "本月還沒有稱重的數量。",
+    "mixTotal": "總噸數 {value}",
+    "others": "其他",
+    "pending": "待處理事項",
+    "noPending": "沒有待處理事項。",
+    "photos": "最新現場照片記錄",
+    "noPhotos": "還沒有現場照片。"
   }
 }
