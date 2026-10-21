@@ -43,7 +43,9 @@ export function PermissionMatrix({
     staleTime: 60 * 60_000,
   });
 
-  const groups = useMemo(() => groupByDomain(data ?? []), [data]);
+  // A switch-only code (金额查看, J17) means nothing on a role.
+  const entries = useMemo(() => (data ?? []).filter((entry) => !entry.switch_only), [data]);
+  const groups = useMemo(() => groupByDomain(entries), [entries]);
   const chosen = useMemo(() => new Set(selected), [selected]);
 
   if (isLoading) {
@@ -87,7 +89,7 @@ export function PermissionMatrix({
     onChange([...updated].sort());
   }
 
-  const allCodes = (data ?? []).map((entry) => entry.code);
+  const allCodes = entries.map((entry) => entry.code);
 
   return (
     <div className="space-y-4">

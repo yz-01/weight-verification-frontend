@@ -8115,7 +8115,12 @@
       "equipment_hours_outside_fence": "你不在工地范围内，请在工地打卡。",
       "equipment_hours_no_fence": "项目还没设电子围栏，请联络工地办公室。",
       "driver_link_not_confirmed": "请先确认你的电话号码。",
-      "driver_link_phone_mismatch": "这个号码和工地办公室登记的不一样。"
+      "driver_link_phone_mismatch": "这个号码和工地办公室登记的不一样。",
+      "permission_switches_unavailable": "只有建筑商的后台账号有权限开关。",
+      "permission_switches_unknown_permission": "其中一个权限不存在。",
+      "permission_switches_unknown_project": "请选择本公司的项目。",
+      "permission_switches_self_lockout": "不能关掉自己的「用户管理」。",
+      "permission_switches_last_user_manager": "公司里至少要有一个人保留「用户管理」。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -12435,6 +12440,9 @@
       },
       "inspection": {
         "record": "填写检验结果"
+      },
+      "finance": {
+        "view_amounts": "金额查看（单价、成本、预算、Claim）"
       }
     },
     "group": {
@@ -12505,7 +12513,8 @@
       "integration": "系统集成",
       "site_worker": "人员名单",
       "material_target": "材料目标",
-      "inspection": "检验"
+      "inspection": "检验",
+      "finance": "金额"
     }
   },
   "photos": {
@@ -16440,13 +16449,40 @@
       "created": "用户已邀请",
       "removed": "用户已移除",
       "statusUpdated": "用户状态已更新",
-      "updated": "用户已更新"
+      "updated": "用户已更新",
+      "switchesSaved": "权限已更新"
     },
     "viewTitle": "用户详情",
     "what": {
       "roles": "角色列表",
       "stats": "用户统计",
       "companies": "公司列表"
+    },
+    "switches": {
+      "what": "权限开关",
+      "title": "权限开关",
+      "intro": "每个权限都是独立的 ON / OFF 开关；新增用户默认全开。审批打开后，审批时仍要本人签核密码。",
+      "hq": "总部后台",
+      "hqHint": "公司设定、用户、角色、账单、项目、供应商。「用户管理」只在这里。",
+      "project": "项目后台",
+      "scope": "项目查看",
+      "allProjects": "全部项目",
+      "chosenProjects": "指定项目",
+      "noProjects": "公司还没有项目。",
+      "needOneProject": "至少选一个项目，或选全部项目。",
+      "amounts": "金额查看",
+      "amountsHint": "材料成本、单价、预算、Claim、杂费报销金额；关掉后显示「—」，导出也拿掉。",
+      "operate": "业务操作",
+      "approve": "审批",
+      "approveHint": "打开只代表可以审批，审批时仍要本人签核密码。",
+      "allOn": "全开",
+      "allOff": "全关",
+      "countOn": "已打开 {on} / {total}",
+      "applyRole": "按角色套用",
+      "applyRoleHint": "照这个角色的权限打开开关，其余关掉；保存前可以再改。",
+      "save": "保存权限",
+      "failed": "保存没有成功，请再试一次。",
+      "notSwitchable": "手机现场人员、顾问等账号的权限不变，由角色决定。"
     }
   },
   "validation": {
@@ -18968,7 +19004,9 @@
       "receipt_add_photo": "给进场单补照片",
       "equipment_hours_set_operator": "填写操作人员和 CIDB",
       "equipment_set_site_no": "修改设备号码",
-      "equipment_hours_move": "设备工时改设备归属"
+      "equipment_hours_move": "设备工时改设备归属",
+      "user_change_permissions": "修改用户的权限开关",
+      "consultant_submit": "提交顾问申请"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
