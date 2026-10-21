@@ -4287,7 +4287,10 @@
     "view": "查看",
     "alreadyLastPage": "已经在最后一页",
     "linkCopied": "链接已复制，粘贴即可分享。",
-    "shareFailed": "分享没有成功，请下载后再发送文件。"
+    "shareFailed": "分享没有成功，请下载后再发送文件。",
+    "combobox": {
+      "byLetter": "按首字母筛选"
+    }
   },
   "companies": {
     "owner": {
