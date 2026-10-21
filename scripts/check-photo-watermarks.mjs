@@ -76,6 +76,10 @@ const NO_VARIANT_AVAILABLE = new Map([
     "HeadquartersPhoto.image is already the watermarked derivative, not the original",
   ],
   [
+    "src/components/dashboard/headquarters-reference.tsx",
+    "HeadquartersPhoto.image is already the watermarked derivative, not the original (J32 今日现场动态)",
+  ],
+  [
     "src/components/dashboard/headquarters-photos.tsx",
     "HeadquartersPhoto.image is already the watermarked derivative, not the original",
   ],

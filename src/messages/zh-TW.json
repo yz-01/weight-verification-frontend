@@ -9267,6 +9267,67 @@
       "exceeded": "已超出 {count}",
       "reached": "已達到 {count}",
       "approaching": "接近 {count}"
+    },
+    "reference": {
+      "title": "讓老闆從看報表變成看現場",
+      "subtitle": "匯總全公司所有項目的現場數據，連接人、物、機、料、進度與安全，讓管理更簡單、更透明、更高效。",
+      "companyView": "總公司視圖",
+      "same": "持平",
+      "vsYesterday": "較昨日",
+      "kpi": {
+        "projects": "進行中項目",
+        "today_records": "今日工地記錄",
+        "pending_approvals": "待審批事項",
+        "overdue_rectifications": "整改逾期",
+        "material_receipts_today": "今日材料進場",
+        "on_site_now": "當前在場人數"
+      },
+      "activity": "今日現場動態（各項目）",
+      "activityHint": "來自全公司各項目的最新現場記錄",
+      "view": {
+        "photos": "照片",
+        "map": "地圖"
+      },
+      "noProjects": "還沒有項目。",
+      "noPhoto": "還沒有現場照片",
+      "notices": "通知中心",
+      "seeAll": "查看全部",
+      "noNotices": "沒有新通知。",
+      "byState": "項目分佈",
+      "allProjects": "查看全部項目",
+      "noState": "未填州屬",
+      "projectCount": "{count} 個項目",
+      "presence": "在場人數",
+      "presenceTotal": "在場 {count} 人",
+      "split": {
+        "APP": "系統人員（打卡）",
+        "WORKER": "工人通行證",
+        "VISITOR": "訪客",
+        "VEHICLE": "車輛"
+      },
+      "weather": {
+        "clear": "晴",
+        "partly": "多雲",
+        "cloudy": "陰",
+        "fog": "霧",
+        "drizzle": "毛毛雨",
+        "rain": "雨",
+        "snow": "雪",
+        "storm": "雷雨"
+      },
+      "quick": {
+        "title": "快捷入口",
+        "siteRecord": "上傳工地記錄",
+        "request": "發起申請",
+        "approvals": "審批處理",
+        "rectification": "查看整改",
+        "archive": "文件歸檔",
+        "reports": "匯出報表"
+      },
+      "settingsTitle": "總部 Dashboard 大標題",
+      "settingsSubtitle": "總部 Dashboard 副標題",
+      "settingsHint": "留空就用預設文字。",
+      "temperature": "{value}°C"
     }
   },
   "home": {

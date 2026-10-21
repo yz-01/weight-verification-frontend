@@ -99,6 +99,9 @@ export interface CompanyPreferences {
   language: Locale;
   timezone: string;
   home_page: "/dashboard" | "/projects" | "/notifications" | "/field-staff";
+  /** 总部 Dashboard 的大标题、副标题 (J32); blank shows the default words. */
+  dashboard_title?: string;
+  dashboard_subtitle?: string;
   default_notification_channel: "IN_APP" | "PUSH";
 }
 

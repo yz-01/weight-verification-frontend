@@ -9267,6 +9267,67 @@
       "exceeded": "{count} melebihi",
       "reached": "{count} dicapai",
       "approaching": "{count} hampir"
+    },
+    "reference": {
+      "title": "Daripada membaca laporan kepada melihat tapak",
+      "subtitle": "Data tapak semua projek di satu tempat - orang, bahan, mesin, kemajuan dan keselamatan - pengurusan lebih mudah, jelas dan cekap.",
+      "companyView": "Paparan ibu pejabat",
+      "same": "Sama",
+      "vsYesterday": "berbanding semalam",
+      "kpi": {
+        "projects": "Projek sedang berjalan",
+        "today_records": "Rekod tapak hari ini",
+        "pending_approvals": "Menunggu kelulusan",
+        "overdue_rectifications": "Pembaikan lewat",
+        "material_receipts_today": "Bahan masuk hari ini",
+        "on_site_now": "Di tapak sekarang"
+      },
+      "activity": "Hari ini di tapak (ikut projek)",
+      "activityHint": "Rekod tapak terkini setiap projek",
+      "view": {
+        "photos": "Foto",
+        "map": "Peta"
+      },
+      "noProjects": "Belum ada projek.",
+      "noPhoto": "Belum ada foto tapak",
+      "notices": "Pemberitahuan",
+      "seeAll": "Lihat semua",
+      "noNotices": "Tiada yang baharu.",
+      "byState": "Projek ikut negeri",
+      "allProjects": "Semua projek",
+      "noState": "Tiada negeri",
+      "projectCount": "{count} projek",
+      "presence": "Di tapak sekarang",
+      "presenceTotal": "{count} di tapak",
+      "split": {
+        "APP": "Daftar masuk (akaun)",
+        "WORKER": "Pas pekerja",
+        "VISITOR": "Pelawat",
+        "VEHICLE": "Kenderaan"
+      },
+      "weather": {
+        "clear": "Cerah",
+        "partly": "Separa mendung",
+        "cloudy": "Mendung",
+        "fog": "Berkabus",
+        "drizzle": "Gerimis",
+        "rain": "Hujan",
+        "snow": "Salji",
+        "storm": "Ribut petir"
+      },
+      "quick": {
+        "title": "Pintasan",
+        "siteRecord": "Rekod tapak",
+        "request": "Buat permohonan",
+        "approvals": "Kelulusan",
+        "rectification": "Pembaikan",
+        "archive": "Arkib fail",
+        "reports": "Eksport laporan"
+      },
+      "settingsTitle": "Tajuk papan pemuka ibu pejabat",
+      "settingsSubtitle": "Subtajuk papan pemuka ibu pejabat",
+      "settingsHint": "Biarkan kosong untuk perkataan asal.",
+      "temperature": "{value}°C"
     }
   },
   "home": {
