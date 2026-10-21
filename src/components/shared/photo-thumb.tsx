@@ -449,6 +449,11 @@ const SHEET_KIND: Record<string, CategoryRecordKind> = {
  * the sheet does not know gives `undefined`: the viewer then shows the
  * thumbnail itself.
  */
+/** The record sheet's name for a list's kind, or undefined for one it does not open (J8-3). */
+export function sheetKindOf(kind: string): CategoryRecordKind | undefined {
+  return SHEET_KIND[kind];
+}
+
 export function recordPhotos(kind: string, id: string, label: string) {
   const sheet = SHEET_KIND[kind];
   if (!sheet) return undefined;

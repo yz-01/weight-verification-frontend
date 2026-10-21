@@ -128,6 +128,8 @@ export interface EquipmentHoursSession extends RecordedBy {
   cumulative_normal_hours?: string | null;
   cumulative_overtime_hours?: string | null;
   photo_count: number;
+  /** J34-3: the first photographs' thumbnails, for the list's strip. */
+  photo_thumbs?: string[];
   /** 「缺开工」: a stop photo with no start, and none entered. */
   missing_start: boolean;
   /** 「缺收工」: a start photo with no stop, and none entered. */

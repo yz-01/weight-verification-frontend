@@ -625,6 +625,7 @@ export function PhotoViewer({
   onIndex,
   onClose,
   extraActions,
+  details,
 }: {
   photos: ShellPhoto[];
   index: number;
@@ -633,6 +634,8 @@ export function PhotoViewer({
   onClose: () => void;
   /** The record's own buttons under the photo - 打开原记录, 证据报表 (J8-3). */
   extraActions?: React.ReactNode;
+  /** The whole record under the photo (J8-3: 「点照片…显示大图、GPS 和整条记录的完整资料」). */
+  details?: React.ReactNode;
 }) {
   const t = useTranslations("recordShell");
   const df = useDateFormat();
@@ -803,6 +806,11 @@ export function PhotoViewer({
           {extraActions ? (
             <div className="flex flex-wrap items-center gap-2" data-photo-viewer-actions>
               {extraActions}
+            </div>
+          ) : null}
+          {details ? (
+            <div className="w-full max-h-56 overflow-y-auto rounded-lg border bg-background/80 p-3 text-left" data-photo-viewer-details>
+              {details}
             </div>
           ) : null}
           {photos.length > 1 && (

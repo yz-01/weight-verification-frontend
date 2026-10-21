@@ -26,8 +26,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ContractorReportFilters, PhotoGroup } from "@/interfaces/contractor-report";
 import { useDateFormat } from "@/lib/dates";
-import { recordPdfKindFor } from "@/services/contractor-ops.service";
+import { getCategoryRecord, recordPdfKindFor } from "@/services/contractor-ops.service";
 import { getPhotoGroups } from "@/services/contractor-report.service";
+import { sheetKindOf } from "@/components/shared/photo-thumb";
 
 const PAGE_SIZE = 20;
 
@@ -87,6 +88,43 @@ export function PhotoGroupsReport({ filters }: { filters: ContractorReportFilter
         ) : null}
       </div>
     </div>
+  );
+}
+
+/**
+ * The whole record under the photograph (J8-3): every field it was filed
+ * with, as its own sheet lists them, read through the sheet's door.
+ */
+function RecordFacts({ kind, id }: { kind: string; id: string }) {
+  const t = useTranslations();
+  const sheet = sheetKindOf(kind);
+  const detail = useQuery({
+    queryKey: ["photo-report", "record", kind, id],
+    queryFn: () => getCategoryRecord(sheet!, id),
+    enabled: Boolean(sheet),
+    staleTime: 60_000,
+  });
+  if (!sheet) return null;
+  if (detail.isLoading) return <p className="text-xs text-muted-foreground">{t("archiveQueue.loading")}</p>;
+  if (detail.isError || !detail.data) {
+    return (
+      <p role="alert" className="text-xs text-destructive">
+        {t("archiveQueue.failed")}
+      </p>
+    );
+  }
+  return (
+    <dl className="grid grid-cols-[minmax(6rem,auto)_1fr] gap-x-3 gap-y-1 text-xs" data-photo-record-facts>
+      {detail.data.fields.map((field) => (
+        <div key={field.key} className="contents">
+          <dt className="text-muted-foreground">{t(`mySubmissions.field.${field.key}` as never)}</dt>
+          <dd className="whitespace-pre-wrap break-words">
+            {field.value}
+            {field.unit ? ` ${t(`mySubmissions.unit.${field.unit}` as never)}` : ""}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -178,6 +216,9 @@ function PhotoGroupRow({ group }: { group: PhotoGroup }) {
           onIndex={setOpen}
           onClose={() => setOpen(null)}
           extraActions={actions}
+          details={
+            group.kind && group.record_id ? <RecordFacts kind={group.kind} id={group.record_id} /> : undefined
+          }
         />
       ) : null}
       {opener.sheet}

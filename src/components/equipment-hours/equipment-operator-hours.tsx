@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, Hash, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound } from "lucide-react";
+import { Camera, Eye, Hash, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -74,6 +74,7 @@ import {
 } from "@/components/shared/record-correction";
 import { cn } from "@/lib/utils";
 import { InspectionBadge } from "@/components/document-workflow/inspection";
+import { PhotoStrip } from "@/components/shared/photo-thumb";
 
 /** `YYYY-MM-DD` of a date in the browser's own day. */
 function isoDay(value: Date): string {
@@ -571,6 +572,8 @@ export function EquipmentOperatorHours() {
               <TableRow>
                 <TableHead>{t("field.machineNo")}</TableHead>
                 <TableHead>{t("field.equipmentName")}</TableHead>
+                {/* J34-3: the photographs themselves, by the machine. */}
+                <TableHead>{t("field.photos")}</TableHead>
                 <TableHead>{t("field.supplier")}</TableHead>
                 <TableHead>{t("field.inspection")}</TableHead>
                 <TableHead>{t("field.operator")}</TableHead>
@@ -592,13 +595,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={16} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={17} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={16} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={17} className="h-20 text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
@@ -622,6 +625,16 @@ export function EquipmentOperatorHours() {
                         {row.project_name ? (
                           <p className="text-xs text-muted-foreground">{row.project_name}</p>
                         ) : null}
+                      </TableCell>
+                      <TableCell>
+                        {/* A picture strip; the row opens the record with every photograph. */}
+                        <PhotoStrip
+                          thumbs={row.photo_thumbs}
+                          count={row.photo_count}
+                          icon={Camera}
+                          reference={row.site_no || row.equipment_code || row.equipment_name}
+                          openable={false}
+                        />
                       </TableCell>
                       <TableCell>{row.supplier_name || "-"}</TableCell>
                       {/* 检验 (J11-1): never stops a clock-in (Q11-2). */}
@@ -718,6 +731,7 @@ export function EquipmentOperatorHours() {
                   ))}
                   <TableRow>
                     <TableCell className="font-semibold">{t("month.total")}</TableCell>
+                    <TableCell />
                     <TableCell />
                     <TableCell />
                     <TableCell />

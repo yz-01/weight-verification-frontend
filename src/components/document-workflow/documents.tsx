@@ -837,6 +837,13 @@ function UploadDocumentDialog({
         : groupTitle(files.map((file) => file.name), formatGroup);
   // Once part of a several-file upload is in, what it was filed as is fixed.
   const started = createdId !== null;
+  // J12-6: a subcategory ticked 「需要检验栏位」 asks for the inspection
+  // result as part of the upload - the form opens on the new document.
+  const { can: canDo } = useAuth();
+  const needsInspection = Boolean(
+    availableSubcategories.find((item) => item.id === subcategory)?.needs_inspection,
+  );
+  const [inspecting, setInspecting] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -866,9 +873,14 @@ function UploadDocumentDialog({
         setDone(index + 1);
       }
       toastSuccess("documents.toast.uploaded");
+      return documentId;
     },
-    onSuccess: () => {
+    onSuccess: (documentId) => {
       onDone();
+      if (needsInspection && canDo("inspection.record") && documentId) {
+        setInspecting(documentId);
+        return;
+      }
       onClose();
     },
     onError: (error) => {
@@ -910,6 +922,18 @@ function UploadDocumentDialog({
   const pending = mutation.isPending || filing.isPending || recordFiling.isPending;
   // Part of a several-file upload is in: say so, and that 「上传」 carries on.
   const partial = started && done < files.length;
+
+  if (inspecting) {
+    // J12-6: uploaded - now its inspection result, while it is to hand.
+    // Closing leaves 「填写检验结果」 on the document for later.
+    return (
+      <InspectionDialog
+        documentId={inspecting}
+        project={project === "none" || project === "" ? null : project}
+        onClose={onClose}
+      />
+    );
+  }
 
   return (
     <Dialog open onOpenChange={(next) => !next && !pending && onClose()}>
