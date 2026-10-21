@@ -52,6 +52,7 @@ import {
   updateContractorSiteSettings,
 } from "@/services/site-access.service";
 import { getRoles } from "@/services/users.service";
+import { VisitorPrivacySection } from "@/components/site-access/visitor-privacy-settings";
 
 const STATES = ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Perak", "Perlis", "Pulau Pinang", "Sabah", "Sarawak", "Selangor", "Terengganu", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"];
 const TIMEZONES = ["Asia/Kuala_Lumpur", "Asia/Singapore", "UTC"];
@@ -240,6 +241,9 @@ export function CompanySiteSettingsWorkspace() {
       </div>
       <div className="grid gap-3 sm:grid-cols-2"><Toggle label={t("field.attendancePhoto")} description={t("settings.attendancePhotoHelp")} checked={form.require_attendance_photo} disabled={!canManage} onChange={(checked) => setForm({ ...form, require_attendance_photo: checked })} /><Toggle label={t("field.gatePhoto")} description={t("settings.gatePhotoHelp")} checked={form.require_gate_photo} disabled={!canManage} onChange={(checked) => setForm({ ...form, require_gate_photo: checked })} /></div>
     </section>
+
+    {/* 访客资料 (J33-2, J33-4, J33-5): saved with the settings above. */}
+    <VisitorPrivacySection form={form} canManage={canManage} onChange={(next) => setForm({ ...form, ...next })} />
 
     <section className="space-y-4"><div className="flex flex-wrap items-center justify-between gap-3"><SectionTitle icon={Building2} title={t("branches.title")} description={t("branches.subtitle")} />{canManage && <Button variant="outline" onClick={() => setEditingBranch("new")}><Plus />{t("branches.new")}</Button>}</div>
       {!branches.data?.count ? <State text={t("branches.empty")} /> : <div className="grid gap-3 lg:grid-cols-2">{branches.data.results.map((row) => <article key={row.id} className="surface-panel rounded-xl p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.code} - {row.name}</h3>{row.is_headquarters && <StatusBadge label={t("branches.headquarters")} tone="info" />}<StatusBadge label={t(row.is_active ? "status.active" : "status.inactive")} tone={row.is_active ? "positive" : "neutral"} /></div><p className="mt-2 text-sm text-muted-foreground">{[row.address_line_1, row.city, row.state, row.postcode].filter(Boolean).join(", ")}</p></div>{canManage && <div className="flex"><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => setEditingBranch(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" title={t("action.remove")} className="text-destructive" onClick={() => setRemoving(row)}><Trash2 /></Button></div>}</div><div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t pt-3 text-xs text-muted-foreground"><span>{row.phone || "-"}</span><span>{row.email || "-"}</span>{row.latitude && <span>{row.latitude}, {row.longitude}</span>}</div></article>)}</div>}

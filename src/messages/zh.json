@@ -11040,7 +11040,8 @@
       "confirmed_at": "确认时间",
       "entry_at": "进场时间",
       "exit_at": "退场时间",
-      "request_kind": "申请类型"
+      "request_kind": "申请类型",
+      "pdpa_consent": "个人资料告知"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -15057,7 +15058,8 @@
       "hostNotified": "已通知接待人。",
       "visitorConfirmed": "已确认接待，门岗可以放行。",
       "visitorDeclined": "已拒绝，门岗已收到。",
-      "visitorCancelled": "已取消这次到访。"
+      "visitorCancelled": "已取消这次到访。",
+      "visitorPhotosRemoved": "到期访客照片已删除"
     },
     "what": {
       "roles": "角色列表",
@@ -15259,6 +15261,12 @@
         "already_inside": "已经记录在场内，下次扫码请按「确认退场」。",
         "already_outside": "还没有进场记录，请先按「确认进场」。",
         "host_not_confirmed": "不能放行：接待人还没确认。"
+      },
+      "exitPhoto": {
+        "label": "退场照片",
+        "hint": "拍一张访客离开的照片，作为退场证据。",
+        "take": "拍退场照片",
+        "retake": "重拍退场照片"
       }
     },
     "visitorRecords": {
@@ -15362,6 +15370,46 @@
       "next": "扫下一个",
       "openTitle": "门口等待中的访客",
       "hostLine": "接待人：{host}"
+    },
+    "pdpa": {
+      "title": "个人资料告知（PDPA）",
+      "agree": "访客已阅读并同意以上告知",
+      "defaultNotice": "本公司依照《2010年个人资料保护法令》（PDPA）收集您的姓名、电话、公司、到访目的及门岗拍摄的进出场照片，只用于工地安全和进出管理，不会提供给无关第三方。照片保存 {months} 个月，之后由公司管理员确认删除。如需查询或更正您的资料，请联系本公司。",
+      "agreedAt": "访客于 {time} 同意个人资料告知"
+    },
+    "visitorPrivacy": {
+      "title": "访客资料（PDPA）",
+      "subtitle": "访客登记时的告知文字、退场拍照和照片保存期限。",
+      "exitPhoto": "访客退场必须拍照",
+      "exitPhotoHelp": "开着时，门岗按「确认退场」前要先拍照。",
+      "retention": "访客照片保存期限（月）",
+      "retentionHelp": "从拍照那天算；到期的照片列出来，由管理员确认后删除。",
+      "notice": {
+        "zh": "告知文字（简体中文）",
+        "en": "告知文字（英文）",
+        "zh-TW": "告知文字（繁体中文）",
+        "ms": "告知文字（马来文）"
+      },
+      "noticeHelp": "没填就用系统默认文字；写 '{months}' 会自动换成保存月数。",
+      "noticePlaceholder": "留空使用系统默认文字",
+      "expired": {
+        "open": "到期访客照片",
+        "title": "到期访客照片",
+        "loading": "正在读取…",
+        "help": "保存期限 {months} 个月：{cutoff} 以前拍的访客照片已到期。",
+        "none": "没有到期的访客照片。",
+        "count": "共 {count} 张到期照片",
+        "keeps": "只删除照片文件；通行证、到访和进出记录都保留，删除会留下记录。",
+        "direction": {
+          "ENTRY": "进场",
+          "EXIT": "退场"
+        },
+        "history": "删除记录",
+        "historyRow": "{when} · {who} 删除了 {count} 张（保存期限 {months} 个月）",
+        "done": "已删除 {count} 张照片。",
+        "close": "关闭",
+        "confirm": "确认删除（需签核密码）"
+      }
     }
   },
   "siteDisposal": {
@@ -19174,7 +19222,8 @@
       "equipment_set_site_no": "修改设备号码",
       "equipment_hours_move": "设备工时改设备归属",
       "user_change_permissions": "修改用户的权限开关",
-      "consultant_submit": "提交顾问申请"
+      "consultant_submit": "提交顾问申请",
+      "visitor_photo_purge": "删除到期访客照片"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",

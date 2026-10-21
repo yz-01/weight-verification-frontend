@@ -11040,7 +11040,8 @@
       "confirmed_at": "Confirmed at",
       "entry_at": "Entry time",
       "exit_at": "Exit time",
-      "request_kind": "Request type"
+      "request_kind": "Request type",
+      "pdpa_consent": "Personal data notice"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -15057,7 +15058,8 @@
       "hostNotified": "Host notified.",
       "visitorConfirmed": "Visitor confirmed. The gate can let them in.",
       "visitorDeclined": "Visitor declined. The gate has been told.",
-      "visitorCancelled": "Visitor arrival cancelled."
+      "visitorCancelled": "Visitor arrival cancelled.",
+      "visitorPhotosRemoved": "Expired visitor photos removed"
     },
     "what": {
       "roles": "The role list",
@@ -15259,6 +15261,12 @@
         "already_inside": "Already recorded as inside; next time press Confirm Exit.",
         "already_outside": "Not recorded as inside yet; press Confirm Entry first.",
         "host_not_confirmed": "Cannot let in: the visitor's host has not confirmed yet."
+      },
+      "exitPhoto": {
+        "label": "Exit photo",
+        "hint": "Take a photo of the visitor leaving, as evidence of the exit.",
+        "take": "Take the exit photo",
+        "retake": "Retake the exit photo"
       }
     },
     "visitorRecords": {
@@ -15362,6 +15370,46 @@
       "next": "Scan the next one",
       "openTitle": "Visitors at the gate",
       "hostLine": "Host: {host}"
+    },
+    "pdpa": {
+      "title": "Personal data notice (PDPA)",
+      "agree": "The visitor has read and agrees to this notice",
+      "defaultNotice": "Under the Personal Data Protection Act 2010 (PDPA) we collect your name, phone number, company, purpose of visit and the photographs the gate takes when you enter and leave. They are used only for site safety and access control and are not given to unrelated third parties. Photographs are kept for {months} months, then removed once the company administrator confirms. To ask about or correct your data, contact us.",
+      "agreedAt": "The visitor agreed to the personal data notice at {time}"
+    },
+    "visitorPrivacy": {
+      "title": "Visitor data (PDPA)",
+      "subtitle": "The notice shown when a visitor registers, the exit photo and how long photos are kept.",
+      "exitPhoto": "Photograph visitors leaving",
+      "exitPhotoHelp": "On: the gate takes a photo before Confirm exit.",
+      "retention": "Keep visitor photos for (months)",
+      "retentionHelp": "From the day each was taken; expired photos are listed and removed when an administrator confirms.",
+      "notice": {
+        "zh": "Notice (Simplified Chinese)",
+        "en": "Notice (English)",
+        "zh-TW": "Notice (Traditional Chinese)",
+        "ms": "Notice (Malay)"
+      },
+      "noticeHelp": "Left empty, the system's own text is used; '{months}' becomes the months photos are kept.",
+      "noticePlaceholder": "Empty uses the system's text",
+      "expired": {
+        "open": "Expired visitor photos",
+        "title": "Expired visitor photos",
+        "loading": "Loading…",
+        "help": "Kept {months} months: visitor photos taken before {cutoff} have expired.",
+        "none": "No visitor photo has expired.",
+        "count": "{count} expired photos",
+        "keeps": "Only the photo files are removed; passes, visits and entry and exit records stay, and the removal is logged.",
+        "direction": {
+          "ENTRY": "Entry",
+          "EXIT": "Exit"
+        },
+        "history": "Removals",
+        "historyRow": "{when} · {who} removed {count} (kept {months} months)",
+        "done": "{count} photos removed.",
+        "close": "Close",
+        "confirm": "Remove (sign-off PIN)"
+      }
     }
   },
   "siteDisposal": {
@@ -19174,7 +19222,8 @@
       "equipment_set_site_no": "Change an equipment number",
       "equipment_hours_move": "Move equipment hours to another machine",
       "user_change_permissions": "Change a user's permission switches",
-      "consultant_submit": "Send a consultant application"
+      "consultant_submit": "Send a consultant application",
+      "visitor_photo_purge": "Remove expired visitor photos"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",

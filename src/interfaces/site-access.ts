@@ -93,6 +93,12 @@ export interface ContractorSiteSettings {
   field_pin_expiry_days: number;
   require_attendance_photo: boolean;
   require_gate_photo: boolean;
+  /** 访客退场必须拍照 (J33-2); on unless switched off. */
+  visitor_exit_photo_required?: boolean;
+  /** The visitor's PDPA notice in the company's words, per language (J33-4). */
+  visitor_pdpa_notice?: Partial<Record<"zh" | "en" | "zh-TW" | "ms", string>>;
+  /** 访客照片保存期限 in months (J33-5); 12 by default. */
+  visitor_photo_retention_months?: number;
   emergency_contact_name: string;
   emergency_contact_phone: string;
   updated_at: string;
@@ -150,12 +156,17 @@ export interface SiteAccessEvent {
   latitude: string | null;
   longitude: string | null;
   photo: string | null;
+  /** The photograph's stamped copy - what a screen shows (J33-2, Q30.1); null when none or removed. */
+  watermarked_photo?: string | null;
   note: string;
   scanned_by_name: string | null;
   created_at: string;
 }
 
 export interface SiteAccessPass {
+  /** PDPA (J33-4): when the visitor agreed, and the notice they read. */
+  pdpa_consent_at?: string | null;
+  pdpa_notice?: string;
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
   /** The project code, so the list splits the short number right (ID35). */
@@ -251,6 +262,27 @@ export interface SiteAccessPassPayload {
   host_user?: string | null;
   valid_from: string;
   valid_until: string;
+  /** A visitor's agreement to the PDPA notice, and the notice's words (J33-4). */
+  pdpa_consent?: boolean;
+  pdpa_notice?: string;
+}
+
+/** 到期访客照片 (J33-5): what is past its keeping time, and the removals so far. */
+export interface ExpiredVisitorPhotos {
+  retention_months: number;
+  cutoff: string;
+  count: number;
+  batch: number;
+  photos: Array<{
+    source: "arrival_photo" | "gate_event";
+    id: string;
+    taken_at: string;
+    pass_no: string;
+    visitor: string;
+    project_name: string;
+    direction: AccessDirection;
+  }>;
+  purges: Array<{ id: string; purged_at: string; purged_by_name: string; retention_months: number; count: number }>;
 }
 
 /**
@@ -510,6 +542,8 @@ export interface GatePassCheck {
   needs_host?: boolean;
   /** The visit already at the gate on this pass, picked up again. */
   arrival?: VisitorArrival | null;
+  /** J33-2: a visitor going out is photographed first. */
+  exit_photo_required?: boolean;
 }
 
 /** One confirmed entry or exit, with its pass (Visitor Records, HD9). */

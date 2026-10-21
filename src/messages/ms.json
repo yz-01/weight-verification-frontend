@@ -11040,7 +11040,8 @@
       "confirmed_at": "Disahkan pada",
       "entry_at": "Masa masuk",
       "exit_at": "Masa keluar",
-      "request_kind": "Jenis permohonan"
+      "request_kind": "Jenis permohonan",
+      "pdpa_consent": "Notis data peribadi"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -15057,7 +15058,8 @@
       "hostNotified": "Tuan rumah dimaklumkan.",
       "visitorConfirmed": "Pelawat disahkan. Pintu boleh benarkan masuk.",
       "visitorDeclined": "Pelawat ditolak. Pintu telah dimaklumkan.",
-      "visitorCancelled": "Ketibaan pelawat dibatalkan."
+      "visitorCancelled": "Ketibaan pelawat dibatalkan.",
+      "visitorPhotosRemoved": "Foto pelawat tamat tempoh dibuang"
     },
     "what": {
       "roles": "Senarai peranan",
@@ -15259,6 +15261,12 @@
         "already_inside": "Sudah direkod di dalam; seterusnya tekan Sahkan Keluar.",
         "already_outside": "Belum direkod di dalam; tekan Sahkan Masuk dahulu.",
         "host_not_confirmed": "Tidak boleh masuk: tuan rumah pelawat belum mengesahkan."
+      },
+      "exitPhoto": {
+        "label": "Foto keluar",
+        "hint": "Ambil foto pelawat keluar sebagai bukti.",
+        "take": "Ambil foto keluar",
+        "retake": "Ambil semula foto keluar"
       }
     },
     "visitorRecords": {
@@ -15362,6 +15370,46 @@
       "next": "Imbas seterusnya",
       "openTitle": "Pelawat di pintu masuk",
       "hostLine": "Tuan rumah: {host}"
+    },
+    "pdpa": {
+      "title": "Notis data peribadi (PDPA)",
+      "agree": "Pelawat telah membaca dan bersetuju dengan notis ini",
+      "defaultNotice": "Di bawah Akta Perlindungan Data Peribadi 2010 (PDPA) kami mengumpul nama, nombor telefon, syarikat, tujuan lawatan dan foto yang diambil di pintu semasa anda masuk dan keluar. Ia digunakan hanya untuk keselamatan tapak dan kawalan akses dan tidak diberikan kepada pihak ketiga yang tidak berkaitan. Foto disimpan selama {months} bulan, kemudian dibuang setelah pentadbir syarikat mengesahkan. Untuk bertanya atau membetulkan data anda, hubungi kami.",
+      "agreedAt": "Pelawat bersetuju dengan notis data peribadi pada {time}"
+    },
+    "visitorPrivacy": {
+      "title": "Data pelawat (PDPA)",
+      "subtitle": "Notis semasa pelawat mendaftar, foto keluar dan tempoh simpanan foto.",
+      "exitPhoto": "Pelawat keluar mesti difoto",
+      "exitPhotoHelp": "Dihidupkan: pintu mengambil foto sebelum Sahkan keluar.",
+      "retention": "Simpan foto pelawat (bulan)",
+      "retentionHelp": "Dari hari foto diambil; foto tamat tempoh disenaraikan dan dibuang setelah pentadbir mengesahkan.",
+      "notice": {
+        "zh": "Notis (Cina Ringkas)",
+        "en": "Notis (Inggeris)",
+        "zh-TW": "Notis (Cina Tradisional)",
+        "ms": "Notis (Melayu)"
+      },
+      "noticeHelp": "Dibiarkan kosong, teks sistem digunakan; '{months}' menjadi bilangan bulan simpanan.",
+      "noticePlaceholder": "Kosong menggunakan teks sistem",
+      "expired": {
+        "open": "Foto pelawat tamat tempoh",
+        "title": "Foto pelawat tamat tempoh",
+        "loading": "Memuatkan…",
+        "help": "Disimpan {months} bulan: foto pelawat sebelum {cutoff} telah tamat tempoh.",
+        "none": "Tiada foto pelawat yang tamat tempoh.",
+        "count": "{count} foto tamat tempoh",
+        "keeps": "Hanya fail foto dibuang; pas, lawatan dan rekod masuk keluar kekal, dan pembuangan direkodkan.",
+        "direction": {
+          "ENTRY": "Masuk",
+          "EXIT": "Keluar"
+        },
+        "history": "Rekod pembuangan",
+        "historyRow": "{when} · {who} membuang {count} (disimpan {months} bulan)",
+        "done": "{count} foto dibuang.",
+        "close": "Tutup",
+        "confirm": "Buang (PIN pengesahan)"
+      }
     }
   },
   "siteDisposal": {
@@ -19174,7 +19222,8 @@
       "equipment_set_site_no": "Tukar nombor peralatan",
       "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain",
       "user_change_permissions": "Tukar suis kebenaran pengguna",
-      "consultant_submit": "Hantar permohonan perunding"
+      "consultant_submit": "Hantar permohonan perunding",
+      "visitor_photo_purge": "Buang foto pelawat tamat tempoh"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
