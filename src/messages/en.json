@@ -4287,7 +4287,10 @@
     "view": "View",
     "alreadyLastPage": "Already on the last page",
     "linkCopied": "Link copied. Paste it to share.",
-    "shareFailed": "Could not share. Download it and send the file instead."
+    "shareFailed": "Could not share. Download it and send the file instead.",
+    "combobox": {
+      "byLetter": "Filter by first letter"
+    }
   },
   "companies": {
     "owner": {
