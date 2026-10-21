@@ -328,6 +328,16 @@ self.addEventListener("push", (event) => {
   // assigned to you, C3) also stays on the screen until it is touched, rather
   // than sliding away unseen in a pocket.
   const urgent = Boolean(payload.data && payload.data.alert_sound);
+  // J4: the icon's number is the bell's, sent with the push; skipped where
+  // the phone has no Badging API.
+  if (typeof payload.badge === "number" && self.navigator) {
+    try {
+      if (payload.badge > 0 && self.navigator.setAppBadge) self.navigator.setAppBadge(payload.badge).catch(() => {});
+      else if (payload.badge <= 0 && self.navigator.clearAppBadge) self.navigator.clearAppBadge().catch(() => {});
+    } catch {
+      // Not supported here.
+    }
+  }
   event.waitUntil(
     self.registration.showNotification(payload.title || "MSE Trace", {
       body: payload.message || "New notification",

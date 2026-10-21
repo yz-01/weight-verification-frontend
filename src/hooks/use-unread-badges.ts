@@ -11,6 +11,7 @@ import {
   type PortalFeatureKey,
 } from "@/lib/navigation";
 import { getSidebarBadges } from "@/services/contractor-dashboard.service";
+import { getOutstandingNotificationCount } from "@/services/platform-ops.service";
 
 /**
  * The module pages the backend may count for (`contractor_ops.sidebar_badges`),
@@ -79,7 +80,7 @@ export const BADGE_STALE_MS = 30_000;
 export function badgeLabelKey(
   feature: PortalFeatureKey,
 ): "nav.waitingApproval" | "nav.waitingForYou" {
-  return feature === "hazard_rectification" || feature === "safety"
+  return feature === "hazard_rectification" || feature === "safety" || feature === "notifications"
     ? "nav.waitingForYou"
     : "nav.waitingApproval";
 }
@@ -169,5 +170,16 @@ export function useUnreadBadges(): BadgeCounts {
     refetchOnWindowFocus: true,
   });
 
-  return query.data?.badges ?? {};
+  // J4: 通知 carries the bell's number - the same query, under the same key,
+  // as the bell, so the two are one answer.
+  // query-failure: as above, a failed count shows no number on the entry.
+  const notices = useQuery({
+    queryKey: ["notifications", "outstanding-count"],
+    queryFn: () => getOutstandingNotificationCount({ silent: true }),
+    enabled: Boolean(user && user.portal === "MSE_TRACE" && !user.is_field_staff && can("notification.view")),
+    staleTime: BADGE_STALE_MS,
+  });
+
+  const badges = query.data?.badges ?? {};
+  return notices.data ? { ...badges, notifications: notices.data.total } : badges;
 }
