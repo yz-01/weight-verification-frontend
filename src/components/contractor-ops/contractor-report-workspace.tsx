@@ -20,6 +20,7 @@ import {
   useReportLevelName,
 } from "@/components/reports/report-selector";
 import { ExportButton } from "@/components/shared/export-button";
+import { PhotoGroupsReport } from "@/components/reports/photo-groups-report";
 import {
   FieldWrapper,
   FilterField,
@@ -85,6 +86,7 @@ import {
 } from "@/lib/report-filters";
 import {
   exportContractorReport,
+  exportPhotoGroups,
   getContractorReport,
   getContractorReportHistory,
   getContractorReportOptions,
@@ -157,6 +159,9 @@ function reportCellClass(key: string): string {
   }
   return "line-clamp-2 break-words [overflow-wrap:anywhere]";
 }
+
+/** The photo report's spreadsheet: one record a row (J8 要做 4). */
+const PHOTO_GROUP_COLUMNS = ["reference", "kind", "project", "date", "uploaded_by", "photo_count", "has_gps"] as const;
 
 export function ContractorReportWorkspace({
   reportType,
@@ -256,13 +261,26 @@ export function ContractorReportWorkspace({
     }),
     [category, dateFrom, dateTo, list.filters, project, reportType, subcategory],
   );
+  const photoReport = reportType === "photos";
+  const recordKinds = useTranslations("headquarters.recordKind");
+  const photoKindLabels = Object.fromEntries(
+    ["MATERIAL_RECEIPT", "DELIVERY_NOTE", "MATERIAL_OUTGOING", "EQUIPMENT_MOVEMENT", "EQUIPMENT", "SITE_PROGRESS",
+      "SAFETY_INCIDENT", "FIELD_TASK", "DISPOSAL", "WASTE_DISPATCH", "WASTE_OUTGOING", "GATE_INCIDENT"].map((kind) => [
+      kind,
+      recordKinds(kind),
+    ]),
+  );
+  photoKindLabels.ATTENDANCE = t("photoGroups.kind.ATTENDANCE");
+  photoKindLabels.PERSON = t("photoGroups.noRecord");
   const report = useQuery({
     queryKey: ["contractor-reports", "report", filters],
     queryFn: () => getContractorReport(filters),
     // An aggregation: refreshed by the person, not by the realtime layer (S1).
     meta: NOT_LIVE,
-    // Not before the days 「日报告」 / 「往日报告」 are about to set.
-    enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
+    // Not before the days 「日报告」 / 「往日报告」 are about to set. The photo
+    // report reads its own rows, grouped by record (J8).
+    enabled:
+      Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays && !photoReport,
   });
   const bookIds = useMemo(
     () => (report.data?.records ?? []).map((entry) => entry.id ?? ""),
@@ -393,12 +411,36 @@ export function ContractorReportWorkspace({
         <ReportClearButton active={list.hasFilters} onClear={list.clearFilters} />
         <div className="flex flex-wrap items-end gap-2 max-sm:[&>*]:flex-1">
           {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
-          <ExportButton
-            onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
-            disabled={!report.data}
-            disabledReason={common("noReportYet")}
-            title={t(`type.${reportType}`)}
-          />
+          {photoReport ? (
+            // J8-5: the PDF is each record's complete evidence report; the
+            // spreadsheet one record per row.
+            <ExportButton
+              onExport={(format) =>
+                exportPhotoGroups({
+                  ...filters,
+                  format: format === "pdf" ? "evidence" : "xlsx",
+                  title: t(`type.${reportType}`),
+                  columns: PHOTO_GROUP_COLUMNS.map((key) => ({
+                    key,
+                    label: t(`photoGroups.column.${key}`),
+                    ...(key === "has_gps"
+                      ? { values: { true: t("value.yes"), false: t("value.no") } }
+                      : key === "kind"
+                        ? { values: photoKindLabels }
+                        : {}),
+                  })),
+                })
+              }
+              title={t(`type.${reportType}`)}
+            />
+          ) : (
+            <ExportButton
+              onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+              disabled={!report.data}
+              disabledReason={common("noReportYet")}
+              title={t(`type.${reportType}`)}
+            />
+          )}
         </div>
         {reportType === "target" && (
           <p className="w-full text-xs leading-5 text-muted-foreground">
@@ -421,7 +463,9 @@ export function ContractorReportWorkspace({
             <StatusBadge label={t("previewLimited")} tone="warning" />
           )}
         </div>
-        {report.isLoading ? (
+        {photoReport ? (
+          <PhotoGroupsReport filters={filters} />
+        ) : report.isLoading ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-9 w-full" />)}
           </div>
@@ -489,24 +533,9 @@ export function ContractorReportWorkspace({
                           icon={recordKindIcon(record?.kind)}
                           reference={reference}
                           photos={
-                            reportType === "photos" && record?.cover_photo_url
-                              ? // A row of the photo report is one photograph,
-                                // its time and GPS in its own columns.
-                                [
-                                  {
-                                    id: record.id ?? `${index}`,
-                                    url: record.cover_photo_url,
-                                    label: reference,
-                                    ...photoMeta({
-                                      captured_at: row.captured_at == null ? null : String(row.captured_at),
-                                      latitude: row.latitude == null ? null : String(row.latitude),
-                                      longitude: row.longitude == null ? null : String(row.longitude),
-                                    }),
-                                  },
-                                ]
-                              : (reportType !== "photos" && record?.kind && record.id
-                                  ? recordPhotos(record.kind, record.id, reference)
-                                  : undefined) ?? []
+                            (record?.kind && record.id
+                              ? recordPhotos(record.kind, record.id, reference)
+                              : undefined) ?? []
                           }
                         />
                       </TableCell>

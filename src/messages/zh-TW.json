@@ -6735,6 +6735,34 @@
       "show": "查看",
       "choose": "請先選開始和結束日期。",
       "backwards": "開始日期不能晚於結束日期。"
+    },
+    "photoGroups": {
+      "loadError": "照片報表載入失敗。",
+      "empty": "這段時間沒有照片。",
+      "count": "{count} 條有照片的記錄",
+      "truncated": "顯示最新的；縮短日期範圍看其餘的",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "first": "已經是第一頁。",
+      "last": "已經是最後一頁。",
+      "noRecord": "沒有所屬記錄的照片",
+      "kind": {
+        "ATTENDANCE": "打卡",
+        "OTHER": "記錄"
+      },
+      "photos": "{count} 張照片",
+      "hasGps": "有 GPS",
+      "openPhoto": "打開 {reference} 的第 {index} 張照片",
+      "openRecord": "打開原記錄",
+      "column": {
+        "reference": "編號",
+        "kind": "模組",
+        "project": "項目",
+        "date": "日期",
+        "uploaded_by": "上傳人",
+        "photo_count": "照片張數",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {

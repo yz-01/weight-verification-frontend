@@ -6735,6 +6735,34 @@
       "show": "Show",
       "choose": "Choose the first and the last day first.",
       "backwards": "The first day cannot be after the last day."
+    },
+    "photoGroups": {
+      "loadError": "The photo report could not be loaded.",
+      "empty": "No photographs in this period.",
+      "count": "{count} records with photographs",
+      "truncated": "the newest are shown; narrow the period for the rest",
+      "previous": "Previous",
+      "next": "Next",
+      "first": "This is the first page.",
+      "last": "This is the last page.",
+      "noRecord": "Photographs without a record",
+      "kind": {
+        "ATTENDANCE": "Clock-in",
+        "OTHER": "Record"
+      },
+      "photos": "{count} photos",
+      "hasGps": "Has GPS",
+      "openPhoto": "Open photo {index} of {reference}",
+      "openRecord": "Open the record",
+      "column": {
+        "reference": "No.",
+        "kind": "Module",
+        "project": "Project",
+        "date": "Date",
+        "uploaded_by": "Taken by",
+        "photo_count": "Photos",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {

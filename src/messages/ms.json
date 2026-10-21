@@ -6735,6 +6735,34 @@
       "show": "Papar",
       "choose": "Pilih hari pertama dan hari terakhir dahulu.",
       "backwards": "Hari pertama tidak boleh selepas hari terakhir."
+    },
+    "photoGroups": {
+      "loadError": "Laporan foto tidak dapat dimuatkan.",
+      "empty": "Tiada foto dalam tempoh ini.",
+      "count": "{count} rekod dengan foto",
+      "truncated": "yang terbaru dipaparkan; sempitkan tempoh untuk selebihnya",
+      "previous": "Sebelumnya",
+      "next": "Seterusnya",
+      "first": "Ini halaman pertama.",
+      "last": "Ini halaman terakhir.",
+      "noRecord": "Foto tanpa rekod",
+      "kind": {
+        "ATTENDANCE": "Daftar masuk",
+        "OTHER": "Rekod"
+      },
+      "photos": "{count} foto",
+      "hasGps": "Ada GPS",
+      "openPhoto": "Buka foto {index} bagi {reference}",
+      "openRecord": "Buka rekod",
+      "column": {
+        "reference": "No.",
+        "kind": "Modul",
+        "project": "Projek",
+        "date": "Tarikh",
+        "uploaded_by": "Diambil oleh",
+        "photo_count": "Foto",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {

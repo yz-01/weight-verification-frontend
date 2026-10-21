@@ -624,12 +624,15 @@ export function PhotoViewer({
   reference,
   onIndex,
   onClose,
+  extraActions,
 }: {
   photos: ShellPhoto[];
   index: number;
   reference: string;
   onIndex: (index: number) => void;
   onClose: () => void;
+  /** The record's own buttons under the photo - 打开原记录, 证据报表 (J8-3). */
+  extraActions?: React.ReactNode;
 }) {
   const t = useTranslations("recordShell");
   const df = useDateFormat();
@@ -797,6 +800,11 @@ export function PhotoViewer({
             filename={`${reference}-${index + 1}.jpg`}
             title={`${reference} · ${photo.label}`}
           />
+          {extraActions ? (
+            <div className="flex flex-wrap items-center gap-2" data-photo-viewer-actions>
+              {extraActions}
+            </div>
+          ) : null}
           {photos.length > 1 && (
             <div className="flex items-center gap-2">
               <Button
