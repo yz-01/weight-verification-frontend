@@ -526,6 +526,7 @@ export function WasteOutgoingWorkspace() {
         isLoading={records.isLoading}
         isError={records.isError}
         storageKey={LIST_FITS.wasteOutgoing.storageKey}
+        phoneCard={LIST_FITS.wasteOutgoing.phoneCard}
         defaultHidden={LIST_FITS.wasteOutgoing.hidden}
         pack="WASTE_OUTGOING"
         toolbar={

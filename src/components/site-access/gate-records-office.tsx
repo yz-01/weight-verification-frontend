@@ -348,6 +348,7 @@ export function GateRecordsOffice() {
           isLoading={rows.isLoading}
           isError={rows.isError}
           storageKey={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].storageKey}
+          phoneCard={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].phoneCard}
           defaultHidden={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].hidden}
           toolbar={toolbar}
           onOpen={(row) => setViewing(row.id)}

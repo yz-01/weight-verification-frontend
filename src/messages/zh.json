@@ -12520,7 +12520,8 @@
   "photos": {
     "count": "{count} 张照片",
     "none": "没有照片",
-    "open": "查看 {reference} 的照片"
+    "open": "查看 {reference} 的照片",
+    "more": "还有 {count} 张照片"
   },
   "profile": {
     "section": {

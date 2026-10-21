@@ -12520,7 +12520,8 @@
   "photos": {
     "count": "{count, plural, one {# photo} other {# photos}}",
     "none": "No photo",
-    "open": "Open the photos of {reference}"
+    "open": "Open the photos of {reference}",
+    "more": "{count} more photos"
   },
   "profile": {
     "section": {

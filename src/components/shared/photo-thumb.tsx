@@ -40,7 +40,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useContext, useState } from "react";
 
-import { InsideRowControl } from "@/components/shared/inside-row-control";
+import { InsideRowControl, StripFillsWidth } from "@/components/shared/inside-row-control";
 import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-shell";
 import { photoMeta, type PhotoMetaSource } from "@/lib/photo-meta";
 import { cn } from "@/lib/utils";
@@ -209,6 +209,185 @@ export function PhotoThumb({
   );
 }
 
+/** The squares a list row's strip shows at most (J34-2: 「最少看到四张照片一排」). */
+export const STRIP_SQUARES = 4;
+
+export interface PhotoStripProps {
+  /** The row's `photo_thumbs`, cover first. */
+  thumbs: ReadonlyArray<string> | null | undefined;
+  /** The row's `cover_photo_url`, for a row sent without `photo_thumbs`. */
+  coverUrl?: string | null;
+  /** The row's `photo_count`: the 「+N」 is counted from it. */
+  count?: number | null;
+  /** The module's icon, shown when there is no photograph. */
+  icon: LucideIcon;
+  /** The record's number, for the viewer's title, file names and labels. */
+  reference: string;
+  /** As `PhotoThumb`: every photograph of the record, or how to fetch them. */
+  photos?: PhotoThumbPhotos;
+  /** Squares at most; the last is 「+N」 when there are more photographs. */
+  squares?: number;
+  /** As `PhotoThumb`. */
+  openable?: boolean;
+  className?: string;
+}
+
+/**
+ * A row's photographs, side by side (J34-2, 图 3 / 图 4).
+ *
+ * The client: 「不要看到一大串文字，系统是为照片为主，最少看到四张照片一排」.
+ * Up to four equal squares cut to fill (`object-cover`) - a strip is for
+ * finding the record, the viewer shows each photo whole (J34-1) - with the
+ * last one 「+N」 when the record has more. Each opens the viewer at itself,
+ * the 「+N」 at the first photo it stands for. No photograph: the module's
+ * icon, as `PhotoThumb`.
+ *
+ * Lucas 10-21, from the screenshots: 64 px squares on a desktop, 56 px on a
+ * phone - a table below the `sm` width and a phone card (`StripFillsWidth`).
+ */
+export function PhotoStrip({
+  thumbs,
+  coverUrl,
+  count,
+  icon: Icon,
+  reference,
+  photos,
+  squares = STRIP_SQUARES,
+  openable: openableProp,
+  className,
+}: PhotoStripProps) {
+  const t = useTranslations("photos");
+  const insideRowControl = useContext(InsideRowControl);
+  const fills = useContext(StripFillsWidth);
+  const openable = (openableProp ?? !insideRowControl) && photos !== undefined;
+  const [opened, setOpened] = useState<{ photos: ShellPhoto[]; index: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const list = thumbs && thumbs.length > 0 ? thumbs : coverUrl ? [coverUrl] : [];
+  const total = Math.max(count ?? 0, list.length);
+  // 64 px in a desktop table, 56 px on a phone (Lucas 10-21).
+  const square = fills ? "size-14" : "size-14 sm:size-16";
+
+  if (list.length === 0) {
+    return (
+      <span
+        role="img"
+        aria-label={t("none")}
+        title={t("none")}
+        data-photo-strip="none"
+        className={cn(
+          "inline-flex shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground ring-1 ring-panel-border",
+          square,
+          className,
+        )}
+      >
+        <Icon className="size-5" aria-hidden />
+      </span>
+    );
+  }
+
+  // Every square a photograph while they fit; else the last says 「+N」.
+  const shown = total > squares ? list.slice(0, squares - 1) : list.slice(0, squares);
+  const more = total - shown.length;
+  const behindMore = list[shown.length] ?? null;
+
+  const open = async (index: number, event: React.MouseEvent) => {
+    // A list row opens its record on click; a photograph opens the viewer.
+    event.stopPropagation();
+    event.preventDefault();
+    if (!photos) return;
+    const fallback: ShellPhoto[] = list.map((url, at) => ({
+      id: `thumb-${at}`,
+      url,
+      label: reference,
+      metaUnknown: true,
+    }));
+    const at = (all: ShellPhoto[]) => ({ photos: all, index: Math.min(index, all.length - 1) });
+    if (Array.isArray(photos)) {
+      setOpened(at(photos.length ? photos : fallback));
+      return;
+    }
+    setLoading(true);
+    try {
+      const loaded = await photos();
+      setOpened(at(loaded.length ? loaded : fallback));
+    } catch {
+      setOpened(at(fallback));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cell = cn(
+    "relative block shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border",
+    square,
+    openable && "transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring",
+    loading && "opacity-60",
+  );
+  const picture = (url: string) => (
+    <Image src={url} alt="" fill sizes="80px" className="object-cover" unoptimized />
+  );
+  const squaresDrawn = [
+    ...shown.map((url, index) => ({ key: `photo-${index}`, index, url, label: null as string | null })),
+    ...(more > 0 ? [{ key: "more", index: shown.length, url: behindMore, label: `+${more}` }] : []),
+  ];
+  return (
+    <>
+      <span
+        role={openable ? "group" : "img"}
+        aria-label={`${reference} · ${t("count", { count: total })}`}
+        data-photo-strip="photos"
+        className={cn(
+          "inline-flex shrink-0 gap-1",
+          className,
+        )}
+      >
+        {squaresDrawn.map(({ key, index, url, label }) => {
+          const inner = (
+            <>
+              {url ? picture(url) : null}
+              {label ? (
+                <span
+                  aria-hidden
+                  className="absolute inset-0 flex items-center justify-center bg-overlay/70 text-sm font-semibold text-overlay-foreground tabular-nums"
+                >
+                  {label}
+                </span>
+              ) : null}
+            </>
+          );
+          return openable ? (
+            <button
+              key={key}
+              type="button"
+              onClick={(event) => void open(index, event)}
+              aria-label={label ? t("more", { count: more }) : t("open", { reference })}
+              title={label ? t("more", { count: more }) : t("open", { reference })}
+              aria-busy={loading || undefined}
+              data-photo-square={label ? "more" : "photo"}
+              className={cell}
+            >
+              {inner}
+            </button>
+          ) : (
+            <span key={key} data-photo-square={label ? "more" : "photo"} className={cell}>
+              {inner}
+            </span>
+          );
+        })}
+      </span>
+      {opened ? (
+        <PhotoViewer
+          photos={opened.photos}
+          index={opened.index}
+          reference={reference}
+          onIndex={(index) => setOpened((current) => (current ? { ...current, index } : current))}
+          onClose={() => setOpened(null)}
+        />
+      ) : null}
+    </>
+  );
+}
+
 /** One photograph as a record's page, the archive and a list row send it. */
 export interface ListedPhoto extends PhotoMetaSource {
   id?: string | null;
@@ -316,24 +495,33 @@ export function rowPhotos(
 
 interface CoveredRow {
   cover_photo_url?: string | null;
+  /** J34-2: the first photographs' thumbnails, cover first. */
+  photo_thumbs?: string[] | null;
   photo_count?: number | null;
 }
 
 /**
  * The photograph column of an office list (E3), for `DataTable` /
  * `ModuleRecordsTable`. Not sortable and not hideable by accident: it is the
- * column the client asked for.
+ * column the client asked for. A strip of four (J34-2) where the list has
+ * room for it (`strip`).
  */
 export function photoColumn<T extends CoveredRow>({
   label,
   icon,
   reference,
   photos,
+  strip = true,
 }: {
   label: string;
   icon: LucideIcon;
   reference: (row: T) => string;
   photos?: (row: T) => PhotoThumbPhotos | undefined;
+  /**
+   * Four photographs a row (J34-2); ``false`` for the single picture of
+   * before. A list needs room for 268 px (`lib/list-fits`, kind `strip`).
+   */
+  strip?: boolean;
 }): ColumnDef<T, unknown> {
   return {
     id: "cover_photo",
@@ -344,15 +532,25 @@ export function photoColumn<T extends CoveredRow>({
         {label}
       </span>
     ),
-    cell: ({ row }) => (
-      <PhotoThumb
-        coverUrl={row.original.cover_photo_url}
-        count={row.original.photo_count}
-        icon={icon}
-        reference={reference(row.original)}
-        photos={photos?.(row.original)}
-      />
-    ),
+    cell: ({ row }) =>
+      strip ? (
+        <PhotoStrip
+          thumbs={row.original.photo_thumbs}
+          coverUrl={row.original.cover_photo_url}
+          count={row.original.photo_count}
+          icon={icon}
+          reference={reference(row.original)}
+          photos={photos?.(row.original)}
+        />
+      ) : (
+        <PhotoThumb
+          coverUrl={row.original.cover_photo_url}
+          count={row.original.photo_count}
+          icon={icon}
+          reference={reference(row.original)}
+          photos={photos?.(row.original)}
+        />
+      ),
   };
 }
 

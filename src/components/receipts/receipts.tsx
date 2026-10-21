@@ -448,7 +448,7 @@ export function Receipts() {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    <div className="flex flex-col gap-4 max-sm:[&>*]:shrink-0 sm:h-[calc(100dvh-5rem)]">
       <ListHeader
         title={t("receipts.title")}
         subtitle={isLoading ? "—" : t("receipts.count", { count: totalCount })}
@@ -494,6 +494,7 @@ export function Receipts() {
         // `.v3` with the manufacturer column (2026-10 D1); `.v4` with the
         // photograph in place of the photo count (E3).
         storageKey={LIST_FITS.materialReceipts.storageKey}
+        phoneCard={LIST_FITS.materialReceipts.phoneCard}
         defaultHidden={LIST_FITS.materialReceipts.hidden}
         // Multi Engine picks deliveries here (2026-10-10): 「✅ 已打包 X 次」,
         // and tick boxes while a package is being put together.

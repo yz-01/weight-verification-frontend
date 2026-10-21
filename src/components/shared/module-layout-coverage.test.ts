@@ -135,7 +135,8 @@ describe("every office list is the receipt list's layout (图 4, T-370)", () => 
   it("the frame is the receipt list's frame", () => {
     const frame = read("src/components/shared/module-records-table.tsx");
     const receipts = read("src/components/receipts/receipts.tsx");
-    const container = 'className="flex h-[calc(100dvh-5rem)] flex-col gap-4"';
+    // A fixed height from a tablet up; on a phone the page scrolls (J34-2).
+    const container = 'className="flex flex-col gap-4 max-sm:[&>*]:shrink-0 sm:h-[calc(100dvh-5rem)]"';
     expect(receipts).toContain(container);
     expect(frame).toContain(container);
     expect(frame).toMatch(/<ListHeader/);

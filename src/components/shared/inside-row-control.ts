@@ -12,3 +12,9 @@ import { createContext } from "react";
  * row's own click opens the record, whose page has every photograph.
  */
 export const InsideRowControl = createContext(false);
+
+/**
+ * True inside a phone card (J34-2 point 4): a photo strip there keeps the
+ * phone's 56 px squares whatever the screen's width (Lucas 10-21).
+ */
+export const StripFillsWidth = createContext(false);

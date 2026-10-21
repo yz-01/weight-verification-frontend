@@ -12520,7 +12520,8 @@
   "photos": {
     "count": "{count, plural, one {# foto} other {# foto}}",
     "none": "Tiada foto",
-    "open": "Buka foto {reference}"
+    "open": "Buka foto {reference}",
+    "more": "{count} lagi foto"
   },
   "profile": {
     "section": {

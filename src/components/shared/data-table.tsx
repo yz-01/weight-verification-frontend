@@ -27,7 +27,7 @@ import {
   usePackList,
   withPackColumns,
 } from "@/components/contractor-ops/pack-collect";
-import { InsideRowControl } from "@/components/shared/inside-row-control";
+import { InsideRowControl, StripFillsWidth } from "@/components/shared/inside-row-control";
 import { CORRECTED_ROW_CLASS, CorrectedTag } from "@/components/shared/record-correction";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,6 +67,18 @@ function needsAction(row: unknown): boolean {
     row !== null &&
     (row as { needs_action?: unknown }).needs_action === true
   );
+}
+
+/**
+ * A list drawn as cards on a phone (J34-2 point 4): its title columns on the
+ * first line, its detail columns small on the second, and its photo strip
+ * under them - instead of a table scrolled sideways. Column ids; a hidden
+ * column is still shown here when named.
+ */
+export interface PhoneCard {
+  title: readonly string[];
+  detail: readonly string[];
+  photo?: string;
 }
 
 export interface FilterPill {
@@ -134,6 +146,8 @@ interface DataTableProps<T> {
    * once in `pack-collect.tsx`; a module list only names its kind.
    */
   pack?: PackListConfig<T>;
+  /** Cards instead of the table on a phone (J34-2). */
+  phoneCard?: PhoneCard;
   onSearchChange: (value: string) => void;
   onSortChange: (field: string, order: "asc" | "desc") => void;
   onPageChange: (page: number) => void;
@@ -223,6 +237,7 @@ function TableFrame<T>({
   onRowClick,
   rowClassName,
   corrected,
+  phoneCard,
   onSearchChange,
   onSortChange,
   onPageChange,
@@ -314,6 +329,9 @@ function TableFrame<T>({
   const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, totalCount);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  // Rows to show as cards on a phone; loading, empty and failed stay in the
+  // table, which already says so.
+  const cards = Boolean(phoneCard) && !isLoading && !isError && rows.length > 0;
 
   // At least about eight rows tall (Lucas 10/17: with the supplier summary
   // above, the register was squeezed to one row). A page with more above
@@ -401,7 +419,7 @@ function TableFrame<T>({
 
       {/* The table's own box is the one that scrolls (IB3): its header is
           sticky against it, and it fills what the panel leaves. */}
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className={cn("flex min-h-0 min-w-0 flex-1 flex-col", cards && "max-sm:hidden")}>
         <Table fit containerClassName="min-h-0 flex-1" className="w-full max-sm:min-w-max max-sm:[&_tbody_td:first-child]:sticky max-sm:[&_tbody_td:first-child]:left-0 max-sm:[&_tbody_td:first-child]:z-[1] max-sm:[&_tbody_td:first-child]:bg-card max-sm:[&_thead_th:first-child]:sticky max-sm:[&_thead_th:first-child]:left-0 max-sm:[&_thead_th:first-child]:z-[2] max-sm:[&_thead_th:first-child]:bg-card">
           <TableHeader className="sticky top-0 z-10 bg-card [&_tr]:bg-transparent">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -559,6 +577,71 @@ function TableFrame<T>({
           </InsideRowControl.Provider>
         </Table>
       </div>
+      {cards && phoneCard ? (
+        <InsideRowControl.Provider value={Boolean(onRowClick)}>
+          <ul data-phone-cards className="min-h-0 flex-1 divide-y divide-panel-border overflow-y-auto sm:hidden">
+            {table.getRowModel().rows.map((row) => {
+              const byId = new Map(row.getAllCells().map((cell) => [cell.column.id, cell]));
+              const draw = (id: string) => {
+                const cell = byId.get(id);
+                return cell ? flexRender(cell.column.columnDef.cell, cell.getContext()) : null;
+              };
+              const open = onRowClick ? () => onRowClick(row.original) : undefined;
+              return (
+                <li
+                  key={row.id}
+                  data-needs-action={needsAction(row.original) ? "true" : undefined}
+                  tabIndex={open ? 0 : undefined}
+                  role={open ? "button" : undefined}
+                  onClick={open}
+                  onKeyDown={
+                    open
+                      ? (event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            open();
+                          }
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    "space-y-2 px-4 py-3",
+                    open && "cursor-pointer active:bg-muted/60",
+                    needsAction(row.original) && "border-l-4 border-l-primary",
+                    rowClassName?.(row.original),
+                    corrected && isCorrected(row.original) && CORRECTED_ROW_CLASS,
+                  )}
+                >
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
+                    {corrected && isCorrected(row.original) ? (
+                      <CorrectedTag kind={corrected.kind} recordId={rowId(row.original)} />
+                    ) : null}
+                    {phoneCard.title.map((id) => (
+                      <span key={id} className="min-w-0 truncate">
+                        {draw(id)}
+                      </span>
+                    ))}
+                  </div>
+                  {phoneCard.detail.length > 0 ? (
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                      {phoneCard.detail.map((id) => (
+                        <span key={id} className="min-w-0 truncate">
+                          {draw(id)}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  {phoneCard.photo ? (
+                    <StripFillsWidth.Provider value>
+                      <div>{draw(phoneCard.photo)}</div>
+                    </StripFillsWidth.Provider>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </InsideRowControl.Provider>
+      ) : null}
 
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-panel-border px-4 py-3 sm:px-6">
         <p className="text-xs text-muted-foreground">

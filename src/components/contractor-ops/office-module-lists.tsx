@@ -486,6 +486,7 @@ export function MaterialOutgoingOffice() {
         isError={rows.isError}
         // `.v2` with the manufacturer column (2026-10 D1).
         storageKey={LIST_FITS.materialOutgoing.storageKey}
+        phoneCard={LIST_FITS.materialOutgoing.phoneCard}
         defaultHidden={LIST_FITS.materialOutgoing.hidden}
         pack="MATERIAL_OUTGOING"
         toolbar={
@@ -701,12 +702,13 @@ export function SiteEquipmentOffice() {
           </div>
         ),
       },
-      // The record's photograph beside its main column (E3).
+      // The record's photographs, four a row, left by the menu (J34-2, 图 4).
       photoColumn<EquipmentMovement>({
         label: tRoot("moduleTable.photos"),
         icon: HardHat,
         reference: (row) => row.equipment_name,
         photos: (row) => rowPhotos(row.photos, row.equipment_name, row),
+        strip: true,
       }),
       {
         accessorKey: "direction",
@@ -1188,6 +1190,7 @@ export function SiteEquipmentOffice() {
           isLoading={machines.isLoading}
           isError={machines.isError}
           storageKey={LIST_FITS.equipmentRegister.storageKey}
+          phoneCard={LIST_FITS.equipmentRegister.phoneCard}
         defaultHidden={LIST_FITS.equipmentRegister.hidden}
           toolbar={
             <>
@@ -1272,6 +1275,7 @@ export function SiteEquipmentOffice() {
           isError={movements.isError}
           storageKey={LIST_FITS.equipmentMovements.storageKey}
         defaultHidden={LIST_FITS.equipmentMovements.hidden}
+          phoneCard={LIST_FITS.equipmentMovements.phoneCard}
           pack="EQUIPMENT_MOVEMENT"
           toolbar={
             <>
@@ -2053,6 +2057,7 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey={LIST_FITS.siteProgress.storageKey}
+        phoneCard={LIST_FITS.siteProgress.phoneCard}
         defaultHidden={LIST_FITS.siteProgress.hidden}
         pack="PROGRESS"
         toolbar={

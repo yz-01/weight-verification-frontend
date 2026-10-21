@@ -51,12 +51,20 @@ function source(path: string) {
   return readFileSync(path, "utf8");
 }
 
-type Row = { id: string; ref: string; cover_photo_url: string | null; photo_count: number };
+type Row = {
+  id: string;
+  ref: string;
+  cover_photo_url: string | null;
+  photo_thumbs?: string[];
+  photo_count: number;
+};
+
+const thumbs = (count: number) => Array.from({ length: count }, (_, index) => `${COVER}?n=${index}`);
 
 function Cells({ rows }: { rows: Row[] }) {
   const table = useReactTable({
     data: rows,
-    columns: [photoColumn<Row>({ label: "照片", icon: HardHat, reference: (row) => row.ref })],
+    columns: [photoColumn<Row>({ label: "照片", icon: HardHat, reference: (row) => row.ref, strip: true })],
     getCoreRowModel: getCoreRowModel(),
   });
   return (
@@ -75,7 +83,7 @@ function Cells({ rows }: { rows: Row[] }) {
 }
 
 describe("the office list column", () => {
-  it("draws the row's thumbnail, and the module's icon for a row without one", () => {
+  it("draws the row's photo strip, and the module's icon for a row without one", () => {
     const html = render(
       <Cells
         rows={[
@@ -85,19 +93,41 @@ describe("the office list column", () => {
       />,
     );
     const [withPhoto, without] = html.split(/<tr[\s>]/).slice(1);
+    // A row sent without photo_thumbs still shows its cover.
     expect(withPhoto).toContain(COVER);
-    expect(withPhoto).toContain('data-photo-thumb="photo"');
-    expect(withPhoto).toContain(">4</span>");
-    expect(without).toContain('data-photo-thumb="none"');
+    expect(withPhoto).toContain('data-photo-strip="photos"');
+    expect(without).toContain('data-photo-strip="none"');
     expect(without).toContain("lucide-hard-hat");
     expect(without).not.toContain("<img");
+  });
+
+  // J34-2: 「最少看到四张照片一排」, the rest as 「+N」.
+  it("shows four photographs of a row with four", () => {
+    const html = render(<Cells rows={[{ id: "1", ref: "MO-1", cover_photo_url: COVER, photo_thumbs: thumbs(4), photo_count: 4 }]} />);
+    expect(html.match(/data-photo-square="photo"/g)).toHaveLength(4);
+    expect(html).not.toContain('data-photo-square="more"');
+  });
+
+  it("shows three and 「+N」 for a row with more than four", () => {
+    const html = render(<Cells rows={[{ id: "1", ref: "MO-1", cover_photo_url: COVER, photo_thumbs: thumbs(8), photo_count: 11 }]} />);
+    expect(html.match(/data-photo-square="photo"/g)).toHaveLength(3);
+    expect(html).toContain('data-photo-square="more"');
+    expect(html).toContain("+8");
+    // Equal squares cut to fill, not a filename or a count in words.
+    expect(html.match(/object-cover/g)?.length).toBe(4);
+    expect(html).not.toContain(".jpg<");
+  });
+
+  it("shows only the photographs a row has, without empty squares", () => {
+    const html = render(<Cells rows={[{ id: "1", ref: "MO-1", cover_photo_url: COVER, photo_thumbs: thumbs(2), photo_count: 2 }]} />);
+    expect(html.match(/data-photo-square=/g)).toHaveLength(2);
   });
 });
 
 describe("a list whose row opens the record (audit #11)", () => {
-  const rows: Row[] = [{ id: "1", ref: "MO-1", cover_photo_url: COVER, photo_count: 3 }];
+  const rows: Row[] = [{ id: "1", ref: "MO-1", cover_photo_url: COVER, photo_thumbs: thumbs(3), photo_count: 3 }];
   const columns = [
-    photoColumn<Row>({ label: "照片", icon: HardHat, reference: (row) => row.ref, photos: () => [] }),
+    photoColumn<Row>({ label: "照片", icon: HardHat, reference: (row) => row.ref, photos: () => [], strip: true }),
   ];
   const noop = () => {};
   const table = (onRowClick?: (row: Row) => void) =>
@@ -127,14 +157,15 @@ describe("a list whose row opens the record (audit #11)", () => {
   it("draws the photograph as a picture, not a button inside the row's button", () => {
     const body = table(noop).split("<tbody")[1].split("</tbody>")[0];
     expect(body).toContain('role="button"');
-    expect(body).toContain('data-photo-thumb="photo"');
+    expect(body).toContain('data-photo-strip="photos"');
+    expect(body.match(/<span data-photo-square="photo"/g)).toHaveLength(3);
     expect(body).not.toContain("<button");
   });
 
   it("keeps the photograph a button where the row itself does not open anything", () => {
     const body = table().split("<tbody")[1].split("</tbody>")[0];
     expect(body).not.toContain('role="button"');
-    expect(body).toMatch(/<button[^>]*data-photo-thumb="photo"/);
+    expect(body.match(/<button[^>]*data-photo-square="photo"/g)).toHaveLength(3);
   });
 });
 
