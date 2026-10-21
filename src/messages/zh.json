@@ -4042,7 +4042,70 @@
       "groupCount": "{count} 笔",
       "search": "搜索编号、材料、DO",
       "emptyFiltered": "这个分类里没有符合筛选条件的记录。",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "这个分类的数字",
+        "quantity": {
+          "today": "今日收货",
+          "month": "本月累计",
+          "total": "项目累计"
+        },
+        "count": {
+          "today": "今日记录",
+          "month": "本月记录",
+          "total": "全部记录"
+        },
+        "vsYesterday": "较昨日",
+        "vsLastMonth": "较上月同期",
+        "same": "持平",
+        "ofTarget": "占项目目标 {percent}%",
+        "target": "项目目标",
+        "remaining": "剩余 {value}",
+        "reached": "已达到目标",
+        "noTarget": "未设定目标",
+        "completion": "完成率",
+        "suppliers": "供应商数量",
+        "suppliersNote": "累计供应商",
+        "otherUnits": "只算单位是「{unit}」的收货；其他单位的没有换算，不在数字里。"
+      },
+      "stage": {
+        "label": "按状态",
+        "all": "全部记录",
+        "material": {
+          "pending": "待验收",
+          "done": "已验收",
+          "returned": "已拒收"
+        },
+        "other": {
+          "pending": "待处理",
+          "done": "已完成",
+          "returned": "已退回"
+        }
+      },
+      "table": {
+        "index": "序号",
+        "photos": "照片（点击查看）",
+        "record": "记录信息",
+        "supplier": "供应商 / 车牌",
+        "time": "时间",
+        "quantity": "数量",
+        "location": "位置",
+        "status": "状态",
+        "actions": "操作",
+        "view": "查看",
+        "note": "备注：{note}",
+        "receivedBy": "现场签收：{name}",
+        "gps": "有 GPS",
+        "noGps": "无 GPS"
+      },
+      "pager": {
+        "label": "分页",
+        "showing": "显示第 {from} 到 {to} 条，共 {total} 条记录",
+        "previous": "上一页",
+        "next": "下一页",
+        "first": "已是第一页",
+        "last": "已是最后一页"
+      }
     },
     "quantityReturned": "退场 {quantity}",
     "units": {

@@ -4042,7 +4042,70 @@
       "groupCount": "{count} deliveries",
       "search": "Search number, material, DO",
       "emptyFiltered": "Nothing in this category matches these filters.",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "This category in figures",
+        "quantity": {
+          "today": "Received today",
+          "month": "This month",
+          "total": "Project total"
+        },
+        "count": {
+          "today": "Records today",
+          "month": "This month",
+          "total": "All records"
+        },
+        "vsYesterday": "vs yesterday",
+        "vsLastMonth": "vs same days last month",
+        "same": "no change",
+        "ofTarget": "{percent}% of the project target",
+        "target": "Project target",
+        "remaining": "{value} to go",
+        "reached": "Target reached",
+        "noTarget": "No target set",
+        "completion": "Completion",
+        "suppliers": "Suppliers",
+        "suppliersNote": "who delivered here",
+        "otherUnits": "Only deliveries in {unit} are counted; other units are not converted and are left out."
+      },
+      "stage": {
+        "label": "By state",
+        "all": "All records",
+        "material": {
+          "pending": "Awaiting acceptance",
+          "done": "Accepted",
+          "returned": "Rejected"
+        },
+        "other": {
+          "pending": "Open",
+          "done": "Done",
+          "returned": "Returned"
+        }
+      },
+      "table": {
+        "index": "No.",
+        "photos": "Photos (click to view)",
+        "record": "Record",
+        "supplier": "Supplier / plate",
+        "time": "Time",
+        "quantity": "Quantity",
+        "location": "Location",
+        "status": "Status",
+        "actions": "Actions",
+        "view": "View",
+        "note": "Note: {note}",
+        "receivedBy": "Received by: {name}",
+        "gps": "Has GPS",
+        "noGps": "No GPS"
+      },
+      "pager": {
+        "label": "Pages",
+        "showing": "Showing {from} to {to} of {total} records",
+        "previous": "Previous",
+        "next": "Next",
+        "first": "This is the first page",
+        "last": "This is the last page"
+      }
     },
     "quantityReturned": "{quantity} returned",
     "units": {
