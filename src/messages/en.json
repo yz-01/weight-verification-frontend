@@ -4042,7 +4042,70 @@
       "groupCount": "{count} deliveries",
       "search": "Search number, material, DO",
       "emptyFiltered": "Nothing in this category matches these filters.",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "This category in figures",
+        "quantity": {
+          "today": "Received today",
+          "month": "This month",
+          "total": "Project total"
+        },
+        "count": {
+          "today": "Records today",
+          "month": "This month",
+          "total": "All records"
+        },
+        "vsYesterday": "vs yesterday",
+        "vsLastMonth": "vs same days last month",
+        "same": "no change",
+        "ofTarget": "{percent}% of the project target",
+        "target": "Project target",
+        "remaining": "{value} to go",
+        "reached": "Target reached",
+        "noTarget": "No target set",
+        "completion": "Completion",
+        "suppliers": "Suppliers",
+        "suppliersNote": "who delivered here",
+        "otherUnits": "Only deliveries in {unit} are counted; other units are not converted and are left out."
+      },
+      "stage": {
+        "label": "By state",
+        "all": "All records",
+        "material": {
+          "pending": "Awaiting acceptance",
+          "done": "Accepted",
+          "returned": "Rejected"
+        },
+        "other": {
+          "pending": "Open",
+          "done": "Done",
+          "returned": "Returned"
+        }
+      },
+      "table": {
+        "index": "No.",
+        "photos": "Photos (click to view)",
+        "record": "Record",
+        "supplier": "Supplier / plate",
+        "time": "Time",
+        "quantity": "Quantity",
+        "location": "Location",
+        "status": "Status",
+        "actions": "Actions",
+        "view": "View",
+        "note": "Note: {note}",
+        "receivedBy": "Received by: {name}",
+        "gps": "Has GPS",
+        "noGps": "No GPS"
+      },
+      "pager": {
+        "label": "Pages",
+        "showing": "Showing {from} to {to} of {total} records",
+        "previous": "Previous",
+        "next": "Next",
+        "first": "This is the first page",
+        "last": "This is the last page"
+      }
     },
     "quantityReturned": "{quantity} returned",
     "units": {
@@ -4287,7 +4350,10 @@
     "view": "View",
     "alreadyLastPage": "Already on the last page",
     "linkCopied": "Link copied. Paste it to share.",
-    "shareFailed": "Could not share. Download it and send the file instead."
+    "shareFailed": "Could not share. Download it and send the file instead.",
+    "combobox": {
+      "byLetter": "Filter by first letter"
+    }
   },
   "companies": {
     "owner": {
@@ -6735,6 +6801,34 @@
       "show": "Show",
       "choose": "Choose the first and the last day first.",
       "backwards": "The first day cannot be after the last day."
+    },
+    "photoGroups": {
+      "loadError": "The photo report could not be loaded.",
+      "empty": "No photographs in this period.",
+      "count": "{count} records with photographs",
+      "truncated": "the newest are shown; narrow the period for the rest",
+      "previous": "Previous",
+      "next": "Next",
+      "first": "This is the first page.",
+      "last": "This is the last page.",
+      "noRecord": "Photographs without a record",
+      "kind": {
+        "ATTENDANCE": "Clock-in",
+        "OTHER": "Record"
+      },
+      "photos": "{count} photos",
+      "hasGps": "Has GPS",
+      "openPhoto": "Open photo {index} of {reference}",
+      "openRecord": "Open the record",
+      "column": {
+        "reference": "No.",
+        "kind": "Module",
+        "project": "Project",
+        "date": "Date",
+        "uploaded_by": "Taken by",
+        "photo_count": "Photos",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {
@@ -10489,7 +10583,8 @@
       "DISPOSAL_REQUEST": "Disposal request",
       "PROGRESS": "Progress",
       "CONSULTANT_APPLICATION": "Consultant application",
-      "SUNDRY_CLAIM": "Sundry claim"
+      "SUNDRY_CLAIM": "Sundry claim",
+      "MATERIAL_REQUEST": "MR / Other requests"
     },
     "lastPage": "This is the last page.",
     "loading": "Loading…",
@@ -10645,7 +10740,8 @@
         "CONSULTANT": "Consultant",
         "OWNER": "Owner",
         "SUPPLIER": "Supplier",
-        "OTHER": "Other"
+        "OTHER": "Other",
+        "HEADQUARTERS": "Head office (in the system)"
       },
       "expired": "Expired",
       "status": {
@@ -10746,7 +10842,9 @@
         "REPORT": "Correspondence record made"
       },
       "ip": "IP {ip}",
-      "writeFirst": "Write a message or choose a file first."
+      "writeFirst": "Write a message or choose a file first.",
+      "headquartersHelp": "Sent to your own company's head office in the system: no link is made. Head office finds it under Received packages in Multi Engine and gets a notice; who opened it is kept.",
+      "sendToHeadquarters": "Send to head office"
     },
     "claimFacet": {
       "title": "Claim amount and payment",
@@ -10771,7 +10869,8 @@
       "recipients": "Recipients",
       "round": "Current round",
       "returned": "Returned"
-    }
+    },
+    "received": "Received packages"
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -11306,7 +11405,8 @@
       "dailyReport": "Daily reports",
       "progressSummary": "Progress summary",
       "siteWorkers": "Worker roster",
-      "materialTargets": "Material targets"
+      "materialTargets": "Material targets",
+      "materialRequests": "MR / Other Request"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -19145,5 +19245,38 @@
       "failed": "Could not save. Please try again.",
       "chooseProject": "Choose a project at the top of the page to make a link."
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "Material in today (t)",
+      "wasteToday": "Waste out today (t)",
+      "receiptsTotal": "Material in, all (t)",
+      "wasteTotal": "Waste out, all (t)",
+      "equipment": "Machines",
+      "pending": "Waiting"
+    },
+    "thisMonth": "This month {value} t",
+    "equipmentSplit": "On site {on} | Left {off}",
+    "seeBelow": "See below",
+    "tonnesNote": "Tonnes count what is weighed: tonnes, and kilograms turned into tonnes. Waste is eco-material outgoing.",
+    "latestReceipts": "Latest material in",
+    "seeAll": "See all",
+    "noReceipts": "No deliveries yet.",
+    "map": "Project site map",
+    "point": {
+      "RECEIPT": "Material in",
+      "WASTE": "Waste out",
+      "EQUIPMENT": "Machine"
+    },
+    "noPoints": "Nothing with GPS in the last 30 days.",
+    "materialMix": "Materials by category (this month)",
+    "wasteMix": "Waste by category (this month)",
+    "noMix": "Nothing weighed this month.",
+    "mixTotal": "{value} t in all",
+    "others": "Others",
+    "pending": "Waiting",
+    "noPending": "Nothing waiting.",
+    "photos": "Latest site photos",
+    "noPhotos": "No site photos yet."
   }
 }

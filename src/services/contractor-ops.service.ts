@@ -14,6 +14,8 @@ import type {
   ArchiveRecordKind,
   CategoryRecordKind,
   CategoryRecordPage,
+  CategoryRecordStage,
+  CategorySummary,
   ConstructionPhase,
   DisposalEvidence,
   DisposalEvidenceKind,
@@ -1366,8 +1368,18 @@ export function getCategoryRecords(query: {
   search?: string;
   /** J7-5: one specification of the material. */
   spec_category?: string;
+  /** J34-6: one tab - 待处理, 已完成 or 已退回. */
+  stage?: CategoryRecordStage;
 }): Promise<CategoryRecordPage> {
   return api.get<CategoryRecordPage>("/api/category-records/", query);
+}
+
+/** The figures above a column's records (J34-6, 图 6), unfiltered. */
+export function getCategorySummary(query: {
+  module: CategoryModuleKey;
+  category: string;
+}): Promise<CategorySummary> {
+  return api.get<CategorySummary>("/api/category-records/get_summary/", query);
 }
 
 /**
@@ -1402,6 +1414,8 @@ export const getEvidencePackages = (
     state?: PackageState;
     /** HD17: one of the six package types. */
     type?: PackageType;
+    /** 收到的资料包 (J30-1): sent to head office in the system. */
+    received?: 1;
     created_by?: string;
     from?: string;
     to?: string;

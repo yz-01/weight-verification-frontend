@@ -4042,7 +4042,70 @@
       "groupCount": "{count} 筆",
       "search": "搜尋編號、材料、DO",
       "emptyFiltered": "這個分類裡沒有符合篩選條件的記錄。",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "這個分類的數字",
+        "quantity": {
+          "today": "今日收貨",
+          "month": "本月累計",
+          "total": "項目累計"
+        },
+        "count": {
+          "today": "今日記錄",
+          "month": "本月記錄",
+          "total": "全部記錄"
+        },
+        "vsYesterday": "較昨日",
+        "vsLastMonth": "較上月同期",
+        "same": "持平",
+        "ofTarget": "占項目目標 {percent}%",
+        "target": "項目目標",
+        "remaining": "剩餘 {value}",
+        "reached": "已達到目標",
+        "noTarget": "未設定目標",
+        "completion": "完成率",
+        "suppliers": "供應商數量",
+        "suppliersNote": "累計供應商",
+        "otherUnits": "只算單位是「{unit}」的收貨；其他單位的沒有換算，不在數字裡。"
+      },
+      "stage": {
+        "label": "按狀態",
+        "all": "全部記錄",
+        "material": {
+          "pending": "待驗收",
+          "done": "已驗收",
+          "returned": "已拒收"
+        },
+        "other": {
+          "pending": "待處理",
+          "done": "已完成",
+          "returned": "已退回"
+        }
+      },
+      "table": {
+        "index": "序號",
+        "photos": "照片（點擊查看）",
+        "record": "記錄資訊",
+        "supplier": "供應商 / 車牌",
+        "time": "時間",
+        "quantity": "數量",
+        "location": "位置",
+        "status": "狀態",
+        "actions": "操作",
+        "view": "查看",
+        "note": "備註：{note}",
+        "receivedBy": "現場簽收：{name}",
+        "gps": "有 GPS",
+        "noGps": "無 GPS"
+      },
+      "pager": {
+        "label": "分頁",
+        "showing": "顯示第 {from} 到 {to} 條，共 {total} 條記錄",
+        "previous": "上一頁",
+        "next": "下一頁",
+        "first": "已是第一頁",
+        "last": "已是最後一頁"
+      }
     },
     "quantityReturned": "退場 {quantity}",
     "units": {
@@ -4287,7 +4350,10 @@
     "view": "查看",
     "alreadyLastPage": "已經在最後一頁",
     "linkCopied": "連結已複製，貼上即可分享。",
-    "shareFailed": "分享沒有成功，請下載後再發送文件。"
+    "shareFailed": "分享沒有成功，請下載後再發送文件。",
+    "combobox": {
+      "byLetter": "按首字母篩選"
+    }
   },
   "companies": {
     "owner": {
@@ -6735,6 +6801,34 @@
       "show": "查看",
       "choose": "請先選開始和結束日期。",
       "backwards": "開始日期不能晚於結束日期。"
+    },
+    "photoGroups": {
+      "loadError": "照片報表載入失敗。",
+      "empty": "這段時間沒有照片。",
+      "count": "{count} 條有照片的記錄",
+      "truncated": "顯示最新的；縮短日期範圍看其餘的",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "first": "已經是第一頁。",
+      "last": "已經是最後一頁。",
+      "noRecord": "沒有所屬記錄的照片",
+      "kind": {
+        "ATTENDANCE": "打卡",
+        "OTHER": "記錄"
+      },
+      "photos": "{count} 張照片",
+      "hasGps": "有 GPS",
+      "openPhoto": "打開 {reference} 的第 {index} 張照片",
+      "openRecord": "打開原記錄",
+      "column": {
+        "reference": "編號",
+        "kind": "模組",
+        "project": "項目",
+        "date": "日期",
+        "uploaded_by": "上傳人",
+        "photo_count": "照片張數",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {
@@ -10489,7 +10583,8 @@
       "DISPOSAL_REQUEST": "清運申請",
       "PROGRESS": "工程進度",
       "CONSULTANT_APPLICATION": "顧問申請",
-      "SUNDRY_CLAIM": "雜費報銷"
+      "SUNDRY_CLAIM": "雜費報銷",
+      "MATERIAL_REQUEST": "MR / 其他申請"
     },
     "lastPage": "已經是最後一頁了。",
     "loading": "載入中…",
@@ -10645,7 +10740,8 @@
         "CONSULTANT": "顧問",
         "OWNER": "業主",
         "SUPPLIER": "供應商",
-        "OTHER": "其他單位"
+        "OTHER": "其他單位",
+        "HEADQUARTERS": "總部（系統內）"
       },
       "expired": "已過期",
       "status": {
@@ -10746,7 +10842,9 @@
         "REPORT": "產生往來記錄"
       },
       "ip": "IP {ip}",
-      "writeFirst": "先寫留言或選附件。"
+      "writeFirst": "先寫留言或選附件。",
+      "headquartersHelp": "發給貴司系統裡的總部，不用生成連結。總部在 Multi Engine 的「收到的資料包」看到，並收到系統通知；系統記錄誰打開過。",
+      "sendToHeadquarters": "發給總部"
     },
     "claimFacet": {
       "title": "Claim 金額與收款",
@@ -10771,7 +10869,8 @@
       "recipients": "收件方數",
       "round": "當前輪次",
       "returned": "退回數"
-    }
+    },
+    "received": "收到的資料包"
   },
   "mySubmissions": {
     "title": "我提交過的",
@@ -11306,7 +11405,8 @@
       "dailyReport": "日報告",
       "progressSummary": "項目進度摘要",
       "siteWorkers": "人員名單",
-      "materialTargets": "材料目標"
+      "materialTargets": "材料目標",
+      "materialRequests": "MR / 其他申請"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -19145,5 +19245,38 @@
       "failed": "保存沒有成功，請再試一次。",
       "chooseProject": "先在頁面上方選一個項目，才能新增連結。"
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "今日收貨（噸）",
+      "wasteToday": "今日廢料（噸）",
+      "receiptsTotal": "累計收貨（噸）",
+      "wasteTotal": "累計廢料（噸）",
+      "equipment": "設備總數",
+      "pending": "待處理事項"
+    },
+    "thisMonth": "本月 {value} 噸",
+    "equipmentSplit": "在場 {on} | 離場 {off}",
+    "seeBelow": "見下方",
+    "tonnesNote": "噸數只算稱重的：噸，公斤換算成噸；廢料指環保材料出場。",
+    "latestReceipts": "最新物料收貨記錄",
+    "seeAll": "查看全部",
+    "noReceipts": "還沒有收貨記錄。",
+    "map": "項目現場地圖",
+    "point": {
+      "RECEIPT": "物料收貨點",
+      "WASTE": "廢料處理點",
+      "EQUIPMENT": "設備位置"
+    },
+    "noPoints": "最近 30 天沒有帶 GPS 的記錄。",
+    "materialMix": "物料分類統計（本月）",
+    "wasteMix": "廢料分類統計（本月）",
+    "noMix": "本月還沒有稱重的數量。",
+    "mixTotal": "總噸數 {value}",
+    "others": "其他",
+    "pending": "待處理事項",
+    "noPending": "沒有待處理事項。",
+    "photos": "最新現場照片記錄",
+    "noPhotos": "還沒有現場照片。"
   }
 }

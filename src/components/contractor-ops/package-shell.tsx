@@ -17,10 +17,13 @@ export function Shell({
   title,
   onClose,
   children,
+  wide = false,
 }: {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  /** A page in a dialog (J34-6, 图 6): as wide as the screen allows. */
+  wide?: boolean;
 }) {
   const common = useTranslations("common");
   return (
@@ -30,7 +33,7 @@ export function Shell({
       aria-label={title}
       className="fixed inset-0 z-50 flex items-end justify-center bg-scrim p-0 sm:items-center sm:p-4"
     >
-      <div className="flex max-h-[90dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-popover text-popover-foreground shadow-panel ring-1 ring-panel-border sm:rounded-xl">
+      <div className={`flex max-h-[90dvh] w-full ${wide ? "max-w-7xl" : "max-w-2xl"} flex-col overflow-hidden rounded-t-xl bg-popover text-popover-foreground shadow-panel ring-1 ring-panel-border sm:rounded-xl`}>
         <header className="flex items-center gap-2 border-b border-panel-border px-4 py-3">
           <h2 className="min-w-0 flex-1 truncate text-base font-semibold">{title}</h2>
           <Button

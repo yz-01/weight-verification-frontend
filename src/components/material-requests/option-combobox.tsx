@@ -1,12 +1,25 @@
 "use client";
 
 import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+
+/** A–Z appears above the list once it is longer than this (J10-3). */
+export const LETTERS_FROM = 30;
+/** 「#」: a name starting with a digit, a Chinese character or anything else. */
+const OTHER = "#";
+const LETTERS = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ", OTHER];
+
+/** The letter a name is filed under in the A–Z row. */
+export function initialOf(label: string): string {
+  const first = label.trim().charAt(0).toUpperCase();
+  return first >= "A" && first <= "Z" ? first : OTHER;
+}
 
 export interface ComboOption {
   value: string;
@@ -24,6 +37,12 @@ export interface ComboOption {
  * Only the listed options can be chosen: the lists are kept by the back
  * office so the totals group like with like, and a free-typed 「rebar 12mm」
  * beside the listed 「Rebar / Y12」 would be a second row for the same thing.
+ *
+ * J10 (Q10): the wheel scrolls the list only - the popover is modal, so a
+ * dialog behind it does not scroll as well, and the list's end does not pass
+ * the scroll on - and a long list (more than `LETTERS_FROM`) has an A–Z row
+ * above it: a letter shows the names starting with it, again shows all, and
+ * it works together with the search box.
  */
 export function OptionCombobox({
   value,
@@ -63,13 +82,19 @@ export function OptionCombobox({
    */
   emptyAction?: React.ReactNode;
 }) {
+  const t = useTranslations("common.combobox");
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
+  const [letter, setLetter] = useState<string | null>(null);
+  const lettered = options.length > LETTERS_FROM;
   const shown = useMemo(() => {
     const needle = term.trim().toLowerCase();
-    if (onSearch || !needle) return options;
-    return options.filter((option) => option.label.toLowerCase().includes(needle));
-  }, [options, term, onSearch]);
+    const typed =
+      onSearch || !needle
+        ? options
+        : options.filter((option) => option.label.toLowerCase().includes(needle));
+    return letter ? typed.filter((option) => initialOf(option.label) === letter) : typed;
+  }, [options, term, onSearch, letter]);
   const selected = options.find((option) => option.value === value);
   const changeTerm = (next: string) => {
     setTerm(next);
@@ -78,10 +103,15 @@ export function OptionCombobox({
 
   return (
     <Popover
+      // Modal: inside a dialog the wheel scrolls this list, not both (J10-1).
+      modal
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) changeTerm("");
+        if (!next) {
+          changeTerm("");
+          setLetter(null);
+        }
       }}
     >
       <PopoverTrigger asChild>
@@ -111,7 +141,25 @@ export function OptionCombobox({
             className="pl-8"
           />
         </div>
-        <ul role="listbox" className="max-h-60 overflow-y-auto">
+        {lettered && (
+          <div role="group" aria-label={t("byLetter")} className="mb-2 flex flex-wrap gap-0.5">
+            {LETTERS.map((each) => (
+              <button
+                key={each}
+                type="button"
+                aria-pressed={letter === each}
+                onClick={() => setLetter((current) => (current === each ? null : each))}
+                className={cn(
+                  "min-w-6 rounded px-1 py-0.5 text-xs font-medium tabular-nums transition",
+                  letter === each ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                {each}
+              </button>
+            ))}
+          </div>
+        )}
+        <ul role="listbox" className="max-h-60 overflow-y-auto overscroll-contain">
           {shown.length === 0 ? (
             <li className="px-2 py-3 text-center text-xs text-muted-foreground">
               {emptyLabel}
@@ -129,6 +177,7 @@ export function OptionCombobox({
                     onChange(option.value);
                     setOpen(false);
                     changeTerm("");
+                    setLetter(null);
                   }}
                 >
                   <Check className={cn("size-4 shrink-0", option.value === value ? "opacity-100" : "opacity-0")} />

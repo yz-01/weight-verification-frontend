@@ -104,6 +104,9 @@ describe("clicking a column opens its records here (D-276)", () => {
   const source = read(MANAGEMENT);
   const page = functionBody(source, "CategoryManagement");
   const dialog = functionBody(source, "ColumnRecordsDialog");
+  // 图 6 (J34-6): each row is drawn by its own parts, and the pages by `PageNumbers`.
+  const row = [dialog, functionBody(source, "ColumnRecordInfo"), functionBody(source, "ColumnRecordState")].join("\n");
+  const pager = read("src/components/contractor-ops/column-records.tsx");
 
   it("opens from the column's name and from a 查看记录 button, for any reader", () => {
     expect(page.match(/onClick=\{\(\) => setViewing\(row\)\}/g) ?? []).toHaveLength(2);
@@ -134,32 +137,34 @@ describe("clicking a column opens its records here (D-276)", () => {
     for (const body of [page, dialog]) {
       expect(body).not.toMatch(/<Link\b|\bhref[:=]|router\.(push|replace)/);
     }
-    expect(dialog).toMatch(/<Shell title=\{t\("records\.title", \{ name: column\.name \}\)\}/);
+    expect(dialog).toMatch(/<Shell wide title=\{t\("records\.title", \{ name: column\.name \}\)\}/);
     expect(read("src/components/contractor-ops/package-shell.tsx")).toMatch(/role="dialog"/);
   });
 
   it("shows each row's reference, module, time, status and who archived it", () => {
-    expect(dialog).toMatch(/\{row\.reference\}/);
-    expect(dialog).toMatch(/\{row\.detail\}/);
+    expect(row).toMatch(/\{row\.reference\}/);
+    expect(row).toMatch(/\brow\.detail\b/);
     // A return is named 材料退场, not 材料进场 (B10).
-    expect(dialog).toMatch(/queue\(`kind\.\$\{recordKindKey\(row\)\}`/);
-    expect(dialog).toMatch(/formatter\.dateTime\(row\.submitted_at\)/);
-    expect(dialog).toMatch(/recordStatusLabel\(root, row\)/);
-    expect(dialog).not.toMatch(/\{row\.status_label\}/);
+    expect(row).toMatch(/queue\(`kind\.\$\{recordKindKey\(row\)\}`/);
+    expect(row).toMatch(/formatter\.dateTime\(row\.submitted_at\)/);
+    expect(row).toMatch(/recordStatusLabel\(root, row\)/);
+    expect(row).not.toMatch(/\{row\.status_label\}/);
     for (const word of ["closure.notApplicable", "closure.closed", "closure.open"]) {
-      expect(dialog, word).toContain(`queue("${word}")`);
+      expect(row, word).toContain(`queue("${word}")`);
     }
-    expect(dialog).toMatch(/row\.archived\.by/);
+    expect(row).toMatch(/row\.archived\.by/);
   });
 
   it("says loading, failed and empty, and pages", () => {
     expect(dialog).toMatch(/records\.isLoading \?/);
     expect(dialog).toMatch(/records\.isError \?[\s\S]*?role="alert"/);
     expect(dialog).toMatch(/t\("records\.empty"\)/);
-    expect(dialog).toMatch(/setPage\(\(current\) => current - 1\)/);
-    expect(dialog).toMatch(/setPage\(\(current\) => current \+ 1\)/);
-    expect(dialog).toMatch(/disabledReason=\{queue\("firstPage"\)\}/);
-    expect(dialog).toMatch(/disabledReason=\{queue\("lastPage"\)\}/);
+    // 「显示第 1 到 10 条，共 N 条记录」 and the page numbers (图 6).
+    expect(dialog).toMatch(/<PageNumbers page=\{page\} pageSize=\{RECORDS_PAGE_SIZE\} total=\{total\} onPage=\{setPage\}/);
+    expect(pager).toMatch(/onPage\(page - 1\)/);
+    expect(pager).toMatch(/onPage\(page \+ 1\)/);
+    expect(pager).toMatch(/disabledReason=\{t\("first"\)\}/);
+    expect(pager).toMatch(/disabledReason=\{t\("last"\)\}/);
   });
 });
 
@@ -259,16 +264,16 @@ describe("a category's records are looked at, not decided (2026-10 B3, B4)", () 
   it("narrows by supplier, dates and search, and shows the DO", () => {
     expect(dialog).toMatch(/<SupplierDateFilter\s+value=\{filters\}\s+showSupplier=\{supplierFilter\}/);
     expect(dialog).toMatch(/\.\.\.filters,\s*search: search \|\| undefined,/);
-    expect(dialog).toMatch(/queryKey: \["category-records", moduleKey, column\.id, page, filters, search, spec\]/);
+    expect(dialog).toMatch(/queryKey: \["category-records", moduleKey, column\.id, page, filters, search, spec, stage\]/);
     // 再选规格 (J7-5): one specification of the material.
     expect(dialog).toMatch(/spec_category: spec,/);
     // The column's figure: one line per specification and unit (J7-4, J7-6).
     expect(read("src/components/contractor-ops/category-management.tsx")).toMatch(
       /key=\{`\$\{quantity\.material_specification \?\? ""\}\|\$\{quantity\.unit\}`\}/,
     );
-    expect(dialog).toMatch(/row\.delivery_note_no/);
+    expect(dialog + functionBody(read(MANAGEMENT), "ColumnRecordInfo")).toMatch(/row\.delivery_note_no/);
     expect(dialog).toMatch(/row\.supplier_name/);
-    expect(dialog).toMatch(/<RecordNo value=\{row\.reference\} projectCode=\{row\.project_code\} \/>/);
+    expect(dialog + functionBody(read(MANAGEMENT), "ColumnRecordInfo")).toMatch(/<RecordNo value=\{row\.reference\} projectCode=\{row\.project_code\} \/>/);
     const service = read(SERVICE);
     const list = service.slice(service.indexOf("export function getCategoryRecords("));
     for (const key of ["supplier", "date_from", "date_to", "search"]) {

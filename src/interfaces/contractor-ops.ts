@@ -1085,7 +1085,9 @@ export type ArchiveRecordKind =
   | "PROGRESS"
   | "CONSULTANT_APPLICATION"
   | "ATTENDANCE_DAY"
-  | "SUNDRY_CLAIM";
+  | "SUNDRY_CLAIM"
+  /** MR / 其他申请 (J30-2): packable in Multi Engine, not a 现场记录中心 row. */
+  | "MATERIAL_REQUEST";
 
 /**
  * Every kind a Category Management column can hold (T-396, D-276).
@@ -1147,6 +1149,20 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
    */
   manufacturer_name?: string;
   manufacturer_off_list?: boolean;
+  /** J34-2: the first photographs' thumbnails, cover first. */
+  photo_thumbs?: string[] | null;
+  /**
+   * A category's records only (J34-6, 图 6): what the table shows where the
+   * record has it - the plate, quantity, specification, note, receiver and
+   * whether it carries GPS. A kind without them sends "" or null.
+   */
+  vehicle_plate?: string;
+  specification?: string;
+  quantity?: string | null;
+  unit?: string;
+  note?: string;
+  received_by?: string;
+  has_gps?: boolean;
   /** A material receipt's direction (B10), so a return is not named 材料进场. */
   movement_type?: "ENTRY" | "RETURN";
   /** A safety row's type: a 施工准证 opens as a permit, not a hazard card. */
@@ -1202,6 +1218,39 @@ export interface CategoryRecordPage {
   supplier_filter?: boolean;
   /** Whether any record kind here has a manufacturer (2026-10 D1): material only. */
   manufacturer_filter?: boolean;
+  /** Each tab's count under the same filters (J34-6), or null for a module without stages. */
+  tabs?: Record<"all" | CategoryRecordStage, number> | null;
+}
+
+/** The page's tabs (J34-6): each record type's own states mapped onto three. */
+export type CategoryRecordStage = "pending" | "done" | "returned";
+
+/**
+ * The figures above a column's records (J34-6, 图 6), counted from what is
+ * filed in it. A material column measures deliveries in one unit (strings);
+ * any other counts records (numbers).
+ */
+export interface CategorySummary {
+  measure: "quantity" | "count";
+  unit: string | null;
+  unit_label: string | null;
+  /** Loads in another unit, not converted into this one. */
+  other_units: boolean;
+  today: string | number;
+  yesterday: string | number;
+  month: string | number;
+  /** The same days of last month, for 「较上月同期」. */
+  last_month: string | number;
+  total: string | number;
+  target: {
+    target_quantity: string;
+    net: string;
+    remaining: string;
+    percent: number | null;
+    status: string;
+  } | null;
+  /** How many suppliers delivered into it, or null where records have none. */
+  suppliers: number | null;
 }
 
 export interface ArchiveQueuePage {
@@ -1245,7 +1294,13 @@ export const PACKAGE_TYPES: readonly PackageType[] = [
 export const CLAIM_PACKAGE_TYPES: readonly PackageType[] = ["PROGRESS_CLAIM", "SUNDRY_CLAIM"];
 
 /** Who a package went to (H17 四 2). Only a consultant signs in. */
-export type RecipientKind = "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
+/** HEADQUARTERS (J30-1): the company's own head office, in the system - no link. */
+export type RecipientKind = "HEADQUARTERS" | "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
+
+/** Whether a recipient reads through a link (not a consultant, not head office). */
+export function isLinkRecipient(kind: RecipientKind): boolean {
+  return kind !== "CONSULTANT" && kind !== "HEADQUARTERS";
+}
 export type RecipientStatus = "SENT" | "VIEWED" | "SIGNED" | "REVOKED";
 export type PackageEventKind =
   | "CONFIRMED"

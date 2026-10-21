@@ -7,6 +7,7 @@ import { useEffect } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { ContractorDashboard } from "@/components/dashboard/contractor-dashboard";
+import { ProjectReference } from "@/components/dashboard/project-reference";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { getProject } from "@/services/contractor.service";
@@ -65,6 +66,8 @@ export function ProjectDashboard() {
               : undefined
         }
       />
+      {/* 项目仪表板 as the client's picture (J34-5); everything it had before below. */}
+      <ProjectReference project={project} />
       <ContractorDashboard project={project} onProjectChange={choose} />
     </div>
   );

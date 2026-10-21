@@ -4042,7 +4042,70 @@
       "groupCount": "{count} 笔",
       "search": "搜索编号、材料、DO",
       "emptyFiltered": "这个分类里没有符合筛选条件的记录。",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "这个分类的数字",
+        "quantity": {
+          "today": "今日收货",
+          "month": "本月累计",
+          "total": "项目累计"
+        },
+        "count": {
+          "today": "今日记录",
+          "month": "本月记录",
+          "total": "全部记录"
+        },
+        "vsYesterday": "较昨日",
+        "vsLastMonth": "较上月同期",
+        "same": "持平",
+        "ofTarget": "占项目目标 {percent}%",
+        "target": "项目目标",
+        "remaining": "剩余 {value}",
+        "reached": "已达到目标",
+        "noTarget": "未设定目标",
+        "completion": "完成率",
+        "suppliers": "供应商数量",
+        "suppliersNote": "累计供应商",
+        "otherUnits": "只算单位是「{unit}」的收货；其他单位的没有换算，不在数字里。"
+      },
+      "stage": {
+        "label": "按状态",
+        "all": "全部记录",
+        "material": {
+          "pending": "待验收",
+          "done": "已验收",
+          "returned": "已拒收"
+        },
+        "other": {
+          "pending": "待处理",
+          "done": "已完成",
+          "returned": "已退回"
+        }
+      },
+      "table": {
+        "index": "序号",
+        "photos": "照片（点击查看）",
+        "record": "记录信息",
+        "supplier": "供应商 / 车牌",
+        "time": "时间",
+        "quantity": "数量",
+        "location": "位置",
+        "status": "状态",
+        "actions": "操作",
+        "view": "查看",
+        "note": "备注：{note}",
+        "receivedBy": "现场签收：{name}",
+        "gps": "有 GPS",
+        "noGps": "无 GPS"
+      },
+      "pager": {
+        "label": "分页",
+        "showing": "显示第 {from} 到 {to} 条，共 {total} 条记录",
+        "previous": "上一页",
+        "next": "下一页",
+        "first": "已是第一页",
+        "last": "已是最后一页"
+      }
     },
     "quantityReturned": "退场 {quantity}",
     "units": {
@@ -4287,7 +4350,10 @@
     "view": "查看",
     "alreadyLastPage": "已经在最后一页",
     "linkCopied": "链接已复制，粘贴即可分享。",
-    "shareFailed": "分享没有成功，请下载后再发送文件。"
+    "shareFailed": "分享没有成功，请下载后再发送文件。",
+    "combobox": {
+      "byLetter": "按首字母筛选"
+    }
   },
   "companies": {
     "owner": {
@@ -6735,6 +6801,34 @@
       "show": "查看",
       "choose": "请先选开始和结束日期。",
       "backwards": "开始日期不能晚于结束日期。"
+    },
+    "photoGroups": {
+      "loadError": "照片报表载入失败。",
+      "empty": "这段时间没有照片。",
+      "count": "{count} 条有照片的记录",
+      "truncated": "显示最新的；缩短日期范围看其余的",
+      "previous": "上一页",
+      "next": "下一页",
+      "first": "已经是第一页。",
+      "last": "已经是最后一页。",
+      "noRecord": "没有所属记录的照片",
+      "kind": {
+        "ATTENDANCE": "打卡",
+        "OTHER": "记录"
+      },
+      "photos": "{count} 张照片",
+      "hasGps": "有 GPS",
+      "openPhoto": "打开 {reference} 的第 {index} 张照片",
+      "openRecord": "打开原记录",
+      "column": {
+        "reference": "编号",
+        "kind": "模块",
+        "project": "项目",
+        "date": "日期",
+        "uploaded_by": "上传人",
+        "photo_count": "照片张数",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {
@@ -10489,7 +10583,8 @@
       "DISPOSAL_REQUEST": "清运申请",
       "PROGRESS": "工程进度",
       "CONSULTANT_APPLICATION": "顾问申请",
-      "SUNDRY_CLAIM": "杂费报销"
+      "SUNDRY_CLAIM": "杂费报销",
+      "MATERIAL_REQUEST": "MR / 其他申请"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "加载中…",
@@ -10645,7 +10740,8 @@
         "CONSULTANT": "顾问",
         "OWNER": "业主",
         "SUPPLIER": "供应商",
-        "OTHER": "其他单位"
+        "OTHER": "其他单位",
+        "HEADQUARTERS": "总部（系统内）"
       },
       "expired": "已过期",
       "status": {
@@ -10746,7 +10842,9 @@
         "REPORT": "生成往来记录"
       },
       "ip": "IP {ip}",
-      "writeFirst": "先写留言或选附件。"
+      "writeFirst": "先写留言或选附件。",
+      "headquartersHelp": "发给贵司系统里的总部，不用生成链接。总部在 Multi Engine 的「收到的资料包」看到，并收到系统通知；系统记录谁打开过。",
+      "sendToHeadquarters": "发给总部"
     },
     "claimFacet": {
       "title": "Claim 金额与收款",
@@ -10771,7 +10869,8 @@
       "recipients": "收件方数",
       "round": "当前轮次",
       "returned": "退回数"
-    }
+    },
+    "received": "收到的资料包"
   },
   "mySubmissions": {
     "title": "我提交过的",
@@ -11306,7 +11405,8 @@
       "dailyReport": "日报告",
       "progressSummary": "项目进度摘要",
       "siteWorkers": "人员名单",
-      "materialTargets": "材料目标"
+      "materialTargets": "材料目标",
+      "materialRequests": "MR / 其他申请"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -19145,5 +19245,38 @@
       "failed": "保存没有成功，请再试一次。",
       "chooseProject": "先在页面上方选一个项目，才能新增链接。"
     }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "今日收货（吨）",
+      "wasteToday": "今日废料（吨）",
+      "receiptsTotal": "累计收货（吨）",
+      "wasteTotal": "累计废料（吨）",
+      "equipment": "设备总数",
+      "pending": "待处理事项"
+    },
+    "thisMonth": "本月 {value} 吨",
+    "equipmentSplit": "在场 {on} | 离场 {off}",
+    "seeBelow": "见下方",
+    "tonnesNote": "吨数只算称重的：吨，公斤换算成吨；废料指环保材料出场。",
+    "latestReceipts": "最新物料收货记录",
+    "seeAll": "查看全部",
+    "noReceipts": "还没有收货记录。",
+    "map": "项目现场地图",
+    "point": {
+      "RECEIPT": "物料收货点",
+      "WASTE": "废料处理点",
+      "EQUIPMENT": "设备位置"
+    },
+    "noPoints": "最近 30 天没有带 GPS 的记录。",
+    "materialMix": "物料分类统计（本月）",
+    "wasteMix": "废料分类统计（本月）",
+    "noMix": "本月还没有称重的数量。",
+    "mixTotal": "总吨数 {value}",
+    "others": "其他",
+    "pending": "待处理事项",
+    "noPending": "没有待处理事项。",
+    "photos": "最新现场照片记录",
+    "noPhotos": "还没有现场照片。"
   }
 }

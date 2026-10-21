@@ -36,6 +36,7 @@ import type {
   PackageRecipient,
   RecipientKind,
 } from "@/interfaces/contractor-ops";
+import { isLinkRecipient } from "@/interfaces/contractor-ops";
 import {
   addPackageRecipient,
   correspondenceReportFile,
@@ -63,7 +64,8 @@ import {
  * link never reaches this file.
  */
 
-const RECIPIENT_KINDS: RecipientKind[] = ["CONSULTANT", "OWNER", "SUPPLIER", "OTHER"];
+// 总部（系统内）first (J30-1): the company's own head office, no link.
+const RECIPIENT_KINDS: RecipientKind[] = ["HEADQUARTERS", "CONSULTANT", "OWNER", "SUPPLIER", "OTHER"];
 
 /** The page an outside recipient opens. The token is the whole credential. */
 export function packageLinkAddress(token: string) {
@@ -249,7 +251,7 @@ function RecipientsBlock({
                     name: row.created_by_name || "—",
                     when: formatter.dateTime(row.created_at),
                   })}
-                  {row.kind !== "CONSULTANT" && row.token_hint && (
+                  {isLinkRecipient(row.kind) && row.token_hint && (
                     <>
                       {" · "}
                       {t("exchange.linkHint", {
@@ -266,7 +268,7 @@ function RecipientsBlock({
                 )}
                 {manage && !closed && (
                   <div className="flex flex-wrap gap-2">
-                    {row.kind !== "CONSULTANT" && (
+                    {isLinkRecipient(row.kind) && (
                       <>
                         <Button
                           size="sm"
@@ -401,7 +403,7 @@ export function SendDialog({
   pkg,
   onClose,
   onSent,
-  initialKind = "OWNER",
+  initialKind = "HEADQUARTERS",
 }: {
   pkg: EvidencePackageDetail;
   onClose: () => void;
@@ -430,19 +432,21 @@ export function SendDialog({
     mutationFn: () =>
       addPackageRecipient(
         pkg.id,
-        kind === "CONSULTANT"
-          ? { kind, consultant }
-          : { kind, name, organization, contact, days: Number(days) || 90 },
+        kind === "HEADQUARTERS"
+          ? { kind }
+          : kind === "CONSULTANT"
+            ? { kind, consultant }
+            : { kind, name, organization, contact, days: Number(days) || 90 },
       ),
     onSuccess: onSent,
   });
-  const link = kind !== "CONSULTANT";
+  const link = isLinkRecipient(kind);
 
   return (
     <Shell title={t("exchange.sendTitle")} onClose={onClose}>
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         <FieldWrapper label={t("exchange.field.kind")} required>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
             {RECIPIENT_KINDS.map((value) => (
               <button
                 key={value}
@@ -460,7 +464,12 @@ export function SendDialog({
             ))}
           </div>
         </FieldWrapper>
-        {kind === "CONSULTANT" ? (
+        {kind === "HEADQUARTERS" ? (
+          // 发给贵司系统里的总部 (J30-1): nothing to fill in, no link made.
+          <p className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm" data-send-headquarters>
+            {t("exchange.headquartersHelp")}
+          </p>
+        ) : kind === "CONSULTANT" ? (
           <FieldWrapper label={t("field.consultant")} required hint={t("exchange.consultantHelp")}>
             <OptionCombobox
               value={consultant}
@@ -521,15 +530,21 @@ export function SendDialog({
         </Button>
         <Button
           requires={
-            link
-              ? [[(name.trim() || organization.trim()), t("exchange.field.who")]]
-              : [[consultant, t("field.consultant")]]
+            kind === "HEADQUARTERS"
+              ? []
+              : link
+                ? [[(name.trim() || organization.trim()), t("exchange.field.who")]]
+                : [[consultant, t("field.consultant")]]
           }
           disabled={send.isPending}
           onClick={() => send.mutate()}
         >
           <Send className="size-4" />
-          {link ? t("exchange.makeLink") : t("exchange.sendToConsultant")}
+          {kind === "HEADQUARTERS"
+            ? t("exchange.sendToHeadquarters")
+            : link
+              ? t("exchange.makeLink")
+              : t("exchange.sendToConsultant")}
         </Button>
       </footer>
     </Shell>
@@ -879,7 +894,7 @@ function ResubmitDialog({
   });
   // Links have nothing the platform can ring: the office tells them (七).
   const toTell = (result?.recipients ?? []).filter(
-    (row) => row.kind !== "CONSULTANT" && !row.revoked_at && !row.signed_at,
+    (row) => isLinkRecipient(row.kind) && !row.revoked_at && !row.signed_at,
   );
 
   return (

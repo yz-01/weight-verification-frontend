@@ -110,6 +110,8 @@ const KINDS: ArchiveRecordKind[] = [
   "CONSULTANT_APPLICATION",
   // HD17: 杂费报销 records, packed as a Sundry Claim's sources.
   "SUNDRY_CLAIM",
+  // J30-2: MR / 其他申请, once decided.
+  "MATERIAL_REQUEST",
 ];
 
 const PAGE_SIZE = 20;
@@ -186,14 +188,20 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
     setOpenId(null);
   });
   const [creating, setCreating] = useState(false);
+  // 收到的资料包 (J30-1): what the sites sent to head office in the system.
+  // The notice opens the list with `?received=1`.
+  const headOffice = can("project.view_all");
+  const [received, setReceived] = useState(useSearchParams().get("received") === "1");
+  const receivedOnly = headOffice && received;
 
   const query = useQuery({
-    queryKey: ["evidence-packages", project, search, page, type],
+    queryKey: ["evidence-packages", project, search, page, type, receivedOnly],
     queryFn: () =>
       getEvidencePackages({
         project: project || undefined,
         search: search || undefined,
         type: type || undefined,
+        received: receivedOnly ? 1 : undefined,
         page,
         page_size: PAGE_SIZE,
       }),
@@ -235,6 +243,21 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
           placeholder={t("searchPlaceholder")}
           className="w-full sm:w-72"
         />
+        {headOffice ? (
+          <Button
+            type="button"
+            variant={receivedOnly ? "default" : "outline"}
+            aria-pressed={receivedOnly}
+            data-received-packages
+            onClick={() => {
+              setReceived((current) => !current);
+              setPage(1);
+            }}
+          >
+            <Inbox className="size-4" />
+            {t("received")}
+          </Button>
+        ) : null}
         {/* The packages listed, as a file (H16, HD13). */}
         <ExportButton
           disabled={total === 0}
