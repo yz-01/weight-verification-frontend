@@ -9105,7 +9105,12 @@
       "location": "地點",
       "latestPhoto": "最新照片",
       "overdue": "逾期",
-      "noCoordinates": "未設定座標"
+      "noCoordinates": "未設定座標",
+      "layerFences": "圍欄",
+      "openProjectMap": "打開項目地圖",
+      "projectMapTitle": "{project}：地圖和圍欄",
+      "projectMapFences": "{count} 個圍欄，照保存的位置畫出；放大、縮小、調整地圖大小都不會移動圍欄。",
+      "projectMapNoFence": "這個項目還沒有圍欄。"
     },
     "photos": {
       "title": "今日現場照片（各項目）",
@@ -18764,7 +18769,8 @@
   },
   "mapFrame": {
     "fullscreen": "全螢幕",
-    "exitFullscreen": "退出全螢幕"
+    "exitFullscreen": "退出全螢幕",
+    "resize": "拖動調整地圖大小"
   },
   "siteWorkers": {
     "title": "人員名單",

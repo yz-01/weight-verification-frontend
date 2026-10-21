@@ -9105,7 +9105,12 @@
       "location": "Lokasi",
       "latestPhoto": "Foto terkini",
       "overdue": "Lewat",
-      "noCoordinates": "Tiada koordinat"
+      "noCoordinates": "Tiada koordinat",
+      "layerFences": "Pagar geo",
+      "openProjectMap": "Buka peta projek",
+      "projectMapTitle": "{project} - peta dan pagar geo",
+      "projectMapFences": "{count} pagar geo, seperti disimpan. Zum atau ubah saiz peta tidak mengalihkannya.",
+      "projectMapNoFence": "Projek ini belum ada pagar geo."
     },
     "photos": {
       "title": "Foto tapak hari ini (semua projek)",
@@ -18764,7 +18769,8 @@
   },
   "mapFrame": {
     "fullscreen": "Skrin penuh",
-    "exitFullscreen": "Keluar skrin penuh"
+    "exitFullscreen": "Keluar skrin penuh",
+    "resize": "Seret untuk ubah saiz peta"
   },
   "siteWorkers": {
     "title": "Senarai pekerja",

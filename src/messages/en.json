@@ -9105,7 +9105,12 @@
       "location": "Location",
       "latestPhoto": "Latest photo",
       "overdue": "Overdue",
-      "noCoordinates": "No coordinates"
+      "noCoordinates": "No coordinates",
+      "layerFences": "Fences",
+      "openProjectMap": "Open project map",
+      "projectMapTitle": "{project} - map and fences",
+      "projectMapFences": "{count} fences, as saved. Zooming or resizing the map never moves them.",
+      "projectMapNoFence": "This project has no fence yet."
     },
     "photos": {
       "title": "Today's site photos (all projects)",
@@ -18764,7 +18769,8 @@
   },
   "mapFrame": {
     "fullscreen": "Full screen",
-    "exitFullscreen": "Exit full screen"
+    "exitFullscreen": "Exit full screen",
+    "resize": "Drag to resize the map"
   },
   "siteWorkers": {
     "title": "Worker roster",
