@@ -252,3 +252,32 @@ export interface EquipmentDayAdjustmentPayload {
   start_at?: string;
   reason: string;
 }
+
+/**
+ * One record on a phone (J37): the two ends and the hours as the office
+ * works them out - 正常 / 超时 / 总, never worked out again on the phone.
+ * Hours are blank while the 收工 is missing.
+ */
+export interface EquipmentPhoneRecord {
+  key: string;
+  /** `YYYY-MM-DD`, the day it started. */
+  work_date: string;
+  equipment_name: string;
+  equipment_code: string;
+  site_no: string;
+  operator_name: string;
+  start_at: string | null;
+  end_at: string | null;
+  hours: string | null;
+  normal_hours: string | null;
+  overtime_hours: string | null;
+  missing_end: boolean;
+}
+
+/** The sums of the records a phone lists. */
+export interface EquipmentPhoneTotals {
+  normal_hours: string;
+  overtime_hours: string;
+  total_hours: string;
+  session_count: number;
+}

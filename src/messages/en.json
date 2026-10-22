@@ -18539,6 +18539,21 @@
       "save": "Save",
       "failed": "Could not save. Please try again.",
       "current": "Set {at} by {name}"
+    },
+    "records": {
+      "what": "the records",
+      "driverHint": "Your last {days} days. Read only.",
+      "monthTotals": "This month",
+      "staffTitle": "Recent records",
+      "staffHint": "This project, last {days} days.",
+      "recentTotals": "Total of the days shown",
+      "normal": "Normal",
+      "overtime": "Overtime",
+      "total": "Total",
+      "start": "Start",
+      "end": "Stop",
+      "running": "Not stopped yet",
+      "empty": "No records yet."
     }
   },
   "theme": {
@@ -19294,6 +19309,10 @@
       "lastUsed": "Last used {at}",
       "failed": "Could not save. Please try again.",
       "chooseProject": "Choose a project at the top of the page to make a link."
+    },
+    "tabs": {
+      "clock": "Clock in / out",
+      "records": "My records"
     }
   },
   "projectReference": {

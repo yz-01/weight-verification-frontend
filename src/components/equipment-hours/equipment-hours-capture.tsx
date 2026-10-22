@@ -5,6 +5,7 @@ import { CheckCircle2, CloudOff, Keyboard, Loader2, Play, ScanLine, Send, Square
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { FieldStaffRecords } from "@/components/equipment-hours/equipment-phone-records";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -314,6 +315,8 @@ export function EquipmentHoursCapture({
       setError("");
       reset();
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "machines"] });
+      void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "phone-records"] });
+      void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "driver-records"] });
     },
     onError: (reason) =>
       setError(reason instanceof ApiError ? reason.message : t("phone.failed")),
@@ -508,6 +511,9 @@ export function EquipmentHoursCapture({
           pick(found);
         }}
       />
+
+      {/* J37-2: the project's recent records with 正常 / 超时 / 总工时. */}
+      {!driver && !machine && project ? <FieldStaffRecords project={project} /> : null}
     </div>
   );
 }
