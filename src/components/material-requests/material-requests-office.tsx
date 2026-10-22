@@ -21,6 +21,8 @@
  * 待验收 view, and an old `?tab=photos` link opens that view.
  */
 
+import { MaterialLinesChip, MaterialLinesTable } from "@/components/shared/material-lines";
+import { requestShownLines } from "@/lib/material-lines";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -239,7 +241,11 @@ function RequestsTab() {
               {row.original.request_type === "OTHER" ? (
                 row.original.subject || <span className="text-muted-foreground">{t("type.OTHER")}</span>
               ) : (
-                row.original.material_name || <span className="text-muted-foreground">—</span>
+                <span className="inline-flex flex-wrap items-center gap-1.5">
+                  {row.original.material_name || <span className="text-muted-foreground">—</span>}
+                  {/* 「2 种材料」 (J35): one request, several materials. */}
+                  <MaterialLinesChip lines={requestShownLines(row.original)} />
+                </span>
               )}
             </span>
             {/* 材料编号 and the spec under the material (I39), so the list
@@ -511,6 +517,8 @@ export function NewRequestDialog({
           <MaterialRequestForm
             initialProject={initialProject}
             prefill={prefill}
+            // 「+ 增加材料」 on the desktop (J35).
+            multiLine
             onCancel={onClose}
             onSaved={onSaved}
           />
@@ -738,6 +746,7 @@ export function MaterialRequestDetail({
                       remark: row.remark,
                       subject: row.subject,
                       content: row.content,
+                      lines: row.lines,
                     })
                   }
                 >
@@ -755,7 +764,18 @@ export function MaterialRequestDetail({
           // The simple form (ID48): what is asked for, and the details.
           ...(!isMaterial && row.subject ? [{ label: t("field.subject"), value: row.subject, wide: true }] : []),
           ...(!isMaterial && row.content ? [{ label: t("field.content"), value: row.content, wide: true }] : []),
-          ...(isMaterial
+          // Several materials (J35): each on its own row, approved together.
+          ...(isMaterial && (row.line_count ?? 1) > 1
+            ? [
+                {
+                  label: t("field.materials"),
+                  wide: true,
+                  value: <MaterialLinesTable lines={requestShownLines(row)} />,
+                },
+                { label: t("field.supplier"), value: row.supplier_name || "—" },
+                { label: t("field.manufacturer"), value: row.manufacturer_name || "—" },
+              ]
+            : isMaterial
             ? [
                 { label: t("field.material"), value: row.material_name },
                 { label: t("field.materialCode"), value: row.category_code || "—" },

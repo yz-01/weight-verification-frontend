@@ -46,9 +46,18 @@ import {
   REQUEST_ATTACHMENT_ACCEPT,
   isValidRequestQuantity,
   type MaterialRequest,
+  type MaterialRequestLine,
   type MaterialRequestType,
 } from "@/interfaces/material-request";
 import { categoryManagementLink, isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
+import { MaterialLinesEditor } from "@/components/shared/material-lines";
+import {
+  emptyLine,
+  lineProblems,
+  newLineKey,
+  requestLinesPayload,
+  type MaterialLineDraft,
+} from "@/lib/material-lines";
 import {
   createMaterialRequest,
   getMaterialCatalogue,
@@ -83,6 +92,37 @@ export interface MaterialRequestPrefill {
   remark: string;
   subject?: string;
   content?: string;
+  /** Every material of the returned request (J35), when it had several. */
+  lines?: MaterialRequestLine[];
+}
+
+/** The editor's lines for a re-raised request (J35), or one empty line. */
+function linesFromPrefill(prefill: MaterialRequestPrefill | null | undefined): MaterialLineDraft[] {
+  const source = prefill?.lines?.length
+    ? prefill.lines
+    : prefill?.category
+      ? [
+          {
+            category: prefill.category ?? null,
+            spec_category: prefill.spec_category ?? null,
+            material_name: prefill.material_name,
+            specification: prefill.specification,
+            quantity: prefill.quantity,
+            unit: prefill.unit,
+          },
+        ]
+      : [];
+  if (!source.length) return [emptyLine()];
+  return source.map((line) => ({
+    ...emptyLine(),
+    key: newLineKey(),
+    category: line.category ?? "",
+    spec_category: line.spec_category ?? "",
+    material_name: line.material_name ?? "",
+    specification: line.specification ?? "",
+    quantity: line.quantity ?? "",
+    unit: line.unit ?? "",
+  }));
 }
 
 export function MaterialRequestForm({
@@ -90,13 +130,20 @@ export function MaterialRequestForm({
   prefill,
   onSaved,
   onCancel,
+  multiLine = false,
 }: {
   initialProject?: string;
   prefill?: MaterialRequestPrefill | null;
   onSaved: (row: MaterialRequest) => void;
   onCancel?: () => void;
+  /**
+   * 「+ 增加材料」 (J35): several materials on one request - the office's
+   * form. The phone keeps one material.
+   */
+  multiLine?: boolean;
 }) {
   const t = useTranslations("materialRequest");
+  const linesText = useTranslations("materialLines");
   const common = useTranslations("common");
   const unitName = useUnitName();
   const { user } = useAuth();
@@ -118,6 +165,8 @@ export function MaterialRequestForm({
   const [assignedReviewer, setAssignedReviewer] = useDraftState("assignedReviewer", "");
   // Whose make (2026-10 D1): optional on the form - approving settles it.
   const [manufacturer, setManufacturer] = useDraftState("manufacturer", "");
+  // The materials of a request of several (J35), kept in the draft.
+  const [lineDrafts, setLineDrafts] = useDraftState<MaterialLineDraft[]>("lines", () => linesFromPrefill(prefill));
   const [clientId] = useState(() => crypto.randomUUID());
   const [error, setError] = useState("");
 
@@ -156,6 +205,8 @@ export function MaterialRequestForm({
   const unit = choice.unitLocked ? choice.unit : typedUnit;
   const canSetUp = Boolean(catalogue.data?.can_manage_categories);
   const quantityOk = isValidRequestQuantity(quantity);
+  const linesComplete =
+    lineDrafts.length > 0 && lineDrafts.every((line) => lineProblems(line, materials).length === 0);
 
   // 「提交给」: who may approve on this project (the server's own list).
   const reviewers = useQuery({
@@ -174,7 +225,12 @@ export function MaterialRequestForm({
         project,
         request_type: isMaterial ? "MATERIAL" : "OTHER",
         request_kind: requestKind,
-        ...(isMaterial
+        ...(isMaterial && multiLine
+          ? {
+              lines: JSON.stringify(requestLinesPayload(lineDrafts, materials)),
+              manufacturer: manufacturer || undefined,
+            }
+          : isMaterial
           ? {
               category,
               spec_category: spec,
@@ -199,7 +255,14 @@ export function MaterialRequestForm({
     onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("failed")),
   });
 
-  const requirements: [unknown, string][] = isMaterial
+  const requirements: [unknown, string][] = isMaterial && multiLine
+    ? [
+        [project, t("field.project")],
+        [requestKind, t("field.requestType")],
+        [linesComplete, linesText("title")],
+        [reviewer, t("field.assignedReviewer")],
+      ]
+    : isMaterial
     ? [
         [project, t("field.project")],
         [requestKind, t("field.requestType")],
@@ -297,7 +360,28 @@ export function MaterialRequestForm({
         )}
       </FieldWrapper>
 
-      {chosenType && isMaterial && (
+      {chosenType && isMaterial && multiLine && (
+        <>
+          <FieldWrapper label={linesText("title")} required hint={linesText("requestHint")}>
+            <MaterialLinesEditor project={project} lines={lineDrafts} onChange={setLineDrafts} />
+          </FieldWrapper>
+          {catalogue.isSuccess && materials.length === 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-xs">
+              <span>{t("form.notSetUp")}</span>
+              {notSetUp}
+            </div>
+          )}
+          <FieldWrapper
+            label={t("field.manufacturer")}
+            optional={common("optional")}
+            hint={t("form.suggestHint")}
+          >
+            <ManufacturerPicker value={manufacturer} onChange={setManufacturer} />
+          </FieldWrapper>
+        </>
+      )}
+
+      {chosenType && isMaterial && !multiLine && (
         <>
           <div className="grid gap-3 sm:grid-cols-2">
             <FieldWrapper label={t("field.material")} required>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, FolderOpen, Pencil, Truck } from "lucide-react";
+import { Camera, FolderOpen, Layers, Pencil, Plus, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -43,6 +43,9 @@ import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { RecordCorrectionHistory } from "@/components/shared/record-correction";
 import { InspectionBadge } from "@/components/document-workflow/inspection";
+import { ReceiptLinesDialog } from "@/components/receipts/receipt-lines-dialog";
+import { MaterialLinesTable } from "@/components/shared/material-lines";
+import { receiptShownLines } from "@/lib/material-lines";
 
 /**
  * Whether this delivery's next step is the final 【确认归档】 (C4, X10):
@@ -415,6 +418,8 @@ export function ViewReceipt({
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const [filing, setFiling] = useState(false);
+  // 「+ 增加材料」 (J35): "add" opens with a new line waiting, "edit" without.
+  const [editingLines, setEditingLines] = useState<"add" | "edit" | null>(null);
 
   const { data, isLoading, isLoadingError, refetch } = useQuery({
     queryKey: ["receipts", "detail", id],
@@ -452,7 +457,8 @@ export function ViewReceipt({
   return (
     <RecordDetailFrame
       {...frame}
-      title={data.receipt_no}
+      title={data.receipt_no}
+
       status={
         <>
           {/* Which way it went (B10): a return used to open on a page that
@@ -525,7 +531,14 @@ export function ViewReceipt({
         }
         facts={[
           { label: t("receipts.field.project"), value: data.project_name },
-          { label: t("receipts.field.materialName"), value: data.material_name },
+          {
+            label: t("receipts.field.materialName"),
+            // A DO of several materials (J35): the first, and how many.
+            value:
+              (data.line_count ?? 1) > 1
+                ? `${data.material_name} · ${t("materialLines.count", { count: data.line_count ?? 1 })}`
+                : data.material_name,
+          },
           // The delivery's own day, which a correction keeps (B10, E05); the
           // correction's own time is in its trail above.
           { label: t("receipts.field.businessAt"), value: df.dateTime(data.business_at ?? data.captured_at) },
@@ -563,7 +576,16 @@ export function ViewReceipt({
             />
           ) : null
         }
-        panel={<DeliveryOrderPanel receipt={data} />}
+        panel={
+          <div className="space-y-4">
+            <DeliveryOrderPanel receipt={data} />
+            <ReceiptLinesPanel
+              receipt={data}
+              canEdit={can("receipt.update") && !data.superseded_by && !archived}
+              onEdit={setEditingLines}
+            />
+          </div>
+        }
         signatures={(
           [
             ["receiver", data.signature],
@@ -630,6 +652,13 @@ export function ViewReceipt({
             : null
         }
       />
+      {editingLines && (
+        <ReceiptLinesDialog
+          receipt={data}
+          addOne={editingLines === "add"}
+          onClose={() => setEditingLines(null)}
+        />
+      )}
       {filing && (
         <FileIntoColumnDialog
           projectId={data.project}
@@ -740,6 +769,45 @@ function CorrectionTrail({
  * block that is specific to deliveries - the supplier, the quantity and the
  * lorry, next to the photograph they were read from.
  */
+/**
+ * 「材料明细」 (J35): every material of the delivery, and the office's
+ * 「+ 增加材料」 - one DO, several materials, each filed on its own.
+ */
+function ReceiptLinesPanel({
+  receipt,
+  canEdit,
+  onEdit,
+}: {
+  receipt: MaterialReceiptDetail;
+  canEdit: boolean;
+  onEdit: (mode: "add" | "edit") => void;
+}) {
+  const t = useTranslations("materialLines");
+  const lines = receipt.lines ?? [];
+  return (
+    <section className="surface-panel rounded-xl p-4" data-receipt-lines>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="panel-title">{t("title")}</h3>
+        {canEdit && (
+          <div className="flex flex-wrap gap-2">
+            {lines.length > 1 && (
+              <Button size="sm" variant="outline" onClick={() => onEdit("edit")}>
+                <Layers className="h-4 w-4" />
+                {t("edit")}
+              </Button>
+            )}
+            <Button size="sm" variant="outline" onClick={() => onEdit("add")}>
+              <Plus className="h-4 w-4" />
+              {t("add")}
+            </Button>
+          </div>
+        )}
+      </div>
+      <MaterialLinesTable money lines={receiptShownLines(receipt)} />
+    </section>
+  );
+}
+
 function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
   const t = useTranslations();
   const unitName = useUnitName();
@@ -763,8 +831,15 @@ function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
           ],
         ] as Array<[string, React.ReactNode]>)
       : []),
-    [t("receipts.field.materialName"), receipt.material_name],
-    [t("receipts.field.quantity"), `${receipt.quantity} ${unitName(receipt.unit, receipt.unit_label)}`],
+    // A DO of several materials (J35): how many - each is in 材料明细 below.
+    ...((receipt.line_count ?? 1) > 1
+      ? ([[t("receipts.field.materialName"), t("materialLines.count", { count: receipt.line_count ?? 1 })]] as Array<
+          [string, React.ReactNode]
+        >)
+      : ([
+          [t("receipts.field.materialName"), receipt.material_name],
+          [t("receipts.field.quantity"), `${receipt.quantity} ${unitName(receipt.unit, receipt.unit_label)}`],
+        ] as Array<[string, React.ReactNode]>)),
     [t("receipts.field.vehiclePlate"), receipt.vehicle_plate],
     // The money the material budget counts (A6), and where it came from.
     [

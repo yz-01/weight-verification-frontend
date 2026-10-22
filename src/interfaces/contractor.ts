@@ -352,6 +352,27 @@ export interface ReceiptPhoto {
   created_at: string;
 }
 
+/** One material of a delivery (J35, 「+ 增加材料」). */
+export interface MaterialReceiptLine {
+  /** Null only when the server stood the delivery in for its own line 1. */
+  id: string | null;
+  position: number;
+  category: string | null;
+  category_code: string | null;
+  category_name: string | null;
+  spec_category: string | null;
+  spec_category_name: string | null;
+  material_name: string;
+  material_specification: string;
+  quantity: string;
+  unit: string;
+  unit_label: string | null;
+  unit_price: string | null;
+  /** This material's money on the DO, when the DO prices each line. */
+  amount: string | null;
+  total_value: string | null;
+}
+
 export interface MaterialReceipt {
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
@@ -390,6 +411,10 @@ export interface MaterialReceipt {
   material_name: string;
   material_specification: string;
   quantity: string;
+  /** 「N 种材料」 (J35): how many materials the delivery holds; 1 for most. */
+  line_count?: number;
+  /** Every material of the delivery, line 1 first (J35); line 1 is the fields above. */
+  lines?: MaterialReceiptLine[];
   cumulative_quantity?: string;
   unit: MaterialUnit;
   total_weight_kg: string | null;

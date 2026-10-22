@@ -8214,7 +8214,8 @@
       "permission_switches_unknown_permission": "其中一个权限不存在。",
       "permission_switches_unknown_project": "请选择本公司的项目。",
       "permission_switches_self_lockout": "不能关掉自己的「用户管理」。",
-      "permission_switches_last_user_manager": "公司里至少要有一个人保留「用户管理」。"
+      "permission_switches_last_user_manager": "公司里至少要有一个人保留「用户管理」。",
+      "receipt_line_returned": "这项材料已有退货记录，不能删除。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -11041,7 +11042,8 @@
       "entry_at": "进场时间",
       "exit_at": "退场时间",
       "request_kind": "申请类型",
-      "pdpa_consent": "个人资料告知"
+      "pdpa_consent": "个人资料告知",
+      "material_lines": "材料明细"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -17398,7 +17400,10 @@
       "material_specification": "规格（自填）",
       "equipment": "设备",
       "start_at": "开始时间",
-      "end_at": "结束时间"
+      "end_at": "结束时间",
+      "material_line": "材料明细",
+      "unit_price": "单价",
+      "spec_category": "规格"
     },
     "followsSpec": "单位跟着规格，不能改"
   },
@@ -17816,7 +17821,8 @@
       "stage": "进度",
       "forwardHistory": "转呈记录",
       "headOfficeReviewer": "总部审批人",
-      "materialName": "材料名称"
+      "materialName": "材料名称",
+      "materials": "材料明细"
     },
     "action": {
       "view": "查看",
@@ -17961,6 +17967,50 @@
     },
     "forwarded": "{by} 于 {at} 转呈总部",
     "managerHelp": "现场人员交给你的申请：确认后选总部审批人，按「提交总部审批」；不对就退回。"
+  },
+  "materialLines": {
+    "title": "材料明细",
+    "count": "{count} 种材料",
+    "line": "材料 {n}",
+    "firstLine": "本单原有的材料",
+    "firstLineInForm": "在上面的表格修改",
+    "remove": "删除材料 {n}",
+    "removeShort": "删除",
+    "material": "材料",
+    "specification": "规格",
+    "materialName": "材料名称",
+    "specificationName": "规格名称",
+    "quantity": "数量",
+    "unit": "单位",
+    "unitPrice": "单价",
+    "amount": "金额",
+    "amountHint": "这项材料在 DO 上的金额",
+    "optional": "选填",
+    "chooseMaterial": "选择材料",
+    "chooseSpecification": "选择规格",
+    "materialFirst": "先选材料",
+    "chooseUnit": "选择单位",
+    "search": "搜索",
+    "notSetUp": "该材料尚未建立，请先到分类管理设置。",
+    "noSpecifications": "这个材料没有规格",
+    "goToCategories": "前往分类管理",
+    "otherMaterialHint": "输入材料名称",
+    "otherSpecHint": "输入规格名称",
+    "quantityRule": "大于 0，最多三位小数",
+    "unitFromSpec": "单位跟着规格，不能改",
+    "needed": "请填写",
+    "materialData": "材料资料",
+    "add": "增加材料",
+    "edit": "修改材料明细",
+    "save": "保存材料明细",
+    "saveFailed": "保存失败，请再试一次。",
+    "reason": "修改原因",
+    "dialogTitle": "{reference} · 材料明细",
+    "dialogHelp": "一张 DO 可以有多种材料。每种材料各自选材料、规格、单位，填数量，各自进对应的分类和累计。第 1 项是这张单原有的材料，可以改，不能删。",
+    "pinNote": "只改规格或单位不用签核密码；改材料、数量、单价、金额，或增加、删除材料，要签核密码，并留修改记录。",
+    "correctionNote": "这张单有 {count} 种材料。这里改第 1 项；其他材料用「增加材料」加、改、删。",
+    "correctionNoteOne": "这张 DO 有多种材料？用「增加材料」加上去，各自归档。",
+    "requestHint": "一张申请可以有多种材料，整张一起审批。"
   },
   "filePreview": {
     "unsupported": "{ext} 文件不能在页面里预览，请按「下载查看」。",

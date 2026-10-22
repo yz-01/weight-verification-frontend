@@ -8214,7 +8214,8 @@
       "permission_switches_unknown_permission": "其中一個權限不存在。",
       "permission_switches_unknown_project": "請選擇本公司的項目。",
       "permission_switches_self_lockout": "不能關掉自己的「用戶管理」。",
-      "permission_switches_last_user_manager": "公司裡至少要有一個人保留「用戶管理」。"
+      "permission_switches_last_user_manager": "公司裡至少要有一個人保留「用戶管理」。",
+      "receipt_line_returned": "這項材料已有退貨記錄，不能刪除。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -11041,7 +11042,8 @@
       "entry_at": "進場時間",
       "exit_at": "退場時間",
       "request_kind": "申請類型",
-      "pdpa_consent": "個人資料告知"
+      "pdpa_consent": "個人資料告知",
+      "material_lines": "材料明細"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -17398,7 +17400,10 @@
       "material_specification": "規格（自填）",
       "equipment": "設備",
       "start_at": "開始時間",
-      "end_at": "結束時間"
+      "end_at": "結束時間",
+      "material_line": "材料明細",
+      "unit_price": "單價",
+      "spec_category": "規格"
     },
     "followsSpec": "單位跟著規格，不能改"
   },
@@ -17816,7 +17821,8 @@
       "stage": "進度",
       "forwardHistory": "轉呈記錄",
       "headOfficeReviewer": "總部審批人",
-      "materialName": "材料名稱"
+      "materialName": "材料名稱",
+      "materials": "材料明細"
     },
     "action": {
       "view": "查看",
@@ -17961,6 +17967,50 @@
     },
     "forwarded": "{by} 於 {at} 轉呈總部",
     "managerHelp": "現場人員交給你的申請：確認後選總部審批人，按「提交總部審批」；不對就退回。"
+  },
+  "materialLines": {
+    "title": "材料明細",
+    "count": "{count} 種材料",
+    "line": "材料 {n}",
+    "firstLine": "本單原有的材料",
+    "firstLineInForm": "在上面的表格修改",
+    "remove": "刪除材料 {n}",
+    "removeShort": "刪除",
+    "material": "材料",
+    "specification": "規格",
+    "materialName": "材料名稱",
+    "specificationName": "規格名稱",
+    "quantity": "數量",
+    "unit": "單位",
+    "unitPrice": "單價",
+    "amount": "金額",
+    "amountHint": "這項材料在 DO 上的金額",
+    "optional": "選填",
+    "chooseMaterial": "選擇材料",
+    "chooseSpecification": "選擇規格",
+    "materialFirst": "先選材料",
+    "chooseUnit": "選擇單位",
+    "search": "搜尋",
+    "notSetUp": "該材料尚未建立，請先到分類管理設定。",
+    "noSpecifications": "這個材料沒有規格",
+    "goToCategories": "前往分類管理",
+    "otherMaterialHint": "輸入材料名稱",
+    "otherSpecHint": "輸入規格名稱",
+    "quantityRule": "大於 0，最多三位小數",
+    "unitFromSpec": "單位跟著規格，不能改",
+    "needed": "請填寫",
+    "materialData": "材料資料",
+    "add": "增加材料",
+    "edit": "修改材料明細",
+    "save": "儲存材料明細",
+    "saveFailed": "儲存失敗，請再試一次。",
+    "reason": "修改原因",
+    "dialogTitle": "{reference} · 材料明細",
+    "dialogHelp": "一張 DO 可以有多種材料。每種材料各自選材料、規格、單位，填數量，各自進對應的分類和累計。第 1 項是這張單原有的材料，可以改，不能刪。",
+    "pinNote": "只改規格或單位不用簽核密碼；改材料、數量、單價、金額，或增加、刪除材料，要簽核密碼，並留修改記錄。",
+    "correctionNote": "這張單有 {count} 種材料。這裡改第 1 項；其他材料用「增加材料」加、改、刪。",
+    "correctionNoteOne": "這張 DO 有多種材料？用「增加材料」加上去，各自歸檔。",
+    "requestHint": "一張申請可以有多種材料，整張一起審批。"
   },
   "filePreview": {
     "unsupported": "{ext} 檔案不能在頁面裡預覽，請按「下載查看」。",

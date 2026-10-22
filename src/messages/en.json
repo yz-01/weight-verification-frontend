@@ -8214,7 +8214,8 @@
       "permission_switches_unknown_permission": "One of the permissions does not exist.",
       "permission_switches_unknown_project": "Choose projects of this company.",
       "permission_switches_self_lockout": "You cannot switch off your own user management.",
-      "permission_switches_last_user_manager": "Somebody in the company must keep user management."
+      "permission_switches_last_user_manager": "Somebody in the company must keep user management.",
+      "receipt_line_returned": "A return names this material, so it cannot be removed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -11041,7 +11042,8 @@
       "entry_at": "Entry time",
       "exit_at": "Exit time",
       "request_kind": "Request type",
-      "pdpa_consent": "Personal data notice"
+      "pdpa_consent": "Personal data notice",
+      "material_lines": "Materials"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -17398,7 +17400,10 @@
       "material_specification": "Specification (typed)",
       "equipment": "Machine",
       "start_at": "Start time",
-      "end_at": "End time"
+      "end_at": "End time",
+      "material_line": "Material",
+      "unit_price": "Unit price",
+      "spec_category": "Specification"
     },
     "followsSpec": "The unit follows the specification"
   },
@@ -17816,7 +17821,8 @@
       "stage": "Stage",
       "forwardHistory": "Sent on",
       "headOfficeReviewer": "Head office approver",
-      "materialName": "Material name"
+      "materialName": "Material name",
+      "materials": "Materials"
     },
     "action": {
       "view": "View",
@@ -17961,6 +17967,50 @@
     },
     "forwarded": "Sent to head office by {by} on {at}",
     "managerHelp": "A site request sent to you: choose who at head office approves it and press “Send to head office”, or return it."
+  },
+  "materialLines": {
+    "title": "Materials",
+    "count": "{count, plural, one {# material} other {# materials}}",
+    "line": "Material {n}",
+    "firstLine": "the delivery's own material",
+    "firstLineInForm": "change it in the form above",
+    "remove": "Remove material {n}",
+    "removeShort": "Remove",
+    "material": "Material",
+    "specification": "Specification",
+    "materialName": "Material name",
+    "specificationName": "Specification name",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "unitPrice": "Unit price",
+    "amount": "Amount",
+    "amountHint": "This material's amount on the DO",
+    "optional": "Optional",
+    "chooseMaterial": "Choose the material",
+    "chooseSpecification": "Choose the specification",
+    "materialFirst": "Choose the material first",
+    "chooseUnit": "Choose the unit",
+    "search": "Search",
+    "notSetUp": "This material is not set up yet. Set it up in Category Management first.",
+    "noSpecifications": "This material has no specifications",
+    "goToCategories": "Go to Category Management",
+    "otherMaterialHint": "Type the material name",
+    "otherSpecHint": "Type the specification",
+    "quantityRule": "Above 0, at most three decimals",
+    "unitFromSpec": "The unit comes with the specification",
+    "needed": "Fill this in",
+    "materialData": "material data",
+    "add": "Add material",
+    "edit": "Edit materials",
+    "save": "Save materials",
+    "saveFailed": "Could not save. Please try again.",
+    "reason": "Reason for the change",
+    "dialogTitle": "{reference} · Materials",
+    "dialogHelp": "One DO can carry several materials. Each one gets its own material, specification, unit and quantity, and counts in its own category and totals. Material 1 is the delivery's own: it can be changed, not removed.",
+    "pinNote": "A specification or unit alone needs no sign-off PIN. Changing a material, quantity, unit price or amount, or adding or removing a material, needs the PIN and is kept in the history.",
+    "correctionNote": "This delivery has {count} materials. This form changes material 1; add, change or remove the others with \"Add material\".",
+    "correctionNoteOne": "Several materials on this DO? Add them with \"Add material\" and each is filed on its own.",
+    "requestHint": "One request can ask for several materials; it is approved as a whole."
   },
   "filePreview": {
     "unsupported": "{ext} files cannot be previewed here. Use Download to view.",
