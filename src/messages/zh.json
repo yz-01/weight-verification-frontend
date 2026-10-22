@@ -8793,7 +8793,6 @@
       "chooseColumnFirst": "请先选分类",
       "noSupplier": "未填供应商",
       "noSupplierHint": "不确定是哪家就不用选，后台会补上。",
-      "supplierRequiredHint": "扫供应商二维码或从名单选。",
       "spec": "规格",
       "chooseSpec": "选择规格",
       "specName": "规格名称",
