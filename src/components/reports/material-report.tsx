@@ -6,6 +6,7 @@ import {
   Calculator,
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
   FilterX,
   Package,
   ReceiptText,
@@ -18,6 +19,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { ExportButton } from "@/components/shared/export-button";
+import { PhotoStrip, recordPhotos } from "@/components/shared/photo-thumb";
 import {
   ReportChoiceField,
   ReportKeywordField,
@@ -60,7 +62,6 @@ import {
 } from "@/services/contractor-ops.service";
 import {
   exportReceipts,
-  getReceipt,
   getReceipts,
   getReceiptSummary,
   type ExportFormat,
@@ -135,6 +136,11 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     queryKey: ["receipts", "summary", mode, filters],
     queryFn: () => getReceiptSummary(filters),
   });
+  // The rows under the figures start with them, not after them: waiting for
+  // the figures before asking for the rows made every open and every filter
+  // two round trips long (报表中心 speed, 2026-10-22).
+  const deliveries = useDeliveryRecords(filters, list.page, list.pageSize, view !== "returns");
+  const returnRows = useReturnRecords(filters, list.page, list.pageSize, view === "returns");
   const columns = useMaterialColumns(filters.project);
   // A failed column list leaves the figures right and only the name unknown.
   const materialName = filters.category
@@ -401,7 +407,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       {(summary.data?.total_receipts ?? 0) > 0 && (
         <ReportRecords
           view={view}
-          filters={filters}
+          records={view === "returns" ? returnRows : deliveries}
           page={list.page}
           pageSize={list.pageSize}
           onPageChange={list.setPage}
@@ -411,8 +417,6 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     </div>
   );
 }
-
-const THUMBNAILS = 3;
 
 /**
  * 「收货明细」 (Q11): the deliveries behind the figures, newest first, with
@@ -425,32 +429,70 @@ const THUMBNAILS = 3;
  */
 function ReportRecords({
   view,
+  records,
   ...rest
 }: {
   view: MaterialReportView;
-  filters: Record<string, string | undefined>;
+  records: DeliveryRecordsQuery | ReturnRecordsQuery;
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
 }) {
   return view === "returns" ? (
-    <ReturnRecords {...rest} />
+    <ReturnRecords records={records as ReturnRecordsQuery} {...rest} />
   ) : (
-    <DeliveryRecords view={view} {...rest} />
+    <DeliveryRecords view={view} records={records as DeliveryRecordsQuery} {...rest} />
   );
 }
 
+type ReportFilters = Record<string, string | undefined>;
+
+/**
+ * The last page stays up while the next loads - but not another project's
+ * rows when the top bar moves (B13).
+ */
+export function sameProjectPlaceholder<T>(filters: ReportFilters) {
+  return (previous: T | undefined, previousQuery?: { queryKey: readonly unknown[] }) =>
+    (previousQuery?.queryKey[2] as { project?: string } | undefined)?.project === filters.project
+      ? previous
+      : undefined;
+}
+
+/** 「收货明细」's page (normal and 不合格 views). */
+function useDeliveryRecords(filters: ReportFilters, page: number, pageSize: number, enabled: boolean) {
+  return useQuery({
+    queryKey: ["receipts", "report-records", filters, page, pageSize],
+    // Newest first is the endpoint's own order (`-captured_at`).
+    queryFn: () => getReceipts({ ...filters, page, page_size: pageSize }),
+    placeholderData: sameProjectPlaceholder<Awaited<ReturnType<typeof getReceipts>>>(filters),
+    enabled,
+  });
+}
+
+/** 「退货明细」's page (J36 退货 view). */
+function useReturnRecords(filters: ReportFilters, page: number, pageSize: number, enabled: boolean) {
+  return useQuery({
+    queryKey: ["receipts", "report-returns", filters, page, pageSize],
+    queryFn: () => getMaterialReportReturns({ ...filters, page, page_size: pageSize }),
+    placeholderData: sameProjectPlaceholder<Awaited<ReturnType<typeof getMaterialReportReturns>>>(filters),
+    enabled,
+  });
+}
+
+type DeliveryRecordsQuery = ReturnType<typeof useDeliveryRecords>;
+type ReturnRecordsQuery = ReturnType<typeof useReturnRecords>;
+
 function DeliveryRecords({
   view,
-  filters,
+  records,
   page,
   pageSize,
   onPageChange,
   onPageSizeChange,
 }: {
   view: MaterialReportView;
-  filters: Record<string, string | undefined>;
+  records: DeliveryRecordsQuery;
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
@@ -459,19 +501,6 @@ function DeliveryRecords({
   const t = useTranslations();
   const unitName = useUnitName();
   const df = useDateFormat();
-  const records = useQuery({
-    queryKey: ["receipts", "report-records", filters, page, pageSize],
-    queryFn: () =>
-      // Newest first is the endpoint's own order (`-captured_at`).
-      getReceipts({ ...filters, page, page_size: pageSize }),
-    // The last page stays up while the next loads - but not another
-    // project's rows when the top bar moves (B13).
-    placeholderData: (previous, previousQuery) =>
-      (previousQuery?.queryKey[2] as { project?: string } | undefined)?.project ===
-      (filters as { project?: string }).project
-        ? previous
-        : undefined,
-  });
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
   const [opened, setOpened] = useState<string | null>(null);
@@ -625,46 +654,23 @@ function RecordsPager({
   );
 }
 
-/** Up to three thumbnails, read from the delivery only when it has any. */
+/**
+ * The delivery's photo strip (J34-2) from the row the list already sent -
+ * `photo_thumbs`, small stamped thumbnails. It used to ask for every row's
+ * whole delivery (one request each, up to 100 a page) and drew the
+ * full-size photographs into 32 px boxes; now the photographs themselves
+ * are read only when one is opened (报表中心 speed, 2026-10-22).
+ */
 function RecordPhotos({ record }: { record: MaterialReceipt }) {
-  const t = useTranslations();
-  const count = record.photo_count ?? 0;
-  const detail = useQuery({
-    queryKey: ["receipts", "detail", record.id],
-    queryFn: () => getReceipt(record.id),
-    enabled: count > 0,
-    staleTime: 60_000,
-  });
-  if (count === 0) {
-    return <span className="text-xs text-muted-foreground">{t("materialReports.records.noPhotos")}</span>;
-  }
-  if (detail.isError) {
-    return <span className="text-xs text-muted-foreground">{t("materialReports.records.photosFailed", { count })}</span>;
-  }
-  const photos = (detail.data?.photos ?? []).slice(0, THUMBNAILS);
   return (
-    <span className="flex items-center gap-1">
-      {photos.map((photo) => (
-        <a
-          key={photo.id}
-          href={photo.watermarked || photo.image}
-          target="_blank"
-          rel="noreferrer"
-          className="relative block size-8 overflow-hidden rounded-md border bg-muted"
-        >
-          <Image
-            src={photo.watermarked || photo.image}
-            alt={photo.caption || record.receipt_no}
-            fill
-            unoptimized
-            className="object-cover object-bottom"
-          />
-        </a>
-      ))}
-      {count > photos.length && (
-        <span className="text-xs text-muted-foreground">+{count - photos.length}</span>
-      )}
-    </span>
+    <PhotoStrip
+      thumbs={record.photo_thumbs}
+      coverUrl={record.cover_photo_url}
+      count={record.photo_count}
+      icon={ClipboardList}
+      reference={record.receipt_no}
+      photos={recordPhotos("MATERIAL_RECEIPT", record.id, record.receipt_no)}
+    />
   );
 }
 
@@ -1001,13 +1007,13 @@ function ModeCards({
 
 /** 「退货明细」 (J36): the returns that left site, newest first. */
 function ReturnRecords({
-  filters,
+  records,
   page,
   pageSize,
   onPageChange,
   onPageSizeChange,
 }: {
-  filters: Record<string, string | undefined>;
+  records: ReturnRecordsQuery;
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
@@ -1016,15 +1022,6 @@ function ReturnRecords({
   const t = useTranslations();
   const unitName = useUnitName();
   const df = useDateFormat();
-  const records = useQuery({
-    queryKey: ["receipts", "report-returns", filters, page, pageSize],
-    queryFn: () => getMaterialReportReturns({ ...filters, page, page_size: pageSize }),
-    placeholderData: (previous, previousQuery) =>
-      (previousQuery?.queryKey[2] as { project?: string } | undefined)?.project ===
-      (filters as { project?: string }).project
-        ? previous
-        : undefined,
-  });
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
   return (
