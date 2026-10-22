@@ -8618,7 +8618,9 @@
       "switch": "Switch camera",
       "unsupported": "This browser cannot open the camera. Use an HTTPS site and a current mobile browser.",
       "retake": "Tap to retake",
-      "preview": "Photo taken"
+      "preview": "Photo taken",
+      "stepBack": "Can't fit it all? Step back a little",
+      "wide": "Wide"
     },
     "consultantCapture": {
       "askFor": "What should the consultant look at?",

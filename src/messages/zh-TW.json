@@ -8618,7 +8618,9 @@
       "switch": "切換鏡頭",
       "unsupported": "此瀏覽器無法打開相機，請使用 HTTPS 網站和較新的手機瀏覽器。",
       "retake": "點一下重拍",
-      "preview": "已拍攝"
+      "preview": "已拍攝",
+      "stepBack": "拍不全請退後一點",
+      "wide": "廣角"
     },
     "consultantCapture": {
       "askFor": "這次要顧問看什麼",

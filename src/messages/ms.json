@@ -8618,7 +8618,9 @@
       "switch": "Tukar kamera",
       "unsupported": "Pelayar ini tidak boleh membuka kamera. Gunakan laman HTTPS dan pelayar mudah alih terkini.",
       "retake": "Ketik untuk ambil semula",
-      "preview": "Gambar diambil"
+      "preview": "Gambar diambil",
+      "stepBack": "Tidak muat? Undur sedikit",
+      "wide": "Sudut lebar"
     },
     "consultantCapture": {
       "askFor": "Apa yang perlu perunding lihat?",

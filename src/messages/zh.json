@@ -8618,7 +8618,9 @@
       "switch": "切换镜头",
       "unsupported": "此浏览器无法打开相机，请使用 HTTPS 网站和较新的手机浏览器。",
       "retake": "点一下重拍",
-      "preview": "已拍摄"
+      "preview": "已拍摄",
+      "stepBack": "拍不全请退后一点",
+      "wide": "广角"
     },
     "consultantCapture": {
       "askFor": "这次要顾问看什么",

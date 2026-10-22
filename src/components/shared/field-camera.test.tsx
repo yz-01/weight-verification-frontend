@@ -25,7 +25,7 @@ vi.mock("@/components/ui/dialog", () => {
   };
 });
 
-import { FieldCamera, SQUARE_SOURCE } from "@/components/shared/field-camera";
+import { FieldCamera, SQUARE_SOURCE, WideLensSwitch } from "@/components/shared/field-camera";
 
 function render(facingMode: "user" | "environment" = "environment") {
   return renderToStaticMarkup(
@@ -70,5 +70,28 @@ describe("FieldCamera viewfinder (J45)", () => {
     expect(SQUARE_SOURCE.width.ideal).toBe(1920);
     expect(SQUARE_SOURCE.height.ideal).toBe(1440);
     expect(SQUARE_SOURCE.aspectRatio.ideal).toBeCloseTo(4 / 3);
+  });
+});
+
+describe("the 「广角」 switch and the step-back line (J45)", () => {
+  it("tells the worker to step back when it does not all fit", () => {
+    expect(render()).toContain(messages.fieldStaffPwa.camera.stepBack);
+    expect(messages.fieldStaffPwa.camera.stepBack).toBe("拍不全请退后一点");
+  });
+
+  it("is not there on a phone without a wide lens", () => {
+    expect(renderToStaticMarkup(<WideLensSwitch lens={null} wide={false} label="广角" onToggle={() => undefined} />)).toBe("");
+    // Nor before the camera has opened.
+    expect(render()).not.toContain("field-camera-wide");
+  });
+
+  it("is there with a wide lens, off by default, pressed when on", () => {
+    const lens = { kind: "zoom" as const, min: 0.5, normal: 1 };
+    const off = renderToStaticMarkup(<WideLensSwitch lens={lens} wide={false} label="广角" onToggle={() => undefined} />);
+    expect(off).toContain('data-testid="field-camera-wide"');
+    expect(off).toContain('aria-pressed="false"');
+    expect(off).toContain("广角");
+    const on = renderToStaticMarkup(<WideLensSwitch lens={{ kind: "device", deviceId: "uw" }} wide label="广角" onToggle={() => undefined} />);
+    expect(on).toContain('aria-pressed="true"');
   });
 });
