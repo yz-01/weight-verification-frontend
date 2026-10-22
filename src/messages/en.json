@@ -9957,6 +9957,17 @@
     }
   },
   "materialReports": {
+    "view": {
+      "label": "Type",
+      "normal": "Normal material",
+      "rejected": "Rejected material",
+      "returns": "Material out / returns"
+    },
+    "cards": {
+      "rejected": "Rejected",
+      "returns": "Returns",
+      "times": "{count, plural, one {# time} other {# times}}"
+    },
     "cost": {
       "byMaterial": "Cost by material",
       "bySupplier": "Cost by supplier",
@@ -9974,6 +9985,10 @@
       "cumulativeTitle": "Cumulative totals"
     },
     "quantity": {
+      "totalRejected": "Total rejected",
+      "totalReturns": "Total returns",
+      "rejectedHint": "Quantity of rejected loads only, by material and specification. Not counted in the normal totals.",
+      "returnsHint": "Quantity actually returned only, by material and specification. Never taken off what was received.",
       "byMaterial": "Quantity by material",
       "deliveryCount": "{count, plural, one {# delivery} other {# deliveries}}",
       "subtitle": "Received quantities grouped without mixing incompatible units.",
@@ -9983,6 +9998,14 @@
       "cumulativeHint": "Cumulative quantity = the deliveries counted beside it, added up (the chosen period, or everything from the first delivery when no dates are set). Rejected loads never count and returns are not taken off."
     },
     "records": {
+      "rejectedTitle": "Rejected deliveries ({total})",
+      "returnsTitle": "Returns ({total})",
+      "returnsWhat": "the returns behind this report",
+      "reason": "Reason",
+      "returnNo": "Return note",
+      "returnedAt": "Returned on",
+      "sourceReceipt": "Delivery",
+      "returnedQuantity": "Returned quantity",
       "title": "Delivery details ({total})",
       "what": "the deliveries behind this report",
       "photos": "Photos",

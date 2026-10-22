@@ -846,6 +846,26 @@ export function exportMaterialOutgoing(request: ExportRequest): Promise<void> {
 }
 
 /**
+ * 材料数量报表 → 材料退场 / 退货 (J36): the returns that left site, narrowed
+ * like the report's deliveries.
+ */
+export function getMaterialReportReturns(
+  query: ListQuery,
+): Promise<Paginated<MaterialOutgoing>> {
+  return api.list<MaterialOutgoing>("/api/material-outgoing/get_report_returns/", query);
+}
+
+/** The same returns as a file, ending with each material's returned total. */
+export function exportMaterialReportReturns(request: ExportRequest): Promise<void> {
+  return download("/api/material-outgoing/export_report_returns/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `material-returns.${request.format}`,
+  });
+}
+
+/**
  * The material actually leaving, on the same record (2026-10 C9).
  *
  * Photographs, what actually left, the plate, the DO, the supplier (scanned

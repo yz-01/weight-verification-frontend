@@ -9957,6 +9957,17 @@
     }
   },
   "materialReports": {
+    "view": {
+      "label": "类型",
+      "normal": "正常材料",
+      "rejected": "不合格材料",
+      "returns": "材料退场 / 退货"
+    },
+    "cards": {
+      "rejected": "不合格",
+      "returns": "退货",
+      "times": "{count} 次"
+    },
     "cost": {
       "byMaterial": "按材料统计成本",
       "bySupplier": "按供应商统计成本",
@@ -9974,6 +9985,10 @@
       "cumulativeTitle": "累计总数量"
     },
     "quantity": {
+      "totalRejected": "不合格总次数",
+      "totalReturns": "退货总次数",
+      "rejectedHint": "只统计不合格的数量，按材料和规格分开。不计入正常材料累计。",
+      "returnsHint": "只统计实际退场的数量，按材料和规格分开。不扣减原始收货累计。",
       "byMaterial": "按材料统计数量",
       "deliveryCount": "{count} 次收货",
       "subtitle": "按单位统计收货数量，不混合不同计量单位。",
@@ -9983,6 +9998,14 @@
       "cumulativeHint": "累计数量 = 右边收货次数那几笔相加（选了日期就是该期间；没选日期就是从第一笔起）。不合格不计，退场不扣。"
     },
     "records": {
+      "rejectedTitle": "不合格明细（{total}）",
+      "returnsTitle": "退货明细（{total}）",
+      "returnsWhat": "这份报表的退货记录",
+      "reason": "原因",
+      "returnNo": "退货单号",
+      "returnedAt": "退场日期",
+      "sourceReceipt": "原收货单",
+      "returnedQuantity": "退货数量",
       "title": "收货明细（{total}）",
       "what": "此报表的相关记录",
       "photos": "相关照片",
