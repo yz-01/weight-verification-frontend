@@ -131,10 +131,11 @@ describe("taking a photo in a chat on the phone", () => {
     expect(state.fileInputs.every((input) => !input.capture)).toBe(true);
   });
 
-  it("keeps the file box, so a photo already in the gallery can still be sent", () => {
+  it("keeps the file box for documents only - photos come from the in-app camera (J45)", () => {
     render();
     expect(state.fileInputs).toHaveLength(1);
-    expect(state.fileInputs[0].accept).toContain("image/*");
+    expect(state.fileInputs[0].accept).not.toContain("image");
+    expect(state.fileInputs[0].accept).toContain("application/pdf");
   });
 
   it("a photo the camera takes becomes the message's photo and asks where it was taken", () => {
@@ -165,15 +166,11 @@ describe("taking a photo in a chat on the phone", () => {
     });
   });
 
-  it("a gallery photo is compressed the same way but carries no position", async () => {
+  it("a gallery photo the phone lets through anyway is not taken (J45)", () => {
     const picked = new File(["png"], "old.png", { type: "image/png" });
-    const { props } = render({ file: picked });
+    const { props } = render();
     state.fileInputs[0].onChange?.({ target: { files: [picked] } });
-    expect(props.setFile).toHaveBeenCalledWith(picked);
-    await pressSend(props.onSend);
-    expect(compressPhoto).toHaveBeenCalledWith(picked);
-    expect(requestLocation).not.toHaveBeenCalled();
-    expect(props.onSend).toHaveBeenCalledWith({ body: "", photo: picked });
+    expect(props.setFile).not.toHaveBeenCalled();
   });
 
   it("a document is sent as an attachment, untouched", async () => {
@@ -195,5 +192,18 @@ describe("the same chat in the office console", () => {
     const { html } = render();
     expect(html).not.toContain('data-stub="field-camera"');
     expect(state.fileInputs).toHaveLength(1);
+  });
+
+  it("still takes a picture from the office computer's files, without a position", async () => {
+    state.pathname = "/safety";
+    const picked = new File(["png"], "old.png", { type: "image/png" });
+    const { props } = render({ file: picked });
+    expect(state.fileInputs[0].accept).toContain("image/*");
+    state.fileInputs[0].onChange?.({ target: { files: [picked] } });
+    expect(props.setFile).toHaveBeenCalledWith(picked);
+    await pressSend(props.onSend);
+    expect(compressPhoto).toHaveBeenCalledWith(picked);
+    expect(requestLocation).not.toHaveBeenCalled();
+    expect(props.onSend).toHaveBeenCalledWith({ body: "", photo: picked });
   });
 });

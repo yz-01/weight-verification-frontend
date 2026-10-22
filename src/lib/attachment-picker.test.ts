@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { acceptFiles, matchesAccept, megabytes, transferFiles } from "@/lib/attachment-picker";
+import { acceptFiles, isPhotoFile, matchesAccept, megabytes, PHONE_DOCUMENT_ACCEPT, phoneFileAccept, transferFiles } from "@/lib/attachment-picker";
 
 const file = (name: string, type = "", size = 10) => {
   const made = new File(["x"], name, { type });
@@ -92,5 +92,30 @@ describe("megabytes", () => {
   it("shows whole numbers whole", () => {
     expect(megabytes(50 * 1024 * 1024)).toBe("50");
     expect(megabytes(1.5 * 1024 * 1024)).toBe("1.5");
+  });
+});
+
+describe("the phone's file chooser takes no pictures (J45)", () => {
+  it("drops every image type from the page's accept", () => {
+    expect(phoneFileAccept("image/*,application/pdf,.doc,.docx,.xls,.xlsx")).toBe("application/pdf,.doc,.docx,.xls,.xlsx");
+    expect(phoneFileAccept(".pdf, .JPG, .png, image/heic")).toBe(".pdf");
+  });
+
+  it("offers documents when the page takes any file", () => {
+    expect(phoneFileAccept("")).toBe(PHONE_DOCUMENT_ACCEPT);
+    expect(phoneFileAccept(undefined)).toBe(PHONE_DOCUMENT_ACCEPT);
+    expect(PHONE_DOCUMENT_ACCEPT).not.toMatch(/image|\.jpe?g|\.png|\.heic/i);
+  });
+
+  it("offers no chooser at all when the page takes only pictures", () => {
+    expect(phoneFileAccept("image/*")).toBeNull();
+    expect(phoneFileAccept("image/png,image/jpeg,.webp")).toBeNull();
+  });
+
+  it("knows a picture by its type, or by its name when the phone gives no type", () => {
+    expect(isPhotoFile({ name: "a.bin", type: "image/jpeg" })).toBe(true);
+    expect(isPhotoFile({ name: "IMG_0042.HEIC", type: "" })).toBe(true);
+    expect(isPhotoFile({ name: "permit.pdf", type: "application/pdf" })).toBe(false);
+    expect(isPhotoFile({ name: "notes", type: "" })).toBe(false);
   });
 });

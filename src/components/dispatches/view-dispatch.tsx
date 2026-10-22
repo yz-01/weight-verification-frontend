@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
   FormSkeleton,
@@ -85,12 +86,11 @@ function AddDispatchPhoto({
   return (
     <div className="flex flex-wrap items-end gap-2 rounded-md border border-dashed p-3">
       <FieldWrapper label={t("dispatches.addPhoto.choose")} required>
-        <Input
-          type="file"
-          accept="image/*"
-          className="h-8 max-w-xs text-xs"
-          aria-label={t("dispatches.addPhoto.choose")}
-          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+        <PhotoFileInput
+          label={t("dispatches.addPhoto.choose")}
+          files={file ? [file] : []}
+          onChange={(next) => setFile(next[0] ?? null)}
+          inputClassName="h-8 max-w-xs text-xs"
         />
       </FieldWrapper>
       <select

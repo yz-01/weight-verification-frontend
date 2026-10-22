@@ -84,6 +84,10 @@ interface FieldCameraProps {
    * attachment picker, I3). The dialog and the camera handling are the same.
    */
   trigger?: "tile" | "button";
+  /** The button trigger's icon, in place of the camera (e.g. a tick once done). */
+  icon?: React.ReactNode;
+  /** The button trigger's size (`Button`'s own). */
+  size?: "default" | "sm" | "lg";
   disabled?: boolean;
   className?: string;
   onCapture: (file: File) => void;
@@ -97,6 +101,8 @@ export function FieldCamera({
   previewUrl: storedPreviewUrl,
   facingMode = "environment",
   trigger = "tile",
+  icon,
+  size,
   disabled = false,
   className = "",
   onCapture: handOver,
@@ -291,11 +297,12 @@ export function FieldCamera({
         <Button
           type="button"
           variant="outline"
+          size={size}
           className={className}
           disabled={disabled}
           onClick={openCamera}
         >
-          <Camera />
+          {icon ?? <Camera />}
           {label}
         </Button>
       ) : (

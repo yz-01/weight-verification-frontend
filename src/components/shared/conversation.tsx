@@ -31,6 +31,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { downloadEvidence } from "@/components/shared/evidence-file-actions";
 import { FieldCamera } from "@/components/shared/field-camera";
+import { isPhotoFile, phoneFileAccept } from "@/lib/attachment-picker";
 import { FilePreviewDialog } from "@/components/shared/file-preview";
 // The viewer every record detail already opens its photographs in, so a chat
 // photo zooms and downloads the same way. (record-detail-shell reaches this
@@ -515,10 +516,15 @@ export function usePhotoLocation() {
  * like every other photo the field app takes - not the phone's system camera
  * (Lucas, 10-09: 「聊天室拍照好像不是系统的相机，弄成系统相机拍照」, where
  * 系统 means this system). So a chat photo is taken at upload size and carries
- * where it was taken. The file box stays, for a photo already in the gallery
- * or a document. Every photo, however it arrived, goes through the same
- * `compressPhoto` as the offline queue before it is sent.
+ * where it was taken. The file box stays: in the office for any file, on the
+ * phone for documents only - a phone photo comes only from the app's square
+ * camera (J45, Lucas 2026-10-22: no gallery). Every photo, however it
+ * arrived, goes through the same `compressPhoto` as the offline queue before
+ * it is sent.
  */
+/** What the chat's file box takes in the office; on the phone, less pictures. */
+const CHAT_FILE_ACCEPT = "image/*,application/pdf,.doc,.docx,.xls,.xlsx";
+
 export function ConversationComposer({
   body,
   setBody,
@@ -550,6 +556,9 @@ export function ConversationComposer({
   });
   const fileInput = useRef<HTMLInputElement>(null);
   const fieldMode = isFieldChatPath(usePathname());
+  const fileAccept = fieldMode ? (phoneFileAccept(CHAT_FILE_ACCEPT) ?? "") : CHAT_FILE_ACCEPT;
+  // A gallery picture the phone's chooser let through anyway (J45).
+  const [galleryPhoto, setGalleryPhoto] = useState("");
   const place = usePhotoLocation();
   // Shrinking a gallery photo and waiting for the position take a moment;
   // the send button stays locked meanwhile so a second tap is not a second
@@ -655,16 +664,27 @@ export function ConversationComposer({
         <Input
           ref={fileInput}
           type="file"
-          accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
+          accept={fileAccept}
           className="h-8 max-w-xs text-xs"
           aria-label={t("hazard.attach")}
           onChange={(event) => {
-            // A photo from the gallery was not taken here and now, so it
-            // carries no position.
+            const picked = event.target.files?.[0] ?? null;
+            if (fieldMode && picked && isPhotoFile(picked)) {
+              setGalleryPhoto(picked.name);
+              return;
+            }
+            setGalleryPhoto("");
+            // A photo from the office's files was not taken here and now, so
+            // it carries no position.
             place.clear();
-            setFile(event.target.files?.[0] ?? null);
+            setFile(picked);
           }}
         />
+        {galleryPhoto ? (
+          <p role="alert" className="w-full text-xs text-destructive">
+            {t("attachmentPicker.photoUseCamera", { name: galleryPhoto })}
+          </p>
+        ) : null}
 
         {recorder.supported ? (
           recorder.recording ? (

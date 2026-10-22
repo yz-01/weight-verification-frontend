@@ -15,7 +15,11 @@
  *
  * Paste is taken only while focus is inside this component, or inside its
  * camera dialog, so Ctrl+V in any other field on the page is left alone.
- * On a phone the camera button is the phone's own capture input, as before.
+ * On a phone (J45, Lucas 2026-10-22) the camera button is the app's own
+ * square camera, the same as the desktop's, never the phone's camera app or
+ * gallery; the phone's file chooser offers documents only (`phoneFileAccept`),
+ * and a picture that still arrives through it is turned away with a word to
+ * use the camera.
  */
 
 import { FileText, FileUp, ImageIcon, X } from "lucide-react";
@@ -25,7 +29,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { acceptFiles, megabytes, transferFiles, type AttachmentRule, type Refusal } from "@/lib/attachment-picker";
+import {
+  acceptFiles,
+  isPhotoFile,
+  megabytes,
+  phoneFileAccept,
+  transferFiles,
+  type AttachmentRule,
+  type Refusal,
+} from "@/lib/attachment-picker";
 import { cn } from "@/lib/utils";
 import { carriesFiles } from "@/lib/voucher-sources";
 
@@ -91,10 +103,13 @@ export function AttachmentPicker({
   const t = useTranslations("attachmentPicker");
   const mobile = useIsMobile();
   const picker = useRef<HTMLInputElement>(null);
-  const phoneCamera = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [refused, setRefused] = useState<Refusal[]>([]);
   const [notFiles, setNotFiles] = useState(false);
+  // Pictures a phone tried to bring in from its gallery (J45).
+  const [photosRefused, setPhotosRefused] = useState<string[]>([]);
+  const phoneAccept = phoneFileAccept(rule.accept);
+  const showChooser = !mobile || phoneAccept !== null;
 
   const limit = rule.maxBytes === undefined ? "" : megabytes(rule.maxBytes);
 
@@ -103,6 +118,7 @@ export function AttachmentPicker({
     const result = acceptFiles(files, incoming, rule);
     setRefused(result.refused);
     setNotFiles(false);
+    setPhotosRefused([]);
     if (result.files.length !== files.length || result.files.some((file, at) => file !== files[at])) {
       onChange(result.files);
     }
@@ -119,8 +135,16 @@ export function AttachmentPicker({
     return t("tooMany", { limit: rule.maxFiles ?? 0, name: item.name });
   };
 
-  const offerPicker = (list: FileList | null) => {
-    add(Array.from(list ?? []));
+  /** Files from the chooser or a paste: on a phone, pictures only by the camera. */
+  const offerPicker = (list: FileList | File[] | null) => {
+    const incoming = Array.from(list ?? []);
+    if (!mobile) {
+      add(incoming);
+      return;
+    }
+    const pictures = incoming.filter(isPhotoFile);
+    add(incoming.filter((file) => !isPhotoFile(file)));
+    setPhotosRefused(pictures.map((file) => file.name));
   };
 
   return (
@@ -132,7 +156,7 @@ export function AttachmentPicker({
         const pasted = transferFiles(event.clipboardData);
         if (pasted.length > 0) {
           event.preventDefault();
-          add(pasted);
+          offerPicker(pasted);
         } else if (carriesFiles(event.clipboardData)) {
           setNotFiles(true);
         }
@@ -158,40 +182,30 @@ export function AttachmentPicker({
       >
         <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
           <ImageIcon className="mt-0.5 size-3.5 shrink-0" />
-          {t(dropHintKey(camera, mobile))}
+          {t(mobile && camera && !showChooser ? "dropHintPhoneCameraOnly" : dropHintKey(camera, mobile))}
         </p>
-        <div className={cn("grid gap-2", camera ? "grid-cols-2" : "grid-cols-1")}>
-          {camera &&
-            (mobile ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11"
-                disabled={disabled}
-                onClick={() => phoneCamera.current?.click()}
-              >
-                <ImageIcon />
-                {t("takePhoto")}
-              </Button>
-            ) : (
-              <FieldCamera
-                trigger="button"
-                label={t("takePhoto")}
-                className="min-h-11"
-                disabled={disabled}
-                onCapture={(photo) => add([photo])}
-              />
-            ))}
-          <Button
-            type="button"
-            variant="outline"
-            className="min-h-11"
-            disabled={disabled}
-            onClick={() => picker.current?.click()}
-          >
-            <FileUp />
-            {t("chooseFile")}
-          </Button>
+        <div className={cn("grid gap-2", camera && showChooser ? "grid-cols-2" : "grid-cols-1")}>
+          {camera && (
+            <FieldCamera
+              trigger="button"
+              label={t("takePhoto")}
+              className="min-h-11"
+              disabled={disabled}
+              onCapture={(photo) => add([photo])}
+            />
+          )}
+          {showChooser && (
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11"
+              disabled={disabled}
+              onClick={() => picker.current?.click()}
+            >
+              <FileUp />
+              {t("chooseFile")}
+            </Button>
+          )}
         </div>
         {showLimits && ((rule.multiple && rule.maxFiles !== undefined) || limit) ? (
           <p className="text-2xs text-muted-foreground">
@@ -203,30 +217,20 @@ export function AttachmentPicker({
           </p>
         ) : null}
         <p className="text-2xs text-muted-foreground">{t("copiedNote")}</p>
-        <input
-          ref={phoneCamera}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          aria-label={t("takePhoto")}
-          onChange={(event) => {
-            offerPicker(event.target.files);
-            event.target.value = "";
-          }}
-        />
-        <input
-          ref={picker}
-          type="file"
-          multiple={rule.multiple}
-          accept={rule.accept}
-          className="hidden"
-          aria-label={t("chooseFile")}
-          onChange={(event) => {
-            offerPicker(event.target.files);
-            event.target.value = "";
-          }}
-        />
+        {showChooser && (
+          <input
+            ref={picker}
+            type="file"
+            multiple={rule.multiple}
+            accept={mobile ? (phoneAccept ?? undefined) : rule.accept}
+            className="hidden"
+            aria-label={t("chooseFile")}
+            onChange={(event) => {
+              offerPicker(event.target.files);
+              event.target.value = "";
+            }}
+          />
+        )}
       </div>
 
       {refused.length > 0 && (
@@ -235,6 +239,11 @@ export function AttachmentPicker({
             <li key={`${item.name}-${at}`}>{say(item)}</li>
           ))}
         </ul>
+      )}
+      {photosRefused.length > 0 && (
+        <p role="alert" className="text-xs text-destructive">
+          {t("photoUseCamera", { name: photosRefused.join(", ") })}
+        </p>
       )}
       {notFiles && (
         <p role="alert" className="text-xs text-destructive">

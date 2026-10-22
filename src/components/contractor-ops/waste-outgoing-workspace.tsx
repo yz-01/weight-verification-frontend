@@ -27,6 +27,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import {
   FilterSelect,
   ModuleRecordsTable,
@@ -1252,12 +1253,11 @@ function RecordDialog({
             optional={t("field.optional")}
             hint={capped ? t("office.photosCapped") : t("office.photosHint")}
           >
-            <Input
-              type="file"
-              accept="image/*"
+            <PhotoFileInput
+              label={t("field.photos")}
               multiple
-              onChange={(event) => {
-                const chosen = Array.from(event.target.files ?? []);
+              files={photos}
+              onChange={(chosen) => {
                 setCapped(chosen.length > OFFICE_PHOTO_LIMIT);
                 setPhotos(chosen.slice(0, OFFICE_PHOTO_LIMIT));
               }}
@@ -1930,11 +1930,11 @@ function AddPhotosDialog({
           <DialogDescription>{t("submit.needPhotos")}</DialogDescription>
         </DialogHeader>
         <FieldWrapper label={t("field.photos")} required>
-          <Input
-            type="file"
-            accept="image/*"
+          <PhotoFileInput
+            label={t("field.photos")}
             multiple
-            onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+            files={files}
+            onChange={setFiles}
           />
         </FieldWrapper>
         <FieldWrapper label={t("photos.caption")}>
