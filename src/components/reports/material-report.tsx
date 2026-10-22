@@ -139,7 +139,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // The rows under the figures start with them, not after them: waiting for
   // the figures before asking for the rows made every open and every filter
   // two round trips long (报表中心 speed, 2026-10-22).
+  // query-failure: shown by the table that draws them (`QueryFailedNote` in DeliveryRecords / ReturnRecords).
   const deliveries = useDeliveryRecords(filters, list.page, list.pageSize, view !== "returns");
+  // query-failure: as above.
   const returnRows = useReturnRecords(filters, list.page, list.pageSize, view === "returns");
   const columns = useMaterialColumns(filters.project);
   // A failed column list leaves the figures right and only the name unknown.
