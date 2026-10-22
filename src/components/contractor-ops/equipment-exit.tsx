@@ -10,10 +10,11 @@
  * 1. `EquipmentExitApplyDialog` - the machine on site, why, a photo. The
  *    office fills the Return Note and approves it (or returns it).
  * 2. `EquipmentExitHandoverDialog` - once approved (已批准 / 等待退场): the
- *    photographs, the DO, **this machine's QR scanned** (it must be the one
- *    that was approved, ID60), the supplier's QR if there is one, both
- *    signatures and the GPS fix. The office then confirms it; only then is
- *    the machine off site.
+ *    photographs, the lorry's plate, **this machine's QR scanned** (it must
+ *    be the one that was approved, ID60), both signatures and the GPS fix.
+ *    No DO since J38-3 (the client 10-22). The supplier is the machine's own
+ *    (J38-4), shown, not asked; a machine with none is scanned or picked.
+ *    The office then confirms it; only then is the machine off site.
  *
  * Both work with no signal, through the phone's queue. Neither shows a red
  * star (2026-10 I22, ID56: 「设备进场和出场那个红点不要」): what is needed is
@@ -60,20 +61,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
 import { ApiError } from "@/interfaces/api";
 import type { SiteEquipment } from "@/interfaces/contractor-ops";
 import type { LocationFix } from "@/lib/field-location";
 import { matchScanned, registerScanKeys } from "@/lib/machine-scan";
 import { scanSupplierQr } from "@/services/contractor.service";
-import { lookupEquipmentByScan, ocrEquipmentDeliveryNote } from "@/services/contractor-ops.service";
+import { lookupEquipmentByScan } from "@/services/contractor-ops.service";
 import {
   newClientEventId,
   queuedEquipmentExit,
   submitEquipmentMovementOfflineAware,
 } from "@/services/offline-sync.service";
 
-/** At least four photographs at the actual exit, the DO photo counted in. */
+/** At least four photographs at the actual exit. */
 const HANDOVER_PHOTO_MIN = 4;
 
 /** What a machine is shown and checked by on the phone. */
@@ -84,6 +84,9 @@ export interface ExitMachine {
   site_no?: string | null;
   registration_no?: string | null;
   serial_no?: string | null;
+  /** Its own supplier (J38-4): the actual exit carries it, not asked again. */
+  supplier?: string | null;
+  supplier_name?: string | null;
 }
 
 /** 「编号 · 名称 · 车牌」, as the phone names a machine. */
@@ -322,18 +325,21 @@ export function EquipmentExitHandoverForm({
   const key = (name: string) => `exitHandover:${movementId}:${name}`;
   const [fieldEvidence, setFieldEvidence] = useDraftState(key("evidence"), createEmptyFieldEvidence);
   const [photos, setPhotos] = useDraftState<File[]>(key("photos"), []);
-  const [deliveryNotePhoto, setDeliveryNotePhoto] = useDraftState<File | undefined>(key("doPhoto"));
-  const [deliveryNote, setDeliveryNote] = useDraftState(key("doNo"), "");
   // The lorry that takes it away, typed at the gate (J13-3, Q13-2): many big
   // machines have no plate of their own, so the register's is only a hint.
   const [vehiclePlate, setVehiclePlate] = useDraftState(key("vehiclePlate"), "");
-  const [ocrProof, setOcrProof] = useDraftState(key("ocrProof"), "");
   const [scanned, setScanned] = useDraftState(key("scanned"), "");
   // 「二维码坏了 / 还没有贴？输入编号」 (P-phonefix), as on 设备工时 (I4).
   const [typedNumber, setTypedNumber] = useDraftState(key("typedNumber"), false);
   const [typing, setTyping] = useState(false);
   const [typed, setTyped] = useState("");
-  const [supplier, setSupplier] = useDraftState<ReturnBadgeSupplier | null>(key("supplier"), null);
+  // 扫设备二维码，自动带出设备绑定的供应商 (J38-4): the machine's own, shown
+  // and sent; scanned or picked only for a machine with none.
+  const machineSupplier: ReturnBadgeSupplier | null = machine.supplier
+    ? { id: machine.supplier, name: machine.supplier_name ?? "" }
+    : null;
+  const [pickedSupplier, setSupplier] = useDraftState<ReturnBadgeSupplier | null>(key("supplier"), null);
+  const supplier = machineSupplier ?? pickedSupplier;
   const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>(key("siteSignature"));
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>(key("supplierSignature"));
   const [clientEventId, setClientEventId] = useDraftState(key("clientEventId"), "");
@@ -344,18 +350,6 @@ export function EquipmentExitHandoverForm({
   const [error, setError] = useState("");
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
   const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
-  const ocr = useDeliveryNoteReader({
-    read: ocrEquipmentDeliveryNote,
-    onRead: (result, typed) => {
-      setOcrProof(result.proof ?? "");
-      const suggestions = result.suggestions as Record<string, string | undefined>;
-      // A DO number typed while the read ran is the worker's.
-      if (suggestions.delivery_note_no && !typed.has("deliveryNote")) {
-        setDeliveryNote(suggestions.delivery_note_no);
-      }
-    },
-    onReset: () => setOcrProof(""),
-  });
   const supplierScan = useMutation({
     mutationFn: (token: string) => scanSupplierQr(token),
     onMutate: () => setError(""),
@@ -378,17 +372,13 @@ export function EquipmentExitHandoverForm({
         direction: "EXIT",
         operator_name: user.full_name,
         supplier: supplier?.id,
-        delivery_note_no: deliveryNote.trim(),
         vehicle_plate: vehiclePlate.trim().toUpperCase(),
-        ocr_confirmed: Boolean(deliveryNotePhoto || deliveryNote.trim()),
-        ocr_proof: deliveryNotePhoto && ocrProof ? ocrProof : undefined,
         latitude: location?.latitude,
         longitude: location?.longitude,
         accuracy_m: location?.accuracy,
         original_occurred_at: new Date().toISOString(),
         client_event_id: eventId,
         photos: submissionPhotos,
-        delivery_note_photo: deliveryNotePhoto,
         receiver_signature: receiverSignature,
         supplier_signature: supplierSignature,
       });
@@ -414,7 +404,7 @@ export function EquipmentExitHandoverForm({
       setScanNote(t("equipmentExit.typedWrongMachine", { name: exitMachineLabel(machine) }));
     }
   };
-  const photoCount = submissionPhotos.length + (deliveryNotePhoto ? 1 : 0);
+  const photoCount = submissionPhotos.length;
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -530,36 +520,6 @@ export function EquipmentExitHandoverForm({
             />
           )}
         </FieldWrapper>
-        <FieldWrapper label={t("equipment.deliveryNotePhoto")} className="sm:col-span-2">
-          <FieldCamera
-            label={deliveryNotePhoto ? t("equipment.deliveryNoteReady") : t("equipment.takeDeliveryNote")}
-            file={deliveryNotePhoto}
-            fileCount={deliveryNotePhoto ? 1 : 0}
-            onCapture={(image) => {
-              setDeliveryNotePhoto(image);
-              ocr.inspect(project, image);
-            }}
-            onClear={() => {
-              setDeliveryNotePhoto(undefined);
-              ocr.cancel();
-            }}
-          />
-          <DeliveryNoteReadStatus reader={ocr} className="mt-2" />
-        </FieldWrapper>
-        <FieldWrapper
-          label={t("field.deliveryNoteNo")}
-          required="quiet"
-          hint={t("equipmentExit.deliveryNoteHint")}
-        >
-          <Input
-            aria-label={t("field.deliveryNoteNo")}
-            value={deliveryNote}
-            onChange={(event) => {
-              ocr.noteTyped("deliveryNote");
-              setDeliveryNote(event.target.value);
-            }}
-          />
-        </FieldWrapper>
         <FieldWrapper
           label={t("equipmentExit.vehiclePlate")}
           required="quiet"
@@ -575,8 +535,20 @@ export function EquipmentExitHandoverForm({
             onChange={(event) => setVehiclePlate(event.target.value)}
           />
         </FieldWrapper>
-        <FieldWrapper label={t("field.supplier")} hint={t("equipmentExit.supplierHint")}>
-          {supplier ? (
+        <FieldWrapper
+          label={machineSupplier ? t("equipmentExit.supplierFromMachine") : t("field.supplier")}
+          hint={machineSupplier ? undefined : t("equipmentExit.supplierHint")}
+        >
+          {machineSupplier ? (
+            // From the machine's record: read-only, nothing to scan (J38-4).
+            <div
+              className="flex min-w-0 items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm"
+              data-testid="exit-machine-supplier"
+            >
+              <span className="min-w-0 flex-1 truncate font-medium">{machineSupplier.name}</span>
+              <SupplierReturnBadge supplier={machineSupplier} />
+            </div>
+          ) : supplier ? (
             <div className="flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm">
               <span className="min-w-0 flex-1 truncate font-medium">{supplier.name}</span>
               <SupplierReturnBadge supplier={supplier} />
@@ -656,7 +628,6 @@ export function EquipmentExitHandoverForm({
                 : photoCount >= HANDOVER_PHOTO_MIN,
               t("field.photos"),
             ],
-            [deliveryNote.trim(), t("field.deliveryNoteNo")],
             [vehiclePlate.trim(), t("equipmentExit.vehiclePlate")],
             [receiverSignature, t("equipment.siteSignature")],
             [supplierSignature, t("equipment.supplierSignature")],

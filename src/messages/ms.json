@@ -6140,7 +6140,7 @@
       "waitingForSite": "Diluluskan / menunggu keluar tapak: tapak merekod keluar dengan kedua-dua tandatangan.",
       "finalConfirm": "Sahkan keluar",
       "waitingForOffice": "Bahan telah keluar. Menunggu pengesahan pejabat.",
-      "returnHelp": "{reference} telah diluluskan. Semasa bahan keluar: ambil foto, isi kuantiti sebenar, nombor plat lori dan nombor DO, sahkan pembekal (imbas kodnya jika boleh), dan kedua-dua orang tapak dan pembekal / pemandu tandatangan. Pejabat kemudian mengesahkannya.",
+      "returnHelp": "{reference} telah diluluskan. Semasa bahan keluar: ambil foto, isi kuantiti sebenar, nombor plat lori, sahkan pembekal (imbas kodnya jika boleh), dan kedua-dua orang tapak dan pembekal / pemandu tandatangan. Pejabat kemudian mengesahkannya.",
       "processingPhotos": "Gambar semasa serahan",
       "processingNote": "Nota dari tapak",
       "processingLocation": "Lokasi",
@@ -6183,6 +6183,7 @@
       "noSupplier": "Tidak diketahui",
       "spec": "Spesifikasi",
       "chooseSpec": "Pilih spesifikasi",
+      "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "specName": "Nama spesifikasi",
       "materialName": "Nama bahan"
     },
@@ -6414,7 +6415,7 @@
       "title": "Return Note",
       "fill": "Isi Return Note",
       "edit": "Ubah Return Note",
-      "help": "Sebelum meluluskan, isi Return Note: bahan, nombor DO, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus.",
+      "help": "Sebelum meluluskan, isi Return Note: bahan, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus.",
       "number": "No. Return Note",
       "numberPending": "Dinomborkan apabila disimpan",
       "date": "Tarikh",
@@ -6433,7 +6434,7 @@
       "needNoteFirst": "Isi Return Note dahulu",
       "filledBy": "Diisi oleh",
       "machine": "Mesin",
-      "helpMachine": "Sebelum meluluskan, isi Return Note: mesin, nombor DO, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus."
+      "helpMachine": "Sebelum meluluskan, isi Return Note: mesin, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus."
     },
     "progressEvidenceSuggested": "{current} foto telah diambil. Ambil sekurang-kurangnya 1; empat di bawah ialah cadangan, dan foto tambahan boleh ditambah.",
     "equipmentExit": {
@@ -6458,7 +6459,7 @@
       "applyQueued": "Permohonan keluar disimpan - menunggu muat naik",
       "handover": "Rekod keluar sebenar",
       "handoverTitle": "{name} keluar tapak",
-      "handoverHelp": "Diluluskan untuk keluar: imbas kod QR mesin ini, ambil foto, masukkan DO dan kedua-dua pihak tandatangan. Pejabat kemudian mengesahkannya.",
+      "handoverHelp": "Diluluskan untuk keluar: imbas kod QR mesin ini, ambil foto, masukkan plat lori dan kedua-dua pihak tandatangan. Pejabat kemudian mengesahkannya.",
       "handoverSubmit": "Hantar keluar",
       "handoverFailed": "Keluar tidak berjaya dihantar. Sila cuba lagi.",
       "handoverQueued": "Keluar mesin ini disimpan di telefon dan menunggu muat naik.",
@@ -6477,9 +6478,10 @@
       "typedNotScanned": "Kod QR tidak diimbas di tapak; nombor peralatan ditaip.",
       "scanAgain": "Imbas semula",
       "scanWrongMachine": "Itu bukan mesin yang diluluskan untuk keluar ({name}). Imbas kod QR mesin ini.",
-      "photosHint": "Sekurang-kurangnya {min} foto, termasuk foto DO.",
+      "photosHint": "Sekurang-kurangnya {min} foto.",
       "deliveryNoteHint": "Masukkan nombor DO (dibaca daripada foto DO).",
       "supplierHint": "Imbas kod QR pembekal jika ada; boleh ditinggalkan.",
+      "supplierFromMachine": "Pembekal (daripada mesin)",
       "supplierPick": "Atau pilih daripada senarai",
       "signatureHint": "Ditandatangani semasa serahan oleh orang ini.",
       "locationHint": "Diambil secara automatik apabila borang dibuka.",
@@ -8788,10 +8790,12 @@
       "chooseColumnFirst": "Pilih kategori dahulu",
       "noSupplier": "Pembekal belum diisi",
       "noSupplierHint": "Tidak pasti pembekalnya? Biarkan - pejabat akan mengisinya.",
+      "supplierRequiredHint": "Imbas kod QR pembekal atau pilih daripada senarai.",
       "spec": "Spesifikasi",
       "chooseSpec": "Pilih spesifikasi",
       "specName": "Nama spesifikasi",
       "specNameHint": "Tiada dalam senarai? Pilih 「Lain-lain」 dan taip di sini.",
+      "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "autoFilledFromSpec": "Dari spesifikasi",
       "otherName": "Nama bahan",
       "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini; pejabat akan menambahnya ke senarai."
@@ -13127,6 +13131,8 @@
       "SUCCEEDED": "Dibaca"
     },
     "editNote": "Kuantiti dan harga boleh dibetulkan. Projek, nota hantar dan masa rekod tidak boleh — itulah yang dibuktikan oleh resit ini.",
+    "specPendingHint": "Tapak tidak mengisi spesifikasi: buka rekod dan isikan - tiada PIN pengesahan untuk spesifikasi sahaja.",
+    "specPending": "Spesifikasi belum diisi",
     "editTitle": "Betulkan resit",
     "field": {
       "category": "Ruangan",
@@ -13284,6 +13290,7 @@
         "quantity": "Kuantiti"
       },
       "returnTag": "Ada rekod pemulangan",
+      "noSpec": "Tiada spesifikasi lagi",
       "returnTagHint": "Baris ini ada {count} pemulangan yang selesai - buka untuk melihatnya",
       "openNumber": "Lihat rekod di sebalik {label} {value}",
       "breakdown": {

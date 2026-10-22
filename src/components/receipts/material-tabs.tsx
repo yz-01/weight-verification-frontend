@@ -311,7 +311,17 @@ export function NetTotalsView({
                           ) : null}
                         </span>
                       </TableCell>
-                      <TableCell>{row.material_specification || "—"}</TableCell>
+                      <TableCell>
+                        {/* 「未填规格」 (J39): its own line until the office fills them in. */}
+                        {row.material_specification ||
+                          (row.needs_spec ? (
+                            <span data-slot="net-no-spec" className="font-medium text-tone-amber-fg">
+                              {t("receipts.net.noSpec")}
+                            </span>
+                          ) : (
+                            "—"
+                          ))}
+                      </TableCell>
                       <TableCell>{unitName(row.unit)}</TableCell>
                       <TableCell className="tabular text-right">
                         <NetNumber label={t("receipts.net.received")} value={row.received} onOpen={() => setDrill({ row, focus: "received" })} />

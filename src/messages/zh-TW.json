@@ -6140,7 +6140,7 @@
       "waitingForSite": "已批准 / 等待退場：等待現場實際退場並雙方簽名。",
       "finalConfirm": "確認退場完成",
       "waitingForOffice": "現場已退場，待後台確認。",
-      "returnHelp": "{reference} 已批准。材料實際退場時：拍照，填寫實際退回數量、車牌和 DO 號，確認供應商（可掃碼），現場人員與供應商 / 司機雙方簽名。提交後等待後台確認。",
+      "returnHelp": "{reference} 已批准。材料實際退場時：拍照，填寫實際退回數量、車牌，確認供應商（可掃碼），現場人員與供應商 / 司機雙方簽名。提交後等待後台確認。",
       "processingPhotos": "出場時的照片",
       "processingNote": "現場處理說明",
       "processingLocation": "定位",
@@ -6183,6 +6183,7 @@
       "noSupplier": "不填",
       "spec": "規格",
       "chooseSpec": "選擇規格",
+      "specOptionalHint": "不知道規格可以不選，後台會補上。",
       "specName": "規格名稱",
       "materialName": "材料名稱"
     },
@@ -6414,7 +6415,7 @@
       "title": "Return Note",
       "fill": "填寫 Return Note",
       "edit": "修改 Return Note",
-      "help": "批准前先填寫 Return Note：材料、DO 號、供應商、數量、退回原因，以及批准人姓名和簽名。",
+      "help": "批准前先填寫 Return Note：材料、供應商、數量、退回原因，以及批准人姓名和簽名。",
       "number": "Return Note 編號",
       "numberPending": "保存後自動編號",
       "date": "日期",
@@ -6433,7 +6434,7 @@
       "needNoteFirst": "先填寫 Return Note",
       "filledBy": "填寫人",
       "machine": "設備",
-      "helpMachine": "批准前先填寫 Return Note：設備、DO 號、供應商、數量、退回原因，以及批准人姓名和簽名。"
+      "helpMachine": "批准前先填寫 Return Note：設備、供應商、數量、退回原因，以及批准人姓名和簽名。"
     },
     "progressEvidenceSuggested": "已拍攝 {current} 張。至少拍 1 張；下面 4 張是建議拍的，也可以繼續新增其他照片。",
     "equipmentExit": {
@@ -6458,7 +6459,7 @@
       "applyQueued": "退場申請已暫存，等待上傳",
       "handover": "實際退場",
       "handoverTitle": "{name} 實際退場",
-      "handoverHelp": "已批准退場：掃這台設備的二維碼，拍照、填 DO、雙方簽名，提交後由後台確認。",
+      "handoverHelp": "已批准退場：掃這台設備的二維碼，拍照、填運輸車輛車牌、雙方簽名，提交後由後台確認。",
       "handoverSubmit": "提交退場",
       "handoverFailed": "退場沒有提交成功，請再試一次。",
       "handoverQueued": "這台設備的退場已暫存，等待上傳。",
@@ -6477,9 +6478,10 @@
       "typedNotScanned": "現場沒有掃二維碼，設備號碼是手動輸入的。",
       "scanAgain": "重掃",
       "scanWrongMachine": "掃到的不是批准退場的設備（{name}），請掃這台設備的二維碼。",
-      "photosHint": "至少 {min} 張（含 DO 照片）。",
+      "photosHint": "至少 {min} 張。",
       "deliveryNoteHint": "填 DO 號碼（拍了 DO 會自動讀出）。",
       "supplierHint": "有供應商二維碼就掃，沒有可以不掃。",
+      "supplierFromMachine": "供應商（從設備帶出）",
       "supplierPick": "或從名單選供應商",
       "signatureHint": "交接時由本人簽名。",
       "locationHint": "打開時自動獲取定位。",
@@ -8788,10 +8790,12 @@
       "chooseColumnFirst": "請先選分類",
       "noSupplier": "未填供應商",
       "noSupplierHint": "不確定是哪家就不用選，後台會補上。",
+      "supplierRequiredHint": "掃供應商二維碼或從名單選。",
       "spec": "規格",
       "chooseSpec": "選擇規格",
       "specName": "規格名稱",
       "specNameHint": "名單裡沒有的規格，選「其他」在這裡填寫。",
+      "specOptionalHint": "不知道規格可以不選，後台會補上。",
       "autoFilledFromSpec": "隨規格帶出",
       "otherName": "材料名稱",
       "otherNameHint": "名單裡沒有的材料，選「其他材料」在這裡填寫；辦公室會在分類管理加進名單。"
@@ -13127,6 +13131,8 @@
       "SUCCEEDED": "已讀取"
     },
     "editNote": "數量和單價可以更正。項目、送貨單和記錄時間不可更改，它們正是這條記錄要證明的事。",
+    "specPendingHint": "現場沒填規格：打開這筆記錄補上，只改規格不用簽核密碼。",
+    "specPending": "待補規格",
     "editTitle": "更正材料進場記錄",
     "field": {
       "category": "分類",
@@ -13284,6 +13290,7 @@
         "quantity": "數量"
       },
       "returnTag": "有退貨資料",
+      "noSpec": "未填規格",
       "returnTagHint": "這一行有 {count} 筆已完成的退場，點開查看",
       "openNumber": "查看{label} {value} 是哪些記錄",
       "breakdown": {
