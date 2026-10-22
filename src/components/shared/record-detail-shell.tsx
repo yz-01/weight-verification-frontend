@@ -198,6 +198,21 @@ export function heroSources(photo: ShellPhoto, fromThumbnail: boolean): { src: s
   return { src: full };
 }
 
+/**
+ * How the square hero fits its photo so the burnt-in watermark strip (the
+ * bottom band, left-aligned text) is never cut (J45, Lucas 10-22, k13):
+ *
+ * * square (every photo since J45) - fills the square exactly, nothing cut;
+ * * tall (older phone photos, and before the photo has loaded) - fills the
+ *   square, cut from the top: the strip at the foot stays whole;
+ * * wide - shown whole (`contain`): cutting its sides would cut the strip's
+ *   lines, which run over more than half its width.
+ */
+export function heroFit(natural: Size | null): string {
+  if (natural && natural.width > natural.height * 1.02) return "object-contain";
+  return "object-cover object-bottom";
+}
+
 function ShellHeroPhoto({
   photo,
   onOpen,
@@ -209,6 +224,7 @@ function ShellHeroPhoto({
 }) {
   const df = useDateFormat();
   const { src, srcSet } = heroSources(photo, fromThumbnail);
+  const [natural, setNatural] = useState<Size | null>(null);
   return (
     <button
       type="button"
@@ -224,9 +240,14 @@ function ShellHeroPhoto({
         sizes="(min-width: 640px) 28rem, 100vw"
         alt={photo.label}
         decoding="async"
-        className="absolute inset-0 size-full object-cover"
+        onLoad={(event) => {
+          const image = event.currentTarget;
+          setNatural({ width: image.naturalWidth, height: image.naturalHeight });
+        }}
+        className={`absolute inset-0 size-full ${heroFit(natural)}`}
       />
-      <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-overlay px-2 py-1 text-xs text-overlay-foreground">
+      {/* At the top: at the foot it covered the photo's watermark strip. */}
+      <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-overlay px-2 py-1 text-xs text-overlay-foreground">
         {photo.label}
         {photo.takenAt ? ` · ${df.dateTime(photo.takenAt)}` : ""}
       </span>

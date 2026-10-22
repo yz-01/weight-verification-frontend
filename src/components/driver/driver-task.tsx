@@ -606,7 +606,7 @@ export function DriverTask({
                   alt={photo.caption || photo.kind}
                   fill
                   sizes="120px"
-                  className="object-cover"
+                  className="object-cover object-bottom"
                   unoptimized
                 />
               </div>

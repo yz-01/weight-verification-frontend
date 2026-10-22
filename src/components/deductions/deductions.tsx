@@ -491,7 +491,7 @@ function RespondDialog({
                       alt={photo.caption || t("deductions.section.photos")}
                       fill
                       sizes="200px"
-                      className="object-cover"
+                      className="object-cover object-bottom"
                       unoptimized
                     />
                   </div>

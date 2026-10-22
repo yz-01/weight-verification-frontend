@@ -1270,7 +1270,7 @@ function RecordDialog({
                     key={url}
                     src={url}
                     alt={`${t("field.photos")} ${index + 1}`}
-                    className="aspect-square w-full rounded-lg border object-cover"
+                    className="aspect-square w-full rounded-lg border object-cover object-bottom"
                   />
                 ))}
               </div>
@@ -1655,7 +1655,7 @@ function TrackingDialog({
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {task.photos.map((photo) => (
                         <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-lg border bg-muted/30">
-                          <Image src={photo.watermarked || photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
+                          <Image src={photo.watermarked || photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover object-bottom" />
                           <p className="truncate px-2 py-1.5 text-xs">{photo.caption || photo.kind}</p>
                         </a>
                       ))}

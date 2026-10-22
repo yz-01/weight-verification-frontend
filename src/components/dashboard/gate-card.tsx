@@ -108,7 +108,7 @@ export function GateCard({ project = "" }: { project?: string }) {
                     decoding="async"
                     src={thumb.watermarked_image}
                     alt={t("photoAlt", { reference: thumb.incident_no })}
-                    className="aspect-square w-full object-cover transition-transform group-hover:scale-105"
+                    className="aspect-square w-full object-cover object-bottom transition-transform group-hover:scale-105"
                   />
                 ) : (
                   <span className="grid aspect-square place-items-center text-muted-foreground">
