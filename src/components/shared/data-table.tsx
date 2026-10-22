@@ -27,7 +27,8 @@ import {
   usePackList,
   withPackColumns,
 } from "@/components/contractor-ops/pack-collect";
-import { InsideRowControl } from "@/components/shared/inside-row-control";
+import { InsideRowControl, StripFillsWidth } from "@/components/shared/inside-row-control";
+import { CORRECTED_ROW_CLASS, CorrectedTag } from "@/components/shared/record-correction";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -55,6 +56,7 @@ import {
 } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { PAGE_SIZE_OPTIONS } from "@/hooks/use-list-query";
+import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import { defaultVisibility, initialVisibility } from "@/lib/table-fit";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +67,18 @@ function needsAction(row: unknown): boolean {
     row !== null &&
     (row as { needs_action?: unknown }).needs_action === true
   );
+}
+
+/**
+ * A list drawn as cards on a phone (J34-2 point 4): its title columns on the
+ * first line, its detail columns small on the second, and its photo strip
+ * under them - instead of a table scrolled sideways. Column ids; a hidden
+ * column is still shown here when named.
+ */
+export interface PhoneCard {
+  title: readonly string[];
+  detail: readonly string[];
+  photo?: string;
 }
 
 export interface FilterPill {
@@ -119,12 +133,21 @@ interface DataTableProps<T> {
    */
   rowClassName?: (row: T) => string | undefined;
   /**
+   * The list's records can be corrected (J1-3, J1-4, J20): a row whose
+   * `was_corrected` is true gets the gold frame and, at the front of its
+   * first column, the gold 「已修改」 that opens its history. One place, so
+   * the twelve lists show the same mark.
+   */
+  corrected?: { kind: CorrectionHistoryKind };
+  /**
    * The list's records can go into a Multi Engine package (2026-10-10,
    * 添加资料及勾选关联): rows show 「✅ 已打包 X 次」, and while a package is
    * being put together they get tick boxes and 「加入当前资料包」. Written
    * once in `pack-collect.tsx`; a module list only names its kind.
    */
   pack?: PackListConfig<T>;
+  /** Cards instead of the table on a phone (J34-2). */
+  phoneCard?: PhoneCard;
   onSearchChange: (value: string) => void;
   onSortChange: (field: string, order: "asc" | "desc") => void;
   onPageChange: (page: number) => void;
@@ -148,6 +171,16 @@ export const PINNED_END_COLUMNS = ["actions", "view"] as const;
 const UNCLAMPED_COLUMNS = new Set<string>([...PINNED_END_COLUMNS, PACK_SELECT_COLUMN]);
 
 /** The columns whose controls must not also open the row they sit in. */
+/** Whether a list row says the office corrected it (I30, J20). */
+function isCorrected(row: unknown): boolean {
+  return Boolean((row as { was_corrected?: boolean } | null)?.was_corrected);
+}
+
+function rowId(row: unknown): string | undefined {
+  const id = (row as { id?: unknown } | null)?.id;
+  return id == null ? undefined : String(id);
+}
+
 const OWN_CLICK_COLUMNS = new Set(["actions", PACK_SELECT_COLUMN, PACK_BADGE_COLUMN]);
 
 /**
@@ -203,6 +236,8 @@ function TableFrame<T>({
   toolbarActions,
   onRowClick,
   rowClassName,
+  corrected,
+  phoneCard,
   onSearchChange,
   onSortChange,
   onPageChange,
@@ -294,6 +329,9 @@ function TableFrame<T>({
   const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, totalCount);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  // Rows to show as cards on a phone; loading, empty and failed stay in the
+  // table, which already says so.
+  const cards = Boolean(phoneCard) && !isLoading && !isError && rows.length > 0;
 
   // At least about eight rows tall (Lucas 10/17: with the supplier summary
   // above, the register was squeezed to one row). A page with more above
@@ -381,7 +419,7 @@ function TableFrame<T>({
 
       {/* The table's own box is the one that scrolls (IB3): its header is
           sticky against it, and it fills what the panel leaves. */}
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className={cn("flex min-h-0 min-w-0 flex-1 flex-col", cards && "max-sm:hidden")}>
         <Table fit containerClassName="min-h-0 flex-1" className="w-full max-sm:min-w-max max-sm:[&_tbody_td:first-child]:sticky max-sm:[&_tbody_td:first-child]:left-0 max-sm:[&_tbody_td:first-child]:z-[1] max-sm:[&_tbody_td:first-child]:bg-card max-sm:[&_thead_th:first-child]:sticky max-sm:[&_thead_th:first-child]:left-0 max-sm:[&_thead_th:first-child]:z-[2] max-sm:[&_thead_th:first-child]:bg-card">
           <TableHeader className="sticky top-0 z-10 bg-card [&_tr]:bg-transparent">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -470,6 +508,7 @@ function TableFrame<T>({
                         ? "[&>td:first-child]:border-l-4 [&>td:first-child]:border-l-primary"
                         : "",
                       rowClassName?.(row.original) ?? "",
+                      corrected && isCorrected(row.original) ? CORRECTED_ROW_CLASS : "",
                     ]
                       .filter(Boolean)
                       .join(" ") || undefined
@@ -493,7 +532,7 @@ function TableFrame<T>({
                       : undefined
                   }
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map((cell, index, cells) => (
                     <TableCell
                       key={cell.id}
                       pin={cell.column.id === pinnedId ? "end" : undefined}
@@ -511,7 +550,17 @@ function TableFrame<T>({
                           : undefined
                       }
                     >
-                      {UNCLAMPED_COLUMNS.has(cell.column.id) ? (
+                      {corrected &&
+                      isCorrected(row.original) &&
+                      cell.id === cells.find((one) => one.column.id !== PACK_SELECT_COLUMN)?.id ? (
+                        // 「已修改」 at the very front of the row (J1-4).
+                        <div className="flex items-center gap-1.5">
+                          <CorrectedTag kind={corrected.kind} recordId={rowId(row.original)} />
+                          <div className="min-w-0">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
+                        </div>
+                      ) : UNCLAMPED_COLUMNS.has(cell.column.id) ? (
                         flexRender(cell.column.columnDef.cell, cell.getContext())
                       ) : (
                         // Two lines at most, the whole text on hover (I39).
@@ -528,6 +577,71 @@ function TableFrame<T>({
           </InsideRowControl.Provider>
         </Table>
       </div>
+      {cards && phoneCard ? (
+        <InsideRowControl.Provider value={Boolean(onRowClick)}>
+          <ul data-phone-cards className="min-h-0 flex-1 divide-y divide-panel-border overflow-y-auto sm:hidden">
+            {table.getRowModel().rows.map((row) => {
+              const byId = new Map(row.getAllCells().map((cell) => [cell.column.id, cell]));
+              const draw = (id: string) => {
+                const cell = byId.get(id);
+                return cell ? flexRender(cell.column.columnDef.cell, cell.getContext()) : null;
+              };
+              const open = onRowClick ? () => onRowClick(row.original) : undefined;
+              return (
+                <li
+                  key={row.id}
+                  data-needs-action={needsAction(row.original) ? "true" : undefined}
+                  tabIndex={open ? 0 : undefined}
+                  role={open ? "button" : undefined}
+                  onClick={open}
+                  onKeyDown={
+                    open
+                      ? (event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            open();
+                          }
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    "space-y-2 px-4 py-3",
+                    open && "cursor-pointer active:bg-muted/60",
+                    needsAction(row.original) && "border-l-4 border-l-primary",
+                    rowClassName?.(row.original),
+                    corrected && isCorrected(row.original) && CORRECTED_ROW_CLASS,
+                  )}
+                >
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
+                    {corrected && isCorrected(row.original) ? (
+                      <CorrectedTag kind={corrected.kind} recordId={rowId(row.original)} />
+                    ) : null}
+                    {phoneCard.title.map((id) => (
+                      <span key={id} className="min-w-0 truncate">
+                        {draw(id)}
+                      </span>
+                    ))}
+                  </div>
+                  {phoneCard.detail.length > 0 ? (
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                      {phoneCard.detail.map((id) => (
+                        <span key={id} className="min-w-0 truncate">
+                          {draw(id)}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  {phoneCard.photo ? (
+                    <StripFillsWidth.Provider value>
+                      <div>{draw(phoneCard.photo)}</div>
+                    </StripFillsWidth.Provider>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </InsideRowControl.Provider>
+      ) : null}
 
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-panel-border px-4 py-3 sm:px-6">
         <p className="text-xs text-muted-foreground">

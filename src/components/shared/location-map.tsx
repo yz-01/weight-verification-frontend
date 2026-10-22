@@ -54,6 +54,8 @@ export interface LocationMapZone {
   points?: Array<[number, number]>;
   label?: string;
   color?: string;
+  /** Drawn dashed: a project's other fences beside its main one (J23). */
+  dashed?: boolean;
 }
 
 interface LocationMapProps {
@@ -62,6 +64,8 @@ interface LocationMapProps {
   markers: LocationMapMarker[];
   paths?: LocationMapPath[];
   zones?: LocationMapZone[];
+  /** Where the map remembers the height it was dragged to (J23-1). */
+  sizeKey?: string;
   className?: string;
   ariaLabel?: string;
   preserveViewOnDataUpdate?: boolean;
@@ -86,6 +90,7 @@ export function LocationMap({
   markers,
   paths = [],
   zones = [],
+  sizeKey,
   className = "",
   ariaLabel = "Location map",
   preserveViewOnDataUpdate = false,
@@ -175,6 +180,7 @@ export function LocationMap({
             fillColor: color,
             fillOpacity: 0.08,
             weight: 2,
+            dashArray: zone.dashed ? "6 6" : undefined,
           }).addTo(layers).bindTooltip(zone.label ?? "Geofence");
         } else if (zone.center && zone.radiusM) {
           L.circle(zone.center, {
@@ -183,6 +189,7 @@ export function LocationMap({
             fillColor: color,
             fillOpacity: 0.08,
             weight: 2,
+            dashArray: zone.dashed ? "6 6" : undefined,
           }).addTo(layers).bindTooltip(zone.label ?? "Geofence");
         }
       });
@@ -275,6 +282,7 @@ export function LocationMap({
   return (
     <MapFrame
       className={`min-h-[22rem] w-full overflow-hidden border bg-muted/20 ${className}`}
+      sizeKey={sizeKey}
       fitLabel={fitLabel}
       onFit={fitLabel ? () => fitRef.current?.() : undefined}
     >

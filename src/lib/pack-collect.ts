@@ -160,6 +160,8 @@ export const PACK_TARGETS: readonly PackTarget[] = [
   },
   // HD17: a Sundry Claim package carries sundry claims as its records.
   { key: "sundryClaims", kind: "SUNDRY_CLAIM", labelKey: "nav.submodule.sundryClaims", path: "/sundry-claims" },
+  // J30-2: an MR / 其他申请, once decided, can go into a package.
+  { key: "materialRequests", kind: "MATERIAL_REQUEST", labelKey: "nav.submodule.materialRequests", path: "/material-requests" },
 ];
 
 /** The module's list, opened on the package's project, collecting into it. */

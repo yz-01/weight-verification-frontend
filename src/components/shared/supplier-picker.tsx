@@ -29,7 +29,8 @@ export function SupplierPicker({
   triggerClassName,
 }: {
   value: string;
-  onChange: (id: string) => void;
+  /** `row`: the chosen one as listed, for a screen that shows its name. */
+  onChange: (id: string, row?: ReturnBadgeSupplier) => void;
   /** The chosen one's name when it is not on the first page of results. */
   knownName?: string | null;
   placeholder: string;
@@ -84,7 +85,7 @@ export function SupplierPicker({
         onChange={(next) => {
           const row = rows.find((option) => option.id === next);
           if (row) setPicked({ id: row.id, name: row.name });
-          onChange(next === "__none__" ? "" : next);
+          onChange(next === "__none__" ? "" : next, row);
         }}
         options={options}
         onSearch={setTerm}

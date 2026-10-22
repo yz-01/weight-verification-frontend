@@ -76,6 +76,8 @@ import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner"
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import {
+  CORRECTED_ROW_CLASS,
+  CorrectedTag,
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
@@ -175,7 +177,7 @@ import {
 } from "@/services/contractor.service";
 import { getRoles } from "@/services/users.service";
 import { MaterialSpecsEditor } from "@/components/contractor-ops/material-specs-editor";
-import { offeredSpecs, specChoice } from "@/lib/material-catalogue";
+import { isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import { OutgoingSupplierField } from "@/components/contractor-ops/outgoing-supplier-field";
 import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/return-note";
 import {
@@ -406,11 +408,11 @@ export function CategoryDialog({
   // Progress Claim categories (I10, ID6): made by the project, flat or with
   // sub-categories like EHS.
   const isClaim = form.kind === "CLAIM";
-  // A new equipment category (I38, ID81) is named and filed under a major
-  // class, nothing else: the server numbers it and the rest keeps its
-  // defaults under 「更多设定」.
-  const simpleEquip = !row && isEquipment;
-  const autoCode = isEhs || isClaim || simpleEquip;
+  // A new category is named and filed under its parent, nothing else: the
+  // server numbers it and the rest keeps its defaults under 「更多设定」 -
+  // equipment since I38 (ID81), every module since J28 (客户 10-19). The
+  // code is shown, never typed, and never changes once made.
+  const simpleNew = !row;
   // EHS and claims (I11): the category a sub-category goes under, from this
   // group's top-level categories. Equipment keeps its own picker below; a
   // material's second level is its specifications (I19), set further down.
@@ -475,9 +477,11 @@ export function CategoryDialog({
             manufacturers: manufacturerIds,
           }
         : isEquipment || takesParent
-          ? { ...form, parent: form.parent || null, ...(simpleEquip ? { code: "" } : {}) }
+          ? { ...form, parent: form.parent || null }
           : // A material's second level is its specifications (I19); not sent.
             { ...form, parent: undefined };
+      // The server numbers a new category (J28); an old one keeps its code.
+      if (!row) payload.code = "";
       if (row) delete payload.group;
       else if (!payload.group) delete payload.group;
       return row
@@ -539,10 +543,36 @@ export function CategoryDialog({
               <QueryFailedNote query={equipmentClasses.query} what={t("what.columns")} />
             </FieldWrapper>
   );
-  // The settings a new equipment category keeps at their defaults are folded
-  // away (I38); everywhere else the dialog is the one it always was.
+  // 子分类 (I11, ID3): EHS and claim categories go one level down.
+  const subCategoryParentField = (
+    <FieldWrapper
+      label={modules("subCategory.parent")}
+      hint={modules("subCategory.parentHint")}
+    >
+      <Select
+        value={form.parent || "__top__"}
+        onValueChange={(value) => set("parent", value === "__top__" ? null : value)}
+        disabled={hasChildren || Boolean(row?.is_fixed)}
+      >
+        <SelectTrigger className="w-full" aria-label={modules("subCategory.parent")}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__top__">{modules("subCategory.isTop")}</SelectItem>
+          {parentRows.map((choice) => (
+            <SelectItem key={choice.id} value={choice.id}>
+              {choice.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <QueryFailedNote query={parentChoices} what={t("what.columns")} />
+    </FieldWrapper>
+  );
+  // The settings a new category keeps at their defaults are folded away
+  // (I38, J28); an existing one opens with everything, as it always did.
   const more = (fields: React.ReactNode) =>
-    simpleEquip ? (
+    simpleNew ? (
       <details className="rounded-lg border p-3 sm:col-span-2">
         <summary className="cursor-pointer text-sm font-medium">
           {modules("equipment.moreSettings")}
@@ -572,26 +602,20 @@ export function CategoryDialog({
               disabled
             />
           </FieldWrapper>
-          {simpleEquip && (
+          {simpleNew && (
             <>
               {nameField}
-              {equipmentParentField}
+              {isEquipment && equipmentParentField}
+              {takesParent && subCategoryParentField}
             </>
           )}
           {more(<>
-          {autoCode ? (
-            <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
-              <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
-            </FieldWrapper>
-          ) : (
-            <FieldWrapper label={t("field.code")} required>
-              <Input
-                value={form.code}
-                onChange={(e) => set("code", e.target.value.toUpperCase())}
-              />
-            </FieldWrapper>
-          )}
-          {!simpleEquip && nameField}
+          {/* Shown, never typed (J28): 「保存后自动生成」 on a new one, and
+              read-only once made - MR's 材料编号 and old records point at it. */}
+          <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
+            <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
+          </FieldWrapper>
+          {!simpleNew && nameField}
           <FieldWrapper label={t("categories.kind")} required>
             <Select
               value={form.kind}
@@ -637,33 +661,9 @@ export function CategoryDialog({
           </FieldWrapper>
           {/* 大类 → 小类 (2026-10 B2, X1): equipment only. Empty makes it a
               major class; a machine is registered on a sub class. */}
-          {!simpleEquip && isEquipment && equipmentParentField}
+          {!simpleNew && isEquipment && equipmentParentField}
           {/* 子分类 (I11, ID3): EHS and claim categories go one level down. */}
-          {takesParent && (
-            <FieldWrapper
-              label={modules("subCategory.parent")}
-              hint={modules("subCategory.parentHint")}
-            >
-              <Select
-                value={form.parent || "__top__"}
-                onValueChange={(value) => set("parent", value === "__top__" ? null : value)}
-                disabled={hasChildren || Boolean(row?.is_fixed)}
-              >
-                <SelectTrigger className="w-full" aria-label={modules("subCategory.parent")}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__top__">{modules("subCategory.isTop")}</SelectItem>
-                  {parentRows.map((choice) => (
-                    <SelectItem key={choice.id} value={choice.id}>
-                      {choice.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <QueryFailedNote query={parentChoices} what={t("what.columns")} />
-            </FieldWrapper>
-          )}
+          {!simpleNew && takesParent && subCategoryParentField}
           {/* 提交方式 (I12, ID28): who accepts what is filed here - material
               and equipment only. EHS has its own assignment and acceptance
               (ID9), and a claim is the office's own. */}
@@ -965,8 +965,6 @@ export function CategoryDialog({
           <Button
             requires={[
               [form.project, t("field.project")],
-              // An EHS code is the server's to make (HD4).
-              [autoCode || form.code, t("field.code")],
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
@@ -1353,7 +1351,7 @@ export function FieldTasksWorkspace({
               <article
                 key={row.id}
                 data-testid="field-task-row"
-                className="overflow-hidden surface-panel rounded-xl"
+                className={cn("overflow-hidden surface-panel rounded-xl", row.was_corrected && CORRECTED_ROW_CLASS)}
               >
                 {/* On a desk screen every strip shares one column grid
                     (2026-10-17): status, photos, marker and buttons each have
@@ -1371,7 +1369,11 @@ export function FieldTasksWorkspace({
                     <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                     <span className="grid min-w-0 flex-1 gap-0.5 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] sm:items-center sm:gap-3">
                       <span className="min-w-0">
-                        <span className="block truncate font-medium">{taskTitle(row)}</span>
+                        <span className="flex min-w-0 items-center gap-1.5">
+                          {/* 「已修改」 (J20): the task's detail holds its history. */}
+                          {row.was_corrected && <CorrectedTag />}
+                          <span className="truncate font-medium">{taskTitle(row)}</span>
+                        </span>
                         <span className="block truncate text-xs text-muted-foreground">
                           {/* 记录编号 (I6): the short FT-012, the whole one on hover. */}
                           {row.record_no && (
@@ -2399,7 +2401,16 @@ export function EquipmentDialog({
               disabled={Boolean(equipment)}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.code")} required>
+          {/* 设备号码 (J21-1, J21-2): given by the system with the QR code -
+              shown, never typed here. */}
+          {equipment ? (
+            <FieldWrapper label={t("equipment.siteNo")} className="sm:col-span-2">
+              <p className="text-sm font-semibold" data-testid="equipment-site-no">
+                {equipment.site_no ? t("equipment.siteNoAuto", { no: equipment.site_no }) : "—"}
+              </p>
+            </FieldWrapper>
+          ) : null}
+          <FieldWrapper label={t("equipment.systemNo")} required>
             <Input
               value={form.code}
               onChange={(e) => set("code", e.target.value.toUpperCase())}
@@ -2540,7 +2551,7 @@ export function EquipmentDialog({
           <Button
             requires={[
               [form.project, t("field.project")],
-              [form.code, t("field.code")],
+              [form.code, t("equipment.systemNo")],
               [form.name, t("field.name")],
               [form.category, t("field.equipmentSubClass")],
             ]}
@@ -4308,6 +4319,7 @@ export function OutgoingDialog({
     // The specification (I19, ID46); its unit is the unit. 「其他」 is typed.
     spec_category: "",
     material_specification: "",
+    material_name: "",
     unit: "",
     supplier: "",
     quantity: "",
@@ -4345,6 +4357,8 @@ export function OutgoingDialog({
   const specs = offeredSpecs(selected, form.spec_category ?? "");
   const specPick = specChoice(selected, form.spec_category ?? "");
   const specRequired = specs.length > 0;
+  // 「其他材料」 (J14-3, 只能从分类管理下拉选): the one material typed by name.
+  const typedMaterial = isOtherMaterial(selected);
   const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
   const unit = specPick.unitLocked ? specPick.unit : fill.unitLocked && !specPick.typed ? fill.unit : form.unit;
   const units = useMaterialUnits();
@@ -4389,6 +4403,8 @@ export function OutgoingDialog({
         category: form.category,
         spec_category: form.spec_category || undefined,
         material_specification: specPick.typed ? (form.material_specification ?? "").trim() : undefined,
+        // 「其他材料」 (J14-3): the one material whose name is typed.
+        material_name: typedMaterial ? (form.material_name ?? "").trim() : undefined,
         unit,
         supplier: form.supplier || undefined,
         manufacturer: form.manufacturer || undefined,
@@ -4455,6 +4471,15 @@ export function OutgoingDialog({
               <p className="text-xs text-muted-foreground">{t("outgoing.noMaterials")}</p>
             ) : null}
           </FieldWrapper>
+          {typedMaterial && (
+            <FieldWrapper label={t("outgoing.materialName")} required>
+              <Input
+                value={form.material_name ?? ""}
+                maxLength={200}
+                onChange={(e) => set("material_name", e.target.value)}
+              />
+            </FieldWrapper>
+          )}
           {/* 规格 (I19, ID46): the unit comes with it; 「其他」 is typed. */}
           {form.category && specRequired && (
             <FieldWrapper label={t("outgoing.spec")} required={specRequired}>
@@ -4601,6 +4626,7 @@ export function OutgoingDialog({
             requires={[
               [project, t("field.project")],
               [form.category, t("outgoing.material")],
+              [!typedMaterial || (form.material_name ?? "").trim(), t("outgoing.materialName")],
               [!specRequired || form.spec_category, t("outgoing.spec")],
               [!specPick.typed || (form.material_specification ?? "").trim(), t("outgoing.specName")],
               [unit, t("field.unit")],
@@ -5012,7 +5038,6 @@ export function OutgoingDetailDialog({
   return (
     <RecordDetailDialog
       title={row?.reference_no ?? t("outgoing.title")}
-      legacyNo={row?.legacy_no}
       description={row ? `${row.material_name} · ${row.quantity} ${row.unit}` : undefined}
       exportRecord={
         row

@@ -1,7 +1,8 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { Coins, FileUp, Paperclip } from "lucide-react";
+import { Coins, FileUp } from "lucide-react";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -152,7 +153,17 @@ export function Vouchers({ proofs }: { proofs: PaymentProof[] }) {
     <ul className="space-y-1 text-xs">
       {proofs.map((proof) => (
         <li key={proof.id} className="flex flex-wrap items-center gap-2">
-          <Paperclip className="size-3.5 text-muted-foreground" />
+          {/* The voucher as a picture (J34-11): a photo itself, a PDF its type. */}
+          <FileThumbs
+            files={[
+              {
+                id: proof.id,
+                name: proof.name,
+                thumbnail_url: proof.file && proof.preview_type?.startsWith("image/") ? proof.file : null,
+                href: proof.file,
+              },
+            ]}
+          />
           {proof.file ? (
             <a href={proof.file} target="_blank" rel="noreferrer noopener" className="text-primary underline">
               {proof.name}

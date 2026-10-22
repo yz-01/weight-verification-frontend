@@ -112,6 +112,7 @@ import {
   reviewConsultantApplication,
   submitConsultantApplication,
 } from "@/services/consultant-workflow.service";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 
 /**
  * One consultant application, in the record-detail frame every module
@@ -483,7 +484,7 @@ export function ConsultantApplicationDetail({
                       application={application}
                       code={code}
                       editable={draftEditable}
-                      canArchive={can("document.view")}
+                      canArchive
                       onChanged={() => void refresh()}
                       onPickFromArchive={() => setTileArchive(code)}
                     />
@@ -590,8 +591,8 @@ export function ConsultantApplicationDetail({
         }
       />
 
-      {tileArchive && <AttachmentDialog application={application} preset={tileArchive} openArchive canArchive={can("document.view")} onChanged={() => void refresh()} onClose={() => setTileArchive(null)} onSaved={() => { void refresh(); setTileArchive(null); }} />}
-      {attachmentOpen && <AttachmentDialog application={application} canArchive={can("document.view")} onChanged={() => void refresh()} onClose={() => setAttachmentOpen(false)} onSaved={() => { void refresh(); setAttachmentOpen(false); }} />}
+      {tileArchive && <AttachmentDialog application={application} preset={tileArchive} openArchive canArchive onChanged={() => void refresh()} onClose={() => setTileArchive(null)} onSaved={() => { void refresh(); setTileArchive(null); }} />}
+      {attachmentOpen && <AttachmentDialog application={application} canArchive onChanged={() => void refresh()} onClose={() => setAttachmentOpen(false)} onSaved={() => { void refresh(); setAttachmentOpen(false); }} />}
       {evidenceOpen && <EvidenceDialog application={application} onClose={() => setEvidenceOpen(false)} onSaved={() => { void refresh(); setEvidenceOpen(false); }} />}
       {decision && <DecisionDialog application={application} decision={decision} hasCredential={signsWithCredential(credential.data)} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
     </RecordDetailFrame>
@@ -1072,8 +1073,11 @@ function CloseRemedialDialog({
                       )
                     }
                   />
+                  {/* The photograph itself (J34-11), its stamped copy only. */}
+                  <FileThumbs
+                    files={[{ id: asset.id, name: asset.original_filename, thumbnail_url: asset.watermarked_file ?? null }]}
+                  />
                   <span className="truncate">
-                    {asset.original_filename} ·{" "}
                     {new Date(asset.captured_at).toLocaleString()}
                   </span>
                 </label>

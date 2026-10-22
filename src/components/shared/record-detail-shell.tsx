@@ -130,6 +130,27 @@ export function fitSize(photo: Size, frame: Size): Size {
   return { width: photo.width * scale, height: photo.height * scale };
 }
 
+/** The shape a frame takes before its photo has loaded: a phone's 4:3. */
+const LOADING_SHAPE: Size = { width: 4, height: 3 };
+
+/**
+ * The viewer's room for the photograph (J34-1): the window's height less its
+ * title, buttons and margins.
+ */
+const VIEWER_HEIGHT = "(100dvh - 15rem)";
+
+/**
+ * How wide a frame that just holds `photo` is (J34-1, Lucas 10-20: 「框刚好包住
+ * 照片」): its own shape, as tall as `height` allows, never wider than the
+ * space it is in (`100%`) nor than its own pixels. With `aspect-ratio` set to
+ * the same shape, the frame is the photo - no side bands, no hatching.
+ */
+export function photoFrameWidth(photo: Size, height: string): string {
+  const ratio = photo.width / photo.height;
+  const pixels = photo === LOADING_SHAPE ? "" : `, ${Math.round(photo.width)}px`;
+  return `min(100%, calc(${height} * ${ratio.toFixed(4)})${pixels})`;
+}
+
 function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => void }) {
   return (
     <li className="w-20">
@@ -137,7 +158,7 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
         type="button"
         title={photo.label}
         onClick={onOpen}
-        className="photo-hatch relative block size-20 overflow-hidden rounded-lg border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring"
+        className="relative block size-20 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Image
           src={photo.thumbnailUrl || photo.url}
@@ -175,21 +196,31 @@ function ShellHeroPhoto({
   fromThumbnail: boolean;
 }) {
   const df = useDateFormat();
+  const src = (fromThumbnail && photo.thumbnailUrl) || photo.url;
+  // Its own shape once loaded (J34-1 point 3, 图 2): a portrait photo is a
+  // portrait frame up to 28rem tall, not a 16:9 crop with bands.
+  const [shape, setShape] = useState<(Size & { src: string }) | null>(null);
+  const size = shape && shape.src === src ? shape : LOADING_SHAPE;
   return (
     <button
       type="button"
       title={photo.label}
       onClick={onOpen}
       data-shell-hero
-      className="photo-hatch relative block aspect-video w-full overflow-hidden rounded-xl border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring"
+      style={{ aspectRatio: `${size.width} / ${size.height}`, width: photoFrameWidth(size, "28rem") }}
+      className="relative mx-auto block max-w-full overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
     >
       <Image
-        src={(fromThumbnail && photo.thumbnailUrl) || photo.url}
+        src={src}
         alt={photo.label}
         fill
         sizes="(min-width: 1024px) 640px, 100vw"
         className="object-cover"
         unoptimized
+        onLoad={(event) => {
+          const { naturalWidth: width, naturalHeight: height } = event.currentTarget;
+          if (width > 0 && height > 0) setShape({ src, width, height });
+        }}
       />
       <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-overlay px-2 py-1 text-xs text-overlay-foreground">
         {photo.label}
@@ -593,12 +624,18 @@ export function PhotoViewer({
   reference,
   onIndex,
   onClose,
+  extraActions,
+  details,
 }: {
   photos: ShellPhoto[];
   index: number;
   reference: string;
   onIndex: (index: number) => void;
   onClose: () => void;
+  /** The record's own buttons under the photo - 打开原记录, 证据报表 (J8-3). */
+  extraActions?: React.ReactNode;
+  /** The whole record under the photo (J8-3: 「点照片…显示大图、GPS 和整条记录的完整资料」). */
+  details?: React.ReactNode;
 }) {
   const t = useTranslations("recordShell");
   const df = useDateFormat();
@@ -617,6 +654,8 @@ export function PhotoViewer({
   };
   // ← and → turn the photographs too (I9: over a daily report they are the photo's, not the report's).
   useArrowKeys(go, { enabled: photos.length > 1 });
+  // On a phone a sideways swipe turns them (J34-1 point 5), while it is whole.
+  const swipe = useRef<number | null>(null);
 
   useEffect(() => {
     const node = frameRef.current;
@@ -629,8 +668,13 @@ export function PhotoViewer({
   }, []);
 
   const whole = zoom <= MIN_ZOOM;
-  const fitted =
-    frame && natural && natural.url === photo.url ? fitSize(natural, frame) : null;
+  const loaded = natural && natural.url === photo.url ? natural : null;
+  const fitted = frame && loaded ? fitSize(loaded, frame) : null;
+  // The last photo's shape while the next one loads, so the frame does not
+  // jump to 4:3 and back between two portrait photos.
+  const [lastShape, setLastShape] = useState<Size>(LOADING_SHAPE);
+  const shape = loaded ?? lastShape;
+  const frameWidth = photoFrameWidth(shape, VIEWER_HEIGHT);
   // Enlarged: the fitted size times the zoom, so 200% is twice the whole
   // photo. Until the frame has been measured, the frame's width stands in.
   const enlarged: React.CSSProperties = fitted
@@ -644,7 +688,18 @@ export function PhotoViewer({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-4xl">
+      {/* As wide as the frame plus the dialog's own padding (J34-1 point 2):
+          the title and buttons sit over and under the photo, no wider. Never
+          narrower than its buttons need. */}
+      <DialogContent
+        data-photo-viewer
+        className="transition-[width] duration-200 sm:w-(--viewer-width) sm:max-w-[min(calc(100vw-2rem),72rem)]"
+        style={
+          {
+            "--viewer-width": `max(22rem, calc(${frameWidth.replace("100%", "100vw - 4rem")} + 2rem))`,
+          } as React.CSSProperties
+        }
+      >
         <DialogHeader>
           <DialogTitle>{photo.label}</DialogTitle>
           <DialogDescription>
@@ -658,36 +713,52 @@ export function PhotoViewer({
                 ].join(" · ")}
           </DialogDescription>
         </DialogHeader>
+        {/* The frame is the photograph (J34-1, Lucas 10-20): its shape, as
+            large as the window allows, so a portrait photo stands in a
+            portrait frame - no bands of hatching either side. It keeps that
+            size while zoomed, and scrolls. */}
         <div
           ref={frameRef}
           data-photo-frame={whole ? "whole" : "zoomed"}
+          style={{ aspectRatio: `${shape.width} / ${shape.height}`, width: frameWidth }}
           className={cn(
-            "photo-hatch flex h-[60dvh] rounded-xl border border-panel-border sm:h-[70dvh]",
+            "mx-auto flex max-w-full rounded-xl bg-muted ring-1 ring-panel-border transition-[width] duration-200",
             whole ? "items-center justify-center overflow-hidden" : "overflow-auto",
           )}
+          onTouchStart={(event) => {
+            swipe.current = whole && event.touches.length === 1 ? event.touches[0].clientX : null;
+          }}
+          onTouchEnd={(event) => {
+            const from = swipe.current;
+            swipe.current = null;
+            const to = event.changedTouches[0]?.clientX;
+            if (from === null || to === undefined || photos.length < 2) return;
+            if (Math.abs(to - from) > 50) go(to < from ? 1 : -1);
+          }}
         >
-          {/* A plain img: whole, the browser fits it (object-contain inside
-              the frame); enlarged, it is a size, which scrolls. The stamped
-              copy is shown, because it is the evidence. `m-auto` centres it
-              while it is smaller than the frame and lets it scroll from its
-              edge once it is larger. */}
+          {/* A plain img: whole, it fills the frame cut to its own shape;
+              enlarged, it is a size, which scrolls. The stamped copy is
+              shown, because it is the evidence. `m-auto` centres it while it
+              is smaller than the frame and lets it scroll from its edge once
+              it is larger. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={photo.url}
             src={photo.url}
             alt={photo.label}
             data-photo-zoom={Math.round(zoom * 100)}
-            onLoad={(event) =>
-              setNatural({
-                url: photo.url,
+            onLoad={(event) => {
+              const size = {
                 width: event.currentTarget.naturalWidth,
                 height: event.currentTarget.naturalHeight,
-              })
-            }
+              };
+              setNatural({ url: photo.url, ...size });
+              if (size.width > 0 && size.height > 0) setLastShape(size);
+            }}
             style={whole ? undefined : enlarged}
             className={cn(
               "block",
-              whole ? "max-h-full max-w-full object-contain" : "m-auto object-contain",
+              whole ? "size-full max-h-full max-w-full object-contain" : "m-auto object-contain",
             )}
           />
         </div>
@@ -732,6 +803,16 @@ export function PhotoViewer({
             filename={`${reference}-${index + 1}.jpg`}
             title={`${reference} · ${photo.label}`}
           />
+          {extraActions ? (
+            <div className="flex flex-wrap items-center gap-2" data-photo-viewer-actions>
+              {extraActions}
+            </div>
+          ) : null}
+          {details ? (
+            <div className="w-full max-h-56 overflow-y-auto rounded-lg border bg-background/80 p-3 text-left" data-photo-viewer-details>
+              {details}
+            </div>
+          ) : null}
           {photos.length > 1 && (
             <div className="flex items-center gap-2">
               <Button
@@ -775,8 +856,6 @@ export interface RecordDetailHeaderProps {
    * a phase - so the number is on the detail too.
    */
   recordNo?: string | null;
-  /** The number before I6 renumbered the record (「旧编号」, ID21). */
-  legacyNo?: string | null;
   /** 预览 / 打印, 分享 and the like, left of 「单独导出」. */
   headerActions?: React.ReactNode;
   /**
@@ -801,30 +880,18 @@ export interface RecordDetailHeaderProps {
  * must be the dialog's own, for the screen reader).
  */
 /**
- * 「记录编号」 and 「旧编号」 under the heading (I6, ID21): the old number stays
- * readable on the detail, because printed PDFs carry it.
+ * 「记录编号」 under the heading (I6, ID21). One number per record (J15-1,
+ * Q15): the 「旧编号」 from before I6 is no longer shown or searched.
  */
-export function RecordNumbers({
-  recordNo,
-  legacyNo,
-}: {
-  recordNo?: string | null;
-  legacyNo?: string | null;
-}) {
+export function RecordNumbers({ recordNo }: { recordNo?: string | null }) {
   const t = useTranslations("recordNo");
-  if (!recordNo && !legacyNo) return null;
+  if (!recordNo) return null;
   return (
     <dl className="tabular flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
       {recordNo ? (
         <div className="flex gap-1">
           <dt>{t("column")}</dt>
           <dd className="font-medium text-foreground">{recordNo}</dd>
-        </div>
-      ) : null}
-      {legacyNo ? (
-        <div className="flex gap-1" title={t("legacyHint")}>
-          <dt>{t("legacy")}</dt>
-          <dd className="font-medium text-foreground">{legacyNo}</dd>
         </div>
       ) : null}
     </dl>
@@ -837,7 +904,6 @@ function RecordDetailHeading({
   status,
   caption,
   recordNo,
-  legacyNo,
   headerActions,
   exportRecord,
   inDialog,
@@ -863,7 +929,7 @@ function RecordDetailHeading({
       {caption ? (
         <div className="tabular text-xs text-muted-foreground">{caption}</div>
       ) : null}
-      <RecordNumbers recordNo={recordNo} legacyNo={legacyNo} />
+      <RecordNumbers recordNo={recordNo} />
     </div>
   );
   const actions =

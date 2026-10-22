@@ -277,23 +277,30 @@ export function FormSkeleton({ sections = 3 }: { sections?: number }) {
 export function LoadErrorCard({
   backHref,
   backLabel,
+  title,
+  body,
+  action,
 }: {
   backHref: string;
   backLabel: string;
+  /** Another reason the form cannot open; defaults to "not found". */
+  title?: string;
+  body?: string;
+  /** Where to go instead, under the words. */
+  action?: React.ReactNode;
 }) {
   const t = useTranslations();
   const surface = useFormSurface();
   // So the dialog's X still knows the list when the record never loaded.
   useRegisterDismissFallback(backHref);
+  const heading = title ?? t("errors.notFound");
+  const detail = body ?? t("errors.notFoundBody");
 
   const words = (
     <>
-      <p className="text-sm font-medium text-foreground">
-        {t("errors.notFound")}
-      </p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {t("errors.notFoundBody")}
-      </p>
+      <p className="text-sm font-medium text-foreground">{heading}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{detail}</p>
+      {action ? <div className="mt-4">{action}</div> : null}
     </>
   );
 
@@ -301,8 +308,8 @@ export function LoadErrorCard({
     return (
       <>
         <DialogHeader>
-          <DialogTitle>{t("errors.notFound")}</DialogTitle>
-          <DialogDescription>{t("errors.notFoundBody")}</DialogDescription>
+          <DialogTitle>{heading}</DialogTitle>
+          <DialogDescription>{detail}</DialogDescription>
         </DialogHeader>
         <div className="-mx-4 overflow-y-auto border-y px-6 py-10 text-center">
           {words}

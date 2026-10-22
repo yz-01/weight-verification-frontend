@@ -48,6 +48,7 @@ import {
   getDeductions,
   respondToDeduction,
 } from "@/services/recycler.service";
+import { PhotoStrip, rowPhotos } from "@/components/shared/photo-thumb";
 
 const STATE_TONE: Record<
   DeductionState,
@@ -199,14 +200,15 @@ export function Deductions() {
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-2">
+            {/* The photographs themselves (J34-11), their stamped copies. */}
             {row.original.photos.length > 0 && (
-              <span
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground"
-                title={t("deductions.section.photos")}
-              >
-                <Camera className="size-3.5" />
-                {row.original.photos.length}
-              </span>
+              <PhotoStrip
+                thumbs={row.original.photos.map((photo) => photo.watermarked).filter((url): url is string => Boolean(url))}
+                count={row.original.photos.length}
+                icon={Camera}
+                reference={t("deductions.section.photos")}
+                photos={rowPhotos(row.original.photos, t("deductions.section.photos"))}
+              />
             )}
             {can("deduction.create") && row.original.is_open && (
               <Button

@@ -62,7 +62,7 @@ const confirmed: EvidencePackageDetail = {
   can_resubmit: false,
 };
 
-function render(choices: PackageConsultantChoice[], what: "sheet" | "CONSULTANT" | "OWNER" = "sheet") {
+function render(choices: PackageConsultantChoice[], what: "sheet" | "HEADQUARTERS" | "CONSULTANT" | "OWNER" = "sheet") {
   const client = new QueryClient();
   client.setQueryData(["evidence-packages", "detail", "pk1"], confirmed);
   client.setQueryData(["evidence-packages", "consultant-choices", "pk1"], choices);
@@ -132,5 +132,18 @@ describe("sending a confirmed package to a consultant", () => {
       const placeholder = messages.multiEngine.field.consultantPlaceholder.toLowerCase();
       expect(placeholder).not.toMatch(/\bid\b/);
     }
+  });
+});
+
+// J30-1: 「Multi engine 无法发送到系统内HQ」 - head office first, no link, nothing to fill in.
+describe("sending a package to the company's own head office", () => {
+  it("offers head office first, in the system, with no link and no name", () => {
+    const html = render([], "HEADQUARTERS");
+    expect(html.indexOf(words.exchange.kind.HEADQUARTERS)).toBeLessThan(html.indexOf(words.exchange.kind.CONSULTANT));
+    expect(html).toContain("data-send-headquarters");
+    expect(html).toContain(words.exchange.headquartersHelp);
+    expect(html).toContain(words.exchange.sendToHeadquarters);
+    expect(html).not.toContain(words.exchange.warning);
+    expect(html).not.toContain(words.exchange.field.who);
   });
 });

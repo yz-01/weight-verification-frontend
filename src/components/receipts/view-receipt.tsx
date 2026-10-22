@@ -41,6 +41,8 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
 import { useRecordArchived } from "@/components/shared/record-closure";
+import { RecordCorrectionHistory } from "@/components/shared/record-correction";
+import { InspectionBadge } from "@/components/document-workflow/inspection";
 
 /**
  * Whether this delivery's next step is the final 【确认归档】 (C4, X10):
@@ -126,7 +128,19 @@ function ReviewDelivery({
   // anybody accepted it said 待验收 and offered nothing to press. Acceptance
   // is a decision recorded afterwards, not evidence, so that one stays open.
   const locked = archived && status !== "PENDING";
-  const missingSupplier = needsSupplier(receipt);
+  // Archived: nothing more is filled in. Otherwise a delivery with no
+  // supplier is filled before 验收, and - rejected too - before 归档 (J19).
+  const missingSupplier = needsSupplier(receipt) && !archived;
+  const supplierHint =
+    status === "PENDING" ? t("receipts.fillSupplier.hint") : t("receipts.fillSupplier.archiveHint");
+  const fillSupplierButton = (
+    <Button asChild size="lg" variant="outline" className="w-full">
+      <Link href={`/receipts/${receipt.id}/edit?fill=supplier`}>
+        <Truck className="h-4 w-4" />
+        {t("receipts.fillSupplier.action")}
+      </Link>
+    </Button>
+  );
 
   // Said on screen, never swallowed (2026-10 C6): a corrected receipt
   // answered 409 here and the button simply did nothing.
@@ -174,6 +188,12 @@ function ReviewDelivery({
         {rejectedAtGate && (
           <p className="text-xs text-muted-foreground">{t("receipts.acceptance.rejectedAtGate")}</p>
         )}
+        {rejectedAtGate && missingSupplier && (
+          <>
+            <p className="rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning">{supplierHint}</p>
+            {fillSupplierButton}
+          </>
+        )}
         {/* A rejection that survives on the record without its reason tells
             the next person on site nothing they can act on, so the reason is
             shown whenever there is one - not only while deciding. */}
@@ -210,18 +230,11 @@ function ReviewDelivery({
             says why it cannot be done yet. */}
         {missingSupplier && (
           <p className="rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning">
-            {t("receipts.fillSupplier.hint")}
+            {supplierHint}
           </p>
         )}
         <div className={missingSupplier ? "grid grid-cols-2 gap-2" : undefined}>
-        {missingSupplier && (
-          <Button asChild size="lg" variant="outline" className="w-full">
-            <Link href={`/receipts/${receipt.id}/edit?fill=supplier`}>
-              <Truck className="h-4 w-4" />
-              {t("receipts.fillSupplier.action")}
-            </Link>
-          </Button>
-        )}
+        {missingSupplier && fillSupplierButton}
         <Button
           size="lg"
           className="w-full"
@@ -439,8 +452,7 @@ export function ViewReceipt({
   return (
     <RecordDetailFrame
       {...frame}
-      title={data.receipt_no}
-      legacyNo={data.legacy_no}
+      title={data.receipt_no}
       status={
         <>
           {/* Which way it went (B10): a return used to open on a page that
@@ -482,11 +494,11 @@ export function ViewReceipt({
                   {t("receipts.correction.supersededBody")}
                 </p>
                 <Link
-                  href={`/receipts/${data.superseded_by.id}`}
+                  href={`/receipts/${(data.superseded_by.latest ?? data.superseded_by).id}`}
                   className="mt-1 inline-block font-medium text-primary underline-offset-2 hover:underline"
                 >
                   {t("receipts.correction.supersededLink", {
-                    name: data.superseded_by.receipt_no,
+                    name: (data.superseded_by.latest ?? data.superseded_by).receipt_no,
                   })}
                 </Link>
               </div>
@@ -496,14 +508,20 @@ export function ViewReceipt({
         // 更正记录 sits under the facts in the left column (the canvas's
         // 记录详情), not above the photographs.
         corrections={
-          data.correction_trail ? (
-            <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
-          ) : data.correction_reason ? (
-            <p className="rounded-xl border border-dashed border-panel-border px-4 py-3 text-sm">
-              <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
-              {data.correction_reason}
-            </p>
-          ) : null
+          <>
+            {/* Corrections filed as a second receipt, before J6. */}
+            {data.correction_trail ? (
+              <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
+            ) : data.correction_reason ? (
+              <p className="rounded-xl border border-dashed border-panel-border px-4 py-3 text-sm">
+                <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
+                {data.correction_reason}
+              </p>
+            ) : null}
+            {/* J6: corrected on the delivery itself, its number kept - who,
+                when, old → new and why, in the history every module keeps. */}
+            <RecordCorrectionHistory kind="MATERIAL_RECEIPT" recordId={data.id} />
+          </>
         }
         facts={[
           { label: t("receipts.field.project"), value: data.project_name },
@@ -513,6 +531,10 @@ export function ViewReceipt({
           { label: t("receipts.field.businessAt"), value: df.dateTime(data.business_at ?? data.captured_at) },
           ...(data.received_by_name
             ? [{ label: t("receipts.field.receivedBy"), value: data.received_by_name }]
+            : []),
+          // 检验 (J12-8): this material's latest inspection; nothing for none.
+          ...(data.inspection
+            ? [{ label: t("documents.inspection.section"), value: <InspectionBadge inspection={data.inspection} /> }]
             : []),
           ...(data.notes
             ? [{ label: t("receipts.field.notes"), value: data.notes, wide: true }]

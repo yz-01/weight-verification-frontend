@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { useFinishForm } from "@/components/shared/dialog-navigation";
@@ -34,6 +35,8 @@ import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { SupplierPicker } from "@/components/shared/supplier-picker";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { correctReceipt, getReceipt } from "@/services/contractor.service";
+import { getProjectCategories } from "@/services/contractor-ops.service";
+import { typedWords } from "@/lib/material-catalogue";
 
 /**
  * The delivery correction form.
@@ -83,10 +86,11 @@ function CorrectReceiptForm({
         client_event_id: correctionEvent.current,
       });
     },
-    // A correction is a new record with a new id. Landing on it is the point:
-    // the clerk sees the figure that was actually filed, not the one they typed.
+    // Corrected on the delivery itself, its number kept (J6, Q6): back to it,
+    // with the figure that was actually filed and its history up to date.
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["receipts"] });
+      void queryClient.invalidateQueries({ queryKey: ["record-corrections"] });
       finish(`/receipts/${saved.id}`);
     },
   });
@@ -102,6 +106,16 @@ function CorrectReceiptForm({
       ? []
       : [{ value: receipt.unit, label: unitName(receipt.unit, receipt.unit_label) }]),
   ];
+  // The project's materials, as the material picker reads them (same query):
+  // a material from the list names the record (J14-3, 只能从分类管理下拉选).
+  // query-failure: the same query as the material picker above, which says when it fails.
+  const materials = useQuery({
+    queryKey: ["project-categories", "capture", receipt.project ?? "", "MATERIAL"],
+    queryFn: () =>
+      getProjectCategories({ project: receipt.project ?? "", kind: "MATERIAL", is_active: true, page_size: 200 }),
+    enabled: Boolean(receipt.project),
+  });
+  const materialRows = materials.data?.results ?? [];
   const form = useForm({
     defaultValues: {
       project: receipt.project ?? "",
@@ -136,9 +150,17 @@ function CorrectReceiptForm({
 
       // A price left blank means "not recorded", which is a null rather than
       // an empty string the API would read as a malformed decimal.
+      // Typed words only where typing is allowed (J14-3); else the list's.
+      const material = materialRows.find((row) => row.id === value.category);
+      const words = typedWords(material, value.spec_category);
+      const spec = material?.specs?.find((row) => row.id === value.spec_category);
+      // The material left as it was keeps the record's own name: an old
+      // delivery under a general column is not renamed after the column.
+      const sameMaterial = value.category === (receipt.category ?? "");
       const common = {
-        material_name: value.material_name,
-        material_specification: value.material_specification,
+        material_name:
+          words.name || sameMaterial ? value.material_name : (material?.name ?? value.material_name),
+        material_specification: words.spec || !spec ? value.material_specification : spec.name,
         quantity: value.quantity,
         unit: value.unit,
         total_weight_kg: value.total_weight_kg || null,
@@ -283,30 +305,69 @@ function CorrectReceiptForm({
         </FormSection>
 
       <FormSection title={t("receipts.section.material")}>
-        <form.Field
-          name="material_name"
-          validators={{ onSubmit: required(t("validation.required")) }}
+        {/* 只能从分类管理下拉选 (J14-3, Q14-2): the material and specification
+            chosen above name the record; words are typed only under
+            「其他材料」 / 「其他」 (or a material with no specifications). */}
+        <form.Subscribe
+          selector={(state) =>
+            [
+              state.values.category,
+              state.values.spec_category,
+              state.values.material_name,
+              state.values.material_specification,
+            ] as const
+          }
         >
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("receipts.field.materialName")}
-              required
-              className="md:col-span-2"
-            />
-          )}
-        </form.Field>
-
-        <form.Field name="material_specification">
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("receipts.field.materialSpecification")}
-              optional
-              className="md:col-span-2"
-            />
-          )}
-        </form.Field>
+          {([category, specCategory, typedName, typedSpec]) => {
+            const material = materialRows.find((row) => row.id === category);
+            const words = typedWords(material, specCategory);
+            const spec = material?.specs?.find((row) => row.id === specCategory);
+            const shownName = category === (receipt.category ?? "") ? typedName : (material?.name ?? "");
+            return (
+              <>
+                {words.name ? (
+                  <form.Field
+                    name="material_name"
+                    validators={{ onSubmit: required(t("validation.required")) }}
+                  >
+                    {(field) => (
+                      <TextField
+                        field={field as unknown as BoundField}
+                        label={t("receipts.field.materialName")}
+                        required
+                        className="md:col-span-2"
+                      />
+                    )}
+                  </form.Field>
+                ) : (
+                  <ReadField
+                    label={t("receipts.field.materialName")}
+                    value={shownName}
+                    className="md:col-span-2"
+                  />
+                )}
+                {words.spec ? (
+                  <form.Field name="material_specification">
+                    {(field) => (
+                      <TextField
+                        field={field as unknown as BoundField}
+                        label={t("receipts.field.materialSpecification")}
+                        optional
+                        className="md:col-span-2"
+                      />
+                    )}
+                  </form.Field>
+                ) : (
+                  <ReadField
+                    label={t("receipts.field.materialSpecification")}
+                    value={spec?.name ?? typedSpec}
+                    className="md:col-span-2"
+                  />
+                )}
+              </>
+            );
+          }}
+        </form.Subscribe>
 
         <form.Field
           name="quantity"
@@ -475,6 +536,27 @@ export function EditReceipt({
   if (isLoading) return <FormSkeleton sections={4} />;
   if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
+  }
+  if (data.superseded_by) {
+    // Already corrected (JB1-2): a second correction here would fork the
+    // delivery and count it twice. Send the reader to the copy that counts.
+    const latest = data.superseded_by.latest ?? data.superseded_by;
+    return (
+      <LoadErrorCard
+        backHref={`/receipts/${data.id}`}
+        backLabel={data.receipt_no}
+        title={t("receipts.correction.alreadyCorrectedTitle")}
+        body={t("receipts.correction.alreadyCorrectedBody", { name: latest.receipt_no })}
+        action={
+          <Link
+            href={`/receipts/${latest.id}/edit${fillSupplier ? "?fill=supplier" : ""}`}
+            className="font-medium text-primary underline-offset-2 hover:underline"
+          >
+            {t("receipts.correction.alreadyCorrectedLink", { name: latest.receipt_no })}
+          </Link>
+        }
+      />
+    );
   }
   return <CorrectReceiptForm receipt={data} fillSupplier={fillSupplier} />;
 }

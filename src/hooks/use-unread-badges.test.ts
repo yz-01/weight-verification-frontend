@@ -95,7 +95,8 @@ describe("one number per entry, from the counts of its pages (2026-10-08)", () =
 
   it("returns no unknown state when the request fails, and keeps the last counts on a failed refresh", () => {
     const source = readFileSync(path.join(process.cwd(), "src", "hooks", "use-unread-badges.ts"), "utf8");
-    expect(source).toMatch(/return query\.data\?\.badges \?\? \{\};/);
+    // J4 puts the bell's number for 通知 on top of the same counts.
+    expect(source).toMatch(/query\.data\?\.badges \?\? \{\};/);
     expect(source).not.toMatch(/isError/);
     expect(source).not.toMatch(/, null\]/);
   });

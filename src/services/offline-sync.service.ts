@@ -46,6 +46,7 @@ import { createGateIncident } from "@/services/site-access.service";
 import type { GateIncidentDetail, GateIncidentPayload } from "@/interfaces/site-access";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 import { createSundryClaim } from "@/services/sundry-claim.service";
+import { clockDriverLink } from "@/services/driver-clock.service";
 import { uploadEquipmentHoursPhoto } from "@/services/equipment-hours.service";
 import type {
   EquipmentHoursPhotoDraft,
@@ -1427,6 +1428,21 @@ function sendEquipmentHoursPhoto(
   job: Extract<OfflineJob, { kind: "EQUIPMENT_HOURS_PHOTO" }>,
 ): Promise<EquipmentHoursUpload> {
   const payload = job.payload;
+  if (payload.driverLink) {
+    // A driver's own link (J26): no account, the link's own endpoint.
+    return clockDriverLink(payload.driverLink.token, {
+      device: payload.driverLink.device,
+      equipment: payload.equipment,
+      kind: payload.kind ?? "START",
+      photo: restoreFile(payload.photo),
+      signature: payload.signature ? restoreFile(payload.signature) : undefined,
+      capturedAt: payload.capturedAt,
+      clientEventId: payload.clientEventId,
+      latitude: payload.latitude,
+      longitude: payload.longitude,
+      locationAccuracyM: payload.locationAccuracyM,
+    });
+  }
   return uploadEquipmentHoursPhoto({
     equipment: payload.equipment,
     kind: payload.kind,
@@ -1492,6 +1508,7 @@ export async function submitEquipmentHoursPhotoOfflineAware(
       // A pad's small PNG: kept as drawn.
       signature: storeFile(draft.signature),
       signatureRequired: true,
+      ...(draft.driverLink ? { driverLink: draft.driverLink } : {}),
     },
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {

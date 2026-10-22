@@ -149,8 +149,17 @@ describe("the column form (D-265, D-266; X1 for equipment)", () => {
     // The picker hangs off the kind, and every other kind's payload drops it.
     expect(dialog).toMatch(/const isEquipment = form\.kind === "EQUIPMENT";/);
     expect(dialog).toMatch(/const equipmentParentField = \(\s*<FieldWrapper\s+label=\{modules\("equipment\.majorClassOf"\)\}/);
-    expect(dialog).toMatch(/\{!simpleEquip && isEquipment && equipmentParentField\}/);
+    expect(dialog).toMatch(/\{!simpleNew && isEquipment && equipmentParentField\}/);
     expect(dialog).toMatch(/\{ \.\.\.form, parent: undefined \}/);
+  });
+
+  it("numbers every new category on the server and shows the code read-only (J28)", () => {
+    // No code to type: 「保存后自动生成」 on a new one, read-only once made.
+    expect(dialog).toMatch(/const simpleNew = !row;/);
+    expect(dialog).toMatch(/if \(!row\) payload\.code = "";/);
+    expect(dialog).toMatch(/placeholder=\{modules\("codeAutoPlaceholder"\)\} disabled/);
+    expect(dialog).not.toMatch(/set\("code"/);
+    expect(dialog).not.toMatch(/\[autoCode \|\| form\.code/);
   });
 
   it("has no upload or edit lists", () => {

@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
   Archive,
   ChevronRight,
+  ClipboardCheck,
   Download,
   Eye,
   FilePlus2,
@@ -24,6 +25,7 @@ import { useMemo, useState } from "react";
 
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -76,6 +78,13 @@ import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import type { Requirement } from "@/lib/missing-fields";
 import type { Project } from "@/interfaces/contractor";
+import type { LinkableRecord } from "@/interfaces/document-workflow";
+import { RecordLinkPicker } from "@/components/document-workflow/record-link-picker";
+import { InspectionDialog, InspectionList } from "@/components/document-workflow/inspection";
+import { FileActionButtons } from "@/components/shared/file-actions";
+import { CorrectedTag } from "@/components/shared/record-correction";
+import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
+import type { RecordPdfKind } from "@/services/contractor-ops.service";
 import type {
   DocumentCategory,
   DocumentCategoryPayload,
@@ -93,9 +102,12 @@ import { toastSuccess } from "@/services/api-client";
 import { getProjects } from "@/services/contractor.service";
 import { getUsers } from "@/services/users.service";
 import {
+  addDocumentRecords,
   addSystemFiles,
   archiveDocument,
+  attachDocumentRecords,
   attachSystemFiles,
+  documentRecordsPdf,
   createDocumentCategory,
   createDocumentSubcategory,
   deleteDocumentCategory,
@@ -254,14 +266,32 @@ export function Documents() {
         enableSorting: false,
         meta: { label: t("documents.field.thumbnail") },
         header: () => <span className="sr-only">{t("documents.field.thumbnail")}</span>,
-        cell: ({ row }) => (
-          <DocumentThumb
-            version={row.original.latest_version}
-            systemFile={row.original.system_file}
-            coverUrl={row.original.cover_photo_url}
-            onOpen={() => setViewingId(row.original.id)}
-          />
-        ),
+        cell: ({ row }) => {
+          // The document's other files as 「+N」 beside its picture (J34-11),
+          // never 「等 N 个文件」 in words.
+          const more = (row.original.file_count ?? 1) - 1;
+          return (
+            <span className="inline-flex gap-1">
+              <DocumentThumb
+                version={row.original.latest_version}
+                systemFile={row.original.system_file}
+                coverUrl={row.original.cover_photo_url}
+                onOpen={() => setViewingId(row.original.id)}
+              />
+              {more > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setViewingId(row.original.id)}
+                  aria-label={t("documents.filesMore", { count: more })}
+                  title={t("documents.filesMore", { count: more })}
+                  className="flex size-12 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-semibold text-muted-foreground ring-1 ring-panel-border"
+                >
+                  +{more}
+                </button>
+              ) : null}
+            </span>
+          );
+        },
       },
       {
         accessorKey: "title",
@@ -285,12 +315,11 @@ export function Documents() {
               <SourceTag
                 source={row.original.system_file}
                 onOpen={() => openSource(row.original)}
-                more={(row.original.file_count ?? 1) - 1}
               />
-            ) : (
+            ) : row.original.latest_version ? null : (
+              // A list names no file (J34-10, J34-11): the picture beside says what it is.
               <p className="max-w-65 truncate text-xs text-muted-foreground">
-                {row.original.latest_version?.original_name ??
-                  t("documents.noFile")}
+                {t("documents.noFile")}
               </p>
             )}
           </div>
@@ -784,9 +813,12 @@ function UploadDocumentDialog({
   const [done, setDone] = useState(0);
   const [createdId, setCreatedId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  // E4: 「从电脑上传」｜「从系统里选」.
-  const [origin, setOrigin] = useState<"computer" | "system">("computer");
+  // E4: 「从电脑上传」｜「从系统里选」; J12: 「选整条记录」.
+  const [origin, setOrigin] = useState<"computer" | "system" | "records">("computer");
   const [picked, setPicked] = useState<Record<string, SystemFile>>({});
+  const [pickedRecords, setPickedRecords] = useState<Record<string, LinkableRecord>>({});
+  const recordList = Object.values(pickedRecords);
+  const mixedRecordProjects = new Set(recordList.map((record) => record.project_id ?? "")).size > 1;
   const pickedIds = Object.keys(picked);
   // A document belongs to one project, so the picked files must share one.
   const mixedProjects = new Set(Object.values(picked).map((file) => file.project ?? "")).size > 1;
@@ -798,11 +830,20 @@ function UploadDocumentDialog({
   const formatGroup = (values: { name: string; count: number }) =>
     t("documents.uploadFile.groupTitle", values);
   const defaultTitle =
-    origin === "system"
-      ? groupTitle(Object.values(picked).map((file) => file.file_name), formatGroup)
-      : groupTitle(files.map((file) => file.name), formatGroup);
+    origin === "records"
+      ? groupTitle(recordList.map((record) => record.reference), formatGroup)
+      : origin === "system"
+        ? groupTitle(Object.values(picked).map((file) => file.file_name), formatGroup)
+        : groupTitle(files.map((file) => file.name), formatGroup);
   // Once part of a several-file upload is in, what it was filed as is fixed.
   const started = createdId !== null;
+  // J12-6: a subcategory ticked 「需要检验栏位」 asks for the inspection
+  // result as part of the upload - the form opens on the new document.
+  const { can: canDo } = useAuth();
+  const needsInspection = Boolean(
+    availableSubcategories.find((item) => item.id === subcategory)?.needs_inspection,
+  );
+  const [inspecting, setInspecting] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -832,9 +873,14 @@ function UploadDocumentDialog({
         setDone(index + 1);
       }
       toastSuccess("documents.toast.uploaded");
+      return documentId;
     },
-    onSuccess: () => {
+    onSuccess: (documentId) => {
       onDone();
+      if (needsInspection && canDo("inspection.record") && documentId) {
+        setInspecting(documentId);
+        return;
+      }
       onClose();
     },
     onError: (error) => {
@@ -857,29 +903,67 @@ function UploadDocumentDialog({
     },
     onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
   });
-  const pending = mutation.isPending || filing.isPending;
+  // J12: whole records, linked into one new document.
+  const recordFiling = useMutation({
+    mutationFn: () =>
+      addDocumentRecords({
+        records: recordList.map((record) => ({ kind: record.kind, id: record.id })),
+        category,
+        subcategory: subcategory === "none" ? null : subcategory,
+        keywords: keywords.trim(),
+        title: title.trim() || defaultTitle,
+      }),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+    onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
+  });
+  const pending = mutation.isPending || filing.isPending || recordFiling.isPending;
   // Part of a several-file upload is in: say so, and that 「上传」 carries on.
   const partial = started && done < files.length;
+
+  if (inspecting) {
+    // J12-6: uploaded - now its inspection result, while it is to hand.
+    // Closing leaves 「填写检验结果」 on the document for later.
+    return (
+      <InspectionDialog
+        documentId={inspecting}
+        project={project === "none" || project === "" ? null : project}
+        onClose={onClose}
+      />
+    );
+  }
 
   return (
     <Dialog open onOpenChange={(next) => !next && !pending && onClose()}>
       <DialogContent
         className={cn(
           "max-h-[92dvh] overflow-y-auto [&>button]:hidden",
-          origin === "system" ? "sm:max-w-260" : "sm:max-w-170",
+          origin === "computer" ? "sm:max-w-170" : "sm:max-w-260",
         )}
       >
         <DialogHeader>
           <DialogTitle>{t("documents.uploadFile.title")}</DialogTitle>
           <DialogDescription>
-            {t(origin === "system" ? "documents.pickFromSystem.description" : "documents.uploadFile.description")}
+            {t(
+              origin === "records"
+                ? "documents.pickRecords.description"
+                : origin === "system"
+                  ? "documents.pickFromSystem.description"
+                  : "documents.uploadFile.description",
+            )}
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={origin} onValueChange={(value) => !started && setOrigin(value as "computer" | "system")}>
+        <Tabs
+          value={origin}
+          onValueChange={(value) => !started && setOrigin(value as "computer" | "system" | "records")}
+        >
           <TabsList>
             <TabsTrigger value="computer">{t("documents.uploadFile.fromComputer")}</TabsTrigger>
             <TabsTrigger value="system">{t("documents.pickFromSystem.tab")}</TabsTrigger>
+            <TabsTrigger value="records">{t("documents.pickRecords.tab")}</TabsTrigger>
           </TabsList>
         </Tabs>
         {/* One plain line for each way in (2026-10-10: 「我不会用」). */}
@@ -890,10 +974,28 @@ function UploadDocumentDialog({
           <li className={cn(origin === "system" && "font-medium text-foreground")}>
             {t("documents.pickFromSystem.systemWay")}
           </li>
+          <li className={cn(origin === "records" && "font-medium text-foreground")}>
+            {t("documents.pickRecords.way")}
+          </li>
         </ul>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {origin === "system" ? (
+          {origin === "records" ? (
+            <FieldWrapper
+              label={t("documents.pickRecords.records")}
+              required
+              error={errors.records}
+              hint={t("documents.pickRecords.hint")}
+              className="sm:col-span-2"
+            >
+              <RecordLinkPicker
+                projects={projects}
+                initialProject={initialProject}
+                selected={pickedRecords}
+                onSelectedChange={setPickedRecords}
+              />
+            </FieldWrapper>
+          ) : origin === "system" ? (
             <FieldWrapper
               label={t("documents.pickFromSystem.files")}
               required
@@ -939,6 +1041,11 @@ function UploadDocumentDialog({
             </p>
           )}
           </>
+          )}
+          {origin === "records" && mixedRecordProjects && (
+            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground sm:col-span-2">
+              {t("documents.pickRecords.mixedProjects")}
+            </p>
           )}
           {origin === "system" && mixedProjects && (
             <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground sm:col-span-2">
@@ -1082,7 +1189,20 @@ function UploadDocumentDialog({
             <X className="h-4 w-4" />
             {t("common.cancel")}
           </Button>
-          {origin === "system" ? (
+          {origin === "records" ? (
+            <Button
+              requires={[
+                [recordList.length > 0, t("documents.pickRecords.records")],
+                [category, t("documents.field.category")],
+              ]}
+              disabled={recordFiling.isPending || mixedRecordProjects}
+              disabledReason={mixedRecordProjects ? t("documents.pickRecords.mixedProjects") : undefined}
+              onClick={() => recordFiling.mutate()}
+            >
+              {recordFiling.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderInput className="h-4 w-4" />}
+              {t("documents.pickRecords.confirm", { count: recordList.length })}
+            </Button>
+          ) : origin === "system" ? (
             <Button
               requires={[
                 [pickedIds.length > 0, t("documents.pickFromSystem.files")],
@@ -1341,11 +1461,15 @@ function VersionUploadDialog({
   onDone: () => void;
 }) {
   const t = useTranslations();
-  const [origin, setOrigin] = useState<"computer" | "system">("computer");
+  const [origin, setOrigin] = useState<"computer" | "system" | "records">("computer");
   const [files, setFiles] = useState<File[]>([]);
   const [done, setDone] = useState(0);
   const [note, setNote] = useState("");
   const [picked, setPicked] = useState<Record<string, SystemFile>>({});
+  // J12-3: whole records join the document beside its files.
+  const [pickedRecords, setPickedRecords] = useState<Record<string, LinkableRecord>>({});
+  const recordList = Object.values(pickedRecords);
+  const otherProjectRecord = recordList.some((record) => (record.project_id ?? null) !== (document.project ?? null));
   const pickedIds = Object.keys(picked);
   const [errors, setErrors] = useState<Record<string, string>>({});
   // The files it already holds from the system: greyed in the picker.
@@ -1388,14 +1512,26 @@ function VersionUploadDialog({
     },
     onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
   });
-  const pending = mutation.isPending || attaching.isPending;
+  const linking = useMutation({
+    mutationFn: () =>
+      attachDocumentRecords(
+        document.id,
+        recordList.map((record) => ({ kind: record.kind, id: record.id })),
+      ),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+    onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
+  });
+  const pending = mutation.isPending || attaching.isPending || linking.isPending;
 
   return (
     <Dialog open onOpenChange={(next) => !next && !pending && onClose()}>
       <DialogContent
         className={cn(
           "max-h-[92dvh] overflow-y-auto [&>button]:hidden",
-          origin === "system" ? "sm:max-w-260" : "sm:max-w-130",
+          origin === "computer" ? "sm:max-w-130" : "sm:max-w-260",
         )}
       >
         <DialogHeader>
@@ -1404,10 +1540,14 @@ function VersionUploadDialog({
             {t("documents.upload.description", { name: document.title })}
           </DialogDescription>
         </DialogHeader>
-        <Tabs value={origin} onValueChange={(value) => !pending && setOrigin(value as "computer" | "system")}>
+        <Tabs
+          value={origin}
+          onValueChange={(value) => !pending && setOrigin(value as "computer" | "system" | "records")}
+        >
           <TabsList>
             <TabsTrigger value="computer">{t("documents.uploadFile.fromComputer")}</TabsTrigger>
             <TabsTrigger value="system">{t("documents.pickFromSystem.tab")}</TabsTrigger>
+            <TabsTrigger value="records">{t("documents.pickRecords.tab")}</TabsTrigger>
           </TabsList>
         </Tabs>
         <ul className="space-y-1 rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground" data-slot="upload-ways">
@@ -1417,8 +1557,32 @@ function VersionUploadDialog({
           <li className={cn(origin === "system" && "font-medium text-foreground")}>
             {t("documents.pickFromSystem.systemWay")}
           </li>
+          <li className={cn(origin === "records" && "font-medium text-foreground")}>
+            {t("documents.pickRecords.way")}
+          </li>
         </ul>
-        {origin === "system" ? (
+        {origin === "records" ? (
+          <div className="space-y-2">
+            <FieldWrapper
+              label={t("documents.pickRecords.records")}
+              required
+              error={errors.records}
+              hint={t("documents.pickRecords.hint")}
+            >
+              <RecordLinkPicker
+                projects={projects}
+                initialProject={document.project ?? undefined}
+                selected={pickedRecords}
+                onSelectedChange={setPickedRecords}
+              />
+            </FieldWrapper>
+            {otherProjectRecord ? (
+              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground">
+                {t("documents.attach.otherProject")}
+              </p>
+            ) : null}
+          </div>
+        ) : origin === "system" ? (
           <div className="space-y-2">
             <QueryFailedNote query={detail} what={t("documents.attach.what")} />
             <FieldWrapper
@@ -1475,7 +1639,17 @@ function VersionUploadDialog({
             <X className="h-4 w-4" />
             {t("common.cancel")}
           </Button>
-          {origin === "system" ? (
+          {origin === "records" ? (
+            <Button
+              requires={[[recordList.length > 0, t("documents.pickRecords.records")]]}
+              disabled={linking.isPending || otherProjectRecord}
+              disabledReason={otherProjectRecord ? t("documents.attach.otherProject") : undefined}
+              onClick={() => linking.mutate()}
+            >
+              {linking.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderInput className="h-4 w-4" />}
+              {t("documents.pickRecords.confirm", { count: recordList.length })}
+            </Button>
+          ) : origin === "system" ? (
             <Button
               requires={[[pickedIds.length > 0, t("documents.pickFromSystem.files")]]}
               disabled={attaching.isPending}
@@ -1681,6 +1855,9 @@ function DocumentDetailBody({
 }) {
   const t = useTranslations();
   const df = useDateFormat();
+  const { can } = useAuth();
+  // 填写检验结果 (J12-7): only where the subcategory asks for it.
+  const [inspecting, setInspecting] = useState(false);
   const [savingFile, setSavingFile] = useState<string | null>(null);
   const saveSystemFile = async (file: DocumentSystemFileInfo) => {
     setSavingFile(file.id ?? "");
@@ -1741,6 +1918,75 @@ function DocumentDetailBody({
         )}
       </div>
 
+      {/* Whole records linked into it (J12-1..J12-5): each as it is today,
+          its gold 已修改 opening the history, its complete evidence PDF; and
+          all of them as one PDF. */}
+      {(document.record_links ?? []).length > 0 && (
+        <section className="space-y-2 border-t pt-5" data-testid="document-record-links">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-foreground">{t("documents.recordLinks.title")}</h3>
+            <FileActionButtons
+              label={t("documents.recordLinks.allPdf")}
+              source={{
+                load: () => documentRecordsPdf(document.id, document.document_no),
+                title: t("documents.recordLinks.allPdf"),
+              }}
+            />
+          </div>
+          <ul className="divide-y rounded-md border">
+            {(document.record_links ?? []).map((link) => (
+              <li key={link.id} className="flex flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center">
+                <div className="min-w-0 flex-1">
+                  <p className="flex flex-wrap items-center gap-1.5 text-sm font-medium">
+                    {link.was_corrected ? (
+                      <CorrectedTag kind={link.kind as CorrectionHistoryKind} recordId={link.record_id} />
+                    ) : null}
+                    {link.reference}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {link.exists
+                      ? [t(`archiveQueue.kind.${link.kind}`), link.detail, link.project_name, link.status_label]
+                          .filter(Boolean)
+                          .join(" · ")
+                      : t("documents.recordLinks.gone")}
+                  </p>
+                </div>
+                {link.exists ? (
+                  <RecordExportButton
+                    kind={link.kind as RecordPdfKind}
+                    recordId={link.record_id}
+                    reference={link.reference}
+                  />
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* 检验结果 (J12-6..J12-12): filed once, never changed; the newest first. */}
+      {(document.needs_inspection || (document.inspections ?? []).length > 0) && (
+        <section className="space-y-2 border-t pt-5" data-testid="document-inspections">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-foreground">{t("documents.inspection.section")}</h3>
+            {document.needs_inspection && can("inspection.record") && document.status !== "ARCHIVED" ? (
+              <Button size="sm" variant="outline" onClick={() => setInspecting(true)}>
+                <ClipboardCheck className="h-4 w-4" />
+                {t("documents.inspection.add")}
+              </Button>
+            ) : null}
+          </div>
+          <InspectionList rows={document.inspections ?? []} />
+          {inspecting ? (
+            <InspectionDialog
+              documentId={document.id}
+              project={document.project ?? null}
+              onClose={() => setInspecting(false)}
+            />
+          ) : null}
+        </section>
+      )}
+
       {/* The files picked from the system into it (2026-10-10: kept
           together), each previewed, saved or traced to its record. */}
       {systemFiles.length > 0 && (
@@ -1756,6 +2002,17 @@ function DocumentDetailBody({
               const key = `s:${file.id}`;
               return (
                 <li key={file.id ?? index} className="flex items-center gap-2 px-3 py-2">
+                  {/* The file as a picture (J34-11), opening its preview. */}
+                  <FileThumbs
+                    files={[
+                      {
+                        id: String(file.id ?? index),
+                        name: file.file_name,
+                        thumbnail_url: file.thumbnail_url ?? null,
+                        onOpen: () => onPreview(key),
+                      },
+                    ]}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm" title={file.file_name}>
                       {file.file_name}
@@ -1828,7 +2085,12 @@ function DocumentDetailBody({
                     <TableCell className="font-medium tabular-nums">
                       v{version.version_number}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="flex items-center gap-2">
+                      {/* The version as a picture (J34-11); its name beside it. */}
+                      <FileThumbs
+                        files={[{ id: version.id, name: version.original_name, thumbnail_url: version.thumbnail_url ?? null }]}
+                      />
+                      <span className="min-w-0">
                       <p className="max-w-55 truncate" title={version.original_name}>
                         {version.original_name}
                       </p>
@@ -1836,6 +2098,7 @@ function DocumentDetailBody({
                         {formatBytes(version.byte_size)}
                         {version.note ? ` - ${version.note}` : ""}
                       </p>
+                      </span>
                     </TableCell>
                     <TableCell>{version.uploaded_by_name ?? t("common.emptyValue")}</TableCell>
                     <TableCell className="hidden xl:table-cell">
@@ -2234,6 +2497,8 @@ function SubcategoryForm({
   const [name, setName] = useState(subcategory?.name ?? "");
   const [description, setDescription] = useState(subcategory?.description ?? "");
   const [active, setActive] = useState(subcategory?.is_active ?? true);
+  // 「需要检验栏位」 (J12-6, Q12-4).
+  const [needsInspection, setNeedsInspection] = useState(subcategory?.needs_inspection ?? false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const mutation = useMutation({
     mutationFn: () => {
@@ -2243,6 +2508,7 @@ function SubcategoryForm({
         name: name.trim(),
         description: description.trim(),
         is_active: active,
+        needs_inspection: needsInspection,
       };
       return subcategory
         ? updateDocumentSubcategory(subcategory.id, payload)
@@ -2317,6 +2583,17 @@ function SubcategoryForm({
           </p>
         </div>
         <Switch checked={active} onCheckedChange={setActive} />
+      </div>
+      <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-3 sm:col-span-2">
+        <div className="min-w-0">
+          <p className="text-sm font-medium">{t("documents.inspection.needs")}</p>
+          <p className="text-xs text-muted-foreground">{t("documents.inspection.needsHint")}</p>
+        </div>
+        <Switch
+          checked={needsInspection}
+          onCheckedChange={setNeedsInspection}
+          aria-label={t("documents.inspection.needs")}
+        />
       </div>
     </TaxonomyFormShell>
   );

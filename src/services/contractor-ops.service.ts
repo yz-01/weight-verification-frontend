@@ -14,6 +14,8 @@ import type {
   ArchiveRecordKind,
   CategoryRecordKind,
   CategoryRecordPage,
+  CategoryRecordStage,
+  CategorySummary,
   ConstructionPhase,
   DisposalEvidence,
   DisposalEvidenceKind,
@@ -73,33 +75,6 @@ export const updateProjectCategory = async (id: string, payload: Partial<Project
   toastSuccess("contractorOps.toast.saved");
   return row;
 };
-/**
- * Open a material column from the field, while the delivery is at the gate.
- *
- * The narrow counterpart of `createProjectCategory`. Site staff hold
- * `receipt.create` and not `category.manage`, so they could not create a
- * column at all - a delivery of something nobody had set up a column for could
- * only be filed nowhere, and the OCR classifier could only ever suggest a
- * column that already existed (F-200, T-161).
- *
- * The server decides everything except the name and the project: the column is
- * always a material column, always in a project the caller is on, and never
- * carries a budget or an access restriction. Asking twice for the same name
- * returns the existing column rather than an error, because the field app
- * retries.
- */
-export const createMaterialColumn = async (payload: {
-  project: string;
-  name: string;
-}) => {
-  const row = await api.post<ProjectCategory>(
-    "/api/project-categories/create_material_column/",
-    payload,
-    { silent: true },
-  );
-  return row;
-};
-
 /** 分类组 (I11): one project's groups, system ones first by order. */
 export const getCategoryGroups = (query: { project: string; module?: string; is_active?: boolean }) =>
   api.get<{ results: CategoryGroup[]; count: number }>("/api/category-groups/get_groups/", query);
@@ -1391,8 +1366,20 @@ export function getCategoryRecords(query: {
   date_from?: string;
   date_to?: string;
   search?: string;
+  /** J7-5: one specification of the material. */
+  spec_category?: string;
+  /** J34-6: one tab - 待处理, 已完成 or 已退回. */
+  stage?: CategoryRecordStage;
 }): Promise<CategoryRecordPage> {
   return api.get<CategoryRecordPage>("/api/category-records/", query);
+}
+
+/** The figures above a column's records (J34-6, 图 6), unfiltered. */
+export function getCategorySummary(query: {
+  module: CategoryModuleKey;
+  category: string;
+}): Promise<CategorySummary> {
+  return api.get<CategorySummary>("/api/category-records/get_summary/", query);
 }
 
 /**
@@ -1427,6 +1414,8 @@ export const getEvidencePackages = (
     state?: PackageState;
     /** HD17: one of the six package types. */
     type?: PackageType;
+    /** 收到的资料包 (J30-1): sent to head office in the system. */
+    received?: 1;
     created_by?: string;
     from?: string;
     to?: string;
@@ -1715,9 +1704,13 @@ export function recordPdfKindFor(kind: string): RecordPdfKind | null {
  * As a `File`, fetched once for 预览 · 打印 · 导出 · 发送 alike (PDF 统一操作
  * 规则, 2026-10-10), so the preview is what prints, saves and is sent.
  */
-export const recordPdfFile = (kind: RecordPdfKind, recordId: string, reference: string) =>
+/**
+ * `version` (J1-21, Q1-6): 1 is the record as first filed (修改前原单),
+ * left out it is the latest, its changed fields marked 「已修改」.
+ */
+export const recordPdfFile = (kind: RecordPdfKind, recordId: string, reference: string, version?: number) =>
   fetchAsFile("/api/record-exports/download/", {
-    query: { kind, record: recordId },
+    query: { kind, record: recordId, ...(version ? { version: String(version) } : {}) },
     // Only used when the server sends no filename. Some references are
     // labels rather than numbers (a progress record's 「phase / 40%」), so
     // the characters a filename cannot hold become dashes.

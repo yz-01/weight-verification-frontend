@@ -28,7 +28,6 @@ import {
   Eye,
   FilePlus2,
   Loader2,
-  Paperclip,
   RotateCcw,
   Send,
   Settings2,
@@ -52,6 +51,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { RecordNo } from "@/components/shared/record-no";
 import {
   ManufacturerCell,
@@ -402,6 +402,9 @@ function RequestsTab() {
         // `.v4` since the request type column came back (I16, ID37); `.v5`
         // since 材料编号 joined (I19-15), so a saved set shows it.
         storageKey={LIST_FITS.materialRequests.storageKey}
+        phoneCard={LIST_FITS.materialRequests.phoneCard}
+        // 加入资料包 (J30-2): ticked into a package while one is being put together.
+        pack="MATERIAL_REQUEST"
         defaultHidden={LIST_FITS.materialRequests.hidden}
         toolbar={
           <>
@@ -708,7 +711,7 @@ export function MaterialRequestDetail({
   const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");
 
   return (
-    <RecordDetailDialog title={row.request_no} legacyNo={row.legacy_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
+    <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
       <RecordDetailShell
         reference={row.request_no}
         // 记录人 (E8): who recorded it, with a number to call.
@@ -837,7 +840,18 @@ export function MaterialRequestDetail({
               <ol className="space-y-1 text-xs">
                 {row.attachments.map((file, index) => (
                   <li key={file.id} className="flex items-center gap-2">
-                    <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
+                    {/* The file as a picture (J34-11): the stamped copy, never
+                        the original (Q30.1); a PDF or other file its type. */}
+                    <FileThumbs
+                      files={[
+                        {
+                          id: file.id,
+                          name: file.original_name,
+                          thumbnail_url: file.is_image ? (file.watermarked ?? null) : null,
+                          href: file.is_image ? (file.watermarked ?? null) : file.file,
+                        },
+                      ]}
+                    />
                     {/* A picture opens as its stamped copy (Q30.1); a PDF or
                         other file as uploaded. */}
                     {file.is_image && !file.watermarked ? (

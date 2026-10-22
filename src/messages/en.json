@@ -4042,7 +4042,70 @@
       "groupCount": "{count} deliveries",
       "search": "Search number, material, DO",
       "emptyFiltered": "Nothing in this category matches these filters.",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "This category in figures",
+        "quantity": {
+          "today": "Received today",
+          "month": "This month",
+          "total": "Project total"
+        },
+        "count": {
+          "today": "Records today",
+          "month": "This month",
+          "total": "All records"
+        },
+        "vsYesterday": "vs yesterday",
+        "vsLastMonth": "vs same days last month",
+        "same": "no change",
+        "ofTarget": "{percent}% of the project target",
+        "target": "Project target",
+        "remaining": "{value} to go",
+        "reached": "Target reached",
+        "noTarget": "No target set",
+        "completion": "Completion",
+        "suppliers": "Suppliers",
+        "suppliersNote": "who delivered here",
+        "otherUnits": "Only deliveries in {unit} are counted; other units are not converted and are left out."
+      },
+      "stage": {
+        "label": "By state",
+        "all": "All records",
+        "material": {
+          "pending": "Awaiting acceptance",
+          "done": "Accepted",
+          "returned": "Rejected"
+        },
+        "other": {
+          "pending": "Open",
+          "done": "Done",
+          "returned": "Returned"
+        }
+      },
+      "table": {
+        "index": "No.",
+        "photos": "Photos (click to view)",
+        "record": "Record",
+        "supplier": "Supplier / plate",
+        "time": "Time",
+        "quantity": "Quantity",
+        "location": "Location",
+        "status": "Status",
+        "actions": "Actions",
+        "view": "View",
+        "note": "Note: {note}",
+        "receivedBy": "Received by: {name}",
+        "gps": "Has GPS",
+        "noGps": "No GPS"
+      },
+      "pager": {
+        "label": "Pages",
+        "showing": "Showing {from} to {to} of {total} records",
+        "previous": "Previous",
+        "next": "Next",
+        "first": "This is the first page",
+        "last": "This is the last page"
+      }
     },
     "quantityReturned": "{quantity} returned",
     "units": {
@@ -4287,7 +4350,10 @@
     "view": "View",
     "alreadyLastPage": "Already on the last page",
     "linkCopied": "Link copied. Paste it to share.",
-    "shareFailed": "Could not share. Download it and send the file instead."
+    "shareFailed": "Could not share. Download it and send the file instead.",
+    "combobox": {
+      "byLetter": "Filter by first letter"
+    }
   },
   "companies": {
     "owner": {
@@ -4902,6 +4968,7 @@
     },
     "attachment": {
       "tickFirst": "Tick the files to add first",
+      "wholeRecord": "Whole record: {records} (with its complete evidence PDF)",
       "archiveCategory": "File category",
       "allArchiveCategories": "All file categories",
       "addPicked": "Add the {count} selected",
@@ -5511,7 +5578,7 @@
       "EQUIPMENT_MOVEMENT": "Equipment",
       "FIELD_TASK": "Field task",
       "MATERIAL_OUTGOING": "Material out",
-      "SAFETY_INCIDENT": "Safety",
+      "SAFETY_INCIDENT": "Hazard rectification / EHS",
       "SITE_PROGRESS": "Progress",
       "WASTE_DISPATCH": "Dispatch"
     },
@@ -5619,7 +5686,7 @@
       "photos": "Site photos",
       "progressRecords": "Project progress",
       "projects": "Projects",
-      "safety": "Safety incidents",
+      "safety": "Hazard rectification / EHS",
       "title": "Today at a glance",
       "materialReceipts": "Deliveries today",
       "materialReturns": "Sent back today",
@@ -5715,7 +5782,7 @@
       "GEOFENCE_FAILURE": "Geofence",
       "MATERIAL_OUTGOING": "Material out",
       "OVERDUE_RECTIFICATION": "Overdue",
-      "SAFETY_INCIDENT": "Safety",
+      "SAFETY_INCIDENT": "Hazard rectification / EHS",
       "SITE_PROGRESS": "Progress",
       "WASTE_DISPATCH": "Dispatch"
     },
@@ -5819,7 +5886,7 @@
       "editTitle": "Edit this equipment",
       "entryTitle": "Record {name} entering site",
       "exitTitle": "Record {name} leaving site",
-      "formHelp": "The machine's number, plate and sub class. Set it up now, or complete it when the site reports it and you accept the entry.",
+      "formHelp": "System no., plate and sub class. The equipment number is given by the system when the machine is saved. Register it now, or complete it when the site reports a new machine and you accept its entry.",
       "movementHelp": "Take current photos and location. This movement becomes permanent site evidence.",
       "occurredAt": "Movement time",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -5927,7 +5994,10 @@
       "photosHint": "At least 4 photos, the DO photo counted in.",
       "deliveryNoteHint": "Enter the DO number (read for you from the DO photo).",
       "signatureHint": "Signed at the handover by this person.",
-      "locationHint": "Taken automatically when the form opens."
+      "locationHint": "Taken automatically when the form opens.",
+      "siteNo": "Equipment no.",
+      "systemNo": "System no.",
+      "siteNoAuto": "{no} (given by the system)"
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -6113,7 +6183,8 @@
       "noSupplier": "Not known",
       "spec": "Specification",
       "chooseSpec": "Choose the specification",
-      "specName": "Specification name"
+      "specName": "Specification name",
+      "materialName": "Material name"
     },
     "outgoingStatus": {
       "APPROVED": "Approved / waiting to leave site",
@@ -6398,15 +6469,18 @@
       "scanMatched": "Confirmed: {name}",
       "typedMatched": "Number entered: {name}",
       "brokenQr": "QR code broken or not stuck on yet? Type the number",
-      "typeNumber": "Site no. / equipment code / plate",
+      "typeNumber": "Equipment no. / system no. / plate",
       "useNumber": "OK",
+      "vehiclePlate": "Lorry plate number",
+      "vehiclePlateHint": "The plate of the lorry taking it away - many machines have none of their own.",
       "typedWrongMachine": "That number is not the machine approved to leave ({name}). Please check again.",
-      "typedNotScanned": "The QR code was not scanned on site: the machine's number was typed by hand.",
+      "typedNotScanned": "The QR code was not scanned on site; the equipment number was typed.",
       "scanAgain": "Scan again",
       "scanWrongMachine": "That is not the machine approved to leave ({name}). Scan this machine's QR code.",
       "photosHint": "At least {min} photos, the DO photo counted in.",
       "deliveryNoteHint": "Enter the DO number (read for you from the DO photo).",
       "supplierHint": "Scan the supplier's QR code if there is one; it can be left out.",
+      "supplierPick": "Or choose from the list",
       "signatureHint": "Signed at the handover by this person.",
       "locationHint": "Taken automatically when the form opens.",
       "scanToChoose": "Scan the machine's QR code",
@@ -6437,8 +6511,8 @@
       "help": "Scanning this code picks this machine. Print the sticker and hand it to the supplier to stick on the machine.",
       "imageAlt": "QR code of {name}",
       "what": "the QR code",
-      "siteNo": "Machine no.",
-      "siteNoHint": "The big number on the sticker is the machine no., or the equipment code when there is none. Machine numbers are set under Equipment operator hours › Machine numbers.",
+      "siteNo": "Equipment no.",
+      "siteNoHint": "The big number on the sticker is the equipment number, given by the system when the machine is registered.",
       "sticker": "A4 sticker",
       "stickerTitle": "Machine QR {number}",
       "download": "Download the QR image",
@@ -6462,6 +6536,19 @@
       "otherProject": "{name} belongs to project {project}, not the one you are on.",
       "notFound": "This machine was not found, or you may not see it.",
       "loadFailed": "The machine could not be read just now. Check the connection and try again."
+    },
+    "equipmentToday": {
+      "column": "Today",
+      "status": {
+        "WORKING": "Working",
+        "FINISHED": "Stopped",
+        "IDLE": "Not started",
+        "LEFT": "Left site"
+      },
+      "summary": "Today: {working} working · {finished} stopped · {idle} not started"
+    },
+    "equipmentInspection": {
+      "column": "Inspection"
     }
   },
   "contractorPartners": {
@@ -6533,6 +6620,16 @@
       "planned_start": "Planned start",
       "progress_records": "Project progress",
       "project": "Project",
+      "return_note_no": "RN no.",
+      "returned_at": "Returned on",
+      "specification": "Specification",
+      "reason": "Reason",
+      "source_receipt_no": "Delivery (MI)",
+      "executor": "Handled by",
+      "receipt_no": "Delivery no.",
+      "business_at": "Date",
+      "rejection_reason": "Reason rejected",
+      "accepted_by": "Decided by",
       "record_type": "Record type",
       "rectification_due_at": "Rectification due",
       "reference_no": "Reference no.",
@@ -6596,10 +6693,16 @@
       "photos": "Search the permanent photo evidence ledger by project, source, uploader, date and GPS.",
       "progress": "Review project progress, confirmation state and photo evidence.",
       "recycling": "Review disposal work and recycling orders through completion.",
-      "safety": "Track safety findings from assignment through rectification and verification.",
+      "safety": "Track hazard rectification / EHS items from assignment through rectification and verification.",
       "schedule": "Compare the current confirmed schedule with actual site progress.",
       "target": "Filter the business targets above by project and overlapping target period, then export the same achievement data.",
       "documents": "Project documents by category, with their versions and who uploaded them.",
+      "material_returns": "Material sent back to its supplier: RN, supplier, material, specification, quantity returned and the delivery it came from; subtotals per material and specification at the foot.",
+      "material_rejections": "Deliveries judged non-conforming or turned away: quantity, reason and who decided; subtotals per material and specification at the foot.",
+      "sundry_claims": "Sundry claims: what was claimed, who approved it, and the amounts.",
+      "claims": "Each project's progress claims and their approvals.",
+      "material_outgoing": "Material leaving site and returns (RN).",
+      "field_tasks": "Site tasks assigned and completed, with their photos.",
       "daily_report": "Daily reports by date: each report's full text, the records it holds and their photos. In the PDF each report starts on a new page, its photos watermarked.",
       "progress_summary": "Progress summaries updated in this period. In the PDF each summary starts on a new page."
     },
@@ -6626,6 +6729,8 @@
         "progress_summary": "Title or writer",
         "field_tasks": "Search task, instructions, place, assignee",
         "material_outgoing": "Search number, material, spec, DO, plate, Return Note, supplier",
+        "material_returns": "Search RN, delivery, material, spec, supplier, reason",
+        "material_rejections": "Search delivery number, material, spec, supplier, reason, DO, plate",
         "claims": "Search claim no., remarks, description, category, subcontractor",
         "sundry_claims": "Search number, description, applicant"
       },
@@ -6672,10 +6777,16 @@
       "photos": "Site photo report",
       "progress": "Progress and photo report",
       "recycling": "Disposal and recycling report",
-      "safety": "Safety and rectification report",
+      "safety": "Hazard rectification / EHS report",
       "schedule": "Planned versus actual report",
       "target": "Target and achievement report",
       "documents": "Project records report",
+      "material_returns": "Material returns (RN)",
+      "material_rejections": "Rejected material",
+      "sundry_claims": "Sundry claims report",
+      "claims": "Progress claim report",
+      "material_outgoing": "Material outgoing report",
+      "field_tasks": "Site task report",
       "daily_report": "Daily reports",
       "progress_summary": "Progress summaries"
     },
@@ -6690,6 +6801,34 @@
       "show": "Show",
       "choose": "Choose the first and the last day first.",
       "backwards": "The first day cannot be after the last day."
+    },
+    "photoGroups": {
+      "loadError": "The photo report could not be loaded.",
+      "empty": "No photographs in this period.",
+      "count": "{count} records with photographs",
+      "truncated": "the newest are shown; narrow the period for the rest",
+      "previous": "Previous",
+      "next": "Next",
+      "first": "This is the first page.",
+      "last": "This is the last page.",
+      "noRecord": "Photographs without a record",
+      "kind": {
+        "ATTENDANCE": "Clock-in",
+        "OTHER": "Record"
+      },
+      "photos": "{count} photos",
+      "hasGps": "Has GPS",
+      "openPhoto": "Open photo {index} of {reference}",
+      "openRecord": "Open the record",
+      "column": {
+        "reference": "No.",
+        "kind": "Module",
+        "project": "Project",
+        "date": "Date",
+        "uploaded_by": "Taken by",
+        "photo_count": "Photos",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {
@@ -6898,7 +7037,7 @@
       "receipts": "Material receipts",
       "recyclers": "Recyclers",
       "requiresReview": "Weighings requiring review",
-      "safety": "Safety incidents",
+      "safety": "Hazard rectification / EHS",
       "settlements": "Settlements",
       "siteDisposals": "Site disposal requests",
       "siteEquipment": "Equipment movement",
@@ -7287,7 +7426,9 @@
       "updated": "Document updated",
       "versionUploaded": "Files added to the document",
       "uploaded": "File uploaded",
-      "systemFilesAdded": "Filed in the archive"
+      "systemFilesAdded": "Filed in the archive",
+      "recordsAdded": "Records filed",
+      "inspectionFiled": "Inspection result filed"
     },
     "upload": {
       "action": "Add files",
@@ -7371,6 +7512,72 @@
       "hint": "Only files of this document's project can be added; files it already holds are greyed out.",
       "what": "the files this document already holds",
       "confirm": "Add to this document ({count})"
+    },
+    "pickRecords": {
+      "tab": "Pick whole records",
+      "description": "File whole records from the modules: they are linked, not copied, and always open as they are today.",
+      "way": "Pick whole records: a delivery, a return, a machine movement… linked as they are, with all their evidence.",
+      "records": "Records",
+      "hint": "Tick one or more records of one project.",
+      "mixedProjects": "These records are from different projects. A document belongs to one project.",
+      "confirm": "File {count, plural, one {# record} other {# records}}",
+      "kind": "Kind",
+      "project": "Project",
+      "allProjects": "All projects",
+      "number": "Number",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "supplier": "Supplier",
+      "allSuppliers": "All suppliers",
+      "material": "Material",
+      "specification": "Specification",
+      "results": "Records",
+      "empty": "No records found.",
+      "picked": "{count, plural, =0 {Nothing ticked} one {# ticked} other {# ticked}}"
+    },
+    "recordLinks": {
+      "title": "Whole records",
+      "allPdf": "All records as one PDF",
+      "gone": "The original record has been deleted."
+    },
+    "inspection": {
+      "needs": "Needs inspection fields",
+      "needsHint": "Documents filed here take an inspection result (pass / fail, dates).",
+      "section": "Inspection",
+      "add": "Fill in inspection result",
+      "none": "No inspection result yet.",
+      "title": "Inspection result",
+      "help": "From the report: once submitted it cannot be changed. A re-inspection is a new result.",
+      "target": "For",
+      "equipment": "Machine",
+      "material": "Material",
+      "spec": "Specification",
+      "allSpecs": "The whole material",
+      "choose": "Choose",
+      "number": "Inspection no.",
+      "numberHint": "The report's own number; the document's reference stays as it is.",
+      "inspectedOn": "Inspection / sending date",
+      "inspector": "Inspector / testing body",
+      "reportDate": "Report date",
+      "validUntilLabel": "Valid until",
+      "validUntilHint": "When the report runs out; the back office is reminded 30 days before.",
+      "result": {
+        "label": "Result",
+        "PASS": "Pass",
+        "FAIL": "Fail"
+      },
+      "submit": "Submit",
+      "confirm": "Once submitted it cannot be changed. Submit now?",
+      "submitNow": "Yes, submit",
+      "back": "Back",
+      "cancel": "Cancel",
+      "failed": "Could not file the result. Please try again.",
+      "expiring": "Runs out {date}",
+      "expired": "Ran out {date}",
+      "validUntil": "valid until {date}",
+      "filedBy": "filed by {name}, {at}",
+      "expiryTitle": "Inspection reports running out ({count})",
+      "openArchive": "Open the document archive"
     }
   },
   "driver": {
@@ -7817,7 +8024,7 @@
       "receipt_not_found": "That receipt could not be found.",
       "receipt_photo_not_found": "That photo could not be found.",
       "receipt_rejection_needs_reason": "Type the reason for rejecting this delivery. A rejection with no reason gives the site nothing to act on.",
-      "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
+      "receipt_superseded": "This delivery record has already been corrected, so this copy can no longer be accepted, rejected, filed or corrected. Open the latest copy, {receipt}, and work on that one.",
       "record_not_found": "That record is not available to this account.",
       "refresh_token_required": "Your session could not be renewed. Sign in again.",
       "report_export_file_altered": "This archived file no longer matches the fingerprint (SHA-256) recorded when it was generated, so it will not be opened as the original. Please contact your administrator.",
@@ -7886,6 +8093,7 @@
       "attachment_needs_project": "This approval is not for one project, so it takes no attachments. Put its papers in the document archive.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
       "receipt_awaiting_acceptance": "This delivery has not been accepted yet. Accept or reject it first, then archive it.",
+      "receipt_archive_needs_supplier": "This delivery ({receipt}) has no supplier yet. Rejected deliveries too: use 「Fill in supplier」 before archiving.",
       "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead.",
       "material_request_assigned_to_other": "This request was sent to somebody else to approve. To decide it yourself, press \"Take it over\" first.",
       "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list.",
@@ -7910,9 +8118,9 @@
       "original_not_expected": "The server has no photo waiting for this original yet. Let the record finish uploading first.",
       "original_hash_mismatch": "The original was damaged on the way and does not match the one on the phone, so nothing was saved. The system tries again; it can also be retried on the Technical management page.",
       "original_not_found": "This photo has no backed-up original.",
-      "driver_link_invalid": "This link no longer works. Ask the recycler to send it again.",
-      "driver_link_closed": "This trip is finished and its link is closed.",
-      "driver_link_other_device": "This link is in use on another phone. Ask the recycler to send it again.",
+      "driver_link_invalid": "This link is not valid any more. Ask the site office to send it again.",
+      "driver_link_closed": "This link has been stopped. Ask the site office.",
+      "driver_link_other_device": "This link is already in use on another phone.",
       "driver_link_expired": "This link no longer works. Ask the recycler to send it again.",
       "driver_login_retired": "Drivers no longer sign in. Open the trip link the recycler sent you.",
       "document_system_files_mixed_projects": "These files come from different projects. A document belongs to one project, so pick files from one project only.",
@@ -7993,7 +8201,20 @@
       "sign_off_pin_not_set": "You have not set a sign-off PIN yet. Set one first.",
       "sign_off_pin_incorrect": "The sign-off PIN is wrong. {attempts_left} tries left before it locks for 15 minutes.",
       "sign_off_office_only": "Please do this in the office back office, on a computer. The phone cannot do this step.",
-      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with your account password."
+      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with your account password.",
+      "equipment_hours_same_machine": "These hours are already that machine's.",
+      "equipment_hours_overlap": "That machine already has hours at this time. The same time cannot be counted twice.",
+      "equipment_hours_equipment_gone": "This machine has left the site; it cannot be clocked any more.",
+      "equipment_hours_no_gps": "No precise location. Go outdoors, turn on location and try again.",
+      "equipment_hours_outside_fence": "You are outside the site's area. Clock in on site.",
+      "equipment_hours_no_fence": "The site's area has not been set up yet. Contact the site office.",
+      "driver_link_not_confirmed": "Confirm your phone number first.",
+      "driver_link_phone_mismatch": "This phone number does not match the one the site office registered.",
+      "permission_switches_unavailable": "Only a contractor's back-office account has permission switches.",
+      "permission_switches_unknown_permission": "One of the permissions does not exist.",
+      "permission_switches_unknown_project": "Choose projects of this company.",
+      "permission_switches_self_lockout": "You cannot switch off your own user management.",
+      "permission_switches_last_user_manager": "Somebody in the company must keep user management."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8506,11 +8727,11 @@
         "confirmHint": "Check against the paper",
         "title": "Materials read from the note",
         "unclassified": "Pick category",
-        "makeColumn": "Make a category",
         "editHint": "Fix any wrong text, pick a category, delete a bad row, then tap Use.",
         "remove": "Remove row",
         "use": "Use",
-        "noUnit": "No unit"
+        "noUnit": "No unit",
+        "useOther": "Use 「其他材料」"
       },
       "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -8549,9 +8770,6 @@
       "columnAuto": "Files under {name}. The office can change it.",
       "columnUnfiledNote": "Not filed yet. The office files it after checking.",
       "noColumnsYet": "This site has no material categories yet. Add the first one below.",
-      "newColumnName": "New category name",
-      "addColumn": "Add category",
-      "columnOffline": "Offline: choose an existing category. A new category needs a connection.",
       "reject": {
         "toggle": "Goods wrong - Reject",
         "help": "Turn this delivery away at the gate. Both sides still sign; it is kept on record and not counted.",
@@ -8574,7 +8792,9 @@
       "chooseSpec": "Choose the specification",
       "specName": "Specification name",
       "specNameHint": "Not on the list? Choose 「Other」 and type it here.",
-      "autoFilledFromSpec": "From the specification"
+      "autoFilledFromSpec": "From the specification",
+      "otherName": "Material name",
+      "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here; the office adds it to the list."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -8857,6 +9077,7 @@
     "empty": "Nothing has been said yet.",
     "send": "Send",
     "placeholder": "Type a message",
+    "recordCancel": "Cancel",
     "recordStart": "Tap to record a voice note",
     "recordStop": "Tap to stop and send",
     "recordingFor": "Recording {seconds}s of {limit}s",
@@ -8978,7 +9199,12 @@
       "location": "Location",
       "latestPhoto": "Latest photo",
       "overdue": "Overdue",
-      "noCoordinates": "No coordinates"
+      "noCoordinates": "No coordinates",
+      "layerFences": "Fences",
+      "openProjectMap": "Open project map",
+      "projectMapTitle": "{project} - map and fences",
+      "projectMapFences": "{count} fences, as saved. Zooming or resizing the map never moves them.",
+      "projectMapNoFence": "This project has no fence yet."
     },
     "photos": {
       "title": "Today's site photos (all projects)",
@@ -9140,6 +9366,67 @@
       "exceeded": "{count} over",
       "reached": "{count} reached",
       "approaching": "{count} near"
+    },
+    "reference": {
+      "title": "From reading reports to seeing the site",
+      "subtitle": "Every project's site data in one place - people, materials, machines, progress and safety - so managing is simpler, clearer and faster.",
+      "companyView": "Head office view",
+      "same": "Same",
+      "vsYesterday": "vs yesterday",
+      "kpi": {
+        "projects": "Projects in progress",
+        "today_records": "Site records today",
+        "pending_approvals": "Waiting for approval",
+        "overdue_rectifications": "Overdue rectifications",
+        "material_receipts_today": "Material in today",
+        "on_site_now": "On site now"
+      },
+      "activity": "Today on site (by project)",
+      "activityHint": "Each project's latest site record",
+      "view": {
+        "photos": "Photos",
+        "map": "Map"
+      },
+      "noProjects": "No projects yet.",
+      "noPhoto": "No site photo yet",
+      "notices": "Notifications",
+      "seeAll": "See all",
+      "noNotices": "Nothing new.",
+      "byState": "Projects by state",
+      "allProjects": "All projects",
+      "noState": "No state",
+      "projectCount": "{count} projects",
+      "presence": "On site now",
+      "presenceTotal": "{count} on site",
+      "split": {
+        "APP": "Clocked in (accounts)",
+        "WORKER": "Worker passes",
+        "VISITOR": "Visitors",
+        "VEHICLE": "Vehicles"
+      },
+      "weather": {
+        "clear": "Clear",
+        "partly": "Partly cloudy",
+        "cloudy": "Cloudy",
+        "fog": "Fog",
+        "drizzle": "Drizzle",
+        "rain": "Rain",
+        "snow": "Snow",
+        "storm": "Thunderstorm"
+      },
+      "quick": {
+        "title": "Shortcuts",
+        "siteRecord": "Site records",
+        "request": "Raise a request",
+        "approvals": "Approvals",
+        "rectification": "Rectifications",
+        "archive": "File archive",
+        "reports": "Export reports"
+      },
+      "settingsTitle": "Head office dashboard title",
+      "settingsSubtitle": "Head office dashboard subtitle",
+      "settingsHint": "Leave blank for the default words.",
+      "temperature": "{value}°C"
     }
   },
   "home": {
@@ -10296,7 +10583,8 @@
       "DISPOSAL_REQUEST": "Disposal request",
       "PROGRESS": "Progress",
       "CONSULTANT_APPLICATION": "Consultant application",
-      "SUNDRY_CLAIM": "Sundry claim"
+      "SUNDRY_CLAIM": "Sundry claim",
+      "MATERIAL_REQUEST": "MR / Other requests"
     },
     "lastPage": "This is the last page.",
     "loading": "Loading…",
@@ -10452,7 +10740,8 @@
         "CONSULTANT": "Consultant",
         "OWNER": "Owner",
         "SUPPLIER": "Supplier",
-        "OTHER": "Other"
+        "OTHER": "Other",
+        "HEADQUARTERS": "Head office (in the system)"
       },
       "expired": "Expired",
       "status": {
@@ -10553,7 +10842,9 @@
         "REPORT": "Correspondence record made"
       },
       "ip": "IP {ip}",
-      "writeFirst": "Write a message or choose a file first."
+      "writeFirst": "Write a message or choose a file first.",
+      "headquartersHelp": "Sent to your own company's head office in the system: no link is made. Head office finds it under Received packages in Multi Engine and gets a notice; who opened it is kept.",
+      "sendToHeadquarters": "Send to head office"
     },
     "claimFacet": {
       "title": "Claim amount and payment",
@@ -10578,7 +10869,8 @@
       "recipients": "Recipients",
       "round": "Current round",
       "returned": "Returned"
-    }
+    },
+    "received": "Received packages"
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -10715,7 +11007,7 @@
       "site_phone": "Site phone",
       "team": "Responsible people",
       "code": "Code",
-      "site_no": "Site no.",
+      "site_no": "Equipment no.",
       "serial_no": "Serial no.",
       "road_tax_expires_on": "Road tax expires",
       "insurance_expires_on": "Insurance expires",
@@ -10748,7 +11040,8 @@
       "confirmed_at": "Confirmed at",
       "entry_at": "Entry time",
       "exit_at": "Exit time",
-      "request_kind": "Request type"
+      "request_kind": "Request type",
+      "pdpa_consent": "Personal data notice"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -11043,7 +11336,7 @@
       "saasNotifications": "SaaS notifications",
       "saasReports": "SaaS billing reports",
       "saasSettings": "SaaS settings",
-      "safetyIncidents": "Safety incidents",
+      "safetyIncidents": "Hazard rectification / EHS",
       "salesActivity": "Sales records",
       "salesDetails": "Salesperson details",
       "salesHierarchy": "Team hierarchy",
@@ -11095,6 +11388,8 @@
       "myTasks": "My tasks",
       "consultantSettings": "Consultant settings",
       "sundryClaims": "Sundry claims",
+      "materialReturnsReport": "Material returns (RN)",
+      "materialRejectionsReport": "Rejected material",
       "materialReports": "Material reports",
       "wasteClearance": "Waste clearance",
       "equipmentEntry": "Equipment entry",
@@ -11111,7 +11406,8 @@
       "dailyReport": "Daily reports",
       "progressSummary": "Progress summary",
       "siteWorkers": "Worker roster",
-      "materialTargets": "Material targets"
+      "materialTargets": "Material targets",
+      "materialRequests": "MR / Other Request"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -12308,6 +12604,12 @@
       },
       "material_target": {
         "manage": "Set material targets"
+      },
+      "inspection": {
+        "record": "Fill in inspection results"
+      },
+      "finance": {
+        "view_amounts": "See amounts (prices, costs, budgets, claims)"
       }
     },
     "group": {
@@ -12377,13 +12679,16 @@
       "platform_version": "Versions",
       "integration": "Integrations",
       "site_worker": "Worker roster",
-      "material_target": "Material targets"
+      "material_target": "Material targets",
+      "inspection": "Inspection",
+      "finance": "Amounts"
     }
   },
   "photos": {
     "count": "{count, plural, one {# photo} other {# photos}}",
     "none": "No photo",
-    "open": "Open the photos of {reference}"
+    "open": "Open the photos of {reference}",
+    "more": "{count} more photos"
   },
   "profile": {
     "section": {
@@ -12581,7 +12886,7 @@
         "material_receipts": "Material receipts",
         "photos": "Site photos",
         "progress_records": "Project progress",
-        "safety_incidents": "Safety incidents",
+        "safety_incidents": "Hazard rectification / EHS",
         "waste_dispatches": "Waste dispatches"
       },
       "period": {
@@ -12751,7 +13056,10 @@
     "archived": "Filed",
     "correction": {
       "action": "Correct",
-      "note": "A correction files a new receipt that points back at this one. Both stay on record, so anyone checking later can see what was changed and why.",
+      "alreadyCorrectedBody": "Corrections are made on the latest copy, so the figures that count stay in one line. Make this change on {name}.",
+      "alreadyCorrectedLink": "Correct {name} instead",
+      "alreadyCorrectedTitle": "This receipt has already been corrected",
+      "note": "A correction changes this receipt itself and keeps its number; the old figures, who changed them, when and why stay in its history. Quantity, price, supplier and the like need your sign-off PIN; a specification or unit alone does not.",
       "reason": "Reason",
       "supersededBody": "It is kept so the original figures can still be read, but it no longer counts in your deliveries or your material totals.",
       "supersededLink": "Open the corrected receipt {name}",
@@ -12926,8 +13234,8 @@
       "rejected": "Failed check (not counted)",
       "supplier": "Supplier",
       "noSupplier": "No supplier named",
-      "searchMaterial": "Search material or supplier",
-      "searchEmpty": "Nothing found for \"{term}\". You can search a material name or a supplier name.",
+      "searchMaterial": "Search material name",
+      "searchEmpty": "Nothing found for 「{term}」.",
       "specification": "Spec",
       "noteReceived": "Delivered to site: what passed the check, added up over time.",
       "noteReturned": "Sent back to supplier: returns the office has confirmed as done.",
@@ -12973,7 +13281,9 @@
         "open": "Open {reference}",
         "legacyReturn": "Return entered on a receipt before 10-02",
         "project": "Project"
-      }
+      },
+      "searchSpec": "Specification",
+      "subtotal": "{material} subtotal"
     },
     "exportVerdict": "Acceptance result",
     "rejectedReturns": "Rejected returns",
@@ -12982,6 +13292,7 @@
     "supplierUnfilledShort": "not filled in",
     "fillSupplier": {
       "action": "Fill in supplier",
+      "archiveHint": "No supplier was filled in on site. Fill in the supplier before this delivery can be archived.",
       "hint": "The site did not fill in the supplier. Fill it in before accepting.",
       "reason": "Supplier filled in (left blank on site)",
       "formHint": "Choose this delivery's supplier, save, then accept it."
@@ -14747,7 +15058,8 @@
       "hostNotified": "Host notified.",
       "visitorConfirmed": "Visitor confirmed. The gate can let them in.",
       "visitorDeclined": "Visitor declined. The gate has been told.",
-      "visitorCancelled": "Visitor arrival cancelled."
+      "visitorCancelled": "Visitor arrival cancelled.",
+      "visitorPhotosRemoved": "Expired visitor photos removed"
     },
     "what": {
       "roles": "The role list",
@@ -14949,6 +15261,12 @@
         "already_inside": "Already recorded as inside; next time press Confirm Exit.",
         "already_outside": "Not recorded as inside yet; press Confirm Entry first.",
         "host_not_confirmed": "Cannot let in: the visitor's host has not confirmed yet."
+      },
+      "exitPhoto": {
+        "label": "Exit photo",
+        "hint": "Take a photo of the visitor leaving, as evidence of the exit.",
+        "take": "Take the exit photo",
+        "retake": "Retake the exit photo"
       }
     },
     "visitorRecords": {
@@ -15052,6 +15370,46 @@
       "next": "Scan the next one",
       "openTitle": "Visitors at the gate",
       "hostLine": "Host: {host}"
+    },
+    "pdpa": {
+      "title": "Personal data notice (PDPA)",
+      "agree": "The visitor has read and agrees to this notice",
+      "defaultNotice": "Under the Personal Data Protection Act 2010 (PDPA) we collect your name, phone number, company, purpose of visit and the photographs the gate takes when you enter and leave. They are used only for site safety and access control and are not given to unrelated third parties. Photographs are kept for {months} months, then removed once the company administrator confirms. To ask about or correct your data, contact us.",
+      "agreedAt": "The visitor agreed to the personal data notice at {time}"
+    },
+    "visitorPrivacy": {
+      "title": "Visitor data (PDPA)",
+      "subtitle": "The notice shown when a visitor registers, the exit photo and how long photos are kept.",
+      "exitPhoto": "Photograph visitors leaving",
+      "exitPhotoHelp": "On: the gate takes a photo before Confirm exit.",
+      "retention": "Keep visitor photos for (months)",
+      "retentionHelp": "From the day each was taken; expired photos are listed and removed when an administrator confirms.",
+      "notice": {
+        "zh": "Notice (Simplified Chinese)",
+        "en": "Notice (English)",
+        "zh-TW": "Notice (Traditional Chinese)",
+        "ms": "Notice (Malay)"
+      },
+      "noticeHelp": "Left empty, the system's own text is used; '{months}' becomes the months photos are kept.",
+      "noticePlaceholder": "Empty uses the system's text",
+      "expired": {
+        "open": "Expired visitor photos",
+        "title": "Expired visitor photos",
+        "loading": "Loading…",
+        "help": "Kept {months} months: visitor photos taken before {cutoff} have expired.",
+        "none": "No visitor photo has expired.",
+        "count": "{count} expired photos",
+        "keeps": "Only the photo files are removed; passes, visits and entry and exit records stay, and the removal is logged.",
+        "direction": {
+          "ENTRY": "Entry",
+          "EXIT": "Exit"
+        },
+        "history": "Removals",
+        "historyRow": "{when} · {who} removed {count} (kept {months} months)",
+        "done": "{count} photos removed.",
+        "close": "Close",
+        "confirm": "Remove (sign-off PIN)"
+      }
     }
   },
   "siteDisposal": {
@@ -16306,13 +16664,40 @@
       "created": "User invited",
       "removed": "User removed",
       "statusUpdated": "User status updated",
-      "updated": "User updated"
+      "updated": "User updated",
+      "switchesSaved": "Permissions updated"
     },
     "viewTitle": "User",
     "what": {
       "roles": "The role list",
       "stats": "The user counts",
       "companies": "The company list"
+    },
+    "switches": {
+      "what": "permission switches",
+      "title": "Permissions",
+      "intro": "Each permission is its own ON / OFF switch; a new user starts with all of them on. An approval switched on still asks for the approver's own sign-off PIN.",
+      "hq": "Head office",
+      "hqHint": "Company settings, users, roles, billing, projects, suppliers. User management is only here.",
+      "project": "Project back office",
+      "scope": "Projects they see",
+      "allProjects": "All projects",
+      "chosenProjects": "Chosen projects",
+      "noProjects": "The company has no projects yet.",
+      "needOneProject": "Choose at least one project, or all projects.",
+      "amounts": "See amounts",
+      "amountsHint": "Material cost, unit price, budgets, claims and sundry claim amounts. Off: shown as —, and left out of exports.",
+      "operate": "Everyday work",
+      "approve": "Approvals",
+      "approveHint": "On means they may approve; approving still asks for their own sign-off PIN.",
+      "allOn": "All on",
+      "allOff": "All off",
+      "countOn": "{on} of {total} on",
+      "applyRole": "Start from a role",
+      "applyRoleHint": "Turns on what the role holds and off the rest; change anything before saving.",
+      "save": "Save permissions",
+      "failed": "Could not save. Please try again.",
+      "notSwitchable": "Field staff and consultant accounts keep their role: their permissions are not switches."
     }
   },
   "validation": {
@@ -16941,6 +17326,8 @@
     }
   },
   "recordCorrection": {
+    "openHistory": "Open the modification history",
+    "historyHelp": "Every change to this record: what changed, what it was, who changed it, when and why.",
     "button": "Correct",
     "title": "Correct this record",
     "hint": "Only words and choices can be changed; photos, GPS, times, signatures and who submitted it cannot. The original values are kept.",
@@ -16957,8 +17344,8 @@
     "badNumber": "{field} must be a number greater than 0",
     "cancel": "Cancel",
     "save": "Save correction",
-    "tag": "Corrected",
-    "historyTitle": "Corrections",
+    "tag": "Modified",
+    "historyTitle": "Modification history",
     "historyWhat": "the corrections",
     "empty": "not filled",
     "reasonLine": "Reason: {reason}",
@@ -17008,7 +17395,10 @@
       "priority": "Priority",
       "material": "Material",
       "specification": "Specification",
-      "material_specification": "Specification (typed)"
+      "material_specification": "Specification (typed)",
+      "equipment": "Machine",
+      "start_at": "Start time",
+      "end_at": "End time"
     },
     "followsSpec": "The unit follows the specification"
   },
@@ -17425,7 +17815,8 @@
       "materialOrSubject": "Material / subject",
       "stage": "Stage",
       "forwardHistory": "Sent on",
-      "headOfficeReviewer": "Head office approver"
+      "headOfficeReviewer": "Head office approver",
+      "materialName": "Material name"
     },
     "action": {
       "view": "View",
@@ -17506,7 +17897,8 @@
       "contentPlaceholder": "What is needed, how many, when",
       "attachmentKindsHint": "Photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP. Up to {count} files, each under {limit} MB.",
       "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP.",
-      "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office."
+      "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office.",
+      "otherMaterialHint": "「其他材料」: type what the material is."
     },
     "toast": {
       "submitted": "Request submitted.",
@@ -17596,6 +17988,9 @@
     "openInViewer": "Open in the phone's viewer"
   },
   "fileActions": {
+    "originalVersion": "Original (before changes)",
+    "originalVersionHint": "This record as first filed (version 1), under the same number; it counts in no total.",
+    "originalVersionTitle": "{reference} · original",
     "preview": "Preview",
     "print": "Print",
     "save": "Export",
@@ -17942,7 +18337,7 @@
       "equipment": "Equipment",
       "allEquipment": "All equipment",
       "search": "Plate / number",
-      "searchPlaceholder": "Plate, equipment no. or site no.",
+      "searchPlaceholder": "Plate, equipment no. or system no.",
       "scan": "Scan machine QR",
       "scanTitle": "Scan the machine's QR code",
       "scanHelp": "Hold the machine's QR sticker up to the camera.",
@@ -17951,7 +18346,7 @@
     "field": {
       "date": "Date",
       "equipment": "Equipment",
-      "code": "Equipment no.",
+      "code": "System no.",
       "supplier": "Supplier",
       "plate": "Plate number",
       "project": "Project",
@@ -17970,14 +18365,20 @@
       "incomplete": "Missing start / stop",
       "adjustedCount": "Changed by the office",
       "actions": "Actions",
-      "siteNo": "Site no.",
-      "machineNo": "Machine no.",
+      "siteNo": "Equipment no.",
+      "machineNo": "Equipment no.",
       "equipmentName": "Machine",
       "operator": "Operator",
       "cidb": "CIDB card no.",
       "startTime": "Start time",
       "endTime": "Stop time",
-      "view": "View"
+      "view": "View",
+      "takenOn": "Photographed on",
+      "normalHours": "Normal hours (h)",
+      "overtimeHours": "Overtime hours (h)",
+      "cumulativeNormal": "Normal to date (h)",
+      "cumulativeOvertime": "Overtime to date (h)",
+      "inspection": "Inspection"
     },
     "status": {
       "MISSING_END": "No stop photo",
@@ -18032,9 +18433,11 @@
     "toast": {
       "endSaved": "End time saved",
       "startSaved": "Start time saved",
-      "siteNoSaved": "Site number saved",
-      "siteNoCleared": "Site number cleared",
-      "operatorSaved": "Operator saved"
+      "siteNoSaved": "Equipment number saved",
+      "siteNoCleared": "Equipment number cleared",
+      "operatorSaved": "Operator saved",
+      "moved": "Hours moved to the other machine",
+      "normalSaved": "Normal hours saved"
     },
     "phone": {
       "howTo": "Scan the QR on the machine → photo → driver signs → send. Then scan the next one.",
@@ -18085,18 +18488,19 @@
       "sentQueued": "Saved on the phone, sends when online: no. {number} {kind} {time}"
     },
     "siteNo": {
-      "open": "Machine numbers",
-      "title": "Machine numbers",
-      "help": "Give each machine a short site number (e.g. 12) and paint or stick it on the machine. The operator types this number on the phone to pick the machine. A number can be used only once per project; clear it to remove it.",
+      "open": "Equipment numbers",
+      "title": "Equipment numbers",
+      "help": "Every machine gets its equipment number (for example 12) from the system when it is registered, one to one with its QR code, never used twice. Change one here only to put it right (sign-off PIN); a number cannot be cleared, nor be one another machine of the project has had.",
       "search": "Find a machine",
       "searchPlaceholder": "Name, plate, supplier or number",
       "empty": "This project has no machines in use yet.",
       "noMatch": "No machine matches.",
-      "inputLabel": "Site number of {machine}",
+      "inputLabel": "Equipment no. of {machine}",
       "placeholder": "e.g. 12",
       "save": "Save",
       "failed": "Could not save. Please try again.",
-      "close": "Close"
+      "close": "Close",
+      "keep": "A machine always keeps an equipment number. Type the right one."
     },
     "operator": {
       "title": "Operator",
@@ -18116,6 +18520,25 @@
       "title": "{supplier}: hours per machine",
       "total": "Company total (hours)",
       "sessions": "{count} time(s)"
+    },
+    "move": {
+      "title": "Change machine",
+      "help": "For hours recorded on the wrong machine (scanned the wrong one). The photos, GPS and times stay as taken; the hours count for the machine chosen here, and the change is kept in the history.",
+      "machine": "Correct machine",
+      "choose": "Choose the machine",
+      "reason": "Reason",
+      "reasonPlaceholder": "For example: the driver scanned the excavator's code but drove the crane",
+      "save": "Change machine",
+      "failed": "Could not change the machine. Please try again."
+    },
+    "normal": {
+      "open": "Normal hours: {hours} h",
+      "title": "Daily normal hours",
+      "help": "Each operator's first hours of a day count as normal and the rest as overtime; a machine with no operator, per machine. The day is the start's day. A change counts for sessions that end after it; earlier ones stay as they were settled.",
+      "label": "Normal hours a day",
+      "save": "Save",
+      "failed": "Could not save. Please try again.",
+      "current": "Set {at} by {name}"
     }
   },
   "theme": {
@@ -18494,7 +18917,8 @@
   },
   "mapFrame": {
     "fullscreen": "Full screen",
-    "exitFullscreen": "Exit full screen"
+    "exitFullscreen": "Exit full screen",
+    "resize": "Drag to resize the map"
   },
   "siteWorkers": {
     "title": "Worker roster",
@@ -18657,7 +19081,8 @@
       "denied": "Location permission was refused. Follow the steps below to allow it.",
       "unavailable": "Cannot get a location right now. Move into the open and check location is on.",
       "upload": "The last send did not get through; it will try again."
-    }
+    },
+    "outsideFence": "You are not on site right now, so your location is not recorded."
   },
   "materialTargets": {
     "title": "Material targets",
@@ -18789,10 +19214,119 @@
       "role_delete": "Remove a role",
       "user_change_role": "Change a user's role",
       "user_change_status": "Suspend or reinstate an account",
-      "consultant_review": "Sign a consultant decision"
+      "consultant_review": "Sign a consultant decision",
+      "consultant_link_document": "Add archive files to a consultant application",
+      "receipt_refile": "File a delivery under another material",
+      "receipt_review": "Accept or reject a delivery",
+      "receipt_add_photo": "Add a photo to a delivery",
+      "equipment_hours_set_operator": "Fill in the operator and CIDB",
+      "equipment_set_site_no": "Change an equipment number",
+      "equipment_hours_move": "Move equipment hours to another machine",
+      "user_change_permissions": "Change a user's permission switches",
+      "consultant_submit": "Send a consultant application",
+      "visitor_photo_purge": "Remove expired visitor photos"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
     "firstHelp": "Choose six digits only you know, type them again, then enter the password you sign in with. Once it is set, what you were doing carries on; important office operations are confirmed with this PIN from now on."
+  },
+  "specFilter": {
+    "label": "Specification",
+    "all": "All specifications",
+    "materialFirst": "Choose the material first"
+  },
+  "driverClock": {
+    "title": "Equipment clock-in",
+    "failedTitle": "Could not open the link. Check the signal and try again.",
+    "phoneTitle": "Confirm your phone number",
+    "phoneLabel": "Your mobile number",
+    "phoneBody": "The number the site office registered for you. This link then works only on this phone.",
+    "phoneConfirm": "Confirm",
+    "phoneMismatch": "This number does not match the one the site office registered.",
+    "driverLine": "Driver: {name} · CIDB {cidb} · {company}",
+    "photoHint": "Scan the machine's QR code, then take a photo of the machine or of yourself, sign and send. You must be on site with location on.",
+    "ended": {
+      "invalid": {
+        "title": "This link is not valid any more",
+        "body": "Ask the site office to send it again."
+      },
+      "closed": {
+        "title": "This link has been stopped",
+        "body": "Ask the site office if you still work on this site."
+      },
+      "otherDevice": {
+        "title": "This link is in use on another phone",
+        "body": "Ask the site office to send it again for this phone."
+      }
+    },
+    "status": {
+      "NOT_OPENED": "Not opened yet",
+      "IN_USE": "In use",
+      "STOPPED": "Stopped"
+    },
+    "toast": {
+      "created": "Link made",
+      "reissued": "New link made; the old one no longer works",
+      "stopped": "Link stopped"
+    },
+    "office": {
+      "title": "Driver links",
+      "help": "One link per driver: it opens only start / stop clock-in for this project's machines. Send it by WhatsApp. Stop it when the driver leaves the project.",
+      "add": "New driver link",
+      "empty": "No driver links yet.",
+      "driverName": "Driver name",
+      "cidb": "CIDB card no.",
+      "company": "Company",
+      "companyHint": "Choose from the supplier list, or type it below.",
+      "companyTyped": "Not on the list (type it)",
+      "companyName": "Company name",
+      "phone": "Mobile number",
+      "phoneHint": "The driver confirms this number the first time the link is opened.",
+      "make": "Make link",
+      "cancel": "Cancel",
+      "close": "Close",
+      "linkFor": "Link for {name}",
+      "shownOnce": "Copy it now: it is shown only this once. Sending again makes a new one.",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "sendAgain": "Send again",
+      "stop": "Stop",
+      "lastUsed": "Last used {at}",
+      "failed": "Could not save. Please try again.",
+      "chooseProject": "Choose a project at the top of the page to make a link."
+    }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "Material in today (t)",
+      "wasteToday": "Waste out today (t)",
+      "receiptsTotal": "Material in, all (t)",
+      "wasteTotal": "Waste out, all (t)",
+      "equipment": "Machines",
+      "pending": "Waiting"
+    },
+    "thisMonth": "This month {value} t",
+    "equipmentSplit": "On site {on} | Left {off}",
+    "seeBelow": "See below",
+    "tonnesNote": "Tonnes count what is weighed: tonnes, and kilograms turned into tonnes. Waste is eco-material outgoing.",
+    "latestReceipts": "Latest material in",
+    "seeAll": "See all",
+    "noReceipts": "No deliveries yet.",
+    "map": "Project site map",
+    "point": {
+      "RECEIPT": "Material in",
+      "WASTE": "Waste out",
+      "EQUIPMENT": "Machine"
+    },
+    "noPoints": "Nothing with GPS in the last 30 days.",
+    "materialMix": "Materials by category (this month)",
+    "wasteMix": "Waste by category (this month)",
+    "noMix": "Nothing weighed this month.",
+    "mixTotal": "{value} t in all",
+    "others": "Others",
+    "pending": "Waiting",
+    "noPending": "Nothing waiting.",
+    "photos": "Latest site photos",
+    "noPhotos": "No site photos yet."
   }
 }

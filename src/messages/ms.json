@@ -4042,7 +4042,70 @@
       "groupCount": "{count} penghantaran",
       "search": "Cari nombor, bahan, DO",
       "emptyFiltered": "Tiada rekod dalam kategori ini yang sepadan dengan penapis ini.",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "Kategori ini dalam angka",
+        "quantity": {
+          "today": "Diterima hari ini",
+          "month": "Bulan ini",
+          "total": "Jumlah projek"
+        },
+        "count": {
+          "today": "Rekod hari ini",
+          "month": "Bulan ini",
+          "total": "Semua rekod"
+        },
+        "vsYesterday": "berbanding semalam",
+        "vsLastMonth": "berbanding hari sama bulan lalu",
+        "same": "tiada perubahan",
+        "ofTarget": "{percent}% daripada sasaran projek",
+        "target": "Sasaran projek",
+        "remaining": "Baki {value}",
+        "reached": "Sasaran tercapai",
+        "noTarget": "Tiada sasaran",
+        "completion": "Kemajuan",
+        "suppliers": "Pembekal",
+        "suppliersNote": "yang menghantar ke sini",
+        "otherUnits": "Hanya penghantaran dalam {unit} dikira; unit lain tidak ditukar dan tidak dikira."
+      },
+      "stage": {
+        "label": "Ikut status",
+        "all": "Semua rekod",
+        "material": {
+          "pending": "Menunggu terima",
+          "done": "Diterima",
+          "returned": "Ditolak"
+        },
+        "other": {
+          "pending": "Terbuka",
+          "done": "Selesai",
+          "returned": "Dipulangkan"
+        }
+      },
+      "table": {
+        "index": "No.",
+        "photos": "Foto (klik untuk lihat)",
+        "record": "Rekod",
+        "supplier": "Pembekal / plat",
+        "time": "Masa",
+        "quantity": "Kuantiti",
+        "location": "Lokasi",
+        "status": "Status",
+        "actions": "Tindakan",
+        "view": "Lihat",
+        "note": "Nota: {note}",
+        "receivedBy": "Diterima oleh: {name}",
+        "gps": "Ada GPS",
+        "noGps": "Tiada GPS"
+      },
+      "pager": {
+        "label": "Halaman",
+        "showing": "Menunjukkan {from} hingga {to} daripada {total} rekod",
+        "previous": "Sebelumnya",
+        "next": "Seterusnya",
+        "first": "Ini halaman pertama",
+        "last": "Ini halaman terakhir"
+      }
     },
     "quantityReturned": "{quantity} dipulangkan",
     "units": {
@@ -4287,7 +4350,10 @@
     "view": "Lihat",
     "alreadyLastPage": "Sudah di halaman terakhir",
     "linkCopied": "Pautan disalin. Tampal untuk berkongsi.",
-    "shareFailed": "Tidak dapat berkongsi. Muat turun dan hantar fail itu."
+    "shareFailed": "Tidak dapat berkongsi. Muat turun dan hantar fail itu.",
+    "combobox": {
+      "byLetter": "Tapis ikut huruf pertama"
+    }
   },
   "companies": {
     "owner": {
@@ -4902,6 +4968,7 @@
     },
     "attachment": {
       "tickFirst": "Tandakan fail yang hendak ditambah dahulu",
+      "wholeRecord": "Rekod penuh: {records} (dengan PDF bukti lengkap)",
       "archiveCategory": "Kategori fail",
       "allArchiveCategories": "Semua kategori fail",
       "addPicked": "Tambah {count} yang dipilih",
@@ -5511,7 +5578,7 @@
       "EQUIPMENT_MOVEMENT": "Peralatan",
       "FIELD_TASK": "Tugas tapak",
       "MATERIAL_OUTGOING": "Bahan keluar",
-      "SAFETY_INCIDENT": "Keselamatan",
+      "SAFETY_INCIDENT": "Pembetulan bahaya / EHS",
       "SITE_PROGRESS": "Kemajuan",
       "WASTE_DISPATCH": "Penghantaran"
     },
@@ -5619,7 +5686,7 @@
       "photos": "Foto tapak",
       "progressRecords": "Kemajuan projek",
       "projects": "Projek",
-      "safety": "Insiden keselamatan",
+      "safety": "Pembetulan bahaya / EHS",
       "title": "Hari ini secara ringkas",
       "materialReceipts": "Penghantaran hari ini",
       "materialReturns": "Dipulangkan hari ini",
@@ -5715,7 +5782,7 @@
       "GEOFENCE_FAILURE": "Geofen",
       "MATERIAL_OUTGOING": "Bahan keluar",
       "OVERDUE_RECTIFICATION": "Lewat",
-      "SAFETY_INCIDENT": "Keselamatan",
+      "SAFETY_INCIDENT": "Pembetulan bahaya / EHS",
       "SITE_PROGRESS": "Kemajuan",
       "WASTE_DISPATCH": "Penghantaran"
     },
@@ -5819,7 +5886,7 @@
       "editTitle": "Sunting peralatan ini",
       "entryTitle": "Rekod {name} masuk tapak",
       "exitTitle": "Rekod {name} keluar tapak",
-      "formHelp": "Nombor, plat dan subkelas mesin. Sediakan sekarang, atau lengkapkan apabila tapak melaporkannya dan anda menerima kemasukan.",
+      "formHelp": "No. sistem, plat dan subkelas. Nombor peralatan diberi oleh sistem semasa mesin disimpan. Daftar sekarang, atau lengkapkan apabila tapak melaporkan mesin baharu dan anda menerima kemasukannya.",
       "movementHelp": "Ambil foto dan lokasi semasa. Pergerakan ini menjadi bukti tapak kekal.",
       "occurredAt": "Masa pergerakan",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Masukkan maklumat secara manual.",
@@ -5927,7 +5994,10 @@
       "photosHint": "Sekurang-kurangnya 4 foto, termasuk foto DO.",
       "deliveryNoteHint": "Masukkan nombor DO (dibaca daripada foto DO).",
       "signatureHint": "Ditandatangani semasa serahan oleh orang ini.",
-      "locationHint": "Diambil secara automatik apabila borang dibuka."
+      "locationHint": "Diambil secara automatik apabila borang dibuka.",
+      "siteNo": "No. peralatan",
+      "systemNo": "No. sistem",
+      "siteNoAuto": "{no} (diberi oleh sistem)"
     },
     "equipmentEvidence": {
       "condition": "4. Butiran keadaan peralatan",
@@ -6113,7 +6183,8 @@
       "noSupplier": "Tidak diketahui",
       "spec": "Spesifikasi",
       "chooseSpec": "Pilih spesifikasi",
-      "specName": "Nama spesifikasi"
+      "specName": "Nama spesifikasi",
+      "materialName": "Nama bahan"
     },
     "outgoingStatus": {
       "APPROVED": "Diluluskan / menunggu keluar tapak",
@@ -6398,15 +6469,18 @@
       "scanMatched": "Disahkan: {name}",
       "typedMatched": "Nombor dimasukkan: {name}",
       "brokenQr": "Kod QR rosak atau belum ditampal? Taip nombor",
-      "typeNumber": "No. tapak / kod peralatan / plat",
+      "typeNumber": "No. peralatan / no. sistem / plat",
       "useNumber": "OK",
+      "vehiclePlate": "No. plat lori",
+      "vehiclePlateHint": "Plat lori yang membawanya keluar - banyak mesin tiada plat sendiri.",
       "typedWrongMachine": "Nombor itu bukan mesin yang diluluskan untuk keluar ({name}). Sila semak semula.",
-      "typedNotScanned": "Kod QR tidak diimbas di tapak: nombor mesin ditaip dengan tangan.",
+      "typedNotScanned": "Kod QR tidak diimbas di tapak; nombor peralatan ditaip.",
       "scanAgain": "Imbas semula",
       "scanWrongMachine": "Itu bukan mesin yang diluluskan untuk keluar ({name}). Imbas kod QR mesin ini.",
       "photosHint": "Sekurang-kurangnya {min} foto, termasuk foto DO.",
       "deliveryNoteHint": "Masukkan nombor DO (dibaca daripada foto DO).",
       "supplierHint": "Imbas kod QR pembekal jika ada; boleh ditinggalkan.",
+      "supplierPick": "Atau pilih daripada senarai",
       "signatureHint": "Ditandatangani semasa serahan oleh orang ini.",
       "locationHint": "Diambil secara automatik apabila borang dibuka.",
       "scanToChoose": "Imbas kod QR mesin",
@@ -6437,8 +6511,8 @@
       "help": "Mengimbas kod ini memilih mesin ini. Cetak pelekat dan serahkan kepada pembekal untuk dilekatkan pada mesin.",
       "imageAlt": "Kod QR {name}",
       "what": "kod QR",
-      "siteNo": "No. mesin",
-      "siteNoHint": "Nombor besar pada pelekat ialah no. mesin, atau kod peralatan jika tiada. No. mesin ditetapkan di Jam operator peralatan › Nombor mesin.",
+      "siteNo": "No. peralatan",
+      "siteNoHint": "Nombor besar pada pelekat ialah nombor peralatan, diberi oleh sistem semasa mesin didaftarkan.",
       "sticker": "Pelekat A4",
       "stickerTitle": "QR mesin {number}",
       "download": "Muat turun imej QR",
@@ -6462,6 +6536,19 @@
       "otherProject": "{name} milik projek {project}, bukan projek anda sekarang.",
       "notFound": "Mesin ini tidak ditemui, atau anda tidak dibenarkan melihatnya.",
       "loadFailed": "Mesin tidak dapat dibaca sekarang. Semak sambungan dan cuba lagi."
+    },
+    "equipmentToday": {
+      "column": "Hari ini",
+      "status": {
+        "WORKING": "Sedang bekerja",
+        "FINISHED": "Sudah tamat",
+        "IDLE": "Belum mula",
+        "LEFT": "Sudah keluar"
+      },
+      "summary": "Hari ini: {working} bekerja · {finished} tamat · {idle} belum mula"
+    },
+    "equipmentInspection": {
+      "column": "Pemeriksaan"
     }
   },
   "contractorPartners": {
@@ -6533,6 +6620,16 @@
       "planned_start": "Mula dirancang",
       "progress_records": "Kemajuan projek",
       "project": "Projek",
+      "return_note_no": "No. RN",
+      "returned_at": "Tarikh dipulangkan",
+      "specification": "Spesifikasi",
+      "reason": "Sebab",
+      "source_receipt_no": "Penerimaan (MI)",
+      "executor": "Dikendalikan oleh",
+      "receipt_no": "No. penerimaan",
+      "business_at": "Tarikh",
+      "rejection_reason": "Sebab ditolak",
+      "accepted_by": "Diputuskan oleh",
       "record_type": "Jenis rekod",
       "rectification_due_at": "Tarikh pembetulan",
       "reference_no": "No. rujukan",
@@ -6596,10 +6693,16 @@
       "photos": "Cari lejar bukti foto kekal mengikut projek, sumber, pemuat naik, tarikh dan GPS.",
       "progress": "Semak kemajuan projek, status pengesahan dan bukti foto.",
       "recycling": "Semak kerja pelupusan dan pesanan kitar semula hingga selesai.",
-      "safety": "Jejak isu keselamatan daripada tugasan hingga pengesahan.",
+      "safety": "Jejak isu pembetulan bahaya / EHS daripada tugasan hingga pengesahan.",
       "schedule": "Bandingkan jadual disahkan dengan kemajuan sebenar tapak.",
       "target": "Bandingkan kemajuan dirancang dan sebenar serta aktiviti projek.",
       "documents": "Dokumen projek mengikut kategori, dengan versi dan siapa yang memuat naik.",
+      "material_returns": "Bahan yang dipulangkan kepada pembekal: RN, pembekal, bahan, spesifikasi, kuantiti dipulangkan dan penerimaan asal; subjumlah mengikut bahan dan spesifikasi di bawah.",
+      "material_rejections": "Penerimaan yang tidak menepati atau ditolak: kuantiti, sebab dan siapa memutuskan; subjumlah mengikut bahan dan spesifikasi di bawah.",
+      "sundry_claims": "Tuntutan pelbagai: apa yang dituntut, siapa meluluskan dan jumlahnya.",
+      "claims": "Tuntutan kemajuan setiap projek dan kelulusannya.",
+      "material_outgoing": "Bahan keluar tapak dan pemulangan (RN).",
+      "field_tasks": "Tugasan tapak yang diberi dan disiapkan, dengan fotonya.",
       "daily_report": "Laporan harian mengikut tarikh: teks penuh setiap laporan, rekod dan fotonya. Dalam PDF setiap laporan bermula di halaman baharu, fotonya bertera air.",
       "progress_summary": "Ringkasan kemajuan yang dikemas kini dalam tempoh ini. Dalam PDF setiap ringkasan bermula di halaman baharu."
     },
@@ -6616,7 +6719,7 @@
         "safety": "Nombor, tajuk atau orang bertanggungjawab",
         "consultant": "No. permohonan, jenis atau perunding",
         "attendance": "Nama pekerja",
-        "equipment": "No. peralatan, plat, DO atau operator",
+        "equipment": "No. peralatan, plat, DO atau pengendali",
         "recycling": "Rujukan, plat, DO atau syarikat",
         "schedule": "Kod WBS atau nama tugasan",
         "target": "Nama sasaran",
@@ -6626,6 +6729,8 @@
         "progress_summary": "Tajuk atau penulis",
         "field_tasks": "Cari tugas, arahan, lokasi, pelaksana",
         "material_outgoing": "Cari nombor, bahan, spesifikasi, DO, plat, Return Note, pembekal",
+        "material_returns": "Cari RN, penerimaan, bahan, spesifikasi, pembekal, sebab",
+        "material_rejections": "Cari no. penerimaan, bahan, spesifikasi, pembekal, sebab, DO, plat",
         "claims": "Cari no. tuntutan, catatan, keterangan, kategori, subkontraktor",
         "sundry_claims": "Cari nombor, keterangan, pemohon"
       },
@@ -6672,10 +6777,16 @@
       "photos": "Laporan foto tapak",
       "progress": "Laporan kemajuan dan foto",
       "recycling": "Laporan pelupusan dan kitar semula",
-      "safety": "Laporan keselamatan dan pembetulan",
+      "safety": "Laporan pembetulan bahaya / EHS",
       "schedule": "Laporan dirancang berbanding sebenar",
       "target": "Laporan sasaran dan pencapaian",
       "documents": "Laporan rekod projek",
+      "material_returns": "Pemulangan bahan (RN)",
+      "material_rejections": "Bahan ditolak",
+      "sundry_claims": "Laporan tuntutan pelbagai",
+      "claims": "Laporan tuntutan kemajuan",
+      "material_outgoing": "Laporan bahan keluar",
+      "field_tasks": "Laporan tugasan tapak",
       "daily_report": "Laporan harian",
       "progress_summary": "Ringkasan kemajuan"
     },
@@ -6690,6 +6801,34 @@
       "show": "Papar",
       "choose": "Pilih hari pertama dan hari terakhir dahulu.",
       "backwards": "Hari pertama tidak boleh selepas hari terakhir."
+    },
+    "photoGroups": {
+      "loadError": "Laporan foto tidak dapat dimuatkan.",
+      "empty": "Tiada foto dalam tempoh ini.",
+      "count": "{count} rekod dengan foto",
+      "truncated": "yang terbaru dipaparkan; sempitkan tempoh untuk selebihnya",
+      "previous": "Sebelumnya",
+      "next": "Seterusnya",
+      "first": "Ini halaman pertama.",
+      "last": "Ini halaman terakhir.",
+      "noRecord": "Foto tanpa rekod",
+      "kind": {
+        "ATTENDANCE": "Daftar masuk",
+        "OTHER": "Rekod"
+      },
+      "photos": "{count} foto",
+      "hasGps": "Ada GPS",
+      "openPhoto": "Buka foto {index} bagi {reference}",
+      "openRecord": "Buka rekod",
+      "column": {
+        "reference": "No.",
+        "kind": "Modul",
+        "project": "Projek",
+        "date": "Tarikh",
+        "uploaded_by": "Diambil oleh",
+        "photo_count": "Foto",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {
@@ -6898,7 +7037,7 @@
       "receipts": "Terimaan bahan",
       "recyclers": "Pengitar semula",
       "requiresReview": "Penimbangan untuk semakan",
-      "safety": "Insiden keselamatan",
+      "safety": "Pembetulan bahaya / EHS",
       "settlements": "Penyelesaian",
       "siteDisposals": "Permintaan pelupusan",
       "siteEquipment": "Pergerakan peralatan",
@@ -7287,7 +7426,9 @@
       "updated": "Dokumen dikemas kini",
       "versionUploaded": "Fail ditambah ke dokumen",
       "uploaded": "Fail dimuat naik",
-      "systemFilesAdded": "Difailkan dalam arkib"
+      "systemFilesAdded": "Difailkan dalam arkib",
+      "recordsAdded": "Rekod difailkan",
+      "inspectionFiled": "Keputusan pemeriksaan difailkan"
     },
     "upload": {
       "action": "Tambah fail",
@@ -7371,6 +7512,72 @@
       "hint": "Hanya fail projek dokumen ini boleh ditambah; fail yang sudah ada dikelabukan.",
       "what": "fail yang sudah ada dalam dokumen ini",
       "confirm": "Tambah ke dokumen ini ({count})"
+    },
+    "pickRecords": {
+      "tab": "Pilih rekod penuh",
+      "description": "Failkan rekod penuh dari modul: ia dipautkan, bukan disalin, dan sentiasa dibuka seperti hari ini.",
+      "way": "Pilih rekod penuh: penghantaran, pemulangan, pergerakan mesin… dipautkan bersama semua buktinya.",
+      "records": "Rekod",
+      "hint": "Tandakan satu atau lebih rekod daripada satu projek.",
+      "mixedProjects": "Rekod ini daripada projek berbeza. Satu dokumen milik satu projek.",
+      "confirm": "Failkan {count, plural, one {# rekod} other {# rekod}}",
+      "kind": "Jenis",
+      "project": "Projek",
+      "allProjects": "Semua projek",
+      "number": "Nombor",
+      "dateFrom": "Dari",
+      "dateTo": "Hingga",
+      "supplier": "Pembekal",
+      "allSuppliers": "Semua pembekal",
+      "material": "Bahan",
+      "specification": "Spesifikasi",
+      "results": "Rekod",
+      "empty": "Tiada rekod ditemui.",
+      "picked": "{count, plural, =0 {Tiada ditanda} other {# ditanda}}"
+    },
+    "recordLinks": {
+      "title": "Rekod penuh",
+      "allPdf": "Semua rekod sebagai satu PDF",
+      "gone": "Rekod asal telah dipadam."
+    },
+    "inspection": {
+      "needs": "Perlu medan pemeriksaan",
+      "needsHint": "Dokumen di sini menerima keputusan pemeriksaan (lulus / gagal, tarikh).",
+      "section": "Pemeriksaan",
+      "add": "Isi keputusan pemeriksaan",
+      "none": "Belum ada keputusan pemeriksaan.",
+      "title": "Keputusan pemeriksaan",
+      "help": "Daripada laporan: selepas dihantar tidak boleh diubah. Pemeriksaan semula ialah keputusan baharu.",
+      "target": "Untuk",
+      "equipment": "Mesin",
+      "material": "Bahan",
+      "spec": "Spesifikasi",
+      "allSpecs": "Seluruh bahan",
+      "choose": "Pilih",
+      "number": "No. pemeriksaan",
+      "numberHint": "Nombor laporan; rujukan dokumen kekal.",
+      "inspectedOn": "Tarikh pemeriksaan / hantar",
+      "inspector": "Pemeriksa / badan ujian",
+      "reportDate": "Tarikh laporan",
+      "validUntilLabel": "Sah sehingga",
+      "validUntilHint": "Bila laporan tamat; pejabat diingatkan 30 hari sebelum.",
+      "result": {
+        "label": "Keputusan",
+        "PASS": "Lulus",
+        "FAIL": "Gagal"
+      },
+      "submit": "Hantar",
+      "confirm": "Selepas dihantar tidak boleh diubah. Hantar sekarang?",
+      "submitNow": "Ya, hantar",
+      "back": "Kembali",
+      "cancel": "Batal",
+      "failed": "Tidak dapat memfailkan keputusan. Sila cuba lagi.",
+      "expiring": "Tamat {date}",
+      "expired": "Telah tamat {date}",
+      "validUntil": "sah sehingga {date}",
+      "filedBy": "difailkan oleh {name}, {at}",
+      "expiryTitle": "Laporan pemeriksaan akan tamat ({count})",
+      "openArchive": "Buka arkib dokumen"
     }
   },
   "driver": {
@@ -7817,7 +8024,7 @@
       "receipt_not_found": "Resit itu tidak dijumpai.",
       "receipt_photo_not_found": "Foto itu tidak dijumpai.",
       "receipt_rejection_needs_reason": "Taip sebab penolakan penghantaran ini. Penolakan tanpa sebab tidak memberi tapak apa-apa untuk ditindaki.",
-      "receipt_superseded": "Rekod penerimaan ini telah digantikan oleh rekod pembetulan, jadi salinan ini tidak boleh diterima atau ditolak lagi. Buka rekod semasa dan semak yang itu.",
+      "receipt_superseded": "Rekod penerimaan ini sudah dibetulkan, jadi salinan ini tidak boleh diterima, ditolak, difailkan atau dibetulkan lagi. Buka salinan terkini, {receipt}, dan uruskan yang itu.",
       "record_not_found": "Rekod itu tidak tersedia untuk akaun ini.",
       "refresh_token_required": "Sesi anda tidak dapat diperbaharui. Sila log masuk semula.",
       "report_export_file_altered": "Fail arkib ini tidak lagi sepadan dengan cap jari (SHA-256) yang direkodkan semasa ia dijana, jadi ia tidak akan dibuka sebagai yang asal. Sila hubungi pentadbir anda.",
@@ -7886,6 +8093,7 @@
       "attachment_needs_project": "Kelulusan ini bukan untuk satu projek, jadi lampiran tidak boleh ditambah. Simpan dokumennya dalam arkib dokumen.",
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
       "receipt_awaiting_acceptance": "Penghantaran ini belum diterima. Terima atau tolak dahulu, kemudian arkibkan.",
+      "receipt_archive_needs_supplier": "Penghantaran ini ({receipt}) belum ada pembekal. Yang ditolak juga: tekan 「Isi pembekal」 sebelum mengarkibkan.",
       "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada.",
       "material_request_assigned_to_other": "Permohonan ini dihantar kepada orang lain untuk diluluskan. Untuk memutuskannya sendiri, tekan \"Ambil alih\" dahulu.",
       "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
@@ -7910,9 +8118,9 @@
       "original_not_expected": "Pelayan belum ada foto yang menunggu foto asal ini. Biar rekod selesai dimuat naik dahulu.",
       "original_hash_mismatch": "Foto asal rosak semasa dihantar dan tidak sama dengan yang di telefon, jadi tiada apa disimpan. Sistem akan cuba lagi; ia juga boleh dicuba semula di halaman Pengurusan teknikal.",
       "original_not_found": "Foto ini tiada foto asal yang telah disandarkan.",
-      "driver_link_invalid": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
-      "driver_link_closed": "Perjalanan ini selesai dan pautannya ditutup.",
-      "driver_link_other_device": "Pautan ini digunakan pada telefon lain. Minta pengitar semula hantar semula.",
+      "driver_link_invalid": "Pautan ini tidak sah lagi. Minta pejabat tapak menghantarnya semula.",
+      "driver_link_closed": "Pautan ini telah dihentikan. Tanya pejabat tapak.",
+      "driver_link_other_device": "Pautan ini sudah digunakan pada telefon lain.",
       "driver_link_expired": "Pautan ini tidak berfungsi lagi. Minta pengitar semula hantar semula.",
       "driver_login_retired": "Pemandu tidak perlu log masuk lagi. Buka pautan perjalanan yang dihantar oleh pengitar semula.",
       "document_system_files_mixed_projects": "Fail ini dari projek berlainan. Satu dokumen milik satu projek, jadi pilih fail dari satu projek sahaja.",
@@ -7993,7 +8201,20 @@
       "sign_off_pin_not_set": "Anda belum menetapkan PIN pengesahan. Tetapkan dahulu.",
       "sign_off_pin_incorrect": "PIN pengesahan salah. Tinggal {attempts_left} cubaan sebelum dikunci 15 minit.",
       "sign_off_office_only": "Sila buat ini di pejabat belakang, pada komputer. Telefon tidak boleh membuat langkah ini.",
-      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda."
+      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda.",
+      "equipment_hours_same_machine": "Jam ini sudah milik mesin itu.",
+      "equipment_hours_overlap": "Mesin itu sudah ada jam pada masa ini. Masa yang sama tidak boleh dikira dua kali.",
+      "equipment_hours_equipment_gone": "Mesin ini telah meninggalkan tapak; ia tidak boleh didaftar masuk lagi.",
+      "equipment_hours_no_gps": "Tiada lokasi yang tepat. Keluar ke kawasan terbuka, hidupkan lokasi dan cuba lagi.",
+      "equipment_hours_outside_fence": "Anda berada di luar kawasan tapak. Daftar masuk di tapak.",
+      "equipment_hours_no_fence": "Kawasan tapak belum ditetapkan. Hubungi pejabat tapak.",
+      "driver_link_not_confirmed": "Sahkan nombor telefon anda dahulu.",
+      "driver_link_phone_mismatch": "Nombor telefon ini tidak sepadan dengan nombor yang didaftarkan oleh pejabat tapak.",
+      "permission_switches_unavailable": "Hanya akaun pejabat kontraktor mempunyai suis kebenaran.",
+      "permission_switches_unknown_permission": "Salah satu kebenaran tidak wujud.",
+      "permission_switches_unknown_project": "Pilih projek syarikat ini.",
+      "permission_switches_self_lockout": "Anda tidak boleh mematikan pengurusan pengguna anda sendiri.",
+      "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8506,11 +8727,11 @@
         "confirmHint": "Semak dengan dokumen kertas",
         "title": "Bahan dibaca dari nota",
         "unclassified": "Pilih kategori",
-        "makeColumn": "Jadikan kategori",
         "editHint": "Betulkan teks salah, pilih kategori, buang baris salah, kemudian tekan Guna.",
         "remove": "Buang baris",
         "use": "Guna",
-        "noUnit": "Tiada unit"
+        "noUnit": "Tiada unit",
+        "useOther": "Guna 「其他材料」"
       },
       "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Isi butiran secara manual.",
@@ -8549,9 +8770,6 @@
       "columnAuto": "Difailkan di bawah {name}. Pejabat boleh menukarnya.",
       "columnUnfiledNote": "Belum difailkan. Pejabat akan memfailkannya selepas memeriksa.",
       "noColumnsYet": "Tapak ini belum ada kategori bahan. Tambah yang pertama di bawah.",
-      "newColumnName": "Nama kategori baharu",
-      "addColumn": "Tambah kategori",
-      "columnOffline": "Luar talian: pilih kategori sedia ada. Kategori baharu memerlukan sambungan.",
       "reject": {
         "toggle": "Barang salah - Tolak",
         "help": "Tolak penghantaran ini di pintu masuk. Kedua-dua pihak tetap menandatangani; rekod disimpan dan tidak dikira.",
@@ -8574,7 +8792,9 @@
       "chooseSpec": "Pilih spesifikasi",
       "specName": "Nama spesifikasi",
       "specNameHint": "Tiada dalam senarai? Pilih 「Lain-lain」 dan taip di sini.",
-      "autoFilledFromSpec": "Dari spesifikasi"
+      "autoFilledFromSpec": "Dari spesifikasi",
+      "otherName": "Nama bahan",
+      "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini; pejabat akan menambahnya ke senarai."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -8857,6 +9077,7 @@
     "empty": "Belum ada apa-apa dikatakan.",
     "send": "Hantar",
     "placeholder": "Taip mesej",
+    "recordCancel": "Batal",
     "recordStart": "Ketik untuk rakam nota suara",
     "recordStop": "Ketik untuk berhenti dan hantar",
     "recordingFor": "Merakam {seconds}s daripada {limit}s",
@@ -8978,7 +9199,12 @@
       "location": "Lokasi",
       "latestPhoto": "Foto terkini",
       "overdue": "Lewat",
-      "noCoordinates": "Tiada koordinat"
+      "noCoordinates": "Tiada koordinat",
+      "layerFences": "Pagar geo",
+      "openProjectMap": "Buka peta projek",
+      "projectMapTitle": "{project} - peta dan pagar geo",
+      "projectMapFences": "{count} pagar geo, seperti disimpan. Zum atau ubah saiz peta tidak mengalihkannya.",
+      "projectMapNoFence": "Projek ini belum ada pagar geo."
     },
     "photos": {
       "title": "Foto tapak hari ini (semua projek)",
@@ -9140,6 +9366,67 @@
       "exceeded": "{count} melebihi",
       "reached": "{count} dicapai",
       "approaching": "{count} hampir"
+    },
+    "reference": {
+      "title": "Daripada membaca laporan kepada melihat tapak",
+      "subtitle": "Data tapak semua projek di satu tempat - orang, bahan, mesin, kemajuan dan keselamatan - pengurusan lebih mudah, jelas dan cekap.",
+      "companyView": "Paparan ibu pejabat",
+      "same": "Sama",
+      "vsYesterday": "berbanding semalam",
+      "kpi": {
+        "projects": "Projek sedang berjalan",
+        "today_records": "Rekod tapak hari ini",
+        "pending_approvals": "Menunggu kelulusan",
+        "overdue_rectifications": "Pembaikan lewat",
+        "material_receipts_today": "Bahan masuk hari ini",
+        "on_site_now": "Di tapak sekarang"
+      },
+      "activity": "Hari ini di tapak (ikut projek)",
+      "activityHint": "Rekod tapak terkini setiap projek",
+      "view": {
+        "photos": "Foto",
+        "map": "Peta"
+      },
+      "noProjects": "Belum ada projek.",
+      "noPhoto": "Belum ada foto tapak",
+      "notices": "Pemberitahuan",
+      "seeAll": "Lihat semua",
+      "noNotices": "Tiada yang baharu.",
+      "byState": "Projek ikut negeri",
+      "allProjects": "Semua projek",
+      "noState": "Tiada negeri",
+      "projectCount": "{count} projek",
+      "presence": "Di tapak sekarang",
+      "presenceTotal": "{count} di tapak",
+      "split": {
+        "APP": "Daftar masuk (akaun)",
+        "WORKER": "Pas pekerja",
+        "VISITOR": "Pelawat",
+        "VEHICLE": "Kenderaan"
+      },
+      "weather": {
+        "clear": "Cerah",
+        "partly": "Separa mendung",
+        "cloudy": "Mendung",
+        "fog": "Berkabus",
+        "drizzle": "Gerimis",
+        "rain": "Hujan",
+        "snow": "Salji",
+        "storm": "Ribut petir"
+      },
+      "quick": {
+        "title": "Pintasan",
+        "siteRecord": "Rekod tapak",
+        "request": "Buat permohonan",
+        "approvals": "Kelulusan",
+        "rectification": "Pembaikan",
+        "archive": "Arkib fail",
+        "reports": "Eksport laporan"
+      },
+      "settingsTitle": "Tajuk papan pemuka ibu pejabat",
+      "settingsSubtitle": "Subtajuk papan pemuka ibu pejabat",
+      "settingsHint": "Biarkan kosong untuk perkataan asal.",
+      "temperature": "{value}°C"
     }
   },
   "home": {
@@ -10296,7 +10583,8 @@
       "DISPOSAL_REQUEST": "Permohonan pelupusan",
       "PROGRESS": "Kemajuan",
       "CONSULTANT_APPLICATION": "Permohonan perunding",
-      "SUNDRY_CLAIM": "Tuntutan pelbagai"
+      "SUNDRY_CLAIM": "Tuntutan pelbagai",
+      "MATERIAL_REQUEST": "MR / Permohonan lain"
     },
     "lastPage": "Ini halaman terakhir.",
     "loading": "Memuatkan…",
@@ -10452,7 +10740,8 @@
         "CONSULTANT": "Perunding",
         "OWNER": "Pemilik",
         "SUPPLIER": "Pembekal",
-        "OTHER": "Lain-lain"
+        "OTHER": "Lain-lain",
+        "HEADQUARTERS": "Ibu pejabat (dalam sistem)"
       },
       "expired": "Tamat tempoh",
       "status": {
@@ -10553,7 +10842,9 @@
         "REPORT": "Rekod surat-menyurat dijana"
       },
       "ip": "IP {ip}",
-      "writeFirst": "Tulis mesej atau pilih fail dahulu."
+      "writeFirst": "Tulis mesej atau pilih fail dahulu.",
+      "headquartersHelp": "Dihantar ke ibu pejabat syarikat anda dalam sistem: tiada pautan dibuat. Ibu pejabat melihatnya di Pakej diterima dalam Multi Engine dan menerima notis; siapa yang membukanya disimpan.",
+      "sendToHeadquarters": "Hantar ke ibu pejabat"
     },
     "claimFacet": {
       "title": "Jumlah dan bayaran tuntutan",
@@ -10578,7 +10869,8 @@
       "recipients": "Penerima",
       "round": "Pusingan semasa",
       "returned": "Dipulangkan"
-    }
+    },
+    "received": "Pakej diterima"
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",
@@ -10715,7 +11007,7 @@
       "site_phone": "Telefon tapak",
       "team": "Orang bertanggungjawab",
       "code": "Kod",
-      "site_no": "No. tapak",
+      "site_no": "No. peralatan",
       "serial_no": "No. siri",
       "road_tax_expires_on": "Cukai jalan tamat",
       "insurance_expires_on": "Insurans tamat",
@@ -10748,7 +11040,8 @@
       "confirmed_at": "Disahkan pada",
       "entry_at": "Masa masuk",
       "exit_at": "Masa keluar",
-      "request_kind": "Jenis permohonan"
+      "request_kind": "Jenis permohonan",
+      "pdpa_consent": "Notis data peribadi"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -11043,7 +11336,7 @@
       "saasNotifications": "Notifikasi SaaS",
       "saasReports": "Laporan caj SaaS",
       "saasSettings": "Tetapan SaaS",
-      "safetyIncidents": "Insiden keselamatan",
+      "safetyIncidents": "Pembetulan bahaya / EHS",
       "salesActivity": "Rekod jualan",
       "salesDetails": "Butiran jurujual",
       "salesHierarchy": "Hierarki pasukan",
@@ -11095,6 +11388,8 @@
       "myTasks": "Tugasan saya",
       "consultantSettings": "Tetapan perunding",
       "sundryClaims": "Tuntutan pelbagai",
+      "materialReturnsReport": "Pemulangan bahan (RN)",
+      "materialRejectionsReport": "Bahan ditolak",
       "materialReports": "Laporan bahan",
       "wasteClearance": "Pembersihan sisa",
       "equipmentEntry": "Peralatan masuk",
@@ -11111,7 +11406,8 @@
       "dailyReport": "Laporan harian",
       "progressSummary": "Ringkasan kemajuan",
       "siteWorkers": "Senarai pekerja",
-      "materialTargets": "Sasaran bahan"
+      "materialTargets": "Sasaran bahan",
+      "materialRequests": "MR / Permohonan Lain"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -12308,6 +12604,12 @@
       },
       "material_target": {
         "manage": "Tetapkan sasaran bahan"
+      },
+      "inspection": {
+        "record": "Isi keputusan pemeriksaan"
+      },
+      "finance": {
+        "view_amounts": "Lihat jumlah wang (harga, kos, bajet, tuntutan)"
       }
     },
     "group": {
@@ -12377,13 +12679,16 @@
       "platform_version": "Versi",
       "integration": "Integrasi sistem",
       "site_worker": "Senarai pekerja",
-      "material_target": "Sasaran bahan"
+      "material_target": "Sasaran bahan",
+      "inspection": "Pemeriksaan",
+      "finance": "Jumlah wang"
     }
   },
   "photos": {
     "count": "{count, plural, one {# foto} other {# foto}}",
     "none": "Tiada foto",
-    "open": "Buka foto {reference}"
+    "open": "Buka foto {reference}",
+    "more": "{count} lagi foto"
   },
   "profile": {
     "section": {
@@ -12581,7 +12886,7 @@
         "material_receipts": "Bahan masuk",
         "photos": "Foto tapak",
         "progress_records": "Kemajuan projek",
-        "safety_incidents": "Insiden keselamatan",
+        "safety_incidents": "Pembetulan bahaya / EHS",
         "waste_dispatches": "Penghantaran sisa"
       },
       "period": {
@@ -12751,7 +13056,10 @@
     "archived": "Sudah difailkan",
     "correction": {
       "action": "Betulkan",
-      "note": "Pembetulan membuka resit baharu yang merujuk kembali kepada resit ini. Kedua-duanya kekal dalam rekod, jadi sesiapa yang menyemak kemudian nampak apa yang diubah dan mengapa.",
+      "alreadyCorrectedBody": "Pembetulan dibuat pada salinan terkini supaya angka yang dikira kekal dalam satu baris. Buat perubahan ini pada {name}.",
+      "alreadyCorrectedLink": "Betulkan {name}",
+      "alreadyCorrectedTitle": "Resit ini sudah dibetulkan",
+      "note": "Pembetulan mengubah resit ini sendiri dan nombornya kekal; angka lama, siapa mengubahnya, bila dan mengapa kekal dalam sejarahnya. Kuantiti, harga, pembekal dan seumpamanya memerlukan PIN pengesahan; spesifikasi atau unit sahaja tidak.",
       "reason": "Sebab",
       "supersededBody": "Ia disimpan supaya angka asal masih boleh dibaca, tetapi ia tidak lagi dikira dalam penghantaran atau jumlah bahan anda.",
       "supersededLink": "Buka resit yang dibetulkan {name}",
@@ -12926,8 +13234,8 @@
       "rejected": "Gagal semakan (tidak dikira)",
       "supplier": "Pembekal",
       "noSupplier": "Tiada pembekal",
-      "searchMaterial": "Cari bahan atau pembekal",
-      "searchEmpty": "Tiada hasil untuk \"{term}\". Anda boleh cari nama bahan atau nama pembekal.",
+      "searchMaterial": "Cari nama bahan",
+      "searchEmpty": "Tiada hasil untuk 「{term}」.",
       "specification": "Spesifikasi",
       "noteReceived": "Dihantar ke tapak: jumlah yang lulus semakan, dikumpul dari semasa ke semasa.",
       "noteReturned": "Dipulangkan kepada pembekal: pemulangan yang telah disahkan siap oleh pejabat.",
@@ -12973,7 +13281,9 @@
         "open": "Buka {reference}",
         "legacyReturn": "Pemulangan yang direkod pada resit sebelum 10-02",
         "project": "Projek"
-      }
+      },
+      "searchSpec": "Spesifikasi",
+      "subtotal": "Subjumlah {material}"
     },
     "exportVerdict": "Keputusan penerimaan",
     "rejectedReturns": "Pulangan ditolak",
@@ -12982,6 +13292,7 @@
     "supplierUnfilledShort": "belum diisi",
     "fillSupplier": {
       "action": "Isi pembekal",
+      "archiveHint": "Pembekal tidak diisi di tapak. Isi pembekal sebelum penghantaran ini boleh diarkibkan.",
       "hint": "Tapak tidak mengisi pembekal. Isi pembekal sebelum menerima.",
       "reason": "Pembekal diisi (kosong di tapak)",
       "formHint": "Pilih pembekal penghantaran ini, simpan, kemudian terima."
@@ -14747,7 +15058,8 @@
       "hostNotified": "Tuan rumah dimaklumkan.",
       "visitorConfirmed": "Pelawat disahkan. Pintu boleh benarkan masuk.",
       "visitorDeclined": "Pelawat ditolak. Pintu telah dimaklumkan.",
-      "visitorCancelled": "Ketibaan pelawat dibatalkan."
+      "visitorCancelled": "Ketibaan pelawat dibatalkan.",
+      "visitorPhotosRemoved": "Foto pelawat tamat tempoh dibuang"
     },
     "what": {
       "roles": "Senarai peranan",
@@ -14949,6 +15261,12 @@
         "already_inside": "Sudah direkod di dalam; seterusnya tekan Sahkan Keluar.",
         "already_outside": "Belum direkod di dalam; tekan Sahkan Masuk dahulu.",
         "host_not_confirmed": "Tidak boleh masuk: tuan rumah pelawat belum mengesahkan."
+      },
+      "exitPhoto": {
+        "label": "Foto keluar",
+        "hint": "Ambil foto pelawat keluar sebagai bukti.",
+        "take": "Ambil foto keluar",
+        "retake": "Ambil semula foto keluar"
       }
     },
     "visitorRecords": {
@@ -15052,6 +15370,46 @@
       "next": "Imbas seterusnya",
       "openTitle": "Pelawat di pintu masuk",
       "hostLine": "Tuan rumah: {host}"
+    },
+    "pdpa": {
+      "title": "Notis data peribadi (PDPA)",
+      "agree": "Pelawat telah membaca dan bersetuju dengan notis ini",
+      "defaultNotice": "Di bawah Akta Perlindungan Data Peribadi 2010 (PDPA) kami mengumpul nama, nombor telefon, syarikat, tujuan lawatan dan foto yang diambil di pintu semasa anda masuk dan keluar. Ia digunakan hanya untuk keselamatan tapak dan kawalan akses dan tidak diberikan kepada pihak ketiga yang tidak berkaitan. Foto disimpan selama {months} bulan, kemudian dibuang setelah pentadbir syarikat mengesahkan. Untuk bertanya atau membetulkan data anda, hubungi kami.",
+      "agreedAt": "Pelawat bersetuju dengan notis data peribadi pada {time}"
+    },
+    "visitorPrivacy": {
+      "title": "Data pelawat (PDPA)",
+      "subtitle": "Notis semasa pelawat mendaftar, foto keluar dan tempoh simpanan foto.",
+      "exitPhoto": "Pelawat keluar mesti difoto",
+      "exitPhotoHelp": "Dihidupkan: pintu mengambil foto sebelum Sahkan keluar.",
+      "retention": "Simpan foto pelawat (bulan)",
+      "retentionHelp": "Dari hari foto diambil; foto tamat tempoh disenaraikan dan dibuang setelah pentadbir mengesahkan.",
+      "notice": {
+        "zh": "Notis (Cina Ringkas)",
+        "en": "Notis (Inggeris)",
+        "zh-TW": "Notis (Cina Tradisional)",
+        "ms": "Notis (Melayu)"
+      },
+      "noticeHelp": "Dibiarkan kosong, teks sistem digunakan; '{months}' menjadi bilangan bulan simpanan.",
+      "noticePlaceholder": "Kosong menggunakan teks sistem",
+      "expired": {
+        "open": "Foto pelawat tamat tempoh",
+        "title": "Foto pelawat tamat tempoh",
+        "loading": "Memuatkan…",
+        "help": "Disimpan {months} bulan: foto pelawat sebelum {cutoff} telah tamat tempoh.",
+        "none": "Tiada foto pelawat yang tamat tempoh.",
+        "count": "{count} foto tamat tempoh",
+        "keeps": "Hanya fail foto dibuang; pas, lawatan dan rekod masuk keluar kekal, dan pembuangan direkodkan.",
+        "direction": {
+          "ENTRY": "Masuk",
+          "EXIT": "Keluar"
+        },
+        "history": "Rekod pembuangan",
+        "historyRow": "{when} · {who} membuang {count} (disimpan {months} bulan)",
+        "done": "{count} foto dibuang.",
+        "close": "Tutup",
+        "confirm": "Buang (PIN pengesahan)"
+      }
     }
   },
   "siteDisposal": {
@@ -16306,13 +16664,40 @@
       "created": "Pengguna dijemput",
       "removed": "Pengguna dibuang",
       "statusUpdated": "Status pengguna dikemas kini",
-      "updated": "Pengguna dikemas kini"
+      "updated": "Pengguna dikemas kini",
+      "switchesSaved": "Kebenaran dikemas kini"
     },
     "viewTitle": "Pengguna",
     "what": {
       "roles": "Senarai peranan",
       "stats": "Kiraan pengguna",
       "companies": "Senarai syarikat"
+    },
+    "switches": {
+      "what": "suis kebenaran",
+      "title": "Kebenaran",
+      "intro": "Setiap kebenaran ialah suis HIDUP / MATI sendiri; pengguna baharu bermula dengan semuanya hidup. Kelulusan yang dihidupkan masih meminta PIN pengesahan pelulus sendiri.",
+      "hq": "Ibu pejabat",
+      "hqHint": "Tetapan syarikat, pengguna, peranan, bil, projek, pembekal. Pengurusan pengguna hanya di sini.",
+      "project": "Pejabat projek",
+      "scope": "Projek yang dilihat",
+      "allProjects": "Semua projek",
+      "chosenProjects": "Projek dipilih",
+      "noProjects": "Syarikat belum ada projek.",
+      "needOneProject": "Pilih sekurang-kurangnya satu projek, atau semua projek.",
+      "amounts": "Lihat jumlah wang",
+      "amountsHint": "Kos bahan, harga seunit, bajet, tuntutan dan jumlah tuntutan pelbagai. Mati: ditunjukkan sebagai —, dan tidak dieksport.",
+      "operate": "Kerja harian",
+      "approve": "Kelulusan",
+      "approveHint": "Hidup bermaksud boleh meluluskan; meluluskan masih meminta PIN pengesahan sendiri.",
+      "allOn": "Hidupkan semua",
+      "allOff": "Matikan semua",
+      "countOn": "{on} daripada {total} hidup",
+      "applyRole": "Mula daripada peranan",
+      "applyRoleHint": "Menghidupkan apa yang dipegang peranan itu dan mematikan selebihnya; boleh diubah sebelum simpan.",
+      "save": "Simpan kebenaran",
+      "failed": "Tidak dapat disimpan. Sila cuba lagi.",
+      "notSwitchable": "Akaun pekerja tapak dan perunding kekal dengan peranan mereka: kebenaran mereka bukan suis."
     }
   },
   "validation": {
@@ -16941,6 +17326,8 @@
     }
   },
   "recordCorrection": {
+    "openHistory": "Buka sejarah pengubahan",
+    "historyHelp": "Setiap perubahan pada rekod ini: apa yang berubah, asalnya, siapa mengubahnya, bila dan mengapa.",
     "button": "Betulkan",
     "title": "Betulkan rekod ini",
     "hint": "Hanya perkataan dan pilihan boleh diubah; foto, GPS, masa, tandatangan dan penghantar tidak boleh. Nilai asal disimpan.",
@@ -16957,8 +17344,8 @@
     "badNumber": "{field} mesti nombor lebih daripada 0",
     "cancel": "Batal",
     "save": "Simpan pembetulan",
-    "tag": "Dibetulkan",
-    "historyTitle": "Pembetulan",
+    "tag": "Diubah",
+    "historyTitle": "Sejarah pengubahan",
     "historyWhat": "pembetulan",
     "empty": "tidak diisi",
     "reasonLine": "Sebab: {reason}",
@@ -17008,7 +17395,10 @@
       "priority": "Keutamaan",
       "material": "Bahan",
       "specification": "Spesifikasi",
-      "material_specification": "Spesifikasi (ditaip)"
+      "material_specification": "Spesifikasi (ditaip)",
+      "equipment": "Mesin",
+      "start_at": "Masa mula",
+      "end_at": "Masa tamat"
     },
     "followsSpec": "Unit mengikut spesifikasi"
   },
@@ -17425,7 +17815,8 @@
       "materialOrSubject": "Bahan / perkara",
       "stage": "Peringkat",
       "forwardHistory": "Dihantar",
-      "headOfficeReviewer": "Pelulus ibu pejabat"
+      "headOfficeReviewer": "Pelulus ibu pejabat",
+      "materialName": "Nama bahan"
     },
     "action": {
       "view": "Lihat",
@@ -17506,7 +17897,8 @@
       "contentPlaceholder": "Apa yang diperlukan, berapa, bila",
       "attachmentKindsHint": "Foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP. Sehingga {count} fail, setiap satu bawah {limit} MB.",
       "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP.",
-      "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat."
+      "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
+      "otherMaterialHint": "「其他材料」: taip bahan apakah itu."
     },
     "toast": {
       "submitted": "Permohonan dihantar.",
@@ -17596,6 +17988,9 @@
     "openInViewer": "Buka dalam pemapar telefon"
   },
   "fileActions": {
+    "originalVersion": "Asal (sebelum diubah)",
+    "originalVersionHint": "Rekod ini seperti mula-mula difailkan (versi 1), nombor yang sama; tidak dikira dalam mana-mana jumlah.",
+    "originalVersionTitle": "{reference} · asal",
     "preview": "Pratonton",
     "print": "Cetak",
     "save": "Eksport",
@@ -17942,7 +18337,7 @@
       "equipment": "Peralatan",
       "allEquipment": "Semua peralatan",
       "search": "No. plat / nombor",
-      "searchPlaceholder": "No. plat, no. peralatan atau no. tapak",
+      "searchPlaceholder": "Plat, no. peralatan atau no. sistem",
       "scan": "Imbas QR mesin",
       "scanTitle": "Imbas kod QR mesin",
       "scanHelp": "Halakan pelekat QR mesin ke kamera.",
@@ -17951,7 +18346,7 @@
     "field": {
       "date": "Tarikh",
       "equipment": "Peralatan",
-      "code": "No. peralatan",
+      "code": "No. sistem",
       "supplier": "Pembekal",
       "plate": "Nombor plat",
       "project": "Projek",
@@ -17970,14 +18365,20 @@
       "incomplete": "Tiada mula / tamat",
       "adjustedCount": "Diubah oleh pejabat",
       "actions": "Tindakan",
-      "siteNo": "No. tapak",
-      "machineNo": "No. mesin",
+      "siteNo": "No. peralatan",
+      "machineNo": "No. peralatan",
       "equipmentName": "Nama mesin",
       "operator": "Pengendali",
       "cidb": "No. kad CIDB",
       "startTime": "Masa mula",
       "endTime": "Masa tamat",
-      "view": "Lihat"
+      "view": "Lihat",
+      "takenOn": "Difoto pada",
+      "normalHours": "Jam biasa (j)",
+      "overtimeHours": "Jam lebih masa (j)",
+      "cumulativeNormal": "Jam biasa terkumpul (j)",
+      "cumulativeOvertime": "Lebih masa terkumpul (j)",
+      "inspection": "Pemeriksaan"
     },
     "status": {
       "MISSING_END": "Tiada foto tamat",
@@ -18032,9 +18433,11 @@
     "toast": {
       "endSaved": "Masa tamat disimpan",
       "startSaved": "Masa mula disimpan",
-      "siteNoSaved": "No. tapak disimpan",
-      "siteNoCleared": "No. tapak dikosongkan",
-      "operatorSaved": "Pengendali disimpan"
+      "siteNoSaved": "Nombor peralatan disimpan",
+      "siteNoCleared": "Nombor peralatan dikosongkan",
+      "operatorSaved": "Pengendali disimpan",
+      "moved": "Jam dipindahkan ke mesin lain",
+      "normalSaved": "Jam biasa disimpan"
     },
     "phone": {
       "howTo": "Imbas QR pada mesin → foto → pemandu tandatangan → hantar. Kemudian imbas yang seterusnya.",
@@ -18085,18 +18488,19 @@
       "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: no. {number} {kind} {time}"
     },
     "siteNo": {
-      "open": "Nombor mesin",
-      "title": "Nombor mesin",
-      "help": "Beri setiap mesin satu nombor tapak yang pendek (cth. 12) dan tulis atau lekatkan pada mesin. Operator menaip nombor ini di telefon untuk memilih mesin. Satu nombor hanya untuk satu mesin dalam projek; kosongkan untuk membuangnya.",
+      "open": "Nombor peralatan",
+      "title": "Nombor peralatan",
+      "help": "Setiap mesin mendapat nombor peralatan (contohnya 12) daripada sistem semasa didaftarkan, sepadan dengan kod QR, tidak digunakan dua kali. Ubah di sini hanya untuk membetulkan (PIN pengesahan); nombor tidak boleh dikosongkan atau sama dengan nombor mesin lain dalam projek.",
       "search": "Cari mesin",
       "searchPlaceholder": "Nama, no. plat, pembekal atau nombor",
       "empty": "Projek ini belum ada mesin yang digunakan.",
       "noMatch": "Tiada mesin yang sepadan.",
-      "inputLabel": "No. tapak bagi {machine}",
+      "inputLabel": "No. peralatan {machine}",
       "placeholder": "cth. 12",
       "save": "Simpan",
       "failed": "Tidak dapat disimpan. Sila cuba lagi.",
-      "close": "Tutup"
+      "close": "Tutup",
+      "keep": "Mesin sentiasa ada nombor peralatan. Taip nombor yang betul."
     },
     "operator": {
       "title": "Pengendali",
@@ -18116,6 +18520,25 @@
       "title": "{supplier}: jam bagi setiap mesin",
       "total": "Jumlah syarikat (jam)",
       "sessions": "{count} kali"
+    },
+    "move": {
+      "title": "Tukar mesin",
+      "help": "Untuk jam yang direkod pada mesin yang salah (imbas kod yang salah). Foto, GPS dan masa kekal seperti diambil; jam dikira untuk mesin yang dipilih di sini, dan perubahan disimpan dalam sejarah.",
+      "machine": "Mesin yang betul",
+      "choose": "Pilih mesin",
+      "reason": "Sebab",
+      "reasonPlaceholder": "Contoh: pemandu mengimbas kod jengkaut tetapi memandu kren",
+      "save": "Tukar mesin",
+      "failed": "Tidak dapat menukar mesin. Sila cuba lagi."
+    },
+    "normal": {
+      "open": "Jam biasa: {hours} j",
+      "title": "Jam biasa sehari",
+      "help": "Jam pertama setiap pengendali dalam sehari dikira biasa dan bakinya lebih masa; mesin tanpa pengendali, mengikut mesin. Hari ialah hari mula. Perubahan dikira untuk sesi yang tamat selepasnya; sesi lebih awal kekal seperti diselesaikan.",
+      "label": "Jam biasa sehari",
+      "save": "Simpan",
+      "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
+      "current": "Ditetapkan {at} oleh {name}"
     }
   },
   "theme": {
@@ -18494,7 +18917,8 @@
   },
   "mapFrame": {
     "fullscreen": "Skrin penuh",
-    "exitFullscreen": "Keluar skrin penuh"
+    "exitFullscreen": "Keluar skrin penuh",
+    "resize": "Seret untuk ubah saiz peta"
   },
   "siteWorkers": {
     "title": "Senarai pekerja",
@@ -18657,7 +19081,8 @@
       "denied": "Kebenaran lokasi ditolak. Ikut langkah di bawah untuk membenarkannya.",
       "unavailable": "Tidak dapat lokasi. Pergi ke kawasan terbuka dan pastikan lokasi dihidupkan.",
       "upload": "Penghantaran terakhir gagal; akan cuba lagi."
-    }
+    },
+    "outsideFence": "Anda tiada di tapak sekarang, jadi lokasi anda tidak direkodkan."
   },
   "materialTargets": {
     "title": "Sasaran bahan",
@@ -18789,10 +19214,119 @@
       "role_delete": "Padam peranan",
       "user_change_role": "Ubah peranan pengguna",
       "user_change_status": "Gantung atau aktifkan semula akaun",
-      "consultant_review": "Tandatangani keputusan perunding"
+      "consultant_review": "Tandatangani keputusan perunding",
+      "consultant_link_document": "Tambah fail arkib ke permohonan perunding",
+      "receipt_refile": "Failkan penghantaran di bawah bahan lain",
+      "receipt_review": "Terima atau tolak penghantaran",
+      "receipt_add_photo": "Tambah foto pada penghantaran",
+      "equipment_hours_set_operator": "Isi pengendali dan CIDB",
+      "equipment_set_site_no": "Tukar nombor peralatan",
+      "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain",
+      "user_change_permissions": "Tukar suis kebenaran pengguna",
+      "consultant_submit": "Hantar permohonan perunding",
+      "visitor_photo_purge": "Buang foto pelawat tamat tempoh"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
     "firstHelp": "Pilih enam digit yang hanya anda tahu, taip sekali lagi, kemudian masukkan kata laluan log masuk anda. Setelah ditetapkan, tindakan tadi diteruskan; operasi pejabat yang penting disahkan dengan PIN ini mulai sekarang."
+  },
+  "specFilter": {
+    "label": "Spesifikasi",
+    "all": "Semua spesifikasi",
+    "materialFirst": "Pilih bahan dahulu"
+  },
+  "driverClock": {
+    "title": "Daftar masuk peralatan",
+    "failedTitle": "Pautan tidak dapat dibuka. Semak isyarat dan cuba lagi.",
+    "phoneTitle": "Sahkan nombor telefon anda",
+    "phoneLabel": "Nombor telefon bimbit anda",
+    "phoneBody": "Nombor yang didaftarkan oleh pejabat tapak. Pautan ini kemudian hanya berfungsi pada telefon ini.",
+    "phoneConfirm": "Sahkan",
+    "phoneMismatch": "Nombor ini tidak sepadan dengan nombor yang didaftarkan oleh pejabat tapak.",
+    "driverLine": "Pemandu: {name} · CIDB {cidb} · {company}",
+    "photoHint": "Imbas kod QR mesin, kemudian ambil foto mesin atau diri anda, tandatangan dan hantar. Anda mesti berada di tapak dengan lokasi dihidupkan.",
+    "ended": {
+      "invalid": {
+        "title": "Pautan ini tidak sah lagi",
+        "body": "Minta pejabat tapak menghantarnya semula."
+      },
+      "closed": {
+        "title": "Pautan ini telah dihentikan",
+        "body": "Tanya pejabat tapak jika anda masih bekerja di tapak ini."
+      },
+      "otherDevice": {
+        "title": "Pautan ini digunakan pada telefon lain",
+        "body": "Minta pejabat tapak menghantarnya semula untuk telefon ini."
+      }
+    },
+    "status": {
+      "NOT_OPENED": "Belum dibuka",
+      "IN_USE": "Digunakan",
+      "STOPPED": "Dihentikan"
+    },
+    "toast": {
+      "created": "Pautan dibuat",
+      "reissued": "Pautan baharu dibuat; pautan lama tidak berfungsi lagi",
+      "stopped": "Pautan dihentikan"
+    },
+    "office": {
+      "title": "Pautan pemandu",
+      "help": "Satu pautan bagi setiap pemandu: ia hanya membuka daftar masuk mula / tamat untuk mesin projek ini. Hantar melalui WhatsApp. Hentikan apabila pemandu meninggalkan projek.",
+      "add": "Pautan pemandu baharu",
+      "empty": "Belum ada pautan pemandu.",
+      "driverName": "Nama pemandu",
+      "cidb": "No. kad CIDB",
+      "company": "Syarikat",
+      "companyHint": "Pilih daripada senarai pembekal, atau taip di bawah.",
+      "companyTyped": "Tiada dalam senarai (taip)",
+      "companyName": "Nama syarikat",
+      "phone": "Nombor telefon bimbit",
+      "phoneHint": "Pemandu mengesahkan nombor ini kali pertama pautan dibuka.",
+      "make": "Buat pautan",
+      "cancel": "Batal",
+      "close": "Tutup",
+      "linkFor": "Pautan untuk {name}",
+      "shownOnce": "Salin sekarang: ia dipaparkan sekali sahaja. Hantar semula akan membuat pautan baharu.",
+      "copy": "Salin pautan",
+      "copied": "Disalin",
+      "sendAgain": "Hantar semula",
+      "stop": "Hentikan",
+      "lastUsed": "Terakhir digunakan {at}",
+      "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
+      "chooseProject": "Pilih projek di bahagian atas halaman untuk membuat pautan."
+    }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "Bahan masuk hari ini (t)",
+      "wasteToday": "Sisa keluar hari ini (t)",
+      "receiptsTotal": "Bahan masuk, semua (t)",
+      "wasteTotal": "Sisa keluar, semua (t)",
+      "equipment": "Mesin",
+      "pending": "Menunggu"
+    },
+    "thisMonth": "Bulan ini {value} t",
+    "equipmentSplit": "Di tapak {on} | Keluar {off}",
+    "seeBelow": "Lihat di bawah",
+    "tonnesNote": "Tan hanya mengira yang ditimbang: tan, dan kilogram ditukar ke tan. Sisa ialah bahan mesra alam keluar.",
+    "latestReceipts": "Bahan masuk terkini",
+    "seeAll": "Lihat semua",
+    "noReceipts": "Belum ada penghantaran.",
+    "map": "Peta tapak projek",
+    "point": {
+      "RECEIPT": "Bahan masuk",
+      "WASTE": "Sisa keluar",
+      "EQUIPMENT": "Mesin"
+    },
+    "noPoints": "Tiada rekod ber-GPS dalam 30 hari.",
+    "materialMix": "Bahan ikut kategori (bulan ini)",
+    "wasteMix": "Sisa ikut kategori (bulan ini)",
+    "noMix": "Tiada yang ditimbang bulan ini.",
+    "mixTotal": "{value} t semuanya",
+    "others": "Lain-lain",
+    "pending": "Menunggu",
+    "noPending": "Tiada yang menunggu.",
+    "photos": "Foto tapak terkini",
+    "noPhotos": "Belum ada foto tapak."
   }
 }

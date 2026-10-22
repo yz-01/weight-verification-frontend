@@ -13,6 +13,7 @@ import type {
   HeadquartersOverview,
   HeadquartersPhoto,
   HeadquartersWallExtras,
+  ProjectOverview,
 } from "@/interfaces/headquarters";
 import { api, download } from "@/services/api-client";
 
@@ -100,6 +101,23 @@ export function getHeadquarters(): Promise<HeadquartersOverview> {
   return api.get<HeadquartersOverview>(
     "/api/contractor-dashboard/get_headquarters/",
   );
+}
+
+/** 项目仪表板 as the client's picture (J34-5): one project's real figures. */
+export function getProjectOverview(project: string): Promise<ProjectOverview> {
+  return api.get<ProjectOverview>("/api/contractor-dashboard/get_project_overview/", { project });
+}
+
+/** Today's weather for the head-office banner (J32), or null - never made up. */
+export async function getWeather(): Promise<{
+  temperature: number;
+  weather_code: number;
+  place: string;
+} | null> {
+  const data = await api.get<{
+    weather: { temperature: number; weather_code: number; place: string } | null;
+  }>("/api/contractor-dashboard/get_weather/", undefined, { silent: true });
+  return data.weather;
 }
 
 /** 总部大屏's extra panels: the week, hazards, queues, machines and waste. */

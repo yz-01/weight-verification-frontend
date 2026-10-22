@@ -1,13 +1,15 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, Hash, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound } from "lucide-react";
+import { Camera, Eye, Hash, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { matchScannedMachine } from "@/components/equipment-hours/equipment-hours-capture";
 import { OperatorDialog, OperatorHistory } from "@/components/equipment-hours/equipment-session-operator";
+import { DriverClockLinksDialog } from "@/components/equipment-hours/driver-clock-links";
+import { EquipmentNormalHoursButton } from "@/components/equipment-hours/equipment-normal-hours";
 import { EquipmentSiteNumbersDialog } from "@/components/equipment-hours/equipment-site-numbers";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { ExportButton } from "@/components/shared/export-button";
@@ -60,7 +62,19 @@ import {
   exportEquipmentHoursDays,
   getEquipmentHoursDays,
   getEquipmentHoursFilterOptions,
-  getEquipmentHoursMonth, exportEquipmentHoursMonth } from "@/services/equipment-hours.service";
+  getEquipmentHoursMonth, exportEquipmentHoursMonth,
+  getEquipmentSiteNumbers,
+  moveEquipmentSession,
+} from "@/services/equipment-hours.service";
+import {
+  CORRECTED_ROW_CLASS,
+  CorrectedTag,
+  RecordCorrectionHistory,
+  recordCorrectionsKey,
+} from "@/components/shared/record-correction";
+import { cn } from "@/lib/utils";
+import { InspectionBadge } from "@/components/document-workflow/inspection";
+import { PhotoStrip } from "@/components/shared/photo-thumb";
 
 /** `YYYY-MM-DD` of a date in the browser's own day. */
 function isoDay(value: Date): string {
@@ -208,6 +222,8 @@ export function EquipmentOperatorHours() {
   const [month, setMonth] = useState<string | null>(null);
   const [opened, setOpened] = useState<EquipmentHoursSession | null>(null);
   const [numbering, setNumbering] = useState(false);
+  // 司机打卡链接 (J26): the drivers' own clock-in links.
+  const [driverLinks, setDriverLinks] = useState(false);
   // 操作人员 / CIDB 卡号 being written for this row (I4, ID19).
   const [naming, setNaming] = useState<EquipmentHoursSession | null>(null);
   // 「设备编号 / 扫描二维码」 in the filters (I4): a webcam or a scanner gun.
@@ -287,7 +303,11 @@ export function EquipmentOperatorHours() {
           { key: "work_date", label: t("field.date") },
           { key: "start_at", label: t("field.startTime") },
           { key: "end_at", label: t("field.endTime") },
+          { key: "normal_hours", label: t("field.normalHours") },
+          { key: "overtime_hours", label: t("field.overtimeHours") },
           { key: "hours", label: t("field.hours") },
+          { key: "cumulative_normal_hours", label: t("field.cumulativeNormal") },
+          { key: "cumulative_overtime_hours", label: t("field.cumulativeOvertime") },
           { key: "cumulative_hours", label: t("field.cumulative") },
           { key: "equipment_code", label: t("field.code") },
           { key: "plate", label: t("field.plate") },
@@ -337,6 +357,16 @@ export function EquipmentOperatorHours() {
                   {t("siteNo.open")}
                 </Button>
               )}
+              {/* 每日正常工时 (J31): one project's own setting. */}
+              {canAdjust && projectFilterValue(project) ? (
+                <EquipmentNormalHoursButton project={projectFilterValue(project)} />
+              ) : null}
+              {canAdjust && (
+                <Button variant="outline" onClick={() => setDriverLinks(true)}>
+                  <Link2 />
+                  {tRoot("driverClock.office.title")}
+                </Button>
+              )}
               {view === "day" && canExport && (
                 <ExportButton onExport={exportDays} disabled={rows.length === 0} />
               )}
@@ -360,6 +390,8 @@ export function EquipmentOperatorHours() {
                         { key: "project_name", label: t("field.project") },
                         { key: "days_worked", label: t("field.daysWorked") },
                         { key: "session_count", label: t("field.sessions") },
+                        { key: "normal_hours", label: t("field.normalHours") },
+                        { key: "overtime_hours", label: t("field.overtimeHours") },
                         { key: "total_hours", label: t("field.totalHours") },
                         { key: "incomplete_count", label: t("field.incomplete") },
                         { key: "adjusted_count", label: t("field.adjustedCount") },
@@ -540,13 +572,22 @@ export function EquipmentOperatorHours() {
               <TableRow>
                 <TableHead>{t("field.machineNo")}</TableHead>
                 <TableHead>{t("field.equipmentName")}</TableHead>
+                {/* J34-3: the photographs themselves, by the machine. */}
+                <TableHead>{t("field.photos")}</TableHead>
                 <TableHead>{t("field.supplier")}</TableHead>
+                <TableHead>{t("field.inspection")}</TableHead>
                 <TableHead>{t("field.operator")}</TableHead>
                 <TableHead>{t("field.cidb")}</TableHead>
                 <TableHead>{t("field.date")}</TableHead>
                 <TableHead>{t("field.startTime")}</TableHead>
                 <TableHead>{t("field.endTime")}</TableHead>
+                {/* 正常 / 超时 (J31), each its own colour, then the total. */}
+                <TableHead className="tabular text-right">{t("field.normalHours")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.overtimeHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.hours")}</TableHead>
+                {/* 累计 also in two, coloured as their columns (J31-5), then the total. */}
+                <TableHead className="tabular text-right">{t("field.cumulativeNormal")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.cumulativeOvertime")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.cumulative")}</TableHead>
                 <TableHead pin="end" className="text-right">{t("field.view")}</TableHead>
               </TableRow>
@@ -554,28 +595,52 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={17} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={17} className="h-20 text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
               ) : (
                 <>
                   {rows.map((row) => (
-                    <TableRow key={row.key} className="cursor-pointer" onClick={() => setOpened(row)}>
-                      <TableCell className="font-medium">{row.site_no || row.equipment_code || "-"}</TableCell>
+                    <TableRow
+                      key={row.key}
+                      className={cn("cursor-pointer", row.was_corrected && CORRECTED_ROW_CLASS)}
+                      onClick={() => setOpened(row)}
+                    >
+                      <TableCell className="font-medium">
+                        {/* The gold 已修改 at the front (J20): a time or the machine corrected. */}
+                        <span className="inline-flex items-center gap-1.5">
+                          {row.was_corrected && <CorrectedTag kind="EQUIPMENT_HOURS" recordId={row.key} />}
+                          {row.site_no || row.equipment_code || "-"}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <p className="font-medium">{row.equipment_name}</p>
                         {row.project_name ? (
                           <p className="text-xs text-muted-foreground">{row.project_name}</p>
                         ) : null}
                       </TableCell>
+                      <TableCell>
+                        {/* A picture strip; the row opens the record with every photograph. */}
+                        <PhotoStrip
+                          thumbs={row.photo_thumbs}
+                          count={row.photo_count}
+                          icon={Camera}
+                          reference={row.site_no || row.equipment_code || row.equipment_name}
+                          openable={false}
+                        />
+                      </TableCell>
                       <TableCell>{row.supplier_name || "-"}</TableCell>
+                      {/* 检验 (J11-1): never stops a clock-in (Q11-2). */}
+                      <TableCell>
+                        <InspectionBadge inspection={row.inspection} />
+                      </TableCell>
                       <TableCell>
                         {canAdjust ? (
                           <Button
@@ -620,7 +685,17 @@ export function EquipmentOperatorHours() {
                         )}
                       </TableCell>
                       {/* Blank, not 0, while an end is missing (「未收工的时间及工时留空」). */}
+                      <TableCell className={cn("tabular text-right", NORMAL_CLASS)}>{row.normal_hours ?? ""}</TableCell>
+                      <TableCell className={cn("tabular text-right", OVERTIME_CLASS)}>
+                        {row.overtime_hours ?? ""}
+                      </TableCell>
                       <TableCell className="tabular text-right font-medium">{row.hours ?? ""}</TableCell>
+                      <TableCell className={cn("tabular text-right", NORMAL_CLASS)}>
+                        {row.cumulative_normal_hours ?? ""}
+                      </TableCell>
+                      <TableCell className={cn("tabular text-right", OVERTIME_CLASS)}>
+                        {row.cumulative_overtime_hours ?? ""}
+                      </TableCell>
                       <TableCell className="tabular text-right text-muted-foreground">
                         {row.cumulative_hours ?? ""}
                       </TableCell>
@@ -663,9 +738,19 @@ export function EquipmentOperatorHours() {
                     <TableCell />
                     <TableCell />
                     <TableCell />
+                    <TableCell />
+                    <TableCell />
+                    <TableCell className={cn("tabular text-right font-semibold", NORMAL_CLASS)}>
+                      {sumHours(rows, "normal_hours")}
+                    </TableCell>
+                    <TableCell className={cn("tabular text-right font-semibold", OVERTIME_CLASS)}>
+                      {sumHours(rows, "overtime_hours")}
+                    </TableCell>
                     <TableCell className="tabular text-right font-semibold">
                       {days.data?.total_hours ?? ""}
                     </TableCell>
+                    <TableCell className="text-right" />
+                    <TableCell className="text-right" />
                     <TableCell className="text-right" />
                     <TableCell pin="end" className="text-right" />
                   </TableRow>
@@ -686,6 +771,8 @@ export function EquipmentOperatorHours() {
                 <TableHead>{t("field.plate")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.daysWorked")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.sessions")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.normalHours")}</TableHead>
+                <TableHead className="tabular text-right">{t("field.overtimeHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.totalHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.incomplete")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.adjustedCount")}</TableHead>
@@ -694,13 +781,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {monthly.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : monthRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
                     {t("month.empty")}
                   </TableCell>
                 </TableRow>
@@ -719,6 +806,8 @@ export function EquipmentOperatorHours() {
                       <TableCell>{row.plate || "-"}</TableCell>
                       <TableCell className="tabular text-right">{row.days_worked}</TableCell>
                       <TableCell className="tabular text-right">{row.session_count}</TableCell>
+                      <TableCell className={cn("tabular text-right", NORMAL_CLASS)}>{row.normal_hours ?? ""}</TableCell>
+                      <TableCell className={cn("tabular text-right", OVERTIME_CLASS)}>{row.overtime_hours ?? ""}</TableCell>
                       <TableCell className="tabular text-right font-medium">{row.total_hours}</TableCell>
                       <TableCell className="tabular text-right">
                         {row.incomplete_count > 0 ? (
@@ -737,6 +826,12 @@ export function EquipmentOperatorHours() {
                     <TableCell />
                     <TableCell className="text-right" />
                     <TableCell className="text-right" />
+                    <TableCell className={cn("tabular text-right font-semibold", NORMAL_CLASS)}>
+                      {sumHours(monthRows, "normal_hours")}
+                    </TableCell>
+                    <TableCell className={cn("tabular text-right font-semibold", OVERTIME_CLASS)}>
+                      {sumHours(monthRows, "overtime_hours")}
+                    </TableCell>
                     <TableCell className="tabular text-right font-semibold">
                       {monthly.data?.total_hours}
                     </TableCell>
@@ -752,6 +847,10 @@ export function EquipmentOperatorHours() {
 
       {numbering && (
         <EquipmentSiteNumbersDialog project={project} onClose={() => setNumbering(false)} />
+      )}
+
+      {driverLinks && (
+        <DriverClockLinksDialog project={projectFilterValue(project)} onClose={() => setDriverLinks(false)} />
       )}
 
       {opened && (
@@ -788,6 +887,22 @@ export function EquipmentOperatorHours() {
       />
     </div>
   );
+}
+
+/**
+ * 正常工时 / 超时工时 (J31): blue and orange - never gold (that is 已修改) and
+ * never red. The totals and the month keep the same two colours.
+ */
+export const NORMAL_CLASS = "text-tone-blue-fg";
+export const OVERTIME_CLASS = "text-tone-orange-fg";
+
+/** A column's total over the rows shown, two decimals; blank when nothing counts. */
+export function sumHours(
+  rows: ReadonlyArray<Partial<Record<"normal_hours" | "overtime_hours", string | null>>>,
+  key: "normal_hours" | "overtime_hours",
+): string {
+  const cents = rows.reduce((total, row) => total + Math.round(Number(row[key] ?? 0) * 100), 0);
+  return rows.some((row) => row[key] != null) ? (cents / 100).toFixed(2) : "";
 }
 
 /** The words on the button that opens the office's time form. */
@@ -895,9 +1010,34 @@ export function DayDialog({
       setError("");
       onSaved(saved);
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours"] });
+      void queryClient.invalidateQueries({ queryKey: recordCorrectionsKey("EQUIPMENT_HOURS", day.key) });
     },
     onError: (reason_) =>
       setError(reason_ instanceof ApiError ? reason_.message : t("adjust.failed")),
+  });
+
+  // 改设备归属 (J1-13): the project's other machines.
+  const [machine, setMachine] = useState("");
+  const [moveReason, setMoveReason] = useState("");
+  const [moveError, setMoveError] = useState("");
+  const machines = useQuery({
+    queryKey: ["equipment-hours", "site-numbers", day.project],
+    queryFn: () => getEquipmentSiteNumbers(day.project),
+    enabled: canAdjust,
+  });
+  const otherMachines = (machines.data ?? []).filter((row) => row.id !== day.equipment);
+  const move = useMutation({
+    mutationFn: () => moveEquipmentSession({ session: day.key, equipment: machine, reason: moveReason }),
+    onSuccess: (moved) => {
+      setMachine("");
+      setMoveReason("");
+      setMoveError("");
+      onSaved(moved);
+      void queryClient.invalidateQueries({ queryKey: ["equipment-hours"] });
+      void queryClient.invalidateQueries({ queryKey: recordCorrectionsKey("EQUIPMENT_HOURS", day.key) });
+    },
+    onError: (reason_) =>
+      setMoveError(reason_ instanceof ApiError ? reason_.message : t("move.failed")),
   });
 
   const start = day.start_at ? df.dateTime(day.start_at) : t("status.MISSING_START");
@@ -922,6 +1062,8 @@ export function DayDialog({
         facts={[
           { label: t("field.machineNo"), value: day.site_no || "-" },
           { label: t("field.code"), value: day.equipment_code || "-" },
+          // 改设备归属 (J1-13): the machine the photos were taken of stays known.
+          ...(day.taken_on_name ? [{ label: t("field.takenOn"), value: day.taken_on_name }] : []),
           { label: t("field.supplier"), value: day.supplier_name || "-" },
           // 操作人员 / CIDB 卡号 as the office wrote them (I4, ID19).
           { label: t("field.operator"), value: day.operator_name || "-" },
@@ -951,6 +1093,15 @@ export function DayDialog({
                 {day.adjusted && <StatusBadge label={t("status.ADJUSTED")} tone="info" />}
               </span>
             ),
+          },
+          // 正常 / 超时 (J31), settled when the session ended.
+          {
+            label: t("field.normalHours"),
+            value: <span className={cn("tabular-nums", NORMAL_CLASS)}>{day.normal_hours ?? "-"}</span>,
+          },
+          {
+            label: t("field.overtimeHours"),
+            value: <span className={cn("tabular-nums", OVERTIME_CLASS)}>{day.overtime_hours ?? "-"}</span>,
           },
           { label: t("field.hours"), value: <span className="tabular-nums">{day.hours ?? "-"}</span> },
         ]}
@@ -986,6 +1137,8 @@ export function DayDialog({
         recorder={<RecordRecorder record={day} />}
         corrections={
           <div className="space-y-4">
+            {/* Who, when, why: the machine and the times, as for every record (J1-16). */}
+            <RecordCorrectionHistory kind="EQUIPMENT_HOURS" recordId={day.key} />
             <AdjustmentHistory day={day} />
             <OperatorHistory session={day} />
           </div>
@@ -1039,6 +1192,49 @@ export function DayDialog({
                 >
                   {save.isPending && <Loader2 className="animate-spin" />}
                   {t("adjust.save")}
+                </Button>
+              </div>
+            </section>
+            {/* 改设备 (J1-13): scanned the wrong machine. Signed; office only. */}
+            <section className="space-y-3">
+              <h3 className="panel-title">{t("move.title")}</h3>
+              <p className="text-xs text-muted-foreground">{t("move.help")}</p>
+              <QueryFailedNote query={machines} what={t("move.machine")} />
+              <FieldWrapper label={t("move.machine")} required>
+                <Select value={machine} onValueChange={setMachine}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("move.choose")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {otherMachines.map((row) => (
+                      <SelectItem key={row.id} value={row.id}>
+                        {[row.site_no || row.code, row.name, row.plate].filter(Boolean).join(" · ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FieldWrapper>
+              <FieldWrapper label={t("move.reason")} required>
+                <Textarea
+                  value={moveReason}
+                  maxLength={500}
+                  onChange={(event) => setMoveReason(event.target.value)}
+                  placeholder={t("move.reasonPlaceholder")}
+                />
+              </FieldWrapper>
+              {moveError && <p className="text-sm text-destructive">{moveError}</p>}
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  requires={[
+                    [machine, t("move.machine")],
+                    [moveReason.trim(), t("move.reason")],
+                  ]}
+                  disabled={move.isPending}
+                  onClick={() => move.mutate()}
+                >
+                  {move.isPending && <Loader2 className="animate-spin" />}
+                  {t("move.save")}
                 </Button>
               </div>
             </section>

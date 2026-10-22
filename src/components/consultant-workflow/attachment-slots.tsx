@@ -30,9 +30,9 @@ import { ATTACHMENT_ACCEPT } from "@/lib/attachment-whitelist";
 import {
   addApplicationAttachments,
   getApplicationDocumentCandidates,
-  linkApplicationDocumentAttachments,
+  linkApplicationDocuments,
 } from "@/services/consultant-workflow.service";
-import { getDocumentCategories } from "@/services/document-workflow.service";
+import { FileThumbs, stampedPicture } from "@/components/shared/file-thumbs";
 
 /** The server's limits (`utils/attachment_files.py`): 10 files, 50 MB each. */
 const RULE: AttachmentRule = {
@@ -96,9 +96,17 @@ export function RequiredAttachmentTile({
         <span className="ml-auto text-xs">{attached ? t("attachment.uploadedCount", { count: mine.length }) : t("attachment.required")}</span>
       </button>
       {attached && (
-        <ul className="mt-1 space-y-0.5 text-xs text-foreground">
-          {mine.map((attachment) => <li key={attachment.id} className="truncate">{attachment.original_name}</li>)}
-        </ul>
+        // What is in the slot as pictures, never names (J34-11).
+        <FileThumbs
+          all
+          className="mt-1"
+          files={mine.map((attachment) => ({
+            id: attachment.id,
+            name: attachment.original_name,
+            thumbnail_url: stampedPicture(attachment.content_type, attachment.watermarked_file),
+            href: attachment.watermarked_file || attachment.file,
+          }))}
+        />
       )}
       {editable && (
         <div ref={zone} className="mt-2 text-foreground">
@@ -159,16 +167,16 @@ export function AttachmentDialog({
   const [libraryCategory, setLibraryCategory] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
   const search = useDebounce(librarySearch, 300);
-  const categories = useQuery({
-    queryKey: ["application-document-categories"],
-    queryFn: () => getDocumentCategories({ page_size: 100, is_active: true }),
-    enabled: libraryOpen,
-  });
+  // The application's own project, no 查看文件 permission (J22, Q22-1).
   const documents = useQuery({
-    queryKey: ["application-document-candidates", application.project, search, libraryCategory],
-    queryFn: () => getApplicationDocumentCandidates(application.project, search || undefined, libraryCategory || undefined),
+    queryKey: ["application-document-candidates", application.id, search],
+    queryFn: () => getApplicationDocumentCandidates(application.id, search || undefined),
     enabled: libraryOpen,
   });
+  const archiveCategories = [...new Set((documents.data?.results ?? []).map((doc) => doc.category_name).filter(Boolean))];
+  const shownDocuments = (documents.data?.results ?? []).filter(
+    (doc) => !libraryCategory || doc.category_name === libraryCategory,
+  );
   const save = useMutation({
     mutationFn: () => addApplicationAttachments(application.id, files, category, note),
     onSuccess: (result) => {
@@ -178,10 +186,10 @@ export function AttachmentDialog({
     onSettled: onChanged,
   });
   const link = useMutation({
-    mutationFn: () => linkApplicationDocumentAttachments(application.id, picked, category, note),
-    onSuccess: (result) => {
-      setPicked(remainingAfter(result));
-      if (!result.failed.length) onSaved();
+    mutationFn: () => linkApplicationDocuments(application.id, picked, category, note),
+    onSuccess: () => {
+      setPicked([]);
+      onSaved();
     },
     onSettled: onChanged,
   });
@@ -209,30 +217,44 @@ export function AttachmentDialog({
                   <SelectTrigger className="w-full" aria-label={t("attachment.archiveCategory")}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value={ALL}>{t("attachment.allArchiveCategories")}</SelectItem>
-                    {(categories.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}
+                    {archiveCategories.map((name) => <SelectItem key={name} value={name}>{name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-              {categories.isError && <LoadFailed what={t("what.archiveCategories")} onRetry={() => categories.refetch()} />}
               {documents.isLoading ? (
                 <Loader2 className="animate-spin" />
               ) : documents.isError ? (
                 <LoadFailed what={t("what.archiveDocuments")} onRetry={() => documents.refetch()} />
               ) : (
                 <div className="max-h-56 space-y-2 overflow-y-auto">
-                  {(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => {
-                    const version = doc.latest_version?.id ?? "";
+                  {shownDocuments.map((doc) => {
+                    // A file the system filed names the record it holds
+                    // (JB7): that record comes with it, whole.
+                    const records = [...new Set(doc.system_files.map((file) => file.record?.reference).filter(Boolean))];
                     return (
                       <label key={doc.id} className="flex w-full cursor-pointer items-center gap-3 rounded border p-2 hover:bg-muted/30">
-                        <Checkbox checked={picked.includes(version)} onCheckedChange={() => toggle(version)} />
+                        <Checkbox checked={picked.includes(doc.id)} onCheckedChange={() => toggle(doc.id)} />
+                        {doc.latest_version ? (
+                          <FileThumbs
+                            files={[
+                              {
+                                id: doc.latest_version.id,
+                                name: doc.latest_version.original_name,
+                              },
+                            ]}
+                          />
+                        ) : null}
                         <span className="min-w-0">
                           <span className="block truncate font-medium">{doc.document_no} · {doc.title}</span>
-                          <span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span>
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""}
+                            {records.length ? ` · ${t("attachment.wholeRecord", { records: records.join("、") })}` : ""}
+                          </span>
                         </span>
                       </label>
                     );
                   })}
-                  {!documents.data?.results?.length && <div className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">{t("attachment.noArchive")}</div>}
+                  {!shownDocuments.length && <div className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">{t("attachment.noArchive")}</div>}
                 </div>
               )}
               <Button type="button" disabled={!picked.length || busy} disabledReason={!picked.length ? t("attachment.tickFirst") : undefined} onClick={() => link.mutate()}>

@@ -42,6 +42,11 @@ export const FIT_KIND_PX = {
   date: 76,
   /** The 48 px photo thumbnail. */
   thumb: 48,
+  /**
+   * A row's photo strip (J34-2): four 64 px squares, 4 px apart (Lucas
+   * 10-21: 64 px on a desktop, 56 px on a phone).
+   */
+  strip: 268,
   /** A short pill: 进场 / 退场, a type. */
   badge: 60,
   /** A status pill, one line, up to 「已批准，待交接签名」. */
@@ -80,6 +85,15 @@ export interface ListFit {
   columns: Record<string, FitKind>;
   /** Hidden until the reader turns them on under 「字段」. */
   hidden: readonly string[];
+  /**
+   * On a phone, cards instead of the table (J34-2 point 4): the title
+   * columns, the detail columns under them, and the photo strip.
+   */
+  phoneCard?: {
+    title: readonly string[];
+    detail: readonly string[];
+    photo?: string;
+  };
 }
 
 /** How wide a list's visible columns need to be, padding included. */

@@ -52,6 +52,8 @@ export interface DailyReportEntry {
 export interface DailyReport {
   /** Record No. (I6): `FT-<project>-001`, running on per project. */
   record_no?: string;
+  /** Edited since it was written: the gold 「已修改」 (J20). */
+  was_corrected?: boolean;
   id: string;
   project: string;
   project_name: string;
@@ -64,6 +66,8 @@ export interface DailyReport {
   end_date: string | null;
   photos: ProgressPhoto[];
   photo_count: number;
+  /** J34-11: the first photographs' thumbnails, for the list's photo strip. */
+  photo_thumbs?: string[];
   record_count: number;
   entries: DailyReportEntry[];
   /** When its records were collected; null for a report from before H15 (photos ticked by hand). */

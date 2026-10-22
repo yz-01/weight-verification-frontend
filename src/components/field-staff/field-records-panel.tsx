@@ -83,7 +83,7 @@ import {
 import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { columnAutofill } from "@/lib/material-autofill";
-import { offeredSpecs, specChoice } from "@/lib/material-catalogue";
+import { isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import {
   getQRCodes,
   getSuppliers,
@@ -98,7 +98,6 @@ import {
   submitWasteOutgoingOfflineAware,
 } from "@/services/offline-sync.service";
 import {
-  createMaterialColumn,
   getProjectCategories,
 } from "@/services/contractor-ops.service";
 import { LocationField } from "@/components/field-staff/location-field";
@@ -386,8 +385,6 @@ export function MaterialCapturePanel({
   // not filled in, because the wrong supplier on a delivery is worse than
   // asking.
   const [supplierGuess, setSupplierGuess] = useState<{ read: string; id: string; name: string } | null>(null);
-  const [newColumnName, setNewColumnName] = useState("");
-  const [columnError, setColumnError] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
   const [error, setError] = useState("");
   const initialScanRef = useRef("");
@@ -503,48 +500,25 @@ export function MaterialCapturePanel({
       row.is_active &&
       (!fill.supplierIds || fill.supplierIds.includes(row.id) || row.id === scannedSupplier),
   );
-  /** Open a column for this delivery, and select it. See `openColumn`. */
-  const columnCreation = useMutation({
-    mutationFn: ({ name }: { name: string; index?: number }) =>
-      createMaterialColumn({ project: draft.project, name }),
-    onSuccess: (row, { index }) => {
-      setColumnError("");
-      setNewColumnName("");
-      setDraft((old) => withColumn(old, row.id));
-      // A column opened from a scanned line belongs to that line too.
-      // Without this the row still reads "pick a category" straight after
-      // somebody opened one for exactly that material.
-      if (index !== undefined) {
-        updateLineItem(index, {
-          category_id: row.id,
-          category_code: row.code,
-          category_name: row.name,
-          classified: true,
-        });
-      }
-      void qc.invalidateQueries({ queryKey: ["project-categories"] });
-    },
-    onError: (reason) =>
-      setColumnError(
-        reason instanceof ApiError ? reason.message : t("error.action"),
-      ),
-  });
   /**
-   * Open a column, or say plainly why it cannot be opened right now.
-   *
-   * A column is a row other people file against, so it cannot be minted
-   * offline and reconciled later - two workers on the same site would invent
-   * the same column twice, and the second would be a duplicate budget line.
-   * Saying so beats a spinner that fails: the delivery can still be taken
-   * unfiled and filed once there is a connection.
+   * 只能从分类管理下拉选 (J14-3, Q14-2): the phone no longer opens material
+   * columns from typed or scanned words - that is how one material came to
+   * be filed under several spellings. A material not on the list goes under
+   * the project's fixed 「其他材料」 with its name typed, and the office puts
+   * it on the list in Category Management.
    */
-  const openColumn = (name: string, index?: number) => {
-    setColumnError("");
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      setColumnError(t("material.columnOffline"));
-      return;
+  const otherMaterial = columnRows.find((row) => isOtherMaterial(row) && row.can_upload);
+  const fileUnderOther = (name: string, index?: number) => {
+    if (!otherMaterial) return;
+    setDraft((old) => ({ ...withColumn(old, otherMaterial.id), materialName: name }));
+    if (index !== undefined) {
+      updateLineItem(index, {
+        category_id: otherMaterial.id,
+        category_code: otherMaterial.code,
+        category_name: otherMaterial.name,
+        classified: true,
+      });
     }
-    columnCreation.mutate({ name, index });
   };
   const qrCode = useMemo(
     () => scannedQr && scannedQr.project === draft.project && scannedQr.supplier === draft.supplier
@@ -700,7 +674,11 @@ export function MaterialCapturePanel({
           acceptance_status: rejecting ? "REJECTED" : undefined,
           rejection_reason: rejecting ? (draft.rejectionReason ?? "").trim() : undefined,
           // The material's own name (I19, ID46): nobody types it at the gate.
-          material_name: selectedColumn?.name ?? draft.materialName.trim(),
+          // Under 「其他材料」 the name typed for it (J14-3).
+          material_name:
+            selectedColumn && !isOtherMaterial(selectedColumn)
+              ? selectedColumn.name
+              : draft.materialName.trim(),
           material_specification: specPick.typed
             ? draft.materialSpecification.trim()
             : (specPick.spec?.name ?? draft.materialSpecification.trim()),
@@ -772,8 +750,6 @@ export function MaterialCapturePanel({
             setScannedQr(undefined);
             setScannedSupplier("");
             setMaterialEvidence(createEmptyFieldEvidence());
-            setNewColumnName("");
-            setColumnError("");
             // A column belongs to one site, so the one chosen for the old
             // project is not a valid answer for the new one.
             setDraft((old) => ({ ...old, project, category: "", specCategory: "" }));
@@ -795,15 +771,18 @@ export function MaterialCapturePanel({
         </Select>
         <FieldLoadNote query={columns} what={t("what.columns")} />
         {draft.project && columns.isSuccess && !columnRows.length && <p className="text-sm text-muted-foreground">{t("material.noColumnsYet")}</p>}
-        <details className="mt-2">
-          <summary className="cursor-pointer text-xs text-muted-foreground">{t("material.addColumn")}</summary>
-          <div className="mt-2 flex items-end gap-2">
-            <FieldWrapper label={t("material.newColumnName")} required className="flex-1"><Input value={newColumnName} onChange={(event) => setNewColumnName(event.target.value)} /></FieldWrapper>
-            <Button variant="outline" requires={[[draft.project, t("material.project")], [newColumnName.trim(), t("material.newColumnName")]]} disabled={columnCreation.isPending} onClick={() => openColumn(newColumnName.trim())}><Plus />{t("material.addColumn")}</Button>
-          </div>
-          {columnError && <p role="alert" className="text-sm text-destructive">{columnError}</p>}
-        </details>
       </FieldWrapper>
+      {/* 「其他材料」 (J14-3): the one material whose name is typed. */}
+      {isOtherMaterial(selectedColumn) && (
+        <FieldWrapper label={t("material.otherName")} required hint={t("material.otherNameHint")}>
+          <Input
+            className="h-12"
+            value={draft.materialName}
+            maxLength={200}
+            onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))}
+          />
+        </FieldWrapper>
+      )}
       {/* 规格 (I19, ID46): this material's specifications and 「其他」; the unit
           comes with it. Not set up yet? 「其他」 and type it - a lorry is never
           held at the gate over a list. */}
@@ -1034,21 +1013,16 @@ export function MaterialCapturePanel({
                 {/* A material nobody has a column for. Classifying could only
                     ever pick a column that already existed (F-200), so a line
                     the reader could not place used to be a dead label. */}
-                {!item.category_id && (
+                {!item.category_id && otherMaterial && (
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
                     className="h-10 w-full"
-                    disabled={columnCreation.isPending}
-                    onClick={() => openColumn(item.material_name.trim(), index)}
+                    onClick={() => fileUnderOther(item.material_name.trim(), index)}
                   >
-                    {columnCreation.isPending ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <Plus />
-                    )}
-                    {t("material.ocrItems.makeColumn")}
+                    <Plus />
+                    {t("material.ocrItems.useOther")}
                   </Button>
                 )}
               </li>
@@ -1129,7 +1103,7 @@ export function MaterialCapturePanel({
         )}
       </div>
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!specRequired || draft.specCategory, t("material.spec")], [!specPick.typed || draft.materialSpecification.trim(), t("material.specName")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!isOtherMaterial(selectedColumn) || draft.materialName.trim(), t("material.otherName")], [!specRequired || draft.specCategory, t("material.spec")], [!specPick.typed || draft.materialSpecification.trim(), t("material.specName")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>

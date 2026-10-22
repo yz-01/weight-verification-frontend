@@ -27,7 +27,6 @@ import {
   ClipboardList,
   Clock3,
   CloudOff,
-  FileText,
   Loader2,
   MessageSquare,
   RefreshCw,
@@ -60,6 +59,7 @@ import {
   submitFieldTaskPhotoOfflineAware,
   submitFieldTaskTransitionOfflineAware,
 } from "@/services/offline-sync.service";
+import { FileThumbs, pictureByName } from "@/components/shared/file-thumbs";
 
 export type HazardHandleForTasks = Pick<SafetyIncident, "id" | "title" | "incident_no">;
 
@@ -379,7 +379,15 @@ function FieldTaskWork({
                   rel="noreferrer"
                   className="col-span-2 flex min-h-12 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm font-semibold text-primary"
                 >
-                  <FileText className="size-5 shrink-0" />
+                  <FileThumbs
+                    files={[
+                      {
+                        id: reference.id,
+                        name: reference.original_filename || reference.label,
+                        thumbnail_url: pictureByName(reference.original_filename ?? "", reference.file),
+                      },
+                    ]}
+                  />
                   <span className="truncate">{reference.label || reference.original_filename}</span>
                 </a>
               ),

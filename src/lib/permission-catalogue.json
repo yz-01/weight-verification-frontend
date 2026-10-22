@@ -34,6 +34,14 @@
       "label": "Document archive"
     },
     {
+      "key": "inspection",
+      "label": "Inspection"
+    },
+    {
+      "key": "finance",
+      "label": "Amounts"
+    },
+    {
       "key": "approval",
       "label": "Approvals"
     },
@@ -380,6 +388,16 @@
       "code": "document.archive",
       "group": "document",
       "label": "Archive documents"
+    },
+    {
+      "code": "inspection.record",
+      "group": "inspection",
+      "label": "Fill in inspection results"
+    },
+    {
+      "code": "finance.view_amounts",
+      "group": "finance",
+      "label": "See amounts (prices, costs, budgets, claims)"
     },
     {
       "code": "approval.view",

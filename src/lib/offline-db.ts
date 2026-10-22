@@ -559,6 +559,12 @@ export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
     signature?: StoredFile;
     /** Queued by the screen that asks for the signature (P-phonefix). */
     signatureRequired?: boolean;
+    /**
+     * Taken on a driver's own clock-in link (J26), not an account: replayed
+     * to the link's endpoint, which checks the link, the phone and the fence
+     * where the photo was taken.
+     */
+    driverLink?: { token: string; device: string };
   };
 }
 

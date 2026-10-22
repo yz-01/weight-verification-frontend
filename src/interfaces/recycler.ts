@@ -240,6 +240,9 @@ export interface DriverTaskTransition {
 }
 
 export interface DriverTask {
+  /** J34-11: the driver's photographs as a strip, cover first. */
+  cover_photo_url?: string | null;
+  photo_thumbs?: string[] | null;
   id: string;
   task_no: string;
   state: TaskState;

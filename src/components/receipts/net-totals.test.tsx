@@ -124,7 +124,9 @@ describe("plain words (I41, IB20)", () => {
     expect(html).toContain("送来工地：验收合格的数量，一直累计。");
     expect(html).toContain("退回供应商：后台确认完成的退货。");
     expect(html).toContain("验收不合格：没有收下，不算进去。");
-    expect(html).toContain("搜索材料或供应商");
+    // Material name and specification, each its own box (J5-1).
+    expect(html).toContain('placeholder="搜索材料名称"');
+    expect(html).toContain('placeholder="规格"');
   });
 
   it("has the new headings in all four languages, and the export says the same words", () => {
@@ -185,18 +187,27 @@ describe("plain words (I41, IB20)", () => {
     expect(html).toContain("有退货资料");
   });
 
-  it("searches the server for material or supplier (IB20) and says plainly when nothing is found", () => {
+  it("searches material name and specification, each its own box, and says plainly when nothing is found (J5-1)", () => {
     const source = readFileSync(
       path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"),
       "utf8",
     ).replace(/\r\n/g, "\n");
-    // One box, one `material` term: the server matches the supplier's name too,
-    // so the screen, the export and the breakdown share it.
-    expect(source).toMatch(/Object\.entries\(\{ project, material, \.\.\.filters \}\)/);
+    // Two terms beside the supplier filter, sent together, so the screen, the
+    // export and the breakdown share them; a supplier's name is not searched.
+    expect(source).toMatch(/Object\.entries\(\{ project, material, specification, \.\.\.filters \}\)/);
     expect(source).toContain("receipts.net.searchEmpty");
-    expect(zh.receipts.net.searchEmpty.replace("{term}", "best")).toBe(
-      "找不到「best」。可以搜材料名称或供应商名称。",
-    );
+    expect(zh.receipts.net.searchMaterial).toBe("搜索材料名称");
+    expect(zh.receipts.net.searchEmpty.replace("{term}", "best")).toBe("找不到「best」。");
+  });
+
+  it("closes each material with its own subtotal, per unit, and no grand total (J5-2)", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"),
+      "utf8",
+    ).replace(/\r\n/g, "\n");
+    expect(source).toContain('data-slot="net-subtotal"');
+    expect(source).toContain("entry.supplier === row.supplier && entry.material_name === row.material_name");
+    expect(zh.receipts.net.subtotal.replace("{material}", "混凝土")).toBe("混凝土 小计");
   });
 });
 
@@ -206,7 +217,7 @@ describe("leftovers of the plain-words pass (I41 review)", () => {
       path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"),
       "utf8",
     ).replace(/\r\n/g, "\n");
-    expect(source).toContain("pressed.search === material");
+    expect(source).toContain("pressed.search === searched");
     expect(zh.receipts.net.title).toBe("按供应商看总数");
     expect(zhTW.receipts.net.title).toBe("按供應商看總數");
     expect(en.receipts.net.title).toBe("Totals by supplier");

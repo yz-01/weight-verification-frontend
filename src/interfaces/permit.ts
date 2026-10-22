@@ -26,6 +26,11 @@ export interface PermitFile {
   /** The files the decision is about (the latest submission). */
   is_current: boolean;
   /**
+   * The file as a picture on a list (J34-10): a photograph's thumbnail, a
+   * PDF's first page, a Word or Excel preview; null when there is none.
+   */
+  thumbnail_url?: string | null;
+  /**
    * A photographed page, as the record's photo gallery draws it: the stamped
    * copy, its thumbnail, when and where. Only on the permit's own detail;
    * null for a Word, Excel or PDF file (and on the list).

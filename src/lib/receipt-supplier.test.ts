@@ -30,16 +30,12 @@ describe("receipt supplier", () => {
     expect(supplierShown("  ", "未填供应商")).toBe("未填供应商");
   });
 
-  it("asks for the supplier only on a waiting delivery that counts", () => {
-    expect(needsSupplier({ supplier: null, acceptance_status: "PENDING" })).toBe(true);
-    expect(needsSupplier({ supplier: "", acceptance_status: undefined })).toBe(true);
-    expect(needsSupplier({ supplier: "s1", acceptance_status: "PENDING" })).toBe(false);
-    // Judged 不合格: nothing left to accept.
-    expect(needsSupplier({ supplier: null, acceptance_status: "REJECTED" })).toBe(false);
+  it("asks for the supplier on any delivery that counts, rejected ones too (J19)", () => {
+    expect(needsSupplier({ supplier: null })).toBe(true);
+    expect(needsSupplier({ supplier: "" })).toBe(true);
+    expect(needsSupplier({ supplier: "s1" })).toBe(false);
     // A correction replaced it: the correction is the one to fill in.
-    expect(
-      needsSupplier({ supplier: null, acceptance_status: "PENDING", superseded_by: { id: "c" } }),
-    ).toBe(false);
+    expect(needsSupplier({ supplier: null, superseded_by: { id: "c" } })).toBe(false);
   });
 
   it("filters the unfilled line with supplier=none", () => {

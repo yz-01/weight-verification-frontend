@@ -13,6 +13,9 @@ import type {
   DocumentDetail,
   DocumentPayload,
   DocumentRecord,
+  InspectionInfo,
+  InspectionPayload,
+  LinkableRecord,
   DocumentSubcategory,
   DocumentSubcategoryPayload,
   DocumentSystemFileInfo,
@@ -24,7 +27,7 @@ import type {
   WorkflowTemplateDetail,
   WorkflowTemplatePayload,
 } from "@/interfaces/document-workflow";
-import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
+import { api, download, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
 export function getDocumentCategories(
@@ -407,4 +410,58 @@ export function exportDocuments(request: ExportRequest): Promise<void> {
     body: exportBody(request),
     fallbackFilename: `documents.${request.format}`,
   });
+}
+
+/** 「选整条记录」 (J12-2): one kind's records, by project, date, number, material, specification, supplier. */
+export function searchLinkableRecords(query: {
+  kind: string;
+  project?: string;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+  material?: string;
+  specification?: string;
+  supplier?: string;
+  page?: number;
+}): Promise<Paginated<LinkableRecord>> {
+  return api.list<LinkableRecord>("/api/documents/search_records/", query);
+}
+
+/** File whole records as one new document (J12-1): linked, not copied. */
+export async function addDocumentRecords(payload: {
+  records: Array<{ kind: string; id: string }>;
+  category: string;
+  subcategory?: string | null;
+  keywords?: string;
+  title?: string;
+}): Promise<DocumentRecord[]> {
+  const rows = await api.post<DocumentRecord[]>("/api/documents/add_records/", payload);
+  toastSuccess("documents.toast.recordsAdded");
+  return rows;
+}
+
+/** Add whole records to one document, beside its files (J12-3). */
+export async function attachDocumentRecords(
+  documentId: string,
+  records: Array<{ kind: string; id: string }>,
+): Promise<DocumentDetail> {
+  const document = await api.post<DocumentDetail>(`/api/documents/${documentId}/attach_records/`, { records });
+  toastSuccess("documents.toast.recordsAdded");
+  return document;
+}
+
+/** The linked records' complete evidence as one PDF (J12-4). */
+export const documentRecordsPdf = (documentId: string, name: string) =>
+  fetchAsFile(`/api/documents/${documentId}/download_records/`, { fallbackFilename: `${name || "records"}.pdf` });
+
+/** 填写检验结果 (J12-7): filed once, never changed; a re-inspection is a new one. */
+export async function addInspection(documentId: string, payload: InspectionPayload): Promise<InspectionInfo> {
+  const row = await api.post<InspectionInfo>(`/api/documents/${documentId}/add_inspection/`, payload);
+  toastSuccess("documents.toast.inspectionFiled");
+  return row;
+}
+
+/** Inspection reports running out within 30 days, or out (Q11-3). */
+export function getExpiringInspections(project?: string): Promise<InspectionInfo[]> {
+  return api.get<InspectionInfo[]>("/api/documents/expiring_inspections/", project ? { project } : undefined);
 }

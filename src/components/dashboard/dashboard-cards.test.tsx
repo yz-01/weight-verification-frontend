@@ -84,7 +84,8 @@ describe("the six dashboard cards (B8, F6)", () => {
       "待处理整改 / EHS",
       "今日材料到场",
       "今日进出打卡",
-      "安全事件",
+      // 「安全事件」 is 「整改 / EHS」 on the dashboards too (J9, Q9-1).
+      "整改 / EHS",
     ]) {
       expect(html).toContain(label);
     }

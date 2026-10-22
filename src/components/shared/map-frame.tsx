@@ -1,6 +1,6 @@
 "use client";
 
-import { LocateFixed, Maximize2, Minimize2 } from "lucide-react";
+import { GripHorizontal, LocateFixed, Maximize2, Minimize2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   useCallback,
@@ -56,20 +56,90 @@ const noSubscription = () => () => {};
  * `fitLabel` / `onFit`: a button that shows the whole fence (or route) again -
  * the one way a map is re-centred after it first opens (「回到围栏」).
  */
+/** How tall a map may be dragged (J23-1), in px. */
+export const MAP_MIN_HEIGHT = 240;
+export const MAP_MAX_HEIGHT = 960;
+
+export function clampMapHeight(height: number): number {
+  return Math.round(Math.min(MAP_MAX_HEIGHT, Math.max(MAP_MIN_HEIGHT, height)));
+}
+
+function storedHeight(sizeKey: string | undefined): number | null {
+  if (!sizeKey) return null;
+  try {
+    const value = Number(window.localStorage.getItem(`mse.mapHeight.${sizeKey}`));
+    return Number.isFinite(value) && value > 0 ? clampMapHeight(value) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function MapFrame({
   className,
   fitLabel,
   onFit,
+  sizeKey,
   children,
 }: {
   className?: string;
   fitLabel?: string;
   onFit?: () => void;
+  /**
+   * 调整显示大小 (J23-1, Q23-1): the handle under the map drags its height,
+   * remembered under this key. Only how much is seen changes - a fence's
+   * coordinates are the record's, never the map's.
+   */
+  sizeKey?: string;
   /** The map's own container, which fills the frame. */
   children: ReactNode;
 }) {
   const t = useTranslations("mapFrame");
   const slotRef = useRef<HTMLDivElement>(null);
+  // The height dragged here, else the one remembered (read in the browser
+  // only, so the server's render and the first client one agree).
+  const [dragged, setHeight] = useState<number | null>(null);
+  const remembered = useSyncExternalStore(
+    noSubscription,
+    () => storedHeight(sizeKey),
+    () => null,
+  );
+  const height = dragged ?? remembered;
+  const startDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
+    const slot = slotRef.current;
+    if (!slot) return;
+    event.preventDefault();
+    const startY = event.clientY;
+    const startHeight = slot.getBoundingClientRect().height;
+    let latest = startHeight;
+    const move = (moveEvent: PointerEvent) => {
+      latest = clampMapHeight(startHeight + moveEvent.clientY - startY);
+      setHeight(latest);
+    };
+    const stop = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+      if (!sizeKey) return;
+      try {
+        window.localStorage.setItem(`mse.mapHeight.${sizeKey}`, String(latest));
+      } catch {
+        // storage unavailable: the height holds until the page closes
+      }
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop);
+  };
+  const nudge = (by: number) =>
+    setHeight((current) => {
+      const next = clampMapHeight((current ?? slotRef.current?.getBoundingClientRect().height ?? 360) + by);
+      if (sizeKey) {
+        try {
+          window.localStorage.setItem(`mse.mapHeight.${sizeKey}`, String(next));
+        } catch {
+          // storage unavailable
+        }
+      }
+      return next;
+    });
   // Only in the browser: on the server, and while the page hydrates, the
   // frame is an empty box of the right size.
   const client = useSyncExternalStore(noSubscription, () => true, () => false);
@@ -169,7 +239,12 @@ export function MapFrame({
   }, [full, leave]);
 
   return (
-    <div ref={slotRef} data-map-frame={mode} className={cn("relative", className)}>
+    <div
+      ref={slotRef}
+      data-map-frame={mode}
+      className={cn("relative isolate", className)}
+      style={height ? { height, minHeight: height } : undefined}
+    >
       {holder &&
         createPortal(
           <div className={cn("absolute inset-0", full && "bg-background")}>
@@ -202,6 +277,28 @@ export function MapFrame({
           </div>,
           holder,
         )}
+      {/* 调整显示大小 (J23-1): drag, or arrow keys, to make the map taller. */}
+      {!full ? (
+        <button
+          type="button"
+          aria-label={t("resize")}
+          title={t("resize")}
+          data-map-resize
+          onPointerDown={startDrag}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              nudge(40);
+            } else if (event.key === "ArrowUp") {
+              event.preventDefault();
+              nudge(-40);
+            }
+          }}
+          className="absolute inset-x-0 bottom-0 z-[401] mx-auto flex h-4 w-16 cursor-ns-resize touch-none items-center justify-center rounded-t-md bg-card/90 text-muted-foreground shadow-sm hover:text-foreground"
+        >
+          <GripHorizontal className="size-4" aria-hidden />
+        </button>
+      ) : null}
     </div>
   );
 }

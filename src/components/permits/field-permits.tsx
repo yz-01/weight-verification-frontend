@@ -22,6 +22,7 @@ import {
   PermitStatusBadge,
 } from "@/components/permits/permit-parts";
 import { useAuth } from "@/components/providers/auth-provider";
+import { FileThumbs } from "@/components/shared/file-thumbs";
 import { Button } from "@/components/ui/button";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
@@ -121,9 +122,13 @@ export function FieldPermits({ initialProject }: { initialProject?: string }) {
                 <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                   {permit.project_name} · {df.dateTime(permit.applied_at)}
                 </span>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {permit.file_names || "—"}
-                </span>
+                {/* The files as pictures, not names (J34-10). */}
+                <FileThumbs
+                  className="mt-1.5"
+                  files={permit.files
+                    .filter((file) => file.is_current)
+                    .map((file) => ({ id: file.id, name: file.original_name, thumbnail_url: file.thumbnail_url }))}
+                />
               </span>
               <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
             </button>

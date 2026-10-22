@@ -1,3 +1,4 @@
+import type { InspectionInfo } from "@/interfaces/document-workflow";
 import type { OriginalBackupSummary, OriginalStatus } from "@/interfaces/evidence";
 
 /** The contractor console's records: sites, suppliers, deliveries and loads out. */
@@ -608,6 +609,8 @@ export interface MySubmissionsPage {
 export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
 
 export interface MaterialReceiptDetail extends MaterialReceipt {
+  /** 检验 (J12-8): the latest inspection of its material and specification. */
+  inspection?: InspectionInfo | null;
   qr_code: string | null;
   /** 「提交总部审批」 (I12, ID28): head office accepts this delivery. */
   review_by_head_office?: boolean;
@@ -633,7 +636,12 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
    * totals, so an old link would otherwise open a receipt that looks entirely
    * current while its figures have been corrected away.
    */
-  superseded_by?: { id: string; receipt_no: string } | null;
+  superseded_by?: {
+    id: string;
+    receipt_no: string;
+    /** The copy that counts now, at the end of the chain (JB1-2). */
+    latest?: { id: string; receipt_no: string };
+  } | null;
   /** From the first record to the one that counts; null when never corrected. */
   correction_trail?: {
     original: { id: string; receipt_no: string; business_at: string };
@@ -761,6 +769,8 @@ export interface ReceiptSummary {
   }>;
   by_material: Array<{
     material_name: string;
+    /** Per specification too (J2-2): G15 and G25 are two lines. */
+    material_specification?: string;
     unit: MaterialUnit;
     quantity: string;
     cumulative_quantity?: string;

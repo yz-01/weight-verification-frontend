@@ -575,10 +575,21 @@ export function getSupplierReturns(
 }
 
 /** Net per project, material, specification and unit (B09). */
+/** 「该材料小计」 (J5-2): one supplier's one material, in one unit. */
+export interface MaterialNetSubtotal {
+  supplier: string;
+  supplier_name: string;
+  material_name: string;
+  unit: string;
+  received: string;
+  returned: string;
+  deliveries: number;
+}
+
 export function getReceiptNetTotals(
   query: ListQuery,
-): Promise<{ results: MaterialNetTotalRow[] }> {
-  return api.get<{ results: MaterialNetTotalRow[] }>(
+): Promise<{ results: MaterialNetTotalRow[]; subtotals?: MaterialNetSubtotal[] }> {
+  return api.get<{ results: MaterialNetTotalRow[]; subtotals?: MaterialNetSubtotal[] }>(
     "/api/receipts/get_net_totals/",
     query,
   );

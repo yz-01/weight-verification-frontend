@@ -516,7 +516,7 @@ export function GateConsole() {
           <div className="space-y-1.5">
             <Label className="text-sm font-medium">
               {t("gate.release.manualReason")}
-              <span className="ml-0.5 text-destructive">*</span>
+              <span className="ml-0.5 text-destructive pointer-coarse:hidden">*</span>
             </Label>
             <Textarea
               value={releaseReason}

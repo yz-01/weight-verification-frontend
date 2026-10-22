@@ -120,6 +120,8 @@
   --color-tone-green-fg: var(--tone-green-fg);
   --color-tone-amber: var(--tone-amber);
   --color-tone-amber-fg: var(--tone-amber-fg);
+  --color-gold: var(--gold);
+  --color-gold-fg: var(--gold-fg);
   --color-tone-rose: var(--tone-rose);
   --color-tone-rose-fg: var(--tone-rose-fg);
   --color-tone-orange: var(--tone-orange);
@@ -205,6 +207,9 @@
   --tone-green-fg: #047857;
   --tone-amber: #d97706;
   --tone-amber-fg: #a14a06;
+  /* 「已修改」 (J1-3, J20): gold, apart from the amber of to-do. */
+  --gold: #b8860b;
+  --gold-fg: #7a5a06;
   --tone-rose: #e11d48;
   --tone-rose-fg: #be123c;
   --tone-orange: #ea580c;
@@ -314,6 +319,9 @@
   --tone-green-fg: #6ee7b7;
   --tone-amber: #fbbf24;
   --tone-amber-fg: #fcd34d;
+  /* 「已修改」 (J1-3, J20): gold, apart from the amber of to-do. */
+  --gold: #e3b341;
+  --gold-fg: #f2cc60;
   --tone-rose: #fb7185;
   --tone-rose-fg: #fda4af;
   --tone-orange: #fb923c;
@@ -407,6 +415,9 @@
     --tone-green-fg: #6ee7b7;
     --tone-amber: #fbbf24;
     --tone-amber-fg: #fcd34d;
+    /* 「已修改」 (J1-3, J20): gold, apart from the amber of to-do. */
+    --gold: #e3b341;
+    --gold-fg: #f2cc60;
     --tone-rose: #fb7185;
     --tone-rose-fg: #fda4af;
     --tone-orange: #fb923c;
@@ -494,6 +505,9 @@
     --tone-green-fg: #047857;
     --tone-amber: #d97706;
     --tone-amber-fg: #a14a06;
+    /* 「已修改」 (J1-3, J20): gold, apart from the amber of to-do. */
+    --gold: #b8860b;
+    --gold-fg: #7a5a06;
     --tone-rose: #e11d48;
     --tone-rose-fg: #be123c;
     --tone-orange: #ea580c;

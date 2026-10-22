@@ -255,6 +255,8 @@ function Locating({ token, device, state }: { token: string; device: string; sta
   const [sentAt, setSentAt] = useState<string | null>(state.last_position_at);
   const [ended, setEnded] = useState<Ending | null>(null);
   const [uploadFailed, setUploadFailed] = useState(false);
+  // J25: the last fix was outside the site, so nothing of where was kept.
+  const [outside, setOutside] = useState(false);
   const watchId = useRef<number | null>(null);
   const lastSent = useRef(0);
   const inFlight = useRef(false);
@@ -276,7 +278,11 @@ function Locating({ token, device, state }: { token: string; device: string; sta
           recorded_at: new Date(position.timestamp).toISOString(),
         });
         lastSent.current = now;
-        setSentAt(result.received_at);
+        if (result.outside_fence) setOutside(true);
+        else {
+          setOutside(false);
+          setSentAt(result.received_at);
+        }
         setUploadFailed(false);
       } catch (failure) {
         const outcome = workerLinkOutcome(failure instanceof ApiError ? failure.code : "");
@@ -319,8 +325,8 @@ function Locating({ token, device, state }: { token: string; device: string; sta
       { enableHighAccuracy: true, maximumAge: 0, timeout: 20_000 },
     );
     // A phone standing still sends no new fix; the last one is reported again
-    // at the interval so the office does not read 「定位未更新」 for a worker
-    // who simply has not moved.
+    // at the interval - every two hours while the page is open (J24-2). Opened
+    // again, or brought back to the front, it reports at once (`start`).
     timer.current = window.setInterval(() => {
       if (latest.current && document.visibilityState === "visible") void send(latest.current, true);
     }, interval);
@@ -349,6 +355,11 @@ function Locating({ token, device, state }: { token: string; device: string; sta
             {sentAt ? t("locatingAt", { time: clockTime(sentAt) }) : t("locating")}
           </p>
           <p className="text-sm text-tone-green-fg">{t("keepOpen")}</p>
+          {outside ? (
+            <p role="status" className="rounded-md bg-background/60 px-2 py-1.5 text-sm font-medium" data-outside-fence>
+              {t("outsideFence")}
+            </p>
+          ) : null}
         </div>
       ) : track === "starting" ? (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">

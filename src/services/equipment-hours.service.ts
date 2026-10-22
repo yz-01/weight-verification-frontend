@@ -151,6 +151,23 @@ export async function setEquipmentSessionOperator(
 }
 
 /**
+ * 改设备归属 (J1-13): a session scanned on the wrong machine counts for the
+ * right one; the photos keep the machine they were taken of. Signed.
+ */
+export async function moveEquipmentSession(payload: {
+  session: string;
+  equipment: string;
+  reason: string;
+}): Promise<EquipmentHoursSession> {
+  const session = await api.post<EquipmentHoursSession>(
+    "/api/equipment-hours/move_session/",
+    payload,
+  );
+  toastSuccess("equipmentHours.toast.moved");
+  return session;
+}
+
+/**
  * 「设备编号管理」: the project's working machines with their 现场编号 - or
  * every project's, with no project.
  */
@@ -240,4 +257,46 @@ export function exportEquipmentHoursMonth(request: ExportRequest): Promise<void>
     body: exportBody(request),
     fallbackFilename: `equipment-hours-month.${request.format}`,
   });
+}
+
+/** 每日正常工时 of a project (J31): in force now, 8 when none is set. */
+export interface EquipmentNormalHours {
+  project: string;
+  daily_hours: string;
+  set_at: string | null;
+  set_by_name?: string;
+}
+
+export function getEquipmentNormalHours(project: string): Promise<EquipmentNormalHours> {
+  return api.get<EquipmentNormalHours>("/api/equipment-hours/get_normal_hours/", { project });
+}
+
+/** Change it from now on; sessions that ended before keep their settlement. */
+export async function setEquipmentNormalHours(project: string, dailyHours: string): Promise<EquipmentNormalHours> {
+  const saved = await api.post<EquipmentNormalHours>("/api/equipment-hours/set_normal_hours/", {
+    project,
+    daily_hours: dailyHours,
+  });
+  toastSuccess("equipmentHours.toast.normalSaved");
+  return saved;
+}
+
+/** 设备清单今日状态 (J27): each machine's state today, Malaysia time. */
+export type EquipmentTodayStatus = "WORKING" | "FINISHED" | "IDLE" | "LEFT";
+
+export interface EquipmentToday {
+  date: string;
+  counts: Record<EquipmentTodayStatus, number>;
+  rows: Array<{
+    equipment: string;
+    status: EquipmentTodayStatus;
+    start_at: string | null;
+    end_at: string | null;
+    operator_name: string;
+    cidb_no: string;
+  }>;
+}
+
+export function getEquipmentToday(project?: string): Promise<EquipmentToday> {
+  return api.get<EquipmentToday>("/api/equipment-hours/today_status/", project ? { project } : undefined);
 }

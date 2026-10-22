@@ -1254,6 +1254,19 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/sundry_claims",
           "report_center",
         ),
+        // 材料退货记录（RN）and 材料不合格记录 (J29, 客户 10-20).
+        child(
+          "13.2.9E",
+          "nav.submodule.materialReturnsReport",
+          "/reports/contractor/material_returns",
+          "report_center",
+        ),
+        child(
+          "13.2.9F",
+          "nav.submodule.materialRejectionsReport",
+          "/reports/contractor/material_rejections",
+          "report_center",
+        ),
         // 施工计划 moved under 工程进度 (I8, ID24); the address stays.
         {
           ...child(

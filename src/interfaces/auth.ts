@@ -99,6 +99,9 @@ export interface CompanyPreferences {
   language: Locale;
   timezone: string;
   home_page: "/dashboard" | "/projects" | "/notifications" | "/field-staff";
+  /** 总部 Dashboard 的大标题、副标题 (J32); blank shows the default words. */
+  dashboard_title?: string;
+  dashboard_subtitle?: string;
   default_notification_channel: "IN_APP" | "PUSH";
 }
 
@@ -161,6 +164,8 @@ export interface UserDetail extends UserRow {
     locked_until: string | null;
     exempt: boolean;
   };
+  /** 权限开关 (J17). */
+  permission_switches?: { switchable: boolean; uses_switches: boolean };
 }
 
 export interface UserStats {
@@ -247,6 +252,29 @@ export interface PermissionEntry {
   /** English names from the backend: shown only when a catalogue lacks one. */
   label?: string;
   group_label?: string;
+  /** 权限开关 (J17): 总部后台 or 项目后台. */
+  area?: "hq" | "project";
+  /** 项目查看, 金额查看, 业务操作 or 审批 (J17). */
+  kind?: "scope" | "amounts" | "operate" | "approve";
+  /** Only a switch: the role editor does not offer it (金额查看). */
+  switch_only?: boolean;
+}
+
+/** One back-office person's permission switches (J17). */
+export interface PermissionSwitchState {
+  /** A contractor's back-office account; field staff and consultants are not. */
+  switchable: boolean;
+  /** Whether the switches (rather than the role) decide. */
+  uses_switches: boolean;
+  on: string[];
+  off: string[];
+  projects: { all: boolean; chosen: string[] };
+  available_projects: { id: string; code: string; name: string }[];
+}
+
+export interface PermissionSwitchPayload {
+  off: string[];
+  projects: { all: true } | { all: false; chosen: string[] };
 }
 
 /** A preset role this company does not have yet (「从预设新增」). */

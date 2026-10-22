@@ -132,6 +132,8 @@ export function VisitorScanPanel({
   const [fix, setFix] = useState<LocationFix | null>(null);
   const [arrivalId, setArrivalId] = useState<string | null>(null);
   const [photos, setPhotos] = useState<GatePhotoDraft[]>([]);
+  // J33-2: the visitor's way out, photographed before 确认退场.
+  const [exitPhoto, setExitPhoto] = useState<File | null>(null);
   const [chosenHost, setChosenHost] = useState<{ id: string; name: string } | null>(null);
   const [changingHost, setChangingHost] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -191,6 +193,7 @@ export function VisitorScanPanel({
     setToken("");
     setArrivalId(null);
     setPhotos([]);
+    setExitPhoto(null);
     setChosenHost(null);
     setChangingHost(false);
     check.reset();
@@ -205,6 +208,7 @@ export function VisitorScanPanel({
         client_event_id: eventId.current,
         ...(direction === "ENTRY" && arrival ? { arrival: arrival.id } : {}),
         ...(fix ? { latitude: fix.latitude, longitude: fix.longitude } : {}),
+        ...(direction === "EXIT" && exitPhoto ? { photo: exitPhoto } : {}),
       }),
     onSuccess: (row) => {
       setRecorded({
@@ -479,16 +483,31 @@ export function VisitorScanPanel({
       )}
 
       {result && !result.refusal && step === "exit" && (
-        <Button
-          size="lg"
-          className="h-14 w-full text-base"
-          disabled={confirm.isPending}
-          onClick={() => confirm.mutate("EXIT")}
-          data-visitor-exit
-        >
-          {confirm.isPending ? <Loader2 className="animate-spin" /> : <LogOut />}
-          {t("confirmExit")}
-        </Button>
+        <section className="space-y-3" data-visitor-step="exit">
+          {/* 「退场没有照片证据」 (J33-2): photographed on the way out too,
+              unless the company switched it off. */}
+          {result.exit_photo_required !== false && (
+            <FieldWrapper label={t("exitPhoto.label")} required hint={t("exitPhoto.hint")}>
+              <FieldCamera
+                label={exitPhoto ? t("exitPhoto.retake") : t("exitPhoto.take")}
+                file={exitPhoto ?? undefined}
+                onCapture={(file) => setExitPhoto(file)}
+                onClear={() => setExitPhoto(null)}
+              />
+            </FieldWrapper>
+          )}
+          <Button
+            size="lg"
+            className="h-14 w-full text-base"
+            requires={[[result.exit_photo_required === false || Boolean(exitPhoto), t("exitPhoto.label")]]}
+            disabled={confirm.isPending}
+            onClick={() => confirm.mutate("EXIT")}
+            data-visitor-exit
+          >
+            {confirm.isPending ? <Loader2 className="animate-spin" /> : <LogOut />}
+            {t("confirmExit")}
+          </Button>
+        </section>
       )}
 
       {result && !result.refusal && step === "photo" && (

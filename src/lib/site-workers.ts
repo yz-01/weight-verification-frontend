@@ -6,10 +6,10 @@ import type { SiteWorkerDocument, VisitExitState, WorkerStatus } from "@/interfa
 import type { StatusTone } from "@/lib/tones";
 import { whatsappShareUrl } from "@/lib/driver-link";
 
+/** J24-4: no 「定位未更新」 to filter by any more - a quiet phone keeps its last place. */
 export const WORKER_STATUSES: readonly WorkerStatus[] = [
   "ON_SITE",
   "OFF_SITE",
-  "STALE",
   "NOT_STARTED",
 ];
 
@@ -79,5 +79,6 @@ export function clockTime(value: string | number | Date | null | undefined): str
 export function reportIntervalMs(seconds: number | null | undefined): number {
   const value = Number(seconds);
   if (!Number.isFinite(value) || value <= 0) return 60_000;
-  return Math.min(900, Math.max(30, value)) * 1000;
+  // Up to two hours: a location link reports every two hours while open (J24-2).
+  return Math.min(7200, Math.max(30, value)) * 1000;
 }

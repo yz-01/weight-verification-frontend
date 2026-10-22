@@ -1,3 +1,4 @@
+import type { InspectionInfo } from "@/interfaces/document-workflow";
 import type { RecordedBy } from "@/interfaces/recorder";
 
 /**
@@ -118,15 +119,29 @@ export interface EquipmentHoursSession extends RecordedBy {
    * is missing - blank, not 0 (2026-10 I4: 「未收工的时间及工时留空」).
    */
   hours: string | null;
+  /** 正常工时 / 超时工时 (J31): settled when the session ended; null while an end is missing. */
+  normal_hours?: string | null;
+  overtime_hours?: string | null;
   /** 累计工时 down the rows shown, in the table's order. */
   cumulative_hours?: string | null;
+  /** The running 正常 / 超时 totals down the same rows (J31-5). */
+  cumulative_normal_hours?: string | null;
+  cumulative_overtime_hours?: string | null;
   photo_count: number;
+  /** J34-3: the first photographs' thumbnails, for the list's strip. */
+  photo_thumbs?: string[];
   /** 「缺开工」: a stop photo with no start, and none entered. */
   missing_start: boolean;
   /** 「缺收工」: a start photo with no stop, and none entered. */
   missing_end: boolean;
   has_start_photo: boolean;
   adjusted: boolean;
+  /** 检验 (J11-1): the machine's latest inspection, or none. */
+  inspection?: InspectionInfo | null;
+  /** The gold 已修改 (J20): a time or the machine corrected by the office. */
+  was_corrected?: boolean;
+  /** 改设备归属 (J1-13): the machine the photos were taken of, when moved. */
+  taken_on_name?: string;
   status: EquipmentSessionStatus;
   photos: EquipmentHoursPhoto[];
   /** Newest first; the newest of each kind is the one that counts. */
@@ -145,6 +160,8 @@ export interface EquipmentHoursMachineTotal {
   equipment_code: string;
   site_no: string;
   session_count: number;
+  normal_hours?: string;
+  overtime_hours?: string;
   total_hours: string;
   incomplete_count: number;
 }
@@ -171,6 +188,9 @@ export interface EquipmentHoursMonthRow {
   project_name: string;
   days_worked: number;
   session_count: number;
+  /** J31: the month's normal and overtime hours. */
+  normal_hours?: string;
+  overtime_hours?: string;
   total_hours: string;
   /** Sessions still missing a start or an end. */
   incomplete_count: number;
@@ -213,6 +233,8 @@ export interface EquipmentHoursPhotoDraft {
   latitude?: string;
   longitude?: string;
   locationAccuracyM?: string;
+  /** A driver's own link (J26), instead of an account. */
+  driverLink?: { token: string; device: string };
 }
 
 /** 操作人员 / CIDB 卡号 for one session, or for the machine's whole day. */

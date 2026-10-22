@@ -81,6 +81,23 @@ export interface HeadquartersPhoto {
   photographer: string;
   record_kind: PhotoRecordKind;
   record_id: string | null;
+  /**
+   * What the record is, from its own fields (J32): a material and its
+   * quantity, a task's title... Null when the record says nothing more.
+   */
+  headline?: { title: string; quantity: string | null; unit: string | null } | null;
+}
+
+/** One fence of a project (J23-3): a circle or a polygon, never moved by a map. */
+export interface HeadquartersFence {
+  id: string;
+  name: string;
+  shape: "CIRCLE" | "POLYGON";
+  latitude: string | null;
+  longitude: string | null;
+  radius_m: number | null;
+  polygon: Array<[number, number]>;
+  is_primary: boolean;
 }
 
 export interface HeadquartersProject extends HeadquartersCounts {
@@ -96,6 +113,8 @@ export interface HeadquartersProject extends HeadquartersCounts {
   longitude: string | null;
   has_location: boolean;
   latest_photo: HeadquartersPhoto | null;
+  /** Its active fences as stored (J23-3), the main one first. */
+  fences?: HeadquartersFence[];
   /** 材料目标 (I18, ID42): this project's targets and where they stand. */
   material_targets?: MaterialTargetSummary;
 }
@@ -106,8 +125,56 @@ export interface HeadquartersTotals extends HeadquartersCounts {
   /** 当前在场人数 = App 人员 + 门岗通行 (Phase 8). */
   app_on_site: number;
   gate_on_site: number;
+  /** Passes on site by their subject: WORKER, VISITOR, VEHICLE (J32). */
+  gate_by_type?: Partial<Record<string, number>>;
+  /** 较昨日 (J32): only the figures yesterday is counted the same way for. */
+  yesterday?: { today_records: number; material_receipts_today: number };
   today_records_by_kind: Record<TodayRecordKind, number>;
   material_targets?: MaterialTargetSummary;
+}
+
+/** 项目仪表板 (J34-5): one project's figures, as the client's picture lays them out. */
+export interface ProjectOverview {
+  date: string;
+  project: { id: string; code: string; name: string; latitude: string | null; longitude: string | null };
+  cards: {
+    receipts_today_t: string;
+    receipts_yesterday_t: string;
+    waste_today_t: string;
+    waste_yesterday_t: string;
+    receipts_month_t: string;
+    receipts_total_t: string;
+    waste_month_t: string;
+    waste_total_t: string;
+    equipment_total: number;
+    equipment_on_site: number;
+    equipment_off_site: number;
+    pending_total: number;
+  };
+  latest_receipts: Array<{
+    id: string;
+    receipt_no: string;
+    business_at: string | null;
+    supplier: string;
+    material: string;
+    category: string;
+    quantity: string;
+    unit: string;
+    acceptance_status: string;
+  }>;
+  map_points: Array<{ kind: "RECEIPT" | "WASTE" | "EQUIPMENT"; id: string; label: string; latitude: string; longitude: string }>;
+  material_mix: Array<{ name: string; tonnes: string; other?: boolean }>;
+  waste_mix: Array<{ name: string; tonnes: string; other?: boolean }>;
+  pending: Array<{ feature: string; count: number }>;
+  photos: Array<{
+    kind: string;
+    record_id: string;
+    reference: string;
+    captured_at: string | null;
+    thumbnail_url: string | null;
+    url: string | null;
+    photo_count: number;
+  }>;
 }
 
 export interface HeadquartersOverview {

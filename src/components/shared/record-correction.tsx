@@ -49,6 +49,7 @@ import type {
   CorrectionSource,
 } from "@/interfaces/record-correction";
 import { useDateFormat } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 import {
   badNumber,
   changeDraft,
@@ -85,11 +86,65 @@ function useFieldLabel() {
   return (name: string) => (t.has(name) ? t(name as never) : name);
 }
 
-/** The small 「已改正」 tag on a list row or beside a reference. */
-export function CorrectedTag() {
+const GOLD_TAG =
+  "inline-flex shrink-0 items-center gap-1 rounded-md border border-gold/60 bg-gold/15 px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap text-gold-fg";
+
+/**
+ * The gold 「已修改」 (J1-3, J1-4, J20): the same mark on every list a record
+ * can be corrected in, at the front of its row, and for ever (Q1-5). Given
+ * the record, a press opens its whole modification history.
+ */
+export function CorrectedTag({
+  kind,
+  recordId,
+}: {
+  kind?: CorrectionHistoryKind;
+  recordId?: string;
+} = {}) {
   const t = useTranslations("recordCorrection");
-  return <StatusBadge label={t("tag")} tone="info" />;
+  const [open, setOpen] = useState(false);
+  if (!kind || !recordId) {
+    return (
+      <span className={GOLD_TAG} data-corrected-tag>
+        <PencilLine className="size-3" />
+        {t("tag")}
+      </span>
+    );
+  }
+  return (
+    <>
+      <button
+        type="button"
+        className={cn(GOLD_TAG, "cursor-pointer hover:bg-gold/25")}
+        data-corrected-tag
+        aria-label={t("openHistory")}
+        onClick={(event) => {
+          // The row opens the record; the tag opens its history.
+          event.stopPropagation();
+          setOpen(true);
+        }}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
+        <PencilLine className="size-3" />
+        {t("tag")}
+      </button>
+      {open && (
+        <Dialog open onOpenChange={(next) => !next && setOpen(false)}>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl" onClick={(event) => event.stopPropagation()}>
+            <DialogHeader>
+              <DialogTitle>{t("historyTitle")}</DialogTitle>
+              <DialogDescription>{t("historyHelp")}</DialogDescription>
+            </DialogHeader>
+            <RecordCorrectionHistory kind={kind} recordId={recordId} />
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
+  );
 }
+
+/** The gold frame round a corrected row (J1-3, Q1-2). */
+export const CORRECTED_ROW_CLASS = "outline outline-2 -outline-offset-2 outline-gold/70";
 
 /**
  * 【改正】 for one record: shown only to whoever holds the module's 「管理」

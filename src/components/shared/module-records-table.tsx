@@ -23,7 +23,7 @@ import { Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
-import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { DataTable, SortableHeader, type PhoneCard } from "@/components/shared/data-table";
 import {
   NEEDS_ACTION_PARAM,
   NeedsActionChip,
@@ -45,7 +45,9 @@ import type { useListQuery } from "@/hooks/use-list-query";
 import type { ArchiveRecordKind, ProjectCategoryKind } from "@/interfaces/contractor-ops";
 import { cn } from "@/lib/utils";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import { CategoryOptionItems } from "@/components/shared/category-options";
+import { SpecFilterSelect } from "@/components/shared/spec-filter";
 
 export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   title,
@@ -65,6 +67,8 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   rowClassName,
   pack,
   defaultHidden,
+  corrected,
+  phoneCard,
 }: {
   title: string;
   /** "12 records", already in the reader's language. */
@@ -103,6 +107,10 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
    * screen (I39); from the list's entry in `lib/list-fits`.
    */
   defaultHidden?: readonly string[];
+  /** The gold 「已修改」 on corrected rows (J1-4, J20). */
+  corrected?: { kind: CorrectionHistoryKind };
+  /** Cards with the photo strip instead of the table on a phone (J34-2). */
+  phoneCard?: PhoneCard;
 }) {
   const t = useTranslations();
   const counted = needsActionCount !== undefined;
@@ -137,7 +145,10 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   const waitingOnly = needsActionActive(list.filters);
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    // A fixed height from a tablet up, so the rows scroll under a pinned
+    // header; on a phone the page scrolls, and nothing is squeezed into what
+    // follows it (J34-2: the header's buttons wrapped over the summary).
+    <div className="flex flex-col gap-4 max-sm:[&>*]:shrink-0 sm:h-[calc(100dvh-5rem)]">
       <ListHeader
         title={title}
         subtitle={isLoading ? "—" : countLabel}
@@ -176,6 +187,8 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
         }
         onRowClick={onOpen}
         rowClassName={rowClassName}
+        corrected={corrected}
+        phoneCard={phoneCard}
         pack={pack ? { kind: pack } : undefined}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
@@ -280,9 +293,12 @@ const ADD = "__add__";
 export function ColumnFilter({
   list,
   kind,
+  withSpecs = false,
 }: {
   list: ReturnType<typeof useListQuery>;
   kind: ProjectCategoryKind;
+  /** 规格 beside the material (J2-3), for a list that reads `spec_category`. */
+  withSpecs?: boolean;
 }) {
   const t = useTranslations("moduleTable");
   const project = list.filters.project;
@@ -308,6 +324,8 @@ export function ColumnFilter({
           list.setFilters({
             category: value === ALL || value === UNFILED ? undefined : value,
             uncategorised: value === UNFILED ? "true" : undefined,
+            // A specification belongs to its material.
+            ...(withSpecs ? { spec_category: undefined } : {}),
           })
         }
       >
@@ -322,6 +340,13 @@ export function ColumnFilter({
           <CategoryOptionItems rows={columns.data?.results ?? []} groupsSelectable />
         </SelectContent>
       </Select>
+      {withSpecs && (
+        <SpecFilterSelect
+          material={(columns.data?.results ?? []).find((row) => row.id === list.filters.category)}
+          value={list.filters.spec_category}
+          onChange={(spec) => list.setFilter("spec_category", spec)}
+        />
+      )}
       <QueryFailedNote query={columns} what={t("what.columns")} />
     </>
   );

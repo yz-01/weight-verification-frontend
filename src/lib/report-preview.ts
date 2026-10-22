@@ -89,6 +89,8 @@ export function reportRowRoute(target: RecordTarget): string | null {
 /** The columns that name a row, first match wins - for the viewer and the label. */
 const REFERENCE_COLUMNS = [
   "reference_no",
+  "return_note_no",
+  "receipt_no",
   "incident_no",
   "application_no",
   "document_no",
@@ -117,6 +119,10 @@ export const REPORT_REFERENCE_COLUMNS: ReadonlySet<string> = new Set([
   "incident_no",
   "application_no",
   "document_no",
+  // J29: the RN, the delivery, and the delivery a return came from.
+  "return_note_no",
+  "receipt_no",
+  "source_receipt_no",
 ]);
 
 /** Each report's statuses, in the words its own module uses. */

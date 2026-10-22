@@ -19,7 +19,45 @@ export type ContractorReportType =
   | "field_tasks"
   | "material_outgoing"
   | "claims"
-  | "sundry_claims";
+  | "sundry_claims"
+  // 材料退货记录（RN）and 材料不合格记录 (J29).
+  | "material_returns"
+  | "material_rejections";
+
+/** One row of the photo report (J8): a record and every photograph of it. */
+export interface PhotoGroup {
+  key: string;
+  /** The record's kind as the photo ledger names it; "" when it has none. */
+  kind: string;
+  record_id: string | null;
+  /** Which complete evidence PDF it prints as; null when none. */
+  export_kind: string | null;
+  reference: string;
+  project_id: string | null;
+  project: string;
+  date: string | null;
+  uploaded_by: string;
+  photo_count: number;
+  has_gps: boolean;
+  photos: Array<{
+    id: string;
+    url: string | null;
+    thumbnail_url: string | null;
+    captured_at: string | null;
+    latitude: string | null;
+    longitude: string | null;
+  }>;
+}
+
+export interface PhotoGroupPage {
+  count: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  results: PhotoGroup[];
+  /** More photographs than the report reads at once matched the filters. */
+  truncated: boolean;
+}
 
 export interface ContractorReportFilters {
   report_type: ContractorReportType;
@@ -60,7 +98,10 @@ export type ReportFilterKey =
   | "plan"
   | "target_type"
   // 分包商 on the Progress Claim report (I10, ID7).
-  | "subcontractor";
+  | "subcontractor"
+  // 材料名称 and 规格 on the two material reports (J29).
+  | "material"
+  | "specification";
 
 /**
  * One choice of a filter. `label` is a name (a person, a machine) or, for a

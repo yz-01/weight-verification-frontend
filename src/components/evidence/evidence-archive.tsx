@@ -69,6 +69,7 @@ import {
 } from "@/services/evidence.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getProjects } from "@/services/contractor.service";
+import { FileThumbs, stampedPicture } from "@/components/shared/file-thumbs";
 
 export function EvidenceArchive() {
   const t = useTranslations();
@@ -114,20 +115,17 @@ export function EvidenceArchive() {
         meta: { label: t("evidence.field.file") },
         header: () => t("evidence.field.file"),
         cell: ({ row }) => (
-          <div className="flex min-w-47.5 items-center gap-2.5">
-            <EvidenceFileIcon kind={row.original.kind} />
-            <div className="min-w-0">
-              <p
-                className="max-w-60 truncate font-medium text-foreground"
-                title={row.original.original_filename}
-              >
-                {row.original.original_filename}
-              </p>
-              <p className="max-w-60 truncate text-xs text-muted-foreground">
-                {row.original.content_type || t("common.emptyValue")}
-              </p>
-            </div>
-          </div>
+          // The file as a picture, never its name (J34-11): a photograph's
+          // stamped copy, else its type; the name is the tooltip and the detail's.
+          <FileThumbs
+            files={[
+              {
+                id: row.original.id,
+                name: row.original.original_filename,
+                thumbnail_url: stampedPicture(row.original.content_type, row.original.watermarked_file),
+              },
+            ]}
+          />
         ),
       },
       {

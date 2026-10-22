@@ -44,6 +44,7 @@ import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner"
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper } from "@/components/shared/page-primitives";
+import { SupplierPicker } from "@/components/shared/supplier-picker";
 import {
   SupplierReturnBadge,
   type ReturnBadgeSupplier,
@@ -323,6 +324,9 @@ export function EquipmentExitHandoverForm({
   const [photos, setPhotos] = useDraftState<File[]>(key("photos"), []);
   const [deliveryNotePhoto, setDeliveryNotePhoto] = useDraftState<File | undefined>(key("doPhoto"));
   const [deliveryNote, setDeliveryNote] = useDraftState(key("doNo"), "");
+  // The lorry that takes it away, typed at the gate (J13-3, Q13-2): many big
+  // machines have no plate of their own, so the register's is only a hint.
+  const [vehiclePlate, setVehiclePlate] = useDraftState(key("vehiclePlate"), "");
   const [ocrProof, setOcrProof] = useDraftState(key("ocrProof"), "");
   const [scanned, setScanned] = useDraftState(key("scanned"), "");
   // 「二维码坏了 / 还没有贴？输入编号」 (P-phonefix), as on 设备工时 (I4).
@@ -375,7 +379,7 @@ export function EquipmentExitHandoverForm({
         operator_name: user.full_name,
         supplier: supplier?.id,
         delivery_note_no: deliveryNote.trim(),
-        vehicle_plate: machine.registration_no || undefined,
+        vehicle_plate: vehiclePlate.trim().toUpperCase(),
         ocr_confirmed: Boolean(deliveryNotePhoto || deliveryNote.trim()),
         ocr_proof: deliveryNotePhoto && ocrProof ? ocrProof : undefined,
         latitude: location?.latitude,
@@ -556,6 +560,21 @@ export function EquipmentExitHandoverForm({
             }}
           />
         </FieldWrapper>
+        <FieldWrapper
+          label={t("equipmentExit.vehiclePlate")}
+          required="quiet"
+          hint={t("equipmentExit.vehiclePlateHint")}
+        >
+          <Input
+            aria-label={t("equipmentExit.vehiclePlate")}
+            value={vehiclePlate}
+            maxLength={50}
+            autoCapitalize="characters"
+            autoComplete="off"
+            placeholder={machine.registration_no || undefined}
+            onChange={(event) => setVehiclePlate(event.target.value)}
+          />
+        </FieldWrapper>
         <FieldWrapper label={t("field.supplier")} hint={t("equipmentExit.supplierHint")}>
           {supplier ? (
             <div className="flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm">
@@ -566,16 +585,28 @@ export function EquipmentExitHandoverForm({
               </Button>
             </div>
           ) : (
-            <Button
-              type="button"
-              variant="outline"
-              className="h-10 w-full"
-              disabled={supplierScan.isPending}
-              onClick={() => setScanning("supplier")}
-            >
-              {supplierScan.isPending ? <Loader2 className="animate-spin" /> : <ScanLine />}
-              {t("equipment.scanSupplier")}
-            </Button>
+            // Scan its QR card, or pick it from the list (J13-4, Q13-3):
+            // both fill the same supplier.
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 w-full"
+                disabled={supplierScan.isPending}
+                onClick={() => setScanning("supplier")}
+              >
+                {supplierScan.isPending ? <Loader2 className="animate-spin" /> : <ScanLine />}
+                {t("equipment.scanSupplier")}
+              </Button>
+              <SupplierPicker
+                value=""
+                placeholder={t("equipmentExit.supplierPick")}
+                triggerClassName="h-10 w-full"
+                onChange={(id, row) => {
+                  if (id) setSupplier({ id, name: row?.name ?? "", completed_return_count: row?.completed_return_count });
+                }}
+              />
+            </div>
           )}
         </FieldWrapper>
         <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
@@ -626,6 +657,7 @@ export function EquipmentExitHandoverForm({
               t("field.photos"),
             ],
             [deliveryNote.trim(), t("field.deliveryNoteNo")],
+            [vehiclePlate.trim(), t("equipmentExit.vehiclePlate")],
             [receiverSignature, t("equipment.siteSignature")],
             [supplierSignature, t("equipment.supplierSignature")],
             [location, t("field.location")],

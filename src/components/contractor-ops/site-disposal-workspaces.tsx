@@ -52,7 +52,6 @@ import {
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
-import { CorrectedTag } from "@/components/shared/record-correction";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
@@ -1001,8 +1000,7 @@ function DisposalDetailDialog({
   const qc = useQueryClient();
   return (
     <RecordDetailDialog
-      title={row.reference_no}
-      legacyNo={row.legacy_no}
+      title={row.reference_no}
       description={`${row.project_name} / ${row.waste_description}`}
       exportRecord={{ kind: "DISPOSAL_REQUEST", recordId: row.id, reference: row.reference_no }}
       onClose={onClose}
@@ -1215,7 +1213,6 @@ export function SiteDisposalOffice() {
             <RecordNo value={row.original.reference_no} />
             {/* A lorry or the clearance company corrected (I30); the
                 lorries panel keeps each change. */}
-            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -1319,6 +1316,7 @@ export function SiteDisposalOffice() {
         />
       )}
       <ModuleRecordsTable
+        corrected={{ kind: "DISPOSAL_REQUEST" }}
         title={tRoot("nav.submodule.siteDisposals")}
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
@@ -1337,6 +1335,7 @@ export function SiteDisposalOffice() {
         isLoading={rows.isLoading}
         isError={rows.isError}
         storageKey={LIST_FITS.siteDisposals.storageKey}
+        phoneCard={LIST_FITS.siteDisposals.phoneCard}
         defaultHidden={LIST_FITS.siteDisposals.hidden}
         pack="DISPOSAL_REQUEST"
         // I27: by clearance company (or none on the list) and by the day it

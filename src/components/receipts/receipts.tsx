@@ -15,6 +15,7 @@ import { photoColumn, recordPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { SpecFilterSelect } from "@/components/shared/spec-filter";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -201,6 +202,29 @@ export function Receipts() {
             {row.original.material_name}
           </span>
         ),
+      },
+      // 「材料｜规格｜照片｜数量」 (J2-1, Q2-1): the specification in its own
+      // column between the material and the photograph.
+      {
+        accessorKey: "material_specification",
+        meta: { label: t("receipts.field.spec") },
+        header: ({ column }) => (
+          <SortableHeader
+            label={t("receipts.field.spec")}
+            isSorted={column.getIsSorted()}
+            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          />
+        ),
+        cell: ({ row }) => {
+          const spec = row.original.material_specification || row.original.spec_category_name || "";
+          return spec ? (
+            <span className="block max-w-40 truncate text-foreground" title={spec}>
+              {spec}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          );
+        },
       },
       // The delivery's photograph, between 材料 and 数量 as the client drew
       // it (E3): the arrival photo before the DO's, opened on click.
@@ -424,7 +448,7 @@ export function Receipts() {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    <div className="flex flex-col gap-4 max-sm:[&>*]:shrink-0 sm:h-[calc(100dvh-5rem)]">
       <ListHeader
         title={t("receipts.title")}
         subtitle={isLoading ? "—" : t("receipts.count", { count: totalCount })}
@@ -450,6 +474,7 @@ export function Receipts() {
         />
       ) : (
       <DataTable
+        corrected={{ kind: "MATERIAL_RECEIPT" }}
         columns={withNeedsActionColumn(
           hideEmptyManufacturerColumn(columns, data?.results),
           t("needsAction.column"),
@@ -469,6 +494,7 @@ export function Receipts() {
         // `.v3` with the manufacturer column (2026-10 D1); `.v4` with the
         // photograph in place of the photo count (E3).
         storageKey={LIST_FITS.materialReceipts.storageKey}
+        phoneCard={LIST_FITS.materialReceipts.phoneCard}
         defaultHidden={LIST_FITS.materialReceipts.hidden}
         // Multi Engine picks deliveries here (2026-10-10): 「✅ 已打包 X 次」,
         // and tick boxes while a package is being put together.
@@ -481,6 +507,8 @@ export function Receipts() {
                 list.setFilters({
                   category: value === ALL_COLUMNS || value === UNFILED ? undefined : value,
                   uncategorised: value === UNFILED ? "true" : undefined,
+                  // A specification belongs to its material.
+                  spec_category: undefined,
                 })
               }
             >
@@ -494,6 +522,12 @@ export function Receipts() {
                 <CategoryOptionItems rows={categories.data?.results ?? []} groupsSelectable />
               </SelectContent>
             </Select>
+            {/* 规格 (J2-3, Q2-2): one specification of the chosen material. */}
+            <SpecFilterSelect
+              material={(categories.data?.results ?? []).find((row) => row.id === list.filters.category)}
+              value={list.filters.spec_category}
+              onChange={(spec) => list.setFilter("spec_category", spec)}
+            />
             <QueryFailedNote query={categories} what={t("receipts.what.columns")} />
             {/* By the delivery's own state (T-293, T-295). 已结案 is accepted,
                 because acceptance is what closes a receipt - not payment. */}

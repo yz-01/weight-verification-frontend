@@ -47,6 +47,7 @@ import {
 import { PAGE_SIZE_OPTIONS, useListQuery } from "@/hooks/use-list-query";
 import { type MaterialReceipt } from "@/interfaces/contractor";
 import { ManufacturerCell, anyNamedManufacturer } from "@/components/shared/manufacturer-picker";
+import { SpecFilterSelect } from "@/components/shared/spec-filter";
 import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
@@ -167,6 +168,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
               { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
               { key: "material_name", label: t("receipts.field.materialName") },
+              { key: "material_specification", label: t("receipts.field.spec") },
               // One quantity per delivery; the sum is the closing section's
               // 累计数量 (Lucas 2026-10-10: 「保留一个就好了」).
               { key: "quantity", label: t("receipts.field.quantity") },
@@ -186,6 +188,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
               { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
               { key: "material_name", label: t("receipts.field.materialName") },
+              { key: "material_specification", label: t("receipts.field.spec") },
               { key: "quantity", label: t("receipts.field.quantity") },
               {
                 key: "unit",
@@ -245,6 +248,15 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
           onChange={(category) => list.setFilters({ category, spec_category: undefined })}
           loading={columns.isLoading}
         />
+        {/* 规格 (J2-3, Q2-2): one specification of the chosen material. */}
+        <FilterField label={t("specFilter.label")} className="sm:w-44">
+          <SpecFilterSelect
+            material={columns.data?.results.find((row) => row.id === list.filters.category)}
+            value={list.filters.spec_category}
+            onChange={(spec) => list.setFilter("spec_category", spec)}
+            className="sm:w-full"
+          />
+        </FilterField>
         <FilterField label={t("receipts.field.manufacturer")} className="sm:w-52">
           <SupplierDateFilter
             value={{ manufacturer: list.filters.manufacturer }}
@@ -382,6 +394,7 @@ function ReportRecords({
             <TableHead>{t("receipts.field.supplier")}</TableHead>
             {showManufacturer && <TableHead>{t("receipts.field.manufacturer")}</TableHead>}
             <TableHead>{t("receipts.field.materialName")}</TableHead>
+            <TableHead>{t("receipts.field.spec")}</TableHead>
             <TableHead className="text-right">{t("receipts.field.quantity")}</TableHead>
             <TableHead>{t("materialReports.records.photos")}</TableHead>
             <TableHead className="text-right">{t("materialReports.records.open")}</TableHead>
@@ -401,6 +414,7 @@ function ReportRecords({
                 </TableCell>
               )}
               <TableCell>{row.material_name}</TableCell>
+              <TableCell>{row.material_specification || row.spec_category_name || "—"}</TableCell>
               <TableCell className="tabular text-right">
                 {row.quantity} {unitName(row.unit, row.unit_label)}
               </TableCell>
@@ -725,6 +739,7 @@ function CostReport({
             <TableHeader>
               <TableRow>
                 <TableHead>{t("reports.receipts.material")}</TableHead>
+                <TableHead>{t("receipts.field.spec")}</TableHead>
                 <TableHead>{t("reports.receipts.unit")}</TableHead>
                 <TableHead className="text-right">{t("materialReports.cost.totalCost")}</TableHead>
                 <TableHead className="text-right">{t("materialReports.cost.missingPrices")}</TableHead>
@@ -732,8 +747,9 @@ function CostReport({
             </TableHeader>
             <TableBody>
               {data.by_material.map((row) => (
-                <TableRow key={`${row.material_name}-${row.unit}`}>
+                <TableRow key={`${row.material_name}-${row.material_specification ?? ""}-${row.unit}`}>
                   <TableCell className="font-medium">{row.material_name}</TableCell>
+                  <TableCell>{row.material_specification || "—"}</TableCell>
                   <TableCell><TypeBadge label={unitName(row.unit)} /></TableCell>
                   <TableCell className="tabular text-right">{money(row.total_cost)}</TableCell>
                   <TableCell className="tabular text-right">

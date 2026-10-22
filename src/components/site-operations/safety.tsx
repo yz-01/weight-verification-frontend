@@ -64,7 +64,6 @@ import {
   RecordRecorder,
 } from "@/components/shared/record-detail-shell";
 import {
-  CorrectedTag,
   RecordCorrectionButton,
   RecordCorrectionHistory,
   useCanCorrect,
@@ -445,8 +444,6 @@ export function Safety({
             <p className="tabular text-xs text-muted-foreground">
               {df.dateTime(row.original.occurred_at)}
             </p>
-            {/* Corrected by the office (I30); the detail has the history. */}
-            {row.original.was_corrected && <CorrectedTag />}
           </div>
         ),
       },
@@ -835,6 +832,7 @@ export function Safety({
           ))}
         </div>
       ) : <DataTable
+        corrected={{ kind: "HAZARD" }}
         columns={withNeedsActionColumn(columns, t("needsAction.column"))}
         onRowClick={setOpened}
         rows={data?.results ?? []}
@@ -966,8 +964,7 @@ export function HazardRecordDetail({
   );
   return (
     <RecordDetailDialog
-      title={incident.incident_no}
-      legacyNo={incident.legacy_no}
+      title={incident.incident_no}
       description={incident.title}
       status={
         <StatusBadge

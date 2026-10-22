@@ -178,7 +178,7 @@ function options(html: string) {
 }
 
 /** A red star: FieldWrapper's and the signature pad's. */
-const RED_STAR = /text-destructive">\*<\/span>/;
+const RED_STAR = /text-destructive[^"]*">\*<\/span>/;
 
 /** What the submit button with `label` says is still missing. */
 function missingFor(html: string, label: string) {
@@ -334,6 +334,12 @@ describe("the actual exit scans this machine (I13 step 3, ID60)", () => {
     expect(html).toContain(exitWords.scanMachineHint);
     expect(html).toContain(words.field.deliveryNoteNo);
     expect(html).toContain(words.equipment.scanSupplier);
+    // J13-4: or picked from the list.
+    expect(html).toContain(exitWords.supplierPick);
+    // J13-3: the lorry's plate is typed; the register's is only a hint.
+    expect(html).toContain(exitWords.vehiclePlate);
+    expect(html).toContain('placeholder="WXY 1234"');
+    expect(html).not.toContain('value="WXY 1234"');
     expect(html).toContain(words.equipment.siteSignature);
     expect(html).toContain(words.equipment.supplierSignature);
     expect(html).toContain(words.field.location);
@@ -343,12 +349,16 @@ describe("the actual exit scans this machine (I13 step 3, ID60)", () => {
       exitWords.scanMachine,
       words.field.photos,
       words.field.deliveryNoteNo,
+      exitWords.vehiclePlate,
       words.equipment.siteSignature,
       words.equipment.supplierSignature,
       words.field.location,
     ]) {
       expect(missing).toContain(needed);
     }
+    // J13-1: on a phone the same list is written above the button, not only
+    // in a tooltip the phone never shows.
+    expect(html).toContain('data-slot="button-reason"');
   });
 });
 

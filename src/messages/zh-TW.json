@@ -4042,7 +4042,70 @@
       "groupCount": "{count} 筆",
       "search": "搜尋編號、材料、DO",
       "emptyFiltered": "這個分類裡沒有符合篩選條件的記錄。",
-      "deliveryNoteNo": "DO"
+      "deliveryNoteNo": "DO",
+      "summary": {
+        "title": "這個分類的數字",
+        "quantity": {
+          "today": "今日收貨",
+          "month": "本月累計",
+          "total": "項目累計"
+        },
+        "count": {
+          "today": "今日記錄",
+          "month": "本月記錄",
+          "total": "全部記錄"
+        },
+        "vsYesterday": "較昨日",
+        "vsLastMonth": "較上月同期",
+        "same": "持平",
+        "ofTarget": "占項目目標 {percent}%",
+        "target": "項目目標",
+        "remaining": "剩餘 {value}",
+        "reached": "已達到目標",
+        "noTarget": "未設定目標",
+        "completion": "完成率",
+        "suppliers": "供應商數量",
+        "suppliersNote": "累計供應商",
+        "otherUnits": "只算單位是「{unit}」的收貨；其他單位的沒有換算，不在數字裡。"
+      },
+      "stage": {
+        "label": "按狀態",
+        "all": "全部記錄",
+        "material": {
+          "pending": "待驗收",
+          "done": "已驗收",
+          "returned": "已拒收"
+        },
+        "other": {
+          "pending": "待處理",
+          "done": "已完成",
+          "returned": "已退回"
+        }
+      },
+      "table": {
+        "index": "序號",
+        "photos": "照片（點擊查看）",
+        "record": "記錄資訊",
+        "supplier": "供應商 / 車牌",
+        "time": "時間",
+        "quantity": "數量",
+        "location": "位置",
+        "status": "狀態",
+        "actions": "操作",
+        "view": "查看",
+        "note": "備註：{note}",
+        "receivedBy": "現場簽收：{name}",
+        "gps": "有 GPS",
+        "noGps": "無 GPS"
+      },
+      "pager": {
+        "label": "分頁",
+        "showing": "顯示第 {from} 到 {to} 條，共 {total} 條記錄",
+        "previous": "上一頁",
+        "next": "下一頁",
+        "first": "已是第一頁",
+        "last": "已是最後一頁"
+      }
     },
     "quantityReturned": "退場 {quantity}",
     "units": {
@@ -4287,7 +4350,10 @@
     "view": "查看",
     "alreadyLastPage": "已經在最後一頁",
     "linkCopied": "連結已複製，貼上即可分享。",
-    "shareFailed": "分享沒有成功，請下載後再發送文件。"
+    "shareFailed": "分享沒有成功，請下載後再發送文件。",
+    "combobox": {
+      "byLetter": "按首字母篩選"
+    }
   },
   "companies": {
     "owner": {
@@ -4902,6 +4968,7 @@
     },
     "attachment": {
       "tickFirst": "請先勾選要新增的檔案",
+      "wholeRecord": "整筆記錄：{records}（附完整證據 PDF）",
       "archiveCategory": "檔案分類",
       "allArchiveCategories": "全部檔案分類",
       "addPicked": "新增所選的 {count} 個",
@@ -5511,7 +5578,7 @@
       "EQUIPMENT_MOVEMENT": "設備進出",
       "FIELD_TASK": "現場任務",
       "MATERIAL_OUTGOING": "材料出場",
-      "SAFETY_INCIDENT": "安全",
+      "SAFETY_INCIDENT": "整改 / EHS",
       "SITE_PROGRESS": "工程進度",
       "WASTE_DISPATCH": "回收派車"
     },
@@ -5619,7 +5686,7 @@
       "photos": "現場照片",
       "progressRecords": "進度記錄",
       "projects": "項目",
-      "safety": "安全事件",
+      "safety": "整改 / EHS",
       "title": "今日概覽",
       "materialReceipts": "今日材料進場",
       "materialReturns": "今日材料退回",
@@ -5715,7 +5782,7 @@
       "GEOFENCE_FAILURE": "電子圍欄",
       "MATERIAL_OUTGOING": "材料出場",
       "OVERDUE_RECTIFICATION": "逾期整改",
-      "SAFETY_INCIDENT": "安全",
+      "SAFETY_INCIDENT": "整改 / EHS",
       "SITE_PROGRESS": "工程進度",
       "WASTE_DISPATCH": "回收派車"
     },
@@ -5819,7 +5886,7 @@
       "editTitle": "編輯這台設備",
       "entryTitle": "記錄 {name} 進場",
       "exitTitle": "記錄 {name} 退場",
-      "formHelp": "設備編號、車牌號碼和小類。可以先建好，也可以等現場報來新設備時在驗收時補齊。",
+      "formHelp": "系統編號、車牌號碼和小類。設備號碼在保存時由系統自動生成。可以先建好，也可以等現場報來新設備時在驗收時補齊。",
       "movementHelp": "請拍攝當前照片並獲取位置；該記錄會成為不可修改的現場證據。",
       "occurredAt": "進退場時間",
       "ocrManual": "無法讀取 Delivery Order，請手動填寫資料。",
@@ -5927,7 +5994,10 @@
       "photosHint": "至少拍 4 張（含 DO 照片）。",
       "deliveryNoteHint": "填 DO 號碼（拍了 DO 會自動讀出）。",
       "signatureHint": "交接時由本人簽名。",
-      "locationHint": "打開時自動獲取定位。"
+      "locationHint": "打開時自動獲取定位。",
+      "siteNo": "設備號碼",
+      "systemNo": "系統編號",
+      "siteNoAuto": "{no}（系統自動生成）"
     },
     "equipmentEvidence": {
       "condition": "4. 設備狀況細節",
@@ -6113,7 +6183,8 @@
       "noSupplier": "不填",
       "spec": "規格",
       "chooseSpec": "選擇規格",
-      "specName": "規格名稱"
+      "specName": "規格名稱",
+      "materialName": "材料名稱"
     },
     "outgoingStatus": {
       "APPROVED": "已批准 / 等待退場",
@@ -6398,15 +6469,18 @@
       "scanMatched": "已確認：{name}",
       "typedMatched": "已輸入編號：{name}",
       "brokenQr": "二維碼壞了 / 還沒有貼？輸入編號",
-      "typeNumber": "現場編號 / 設備編號 / 車牌",
+      "typeNumber": "設備號碼 / 系統編號 / 車牌",
       "useNumber": "確定",
+      "vehiclePlate": "運輸車輛車牌",
+      "vehiclePlateHint": "運走這台設備的車的車牌（很多大型設備本身沒有車牌）。",
       "typedWrongMachine": "這個編號不是批准退場的設備（{name}），請再看一次。",
-      "typedNotScanned": "現場沒有掃二維碼，設備編號是手動輸入的。",
+      "typedNotScanned": "現場沒有掃二維碼，設備號碼是手動輸入的。",
       "scanAgain": "重掃",
       "scanWrongMachine": "掃到的不是批准退場的設備（{name}），請掃這台設備的二維碼。",
       "photosHint": "至少 {min} 張（含 DO 照片）。",
       "deliveryNoteHint": "填 DO 號碼（拍了 DO 會自動讀出）。",
       "supplierHint": "有供應商二維碼就掃，沒有可以不掃。",
+      "supplierPick": "或從名單選供應商",
       "signatureHint": "交接時由本人簽名。",
       "locationHint": "打開時自動獲取定位。",
       "scanToChoose": "掃描設備二維碼",
@@ -6437,8 +6511,8 @@
       "help": "掃這個二維碼就能選到這台設備。可以列印貼紙交給供應商貼在設備上。",
       "imageAlt": "{name} 的二維碼",
       "what": "二維碼",
-      "siteNo": "設備編號",
-      "siteNoHint": "貼紙上的大字是設備編號；沒有設備編號時用設備代碼。設備編號在「設備操作員工時 › 設備編號管理」設定。",
+      "siteNo": "設備號碼",
+      "siteNoHint": "貼紙上的大字是設備號碼，登記設備時由系統自動生成。",
       "sticker": "A4 貼紙",
       "stickerTitle": "設備二維碼 {number}",
       "download": "下載二維碼圖片",
@@ -6462,6 +6536,19 @@
       "otherProject": "{name} 屬於項目「{project}」，不是你現在的項目。",
       "notFound": "沒有找到這台設備，或你沒有權限查看。",
       "loadFailed": "暫時讀取不到設備資料，請檢查網路後再試。"
+    },
+    "equipmentToday": {
+      "column": "今日",
+      "status": {
+        "WORKING": "工作中",
+        "FINISHED": "已收工",
+        "IDLE": "未開工",
+        "LEFT": "已離場"
+      },
+      "summary": "今日：工作中 {working} 台 · 已收工 {finished} 台 · 未開工 {idle} 台"
+    },
+    "equipmentInspection": {
+      "column": "檢驗"
     }
   },
   "contractorPartners": {
@@ -6533,6 +6620,16 @@
       "planned_start": "計劃開始",
       "progress_records": "進度記錄",
       "project": "項目",
+      "return_note_no": "RN 編號",
+      "returned_at": "退貨日期",
+      "specification": "規格",
+      "reason": "原因",
+      "source_receipt_no": "關聯進場單",
+      "executor": "經手人",
+      "receipt_no": "進場單編號",
+      "business_at": "日期",
+      "rejection_reason": "不合格原因",
+      "accepted_by": "驗收人",
       "record_type": "記錄類型",
       "rectification_due_at": "整改期限",
       "reference_no": "參考編號",
@@ -6596,10 +6693,16 @@
       "photos": "按項目、來源、上傳人、日期及 GPS 查詢永久照片證據賬本。",
       "progress": "查看項目進度、確認狀態與照片證據。",
       "recycling": "查看清運工作與回收訂單直至完成。",
-      "safety": "追蹤安全問題從分配、整改到驗收的過程。",
+      "safety": "追蹤整改 / EHS 事項從分配、整改到驗收的過程。",
       "schedule": "對比當前確認計劃與現場實際進度。",
       "target": "對比計劃和實際進度及項目活動指標。",
       "documents": "按文檔分類查看項目文件、版本與上傳人。",
+      "material_returns": "退回供應商的材料：RN 編號、供應商、材料、規格、退貨數量和關聯的進場單；最下面按材料 + 規格小計。",
+      "material_rejections": "驗收不合格 / 被拒收的進場單：數量、原因和驗收人；最下面按材料 + 規格小計。",
+      "sundry_claims": "雜費報銷的申請、審批和金額。",
+      "claims": "每個項目的 Progress Claim 和審批情況。",
+      "material_outgoing": "材料出場和退貨（RN）記錄。",
+      "field_tasks": "現場任務的派發、完成和照片。",
       "daily_report": "按日期看日報告：每篇的全文、收進的記錄和照片。匯出 PDF 時每篇從新的一頁開始，照片帶浮水印。",
       "progress_summary": "這段期間更新過的項目進度摘要。匯出 PDF 時每份從新的一頁開始。"
     },
@@ -6616,7 +6719,7 @@
         "safety": "編號、標題或負責人",
         "consultant": "申請編號、類型或顧問",
         "attendance": "人員名字",
-        "equipment": "設備編號、車牌、DO 或操作員",
+        "equipment": "設備號碼、車牌、DO 或操作員",
         "recycling": "單號、車牌、DO 或外部公司",
         "schedule": "WBS 編號或任務名稱",
         "target": "目標名稱",
@@ -6626,6 +6729,8 @@
         "progress_summary": "標題或撰寫人",
         "field_tasks": "搜尋任務名稱、說明、地點、負責人",
         "material_outgoing": "搜尋編號、材料、規格、DO、車牌、Return Note、供應商",
+        "material_returns": "搜尋 RN 編號、進場單、材料、規格、供應商、原因",
+        "material_rejections": "搜尋進場單編號、材料、規格、供應商、原因、DO、車牌",
         "claims": "搜尋 Claim 編號、備註、說明、分類、分包商",
         "sundry_claims": "搜尋編號、說明、申請人"
       },
@@ -6672,10 +6777,16 @@
       "photos": "現場照片報表",
       "progress": "進度與照片報表",
       "recycling": "清運與回收報表",
-      "safety": "安全與整改報表",
+      "safety": "整改 / EHS 報表",
       "schedule": "計劃與實際對比報表",
       "target": "目標與達成報表",
       "documents": "項目資料報表",
+      "material_returns": "材料退貨記錄（RN）",
+      "material_rejections": "材料不合格記錄",
+      "sundry_claims": "雜費報銷報表",
+      "claims": "進度 Claim 報表",
+      "material_outgoing": "材料出場報表",
+      "field_tasks": "現場任務報表",
       "daily_report": "日報告",
       "progress_summary": "項目進度摘要"
     },
@@ -6690,6 +6801,34 @@
       "show": "查看",
       "choose": "請先選開始和結束日期。",
       "backwards": "開始日期不能晚於結束日期。"
+    },
+    "photoGroups": {
+      "loadError": "照片報表載入失敗。",
+      "empty": "這段時間沒有照片。",
+      "count": "{count} 條有照片的記錄",
+      "truncated": "顯示最新的；縮短日期範圍看其餘的",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "first": "已經是第一頁。",
+      "last": "已經是最後一頁。",
+      "noRecord": "沒有所屬記錄的照片",
+      "kind": {
+        "ATTENDANCE": "打卡",
+        "OTHER": "記錄"
+      },
+      "photos": "{count} 張照片",
+      "hasGps": "有 GPS",
+      "openPhoto": "打開 {reference} 的第 {index} 張照片",
+      "openRecord": "打開原記錄",
+      "column": {
+        "reference": "編號",
+        "kind": "模組",
+        "project": "項目",
+        "date": "日期",
+        "uploaded_by": "上傳人",
+        "photo_count": "照片張數",
+        "has_gps": "GPS"
+      }
     }
   },
   "crm": {
@@ -6898,7 +7037,7 @@
       "receipts": "材料進場記錄",
       "recyclers": "回收商",
       "requiresReview": "待複核稱重",
-      "safety": "安全事件",
+      "safety": "整改 / EHS",
       "settlements": "結算記錄",
       "siteDisposals": "清運申請",
       "siteEquipment": "設備進退場",
@@ -7287,7 +7426,9 @@
       "updated": "文檔已更新",
       "versionUploaded": "文件已加進檔案",
       "uploaded": "文件已上傳",
-      "systemFilesAdded": "已放進檔案"
+      "systemFilesAdded": "已放進檔案",
+      "recordsAdded": "記錄已放入檔案",
+      "inspectionFiled": "檢驗結果已提交"
     },
     "upload": {
       "action": "添加文件",
@@ -7371,6 +7512,72 @@
       "hint": "只能選這份檔案所在項目的文件；已經在檔案裡的文件會變灰。",
       "what": "這份檔案已有的文件",
       "confirm": "加進這份檔案（{count}）"
+    },
+    "pickRecords": {
+      "tab": "選整條記錄",
+      "description": "把各模組的整條記錄放進檔案：只是連到原記錄，不複製，打開永遠是原記錄的最新內容。",
+      "way": "選整條記錄：材料進場、退貨、設備進退場……連同全部證據連到原記錄。",
+      "records": "整條記錄",
+      "hint": "勾選同一個項目的一條或多條記錄。",
+      "mixedProjects": "這些記錄屬於不同項目；一份檔案只能屬於一個項目。",
+      "confirm": "放入 {count} 條記錄",
+      "kind": "類型",
+      "project": "項目",
+      "allProjects": "全部項目",
+      "number": "編號",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期",
+      "supplier": "供應商",
+      "allSuppliers": "全部供應商",
+      "material": "材料",
+      "specification": "規格",
+      "results": "記錄",
+      "empty": "找不到記錄。",
+      "picked": "已勾選 {count} 條"
+    },
+    "recordLinks": {
+      "title": "整條記錄",
+      "allPdf": "全部記錄合成一份 PDF",
+      "gone": "原記錄已刪除。"
+    },
+    "inspection": {
+      "needs": "需要檢驗欄位",
+      "needsHint": "放在這裡的檔案可以填檢驗結果（合格 / 不合格、日期）。",
+      "section": "檢驗",
+      "add": "填寫檢驗結果",
+      "none": "還沒有檢驗結果。",
+      "title": "檢驗結果",
+      "help": "照報告填寫：提交後不能修改；重新檢驗要新增一筆。",
+      "target": "對象",
+      "equipment": "設備",
+      "material": "材料",
+      "spec": "規格",
+      "allSpecs": "整個材料",
+      "choose": "選擇",
+      "number": "檢驗編號",
+      "numberHint": "報告上的編號；檔案原有的參考編號不變。",
+      "inspectedOn": "檢驗 / 送檢日期",
+      "inspector": "檢驗人 / 檢測單位",
+      "reportDate": "報告日期",
+      "validUntilLabel": "有效期至",
+      "validUntilHint": "報告到期日期；到期前 30 天在電腦後台提醒。",
+      "result": {
+        "label": "檢驗結果",
+        "PASS": "合格",
+        "FAIL": "不合格"
+      },
+      "submit": "提交",
+      "confirm": "提交後不能修改，確定嗎？",
+      "submitNow": "確定提交",
+      "back": "返回",
+      "cancel": "取消",
+      "failed": "提交沒有成功，請再試一次。",
+      "expiring": "將於 {date} 到期",
+      "expired": "已於 {date} 過期",
+      "validUntil": "有效期至 {date}",
+      "filedBy": "{name} 於 {at} 填寫",
+      "expiryTitle": "檢驗報告到期（{count}）",
+      "openArchive": "打開文件檔案"
     }
   },
   "driver": {
@@ -7817,7 +8024,7 @@
       "receipt_not_found": "找不到該收貨單。",
       "receipt_photo_not_found": "找不到該照片。",
       "receipt_rejection_needs_reason": "請填寫退回這批材料的原因。沒有原因的退回，現場無從處理。",
-      "receipt_superseded": "這筆材料進場記錄已被更正記錄取代，不能再驗收或退回。請打開目前那一筆來處理。",
+      "receipt_superseded": "這張材料進場單已經更正過，這張不能再驗收、退回、歸類或更正。請打開最新那張（{receipt}）來處理。",
       "record_not_found": "這條記錄不在你這個帳號的範圍內。",
       "refresh_token_required": "登錄狀態無法續期，請重新登錄。",
       "report_export_file_altered": "這份存檔文件和生成時記錄的指紋（SHA-256）不一致，系統不會把它當作原件打開。請聯繫管理員。",
@@ -7886,6 +8093,7 @@
       "attachment_needs_project": "這個審批不屬於某個項目，不能加附件；請把檔案放到「文檔檔案」裡。",
       "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
       "receipt_awaiting_acceptance": "這批材料還沒驗收，請先驗收或判不合格再歸檔。",
+      "receipt_archive_needs_supplier": "這批材料（{receipt}）還沒有供應商。被拒收、不合格的也要先按「補供應商」填上，才能歸檔。",
       "site_record_field_only": "只有現場人員能在手機上新增這條記錄。後台可以更正已有的記錄。",
       "material_request_assigned_to_other": "這個申請已提交給別人審批。要由你審批，請先按「改派給我」。",
       "material_request_reviewer_not_eligible": "所選的人不能批准這個項目的申請，請從名單裡重新選擇。",
@@ -7910,9 +8118,9 @@
       "original_not_expected": "伺服器上還沒有這張原圖對應的照片，請先讓記錄上傳完成。",
       "original_hash_mismatch": "原圖在傳送中出錯，和手機上的不一致，伺服器沒有保存。系統會再試；也可以在技術管理頁面重試。",
       "original_not_found": "這張照片沒有已備份的原圖。",
-      "driver_link_invalid": "連結已失效，請聯絡回收商重新發送。",
-      "driver_link_closed": "這趟任務已結束，連結已關閉。",
-      "driver_link_other_device": "這個連結已在另一部手機上使用，請聯絡回收商重新發送。",
+      "driver_link_invalid": "這個連結已經無效，請工地辦公室重新發送。",
+      "driver_link_closed": "這個連結已經停用，請聯絡工地辦公室。",
+      "driver_link_other_device": "這個連結已經在另一支手機使用。",
       "driver_link_expired": "連結已失效，請聯絡回收商重新發送。",
       "driver_login_retired": "司機不用登入了，請打開回收商發給你的任務連結。",
       "document_system_files_mixed_projects": "選的文件來自不同項目。一份檔案只屬於一個項目，請只選同一個項目的文件。",
@@ -7993,7 +8201,20 @@
       "sign_off_pin_not_set": "你還沒有設定簽核密碼，請先設定。",
       "sign_off_pin_incorrect": "簽核密碼不對。再錯 {attempts_left} 次會鎖 15 分鐘。",
       "sign_off_office_only": "請在電腦後台操作。手機端不能做這一步。",
-      "sign_off_pin_locked": "簽核密碼輸錯 5 次，已鎖定。請 {minutes} 分鐘後再試，或用帳號密碼重新設定。"
+      "sign_off_pin_locked": "簽核密碼輸錯 5 次，已鎖定。請 {minutes} 分鐘後再試，或用帳號密碼重新設定。",
+      "equipment_hours_same_machine": "這筆工時已經是這台設備的。",
+      "equipment_hours_overlap": "那台設備在這段時間已經有工時，同一段時間不能重複算。",
+      "equipment_hours_equipment_gone": "這部設備已經離場，不能再打卡。",
+      "equipment_hours_no_gps": "沒有準確的定位。請到戶外開定位再試。",
+      "equipment_hours_outside_fence": "你不在工地範圍內，請在工地打卡。",
+      "equipment_hours_no_fence": "項目還沒設電子圍欄，請聯絡工地辦公室。",
+      "driver_link_not_confirmed": "請先確認你的電話號碼。",
+      "driver_link_phone_mismatch": "這個號碼和工地辦公室登記的不一樣。",
+      "permission_switches_unavailable": "只有建築商的後台帳號有權限開關。",
+      "permission_switches_unknown_permission": "其中一個權限不存在。",
+      "permission_switches_unknown_project": "請選擇本公司的項目。",
+      "permission_switches_self_lockout": "不能關掉自己的「用戶管理」。",
+      "permission_switches_last_user_manager": "公司裡至少要有一個人保留「用戶管理」。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8506,11 +8727,11 @@
         "confirmHint": "請對照紙質單核對",
         "title": "從送貨單讀到的物料",
         "unclassified": "選擇分類",
-        "makeColumn": "建成分類",
         "editHint": "改掉讀錯的文字、選分類、刪掉多餘行,再點「填入」。",
         "remove": "刪除此行",
         "use": "填入",
-        "noUnit": "無單位"
+        "noUnit": "無單位",
+        "useOther": "用「其他材料」"
       },
       "ocrLowConfidence": "以下欄位識別置信度較低：{fields}。保存前請對照紙質單據核對。",
       "ocrManual": "無法讀取送貨單，請手動填寫資料。",
@@ -8549,9 +8770,6 @@
       "columnAuto": "將歸入「{name}」。後台可以改。",
       "columnUnfiledNote": "尚未歸類。後台查看後再歸。",
       "noColumnsYet": "這個工地還沒有材料分類。在下面新增第一個。",
-      "newColumnName": "新分類名稱",
-      "addColumn": "新增分類",
-      "columnOffline": "離線時請選擇已有分類，新增分類需要網路連線。",
       "reject": {
         "toggle": "當天貨不對 · Reject",
         "help": "在交接時直接退回這批貨。雙方仍要簽名；記錄保留，不計入累計。",
@@ -8574,7 +8792,9 @@
       "chooseSpec": "選擇規格",
       "specName": "規格名稱",
       "specNameHint": "名單裡沒有的規格，選「其他」在這裡填寫。",
-      "autoFilledFromSpec": "隨規格帶出"
+      "autoFilledFromSpec": "隨規格帶出",
+      "otherName": "材料名稱",
+      "otherNameHint": "名單裡沒有的材料，選「其他材料」在這裡填寫；辦公室會在分類管理加進名單。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -8857,6 +9077,7 @@
     "empty": "還沒有人說話。",
     "send": "傳送",
     "placeholder": "輸入訊息",
+    "recordCancel": "取消",
     "recordStart": "點一下開始錄音",
     "recordStop": "點一下停止並發送",
     "recordingFor": "已錄 {seconds} 秒，上限 {limit} 秒",
@@ -8978,7 +9199,12 @@
       "location": "地點",
       "latestPhoto": "最新照片",
       "overdue": "逾期",
-      "noCoordinates": "未設定座標"
+      "noCoordinates": "未設定座標",
+      "layerFences": "圍欄",
+      "openProjectMap": "打開項目地圖",
+      "projectMapTitle": "{project}：地圖和圍欄",
+      "projectMapFences": "{count} 個圍欄，照保存的位置畫出；放大、縮小、調整地圖大小都不會移動圍欄。",
+      "projectMapNoFence": "這個項目還沒有圍欄。"
     },
     "photos": {
       "title": "今日現場照片（各項目）",
@@ -9140,6 +9366,67 @@
       "exceeded": "已超出 {count}",
       "reached": "已達到 {count}",
       "approaching": "接近 {count}"
+    },
+    "reference": {
+      "title": "讓老闆從看報表變成看現場",
+      "subtitle": "匯總全公司所有項目的現場數據，連接人、物、機、料、進度與安全，讓管理更簡單、更透明、更高效。",
+      "companyView": "總公司視圖",
+      "same": "持平",
+      "vsYesterday": "較昨日",
+      "kpi": {
+        "projects": "進行中項目",
+        "today_records": "今日工地記錄",
+        "pending_approvals": "待審批事項",
+        "overdue_rectifications": "整改逾期",
+        "material_receipts_today": "今日材料進場",
+        "on_site_now": "當前在場人數"
+      },
+      "activity": "今日現場動態（各項目）",
+      "activityHint": "來自全公司各項目的最新現場記錄",
+      "view": {
+        "photos": "照片",
+        "map": "地圖"
+      },
+      "noProjects": "還沒有項目。",
+      "noPhoto": "還沒有現場照片",
+      "notices": "通知中心",
+      "seeAll": "查看全部",
+      "noNotices": "沒有新通知。",
+      "byState": "項目分佈",
+      "allProjects": "查看全部項目",
+      "noState": "未填州屬",
+      "projectCount": "{count} 個項目",
+      "presence": "在場人數",
+      "presenceTotal": "在場 {count} 人",
+      "split": {
+        "APP": "系統人員（打卡）",
+        "WORKER": "工人通行證",
+        "VISITOR": "訪客",
+        "VEHICLE": "車輛"
+      },
+      "weather": {
+        "clear": "晴",
+        "partly": "多雲",
+        "cloudy": "陰",
+        "fog": "霧",
+        "drizzle": "毛毛雨",
+        "rain": "雨",
+        "snow": "雪",
+        "storm": "雷雨"
+      },
+      "quick": {
+        "title": "快捷入口",
+        "siteRecord": "上傳工地記錄",
+        "request": "發起申請",
+        "approvals": "審批處理",
+        "rectification": "查看整改",
+        "archive": "文件歸檔",
+        "reports": "匯出報表"
+      },
+      "settingsTitle": "總部 Dashboard 大標題",
+      "settingsSubtitle": "總部 Dashboard 副標題",
+      "settingsHint": "留空就用預設文字。",
+      "temperature": "{value}°C"
     }
   },
   "home": {
@@ -10296,7 +10583,8 @@
       "DISPOSAL_REQUEST": "清運申請",
       "PROGRESS": "工程進度",
       "CONSULTANT_APPLICATION": "顧問申請",
-      "SUNDRY_CLAIM": "雜費報銷"
+      "SUNDRY_CLAIM": "雜費報銷",
+      "MATERIAL_REQUEST": "MR / 其他申請"
     },
     "lastPage": "已經是最後一頁了。",
     "loading": "載入中…",
@@ -10452,7 +10740,8 @@
         "CONSULTANT": "顧問",
         "OWNER": "業主",
         "SUPPLIER": "供應商",
-        "OTHER": "其他單位"
+        "OTHER": "其他單位",
+        "HEADQUARTERS": "總部（系統內）"
       },
       "expired": "已過期",
       "status": {
@@ -10553,7 +10842,9 @@
         "REPORT": "產生往來記錄"
       },
       "ip": "IP {ip}",
-      "writeFirst": "先寫留言或選附件。"
+      "writeFirst": "先寫留言或選附件。",
+      "headquartersHelp": "發給貴司系統裡的總部，不用生成連結。總部在 Multi Engine 的「收到的資料包」看到，並收到系統通知；系統記錄誰打開過。",
+      "sendToHeadquarters": "發給總部"
     },
     "claimFacet": {
       "title": "Claim 金額與收款",
@@ -10578,7 +10869,8 @@
       "recipients": "收件方數",
       "round": "當前輪次",
       "returned": "退回數"
-    }
+    },
+    "received": "收到的資料包"
   },
   "mySubmissions": {
     "title": "我提交過的",
@@ -10715,7 +11007,7 @@
       "site_phone": "工地電話",
       "team": "負責人",
       "code": "編號",
-      "site_no": "現場編號",
+      "site_no": "設備號碼",
       "serial_no": "序列號",
       "road_tax_expires_on": "路稅到期",
       "insurance_expires_on": "保險到期日",
@@ -10748,7 +11040,8 @@
       "confirmed_at": "確認時間",
       "entry_at": "進場時間",
       "exit_at": "退場時間",
-      "request_kind": "申請類型"
+      "request_kind": "申請類型",
+      "pdpa_consent": "個人資料告知"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -11043,7 +11336,7 @@
       "saasNotifications": "SaaS 收費通知",
       "saasReports": "SaaS 收費報表",
       "saasSettings": "SaaS 設置",
-      "safetyIncidents": "安全事件",
+      "safetyIncidents": "整改 / EHS",
       "salesActivity": "銷售操作記錄",
       "salesDetails": "銷售人員資料",
       "salesHierarchy": "團隊層級",
@@ -11095,6 +11388,8 @@
       "myTasks": "我的待辦",
       "consultantSettings": "顧問設定",
       "sundryClaims": "雜費報銷",
+      "materialReturnsReport": "材料退貨記錄（RN）",
+      "materialRejectionsReport": "材料不合格記錄",
       "materialReports": "材料報表",
       "wasteClearance": "垃圾清運",
       "equipmentEntry": "設備進場",
@@ -11111,7 +11406,8 @@
       "dailyReport": "日報告",
       "progressSummary": "項目進度摘要",
       "siteWorkers": "人員名單",
-      "materialTargets": "材料目標"
+      "materialTargets": "材料目標",
+      "materialRequests": "MR / 其他申請"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -12308,6 +12604,12 @@
       },
       "material_target": {
         "manage": "設定材料目標"
+      },
+      "inspection": {
+        "record": "填寫檢驗結果"
+      },
+      "finance": {
+        "view_amounts": "金額查看（單價、成本、預算、Claim）"
       }
     },
     "group": {
@@ -12377,13 +12679,16 @@
       "platform_version": "版本管理",
       "integration": "系統集成",
       "site_worker": "人員名單",
-      "material_target": "材料目標"
+      "material_target": "材料目標",
+      "inspection": "檢驗",
+      "finance": "金額"
     }
   },
   "photos": {
     "count": "{count} 張照片",
     "none": "沒有照片",
-    "open": "查看 {reference} 的照片"
+    "open": "查看 {reference} 的照片",
+    "more": "還有 {count} 張照片"
   },
   "profile": {
     "section": {
@@ -12581,7 +12886,7 @@
         "material_receipts": "材料進場",
         "photos": "現場照片",
         "progress_records": "工程進度",
-        "safety_incidents": "安全事件",
+        "safety_incidents": "整改 / EHS",
         "waste_dispatches": "廢料訂單"
       },
       "period": {
@@ -12751,7 +13056,10 @@
     "archived": "已歸檔",
     "correction": {
       "action": "更正",
-      "note": "更正會新開一張收貨單，並指回原來那一張。兩張都保留 —— 以後有人來查，能看到改了什麼、為什麼改。",
+      "alreadyCorrectedBody": "更正一律在最新那張上做，算數的數字才不會分成兩條。請到最新那張（{name}）再改。",
+      "alreadyCorrectedLink": "去更正 {name}",
+      "alreadyCorrectedTitle": "這張收貨單已經更正過",
+      "note": "更正直接改在這張單上，編號不變；原來的數字、誰改的、什麼時候、為什麼都記在修改歷史裡。改數量、單價、供應商等要輸入簽核密碼；只改規格、單位不用。",
       "reason": "更正原因",
       "supersededBody": "它保留下來，是為了原來的數字還查得到；但它不再計入你的送貨記錄和材料統計。",
       "supersededLink": "開啟更正後的收貨單 {name}",
@@ -12926,8 +13234,8 @@
       "rejected": "驗收不合格（不算）",
       "supplier": "供應商",
       "noSupplier": "未填供應商",
-      "searchMaterial": "搜尋材料或供應商",
-      "searchEmpty": "找不到「{term}」。可以搜尋材料名稱或供應商名稱。",
+      "searchMaterial": "搜尋材料名稱",
+      "searchEmpty": "找不到「{term}」。",
       "specification": "規格",
       "noteReceived": "送來工地：驗收合格的數量，一直累計。",
       "noteReturned": "退回供應商：後台確認完成的退貨。",
@@ -12973,7 +13281,9 @@
         "open": "打開 {reference}",
         "legacyReturn": "10-02 前在進場單上登記的退場",
         "project": "項目"
-      }
+      },
+      "searchSpec": "規格",
+      "subtotal": "{material} 小計"
     },
     "exportVerdict": "驗收結果",
     "rejectedReturns": "不合格退貨",
@@ -12982,6 +13292,7 @@
     "supplierUnfilledShort": "未填",
     "fillSupplier": {
       "action": "補供應商",
+      "archiveHint": "現場沒有填供應商。先補供應商，才能歸檔。",
       "hint": "現場沒有填供應商。先補供應商，才能驗收。",
       "reason": "補供應商（現場未填）",
       "formHint": "選這批貨的供應商，儲存後再驗收。"
@@ -14747,7 +15058,8 @@
       "hostNotified": "已通知接待人。",
       "visitorConfirmed": "已確認接待，門崗可以放行。",
       "visitorDeclined": "已拒絕，門崗已收到。",
-      "visitorCancelled": "已取消這次到訪。"
+      "visitorCancelled": "已取消這次到訪。",
+      "visitorPhotosRemoved": "到期訪客照片已刪除"
     },
     "what": {
       "roles": "角色列表",
@@ -14949,6 +15261,12 @@
         "already_inside": "已經記錄在場內，下次掃碼請按「確認退場」。",
         "already_outside": "還沒有進場記錄，請先按「確認進場」。",
         "host_not_confirmed": "不能放行：接待人還沒確認。"
+      },
+      "exitPhoto": {
+        "label": "退場照片",
+        "hint": "拍一張訪客離開的照片，作為退場證據。",
+        "take": "拍退場照片",
+        "retake": "重拍退場照片"
       }
     },
     "visitorRecords": {
@@ -15052,6 +15370,46 @@
       "next": "掃下一個",
       "openTitle": "門口等待中的訪客",
       "hostLine": "接待人：{host}"
+    },
+    "pdpa": {
+      "title": "個人資料告知（PDPA）",
+      "agree": "訪客已閱讀並同意以上告知",
+      "defaultNotice": "本公司依照《2010年個人資料保護法令》（PDPA）收集您的姓名、電話、公司、到訪目的及門崗拍攝的進出場照片，只用於工地安全和進出管理，不會提供給無關第三方。照片保存 {months} 個月，之後由公司管理員確認刪除。如需查詢或更正您的資料，請聯繫本公司。",
+      "agreedAt": "訪客於 {time} 同意個人資料告知"
+    },
+    "visitorPrivacy": {
+      "title": "訪客資料（PDPA）",
+      "subtitle": "訪客登記時的告知文字、退場拍照和照片保存期限。",
+      "exitPhoto": "訪客退場必須拍照",
+      "exitPhotoHelp": "開著時，門崗按「確認退場」前要先拍照。",
+      "retention": "訪客照片保存期限（月）",
+      "retentionHelp": "從拍照那天算；到期的照片列出來，由管理員確認後刪除。",
+      "notice": {
+        "zh": "告知文字（簡體中文）",
+        "en": "告知文字（英文）",
+        "zh-TW": "告知文字（繁體中文）",
+        "ms": "告知文字（馬來文）"
+      },
+      "noticeHelp": "沒填就用系統預設文字；寫 '{months}' 會自動換成保存月數。",
+      "noticePlaceholder": "留空使用系統預設文字",
+      "expired": {
+        "open": "到期訪客照片",
+        "title": "到期訪客照片",
+        "loading": "正在讀取…",
+        "help": "保存期限 {months} 個月：{cutoff} 以前拍的訪客照片已到期。",
+        "none": "沒有到期的訪客照片。",
+        "count": "共 {count} 張到期照片",
+        "keeps": "只刪除照片檔案；通行證、到訪和進出記錄都保留，刪除會留下記錄。",
+        "direction": {
+          "ENTRY": "進場",
+          "EXIT": "退場"
+        },
+        "history": "刪除記錄",
+        "historyRow": "{when} · {who} 刪除了 {count} 張（保存期限 {months} 個月）",
+        "done": "已刪除 {count} 張照片。",
+        "close": "關閉",
+        "confirm": "確認刪除（需簽核密碼）"
+      }
     }
   },
   "siteDisposal": {
@@ -16306,13 +16664,40 @@
       "created": "用戶已邀請",
       "removed": "用戶已移除",
       "statusUpdated": "用戶狀態已更新",
-      "updated": "用戶已更新"
+      "updated": "用戶已更新",
+      "switchesSaved": "權限已更新"
     },
     "viewTitle": "用戶詳情",
     "what": {
       "roles": "角色列表",
       "stats": "用戶統計",
       "companies": "公司列表"
+    },
+    "switches": {
+      "what": "權限開關",
+      "title": "權限開關",
+      "intro": "每個權限都是獨立的 ON / OFF 開關；新增用戶預設全開。審批打開後，審批時仍要本人簽核密碼。",
+      "hq": "總部後台",
+      "hqHint": "公司設定、用戶、角色、帳單、項目、供應商。「用戶管理」只在這裡。",
+      "project": "項目後台",
+      "scope": "項目查看",
+      "allProjects": "全部項目",
+      "chosenProjects": "指定項目",
+      "noProjects": "公司還沒有項目。",
+      "needOneProject": "至少選一個項目，或選全部項目。",
+      "amounts": "金額查看",
+      "amountsHint": "材料成本、單價、預算、Claim、雜費報銷金額；關掉後顯示「—」，匯出也拿掉。",
+      "operate": "業務操作",
+      "approve": "審批",
+      "approveHint": "打開只代表可以審批，審批時仍要本人簽核密碼。",
+      "allOn": "全開",
+      "allOff": "全關",
+      "countOn": "已打開 {on} / {total}",
+      "applyRole": "按角色套用",
+      "applyRoleHint": "照這個角色的權限打開開關，其餘關掉；保存前可以再改。",
+      "save": "保存權限",
+      "failed": "保存沒有成功，請再試一次。",
+      "notSwitchable": "手機現場人員、顧問等帳號的權限不變，由角色決定。"
     }
   },
   "validation": {
@@ -16941,6 +17326,8 @@
     }
   },
   "recordCorrection": {
+    "openHistory": "看修改記錄",
+    "historyHelp": "這筆記錄每一次修改：改了什麼、原來是什麼、誰改的、什麼時候、為什麼。",
     "button": "改正",
     "title": "改正記錄內容",
     "hint": "只能改文字和選項；照片、GPS、時間、簽名和提交人不能改。原來的內容會保留。",
@@ -16957,8 +17344,8 @@
     "badNumber": "{field} 要填大於 0 的數字",
     "cancel": "取消",
     "save": "儲存改正",
-    "tag": "已改正",
-    "historyTitle": "改正記錄",
+    "tag": "已修改",
+    "historyTitle": "修改記錄",
     "historyWhat": "改正記錄",
     "empty": "未填",
     "reasonLine": "原因：{reason}",
@@ -17008,7 +17395,10 @@
       "priority": "優先級",
       "material": "材料",
       "specification": "規格",
-      "material_specification": "規格（自填）"
+      "material_specification": "規格（自填）",
+      "equipment": "設備",
+      "start_at": "開始時間",
+      "end_at": "結束時間"
     },
     "followsSpec": "單位跟著規格，不能改"
   },
@@ -17425,7 +17815,8 @@
       "materialOrSubject": "材料 / 申請事項",
       "stage": "進度",
       "forwardHistory": "轉呈記錄",
-      "headOfficeReviewer": "總部審批人"
+      "headOfficeReviewer": "總部審批人",
+      "materialName": "材料名稱"
     },
     "action": {
       "view": "查看",
@@ -17506,7 +17897,8 @@
       "contentPlaceholder": "說明申請的內容、數量、時間等",
       "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超過 {limit} MB。",
       "fileKindRefused": "{name} 不能上傳。請上傳照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。",
-      "assignedReviewerManagerHint": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。"
+      "assignedReviewerManagerHint": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。",
+      "otherMaterialHint": "選了「其他材料」：請填寫材料名稱。"
     },
     "toast": {
       "submitted": "申請已提交。",
@@ -17596,6 +17988,9 @@
     "openInViewer": "用手機的閱讀器打開"
   },
   "fileActions": {
+    "originalVersion": "修改前原單",
+    "originalVersionHint": "這筆記錄第一次提交時的樣子（版本 1），同一個編號；不計入任何累計。",
+    "originalVersionTitle": "{reference} · 修改前原單",
     "preview": "預覽",
     "print": "列印",
     "save": "匯出",
@@ -17942,7 +18337,7 @@
       "equipment": "設備",
       "allEquipment": "全部設備",
       "search": "車牌 / 編號",
-      "searchPlaceholder": "車牌、設備編號或現場編號",
+      "searchPlaceholder": "車牌、設備號碼或系統編號",
       "scan": "掃碼找設備",
       "scanTitle": "掃設備二維碼",
       "scanHelp": "把設備二維碼貼紙對準攝影機。",
@@ -17951,7 +18346,7 @@
     "field": {
       "date": "日期",
       "equipment": "設備",
-      "code": "設備編號",
+      "code": "系統編號",
       "supplier": "供應商",
       "plate": "車牌號碼",
       "project": "項目",
@@ -17970,14 +18365,20 @@
       "incomplete": "缺開工 / 收工",
       "adjustedCount": "後台修改次數",
       "actions": "操作",
-      "siteNo": "現場編號",
-      "machineNo": "設備編號",
+      "siteNo": "設備號碼",
+      "machineNo": "設備號碼",
       "equipmentName": "設備名稱",
       "operator": "操作人員",
       "cidb": "CIDB 卡號",
       "startTime": "開工時間",
       "endTime": "收工時間",
-      "view": "查看"
+      "view": "查看",
+      "takenOn": "拍照時掃的設備",
+      "normalHours": "正常工時（小時）",
+      "overtimeHours": "超時工時（小時）",
+      "cumulativeNormal": "正常工時累計（小時）",
+      "cumulativeOvertime": "超時工時累計（小時）",
+      "inspection": "檢驗"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -18032,9 +18433,11 @@
     "toast": {
       "endSaved": "結束時間已保存",
       "startSaved": "開始時間已保存",
-      "siteNoSaved": "現場編號已保存",
-      "siteNoCleared": "現場編號已清除",
-      "operatorSaved": "操作人員已儲存"
+      "siteNoSaved": "設備號碼已保存",
+      "siteNoCleared": "設備號碼已清除",
+      "operatorSaved": "操作人員已儲存",
+      "moved": "工時已移到另一台設備",
+      "normalSaved": "正常工時已保存"
     },
     "phone": {
       "howTo": "掃設備上的二維碼 → 拍照 → 司機簽名 → 提交。提交後可以接著掃下一部。",
@@ -18043,7 +18446,7 @@
       "allSuppliers": "全部供應商",
       "noSupplier": "未填供應商",
       "suppliedBy": "供應商：{supplier}",
-      "machine": "設備編號",
+      "machine": "設備號碼",
       "pickMachine": "選擇設備",
       "machines": "設備名單",
       "noMachines": "這個項目還沒有可以選的設備，請後台先建檔。",
@@ -18085,18 +18488,19 @@
       "sentQueued": "已存在手機，有網路會自動上傳：{number} 號 {kind} {time}"
     },
     "siteNo": {
-      "open": "設備編號管理",
-      "title": "設備編號管理",
-      "help": "給每台設備一個簡短的現場編號（例如 12），寫或貼在設備上。操作員在手機上輸入這個編號就能選到設備。同一個項目裡編號不能重複；清空就是不用編號。",
+      "open": "設備號碼管理",
+      "title": "設備號碼管理",
+      "help": "每台設備登記時由系統自動給一個設備號碼（例如 12），和二維碼一一對應，永不重複。這裡只用來更正（要簽核密碼）；號碼不能清空，也不能用本項目其他設備用過的號碼。",
       "search": "找設備",
       "searchPlaceholder": "名稱、車牌、供應商或編號",
       "empty": "這個項目還沒有在用的設備。",
       "noMatch": "沒有符合的設備。",
-      "inputLabel": "{machine} 的現場編號",
+      "inputLabel": "{machine} 的設備號碼",
       "placeholder": "例如 12",
       "save": "保存",
       "failed": "保存失敗，請再試一次。",
-      "close": "關閉"
+      "close": "關閉",
+      "keep": "設備號碼不能清空，請輸入正確的號碼。"
     },
     "operator": {
       "title": "操作人員",
@@ -18116,6 +18520,25 @@
       "title": "{supplier} 的設備工時",
       "total": "這家公司合計（小時）",
       "sessions": "{count} 次"
+    },
+    "move": {
+      "title": "改設備",
+      "help": "掃錯設備時用：把這一筆移到正確的設備。原始照片、GPS、時間原樣保留；工時算到這裡選的設備，修改留在修改記錄裡。",
+      "machine": "正確的設備",
+      "choose": "選設備",
+      "reason": "原因",
+      "reasonPlaceholder": "例如：司機掃了挖掘機的碼，其實開的是吊車",
+      "save": "改設備",
+      "failed": "改設備沒有成功，請再試一次。"
+    },
+    "normal": {
+      "open": "正常工時：每天 {hours} 小時",
+      "title": "每日正常工時",
+      "help": "每位操作人員每天前面的工時算正常，超過的算超時；沒有操作人員的按設備算。跨天的算開工那天。改了只影響之後收工結算的工時，之前已結算的不變。",
+      "label": "每天正常工時（小時）",
+      "save": "保存",
+      "failed": "保存沒有成功，請再試一次。",
+      "current": "{name} 於 {at} 設定"
     }
   },
   "theme": {
@@ -18494,7 +18917,8 @@
   },
   "mapFrame": {
     "fullscreen": "全螢幕",
-    "exitFullscreen": "退出全螢幕"
+    "exitFullscreen": "退出全螢幕",
+    "resize": "拖動調整地圖大小"
   },
   "siteWorkers": {
     "title": "人員名單",
@@ -18657,7 +19081,8 @@
       "denied": "定位權限被拒絕，請按下面的步驟允許定位。",
       "unavailable": "暫時取不到位置。請到空曠處，確認手機定位已打開。",
       "upload": "上一次沒傳上去，會自動再試。"
-    }
+    },
+    "outsideFence": "你目前不在工地範圍內，系統不會記錄位置。"
   },
   "materialTargets": {
     "title": "材料目標",
@@ -18789,10 +19214,119 @@
       "role_delete": "刪除角色",
       "user_change_role": "修改用戶角色",
       "user_change_status": "停用或恢復帳號",
-      "consultant_review": "顧問審批簽核"
+      "consultant_review": "顧問審批簽核",
+      "consultant_link_document": "把文件管理的檔案加進顧問申請",
+      "receipt_refile": "把進場單歸入另一種材料",
+      "receipt_review": "驗收合格 / 不合格",
+      "receipt_add_photo": "給進場單補照片",
+      "equipment_hours_set_operator": "填寫操作人員和 CIDB",
+      "equipment_set_site_no": "修改設備號碼",
+      "equipment_hours_move": "設備工時改設備歸屬",
+      "user_change_permissions": "修改用戶的權限開關",
+      "consultant_submit": "提交顧問申請",
+      "visitor_photo_purge": "刪除到期訪客照片"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
     "firstHelp": "請先設一個只有你知道的六位數密碼，再輸入一次確認，最後填登入系統用的密碼。設好後會直接繼續剛才的操作；以後重要的後台操作都用這個密碼確認。"
+  },
+  "specFilter": {
+    "label": "規格",
+    "all": "全部規格",
+    "materialFirst": "先選材料"
+  },
+  "driverClock": {
+    "title": "設備打卡",
+    "failedTitle": "連結打不開，請檢查網路再試一次。",
+    "phoneTitle": "確認你的電話號碼",
+    "phoneLabel": "你的手機號碼",
+    "phoneBody": "工地辦公室登記的號碼。確認後，這個連結只能在這支手機使用。",
+    "phoneConfirm": "確認",
+    "phoneMismatch": "這個號碼和工地辦公室登記的不一樣。",
+    "driverLine": "司機：{name} · CIDB {cidb} · {company}",
+    "photoHint": "掃設備二維碼，拍設備或自己的照片，簽名後提交。必須在工地範圍內，並打開定位。",
+    "ended": {
+      "invalid": {
+        "title": "這個連結已經無效",
+        "body": "請工地辦公室重新發送。"
+      },
+      "closed": {
+        "title": "這個連結已經停用",
+        "body": "如果你還在這個工地工作，請聯絡工地辦公室。"
+      },
+      "otherDevice": {
+        "title": "這個連結已經在另一支手機使用",
+        "body": "請工地辦公室為這支手機重新發送。"
+      }
+    },
+    "status": {
+      "NOT_OPENED": "還沒打開",
+      "IN_USE": "使用中",
+      "STOPPED": "已停用"
+    },
+    "toast": {
+      "created": "連結已建立",
+      "reissued": "已建立新連結，舊連結不能再用",
+      "stopped": "連結已停用"
+    },
+    "office": {
+      "title": "司機打卡連結",
+      "help": "每位司機一個專屬連結，打開只看到本項目設備的開工 / 收工打卡。用 WhatsApp 發給司機；司機離開項目就停用。",
+      "add": "新增司機連結",
+      "empty": "還沒有司機連結。",
+      "driverName": "司機姓名",
+      "cidb": "CIDB 卡號碼",
+      "company": "所屬公司",
+      "companyHint": "從供應商名單選，或在下面填寫。",
+      "companyTyped": "名單裡沒有（手填）",
+      "companyName": "公司名稱",
+      "phone": "手機號碼",
+      "phoneHint": "司機第一次打開連結時要確認這個號碼。",
+      "make": "建立連結",
+      "cancel": "取消",
+      "close": "關閉",
+      "linkFor": "{name} 的連結",
+      "shownOnce": "請現在複製：連結只顯示這一次。重新發送會建立新連結。",
+      "copy": "複製連結",
+      "copied": "已複製",
+      "sendAgain": "重新發送",
+      "stop": "停用",
+      "lastUsed": "最近使用 {at}",
+      "failed": "保存沒有成功，請再試一次。",
+      "chooseProject": "先在頁面上方選一個項目，才能新增連結。"
+    }
+  },
+  "projectReference": {
+    "card": {
+      "receiptsToday": "今日收貨（噸）",
+      "wasteToday": "今日廢料（噸）",
+      "receiptsTotal": "累計收貨（噸）",
+      "wasteTotal": "累計廢料（噸）",
+      "equipment": "設備總數",
+      "pending": "待處理事項"
+    },
+    "thisMonth": "本月 {value} 噸",
+    "equipmentSplit": "在場 {on} | 離場 {off}",
+    "seeBelow": "見下方",
+    "tonnesNote": "噸數只算稱重的：噸，公斤換算成噸；廢料指環保材料出場。",
+    "latestReceipts": "最新材料進場記錄",
+    "seeAll": "查看全部",
+    "noReceipts": "還沒有材料進場記錄。",
+    "map": "項目現場地圖",
+    "point": {
+      "RECEIPT": "物料收貨點",
+      "WASTE": "廢料處理點",
+      "EQUIPMENT": "設備位置"
+    },
+    "noPoints": "最近 30 天沒有帶 GPS 的記錄。",
+    "materialMix": "物料分類統計（本月）",
+    "wasteMix": "廢料分類統計（本月）",
+    "noMix": "本月還沒有稱重的數量。",
+    "mixTotal": "總噸數 {value}",
+    "others": "其他",
+    "pending": "待處理事項",
+    "noPending": "沒有待處理事項。",
+    "photos": "最新現場照片記錄",
+    "noPhotos": "還沒有現場照片。"
   }
 }
