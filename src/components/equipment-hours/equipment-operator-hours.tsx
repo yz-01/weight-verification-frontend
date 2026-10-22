@@ -54,7 +54,7 @@ import type {
   EquipmentHoursMachineTotal,
   EquipmentHoursSession,
 } from "@/interfaces/equipment-hours";
-import { useDateFormat } from "@/lib/dates";
+import { useDateFormat, type DateFormatter } from "@/lib/dates";
 import { photoMeta } from "@/lib/photo-meta";
 import type { ExportFormat } from "@/services/contractor.service";
 import {
@@ -165,6 +165,61 @@ export function startTimeLimits(session: Session): { min: string | undefined; ma
   };
 }
 
+type Translate = (key: string, values?: Record<string, string | number>) => string;
+
+/** The other session a time refusal points at, for the 「查看那一笔」 link. */
+export interface OtherSessionTarget {
+  key: string;
+  equipment: string;
+  date: string;
+}
+
+const TIME_REFUSALS = new Set([
+  "equipment_hours_start_before_previous_photo",
+  "equipment_hours_end_after_next_photo",
+]);
+
+/**
+ * Why the office's time was refused, in plain words: the exact limit (shown
+ * like every time on the page) and which other entry's photo it is. `null`
+ * for any other failure, which keeps its own message.
+ */
+export function timeRefusal(
+  error: unknown,
+  t: Translate,
+  df: Pick<DateFormatter, "dateTime">,
+): { message: string; target: OtherSessionTarget | null } | null {
+  if (!(error instanceof ApiError) || !TIME_REFUSALS.has(error.code)) return null;
+  const values = error.values ?? {};
+  const boundary = values.boundary_at ? String(values.boundary_at) : "";
+  const kind = values.other_kind ? String(values.other_kind) : "";
+  if (!boundary || !kind) return null;
+  const time = df.dateTime(boundary);
+  const ref = values.other_ref
+    ? String(values.other_ref)
+    : t("adjust.refPhoto", { kind: t(`kind.${kind}`), time });
+  const key = error.code === "equipment_hours_end_after_next_photo" ? "adjust.endTooLate" : "adjust.startTooEarly";
+  const target =
+    values.other_key && values.other_equipment && values.other_date
+      ? {
+          key: String(values.other_key),
+          equipment: String(values.other_equipment),
+          date: String(values.other_date),
+        }
+      : null;
+  return { message: t(key, { time, ref }), target };
+}
+
+/** 「最早可以填」: the machine's previous photo, when a start is being entered. */
+export function earliestHint(
+  session: Pick<EquipmentHoursSession, "previous_at" | "has_start_photo" | "missing_start">,
+  t: Translate,
+  df: Pick<DateFormatter, "dateTime">,
+): string | null {
+  if (adjustMode(session) !== "start" || !session.previous_at) return null;
+  return t("adjust.earliest", { time: df.dateTime(session.previous_at) });
+}
+
 /** Which time the office fills in: the start of a stop with no start, else the end. */
 export function adjustMode(
   session: Pick<EquipmentHoursSession, "has_start_photo" | "missing_start">,
@@ -222,6 +277,16 @@ export function EquipmentOperatorHours() {
   const [month, setMonth] = useState<string | null>(null);
   const [opened, setOpened] = useState<EquipmentHoursSession | null>(null);
   const [numbering, setNumbering] = useState(false);
+  // 「查看那一笔」: the other entry a refused time points at, opened in place.
+  async function openOther(target: OtherSessionTarget) {
+    const found = await getEquipmentHoursDays({
+      equipment: target.equipment,
+      date_from: target.date,
+      date_to: target.date,
+    });
+    const other = found.rows.find((row) => row.key === target.key);
+    if (other) setOpened(other);
+  }
   // 司机打卡链接 (J26): the drivers' own clock-in links.
   const [driverLinks, setDriverLinks] = useState(false);
   // 操作人员 / CIDB 卡号 being written for this row (I4, ID19).
@@ -855,10 +920,12 @@ export function EquipmentOperatorHours() {
 
       {opened && (
         <DayDialog
+          key={opened.key}
           day={opened}
           canAdjust={canAdjust}
           onClose={() => setOpened(null)}
           onSaved={setOpened}
+          onOpenOther={openOther}
         />
       )}
 
@@ -976,11 +1043,14 @@ export function DayDialog({
   canAdjust,
   onClose,
   onSaved,
+  onOpenOther,
 }: {
   day: EquipmentHoursSession;
   canAdjust: boolean;
   onClose: () => void;
   onSaved: (day: EquipmentHoursSession) => void;
+  /** Open the other entry a refusal named (the 「查看那一笔」 link). */
+  onOpenOther?: (target: OtherSessionTarget) => void;
 }) {
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
@@ -1000,7 +1070,9 @@ export function DayDialog({
   });
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  const [otherEntry, setOtherEntry] = useState<OtherSessionTarget | null>(null);
   const [naming, setNaming] = useState(false);
+  const hint = earliestHint(day, t, df);
   const timeLabel = mode === "start" ? t("adjust.startAt") : t("adjust.endAt");
 
   const save = useMutation({
@@ -1008,12 +1080,18 @@ export function DayDialog({
     onSuccess: (saved) => {
       setReason("");
       setError("");
+      setOtherEntry(null);
       onSaved(saved);
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours"] });
       void queryClient.invalidateQueries({ queryKey: recordCorrectionsKey("EQUIPMENT_HOURS", day.key) });
     },
-    onError: (reason_) =>
-      setError(reason_ instanceof ApiError ? reason_.message : t("adjust.failed")),
+    onError: (reason_) => {
+      const refusal = timeRefusal(reason_, t, df);
+      setOtherEntry(refusal?.target ?? null);
+      setError(
+        refusal?.message ?? (reason_ instanceof ApiError ? reason_.message : t("adjust.failed")),
+      );
+    },
   });
 
   // 改设备归属 (J1-13): the project's other machines.
@@ -1172,6 +1250,7 @@ export function DayDialog({
                   onChange={(event) => setAt(event.target.value)}
                 />
               </FieldWrapper>
+              {hint && <p className="-mt-1 text-xs text-muted-foreground">{hint}</p>}
               <FieldWrapper label={t("adjust.reason")} required>
                 <Textarea
                   value={reason}
@@ -1180,7 +1259,23 @@ export function DayDialog({
                   placeholder={t("adjust.reasonPlaceholder")}
                 />
               </FieldWrapper>
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              {error && (
+                <p className="text-sm text-destructive">
+                  {error}
+                  {otherEntry && onOpenOther && (
+                    <>
+                      {" "}
+                      <button
+                        type="button"
+                        className="font-medium underline underline-offset-2"
+                        onClick={() => onOpenOther(otherEntry)}
+                      >
+                        {t("adjust.viewOther")}
+                      </button>
+                    </>
+                  )}
+                </p>
+              )}
               <div className="flex justify-end">
                 <Button
                   requires={[
