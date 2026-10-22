@@ -2,14 +2,18 @@ import { NextResponse } from "next/server";
 
 import { iconPath } from "@/lib/branding";
 import { getPublicBranding } from "@/lib/branding-server";
+import { fieldManifestStartUrl, MANIFEST_TOKEN } from "@/lib/field-install";
 
 export async function GET(request: Request) {
-  const value = new URL(request.url).searchParams.get("bootstrap") ?? "";
-  const token = /^[A-Za-z0-9_-]{20,200}$/.test(value) ? value : "";
-  const branding = await getPublicBranding({ bootstrap: token });
-  const startUrl = token
-    ? `/field-pwa-bootstrap?token=${encodeURIComponent(token)}`
-    : "/trace/field-login";
+  const search = new URL(request.url).searchParams;
+  const value = search.get("bootstrap") ?? "";
+  const token = MANIFEST_TOKEN.test(value) ? value : "";
+  const invitationValue = search.get("invitation") ?? "";
+  const invitation = MANIFEST_TOKEN.test(invitationValue) ? invitationValue : "";
+  const branding = await getPublicBranding(
+    token ? { bootstrap: token } : { invitation },
+  );
+  const startUrl = fieldManifestStartUrl(search);
   return NextResponse.json(
     {
       name: `${branding.name} Field Staff`,

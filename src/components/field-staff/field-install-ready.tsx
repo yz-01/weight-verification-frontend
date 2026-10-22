@@ -4,6 +4,7 @@ import {
   BookOpen,
   Camera,
   ChevronDown,
+  Copy,
   Download,
   Loader2,
   Menu,
@@ -14,21 +15,23 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { hasFieldSession, markFieldAppContext } from "@/lib/auth-token";
+import {
+  hasFieldSession,
+  isStandaloneApp,
+  markFieldAppContext,
+} from "@/lib/auth-token";
+import {
+  detectInstallEnvironment,
+  fieldAppStartPath,
+  showIosInstallGuide,
+  type InstallEnvironment,
+} from "@/lib/field-install";
 import { redirectWithFallback } from "@/lib/portal";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
-
-type InstallEnvironment =
-  | "ios-safari"
-  | "ios-chrome"
-  | "ios-other"
-  | "android"
-  | "desktop-chromium"
-  | "other";
 
 type InstallStatus = "idle" | "preparing" | "unavailable";
 
@@ -53,17 +56,16 @@ export function FieldInstallReady({
     useState<InstallEnvironment>("other");
   const [showGuide, setShowGuide] = useState(false);
   const [installStatus, setInstallStatus] = useState<InstallStatus>("idle");
+  const [copied, setCopied] = useState(false);
   const workspace = next ?? "/field-staff";
 
   useEffect(() => {
-    if (isStandalone()) {
+    if (isStandaloneApp()) {
       markFieldAppContext();
       redirectWithFallback(
         router,
         token
-          ? `/field-pwa-bootstrap?token=${encodeURIComponent(token)}${
-              next ? `&next=${encodeURIComponent(next)}` : ""
-            }`
+          ? fieldAppStartPath(token, next)
           : hasFieldSession()
             ? workspace
             : "/trace/field-login",
@@ -113,6 +115,14 @@ export function FieldInstallReady({
   const supportsNativePrompt =
     environment === "android" || environment === "desktop-chromium";
   const guideVisible = showGuide || environment.startsWith("ios-");
+  // iPhone: the home-screen app cannot see anything Safari stored, so it must
+  // be added from *this* page, whose address carries the sign-in hand-off.
+  const iosGuide = showIosInstallGuide({
+    environment,
+    standalone: false,
+  });
+  const ownIosGuide =
+    iosGuide && (environment === "ios-safari" || environment === "ios-in-app");
 
   const requestInstall = async () => {
     setInstallStatus("preparing");
@@ -181,6 +191,7 @@ export function FieldInstallReady({
             {installStatus === "preparing" ? t("installPreparing") : t("install")}
           </Button>
         )}
+        {!ownIosGuide && (
         <Button
           size="lg"
           variant="outline"
@@ -195,7 +206,32 @@ export function FieldInstallReady({
             className={`transition-transform ${guideVisible ? "rotate-180" : ""}`}
           />
         </Button>
-        {guideVisible && (
+        )}
+        {iosGuide && environment === "ios-safari" && (
+          <IosSafariSteps t={t} />
+        )}
+        {iosGuide && environment === "ios-in-app" && (
+          <div className="rounded-xl border border-warning/40 bg-warning/15 p-4 text-sm">
+            <p className="font-semibold">{t("iosInAppTitle")}</p>
+            <p className="mt-1 leading-6">{t("iosInAppBody")}</p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="mt-2"
+              onClick={() => {
+                void navigator.clipboard
+                  ?.writeText(window.location.href)
+                  .then(() => setCopied(true))
+                  .catch(() => setCopied(false));
+              }}
+            >
+              <Copy />
+              {copied ? t("copied") : t("copyLink")}
+            </Button>
+          </div>
+        )}
+        {guideVisible && !ownIosGuide && (
           <div className="surface-panel rounded-xl p-4 text-sm">
             <p className="flex items-center gap-2 font-semibold">
               <GuidanceIcon className="size-4 text-primary" />
@@ -213,7 +249,7 @@ export function FieldInstallReady({
         )}
         <Button
           size="lg"
-          variant={supportsNativePrompt ? "outline" : "default"}
+          variant={supportsNativePrompt || iosGuide ? "outline" : "default"}
           className="h-12 text-sm"
           onClick={() => redirectWithFallback(router, workspace, 150)}
         >
@@ -225,34 +261,45 @@ export function FieldInstallReady({
   );
 }
 
-function isStandalone(): boolean {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    ("standalone" in navigator &&
-      (navigator as Navigator & { standalone?: boolean }).standalone === true)
-  );
-}
 
-function detectInstallEnvironment(): InstallEnvironment {
-  if (typeof navigator === "undefined") return "other";
-  const agent = navigator.userAgent.toLowerCase();
-  const ios =
-    /iphone|ipad|ipod/.test(agent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  if (ios) {
-    if (agent.includes("crios")) return "ios-chrome";
-    if (
-      agent.includes("fxios") ||
-      agent.includes("edgios") ||
-      agent.includes("opios")
-    ) {
-      return "ios-other";
-    }
-    return "ios-safari";
-  }
-  if (agent.includes("android")) return "android";
-  if (/chrome|chromium|edg|opr/.test(agent)) return "desktop-chromium";
-  return "other";
+
+/**
+ * iOS 26 Safari: the Share button sits behind the "..." button in the default
+ * compact tab bar, "Add to Home Screen" is in the share sheet (sometimes under
+ * "More"), and "Open as Web App" is on by default - it must stay on.
+ */
+function IosSafariSteps({
+  t,
+}: {
+  t: ReturnType<typeof useTranslations<"fieldAccess">>;
+}) {
+  const steps = [
+    t("iosStep1"),
+    t("iosStep2"),
+    t("iosStep3"),
+    t("iosStep4"),
+  ];
+  return (
+    <div className="surface-panel rounded-xl p-4 text-sm" data-testid="ios-install-steps">
+      <p className="flex items-center gap-2 font-semibold">
+        <Share className="size-4 text-primary" />
+        {t("iosStepsTitle")}
+      </p>
+      <ol className="mt-3 grid gap-2">
+        {steps.map((step, index) => (
+          <li key={index} className="flex gap-3 leading-6">
+            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
+              {index + 1}
+            </span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-3 rounded-lg bg-muted/40 px-3 py-2 leading-5 text-muted-foreground">
+        {t("iosStepsNote")}
+      </p>
+    </div>
+  );
 }
 
 function installGuidance(

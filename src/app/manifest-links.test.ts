@@ -2,6 +2,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { fieldManifestStartUrl } from "@/lib/field-install";
+
 /**
  * One `rel="manifest"` per page, and the field portal must claim its own.
  *
@@ -114,10 +116,13 @@ describe("manifest links", () => {
     );
 
     const route = readFileSync("src/app/field-manifest.webmanifest/route.ts", "utf8");
-    expect(route).toContain(
-      "`/field-pwa-bootstrap?token=${encodeURIComponent(token)}`",
+    expect(route).toContain("start_url: startUrl");
+    expect(route).toContain("fieldManifestStartUrl(search)");
+    const token = "a".repeat(40);
+    expect(fieldManifestStartUrl(new URLSearchParams({ bootstrap: token }))).toBe(
+      `/field-pwa-bootstrap?token=${token}`,
     );
     // and without a token it must still be a field screen, never the chooser
-    expect(route).toContain('"/trace/field-login"');
+    expect(fieldManifestStartUrl(new URLSearchParams())).toBe("/trace/field-login");
   });
 });

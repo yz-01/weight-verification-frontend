@@ -17,6 +17,7 @@ import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
 import { redirectWithFallback } from "@/lib/portal";
 import { keepShellPageStored } from "@/lib/shell-cache";
 import { FieldLocationTracker } from "@/components/field-staff/field-location-tracker";
+import { FieldInstallBanner } from "@/components/field-staff/field-install-banner";
 import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
 import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
 
@@ -105,6 +106,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+      <FieldInstallBanner />
       <main className="mx-auto min-w-0 w-full max-w-2xl px-4 py-5">{children}</main>
     </div>
   );

@@ -140,6 +140,28 @@ function beginFieldSession(result: LoginResponse): void {
   setFieldTokens(result.tokens);
   markFieldAppContext();
   setLocaleCookie(result.user.language);
+  try {
+    window.localStorage.setItem(LINKED_KEY, "1");
+  } catch {
+    // Storage blocked: the sign-in still stands for this page.
+  }
+}
+
+const LINKED_KEY = "mse_field_linked";
+
+/**
+ * Whether this browser storage has ever been signed in as a field phone.
+ *
+ * On an iPhone the home-screen app has its own empty storage. When it has
+ * never been signed in, a PIN cannot work there - the server knows Safari's
+ * device, not this one - so the PIN screen explains the way in instead.
+ */
+export function fieldStorageWasLinked(): boolean {
+  try {
+    return window.localStorage.getItem(LINKED_KEY) === "1";
+  } catch {
+    return false;
+  }
 }
 
 const DEVICE_ID_KEY = "mse_field_device_id";
