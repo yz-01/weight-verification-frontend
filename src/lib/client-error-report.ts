@@ -39,9 +39,18 @@ export interface ClientErrorReport {
   standalone: boolean;
   boundary: string;
   leaving: boolean;
+  /** "crash" (an error screen) or "unbound" (an app that could not sign in). */
+  kind: "crash" | "unbound";
 }
 
 type Reportable = { name?: string; message?: string; stack?: string; digest?: string };
+
+type ReportContext = {
+  boundary: string;
+  standalone?: boolean;
+  leaving?: boolean;
+  kind?: "crash" | "unbound";
+};
 
 let sent = 0;
 const lastSentAt = new Map<string, number>();
@@ -84,11 +93,17 @@ export function redactAddress(href: string): string {
 
 export function buildClientErrorReport(
   error: Reportable | null | undefined,
-  context: { boundary: string; standalone?: boolean; leaving?: boolean },
+  context: ReportContext,
 ): ClientErrorReport {
   const hasWindow = typeof window !== "undefined";
+  const kind = context.kind ?? "crash";
   return {
-    code: clientErrorCode(error),
+    // An unbound report's "message" is its reason code, kept readable so the
+    // log line matches the 「原因：…」 on the screen.
+    code:
+      kind === "unbound"
+        ? String(error?.message ?? "").slice(0, 40)
+        : clientErrorCode(error),
     name: String(error?.name ?? "Error").slice(0, 120),
     message: String(error?.message ?? "").slice(0, 500),
     stack: String(error?.stack ?? "").slice(0, 2000),
@@ -99,6 +114,7 @@ export function buildClientErrorReport(
     standalone: Boolean(context.standalone),
     boundary: context.boundary.slice(0, 40),
     leaving: Boolean(context.leaving),
+    kind,
   };
 }
 
@@ -108,7 +124,7 @@ export function buildClientErrorReport(
  */
 export function reportClientError(
   error: Reportable | null | undefined,
-  context: { boundary: string; standalone?: boolean; leaving?: boolean },
+  context: ReportContext,
   deps: { fetch?: typeof fetch; now?: () => number; online?: () => boolean } = {},
 ): boolean {
   try {

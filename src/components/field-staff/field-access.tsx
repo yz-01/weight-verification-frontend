@@ -24,6 +24,7 @@ import {
   detectInstallEnvironment,
   fieldAccessView,
   fieldSignInDestination,
+  unboundCode,
   unboundReason,
   type InstallEnvironment,
   validBootstrap,
@@ -90,6 +91,9 @@ export function FieldAccess() {
   const [signedIn, setSignedIn] = useState(false);
   // The server said this browser is not the linked phone.
   const [deviceRefused, setDeviceRefused] = useState(false);
+  // The server's code when the stored hand-off was refused (shown as the
+  // reason under the "not linked" help, and logged).
+  const [refusedCode, setRefusedCode] = useState<string | null>(null);
   const chatApp = typeof window === "undefined" ? null : inAppBrowserName();
   // Browser facts, read after hydration so the server and the first client
   // render agree.
@@ -158,6 +162,8 @@ export function FieldAccess() {
           FIELD_OFFICE_SIGN_OUTS.includes(cause.code ?? "")
         ) {
           setError(cause.message);
+        } else if (cause instanceof ApiError && cause.code) {
+          setRefusedCode(cause.code);
         }
         setResuming(false);
       });
@@ -259,7 +265,7 @@ export function FieldAccess() {
 
   const unbound =
     !token && context
-      ? deviceRefused
+      ? deviceRefused || (refusedCode && context.standalone && !context.linked)
         ? contextReason(context)
         : unboundReason({
             linked: context.linked,
@@ -294,7 +300,19 @@ export function FieldAccess() {
               <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
             </div>
           )}
-          {unbound && <FieldUnboundHelp reason={unbound} />}
+          {unbound && context && (
+            <FieldUnboundHelp
+              reason={unbound}
+              standalone={context.standalone}
+              code={unboundCode({
+                standalone: context.standalone,
+                environment: context.environment,
+                refusedCode,
+                deviceRefused,
+                joinLink: Boolean(joinLink),
+              })}
+            />
+          )}
           {pinUseful && (
             <FieldWrapper label={t("pin")} required>
               <Input
