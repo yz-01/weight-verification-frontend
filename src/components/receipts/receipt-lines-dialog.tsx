@@ -30,7 +30,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { MaterialReceiptDetail } from "@/interfaces/contractor";
-import { draftsFromReceiptLines, emptyLine, lineProblems, receiptLinesPayload } from "@/lib/material-lines";
+import {
+  draftsFromReceiptLines,
+  emptyLine,
+  lineProblems,
+  linesMoneyNote,
+  receiptLinesPayload,
+} from "@/lib/material-lines";
 import { saveReceiptLines } from "@/services/contractor.service";
 
 export function ReceiptLinesDialog({
@@ -64,6 +70,8 @@ export function ReceiptLinesDialog({
   const complete = lines.every(
     (line) => lineProblems(line, materials, { stored: Boolean(line.id && storedIds.includes(line.id)) }).length === 0,
   );
+
+  const moneyNote = linesMoneyNote(lines);
 
   const save = useMutation({
     mutationFn: () => {
@@ -110,6 +118,12 @@ export function ReceiptLinesDialog({
               storedIds={storedIds}
             />
           </FieldWrapper>
+          {moneyNote && (
+            <p className="flex items-start gap-2 text-xs text-muted-foreground">
+              <Info className="mt-0.5 size-3.5 shrink-0" />
+              {t(moneyNote)}
+            </p>
+          )}
           <FieldWrapper label={t("reason")} required>
             <Textarea rows={2} maxLength={2000} value={reason} onChange={(event) => setReason(event.target.value)} />
           </FieldWrapper>

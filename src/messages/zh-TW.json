@@ -10959,6 +10959,7 @@
       "site": "回收廠",
       "specification": "規格",
       "supplier": "供應商",
+      "supplier_from_machine": "供應商（從設備帶出）",
       "task_type": "類型",
       "title": "事件",
       "vehicle_plate": "車輛",
@@ -18039,6 +18040,8 @@
     "dialogTitle": "{reference} · 材料明細",
     "dialogHelp": "一張 DO 可以有多種材料。每種材料各自選材料、規格、單位，填數量，各自進對應的分類和累計。第 1 項是這張單原有的材料，可以改，不能刪。",
     "pinNote": "只改規格或單位不用簽核密碼；改材料、數量、單價、金額，或增加、刪除材料，要簽核密碼，並留修改記錄。",
+    "moneyOnFirst": "這張 DO 的金額算在第 1 項材料。要分開算，給每項材料填金額。",
+    "moneyPerLine": "已有材料填了金額：只算各項填的金額，沒填金額的那項不算進花費。",
     "correctionNote": "這張單有 {count} 種材料。這裡改第 1 項；其他材料用「增加材料」加、改、刪。",
     "correctionNoteOne": "這張 DO 有多種材料？用「增加材料」加上去，各自歸檔。",
     "requestHint": "一張申請可以有多種材料，整張一起審批。"

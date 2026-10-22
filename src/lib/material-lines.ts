@@ -123,6 +123,16 @@ export function lineProblems(
 }
 
 /** The body of `save_receipt_lines` (MI): every line, in order. */
+/**
+ * Which money note a delivery's lines need (audit 10-22): one material spends
+ * the DO amount; several with no amount put the DO amount on material 1;
+ * once any material has an amount, only the amounts typed count.
+ */
+export function linesMoneyNote(lines: readonly Pick<MaterialLineDraft, "amount">[]): "moneyOnFirst" | "moneyPerLine" | null {
+  if (lines.length < 2) return null;
+  return lines.some((line) => line.amount.trim()) ? "moneyPerLine" : "moneyOnFirst";
+}
+
 export function receiptLinesPayload(lines: readonly MaterialLineDraft[], materials: readonly CatalogueRow[]) {
   return lines.map((line) => {
     const resolved = resolveLine(line, materials);

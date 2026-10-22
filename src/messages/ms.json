@@ -10959,6 +10959,7 @@
       "site": "Depoh",
       "specification": "Spesifikasi",
       "supplier": "Pembekal",
+      "supplier_from_machine": "Pembekal (daripada mesin)",
       "task_type": "Jenis",
       "title": "Peristiwa",
       "vehicle_plate": "Lori",
@@ -18039,6 +18040,8 @@
     "dialogTitle": "{reference} · Senarai bahan",
     "dialogHelp": "Satu DO boleh membawa beberapa jenis bahan. Setiap satu ada bahan, spesifikasi, unit dan kuantiti sendiri, dan dikira dalam kategori dan jumlahnya sendiri. Bahan 1 ialah bahan asal rekod ini: boleh diubah, tidak boleh dibuang.",
     "pinNote": "Mengubah spesifikasi atau unit sahaja tidak perlu PIN. Mengubah bahan, kuantiti, harga seunit atau jumlah, atau menambah atau membuang bahan, perlu PIN dan disimpan dalam sejarah.",
+    "moneyOnFirst": "Jumlah DO dikira di bawah bahan 1. Untuk membahagikannya, isikan jumlah bagi setiap bahan.",
+    "moneyPerLine": "Sesetengah bahan ada jumlah: hanya jumlah itu dikira, dan bahan tanpa jumlah tidak dikira dalam perbelanjaan.",
     "correctionNote": "Rekod ini ada {count} jenis bahan. Borang ini mengubah bahan 1; tambah, ubah atau buang yang lain dengan \"Tambah bahan\".",
     "correctionNoteOne": "Beberapa jenis bahan pada DO ini? Tambahkannya dengan \"Tambah bahan\", setiap satu difailkan sendiri.",
     "requestHint": "Satu permohonan boleh meminta beberapa jenis bahan; ia diluluskan sekali gus."
