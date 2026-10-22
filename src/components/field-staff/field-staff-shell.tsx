@@ -13,7 +13,7 @@ import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import { Button } from "@/components/ui/button";
-import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
+import { clearFieldTokens, isStandaloneApp, markFieldAppContext } from "@/lib/auth-token";
 import { fieldWorkspaceSignIn } from "@/lib/field-install";
 import { replacePage } from "@/lib/portal";
 import { keepShellPageStored } from "@/lib/shell-cache";
@@ -57,7 +57,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
       // A hand-off on the address (an iPhone app added from this page, first
       // open, empty storage) signs in with it and comes straight back here.
       // A full page load, not a route change: see `replacePage`.
-      replacePage(fieldWorkspaceSignIn(currentPath));
+      replacePage(fieldWorkspaceSignIn(currentPath, isStandaloneApp()));
     } else if (!isLoading && user !== null && !allowed) {
       clearFieldTokens();
       replacePage("/trace/field-login");

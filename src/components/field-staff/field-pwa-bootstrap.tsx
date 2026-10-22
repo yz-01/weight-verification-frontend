@@ -19,6 +19,7 @@ import {
   contextReason,
   detectInstallEnvironment,
   fieldBootstrapStep,
+  fieldJoinWithPinPath,
   type UnboundReason,
 } from "@/lib/field-install";
 import { replacePage } from "@/lib/portal";
@@ -57,7 +58,12 @@ export function FieldPwaBootstrap({
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    const step = fieldBootstrapStep({ token, hasSession: hasFieldSession() });
+    const standalone = isStandaloneApp();
+    const step = fieldBootstrapStep({
+      token,
+      hasSession: hasFieldSession(),
+      standalone,
+    });
     // A phone that is already signed in keeps its session: a relaunch of the
     // installed app, or a reload, must not exchange the link again. If that
     // session turns out to be refused, the workspace comes back here (or to
@@ -69,7 +75,15 @@ export function FieldPwaBootstrap({
       return;
     }
     if (step === "missing") return;
+    if (step === "tab-refused") {
+      // A browser tab with a link in its address: not signed in, and the
+      // link comes off the address so it is not copied on.
+      window.history.replaceState(window.history.state, "", "/field-pwa-bootstrap");
+      window.requestAnimationFrame(() => setError(t("tabNeedsActivation")));
+      return;
+    }
     void restoreFieldPwaSession({
+      context: "standalone",
       token,
       device_id: getOrCreateFieldDeviceId(),
       device_name: navigator.platform || t("thisPhone"),
@@ -82,6 +96,12 @@ export function FieldPwaBootstrap({
         replacePage(next ?? "/field-staff");
       })
       .catch((cause) => {
+        // The phone's second slot was filled moments ago: the PIN, typed in
+        // this app, joins it.
+        if (cause instanceof ApiError && cause.code === "field_companion_pin_required") {
+          replacePage(fieldJoinWithPinPath(token, next));
+          return;
+        }
         if (hasFieldSession()) {
           markFieldAppContext();
           replacePage(next ?? "/field-staff");

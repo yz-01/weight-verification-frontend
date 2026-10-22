@@ -252,11 +252,14 @@ export function fieldWorkspaceAddress(input: {
  * for the first time with empty storage) it signs in with that, then comes
  * back to the same page without it. Otherwise: the PIN screen.
  */
-export function fieldWorkspaceSignIn(address: string): string {
+export function fieldWorkspaceSignIn(address: string, standalone: boolean): string {
   const url = new URL(address, "http://field.local");
   const token = validBootstrap(url.searchParams.get(BOOTSTRAP_PARAM));
   const back = withBootstrapParam(address, null);
-  if (token) return fieldAppStartPath(token, back);
+  // Only the installed app signs in with a link on its address. A browser tab
+  // with one is most likely a copied workspace link: it gets the PIN screen
+  // (which explains the way in) and the link comes off the address.
+  if (token && standalone) return fieldAppStartPath(token, back);
   return `/trace/field-login?next=${encodeURIComponent(back)}`;
 }
 
@@ -271,7 +274,18 @@ export function fieldWorkspaceSignIn(address: string): string {
 export function fieldBootstrapStep(input: {
   token: string;
   hasSession: boolean;
-}): "keep-session" | "exchange" | "missing" {
+  standalone: boolean;
+}): "keep-session" | "exchange" | "tab-refused" | "missing" {
   if (input.hasSession) return "keep-session";
-  return input.token ? "exchange" : "missing";
+  if (!input.token) return "missing";
+  // A browser tab never signs in from a link in its address (a copied link
+  // would otherwise sign a stranger in): the activation link is the way in.
+  return input.standalone ? "exchange" : "tab-refused";
+}
+
+/** The PIN screen of the installed app, carrying its link to join with. */
+export function fieldJoinWithPinPath(token: string, next?: string): string {
+  return `/trace/field-login?${BOOTSTRAP_PARAM}=${encodeURIComponent(token)}${
+    next ? `&next=${encodeURIComponent(next)}` : ""
+  }`;
 }

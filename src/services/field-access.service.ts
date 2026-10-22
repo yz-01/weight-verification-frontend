@@ -113,6 +113,9 @@ export async function fieldLogin(payload: {
   phone?: string;
   pin: string;
   device_id: string;
+  /** The installed app joining the phone with its link and the PIN. */
+  bootstrap?: string;
+  context?: FieldContext;
 }): Promise<FieldLoginResponse> {
   const result = await api.post<FieldLoginResponse>(
     "/api/field-access/field_login/",
@@ -123,7 +126,14 @@ export async function fieldLogin(payload: {
   return result;
 }
 
+/**
+ * Who is asking: the installed app ("standalone") or a browser tab. Only the
+ * installed app may join a phone with a link; the server refuses a tab.
+ */
+export type FieldContext = "standalone" | "browser";
+
 export async function restoreFieldPwaSession(payload: {
+  context: FieldContext;
   token: string;
   device_id: string;
   device_name?: string;

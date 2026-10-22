@@ -17,6 +17,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   fieldBootstrapStep,
+  fieldJoinWithPinPath,
   fieldWorkspaceAddress,
   fieldWorkspaceSignIn,
   validBootstrap,
@@ -177,14 +178,20 @@ describe("the hand-off on workspace addresses (2)", () => {
     ).toBeNull();
   });
 
-  it("a workspace page opened with a hand-off and no session signs in with it and comes back without it", () => {
-    expect(fieldWorkspaceSignIn(`/field-staff/incidents?tab=mine&bootstrap=${TOKEN}`)).toBe(
+  it("the installed app opened on a workspace page with a hand-off and no session signs in with it and comes back without it", () => {
+    expect(fieldWorkspaceSignIn(`/field-staff/incidents?tab=mine&bootstrap=${TOKEN}`, true)).toBe(
       `/field-pwa-bootstrap?token=${TOKEN}&next=${encodeURIComponent("/field-staff/incidents?tab=mine")}`,
     );
   });
 
   it("without a hand-off the PIN screen comes back to the same page", () => {
-    expect(fieldWorkspaceSignIn("/field-staff?tab=mine")).toBe(
+    expect(fieldWorkspaceSignIn("/field-staff?tab=mine", true)).toBe(
+      `/trace/field-login?next=${encodeURIComponent("/field-staff?tab=mine")}`,
+    );
+  });
+
+  it("a browser tab with a copied link is not signed in: PIN screen, link off the address", () => {
+    expect(fieldWorkspaceSignIn(`/field-staff?tab=mine&bootstrap=${TOKEN}`, false)).toBe(
       `/trace/field-login?next=${encodeURIComponent("/field-staff?tab=mine")}`,
     );
   });
@@ -197,7 +204,7 @@ describe("the hand-off on workspace addresses (2)", () => {
 
   it("the shell asks the address what to do when nobody is signed in", () => {
     const shell = read("components/field-staff/field-staff-shell.tsx");
-    expect(shell).toMatch(/replacePage\(fieldWorkspaceSignIn\(currentPath\)\)/);
+    expect(shell).toMatch(/replacePage\(fieldWorkspaceSignIn\(currentPath, isStandaloneApp\(\)\)\)/);
     expect(shell).toMatch(/<FieldWorkspaceAddress \/>/);
   });
 
@@ -210,13 +217,33 @@ describe("the hand-off on workspace addresses (2)", () => {
 
 describe("reload, return and relaunch keep the session (4, 5)", () => {
   it("a signed-in storage never exchanges the link again", () => {
-    expect(fieldBootstrapStep({ token: TOKEN, hasSession: true })).toBe("keep-session");
-    expect(fieldBootstrapStep({ token: "", hasSession: true })).toBe("keep-session");
+    for (const standalone of [true, false]) {
+      expect(fieldBootstrapStep({ token: TOKEN, hasSession: true, standalone })).toBe("keep-session");
+      expect(fieldBootstrapStep({ token: "", hasSession: true, standalone })).toBe("keep-session");
+    }
   });
 
   it("only empty storage exchanges it (the first open of the app)", () => {
-    expect(fieldBootstrapStep({ token: TOKEN, hasSession: false })).toBe("exchange");
-    expect(fieldBootstrapStep({ token: "", hasSession: false })).toBe("missing");
+    expect(fieldBootstrapStep({ token: TOKEN, hasSession: false, standalone: true })).toBe("exchange");
+    expect(fieldBootstrapStep({ token: "", hasSession: false, standalone: true })).toBe("missing");
+  });
+
+  it("a browser tab with a link and no session never exchanges it", () => {
+    expect(fieldBootstrapStep({ token: TOKEN, hasSession: false, standalone: false })).toBe(
+      "tab-refused",
+    );
+    const source = read("components/field-staff/field-pwa-bootstrap.tsx");
+    expect(source).toMatch(/step === "tab-refused"[\s\S]*?replaceState\([^)]*"\/field-pwa-bootstrap"\)/);
+    expect(source).toMatch(/context: "standalone"/);
+  });
+
+  it("a slot refilled too soon sends the app to its PIN screen with the link", () => {
+    expect(fieldJoinWithPinPath(TOKEN, "/field-staff")).toBe(
+      `/trace/field-login?bootstrap=${TOKEN}&next=${encodeURIComponent("/field-staff")}`,
+    );
+    const source = read("components/field-staff/field-pwa-bootstrap.tsx");
+    expect(source).toMatch(/field_companion_pin_required[\s\S]*?replacePage\(fieldJoinWithPinPath\(token, next\)\)/);
+    expect(read("components/field-staff/field-access.tsx")).toMatch(/bootstrap: joinLink/);
   });
 
   it("the start page decides before it calls the server", () => {
