@@ -105,11 +105,14 @@ describe("the phone's history saves data (2026-10-09)", () => {
   const heroSrc = (html: string) =>
     /data-shell-hero[^>]*>(?:(?!<\/button>)[\s\S])*?<img[^>]*src="([^"]+)"/.exec(html)?.[1] ?? null;
 
-  it("on the phone, draws every photo - the large first one too - from its thumbnail", () => {
+  it("on the phone, names the thumbnail first and offers the large photo for the square (J44)", () => {
     const html = renderDetail(<MySubmissions />, (client) => withThumbnails(client));
     expect(heroSrc(html)).toBe(THUMB);
+    // A sharp screen takes the large one for the big square.
+    expect(html).toContain(`srcSet="${THUMB} 400w, ${FULL} 1600w"`);
     expect(html).toContain(`${THUMB}?2`);
-    expect(html).not.toContain(FULL);
+    // The strip stays small: never the second full photo.
+    expect(html).not.toContain(`${FULL}?2`);
   });
 
   it("in the office, keeps the large first photo full size; only the strip uses thumbnails", () => {

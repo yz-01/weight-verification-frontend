@@ -200,14 +200,11 @@ describe("plain words (I41, IB20)", () => {
     expect(zh.receipts.net.searchEmpty.replace("{term}", "best")).toBe("找不到「best」。");
   });
 
-  it("closes each material with its own subtotal, per unit, and no grand total (J5-2)", () => {
-    const source = readFileSync(
-      path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"),
-      "utf8",
-    ).replace(/\r\n/g, "\n");
-    expect(source).toContain('data-slot="net-subtotal"');
-    expect(source).toContain("entry.supplier === row.supplier && entry.material_name === row.material_name");
-    expect(zh.receipts.net.subtotal.replace("{material}", "混凝土")).toBe("混凝土 小计");
+  it("has no 小计 rows and no grand total (J42, Lucas 10-22)", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/components/receipts/material-tabs.tsx"), "utf8");
+    expect(source).not.toContain('data-slot="net-subtotal"');
+    expect(source).not.toContain("receipts.net.subtotal");
+    expect((zh.receipts.net as Record<string, unknown>).subtotal).toBeUndefined();
   });
 });
 

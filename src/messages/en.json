@@ -13316,8 +13316,7 @@
         "legacyReturn": "Return entered on a receipt before 10-02",
         "project": "Project"
       },
-      "searchSpec": "Specification",
-      "subtotal": "{material} subtotal"
+      "searchSpec": "Specification"
     },
     "exportVerdict": "Acceptance result",
     "rejectedReturns": "Rejected returns",

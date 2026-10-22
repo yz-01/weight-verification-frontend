@@ -99,9 +99,13 @@ describe("the photo report by record (J8)", () => {
     expect(first).not.toContain("full-0.jpg");
   });
 
-  it("offers the record and its evidence report, never the file names", () => {
+  it("keeps the row to its words and photographs: no buttons, no file names (J43)", () => {
     const html = render();
-    expect(html).toContain("打开原记录");
+    // 打开原记录, 完整证据 PDF and 修改前原单 are not on the row.
+    expect(html).not.toContain("打开原记录");
+    expect(html).not.toContain("证据 PDF");
+    expect(html).not.toContain("修改前原单");
+    expect(html).not.toContain("预览");
     expect(html).not.toContain(".jpg<");
     expect(html).not.toContain("101.6");
   });
