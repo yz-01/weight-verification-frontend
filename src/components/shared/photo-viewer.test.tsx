@@ -6,6 +6,9 @@
  * viewer for every screen (工程进度, 材料进场, 门岗, EHS, the chat), so this is
  * the one place it is checked.
  */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/ui/dialog", async () =>
@@ -19,7 +22,7 @@ vi.mock("@/components/shared/evidence-file-actions", () => ({
 }));
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { PhotoViewer, fitSize, photoFrameWidth } = await import("@/components/shared/record-detail-shell");
+const { PhotoViewer, fitSize, heroSources, photoFrameWidth } = await import("@/components/shared/record-detail-shell");
 
 const photos = [
   {
@@ -134,5 +137,32 @@ describe("the frame is the photograph's own shape", () => {
     const html = render();
     expect(html).toContain("--viewer-width");
     expect(html).toContain("sm:w-(--viewer-width)");
+  });
+});
+
+// J44 (Lucas 10-22): the detail's large first photo is a square drawn from
+// the large photograph, not a narrow strip from the thumbnail.
+describe("the large first photo", () => {
+  const photo = { id: "p", url: "https://cdn.example/full.jpg", thumbnailUrl: "https://cdn.example/thumb.webp", label: "DO" };
+
+  it("is the large photograph in the office", () => {
+    expect(heroSources(photo, false)).toEqual({ src: "https://cdn.example/full.jpg" });
+  });
+
+  it("on the phone names the thumbnail and offers the large one beside it", () => {
+    expect(heroSources(photo, true)).toEqual({
+      src: "https://cdn.example/thumb.webp",
+      srcSet: "https://cdn.example/thumb.webp 400w, https://cdn.example/full.jpg 1600w",
+    });
+    expect(heroSources({ ...photo, thumbnailUrl: null }, true)).toEqual({ src: "https://cdn.example/full.jpg" });
+    expect(heroSources({ ...photo, url: "" }, false)).toEqual({ src: "https://cdn.example/thumb.webp" });
+  });
+
+  it("is a square, filled", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/components/shared/record-detail-shell.tsx"), "utf8");
+    const hero = source.slice(source.indexOf("function ShellHeroPhoto"), source.indexOf("function ShellRecorder"));
+    expect(hero).toContain("aspect-square");
+    expect(hero).toContain("object-cover");
+    expect(hero).not.toContain("photoFrameWidth");
   });
 });
