@@ -14,6 +14,7 @@
 import { LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, type Locale } from "@/i18n/config";
 import type { Portal } from "@/interfaces/auth";
 import { forgetFieldUser } from "@/lib/field-offline-user";
+import { FIELD_BOOTSTRAP_COOKIE, validBootstrap } from "@/lib/field-install";
 
 const ACCESS_KEY = "mse_access_token";
 const REFRESH_KEY = "mse_refresh_token";
@@ -79,7 +80,59 @@ export function markFieldAppContext(): void {
  */
 export function setFieldBootstrapToken(token: string): void {
   if (!isBrowser() || !token) return;
+  const changed = window.localStorage.getItem(FIELD_BOOTSTRAP_KEY) !== token;
   window.localStorage.setItem(FIELD_BOOTSTRAP_KEY, token);
+  syncFieldBootstrapCookie();
+  // The field shell re-checks its manifest link (`FieldManifestToken`).
+  if (changed) window.dispatchEvent(new Event("mse:field-bootstrap"));
+}
+
+/** How long the cookie copy of the hand-off lives (the server decides validity). */
+const FIELD_BOOTSTRAP_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
+
+/**
+ * Mirror the held hand-off into a first-party cookie, in a browser tab only.
+ *
+ * iPhone Safari's own Share -> Add to Home Screen installs from the manifest
+ * named in the page the *server* sent, and WebKit keeps the first manifest it
+ * loaded for that page: rewriting the link afterwards in the browser is too
+ * late (Lucas 2026-10-23: added from the workspace, the new icon opened on
+ * "not linked"). With the hand-off in a cookie, every field page is rendered
+ * with a manifest whose start_url already signs the installed app in.
+ *
+ * Not HttpOnly because the browser writes it (the token is already in this
+ * origin's localStorage). Host-only, path /, SameSite=Lax, Secure on https:
+ * it goes to this site's own pages only, never to the API or another site.
+ * Inside the installed app it is removed: the app has done its install.
+ */
+export function syncFieldBootstrapCookie(): void {
+  if (!isBrowser()) return;
+  try {
+    const token = validBootstrap(window.localStorage.getItem(FIELD_BOOTSTRAP_KEY));
+    if (token && !isStandaloneApp()) {
+      setCookie(FIELD_BOOTSTRAP_COOKIE, token, FIELD_BOOTSTRAP_COOKIE_MAX_AGE);
+    } else {
+      deleteCookie(FIELD_BOOTSTRAP_COOKIE);
+    }
+  } catch {
+    // Cookies or storage blocked: the install page still carries the token.
+  }
+}
+
+/** The hand-off as this page's cookie holds it (what the server saw). */
+export function readFieldBootstrapCookie(): string | null {
+  if (!isBrowser()) return null;
+  const prefix = `${FIELD_BOOTSTRAP_COOKIE}=`;
+  const part = document.cookie
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(prefix));
+  if (!part) return null;
+  try {
+    return validBootstrap(decodeURIComponent(part.slice(prefix.length)));
+  } catch {
+    return null;
+  }
 }
 
 export function getFieldBootstrapToken(): string | null {
@@ -117,6 +170,7 @@ export function takeFieldSignOutReason(): string {
 export function clearFieldBootstrapToken(): void {
   if (!isBrowser()) return;
   window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);
+  deleteCookie(FIELD_BOOTSTRAP_COOKIE);
 }
 
 export function isFieldStandaloneApp(): boolean {
@@ -229,6 +283,7 @@ export function clearFieldTokens(): void {
   // Signing out is a decision to stop being this worker on this phone, so the
   // way back in without a PIN goes with it.
   window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);
+  deleteCookie(FIELD_BOOTSTRAP_COOKIE);
   clearFieldSession();
 }
 
@@ -312,6 +367,7 @@ export function clearSession(): void {
   window.localStorage.removeItem(DRIVER_ACCESS_KEY);
   window.localStorage.removeItem(DRIVER_REFRESH_KEY);
   window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);
+  deleteCookie(FIELD_BOOTSTRAP_COOKIE);
   deleteCookie(SESSION_COOKIE);
   window.localStorage.removeItem(PORTAL_KEY);
   deleteCookie(PORTAL_COOKIE);

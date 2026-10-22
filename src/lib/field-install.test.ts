@@ -94,7 +94,7 @@ describe("the page added to the Home Screen carries the token", () => {
 
   it("the manifest starts the app on the hand-off, or on the activation link", () => {
     expect(fieldManifestStartUrl(new URLSearchParams({ bootstrap: TOKEN }))).toBe(
-      `/field-pwa-bootstrap?token=${TOKEN}`,
+      `/field-pwa-bootstrap?token=${TOKEN}&next=%2Ffield-staff`,
     );
     expect(fieldManifestStartUrl(new URLSearchParams({ invitation: TOKEN }))).toBe(
       `/trace/field-activate?token=${TOKEN}`,

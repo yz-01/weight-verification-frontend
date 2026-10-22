@@ -129,6 +129,36 @@ export function unboundReason(input: {
   return contextReason(input);
 }
 
+/**
+ * The short reason shown as 「原因：…」 under the "not linked" help, and sent
+ * to the server log, so a screenshot says why this phone could not sign in.
+ *
+ * - `companion-pin`: the app's link is fine but this phone joined another
+ *   storage moments ago; the PIN typed here finishes it.
+ * - `refused:<code>`: the app had a link and the server refused it.
+ * - `device-refused`: the PIN was refused for this storage.
+ * - `in-app` / `not-standalone`: a chat app's browser / a browser tab.
+ * - `no-token`: the installed app opened without any link - added from a
+ *   page whose manifest had none (Lucas 2026-10-23).
+ */
+export function unboundCode(input: {
+  standalone: boolean;
+  environment: InstallEnvironment;
+  refusedCode?: string | null;
+  deviceRefused?: boolean;
+  joinLink?: boolean;
+}): string {
+  if (input.joinLink || input.refusedCode === "field_companion_pin_required") {
+    return "companion-pin";
+  }
+  if (input.refusedCode) return `refused:${input.refusedCode}`.slice(0, 40);
+  if (input.deviceRefused) return "device-refused";
+  if (!input.standalone) {
+    return input.environment === "ios-in-app" ? "in-app" : "not-standalone";
+  }
+  return "no-token";
+}
+
 /** Where the browser goes once a PIN has been accepted. */
 export function fieldSignInDestination(input: {
   bootstrapToken?: string | null;
@@ -177,7 +207,70 @@ export function showIosInstallGuide(input: {
   return !input.standalone && isIosEnvironment(input.environment);
 }
 
+/**
+ * Which install help the ready page shows below its buttons.
+ *
+ * - `ios-steps`: iPhone Safari. iOS has no install prompt, so the numbered
+ *   steps (and the arrow at Safari's bar) are always shown.
+ * - `android-steps`: Android when Chrome has not handed us its install prompt
+ *   (or the worker asked for help): the menu steps instead.
+ * - `none`: Android with a ready prompt - the Install button opens the real
+ *   system prompt - or anything else the generic help covers.
+ */
+export function installGuideVariant(input: {
+  environment: InstallEnvironment;
+  guideVisible: boolean;
+  nativePromptReady: boolean;
+}): "ios-steps" | "android-steps" | "none" {
+  if (input.environment === "ios-safari") return "ios-steps";
+  if (input.environment === "android") {
+    return input.guideVisible || !input.nativePromptReady ? "android-steps" : "none";
+  }
+  return "none";
+}
+
 export const MANIFEST_TOKEN = /^[A-Za-z0-9_-]{20,200}$/;
+
+/**
+ * The first-party cookie that carries the hand-off in an iPhone browser tab,
+ * so the server can render every field page's manifest link with it
+ * (`syncFieldBootstrapCookie`).
+ */
+export const FIELD_BOOTSTRAP_COOKIE = "mse_field_bootstrap";
+
+/**
+ * Whether a field page should load itself once more so the server renders
+ * its manifest link with the hand-off.
+ *
+ * Only in an iPhone browser tab (where Share -> Add to Home Screen makes an
+ * app with storage of its own), only when the page was rendered without the
+ * hand-off the tab now holds, only once the cookie really carries it (else a
+ * reload changes nothing), and at most once per tab session.
+ */
+export function manifestReloadNeeded(input: {
+  renderedHref: string;
+  held: string | null;
+  cookie: string | null;
+  environment: InstallEnvironment;
+  standalone: boolean;
+  alreadyReloaded: boolean;
+}): boolean {
+  if (input.standalone || input.alreadyReloaded) return false;
+  if (!isIosEnvironment(input.environment) || input.environment === "ios-in-app") {
+    return false;
+  }
+  const held = validBootstrap(input.held);
+  if (!held || input.cookie !== held) return false;
+  return input.renderedHref !== fieldManifestHref(held);
+}
+
+/** The manifest link a field page is rendered with, given the cookie value. */
+export function fieldManifestHref(cookieToken: string | null | undefined): string {
+  const token = cookieToken && MANIFEST_TOKEN.test(cookieToken) ? cookieToken : "";
+  return token
+    ? `/field-manifest.webmanifest?bootstrap=${encodeURIComponent(token)}`
+    : "/field-manifest.webmanifest";
+}
 
 /**
  * The field app's manifest. Its start_url is where an installed app opens on
@@ -189,11 +282,19 @@ export const MANIFEST_TOKEN = /^[A-Za-z0-9_-]{20,200}$/;
  *   opens on that link and the PIN is typed inside the app.
  * - neither: the PIN screen, which explains the way in when it cannot work.
  */
-export function fieldManifestStartUrl(search: URLSearchParams): string {
+export function fieldManifestStartUrl(
+  search: URLSearchParams,
+  cookieToken?: string | null,
+): string {
   const bootstrap = search.get("bootstrap") ?? "";
-  if (MANIFEST_TOKEN.test(bootstrap)) return fieldAppStartPath(bootstrap);
+  if (MANIFEST_TOKEN.test(bootstrap)) return fieldAppStartPath(bootstrap, "/field-staff");
   const invitation = search.get("invitation") ?? "";
   if (MANIFEST_TOKEN.test(invitation)) return fieldActivatePath(invitation);
+  // No hand-off in the link: the one this browser holds in its cookie (sent
+  // only when the link asks for credentials).
+  if (cookieToken && MANIFEST_TOKEN.test(cookieToken)) {
+    return fieldAppStartPath(cookieToken, "/field-staff");
+  }
   return "/trace/field-login";
 }
 
