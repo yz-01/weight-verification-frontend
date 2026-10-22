@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { FieldUnboundHelp } from "@/components/field-staff/field-unbound-help";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -13,8 +14,17 @@ import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
 import {
   getFieldBootstrapToken,
+  isStandaloneApp,
   setFieldBootstrapToken,
 } from "@/lib/auth-token";
+import {
+  contextReason,
+  detectInstallEnvironment,
+  fieldAccessView,
+  fieldSignInDestination,
+  unboundReason,
+  type InstallEnvironment,
+} from "@/lib/field-install";
 import { inAppBrowserName } from "@/lib/in-app-browser";
 import { redirectWithFallback, safeReturnPath } from "@/lib/portal";
 import { cacheBranding } from "@/lib/branding";
@@ -22,10 +32,18 @@ import {
   activateFieldDevice,
   fieldDeviceIdIsPersistent,
   fieldLogin,
+  fieldStorageWasLinked,
   getOrCreateFieldDeviceId,
   inspectFieldInvitation,
   restoreFieldPwaSession,
 } from "@/services/field-access.service";
+
+interface BrowserContext {
+  standalone: boolean;
+  environment: InstallEnvironment;
+  linked: boolean;
+  hasDeviceId: boolean;
+}
 
 export function FieldAccess() {
   const t = useTranslations("fieldAccess");
@@ -55,7 +73,38 @@ export function FieldAccess() {
     () => typeof window !== "undefined" && !token && Boolean(getFieldBootstrapToken()),
   );
   const [copied, setCopied] = useState(false);
+  // Set once a PIN (or the stored key) has been accepted. From then on the
+  // screen only says "opening" while the browser loads the next page: the
+  // form must never come back for a second PIN (Lucas 2026-10-22,
+  // 「我第一次输入了又跳回去输入pin的页面」). Signing in clears the query
+  // cache, the invitation query loaded again, and on a slow line the form
+  // reappeared before the next page did - and a second PIN retired the
+  // hand-off token the first one had put in the address.
+  const [signedIn, setSignedIn] = useState(false);
+  // The server said this browser is not the linked phone.
+  const [deviceRefused, setDeviceRefused] = useState(false);
   const chatApp = typeof window === "undefined" ? null : inAppBrowserName();
+  // Browser facts, read after hydration so the server and the first client
+  // render agree.
+  const [context, setContext] = useState<BrowserContext | null>(null);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      let hasDeviceId = false;
+      try {
+        hasDeviceId = Boolean(window.localStorage.getItem("mse_field_device_id"));
+      } catch {
+        hasDeviceId = false;
+      }
+      setContext({
+        standalone: isStandaloneApp(),
+        environment: detectInstallEnvironment(),
+        linked: fieldStorageWasLinked(),
+        hasDeviceId,
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     if (!token || !invitation.data?.branding) return;
@@ -88,6 +137,7 @@ export function FieldAccess() {
     })
       .then((result) => {
         if (abandoned) return;
+        setSignedIn(true);
         setUser(result.user);
         redirectWithFallback(router, next ?? "/field-staff", 150);
       })
@@ -101,6 +151,7 @@ export function FieldAccess() {
 
   const submit = async () => {
     setError("");
+    setDeviceRefused(false);
     setPending(true);
     try {
       const deviceId = getOrCreateFieldDeviceId();
@@ -118,36 +169,53 @@ export function FieldAccess() {
             pin,
             device_id: deviceId,
           });
-      setUser(result.user);
+      // First, before anything re-renders: the form must not come back.
+      setSignedIn(true);
       const bootstrapToken = result.pwa_bootstrap?.token;
       // Kept so that installing later, from any screen, still produces an app
       // that opens signed in. This is the only moment it is handed to us.
       if (bootstrapToken) setFieldBootstrapToken(bootstrapToken);
-      const destination = bootstrapToken
-        ? `/trace/field-ready?bootstrap=${encodeURIComponent(bootstrapToken)}${
-            next ? `&next=${encodeURIComponent(next)}` : ""
-          }`
-        : next ?? "/field-staff";
-      redirectWithFallback(
-        router,
-        destination,
-        150,
+      openPage(
+        fieldSignInDestination({
+          bootstrapToken,
+          next,
+          standalone: isStandaloneApp(),
+        }),
       );
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : t("failed"));
-    } finally {
+      setDeviceRefused(
+        cause instanceof ApiError && cause.code === "field_device_invalid",
+      );
       setPending(false);
     }
   };
 
-  if (token && invitation.isLoading) {
+  const view = fieldAccessView({
+    signedIn,
+    hasInvitation: Boolean(token),
+    invitationLoading: invitation.isLoading,
+    invitationError: invitation.isError,
+    resuming,
+  });
+
+  if (view === "opening") {
+    return (
+      <Centered>
+        <Loader2 className="size-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">{t("opening")}</p>
+      </Centered>
+    );
+  }
+
+  if (view === "loading") {
     return <Centered><Loader2 className="size-8 animate-spin text-primary" /></Centered>;
   }
 
   // The installed app opening on a lapsed session. Showing the PIN box while
   // the stored install key is still being tried would offer a form that is
   // usually about to become unnecessary.
-  if (resuming) {
+  if (view === "resuming") {
     return (
       <Centered>
         <Loader2 className="size-8 animate-spin text-primary" />
@@ -156,7 +224,7 @@ export function FieldAccess() {
     );
   }
 
-  if (token && invitation.isError) {
+  if (view === "invalid") {
     return (
       <Centered>
         <Smartphone className="size-12 text-destructive" />
@@ -165,6 +233,24 @@ export function FieldAccess() {
       </Centered>
     );
   }
+
+  const unbound =
+    !token && context
+      ? deviceRefused
+        ? contextReason(context)
+        : unboundReason({
+            linked: context.linked,
+            hasBootstrapToken: Boolean(getFieldBootstrapToken()),
+            standalone: context.standalone,
+            environment: context.environment,
+          })
+      : null;
+  // Storage that has never held a device id has never been linked: the
+  // server has never seen this "phone", so a PIN cannot work. Only the way in
+  // is shown there.
+  const pinUseful = token
+    ? true
+    : !unbound || deviceRefused || Boolean(context?.hasDeviceId);
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-10">
@@ -185,17 +271,20 @@ export function FieldAccess() {
               <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
             </div>
           )}
-          <FieldWrapper label={t("pin")} required>
-            <Input
-              id="field-pin"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={6}
-              className="h-12 text-center text-xl"
-              value={pin}
-              onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
-            />
-          </FieldWrapper>
+          {unbound && <FieldUnboundHelp reason={unbound} />}
+          {pinUseful && (
+            <FieldWrapper label={t("pin")} required>
+              <Input
+                id="field-pin"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                className="h-12 text-center text-xl"
+                value={pin}
+                onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
+              />
+            </FieldWrapper>
+          )}
           {/* Said to everybody activating, loudly when the web view names
               itself. A phone is linked to the storage of the browser it was
               activated in, so a link opened inside a chat app links that app
@@ -240,20 +329,36 @@ export function FieldAccess() {
               {t("storageBlocked")}
             </p>
           )}
-          <Button
-            size="lg"
-            className="h-12 w-full text-sm"
-            requires={[[pin.length === 6, t("pin")]]}
-            disabled={pending}
-            onClick={() => void submit()}
-          >
-            {pending ? <Loader2 className="animate-spin" /> : <LogIn />}
-            {token ? t("bind") : t("signIn")}
-          </Button>
+          {pinUseful && (
+            <Button
+              size="lg"
+              className="h-12 w-full text-sm"
+              requires={[[pin.length === 6, t("pin")]]}
+              disabled={pending}
+              onClick={() => void submit()}
+            >
+              {pending ? <Loader2 className="animate-spin" /> : <LogIn />}
+              {token ? t("bind") : t("signIn")}
+            </Button>
+          )}
         </div>
       </section>
     </main>
   );
+}
+
+/**
+ * A full page load, not a client-side route change, for two reasons:
+ *
+ * - On an iPhone, "Add to Home Screen" takes the address and manifest of the
+ *   document Safari actually loaded. After a client-side change Safari could
+ *   still hold the activation page's, and the installed app then opened on
+ *   the PIN screen with nothing to sign in with.
+ * - Nothing on this screen can cancel it half-way, which is how the PIN form
+ *   came back for a second PIN on a slow line.
+ */
+function openPage(path: string): void {
+  window.location.replace(path);
 }
 
 function Centered({ children }: { children: React.ReactNode }) {

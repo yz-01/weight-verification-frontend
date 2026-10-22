@@ -6,13 +6,21 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldUnboundHelp } from "@/components/field-staff/field-unbound-help";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
 import {
+  getFieldBootstrapToken,
   hasFieldSession,
+  isStandaloneApp,
   markFieldAppContext,
   setFieldBootstrapToken,
 } from "@/lib/auth-token";
+import {
+  contextReason,
+  detectInstallEnvironment,
+  type UnboundReason,
+} from "@/lib/field-install";
 import { redirectWithFallback } from "@/lib/portal";
 import {
   getOrCreateFieldDeviceId,
@@ -30,6 +38,19 @@ export function FieldPwaBootstrap({
   const router = useRouter();
   const { setUser } = useAuth();
   const started = useRef(false);
+  // Known only in the browser; read after hydration.
+  const [reason, setReason] = useState<UnboundReason | null>(null);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() =>
+      setReason(
+        contextReason({
+          standalone: isStandaloneApp(),
+          environment: detectInstallEnvironment(),
+        }),
+      ),
+    );
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
   const [error, setError] = useState(() =>
     token ? "" : t("desktopExpired"),
   );
@@ -71,6 +92,13 @@ export function FieldPwaBootstrap({
           redirectWithFallback(router, next ?? "/field-staff", 150);
           return;
         }
+        // A newer hand-off is held here (a PIN typed inside the app made
+        // one): the sign-in screen tries it before asking for anything.
+        const stored = getFieldBootstrapToken();
+        if (stored && stored !== token) {
+          redirectWithFallback(router, "/trace/field-login", 150);
+          return;
+        }
         setError(cause instanceof ApiError ? cause.message : t("failed"));
       });
   }, [next, router, setUser, t, token]);
@@ -89,6 +117,9 @@ export function FieldPwaBootstrap({
       <Smartphone className="size-12 text-destructive" />
       <h1 className="text-xl font-bold leading-tight">{t("desktopExpiredTitle")}</h1>
       <p className="max-w-sm text-sm text-muted-foreground">{error}</p>
+      <div className="w-full max-w-sm text-left">
+        {reason && <FieldUnboundHelp reason={reason} />}
+      </div>
       <Button onClick={() => redirectWithFallback(router, "/trace/field-login", 150)}>
         {t("signIn")}
       </Button>
