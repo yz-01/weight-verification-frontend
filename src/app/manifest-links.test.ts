@@ -52,8 +52,10 @@ describe("manifest links", () => {
     "src/app/(auth)/trace/field-login/page.tsx",
     "src/app/(auth)/field-pwa-bootstrap/page.tsx",
   ])("%s declares the field manifest", (file) => {
-    expect(readFileSync(file, "utf8")).toContain(
-      'manifest: "/field-manifest.webmanifest"',
+    // The workspace and the PIN screen render it from the hand-off cookie
+    // (Lucas 2026-10-23); `fieldManifestHref` is the field manifest.
+    expect(readFileSync(file, "utf8")).toMatch(
+      /manifest: "\/field-manifest\.webmanifest"|manifest: await fieldManifestFromCookie\(\)/,
     );
   });
 
@@ -95,7 +97,7 @@ describe("manifest links", () => {
       "src/components/field-staff/field-manifest-token.tsx",
       "utf8",
     );
-    expect(patcher).toContain("/field-manifest.webmanifest?bootstrap=");
+    expect(patcher).toContain("fieldManifestHref(held)");
     // The href of the link that is already there, not a second link: a
     // browser installs the first rel="manifest" it finds and ignores the
     // rest, which is the trap F-172 was.
@@ -117,10 +119,10 @@ describe("manifest links", () => {
 
     const route = readFileSync("src/app/field-manifest.webmanifest/route.ts", "utf8");
     expect(route).toContain("start_url: startUrl");
-    expect(route).toContain("fieldManifestStartUrl(search)");
+    expect(route).toContain("fieldManifestStartUrl(search, cookieToken)");
     const token = "a".repeat(40);
     expect(fieldManifestStartUrl(new URLSearchParams({ bootstrap: token }))).toBe(
-      `/field-pwa-bootstrap?token=${token}`,
+      `/field-pwa-bootstrap?token=${token}&next=%2Ffield-staff`,
     );
     // and without a token it must still be a field screen, never the chooser
     expect(fieldManifestStartUrl(new URLSearchParams())).toBe("/trace/field-login");

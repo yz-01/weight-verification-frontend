@@ -54,6 +54,10 @@ export function FieldPwaBootstrap({
   const [error, setError] = useState(() =>
     token ? "" : t("desktopExpired"),
   );
+  // Why: "no-token", or "refused:" + the server's code (shown and logged).
+  const [failure, setFailure] = useState<string | null>(() =>
+    token ? null : "no-token",
+  );
 
   useEffect(() => {
     if (started.current) return;
@@ -79,7 +83,10 @@ export function FieldPwaBootstrap({
       // A browser tab with a link in its address: not signed in, and the
       // link comes off the address so it is not copied on.
       window.history.replaceState(window.history.state, "", "/field-pwa-bootstrap");
-      window.requestAnimationFrame(() => setError(t("tabNeedsActivation")));
+      window.requestAnimationFrame(() => {
+        setFailure("not-standalone");
+        setError(t("tabNeedsActivation"));
+      });
       return;
     }
     void restoreFieldPwaSession({
@@ -114,6 +121,9 @@ export function FieldPwaBootstrap({
           replacePage("/trace/field-login");
           return;
         }
+        setFailure(
+          `refused:${cause instanceof ApiError && cause.code ? cause.code : "network"}`,
+        );
         setError(cause instanceof ApiError ? cause.message : t("failed"));
       });
   }, [next, setUser, t, token]);
@@ -133,7 +143,14 @@ export function FieldPwaBootstrap({
       <h1 className="text-xl font-bold leading-tight">{t("desktopExpiredTitle")}</h1>
       <p className="max-w-sm text-sm text-muted-foreground">{error}</p>
       <div className="w-full max-w-sm text-left">
-        {reason && <FieldUnboundHelp reason={reason} />}
+        {reason && (
+          <FieldUnboundHelp
+            reason={reason}
+            code={failure ?? undefined}
+            standalone={reason === "installed-app"}
+            boundary="field-pwa-bootstrap"
+          />
+        )}
       </div>
       <Button onClick={() => replacePage("/trace/field-login")}>
         {t("signIn")}

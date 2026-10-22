@@ -2,9 +2,11 @@
 
 import { Copy, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+import { useInstallIconTags } from "@/components/field-staff/install-icons";
 import { Button } from "@/components/ui/button";
+import { reportClientError } from "@/lib/client-error-report";
 import type { UnboundReason } from "@/lib/field-install";
 
 /**
@@ -16,13 +18,42 @@ import type { UnboundReason } from "@/lib/field-install";
  *   from the right page.
  * - chat app: linking inside WeChat / Facebook / … links only that app.
  * - browser: this browser has not been linked, or lost it.
+ *
+ * `code` (from `unboundCode`) is shown small as 「原因：…」 and sent once to
+ * the server log as an "unbound" report - not a crash, but the next time a
+ * phone lands here we can see why (Lucas 2026-10-23).
  */
-export function FieldUnboundHelp({ reason }: { reason: UnboundReason }) {
+export function FieldUnboundHelp({
+  reason,
+  code,
+  standalone = false,
+  boundary = "field-login",
+}: {
+  reason: UnboundReason;
+  code?: string;
+  standalone?: boolean;
+  boundary?: string;
+}) {
   const t = useTranslations("fieldAccess");
+  const icons = useInstallIconTags();
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!code) return;
+    reportClientError(
+      { name: "Unbound", message: code },
+      { boundary, standalone, kind: "unbound" },
+    );
+  }, [boundary, code, standalone]);
+
   const steps =
     reason === "installed-app"
-      ? [t("unboundAppStep1"), t("unboundAppStep2"), t("unboundAppStep3"), t("unboundAppStep4")]
+      ? [
+          t("unboundAppStep1"),
+          t("unboundAppStep2"),
+          t.rich("unboundAppStep3", icons),
+          t("unboundAppStep4"),
+        ]
       : [];
   const title =
     reason === "installed-app"
@@ -34,7 +65,7 @@ export function FieldUnboundHelp({ reason }: { reason: UnboundReason }) {
     reason === "installed-app"
       ? t("unboundAppBody")
       : reason === "in-app"
-        ? t("unboundInAppBody")
+        ? t.rich("unboundInAppBody", icons)
         : t("unboundBrowserBody");
 
   return (
@@ -75,6 +106,14 @@ export function FieldUnboundHelp({ reason }: { reason: UnboundReason }) {
           <Copy />
           {copied ? t("copied") : t("copyLink")}
         </Button>
+      )}
+      {code && (
+        <p
+          className="mt-2 font-mono text-xs text-muted-foreground"
+          data-testid="unbound-code"
+        >
+          {t("unboundReason", { code })}
+        </p>
       )}
     </div>
   );
