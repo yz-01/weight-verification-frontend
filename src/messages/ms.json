@@ -18539,6 +18539,21 @@
       "save": "Simpan",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
       "current": "Ditetapkan {at} oleh {name}"
+    },
+    "records": {
+      "what": "rekod",
+      "driverHint": "{days} hari terakhir anda. Lihat sahaja.",
+      "monthTotals": "Bulan ini",
+      "staffTitle": "Rekod terkini",
+      "staffHint": "Projek ini, {days} hari terakhir.",
+      "recentTotals": "Jumlah hari yang dipaparkan",
+      "normal": "Biasa",
+      "overtime": "Lebih masa",
+      "total": "Jumlah",
+      "start": "Mula",
+      "end": "Tamat",
+      "running": "Belum tamat",
+      "empty": "Belum ada rekod."
     }
   },
   "theme": {
@@ -19294,6 +19309,10 @@
       "lastUsed": "Terakhir digunakan {at}",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
       "chooseProject": "Pilih projek di bahagian atas halaman untuk membuat pautan."
+    },
+    "tabs": {
+      "clock": "Mula / tamat kerja",
+      "records": "Rekod saya"
     }
   },
   "projectReference": {

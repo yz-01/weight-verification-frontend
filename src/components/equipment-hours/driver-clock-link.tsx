@@ -20,12 +20,14 @@ import { Link2Off, Loader2, RefreshCw, Smartphone, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
+import { DriverMyRecords } from "@/components/equipment-hours/equipment-phone-records";
 import { EquipmentHoursCapture, driverQueueOwner } from "@/components/equipment-hours/equipment-hours-capture";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
+import { cn } from "@/lib/utils";
 import { workerLinkToken } from "@/lib/site-workers";
 import { bindDriverPhone, getDriverLink, type DriverLinkState } from "@/services/driver-clock.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
@@ -55,6 +57,7 @@ export function DriverClockLink({ token: rawToken }: { token: string }) {
     retry: (count, error) => count < 2 && !(error instanceof ApiError && driverLinkEnding(error.code)),
   });
   const bound = Boolean(link.data?.bound);
+  const [tab, setTab] = useState<"clock" | "records">("clock");
 
   // What waited on this phone goes now, and whenever the signal is back.
   useEffect(() => {
@@ -116,8 +119,30 @@ export function DriverClockLink({ token: rawToken }: { token: string }) {
                 company: state.company_name || "-",
               })}
             </p>
-            <p className="text-xs text-muted-foreground">{t("photoHint")}</p>
-            <EquipmentHoursCapture driver={{ token, device }} />
+            {/* J37-1: 打卡 / 我的记录 - the second is read only. */}
+            <div className="grid grid-cols-2 gap-2" role="tablist" aria-label={t("title")}>
+              {(["clock", "records"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === value}
+                  onClick={() => setTab(value)}
+                  className={cn(
+                    "h-11 rounded-lg border text-sm font-medium",
+                    tab === value ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground",
+                  )}
+                >
+                  {t(`tabs.${value}`)}
+                </button>
+              ))}
+            </div>
+            {tab === "records" && <DriverMyRecords token={token} device={device} />}
+            {/* Kept mounted: a photo half taken is not lost by a look at the records. */}
+            <div className={cn("space-y-4", tab === "records" && "hidden")}>
+              <p className="text-xs text-muted-foreground">{t("photoHint")}</p>
+              <EquipmentHoursCapture driver={{ token, device }} />
+            </div>
           </>
         )}
       </main>

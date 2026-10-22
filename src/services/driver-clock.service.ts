@@ -6,7 +6,12 @@
  * binds to the number the office registered - as the worker's location link.
  */
 
-import type { EquipmentHoursUpload, EquipmentPhotoKind } from "@/interfaces/equipment-hours";
+import type {
+  EquipmentHoursUpload,
+  EquipmentPhoneRecord,
+  EquipmentPhoneTotals,
+  EquipmentPhotoKind,
+} from "@/interfaces/equipment-hours";
 import { api, toastSuccess } from "@/services/api-client";
 
 export type DriverLinkStatus = "NOT_OPENED" | "IN_USE" | "STOPPED";
@@ -95,6 +100,17 @@ export function bindDriverPhone(token: string, device: string, phone: string): P
 
 export function getDriverMachines(token: string, device: string): Promise<DriverMachine[]> {
   return api.get<DriverMachine[]>(`${base(token)}/machines/`, { device }, { auth: false, silent: true });
+}
+
+/** 「我的记录」 (J37-1): the driver's own last 30 days and this month's totals. */
+export interface DriverMyRecords {
+  days: number;
+  rows: EquipmentPhoneRecord[];
+  month_totals: EquipmentPhoneTotals;
+}
+
+export function getDriverMyRecords(token: string, device: string): Promise<DriverMyRecords> {
+  return api.get<DriverMyRecords>(`${base(token)}/my_records/`, { device }, { auth: false, silent: true });
 }
 
 /** One 开工 or 收工 from the link, as the offline queue replays it too. */
