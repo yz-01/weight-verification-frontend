@@ -379,7 +379,7 @@ function DeliveryNoteResultDialog({ note, onClose }: { note: DeliveryNote; onClo
               {note.evidence.map((item) => (
                 <a key={item.id} href={item.watermarked ?? item.image} target="_blank" rel="noreferrer" className="group block">
                   <div className="relative aspect-square overflow-hidden rounded-md border bg-muted">
-                    <Image src={item.watermarked ?? item.image} alt={t(`deliveryNotePublic.evidence.${item.kind}`)} fill unoptimized className="object-cover transition-transform group-hover:scale-105" />
+                    <Image src={item.watermarked ?? item.image} alt={t(`deliveryNotePublic.evidence.${item.kind}`)} fill unoptimized className="object-cover object-bottom transition-transform group-hover:scale-105" />
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{t(`deliveryNotePublic.evidence.${item.kind}`)}</p>
                 </a>

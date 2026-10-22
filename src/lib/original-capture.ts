@@ -9,6 +9,14 @@
  * which is how the upload finds and declares it (`attachOriginalManifest`).
  *
  * Kept out of `field-camera.tsx` so the camera's own code barely changes.
+ *
+ * Square (J45, Lucas 2026-10-22 「全部拍照都改正方形」): a phone held upright
+ * streams a tall frame, and every photo came out tall. The viewfinder is a
+ * square that shows the centre of the video (`object-cover`), and both the
+ * original and the application photo are that same centre square
+ * (`centreSquare`) - what the worker saw is what is kept, nothing more and
+ * nothing less. The square's side is the frame's short side, at the camera's
+ * full resolution.
  */
 
 import { getAccessToken } from "@/lib/auth-token";
@@ -23,10 +31,27 @@ import {
   trackOriginal,
 } from "@/lib/original-photos";
 
+/**
+ * The centre square of a `width` x `height` frame: its side is the short side,
+ * centred on the long one - exactly what a square box with `object-cover`
+ * shows of the video. Whole pixels; an odd leftover goes to the far edge.
+ * Symmetric about the centre, so mirroring the front camera before or after
+ * cropping gives the same square.
+ */
+export function centreSquare(width: number, height: number): { sx: number; sy: number; side: number } {
+  if (!(width > 0) || !(height > 0)) return { sx: 0, sy: 0, side: 0 };
+  const side = Math.min(width, height);
+  return {
+    sx: Math.floor((width - side) / 2),
+    sy: Math.floor((height - side) / 2),
+    side,
+  };
+}
+
 export interface PendingOriginal {
   /**
-   * The frame itself, drawn once from the video (already mirrored for the
-   * front camera). The application photo is drawn from this same canvas, so
+   * The frame itself, drawn once from the video: its centre square (J45),
+   * already mirrored for the front camera. The application photo is drawn from this same canvas, so
    * the kept original is exactly the original *of* the photo the server holds
    * - not a neighbouring video frame on a moving truck.
    */
@@ -48,9 +73,10 @@ export interface PendingOriginal {
 export function startOriginal(video: HTMLVideoElement, mirrored: boolean): PendingOriginal | null {
   const ownerId = sessionUserId(getAccessToken());
   if (!ownerId || !canHash() || typeof document === "undefined") return null;
-  const width = video.videoWidth;
-  const height = video.videoHeight;
-  if (!(width > 0) || !(height > 0)) return null;
+  const { sx, sy, side } = centreSquare(video.videoWidth, video.videoHeight);
+  if (!(side > 0)) return null;
+  const width = side;
+  const height = side;
   const frame = document.createElement("canvas");
   frame.width = width;
   frame.height = height;
@@ -60,7 +86,7 @@ export function startOriginal(video: HTMLVideoElement, mirrored: boolean): Pendi
     context.translate(width, 0);
     context.scale(-1, 1);
   }
-  context.drawImage(video, 0, 0, width, height);
+  context.drawImage(video, sx, sy, side, side, 0, 0, width, height);
   const id = newOriginalId();
 
   return {
@@ -103,7 +129,7 @@ export function startOriginal(video: HTMLVideoElement, mirrored: boolean): Pendi
 
 /**
  * The application photo's canvas, at upload size (A5, A9: the same long-edge
- * cap as every other photo the queue holds).
+ * cap as every other photo the queue holds), square (J45).
  *
  * With an original it is drawn from the original's frame - one frame for
  * both, and the frame is already mirrored. Without one (nobody signed in, no
@@ -116,7 +142,8 @@ export function applicationPhotoCanvas(
   original: PendingOriginal | null,
 ): HTMLCanvasElement | null {
   const source = original?.frame ?? null;
-  const size = fitWithin(source?.width ?? video.videoWidth, source?.height ?? video.videoHeight);
+  const crop = centreSquare(video.videoWidth, video.videoHeight);
+  const size = source ? fitWithin(source.width, source.height) : fitWithin(crop.side, crop.side);
   const canvas = document.createElement("canvas");
   canvas.width = size.width;
   canvas.height = size.height;
@@ -130,6 +157,6 @@ export function applicationPhotoCanvas(
     context.translate(canvas.width, 0);
     context.scale(-1, 1);
   }
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  context.drawImage(video, crop.sx, crop.sy, crop.side, crop.side, 0, 0, canvas.width, canvas.height);
   return canvas;
 }

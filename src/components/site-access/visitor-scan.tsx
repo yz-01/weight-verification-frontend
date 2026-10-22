@@ -749,7 +749,7 @@ function DraftTray({ photos, onRemove }: { photos: GatePhotoDraft[]; onRemove: (
     <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
       {urls.map(([id, url], index) => (
         <li key={id} className="relative overflow-hidden rounded-md border bg-muted">
-          <img src={url} alt={ta("photoNumber", { number: index + 1 })} className="aspect-square w-full object-cover" />
+          <img src={url} alt={ta("photoNumber", { number: index + 1 })} className="aspect-square w-full object-cover object-bottom" />
           <button
             type="button"
             aria-label={ta("removePhoto", { number: index + 1 })}

@@ -8618,7 +8618,9 @@
       "switch": "切换镜头",
       "unsupported": "此浏览器无法打开相机，请使用 HTTPS 网站和较新的手机浏览器。",
       "retake": "点一下重拍",
-      "preview": "已拍摄"
+      "preview": "已拍摄",
+      "stepBack": "拍不全请退后一点",
+      "wide": "广角"
     },
     "consultantCapture": {
       "askFor": "这次要顾问看什么",
@@ -8793,7 +8795,6 @@
       "chooseColumnFirst": "请先选分类",
       "noSupplier": "未填供应商",
       "noSupplierHint": "不确定是哪家就不用选，后台会补上。",
-      "supplierRequiredHint": "扫供应商二维码或从名单选。",
       "spec": "规格",
       "chooseSpec": "选择规格",
       "specName": "规格名称",
@@ -18129,9 +18130,10 @@
     "takePhoto": "拍照",
     "chooseFile": "选择文件",
     "dropHint": "可以用电脑摄像头拍照、选择文件、把文件拖到这里，或复制图片后在这里按 Ctrl+V 粘贴。",
-    "dropHintPhone": "拍照或选择文件。",
+    "dropHintPhone": "拍照，或选择 PDF 等文件。",
     "dropHintNoCamera": "选择文件、拖到这里，或复制截图后按 Ctrl+V 粘贴。",
-    "dropHintPhoneNoCamera": "选择文件。",
+    "dropHintPhoneNoCamera": "选择 PDF 等文件。",
+    "dropHintPhoneCameraOnly": "用相机拍照。",
     "limitsMany": "最多 {count} 个文件，每个不超过 {limit} MB。",
     "limitsCount": "最多 {count} 个文件。",
     "limitsOne": "一个文件，不超过 {limit} MB。",
@@ -18143,7 +18145,8 @@
     "tooBigTotal": "{name} 加上去超过合计 {limit} MB。",
     "phoneTooBig": "{name}：文件太大，请在电脑后台上传。手机上每个文件最多 20 MB，合计最多 50 MB。",
     "tooMany": "一次最多上传 {limit} 个文件。",
-    "notAFile": "粘贴的内容不是文件或图片。请复制图片本身再试一次。"
+    "notAFile": "粘贴的内容不是文件或图片。请复制图片本身再试一次。",
+    "photoUseCamera": "{name}：手机上的照片请用上面的「拍照」按钮拍，不能从相册选。"
   },
   "supplierDateFilter": {
     "allSuppliers": "全部供应商",

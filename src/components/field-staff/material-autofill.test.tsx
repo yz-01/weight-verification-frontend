@@ -160,7 +160,7 @@ describe("choosing 钢筋 on the phone (A4, D1, Q1)", () => {
  * 编号，双方签名」 - the supplier is required again, scanned or picked. The
  * office's 「待补供应商」 stays for deliveries filed before.
  */
-describe("the supplier on the phone (J39)", () => {
+describe("the supplier on the phone stays optional (I23; Lucas 10-22)", () => {
   beforeEach(() => {
     for (const key of Object.keys(drafts)) delete drafts[key];
   });
@@ -168,21 +168,18 @@ describe("the supplier on the phone (J39)", () => {
   const openColumn = () =>
     steel({ supplier_options: [], suppliers: [], manufacturer_options: [], manufacturers: [] });
 
-  it("holds 提交 back until a supplier is scanned or picked, and offers no 「未填供应商」", () => {
+  it("offers 「未填供应商」 and does not hold 提交 back without a supplier", () => {
     const html = render(openColumn(), { supplier: "" });
-    expect(html).toContain("扫供应商二维码或从名单选。");
-    expect(html).not.toContain("不确定是哪家就不用选，后台会补上。");
+    expect(html).toContain("不确定是哪家就不用选，后台会补上。");
     // 提交 is the last button asking for fields.
     const missing = [...html.matchAll(/title="还差这些没填：([^"]*)"/g)].at(-1)?.[1] ?? "";
-    expect(missing.split("、")).toContain("供应商");
+    expect(missing.split("、")).not.toContain("供应商");
     expect(missing.split("、")).toContain("供应商签名");
   });
 
-  it("no longer asks for it once a supplier is chosen", () => {
+  it("drops the hint once a supplier is chosen", () => {
     const html = render(openColumn(), { supplier: SUPPLIER_A.id });
-    expect(html).not.toContain("扫供应商二维码或从名单选。");
-    const missing = [...html.matchAll(/title="还差这些没填：([^"]*)"/g)].at(-1)?.[1] ?? "";
-    expect(missing.split("、")).not.toContain("供应商");
+    expect(html).not.toContain("不确定是哪家就不用选，后台会补上。");
   });
 });
 

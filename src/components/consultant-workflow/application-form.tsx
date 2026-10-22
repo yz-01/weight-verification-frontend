@@ -533,7 +533,7 @@ function ConsultantApplicationEditor({
           <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
             {sourcePhotos.map((photo) => (
               <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer">
-                <Image src={photo.watermarked || photo.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover" />
+                <Image src={photo.watermarked || photo.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover object-bottom" />
               </a>
             ))}
           </div>

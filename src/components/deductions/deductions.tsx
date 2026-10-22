@@ -17,6 +17,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
@@ -359,11 +360,10 @@ function AddDeductionPhotoDialog({
         </DialogHeader>
         <div className="grid gap-3">
           <FieldWrapper label={t("deductions.photo.file")} required>
-            <Input
-              type="file"
-              accept="image/*"
-              aria-label={t("deductions.photo.file")}
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            <PhotoFileInput
+              label={t("deductions.photo.file")}
+              files={file ? [file] : []}
+              onChange={(next) => setFile(next[0] ?? null)}
             />
           </FieldWrapper>
           <FieldWrapper label={t("deductions.photo.caption")}>
@@ -491,7 +491,7 @@ function RespondDialog({
                       alt={photo.caption || t("deductions.section.photos")}
                       fill
                       sizes="200px"
-                      className="object-cover"
+                      className="object-cover object-bottom"
                       unoptimized
                     />
                   </div>

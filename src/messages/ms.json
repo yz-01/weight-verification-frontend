@@ -8618,7 +8618,9 @@
       "switch": "Tukar kamera",
       "unsupported": "Pelayar ini tidak boleh membuka kamera. Gunakan laman HTTPS dan pelayar mudah alih terkini.",
       "retake": "Ketik untuk ambil semula",
-      "preview": "Gambar diambil"
+      "preview": "Gambar diambil",
+      "stepBack": "Tidak muat? Undur sedikit",
+      "wide": "Sudut lebar"
     },
     "consultantCapture": {
       "askFor": "Apa yang perlu perunding lihat?",
@@ -8793,7 +8795,6 @@
       "chooseColumnFirst": "Pilih kategori dahulu",
       "noSupplier": "Pembekal belum diisi",
       "noSupplierHint": "Tidak pasti pembekalnya? Biarkan - pejabat akan mengisinya.",
-      "supplierRequiredHint": "Imbas kod QR pembekal atau pilih daripada senarai.",
       "spec": "Spesifikasi",
       "chooseSpec": "Pilih spesifikasi",
       "specName": "Nama spesifikasi",
@@ -18129,9 +18130,10 @@
     "takePhoto": "Ambil foto",
     "chooseFile": "Pilih fail",
     "dropHint": "Ambil foto dengan kamera komputer, pilih fail, seret fail ke sini, atau salin gambar dan tekan Ctrl+V di sini.",
-    "dropHintPhone": "Ambil foto atau pilih fail.",
+    "dropHintPhone": "Ambil foto, atau pilih PDF atau fail lain.",
     "dropHintNoCamera": "Pilih fail, seret ke sini, atau salin gambar dan tekan Ctrl+V di sini.",
-    "dropHintPhoneNoCamera": "Pilih fail.",
+    "dropHintPhoneNoCamera": "Pilih PDF atau fail lain.",
+    "dropHintPhoneCameraOnly": "Ambil foto dengan kamera.",
     "limitsMany": "Sehingga {count} fail, setiap satu tidak lebih {limit} MB.",
     "limitsCount": "Sehingga {count} fail.",
     "limitsOne": "Satu fail, tidak lebih {limit} MB.",
@@ -18143,7 +18145,8 @@
     "tooBigTotal": "{name} akan menjadikan jumlah fail melebihi {limit} MB.",
     "phoneTooBig": "{name}: fail terlalu besar. Sila muat naik dari komputer pejabat. Di telefon, setiap fail paling banyak 20 MB, dan 50 MB semuanya.",
     "tooMany": "Hantar paling banyak {limit} fail pada satu masa.",
-    "notAFile": "Yang anda tampal bukan fail atau gambar. Salin gambar itu sendiri dan cuba lagi."
+    "notAFile": "Yang anda tampal bukan fail atau gambar. Salin gambar itu sendiri dan cuba lagi.",
+    "photoUseCamera": "{name}: di telefon, ambil foto dengan butang Ambil foto di atas, bukan dari galeri."
   },
   "supplierDateFilter": {
     "allSuppliers": "Semua pembekal",

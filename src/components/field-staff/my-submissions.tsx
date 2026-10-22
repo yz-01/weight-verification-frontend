@@ -892,7 +892,7 @@ function QueuedDetailSheet({
                     key={url}
                     src={url}
                     alt={t("mySubmissions.photos")}
-                    className="aspect-square w-full rounded-md border object-cover"
+                    className="aspect-square w-full rounded-md border object-cover object-bottom"
                   />
                 ))}
               </div>

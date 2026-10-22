@@ -8618,7 +8618,9 @@
       "switch": "Switch camera",
       "unsupported": "This browser cannot open the camera. Use an HTTPS site and a current mobile browser.",
       "retake": "Tap to retake",
-      "preview": "Photo taken"
+      "preview": "Photo taken",
+      "stepBack": "Can't fit it all? Step back a little",
+      "wide": "Wide"
     },
     "consultantCapture": {
       "askFor": "What should the consultant look at?",
@@ -8793,7 +8795,6 @@
       "chooseColumnFirst": "Choose the category first",
       "noSupplier": "Supplier not filled in",
       "noSupplierHint": "Not sure whose it is? Leave it - the office will fill it in.",
-      "supplierRequiredHint": "Scan the supplier's QR code or pick it from the list.",
       "spec": "Specification",
       "chooseSpec": "Choose the specification",
       "specName": "Specification name",
@@ -18129,9 +18130,10 @@
     "takePhoto": "Take photo",
     "chooseFile": "Choose file",
     "dropHint": "Take a photo with the computer camera, choose a file, drag it here, or copy a picture and press Ctrl+V here.",
-    "dropHintPhone": "Take a photo or choose a file.",
+    "dropHintPhone": "Take a photo, or choose a PDF or other file.",
     "dropHintNoCamera": "Choose a file, drag it here, or copy a picture and press Ctrl+V here.",
-    "dropHintPhoneNoCamera": "Choose a file.",
+    "dropHintPhoneNoCamera": "Choose a PDF or other file.",
+    "dropHintPhoneCameraOnly": "Take a photo with the camera.",
     "limitsMany": "Up to {count} files, {limit} MB each.",
     "limitsCount": "Up to {count} files.",
     "limitsOne": "One file, up to {limit} MB.",
@@ -18143,7 +18145,8 @@
     "tooBigTotal": "{name} would take the files over {limit} MB in all.",
     "phoneTooBig": "{name}: the file is too big. Please upload it from the office computer. On the phone each file can be up to 20 MB, and 50 MB in all.",
     "tooMany": "Send at most {limit} files at a time.",
-    "notAFile": "What you pasted is not a file or a picture. Copy the picture itself and try again."
+    "notAFile": "What you pasted is not a file or a picture. Copy the picture itself and try again.",
+    "photoUseCamera": "{name}: on the phone, take photos with the Take photo button above, not from the gallery."
   },
   "supplierDateFilter": {
     "allSuppliers": "All suppliers",
