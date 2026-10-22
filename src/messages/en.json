@@ -6213,6 +6213,8 @@
       "phaseHelp": "Create the construction categories used to organise progress.",
       "phaseTitle": "Construction category",
       "recordHelp": "Take at least one site photo, choose the construction category, add a note if you like, then submit. The percentage is optional.",
+      "recordHelpPhone": "Take at least 1 site photo, add a note if you like, then submit.",
+      "unclassified": "To be filed",
       "recordTitle": "New progress evidence",
       "returnPrompt": "Explain what must be corrected before this progress is resubmitted.",
       "saveError": "The progress record could not be saved. Check the project, construction category, photo and GPS, then try again.",

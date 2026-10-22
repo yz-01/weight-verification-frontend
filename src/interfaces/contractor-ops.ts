@@ -706,8 +706,11 @@ export interface SiteProgressRecord extends RecordedBy {
   id: string;
   project: string;
   project_name: string;
-  phase: string;
-  phase_name: string;
+  /** Null while the record is 待归类 (J40): the phone sends no 施工分类. */
+  phase: string | null;
+  phase_name: string | null;
+  /** True until the office sets a 施工分类; not counted in the weighted progress. */
+  is_unclassified?: boolean;
   /** 实际完成比例; null when the site left it out (H5/H11, HD2). */
   percent_complete: string | null;
   /**

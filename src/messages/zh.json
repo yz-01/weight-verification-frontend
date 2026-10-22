@@ -6213,6 +6213,8 @@
       "phaseHelp": "建立用于整理和确认工程进度的施工分类。",
       "phaseTitle": "施工分类",
       "recordHelp": "拍至少 1 张现场照片，选施工分类，可以写备注，然后提交。完成比例可以不填。",
+      "recordHelpPhone": "拍至少 1 张现场照片，可以写备注，然后提交。",
+      "unclassified": "待归类",
       "recordTitle": "新增进度证据",
       "returnPrompt": "请说明需要更正后再提交的内容。",
       "saveError": "工程进度保存失败，请检查项目、施工分类、照片和 GPS 后重试。",

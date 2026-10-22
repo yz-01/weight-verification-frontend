@@ -776,7 +776,7 @@ export const getSiteProgressSummary = (project?: string) =>
     project ? { project } : undefined,
   );
 export async function createSiteProgressRecord(payload: {
-  project: string; category?: string; phase: string; percent_complete: string; description?: string;
+  project: string; category?: string; phase?: string; percent_complete?: string; description?: string;
   captured_at: string; latitude?: string; longitude?: string; client_event_id: string; photos: File[];
   field_task?: string;
 }) {

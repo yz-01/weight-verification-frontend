@@ -6213,6 +6213,8 @@
       "phaseHelp": "Cipta kategori pembinaan untuk menyusun kemajuan.",
       "phaseTitle": "Kategori pembinaan",
       "recordHelp": "Ambil sekurang-kurangnya satu foto tapak, pilih kategori pembinaan, tambah catatan jika perlu, kemudian hantar. Peratusan adalah pilihan.",
+      "recordHelpPhone": "Ambil sekurang-kurangnya 1 foto tapak, tulis catatan jika perlu, kemudian hantar.",
+      "unclassified": "Belum dikelaskan",
       "recordTitle": "Bukti kemajuan baharu",
       "returnPrompt": "Terangkan perkara yang perlu dibetulkan sebelum kemajuan dihantar semula.",
       "saveError": "Kemajuan projek tidak dapat disimpan. Semak projek, kategori pembinaan, foto dan GPS sebelum cuba lagi.",
