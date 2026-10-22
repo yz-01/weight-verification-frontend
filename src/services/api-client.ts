@@ -20,7 +20,9 @@ import {
   type Paginated,
 } from "@/interfaces/api";
 import {
+  FIELD_OFFICE_SIGN_OUTS,
   clearTokens,
+  rememberFieldSignOutReason,
   getAccessToken,
   getRefreshToken,
   getSessionPortal,
@@ -108,6 +110,9 @@ function buildUrl(path: string, query?: ListQuery): string {
  */
 let refreshInFlight: Promise<boolean> | null = null;
 
+/** Why the last renewal was refused, for the sign-in screen it ends on. */
+let lastRefusalCode = "";
+
 /**
  * How long renewing the session may take before it counts as no answer.
  *
@@ -131,7 +136,24 @@ async function refreshAccessToken(): Promise<boolean> {
       signal: controller.signal,
     });
 
-    if (!response.ok) return false;
+    if (!response.ok) {
+      // Another tab or window of this browser renewed with the same refresh
+      // token a moment earlier: the server refused ours because it was just
+      // rotated, and the new pair is already stored. That is a renewal.
+      const stored = getRefreshToken();
+      if (stored && stored !== refresh) return true;
+      // Only the server saying no is a refusal. A 429 or a 5xx on waking the
+      // phone (a deploy, a busy minute) is no answer: the session is kept and
+      // asked about again later (Lucas 2026-10-22: signed out after a while).
+      if (response.status === 401 || response.status === 403) {
+        lastRefusalCode = await response
+          .json()
+          .then((body: { code?: unknown }) => (typeof body?.code === "string" ? body.code : ""))
+          .catch(() => "");
+        return false;
+      }
+      throw new Error("refresh_no_answer");
+    }
 
     const envelope = (await response.json()) as ApiEnvelope<{
       access: string;
@@ -151,17 +173,46 @@ async function refreshAccessToken(): Promise<boolean> {
   }
 }
 
-function ensureRefresh(): Promise<boolean> {
+/**
+ * Renew the session once for everybody who needs it.
+ *
+ * `usedAccess` is the access token the refused request carried. When the
+ * stored one is already different, somebody renewed in the meantime (another
+ * request here, or another tab), and the request is simply sent again: a
+ * second renewal would present a refresh token that was just rotated. Across
+ * tabs the renewal itself runs under a Web Lock where the browser has one.
+ */
+function ensureRefresh(usedAccess?: string | null): Promise<boolean> {
   if (refreshInFlight === null) {
-    refreshInFlight = refreshAccessToken().finally(() => {
+    refreshInFlight = renewUnderLock(usedAccess).finally(() => {
       refreshInFlight = null;
     });
   }
   return refreshInFlight;
 }
 
+function renewUnderLock(usedAccess?: string | null): Promise<boolean> {
+  const renew = () => {
+    const current = getAccessToken();
+    if (usedAccess !== undefined && current && current !== usedAccess) {
+      return Promise.resolve(true);
+    }
+    return refreshAccessToken();
+  };
+  const locks =
+    typeof navigator === "undefined"
+      ? undefined
+      : (navigator as Navigator & { locks?: LockManager }).locks;
+  if (locks?.request) {
+    return locks.request("mse-session-refresh", renew) as unknown as Promise<boolean>;
+  }
+  return renew();
+}
+
 function endSession(): void {
   const portal = getSessionPortal();
+  const reason = lastRefusalCode;
+  lastRefusalCode = "";
   clearTokens();
   const loginPath = isFieldSessionContext()
     ? "/trace/field-login"
@@ -169,7 +220,13 @@ function endSession(): void {
       ? "/scrap/login"
       : portalLoginPath(portal);
   if (typeof window !== "undefined" && window.location.pathname !== loginPath) {
-    toast.error(t("auth.sessionExpired"));
+    // The office's new link or 停用 is said as such on the phone.
+    const officeReason =
+      isFieldSessionContext() && FIELD_OFFICE_SIGN_OUTS.includes(reason)
+        ? resolveMessage(reason, "")
+        : "";
+    if (officeReason) rememberFieldSignOutReason(officeReason);
+    toast.error(officeReason || t("auth.sessionExpired"));
     window.location.href = loginPath;
   }
 }
@@ -336,6 +393,7 @@ export async function request<T>(
   const asked: SignOffMemory = {};
   for (let attempt = options; ; ) {
     let response: Response;
+    const usedAccess = attempt.auth === false ? undefined : getAccessToken();
     try {
       response = await send(path, attempt);
     } catch (error) {
@@ -355,7 +413,7 @@ export async function request<T>(
     ) {
       let refreshed: boolean;
       try {
-        refreshed = await ensureRefresh();
+        refreshed = await ensureRefresh(usedAccess);
         if (refreshed) response = await send(path, attempt);
       } catch (error) {
         // The renewal or the resend got no answer: the same as the first send
@@ -580,6 +638,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
   const asked: SignOffMemory = {};
   for (let attempt = options; ; ) {
     let response: Response;
+    const usedAccess = attempt.auth === false ? undefined : getAccessToken();
     try {
       response = await send(path, attempt);
     } catch (error) {
@@ -591,7 +650,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
     }
 
     if (response.status === 401) {
-      const refreshed = await ensureRefresh();
+      const refreshed = await ensureRefresh(usedAccess);
       if (refreshed) {
         response = await send(path, attempt);
       } else {

@@ -2,7 +2,6 @@
 
 import { Loader2, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -19,9 +18,10 @@ import {
 import {
   contextReason,
   detectInstallEnvironment,
+  fieldBootstrapStep,
   type UnboundReason,
 } from "@/lib/field-install";
-import { redirectWithFallback } from "@/lib/portal";
+import { replacePage } from "@/lib/portal";
 import {
   getOrCreateFieldDeviceId,
   restoreFieldPwaSession,
@@ -35,7 +35,6 @@ export function FieldPwaBootstrap({
   next?: string;
 }) {
   const t = useTranslations("fieldAccess");
-  const router = useRouter();
   const { setUser } = useAuth();
   const started = useRef(false);
   // Known only in the browser; read after hydration.
@@ -58,50 +57,46 @@ export function FieldPwaBootstrap({
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    if (!token) return;
-    // Skip the round trip only when there is a session to skip it for. The
-    // link is reusable within the access window now (T-127), so a device that
-    // kept this marker but lost its tokens should ask the server again rather
-    // than fall back to the PIN - that fallback was half of the reported bug,
-    // and browsers do clear storage in pieces.
-    const completionKey = "mse_field_pwa_bootstrap_complete";
-    if (
-      window.localStorage.getItem(completionKey) === token &&
-      hasFieldSession()
-    ) {
+    const step = fieldBootstrapStep({ token, hasSession: hasFieldSession() });
+    // A phone that is already signed in keeps its session: a relaunch of the
+    // installed app, or a reload, must not exchange the link again. If that
+    // session turns out to be refused, the workspace comes back here (or to
+    // the sign-in screen, which tries the kept link) by itself.
+    if (step === "keep-session") {
+      if (token && !getFieldBootstrapToken()) setFieldBootstrapToken(token);
       markFieldAppContext();
-      redirectWithFallback(router, next ?? "/field-staff", 150);
+      replacePage(next ?? "/field-staff");
       return;
     }
+    if (step === "missing") return;
     void restoreFieldPwaSession({
       token,
       device_id: getOrCreateFieldDeviceId(),
       device_name: navigator.platform || t("thisPhone"),
     })
       .then(async (result) => {
-        window.localStorage.setItem(completionKey, token);
         // The app's own storage now holds the way back in, so a re-install
         // from inside the app carries it too.
         setFieldBootstrapToken(token);
         setUser(result.user);
-        redirectWithFallback(router, next ?? "/field-staff", 150);
+        replacePage(next ?? "/field-staff");
       })
       .catch((cause) => {
         if (hasFieldSession()) {
           markFieldAppContext();
-          redirectWithFallback(router, next ?? "/field-staff", 150);
+          replacePage(next ?? "/field-staff");
           return;
         }
         // A newer hand-off is held here (a PIN typed inside the app made
         // one): the sign-in screen tries it before asking for anything.
         const stored = getFieldBootstrapToken();
         if (stored && stored !== token) {
-          redirectWithFallback(router, "/trace/field-login", 150);
+          replacePage("/trace/field-login");
           return;
         }
         setError(cause instanceof ApiError ? cause.message : t("failed"));
       });
-  }, [next, router, setUser, t, token]);
+  }, [next, setUser, t, token]);
 
   if (!error) {
     return (
@@ -120,7 +115,7 @@ export function FieldPwaBootstrap({
       <div className="w-full max-w-sm text-left">
         {reason && <FieldUnboundHelp reason={reason} />}
       </div>
-      <Button onClick={() => redirectWithFallback(router, "/trace/field-login", 150)}>
+      <Button onClick={() => replacePage("/trace/field-login")}>
         {t("signIn")}
       </Button>
     </main>

@@ -197,3 +197,81 @@ export function fieldManifestStartUrl(search: URLSearchParams): string {
   return "/trace/field-login";
 }
 
+
+/** The query parameter that carries the hand-off on a field page's address. */
+export const BOOTSTRAP_PARAM = "bootstrap";
+
+/** A hand-off value we would ever act on (same shape the manifest accepts). */
+export function validBootstrap(value: string | null | undefined): string | null {
+  return value && MANIFEST_TOKEN.test(value) ? value : null;
+}
+
+/** `path?query#hash` with the hand-off set to `token`, or removed when `null`. */
+export function withBootstrapParam(address: string, token: string | null): string {
+  const url = new URL(address, "http://field.local");
+  if (token) url.searchParams.set(BOOTSTRAP_PARAM, token);
+  else url.searchParams.delete(BOOTSTRAP_PARAM);
+  const search = url.searchParams.toString();
+  return `${url.pathname}${search ? `?${search}` : ""}${url.hash}`;
+}
+
+/**
+ * The address a field workspace page should show, or `null` to leave it.
+ *
+ * iPhone Safari's own Share -> Add to Home Screen saves the address in the
+ * bar, and the app it makes has empty storage of its own (Lucas 2026-10-22:
+ * 「如果我在工作台里面添加去主屏幕就会显示还没有绑定」). So in a Safari tab
+ * every workspace page keeps the live hand-off in its address, and the app
+ * started from such an address signs itself in with it. Inside the installed
+ * app the hand-off has done its job and comes off the address again, so it is
+ * not on screen, in screenshots or in links copied from the app.
+ */
+export function fieldWorkspaceAddress(input: {
+  address: string;
+  token: string | null;
+  standalone: boolean;
+  environment: InstallEnvironment;
+}): string | null {
+  const url = new URL(input.address, "http://field.local");
+  const shown = url.searchParams.get(BOOTSTRAP_PARAM);
+  const keep = showIosInstallGuide({
+    environment: input.environment,
+    standalone: input.standalone,
+  });
+  const wanted = keep ? validBootstrap(input.token) : null;
+  if ((shown ?? null) === wanted) return null;
+  // A tab with no hand-off of its own leaves whatever it was given alone.
+  if (keep && !wanted) return null;
+  return withBootstrapParam(input.address, wanted);
+}
+
+/**
+ * Where a workspace page with no signed-in user goes.
+ *
+ * With a hand-off on its address (an app added from a workspace page, opening
+ * for the first time with empty storage) it signs in with that, then comes
+ * back to the same page without it. Otherwise: the PIN screen.
+ */
+export function fieldWorkspaceSignIn(address: string): string {
+  const url = new URL(address, "http://field.local");
+  const token = validBootstrap(url.searchParams.get(BOOTSTRAP_PARAM));
+  const back = withBootstrapParam(address, null);
+  if (token) return fieldAppStartPath(token, back);
+  return `/trace/field-login?next=${encodeURIComponent(back)}`;
+}
+
+/**
+ * What the installed app's start page does with the link it opened on.
+ *
+ * - `keep-session`: this storage is already signed in (a relaunch, a reload):
+ *   go straight in, never exchange the link again;
+ * - `exchange`: empty storage (the first open): sign in with the link;
+ * - `missing`: no link at all.
+ */
+export function fieldBootstrapStep(input: {
+  token: string;
+  hasSession: boolean;
+}): "keep-session" | "exchange" | "missing" {
+  if (input.hasSession) return "keep-session";
+  return input.token ? "exchange" : "missing";
+}

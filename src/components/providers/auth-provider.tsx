@@ -14,7 +14,7 @@ import {
 import type { CurrentUser } from "@/interfaces/auth";
 import { ApiError } from "@/interfaces/api";
 import {
-  clearFieldTokens,
+  clearFieldSession,
   clearDriverTokens,
   clearTokens,
   getSessionPortal,
@@ -137,7 +137,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // a half-signed-in state.
         if (error instanceof ApiError && [401, 403].includes(error.status)) {
           // Each of these also forgets the remembered field account.
-          if (fieldSession) clearFieldTokens();
+          // Refused, not signed out: the phone keeps its way back in.
+          if (fieldSession) clearFieldSession();
           else if (driverSession) clearDriverTokens();
           else clearTokens();
           return null;
