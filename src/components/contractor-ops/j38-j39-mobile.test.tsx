@@ -232,7 +232,9 @@ describe("the office sees what is still to fill (J39-3)", () => {
       expect(catalogue.contractorOps.outgoing.specOptionalHint).toBeTruthy();
       expect(catalogue.contractorOps.equipmentExit.supplierFromMachine).toBeTruthy();
       expect(catalogue.fieldStaffPwa.material.specOptionalHint).toBeTruthy();
-      expect(catalogue.fieldStaffPwa.material.supplierRequiredHint).toBeTruthy();
+      // Supplier stays optional on the phone (Lucas 10-22): 「未填供应商」 is back.
+      expect(catalogue.fieldStaffPwa.material.noSupplier).toBeTruthy();
+      expect(catalogue.fieldStaffPwa.material.noSupplierHint).toBeTruthy();
     }
     expect(zh.receipts.net.noSpec).toBe("未填规格");
   });
