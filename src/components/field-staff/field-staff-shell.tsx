@@ -2,7 +2,7 @@
 
 import { Loader2, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
@@ -13,19 +13,20 @@ import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import { Button } from "@/components/ui/button";
-import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
-import { redirectWithFallback } from "@/lib/portal";
+import { clearFieldTokens, isStandaloneApp, markFieldAppContext } from "@/lib/auth-token";
+import { fieldWorkspaceSignIn } from "@/lib/field-install";
+import { replacePage } from "@/lib/portal";
 import { keepShellPageStored } from "@/lib/shell-cache";
 import { FieldLocationTracker } from "@/components/field-staff/field-location-tracker";
 import { FieldInstallBanner } from "@/components/field-staff/field-install-banner";
 import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
+import { FieldWorkspaceAddress } from "@/components/field-staff/field-workspace-address";
 import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
 
 const FIELD_REALTIME_KEYS: never[] = [];
 
 export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user, isLoading, sessionUnreachable, signOut } = useAuth();
@@ -53,15 +54,15 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
     if (sessionUnreachable) return;
     if (!isLoading && user === null) {
       const currentPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
-      redirectWithFallback(
-        router,
-        `/trace/field-login?next=${encodeURIComponent(currentPath)}`,
-      );
+      // A hand-off on the address (an iPhone app added from this page, first
+      // open, empty storage) signs in with it and comes straight back here.
+      // A full page load, not a route change: see `replacePage`.
+      replacePage(fieldWorkspaceSignIn(currentPath, isStandaloneApp()));
     } else if (!isLoading && user !== null && !allowed) {
       clearFieldTokens();
-      redirectWithFallback(router, "/trace/field-login");
+      replacePage("/trace/field-login");
     }
-  }, [allowed, isLoading, pathname, router, searchParams, sessionUnreachable, user]);
+  }, [allowed, isLoading, pathname, searchParams, sessionUnreachable, user]);
 
   if (sessionUnreachable) return <SessionUnreachable />;
 
@@ -73,6 +74,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh min-w-0 overflow-x-clip bg-background">
       <FieldLocationTracker />
       <FieldManifestToken />
+      <FieldWorkspaceAddress />
       <header className="sticky top-0 z-40 border-b border-sidebar-border bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex min-h-16 w-full max-w-2xl items-center gap-2 px-4 py-2.5">
           <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-panel-border bg-card p-1 shadow-glow-sm">

@@ -11,7 +11,6 @@ import {
   Share,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ import {
   showIosInstallGuide,
   type InstallEnvironment,
 } from "@/lib/field-install";
-import { redirectWithFallback } from "@/lib/portal";
+import { replacePage } from "@/lib/portal";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -47,7 +46,6 @@ export function FieldInstallReady({
   next?: string;
 }) {
   const t = useTranslations("fieldAccess");
-  const router = useRouter();
   // Keep the server and first client render identical. Browser capability and
   // a deferred install event are only known after hydration.
   const [installPrompt, setInstallPrompt] =
@@ -62,14 +60,12 @@ export function FieldInstallReady({
   useEffect(() => {
     if (isStandaloneApp()) {
       markFieldAppContext();
-      redirectWithFallback(
-        router,
+      replacePage(
         token
           ? fieldAppStartPath(token, next)
           : hasFieldSession()
             ? workspace
             : "/trace/field-login",
-        150,
       );
       return;
     }
@@ -95,7 +91,7 @@ export function FieldInstallReady({
     const installed = () => {
       (window as InstallWindow).__mseFieldInstallPrompt = null;
       setInstallPrompt(null);
-      redirectWithFallback(router, workspace, 150);
+      replacePage(workspace);
     };
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("mse:field-install-ready", promptReady);
@@ -108,7 +104,7 @@ export function FieldInstallReady({
       window.removeEventListener("appinstalled", installed);
       window.removeEventListener("mse:field-app-installed", installed);
     };
-  }, [next, router, token, workspace]);
+  }, [next, token, workspace]);
 
   const guidance = installGuidance(environment, t);
   const GuidanceIcon = guidance.icon;
@@ -142,7 +138,7 @@ export function FieldInstallReady({
       (window as InstallWindow).__mseFieldInstallPrompt = null;
       setInstallPrompt(null);
       if (choice.outcome === "accepted") {
-        redirectWithFallback(router, workspace, 150);
+        replacePage(workspace);
         return;
       }
       setInstallStatus("unavailable");
@@ -251,7 +247,7 @@ export function FieldInstallReady({
           size="lg"
           variant={supportsNativePrompt || iosGuide ? "outline" : "default"}
           className="h-12 text-sm"
-          onClick={() => redirectWithFallback(router, workspace, 150)}
+          onClick={() => replacePage(workspace)}
         >
           <Camera />
           {t("openWorkspace")}

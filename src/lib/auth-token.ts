@@ -87,6 +87,33 @@ export function getFieldBootstrapToken(): string | null {
   return window.localStorage.getItem(FIELD_BOOTSTRAP_KEY);
 }
 
+/** The two things that sign a field phone out on the office's word. */
+export const FIELD_OFFICE_SIGN_OUTS = ["field_link_replaced", "field_account_stopped"];
+
+const FIELD_SIGN_OUT_REASON_KEY = "mse_field_sign_out_reason";
+
+/** Kept for the sign-in screen the session ends on (one page load). */
+export function rememberFieldSignOutReason(message: string): void {
+  if (!isBrowser() || !message) return;
+  try {
+    window.sessionStorage.setItem(FIELD_SIGN_OUT_REASON_KEY, message);
+  } catch {
+    // Storage blocked: the toast still said it.
+  }
+}
+
+/** Read once: the reason is shown on the next sign-in screen only. */
+export function takeFieldSignOutReason(): string {
+  if (!isBrowser()) return "";
+  try {
+    const message = window.sessionStorage.getItem(FIELD_SIGN_OUT_REASON_KEY) ?? "";
+    window.sessionStorage.removeItem(FIELD_SIGN_OUT_REASON_KEY);
+    return message;
+  } catch {
+    return "";
+  }
+}
+
 export function clearFieldBootstrapToken(): void {
   if (!isBrowser()) return;
   window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);
@@ -199,12 +226,26 @@ export function setFieldTokens(tokens: { access: string; refresh: string }): voi
 
 export function clearFieldTokens(): void {
   if (!isBrowser()) return;
-  forgetFieldUser();
-  window.localStorage.removeItem(FIELD_ACCESS_KEY);
-  window.localStorage.removeItem(FIELD_REFRESH_KEY);
   // Signing out is a decision to stop being this worker on this phone, so the
   // way back in without a PIN goes with it.
   window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);
+  clearFieldSession();
+}
+
+/**
+ * Drop a field session the server refused, but keep the hand-off.
+ *
+ * A refused session is not a sign-out. Keeping the hand-off lets the sign-in
+ * screen get back in by itself; dropping it here is what left a phone on a
+ * PIN screen after a while unused (Lucas 2026-10-22: 「我一段时间没有用就会
+ * 自动登出到输入PIN的页面」). The server still decides: a link the office
+ * reissued or stopped is refused, and only then is the PIN asked for.
+ */
+export function clearFieldSession(): void {
+  if (!isBrowser()) return;
+  forgetFieldUser();
+  window.localStorage.removeItem(FIELD_ACCESS_KEY);
+  window.localStorage.removeItem(FIELD_REFRESH_KEY);
   if (
     window.localStorage.getItem(ACCESS_KEY) === null &&
     window.localStorage.getItem(DRIVER_ACCESS_KEY) === null

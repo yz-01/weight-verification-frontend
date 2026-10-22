@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Camera, Copy, Loader2, LogIn, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { FieldUnboundHelp } from "@/components/field-staff/field-unbound-help";
@@ -13,9 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
 import {
+  FIELD_OFFICE_SIGN_OUTS,
   getFieldBootstrapToken,
   isStandaloneApp,
   setFieldBootstrapToken,
+  takeFieldSignOutReason,
 } from "@/lib/auth-token";
 import {
   contextReason,
@@ -24,9 +26,10 @@ import {
   fieldSignInDestination,
   unboundReason,
   type InstallEnvironment,
+  validBootstrap,
 } from "@/lib/field-install";
 import { inAppBrowserName } from "@/lib/in-app-browser";
-import { redirectWithFallback, safeReturnPath } from "@/lib/portal";
+import { replacePage, safeReturnPath } from "@/lib/portal";
 import { cacheBranding } from "@/lib/branding";
 import {
   activateFieldDevice,
@@ -48,9 +51,10 @@ interface BrowserContext {
 export function FieldAccess() {
   const t = useTranslations("fieldAccess");
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { setUser } = useAuth();
   const token = searchParams.get("token") ?? "";
+  // The installed app sent here to join the phone with the PIN.
+  const joinLink = validBootstrap(searchParams.get("bootstrap"));
   const next = safeReturnPath(searchParams.get("next") ?? undefined);
   const invitation = useQuery({
     queryKey: ["field-invitation", token],
@@ -60,6 +64,9 @@ export function FieldAccess() {
   });
   const [pin, setPin] = useState("");
   const [pending, setPending] = useState(false);
+  // Why the phone was signed out, when the office did it (new link, or the
+  // account stopped): said in plain words above the PIN box, not a bare
+  // "session expired" (Lucas 2026-10-22).
   const [error, setError] = useState("");
   // True once a sign-in has proved this browser will not keep the device
   // id. Without this the refusal reads as the worker having done
@@ -96,6 +103,8 @@ export function FieldAccess() {
       } catch {
         hasDeviceId = false;
       }
+      const officeReason = takeFieldSignOutReason();
+      if (officeReason) setError((current) => current || officeReason);
       setContext({
         standalone: isStandaloneApp(),
         environment: detectInstallEnvironment(),
@@ -131,6 +140,7 @@ export function FieldAccess() {
     if (!stored) return;
     let abandoned = false;
     void restoreFieldPwaSession({
+      context: isStandaloneApp() ? "standalone" : "browser",
       token: stored,
       device_id: getOrCreateFieldDeviceId(),
       device_name: navigator.platform || t("thisPhone"),
@@ -139,15 +149,22 @@ export function FieldAccess() {
         if (abandoned) return;
         setSignedIn(true);
         setUser(result.user);
-        redirectWithFallback(router, next ?? "/field-staff", 150);
+        replacePage(next ?? "/field-staff");
       })
-      .catch(() => {
-        if (!abandoned) setResuming(false);
+      .catch((cause: unknown) => {
+        if (abandoned) return;
+        if (
+          cause instanceof ApiError &&
+          FIELD_OFFICE_SIGN_OUTS.includes(cause.code ?? "")
+        ) {
+          setError(cause.message);
+        }
+        setResuming(false);
       });
     return () => {
       abandoned = true;
     };
-  }, [next, router, setUser, t, token]);
+  }, [next, setUser, t, token]);
 
   const submit = async () => {
     setError("");
@@ -168,6 +185,12 @@ export function FieldAccess() {
         : await fieldLogin({
             pin,
             device_id: deviceId,
+            ...(joinLink
+              ? {
+                  bootstrap: joinLink,
+                  context: isStandaloneApp() ? "standalone" : "browser",
+                }
+              : {}),
           });
       // First, before anything re-renders: the form must not come back.
       setSignedIn(true);
@@ -240,7 +263,7 @@ export function FieldAccess() {
         ? contextReason(context)
         : unboundReason({
             linked: context.linked,
-            hasBootstrapToken: Boolean(getFieldBootstrapToken()),
+            hasBootstrapToken: Boolean(getFieldBootstrapToken() || joinLink),
             standalone: context.standalone,
             environment: context.environment,
           })
