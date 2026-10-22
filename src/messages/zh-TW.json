@@ -6214,6 +6214,8 @@
       "phaseHelp": "建立用於整理和確認工程進度的施工分類。",
       "phaseTitle": "施工分類",
       "recordHelp": "拍至少 1 張現場照片，選施工分類，可以寫備註，然後提交。完成比例可以不填。",
+      "recordHelpPhone": "拍至少 1 張現場照片，可以寫備註，然後提交。",
+      "unclassified": "待歸類",
       "recordTitle": "新增進度證據",
       "returnPrompt": "請說明需要更正後再提交的內容。",
       "saveError": "工程進度保存失敗，請檢查項目、施工分類、照片和 GPS 後重試。",

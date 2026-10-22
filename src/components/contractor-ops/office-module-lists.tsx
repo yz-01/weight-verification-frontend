@@ -1834,8 +1834,10 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
   const title = tRoot("nav.submodule.progressRecords");
   const noPhases =
     !!project && !phases.isLoading && !phases.isError && !phases.data?.count;
+  // 待归类 (J40): a record the phone sent without a 施工分类 reads by its
+  // record number until the office files it.
   const reference = (row: SiteProgressRecord) =>
-    `${row.phase_name} / ${percent(row.percent_complete)}`;
+    `${row.phase_name ?? row.record_no ?? t("progress.unclassified")} / ${percent(row.percent_complete)}`;
 
   const columns = useMemo<ColumnDef<SiteProgressRecord, unknown>[]>(
     () => [
@@ -1868,8 +1870,8 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
       photoColumn<SiteProgressRecord>({
         label: tRoot("moduleTable.photos"),
         icon: ChartNoAxesCombined,
-        reference: (row) => row.phase_name,
-        photos: (row) => rowPhotos(row.photos, row.phase_name, row),
+        reference: (row) => row.phase_name ?? row.record_no ?? "",
+        photos: (row) => rowPhotos(row.photos, row.phase_name ?? row.record_no ?? "", row),
       }),
       {
         id: "phase__name",
@@ -1878,7 +1880,10 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         header: sortable(t("field.phase")),
         cell: ({ row }) => (
           <span className="inline-flex flex-wrap items-center gap-1.5 font-medium text-foreground">
-            {row.original.phase_name}
+            {/* 待归类 (J40): the office files it from 【改正】 in the detail. */}
+            {row.original.phase_name ?? (
+              <StatusBadge label={t("progress.unclassified")} tone="warning" />
+            )}
           </span>
         ),
       },
@@ -2126,7 +2131,12 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                 ),
               },
               { label: t("field.project"), value: shown.project_name },
-              { label: t("field.phase"), value: shown.phase_name },
+              {
+                label: t("field.phase"),
+                value: shown.phase_name ?? (
+                  <StatusBadge label={t("progress.unclassified")} tone="warning" />
+                ),
+              },
               {
                 label: t("field.percentComplete"),
                 // The office corrects the figure in place (2026-10-09).

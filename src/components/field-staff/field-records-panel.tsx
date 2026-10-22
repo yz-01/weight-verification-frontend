@@ -196,7 +196,7 @@ export function FieldRecordsPanel({
     return <RecordFrame title={t("records.operatorHours")} onBack={() => chooseMode(null)}><EquipmentHoursCapture initialProject={task?.project ?? boundProject} /></RecordFrame>;
   }
   if (mode === "progress") {
-    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} onClose={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "disposal") {
     if (

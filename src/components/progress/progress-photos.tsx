@@ -45,7 +45,7 @@ export function toShellPhotos(
   return photos.map((photo) => ({
     id: photo.id,
     url: photoUrl(photo),
-    label: `${photo.phase_name} · ${percent(photo.percent_complete)}${photo.caption ? ` · ${photo.caption}` : ""}`,
+    label: `${photo.phase_name ? `${photo.phase_name} · ` : ""}${percent(photo.percent_complete)}${photo.caption ? ` · ${photo.caption}` : ""}`,
     takenAt: photo.captured_at,
     latitude: photo.latitude,
     longitude: photo.longitude,
@@ -97,11 +97,11 @@ export function PhotoTile({
         type="button"
         onClick={onOpen ?? onToggle}
         className="relative block aspect-[4/3] w-full bg-muted/40"
-        title={photo.caption || photo.phase_name}
+        title={photo.caption || photo.phase_name || ""}
       >
         <Image
           src={photoUrl(photo)}
-          alt={photo.caption || photo.phase_name}
+          alt={photo.caption || photo.phase_name || ""}
           fill
           sizes="(max-width: 640px) 50vw, 220px"
           className="object-cover"
@@ -126,7 +126,7 @@ export function PhotoTile({
       )}
       <div className="space-y-0.5 px-2 py-1.5 text-xs">
         <p className="truncate font-medium text-foreground">
-          {photo.phase_name} · <span className="tabular">{percent(photo.percent_complete)}</span>
+          {photo.phase_name ? `${photo.phase_name} · ` : ""}<span className="tabular">{percent(photo.percent_complete)}</span>
         </p>
         {/* The site's note (H14): 「每条施工进度记录…都要有备注」. */}
         {photo.description ? (

@@ -16,8 +16,9 @@ export interface ProgressPhoto {
   project_name: string;
   /** The progress record the photo was taken for. */
   progress: string;
-  phase: string;
-  phase_name: string;
+  /** Null while the record is 待归类 (J40). */
+  phase: string | null;
+  phase_name: string | null;
   /** Null when the site left it out (H5/H11, HD2). */
   percent_complete: string | null;
   /** The record's note from the site (H14), on the card as well as the detail. */
@@ -31,8 +32,8 @@ export interface ProgressPhoto {
 export interface DailyReportEntry {
   id: string;
   captured_at: string | null;
-  phase: string;
-  phase_name: string;
+  phase: string | null;
+  phase_name: string | null;
   /** Null when the site left it out (HD2). */
   percent_complete: string | null;
   /** The site's note (H14) - what 「带入这几天的备注」 brings in. */
