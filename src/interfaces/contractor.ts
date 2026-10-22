@@ -449,6 +449,8 @@ export interface MaterialReceipt {
    */
   is_seen: boolean;
   photo_count?: number;
+  /** J34-2: the first photographs' stamped thumbnails, cover first. */
+  photo_thumbs?: string[] | null;
   /**
    * Accepted is closed (客户开工前第 2 问：「验收了之后就算，不需要等付款对账
    * 完成」), so this one field answers both T-293's 「不合格」 and T-295's
