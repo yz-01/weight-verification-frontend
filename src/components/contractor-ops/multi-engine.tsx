@@ -1211,7 +1211,7 @@ function RecordPreviewDialog({
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {data.photos.map((photo) => (
                     <a key={photo.id ?? photo.url} href={photo.url} target="_blank" rel="noreferrer" className="overflow-hidden rounded-lg border">
-                      <Image src={photo.url} alt={photo.caption || reference} width={320} height={240} unoptimized className="h-28 w-full object-cover" />
+                      <Image src={photo.url} alt={photo.caption || reference} width={320} height={240} unoptimized className="h-28 w-full object-cover object-bottom" />
                       <span className="block truncate px-2 py-1.5 text-xs text-muted-foreground">{photo.caption || t("group.photos")}</span>
                     </a>
                   ))}
@@ -1368,7 +1368,7 @@ function TickPartsDialog({
                     width={320}
                     height={240}
                     unoptimized
-                    className="h-28 w-full object-cover"
+                    className="h-28 w-full object-cover object-bottom"
                   />
                   <span className="flex items-center gap-2 px-2 py-1.5">
                     <Checkbox

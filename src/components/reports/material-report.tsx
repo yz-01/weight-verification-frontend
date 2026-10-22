@@ -657,7 +657,7 @@ function RecordPhotos({ record }: { record: MaterialReceipt }) {
             alt={photo.caption || record.receipt_no}
             fill
             unoptimized
-            className="object-cover"
+            className="object-cover object-bottom"
           />
         </a>
       ))}

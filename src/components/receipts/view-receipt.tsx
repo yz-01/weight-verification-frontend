@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import { useUnitName } from "@/hooks/use-material-units";
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import {
   FormSkeleton,
   LoadErrorCard,
@@ -347,11 +348,11 @@ function AddPhoto({
       </p>
       <div className="flex flex-wrap items-end gap-2">
         <FieldWrapper label={t("receipts.addPhoto.choose")} required>
-          <Input
-            type="file"
-            accept="image/*"
-            className="h-8 max-w-xs text-xs"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          <PhotoFileInput
+            label={t("receipts.addPhoto.choose")}
+            files={file ? [file] : []}
+            onChange={(next) => setFile(next[0] ?? null)}
+            inputClassName="h-8 max-w-xs text-xs"
           />
         </FieldWrapper>
         <FieldWrapper label={t("receipts.addPhoto.kind")}>

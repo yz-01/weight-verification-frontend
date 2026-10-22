@@ -394,7 +394,7 @@ function PhotoTray({
     <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
       {urls.map(([eventId, url], index) => (
         <li key={eventId} className="relative overflow-hidden rounded-md border bg-muted">
-          <img src={url} alt={t("photoNumber", { number: index + 1 })} className="aspect-square w-full object-cover" />
+          <img src={url} alt={t("photoNumber", { number: index + 1 })} className="aspect-square w-full object-cover object-bottom" />
           <button
             type="button"
             aria-label={t("removePhoto", { number: index + 1 })}

@@ -198,7 +198,7 @@ export function EvidenceLinkCards({
                 alt={link.caption || link.original_filename}
                 fill
                 unoptimized
-                className="object-cover transition-transform group-hover:scale-[1.02]"
+                className="object-cover object-bottom transition-transform group-hover:scale-[1.02]"
               />
               <span className="absolute right-1.5 bottom-1.5 grid size-7 place-items-center rounded-full bg-background/85 text-foreground shadow-sm">
                 <ZoomIn className="size-4" />

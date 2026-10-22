@@ -28,6 +28,7 @@ import {
   DriverError,
   DriverLoading,
 } from "@/components/driver/driver-shell";
+import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import {
   LocationMap,
@@ -166,9 +167,6 @@ export function DriverTask({
   // for the same shape in two unrelated places - here, and the material
   // receipt's 退回 - so it is their house style rather than a one-off.
   const [armed, setArmed] = useState(false);
-  const loadingInput = useRef<HTMLInputElement>(null);
-  const gatepassInput = useRef<HTMLInputElement>(null);
-  const issueInput = useRef<HTMLInputElement>(null);
   const lastPositionAt = useRef(0);
 
   const { data, isLoading, isLoadingError, refetch } = useQuery({
@@ -606,7 +604,7 @@ export function DriverTask({
                   alt={photo.caption || photo.kind}
                   fill
                   sizes="120px"
-                  className="object-cover"
+                  className="object-cover object-bottom"
                   unoptimized
                 />
               </div>
@@ -624,98 +622,65 @@ export function DriverTask({
           </p>
         ) : (
           <>
-        {/* `capture` opens the camera straight away rather than the gallery.
-              The point is a photograph taken now, at the load, not one chosen
-              from the roll afterwards. */}
-          <input
-            ref={loadingInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) upload.mutate({ file, kind: "LOADING" });
-              event.target.value = "";
-            }}
-          />
-          <input
-            ref={gatepassInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) upload.mutate({ file, kind: "GATEPASS" });
-              event.target.value = "";
-            }}
-          />
-          {/* Two buttons, not one picker. A driver at a site gate should not
-              have to choose a category from a list before the camera opens, and
-              each button says on its face whether that photograph is done. */}
-          <Button
-            variant="outline"
+        {/* The app's own square camera (J45, Lucas 2026-10-22: no phone
+              camera app, no gallery): a photograph taken now, at the load,
+              framed as it is kept. Two buttons, not one picker: a driver at a
+              site gate should not have to choose a category from a list
+              before the camera opens, and each button says on its face
+              whether that photograph is done. */}
+          <FieldCamera
+            trigger="button"
             size="lg"
             className="h-12 w-full"
+            label={t("driver.takePhoto")}
             disabled={upload.isPending}
-            onClick={() => loadingInput.current?.click()}
-          >
-            {upload.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : hasLoadingPhoto ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <Camera className="h-4 w-4" />
-            )}
-            {t("driver.takePhoto")}
-          </Button>
-          <Button
-            variant="outline"
+            icon={
+              upload.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : hasLoadingPhoto ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )
+            }
+            onCapture={(file) => upload.mutate({ file, kind: "LOADING" })}
+          />
+          <FieldCamera
+            trigger="button"
             size="lg"
             className="h-12 w-full"
+            label={t("driver.takeGatepass")}
             disabled={upload.isPending}
-            onClick={() => gatepassInput.current?.click()}
-          >
-            {upload.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : hasGatepass ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <Camera className="h-4 w-4" />
-            )}
-            {t("driver.takeGatepass")}
-          </Button>
+            icon={
+              upload.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : hasGatepass ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )
+            }
+            onCapture={(file) => upload.mutate({ file, kind: "GATEPASS" })}
+          />
           {/* C10: an accident, a breakdown, anything on the road - one
               photograph that goes to the recycler and the contractor both.
               Only while the trip is running: the server refuses it after
               「到达回收场（结束任务）」 like any other photograph. */}
-          <input
-            ref={issueInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) upload.mutate({ file, kind: "ISSUE" });
-              event.target.value = "";
-            }}
-          />
-          <Button
-            variant="outline"
+          <FieldCamera
+            trigger="button"
             size="lg"
             className="h-12 w-full border-warning/50 text-foreground"
+            label={t("driver.takeIssuePhoto")}
             disabled={upload.isPending}
-            onClick={() => issueInput.current?.click()}
-          >
-            {upload.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <TriangleAlert className="h-4 w-4 text-warning" />
-            )}
-            {t("driver.takeIssuePhoto")}
-          </Button>
+            icon={
+              upload.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <TriangleAlert className="h-4 w-4 text-warning" />
+              )
+            }
+            onCapture={(file) => upload.mutate({ file, kind: "ISSUE" })}
+          />
           <p className="text-center text-xs text-muted-foreground">
             {t("driver.issuePhotoHelp")}
           </p>

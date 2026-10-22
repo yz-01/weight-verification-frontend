@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import {
   RecordDetailDialog,
   RecordDetailShell,
@@ -205,7 +206,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                           width={180}
                           height={180}
                           unoptimized
-                          className="aspect-square w-full rounded-lg object-cover"
+                          className="aspect-square w-full rounded-lg object-cover object-bottom"
                         />
                       </a>
                     ) : (
@@ -246,12 +247,12 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                       <Textarea rows={4} value={result} onChange={(event) => setResult(event.target.value)} />
                     </FieldWrapper>
                     <FieldWrapper label={t("photosLabel")} optional={t("optional")}>
-                      <input
-                        type="file"
-                        accept="image/*"
+                      <PhotoFileInput
+                        label={t("photosLabel")}
                         multiple
-                        onChange={(event) => setPhotos(Array.from(event.target.files ?? []))}
-                        className="block w-full text-sm"
+                        files={photos}
+                        onChange={setPhotos}
+                        inputClassName="block w-full text-sm"
                       />
                       <ChosenPhotos photos={photos} />
                     </FieldWrapper>

@@ -120,3 +120,37 @@ export function megabytes(bytes: number): string {
   const value = bytes / (1024 * 1024);
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
+
+/**
+ * On a phone a photo comes only from the app's own square camera (J45, Lucas
+ * 2026-10-22: no phone camera app, no gallery). The phone's file chooser is
+ * for documents - a PDF, a spreadsheet - so it is offered without image
+ * types. Office desktops keep choosing any file as before.
+ */
+const IMAGE_TOKEN = /^(image\/.*|\.(jpe?g|png|gif|webp|heic|heif|bmp|tiff?|avif))$/i;
+
+/** What a page that takes any file lets a phone choose: documents. */
+export const PHONE_DOCUMENT_ACCEPT =
+  ".pdf,application/pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.zip";
+
+/**
+ * The phone file chooser's `accept`: the page's own, less every image type;
+ * documents when the page takes any file; `null` - no file button at all on
+ * the phone - when the page takes only images.
+ */
+export function phoneFileAccept(accept = ""): string | null {
+  const tokens = accept
+    .split(",")
+    .map((token) => token.trim())
+    .filter(Boolean);
+  if (tokens.length === 0) return PHONE_DOCUMENT_ACCEPT;
+  const kept = tokens.filter((token) => !IMAGE_TOKEN.test(token));
+  return kept.length > 0 ? kept.join(",") : null;
+}
+
+/** Whether a file is a picture (by type, or by name when the phone gives none). */
+export function isPhotoFile(file: Pick<File, "name" | "type">): boolean {
+  if ((file.type || "").toLowerCase().startsWith("image/")) return true;
+  const extension = /\.[^.]+$/.exec(file.name.toLowerCase())?.[0] ?? "";
+  return IMAGE_TOKEN.test(extension);
+}

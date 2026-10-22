@@ -4,6 +4,15 @@ import { Camera, CameraIcon, Loader2, RefreshCw, SwitchCamera, X } from "lucide-
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { applicationPhotoCanvas, startOriginal } from "@/lib/original-capture";
+import {
+  applyZoom,
+  findWideLens,
+  readWidePreference,
+  writeWidePreference,
+  zoomFor,
+  zoomRange,
+  type WideLens,
+} from "@/lib/camera-lens";
 
 import { Button } from "@/components/ui/button";
 import { canvasJpeg, encodeWithinTarget, markAtUploadSize } from "@/lib/photo-compression";
@@ -17,6 +26,24 @@ import {
 } from "@/components/ui/dialog";
 
 type FacingMode = "user" | "environment";
+
+/**
+ * What the camera stream is asked for (J45: every photo square).
+ *
+ * The photo is the centre square of the frame, so its side is the frame's
+ * short side. 4:3 is the shape of a phone's sensor: a 1920 x 1440 stream uses
+ * the whole sensor and gives a 1440 px square, where the old 1920 x 1080 ask
+ * gave 1080. Only `ideal`, so a camera without a 4:3 mode still picks its
+ * nearest - in practice 1920 x 1080, which is a 1080 px square, as sharp as
+ * the photos were before (a 16:9 frame keeps 56% of its long side in the
+ * square, a 4:3 one 75%). Not 1920 x 1920: no phone camera streams square,
+ * and browsers then choose odd modes to get near it.
+ */
+export const SQUARE_SOURCE = {
+  width: { ideal: 1920 },
+  height: { ideal: 1440 },
+  aspectRatio: { ideal: 4 / 3 },
+} as const;
 
 interface FieldCameraProps {
   label: string;
@@ -57,6 +84,10 @@ interface FieldCameraProps {
    * attachment picker, I3). The dialog and the camera handling are the same.
    */
   trigger?: "tile" | "button";
+  /** The button trigger's icon, in place of the camera (e.g. a tick once done). */
+  icon?: React.ReactNode;
+  /** The button trigger's size (`Button`'s own). */
+  size?: "default" | "sm" | "lg";
   disabled?: boolean;
   className?: string;
   onCapture: (file: File) => void;
@@ -70,6 +101,8 @@ export function FieldCamera({
   previewUrl: storedPreviewUrl,
   facingMode = "environment",
   trigger = "tile",
+  icon,
+  size,
   disabled = false,
   className = "",
   onCapture: handOver,
@@ -83,6 +116,21 @@ export function FieldCamera({
   const [error, setError] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  // 「广角」 (J45): off unless the worker turned it on on this phone; the
+  // switch shows only when the phone has a wide lens (`lib/camera-lens`).
+  const [wide, setWide] = useState(false);
+  const [lens, setLens] = useState<WideLens | null>(null);
+  const wideRef = useRef(false);
+
+  function openCamera() {
+    setFacing(facingMode);
+    const remembered = readWidePreference();
+    wideRef.current = remembered;
+    setWide(remembered);
+    setOpen(true);
+  }
+  // An ultra-wide that is its own camera is opened instead of the normal one.
+  const wideDeviceId = facing === "environment" && wide && lens?.kind === "device" ? lens.deviceId : "";
 
   // Derived rather than stored, so the thumbnail is right on the render that
   // receives the photograph rather than one render later.
@@ -128,11 +176,9 @@ export function FieldCamera({
         try {
           stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
-            video: {
-              facingMode: { ideal: facing },
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
-            },
+            video: wideDeviceId
+              ? { deviceId: { exact: wideDeviceId }, ...SQUARE_SOURCE }
+              : { facingMode: { ideal: facing }, ...SQUARE_SOURCE },
           });
         } catch {
           stream = await navigator.mediaDevices.getUserMedia({
@@ -157,6 +203,28 @@ export function FieldCamera({
         video.srcObject = stream;
         await waitForVideoReady(video);
         await video.play();
+        // The wide lens, found once the camera is open (labels and zoom are
+        // only readable then). Kept as it is while the ultra-wide device is
+        // the one open, so the switch does not flip itself back.
+        if (!wideDeviceId) {
+          const track = stream.getVideoTracks()[0];
+          let devices: MediaDeviceInfo[] = [];
+          try {
+            devices = (await navigator.mediaDevices.enumerateDevices?.()) ?? [];
+          } catch {
+            devices = [];
+          }
+          if (cancelled) return;
+          const found = findWideLens(
+            zoomRange(track),
+            facing === "environment" ? devices : [],
+          );
+          setLens(found);
+          // Normal (1x) is the camera's own start; only wide is set.
+          if (found?.kind === "zoom" && wideRef.current) {
+            await applyZoom(track, zoomFor(found, true));
+          }
+        }
         setReady(true);
       } catch {
         setError(t("permissionError"));
@@ -170,7 +238,19 @@ export function FieldCamera({
       cancelled = true;
       stopCamera();
     };
-  }, [facing, open, stopCamera, t]);
+  }, [facing, open, stopCamera, t, wideDeviceId]);
+
+  function toggleWide() {
+    const next = !wide;
+    wideRef.current = next;
+    setWide(next);
+    writeWidePreference(next);
+    // A zoom lens switches in place; a separate ultra-wide device reopens
+    // the camera through `wideDeviceId`.
+    if (lens?.kind === "zoom") {
+      void applyZoom(streamRef.current?.getVideoTracks()[0], zoomFor(lens, next));
+    }
+  }
 
   function capture() {
     const video = videoRef.current;
@@ -217,14 +297,12 @@ export function FieldCamera({
         <Button
           type="button"
           variant="outline"
+          size={size}
           className={className}
           disabled={disabled}
-          onClick={() => {
-            setFacing(facingMode);
-            setOpen(true);
-          }}
+          onClick={openCamera}
         >
-          <Camera />
+          {icon ?? <Camera />}
           {label}
         </Button>
       ) : (
@@ -232,10 +310,7 @@ export function FieldCamera({
         <button
           type="button"
           disabled={disabled}
-          onClick={() => {
-            setFacing(facingMode);
-            setOpen(true);
-          }}
+          onClick={openCamera}
           className={`flex min-h-24 w-full flex-col items-center justify-center overflow-hidden rounded-xl text-center transition disabled:cursor-not-allowed disabled:opacity-50 ${
             previewUrl
               ? "photo-hatch border border-tone-green/50 p-0"
@@ -302,7 +377,14 @@ export function FieldCamera({
             <DialogTitle>{label}</DialogTitle>
             <DialogDescription>{t("help")}</DialogDescription>
           </DialogHeader>
-          <div className="relative aspect-[3/4] max-h-[65dvh] overflow-hidden rounded-lg bg-black sm:aspect-video">
+          {/* Square (J45): the centre of the video, which is exactly the
+              photo taken (`centreSquare`). Capped by width, not height - a
+              max-height on an aspect box squashes it into a rectangle that
+              shows more than the photo keeps. */}
+          <div
+            data-testid="field-camera-viewfinder"
+            className="relative mx-auto aspect-square w-full max-w-[60dvh] overflow-hidden rounded-lg bg-black"
+          >
             <video
               ref={videoRef}
               autoPlay
@@ -315,6 +397,9 @@ export function FieldCamera({
                 <Loader2 className="size-8 animate-spin" />
               </div>
             ) : null}
+            {ready && !error ? (
+              <WideLensSwitch lens={lens} wide={wide} label={t("wide")} onToggle={toggleWide} />
+            ) : null}
             {error ? (
               <div className="absolute inset-0 grid place-items-center bg-overlay p-6 text-center text-sm text-overlay-foreground">
                 <div>
@@ -324,6 +409,7 @@ export function FieldCamera({
               </div>
             ) : null}
           </div>
+          <p className="-mt-1 text-center text-xs text-muted-foreground">{t("stepBack")}</p>
           <DialogFooter className="grid grid-cols-[auto_1fr] gap-2 sm:grid-cols-[auto_1fr]">
             <Button
               type="button"
@@ -344,6 +430,37 @@ export function FieldCamera({
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+/**
+ * The 「广角」 switch over the viewfinder's corner (J45): nothing at all on a
+ * phone without a wide lens; pressed while the wide lens is in use.
+ */
+export function WideLensSwitch({
+  lens,
+  wide,
+  label,
+  onToggle,
+}: {
+  lens: WideLens | null;
+  wide: boolean;
+  label: string;
+  onToggle: () => void;
+}) {
+  if (!lens) return null;
+  return (
+    <button
+      type="button"
+      data-testid="field-camera-wide"
+      aria-pressed={wide}
+      onClick={onToggle}
+      className={`absolute right-2 top-2 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur transition ${
+        wide ? "bg-primary text-primary-foreground" : "bg-overlay text-overlay-foreground"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

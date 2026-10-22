@@ -43,6 +43,7 @@ import {
 } from "@/components/contractor-ops/equipment-applications";
 import { EquipmentQrDialog } from "@/components/contractor-ops/equipment-qr";
 import { ReturnNotePanel } from "@/components/contractor-ops/return-note";
+import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { useFileActions } from "@/components/shared/file-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { movementStatusKey } from "@/lib/equipment-exit";
@@ -182,12 +183,12 @@ function OfficeUpload({ onUpload }: { onUpload: (files: File[]) => Promise<unkno
   return (
     <div className="flex flex-wrap items-end gap-2 rounded-md border border-dashed p-2">
       <FieldWrapper label={t("outgoing.uploadFiles")} required>
-        <Input
-          type="file"
+        <PhotoFileInput
+          label={t("outgoing.uploadFiles")}
           multiple
-          accept="image/*"
-          className="h-8 text-xs"
-          onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+          files={files}
+          onChange={setFiles}
+          inputClassName="h-8 text-xs"
         />
       </FieldWrapper>
       <Button

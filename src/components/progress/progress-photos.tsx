@@ -104,7 +104,7 @@ export function PhotoTile({
           alt={photo.caption || photo.phase_name || ""}
           fill
           sizes="(max-width: 640px) 50vw, 220px"
-          className="object-cover"
+          className="object-cover object-bottom"
           unoptimized
         />
       </button>

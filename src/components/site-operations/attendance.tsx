@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { RecordNo } from "@/components/shared/record-no";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
@@ -29,7 +30,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import { ApiError } from "@/interfaces/api";
@@ -452,13 +452,11 @@ export function Attendance() {
               {t("attendance.event.CLOCK_OUT")}
             </Button>
             <FieldWrapper label={t("attendance.field.photo")} optional={t("common.optional")}>
-              <Input
-                type="file"
-                accept="image/*"
-                capture="user"
-                onChange={(event) =>
-                  setDraft((value) => ({ ...value, photo: event.target.files?.[0] }))
-                }
+              <PhotoFileInput
+                label={t("attendance.field.photo")}
+                facingMode="user"
+                files={draft.photo ? [draft.photo] : []}
+                onChange={(next) => setDraft((value) => ({ ...value, photo: next[0] }))}
               />
             </FieldWrapper>
               <FieldWrapper label={t("attendance.field.location")} required>

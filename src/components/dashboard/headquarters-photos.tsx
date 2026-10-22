@@ -105,7 +105,7 @@ export function HeadquartersPhotos({
                           kind: kinds(photo.record_kind),
                           project: photo.project,
                         })}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+                        className="h-full w-full object-cover object-bottom transition-transform group-hover:scale-[1.02]"
                         loading="lazy"
                       />
                     )}
