@@ -353,6 +353,8 @@ export interface ReceiptPhoto {
 }
 
 export interface MaterialReceipt {
+  /** 「待补规格」 (J39): sent without its specification; the office fills it. */
+  needs_spec?: boolean;
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
   /** 待验收 for this reader - the sidebar counts it (2026-10-09). */
@@ -518,6 +520,9 @@ export interface MySubmissionRow {
     site_no: string;
     registration_no: string;
     serial_no: string;
+    /** Its own supplier, which the actual exit carries (J38-4). */
+    supplier?: string | null;
+    supplier_name?: string;
   } | null;
 }
 

@@ -73,7 +73,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
 import { matchSupplier } from "@/lib/supplier-match";
-import { NO_SUPPLIER_ITEM, supplierFromSelect, supplierSelectValue } from "@/lib/receipt-supplier";
 import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
   type DeliveryNoteOCRLineItem,
@@ -488,7 +487,10 @@ export function MaterialCapturePanel({
   // category still decides the unit, as before.
   const specs = offeredSpecs(selectedColumn, draft.specCategory ?? "");
   const specPick = specChoice(selectedColumn, draft.specCategory ?? "");
-  const specRequired = specs.length > 0;
+  // 规格 is offered, never required (J39, Lucas 10-22: 「规格名称不能限制」):
+  // left empty, or 「其他」 with nothing typed, the delivery is 「待补规格」
+  // and the office fills it in.
+  const specOffered = specs.length > 0;
   const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
   // The unit a locked specification or category decides is the one sent,
   // whatever a scanned line or an older draft put in `draft.unit`.
@@ -786,8 +788,8 @@ export function MaterialCapturePanel({
       {/* 规格 (I19, ID46): this material's specifications and 「其他」; the unit
           comes with it. Not set up yet? 「其他」 and type it - a lorry is never
           held at the gate over a list. */}
-      {draft.category && specRequired && (
-        <FieldWrapper label={t("material.spec")} required={specRequired}>
+      {draft.category && specOffered && (
+        <FieldWrapper label={t("material.spec")} hint={t("material.specOptionalHint")}>
           <Select
             value={draft.specCategory || undefined}
             onValueChange={(next) => setDraft((old) => ({ ...old, specCategory: next, materialSpecification: "" }))}
@@ -802,7 +804,7 @@ export function MaterialCapturePanel({
         </FieldWrapper>
       )}
       {specPick.typed && (
-        <FieldWrapper label={t("material.specName")} required={specPick.typed} hint={t("material.specNameHint")}>
+        <FieldWrapper label={t("material.specName")} hint={t("material.specNameHint")}>
           <Input
             className="h-12"
             value={draft.materialSpecification}
@@ -829,23 +831,20 @@ export function MaterialCapturePanel({
         />
       </FieldWrapper>
       <DeliveryNoteReadStatus reader={ocr} />
-      {/* Optional, no star (2026-10-15 I23, ID57): a worker who does not know
-          whose lorry it is leaves 「未填供应商」 - the first item and the
-          default - and the office fills it in, rather than picking any one and
-          putting the load on the wrong supplier's books. A scanned code still
-          chooses its supplier. */}
-      <FieldWrapper label={t("material.supplier")}>
+      {/* Required again (J39, Lucas 10-22: 「车牌，数量，供应商，送货单编号，
+          双方签名」): scanned - a docket or a supplier card - or picked. The
+          office's 「待补供应商」 (I23) stays for deliveries filed before. */}
+      <FieldWrapper label={t("material.supplier")} required>
         <Select
-          value={supplierSelectValue(draft.supplier)}
+          value={draft.supplier || undefined}
           onValueChange={(value) => {
             setScannedQr(undefined);
             setScannedSupplier("");
-            setDraft((old) => ({ ...old, supplier: supplierFromSelect(value) }));
+            setDraft((old) => ({ ...old, supplier: value }));
           }}
         >
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSupplier")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value={NO_SUPPLIER_ITEM}>{t("material.noSupplier")}</SelectItem>
             {supplierRows.map((row) => (
               <SelectItem key={row.id} value={row.id}>
                 {row.name}
@@ -858,7 +857,7 @@ export function MaterialCapturePanel({
         {draft.supplier ? (
           <SupplierReturnBadge supplier={supplierRows.find((row) => row.id === draft.supplier)} />
         ) : (
-          <p className="text-xs text-muted-foreground">{t("material.noSupplierHint")}</p>
+          <p className="text-xs text-muted-foreground">{t("material.supplierRequiredHint")}</p>
         )}
         {/* Q1: one supplier on the category fills itself in; several are the
             only ones offered. A scanned code names its own. */}
@@ -1103,7 +1102,7 @@ export function MaterialCapturePanel({
         )}
       </div>
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!isOtherMaterial(selectedColumn) || draft.materialName.trim(), t("material.otherName")], [!specRequired || draft.specCategory, t("material.spec")], [!specPick.typed || draft.materialSpecification.trim(), t("material.specName")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!isOtherMaterial(selectedColumn) || draft.materialName.trim(), t("material.otherName")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.supplier, t("material.supplier")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>

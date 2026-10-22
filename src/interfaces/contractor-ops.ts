@@ -604,6 +604,8 @@ export interface EquipmentMovement extends RecordedBy {
   quantity: string;
   unit: "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
   supplier_name: string | null;
+  /** 「供应商（从设备带出）」 (J38-4): an exit's supplier is the machine's own. */
+  supplier_from_equipment?: boolean;
   delivery_note_no: string;
   vehicle_plate: string;
   operator_name: string;
@@ -756,6 +758,8 @@ export interface ProgressCorrection {
 }
 
 export interface MaterialOutgoing extends RecordedBy {
+  /** 「待补规格」 (J39): sent without its specification; the office fills it. */
+  needs_spec?: boolean;
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
   /** The first photograph's watermarked thumbnail, or null (E3). */

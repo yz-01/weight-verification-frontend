@@ -320,7 +320,7 @@ describe("applying asks why and a photo, nothing else (I13 step 1)", () => {
 });
 
 describe("the actual exit scans this machine (I13 step 3, ID60)", () => {
-  it("asks for the machine's QR, photos, the DO, both signatures and GPS - no red stars", () => {
+  it("asks for the machine's QR, photos, the plate, both signatures and GPS - no DO, no red stars", () => {
     const html = render(
       <EquipmentExitHandoverForm
         movementId="x-4"
@@ -332,7 +332,10 @@ describe("the actual exit scans this machine (I13 step 3, ID60)", () => {
     );
     expect(html).toContain(exitWords.scanMachine);
     expect(html).toContain(exitWords.scanMachineHint);
-    expect(html).toContain(words.field.deliveryNoteNo);
+    // No DO number or DO photo at the actual exit (J38-3).
+    expect(html).not.toContain(words.field.deliveryNoteNo);
+    expect(html).not.toContain(words.equipment.deliveryNotePhoto);
+    // A machine with no supplier of its own: scanned or picked (J38-4).
     expect(html).toContain(words.equipment.scanSupplier);
     // J13-4: or picked from the list.
     expect(html).toContain(exitWords.supplierPick);
@@ -348,7 +351,6 @@ describe("the actual exit scans this machine (I13 step 3, ID60)", () => {
     for (const needed of [
       exitWords.scanMachine,
       words.field.photos,
-      words.field.deliveryNoteNo,
       exitWords.vehiclePlate,
       words.equipment.siteSignature,
       words.equipment.supplierSignature,
@@ -356,9 +358,28 @@ describe("the actual exit scans this machine (I13 step 3, ID60)", () => {
     ]) {
       expect(missing).toContain(needed);
     }
+    expect(missing).not.toContain(words.field.deliveryNoteNo);
     // J13-1: on a phone the same list is written above the button, not only
     // in a tooltip the phone never shows.
     expect(html).toContain('data-slot="button-reason"');
+  });
+
+  it("brings the machine's own supplier, read-only, with nothing to scan (J38-4)", () => {
+    const html = render(
+      <EquipmentExitHandoverForm
+        movementId="x-5"
+        project="p-1"
+        machine={machine({ supplier: "s-9", supplier_name: "Crane Hire Sdn Bhd" })}
+        onClose={() => {}}
+        onSaved={() => {}}
+      />,
+    );
+    expect(html).toContain(exitWords.supplierFromMachine);
+    expect(exitWords.supplierFromMachine).toBe("供应商（从设备带出）");
+    expect(html).toContain("Crane Hire Sdn Bhd");
+    expect(html).toContain('data-testid="exit-machine-supplier"');
+    expect(html).not.toContain(words.equipment.scanSupplier);
+    expect(html).not.toContain(exitWords.supplierPick);
   });
 });
 

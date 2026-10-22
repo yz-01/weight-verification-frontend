@@ -6140,7 +6140,7 @@
       "waitingForSite": "已批准 / 等待退场：等待现场实际退场并双方签名。",
       "finalConfirm": "确认退场完成",
       "waitingForOffice": "现场已退场，待后台确认。",
-      "returnHelp": "{reference} 已批准。材料实际退场时：拍照，填写实际退回数量、车牌和 DO 号，确认供应商（可扫码），现场人员与供应商 / 司机双方签名。提交后等待后台确认。",
+      "returnHelp": "{reference} 已批准。材料实际退场时：拍照，填写实际退回数量、车牌，确认供应商（可扫码），现场人员与供应商 / 司机双方签名。提交后等待后台确认。",
       "processingPhotos": "出场时的照片",
       "processingNote": "现场处理说明",
       "processingLocation": "定位",
@@ -6183,6 +6183,7 @@
       "noSupplier": "不填",
       "spec": "规格",
       "chooseSpec": "选择规格",
+      "specOptionalHint": "不知道规格可以不选，后台会补上。",
       "specName": "规格名称",
       "materialName": "材料名称"
     },
@@ -6414,7 +6415,7 @@
       "title": "Return Note",
       "fill": "填写 Return Note",
       "edit": "修改 Return Note",
-      "help": "批准前先填写 Return Note：材料、DO 号、供应商、数量、退回原因，以及批准人姓名和签名。",
+      "help": "批准前先填写 Return Note：材料、供应商、数量、退回原因，以及批准人姓名和签名。",
       "number": "Return Note 编号",
       "numberPending": "保存后自动编号",
       "date": "日期",
@@ -6433,7 +6434,7 @@
       "needNoteFirst": "先填写 Return Note",
       "filledBy": "填写人",
       "machine": "设备",
-      "helpMachine": "批准前先填写 Return Note：设备、DO 号、供应商、数量、退回原因，以及批准人姓名和签名。"
+      "helpMachine": "批准前先填写 Return Note：设备、供应商、数量、退回原因，以及批准人姓名和签名。"
     },
     "progressEvidenceSuggested": "已拍摄 {current} 张。至少拍 1 张；下面 4 张是建议拍的，也可以继续新增其他照片。",
     "equipmentExit": {
@@ -6458,7 +6459,7 @@
       "applyQueued": "退场申请已暂存，等待上传",
       "handover": "实际退场",
       "handoverTitle": "{name} 实际退场",
-      "handoverHelp": "已批准退场：扫这台设备的二维码，拍照、填 DO、双方签名，提交后由后台确认。",
+      "handoverHelp": "已批准退场：扫这台设备的二维码，拍照、填运输车辆车牌、双方签名，提交后由后台确认。",
       "handoverSubmit": "提交退场",
       "handoverFailed": "退场没有提交成功，请再试一次。",
       "handoverQueued": "这台设备的退场已暂存，等待上传。",
@@ -6477,9 +6478,10 @@
       "typedNotScanned": "现场没有扫二维码，设备号码是手动输入的。",
       "scanAgain": "重扫",
       "scanWrongMachine": "扫到的不是批准退场的设备（{name}），请扫这台设备的二维码。",
-      "photosHint": "至少 {min} 张（含 DO 照片）。",
+      "photosHint": "至少 {min} 张。",
       "deliveryNoteHint": "填 DO 号码（拍了 DO 会自动读出）。",
       "supplierHint": "有供应商二维码就扫，没有可以不扫。",
+      "supplierFromMachine": "供应商（从设备带出）",
       "supplierPick": "或从名单选供应商",
       "signatureHint": "交接时由本人签名。",
       "locationHint": "打开时自动获取定位。",
@@ -8788,10 +8790,12 @@
       "chooseColumnFirst": "请先选分类",
       "noSupplier": "未填供应商",
       "noSupplierHint": "不确定是哪家就不用选，后台会补上。",
+      "supplierRequiredHint": "扫供应商二维码或从名单选。",
       "spec": "规格",
       "chooseSpec": "选择规格",
       "specName": "规格名称",
       "specNameHint": "名单里没有的规格，选「其他」在这里填写。",
+      "specOptionalHint": "不知道规格可以不选，后台会补上。",
       "autoFilledFromSpec": "随规格带出",
       "otherName": "材料名称",
       "otherNameHint": "名单里没有的材料，选「其他材料」在这里填写；办公室会在分类管理加进名单。"
@@ -13104,6 +13108,8 @@
       "SUCCEEDED": "已读取"
     },
     "editNote": "数量和单价可以更正。项目、送货单和记录时间不可更改，它们正是这条记录要证明的事。",
+    "specPendingHint": "现场没填规格：打开这笔记录补上，只改规格不用签核密码。",
+    "specPending": "待补规格",
     "editTitle": "更正材料进场记录",
     "field": {
       "category": "分类",
@@ -13261,6 +13267,7 @@
         "quantity": "数量"
       },
       "returnTag": "有退货资料",
+      "noSpec": "未填规格",
       "returnTagHint": "这一行有 {count} 笔已完成的退场，点开查看",
       "openNumber": "查看{label} {value} 是哪些记录",
       "breakdown": {

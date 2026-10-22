@@ -4356,7 +4356,9 @@ export function OutgoingDialog({
   );
   const specs = offeredSpecs(selected, form.spec_category ?? "");
   const specPick = specChoice(selected, form.spec_category ?? "");
-  const specRequired = specs.length > 0;
+  // 规格 is offered, never required (J39, Lucas 10-22): one left empty, or
+  // 「其他」 with nothing typed, is 「待补规格」 and the office fills it in.
+  const specOffered = specs.length > 0;
   // 「其他材料」 (J14-3, 只能从分类管理下拉选): the one material typed by name.
   const typedMaterial = isOtherMaterial(selected);
   const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
@@ -4481,8 +4483,8 @@ export function OutgoingDialog({
             </FieldWrapper>
           )}
           {/* 规格 (I19, ID46): the unit comes with it; 「其他」 is typed. */}
-          {form.category && specRequired && (
-            <FieldWrapper label={t("outgoing.spec")} required={specRequired}>
+          {form.category && specOffered && (
+            <FieldWrapper label={t("outgoing.spec")} hint={t("outgoing.specOptionalHint")}>
               <Select
                 value={form.spec_category || undefined}
                 onValueChange={(next) => setForm((old) => ({ ...old, spec_category: next, material_specification: "" }))}
@@ -4501,7 +4503,7 @@ export function OutgoingDialog({
             </FieldWrapper>
           )}
           {specPick.typed && (
-            <FieldWrapper label={t("outgoing.specName")} required={specPick.typed}>
+            <FieldWrapper label={t("outgoing.specName")}>
               <Input
                 value={form.material_specification ?? ""}
                 maxLength={200}
@@ -4627,8 +4629,6 @@ export function OutgoingDialog({
               [project, t("field.project")],
               [form.category, t("outgoing.material")],
               [!typedMaterial || (form.material_name ?? "").trim(), t("outgoing.materialName")],
-              [!specRequired || form.spec_category, t("outgoing.spec")],
-              [!specPick.typed || (form.material_specification ?? "").trim(), t("outgoing.specName")],
               [unit, t("field.unit")],
               [Number(form.quantity) > 0, t("outgoing.returnQuantity")],
               [isFieldStaff || form.executor_name, t("field.executor")],
@@ -4721,8 +4721,9 @@ export function RejectOutgoingDialog({
  * The material actually leaving, on the same record (2026-10 C9, F3).
  *
  * After approval (已批准 / 等待退场): photographs of what leaves, the
- * material as it left, how much actually went, the lorry's plate and the DO,
- * the supplier (scanned if possible) and both signatures - the site person's
+ * material as it left, how much actually went, the lorry's plate (no DO since
+ * J38-2: a return goes on its RN), the supplier (scanned if possible) and
+ * both signatures - the site person's
  * and the supplier's or driver's. It then waits for the office's
  * confirmation (待后台确认); only that takes it off the net quantity (Q4).
  *
@@ -4812,10 +4813,6 @@ function ExitForm({
     String(Number(record.return_note_quantity ?? record.quantity ?? 0) || ""),
   );
   const [plate, setPlate] = useDraftState(draft("plate"), record.vehicle_plate ?? "");
-  const [doNo, setDoNo] = useDraftState(
-    draft("doNo"),
-    record.delivery_note_no || record.return_note_delivery_note_no || "",
-  );
   const [supplier, setSupplier] = useDraftState(draft("supplier"), record.supplier ?? "");
   const [siteSignature, setSiteSignature] = useDraftState<File | undefined>(draft("siteSignature"));
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>(draft("supplierSignature"));
@@ -4858,7 +4855,7 @@ function ExitForm({
         site_signature: siteSignature as File,
         supplier_signature: supplierSignature as File,
         vehicle_plate: plate.trim() || undefined,
-        delivery_note_no: doNo.trim() || undefined,
+        // No DO on a return (J38-2, the client 10-22): it goes on its RN.
         supplier: supplier || undefined,
         category: category && category !== record.category ? category : undefined,
         client_event_id: eventId,
@@ -4921,9 +4918,6 @@ function ExitForm({
         </FieldWrapper>
         <FieldWrapper label={t("field.vehiclePlate")}>
           <Input value={plate} onChange={(event) => setPlate(event.target.value.toUpperCase())} />
-        </FieldWrapper>
-        <FieldWrapper label={t("field.deliveryNote")} className="sm:col-span-2">
-          <Input value={doNo} onChange={(event) => setDoNo(event.target.value)} />
         </FieldWrapper>
       </div>
       <OutgoingSupplierField value={supplier} onChange={(next) => setSupplier(next)} />
