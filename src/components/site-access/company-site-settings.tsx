@@ -236,6 +236,7 @@ export function CompanySiteSettingsWorkspace() {
         <NumberField label={t("field.liveWindow")} value={form.live_position_window_seconds} min={60} max={3600} disabled={!canManage} onChange={(value) => setForm({ ...form, live_position_window_seconds: value })} />
         <NumberField label={t("field.visitorHours")} value={form.visitor_pass_hours} min={1} max={168} disabled={!canManage} onChange={(value) => setForm({ ...form, visitor_pass_hours: value })} />
         <NumberField label={t("field.fieldPinExpiry")} value={form.field_pin_expiry_days} min={1} max={365} disabled={!canManage} onChange={(value) => setForm({ ...form, field_pin_expiry_days: value })} />
+        <NumberField label={t("field.fieldInviteValid")} value={form.field_invite_valid_days} min={1} max={90} disabled={!canManage} onChange={(value) => setForm({ ...form, field_invite_valid_days: value })} />
         <FieldWrapper label={t("field.emergencyContact")}><Input disabled={!canManage} value={form.emergency_contact_name} onChange={(event) => setForm({ ...form, emergency_contact_name: event.target.value })} /></FieldWrapper>
         <FieldWrapper label={t("field.emergencyPhone")}><Input disabled={!canManage} value={form.emergency_contact_phone} onChange={(event) => setForm({ ...form, emergency_contact_phone: event.target.value })} /></FieldWrapper>
       </div>

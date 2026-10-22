@@ -293,11 +293,12 @@ function FieldAccessManagementContent({
                   <p className="mt-1 text-muted-foreground">
                     {new Date(result.invitation_expires_at).toLocaleString()}
                   </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("linkNote")}</p>
                 </div>
                 <div>
                   <p className="font-medium">{t("pinExpiresAt")}</p>
                   <p className="mt-1 text-muted-foreground">
-                    {new Date(result.pin_expires_at).toLocaleString()}
+                    {t("idleRule", { days: result.idle_days })}
                   </p>
                 </div>
               </div>

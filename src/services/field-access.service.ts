@@ -14,6 +14,8 @@ export interface FieldInvitationInfo {
   projects: Array<{ id: string; code: string; name: string }>;
   invitation_expires_at: string;
   pin_expires_at: string;
+  /** After binding: days without opening before the PIN is asked again. */
+  idle_days: number;
   activated_at: string | null;
   branding: Branding;
 }
