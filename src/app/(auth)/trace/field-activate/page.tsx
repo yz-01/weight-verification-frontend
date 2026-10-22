@@ -24,6 +24,16 @@ export async function generateMetadata({
     title: branding.name,
     applicationName: branding.name,
     referrer: "no-referrer",
+    // Added to the Home Screen from here (before the PIN), the app must open
+    // on this same link - not on "/" - since it cannot see Safari's storage.
+    manifest: token
+      ? `/field-manifest.webmanifest?invitation=${encodeURIComponent(token)}`
+      : "/field-manifest.webmanifest",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: branding.short_name,
+    },
     icons: {
       icon: [
         {

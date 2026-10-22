@@ -855,13 +855,30 @@ export async function withoutSuccessToasts<T>(run: () => Promise<T>): Promise<T>
   }
 }
 
+export const SUCCESS_TOAST_MS = 4000;
+const SUCCESS_TOAST_FAILSAFE_MS = 3000;
+
+/**
+ * A success toast that always goes away.
+ *
+ * Sonner pauses a toast's timer while the list counts as hovered. On a phone
+ * the tap that picked a header menu item lands where the toast then appears,
+ * and iOS sends a compatibility mouse-move there that is never followed by a
+ * mouse-leave - so 「资料已更新」 stayed on screen for good (Lucas, 2026-10-22).
+ * A hard dismiss shortly after the normal duration closes it regardless.
+ */
+export function showSuccessToast(message: string): void {
+  const id = toast.success(message, { duration: SUCCESS_TOAST_MS });
+  setTimeout(() => toast.dismiss(id), SUCCESS_TOAST_MS + SUCCESS_TOAST_FAILSAFE_MS);
+}
+
 /** Toast a success message. Services call this; components never do. */
 export function toastSuccess(messageKey: string, values?: Record<string, unknown>): void {
   if (quietSuccess > 0) return;
-  toast.success(t(messageKey, values));
+  showSuccessToast(t(messageKey, values));
 }
 
 /** The outcome of a phone submit or an upload pass: always said. */
 export function toastOutcome(messageKey: string, values?: Record<string, unknown>): void {
-  toast.success(t(messageKey, values));
+  showSuccessToast(t(messageKey, values));
 }
