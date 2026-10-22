@@ -449,7 +449,7 @@ export async function request<T>(
       }
       if (pin === null) throw signOffCancelled(response.status);
 
-      const failure = new ApiError(message, response.status, errors, code);
+      const failure = new ApiError(message, response.status, errors, code, values);
 
       // The same exemption as the retry above. It was missing here, so a
       // wrong password skipped the refresh correctly and was then signed out

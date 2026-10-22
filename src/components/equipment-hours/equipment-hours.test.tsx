@@ -23,6 +23,7 @@ import type {
   EquipmentHoursMachine,
   EquipmentHoursSession,
 } from "@/interfaces/equipment-hours";
+import { ApiError } from "@/interfaces/api";
 import messages from "@/messages/zh.json";
 
 const auth = vi.hoisted(() => ({ manage: true, export: true }));
@@ -39,6 +40,8 @@ const {
   AdjustmentHistory,
   adjustMode,
   adjustmentPayload,
+  earliestHint,
+  timeRefusal,
   endTimeLimits,
   keepWithinRange,
   localInputValue,
@@ -620,5 +623,66 @@ describe("现场编号: the number the office paints on each machine", () => {
     expect(machineMatchesSearch(excavator, "ace")).toBe(true);
     expect(machineMatchesSearch(excavator, "")).toBe(true);
     expect(machineMatchesSearch(excavator, "lift")).toBe(false);
+  });
+
+  describe("the refusal of an office time says what the limit is", () => {
+    const lookup = (key: string, values: Record<string, string | number> = {}) => {
+      const text = key
+        .split(".")
+        .reduce<unknown>((node, part) => (node as Record<string, unknown>)[part], messages.equipmentHours) as string;
+      return text.replace(/\{(\w+)\}/g, (_, name) => String(values[name]));
+    };
+    const df = { dateTime: (value: string | number | Date | null | undefined) => `T(${String(value)})` };
+    const refusal = (code: string, extra: Record<string, string> = {}) =>
+      new ApiError("x", 400, {}, code, {
+        boundary_at: "2026-09-14T06:00:00Z",
+        time: "14:00",
+        other_key: "log-b",
+        other_kind: "FINISH",
+        other_date: "2026-09-14",
+        other_equipment: "machine-1",
+        other_ref: "",
+        ...extra,
+      });
+
+    it("names the previous photo's time and entry when the start is too early", () => {
+      const result = timeRefusal(
+        refusal("equipment_hours_start_before_previous_photo"),
+        lookup,
+        df,
+      );
+      expect(result?.message).toBe(
+        "开始时间不能早于 T(2026-09-14T06:00:00Z)（这台设备上一张照片，属于另一笔工时 收工照片 T(2026-09-14T06:00:00Z)）。请填 T(2026-09-14T06:00:00Z) 之后的时间。",
+      );
+      expect(result?.target).toEqual({ key: "log-b", equipment: "machine-1", date: "2026-09-14" });
+    });
+
+    it("names the next photo when the end is too late, preferring a record number", () => {
+      const result = timeRefusal(
+        refusal("equipment_hours_end_after_next_photo", { other_ref: "EH-0007" }),
+        lookup,
+        df,
+      );
+      expect(result?.message).toBe(
+        "结束时间不能晚于 T(2026-09-14T06:00:00Z)（这台设备下一张照片，属于另一笔工时 EH-0007）。",
+      );
+    });
+
+    it("leaves every other failure to its own message", () => {
+      expect(timeRefusal(refusal("equipment_hours_end_in_future"), lookup, df)).toBeNull();
+      expect(timeRefusal(new Error("boom"), lookup, df)).toBeNull();
+    });
+
+    it("hints the earliest start only for a stop with no start and a previous photo", () => {
+      const orphan = session({
+        start_at: null,
+        has_start_photo: false,
+        missing_start: true,
+        previous_at: "2026-10-06T10:00:00Z",
+      });
+      expect(earliestHint(orphan, lookup, df)).toBe("最早可以填：T(2026-10-06T10:00:00Z)");
+      expect(earliestHint({ ...orphan, previous_at: null }, lookup, df)).toBeNull();
+      expect(earliestHint(session({ previous_at: "2026-10-06T10:00:00Z" }), lookup, df)).toBeNull();
+    });
   });
 });

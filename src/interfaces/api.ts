@@ -87,18 +87,22 @@ export class ApiError extends Error {
   readonly errors: Record<string, string>;
   /** The backend's identifier for this failure, if it named one. */
   readonly code: string;
+  /** What the refusal knows (a boundary time, the other record), if it said. */
+  readonly values?: Record<string, string | number>;
 
   constructor(
     message: string,
     status: number,
     errors: Record<string, string> = {},
     code = "",
+    values?: Record<string, string | number>,
   ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.errors = errors;
     this.code = code;
+    this.values = values;
   }
 
   /** Message for a field, for wiring straight into a form error slot. */
