@@ -18,6 +18,24 @@ import {
 
 type FacingMode = "user" | "environment";
 
+/**
+ * What the camera stream is asked for (J45: every photo square).
+ *
+ * The photo is the centre square of the frame, so its side is the frame's
+ * short side. 4:3 is the shape of a phone's sensor: a 1920 x 1440 stream uses
+ * the whole sensor and gives a 1440 px square, where the old 1920 x 1080 ask
+ * gave 1080. Only `ideal`, so a camera without a 4:3 mode still picks its
+ * nearest - in practice 1920 x 1080, which is a 1080 px square, as sharp as
+ * the photos were before (a 16:9 frame keeps 56% of its long side in the
+ * square, a 4:3 one 75%). Not 1920 x 1920: no phone camera streams square,
+ * and browsers then choose odd modes to get near it.
+ */
+export const SQUARE_SOURCE = {
+  width: { ideal: 1920 },
+  height: { ideal: 1440 },
+  aspectRatio: { ideal: 4 / 3 },
+} as const;
+
 interface FieldCameraProps {
   label: string;
   fileCount?: number;
@@ -130,8 +148,7 @@ export function FieldCamera({
             audio: false,
             video: {
               facingMode: { ideal: facing },
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
+              ...SQUARE_SOURCE,
             },
           });
         } catch {
@@ -302,7 +319,14 @@ export function FieldCamera({
             <DialogTitle>{label}</DialogTitle>
             <DialogDescription>{t("help")}</DialogDescription>
           </DialogHeader>
-          <div className="relative aspect-[3/4] max-h-[65dvh] overflow-hidden rounded-lg bg-black sm:aspect-video">
+          {/* Square (J45): the centre of the video, which is exactly the
+              photo taken (`centreSquare`). Capped by width, not height - a
+              max-height on an aspect box squashes it into a rectangle that
+              shows more than the photo keeps. */}
+          <div
+            data-testid="field-camera-viewfinder"
+            className="relative mx-auto aspect-square w-full max-w-[60dvh] overflow-hidden rounded-lg bg-black"
+          >
             <video
               ref={videoRef}
               autoPlay
