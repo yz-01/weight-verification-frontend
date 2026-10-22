@@ -10959,6 +10959,7 @@
       "site": "回收厂",
       "specification": "规格",
       "supplier": "供应商",
+      "supplier_from_machine": "供应商（从设备带出）",
       "task_type": "类型",
       "title": "事件",
       "vehicle_plate": "车辆",
@@ -18040,6 +18041,8 @@
     "dialogTitle": "{reference} · 材料明细",
     "dialogHelp": "一张 DO 可以有多种材料。每种材料各自选材料、规格、单位，填数量，各自进对应的分类和累计。第 1 项是这张单原有的材料，可以改，不能删。",
     "pinNote": "只改规格或单位不用签核密码；改材料、数量、单价、金额，或增加、删除材料，要签核密码，并留修改记录。",
+    "moneyOnFirst": "这张 DO 的金额算在第 1 项材料。要分开算，给每项材料填金额。",
+    "moneyPerLine": "已有材料填了金额：只算各项填的金额，没填金额的那项不算进花费。",
     "correctionNote": "这张单有 {count} 种材料。这里改第 1 项；其他材料用「增加材料」加、改、删。",
     "correctionNoteOne": "这张 DO 有多种材料？用「增加材料」加上去，各自归档。",
     "requestHint": "一张申请可以有多种材料，整张一起审批。"

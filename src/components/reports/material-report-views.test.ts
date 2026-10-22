@@ -13,7 +13,7 @@ import ms from "@/messages/ms.json";
 import zh from "@/messages/zh.json";
 import zhTW from "@/messages/zh-TW.json";
 
-import { viewOf } from "./material-report";
+import { reportModeParam, viewOf } from "./material-report";
 
 const source = readFileSync(
   path.join(process.cwd(), "src/components/reports/material-report.tsx"),
@@ -26,6 +26,16 @@ describe("the report's view", () => {
     expect(viewOf("PENDING")).toBe("normal");
     expect(viewOf("rejected")).toBe("rejected");
     expect(viewOf("returns")).toBe("returns");
+  });
+
+  it("always names the view it asks for, so the normal list and export leave rejected deliveries out", () => {
+    expect(reportModeParam("quantity", undefined)).toBe("normal");
+    expect(reportModeParam("quantity", "rejected")).toBe("rejected");
+    expect(reportModeParam("quantity", "returns")).toBe("returns");
+    // The cost report has only the normal view, whatever the address says.
+    expect(reportModeParam("cost", undefined)).toBe("normal");
+    expect(reportModeParam("cost", "rejected")).toBe("normal");
+    expect(source).toContain("report_mode: view,");
   });
 
   it("offers only 不合格 and 退货 beside the normal view", () => {

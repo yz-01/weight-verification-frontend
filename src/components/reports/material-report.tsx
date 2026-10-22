@@ -78,6 +78,19 @@ export function viewOf(value: string | undefined): MaterialReportView {
   return value === "rejected" || value === "returns" ? value : "normal";
 }
 
+/**
+ * The view the report asks the server for. Always named - `normal` too - so
+ * the deliveries listed and exported leave the rejected ones out, matching
+ * the figures above them; 材料管理 sends none and keeps every delivery. The
+ * cost report has only the normal view.
+ */
+export function reportModeParam(
+  mode: MaterialReportMode,
+  value: string | undefined,
+): MaterialReportView {
+  return mode === "quantity" ? viewOf(value) : "normal";
+}
+
 const hintKey: Record<MaterialReportView, string> = {
   normal: "cumulativeHint",
   rejected: "rejectedHint",
@@ -96,7 +109,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const list = useListQuery([
     "project", "date_from", "date_to", "category", "spec_category", "supplier", "report_mode",
   ]);
-  const view = viewOf(list.filters.report_mode);
+  const view = reportModeParam(mode, list.filters.report_mode);
   const topBar = useCurrentProject();
   const projectBoxShown = can("project.view") && !topBar.active;
   const filters = {
@@ -109,8 +122,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     spec_category: list.filters.spec_category,
     supplier: list.filters.supplier,
     // 不合格 / 退货 view (J36): the figures, the records and the export.
-    // The cost report has only the normal one.
-    report_mode: mode === "quantity" && view !== "normal" ? view : undefined,
+    // The normal view is sent as well, or the list and the export would
+    // still carry the rejected deliveries the figures leave out.
+    report_mode: view,
     search: list.search || undefined,
   };
   const unitValues = useUnitExportValues();

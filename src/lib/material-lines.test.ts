@@ -5,6 +5,7 @@ import {
   draftsFromReceiptLines,
   emptyLine,
   lineProblems,
+  linesMoneyNote,
   receiptLinesPayload,
   requestLinesPayload,
   trimQuantity,
@@ -108,5 +109,17 @@ describe("材料明细 (J35)", () => {
     expect(trimQuantity("10.000")).toBe("10");
     expect(trimQuantity("2.500")).toBe("2.5");
     expect(trimQuantity("7")).toBe("7");
+  });
+});
+
+describe("the money note on several materials (audit 10-22)", () => {
+  it("says nothing for one material", () => {
+    expect(linesMoneyNote([{ amount: "" }])).toBeNull();
+  });
+  it("puts the DO amount on material 1 when no material has an amount", () => {
+    expect(linesMoneyNote([{ amount: "" }, { amount: " " }])).toBe("moneyOnFirst");
+  });
+  it("says only the typed amounts count once one has an amount", () => {
+    expect(linesMoneyNote([{ amount: "" }, { amount: "300" }])).toBe("moneyPerLine");
   });
 });

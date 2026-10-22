@@ -10959,6 +10959,7 @@
       "site": "Yard",
       "specification": "Specification",
       "supplier": "Supplier",
+      "supplier_from_machine": "Supplier (from the machine)",
       "task_type": "Type",
       "title": "Event",
       "vehicle_plate": "Lorry",
@@ -18040,6 +18041,8 @@
     "dialogTitle": "{reference} · Materials",
     "dialogHelp": "One DO can carry several materials. Each one gets its own material, specification, unit and quantity, and counts in its own category and totals. Material 1 is the delivery's own: it can be changed, not removed.",
     "pinNote": "A specification or unit alone needs no sign-off PIN. Changing a material, quantity, unit price or amount, or adding or removing a material, needs the PIN and is kept in the history.",
+    "moneyOnFirst": "The DO's amount counts under material 1. To split it, give each material its own amount.",
+    "moneyPerLine": "Some materials have an amount: only those amounts count, and a material left without one is not counted in the spending.",
     "correctionNote": "This delivery has {count} materials. This form changes material 1; add, change or remove the others with \"Add material\".",
     "correctionNoteOne": "Several materials on this DO? Add them with \"Add material\" and each is filed on its own.",
     "requestHint": "One request can ask for several materials; it is approved as a whole."
