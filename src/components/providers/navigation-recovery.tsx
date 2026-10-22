@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
+import { isPageLeaving } from "@/lib/portal";
+
 const RECOVERY_COOLDOWN_MS = 30_000;
 /**
  * How often an open, visible tab asks whether a new release is out.
@@ -91,6 +93,9 @@ function isVersionSkewError(message: string): boolean {
  * before this component has mounted.
  */
 export function reloadAfterVersionSkew(): void {
+  // A full page load is already under way: the "missing" file is one that
+  // load cancelled, and reloading now would bring back the page being left.
+  if (isPageLeaving()) return;
   const lastRecovery = Number(window.sessionStorage.getItem(RECOVERY_KEY) ?? 0);
   if (Date.now() - lastRecovery < RECOVERY_COOLDOWN_MS) return;
   window.sessionStorage.setItem(RECOVERY_KEY, String(Date.now()));

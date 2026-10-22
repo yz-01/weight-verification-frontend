@@ -75,7 +75,58 @@ export function redirectWithFallback(
     // has already reached the destination and moved to another page, an old
     // login timer must not drag them back and abort their new navigation.
     if (!isAtTarget() && current === source) {
+      markPageLeaving();
       window.location.replace(path);
     }
   }, fallbackDelayMs);
+}
+
+type LeavingWindow = Window & { __msePageLeavingAt?: number };
+
+/**
+ * Say that this document is being replaced by a full page load.
+ *
+ * While the browser fetches the next page, the scripts and data the old page
+ * was still loading are cancelled. Those cancellations look exactly like a
+ * file missing after a deploy, and the recovery for that - reloading - would
+ * reload the *old* page and cancel the very navigation that was under way
+ * (Lucas 2026-10-22: 「点了一次打开拍照工作台然后还是会跳回去一样的页面」).
+ */
+export function markPageLeaving(): void {
+  if (typeof window === "undefined") return;
+  (window as LeavingWindow).__msePageLeavingAt = Date.now();
+}
+
+/** True for a few seconds after a full page load was started from here. */
+export function isPageLeaving(withinMs = 10_000): boolean {
+  if (typeof window === "undefined") return false;
+  const at = (window as LeavingWindow).__msePageLeavingAt;
+  return typeof at === "number" && Date.now() - at < withinMs;
+}
+
+/**
+ * Open another page with one full page load, and nothing else.
+ *
+ * For the hops between the phone's sign-in pages and its workspace. These
+ * used `redirectWithFallback`: a client-side route change *and*, 150 ms later
+ * if the address had not changed yet, a full load. On a phone that has never
+ * loaded the workspace's files (the first open of a home-screen app, or the
+ * first tap on 「打开拍照工作台」) the route change is still downloading them at
+ * 150 ms; the full load then cancels those downloads, and the half-finished
+ * route change either shows Next.js's 「This page couldn't load」 for a moment
+ * or makes the deploy recovery reload the page being left. One navigation
+ * cannot race itself.
+ */
+export function replacePage(path: string): void {
+  if (typeof window === "undefined") return;
+  const target = new URL(path, window.location.origin);
+  if (
+    window.location.pathname === target.pathname &&
+    window.location.search === target.search &&
+    window.location.hash === target.hash
+  ) {
+    return;
+  }
+  markPageLeaving();
+  window.location.replace(path);
 }

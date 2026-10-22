@@ -91,6 +91,7 @@ export interface ContractorSiteSettings {
   expiry_notifications: boolean;
   target_reminder_percent: number;
   field_pin_expiry_days: number;
+  field_invite_valid_days: number;
   require_attendance_photo: boolean;
   require_gate_photo: boolean;
   /** 访客退场必须拍照 (J33-2); on unless switched off. */
