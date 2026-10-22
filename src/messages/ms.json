@@ -9957,6 +9957,17 @@
     }
   },
   "materialReports": {
+    "view": {
+      "label": "Jenis",
+      "normal": "Bahan biasa",
+      "rejected": "Bahan tidak lulus",
+      "returns": "Bahan keluar / pulangan"
+    },
+    "cards": {
+      "rejected": "Tidak lulus",
+      "returns": "Pulangan",
+      "times": "{count} kali"
+    },
     "cost": {
       "byMaterial": "Kos mengikut bahan",
       "bySupplier": "Kos mengikut pembekal",
@@ -9974,6 +9985,10 @@
       "cumulativeTitle": "Jumlah kumulatif"
     },
     "quantity": {
+      "totalRejected": "Jumlah tidak lulus",
+      "totalReturns": "Jumlah pulangan",
+      "rejectedHint": "Kuantiti penghantaran tidak lulus sahaja, mengikut bahan dan spesifikasi. Tidak dikira dalam jumlah biasa.",
+      "returnsHint": "Kuantiti yang benar-benar dipulangkan sahaja, mengikut bahan dan spesifikasi. Tidak ditolak daripada yang diterima.",
       "byMaterial": "Kuantiti mengikut bahan",
       "deliveryCount": "{count} penghantaran",
       "subtitle": "Kuantiti diterima dikumpulkan tanpa mencampurkan unit yang tidak serasi.",
@@ -9983,6 +9998,14 @@
       "cumulativeHint": "Kuantiti terkumpul = penghantaran yang dikira di sebelahnya dijumlahkan (tempoh dipilih, atau semua dari penghantaran pertama jika tiada tarikh). Muatan ditolak tidak dikira dan pemulangan tidak ditolak."
     },
     "records": {
+      "rejectedTitle": "Butiran tidak lulus ({total})",
+      "returnsTitle": "Butiran pulangan ({total})",
+      "returnsWhat": "rekod pulangan bagi laporan ini",
+      "reason": "Sebab",
+      "returnNo": "Nota pulangan",
+      "returnedAt": "Tarikh pulang",
+      "sourceReceipt": "Penghantaran asal",
+      "returnedQuantity": "Kuantiti dipulangkan",
       "title": "Butiran penghantaran ({total})",
       "what": "penghantaran di sebalik laporan ini",
       "photos": "Foto",

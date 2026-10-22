@@ -47,11 +47,14 @@ export function ReportChoiceField({
   options,
   onChange,
   loading = false,
+  allLabel,
 }: {
   label: string;
   value?: string;
   options: readonly ComboOption[];
   onChange: (value: string | undefined) => void;
+  /** What 「nothing chosen」 is called (default 「全部」). */
+  allLabel?: string;
   /** The choices are still on their way: the chosen one is "…", not its id. */
   loading?: boolean;
 }) {
@@ -62,8 +65,8 @@ export function ReportChoiceField({
       <OptionCombobox
         value={chosen}
         onChange={(next) => onChange(next === ALL ? undefined : next)}
-        options={[{ value: ALL, label: t("common.all") }, ...options]}
-        placeholder={t("common.all")}
+        options={[{ value: ALL, label: allLabel ?? t("common.all") }, ...options]}
+        placeholder={allLabel ?? t("common.all")}
         searchPlaceholder={t("common.searchPlaceholder")}
         emptyLabel={t("contractorReports.filter.noMatch")}
         ariaLabel={label}

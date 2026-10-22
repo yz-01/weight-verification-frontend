@@ -742,7 +742,17 @@ export interface DeliveryNoteOCRResult {
   proof: string;
 }
 
+/** One 「不合格」 / 「退货」 card (J36): how many records, and the quantity per unit. */
+export interface ReceiptSummaryCard {
+  count: number;
+  by_unit: Array<{ unit: MaterialUnit; quantity: string; count: number }>;
+}
+
 export interface ReceiptSummary {
+  /** The view the figures are for (J36): normal, rejected or returns. */
+  mode?: "normal" | "rejected" | "returns";
+  /** Both cards, whatever view is open, so a rejected load is never unseen. */
+  cards?: { rejected: ReceiptSummaryCard; returns: ReceiptSummaryCard };
   total_receipts: number;
   total_cost: string | null;
   priced_receipts: number;

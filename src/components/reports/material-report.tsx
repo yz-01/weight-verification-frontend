@@ -55,6 +55,10 @@ import { materialExportSubtitle, materialOptions } from "@/lib/report-menu";
 import { UNFILLED_SUPPLIER, supplierShown } from "@/lib/receipt-supplier";
 import { cn } from "@/lib/utils";
 import {
+  exportMaterialReportReturns,
+  getMaterialReportReturns,
+} from "@/services/contractor-ops.service";
+import {
   exportReceipts,
   getReceipt,
   getReceipts,
@@ -63,6 +67,22 @@ import {
 } from "@/services/contractor.service";
 
 export type MaterialReportMode = "quantity" | "cost";
+
+/**
+ * 材料数量报表's three views (J36): the normal deliveries, the rejected ones
+ * (不合格材料) and the returns (材料退场 / 退货). Nothing chosen = normal.
+ */
+export type MaterialReportView = "normal" | "rejected" | "returns";
+
+export function viewOf(value: string | undefined): MaterialReportView {
+  return value === "rejected" || value === "returns" ? value : "normal";
+}
+
+const hintKey: Record<MaterialReportView, string> = {
+  normal: "cumulativeHint",
+  rejected: "rejectedHint",
+  returns: "returnsHint",
+};
 
 export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const t = useTranslations();
@@ -74,8 +94,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // choices of their own, 验收 and a keyword - the list's `search`, which
   // the figures, the deliveries and the export all read.
   const list = useListQuery([
-    "project", "date_from", "date_to", "category", "spec_category", "supplier", "manufacturer", "acceptance",
+    "project", "date_from", "date_to", "category", "spec_category", "supplier", "report_mode",
   ]);
+  const view = viewOf(list.filters.report_mode);
   const topBar = useCurrentProject();
   const projectBoxShown = can("project.view") && !topBar.active;
   const filters = {
@@ -87,9 +108,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     // and the export all follow it.
     spec_category: list.filters.spec_category,
     supplier: list.filters.supplier,
-    // Whose make (2026-10 D1): the figures, the records and the export.
-    manufacturer: list.filters.manufacturer,
-    acceptance: list.filters.acceptance,
+    // 不合格 / 退货 view (J36): the figures, the records and the export.
+    // The cost report has only the normal one.
+    report_mode: mode === "quantity" && view !== "normal" ? view : undefined,
     search: list.search || undefined,
   };
   const unitValues = useUnitExportValues();
@@ -127,12 +148,17 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     ...(filters.spec_category ? [specName ?? "…"] : []),
     supplierName ?? "…",
   ].join(" › ");
-  const chosen = [t(`materialReports.${mode}.title`), level].join(" › ");
+  const viewTitle =
+    mode === "quantity" && view !== "normal"
+      ? `${t(`materialReports.${mode}.title`)} - ${t(`materialReports.view.${view}`)}`
+      : t(`materialReports.${mode}.title`);
+  const chosen = [viewTitle, level].join(" › ");
 
   function runExport(format: ExportFormat) {
-    return exportReceipts({
+    const send = view === "returns" ? exportMaterialReportReturns : exportReceipts;
+    return send({
       format,
-      title: t(`materialReports.${mode}.title`),
+      title: viewTitle,
       // What the file was narrowed to: the period and the level (B3 #15).
       subtitle: materialExportSubtitle(t, {
         level,
@@ -153,11 +179,26 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               unitLabel: t("reports.receipts.unit"),
               quantityLabel: t("receipts.field.cumulativeQuantity"),
               countLabel: t("reports.receipts.deliveries"),
-              note: t("materialReports.quantity.cumulativeHint"),
+              note: t(`materialReports.quantity.${hintKey[view]}`),
             }
           : undefined,
       columns:
-        mode === "quantity"
+        view === "returns"
+          ? [
+              { key: "return_note_no", label: t("materialReports.records.returnNo") },
+              { key: "processed_at", label: t("materialReports.records.returnedAt") },
+              { key: "project_name", label: t("receipts.field.project") },
+              { key: "supplier_name", label: t("receipts.field.supplier"), values: unfilledSupplierValues },
+              { key: "source_receipt_no", label: t("materialReports.records.sourceReceipt") },
+              { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
+              { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
+              { key: "material_name", label: t("receipts.field.materialName") },
+              { key: "material_specification", label: t("receipts.field.spec") },
+              { key: "returned_quantity", label: t("materialReports.records.returnedQuantity") },
+              { key: "unit", label: t("receipts.field.unit"), values: unitValues },
+              { key: "reason", label: t("materialReports.records.reason") },
+            ]
+          : mode === "quantity"
           ? [
               { key: "receipt_no", label: t("receipts.field.receiptNo") },
               { key: "captured_at", label: t("receipts.field.capturedAt") },
@@ -177,6 +218,10 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
                 label: t("receipts.field.unit"),
                 values: unitValues,
               },
+              // 不合格 view: why each load was turned away (J36).
+              ...(view === "rejected"
+                ? [{ key: "rejection_reason", label: t("materialReports.records.reason") }]
+                : []),
             ]
           : [
               { key: "receipt_no", label: t("receipts.field.receiptNo") },
@@ -257,15 +302,6 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             className="sm:w-full"
           />
         </FilterField>
-        <FilterField label={t("receipts.field.manufacturer")} className="sm:w-52">
-          <SupplierDateFilter
-            value={{ manufacturer: list.filters.manufacturer }}
-            onChange={(next) => list.setFilter("manufacturer", next.manufacturer)}
-            showSupplier={false}
-            showDates={false}
-            showManufacturer
-          />
-        </FilterField>
         <FilterField label={t("reports.filter.dateFrom")} className="sm:w-44">
           <Input
             type="date"
@@ -284,15 +320,18 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             }
           />
         </FilterField>
-        <ReportChoiceField
-          label={t("receipts.acceptance.title")}
-          value={list.filters.acceptance}
-          options={(["PENDING", "ACCEPTED", "REJECTED"] as const).map((code) => ({
-            value: code,
-            label: t(`receipts.acceptance.status.${code}`),
-          }))}
-          onChange={(acceptance) => list.setFilter("acceptance", acceptance)}
-        />
+        {mode === "quantity" && (
+          <ReportChoiceField
+            label={t("materialReports.view.label")}
+            value={view === "normal" ? undefined : view}
+            allLabel={t("materialReports.view.normal")}
+            options={(["rejected", "returns"] as const).map((code) => ({
+              value: code,
+              label: t(`materialReports.view.${code}`),
+            }))}
+            onChange={(next) => list.setFilter("report_mode", next)}
+          />
+        )}
         <ReportKeywordField
           label={t("contractorReports.filter.keyword")}
           value={list.search}
@@ -312,6 +351,14 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         </Button>
       </FilterBar>
 
+      {mode === "quantity" && summary.data?.cards && (
+        <ViewCards
+          cards={summary.data.cards}
+          view={view}
+          onPick={(next) => list.setFilter("report_mode", next)}
+        />
+      )}
+
       {summary.isLoading ? (
         <ReportSkeleton />
       ) : summary.isError ? (
@@ -319,13 +366,14 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
           {t("errors.generic")}
         </div>
       ) : mode === "quantity" ? (
-        <QuantityReport data={summary.data} />
+        <QuantityReport data={summary.data} view={view} />
       ) : (
         <CostReport data={summary.data} />
       )}
 
       {(summary.data?.total_receipts ?? 0) > 0 && (
         <ReportRecords
+          view={view}
           filters={filters}
           page={list.page}
           pageSize={list.pageSize}
@@ -349,12 +397,32 @@ const THUMBNAILS = 3;
  * (Lucas 2026-10-10: 「关掉还是会保留在刚刚的页面，不会跳转」).
  */
 function ReportRecords({
+  view,
+  ...rest
+}: {
+  view: MaterialReportView;
+  filters: Record<string, string | undefined>;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}) {
+  return view === "returns" ? (
+    <ReturnRecords {...rest} />
+  ) : (
+    <DeliveryRecords view={view} {...rest} />
+  );
+}
+
+function DeliveryRecords({
+  view,
   filters,
   page,
   pageSize,
   onPageChange,
   onPageSizeChange,
 }: {
+  view: MaterialReportView;
   filters: Record<string, string | undefined>;
   page: number;
   pageSize: number;
@@ -384,7 +452,14 @@ function ReportRecords({
   // column of dashes said nothing; the supplier is what matters day to day.
   const showManufacturer = anyNamedManufacturer(rows);
   return (
-    <ReportTable title={t("materialReports.records.title", { total })}>
+    <ReportTable
+      title={t(
+        view === "rejected"
+          ? "materialReports.records.rejectedTitle"
+          : "materialReports.records.title",
+        { total },
+      )}
+    >
       <QueryFailedNote query={records} what={t("materialReports.records.what")} />
       <Table>
         <TableHeader>
@@ -396,6 +471,7 @@ function ReportRecords({
             <TableHead>{t("receipts.field.materialName")}</TableHead>
             <TableHead>{t("receipts.field.spec")}</TableHead>
             <TableHead className="text-right">{t("receipts.field.quantity")}</TableHead>
+            {view === "rejected" && <TableHead>{t("materialReports.records.reason")}</TableHead>}
             <TableHead>{t("materialReports.records.photos")}</TableHead>
             <TableHead className="text-right">{t("materialReports.records.open")}</TableHead>
           </TableRow>
@@ -418,6 +494,7 @@ function ReportRecords({
               <TableCell className="tabular text-right">
                 {row.quantity} {unitName(row.unit, row.unit_label)}
               </TableCell>
+              {view === "rejected" && <TableCell>{row.rejection_reason || "—"}</TableCell>}
               <TableCell>
                 <RecordPhotos record={row} />
               </TableCell>
@@ -579,8 +656,10 @@ function ReportSkeleton() {
 
 function QuantityReport({
   data,
+  view = "normal",
 }: {
   data: Awaited<ReturnType<typeof getReceiptSummary>> | undefined;
+  view?: MaterialReportView;
 }) {
   const t = useTranslations();
   const unitName = useUnitName();
@@ -593,7 +672,13 @@ function QuantityReport({
       <MetricRow>
         <Metric
           icon={ReceiptText}
-          label={t("materialReports.quantity.totalDeliveries")}
+          label={t(
+            view === "rejected"
+              ? "materialReports.quantity.totalRejected"
+              : view === "returns"
+                ? "materialReports.quantity.totalReturns"
+                : "materialReports.quantity.totalDeliveries",
+          )}
           value={formatter.number(data.total_receipts)}
         />
         {data.by_unit.map((row) => (
@@ -615,7 +700,7 @@ function QuantityReport({
             it, added up - the same loads 收货次数 counts. A material with no
             delivery in the period has nothing to show. */}
         <p className="px-3 py-1.5 text-xs text-muted-foreground">
-          {t("materialReports.quantity.cumulativeHint")}
+          {t(`materialReports.quantity.${hintKey[view]}`)}
         </p>
         <Table>
           <TableHeader>
@@ -828,5 +913,157 @@ function EmptyReport() {
     <div className="rounded-xl border border-dashed border-panel-border px-6 py-16 text-center text-sm text-muted-foreground">
       {t("reports.empty")}
     </div>
+  );
+}
+
+
+/**
+ * 「不合格」 and 「退货」 cards (J36): how many times and how much, always
+ * visible, so a rejected load is never unseen. Pressing one switches the
+ * report to that view; pressing the open one goes back to the normal one.
+ */
+function ViewCards({
+  cards,
+  view,
+  onPick,
+}: {
+  cards: NonNullable<Awaited<ReturnType<typeof getReceiptSummary>>["cards"]>;
+  view: MaterialReportView;
+  onPick: (next: "rejected" | "returns" | undefined) => void;
+}) {
+  const t = useTranslations();
+  const unitName = useUnitName();
+  const quantity = (card: (typeof cards)["rejected"]) =>
+    card.by_unit.length === 0
+      ? "0"
+      : card.by_unit.map((row) => `${row.quantity} ${unitName(row.unit)}`).join(", ");
+  return (
+    <div className="flex flex-wrap gap-2">
+      {(["rejected", "returns"] as const).map((code) => {
+        const card = cards[code];
+        const open = view === code;
+        return (
+          <button
+            key={code}
+            type="button"
+            aria-pressed={open}
+            onClick={() => onPick(open ? undefined : code)}
+            className={cn(
+              "flex min-w-0 max-w-full items-center gap-2 rounded-lg border bg-card px-3 py-1.5 text-sm transition-colors hover:bg-muted",
+              open && "border-primary ring-1 ring-primary",
+            )}
+          >
+            <AlertTriangle
+              className={cn(
+                "size-3.5 shrink-0",
+                code === "rejected" && card.count > 0 ? "text-warning" : "text-primary",
+              )}
+            />
+            <span className="truncate text-xs text-muted-foreground">
+              {t(`materialReports.cards.${code}`)}
+            </span>
+            <span className="tabular font-semibold">
+              {t("materialReports.cards.times", { count: card.count })} / {quantity(card)}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** 「退货明细」 (J36): the returns that left site, newest first. */
+function ReturnRecords({
+  filters,
+  page,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  filters: Record<string, string | undefined>;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}) {
+  const t = useTranslations();
+  const unitName = useUnitName();
+  const df = useDateFormat();
+  const records = useQuery({
+    queryKey: ["receipts", "report-returns", filters, page, pageSize],
+    queryFn: () => getMaterialReportReturns({ ...filters, page, page_size: pageSize }),
+    placeholderData: (previous, previousQuery) =>
+      (previousQuery?.queryKey[2] as { project?: string } | undefined)?.project ===
+      (filters as { project?: string }).project
+        ? previous
+        : undefined,
+  });
+  const rows = records.data?.results ?? [];
+  const total = records.data?.count ?? 0;
+  return (
+    <ReportTable title={t("materialReports.records.returnsTitle", { total })}>
+      <QueryFailedNote query={records} what={t("materialReports.records.returnsWhat")} />
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t("materialReports.records.returnedAt")}</TableHead>
+            <TableHead>{t("materialReports.records.returnNo")}</TableHead>
+            <TableHead>{t("receipts.field.supplier")}</TableHead>
+            <TableHead>{t("receipts.field.materialName")}</TableHead>
+            <TableHead>{t("receipts.field.spec")}</TableHead>
+            <TableHead className="text-right">
+              {t("materialReports.records.returnedQuantity")}
+            </TableHead>
+            <TableHead>{t("materialReports.records.reason")}</TableHead>
+            <TableHead>{t("materialReports.records.photos")}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell className="tabular text-muted-foreground">
+                {df.dateTime(row.processed_at ?? row.captured_at)}
+              </TableCell>
+              <TableCell className="tabular font-medium">
+                {row.return_note_no || row.reference_no}
+              </TableCell>
+              <TableCell className={row.supplier ? undefined : "text-muted-foreground"}>
+                {supplierShown(row.supplier_name ?? "", t("receipts.supplierUnfilled"))}
+              </TableCell>
+              <TableCell>{row.material_name}</TableCell>
+              <TableCell>{row.material_specification || row.spec_category_name || "—"}</TableCell>
+              <TableCell className="tabular text-right">
+                {row.returned_quantity} {unitName(row.unit, row.unit_label)}
+              </TableCell>
+              <TableCell>{row.reason || "—"}</TableCell>
+              <TableCell>
+                {row.cover_photo_url ? (
+                  <span className="relative block size-8 overflow-hidden rounded-md border bg-muted">
+                    <Image
+                      src={row.cover_photo_url}
+                      alt={row.reference_no}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    {t("materialReports.records.noPhotos")}
+                  </span>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <RecordsPager
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
+    </ReportTable>
   );
 }
