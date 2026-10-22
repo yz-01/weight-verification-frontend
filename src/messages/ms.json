@@ -6140,7 +6140,7 @@
       "waitingForSite": "Diluluskan / menunggu keluar tapak: tapak merekod keluar dengan kedua-dua tandatangan.",
       "finalConfirm": "Sahkan keluar",
       "waitingForOffice": "Bahan telah keluar. Menunggu pengesahan pejabat.",
-      "returnHelp": "{reference} telah diluluskan. Semasa bahan keluar: ambil foto, isi kuantiti sebenar, nombor plat lori dan nombor DO, sahkan pembekal (imbas kodnya jika boleh), dan kedua-dua orang tapak dan pembekal / pemandu tandatangan. Pejabat kemudian mengesahkannya.",
+      "returnHelp": "{reference} telah diluluskan. Semasa bahan keluar: ambil foto, isi kuantiti sebenar, nombor plat lori, sahkan pembekal (imbas kodnya jika boleh), dan kedua-dua orang tapak dan pembekal / pemandu tandatangan. Pejabat kemudian mengesahkannya.",
       "processingPhotos": "Gambar semasa serahan",
       "processingNote": "Nota dari tapak",
       "processingLocation": "Lokasi",
@@ -6183,6 +6183,7 @@
       "noSupplier": "Tidak diketahui",
       "spec": "Spesifikasi",
       "chooseSpec": "Pilih spesifikasi",
+      "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "specName": "Nama spesifikasi",
       "materialName": "Nama bahan"
     },
@@ -6213,6 +6214,8 @@
       "phaseHelp": "Cipta kategori pembinaan untuk menyusun kemajuan.",
       "phaseTitle": "Kategori pembinaan",
       "recordHelp": "Ambil sekurang-kurangnya satu foto tapak, pilih kategori pembinaan, tambah catatan jika perlu, kemudian hantar. Peratusan adalah pilihan.",
+      "recordHelpPhone": "Ambil sekurang-kurangnya 1 foto tapak, tulis catatan jika perlu, kemudian hantar.",
+      "unclassified": "Belum dikelaskan",
       "recordTitle": "Bukti kemajuan baharu",
       "returnPrompt": "Terangkan perkara yang perlu dibetulkan sebelum kemajuan dihantar semula.",
       "saveError": "Kemajuan projek tidak dapat disimpan. Semak projek, kategori pembinaan, foto dan GPS sebelum cuba lagi.",
@@ -6414,7 +6417,7 @@
       "title": "Return Note",
       "fill": "Isi Return Note",
       "edit": "Ubah Return Note",
-      "help": "Sebelum meluluskan, isi Return Note: bahan, nombor DO, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus.",
+      "help": "Sebelum meluluskan, isi Return Note: bahan, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus.",
       "number": "No. Return Note",
       "numberPending": "Dinomborkan apabila disimpan",
       "date": "Tarikh",
@@ -6433,7 +6436,7 @@
       "needNoteFirst": "Isi Return Note dahulu",
       "filledBy": "Diisi oleh",
       "machine": "Mesin",
-      "helpMachine": "Sebelum meluluskan, isi Return Note: mesin, nombor DO, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus."
+      "helpMachine": "Sebelum meluluskan, isi Return Note: mesin, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus."
     },
     "progressEvidenceSuggested": "{current} foto telah diambil. Ambil sekurang-kurangnya 1; empat di bawah ialah cadangan, dan foto tambahan boleh ditambah.",
     "equipmentExit": {
@@ -6458,7 +6461,7 @@
       "applyQueued": "Permohonan keluar disimpan - menunggu muat naik",
       "handover": "Rekod keluar sebenar",
       "handoverTitle": "{name} keluar tapak",
-      "handoverHelp": "Diluluskan untuk keluar: imbas kod QR mesin ini, ambil foto, masukkan DO dan kedua-dua pihak tandatangan. Pejabat kemudian mengesahkannya.",
+      "handoverHelp": "Diluluskan untuk keluar: imbas kod QR mesin ini, ambil foto, masukkan plat lori dan kedua-dua pihak tandatangan. Pejabat kemudian mengesahkannya.",
       "handoverSubmit": "Hantar keluar",
       "handoverFailed": "Keluar tidak berjaya dihantar. Sila cuba lagi.",
       "handoverQueued": "Keluar mesin ini disimpan di telefon dan menunggu muat naik.",
@@ -6477,9 +6480,10 @@
       "typedNotScanned": "Kod QR tidak diimbas di tapak; nombor peralatan ditaip.",
       "scanAgain": "Imbas semula",
       "scanWrongMachine": "Itu bukan mesin yang diluluskan untuk keluar ({name}). Imbas kod QR mesin ini.",
-      "photosHint": "Sekurang-kurangnya {min} foto, termasuk foto DO.",
+      "photosHint": "Sekurang-kurangnya {min} foto.",
       "deliveryNoteHint": "Masukkan nombor DO (dibaca daripada foto DO).",
       "supplierHint": "Imbas kod QR pembekal jika ada; boleh ditinggalkan.",
+      "supplierFromMachine": "Pembekal (daripada mesin)",
       "supplierPick": "Atau pilih daripada senarai",
       "signatureHint": "Ditandatangani semasa serahan oleh orang ini.",
       "locationHint": "Diambil secara automatik apabila borang dibuka.",
@@ -8214,7 +8218,8 @@
       "permission_switches_unknown_permission": "Salah satu kebenaran tidak wujud.",
       "permission_switches_unknown_project": "Pilih projek syarikat ini.",
       "permission_switches_self_lockout": "Anda tidak boleh mematikan pengurusan pengguna anda sendiri.",
-      "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna."
+      "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna.",
+      "receipt_line_returned": "Ada pemulangan untuk bahan ini, jadi ia tidak boleh dibuang."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8788,10 +8793,12 @@
       "chooseColumnFirst": "Pilih kategori dahulu",
       "noSupplier": "Pembekal belum diisi",
       "noSupplierHint": "Tidak pasti pembekalnya? Biarkan - pejabat akan mengisinya.",
+      "supplierRequiredHint": "Imbas kod QR pembekal atau pilih daripada senarai.",
       "spec": "Spesifikasi",
       "chooseSpec": "Pilih spesifikasi",
       "specName": "Nama spesifikasi",
       "specNameHint": "Tiada dalam senarai? Pilih 「Lain-lain」 dan taip di sini.",
+      "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "autoFilledFromSpec": "Dari spesifikasi",
       "otherName": "Nama bahan",
       "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini; pejabat akan menambahnya ke senarai."
@@ -9957,6 +9964,17 @@
     }
   },
   "materialReports": {
+    "view": {
+      "label": "Jenis",
+      "normal": "Bahan biasa",
+      "rejected": "Bahan tidak lulus",
+      "returns": "Bahan keluar / pulangan"
+    },
+    "cards": {
+      "rejected": "Tidak lulus",
+      "returns": "Pulangan",
+      "times": "{count} kali"
+    },
     "cost": {
       "byMaterial": "Kos mengikut bahan",
       "bySupplier": "Kos mengikut pembekal",
@@ -9974,6 +9992,10 @@
       "cumulativeTitle": "Jumlah kumulatif"
     },
     "quantity": {
+      "totalRejected": "Jumlah tidak lulus",
+      "totalReturns": "Jumlah pulangan",
+      "rejectedHint": "Kuantiti penghantaran tidak lulus sahaja, mengikut bahan dan spesifikasi. Tidak dikira dalam jumlah biasa.",
+      "returnsHint": "Kuantiti yang benar-benar dipulangkan sahaja, mengikut bahan dan spesifikasi. Tidak ditolak daripada yang diterima.",
       "byMaterial": "Kuantiti mengikut bahan",
       "deliveryCount": "{count} penghantaran",
       "subtitle": "Kuantiti diterima dikumpulkan tanpa mencampurkan unit yang tidak serasi.",
@@ -9983,6 +10005,14 @@
       "cumulativeHint": "Kuantiti terkumpul = penghantaran yang dikira di sebelahnya dijumlahkan (tempoh dipilih, atau semua dari penghantaran pertama jika tiada tarikh). Muatan ditolak tidak dikira dan pemulangan tidak ditolak."
     },
     "records": {
+      "rejectedTitle": "Butiran tidak lulus ({total})",
+      "returnsTitle": "Butiran pulangan ({total})",
+      "returnsWhat": "rekod pulangan bagi laporan ini",
+      "reason": "Sebab",
+      "returnNo": "Nota pulangan",
+      "returnedAt": "Tarikh pulang",
+      "sourceReceipt": "Penghantaran asal",
+      "returnedQuantity": "Kuantiti dipulangkan",
       "title": "Butiran penghantaran ({total})",
       "what": "penghantaran di sebalik laporan ini",
       "photos": "Foto",
@@ -10929,6 +10959,7 @@
       "site": "Depoh",
       "specification": "Spesifikasi",
       "supplier": "Pembekal",
+      "supplier_from_machine": "Pembekal (daripada mesin)",
       "task_type": "Jenis",
       "title": "Peristiwa",
       "vehicle_plate": "Lori",
@@ -11041,7 +11072,8 @@
       "entry_at": "Masa masuk",
       "exit_at": "Masa keluar",
       "request_kind": "Jenis permohonan",
-      "pdpa_consent": "Notis data peribadi"
+      "pdpa_consent": "Notis data peribadi",
+      "material_lines": "Senarai bahan"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -13104,6 +13136,8 @@
       "SUCCEEDED": "Dibaca"
     },
     "editNote": "Kuantiti dan harga boleh dibetulkan. Projek, nota hantar dan masa rekod tidak boleh — itulah yang dibuktikan oleh resit ini.",
+    "specPendingHint": "Tapak tidak mengisi spesifikasi: buka rekod dan isikan - tiada PIN pengesahan untuk spesifikasi sahaja.",
+    "specPending": "Spesifikasi belum diisi",
     "editTitle": "Betulkan resit",
     "field": {
       "category": "Ruangan",
@@ -13261,6 +13295,7 @@
         "quantity": "Kuantiti"
       },
       "returnTag": "Ada rekod pemulangan",
+      "noSpec": "Tiada spesifikasi lagi",
       "returnTagHint": "Baris ini ada {count} pemulangan yang selesai - buka untuk melihatnya",
       "openNumber": "Lihat rekod di sebalik {label} {value}",
       "breakdown": {
@@ -13282,8 +13317,7 @@
         "legacyReturn": "Pemulangan yang direkod pada resit sebelum 10-02",
         "project": "Projek"
       },
-      "searchSpec": "Spesifikasi",
-      "subtotal": "Subjumlah {material}"
+      "searchSpec": "Spesifikasi"
     },
     "exportVerdict": "Keputusan penerimaan",
     "rejectedReturns": "Pulangan ditolak",
@@ -17398,7 +17432,10 @@
       "material_specification": "Spesifikasi (ditaip)",
       "equipment": "Mesin",
       "start_at": "Masa mula",
-      "end_at": "Masa tamat"
+      "end_at": "Masa tamat",
+      "material_line": "Bahan",
+      "unit_price": "Harga seunit",
+      "spec_category": "Spesifikasi"
     },
     "followsSpec": "Unit mengikut spesifikasi"
   },
@@ -17816,7 +17853,8 @@
       "stage": "Peringkat",
       "forwardHistory": "Dihantar",
       "headOfficeReviewer": "Pelulus ibu pejabat",
-      "materialName": "Nama bahan"
+      "materialName": "Nama bahan",
+      "materials": "Senarai bahan"
     },
     "action": {
       "view": "Lihat",
@@ -17961,6 +17999,52 @@
     },
     "forwarded": "Dihantar ke ibu pejabat oleh {by} pada {at}",
     "managerHelp": "Permohonan tapak kepada anda: pilih pelulus ibu pejabat dan tekan “Hantar ke ibu pejabat”, atau pulangkan."
+  },
+  "materialLines": {
+    "title": "Senarai bahan",
+    "count": "{count} jenis bahan",
+    "line": "Bahan {n}",
+    "firstLine": "bahan asal rekod ini",
+    "firstLineInForm": "ubah dalam borang di atas",
+    "remove": "Buang bahan {n}",
+    "removeShort": "Buang",
+    "material": "Bahan",
+    "specification": "Spesifikasi",
+    "materialName": "Nama bahan",
+    "specificationName": "Nama spesifikasi",
+    "quantity": "Kuantiti",
+    "unit": "Unit",
+    "unitPrice": "Harga seunit",
+    "amount": "Jumlah",
+    "amountHint": "Jumlah bahan ini pada DO",
+    "optional": "Pilihan",
+    "chooseMaterial": "Pilih bahan",
+    "chooseSpecification": "Pilih spesifikasi",
+    "materialFirst": "Pilih bahan dahulu",
+    "chooseUnit": "Pilih unit",
+    "search": "Cari",
+    "notSetUp": "Bahan ini belum disediakan. Sediakan di Pengurusan Kategori dahulu.",
+    "noSpecifications": "Bahan ini tiada spesifikasi",
+    "goToCategories": "Ke Pengurusan Kategori",
+    "otherMaterialHint": "Taip nama bahan",
+    "otherSpecHint": "Taip spesifikasi",
+    "quantityRule": "Lebih 0, paling banyak tiga perpuluhan",
+    "unitFromSpec": "Unit ikut spesifikasi",
+    "needed": "Sila isi",
+    "materialData": "data bahan",
+    "add": "Tambah bahan",
+    "edit": "Ubah senarai bahan",
+    "save": "Simpan senarai bahan",
+    "saveFailed": "Tidak dapat disimpan. Sila cuba lagi.",
+    "reason": "Sebab perubahan",
+    "dialogTitle": "{reference} · Senarai bahan",
+    "dialogHelp": "Satu DO boleh membawa beberapa jenis bahan. Setiap satu ada bahan, spesifikasi, unit dan kuantiti sendiri, dan dikira dalam kategori dan jumlahnya sendiri. Bahan 1 ialah bahan asal rekod ini: boleh diubah, tidak boleh dibuang.",
+    "pinNote": "Mengubah spesifikasi atau unit sahaja tidak perlu PIN. Mengubah bahan, kuantiti, harga seunit atau jumlah, atau menambah atau membuang bahan, perlu PIN dan disimpan dalam sejarah.",
+    "moneyOnFirst": "Jumlah DO dikira di bawah bahan 1. Untuk membahagikannya, isikan jumlah bagi setiap bahan.",
+    "moneyPerLine": "Sesetengah bahan ada jumlah: hanya jumlah itu dikira, dan bahan tanpa jumlah tidak dikira dalam perbelanjaan.",
+    "correctionNote": "Rekod ini ada {count} jenis bahan. Borang ini mengubah bahan 1; tambah, ubah atau buang yang lain dengan \"Tambah bahan\".",
+    "correctionNoteOne": "Beberapa jenis bahan pada DO ini? Tambahkannya dengan \"Tambah bahan\", setiap satu difailkan sendiri.",
+    "requestHint": "Satu permohonan boleh meminta beberapa jenis bahan; ia diluluskan sekali gus."
   },
   "filePreview": {
     "unsupported": "Fail {ext} tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
@@ -18539,6 +18623,21 @@
       "save": "Simpan",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
       "current": "Ditetapkan {at} oleh {name}"
+    },
+    "records": {
+      "what": "rekod",
+      "driverHint": "{days} hari terakhir anda. Lihat sahaja.",
+      "monthTotals": "Bulan ini",
+      "staffTitle": "Rekod terkini",
+      "staffHint": "Projek ini, {days} hari terakhir.",
+      "recentTotals": "Jumlah hari yang dipaparkan",
+      "normal": "Biasa",
+      "overtime": "Lebih masa",
+      "total": "Jumlah",
+      "start": "Mula",
+      "end": "Tamat",
+      "running": "Belum tamat",
+      "empty": "Belum ada rekod."
     }
   },
   "theme": {
@@ -19294,6 +19393,10 @@
       "lastUsed": "Terakhir digunakan {at}",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
       "chooseProject": "Pilih projek di bahagian atas halaman untuk membuat pautan."
+    },
+    "tabs": {
+      "clock": "Mula / tamat kerja",
+      "records": "Rekod saya"
     }
   },
   "projectReference": {

@@ -10,7 +10,8 @@
  * A photograph opens the viewer (zoom, turn, download the original, its time
  * and GPS), with 「打开原记录」 for the whole record and 「证据报表」 for the
  * record's complete evidence report (J8-5) - single photographs stay, but
- * never instead of it (J8-6).
+ * never instead of it (J8-6). The row itself carries no buttons (J43): its
+ * words and its photographs only; those two wait in the viewer.
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -160,6 +161,8 @@ function PhotoGroupRow({ group }: { group: PhotoGroup }) {
             submitted_at: group.date,
           })
       : null;
+  // Not on the row (J43, Lucas 10-22: the row is its words and its
+  // photographs only) - in the photo viewer, beside the photograph.
   const actions = (
     <>
       {openRecord ? (
@@ -207,7 +210,6 @@ function PhotoGroupRow({ group }: { group: PhotoGroup }) {
           </li>
         ))}
       </ul>
-      <div className="flex shrink-0 flex-wrap gap-2 sm:flex-col sm:items-end">{actions}</div>
       {open !== null && photos[open] ? (
         <PhotoViewer
           photos={photos}

@@ -352,7 +352,30 @@ export interface ReceiptPhoto {
   created_at: string;
 }
 
+/** One material of a delivery (J35, 「+ 增加材料」). */
+export interface MaterialReceiptLine {
+  /** Null only when the server stood the delivery in for its own line 1. */
+  id: string | null;
+  position: number;
+  category: string | null;
+  category_code: string | null;
+  category_name: string | null;
+  spec_category: string | null;
+  spec_category_name: string | null;
+  material_name: string;
+  material_specification: string;
+  quantity: string;
+  unit: string;
+  unit_label: string | null;
+  unit_price: string | null;
+  /** This material's money on the DO, when the DO prices each line. */
+  amount: string | null;
+  total_value: string | null;
+}
+
 export interface MaterialReceipt {
+  /** 「待补规格」 (J39): sent without its specification; the office fills it. */
+  needs_spec?: boolean;
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
   /** 待验收 for this reader - the sidebar counts it (2026-10-09). */
@@ -390,6 +413,10 @@ export interface MaterialReceipt {
   material_name: string;
   material_specification: string;
   quantity: string;
+  /** 「N 种材料」 (J35): how many materials the delivery holds; 1 for most. */
+  line_count?: number;
+  /** Every material of the delivery, line 1 first (J35); line 1 is the fields above. */
+  lines?: MaterialReceiptLine[];
   cumulative_quantity?: string;
   unit: MaterialUnit;
   total_weight_kg: string | null;
@@ -518,6 +545,9 @@ export interface MySubmissionRow {
     site_no: string;
     registration_no: string;
     serial_no: string;
+    /** Its own supplier, which the actual exit carries (J38-4). */
+    supplier?: string | null;
+    supplier_name?: string;
   } | null;
 }
 
@@ -742,7 +772,17 @@ export interface DeliveryNoteOCRResult {
   proof: string;
 }
 
+/** One 「不合格」 / 「退货」 card (J36): how many records, and the quantity per unit. */
+export interface ReceiptSummaryCard {
+  count: number;
+  by_unit: Array<{ unit: MaterialUnit; quantity: string; count: number }>;
+}
+
 export interface ReceiptSummary {
+  /** The view the figures are for (J36): normal, rejected or returns. */
+  mode?: "normal" | "rejected" | "returns";
+  /** Both cards, whatever view is open, so a rejected load is never unseen. */
+  cards?: { rejected: ReceiptSummaryCard; returns: ReceiptSummaryCard };
   total_receipts: number;
   total_cost: string | null;
   priced_receipts: number;

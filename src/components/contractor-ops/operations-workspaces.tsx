@@ -11,7 +11,6 @@ import {
   FileText,
   ImagePlus,
   ListTodo,
-  ListTree,
   Loader2,
   PackageOpen,
   Paperclip,
@@ -23,7 +22,6 @@ import {
   ScanLine,
   Trash2,
 } from "lucide-react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -47,7 +45,6 @@ import {
 import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
-import { EditedTag, wasCorrected } from "@/components/contractor-ops/progress-percent-editor";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   useCurrentProject,
@@ -83,7 +80,6 @@ import {
 } from "@/components/shared/record-correction";
 import { useDateFormat } from "@/lib/dates";
 import { isSignOffCancelled } from "@/lib/sign-off";
-import { hasPercent, usePercentText } from "@/lib/progress-percent";
 import { parseRecordNo } from "@/lib/record-no";
 import { cn } from "@/lib/utils";
 import { NEW_PHASE_OPTION, NewPhaseDialog } from "@/components/progress/new-phase-dialog";
@@ -147,7 +143,6 @@ import {
   createFieldTask,
   createProjectCategory,
   createSiteEquipment,
-  exportSiteProgressRecords,
   getConstructionPhases,
   getFieldTask,
   exportFieldTasks,
@@ -160,8 +155,6 @@ import {
   ocrEquipmentDeliveryNote,
   getProjectCategories,
   getSiteEquipment,
-  getSiteProgressRecords,
-  getSiteProgressSummary,
   reviewMaterialOutgoing,
   transitionFieldTask,
   updateFieldTask,
@@ -3271,290 +3264,33 @@ export function MovementDialog({
   );
 }
 
-export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
-  const t = useTranslations("contractorOps");
-  const percent = usePercentText();
-  const { can } = useAuth();
+/**
+ * 记录进度 on the phone (J40, 2026-10-22): the 工程进度 entry opens the form
+ * itself - photographs and a note, nothing else. The page of 数字卡, 施工分类
+ * tags and big photo cards that used to sit here is gone: 「手机不是后台」.
+ * Looking records up, filing them under a 施工分类 and the figures all live on
+ * the desktop (office-module-lists).
+ */
+/**
+ * 记录进度 on the phone (J40, 2026-10-22): the 工程进度 entry opens the form
+ * itself - photographs and a note, nothing else. The page of 数字卡, 施工分类
+ * tags and big photo cards that used to sit here is gone: 「手机不是后台」.
+ * Looking records up, filing them under a 施工分类 and the figures all live on
+ * the desktop (office-module-lists).
+ */
+export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onRecordSaved, onClose }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void; onClose?: () => void } = {}) {
   const qc = useQueryClient();
-  const searchParams = useSearchParams();
-  const [project, setProject] = useState(initialProject);
-  const [addingPhase, setAddingPhase] = useState(false);
-  const [editingPhase, setEditingPhase] = useState<ConstructionPhase | null>(
-    null,
-  );
-  // Kept in the draft, so tapping this 挂号 again reopens the form it was in
-  // (D-259). Outside a draft (the office) this is ordinary state.
-  const [addingRecord, setAddingRecord] = useDraftState("open:addingRecord",
-    Boolean(fieldTaskId) || searchParams.get("create") === "1",
-  );
-  const phases = useQuery({
-    queryKey: ["construction-phases", project],
-    queryFn: () =>
-      getConstructionPhases({ project: project || undefined, page_size: 200 }),
-  });
-  const rows = useQuery({
-    queryKey: ["site-progress", project],
-    queryFn: () =>
-      getSiteProgressRecords({ project: project || undefined, page_size: 200 }),
-  });
-  const summary = useQuery({
-    queryKey: ["site-progress-summary", project],
-    queryFn: () => getSiteProgressSummary(project || undefined),
-  });
-  /*
-   * No approve/return here (D-225).
-   *
-   * 「工程进度不需要【批准】【退回】，也不做强制闭环 —— 它是持续记录，不是
-   * 申请事项」. What the office does with a progress record is talk about it,
-   * annotate it and file it into a column; none of those is a decision, so
-   * none of them gates the record. The endpoint behind the old buttons is
-   * gone too, which is why this is a deletion rather than a hidden button.
-   */
-  // Both Add buttons used to be gated on the list filter, which defaults to
-  // "all projects" (an empty string), so they sat dead on arrival with nothing
-  // on screen explaining why — the same trap described in OutgoingDialog below.
-  // The dialogs now own the project choice. Recording progress additionally
-  // needs a phase to exist, so a project with none gets a callout that opens
-  // the phase dialog rather than a disabled button.
-  const noPhases =
-    !!project && !phases.isLoading && !phases.isError && !phases.data?.count;
-  // The same filter the list is showing, so the file and the screen agree -
-  // the API renders the filtered queryset rather than running its own.
-  const runProgressExport = (format: "xlsx" | "pdf") =>
-    exportSiteProgressRecords({
-      format,
-      title: t("progress.title"),
-      subtitle: t("progress.subtitle"),
-      emptyLabel: t("state.empty"),
-      query: { ...(project ? { project } : {}) },
-      columns: [
-        { key: "captured_at", label: t("progress.capturedAt") },
-        { key: "project_name", label: t("field.project") },
-        { key: "phase_name", label: t("field.phase") },
-        { key: "percent_complete", label: t("field.percentComplete") },
-        { key: "description", label: t("field.description") },
-        {
-          key: "status",
-          label: t("field.status"),
-          values: {
-            SUBMITTED: t("progressStatus.SUBMITTED"),
-            CONFIRMED: t("progressStatus.CONFIRMED"),
-            RETURNED: t("progressStatus.RETURNED"),
-          },
-        },
-        { key: "submitted_by_name", label: t("progress.submittedBy") },
-        { key: "confirmed_by_name", label: t("progress.confirmedBy") },
-        { key: "confirmed_at", label: t("progress.confirmedAt") },
-        { key: "latitude", label: t("field.latitude") },
-        { key: "longitude", label: t("field.longitude") },
-      ],
-    });
   return (
-    <div className="space-y-4">
-      <ListHeader
-        title={t("progress.title")}
-        subtitle={t("progress.subtitle")}
-        action={
-          <div className="flex flex-wrap gap-2">
-            {can("report.export") && (
-              <ExportButton
-                onExport={runProgressExport}
-                disabled={!rows.data?.count}
-              />
-            )}
-            {can("progress.manage") && (
-              <Button variant="outline" onClick={() => setAddingPhase(true)}>
-                <Plus />
-                {t("progress.addPhase")}
-              </Button>
-            )}
-            {can("progress.manage") && (
-              <Button onClick={() => setAddingRecord(true)}>
-                <Camera />
-                {t("progress.addRecord")}
-              </Button>
-            )}
-          </div>
-        }
-      />
-      <FilterBar className="empty:hidden">
-        <ProjectFilter value={project} onChange={setProject} />
-      </FilterBar>
-      {(summary.data || summary.isError) && (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {(["today", "month", "year", "total"] as const).map((key) => (
-            <div key={key} className="surface-panel rounded-xl p-4">
-              <p className="text-xs text-muted-foreground">
-                {t(`progress.summary.${key}`)}
-              </p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums">
-                {summary.isError ? "—" : summary.data?.[key]}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-      <QueryFailedNote query={summary} what={t("what.progressSummary")} />
-      <div className="flex flex-wrap gap-2">
-        {(phases.data?.results ?? []).map((phase) =>
-          can("progress.manage") ? (
-            <button
-              key={phase.id}
-              type="button"
-              title={t("progress.editPhase")}
-              className={`rounded-full border px-3 py-1 text-xs font-medium hover:bg-muted ${phase.is_active ? "bg-card" : "bg-muted/40 text-muted-foreground line-through"}`}
-              onClick={() => setEditingPhase(phase)}
-            >
-              {phase.code} · {phase.name}
-            </button>
-          ) : (
-            <span
-              key={phase.id}
-              className={`rounded-full border px-3 py-1 text-xs font-medium ${phase.is_active ? "bg-card" : "bg-muted/40 text-muted-foreground line-through"}`}
-            >
-              {phase.code} · {phase.name}
-            </span>
-          ),
-        )}
-      </div>
-      <QueryFailedNote query={phases} what={t("what.phases")} />
-      {noPhases && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-panel-border p-4">
-          <p className="text-sm text-muted-foreground">
-            {t("progress.noPhasesHelp")}
-          </p>
-          {can("progress.manage") && (
-            <Button
-              variant="outline"
-              onClick={() => setAddingPhase(true)}
-            >
-              <ListTree />
-              {t("progress.addFirstPhase")}
-            </Button>
-          )}
-        </div>
-      )}
-      <WorkspaceState
-        loading={rows.isLoading}
-        error={rows.isError}
-        empty={!rows.data?.count}
-      />
-      {!!rows.data?.count && (
-        <div className="grid gap-3 lg:grid-cols-2">
-          {rows.data.results.map((row) => (
-            <article
-              key={row.id}
-              className="overflow-hidden surface-panel rounded-xl"
-            >
-              {row.photos[0] && (
-                <Image
-                  src={row.photos[0].watermarked || row.photos[0].image}
-                  alt=""
-                  width={900}
-                  height={320}
-                  unoptimized
-                  className="h-44 w-full object-cover"
-                />
-              )}
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-semibold">{row.phase_name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {row.project_name} · {row.submitted_by_name}
-                    </p>
-                  </div>
-                  <StatusBadge
-                    label={t(`progressStatus.${row.status}`)}
-                    tone={tone(row.status)}
-                  />
-                </div>
-                {hasPercent(row.percent_complete) && (
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{
-                        width: `${Math.min(100, Number(row.percent_complete))}%`,
-                      }}
-                    />
-                  </div>
-                )}
-                <p
-                  className={cn(
-                    "tabular mt-1 flex items-center justify-end gap-1.5 text-sm",
-                    hasPercent(row.percent_complete)
-                      ? "font-semibold"
-                      : "mt-4 text-muted-foreground",
-                  )}
-                >
-                  {/* The office corrected the figure (2026-10-09). */}
-                  {wasCorrected(row) && <EditedTag />}
-                  {/* 「未填」 when the site left it out (HD2). */}
-                  {percent(row.percent_complete)}
-                </p>
-                <p className="mt-2 text-sm">
-                  {row.description || t("state.noDescription")}
-                </p>
-                {/* Progress has no categories since 2026-10 (B1, X5): a
-                    record filed in one before keeps it, shown here as it
-                    was; nothing new is filed. */}
-                {row.category_name && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm">
-                    <span className="text-xs text-muted-foreground">
-                      {t("field.category")}
-                    </span>
-                    <span className="font-medium">{row.category_name}</span>
-                  </div>
-                )}
-                {/* 【沟通】 is one of the three things D-225 keeps on a progress
-                    record (沟通、备注、上传). */}
-                <div className="mt-3 flex justify-end">
-                  <RecordConversationButton
-                    kind="PROGRESS"
-                    recordId={row.id}
-                    reference={`${row.phase_name} / ${percent(row.percent_complete)}`}
-                  />
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-      {editingPhase && (
-        <PhaseDialog
-          project={project}
-          phase={editingPhase}
-          onClose={() => setEditingPhase(null)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["construction-phases"] });
-            setEditingPhase(null);
-          }}
-        />
-      )}
-      {addingPhase && (
-        <PhaseDialog
-          project={project}
-          onClose={() => setAddingPhase(false)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["construction-phases"] });
-            setAddingPhase(false);
-          }}
-        />
-      )}
-      {addingRecord && (
-        <ProgressDialog
-          project={project}
-          fieldTaskId={fieldTaskId}
-          onClose={() => setAddingRecord(false)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["site-progress"] });
-            void qc.invalidateQueries({ queryKey: ["site-progress-summary"] });
-            setAddingRecord(false);
-            onRecordSaved?.();
-          }}
-        />
-      )}
-    </div>
+    <ProgressDialog
+      project={initialProject}
+      fieldTaskId={fieldTaskId}
+      onClose={() => (onClose ?? onRecordSaved)?.()}
+      onSaved={() => {
+        void qc.invalidateQueries({ queryKey: ["site-progress"] });
+        void qc.invalidateQueries({ queryKey: ["site-progress-summary"] });
+        onRecordSaved?.();
+      }}
+    />
   );
 }
 
@@ -3739,6 +3475,9 @@ export function ProgressDialog({
   const t = useTranslations("contractorOps");
   const { user, can } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
+  // J40: the phone records photographs and a note only - no 施工分类, no
+  // percentage. The office sets both afterwards on the desktop.
+  const phoneForm = isFieldStaff;
   // F-282
   const [project, setProject] = useDraftState("project", initialProject);
   const [phase, setPhase] = useDraftState("phase", "");
@@ -3762,18 +3501,17 @@ export function ProgressDialog({
   const phases = useQuery({
     queryKey: ["construction-phases", project],
     queryFn: () => getConstructionPhases({ project, page_size: 200 }),
-    enabled: !!project,
+    enabled: !!project && !phoneForm,
   });
   const options = phases.data?.results ?? [];
-  // 「＋新增施工分类」 in the dropdown itself (H14, HD3).
+  // 「＋新增施工分类」 in the dropdown itself (H14, HD3); the desktop only.
   const [addingPhase, setAddingPhase] = useState(false);
   const save = useMutation({
     mutationFn: () => {
       if (!user) throw new Error("Authentication required.");
       return submitSiteProgressOfflineAware(user.id, {
         project,
-        phase,
-        percent_complete: percent,
+        ...(phoneForm ? {} : { phase, percent_complete: percent }),
         description,
         captured_at: new Date().toISOString(),
         latitude: location?.latitude,
@@ -3797,7 +3535,9 @@ export function ProgressDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t("progress.recordTitle")}</DialogTitle>
-          <DialogDescription>{t("progress.recordHelp")}</DialogDescription>
+          <DialogDescription>
+            {phoneForm ? t("progress.recordHelpPhone") : t("progress.recordHelp")}
+          </DialogDescription>
         </DialogHeader>
         <FieldWrapper label={t("field.project")} required>
           <ProjectPicker
@@ -3809,6 +3549,7 @@ export function ProgressDialog({
             placeholder={t("field.selectProject")}
           />
         </FieldWrapper>
+        {!phoneForm && (
         <FieldWrapper
           label={t("field.phase")}
           required
@@ -3844,7 +3585,9 @@ export function ProgressDialog({
           </Select>
           <QueryFailedNote query={phases} what={t("what.phases")} />
         </FieldWrapper>
+        )}
         {/* Optional, no star (H5/H11, HD2): 「百分比可以保留，但是不一定要填」. */}
+        {!phoneForm && (
         <FieldWrapper label={t("field.percentComplete")}>
           <Input
             type="number"
@@ -3855,6 +3598,7 @@ export function ProgressDialog({
             onChange={(e) => setPercent(e.target.value)}
           />
         </FieldWrapper>
+        )}
         <FieldWrapper label={t("field.photos")} required>
           {isFieldStaff ? (
             // The four subjects are suggestions now (HD2, as Q19): one
@@ -3899,7 +3643,7 @@ export function ProgressDialog({
             {error}
           </p>
         )}
-        {addingPhase && (
+        {addingPhase && !phoneForm && (
           <NewPhaseDialog
             project={project}
             onClose={() => setAddingPhase(false)}
@@ -3916,7 +3660,7 @@ export function ProgressDialog({
           <Button
             requires={[
               [project, t("field.project")],
-              [phase, t("field.phase")],
+              [phoneForm || phase, t("field.phase")],
               // One photograph, on the phone too (HD2); no percentage needed.
               [submissionPhotos.length >= 1, t("field.photos")],
               [location, t("field.location")],
@@ -4356,7 +4100,9 @@ export function OutgoingDialog({
   );
   const specs = offeredSpecs(selected, form.spec_category ?? "");
   const specPick = specChoice(selected, form.spec_category ?? "");
-  const specRequired = specs.length > 0;
+  // 规格 is offered, never required (J39, Lucas 10-22): one left empty, or
+  // 「其他」 with nothing typed, is 「待补规格」 and the office fills it in.
+  const specOffered = specs.length > 0;
   // 「其他材料」 (J14-3, 只能从分类管理下拉选): the one material typed by name.
   const typedMaterial = isOtherMaterial(selected);
   const unitLocked = specPick.unitLocked || (!specPick.typed && fill.unitLocked);
@@ -4481,8 +4227,8 @@ export function OutgoingDialog({
             </FieldWrapper>
           )}
           {/* 规格 (I19, ID46): the unit comes with it; 「其他」 is typed. */}
-          {form.category && specRequired && (
-            <FieldWrapper label={t("outgoing.spec")} required={specRequired}>
+          {form.category && specOffered && (
+            <FieldWrapper label={t("outgoing.spec")} hint={t("outgoing.specOptionalHint")}>
               <Select
                 value={form.spec_category || undefined}
                 onValueChange={(next) => setForm((old) => ({ ...old, spec_category: next, material_specification: "" }))}
@@ -4501,7 +4247,7 @@ export function OutgoingDialog({
             </FieldWrapper>
           )}
           {specPick.typed && (
-            <FieldWrapper label={t("outgoing.specName")} required={specPick.typed}>
+            <FieldWrapper label={t("outgoing.specName")}>
               <Input
                 value={form.material_specification ?? ""}
                 maxLength={200}
@@ -4627,8 +4373,6 @@ export function OutgoingDialog({
               [project, t("field.project")],
               [form.category, t("outgoing.material")],
               [!typedMaterial || (form.material_name ?? "").trim(), t("outgoing.materialName")],
-              [!specRequired || form.spec_category, t("outgoing.spec")],
-              [!specPick.typed || (form.material_specification ?? "").trim(), t("outgoing.specName")],
               [unit, t("field.unit")],
               [Number(form.quantity) > 0, t("outgoing.returnQuantity")],
               [isFieldStaff || form.executor_name, t("field.executor")],
@@ -4721,8 +4465,9 @@ export function RejectOutgoingDialog({
  * The material actually leaving, on the same record (2026-10 C9, F3).
  *
  * After approval (已批准 / 等待退场): photographs of what leaves, the
- * material as it left, how much actually went, the lorry's plate and the DO,
- * the supplier (scanned if possible) and both signatures - the site person's
+ * material as it left, how much actually went, the lorry's plate (no DO since
+ * J38-2: a return goes on its RN), the supplier (scanned if possible) and
+ * both signatures - the site person's
  * and the supplier's or driver's. It then waits for the office's
  * confirmation (待后台确认); only that takes it off the net quantity (Q4).
  *
@@ -4812,10 +4557,6 @@ function ExitForm({
     String(Number(record.return_note_quantity ?? record.quantity ?? 0) || ""),
   );
   const [plate, setPlate] = useDraftState(draft("plate"), record.vehicle_plate ?? "");
-  const [doNo, setDoNo] = useDraftState(
-    draft("doNo"),
-    record.delivery_note_no || record.return_note_delivery_note_no || "",
-  );
   const [supplier, setSupplier] = useDraftState(draft("supplier"), record.supplier ?? "");
   const [siteSignature, setSiteSignature] = useDraftState<File | undefined>(draft("siteSignature"));
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>(draft("supplierSignature"));
@@ -4858,7 +4599,7 @@ function ExitForm({
         site_signature: siteSignature as File,
         supplier_signature: supplierSignature as File,
         vehicle_plate: plate.trim() || undefined,
-        delivery_note_no: doNo.trim() || undefined,
+        // No DO on a return (J38-2, the client 10-22): it goes on its RN.
         supplier: supplier || undefined,
         category: category && category !== record.category ? category : undefined,
         client_event_id: eventId,
@@ -4921,9 +4662,6 @@ function ExitForm({
         </FieldWrapper>
         <FieldWrapper label={t("field.vehiclePlate")}>
           <Input value={plate} onChange={(event) => setPlate(event.target.value.toUpperCase())} />
-        </FieldWrapper>
-        <FieldWrapper label={t("field.deliveryNote")} className="sm:col-span-2">
-          <Input value={doNo} onChange={(event) => setDoNo(event.target.value)} />
         </FieldWrapper>
       </div>
       <OutgoingSupplierField value={supplier} onChange={(next) => setSupplier(next)} />

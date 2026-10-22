@@ -91,6 +91,19 @@ export interface MaterialCatalogue {
   can_manage_categories: boolean;
 }
 
+/** One material of a request (J35). */
+export interface MaterialRequestLine {
+  id: string | null;
+  position: number;
+  category: string | null;
+  category_code: string | null;
+  spec_category: string | null;
+  material_name: string;
+  specification: string;
+  quantity: string | null;
+  unit: string;
+}
+
 export interface MaterialRequest extends RecordedBy {
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
@@ -113,6 +126,9 @@ export interface MaterialRequest extends RecordedBy {
   spec_category: string | null;
   /** 材料编号 (I19-15): the linked category's code; null for a request with no material. */
   category_code?: string | null;
+  /** 「N 种材料」 and each material, line 1 first (J35). */
+  line_count?: number;
+  lines?: MaterialRequestLine[];
   status: MaterialRequestStatus;
   project: string;
   project_name: string;
@@ -181,6 +197,8 @@ export interface MaterialRequestDraft {
   /** Whose make, suggested (2026-10 D1); the approver settles it. */
   manufacturer?: string;
   client_event_id?: string;
+  /** Several materials (J35, desktop 「+ 增加材料」): the lines as JSON. */
+  lines?: string;
   attachments: File[];
 }
 

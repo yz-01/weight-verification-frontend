@@ -479,6 +479,8 @@ export interface MaterialNetTotalRow {
   supplier_return_count?: number;
   material_name: string;
   material_specification: string;
+  /** 「未填规格」 (J39): no specification on a material that has them. */
+  needs_spec?: boolean;
   unit: string;
   received: string;
   rejected: string;
@@ -575,21 +577,10 @@ export function getSupplierReturns(
 }
 
 /** Net per project, material, specification and unit (B09). */
-/** 「该材料小计」 (J5-2): one supplier's one material, in one unit. */
-export interface MaterialNetSubtotal {
-  supplier: string;
-  supplier_name: string;
-  material_name: string;
-  unit: string;
-  received: string;
-  returned: string;
-  deliveries: number;
-}
-
 export function getReceiptNetTotals(
   query: ListQuery,
-): Promise<{ results: MaterialNetTotalRow[]; subtotals?: MaterialNetSubtotal[] }> {
-  return api.get<{ results: MaterialNetTotalRow[]; subtotals?: MaterialNetSubtotal[] }>(
+): Promise<{ results: MaterialNetTotalRow[] }> {
+  return api.get<{ results: MaterialNetTotalRow[] }>(
     "/api/receipts/get_net_totals/",
     query,
   );
@@ -734,6 +725,21 @@ export async function correctReceipt(
     `/api/receipts/${id}/correct_receipt/`,
     payload,
   );
+  toastSuccess("receipts.toast.corrected");
+  return receipt;
+}
+
+/**
+ * 「+ 增加材料」 (J35): the delivery's materials, saved as a whole - a line with
+ * its id is that line, one without is new, a stored line left out is removed.
+ * A specification or unit alone needs no PIN; anything else is signed (the
+ * sign-off dialog opens on the server's request) and kept in the history.
+ */
+export async function saveReceiptLines(
+  id: string,
+  payload: { lines: unknown[]; reason: string; client_event_id?: string },
+): Promise<MaterialReceiptDetail> {
+  const receipt = await api.post<MaterialReceiptDetail>(`/api/receipts/${id}/save_receipt_lines/`, payload);
   toastSuccess("receipts.toast.corrected");
   return receipt;
 }

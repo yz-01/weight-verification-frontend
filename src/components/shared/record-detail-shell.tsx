@@ -181,11 +181,23 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
  * reader checks first, with what it is and when it was taken over its corner.
  * The rest stay small beside it.
  *
- * `fromThumbnail`: drawn from the thumbnail - the phone field app, where the
- * full photo loads only when it is opened (client 2026-10-09 二.4, 五.3). The
- * office keeps the full photo here: a 400 px picture across a desktop panel
- * would be softer than before.
+ * A square (J44, Lucas 10-22): a portrait photo in a frame of its own shape
+ * was a narrow strip down the panel. The square is filled (cut to fit); the
+ * whole photograph is one press away in the viewer. It is drawn from the
+ * large photograph, never the 400 px thumbnail stretched over it.
+ *
+ * `fromThumbnail`: the phone field app (client 2026-10-09 二.4, 五.3) names
+ * the thumbnail first and offers the large photo beside it (`srcset`), so a
+ * sharp screen takes the large one and a plain one need not.
  */
+export function heroSources(photo: ShellPhoto, fromThumbnail: boolean): { src: string; srcSet?: string } {
+  const full = photo.url || photo.thumbnailUrl || "";
+  if (fromThumbnail && photo.thumbnailUrl && photo.url && photo.thumbnailUrl !== photo.url) {
+    return { src: photo.thumbnailUrl, srcSet: `${photo.thumbnailUrl} 400w, ${photo.url} 1600w` };
+  }
+  return { src: full };
+}
+
 function ShellHeroPhoto({
   photo,
   onOpen,
@@ -196,31 +208,23 @@ function ShellHeroPhoto({
   fromThumbnail: boolean;
 }) {
   const df = useDateFormat();
-  const src = (fromThumbnail && photo.thumbnailUrl) || photo.url;
-  // Its own shape once loaded (J34-1 point 3, 图 2): a portrait photo is a
-  // portrait frame up to 28rem tall, not a 16:9 crop with bands.
-  const [shape, setShape] = useState<(Size & { src: string }) | null>(null);
-  const size = shape && shape.src === src ? shape : LOADING_SHAPE;
+  const { src, srcSet } = heroSources(photo, fromThumbnail);
   return (
     <button
       type="button"
       title={photo.label}
       onClick={onOpen}
       data-shell-hero
-      style={{ aspectRatio: `${size.width} / ${size.height}`, width: photoFrameWidth(size, "28rem") }}
-      className="relative mx-auto block max-w-full overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
+      className="relative mx-auto block aspect-square w-full max-w-md overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element -- a srcset of two stored renditions, not a resized one */}
+      <img
         src={src}
+        srcSet={srcSet}
+        sizes="(min-width: 640px) 28rem, 100vw"
         alt={photo.label}
-        fill
-        sizes="(min-width: 1024px) 640px, 100vw"
-        className="object-cover"
-        unoptimized
-        onLoad={(event) => {
-          const { naturalWidth: width, naturalHeight: height } = event.currentTarget;
-          if (width > 0 && height > 0) setShape({ src, width, height });
-        }}
+        decoding="async"
+        className="absolute inset-0 size-full object-cover"
       />
       <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-overlay px-2 py-1 text-xs text-overlay-foreground">
         {photo.label}

@@ -156,11 +156,11 @@ describe("choosing 钢筋 on the phone (A4, D1, Q1)", () => {
 });
 
 /**
- * 2026-10-15 I23: the worker often does not know whose lorry it is, so the
- * supplier is optional - no star, 「未填供应商」 first and chosen - and the
- * office fills it in later.
+ * J39 (Lucas 2026-10-22) replaces I23 on the phone: 「车牌，数量，供应商，送货单
+ * 编号，双方签名」 - the supplier is required again, scanned or picked. The
+ * office's 「待补供应商」 stays for deliveries filed before.
  */
-describe("the supplier on the phone (I23)", () => {
+describe("the supplier on the phone (J39)", () => {
   beforeEach(() => {
     for (const key of Object.keys(drafts)) delete drafts[key];
   });
@@ -168,20 +168,21 @@ describe("the supplier on the phone (I23)", () => {
   const openColumn = () =>
     steel({ supplier_options: [], suppliers: [], manufacturer_options: [], manufacturers: [] });
 
-  it("has no star and does not hold 提交 back when it is left 「未填供应商」", () => {
+  it("holds 提交 back until a supplier is scanned or picked, and offers no 「未填供应商」", () => {
     const html = render(openColumn(), { supplier: "" });
-    expect(html).not.toMatch(/供应商<span class="[^"]*text-destructive[^"]*">\*<\/span>/);
-    expect(html).toContain("不确定是哪家就不用选，后台会补上。");
-    // 提交 is the last button asking for fields: the signatures and the
-    // photographs are still asked for there; the supplier is not.
+    expect(html).toContain("扫供应商二维码或从名单选。");
+    expect(html).not.toContain("不确定是哪家就不用选，后台会补上。");
+    // 提交 is the last button asking for fields.
     const missing = [...html.matchAll(/title="还差这些没填：([^"]*)"/g)].at(-1)?.[1] ?? "";
+    expect(missing.split("、")).toContain("供应商");
     expect(missing.split("、")).toContain("供应商签名");
-    expect(missing.split("、")).not.toContain("供应商");
   });
 
-  it("shows the supplier's own hint, not the unfilled one, once a real supplier is chosen", () => {
+  it("no longer asks for it once a supplier is chosen", () => {
     const html = render(openColumn(), { supplier: SUPPLIER_A.id });
-    expect(html).not.toContain("不确定是哪家就不用选，后台会补上。");
+    expect(html).not.toContain("扫供应商二维码或从名单选。");
+    const missing = [...html.matchAll(/title="还差这些没填：([^"]*)"/g)].at(-1)?.[1] ?? "";
+    expect(missing.split("、")).not.toContain("供应商");
   });
 });
 
@@ -204,10 +205,11 @@ describe("the specification on the phone (I19, ID46)", () => {
       ],
     });
 
-  it("asks for the specification, and the material name is not typed", () => {
+  it("offers the specification but never holds 提交 back for it (J39)", () => {
     const html = render(withSpecs(), { supplier: SUPPLIER_A.id });
     expect(html).toContain("选择规格");
-    expect(html).toMatch(/还差这些没填：[^<"]*规格/);
+    expect(html).toContain("不知道规格可以不选，后台会补上。");
+    expect(html).not.toMatch(/还差这些没填：[^<"]*规格/);
   });
 
   it("takes the unit from the chosen specification", () => {
@@ -217,9 +219,11 @@ describe("the specification on the phone (I19, ID46)", () => {
     expect(html).not.toMatch(/还差这些没填：[^<"]*规格/);
   });
 
-  it("types the specification when it is 「其他」", () => {
+  it("offers 规格名称 under 「其他」, and leaving it empty does not hold 提交 back (J39)", () => {
     const html = render(withSpecs(), { supplier: SUPPLIER_A.id, specCategory: "other" });
     expect(html).toContain("规格名称");
-    expect(html).toMatch(/还差这些没填：[^<"]*规格名称/);
+    expect(html).not.toMatch(/还差这些没填：[^<"]*规格名称/);
+    // The other fields are still asked for.
+    expect(html).toMatch(/还差这些没填：[^<"]*车牌/);
   });
 });

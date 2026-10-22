@@ -1495,6 +1495,12 @@ function ColumnRecordsDialog({
                         {hasQuantity && (
                           <TableCell className="whitespace-nowrap text-right font-medium tabular-nums">
                             {row.quantity ? `${row.quantity} ${unitName(row.unit ?? "")}` : "—"}
+                            {/* A DO of several materials (J35): this column's line, and how many. */}
+                            {(row.line_count ?? 1) > 1 && (
+                              <span className="block text-2xs font-normal text-muted-foreground">
+                                {root("materialLines.count", { count: row.line_count ?? 1 })}
+                              </span>
+                            )}
                           </TableCell>
                         )}
                         <TableCell>

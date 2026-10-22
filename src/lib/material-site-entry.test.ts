@@ -71,8 +71,9 @@ describe("the phone's material form", () => {
     expect(details).toMatch(/t\("material\.additionalDetails"\)/);
     expect(details).not.toMatch(/t\("material\.specification"\)/);
     expect(details).toMatch(/t\("material\.totalWeightKg"\)/);
-    // Chosen from the material's specifications, with 「其他」 typed (ID46).
-    expect(body).toMatch(/label=\{t\("material\.spec"\)\} required=\{specRequired\}/);
+    // Chosen from the material's specifications, with 「其他」 typed (ID46) -
+    // offered, never required (J39): no star, a hint instead.
+    expect(body).toMatch(/label=\{t\("material\.spec"\)\} hint=\{t\("material\.specOptionalHint"\)\}/);
     expect(details).not.toMatch(/material\.vehicle|material\.doNo|FieldSignaturePad/);
   });
 

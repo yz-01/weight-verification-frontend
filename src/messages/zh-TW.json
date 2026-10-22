@@ -6140,7 +6140,7 @@
       "waitingForSite": "已批准 / 等待退場：等待現場實際退場並雙方簽名。",
       "finalConfirm": "確認退場完成",
       "waitingForOffice": "現場已退場，待後台確認。",
-      "returnHelp": "{reference} 已批准。材料實際退場時：拍照，填寫實際退回數量、車牌和 DO 號，確認供應商（可掃碼），現場人員與供應商 / 司機雙方簽名。提交後等待後台確認。",
+      "returnHelp": "{reference} 已批准。材料實際退場時：拍照，填寫實際退回數量、車牌，確認供應商（可掃碼），現場人員與供應商 / 司機雙方簽名。提交後等待後台確認。",
       "processingPhotos": "出場時的照片",
       "processingNote": "現場處理說明",
       "processingLocation": "定位",
@@ -6183,6 +6183,7 @@
       "noSupplier": "不填",
       "spec": "規格",
       "chooseSpec": "選擇規格",
+      "specOptionalHint": "不知道規格可以不選，後台會補上。",
       "specName": "規格名稱",
       "materialName": "材料名稱"
     },
@@ -6213,6 +6214,8 @@
       "phaseHelp": "建立用於整理和確認工程進度的施工分類。",
       "phaseTitle": "施工分類",
       "recordHelp": "拍至少 1 張現場照片，選施工分類，可以寫備註，然後提交。完成比例可以不填。",
+      "recordHelpPhone": "拍至少 1 張現場照片，可以寫備註，然後提交。",
+      "unclassified": "待歸類",
       "recordTitle": "新增進度證據",
       "returnPrompt": "請說明需要更正後再提交的內容。",
       "saveError": "工程進度保存失敗，請檢查項目、施工分類、照片和 GPS 後重試。",
@@ -6414,7 +6417,7 @@
       "title": "Return Note",
       "fill": "填寫 Return Note",
       "edit": "修改 Return Note",
-      "help": "批准前先填寫 Return Note：材料、DO 號、供應商、數量、退回原因，以及批准人姓名和簽名。",
+      "help": "批准前先填寫 Return Note：材料、供應商、數量、退回原因，以及批准人姓名和簽名。",
       "number": "Return Note 編號",
       "numberPending": "保存後自動編號",
       "date": "日期",
@@ -6433,7 +6436,7 @@
       "needNoteFirst": "先填寫 Return Note",
       "filledBy": "填寫人",
       "machine": "設備",
-      "helpMachine": "批准前先填寫 Return Note：設備、DO 號、供應商、數量、退回原因，以及批准人姓名和簽名。"
+      "helpMachine": "批准前先填寫 Return Note：設備、供應商、數量、退回原因，以及批准人姓名和簽名。"
     },
     "progressEvidenceSuggested": "已拍攝 {current} 張。至少拍 1 張；下面 4 張是建議拍的，也可以繼續新增其他照片。",
     "equipmentExit": {
@@ -6458,7 +6461,7 @@
       "applyQueued": "退場申請已暫存，等待上傳",
       "handover": "實際退場",
       "handoverTitle": "{name} 實際退場",
-      "handoverHelp": "已批准退場：掃這台設備的二維碼，拍照、填 DO、雙方簽名，提交後由後台確認。",
+      "handoverHelp": "已批准退場：掃這台設備的二維碼，拍照、填運輸車輛車牌、雙方簽名，提交後由後台確認。",
       "handoverSubmit": "提交退場",
       "handoverFailed": "退場沒有提交成功，請再試一次。",
       "handoverQueued": "這台設備的退場已暫存，等待上傳。",
@@ -6477,9 +6480,10 @@
       "typedNotScanned": "現場沒有掃二維碼，設備號碼是手動輸入的。",
       "scanAgain": "重掃",
       "scanWrongMachine": "掃到的不是批准退場的設備（{name}），請掃這台設備的二維碼。",
-      "photosHint": "至少 {min} 張（含 DO 照片）。",
+      "photosHint": "至少 {min} 張。",
       "deliveryNoteHint": "填 DO 號碼（拍了 DO 會自動讀出）。",
       "supplierHint": "有供應商二維碼就掃，沒有可以不掃。",
+      "supplierFromMachine": "供應商（從設備帶出）",
       "supplierPick": "或從名單選供應商",
       "signatureHint": "交接時由本人簽名。",
       "locationHint": "打開時自動獲取定位。",
@@ -8214,7 +8218,8 @@
       "permission_switches_unknown_permission": "其中一個權限不存在。",
       "permission_switches_unknown_project": "請選擇本公司的項目。",
       "permission_switches_self_lockout": "不能關掉自己的「用戶管理」。",
-      "permission_switches_last_user_manager": "公司裡至少要有一個人保留「用戶管理」。"
+      "permission_switches_last_user_manager": "公司裡至少要有一個人保留「用戶管理」。",
+      "receipt_line_returned": "這項材料已有退貨記錄，不能刪除。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8788,10 +8793,12 @@
       "chooseColumnFirst": "請先選分類",
       "noSupplier": "未填供應商",
       "noSupplierHint": "不確定是哪家就不用選，後台會補上。",
+      "supplierRequiredHint": "掃供應商二維碼或從名單選。",
       "spec": "規格",
       "chooseSpec": "選擇規格",
       "specName": "規格名稱",
       "specNameHint": "名單裡沒有的規格，選「其他」在這裡填寫。",
+      "specOptionalHint": "不知道規格可以不選，後台會補上。",
       "autoFilledFromSpec": "隨規格帶出",
       "otherName": "材料名稱",
       "otherNameHint": "名單裡沒有的材料，選「其他材料」在這裡填寫；辦公室會在分類管理加進名單。"
@@ -9957,6 +9964,17 @@
     }
   },
   "materialReports": {
+    "view": {
+      "label": "類型",
+      "normal": "正常材料",
+      "rejected": "不合格材料",
+      "returns": "材料退場 / 退貨"
+    },
+    "cards": {
+      "rejected": "不合格",
+      "returns": "退貨",
+      "times": "{count} 次"
+    },
     "cost": {
       "byMaterial": "按材料統計成本",
       "bySupplier": "按供應商統計成本",
@@ -9974,6 +9992,10 @@
       "cumulativeTitle": "累計總數量"
     },
     "quantity": {
+      "totalRejected": "不合格總次數",
+      "totalReturns": "退貨總次數",
+      "rejectedHint": "只統計不合格的數量，按材料和規格分開。不計入正常材料累計。",
+      "returnsHint": "只統計實際退場的數量，按材料和規格分開。不扣減原始收貨累計。",
       "byMaterial": "按材料統計數量",
       "deliveryCount": "{count} 次收貨",
       "subtitle": "按單位統計收貨數量，不混合不同計量單位。",
@@ -9983,6 +10005,14 @@
       "cumulativeHint": "累計數量 = 右邊收貨次數那幾筆相加（選了日期就是該期間；沒選日期就是從第一筆起）。不合格不計，退場不扣。"
     },
     "records": {
+      "rejectedTitle": "不合格明細（{total}）",
+      "returnsTitle": "退貨明細（{total}）",
+      "returnsWhat": "這份報表的退貨記錄",
+      "reason": "原因",
+      "returnNo": "退貨單號",
+      "returnedAt": "退場日期",
+      "sourceReceipt": "原收貨單",
+      "returnedQuantity": "退貨數量",
       "title": "收貨明細（{total}）",
       "what": "此報表的相關記錄",
       "photos": "相關照片",
@@ -10929,6 +10959,7 @@
       "site": "回收廠",
       "specification": "規格",
       "supplier": "供應商",
+      "supplier_from_machine": "供應商（從設備帶出）",
       "task_type": "類型",
       "title": "事件",
       "vehicle_plate": "車輛",
@@ -11041,7 +11072,8 @@
       "entry_at": "進場時間",
       "exit_at": "退場時間",
       "request_kind": "申請類型",
-      "pdpa_consent": "個人資料告知"
+      "pdpa_consent": "個人資料告知",
+      "material_lines": "材料明細"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -13104,6 +13136,8 @@
       "SUCCEEDED": "已讀取"
     },
     "editNote": "數量和單價可以更正。項目、送貨單和記錄時間不可更改，它們正是這條記錄要證明的事。",
+    "specPendingHint": "現場沒填規格：打開這筆記錄補上，只改規格不用簽核密碼。",
+    "specPending": "待補規格",
     "editTitle": "更正材料進場記錄",
     "field": {
       "category": "分類",
@@ -13261,6 +13295,7 @@
         "quantity": "數量"
       },
       "returnTag": "有退貨資料",
+      "noSpec": "未填規格",
       "returnTagHint": "這一行有 {count} 筆已完成的退場，點開查看",
       "openNumber": "查看{label} {value} 是哪些記錄",
       "breakdown": {
@@ -13282,8 +13317,7 @@
         "legacyReturn": "10-02 前在進場單上登記的退場",
         "project": "項目"
       },
-      "searchSpec": "規格",
-      "subtotal": "{material} 小計"
+      "searchSpec": "規格"
     },
     "exportVerdict": "驗收結果",
     "rejectedReturns": "不合格退貨",
@@ -17398,7 +17432,10 @@
       "material_specification": "規格（自填）",
       "equipment": "設備",
       "start_at": "開始時間",
-      "end_at": "結束時間"
+      "end_at": "結束時間",
+      "material_line": "材料明細",
+      "unit_price": "單價",
+      "spec_category": "規格"
     },
     "followsSpec": "單位跟著規格，不能改"
   },
@@ -17816,7 +17853,8 @@
       "stage": "進度",
       "forwardHistory": "轉呈記錄",
       "headOfficeReviewer": "總部審批人",
-      "materialName": "材料名稱"
+      "materialName": "材料名稱",
+      "materials": "材料明細"
     },
     "action": {
       "view": "查看",
@@ -17961,6 +17999,52 @@
     },
     "forwarded": "{by} 於 {at} 轉呈總部",
     "managerHelp": "現場人員交給你的申請：確認後選總部審批人，按「提交總部審批」；不對就退回。"
+  },
+  "materialLines": {
+    "title": "材料明細",
+    "count": "{count} 種材料",
+    "line": "材料 {n}",
+    "firstLine": "本單原有的材料",
+    "firstLineInForm": "在上面的表格修改",
+    "remove": "刪除材料 {n}",
+    "removeShort": "刪除",
+    "material": "材料",
+    "specification": "規格",
+    "materialName": "材料名稱",
+    "specificationName": "規格名稱",
+    "quantity": "數量",
+    "unit": "單位",
+    "unitPrice": "單價",
+    "amount": "金額",
+    "amountHint": "這項材料在 DO 上的金額",
+    "optional": "選填",
+    "chooseMaterial": "選擇材料",
+    "chooseSpecification": "選擇規格",
+    "materialFirst": "先選材料",
+    "chooseUnit": "選擇單位",
+    "search": "搜尋",
+    "notSetUp": "該材料尚未建立，請先到分類管理設定。",
+    "noSpecifications": "這個材料沒有規格",
+    "goToCategories": "前往分類管理",
+    "otherMaterialHint": "輸入材料名稱",
+    "otherSpecHint": "輸入規格名稱",
+    "quantityRule": "大於 0，最多三位小數",
+    "unitFromSpec": "單位跟著規格，不能改",
+    "needed": "請填寫",
+    "materialData": "材料資料",
+    "add": "增加材料",
+    "edit": "修改材料明細",
+    "save": "儲存材料明細",
+    "saveFailed": "儲存失敗，請再試一次。",
+    "reason": "修改原因",
+    "dialogTitle": "{reference} · 材料明細",
+    "dialogHelp": "一張 DO 可以有多種材料。每種材料各自選材料、規格、單位，填數量，各自進對應的分類和累計。第 1 項是這張單原有的材料，可以改，不能刪。",
+    "pinNote": "只改規格或單位不用簽核密碼；改材料、數量、單價、金額，或增加、刪除材料，要簽核密碼，並留修改記錄。",
+    "moneyOnFirst": "這張 DO 的金額算在第 1 項材料。要分開算，給每項材料填金額。",
+    "moneyPerLine": "已有材料填了金額：只算各項填的金額，沒填金額的那項不算進花費。",
+    "correctionNote": "這張單有 {count} 種材料。這裡改第 1 項；其他材料用「增加材料」加、改、刪。",
+    "correctionNoteOne": "這張 DO 有多種材料？用「增加材料」加上去，各自歸檔。",
+    "requestHint": "一張申請可以有多種材料，整張一起審批。"
   },
   "filePreview": {
     "unsupported": "{ext} 檔案不能在頁面裡預覽，請按「下載查看」。",
@@ -18539,6 +18623,21 @@
       "save": "保存",
       "failed": "保存沒有成功，請再試一次。",
       "current": "{name} 於 {at} 設定"
+    },
+    "records": {
+      "what": "記錄",
+      "driverHint": "最近 {days} 天，只能查看。",
+      "monthTotals": "本月合計",
+      "staffTitle": "最近記錄",
+      "staffHint": "本專案最近 {days} 天。",
+      "recentTotals": "所列日期合計",
+      "normal": "正常",
+      "overtime": "超時",
+      "total": "總工時",
+      "start": "開工",
+      "end": "收工",
+      "running": "未收工",
+      "empty": "還沒有記錄。"
     }
   },
   "theme": {
@@ -19294,6 +19393,10 @@
       "lastUsed": "最近使用 {at}",
       "failed": "保存沒有成功，請再試一次。",
       "chooseProject": "先在頁面上方選一個項目，才能新增連結。"
+    },
+    "tabs": {
+      "clock": "開工 / 收工",
+      "records": "我的記錄"
     }
   },
   "projectReference": {

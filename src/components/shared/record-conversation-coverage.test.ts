@@ -21,7 +21,9 @@ const SCREENS: Array<[string, string]> = [
   // office list's movement detail is where they are read and talked about.
   // The worker's own movements keep theirs under 我的提交 (my-submissions).
   ["src/components/contractor-ops/office-module-lists.tsx", "EQUIPMENT_MOVEMENT"],
-  ["src/components/contractor-ops/operations-workspaces.tsx", "PROGRESS"],
+  // The phone's progress list is gone (J40): the office list's progress
+  // detail is where a record is talked about.
+  ["src/components/contractor-ops/office-module-lists.tsx", "PROGRESS"],
   ["src/components/contractor-ops/waste-outgoing-workspace.tsx", "WASTE_OUTGOING"],
   ["src/components/contractor-ops/site-disposal-workspaces.tsx", "DISPOSAL_REQUEST"],
 ];

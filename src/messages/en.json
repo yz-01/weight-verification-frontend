@@ -6140,7 +6140,7 @@
       "waitingForSite": "Approved / waiting to leave site: the site records the exit with both signatures.",
       "finalConfirm": "Confirm the exit",
       "waitingForOffice": "The material has left. Waiting for the office to confirm.",
-      "returnHelp": "{reference} is approved. As the material actually leaves: take the photos, enter how much left, the lorry plate and the DO number, confirm the supplier (scan its code if you can), and both the site person and the supplier / driver sign. The office then confirms it.",
+      "returnHelp": "{reference} is approved. As the material actually leaves: take the photos, enter how much left, the lorry plate, confirm the supplier (scan its code if you can), and both the site person and the supplier / driver sign. The office then confirms it.",
       "processingPhotos": "Photos at the handover",
       "processingNote": "Note from site",
       "processingLocation": "Location",
@@ -6183,6 +6183,7 @@
       "noSupplier": "Not known",
       "spec": "Specification",
       "chooseSpec": "Choose the specification",
+      "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
       "specName": "Specification name",
       "materialName": "Material name"
     },
@@ -6213,6 +6214,8 @@
       "phaseHelp": "Create the construction categories used to organise progress.",
       "phaseTitle": "Construction category",
       "recordHelp": "Take at least one site photo, choose the construction category, add a note if you like, then submit. The percentage is optional.",
+      "recordHelpPhone": "Take at least 1 site photo, add a note if you like, then submit.",
+      "unclassified": "To be filed",
       "recordTitle": "New progress evidence",
       "returnPrompt": "Explain what must be corrected before this progress is resubmitted.",
       "saveError": "The progress record could not be saved. Check the project, construction category, photo and GPS, then try again.",
@@ -6414,7 +6417,7 @@
       "title": "Return Note",
       "fill": "Fill Return Note",
       "edit": "Edit Return Note",
-      "help": "Before approving, fill the Return Note: the material, DO number, supplier, quantity, reason, and the approver's name and signature.",
+      "help": "Before approving, fill the Return Note: the material, supplier, quantity, reason, and the approver's name and signature.",
       "number": "Return Note no.",
       "numberPending": "Numbered when saved",
       "date": "Date",
@@ -6433,7 +6436,7 @@
       "needNoteFirst": "Fill the Return Note first",
       "filledBy": "Filled by",
       "machine": "Machine",
-      "helpMachine": "Before approving, fill the Return Note: the machine, DO number, supplier, quantity, reason, and the approver's name and signature."
+      "helpMachine": "Before approving, fill the Return Note: the machine, supplier, quantity, reason, and the approver's name and signature."
     },
     "progressEvidenceSuggested": "{current} photo(s) taken. Take at least 1; the four below are suggestions, and more photos may be added.",
     "equipmentExit": {
@@ -6458,7 +6461,7 @@
       "applyQueued": "Exit application saved - waiting to upload",
       "handover": "Record the actual exit",
       "handoverTitle": "{name} leaving site",
-      "handoverHelp": "Approved to leave: scan this machine's QR code, take the photos, enter the DO and both sign. The office then confirms it.",
+      "handoverHelp": "Approved to leave: scan this machine's QR code, take the photos, enter the lorry's plate and both sign. The office then confirms it.",
       "handoverSubmit": "Submit the exit",
       "handoverFailed": "The exit did not go through. Please try again.",
       "handoverQueued": "This machine's exit is saved on the phone and waiting to upload.",
@@ -6477,9 +6480,10 @@
       "typedNotScanned": "The QR code was not scanned on site; the equipment number was typed.",
       "scanAgain": "Scan again",
       "scanWrongMachine": "That is not the machine approved to leave ({name}). Scan this machine's QR code.",
-      "photosHint": "At least {min} photos, the DO photo counted in.",
+      "photosHint": "At least {min} photos.",
       "deliveryNoteHint": "Enter the DO number (read for you from the DO photo).",
       "supplierHint": "Scan the supplier's QR code if there is one; it can be left out.",
+      "supplierFromMachine": "Supplier (from the machine)",
       "supplierPick": "Or choose from the list",
       "signatureHint": "Signed at the handover by this person.",
       "locationHint": "Taken automatically when the form opens.",
@@ -8214,7 +8218,8 @@
       "permission_switches_unknown_permission": "One of the permissions does not exist.",
       "permission_switches_unknown_project": "Choose projects of this company.",
       "permission_switches_self_lockout": "You cannot switch off your own user management.",
-      "permission_switches_last_user_manager": "Somebody in the company must keep user management."
+      "permission_switches_last_user_manager": "Somebody in the company must keep user management.",
+      "receipt_line_returned": "A return names this material, so it cannot be removed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8788,10 +8793,12 @@
       "chooseColumnFirst": "Choose the category first",
       "noSupplier": "Supplier not filled in",
       "noSupplierHint": "Not sure whose it is? Leave it - the office will fill it in.",
+      "supplierRequiredHint": "Scan the supplier's QR code or pick it from the list.",
       "spec": "Specification",
       "chooseSpec": "Choose the specification",
       "specName": "Specification name",
       "specNameHint": "Not on the list? Choose 「Other」 and type it here.",
+      "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
       "autoFilledFromSpec": "From the specification",
       "otherName": "Material name",
       "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here; the office adds it to the list."
@@ -9957,6 +9964,17 @@
     }
   },
   "materialReports": {
+    "view": {
+      "label": "Type",
+      "normal": "Normal material",
+      "rejected": "Rejected material",
+      "returns": "Material out / returns"
+    },
+    "cards": {
+      "rejected": "Rejected",
+      "returns": "Returns",
+      "times": "{count, plural, one {# time} other {# times}}"
+    },
     "cost": {
       "byMaterial": "Cost by material",
       "bySupplier": "Cost by supplier",
@@ -9974,6 +9992,10 @@
       "cumulativeTitle": "Cumulative totals"
     },
     "quantity": {
+      "totalRejected": "Total rejected",
+      "totalReturns": "Total returns",
+      "rejectedHint": "Quantity of rejected loads only, by material and specification. Not counted in the normal totals.",
+      "returnsHint": "Quantity actually returned only, by material and specification. Never taken off what was received.",
       "byMaterial": "Quantity by material",
       "deliveryCount": "{count, plural, one {# delivery} other {# deliveries}}",
       "subtitle": "Received quantities grouped without mixing incompatible units.",
@@ -9983,6 +10005,14 @@
       "cumulativeHint": "Cumulative quantity = the deliveries counted beside it, added up (the chosen period, or everything from the first delivery when no dates are set). Rejected loads never count and returns are not taken off."
     },
     "records": {
+      "rejectedTitle": "Rejected deliveries ({total})",
+      "returnsTitle": "Returns ({total})",
+      "returnsWhat": "the returns behind this report",
+      "reason": "Reason",
+      "returnNo": "Return note",
+      "returnedAt": "Returned on",
+      "sourceReceipt": "Delivery",
+      "returnedQuantity": "Returned quantity",
       "title": "Delivery details ({total})",
       "what": "the deliveries behind this report",
       "photos": "Photos",
@@ -10929,6 +10959,7 @@
       "site": "Yard",
       "specification": "Specification",
       "supplier": "Supplier",
+      "supplier_from_machine": "Supplier (from the machine)",
       "task_type": "Type",
       "title": "Event",
       "vehicle_plate": "Lorry",
@@ -11041,7 +11072,8 @@
       "entry_at": "Entry time",
       "exit_at": "Exit time",
       "request_kind": "Request type",
-      "pdpa_consent": "Personal data notice"
+      "pdpa_consent": "Personal data notice",
+      "material_lines": "Materials"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -13104,6 +13136,8 @@
       "SUCCEEDED": "Read"
     },
     "editNote": "The quantity and price can be corrected. The project, the docket and the recorded time cannot — they are what the receipt is evidence of.",
+    "specPendingHint": "The site left the specification empty: open the record and fill it in - no sign-off PIN needed for a spec alone.",
+    "specPending": "Spec to fill in",
     "editTitle": "Correct a receipt",
     "field": {
       "category": "Category",
@@ -13261,6 +13295,7 @@
         "quantity": "Quantity"
       },
       "returnTag": "Has return records",
+      "noSpec": "No spec yet",
       "returnTagHint": "This line has {count} completed returns - open to see them",
       "openNumber": "See the records behind {label} {value}",
       "breakdown": {
@@ -13282,8 +13317,7 @@
         "legacyReturn": "Return entered on a receipt before 10-02",
         "project": "Project"
       },
-      "searchSpec": "Specification",
-      "subtotal": "{material} subtotal"
+      "searchSpec": "Specification"
     },
     "exportVerdict": "Acceptance result",
     "rejectedReturns": "Rejected returns",
@@ -17398,7 +17432,10 @@
       "material_specification": "Specification (typed)",
       "equipment": "Machine",
       "start_at": "Start time",
-      "end_at": "End time"
+      "end_at": "End time",
+      "material_line": "Material",
+      "unit_price": "Unit price",
+      "spec_category": "Specification"
     },
     "followsSpec": "The unit follows the specification"
   },
@@ -17816,7 +17853,8 @@
       "stage": "Stage",
       "forwardHistory": "Sent on",
       "headOfficeReviewer": "Head office approver",
-      "materialName": "Material name"
+      "materialName": "Material name",
+      "materials": "Materials"
     },
     "action": {
       "view": "View",
@@ -17961,6 +17999,52 @@
     },
     "forwarded": "Sent to head office by {by} on {at}",
     "managerHelp": "A site request sent to you: choose who at head office approves it and press “Send to head office”, or return it."
+  },
+  "materialLines": {
+    "title": "Materials",
+    "count": "{count, plural, one {# material} other {# materials}}",
+    "line": "Material {n}",
+    "firstLine": "the delivery's own material",
+    "firstLineInForm": "change it in the form above",
+    "remove": "Remove material {n}",
+    "removeShort": "Remove",
+    "material": "Material",
+    "specification": "Specification",
+    "materialName": "Material name",
+    "specificationName": "Specification name",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "unitPrice": "Unit price",
+    "amount": "Amount",
+    "amountHint": "This material's amount on the DO",
+    "optional": "Optional",
+    "chooseMaterial": "Choose the material",
+    "chooseSpecification": "Choose the specification",
+    "materialFirst": "Choose the material first",
+    "chooseUnit": "Choose the unit",
+    "search": "Search",
+    "notSetUp": "This material is not set up yet. Set it up in Category Management first.",
+    "noSpecifications": "This material has no specifications",
+    "goToCategories": "Go to Category Management",
+    "otherMaterialHint": "Type the material name",
+    "otherSpecHint": "Type the specification",
+    "quantityRule": "Above 0, at most three decimals",
+    "unitFromSpec": "The unit comes with the specification",
+    "needed": "Fill this in",
+    "materialData": "material data",
+    "add": "Add material",
+    "edit": "Edit materials",
+    "save": "Save materials",
+    "saveFailed": "Could not save. Please try again.",
+    "reason": "Reason for the change",
+    "dialogTitle": "{reference} · Materials",
+    "dialogHelp": "One DO can carry several materials. Each one gets its own material, specification, unit and quantity, and counts in its own category and totals. Material 1 is the delivery's own: it can be changed, not removed.",
+    "pinNote": "A specification or unit alone needs no sign-off PIN. Changing a material, quantity, unit price or amount, or adding or removing a material, needs the PIN and is kept in the history.",
+    "moneyOnFirst": "The DO's amount counts under material 1. To split it, give each material its own amount.",
+    "moneyPerLine": "Some materials have an amount: only those amounts count, and a material left without one is not counted in the spending.",
+    "correctionNote": "This delivery has {count} materials. This form changes material 1; add, change or remove the others with \"Add material\".",
+    "correctionNoteOne": "Several materials on this DO? Add them with \"Add material\" and each is filed on its own.",
+    "requestHint": "One request can ask for several materials; it is approved as a whole."
   },
   "filePreview": {
     "unsupported": "{ext} files cannot be previewed here. Use Download to view.",
@@ -18539,6 +18623,21 @@
       "save": "Save",
       "failed": "Could not save. Please try again.",
       "current": "Set {at} by {name}"
+    },
+    "records": {
+      "what": "the records",
+      "driverHint": "Your last {days} days. Read only.",
+      "monthTotals": "This month",
+      "staffTitle": "Recent records",
+      "staffHint": "This project, last {days} days.",
+      "recentTotals": "Total of the days shown",
+      "normal": "Normal",
+      "overtime": "Overtime",
+      "total": "Total",
+      "start": "Start",
+      "end": "Stop",
+      "running": "Not stopped yet",
+      "empty": "No records yet."
     }
   },
   "theme": {
@@ -19294,6 +19393,10 @@
       "lastUsed": "Last used {at}",
       "failed": "Could not save. Please try again.",
       "chooseProject": "Choose a project at the top of the page to make a link."
+    },
+    "tabs": {
+      "clock": "Clock in / out",
+      "records": "My records"
     }
   },
   "projectReference": {
