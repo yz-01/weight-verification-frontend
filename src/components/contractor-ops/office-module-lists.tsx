@@ -35,6 +35,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { MaterialTabs } from "@/components/receipts/material-tabs";
+import { SpecCell } from "@/components/receipts/spec-pending-tag";
 import {
   EquipmentMovementActions,
   equipmentReturnNoteSource,
@@ -343,16 +344,13 @@ export function MaterialOutgoingOffice() {
         id: "material_specification",
         meta: { label: t("outgoing.specification") },
         header: () => <PlainHeader label={t("outgoing.specification")} />,
-        cell: ({ row }) => {
-          const spec = row.original.material_specification || row.original.spec_category_name || "";
-          return spec ? (
-            <span className="block max-w-40 truncate text-foreground" title={spec}>
-              {spec}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">—</span>
-          );
-        },
+        // 「待补规格」 when the phone sent none (J39).
+        cell: ({ row }) => (
+          <SpecCell
+            spec={row.original.material_specification || row.original.spec_category_name || ""}
+            needsSpec={row.original.needs_spec}
+          />
+        ),
       },
       {
         id: "quantity",
@@ -1491,14 +1489,21 @@ export function SiteEquipmentOffice() {
                   {tRoot("moduleTable.deliveryPanel")}
                 </h3>
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                  {/* An exit has no DO since J38-3; an old one still shows its own. */}
+                  {shownMovement.direction !== "EXIT" || shownMovement.delivery_note_no ? (
+                    <>
+                      <dt className="text-muted-foreground">
+                        {t("field.deliveryNote")}
+                      </dt>
+                      <dd className="break-words font-medium">
+                        {shownMovement.delivery_note_no || "—"}
+                      </dd>
+                    </>
+                  ) : null}
                   <dt className="text-muted-foreground">
-                    {t("field.deliveryNote")}
-                  </dt>
-                  <dd className="break-words font-medium">
-                    {shownMovement.delivery_note_no || "—"}
-                  </dd>
-                  <dt className="text-muted-foreground">
-                    {t("field.supplier")}
+                    {shownMovement.supplier_from_equipment
+                      ? t("equipmentExit.supplierFromMachine")
+                      : t("field.supplier")}
                   </dt>
                   <dd className="break-words font-medium">
                     {shownMovement.supplier_name || "—"}
@@ -1829,8 +1834,10 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
   const title = tRoot("nav.submodule.progressRecords");
   const noPhases =
     !!project && !phases.isLoading && !phases.isError && !phases.data?.count;
+  // 待归类 (J40): a record the phone sent without a 施工分类 reads by its
+  // record number until the office files it.
   const reference = (row: SiteProgressRecord) =>
-    `${row.phase_name} / ${percent(row.percent_complete)}`;
+    `${row.phase_name ?? row.record_no ?? t("progress.unclassified")} / ${percent(row.percent_complete)}`;
 
   const columns = useMemo<ColumnDef<SiteProgressRecord, unknown>[]>(
     () => [
@@ -1863,8 +1870,8 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
       photoColumn<SiteProgressRecord>({
         label: tRoot("moduleTable.photos"),
         icon: ChartNoAxesCombined,
-        reference: (row) => row.phase_name,
-        photos: (row) => rowPhotos(row.photos, row.phase_name, row),
+        reference: (row) => row.phase_name ?? row.record_no ?? "",
+        photos: (row) => rowPhotos(row.photos, row.phase_name ?? row.record_no ?? "", row),
       }),
       {
         id: "phase__name",
@@ -1873,7 +1880,10 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
         header: sortable(t("field.phase")),
         cell: ({ row }) => (
           <span className="inline-flex flex-wrap items-center gap-1.5 font-medium text-foreground">
-            {row.original.phase_name}
+            {/* 待归类 (J40): the office files it from 【改正】 in the detail. */}
+            {row.original.phase_name ?? (
+              <StatusBadge label={t("progress.unclassified")} tone="warning" />
+            )}
           </span>
         ),
       },
@@ -2121,7 +2131,12 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                 ),
               },
               { label: t("field.project"), value: shown.project_name },
-              { label: t("field.phase"), value: shown.phase_name },
+              {
+                label: t("field.phase"),
+                value: shown.phase_name ?? (
+                  <StatusBadge label={t("progress.unclassified")} tone="warning" />
+                ),
+              },
               {
                 label: t("field.percentComplete"),
                 // The office corrects the figure in place (2026-10-09).

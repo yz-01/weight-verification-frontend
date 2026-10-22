@@ -256,8 +256,9 @@ export interface SiteProgressOfflineJob extends OfflineJobBase {
   payload: {
     project: string;
     category?: string;
-    phase: string;
-    percent_complete: string;
+    /** Left out by the phone (J40): the office files the record. */
+    phase?: string;
+    percent_complete?: string;
     description?: string;
     captured_at: string;
     latitude?: string;

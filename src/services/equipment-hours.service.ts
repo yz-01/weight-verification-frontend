@@ -8,6 +8,8 @@ import type {
   EquipmentHoursSession,
   EquipmentHoursSessions,
   EquipmentHoursUpload,
+  EquipmentPhoneRecord,
+  EquipmentPhoneTotals,
   EquipmentPhotoKind,
   EquipmentSessionOperatorPayload,
 } from "@/interfaces/equipment-hours";
@@ -40,6 +42,17 @@ export interface EquipmentHoursPhotoUpload {
 }
 
 /** The site's working machines: number, name, plate, supplier (no categories, F3). */
+/** The field staff's phone list (J37-2): the project's last days, with 正常 / 超时 / 总工时. */
+export interface EquipmentPhoneRecords {
+  days: number;
+  rows: EquipmentPhoneRecord[];
+  totals: EquipmentPhoneTotals;
+}
+
+export function getEquipmentPhoneRecords(project: string): Promise<EquipmentPhoneRecords> {
+  return api.get<EquipmentPhoneRecords>("/api/equipment-hours/phone_records/", { project });
+}
+
 export function getEquipmentHoursMachines(project?: string): Promise<EquipmentHoursMachine[]> {
   return api.get<EquipmentHoursMachine[]>(
     "/api/equipment-hours/equipment_options/",

@@ -776,7 +776,7 @@ export const getSiteProgressSummary = (project?: string) =>
     project ? { project } : undefined,
   );
 export async function createSiteProgressRecord(payload: {
-  project: string; category?: string; phase: string; percent_complete: string; description?: string;
+  project: string; category?: string; phase?: string; percent_complete?: string; description?: string;
   captured_at: string; latitude?: string; longitude?: string; client_event_id: string; photos: File[];
   field_task?: string;
 }) {
@@ -842,6 +842,26 @@ export function exportMaterialOutgoing(request: ExportRequest): Promise<void> {
     query: exportQuery(request),
     body: exportBody(request),
     fallbackFilename: `material-outgoing.${request.format}`,
+  });
+}
+
+/**
+ * 材料数量报表 → 材料退场 / 退货 (J36): the returns that left site, narrowed
+ * like the report's deliveries.
+ */
+export function getMaterialReportReturns(
+  query: ListQuery,
+): Promise<Paginated<MaterialOutgoing>> {
+  return api.list<MaterialOutgoing>("/api/material-outgoing/get_report_returns/", query);
+}
+
+/** The same returns as a file, ending with each material's returned total. */
+export function exportMaterialReportReturns(request: ExportRequest): Promise<void> {
+  return download("/api/material-outgoing/export_report_returns/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `material-returns.${request.format}`,
   });
 }
 

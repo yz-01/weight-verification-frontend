@@ -2,8 +2,9 @@
 
 /**
  * The Return Note (2026-10 C9): what the office fills before an exit is
- * approved - the material, DO No., supplier, quantity, reason, and the
- * approver's name and drawn signature. The approve button stays off until it
+ * approved - the material, supplier, quantity, reason, and the approver's
+ * name and drawn signature. No DO since J38-2 (the client 10-22: a return
+ * goes on its RN); a note filled before keeps and shows the DO it had. The approve button stays off until it
  * is filled; the server refuses an approval without it too.
  *
  * Written for any record that leaves the site (X3): it reads only the note's
@@ -94,7 +95,6 @@ export function ReturnNoteDialog({
   // Started from what the site applied for; once filled, from the note.
   const [form, setForm] = useState({
     material: filled ? row.return_note_material ?? "" : row.material_name ?? "",
-    delivery_note_no: filled ? row.return_note_delivery_note_no ?? "" : row.delivery_note_no ?? "",
     supplier: (filled ? row.return_note_supplier : row.supplier) ?? "",
     quantity: filled ? String(Number(row.return_note_quantity ?? 0)) : String(Number(row.quantity ?? 0)),
     reason: filled ? row.return_note_reason ?? "" : row.reason ?? "",
@@ -110,7 +110,6 @@ export function ReturnNoteDialog({
     mutationFn: () =>
       send(row.id, {
         material: form.material.trim(),
-        delivery_note_no: form.delivery_note_no.trim(),
         supplier: form.supplier || undefined,
         quantity: form.quantity,
         unit,
@@ -148,12 +147,6 @@ export function ReturnNoteDialog({
             <div className="flex min-h-10 items-center rounded-lg border border-input bg-muted/50 px-3 py-2 text-sm">
               {row.return_note_no || <span className="text-muted-foreground">{t("numberPending")}</span>}
             </div>
-          </FieldWrapper>
-          <FieldWrapper label={t("deliveryNoteNo")}>
-            <Input
-              value={form.delivery_note_no}
-              onChange={(event) => set("delivery_note_no", event.target.value)}
-            />
           </FieldWrapper>
           <FieldWrapper label={t(machine ? "machine" : "material")} required className="sm:col-span-2">
             <Input value={form.material} onChange={(event) => set("material", event.target.value)} />
@@ -258,8 +251,13 @@ export function ReturnNotePanel({
             <dd className="font-medium">{row.return_note_at ? df.dateTime(row.return_note_at) : "—"}</dd>
             <dt className="text-muted-foreground">{t(machine ? "machine" : "material")}</dt>
             <dd className="font-medium">{row.return_note_material || "—"}</dd>
-            <dt className="text-muted-foreground">{t("deliveryNoteNo")}</dt>
-            <dd className="font-medium">{row.return_note_delivery_note_no || "—"}</dd>
+            {/* Old notes only: the DO is not asked since J38-2. */}
+            {row.return_note_delivery_note_no ? (
+              <>
+                <dt className="text-muted-foreground">{t("deliveryNoteNo")}</dt>
+                <dd className="font-medium">{row.return_note_delivery_note_no}</dd>
+              </>
+            ) : null}
             <dt className="text-muted-foreground">{t("supplier")}</dt>
             <dd className="font-medium">{row.return_note_supplier_name || "—"}</dd>
             <dt className="text-muted-foreground">{t("quantity")}</dt>

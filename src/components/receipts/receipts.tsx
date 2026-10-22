@@ -33,6 +33,7 @@ import {
   type ExportFormat,
 } from "@/services/contractor.service";
 import { MaterialTabs, NetTotalsView, useMaterialTab } from "@/components/receipts/material-tabs";
+import { SpecCell } from "@/components/receipts/spec-pending-tag";
 import { LIST_FITS } from "@/lib/list-fits";
 
 // Sentinels rather than "": a Radix SelectItem cannot carry an empty
@@ -221,16 +222,13 @@ export function Receipts() {
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
-        cell: ({ row }) => {
-          const spec = row.original.material_specification || row.original.spec_category_name || "";
-          return spec ? (
-            <span className="block max-w-40 truncate text-foreground" title={spec}>
-              {spec}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">—</span>
-          );
-        },
+        // 「待补规格」 when the phone sent none (J39).
+        cell: ({ row }) => (
+          <SpecCell
+            spec={row.original.material_specification || row.original.spec_category_name || ""}
+            needsSpec={row.original.needs_spec}
+          />
+        ),
       },
       // The delivery's photograph, between 材料 and 数量 as the client drew
       // it (E3): the arrival photo before the DO's, opened on click.

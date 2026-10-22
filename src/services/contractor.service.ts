@@ -479,6 +479,8 @@ export interface MaterialNetTotalRow {
   supplier_return_count?: number;
   material_name: string;
   material_specification: string;
+  /** 「未填规格」 (J39): no specification on a material that has them. */
+  needs_spec?: boolean;
   unit: string;
   received: string;
   rejected: string;

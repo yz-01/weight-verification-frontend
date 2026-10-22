@@ -97,8 +97,7 @@ const FORMS: FormCase[] = [
     fields: [
       'useDraftState(key("evidence")',
       'useDraftState<File[]>(key("photos")',
-      'useDraftState<File | undefined>(key("doPhoto")',
-      'useDraftState(key("doNo")',
+      // No DO at the actual exit since J38-3.
       'useDraftState(key("scanned")',
       'useDraftState<ReturnBadgeSupplier | null>(key("supplier")',
       'useDraftState<File | undefined>(key("siteSignature")',
