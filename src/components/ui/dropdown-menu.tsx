@@ -6,10 +6,18 @@ import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronRightIcon } from "lucide-react"
 
+/**
+ * Non-modal by default. A modal Radix menu locks page scroll (body overflow /
+ * padding changes) and hides the rest of the page; on iPhone Safari that made
+ * the sticky phone header jump up out of view when a header menu opened
+ * (Lucas, 2026-10-22). Outside taps, Escape and arrow-key navigation still
+ * work; pass `modal` to opt back in.
+ */
 function DropdownMenu({
+  modal = false,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" modal={modal} {...props} />
 }
 
 function DropdownMenuPortal({
