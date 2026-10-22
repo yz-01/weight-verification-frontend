@@ -112,8 +112,8 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
  * and unit (Q4). The two stand side by side: the 「累计净数量」 column (进场 −
  * 退场) is gone (Lucas 2026-10-10: 「累计净数量可以移除，不需要进场减退场」).
  * Grouped under each supplier (a collapsible heading, I41); inside it each
- * material heads its specifications and closes with its own subtotal per unit
- * (J5-2) - no total of the whole table. Searched by material name and by
+ * material heads its specifications - no 「小计」 rows (J42, Lucas 10-22) and
+ * no total of the whole table. Searched by material name and by
  * specification, each its own box, with the supplier filter beside them
  * (J5-1: a supplier's name no longer finds its every material). Numbers read
  * plainly (`formatNetQuantity`). Each number opens onto
@@ -172,7 +172,6 @@ export function NetTotalsView({
   }
   const rows = totals.data?.results ?? [];
   const groups = groupBySupplier(rows);
-  const subtotals = totals.data?.subtotals ?? [];
   // A group is open unless it was toggled away from the starting state.
   const isOpen = (group: { supplier: string }) => toggled.has(group.supplier) === defaultCollapsed;
   const toggle = (group: { supplier: string }) =>
@@ -332,36 +331,6 @@ export function NetTotalsView({
                       <TableCell className="tabular text-right text-muted-foreground">{formatNetQuantity(row.rejected)}</TableCell>
                       <TableCell className="text-muted-foreground">{row.project_name}</TableCell>
                     </TableRow>
-                    {/* 「该材料小计」 after its last line, per unit (J5-2, Q5-2):
-                        one material only, never one added to another. */}
-                    {index === shown.length - 1 || shown[index + 1].material_name !== row.material_name
-                      ? subtotals
-                          .filter(
-                            (entry) =>
-                              entry.supplier === row.supplier && entry.material_name === row.material_name,
-                          )
-                          .map((entry) => (
-                            <TableRow
-                              key={`subtotal:${keyOf(row)}:${entry.unit}`}
-                              data-slot="net-subtotal"
-                              className="bg-muted/40 hover:bg-muted/40"
-                            >
-                              <TableCell className="text-xs font-semibold">
-                                {t("receipts.net.subtotal", { material: entry.material_name })}
-                              </TableCell>
-                              <TableCell />
-                              <TableCell>{unitName(entry.unit)}</TableCell>
-                              <TableCell className="tabular text-right font-semibold">
-                                {formatNetQuantity(entry.received)}
-                              </TableCell>
-                              <TableCell className="tabular text-right font-semibold">
-                                {formatNetQuantity(entry.returned)}
-                              </TableCell>
-                              <TableCell className="text-right" />
-                              <TableCell />
-                            </TableRow>
-                          ))
-                      : null}
                     </Fragment>
                   ))}
                 </Fragment>

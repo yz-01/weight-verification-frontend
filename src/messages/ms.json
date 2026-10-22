@@ -13316,8 +13316,7 @@
         "legacyReturn": "Pemulangan yang direkod pada resit sebelum 10-02",
         "project": "Projek"
       },
-      "searchSpec": "Spesifikasi",
-      "subtotal": "Subjumlah {material}"
+      "searchSpec": "Spesifikasi"
     },
     "exportVerdict": "Keputusan penerimaan",
     "rejectedReturns": "Pulangan ditolak",

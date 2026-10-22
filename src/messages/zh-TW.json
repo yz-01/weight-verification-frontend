@@ -13316,8 +13316,7 @@
         "legacyReturn": "10-02 前在進場單上登記的退場",
         "project": "項目"
       },
-      "searchSpec": "規格",
-      "subtotal": "{material} 小計"
+      "searchSpec": "規格"
     },
     "exportVerdict": "驗收結果",
     "rejectedReturns": "不合格退貨",
