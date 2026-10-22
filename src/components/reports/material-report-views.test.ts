@@ -42,7 +42,8 @@ describe("the report's view", () => {
   });
 
   it("exports follow the view: returns go to their own file", () => {
-    expect(source).toContain('view === "returns" ? exportMaterialReportReturns : exportReceipts');
+    expect(source).toContain('if (view === "returns") {');
+    expect(source).toContain("return exportMaterialReportReturns({");
     expect(source).toContain('key: "rejection_reason"');
   });
 });

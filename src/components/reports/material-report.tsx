@@ -155,24 +155,10 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const chosen = [viewTitle, level].join(" › ");
 
   function runExport(format: ExportFormat) {
-    const send = view === "returns" ? exportMaterialReportReturns : exportReceipts;
-    return send({
-      format,
-      title: viewTitle,
-      // What the file was narrowed to: the period and the level (B3 #15).
-      subtitle: materialExportSubtitle(t, {
-        level,
-        dateFrom: filters.date_from,
-        dateTo: filters.date_to,
-      }),
-      emptyLabel: t("table.noResults"),
-      query: filters,
-      // The file ends with each material's 累计总数量 (E5, Q24): one
-      // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
-      summary:
-        mode === "quantity"
-          ? {
-              groupBy: "material_cumulative",
+    // The file ends with each material's 累计总数量 (E5, Q24): one
+    // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
+    const cumulativeSummary = {
+              groupBy: "material_cumulative" as const,
               title: t("materialReports.export.cumulativeTitle"),
               materialLabel: t("reports.receipts.material"),
               specificationLabel: t("receipts.field.materialSpecification"),
@@ -180,11 +166,21 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               quantityLabel: t("receipts.field.cumulativeQuantity"),
               countLabel: t("reports.receipts.deliveries"),
               note: t(`materialReports.quantity.${hintKey[view]}`),
-            }
-          : undefined,
-      columns:
-        view === "returns"
-          ? [
+            };
+    if (view === "returns") {
+      // 退货 view (J36): the returns, from their own endpoint.
+      return exportMaterialReportReturns({
+        format,
+        title: viewTitle,
+        subtitle: materialExportSubtitle(t, {
+          level,
+          dateFrom: filters.date_from,
+          dateTo: filters.date_to,
+        }),
+        emptyLabel: t("table.noResults"),
+        query: filters,
+        summary: cumulativeSummary,
+        columns: [
               { key: "return_note_no", label: t("materialReports.records.returnNo") },
               { key: "processed_at", label: t("materialReports.records.returnedAt") },
               { key: "project_name", label: t("receipts.field.project") },
@@ -197,8 +193,25 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "returned_quantity", label: t("materialReports.records.returnedQuantity") },
               { key: "unit", label: t("receipts.field.unit"), values: unitValues },
               { key: "reason", label: t("materialReports.records.reason") },
-            ]
-          : mode === "quantity"
+      ],
+      });
+    }
+    return exportReceipts({
+      format,
+      title: viewTitle,
+      // What the file was narrowed to: the period and the level (B3 #15).
+      subtitle: materialExportSubtitle(t, {
+        level,
+        dateFrom: filters.date_from,
+        dateTo: filters.date_to,
+      }),
+      emptyLabel: t("table.noResults"),
+      query: filters,
+      // The file ends with each material's 累计总数量 (E5, Q24): one
+      // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
+      summary: mode === "quantity" ? cumulativeSummary : undefined,
+      columns:
+        mode === "quantity"
           ? [
               { key: "receipt_no", label: t("receipts.field.receiptNo") },
               { key: "captured_at", label: t("receipts.field.capturedAt") },
@@ -352,7 +365,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       </FilterBar>
 
       {mode === "quantity" && summary.data?.cards && (
-        <ViewCards
+        <ModeCards
           cards={summary.data.cards}
           view={view}
           onPick={(next) => list.setFilter("report_mode", next)}
@@ -922,7 +935,7 @@ function EmptyReport() {
  * visible, so a rejected load is never unseen. Pressing one switches the
  * report to that view; pressing the open one goes back to the normal one.
  */
-function ViewCards({
+function ModeCards({
   cards,
   view,
   onPick,

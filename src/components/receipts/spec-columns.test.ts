@@ -40,7 +40,8 @@ describe("规格 columns (J2)", () => {
 
   it("the material report shows and exports 规格", () => {
     const report = read("src/components/reports/material-report.tsx");
-    expect(report.split('{ key: "material_specification", label: t("receipts.field.spec") }').length - 1).toBe(2);
+    expect(report.split('{ key: "material_specification", label: t("receipts.field.spec") }').length - 1).toBe(3);
+    // Normal, cost and the returns view (J36).
     expect(report).toContain("row.material_specification || row.spec_category_name");
     expect(report).toContain("{row.material_specification || \"—\"}");
   });
