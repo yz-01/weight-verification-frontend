@@ -741,6 +741,21 @@ export async function correctReceipt(
 }
 
 /**
+ * 「+ 增加材料」 (J35): the delivery's materials, saved as a whole - a line with
+ * its id is that line, one without is new, a stored line left out is removed.
+ * A specification or unit alone needs no PIN; anything else is signed (the
+ * sign-off dialog opens on the server's request) and kept in the history.
+ */
+export async function saveReceiptLines(
+  id: string,
+  payload: { lines: unknown[]; reason: string; client_event_id?: string },
+): Promise<MaterialReceiptDetail> {
+  const receipt = await api.post<MaterialReceiptDetail>(`/api/receipts/${id}/save_receipt_lines/`, payload);
+  toastSuccess("receipts.toast.corrected");
+  return receipt;
+}
+
+/**
  * Everything this person has submitted, across all five modules.
  *
  * One call rather than five, because the worker's question is not "what did I

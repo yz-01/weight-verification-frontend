@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { MaterialLinesChip } from "@/components/shared/material-lines";
+import { receiptShownLines } from "@/lib/material-lines";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListNeedsActionChip, withNeedsActionColumn } from "@/components/shared/needs-action";
 import { ExportButton } from "@/components/shared/export-button";
@@ -196,11 +198,15 @@ export function Receipts() {
           />
         ),
         cell: ({ row }) => (
-          <span
-            className="block max-w-50 truncate font-medium text-foreground"
-            title={row.original.material_name}
-          >
-            {row.original.material_name}
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span
+              className="block max-w-50 truncate font-medium text-foreground"
+              title={row.original.material_name}
+            >
+              {row.original.material_name}
+            </span>
+            {/* 「3 种材料」 (J35): one MI, several materials - pressed, each. */}
+            <MaterialLinesChip lines={receiptShownLines(row.original)} />
           </span>
         ),
       },

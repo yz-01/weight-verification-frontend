@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Info, Save } from "lucide-react";
+import { Info, Layers, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -25,6 +25,8 @@ import {
 import { FieldWrapper, ReadField } from "@/components/shared/page-primitives";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { MaterialSpecPicker } from "@/components/receipts/material-spec-picker";
+import { ReceiptLinesDialog } from "@/components/receipts/receipt-lines-dialog";
+import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
 import {
   type MaterialReceiptDetail,
@@ -72,6 +74,8 @@ function CorrectReceiptForm({
   const finish = useFinishForm();
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
+  // 「+ 增加材料」 (J35): the delivery's other materials, saved on their own.
+  const [editingLines, setEditingLines] = useState(false);
 
   // One id for the whole attempt, so a retry after a dropped connection
   // returns the correction already filed instead of filing a second one.
@@ -305,6 +309,22 @@ function CorrectReceiptForm({
         </FormSection>
 
       <FormSection title={t("receipts.section.material")}>
+        {/* One DO, several materials (J35): this form puts line 1 - the
+            delivery's own material - right; the others are in 材料明细. */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-panel-border px-3 py-2 text-sm md:col-span-2">
+          <span className="text-muted-foreground">
+            {(receipt.line_count ?? 1) > 1
+              ? t("materialLines.correctionNote", { count: receipt.line_count ?? 1 })
+              : t("materialLines.correctionNoteOne")}
+          </span>
+          <Button type="button" size="sm" variant="outline" onClick={() => setEditingLines(true)}>
+            <Layers className="h-4 w-4" />
+            {t("materialLines.add")}
+          </Button>
+        </div>
+        {editingLines && (
+          <ReceiptLinesDialog receipt={receipt} addOne readOnlyFirst onClose={() => setEditingLines(false)} />
+        )}
         {/* 只能从分类管理下拉选 (J14-3, Q14-2): the material and specification
             chosen above name the record; words are typed only under
             「其他材料」 / 「其他」 (or a material with no specifications). */}

@@ -1167,6 +1167,8 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   specification?: string;
   quantity?: string | null;
   unit?: string;
+  /** A delivery's number of materials (J35); the quantity is this column's line. */
+  line_count?: number;
   note?: string;
   received_by?: string;
   has_gps?: boolean;

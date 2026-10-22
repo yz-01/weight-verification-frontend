@@ -8218,7 +8218,8 @@
       "permission_switches_unknown_permission": "Salah satu kebenaran tidak wujud.",
       "permission_switches_unknown_project": "Pilih projek syarikat ini.",
       "permission_switches_self_lockout": "Anda tidak boleh mematikan pengurusan pengguna anda sendiri.",
-      "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna."
+      "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna.",
+      "receipt_line_returned": "Ada pemulangan untuk bahan ini, jadi ia tidak boleh dibuang."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -11070,7 +11071,8 @@
       "entry_at": "Masa masuk",
       "exit_at": "Masa keluar",
       "request_kind": "Jenis permohonan",
-      "pdpa_consent": "Notis data peribadi"
+      "pdpa_consent": "Notis data peribadi",
+      "material_lines": "Senarai bahan"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -17430,7 +17432,10 @@
       "material_specification": "Spesifikasi (ditaip)",
       "equipment": "Mesin",
       "start_at": "Masa mula",
-      "end_at": "Masa tamat"
+      "end_at": "Masa tamat",
+      "material_line": "Bahan",
+      "unit_price": "Harga seunit",
+      "spec_category": "Spesifikasi"
     },
     "followsSpec": "Unit mengikut spesifikasi"
   },
@@ -17848,7 +17853,8 @@
       "stage": "Peringkat",
       "forwardHistory": "Dihantar",
       "headOfficeReviewer": "Pelulus ibu pejabat",
-      "materialName": "Nama bahan"
+      "materialName": "Nama bahan",
+      "materials": "Senarai bahan"
     },
     "action": {
       "view": "Lihat",
@@ -17993,6 +17999,50 @@
     },
     "forwarded": "Dihantar ke ibu pejabat oleh {by} pada {at}",
     "managerHelp": "Permohonan tapak kepada anda: pilih pelulus ibu pejabat dan tekan “Hantar ke ibu pejabat”, atau pulangkan."
+  },
+  "materialLines": {
+    "title": "Senarai bahan",
+    "count": "{count} jenis bahan",
+    "line": "Bahan {n}",
+    "firstLine": "bahan asal rekod ini",
+    "firstLineInForm": "ubah dalam borang di atas",
+    "remove": "Buang bahan {n}",
+    "removeShort": "Buang",
+    "material": "Bahan",
+    "specification": "Spesifikasi",
+    "materialName": "Nama bahan",
+    "specificationName": "Nama spesifikasi",
+    "quantity": "Kuantiti",
+    "unit": "Unit",
+    "unitPrice": "Harga seunit",
+    "amount": "Jumlah",
+    "amountHint": "Jumlah bahan ini pada DO",
+    "optional": "Pilihan",
+    "chooseMaterial": "Pilih bahan",
+    "chooseSpecification": "Pilih spesifikasi",
+    "materialFirst": "Pilih bahan dahulu",
+    "chooseUnit": "Pilih unit",
+    "search": "Cari",
+    "notSetUp": "Bahan ini belum disediakan. Sediakan di Pengurusan Kategori dahulu.",
+    "noSpecifications": "Bahan ini tiada spesifikasi",
+    "goToCategories": "Ke Pengurusan Kategori",
+    "otherMaterialHint": "Taip nama bahan",
+    "otherSpecHint": "Taip spesifikasi",
+    "quantityRule": "Lebih 0, paling banyak tiga perpuluhan",
+    "unitFromSpec": "Unit ikut spesifikasi",
+    "needed": "Sila isi",
+    "materialData": "data bahan",
+    "add": "Tambah bahan",
+    "edit": "Ubah senarai bahan",
+    "save": "Simpan senarai bahan",
+    "saveFailed": "Tidak dapat disimpan. Sila cuba lagi.",
+    "reason": "Sebab perubahan",
+    "dialogTitle": "{reference} · Senarai bahan",
+    "dialogHelp": "Satu DO boleh membawa beberapa jenis bahan. Setiap satu ada bahan, spesifikasi, unit dan kuantiti sendiri, dan dikira dalam kategori dan jumlahnya sendiri. Bahan 1 ialah bahan asal rekod ini: boleh diubah, tidak boleh dibuang.",
+    "pinNote": "Mengubah spesifikasi atau unit sahaja tidak perlu PIN. Mengubah bahan, kuantiti, harga seunit atau jumlah, atau menambah atau membuang bahan, perlu PIN dan disimpan dalam sejarah.",
+    "correctionNote": "Rekod ini ada {count} jenis bahan. Borang ini mengubah bahan 1; tambah, ubah atau buang yang lain dengan \"Tambah bahan\".",
+    "correctionNoteOne": "Beberapa jenis bahan pada DO ini? Tambahkannya dengan \"Tambah bahan\", setiap satu difailkan sendiri.",
+    "requestHint": "Satu permohonan boleh meminta beberapa jenis bahan; ia diluluskan sekali gus."
   },
   "filePreview": {
     "unsupported": "Fail {ext} tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
