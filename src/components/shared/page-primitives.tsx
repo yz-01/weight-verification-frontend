@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { usePhoneOffline } from "@/hooks/use-phone-offline";
 import { helpKeyFor } from "@/lib/page-help";
 
 import { Button } from "@/components/ui/button";
@@ -133,7 +134,17 @@ export function QueryFailedNote({
   className?: string;
 }) {
   const t = useTranslations("common");
+  const offline = usePhoneOffline();
   if (!query.isError) return null;
+  // No connection is not a failure: said quietly, the screen's own offline
+  // line explains the rest (Lucas 2026-10-23).
+  if (offline) {
+    return (
+      <p className={cn("text-xs text-muted-foreground", className)}>
+        {t("loadOffline", { what })}
+      </p>
+    );
+  }
   return (
     <p role="alert" className={cn("flex flex-wrap items-center gap-x-2 text-xs text-destructive", className)}>
       <span>{t("loadFailed", { what })}</span>

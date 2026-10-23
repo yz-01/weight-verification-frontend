@@ -126,7 +126,13 @@ export async function loginAsFieldStaff(page: Page): Promise<void> {
   await page.fill("#field-pin", FIELD_PIN);
   await page.getByRole("button", { name: /sign in|登录|登入|log masuk/i }).click();
   await page.waitForURL(/\/trace\/field-ready/, { timeout: 20_000 });
-  await page.getByRole("button", { name: /open.*workspace|打开.*工作|開啟.*工作|buka.*ruang/i }).click();
+  // On a phone the ready page offers the Home Screen first; the browser is
+  // the second button (Lucas 2026-10-23).
+  await page
+    .getByRole("button", {
+      name: /open.*workspace|use in the browser|打开.*工作|先用网页版|開啟.*工作|先用網頁版|buka.*ruang|guna dalam pelayar/i,
+    })
+    .click();
   await page.waitForURL(/\/field-staff(?:\?|$)/, { timeout: 20_000 });
 }
 

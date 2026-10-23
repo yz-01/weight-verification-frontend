@@ -306,6 +306,16 @@ async function fetchWithUploadTimeout(
   }
 }
 
+/**
+ * The phone itself says it has no connection. Then a request with no answer
+ * is no news: the screen already says so once, calmly, and records go to the
+ * offline queue (Lucas 2026-10-23: offline, the field home was a wall of red
+ * 「无法连接服务器」). An outage while the phone is online is still said.
+ */
+function phoneSaysOffline(): boolean {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
+
 /** A request that got no answer: offline, unreachable, or an upload cut off. */
 function noAnswer(error: unknown): ApiError {
   return error instanceof UploadTimeout
@@ -400,7 +410,7 @@ export async function request<T>(
       if (error instanceof DOMException && error.name === "AbortError") throw error;
       const failure = noAnswer(error);
       if (attempt.signOffPin) settleSignOff();
-      if (!attempt.silent) toast.error(failure.message);
+      if (!attempt.silent && !phoneSaysOffline()) toast.error(failure.message);
       throw failure;
     }
 
@@ -422,7 +432,7 @@ export async function request<T>(
         // the offline queue.
         if (error instanceof DOMException && error.name === "AbortError") throw error;
         const failure = noAnswer(error);
-        if (!attempt.silent) toast.error(failure.message);
+        if (!attempt.silent && !phoneSaysOffline()) toast.error(failure.message);
         throw failure;
       }
       if (!refreshed) {
@@ -645,7 +655,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
       if (error instanceof DOMException && error.name === "AbortError") throw error;
       const failure = noAnswer(error);
       if (attempt.signOffPin) settleSignOff();
-      if (!attempt.silent) toast.error(failure.message);
+      if (!attempt.silent && !phoneSaysOffline()) toast.error(failure.message);
       throw failure;
     }
 

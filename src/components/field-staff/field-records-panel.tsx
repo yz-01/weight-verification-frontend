@@ -101,11 +101,11 @@ import {
   getProjectCategories,
 } from "@/services/contractor-ops.service";
 import { LocationField } from "@/components/field-staff/location-field";
+import type { LocationValue } from "@/lib/field-location";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 import { getWasteOutgoingOptions } from "@/services/waste-outgoing.service";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
 
-type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
 export type FieldRecordMode =
   | "material"
@@ -385,7 +385,7 @@ export function MaterialCapturePanel({
   // not filled in, because the wrong supplier on a delivery is worse than
   // asking.
   const [supplierGuess, setSupplierGuess] = useState<{ read: string; id: string; name: string } | null>(null);
-  const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
+  const [location, setLocation] = useState<LocationValue>();
   const [error, setError] = useState("");
   const initialScanRef = useRef("");
   const completedMaterialEvidence = completedFieldEvidence(materialEvidence);
@@ -1077,6 +1077,7 @@ export function MaterialCapturePanel({
         readyLabel={t("attendance.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
+        allowMissingOffline
         required
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
@@ -1172,7 +1173,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   // Deliberately *not* saved. A restored draft submitted the next day would
   // send `captured_at: now` with yesterday's coordinates - a false evidence
   // record rather than a recovered one.
-  const [location, setLocation] = useState<Coordinates>();
+  const [location, setLocation] = useState<LocationValue>();
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
   const chosen = isConsultantAskFor(askFor) ? askFor : "";
@@ -1262,6 +1263,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         readyLabel={t("attendance.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
+        allowMissingOffline
         required
       />
       <FieldWrapper label={t("consultantCapture.description")} optional={t("consultantCapture.optional")}>
@@ -1317,7 +1319,7 @@ function WasteOutgoingCapturePanel({
   const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
   // Not saved - see the note on the consultant panel.
-  const [location, setLocation] = useState<Coordinates>();
+  const [location, setLocation] = useState<LocationValue>();
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
   const evidenceLabels = [
@@ -1457,6 +1459,7 @@ function WasteOutgoingCapturePanel({
         readyLabel={t("field.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
+        allowMissingOffline
         required
       />
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}

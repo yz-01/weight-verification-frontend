@@ -97,7 +97,7 @@ import type {
   SafetyIncident,
   SafetyIncidentPayload,
 } from "@/interfaces/site-operations";
-import type { LocationFix } from "@/lib/field-location";
+import type { LocationValue } from "@/lib/field-location";
 import { useDateFormat } from "@/lib/dates";
 import { hazardColumns, titleForColumn } from "@/lib/hazard-columns";
 import { photoMeta } from "@/lib/photo-meta";
@@ -964,7 +964,8 @@ export function HazardRecordDetail({
   );
   return (
     <RecordDetailDialog
-      title={incident.incident_no}
+      title={incident.incident_no}
+
       description={incident.title}
       status={
         <StatusBadge
@@ -1167,7 +1168,7 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
   const [attachments, setAttachments] = useState<File[]>([]);
   const [note, setNote] = useState("");
   // Automatic, like every field capture form (T-355, D-246).
-  const [location, setLocation] = useState<LocationFix | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const images = officeImages;
   // One id for this dialog: every press, retry and queue replay is the same
   // submission to the server, so a lost answer can never post the fix twice.
@@ -1219,6 +1220,7 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
           value={location}
           onChange={setLocation}
           required
+          allowMissingOffline
         />
         {/* Required on the phone too. 「提交整改」 without a word of
             explanation leaves the verifier a photograph and nothing to read

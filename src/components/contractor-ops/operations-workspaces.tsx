@@ -92,7 +92,7 @@ import {
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { LocationField } from "@/components/field-staff/location-field";
-import type { LocationFix } from "@/lib/field-location";
+import type { LocationValue } from "@/lib/field-location";
 import { parseAlertAmounts, parseAlertPercentages } from "@/lib/category-modules";
 import { PERMIT_COLUMN_CODE } from "@/lib/hazard-columns";
 import { MultiPickList } from "@/components/shared/multi-pick-list";
@@ -195,7 +195,6 @@ import {
   submitSiteProgressOfflineAware,
 } from "@/services/offline-sync.service";
 
-type Coordinates = { latitude: string; longitude: string; accuracy: string };
 /** 设备进出场最多 5 张（含 Delivery Order），E2 / D-257; the server enforces it too. */
 /**
  * Equipment movement photographs: at least four, no ceiling, on the phone and
@@ -2653,7 +2652,7 @@ export function EquipmentEntryDialog({
   const [scannerOpen, setScannerOpen] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
   const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
   const evidenceLabels = [
@@ -2910,6 +2909,7 @@ export function EquipmentEntryDialog({
             value={location}
             onChange={setLocation}
             required="quiet"
+            allowMissingOffline
             hint={t("equipment.locationHint")}
             error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
           />
@@ -3012,7 +3012,7 @@ export function MovementDialog({
   const clearDraft = useClearDraft();
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
   const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
   const equipmentEvidenceLabels = [
@@ -3216,6 +3216,7 @@ export function MovementDialog({
             value={location}
             onChange={setLocation}
             required
+            allowMissingOffline
             error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
           />
           <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
@@ -3488,7 +3489,7 @@ export function ProgressDialog({
   const [photos, setPhotos] = useDraftState<File[]>("photos", []);
   const [fieldEvidence, setFieldEvidence] = useDraftState("fieldEvidence", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
-  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const [error, setError] = useState("");
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
   const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
@@ -3627,6 +3628,7 @@ export function ProgressDialog({
           value={location}
           onChange={setLocation}
           required
+          allowMissingOffline
         />
         {/* 备注, the client's word for it (H14, HD2). */}
         <FieldWrapper label={t("progress.note")}>
@@ -4076,7 +4078,7 @@ export function OutgoingDialog({
   const [scannedSupplier, setScannedSupplier] = useState("");
   const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
-  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const columns = useQuery({
     queryKey: ["project-categories", "outgoing", project],
     queryFn: () =>
@@ -4351,6 +4353,7 @@ export function OutgoingDialog({
             value={location}
             onChange={setLocation}
             required={isFieldStaff}
+            allowMissingOffline
           />
           <FieldWrapper
             label={t("field.reason")}
@@ -4564,7 +4567,7 @@ function ExitForm({
   // every try - online, queued, replayed - is the same exit to the server.
   const [clientEventId, setClientEventId] = useDraftState(draft("clientEventId"), "");
   const clearDraft = useClearDraft();
-  const [location, setLocation] = useState<LocationFix | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const [error, setError] = useState("");
   const columns = useQuery({
     queryKey: ["project-categories", "outgoing", record.project],
@@ -4593,8 +4596,8 @@ function ExitForm({
         reference_no: record.reference_no,
         photos: taken,
         note: note.trim() || undefined,
-        latitude: location ? String(location.latitude) : undefined,
-        longitude: location ? String(location.longitude) : undefined,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
         returned_quantity: returned,
         site_signature: siteSignature as File,
         supplier_signature: supplierSignature as File,
@@ -4690,6 +4693,7 @@ function ExitForm({
         readyLabel={t("outgoing.processingLocationReady")}
         value={location}
         onChange={setLocation}
+        allowMissingOffline
       />
       {error && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
