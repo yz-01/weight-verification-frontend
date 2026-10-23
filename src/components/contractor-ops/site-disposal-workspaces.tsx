@@ -26,6 +26,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useSearchParams } from "next/navigation";
 
 import { LocationField } from "@/components/field-staff/location-field";
+import type { LocationValue } from "@/lib/field-location";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
@@ -284,7 +285,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
   const [fieldEvidence, setFieldEvidence] = useDraftState("fieldEvidence", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
   // Not saved: a stale fix would be submitted as a fresh one.
-  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
   const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
   const evidenceLabels = [
@@ -333,7 +334,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
             <FieldWrapper label={t("field.estimatedWeight")} optional={t("optional")}><Input type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper>
             <FieldWrapper label={t("field.preferredAt")} optional={t("optional")}><Input type="datetime-local" value={preferred} onChange={(e) => setPreferred(e.target.value)} /></FieldWrapper>
           </> : null}
-          <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required />
+          <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required allowMissingOffline />
           {/* General waste (L6 / B24): none required on the phone, at most four -
               「一次最多 4 张，不要求拍满」. The office still attaches one. */}
           <FieldWrapper label={t("field.photos")} required={!isFieldStaff} className="sm:col-span-2">
@@ -649,7 +650,7 @@ function SiteEvidenceDialog({ row, onClose, onSaved }: { row: DisposalRequest; o
   const isFieldStaff = Boolean(user?.is_field_staff);
   const [shots, setShots] = useState<Array<{ file: File; kind: DisposalSiteEvidenceKind }>>([]);
   const [note, setNote] = useState("");
-  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const full = shots.length >= DISPOSAL_PHOTO_MAX;
   const save = useMutation({
     mutationFn: () => addDisposalSiteEvidence(row.id, {
@@ -686,7 +687,7 @@ function SiteEvidenceDialog({ row, onClose, onSaved }: { row: DisposalRequest; o
           })}
           </div>
           </FieldWrapper>
-          {isFieldStaff && <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required />}
+          {isFieldStaff && <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required allowMissingOffline />}
           <FieldWrapper label={t("siteEvidence.note")} optional={t("optional")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
         <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[shots.length > 0, t("siteEvidence.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("siteEvidence.submit")}</Button></DialogFooter>
@@ -1000,7 +1001,8 @@ function DisposalDetailDialog({
   const qc = useQueryClient();
   return (
     <RecordDetailDialog
-      title={row.reference_no}
+      title={row.reference_no}
+
       description={`${row.project_name} / ${row.waste_description}`}
       exportRecord={{ kind: "DISPOSAL_REQUEST", recordId: row.id, reference: row.reference_no }}
       onClose={onClose}

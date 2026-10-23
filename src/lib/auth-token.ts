@@ -184,10 +184,16 @@ export function markFieldInstallHelp(): void {
   }
 }
 
+/**
+ * Read once: a reload of the ready page - Safari reloading the tab after the
+ * worker went to WhatsApp and came back (Lucas 2026-10-23) - goes straight on.
+ */
 export function fieldInstallHelpWanted(): boolean {
   if (!isBrowser()) return false;
   try {
-    return window.sessionStorage.getItem(FIELD_INSTALL_HELP_KEY) === "1";
+    const wanted = window.sessionStorage.getItem(FIELD_INSTALL_HELP_KEY) === "1";
+    window.sessionStorage.removeItem(FIELD_INSTALL_HELP_KEY);
+    return wanted;
   } catch {
     return false;
   }

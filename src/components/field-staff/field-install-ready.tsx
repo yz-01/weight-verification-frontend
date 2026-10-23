@@ -12,7 +12,7 @@ import {
   Share,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useInstallIconTags } from "@/components/field-staff/install-icons";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,9 @@ export function FieldInstallReady({
     return () => window.clearTimeout(timer);
   }, []);
   const workspace = next ?? "/field-staff";
+  // Read once per page: the flag is spent on reading, and React may run the
+  // effect below twice.
+  const helpWanted = useRef<boolean | null>(null);
 
   useEffect(() => {
     if (isStandaloneApp()) {
@@ -84,7 +87,8 @@ export function FieldInstallReady({
     // Not arrived from the PIN just now (Lucas 2026-10-23: the icon opened
     // on this page): signed in here, straight to work; otherwise the PIN,
     // which signs this browser in with the link on this page.
-    if (!fieldInstallHelpWanted()) {
+    helpWanted.current ??= fieldInstallHelpWanted();
+    if (!helpWanted.current) {
       replacePage(
         hasFieldSession()
           ? workspace

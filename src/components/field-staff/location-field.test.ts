@@ -66,3 +66,58 @@ describe("location is taken automatically (T-355, D-246)", () => {
     expect(componentBody()).toContain('t("retry")');
   });
 });
+
+/**
+ * Offline with no GPS fix (Lucas 2026-10-23, choice A): wait longer, then let
+ * the record go without a position, marked 「没有定位」. Only forms that opt in,
+ * only offline, and never past a refusal.
+ */
+describe("offline with no fix, a record may go without a position", () => {
+  it("waits longer for a fix without network", () => {
+    const body = componentBody();
+    expect(body).toContain("const offline = isOffline();");
+    expect(body).toMatch(/offline\s*\?\s*\{ enableHighAccuracy: true, timeout: OFFLINE_LOCATION_TIMEOUT_MS/);
+  });
+
+  it("accepts no position only when allowed, offline, and not refused", () => {
+    const body = componentBody();
+    expect(body).toMatch(
+      /allowMissingOffline &&\s*problem !== "denied" &&\s*\(offline \|\| \(await serverUnreachable\(\)\)\)/,
+    );
+    expect(code).toContain("allowMissingOffline = false,");
+  });
+
+  it("never shows coordinates or 'GPS captured' for a missing position", () => {
+    const body = componentBody();
+    expect(body).toContain("{value && !missing && !problem ? (");
+    expect(body).toContain('t("missingOffline.title")');
+  });
+
+  it("clock-in and equipment hours still need a real fix", () => {
+    for (const file of [
+      ["field-staff", "field-staff-workspace.tsx"],
+      ["equipment-hours", "equipment-hours-capture.tsx"],
+    ]) {
+      const source = readFileSync(path.join(process.cwd(), "src", "components", ...file), "utf8");
+      expect(source).toContain("onChange={(next) => setFix(asFix(next))}");
+      expect(source).not.toContain("allowMissingOffline");
+    }
+  });
+});
+
+describe("every photo-record form lets a record go without a position offline", () => {
+  const forms = [
+    ["contractor-ops", "equipment-exit.tsx"],
+    ["contractor-ops", "operations-workspaces.tsx"],
+    ["contractor-ops", "site-disposal-workspaces.tsx"],
+    ["field-staff", "field-records-panel.tsx"],
+    ["field-staff", "sundry-claim-capture.tsx"],
+    ["site-operations", "safety.tsx"],
+  ];
+  it.each(forms)("%s/%s: one allowMissingOffline per LocationField", (folder, file) => {
+    const source = readFileSync(path.join(process.cwd(), "src", "components", folder, file), "utf8");
+    const fields = source.match(/<LocationField\b/g)?.length ?? 0;
+    expect(fields).toBeGreaterThan(0);
+    expect(source.match(/\ballowMissingOffline\b/g)?.length ?? 0).toBe(fields);
+  });
+});

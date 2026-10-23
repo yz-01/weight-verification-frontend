@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
 import type { EquipmentHoursMachine, EquipmentPhotoKind } from "@/interfaces/equipment-hours";
 import { useDateFormat } from "@/lib/dates";
-import type { LocationFix } from "@/lib/field-location";
+import { asFix, type LocationFix } from "@/lib/field-location";
 import { getOfflineJobs } from "@/lib/offline-db";
 import { photoTakenAt } from "@/lib/photo-meta";
 import { matchScanned, squashCode } from "@/lib/machine-scan";
@@ -470,7 +470,7 @@ export function EquipmentHoursCapture({
             actionLabel={t("phone.location")}
             readyLabel={t("phone.locationReady")}
             value={fix}
-            onChange={setFix}
+            onChange={(next) => setFix(asFix(next))}
           />
 
           {error && <p className="text-sm text-destructive">{error}</p>}

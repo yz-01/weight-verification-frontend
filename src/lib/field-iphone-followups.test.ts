@@ -256,7 +256,7 @@ describe("reload, return and relaunch keep the session (4, 5)", () => {
 
   it("the ready page shows install help only when sent there; opened later it goes on", () => {
     const source = read("components/field-staff/field-install-ready.tsx");
-    expect(source).toMatch(/if \(!fieldInstallHelpWanted\(\)\)/);
+    expect(source).toMatch(/helpWanted\.current \?\?= fieldInstallHelpWanted\(\);\s*if \(!helpWanted\.current\)/);
     expect(read("components/field-staff/field-access.tsx")).toMatch(/markFieldInstallHelp\(\);\s*openPage\(/);
     expect(read("components/field-staff/field-install-banner.tsx")).toMatch(/markFieldInstallHelp\(\)/);
   });

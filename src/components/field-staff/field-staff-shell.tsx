@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, LogOut } from "lucide-react";
+import { CloudOff, Loader2, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -22,6 +22,7 @@ import { FieldInstallBanner } from "@/components/field-staff/field-install-banne
 import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
 import { FieldWorkspaceAddress } from "@/components/field-staff/field-workspace-address";
 import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
+import { usePhoneOffline } from "@/hooks/use-phone-offline";
 
 const FIELD_REALTIME_KEYS: never[] = [];
 
@@ -30,6 +31,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user, isLoading, sessionUnreachable, signOut } = useAuth();
+  const offline = usePhoneOffline();
   const allowed = user?.portal === "MSE_TRACE" && user.is_field_staff;
   useOrderRealtime(
     FIELD_REALTIME_KEYS,
@@ -107,6 +109,18 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
             </Button>
           </div>
         </div>
+        {/* Said once, calmly: without network the app still works and the
+            records wait on the phone (Lucas 2026-10-23). */}
+        {offline ? (
+          <p
+            role="status"
+            data-testid="field-offline-line"
+            className="flex items-center gap-2 border-t border-warning/30 bg-warning/10 px-4 py-2 text-xs leading-5 text-foreground"
+          >
+            <CloudOff className="size-4 shrink-0 text-warning" />
+            {t("offline.fieldLine")}
+          </p>
+        ) : null}
       </header>
       <FieldInstallBanner />
       <main className="mx-auto min-w-0 w-full max-w-2xl px-4 py-5">{children}</main>
