@@ -467,7 +467,6 @@ export function EquipmentHoursCapture({
 
           <LocationField
             label={t("phone.location")}
-            actionLabel={t("phone.location")}
             readyLabel={t("phone.locationReady")}
             value={fix}
             onChange={(next) => setFix(asFix(next))}

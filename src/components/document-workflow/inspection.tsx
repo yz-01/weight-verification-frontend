@@ -8,15 +8,20 @@
  * first - 「提交后不能修改，确定吗？」 - then read-only; a re-inspection is a new
  * one. Machines and materials show the latest: 「合格」 or 「不合格」 and the
  * date, nothing for none, never in red and never stopping a clock-in.
+ *
+ * One report can cover several machines, or several materials: they are all
+ * chosen here and each gets its own result with the same report details
+ * (Lucas 2026-10-24: 「做成多选」; Q12-5 「不需要重复填写」).
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ClipboardCheck, Loader2 } from "lucide-react";
+import { ClipboardCheck, Loader2, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -102,9 +107,11 @@ export function InspectionDialog({
   const t = useTranslations("documents.inspection");
   const queryClient = useQueryClient();
   const [target, setTarget] = useState<"EQUIPMENT" | "MATERIAL">("EQUIPMENT");
-  const [equipment, setEquipment] = useState("");
+  const [machinesChosen, setMachinesChosen] = useState<string[]>([]);
+  // The material and specification being picked; 「加入」 adds the pair.
   const [material, setMaterial] = useState("");
   const [spec, setSpec] = useState("");
+  const [materialsChosen, setMaterialsChosen] = useState<{ material: string; spec: string }[]>([]);
   const [number, setNumber] = useState("");
   const [inspectedOn, setInspectedOn] = useState("");
   const [inspector, setInspector] = useState("");
@@ -126,11 +133,28 @@ export function InspectionDialog({
   });
   const materialRows = (materials.data?.results ?? []).filter((row) => !row.parent);
   const specRows = (materialRows.find((row) => row.id === material)?.specs ?? []).filter((row) => !row.is_other);
+  const materialLabel = (item: { material: string; spec: string }) => {
+    const row = materialRows.find((candidate) => candidate.id === item.material);
+    const specName = row?.specs?.find((candidate) => candidate.id === item.spec)?.name;
+    return [row?.name ?? "", specName ?? t("allSpecs")].join(" · ");
+  };
+  const addMaterial = () => {
+    const item = { material, spec };
+    setMaterialsChosen((current) =>
+      current.some((row) => row.material === item.material && row.spec === item.spec) ? current : [...current, item],
+    );
+    setMaterial("");
+    setSpec("");
+  };
+  const chosenCount = target === "EQUIPMENT" ? machinesChosen.length : materialsChosen.length;
   const save = useMutation({
     mutationFn: () => {
       const payload: InspectionPayload = {
         target,
-        ...(target === "EQUIPMENT" ? { equipment } : { material, ...(spec ? { spec } : {}) }),
+        items:
+          target === "EQUIPMENT"
+            ? machinesChosen.map((equipment) => ({ equipment }))
+            : materialsChosen.map((item) => ({ material: item.material, ...(item.spec ? { spec: item.spec } : {}) })),
         inspection_no: number.trim(),
         inspected_on: inspectedOn,
         inspector: inspector.trim(),
@@ -152,7 +176,7 @@ export function InspectionDialog({
     },
   });
   const requires: [unknown, string][] = [
-    [target === "EQUIPMENT" ? equipment : material, target === "EQUIPMENT" ? t("equipment") : t("material")],
+    [chosenCount > 0, target === "EQUIPMENT" ? t("equipment") : t("material")],
     [number.trim(), t("number")],
     [inspectedOn, t("inspectedOn")],
     [inspector.trim(), t("inspector")],
@@ -178,19 +202,34 @@ export function InspectionDialog({
             </Select>
           </FieldWrapper>
           {target === "EQUIPMENT" ? (
-            <FieldWrapper label={t("equipment")} required className="sm:col-span-2">
-              <Select value={equipment} onValueChange={setEquipment}>
-                <SelectTrigger className="w-full bg-card" aria-label={t("equipment")}>
-                  <SelectValue placeholder={t("choose")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {(machines.data?.results ?? []).map((row) => (
-                    <SelectItem key={row.id} value={row.id}>
-                      {[row.site_no, row.name, row.registration_no].filter(Boolean).join(" · ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <FieldWrapper
+              label={t("equipment")}
+              required
+              hint={t("severalHint", { count: machinesChosen.length })}
+              className="sm:col-span-2"
+            >
+              <div
+                role="group"
+                aria-label={t("equipment")}
+                className="max-h-56 overflow-y-auto rounded-md border bg-card"
+              >
+                {(machines.data?.results ?? []).map((row) => (
+                  <label
+                    key={row.id}
+                    className="flex min-h-10 cursor-pointer items-center gap-2 border-b px-3 py-2 text-sm last:border-b-0"
+                  >
+                    <Checkbox
+                      checked={machinesChosen.includes(row.id)}
+                      onCheckedChange={(checked) =>
+                        setMachinesChosen((current) =>
+                          checked === true ? [...current, row.id] : current.filter((id) => id !== row.id),
+                        )
+                      }
+                    />
+                    <span>{[row.site_no, row.name, row.registration_no].filter(Boolean).join(" · ")}</span>
+                  </label>
+                ))}
+              </div>
               <QueryFailedNote query={machines} what={t("equipment")} />
             </FieldWrapper>
           ) : (
@@ -231,6 +270,34 @@ export function InspectionDialog({
                   </SelectContent>
                 </Select>
               </FieldWrapper>
+              <div className="space-y-2 sm:col-span-2">
+                <Button variant="outline" requires={[[material, t("material")]]} onClick={addMaterial}>
+                  <Plus />
+                  {t("addItem")}
+                </Button>
+                <p className="text-xs text-muted-foreground">{t("severalHint", { count: materialsChosen.length })}</p>
+                {materialsChosen.length > 0 && (
+                  <ul className="divide-y rounded-md border bg-card" data-testid="inspection-materials">
+                    {materialsChosen.map((item) => (
+                      <li key={`${item.material}:${item.spec}`} className="flex items-center gap-2 px-3 py-1 text-sm">
+                        <span className="flex-1">{materialLabel(item)}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("removeItem")}
+                          onClick={() =>
+                            setMaterialsChosen((current) =>
+                              current.filter((row) => row.material !== item.material || row.spec !== item.spec),
+                            )
+                          }
+                        >
+                          <X />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </>
           )}
           <FieldWrapper label={t("number")} required hint={t("numberHint")}>

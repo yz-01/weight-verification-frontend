@@ -7582,7 +7582,10 @@
       "validUntil": "有效期至 {date}",
       "filedBy": "{name} 于 {at} 填写",
       "expiryTitle": "检验报告到期（{count}）",
-      "openArchive": "打开文件档案"
+      "openArchive": "打开文件档案",
+      "severalHint": "可以选多项；每项各存一笔一样的检验结果。已选 {count} 项。",
+      "addItem": "加入",
+      "removeItem": "移除"
     }
   },
   "driver": {
@@ -8535,7 +8538,8 @@
     "androidStep3": "再点「安装」，以后从桌面的新图标打开",
     "reuseLinkTip": "请保留这个链接。下次直接再点一次就能进去，不用重新要链接。在这台手机的其他浏览器打开也可以，输入同一个 PIN 就行。",
     "useInBrowser": "先用网页版",
-    "joinBody": "这个浏览器第一次使用：输入同一个 6 位 PIN 就能继续。"
+    "joinBody": "这个浏览器第一次使用：输入同一个 6 位 PIN 就能继续。",
+    "privateBrowsing": "你正在用无痕（私密）浏览。这种模式关掉 Safari 或 Chrome 就会忘记登录，下次打开要重新输入 PIN。请用一般模式打开链接，或把工作台加到主屏幕。"
   },
   "fieldAccessAdmin": {
     "unbind": {
@@ -8933,12 +8937,6 @@
       "WASTE": "环保材料出场申请"
     },
     "locationAccess": {
-      "why": {
-        "title": "这里需要用到你的位置",
-        "body": "App 开着的时候会定时读取你的位置，用来自动记录进场和离开，收货和现场记录也会记下发生的地点。关掉 App 或拒绝定位就不会记录，也不会用旧位置代替。",
-        "allow": "好，允许定位",
-        "later": "暂时不要"
-      },
       "denied": {
         "title": "浏览器不让这个网页取你的位置",
         "iosNote": "如果你从头到尾没看到过询问框，那是定位在手机设置里被关掉了。网页再怎么请求都弹不出那个框 —— 只能按下面的步骤打开。"

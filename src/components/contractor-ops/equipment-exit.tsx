@@ -216,7 +216,6 @@ export function EquipmentExitApplyDialog({
           </FieldWrapper>
           <LocationField
             label={t("field.location")}
-            actionLabel={t("action.getLocation")}
             readyLabel={t("action.locationReady")}
             hint={t("equipmentExit.applyLocationHint")}
             value={location}
@@ -603,7 +602,6 @@ export function EquipmentExitHandoverForm({
         <LocationField
           className="sm:col-span-2"
           label={t("field.location")}
-          actionLabel={t("action.getLocation")}
           readyLabel={t("action.locationReady")}
           required="quiet"
           hint={t("equipmentExit.locationHint")}

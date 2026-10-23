@@ -7582,7 +7582,10 @@
       "validUntil": "sah sehingga {date}",
       "filedBy": "difailkan oleh {name}, {at}",
       "expiryTitle": "Laporan pemeriksaan akan tamat ({count})",
-      "openArchive": "Buka arkib dokumen"
+      "openArchive": "Buka arkib dokumen",
+      "severalHint": "Boleh pilih beberapa; setiap satu menerima keputusan yang sama. {count} dipilih.",
+      "addItem": "Tambah",
+      "removeItem": "Buang"
     }
   },
   "driver": {
@@ -8535,7 +8538,8 @@
     "androidStep3": "Tekan Pasang, kemudian sentiasa buka ikon baharu",
     "reuseLinkTip": "Simpan pautan ini. Lain kali ketik sahaja sekali lagi - anda terus masuk. Ia juga berfungsi dalam pelayar lain di telefon ini dengan PIN yang sama.",
     "useInBrowser": "Guna dalam pelayar dahulu",
-    "joinBody": "Kali pertama dalam pelayar ini: masukkan PIN 6 digit yang sama untuk teruskan."
+    "joinBody": "Kali pertama dalam pelayar ini: masukkan PIN 6 digit yang sama untuk teruskan.",
+    "privateBrowsing": "Anda sedang melayari secara peribadi (inkognito). Dalam mod ini telefon melupakan log masuk apabila Safari atau Chrome ditutup, dan meminta PIN sekali lagi. Buka pautan dalam tab biasa, atau tambah ruang kerja ke Skrin Utama."
   },
   "fieldAccessAdmin": {
     "unbind": {
@@ -8933,12 +8937,6 @@
       "WASTE": "Permohonan bahan alam sekitar keluar"
     },
     "locationAccess": {
-      "why": {
-        "title": "Ini memerlukan lokasi anda",
-        "body": "Semasa aplikasi dibuka, lokasi anda dibaca dari semasa ke semasa untuk merekod ketibaan dan keluar anda di tapak secara automatik, dan penghantaran serta rekod tapak dicap dengan tempat ia berlaku. Tutup aplikasi atau tolak lokasi dan tiada apa direkod - lokasi lama tidak digunakan.",
-        "allow": "Benarkan lokasi",
-        "later": "Bukan sekarang"
-      },
       "denied": {
         "title": "Pelayar tidak memberikan lokasi anda kepada halaman ini",
         "iosNote": "Jika anda tidak pernah nampak kotak bertanya, lokasi dimatikan untuk pelayar ini dalam tetapan telefon. Tiada halaman web boleh memunculkan kotak itu semula - ia mesti dihidupkan di bawah."

@@ -229,13 +229,16 @@ export function ReadField({
   const isEmpty =
     value === null || value === undefined || value === "" || value === "—";
   return (
-    <div className={cn("space-y-1.5", className)}>
+    // `min-w-0` and breaking anywhere: a long name with no spaces - a photo's
+    // file name - wraps inside its box instead of running over the next one
+    // (Lucas 2026-10-24: 「字已经超出格子了」).
+    <div className={cn("min-w-0 space-y-1.5", className)}>
       <Label className="text-sm font-medium">{label}</Label>
-      <div className={cn("flex items-center rounded-lg border border-input bg-muted/50 px-3 text-sm", surface === "dialog" ? "min-h-10 py-2" : "min-h-10 py-2")}>
+      <div className={cn("flex min-w-0 items-center rounded-lg border border-input bg-muted/50 px-3 text-sm", surface === "dialog" ? "min-h-10 py-2" : "min-h-10 py-2")}>
         {isEmpty ? (
           <span className="italic text-muted-foreground">—</span>
         ) : (
-          value
+          <div className="min-w-0 [overflow-wrap:anywhere]">{value}</div>
         )}
       </div>
     </div>

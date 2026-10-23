@@ -86,8 +86,22 @@ describe("the shared table keeps its header and its actions in sight", () => {
     expect(table).toMatch(/data-fit=\{fit \? "" : undefined\}/);
     const fit = css.slice(css.indexOf("@media (min-width: 40rem) {\n  [data-slot=\"table\"][data-fit]"));
     expect(fit).toMatch(/\[data-fit\] \{\s*min-width: 0;\s*width: 100%;\s*table-layout: auto;\s*font-size: 13px;/);
-    expect(fit).toMatch(/> td \{\s*padding-inline: 0\.5rem;\s*font-size: 13px;\s*white-space: normal;/);
+    expect(fit).toMatch(/> td \{\s*padding-inline: 0\.375rem;\s*font-size: 13px;\s*white-space: normal;/);
     expect(fit).toMatch(/\[data-slot="cell-fit"\] \{[\s\S]*?-webkit-line-clamp: 2;[\s\S]*?overflow: hidden;/);
+  });
+
+  it("every table fits by default; nothing held on one line widens it (Lucas 2026-10-24)", () => {
+    // 「尽量把整个的table的水平滚动条移除掉…整个系统都是这样」
+    expect(table).toMatch(/fit = true,/);
+    const fit = css.slice(css.indexOf("@media (min-width: 40rem) {\n  [data-slot=\"table\"][data-fit]"));
+    // A heading wraps, but never inside a word.
+    expect(fit).toMatch(/> th:not\(\[data-pin\]\) \{\s*white-space: normal;\s*word-break: keep-all;\s*min-width: 0;/);
+    // Text a page held on one line wraps in a fitted cell; pills and buttons do not.
+    expect(fit).toMatch(/\.whitespace-nowrap:not\(\.rounded-full, \[data-slot="button"\], button\) \{\s*white-space: normal;/);
+    // The empty-list message is as wide as the table on a desktop, not the
+    // box and its scrollbar (that was the last 16 px of every sideways bar).
+    expect(table).toMatch(/w-\[100cqw\] sm:w-full/);
+    expect(dataTable).toMatch(/w-\[100cqw\] sm:w-full/);
   });
 
   it("DataTable fits, clamps cells to two lines and pins its actions column", () => {

@@ -137,7 +137,7 @@ export function RecyclerInventoryWorkspace() {
               ) : inventory.isLoading ? (
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={4} className="h-36 p-0 text-center">
-                    <div className="sticky left-0 grid w-[100cqw] place-items-center">
+                    <div className="sticky left-0 grid w-[100cqw] sm:w-full place-items-center">
                       <Loader2 className="size-5 animate-spin text-muted-foreground" />
                     </div>
                   </TableCell>
@@ -154,7 +154,7 @@ export function RecyclerInventoryWorkspace() {
               ) : (
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={4} className="h-36 p-0 text-center">
-                    <div className="sticky left-0 flex w-[100cqw] flex-col items-center gap-2 px-6 text-muted-foreground">
+                    <div className="sticky left-0 flex w-[100cqw] sm:w-full flex-col items-center gap-2 px-6 text-muted-foreground">
                       <div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
                         <Boxes className="size-5" />
                       </div>

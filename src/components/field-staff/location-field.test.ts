@@ -38,28 +38,36 @@ describe("location is taken automatically (T-355, D-246)", () => {
     expect(effect.slice(0, effect.indexOf("}, ["))).toContain("void ask()");
   });
 
-  it("keeps the one-time explanation before the very first request", () => {
-    // D-226: 「第一次使用只需授权一次」. An unexplained system prompt is
-    // answered Don't Allow and remembered, so the first request stays behind
-    // the sentence.
+  it("asks straight away, with no one-time explanation first (Lucas 2026-10-24)", () => {
+    // 「把这个出现一次的直接删除掉，如果他们允许定位权限的话直接自动获取GPS就好
+    // 了，不需要问多一次」. The app's tracker has already asked on opening.
     const body = componentBody();
     const effect = body.slice(body.indexOf("useEffect("));
-    // The automatic request waits until the explanation has been read once…
-    expect(effect.slice(0, effect.indexOf("}, ["))).toContain("!primerRead");
-    // …and on a first use the explanation shows by itself, with no button.
-    expect(body).toContain("const showPrimer = !value && !primerRead && !primerDismissed;");
+    expect(effect.slice(0, effect.indexOf("}, ["))).toContain("if (value || attempted.current) return;");
+    expect(code).not.toMatch(/primer/i);
+    expect(code).not.toContain('t("why.');
   });
 
   it("renders no locate button on the normal path", () => {
-    // The only non-retry button is gated on the person having dismissed the
-    // explanation. If it ever renders unconditionally again, the worker is
-    // back to pressing a button on every form.
+    // Every button in the field is a retry after a failure. A locate button
+    // on the normal path puts the worker back to pressing it on every form.
     const body = componentBody();
-    const actionButton = body.indexOf("{actionLabel}");
-    expect(actionButton).toBeGreaterThan(-1);
-    const guard = body.lastIndexOf("{primerDismissed", actionButton);
-    expect(guard, "the locate button must sit behind primerDismissed").toBeGreaterThan(-1);
-    expect(body.slice(guard, actionButton)).not.toContain("</Button>");
+    expect(body).not.toContain("actionLabel");
+    const labels = body.match(/\{t\("[^"]+"\)\}\s*<\/Button>/g) ?? [];
+    expect(labels.length).toBeGreaterThan(0);
+    for (const label of labels) expect(label).toContain('t("retry")');
+  });
+
+  it("refusing location still blocks the whole phone app", () => {
+    // 「如果不允许就不能使用手机端」: the tracker on every field page asks on
+    // opening and puts up a dialog that cannot be closed while refused.
+    const read = (file: string) =>
+      readFileSync(path.join(process.cwd(), "src", "components", "field-staff", file), "utf8");
+    expect(read("field-staff-shell.tsx")).toContain("<FieldLocationTracker />");
+    const tracker = read("field-location-tracker.tsx");
+    expect(tracker).toContain("onEscapeKeyDown={(event) => event.preventDefault()}");
+    expect(tracker).toContain("onPointerDownOutside={(event) => event.preventDefault()}");
+    expect(tracker).toContain('if (state === "active") return null;');
   });
 
   it("still offers a retry when the automatic attempt fails", () => {

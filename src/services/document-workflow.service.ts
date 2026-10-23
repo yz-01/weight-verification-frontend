@@ -455,10 +455,10 @@ export const documentRecordsPdf = (documentId: string, name: string) =>
   fetchAsFile(`/api/documents/${documentId}/download_records/`, { fallbackFilename: `${name || "records"}.pdf` });
 
 /** 填写检验结果 (J12-7): filed once, never changed; a re-inspection is a new one. */
-export async function addInspection(documentId: string, payload: InspectionPayload): Promise<InspectionInfo> {
-  const row = await api.post<InspectionInfo>(`/api/documents/${documentId}/add_inspection/`, payload);
+export async function addInspection(documentId: string, payload: InspectionPayload): Promise<InspectionInfo[]> {
+  const rows = await api.post<InspectionInfo[]>(`/api/documents/${documentId}/add_inspection/`, payload);
   toastSuccess("documents.toast.inspectionFiled");
-  return row;
+  return rows;
 }
 
 /** Inspection reports running out within 30 days, or out (Q11-3). */

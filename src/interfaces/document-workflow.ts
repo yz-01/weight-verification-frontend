@@ -234,6 +234,8 @@ export interface InspectionInfo {
 
 export interface InspectionPayload {
   target: "EQUIPMENT" | "MATERIAL";
+  /** Several machines, or several materials: one result each, same report. */
+  items?: Array<{ equipment?: string; material?: string; spec?: string; receipt?: string }>;
   equipment?: string;
   material?: string;
   spec?: string;

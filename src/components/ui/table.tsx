@@ -22,14 +22,16 @@ import { cn } from "@/lib/utils"
 function Table({
   className,
   containerClassName,
-  fit,
+  fit = true,
   ...props
 }: React.ComponentProps<"table"> & {
   containerClassName?: string
   /**
-   * A back-office list that must fit the screen (I39, ID80): columns sized by
-   * their content, long text on two lines at most, 13 px, tight padding.
-   * The rules are in globals.css under `[data-fit]`; the phone is unchanged.
+   * Fit the screen (I39, ID80): columns sized by their content, long text on
+   * two lines at most, 13 px, tight padding. The rules are in globals.css
+   * under `[data-fit]`; the phone is unchanged. On by default since Lucas
+   * 2026-10-24: 「尽量把整个的table的水平滚动条移除掉…整个系统都是这样」.
+   * `fit={false}` only for a table that is meant to be read sideways.
    */
   fit?: boolean
 }) {
@@ -82,7 +84,7 @@ function TableBody({ className, children, ...props }: React.ComponentProps<"tbod
             colSpan={100}
             className="h-36 p-0 text-center text-sm text-muted-foreground"
           >
-            <div className="sticky left-0 flex w-[100cqw] items-center justify-center px-6 whitespace-normal">
+            <div className="sticky left-0 flex w-[100cqw] sm:w-full items-center justify-center px-6 whitespace-normal">
               {t("noResults")}
             </div>
           </td>
@@ -158,7 +160,7 @@ function TableCell({
       {...props}
     >
       {colSpan ? (
-        <div className="sticky left-0 flex w-[100cqw] max-w-[100cqw] items-center whitespace-normal">
+        <div className="sticky left-0 flex w-[100cqw] max-w-[100cqw] sm:w-full sm:max-w-full items-center whitespace-normal">
           {children}
         </div>
       ) : children}

@@ -34,6 +34,7 @@ import {
   validBootstrap,
 } from "@/lib/field-install";
 import { replacePage, safeReturnPath } from "@/lib/portal";
+import { isPrivateBrowsing } from "@/lib/private-browsing";
 import { cacheBranding } from "@/lib/branding";
 import {
   activateFieldDevice,
@@ -77,6 +78,19 @@ export function FieldAccess() {
   // id. Without this the refusal reads as the worker having done
   // something wrong, when the browser is discarding their identity.
   const [storageBlocked, setStorageBlocked] = useState(false);
+  // Private browsing forgets the sign-in when the browser is closed, and the
+  // next open asks for the PIN again (Lucas 2026-10-24). Said before the PIN
+  // is typed, so the worker can open the link in a normal tab instead.
+  const [privateBrowsing, setPrivateBrowsing] = useState(false);
+  useEffect(() => {
+    let current = true;
+    void isPrivateBrowsing().then((found) => {
+      if (current) setPrivateBrowsing(found);
+    });
+    return () => {
+      current = false;
+    };
+  }, []);
   // Whether the stored install key is worth trying, decided once at mount
   // rather than set from inside the effect - the PIN form stays hidden until
   // the attempt has failed, so the app does not flash a form the worker will
@@ -369,6 +383,11 @@ export function FieldAccess() {
             </p>
           ) : null}
           {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
+          {privateBrowsing && (
+            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
+              {t("privateBrowsing")}
+            </p>
+          )}
           {storageBlocked && (
             <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
               {t("storageBlocked")}
