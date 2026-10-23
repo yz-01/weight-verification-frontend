@@ -312,3 +312,17 @@ describe("a refused session keeps the way back in (4)", () => {
     expect(provider).not.toMatch(/clearFieldTokens\(\)/);
   });
 });
+
+describe("opened in Safari from a scanner or chat app with the link in the address (Lucas 2026-10-23)", () => {
+  const source = read("components/field-staff/field-access.tsx");
+  it("tries the address's link, never an older one this browser kept", () => {
+    expect(source).toMatch(/if \(joinLink\) return isStandaloneApp\(\) \? joinLink : null;/);
+    expect(source).toMatch(/const stored = resumeLink\(joinLink\);/);
+  });
+  it("does not show a sign-out reason from an older link", () => {
+    expect(source).toMatch(/if \(officeReason && !joinLink && !token\)/);
+  });
+  it("asks for the same PIN in plain words", () => {
+    expect(source).toMatch(/joinLink \? t\("joinBody"\) : t\("loginBody"\)/);
+  });
+});

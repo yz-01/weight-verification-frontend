@@ -20,7 +20,7 @@ import {
   type Paginated,
 } from "@/interfaces/api";
 import {
-  FIELD_OFFICE_SIGN_OUTS,
+  FIELD_EXPLAINED_SIGN_OUTS,
   clearTokens,
   rememberFieldSignOutReason,
   getAccessToken,
@@ -222,7 +222,7 @@ function endSession(): void {
   if (typeof window !== "undefined" && window.location.pathname !== loginPath) {
     // The office's new link or 停用 is said as such on the phone.
     const officeReason =
-      isFieldSessionContext() && FIELD_OFFICE_SIGN_OUTS.includes(reason)
+      isFieldSessionContext() && FIELD_EXPLAINED_SIGN_OUTS.includes(reason)
         ? resolveMessage(reason, "")
         : "";
     if (officeReason) rememberFieldSignOutReason(officeReason);

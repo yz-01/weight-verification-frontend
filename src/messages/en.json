@@ -8227,7 +8227,8 @@
       "permission_switches_unknown_project": "Choose projects of this company.",
       "permission_switches_self_lockout": "You cannot switch off your own user management.",
       "permission_switches_last_user_manager": "Somebody in the company must keep user management.",
-      "receipt_line_returned": "A return names this material, so it cannot be removed."
+      "receipt_line_returned": "A return names this material, so it cannot be removed.",
+      "field_place_signed_out": "This browser was signed out because you signed in on other phones or browsers. Enter your PIN to continue here."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8533,7 +8534,8 @@
     "androidStep2": "Tap Install app or Add to Home screen",
     "androidStep3": "Tap Install, then always open the new icon",
     "reuseLinkTip": "Keep this link. Next time just tap it again - you go straight in. It also works in another browser on this phone with the same PIN.",
-    "useInBrowser": "Use in the browser for now"
+    "useInBrowser": "Use in the browser for now",
+    "joinBody": "First time in this browser: enter the same 6-digit PIN to continue."
   },
   "fieldAccessAdmin": {
     "unbind": {

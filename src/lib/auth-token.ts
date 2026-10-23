@@ -143,6 +143,13 @@ export function getFieldBootstrapToken(): string | null {
 /** The two things that sign a field phone out on the office's word. */
 export const FIELD_OFFICE_SIGN_OUTS = ["field_link_replaced", "field_account_stopped"];
 
+/**
+ * Every sign-out the phone says in words on its PIN screen: the office's two,
+ * and this browser having been signed out because the person signed in
+ * elsewhere (Lucas 2026-10-23) - which the PIN alone puts right.
+ */
+export const FIELD_EXPLAINED_SIGN_OUTS = [...FIELD_OFFICE_SIGN_OUTS, "field_place_signed_out"];
+
 const FIELD_SIGN_OUT_REASON_KEY = "mse_field_sign_out_reason";
 
 /** Kept for the sign-in screen the session ends on (one page load). */
