@@ -167,6 +167,32 @@ export function takeFieldSignOutReason(): string {
   }
 }
 
+const FIELD_INSTALL_HELP_KEY = "mse_field_install_help";
+
+/**
+ * Set when this tab is sent to the "phone ready" page on purpose - by the PIN
+ * or the workspace's add-to-Home-Screen banner. Only then does that page show
+ * its install help; opened any other way (a bookmark, a home-screen icon that
+ * opens in Safari) it goes straight on.
+ */
+export function markFieldInstallHelp(): void {
+  if (!isBrowser()) return;
+  try {
+    window.sessionStorage.setItem(FIELD_INSTALL_HELP_KEY, "1");
+  } catch {
+    // Storage blocked: the ready page then goes straight to the workspace.
+  }
+}
+
+export function fieldInstallHelpWanted(): boolean {
+  if (!isBrowser()) return false;
+  try {
+    return window.sessionStorage.getItem(FIELD_INSTALL_HELP_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export function clearFieldBootstrapToken(): void {
   if (!isBrowser()) return;
   window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);

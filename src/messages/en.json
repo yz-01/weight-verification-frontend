@@ -8465,7 +8465,6 @@
     "desktopExpired": "This installation cannot restore its session. If an administrator reissued access, open the latest link, enter the PIN, and add it to the Home Screen again.",
     "desktopExpiredTitle": "App automatic sign-in unavailable",
     "desktopSigningIn": "Restoring your field staff sign-in...",
-    "tabNeedsActivation": "Use the activation link the office sent you to link this phone. This address cannot sign you in by itself.",
     "desktopTitle": "Install from Chrome or Edge",
     "driverInstallBody": "Add this driver workspace to your Home Screen for faster access.",
     "driverInstallBrowserGuide": "Open the browser menu, then choose Install app or Add to Home screen.",
@@ -8488,19 +8487,16 @@
     "iosSafariBody": "Tap Share, choose Add to Home Screen, keep Open as Web App enabled, then tap Add. Open the new icon from the Home Screen.",
     "iosSafariTitle": "Install from Safari on iPhone",
     "iosTitle": "Add on iPhone",
-    "loginBody": "Enter the 6-digit PIN for this linked device. A new device must first open the invitation link.",
+    "loginBody": "Enter your 6-digit PIN. If this is a new phone or browser, tap the link from the office instead.",
     "loginTitle": "Field staff sign in",
     "openWorkspace": "Open camera workspace",
     "phone": "Mobile number",
     "pin": "6-digit PIN",
-    "readyBody": "This phone is now securely linked to your field account.",
+    "readyBody": "You are signed in. Add it to the Home Screen so the icon opens it straight away. You can also use it in the browser - next time just tap the same link.",
     "readyTitle": "Phone ready",
     "signIn": "Sign in",
     "thisPhone": "This phone",
     "storageBlocked": "This browser is not keeping site data, so this phone cannot stay linked. Open the invitation link in a normal window rather than a private one, and allow site data for this address.",
-    "browserWarningTitle": "Open this link in your normal browser",
-    "browserWarning": "This phone is linked to whichever browser you activate in. Activating inside a chat app links only that app, and opening the site later in Safari or Chrome will arrive as a different phone.",
-    "browserWarningNamed": "This link opened inside {app}. Copy it and open it in Safari or Chrome first, then activate there.",
     "copyLink": "Copy the link",
     "copied": "Link copied. Paste it into Safari or Chrome.",
     "resuming": "Opening your workspace...",
@@ -8534,14 +8530,16 @@
     "androidStepsTitle": "Install on Android",
     "androidStep1": "Tap the <menu></menu> menu at the top right of Chrome",
     "androidStep2": "Tap Install app or Add to Home screen",
-    "androidStep3": "Tap Install, then always open the new icon"
+    "androidStep3": "Tap Install, then always open the new icon",
+    "reuseLinkTip": "Keep this link. Next time just tap it again - you go straight in. It also works in another browser on this phone with the same PIN.",
+    "useInBrowser": "Use in the browser for now"
   },
   "fieldAccessAdmin": {
     "unbind": {
-      "action": "Unbind",
-      "confirm": "This phone will be signed out straight away. Continue?",
-      "help": "Use this when a phone is lost or handed to someone else. The person signs in again on the new phone.",
-      "title": "Unbind this device"
+      "action": "Sign out everywhere",
+      "confirm": "Every phone and browser this person uses will be signed out straight away. Continue?",
+      "help": "Use this when a phone is lost or handed to someone else. Every phone and browser this person uses is signed out; they tap the link again to come back in.",
+      "title": "Sign out everywhere"
     },
     "action": "Field staff login link",
     "activationLink": "Activation link",
@@ -8586,7 +8584,17 @@
       "accessInfo": "This person's current projects"
     },
     "role": "Role",
-    "roleHint": "A gate guard scans passes and takes gate photo records. Both sign in on the phone with this link."
+    "roleHint": "A gate guard scans passes and takes gate photo records. Both sign in on the phone with this link.",
+    "places": {
+      "title": "Signed in now: {count} of {limit}",
+      "none": "Not signed in anywhere yet.",
+      "lastSeen": "last used {time}",
+      "help": "Each browser or Home Screen app counts once. Past {limit}, the one used longest ago is signed out.",
+      "app": "Home Screen app",
+      "inApp": "Chat app browser",
+      "computer": "Computer browser",
+      "browser": "Browser"
+    }
   },
   "fieldDraft": {
     "loading": "Loading saved draft...",

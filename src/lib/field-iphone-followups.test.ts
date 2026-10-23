@@ -190,9 +190,9 @@ describe("the hand-off on workspace addresses (2)", () => {
     );
   });
 
-  it("a browser tab with a copied link is not signed in: PIN screen, link off the address", () => {
+  it("a browser tab with the link is not signed in by it alone: the PIN screen joins with it (Lucas 2026-10-23)", () => {
     expect(fieldWorkspaceSignIn(`/field-staff?tab=mine&bootstrap=${TOKEN}`, false)).toBe(
-      `/trace/field-login?next=${encodeURIComponent("/field-staff?tab=mine")}`,
+      `/trace/field-login?bootstrap=${TOKEN}&next=${encodeURIComponent("/field-staff?tab=mine")}`,
     );
   });
 
@@ -233,17 +233,32 @@ describe("reload, return and relaunch keep the session (4, 5)", () => {
       "tab-refused",
     );
     const source = read("components/field-staff/field-pwa-bootstrap.tsx");
-    expect(source).toMatch(/step === "tab-refused"[\s\S]*?replaceState\([^)]*"\/field-pwa-bootstrap"\)/);
+    // It asks for the PIN, which signs the tab in with the link.
+    expect(source).toMatch(/step === "tab-refused"[\s\S]*?replacePage\(fieldJoinWithPinPath\(token, next\)\)/);
     expect(source).toMatch(/context: "standalone"/);
   });
 
-  it("a slot refilled too soon sends the app to its PIN screen with the link", () => {
+  it("the PIN screen signs in with the link it holds, in the address or kept from before", () => {
     expect(fieldJoinWithPinPath(TOKEN, "/field-staff")).toBe(
       `/trace/field-login?bootstrap=${TOKEN}&next=${encodeURIComponent("/field-staff")}`,
     );
-    const source = read("components/field-staff/field-pwa-bootstrap.tsx");
-    expect(source).toMatch(/field_companion_pin_required[\s\S]*?replacePage\(fieldJoinWithPinPath\(token, next\)\)/);
-    expect(read("components/field-staff/field-access.tsx")).toMatch(/bootstrap: joinLink/);
+    const source = read("components/field-staff/field-access.tsx");
+    expect(source).toMatch(/const link = joinLink \?\? validBootstrap\(getFieldBootstrapToken\(\)\)/);
+    expect(source).toMatch(/bootstrap: link/);
+  });
+
+  it("tapping the activation link again where already signed in goes straight in (Lucas 2026-10-23)", () => {
+    const source = read("components/field-staff/field-access.tsx");
+    expect(source).toMatch(/!token \|\| invitation\.isLoading \|\| !hasFieldSession\(\)/);
+    expect(source).toMatch(/invitation\.data\?\.user_id === holder/);
+    expect(source).not.toMatch(/browserWarning/);
+  });
+
+  it("the ready page shows install help only when sent there; opened later it goes on", () => {
+    const source = read("components/field-staff/field-install-ready.tsx");
+    expect(source).toMatch(/if \(!fieldInstallHelpWanted\(\)\)/);
+    expect(read("components/field-staff/field-access.tsx")).toMatch(/markFieldInstallHelp\(\);\s*openPage\(/);
+    expect(read("components/field-staff/field-install-banner.tsx")).toMatch(/markFieldInstallHelp\(\)/);
   });
 
   it("the start page decides before it calls the server", () => {

@@ -9,7 +9,7 @@ import {
   UserRoundCheck,
   UserRoundPlus,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -36,6 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { detectInstallEnvironment } from "@/lib/field-install";
 import { cn } from "@/lib/utils";
 import { getProjects } from "@/services/contractor.service";
 import {
@@ -44,6 +45,7 @@ import {
   resetFieldDevice,
   reissueFieldInvitation,
   type FieldInvitationResult,
+  type FieldPlace,
 } from "@/services/field-access.service";
 import { getRoles, getUsers } from "@/services/users.service";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
@@ -533,6 +535,12 @@ function FieldAccessManagementContent({
             <p className="mt-0.5 text-xs text-muted-foreground">
               {t("unbind.help")}
             </p>
+            {accessInfo.data?.places && (
+              <SignedInPlaces
+                places={accessInfo.data.places}
+                limit={accessInfo.data.places_limit ?? 3}
+              />
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -579,4 +587,66 @@ function FieldAccessManagementContent({
       </DialogContent>
     </Dialog>
   );
+}
+
+/**
+ * Where this person is signed in now: each browser or home-screen app is one
+ * place, up to the limit; signing in one more signs out the place used
+ * longest ago (Lucas 2026-10-23).
+ */
+function SignedInPlaces({ places, limit }: { places: FieldPlace[]; limit: number }) {
+  const t = useTranslations("fieldAccessAdmin");
+  const format = useFormatter();
+  return (
+    <div className="mt-2 rounded-md border bg-background p-2 text-xs">
+      <p className="font-medium">
+        {t("places.title", { count: places.length, limit })}
+      </p>
+      {places.length === 0 ? (
+        <p className="mt-1 text-muted-foreground">{t("places.none")}</p>
+      ) : (
+        <ul className="mt-1 grid gap-1">
+          {places.map((place) => (
+            <li
+              key={`${place.bound_at}-${place.user_agent}`}
+              className="flex flex-wrap items-center justify-between gap-x-3"
+            >
+              <span>{placeName(place, t)}</span>
+              <span className="text-muted-foreground">
+                {t("places.lastSeen", {
+                  time: format.dateTime(new Date(place.last_seen_at), {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }),
+                })}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-1 text-muted-foreground">{t("places.help", { limit })}</p>
+    </div>
+  );
+}
+
+function placeName(
+  place: FieldPlace,
+  t: ReturnType<typeof useTranslations<"fieldAccessAdmin">>,
+): string {
+  if (place.kind === "app") return t("places.app");
+  if (/WhatsApp/.test(place.user_agent)) return "WhatsApp";
+  switch (detectInstallEnvironment({ userAgent: place.user_agent })) {
+    case "ios-safari":
+      return "Safari";
+    case "ios-chrome":
+      return "Chrome";
+    case "ios-in-app":
+      return t("places.inApp");
+    case "android":
+      return "Android";
+    case "desktop-chromium":
+      return t("places.computer");
+    default:
+      return t("places.browser");
+  }
 }
