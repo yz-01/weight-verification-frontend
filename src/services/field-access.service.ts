@@ -18,6 +18,19 @@ export interface FieldInvitationInfo {
   idle_days: number;
   activated_at: string | null;
   branding: Branding;
+  /** Office only (access_info): where this person is signed in now. */
+  places?: FieldPlace[];
+  places_limit?: number;
+}
+
+/** One browser or home-screen app a field account is signed in on. */
+export interface FieldPlace {
+  /** "app" = added to the Home Screen, "browser" = a browser tab. */
+  kind: "app" | "browser" | "";
+  device_name: string;
+  user_agent: string;
+  bound_at: string;
+  last_seen_at: string;
 }
 
 export interface FieldInvitationResult extends FieldInvitationInfo {
@@ -99,6 +112,7 @@ export async function activateFieldDevice(payload: {
   pin: string;
   device_id: string;
   device_name?: string;
+  context?: FieldContext;
 }): Promise<FieldLoginResponse> {
   const result = await api.post<FieldLoginResponse>(
     "/api/field-access/activate/",
@@ -113,7 +127,7 @@ export async function fieldLogin(payload: {
   phone?: string;
   pin: string;
   device_id: string;
-  /** The installed app joining the phone with its link and the PIN. */
+  /** The app sign-in link this page holds: with the PIN it signs this page in too. */
   bootstrap?: string;
   context?: FieldContext;
 }): Promise<FieldLoginResponse> {
@@ -127,8 +141,8 @@ export async function fieldLogin(payload: {
 }
 
 /**
- * Who is asking: the installed app ("standalone") or a browser tab. Only the
- * installed app may join a phone with a link; the server refuses a tab.
+ * Who is asking: the installed app ("standalone") or a browser tab. Without
+ * the PIN only the installed app signs in with a link; a tab types the PIN.
  */
 export type FieldContext = "standalone" | "browser";
 
@@ -154,12 +168,26 @@ function beginFieldSession(result: LoginResponse): void {
   setLocaleCookie(result.user.language);
   try {
     window.localStorage.setItem(LINKED_KEY, "1");
+    window.localStorage.setItem(FIELD_USER_KEY, result.user.id);
   } catch {
     // Storage blocked: the sign-in still stands for this page.
   }
 }
 
 const LINKED_KEY = "mse_field_linked";
+const FIELD_USER_KEY = "mse_field_user";
+
+/**
+ * The field account this browser last signed in as, so tapping the
+ * activation link again goes straight in when it is the same person.
+ */
+export function fieldSessionUserId(): string | null {
+  try {
+    return window.localStorage.getItem(FIELD_USER_KEY);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Whether this browser storage has ever been signed in as a field phone.
