@@ -346,6 +346,10 @@ export function Attendance() {
       )}
 
       <DataTable
+        // A record with a photo or a position opens it, as its button does.
+        onRowClick={(record) => {
+          if (record.photo || record.latitude) setSelectedRecord(record);
+        }}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={total}

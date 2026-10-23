@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { clearanceFigureFilters } from "@/lib/waste-clearance-figures";
 import { getDispatchSummary, getDispatches } from "@/services/contractor.service";
 import { getDisposalRequests, getDisposalTotals, exportWasteClearance } from "@/services/contractor-ops.service";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 type Kind = "all" | "disposal" | "dispatch";
 
@@ -233,6 +234,7 @@ interface MergedRow {
  * kind, merged by time; the arrows move both together.
  */
 function MergedList() {
+  const router = useRouter();
   const t = useTranslations("wasteClearance");
   const disposalT = useTranslations("siteDisposal");
   const root = useTranslations();
@@ -353,7 +355,13 @@ function MergedList() {
               </TableCell>
             </TableRow>
           ) : rows.map((row) => (
-            <TableRow key={`${row.kind}-${row.id}`}>
+            <TableRow
+              key={`${row.kind}-${row.id}`}
+              className="cursor-pointer"
+              onClick={(event) => {
+                if (clickOpensRow(event)) router.push(row.href);
+              }}
+            >
               <TableCell>
                 <TypeBadge label={t(`kind.${row.kind}`)} />
               </TableCell>

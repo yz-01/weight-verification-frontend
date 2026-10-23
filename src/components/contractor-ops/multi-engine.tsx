@@ -75,6 +75,7 @@ import {
   updateEvidencePackage,
   updatePackageItem,
 } from "@/services/contractor-ops.service";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 /**
  * Multi Engine - gather evidence from several columns into one PDF (T-235).
@@ -333,7 +334,13 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
             </TableHeader>
             <TableBody>
               {rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer"
+                  onClick={(event) => {
+                    if (clickOpensRow(event)) setOpenId(row.id);
+                  }}
+                >
                   <TableCell className="font-medium">
                     {row.package_no && (
                       <span className="block text-xs font-normal text-muted-foreground tabular">

@@ -64,6 +64,7 @@ import {
   selectClaimItems,
   setClaimPayment,
 } from "@/services/contractor-ops.service";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 /**
  * Claim Engine - this period's claim, what is already claimed, and the money
@@ -354,7 +355,13 @@ export function ClaimEngineWorkspace() {
             </TableHeader>
             <TableBody>
               {rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer"
+                  onClick={(event) => {
+                    if (clickOpensRow(event)) setOpenId(row.id);
+                  }}
+                >
                   <TableCell className="font-medium">
                     {row.claim_no}
                     <span className="block text-xs font-normal text-muted-foreground">

@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Layers, Lock, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -19,6 +20,7 @@ import type { Role } from "@/interfaces/auth";
 import { deleteRole, getRoles } from "@/services/users.service";
 
 export function Roles() {
+  const router = useRouter();
   const t = useTranslations();
   const { can } = useAuth();
   const queryClient = useQueryClient();
@@ -221,6 +223,7 @@ export function Roles() {
       />
 
       <DataTable
+        onRowClick={(row) => router.push(`/roles/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

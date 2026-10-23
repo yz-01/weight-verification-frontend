@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -111,6 +112,7 @@ export function DispatchCategory({ row }: { row: WasteDispatch }) {
  */
 export function Dispatches() {
   const t = useTranslations();
+  const router = useRouter();
   const df = useDateFormat();
   const { can } = useAuth();
   // `counted=1` arrives from the head office's 废料订单 card (F8): only the
@@ -355,6 +357,7 @@ export function Dispatches() {
       )}
 
       <DataTable
+        onRowClick={(row) => router.push(`/dispatches/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

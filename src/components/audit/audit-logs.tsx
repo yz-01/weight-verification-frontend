@@ -508,6 +508,7 @@ export function AuditLogs({
       )}
 
       <DataTable
+        onRowClick={setViewing}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

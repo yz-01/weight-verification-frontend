@@ -128,6 +128,7 @@ function ShipmentsPanel() {
 
   return <div className="flex h-full min-h-0 flex-col">
     <DataTable
+      onRowClick={setViewing}
       columns={columns} rows={shipments.data?.results ?? []} totalCount={shipments.data?.count ?? 0}
       page={list.page} pageSize={list.pageSize} isLoading={shipments.isLoading} isError={shipments.isError}
       hasFilters={list.hasFilters} search={list.search} sortBy={list.sortBy} sortOrder={list.sortOrder} storageKey="recycler-outbound"

@@ -66,6 +66,7 @@ import {
   getReceiptSummary,
   type ExportFormat,
 } from "@/services/contractor.service";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 export type MaterialReportMode = "quantity" | "cost";
 
@@ -536,7 +537,13 @@ function DeliveryRecords({
         </TableHeader>
         <TableBody>
           {rows.map((row) => (
-            <TableRow key={row.id}>
+            <TableRow
+              key={row.id}
+              className="cursor-pointer"
+              onClick={(event) => {
+                if (clickOpensRow(event)) setOpened(row.id);
+              }}
+            >
               <TableCell className="tabular text-muted-foreground">{df.dateTime(row.captured_at)}</TableCell>
               <TableCell className="tabular font-medium">{row.receipt_no}</TableCell>
               <TableCell className={row.supplier ? undefined : "text-muted-foreground"}>

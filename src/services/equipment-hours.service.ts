@@ -109,7 +109,7 @@ function clean(query: object): Record<string, string> {
   ) as Record<string, string>;
 }
 
-/** One row per start-stop, oldest first, with 累计工时. */
+/** One row per start-stop, newest first, with 累计工时 (added up oldest first). */
 export function getEquipmentHoursDays(query: EquipmentHoursQuery): Promise<EquipmentHoursSessions> {
   return api.get<EquipmentHoursSessions>("/api/equipment-hours/get_days/", clean(query));
 }

@@ -354,6 +354,7 @@ export function EvidenceArchive() {
       </FilterBar>
 
       <DataTable
+        onRowClick={setViewing}
         columns={columns}
         rows={query.data?.results ?? []}
         totalCount={total}

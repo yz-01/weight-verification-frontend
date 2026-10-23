@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Pencil, Trash2, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -32,6 +33,7 @@ const WORK_STATUSES: DriverWorkStatus[] = [
 
 export function Drivers() {
   const t = useTranslations();
+  const router = useRouter();
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
@@ -221,6 +223,7 @@ export function Drivers() {
       <QueryFailedNote query={summary} what={t("drivers.what.summary")} />
 
       <DataTable
+        onRowClick={(row) => router.push(`/drivers/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

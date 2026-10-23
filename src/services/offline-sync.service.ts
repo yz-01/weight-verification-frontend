@@ -1910,7 +1910,9 @@ export async function getOfflineQueueEntries(
           ? conflictHint(job.lastErrorStatus, job.lastErrorCode)
           : null,
     };
-  });
+    // Worked out oldest first (a chain holds what follows it), shown newest
+    // on top like every list (Lucas 2026-10-23).
+  }).reverse();
 }
 
 /**

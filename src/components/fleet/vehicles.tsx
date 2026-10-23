@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Info, Pencil, Scale, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -45,6 +46,7 @@ const WORK_STATUSES: VehicleWorkStatus[] = [
 
 export function Vehicles() {
   const t = useTranslations();
+  const router = useRouter();
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
@@ -220,6 +222,7 @@ export function Vehicles() {
       />
 
       <DataTable
+        onRowClick={(row) => router.push(`/vehicles/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

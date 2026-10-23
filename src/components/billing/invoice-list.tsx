@@ -156,7 +156,7 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
 
   return (
     <div className={embedded ? "flex min-h-0 flex-1 flex-col" : "flex h-[calc(100dvh-5rem)] flex-col gap-4"}>
-      <DataTable columns={columns} rows={invoices.data?.results ?? []} totalCount={totalCount} page={list.page} pageSize={list.pageSize} isLoading={invoices.isLoading} isError={invoices.isError} hasFilters={list.hasFilters} search={list.search} sortBy={list.sortBy} sortOrder={list.sortOrder} storageKey={`billing-${fixedKind ?? "all"}`}
+      <DataTable onRowClick={setViewing} columns={columns} rows={invoices.data?.results ?? []} totalCount={totalCount} page={list.page} pageSize={list.pageSize} isLoading={invoices.isLoading} isError={invoices.isError} hasFilters={list.hasFilters} search={list.search} sortBy={list.sortBy} sortOrder={list.sortOrder} storageKey={`billing-${fixedKind ?? "all"}`}
         filterPills={[{ key: "ALL", label: common("all"), active: !list.filters.state, onSelect: () => list.setFilter("state", undefined) }, ...STATES.slice(0, 5).map((state) => ({ key: state, label: t(`state.${state}`), active: list.filters.state === state, onSelect: () => list.setFilter("state", state) }))]}
         toolbarActions={<><Popover><PopoverTrigger asChild><Button variant="outline"><Filter className="size-4" />{t("filters.title")}</Button></PopoverTrigger><PopoverContent align="end" className="w-80 space-y-3">
           {!fixedKind && <FilterSelect label={t("field.kind")} value={list.filters.kind ?? ""} onChange={(value) => list.setFilter("kind", value || undefined)} options={[{ value: "", label: common("all") }, { value: "SAAS", label: t("kind.SAAS") }, { value: "COMMISSION", label: t("kind.COMMISSION") }]} />}

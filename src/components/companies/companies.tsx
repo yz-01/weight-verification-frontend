@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Ban, Eye, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -60,6 +61,7 @@ export function Companies({
   section?: CompanyManagementSection;
 }) {
   const t = useTranslations();
+  const router = useRouter();
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
@@ -677,6 +679,7 @@ export function Companies({
           </FilterBar>
 
           <DataTable
+            onRowClick={(row) => router.push(`/companies/${row.id}`)}
             columns={sectionColumns}
             rows={data?.results ?? []}
             totalCount={totalCount}

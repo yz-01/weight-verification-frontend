@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { AlertTriangle, Eye, Flag, ScanLine } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -30,6 +31,7 @@ const VERDICT_TONE: Record<SessionVerdict, "positive" | "danger" | "warning"> = 
 };
 
 export function WeighSessions() {
+  const router = useRouter();
   const t = useTranslations();
   const df = useDateFormat();
   const formatter = useFormatter();
@@ -390,6 +392,7 @@ export function WeighSessions() {
       />
 
       <DataTable
+        onRowClick={(row) => router.push(`/weighing/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { ExportButton } from "@/components/shared/export-button";
@@ -82,6 +83,7 @@ export function Users({
 }: {
   section?: UserManagementSection;
 }) {
+  const router = useRouter();
   const t = useTranslations();
   const df = useDateFormat();
   const { user: me, can } = useAuth();
@@ -669,6 +671,7 @@ export function Users({
       )}
 
       <DataTable
+          onRowClick={(row) => router.push(`/users/${row.id}`)}
           columns={visibleColumns}
           rows={data?.results ?? []}
           totalCount={totalCount}
