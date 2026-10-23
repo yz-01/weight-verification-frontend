@@ -80,7 +80,7 @@ export function FieldAccess() {
   // the attempt has failed, so the app does not flash a form the worker will
   // usually not need.
   const [resuming, setResuming] = useState(
-    () => typeof window !== "undefined" && !token && Boolean(getFieldBootstrapToken()),
+    () => typeof window !== "undefined" && !token && Boolean(resumeLink(joinLink)),
   );
   // Set once a PIN (or the stored key) has been accepted. From then on the
   // screen only says "opening" while the browser loads the next page: the
@@ -107,8 +107,13 @@ export function FieldAccess() {
       } catch {
         hasDeviceId = false;
       }
+      // A page opened with a link in its address (the app link, or the
+      // activation link) is about that link: a
+      // sign-out this browser saw earlier, under an older link, is not news
+      // here (Lucas 2026-10-23: scanned the QR, 「在 Safari 打开」, and read
+      // 「办公室已重新发出链接」 about a test link from days before).
       const officeReason = takeFieldSignOutReason();
-      if (officeReason) setError((current) => current || officeReason);
+      if (officeReason && !joinLink && !token) setError((current) => current || officeReason);
       setContext({
         standalone: isStandaloneApp(),
         environment: detectInstallEnvironment(),
@@ -117,7 +122,7 @@ export function FieldAccess() {
       });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, []);
+  }, [joinLink, token]);
 
   useEffect(() => {
     if (!token || !invitation.data?.branding) return;
@@ -160,7 +165,7 @@ export function FieldAccess() {
    */
   useEffect(() => {
     if (token) return;
-    const stored = getFieldBootstrapToken();
+    const stored = resumeLink(joinLink);
     if (!stored) return;
     let abandoned = false;
     void restoreFieldPwaSession({
@@ -190,7 +195,7 @@ export function FieldAccess() {
     return () => {
       abandoned = true;
     };
-  }, [next, setUser, t, token]);
+  }, [joinLink, next, setUser, t, token]);
 
   const submit = async () => {
     setError("");
@@ -312,7 +317,7 @@ export function FieldAccess() {
           </span>
           <h1 className="text-xl font-bold leading-tight">{token ? t("activateTitle") : t("loginTitle")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {token ? invitation.data?.full_name : t("loginBody")}
+            {token ? invitation.data?.full_name : joinLink ? t("joinBody") : t("loginBody")}
           </p>
         </div>
         <div className="space-y-4 p-4 sm:p-6">
@@ -396,4 +401,17 @@ function openPage(path: string): void {
 
 function Centered({ children }: { children: React.ReactNode }) {
   return <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4">{children}</main>;
+}
+
+/**
+ * The app link to sign in with before asking for a PIN, or null.
+ *
+ * With a link in the address, that link and nothing else: in the home-screen
+ * app it signs in by itself; in a browser tab it needs the PIN, so nothing is
+ * tried. Spending an older link this browser kept instead - one the office
+ * may since have replaced - put that link's refusal above the PIN box.
+ */
+function resumeLink(joinLink: string | null): string | null {
+  if (joinLink) return isStandaloneApp() ? joinLink : null;
+  return getFieldBootstrapToken();
 }
