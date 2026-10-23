@@ -542,6 +542,7 @@ export function Documents() {
       />
 
       <DataTable
+        onRowClick={(row) => setViewingId(row.id)}
         columns={columns}
         rows={rows}
         totalCount={totalCount}

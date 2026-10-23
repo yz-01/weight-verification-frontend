@@ -95,6 +95,7 @@ import {
 import { getUsers } from "@/services/users.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { VisitorConsent, useVisitorNotice } from "@/components/site-access/visitor-consent";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 /** The status filter's "approved, running out within the week" choice. */
 const EXPIRING = "expiring";
@@ -402,7 +403,13 @@ export function SiteAccessWorkspace() {
                 </TableHeader>
                 <TableBody>
                   {rows.data.results.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow
+                      key={row.id}
+                      className="cursor-pointer"
+                      onClick={(event) => {
+                        if (clickOpensRow(event)) setViewing(row);
+                      }}
+                    >
                       <TableCell className="font-medium tabular">
                         {row.pass_no}
                       </TableCell>

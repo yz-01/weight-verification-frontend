@@ -37,6 +37,7 @@ import {
   sendReviewMessage,
   signReviewedPackage,
 } from "@/services/contractor-ops.service";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 /**
  * Packages a consultant has been sent, and their own answer on each record
@@ -114,7 +115,13 @@ export function PackageReviewWorkspace() {
       ) : (
         <ul className="surface-panel divide-y divide-panel-border overflow-hidden rounded-xl">
           {rows.map((row: EvidencePackageRow) => (
-            <li key={row.id} className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+            <li
+              key={row.id}
+              className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 cursor-pointer"
+              onClick={(event) => {
+                if (clickOpensRow(event)) setOpenId(row.id);
+              }}
+            >
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">
                   {row.package_no ? `${row.package_no} · ` : ""}

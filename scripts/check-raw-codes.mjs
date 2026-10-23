@@ -52,11 +52,11 @@ const AS_PROP = new RegExp(
  */
 const ALLOWED = new Map([
   [
-    "src/components/projects/projects.tsx:155",
+    "src/components/projects/projects.tsx:157",
     "Project.state is free text - the Malaysian state in the address.",
   ],
   [
-    "src/components/sites/sites.tsx:109",
+    "src/components/sites/sites.tsx:111",
     "Site.state is free text - the Malaysian state in the address.",
   ],
   // T-176 closed: the kind is named by the backend catalogue (D-261) and

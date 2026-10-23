@@ -491,6 +491,7 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
       <DataTable
         columns={columns}
         rows={visits.data?.results ?? []}
+        onRowClick={(row) => onView(row.worker)}
         totalCount={total}
         page={list.page}
         pageSize={list.pageSize}

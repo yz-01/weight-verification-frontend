@@ -379,6 +379,7 @@ export function Incoming() {
       </FilterBar>
 
       <DataTable
+        onRowClick={(row) => router.push(`/dispatches/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

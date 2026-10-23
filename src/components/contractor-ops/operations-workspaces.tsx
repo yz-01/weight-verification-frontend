@@ -27,6 +27,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 import {
   NEEDS_ACTION_PARAM,
   NeedsActionChip,
@@ -1343,7 +1344,10 @@ export function FieldTasksWorkspace({
               <article
                 key={row.id}
                 data-testid="field-task-row"
-                className={cn("overflow-hidden surface-panel rounded-xl", row.was_corrected && CORRECTED_ROW_CLASS)}
+                className={cn("cursor-pointer overflow-hidden surface-panel rounded-xl", row.was_corrected && CORRECTED_ROW_CLASS)}
+                onClick={(event) => {
+                  if (clickOpensRow(event)) setOpenedTask(row.id);
+                }}
               >
                 {/* On a desk screen every strip shares one column grid
                     (2026-10-17): status, photos, marker and buttons each have
@@ -3815,7 +3819,10 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
           {rows.data.results.map((row) => (
             <article
               key={row.id}
-              className="surface-panel rounded-xl p-4"
+              className="surface-panel cursor-pointer rounded-xl p-4"
+              onClick={(event) => {
+                if (clickOpensRow(event)) setViewing(row);
+              }}
             >
               <div className="flex items-start gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">

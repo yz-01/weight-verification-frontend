@@ -118,6 +118,7 @@ import {
   getWasteCategories,
   updateWasteCategory,
 } from "@/services/waste-outgoing.service";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 /**
  * One screen for every module's categories, chosen from the left (D-125) -
@@ -710,7 +711,13 @@ export function CategoryManagement() {
                 </TableHeader>
                 <TableBody>
                   {list.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow
+                      key={row.id}
+                      className="cursor-pointer"
+                      onClick={(event) => {
+                        if (clickOpensRow(event)) setViewing(row);
+                      }}
+                    >
                       <TableCell className="font-medium">
                         {/* The name opens what is filed in it, on this page
                             (T-396): 「点一个栏目，同一页弹出这个栏目里的全部

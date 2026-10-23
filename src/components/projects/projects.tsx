@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, PauseCircle, Pencil, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -50,6 +51,7 @@ export const PROJECT_STATUS_TONE: Record<
 };
 
 export function Projects() {
+  const router = useRouter();
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -308,6 +310,7 @@ export function Projects() {
       </FilterBar>
 
       <DataTable
+        onRowClick={(row) => router.push(`/projects/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

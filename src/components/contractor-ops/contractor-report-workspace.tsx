@@ -12,6 +12,7 @@ import { useCurrentProject } from "@/components/providers/current-project-provid
 import {
   ArchivedReportActions,
   ArchivedReportName,
+  previewArchived,
   ArchivedReportNote,
   useReportArchive,
 } from "@/components/reports/report-archive";
@@ -94,6 +95,7 @@ import {
 } from "@/services/contractor-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
 import { photoMeta } from "@/lib/photo-meta";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 function dateValue(date: Date): string {
   const year = date.getFullYear();
@@ -697,7 +699,13 @@ export function ContractorReportHistoryWorkspace() {
               </TableRow></TableHeader>
               <TableBody>
                 {history.data?.results.map((row) => (
-                  <TableRow key={row.id} className="align-top">
+                  <TableRow
+                    key={row.id}
+                    className="align-top cursor-pointer"
+                    onClick={(event) => {
+                      if (clickOpensRow(event)) previewArchived(archive, row, previewTitle(row));
+                    }}
+                  >
                     <TableCell className="overflow-hidden whitespace-normal">
                       <ArchivedReportName row={row} archive={archive} title={previewTitle(row)} />
                       <ArchivedReportNote row={row} className="pl-6" />

@@ -75,6 +75,7 @@ import {
 import { cn } from "@/lib/utils";
 import { InspectionBadge } from "@/components/document-workflow/inspection";
 import { PhotoStrip } from "@/components/shared/photo-thumb";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 /** `YYYY-MM-DD` of a date in the browser's own day. */
 function isoDay(value: Date): string {
@@ -676,7 +677,9 @@ export function EquipmentOperatorHours() {
                     <TableRow
                       key={row.key}
                       className={cn("cursor-pointer", row.was_corrected && CORRECTED_ROW_CLASS)}
-                      onClick={() => setOpened(row)}
+                      onClick={(event) => {
+                        if (clickOpensRow(event)) setOpened(row);
+                      }}
                     >
                       <TableCell className="font-medium">
                         {/* The gold 已修改 at the front (J20): a time or the machine corrected. */}

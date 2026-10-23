@@ -27,7 +27,12 @@ import {
   usePackList,
   withPackColumns,
 } from "@/components/contractor-ops/pack-collect";
-import { InsideRowControl, StripFillsWidth } from "@/components/shared/inside-row-control";
+import {
+  clickOpensRow,
+  InsideRowControl,
+  keyOpensRow,
+  StripFillsWidth,
+} from "@/components/shared/inside-row-control";
 import { CORRECTED_ROW_CLASS, CorrectedTag } from "@/components/shared/record-correction";
 import { Button } from "@/components/ui/button";
 import {
@@ -519,12 +524,16 @@ function TableFrame<T>({
                   tabIndex={onRowClick ? 0 : undefined}
                   role={onRowClick ? "button" : undefined}
                   onClick={
-                    onRowClick ? () => onRowClick(row.original) : undefined
+                    onRowClick
+                      ? (event) => {
+                          if (clickOpensRow(event)) onRowClick(row.original);
+                        }
+                      : undefined
                   }
                   onKeyDown={
                     onRowClick
                       ? (event) => {
-                          if (event.key === "Enter" || event.key === " ") {
+                          if (keyOpensRow(event)) {
                             event.preventDefault();
                             onRowClick(row.original);
                           }
@@ -593,11 +602,17 @@ function TableFrame<T>({
                   data-needs-action={needsAction(row.original) ? "true" : undefined}
                   tabIndex={open ? 0 : undefined}
                   role={open ? "button" : undefined}
-                  onClick={open}
+                  onClick={
+                    open
+                      ? (event) => {
+                          if (clickOpensRow(event)) open();
+                        }
+                      : undefined
+                  }
                   onKeyDown={
                     open
                       ? (event) => {
-                          if (event.key === "Enter" || event.key === " ") {
+                          if (keyOpensRow(event)) {
                             event.preventDefault();
                             open();
                           }

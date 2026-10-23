@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
@@ -27,6 +28,7 @@ export const SETTLEMENT_STATE_TONE: Record<
 
 /** Both companies see this list; each sees only its own loads. */
 export function Settlements() {
+  const router = useRouter();
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -217,6 +219,7 @@ export function Settlements() {
       />
 
       <DataTable
+        onRowClick={(row) => router.push(`/settlements/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

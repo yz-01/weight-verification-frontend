@@ -43,6 +43,7 @@ import {
   usePhotoViewer,
 } from "@/components/progress/progress-photos";
 import { RecordNo } from "@/components/shared/record-no";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -214,7 +215,9 @@ export function DailyReportsTab() {
                 <TableRow
                   key={row.id}
                   className={cn("cursor-pointer", row.was_corrected && CORRECTED_ROW_CLASS)}
-                  onClick={() => setViewing({ position: bookPosition(list.page, index, PAGE) })}
+                  onClick={(event) => {
+                    if (clickOpensRow(event)) setViewing({ position: bookPosition(list.page, index, PAGE) });
+                  }}
                 >
                   <TableCell>
                     <span className="flex items-center gap-1.5">
