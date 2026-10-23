@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
-import type { LocationFix } from "@/lib/field-location";
+import type { LocationValue } from "@/lib/field-location";
 import { submitSundryClaimOfflineAware } from "@/services/offline-sync.service";
 
 /** The server's own ceiling (`MAX_ATTACHMENTS`). */
@@ -54,7 +54,7 @@ export function SundryClaimCapture({
   const claimEventId = useDraftEventId("sundry-claim");
   // Not in the draft, like every other phone form: a location restored the
   // next day would be yesterday's place stamped on today's claim.
-  const [location, setLocation] = useState<LocationFix | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const [error, setError] = useState("");
   const validAmount = Number(amount) > 0;
 
@@ -159,6 +159,7 @@ export function SundryClaimCapture({
         value={location}
         onChange={setLocation}
         required
+        allowMissingOffline
       />
       {error && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">

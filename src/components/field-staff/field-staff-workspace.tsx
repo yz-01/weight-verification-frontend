@@ -44,6 +44,7 @@ import { LocationField } from "@/components/field-staff/location-field";
 import { activeFieldNav } from "@/lib/field-nav";
 import { FIELD_OPEN_EVENT } from "@/lib/field-notification";
 import {
+  asFix,
   type LocationFix,
   LocationRefused,
   requestLocation as locate,
@@ -673,7 +674,7 @@ function FieldAttendancePanel() {
           actionLabel={t("attendance.getLocation")}
           readyLabel={t("attendance.locationReady")}
           value={fix}
-          onChange={setFix}
+          onChange={(next) => setFix(asFix(next))}
           required
         />
         <Textarea className="mt-3" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("attendance.note")} />

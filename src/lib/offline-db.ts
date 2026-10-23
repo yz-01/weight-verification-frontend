@@ -356,8 +356,9 @@ export interface WasteOutgoingOfflineJob extends OfflineJobBase {
     unit?: string;
     note?: string;
     pickup_address?: string;
-    latitude: string;
-    longitude: string;
+    /** Absent: offline with no GPS fix (Lucas 2026-10-23); both or neither. */
+    latitude?: string;
+    longitude?: string;
     device_id?: string;
     client_event_id: string;
     field_task?: string;
@@ -381,9 +382,10 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
     /** 「预计车次」 (X11); absent on a job queued before it existed. */
     planned_trips?: string;
     captured_at: string;
-    latitude: string;
-    longitude: string;
-    accuracy_m: string;
+    /** Absent: offline with no GPS fix (Lucas 2026-10-23); both or neither. */
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
     client_event_id: string;
     field_task?: string;
     photos: StoredFile[];
@@ -464,8 +466,9 @@ export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
     description: string;
     work_location?: string;
     captured_at: string;
-    latitude: string;
-    longitude: string;
+    /** Absent: offline with no GPS fix (Lucas 2026-10-23); both or neither. */
+    latitude?: string;
+    longitude?: string;
     accuracy_m?: string;
     device_id?: string;
     client_event_id: string;

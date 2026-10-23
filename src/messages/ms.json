@@ -4353,7 +4353,8 @@
     "shareFailed": "Tidak dapat berkongsi. Muat turun dan hantar fail itu.",
     "combobox": {
       "byLetter": "Tapis ikut huruf pertama"
-    }
+    },
+    "loadOffline": "Tiada rangkaian - {what} akan dimuatkan apabila sambungan pulih."
   },
   "companies": {
     "owner": {
@@ -8976,7 +8977,11 @@
       "unavailable": "Telefon tidak dapat menentukan kedudukan - selalunya di dalam bangunan atau berbumbung. Keluar ke kawasan lapang dan cuba lagi.",
       "timeout": "Mendapatkan lokasi mengambil masa terlalu lama. Cuba lagi.",
       "unsupported": "Pelayar ini tidak boleh membaca lokasi. Buka pautan ini dalam Safari atau Chrome pada telefon.",
-      "locating": "Sedang mendapatkan lokasi anda…"
+      "locating": "Sedang mendapatkan lokasi anda…",
+      "missingOffline": {
+        "title": "Tiada lokasi - disimpan tanpa GPS",
+        "body": "Tiada rangkaian dan telefon tidak dapat GPS tepat pada masanya. Anda masih boleh hantar: rekod ini ditanda \"GPS tidak tersedia\" dan pejabat dapat melihatnya."
+      }
     },
     "what": {
       "projects": "Projek anda",
@@ -11710,7 +11715,8 @@
       "network": "Tiada sambungan",
       "timeout": "Muat naik tamat masa (isyarat lemah)"
     },
-    "submitted": "Berjaya dihantar"
+    "submitted": "Berjaya dihantar",
+    "fieldLine": "Tiada rangkaian sekarang. Foto dan rekod disimpan di telefon ini dan dimuat naik sendiri apabila sambungan pulih."
   },
   "organisation": {
     "department": {

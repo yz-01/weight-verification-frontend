@@ -8,10 +8,14 @@ import { LocationDenialSteps } from "@/components/field-staff/location-denial-he
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
-  type LocationFix,
+  isOffline,
   type LocationProblem,
+  type LocationValue,
+  NO_LOCATION,
+  OFFLINE_LOCATION_TIMEOUT_MS,
   problemOf,
   requestLocation,
+  serverUnreachable,
 } from "@/lib/field-location";
 
 /**
@@ -91,20 +95,27 @@ export function LocationField({
   className = "",
   error,
   hint,
+  allowMissingOffline = false,
 }: {
   label: string;
   /** The words on the button before a fix has been taken. */
   actionLabel: string;
   /** The words on the button once one has. */
   readyLabel: string;
-  value: LocationFix | null;
-  onChange: (fix: LocationFix | null) => void;
+  value: LocationValue | null;
+  onChange: (fix: LocationValue | null) => void;
   /** `"quiet"`: required, no red star; the `hint` says so (I22, ID56). */
   required?: boolean | "quiet";
   className?: string;
   /** A server-side rejection of the coordinates, shown under the field. */
   error?: string;
   hint?: string;
+  /**
+   * With no network and no fix after a longer wait, accept the record without
+   * a position, marked 「没有定位」 (Lucas 2026-10-23). Not for records whose
+   * point is the position itself (clock-in, equipment hours).
+   */
+  allowMissingOffline?: boolean;
 }) {
   const t = useTranslations("fieldStaffPwa.locationAccess");
   const primerRead = usePrimerWasRead();
@@ -120,15 +131,37 @@ export function LocationField({
     rememberPrimer();
     setProblem(null);
     setLocating(true);
+    // Without network the phone has GPS alone, which can need far longer for
+    // a first fix than the usual 15 seconds.
+    const offline = isOffline();
     try {
-      onChange(await requestLocation());
+      onChange(
+        await requestLocation(
+          offline
+            ? { enableHighAccuracy: true, timeout: OFFLINE_LOCATION_TIMEOUT_MS, maximumAge: 0 }
+            : undefined,
+        ),
+      );
     } catch (error) {
-      onChange(null);
-      setProblem(problemOf(error));
+      const problem = problemOf(error);
+      // A refusal is still a refusal: only "no fix in time" is let through,
+      // and only with no network - checked against the server, since a phone
+      // with data on but no signal still says it is online.
+      if (
+        allowMissingOffline &&
+        problem !== "denied" &&
+        (offline || (await serverUnreachable()))
+      ) {
+        onChange(NO_LOCATION);
+        setProblem(null);
+      } else {
+        onChange(null);
+        setProblem(problem);
+      }
     } finally {
       setLocating(false);
     }
-  }, [onChange]);
+  }, [allowMissingOffline, onChange]);
 
   /*
    * Automatic, not a button (T-355, D-226／D-237／D-246).
@@ -153,6 +186,7 @@ export function LocationField({
    * that asks again after a failure.
    */
   const [primerDismissed, setPrimerDismissed] = useState(false);
+  const missing = Boolean(value && "missing" in value && value.missing);
   // The explanation shows by itself on a first use, and never otherwise.
   const showPrimer = !value && !primerRead && !primerDismissed;
   useEffect(() => {
@@ -168,6 +202,18 @@ export function LocationField({
           <Loader2 className="size-4 animate-spin" />
           {t("locating")}
         </p>
+      ) : missing ? (
+        <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+          <p className="font-medium">{t("missingOffline.title")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("missingOffline.body")}</p>
+          <Button
+            className="mt-2 h-10 w-full"
+            variant="outline"
+            onClick={() => void ask()}
+          >
+            {t("retry")}
+          </Button>
+        </div>
       ) : value && !problem ? (
         <p className="flex min-h-12 items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-3 text-sm">
           <LocateFixed className="size-4 text-success" />
@@ -189,7 +235,7 @@ export function LocationField({
         </Button>
       ) : null}
 
-      {value && !problem ? (
+      {value && !missing && !problem ? (
         <p className="mt-2 flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
           <MapPin className="size-3.5" />
           {value.latitude}, {value.longitude}

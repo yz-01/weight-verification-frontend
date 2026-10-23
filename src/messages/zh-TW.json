@@ -4353,7 +4353,8 @@
     "shareFailed": "分享沒有成功，請下載後再發送文件。",
     "combobox": {
       "byLetter": "按首字母篩選"
-    }
+    },
+    "loadOffline": "沒有網路，{what}等有網路時再載入。"
   },
   "companies": {
     "owner": {
@@ -8976,7 +8977,11 @@
       "unavailable": "手機暫時定不到位置 —— 多半是在室內或有遮擋。到空曠一點的地方再試一次。",
       "timeout": "定位等太久了。請再試一次。",
       "unsupported": "這個瀏覽器讀不到位置。請用手機上的 Safari 或 Chrome 打開這個連結。",
-      "locating": "正在自動取得定位…"
+      "locating": "正在自動取得定位…",
+      "missingOffline": {
+        "title": "沒有定位，可以先儲存",
+        "body": "現在沒有網路，手機一時拿不到 GPS 定位。還是可以提交：這筆記錄會標明「沒有定位」，辦公室看得到。"
+      }
     },
     "what": {
       "projects": "你的項目",
@@ -11710,7 +11715,8 @@
       "network": "網絡不通",
       "timeout": "上傳超時（信號太弱）"
     },
-    "submitted": "提交成功"
+    "submitted": "提交成功",
+    "fieldLine": "現在沒有網路。照片和記錄會先存在手機，有網路時自動上傳。"
   },
   "organisation": {
     "department": {

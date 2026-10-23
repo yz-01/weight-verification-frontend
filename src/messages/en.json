@@ -4353,7 +4353,8 @@
     "shareFailed": "Could not share. Download it and send the file instead.",
     "combobox": {
       "byLetter": "Filter by first letter"
-    }
+    },
+    "loadOffline": "No network - {what} will load when the connection is back."
   },
   "companies": {
     "owner": {
@@ -8976,7 +8977,11 @@
       "unavailable": "The phone could not get a fix - often indoors or under cover. Step outside and try again.",
       "timeout": "Getting a location took too long. Try again.",
       "unsupported": "This browser cannot read a location. Open this link in Safari or Chrome on the phone.",
-      "locating": "Getting your location…"
+      "locating": "Getting your location…",
+      "missingOffline": {
+        "title": "No location - saved without GPS",
+        "body": "There is no network and the phone could not get a GPS fix in time. You can still submit: this record is marked \"GPS unavailable\" and the office sees that."
+      }
     },
     "what": {
       "projects": "Your projects",
@@ -11710,7 +11715,8 @@
       "network": "No connection",
       "timeout": "Upload timed out (weak signal)"
     },
-    "submitted": "Submitted"
+    "submitted": "Submitted",
+    "fieldLine": "No network right now. Photos and records are saved on this phone and upload by themselves when the connection is back."
   },
   "organisation": {
     "department": {

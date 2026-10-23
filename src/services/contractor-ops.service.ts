@@ -233,8 +233,8 @@ export async function createConsultantFieldSubmission(payload: {
   description: string;
   work_location?: string;
   captured_at: string;
-  latitude: string;
-  longitude: string;
+  latitude?: string;
+  longitude?: string;
   accuracy_m?: string;
   device_id?: string;
   client_event_id: string;
@@ -990,9 +990,10 @@ export async function createDisposalRequest(payload: {
   /** 「预计车次」 (X11): how many lorries the site expects. */
   planned_trips?: string;
   captured_at: string;
-  latitude: string;
-  longitude: string;
-  accuracy_m: string;
+  /** Absent: offline with no GPS fix (Lucas 2026-10-23); both or neither. */
+  latitude?: string;
+  longitude?: string;
+  accuracy_m?: string;
   client_event_id: string;
   field_task?: string;
   photos: File[];

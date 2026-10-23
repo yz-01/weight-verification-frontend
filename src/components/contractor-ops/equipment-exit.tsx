@@ -63,7 +63,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { SiteEquipment } from "@/interfaces/contractor-ops";
-import type { LocationFix } from "@/lib/field-location";
+import type { LocationValue } from "@/lib/field-location";
 import { matchScanned, registerScanKeys } from "@/lib/machine-scan";
 import { scanSupplierQr } from "@/services/contractor.service";
 import { lookupEquipmentByScan } from "@/services/contractor-ops.service";
@@ -144,7 +144,7 @@ export function EquipmentExitApplyDialog({
   const [photos, setPhotos] = useDraftState<File[]>(key("photos"), []);
   const [clientEventId, setClientEventId] = useDraftState(key("clientEventId"), "");
   const clearDraft = useClearDraft();
-  const [location, setLocation] = useState<LocationFix | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const [error, setError] = useState("");
   const save = useMutation({
     mutationFn: () => {
@@ -221,6 +221,7 @@ export function EquipmentExitApplyDialog({
             hint={t("equipmentExit.applyLocationHint")}
             value={location}
             onChange={setLocation}
+            allowMissingOffline
           />
         </div>
         {error && (
@@ -344,7 +345,7 @@ export function EquipmentExitHandoverForm({
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>(key("supplierSignature"));
   const [clientEventId, setClientEventId] = useDraftState(key("clientEventId"), "");
   const clearDraft = useClearDraft();
-  const [location, setLocation] = useState<LocationFix | null>(null);
+  const [location, setLocation] = useState<LocationValue | null>(null);
   const [scanning, setScanning] = useState<"machine" | "supplier" | null>(null);
   const [scanNote, setScanNote] = useState("");
   const [error, setError] = useState("");
@@ -608,6 +609,7 @@ export function EquipmentExitHandoverForm({
           hint={t("equipmentExit.locationHint")}
           value={location}
           onChange={setLocation}
+          allowMissingOffline
         />
       </div>
       {error && (

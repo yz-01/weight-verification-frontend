@@ -33,6 +33,64 @@ export interface LocationFix {
   accuracy: string;
 }
 
+/**
+ * No position, accepted: the phone had no network and GPS gave none in time
+ * (Lucas 2026-10-23, choice A). The record is saved without coordinates and
+ * the office sees 「没有定位」. Only a form that allows it ever receives this.
+ */
+export interface NoLocation {
+  missing: true;
+  latitude?: undefined;
+  longitude?: undefined;
+  accuracy?: undefined;
+}
+
+export const NO_LOCATION: NoLocation = { missing: true };
+
+export type LocationValue = LocationFix | NoLocation;
+
+/** Without network, GPS alone (no assistance) can need a minute for a first fix. */
+export const OFFLINE_LOCATION_TIMEOUT_MS = 60_000;
+
+/** A real fix, or null: for forms that never accept a missing position. */
+export function asFix(value: LocationValue | null): LocationFix | null {
+  return value && !("missing" in value) ? value : null;
+}
+
+export function isOffline(): boolean {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+
+/**
+ * Whether the server is out of reach right now.
+ *
+ * The browser's own flag is not enough: an iPhone with mobile data switched
+ * on but no signal still says it is online. So after GPS has failed, one
+ * quick look at the server decides. Any answer at all counts as reachable
+ * (`no-cors`: the reply is opaque, only its arrival matters).
+ */
+export async function serverUnreachable(timeoutMs = 4_000): Promise<boolean> {
+  if (isOffline()) return true;
+  if (typeof fetch === "undefined") return false;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    await fetch(`${API_BASE_URL}/health`, {
+      mode: "no-cors",
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    return false;
+  } catch {
+    return true;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export type LocationProblem =
   /** Refused: by this person on this page, or by the system, indistinguishably. */
   | "denied"
