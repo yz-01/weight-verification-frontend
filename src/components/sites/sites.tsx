@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -22,6 +23,7 @@ import { deleteSite, getSites } from "@/services/weighing.service";
 import { useDateFormat } from "@/lib/dates";
 
 export function Sites() {
+  const router = useRouter();
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -218,6 +220,7 @@ export function Sites() {
       />
 
       <DataTable
+        onRowClick={(row) => router.push(`/sites/${row.id}/edit`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

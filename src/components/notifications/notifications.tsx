@@ -5,7 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpRight, BellPlus, Check, Loader2, Send, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
 import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
@@ -79,6 +79,7 @@ export function Notifications({
   titleKey?: string;
 } = {}) {
   const t = useTranslations();
+  const router = useRouter();
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -294,6 +295,10 @@ export function Notifications({
         }
       />
       <DataTable
+        onRowClick={(row) => {
+          const href = officeNotificationHref(row.data);
+          if (href) router.push(href);
+        }}
         columns={columns}
         rows={query.data?.results ?? []}
         totalCount={count}

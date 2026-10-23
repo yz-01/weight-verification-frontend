@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Camera, Eye, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -44,6 +45,7 @@ export const TASK_STATE_TONE: Record<
 
 /** The dispatch board. Defaults to what is still moving. */
 export function Tasks() {
+  const router = useRouter();
   const t = useTranslations();
   const df = useDateFormat();
   const { can, user } = useAuth();
@@ -270,6 +272,7 @@ export function Tasks() {
       </FilterBar>
 
       <DataTable
+        onRowClick={(row) => router.push(`/tasks/${row.id}`)}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={totalCount}

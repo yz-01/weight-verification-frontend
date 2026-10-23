@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 import {
   FieldWrapper,
   ListHeader,
@@ -266,7 +267,13 @@ function AdminNotificationList({
           </TableHeader>
           <TableBody>
             {(notifications.data?.results ?? []).map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className={manageable ? "cursor-pointer" : undefined}
+                onClick={(event) => {
+                  if (manageable && clickOpensRow(event)) setSelected(row);
+                }}
+              >
                 <TableCell className="max-w-md">
                   <p className="font-medium">{row.title}</p>
                   <p className="line-clamp-2 text-xs text-muted-foreground">{row.message}</p>

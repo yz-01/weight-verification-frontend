@@ -247,12 +247,13 @@ describe("4 · the order changed on the server while offline", () => {
     expect(sentTo("/A/collect_dispatch/")).toHaveLength(0);
     expect(sentTo("/B/accept_dispatch/")).toHaveLength(1);
     const entries = await queue.getOfflineQueueEntries(OWNER);
+    // Newest on top; the refused first step is at the bottom.
     expect(entries.map((entry) => [entry.kind, entry.state])).toEqual([
-      ["DISPATCH_ACCEPT", "failed"],
-      ["TRIP_ASSIGN", "held"],
       ["DISPATCH_COLLECT", "held"],
+      ["TRIP_ASSIGN", "held"],
+      ["DISPATCH_ACCEPT", "failed"],
     ]);
-    expect(entries[0].hint).toBe("offline.conflict.changed");
+    expect(entries.at(-1)?.hint).toBe("offline.conflict.changed");
   });
 
   it("sends the held steps once the refused one is discarded", async () => {
@@ -262,7 +263,7 @@ describe("4 · the order changed on the server while offline", () => {
     online(true);
     post.mockRejectedValueOnce(refuse(409, "dispatch_not_collectable"));
     await queue.flushOfflineJobs(OWNER);
-    const [refused] = await queue.getOfflineQueueEntries(OWNER);
+    const refused = (await queue.getOfflineQueueEntries(OWNER)).at(-1)!;
 
     await queue.discardOfflineJob(refused.id);
     await queue.flushOfflineJobs(OWNER);

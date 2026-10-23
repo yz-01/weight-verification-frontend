@@ -77,6 +77,11 @@ interface RowProps {
   className?: string;
 }
 
+/** A click on the row: the file's preview, as the name's own link opens it. */
+export function previewArchived(archive: ReportArchive, row: ArchivedReportFile, title?: string) {
+  if (row.has_file && !archive.busy) archive.open(row, "preview", title);
+}
+
 /** The file name: a link to the stored file, or plain when none was kept. */
 export function ArchivedReportName({ row, archive, title, className }: RowProps) {
   const t = useTranslations("reportArchive");

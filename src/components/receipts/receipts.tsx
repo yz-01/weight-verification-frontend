@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ClipboardList, Eye, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -44,6 +45,7 @@ const UNFILED = "__unfiled__";
 const ALL_STATES = "__any__";
 
 export function Receipts() {
+  const router = useRouter();
   const t = useTranslations();
   const { can } = useAuth();
   const list = useListQuery([
@@ -478,6 +480,7 @@ export function Receipts() {
         />
       ) : (
       <DataTable
+        onRowClick={(row) => router.push(`/receipts/${row.id}`)}
         corrected={{ kind: "MATERIAL_RECEIPT" }}
         columns={withNeedsActionColumn(
           hideEmptyManufacturerColumn(columns, data?.results),

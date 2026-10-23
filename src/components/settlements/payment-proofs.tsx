@@ -277,6 +277,7 @@ export function PaymentProofs() {
       </FilterBar>
 
       <DataTable
+        onRowClick={setViewing}
         columns={columns}
         rows={data?.results ?? []}
         totalCount={total}

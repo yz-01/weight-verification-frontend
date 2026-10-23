@@ -12,6 +12,7 @@ import { exportedReportName } from "@/components/reports/exported-report-name";
 import {
   ArchivedReportActions,
   ArchivedReportName,
+  previewArchived,
   ArchivedReportNote,
   useReportArchive,
 } from "@/components/reports/report-archive";
@@ -40,6 +41,7 @@ import {
   getAdminReportHistory,
 } from "@/services/admin-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 export type AdminReportSection =
   | "overview"
@@ -356,7 +358,13 @@ function ReportHistory() {
           </TableHeader>
           <TableBody>
             {(history.data?.results ?? []).map((row) => (
-              <TableRow key={row.id} className="align-top">
+              <TableRow
+                key={row.id}
+                className="align-top cursor-pointer"
+                onClick={(event) => {
+                  if (clickOpensRow(event)) previewArchived(archive, row);
+                }}
+              >
                 <TableCell className="min-w-64 whitespace-normal">
                   <ArchivedReportName row={row} archive={archive} />
                   <ArchivedReportNote row={row} className="pl-6" />

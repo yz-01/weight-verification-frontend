@@ -417,6 +417,7 @@ export function Approvals() {
       ) : null}
 
       <DataTable
+        onRowClick={(row) => setViewingId(row.id)}
         columns={withNeedsActionColumn(columns, t("needsAction.column"))}
         rows={rows}
         totalCount={totalCount}

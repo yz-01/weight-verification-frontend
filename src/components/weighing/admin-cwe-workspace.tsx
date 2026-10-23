@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
@@ -13,6 +14,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { KpiCard } from "@/components/shared/kpi-card";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 import {
   FieldWrapper,
   FilterBar,
@@ -232,10 +234,11 @@ function ScaleTable({ scales, mode }: { scales: Scale[] | MonitoringOverview["cw
 }
 
 function SessionTable({ sessions }: { sessions: WeighSessionRow[] }) {
+  const router = useRouter();
   const t = useTranslations("adminCwe");
   const df = useDateFormat();
   const format = useFormatter();
-  return <div className="surface-panel overflow-hidden rounded-xl"><Table><TableHeader><TableRow><TableHead>{t("field.session")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.scale")}</TableHead><TableHead>{t("field.vehicle")}</TableHead><TableHead className="text-right">{t("field.weight")}</TableHead><TableHead>{t("field.startedAt")}</TableHead><TableHead>{t("field.verdict")}</TableHead><TableHead className="text-right">{t("field.action")}</TableHead></TableRow></TableHeader><TableBody>{sessions.map((row) => <TableRow key={row.id}><TableCell className="font-medium">{row.session_no}</TableCell><TableCell>{row.company_name}</TableCell><TableCell>{row.scale_name}</TableCell><TableCell>{row.vehicle_plate || "-"}</TableCell><TableCell className="text-right tabular-nums">{row.stable_weight_kg ? `${format.number(Number(row.stable_weight_kg))} kg` : "-"}</TableCell><TableCell>{row.started_at ? df.dateTime(row.started_at) : "-"}</TableCell><TableCell><StatusBadge label={t(`verdict.${row.verdict}`)} tone={row.verdict === "VALID" ? "positive" : row.verdict === "INVALID" ? "danger" : "warning"} /></TableCell><TableCell><div className="flex items-center justify-end gap-0.5"><Button asChild size="icon-sm" variant="ghost" title={t("action.viewEvidence")}><Link href={`/weighing/${row.id}`}><Eye /></Link></Button></div></TableCell></TableRow>)}{sessions.length === 0 && <EmptyRow columns={8} />}</TableBody></Table></div>;
+  return <div className="surface-panel overflow-hidden rounded-xl"><Table><TableHeader><TableRow><TableHead>{t("field.session")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.scale")}</TableHead><TableHead>{t("field.vehicle")}</TableHead><TableHead className="text-right">{t("field.weight")}</TableHead><TableHead>{t("field.startedAt")}</TableHead><TableHead>{t("field.verdict")}</TableHead><TableHead className="text-right">{t("field.action")}</TableHead></TableRow></TableHeader><TableBody>{sessions.map((row) => <TableRow key={row.id} className="cursor-pointer" onClick={(event) => { if (clickOpensRow(event)) router.push(`/weighing/${row.id}`); }}><TableCell className="font-medium">{row.session_no}</TableCell><TableCell>{row.company_name}</TableCell><TableCell>{row.scale_name}</TableCell><TableCell>{row.vehicle_plate || "-"}</TableCell><TableCell className="text-right tabular-nums">{row.stable_weight_kg ? `${format.number(Number(row.stable_weight_kg))} kg` : "-"}</TableCell><TableCell>{row.started_at ? df.dateTime(row.started_at) : "-"}</TableCell><TableCell><StatusBadge label={t(`verdict.${row.verdict}`)} tone={row.verdict === "VALID" ? "positive" : row.verdict === "INVALID" ? "danger" : "warning"} /></TableCell><TableCell><div className="flex items-center justify-end gap-0.5"><Button asChild size="icon-sm" variant="ghost" title={t("action.viewEvidence")}><Link href={`/weighing/${row.id}`}><Eye /></Link></Button></div></TableCell></TableRow>)}{sessions.length === 0 && <EmptyRow columns={8} />}</TableBody></Table></div>;
 }
 
 function MetricGrid({ items }: { items: Array<[string, string | number]> }) {

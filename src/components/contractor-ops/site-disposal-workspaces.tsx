@@ -124,6 +124,7 @@ import {
 import { getProjectAssignments, getSupplier } from "@/services/contractor.service";
 import { submitDisposalRequestOfflineAware } from "@/services/offline-sync.service";
 import { LIST_FITS } from "@/lib/list-fits";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
@@ -208,7 +209,13 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                whole card, not just a badge: a marker inside a list of grey
                cards is something you have to be looking for, and this one has
                to be noticed by somebody scanning the page. */
-            <article key={row.id} className={`surface-panel min-w-0 rounded-xl p-4 sm:p-6${row.disposal_evidence_is_overdue ? " border-destructive/50 bg-destructive/5" : ""}`}>
+            <article
+              key={row.id}
+              className={`surface-panel min-w-0 cursor-pointer rounded-xl p-4 sm:p-6${row.disposal_evidence_is_overdue ? " border-destructive/50 bg-destructive/5" : ""}`}
+              onClick={(event) => {
+                if (clickOpensRow(event)) setViewing(row);
+              }}
+            >
               <div className="flex items-start gap-3">
                 <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck className="size-5" /></span>
                 <div className="min-w-0 flex-1">

@@ -21,6 +21,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
 import { PermitDetail } from "@/components/permits/permit-parts";
 import { useRecordOpener } from "@/components/shared/record-opener";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { EmptyState, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -357,7 +358,15 @@ export function ArchiveQueue() {
             </TableHeader>
             <TableBody>
               {rows.map((row) => (
-                <TableRow key={`${row.kind}:${row.id}`}>
+                // A click anywhere on the row opens it, as 查看 does (Lucas
+                // 2026-10-23); 查看 stays the way in for the keyboard.
+                <TableRow
+                  key={`${row.kind}:${row.id}`}
+                  className="cursor-pointer"
+                  onClick={(event) => {
+                    if (clickOpensRow(event)) openRow(row);
+                  }}
+                >
                   {/* Photo first (B06): the site's picture and a short
                       summary in the list; everything else in the record. */}
                   <TableCell className="font-medium">

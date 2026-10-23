@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import {
   ArchivedReportActions,
   ArchivedReportName,
+  previewArchived,
   ArchivedReportNote,
   useReportArchive,
 } from "@/components/reports/report-archive";
@@ -41,6 +42,7 @@ import {
   getRecyclerReportOptions,
 } from "@/services/recycler-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 function initialDates() {
   const today = new Date();
@@ -421,7 +423,13 @@ export function RecyclerReportCenter() {
             <Table>
               <TableHeader><TableRow><TableHead>{t("history.file")}</TableHead><TableHead>{t("history.period")}</TableHead><TableHead>{t("history.format")}</TableHead><TableHead>{t("history.generated")}</TableHead><TableHead>{archiveT("column")}</TableHead></TableRow></TableHeader>
               <TableBody>{exportHistory.data.results.slice(0, 10).map((row) => (
-                <TableRow key={row.id} className="align-top">
+                <TableRow
+                  key={row.id}
+                  className="align-top cursor-pointer"
+                  onClick={(event) => {
+                    if (clickOpensRow(event)) previewArchived(archive, row);
+                  }}
+                >
                   <TableCell className="min-w-56 max-w-72 whitespace-normal">
                     <ArchivedReportName row={row} archive={archive} />
                     <ArchivedReportNote row={row} className="pl-6" />
