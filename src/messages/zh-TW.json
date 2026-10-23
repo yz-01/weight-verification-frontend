@@ -7582,7 +7582,10 @@
       "validUntil": "有效期至 {date}",
       "filedBy": "{name} 於 {at} 填寫",
       "expiryTitle": "檢驗報告到期（{count}）",
-      "openArchive": "打開文件檔案"
+      "openArchive": "打開文件檔案",
+      "severalHint": "可以選多項；每項各存一筆一樣的檢驗結果。已選 {count} 項。",
+      "addItem": "加入",
+      "removeItem": "移除"
     }
   },
   "driver": {

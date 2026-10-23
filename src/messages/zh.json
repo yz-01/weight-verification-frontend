@@ -7582,7 +7582,10 @@
       "validUntil": "有效期至 {date}",
       "filedBy": "{name} 于 {at} 填写",
       "expiryTitle": "检验报告到期（{count}）",
-      "openArchive": "打开文件档案"
+      "openArchive": "打开文件档案",
+      "severalHint": "可以选多项；每项各存一笔一样的检验结果。已选 {count} 项。",
+      "addItem": "加入",
+      "removeItem": "移除"
     }
   },
   "driver": {

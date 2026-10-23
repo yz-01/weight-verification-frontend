@@ -7582,7 +7582,10 @@
       "validUntil": "sah sehingga {date}",
       "filedBy": "difailkan oleh {name}, {at}",
       "expiryTitle": "Laporan pemeriksaan akan tamat ({count})",
-      "openArchive": "Buka arkib dokumen"
+      "openArchive": "Buka arkib dokumen",
+      "severalHint": "Boleh pilih beberapa; setiap satu menerima keputusan yang sama. {count} dipilih.",
+      "addItem": "Tambah",
+      "removeItem": "Buang"
     }
   },
   "driver": {

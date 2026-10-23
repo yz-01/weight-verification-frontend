@@ -7582,7 +7582,10 @@
       "validUntil": "valid until {date}",
       "filedBy": "filed by {name}, {at}",
       "expiryTitle": "Inspection reports running out ({count})",
-      "openArchive": "Open the document archive"
+      "openArchive": "Open the document archive",
+      "severalHint": "You can choose several; each gets the same result. {count} chosen.",
+      "addItem": "Add",
+      "removeItem": "Remove"
     }
   },
   "driver": {
