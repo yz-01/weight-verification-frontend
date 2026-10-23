@@ -8227,7 +8227,8 @@
       "permission_switches_unknown_project": "Pilih projek syarikat ini.",
       "permission_switches_self_lockout": "Anda tidak boleh mematikan pengurusan pengguna anda sendiri.",
       "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna.",
-      "receipt_line_returned": "Ada pemulangan untuk bahan ini, jadi ia tidak boleh dibuang."
+      "receipt_line_returned": "Ada pemulangan untuk bahan ini, jadi ia tidak boleh dibuang.",
+      "field_place_signed_out": "Pelayar ini telah dilog keluar kerana anda log masuk di telefon atau pelayar lain. Masukkan PIN untuk teruskan di sini."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8533,7 +8534,8 @@
     "androidStep2": "Tekan Pasang apl atau Tambah ke Skrin Utama",
     "androidStep3": "Tekan Pasang, kemudian sentiasa buka ikon baharu",
     "reuseLinkTip": "Simpan pautan ini. Lain kali ketik sahaja sekali lagi - anda terus masuk. Ia juga berfungsi dalam pelayar lain di telefon ini dengan PIN yang sama.",
-    "useInBrowser": "Guna dalam pelayar dahulu"
+    "useInBrowser": "Guna dalam pelayar dahulu",
+    "joinBody": "Kali pertama dalam pelayar ini: masukkan PIN 6 digit yang sama untuk teruskan."
   },
   "fieldAccessAdmin": {
     "unbind": {

@@ -8227,7 +8227,8 @@
       "permission_switches_unknown_project": "请选择本公司的项目。",
       "permission_switches_self_lockout": "不能关掉自己的「用户管理」。",
       "permission_switches_last_user_manager": "公司里至少要有一个人保留「用户管理」。",
-      "receipt_line_returned": "这项材料已有退货记录，不能删除。"
+      "receipt_line_returned": "这项材料已有退货记录，不能删除。",
+      "field_place_signed_out": "这个浏览器已自动登出，因为你在其他手机或浏览器登录了。输入 PIN 就能在这里继续。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8533,7 +8534,8 @@
     "androidStep2": "点「安装应用」或「添加到主屏幕」",
     "androidStep3": "再点「安装」，以后从桌面的新图标打开",
     "reuseLinkTip": "请保留这个链接。下次直接再点一次就能进去，不用重新要链接。在这台手机的其他浏览器打开也可以，输入同一个 PIN 就行。",
-    "useInBrowser": "先用网页版"
+    "useInBrowser": "先用网页版",
+    "joinBody": "这个浏览器第一次使用：输入同一个 6 位 PIN 就能继续。"
   },
   "fieldAccessAdmin": {
     "unbind": {
