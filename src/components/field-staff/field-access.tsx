@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Camera, Copy, Loader2, LogIn, Smartphone } from "lucide-react";
+import { Camera, Loader2, LogIn, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,7 +15,9 @@ import { ApiError } from "@/interfaces/api";
 import {
   FIELD_OFFICE_SIGN_OUTS,
   getFieldBootstrapToken,
+  hasFieldSession,
   isStandaloneApp,
+  markFieldInstallHelp,
   setFieldBootstrapToken,
   takeFieldSignOutReason,
 } from "@/lib/auth-token";
@@ -29,13 +31,13 @@ import {
   type InstallEnvironment,
   validBootstrap,
 } from "@/lib/field-install";
-import { inAppBrowserName } from "@/lib/in-app-browser";
 import { replacePage, safeReturnPath } from "@/lib/portal";
 import { cacheBranding } from "@/lib/branding";
 import {
   activateFieldDevice,
   fieldDeviceIdIsPersistent,
   fieldLogin,
+  fieldSessionUserId,
   fieldStorageWasLinked,
   getOrCreateFieldDeviceId,
   inspectFieldInvitation,
@@ -80,7 +82,6 @@ export function FieldAccess() {
   const [resuming, setResuming] = useState(
     () => typeof window !== "undefined" && !token && Boolean(getFieldBootstrapToken()),
   );
-  const [copied, setCopied] = useState(false);
   // Set once a PIN (or the stored key) has been accepted. From then on the
   // screen only says "opening" while the browser loads the next page: the
   // form must never come back for a second PIN (Lucas 2026-10-22,
@@ -94,7 +95,6 @@ export function FieldAccess() {
   // The server's code when the stored hand-off was refused (shown as the
   // reason under the "not linked" help, and logged).
   const [refusedCode, setRefusedCode] = useState<string | null>(null);
-  const chatApp = typeof window === "undefined" ? null : inAppBrowserName();
   // Browser facts, read after hydration so the server and the first client
   // render agree.
   const [context, setContext] = useState<BrowserContext | null>(null);
@@ -124,6 +124,26 @@ export function FieldAccess() {
     document.title = invitation.data.branding.name;
     cacheBranding(invitation.data.branding, true);
   }, [invitation.data, token]);
+
+  /**
+   * Tapping the activation link again where this person is already signed in
+   * goes straight to the workspace, no PIN (Lucas 2026-10-23: workers close
+   * the page and open the link from WhatsApp again every time). Also when the
+   * link has since run out: the session here is what counts. A browser
+   * signed in as someone else gets the form, so the PIN can move it over.
+   */
+  useEffect(() => {
+    if (!token || invitation.isLoading || !hasFieldSession()) return;
+    const holder = fieldSessionUserId();
+    const sameWorker =
+      invitation.isError || !holder || invitation.data?.user_id === holder;
+    if (!sameWorker) return;
+    const frame = window.requestAnimationFrame(() => {
+      setSignedIn(true);
+      replacePage(next ?? "/field-staff");
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [invitation.data, invitation.isError, invitation.isLoading, next, token]);
 
   /**
    * Try the key the install left behind, before asking for a PIN.
@@ -181,22 +201,23 @@ export function FieldAccess() {
       // Discovered by writing and reading back, so it can only be known
       // after the call above.
       setStorageBlocked(!fieldDeviceIdIsPersistent());
+      const context = isStandaloneApp() ? "standalone" : "browser";
+      // The app link this page holds (in its address, or kept from an earlier
+      // sign-in here) lets the PIN sign this page in even when the server no
+      // longer counts it among the signed-in places.
+      const link = joinLink ?? validBootstrap(getFieldBootstrapToken());
       const result = token
         ? await activateFieldDevice({
             token,
             pin,
             device_id: deviceId,
             device_name: navigator.platform || t("thisPhone"),
+            context,
           })
         : await fieldLogin({
             pin,
             device_id: deviceId,
-            ...(joinLink
-              ? {
-                  bootstrap: joinLink,
-                  context: isStandaloneApp() ? "standalone" : "browser",
-                }
-              : {}),
+            ...(link ? { bootstrap: link, context } : {}),
           });
       // First, before anything re-renders: the form must not come back.
       setSignedIn(true);
@@ -204,6 +225,7 @@ export function FieldAccess() {
       // Kept so that installing later, from any screen, still produces an app
       // that opens signed in. This is the only moment it is handed to us.
       if (bootstrapToken) setFieldBootstrapToken(bootstrapToken);
+      markFieldInstallHelp();
       openPage(
         fieldSignInDestination({
           bootstrapToken,
@@ -326,43 +348,13 @@ export function FieldAccess() {
               />
             </FieldWrapper>
           )}
-          {/* Said to everybody activating, loudly when the web view names
-              itself. A phone is linked to the storage of the browser it was
-              activated in, so a link opened inside a chat app links that app
-              and nothing else - and the same phone, opened later in Safari or
-              from the home screen, arrives as a device the server has never
-              seen. WhatsApp does not identify itself, which is why the plain
-              sentence is shown regardless. */}
+          {/* The link keeps working: tapping it again, or opening it in
+              another browser on this phone, signs in with the same PIN
+              (Lucas 2026-10-23). */}
           {token ? (
-            <div
-              className={`rounded-lg border p-3 text-sm ${
-                chatApp
-                  ? "border-warning/40 bg-warning/15 text-foreground"
-                  : "bg-muted/30 text-muted-foreground"
-              }`}
-            >
-              <p className="font-semibold">{t("browserWarningTitle")}</p>
-              <p className="mt-1 text-xs">
-                {chatApp
-                  ? t("browserWarningNamed", { app: chatApp })
-                  : t("browserWarning")}
-              </p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="mt-2"
-                onClick={() => {
-                  void navigator.clipboard
-                    ?.writeText(window.location.href)
-                    .then(() => setCopied(true))
-                    .catch(() => setCopied(false));
-                }}
-              >
-                <Copy />
-                {copied ? t("copied") : t("copyLink")}
-              </Button>
-            </div>
+            <p className="rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
+              {t("reuseLinkTip")}
+            </p>
           ) : null}
           {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
           {storageBlocked && (

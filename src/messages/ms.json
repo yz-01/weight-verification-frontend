@@ -8465,7 +8465,6 @@
     "desktopExpired": "Pemasangan ini tidak dapat memulihkan sesi. Jika pentadbir menjana semula akses, buka pautan terkini, masukkan PIN dan tambah semula ke Skrin Utama.",
     "desktopExpiredTitle": "Log masuk automatik aplikasi tidak tersedia",
     "desktopSigningIn": "Memulihkan log masuk staf tapak...",
-    "tabNeedsActivation": "Gunakan pautan pengaktifan yang dihantar oleh pejabat untuk memautkan telefon ini. Alamat ini tidak boleh log masuk dengan sendirinya.",
     "desktopTitle": "Pasang melalui Chrome atau Edge",
     "driverInstallBody": "Tambah ruang kerja pemandu ini ke skrin utama untuk akses lebih cepat.",
     "driverInstallBrowserGuide": "Buka menu pelayar dan pilih Pasang aplikasi atau Tambah ke skrin utama.",
@@ -8488,19 +8487,16 @@
     "iosSafariBody": "Tekan Kongsi, pilih Tambah ke Skrin Utama, kekalkan Buka sebagai Aplikasi Web, kemudian tekan Tambah. Buka ikon baharu dari Skrin Utama.",
     "iosSafariTitle": "Pasang melalui Safari pada iPhone",
     "iosTitle": "Tambah pada iPhone",
-    "loginBody": "Masukkan PIN 6 digit untuk peranti yang telah dipautkan ini. Peranti baharu mesti membuka pautan jemputan dahulu.",
+    "loginBody": "Masukkan PIN 6 digit anda. Jika ini telefon atau pelayar baharu, ketik pautan daripada pejabat.",
     "loginTitle": "Log masuk kakitangan tapak",
     "openWorkspace": "Buka ruang kerja kamera",
     "phone": "Nombor telefon",
     "pin": "PIN 6 digit",
-    "readyBody": "Telefon ini kini dipautkan dengan selamat kepada akaun tapak anda.",
+    "readyBody": "Anda telah log masuk. Tambahkan ke Skrin Utama supaya ikon terus membukanya. Anda juga boleh guna dalam pelayar - lain kali ketik pautan yang sama.",
     "readyTitle": "Telefon sudah sedia",
     "signIn": "Log masuk",
     "thisPhone": "Telefon ini",
     "storageBlocked": "Pelayar ini tidak menyimpan data tapak, jadi telefon ini tidak boleh kekal terpaut. Buka pautan jemputan dalam tetingkap biasa dan bukan tetingkap peribadi, dan benarkan data tapak untuk alamat ini.",
-    "browserWarningTitle": "Buka pautan ini dalam pelayar biasa telefon anda",
-    "browserWarning": "Telefon ini dipautkan kepada pelayar tempat anda mengaktifkannya. Mengaktifkan di dalam apl sembang hanya memautkan apl itu, dan membuka tapak ini kemudian dalam Safari atau Chrome akan tiba sebagai telefon yang berlainan.",
-    "browserWarningNamed": "Pautan ini dibuka di dalam {app}. Salin dan buka dalam Safari atau Chrome dahulu, kemudian aktifkan di sana.",
     "copyLink": "Salin pautan",
     "copied": "Pautan disalin. Tampal ke dalam Safari atau Chrome.",
     "resuming": "Membuka ruang kerja anda...",
@@ -8534,14 +8530,16 @@
     "androidStepsTitle": "Pasang di Android",
     "androidStep1": "Tekan menu <menu></menu> di kanan atas Chrome",
     "androidStep2": "Tekan Pasang apl atau Tambah ke Skrin Utama",
-    "androidStep3": "Tekan Pasang, kemudian sentiasa buka ikon baharu"
+    "androidStep3": "Tekan Pasang, kemudian sentiasa buka ikon baharu",
+    "reuseLinkTip": "Simpan pautan ini. Lain kali ketik sahaja sekali lagi - anda terus masuk. Ia juga berfungsi dalam pelayar lain di telefon ini dengan PIN yang sama.",
+    "useInBrowser": "Guna dalam pelayar dahulu"
   },
   "fieldAccessAdmin": {
     "unbind": {
-      "action": "Nyahikat",
-      "confirm": "Telefon ini akan dilog keluar serta-merta. Teruskan?",
-      "help": "Guna ini apabila telefon hilang atau bertukar tangan. Orang itu log masuk semula pada telefon baharu.",
-      "title": "Nyahikat peranti ini"
+      "action": "Log keluar di semua tempat",
+      "confirm": "Semua telefon dan pelayar orang ini akan dilog keluar serta-merta. Teruskan?",
+      "help": "Gunakan ini apabila telefon hilang atau diberi kepada orang lain. Semua telefon dan pelayar orang ini dilog keluar; mereka ketik pautan sekali lagi untuk masuk semula.",
+      "title": "Log keluar di semua tempat"
     },
     "action": "Pautan log masuk staf tapak",
     "activationLink": "Pautan pengaktifan",
@@ -8586,7 +8584,17 @@
       "accessInfo": "Projek semasa orang ini"
     },
     "role": "Peranan",
-    "roleHint": "Pengawal pintu mengimbas pas dan mengambil rekod foto pintu. Kedua-duanya log masuk di telefon dengan pautan ini."
+    "roleHint": "Pengawal pintu mengimbas pas dan mengambil rekod foto pintu. Kedua-duanya log masuk di telefon dengan pautan ini.",
+    "places": {
+      "title": "Sedang log masuk: {count} daripada {limit}",
+      "none": "Belum log masuk di mana-mana.",
+      "lastSeen": "terakhir digunakan {time}",
+      "help": "Setiap pelayar atau apl Skrin Utama dikira sekali. Lebih daripada {limit}, yang paling lama tidak digunakan akan dilog keluar.",
+      "app": "Apl Skrin Utama",
+      "inApp": "Pelayar apl sembang",
+      "computer": "Pelayar komputer",
+      "browser": "Pelayar"
+    }
   },
   "fieldDraft": {
     "loading": "Memuatkan draf yang disimpan...",

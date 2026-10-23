@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { useInstallIconTags } from "@/components/field-staff/install-icons";
 import { Button } from "@/components/ui/button";
 import {
+  fieldInstallHelpWanted,
   hasFieldSession,
   isStandaloneApp,
   markFieldAppContext,
@@ -24,6 +25,7 @@ import {
 import {
   detectInstallEnvironment,
   fieldAppStartPath,
+  fieldJoinWithPinPath,
   installGuideVariant,
   showIosInstallGuide,
   type InstallEnvironment,
@@ -75,6 +77,19 @@ export function FieldInstallReady({
           ? fieldAppStartPath(token, next)
           : hasFieldSession()
             ? workspace
+            : "/trace/field-login",
+      );
+      return;
+    }
+    // Not arrived from the PIN just now (Lucas 2026-10-23: the icon opened
+    // on this page): signed in here, straight to work; otherwise the PIN,
+    // which signs this browser in with the link on this page.
+    if (!fieldInstallHelpWanted()) {
+      replacePage(
+        hasFieldSession()
+          ? workspace
+          : token
+            ? fieldJoinWithPinPath(token, workspace)
             : "/trace/field-login",
       );
       return;
@@ -256,6 +271,8 @@ export function FieldInstallReady({
             )}
           </div>
         )}
+        {/* The Home Screen is the main way; the browser is the option, and
+            tapping the same link again later brings it back (Lucas 2026-10-23). */}
         <Button
           size="lg"
           variant={supportsNativePrompt || iosGuide ? "outline" : "default"}
@@ -263,7 +280,7 @@ export function FieldInstallReady({
           onClick={() => replacePage(workspace)}
         >
           <Camera />
-          {t("openWorkspace")}
+          {supportsNativePrompt || iosGuide ? t("useInBrowser") : t("openWorkspace")}
         </Button>
       </div>
     </main>

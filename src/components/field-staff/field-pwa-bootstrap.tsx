@@ -80,13 +80,10 @@ export function FieldPwaBootstrap({
     }
     if (step === "missing") return;
     if (step === "tab-refused") {
-      // A browser tab with a link in its address: not signed in, and the
-      // link comes off the address so it is not copied on.
-      window.history.replaceState(window.history.state, "", "/field-pwa-bootstrap");
-      window.requestAnimationFrame(() => {
-        setFailure("not-standalone");
-        setError(t("tabNeedsActivation"));
-      });
+      // A browser tab with a link in its address (a home-screen bookmark
+      // that opens in Safari, a copied workspace address): the link alone
+      // does not sign a tab in, the PIN typed with it does.
+      replacePage(fieldJoinWithPinPath(token, next));
       return;
     }
     void restoreFieldPwaSession({
@@ -103,12 +100,6 @@ export function FieldPwaBootstrap({
         replacePage(next ?? "/field-staff");
       })
       .catch((cause) => {
-        // The phone's second slot was filled moments ago: the PIN, typed in
-        // this app, joins it.
-        if (cause instanceof ApiError && cause.code === "field_companion_pin_required") {
-          replacePage(fieldJoinWithPinPath(token, next));
-          return;
-        }
         if (hasFieldSession()) {
           markFieldAppContext();
           replacePage(next ?? "/field-staff");

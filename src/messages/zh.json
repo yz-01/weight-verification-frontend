@@ -8465,7 +8465,6 @@
     "desktopExpired": "此安装目前无法自动恢复登录。如果管理员已重新生成链接，请从最新链接输入 PIN，再重新加入主画面。",
     "desktopExpiredTitle": "应用自动登录不可用",
     "desktopSigningIn": "正在恢复现场人员登录……",
-    "tabNeedsActivation": "请用办公室发给你的激活链接绑定这台手机。这个地址不能直接登录。",
     "desktopTitle": "使用 Chrome 或 Edge 安装",
     "driverInstallBody": "把司机工作页面添加到桌面，下次可以直接打开。",
     "driverInstallBrowserGuide": "打开浏览器菜单，选择安装应用或添加到主屏幕。",
@@ -8488,19 +8487,16 @@
     "iosSafariBody": "按“分享”，选择“加入主画面”，保持“以网页 App 打开”开启，再按“添加”。以后从主画面的新图标打开。",
     "iosSafariTitle": "使用 iPhone Safari 安装",
     "iosTitle": "加入 iPhone 桌面",
-    "loginBody": "请输入这台已绑定设备的 6 位 PIN。新设备必须先打开管理员生成的邀请链接。",
+    "loginBody": "请输入你的 6 位 PIN。如果是新手机或新浏览器，请直接点办公室发的链接。",
     "loginTitle": "现场人员登录",
     "openWorkspace": "打开拍照工作台",
     "phone": "手机号码",
     "pin": "6 位 PIN",
-    "readyBody": "这台手机已安全绑定到你的现场人员账号。",
+    "readyBody": "已经登录。请加到主屏幕，以后点图标就能直接进入。也可以先用网页版，下次点同一个链接就能回来。",
     "readyTitle": "手机已准备好",
     "signIn": "登录",
     "thisPhone": "这台手机",
     "storageBlocked": "这个浏览器没有保存网站数据，所以这台手机没办法保持关联。请用普通窗口（不要无痕窗口）打开邀请链接，并允许这个网址保存网站数据。",
-    "browserWarningTitle": "请用手机自带的浏览器打开这个链接",
-    "browserWarning": "这台手机是跟你激活时用的那个浏览器绑定的。在聊天软件里面激活，绑定的只是那个软件；之后用 Safari 或 Chrome 打开，会被当成另一台手机。",
-    "browserWarningNamed": "这个链接是在 {app} 里面打开的。请先复制链接，用 Safari 或 Chrome 打开，再在那里激活。",
     "copyLink": "复制链接",
     "copied": "链接已复制。粘贴到 Safari 或 Chrome 打开。",
     "resuming": "正在打开你的工作台…",
@@ -8534,14 +8530,16 @@
     "androidStepsTitle": "在 Android 上安装",
     "androidStep1": "点 Chrome 右上角的 <menu></menu> 菜单",
     "androidStep2": "点「安装应用」或「添加到主屏幕」",
-    "androidStep3": "再点「安装」，以后从桌面的新图标打开"
+    "androidStep3": "再点「安装」，以后从桌面的新图标打开",
+    "reuseLinkTip": "请保留这个链接。下次直接再点一次就能进去，不用重新要链接。在这台手机的其他浏览器打开也可以，输入同一个 PIN 就行。",
+    "useInBrowser": "先用网页版"
   },
   "fieldAccessAdmin": {
     "unbind": {
-      "action": "解除绑定",
-      "confirm": "这台手机会立刻被登出。要继续吗？",
-      "help": "手机丢了或换人用的时候用这个。本人在新手机上重新登录一次就行。",
-      "title": "解除这台设备的绑定"
+      "action": "全部登出",
+      "confirm": "这个人所有手机和浏览器都会立刻被登出。要继续吗？",
+      "help": "手机丢了或换人用的时候用这个。这个人所有手机和浏览器都会被登出，之后再点一次链接就能重新进来。",
+      "title": "全部登出"
     },
     "action": "现场人员登录链接",
     "activationLink": "激活链接",
@@ -8586,7 +8584,17 @@
       "accessInfo": "此人目前的项目"
     },
     "role": "角色",
-    "roleHint": "门岗保安可扫通行证、拍门岗照片记录。两种角色都用这个链接在手机登入。"
+    "roleHint": "门岗保安可扫通行证、拍门岗照片记录。两种角色都用这个链接在手机登入。",
+    "places": {
+      "title": "目前登录中：{count} / {limit}",
+      "none": "还没有在任何地方登录。",
+      "lastSeen": "最后使用 {time}",
+      "help": "每个浏览器或主屏幕 App 算一个。超过 {limit} 个时，最久没用的那个会自动登出。",
+      "app": "主屏幕 App",
+      "inApp": "聊天软件里的浏览器",
+      "computer": "电脑浏览器",
+      "browser": "浏览器"
+    }
   },
   "fieldDraft": {
     "loading": "正在载入已保存草稿…",

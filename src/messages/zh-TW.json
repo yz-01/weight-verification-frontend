@@ -8465,7 +8465,6 @@
     "desktopExpired": "此安裝目前無法自動恢復登錄。如果管理員已重新生成鏈接，請從最新鏈接輸入 PIN，再重新加入主畫面。",
     "desktopExpiredTitle": "應用自動登錄不可用",
     "desktopSigningIn": "正在恢復現場人員登錄……",
-    "tabNeedsActivation": "請用辦公室發給你的啟用連結綁定這台手機。這個地址不能直接登入。",
     "desktopTitle": "使用 Chrome 或 Edge 安裝",
     "driverInstallBody": "把司機工作頁面加入主畫面，下次可以直接開啟。",
     "driverInstallBrowserGuide": "開啟瀏覽器選單，選擇安裝應用程式或加入主畫面。",
@@ -8488,19 +8487,16 @@
     "iosSafariBody": "按“分享”，選擇“加入主畫面”，保持“以網頁 App 打開”開啟，再按“添加”。以後從主畫面的新圖標打開。",
     "iosSafariTitle": "使用 iPhone Safari 安裝",
     "iosTitle": "加入 iPhone 桌面",
-    "loginBody": "請輸入這臺已綁定設備的 6 位 PIN。新設備必須先打開管理員生成的邀請鏈接。",
+    "loginBody": "請輸入你的 6 位 PIN。如果是新手機或新瀏覽器，請直接點辦公室發的連結。",
     "loginTitle": "現場人員登錄",
     "openWorkspace": "打開拍照工作臺",
     "phone": "手機號碼",
     "pin": "6 位 PIN",
-    "readyBody": "這臺手機已安全綁定到你的現場人員賬號。",
+    "readyBody": "已經登入。請加入主畫面，以後點圖示就能直接進入。也可以先用網頁版，下次點同一個連結就能回來。",
     "readyTitle": "手機已準備好",
     "signIn": "登錄",
     "thisPhone": "這臺手機",
     "storageBlocked": "這個瀏覽器沒有保存網站資料，所以這台手機沒辦法保持關聯。請用一般視窗（不要無痕視窗）開啟邀請連結，並允許這個網址保存網站資料。",
-    "browserWarningTitle": "請用手機內建的瀏覽器開啟這個連結",
-    "browserWarning": "這台手機是跟你啟用時用的那個瀏覽器綁定的。在聊天軟體裡面啟用，綁定的只是那個軟體；之後用 Safari 或 Chrome 開啟，會被當成另一台手機。",
-    "browserWarningNamed": "這個連結是在 {app} 裡面開啟的。請先複製連結，用 Safari 或 Chrome 開啟，再在那裡啟用。",
     "copyLink": "複製連結",
     "copied": "連結已複製。貼到 Safari 或 Chrome 開啟。",
     "resuming": "正在開啟你的工作台…",
@@ -8534,14 +8530,16 @@
     "androidStepsTitle": "在 Android 上安裝",
     "androidStep1": "點 Chrome 右上角的 <menu></menu> 選單",
     "androidStep2": "點「安裝應用程式」或「加到主畫面」",
-    "androidStep3": "再點「安裝」，以後從桌面的新圖示開啟"
+    "androidStep3": "再點「安裝」，以後從桌面的新圖示開啟",
+    "reuseLinkTip": "請保留這個連結。下次直接再點一次就能進去，不用重新要連結。在這台手機的其他瀏覽器開啟也可以，輸入同一個 PIN 就行。",
+    "useInBrowser": "先用網頁版"
   },
   "fieldAccessAdmin": {
     "unbind": {
-      "action": "解除綁定",
-      "confirm": "這台手機會立刻被登出。要繼續嗎？",
-      "help": "手機遺失或換人用的時候用這個。本人在新手機上重新登入一次就行。",
-      "title": "解除這台設備的綁定"
+      "action": "全部登出",
+      "confirm": "這個人所有手機和瀏覽器都會立刻被登出。要繼續嗎？",
+      "help": "手機遺失或換人使用時用這個。這個人所有手機和瀏覽器都會被登出，之後再點一次連結就能重新進來。",
+      "title": "全部登出"
     },
     "action": "現場人員登錄鏈接",
     "activationLink": "激活鏈接",
@@ -8586,7 +8584,17 @@
       "accessInfo": "此人目前的項目"
     },
     "role": "角色",
-    "roleHint": "門崗保安可掃通行證、拍門崗照片記錄。兩種角色都用這個連結在手機登入。"
+    "roleHint": "門崗保安可掃通行證、拍門崗照片記錄。兩種角色都用這個連結在手機登入。",
+    "places": {
+      "title": "目前登入中：{count} / {limit}",
+      "none": "還沒有在任何地方登入。",
+      "lastSeen": "最後使用 {time}",
+      "help": "每個瀏覽器或主畫面 App 算一個。超過 {limit} 個時，最久沒用的那個會自動登出。",
+      "app": "主畫面 App",
+      "inApp": "聊天軟體裡的瀏覽器",
+      "computer": "電腦瀏覽器",
+      "browser": "瀏覽器"
+    }
   },
   "fieldDraft": {
     "loading": "正在載入已儲存草稿…",

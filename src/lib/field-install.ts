@@ -133,8 +133,8 @@ export function unboundReason(input: {
  * The short reason shown as 「原因：…」 under the "not linked" help, and sent
  * to the server log, so a screenshot says why this phone could not sign in.
  *
- * - `companion-pin`: the app's link is fine but this phone joined another
- *   storage moments ago; the PIN typed here finishes it.
+ * - `companion-pin`: this page holds the app link; the PIN typed here signs
+ *   it in.
  * - `refused:<code>`: the app had a link and the server refused it.
  * - `device-refused`: the PIN was refused for this storage.
  * - `in-app` / `not-standalone`: a chat app's browser / a browser tab.
@@ -357,10 +357,11 @@ export function fieldWorkspaceSignIn(address: string, standalone: boolean): stri
   const url = new URL(address, "http://field.local");
   const token = validBootstrap(url.searchParams.get(BOOTSTRAP_PARAM));
   const back = withBootstrapParam(address, null);
-  // Only the installed app signs in with a link on its address. A browser tab
-  // with one is most likely a copied workspace link: it gets the PIN screen
-  // (which explains the way in) and the link comes off the address.
+  // Only the installed app signs in with a link on its address alone. A
+  // browser tab with one gets the PIN screen, and the PIN typed there signs
+  // the tab in as one more place of that account.
   if (token && standalone) return fieldAppStartPath(token, back);
+  if (token) return fieldJoinWithPinPath(token, back);
   return `/trace/field-login?next=${encodeURIComponent(back)}`;
 }
 
@@ -379,12 +380,12 @@ export function fieldBootstrapStep(input: {
 }): "keep-session" | "exchange" | "tab-refused" | "missing" {
   if (input.hasSession) return "keep-session";
   if (!input.token) return "missing";
-  // A browser tab never signs in from a link in its address (a copied link
-  // would otherwise sign a stranger in): the activation link is the way in.
+  // A browser tab never signs in from a link in its address alone (a copied
+  // link would otherwise sign a stranger in): it is asked for the PIN.
   return input.standalone ? "exchange" : "tab-refused";
 }
 
-/** The PIN screen of the installed app, carrying its link to join with. */
+/** The PIN screen, carrying the app link that the PIN signs this page in with. */
 export function fieldJoinWithPinPath(token: string, next?: string): string {
   return `/trace/field-login?${BOOTSTRAP_PARAM}=${encodeURIComponent(token)}${
     next ? `&next=${encodeURIComponent(next)}` : ""

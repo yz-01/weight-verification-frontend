@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { isStandaloneApp, setFieldBootstrapToken } from "@/lib/auth-token";
+import {
+  isStandaloneApp,
+  markFieldInstallHelp,
+  setFieldBootstrapToken,
+} from "@/lib/auth-token";
 import {
   detectInstallEnvironment,
   fieldReadyPath,
@@ -47,6 +51,7 @@ export function FieldInstallBanner() {
     try {
       const fresh = await createFieldPwaBootstrap();
       setFieldBootstrapToken(fresh.token);
+      markFieldInstallHelp();
       window.location.assign(fieldReadyPath(fresh.token, "/field-staff"));
     } catch {
       // The request already said what went wrong.
