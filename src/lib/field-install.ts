@@ -197,6 +197,36 @@ export function fieldAccessView(input: {
 }
 
 /**
+ * Whether opening the activation link again may skip the PIN because this
+ * browser is already signed in through it.
+ *
+ * Only a session started from this very link counts. A session from an older
+ * link was ended by the office when it issued this one; skipping the PIN on
+ * it opened the workspace, which bounced back to the plain sign-in screen
+ * with 「办公室已重新发出链接」, where a PIN cannot link the new link - the
+ * worker had to open the link a second time (Lucas 2026-10-23). The server
+ * clears `activated_at` when it issues a new link and sets it when the link
+ * is first used, so a session issued before that moment is from an older link.
+ */
+export function activationLinkSignedIn(input: {
+  /** The link has run out: the session in this browser is all that counts. */
+  invitationExpired: boolean;
+  invitationUserId: string | null | undefined;
+  /** When the link was first used to link a phone (ISO), null if not yet. */
+  activatedAt: string | null | undefined;
+  sessionUserId: string | null;
+  /** The session's `iat` (seconds, server clock), null if unreadable. */
+  sessionIssuedAt: number | null;
+}): boolean {
+  if (input.invitationExpired) return true;
+  if (input.sessionUserId && input.invitationUserId !== input.sessionUserId) return false;
+  if (!input.activatedAt || input.sessionIssuedAt === null) return false;
+  const activated = Date.parse(input.activatedAt);
+  if (Number.isNaN(activated)) return false;
+  return input.sessionIssuedAt >= Math.floor(activated / 1000);
+}
+
+/**
  * Whether to offer "add to Home Screen" help on the iPhone: Safari (or another
  * iOS browser) in a tab, never inside the installed app.
  */

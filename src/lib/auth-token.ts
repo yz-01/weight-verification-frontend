@@ -380,6 +380,26 @@ export function hasFieldSession(): boolean {
 }
 
 /**
+ * When the server issued this browser's field session (the refresh token's
+ * `iat`, in seconds on the server's clock), or null when there is none.
+ */
+export function fieldSessionIssuedAt(): number | null {
+  if (!isBrowser()) return null;
+  const token = window.localStorage.getItem(FIELD_REFRESH_KEY);
+  const payload = token?.split(".")[1];
+  if (!payload) return null;
+  try {
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(
+      window.atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")),
+    ) as { iat?: unknown };
+    return typeof decoded.iat === "number" ? decoded.iat : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Keep the portal separately from the credentials so an expired session can
  * return to the same branded sign-in screen after its tokens are removed.
  */
