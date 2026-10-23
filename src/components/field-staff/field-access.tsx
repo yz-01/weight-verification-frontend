@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
 import {
   FIELD_OFFICE_SIGN_OUTS,
+  fieldSessionIssuedAt,
   getFieldBootstrapToken,
   hasFieldSession,
   isStandaloneApp,
@@ -22,6 +23,7 @@ import {
   takeFieldSignOutReason,
 } from "@/lib/auth-token";
 import {
+  activationLinkSignedIn,
   contextReason,
   detectInstallEnvironment,
   fieldAccessView,
@@ -132,17 +134,22 @@ export function FieldAccess() {
 
   /**
    * Tapping the activation link again where this person is already signed in
-   * goes straight to the workspace, no PIN (Lucas 2026-10-23: workers close
-   * the page and open the link from WhatsApp again every time). Also when the
-   * link has since run out: the session here is what counts. A browser
-   * signed in as someone else gets the form, so the PIN can move it over.
+   * through it goes straight to the workspace, no PIN (Lucas 2026-10-23:
+   * workers close the page and open the link from WhatsApp again every time).
+   * Also when the link has since run out: the session here is what counts. A
+   * browser signed in as someone else, or through a link the office has since
+   * replaced, gets the form (`activationLinkSignedIn`).
    */
   useEffect(() => {
     if (!token || invitation.isLoading || !hasFieldSession()) return;
-    const holder = fieldSessionUserId();
-    const sameWorker =
-      invitation.isError || !holder || invitation.data?.user_id === holder;
-    if (!sameWorker) return;
+    const sameLink = activationLinkSignedIn({
+      invitationExpired: invitation.isError,
+      invitationUserId: invitation.data?.user_id,
+      activatedAt: invitation.data?.activated_at,
+      sessionUserId: fieldSessionUserId(),
+      sessionIssuedAt: fieldSessionIssuedAt(),
+    });
+    if (!sameLink) return;
     const frame = window.requestAnimationFrame(() => {
       setSignedIn(true);
       replacePage(next ?? "/field-staff");

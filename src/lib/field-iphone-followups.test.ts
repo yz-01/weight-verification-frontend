@@ -16,6 +16,7 @@ import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  activationLinkSignedIn,
   fieldBootstrapStep,
   fieldJoinWithPinPath,
   fieldWorkspaceAddress,
@@ -250,8 +251,46 @@ describe("reload, return and relaunch keep the session (4, 5)", () => {
   it("tapping the activation link again where already signed in goes straight in (Lucas 2026-10-23)", () => {
     const source = read("components/field-staff/field-access.tsx");
     expect(source).toMatch(/!token \|\| invitation\.isLoading \|\| !hasFieldSession\(\)/);
-    expect(source).toMatch(/invitation\.data\?\.user_id === holder/);
+    expect(source).toMatch(/activationLinkSignedIn\(\{/);
+    expect(source).toMatch(/sessionIssuedAt: fieldSessionIssuedAt\(\)/);
     expect(source).not.toMatch(/browserWarning/);
+  });
+
+  describe("only a session from this very link skips the PIN (Lucas 2026-10-23)", () => {
+    const USER = "user-1";
+    const ACTIVATED = "2026-10-23T08:00:00.500000+08:00";
+    const activatedSeconds = Math.floor(Date.parse(ACTIVATED) / 1000);
+    const base = {
+      invitationExpired: false,
+      invitationUserId: USER,
+      activatedAt: ACTIVATED,
+      sessionUserId: USER,
+      sessionIssuedAt: activatedSeconds,
+    };
+
+    it("re-opening the link it was linked with goes straight in", () => {
+      expect(activationLinkSignedIn(base)).toBe(true);
+      expect(activationLinkSignedIn({ ...base, sessionIssuedAt: activatedSeconds + 3600 })).toBe(true);
+    });
+
+    it("a new link not yet used asks for the PIN, even with an older session here", () => {
+      expect(activationLinkSignedIn({ ...base, activatedAt: null })).toBe(false);
+    });
+
+    it("a session from before the new link was used asks for the PIN", () => {
+      expect(activationLinkSignedIn({ ...base, sessionIssuedAt: activatedSeconds - 60 })).toBe(false);
+    });
+
+    it("another worker's session, or none readable, asks for the PIN", () => {
+      expect(activationLinkSignedIn({ ...base, sessionUserId: "user-2" })).toBe(false);
+      expect(activationLinkSignedIn({ ...base, sessionIssuedAt: null })).toBe(false);
+    });
+
+    it("a link that has run out leaves the session here to decide", () => {
+      expect(
+        activationLinkSignedIn({ ...base, invitationExpired: true, activatedAt: undefined, invitationUserId: undefined }),
+      ).toBe(true);
+    });
   });
 
   it("the ready page shows install help only when sent there; opened later it goes on", () => {
