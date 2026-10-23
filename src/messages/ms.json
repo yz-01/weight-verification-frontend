@@ -8535,7 +8535,8 @@
     "androidStep3": "Tekan Pasang, kemudian sentiasa buka ikon baharu",
     "reuseLinkTip": "Simpan pautan ini. Lain kali ketik sahaja sekali lagi - anda terus masuk. Ia juga berfungsi dalam pelayar lain di telefon ini dengan PIN yang sama.",
     "useInBrowser": "Guna dalam pelayar dahulu",
-    "joinBody": "Kali pertama dalam pelayar ini: masukkan PIN 6 digit yang sama untuk teruskan."
+    "joinBody": "Kali pertama dalam pelayar ini: masukkan PIN 6 digit yang sama untuk teruskan.",
+    "privateBrowsing": "Anda sedang melayari secara peribadi (inkognito). Dalam mod ini telefon melupakan log masuk apabila Safari atau Chrome ditutup, dan meminta PIN sekali lagi. Buka pautan dalam tab biasa, atau tambah ruang kerja ke Skrin Utama."
   },
   "fieldAccessAdmin": {
     "unbind": {

@@ -8535,7 +8535,8 @@
     "androidStep3": "再点「安装」，以后从桌面的新图标打开",
     "reuseLinkTip": "请保留这个链接。下次直接再点一次就能进去，不用重新要链接。在这台手机的其他浏览器打开也可以，输入同一个 PIN 就行。",
     "useInBrowser": "先用网页版",
-    "joinBody": "这个浏览器第一次使用：输入同一个 6 位 PIN 就能继续。"
+    "joinBody": "这个浏览器第一次使用：输入同一个 6 位 PIN 就能继续。",
+    "privateBrowsing": "你正在用无痕（私密）浏览。这种模式关掉 Safari 或 Chrome 就会忘记登录，下次打开要重新输入 PIN。请用一般模式打开链接，或把工作台加到主屏幕。"
   },
   "fieldAccessAdmin": {
     "unbind": {

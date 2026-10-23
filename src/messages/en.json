@@ -8535,7 +8535,8 @@
     "androidStep3": "Tap Install, then always open the new icon",
     "reuseLinkTip": "Keep this link. Next time just tap it again - you go straight in. It also works in another browser on this phone with the same PIN.",
     "useInBrowser": "Use in the browser for now",
-    "joinBody": "First time in this browser: enter the same 6-digit PIN to continue."
+    "joinBody": "First time in this browser: enter the same 6-digit PIN to continue.",
+    "privateBrowsing": "You are in private (incognito) browsing. In this mode the phone forgets the sign-in when Safari or Chrome is closed, and asks for the PIN again next time. Open the link in a normal tab, or add the workspace to the Home Screen."
   },
   "fieldAccessAdmin": {
     "unbind": {
