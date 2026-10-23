@@ -671,7 +671,6 @@ function FieldAttendancePanel() {
           key={fixRound}
           className="mt-3"
           label={t("attendance.getLocation")}
-          actionLabel={t("attendance.getLocation")}
           readyLabel={t("attendance.locationReady")}
           value={fix}
           onChange={(next) => setFix(asFix(next))}

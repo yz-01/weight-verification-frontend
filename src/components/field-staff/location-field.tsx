@@ -2,7 +2,7 @@
 
 import { Loader2, LocateFixed, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { FieldWrapper } from "@/components/shared/page-primitives";
@@ -19,58 +19,16 @@ import {
 } from "@/lib/field-location";
 
 /**
- * Remembers that the explanation has been read, on this device.
- *
- * A worker takes several deliveries a day and clocks in and out. Explaining
- * every time would train them to press past it, which is how the system prompt
- * ended up being pressed past in the first place.
- */
-const PRIMER_KEY = "mse.location-primer-read";
-
-function primerWasRead(): boolean {
-  try {
-    return window.localStorage.getItem(PRIMER_KEY) === "1";
-  } catch {
-    // Private browsing, or site data blocked. Explaining again is a small
-    // cost; failing to render the button is not.
-    return false;
-  }
-}
-
-/**
- * Whether the explanation has been read, as React reads an external value.
- *
- * `localStorage` is outside React, and reading it into state from an effect
- * would render twice for nothing. On the server there is no storage at all;
- * answering "read" there means the server never renders the explanation, and
- * the client shows it on hydration only when it really is a first use.
- */
-function subscribeToNothing(): () => void {
-  return () => undefined;
-}
-
-function usePrimerWasRead(): boolean {
-  return useSyncExternalStore(subscribeToNothing, primerWasRead, () => true);
-}
-
-function rememberPrimer(): void {
-  try {
-    window.localStorage.setItem(PRIMER_KEY, "1");
-  } catch {
-    // Nothing to do. The explanation simply shows again next time.
-  }
-}
-
-/**
  * Ask for a position fix, in the order a person can follow.
  *
  * Three things this exists to fix, all reported from a real site
  * (2026-09-05):
  *
- * The system prompt used to appear the moment a screen opened, with no
- * explanation. The common reaction to an unexplained prompt is Don't Allow,
- * and that answer is remembered - so a worker refused once and was then stuck
- * for good. Now a sentence appears first and the prompt only follows a press.
+ * The position is asked for as soon as the form opens, with no explanation
+ * box first (Lucas 2026-10-24: 「把这个出现一次的直接删除掉，如果他们允许定位
+ * 权限的话直接自动获取GPS就好了，不需要问多一次，如果不允许就不能使用手机
+ * 端」). The phone app's location tracker (`FieldLocationTracker`) has already
+ * asked on opening the app, and blocks the whole app while it is refused.
  *
  * A refusal used to surface as "location unavailable" and nothing else. Now it
  * says which switch to move, in the phone the reader is holding: iOS and
@@ -87,7 +45,6 @@ function rememberPrimer(): void {
  */
 export function LocationField({
   label,
-  actionLabel,
   readyLabel,
   value,
   onChange,
@@ -98,8 +55,6 @@ export function LocationField({
   allowMissingOffline = false,
 }: {
   label: string;
-  /** The words on the button before a fix has been taken. */
-  actionLabel: string;
   /** The words on the button once one has. */
   readyLabel: string;
   value: LocationValue | null;
@@ -118,17 +73,14 @@ export function LocationField({
   allowMissingOffline?: boolean;
 }) {
   const t = useTranslations("fieldStaffPwa.locationAccess");
-  const primerRead = usePrimerWasRead();
   const [locating, setLocating] = useState(false);
   const [problem, setProblem] = useState<LocationProblem | null>(null);
 
-  // One request per mount unless the person asks again. Set here, not only in
-  // the effect, so pressing 「允许」 on the first-use explanation (which flips
-  // `primerRead`) does not let the effect fire a second request behind it.
+  // One request per mount unless the person asks again (React's development
+  // double-mount must not fire two).
   const attempted = useRef(false);
   const ask = useCallback(async () => {
     attempted.current = true;
-    rememberPrimer();
     setProblem(null);
     setLocating(true);
     // Without network the phone has GPS alone, which can need far longer for
@@ -171,12 +123,8 @@ export function LocationField({
    * with a 「获取定位」 button the worker had to remember to press - and a
    * required one, so forgetting it blocked the submit with no obvious cause.
    *
-   * The one thing that is *not* automatic is the very first request on a
-   * device. That stays behind the one-sentence explanation below, because an
-   * unexplained system prompt is answered "Don't Allow" and the refusal is
-   * remembered for good (the problem this component was first written for).
-   * D-226 says the same: 「第一次使用只需授权一次定位权限」. After that one
-   * time, opening the form is enough.
+   * Not even the first request on a device waits for a press any more
+   * (Lucas 2026-10-24, see above): the tracker has asked on opening the app.
    *
    * A button appears only when something went wrong - as 【重试】 - which is
    * D-246: 「常态路径上不出现『获取定位』按钮；只有在自动定位失败时才露出重试」.
@@ -185,15 +133,12 @@ export function LocationField({
    * does not fire two requests, and so an explicit retry is the only thing
    * that asks again after a failure.
    */
-  const [primerDismissed, setPrimerDismissed] = useState(false);
   const missing = Boolean(value && "missing" in value && value.missing);
-  // The explanation shows by itself on a first use, and never otherwise.
-  const showPrimer = !value && !primerRead && !primerDismissed;
   useEffect(() => {
-    if (value || attempted.current || !primerRead) return;
+    if (value || attempted.current) return;
     attempted.current = true;
     void ask();
-  }, [ask, value, primerRead]);
+  }, [ask, value]);
 
   return (
     <FieldWrapper className={className} label={label} required={required} error={error} hint={hint}>
@@ -221,44 +166,11 @@ export function LocationField({
         </p>
       ) : null}
 
-      {/* The person said "later" to the one-time explanation. The form still
-          needs a position, so the way back is offered - worded as the action
-          it is, not as a retry of something that never ran. */}
-      {primerDismissed && !value && !locating && !problem ? (
-        <Button
-          className="h-12 w-full"
-          variant="outline"
-          onClick={() => setPrimerDismissed(false)}
-        >
-          <LocateFixed />
-          {actionLabel}
-        </Button>
-      ) : null}
-
       {value && !missing && !problem ? (
         <p className="mt-2 flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
           <MapPin className="size-3.5" />
           {value.latitude}, {value.longitude}
         </p>
-      ) : null}
-
-      {showPrimer ? (
-        <div className="mt-2 rounded-lg border bg-muted/30 p-3">
-          <p className="text-sm font-semibold">{t("why.title")}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{t("why.body")}</p>
-          <div className="mt-3 flex gap-2">
-            <Button className="h-10 flex-1" onClick={() => void ask()}>
-              {t("why.allow")}
-            </Button>
-            <Button
-              className="h-10"
-              variant="ghost"
-              onClick={() => setPrimerDismissed(true)}
-            >
-              {t("why.later")}
-            </Button>
-          </div>
-        </div>
       ) : null}
 
       {problem === "denied" ? (

@@ -2908,7 +2908,6 @@ export function EquipmentEntryDialog({
           <LocationField
             className="sm:col-span-2"
             label={t("field.location")}
-            actionLabel={t("action.getLocation")}
             readyLabel={t("action.locationReady")}
             value={location}
             onChange={setLocation}
@@ -3215,7 +3214,6 @@ export function MovementDialog({
           <LocationField
             className="sm:col-span-2"
             label={t("field.location")}
-            actionLabel={t("action.getLocation")}
             readyLabel={t("action.locationReady")}
             value={location}
             onChange={setLocation}
@@ -3627,7 +3625,6 @@ export function ProgressDialog({
         </FieldWrapper>
         <LocationField
           label={t("field.location")}
-          actionLabel={t("action.getLocation")}
           readyLabel={t("action.locationReady")}
           value={location}
           onChange={setLocation}
@@ -4355,7 +4352,6 @@ export function OutgoingDialog({
           <LocationField
             className="sm:col-span-2"
             label={t("field.location")}
-            actionLabel={t("action.getLocation")}
             readyLabel={t("action.locationReady")}
             value={location}
             onChange={setLocation}
@@ -4696,7 +4692,6 @@ function ExitForm({
       </FieldWrapper>
       <LocationField
         label={t("outgoing.processingLocation")}
-        actionLabel={t("outgoing.processingLocation")}
         readyLabel={t("outgoing.processingLocationReady")}
         value={location}
         onChange={setLocation}

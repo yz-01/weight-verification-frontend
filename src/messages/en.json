@@ -8933,12 +8933,6 @@
       "WASTE": "Environmental material outgoing"
     },
     "locationAccess": {
-      "why": {
-        "title": "This needs your location",
-        "body": "While the app is open it reads your location every so often, to record your arrival on site and your leaving automatically, and stamps deliveries and site records with where they happened. Close the app or refuse location and nothing is recorded - no old location is used instead.",
-        "allow": "Allow location",
-        "later": "Not now"
-      },
       "denied": {
         "title": "The browser will not give this page your location",
         "iosNote": "If you never saw a box asking, location is switched off for this browser in the phone settings. No web page can bring that box back - it has to be turned on below."

@@ -1215,7 +1215,6 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
         </FieldWrapper>
         <LocationField
           label={t("field.location")}
-          actionLabel={t("action.getLocation")}
           readyLabel={t("action.locationReady")}
           value={location}
           onChange={setLocation}

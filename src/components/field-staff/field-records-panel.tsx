@@ -1073,7 +1073,6 @@ export function MaterialCapturePanel({
       </details>
       <LocationField
         label={t("material.location")}
-        actionLabel={t("attendance.getLocation")}
         readyLabel={t("attendance.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
@@ -1259,7 +1258,6 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
       </FieldWrapper>
       <LocationField
         label={t("consultantCapture.location")}
-        actionLabel={t("attendance.getLocation")}
         readyLabel={t("attendance.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
@@ -1455,7 +1453,6 @@ function WasteOutgoingCapturePanel({
       </FieldWrapper>
       <LocationField
         label={t("field.location")}
-        actionLabel={t("action.locate")}
         readyLabel={t("field.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}

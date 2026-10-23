@@ -341,7 +341,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
             <FieldWrapper label={t("field.estimatedWeight")} optional={t("optional")}><Input type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper>
             <FieldWrapper label={t("field.preferredAt")} optional={t("optional")}><Input type="datetime-local" value={preferred} onChange={(e) => setPreferred(e.target.value)} /></FieldWrapper>
           </> : null}
-          <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required allowMissingOffline />
+          <LocationField label={t("field.gps")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required allowMissingOffline />
           {/* General waste (L6 / B24): none required on the phone, at most four -
               「一次最多 4 张，不要求拍满」. The office still attaches one. */}
           <FieldWrapper label={t("field.photos")} required={!isFieldStaff} className="sm:col-span-2">
@@ -694,7 +694,7 @@ function SiteEvidenceDialog({ row, onClose, onSaved }: { row: DisposalRequest; o
           })}
           </div>
           </FieldWrapper>
-          {isFieldStaff && <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required allowMissingOffline />}
+          {isFieldStaff && <LocationField label={t("field.gps")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required allowMissingOffline />}
           <FieldWrapper label={t("siteEvidence.note")} optional={t("optional")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
         <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[shots.length > 0, t("siteEvidence.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("siteEvidence.submit")}</Button></DialogFooter>

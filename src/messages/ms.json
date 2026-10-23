@@ -8933,12 +8933,6 @@
       "WASTE": "Permohonan bahan alam sekitar keluar"
     },
     "locationAccess": {
-      "why": {
-        "title": "Ini memerlukan lokasi anda",
-        "body": "Semasa aplikasi dibuka, lokasi anda dibaca dari semasa ke semasa untuk merekod ketibaan dan keluar anda di tapak secara automatik, dan penghantaran serta rekod tapak dicap dengan tempat ia berlaku. Tutup aplikasi atau tolak lokasi dan tiada apa direkod - lokasi lama tidak digunakan.",
-        "allow": "Benarkan lokasi",
-        "later": "Bukan sekarang"
-      },
       "denied": {
         "title": "Pelayar tidak memberikan lokasi anda kepada halaman ini",
         "iosNote": "Jika anda tidak pernah nampak kotak bertanya, lokasi dimatikan untuk pelayar ini dalam tetapan telefon. Tiada halaman web boleh memunculkan kotak itu semula - ia mesti dihidupkan di bawah."

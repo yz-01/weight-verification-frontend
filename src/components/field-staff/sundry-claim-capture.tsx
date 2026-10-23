@@ -154,7 +154,6 @@ export function SundryClaimCapture({
       </FieldWrapper>
       <LocationField
         label={t("location")}
-        actionLabel={tLocation("attendance.getLocation")}
         readyLabel={tLocation("attendance.locationReady")}
         value={location}
         onChange={setLocation}
