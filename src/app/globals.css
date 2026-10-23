@@ -849,7 +849,7 @@
  * columns out by their content inside the page width instead of growing to
  * every cell's one-line width: long text wraps (two lines at most, then
  * 「…」 with the whole text on hover - `[data-slot=cell-fit]`), the cells
- * keep 8 px a side, and nothing in them is smaller than 13 px. Headers stay
+ * keep 6 px a side (8 until 2026-10-24, when every table had to fit), and nothing in them is smaller than 13 px. Headers stay
  * on one line, so each column is at least as wide as its name. Unlayered on
  * purpose: it outranks the padding and nowrap utilities a page put on its
  * cells before this rule existed. The phone keeps its one-line rows and
@@ -862,11 +862,11 @@
     font-size: 13px;
   }
   [data-slot="table"][data-fit] > thead > tr > th {
-    padding-inline: 0.5rem;
+    padding-inline: 0.375rem;
     font-size: 13px;
   }
   [data-slot="table"][data-fit] > tbody > tr > td {
-    padding-inline: 0.5rem;
+    padding-inline: 0.375rem;
     font-size: 13px;
     white-space: normal;
     overflow-wrap: break-word;
@@ -883,6 +883,25 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
     overflow: hidden;
+  }
+  /* Every table fits the page, no sideways bar (Lucas 2026-10-24: 「尽量把整个的
+   * table的水平滚动条移除掉…不需要左右滑，整个系统都是这样」). What still held a
+   * table wider than the page was text told to stay on one line: a heading
+   * wraps at its spaces and brackets, never inside a word (`keep-all`: 「照片」
+   * stays whole), a
+   * date or a name marked `whitespace-nowrap` wraps at its spaces (「19/10/2026」
+   * over 「02:33 下午」), and a column's own minimum width gives way. A status
+   * pill, a button and the pinned 「查看 / 更改」 column keep their one line. */
+  [data-slot="table"][data-fit] > thead > tr > th:not([data-pin]) {
+    white-space: normal;
+    word-break: keep-all;
+    min-width: 0;
+  }
+  [data-slot="table"][data-fit] > tbody > tr > td:not([data-pin]) {
+    min-width: 0;
+  }
+  [data-slot="table"][data-fit] > tbody > tr > td:not([data-pin]) .whitespace-nowrap:not(.rounded-full, [data-slot="button"], button) {
+    white-space: normal;
   }
 }
 

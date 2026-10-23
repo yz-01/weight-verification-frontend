@@ -464,7 +464,7 @@ function TableFrame<T>({
             ) : isError ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={columnCount} className="p-0 text-center">
-                  <div className="sticky left-0 flex min-h-36 w-[100cqw] flex-col items-center justify-center px-6 whitespace-normal">
+                  <div className="sticky left-0 flex min-h-36 w-[100cqw] sm:w-full flex-col items-center justify-center px-6 whitespace-normal">
                     <p className="text-sm font-medium text-foreground">
                       {t("table.errorTitle")}
                     </p>
@@ -477,7 +477,7 @@ function TableFrame<T>({
             ) : rows.length === 0 ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={columnCount} className="p-0 text-center">
-                  <div className="sticky left-0 flex min-h-36 w-[100cqw] flex-col items-center justify-center px-6 whitespace-normal">
+                  <div className="sticky left-0 flex min-h-36 w-[100cqw] sm:w-full flex-col items-center justify-center px-6 whitespace-normal">
                     <p className="max-w-md text-sm text-muted-foreground">
                       {hasFilters
                         ? t("table.noResultsFiltered")
