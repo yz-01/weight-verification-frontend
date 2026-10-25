@@ -181,6 +181,12 @@ export async function archiveDocument(
   return document;
 }
 
+/** JB25: the trash can on a document not yet archived - PIN, total. */
+export async function deleteDocument(id: string): Promise<void> {
+  await api.delete(`/api/documents/${id}/delete_document/`);
+  toastSuccess("draftRecords.deleted");
+}
+
 export function downloadDocumentVersion(version: DocumentVersion): Promise<void> {
   return download(`/api/document-versions/${version.id}/download/`, {
     fallbackFilename: version.original_name,

@@ -173,4 +173,7 @@ export interface ProgressSummary {
   updated_by_name: string | null;
   created_at: string;
   updated_at: string;
+  /** JB25: 【确认归档】 - locked, and only then printed and sent. Optional: older answers. */
+  archived_at?: string | null;
+  archived_by_name?: string | null;
 }

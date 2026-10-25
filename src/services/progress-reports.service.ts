@@ -125,13 +125,21 @@ export async function updateProgressSummary(
 
 export async function deleteProgressSummary(id: string) {
   await api.delete(`/api/progress-summaries/${id}/delete_summary/`);
-  toastSuccess("contractorOps.toast.removed");
+  toastSuccess("draftRecords.deleted");
+}
+
+/** JB25: 【确认归档】 - locked from now on, and only then printed and sent. */
+export async function archiveProgressSummary(id: string) {
+  const row = await api.post<ProgressSummary>(`/api/progress-summaries/${id}/archive_summary/`, {});
+  toastSuccess("draftRecords.archivedToast");
+  return row;
 }
 
 /** The summary as a PDF, its blocks in order (H16): 预览 · 打印 · 导出 · 发送. */
-export const progressSummaryPdfFile = (id: string, lang: string, title: string) =>
+export const progressSummaryPdfFile = (id: string, lang: string, title: string, preview = false) =>
   fetchAsFile(`/api/progress-summaries/${id}/get_summary_pdf/`, {
     method: "GET",
-    query: { lang },
+    // JB25: not yet archived, it is fetched to preview only.
+    query: { lang, ...(preview ? { preview: "1" } : {}) },
     fallbackFilename: `${(title || "progress-summary").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
   });

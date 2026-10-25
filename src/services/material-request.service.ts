@@ -88,10 +88,11 @@ export async function reassignMaterialRequestToMe(id: string) {
  * 导出 · 发送 alike (PDF 统一操作规则). `download=1` only changes how the
  * server labels the response, not the file.
  */
-export const materialRequestFormFile = (id: string, lang: string, requestNo: string) =>
+export const materialRequestFormFile = (id: string, lang: string, requestNo: string, preview = false) =>
   fetchAsFile(`/api/material-requests/${id}/get_request_pdf/`, {
     method: "GET",
-    query: { lang, download: "1" },
+    // JB25: waiting for its decision, it is fetched to preview only.
+    query: { lang, download: "1", ...(preview ? { preview: "1" } : {}) },
     fallbackFilename: `${requestNo}.pdf`,
   });
 
@@ -148,4 +149,17 @@ export function exportMaterialRequestTotals(request: ExportRequest): Promise<voi
     body: exportBody(request),
     fallbackFilename: `material-request-totals.${request.format}`,
   });
+}
+
+/** JB25: change a request waiting for its decision - overwritten, no old version. */
+export async function updateMaterialRequest(id: string, body: FormData | Record<string, unknown>) {
+  const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/update_request/`, body);
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+}
+
+/** JB25: the trash can on a request waiting for its decision - PIN, total. */
+export async function deleteMaterialRequest(id: string) {
+  await api.delete(`/api/material-requests/${id}/delete_request/`);
+  toastSuccess("draftRecords.deleted");
 }

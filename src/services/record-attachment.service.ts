@@ -45,3 +45,13 @@ export function downloadRecordAttachment(kind: AttachableKind, recordId: string,
     fallbackFilename: row.original_name,
   });
 }
+
+/** JB25: take a file off a record not yet confirmed - PIN, total. */
+export async function deleteRecordAttachment(kind: AttachableKind, recordId: string, row: RecordAttachment) {
+  const result = await api.delete<{ attachments: RecordAttachment[] }>(
+    "/api/record-attachments/delete_attachment/",
+    { query: { kind, record: recordId, attachment: row.id } },
+  );
+  toastSuccess("draftRecords.deleted");
+  return result;
+}

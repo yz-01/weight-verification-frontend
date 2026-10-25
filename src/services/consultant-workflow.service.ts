@@ -277,6 +277,22 @@ export const updateConsultantApplication = async (
   return row;
 };
 
+/** JB25: 【确认归档】 on a draft - locked from now on, and only then sent. */
+export const confirmConsultantApplication = async (id: string) => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/confirm_application/`,
+    {},
+  );
+  toastSuccess("draftRecords.archivedToast");
+  return row;
+};
+
+/** JB25: the trash can on a draft before 确认归档 - PIN, total. */
+export const deleteConsultantApplication = async (id: string) => {
+  await api.delete(`/api/consultant-applications/${id}/delete_application/`);
+  toastSuccess("draftRecords.deleted");
+};
+
 export const submitConsultantApplication = async (id: string) => {
   const row = await api.post<ConsultantApplication>(
     `/api/consultant-applications/${id}/submit_application/`,
