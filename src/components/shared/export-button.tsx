@@ -37,6 +37,10 @@ const FORMAT_LABELS = { xlsx: "export.excel", pdf: "export.pdf" } as const;
  * on the file it produced (`captureDownload`), so what is previewed is what
  * is printed, saved and sent.
  *
+ * 预览 asks no PIN and is not an export (JB27); 打印 · 导出 · 发送 ask for the
+ * person's own PIN once - the export behind them is not asked again - and
+ * are written to the operation log (`useFileActions`).
+ *
  * The caller supplies the format handler rather than the endpoint, because
  * what an export contains - which columns, worded how - belongs to the screen
  * that knows both. Failures are already toasted by the service layer.
@@ -82,6 +86,9 @@ export function ExportButton({
         load: () => captureDownload(() => onExport(format)),
         title: title ?? "",
         link,
+        // Each real export is kept in 「报表导出历史」 by the server; a
+        // preview is not (JB27), so an action from the preview fetches again.
+        exportedOnServer: true,
       },
       { key: `${format}-${action}`, allowSave },
     );

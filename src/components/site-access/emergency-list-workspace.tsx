@@ -20,7 +20,9 @@ import {
 } from "@/components/ui/table";
 import type { EmergencyPresence } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
+import { printPage } from "@/lib/file-actions";
 import { escapePrintHtml as escapeHtml, LETTERHEAD_PRINT_CSS, letterheadHtml, type PrintLetterhead } from "@/lib/print-letterhead";
+import { signFileAction } from "@/services/file-action.service";
 import { exportEmergencyList, getEmergencyList } from "@/services/site-access.service";
 
 /**
@@ -47,10 +49,14 @@ export function EmergencyListWorkspace() {
   });
   const people = rows.data?.people ?? [];
 
-  function print() {
-    const popup = window.open("", "_blank", "width=1000,height=760");
-    if (!popup) return;
-    popup.document.write(printDocument(people, rows.data?.letterhead, {
+  async function print() {
+    // 打印 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("PRINT", {
+      subject: t("emergency.title"),
+      project: project === "all" ? undefined : project,
+      link: window.location.pathname,
+    }))) return;
+    printPage(printDocument(people, rows.data?.letterhead, {
       title: t("emergency.title"),
       generated: t("emergency.printedAt", { time: df.dateTime(new Date().toISOString()) }),
       composition: t("emergency.composition", {
@@ -72,11 +78,10 @@ export function EmergencyListWorkspace() {
         row.gate_name || "-",
         row.phone || "-",
       ],
-    }));
-    popup.document.close();
+    }), "width=1000,height=760");
   }
 
-  return <div className="flex flex-col gap-4"><ListHeader title={t("emergency.title")} subtitle={t("emergency.subtitle")} action={<div className="flex flex-wrap gap-2"><Button variant="outline" disabled={rows.isFetching} onClick={() => void rows.refetch()}><RefreshCw className={rows.isFetching ? "animate-spin" : ""} />{t("action.refresh")}</Button><Button variant="outline" disabled={!people.length} disabledReason={!people.length ? t("emergency.empty") : undefined} onClick={print}><Printer />{t("emergency.print")}</Button><ExportButton variant="default" formats={["xlsx"]} onExport={() => exportEmergencyList(project === "all" ? undefined : project)} title={t("emergency.title")} /></div>} />
+  return <div className="flex flex-col gap-4"><ListHeader title={t("emergency.title")} subtitle={t("emergency.subtitle")} action={<div className="flex flex-wrap gap-2"><Button variant="outline" disabled={rows.isFetching} onClick={() => void rows.refetch()}><RefreshCw className={rows.isFetching ? "animate-spin" : ""} />{t("action.refresh")}</Button><Button variant="outline" disabled={!people.length} disabledReason={!people.length ? t("emergency.empty") : undefined} onClick={() => void print()}><Printer />{t("emergency.print")}</Button><ExportButton variant="default" formats={["xlsx"]} onExport={() => exportEmergencyList(project === "all" ? undefined : project)} title={t("emergency.title")} /></div>} />
     <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-[minmax(15rem,1fr)_auto] sm:items-end sm:px-6 sm:py-4">{projectBoxShown && <FieldWrapper label={t("field.project")}><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.chooseProject")} allowAll allLabel={t("field.allProjects")} /></FieldWrapper>}<div className="flex min-h-12 items-center gap-3 rounded-lg border border-warning/25 bg-warning/5 px-4 py-2"><Users className="text-warning" /><div><p className="text-xs text-muted-foreground">{t("emergency.currentCount")}</p><p className="font-semibold tabular">{rows.data?.count ?? 0}</p><p className="text-xs text-muted-foreground">{t("emergency.split", { app: rows.data?.app_count ?? 0, gate: rows.data?.gate_count ?? 0 })}</p></div></div></div>
     <div className="rounded-xl border border-warning/25 bg-warning/5 p-4"><div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 shrink-0 text-warning" /><div><h2 className="font-semibold">{t("emergency.useTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("emergency.useHelp")}</p></div></div></div>
     {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !rows.data?.count ? <State text={t("emergency.empty")} /> : <div className="surface-panel overflow-hidden rounded-xl"><Table className="min-w-250"><TableHeader><TableRow>{["person", "type", "source", "company", "project", "enteredAt", "duration", "gate", "contact"].map((key) => <TableHead key={key}>{key === "source" ? t("emergency.source") : t(`table.${key}`)}</TableHead>)}</TableRow></TableHeader><TableBody>{people.map((row) => <TableRow key={`${row.source}:${row.user_id ?? row.event_id}`}><TableCell><p className="font-semibold">{row.subject_name}</p><p className="text-xs text-muted-foreground">{row.pass_no}</p></TableCell><TableCell><StatusBadge label={t(`subjectType.${row.subject_type}`)} tone="info" /></TableCell><TableCell><p>{t(`emergency.sourceValue.${row.source}`)}</p>{row.source !== "GATE" && <p className={`text-xs ${row.stale ? "text-warning" : "text-muted-foreground"}`}>{row.last_report_at ? t(row.stale ? "emergency.stale" : "emergency.lastReport", { time: df.dateTime(row.last_report_at) }) : t("emergency.noReport")}</p>}</TableCell><TableCell>{row.subject_company || "-"}</TableCell><TableCell>{row.project_name}</TableCell><TableCell>{df.dateTime(row.entered_at)}</TableCell><TableCell className="font-medium tabular">{duration(row.minutes_on_site, t)}</TableCell><TableCell>{row.gate_name || "-"}</TableCell><TableCell>{row.phone ? <a className="inline-flex items-center gap-2 text-primary hover:underline" href={`tel:${row.phone}`}><Phone className="size-4" />{row.phone}</a> : "-"}</TableCell></TableRow>)}</TableBody></Table></div>}
