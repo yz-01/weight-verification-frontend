@@ -251,18 +251,19 @@ export function MaterialTargets() {
                     {trancheLines(row).map((line) => (
                       <TableRow key={`${row.id}-${line.index}`} className={line.row} data-tranche={line.index}>
                         {!project && <TableCell />}
-                        <TableCell colSpan={3} className={`pl-6 text-xs font-medium ${line.text}`}>
+                        <TableCell className={`pl-6 text-xs font-medium ${line.text}`}>
                           {line.index === 0
                             ? t("tranche.original")
                             : t("tranche.added", { index: line.index, quantity: line.tranche.quantity })}
-                          <span className="ml-2 font-normal text-muted-foreground">
-                            {t("tranche.cumulative", { total: line.tranche.cumulative_target })}
-                          </span>
                         </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {t("tranche.cumulative", { total: line.tranche.cumulative_target })}
+                        </TableCell>
+                        <TableCell />
                         <TableCell className={`text-right text-xs tabular-nums ${line.text}`}>{line.tranche.quantity}</TableCell>
                         <TableCell className="text-right text-xs tabular-nums">{line.tranche.filled}</TableCell>
                         <TableCell className="text-right text-xs tabular-nums">{line.tranche.remaining}</TableCell>
-                        <TableCell />
+                        <TableCell className="text-right" />
                         <TableCell>
                           <div className="min-w-20 space-y-1">
                             <div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -273,7 +274,9 @@ export function MaterialTargets() {
                             </p>
                           </div>
                         </TableCell>
-                        <TableCell colSpan={3} />
+                        <TableCell />
+                        <TableCell />
+                        <TableCell pin="end" />
                       </TableRow>
                     ))}
                   </Fragment>
