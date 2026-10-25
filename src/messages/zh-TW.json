@@ -6799,7 +6799,8 @@
         "openReport": "打開報表",
         "openRecord": "打開記錄"
       },
-      "count": "共 {count} 筆 · 第 {page} / {pages} 頁"
+      "count": "共 {count} 筆 · 第 {page} / {pages} 頁",
+      "regenerating": "正在重新生成…"
     },
     "loadError": "無法加載報表。",
     "period": "期間：{from} 至 {to}",

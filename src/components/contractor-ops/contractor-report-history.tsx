@@ -398,6 +398,7 @@ function RegenerateButton({ row, reportName }: { row: ContractorReportExportReco
         size="sm"
         variant="outline"
         disabled={busy}
+        disabledReason={h("regenerating")}
         title={h("regenerateHint")}
         onClick={() => void regenerate()}
         data-slot="history-regenerate"
@@ -588,15 +589,16 @@ function Pager({
 }) {
   const h = useTranslations("contractorReports.history");
   const table = useTranslations("table");
+  const common = useTranslations("common");
   if (!count) return null;
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-t px-4 py-3 text-sm" data-slot="history-pager">
       <span className="text-muted-foreground">{h("count", { count, page, pages: Math.max(totalPages, 1) })}</span>
       <div className="flex gap-2">
-        <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => onPage(page - 1)}>
+        <Button size="sm" variant="outline" disabled={page <= 1} disabledReason={common("alreadyFirstPage")} onClick={() => onPage(page - 1)}>
           {table("previous")}
         </Button>
-        <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>
+        <Button size="sm" variant="outline" disabled={page >= totalPages} disabledReason={common("alreadyLastPage")} onClick={() => onPage(page + 1)}>
           {table("next")}
         </Button>
       </div>

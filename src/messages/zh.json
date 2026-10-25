@@ -6799,7 +6799,8 @@
         "openReport": "打开报表",
         "openRecord": "打开记录"
       },
-      "count": "共 {count} 笔 · 第 {page} / {pages} 页"
+      "count": "共 {count} 笔 · 第 {page} / {pages} 页",
+      "regenerating": "正在重新生成…"
     },
     "loadError": "无法加载报表。",
     "period": "期间：{from} 至 {to}",

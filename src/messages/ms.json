@@ -6799,7 +6799,8 @@
         "openReport": "Buka laporan",
         "openRecord": "Buka rekod"
       },
-      "count": "{count} kesemuanya · halaman {page} daripada {pages}"
+      "count": "{count} kesemuanya · halaman {page} daripada {pages}",
+      "regenerating": "Sedang dijana semula…"
     },
     "loadError": "Laporan tidak dapat dimuatkan.",
     "period": "Tempoh: {from} hingga {to}",
