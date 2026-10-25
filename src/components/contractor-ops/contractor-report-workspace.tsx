@@ -10,13 +10,6 @@ import { DailyReportBook } from "@/components/progress/daily-reports";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
-  ArchivedReportActions,
-  ArchivedReportName,
-  previewArchived,
-  ArchivedReportNote,
-  useReportArchive,
-} from "@/components/reports/report-archive";
-import {
   ReportSelector,
   useReportLevelName,
 } from "@/components/reports/report-selector";
@@ -64,7 +57,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type {
-  ContractorReportExportRecord,
   ContractorReportFilters,
   ContractorReportRecord,
   ContractorReportType,
@@ -89,13 +81,11 @@ import {
   exportContractorReport,
   exportPhotoGroups,
   getContractorReport,
-  getContractorReportHistory,
   getContractorReportOptions,
   getLatestReportDay,
 } from "@/services/contractor-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
 import { photoMeta } from "@/lib/photo-meta";
-import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 function dateValue(date: Date): string {
   const year = date.getFullYear();
