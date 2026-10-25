@@ -8231,7 +8231,11 @@
       "permission_switches_self_lockout": "You cannot switch off your own user management.",
       "permission_switches_last_user_manager": "Somebody in the company must keep user management.",
       "receipt_line_returned": "A return names this material, so it cannot be removed.",
-      "field_place_signed_out": "This browser was signed out because you signed in on other phones or browsers. Enter your PIN to continue here."
+      "field_place_signed_out": "This browser was signed out because you signed in on other phones or browsers. Enter your PIN to continue here.",
+      "record_not_archived": "Confirm and archive it first to export, print or send it. It can be previewed now.",
+      "record_archived_locked": "This is confirmed and archived. It is locked and can no longer be changed or deleted.",
+      "record_in_use": "A formal record uses it, so it cannot be deleted: {used_by}",
+      "consultant_application_not_confirmed": "Confirm and archive the application before sending it to the consultant."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -19387,7 +19391,15 @@
       "equipment_hours_move": "Move equipment hours to another machine",
       "user_change_permissions": "Change a user's permission switches",
       "consultant_submit": "Send a consultant application",
-      "visitor_photo_purge": "Remove expired visitor photos"
+      "visitor_photo_purge": "Remove expired visitor photos",
+      "document_delete": "Delete an archive file not yet archived",
+      "consultant_delete": "Delete a consultant application draft",
+      "material_request_delete": "Delete a request not yet decided",
+      "schedule_delete": "Delete a draft schedule revision or task",
+      "progress_summary_delete": "Delete a progress summary not yet archived",
+      "package_delete": "Delete a draft evidence package",
+      "attachment_delete": "Delete a file on a record not yet archived",
+      "field_task_delete": "Delete a field task not yet started"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -19495,5 +19507,25 @@
     "noPending": "Nothing waiting.",
     "photos": "Latest site photos",
     "noPhotos": "No site photos yet."
+  },
+  "draftRecords": {
+    "delete": "Delete",
+    "confirmTitle": "Delete {what} for good?",
+    "confirmBody": "It is removed completely: there is no recycle bin and it cannot be recovered. Next you enter your six-digit sign-off PIN.",
+    "confirmDelete": "Delete for good",
+    "deleted": "Deleted.",
+    "notArchived": "Confirm and archive it first to export / print / send",
+    "notArchivedBadge": "Not archived yet",
+    "archivedBadge": "Archived",
+    "confirmArchive": "Confirm & archive",
+    "confirmArchiveTitle": "Confirm and archive {what}?",
+    "confirmArchiveBody": "Check it first. Once archived it is locked - no more changes, no delete - and only then can it be exported, printed and sent.",
+    "archivedBy": "Archived by {name} · {when}",
+    "archivedToast": "Archived.",
+    "draftHint": "Not archived yet: it can be changed or deleted, and only previewed. When it is checked, press Confirm & archive - then it can be exported, printed and sent.",
+    "sendNeedsArchive": "Confirm and archive it before sending it to the consultant",
+    "edit": "Edit",
+    "save": "Save",
+    "draftRevision": "A draft revision is exported once it is confirmed"
   }
 }

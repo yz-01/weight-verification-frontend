@@ -8231,7 +8231,11 @@
       "permission_switches_self_lockout": "不能關掉自己的「用戶管理」。",
       "permission_switches_last_user_manager": "公司裡至少要有一個人保留「用戶管理」。",
       "receipt_line_returned": "這項材料已有退貨記錄，不能刪除。",
-      "field_place_signed_out": "這個瀏覽器已自動登出，因為你在其他手機或瀏覽器登入了。輸入 PIN 就能在這裡繼續。"
+      "field_place_signed_out": "這個瀏覽器已自動登出，因為你在其他手機或瀏覽器登入了。輸入 PIN 就能在這裡繼續。",
+      "record_not_archived": "確認歸檔後才能匯出、列印或發送；現在可以先預覽。",
+      "record_archived_locked": "這份資料已確認歸檔，已經鎖定，不能修改或刪除。",
+      "record_in_use": "已被正式記錄引用，不能刪除：{used_by}",
+      "consultant_application_not_confirmed": "請先確認歸檔，才能發送給顧問。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -19387,7 +19391,15 @@
       "equipment_hours_move": "設備工時改設備歸屬",
       "user_change_permissions": "修改用戶的權限開關",
       "consultant_submit": "提交顧問申請",
-      "visitor_photo_purge": "刪除到期訪客照片"
+      "visitor_photo_purge": "刪除到期訪客照片",
+      "document_delete": "刪除未歸檔的文件檔案",
+      "consultant_delete": "刪除顧問申請草稿",
+      "material_request_delete": "刪除未審批的申請",
+      "schedule_delete": "刪除施工計劃草稿",
+      "progress_summary_delete": "刪除未歸檔的專案進度摘要",
+      "package_delete": "刪除資料包草稿",
+      "attachment_delete": "刪除未歸檔記錄上的檔案",
+      "field_task_delete": "刪除未執行的現場任務"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -19495,5 +19507,25 @@
     "noPending": "沒有待處理事項。",
     "photos": "最新現場照片記錄",
     "noPhotos": "還沒有現場照片。"
+  },
+  "draftRecords": {
+    "delete": "刪除",
+    "confirmTitle": "徹底刪除 {what}？",
+    "confirmBody": "刪除後徹底清除，沒有回收站，也不能恢復。下一步要輸入你的六位數簽核密碼。",
+    "confirmDelete": "徹底刪除",
+    "deleted": "已徹底刪除。",
+    "notArchived": "確認歸檔後才能匯出 / 列印 / 發送",
+    "notArchivedBadge": "未確認歸檔",
+    "archivedBadge": "已確認歸檔",
+    "confirmArchive": "確認歸檔",
+    "confirmArchiveTitle": "確認歸檔 {what}？",
+    "confirmArchiveBody": "請先檢查資料。確認歸檔後資料正式鎖定，不能再修改或刪除；之後才能匯出、列印和發送。",
+    "archivedBy": "已確認歸檔：{name} · {when}",
+    "archivedToast": "已確認歸檔。",
+    "draftHint": "未確認歸檔：可以修改或刪除，只能預覽。檢查好後按「確認歸檔」，之後才能匯出、列印、發送。",
+    "sendNeedsArchive": "先確認歸檔，才能發送給顧問",
+    "edit": "修改",
+    "save": "儲存",
+    "draftRevision": "草稿版本確認後才能匯出"
   }
 }

@@ -894,6 +894,8 @@ export interface RecordDetailHeaderProps {
     reference: string;
     /** Where the record opens, for a kind `recordTarget` does not route. */
     href?: string;
+    /** JB25: not yet confirmed - preview only, with this reason. */
+    blockedReason?: string;
   } | null;
 }
 
@@ -967,6 +969,7 @@ function RecordDetailHeading({
             recordId={exportRecord.recordId}
             reference={exportRecord.reference}
             href={exportRecord.href}
+            blockedReason={exportRecord.blockedReason}
           />
         ) : null}
       </div>

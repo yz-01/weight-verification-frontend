@@ -8231,7 +8231,11 @@
       "permission_switches_self_lockout": "不能关掉自己的「用户管理」。",
       "permission_switches_last_user_manager": "公司里至少要有一个人保留「用户管理」。",
       "receipt_line_returned": "这项材料已有退货记录，不能删除。",
-      "field_place_signed_out": "这个浏览器已自动登出，因为你在其他手机或浏览器登录了。输入 PIN 就能在这里继续。"
+      "field_place_signed_out": "这个浏览器已自动登出，因为你在其他手机或浏览器登录了。输入 PIN 就能在这里继续。",
+      "record_not_archived": "确认归档后才能导出、打印或发送；现在可以先预览。",
+      "record_archived_locked": "这份资料已确认归档，已经锁定，不能修改或删除。",
+      "record_in_use": "已被正式记录引用，不能删除：{used_by}",
+      "consultant_application_not_confirmed": "请先确认归档，才能发送给顾问。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -19387,7 +19391,15 @@
       "equipment_hours_move": "设备工时改设备归属",
       "user_change_permissions": "修改用户的权限开关",
       "consultant_submit": "提交顾问申请",
-      "visitor_photo_purge": "删除到期访客照片"
+      "visitor_photo_purge": "删除到期访客照片",
+      "document_delete": "删除未归档的文件档案",
+      "consultant_delete": "删除顾问申请草稿",
+      "material_request_delete": "删除未审批的申请",
+      "schedule_delete": "删除施工计划草稿",
+      "progress_summary_delete": "删除未归档的项目进度摘要",
+      "package_delete": "删除资料包草稿",
+      "attachment_delete": "删除未归档记录上的文件",
+      "field_task_delete": "删除未执行的现场任务"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -19495,5 +19507,25 @@
     "noPending": "没有待处理事项。",
     "photos": "最新现场照片记录",
     "noPhotos": "还没有现场照片。"
+  },
+  "draftRecords": {
+    "delete": "删除",
+    "confirmTitle": "彻底删除 {what}？",
+    "confirmBody": "删除后彻底清除，没有回收站，也不能恢复。下一步要输入你的六位数签核密码。",
+    "confirmDelete": "彻底删除",
+    "deleted": "已彻底删除。",
+    "notArchived": "确认归档后才能导出 / 打印 / 发送",
+    "notArchivedBadge": "未确认归档",
+    "archivedBadge": "已确认归档",
+    "confirmArchive": "确认归档",
+    "confirmArchiveTitle": "确认归档 {what}？",
+    "confirmArchiveBody": "请先检查资料。确认归档后资料正式锁定，不能再修改或删除；之后才能导出、打印和发送。",
+    "archivedBy": "已确认归档：{name} · {when}",
+    "archivedToast": "已确认归档。",
+    "draftHint": "未确认归档：可以修改或删除，只能预览。检查好后按「确认归档」，之后才能导出、打印、发送。",
+    "sendNeedsArchive": "先确认归档，才能发送给顾问",
+    "edit": "修改",
+    "save": "保存",
+    "draftRevision": "草稿版本确认后才能导出"
   }
 }

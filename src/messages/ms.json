@@ -8231,7 +8231,11 @@
       "permission_switches_self_lockout": "Anda tidak boleh mematikan pengurusan pengguna anda sendiri.",
       "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna.",
       "receipt_line_returned": "Ada pemulangan untuk bahan ini, jadi ia tidak boleh dibuang.",
-      "field_place_signed_out": "Pelayar ini telah dilog keluar kerana anda log masuk di telefon atau pelayar lain. Masukkan PIN untuk teruskan di sini."
+      "field_place_signed_out": "Pelayar ini telah dilog keluar kerana anda log masuk di telefon atau pelayar lain. Masukkan PIN untuk teruskan di sini.",
+      "record_not_archived": "Sahkan dan arkibkan dahulu untuk mengeksport, mencetak atau menghantarnya. Ia boleh dipratonton sekarang.",
+      "record_archived_locked": "Ini telah disahkan dan diarkibkan. Ia dikunci dan tidak boleh diubah atau dipadam lagi.",
+      "record_in_use": "Rekod rasmi menggunakannya, jadi ia tidak boleh dipadam: {used_by}",
+      "consultant_application_not_confirmed": "Sahkan dan arkibkan permohonan sebelum menghantarnya kepada perunding."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -19387,7 +19391,15 @@
       "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain",
       "user_change_permissions": "Tukar suis kebenaran pengguna",
       "consultant_submit": "Hantar permohonan perunding",
-      "visitor_photo_purge": "Buang foto pelawat tamat tempoh"
+      "visitor_photo_purge": "Buang foto pelawat tamat tempoh",
+      "document_delete": "Padam fail arkib yang belum diarkibkan",
+      "consultant_delete": "Padam draf permohonan perunding",
+      "material_request_delete": "Padam permohonan yang belum diputuskan",
+      "schedule_delete": "Padam semakan atau tugas jadual draf",
+      "progress_summary_delete": "Padam ringkasan kemajuan yang belum diarkibkan",
+      "package_delete": "Padam pakej bukti draf",
+      "attachment_delete": "Padam fail pada rekod yang belum diarkibkan",
+      "field_task_delete": "Padam tugas tapak yang belum dimulakan"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -19495,5 +19507,25 @@
     "noPending": "Tiada yang menunggu.",
     "photos": "Foto tapak terkini",
     "noPhotos": "Belum ada foto tapak."
+  },
+  "draftRecords": {
+    "delete": "Padam",
+    "confirmTitle": "Padam {what} selama-lamanya?",
+    "confirmBody": "Ia dibuang sepenuhnya: tiada tong kitar semula dan tidak boleh dipulihkan. Seterusnya masukkan PIN pengesahan enam digit anda.",
+    "confirmDelete": "Padam selama-lamanya",
+    "deleted": "Dipadam.",
+    "notArchived": "Sahkan dan arkibkan dahulu untuk eksport / cetak / hantar",
+    "notArchivedBadge": "Belum diarkibkan",
+    "archivedBadge": "Diarkibkan",
+    "confirmArchive": "Sahkan & arkib",
+    "confirmArchiveTitle": "Sahkan dan arkibkan {what}?",
+    "confirmArchiveBody": "Semak dahulu. Selepas diarkibkan ia dikunci - tiada perubahan, tiada padam - dan barulah boleh dieksport, dicetak dan dihantar.",
+    "archivedBy": "Diarkibkan oleh {name} · {when}",
+    "archivedToast": "Diarkibkan.",
+    "draftHint": "Belum diarkibkan: boleh diubah atau dipadam, dan hanya dipratonton. Selepas disemak, tekan Sahkan & arkib - barulah boleh dieksport, dicetak dan dihantar.",
+    "sendNeedsArchive": "Sahkan dan arkibkan sebelum menghantar kepada perunding",
+    "edit": "Ubah",
+    "save": "Simpan",
+    "draftRevision": "Semakan draf dieksport selepas disahkan"
   }
 }

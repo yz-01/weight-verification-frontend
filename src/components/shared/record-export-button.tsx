@@ -47,12 +47,15 @@ export function RecordExportButton({
   recordId,
   reference,
   href: givenHref,
+  blockedReason,
 }: {
   kind: RecordPdfKind;
   recordId: string | null | undefined;
   reference: string;
   /** Where the record opens, for a kind `recordTarget` does not route (H16). */
   href?: string;
+  /** JB25: set while the record is not confirmed - preview only, with this reason. */
+  blockedReason?: string;
 }) {
   const t = useTranslations("fileActions");
   // The same history the detail's 修改记录 reads (one cached request): a
@@ -74,8 +77,10 @@ export function RecordExportButton({
     <FileActionButtons
       label={t("completeEvidence")}
       labelHint={t("completeEvidenceHint")}
+      blockedReason={blockedReason}
       source={{
         load: () => recordPdfFile(kind, recordId, reference),
+        loadPreview: () => recordPdfFile(kind, recordId, reference, undefined, { preview: true }),
         title: t("completeEvidenceTitle", { reference }),
         link: absoluteUrl(href),
       }}
