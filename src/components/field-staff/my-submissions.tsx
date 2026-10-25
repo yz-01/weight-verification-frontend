@@ -69,6 +69,7 @@ import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
 import { EquipmentExitHandoverDialog } from "@/components/contractor-ops/equipment-exit";
+import { OfficeSentFiles, type OfficeSentKind } from "@/components/field-staff/office-sent-files";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -580,6 +581,14 @@ function FieldRows({ fields }: { fields: MySubmissionField[] }) {
  * as a missing sentence rather than as a wrong action - the safer failure of
  * the two.
  */
+/** The exits whose detail shows 「后台发来的文件」 (JB33). */
+const OFFICE_SENT_KINDS: readonly OfficeSentKind[] = ["MATERIAL_OUTGOING", "EQUIPMENT_MOVEMENT"];
+
+/** The Return Note's own rows (`return_note_pairs`), shown in that box. */
+function isReturnNoteField(key: string) {
+  return key.startsWith("return_note_") || key === "approver_name";
+}
+
 const RETURNED_STATUSES = new Set([
   "REJECTED",
   "RETURNED",
@@ -607,6 +616,12 @@ function StoredDetailSheet({
     queryKey: ["my-submissions", "detail", row.kind, row.id],
     queryFn: () => getSubmissionDetail(row.kind, row.id),
   });
+  // Material and equipment exits carry 「后台发来的文件」 (JB33).
+  const sentBox = OFFICE_SENT_KINDS.find((kind) => kind === row.kind);
+  const officeIds = new Set((detail.data?.office_files ?? []).map((shot) => shot.id ?? ""));
+  const returnNoteFields = sentBox
+    ? (detail.data?.fields ?? []).filter((field) => isReturnNoteField(field.key))
+    : [];
 
   return (
     <RecordDetailDialog
@@ -651,7 +666,7 @@ function StoredDetailSheet({
               )}
             </>
           }
-          facts={detail.data.fields.map((field) => ({
+          facts={detail.data.fields.filter((field) => !(sentBox && isReturnNoteField(field.key))).map((field) => ({
             label: t(`mySubmissions.field.${field.key}`),
             value: (
               <span className="whitespace-pre-wrap">
@@ -662,7 +677,8 @@ function StoredDetailSheet({
             wide: field.value.length > 60 || field.value.includes("\n"),
           }))}
           // The worker's own photographs, served from the API host.
-          photos={detail.data.photos.map((shot, index) => ({
+          // The office's uploads are in 「后台发来的文件」 below, not here.
+          photos={detail.data.photos.filter((shot) => !officeIds.has(shot.id ?? "")).map((shot, index) => ({
             id: shot.id ?? `${index}:${shot.url}`,
             url: shot.url,
             // The strip shows the thumbnail; the full photo is fetched when
@@ -697,6 +713,40 @@ function StoredDetailSheet({
           // The payment result on the applicant's own record (第 57 条):
           // 「手机端只需要把最终付款结果显示出来即可」.
           panel={
+            sentBox ? (
+              // 「后台发来的文件」 (JB33, 客户 10-26 事项 9): the Gate Pass, the
+              // Return Note and the files the office sent for this exit.
+              <OfficeSentFiles
+                kind={sentBox}
+                recordId={row.id}
+                files={(detail.data.office_files ?? []).map((shot) => ({
+                  id: shot.id ?? shot.url,
+                  url: shot.url,
+                  thumbnailUrl: shot.thumbnail_url,
+                  name: shot.caption,
+                }))}
+                returnNote={
+                  returnNoteFields.length > 0 ? (
+                    <section className="rounded-lg border bg-card p-3" data-slot="return-note">
+                      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t("contractorOps.returnNote.title")}
+                      </h3>
+                      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-xs">
+                        {returnNoteFields.map((field) => (
+                          <div key={field.key} className="contents">
+                            <dt className="text-muted-foreground">{t(`mySubmissions.field.${field.key}`)}</dt>
+                            <dd className="whitespace-pre-wrap break-words font-medium">
+                              {field.value}
+                              {field.unit ? ` ${t(`mySubmissions.unit.${field.unit}`)}` : ""}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </section>
+                  ) : undefined
+                }
+              />
+            ) :
             row.kind === "MATERIAL_REQUEST" && (detail.data.files ?? []).length > 0 ? (
               // Every file the request was sent with (I16-14, ID49) - the PDF
               // and the Excel, not only the pictures: opened to preview, or saved.
@@ -750,7 +800,8 @@ function StoredDetailSheet({
           // 【沟通】 on every record the worker sent (T-324, 第 46 条), bound
           // to that record's ID (D-233). Hazards have their own thread and
           // open it from the row instead. The conversation alone, as this
-          // sheet always had it (no attachments panel added).
+          // sheet always had it; an exit's attachments are read in
+          // 「后台发来的文件」 above (JB33).
           chat={
             CONVERSATION_KINDS.has(row.kind) && (
               <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />

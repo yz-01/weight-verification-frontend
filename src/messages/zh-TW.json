@@ -6507,7 +6507,14 @@
         "returnReason": "退回原因",
         "return": "退回申請",
         "failed": "沒有保存成功，請再試一次。"
-      }
+      },
+      "machineNumber": "設備號碼",
+      "machineNumberHint": "填設備上的號碼，也可以填車牌或系統編號；或者掃設備上的二維碼。",
+      "findMachine": "查找",
+      "numberUnknown": "找不到號碼「{number}」的設備，請再看一次號碼。",
+      "numberUnknownOffline": "沒有網路，這台手機裡找不到號碼「{number}」的設備。有網路時再試，或掃設備上的二維碼。",
+      "changeMachine": "換一台",
+      "confirmMachine": "請核對名稱和車牌，是這台設備再繼續。"
     },
     "equipmentQr": {
       "column": "二維碼",
@@ -8995,6 +9002,15 @@
       "queued": "還在這台手機上的資料",
       "submissions": "我提交過的",
       "queuedEntry": "這條資料"
+    },
+    "officeFiles": {
+      "title": "後台發來的文件",
+      "hint": "後台發來的 Gate Pass、Return Note 和文件都在這裡，點開看或下載。",
+      "empty": "後台還沒有發文件過來。",
+      "fileName": "文件 {number}",
+      "download": "下載",
+      "loading": "正在讀取後台發來的文件…",
+      "loadFailed": "後台發來的文件讀取失敗，請稍後再試。"
     }
   },
   "fieldStaffWorkspace": {

@@ -6507,7 +6507,14 @@
         "returnReason": "Sebab dikembalikan",
         "return": "Kembalikan permohonan",
         "failed": "Itu tidak disimpan. Sila cuba lagi."
-      }
+      },
+      "machineNumber": "No. peralatan",
+      "machineNumberHint": "Taip nombor pada mesin, atau nombor plat atau nombor sistemnya; atau imbas kod QR padanya.",
+      "findMachine": "Cari",
+      "numberUnknown": "Tiada mesin dengan nombor “{number}” ditemui. Sila semak nombor itu.",
+      "numberUnknownOffline": "Tiada isyarat, dan telefon ini tiada mesin dengan nombor “{number}”. Cuba lagi apabila ada isyarat, atau imbas kod QR pada mesin.",
+      "changeMachine": "Tukar",
+      "confirmMachine": "Semak nama dan nombor plat ialah mesin ini sebelum meneruskan."
     },
     "equipmentQr": {
       "column": "QR",
@@ -8995,6 +9002,15 @@
       "queued": "Item yang masih dalam telefon ini",
       "submissions": "Apa yang saya hantar",
       "queuedEntry": "Item ini"
+    },
+    "officeFiles": {
+      "title": "Fail dari pejabat",
+      "hint": "Gate Pass, Return Note dan fail yang dihantar pejabat ada di sini: ketik untuk buka atau muat turun.",
+      "empty": "Pejabat belum menghantar sebarang fail.",
+      "fileName": "Fail {number}",
+      "download": "Muat turun",
+      "loading": "Membaca fail dari pejabat…",
+      "loadFailed": "Fail dari pejabat tidak dapat dibaca. Sila cuba lagi nanti."
     }
   },
   "fieldStaffWorkspace": {

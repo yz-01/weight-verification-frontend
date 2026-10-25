@@ -6507,7 +6507,14 @@
         "returnReason": "Why it is returned",
         "return": "Return the application",
         "failed": "That did not save. Please try again."
-      }
+      },
+      "machineNumber": "Equipment no.",
+      "machineNumberHint": "Type the number on the machine, or its plate or system number; or scan the QR code on it.",
+      "findMachine": "Find",
+      "numberUnknown": "No machine with the number “{number}” was found. Please check the number.",
+      "numberUnknownOffline": "No signal, and this phone has no machine with the number “{number}”. Try again with signal, or scan the QR code on the machine.",
+      "changeMachine": "Change",
+      "confirmMachine": "Check the name and plate are this machine before going on."
     },
     "equipmentQr": {
       "column": "QR",
@@ -8995,6 +9002,15 @@
       "queued": "The items still on this phone",
       "submissions": "What I sent",
       "queuedEntry": "This item"
+    },
+    "officeFiles": {
+      "title": "Files from the office",
+      "hint": "The Gate Pass, Return Note and files the office sent are here: tap to open or download.",
+      "empty": "The office has not sent any files yet.",
+      "fileName": "File {number}",
+      "download": "Download",
+      "loading": "Reading the files from the office…",
+      "loadFailed": "The files from the office could not be read. Please try again later."
     }
   },
   "fieldStaffWorkspace": {

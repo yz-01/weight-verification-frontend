@@ -237,20 +237,49 @@ describe("the phone's 退场 offers the machines on site and the step each is at
     machine({ id: "m-3", code: "EQ-SITE-003", name: "Lorry", registration_no: "VBN 8", status: "OFF_SITE", quantity_on_site: "0" }),
   ];
 
-  it("lists only what is on site, says where each exit stands, and offers no 新设备", () => {
+  it("asks for the machine's number, not a dropdown, and keeps the QR scan (JB32)", () => {
     reader.search = "direction=EXIT";
     const html = render(<SiteEquipmentWorkspace initialProject="p-1" />, [
       [["site-equipment", "field", "p-1"], page(rows)],
     ]);
-    expect(options(html)).toEqual([
-      { value: "m-1", label: "Excavator · WXY 1234" },
-      { value: "m-2", label: `Crane · JKL 1 · ${exitWords.status.PENDING}` },
-      { value: "m-4", label: `Roller · RRR 4 · ${exitWords.status.APPROVED}` },
-    ]);
-    expect(html).toContain(words.equipment.chooseOnSiteMachine);
+    // 客户 10-26 事项 8: 「设备下拉搜索挑选的改去填写设备号码」.
+    expect(options(html)).toEqual([]);
+    expect(html).not.toContain('data-testid="field-equipment-select"');
+    expect(html).toContain('data-testid="field-equipment-number"');
+    expect(html).toContain(exitWords.machineNumber);
+    expect(html).toContain(exitWords.machineNumberHint);
+    expect(html).toContain(exitWords.findMachine);
+    // 「保留扫码设备二维码」.
     expect(html).toContain(exitWords.scanToChoose);
     expect(html).not.toContain(words.equipment.newMachine);
     expect(html).not.toMatch(RED_STAR);
+  });
+
+  it("shows the machine found, name and plate, to check, with 换一台 (JB32)", () => {
+    reader.search = "direction=EXIT&machine=m-1";
+    const html = render(<SiteEquipmentWorkspace initialProject="p-1" />, [
+      [["site-equipment", "field", "p-1"], page(rows)],
+    ]);
+    expect(html).toMatch(/data-testid="field-equipment-found">Excavator · WXY 1234</);
+    expect(html).toContain(exitWords.confirmMachine);
+    expect(html).toContain(`${exitWords.changeMachine}</button>`);
+    // Found: the number field and the scan give way to the machine.
+    expect(html).not.toContain('data-testid="field-equipment-number"');
+    expect(html).not.toContain('data-testid="field-equipment-scan"');
+    // No exit under way yet: nothing from the office to show.
+    expect(html).not.toContain('data-testid="office-sent-files"');
+  });
+
+  it("shows 「后台发来的文件」 for the machine's exit under way (JB33)", () => {
+    reader.search = "direction=EXIT&machine=m-4";
+    const html = render(<SiteEquipmentWorkspace initialProject="p-1" />, [
+      [["site-equipment", "field", "p-1"], page(rows)],
+      [["equipment-movements", "office-files", "x-4"], page([movement({ id: "x-4", status: "APPROVED" })])],
+      [["record-attachments", "EQUIPMENT_MOVEMENT", "x-4"], { attachments: [], closed: "", can_add: false }],
+    ]);
+    expect(html).toContain('data-testid="office-sent-files"');
+    expect(html).toContain(messages.fieldStaffPwa.officeFiles.title);
+    expect(html).toContain(messages.fieldStaffPwa.officeFiles.empty);
   });
 
   it("a machine with no exit under way is applied for", () => {
