@@ -8103,6 +8103,7 @@
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
       "attachment_needs_project": "This approval is not for one project, so it takes no attachments. Put its papers in the document archive.",
+      "claim_letter_required": "Upload the letter first. A Progress Claim must have its letter; it goes at the front of the PDF.",
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
       "receipt_awaiting_acceptance": "This delivery has not been accepted yet. Accept or reject it first, then archive it.",
       "receipt_archive_needs_supplier": "This delivery ({receipt}) has no supplier yet. Rejected deliveries too: use 「Fill in supplier」 before archiving.",
@@ -10599,7 +10600,14 @@
     "descriptionHint": "What this claim is for, e.g. “October manpower”.",
     "amountOptional": "Optional; it can be filled later.",
     "confirmBodyGeneral": "Once confirmed this general claim is claimed; record the payment as usual afterwards.",
-    "completeClaimFields": "Fill in the category and description (general claim) and the name for “Other” first."
+    "completeClaimFields": "Fill in the category and description (general claim) and the name for “Other” first.",
+    "letter": {
+      "title": "Letter",
+      "hint": "The claim letter. It must be uploaded before confirming, and goes at the front of the merged PDF.",
+      "add": "Upload letter",
+      "missing": "Upload the letter first.",
+      "confirmNote": "The letter goes at the front of the merged PDF."
+    }
   },
   "multiEngine": {
     "acceptItem": "Accept",
@@ -10955,7 +10963,12 @@
       "round": "Current round",
       "returned": "Returned"
     },
-    "received": "Received packages"
+    "received": "Received packages",
+    "uploads": {
+      "add": "Upload files",
+      "title": "Uploaded files",
+      "hint": "PDFs, pictures or other files from your computer. They go into the merged PDF after the records when you confirm. Once uploaded they cannot be changed or removed."
+    }
   },
   "mySubmissions": {
     "title": "What I sent",

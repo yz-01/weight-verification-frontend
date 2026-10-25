@@ -8103,6 +8103,7 @@
       "receipt_rejected_at_gate": "這批貨已在現場交接時 Reject，不能再更改。",
       "record_finished": "此事項已結束，不能再上傳附件；已有附件仍可查看。",
       "attachment_needs_project": "這個審批不屬於某個項目，不能加附件；請把檔案放到「文檔檔案」裡。",
+      "claim_letter_required": "請先上傳書信。Progress Claim 必須有書信，確認時放在 PDF 最前面。",
       "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
       "receipt_awaiting_acceptance": "這批材料還沒驗收，請先驗收或判不合格再歸檔。",
       "receipt_archive_needs_supplier": "這批材料（{receipt}）還沒有供應商。被拒收、不合格的也要先按「補供應商」填上，才能歸檔。",
@@ -10599,7 +10600,14 @@
     "descriptionHint": "這期 Claim 是什麼，例如「10 月人工」。",
     "amountOptional": "選填，之後也可以填。",
     "confirmBodyGeneral": "確認後這張一般 Claim 就算已 Claim，之後照常登記收款。",
-    "completeClaimFields": "請先填好分類、說明（一般 Claim）和「其他」的名稱。"
+    "completeClaimFields": "請先填好分類、說明（一般 Claim）和「其他」的名稱。",
+    "letter": {
+      "title": "書信",
+      "hint": "這期 Claim 的書信。沒有上傳書信不能確認；確認時書信放在合併 PDF 的最前面。",
+      "add": "上傳書信",
+      "missing": "請先上傳書信",
+      "confirmNote": "書信會放在合併 PDF 的最前面。"
+    }
   },
   "multiEngine": {
     "acceptItem": "接受",
@@ -10955,7 +10963,12 @@
       "round": "當前輪次",
       "returned": "退回數"
     },
-    "received": "收到的資料包"
+    "received": "收到的資料包",
+    "uploads": {
+      "add": "上傳資料",
+      "title": "上傳的資料",
+      "hint": "電腦裡的 PDF、圖片或其他檔案。確認並合併時，放在資料後面一起進 PDF。上傳後不能修改或刪除。"
+    }
   },
   "mySubmissions": {
     "title": "我提交過的",
