@@ -37,6 +37,9 @@ vi.mock("@/components/consultant-workflow/application-detail", () => ({
 vi.mock("@/components/dashboard/field-task-sheet", () => ({
   FieldTaskSheet: ({ id }: { id: string }) => <div data-stub="field-task" data-id={id} />,
 }));
+vi.mock("@/components/document-workflow/documents", () => ({
+  DocumentInPlace: ({ id }: { id: string }) => <div data-stub="document" data-id={id} />,
+}));
 
 const { InPlaceRecord, opensInPlace } = await import("@/components/shared/in-place-record");
 const { recordTarget } = await import("@/lib/record-routes");
@@ -48,6 +51,8 @@ const IN_PLACE: Array<[string, string]> = [
   ["SUNDRY_CLAIM", "sundry-claim"],
   ["CONSULTANT_APPLICATION", "consultant"],
   ["FIELD_TASK", "field-task"],
+  // 客户 10-26 事项 4: 项目资料报表 → document, closed back onto the report.
+  ["DOCUMENT", "document"],
 ];
 
 const read = (file: string) =>

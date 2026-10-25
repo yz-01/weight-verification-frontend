@@ -474,15 +474,7 @@ export function Documents() {
   );
 
   function openSource(record: DocumentRecord, file?: DocumentSystemFileInfo) {
-    const source = file ?? record.system_file;
-    if (!source) return;
-    opener.open(source.record.kind, source.record.id, {
-      reference: source.record.reference,
-      project_id: record.project,
-      project_name: record.project_name ?? "",
-      submitted_at: source.captured_at,
-      photo: source.thumbnail_url,
-    });
+    openDocumentSource(opener, record, file);
   }
 
   const rows = documents.data?.results ?? [];
@@ -1680,6 +1672,43 @@ function VersionUploadDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Open the system record a document's file was picked from. */
+function openDocumentSource(
+  opener: ReturnType<typeof useRecordOpener>,
+  record: DocumentRecord,
+  file?: DocumentSystemFileInfo,
+) {
+  const source = file ?? record.system_file;
+  if (!source) return;
+  opener.open(source.record.kind, source.record.id, {
+    reference: source.record.reference,
+    project_id: record.project,
+    project_name: record.project_name ?? "",
+    submitted_at: source.captured_at,
+    photo: source.thumbnail_url,
+  });
+}
+
+/**
+ * A document's detail opened over another page - the report centre's
+ * 项目资料报表 - so closing it leaves the reader there, search, filters and
+ * scroll as they were (客户 10-26 事项 4: 「从哪个页面进入详情，关闭后就返回
+ * 哪个页面」). It used to open on 文件档案, and closing stayed there.
+ */
+export function DocumentInPlace({ id, onClose }: { id: string; onClose: () => void }) {
+  const opener = useRecordOpener();
+  return (
+    <>
+      <DocumentDetailDialog
+        documentId={id}
+        onOpenSource={(record, file) => openDocumentSource(opener, record, file)}
+        onClose={onClose}
+      />
+      {opener.sheet}
+    </>
   );
 }
 
