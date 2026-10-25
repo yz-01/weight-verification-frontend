@@ -6753,7 +6753,53 @@
       "report": "Report",
       "rows": "Rows",
       "subtitle": "Your head office's archive of generated reports: each report keeps the file generated at the time. Click the file name or View to preview, print, download again or send it - it is never regenerated from today's data.",
-      "title": "Report export history"
+      "title": "Report export history",
+      "tabReports": "Reports",
+      "tabLog": "Operation log",
+      "filter": {
+        "date": "Date",
+        "operator": "Operator",
+        "operatorHint": "Name or account",
+        "action": "Action",
+        "anyAction": "All actions",
+        "name": "Report / file name",
+        "nameHint": "Report or file name",
+        "clear": "Clear filters"
+      },
+      "action": {
+        "PRINT": "Print",
+        "DOWNLOAD": "Download / export",
+        "SEND": "Send / share"
+      },
+      "channel": {
+        "share_sheet": "Share sheet",
+        "whatsapp": "WhatsApp",
+        "email": "Email",
+        "link": "Link copied",
+        "download": "Downloaded to attach"
+      },
+      "logHint": "Every print, download and send in the back office, each signed with the person's own six-digit PIN. Previewing is not recorded.",
+      "actionFilterHint": "Date and operator: when and by whom the report was generated. With an action chosen: reports printed, downloaded or sent, and by whom.",
+      "noMatch": "No reports match these filters.",
+      "regeneratedNote": "Generated again from the conditions of {when}, with the data as it is now.",
+      "regeneratedOnFile": "Generated again from the conditions of {when}; contents are the current data",
+      "cannotRegenerate": "Export it again from the site dashboard.",
+      "regenerate": "Generate again with the original conditions",
+      "regenerateHint": "Same report, project, period and filters; contents are today's data. A new row is added; this one stays.",
+      "regenerated": "Generated again. It is the new row at the top of the list.",
+      "regenerateFailed": "Could not generate it again. Try once more.",
+      "rowActions": "Actions ({count})",
+      "rowActionsTitle": "Prints, downloads and sends of this report",
+      "logEmpty": "No prints, downloads or sends recorded.",
+      "log": {
+        "at": "Date and time",
+        "operator": "Operator",
+        "action": "Action",
+        "subject": "Item / report / file",
+        "openReport": "Open the report",
+        "openRecord": "Open the record"
+      },
+      "count": "{count} in total · page {page} of {pages}"
     },
     "loadError": "The report could not be loaded.",
     "period": "Period: {from} to {to}",
@@ -8231,7 +8277,8 @@
       "permission_switches_self_lockout": "You cannot switch off your own user management.",
       "permission_switches_last_user_manager": "Somebody in the company must keep user management.",
       "receipt_line_returned": "A return names this material, so it cannot be removed.",
-      "field_place_signed_out": "This browser was signed out because you signed in on other phones or browsers. Enter your PIN to continue here."
+      "field_place_signed_out": "This browser was signed out because you signed in on other phones or browsers. Enter your PIN to continue here.",
+      "report_export_not_regenerable": "This history row cannot be generated again: it already has its file, belongs to another report, or is not in your history."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -19387,7 +19434,10 @@
       "equipment_hours_move": "Move equipment hours to another machine",
       "user_change_permissions": "Change a user's permission switches",
       "consultant_submit": "Send a consultant application",
-      "visitor_photo_purge": "Remove expired visitor photos"
+      "visitor_photo_purge": "Remove expired visitor photos",
+      "file_print": "Print a file",
+      "file_download": "Download / export a file",
+      "file_send": "Send / share a file"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",

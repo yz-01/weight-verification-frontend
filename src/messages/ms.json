@@ -6753,7 +6753,53 @@
       "report": "Laporan",
       "rows": "Baris",
       "subtitle": "Arkib laporan ibu pejabat anda: setiap laporan menyimpan fail yang dijana pada masa itu. Klik nama fail atau Lihat untuk pratonton, cetak, muat turun semula atau hantar - ia tidak dijana semula daripada data hari ini.",
-      "title": "Sejarah eksport laporan"
+      "title": "Sejarah eksport laporan",
+      "tabReports": "Laporan",
+      "tabLog": "Log operasi",
+      "filter": {
+        "date": "Tarikh",
+        "operator": "Pengendali",
+        "operatorHint": "Nama atau akaun",
+        "action": "Jenis tindakan",
+        "anyAction": "Semua tindakan",
+        "name": "Nama laporan / fail",
+        "nameHint": "Nama laporan atau fail",
+        "clear": "Kosongkan penapis"
+      },
+      "action": {
+        "PRINT": "Cetak",
+        "DOWNLOAD": "Muat turun / eksport",
+        "SEND": "Hantar / kongsi"
+      },
+      "channel": {
+        "share_sheet": "Kongsi sistem",
+        "whatsapp": "WhatsApp",
+        "email": "E-mel",
+        "link": "Pautan disalin",
+        "download": "Dimuat turun untuk dilampirkan"
+      },
+      "logHint": "Setiap cetakan, muat turun dan penghantaran di pejabat, setiap kali disahkan dengan PIN enam digit sendiri. Pratonton tidak direkodkan.",
+      "actionFilterHint": "Tarikh dan pengendali: bila dan oleh siapa laporan dijana. Dengan tindakan dipilih: laporan yang dicetak, dimuat turun atau dihantar, dan oleh siapa.",
+      "noMatch": "Tiada laporan sepadan dengan penapis ini.",
+      "regeneratedNote": "Dijana semula mengikut syarat {when}, dengan data semasa.",
+      "regeneratedOnFile": "Dijana semula mengikut syarat {when}; kandungan ialah data semasa",
+      "cannotRegenerate": "Eksport semula dari papan pemuka tapak.",
+      "regenerate": "Jana semula mengikut syarat asal",
+      "regenerateHint": "Laporan, projek, tempoh dan penapis yang sama; kandungan ialah data hari ini. Satu baris baharu ditambah; baris ini kekal.",
+      "regenerated": "Telah dijana semula. Ia baris baharu di atas senarai.",
+      "regenerateFailed": "Tidak dapat menjana semula. Cuba sekali lagi.",
+      "rowActions": "Tindakan ({count})",
+      "rowActionsTitle": "Cetakan, muat turun dan penghantaran laporan ini",
+      "logEmpty": "Tiada cetakan, muat turun atau penghantaran direkodkan.",
+      "log": {
+        "at": "Tarikh dan masa",
+        "operator": "Pengendali",
+        "action": "Tindakan",
+        "subject": "Perkara / laporan / fail",
+        "openReport": "Buka laporan",
+        "openRecord": "Buka rekod"
+      },
+      "count": "{count} kesemuanya · halaman {page} daripada {pages}"
     },
     "loadError": "Laporan tidak dapat dimuatkan.",
     "period": "Tempoh: {from} hingga {to}",
@@ -8231,7 +8277,8 @@
       "permission_switches_self_lockout": "Anda tidak boleh mematikan pengurusan pengguna anda sendiri.",
       "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna.",
       "receipt_line_returned": "Ada pemulangan untuk bahan ini, jadi ia tidak boleh dibuang.",
-      "field_place_signed_out": "Pelayar ini telah dilog keluar kerana anda log masuk di telefon atau pelayar lain. Masukkan PIN untuk teruskan di sini."
+      "field_place_signed_out": "Pelayar ini telah dilog keluar kerana anda log masuk di telefon atau pelayar lain. Masukkan PIN untuk teruskan di sini.",
+      "report_export_not_regenerable": "Baris sejarah ini tidak boleh dijana semula: ia sudah ada failnya, milik laporan lain, atau tiada dalam sejarah anda."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -19387,7 +19434,10 @@
       "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain",
       "user_change_permissions": "Tukar suis kebenaran pengguna",
       "consultant_submit": "Hantar permohonan perunding",
-      "visitor_photo_purge": "Buang foto pelawat tamat tempoh"
+      "visitor_photo_purge": "Buang foto pelawat tamat tempoh",
+      "file_print": "Cetak fail",
+      "file_download": "Muat turun / eksport fail",
+      "file_send": "Hantar / kongsi fail"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",

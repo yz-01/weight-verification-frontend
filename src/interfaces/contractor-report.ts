@@ -179,7 +179,8 @@ export interface ContractorReportExportRecord extends ArchivedReportFile {
   export_format: "PDF" | "EXCEL";
   date_from: string;
   date_to: string;
-  filters: { project?: string };
+  /** The conditions it was generated with: project, levels, the filter bar. */
+  filters: Record<string, string | undefined>;
   file_name: string;
   metric_count: number;
   project: string | null;
@@ -187,6 +188,11 @@ export interface ContractorReportExportRecord extends ArchivedReportFile {
   generated_by_name: string;
   generated_by_email: string;
   created_at: string;
+  /** Its prints, downloads and sends (JB27). */
+  file_action_count?: number;
+  /** The row without a file it was generated again for (JB27), and when that was generated. */
+  regenerated_from?: string | null;
+  regenerated_from_at?: string | null;
 }
 
 export type ContractorReportHistory = Paginated<ContractorReportExportRecord>;
