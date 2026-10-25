@@ -6689,7 +6689,8 @@
       "payment_state": "Bayaran",
       "item_count": "Item",
       "submit_to": "Dihantar kepada",
-      "applicant": "Pemohon"
+      "applicant": "Pemohon",
+      "origin": "Sumber foto"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -6728,7 +6729,7 @@
         "recycling": "Rujukan, plat, DO atau syarikat",
         "schedule": "Kod WBS atau nama tugasan",
         "target": "Nama sasaran",
-        "photos": "Nama fail, sumber atau pemuat naik",
+        "photos": "Nama fail, projek atau pemuat naik",
         "documents": "No. dokumen, tajuk atau kata kunci",
         "daily_report": "Nama laporan, teks atau penulis",
         "progress_summary": "Tajuk atau penulis",
@@ -6834,6 +6835,32 @@
         "photo_count": "Foto",
         "has_gps": "GPS"
       }
+    },
+    "photoCategory": {
+      "MATERIAL_RECEIPT": "Penerimaan bahan",
+      "MATERIAL_OUTGOING": "Bahan keluar",
+      "MATERIAL_REQUEST": "MR / permohonan lain",
+      "EQUIPMENT": "Peralatan masuk / keluar",
+      "PROGRESS": "Kemajuan kerja",
+      "SAFETY": "Pembetulan / EHS",
+      "WASTE": "Pembersihan sisa",
+      "ATTENDANCE": "Kehadiran",
+      "GATE": "Pintu pagar / pelawat",
+      "FIELD_TASK": "Tugasan tapak",
+      "CONSULTANT": "Permohonan perunding",
+      "SUNDRY_CLAIM": "Tuntutan pelbagai",
+      "CLAIM": "Tuntutan kemajuan",
+      "APPROVAL": "Kelulusan",
+      "WEIGHING": "Penimbangan",
+      "HAULAGE": "Tugasan pengangkutan",
+      "OTHER": "Foto lain"
+    },
+    "photoOrigin": {
+      "SITE": "Diambil di tapak",
+      "OFFICE": "Dimuat naik di pejabat",
+      "ATTACHMENT": "Lampiran",
+      "MESSAGE": "Foto dalam mesej",
+      "OTHER": "Lain-lain"
     }
   },
   "crm": {
@@ -17519,7 +17546,13 @@
     "previous": "Sebelumnya",
     "next": "Seterusnya",
     "recorder": "Direkod oleh",
-    "recorderUnknown": "Perekod tiada dalam rekod"
+    "recorderUnknown": "Perekod tiada dalam rekod",
+    "photoFacts": {
+      "label": "Foto",
+      "time": "Diambil",
+      "gps": "GPS",
+      "reference": "Rekod"
+    }
   },
   "moduleTable": {
     "count": "{count} rekod",
@@ -17746,7 +17779,7 @@
     "suppliersFailed": "Senarai pembekal tidak dapat dimuatkan.",
     "noSuppliers": "Belum ada penghantaran untuk pilihan ini.",
     "level": {
-      "photos": "Sumber foto",
+      "photos": "Kategori",
       "progress": "Kategori pembinaan",
       "safety": "Kategori pembetulan bahaya",
       "consultant": "Jenis permohonan",

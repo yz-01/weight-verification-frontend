@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
-import { FileActionButtons } from "@/components/shared/file-actions";
+import { FileActionButtons, FileActionMenu } from "@/components/shared/file-actions";
 import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import { recordTarget } from "@/lib/record-routes";
 import { absoluteUrl } from "@/lib/share";
@@ -47,12 +47,19 @@ export function RecordExportButton({
   recordId,
   reference,
   href: givenHref,
+  layout = "buttons",
 }: {
   kind: RecordPdfKind;
   recordId: string | null | undefined;
   reference: string;
   /** Where the record opens, for a kind `recordTarget` does not route (H16). */
   href?: string;
+  /**
+   * `menu`: each PDF one button with its four actions under it -
+   * 「完整证据 PDF ▾」「修改前原单 ▾」 - for the photo viewer's single row of
+   * actions (JB29). The record detail keeps its four buttons.
+   */
+  layout?: "buttons" | "menu";
 }) {
   const t = useTranslations("fileActions");
   // The same history the detail's 修改记录 reads (one cached request): a
@@ -70,8 +77,9 @@ export function RecordExportButton({
   const target = recordTarget(kind, recordId);
   const href = givenHref ?? (target && "href" in target ? target.href : "/");
   const corrected = versioned && (history.data?.corrections?.length ?? 0) > 0;
+  const Actions = layout === "menu" ? FileActionMenu : FileActionButtons;
   const latest = (
-    <FileActionButtons
+    <Actions
       label={t("completeEvidence")}
       labelHint={t("completeEvidenceHint")}
       source={{
@@ -82,18 +90,30 @@ export function RecordExportButton({
     />
   );
   if (!corrected) return latest;
+  const original = (
+    <Actions
+      label={t("originalVersion")}
+      labelHint={t("originalVersionHint")}
+      source={{
+        load: () => recordPdfFile(kind, recordId, reference, 1),
+        title: t("originalVersionTitle", { reference }),
+        link: absoluteUrl(href),
+      }}
+    />
+  );
+  // In the viewer's row the two sit inline with the other actions.
+  if (layout === "menu") {
+    return (
+      <>
+        {latest}
+        {original}
+      </>
+    );
+  }
   return (
     <div className="flex flex-wrap items-center gap-2">
       {latest}
-      <FileActionButtons
-        label={t("originalVersion")}
-        labelHint={t("originalVersionHint")}
-        source={{
-          load: () => recordPdfFile(kind, recordId, reference, 1),
-          title: t("originalVersionTitle", { reference }),
-          link: absoluteUrl(href),
-        }}
-      />
+      {original}
     </div>
   );
 }

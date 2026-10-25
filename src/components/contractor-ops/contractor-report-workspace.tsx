@@ -79,7 +79,7 @@ import {
   reportRowTarget,
   reportValueKey,
 } from "@/lib/report-preview";
-import { photoSourceValue } from "@/lib/report-menu";
+import { photoCategoryValue } from "@/lib/report-menu";
 import {
   ALL_REPORT_FILTERS,
   PROJECT_BOUND_FILTERS,
@@ -197,10 +197,10 @@ export function ContractorReportWorkspace({
     list.filters.date_from ?? dateValue(new Date(now.getFullYear(), now.getMonth(), 1));
   const dateTo = list.filters.date_to ?? dateValue(now);
   const project = list.filters.project ?? "all";
-  // A photo source is read as its whole module, as the menu names it (B3 #6).
+  // An address that named photo tables is read as their categories (JB29).
   const category =
     reportType === "photos" && list.filters.category
-      ? photoSourceValue(list.filters.category)
+      ? photoCategoryValue(list.filters.category)
       : (list.filters.category ?? "");
   const subcategory = list.filters.subcategory ?? "";
   const setDateFrom = (value: string) => list.setFilter("date_from", value || undefined);
@@ -312,10 +312,9 @@ export function ContractorReportWorkspace({
     key: string,
     value: string | number | boolean | null,
     row: Record<string, string | number | boolean | null>,
-    record: ContractorReportRecord | null,
   ): string {
     // A code is shown in the reader's words, as its own module names it.
-    const message = reportValueKey(reportType, key, value, row, record);
+    const message = reportValueKey(reportType, key, value, row);
     if (message && tRoot.has(message)) return tRoot(message);
     if (value === null || value === "") return "-";
     if (REPORT_DATE_TIME_COLUMNS.has(key)) {
@@ -542,7 +541,7 @@ export function ContractorReportWorkspace({
                         />
                       </TableCell>
                       {report.data.columns.map((key) => {
-                        const text = formatReportValue(key, row[key] ?? null, row, record);
+                        const text = formatReportValue(key, row[key] ?? null, row);
                         return (
                           <TableCell
                             key={key}
