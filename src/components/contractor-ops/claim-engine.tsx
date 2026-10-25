@@ -614,6 +614,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
   // The letter (JB30): the same query the 书信 panel reads, so an upload
   // there frees 「确认本期」 here.
   const needsLetter = data ? claimNeedsLetter(data.kind) : false;
+  // query-failure: the 书信 panel reads the same query and shows its own failure; the button stays held.
   const letters = useQuery({
     queryKey: recordAttachmentsKey("CLAIM_LETTER", id),
     queryFn: () => getRecordAttachments("CLAIM_LETTER", id),
