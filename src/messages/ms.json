@@ -19262,7 +19262,7 @@
     "otherUnits": "Unit lain, tidak dikira: {units}",
     "deliveries": "Penghantaran",
     "returns": "Pemulangan",
-    "edit": "Ubah",
+    "edit": "Ubah garis amaran dan catatan",
     "armRemove": "Sedia untuk buang sasaran ini",
     "remove": "Buang sasaran",
     "armFirst": "Hidupkan suis di sebelahnya dahulu, kemudian buang.",
@@ -19289,7 +19289,7 @@
       "EXCEEDED": "Melebihi"
     },
     "addTitle": "Tambah sasaran bahan",
-    "editTitle": "Ubah sasaran bahan",
+    "editTitle": "Ubah garis amaran dan catatan",
     "dialogHelp": "Bahan dan spesifikasi dari data bahan, dan unit datang bersama spesifikasi. Tanpa spesifikasi: sasaran untuk keseluruhan bahan.",
     "chooseMaterial": "Pilih bahan",
     "specHint": "Biarkan untuk keseluruhan bahan.",
@@ -19303,7 +19303,34 @@
     "save": "Simpan",
     "toast": {
       "saved": "Sasaran bahan disimpan.",
-      "removed": "Sasaran bahan dibuang."
+      "removed": "Sasaran bahan dibuang.",
+      "appended": "Sasaran dinaikkan."
+    },
+    "changeTarget": "Ubah kuantiti sasaran",
+    "targetOnlyAdded": "Sasaran hanya boleh ditambah. Guna “Ubah kuantiti sasaran”.",
+    "tranche": {
+      "original": "Sasaran asal",
+      "added": "Tambahan {index}: +{quantity}",
+      "cumulative": "kumulatif {total}"
+    },
+    "append": {
+      "title": "Ubah kuantiti sasaran",
+      "current": "{material}: sasaran kumulatif semasa {total} {unit}",
+      "history": "Sejarah perubahan",
+      "empty": "Belum ada perubahan.",
+      "col": {
+        "when": "Tarikh dan masa",
+        "name": "Nama",
+        "account": "Akaun",
+        "before": "Sasaran sebelum",
+        "added": "Ditambah",
+        "after": "Sasaran kumulatif selepas"
+      },
+      "original": "Asal {quantity}",
+      "amount": "Kuantiti untuk ditambah",
+      "after": "Sasaran kumulatif selepas: {total} {unit}",
+      "pinNote": "Pengesahan memerlukan PIN enam digit anda sendiri. Orang yang membuat perubahan direkod daripada akaun PIN; rekod kekal dan tidak boleh dipadam. Sasaran hanya boleh naik.",
+      "confirm": "Tambah sasaran"
     }
   },
   "signOff": {
@@ -19387,7 +19414,8 @@
       "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain",
       "user_change_permissions": "Tukar suis kebenaran pengguna",
       "consultant_submit": "Hantar permohonan perunding",
-      "visitor_photo_purge": "Buang foto pelawat tamat tempoh"
+      "visitor_photo_purge": "Buang foto pelawat tamat tempoh",
+      "material_target_append": "Tambah sasaran bahan"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
