@@ -19311,7 +19311,7 @@
     "otherUnits": "單位不同，未計入：{units}",
     "deliveries": "進場記錄",
     "returns": "退場記錄",
-    "edit": "修改",
+    "edit": "修改提醒線和備註",
     "armRemove": "準備刪除這個目標",
     "remove": "刪除目標",
     "armFirst": "先打開旁邊的開關，再刪除。",
@@ -19338,7 +19338,7 @@
       "EXCEEDED": "已超出"
     },
     "addTitle": "新增材料目標",
-    "editTitle": "修改材料目標",
+    "editTitle": "修改提醒線和備註",
     "dialogHelp": "材料和規格從統一材料資料選，單位隨規格帶出。不選規格，就是整個材料的目標。",
     "chooseMaterial": "選擇材料",
     "specHint": "不選就是整個材料。",
@@ -19352,7 +19352,34 @@
     "save": "儲存",
     "toast": {
       "saved": "材料目標已儲存。",
-      "removed": "材料目標已刪除。"
+      "removed": "材料目標已刪除。",
+      "appended": "目標已追加。"
+    },
+    "changeTarget": "修改目標數量",
+    "targetOnlyAdded": "目標數量只能追加，請用「修改目標數量」。",
+    "tranche": {
+      "original": "原目標",
+      "added": "追加 {index}：+{quantity}",
+      "cumulative": "累計目標 {total}"
+    },
+    "append": {
+      "title": "修改目標數量",
+      "current": "{material}：目前累計目標 {total} {unit}",
+      "history": "歷史修改記錄",
+      "empty": "還沒有記錄。",
+      "col": {
+        "when": "日期時間",
+        "name": "姓名",
+        "account": "賬號",
+        "before": "原目標",
+        "added": "追加數量",
+        "after": "修改後累計目標"
+      },
+      "original": "原目標 {quantity}",
+      "amount": "追加數量",
+      "after": "修改後累計目標：{total} {unit}",
+      "pinNote": "確定時要輸入本人六位數密碼。修改人由密碼對應的賬號自動記錄，記錄永久保留，不能刪除。只能追加，不能減少。",
+      "confirm": "確定追加"
     }
   },
   "signOff": {
@@ -19436,7 +19463,8 @@
       "equipment_hours_move": "設備工時改設備歸屬",
       "user_change_permissions": "修改用戶的權限開關",
       "consultant_submit": "提交顧問申請",
-      "visitor_photo_purge": "刪除到期訪客照片"
+      "visitor_photo_purge": "刪除到期訪客照片",
+      "material_target_append": "追加材料目標"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",

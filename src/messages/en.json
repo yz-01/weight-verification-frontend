@@ -19311,7 +19311,7 @@
     "otherUnits": "Other units, not counted: {units}",
     "deliveries": "Deliveries",
     "returns": "Returns",
-    "edit": "Change",
+    "edit": "Change alert lines and note",
     "armRemove": "Arm removing this target",
     "remove": "Remove target",
     "armFirst": "Turn on the switch beside it first, then remove.",
@@ -19338,7 +19338,7 @@
       "EXCEEDED": "Over"
     },
     "addTitle": "Add a material target",
-    "editTitle": "Change a material target",
+    "editTitle": "Change alert lines and note",
     "dialogHelp": "Material and specification come from the material data, and the unit comes with the specification. No specification: the target is for the material as a whole.",
     "chooseMaterial": "Choose the material",
     "specHint": "Leave it for the material as a whole.",
@@ -19352,7 +19352,34 @@
     "save": "Save",
     "toast": {
       "saved": "Material target saved.",
-      "removed": "Material target removed."
+      "removed": "Material target removed.",
+      "appended": "Target raised."
+    },
+    "changeTarget": "Change target quantity",
+    "targetOnlyAdded": "A target can only be added to. Use “Change target quantity”.",
+    "tranche": {
+      "original": "Original target",
+      "added": "Addition {index}: +{quantity}",
+      "cumulative": "cumulative {total}"
+    },
+    "append": {
+      "title": "Change target quantity",
+      "current": "{material}: current cumulative target {total} {unit}",
+      "history": "Change history",
+      "empty": "No changes yet.",
+      "col": {
+        "when": "Date and time",
+        "name": "Name",
+        "account": "Account",
+        "before": "Previous target",
+        "added": "Added",
+        "after": "Cumulative target after"
+      },
+      "original": "Original {quantity}",
+      "amount": "Quantity to add",
+      "after": "Cumulative target after: {total} {unit}",
+      "pinNote": "Confirming asks for your own six-digit PIN. The person is recorded from the PIN’s account; the record is permanent and cannot be deleted. A target can only go up.",
+      "confirm": "Add to target"
     }
   },
   "signOff": {
@@ -19436,7 +19463,8 @@
       "equipment_hours_move": "Move equipment hours to another machine",
       "user_change_permissions": "Change a user's permission switches",
       "consultant_submit": "Send a consultant application",
-      "visitor_photo_purge": "Remove expired visitor photos"
+      "visitor_photo_purge": "Remove expired visitor photos",
+      "material_target_append": "Add to a material target"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
