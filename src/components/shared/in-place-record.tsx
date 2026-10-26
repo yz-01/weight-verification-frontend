@@ -18,6 +18,7 @@
 import { useRouter } from "next/navigation";
 
 import { OutgoingDecision } from "@/components/dashboard/approval-opener";
+import { DocumentInPlace } from "@/components/document-workflow/documents";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { ConsultantApplicationDetail } from "@/components/consultant-workflow/application-detail";
 import { MaterialRequestDetail } from "@/components/material-requests/material-requests-office";
@@ -31,6 +32,8 @@ const IN_PLACE_KINDS = new Set([
   "SUNDRY_CLAIM",
   "CONSULTANT_APPLICATION",
   "FIELD_TASK",
+  // 项目资料报表 → a document, closed back onto the report (客户 10-26 事项 4).
+  "DOCUMENT",
 ]);
 
 /** Whether a record of this kind opens in a popup over the current page. */
@@ -68,6 +71,8 @@ export function InPlaceRecord({
       return <ConsultantApplicationDetail id={id} presentation="dialog" onClose={onClose} />;
     case "FIELD_TASK":
       return <FieldTaskSheet id={id} onClose={onClose} />;
+    case "DOCUMENT":
+      return <DocumentInPlace id={id} onClose={onClose} />;
     default:
       return null;
   }

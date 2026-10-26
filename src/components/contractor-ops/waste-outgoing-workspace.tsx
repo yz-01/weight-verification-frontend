@@ -1270,7 +1270,7 @@ function RecordDialog({
                     key={url}
                     src={url}
                     alt={`${t("field.photos")} ${index + 1}`}
-                    className="aspect-square w-full rounded-lg border object-cover object-bottom"
+                    className="aspect-4/3 w-full rounded-lg border object-cover object-bottom"
                   />
                 ))}
               </div>

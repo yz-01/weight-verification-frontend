@@ -82,7 +82,7 @@ describe("a PDF on a phone with no PDF viewer", () => {
     expect(fallback).toBeLessThan(frame);
     expect(source).toContain('t("openInViewer")');
     // Print on such a phone opens the viewer too: a frame cannot print there.
-    const print = source.slice(source.indexOf("const print = () => {"));
+    const print = source.slice(source.indexOf("const print = async () => {"));
     expect(print.indexOf('kind === "pdf" && !pdfInPage')).toBeLessThan(
       print.indexOf("window.open(url"),
     );

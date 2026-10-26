@@ -37,7 +37,7 @@ export function Shell({
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-scrim p-0 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-scrim p-0 sm:items-start sm:p-4 sm:pt-[4dvh]"
       onPointerDown={(event) => {
         pressedOutside.current = event.target === event.currentTarget;
       }}
@@ -46,8 +46,13 @@ export function Shell({
         pressedOutside.current = false;
       }}
     >
-      <div className={`flex max-h-[90dvh] w-full ${wide ? "max-w-7xl" : "max-w-2xl"} flex-col overflow-hidden rounded-t-xl bg-popover text-popover-foreground shadow-panel ring-1 ring-panel-border sm:rounded-xl`}>
-        <header className="flex items-center gap-2 border-b border-panel-border px-4 py-3">
+      {/* Near the top on a desktop, and the panel scrolls itself with its
+          title and footer buttons held in place (客户 10-26 事项 7: 「整个卡片
+          往上调一下」). Centred on a 1366x768 laptop, a form taller than the
+          screen had no scroll of its own and cut off 「开这一期」 (图 5). A
+          body that scrolls by itself still does, and then never overflows. */}
+      <div className={`flex max-h-[90dvh] w-full ${wide ? "max-w-7xl" : "max-w-2xl"} flex-col overflow-y-auto overscroll-contain rounded-t-xl bg-popover text-popover-foreground shadow-panel ring-1 ring-panel-border sm:max-h-[92dvh] sm:rounded-xl [&>footer]:sticky [&>footer]:bottom-0 [&>footer]:z-10`}>
+        <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-panel-border bg-popover px-4 py-3">
           <h2 className="min-w-0 flex-1 truncate text-base font-semibold">{title}</h2>
           <Button
             size="icon"

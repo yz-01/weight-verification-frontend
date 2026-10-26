@@ -69,6 +69,7 @@ import {
 } from "@/services/evidence.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getProjects } from "@/services/contractor.service";
+import { signFileAction } from "@/services/file-action.service";
 import { FileThumbs, stampedPicture } from "@/components/shared/file-thumbs";
 
 export function EvidenceArchive() {
@@ -724,7 +725,20 @@ function OriginalSection({ asset }: { asset: EvidenceAsset }) {
   const t = useTranslations();
   const df = useDateFormat();
   const formatter = useFormatter();
-  const save = useMutation({ mutationFn: () => downloadEvidenceOriginal(asset.id) });
+  const save = useMutation({
+    mutationFn: async () => {
+      // 下载 asks for the person's own PIN and is logged (JB27).
+      const signed = await signFileAction("DOWNLOAD", {
+        subject: asset.original_filename || asset.id,
+        file_name: asset.original_filename,
+        project: asset.project ?? undefined,
+        record_kind: "EVIDENCE_ASSET",
+        record_id: asset.id,
+        link: `${window.location.pathname}${window.location.search}`,
+      });
+      if (signed) await downloadEvidenceOriginal(asset.id);
+    },
+  });
   const original = asset.original;
   if (!original) return null;
   const backedUp = original.status === "ORIGINAL_BACKED_UP";

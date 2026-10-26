@@ -16,6 +16,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Download, Eye, Loader2, Lock, Paperclip, Upload, X } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider";
+import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -28,11 +30,13 @@ import { Input } from "@/components/ui/input";
 import type { AttachableKind, RecordAttachment } from "@/interfaces/record-attachment";
 import { useDateFormat } from "@/lib/dates";
 import {
+  deleteRecordAttachment,
   downloadRecordAttachment,
   getRecordAttachments,
   recordAttachmentObjectUrl,
   uploadRecordAttachments,
 } from "@/services/record-attachment.service";
+import { signFileAction } from "@/services/file-action.service";
 
 export function recordAttachmentsKey(kind: AttachableKind, recordId: string) {
   return ["record-attachments", kind, recordId] as const;
@@ -48,16 +52,43 @@ export function RecordAttachmentsPanel({
   kind,
   recordId,
   readOnly: readOnlyProp = false,
+  title,
+  hint,
+  addLabel,
+  required = false,
+  hideWhenEmpty = false,
+  adding: addingProp,
+  onAddingChange,
 }: {
   kind: AttachableKind;
   recordId: string;
   /** Read and open only, no 加附件 - the phone's view of a permit. */
   readOnly?: boolean;
+  /** A dedicated slot's own heading (JB30: 「书信」, 「上传资料」); 附件 otherwise. */
+  title?: string;
+  /** One line under the heading: what goes here and where it ends up. */
+  hint?: string;
+  /** The add button's words, when 上传附件 is not what this slot holds. */
+  addLabel?: string;
+  /** Marked like a required field; an empty slot says so in red (JB30 书信). */
+  required?: boolean;
+  /** Nothing at all once loaded with no files - a confirmed package's uploads. */
+  hideWhenEmpty?: boolean;
+  /**
+   * The upload form opened from a button elsewhere on the screen (JB30: the
+   * package's 「上传资料」 beside 「添加资料」). Given, the panel draws no add
+   * button of its own.
+   */
+  adding?: boolean;
+  onAddingChange?: (adding: boolean) => void;
 }) {
   const t = useTranslations("recordAttachments");
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  const [adding, setAdding] = useState(false);
+  const [addingOwn, setAddingOwn] = useState(false);
+  const controlled = addingProp !== undefined;
+  const adding = controlled ? addingProp : addingOwn;
+  const setAdding = (next: boolean) => (controlled ? onAddingChange?.(next) : setAddingOwn(next));
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
   const [previewing, setPreviewing] = useState<RecordAttachment | null>(null);
@@ -79,23 +110,36 @@ export function RecordAttachmentsPanel({
 
   const rows = state.data?.attachments ?? [];
   const closed = state.data?.closed ?? "";
+  // The phone keeps its flow (「手机端…保持现有操作流程不变」).
+  const { user } = useAuth();
+  const previewOnly = Boolean(state.data?.preview_only) && !user?.is_field_staff;
+  const notArchived = useNotArchivedReason();
   // The server's word on who may add (a gate pass: 门禁 manage only, I3).
   const readOnly = readOnlyProp || state.data?.can_add === false;
+  const missing = required && state.data !== undefined && rows.length === 0;
+
+  if (hideWhenEmpty && !adding && state.data !== undefined && rows.length === 0) return null;
 
   return (
-    <section className="rounded-lg border p-3" data-slot="record-attachments">
+    <section
+      className={`rounded-lg border p-3${missing && !closed ? " border-destructive/60" : ""}`}
+      data-slot="record-attachments"
+      data-kind={kind}
+    >
       <div className="mb-2 flex items-center justify-between gap-2">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {t("title")}
+          {title ?? t("title")}
+          {required ? <span className="ml-0.5 text-destructive">*</span> : null}
           <span className="ml-1 tabular-nums">({rows.length})</span>
         </h3>
-        {!readOnly && !closed && state.data && !adding && (
+        {!controlled && !readOnly && !closed && state.data && !adding && (
           <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setAdding(true)}>
             <Paperclip className="size-3.5" />
-            {t("add")}
+            {addLabel ?? t("add")}
           </Button>
         )}
       </div>
+      {hint ? <p className="mb-2 text-2xs text-muted-foreground">{hint}</p> : null}
 
       {state.isLoading ? (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -107,7 +151,7 @@ export function RecordAttachmentsPanel({
       ) : (
         <>
           {rows.length === 0 ? (
-            <p className="text-xs text-muted-foreground">{t("empty")}</p>
+            <p className={`text-xs ${missing && !closed ? "text-destructive" : "text-muted-foreground"}`}>{t("empty")}</p>
           ) : (
             <ul className="space-y-1.5">
               {rows.map((row) => {
@@ -154,10 +198,34 @@ export function RecordAttachmentsPanel({
                       variant="ghost"
                       className="size-7 shrink-0"
                       title={t("download")}
-                      onClick={() => void downloadRecordAttachment(kind, recordId, row)}
+                      // JB25: on a record not yet confirmed a file is previewed only.
+                      disabled={previewOnly}
+                      disabledReason={previewOnly ? notArchived : undefined}
+                      onClick={async () => {
+                        // 下载 asks for the person's own PIN and is logged (JB27).
+                        const signed = await signFileAction("DOWNLOAD", {
+                          subject: row.original_name,
+                          file_name: row.original_name,
+                          record_kind: kind,
+                          record_id: recordId,
+                          link: `${window.location.pathname}${window.location.search}`,
+                        });
+                        if (signed) await downloadRecordAttachment(kind, recordId, row);
+                      }}
                     >
                       <Download className="size-3.5" />
                     </Button>
+                    {state.data?.can_delete ? (
+                      <DeleteRecordButton
+                        iconOnly
+                        className="size-7 shrink-0"
+                        what={row.original_name}
+                        onDelete={() => deleteRecordAttachment(kind, recordId, row)}
+                        onDeleted={() =>
+                          void queryClient.invalidateQueries({ queryKey: recordAttachmentsKey(kind, recordId) })
+                        }
+                      />
+                    ) : null}
                   </li>
                 );
               })}

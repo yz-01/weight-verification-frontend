@@ -472,6 +472,11 @@ export interface GateIncidentPayload {
   longitude?: string;
   accuracy_m?: string;
   client_event_id: string;
+  /**
+   * The one 「发送」 this record's photo went with (JB35): every record of a
+   * press carries the same key, and the office lists them as one row.
+   */
+  upload_batch?: string;
   photos: GatePhotoDraft[];
 }
 

@@ -123,11 +123,13 @@ describe("the button and the endpoint (T-386)", () => {
   it("draws nothing without an id, and offers the four shared file actions (PDF 统一操作规则)", () => {
     const button = read("src/components/shared/record-export-button.tsx");
     expect(button).toMatch(/if \(!recordId\) return null;/);
-    expect(button).toMatch(/<FileActionButtons/);
+    // The four buttons on a detail; one menu per PDF in the photo viewer (JB29).
+    expect(button).toMatch(/layout === "menu" \? FileActionMenu : FileActionButtons/);
     expect(button).toMatch(/load: \(\) => recordPdfFile\(kind, recordId, reference\)/);
     // Cannot be pressed twice while a file is being fetched.
     const actions = read("src/components/shared/file-actions.tsx");
-    expect(actions).toMatch(/disabled=\{disabled \|\| Boolean\(busy\)\}/);
+    // (JB25 adds the not-yet-confirmed hold after it.)
+    expect(actions).toMatch(/disabled=\{disabled \|\| Boolean\(busy\)/);
   });
 
   it("is labelled in all four languages", () => {

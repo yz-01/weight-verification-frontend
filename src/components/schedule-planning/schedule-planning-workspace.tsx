@@ -144,6 +144,7 @@ export function SchedulePlanningWorkspace({
   onProjectChange?: (project: string) => void;
 } = {}) {
   const t = useTranslations("schedulePlanning");
+  const draftWords = useTranslations("draftRecords");
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
@@ -321,6 +322,9 @@ export function SchedulePlanningWorkspace({
               <ExportButton
                 onExport={(format) => exportSchedule(plan.id, revision.id, format, { delayed: onlyDelayed })}
                 title={plan.name}
+                // JB25: a draft revision is checked on screen; it goes out once confirmed.
+                disabled={revision.status !== "CONFIRMED"}
+                disabledReason={draftWords("draftRevision")}
               />
             ) : null}
             <MoreMenu

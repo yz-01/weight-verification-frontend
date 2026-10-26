@@ -419,7 +419,7 @@ function FieldTaskWork({
                       width={160}
                       height={160}
                       unoptimized
-                      className="aspect-square w-full rounded-lg border object-cover object-bottom"
+                      className="aspect-4/3 w-full rounded-lg border object-cover object-bottom"
                     />
                   </a>
                 ))}

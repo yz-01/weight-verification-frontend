@@ -21,7 +21,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 
 import { DocView } from "@/components/shared/doc-view";
 import { SheetView } from "@/components/shared/file-actions";
-import { canShowPdfInPage } from "@/lib/file-actions";
+import { canShowPdfInPage, printImage } from "@/lib/file-actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { signFileAction } from "@/services/file-action.service";
 
 export type PreviewKind = "pdf" | "image" | "text" | "video" | "audio" | "sheet" | "word";
 
@@ -82,16 +83,13 @@ export function fileExtension(name: string): string {
   return dot >= 0 ? name.slice(dot + 1).toUpperCase() : "";
 }
 
-function escapeAttribute(value: string) {
-  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-}
-
 export function FilePreview({
   load,
   previewType,
   filename,
   onDownload,
   className,
+  subject,
 }: {
   /** Fetches the file and resolves to an object URL; revoked here. */
   load: () => Promise<string>;
@@ -99,6 +97,8 @@ export function FilePreview({
   filename: string;
   onDownload: () => Promise<void> | void;
   className?: string;
+  /** What the print / download log row names (JB27); the file's name if not given. */
+  subject?: string;
 }) {
   const t = useTranslations("filePreview");
   const kind = previewKind(previewType, filename);
@@ -134,31 +134,39 @@ export function FilePreview({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind, filename, attempt]);
 
+  // 打印 / 下载 ask for the person's own PIN and are logged (JB27, 客户
+  // 10-26 事项 3); looking at the file here does not.
+  const sign = (action: "PRINT" | "DOWNLOAD") =>
+    signFileAction(action, {
+      subject: subject || filename,
+      file_name: filename,
+      link: `${window.location.pathname}${window.location.search}`,
+    });
+
   const save = useCallback(async () => {
     setDownloading(true);
     try {
+      if (!(await sign("DOWNLOAD"))) return;
       await onDownload();
     } finally {
       setDownloading(false);
     }
-  }, [onDownload]);
+    // `sign` reads only the props named here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onDownload, filename, subject]);
 
-  const print = () => {
+  const print = async () => {
     if (!url) return;
+    if (!(await sign("PRINT"))) return;
     if (kind === "pdf" && !pdfInPage) {
       // The phone's viewer prints and shares; a frame here cannot.
       window.open(url, "_blank", "noopener,noreferrer");
       return;
     }
     if (kind === "image") {
-      const printable = window.open("", "_blank");
-      if (!printable) return;
-      printable.document.write(
-        `<!doctype html><title>${escapeAttribute(filename)}</title>` +
-          `<style>html,body{margin:0}img{max-width:100%;display:block;margin:0 auto}</style>` +
-          `<img src="${escapeAttribute(url)}" onload="window.focus();window.print()">`,
-      );
-      printable.document.close();
+      // A hidden frame, not a new window: the PIN dialog spent the click
+      // that would have allowed one.
+      printImage(url, filename);
       return;
     }
     const target = frame.current?.contentWindow;
@@ -254,7 +262,7 @@ export function FilePreview({
               variant="outline"
               disabled={!url}
               disabledReason={!url ? t("loading") : undefined}
-              onClick={print}
+              onClick={() => void print()}
             >
               <Printer className="size-4" />
               {t("print")}
@@ -312,7 +320,7 @@ export function FilePreviewDialog({
           <DialogTitle className="break-all">{title}</DialogTitle>
           {description ? <DialogDescription>{description}</DialogDescription> : null}
         </DialogHeader>
-        <FilePreview {...preview} className="flex-1" />
+        <FilePreview {...preview} subject={title} className="flex-1" />
       </DialogContent>
     </Dialog>
   );

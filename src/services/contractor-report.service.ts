@@ -98,6 +98,8 @@ export function exportContractorReport(
     column_labels: Record<string, string>;
     /** The language a report printed whole is worded in (日报告, 项目进度摘要). */
     lang?: string;
+    /** A history row without a file, generated again from its conditions (JB27). */
+    regenerated_from?: string;
   },
 ): Promise<void> {
   return download("/api/contractor-reports/export_report/", {

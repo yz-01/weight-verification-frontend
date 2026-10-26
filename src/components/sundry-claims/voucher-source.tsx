@@ -219,7 +219,7 @@ export function VoucherSource({
                       aria-pressed={chosen}
                       title={`${photo.author} · ${df.dateTime(photo.sentAt)}`}
                       className={cn(
-                        "block aspect-square w-full overflow-hidden rounded-md border",
+                        "block aspect-4/3 w-full overflow-hidden rounded-md border",
                         chosen && "ring-2 ring-primary",
                       )}
                       onClick={() => {

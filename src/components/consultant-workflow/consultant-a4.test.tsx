@@ -231,8 +231,9 @@ describe("the A4 form card on the detail (C1)", () => {
     const card = detail.slice(detail.indexOf("<ApplicationFormCard"), detail.indexOf("<ApplicationLifecycle"));
     // Since E8 预览 / 导出 PDF / 分享 sit once, in the record popup's header;
     // the card keeps 打印, 看附件 and the send.
-    expect(detail).toContain(
-      'exportRecord={{ kind: "CONSULTANT_APPLICATION", recordId: application.id, reference: application.application_no }}',
+    // JB25: held to a preview until the draft is confirmed.
+    expect(detail).toMatch(
+      /exportRecord=\{\{\s*kind: "CONSULTANT_APPLICATION",\s*recordId: application\.id,\s*reference: application\.application_no,\s*blockedReason: confirmed \? undefined : notArchived,\s*\}\}/,
     );
     expect(card).toContain("exportButtons={null}");
     expect(card).toContain('printPdf(() => recordPdfObjectUrl("CONSULTANT_APPLICATION", application.id))');

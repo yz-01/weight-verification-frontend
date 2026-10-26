@@ -6,17 +6,23 @@
 import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
 
+import en from "@/messages/en.json";
+import ms from "@/messages/ms.json";
+import zhTW from "@/messages/zh-TW.json";
 import zh from "@/messages/zh.json";
 
 import type { ReportLevelRow } from "@/interfaces/contractor-report";
 import { isRouteAllowed, navLeaves, visibleNavigation } from "@/lib/navigation";
 import {
+  PHOTO_CATEGORIES,
   PROGRESS_MENU,
-  groupPhotoSources,
   isReportCenterPage,
   materialExportSubtitle,
-  photoSourceValue,
+  photoCategoryLabel,
+  photoCategoryValue,
+  photoOriginKey,
   levelRowName,
+  wordPhotoCategories,
   progressMenuHref,
   reportHref,
   reportMenuKind,
@@ -176,59 +182,90 @@ function row(value: string, label: string, project_code = ""): ReportLevelRow {
 }
 
 describe("rows as the menu names them", () => {
-  it("lists a module's photographs once, under the module's own name", () => {
-    const names: Record<string, string> = {
-      "nav.submodule.progressRecords": "工程进度",
-      "nav.submodule.materialReceipts": "材料进场",
-    };
-    const grouped = groupPhotoSources(
+  // JB29 (客户 10-26 事项 5): 「Applicationattachment、Fieldtaskphoto、
+  // Recordattachment、Recordmessage 等系统内部英文名称，不应显示在客户页面」.
+  const tZh = createTranslator({ locale: "zh", messages: zh });
+  const translate = (key: string) => tZh(key as never);
+
+  it("words every photo category itself, whatever label the server sends", () => {
+    const worded = wordPhotoCategories(
       [
-        row("contractor_ops.siteprogressphoto", "Progress"),
-        row("receiving.receiptphoto", "Material"),
-        row("site_operations.progressupdate", "Progress"),
-        row("haulage.taskphoto", "Driver task"),
+        row("MATERIAL_RECEIPT", "Material receiving"),
+        row("PROGRESS", "Progress"),
+        row("OTHER", "Other photos"),
       ],
-      (key) => names[key] ?? key,
+      translate,
     );
-    expect(grouped.map((entry) => [entry.label, entry.value])).toEqual([
-      ["工程进度", "contractor_ops.siteprogressphoto,site_operations.progressupdate"],
-      ["材料进场", "receiving.receiptphoto,receiving.deliverynoteevidence"],
-      ["Driver task", "haulage.taskphoto"],
+    expect(worded.map((entry) => [entry.value, entry.label])).toEqual([
+      ["MATERIAL_RECEIPT", "材料进场"],
+      ["PROGRESS", "工程进度"],
+      ["OTHER", "其他照片"],
     ]);
   });
 
-  it("gives a module one value in the menu and in the 照片来源 dropdown (B3 #6)", () => {
-    // The menu lists one project's sources; the dropdown every project's.
-    // This site's hazards have only report photographs so far; another
-    // site's have rectification photographs too.
-    const translate = (key: string) => key;
-    const menu = groupPhotoSources(
-      [row("site_operations.safetyincident", "Safety")],
-      translate,
-    );
-    const dropdown = groupPhotoSources(
+  it("never shows a table's name: an unknown value is 「其他照片」, listed once", () => {
+    const worded = wordPhotoCategories(
       [
-        row("site_operations.safetyincident", "Safety"),
-        row("site_operations.safetyrectificationevidence", "Safetyrectificationevidence"),
+        row("consultant_workflow.applicationattachment", "Applicationattachment"),
+        row("contractor_ops.recordmessage", "Recordmessage"),
+        row("future_app.newphoto", "Newphoto"),
       ],
       translate,
     );
-    expect(menu.map((entry) => entry.value)).toEqual(dropdown.map((entry) => entry.value));
-    // And the report reads the whole module: the rectification photographs
-    // taken tomorrow are in it too.
-    expect(menu[0].value).toBe(
-      "site_operations.safetyincident,site_operations.safetyrectificationevidence",
-    );
+    // The first is a table an old server named; it is 顾问申请 now.
+    expect(worded.map((entry) => [entry.value, entry.label])).toEqual([
+      ["CONSULTANT", "顾问申请"],
+      ["OTHER", "其他照片"],
+    ]);
   });
 
-  it("reads an address naming one source as its whole module", () => {
-    expect(photoSourceValue("receiving.receiptphoto")).toBe(
-      "receiving.receiptphoto,receiving.deliverynoteevidence",
+  it("guards the label: no input makes it print a table's name", () => {
+    const tableLike = /^[a-z_]+\.[a-z_]+$|^(Applicationattachment|Fieldtaskphoto|Recordattachment|Recordmessage)$/;
+    const inputs = [
+      ...PHOTO_CATEGORIES,
+      "consultant_workflow.applicationattachment",
+      "contractor_ops.fieldtaskphoto",
+      "contractor_ops.recordattachment",
+      "contractor_ops.recordmessage",
+      "Applicationattachment",
+      "Recordmessage",
+      "",
+      "something.else",
+    ];
+    for (const input of inputs) {
+      for (const messages of [zh, en, ms, zhTW]) {
+        const t = createTranslator({ locale: "zh", messages });
+        const label = photoCategoryLabel(input, (key) => t(key as never));
+        expect(label, input).not.toMatch(tableLike);
+        expect(label, input).not.toContain("photoCategory");
+        expect(label.toLowerCase(), input).not.toContain("attachment.");
+      }
+    }
+    expect(photoCategoryLabel("contractor_ops.recordattachment", translate)).toBe("其他照片");
+  });
+
+  it("names every category and origin in all four languages", () => {
+    for (const messages of [zh, en, ms, zhTW]) {
+      const t = createTranslator({ locale: "zh", messages });
+      for (const key of PHOTO_CATEGORIES) {
+        expect(t.has(`contractorReports.photoCategory.${key}` as never), key).toBe(true);
+      }
+      for (const key of ["SITE", "OFFICE", "ATTACHMENT", "MESSAGE", "OTHER"]) {
+        expect(t.has(photoOriginKey(key) as never), key).toBe(true);
+      }
+    }
+    expect(photoOriginKey("weird")).toBe("contractorReports.photoOrigin.OTHER");
+  });
+
+  it("reads an address naming tables (the client's screenshot) as their category", () => {
+    expect(photoCategoryValue("receiving.receiptphoto,receiving.deliverynoteevidence")).toBe(
+      "MATERIAL_RECEIPT",
     );
     expect(
-      photoSourceValue("site_operations.progressupdate,contractor_ops.siteprogressphoto"),
-    ).toBe("contractor_ops.siteprogressphoto,site_operations.progressupdate");
-    expect(photoSourceValue("haulage.taskphoto")).toBe("haulage.taskphoto");
+      photoCategoryValue("site_operations.progressupdate,contractor_ops.siteprogressphoto"),
+    ).toBe("PROGRESS");
+    expect(photoCategoryValue("EQUIPMENT,WASTE")).toBe("EQUIPMENT,WASTE");
+    expect(photoCategoryValue("haulage.taskphoto")).toBe("HAULAGE");
   });
 
   it("names the project beside a name two projects share, only with no project chosen", () => {

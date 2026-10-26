@@ -30,6 +30,7 @@ import {
   Eye,
   FilePlus2,
   Loader2,
+  Pencil,
   RotateCcw,
   Send,
   Settings2,
@@ -52,6 +53,8 @@ import {
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
+import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
+import { MaterialRequestEditDialog } from "@/components/material-requests/material-request-edit";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { RecordNo } from "@/components/shared/record-no";
@@ -104,6 +107,7 @@ import { awaitingFieldTasksAddress } from "@/lib/awaiting-field-tasks";
 import { useDateFormat } from "@/lib/dates";
 import { recordConversationKey } from "@/lib/record-chat";
 import {
+  deleteMaterialRequest,
   exportMaterialRequests,
   getMaterialRequest,
   getMaterialRequests,
@@ -655,6 +659,9 @@ export function MaterialRequestDetail({
   const [returnArmed, setReturnArmed] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  const draft = useTranslations("draftRecords");
+  const notArchived = useNotArchivedReason();
+  const [editingRequest, setEditingRequest] = useState(false);
   // Approving is the purchase (2026-10 D1, D2): who it is bought from, and
   // the 业主指定厂商 when the owner names one (optional since 2026-10-10).
   // Starts from what the applicant suggested; `null` = untouched.
@@ -714,6 +721,8 @@ export function MaterialRequestDetail({
   const waitingLine = row.assigned_reviewer_name
     ? t("waitingFor", { name: row.assigned_reviewer_name })
     : null;
+  const changeable =
+    !decided && !user?.is_field_staff && reviewView !== "waiting";
   const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
   // 「转呈总部」 (I12, ID29): the project manager sent it on.
   const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");
@@ -900,12 +909,33 @@ export function MaterialRequestDetail({
               <FileActionButtons
                 label={tFile("completeEvidence")}
                 labelHint={tFile("completeEvidenceHint")}
+                // JB25: waiting for its decision, it is previewed only.
+                blockedReason={decided ? undefined : notArchived}
                 source={{
                   load: () => materialRequestFormFile(row.id, locale, row.request_no),
                   title: t("preview.title", { reference: row.request_no }),
                 }}
               />
             </div>
+            {/* JB25 (客户 10-26 事项 1): before its decision the applicant or an
+                approver changes it in place, or deletes it with the PIN. */}
+            {changeable && (
+              <div className="flex flex-wrap gap-1.5" data-slot="material-request-draft-actions">
+                <Button size="sm" variant="outline" onClick={() => setEditingRequest(true)}>
+                  <Pencil />
+                  {draft("edit")}
+                </Button>
+                <DeleteRecordButton
+                  what={row.request_no}
+                  onDelete={() => deleteMaterialRequest(row.id)}
+                  onDeleted={() => {
+                    void qc.invalidateQueries({ queryKey: ["material-requests"] });
+                    onClose();
+                  }}
+                />
+              </div>
+            )}
+            {editingRequest && <MaterialRequestEditDialog row={row} onClose={() => setEditingRequest(false)} />}
             {reviewView === "decide" && (
               <>
                 {isMaterial && (

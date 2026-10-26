@@ -14,6 +14,7 @@ import {
   MailOpen,
   Paperclip,
   Pencil,
+  Archive,
   Plus,
   RotateCcw,
   ShieldCheck,
@@ -49,6 +50,8 @@ import {
 import { useAuth } from "@/components/providers/auth-provider";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
 import { ExportButton } from "@/components/shared/export-button";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import {
   RecordDetailFrame,
@@ -96,6 +99,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { recordConversationKey } from "@/lib/record-chat";
 import { signsWithCredential } from "@/lib/sign-off";
 import { recordPdfObjectUrl } from "@/services/contractor-ops.service";
+import { signFileAction } from "@/services/file-action.service";
 import {
   addRemedialItem,
   closeRemedialItem,
@@ -111,6 +115,8 @@ import {
   receiveConsultantApplication,
   reviewConsultantApplication,
   submitConsultantApplication,
+  confirmConsultantApplication,
+  deleteConsultantApplication,
 } from "@/services/consultant-workflow.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 
@@ -173,6 +179,17 @@ export function ConsultantApplicationDetail({
     mutationFn: () => submitConsultantApplication(id),
     onSuccess: refresh,
   });
+  // JB25 (客户 10-26 事项 1 第 4 点): draft → 确认归档 (locked) → 发送给顾问.
+  const draftWords = useTranslations("draftRecords");
+  const notArchived = useNotArchivedReason();
+  const [confirming, setConfirming] = useState(false);
+  const confirmDraft = useMutation({
+    mutationFn: () => confirmConsultantApplication(id),
+    onSuccess: () => {
+      setConfirming(false);
+      return refresh();
+    },
+  });
   const revision = useMutation({
     mutationFn: () => createApplicationRevision(id),
     // In the popup a push left the superseded revision in history: two closes
@@ -218,6 +235,9 @@ export function ConsultantApplicationDetail({
   // A draft is a draft (E6): whoever may fill it in may correct what was
   // added. Submitted, the controls go and each block says why.
   const draftEditable = !application.is_locked && can("consultant.submit");
+  // JB25: confirmed (or sent) - only then printed, exported and sent.
+  const confirmed = application.is_confirmed ?? application.status !== "DRAFT";
+  const draftOpen = application.status === "DRAFT" && !application.is_locked && can("consultant.submit") && !user?.is_field_staff;
   const showLocked = application.is_locked && can("consultant.submit");
   const removableRecords = application.related_record_groups.some((group) =>
     group.records.some((record) => record.removable && record.evidence_link_ids.length),
@@ -229,10 +249,32 @@ export function ConsultantApplicationDetail({
     <>
       {/* Sending is on the A4 form card below (C1): the form it sends is
           the form shown there. */}
-      {application.status === "DRAFT" && can("consultant.submit") && (
-        <Button asChild variant="outline" size="sm">
-          <Link href={`/consultant-applications/${id}/edit`}><Pencil />{t("action.edit")}</Link>
-        </Button>
+      {draftOpen && (
+        <>
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/consultant-applications/${id}/edit`}><Pencil />{t("action.edit")}</Link>
+          </Button>
+          <DeleteRecordButton
+            what={application.application_no}
+            onDelete={() => deleteConsultantApplication(application.id)}
+            onDeleted={() => finish("/consultant-applications")}
+          />
+          <Button size="sm" data-slot="confirm-archive" onClick={() => setConfirming(true)}>
+            <Archive />
+            {draftWords("confirmArchive")}
+          </Button>
+          <ConfirmDialog
+            open={confirming}
+            onOpenChange={setConfirming}
+            title={draftWords("confirmArchiveTitle", { what: application.application_no })}
+            description={draftWords("confirmArchiveBody")}
+            confirmLabel={draftWords("confirmArchive")}
+            confirmIcon={Archive}
+            variant="default"
+            isPending={confirmDraft.isPending}
+            onConfirm={() => confirmDraft.mutate()}
+          />
+        </>
       )}
       {application.status === "REVISE_RESUBMIT" && can("consultant.submit") && (
         <Button size="sm" disabled={revision.isPending} onClick={() => revision.mutate()}>
@@ -339,7 +381,12 @@ export function ConsultantApplicationDetail({
       // 预览 / 导出 PDF / 分享 once, in the header like every record (E8):
       // for an application the record export is the A4 form (C17), so the
       // form card below keeps 打印 / 看附件 / 发送 and leaves these to here.
-      exportRecord={{ kind: "CONSULTANT_APPLICATION", recordId: application.id, reference: application.application_no }}
+      exportRecord={{
+        kind: "CONSULTANT_APPLICATION",
+        recordId: application.id,
+        reference: application.application_no,
+        blockedReason: confirmed ? undefined : notArchived,
+      }}
     >
       <RecordDetailShell
         reference={application.application_no}
@@ -359,7 +406,17 @@ export function ConsultantApplicationDetail({
               canSend={application.status === "DRAFT" && can("consultant.submit")}
               isSubmitting={submit.isPending}
               onSend={() => submit.mutate()}
-              onPrint={() => printPdf(() => recordPdfObjectUrl("CONSULTANT_APPLICATION", application.id))}
+              onPrint={async () => {
+                // 打印 asks for the person's own PIN and is logged (JB27).
+                const signed = await signFileAction("PRINT", {
+                  subject: application.application_no,
+                  record_kind: "CONSULTANT_APPLICATION",
+                  record_id: application.id,
+                  project: application.project,
+                  link: window.location.pathname,
+                });
+                if (signed) await printPdf(() => recordPdfObjectUrl("CONSULTANT_APPLICATION", application.id));
+              }}
               onShowAttachments={() =>
                 document.getElementById("application-attachments")?.scrollIntoView({ behavior: "smooth", block: "start" })
               }
@@ -367,8 +424,11 @@ export function ConsultantApplicationDetail({
               sendBlockedReason={
                 application.consultant_form && !application.form_files?.some((row) => row.kind === "FILLED")
                   ? t("ownForm.sendNeedsFilled")
-                  : undefined
+                  : !confirmed
+                    ? draftWords("sendNeedsArchive")
+                    : undefined
               }
+              printBlockedReason={confirmed ? undefined : notArchived}
             />
 
             {/* B, the consultant's own form (2026-10-10): the blank form, the

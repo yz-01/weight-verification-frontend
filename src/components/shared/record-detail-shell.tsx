@@ -32,6 +32,7 @@ import {
   ChevronRight,
   Phone,
   Shrink,
+  X,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
@@ -50,6 +51,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -134,8 +136,8 @@ export function fitSize(photo: Size, frame: Size): Size {
 const LOADING_SHAPE: Size = { width: 4, height: 3 };
 
 /**
- * The viewer's room for the photograph (J34-1): the window's height less its
- * title, buttons and margins.
+ * The phone viewer's room for the photograph (J34-1): the window's height
+ * less its title, buttons and margins.
  */
 const VIEWER_HEIGHT = "(100dvh - 15rem)";
 
@@ -153,19 +155,22 @@ export function photoFrameWidth(photo: Size, height: string): string {
 
 function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => void }) {
   return (
-    <li className="w-20">
+    <li className="w-24">
+      {/* Landscape 4:3, all one size (JB34, the client's 图 8 and 图 9),
+          cut from the bottom so the stamped strip stays (J45). */}
       <button
         type="button"
         title={photo.label}
         onClick={onOpen}
-        className="relative block size-20 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
+        data-shell-thumbnail
+        className="relative block aspect-4/3 w-24 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Image
           src={photo.thumbnailUrl || photo.url}
           alt={photo.label}
           fill
-          sizes="80px"
-          className="object-cover"
+          sizes="96px"
+          className="object-cover object-bottom"
           unoptimized
         />
       </button>
@@ -181,10 +186,13 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
  * reader checks first, with what it is and when it was taken over its corner.
  * The rest stay small beside it.
  *
- * A square (J44, Lucas 10-22): a portrait photo in a frame of its own shape
- * was a narrow strip down the panel. The square is filled (cut to fit); the
- * whole photograph is one press away in the viewer. It is drawn from the
- * large photograph, never the 400 px thumbnail stretched over it.
+ * A wide 16:9 frame across the whole panel, on a computer and a phone (JB34,
+ * 客户 10-26 事项 10: 「图3图4图5这些是之前的照片，这样的照片就好看，为什么要
+ * 改呢？改回去」) - the look before J34-1 made it the photo's own shape and
+ * J44 a square. The frame is filled (cut to fit, from the bottom so the
+ * stamped strip stays - J45); the whole photograph is one press away in the
+ * viewer. It is drawn from the large photograph, never the 400 px thumbnail
+ * stretched over it (J44).
  *
  * `fromThumbnail`: the phone field app (client 2026-10-09 二.4, 五.3) names
  * the thumbnail first and offers the large photo beside it (`srcset`), so a
@@ -199,17 +207,16 @@ export function heroSources(photo: ShellPhoto, fromThumbnail: boolean): { src: s
 }
 
 /**
- * How the square hero fits its photo so the burnt-in watermark strip (the
+ * How the 16:9 hero fits its photo so the burnt-in watermark strip (the
  * bottom band, left-aligned text) is never cut (J45, Lucas 10-22, k13):
  *
- * * square (every photo since J45) - fills the square exactly, nothing cut;
- * * tall (older phone photos, and before the photo has loaded) - fills the
- *   square, cut from the top: the strip at the foot stays whole;
- * * wide - shown whole (`contain`): cutting its sides would cut the strip's
- *   lines, which run over more than half its width.
+ * * up to 16:9 wide - square, 4:3, tall, and before it has loaded - fills
+ *   the frame, cut from the top: the strip at the foot stays whole;
+ * * wider than 16:9 (a panorama) - shown whole (`contain`): filling would
+ *   cut its sides, and with them the strip's lines.
  */
 export function heroFit(natural: Size | null): string {
-  if (natural && natural.width > natural.height * 1.02) return "object-contain";
+  if (natural && natural.width > natural.height * (16 / 9) * 1.02) return "object-contain";
   return "object-cover object-bottom";
 }
 
@@ -231,13 +238,13 @@ function ShellHeroPhoto({
       title={photo.label}
       onClick={onOpen}
       data-shell-hero
-      className="relative mx-auto block aspect-square w-full max-w-md overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
+      className="relative block aspect-video w-full overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- a srcset of two stored renditions, not a resized one */}
       <img
         src={src}
         srcSet={srcSet}
-        sizes="(min-width: 640px) 28rem, 100vw"
+        sizes="(min-width: 1024px) 50vw, 100vw"
         alt={photo.label}
         decoding="async"
         onLoad={(event) => {
@@ -639,9 +646,18 @@ export function RecordDetailShell({
  * only then does the frame scroll, so the reader pans by scrolling: no
  * gesture library, nothing to learn. 「整张显示」 and turning to another photo
  * both go back to the whole photo. Neighbours stay one press away because a
- * delivery note is usually checked against the one before it. Preview,
- * print and download sit under the picture (D-236). One viewer for every
- * screen, so all of them changed together (ID22's rule).
+ * delivery note is usually checked against the one before it. One viewer for
+ * every screen, so all of them changed together (ID22's rule).
+ *
+ * On a computer it is one screen (JB29, 客户 10-26 事项 5): 「左侧显示完整照片，
+ * 右侧显示对应的完整业务资料」「上一张、下一张按钮固定在照片左右两侧」「操作
+ * 集中安排在上方，避免重复按钮」「整个页面不需要上下滚动；资料过长时，仅右侧
+ * 资料区域独立滚动」. Almost the whole window; across the top the photo's
+ * title, time and GPS, every action in one row, 「n / N」 and ×; below, the
+ * photo filling the space on the left - never cut, on the theme's muted
+ * surface, the arrows in the gutters either side and the zoom under it - and
+ * the record on the right, scrolling on its own. On a phone it stays one
+ * column - title, photo, zoom, actions, record - in the sheet that scrolls.
  */
 export function PhotoViewer({
   photos,
@@ -657,12 +673,16 @@ export function PhotoViewer({
   reference: string;
   onIndex: (index: number) => void;
   onClose: () => void;
-  /** The record's own buttons under the photo - 打开原记录, 证据报表 (J8-3). */
+  /** The record's own buttons, in the one row of actions - 打开原记录, 证据报表 (J8-3). */
   extraActions?: React.ReactNode;
-  /** The whole record under the photo (J8-3: 「点照片…显示大图、GPS 和整条记录的完整资料」). */
+  /**
+   * The whole record, in the right-hand column (J8-3: 「点照片…显示大图、GPS
+   * 和整条记录的完整资料」). Without it the column shows the photo's own facts.
+   */
   details?: React.ReactNode;
 }) {
   const t = useTranslations("recordShell");
+  const common = useTranslations("common");
   const df = useDateFormat();
   const [zoom, setZoom] = useState(MIN_ZOOM);
   const photo = photos[index];
@@ -671,6 +691,7 @@ export function PhotoViewer({
   // The photo's own pixels, kept with the address they belong to so the
   // next photo is never sized by the last one's shape.
   const [natural, setNatural] = useState<(Size & { url: string }) | null>(null);
+  const many = photos.length > 1;
   const step = (by: number) =>
     setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current + by)));
   const go = (by: number) => {
@@ -678,7 +699,7 @@ export function PhotoViewer({
     onIndex((index + by + photos.length) % photos.length);
   };
   // ← and → turn the photographs too (I9: over a daily report they are the photo's, not the report's).
-  useArrowKeys(go, { enabled: photos.length > 1 });
+  useArrowKeys(go, { enabled: many });
   // On a phone a sideways swipe turns them (J34-1 point 5), while it is whole.
   const swipe = useRef<number | null>(null);
 
@@ -695,10 +716,12 @@ export function PhotoViewer({
   const whole = zoom <= MIN_ZOOM;
   const loaded = natural && natural.url === photo.url ? natural : null;
   const fitted = frame && loaded ? fitSize(loaded, frame) : null;
-  // The last photo's shape while the next one loads, so the frame does not
-  // jump to 4:3 and back between two portrait photos.
+  // The last photo's shape while the next one loads, so the phone's frame
+  // does not jump to 4:3 and back between two portrait photos.
   const [lastShape, setLastShape] = useState<Size>(LOADING_SHAPE);
   const shape = loaded ?? lastShape;
+  // The phone's frame is the photograph's own shape (J34-1, Lucas 10-20:
+  // 「框刚好包住照片」); the computer's is the whole left-hand area.
   const frameWidth = photoFrameWidth(shape, VIEWER_HEIGHT);
   // Enlarged: the fitted size times the zoom, so 200% is twice the whole
   // photo. Until the frame has been measured, the frame's width stands in.
@@ -710,160 +733,253 @@ export function PhotoViewer({
         maxHeight: "none",
       }
     : { width: `${zoom * 100}%`, height: "auto", maxWidth: "none", maxHeight: "none" };
+  const when = photo.takenAt ? df.dateTime(photo.takenAt) : t("noTime");
+  const where =
+    photo.latitude && photo.longitude ? `GPS ${photo.latitude}, ${photo.longitude}` : t("noLocation");
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      {/* As wide as the frame plus the dialog's own padding (J34-1 point 2):
-          the title and buttons sit over and under the photo, no wider. Never
-          narrower than its buttons need. */}
       <DialogContent
         data-photo-viewer
-        className="transition-[width] duration-200 sm:w-(--viewer-width) sm:max-w-[min(calc(100vw-2rem),72rem)]"
+        showCloseButton={false}
+        className={cn(
+          // A phone: the sheet as before, one column that scrolls.
+          "max-sm:gap-3",
+          // A computer: almost the whole window, and nothing in it scrolls
+          // but the record (JB29).
+          "sm:flex sm:h-[min(94dvh,62.5rem)] sm:max-h-[min(94dvh,62.5rem)] sm:w-[min(96vw,100rem)] sm:max-w-[min(96vw,100rem)] sm:flex-col sm:gap-3 sm:overflow-hidden",
+        )}
         style={
           {
-            "--viewer-width": `max(22rem, calc(${frameWidth.replace("100%", "100vw - 4rem")} + 2rem))`,
+            "--photo-shape": `${shape.width} / ${shape.height}`,
+            "--photo-frame-width": frameWidth,
           } as React.CSSProperties
         }
       >
-        <DialogHeader>
-          <DialogTitle>{photo.label}</DialogTitle>
-          <DialogDescription>
-            {photo.metaUnknown
-              ? reference
-              : [
-                  photo.takenAt ? df.dateTime(photo.takenAt) : t("noTime"),
-                  photo.latitude && photo.longitude
-                    ? `GPS ${photo.latitude}, ${photo.longitude}`
-                    : t("noLocation"),
-                ].join(" · ")}
-          </DialogDescription>
-        </DialogHeader>
-        {/* The frame is the photograph (J34-1, Lucas 10-20): its shape, as
-            large as the window allows, so a portrait photo stands in a
-            portrait frame - no bands of hatching either side. It keeps that
-            size while zoomed, and scrolls. */}
-        <div
-          ref={frameRef}
-          data-photo-frame={whole ? "whole" : "zoomed"}
-          style={{ aspectRatio: `${shape.width} / ${shape.height}`, width: frameWidth }}
-          className={cn(
-            "mx-auto flex max-w-full rounded-xl bg-muted ring-1 ring-panel-border transition-[width] duration-200",
-            whole ? "items-center justify-center overflow-hidden" : "overflow-auto",
-          )}
-          onTouchStart={(event) => {
-            swipe.current = whole && event.touches.length === 1 ? event.touches[0].clientX : null;
-          }}
-          onTouchEnd={(event) => {
-            const from = swipe.current;
-            swipe.current = null;
-            const to = event.changedTouches[0]?.clientX;
-            if (from === null || to === undefined || photos.length < 2) return;
-            if (Math.abs(to - from) > 50) go(to < from ? 1 : -1);
-          }}
-        >
-          {/* A plain img: whole, it fills the frame cut to its own shape;
-              enlarged, it is a size, which scrolls. The stamped copy is
-              shown, because it is the evidence. `m-auto` centres it while it
-              is smaller than the frame and lets it scroll from its edge once
-              it is larger. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={photo.url}
-            src={photo.url}
-            alt={photo.label}
-            data-photo-zoom={Math.round(zoom * 100)}
-            onLoad={(event) => {
-              const size = {
-                width: event.currentTarget.naturalWidth,
-                height: event.currentTarget.naturalHeight,
-              };
-              setNatural({ url: photo.url, ...size });
-              if (size.width > 0 && size.height > 0) setLastShape(size);
-            }}
-            style={whole ? undefined : enlarged}
-            className={cn(
-              "block",
-              whole ? "size-full max-h-full max-w-full object-contain" : "m-auto object-contain",
-            )}
-          />
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
-            <Button
-              size="sm"
-              variant="outline"
-              title={t("zoomOut")}
-              disabled={zoom <= MIN_ZOOM}
-              disabledReason={t("zoomOut")}
-              onClick={() => step(-0.5)}
-            >
-              <ZoomOut />
-            </Button>
-            <span className="w-12 text-center text-xs tabular-nums">
-              {Math.round(zoom * 100)}%
-            </span>
-            <Button
-              size="sm"
-              variant="outline"
-              title={t("zoomIn")}
-              disabled={zoom >= MAX_ZOOM}
-              disabledReason={t("zoomIn")}
-              onClick={() => step(0.5)}
-            >
-              <ZoomIn />
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              title={t("fitWhole")}
-              data-photo-fit-whole
-              onClick={() => setZoom(MIN_ZOOM)}
-            >
-              <Shrink />
-              {t("fitWhole")}
-            </Button>
+        {/* The top bar: what the photo is, every action once, where in the
+            set, close. On a phone its pieces fall into the one column. */}
+        <div data-photo-viewer-bar className="max-sm:contents sm:flex sm:shrink-0 sm:items-start sm:gap-4">
+          <DialogHeader className="min-w-0 max-sm:order-1 max-sm:pr-24 sm:flex-1 sm:pt-1">
+            <DialogTitle className="truncate">{photo.label}</DialogTitle>
+            <DialogDescription>{photo.metaUnknown ? reference : `${when} · ${where}`}</DialogDescription>
+          </DialogHeader>
+          <div
+            data-photo-viewer-actions
+            className="flex flex-wrap items-center gap-2 max-sm:order-3 sm:max-w-[60%] sm:justify-end"
+          >
+            <EvidenceFileActions
+              url={photo.url}
+              filename={`${reference}-${index + 1}.jpg`}
+              title={`${reference} · ${photo.label}`}
+              share
+              className="contents"
+            />
+            {extraActions}
           </div>
-          <EvidenceFileActions
-            url={photo.url}
-            filename={`${reference}-${index + 1}.jpg`}
-            title={`${reference} · ${photo.label}`}
-          />
-          {extraActions ? (
-            <div className="flex flex-wrap items-center gap-2" data-photo-viewer-actions>
-              {extraActions}
+          <div
+            data-photo-viewer-nav
+            className="flex items-center gap-1 max-sm:absolute max-sm:right-3 max-sm:top-3"
+          >
+            {many ? (
+              <span data-photo-counter className="px-1 text-sm tabular-nums text-muted-foreground">
+                {index + 1} / {photos.length}
+              </span>
+            ) : null}
+            <DialogClose asChild>
+              <Button variant="ghost" size="icon-sm" title={common("close")}>
+                <X />
+                <span className="sr-only">{common("close")}</span>
+              </Button>
+            </DialogClose>
+          </div>
+        </div>
+        <div
+          data-photo-viewer-body
+          className="max-sm:contents sm:grid sm:min-h-0 sm:flex-1 sm:grid-cols-[minmax(0,1fr)_clamp(23.75rem,28vw,27.5rem)] sm:gap-4"
+        >
+          {/* The photo's side: the theme's muted surface, not black, around a
+              photo of another shape. */}
+          <div
+            data-photo-stage
+            className="flex min-w-0 flex-col gap-2 max-sm:order-2 sm:min-h-0 sm:rounded-xl sm:bg-muted sm:pb-2 sm:ring-1 sm:ring-panel-border"
+          >
+            <div className="relative sm:min-h-0 sm:flex-1">
+              {/* The frame. A phone: the photograph's own shape, as large as
+                  the window allows (J34-1). A computer: the whole area but
+                  the gutters the arrows stand in. It keeps its size while
+                  zoomed, and scrolls. */}
+              <div
+                ref={frameRef}
+                data-photo-frame={whole ? "whole" : "zoomed"}
+                className={cn(
+                  "flex max-w-full rounded-xl bg-muted ring-1 ring-panel-border transition-[width] duration-200",
+                  "max-sm:mx-auto max-sm:aspect-(--photo-shape) max-sm:w-(--photo-frame-width)",
+                  "sm:absolute sm:inset-x-14 sm:inset-y-2 sm:rounded-lg sm:ring-0",
+                  whole ? "items-center justify-center overflow-hidden" : "overflow-auto",
+                )}
+                onTouchStart={(event) => {
+                  swipe.current = whole && event.touches.length === 1 ? event.touches[0].clientX : null;
+                }}
+                onTouchEnd={(event) => {
+                  const from = swipe.current;
+                  swipe.current = null;
+                  const to = event.changedTouches[0]?.clientX;
+                  if (from === null || to === undefined || !many) return;
+                  if (Math.abs(to - from) > 50) go(to < from ? 1 : -1);
+                }}
+              >
+                {/* A plain img: whole, it is fitted inside the frame, its
+                    shape kept (object-contain - never cut, never stretched);
+                    enlarged, it is a size, which scrolls. The stamped copy is
+                    shown, because it is the evidence. `m-auto` centres it
+                    while it is smaller than the frame and lets it scroll from
+                    its edge once it is larger. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  key={photo.url}
+                  src={photo.url}
+                  alt={photo.label}
+                  data-photo-zoom={Math.round(zoom * 100)}
+                  onLoad={(event) => {
+                    const size = {
+                      width: event.currentTarget.naturalWidth,
+                      height: event.currentTarget.naturalHeight,
+                    };
+                    setNatural({ url: photo.url, ...size });
+                    if (size.width > 0 && size.height > 0) setLastShape(size);
+                  }}
+                  style={whole ? undefined : enlarged}
+                  className={cn(
+                    "block",
+                    whole ? "size-full max-h-full max-w-full object-contain" : "m-auto object-contain",
+                  )}
+                />
+              </div>
+              {/* 上一张 / 下一张, fixed at the photo's left and right, halfway
+                  down - the same place whatever the photo's shape. */}
+              {many ? (
+                <>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    title={t("previous")}
+                    aria-label={t("previous")}
+                    data-photo-previous
+                    className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-popover/90 shadow-panel backdrop-blur-sm"
+                    onClick={() => go(-1)}
+                  >
+                    <ChevronLeft />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    title={t("next")}
+                    aria-label={t("next")}
+                    data-photo-next
+                    className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-popover/90 shadow-panel backdrop-blur-sm"
+                    onClick={() => go(1)}
+                  >
+                    <ChevronRight />
+                  </Button>
+                </>
+              ) : null}
             </div>
-          ) : null}
-          {details ? (
-            <div className="w-full max-h-56 overflow-y-auto rounded-lg border bg-background/80 p-3 text-left" data-photo-viewer-details>
-              {details}
-            </div>
-          ) : null}
-          {photos.length > 1 && (
-            <div className="flex items-center gap-2">
+            {/* The zoom, at the foot of the photo's side - under the photo,
+                so it never covers the stamped strip along its bottom. */}
+            <div data-photo-zoom-bar className="flex shrink-0 items-center justify-center gap-1">
               <Button
                 size="sm"
                 variant="outline"
-                title={t("previous")}
-                onClick={() => go(-1)}
+                title={t("zoomOut")}
+                disabled={zoom <= MIN_ZOOM}
+                disabledReason={t("zoomOut")}
+                onClick={() => step(-0.5)}
               >
-                <ChevronLeft />
+                <ZoomOut />
               </Button>
-              <span className="text-xs tabular-nums text-muted-foreground">
-                {index + 1} / {photos.length}
+              <span className="w-12 text-center text-xs tabular-nums">
+                {Math.round(zoom * 100)}%
               </span>
               <Button
                 size="sm"
                 variant="outline"
-                title={t("next")}
-                onClick={() => go(1)}
+                title={t("zoomIn")}
+                disabled={zoom >= MAX_ZOOM}
+                disabledReason={t("zoomIn")}
+                onClick={() => step(0.5)}
               >
-                <ChevronRight />
+                <ZoomIn />
               </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                title={t("fitWhole")}
+                data-photo-fit-whole
+                onClick={() => setZoom(MIN_ZOOM)}
+              >
+                <Shrink />
+                {t("fitWhole")}
+              </Button>
+            </div>
+          </div>
+          {/* The record, on the right; only this scrolls (「资料过长时，仅右侧
+              资料区域独立滚动」). Turning the photo turns it too. */}
+          {details ? (
+            <div
+              data-photo-viewer-details
+              className="min-w-0 rounded-lg border border-panel-border bg-background/80 p-3 text-left max-sm:order-4 max-sm:max-h-56 max-sm:overflow-y-auto sm:min-h-0 sm:overflow-y-auto"
+            >
+              {details}
+            </div>
+          ) : (
+            <div
+              data-photo-viewer-details="photo"
+              className="min-w-0 rounded-lg border border-panel-border bg-background/80 p-3 text-left max-sm:hidden sm:min-h-0 sm:overflow-y-auto"
+            >
+              <PhotoFacts photo={photo} reference={reference} when={when} where={where} />
             </div>
           )}
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * The right-hand column of a photo with no record to show (JB29): what the
+ * photo is, when and where it was taken, and the record it came with.
+ */
+function PhotoFacts({
+  photo,
+  reference,
+  when,
+  where,
+}: {
+  photo: ShellPhoto;
+  reference: string;
+  when: string;
+  where: string;
+}) {
+  const t = useTranslations("recordShell.photoFacts");
+  const rows = [
+    { key: "label", label: t("label"), value: photo.label },
+    ...(photo.metaUnknown
+      ? []
+      : [
+          { key: "time", label: t("time"), value: when },
+          { key: "gps", label: t("gps"), value: where },
+        ]),
+    { key: "reference", label: t("reference"), value: reference },
+  ].filter((row) => row.value);
+  return (
+    <dl className="grid grid-cols-[minmax(5rem,auto)_1fr] gap-x-3 gap-y-1.5 text-xs" data-photo-facts>
+      {rows.map((row) => (
+        <div key={row.key} className="contents">
+          <dt className="text-muted-foreground">{row.label}</dt>
+          <dd className="whitespace-pre-wrap break-words">{row.value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -894,6 +1010,8 @@ export interface RecordDetailHeaderProps {
     reference: string;
     /** Where the record opens, for a kind `recordTarget` does not route. */
     href?: string;
+    /** JB25: not yet confirmed - preview only, with this reason. */
+    blockedReason?: string;
   } | null;
 }
 
@@ -967,6 +1085,7 @@ function RecordDetailHeading({
             recordId={exportRecord.recordId}
             reference={exportRecord.reference}
             href={exportRecord.href}
+            blockedReason={exportRecord.blockedReason}
           />
         ) : null}
       </div>

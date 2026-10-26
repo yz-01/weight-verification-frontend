@@ -87,6 +87,8 @@ interface RequestOptions {
   signOffPin?: string;
   /** Leave a sign-off refusal to the caller instead of the dialog. */
   noSignOffPrompt?: boolean;
+  /** What a file is fetched for (JB27): set by `withFileFetch`, not by hand. */
+  fileHeaders?: Record<string, string>;
 }
 
 function buildUrl(path: string, query?: ListQuery): string {
@@ -333,6 +335,7 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
     const projectId = getActiveProjectId();
     if (projectId) headers["X-MSE-Project"] = projectId;
     if (options.signOffPin) headers["X-Sign-Off-PIN"] = options.signOffPin;
+    if (options.fileHeaders) Object.assign(headers, options.fileHeaders);
   }
 
   let payload: BodyInit | undefined;
@@ -551,11 +554,14 @@ export async function download(
   const blob = await response.blob();
   if (capture) {
     capture(
-      new File(
-        [blob],
-        filenameFromDisposition(response.headers.get("Content-Disposition")) ??
-          options.fallbackFilename,
-        { type: blob.type || "application/octet-stream" },
+      withFileMeta(
+        new File(
+          [blob],
+          filenameFromDisposition(response.headers.get("Content-Disposition")) ??
+            options.fallbackFilename,
+          { type: blob.type || "application/octet-stream" },
+        ),
+        response,
       ),
     );
     return;
@@ -629,7 +635,69 @@ export async function fetchAsFile(
   const name =
     filenameFromDisposition(response.headers.get("Content-Disposition")) ??
     options.fallbackFilename;
-  return new File([blob], name, { type: blob.type || "application/octet-stream" });
+  return withFileMeta(new File([blob], name, { type: blob.type || "application/octet-stream" }), response);
+}
+
+/**
+ * What the server said a fetched file belongs to (JB27): the 「报表导出历史」
+ * row that keeps it and the project it is about - written into its
+ * print / download / send log row.
+ */
+export interface FileMeta {
+  reportExport?: string;
+  project?: string;
+}
+
+const fileMetas = new WeakMap<Blob, FileMeta>();
+
+function withFileMeta(file: File, response: Response): File {
+  const reportExport = response.headers.get("X-Report-Export-Id") || undefined;
+  const project = response.headers.get("X-File-Project") || undefined;
+  if (reportExport || project) fileMetas.set(file, { reportExport, project });
+  return file;
+}
+
+export function fileMeta(file: Blob): FileMeta {
+  return fileMetas.get(file) ?? {};
+}
+
+/**
+ * What the files fetched while `run` runs are for (JB27, 客户 10-26 事项 3):
+ *
+ * * `{ preview: true }` - only to look at: the server asks no PIN for it and
+ *   keeps no 「报表导出历史」 row (「正常查看、预览资料不需要密码」);
+ * * `{ grant }` - a print, download or send the person has just signed for
+ *   with their PIN: an export signed on its own (a daily report) is not asked
+ *   a second time in the same click.
+ *
+ * Ambient like `captureDownload`, so the forty screens' export functions need
+ * no new parameter; only file fetches (`download`, `fetchAsFile`...) carry it.
+ */
+export type FileFetchPurpose = { preview: true } | { grant: string };
+
+/**
+ * The runs in progress, each with its own entry. A run removes only its own
+ * entry when it ends, whatever order runs end in, so a preview that finished
+ * last can never leave every later fetch marked as a preview (review #1).
+ */
+const fileFetchRuns: Array<{ purpose: FileFetchPurpose }> = [];
+
+export async function withFileFetch<T>(purpose: FileFetchPurpose | null, run: () => Promise<T>): Promise<T> {
+  if (!purpose) return run();
+  const mine = { purpose };
+  fileFetchRuns.push(mine);
+  try {
+    return await run();
+  } finally {
+    const at = fileFetchRuns.indexOf(mine);
+    if (at >= 0) fileFetchRuns.splice(at, 1);
+  }
+}
+
+function fileFetchHeaders(): Record<string, string> | undefined {
+  const purpose = fileFetchRuns.at(-1)?.purpose;
+  if (!purpose) return undefined;
+  return "grant" in purpose ? { "X-File-Action-Grant": purpose.grant } : { "X-File-Action": "preview" };
 }
 
 /**
@@ -646,7 +714,8 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
   // Sent again with the sign-off PIN when the server asks for it (I29): a
   // daily report's PDF and the list's export are signed.
   const asked: SignOffMemory = {};
-  for (let attempt = options; ; ) {
+  const fileHeaders = options.fileHeaders ?? fileFetchHeaders();
+  for (let attempt = fileHeaders ? { ...options, fileHeaders } : options; ; ) {
     let response: Response;
     const usedAccess = attempt.auth === false ? undefined : getAccessToken();
     try {

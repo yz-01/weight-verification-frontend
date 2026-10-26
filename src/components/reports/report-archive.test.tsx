@@ -176,7 +176,8 @@ describe("where the archive opens from", () => {
 
   it("is on every report export history", () => {
     for (const file of [
-      "src/components/contractor-ops/contractor-report-workspace.tsx",
+      // 报表导出历史 moved to its own file with its search and log (JB27).
+      "src/components/contractor-ops/contractor-report-history.tsx",
       "src/components/reports/admin-report-workspace.tsx",
       "src/components/reports/recycler-report-center.tsx",
     ]) {

@@ -346,6 +346,10 @@ self.addEventListener("push", (event) => {
       data: { url: payload.url || "/notifications" },
       vibrate: [300, 200, 300, 200, 300],
       silent: false,
+      // JB36: a chat thread is one notice that each new message refreshes.
+      // Its tag puts the new words in the old one's place on the lock screen,
+      // and `renotify` rings and buzzes again - not a silent swap.
+      ...(payload.tag ? { tag: String(payload.tag), renotify: true } : {}),
       ...(urgent ? { requireInteraction: true } : {}),
     }),
   );

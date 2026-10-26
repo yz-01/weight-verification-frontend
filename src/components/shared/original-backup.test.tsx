@@ -35,7 +35,8 @@ vi.mock("@/components/providers/offline-sync-provider", () => ({
 vi.mock("@/components/shared/record-conversation", () => ({
   RecordConversationPanel: () => <div data-stub="conversation" />,
 }));
-vi.mock("@/components/shared/record-attachments", () => ({
+vi.mock("@/components/shared/record-attachments", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/components/shared/record-attachments")>()),
   RecordAttachmentsPanel: () => <div data-stub="attachments" />,
 }));
 vi.mock("@/components/shared/record-export-button", () => ({

@@ -6507,7 +6507,14 @@
         "returnReason": "Why it is returned",
         "return": "Return the application",
         "failed": "That did not save. Please try again."
-      }
+      },
+      "machineNumber": "Equipment no.",
+      "machineNumberHint": "Type the number on the machine, or its plate or system number; or scan the QR code on it.",
+      "findMachine": "Find",
+      "numberUnknown": "No machine with the number “{number}” was found. Please check the number.",
+      "numberUnknownOffline": "No signal, and this phone has no machine with the number “{number}”. Try again with signal, or scan the QR code on the machine.",
+      "changeMachine": "Change",
+      "confirmMachine": "Check the name and plate are this machine before going on."
     },
     "equipmentQr": {
       "column": "QR",
@@ -6689,7 +6696,8 @@
       "payment_state": "Payment",
       "item_count": "Items",
       "submit_to": "Sent to",
-      "applicant": "Applicant"
+      "applicant": "Applicant",
+      "origin": "Photo source"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -6728,7 +6736,7 @@
         "recycling": "Reference, plate, DO or company",
         "schedule": "WBS code or task name",
         "target": "Target name",
-        "photos": "File name, source or uploader",
+        "photos": "File name, project or uploader",
         "documents": "Document no., title or keyword",
         "daily_report": "Report name, text or writer",
         "progress_summary": "Title or writer",
@@ -6753,7 +6761,55 @@
       "report": "Report",
       "rows": "Rows",
       "subtitle": "Your head office's archive of generated reports: each report keeps the file generated at the time. Click the file name or View to preview, print, download again or send it - it is never regenerated from today's data.",
-      "title": "Report export history"
+      "title": "Report export history",
+      "tabReports": "Reports",
+      "tabLog": "Operation log",
+      "filter": {
+        "date": "Date",
+        "operator": "Operator",
+        "operatorHint": "Name or account",
+        "action": "Action",
+        "anyAction": "All actions",
+        "name": "Report / file name",
+        "nameHint": "Report or file name",
+        "clear": "Clear filters"
+      },
+      "action": {
+        "PRINT": "Print",
+        "DOWNLOAD": "Download / export",
+        "SEND": "Send / share"
+      },
+      "channel": {
+        "share_sheet": "Share sheet",
+        "whatsapp": "WhatsApp",
+        "email": "Email",
+        "link": "Link copied",
+        "download": "Downloaded to attach"
+      },
+      "logHint": "Every print, download and send in the back office, each signed with the person's own six-digit PIN. Previewing is not recorded.",
+      "actionFilterHint": "Date and operator: when and by whom the report was generated. With an action chosen: reports printed, downloaded or sent, and by whom.",
+      "noMatch": "No reports match these filters.",
+      "regeneratedNote": "Generated again from the conditions of {when}, with the data as it is now.",
+      "regeneratedOnFile": "Generated again from the conditions of {when}; contents are the current data",
+      "cannotRegenerate": "Export it again from the site dashboard.",
+      "regenerate": "Generate again with the original conditions",
+      "regenerateHint": "Same report, project, period and filters; contents are today's data. A new row is added; this one stays.",
+      "regenerated": "Generated again. It is the new row at the top of the list.",
+      "regenerateFailed": "Could not generate it again. Try once more.",
+      "rowActions": "Actions ({count})",
+      "rowActionsTitle": "Prints, downloads and sends of this report",
+      "logEmpty": "No prints, downloads or sends recorded.",
+      "log": {
+        "at": "Date and time",
+        "operator": "Operator",
+        "action": "Action",
+        "subject": "Item / report / file",
+        "openReport": "Open the report",
+        "openRecord": "Open the record"
+      },
+      "count": "{count} in total · page {page} of {pages}",
+      "regenerating": "Generating it again…",
+      "alreadyRegenerated": "Already generated again from these conditions: open the new row with the same report and period."
     },
     "loadError": "The report could not be loaded.",
     "period": "Period: {from} to {to}",
@@ -6834,6 +6890,33 @@
         "photo_count": "Photos",
         "has_gps": "GPS"
       }
+    },
+    "photoCategory": {
+      "MATERIAL_RECEIPT": "Material receiving",
+      "MATERIAL_OUTGOING": "Material outgoing",
+      "MATERIAL_REQUEST": "MR / other requests",
+      "EQUIPMENT": "Equipment in / out",
+      "PROGRESS": "Site progress",
+      "SAFETY": "Rectification / EHS",
+      "WASTE": "Waste removal",
+      "ATTENDANCE": "Attendance",
+      "GATE": "Gate / visitors",
+      "FIELD_TASK": "Field tasks",
+      "CONSULTANT": "Consultant applications",
+      "SUNDRY_CLAIM": "Sundry claims",
+      "CLAIM": "Progress Claim",
+      "PACKAGE": "Multi Engine packages",
+      "APPROVAL": "Approvals",
+      "WEIGHING": "Weighing",
+      "HAULAGE": "Haulage tasks",
+      "OTHER": "Other photos"
+    },
+    "photoOrigin": {
+      "SITE": "Taken on site",
+      "OFFICE": "Uploaded in the office",
+      "ATTACHMENT": "Attachments",
+      "MESSAGE": "Photos in messages",
+      "OTHER": "Other"
     }
   },
   "crm": {
@@ -8231,7 +8314,13 @@
       "permission_switches_self_lockout": "You cannot switch off your own user management.",
       "permission_switches_last_user_manager": "Somebody in the company must keep user management.",
       "receipt_line_returned": "A return names this material, so it cannot be removed.",
-      "field_place_signed_out": "This browser was signed out because you signed in on other phones or browsers. Enter your PIN to continue here."
+      "field_place_signed_out": "This browser was signed out because you signed in on other phones or browsers. Enter your PIN to continue here.",
+      "record_not_archived": "Confirm and archive it first to export, print or send it. It can be previewed now.",
+      "record_archived_locked": "This is confirmed and archived. It is locked and can no longer be changed or deleted.",
+      "record_in_use": "A formal record uses it, so it cannot be deleted: {used_by}",
+      "consultant_application_not_confirmed": "Confirm and archive the application before sending it to the consultant.",
+      "claim_letter_required": "Upload the letter first. A Progress Claim must have its letter; it goes at the front of the PDF.",
+      "report_export_not_regenerable": "This history row cannot be generated again: it already has its file, belongs to another report, or is not in your history."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8995,6 +9084,15 @@
       "queued": "The items still on this phone",
       "submissions": "What I sent",
       "queuedEntry": "This item"
+    },
+    "officeFiles": {
+      "title": "Files from the office",
+      "hint": "The Gate Pass, Return Note and files the office sent are here: tap to open or download.",
+      "empty": "The office has not sent any files yet.",
+      "fileName": "File {number}",
+      "download": "Download",
+      "loading": "Reading the files from the office…",
+      "loadFailed": "The files from the office could not be read. Please try again later."
     }
   },
   "fieldStaffWorkspace": {
@@ -9170,7 +9268,8 @@
       "region": "Hazard rectification alerts",
       "open": "Open",
       "dismiss": "Close"
-    }
+    },
+    "recordFailed": "Recording did not start. Allow this app to use the microphone, or type or take a photo instead."
   },
   "headquarters": {
     "banner": {
@@ -10599,7 +10698,14 @@
     "descriptionHint": "What this claim is for, e.g. “October manpower”.",
     "amountOptional": "Optional; it can be filled later.",
     "confirmBodyGeneral": "Once confirmed this general claim is claimed; record the payment as usual afterwards.",
-    "completeClaimFields": "Fill in the category and description (general claim) and the name for “Other” first."
+    "completeClaimFields": "Fill in the category and description (general claim) and the name for “Other” first.",
+    "letter": {
+      "title": "Letter",
+      "hint": "The claim letter. It must be uploaded before confirming, and goes at the front of the merged PDF.",
+      "add": "Upload letter",
+      "missing": "Upload the letter first.",
+      "confirmNote": "The letter goes at the front of the merged PDF."
+    }
   },
   "multiEngine": {
     "acceptItem": "Accept",
@@ -10955,7 +11061,12 @@
       "round": "Current round",
       "returned": "Returned"
     },
-    "received": "Received packages"
+    "received": "Received packages",
+    "uploads": {
+      "add": "Upload files",
+      "title": "Uploaded files",
+      "hint": "PDFs, pictures or other files from your computer. They go into the merged PDF after the records when you confirm. Once uploaded they cannot be changed or removed."
+    }
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -15251,7 +15362,7 @@
         "issues": "Gate Issues"
       },
       "tabHelp": {
-        "photos": "Lorries in and out and ordinary gate photos, one record per photo, filed at once. Search by date and time, project and photographer, and export; or switch to the photo wall.",
+        "photos": "Lorries in and out and ordinary gate photos, one row per send from the gate (its photos side by side), filed at once. Open a row for each photo's time, GPS and single PDF. Search by date and time, project and photographer, and export; or switch to the photo wall.",
         "issues": "Matters a guard raised with Talk: photos, people asked in, their conversation, status, and who confirmed it finished and when.",
         "wall": "Photo wall: photos only, newest first; scroll down for more. Press one for the large photo and its full record; use the arrow keys or swipe for the previous or next."
       },
@@ -15284,7 +15395,12 @@
       "closeNotePlaceholder": "What was done (optional)",
       "closeWho": "In progress. The people assigned, or whoever manages site access on this project, confirm it finished.",
       "closedTitle": "Completed",
-      "closedBy": "Confirmed finished by {name} on {when}"
+      "closedBy": "Confirmed finished by {name} on {when}",
+      "upload": {
+        "title": "{first} – {last} · {count} photos",
+        "range": "to {last}, {count} records",
+        "openRecord": "View"
+      }
     },
     "gatePhoto": {
       "title": "Gate",
@@ -17519,7 +17635,13 @@
     "previous": "Previous",
     "next": "Next",
     "recorder": "Recorded by",
-    "recorderUnknown": "Recorder not on file"
+    "recorderUnknown": "Recorder not on file",
+    "photoFacts": {
+      "label": "Photo",
+      "time": "Taken",
+      "gps": "GPS",
+      "reference": "Record"
+    }
   },
   "moduleTable": {
     "count": "{count} records",
@@ -17746,7 +17868,7 @@
     "suppliersFailed": "The supplier list could not be loaded.",
     "noSuppliers": "No deliveries for this choice yet.",
     "level": {
-      "photos": "Photo source",
+      "photos": "Category",
       "progress": "Construction category",
       "safety": "Hazard rectification category",
       "consultant": "Application type",
@@ -19262,7 +19384,7 @@
     "otherUnits": "Other units, not counted: {units}",
     "deliveries": "Deliveries",
     "returns": "Returns",
-    "edit": "Change",
+    "edit": "Change alert lines and note",
     "armRemove": "Arm removing this target",
     "remove": "Remove target",
     "armFirst": "Turn on the switch beside it first, then remove.",
@@ -19289,7 +19411,7 @@
       "EXCEEDED": "Over"
     },
     "addTitle": "Add a material target",
-    "editTitle": "Change a material target",
+    "editTitle": "Change alert lines and note",
     "dialogHelp": "Material and specification come from the material data, and the unit comes with the specification. No specification: the target is for the material as a whole.",
     "chooseMaterial": "Choose the material",
     "specHint": "Leave it for the material as a whole.",
@@ -19303,7 +19425,34 @@
     "save": "Save",
     "toast": {
       "saved": "Material target saved.",
-      "removed": "Material target removed."
+      "removed": "Material target removed.",
+      "appended": "Target raised."
+    },
+    "changeTarget": "Change target quantity",
+    "targetOnlyAdded": "A target can only be added to. Use “Change target quantity”.",
+    "tranche": {
+      "original": "Original target",
+      "added": "Addition {index}: +{quantity}",
+      "cumulative": "cumulative {total}"
+    },
+    "append": {
+      "title": "Change target quantity",
+      "current": "{material}: current cumulative target {total} {unit}",
+      "history": "Change history",
+      "empty": "No changes yet.",
+      "col": {
+        "when": "Date and time",
+        "name": "Name",
+        "account": "Account",
+        "before": "Previous target",
+        "added": "Added",
+        "after": "Cumulative target after"
+      },
+      "original": "Original {quantity}",
+      "amount": "Quantity to add",
+      "after": "Cumulative target after: {total} {unit}",
+      "pinNote": "Confirming asks for your own six-digit PIN. The person is recorded from the PIN’s account; the record is permanent and cannot be deleted. A target can only go up.",
+      "confirm": "Add to target"
     }
   },
   "signOff": {
@@ -19387,7 +19536,19 @@
       "equipment_hours_move": "Move equipment hours to another machine",
       "user_change_permissions": "Change a user's permission switches",
       "consultant_submit": "Send a consultant application",
-      "visitor_photo_purge": "Remove expired visitor photos"
+      "visitor_photo_purge": "Remove expired visitor photos",
+      "document_delete": "Delete an archive file not yet archived",
+      "consultant_delete": "Delete a consultant application draft",
+      "material_request_delete": "Delete a request not yet decided",
+      "schedule_delete": "Delete a draft schedule revision or task",
+      "progress_summary_delete": "Delete a progress summary not yet archived",
+      "package_delete": "Delete a draft evidence package",
+      "attachment_delete": "Delete a file on a record not yet archived",
+      "field_task_delete": "Delete a field task not yet started",
+      "material_target_append": "Add to a material target",
+      "file_print": "Print a file",
+      "file_download": "Download / export a file",
+      "file_send": "Send / share a file"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -19495,5 +19656,41 @@
     "noPending": "Nothing waiting.",
     "photos": "Latest site photos",
     "noPhotos": "No site photos yet."
+  },
+  "draftRecords": {
+    "delete": "Delete",
+    "confirmTitle": "Delete {what} for good?",
+    "confirmBody": "It is removed completely: there is no recycle bin and it cannot be recovered. Next you enter your six-digit sign-off PIN.",
+    "confirmDelete": "Delete for good",
+    "deleted": "Deleted.",
+    "notArchived": "Confirm and archive it first to export / print / send",
+    "notArchivedBadge": "Not archived yet",
+    "archivedBadge": "Archived",
+    "confirmArchive": "Confirm & archive",
+    "confirmArchiveTitle": "Confirm and archive {what}?",
+    "confirmArchiveBody": "Check it first. Once archived it is locked - no more changes, no delete - and only then can it be exported, printed and sent.",
+    "archivedBy": "Archived by {name} · {when}",
+    "archivedToast": "Archived.",
+    "draftHint": "Not archived yet: it can be changed or deleted, and only previewed. When it is checked, press Confirm & archive - then it can be exported, printed and sent.",
+    "sendNeedsArchive": "Confirm and archive it before sending it to the consultant",
+    "edit": "Edit",
+    "save": "Save",
+    "draftRevision": "A draft revision is exported once it is confirmed"
+  },
+  "fieldAlerts": {
+    "android-install": {
+      "body": "For sound and the number on the home-screen icon: open this in Chrome, tap ⋮ → \"Install app\", then open it from that icon. A browser's home-screen shortcut (the icon with a small browser logo in its corner) cannot show the number."
+    },
+    "ios-update": {
+      "body": "This iPhone's system is too old for notifications and the icon's number. Update to iOS 16.4 or later."
+    },
+    "turn-on": {
+      "body": "Turn on notifications so new messages ring while the phone waits, and the app icon shows the number.",
+      "action": "Turn on"
+    },
+    "denied": {
+      "body": "Notifications are off, so new messages will not ring. Allow them for this app in the phone's Settings → Notifications."
+    },
+    "dismiss": "Got it"
   }
 }

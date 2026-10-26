@@ -1,5 +1,6 @@
 import type {
   MaterialTarget,
+  MaterialTargetChange,
   MaterialTargetList,
   MaterialTargetPayload,
 } from "@/interfaces/material-target";
@@ -18,9 +19,10 @@ export async function createMaterialTarget(payload: MaterialTargetPayload) {
   return row;
 }
 
+/** The lines and the note; the figure is only raised, by `appendMaterialTarget` (JB26). */
 export async function updateMaterialTarget(
   id: string,
-  payload: Partial<Pick<MaterialTargetPayload, "target_quantity" | "alert_percentages" | "note">>,
+  payload: Partial<Pick<MaterialTargetPayload, "alert_percentages" | "note">>,
 ) {
   const row = await api.post<MaterialTarget>(`/api/material-targets/${id}/update_target/`, payload);
   toastSuccess("materialTargets.toast.saved");
@@ -31,3 +33,14 @@ export async function deleteMaterialTarget(id: string) {
   await api.delete(`/api/material-targets/${id}/delete_target/`);
   toastSuccess("materialTargets.toast.removed");
 }
+
+/** 「+200 Ton」 (JB26). Signed with the user's own PIN; the PIN dialog opens by itself. */
+export async function appendMaterialTarget(id: string, quantity: string) {
+  const row = await api.post<MaterialTarget>(`/api/material-targets/${id}/append_target/`, { quantity });
+  toastSuccess("materialTargets.toast.appended");
+  return row;
+}
+
+/** 修改目标数量's history, oldest first (JB26). */
+export const getMaterialTargetHistory = (id: string) =>
+  api.get<{ results: MaterialTargetChange[] }>(`/api/material-targets/${id}/get_history/`);

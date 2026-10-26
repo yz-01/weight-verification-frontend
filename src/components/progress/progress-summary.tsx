@@ -25,6 +25,7 @@ import {
   Plus,
   Save,
   Trash2,
+  Archive,
   Type,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -49,6 +50,8 @@ import {
   ProgressPhotoPicker,
   usePhotoViewer,
 } from "@/components/progress/progress-photos";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
@@ -91,6 +94,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   createProgressSummary,
+  archiveProgressSummary,
   deleteProgressSummary,
   getProgressSummaries,
   progressSummaryPdfFile,
@@ -124,6 +128,19 @@ export function ProgressSummaryTab() {
   const shown = rows.find((row) => row.id === chosenId) ?? rows[0] ?? null;
   const [editing, setEditing] = useState<ProgressSummary | "new" | null>(null);
   const canWrite = can("progress.confirm");
+  // JB25 (客户 10-26 事项 1, Lucas: 「工程进度计划」 is this page).
+  const draft = useTranslations("draftRecords");
+  const notArchived = useNotArchivedReason();
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [archiving, setArchiving] = useState<ProgressSummary | null>(null);
+  const archive = useMutation({
+    mutationFn: (id: string) => archiveProgressSummary(id),
+    onSuccess: () => {
+      setArchiving(null);
+      void qc.invalidateQueries({ queryKey: ["progress-summaries"] });
+    },
+  });
   const choose = (id: string) => {
     const next = new URLSearchParams(params.toString());
     next.set("summary", id);
@@ -146,6 +163,17 @@ export function ProgressSummaryTab() {
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog
+        open={Boolean(archiving)}
+        onOpenChange={(open) => !open && setArchiving(null)}
+        title={draft("confirmArchiveTitle", { what: archiving?.title ?? "" })}
+        description={draft("confirmArchiveBody")}
+        confirmLabel={draft("confirmArchive")}
+        confirmIcon={Archive}
+        variant="default"
+        isPending={archive.isPending}
+        onConfirm={() => archiving && archive.mutate(archiving.id)}
+      />
       <FilterBar>
         <ProjectListFilter list={list} />
         {canWrite && (
@@ -199,21 +227,42 @@ export function ProgressSummaryTab() {
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {/* 预览 · 打印 · 导出 · 发送: the summary, its blocks in order (H16). */}
+                  {/* 预览 · 打印 · 导出 · 发送: the summary, its blocks in order (H16).
+                      JB25: before 确认归档, preview only. */}
                   <FileActionButtons
+                    blockedReason={shown.archived_at ? undefined : notArchived}
                     source={{
                       load: () => progressSummaryPdfFile(shown.id, locale, shown.title),
                       title: shown.title,
                     }}
                   />
-                  {canWrite && (
-                    <Button variant="outline" onClick={() => setEditing(shown)}>
-                      <Pencil />
-                      {t("edit")}
-                    </Button>
+                  {canWrite && !shown.archived_at && !user?.is_field_staff && (
+                    <>
+                      <Button variant="outline" onClick={() => setEditing(shown)}>
+                        <Pencil />
+                        {t("edit")}
+                      </Button>
+                      <DeleteRecordButton
+                        what={shown.title}
+                        onDelete={() => deleteProgressSummary(shown.id)}
+                        onDeleted={() => void qc.invalidateQueries({ queryKey: ["progress-summaries"] })}
+                      />
+                      <Button onClick={() => setArchiving(shown)} data-slot="confirm-archive">
+                        <Archive />
+                        {draft("confirmArchive")}
+                      </Button>
+                    </>
                   )}
                 </div>
               </header>
+              <p className="text-xs text-muted-foreground" data-slot="archive-state">
+                {shown.archived_at
+                  ? draft("archivedBy", {
+                      name: shown.archived_by_name ?? "—",
+                      when: df.dateTime(shown.archived_at),
+                    })
+                  : draft("draftHint")}
+              </p>
               <SummaryBlocksView summary={shown} />
             </article>
           )}

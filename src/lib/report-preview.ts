@@ -5,7 +5,7 @@ import type {
 } from "@/interfaces/contractor-report";
 import { attendanceRecordHref } from "@/lib/dashboard-cards";
 import { recordTarget, type RecordTarget } from "@/lib/record-routes";
-import { photoSourceModuleKey } from "@/lib/report-menu";
+import { PHOTO_CATEGORIES, PHOTO_ORIGINS, photoCategoryKey, photoOriginKey } from "@/lib/report-menu";
 
 /**
  * 报表中心 → 报表预览 (2026-10-09). Lucas: 「所有的报表预览，每一项如果有照片
@@ -159,34 +159,15 @@ const RECORD_TYPE_KEYS: Record<string, string> = {
   RECYCLE_ORDER: "wasteClearance.kind.dispatch",
 };
 
-/** The record kinds a site photograph belongs to, as the head office names them. */
-const PHOTO_RECORD_KINDS: ReadonlySet<string> = new Set([
-  "DELIVERY_NOTE",
-  "DISPOSAL",
-  "EQUIPMENT",
-  "EQUIPMENT_MOVEMENT",
-  "FIELD_TASK",
-  "GATE_INCIDENT",
-  "MATERIAL_OUTGOING",
-  "MATERIAL_RECEIPT",
-  "SAFETY_INCIDENT",
-  "SITE_PROGRESS",
-  "WASTE_DISPATCH",
-  "WASTE_OUTGOING",
-]);
-
 /**
  * The message key for a cell that holds a code, or `null` for a cell that is
  * already the reader's text (a name, a number, a date).
- *
- * `record` is the row's entry in `records`, for the photo report's 来源记录.
  */
 export function reportValueKey(
   reportType: ContractorReportType,
   column: string,
   value: string | number | boolean | null,
   row: ReportRow,
-  record?: ContractorReportRecord | null,
 ): string | null {
   if (typeof value === "boolean") {
     return value ? "contractorReports.value.yes" : "contractorReports.value.no";
@@ -194,14 +175,13 @@ export function reportValueKey(
   if (value === null || value === "") return null;
   const code = String(value);
   if (reportType === "photos") {
-    // The server names a photograph's source by its table
-    // (`receiving.receiptphoto`); the reader knows the module.
-    const owner = photoSourceModuleKey(String(row.source ?? ""));
-    if (column === "category") return owner ?? null;
-    if (column === "source") {
-      return record?.kind && PHOTO_RECORD_KINDS.has(record.kind)
-        ? `headquarters.recordKind.${record.kind}`
-        : (owner ?? null);
+    // 业务分类 and 照片来源 (JB29): a code is worded here; the server's rows
+    // already carry the reader's words, which are shown as they are.
+    if (column === "category") {
+      return (PHOTO_CATEGORIES as readonly string[]).includes(code) ? photoCategoryKey(code) : null;
+    }
+    if (column === "origin") {
+      return (PHOTO_ORIGINS as readonly string[]).includes(code) ? photoOriginKey(code) : null;
     }
     return null;
   }

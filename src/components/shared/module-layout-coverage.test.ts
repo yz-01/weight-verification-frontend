@@ -21,8 +21,9 @@ describe("the detail shell does what the customer asked (T-368)", () => {
   const shell = read(SHELL);
 
   it("keeps photographs small - 「照片需要很小很小」", () => {
-    expect(shell).toMatch(/size-20/);
-    expect(shell).toMatch(/sizes="80px"/);
+    // 96 px wide, landscape 4:3 since JB34 (客户 10-26 事项 10, 图 8).
+    expect(shell).toMatch(/aspect-4\/3 w-24/);
+    expect(shell).toMatch(/sizes="96px"/);
   });
 
   it("zooms in and out once a photograph is opened", () => {

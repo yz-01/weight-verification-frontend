@@ -125,7 +125,14 @@ export async function updateProgressSummary(
 
 export async function deleteProgressSummary(id: string) {
   await api.delete(`/api/progress-summaries/${id}/delete_summary/`);
-  toastSuccess("contractorOps.toast.removed");
+  toastSuccess("draftRecords.deleted");
+}
+
+/** JB25: 【确认归档】 - locked from now on, and only then printed and sent. */
+export async function archiveProgressSummary(id: string) {
+  const row = await api.post<ProgressSummary>(`/api/progress-summaries/${id}/archive_summary/`, {});
+  toastSuccess("draftRecords.archivedToast");
+  return row;
 }
 
 /** The summary as a PDF, its blocks in order (H16): 预览 · 打印 · 导出 · 发送. */

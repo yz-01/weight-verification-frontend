@@ -694,6 +694,12 @@ export function DailyReportView({
             source={{
               load: () => dailyReportPdfFile(report.id, locale, report.name),
               title: report.name,
+              // A preview is inline and unsigned; 打印 · 导出 · 发送 from it
+              // fetch again with the PIN's grant, so the report is signed
+              // for the export and its log row names it (JB27 review #4).
+              exportedOnServer: true,
+              recordKind: "DAILY_REPORT",
+              recordId: report.id,
             }}
           />
         </div>

@@ -59,7 +59,8 @@ const SHARED_TABLE_LISTS: Record<string, { pinned: boolean }> = {
   "src/components/contractor-ops/waste-clearance.tsx": { pinned: true },
   "src/components/contractor-ops/claim-engine.tsx": { pinned: true },
   "src/components/contractor-ops/archive-queue.tsx": { pinned: true },
-  "src/components/contractor-ops/contractor-report-workspace.tsx": { pinned: true },
+  // 报表导出历史 moved to its own file (JB27).
+  "src/components/contractor-ops/contractor-report-history.tsx": { pinned: true },
   "src/components/site-operations/presence-summary.tsx": { pinned: false },
 };
 

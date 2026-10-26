@@ -6507,7 +6507,14 @@
         "returnReason": "Sebab dikembalikan",
         "return": "Kembalikan permohonan",
         "failed": "Itu tidak disimpan. Sila cuba lagi."
-      }
+      },
+      "machineNumber": "No. peralatan",
+      "machineNumberHint": "Taip nombor pada mesin, atau nombor plat atau nombor sistemnya; atau imbas kod QR padanya.",
+      "findMachine": "Cari",
+      "numberUnknown": "Tiada mesin dengan nombor “{number}” ditemui. Sila semak nombor itu.",
+      "numberUnknownOffline": "Tiada isyarat, dan telefon ini tiada mesin dengan nombor “{number}”. Cuba lagi apabila ada isyarat, atau imbas kod QR pada mesin.",
+      "changeMachine": "Tukar",
+      "confirmMachine": "Semak nama dan nombor plat ialah mesin ini sebelum meneruskan."
     },
     "equipmentQr": {
       "column": "QR",
@@ -6689,7 +6696,8 @@
       "payment_state": "Bayaran",
       "item_count": "Item",
       "submit_to": "Dihantar kepada",
-      "applicant": "Pemohon"
+      "applicant": "Pemohon",
+      "origin": "Sumber foto"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -6728,7 +6736,7 @@
         "recycling": "Rujukan, plat, DO atau syarikat",
         "schedule": "Kod WBS atau nama tugasan",
         "target": "Nama sasaran",
-        "photos": "Nama fail, sumber atau pemuat naik",
+        "photos": "Nama fail, projek atau pemuat naik",
         "documents": "No. dokumen, tajuk atau kata kunci",
         "daily_report": "Nama laporan, teks atau penulis",
         "progress_summary": "Tajuk atau penulis",
@@ -6753,7 +6761,55 @@
       "report": "Laporan",
       "rows": "Baris",
       "subtitle": "Arkib laporan ibu pejabat anda: setiap laporan menyimpan fail yang dijana pada masa itu. Klik nama fail atau Lihat untuk pratonton, cetak, muat turun semula atau hantar - ia tidak dijana semula daripada data hari ini.",
-      "title": "Sejarah eksport laporan"
+      "title": "Sejarah eksport laporan",
+      "tabReports": "Laporan",
+      "tabLog": "Log operasi",
+      "filter": {
+        "date": "Tarikh",
+        "operator": "Pengendali",
+        "operatorHint": "Nama atau akaun",
+        "action": "Jenis tindakan",
+        "anyAction": "Semua tindakan",
+        "name": "Nama laporan / fail",
+        "nameHint": "Nama laporan atau fail",
+        "clear": "Kosongkan penapis"
+      },
+      "action": {
+        "PRINT": "Cetak",
+        "DOWNLOAD": "Muat turun / eksport",
+        "SEND": "Hantar / kongsi"
+      },
+      "channel": {
+        "share_sheet": "Kongsi sistem",
+        "whatsapp": "WhatsApp",
+        "email": "E-mel",
+        "link": "Pautan disalin",
+        "download": "Dimuat turun untuk dilampirkan"
+      },
+      "logHint": "Setiap cetakan, muat turun dan penghantaran di pejabat, setiap kali disahkan dengan PIN enam digit sendiri. Pratonton tidak direkodkan.",
+      "actionFilterHint": "Tarikh dan pengendali: bila dan oleh siapa laporan dijana. Dengan tindakan dipilih: laporan yang dicetak, dimuat turun atau dihantar, dan oleh siapa.",
+      "noMatch": "Tiada laporan sepadan dengan penapis ini.",
+      "regeneratedNote": "Dijana semula mengikut syarat {when}, dengan data semasa.",
+      "regeneratedOnFile": "Dijana semula mengikut syarat {when}; kandungan ialah data semasa",
+      "cannotRegenerate": "Eksport semula dari papan pemuka tapak.",
+      "regenerate": "Jana semula mengikut syarat asal",
+      "regenerateHint": "Laporan, projek, tempoh dan penapis yang sama; kandungan ialah data hari ini. Satu baris baharu ditambah; baris ini kekal.",
+      "regenerated": "Telah dijana semula. Ia baris baharu di atas senarai.",
+      "regenerateFailed": "Tidak dapat menjana semula. Cuba sekali lagi.",
+      "rowActions": "Tindakan ({count})",
+      "rowActionsTitle": "Cetakan, muat turun dan penghantaran laporan ini",
+      "logEmpty": "Tiada cetakan, muat turun atau penghantaran direkodkan.",
+      "log": {
+        "at": "Tarikh dan masa",
+        "operator": "Pengendali",
+        "action": "Tindakan",
+        "subject": "Perkara / laporan / fail",
+        "openReport": "Buka laporan",
+        "openRecord": "Buka rekod"
+      },
+      "count": "{count} kesemuanya · halaman {page} daripada {pages}",
+      "regenerating": "Sedang dijana semula…",
+      "alreadyRegenerated": "Sudah dijana semula mengikut syarat ini: buka baris baharu dengan laporan dan tempoh yang sama."
     },
     "loadError": "Laporan tidak dapat dimuatkan.",
     "period": "Tempoh: {from} hingga {to}",
@@ -6834,6 +6890,33 @@
         "photo_count": "Foto",
         "has_gps": "GPS"
       }
+    },
+    "photoCategory": {
+      "MATERIAL_RECEIPT": "Bahan masuk",
+      "MATERIAL_OUTGOING": "Bahan keluar",
+      "MATERIAL_REQUEST": "MR / permohonan lain",
+      "EQUIPMENT": "Peralatan masuk / keluar",
+      "PROGRESS": "Kemajuan kerja",
+      "SAFETY": "Pembetulan / EHS",
+      "WASTE": "Pembersihan sisa",
+      "ATTENDANCE": "Kehadiran",
+      "GATE": "Pintu pagar / pelawat",
+      "FIELD_TASK": "Tugasan tapak",
+      "CONSULTANT": "Permohonan perunding",
+      "SUNDRY_CLAIM": "Tuntutan pelbagai",
+      "CLAIM": "Tuntutan kemajuan",
+      "PACKAGE": "Pakej Multi Engine",
+      "APPROVAL": "Kelulusan",
+      "WEIGHING": "Penimbangan",
+      "HAULAGE": "Tugasan pengangkutan",
+      "OTHER": "Foto lain"
+    },
+    "photoOrigin": {
+      "SITE": "Diambil di tapak",
+      "OFFICE": "Dimuat naik di pejabat",
+      "ATTACHMENT": "Lampiran",
+      "MESSAGE": "Foto dalam mesej",
+      "OTHER": "Lain-lain"
     }
   },
   "crm": {
@@ -8231,7 +8314,13 @@
       "permission_switches_self_lockout": "Anda tidak boleh mematikan pengurusan pengguna anda sendiri.",
       "permission_switches_last_user_manager": "Seseorang dalam syarikat mesti mengekalkan pengurusan pengguna.",
       "receipt_line_returned": "Ada pemulangan untuk bahan ini, jadi ia tidak boleh dibuang.",
-      "field_place_signed_out": "Pelayar ini telah dilog keluar kerana anda log masuk di telefon atau pelayar lain. Masukkan PIN untuk teruskan di sini."
+      "field_place_signed_out": "Pelayar ini telah dilog keluar kerana anda log masuk di telefon atau pelayar lain. Masukkan PIN untuk teruskan di sini.",
+      "record_not_archived": "Sahkan dan arkibkan dahulu untuk mengeksport, mencetak atau menghantarnya. Ia boleh dipratonton sekarang.",
+      "record_archived_locked": "Ini telah disahkan dan diarkibkan. Ia dikunci dan tidak boleh diubah atau dipadam lagi.",
+      "record_in_use": "Rekod rasmi menggunakannya, jadi ia tidak boleh dipadam: {used_by}",
+      "consultant_application_not_confirmed": "Sahkan dan arkibkan permohonan sebelum menghantarnya kepada perunding.",
+      "claim_letter_required": "Muat naik surat dahulu. Progress Claim mesti ada surat; ia diletakkan di hadapan PDF.",
+      "report_export_not_regenerable": "Baris sejarah ini tidak boleh dijana semula: ia sudah ada failnya, milik laporan lain, atau tiada dalam sejarah anda."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8995,6 +9084,15 @@
       "queued": "Item yang masih dalam telefon ini",
       "submissions": "Apa yang saya hantar",
       "queuedEntry": "Item ini"
+    },
+    "officeFiles": {
+      "title": "Fail dari pejabat",
+      "hint": "Gate Pass, Return Note dan fail yang dihantar pejabat ada di sini: ketik untuk buka atau muat turun.",
+      "empty": "Pejabat belum menghantar sebarang fail.",
+      "fileName": "Fail {number}",
+      "download": "Muat turun",
+      "loading": "Membaca fail dari pejabat…",
+      "loadFailed": "Fail dari pejabat tidak dapat dibaca. Sila cuba lagi nanti."
     }
   },
   "fieldStaffWorkspace": {
@@ -9170,7 +9268,8 @@
       "region": "Makluman pembetulan bahaya",
       "open": "Buka",
       "dismiss": "Tutup"
-    }
+    },
+    "recordFailed": "Rakaman tidak bermula. Benarkan aplikasi ini menggunakan mikrofon, atau taip atau ambil gambar."
   },
   "headquarters": {
     "banner": {
@@ -10599,7 +10698,14 @@
     "descriptionHint": "Untuk apa tuntutan ini, cth. “Tenaga kerja Oktober”.",
     "amountOptional": "Pilihan; boleh diisi kemudian.",
     "confirmBodyGeneral": "Selepas disahkan tuntutan am ini dikira dituntut; rekod bayaran seperti biasa.",
-    "completeClaimFields": "Isi kategori dan keterangan (tuntutan am) serta nama untuk “Lain-lain” dahulu."
+    "completeClaimFields": "Isi kategori dan keterangan (tuntutan am) serta nama untuk “Lain-lain” dahulu.",
+    "letter": {
+      "title": "Surat",
+      "hint": "Surat tuntutan ini. Mesti dimuat naik sebelum pengesahan, dan diletakkan di hadapan PDF gabungan.",
+      "add": "Muat naik surat",
+      "missing": "Muat naik surat dahulu.",
+      "confirmNote": "Surat diletakkan di hadapan PDF gabungan."
+    }
   },
   "multiEngine": {
     "acceptItem": "Terima",
@@ -10955,7 +11061,12 @@
       "round": "Pusingan semasa",
       "returned": "Dipulangkan"
     },
-    "received": "Pakej diterima"
+    "received": "Pakej diterima",
+    "uploads": {
+      "add": "Muat naik fail",
+      "title": "Fail dimuat naik",
+      "hint": "PDF, gambar atau fail lain dari komputer. Ia dimasukkan ke dalam PDF gabungan selepas rekod apabila disahkan. Selepas dimuat naik, ia tidak boleh diubah atau dibuang."
+    }
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",
@@ -15251,7 +15362,7 @@
         "issues": "Isu Pintu"
       },
       "tabHelp": {
-        "photos": "Lori masuk dan keluar serta foto pintu biasa, satu rekod setiap foto, terus difailkan. Cari mengikut tarikh dan masa, projek dan jurugambar, dan eksport; atau tukar ke dinding foto.",
+        "photos": "Lori masuk dan keluar serta foto pintu biasa, satu baris setiap kali pengawal menghantar (fotonya sebaris), terus difailkan. Buka baris untuk masa, GPS dan PDF tunggal setiap foto. Cari mengikut tarikh dan masa, projek dan jurugambar, dan eksport; atau tukar ke dinding foto.",
         "issues": "Perkara yang dibangkitkan pengawal dengan Bincang: foto, orang yang ditugaskan, perbualan, status, dan siapa yang mengesahkan selesai dan bila.",
         "wall": "Dinding foto: foto sahaja, terbaru dahulu; tatal ke bawah untuk lagi. Tekan satu untuk foto besar dan rekod penuhnya; guna kekunci anak panah atau leret untuk sebelum atau seterusnya."
       },
@@ -15284,7 +15395,12 @@
       "closeNotePlaceholder": "Apa yang dilakukan (pilihan)",
       "closeWho": "Dalam tindakan. Orang yang ditugaskan, atau yang mengurus akses tapak projek ini, mengesahkan ia selesai.",
       "closedTitle": "Selesai",
-      "closedBy": "Disahkan selesai oleh {name} pada {when}"
+      "closedBy": "Disahkan selesai oleh {name} pada {when}",
+      "upload": {
+        "title": "{first} – {last} · {count} foto",
+        "range": "hingga {last}, {count} rekod",
+        "openRecord": "Lihat"
+      }
     },
     "gatePhoto": {
       "title": "Pintu",
@@ -17519,7 +17635,13 @@
     "previous": "Sebelumnya",
     "next": "Seterusnya",
     "recorder": "Direkod oleh",
-    "recorderUnknown": "Perekod tiada dalam rekod"
+    "recorderUnknown": "Perekod tiada dalam rekod",
+    "photoFacts": {
+      "label": "Foto",
+      "time": "Diambil",
+      "gps": "GPS",
+      "reference": "Rekod"
+    }
   },
   "moduleTable": {
     "count": "{count} rekod",
@@ -17746,7 +17868,7 @@
     "suppliersFailed": "Senarai pembekal tidak dapat dimuatkan.",
     "noSuppliers": "Belum ada penghantaran untuk pilihan ini.",
     "level": {
-      "photos": "Sumber foto",
+      "photos": "Kategori",
       "progress": "Kategori pembinaan",
       "safety": "Kategori pembetulan bahaya",
       "consultant": "Jenis permohonan",
@@ -19262,7 +19384,7 @@
     "otherUnits": "Unit lain, tidak dikira: {units}",
     "deliveries": "Penghantaran",
     "returns": "Pemulangan",
-    "edit": "Ubah",
+    "edit": "Ubah garis amaran dan catatan",
     "armRemove": "Sedia untuk buang sasaran ini",
     "remove": "Buang sasaran",
     "armFirst": "Hidupkan suis di sebelahnya dahulu, kemudian buang.",
@@ -19289,7 +19411,7 @@
       "EXCEEDED": "Melebihi"
     },
     "addTitle": "Tambah sasaran bahan",
-    "editTitle": "Ubah sasaran bahan",
+    "editTitle": "Ubah garis amaran dan catatan",
     "dialogHelp": "Bahan dan spesifikasi dari data bahan, dan unit datang bersama spesifikasi. Tanpa spesifikasi: sasaran untuk keseluruhan bahan.",
     "chooseMaterial": "Pilih bahan",
     "specHint": "Biarkan untuk keseluruhan bahan.",
@@ -19303,7 +19425,34 @@
     "save": "Simpan",
     "toast": {
       "saved": "Sasaran bahan disimpan.",
-      "removed": "Sasaran bahan dibuang."
+      "removed": "Sasaran bahan dibuang.",
+      "appended": "Sasaran dinaikkan."
+    },
+    "changeTarget": "Ubah kuantiti sasaran",
+    "targetOnlyAdded": "Sasaran hanya boleh ditambah. Guna “Ubah kuantiti sasaran”.",
+    "tranche": {
+      "original": "Sasaran asal",
+      "added": "Tambahan {index}: +{quantity}",
+      "cumulative": "kumulatif {total}"
+    },
+    "append": {
+      "title": "Ubah kuantiti sasaran",
+      "current": "{material}: sasaran kumulatif semasa {total} {unit}",
+      "history": "Sejarah perubahan",
+      "empty": "Belum ada perubahan.",
+      "col": {
+        "when": "Tarikh dan masa",
+        "name": "Nama",
+        "account": "Akaun",
+        "before": "Sasaran sebelum",
+        "added": "Ditambah",
+        "after": "Sasaran kumulatif selepas"
+      },
+      "original": "Asal {quantity}",
+      "amount": "Kuantiti untuk ditambah",
+      "after": "Sasaran kumulatif selepas: {total} {unit}",
+      "pinNote": "Pengesahan memerlukan PIN enam digit anda sendiri. Orang yang membuat perubahan direkod daripada akaun PIN; rekod kekal dan tidak boleh dipadam. Sasaran hanya boleh naik.",
+      "confirm": "Tambah sasaran"
     }
   },
   "signOff": {
@@ -19387,7 +19536,19 @@
       "equipment_hours_move": "Pindahkan jam peralatan ke mesin lain",
       "user_change_permissions": "Tukar suis kebenaran pengguna",
       "consultant_submit": "Hantar permohonan perunding",
-      "visitor_photo_purge": "Buang foto pelawat tamat tempoh"
+      "visitor_photo_purge": "Buang foto pelawat tamat tempoh",
+      "document_delete": "Padam fail arkib yang belum diarkibkan",
+      "consultant_delete": "Padam draf permohonan perunding",
+      "material_request_delete": "Padam permohonan yang belum diputuskan",
+      "schedule_delete": "Padam semakan atau tugas jadual draf",
+      "progress_summary_delete": "Padam ringkasan kemajuan yang belum diarkibkan",
+      "package_delete": "Padam pakej bukti draf",
+      "attachment_delete": "Padam fail pada rekod yang belum diarkibkan",
+      "field_task_delete": "Padam tugas tapak yang belum dimulakan",
+      "material_target_append": "Tambah sasaran bahan",
+      "file_print": "Cetak fail",
+      "file_download": "Muat turun / eksport fail",
+      "file_send": "Hantar / kongsi fail"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -19495,5 +19656,41 @@
     "noPending": "Tiada yang menunggu.",
     "photos": "Foto tapak terkini",
     "noPhotos": "Belum ada foto tapak."
+  },
+  "draftRecords": {
+    "delete": "Padam",
+    "confirmTitle": "Padam {what} selama-lamanya?",
+    "confirmBody": "Ia dibuang sepenuhnya: tiada tong kitar semula dan tidak boleh dipulihkan. Seterusnya masukkan PIN pengesahan enam digit anda.",
+    "confirmDelete": "Padam selama-lamanya",
+    "deleted": "Dipadam.",
+    "notArchived": "Sahkan dan arkibkan dahulu untuk eksport / cetak / hantar",
+    "notArchivedBadge": "Belum diarkibkan",
+    "archivedBadge": "Diarkibkan",
+    "confirmArchive": "Sahkan & arkib",
+    "confirmArchiveTitle": "Sahkan dan arkibkan {what}?",
+    "confirmArchiveBody": "Semak dahulu. Selepas diarkibkan ia dikunci - tiada perubahan, tiada padam - dan barulah boleh dieksport, dicetak dan dihantar.",
+    "archivedBy": "Diarkibkan oleh {name} · {when}",
+    "archivedToast": "Diarkibkan.",
+    "draftHint": "Belum diarkibkan: boleh diubah atau dipadam, dan hanya dipratonton. Selepas disemak, tekan Sahkan & arkib - barulah boleh dieksport, dicetak dan dihantar.",
+    "sendNeedsArchive": "Sahkan dan arkibkan sebelum menghantar kepada perunding",
+    "edit": "Ubah",
+    "save": "Simpan",
+    "draftRevision": "Semakan draf dieksport selepas disahkan"
+  },
+  "fieldAlerts": {
+    "android-install": {
+      "body": "Untuk bunyi dan nombor pada ikon skrin utama: buka di Chrome, tekan ⋮ → \"Pasang aplikasi\", kemudian buka dari ikon itu. Pintasan pelayar di skrin utama (ikon dengan logo pelayar kecil di penjuru) tidak boleh menunjukkan nombor."
+    },
+    "ios-update": {
+      "body": "Sistem iPhone ini terlalu lama untuk pemberitahuan dan nombor ikon. Kemas kini ke iOS 16.4 atau lebih baharu."
+    },
+    "turn-on": {
+      "body": "Hidupkan pemberitahuan supaya mesej baharu berbunyi semasa telefon menunggu, dan ikon aplikasi menunjukkan nombor.",
+      "action": "Hidupkan"
+    },
+    "denied": {
+      "body": "Pemberitahuan dimatikan, jadi mesej baharu tidak akan berbunyi. Benarkan untuk aplikasi ini di Tetapan → Pemberitahuan telefon."
+    },
+    "dismiss": "Faham"
   }
 }

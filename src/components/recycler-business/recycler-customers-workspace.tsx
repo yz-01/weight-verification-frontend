@@ -78,6 +78,9 @@ import {
   updateRecyclerCustomer,
 } from "@/services/recycler-business.service";
 import { getSites, getWeighSessions } from "@/services/weighing.service";
+import { printPage } from "@/lib/file-actions";
+import { escapePrintHtml } from "@/lib/print-letterhead";
+import { signFileAction } from "@/services/file-action.service";
 
 export function RecyclerCustomersWorkspace() {
   const t = useTranslations("recyclerBusiness");
@@ -390,9 +393,11 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
   const reissue = useMutation({ mutationFn: () => reissueCustomerQr(customer.id, reason), onSuccess: () => { setReason(""); refresh(); } });
   const status = useMutation({ mutationFn: (next: "ACTIVE" | "DISABLED") => setCustomerQrStatus(customer.id, next), onSuccess: refresh });
 
-  function downloadQr() {
+  async function downloadQr() {
     const svg = document.getElementById(`customer-qr-${customer.id}`);
     if (!svg) return;
+    // 下载 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${customer.customer_no} ${customer.company_name}`, file_name: `${customer.customer_no}-qr.svg`, link: window.location.pathname }))) return;
     const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
@@ -402,12 +407,15 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
     URL.revokeObjectURL(url);
   }
 
-  function printQr() {
+  async function printQr() {
     const svg = document.getElementById(`customer-qr-${customer.id}`);
-    const popup = window.open("", "_blank", "width=640,height=720");
-    if (!svg || !popup) return;
-    popup.document.write(`<html><head><title>${customer.customer_no}</title></head><body style="font-family:Arial;text-align:center;padding:40px"><h1>${customer.company_name}</h1><p>${customer.customer_no}</p>${svg.outerHTML}<script>window.onload=()=>window.print()</script></body></html>`);
-    popup.document.close();
+    if (!svg) return;
+    // 打印 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("PRINT", { subject: `QR ${customer.customer_no} ${customer.company_name}`, link: window.location.pathname }))) return;
+    printPage(
+      `<html><head><title>${escapePrintHtml(customer.customer_no)}</title></head><body style="font-family:Arial;text-align:center;padding:40px"><h1>${escapePrintHtml(customer.company_name)}</h1><p>${escapePrintHtml(customer.customer_no)}</p>${svg.outerHTML}<script>window.onload=()=>window.print()</script></body></html>`,
+      "width=640,height=720",
+    );
   }
 
   const value = qr.data;
@@ -434,8 +442,8 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
               <div><p className="text-xs text-muted-foreground">{t("field.issuedOn")}</p><p className="font-medium tabular-nums">{value.issued_on}</p></div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={downloadQr}><Download />{t("action.download")}</Button>
-              <Button variant="outline" onClick={printQr}><Printer />{t("action.print")}</Button>
+              <Button variant="outline" onClick={() => void downloadQr()}><Download />{t("action.download")}</Button>
+              <Button variant="outline" onClick={() => void printQr()}><Printer />{t("action.print")}</Button>
               <Button variant="outline" onClick={() => status.mutate(value.status === "ACTIVE" ? "DISABLED" : "ACTIVE")}>
                 <Power />{t(value.status === "ACTIVE" ? "action.disableQr" : "action.enableQr")}
               </Button>
