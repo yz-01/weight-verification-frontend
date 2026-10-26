@@ -386,6 +386,10 @@ export interface ConsultantApplication extends RecordedBy {
   final_report_sha256: string;
   verification_code: string;
   is_locked: boolean;
+  /** JB25: the draft's 【确认归档】 - set, it may be sent, printed and exported. */
+  is_confirmed?: boolean;
+  confirmed_at?: string | null;
+  confirmed_by_name?: string | null;
   /**
    * B, the consultant's own form (2026-10-10): the blank version chosen, or
    * null for the form MSE Trace draws (A, the default).
