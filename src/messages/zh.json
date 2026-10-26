@@ -6507,7 +6507,14 @@
         "returnReason": "退回原因",
         "return": "退回申请",
         "failed": "没有保存成功，请再试一次。"
-      }
+      },
+      "machineNumber": "设备号码",
+      "machineNumberHint": "填设备上的号码，也可以填车牌或系统编号；或者扫设备上的二维码。",
+      "findMachine": "查找",
+      "numberUnknown": "找不到号码「{number}」的设备，请再看一次号码。",
+      "numberUnknownOffline": "没有网络，这台手机里找不到号码「{number}」的设备。有网络时再试，或扫设备上的二维码。",
+      "changeMachine": "换一台",
+      "confirmMachine": "请核对名称和车牌，是这台设备再继续。"
     },
     "equipmentQr": {
       "column": "二维码",
@@ -8995,6 +9002,15 @@
       "queued": "还在这台手机上的资料",
       "submissions": "我提交过的",
       "queuedEntry": "这条资料"
+    },
+    "officeFiles": {
+      "title": "后台发来的文件",
+      "hint": "后台发来的 Gate Pass、Return Note 和文件都在这里，点开看或下载。",
+      "empty": "后台还没有发文件过来。",
+      "fileName": "文件 {number}",
+      "download": "下载",
+      "loading": "正在读取后台发来的文件…",
+      "loadFailed": "后台发来的文件读取失败，请稍后再试。"
     }
   },
   "fieldStaffWorkspace": {

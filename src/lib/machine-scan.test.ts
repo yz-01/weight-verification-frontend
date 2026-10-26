@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   equipmentScanLink,
+  findTyped,
   matchScanned,
   registerScanKeys,
   scanCandidates,
@@ -63,5 +64,27 @@ describe("reading a machine's QR code", () => {
     expect(squashCode(" wxy-12 34 ")).toBe("WXY1234");
     expect(squashCode("挖机 1")).toBe("挖机1");
     expect(squashCode(null)).toBe("");
+  });
+});
+
+/**
+ * 「设备号码」 typed on 退场 (JB32, 客户 10-26 事项 8: 「设备下拉搜索挑选的改去填写
+ * 设备号码」): the number, plate or system number, read like a sticker.
+ */
+describe("a number typed on 退场", () => {
+  const onSite = [register[0]];
+
+  it("takes a machine on site by its number, plate or system number", () => {
+    for (const typed of ["12", "wxy1234", "WXY-1234", "EQ-OPS-261015-001", "sn 77"]) {
+      expect(findTyped(typed, register, onSite, registerScanKeys)).toEqual({ kind: "chosen", machine: register[0] });
+    }
+  });
+
+  it("names a machine of this project that is not on site", () => {
+    expect(findTyped("挖机3", register, onSite, registerScanKeys)).toEqual({ kind: "notOffered", machine: register[1] });
+  });
+
+  it("asks the server about a number this phone does not know", () => {
+    expect(findTyped("ZZZ 9", register, onSite, registerScanKeys)).toEqual({ kind: "ask" });
   });
 });

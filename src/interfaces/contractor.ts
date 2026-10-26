@@ -613,6 +613,12 @@ export interface MySubmissionDetail extends MySubmissionRow {
   payment_proofs?: Array<{ id: string; url: string; name?: string; amount: string | null; uploaded_at: string }>;
   /** MR / Other Request only (I16, ID49): every file sent with it, pictures and documents. */
   files?: Array<{ id: string; name: string; url: string; content_type: string; size_bytes: number; is_image: boolean }>;
+  /**
+   * Material and equipment exits only (JB33): what the office put on the
+   * record with 【上传文件】 - a Gate Pass, a photographed note. Also in
+   * `photos`; the phone shows them in 「后台发来的文件」 instead.
+   */
+  office_files?: MySubmissionPhoto[];
 }
 
 export interface MySubmissionsPage {
