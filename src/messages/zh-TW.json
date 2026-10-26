@@ -6808,7 +6808,8 @@
         "openRecord": "打開記錄"
       },
       "count": "共 {count} 筆 · 第 {page} / {pages} 頁",
-      "regenerating": "正在重新生成…"
+      "regenerating": "正在重新生成…",
+      "alreadyRegenerated": "已按當時條件重新生成過：請打開同一報表、同一期間的新一行。"
     },
     "loadError": "無法加載報表。",
     "period": "期間：{from} 至 {to}",

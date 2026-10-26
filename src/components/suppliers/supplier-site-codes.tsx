@@ -32,6 +32,7 @@ import {
   getQRCodes,
   revokeQRCode,
 } from "@/services/contractor.service";
+import { signFileAction } from "@/services/file-action.service";
 
 /**
  * The standing codes that bind this supplier to individual sites.
@@ -270,7 +271,10 @@ function SiteCodeDialog({
       ? code.token
       : `${window.location.origin}/field-staff?tab=records&record=material&supplier_token=${encodeURIComponent(code.token)}`;
 
-  function downloadPng() {
+  async function downloadPng() {
+    if (!canvas.current) return;
+    // 下载 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${code.project_code}-${code.supplier_code}`, file_name: `${code.project_code}-${code.supplier_code}.png`, link: window.location.pathname }))) return;
     if (!canvas.current) return;
     const link = document.createElement("a");
     link.href = canvas.current.toDataURL("image/png");
@@ -302,7 +306,7 @@ function SiteCodeDialog({
           />
         </div>
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={downloadPng}>
+          <Button type="button" variant="outline" onClick={() => void downloadPng()}>
             <Download className="size-4" />
             {t("qrCodes.downloadPng")}
           </Button>

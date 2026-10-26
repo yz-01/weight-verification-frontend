@@ -96,6 +96,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { recordConversationKey } from "@/lib/record-chat";
 import { signsWithCredential } from "@/lib/sign-off";
 import { recordPdfObjectUrl } from "@/services/contractor-ops.service";
+import { signFileAction } from "@/services/file-action.service";
 import {
   addRemedialItem,
   closeRemedialItem,
@@ -359,7 +360,17 @@ export function ConsultantApplicationDetail({
               canSend={application.status === "DRAFT" && can("consultant.submit")}
               isSubmitting={submit.isPending}
               onSend={() => submit.mutate()}
-              onPrint={() => printPdf(() => recordPdfObjectUrl("CONSULTANT_APPLICATION", application.id))}
+              onPrint={async () => {
+                // 打印 asks for the person's own PIN and is logged (JB27).
+                const signed = await signFileAction("PRINT", {
+                  subject: application.application_no,
+                  record_kind: "CONSULTANT_APPLICATION",
+                  record_id: application.id,
+                  project: application.project,
+                  link: window.location.pathname,
+                });
+                if (signed) await printPdf(() => recordPdfObjectUrl("CONSULTANT_APPLICATION", application.id));
+              }}
               onShowAttachments={() =>
                 document.getElementById("application-attachments")?.scrollIntoView({ behavior: "smooth", block: "start" })
               }
