@@ -38,11 +38,11 @@ import {
 } from "@/lib/navigation";
 import {
   PROGRESS_MENU,
-  groupPhotoSources,
   levelRowName,
   progressMenuHref,
   reportHref,
   reportMenuKind,
+  wordPhotoCategories,
   type ProgressMenuEntry,
   type ReportLevels,
 } from "@/lib/report-menu";
@@ -564,8 +564,8 @@ function CategoryLevel({
 }
 
 /**
- * One level's rows, worded for the reader: photo sources by their module's
- * name, the four application types (Q2) in the reader's language.
+ * One level's rows, worded for the reader: photo categories in our own words
+ * (JB29: never a table's name), the four application types (Q2) in the reader's language.
  */
 export function useReportLevel(
   reportType: ContractorReportType,
@@ -590,7 +590,7 @@ export function useReportLevel(
           (row.module ? tRoot(`reportSelector.groupModule.${row.module}`) : row.value)) +
         (row.is_active === false ? ` · ${tRoot("reportSelector.inactive")}` : ""),
     }));
-    if (reportType === "photos") return groupPhotoSources(data, (key) => tRoot(key));
+    if (reportType === "photos") return wordPhotoCategories(data, (key) => tRoot(key));
     if (reportType === "consultant") {
       return data.map((row) => ({
         ...row,

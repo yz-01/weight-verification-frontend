@@ -22,9 +22,10 @@
  *   the person can still save it rather than being shown nothing.
  */
 
-import { Download, ExternalLink, Printer } from "lucide-react";
+import { Download, ExternalLink, Loader2, Printer, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useFileActions } from "@/components/shared/file-actions";
 import { Button } from "@/components/ui/button";
 
 function isPdf(url: string) {
@@ -70,20 +71,38 @@ export async function downloadEvidence(url: string, filename: string) {
   }
 }
 
+/** The photograph as a file, to hand to the share sheet. */
+async function evidenceFile(url: string, filename: string): Promise<File> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(String(response.status));
+  const blob = await response.blob();
+  return new File([blob], filename, { type: blob.type || "image/jpeg" });
+}
+
 export function EvidenceFileActions({
   url,
   filename,
   title,
+  share = false,
+  className,
 }: {
   url: string;
   /** Saved as, e.g. `MR-0001-delivery-note.jpg`. */
   filename: string;
   /** The heading on the printed page. */
   title: string;
+  /**
+   * 「发送」 too (JB29, the photo viewer's row: 「预览、打印、下载、导出、发送…」):
+   * the photograph to WhatsApp, email or another app, as every file is sent.
+   */
+  share?: boolean;
+  className?: string;
 }) {
   const t = useTranslations("evidenceFile");
+  const files = useTranslations("fileActions");
+  const { busy, run, element } = useFileActions();
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={className ?? "flex flex-wrap items-center gap-2"} data-slot="evidence-file-actions">
       <Button size="sm" variant="outline" asChild>
         <a href={url} target="_blank" rel="noreferrer">
           <ExternalLink />
@@ -102,6 +121,21 @@ export function EvidenceFileActions({
         <Download />
         {t("download")}
       </Button>
+      {share ? (
+        <Button
+          size="sm"
+          variant="outline"
+          title={files("shareHint")}
+          data-slot="evidence-file-share"
+          disabled={Boolean(busy)}
+          disabledReason={busy ? files("preparing") : undefined}
+          onClick={() => void run("share", { load: () => evidenceFile(url, filename), title })}
+        >
+          {busy ? <Loader2 className="animate-spin" /> : <Share2 />}
+          {files("share")}
+        </Button>
+      ) : null}
+      {element}
     </div>
   );
 }

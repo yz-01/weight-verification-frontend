@@ -101,7 +101,9 @@ export type ReportFilterKey =
   | "subcontractor"
   // 材料名称 and 规格 on the two material reports (J29).
   | "material"
-  | "specification";
+  | "specification"
+  // 照片来源 on the photo report (JB29).
+  | "origin";
 
 /**
  * One choice of a filter. `label` is a name (a person, a machine) or, for a

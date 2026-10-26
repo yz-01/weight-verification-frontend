@@ -4,6 +4,9 @@
  * evidence report and the record one press away. No file names, devices or
  * coordinates in the row.
  */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -13,10 +16,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import type { ContractorReportFilters, PhotoGroupPage } from "@/interfaces/contractor-report";
 import messages from "@/messages/zh.json";
 
+// The address the report is on: JB29 keeps its page there.
+const address = { query: "" };
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(""),
+  useSearchParams: () => new URLSearchParams(address.query),
   useRouter: () => ({ push: () => {}, replace: () => {} }),
-  usePathname: () => "/reports",
+  usePathname: () => "/reports/contractor/photos",
 }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: null, can: () => true }),
@@ -73,9 +78,13 @@ const page: PhotoGroupPage = {
   ],
 };
 
-function render() {
+function render(pageNumber = 1) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
-  client.setQueryData(["contractor-reports", "photo-groups", filters, 1], page);
+  client.setQueryData(["contractor-reports", "photo-groups", filters, pageNumber], {
+    ...page,
+    page: pageNumber,
+    total_pages: 3,
+  });
   return renderToStaticMarkup(
     <QueryClientProvider client={client}>
       <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
@@ -115,5 +124,30 @@ describe("the photo report by record (J8)", () => {
     const loose = html.slice(html.indexOf('data-photo-group="PERSON'));
     expect(loose).toContain("没有所属记录的照片");
     expect(loose).not.toContain("打开原记录");
+  });
+});
+
+// JB29 (客户 10-26): 「查看原始记录后返回，必须回到之前的报表页面，并保留原有
+// 筛选条件」 - the page is in the address with the filters, so coming back
+// from a record's own page lands on the same page of the same report.
+describe("the report's page is in the address (JB29)", () => {
+  it("opens on the page the address names", () => {
+    address.query = "category=MATERIAL_RECEIPT&page=2";
+    try {
+      const html = render(2);
+      expect(html).toContain("2 / 3");
+      expect(html.match(/data-photo-group=/g)).toHaveLength(2);
+    } finally {
+      address.query = "";
+    }
+  });
+
+  it("reads it from the address, not from component state", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/reports/photo-groups-report.tsx"),
+      "utf8",
+    );
+    expect(source).toContain("useListQuery()");
+    expect(source).not.toMatch(/useState\(1\)/);
   });
 });

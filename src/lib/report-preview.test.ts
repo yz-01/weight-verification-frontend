@@ -108,7 +108,8 @@ describe("报表预览: no raw codes", () => {
     ["target", "target_type", "WEIGHT", {}],
     ["target", "period", "QUARTERLY", {}],
     ["documents", "status", "ARCHIVED", {}],
-    ["photos", "category", "Material", { source: "receiving.receiptphoto" }],
+    ["photos", "category", "MATERIAL_RECEIPT", {}],
+    ["photos", "origin", "ATTACHMENT", {}],
   ];
 
   it.each(cases)("%s · %s · %s is named in every language", (reportType, column, value, row) => {
@@ -119,14 +120,13 @@ describe("报表预览: no raw codes", () => {
     }
   });
 
-  it("names a photograph's source record by its kind", () => {
-    const row = { source: "contractor_ops.disposalevidence" };
-    expect(reportValueKey("photos", "source", row.source, row, entry("DISPOSAL"))).toBe(
-      "headquarters.recordKind.DISPOSAL",
-    );
-    expect(reportValueKey("photos", "source", row.source, row, entry("ATTENDANCE"))).toBe(
-      "nav.submodule.wasteClearance",
-    );
+  // JB29: the server words a photo row's 业务分类 and 照片来源 itself; a code
+  // is worded here, and nothing reads a table's name any more.
+  it("shows the server's words for a photo row, and words a code", () => {
+    expect(reportValueKey("photos", "category", "材料进场", {})).toBeNull();
+    expect(reportValueKey("photos", "origin", "附件", {})).toBeNull();
+    expect(reportValueKey("photos", "category", "WASTE", {})).toBe("contractorReports.photoCategory.WASTE");
+    expect(reportValueKey("photos", "origin", "SITE", {})).toBe("contractorReports.photoOrigin.SITE");
   });
 
   it("leaves names, numbers and empty cells alone", () => {

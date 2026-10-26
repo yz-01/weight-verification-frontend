@@ -114,8 +114,10 @@ function client() {
   const levels = (type: string, data: unknown, parent = "") =>
     set(["contractor-reports", "levels", type, "", parent], data);
   levels("photos", [
-    level("contractor_ops.siteprogressphoto", "Progress"),
-    level("site_operations.progressupdate", "Progress"),
+    // JB29: the server names categories; a table name from an older one
+    // is never shown (「其他照片」).
+    level("PROGRESS", "Site progress"),
+    level("contractor_ops.recordattachment", "Recordattachment"),
   ]);
   levels("progress", [level("piling", "打桩")]);
   levels("safety", [level("scaffold", "棚架")]);
@@ -313,7 +315,9 @@ describe("【选择报表】 (D6, B9)", () => {
     render();
     expect(find("材料申请").kind).toBe("item");
     expect(find("材料证书提交").kind).toBe("item");
-    // Two progress photo tables, one row - and a click asks for both.
+    // 业务分类 in our words (JB29): one row for progress, its key in the address.
+    expect(rows.some((row) => row.text === "其他照片")).toBe(true);
+    expect(rows.some((row) => /Recordattachment|recordattachment/.test(row.text ?? ""))).toBe(false);
     const progressPhotos = rows.filter(
       (row) => row.text === "工程进度" && row.kind === "item",
     );
@@ -323,9 +327,7 @@ describe("【选择报表】 (D6, B9)", () => {
       .filter((row) => row.text === "工程进度" && row.kind === "item")[0]
       .onSelect?.(new Event("select"));
     expect(navigate).toHaveBeenCalledWith(
-      `/reports/contractor/photos?${DATES}&category=${encodeURIComponent(
-        "contractor_ops.siteprogressphoto,site_operations.progressupdate",
-      )}`,
+      `/reports/contractor/photos?${DATES}&category=PROGRESS`,
     );
   });
 

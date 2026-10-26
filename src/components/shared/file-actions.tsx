@@ -24,7 +24,7 @@
  * confirmation, and the screens say so in small print beside it.
  */
 
-import { Copy, Download, ExternalLink, Eye, FileText, FileWarning, Loader2, Mail, MessageCircle, Printer, Share2 } from "lucide-react";
+import { ChevronDown, Copy, Download, ExternalLink, Eye, FileText, FileWarning, Loader2, Mail, MessageCircle, Printer, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -38,6 +38,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ApiError } from "@/interfaces/api";
 import {
@@ -256,6 +262,65 @@ export function FileActionButtons({
           );
         })}
       </div>
+      {element}
+    </>
+  );
+}
+
+/**
+ * The same four for one file, folded into one button that names the file -
+ * 「完整证据 PDF ▾」 - for a row of actions that must stay one row (JB29, the
+ * photo viewer: 「操作集中安排在上方，避免重复按钮」). Four buttons per PDF,
+ * twice over, was the column of repeated 预览 / 打印 the client photographed.
+ */
+export function FileActionMenu({
+  source,
+  label,
+  labelHint,
+  allowSave = true,
+}: {
+  source: FileSource;
+  /** What the file is, on the button. */
+  label: string;
+  labelHint?: string;
+  allowSave?: boolean;
+}) {
+  const t = useTranslations("fileActions");
+  const { busy, run, element } = useFileActions();
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            title={labelHint}
+            data-slot="file-action-menu"
+            disabled={Boolean(busy)}
+            disabledReason={busy ? t("preparing") : undefined}
+          >
+            {busy ? <Loader2 className="size-3.5 animate-spin" /> : <FileText className="size-3.5" />}
+            {label}
+            <ChevronDown className="size-3.5 opacity-60" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-auto">
+          {fileActionsFor("pdf", allowSave).map((action) => {
+            const Icon = FILE_ACTION_ICONS[action];
+            return (
+              <DropdownMenuItem
+                key={action}
+                data-slot={`file-action-${action}`}
+                onSelect={() => void run(action, source, { allowSave })}
+              >
+                <Icon className="size-3.5" />
+                {t(action)}
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
       {element}
     </>
   );

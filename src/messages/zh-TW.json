@@ -6696,7 +6696,8 @@
       "payment_state": "收款",
       "item_count": "條數",
       "submit_to": "提交給",
-      "applicant": "申請人"
+      "applicant": "申請人",
+      "origin": "照片來源"
     },
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
@@ -6735,7 +6736,7 @@
         "recycling": "單號、車牌、DO 或外部公司",
         "schedule": "WBS 編號或任務名稱",
         "target": "目標名稱",
-        "photos": "文件名、來源或上傳人員",
+        "photos": "文件名、項目或上傳人員",
         "documents": "文件編號、標題或關鍵字",
         "daily_report": "日報名稱、內容或撰寫人",
         "progress_summary": "標題或撰寫人",
@@ -6841,6 +6842,32 @@
         "photo_count": "照片張數",
         "has_gps": "GPS"
       }
+    },
+    "photoCategory": {
+      "MATERIAL_RECEIPT": "材料進場",
+      "MATERIAL_OUTGOING": "材料出場",
+      "MATERIAL_REQUEST": "MR / 其他申請",
+      "EQUIPMENT": "設備進退場",
+      "PROGRESS": "工程進度",
+      "SAFETY": "整改 / EHS",
+      "WASTE": "垃圾清運",
+      "ATTENDANCE": "人員進場",
+      "GATE": "門崗 / 訪客",
+      "FIELD_TASK": "現場任務",
+      "CONSULTANT": "顧問申請",
+      "SUNDRY_CLAIM": "雜費報銷",
+      "CLAIM": "進度 Claim",
+      "APPROVAL": "後台審批",
+      "WEIGHING": "過磅",
+      "HAULAGE": "運輸任務",
+      "OTHER": "其他照片"
+    },
+    "photoOrigin": {
+      "SITE": "現場拍照",
+      "OFFICE": "後台上傳",
+      "ATTACHMENT": "附件",
+      "MESSAGE": "留言裡的照片",
+      "OTHER": "其他"
     }
   },
   "crm": {
@@ -17535,7 +17562,13 @@
     "previous": "上一張",
     "next": "下一張",
     "recorder": "記錄人",
-    "recorderUnknown": "沒有記錄人資料"
+    "recorderUnknown": "沒有記錄人資料",
+    "photoFacts": {
+      "label": "照片",
+      "time": "拍攝時間",
+      "gps": "GPS",
+      "reference": "所屬記錄"
+    }
   },
   "moduleTable": {
     "count": "{count} 條記錄",
@@ -17762,7 +17795,7 @@
     "suppliersFailed": "無法載入供應商列表。",
     "noSuppliers": "此選擇還沒有進場記錄。",
     "level": {
-      "photos": "照片來源",
+      "photos": "業務分類",
       "progress": "施工分類",
       "safety": "整改分類",
       "consultant": "申請類型",

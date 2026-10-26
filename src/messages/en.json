@@ -6696,7 +6696,8 @@
       "payment_state": "Payment",
       "item_count": "Items",
       "submit_to": "Sent to",
-      "applicant": "Applicant"
+      "applicant": "Applicant",
+      "origin": "Photo source"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -6735,7 +6736,7 @@
         "recycling": "Reference, plate, DO or company",
         "schedule": "WBS code or task name",
         "target": "Target name",
-        "photos": "File name, source or uploader",
+        "photos": "File name, project or uploader",
         "documents": "Document no., title or keyword",
         "daily_report": "Report name, text or writer",
         "progress_summary": "Title or writer",
@@ -6841,6 +6842,32 @@
         "photo_count": "Photos",
         "has_gps": "GPS"
       }
+    },
+    "photoCategory": {
+      "MATERIAL_RECEIPT": "Material receiving",
+      "MATERIAL_OUTGOING": "Material outgoing",
+      "MATERIAL_REQUEST": "MR / other requests",
+      "EQUIPMENT": "Equipment in / out",
+      "PROGRESS": "Site progress",
+      "SAFETY": "Rectification / EHS",
+      "WASTE": "Waste removal",
+      "ATTENDANCE": "Attendance",
+      "GATE": "Gate / visitors",
+      "FIELD_TASK": "Field tasks",
+      "CONSULTANT": "Consultant applications",
+      "SUNDRY_CLAIM": "Sundry claims",
+      "CLAIM": "Progress Claim",
+      "APPROVAL": "Approvals",
+      "WEIGHING": "Weighing",
+      "HAULAGE": "Haulage tasks",
+      "OTHER": "Other photos"
+    },
+    "photoOrigin": {
+      "SITE": "Taken on site",
+      "OFFICE": "Uploaded in the office",
+      "ATTACHMENT": "Attachments",
+      "MESSAGE": "Photos in messages",
+      "OTHER": "Other"
     }
   },
   "crm": {
@@ -17535,7 +17562,13 @@
     "previous": "Previous",
     "next": "Next",
     "recorder": "Recorded by",
-    "recorderUnknown": "Recorder not on file"
+    "recorderUnknown": "Recorder not on file",
+    "photoFacts": {
+      "label": "Photo",
+      "time": "Taken",
+      "gps": "GPS",
+      "reference": "Record"
+    }
   },
   "moduleTable": {
     "count": "{count} records",
@@ -17762,7 +17795,7 @@
     "suppliersFailed": "The supplier list could not be loaded.",
     "noSuppliers": "No deliveries for this choice yet.",
     "level": {
-      "photos": "Photo source",
+      "photos": "Category",
       "progress": "Construction category",
       "safety": "Hazard rectification category",
       "consultant": "Application type",
