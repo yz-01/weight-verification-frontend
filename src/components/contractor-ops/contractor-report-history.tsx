@@ -423,6 +423,7 @@ function ReportActionsDialog({
 }) {
   const h = useTranslations("contractorReports.history");
   const [page, setPage] = useState(1);
+  // query-failure: `ActionTable` says the read failed (records.isError), never "no records"
   const records = useQuery({
     queryKey: ["file-actions", "report", row.id, page],
     queryFn: () => getFileActionRecords({ report_export: row.id, page, page_size: PAGE_SIZE }),
@@ -455,6 +456,7 @@ function ActionLog({ filters, page, onPage }: { filters: Filters; page: number; 
     name: name || undefined,
     project: filters.project === "all" ? undefined : filters.project,
   };
+  // query-failure: `ActionTable` says the read failed (records.isError), never "no records"
   const records = useQuery({
     queryKey: ["file-actions", "log", query],
     queryFn: () => getFileActionRecords(query),
