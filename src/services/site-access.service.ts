@@ -27,7 +27,7 @@ import type {
   ExpiredVisitorPhotos,
 } from "@/interfaces/site-access";
 import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
-import type { WallRecord } from "@/lib/gate-photo-wall";
+import type { GateUpload, WallRecord } from "@/lib/gate-photo-wall";
 import { api, download, toastSuccess } from "@/services/api-client";
 import {
   exportBody,
@@ -322,6 +322,14 @@ export const getGateWall = (query: ListQuery = {}) =>
   api.list<WallRecord>("/api/gate-incidents/get_gate_incidents/", {
     ...query,
     with_photos: 1,
+  });
+
+/** 日常拍照记录, one row per 「发送」 (JB35). */
+export const getGateUploads = (query: ListQuery = {}) =>
+  api.list<GateUpload>("/api/gate-incidents/get_gate_incidents/", {
+    ...query,
+    kind: "photos",
+    group: "upload",
   });
 
 /**

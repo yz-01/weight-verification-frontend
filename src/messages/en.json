@@ -15355,7 +15355,7 @@
         "issues": "Gate Issues"
       },
       "tabHelp": {
-        "photos": "Lorries in and out and ordinary gate photos, one record per photo, filed at once. Search by date and time, project and photographer, and export; or switch to the photo wall.",
+        "photos": "Lorries in and out and ordinary gate photos, one row per send from the gate (its photos side by side), filed at once. Open a row for each photo's time, GPS and single PDF. Search by date and time, project and photographer, and export; or switch to the photo wall.",
         "issues": "Matters a guard raised with Talk: photos, people asked in, their conversation, status, and who confirmed it finished and when.",
         "wall": "Photo wall: photos only, newest first; scroll down for more. Press one for the large photo and its full record; use the arrow keys or swipe for the previous or next."
       },
@@ -15388,7 +15388,12 @@
       "closeNotePlaceholder": "What was done (optional)",
       "closeWho": "In progress. The people assigned, or whoever manages site access on this project, confirm it finished.",
       "closedTitle": "Completed",
-      "closedBy": "Confirmed finished by {name} on {when}"
+      "closedBy": "Confirmed finished by {name} on {when}",
+      "upload": {
+        "title": "{first} – {last} · {count} photos",
+        "range": "to {last}, {count} records",
+        "openRecord": "View"
+      }
     },
     "gatePhoto": {
       "title": "Gate",

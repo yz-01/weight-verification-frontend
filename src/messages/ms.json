@@ -15355,7 +15355,7 @@
         "issues": "Isu Pintu"
       },
       "tabHelp": {
-        "photos": "Lori masuk dan keluar serta foto pintu biasa, satu rekod setiap foto, terus difailkan. Cari mengikut tarikh dan masa, projek dan jurugambar, dan eksport; atau tukar ke dinding foto.",
+        "photos": "Lori masuk dan keluar serta foto pintu biasa, satu baris setiap kali pengawal menghantar (fotonya sebaris), terus difailkan. Buka baris untuk masa, GPS dan PDF tunggal setiap foto. Cari mengikut tarikh dan masa, projek dan jurugambar, dan eksport; atau tukar ke dinding foto.",
         "issues": "Perkara yang dibangkitkan pengawal dengan Bincang: foto, orang yang ditugaskan, perbualan, status, dan siapa yang mengesahkan selesai dan bila.",
         "wall": "Dinding foto: foto sahaja, terbaru dahulu; tatal ke bawah untuk lagi. Tekan satu untuk foto besar dan rekod penuhnya; guna kekunci anak panah atau leret untuk sebelum atau seterusnya."
       },
@@ -15388,7 +15388,12 @@
       "closeNotePlaceholder": "Apa yang dilakukan (pilihan)",
       "closeWho": "Dalam tindakan. Orang yang ditugaskan, atau yang mengurus akses tapak projek ini, mengesahkan ia selesai.",
       "closedTitle": "Selesai",
-      "closedBy": "Disahkan selesai oleh {name} pada {when}"
+      "closedBy": "Disahkan selesai oleh {name} pada {when}",
+      "upload": {
+        "title": "{first} – {last} · {count} foto",
+        "range": "hingga {last}, {count} rekod",
+        "openRecord": "Lihat"
+      }
     },
     "gatePhoto": {
       "title": "Pintu",

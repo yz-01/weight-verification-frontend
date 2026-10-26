@@ -76,17 +76,9 @@ describe("every back-office list fits 1366 px (I39-3, I39-5)", () => {
       if (FRAME_COLUMNS.has(id)) continue;
       expect(source, `${name}.${id}`).toMatch(new RegExp(`(accessorKey|id): "${id}"`));
     }
-    if (name === "gatePhotos" || name === "gateIssues") {
-      expect(source).toContain(
-        'storageKey={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].storageKey}',
-      );
-      expect(source).toContain(
-        'defaultHidden={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].hidden}',
-      );
-    } else {
-      expect(source).toContain(`storageKey={LIST_FITS.${name}.storageKey}`);
-      expect(source).toContain(`defaultHidden={LIST_FITS.${name}.hidden}`);
-    }
+    // 日常拍照记录 and 门岗事项 are two tables since JB35, each with its own.
+    expect(source).toContain(`storageKey={LIST_FITS.${name}.storageKey}`);
+    expect(source).toContain(`defaultHidden={LIST_FITS.${name}.hidden}`);
   });
 
   it.each(FITS)("%s: a list whose defaults changed remembers columns under a new key (I39 rule 6)", (name, fit) => {

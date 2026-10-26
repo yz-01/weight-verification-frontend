@@ -9,7 +9,11 @@
  * - **日常拍照记录 (Photo Records)**: lorries in and out and ordinary gate
  *   photos, each one photo with its time, GPS, project and photographer -
  *   searched by date and time, project and photographer, and exported; seen
- *   as a list or, since I33 (ID74), as a 照片墙 of thumbnails;
+ *   as a list or, since I33 (ID74), as a 照片墙 of thumbnails. Since JB35
+ *   (客户 10-26 事项 10) the list is one row per 「发送」 of the guard - its
+ *   photos side by side, no GPS or PDF column - opened on every record of
+ *   it with each one's time, GPS and single PDF; the wall and the export
+ *   still go record by record;
  * - **门岗事项 (Gate Issues)**: photo, the people asked in, their
  *   conversation, status, and who confirmed it finished and when - searched,
  *   opened and exported.
@@ -56,7 +60,9 @@ import type { GateIncident } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
 import { absoluteUrl } from "@/lib/share";
 import { recordPdfFile } from "@/services/contractor-ops.service";
-import { exportGateIncidents, getGateIncidents } from "@/services/site-access.service";
+import { exportGateIncidents, getGateIncidents, getGateUploads } from "@/services/site-access.service";
+import type { GateUpload } from "@/lib/gate-photo-wall";
+import { GateUploadDetailDialog, uploadShellPhotos } from "@/components/site-access/gate-upload-detail";
 import { LIST_FITS } from "@/lib/list-fits";
 
 type Tab = "photos" | "issues";
@@ -66,6 +72,17 @@ const TABS: readonly Tab[] = ["photos", "issues"];
 type View = "list" | "wall";
 
 type Row = GateIncident & { cover_photo_url: string | null };
+
+/** An upload as the shared table's photo column reads a row (JB35). */
+type UploadRow = GateUpload & { cover_photo_url: string | null; photo_thumbs: string[] };
+
+/** Six photos a row: the GPS and PDF columns' room (JB35, `wideStrip`). */
+const UPLOAD_SQUARES = 6;
+
+function uploadRow(upload: GateUpload): UploadRow {
+  const thumbs = upload.records.flatMap((record) => record.wall_photos.map((photo) => photo.thumbnail));
+  return { ...upload, cover_photo_url: thumbs[0] ?? null, photo_thumbs: thumbs };
+}
 
 export function GateRecordsOffice() {
   const t = useTranslations("siteControl.gateRecords");
@@ -82,11 +99,19 @@ export function GateRecordsOffice() {
   const rows = useQuery({
     queryKey: ["gate-incidents", "office", query],
     queryFn: () => getGateIncidents(query),
-    enabled: view === "list",
+    enabled: view === "list" && tab === "issues",
+  });
+  // 日常拍照记录: one row per 「发送」 (JB35, 客户 10-26 事项 10).
+  const uploads = useQuery({
+    queryKey: ["gate-incidents", "uploads", query],
+    queryFn: () => getGateUploads(query),
+    enabled: view === "list" && tab === "photos",
   });
   const wall = useGateWall(query, view === "wall");
   const [viewing, setViewing] = useUrlSelection("gate_incident");
-  const total = (view === "wall" ? wall.data?.pages[0]?.count : rows.data?.count) ?? 0;
+  const [viewingUpload, setViewingUpload] = useState<GateUpload | null>(null);
+  const listed = tab === "photos" ? uploads : rows;
+  const total = (view === "wall" ? wall.data?.pages[0]?.count : listed.data?.count) ?? 0;
   const title = t("officeTitle");
 
   const replaceParams = (change: (params: URLSearchParams) => void) => {
@@ -159,26 +184,6 @@ export function GateRecordsOffice() {
       header: () => <PlainHeader label={t("field.singlePdf")} />,
       cell: ({ row }) => <RowPdfButton row={row.original} />,
     };
-    if (tab === "photos") {
-      return [
-        ...common,
-        ...when,
-        {
-          id: "gps",
-          meta: { label: t("field.gps") },
-          header: () => <PlainHeader label={t("field.gps")} />,
-          cell: ({ row }) =>
-            row.original.latitude && row.original.longitude ? (
-              <span className="tabular text-xs">
-                {row.original.latitude}, {row.original.longitude}
-              </span>
-            ) : (
-              <span className="text-muted-foreground">{t("gpsUnavailable")}</span>
-            ),
-        },
-        single,
-      ];
-    }
     return [
       ...common,
       {
@@ -218,7 +223,59 @@ export function GateRecordsOffice() {
       ...when,
       single,
     ];
-  }, [t, tRoot, df, tab]);
+  }, [t, tRoot, df]);
+
+  // One row per upload (JB35): its number, its photos in a row - six, the
+  // room the GPS and PDF columns gave up (「PDF，GPS不需要再表头内把那些空间
+  // 腾出来给照片用」) - project, photographer, time. Each photo opens with
+  // its own time and GPS; the row opens on every record of the upload.
+  const uploadColumns = useMemo<ColumnDef<UploadRow, unknown>[]>(
+    () => [
+      {
+        accessorKey: "incident_no",
+        meta: { label: tRoot("recordNo.column") },
+        header: sortable(tRoot("recordNo.column")),
+        cell: ({ row }) => (
+          <span className="block">
+            <RecordNo value={row.original.incident_no} projectCode={row.original.project_code} />
+            {row.original.record_count > 1 ? (
+              <span className="block text-2xs text-muted-foreground" data-gate-upload-range>
+                {t("upload.range", { last: row.original.last_incident_no, count: row.original.record_count })}
+              </span>
+            ) : null}
+          </span>
+        ),
+      },
+      photoColumn<UploadRow>({
+        label: tRoot("moduleTable.photos"),
+        icon: DoorOpen,
+        reference: (row) => row.incident_no,
+        photos: (row) => uploadShellPhotos(row),
+        squares: UPLOAD_SQUARES,
+      }),
+      {
+        accessorKey: "project_name",
+        meta: { label: t("field.project") },
+        header: () => <PlainHeader label={t("field.project")} />,
+        cell: ({ row }) => row.original.project_name,
+      },
+      {
+        accessorKey: "guard_name",
+        meta: { label: t("field.photographer") },
+        header: sortable(t("field.photographer")),
+        cell: ({ row }) => row.original.guard_name,
+      },
+      {
+        accessorKey: "occurred_at",
+        meta: { label: t("field.time") },
+        header: sortable(t("field.time")),
+        cell: ({ row }) => (
+          <span className="tabular text-muted-foreground">{df.dateTime(row.original.occurred_at)}</span>
+        ),
+      },
+    ],
+    [t, tRoot, df],
+  );
 
   const runExport = (format: "xlsx" | "pdf") =>
     exportGateIncidents({
@@ -336,6 +393,25 @@ export function GateRecordsOffice() {
             </div>
           </div>
         </div>
+      ) : tab === "photos" ? (
+        <ModuleRecordsTable<UploadRow>
+          title={title}
+          countLabel={tRoot("moduleTable.count", { count: total })}
+          above={above}
+          list={list}
+          columns={uploadColumns}
+          rows={(uploads.data?.results ?? []).map(uploadRow)}
+          totalCount={total}
+          isLoading={uploads.isLoading}
+          isError={uploads.isError}
+          storageKey={LIST_FITS.gatePhotos.storageKey}
+          phoneCard={LIST_FITS.gatePhotos.phoneCard}
+          defaultHidden={LIST_FITS.gatePhotos.hidden}
+          toolbar={toolbar}
+          // A one-photo upload is its record; a longer one opens on all of
+          // its records.
+          onOpen={(row) => (row.record_count > 1 ? setViewingUpload(row) : setViewing(row.id))}
+        />
       ) : (
         <ModuleRecordsTable<Row>
           title={title}
@@ -347,11 +423,19 @@ export function GateRecordsOffice() {
           totalCount={total}
           isLoading={rows.isLoading}
           isError={rows.isError}
-          storageKey={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].storageKey}
-          phoneCard={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].phoneCard}
-          defaultHidden={LIST_FITS[tab === "photos" ? "gatePhotos" : "gateIssues"].hidden}
+          storageKey={LIST_FITS.gateIssues.storageKey}
+          phoneCard={LIST_FITS.gateIssues.phoneCard}
+          defaultHidden={LIST_FITS.gateIssues.hidden}
           toolbar={toolbar}
           onOpen={(row) => setViewing(row.id)}
+        />
+      )}
+      {viewingUpload && !viewing && (
+        <GateUploadDetailDialog
+          upload={viewingUpload}
+          renderPdf={(record) => <RowPdfButton row={record} />}
+          onOpenRecord={setViewing}
+          onClose={() => setViewingUpload(null)}
         />
       )}
       {viewing && <GateIncidentDetailDialog id={viewing} onClose={() => setViewing(null)} />}

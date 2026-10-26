@@ -517,6 +517,7 @@ export function photoColumn<T extends CoveredRow>({
   reference,
   photos,
   strip = true,
+  squares,
 }: {
   label: string;
   icon: LucideIcon;
@@ -527,6 +528,8 @@ export function photoColumn<T extends CoveredRow>({
    * before. A list needs room for 268 px (`lib/list-fits`, kind `strip`).
    */
   strip?: boolean;
+  /** Squares the strip shows at most (`PhotoStrip`); four unless a list has room for more. */
+  squares?: number;
 }): ColumnDef<T, unknown> {
   return {
     id: "cover_photo",
@@ -546,6 +549,7 @@ export function photoColumn<T extends CoveredRow>({
           icon={icon}
           reference={reference(row.original)}
           photos={photos?.(row.original)}
+          squares={squares}
         />
       ) : (
         <PhotoThumb

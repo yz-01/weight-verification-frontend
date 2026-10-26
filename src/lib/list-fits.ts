@@ -202,16 +202,16 @@ export const LIST_FITS = {
   },
   /** 门岗记录 → 照片 */
   gatePhotos: {
+    // One row per upload, six photos, no GPS / PDF column (JB35). Nothing
+    // newly hidden, so the key stays (I39 rule 6).
     storageKey: "gate-records.photos.v1",
     file: "src/components/site-access/gate-records-office.tsx",
     columns: {
       incident_no: "recno",
-      cover_photo: "strip",
+      cover_photo: "wideStrip",
       project_name: "text",
       guard_name: "person",
       occurred_at: "datetime",
-      single_pdf: "button",
-      gps: "short",
       actions: "actions",
     },
     hidden: [],
