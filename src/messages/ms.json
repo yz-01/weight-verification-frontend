@@ -6892,7 +6892,7 @@
       }
     },
     "photoCategory": {
-      "MATERIAL_RECEIPT": "Penerimaan bahan",
+      "MATERIAL_RECEIPT": "Bahan masuk",
       "MATERIAL_OUTGOING": "Bahan keluar",
       "MATERIAL_REQUEST": "MR / permohonan lain",
       "EQUIPMENT": "Peralatan masuk / keluar",
