@@ -29,6 +29,7 @@ import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import type { ProjectCategory } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { signFileAction } from "@/services/file-action.service";
 import {
   cancelDeliveryNote,
   closeDeliveryNote,
@@ -322,7 +323,10 @@ function IssueDeliveryNoteDialog({
 function DeliveryNoteQrDialog({ note, onClose }: { note: DeliveryNote; onClose: () => void }) {
   const t = useTranslations();
   const qrRef = useRef<HTMLCanvasElement>(null);
-  const download = () => {
+  const download = async () => {
+    if (!qrRef.current) return;
+    // 下载 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${note.note_no}`, file_name: `${note.note_no}.png`, link: window.location.pathname }))) return;
     if (!qrRef.current) return;
     const link = document.createElement("a");
     link.download = `${note.note_no}.png`;
@@ -341,7 +345,7 @@ function DeliveryNoteQrDialog({ note, onClose }: { note: DeliveryNote; onClose: 
         </div>
         <p className="break-all text-center text-xs text-muted-foreground">{note.qr_url}</p>
         <DialogFooter>
-          <Button variant="outline" onClick={download}><Download />{t("qrCodes.downloadPng")}</Button>
+          <Button variant="outline" onClick={() => void download()}><Download />{t("qrCodes.downloadPng")}</Button>
           <Button onClick={onClose}>{t("common.close")}</Button>
         </DialogFooter>
       </DialogContent>

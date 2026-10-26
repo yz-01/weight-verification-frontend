@@ -36,6 +36,7 @@ import {
   recordAttachmentObjectUrl,
   uploadRecordAttachments,
 } from "@/services/record-attachment.service";
+import { signFileAction } from "@/services/file-action.service";
 
 export function recordAttachmentsKey(kind: AttachableKind, recordId: string) {
   return ["record-attachments", kind, recordId] as const;
@@ -200,7 +201,17 @@ export function RecordAttachmentsPanel({
                       // JB25: on a record not yet confirmed a file is previewed only.
                       disabled={previewOnly}
                       disabledReason={previewOnly ? notArchived : undefined}
-                      onClick={() => void downloadRecordAttachment(kind, recordId, row)}
+                      onClick={async () => {
+                        // 下载 asks for the person's own PIN and is logged (JB27).
+                        const signed = await signFileAction("DOWNLOAD", {
+                          subject: row.original_name,
+                          file_name: row.original_name,
+                          record_kind: kind,
+                          record_id: recordId,
+                          link: `${window.location.pathname}${window.location.search}`,
+                        });
+                        if (signed) await downloadRecordAttachment(kind, recordId, row);
+                      }}
                     >
                       <Download className="size-3.5" />
                     </Button>

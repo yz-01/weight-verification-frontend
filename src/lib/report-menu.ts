@@ -149,6 +149,8 @@ export const PHOTO_CATEGORIES = [
   "CONSULTANT",
   "SUNDRY_CLAIM",
   "CLAIM",
+  // JB30: a Multi Engine package's own uploads and exchange.
+  "PACKAGE",
   "APPROVAL",
   "WEIGHING",
   "HAULAGE",

@@ -195,6 +195,8 @@ export interface ContractorReportExportRecord extends ArchivedReportFile {
   /** The row without a file it was generated again for (JB27), and when that was generated. */
   regenerated_from?: string | null;
   regenerated_from_at?: string | null;
+  /** The new row this one was generated again as, once (JB27). */
+  regenerated_as?: string | null;
 }
 
 export type ContractorReportHistory = Paginated<ContractorReportExportRecord>;

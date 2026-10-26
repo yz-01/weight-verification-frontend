@@ -289,6 +289,12 @@ function ReportRows({ filters, page, onPage }: { filters: Filters; page: number;
                     <div className="flex flex-col items-start gap-1">
                       {row.has_file ? (
                         <ArchivedReportActions row={row} archive={archive} title={previewTitle(row)} />
+                      ) : row.regenerated_as ? (
+                        // Generated again once already: the new row is the
+                        // one to open, not a second copy (JB27 review #5).
+                        <p className="max-w-56 text-xs text-muted-foreground" data-slot="history-already-regenerated">
+                          {h("alreadyRegenerated")}
+                        </p>
                       ) : (
                         <RegenerateButton row={row} reportName={reportName(row)} />
                       )}

@@ -6808,7 +6808,8 @@
         "openRecord": "Buka rekod"
       },
       "count": "{count} kesemuanya · halaman {page} daripada {pages}",
-      "regenerating": "Sedang dijana semula…"
+      "regenerating": "Sedang dijana semula…",
+      "alreadyRegenerated": "Sudah dijana semula mengikut syarat ini: buka baris baharu dengan laporan dan tempoh yang sama."
     },
     "loadError": "Laporan tidak dapat dimuatkan.",
     "period": "Tempoh: {from} hingga {to}",
@@ -6904,6 +6905,7 @@
       "CONSULTANT": "Permohonan perunding",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
       "CLAIM": "Tuntutan kemajuan",
+      "PACKAGE": "Pakej Multi Engine",
       "APPROVAL": "Kelulusan",
       "WEIGHING": "Penimbangan",
       "HAULAGE": "Tugasan pengangkutan",

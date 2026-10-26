@@ -79,6 +79,7 @@ import {
 } from "@/services/recycler-business.service";
 import { getSites, getWeighSessions } from "@/services/weighing.service";
 import { printPage } from "@/lib/file-actions";
+import { escapePrintHtml } from "@/lib/print-letterhead";
 import { signFileAction } from "@/services/file-action.service";
 
 export function RecyclerCustomersWorkspace() {
@@ -412,7 +413,7 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
     // 打印 asks for the person's own PIN and is logged (JB27).
     if (!(await signFileAction("PRINT", { subject: `QR ${customer.customer_no} ${customer.company_name}`, link: window.location.pathname }))) return;
     printPage(
-      `<html><head><title>${customer.customer_no}</title></head><body style="font-family:Arial;text-align:center;padding:40px"><h1>${customer.company_name}</h1><p>${customer.customer_no}</p>${svg.outerHTML}<script>window.onload=()=>window.print()</script></body></html>`,
+      `<html><head><title>${escapePrintHtml(customer.customer_no)}</title></head><body style="font-family:Arial;text-align:center;padding:40px"><h1>${escapePrintHtml(customer.company_name)}</h1><p>${escapePrintHtml(customer.customer_no)}</p>${svg.outerHTML}<script>window.onload=()=>window.print()</script></body></html>`,
       "width=640,height=720",
     );
   }

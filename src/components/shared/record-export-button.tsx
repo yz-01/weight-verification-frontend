@@ -92,6 +92,9 @@ export function RecordExportButton({
         link: absoluteUrl(href),
         // The log row names the record (JB27).
         recordKind: kind,
+        // An action from the preview fetches again, so the server audits the
+        // export (`record_pdf_exported`, JB27 review #4).
+        exportedOnServer: true,
         recordId,
       }}
     />
@@ -107,6 +110,9 @@ export function RecordExportButton({
         link: absoluteUrl(href),
         // The log row names the record (JB27).
         recordKind: kind,
+        // An action from the preview fetches again, so the server audits the
+        // export (`record_pdf_exported`, JB27 review #4).
+        exportedOnServer: true,
         recordId,
       }}
     />

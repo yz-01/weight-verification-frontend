@@ -6808,7 +6808,8 @@
         "openRecord": "打开记录"
       },
       "count": "共 {count} 笔 · 第 {page} / {pages} 页",
-      "regenerating": "正在重新生成…"
+      "regenerating": "正在重新生成…",
+      "alreadyRegenerated": "已按当时条件重新生成过：请打开同一报表、同一期间的新一行。"
     },
     "loadError": "无法加载报表。",
     "period": "期间：{from} 至 {to}",
@@ -6904,6 +6905,7 @@
       "CONSULTANT": "顾问申请",
       "SUNDRY_CLAIM": "杂费报销",
       "CLAIM": "进度 Claim",
+      "PACKAGE": "Multi Engine 资料包",
       "APPROVAL": "后台审批",
       "WEIGHING": "过磅",
       "HAULAGE": "运输任务",
