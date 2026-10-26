@@ -9,7 +9,9 @@ import { useState } from "react";
 import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
 import { CategoryOptionItems } from "@/components/shared/category-options";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
-import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
+import { RecordAttachmentsPanel, recordAttachmentsKey } from "@/components/shared/record-attachments";
+import { claimConfirmBlocker, claimNeedsLetter } from "@/lib/claim-letter";
+import { getRecordAttachments } from "@/services/record-attachment.service";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { QuickAddSupplierButton } from "@/components/suppliers/quick-add-supplier";
 
@@ -609,6 +611,22 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
   });
 
   const data = claim.data;
+  // The letter (JB30): the same query the 书信 panel reads, so an upload
+  // there frees 「确认本期」 here.
+  const needsLetter = data ? claimNeedsLetter(data.kind) : false;
+  // query-failure: the 书信 panel reads the same query and shows its own failure; the button stays held.
+  const letters = useQuery({
+    queryKey: recordAttachmentsKey("CLAIM_LETTER", id),
+    queryFn: () => getRecordAttachments("CLAIM_LETTER", id),
+    enabled: needsLetter,
+  });
+  const blocker = data
+    ? claimConfirmBlocker({
+        kind: data.kind,
+        itemCount: data.items.length,
+        letterCount: letters.data?.attachments.length,
+      })
+    : null;
 
   return (
     <Shell title={data ? data.claim_no : t("open")} onClose={onClose}>
@@ -693,6 +711,19 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               <CandidatePicker claim={data} onChanged={refresh} />
             )}
 
+            {/* 客户 10-26 事项 6: 「打包的progress claim 必须要有书信上传」 -
+                its own slot, required, and the front of the merged PDF. */}
+            {needsLetter && (
+              <RecordAttachmentsPanel
+                kind="CLAIM_LETTER"
+                recordId={data.id}
+                title={t("letter.title")}
+                hint={data.state === "DRAFT" ? t("letter.hint") : undefined}
+                addLabel={t("letter.add")}
+                required={data.state === "DRAFT"}
+                readOnly={data.state !== "DRAFT" || !can("claim.manage")}
+              />
+            )}
             {/* 一般 Claim (ID50): its papers are uploaded on it; every claim
                 keeps its files and its conversation (I10). */}
             <RecordAttachmentsPanel kind="CLAIM" recordId={data.id} />
@@ -803,8 +834,8 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 {t("discard")}
               </Button>
               <Button
-                disabled={data.kind !== "GENERAL" && data.items.length === 0}
-                disabledReason={t("nothingSelected")}
+                disabled={blocker !== null}
+                disabledReason={blocker === "letterMissing" ? t("letter.missing") : t("nothingSelected")}
                 onClick={() => setConfirming(true)}
               >
                 <CheckCheck />
@@ -1316,6 +1347,10 @@ function ConfirmClaimDialog({
             ? t("confirmBodyGeneral")
             : t("confirmBody", { count: claim.items.length })}
         </p>
+        {claimNeedsLetter(claim.kind) && (
+          /* JB30: where the letter goes, said before the press. */
+          <p className="text-xs text-muted-foreground">{t("letter.confirmNote")}</p>
+        )}
         <FieldWrapper label={t("field.remarks")} required hint={t("remarksHelp")}>
           <Textarea
             rows={3}

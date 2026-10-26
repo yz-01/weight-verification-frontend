@@ -8137,6 +8137,7 @@
       "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah.",
       "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka.",
       "attachment_needs_project": "Kelulusan ini bukan untuk satu projek, jadi lampiran tidak boleh ditambah. Simpan dokumennya dalam arkib dokumen.",
+      "claim_letter_required": "Muat naik surat dahulu. Progress Claim mesti ada surat; ia diletakkan di hadapan PDF.",
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
       "receipt_awaiting_acceptance": "Penghantaran ini belum diterima. Terima atau tolak dahulu, kemudian arkibkan.",
       "receipt_archive_needs_supplier": "Penghantaran ini ({receipt}) belum ada pembekal. Yang ditolak juga: tekan 「Isi pembekal」 sebelum mengarkibkan.",
@@ -10642,7 +10643,14 @@
     "descriptionHint": "Untuk apa tuntutan ini, cth. “Tenaga kerja Oktober”.",
     "amountOptional": "Pilihan; boleh diisi kemudian.",
     "confirmBodyGeneral": "Selepas disahkan tuntutan am ini dikira dituntut; rekod bayaran seperti biasa.",
-    "completeClaimFields": "Isi kategori dan keterangan (tuntutan am) serta nama untuk “Lain-lain” dahulu."
+    "completeClaimFields": "Isi kategori dan keterangan (tuntutan am) serta nama untuk “Lain-lain” dahulu.",
+    "letter": {
+      "title": "Surat",
+      "hint": "Surat tuntutan ini. Mesti dimuat naik sebelum pengesahan, dan diletakkan di hadapan PDF gabungan.",
+      "add": "Muat naik surat",
+      "missing": "Muat naik surat dahulu.",
+      "confirmNote": "Surat diletakkan di hadapan PDF gabungan."
+    }
   },
   "multiEngine": {
     "acceptItem": "Terima",
@@ -10998,7 +11006,12 @@
       "round": "Pusingan semasa",
       "returned": "Dipulangkan"
     },
-    "received": "Pakej diterima"
+    "received": "Pakej diterima",
+    "uploads": {
+      "add": "Muat naik fail",
+      "title": "Fail dimuat naik",
+      "hint": "PDF, gambar atau fail lain dari komputer. Ia dimasukkan ke dalam PDF gabungan selepas rekod apabila disahkan. Selepas dimuat naik, ia tidak boleh diubah atau dibuang."
+    }
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",
