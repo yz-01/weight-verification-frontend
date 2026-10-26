@@ -146,7 +146,7 @@ export function GatePhotoWall({
                 type="button"
                 onClick={() => setIndex(position)}
                 title={item.record.incident_no}
-                className="photo-hatch relative block aspect-square w-full overflow-hidden rounded-lg border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring"
+                className="photo-hatch relative block aspect-4/3 w-full overflow-hidden rounded-lg border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

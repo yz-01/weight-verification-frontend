@@ -260,26 +260,38 @@ describe("the large first photo", () => {
     expect(heroSources({ ...photo, url: "" }, false)).toEqual({ src: "https://cdn.example/thumb.webp" });
   });
 
-  it("is a square, filled", () => {
+  // JB34 (客户 10-26 事项 10): back to the wide frame of 图 9-11.
+  it("is a wide 16:9 frame across the whole panel, filled", () => {
     const source = readFileSync(path.join(process.cwd(), "src/components/shared/record-detail-shell.tsx"), "utf8");
     const hero = source.slice(source.indexOf("function ShellHeroPhoto"), source.indexOf("function ShellRecorder"));
-    expect(hero).toContain("aspect-square");
+    expect(hero).toContain("aspect-video w-full");
+    expect(hero).not.toContain("aspect-square");
+    expect(hero).not.toContain("max-w-md");
     expect(hero).toContain("heroFit(natural)");
     expect(hero).not.toContain("photoFrameWidth");
   });
 
   // J45 (Lucas 10-22, k13): the burnt-in watermark strip at the photo's foot
   // is never cut off nor covered by the hero.
-  it("fills the square with a square photo or a tall one, cut from the top so the strip stays", () => {
+  it("fills the frame with a 16:9, 4:3, square or tall photo, cut from the top so the strip stays", () => {
+    expect(heroFit({ width: 1920, height: 1080 })).toBe("object-cover object-bottom");
+    expect(heroFit({ width: 4000, height: 3000 })).toBe("object-cover object-bottom");
     expect(heroFit({ width: 1440, height: 1440 })).toBe("object-cover object-bottom");
     expect(heroFit({ width: 1080, height: 1920 })).toBe("object-cover object-bottom");
     // Before it has loaded: the same, so nothing jumps for the common case.
     expect(heroFit(null)).toBe("object-cover object-bottom");
   });
 
-  it("shows a wide photo whole, since cutting its sides would cut the strip's lines", () => {
-    expect(heroFit({ width: 1920, height: 1080 })).toBe("object-contain");
-    expect(heroFit({ width: 4000, height: 3000 })).toBe("object-contain");
+  it("shows a panorama wider than the frame whole, since cutting its sides would cut the strip's lines", () => {
+    expect(heroFit({ width: 3000, height: 1000 })).toBe("object-contain");
+  });
+
+  it("lines the small photos under it up as equal landscape 4:3 tiles", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/components/shared/record-detail-shell.tsx"), "utf8");
+    const strip = source.slice(source.indexOf("function ShellThumbnail"), source.indexOf("export function heroSources"));
+    expect(strip).toContain("aspect-4/3 w-24");
+    expect(strip).toContain("object-cover object-bottom");
+    expect(strip).not.toMatch(/size-20/);
   });
 
   it("puts its caption at the top, off the watermark strip", () => {

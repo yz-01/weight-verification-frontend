@@ -781,13 +781,13 @@ function StoredDetailSheet({
                       <a key={proof.id} href={proof.url} target="_blank" rel="noreferrer" className="block">
                         {/\.pdf$/i.test(proof.name ?? "") ? (
                           // The bank's PDF (D11): a file to open, not a photo.
-                          <span className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-md border p-2 text-center text-2xs">
+                          <span className="flex aspect-4/3 w-full flex-col items-center justify-center gap-1 rounded-md border p-2 text-center text-2xs">
                             <FileText className="size-6 text-muted-foreground" />
                             <span className="line-clamp-2 break-all">{proof.name}</span>
                           </span>
                         ) : (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={proof.url} alt={t("mySubmissions.paymentProofs")} className="aspect-square w-full rounded-md border object-cover" />
+                          <img src={proof.url} alt={t("mySubmissions.paymentProofs")} className="aspect-4/3 w-full rounded-md border object-cover object-bottom" />
                         )}
                         {proof.amount ? <span className="mt-1 block text-xs tabular-nums">RM {proof.amount}</span> : null}
                       </a>
@@ -943,7 +943,7 @@ function QueuedDetailSheet({
                     key={url}
                     src={url}
                     alt={t("mySubmissions.photos")}
-                    className="aspect-square w-full rounded-md border object-cover object-bottom"
+                    className="aspect-4/3 w-full rounded-md border object-cover object-bottom"
                   />
                 ))}
               </div>

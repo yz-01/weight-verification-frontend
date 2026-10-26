@@ -108,10 +108,10 @@ export function GateCard({ project = "" }: { project?: string }) {
                     decoding="async"
                     src={thumb.watermarked_image}
                     alt={t("photoAlt", { reference: thumb.incident_no })}
-                    className="aspect-square w-full object-cover object-bottom transition-transform group-hover:scale-105"
+                    className="aspect-4/3 w-full object-cover object-bottom transition-transform group-hover:scale-105"
                   />
                 ) : (
-                  <span className="grid aspect-square place-items-center text-muted-foreground">
+                  <span className="grid aspect-4/3 place-items-center text-muted-foreground">
                     <DoorOpen className="size-5" />
                   </span>
                 )}

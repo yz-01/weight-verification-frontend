@@ -155,19 +155,22 @@ export function photoFrameWidth(photo: Size, height: string): string {
 
 function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => void }) {
   return (
-    <li className="w-20">
+    <li className="w-24">
+      {/* Landscape 4:3, all one size (JB34, the client's 图 8 and 图 9),
+          cut from the bottom so the stamped strip stays (J45). */}
       <button
         type="button"
         title={photo.label}
         onClick={onOpen}
-        className="relative block size-20 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
+        data-shell-thumbnail
+        className="relative block aspect-4/3 w-24 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Image
           src={photo.thumbnailUrl || photo.url}
           alt={photo.label}
           fill
-          sizes="80px"
-          className="object-cover"
+          sizes="96px"
+          className="object-cover object-bottom"
           unoptimized
         />
       </button>
@@ -183,10 +186,13 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
  * reader checks first, with what it is and when it was taken over its corner.
  * The rest stay small beside it.
  *
- * A square (J44, Lucas 10-22): a portrait photo in a frame of its own shape
- * was a narrow strip down the panel. The square is filled (cut to fit); the
- * whole photograph is one press away in the viewer. It is drawn from the
- * large photograph, never the 400 px thumbnail stretched over it.
+ * A wide 16:9 frame across the whole panel, on a computer and a phone (JB34,
+ * 客户 10-26 事项 10: 「图3图4图5这些是之前的照片，这样的照片就好看，为什么要
+ * 改呢？改回去」) - the look before J34-1 made it the photo's own shape and
+ * J44 a square. The frame is filled (cut to fit, from the bottom so the
+ * stamped strip stays - J45); the whole photograph is one press away in the
+ * viewer. It is drawn from the large photograph, never the 400 px thumbnail
+ * stretched over it (J44).
  *
  * `fromThumbnail`: the phone field app (client 2026-10-09 二.4, 五.3) names
  * the thumbnail first and offers the large photo beside it (`srcset`), so a
@@ -201,17 +207,16 @@ export function heroSources(photo: ShellPhoto, fromThumbnail: boolean): { src: s
 }
 
 /**
- * How the square hero fits its photo so the burnt-in watermark strip (the
+ * How the 16:9 hero fits its photo so the burnt-in watermark strip (the
  * bottom band, left-aligned text) is never cut (J45, Lucas 10-22, k13):
  *
- * * square (every photo since J45) - fills the square exactly, nothing cut;
- * * tall (older phone photos, and before the photo has loaded) - fills the
- *   square, cut from the top: the strip at the foot stays whole;
- * * wide - shown whole (`contain`): cutting its sides would cut the strip's
- *   lines, which run over more than half its width.
+ * * up to 16:9 wide - square, 4:3, tall, and before it has loaded - fills
+ *   the frame, cut from the top: the strip at the foot stays whole;
+ * * wider than 16:9 (a panorama) - shown whole (`contain`): filling would
+ *   cut its sides, and with them the strip's lines.
  */
 export function heroFit(natural: Size | null): string {
-  if (natural && natural.width > natural.height * 1.02) return "object-contain";
+  if (natural && natural.width > natural.height * (16 / 9) * 1.02) return "object-contain";
   return "object-cover object-bottom";
 }
 
@@ -233,13 +238,13 @@ function ShellHeroPhoto({
       title={photo.label}
       onClick={onOpen}
       data-shell-hero
-      className="relative mx-auto block aspect-square w-full max-w-md overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
+      className="relative block aspect-video w-full overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- a srcset of two stored renditions, not a resized one */}
       <img
         src={src}
         srcSet={srcSet}
-        sizes="(min-width: 640px) 28rem, 100vw"
+        sizes="(min-width: 1024px) 50vw, 100vw"
         alt={photo.label}
         decoding="async"
         onLoad={(event) => {

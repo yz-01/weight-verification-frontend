@@ -31,7 +31,8 @@ describe("PhotoThumb", () => {
     );
     expect(markup).toContain('data-photo-thumb="photo"');
     expect(markup).toContain(COVER);
-    expect(markup).toContain("size-12");
+    // Landscape 4:3, 64 px wide (JB34).
+    expect(markup).toContain("aspect-4/3 w-16");
     expect(markup).toMatch(/<span aria-hidden="true" class="absolute bottom-0\.5 right-0\.5[^"]*">3<\/span>/);
     expect(markup).toContain('aria-label="查看 RC-001 的照片 · 3 张照片"');
     expect(markup).toContain("<button");
