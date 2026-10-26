@@ -65,6 +65,17 @@ describe("before 确认归档 a record is previewed only", () => {
     }
   });
 
+  it("previews with JB27's preview header and never signs or fetches a held file to take out", () => {
+    const actions = read("components/shared/file-actions.tsx");
+    // One preview signal: `X-File-Action: preview` (JB27), no PIN asked.
+    expect(actions).toMatch(/withFileFetch\(signsFileActions\(\) \? \{ preview: true \} : null, source\.load\)/);
+    // A held print / export / send stops before the PIN, the fetch and the log.
+    const run = actions.slice(actions.indexOf("const run = useCallback"));
+    expect(run.indexOf('if (options.blockedReason && action !== "preview") return;')).toBeGreaterThan(-1);
+    expect(run.indexOf('if (options.blockedReason && action !== "preview") return;')).toBeLessThan(run.indexOf("await leave("));
+    expect(actions).toContain("if (held.blockedReason) return;");
+  });
+
   it("says the reason in the client's words", () => {
     expect(messages.draftRecords.notArchived).toBe("确认归档后才能导出 / 打印 / 发送");
   });
