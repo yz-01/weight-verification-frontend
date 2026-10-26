@@ -127,7 +127,8 @@ describe("the button and the endpoint (T-386)", () => {
     expect(button).toMatch(/load: \(\) => recordPdfFile\(kind, recordId, reference\)/);
     // Cannot be pressed twice while a file is being fetched.
     const actions = read("src/components/shared/file-actions.tsx");
-    expect(actions).toMatch(/disabled=\{disabled \|\| Boolean\(busy\)\}/);
+    // (JB25 adds the not-yet-confirmed hold after it.)
+    expect(actions).toMatch(/disabled=\{disabled \|\| Boolean\(busy\)/);
   });
 
   it("is labelled in all four languages", () => {

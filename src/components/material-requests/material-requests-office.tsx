@@ -722,7 +722,7 @@ export function MaterialRequestDetail({
     ? t("waitingFor", { name: row.assigned_reviewer_name })
     : null;
   const changeable =
-    !decided && !user?.is_field_staff && (reviewView === "own" || can("material_request.review"));
+    !decided && !user?.is_field_staff && reviewView !== "waiting";
   const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
   // 「转呈总部」 (I12, ID29): the project manager sent it on.
   const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");
