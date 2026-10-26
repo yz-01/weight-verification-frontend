@@ -31,6 +31,27 @@ export interface WallRecord extends GateIncident {
   wall_photos: WallPhoto[];
 }
 
+/**
+ * 日常拍照记录 as one row per 「发送」 (JB35, `?group=upload`): the guard's
+ * press, opened and numbered by its first record, with every record of it
+ * as the wall reads them.
+ */
+export interface GateUpload {
+  /** The first record's id: a one-photo upload opens as that record. */
+  id: string;
+  upload_batch: string;
+  incident_no: string;
+  last_incident_no: string;
+  project: string;
+  project_name: string;
+  project_code: string;
+  guard_name: string;
+  occurred_at: string;
+  record_count: number;
+  photo_count: number;
+  records: WallRecord[];
+}
+
 /** One tile: a photo, the record it belongs to, and its place in that record. */
 export interface WallItem {
   key: string;

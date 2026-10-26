@@ -47,6 +47,11 @@ export const FIT_KIND_PX = {
    * 10-21: 64 px on a desktop, 56 px on a phone).
    */
   strip: 268,
+  /**
+   * Six of them (JB35): 日常拍照记录 gave its GPS and PDF columns to the
+   * photos (客户 10-26: 「PDF，GPS不需要再表头内把那些空间腾出来给照片用」).
+   */
+  wideStrip: 404,
   /** A short pill: 进场 / 退场, a type. */
   badge: 60,
   /** A status pill, one line, up to 「已批准，待交接签名」. */

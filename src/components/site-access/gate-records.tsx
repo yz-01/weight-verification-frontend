@@ -485,6 +485,9 @@ function GatePhotoCapture({
   // One id per Gate Issue being sent, kept across a retry so a resend after
   // a lost answer lands once.
   const issueEventId = useRef(newEventId());
+  // One key per 「发送」 (JB35), kept across a retry: the office shows the
+  // press's photos as one row. Nothing changes on the phone.
+  const uploadBatch = useRef(newEventId());
   const where = fix
     ? { latitude: fix.latitude, longitude: fix.longitude, accuracy_m: fix.accuracy }
     : {};
@@ -507,6 +510,7 @@ function GatePhotoCapture({
             is_issue: false,
             members: [],
             client_event_id: `${photo.client_event_id}-record`,
+            upload_batch: uploadBatch.current,
             photos: [photo],
             ...where,
           }),
@@ -517,6 +521,7 @@ function GatePhotoCapture({
     onSuccess: (outcomes) => {
       setSent({ count: camera.photos.length, queued: outcomes.includes("queued"), talk: false });
       camera.clear();
+      uploadBatch.current = newEventId();
       refreshLists();
     },
   });

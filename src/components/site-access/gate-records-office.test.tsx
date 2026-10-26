@@ -33,6 +33,10 @@ vi.mock("@/components/providers/current-project-provider", async (importOriginal
   useProjectBoxShown: () => true,
 }));
 vi.mock("@/components/shared/location-map", () => ({ LocationMap: () => null }));
+// Dialogs drawn inline (Radix portals need a DOM); a closed one draws nothing.
+vi.mock("@/components/ui/dialog", async () =>
+  (await import("@/components/shared/record-detail-test-kit")).inlineDialogModule(),
+);
 
 const { GateRecordsOffice } = await import("@/components/site-access/gate-records-office");
 
@@ -170,5 +174,97 @@ describe("日常拍照记录 as a photo wall (I33)", () => {
     const html = render("tab=photos&occurred_from=2026-10-14T14:00&occurred_to=2026-10-14T15:00");
     expect(html).not.toContain("data-gate-photo-wall");
     expect(html).toContain('value="14:00"');
+  });
+});
+
+/**
+ * JB35 (客户 10-26 事项 10): 「无论门岗发了几张照片后上专，后台都是要在一行的事项内」
+ * 「PDF，GPS不需要再表头内把那些空间腾出来给照片用」.
+ */
+describe("日常拍照记录: one row per upload (JB35)", () => {
+  const photo = (id: string, at: string) => ({
+    id,
+    thumbnail: `https://cdn.example/${id}-small.webp`,
+    watermarked_image: `https://cdn.example/${id}.jpg`,
+    captured_at: at,
+    latitude: "3.1152582",
+    longitude: "101.7297736",
+    accuracy_m: null,
+    guard_name: "ah ong",
+    gate_name: "",
+  });
+  const record = (id: string, no: string, photos: ReturnType<typeof photo>[]) =>
+    ({
+      id,
+      incident_no: no,
+      project: "p1",
+      project_code: "B1",
+      project_name: "builder-001",
+      is_issue: false,
+      guard_name: "ah ong",
+      occurred_at: "2026-10-26T00:38:00Z",
+      latitude: "3.1152582",
+      longitude: "101.7297736",
+      wall_photos: photos,
+    }) as unknown as WallRecord;
+  const upload = {
+    id: "g34",
+    upload_batch: "p:press-1",
+    incident_no: "GT-B1-034",
+    last_incident_no: "GT-B1-035",
+    project: "p1",
+    project_name: "builder-001",
+    project_code: "B1",
+    guard_name: "ah ong",
+    occurred_at: "2026-10-26T00:38:00Z",
+    record_count: 2,
+    photo_count: 2,
+    records: [
+      record("g34", "GT-B1-034", [photo("a", "2026-10-26T00:38:00Z")]),
+      record("g35", "GT-B1-035", [photo("b", "2026-10-26T00:38:20Z")]),
+    ],
+  };
+  const seed = (client: QueryClient) =>
+    client.setQueryData(["gate-incidents", "uploads", { page: 1, page_size: 25, kind: "photos" }], {
+      count: 1,
+      page: 1,
+      page_size: 25,
+      total_pages: 1,
+      results: [upload],
+    });
+
+  it("draws the upload as one row with both photos, and no GPS or PDF column", () => {
+    const html = render("tab=photos", seed);
+    expect(html.match(/<tbody[\s\S]*?<\/tbody>/)?.[0].match(/<tr/g)).toHaveLength(1);
+    expect(html).toContain("https://cdn.example/a-small.webp");
+    expect(html).toContain("https://cdn.example/b-small.webp");
+    expect(html).toContain("data-gate-upload-range");
+    const words = messages.siteControl.gateRecords;
+    expect(html).not.toContain(`>${words.field.gps}<`);
+    expect(html).not.toContain(`>${words.field.singlePdf}<`);
+    expect(html).not.toContain("data-gate-row-pdf");
+  });
+
+  it("opens on every record, each with its time, GPS and single PDF", async () => {
+    const { GateUploadDetailDialog } = await import("@/components/site-access/gate-upload-detail");
+    const client = new QueryClient();
+    const html = renderToStaticMarkup(
+      <QueryClientProvider client={client}>
+        <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
+          <TooltipProvider>
+            <GateUploadDetailDialog
+              upload={upload}
+              renderPdf={(row) => <span data-pdf-for={row.id} />}
+              onOpenRecord={() => {}}
+              onClose={() => {}}
+            />
+          </TooltipProvider>
+        </NextIntlClientProvider>
+      </QueryClientProvider>,
+    );
+    expect(html.match(/data-gate-upload-record=/g)).toHaveLength(2);
+    expect(html).toContain('data-pdf-for="g34"');
+    expect(html).toContain('data-pdf-for="g35"');
+    expect(html).toContain("3.1152582, 101.7297736");
   });
 });
