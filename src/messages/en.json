@@ -6808,7 +6808,8 @@
         "openRecord": "Open the record"
       },
       "count": "{count} in total · page {page} of {pages}",
-      "regenerating": "Generating it again…"
+      "regenerating": "Generating it again…",
+      "alreadyRegenerated": "Already generated again from these conditions: open the new row with the same report and period."
     },
     "loadError": "The report could not be loaded.",
     "period": "Period: {from} to {to}",

@@ -675,23 +675,29 @@ export function fileMeta(file: Blob): FileMeta {
  */
 export type FileFetchPurpose = { preview: true } | { grant: string };
 
-let fileFetchPurpose: FileFetchPurpose | null = null;
+/**
+ * The runs in progress, each with its own entry. A run removes only its own
+ * entry when it ends, whatever order runs end in, so a preview that finished
+ * last can never leave every later fetch marked as a preview (review #1).
+ */
+const fileFetchRuns: Array<{ purpose: FileFetchPurpose }> = [];
 
 export async function withFileFetch<T>(purpose: FileFetchPurpose | null, run: () => Promise<T>): Promise<T> {
-  const before = fileFetchPurpose;
-  fileFetchPurpose = purpose;
+  if (!purpose) return run();
+  const mine = { purpose };
+  fileFetchRuns.push(mine);
   try {
     return await run();
   } finally {
-    fileFetchPurpose = before;
+    const at = fileFetchRuns.indexOf(mine);
+    if (at >= 0) fileFetchRuns.splice(at, 1);
   }
 }
 
 function fileFetchHeaders(): Record<string, string> | undefined {
-  if (!fileFetchPurpose) return undefined;
-  return "grant" in fileFetchPurpose
-    ? { "X-File-Action-Grant": fileFetchPurpose.grant }
-    : { "X-File-Action": "preview" };
+  const purpose = fileFetchRuns.at(-1)?.purpose;
+  if (!purpose) return undefined;
+  return "grant" in purpose ? { "X-File-Action-Grant": purpose.grant } : { "X-File-Action": "preview" };
 }
 
 /**

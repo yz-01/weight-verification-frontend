@@ -93,6 +93,7 @@ import {
   revokeSiteAccessPass,
   updateSiteAccessPass, exportDeviceEvents } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
+import { signFileAction } from "@/services/file-action.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { VisitorConsent, useVisitorNotice } from "@/components/site-access/visitor-consent";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
@@ -1430,7 +1431,10 @@ function PassQr({
     typeof window === "undefined"
       ? row.qr_value
       : `${window.location.origin}/site-access?scan=${encodeURIComponent(token)}`;
-  function save() {
+  async function save() {
+    if (!ref.current) return;
+    // 下载 asks for the person's own PIN and is logged (JB27); the phone is not asked.
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${row.pass_no}`, file_name: `${row.pass_no}.png`, link: window.location.pathname }))) return;
     const canvas = ref.current;
     if (!canvas) return;
     const link = document.createElement("a");
@@ -1456,7 +1460,7 @@ function PassQr({
         </div>
         <p className="text-center font-semibold tabular-nums">{row.pass_no}</p>
         <DialogFooter>
-          <Button variant="outline" onClick={save}>
+          <Button variant="outline" onClick={() => void save()}>
             <Download />
             PNG
           </Button>

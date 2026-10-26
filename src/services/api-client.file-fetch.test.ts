@@ -47,6 +47,21 @@ describe("what a file is fetched for", () => {
     expect(seen[0]["X-File-Action"]).toBeUndefined();
   });
 
+  it("is not left stuck on a preview when two runs end out of order (review #1)", async () => {
+    const seen = serve();
+    let endPreview!: () => void;
+    const preview = withFileFetch({ preview: true }, () => new Promise<void>((done) => (endPreview = done)));
+    let endGrant!: () => void;
+    const signed = withFileFetch({ grant: "g" }, () => new Promise<void>((done) => (endGrant = done)));
+    endGrant();
+    await signed;
+    endPreview();
+    await preview;
+    await fetchAsFile("/api/x/", { fallbackFilename: "x.pdf", silent: true });
+    expect(seen[0]["X-File-Action"]).toBeUndefined();
+    expect(seen[0]["X-File-Action-Grant"]).toBeUndefined();
+  });
+
   it("keeps the history row and project the server named", async () => {
     serve({ "X-Report-Export-Id": "row-1", "X-File-Project": "project-1" });
     const file = await fetchAsFile("/api/x/", { fallbackFilename: "x.pdf", silent: true });

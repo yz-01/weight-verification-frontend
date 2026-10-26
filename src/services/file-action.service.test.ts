@@ -99,10 +99,35 @@ describe("every way out of the back office asks", () => {
     "src/components/site-access/emergency-list-workspace.tsx",
     "src/components/shared/evidence-file-actions.tsx",
     "src/components/shared/file-preview.tsx",
+    // Review #6: the paths outside the shared buttons.
+    "src/components/consultant-workflow/application-detail.tsx",
+    "src/components/projects/project-dockets.tsx",
+    "src/components/site-access/site-access-workspace.tsx",
+    "src/components/suppliers/supplier-site-codes.tsx",
+    "src/components/shared/record-attachments.tsx",
+    "src/components/evidence/evidence-archive.tsx",
   ])("%s prints or downloads only after signFileAction", (file) => {
     const source = read(file);
     expect(source).toMatch(/signFileAction\(/);
     // No print window opened outside the shared helpers.
     expect(source).not.toMatch(/window\.open\("", "_blank"/);
+  });
+});
+
+describe("review fixes", () => {
+  it("fetches a daily report and a record's PDF again for the real export (review #4)", () => {
+    expect(read("src/components/progress/daily-reports.tsx")).toMatch(/exportedOnServer: true/);
+    expect(read("src/components/shared/record-export-button.tsx").match(/exportedOnServer: true/g)).toHaveLength(2);
+  });
+
+  it("escapes names written into a printed QR page (review #11)", () => {
+    expect(read("src/components/suppliers/supplier-qr-panel.tsx")).toMatch(/escapePrintHtml\(supplier\.name\)/);
+    const customers = read("src/components/recycler-business/recycler-customers-workspace.tsx");
+    expect(customers).toMatch(/escapePrintHtml\(customer\.company_name\)/);
+    expect(customers).not.toMatch(/<h1>\$\{customer\.company_name\}/);
+  });
+
+  it("offers no second regeneration of a row already generated again (review #5)", () => {
+    expect(read("src/components/contractor-ops/contractor-report-history.tsx")).toMatch(/row\.regenerated_as \?/);
   });
 });
