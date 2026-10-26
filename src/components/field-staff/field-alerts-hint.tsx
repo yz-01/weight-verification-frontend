@@ -44,6 +44,7 @@ export function FieldAlertsHint() {
   const [pending, setPending] = useState(false);
   const [version, setVersion] = useState(0);
   const pushSupported = typeof window !== "undefined" && isPushSupported();
+  // query-failure: an unread push setting is "not configured" - the hint then names the install / permission steps only
   const config = useQuery({
     queryKey: ["notifications", "push-config"],
     queryFn: () => getPushConfig({ silent: true }),
