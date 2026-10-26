@@ -1735,21 +1735,9 @@ export function recordPdfKindFor(kind: string): RecordPdfKind | null {
  * `version` (J1-21, Q1-6): 1 is the record as first filed (修改前原单),
  * left out it is the latest, its changed fields marked 「已修改」.
  */
-export const recordPdfFile = (
-  kind: RecordPdfKind,
-  recordId: string,
-  reference: string,
-  version?: number,
-  /** JB25: `preview` - a record not yet confirmed is fetched to look at only. */
-  options: { preview?: boolean } = {},
-) =>
+export const recordPdfFile = (kind: RecordPdfKind, recordId: string, reference: string, version?: number) =>
   fetchAsFile("/api/record-exports/download/", {
-    query: {
-      kind,
-      record: recordId,
-      ...(version ? { version: String(version) } : {}),
-      ...(options.preview ? { preview: "1" } : {}),
-    },
+    query: { kind, record: recordId, ...(version ? { version: String(version) } : {}) },
     // Only used when the server sends no filename. Some references are
     // labels rather than numbers (a progress record's 「phase / 40%」), so
     // the characters a filename cannot hold become dashes.

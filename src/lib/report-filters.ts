@@ -26,7 +26,8 @@ export const REPORT_FILTERS: Record<ContractorReportType, readonly ReportFilterK
   recycling: ["record_type", "status", "counterparty"],
   schedule: ["plan", "status"],
   target: ["target_type", "status"],
-  photos: ["actor"],
+  // 照片来源 (JB29): 现场拍照 / 后台上传 / 附件 / 留言里的照片.
+  photos: ["actor", "origin"],
   documents: ["status", "actor"],
   // 撰写人 (I8).
   daily_report: ["actor"],
@@ -72,6 +73,7 @@ const FILTER_COLUMN: Record<ReportFilterKey, string> = {
   subcontractor: "subcontractor",
   material: "material",
   specification: "specification",
+  origin: "origin",
 };
 
 const ACTOR_LABEL: Partial<Record<ContractorReportType, string>> = {

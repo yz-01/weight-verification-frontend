@@ -58,6 +58,8 @@ export function useReportArchive() {
           load: () => previewArchivedReport(row.id, row.file_name),
           loadToSend: () => archivedReportFile(row.id, row.file_name),
           title: title || row.file_name,
+          // Its print / download / send log rows point at this row (JB27).
+          reportExport: row.id,
         },
         { key: `${row.id}:${action}` },
       );

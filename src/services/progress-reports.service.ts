@@ -136,10 +136,9 @@ export async function archiveProgressSummary(id: string) {
 }
 
 /** The summary as a PDF, its blocks in order (H16): 预览 · 打印 · 导出 · 发送. */
-export const progressSummaryPdfFile = (id: string, lang: string, title: string, preview = false) =>
+export const progressSummaryPdfFile = (id: string, lang: string, title: string) =>
   fetchAsFile(`/api/progress-summaries/${id}/get_summary_pdf/`, {
     method: "GET",
-    // JB25: not yet archived, it is fetched to preview only.
-    query: { lang, ...(preview ? { preview: "1" } : {}) },
+    query: { lang },
     fallbackFilename: `${(title || "progress-summary").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
   });

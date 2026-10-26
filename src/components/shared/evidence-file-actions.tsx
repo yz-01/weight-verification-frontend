@@ -22,17 +22,16 @@
  *   the person can still save it rather than being shown nothing.
  */
 
-import { Download, ExternalLink, Printer } from "lucide-react";
+import { Download, ExternalLink, Loader2, Printer, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useFileActions } from "@/components/shared/file-actions";
 import { Button } from "@/components/ui/button";
+import { printImage } from "@/lib/file-actions";
+import { signFileAction } from "@/services/file-action.service";
 
 function isPdf(url: string) {
   return /\.pdf(?:$|[?#])/i.test(url);
-}
-
-function escapeAttribute(value: string) {
-  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
 
 export function printEvidence(url: string, title: string) {
@@ -40,14 +39,9 @@ export function printEvidence(url: string, title: string) {
     window.open(url, "_blank", "noopener,noreferrer");
     return;
   }
-  const printable = window.open("", "_blank");
-  if (!printable) return;
-  printable.document.write(
-    `<!doctype html><title>${escapeAttribute(title)}</title>` +
-      `<style>html,body{margin:0}img{max-width:100%;display:block;margin:0 auto}</style>` +
-      `<img src="${escapeAttribute(url)}" onload="window.focus();window.print()">`,
-  );
-  printable.document.close();
+  // From a hidden frame, not a new window: after the PIN dialog (JB27) the
+  // click that allowed a window is spent, and a popup blocker would stop it.
+  printImage(url, title);
 }
 
 export async function downloadEvidence(url: string, filename: string) {
@@ -70,38 +64,89 @@ export async function downloadEvidence(url: string, filename: string) {
   }
 }
 
+/** The photograph as a file, to hand to the share sheet. */
+async function evidenceFile(url: string, filename: string): Promise<File> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(String(response.status));
+  const blob = await response.blob();
+  return new File([blob], filename, { type: blob.type || "image/jpeg" });
+}
+
+/** The page the file was taken from, for its log row. */
+function pagePath(): string {
+  return `${window.location.pathname}${window.location.search}`;
+}
+
 export function EvidenceFileActions({
   url,
   filename,
   title,
+  share = false,
+  className,
 }: {
   url: string;
   /** Saved as, e.g. `MR-0001-delivery-note.jpg`. */
   filename: string;
   /** The heading on the printed page. */
   title: string;
+  /**
+   * 「发送」 too (JB29, the photo viewer's row: 「预览、打印、下载、导出、发送…」):
+   * the photograph to WhatsApp, email or another app, as every file is sent.
+   */
+  share?: boolean;
+  className?: string;
 }) {
   const t = useTranslations("evidenceFile");
+  const files = useTranslations("fileActions");
+  const { busy, run, element } = useFileActions();
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={className ?? "flex flex-wrap items-center gap-2"} data-slot="evidence-file-actions">
       <Button size="sm" variant="outline" asChild>
         <a href={url} target="_blank" rel="noreferrer">
           <ExternalLink />
           {t("preview")}
         </a>
       </Button>
-      <Button size="sm" variant="outline" onClick={() => printEvidence(url, title)}>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={async () => {
+          // 打印 / 下载 ask for the person's own PIN and are logged (JB27).
+          if (await signFileAction("PRINT", { subject: title, file_name: filename, link: pagePath() })) {
+            printEvidence(url, title);
+          }
+        }}
+      >
         <Printer />
         {t("print")}
       </Button>
       <Button
         size="sm"
         variant="outline"
-        onClick={() => void downloadEvidence(url, filename)}
+        onClick={async () => {
+          if (await signFileAction("DOWNLOAD", { subject: title, file_name: filename, link: pagePath() })) {
+            await downloadEvidence(url, filename);
+          }
+        }}
       >
         <Download />
         {t("download")}
       </Button>
+      {share ? (
+        <Button
+          size="sm"
+          variant="outline"
+          title={files("shareHint")}
+          data-slot="evidence-file-share"
+          disabled={Boolean(busy)}
+          disabledReason={busy ? files("preparing") : undefined}
+          onClick={() => void run("share", { load: () => evidenceFile(url, filename), title })}
+        >
+          {busy ? <Loader2 className="animate-spin" /> : <Share2 />}
+          {files("share")}
+        </Button>
+      ) : null}
+      {element}
     </div>
   );
 }

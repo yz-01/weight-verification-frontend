@@ -72,6 +72,7 @@ import {
   useEquipmentClasses,
 } from "@/components/contractor-ops/equipment-classes";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
+import { OpenExitOfficeFiles } from "@/components/field-staff/office-sent-files";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import {
@@ -179,6 +180,7 @@ import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/r
 import {
   EquipmentExitApplyDialog,
   EquipmentExitHandoverDialog,
+  MachineNumberField,
   MachineScanButton,
 } from "@/components/contractor-ops/equipment-exit";
 import { exitStep } from "@/lib/equipment-exit";
@@ -1977,7 +1979,11 @@ export function machineLabeller(rows: readonly SiteEquipment[]) {
  * 退场 offers the machines on site on this project and goes the way material
  * leaves site (I13, ID30): 申请退场 → the office approves on its Return Note →
  * 实际退场 here → the office confirms. The step a machine is at is said beside
- * it, and only the next step is offered.
+ * it, and only the next step is offered. Since JB32 (客户 10-26 事项 8) 退场
+ * asks for the number on the machine (or its plate) instead of a dropdown -
+ * 「进场时已经绑定有二维码和设备号码」 - and shows the machine found, name and
+ * plate, to check; the QR scan stays. Its exit under way shows
+ * 「后台发来的文件」 (JB33, 事项 9): what the office sent, not figures.
  *
  * No red stars (I22, ID56): each field says in a line what it needs, and the
  * submit button names what is missing.
@@ -2053,14 +2059,10 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const equipmentError =
     rows.error instanceof Error ? rows.error.message : undefined;
   const label = machineLabeller(equipment);
-  // 「进场待验收」 for an entry; for an exit, where it stands (I13).
-  const stateWord = (row: SiteEquipment) => {
-    if (going) {
-      if (!row.open_exit) return "";
-      return t(`equipmentExit.status.${row.open_exit.status}`);
-    }
-    return row.awaiting_acceptance === "ENTRY" ? t("equipment.entryWaiting") : "";
-  };
+  // 「进场待验收」 beside a machine in the 进场 dropdown. An exit's step is
+  // said once its machine is found (I13, JB32).
+  const stateWord = (row: SiteEquipment) =>
+    row.awaiting_acceptance === "ENTRY" ? t("equipment.entryWaiting") : "";
   const entryWaiting = !going && machine?.awaiting_acceptance === "ENTRY";
   const step = exitStep(machine?.open_exit);
   return (
@@ -2123,60 +2125,105 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           </Button>
         ))}
       </div>
-      {/* A9: one dropdown instead of the long list of every machine. */}
-      <FieldWrapper
-        label={t("equipment.chooseMachine")}
-        required="quiet"
-        hint={t("equipment.chooseMachineHint")}
-      >
-        <Select
-          value={chosen || undefined}
-          onValueChange={(next) => {
-            choose(next);
+      {going ? (
+        // 退场: the number on the machine, typed (JB32, 客户 10-26 事项 8:
+        // 「设备下拉搜索挑选的改去填写设备号码」); once found, its name and
+        // plate are shown below to check, with 「换一台」.
+        !machine && (
+          <>
+            <MachineNumberField
+              project={project}
+              machines={equipment}
+              offered={offered}
+              disabled={!project || rows.isLoading}
+              onChosen={(row) => {
+                choose(row.id);
+                setEntering(false);
+              }}
+            />
+            {rows.isSuccess && offered.length === 0 && (
+              <p className="-mt-2 text-sm text-muted-foreground">{t("equipment.noMachineOnSite")}</p>
+            )}
+          </>
+        )
+      ) : (
+        /* A9: one dropdown instead of the long list of every machine. */
+        <FieldWrapper
+          label={t("equipment.chooseMachine")}
+          required="quiet"
+          hint={t("equipment.chooseMachineHint")}
+        >
+          <Select
+            value={chosen || undefined}
+            onValueChange={(next) => {
+              choose(next);
+              setEntering(false);
+            }}
+            disabled={!project || rows.isLoading}
+          >
+            <SelectTrigger className="h-12 w-full" data-testid="field-equipment-select">
+              <SelectValue placeholder={t("equipment.chooseMachinePlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {/* First, not a fallback (2026-10-07): nobody knows in advance
+                  which machine will arrive, so most entries start here. */}
+              {can("equipment.capture") && (
+                <SelectItem value={NEW_MACHINE}>{t("equipment.newMachine")}</SelectItem>
+              )}
+              {offered.map((row) => (
+                <SelectItem key={row.id} value={row.id}>
+                  {stateWord(row) ? `${label(row)} · ${stateWord(row)}` : label(row)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FieldWrapper>
+      )}
+      {/* 「扫描设备二维码」 (I24, ID60): the sticker on the machine picks it. */}
+      {!(going && machine) && (
+        <MachineScanButton
+          project={project}
+          machines={equipment}
+          offered={offered}
+          going={going}
+          disabled={!project || rows.isLoading}
+          onChosen={(row) => {
+            choose(row.id);
             setEntering(false);
           }}
-          disabled={!project || rows.isLoading}
-        >
-          <SelectTrigger className="h-12 w-full" data-testid="field-equipment-select">
-            <SelectValue
-              placeholder={t(going ? "equipment.chooseOnSiteMachine" : "equipment.chooseMachinePlaceholder")}
-            />
-          </SelectTrigger>
-          <SelectContent>
-            {/* First, not a fallback (2026-10-07): nobody knows in advance
-                which machine will arrive, so most entries start here. */}
-            {!going && can("equipment.capture") && (
-              <SelectItem value={NEW_MACHINE}>{t("equipment.newMachine")}</SelectItem>
-            )}
-            {offered.map((row) => (
-              <SelectItem key={row.id} value={row.id}>
-                {stateWord(row) ? `${label(row)} · ${stateWord(row)}` : label(row)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {going && rows.isSuccess && offered.length === 0 && (
-          <p className="mt-1 text-sm text-muted-foreground">{t("equipment.noMachineOnSite")}</p>
-        )}
-      </FieldWrapper>
-      {/* 「扫描设备二维码」 (I24, ID60): the sticker on the machine picks it. */}
-      <MachineScanButton
-        project={project}
-        machines={equipment}
-        offered={offered}
-        going={going}
-        disabled={!project || rows.isLoading}
-        onChosen={(row) => {
-          choose(row.id);
-          setEntering(false);
-        }}
-      />
+        />
+      )}
       {machine && (
         <section
           data-testid="field-equipment-next-step"
           className="surface-panel flex flex-wrap items-center gap-3 rounded-xl p-4"
         >
-          <span className="min-w-0 flex-1 truncate font-medium">{label(machine)}</span>
+          {going ? (
+            // The machine the number found, 「名称 · 车牌」, for the worker
+            // to check before going on (JB32).
+            <div className="min-w-0 flex-1 basis-full">
+              <div className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 truncate font-medium" data-testid="field-equipment-found">
+                  {label(machine)}
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="shrink-0"
+                  onClick={() => {
+                    choose("");
+                    setEntering(false);
+                  }}
+                >
+                  {t("equipmentExit.changeMachine")}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">{t("equipmentExit.confirmMachine")}</p>
+            </div>
+          ) : (
+            <span className="min-w-0 flex-1 truncate font-medium">{label(machine)}</span>
+          )}
           {!going ? (
             entryWaiting ? (
               <span className="text-sm text-warning">{t("equipment.entryWaiting")}</span>
@@ -2209,6 +2256,9 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           )}
         </section>
       )}
+      {/* 「后台发来的文件」 of its exit under way (JB33, 客户 10-26 事项 9):
+          the Gate Pass, the Return Note and the office's files. */}
+      {going && machine?.open_exit && <OpenExitOfficeFiles movementId={machine.open_exit.id} />}
       {isNew && !entering && can("equipment.capture") && (
         <Button className="h-12 w-full" onClick={() => setEntering(true)}>
           <Camera />

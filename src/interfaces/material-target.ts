@@ -32,12 +32,48 @@ export interface MaterialTarget {
   exceeded: string;
   percent: number | null;
   status: MaterialTargetStatus;
+  /**
+   * The original figure, then each addition (JB26), oldest first. The net
+   * fills them in that order; above the last is `exceeded`.
+   */
+  tranches: MaterialTargetTranche[];
   deliveries: number;
   /** 「单位不同，未计入」: loads of this material in another unit. */
   other_units: { unit: string; unit_label: string | null; received: string; deliveries: number }[];
   created_by_name: string;
   created_at: string;
   can_manage: boolean;
+}
+
+export type MaterialTargetChangeKind = "ORIGINAL" | "ADDED";
+
+/** One line of a target in the table (JB26): the original or one addition. */
+export interface MaterialTargetTranche {
+  kind: MaterialTargetChangeKind;
+  quantity: string;
+  /** The target up to and including this line. */
+  cumulative_target: string;
+  filled: string;
+  remaining: string;
+  percent: number | null;
+  created_at: string;
+  actor_name: string;
+}
+
+/**
+ * One line of 修改目标数量's history (JB26). Written by the server from the
+ * account whose PIN signed it; never changed or removed.
+ */
+export interface MaterialTargetChange {
+  id: string;
+  kind: MaterialTargetChangeKind;
+  /** The original figure, or the amount added. */
+  quantity: string;
+  target_before: string;
+  target_after: string;
+  actor_name: string;
+  actor_account: string;
+  created_at: string;
 }
 
 export interface MaterialTargetList {

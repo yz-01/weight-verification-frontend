@@ -4,9 +4,12 @@
  * The same frame as every module's record, one column on the phone. No
  * 记录人: the worker opening it is the one who recorded it.
  */
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import messages from "@/messages/zh.json";
+
+// Which record the address opens; a material exit opens by its chat link.
+const nav = vi.hoisted(() => ({ search: "movement=mv-7" }));
 
 vi.mock("@/components/ui/dialog", async () =>
   (await import("@/components/shared/record-detail-test-kit")).inlineDialogModule(),
@@ -15,7 +18,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn(), replace: vi.fn() }),
   usePathname: () => "/field-staff",
   // The office's notice about a movement opens it here (Fable B4 #15).
-  useSearchParams: () => new URLSearchParams("movement=mv-7"),
+  useSearchParams: () => new URLSearchParams(nav.search),
 }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: { id: "u-1" }, can: () => true }),
@@ -23,8 +26,11 @@ vi.mock("@/components/providers/auth-provider", () => ({
 vi.mock("@/components/shared/record-conversation", () => ({
   RecordConversationPanel: () => <div data-stub="conversation" />,
 }));
-vi.mock("@/components/shared/record-attachments", () => ({
-  RecordAttachmentsPanel: () => <div data-stub="attachments" />,
+vi.mock("@/components/shared/record-attachments", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/components/shared/record-attachments")>()),
+  RecordAttachmentsPanel: ({ readOnly }: { readOnly?: boolean }) => (
+    <div data-stub="attachments" data-read-only={String(Boolean(readOnly))} />
+  ),
 }));
 vi.mock("@/components/shared/record-export-button", () => ({
   RecordExportButton: ({ kind }: { kind: string }) => <div data-stub="export" data-kind={kind} />,
@@ -75,8 +81,92 @@ describe("the phone's submitted record (E8)", () => {
     expect(html).toContain("DO-OUT-7");
     expect(html).toContain("https://cdn.example/mv-7.jpg");
     expect(html).toContain('data-stub="conversation"');
-    expect(html).not.toContain('data-stub="attachments"');
+    // The attachments only inside 「后台发来的文件」, read only (JB33).
+    expect(html).toContain('data-stub="attachments" data-read-only="true"');
+    expect(html.indexOf('data-stub="attachments"')).toBeGreaterThan(html.indexOf('data-testid="office-sent-files"'));
     expect(html).not.toContain('data-stub="export"');
+  });
+});
+
+/**
+ * 「后台发来的文件」 (JB33). 客户 10-26 事项 9: 「这个文件接收框是用来接收后台发过来
+ * 的gatepass和文件，请检查现场人员手机端材料和设备退场，文件接收框。」
+ */
+describe("an exit under 我提交过的 shows what the office sent (JB33)", () => {
+  const OFFICE = "https://cdn.example/office/gate-pass.jpg";
+  const words = messages.fieldStaffPwa.officeFiles;
+
+  afterEach(() => {
+    nav.search = "movement=mv-7";
+  });
+
+  function exitSent(
+    client: import("@tanstack/react-query").QueryClient,
+    kind: "EQUIPMENT_MOVEMENT" | "MATERIAL_OUTGOING",
+    { sent = true, attachments = [] as unknown[] } = {},
+  ) {
+    nav.search = kind === "EQUIPMENT_MOVEMENT" ? "movement=mv-7" : `chat=${kind}:mv-7`;
+    const opened = { ...row, kind };
+    client.setQueryData(["my-submissions"], { results: [opened], count: 1 });
+    const office = { id: "o1", url: OFFICE, thumbnail_url: null, caption: "Gate Pass" };
+    client.setQueryData(["my-submissions", "detail", kind, "mv-7"], {
+      ...opened,
+      fields: [
+        { key: "delivery_note_no", value: "DO-OUT-7" },
+        ...(sent ? [{ key: "return_note_no", value: "RN-0042" }, { key: "approver_name", value: "Mr Tan" }] : []),
+      ],
+      photos: [{ id: "s1", url: "https://cdn.example/site.jpg", caption: "Exit gate" }, ...(sent ? [office] : [])],
+      office_files: sent ? [office] : [],
+    });
+    client.setQueryData(["record-attachments", kind, "mv-7"], { attachments, closed: "", can_add: false });
+  }
+
+  /** The markup from the box on (it is the last block before the conversation). */
+  const box = (html: string) => {
+    const start = html.indexOf('data-testid="office-sent-files"');
+    expect(start, "the box is drawn").toBeGreaterThan(-1);
+    return html.slice(start);
+  };
+
+  for (const kind of ["EQUIPMENT_MOVEMENT", "MATERIAL_OUTGOING"] as const) {
+    it(`${kind}: the office's file and the Return Note are in the box, not among the record's own`, () => {
+      const html = renderDetail(<MySubmissions />, (client) => exitSent(client, kind));
+      expect(html).toContain(words.title);
+      const inBox = box(html);
+      expect(inBox).toContain(OFFICE);
+      expect(inBox).toContain("Gate Pass");
+      expect(inBox).toContain(`download=""`);
+      expect(inBox).toContain("RN-0042");
+      expect(inBox).toContain("Mr Tan");
+      // Said once: not also in the facts or the photo strip above it.
+      expect(html.split("RN-0042")).toHaveLength(2);
+      expect(html.slice(0, html.indexOf('data-testid="office-sent-files"'))).not.toContain(OFFICE);
+      expect(html).toContain("https://cdn.example/site.jpg");
+      expect(inBox).not.toContain(words.empty);
+    });
+  }
+
+  it("says so when the office has sent nothing yet", () => {
+    const html = renderDetail(<MySubmissions />, (client) => exitSent(client, "EQUIPMENT_MOVEMENT", { sent: false }));
+    expect(html).toContain(words.empty);
+    expect(html).not.toContain('data-stub="attachments"');
+  });
+
+  it("an attachment alone is not 'nothing sent'", () => {
+    const html = renderDetail(<MySubmissions />, (client) =>
+      exitSent(client, "MATERIAL_OUTGOING", { sent: false, attachments: [{ id: "a1" }] }),
+    );
+    expect(html).not.toContain(words.empty);
+    expect(html).toContain('data-stub="attachments" data-read-only="true"');
+  });
+
+  it("other kinds have no such box", () => {
+    const html = renderDetail(<MySubmissions />, (client) => {
+      const opened = { ...row, kind: "PROGRESS" as const, status: "SUBMITTED" };
+      client.setQueryData(["my-submissions"], { results: [opened], count: 1 });
+      client.setQueryData(["my-submissions", "detail", "PROGRESS", "mv-7"], { ...opened, fields: [], photos: [] });
+    });
+    expect(html).not.toContain('data-testid="office-sent-files"');
   });
 });
 

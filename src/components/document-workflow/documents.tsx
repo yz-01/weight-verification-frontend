@@ -1977,7 +1977,6 @@ function DocumentDetailBody({
               blockedReason={document.status === "ARCHIVED" ? undefined : notArchived}
               source={{
                 load: () => documentRecordsPdf(document.id, document.document_no),
-                loadPreview: () => documentRecordsPdf(document.id, document.document_no, true),
                 title: t("documents.recordLinks.allPdf"),
               }}
             />

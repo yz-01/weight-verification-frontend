@@ -84,6 +84,28 @@ export function matchScanned<T>(
   return null;
 }
 
+/**
+ * What a number typed on 退场 finds (JB32), read on the phone alone:
+ *
+ * - `chosen`: a machine that can go out now - on site on this project;
+ * - `notOffered`: one of this project's machines, but not one that can go
+ *   (not on site);
+ * - `ask`: none of this project's machines - the server says whether it is
+ *   a machine of another project or nothing it knows.
+ */
+export function findTyped<T extends { id: string }>(
+  text: string,
+  machines: readonly T[],
+  offered: readonly T[],
+  keys: (machine: T) => ScanKeys,
+): { kind: "chosen" | "notOffered"; machine: T } | { kind: "ask" } {
+  const found = matchScanned(text, machines, keys);
+  if (!found) return { kind: "ask" };
+  return offered.some((row) => row.id === found.id)
+    ? { kind: "chosen", machine: found }
+    : { kind: "notOffered", machine: found };
+}
+
 /** A register row's keys (`SiteEquipment`, a 我提交过的 row's `machine`). */
 export function registerScanKeys(machine: {
   id: string;

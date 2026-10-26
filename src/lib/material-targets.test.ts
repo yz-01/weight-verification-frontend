@@ -4,9 +4,11 @@ import {
   isValidTargetQuantity,
   parseTargetAlerts,
   projectTargetsLink,
+  targetAfterAdding,
   targetBar,
   targetRecordLinks,
   targetTone,
+  trancheLines,
 } from "@/lib/material-targets";
 
 /** I18 (ID39-ID42): what the 材料目标 screen draws and where it leads. */
@@ -69,5 +71,49 @@ describe("from a target to its records (ID42)", () => {
 
   it("lands head office on the project's targets", () => {
     expect(projectTargetsLink("p 1")).toBe("/material-targets?project=p%201");
+  });
+});
+
+/** JB26 (客户 10-26 事项 2): 「新目标显示在旧目标下一行，用不同颜色区分」. */
+describe("a raised target's lines", () => {
+  const tranche = (kind: "ORIGINAL" | "ADDED", quantity: string, percent: number | null) => ({
+    kind,
+    quantity,
+    cumulative_target: quantity,
+    filled: "0.000",
+    remaining: quantity,
+    percent,
+    created_at: "2026-10-26T09:00:00+08:00",
+    actor_name: "qs",
+  });
+
+  it("draws nothing under a target never raised", () => {
+    expect(trancheLines({ tranches: [tranche("ORIGINAL", "100.000", 30)] })).toEqual([]);
+    expect(trancheLines({ tranches: [] })).toEqual([]);
+  });
+
+  it("gives the original the page's colour and each addition its own", () => {
+    const lines = trancheLines({
+      tranches: [tranche("ORIGINAL", "100.000", 100), tranche("ADDED", "200.000", 140), tranche("ADDED", "50.000", 0)],
+    });
+    expect(lines.map((line) => line.index)).toEqual([0, 1, 2]);
+    expect(lines[0].bar).toBe("bg-primary");
+    expect(new Set(lines.map((line) => line.bar)).size).toBe(3);
+    expect(new Set(lines.map((line) => line.row)).size).toBe(3);
+    // The bar stops at full.
+    expect(lines.map((line) => line.width)).toEqual([100, 100, 0]);
+  });
+});
+
+describe("the target after an addition", () => {
+  it("adds in thousandths", () => {
+    expect(targetAfterAdding("100.000", "200")).toBe("300.000");
+    expect(targetAfterAdding("0.100", "0.2")).toBe("0.300");
+  });
+
+  it("is nothing for an amount the server refuses", () => {
+    for (const bad of ["", "0", "-5", "1.0005", "lots"]) {
+      expect(targetAfterAdding("100.000", bad), bad).toBeNull();
+    }
   });
 });

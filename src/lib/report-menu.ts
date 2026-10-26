@@ -10,7 +10,7 @@ import type {
  * | report            | level 2            | level 3 |
  * | ----------------- | ------------------ | ------- |
  * | 材料数量 / 材料成本 | 材料分类           | 供应商   |
- * | 照片报表           | 照片来源           |         |
+ * | 照片报表           | 业务分类 (JB29)    |         |
  * | 工程进度           | 施工分类           |         |
  * | 安全事件           | 隐患整改分类        |         |
  * | 顾问申请           | 申请类型 (Q2)      |         |
@@ -129,84 +129,117 @@ export function reportHref(
 }
 
 /**
- * The module each photograph source belongs to, by the module's own menu name
- * (spec rule 5: one module, one name). A module that keeps photographs in two
- * tables - progress: today's photo and the legacy update - is listed once.
+ * 照片报表's 业务分类 (JB29, 客户 10-26 事项 5): the server's keys
+ * (`contractor_ops/photo_categories.py`), in the menu's order. The client:
+ * 「Applicationattachment、Fieldtaskphoto、Recordattachment、Recordmessage 等
+ * 系统内部英文名称，不应显示在客户页面」 - so a category is always worded here,
+ * and anything this list does not know is 「其他照片」, never the server's word.
  */
-const PHOTO_SOURCE_MODULE: Record<string, string> = {
-  "receiving.receiptphoto": "nav.submodule.materialReceipts",
-  "receiving.deliverynoteevidence": "nav.submodule.materialReceipts",
-  "site_operations.attendancerecord": "nav.submodule.attendanceRecords",
-  "contractor_ops.siteprogressphoto": "nav.submodule.progressRecords",
-  "site_operations.progressupdate": "nav.submodule.progressRecords",
-  "site_operations.safetyincident": "nav.submodule.hazardRectifications",
-  "site_operations.safetyrectificationevidence": "nav.submodule.hazardRectifications",
-  "contractor_ops.siteequipmentphoto": "nav.submodule.siteEquipment",
-  "contractor_ops.equipmentmovementphoto": "nav.submodule.siteEquipment",
-  "contractor_ops.disposalevidence": "nav.submodule.wasteClearance",
-  "contractor_ops.wasteoutgoingphoto": "nav.submodule.wasteOutgoing",
-  "waste.dispatchphoto": "nav.submodule.wasteDispatches",
+export const PHOTO_CATEGORIES = [
+  "MATERIAL_RECEIPT",
+  "MATERIAL_OUTGOING",
+  "MATERIAL_REQUEST",
+  "EQUIPMENT",
+  "PROGRESS",
+  "SAFETY",
+  "WASTE",
+  "ATTENDANCE",
+  "GATE",
+  "FIELD_TASK",
+  "CONSULTANT",
+  "SUNDRY_CLAIM",
+  "CLAIM",
+  "APPROVAL",
+  "WEIGHING",
+  "HAULAGE",
+  "OTHER",
+] as const;
+
+/** 照片来源: how a photograph got here (JB29). */
+export const PHOTO_ORIGINS = ["SITE", "OFFICE", "ATTACHMENT", "MESSAGE", "OTHER"] as const;
+
+const KNOWN_CATEGORIES: ReadonlySet<string> = new Set(PHOTO_CATEGORIES);
+
+/**
+ * The tables an address named before JB29, when the menu listed tables (the
+ * client's own screenshot: `category=receiving.receiptphoto,…`), and the
+ * category each is now - so an old link opens the same photographs.
+ */
+const LEGACY_PHOTO_SOURCES: Record<string, string> = {
+  "receiving.receiptphoto": "MATERIAL_RECEIPT",
+  "receiving.deliverynoteevidence": "MATERIAL_RECEIPT",
+  "site_operations.attendancerecord": "ATTENDANCE",
+  "contractor_ops.siteprogressphoto": "PROGRESS",
+  "site_operations.progressupdate": "PROGRESS",
+  "site_operations.safetyincident": "SAFETY",
+  "site_operations.safetyrectificationevidence": "SAFETY",
+  "contractor_ops.siteequipmentphoto": "EQUIPMENT",
+  "contractor_ops.equipmentmovementphoto": "EQUIPMENT",
+  "contractor_ops.disposalevidence": "WASTE",
+  "contractor_ops.wasteoutgoingphoto": "WASTE",
+  "waste.dispatchphoto": "WASTE",
+  "contractor_ops.materialoutgoingphoto": "MATERIAL_OUTGOING",
+  "contractor_ops.fieldtaskphoto": "FIELD_TASK",
+  "consultant_workflow.applicationattachment": "CONSULTANT",
+  "haulage.taskphoto": "HAULAGE",
 };
 
-/** The message key of the module a photograph source belongs to, if any. */
-export function photoSourceModuleKey(source: string): string | undefined {
-  return PHOTO_SOURCE_MODULE[source];
-}
-
-/** Every source one module owns, in the order of the table above. */
-function moduleSources(module: string): string[] {
-  return Object.entries(PHOTO_SOURCE_MODULE)
-    .filter(([, owner]) => owner === module)
-    .map(([source]) => source);
+/** The message key of a 业务分类; 「其他照片」 for anything unknown. */
+export function photoCategoryKey(value: string): string {
+  return `contractorReports.photoCategory.${KNOWN_CATEGORIES.has(value) ? value : "OTHER"}`;
 }
 
 /**
- * Photo sources as the menu lists them: one row per module, its value every
- * source that module owns joined by commas (the report reads it that way). A
- * source no module claims keeps the server's own name.
- *
- * Every source the module owns, not only the ones that happen to hold a
- * photograph in this list (Fable B3 #6): the menu lists one project's sources
- * and the 照片来源 dropdown every project's, so a value built from what was
- * present differed between the two - the dropdown went blank, and the report
- * skipped a source the module had.
+ * A 业务分类 in the reader's words. Never the server's own label, so a table
+ * name cannot reach the page whatever the server sends.
  */
-export function groupPhotoSources(
+export function photoCategoryLabel(value: string, translate: (key: string) => string): string {
+  return translate(photoCategoryKey(value));
+}
+
+/** The message key of a 照片来源; 「其他」 for anything unknown. */
+export function photoOriginKey(value: string): string {
+  return `contractorReports.photoOrigin.${(PHOTO_ORIGINS as readonly string[]).includes(value) ? value : "OTHER"}`;
+}
+
+/**
+ * Photo categories as the menu lists them: worded here, one row per
+ * category - two rows the server could not tell apart (two unknown tables
+ * from an older server) are one 「其他照片」.
+ */
+export function wordPhotoCategories(
   rows: readonly ReportLevelRow[],
   translate: (key: string) => string,
 ): ReportLevelRow[] {
   const grouped = new Map<string, ReportLevelRow>();
   for (const row of rows) {
-    const owner = PHOTO_SOURCE_MODULE[row.value];
-    const label = owner ? translate(owner) : row.label;
-    const existing = grouped.get(label);
-    if (existing) {
-      if (!existing.value.split(",").includes(row.value)) {
-        existing.value = `${existing.value},${row.value}`;
-      }
-    } else {
-      const value = owner ? moduleSources(owner).join(",") : row.value;
-      grouped.set(label, { ...row, value, label, has_children: false });
+    const value = photoCategoryValue(row.value);
+    const key = KNOWN_CATEGORIES.has(value) ? value : "OTHER";
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        ...row,
+        value: key,
+        label: photoCategoryLabel(key, translate),
+        has_children: false,
+      });
     }
   }
   return [...grouped.values()];
 }
 
 /**
- * A photo source as the report reads it: each source named widened to every
- * source its module owns - the value the menu and the dropdown both use. So
- * an address written before the menu named whole modules still shows its
- * module and still reads all of it. A source no module claims stays as it is.
+ * A photo category as the report reads it: an address that named tables
+ * (before JB29) is read as their categories, the value the menu and the
+ * dropdown both use now. A word neither knows is left for the server, which
+ * finds nothing for it rather than everything.
  */
-export function photoSourceValue(category: string): string {
-  const sources: string[] = [];
-  for (const source of category.split(",").filter(Boolean)) {
-    const owner = PHOTO_SOURCE_MODULE[source];
-    for (const owned of owner ? moduleSources(owner) : [source]) {
-      if (!sources.includes(owned)) sources.push(owned);
-    }
+export function photoCategoryValue(category: string): string {
+  const values: string[] = [];
+  for (const value of category.split(",").filter(Boolean)) {
+    const next = LEGACY_PHOTO_SOURCES[value] ?? value;
+    if (!values.includes(next)) values.push(next);
   }
-  return sources.join(",");
+  return values.join(",");
 }
 
 /**

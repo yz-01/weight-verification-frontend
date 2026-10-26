@@ -14,6 +14,8 @@ import {
   regenerateProjectQr,
   setProjectQrStatus,
 } from "@/services/contractor.service";
+import { printPage } from "@/lib/file-actions";
+import { signFileAction } from "@/services/file-action.service";
 
 export function ProjectQrPanel({
   projectId,
@@ -59,8 +61,11 @@ export function ProjectQrPanel({
     ? `${window.location.origin}/scan/qr#token=${encodeURIComponent(code.token)}`
     : "";
 
-  function downloadQr(format: "png" | "jpg") {
+  async function downloadQr(format: "png" | "jpg") {
     if (!code || !qrRef.current) return;
+    // 下载 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${code.serial}`, file_name: `${code.serial}.${format}`, project: projectId, link: window.location.pathname }))) return;
+    if (!qrRef.current) return;
     const mime = format === "jpg" ? "image/jpeg" : "image/png";
     const link = document.createElement("a");
     link.href = qrRef.current.toDataURL(mime, 0.96);
@@ -68,16 +73,15 @@ export function ProjectQrPanel({
     link.click();
   }
 
-  function printQr() {
+  async function printQr() {
     if (!code || !qrRef.current) return;
-    const printWindow = window.open("", "_blank", "width=520,height=680");
-    if (!printWindow) return;
     const image = qrRef.current.toDataURL("image/png");
-    printWindow.opener = null;
-    printWindow.document.write(
+    // 打印 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("PRINT", { subject: `QR ${code.serial}`, project: projectId, link: window.location.pathname }))) return;
+    printPage(
       `<!doctype html><html><head><title>${code.serial}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:32px}img{width:320px;height:320px}.serial{font-size:20px;font-weight:700;margin-top:20px}</style></head><body><img src="${image}" alt="${code.serial}"><div class="serial">${code.serial}</div><script>window.onload=()=>{window.print();window.close()}</script></body></html>`,
+      "width=520,height=680",
     );
-    printWindow.document.close();
   }
 
   async function copyLink() {
@@ -133,9 +137,9 @@ export function ProjectQrPanel({
             <p className="mt-2 text-sm text-muted-foreground">{t("scanHint")}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => downloadQr("png")}><Download />{t("downloadPng")}</Button>
-            <Button variant="outline" onClick={() => downloadQr("jpg")}><Download />{t("downloadJpg")}</Button>
-            <Button variant="outline" onClick={printQr}><Printer />{t("print")}</Button>
+            <Button variant="outline" onClick={() => void downloadQr("png")}><Download />{t("downloadPng")}</Button>
+            <Button variant="outline" onClick={() => void downloadQr("jpg")}><Download />{t("downloadJpg")}</Button>
+            <Button variant="outline" onClick={() => void printQr()}><Printer />{t("print")}</Button>
             <Button variant="outline" onClick={() => void copyLink()}><Copy />{copied ? t("copied") : t("copyLink")}</Button>
           </div>
           {!archived && (

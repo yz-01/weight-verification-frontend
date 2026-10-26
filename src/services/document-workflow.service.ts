@@ -457,12 +457,8 @@ export async function attachDocumentRecords(
 }
 
 /** The linked records' complete evidence as one PDF (J12-4). */
-export const documentRecordsPdf = (documentId: string, name: string, preview = false) =>
-  fetchAsFile(`/api/documents/${documentId}/download_records/`, {
-    // JB25: a document not yet archived is fetched to preview only.
-    ...(preview ? { query: { preview: "1" } } : {}),
-    fallbackFilename: `${name || "records"}.pdf`,
-  });
+export const documentRecordsPdf = (documentId: string, name: string) =>
+  fetchAsFile(`/api/documents/${documentId}/download_records/`, { fallbackFilename: `${name || "records"}.pdf` });
 
 /** 填写检验结果 (J12-7): filed once, never changed; a re-inspection is a new one. */
 export async function addInspection(documentId: string, payload: InspectionPayload): Promise<InspectionInfo[]> {

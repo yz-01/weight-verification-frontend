@@ -23,11 +23,13 @@
  *
  * `MachineScanButton` is the 「扫描设备二维码」 beside the machine dropdown
  * (I24, ID60): it reads the system's own sticker or any sticker that names the
- * machine, and says why when the machine cannot be chosen.
+ * machine, and says why when the machine cannot be chosen. On 退场 the
+ * dropdown is `MachineNumberField` since JB32: the number typed, read the same
+ * way.
  */
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Camera, Check, CheckCircle2, Keyboard, Loader2, ScanLine } from "lucide-react";
+import { Camera, Check, CheckCircle2, Keyboard, Loader2, ScanLine, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -64,7 +66,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { SiteEquipment } from "@/interfaces/contractor-ops";
 import type { LocationValue } from "@/lib/field-location";
-import { matchScanned, registerScanKeys } from "@/lib/machine-scan";
+import { findTyped, matchScanned, registerScanKeys } from "@/lib/machine-scan";
 import { scanSupplierQr } from "@/services/contractor.service";
 import { lookupEquipmentByScan } from "@/services/contractor-ops.service";
 import {
@@ -671,6 +673,115 @@ export function EquipmentExitHandoverForm({
         }}
       />
     </>
+  );
+}
+
+/**
+ * 「设备号码」 on 退场 in place of the machine dropdown (JB32).
+ *
+ * 客户 10-26 事项 8: 「手机页面设备下拉搜索挑选的改去填写设备号码」「进场时已经
+ * 绑定有二维码和设备号码，如果在让现场人员去挑选设备会很乱」. The worker types
+ * the number on the machine - or its plate, or the system's number - and it is
+ * read the way a scanned sticker is (`matchScanned`): on the phone first,
+ * against this project's machines it already holds, so it works with no
+ * signal; then, when none matches, asked of the server, which says whether
+ * it is a machine of another project or nothing it knows. Only a machine on
+ * site here is taken; the workspace then shows its name and plate to check.
+ */
+export function MachineNumberField({
+  project,
+  machines,
+  offered,
+  disabled,
+  onChosen,
+}: {
+  project: string;
+  /** Every working machine of this project. */
+  machines: readonly SiteEquipment[];
+  /** The ones that can go out now: on site on this project. */
+  offered: readonly SiteEquipment[];
+  disabled?: boolean;
+  onChosen: (machine: SiteEquipment) => void;
+}) {
+  const t = useTranslations("contractorOps");
+  const [text, setText] = useState("");
+  const [note, setNote] = useState("");
+  const lookup = useMutation({
+    mutationFn: (value: string) => lookupEquipmentByScan(value, project),
+    // On this project by the server's word, yet not one the phone can take:
+    // not on site, or registered since the list was read.
+    onSuccess: (row) =>
+      setNote(
+        t(row.status === "ON_SITE" ? "equipmentExit.scanNotOffered" : "equipmentExit.scanNotOnSite", {
+          name: row.name,
+        }),
+      ),
+    onError: (failure, value) =>
+      setNote(
+        failure instanceof ApiError && !failure.isNetwork
+          ? failure.code === "equipment_scan_unknown"
+            ? t("equipmentExit.numberUnknown", { number: value })
+            : failure.message
+          : t("equipmentExit.numberUnknownOffline", { number: value }),
+      ),
+  });
+  const find = () => {
+    const value = text.trim();
+    if (!value) return;
+    setNote("");
+    const found = findTyped(value, machines, offered, registerScanKeys);
+    if (found.kind === "ask") {
+      lookup.mutate(value);
+    } else if (found.kind === "chosen") {
+      setText("");
+      onChosen(found.machine);
+    } else {
+      setNote(t("equipmentExit.scanNotOnSite", { name: found.machine.name }));
+    }
+  };
+  return (
+    <FieldWrapper
+      label={t("equipmentExit.machineNumber")}
+      required="quiet"
+      hint={t("equipmentExit.machineNumberHint")}
+    >
+      <div className="flex items-center gap-2">
+        <Input
+          className="h-12 min-w-0 flex-1 text-base"
+          value={text}
+          maxLength={60}
+          aria-label={t("equipmentExit.machineNumber")}
+          autoCapitalize="characters"
+          autoComplete="off"
+          enterKeyHint="search"
+          placeholder={t("equipmentExit.typeNumber")}
+          disabled={disabled}
+          data-testid="field-equipment-number"
+          onChange={(event) => {
+            setText(event.target.value);
+            setNote("");
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") find();
+          }}
+        />
+        <Button
+          type="button"
+          className="h-12 shrink-0"
+          disabled={disabled || lookup.isPending}
+          requires={[[text.trim(), t("equipmentExit.machineNumber")]]}
+          onClick={find}
+        >
+          {lookup.isPending ? <Loader2 className="animate-spin" /> : <Search />}
+          {t("equipmentExit.findMachine")}
+        </Button>
+      </div>
+      {note && (
+        <p role="alert" className="mt-1 text-xs font-medium text-destructive">
+          {note}
+        </p>
+      )}
+    </FieldWrapper>
   );
 }
 

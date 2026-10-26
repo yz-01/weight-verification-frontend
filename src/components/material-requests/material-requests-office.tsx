@@ -913,7 +913,6 @@ export function MaterialRequestDetail({
                 blockedReason={decided ? undefined : notArchived}
                 source={{
                   load: () => materialRequestFormFile(row.id, locale, row.request_no),
-                  loadPreview: () => materialRequestFormFile(row.id, locale, row.request_no, true),
                   title: t("preview.title", { reference: row.request_no }),
                 }}
               />

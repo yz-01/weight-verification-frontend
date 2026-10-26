@@ -88,11 +88,10 @@ export async function reassignMaterialRequestToMe(id: string) {
  * 导出 · 发送 alike (PDF 统一操作规则). `download=1` only changes how the
  * server labels the response, not the file.
  */
-export const materialRequestFormFile = (id: string, lang: string, requestNo: string, preview = false) =>
+export const materialRequestFormFile = (id: string, lang: string, requestNo: string) =>
   fetchAsFile(`/api/material-requests/${id}/get_request_pdf/`, {
     method: "GET",
-    // JB25: waiting for its decision, it is fetched to preview only.
-    query: { lang, download: "1", ...(preview ? { preview: "1" } : {}) },
+    query: { lang, download: "1" },
     fallbackFilename: `${requestNo}.pdf`,
   });
 

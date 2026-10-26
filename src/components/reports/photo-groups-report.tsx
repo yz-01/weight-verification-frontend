@@ -25,6 +25,7 @@ import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useListQuery } from "@/hooks/use-list-query";
 import type { ContractorReportFilters, PhotoGroup } from "@/interfaces/contractor-report";
 import { useDateFormat } from "@/lib/dates";
 import { getCategoryRecord, recordPdfKindFor } from "@/services/contractor-ops.service";
@@ -35,7 +36,11 @@ const PAGE_SIZE = 20;
 
 export function PhotoGroupsReport({ filters }: { filters: ContractorReportFilters }) {
   const t = useTranslations("contractorReports.photoGroups");
-  const [page, setPage] = useState(1);
+  // The page is in the address with the report's filters (JB29, 客户 10-26:
+  // 「查看原始记录后返回，必须回到之前的报表页面，并保留原有筛选条件」): a
+  // record that opens on its module's page comes back here, on this page. A
+  // new filter starts from page 1 (`useListQuery`).
+  const { page, setPage } = useListQuery();
   const groups = useQuery({
     queryKey: ["contractor-reports", "photo-groups", filters, page],
     queryFn: () => getPhotoGroups({ ...filters, page, page_size: PAGE_SIZE }),
@@ -162,17 +167,24 @@ function PhotoGroupRow({ group }: { group: PhotoGroup }) {
           })
       : null;
   // Not on the row (J43, Lucas 10-22: the row is its words and its
-  // photographs only) - in the photo viewer, beside the photograph.
+  // photographs only) - in the photo viewer's one row of actions, after the
+  // photo's own (JB29).
   const actions = (
     <>
+      {/* 「完整证据 PDF ▾」「修改前原单 ▾」 in the same row (JB29). */}
+      {pdfKind && group.record_id ? (
+        <RecordExportButton
+          kind={pdfKind}
+          recordId={group.record_id}
+          reference={group.reference || title}
+          layout="menu"
+        />
+      ) : null}
       {openRecord ? (
         <Button size="sm" variant="outline" onClick={openRecord}>
           <ExternalLink className="size-4" />
           {t("openRecord")}
         </Button>
-      ) : null}
-      {pdfKind && group.record_id ? (
-        <RecordExportButton kind={pdfKind} recordId={group.record_id} reference={group.reference || title} />
       ) : null}
     </>
   );

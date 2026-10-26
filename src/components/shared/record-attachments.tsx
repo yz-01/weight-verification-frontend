@@ -51,16 +51,43 @@ export function RecordAttachmentsPanel({
   kind,
   recordId,
   readOnly: readOnlyProp = false,
+  title,
+  hint,
+  addLabel,
+  required = false,
+  hideWhenEmpty = false,
+  adding: addingProp,
+  onAddingChange,
 }: {
   kind: AttachableKind;
   recordId: string;
   /** Read and open only, no 加附件 - the phone's view of a permit. */
   readOnly?: boolean;
+  /** A dedicated slot's own heading (JB30: 「书信」, 「上传资料」); 附件 otherwise. */
+  title?: string;
+  /** One line under the heading: what goes here and where it ends up. */
+  hint?: string;
+  /** The add button's words, when 上传附件 is not what this slot holds. */
+  addLabel?: string;
+  /** Marked like a required field; an empty slot says so in red (JB30 书信). */
+  required?: boolean;
+  /** Nothing at all once loaded with no files - a confirmed package's uploads. */
+  hideWhenEmpty?: boolean;
+  /**
+   * The upload form opened from a button elsewhere on the screen (JB30: the
+   * package's 「上传资料」 beside 「添加资料」). Given, the panel draws no add
+   * button of its own.
+   */
+  adding?: boolean;
+  onAddingChange?: (adding: boolean) => void;
 }) {
   const t = useTranslations("recordAttachments");
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  const [adding, setAdding] = useState(false);
+  const [addingOwn, setAddingOwn] = useState(false);
+  const controlled = addingProp !== undefined;
+  const adding = controlled ? addingProp : addingOwn;
+  const setAdding = (next: boolean) => (controlled ? onAddingChange?.(next) : setAddingOwn(next));
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
   const [previewing, setPreviewing] = useState<RecordAttachment | null>(null);
@@ -88,21 +115,30 @@ export function RecordAttachmentsPanel({
   const notArchived = useNotArchivedReason();
   // The server's word on who may add (a gate pass: 门禁 manage only, I3).
   const readOnly = readOnlyProp || state.data?.can_add === false;
+  const missing = required && state.data !== undefined && rows.length === 0;
+
+  if (hideWhenEmpty && !adding && state.data !== undefined && rows.length === 0) return null;
 
   return (
-    <section className="rounded-lg border p-3" data-slot="record-attachments">
+    <section
+      className={`rounded-lg border p-3${missing && !closed ? " border-destructive/60" : ""}`}
+      data-slot="record-attachments"
+      data-kind={kind}
+    >
       <div className="mb-2 flex items-center justify-between gap-2">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {t("title")}
+          {title ?? t("title")}
+          {required ? <span className="ml-0.5 text-destructive">*</span> : null}
           <span className="ml-1 tabular-nums">({rows.length})</span>
         </h3>
-        {!readOnly && !closed && state.data && !adding && (
+        {!controlled && !readOnly && !closed && state.data && !adding && (
           <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setAdding(true)}>
             <Paperclip className="size-3.5" />
-            {t("add")}
+            {addLabel ?? t("add")}
           </Button>
         )}
       </div>
+      {hint ? <p className="mb-2 text-2xs text-muted-foreground">{hint}</p> : null}
 
       {state.isLoading ? (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -114,7 +150,7 @@ export function RecordAttachmentsPanel({
       ) : (
         <>
           {rows.length === 0 ? (
-            <p className="text-xs text-muted-foreground">{t("empty")}</p>
+            <p className={`text-xs ${missing && !closed ? "text-destructive" : "text-muted-foreground"}`}>{t("empty")}</p>
           ) : (
             <ul className="space-y-1.5">
               {rows.map((row) => {

@@ -10,6 +10,7 @@ import {
   Loader2,
   Plus,
   Trash2,
+  Upload,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -29,6 +30,7 @@ import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
+import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -596,6 +598,8 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
   const [choosing, setChoosing] = useState(false);
   const [adding, setAdding] = useState(false);
   const [ticking, setTicking] = useState<PackageItem | null>(null);
+  // 「上传资料」 (JB30): the upload form under the two buttons.
+  const [uploading, setUploading] = useState(false);
   const [remarks, setRemarks] = useState("");
   /*
    * `null` rather than `""` until somebody types: the box shows the package's
@@ -862,14 +866,37 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                     </Button>
                   </div>
                 </FieldWrapper>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setChoosing(true)}
-                >
-                  <Plus className="size-4" />
-                  {t("addRecords")}
-                </Button>
+                {/* 客户 10-26 事项 6: 「multi engine 打包增加一个上传资料的位置」 -
+                    records already in the system on the left, files from the
+                    computer on the right; both go into the merged PDF. */}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setChoosing(true)}
+                  >
+                    <Plus className="size-4" />
+                    {t("addRecords")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    data-action="upload-files"
+                    onClick={() => setUploading(true)}
+                  >
+                    <Upload className="size-4" />
+                    {t("uploads.add")}
+                  </Button>
+                </div>
+                <RecordAttachmentsPanel
+                  kind="EVIDENCE_PACKAGE"
+                  recordId={data.id}
+                  title={t("uploads.title")}
+                  hint={t("uploads.hint")}
+                  hideWhenEmpty
+                  adding={uploading}
+                  onAddingChange={setUploading}
+                />
                 {/* Asked at Confirm and not at creation: at creation nobody
                     knows yet what the bundle turned out to be, and a
                     required field answered before the answer exists is
@@ -915,6 +942,17 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                   <p className="text-xs">{t("exportedHelp")}</p>
                 )}
               </div>
+            )}
+            {(!isDraft || !can("package.manage")) && (
+              /* What was uploaded into it - as it went into the PDF once
+                 confirmed (JB30). */
+              <RecordAttachmentsPanel
+                kind="EVIDENCE_PACKAGE"
+                recordId={data.id}
+                title={t("uploads.title")}
+                readOnly
+                hideWhenEmpty
+              />
             )}
             {!isDraft && <ExchangePanel data={data} onChanged={refresh} />}
           </>

@@ -233,7 +233,6 @@ export function ProgressSummaryTab() {
                     blockedReason={shown.archived_at ? undefined : notArchived}
                     source={{
                       load: () => progressSummaryPdfFile(shown.id, locale, shown.title),
-                      loadPreview: () => progressSummaryPdfFile(shown.id, locale, shown.title, true),
                       title: shown.title,
                     }}
                   />

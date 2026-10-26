@@ -115,15 +115,18 @@ describe("the whole-photo size", () => {
   });
 });
 
-// J34-1 (Lucas 10-20): 「框刚好包住照片」 - no blurred background, no bands.
-describe("the frame is the photograph's own shape", () => {
-  it("has no hatching and no fixed height, and takes the photo's shape", () => {
+// J34-1 (Lucas 10-20): 「框刚好包住照片」 - on a phone the frame is the
+// photograph's own shape; no blurred background, no bands.
+describe("the phone's frame is the photograph's own shape", () => {
+  it("has no hatching and no fixed height, and takes the photo's shape below sm", () => {
     const html = render();
-    const frame = html.slice(html.indexOf("<div", html.indexOf("data-photo-frame") - 200), html.indexOf("<img"));
+    const frame = html.slice(html.indexOf("<div", html.indexOf("data-photo-frame") - 400), html.indexOf("<img"));
     expect(frame).not.toContain("photo-hatch");
     expect(frame).not.toMatch(/h-\[\d+dvh\]/);
-    expect(frame).toContain("aspect-ratio");
-    expect(frame).toContain("mx-auto");
+    expect(frame).toContain("max-sm:aspect-(--photo-shape)");
+    expect(frame).toContain("max-sm:w-(--photo-frame-width)");
+    expect(frame).toContain("max-sm:mx-auto");
+    expect(html).toContain("--photo-shape:4 / 3");
   });
 
   it("is as tall as the window allows, never wider than its space or its pixels", () => {
@@ -132,11 +135,110 @@ describe("the frame is the photograph's own shape", () => {
     const landscape = photoFrameWidth({ width: 4032, height: 3024 }, "28rem");
     expect(landscape).toBe("min(100%, calc(28rem * 1.3333), 4032px)");
   });
+});
 
-  it("makes the dialog as wide as the frame, so title and buttons sit over and under it", () => {
+// JB29 (客户 10-26 事项 5): on a computer, one screen - photo left, record
+// right, every action in one row on top, nothing scrolls but the record.
+describe("the computer's viewer (JB29)", () => {
+  function between(html: string, from: string, to: string) {
+    const start = html.indexOf(from);
+    return html.slice(start, html.indexOf(to, start + from.length));
+  }
+
+  it("takes almost the whole window and does not scroll as a whole", () => {
     const html = render();
-    expect(html).toContain("--viewer-width");
-    expect(html).toContain("sm:w-(--viewer-width)");
+    const dialog = between(html, "data-photo-viewer", ">");
+    expect(dialog).toContain("sm:w-[min(96vw,100rem)]");
+    expect(dialog).toContain("sm:h-[min(94dvh,62.5rem)]");
+    expect(dialog).toContain("sm:overflow-hidden");
+    expect(dialog).not.toContain("--viewer-width");
+  });
+
+  it("puts the photo left and the record right, and only the record scrolls", () => {
+    const html = renderDetail(
+      <PhotoViewer
+        photos={photos}
+        index={0}
+        reference="PG-001"
+        onIndex={() => {}}
+        onClose={() => {}}
+        details={<p data-record-facts>{"防水涂料"}</p>}
+      />,
+    );
+    const body = between(html, "data-photo-viewer-body", ">");
+    expect(body).toMatch(/sm:grid-cols-\[minmax\(0,1fr\)_clamp\(23\.75rem,28vw,27\.5rem\)\]/);
+    expect(html.indexOf("data-photo-stage")).toBeLessThan(html.indexOf("data-photo-viewer-details"));
+    const details = between(html, "data-photo-viewer-details", ">");
+    expect(details).toContain("sm:overflow-y-auto");
+    expect(details).toContain("sm:min-h-0");
+    expect(html).toContain("防水涂料");
+  });
+
+  it("shows the photo whole on the theme's muted surface, never cut", () => {
+    const html = render();
+    const stage = between(html, "data-photo-stage", ">");
+    expect(stage).toContain("sm:bg-muted");
+    expect(stage).not.toMatch(/bg-black/);
+    const frame = between(html, "data-photo-frame", ">");
+    expect(frame).toContain("sm:absolute");
+    const img = between(html, "<img", ">");
+    expect(img).toContain("object-contain");
+    expect(img).not.toContain("object-cover");
+  });
+
+  it("fixes 上一张 / 下一张 at the photo's left and right, halfway down", () => {
+    const html = render();
+    expect(html).toContain("data-photo-previous");
+    expect(html).toContain("data-photo-next");
+    const prevTag = html.slice(html.lastIndexOf("<button", html.indexOf("data-photo-previous")), html.indexOf(">", html.indexOf("data-photo-previous")));
+    const nextTag = html.slice(html.lastIndexOf("<button", html.indexOf("data-photo-next")), html.indexOf(">", html.indexOf("data-photo-next")));
+    expect(prevTag).toMatch(/absolute left-2 top-1\/2/);
+    expect(nextTag).toMatch(/absolute right-2 top-1\/2/);
+    // Inside the photo's side, not in the bar or under the record.
+    expect(html.indexOf("data-photo-previous")).toBeGreaterThan(html.indexOf("data-photo-stage"));
+    expect(html.indexOf("data-photo-next")).toBeLessThan(html.indexOf("data-photo-viewer-details"));
+  });
+
+  it("has one bar on top: title, time, GPS, every action once, n / N and ×", () => {
+    const html = renderDetail(
+      <PhotoViewer
+        photos={photos}
+        index={1}
+        reference="PG-001"
+        onIndex={() => {}}
+        onClose={() => {}}
+        extraActions={<button type="button" data-open-record>打开原记录</button>}
+      />,
+    );
+    const bar = between(html, "data-photo-viewer-bar", "data-photo-viewer-body");
+    expect(bar).toContain("Road · 40%");
+    expect(bar).toContain("未记录位置");
+    expect(bar).toContain('data-stub="file-actions"');
+    expect(bar).toContain("data-open-record");
+    expect(bar).toMatch(/data-photo-counter[^>]*>2 \/ 2</);
+    expect(bar).toContain("lucide-x");
+    // The actions are not repeated anywhere else in the viewer.
+    expect(html.split('data-stub="file-actions"').length).toBe(2);
+    expect(html.split("data-open-record").length).toBe(2);
+    // The zoom stays, under the photo.
+    expect(between(html, "data-photo-stage", "data-photo-viewer-details")).toContain("data-photo-zoom-bar");
+  });
+
+  it("with no record to show, the right column is the photo's own facts", () => {
+    const html = render(0);
+    const facts = between(html, 'data-photo-viewer-details="photo"', "</dl>");
+    expect(facts).toContain("max-sm:hidden");
+    expect(facts).toContain("Road · 未填");
+    expect(facts).toContain("GPS 3.1, 101.6");
+    expect(facts).toContain("PG-001");
+  });
+
+  it("keeps the phone's single column: photo, then actions, then the record", () => {
+    const html = render();
+    expect(between(html, "data-photo-viewer-bar", ">")).toContain("max-sm:contents");
+    expect(between(html, "data-photo-viewer-body", ">")).toContain("max-sm:contents");
+    expect(between(html, "data-photo-stage", ">")).toContain("max-sm:order-2");
+    expect(between(html, "data-photo-viewer-actions", ">")).toContain("max-sm:order-3");
   });
 });
 

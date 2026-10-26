@@ -6507,7 +6507,14 @@
         "returnReason": "退回原因",
         "return": "退回申請",
         "failed": "沒有保存成功，請再試一次。"
-      }
+      },
+      "machineNumber": "設備號碼",
+      "machineNumberHint": "填設備上的號碼，也可以填車牌或系統編號；或者掃設備上的二維碼。",
+      "findMachine": "查找",
+      "numberUnknown": "找不到號碼「{number}」的設備，請再看一次號碼。",
+      "numberUnknownOffline": "沒有網路，這台手機裡找不到號碼「{number}」的設備。有網路時再試，或掃設備上的二維碼。",
+      "changeMachine": "換一台",
+      "confirmMachine": "請核對名稱和車牌，是這台設備再繼續。"
     },
     "equipmentQr": {
       "column": "二維碼",
@@ -6689,7 +6696,8 @@
       "payment_state": "收款",
       "item_count": "條數",
       "submit_to": "提交給",
-      "applicant": "申請人"
+      "applicant": "申請人",
+      "origin": "照片來源"
     },
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
@@ -6728,7 +6736,7 @@
         "recycling": "單號、車牌、DO 或外部公司",
         "schedule": "WBS 編號或任務名稱",
         "target": "目標名稱",
-        "photos": "文件名、來源或上傳人員",
+        "photos": "文件名、項目或上傳人員",
         "documents": "文件編號、標題或關鍵字",
         "daily_report": "日報名稱、內容或撰寫人",
         "progress_summary": "標題或撰寫人",
@@ -6753,7 +6761,54 @@
       "report": "報表",
       "rows": "行數",
       "subtitle": "建築商總部的歷史報表檔案庫：每份報表保存當時生成的文件，點文件名或「查看」即可預覽、列印、再次下載或發送，不會用現在的資料重新生成。",
-      "title": "報表導出歷史"
+      "title": "報表導出歷史",
+      "tabReports": "報表",
+      "tabLog": "操作記錄",
+      "filter": {
+        "date": "日期",
+        "operator": "操作員",
+        "operatorHint": "姓名或帳號",
+        "action": "操作類型",
+        "anyAction": "全部操作",
+        "name": "報表 / 資料名稱",
+        "nameHint": "報表或文件名稱",
+        "clear": "清除篩選"
+      },
+      "action": {
+        "PRINT": "列印",
+        "DOWNLOAD": "下載 / 匯出",
+        "SEND": "發送 / 分享"
+      },
+      "channel": {
+        "share_sheet": "系統分享",
+        "whatsapp": "WhatsApp",
+        "email": "電郵",
+        "link": "複製連結",
+        "download": "下載後附上"
+      },
+      "logHint": "整個後台的列印、下載、發送，每次都用本人六位數密碼確認。預覽不記錄。",
+      "actionFilterHint": "日期和操作員：報表的生成日期和生成人。選了操作類型：被列印、下載或發送過的報表，以及操作人。",
+      "noMatch": "沒有符合篩選條件的報表。",
+      "regeneratedNote": "按 {when} 的條件重新生成，內容為重新生成時的資料。",
+      "regeneratedOnFile": "按 {when} 的條件重新生成，內容為現在的資料",
+      "cannotRegenerate": "請到現場看板重新匯出。",
+      "regenerate": "按當時條件重新生成",
+      "regenerateHint": "同一報表、項目、期間和篩選條件；內容是今天的資料。會新增一行，這一行保留不變。",
+      "regenerated": "已重新生成，就是列表最上面的新一行。",
+      "regenerateFailed": "重新生成沒有成功，請再試一次。",
+      "rowActions": "操作記錄（{count}）",
+      "rowActionsTitle": "這份報表的列印、下載、發送記錄",
+      "logEmpty": "還沒有列印、下載或發送的記錄。",
+      "log": {
+        "at": "日期時間",
+        "operator": "操作員",
+        "action": "操作類型",
+        "subject": "業務事項 / 報表 / 文件",
+        "openReport": "打開報表",
+        "openRecord": "打開記錄"
+      },
+      "count": "共 {count} 筆 · 第 {page} / {pages} 頁",
+      "regenerating": "正在重新生成…"
     },
     "loadError": "無法加載報表。",
     "period": "期間：{from} 至 {to}",
@@ -6834,6 +6889,32 @@
         "photo_count": "照片張數",
         "has_gps": "GPS"
       }
+    },
+    "photoCategory": {
+      "MATERIAL_RECEIPT": "材料進場",
+      "MATERIAL_OUTGOING": "材料出場",
+      "MATERIAL_REQUEST": "MR / 其他申請",
+      "EQUIPMENT": "設備進退場",
+      "PROGRESS": "工程進度",
+      "SAFETY": "整改 / EHS",
+      "WASTE": "垃圾清運",
+      "ATTENDANCE": "人員進場",
+      "GATE": "門崗 / 訪客",
+      "FIELD_TASK": "現場任務",
+      "CONSULTANT": "顧問申請",
+      "SUNDRY_CLAIM": "雜費報銷",
+      "CLAIM": "進度 Claim",
+      "APPROVAL": "後台審批",
+      "WEIGHING": "過磅",
+      "HAULAGE": "運輸任務",
+      "OTHER": "其他照片"
+    },
+    "photoOrigin": {
+      "SITE": "現場拍照",
+      "OFFICE": "後台上傳",
+      "ATTACHMENT": "附件",
+      "MESSAGE": "留言裡的照片",
+      "OTHER": "其他"
     }
   },
   "crm": {
@@ -8235,7 +8316,9 @@
       "record_not_archived": "確認歸檔後才能匯出、列印或發送；現在可以先預覽。",
       "record_archived_locked": "這份資料已確認歸檔，已經鎖定，不能修改或刪除。",
       "record_in_use": "已被正式記錄引用，不能刪除：{used_by}",
-      "consultant_application_not_confirmed": "請先確認歸檔，才能發送給顧問。"
+      "consultant_application_not_confirmed": "請先確認歸檔，才能發送給顧問。",
+      "claim_letter_required": "請先上傳書信。Progress Claim 必須有書信，確認時放在 PDF 最前面。",
+      "report_export_not_regenerable": "這一行不能重新生成：它已經有存檔文件、屬於另一份報表，或不在你的歷史裡。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8999,6 +9082,15 @@
       "queued": "還在這台手機上的資料",
       "submissions": "我提交過的",
       "queuedEntry": "這條資料"
+    },
+    "officeFiles": {
+      "title": "後台發來的文件",
+      "hint": "後台發來的 Gate Pass、Return Note 和文件都在這裡，點開看或下載。",
+      "empty": "後台還沒有發文件過來。",
+      "fileName": "文件 {number}",
+      "download": "下載",
+      "loading": "正在讀取後台發來的文件…",
+      "loadFailed": "後台發來的文件讀取失敗，請稍後再試。"
     }
   },
   "fieldStaffWorkspace": {
@@ -10603,7 +10695,14 @@
     "descriptionHint": "這期 Claim 是什麼，例如「10 月人工」。",
     "amountOptional": "選填，之後也可以填。",
     "confirmBodyGeneral": "確認後這張一般 Claim 就算已 Claim，之後照常登記收款。",
-    "completeClaimFields": "請先填好分類、說明（一般 Claim）和「其他」的名稱。"
+    "completeClaimFields": "請先填好分類、說明（一般 Claim）和「其他」的名稱。",
+    "letter": {
+      "title": "書信",
+      "hint": "這期 Claim 的書信。沒有上傳書信不能確認；確認時書信放在合併 PDF 的最前面。",
+      "add": "上傳書信",
+      "missing": "請先上傳書信",
+      "confirmNote": "書信會放在合併 PDF 的最前面。"
+    }
   },
   "multiEngine": {
     "acceptItem": "接受",
@@ -10959,7 +11058,12 @@
       "round": "當前輪次",
       "returned": "退回數"
     },
-    "received": "收到的資料包"
+    "received": "收到的資料包",
+    "uploads": {
+      "add": "上傳資料",
+      "title": "上傳的資料",
+      "hint": "電腦裡的 PDF、圖片或其他檔案。確認並合併時，放在資料後面一起進 PDF。上傳後不能修改或刪除。"
+    }
   },
   "mySubmissions": {
     "title": "我提交過的",
@@ -17523,7 +17627,13 @@
     "previous": "上一張",
     "next": "下一張",
     "recorder": "記錄人",
-    "recorderUnknown": "沒有記錄人資料"
+    "recorderUnknown": "沒有記錄人資料",
+    "photoFacts": {
+      "label": "照片",
+      "time": "拍攝時間",
+      "gps": "GPS",
+      "reference": "所屬記錄"
+    }
   },
   "moduleTable": {
     "count": "{count} 條記錄",
@@ -17750,7 +17860,7 @@
     "suppliersFailed": "無法載入供應商列表。",
     "noSuppliers": "此選擇還沒有進場記錄。",
     "level": {
-      "photos": "照片來源",
+      "photos": "業務分類",
       "progress": "施工分類",
       "safety": "整改分類",
       "consultant": "申請類型",
@@ -19266,7 +19376,7 @@
     "otherUnits": "單位不同，未計入：{units}",
     "deliveries": "進場記錄",
     "returns": "退場記錄",
-    "edit": "修改",
+    "edit": "修改提醒線和備註",
     "armRemove": "準備刪除這個目標",
     "remove": "刪除目標",
     "armFirst": "先打開旁邊的開關，再刪除。",
@@ -19293,7 +19403,7 @@
       "EXCEEDED": "已超出"
     },
     "addTitle": "新增材料目標",
-    "editTitle": "修改材料目標",
+    "editTitle": "修改提醒線和備註",
     "dialogHelp": "材料和規格從統一材料資料選，單位隨規格帶出。不選規格，就是整個材料的目標。",
     "chooseMaterial": "選擇材料",
     "specHint": "不選就是整個材料。",
@@ -19307,7 +19417,34 @@
     "save": "儲存",
     "toast": {
       "saved": "材料目標已儲存。",
-      "removed": "材料目標已刪除。"
+      "removed": "材料目標已刪除。",
+      "appended": "目標已追加。"
+    },
+    "changeTarget": "修改目標數量",
+    "targetOnlyAdded": "目標數量只能追加，請用「修改目標數量」。",
+    "tranche": {
+      "original": "原目標",
+      "added": "追加 {index}：+{quantity}",
+      "cumulative": "累計目標 {total}"
+    },
+    "append": {
+      "title": "修改目標數量",
+      "current": "{material}：目前累計目標 {total} {unit}",
+      "history": "歷史修改記錄",
+      "empty": "還沒有記錄。",
+      "col": {
+        "when": "日期時間",
+        "name": "姓名",
+        "account": "賬號",
+        "before": "原目標",
+        "added": "追加數量",
+        "after": "修改後累計目標"
+      },
+      "original": "原目標 {quantity}",
+      "amount": "追加數量",
+      "after": "修改後累計目標：{total} {unit}",
+      "pinNote": "確定時要輸入本人六位數密碼。修改人由密碼對應的賬號自動記錄，記錄永久保留，不能刪除。只能追加，不能減少。",
+      "confirm": "確定追加"
     }
   },
   "signOff": {
@@ -19399,7 +19536,11 @@
       "progress_summary_delete": "刪除未歸檔的專案進度摘要",
       "package_delete": "刪除資料包草稿",
       "attachment_delete": "刪除未歸檔記錄上的檔案",
-      "field_task_delete": "刪除未執行的現場任務"
+      "field_task_delete": "刪除未執行的現場任務",
+      "material_target_append": "追加材料目標",
+      "file_print": "列印文件",
+      "file_download": "下載 / 匯出文件",
+      "file_send": "發送 / 分享文件"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
