@@ -9268,7 +9268,8 @@
       "region": "Makluman pembetulan bahaya",
       "open": "Buka",
       "dismiss": "Tutup"
-    }
+    },
+    "recordFailed": "Rakaman tidak bermula. Benarkan aplikasi ini menggunakan mikrofon, atau taip atau ambil gambar."
   },
   "headquarters": {
     "banner": {
@@ -19675,5 +19676,21 @@
     "edit": "Ubah",
     "save": "Simpan",
     "draftRevision": "Semakan draf dieksport selepas disahkan"
+  },
+  "fieldAlerts": {
+    "android-install": {
+      "body": "Untuk bunyi dan nombor pada ikon skrin utama: buka di Chrome, tekan ⋮ → \"Pasang aplikasi\", kemudian buka dari ikon itu. Pintasan pelayar di skrin utama (ikon dengan logo pelayar kecil di penjuru) tidak boleh menunjukkan nombor."
+    },
+    "ios-update": {
+      "body": "Sistem iPhone ini terlalu lama untuk pemberitahuan dan nombor ikon. Kemas kini ke iOS 16.4 atau lebih baharu."
+    },
+    "turn-on": {
+      "body": "Hidupkan pemberitahuan supaya mesej baharu berbunyi semasa telefon menunggu, dan ikon aplikasi menunjukkan nombor.",
+      "action": "Hidupkan"
+    },
+    "denied": {
+      "body": "Pemberitahuan dimatikan, jadi mesej baharu tidak akan berbunyi. Benarkan untuk aplikasi ini di Tetapan → Pemberitahuan telefon."
+    },
+    "dismiss": "Faham"
   }
 }

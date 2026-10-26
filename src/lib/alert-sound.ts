@@ -81,7 +81,14 @@ export const ALERT_REPEATS = 3;
 /** Seconds from the start of one tone to the next: a clear gap between them. */
 export const ALERT_REPEAT_GAP_S = 0.9;
 
-/** True when the tone actually started. Never throws. */
+/**
+ * When the tone now ringing ends, on the audio clock. Two things can ask for
+ * the tone for one message - the bell seeing its notice and the open
+ * conversation seeing the message itself (JB36) - and they are one sound.
+ */
+let ringingUntil = 0;
+
+/** True when the tone actually started (or is already ringing). Never throws. */
 export async function playAlertTone(): Promise<boolean> {
   try {
     // Never before the person has touched the tab: the browser would refuse,
@@ -97,6 +104,8 @@ export async function playAlertTone(): Promise<boolean> {
     if (ctx.state !== "running") return false;
 
     const now = ctx.currentTime;
+    if (now < ringingUntil) return true;
+    ringingUntil = now + ALERT_REPEATS * ALERT_REPEAT_GAP_S;
     const gain = ctx.createGain();
     gain.connect(ctx.destination);
     // Two short rising notes: distinguishable from a system chime. Played
@@ -203,6 +212,44 @@ export function createNoticeSounder(options: {
       if (fresh.length === 0) return "none";
       if (options.muted()) return "muted";
       // One tone for a batch: three notices in one refresh are one interruption.
+      return (await options.play()) ? "played" : "blocked";
+    },
+  };
+}
+
+/**
+ * Rings when somebody else's message arrives in the conversation on screen
+ * (JB36, 客户 10-26 事项 11: 「iPhone/Android 开机状态等候信息也无法接收通知
+ * 声音」).
+ *
+ * The bell rings for a notice, but a person reading the chat has no notice
+ * left - opening the chat settles it - so the words simply appeared in
+ * silence. The first list is what was already there and is not rung; after
+ * that, any new message not written by `me` rings once per batch. The tone
+ * itself is shared with the bell, so the two never ring twice for one message.
+ */
+export function createMessageSounder(options: {
+  play: () => Promise<boolean>;
+  muted: () => boolean;
+}) {
+  const seen = new Set<string>();
+  let primed = false;
+  return {
+    async observe(
+      messages: readonly { id: string; author?: string | null }[] | undefined,
+      me: string | undefined,
+    ): Promise<SoundOutcome> {
+      if (messages === undefined) return "none";
+      const fresh = messages.filter(
+        (message) => !seen.has(message.id) && !!message.author && message.author !== me,
+      );
+      messages.forEach((message) => seen.add(message.id));
+      if (!primed) {
+        primed = true;
+        return "none";
+      }
+      if (fresh.length === 0) return "none";
+      if (options.muted()) return "muted";
       return (await options.play()) ? "played" : "blocked";
     },
   };

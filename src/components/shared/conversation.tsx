@@ -56,6 +56,8 @@ export const FALLBACK_AUDIO_LIMIT = 60;
 /** The shape both endpoints return for one message. */
 export type ConversationMessage = {
   id: string;
+  /** Who said it (the user id): the open chat rings for others' words (JB36). */
+  author?: string | null;
   author_name: string;
   body: string;
   photo: string | null;
@@ -77,8 +79,46 @@ export function canRecord(): boolean {
 
 export type VoiceResult = { file: File | null; seconds: number };
 
+/**
+ * The recording format this browser can make, best first, or `undefined` to
+ * let it choose.
+ *
+ * JB36 (客户 10-26 事项 11: 「iPhone/Android无法发送沟通」): the recorder
+ * asked for WebM outright. An iPhone before iOS 18.4 records only MP4, so
+ * `new MediaRecorder(..., { mimeType: "audio/webm" })` threw after the
+ * microphone had opened: the button did nothing, nothing was sent, and the
+ * microphone stayed on (the orange dot in the client's screenshot).
+ */
+export const VOICE_TYPES = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/aac"] as const;
+
+export function voiceMimeType(
+  isTypeSupported: ((type: string) => boolean) | undefined = typeof MediaRecorder !== "undefined"
+    ? (type) => MediaRecorder.isTypeSupported(type)
+    : undefined,
+): string | undefined {
+  if (!isTypeSupported) return undefined;
+  return VOICE_TYPES.find((type) => {
+    try {
+      return isTypeSupported(type);
+    } catch {
+      return false;
+    }
+  });
+}
+
+/** A voice file's name ending, from what was recorded: `.m4a` for an iPhone's MP4. */
+export function voiceExtension(type: string): string {
+  const base = type.split(";")[0].trim().toLowerCase();
+  if (base === "audio/mp4" || base === "audio/x-m4a") return "m4a";
+  if (base === "audio/aac") return "aac";
+  if (base === "audio/ogg") return "ogg";
+  return "webm";
+}
+
 /** The part of a `MediaRecorder` a voice note uses (a fake one in tests). */
 export type VoiceMedia = {
+  /** What the recorder is making; empty or missing reads as WebM. */
+  mimeType?: string;
   state: string;
   stream: { getTracks(): { stop(): void }[] };
   start(): void;
@@ -113,8 +153,13 @@ export function startVoiceSession(
     if (event.data.size) chunks.push(event.data);
   };
   media.onstop = () => {
-    const blob = new Blob(chunks, { type: "audio/webm" });
-    take?.(blob.size ? new File([blob], `voice-${Date.now()}.webm`, { type: "audio/webm" }) : null);
+    const type = media.mimeType || chunks[0]?.type || "audio/webm";
+    const blob = new Blob(chunks, { type });
+    take?.(
+      blob.size
+        ? new File([blob], `voice-${Date.now()}.${voiceExtension(type)}`, { type: type.split(";")[0] })
+        : null,
+    );
     take = null;
   };
   media.start();
@@ -177,7 +222,15 @@ export function useRecorder(limitSeconds: number, onLimit?: (result: VoiceResult
 
   const start = useCallback(async (): Promise<void> => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const media = new MediaRecorder(stream, { mimeType: "audio/webm" });
+    let media: MediaRecorder;
+    try {
+      const mimeType = voiceMimeType();
+      media = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    } catch (error) {
+      // Never leave the microphone on for a recording that did not start.
+      stream.getTracks().forEach((track) => track.stop());
+      throw error;
+    }
     setSeconds(0);
     setRecording(true);
     session.current = startVoiceSession(media as unknown as VoiceMedia, limitSeconds, {
@@ -565,6 +618,18 @@ export function ConversationComposer({
   // message.
   const [preparing, setPreparing] = useState(false);
   const busy = sending || preparing;
+  // The microphone refused or the recorder could not start: said, instead of
+  // a button that does nothing (JB36).
+  const [voiceFailed, setVoiceFailed] = useState(false);
+
+  const startVoice = async () => {
+    setVoiceFailed(false);
+    try {
+      await recorder.start();
+    } catch {
+      setVoiceFailed(true);
+    }
+  };
 
   const isPhoto = file?.type.startsWith("image/") ?? false;
 
@@ -632,6 +697,15 @@ export function ConversationComposer({
         <Input
           value={body}
           onChange={(event) => setBody(event.target.value)}
+          // The phone keyboard's own 「发送」 key sends too (JB36) - never
+          // while a Chinese word is still being put together.
+          enterKeyHint="send"
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" || event.shiftKey) return;
+            if (event.nativeEvent.isComposing || event.keyCode === 229) return;
+            event.preventDefault();
+            if (!busy && (body.trim() || file)) void submitText();
+          }}
           placeholder={t("hazard.placeholder")}
           aria-label={t("hazard.placeholder")}
           className="min-w-[12rem] flex-1"
@@ -706,7 +780,7 @@ export function ConversationComposer({
               variant="outline"
               disabled={sending}
               disabledReason={t("common.saving")}
-              onClick={() => void recorder.start()}
+              onClick={() => void startVoice()}
             >
               <Mic className="h-4 w-4" />
               {t("hazard.recordStart")}
@@ -720,6 +794,11 @@ export function ConversationComposer({
             {t("hazard.unsupported")}
           </span>
         )}
+        {voiceFailed ? (
+          <p role="alert" className="w-full text-xs text-destructive">
+            {t("hazard.recordFailed")}
+          </p>
+        ) : null}
       </div>
     </div>
   );

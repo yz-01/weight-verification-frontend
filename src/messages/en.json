@@ -9268,7 +9268,8 @@
       "region": "Hazard rectification alerts",
       "open": "Open",
       "dismiss": "Close"
-    }
+    },
+    "recordFailed": "Recording did not start. Allow this app to use the microphone, or type or take a photo instead."
   },
   "headquarters": {
     "banner": {
@@ -19675,5 +19676,21 @@
     "edit": "Edit",
     "save": "Save",
     "draftRevision": "A draft revision is exported once it is confirmed"
+  },
+  "fieldAlerts": {
+    "android-install": {
+      "body": "For sound and the number on the home-screen icon: open this in Chrome, tap ⋮ → \"Install app\", then open it from that icon. A browser's home-screen shortcut (the icon with a small browser logo in its corner) cannot show the number."
+    },
+    "ios-update": {
+      "body": "This iPhone's system is too old for notifications and the icon's number. Update to iOS 16.4 or later."
+    },
+    "turn-on": {
+      "body": "Turn on notifications so new messages ring while the phone waits, and the app icon shows the number.",
+      "action": "Turn on"
+    },
+    "denied": {
+      "body": "Notifications are off, so new messages will not ring. Allow them for this app in the phone's Settings → Notifications."
+    },
+    "dismiss": "Got it"
   }
 }

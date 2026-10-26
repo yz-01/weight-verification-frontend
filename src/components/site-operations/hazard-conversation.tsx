@@ -32,7 +32,9 @@ import {
   type ComposerPayload,
 } from "@/components/shared/conversation";
 import { LoadFailed } from "@/components/shared/page-primitives";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
+import { useNewMessageTone } from "@/hooks/use-new-message-tone";
 import {
   getHazardConversation,
   postHazardMessage,
@@ -60,6 +62,9 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
   });
   // Reading the room settles this reader's chat notice; the dot follows.
   useBellRefreshOnRead(data);
+  // Somebody else's new message rings while the chat is open (JB36).
+  const { user } = useAuth();
+  useNewMessageTone(data?.messages, user?.id);
 
   const limit = data?.audio_seconds_limit ?? FALLBACK_AUDIO_LIMIT;
 
