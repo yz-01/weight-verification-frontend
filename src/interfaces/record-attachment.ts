@@ -31,6 +31,10 @@ export interface RecordAttachments {
    * Absent from an older server: then they may.
    */
   can_add?: boolean;
+  /** JB25: files here can still be deleted (the record is not confirmed yet). */
+  can_delete?: boolean;
+  /** JB25: viewed only until the record is confirmed - no download. */
+  preview_only?: boolean;
   max_files: number;
   max_bytes: number;
 }
