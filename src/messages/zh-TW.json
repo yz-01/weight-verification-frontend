@@ -6761,7 +6761,54 @@
       "report": "報表",
       "rows": "行數",
       "subtitle": "建築商總部的歷史報表檔案庫：每份報表保存當時生成的文件，點文件名或「查看」即可預覽、列印、再次下載或發送，不會用現在的資料重新生成。",
-      "title": "報表導出歷史"
+      "title": "報表導出歷史",
+      "tabReports": "報表",
+      "tabLog": "操作記錄",
+      "filter": {
+        "date": "日期",
+        "operator": "操作員",
+        "operatorHint": "姓名或帳號",
+        "action": "操作類型",
+        "anyAction": "全部操作",
+        "name": "報表 / 資料名稱",
+        "nameHint": "報表或文件名稱",
+        "clear": "清除篩選"
+      },
+      "action": {
+        "PRINT": "列印",
+        "DOWNLOAD": "下載 / 匯出",
+        "SEND": "發送 / 分享"
+      },
+      "channel": {
+        "share_sheet": "系統分享",
+        "whatsapp": "WhatsApp",
+        "email": "電郵",
+        "link": "複製連結",
+        "download": "下載後附上"
+      },
+      "logHint": "整個後台的列印、下載、發送，每次都用本人六位數密碼確認。預覽不記錄。",
+      "actionFilterHint": "日期和操作員：報表的生成日期和生成人。選了操作類型：被列印、下載或發送過的報表，以及操作人。",
+      "noMatch": "沒有符合篩選條件的報表。",
+      "regeneratedNote": "按 {when} 的條件重新生成，內容為重新生成時的資料。",
+      "regeneratedOnFile": "按 {when} 的條件重新生成，內容為現在的資料",
+      "cannotRegenerate": "請到現場看板重新匯出。",
+      "regenerate": "按當時條件重新生成",
+      "regenerateHint": "同一報表、項目、期間和篩選條件；內容是今天的資料。會新增一行，這一行保留不變。",
+      "regenerated": "已重新生成，就是列表最上面的新一行。",
+      "regenerateFailed": "重新生成沒有成功，請再試一次。",
+      "rowActions": "操作記錄（{count}）",
+      "rowActionsTitle": "這份報表的列印、下載、發送記錄",
+      "logEmpty": "還沒有列印、下載或發送的記錄。",
+      "log": {
+        "at": "日期時間",
+        "operator": "操作員",
+        "action": "操作類型",
+        "subject": "業務事項 / 報表 / 文件",
+        "openReport": "打開報表",
+        "openRecord": "打開記錄"
+      },
+      "count": "共 {count} 筆 · 第 {page} / {pages} 頁",
+      "regenerating": "正在重新生成…"
     },
     "loadError": "無法加載報表。",
     "period": "期間：{from} 至 {to}",
@@ -8266,7 +8313,8 @@
       "permission_switches_self_lockout": "不能關掉自己的「用戶管理」。",
       "permission_switches_last_user_manager": "公司裡至少要有一個人保留「用戶管理」。",
       "receipt_line_returned": "這項材料已有退貨記錄，不能刪除。",
-      "field_place_signed_out": "這個瀏覽器已自動登出，因為你在其他手機或瀏覽器登入了。輸入 PIN 就能在這裡繼續。"
+      "field_place_signed_out": "這個瀏覽器已自動登出，因為你在其他手機或瀏覽器登入了。輸入 PIN 就能在這裡繼續。",
+      "report_export_not_regenerable": "這一行不能重新生成：它已經有存檔文件、屬於另一份報表，或不在你的歷史裡。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -19477,7 +19525,10 @@
       "user_change_permissions": "修改用戶的權限開關",
       "consultant_submit": "提交顧問申請",
       "visitor_photo_purge": "刪除到期訪客照片",
-      "material_target_append": "追加材料目標"
+      "material_target_append": "追加材料目標",
+      "file_print": "列印文件",
+      "file_download": "下載 / 匯出文件",
+      "file_send": "發送 / 分享文件"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",

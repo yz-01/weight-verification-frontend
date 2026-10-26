@@ -71,6 +71,8 @@ import {
   setQRStatus,
   updateQRCode,
 } from "@/services/qrcode.service";
+import { printPage } from "@/lib/file-actions";
+import { signFileAction } from "@/services/file-action.service";
 
 /** One definition for the company options, shared by the register filter and the issue dialog. */
 const companyOptionsQuery = {
@@ -361,30 +363,31 @@ function IssuedTokenDialog({ code, onClose }: { code: QRCodeIssue | null; onClos
   const scanUrl = code && typeof window !== "undefined"
     ? `${window.location.origin}/scan/qr#token=${encodeURIComponent(code.token)}`
     : "";
-  const downloadQr = (format: "png" | "jpg") => {
+  const downloadQr = async (format: "png" | "jpg") => {
     if (!code) return;
     const canvas = qrRef.current;
     if (!canvas) return;
+    // 下载 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${code.serial}`, file_name: `${code.serial}.${format}`, link: window.location.pathname }))) return;
     const mime = format === "jpg" ? "image/jpeg" : "image/png";
     const link = document.createElement("a");
     link.href = canvas.toDataURL(mime, 0.96);
     link.download = `${code.serial}.${format}`;
     link.click();
   };
-  const printQr = () => {
+  const printQr = async () => {
     if (!code) return;
     const canvas = qrRef.current;
     if (!canvas) return;
     const image = canvas.toDataURL("image/png");
-    const printWindow = window.open("", "_blank", "width=520,height=680");
-    if (!printWindow) return;
-    printWindow.opener = null;
-    printWindow.document.write(
+    // 打印 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("PRINT", { subject: `QR ${code.serial}`, link: window.location.pathname }))) return;
+    printPage(
       `<!doctype html><html><head><title>${code.serial}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:32px}img{width:320px;height:320px}.serial{font-size:20px;font-weight:700;margin-top:20px}</style></head><body><img src="${image}" alt="${code.serial}"><div class="serial">${code.serial}</div><script>window.onload=()=>{window.print();window.close()}</script></body></html>`,
+      "width=520,height=680",
     );
-    printWindow.document.close();
   };
-  return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("issued.title")}</DialogTitle><DialogDescription>{t("issued.description")}</DialogDescription></DialogHeader>{code && <div className="space-y-4"><div className="mx-auto grid w-fit place-items-center rounded-lg border bg-paper p-4"><QRCodeCanvas ref={qrRef} value={scanUrl} size={220} level="H" marginSize={1} bgColor="#ffffff" fgColor="#111827" title={code.serial} /></div><p className="tabular text-center text-sm font-semibold">{code.serial}</p><div className="flex flex-wrap justify-center gap-2"><Button variant="outline" onClick={() => downloadQr("png")}><Download />{t("action.downloadPng")}</Button><Button variant="outline" onClick={() => downloadQr("jpg")}><Download />{t("action.downloadJpg")}</Button><Button variant="outline" onClick={printQr}><Printer />{t("action.printQr")}</Button></div><div className="space-y-2 rounded-lg border bg-muted/30 p-3"><p className="text-xs font-medium text-muted-foreground">{t("issued.scanLink")}</p><div className="flex items-center gap-2"><code className="min-w-0 flex-1 break-all text-xs">{scanUrl}</code><Button size="icon-sm" variant="outline" title={common("copy")} onClick={() => { void navigator.clipboard.writeText(scanUrl); setCopied(true); }}><Copy /></Button></div></div>{copied && <p className="text-center text-xs text-success">{t("issued.copied")}</p>}</div>}<DialogFooter><Button onClick={onClose}>{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("issued.title")}</DialogTitle><DialogDescription>{t("issued.description")}</DialogDescription></DialogHeader>{code && <div className="space-y-4"><div className="mx-auto grid w-fit place-items-center rounded-lg border bg-paper p-4"><QRCodeCanvas ref={qrRef} value={scanUrl} size={220} level="H" marginSize={1} bgColor="#ffffff" fgColor="#111827" title={code.serial} /></div><p className="tabular text-center text-sm font-semibold">{code.serial}</p><div className="flex flex-wrap justify-center gap-2"><Button variant="outline" onClick={() => void downloadQr("png")}><Download />{t("action.downloadPng")}</Button><Button variant="outline" onClick={() => void downloadQr("jpg")}><Download />{t("action.downloadJpg")}</Button><Button variant="outline" onClick={() => void printQr()}><Printer />{t("action.printQr")}</Button></div><div className="space-y-2 rounded-lg border bg-muted/30 p-3"><p className="text-xs font-medium text-muted-foreground">{t("issued.scanLink")}</p><div className="flex items-center gap-2"><code className="min-w-0 flex-1 break-all text-xs">{scanUrl}</code><Button size="icon-sm" variant="outline" title={common("copy")} onClick={() => { void navigator.clipboard.writeText(scanUrl); setCopied(true); }}><Copy /></Button></div></div>{copied && <p className="text-center text-xs text-success">{t("issued.copied")}</p>}</div>}<DialogFooter><Button onClick={onClose}>{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function ScanLedger({ anomaliesOnly }: { anomaliesOnly: boolean }) {

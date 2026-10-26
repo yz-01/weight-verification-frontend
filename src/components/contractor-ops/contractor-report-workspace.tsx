@@ -10,13 +10,6 @@ import { DailyReportBook } from "@/components/progress/daily-reports";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
-  ArchivedReportActions,
-  ArchivedReportName,
-  previewArchived,
-  ArchivedReportNote,
-  useReportArchive,
-} from "@/components/reports/report-archive";
-import {
   ReportSelector,
   useReportLevelName,
 } from "@/components/reports/report-selector";
@@ -64,7 +57,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type {
-  ContractorReportExportRecord,
   ContractorReportFilters,
   ContractorReportRecord,
   ContractorReportType,
@@ -89,13 +81,11 @@ import {
   exportContractorReport,
   exportPhotoGroups,
   getContractorReport,
-  getContractorReportHistory,
   getContractorReportOptions,
   getLatestReportDay,
 } from "@/services/contractor-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
 import { photoMeta } from "@/lib/photo-meta";
-import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 function dateValue(date: Date): string {
   const year = date.getFullYear();
@@ -645,87 +635,5 @@ function ReportDaysPrompt({
   );
 }
 
-/**
- * 报表导出历史 - the contractor's archive of generated reports (2026-10-10).
- *
- * Each row opens the file generated at the time, as it was saved - never a
- * fresh report from today's data (`report-archive`): the file name or 「查看」
- * previews it, and 打印 · 导出 · 发送 work on those same stored bytes.
- */
-export function ContractorReportHistoryWorkspace() {
-  const t = useTranslations("contractorReports");
-  const dashboard = useTranslations("contractorDashboard");
-  const archiveT = useTranslations("reportArchive");
-  const df = useDateFormat();
-  const archive = useReportArchive();
-  const history = useQuery({
-    queryKey: ["contractor-reports", "history"],
-    queryFn: () => getContractorReportHistory({ page_size: 100 }),
-  });
-  // The 现场看板 export shares this history; it is not one of the report types.
-  const reportName = (row: ContractorReportExportRecord) =>
-    row.report_type === "dashboard" ? dashboard("export.title") : t(`type.${row.report_type}`);
-  const previewTitle = (row: ContractorReportExportRecord) =>
-    `${reportName(row)} · ${row.date_from} - ${row.date_to}`;
-
-  return (
-    <div className="flex flex-col gap-4">
-      <CompanyBanner scope="reports" />
-      <ReportSelector />
-      <ListHeader title={t("history.title")} subtitle={t("history.subtitle")} />
-      <section className="surface-panel overflow-hidden rounded-xl">
-        {history.isLoading ? (
-          <div className="space-y-3 p-4">
-            {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-9 w-full" />)}
-          </div>
-        ) : history.isError ? (
-          <p className="p-8 text-center text-sm text-destructive">{t("loadError")}</p>
-        ) : (history.data?.results.length ?? 0) === 0 ? (
-          <p className="p-10 text-center text-sm text-muted-foreground">{t("history.empty")}</p>
-        ) : (
-          <>
-            {/* Fits the page (I39): the file name wraps, the dates stack. */}
-            <Table fit>
-              <TableHeader><TableRow>
-                <TableHead>{t("history.file")}</TableHead>
-                <TableHead>{t("history.report")}</TableHead>
-                <TableHead>{t("history.project")}</TableHead>
-                <TableHead>{t("history.period")}</TableHead>
-                <TableHead className="text-right tabular">{t("history.rows")}</TableHead>
-                <TableHead>{t("history.generatedBy")}</TableHead>
-                <TableHead>{t("history.generatedAt")}</TableHead>
-                <TableHead pin="end">{archiveT("column")}</TableHead>
-              </TableRow></TableHeader>
-              <TableBody>
-                {history.data?.results.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className="align-top cursor-pointer"
-                    onClick={(event) => {
-                      if (clickOpensRow(event)) previewArchived(archive, row, previewTitle(row));
-                    }}
-                  >
-                    <TableCell className="overflow-hidden whitespace-normal">
-                      <ArchivedReportName row={row} archive={archive} title={previewTitle(row)} />
-                      <ArchivedReportNote row={row} className="pl-6" />
-                    </TableCell>
-                    <TableCell>{reportName(row)}</TableCell>
-                    <TableCell>{row.project_name || t("filter.allProjects")}</TableCell>
-                    <TableCell className="whitespace-nowrap tabular">{row.date_from} - {row.date_to}</TableCell>
-                    <TableCell className="text-right tabular">{row.metric_count}</TableCell>
-                    <TableCell>{row.generated_by_name || row.generated_by_email}</TableCell>
-                    <TableCell className="whitespace-nowrap tabular">{df.dateTime(row.created_at)}</TableCell>
-                    <TableCell pin="end">
-                      <ArchivedReportActions row={row} archive={archive} title={previewTitle(row)} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </>
-        )}
-      </section>
-      {archive.element}
-    </div>
-  );
-}
+/** 报表导出历史, its search and its operation log (JB27): its own file. */
+export { ContractorReportHistoryWorkspace } from "@/components/contractor-ops/contractor-report-history";

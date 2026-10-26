@@ -24,6 +24,8 @@ import {
   regenerateSupplierQr,
   setSupplierQrStatus,
 } from "@/services/contractor.service";
+import { printPage } from "@/lib/file-actions";
+import { signFileAction } from "@/services/file-action.service";
 
 /**
  * Everything printable about one supplier.
@@ -74,7 +76,10 @@ function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
       ? supplier.qr_token
       : `${window.location.origin}/field-staff?tab=records&record=material&supplier_token=${encodeURIComponent(supplier.qr_token)}`;
 
-  function downloadPng() {
+  async function downloadPng() {
+    if (!qrRef.current) return;
+    // 下载 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${supplier.code} ${supplier.name}`, file_name: `${supplier.code}-supplier-qr.png`, link: window.location.pathname }))) return;
     if (!qrRef.current) return;
     const link = document.createElement("a");
     link.href = qrRef.current.toDataURL("image/png");
@@ -82,16 +87,15 @@ function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
     link.click();
   }
 
-  function printQr() {
+  async function printQr() {
     if (!qrRef.current) return;
-    const printWindow = window.open("", "_blank", "width=560,height=720");
-    if (!printWindow) return;
     const image = qrRef.current.toDataURL("image/png");
-    printWindow.opener = null;
-    printWindow.document.write(
+    // 打印 asks for the person's own PIN and is logged (JB27).
+    if (!(await signFileAction("PRINT", { subject: `QR ${supplier.code} ${supplier.name}`, link: window.location.pathname }))) return;
+    printPage(
       `<!doctype html><html><head><title>${supplier.code}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:40px}img{width:320px;height:320px}h1{font-size:24px;margin:20px 0 6px}p{font-size:16px;color:#4b5563}</style></head><body><img src="${image}" alt="${supplier.code}"><h1>${supplier.name}</h1><p>${supplier.code}</p><script>window.onload=()=>window.print()</script></body></html>`,
+      "width=560,height=720",
     );
-    printWindow.document.close();
   }
 
   async function copyLink() {
@@ -150,11 +154,11 @@ function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
           {t("description")}
         </p>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" onClick={downloadPng}>
+          <Button type="button" variant="outline" onClick={() => void downloadPng()}>
             <Download />
             {t("downloadPng")}
           </Button>
-          <Button type="button" variant="outline" onClick={printQr}>
+          <Button type="button" variant="outline" onClick={() => void printQr()}>
             <Printer />
             {t("printPdf")}
           </Button>

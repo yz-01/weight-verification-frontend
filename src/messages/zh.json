@@ -6761,7 +6761,54 @@
       "report": "报表",
       "rows": "行数",
       "subtitle": "建筑商总部的历史报表档案库：每份报表保存当时生成的文件，点文件名或「查看」即可预览、打印、再次下载或发送，不会用现在的资料重新生成。",
-      "title": "报表导出历史"
+      "title": "报表导出历史",
+      "tabReports": "报表",
+      "tabLog": "操作记录",
+      "filter": {
+        "date": "日期",
+        "operator": "操作员",
+        "operatorHint": "姓名或账号",
+        "action": "操作类型",
+        "anyAction": "全部操作",
+        "name": "报表 / 资料名称",
+        "nameHint": "报表或文件名称",
+        "clear": "清除筛选"
+      },
+      "action": {
+        "PRINT": "打印",
+        "DOWNLOAD": "下载 / 导出",
+        "SEND": "发送 / 分享"
+      },
+      "channel": {
+        "share_sheet": "系统分享",
+        "whatsapp": "WhatsApp",
+        "email": "电邮",
+        "link": "复制链接",
+        "download": "下载后附上"
+      },
+      "logHint": "整个后台的打印、下载、发送，每次都用本人六位数密码确认。预览不记录。",
+      "actionFilterHint": "日期和操作员：报表的生成日期和生成人。选了操作类型：被打印、下载或发送过的报表，以及操作人。",
+      "noMatch": "没有符合筛选条件的报表。",
+      "regeneratedNote": "按 {when} 的条件重新生成，内容为重新生成时的资料。",
+      "regeneratedOnFile": "按 {when} 的条件重新生成，内容为现在的资料",
+      "cannotRegenerate": "请到现场看板重新导出。",
+      "regenerate": "按当时条件重新生成",
+      "regenerateHint": "同一报表、项目、期间和筛选条件；内容是今天的资料。会新增一行，这一行保留不变。",
+      "regenerated": "已重新生成，就是列表最上面的新一行。",
+      "regenerateFailed": "重新生成没有成功，请再试一次。",
+      "rowActions": "操作记录（{count}）",
+      "rowActionsTitle": "这份报表的打印、下载、发送记录",
+      "logEmpty": "还没有打印、下载或发送的记录。",
+      "log": {
+        "at": "日期时间",
+        "operator": "操作员",
+        "action": "操作类型",
+        "subject": "业务事项 / 报表 / 文件",
+        "openReport": "打开报表",
+        "openRecord": "打开记录"
+      },
+      "count": "共 {count} 笔 · 第 {page} / {pages} 页",
+      "regenerating": "正在重新生成…"
     },
     "loadError": "无法加载报表。",
     "period": "期间：{from} 至 {to}",
@@ -8266,7 +8313,8 @@
       "permission_switches_self_lockout": "不能关掉自己的「用户管理」。",
       "permission_switches_last_user_manager": "公司里至少要有一个人保留「用户管理」。",
       "receipt_line_returned": "这项材料已有退货记录，不能删除。",
-      "field_place_signed_out": "这个浏览器已自动登出，因为你在其他手机或浏览器登录了。输入 PIN 就能在这里继续。"
+      "field_place_signed_out": "这个浏览器已自动登出，因为你在其他手机或浏览器登录了。输入 PIN 就能在这里继续。",
+      "report_export_not_regenerable": "这一行不能重新生成：它已经有存档文件、属于另一份报表，或不在你的历史里。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -19477,7 +19525,10 @@
       "user_change_permissions": "修改用户的权限开关",
       "consultant_submit": "提交顾问申请",
       "visitor_photo_purge": "删除到期访客照片",
-      "material_target_append": "追加材料目标"
+      "material_target_append": "追加材料目标",
+      "file_print": "打印文件",
+      "file_download": "下载 / 导出文件",
+      "file_send": "发送 / 分享文件"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",

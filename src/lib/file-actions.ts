@@ -121,6 +121,68 @@ export function printFile(file: File): Promise<boolean> {
   });
 }
 
+let pageFrame: HTMLIFrameElement | null = null;
+
+/** A hidden frame to print a page of our own from; the last one is replaced. */
+function freshPrintFrame(): HTMLIFrameElement {
+  pageFrame?.remove();
+  const frame = document.createElement("iframe");
+  frame.setAttribute("aria-hidden", "true");
+  frame.tabIndex = -1;
+  frame.style.cssText =
+    "position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none;";
+  document.body.appendChild(frame);
+  pageFrame = frame;
+  return frame;
+}
+
+/**
+ * Print a page the screen wrote itself (a QR label, a list as it stands) in
+ * a window of its own, as before - or, where the browser blocks that window
+ * (the click that allowed it was spent on the PIN dialog, JB27), from a
+ * hidden frame in this page. The page's own script prints it either way.
+ */
+export function printPage(html: string, features: string): void {
+  const popup = window.open("", "_blank", features);
+  if (popup) {
+    popup.opener = null;
+    popup.document.write(html);
+    popup.document.close();
+    return;
+  }
+  const frame = freshPrintFrame();
+  const page = frame.contentDocument;
+  if (!page) return;
+  page.open();
+  page.write(html);
+  page.close();
+}
+
+/**
+ * Print one picture from a hidden frame - no new window, so nothing a popup
+ * blocker can stop after the PIN dialog (JB27).
+ */
+export function printImage(url: string, title: string): void {
+  const frame = freshPrintFrame();
+  const page = frame.contentDocument;
+  const view = frame.contentWindow;
+  if (!page || !view) return;
+  page.open();
+  page.write(
+    "<!doctype html><html><head><style>html,body{margin:0}img{max-width:100%;display:block;margin:0 auto}</style></head><body></body></html>",
+  );
+  page.close();
+  page.title = title;
+  const image = page.createElement("img");
+  image.alt = title;
+  image.onload = () => {
+    view.focus();
+    view.print();
+  };
+  image.src = url;
+  page.body.appendChild(image);
+}
+
 export type ShareFileOutcome = "shared" | "cancelled" | "unsupported" | "failed";
 
 interface FileShareNavigator {

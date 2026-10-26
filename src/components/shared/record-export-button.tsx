@@ -86,6 +86,9 @@ export function RecordExportButton({
         load: () => recordPdfFile(kind, recordId, reference),
         title: t("completeEvidenceTitle", { reference }),
         link: absoluteUrl(href),
+        // The log row names the record (JB27).
+        recordKind: kind,
+        recordId,
       }}
     />
   );
@@ -98,6 +101,9 @@ export function RecordExportButton({
         load: () => recordPdfFile(kind, recordId, reference, 1),
         title: t("originalVersionTitle", { reference }),
         link: absoluteUrl(href),
+        // The log row names the record (JB27).
+        recordKind: kind,
+        recordId,
       }}
     />
   );
