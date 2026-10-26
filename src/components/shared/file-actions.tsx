@@ -128,6 +128,8 @@ interface Held {
   allowSave: boolean;
   /** Where the file came from: fetched again, and named in the log (JB27). */
   source: FileSource;
+  /** JB25: why print / export / send are off; only the preview works. */
+  blockedReason?: string;
 }
 
 const LEAVES: readonly FileAction[] = ["save", "share"];
@@ -252,6 +254,7 @@ export function useFileActions() {
         setViewing(held);
         return;
       }
+      if (held.blockedReason) return;
       await leave(action, held.source, held.file, { key: action, allowSave: held.allowSave });
     },
     [leave],
@@ -259,10 +262,16 @@ export function useFileActions() {
 
   /** Fetch the file, then run the action on it. `key` names the spinner. */
   const run = useCallback(
-    async (action: FileAction, source: FileSource, options: { key?: string; allowSave?: boolean } = {}) => {
+    async (
+      action: FileAction,
+      source: FileSource,
+      options: { key?: string; allowSave?: boolean; blockedReason?: string } = {},
+    ) => {
       if (busy) return;
       const key = options.key ?? action;
       const allowSave = options.allowSave ?? true;
+      // JB25: not yet confirmed - looked at, never taken out.
+      if (options.blockedReason && action !== "preview") return;
       if (action !== "preview") {
         await leave(action, source, null, { key, allowSave });
         return;
@@ -279,6 +288,7 @@ export function useFileActions() {
         link: source.link,
         allowSave,
         source,
+        blockedReason: options.blockedReason,
       });
     },
     [busy, fetchWith, leave],
@@ -319,10 +329,16 @@ export function FileActionButtons({
   className,
   label,
   labelHint,
+  blockedReason,
 }: {
   source: FileSource;
   /** False where the person may look at the file but not export it. */
   allowSave?: boolean;
+  /**
+   * JB25 (客户 10-26 事项 1): 「确认归档前，不能对外转发、导出、打印或生成分享
+   * 链接」 - set, print / export / send are off with this reason; preview stays.
+   */
+  blockedReason?: string;
   disabled?: boolean;
   disabledReason?: string;
   className?: string;
@@ -358,10 +374,18 @@ export function FileActionButtons({
               size="sm"
               variant="outline"
               data-slot={`file-action-${action}`}
-              disabled={disabled || Boolean(busy)}
-              disabledReason={disabled ? disabledReason : busy ? t("preparing") : undefined}
+              disabled={disabled || Boolean(busy) || (Boolean(blockedReason) && action !== "preview")}
+              disabledReason={
+                disabled
+                  ? disabledReason
+                  : blockedReason && action !== "preview"
+                    ? blockedReason
+                    : busy
+                      ? t("preparing")
+                      : undefined
+              }
               title={action === "share" ? t("shareHint") : undefined}
-              onClick={() => void run(action, source, { allowSave })}
+              onClick={() => void run(action, source, { allowSave, blockedReason })}
             >
               {busy === action ? <Loader2 className="size-3.5 animate-spin" /> : <Icon className="size-3.5" />}
               {t(action)}
@@ -385,12 +409,15 @@ export function FileActionMenu({
   label,
   labelHint,
   allowSave = true,
+  blockedReason,
 }: {
   source: FileSource;
   /** What the file is, on the button. */
   label: string;
   labelHint?: string;
   allowSave?: boolean;
+  /** JB25: as `FileActionButtons` - preview only, with this reason. */
+  blockedReason?: string;
 }) {
   const t = useTranslations("fileActions");
   const { busy, run, element } = useFileActions();
@@ -419,7 +446,9 @@ export function FileActionMenu({
               <DropdownMenuItem
                 key={action}
                 data-slot={`file-action-${action}`}
-                onSelect={() => void run(action, source, { allowSave })}
+                disabled={Boolean(blockedReason) && action !== "preview"}
+                title={blockedReason && action !== "preview" ? blockedReason : undefined}
+                onSelect={() => void run(action, source, { allowSave, blockedReason })}
               >
                 <Icon className="size-3.5" />
                 {t(action)}
@@ -474,10 +503,10 @@ function FileViewerDialog({
         <DialogFooter className="flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
             {format === "sheet" ? `${t("sheetNoPrint")} ` : ""}
-            {t("shareHint")}
+            {held.blockedReason ?? t("shareHint")}
           </p>
           <div className="flex flex-wrap justify-end gap-2">
-            {format === "pdf" ? (
+            {format === "pdf" && !held.blockedReason ? (
               <Button size="sm" variant="outline" onClick={() => window.open(url, "_blank", "noopener,noreferrer")}>
                 <ExternalLink className="size-4" />
                 {t("openNewTab")}
@@ -491,8 +520,8 @@ function FileViewerDialog({
                   size="sm"
                   variant={action === "save" ? "default" : "outline"}
                   data-slot={`file-viewer-${action}`}
-                  disabled={busy}
-                  disabledReason={busy ? t("preparing") : undefined}
+                  disabled={busy || Boolean(held.blockedReason)}
+                  disabledReason={held.blockedReason ?? (busy ? t("preparing") : undefined)}
                   onClick={() => {
                     if (action === "print" && !canShowPdfInPage()) {
                       // A phone: its own viewer prints, from its share menu.

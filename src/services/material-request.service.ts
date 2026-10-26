@@ -149,3 +149,16 @@ export function exportMaterialRequestTotals(request: ExportRequest): Promise<voi
     fallbackFilename: `material-request-totals.${request.format}`,
   });
 }
+
+/** JB25: change a request waiting for its decision - overwritten, no old version. */
+export async function updateMaterialRequest(id: string, body: FormData | Record<string, unknown>) {
+  const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/update_request/`, body);
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+}
+
+/** JB25: the trash can on a request waiting for its decision - PIN, total. */
+export async function deleteMaterialRequest(id: string) {
+  await api.delete(`/api/material-requests/${id}/delete_request/`);
+  toastSuccess("draftRecords.deleted");
+}

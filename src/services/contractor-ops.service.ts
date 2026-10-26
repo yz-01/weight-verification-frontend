@@ -171,6 +171,12 @@ export const createFieldTask = async (payload: FieldTaskPayload) => {
  * the photos look like a reply to a question nobody was asked. The console
  * offers the control only in those two states.
  */
+/** JB25: the trash can on a task nobody has started - PIN, total. */
+export const deleteFieldTask = async (id: string) => {
+  await api.delete(`/api/field-tasks/${id}/delete_task/`);
+  toastSuccess("draftRecords.deleted");
+};
+
 export const updateFieldTask = async (
   id: string,
   payload: Partial<Omit<FieldTaskPayload, "project" | "references" | "client_event_id">>,

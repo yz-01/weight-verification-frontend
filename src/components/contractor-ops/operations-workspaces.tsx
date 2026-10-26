@@ -62,6 +62,7 @@ import {
   FieldEvidenceGrid,
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
+import { DeleteRecordButton } from "@/components/shared/delete-record-button";
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -160,6 +161,7 @@ import {
   reviewMaterialOutgoing,
   transitionFieldTask,
   updateFieldTask,
+  deleteFieldTask,
   updateProjectCategory,
   updateSiteEquipment,
 } from "@/services/contractor-ops.service";
@@ -1460,6 +1462,14 @@ export function FieldTasksWorkspace({
                             <Paperclip />
                             {t("tasks.addReferences")}
                           </Button>
+                          {/* JB25: a task nobody has started can go - PIN, total. */}
+                          {row.status === "OPEN" ? (
+                            <DeleteRecordButton
+                              what={row.record_no || row.title}
+                              onDelete={() => deleteFieldTask(row.id)}
+                              onDeleted={() => void qc.invalidateQueries({ queryKey: ["field-tasks"] })}
+                            />
+                          ) : null}
                         </>
                       ) : null}
                       {canReview ? (

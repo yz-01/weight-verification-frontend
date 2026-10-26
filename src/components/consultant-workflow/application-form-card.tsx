@@ -28,6 +28,7 @@ export function ApplicationFormCard({
   onShowAttachments,
   exportButtons,
   sendBlockedReason,
+  printBlockedReason,
 }: {
   consultantName: string;
   attachmentCount: number;
@@ -39,6 +40,8 @@ export function ApplicationFormCard({
    * answering the press with a refusal.
    */
   sendBlockedReason?: string;
+  /** JB25: not yet confirmed - 「确认归档前，不能…打印」. */
+  printBlockedReason?: string;
   isSubmitting: boolean;
   onSend: () => void;
   onPrint: () => Promise<void>;
@@ -69,7 +72,8 @@ export function ApplicationFormCard({
             size="sm"
             variant="outline"
             data-slot="application-form-print"
-            disabled={printing.isPending}
+            disabledReason={printBlockedReason}
+            disabled={printing.isPending || Boolean(printBlockedReason)}
             onClick={() => printing.mutate()}
           >
             {printing.isPending ? <Loader2 className="animate-spin" /> : <Printer />}

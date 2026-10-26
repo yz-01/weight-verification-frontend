@@ -16,6 +16,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Download, Eye, Loader2, Lock, Paperclip, Upload, X } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider";
+import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -28,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import type { AttachableKind, RecordAttachment } from "@/interfaces/record-attachment";
 import { useDateFormat } from "@/lib/dates";
 import {
+  deleteRecordAttachment,
   downloadRecordAttachment,
   getRecordAttachments,
   recordAttachmentObjectUrl,
@@ -107,6 +110,10 @@ export function RecordAttachmentsPanel({
 
   const rows = state.data?.attachments ?? [];
   const closed = state.data?.closed ?? "";
+  // The phone keeps its flow (「手机端…保持现有操作流程不变」).
+  const { user } = useAuth();
+  const previewOnly = Boolean(state.data?.preview_only) && !user?.is_field_staff;
+  const notArchived = useNotArchivedReason();
   // The server's word on who may add (a gate pass: 门禁 manage only, I3).
   const readOnly = readOnlyProp || state.data?.can_add === false;
   const missing = required && state.data !== undefined && rows.length === 0;
@@ -191,6 +198,9 @@ export function RecordAttachmentsPanel({
                       variant="ghost"
                       className="size-7 shrink-0"
                       title={t("download")}
+                      // JB25: on a record not yet confirmed a file is previewed only.
+                      disabled={previewOnly}
+                      disabledReason={previewOnly ? notArchived : undefined}
                       onClick={async () => {
                         // 下载 asks for the person's own PIN and is logged (JB27).
                         const signed = await signFileAction("DOWNLOAD", {
@@ -205,6 +215,17 @@ export function RecordAttachmentsPanel({
                     >
                       <Download className="size-3.5" />
                     </Button>
+                    {state.data?.can_delete ? (
+                      <DeleteRecordButton
+                        iconOnly
+                        className="size-7 shrink-0"
+                        what={row.original_name}
+                        onDelete={() => deleteRecordAttachment(kind, recordId, row)}
+                        onDeleted={() =>
+                          void queryClient.invalidateQueries({ queryKey: recordAttachmentsKey(kind, recordId) })
+                        }
+                      />
+                    ) : null}
                   </li>
                 );
               })}

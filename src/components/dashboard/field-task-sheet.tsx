@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useNotArchivedReason } from "@/components/shared/delete-record-button";
 import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import {
   RecordDetailDialog,
@@ -63,6 +64,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const df = useDateFormat();
   const { user } = useAuth();
   const flow = useTranslations("taskFlow");
+  const notArchived = useNotArchivedReason();
   const queryClient = useQueryClient();
   const task = useQuery({ queryKey: ["field-tasks", "detail", id], queryFn: () => getFieldTask(id) });
   const [result, setResult] = useState("");
@@ -142,7 +144,13 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
       }
       onClose={onClose}
       // 预览 · 打印 · 导出 · 发送 on this one task (H16, HD13).
-      exportRecord={{ kind: "FIELD_TASK", recordId: row.id, reference: row.title }}
+      exportRecord={{
+        kind: "FIELD_TASK",
+        recordId: row.id,
+        reference: row.title,
+        // JB25: a task nobody has started is still the office's draft.
+        blockedReason: row.status === "OPEN" ? notArchived : undefined,
+      }}
     >
       <div data-field-task-sheet={row.origin}>
         <RecordDetailShell

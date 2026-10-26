@@ -82,6 +82,7 @@ import type { LinkableRecord } from "@/interfaces/document-workflow";
 import { RecordLinkPicker } from "@/components/document-workflow/record-link-picker";
 import { InspectionDialog, InspectionList } from "@/components/document-workflow/inspection";
 import { FileActionButtons } from "@/components/shared/file-actions";
+import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
 import { CorrectedTag } from "@/components/shared/record-correction";
 import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import type { RecordPdfKind } from "@/services/contractor-ops.service";
@@ -108,6 +109,7 @@ import {
   attachDocumentRecords,
   attachSystemFiles,
   documentRecordsPdf,
+  deleteDocument,
   createDocumentCategory,
   createDocumentSubcategory,
   deleteDocumentCategory,
@@ -1727,6 +1729,8 @@ function DocumentDetailDialog({
   onClose: () => void;
 }) {
   const t = useTranslations();
+  const notArchived = useNotArchivedReason();
+  const queryClient = useQueryClient();
   const [downloading, setDownloading] = useState<string | null>(null);
   // Which file the preview shows (`s:<id>` / `v:<id>`); the newest upload,
   // else the first picked file, until somebody picks another.
@@ -1778,7 +1782,19 @@ function DocumentDetailDialog({
               recordId={detail.data.id}
               reference={detail.data.document_no || detail.data.title}
               href={`/documents?document=${detail.data.id}`}
+              // JB25: 「确认归档前，不能对外转发、导出、打印」 - preview only.
+              blockedReason={detail.data.status === "ARCHIVED" ? undefined : notArchived}
             />
+            {detail.data.status !== "ARCHIVED" && (
+              <DeleteRecordButton
+                what={detail.data.document_no || detail.data.title}
+                onDelete={() => deleteDocument(detail.data!.id)}
+                onDeleted={() => {
+                  void queryClient.invalidateQueries({ queryKey: ["documents"] });
+                  onClose();
+                }}
+              />
+            )}
           </div>
         ) : null}
 
@@ -1886,6 +1902,7 @@ function DocumentDetailBody({
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
+  const notArchived = useNotArchivedReason();
   // 填写检验结果 (J12-7): only where the subcategory asks for it.
   const [inspecting, setInspecting] = useState(false);
   const [savingFile, setSavingFile] = useState<string | null>(null);
@@ -1957,6 +1974,7 @@ function DocumentDetailBody({
             <h3 className="text-sm font-semibold text-foreground">{t("documents.recordLinks.title")}</h3>
             <FileActionButtons
               label={t("documents.recordLinks.allPdf")}
+              blockedReason={document.status === "ARCHIVED" ? undefined : notArchived}
               source={{
                 load: () => documentRecordsPdf(document.id, document.document_no),
                 title: t("documents.recordLinks.allPdf"),
@@ -2156,11 +2174,13 @@ function DocumentDetailBody({
                         className="h-8 w-8"
                         title={t("documents.download")}
                         disabledReason={
-                          downloading === version.id
-                            ? t("documents.downloading")
-                            : undefined
+                          document.status !== "ARCHIVED"
+                            ? notArchived
+                            : downloading === version.id
+                              ? t("documents.downloading")
+                              : undefined
                         }
-                        disabled={downloading === version.id}
+                        disabled={downloading === version.id || document.status !== "ARCHIVED"}
                         onClick={() => onDownload(version)}
                       >
                         {downloading === version.id ? (

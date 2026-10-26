@@ -47,6 +47,7 @@ export function RecordExportButton({
   recordId,
   reference,
   href: givenHref,
+  blockedReason,
   layout = "buttons",
 }: {
   kind: RecordPdfKind;
@@ -54,6 +55,8 @@ export function RecordExportButton({
   reference: string;
   /** Where the record opens, for a kind `recordTarget` does not route (H16). */
   href?: string;
+  /** JB25: set while the record is not confirmed - preview only, with this reason. */
+  blockedReason?: string;
   /**
    * `menu`: each PDF one button with its four actions under it -
    * 「完整证据 PDF ▾」「修改前原单 ▾」 - for the photo viewer's single row of
@@ -82,6 +85,7 @@ export function RecordExportButton({
     <Actions
       label={t("completeEvidence")}
       labelHint={t("completeEvidenceHint")}
+      blockedReason={blockedReason}
       source={{
         load: () => recordPdfFile(kind, recordId, reference),
         title: t("completeEvidenceTitle", { reference }),
