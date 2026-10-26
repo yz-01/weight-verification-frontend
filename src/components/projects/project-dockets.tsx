@@ -378,7 +378,7 @@ function DeliveryNoteResultDialog({ note, onClose }: { note: DeliveryNote; onClo
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {note.evidence.map((item) => (
                 <a key={item.id} href={item.watermarked ?? item.image} target="_blank" rel="noreferrer" className="group block">
-                  <div className="relative aspect-square overflow-hidden rounded-md border bg-muted">
+                  <div className="relative aspect-4/3 overflow-hidden rounded-md border bg-muted">
                     <Image src={item.watermarked ?? item.image} alt={t(`deliveryNotePublic.evidence.${item.kind}`)} fill unoptimized className="object-cover object-bottom transition-transform group-hover:scale-105" />
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{t(`deliveryNotePublic.evidence.${item.kind}`)}</p>

@@ -76,7 +76,9 @@ export interface PhotoThumbProps {
   className?: string;
 }
 
-const SIZE = { md: "size-12", sm: "size-10" } as const;
+// Landscape 4:3 (JB34, the client's 图 8): 64 × 48 in a list, 56 × 42 in the
+// dashboard's compact rows - the width the squares had.
+const SIZE = { md: "aspect-4/3 w-16", sm: "aspect-4/3 w-14" } as const;
 
 export function PhotoThumb({
   coverUrl,
@@ -148,8 +150,8 @@ export function PhotoThumb({
         src={coverUrl}
         alt=""
         fill
-        sizes={size === "md" ? "48px" : "40px"}
-        className="object-cover"
+        sizes={size === "md" ? "64px" : "56px"}
+        className="object-cover object-bottom"
         unoptimized
       />
       {total > 1 ? (
@@ -236,13 +238,14 @@ export interface PhotoStripProps {
  * A row's photographs, side by side (J34-2, 图 3 / 图 4).
  *
  * The client: 「不要看到一大串文字，系统是为照片为主，最少看到四张照片一排」.
- * Up to four equal squares cut to fill (`object-cover`) - a strip is for
+ * Up to four equal tiles cut to fill (`object-cover`, from the bottom so the
+ * stamped strip stays) - landscape 4:3 since JB34 - a strip is for
  * finding the record, the viewer shows each photo whole (J34-1) - with the
  * last one 「+N」 when the record has more. Each opens the viewer at itself,
  * the 「+N」 at the first photo it stands for. No photograph: the module's
  * icon, as `PhotoThumb`.
  *
- * Lucas 10-21, from the screenshots: 64 px squares on a desktop, 56 px on a
+ * Lucas 10-21, from the screenshots: 64 px wide on a desktop, 56 px on a
  * phone - a table below the `sm` width and a phone card (`StripFillsWidth`).
  */
 export function PhotoStrip({
@@ -264,8 +267,9 @@ export function PhotoStrip({
   const [loading, setLoading] = useState(false);
   const list = thumbs && thumbs.length > 0 ? thumbs : coverUrl ? [coverUrl] : [];
   const total = Math.max(count ?? 0, list.length);
-  // 64 px in a desktop table, 56 px on a phone (Lucas 10-21).
-  const square = fills ? "size-14" : "size-14 sm:size-16";
+  // 64 px wide in a desktop table, 56 px on a phone (Lucas 10-21), and
+  // landscape 4:3 - all one size, side by side (JB34, the client's 图 8).
+  const square = fills ? "aspect-4/3 w-14" : "aspect-4/3 w-14 sm:w-16";
 
   if (list.length === 0) {
     return (
@@ -324,7 +328,7 @@ export function PhotoStrip({
     loading && "opacity-60",
   );
   const picture = (url: string) => (
-    <Image src={url} alt="" fill sizes="80px" className="object-cover" unoptimized />
+    <Image src={url} alt="" fill sizes="80px" className="object-cover object-bottom" unoptimized />
   );
   const squaresDrawn = [
     ...shown.map((url, index) => ({ key: `photo-${index}`, index, url, label: null as string | null })),

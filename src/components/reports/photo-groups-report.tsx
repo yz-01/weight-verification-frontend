@@ -202,8 +202,9 @@ function PhotoGroupRow({ group }: { group: PhotoGroup }) {
           {group.has_gps ? <MapPin className="size-3 shrink-0 text-success" aria-label={t("hasGps")} /> : null}
         </p>
       </div>
-      {/* Equal squares cut to fill, side by side; the row scrolls when there
-          are more than fit (J8-2). On a phone they wrap. */}
+      {/* Equal landscape tiles (4:3, JB34 - the client's 图 8) cut to fill
+          from the bottom so the stamped strip stays, side by side; the row
+          scrolls when there are more than fit (J8-2). On a phone they wrap. */}
       <ul className="flex min-w-0 flex-1 gap-1.5 max-sm:flex-wrap sm:overflow-x-auto sm:pb-1">
         {group.photos.map((photo, index) => (
           <li key={photo.id} className="shrink-0">
@@ -211,10 +212,10 @@ function PhotoGroupRow({ group }: { group: PhotoGroup }) {
               type="button"
               onClick={() => setOpen(index)}
               aria-label={t("openPhoto", { index: index + 1, reference: title })}
-              className="relative block size-20 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border transition hover:ring-primary/60 sm:size-24"
+              className="relative block aspect-4/3 w-24 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border transition hover:ring-primary/60 sm:w-32"
             >
               {photo.thumbnail_url ? (
-                <Image src={photo.thumbnail_url} alt="" fill sizes="96px" className="object-cover" unoptimized />
+                <Image src={photo.thumbnail_url} alt="" fill sizes="128px" className="object-cover object-bottom" unoptimized />
               ) : (
                 <ImageIcon className="absolute inset-0 m-auto size-6 text-muted-foreground" aria-hidden />
               )}

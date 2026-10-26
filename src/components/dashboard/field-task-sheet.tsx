@@ -206,7 +206,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                           width={180}
                           height={180}
                           unoptimized
-                          className="aspect-square w-full rounded-lg object-cover object-bottom"
+                          className="aspect-4/3 w-full rounded-lg object-cover object-bottom"
                         />
                       </a>
                     ) : (

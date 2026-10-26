@@ -597,7 +597,7 @@ export function DriverTask({
             {data.photos.map((photo) => (
               <div
                 key={photo.id}
-                className="photo-hatch relative aspect-square overflow-hidden rounded-lg border"
+                className="photo-hatch relative aspect-4/3 overflow-hidden rounded-lg border"
               >
                 <Image
                   src={photo.watermarked || photo.image}

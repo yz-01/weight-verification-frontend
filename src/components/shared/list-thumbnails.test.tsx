@@ -113,8 +113,11 @@ describe("the office list column", () => {
     expect(html.match(/data-photo-square="photo"/g)).toHaveLength(3);
     expect(html).toContain('data-photo-square="more"');
     expect(html).toContain("+8");
-    // Equal squares cut to fill, not a filename or a count in words.
-    expect(html.match(/object-cover/g)?.length).toBe(4);
+    // Equal landscape 4:3 tiles cut to fill from the bottom (JB34, the
+    // client's 图 8), not a filename or a count in words.
+    expect(html.match(/object-cover object-bottom/g)?.length).toBe(4);
+    expect(html.match(/aspect-4\/3 w-14 sm:w-16/g)?.length).toBe(4);
+    expect(html).not.toMatch(/size-14|size-16/);
     expect(html).not.toContain(".jpg<");
   });
 
