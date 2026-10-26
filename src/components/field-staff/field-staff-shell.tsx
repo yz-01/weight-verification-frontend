@@ -18,6 +18,7 @@ import { fieldWorkspaceSignIn } from "@/lib/field-install";
 import { replacePage } from "@/lib/portal";
 import { keepShellPageStored } from "@/lib/shell-cache";
 import { FieldLocationTracker } from "@/components/field-staff/field-location-tracker";
+import { FieldAlertsHint } from "@/components/field-staff/field-alerts-hint";
 import { FieldInstallBanner } from "@/components/field-staff/field-install-banner";
 import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
 import { FieldWorkspaceAddress } from "@/components/field-staff/field-workspace-address";
@@ -123,6 +124,8 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
         ) : null}
       </header>
       <FieldInstallBanner />
+      {/* Sound and the icon's number: what this phone still needs (JB36). */}
+      <FieldAlertsHint />
       <main className="mx-auto min-w-0 w-full max-w-2xl px-4 py-5">{children}</main>
     </div>
   );

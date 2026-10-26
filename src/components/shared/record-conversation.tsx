@@ -29,7 +29,9 @@ import {
   useClearDraft,
   useDraftState,
 } from "@/components/field-staff/field-draft";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
+import { useNewMessageTone } from "@/hooks/use-new-message-tone";
 import { ApiError } from "@/interfaces/api";
 import { conversationClosedLine, recordConversationKey, type ChatRecordKind } from "@/lib/record-chat";
 import {
@@ -75,6 +77,9 @@ function RecordConversationContent({
   // Reading the conversation settles this reader's chat notice for it on the
   // server (2026-10-09); the red dot is re-read when it did.
   useBellRefreshOnRead(data);
+  // Somebody else's new message rings while the chat is open (JB36).
+  const { user } = useAuth();
+  useNewMessageTone(data?.messages, user?.id);
 
   const limit = data?.audio_seconds_limit ?? FALLBACK_AUDIO_LIMIT;
 
