@@ -6322,6 +6322,8 @@
       "editTitle": "編輯這個任務",
       "formHelp": "選擇項目、現場人員、工作位置、期限和必須上傳的照片數量。",
       "openGps": "打開 GPS 位置",
+      "linkedRecord": "提交的記錄：{reference}",
+      "linkedHint": "現場人員用這筆記錄完成任務，它的照片也顯示在上面。",
       "photos": "照片：{current}/{required}",
       "prepareApplication": "檢查後轉給顧問",
       "projectFixed": "工地改不了 —— 接任務的人是從這個工地的班組裡選的。",

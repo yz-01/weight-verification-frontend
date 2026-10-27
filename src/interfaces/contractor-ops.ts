@@ -310,6 +310,16 @@ export interface FieldTaskReference {
   created_at: string;
 }
 
+export interface FieldTaskLinkedPhoto {
+  id: string;
+  url: string;
+  thumbnail_url: string | null;
+  caption: string;
+  captured_at: string;
+  latitude: string | null;
+  longitude: string | null;
+}
+
 export interface FieldTask extends RecordedBy {
   /** Record No. (I6): `FT-<project>-001`, running on per project. */
   record_no?: string;
@@ -349,6 +359,14 @@ export interface FieldTask extends RecordedBy {
   linked_record_id: string | null;
   linked_record_reference: string;
   linked_at: string | null;
+  /** The kind `recordTarget` opens the linked record by (JB39); "" when none. */
+  linked_record_kind?: string;
+  /**
+   * The photographs of the record the task was completed with (JB39): a
+   * 工程进度 / 材料 / 设备 task done on the phone files them there, not on
+   * the task (客户 10-27: 「后台没有收到照片」).
+   */
+  linked_photos?: FieldTaskLinkedPhoto[];
   photos: FieldTaskPhoto[];
   references: FieldTaskReference[];
   photo_count: number;

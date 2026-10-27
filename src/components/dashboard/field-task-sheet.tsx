@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { useNotArchivedReason } from "@/components/shared/delete-record-button";
+import { useRecordOpener } from "@/components/shared/record-opener";
 import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import {
   RecordDetailDialog,
@@ -71,6 +72,8 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const [photos, setPhotos] = useState<File[]>([]);
   // 【改正】 (I30): title, instructions, who does it and by when, with a reason.
   const mayCorrect = useCanCorrect("FIELD_TASK");
+  // The record the task was done with, opened over this one (JB39).
+  const opener = useRecordOpener();
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["field-tasks"] });
     void queryClient.invalidateQueries({ queryKey: ["contractor-dashboard"] });
@@ -122,7 +125,13 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
     );
   }
 
-  const gpsPhoto = row.photos.find((photo) => photo.latitude && photo.longitude);
+  // A task done through a site record form (工程进度, 材料, 设备 ...) has its
+  // photographs on that record (JB39, 客户 10-27: 「后台没有收到照片」).
+  const linkedPhotos = row.linked_photos ?? [];
+  const linkedKind = row.linked_record_kind ?? "";
+  const linkedId = linkedKind ? row.linked_record_id : null;
+  const photoTotal = row.photos.length + linkedPhotos.length;
+  const gpsPhoto = [...row.photos, ...linkedPhotos].find((photo) => photo.latitude && photo.longitude);
   const sentOn = row.consultant_application ?? null;
   const category = row.submission_category
     ? askOption(row.submission_category) ?? row.submission_category
@@ -172,19 +181,30 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
               wide: true,
             },
           ]}
-          photos={row.photos.map((photo) => ({
-            id: photo.id,
-            url: photo.watermarked || photo.image,
-            label: photo.caption || row.title,
-            takenAt: photo.captured_at,
-            latitude: photo.latitude,
-            longitude: photo.longitude,
-          }))}
+          photos={[
+            ...row.photos.map((photo) => ({
+              id: photo.id,
+              url: photo.watermarked || photo.image,
+              label: photo.caption || row.title,
+              takenAt: photo.captured_at,
+              latitude: photo.latitude,
+              longitude: photo.longitude,
+            })),
+            ...linkedPhotos.map((photo) => ({
+              id: `linked:${photo.id}`,
+              url: photo.url,
+              thumbnailUrl: photo.thumbnail_url ?? undefined,
+              label: photo.caption || row.linked_record_reference || row.title,
+              takenAt: photo.captured_at,
+              latitude: photo.latitude,
+              longitude: photo.longitude,
+            })),
+          ]}
           photoActions={
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
               <span>
                 {ops("tasks.photos", {
-                  current: row.photos.length,
+                  current: photoTotal,
                   required: row.evidence_required,
                 })}
               </span>
@@ -293,8 +313,29 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
           }
           corrections={<RecordCorrectionHistory kind="FIELD_TASK" recordId={row.id} />}
           aside={
-            row.result_note || row.submitted_at || row.reviewed_at || sentOn ? (
+            row.result_note || row.submitted_at || row.reviewed_at || sentOn || linkedId ? (
               <>
+                {linkedId && (
+                  <ShellPanel className="space-y-1 text-sm" data-task-linked={linkedKind}>
+                    <button
+                      type="button"
+                      className="text-left font-medium text-primary underline-offset-2 hover:underline"
+                      onClick={() =>
+                        opener.open(linkedKind, linkedId, {
+                          reference: row.linked_record_reference,
+                          project_id: row.project,
+                          project_name: row.project_name,
+                          submitted_at: row.linked_at,
+                        })
+                      }
+                    >
+                      {ops("tasks.linkedRecord", {
+                        reference: row.linked_record_reference || linkedKind,
+                      })}
+                    </button>
+                    <p className="text-xs text-muted-foreground">{ops("tasks.linkedHint")}</p>
+                  </ShellPanel>
+                )}
                 {(row.result_note || row.submitted_at || row.reviewed_at) && (
                   <ShellPanel data-task-result>
                     <dl className="grid gap-y-3 text-sm">
@@ -338,6 +379,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
           conversation={{ kind: "FIELD_TASK", recordId: row.id }}
         />
       </div>
+      {opener.sheet}
     </RecordDetailDialog>
   );
 }

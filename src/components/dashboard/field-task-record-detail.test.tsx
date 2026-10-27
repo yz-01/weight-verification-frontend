@@ -151,3 +151,55 @@ describe("the field task detail (E8)", () => {
     expect(html).toContain("载入中");
   });
 });
+
+/**
+ * 客户 10-27 (JB39): 「后台没有收到照片」 - a 工程进度 task finished on the
+ * phone has its photographs on the progress record it filed, and the task
+ * read 「这条记录没有照片 · 0/1」.
+ */
+describe("a task done through a site record shows that record's photographs (JB39)", () => {
+  const linked = {
+    ...task,
+    photos: [],
+    linked_record_type: "PROGRESS_RECORD",
+    linked_record_kind: "PROGRESS",
+    linked_record_id: "pg13",
+    linked_record_reference: "PG-builder-001-013",
+    linked_at: "2026-10-27T07:25:00Z",
+    linked_photos: [
+      {
+        id: "sp1",
+        url: "https://cdn.example/pg13/1-wm.jpg",
+        thumbnail_url: "https://cdn.example/pg13/1-small.webp",
+        caption: "",
+        captured_at: "2026-10-27T07:25:01Z",
+        latitude: "3.115264",
+        longitude: "101.729773",
+      },
+      {
+        id: "sp2",
+        url: "https://cdn.example/pg13/2-wm.jpg",
+        thumbnail_url: null,
+        caption: "",
+        captured_at: "2026-10-27T07:25:02Z",
+        latitude: "3.115264",
+        longitude: "101.729773",
+      },
+    ],
+  } as unknown as FieldTask;
+  const html = renderDetail(<FieldTaskSheet id="t1" onClose={() => {}} />, (client) =>
+    client.setQueryData(["field-tasks", "detail", "t1"], linked),
+  );
+
+  it("draws them with the task's own, and counts them", () => {
+    expect(html).toContain("https://cdn.example/pg13/1-wm.jpg");
+    expect(html).toContain("https://cdn.example/pg13/2-wm.jpg");
+    expect(html).toContain("照片：2/2");
+    expect(html).not.toContain("这条记录没有照片");
+  });
+
+  it("names the record it was done with, to open it", () => {
+    expect(html).toContain('data-task-linked="PROGRESS"');
+    expect(html).toContain("提交的记录：PG-builder-001-013");
+  });
+});

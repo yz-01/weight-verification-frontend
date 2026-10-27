@@ -6322,6 +6322,8 @@
       "editTitle": "编辑这个任务",
       "formHelp": "选择项目、现场人员、工作位置、期限和必须上传的照片数量。",
       "openGps": "打开 GPS 位置",
+      "linkedRecord": "提交的记录：{reference}",
+      "linkedHint": "现场人员用这笔记录完成任务，它的照片也显示在上面。",
       "photos": "照片：{current}/{required}",
       "prepareApplication": "检查后转给顾问",
       "projectFixed": "工地改不了 —— 接任务的人是从这个工地的班组里选的。",
