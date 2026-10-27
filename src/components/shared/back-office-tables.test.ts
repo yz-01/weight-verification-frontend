@@ -181,3 +181,15 @@ describe("no back-office list escapes the rule (I39-2)", () => {
     },
   );
 });
+
+describe("a figure and its unit stay on one line (JB38-2)", () => {
+  // Lucas 2026-10-27 图2: 「263.000 / 吨 / (Ton)」 on three lines once every
+  // table fitted the page; every right-aligned number column had the same.
+  it("keeps a right-aligned number cell's lines whole in a fitted table", () => {
+    const css = read("src/app/globals.css");
+    expect(css).toContain(
+      '[data-slot="table"][data-fit] > tbody > tr > td.text-right.tabular-nums:not([data-pin]),',
+    );
+    expect(css).toMatch(/td\.text-right\.tabular-nums:not\(\[data-pin\]\) \.whitespace-nowrap \{\s*white-space: nowrap;/);
+  });
+});
