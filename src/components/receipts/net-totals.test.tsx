@@ -94,7 +94,7 @@ describe("累计进场与退场 by supplier", () => {
 
   it("shows received and returned side by side, no net, under each supplier, with a material search and export", () => {
     const html = render(<NetTotalsView project="p-1" />);
-    expect(html).toContain("送来工地");
+    expect(html).toContain("已签收");
     expect(html).toContain("退回供应商");
     // Lucas 2026-10-10: no 进场 − 退场 column, nor a sentence about one.
     expect(html).not.toContain("累计净数量");
@@ -117,11 +117,11 @@ describe("累计进场与退场 by supplier", () => {
 describe("plain words (I41, IB20)", () => {
   it("heads the columns in plain words and explains them in three short lines", () => {
     const html = render(<NetTotalsView project="p-1" />);
-    for (const text of ["送来工地", "退回供应商", "验收不合格（不算）", "规格"]) {
+    for (const text of ["已签收", "退回供应商", "验收不合格（不算）", "规格"]) {
       expect(html).toContain(`>${text}</th>`);
     }
     for (const old of ["累计进场", "已退场", "Reject（不计入）", "材料规格"]) expect(html).not.toContain(old);
-    expect(html).toContain("送来工地：验收合格的数量，一直累计。");
+    expect(html).toContain("已签收：验收合格的数量，一直累计。");
     expect(html).toContain("退回供应商：后台确认完成的退货。");
     expect(html).toContain("验收不合格：没有收下，不算进去。");
     // Material name and specification, each its own box (J5-1).
@@ -131,10 +131,10 @@ describe("plain words (I41, IB20)", () => {
 
   it("has the new headings in all four languages, and the export says the same words", () => {
     const heads = {
-      zh: ["送来工地", "退回供应商", "验收不合格（不算）", "规格"],
-      "zh-TW": ["送來工地", "退回供應商", "驗收不合格（不算）", "規格"],
-      en: ["Delivered to site", "Sent back to supplier", "Failed check (not counted)", "Spec"],
-      ms: ["Dihantar ke tapak", "Dipulangkan kepada pembekal", "Gagal semakan (tidak dikira)", "Spesifikasi"],
+      zh: ["已签收", "退回供应商", "验收不合格（不算）", "规格"],
+      "zh-TW": ["已簽收", "退回供應商", "驗收不合格（不算）", "規格"],
+      en: ["Signed for", "Sent back to supplier", "Failed check (not counted)", "Spec"],
+      ms: ["Telah ditandatangani terima", "Dipulangkan kepada pembekal", "Gagal semakan (tidak dikira)", "Spesifikasi"],
     } as const;
     for (const locale of ["zh", "zh-TW", "en", "ms"] as const) {
       const html = render(<NetTotalsView project="p-1" />, ROWS, locale);
@@ -238,7 +238,7 @@ describe("每个数字点进去 (client, 2026-10-09)", () => {
     const html = render(<NetTotalsView project="p-1" />);
     const numbers = html.match(/<button[^>]*data-slot="net-number"[^>]*>/g) ?? [];
     expect(numbers).toHaveLength(ROWS.length * 2);
-    expect(html).toContain('aria-label="查看送来工地 10 是哪些记录"');
+    expect(html).toContain('aria-label="查看已签收 10 是哪些记录"');
     expect(html).toContain('aria-label="查看退回供应商 4 是哪些记录"');
     expect(html).toContain('title="点一下看是哪几笔"');
     // Reject is not a number the client asked to open.

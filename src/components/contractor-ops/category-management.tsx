@@ -690,7 +690,6 @@ export function CategoryManagement() {
                   <TableRow>
                     <TableHead>{t("column.name")}</TableHead>
                     <TableHead>{t("column.code")}</TableHead>
-                    <TableHead>{t("column.module")}</TableHead>
                     <TableHead className="text-right">
                       {t("column.records")}
                     </TableHead>
@@ -722,7 +721,9 @@ export function CategoryManagement() {
                         {/* The name opens what is filed in it, on this page
                             (T-396): 「点一个栏目，同一页弹出这个栏目里的全部
                             记录」. */}
-                        <span className={row.depth ? "flex items-center gap-1 pl-5" : "flex items-center gap-1"}>
+                        {/* Never squeezed to a word a line (Lucas 10-27 图2); the
+                            fitted table's cells give up their own minimum. */}
+                        <span className={row.depth ? "flex min-w-36 items-center gap-1 pl-5" : "flex min-w-36 items-center gap-1"}>
                           {row.depth ? <span aria-hidden className="text-muted-foreground">└</span> : null}
                           <button
                             type="button"
@@ -768,9 +769,6 @@ export function CategoryManagement() {
                       </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {row.code}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {t(`module.${active.key}`)}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {row.recordCount}
@@ -1262,9 +1260,11 @@ export function QuantityCell({
             <span className="text-muted-foreground">{quantity.material_specification}: </span>
           ) : null}
           {quantity.received} {unitName(quantity.unit)}
+          {/* In the column, 退场 on a line of its own: beside the figure it
+              made one line twice as wide (Lucas 10-27 图2). */}
           {Number(quantity.returned) > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {" · "}
+            <span className={inline ? "text-xs text-muted-foreground" : "block text-xs text-muted-foreground"}>
+              {inline ? " · " : null}
               {t("quantityReturned", {
                 quantity: `${quantity.returned} ${unitName(quantity.unit)}`,
               })}
@@ -1748,7 +1748,7 @@ function SpendCell({ column }: { column: ProjectCategory }) {
           ? "bg-warning"
           : "bg-primary";
   return (
-    <div className="min-w-44 space-y-1">
+    <div className="min-w-40 space-y-1">
       {column.tracks_spend && hasBudget ? (
         <>
           <p
