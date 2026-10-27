@@ -233,6 +233,20 @@ describe("the computer's viewer (JB29)", () => {
     expect(facts).toContain("PG-001");
   });
 
+  // JB44 (客户 10-27, Lucas 「和门岗照片记录一样」): 照片 + GPS地图同时显示.
+  it("puts the photo's GPS on a map under its facts, filling the column, on the computer only", () => {
+    const html = render(0);
+    const column = html.slice(html.indexOf('data-photo-viewer-details="photo"'));
+    expect(column.indexOf("</dl>")).toBeLessThan(column.indexOf("data-photo-viewer-map"));
+    const map = between(html, "data-photo-viewer-map", ">");
+    expect(map).toContain("max-sm:hidden");
+    expect(map).toContain("sm:flex-1");
+  });
+
+  it("draws no map for a photo with no position", () => {
+    expect(render(1)).not.toContain("data-photo-viewer-map");
+  });
+
   it("keeps the phone's single column: photo, then actions, then the record", () => {
     const html = render();
     expect(between(html, "data-photo-viewer-bar", ">")).toContain("max-sm:contents");

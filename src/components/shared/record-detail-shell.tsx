@@ -43,6 +43,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
+import { LocationMap } from "@/components/shared/location-map";
 import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
@@ -927,21 +928,51 @@ export function PhotoViewer({
           {details ? (
             <div
               data-photo-viewer-details
-              className="min-w-0 rounded-lg border border-panel-border bg-background/80 p-3 text-left max-sm:order-4 max-sm:max-h-56 max-sm:overflow-y-auto sm:min-h-0 sm:overflow-y-auto"
+              className="min-w-0 rounded-lg border border-panel-border bg-background/80 p-3 text-left max-sm:order-4 max-sm:max-h-56 max-sm:overflow-y-auto sm:flex sm:min-h-0 sm:flex-col sm:gap-3 sm:overflow-y-auto"
             >
               {details}
+              <PhotoMap photo={photo} />
             </div>
           ) : (
             <div
               data-photo-viewer-details="photo"
-              className="min-w-0 rounded-lg border border-panel-border bg-background/80 p-3 text-left max-sm:hidden sm:min-h-0 sm:overflow-y-auto"
+              className="min-w-0 rounded-lg border border-panel-border bg-background/80 p-3 text-left max-sm:hidden sm:flex sm:min-h-0 sm:flex-col sm:gap-3 sm:overflow-y-auto"
             >
               <PhotoFacts photo={photo} reference={reference} when={when} where={where} />
+              <PhotoMap photo={photo} />
             </div>
           )}
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Where the photo was taken, on a map under its facts (JB44, 客户 10-27:
+ * 「照片 + GPS地图同时显示，让老板一看就知道这张送货单照片是在哪里拍的」; Lucas:
+ * 「和门岗照片记录一样」): zoom, the point, full screen - the gate viewer's map.
+ * It fills what the column leaves empty; it moves with 上一张 / 下一张. A
+ * photo with no position has no map; the phone keeps its stacked viewer.
+ */
+function PhotoMap({ photo }: { photo: ShellPhoto }) {
+  const t = useTranslations("recordShell.photoFacts");
+  const latitude = Number(photo.latitude);
+  const longitude = Number(photo.longitude);
+  if (photo.metaUnknown || !photo.latitude || !photo.longitude) return null;
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  return (
+    <div data-photo-viewer-map className="max-sm:hidden sm:flex sm:min-h-56 sm:flex-1 sm:flex-col">
+      <LocationMap
+        markers={[
+          { id: photo.id, latitude, longitude, label: photo.label, tone: "primary", icon: "person" },
+        ]}
+        fitBoundsKey={photo.id}
+        singlePointZoom={17}
+        className="min-h-56! flex-1 rounded-lg"
+        ariaLabel={t("gps")}
+      />
+    </div>
   );
 }
 
