@@ -208,3 +208,35 @@ describe("the documents screen (E4)", () => {
     }
   });
 });
+
+// JB45 (客户 10-27 「文件档案缩略图浏览修改」): the photos picked from full
+// records, small, in one row that scrolls sideways; a press opens the record.
+describe("the document's photos from full records (JB45)", () => {
+  it("draws the photos as small tiles in one sideways row, each opening its record", async () => {
+    const { SourcePhotoStrip } = await import("@/components/document-workflow/documents");
+    const files = [
+      file("a"),
+      file("b", { record: { kind: "PROGRESS", id: "pg1", reference: "PG-013", deleted: false } }),
+      file("c", { kind: "DOCUMENT", file_name: "c.pdf", content_type: "application/pdf" }),
+    ] as unknown as DocumentSystemFileInfo[];
+    const markup = render(<SourcePhotoStrip files={files} onOpenSource={() => undefined} />);
+    expect(markup).toContain("来自完整资料的照片（共 2 张）");
+    expect(markup).toContain("overflow-x-auto");
+    expect(markup).toContain('data-source-photo="MATERIAL_RECEIPT"');
+    expect(markup).toContain('data-source-photo="PROGRESS"');
+    expect(markup).toContain("打开完整资料：PG-013");
+    expect(markup).not.toContain("c.pdf");
+  });
+
+  it("is not drawn for a document with no picked photos", async () => {
+    const { SourcePhotoStrip } = await import("@/components/document-workflow/documents");
+    expect(render(<SourcePhotoStrip files={[]} onOpenSource={() => undefined} />)).toBe("");
+  });
+
+  it("opens the record, not the photo alone", () => {
+    const source = readFileSync("src/components/document-workflow/documents.tsx", "utf8");
+    expect(source).toContain('<SourcePhotoStrip files={systemFiles} onOpenSource={onOpenSource} />');
+    const strip = source.slice(source.indexOf("export function SourcePhotoStrip("), source.indexOf("function DocumentDetailBody("));
+    expect(strip).toContain("onClick={() => onOpenSource(file)}");
+  });
+});

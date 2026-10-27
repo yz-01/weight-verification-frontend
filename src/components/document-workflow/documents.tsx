@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Archive,
+  ChevronLeft,
   ChevronRight,
   ClipboardCheck,
   Download,
@@ -21,7 +22,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
@@ -1881,6 +1882,90 @@ function DocumentDetailDialog({
   );
 }
 
+/**
+ * The photographs picked from full records, small and in one row that scrolls
+ * sideways (JB45, 客户 10-27 「文件档案缩略图浏览修改」): 「小图只是完整资料的预览
+ * 入口，点击小图就是查看完整资料」. A press opens the record the photo came from
+ * over the document - its photos, details and history - not the photo alone;
+ * closing it comes back here. Nothing is split: each file still points at its
+ * record, and the list below keeps its preview and download.
+ */
+export function SourcePhotoStrip({
+  files,
+  onOpenSource,
+}: {
+  files: DocumentSystemFileInfo[];
+  onOpenSource: (file: DocumentSystemFileInfo) => void;
+}) {
+  const t = useTranslations();
+  const sourceLabel = useSourceLabel();
+  const strip = useRef<HTMLUListElement>(null);
+  const photos = files.filter((file) => file.kind === "PHOTO" && file.thumbnail_url);
+  if (!photos.length) return null;
+  const scroll = (by: 1 | -1) => {
+    const node = strip.current;
+    node?.scrollBy({ left: by * node.clientWidth * 0.8, behavior: "smooth" });
+  };
+  return (
+    <section className="space-y-2" data-document-source-photos>
+      <h3 className="text-sm font-semibold text-foreground">
+        {t("documents.sourcePhotos.title", { count: photos.length })}
+      </h3>
+      <p className="text-xs text-muted-foreground">{t("documents.sourcePhotos.hint")}</p>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          title={t("documents.sourcePhotos.previous")}
+          onClick={() => scroll(-1)}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <ul
+          ref={strip}
+          className="flex min-w-0 flex-1 snap-x gap-2 overflow-x-auto overscroll-x-contain pb-1"
+        >
+          {photos.map((file, index) => {
+            const reference = file.record.reference || sourceLabel(file);
+            return (
+              <li key={file.id ?? index} className="shrink-0 snap-start">
+                <button
+                  type="button"
+                  className="block w-20 text-left"
+                  title={t("documents.sourcePhotos.open", { reference })}
+                  data-source-photo={file.record.kind}
+                  onClick={() => onOpenSource(file)}
+                >
+                  <span className="relative block aspect-4/3 w-20 overflow-hidden rounded-md bg-muted ring-1 ring-panel-border transition hover:ring-primary/60">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={file.thumbnail_url ?? ""}
+                      alt={reference}
+                      loading="lazy"
+                      className="size-full object-cover object-bottom"
+                    />
+                  </span>
+                  <span className="mt-1 block truncate text-2xs text-muted-foreground">{reference}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          title={t("documents.sourcePhotos.next")}
+          onClick={() => scroll(1)}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </section>
+  );
+}
+
 function DocumentDetailBody({
   document,
   systemFiles,
@@ -1916,6 +2001,7 @@ function DocumentDetailBody({
   };
   return (
     <div className="min-w-0 space-y-6">
+      <SourcePhotoStrip files={systemFiles} onOpenSource={onOpenSource} />
       <div className="grid gap-3 sm:grid-cols-2">
         <ReadField label={t("documents.field.title")} value={document.title} />
         <ReadField
