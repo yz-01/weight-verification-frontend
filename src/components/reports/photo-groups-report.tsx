@@ -231,8 +231,12 @@ function PhotoGroupRow({ group }: { group: PhotoGroup }) {
           onIndex={setOpen}
           onClose={() => setOpen(null)}
           extraActions={actions}
+          // A kind with no record sheet (门岗拍照记录) gets the photo's own
+          // facts, not an empty column (Lucas 10-27, JB44); the map follows either.
           details={
-            group.kind && group.record_id ? <RecordFacts kind={group.kind} id={group.record_id} /> : undefined
+            group.kind && group.record_id && sheetKindOf(group.kind) ? (
+              <RecordFacts kind={group.kind} id={group.record_id} />
+            ) : undefined
           }
         />
       ) : null}

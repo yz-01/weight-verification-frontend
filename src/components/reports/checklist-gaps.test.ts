@@ -13,7 +13,7 @@ const read = (file: string) => readFileSync(path.join(process.cwd(), "src", file
 describe("checklist rows made whole", () => {
   it("J8-3: the photo report's viewer shows the record's fields under the photo", () => {
     const report = read("components/reports/photo-groups-report.tsx");
-    expect(report).toMatch(/details=\{\s*group\.kind && group\.record_id \? <RecordFacts/);
+    expect(report).toMatch(/details=\{\s*group\.kind && group\.record_id && sheetKindOf\(group\.kind\) \? \(\s*<RecordFacts/);
     expect(report).toMatch(/getCategoryRecord\(sheet!, id\)/);
     expect(read("components/shared/record-detail-shell.tsx")).toMatch(/data-photo-viewer-details/);
   });
