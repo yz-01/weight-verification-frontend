@@ -7593,6 +7593,13 @@
       "mixedProjects": "These files come from different projects. A document belongs to one project, so pick files from one project only."
     },
     "filesMore": "+{count} more files",
+    "sourcePhotos": {
+      "title": "Photos from the full records ({count})",
+      "hint": "Click a thumbnail to open the full record the photo belongs to.",
+      "previous": "Scroll left",
+      "next": "Scroll right",
+      "open": "Open the full record: {reference}"
+    },
     "systemFiles": {
       "title": "Files picked from the system"
     },

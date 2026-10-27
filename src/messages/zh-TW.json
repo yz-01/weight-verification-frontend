@@ -7593,6 +7593,13 @@
       "mixedProjects": "選的文件來自不同項目。一份檔案只屬於一個項目，請只選同一個項目的文件。"
     },
     "filesMore": "另有 {count} 個文件",
+    "sourcePhotos": {
+      "title": "來自完整資料的照片（共 {count} 張）",
+      "hint": "點一張小圖，打開這張照片所屬的完整資料。",
+      "previous": "往左看",
+      "next": "往右看",
+      "open": "打開完整資料：{reference}"
+    },
     "systemFiles": {
       "title": "從系統裡選的文件"
     },
