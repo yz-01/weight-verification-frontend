@@ -6322,6 +6322,8 @@
       "editTitle": "Edit this task",
       "formHelp": "Choose the project, field worker, work location, deadline and required photos.",
       "openGps": "Open GPS location",
+      "linkedRecord": "Sent in as: {reference}",
+      "linkedHint": "The worker finished the task with this record; its photos are shown above too.",
       "photos": "Photos: {current}/{required}",
       "prepareApplication": "Check and send to the consultant",
       "projectFixed": "The site cannot change - the assignee is drawn from this site's team.",

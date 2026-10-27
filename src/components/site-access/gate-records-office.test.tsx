@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 /**
  * 工地门禁 › 日常拍照记录 / 门岗事项 (I25, ID61), searched by date + 24-hour
  * time (I15, ID62), seen as a list or a 照片墙 (I33, ID74).
@@ -245,16 +248,19 @@ describe("日常拍照记录: one row per upload (JB35)", () => {
     expect(html).not.toContain("data-gate-row-pdf");
   });
 
-  it("opens on every record, each with its time, GPS and single PDF", async () => {
-    const { GateUploadDetailDialog } = await import("@/components/site-access/gate-upload-detail");
+  // JB40 (客户 10-27: 「这个能不能做到点一次」): the row opens straight on its
+  // photographs, not on a list of its records with a 「查看」 each.
+  it("opens the row on its first photograph, large, with the next a step away", async () => {
+    const { UploadPhotos } = await import("@/components/site-access/gate-records-office");
     const client = new QueryClient();
     const html = renderToStaticMarkup(
       <QueryClientProvider client={client}>
         <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
           <TooltipProvider>
-            <GateUploadDetailDialog
+            <UploadPhotos
               upload={upload}
-              renderPdf={(row) => <span data-pdf-for={row.id} />}
+              index={0}
+              onIndex={() => {}}
               onOpenRecord={() => {}}
               onClose={() => {}}
             />
@@ -262,9 +268,18 @@ describe("日常拍照记录: one row per upload (JB35)", () => {
         </NextIntlClientProvider>
       </QueryClientProvider>,
     );
-    expect(html.match(/data-gate-upload-record=/g)).toHaveLength(2);
-    expect(html).toContain('data-pdf-for="g34"');
-    expect(html).toContain('data-pdf-for="g35"');
+    expect(html).toContain("data-gate-wall-viewer");
+    expect(html).toContain('src="https://cdn.example/a.jpg"');
+    expect(html).toContain("data-wall-open-record");
     expect(html).toContain("3.1152582, 101.7297736");
+  });
+
+  it("goes from the row to the photographs in one click", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/site-access/gate-records-office.tsx"),
+      "utf8",
+    );
+    expect(source).toContain("onOpen={(row) => setViewingUpload({ upload: row, index: 0 })}");
+    expect(source).not.toContain("GateUploadDetailDialog");
   });
 });

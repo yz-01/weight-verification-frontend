@@ -45,7 +45,7 @@ import {
 import { ListHeader } from "@/components/shared/page-primitives";
 import { photoColumn } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
-import { GatePhotoWall, useGateWall } from "@/components/site-access/gate-photo-wall";
+import { GatePhotoWall, useGateWall, WallViewer } from "@/components/site-access/gate-photo-wall";
 import {
   GateIncidentDetailDialog,
   GateIssueStatusBadge,
@@ -61,8 +61,8 @@ import { useDateFormat } from "@/lib/dates";
 import { absoluteUrl } from "@/lib/share";
 import { recordPdfFile } from "@/services/contractor-ops.service";
 import { exportGateIncidents, getGateIncidents, getGateUploads } from "@/services/site-access.service";
-import type { GateUpload } from "@/lib/gate-photo-wall";
-import { GateUploadDetailDialog, uploadShellPhotos } from "@/components/site-access/gate-upload-detail";
+import { wallItems, type GateUpload } from "@/lib/gate-photo-wall";
+import { uploadShellPhotos } from "@/components/site-access/gate-upload-detail";
 import { LIST_FITS } from "@/lib/list-fits";
 
 type Tab = "photos" | "issues";
@@ -109,7 +109,8 @@ export function GateRecordsOffice() {
   });
   const wall = useGateWall(query, view === "wall");
   const [viewing, setViewing] = useUrlSelection("gate_incident");
-  const [viewingUpload, setViewingUpload] = useState<GateUpload | null>(null);
+  // The upload whose photographs are open, and which one (JB40).
+  const [viewingUpload, setViewingUpload] = useState<{ upload: GateUpload; index: number } | null>(null);
   const listed = tab === "photos" ? uploads : rows;
   const total = (view === "wall" ? wall.data?.pages[0]?.count : listed.data?.count) ?? 0;
   const title = t("officeTitle");
@@ -408,9 +409,10 @@ export function GateRecordsOffice() {
           phoneCard={LIST_FITS.gatePhotos.phoneCard}
           defaultHidden={LIST_FITS.gatePhotos.hidden}
           toolbar={toolbar}
-          // A one-photo upload is its record; a longer one opens on all of
-          // its records.
-          onOpen={(row) => (row.record_count > 1 ? setViewingUpload(row) : setViewing(row.id))}
+          // One click and the photographs are on screen, large, every one of
+          // the upload a 下一张 away (JB40, 客户 10-27: 「这个能不能做到点一次」);
+          // the record, its PDF and 沟通 are buttons beside the photo.
+          onOpen={(row) => setViewingUpload({ upload: row, index: 0 })}
         />
       ) : (
         <ModuleRecordsTable<Row>
@@ -431,15 +433,59 @@ export function GateRecordsOffice() {
         />
       )}
       {viewingUpload && !viewing && (
-        <GateUploadDetailDialog
-          upload={viewingUpload}
-          renderPdf={(record) => <RowPdfButton row={record} />}
+        <UploadPhotos
+          upload={viewingUpload.upload}
+          index={viewingUpload.index}
+          onIndex={(index) => setViewingUpload({ ...viewingUpload, index })}
           onOpenRecord={setViewing}
           onClose={() => setViewingUpload(null)}
         />
       )}
       {viewing && <GateIncidentDetailDialog id={viewing} onClose={() => setViewing(null)} />}
     </>
+  );
+}
+
+/**
+ * One upload's photographs in the photo wall's viewer (JB40): opened from the
+ * row, so the list is one click from the photo, and opening a record from it
+ * comes back to the same photo. An upload with no photograph left opens its
+ * first record.
+ */
+export function UploadPhotos({
+  upload,
+  index,
+  onIndex,
+  onOpenRecord,
+  onClose,
+}: {
+  upload: GateUpload;
+  index: number;
+  onIndex: (index: number) => void;
+  onOpenRecord: (id: string) => void;
+  onClose: () => void;
+}) {
+  const items = useMemo(() => wallItems([{ results: upload.records }]), [upload]);
+  const empty = items.length === 0;
+  useEffect(() => {
+    if (empty) {
+      onClose();
+      onOpenRecord(upload.id);
+    }
+  }, [empty, onClose, onOpenRecord, upload.id]);
+  const at = Math.min(index, items.length - 1);
+  if (empty) return null;
+  return (
+    <WallViewer
+      item={items[at]}
+      position={at}
+      loaded={items.length}
+      more={false}
+      loadingNext={false}
+      onStep={(by) => onIndex(Math.min(Math.max(at + by, 0), items.length - 1))}
+      onClose={onClose}
+      onOpenRecord={onOpenRecord}
+    />
   );
 }
 
