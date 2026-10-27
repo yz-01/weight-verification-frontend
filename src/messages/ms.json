@@ -7593,6 +7593,13 @@
       "mixedProjects": "Fail ini dari projek berlainan. Satu dokumen milik satu projek, jadi pilih fail dari satu projek sahaja."
     },
     "filesMore": "+{count} fail lagi",
+    "sourcePhotos": {
+      "title": "Gambar daripada rekod penuh ({count})",
+      "hint": "Klik gambar kecil untuk membuka rekod penuh gambar itu.",
+      "previous": "Tatal ke kiri",
+      "next": "Tatal ke kanan",
+      "open": "Buka rekod penuh: {reference}"
+    },
     "systemFiles": {
       "title": "Fail dipilih dari sistem"
     },
