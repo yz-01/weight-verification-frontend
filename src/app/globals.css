@@ -903,6 +903,14 @@
   [data-slot="table"][data-fit] > tbody > tr > td:not([data-pin]) .whitespace-nowrap:not(.rounded-full, [data-slot="button"], button) {
     white-space: normal;
   }
+  /* A figure and its unit stay together (Lucas 2026-10-27 图2: 「263.000 / 吨 /
+   * (Ton)」 on three lines in 分类管理). A right-aligned number column -
+   * quantities, amounts, counts - keeps each of its lines whole; its lines
+   * still stack, so a cell with one line per specification stays narrow. */
+  [data-slot="table"][data-fit] > tbody > tr > td.text-right.tabular-nums:not([data-pin]),
+  [data-slot="table"][data-fit] > tbody > tr > td.text-right.tabular-nums:not([data-pin]) .whitespace-nowrap {
+    white-space: nowrap;
+  }
 }
 
 /* I39: the row's 「查看 / 更改」 stays at the right edge however far the

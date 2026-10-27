@@ -298,3 +298,30 @@ describe("the budget warning lines", () => {
     expect(parseAlertAmounts("400000,")).toBeNull();
   });
 });
+
+/**
+ * Lucas 2026-10-27 (图2): 「什么情况这个变得这么难看」 - the material table,
+ * fitted to the page (JB24), squeezed the name to a word a line and split
+ * every 「263.000 吨 (Ton)」 over three lines.
+ */
+describe("the material table stays readable in the page width (JB38-2)", () => {
+  it("drops 所属模块, the same words on every row", () => {
+    const source = read(MANAGEMENT);
+    expect(source).not.toContain('t("column.module")');
+  });
+
+  it("keeps the name from being squeezed", () => {
+    expect(read(MANAGEMENT)).toMatch(/"flex min-w-36 items-center gap-1"/);
+  });
+
+  it("puts 退场 on a line of its own in the column, beside the figure inline", () => {
+    const body = functionBody(read(MANAGEMENT), "export function QuantityCell(");
+    expect(body).toContain('inline ? "text-xs text-muted-foreground" : "block text-xs text-muted-foreground"');
+  });
+
+  it("keeps the quantity a right-aligned number cell, which never splits a line", () => {
+    expect(read(MANAGEMENT)).toMatch(
+      /<TableCell className="text-right tabular-nums">\s*<QuantityCell quantities=\{row\.column\.quantities/,
+    );
+  });
+});
