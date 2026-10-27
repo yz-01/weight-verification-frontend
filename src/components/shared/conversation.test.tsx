@@ -30,6 +30,7 @@ vi.mock("@/components/shared/record-detail-shell", () => ({
 }));
 
 const {
+  CHAT_PHOTO_GRID_CLASS,
   CHAT_THUMBNAIL_IMG_CLASS,
   ChatPhotoThumbnail,
   ConversationMessageList,
@@ -69,11 +70,14 @@ describe("chat photos are thumbnails (F2)", () => {
     message("d", { author_name: "staff", photo: "/d.jpg", sent_at: "2026-10-06T04:00:00Z" }),
   ];
 
-  it("draws a photo small - longest edge 128px on a phone, 160px from sm up", () => {
+  // JB43 (客户 10-27): 「照片尺寸要比…两张小照片还要小」「一次显示四张」.
+  it("draws a photo small - longest edge 128px on a phone, a 56px 4:3 tile from sm up, four a row", () => {
     expect(CHAT_THUMBNAIL_IMG_CLASS).toContain("max-h-32");
     expect(CHAT_THUMBNAIL_IMG_CLASS).toContain("max-w-32");
-    expect(CHAT_THUMBNAIL_IMG_CLASS).toContain("sm:max-h-40");
-    expect(CHAT_THUMBNAIL_IMG_CLASS).toContain("sm:max-w-40");
+    expect(CHAT_THUMBNAIL_IMG_CLASS).toContain("sm:w-14");
+    expect(CHAT_THUMBNAIL_IMG_CLASS).toContain("sm:aspect-4/3");
+    expect(CHAT_THUMBNAIL_IMG_CLASS).toContain("sm:object-bottom");
+    expect(CHAT_PHOTO_GRID_CLASS).toContain("sm:grid-cols-4");
     const html = render(<ConversationMessageList messages={thread} emptyLabel="" reference="SI-1" />);
     const images = html.match(/<img [^>]*>/g) ?? [];
     expect(images).toHaveLength(3);
