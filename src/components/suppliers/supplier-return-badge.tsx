@@ -25,6 +25,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -350,7 +351,11 @@ function ReturnRow({
     <TableRow
       className="cursor-pointer align-middle hover:bg-muted/40"
       data-slot="supplier-return-row"
-      onClick={onOpen}
+      // The whole row, the space around its photo and signatures included
+      // (JB42); a press on one of them, or inside a viewer it opened, is theirs.
+      onClick={(event) => {
+        if (clickOpensRow(event)) onOpen();
+      }}
     >
       <TableCell className="whitespace-nowrap">
         <div className="tabular">{df.date(when)}</div>
@@ -394,7 +399,7 @@ function ReturnRow({
           "—"
         )}
       </TableCell>
-      <TableCell onClick={ownPress}>
+      <TableCell>
         {/* One cover and the count, opening every photograph - as every
             other list shows a record's photographs. */}
         <PhotoThumb

@@ -186,7 +186,14 @@ function rowId(row: unknown): string | undefined {
   return id == null ? undefined : String(id);
 }
 
-const OWN_CLICK_COLUMNS = new Set(["actions", PACK_SELECT_COLUMN, PACK_BADGE_COLUMN]);
+/**
+ * Cells whose whole area is their own: only the tick box, so a near miss
+ * ticks nothing and opens nothing. Everywhere else the empty part of a cell
+ * opens the row like the rest of it (JB42, Lucas 10-27: the blank 资料包 cell
+ * opened nothing); a button, link or tick box in it keeps its own click
+ * through ``clickOpensRow``.
+ */
+const OWN_CLICK_COLUMNS = new Set([PACK_SELECT_COLUMN]);
 
 /**
  * The table page body: toolbar, one scroll region, pagination footer.
