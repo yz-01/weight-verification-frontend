@@ -6322,6 +6322,8 @@
       "editTitle": "Sunting tugas ini",
       "formHelp": "Pilih projek, pekerja tapak, lokasi kerja, tarikh akhir dan foto yang diperlukan.",
       "openGps": "Buka lokasi GPS",
+      "linkedRecord": "Dihantar sebagai: {reference}",
+      "linkedHint": "Pekerja menyiapkan tugasan dengan rekod ini; gambarnya turut dipaparkan di atas.",
       "photos": "Foto: {current}/{required}",
       "prepareApplication": "Semak dan hantar kepada perunding",
       "projectFixed": "Tapak tidak boleh diubah - penerima tugas diambil daripada pasukan tapak ini.",

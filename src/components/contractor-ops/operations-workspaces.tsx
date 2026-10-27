@@ -1417,7 +1417,7 @@ export function FieldTasksWorkspace({
                   <span
                     className="flex items-center gap-1"
                     title={t("tasks.photos", {
-                      current: row.photos.length,
+                      current: row.photos.length + (row.linked_photos?.length ?? 0),
                       required: row.evidence_required,
                     })}
                   >
@@ -1427,10 +1427,11 @@ export function FieldTasksWorkspace({
                       count={row.photo_count}
                       icon={ListTodo}
                       reference={row.title}
-                      photos={rowPhotos(row.photos, row.title)}
+                      // With the photographs of the record it was done with (JB39).
+                      photos={rowPhotos([...row.photos, ...(row.linked_photos ?? [])], row.title)}
                     />
                     <span className="tabular text-xs text-muted-foreground">
-                      {row.photos.length}/{row.evidence_required}
+                      {row.photos.length + (row.linked_photos?.length ?? 0)}/{row.evidence_required}
                     </span>
                   </span>
                   <span className="contents lg:flex lg:min-w-0">

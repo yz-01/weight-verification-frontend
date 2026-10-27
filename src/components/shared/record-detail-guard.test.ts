@@ -80,8 +80,6 @@ const NOT_BUSINESS_RECORDS: Record<string, string> = {
   "src/components/fleet/fleet-detail.tsx#VehicleDetail": "master data: a vehicle",
   "src/components/site-workers/worker-detail.tsx#WorkerDetailDialog": "master data: a worker on the roster (I20)",
   "src/components/site-access/site-access-workspace.tsx#PassDetail": "master data: an access pass",
-  // JB35: one gate upload's records listed together; each opens on the shell.
-  "src/components/site-access/gate-upload-detail.tsx#GateUploadDetailDialog": "a list of one upload's records, each opened in its own shell detail (JB35)",
   "src/components/billing/invoice-list.tsx#InvoiceDetailView": "billing: an invoice",
   "src/components/notifications/admin-notification-workspace.tsx#NotificationDetails": "admin: a notification",
   "src/components/consultant-workflow/application-template-workspace.tsx#TemplateDetailsDialog": "settings: an application template",
