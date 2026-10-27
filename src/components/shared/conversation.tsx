@@ -12,9 +12,9 @@
  * message list (its rows, photo thumbnails and viewer), and one composer.
  *
  * Photographs are thumbnails (F2, 7/10: 「隐患整改沟通里的照片太大了」): the
- * longest edge is 128px on a phone and 160px from `sm` up, rounded, several in
- * a row, and a tap opens the shared `PhotoViewer` (zoom, previous / next,
- * download). On a phone that keeps three photo messages on one screen.
+ * longest edge is 128px on a phone; from `sm` up a fixed 56px 4:3 tile, four
+ * to a row (JB43, 客户 10-27: 「照片尺寸要比…两张小照片还要小」「一次显示四张」).
+ * A tap opens the shared `PhotoViewer` (zoom, previous / next, download).
  *
  * What is deliberately *not* here is where the messages come from. The hazard
  * keeps its own store and its own participants/closed rules (D-094 and
@@ -255,11 +255,17 @@ export function useRecorder(limitSeconds: number, onLimit?: (result: VoiceResult
 }
 
 /**
- * The size of a photo in a chat: longest edge 128px on a phone, 160px from
- * `sm` up, aspect kept. Exported for the guard test.
+ * The size of a photo in a chat: longest edge 128px on a phone, aspect kept;
+ * from `sm` up a 56px 4:3 tile, smaller than a record's own photo tiles, cut
+ * from the bottom so the watermark strip stays (JB43). Exported for the guard
+ * test.
  */
 export const CHAT_THUMBNAIL_IMG_CLASS =
-  "block h-auto w-auto max-h-32 max-w-32 sm:max-h-40 sm:max-w-40";
+  "block h-auto w-auto max-h-32 max-w-32 sm:aspect-4/3 sm:w-14 sm:max-h-none sm:max-w-none sm:object-cover sm:object-bottom";
+
+/** A message's photos: a wrapping row on a phone, four to a row from `sm` up (JB43). */
+export const CHAT_PHOTO_GRID_CLASS =
+  "flex flex-wrap items-start gap-2 sm:grid sm:w-fit sm:grid-cols-4 sm:gap-1.5";
 
 /** One photo in a chat, small; a tap opens it full size. */
 export function ChatPhotoThumbnail({
@@ -386,7 +392,7 @@ export function ConversationMessageRow({
       </div>
       {message.body && <p className="mt-1 whitespace-pre-wrap">{message.body}</p>}
       {photos.length > 0 && (
-        <div className="mt-2 flex flex-wrap items-start gap-2">
+        <div className={`mt-2 ${CHAT_PHOTO_GRID_CLASS}`} data-chat-photos>
           {photos.map((photo) => (
             <ChatPhotoThumbnail
               key={photo.id}
