@@ -151,3 +151,16 @@ describe("the report's page is in the address (JB29)", () => {
     expect(source).not.toMatch(/useState\(1\)/);
   });
 });
+
+// Lucas 10-27 (JB44): a 门岗拍照记录 opened in the photo viewer showed an
+// empty right column - its kind has no record sheet, and the empty facts
+// stood in for the photo's own. It falls back to them, the map under them.
+describe("a kind with no record sheet shows the photo's own facts (JB44)", () => {
+  it("passes details only when the kind has a sheet", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/reports/photo-groups-report.tsx"),
+      "utf8",
+    ).replace(/\r\n/g, "\n");
+    expect(source).toMatch(/group\.kind && group\.record_id && sheetKindOf\(group\.kind\) \?/);
+  });
+});
