@@ -156,8 +156,9 @@ describe("the returns it opens", () => {
     expect(source).toMatch(/onOpen=\{\(\) => setOpened\(row\.id\)\}/);
     expect(source).toMatch(/<OutgoingDecision id=\{opened\} onClose=\{\(\) => setOpened\(null\)\} \/>/);
     expect(source).not.toMatch(/<Link/);
-    // A press on a photograph or a signature is for the picture, not the row.
-    expect(source).toMatch(/<TableCell onClick=\{ownPress\}>[\s\S]{0,200}<PhotoThumb/);
+    // A press on a photograph or a signature is for the picture, not the row;
+    // the space around them opens the row (JB42).
+    expect(source).toMatch(/if \(clickOpensRow\(event\)\) onOpen\(\);/);
     expect(source).toMatch(/onClick=\{ownPress\}[\s\S]{0,120}title=\{label\}/);
   });
 });
