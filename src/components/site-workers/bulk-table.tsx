@@ -51,23 +51,32 @@ const FIELD_LABEL: Record<BulkField, string> = {
 };
 
 /**
- * Each box's least width (10-28: at 1440 px with the menu open the names were
- * cut off). On the box, not the header: a fitted table (`data-fit`) lets a
- * header shrink to nothing, but never a cell's content. 姓名 and 护照号码 come
- * first: the name wraps onto a second line instead of being cut, the passport
- * number is always whole; the rest are as narrow as what they hold. The table
- * scrolls sideways only when even these do not fit.
+ * Each box's least width, from the longest value it is meant to hold at 14 px
+ * (10-28 retake at 1440 px with the menu open: 「+60 11-2390 5」, 「Banglad」,
+ * 「15/03/199…」, 「CIDB-830…」, 「KJ Formwork E…」). On the box, not the
+ * header: a fitted table (`data-fit`) lets a header shrink to nothing, never
+ * a cell's content. The name, the country and the company wrap onto a second
+ * line rather than widen the table; a phone number, a passport number, a date
+ * and a CIDB number are always whole on one line. Together they fit 1440 px
+ * with the menu open; on a narrower screen the table scrolls sideways inside
+ * its box with the name kept at the left and the bin at the right.
  */
 export const FIELD_WIDTH: Record<BulkField, string> = {
-  name: "min-w-40",
-  phone: "min-w-28",
-  passport_no: "min-w-28",
-  nationality: "min-w-16",
+  name: "min-w-36",
+  phone: "min-w-34",
+  passport_no: "min-w-26",
+  nationality: "min-w-22",
   date_of_birth: "min-w-22",
   passport_expiry: "min-w-22",
-  cidb_no: "min-w-20",
+  cidb_no: "min-w-30",
   company_text: "min-w-28",
 };
+
+/** Boxes that wrap their words onto a second line instead of being cut. */
+export const WRAPS: ReadonlySet<BulkField> = new Set(["name", "nationality", "company_text"]);
+
+/** Kept at the left while the row scrolls sideways (opaque, above the rest). */
+const STICKY_LEFT = "sticky left-0 z-[2] bg-card shadow-[inset_-1px_0_0_var(--panel-border)]";
 
 export interface CellFocus {
   row: number;
@@ -141,12 +150,16 @@ export function BulkTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-12">{bulk("column.number")}</TableHead>
-          <TableHead className="w-20">{bulk("column.photo")}</TableHead>
-          {BULK_FIELDS.map((field) => (
+          {/* 行 and 姓名 in one column, kept at the left. */}
+          <TableHead className={cn(STICKY_LEFT, "z-[12]")}>
+            <span className="mr-2 inline-block w-6 text-right">{bulk("column.number")}</span>
+            {t(FIELD_LABEL.name)}
+          </TableHead>
+          <TableHead>{bulk("column.photo")}</TableHead>
+          {BULK_FIELDS.filter((field) => field !== "name").map((field) => (
             <TableHead key={field}>{t(FIELD_LABEL[field])}</TableHead>
           ))}
-          <TableHead className="w-12">
+          <TableHead pin="end">
             <span className="sr-only">{bulk("removeRow")}</span>
           </TableHead>
         </TableRow>
@@ -157,29 +170,21 @@ export function BulkTable({
           const found = row.id ? (problems[row.id] ?? []) : [];
           const red = found.some((problem) => problem.code !== "check_photo");
           const tone = red ? "bg-destructive/5" : row.needsCheck ? "bg-warning/10" : undefined;
+          // The kept-left cell is opaque, so it carries the row's tint itself.
+          const stickyTone = red
+            ? "bg-[color-mix(in_oklab,var(--destructive)_5%,var(--card))]"
+            : row.needsCheck
+              ? "bg-[color-mix(in_oklab,var(--warning)_10%,var(--card))]"
+              : undefined;
+          const explained = found.length > 0 || row.needsCheck;
           return (
             <Fragment key={row.key}>
-            <TableRow className={cn(tone, found.length > 0 && "border-b-0")}>
-              <TableCell className="tabular text-muted-foreground">{index + 1}</TableCell>
-              <TableCell>
-                <RowPhoto row={row} label={bulk("column.photo")} onOpen={() => onCheck(index)} />
-                {row.needsCheck && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="mt-1 h-7 px-2 text-xs"
-                    onClick={() => onCheck(index)}
-                  >
-                    {bulk("typeFromPhoto")}
-                  </Button>
-                )}
-              </TableCell>
+            <TableRow className={cn(tone, explained && "border-b-0")}>
               {BULK_FIELDS.map((field, column) => {
                 const box = {
                   "data-cell": `${index}-${column}`,
                   "aria-label": `${t(FIELD_LABEL[field])} ${index + 1}`,
-                  // The whole value on hover, however narrow the box.
+                  // The whole value on hover too.
                   title: row.values[field] || undefined,
                   value: row.values[field],
                   placeholder:
@@ -205,23 +210,48 @@ export function BulkTable({
                     onRows(applyPaste(rows, index, field, parsePaste(text)));
                   },
                 };
-                return (
-                  <TableCell key={field} className="p-1 align-top">
-                    {field === "name" ? (
-                      // A long name wraps onto a second line rather than being
-                      // cut off; Enter still moves down, it never breaks a line.
-                      <Textarea
-                        {...box}
-                        rows={1}
-                        className={cn("min-h-8 resize-none px-2 py-1.5 leading-5 break-words", FIELD_WIDTH[field])}
-                      />
-                    ) : (
-                      <Input {...box} className={cn("h-8 px-2", FIELD_WIDTH[field])} />
+                const input = WRAPS.has(field) ? (
+                  // Wraps onto a second line rather than being cut off;
+                  // Enter still moves down, it never breaks a line.
+                  <Textarea
+                    {...box}
+                    rows={1}
+                    className={cn(
+                      "min-h-8 resize-none px-1.5 py-1.5 leading-5 break-words",
+                      FIELD_WIDTH[field],
                     )}
+                  />
+                ) : (
+                  <Input
+                    {...box}
+                    className={cn("h-8 px-1.5 tabular-nums", FIELD_WIDTH[field])}
+                  />
+                );
+                if (field === "name") {
+                  return (
+                    <Fragment key={field}>
+                      <TableCell className={cn(STICKY_LEFT, stickyTone, "align-top")}>
+                        <div className="flex items-start gap-2">
+                          <span className="tabular mt-2 w-6 shrink-0 text-right text-muted-foreground">
+                            {index + 1}
+                          </span>
+                          {input}
+                        </div>
+                      </TableCell>
+                      <TableCell className="align-top">
+                        {/* The passport, small: the row stays one line high. */}
+                        <RowPhoto row={row} label={bulk("column.photo")} onOpen={() => onCheck(index)} />
+                      </TableCell>
+                    </Fragment>
+                  );
+                }
+                return (
+                  <TableCell key={field} className="align-top">
+                    {input}
                   </TableCell>
                 );
               })}
-              <TableCell>
+              <TableCell pin="end" className="align-top">
                 <Button
                   type="button"
                   variant="ghost"
@@ -234,26 +264,42 @@ export function BulkTable({
                 </Button>
               </TableCell>
             </TableRow>
-            {found.length > 0 && (
-              // Why the row is red or yellow, on a line of its own under it
-              // (10-28): a narrow last column squeezed the names.
+            {explained && (
+              // Why the row is red or yellow, and 「对着照片补打」, on a line
+              // of its own under it (10-28): the row itself stays compact.
               <TableRow className={tone}>
-                <TableCell />
                 <TableCell colSpan={BULK_FIELDS.length + 2} className="pb-2 pt-0 text-sm">
-                  <span className="mr-2 font-medium text-muted-foreground">{bulk("column.problems")}</span>
-                  <ul className="inline">
-                    {found.map((problem) => (
-                      <li
-                        key={problem.code}
-                        className={cn(
-                          "inline after:mx-1.5 after:text-muted-foreground after:content-['·'] last:after:content-none",
-                          problem.code === "check_photo" ? "text-warning" : "text-destructive",
-                        )}
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-8">
+                    {found.length > 0 && (
+                      <span className="font-medium text-muted-foreground">{bulk("column.problems")}</span>
+                    )}
+                    {found.length > 0 && (
+                      <ul className="inline">
+                        {found.map((problem) => (
+                          <li
+                            key={problem.code}
+                            className={cn(
+                              "inline after:mx-1.5 after:text-muted-foreground after:content-['·'] last:after:content-none",
+                              problem.code === "check_photo" ? "text-warning" : "text-destructive",
+                            )}
+                          >
+                            {bulk(`problem.${problem.code}`, problem.values)}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {row.needsCheck && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => onCheck(index)}
                       >
-                        {bulk(`problem.${problem.code}`, problem.values)}
-                      </li>
-                    ))}
-                  </ul>
+                        {bulk("typeFromPhoto")}
+                      </Button>
+                    )}
+                  </span>
                 </TableCell>
               </TableRow>
             )}
@@ -265,7 +311,7 @@ export function BulkTable({
   );
 }
 
-/** The passport beside its row: a 64 px thumbnail, or a PDF tile. */
+/** The passport beside its row: a 40 px thumbnail (it opens large), or a PDF tile. */
 function RowPhoto({ row, label, onOpen }: { row: BulkRow; label: string; onOpen: () => void }) {
   if (!row.photoUrl) return null;
   return (
@@ -273,14 +319,14 @@ function RowPhoto({ row, label, onOpen }: { row: BulkRow; label: string; onOpen:
       type="button"
       onClick={onOpen}
       aria-label={label}
-      className="relative block size-16 overflow-hidden rounded-md border bg-muted"
+      className="relative block size-10 overflow-hidden rounded-md border bg-muted"
     >
       {row.photoIsPdf ? (
         <span className="flex size-full items-center justify-center">
-          <FileText className="h-6 w-6 text-muted-foreground" />
+          <FileText className="h-5 w-5 text-muted-foreground" />
         </span>
       ) : (
-        <Image src={row.photoUrl} alt={label} fill sizes="64px" className="object-cover" unoptimized />
+        <Image src={row.photoUrl} alt={label} fill sizes="40px" className="object-cover" unoptimized />
       )}
     </button>
   );

@@ -15,7 +15,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { SiteWorkerDetail } from "@/interfaces/site-workers";
-import { blankRows, editRow } from "@/lib/site-workers-bulk";
+import { BULK_FIELDS, blankRows, editRow } from "@/lib/site-workers-bulk";
 import messages from "@/messages/zh.json";
 
 const reader: { codes: string[]; search: string } = { codes: ["site_worker.view", "site_worker.manage"], search: "" };
@@ -46,7 +46,7 @@ vi.mock("@/components/ui/dialog", () => {
 vi.mock("@/components/shared/location-map", () => ({ LocationMap: () => <div data-map /> }));
 
 const { WorkerDetailDialog } = await import("@/components/site-workers/worker-detail");
-const { BulkTable } = await import("@/components/site-workers/bulk-table");
+const { BulkTable, FIELD_WIDTH, WRAPS } = await import("@/components/site-workers/bulk-table");
 
 function render(node: React.ReactNode, cache: [readonly unknown[], unknown][] = []) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
@@ -167,9 +167,23 @@ describe("worker detail (10-28)", () => {
   });
 });
 
-describe("批量新增人员 table (10-28)", () => {
-  function table(problems = {}) {
-    const rows = [{ ...editRow(blankRows(1)[0], "name", longName), id: "r-1" }];
+describe("批量新增人员 table (10-28, retake at 1440 px)", () => {
+  const filled = {
+    phone: "+60 11-2390 5678",
+    passport_no: "A12345678",
+    nationality: "Bangladesh",
+    date_of_birth: "15/03/1990",
+    passport_expiry: "15/03/2030",
+    cidb_no: "CIDB-83012345",
+    company_text: "KJ Formwork Enterprise Sdn Bhd",
+  } as const;
+
+  function table(problems = {}, extra: Partial<ReturnType<typeof blankRows>[number]> = {}) {
+    let row = editRow(blankRows(1)[0], "name", longName);
+    for (const [field, value] of Object.entries(filled)) {
+      row = editRow(row, field as keyof typeof filled, value);
+    }
+    const rows = [{ ...row, id: "r-1", ...extra }];
     return render(
       <BulkTable
         rows={rows}
@@ -187,20 +201,70 @@ describe("批量新增人员 table (10-28)", () => {
     );
   }
 
-  it("the name wraps in its box, whole, and the passport box keeps its width", () => {
+  function box(html: string, column: number): string {
+    const found = html.match(new RegExp(`<(input|textarea)[^>]*data-cell="0-${column}"[^>]*>`));
+    expect(found, `box ${column}`).not.toBeNull();
+    return found![0];
+  }
+
+  it("every box is at least as wide as its longest everyday value", () => {
     const html = table();
-    expect(html).toMatch(new RegExp(`<textarea[^>]*data-cell="0-0"[^>]*>${longName}</textarea>`));
-    expect(html).toMatch(/<textarea[^>]*class="[^"]*min-w-40/);
-    expect(html).toMatch(/<input[^>]*class="[^"]*min-w-28[^"]*"[^>]*data-cell="0-2"/);
-    // The whole value on hover too.
+    BULK_FIELDS.forEach((field, column) => {
+      expect(box(html, column)).toContain(FIELD_WIDTH[field]);
+    });
+    // A phone, a date and a CIDB number fit on one line at 14 px:
+    // 16, 10 and 13 characters. Tailwind's unit is 4 px.
+    const px = (field: keyof typeof FIELD_WIDTH) => Number(FIELD_WIDTH[field].replace("min-w-", "")) * 4;
+    expect(px("phone")).toBeGreaterThanOrEqual(130);
+    expect(px("date_of_birth")).toBeGreaterThanOrEqual(84);
+    expect(px("cidb_no")).toBeGreaterThanOrEqual(116);
+    expect(px("passport_no")).toBeGreaterThanOrEqual(102);
+    // Together they fit the page at 1440 px with the menu open (~1130 px).
+    const cells = BULK_FIELDS.reduce((sum, field) => sum + px(field) + 12, 0);
+    expect(cells + 32 + 52 + 60).toBeLessThanOrEqual(1130);
+  });
+
+  it("the name, the country and the company wrap; the rest stay whole on one line", () => {
+    const html = table();
+    for (const field of ["name", "nationality", "company_text"] as const) {
+      expect(WRAPS.has(field)).toBe(true);
+      expect(box(html, BULK_FIELDS.indexOf(field)).startsWith("<textarea")).toBe(true);
+    }
+    expect(html).toContain(`>${longName}</textarea>`);
+    expect(html).toContain(">Bangladesh</textarea>");
+    expect(html).toContain(">KJ Formwork Enterprise Sdn Bhd</textarea>");
+    for (const field of ["phone", "passport_no", "date_of_birth", "passport_expiry", "cidb_no"] as const) {
+      expect(box(html, BULK_FIELDS.indexOf(field)).startsWith("<input")).toBe(true);
+    }
     expect(html).toContain(`title="${longName}"`);
   });
 
-  it("the reasons sit on a line under the row, not in a narrow last column", () => {
+  it("if the screen is narrower, the name stays at the left and the bin at the right", () => {
+    const html = table();
+    const head = html.slice(0, html.indexOf("</thead>"));
+    expect(head).toMatch(/<th[^>]*class="[^"]*sticky left-0[^"]*"[^>]*>.*姓名/);
+    expect(html).toMatch(/<td[^>]*class="[^"]*sticky left-0[^"]*"[^>]*>(?:(?!<\/td>)[\s\S])*data-cell="0-0"/);
+    expect(html).toMatch(/<td data-slot="table-cell" data-pin="end"/);
+  });
+
+  it("a passport-photo row stays compact: a small photo, the reasons and 「对着照片补打」 under it", () => {
+    const html = table(
+      { "r-1": [{ code: "check_photo", values: {} }] },
+      { photoUrl: "https://files.test/p1.jpg", photoIsPdf: false, needsCheck: true },
+    );
+    expect(html).toContain("size-10");
+    expect(html).not.toContain("size-16");
+    const rows = html.split("<tr ");
+    const main = rows.find((row) => row.includes('data-cell="0-0"'))!;
+    const under = rows.find((row) => row.includes(bulkWords.problem.check_photo))!;
+    expect(main).not.toContain(bulkWords.typeFromPhoto);
+    expect(under).toContain(bulkWords.typeFromPhoto);
+    expect(under).toMatch(/colSpan="10"|colspan="10"/);
+  });
+
+  it("no 「要处理」 column squeezing the others", () => {
     const html = table({ "r-1": [{ code: "name_has_digits", values: {} }] });
     expect(html).toContain(bulkWords.problem.name_has_digits);
-    expect(html).toMatch(/colSpan="10"|colspan="10"/);
-    // No 「要处理」 header squeezing the names.
     expect(html.slice(0, html.indexOf("</thead>"))).not.toContain(bulkWords.column.problems);
   });
 });
