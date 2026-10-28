@@ -1523,8 +1523,16 @@ export async function updateEvidencePackage(
  * 「对外分享」 written down (JB51): 已发起分享. Sent once the file is in the
  * person's hands; the toast is the screen's own.
  */
-export const logPackageShare = (id: string, payload: { channel: PackageShareChannel; target: string }) =>
-  api.post<PackageShare>(`/api/evidence-packages/${id}/log_share/`, payload);
+export const logPackageShare = (
+  id: string,
+  payload: {
+    channel: PackageShareChannel;
+    target: string;
+    /** JB63: a round's 「发送」 names its round; the 往来记录 PDF says TRANSCRIPT. */
+    round?: number;
+    document?: "TRANSCRIPT";
+  },
+) => api.post<PackageShare>(`/api/evidence-packages/${id}/log_share/`, payload);
 
 /** 「标记为已发送」 (JB51): 已发起分享 → 已确认发送. */
 export async function confirmPackageShare(id: string, share: string) {
@@ -1630,6 +1638,19 @@ export const reorderPackageItems = (id: string, items: string[]) =>
     `/api/evidence-packages/${id}/reorder_items/`,
     { items },
   );
+
+/** JB63: records and uploaded files in one order - a file first, between or last. */
+export const reorderPackageContents = (id: string, order: { kind: "item" | "file"; id: string }[]) =>
+  api.post<EvidencePackageDetail>(`/api/evidence-packages/${id}/reorder_items/`, { order });
+
+/**
+ * JB63 (「打包前能够预览完整资料」): a draft's whole PDF as 确认 will make
+ * it, built on request and kept nowhere.
+ */
+export const previewDraftPackage = (id: string, name: string) =>
+  fetchAsFile(`/api/evidence-packages/${id}/preview_draft/`, {
+    fallbackFilename: `${name || "package"}.pdf`,
+  });
 
 export async function confirmEvidencePackage(id: string, remarks: string) {
   const row = await api.post<EvidencePackageDetail>(

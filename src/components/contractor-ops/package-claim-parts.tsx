@@ -14,7 +14,7 @@
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Download, Mail, MessageCircle, Pencil, Plus, Send, Share2 } from "lucide-react";
+import { Download, Mail, MessageCircle, Pencil, Plus, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
@@ -26,7 +26,6 @@ import {
   type ClaimFields,
 } from "@/components/contractor-ops/claim-engine";
 import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
-import { whatsappHref } from "@/components/contractor-ops/package-exchange";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useFileActions } from "@/components/shared/file-actions";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
@@ -42,6 +41,7 @@ import type {
 import { useDateFormat } from "@/lib/dates";
 import {
   confirmPackageShare,
+  correspondenceReportFile,
   evidencePackageFile,
   logPackageShare,
   previewEvidencePackage,
@@ -380,19 +380,58 @@ export function sendStatusKeys(row: Pick<EvidencePackageRow, "send_status" | "re
 const SHARE_CHANNELS: PackageShareChannel[] = ["WHATSAPP", "EMAIL", "DOWNLOAD"];
 const CHANNEL_ICONS = { WHATSAPP: MessageCircle, EMAIL: Mail, DOWNLOAD: Download } as const;
 
+/** Which of the package's files goes (JB63): the latest, one round's, or the 往来记录 PDF. */
+export type PackageShareWhat = { round?: number; transcript?: boolean };
+
+/** The file to send and its words, for `what`. */
+function shareSource(pkg: EvidencePackageDetail, what: PackageShareWhat, roundWord: (n: number) => string, reportWord: string) {
+  const label = pkg.package_no || pkg.name;
+  if (what.transcript) {
+    return {
+      load: () => correspondenceReportFile(pkg.id, label, true),
+      loadToSend: () => correspondenceReportFile(pkg.id, label),
+      title: `${label} · ${reportWord}`,
+    };
+  }
+  if (what.round) {
+    const name = `${pkg.name}-${what.round}`;
+    return {
+      load: () => previewEvidencePackage(pkg.id, name, what.round),
+      loadToSend: () => evidencePackageFile(pkg.id, name, what.round),
+      title: `${label} · ${roundWord(what.round)}`,
+    };
+  }
+  return {
+    load: () => previewEvidencePackage(pkg.id, pkg.name),
+    loadToSend: () => evidencePackageFile(pkg.id, pkg.name),
+    title: pkg.name,
+  };
+}
+
 /**
- * 「对外分享（WhatsApp / 电邮）」 (JB51 第 1、2 点): how and to whom, then the
- * file is downloaded - with the PIN and the operation log every export has -
- * and the share is written down as 已发起分享. The next step is one button:
- * WhatsApp or the email, with the number or address filled in. The system
- * cannot see whether it arrived; 「标记为已发送」 in 发送记录 says so.
+ * Every 「发送」 of a confirmed package - 「对外分享（WhatsApp / 电邮）」 at the
+ * bottom, a round's 「发送」, the 往来记录 PDF's (JB51, JB63).
+ *
+ * 客户 10-28: 「对外分享…对方只收到一条文字信息，没有收到完整资料包」 while
+ * 「从「轮次」点击「发送」，可以正常通过 WhatsApp 发送文件」 - so this sends
+ * the way 轮次 always did: the PIN, then the computer's (or phone's) own
+ * share window, which hands the PDF itself to WhatsApp or the email. A WhatsApp
+ * link can only carry text, so it is used only where that window does not
+ * exist, after the file is downloaded to attach.
+ *
+ * Written down - who, when, how, to whom, which file - once the file was
+ * really handed over (an app was picked), as 已发起分享; never on a cancelled
+ * window. 已确认发送 stays a person's 「标记为已发送」: the system cannot see
+ * whether a WhatsApp message arrived.
  */
 export function PackageShareDialog({
   pkg,
+  what = {},
   onClose,
   onLogged,
 }: {
   pkg: EvidencePackageDetail;
+  what?: PackageShareWhat;
   onClose: () => void;
   onLogged: () => void;
 }) {
@@ -404,44 +443,53 @@ export function PackageShareDialog({
   const [working, setWorking] = useState(false);
   const fetched = useRef(false);
   const { run, element } = useFileActions();
+  const source = shareSource(pkg, what, (n) => t("exchange.round", { n }), t("exchange.report"));
+  const subject = pkg.package_no ? `${pkg.package_no} · ${source.title}` : source.title;
+
+  const log = async () => {
+    try {
+      await logPackageShare(pkg.id, {
+        channel,
+        target: channel === "DOWNLOAD" ? "" : target.trim(),
+        ...(what.round ? { round: what.round } : {}),
+        ...(what.transcript ? { document: "TRANSCRIPT" as const } : {}),
+      });
+      setStep("next");
+      onLogged();
+    } catch {
+      setStep("notLogged");
+    }
+  };
 
   const go = async () => {
     setWorking(true);
     fetched.current = false;
     try {
-      await run("save", {
-        load: () => previewEvidencePackage(pkg.id, pkg.name),
-        // Fetched only once the PIN is through: that is what says the file
-        // really left, and only then is the share written down.
-        loadToSend: async () => {
-          const file = await evidencePackageFile(pkg.id, pkg.name);
-          fetched.current = true;
-          return file;
-        },
-        title: pkg.name,
-        subject: pkg.package_no ? `${pkg.package_no} · ${pkg.name}` : pkg.name,
-      });
-      if (!fetched.current) return;
-      try {
-        await logPackageShare(pkg.id, { channel, target: channel === "DOWNLOAD" ? "" : target.trim() });
-        setStep("next");
-        onLogged();
-      } catch {
-        setStep("notLogged");
+      if (channel === "DOWNLOAD") {
+        await run("save", {
+          load: source.load,
+          // Fetched only once the PIN is through: that is what says the file
+          // really left, and only then is it written down.
+          loadToSend: async () => {
+            const file = await source.loadToSend();
+            fetched.current = true;
+            return file;
+          },
+          title: source.title,
+          subject,
+        });
+        if (fetched.current) await log();
+        return;
       }
+      // The share window: written down when an app took the file.
+      await run("share", { ...source, subject, onShared: () => void log() });
     } finally {
       setWorking(false);
     }
   };
 
-  const message = t("share.message", { name: pkg.package_no ? `${pkg.package_no} ${pkg.name}` : pkg.name });
-  const href =
-    channel === "WHATSAPP"
-      ? whatsappHref(message, target.trim())
-      : `mailto:${encodeURIComponent(target.trim())}?subject=${encodeURIComponent(pkg.name)}&body=${encodeURIComponent(message)}`;
-
   return (
-    <Shell title={t("share.title")} onClose={onClose}>
+    <Shell title={what.round || what.transcript ? `${t("share.sendTitle")} · ${source.title}` : t("share.title")} onClose={onClose}>
       <div className="flex-1 space-y-4 overflow-y-auto p-4" data-package-share>
         {step === "choose" ? (
           <>
@@ -469,29 +517,23 @@ export function PackageShareDialog({
               </div>
             </FieldWrapper>
             {channel !== "DOWNLOAD" && (
-              <FieldWrapper label={t("share.target")} hint={t("share.targetHint")}>
-                <Input
-                  value={target}
-                  inputMode={channel === "EMAIL" ? "email" : "tel"}
-                  onChange={(event) => setTarget(event.target.value)}
-                />
-              </FieldWrapper>
+              <>
+                <FieldWrapper label={t("share.target")} hint={t("share.targetHint")}>
+                  <Input
+                    value={target}
+                    inputMode={channel === "EMAIL" ? "email" : "text"}
+                    onChange={(event) => setTarget(event.target.value)}
+                  />
+                </FieldWrapper>
+                <p className="rounded-lg border bg-muted/30 p-3 text-sm">{t(`share.how.${channel}`)}</p>
+              </>
             )}
           </>
         ) : step === "next" ? (
           <div className="space-y-3">
             <p role="status" className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm font-medium">
-              {t("share.ready")}
+              {t(`share.handed.${channel}`)}
             </p>
-            <p className="text-sm">{t(`share.next.${channel}`)}</p>
-            {channel !== "DOWNLOAD" && (
-              <Button asChild className="w-full">
-                <a href={href} target={channel === "WHATSAPP" ? "_blank" : undefined} rel="noreferrer">
-                  <Send className="size-4" />
-                  {t(`share.open.${channel}`)}
-                </a>
-              </Button>
-            )}
             <p className="text-sm text-muted-foreground">{t("share.afterSent")}</p>
           </div>
         ) : (
@@ -507,8 +549,8 @@ export function PackageShareDialog({
               {common("cancel")}
             </Button>
             <Button disabled={working} disabledReason={common("loading")} onClick={() => void go()}>
-              <Share2 className="size-4" />
-              {t("share.go")}
+              {channel === "DOWNLOAD" ? <Download className="size-4" /> : <Share2 className="size-4" />}
+              {t(`share.go.${channel}`)}
             </Button>
           </>
         ) : (
@@ -576,6 +618,12 @@ export function SendLog({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChan
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge label={t("sendLog.external")} tone="neutral" />
             <span className="text-sm font-medium">{t(`share.${row.channel}`)}</span>
+            {/* JB63: which file went. */}
+            {(row.round_no || row.document === "TRANSCRIPT") && (
+              <span className="text-xs text-muted-foreground">
+                {row.document === "TRANSCRIPT" ? t("exchange.report") : t("exchange.round", { n: row.round_no ?? 1 })}
+              </span>
+            )}
             <StatusBadge
               label={t(`sendLog.${row.status}`)}
               tone={row.status === "CONFIRMED" ? "positive" : "warning"}

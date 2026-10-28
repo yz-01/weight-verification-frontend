@@ -59,6 +59,7 @@ export function RecordAttachmentsPanel({
   hideWhenEmpty = false,
   adding: addingProp,
   onAddingChange,
+  onChanged,
 }: {
   kind: AttachableKind;
   recordId: string;
@@ -81,6 +82,8 @@ export function RecordAttachmentsPanel({
    */
   adding?: boolean;
   onAddingChange?: (adding: boolean) => void;
+  /** A file was added or deleted - an evidence package redraws its PDF order (JB63). */
+  onChanged?: () => void;
 }) {
   const t = useTranslations("recordAttachments");
   const df = useDateFormat();
@@ -105,7 +108,10 @@ export function RecordAttachmentsPanel({
       setAdding(false);
     },
     // A finished record refuses with 409; refetching shows why instead of the form.
-    onSettled: () => void queryClient.invalidateQueries({ queryKey: recordAttachmentsKey(kind, recordId) }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: recordAttachmentsKey(kind, recordId) });
+      onChanged?.();
+    },
   });
 
   const rows = state.data?.attachments ?? [];
@@ -221,9 +227,10 @@ export function RecordAttachmentsPanel({
                         className="size-7 shrink-0"
                         what={row.original_name}
                         onDelete={() => deleteRecordAttachment(kind, recordId, row)}
-                        onDeleted={() =>
-                          void queryClient.invalidateQueries({ queryKey: recordAttachmentsKey(kind, recordId) })
-                        }
+                        onDeleted={() => {
+                          void queryClient.invalidateQueries({ queryKey: recordAttachmentsKey(kind, recordId) });
+                          onChanged?.();
+                        }}
                       />
                     ) : null}
                   </li>
