@@ -17,7 +17,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { PackageShareDialog, type PackageShareWhat } from "@/components/contractor-ops/package-claim-parts";
+import { PackageShareDialog, type PackageShareWhat } from "@/components/contractor-ops/package-share";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { LoadedFileThumb } from "@/components/shared/file-thumbs";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";

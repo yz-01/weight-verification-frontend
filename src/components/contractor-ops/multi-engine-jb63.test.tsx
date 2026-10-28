@@ -183,7 +183,7 @@ describe("JB63 一: records and uploaded files in one order", () => {
 });
 
 describe("JB63 二: 对外分享 sends the file itself", () => {
-  const dialog = source("src/components/contractor-ops/package-claim-parts.tsx");
+  const dialog = source("src/components/contractor-ops/package-share.tsx");
 
   it("goes through the share window like 轮次 did, not a text-only WhatsApp link", () => {
     expect(dialog).toContain('run("share"');
