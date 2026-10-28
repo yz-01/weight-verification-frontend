@@ -3,12 +3,16 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDown,
+  ArrowDownToLine,
   ArrowUp,
+  ArrowUpToLine,
+  Eye,
   ExternalLink,
   FileText,
   FolderCog,
   Inbox,
   Loader2,
+  Paperclip,
   Plus,
   Share2,
   Trash2,
@@ -45,7 +49,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { ExportButton } from "@/components/shared/export-button";
-import { FileActionButtons } from "@/components/shared/file-actions";
+import { FileActionButtons, useFileActions } from "@/components/shared/file-actions";
 import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -80,6 +84,7 @@ import {
   type EvidencePackageRow,
   type PackageClaimInfo,
   type PackageItem,
+  type PackageLayoutRow,
   type PackagePart,
   type PackageSelection,
   type PackageType,
@@ -91,6 +96,7 @@ import {
   deleteEvidencePackage,
   evidencePackageFile,
   exportEvidencePackages,
+  previewDraftPackage,
   previewEvidencePackage,
   downloadPackageItem,
   getEvidencePackage,
@@ -99,7 +105,7 @@ import {
   getPackageRecordParts,
   getProjectCategories,
   removePackageItem,
-  reorderPackageItems,
+  reorderPackageContents,
   updateEvidencePackage,
   updatePackageItem,
 } from "@/services/contractor-ops.service";
@@ -712,23 +718,58 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
     onSuccess: refresh,
   });
   /*
-   * The order the records appear in the merged PDF. Two buttons rather than
+   * The order of the merged PDF: the records and the files uploaded from the
+   * computer in one list (JB63, 客户 10-28: 「所有上传文件及系统业务记录，都
+   * 可以自由调整排列顺序，放在最前面、中间或最后面」). Buttons rather than
    * drag-and-drop: this is used on a laptop in a site office and occasionally
    * on a tablet, and a drag target that is a few pixels off is a reorder
    * nobody can undo once the package is confirmed.
    */
+  const layout: PackageLayoutRow[] =
+    data?.layout ?? (data?.items ?? []).map((entry) => ({ kind: "item" as const, id: entry.id }));
+  const itemsById = new Map((data?.items ?? []).map((entry) => [entry.id, entry]));
   const reorder = useMutation({
-    mutationFn: (order: string[]) => reorderPackageItems(id, order),
+    mutationFn: (order: { kind: "item" | "file"; id: string }[]) => reorderPackageContents(id, order),
     onSuccess: refresh,
   });
 
-  const move = (index: number, delta: number) => {
-    const order = (data?.items ?? []).map((entry) => entry.id);
-    const target = index + delta;
-    if (target < 0 || target >= order.length) return;
-    [order[index], order[target]] = [order[target], order[index]];
+  const moveTo = (index: number, target: number) => {
+    const order = layout.map((row) => ({ kind: row.kind, id: row.id }));
+    if (target < 0 || target >= order.length || target === index) return;
+    const [row] = order.splice(index, 1);
+    order.splice(target, 0, row);
     reorder.mutate(order);
   };
+  const last = layout.length - 1;
+  // 移到最前 · 上移 · 下移 · 移到最后 - each with its words on hover and for
+  // a screen reader.
+  const moveButtons = (index: number) => (
+    <div className="flex gap-1" data-move-buttons>
+      {(
+        [
+          ["moveFirst", ArrowUpToLine, 0, index === 0, "alreadyFirst"],
+          ["moveUp", ArrowUp, index - 1, index === 0, "alreadyFirst"],
+          ["moveDown", ArrowDown, index + 1, index === last, "alreadyLast"],
+          ["moveLast", ArrowDownToLine, last, index === last, "alreadyLast"],
+        ] as const
+      ).map(([label, Icon, target, off, reason]) => (
+        <Button
+          key={label}
+          size="icon-sm"
+          variant="ghost"
+          aria-label={t(label)}
+          title={t(label)}
+          disabled={off || reorder.isPending}
+          disabledReason={t(reason)}
+          onClick={() => moveTo(index, target)}
+        >
+          <Icon className="size-4" />
+        </Button>
+      ))}
+    </div>
+  );
+  // JB63: 「打包前能够预览完整资料」 - the whole draft as one PDF, looked at only.
+  const draftFile = useFileActions();
   /*
    * The name is typed in the create dialog, before the package contains
    * anything - so what it turned out to be is only known later. Without this
@@ -827,14 +868,43 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
               </div>
             )}
 
-            <FieldWrapper label={t("field.records")} required={isDraft}>
-              {data.items.length === 0 ? (
+            <FieldWrapper
+              label={t("field.contents")}
+              required={isDraft}
+              hint={isDraft && can("package.manage") ? t("orderHint") : undefined}
+            >
+              {layout.length === 0 ? (
                 <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
                   {t("noItems")}
                 </p>
               ) : (
                 <ul className="space-y-2">
-                  {data.items.map((item, index) => (
+                  {layout.map((row, index) => {
+                    if (row.kind === "file") {
+                      return (
+                        <li key={`file:${row.id}`} className="rounded-lg border border-dashed p-3" data-package-file>
+                          <div className="flex flex-wrap items-start gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="flex items-center gap-1.5 font-medium">
+                                <span className="tabular-nums text-muted-foreground">{index + 1}.</span>
+                                <Paperclip className="size-4 shrink-0 text-muted-foreground" />
+                                <span className="truncate" title={row.name}>
+                                  {row.name}
+                                </span>
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {t(row.letter ? "layoutLetter" : "layoutUpload")} · {row.uploaded_by_name || "—"} ·{" "}
+                                {formatter.dateTime(row.uploaded_at)}
+                              </p>
+                            </div>
+                            {isDraft && can("package.manage") && moveButtons(index)}
+                          </div>
+                        </li>
+                      );
+                    }
+                    const item = itemsById.get(row.id);
+                    if (!item) return null;
+                    return (
                     <li
                       key={item.id}
                       className="cursor-pointer rounded-lg border p-3 transition-colors hover:bg-muted/30"
@@ -848,6 +918,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                       <div className="flex flex-wrap items-start gap-2">
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-medium">
+                            <span className="tabular-nums text-muted-foreground">{index + 1}. </span>
                             {item.reference || t(`kind.${item.record_kind}`)}
                           </p>
                           <p className="text-xs text-muted-foreground">
@@ -895,29 +966,8 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                           </Button>
                         )}
                         {isDraft && can("package.manage") && (
-                          <div className="flex gap-2">
-                            <Button
-                              size="icon-sm"
-                              variant="ghost"
-                              aria-label={t("moveUp")}
-                              disabled={index === 0 || reorder.isPending}
-                              disabledReason={t("alreadyFirst")}
-                              onClick={() => move(index, -1)}
-                            >
-                              <ArrowUp className="size-4" />
-                            </Button>
-                            <Button
-                              size="icon-sm"
-                              variant="ghost"
-                              aria-label={t("moveDown")}
-                              disabled={
-                                index === data.items.length - 1 || reorder.isPending
-                              }
-                              disabledReason={t("alreadyLast")}
-                              onClick={() => move(index, 1)}
-                            >
-                              <ArrowDown className="size-4" />
-                            </Button>
+                          <div className="flex flex-wrap gap-2">
+                            {moveButtons(index)}
                             <Button
                               size="sm"
                               variant="outline"
@@ -952,7 +1002,8 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                         )}
                       </div>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               )}
             </FieldWrapper>
@@ -1013,6 +1064,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                   hideWhenEmpty
                   adding={uploading}
                   onAddingChange={setUploading}
+                  onChanged={refresh}
                 />
                 {/* JB50: a Progress Claim's letter - optional, first in the PDF. */}
                 {data.package_type === "PROGRESS_CLAIM" && (
@@ -1022,6 +1074,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                     title={t("letter.title")}
                     hint={t("letter.hint")}
                     addLabel={t("letter.add")}
+                    onChanged={refresh}
                   />
                 )}
                 {/* Asked at Confirm and not at creation: at creation nobody
@@ -1131,9 +1184,26 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
               {common("remove")}
             </Button>
             <Button
+              variant="outline"
               className="ml-auto"
+              data-action="preview-draft"
+              requires={[[data.items.length > 0, t("field.contents")]]}
+              disabled={Boolean(draftFile.busy)}
+              disabledReason={common("loading")}
+              onClick={() =>
+                void draftFile.run(
+                  "preview",
+                  { load: () => previewDraftPackage(data.id, data.name), title: data.name },
+                  { blockedReason: t("draftPreviewOnly") },
+                )
+              }
+            >
+              {draftFile.busy ? <Loader2 className="size-4 animate-spin" /> : <Eye className="size-4" />}
+              {t("previewDraft")}
+            </Button>
+            <Button
               requires={[
-                [data.items.length > 0, t("field.records")],
+                [data.items.length > 0, t("field.contents")],
                 [(remarks || data.remarks).trim(), t("field.remarks")],
               ]}
               disabled={confirm.isPending}
@@ -1171,6 +1241,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
       {sharing && data && (
         <PackageShareDialog pkg={data} onClose={() => setSharing(false)} onLogged={refresh} />
       )}
+      {draftFile.element}
       {opener.element}
       {ticking && data && (
         <TickPartsDialog

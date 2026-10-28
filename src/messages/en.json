@@ -11088,7 +11088,8 @@
       "records": "Records",
       "consultant": "Consultant",
       "consultantPlaceholder": "Choose a consultant",
-      "returnReason": "Reason for returning"
+      "returnReason": "Reason for returning",
+      "contents": "Package contents (the PDF follows this order)"
     },
     "firstPage": "This is the first page.",
     "group": {
@@ -11399,7 +11400,7 @@
     "uploads": {
       "add": "Upload files",
       "title": "Uploaded files",
-      "hint": "PDFs, pictures or other files from your computer. They go into the merged PDF after the records when you confirm. Once uploaded they cannot be changed or removed."
+      "hint": "PDF, Word, formal letters or any other file from the computer. Once uploaded it appears in the list above, where the arrows move it; it can be deleted until the package is confirmed."
     },
     "openRecord": "Open full record",
     "monthOnly": "Only records from {month}",
@@ -11440,7 +11441,7 @@
     },
     "letter": {
       "title": "Letter (optional)",
-      "hint": "Upload the letter if there is one; it goes first in the PDF. You can confirm without one.",
+      "hint": "Upload the letter if there is one. It goes first in the PDF unless moved in the list above. The package can be confirmed without one.",
       "add": "Upload letter"
     },
     "sendStatus": {
@@ -11456,24 +11457,28 @@
       "WHATSAPP": "WhatsApp",
       "EMAIL": "Email",
       "DOWNLOAD": "Download only",
-      "target": "To whom (number or email)",
+      "target": "To whom (name, number or email)",
       "targetHint": "Optional. Left empty, it is noted as 'Not specified'.",
-      "go": "Download the file and note this share",
-      "ready": "File downloaded. Noted: share started.",
-      "afterSent": "Once it has really gone out, press 'Mark as sent' under 'Send history'.",
+      "afterSent": "The system cannot see whether it arrived. Once the other side has it, press 'Mark as sent' under 'Send history'.",
       "done": "Done",
       "message": "Please find the package attached: {name}",
-      "notLogged": "The file was downloaded, but this share was not noted. Close this and press 'Share outside' again.",
+      "notLogged": "The file went out, but this send was not noted. Close this and send again.",
       "markSent": "Mark as sent",
       "markedToast": "Marked as sent.",
-      "next": {
-        "WHATSAPP": "Next: press 'Open WhatsApp', attach the file you just downloaded and send it.",
-        "EMAIL": "Next: press 'Open email', attach the file you just downloaded and send it.",
-        "DOWNLOAD": "The file is in the computer's Downloads folder."
+      "sendTitle": "Send",
+      "go": {
+        "WHATSAPP": "Send to WhatsApp",
+        "EMAIL": "Send by email",
+        "DOWNLOAD": "Download the file"
       },
-      "open": {
-        "WHATSAPP": "Open WhatsApp",
-        "EMAIL": "Open email"
+      "how": {
+        "WHATSAPP": "After 'Send to WhatsApp' the computer opens its share window: pick WhatsApp, then the contact, and the PDF itself is sent.",
+        "EMAIL": "After 'Send by email' the computer opens its share window: pick your email (e.g. Outlook) and the PDF is attached."
+      },
+      "handed": {
+        "WHATSAPP": "The file was handed to WhatsApp. Noted: share started.",
+        "EMAIL": "The file was handed to the email. Noted: share started.",
+        "DOWNLOAD": "The file is in the computer's Downloads folder. Noted."
       }
     },
     "sendLog": {
@@ -11490,7 +11495,14 @@
       "STARTED": "Share started",
       "CONFIRMED": "Confirmed sent",
       "confirmedBy": "Marked as sent by {name} on {when}"
-    }
+    },
+    "orderHint": "Records from the system and files uploaded from the computer are all here. Use the arrows to put each first, in the middle or last; the PDF is made from top to bottom.",
+    "moveFirst": "Move to top",
+    "moveLast": "Move to bottom",
+    "layoutUpload": "Uploaded from the computer",
+    "layoutLetter": "Letter",
+    "previewDraft": "Preview the whole package",
+    "draftPreviewOnly": "This is a preview before confirming. Print, export and send open once it is confirmed."
   },
   "mySubmissions": {
     "title": "What I sent",
