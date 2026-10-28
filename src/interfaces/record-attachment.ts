@@ -5,7 +5,7 @@ import type { ChatRecordKind } from "@/lib/record-chat";
  * approval and a gate pass (I3), a draft package's uploads and a Progress
  * Claim's letter (JB30).
  */
-export type AttachableKind = ChatRecordKind | "APPROVAL" | "GATE_PASS" | "EVIDENCE_PACKAGE" | "CLAIM_LETTER";
+export type AttachableKind = ChatRecordKind | "APPROVAL" | "GATE_PASS" | "EVIDENCE_PACKAGE" | "CLAIM_LETTER" | "PACKAGE_LETTER";
 
 /** One file in a record's general attachment slot (B28, E10). */
 export interface RecordAttachment {

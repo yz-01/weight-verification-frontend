@@ -45,6 +45,8 @@ import type {
   ClaimState,
   EvidencePackageDetail,
   EvidencePackageRow,
+  PackageShare,
+  PackageShareChannel,
   PackageLinkResult,
   PackStatus,
   RecordPackageRow,
@@ -1446,6 +1448,12 @@ export const getEvidencePackages = (
     created_by?: string;
     from?: string;
     to?: string;
+    /** JB52: a Progress Claim's month (`YYYY-MM`), category, subcontractor. */
+    period?: string;
+    claim_category?: string;
+    subcontractor?: string;
+    /** An old CLM- claim: its package. */
+    claim?: string;
   },
 ) =>
   api.list<EvidencePackageRow>(
@@ -1461,7 +1469,8 @@ export const getEvidencePackage = (id: string, round?: number) =>
 
 /** Records of one column in one project, to tick from. */
 export const getPackageCandidates = (
-  query: ListQuery & { kind: ArchiveRecordKind; project: string },
+  /** `month` (`YYYY-MM`, JB52): only that month's records. */
+  query: ListQuery & { kind: ArchiveRecordKind; project: string; month?: string },
 ) =>
   api.list<ArchiveQueueRow>(
     "/api/evidence-packages/get_candidates/",
@@ -1475,12 +1484,21 @@ export const getPackageRecordParts = (kind: ArchiveRecordKind, id: string) =>
     id,
   });
 
+/** A Progress Claim's optional fields (JB52); empty strings mean "not chosen". */
+export interface PackageClaimFieldsPayload {
+  claim_period?: string;
+  claim_kind?: string;
+  claim_category?: string;
+  claim_other_name?: string;
+  claim_subcontractor?: string;
+}
+
 export async function createEvidencePackage(payload: {
   project: string;
   name: string;
   remarks?: string;
   package_type?: PackageType;
-}) {
+} & PackageClaimFieldsPayload) {
   const row = await api.post<EvidencePackageDetail>(
     "/api/evidence-packages/create_package/",
     payload,
@@ -1491,13 +1509,27 @@ export async function createEvidencePackage(payload: {
 
 export async function updateEvidencePackage(
   id: string,
-  payload: { name?: string; remarks?: string; package_type?: PackageType },
+  payload: { name?: string; remarks?: string; package_type?: PackageType } & PackageClaimFieldsPayload,
 ) {
   const row = await api.patch<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/update_package/`,
     payload,
   );
   toastSuccess("multiEngine.toast.saved");
+  return row;
+}
+
+/**
+ * 「对外分享」 written down (JB51): 已发起分享. Sent once the file is in the
+ * person's hands; the toast is the screen's own.
+ */
+export const logPackageShare = (id: string, payload: { channel: PackageShareChannel; target: string }) =>
+  api.post<PackageShare>(`/api/evidence-packages/${id}/log_share/`, payload);
+
+/** 「标记为已发送」 (JB51): 已发起分享 → 已确认发送. */
+export async function confirmPackageShare(id: string, share: string) {
+  const row = await api.post<PackageShare>(`/api/evidence-packages/${id}/confirm_share/`, { share });
+  toastSuccess("multiEngine.share.markedToast");
   return row;
 }
 

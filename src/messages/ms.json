@@ -10832,7 +10832,7 @@
     "startAndAdd": "Mulakan dan tambah",
     "state": {
       "DRAFT": "Draf",
-      "CONFIRMED": "Disahkan"
+      "CONFIRMED": "Disahkan (dikunci)"
     },
     "subtitle": "Kumpulkan rekod daripada beberapa kategori satu projek dan gabungkan menjadi satu PDF.",
     "title": "Multi Engine",
@@ -10906,7 +10906,7 @@
     },
     "type": {
       "label": "Jenis pakej",
-      "help": "Progress Claim dibuka mengikut tempoh di tab Progress Claim.",
+      "help": "Progress Claim juga dibuat di sini: pilih Progress Claim, kemudian isi tempoh, jenis tuntutan, kategori dan subkontraktor jika mahu (semuanya pilihan).",
       "all": "Semua jenis",
       "PROGRESS_CLAIM": "Progress Claim",
       "SUNDRY_CLAIM": "Sundry Claim",
@@ -10934,8 +10934,8 @@
         "timeline": "Garis masa",
         "rounds": "Pusingan"
       },
-      "send": "Hantar kepada…",
-      "noRecipients": "Belum dihantar kepada sesiapa.",
+      "send": "Hantar dalam sistem (ibu pejabat, perunding…)",
+      "noRecipients": "Belum dihantar dalam sistem. Yang dihantar melalui WhatsApp atau e-mel ada di 'Rekod penghantaran'.",
       "kind": {
         "CONSULTANT": "Perunding",
         "OWNER": "Pemilik",
@@ -10970,7 +10970,7 @@
       "whatsapp": "Hantar melalui WhatsApp",
       "linkDone": "Selesai",
       "linkOnce": "Pautan penuh hanya ditunjukkan sekali di sini. Selepas ditutup, guna Pautan baharu (yang lama terus tidak berfungsi).",
-      "sendTitle": "Hantar pakej",
+      "sendTitle": "Hantar dalam sistem",
       "field": {
         "kind": "Hantar kepada",
         "personName": "Nama orang",
@@ -11075,6 +11075,96 @@
       "add": "Muat naik fail",
       "title": "Fail dimuat naik",
       "hint": "PDF, gambar atau fail lain dari komputer. Ia dimasukkan ke dalam PDF gabungan selepas rekod apabila disahkan. Selepas dimuat naik, ia tidak boleh diubah atau dibuang."
+    },
+    "openRecord": "Buka rekod penuh",
+    "monthOnly": "Hanya rekod {month}",
+    "claimInfo": {
+      "title": "Butiran Progress Claim",
+      "claimNo": "No. tuntutan asal",
+      "period": "Tempoh (bulan)",
+      "kind": "Jenis tuntutan",
+      "category": "Kategori tuntutan",
+      "subcontractor": "Subkontraktor",
+      "none": "Tidak dipilih",
+      "noKind": "Tiada",
+      "optional": "Semua di bawah adalah pilihan.",
+      "edit": "Ubah",
+      "editTitle": "Ubah butiran Progress Claim",
+      "save": "Simpan"
+    },
+    "filter": {
+      "period": "Tempoh",
+      "category": "Kategori",
+      "allCategories": "Semua kategori",
+      "subcontractor": "Subkontraktor",
+      "allSubcontractors": "Semua subkontraktor",
+      "clear": "Kosongkan tapisan",
+      "pickProject": "Pilih projek di bahagian atas halaman untuk menapis mengikut kategori."
+    },
+    "claimCategories": {
+      "button": "Tambah kategori tuntutan",
+      "title": "Kategori tuntutan",
+      "hint": "Di sini hanya kategori diurus (cth. Progress Claim, Manpower Claim). Untuk membuat tuntutan, tekan 'Pakej baharu' dan pilih Progress Claim.",
+      "add": "Tambah kategori tuntutan",
+      "rename": "Tukar nama",
+      "disable": "Matikan",
+      "enable": "Hidupkan semula",
+      "off": "Dimatikan",
+      "empty": "Projek ini belum ada kategori tuntutan. Tekan 'Tambah kategori tuntutan' untuk menambah.",
+      "project": "Projek"
+    },
+    "letter": {
+      "title": "Surat (pilihan)",
+      "hint": "Muat naik surat jika ada; ia diletakkan paling depan dalam PDF. Anda boleh sahkan tanpa surat.",
+      "add": "Muat naik surat"
+    },
+    "sendStatus": {
+      "NOT_SENT": "Belum dihantar",
+      "INTERNAL": "Dihantar dalam sistem",
+      "STARTED": "Perkongsian dimulakan",
+      "SENT": "Dihantar ke luar"
+    },
+    "share": {
+      "button": "Kongsi ke luar (WhatsApp / e-mel)",
+      "title": "Kongsi ke luar (WhatsApp / e-mel)",
+      "channel": "Cara menghantar",
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "E-mel",
+      "DOWNLOAD": "Muat turun sahaja",
+      "target": "Kepada siapa (nombor atau e-mel)",
+      "targetHint": "Pilihan. Jika kosong, dicatat sebagai 'Tidak dinyatakan'.",
+      "go": "Muat turun fail dan catat perkongsian ini",
+      "ready": "Fail dimuat turun. Dicatat: perkongsian dimulakan.",
+      "afterSent": "Selepas benar-benar dihantar, tekan 'Tanda sudah dihantar' di 'Rekod penghantaran'.",
+      "done": "Selesai",
+      "message": "Sila terima pakej yang dilampirkan: {name}",
+      "notLogged": "Fail dimuat turun, tetapi perkongsian ini tidak dicatat. Tutup dan tekan 'Kongsi ke luar' sekali lagi.",
+      "markSent": "Tanda sudah dihantar",
+      "markedToast": "Ditanda sudah dihantar.",
+      "next": {
+        "WHATSAPP": "Seterusnya: tekan 'Buka WhatsApp', lampirkan fail yang baru dimuat turun dan hantar.",
+        "EMAIL": "Seterusnya: tekan 'Buka e-mel', lampirkan fail yang baru dimuat turun dan hantar.",
+        "DOWNLOAD": "Fail ada dalam folder Muat Turun komputer."
+      },
+      "open": {
+        "WHATSAPP": "Buka WhatsApp",
+        "EMAIL": "Buka e-mel"
+      }
+    },
+    "sendLog": {
+      "title": "Rekod penghantaran",
+      "empty": "Belum pernah dihantar.",
+      "internal": "Dihantar dalam sistem",
+      "external": "Dikongsi ke luar",
+      "by": "{name} · {when}",
+      "to": "Kepada: {target}",
+      "unspecified": "Tidak dinyatakan",
+      "opened": "Dibuka ({when})",
+      "notOpened": "Belum dibuka",
+      "revoked": "Dibatalkan",
+      "STARTED": "Perkongsian dimulakan",
+      "CONFIRMED": "Disahkan dihantar",
+      "confirmedBy": "Ditanda sudah dihantar oleh {name} pada {when}"
     }
   },
   "mySubmissions": {

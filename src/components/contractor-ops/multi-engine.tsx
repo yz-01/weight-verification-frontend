@@ -4,11 +4,13 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import {
   ArrowDown,
   ArrowUp,
-  Eye,
+  ExternalLink,
   FileText,
+  FolderCog,
   Inbox,
   Loader2,
   Plus,
+  Share2,
   Trash2,
   Upload,
 } from "lucide-react";
@@ -17,7 +19,21 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import { ClaimEngineWorkspace } from "@/components/contractor-ops/claim-engine";
+import { useSubcontractors } from "@/components/contractor-ops/claim-engine";
+import {
+  ClaimCategoriesDialog,
+  ClaimInfoBlock,
+  ClaimInfoFields,
+  EMPTY_CLAIM_INFO,
+  PackageShareDialog,
+  SendLog,
+  claimInfoPayload,
+  periodLabel,
+  sendStatusKeys,
+  useClaimInfoComplete,
+  type ClaimInfoValue,
+} from "@/components/contractor-ops/package-claim-parts";
+import { usePackageRecordOpener } from "@/components/contractor-ops/package-record-opener";
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import {
   AnswerLines,
@@ -37,6 +53,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CategoryOptionItems } from "@/components/shared/category-options";
+import {
   Table,
   TableBody,
   TableCell,
@@ -50,10 +74,11 @@ import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
 import {
-  CLAIM_PACKAGE_TYPES,
   PACKAGE_TYPES,
   type ArchiveRecordKind,
   type EvidencePackageDetail,
+  type EvidencePackageRow,
+  type PackageClaimInfo,
   type PackageItem,
   type PackagePart,
   type PackageSelection,
@@ -72,6 +97,7 @@ import {
   getEvidencePackages,
   getPackageCandidates,
   getPackageRecordParts,
+  getProjectCategories,
   removePackageItem,
   reorderPackageItems,
   updateEvidencePackage,
@@ -133,6 +159,8 @@ export function MultiEngineWorkspace() {
   const packages = can("package.view");
   const claims = can("claim.view");
   const [chosen, setType] = useState<PackageType | "" | null>(null);
+  // JB52 (客户 10-28 事项 5、13): the Progress Claim tab is a filter of the one
+  // list. Who reads claims without packages reads only those packages.
   const type: PackageType | "" =
     !packages ? "PROGRESS_CLAIM" : chosen ?? (asked && PACKAGE_TYPES.includes(asked) ? asked : "");
 
@@ -141,7 +169,7 @@ export function MultiEngineWorkspace() {
       {packages && (
         <nav aria-label={t("type.label")} className="flex flex-wrap gap-1.5">
           {(["", ...PACKAGE_TYPES] as const)
-            .filter((value) => value !== "PROGRESS_CLAIM" || claims)
+            .filter((value) => value !== "PROGRESS_CLAIM" || claims || packages)
             .map((value) => (
               <button
                 key={value || "all"}
@@ -159,16 +187,12 @@ export function MultiEngineWorkspace() {
             ))}
         </nav>
       )}
-      {type === "PROGRESS_CLAIM" ? (
-        <ClaimEngineWorkspace />
-      ) : (
-        <PackageList type={type} onType={setType} />
-      )}
+      <PackageList type={type} />
     </div>
   );
 }
 
-function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: PackageType) => void }) {
+function PackageList({ type }: { type: PackageType | "" }) {
   const t = useTranslations("multiEngine");
   const formatter = useDateFormat();
   const { can } = useAuth();
@@ -182,13 +206,37 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
   // record's 「已打包」 links here too. Closing takes it out of the address.
   const linked = useSearchParams().get("package");
   const clearLinked = useClearSearchParam("package");
+  // An old CLM- claim's link (`?claim=`, notices, a category's records)
+  // opens the package it raised (JB52 第 4 点).
+  const linkedClaim = useSearchParams().get("claim");
+  const clearClaim = useClearSearchParam("claim");
+  // query-failure: a link that finds nothing leaves the list as it is; the api toasts the refusal.
+  const claimPackage = useQuery({
+    queryKey: ["claim-package-link", linkedClaim],
+    queryFn: () => getEvidencePackages({ claim: linkedClaim ?? undefined, page_size: 1 }),
+    enabled: Boolean(linkedClaim),
+  });
   const [chosenId, setOpenId] = useState<string | null>(null);
-  const openId = chosenId ?? linked;
+  const openId = chosenId ?? linked ?? (linkedClaim ? (claimPackage.data?.results[0]?.id ?? null) : null);
+  // Progress Claim filters (JB52 第 3 点): 期数, 分类, 分包商.
+  const isClaimTab = type === "PROGRESS_CLAIM";
+  const [period, setPeriod] = useState("");
+  const [claimCategory, setClaimCategory] = useState("");
+  const [subcontractor, setSubcontractor] = useState("");
+  const [managingCategories, setManagingCategories] = useState(false);
+  const claimFilters = isClaimTab
+    ? {
+        period: period || undefined,
+        claim_category: claimCategory || undefined,
+        subcontractor: subcontractor || undefined,
+      }
+    : {};
   // Page 1 of the next project, and the one open on the last project closes
   // (B13 audit #8).
   useOnProjectChange(project, () => {
     setPage(1);
     setOpenId(null);
+    setClaimCategory("");
   });
   const [creating, setCreating] = useState(false);
   // 收到的资料包 (J30-1): what the sites sent to head office in the system.
@@ -198,13 +246,14 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
   const receivedOnly = headOffice && received;
 
   const query = useQuery({
-    queryKey: ["evidence-packages", project, search, page, type, receivedOnly],
+    queryKey: ["evidence-packages", project, search, page, type, receivedOnly, ...(isClaimTab ? [claimFilters] : [])],
     queryFn: () =>
       getEvidencePackages({
         project: project || undefined,
         search: search || undefined,
         type: type || undefined,
         received: receivedOnly ? 1 : undefined,
+        ...claimFilters,
         page,
         page_size: PAGE_SIZE,
       }),
@@ -220,11 +269,23 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          can("package.manage") ? (
-            <Button onClick={() => setCreating(true)}>
-              <Plus className="size-4" />
-              {t("new")}
-            </Button>
+          can("package.manage") || (isClaimTab && can("category.manage")) ? (
+            <div className="flex flex-wrap gap-2">
+              {/* 客户 10-28: 「这个应该是新增claim 分类，不是新增claim」 - where
+                  「开一期 Claim」 was, the Claim categories. */}
+              {isClaimTab && can("category.manage") && (
+                <Button variant="outline" onClick={() => setManagingCategories(true)} data-claim-categories-button>
+                  <FolderCog className="size-4" />
+                  {t("claimCategories.button")}
+                </Button>
+              )}
+              {can("package.manage") && (
+                <Button onClick={() => setCreating(true)}>
+                  <Plus className="size-4" />
+                  {t("new")}
+                </Button>
+              )}
+            </div>
           ) : undefined
         }
       />
@@ -246,6 +307,20 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
           placeholder={t("searchPlaceholder")}
           className="w-full sm:w-72"
         />
+        {isClaimTab && (
+          <ClaimTabFilters
+            project={project}
+            period={period}
+            category={claimCategory}
+            subcontractor={subcontractor}
+            onChange={(next) => {
+              setPeriod(next.period);
+              setClaimCategory(next.category);
+              setSubcontractor(next.subcontractor);
+              setPage(1);
+            }}
+          />
+        )}
         {headOffice ? (
           <Button
             type="button"
@@ -274,6 +349,7 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
                 project: project || undefined,
                 search: search || undefined,
                 type: type || undefined,
+                ...claimFilters,
               },
               columns: [
                 { key: "package_no", label: t("export.number") },
@@ -350,6 +426,7 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
                       </span>
                     )}
                     {row.name}
+                    <ClaimLine info={row.claim_info} />
                     {row.remarks && (
                       <span className="block max-w-88 truncate text-xs font-normal text-muted-foreground">
                         {row.remarks}
@@ -377,7 +454,7 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
                     />
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {t(`review.${row.review_state}`)}
+                    <SendStatusWords row={row} />
                     {(row.recipient_count ?? 0) > 0 && (
                       <span className="block text-xs">
                         {t("recipientCount", { count: row.recipient_count ?? 0 })}
@@ -442,15 +519,12 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
 
       {creating && (
         <NewPackageDialog
-          initialType={type && type !== "PROGRESS_CLAIM" ? type : "OTHER"}
+          initialType={type || "OTHER"}
+          initialProject={project}
           onClose={() => setCreating(false)}
           onCreated={(row) => {
             setCreating(false);
             setOpenId(row.id);
-          }}
-          onProgressClaim={() => {
-            setCreating(false);
-            onType("PROGRESS_CLAIM");
           }}
         />
       )}
@@ -460,8 +534,12 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
           onClose={() => {
             setOpenId(null);
             clearLinked();
+            clearClaim();
           }}
         />
+      )}
+      {managingCategories && (
+        <ClaimCategoriesDialog project={project} onClose={() => setManagingCategories(false)} />
       )}
     </div>
   );
@@ -469,25 +547,35 @@ function PackageList({ type, onType }: { type: PackageType | ""; onType: (type: 
 
 function NewPackageDialog({
   initialType,
+  initialProject,
   onClose,
   onCreated,
-  onProgressClaim,
 }: {
   initialType: PackageType;
+  initialProject: string;
   onClose: () => void;
   onCreated: (row: EvidencePackageDetail) => void;
-  onProgressClaim: () => void;
 }) {
   const t = useTranslations("multiEngine");
   const common = useTranslations("common");
-  const { can } = useAuth();
+  const claims = useTranslations("claims");
   const queryClient = useQueryClient();
-  const [project, setProject] = useState("");
+  const [project, setProject] = useState(initialProject);
   const [name, setName] = useState("");
   const [packageType, setPackageType] = useState<PackageType>(initialType);
+  // JB52 第 1 点: a Progress Claim's 期数 / 类型 / 分类 / 分包商, all optional.
+  const [claimInfo, setClaimInfo] = useState<ClaimInfoValue>(EMPTY_CLAIM_INFO);
+  const isClaim = packageType === "PROGRESS_CLAIM";
+  const claimComplete = useClaimInfoComplete(project, claimInfo);
 
   const create = useMutation({
-    mutationFn: () => createEvidencePackage({ project, name, package_type: packageType }),
+    mutationFn: () =>
+      createEvidencePackage({
+        project,
+        name,
+        package_type: packageType,
+        ...(isClaim ? claimInfoPayload(claimInfo) : {}),
+      }),
     onSuccess: (row) => {
       queryClient.invalidateQueries({ queryKey: ["evidence-packages"] });
       onCreated(row);
@@ -504,19 +592,16 @@ function NewPackageDialog({
           {t("oneProjectHelp")}
         </p>
         <FieldWrapper label={t("type.label")} required hint={t("type.help")}>
-          <TypePicker
-            value={packageType}
-            onChange={(next) => {
-              if (next === "PROGRESS_CLAIM") onProgressClaim();
-              else setPackageType(next);
-            }}
-            allowClaim={can("claim.manage")}
-          />
+          <TypePicker value={packageType} onChange={setPackageType} />
         </FieldWrapper>
         <FieldWrapper label={t("field.project")} required>
           <ProjectPicker
             value={project}
-            onValueChange={setProject}
+            onValueChange={(next) => {
+              setProject(next);
+              // A category belongs to its project.
+              setClaimInfo((current) => ({ ...current, fields: { ...current.fields, category: "", otherName: "" } }));
+            }}
             placeholder={t("field.selectProject")}
           />
         </FieldWrapper>
@@ -527,6 +612,7 @@ function NewPackageDialog({
             placeholder={t("field.namePlaceholder")}
           />
         </FieldWrapper>
+        {isClaim && <ClaimInfoFields project={project} value={claimInfo} onChange={setClaimInfo} />}
       </div>
       <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
@@ -537,7 +623,8 @@ function NewPackageDialog({
             [project, t("field.project")],
             [name.trim(), t("field.name")],
           ]}
-          disabled={create.isPending}
+          disabled={create.isPending || (isClaim && !claimComplete)}
+          disabledReason={claims("completeClaimFields")}
           onClick={() => create.mutate()}
         >
           {common("create")}
@@ -547,20 +634,18 @@ function NewPackageDialog({
   );
 }
 
-/** The six types as buttons; Progress Claim goes to its own tab (HD17). */
+/** The six types as buttons; Progress Claim is one of them (JB52). */
 function TypePicker({
   value,
   onChange,
-  allowClaim,
 }: {
   value: PackageType;
   onChange: (next: PackageType) => void;
-  allowClaim: boolean;
 }) {
   const t = useTranslations("multiEngine");
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-      {PACKAGE_TYPES.filter((option) => option !== "PROGRESS_CLAIM" || allowClaim).map((option) => (
+      {PACKAGE_TYPES.map((option) => (
         <button
           key={option}
           type="button"
@@ -600,6 +685,10 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
   const [ticking, setTicking] = useState<PackageItem | null>(null);
   // 「上传资料」 (JB30): the upload form under the two buttons.
   const [uploading, setUploading] = useState(false);
+  // 「对外分享（WhatsApp / 电邮）」 (JB51).
+  const [sharing, setSharing] = useState(false);
+  // JB49: each record opens in full over the package.
+  const opener = usePackageRecordOpener();
   const [remarks, setRemarks] = useState("");
   /*
    * `null` rather than `""` until somebody types: the box shows the package's
@@ -671,6 +760,14 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
   });
 
   const isDraft = data?.state === "DRAFT";
+  const openItem = (item: PackageItem) => {
+    if (!data) return;
+    opener.open(item.record_kind as ArchiveRecordKind, item.record_id, {
+      reference: item.reference,
+      project_id: data.project,
+      project_name: data.project_name,
+    });
+  };
 
   return (
     <Shell title={data?.name ?? t("title")} onClose={onClose}>
@@ -686,7 +783,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
             <p className="text-xs text-muted-foreground">
               {data.package_no ? `${data.package_no} · ` : ""}
               {t(`type.${data.package_type ?? "OTHER"}`)} · {data.project_name} ·{" "}
-              {t(`state.${data.state}`)} · {t(`review.${data.review_state}`)}
+              {t(`state.${data.state}`)} · <SendStatusWords row={data} inline />
               {(data.current_round ?? 0) > 1 && <> · {t("exchange.round", { n: data.current_round ?? 0 })}</>}
             </p>
             {/* H3 / HD20: 「是谁打包」. */}
@@ -702,7 +799,13 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                 </>
               )}
             </p>
-            {data.claim && CLAIM_PACKAGE_TYPES.includes(data.package_type ?? "OTHER") && (
+            {/* JB52: a Progress Claim's 期数 / 类型 / 分类 / 分包商 - no amount,
+                no 收款 (「MSE Trace 不算工程款」; the data is kept). A Sundry
+                Claim package still adds up its sundry claims. */}
+            {data.package_type === "PROGRESS_CLAIM" && (
+              <ClaimInfoBlock pkg={data} canEdit={isDraft && can("package.manage")} onChanged={refresh} />
+            )}
+            {data.claim && data.package_type === "SUNDRY_CLAIM" && (
               <ClaimFacetBlock facet={data.claim} onChanged={refresh} />
             )}
 
@@ -732,7 +835,16 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
               ) : (
                 <ul className="space-y-2">
                   {data.items.map((item, index) => (
-                    <li key={item.id} className="rounded-lg border p-3">
+                    <li
+                      key={item.id}
+                      className="cursor-pointer rounded-lg border p-3 transition-colors hover:bg-muted/30"
+                      data-package-item
+                      onClick={(event) => {
+                        // JB49: the card opens the whole record; its photos,
+                        // buttons and links keep their own press.
+                        if (!item.source_missing && clickOpensRow(event)) openItem(item);
+                      }}
+                    >
                       <div className="flex flex-wrap items-start gap-2">
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-medium">
@@ -776,6 +888,12 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                           )}
                           <AnswerLines answers={item.answers ?? []} />
                         </div>
+                        {!item.source_missing && (
+                          <Button size="sm" variant="outline" onClick={() => openItem(item)}>
+                            <ExternalLink className="size-4" />
+                            {t("openRecord")}
+                          </Button>
+                        )}
                         {isDraft && can("package.manage") && (
                           <div className="flex gap-2">
                             <Button
@@ -844,7 +962,6 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                 <FieldWrapper label={t("type.label")} hint={t("type.help")}>
                   <TypePicker
                     value={data.package_type ?? "OTHER"}
-                    allowClaim={false}
                     onChange={(next) => {
                       if (next !== data.package_type) retype.mutate(next);
                     }}
@@ -897,6 +1014,16 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                   adding={uploading}
                   onAddingChange={setUploading}
                 />
+                {/* JB50: a Progress Claim's letter - optional, first in the PDF. */}
+                {data.package_type === "PROGRESS_CLAIM" && (
+                  <RecordAttachmentsPanel
+                    kind="PACKAGE_LETTER"
+                    recordId={data.id}
+                    title={t("letter.title")}
+                    hint={t("letter.hint")}
+                    addLabel={t("letter.add")}
+                  />
+                )}
                 {/* Asked at Confirm and not at creation: at creation nobody
                     knows yet what the bundle turned out to be, and a
                     required field answered before the answer exists is
@@ -946,14 +1073,26 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
             {(!isDraft || !can("package.manage")) && (
               /* What was uploaded into it - as it went into the PDF once
                  confirmed (JB30). */
-              <RecordAttachmentsPanel
-                kind="EVIDENCE_PACKAGE"
-                recordId={data.id}
-                title={t("uploads.title")}
-                readOnly
-                hideWhenEmpty
-              />
+              <>
+                {data.package_type === "PROGRESS_CLAIM" && (
+                  <RecordAttachmentsPanel
+                    kind="PACKAGE_LETTER"
+                    recordId={data.id}
+                    title={t("letter.title")}
+                    readOnly
+                    hideWhenEmpty
+                  />
+                )}
+                <RecordAttachmentsPanel
+                  kind="EVIDENCE_PACKAGE"
+                  recordId={data.id}
+                  title={t("uploads.title")}
+                  readOnly
+                  hideWhenEmpty
+                />
+              </>
             )}
+            {!isDraft && <SendLog pkg={data} onChanged={refresh} />}
             {!isDraft && <ExchangePanel data={data} onChanged={refresh} />}
           </>
         )}
@@ -966,12 +1105,19 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                 printing do not count as the package having left; 导出 and
                 发送 do, as the download always has (D-148). */}
             <FileActionButtons
+              omit={["share"]}
               source={{
                 load: () => previewEvidencePackage(data.id, data.name),
                 loadToSend: () => evidencePackageFile(data.id, data.name),
                 title: data.name,
               }}
             />
+            {/* JB51: 「系统内发送」 is in 收件方 below; this one leaves the
+                system and is written down in 发送记录. */}
+            <Button size="sm" onClick={() => setSharing(true)} data-package-share-button>
+              <Share2 className="size-3.5" />
+              {t("share.button")}
+            </Button>
           </>
         )}
         {data && isDraft && can("package.manage") && (
@@ -1014,6 +1160,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
         <AddRecordsDialog
           packageId={data.id}
           project={data.project}
+          claimInfo={data.claim_info ?? null}
           onClose={() => setAdding(false)}
           onAdded={() => {
             setAdding(false);
@@ -1021,6 +1168,10 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
           }}
         />
       )}
+      {sharing && data && (
+        <PackageShareDialog pkg={data} onClose={() => setSharing(false)} onLogged={refresh} />
+      )}
+      {opener.element}
       {ticking && data && (
         <TickPartsDialog
           packageId={data.id}
@@ -1040,31 +1191,45 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
 function AddRecordsDialog({
   packageId,
   project,
+  claimInfo,
   onClose,
   onAdded,
 }: {
   packageId: string;
   project: string;
+  /** A Progress Claim's month narrows the list (JB52 第 5 点). */
+  claimInfo: PackageClaimInfo | null;
   onClose: () => void;
   onAdded: () => void;
 }) {
   const t = useTranslations("multiEngine");
   const common = useTranslations("common");
   const formatter = useDateFormat();
-  const [kind, setKind] = useState<ArchiveRecordKind>("MATERIAL_RECEIPT");
+  const [kind, setKind] = useState<ArchiveRecordKind>(
+    claimInfo?.kind === "PROGRESS" ? "PROGRESS" : "MATERIAL_RECEIPT",
+  );
+  const month = periodLabel(claimInfo?.period);
+  const [monthOnly, setMonthOnly] = useState(Boolean(month));
+  // JB49 第 3 点: each record opens in full before it is ticked.
+  const opener = usePackageRecordOpener();
   const [picked, setPicked] = useState<string[]>([]);
   // D12: 「打包人自行勾选照片、DO、文件、沟通…不默认把所有非照片全加」 - the
   // packer says what the records carry; photographs start ticked, the rest
   // do not. Each record can still be opened and re-ticked afterwards.
   const [include, setInclude] = useState<PackagePart[]>(["photos"]);
-  const [preview, setPreview] = useState<{ kind: ArchiveRecordKind; id: string; reference: string } | null>(null);
 
   // Page by page, so an older record is one 【Load more】 away rather than
   // cut off at the newest fifty.
   const query = useInfiniteQuery({
-    queryKey: ["evidence-packages", "candidates", kind, project],
+    queryKey: ["evidence-packages", "candidates", kind, project, monthOnly ? month : ""],
     queryFn: ({ pageParam }) =>
-      getPackageCandidates({ kind, project, page: pageParam, page_size: 50 }),
+      getPackageCandidates({
+        kind,
+        project,
+        ...(monthOnly && month ? { month } : {}),
+        page: pageParam,
+        page_size: 50,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
@@ -1101,6 +1266,18 @@ function AddRecordsDialog({
           ))}
         </nav>
 
+        {month && (
+          <label className="flex items-center gap-2 text-sm" data-month-only>
+            <Checkbox
+              checked={monthOnly}
+              onCheckedChange={(next) => {
+                setMonthOnly(next === true);
+                setPicked([]);
+              }}
+            />
+            {t("monthOnly", { month })}
+          </label>
+        )}
         <FieldWrapper label={t("field.records")} required>
           {query.isLoading ? (
             <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -1133,12 +1310,18 @@ function AddRecordsDialog({
                   </div>
                   <Button
                     type="button"
-                    size="icon-sm"
-                    variant="ghost"
-                    aria-label={t("open")}
-                    onClick={() => setPreview({ kind, id: row.id, reference: row.reference })}
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      opener.open(kind, row.id, {
+                        reference: row.reference,
+                        project_id: row.project_id,
+                        project_name: row.project_name,
+                      })
+                    }
                   >
-                    <Eye className="size-4" />
+                    <ExternalLink className="size-4" />
+                    {t("openRecord")}
                   </Button>
                 </li>
               ))}
@@ -1191,112 +1374,7 @@ function AddRecordsDialog({
           {t("addSelected", { count: picked.length })}
         </Button>
       </footer>
-      {preview && (
-        <RecordPreviewDialog
-          kind={preview.kind}
-          id={preview.id}
-          reference={preview.reference}
-          onClose={() => setPreview(null)}
-        />
-      )}
-    </Shell>
-  );
-}
-
-function RecordPreviewDialog({
-  kind,
-  id,
-  reference,
-  onClose,
-}: {
-  kind: ArchiveRecordKind;
-  id: string;
-  reference: string;
-  onClose: () => void;
-}) {
-  const t = useTranslations("multiEngine");
-  const labels = useTranslations("mySubmissions");
-  const formatter = useDateFormat();
-  const detail = useQuery({
-    queryKey: ["evidence-packages", "record-preview", kind, id],
-    queryFn: () => getPackageRecordParts(kind, id),
-  });
-  const data = detail.data;
-
-  return (
-    <Shell title={reference || t(`kind.${kind}`)} onClose={onClose}>
-      <div className="flex-1 space-y-4 overflow-y-auto p-4">
-        {detail.isLoading ? (
-          <p className="text-sm text-muted-foreground">{t("loading")}</p>
-        ) : detail.isLoadingError || !data ? (
-          <p role="alert" className="text-sm text-destructive">{t("failed")}</p>
-        ) : (
-          <>
-            <p className="text-xs text-muted-foreground">
-              {data.project_name} · {formatter.dateTime(data.submitted_at)}
-            </p>
-            <section className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t("group.fields")}
-              </h3>
-              <dl className="divide-y rounded-lg border">
-                {data.fields.map((field) => (
-                  <div key={field.key} className="grid gap-1 p-2.5 sm:grid-cols-[11rem_1fr]">
-                    <dt className="text-xs text-muted-foreground">{labels(`field.${field.key}`)}</dt>
-                    <dd className="break-words text-sm">{field.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-            {data.photos.length > 0 && (
-              <section className="space-y-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("group.photos")}
-                </h3>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {data.photos.map((photo) => (
-                    <a key={photo.id ?? photo.url} href={photo.url} target="_blank" rel="noreferrer" className="overflow-hidden rounded-lg border">
-                      <Image src={photo.url} alt={photo.caption || reference} width={320} height={240} unoptimized className="aspect-4/3 w-full object-cover object-bottom" />
-                      <span className="block truncate px-2 py-1.5 text-xs text-muted-foreground">{photo.caption || t("group.photos")}</span>
-                    </a>
-                  ))}
-                </div>
-              </section>
-            )}
-            {(data.files ?? []).length > 0 && (
-              <section className="space-y-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("group.files")}</h3>
-                <ul className="divide-y rounded-lg border">
-                  {(data.files ?? []).map((file) => (
-                    <li key={file.id} className="flex items-center justify-between gap-3 p-2.5 text-sm">
-                      {/* Its type as a picture (J34-11); the name beside it in a detail. */}
-                      <FileThumbs files={[{ id: file.id, name: file.name }]} />
-                      <span className="min-w-0 flex-1 truncate">{file.name}</span>
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {file.uploaded_by_name} · {formatter.dateTime(file.uploaded_at)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-            {data.documents.length > 0 && (
-              <section className="space-y-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("group.documents")}</h3>
-                <ul className="divide-y rounded-lg border">
-                  {data.documents.map((document) => (
-                    <li key={document.id} className="flex items-center justify-between gap-3 p-2.5 text-sm">
-                      <FileThumbs files={[{ id: document.id, name: document.caption, thumbnail_url: document.url, href: document.url }]} />
-                      <span className="min-w-0 flex-1 truncate">{document.caption}</span>
-                      <a href={document.url} target="_blank" rel="noreferrer" className="shrink-0 text-primary underline">{t("open")}</a>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </>
-        )}
-      </div>
+      {opener.element}
     </Shell>
   );
 }
@@ -1487,3 +1565,113 @@ function TickPartsDialog({
 
 /* The consultant's side (D-147, D-150, D-151) lives in `package-review.tsx`. */
 export { PackageReviewWorkspace } from "@/components/contractor-ops/package-review";
+
+/* -- JB51 / JB52 list helpers ------------------------------------------- */
+
+const ALL_VALUES = "__all__";
+
+/**
+ * The Progress Claim tab's filters (JB52 第 3 点): 期数, 分类, 分包商. The
+ * category list is the page's project's; without one it says so.
+ */
+function ClaimTabFilters({
+  project,
+  period,
+  category,
+  subcontractor,
+  onChange,
+}: {
+  project: string;
+  period: string;
+  category: string;
+  subcontractor: string;
+  onChange: (next: { period: string; category: string; subcontractor: string }) => void;
+}) {
+  const t = useTranslations("multiEngine");
+  const categories = useQuery({
+    queryKey: ["project-categories", "claims", project, false],
+    queryFn: () => getProjectCategories({ project, kind: "CLAIM", page_size: 200 }),
+    enabled: Boolean(project),
+  });
+  const subcontractors = useSubcontractors("");
+  const value = { period, category, subcontractor };
+  const filtered = Boolean(period || category || subcontractor);
+  return (
+    <div className="flex w-full flex-wrap items-end gap-2" data-claim-tab-filters>
+      <label className="grid gap-1 text-xs text-muted-foreground">
+        {t("filter.period")}
+        <Input
+          type="month"
+          value={period}
+          onChange={(event) => onChange({ ...value, period: event.target.value })}
+          className="w-44"
+          aria-label={t("filter.period")}
+        />
+      </label>
+      <label className="grid gap-1 text-xs text-muted-foreground">
+        {t("filter.category")}
+        <Select
+          value={category || ALL_VALUES}
+          onValueChange={(next) => onChange({ ...value, category: next === ALL_VALUES ? "" : next })}
+          disabled={!project}
+        >
+          <SelectTrigger className="w-52" aria-label={t("filter.category")}>
+            <SelectValue placeholder={t("filter.allCategories")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUES}>{t("filter.allCategories")}</SelectItem>
+            <CategoryOptionItems rows={categories.data?.results ?? []} />
+          </SelectContent>
+        </Select>
+      </label>
+      <label className="grid gap-1 text-xs text-muted-foreground">
+        {t("filter.subcontractor")}
+        <Select
+          value={subcontractor || ALL_VALUES}
+          onValueChange={(next) => onChange({ ...value, subcontractor: next === ALL_VALUES ? "" : next })}
+        >
+          <SelectTrigger className="w-52" aria-label={t("filter.subcontractor")}>
+            <SelectValue placeholder={t("filter.allSubcontractors")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUES}>{t("filter.allSubcontractors")}</SelectItem>
+            {(subcontractors.data?.results ?? []).map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </label>
+      {filtered && (
+        <Button variant="ghost" onClick={() => onChange({ period: "", category: "", subcontractor: "" })}>
+          {t("filter.clear")}
+        </Button>
+      )}
+      {!project && <p className="w-full text-xs text-muted-foreground">{t("filter.pickProject")}</p>}
+      <QueryFailedNote query={categories} what={t("filter.category")} />
+      <QueryFailedNote query={subcontractors} what={t("filter.subcontractor")} />
+    </div>
+  );
+}
+
+/** A Progress Claim row's number, month and category under its name (JB52). */
+function ClaimLine({ info }: { info: PackageClaimInfo | null | undefined }) {
+  if (!info) return null;
+  const parts = [info.claim_no, periodLabel(info.period), info.category_name, info.subcontractor_name].filter(Boolean);
+  if (!parts.length) return null;
+  return <span className="block text-xs font-normal text-muted-foreground">{parts.join(" · ")}</span>;
+}
+
+/**
+ * 未发送 / 已发送系统内 / 已发起分享 / 已对外发送 (JB51 第 4 点), with the
+ * consultant's 等待回复 / 已审阅 kept beside 已发送系统内 as before.
+ */
+function SendStatusWords({ row, inline = false }: { row: EvidencePackageRow; inline?: boolean }) {
+  const t = useTranslations("multiEngine");
+  const keys = sendStatusKeys(row);
+  const words = keys.map((key) => t(`sendStatus.${key}`));
+  if (row.review_state !== "NOT_SENT") words.push(t(`review.${row.review_state}`));
+  const text = words.join(" · ");
+  return inline ? <>{text}</> : <span className="block" data-send-status>{text}</span>;
+}

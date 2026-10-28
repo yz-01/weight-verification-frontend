@@ -114,7 +114,7 @@ const NO_CATEGORY = "__none__";
 const ALL = "all";
 
 /** One project's claim categories, for a form (on only) or a filter (all). */
-function useClaimCategories(project: string, { offered }: { offered: boolean }) {
+export function useClaimCategories(project: string, { offered }: { offered: boolean }) {
   return useQuery({
     queryKey: ["project-categories", "claims", project, offered],
     queryFn: () =>
@@ -129,7 +129,7 @@ function useClaimCategories(project: string, { offered }: { offered: boolean }) 
 }
 
 /** The companies marked 分包商 (ID7), searched as typed. */
-function useSubcontractors(search: string) {
+export function useSubcontractors(search: string) {
   return useQuery({
     queryKey: ["subcontractor-options", search],
     queryFn: () => getSubcontractorOptions(search || undefined),
@@ -712,7 +712,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
             )}
 
             {/* 客户 10-26 事项 6: 「打包的progress claim 必须要有书信上传」 -
-                its own slot, required, and the front of the merged PDF. */}
+                its own slot, optional since JB50, and the front of the merged PDF. */}
             {needsLetter && (
               <RecordAttachmentsPanel
                 kind="CLAIM_LETTER"
@@ -720,7 +720,6 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 title={t("letter.title")}
                 hint={data.state === "DRAFT" ? t("letter.hint") : undefined}
                 addLabel={t("letter.add")}
-                required={data.state === "DRAFT"}
                 readOnly={data.state !== "DRAFT" || !can("claim.manage")}
               />
             )}
@@ -944,7 +943,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
   );
 }
 
-interface ClaimFields {
+export interface ClaimFields {
   category: string;
   otherName: string;
   subcontractor: string;
@@ -953,13 +952,13 @@ interface ClaimFields {
 }
 
 /** What a claim needs before it is saved (I10): a general one its category and description; 「其他」 its name. */
-function claimFieldsComplete(fields: ClaimFields, general: boolean, other?: boolean) {
+export function claimFieldsComplete(fields: ClaimFields, general: boolean, other?: boolean) {
   if (general && (!fields.category || !fields.description.trim())) return false;
   if (other && !fields.otherName.trim()) return false;
   return true;
 }
 
-const EMPTY_FIELDS: ClaimFields = {
+export const EMPTY_FIELDS: ClaimFields = {
   category: "",
   otherName: "",
   subcontractor: "",
@@ -972,7 +971,7 @@ const EMPTY_FIELDS: ClaimFields = {
  * its description and amount (I10). The category picker has 「＋ 新增分类」
  * beside it for whoever keeps the categories, opened in place (I11).
  */
-function ClaimFieldsForm({
+export function ClaimFieldsForm({
   project,
   general,
   value,

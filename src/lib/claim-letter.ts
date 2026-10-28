@@ -1,6 +1,7 @@
 /**
- * A Progress Claim's letter (JB30, 客户 10-26 事项 6): 「因为打包的progress
- * claim 必须要有书信上传」.
+ * A Progress Claim's letter (JB30, 客户 10-26 事项 6). Optional since JB50
+ * (客户 10-28: 「也不是说必须要上传附件才能确认」): uploaded, it is the first
+ * page of the merged PDF; missing, the claim is confirmed all the same.
  *
  * Only the kinds whose Confirm merges a package need one - 材料到场 and 工程
  * 进度. A 一般 Claim raises no package (ID50) and is confirmed as before. The
@@ -16,8 +17,8 @@ export function claimNeedsLetter(kind: ClaimKind): boolean {
 }
 
 /**
- * Why 「确认本期」 cannot be pressed yet, or null. Nothing ticked is said
- * first, the server's order too.
+ * Why 「确认本期」 cannot be pressed yet, or null: only an empty claim. A
+ * missing letter no longer holds it back (JB50).
  */
 export function claimConfirmBlocker(claim: {
   kind: ClaimKind;
@@ -26,6 +27,5 @@ export function claimConfirmBlocker(claim: {
   letterCount: number | undefined;
 }): "nothingSelected" | "letterMissing" | null {
   if (claim.kind !== "GENERAL" && claim.itemCount === 0) return "nothingSelected";
-  if (claimNeedsLetter(claim.kind) && !claim.letterCount) return "letterMissing";
   return null;
 }

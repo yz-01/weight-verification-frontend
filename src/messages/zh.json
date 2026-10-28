@@ -10832,7 +10832,7 @@
     "startAndAdd": "新建并加入",
     "state": {
       "DRAFT": "草稿",
-      "CONFIRMED": "已确认"
+      "CONFIRMED": "已确认（已锁定）"
     },
     "subtitle": "从同一个项目的不同分类挑选资料，合并成一份 PDF。",
     "title": "Multi Engine 资料包",
@@ -10906,7 +10906,7 @@
     },
     "type": {
       "label": "资料包类型",
-      "help": "Progress Claim 按期数建立，在「Progress Claim」分页里做。",
+      "help": "Progress Claim 也在这里建：选 Progress Claim 后，可以填期数、Claim 类型、分类和分包商（都可以不填）。",
       "all": "全部类型",
       "PROGRESS_CLAIM": "Progress Claim",
       "SUNDRY_CLAIM": "Sundry Claim（杂费报销）",
@@ -10934,8 +10934,8 @@
         "timeline": "时间线",
         "rounds": "轮次"
       },
-      "send": "发送给…",
-      "noRecipients": "还没有发给任何收件方。",
+      "send": "系统内发送（总部、顾问等）",
+      "noRecipients": "还没有系统内发送。用 WhatsApp / 电邮发出的，请看「发送记录」。",
       "kind": {
         "CONSULTANT": "顾问",
         "OWNER": "业主",
@@ -10970,7 +10970,7 @@
       "whatsapp": "用 WhatsApp 发送",
       "linkDone": "好了",
       "linkOnce": "完整链接只在这里显示一次。关掉以后，只能按「重新生成链接」拿新的（旧的马上作废）。",
-      "sendTitle": "发送资料包",
+      "sendTitle": "系统内发送",
       "field": {
         "kind": "发给谁",
         "personName": "对方姓名",
@@ -11075,6 +11075,96 @@
       "add": "上传资料",
       "title": "上传的资料",
       "hint": "电脑里的 PDF、图片或其他文件。确认并合并时，放在资料后面一起进 PDF。上传后不能修改或删除。"
+    },
+    "openRecord": "打开完整记录",
+    "monthOnly": "只看 {month} 的记录",
+    "claimInfo": {
+      "title": "Progress Claim 资料",
+      "claimNo": "原 Claim 编号",
+      "period": "期数（月份）",
+      "kind": "Claim 类型",
+      "category": "Claim 分类",
+      "subcontractor": "分包商",
+      "none": "未选",
+      "noKind": "不选",
+      "optional": "以下都可以不填。",
+      "edit": "修改",
+      "editTitle": "修改 Progress Claim 资料",
+      "save": "保存"
+    },
+    "filter": {
+      "period": "期数",
+      "category": "分类",
+      "allCategories": "全部分类",
+      "subcontractor": "分包商",
+      "allSubcontractors": "全部分包商",
+      "clear": "清除筛选",
+      "pickProject": "先在页面上方选项目，才能按分类筛选。"
+    },
+    "claimCategories": {
+      "button": "新增 Claim 分类",
+      "title": "Claim 分类",
+      "hint": "这里只管分类（例如 Progress Claim、Manpower Claim）。要做 Claim，请按「新建资料包」，类型选 Progress Claim。",
+      "add": "新增 Claim 分类",
+      "rename": "改名",
+      "disable": "停用",
+      "enable": "重新启用",
+      "off": "已停用",
+      "empty": "这个项目还没有 Claim 分类。按「新增 Claim 分类」加一个。",
+      "project": "项目"
+    },
+    "letter": {
+      "title": "书信（可选）",
+      "hint": "有书信就上传，确认时放在 PDF 最前面。没有书信也可以确认。",
+      "add": "上传书信"
+    },
+    "sendStatus": {
+      "NOT_SENT": "未发送",
+      "INTERNAL": "已发送系统内",
+      "STARTED": "已发起分享",
+      "SENT": "已对外发送"
+    },
+    "share": {
+      "button": "对外分享（WhatsApp / 电邮）",
+      "title": "对外分享（WhatsApp / 电邮）",
+      "channel": "怎么发出去",
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "电邮",
+      "DOWNLOAD": "只下载",
+      "target": "发给谁（号码或电邮）",
+      "targetHint": "可以不填。不填会记成「未指定」。",
+      "go": "下载文件，记下这次分享",
+      "ready": "文件已下载，已记下：已发起分享。",
+      "afterSent": "真的发出去以后，请在「发送记录」按「标记为已发送」。",
+      "done": "好了",
+      "message": "请查收资料包：{name}",
+      "notLogged": "文件已下载，但这次分享没有记下来。请关掉再按一次「对外分享」。",
+      "markSent": "标记为已发送",
+      "markedToast": "已标记为已发送。",
+      "next": {
+        "WHATSAPP": "下一步：按「打开 WhatsApp」，把刚下载的文件附上，发出去。",
+        "EMAIL": "下一步：按「打开电邮」，把刚下载的文件附上，发出去。",
+        "DOWNLOAD": "文件在电脑的「下载」文件夹里。"
+      },
+      "open": {
+        "WHATSAPP": "打开 WhatsApp",
+        "EMAIL": "打开电邮"
+      }
+    },
+    "sendLog": {
+      "title": "发送记录",
+      "empty": "还没有发送过。",
+      "internal": "系统内发送",
+      "external": "对外分享",
+      "by": "{name} · {when}",
+      "to": "对象：{target}",
+      "unspecified": "未指定",
+      "opened": "已打开（{when}）",
+      "notOpened": "还没打开",
+      "revoked": "已撤销",
+      "STARTED": "已发起分享",
+      "CONFIRMED": "已确认发送",
+      "confirmedBy": "{name} 于 {when} 标记为已发送"
     }
   },
   "mySubmissions": {

@@ -10832,7 +10832,7 @@
     "startAndAdd": "Start it and add",
     "state": {
       "DRAFT": "Draft",
-      "CONFIRMED": "Confirmed"
+      "CONFIRMED": "Confirmed (locked)"
     },
     "subtitle": "Gather records from several categories of one project and merge them into one PDF.",
     "title": "Multi Engine",
@@ -10906,7 +10906,7 @@
     },
     "type": {
       "label": "Package type",
-      "help": "A Progress Claim is opened by its period on the Progress Claim tab.",
+      "help": "Progress Claims are made here too: choose Progress Claim, then fill in the period, claim type, category and subcontractor if you like (all optional).",
       "all": "All types",
       "PROGRESS_CLAIM": "Progress Claim",
       "SUNDRY_CLAIM": "Sundry Claim",
@@ -10934,8 +10934,8 @@
         "timeline": "Timeline",
         "rounds": "Rounds"
       },
-      "send": "Send to…",
-      "noRecipients": "Not sent to anyone yet.",
+      "send": "Send in the system (head office, consultant…)",
+      "noRecipients": "Not sent in the system yet. Anything sent by WhatsApp or email is under 'Send history'.",
       "kind": {
         "CONSULTANT": "Consultant",
         "OWNER": "Owner",
@@ -10970,7 +10970,7 @@
       "whatsapp": "Send by WhatsApp",
       "linkDone": "Done",
       "linkOnce": "The full link is shown only here, once. After closing, use New link to get another (the old one stops working).",
-      "sendTitle": "Send the package",
+      "sendTitle": "Send in the system",
       "field": {
         "kind": "Send to",
         "personName": "Person's name",
@@ -11075,6 +11075,96 @@
       "add": "Upload files",
       "title": "Uploaded files",
       "hint": "PDFs, pictures or other files from your computer. They go into the merged PDF after the records when you confirm. Once uploaded they cannot be changed or removed."
+    },
+    "openRecord": "Open full record",
+    "monthOnly": "Only records from {month}",
+    "claimInfo": {
+      "title": "Progress Claim details",
+      "claimNo": "Original claim no.",
+      "period": "Period (month)",
+      "kind": "Claim type",
+      "category": "Claim category",
+      "subcontractor": "Subcontractor",
+      "none": "Not chosen",
+      "noKind": "None",
+      "optional": "Everything below is optional.",
+      "edit": "Change",
+      "editTitle": "Change Progress Claim details",
+      "save": "Save"
+    },
+    "filter": {
+      "period": "Period",
+      "category": "Category",
+      "allCategories": "All categories",
+      "subcontractor": "Subcontractor",
+      "allSubcontractors": "All subcontractors",
+      "clear": "Clear filters",
+      "pickProject": "Choose a project at the top of the page to filter by category."
+    },
+    "claimCategories": {
+      "button": "Add claim category",
+      "title": "Claim categories",
+      "hint": "Only the categories are managed here (e.g. Progress Claim, Manpower Claim). To make a claim, press 'New package' and choose Progress Claim.",
+      "add": "Add claim category",
+      "rename": "Rename",
+      "disable": "Switch off",
+      "enable": "Switch on again",
+      "off": "Switched off",
+      "empty": "This project has no claim categories yet. Press 'Add claim category' to add one.",
+      "project": "Project"
+    },
+    "letter": {
+      "title": "Letter (optional)",
+      "hint": "Upload the letter if there is one; it goes first in the PDF. You can confirm without one.",
+      "add": "Upload letter"
+    },
+    "sendStatus": {
+      "NOT_SENT": "Not sent",
+      "INTERNAL": "Sent in the system",
+      "STARTED": "Share started",
+      "SENT": "Sent outside"
+    },
+    "share": {
+      "button": "Share outside (WhatsApp / email)",
+      "title": "Share outside (WhatsApp / email)",
+      "channel": "How to send it",
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "Email",
+      "DOWNLOAD": "Download only",
+      "target": "To whom (number or email)",
+      "targetHint": "Optional. Left empty, it is noted as 'Not specified'.",
+      "go": "Download the file and note this share",
+      "ready": "File downloaded. Noted: share started.",
+      "afterSent": "Once it has really gone out, press 'Mark as sent' under 'Send history'.",
+      "done": "Done",
+      "message": "Please find the package attached: {name}",
+      "notLogged": "The file was downloaded, but this share was not noted. Close this and press 'Share outside' again.",
+      "markSent": "Mark as sent",
+      "markedToast": "Marked as sent.",
+      "next": {
+        "WHATSAPP": "Next: press 'Open WhatsApp', attach the file you just downloaded and send it.",
+        "EMAIL": "Next: press 'Open email', attach the file you just downloaded and send it.",
+        "DOWNLOAD": "The file is in the computer's Downloads folder."
+      },
+      "open": {
+        "WHATSAPP": "Open WhatsApp",
+        "EMAIL": "Open email"
+      }
+    },
+    "sendLog": {
+      "title": "Send history",
+      "empty": "Not sent yet.",
+      "internal": "Sent in the system",
+      "external": "Shared outside",
+      "by": "{name} · {when}",
+      "to": "To: {target}",
+      "unspecified": "Not specified",
+      "opened": "Opened ({when})",
+      "notOpened": "Not opened yet",
+      "revoked": "Revoked",
+      "STARTED": "Share started",
+      "CONFIRMED": "Confirmed sent",
+      "confirmedBy": "Marked as sent by {name} on {when}"
     }
   },
   "mySubmissions": {
