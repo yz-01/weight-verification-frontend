@@ -209,34 +209,92 @@ describe("the documents screen (E4)", () => {
   });
 });
 
-// JB45 (客户 10-27 「文件档案缩略图浏览修改」): the photos picked from full
-// records, small, in one row that scrolls sideways; a press opens the record.
-describe("the document's photos from full records (JB45)", () => {
-  it("draws the photos as small tiles in one sideways row, each opening its record", async () => {
+// JB45 (客户 10-27): the photos picked from full records, small, in one row
+// that scrolls sideways. JB62 (客户 10-28): one press shows the photo large in
+// the preview, a double press opens its full record.
+describe("the document's photos from full records (JB45, JB62)", () => {
+  const noop = () => undefined;
+
+  it("draws the photos as small tiles in one sideways row, the shown one framed", async () => {
     const { SourcePhotoStrip } = await import("@/components/document-workflow/documents");
     const files = [
       file("a"),
       file("b", { record: { kind: "PROGRESS", id: "pg1", reference: "PG-013", deleted: false } }),
       file("c", { kind: "DOCUMENT", file_name: "c.pdf", content_type: "application/pdf" }),
     ] as unknown as DocumentSystemFileInfo[];
-    const markup = render(<SourcePhotoStrip files={files} onOpenSource={() => undefined} />);
+    const shownKey = `s:${files[1].id}`;
+    const markup = render(
+      <SourcePhotoStrip files={files} shownKey={shownKey} onShow={noop} onOpenSource={noop} />,
+    );
     expect(markup).toContain("来自完整资料的照片（共 2 张）");
+    expect(markup).toContain("点一下看大图，点两下打开它的完整资料");
     expect(markup).toContain("overflow-x-auto");
     expect(markup).toContain('data-source-photo="MATERIAL_RECEIPT"');
     expect(markup).toContain('data-source-photo="PROGRESS"');
-    expect(markup).toContain("打开完整资料：PG-013");
+    expect(markup.match(/aria-pressed="true"/g)?.length).toBe(1);
+    expect(markup).toContain("ring-2 ring-primary");
     expect(markup).not.toContain("c.pdf");
   });
 
   it("is not drawn for a document with no picked photos", async () => {
     const { SourcePhotoStrip } = await import("@/components/document-workflow/documents");
-    expect(render(<SourcePhotoStrip files={[]} onOpenSource={() => undefined} />)).toBe("");
+    expect(render(<SourcePhotoStrip files={[]} onShow={noop} onOpenSource={noop} />)).toBe("");
   });
 
-  it("opens the record, not the photo alone", () => {
+  it("tells a second press on the same photo soon after from a new press", async () => {
+    const { isDoublePress, DOUBLE_PRESS_MS } = await import("@/components/document-workflow/documents");
+    expect(isDoublePress(null, "s:a", 1000)).toBe(false);
+    expect(isDoublePress({ key: "s:a", at: 1000 }, "s:a", 1000 + DOUBLE_PRESS_MS)).toBe(true);
+    expect(isDoublePress({ key: "s:a", at: 1000 }, "s:a", 1001 + DOUBLE_PRESS_MS)).toBe(false);
+    // Another photo is a new single press, never a double.
+    expect(isDoublePress({ key: "s:a", at: 1000 }, "s:b", 1100)).toBe(false);
+  });
+
+  it("shows on one press, opens the record on two - counted by hand so a phone's double tap works", () => {
     const source = readFileSync("src/components/document-workflow/documents.tsx", "utf8");
-    expect(source).toContain('<SourcePhotoStrip files={systemFiles} onOpenSource={onOpenSource} />');
     const strip = source.slice(source.indexOf("export function SourcePhotoStrip("), source.indexOf("function DocumentDetailBody("));
-    expect(strip).toContain("onClick={() => onOpenSource(file)}");
+    expect(strip).toContain("onClick={(event) => press(file, event.timeStamp)}");
+    expect(strip).toContain("onOpenSource(file);");
+    expect(strip).toContain("onShow(key);");
+    expect(strip).not.toContain("onDoubleClick");
+    expect(strip).toContain("touch-manipulation");
+  });
+
+  it("puts a plain 「打开完整资料」 button over the preview", () => {
+    const source = readFileSync("src/components/document-workflow/documents.tsx", "utf8");
+    expect(source).toContain("<OpenRecordButton");
+    expect(source).toContain('t("documents.sourcePhotos.openRecord")');
+    for (const [catalogue, words] of [
+      [zh, "打开完整资料"],
+      [zhTW, "打開完整資料"],
+      [en, "Open full record"],
+      [ms, "Buka rekod penuh"],
+    ] as const) {
+      expect(catalogue.documents.sourcePhotos.openRecord).toBe(words);
+      expect(catalogue.documents.sourcePhotos.hint).toBeTruthy();
+    }
+  });
+
+  it("lists below only the picked files the photo row does not show, and none when all are there", async () => {
+    const { isStripPhoto } = await import("@/components/document-workflow/documents");
+    const photo = file("a") as unknown as DocumentSystemFileInfo;
+    const pdf = file("c", { kind: "DOCUMENT", file_name: "c.pdf", thumbnail_url: null }) as unknown as DocumentSystemFileInfo;
+    expect(isStripPhoto(photo)).toBe(true);
+    expect(isStripPhoto(pdf)).toBe(false);
+    const source = readFileSync("src/components/document-workflow/documents.tsx", "utf8");
+    expect(source).toContain("const otherFiles = systemFiles.filter((file) => !isStripPhoto(file));");
+    expect(source).toContain("{otherFiles.length > 0 && (");
+    expect(source).toContain("otherFiles.map((file, index)");
+  });
+
+  it("keeps the preview in view: sticky in the dialog on a computer, scrolled to on a phone", () => {
+    const source = readFileSync("src/components/document-workflow/documents.tsx", "utf8");
+    const dialog = source.slice(source.indexOf("function DocumentDetailDialog("), source.indexOf("export function isStripPhoto("));
+    // The dialog itself is what scrolls, so the sticky column sticks inside it.
+    expect(dialog).toContain('<DialogContent className="max-h-[94dvh] overflow-y-auto');
+    expect(dialog).toContain("lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]");
+    expect(dialog).toContain("lg:sticky lg:top-0 lg:max-h-[calc(94dvh-3rem)] lg:self-start");
+    expect(dialog).toContain('scrollIntoView({ behavior: "smooth", block: "start" })');
+    expect(dialog).toContain("onPreview={showInPreview}");
   });
 });

@@ -7595,10 +7595,10 @@
     "filesMore": "另有 {count} 個文件",
     "sourcePhotos": {
       "title": "來自完整資料的照片（共 {count} 張）",
-      "hint": "點一張小圖，打開這張照片所屬的完整資料。",
+      "hint": "點一下看大圖，點兩下打開它的完整資料",
       "previous": "往左看",
       "next": "往右看",
-      "open": "打開完整資料：{reference}"
+      "openRecord": "打開完整資料"
     },
     "systemFiles": {
       "title": "從系統裡選的文件"
@@ -7676,6 +7676,8 @@
       "expiryTitle": "檢驗報告到期（{count}）",
       "openArchive": "打開文件檔案",
       "severalHint": "可以選多項；每項各存一筆一樣的檢驗結果。已選 {count} 項。",
+      "machinesHint": "只列現在在場的設備。每台勾選後，在旁邊選「合格」或「不合格」；一起提交，每台各存一筆。已選 {count} 台。",
+      "noMachinesOnSite": "這個項目現在沒有在場的設備。",
       "addItem": "加入",
       "removeItem": "移除"
     }
@@ -8212,6 +8214,7 @@
       "return_note_required": "請先填寫 Return Note 再批准。",
       "return_note_locked": "這筆退場已經審批過，Return Note 不能再修改。已刷新為最新狀態。",
       "equipment_hours_equipment_unavailable": "這台設備現在不能選（已停用或已報廢），請選工地上在用的設備。",
+      "inspection_equipment_not_on_site": "勾選的設備裡有一台已經退場，已從清單拿掉。請看一下清單，再按「提交」。",
       "equipment_hours_day_not_found": "找不到這一筆工時記錄，請刷新後再試。",
       "equipment_hours_end_before_start": "結束時間要在開始時間之後。",
       "equipment_hours_end_too_late": "這個時間和這台設備的上一張或下一張照片重疊了，或者晚於現在。",
