@@ -7595,10 +7595,10 @@
     "filesMore": "+{count} fail lagi",
     "sourcePhotos": {
       "title": "Gambar daripada rekod penuh ({count})",
-      "hint": "Klik gambar kecil untuk membuka rekod penuh gambar itu.",
+      "hint": "Klik sekali untuk lihat besar; klik dua kali untuk buka rekod penuhnya",
       "previous": "Tatal ke kiri",
       "next": "Tatal ke kanan",
-      "open": "Buka rekod penuh: {reference}"
+      "openRecord": "Buka rekod penuh"
     },
     "systemFiles": {
       "title": "Fail dipilih dari sistem"

@@ -7595,10 +7595,10 @@
     "filesMore": "另有 {count} 個文件",
     "sourcePhotos": {
       "title": "來自完整資料的照片（共 {count} 張）",
-      "hint": "點一張小圖，打開這張照片所屬的完整資料。",
+      "hint": "點一下看大圖，點兩下打開它的完整資料",
       "previous": "往左看",
       "next": "往右看",
-      "open": "打開完整資料：{reference}"
+      "openRecord": "打開完整資料"
     },
     "systemFiles": {
       "title": "從系統裡選的文件"

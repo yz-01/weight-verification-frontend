@@ -7595,10 +7595,10 @@
     "filesMore": "+{count} more files",
     "sourcePhotos": {
       "title": "Photos from the full records ({count})",
-      "hint": "Click a thumbnail to open the full record the photo belongs to.",
+      "hint": "Click once to see it large; click twice to open its full record",
       "previous": "Scroll left",
       "next": "Scroll right",
-      "open": "Open the full record: {reference}"
+      "openRecord": "Open full record"
     },
     "systemFiles": {
       "title": "Files picked from the system"
