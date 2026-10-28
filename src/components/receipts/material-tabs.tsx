@@ -388,6 +388,12 @@ export function netTotalsExportColumns(
     { key: "received", label: t("receipts.net.received") },
     { key: "returned", label: t("receipts.net.returned") },
     { key: "rejected", label: t("receipts.net.rejected") },
+    { key: "deliveries", label: t("receipts.net.deliveries") },
+    // Which record each detail row is (JB48): the file lists every record
+    // under its line, then the line as 「小计」, then 「总计」.
+    { key: "record", label: t("receipts.net.item.reference") },
+    { key: "date", label: t("receipts.net.item.date") },
+    { key: "delivery_note_no", label: t("receipts.net.item.doNo") },
     { key: "project_name", label: t("receipts.field.project") },
   ];
 }

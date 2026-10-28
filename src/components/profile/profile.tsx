@@ -13,6 +13,7 @@ import {
   TextField,
   type BoundField,
 } from "@/components/shared/form-fields";
+import { SignOffAssistantsSettings } from "@/components/profile/sign-off-assistants";
 import { SignOffPinSettings } from "@/components/profile/sign-off-pin-settings";
 import { AvatarUpload } from "@/components/shared/avatar-upload";
 import { FormSection, minLength, required } from "@/components/shared/form-shell";
@@ -303,6 +304,8 @@ export function Profile() {
 
       {/* 我的签核密码 (I29): office accounts only - the phone never asks. */}
       {!user.is_field_staff && <SignOffPinSettings />}
+      {/* 助理副密码 (JB56): up to two assistants, each with their own PIN. */}
+      {!user.is_field_staff && <SignOffAssistantsSettings />}
     </div>
   );
 }

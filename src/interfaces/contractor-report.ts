@@ -24,39 +24,23 @@ export type ContractorReportType =
   | "material_returns"
   | "material_rejections";
 
-/** One row of the photo report (J8): a record and every photograph of it. */
-export interface PhotoGroup {
-  key: string;
-  /** The record's kind as the photo ledger names it; "" when it has none. */
-  kind: string;
-  record_id: string | null;
-  /** Which complete evidence PDF it prints as; null when none. */
-  export_kind: string | null;
-  reference: string;
-  project_id: string | null;
-  project: string;
-  date: string | null;
-  uploaded_by: string;
-  photo_count: number;
-  has_gps: boolean;
-  photos: Array<{
-    id: string;
-    url: string | null;
-    thumbnail_url: string | null;
-    captured_at: string | null;
-    latitude: string | null;
-    longitude: string | null;
-  }>;
-}
-
-export interface PhotoGroupPage {
-  count: number;
-  page: number;
-  page_size: number;
-  total_pages: number;
-  results: PhotoGroup[];
-  /** More photographs than the report reads at once matched the filters. */
-  truncated: boolean;
+/**
+ * A report being made in the background, or one that was not made (JB48):
+ * the top lines of 「报表导出历史」. A finished one is an ordinary history row.
+ */
+export interface ContractorReportJob {
+  id: string;
+  report_type: string;
+  title: string;
+  date_from: string | null;
+  date_to: string | null;
+  record_count: number;
+  status: "PREPARING" | "FAILED";
+  /** Why it was not made: `failed`, or `interrupted` (the server restarted). */
+  failure: "" | "failed" | "interrupted";
+  /** The report page it was exported from, for 「重新导出」. */
+  return_to: string;
+  created_at: string;
 }
 
 export interface ContractorReportFilters {

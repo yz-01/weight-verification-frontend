@@ -174,6 +174,37 @@ export function takeFieldSignOutReason(): string {
   }
 }
 
+/**
+ * JB56 (客户 10-28 事项 9): the computer signed out because the same account
+ * signed in on another one. The server's refusal code; the desktop sign-in
+ * page says it in words (「这个账号已在另一台电脑登录」).
+ */
+export const SESSION_REPLACED = "session_replaced";
+
+const SIGN_OUT_REASON_KEY = "mse_sign_out_reason";
+
+/** Kept for the desktop sign-in page the session ends on (one page load). */
+export function rememberSignOutReason(message: string): void {
+  if (!isBrowser() || !message) return;
+  try {
+    window.sessionStorage.setItem(SIGN_OUT_REASON_KEY, message);
+  } catch {
+    // Storage blocked: the toast still said it.
+  }
+}
+
+/** Read once: shown on the next desktop sign-in page only. */
+export function takeSignOutReason(): string {
+  if (!isBrowser()) return "";
+  try {
+    const message = window.sessionStorage.getItem(SIGN_OUT_REASON_KEY) ?? "";
+    window.sessionStorage.removeItem(SIGN_OUT_REASON_KEY);
+    return message;
+  } catch {
+    return "";
+  }
+}
+
 const FIELD_INSTALL_HELP_KEY = "mse_field_install_help";
 
 /**

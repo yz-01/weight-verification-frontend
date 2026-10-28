@@ -5,7 +5,7 @@ import { Loader2, LogIn } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { required, requiredEmail } from "@/components/shared/form-shell";
@@ -21,6 +21,7 @@ import {
   portalPaths,
   redirectWithFallback,
 } from "@/lib/portal";
+import { takeSignOutReason } from "@/lib/auth-token";
 import { cn } from "@/lib/utils";
 import {
   firstAllowedDashboardPath,
@@ -34,6 +35,13 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
   const router = useRouter();
   const { setUser } = useAuth();
   const [formError, setFormError] = useState<string | null>(null);
+  // JB56: why this computer was signed out - the same account signed in on
+  // another computer. Read once, after the first paint (sessionStorage).
+  const [signedOutReason, setSignedOutReason] = useState("");
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setSignedOutReason(takeSignOutReason()));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   const form = useForm({
     defaultValues: { email: "", password: "" },
@@ -183,6 +191,16 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
                   </div>
                 )}
               </form.Field>
+
+              {signedOutReason && !formError && (
+                <div
+                  role="status"
+                  data-testid="signed-out-reason"
+                  className="rounded-lg border border-warning/40 bg-warning/5 px-3 py-2.5 text-sm font-medium text-foreground"
+                >
+                  {signedOutReason}
+                </div>
+              )}
 
               {formError && (
                 <div

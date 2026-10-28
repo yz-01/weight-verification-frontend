@@ -37,6 +37,7 @@ import {
   useReportArchive,
   type ReportArchive,
 } from "@/components/reports/report-archive";
+import { ReportJobs } from "@/components/reports/report-jobs";
 import { ReportSelector } from "@/components/reports/report-selector";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { FilterBar, FilterField, ListHeader } from "@/components/shared/page-primitives";
@@ -61,6 +62,8 @@ import type {
 } from "@/interfaces/contractor-report";
 import { FILE_ACTION_TYPES, type FileActionRecord, type FileActionType } from "@/interfaces/file-action";
 import { useDateFormat } from "@/lib/dates";
+import { messageCodes, reportColumnValues } from "@/lib/report-preview";
+import { useUnitExportValues } from "@/hooks/use-material-units";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { captureDownload } from "@/services/api-client";
 import {
@@ -73,10 +76,12 @@ import { getFileActionRecords } from "@/services/file-action.service";
 const PAGE_SIZE = 20;
 
 /** The reports a name typed in 「报表 / 资料名称」 can match (by their words). */
-const REPORT_TYPES: ReadonlyArray<ContractorReportType> = [
+const REPORT_TYPES: ReadonlyArray<ContractorReportType | "material_report"> = [
   "progress", "safety", "consultant", "attendance", "equipment", "recycling", "schedule", "target",
   "photos", "documents", "daily_report", "progress_summary", "field_tasks", "material_outgoing",
   "claims", "sundry_claims", "material_returns", "material_rejections",
+  // 材料报表's PDF of more than 20 deliveries, made in the background (JB48).
+  "material_report",
 ];
 
 /** The filter keys a history row may have saved, sent back as they were. */
@@ -115,6 +120,8 @@ export function ContractorReportHistoryWorkspace() {
       <CompanyBanner scope="reports" />
       <ReportSelector />
       <ListHeader title={h("title")} subtitle={h("subtitle")} />
+      {/* 「准备中」 and the ones not made (JB48): above the finished files. */}
+      <ReportJobs />
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="reports" data-slot="history-tab-reports">{h("tabReports")}</TabsTrigger>
@@ -352,6 +359,8 @@ function RegenerateButton({ row, reportName }: { row: ContractorReportExportReco
   const t = useTranslations("contractorReports");
   const h = useTranslations("contractorReports.history");
   const archiveT = useTranslations("reportArchive");
+  const tRoot = useTranslations();
+  const units = useUnitExportValues();
   const locale = useLocale();
   const df = useDateFormat();
   const queryClient = useQueryClient();
@@ -383,6 +392,13 @@ function RegenerateButton({ row, reportName }: { row: ContractorReportExportReco
             h("regeneratedOnFile", { when: df.dateTime(row.created_at) }),
           ].join(" · "),
           column_labels: Object.fromEntries(columns.map((key) => [key, t(`column.${key}`)])),
+          column_values: reportColumnValues(
+            row.report_type as ContractorReportType,
+            columns,
+            (key) => (tRoot.has(key) ? tRoot(key) : null),
+            (namespace) => messageCodes(tRoot, namespace),
+            units,
+          ),
           lang: locale,
           regenerated_from: row.id,
         }),

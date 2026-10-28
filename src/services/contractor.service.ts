@@ -91,6 +91,13 @@ export interface ExportRequest {
   summary?: ExportSummary;
   /** The list query on screen, so the file matches what was being looked at. */
   query: ListQuery;
+  /**
+   * A report page's PDF (JB48): the table becomes the contents, and each
+   * record's complete evidence pages follow it. Ignored for a spreadsheet.
+   */
+  completeEvidence?: boolean;
+  /** The report page, for a background report's 「重新导出」 (JB48). */
+  returnTo?: string;
 }
 
 /**
@@ -110,6 +117,8 @@ export function exportBody(request: ExportRequest) {
     subtitle: request.subtitle ?? "",
     empty_label: request.emptyLabel ?? "",
     columns: request.columns,
+    ...(request.completeEvidence ? { complete_evidence: true } : {}),
+    ...(request.returnTo ? { return_to: request.returnTo } : {}),
     ...(request.summary
       ? {
           summary: {

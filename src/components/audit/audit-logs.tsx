@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, UserCog } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { AuditEntryDialog } from "@/components/audit/audit-entry-dialog";
@@ -17,6 +17,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import type { AuditAction, AuditLogEntry } from "@/interfaces/audit";
 import { exportAuditLogs, getAuditLogs } from "@/services/audit.service";
 import { getCompanies } from "@/services/companies.service";
+import { auditObjectTypeLabel, auditOperationLabel } from "@/lib/audit-labels";
 import { useDateFormat } from "@/lib/dates";
 
 const FILTER_KEYS = [
@@ -128,6 +129,7 @@ export function AuditLogs({
   subtitle?: string;
 } = {}) {
   const t = useTranslations();
+  const locale = useLocale();
   const df = useDateFormat();
   const { user } = useAuth();
   const list = useListQuery(FILTER_KEYS);
@@ -177,19 +179,7 @@ export function AuditLogs({
           />
         ),
         cell: ({ row }) => {
-          const operation = row.original.context.operation;
-          const operationKey =
-            typeof operation === "string"
-              ? `audit.operation.${operation}`
-              : null;
-          const operationLabel = operationKey
-            ? t.has(operationKey)
-              ? t(operationKey)
-              : String(operation)
-                  .replaceAll("_", " ")
-                  .toLowerCase()
-                  .replace(/^./, (character) => character.toUpperCase())
-            : null;
+          const operationLabel = auditOperationLabel(row.original.context.operation, t, locale);
           return (
             <div className="space-y-1">
               {operationLabel ? (
@@ -273,9 +263,9 @@ export function AuditLogs({
             >
               {row.original.object_repr || t("common.emptyValue")}
             </p>
-            {row.original.object_type && (
+            {auditObjectTypeLabel(row.original.object_type, t, locale) && (
               <p className="text-xs text-muted-foreground">
-                {row.original.object_type}
+                {auditObjectTypeLabel(row.original.object_type, t, locale)}
               </p>
             )}
           </div>
@@ -331,7 +321,7 @@ export function AuditLogs({
         ),
       },
     ],
-    [t, df],
+    [t, df, locale],
   );
 
   const filterPills = fixedAction ? undefined : [

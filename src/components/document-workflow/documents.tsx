@@ -9,6 +9,7 @@ import {
   ClipboardCheck,
   Download,
   Eye,
+  ExternalLink,
   FilePlus2,
   Folder,
   FolderCog,
@@ -152,7 +153,7 @@ export function Documents() {
     "date_to",
     "uploaded_by",
   ]);
-  // A row of the report centre's 项目资料 preview links to `?document=<id>`.
+  // A row of the report centre's 文件资料 preview links to `?document=<id>`.
   const [viewingId, setViewingId] = useUrlSelection("document");
   const [editing, setEditing] = useState<DocumentRecord | null>(null);
   // Uploading is for everybody who reads the archive and is on the project
@@ -1697,7 +1698,7 @@ function openDocumentSource(
 
 /**
  * A document's detail opened over another page - the report centre's
- * 项目资料报表 - so closing it leaves the reader there, search, filters and
+ * 文件资料报表 - so closing it leaves the reader there, search, filters and
  * scroll as they were (客户 10-26 事项 4: 「从哪个页面进入详情，关闭后就返回
  * 哪个页面」). It used to open on 文件档案, and closing stayed there.
  */
@@ -1736,6 +1737,17 @@ function DocumentDetailDialog({
   // Which file the preview shows (`s:<id>` / `v:<id>`); the newest upload,
   // else the first picked file, until somebody picks another.
   const [previewing, setPreviewing] = useState<string | null>(null);
+  const previewSection = useRef<HTMLElement>(null);
+  // JB62-6 (客户 10-28 「往下拉点图片，要看左侧的大图片看的时候完全看不到」): on a
+  // computer the preview stays in view (sticky); on a phone, where it sits
+  // above, choosing a photo brings it back into view.
+  const showInPreview = (key: string) => {
+    setPreviewing(key);
+    const node = previewSection.current;
+    if (node && typeof window !== "undefined" && !window.matchMedia("(min-width: 1024px)").matches) {
+      node.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
   const detail = useQuery({
     queryKey: ["documents", "detail", documentId],
     queryFn: () => getDocument(documentId),
@@ -1810,7 +1822,12 @@ function DocumentDetailDialog({
         ) : (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
             {/* B27: the file itself, in the page - 「不需要先下载到本地」. */}
-            <section className="flex min-w-0 flex-col gap-2" aria-label={t("documents.preview.title")}>
+            <section
+              ref={previewSection}
+              data-document-preview
+              className="flex min-w-0 scroll-mt-2 flex-col gap-2 lg:sticky lg:top-0 lg:max-h-[calc(94dvh-3rem)] lg:self-start"
+              aria-label={t("documents.preview.title")}
+            >
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-semibold text-foreground">{t("documents.preview.title")}</h3>
                 {shown?.kind === "version" && (
@@ -1826,7 +1843,7 @@ function DocumentDetailDialog({
               </div>
               {shown?.kind === "system" ? (
                 <>
-                  <SourceTag
+                  <OpenRecordButton
                     source={shown.file}
                     onOpen={() => onOpenSource(detail.data, shown.file)}
                   />
@@ -1836,7 +1853,7 @@ function DocumentDetailDialog({
                     previewType={systemFilePreviewType(shown.file)}
                     filename={shown.file.file_name}
                     onDownload={() => downloadSystemFile(detail.data, shown.file)}
-                    className="h-[52dvh] lg:h-[64dvh]"
+                    className="h-[52dvh] lg:h-[min(64dvh,calc(94dvh-14rem))]"
                   />
                 </>
               ) : shown?.kind === "version" ? (
@@ -1846,7 +1863,7 @@ function DocumentDetailDialog({
                   previewType={shown.version.preview_type}
                   filename={shown.version.original_name}
                   onDownload={() => handleDownload(shown.version)}
-                  className="h-[52dvh] lg:h-[64dvh]"
+                  className="h-[52dvh] lg:h-[min(64dvh,calc(94dvh-14rem))]"
                 />
               ) : (
                 <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
@@ -1859,7 +1876,7 @@ function DocumentDetailDialog({
               systemFiles={systemFiles}
               downloading={downloading}
               previewing={shownKey}
-              onPreview={(key) => setPreviewing(key)}
+              onPreview={showInPreview}
               onDownload={(version) => void handleDownload(version)}
               onOpenSource={(file) => onOpenSource(detail.data, file)}
             />
@@ -1882,29 +1899,85 @@ function DocumentDetailDialog({
   );
 }
 
+/** A photo of the strip: one with a thumbnail, shown in the row (JB45). */
+export function isStripPhoto(file: DocumentSystemFileInfo): boolean {
+  return file.kind === "PHOTO" && Boolean(file.thumbnail_url);
+}
+
+/** Two presses on the same photo this close together are a double press. */
+export const DOUBLE_PRESS_MS = 450;
+
+/**
+ * Whether this press on `key` is the second of a double press (JB62): the
+ * same photo pressed again within `DOUBLE_PRESS_MS`. Counted by hand, not by
+ * the browser's `dblclick`, so a double tap on a phone works the same as a
+ * double click with a mouse.
+ */
+export function isDoublePress(last: { key: string; at: number } | null, key: string, now: number): boolean {
+  return Boolean(last && last.key === key && now - last.at <= DOUBLE_PRESS_MS);
+}
+
+/**
+ * 「打开完整资料」 over the preview (JB62-2): a real button for the record the
+ * shown file came from, with where it came from beside it - an older reader
+ * need not double-press anything, and a phone's double tap zooms.
+ */
+function OpenRecordButton({ source, onOpen }: { source: DocumentSystemFileInfo; onOpen: () => void }) {
+  const t = useTranslations();
+  const label = useSourceLabel()(source);
+  return (
+    <div className="flex min-w-0 flex-wrap items-center gap-2" data-open-record>
+      <Button size="sm" variant="outline" onClick={onOpen}>
+        <ExternalLink className="h-4 w-4" />
+        {t("documents.sourcePhotos.openRecord")}
+      </Button>
+      <span className="min-w-0 truncate text-xs text-muted-foreground" title={label}>
+        {label}
+      </span>
+      {source.record.deleted && <StatusBadge label={t("documents.source.deleted")} tone="neutral" />}
+    </div>
+  );
+}
+
 /**
  * The photographs picked from full records, small and in one row that scrolls
- * sideways (JB45, 客户 10-27 「文件档案缩略图浏览修改」): 「小图只是完整资料的预览
- * 入口，点击小图就是查看完整资料」. A press opens the record the photo came from
- * over the document - its photos, details and history - not the photo alone;
- * closing it comes back here. Nothing is split: each file still points at its
- * record, and the list below keeps its preview and download.
+ * sideways (JB45). JB62 (客户 10-28 「小张数列图点一下照片跑到大图那里，再点两下
+ * 小照片就是业务资料记录」): one press shows the photo in the 在线预览 - framed
+ * here so the reader sees which one is shown - and a double press opens the
+ * full record it came from over the document; closing it comes back here.
  */
 export function SourcePhotoStrip({
   files,
+  shownKey = null,
+  onShow,
   onOpenSource,
 }: {
   files: DocumentSystemFileInfo[];
+  /** `s:<id>` of the file the preview shows. */
+  shownKey?: string | null;
+  onShow: (key: string) => void;
   onOpenSource: (file: DocumentSystemFileInfo) => void;
 }) {
   const t = useTranslations();
   const sourceLabel = useSourceLabel();
   const strip = useRef<HTMLUListElement>(null);
-  const photos = files.filter((file) => file.kind === "PHOTO" && file.thumbnail_url);
+  const lastPress = useRef<{ key: string; at: number } | null>(null);
+  const photos = files.filter(isStripPhoto);
   if (!photos.length) return null;
   const scroll = (by: 1 | -1) => {
     const node = strip.current;
     node?.scrollBy({ left: by * node.clientWidth * 0.8, behavior: "smooth" });
+  };
+  // `now`: the press's own time stamp (the event's), in milliseconds.
+  const press = (file: DocumentSystemFileInfo, now: number) => {
+    const key = `s:${file.id}`;
+    if (isDoublePress(lastPress.current, key, now)) {
+      lastPress.current = null;
+      onOpenSource(file);
+      return;
+    }
+    lastPress.current = { key, at: now };
+    onShow(key);
   };
   return (
     <section className="space-y-2" data-document-source-photos>
@@ -1924,20 +1997,27 @@ export function SourcePhotoStrip({
         </Button>
         <ul
           ref={strip}
-          className="flex min-w-0 flex-1 snap-x gap-2 overflow-x-auto overscroll-x-contain pb-1"
+          className="flex min-w-0 flex-1 snap-x gap-2 overflow-x-auto overscroll-x-contain p-1"
         >
           {photos.map((file, index) => {
             const reference = file.record.reference || sourceLabel(file);
+            const shown = shownKey === `s:${file.id}`;
             return (
               <li key={file.id ?? index} className="shrink-0 snap-start">
                 <button
                   type="button"
-                  className="block w-20 text-left"
-                  title={t("documents.sourcePhotos.open", { reference })}
+                  className="block w-20 touch-manipulation text-left"
+                  title={reference}
+                  aria-pressed={shown}
                   data-source-photo={file.record.kind}
-                  onClick={() => onOpenSource(file)}
+                  onClick={(event) => press(file, event.timeStamp)}
                 >
-                  <span className="relative block aspect-4/3 w-20 overflow-hidden rounded-md bg-muted ring-1 ring-panel-border transition hover:ring-primary/60">
+                  <span
+                    className={cn(
+                      "relative block aspect-4/3 w-20 overflow-hidden rounded-md bg-muted ring-1 ring-panel-border transition hover:ring-primary/60",
+                      shown && "ring-2 ring-primary",
+                    )}
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={file.thumbnail_url ?? ""}
@@ -1946,7 +2026,14 @@ export function SourcePhotoStrip({
                       className="size-full object-cover object-bottom"
                     />
                   </span>
-                  <span className="mt-1 block truncate text-2xs text-muted-foreground">{reference}</span>
+                  <span
+                    className={cn(
+                      "mt-1 block truncate text-2xs",
+                      shown ? "font-medium text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    {reference}
+                  </span>
                 </button>
               </li>
             );
@@ -1990,18 +2077,16 @@ function DocumentDetailBody({
   const notArchived = useNotArchivedReason();
   // 填写检验结果 (J12-7): only where the subcategory asks for it.
   const [inspecting, setInspecting] = useState(false);
-  const [savingFile, setSavingFile] = useState<string | null>(null);
-  const saveSystemFile = async (file: DocumentSystemFileInfo) => {
-    setSavingFile(file.id ?? "");
-    try {
-      await downloadSystemFile(document, file);
-    } finally {
-      setSavingFile(null);
-    }
-  };
+  // The picked files the photo row does not show (JB62-3).
+  const otherFiles = systemFiles.filter((file) => !isStripPhoto(file));
   return (
     <div className="min-w-0 space-y-6">
-      <SourcePhotoStrip files={systemFiles} onOpenSource={onOpenSource} />
+      <SourcePhotoStrip
+        files={systemFiles}
+        shownKey={previewing}
+        onShow={onPreview}
+        onOpenSource={onOpenSource}
+      />
       <div className="grid gap-3 sm:grid-cols-2">
         <ReadField label={t("documents.field.title")} value={document.title} />
         <ReadField
@@ -2122,20 +2207,26 @@ function DocumentDetailBody({
       )}
 
       {/* The files picked from the system into it (2026-10-10: kept
-          together), each previewed, saved or traced to its record. */}
-      {systemFiles.length > 0 && (
-        <section className="space-y-2 border-t pt-5">
+          together) that the photo row above does not show - a PDF, a sheet
+          (JB62-3): none, and the list is not drawn. Pressing one shows it in
+          the preview, whose own 新分页打开 / 打印 / 下载 act on it (JB62-4). */}
+      {otherFiles.length > 0 && (
+        <section className="space-y-2 border-t pt-5" data-document-other-files>
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-sm font-semibold text-foreground">
               {t("documents.systemFiles.title")}
             </h3>
-            <TypeBadge label={String(systemFiles.length)} />
+            <TypeBadge label={String(otherFiles.length)} />
           </div>
           <ul className="divide-y rounded-md border">
-            {systemFiles.map((file, index) => {
+            {otherFiles.map((file, index) => {
               const key = `s:${file.id}`;
+              const shown = previewing === key;
               return (
-                <li key={file.id ?? index} className="flex items-center gap-2 px-3 py-2">
+                <li
+                  key={file.id ?? index}
+                  className={cn("flex items-center gap-2 px-3 py-2", shown && "bg-primary/8")}
+                >
                   {/* The file as a picture (J34-11), opening its preview. */}
                   <FileThumbs
                     files={[
@@ -2148,35 +2239,29 @@ function DocumentDetailBody({
                     ]}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm" title={file.file_name}>
+                    <button
+                      type="button"
+                      className={cn(
+                        "block max-w-full truncate text-left text-sm hover:underline",
+                        shown && "font-medium text-primary",
+                      )}
+                      title={file.file_name}
+                      aria-pressed={shown}
+                      onClick={() => onPreview(key)}
+                    >
                       {file.file_name}
-                    </p>
+                    </button>
                     <SourceTag source={file} onOpen={() => onOpenSource(file)} />
                   </div>
                   <Button
-                    variant={previewing === key ? "secondary" : "ghost"}
+                    variant={shown ? "secondary" : "ghost"}
                     size="icon"
                     className="h-8 w-8 shrink-0"
                     title={t("filePreview.preview")}
-                    aria-pressed={previewing === key}
+                    aria-pressed={shown}
                     onClick={() => onPreview(key)}
                   >
                     <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0"
-                    title={t("documents.download")}
-                    disabled={savingFile === (file.id ?? "")}
-                    disabledReason={savingFile === (file.id ?? "") ? t("documents.downloading") : undefined}
-                    onClick={() => void saveSystemFile(file)}
-                  >
-                    {savingFile === (file.id ?? "") ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Download className="h-4 w-4" />
-                    )}
                   </Button>
                 </li>
               );

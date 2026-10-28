@@ -34,7 +34,7 @@ type ReportRow = Record<string, string | number | boolean | null>;
  *   dashboard's 今日进出打卡 does;
  * - an equipment movement opens in 设备进退场, where the office accepts it
  *   (`?movement=`), rather than in the read-only sheet;
- * - a document opens its detail in 项目资料 (`?document=`).
+ * - a document opens its detail in 文件资料 (`?document=`).
  */
 export function reportRowTarget(
   entry: ContractorReportRecord | null | undefined,
@@ -207,4 +207,87 @@ export function reportValueKey(
   }
   const namespace = COLUMN_NAMESPACE[column];
   return namespace ? `${namespace}.${code}` : null;
+}
+
+const SCHEDULE_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "DELAYED", "COMPLETED", "COMPLETED_LATE"];
+
+/**
+ * Every code a column of `reportType` can hold, each with a row that says
+ * which namespace words it (a recycling status depends on its row's type).
+ */
+function columnCodes(
+  reportType: ContractorReportType,
+  column: string,
+  codes: (namespace: string) => string[],
+): Array<[string, ReportRow]> {
+  const plain = (list: readonly string[]) => list.map((code): [string, ReportRow] => [code, {}]);
+  if (reportType === "photos") {
+    if (column === "category") return plain(PHOTO_CATEGORIES);
+    if (column === "origin") return plain(PHOTO_ORIGINS);
+    return [];
+  }
+  if (column === "record_type") return plain(Object.keys(RECORD_TYPE_KEYS));
+  if (column === "status") {
+    if (reportType === "recycling") {
+      return [
+        ...codes("siteDisposal.status").map((code): [string, ReportRow] => [code, { record_type: "DISPOSAL" }]),
+        ...codes("dispatches.state").map((code): [string, ReportRow] => [code, { record_type: "RECYCLE_ORDER" }]),
+      ];
+    }
+    if (reportType === "schedule") return plain(SCHEDULE_STATUSES);
+    if (reportType === "target") return plain(["ACTIVE", "INACTIVE"]);
+    const namespace = STATUS_NAMESPACE[reportType];
+    return namespace ? plain(codes(namespace)) : [];
+  }
+  const namespace = COLUMN_NAMESPACE[column];
+  return namespace ? plain(codes(namespace)) : [];
+}
+
+/**
+ * `{column: {code: words}}` for a report's PDF and spreadsheet (10-28): the
+ * file printed 「ENTRY」「PENDING」 and 「True」 where the preview said 进场,
+ * 待处理 and 是. The server has no message catalogue, so the screen sends the
+ * words for every code a column may hold - not only those on the preview's
+ * page, since the file holds every row.
+ *
+ * - `word(key)`: the message, or `null` when the catalogue has none;
+ * - `codes(namespace)`: the codes a namespace words;
+ * - `units`: the company's units, built-in and added (`useUnitExportValues`).
+ */
+export function reportColumnValues(
+  reportType: ContractorReportType,
+  columns: readonly string[],
+  word: (key: string) => string | null,
+  codes: (namespace: string) => string[],
+  units: Record<string, string> = {},
+): Record<string, Record<string, string>> {
+  const yes = word("contractorReports.value.yes");
+  const no = word("contractorReports.value.no");
+  const result: Record<string, Record<string, string>> = {};
+  for (const column of columns) {
+    const values: Record<string, string> = {};
+    if (yes) values.true = yes;
+    if (no) values.false = no;
+    if (column === "unit") Object.assign(values, units);
+    for (const [code, row] of columnCodes(reportType, column, codes)) {
+      const key = reportValueKey(reportType, column, code, row);
+      const text = key ? word(key) : null;
+      if (text) values[code] = text;
+    }
+    result[column] = values;
+  }
+  return result;
+}
+
+/** The codes a message namespace words (`{"ENTRY": "进场", ...}` → its keys). */
+export function messageCodes(
+  t: { has: (key: string) => boolean; raw: (key: string) => unknown },
+  namespace: string,
+): string[] {
+  if (!t.has(namespace)) return [];
+  const words = t.raw(namespace);
+  if (!words || typeof words !== "object") return [];
+  return Object.entries(words as Record<string, unknown>)
+    .filter(([, value]) => typeof value === "string")
+    .map(([code]) => code);
 }

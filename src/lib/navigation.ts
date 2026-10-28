@@ -1153,12 +1153,18 @@ export const PORTAL_NAVIGATION = {
             "material_cost_report",
           ),
         ]),
-        child(
-          "13.2.3",
-          "nav.submodule.photoReport",
-          "/reports/contractor/photos",
-          "report_center",
-        ),
+        // 「现场照片报表」 left the menu (JB47, 客户 10-28: each module's own
+        // records already carry their photographs). The address stays so an
+        // old link opens the report center (the page redirects).
+        {
+          ...child(
+            "13.2.3",
+            "nav.submodule.photoReport",
+            "/reports/contractor/photos",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
         // The old page of report cards (A03). Out of the menu; the address
         // stays, and opens the first report.
         {
@@ -1277,16 +1283,17 @@ export const PORTAL_NAVIGATION = {
           ),
           menuHidden: true,
         },
-        // 项目资料 is the document archive, by 文档大分类 → 子分类 (D6). The
+        // 文件资料 (JB60, was 项目资料) is the document archive, by 文档大分类
+        // → 子分类 (D6). The
         // archive's own read permission still applies.
         child(
           "13.2.11",
-          "nav.submodule.projectRecords",
+          "nav.submodule.documentRecords",
           "/reports/contractor/documents",
           "report_center",
           "document.view",
         ),
-        // Targets and their achievement, which 项目资料 used to open.
+        // Targets and their achievement, which 文件资料 used to open.
         child(
           "13.2.11A",
           "nav.submodule.targetReport",
@@ -1880,6 +1887,8 @@ interface PermissionRouteRule {
  */
 const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/companies/create", permission: "company.create" },
+  // 批量新增人员 (JB61-1): only who may add people to the roster.
+  { pattern: "/site-workers/bulk", permission: "site_worker.manage" },
   { pattern: "/companies/:id/edit", permission: "company.update" },
   { pattern: "/projects/create", permission: "project.create" },
   { pattern: "/projects/:id/edit", permission: "project.update" },

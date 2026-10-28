@@ -27,7 +27,15 @@ export interface SiteWorker {
   project: string;
   project_name: string;
   name: string;
+  /** Empty when the office has no number (JB61-3): no location link then. */
   phone: string;
+  passport_no: string;
+  nationality: string;
+  date_of_birth: string | null;
+  passport_expiry: string | null;
+  /** Only ever sent to readers of the roster (PDPA). */
+  passport_photo_url: string | null;
+  passport_photo_is_pdf: boolean;
   cidb_no: string;
   supplier: string | null;
   supplier_name: string;
@@ -94,6 +102,10 @@ export interface SiteWorkerPayload {
   project?: string;
   name: string;
   phone: string;
+  passport_no: string;
+  nationality: string;
+  date_of_birth: string | null;
+  passport_expiry: string | null;
   cidb_no: string;
   supplier: string | null;
   company_note: string;
@@ -121,4 +133,121 @@ export interface WorkerLinkState {
   worker_name: string;
   last_position_at: string | null;
   interval_seconds: number;
+}
+
+// --- 批量新增人员 (JB61-1) ---------------------------------------------------
+
+export type BatchRowSource = "TYPED" | "EXCEL" | "UPLOAD" | "PHONE";
+export type PassportReadStatus = "NONE" | "READ" | "CHECK_FAILED" | "UNREADABLE";
+
+export interface SiteWorkerBatch {
+  id: string;
+  project: string;
+  project_name: string;
+  supplier: string | null;
+  supplier_name: string;
+  company_note: string;
+  company_name: string;
+  status: "OPEN" | "DONE";
+  saved_count: number;
+  row_count: number;
+  created_at: string;
+}
+
+export interface BatchRowData {
+  id: string;
+  position: number;
+  name: string;
+  phone: string;
+  passport_no: string;
+  nationality: string;
+  date_of_birth: string;
+  passport_expiry: string;
+  cidb_no: string;
+  company_text: string;
+  source: BatchRowSource;
+  read_status: PassportReadStatus;
+  needs_check: boolean;
+  photo_url: string | null;
+  photo_is_pdf: boolean;
+}
+
+export interface BatchRowProblem {
+  code: string;
+  values: Record<string, string>;
+}
+
+export interface BatchState {
+  problems: Record<string, BatchRowProblem[]>;
+  row_count: number;
+  saved_count: number;
+}
+
+export interface BatchDetail extends BatchState {
+  /** The server's clock: the first poll asks for rows since this. */
+  now: string;
+  batch: SiteWorkerBatch;
+  rows: BatchRowData[];
+}
+
+export interface BatchRowsPoll extends BatchState {
+  now: string;
+  rows: BatchRowData[];
+  status: "OPEN" | "DONE";
+}
+
+export interface BatchSyncRow {
+  key?: string;
+  id?: string;
+  name?: string;
+  phone?: string;
+  passport_no?: string;
+  nationality?: string;
+  date_of_birth?: string;
+  passport_expiry?: string;
+  cidb_no?: string;
+  company_text?: string;
+  checked?: boolean;
+}
+
+export interface BatchSyncResult extends BatchState {
+  ids: Record<string, string>;
+  removed: string[];
+}
+
+export interface BatchPhotoResult extends BatchState {
+  row: BatchRowData;
+}
+
+export interface BatchExcelResult extends BatchState {
+  rows: BatchRowData[];
+  added: number;
+}
+
+export interface BatchSaveResult extends BatchState {
+  saved: number;
+  saved_ids: string[];
+  problem_count: number;
+  last: number;
+  done: boolean;
+}
+
+export interface CaptureLink {
+  url: string;
+  expires_at: string;
+}
+
+/** What a phone's capture page reads about its batch. */
+export interface CaptureState {
+  project_name: string;
+  company_name: string;
+  phone_count: number;
+}
+
+export interface CaptureResult {
+  row: string;
+  read_status: PassportReadStatus;
+  name: string;
+  passport_no: string;
+  phone_count: number;
 }

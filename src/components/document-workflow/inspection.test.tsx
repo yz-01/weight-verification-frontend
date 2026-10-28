@@ -11,7 +11,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-import { InspectionBadge } from "@/components/document-workflow/inspection";
+import { InspectionBadge, machineInspectionItems } from "@/components/document-workflow/inspection";
 import type { InspectionInfo } from "@/interfaces/document-workflow";
 import messages from "@/messages/zh.json";
 
@@ -68,5 +68,31 @@ describe("inspection results", () => {
     expect(page).toContain("needs_inspection: needsInspection,");
     expect(page).toContain('can("inspection.record")');
     expect(messages.permissions.code.inspection.record).toBe("填写检验结果");
+  });
+});
+
+describe("equipment inspection, one result per machine (JB54)", () => {
+  it("sends each ticked machine with its own 合格 / 不合格", () => {
+    expect(
+      machineInspectionItems([
+        { equipment: "e1", result: "PASS" },
+        { equipment: "e2", result: "FAIL" },
+      ]),
+    ).toEqual([
+      { equipment: "e1", result: "PASS" },
+      { equipment: "e2", result: "FAIL" },
+    ]);
+  });
+
+  it("holds 提交 back while a ticked machine has no result, or none is ticked", () => {
+    expect(machineInspectionItems([{ equipment: "e1", result: "PASS" }, { equipment: "e2", result: "" }])).toBeNull();
+    expect(machineInspectionItems([])).toBeNull();
+  });
+
+  it("lists only machines on site, by the equipment list's own rule", () => {
+    const dialog = read("src/components/document-workflow/inspection.tsx");
+    expect(dialog).toContain('presence: "on"');
+    expect(dialog).toContain('t("noMachinesOnSite")');
+    expect(messages.documents.inspection.noMachinesOnSite).toBe("这个项目现在没有在场的设备。");
   });
 });

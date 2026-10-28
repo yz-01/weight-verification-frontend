@@ -38,6 +38,11 @@ const INTL_LOCALES: Record<Locale, string> = {
 
 type DateInput = string | number | Date | null | undefined;
 
+/** A language whose month-name date writes the day as a plain number. */
+export function chineseDay(locale: Locale): boolean {
+  return locale === "zh" || locale === "zh-TW";
+}
+
 export interface DateFormatter {
   /** `23 Jul 2026`. Empty string for a null or unparseable value. */
   date: (value: DateInput) => string;
@@ -88,7 +93,9 @@ export function useDateFormat(): DateFormatter {
     function renderDate(value: Date): string {
       if (!dateFormat) {
         return new Intl.DateTimeFormat(INTL_LOCALES[resolvedLocale], {
-          day: "2-digit",
+          // 「1990年6月5日」, never 「1990年6月05日」 (10-28): a Chinese date
+          // names its day as a number; "05 Jun 1990" keeps its two digits.
+          day: chineseDay(resolvedLocale) ? "numeric" : "2-digit",
           month: "short",
           year: "numeric",
           timeZone: configuredTimezone,

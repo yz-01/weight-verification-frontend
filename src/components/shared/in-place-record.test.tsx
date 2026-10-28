@@ -51,7 +51,7 @@ const IN_PLACE: Array<[string, string]> = [
   ["SUNDRY_CLAIM", "sundry-claim"],
   ["CONSULTANT_APPLICATION", "consultant"],
   ["FIELD_TASK", "field-task"],
-  // 客户 10-26 事项 4: 项目资料报表 → document, closed back onto the report.
+  // 客户 10-26 事项 4: 文件资料报表 → document, closed back onto the report.
   ["DOCUMENT", "document"],
 ];
 
